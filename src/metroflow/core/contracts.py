@@ -33,9 +33,17 @@ def validate_time_scale_separation(config: SimulationConfig) -> None:
 
 
 def validate_state_contract(world: WorldState) -> None:
-    if world.graph.num_edges != len(world.traffic.edge_queue) and world.graph.num_edges != 0:
+    if world.graph.num_edges != len(world.traffic.edge_queue):
         raise ValueError("Edge queue length must match graph.num_edges.")
-    if world.graph.num_edges != len(world.traffic.edge_stock) and world.graph.num_edges != 0:
+    if world.graph.num_edges != len(world.traffic.edge_stock):
         raise ValueError("Edge stock length must match graph.num_edges.")
-    if world.graph.num_edges != len(world.traffic.edge_travel_time) and world.graph.num_edges != 0:
+    if world.graph.num_edges != len(world.traffic.edge_travel_time):
         raise ValueError("Edge travel-time length must match graph.num_edges.")
+    if any(queue < 0.0 for queue in world.traffic.edge_queue):
+        raise ValueError("Edge queue values must be non-negative.")
+    if any(stock < 0.0 for stock in world.traffic.edge_stock):
+        raise ValueError("Edge stock values must be non-negative.")
+    if any(travel_time < 0.0 for travel_time in world.traffic.edge_travel_time):
+        raise ValueError("Edge travel-time values must be non-negative.")
+    if any(queue > stock for queue, stock in zip(world.traffic.edge_queue, world.traffic.edge_stock)):
+        raise ValueError("Edge queue must not exceed edge stock.")

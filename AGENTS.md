@@ -35,3 +35,9 @@
 - cache invalidation 영향?
 - replay/regression 영향?
 - benchmark 영향?
+
+## Active Technologies
+- Python 3.11 + Python stdlib dataclasses + pytest; repository deps include `jax` and `jaxlib` but this feature stays in the pure baseline path (002-fast-edge-evolution)
+
+## Recent Changes
+- 002-fast-edge-evolution: Added Python 3.11 + Python stdlib dataclasses + pytest; repository deps include `jax` and `jaxlib` but this feature stays in the pure baseline path
