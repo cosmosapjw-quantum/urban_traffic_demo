@@ -33,6 +33,8 @@ class DemandState:
 class AccessibilityState:
     version: int = 0
     lagged_snapshot_step: int = -1
+    graph_version: int = 0
+    landuse_version: int = 0
     zonal_costs: Tuple[Tuple[float, ...], ...] = field(default_factory=tuple)
 
 

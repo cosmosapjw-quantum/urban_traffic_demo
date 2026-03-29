@@ -4,10 +4,20 @@ from metroflow.core.state import GraphState, TrafficState, make_empty_world_stat
 from metroflow.traffic.meso import evolve_edges_fast_tick
 
 
+def make_materialized_graph(num_edges: int) -> GraphState:
+    return GraphState(
+        num_nodes=max(num_edges + 1, 0),
+        num_edges=num_edges,
+        edge_src=tuple(range(num_edges)),
+        edge_dst=tuple(range(1, num_edges + 1)),
+        edge_class=("road",) * num_edges,
+    )
+
+
 def test_evolve_edges_fast_tick_clips_outflow_to_available_mass():
     world = replace(
         make_empty_world_state(),
-        graph=GraphState(num_edges=1),
+        graph=make_materialized_graph(1),
         traffic=TrafficState(
             step=4,
             edge_queue=(1.0,),
@@ -33,7 +43,7 @@ def test_evolve_edges_fast_tick_clips_outflow_to_available_mass():
 def test_evolve_edges_fast_tick_keeps_blocked_edge_zero_discharge_and_finite_travel_time():
     world = replace(
         make_empty_world_state(),
-        graph=GraphState(num_edges=1),
+        graph=make_materialized_graph(1),
         traffic=TrafficState(
             step=0,
             edge_queue=(1.0,),
@@ -75,7 +85,7 @@ def test_evolve_edges_fast_tick_zero_edge_world_only_advances_step():
 def test_evolve_edges_fast_tick_is_deterministic_under_conservation_stress():
     world = replace(
         make_empty_world_state(seed=12),
-        graph=GraphState(num_edges=1),
+        graph=make_materialized_graph(1),
         traffic=TrafficState(
             step=2,
             edge_queue=(0.5,),

@@ -12,12 +12,16 @@ class SchedulerDecision:
 
 
 def should_run(step_idx: int, every: int) -> bool:
+    if step_idx < 0:
+        raise ValueError("step_idx must be non-negative.")
     if every <= 0:
         raise ValueError("Cadence must be positive.")
     return step_idx % every == 0
 
 
 def scheduler_decision(step_idx: int, schedule: TickSchedule) -> SchedulerDecision:
+    if not (schedule.fast_every <= schedule.medium_every <= schedule.slow_every):
+        raise ValueError("Invalid multirate ordering: fast <= medium <= slow must hold.")
     return SchedulerDecision(
         run_fast=should_run(step_idx, schedule.fast_every),
         run_medium=should_run(step_idx, schedule.medium_every),

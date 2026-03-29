@@ -1,7 +1,48 @@
+from dataclasses import replace
+
 from metroflow.core.contracts import TickSchedule, validate_state_contract
 from metroflow.core.state import WorldState
+from metroflow.demand.accessibility import compute_accessibility_snapshot, update_accessibility_cache
+from metroflow.landuse.evolution import (
+    apply_landuse_delta,
+    apply_lagged_landuse_feedback,
+    reduce_zonal_costs_to_lagged_accessibility,
+)
 from metroflow.sim.scheduler import scheduler_decision
 from metroflow.traffic.meso import evolve_edges_fast_tick
+
+
+def _validate_medium_inputs(
+    world: WorldState,
+    zonal_travel_times: tuple[tuple[float, ...], ...] | None,
+    zone_opportunities: tuple[float, ...] | None,
+) -> None:
+    if zonal_travel_times is None or zone_opportunities is None:
+        raise ValueError("zonal_travel_times and zone_opportunities are required for medium cadence.")
+
+    zone_count = len(world.landuse.zone_labels)
+    if len(zone_opportunities) != zone_count:
+        raise ValueError("zone_opportunities length must match landuse.zone_labels length.")
+    if len(zonal_travel_times) != zone_count:
+        raise ValueError("zonal_travel_times dimension must match landuse.zone_labels length.")
+    if any(len(row) != zone_count for row in zonal_travel_times):
+        raise ValueError("zonal_travel_times rows must match landuse.zone_labels length.")
+
+
+def _validate_slow_snapshot(world: WorldState) -> None:
+    zone_count = len(world.landuse.zone_labels)
+    if not world.accessibility.zonal_costs:
+        raise ValueError("A pre-call lagged accessibility snapshot is required for slow cadence.")
+    if len(world.accessibility.zonal_costs) != zone_count:
+        raise ValueError("Lagged accessibility payload dimension must match landuse.zone_labels length.")
+    if any(len(row) != zone_count for row in world.accessibility.zonal_costs):
+        raise ValueError("Lagged accessibility rows must match landuse.zone_labels length.")
+    if world.accessibility.lagged_snapshot_step >= world.traffic.step:
+        raise ValueError("Lagged accessibility snapshot must predate the current traffic.step.")
+    if world.accessibility.graph_version != world.graph.version:
+        raise ValueError("Lagged accessibility graph_version must match the pre-call world.")
+    if world.accessibility.landuse_version != world.landuse.version:
+        raise ValueError("Lagged accessibility landuse_version must match the pre-call world.")
 
 
 def step_world(
@@ -11,21 +52,74 @@ def step_world(
     edge_outflow_veh_per_tick: tuple[float, ...] | None = None,
     edge_free_flow_time_ticks: tuple[float, ...] | None = None,
     edge_capacity_veh_per_tick: tuple[float, ...] | None = None,
+    zonal_travel_times: tuple[tuple[float, ...], ...] | None = None,
+    zone_opportunities: tuple[float, ...] | None = None,
 ) -> WorldState:
     if schedule is None:
         schedule = TickSchedule()
 
     validate_state_contract(world)
     decision = scheduler_decision(world.traffic.step, schedule)
+    if decision.run_medium and not decision.run_fast:
+        raise ValueError("Illegal schedule: medium cadence requires fast cadence.")
+    if decision.run_medium and decision.run_slow:
+        raise ValueError("Illegal same-step medium and slow overlap is forbidden.")
+    if decision.run_medium:
+        _validate_medium_inputs(world, zonal_travel_times, zone_opportunities)
+    if decision.run_slow:
+        _validate_slow_snapshot(world)
+
+    if not (decision.run_fast or decision.run_medium or decision.run_slow):
+        return world
+
+    next_world = world
+    pre_call_accessibility = world.accessibility
+    if decision.run_medium:
+        snapshot = compute_accessibility_snapshot(
+            step_idx=world.traffic.step,
+            graph_version=world.graph.version,
+            landuse_version=world.landuse.version,
+            zonal_travel_times=zonal_travel_times,
+            zone_opportunities=zone_opportunities,
+        )
+        next_world = update_accessibility_cache(next_world, snapshot)
     if decision.run_fast:
         # This boundary advances exactly one fast tick using per-fast-tick inputs.
         next_world = evolve_edges_fast_tick(
-            world,
+            next_world,
             edge_inflow_veh_per_tick=edge_inflow_veh_per_tick,
             edge_outflow_veh_per_tick=edge_outflow_veh_per_tick,
             edge_free_flow_time_ticks=edge_free_flow_time_ticks,
             edge_capacity_veh_per_tick=edge_capacity_veh_per_tick,
         )
-        validate_state_contract(next_world)
-        return next_world
-    return world
+    if decision.run_slow:
+        lagged_accessibility = reduce_zonal_costs_to_lagged_accessibility(pre_call_accessibility.zonal_costs)
+        delta = apply_lagged_landuse_feedback(
+            lagged_accessibility,
+            next_world.landuse.housing_capacity,
+            next_world.landuse.jobs_capacity,
+        )
+        next_housing, next_jobs = apply_landuse_delta(
+            next_world.landuse.housing_capacity,
+            next_world.landuse.jobs_capacity,
+            delta,
+        )
+        next_world = replace(
+            next_world,
+            landuse=replace(
+                next_world.landuse,
+                version=next_world.landuse.version + 1,
+                housing_capacity=next_housing,
+                jobs_capacity=next_jobs,
+            ),
+            accessibility=replace(
+                next_world.accessibility,
+                version=next_world.accessibility.version + 1,
+                lagged_snapshot_step=-1,
+                graph_version=pre_call_accessibility.graph_version,
+                landuse_version=pre_call_accessibility.landuse_version,
+                zonal_costs=tuple(),
+            ),
+        )
+    validate_state_contract(next_world)
+    return next_world

@@ -28,7 +28,7 @@ S2 first, then S1, then demand/policy/map expansion.
 
 ## T005 Replay
 - Add `InterventionJournal`
-- Add `ReplayRecord`
+- Add `ReplayInputSignatureRecord`
 - Add benchmark helper
 
 ## T101 Meso baseline

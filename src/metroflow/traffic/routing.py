@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from math import log
-from typing import Tuple
+from typing import Sequence, Tuple
 
 
 @dataclass(frozen=True)
@@ -25,6 +25,13 @@ class ReroutePolicy:
     refractory_steps: int = 20
 
 
+@dataclass(frozen=True)
+class RouteChoice:
+    path_id: int
+    utility: float
+    rerouted: bool
+
+
 def path_size_factor(lengths: Tuple[float, ...], usage_count: Tuple[int, ...]) -> float:
     total = sum(lengths)
     if total <= 0:
@@ -35,12 +42,66 @@ def path_size_factor(lengths: Tuple[float, ...], usage_count: Tuple[int, ...]) -
     return max(val, 1e-12)
 
 
-def generalized_cost(free_flow: float, queue_delay: float, event_delay: float = 0.0, turn_penalty: float = 0.0) -> float:
-    return free_flow + queue_delay + event_delay + turn_penalty
+def generalized_cost(
+    free_flow: float,
+    queue_delay: float,
+    event_delay: float = 0.0,
+    turn_penalty: float = 0.0,
+    weights: GeneralizedCostWeights | None = None,
+) -> float:
+    if min(free_flow, queue_delay, event_delay, turn_penalty) < 0.0:
+        raise ValueError("generalized cost components must be non-negative.")
+    if weights is None:
+        weights = GeneralizedCostWeights()
+    return (
+        weights.free_flow_weight * free_flow
+        + weights.queue_weight * queue_delay
+        + weights.event_weight * event_delay
+        + weights.turn_weight * turn_penalty
+    )
 
 
 def path_logit_utility(expected_cost: float, path_size: float, lambda_sigma: float, gamma_sigma: float) -> float:
     return -lambda_sigma * expected_cost + gamma_sigma * log(max(path_size, 1e-12))
+
+
+def candidate_path_k(paths: Sequence[CandidatePath], k: int) -> Tuple[CandidatePath, ...]:
+    if k <= 0:
+        raise ValueError("k must be positive.")
+    ordered = sorted(paths, key=lambda path: (path.path_id, path.edge_ids))
+    return tuple(ordered[:k])
+
+
+def choose_route(
+    candidates: Sequence[CandidatePath],
+    expected_costs: Sequence[float],
+    *,
+    k: int,
+    lambda_sigma: float = 1.0,
+    gamma_sigma: float = 1.0,
+) -> RouteChoice:
+    if len(candidates) != len(expected_costs):
+        raise ValueError("expected_costs must align one-to-one with candidates.")
+
+    ordered_pairs = sorted(
+        zip(candidates, expected_costs, strict=True),
+        key=lambda item: (item[0].path_id, item[0].edge_ids),
+    )
+    bounded_pairs = tuple(ordered_pairs[:k])
+
+    best_path: CandidatePath | None = None
+    best_utility: float | None = None
+    for path, cost in bounded_pairs:
+        utility = path_logit_utility(cost, path.path_size, lambda_sigma, gamma_sigma)
+        if best_path is None or utility > best_utility or (
+            utility == best_utility and path.path_id < best_path.path_id
+        ):
+            best_path = path
+            best_utility = utility
+
+    if best_path is None or best_utility is None:
+        raise ValueError("At least one candidate path is required.")
+    return RouteChoice(path_id=best_path.path_id, utility=best_utility, rerouted=False)
 
 
 def should_reroute(
@@ -57,3 +118,30 @@ def should_reroute(
     degraded = eta_now > (1.0 + policy.eta_degradation_threshold) * eta_ref
     refractory_ok = steps_since_last_reroute >= policy.refractory_steps
     return degraded and refractory_ok
+
+
+def deterministic_reroute(
+    current_path_id: int,
+    candidates: Sequence[CandidatePath],
+    expected_costs: Sequence[float],
+    *,
+    hard_event_on_route: bool,
+    eta_now: float,
+    eta_ref: float,
+    steps_since_last_reroute: int,
+    policy: ReroutePolicy,
+    k: int,
+) -> RouteChoice:
+    current_exists = any(path.path_id == current_path_id for path in candidates)
+    reroute = should_reroute(
+        hard_event_on_route=hard_event_on_route,
+        eta_now=eta_now,
+        eta_ref=eta_ref,
+        steps_since_last_reroute=steps_since_last_reroute,
+        policy=policy,
+    )
+    if not reroute and current_exists:
+        return RouteChoice(path_id=current_path_id, utility=0.0, rerouted=False)
+
+    choice = choose_route(candidates, expected_costs, k=k)
+    return RouteChoice(path_id=choice.path_id, utility=choice.utility, rerouted=True)
