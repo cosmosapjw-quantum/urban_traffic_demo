@@ -12,7 +12,8 @@ from metroflow.core.state import (
     TrafficState,
     make_empty_world_state,
 )
-from metroflow.sim.orchestrator import step_world
+from metroflow.sim.orchestrator import RuntimeRoutingInput, RuntimeRoutingStepResult, step_world, step_world_with_routing
+from metroflow.traffic.routing import CandidatePath, ODRouteChoiceResult
 
 
 def make_materialized_graph(num_edges: int) -> GraphState:
@@ -35,6 +36,18 @@ def make_world(num_edges: int = 2, step: int = 0) -> object:
             edge_stock=(1.0,) * num_edges,
             edge_travel_time=(1.0,) * num_edges,
         ),
+    )
+
+
+def make_runtime_routing_input() -> RuntimeRoutingInput:
+    return RuntimeRoutingInput(
+        origin_id="origin-a",
+        destination_id="destination-b",
+        candidates=(
+            CandidatePath(path_id=2, edge_ids=(2,), path_size=1.0),
+            CandidatePath(path_id=1, edge_ids=(0, 1), path_size=1.0),
+        ),
+        k=2,
     )
 
 
@@ -336,3 +349,146 @@ def test_step_world_rejects_same_tick_overlap_before_helpers_run(monkeypatch: py
         )
 
     assert calls == []
+
+
+def test_step_world_with_routing_invokes_od_evaluator_when_fast_due(monkeypatch: pytest.MonkeyPatch):
+    world = make_world(num_edges=3, step=1)
+    captured: dict[str, object] = {}
+
+    def fake_evaluate(current_world, **kwargs):
+        captured["world"] = current_world
+        captured["kwargs"] = kwargs
+        return ODRouteChoiceResult(
+            name="od_route_choice",
+            origin_id=kwargs["origin_id"],
+            destination_id=kwargs["destination_id"],
+            path_id=2,
+            observed_cost=4.0,
+            utility=-4.0,
+            rerouted=False,
+        )
+
+    monkeypatch.setattr("metroflow.sim.orchestrator.evaluate_od_route_set", fake_evaluate)
+
+    result = step_world_with_routing(
+        world,
+        schedule=TickSchedule(fast_every=1, medium_every=5, slow_every=20),
+        edge_free_flow_time_ticks=(3.0, 3.0, 4.0),
+        runtime_routing=make_runtime_routing_input(),
+    )
+
+    assert isinstance(result, RuntimeRoutingStepResult)
+    assert result.world.traffic.step == 2
+    assert result.routing_result == ODRouteChoiceResult(
+        name="od_route_choice",
+        origin_id="origin-a",
+        destination_id="destination-b",
+        path_id=2,
+        observed_cost=4.0,
+        utility=-4.0,
+        rerouted=False,
+    )
+    assert captured["world"] == result.world
+    assert captured["kwargs"] == {
+        "origin_id": "origin-a",
+        "destination_id": "destination-b",
+        "candidates": (
+            CandidatePath(path_id=2, edge_ids=(2,), path_size=1.0),
+            CandidatePath(path_id=1, edge_ids=(0, 1), path_size=1.0),
+        ),
+        "k": 2,
+        "weights": None,
+    }
+
+
+def test_step_world_with_routing_rejects_partial_runtime_routing_input():
+    world = make_world(num_edges=3, step=1)
+
+    with pytest.raises(ValueError, match="complete when provided"):
+        step_world_with_routing(
+            world,
+            schedule=TickSchedule(fast_every=1, medium_every=5, slow_every=20),
+            runtime_routing=RuntimeRoutingInput(origin_id="origin-a"),
+        )
+
+
+def test_step_world_with_routing_changes_choice_when_network_costs_change():
+    world = make_world(num_edges=3, step=1)
+    schedule = TickSchedule(fast_every=1, medium_every=5, slow_every=20)
+    routing_input = make_runtime_routing_input()
+
+    first = step_world_with_routing(
+        world,
+        schedule=schedule,
+        edge_inflow_veh_per_tick=(0.0, 0.0, 0.0),
+        edge_outflow_veh_per_tick=(0.0, 0.0, 0.0),
+        edge_free_flow_time_ticks=(3.0, 3.0, 10.0),
+        edge_capacity_veh_per_tick=(1.0, 1.0, 1.0),
+        runtime_routing=routing_input,
+    )
+    second = step_world_with_routing(
+        world,
+        schedule=schedule,
+        edge_inflow_veh_per_tick=(0.0, 0.0, 0.0),
+        edge_outflow_veh_per_tick=(0.0, 0.0, 0.0),
+        edge_free_flow_time_ticks=(8.0, 1.0, 6.0),
+        edge_capacity_veh_per_tick=(1.0, 1.0, 1.0),
+        runtime_routing=routing_input,
+    )
+
+    assert first.routing_result is not None
+    assert second.routing_result is not None
+    assert first.routing_result.path_id == 1
+    assert second.routing_result.path_id == 2
+
+
+def test_step_world_with_routing_falls_back_when_runtime_routing_is_absent():
+    world = make_world(num_edges=3, step=1)
+    schedule = TickSchedule(fast_every=1, medium_every=5, slow_every=20)
+    kwargs = {
+        "edge_inflow_veh_per_tick": (0.5, 0.0, 0.0),
+        "edge_outflow_veh_per_tick": (0.25, 0.0, 0.0),
+        "edge_free_flow_time_ticks": (2.0, 3.0, 4.0),
+        "edge_capacity_veh_per_tick": (1.0, 1.0, 1.0),
+    }
+
+    routed = step_world_with_routing(world, schedule=schedule, **kwargs)
+    baseline = step_world(world, schedule=schedule, **kwargs)
+
+    assert routed.routing_result is None
+    assert routed.world == baseline
+
+
+def test_step_world_with_routing_falls_back_when_fast_is_not_due():
+    world = make_world(num_edges=3, step=1)
+    schedule = TickSchedule(fast_every=4, medium_every=5, slow_every=20)
+
+    routed = step_world_with_routing(
+        world,
+        schedule=schedule,
+        runtime_routing=make_runtime_routing_input(),
+    )
+
+    assert routed.routing_result is None
+    assert routed.world == world
+
+
+def test_step_world_with_routing_is_deterministic_and_keeps_unsorted_candidates_safe():
+    world = make_world(num_edges=3, step=1)
+    schedule = TickSchedule(fast_every=1, medium_every=5, slow_every=20)
+    kwargs = {
+        "edge_inflow_veh_per_tick": (0.0, 0.0, 0.0),
+        "edge_outflow_veh_per_tick": (0.0, 0.0, 0.0),
+        "edge_free_flow_time_ticks": (8.0, 1.0, 6.0),
+        "edge_capacity_veh_per_tick": (1.0, 1.0, 1.0),
+        "runtime_routing": make_runtime_routing_input(),
+    }
+
+    first = step_world_with_routing(world, schedule=schedule, **kwargs)
+    second = step_world_with_routing(world, schedule=schedule, **kwargs)
+    baseline = step_world(world, schedule=schedule, **{k: v for k, v in kwargs.items() if k != "runtime_routing"})
+
+    assert first == second
+    assert first.routing_result is not None
+    assert first.routing_result.path_id == 2
+    assert first.world == baseline

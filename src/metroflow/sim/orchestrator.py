@@ -1,4 +1,4 @@
-from dataclasses import replace
+from dataclasses import dataclass, replace
 
 from metroflow.core.contracts import TickSchedule, validate_state_contract
 from metroflow.core.state import WorldState
@@ -10,6 +10,29 @@ from metroflow.landuse.evolution import (
 )
 from metroflow.sim.scheduler import scheduler_decision
 from metroflow.traffic.meso import evolve_edges_fast_tick
+from metroflow.traffic.routing import (
+    CandidatePath,
+    GeneralizedCostWeights,
+    ODRouteChoiceResult,
+    ODRouteEvaluationRequest,
+    evaluate_od_route_set,
+    validate_od_route_request,
+)
+
+
+@dataclass(frozen=True)
+class RuntimeRoutingInput:
+    origin_id: str | None = None
+    destination_id: str | None = None
+    candidates: tuple[CandidatePath, ...] | None = None
+    k: int | None = None
+    weights: GeneralizedCostWeights | None = None
+
+
+@dataclass(frozen=True)
+class RuntimeRoutingStepResult:
+    world: WorldState
+    routing_result: ODRouteChoiceResult | None
 
 
 def _validate_medium_inputs(
@@ -43,6 +66,33 @@ def _validate_slow_snapshot(world: WorldState) -> None:
         raise ValueError("Lagged accessibility graph_version must match the pre-call world.")
     if world.accessibility.landuse_version != world.landuse.version:
         raise ValueError("Lagged accessibility landuse_version must match the pre-call world.")
+
+
+def _validate_runtime_routing_input(
+    world: WorldState,
+    runtime_routing: RuntimeRoutingInput | None,
+) -> None:
+    if runtime_routing is None:
+        return
+
+    required_fields = (
+        runtime_routing.origin_id,
+        runtime_routing.destination_id,
+        runtime_routing.candidates,
+        runtime_routing.k,
+    )
+    if any(field is None for field in required_fields):
+        raise ValueError("Runtime routing input must be complete when provided.")
+
+    request = ODRouteEvaluationRequest(
+        origin_id=runtime_routing.origin_id,
+        destination_id=runtime_routing.destination_id,
+        candidates=runtime_routing.candidates,
+        k=runtime_routing.k,
+        world=world,
+        weights=GeneralizedCostWeights() if runtime_routing.weights is None else runtime_routing.weights,
+    )
+    validate_od_route_request(request)
 
 
 def step_world(
@@ -123,3 +173,46 @@ def step_world(
         )
     validate_state_contract(next_world)
     return next_world
+
+
+def step_world_with_routing(
+    world: WorldState,
+    schedule: TickSchedule | None = None,
+    edge_inflow_veh_per_tick: tuple[float, ...] | None = None,
+    edge_outflow_veh_per_tick: tuple[float, ...] | None = None,
+    edge_free_flow_time_ticks: tuple[float, ...] | None = None,
+    edge_capacity_veh_per_tick: tuple[float, ...] | None = None,
+    zonal_travel_times: tuple[tuple[float, ...], ...] | None = None,
+    zone_opportunities: tuple[float, ...] | None = None,
+    runtime_routing: RuntimeRoutingInput | None = None,
+) -> RuntimeRoutingStepResult:
+    if schedule is None:
+        schedule = TickSchedule()
+
+    validate_state_contract(world)
+    decision = scheduler_decision(world.traffic.step, schedule)
+    _validate_runtime_routing_input(world, runtime_routing)
+
+    next_world = step_world(
+        world,
+        schedule=schedule,
+        edge_inflow_veh_per_tick=edge_inflow_veh_per_tick,
+        edge_outflow_veh_per_tick=edge_outflow_veh_per_tick,
+        edge_free_flow_time_ticks=edge_free_flow_time_ticks,
+        edge_capacity_veh_per_tick=edge_capacity_veh_per_tick,
+        zonal_travel_times=zonal_travel_times,
+        zone_opportunities=zone_opportunities,
+    )
+
+    if runtime_routing is None or not decision.run_fast:
+        return RuntimeRoutingStepResult(world=next_world, routing_result=None)
+
+    routing_result = evaluate_od_route_set(
+        next_world,
+        origin_id=runtime_routing.origin_id,
+        destination_id=runtime_routing.destination_id,
+        candidates=runtime_routing.candidates,
+        k=runtime_routing.k,
+        weights=runtime_routing.weights,
+    )
+    return RuntimeRoutingStepResult(world=next_world, routing_result=routing_result)

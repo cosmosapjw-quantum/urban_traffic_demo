@@ -2,6 +2,9 @@ from dataclasses import dataclass
 from math import log
 from typing import Sequence, Tuple
 
+from metroflow.core.contracts import validate_state_contract
+from metroflow.core.state import WorldState
+
 
 @dataclass(frozen=True)
 class CandidatePath:
@@ -28,6 +31,34 @@ class ReroutePolicy:
 @dataclass(frozen=True)
 class RouteChoice:
     path_id: int
+    utility: float
+    rerouted: bool
+
+
+@dataclass(frozen=True)
+class ODRouteEvaluationRequest:
+    origin_id: str
+    destination_id: str
+    candidates: Tuple[CandidatePath, ...]
+    k: int
+    world: WorldState
+    weights: GeneralizedCostWeights = GeneralizedCostWeights()
+
+
+@dataclass(frozen=True)
+class EvaluatedCandidateRoute:
+    candidate: CandidatePath
+    observed_cost: float
+    utility: float
+
+
+@dataclass(frozen=True)
+class ODRouteChoiceResult:
+    name: str
+    origin_id: str
+    destination_id: str
+    path_id: int
+    observed_cost: float
     utility: float
     rerouted: bool
 
@@ -145,3 +176,120 @@ def deterministic_reroute(
 
     choice = choose_route(candidates, expected_costs, k=k)
     return RouteChoice(path_id=choice.path_id, utility=choice.utility, rerouted=True)
+
+
+def _validate_od_route_request(request: ODRouteEvaluationRequest) -> None:
+    validate_state_contract(request.world)
+
+    if not isinstance(request.origin_id, str) or not request.origin_id.strip():
+        raise ValueError("origin_id must be a non-empty explicit identifier.")
+    if not isinstance(request.destination_id, str) or not request.destination_id.strip():
+        raise ValueError("destination_id must be a non-empty explicit identifier.")
+    if request.k <= 0:
+        raise ValueError("k must be positive.")
+    if not request.candidates:
+        raise ValueError("At least one candidate route is required.")
+
+    for candidate in request.candidates:
+        if not candidate.edge_ids:
+            raise ValueError("Candidate routes must include at least one edge id.")
+        if candidate.path_size <= 0.0:
+            raise ValueError("Candidate path_size must be positive.")
+        for edge_id in candidate.edge_ids:
+            if edge_id < 0 or edge_id >= request.world.graph.num_edges:
+                raise ValueError("Candidate edge ids must reference valid graph edges.")
+
+
+def validate_od_route_request(request: ODRouteEvaluationRequest) -> None:
+    _validate_od_route_request(request)
+
+
+def _evaluate_candidate_routes(
+    request: ODRouteEvaluationRequest,
+    *,
+    lambda_sigma: float = 1.0,
+    gamma_sigma: float = 1.0,
+) -> Tuple[EvaluatedCandidateRoute, ...]:
+    _validate_od_route_request(request)
+
+    evaluated = []
+    for candidate in request.candidates:
+        observed_cost = sum(request.world.traffic.edge_travel_time[edge_id] for edge_id in candidate.edge_ids)
+        weighted_cost = generalized_cost(observed_cost, 0.0, weights=request.weights)
+        utility = path_logit_utility(weighted_cost, candidate.path_size, lambda_sigma, gamma_sigma)
+        evaluated.append(
+            EvaluatedCandidateRoute(
+                candidate=candidate,
+                observed_cost=observed_cost,
+                utility=utility,
+            )
+        )
+
+    ordered = sorted(
+        evaluated,
+        key=lambda evaluated_candidate: (
+            evaluated_candidate.candidate.path_id,
+            evaluated_candidate.candidate.edge_ids,
+        ),
+    )
+    return tuple(ordered[: request.k])
+
+
+def evaluate_od_route_request(
+    request: ODRouteEvaluationRequest,
+    *,
+    lambda_sigma: float = 1.0,
+    gamma_sigma: float = 1.0,
+) -> ODRouteChoiceResult:
+    bounded_candidates = _evaluate_candidate_routes(
+        request,
+        lambda_sigma=lambda_sigma,
+        gamma_sigma=gamma_sigma,
+    )
+
+    best_choice: EvaluatedCandidateRoute | None = None
+    for evaluated_candidate in bounded_candidates:
+        if best_choice is None or evaluated_candidate.utility > best_choice.utility or (
+            evaluated_candidate.utility == best_choice.utility
+            and evaluated_candidate.candidate.path_id < best_choice.candidate.path_id
+        ):
+            best_choice = evaluated_candidate
+
+    if best_choice is None:
+        raise ValueError("At least one candidate route is required.")
+
+    return ODRouteChoiceResult(
+        name="od_route_choice",
+        origin_id=request.origin_id,
+        destination_id=request.destination_id,
+        path_id=best_choice.candidate.path_id,
+        observed_cost=best_choice.observed_cost,
+        utility=best_choice.utility,
+        rerouted=False,
+    )
+
+
+def evaluate_od_route_set(
+    world: WorldState,
+    *,
+    origin_id: str,
+    destination_id: str,
+    candidates: Sequence[CandidatePath],
+    k: int,
+    weights: GeneralizedCostWeights | None = None,
+    lambda_sigma: float = 1.0,
+    gamma_sigma: float = 1.0,
+) -> ODRouteChoiceResult:
+    request = ODRouteEvaluationRequest(
+        origin_id=origin_id,
+        destination_id=destination_id,
+        candidates=tuple(candidates),
+        k=k,
+        world=world,
+        weights=GeneralizedCostWeights() if weights is None else weights,
+    )
+    return evaluate_od_route_request(
+        request,
+        lambda_sigma=lambda_sigma,
+        gamma_sigma=gamma_sigma,
+    )

@@ -39,6 +39,7 @@
 ## Active Technologies
 - Python 3.11 + Python stdlib dataclasses + pytest; repository deps include `jax` and `jaxlib` but this feature stays in the pure baseline path (002-fast-edge-evolution)
 - Python 3.11 baseline with repository-local execution via `.venv` + Python stdlib dataclasses + pytest (004-multirate-orchestration)
+- Python 3.11 baseline via repository-local `.venv` + Python stdlib dataclasses + pytest (008-routing-runtime-integration)
 
 ## Recent Changes
 - 002-fast-edge-evolution: Added Python 3.11 + Python stdlib dataclasses + pytest; repository deps include `jax` and `jaxlib` but this feature stays in the pure baseline path

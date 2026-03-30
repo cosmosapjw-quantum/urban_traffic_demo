@@ -159,3 +159,24 @@ def test_measured_benchmark_surfaces_invalid_underlying_workload_inputs():
                 schedule=TickSchedule(fast_every=1, medium_every=10, slow_every=100),
             ),
         )
+
+
+def test_measured_benchmark_continues_to_target_step_world_not_runtime_routing_wrapper(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    calls: list[int] = []
+
+    def fake_step_world(world, **kwargs):
+        calls.append(world.traffic.step)
+        return replace(world, traffic=replace(world.traffic, step=world.traffic.step + 1))
+
+    def fail_if_wrapper_called(*args, **kwargs):
+        raise AssertionError("measured benchmark must not call step_world_with_routing")
+
+    monkeypatch.setattr(benchmark_module, "step_world", fake_step_world)
+    monkeypatch.setattr(benchmark_module, "step_world_with_routing", fail_if_wrapper_called, raising=False)
+
+    result = run_measured_step_world_benchmark(make_measured_world(), make_measured_config())
+
+    assert calls == [1, 2, 3]
+    assert result.final_traffic_step == 4

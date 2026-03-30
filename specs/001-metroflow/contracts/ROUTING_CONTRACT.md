@@ -4,6 +4,11 @@
 
 Defines the deterministic routing baseline for `001`.
 
+For `007-routing-realism`, this contract remains authoritative for the older
+deterministic helper and fallback baseline. The explicit OD-bound
+network-coupled routing surface is defined separately under the 007 routing
+realism contract.
+
 ## Inputs
 
 - link generalized costs

@@ -51,4 +51,5 @@ def test_bypass_path_can_avoid_blocked_edge_pressure():
         edge_capacity_veh_per_tick=(0.0, 3.0),
     )
 
+    assert blocked.traffic.edge_travel_time[0] != blocked.traffic.edge_travel_time[1]
     assert blocked.traffic.edge_travel_time[0] > blocked.traffic.edge_travel_time[1]

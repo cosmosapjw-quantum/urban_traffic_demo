@@ -1,13 +1,43 @@
+from dataclasses import replace
+
+from metroflow.core.state import GraphState, TrafficState, make_empty_world_state
 from metroflow.traffic.routing import (
     CandidatePath,
+    ODRouteChoiceResult,
+    ODRouteEvaluationRequest,
     ReroutePolicy,
     candidate_path_k,
     choose_route,
     deterministic_reroute,
+    evaluate_od_route_set,
     generalized_cost,
     path_size_factor,
     should_reroute,
 )
+
+
+def make_materialized_graph(num_edges: int) -> GraphState:
+    return GraphState(
+        num_nodes=max(num_edges + 1, 0),
+        num_edges=num_edges,
+        edge_src=tuple(range(num_edges)),
+        edge_dst=tuple(range(1, num_edges + 1)),
+        edge_class=("road",) * num_edges,
+    )
+
+
+def make_routing_world(edge_travel_time: tuple[float, ...]):
+    num_edges = len(edge_travel_time)
+    return replace(
+        make_empty_world_state(seed=7),
+        graph=make_materialized_graph(num_edges),
+        traffic=TrafficState(
+            step=3,
+            edge_queue=(0.0,) * num_edges,
+            edge_stock=(1.0,) * num_edges,
+            edge_travel_time=edge_travel_time,
+        ),
+    )
 
 
 def test_path_size_factor_positive():
@@ -96,3 +126,136 @@ def test_deterministic_reroute_keeps_costs_paired_with_unsorted_candidates():
 
     assert choice.rerouted is True
     assert choice.path_id == 2
+
+
+def test_evaluate_od_route_set_returns_truthful_od_route_choice():
+    world = make_routing_world((4.0, 4.0, 3.0))
+    candidates = (
+        CandidatePath(path_id=20, edge_ids=(0, 1), path_size=1.0),
+        CandidatePath(path_id=10, edge_ids=(2,), path_size=1.0),
+    )
+
+    result = evaluate_od_route_set(
+        world,
+        origin_id="origin-a",
+        destination_id="destination-b",
+        candidates=candidates,
+        k=2,
+    )
+
+    assert result == ODRouteChoiceResult(
+        name="od_route_choice",
+        origin_id="origin-a",
+        destination_id="destination-b",
+        path_id=10,
+        observed_cost=3.0,
+        utility=-3.0,
+        rerouted=False,
+    )
+
+
+def test_evaluate_od_route_set_rejects_invalid_route_set_inputs():
+    world = make_routing_world((2.0, 3.0))
+
+    try:
+        evaluate_od_route_set(
+            world,
+            origin_id="o",
+            destination_id="d",
+            candidates=tuple(),
+            k=1,
+        )
+    except ValueError as exc:
+        assert "candidate" in str(exc).lower()
+    else:
+        raise AssertionError("expected empty candidate set to fail")
+
+    try:
+        evaluate_od_route_set(
+            world,
+            origin_id="o",
+            destination_id="d",
+            candidates=(CandidatePath(path_id=1, edge_ids=(0,)),),
+            k=0,
+        )
+    except ValueError as exc:
+        assert "k" in str(exc).lower()
+    else:
+        raise AssertionError("expected non-positive k to fail")
+
+    try:
+        evaluate_od_route_set(
+            world,
+            origin_id="o",
+            destination_id="d",
+            candidates=(CandidatePath(path_id=1, edge_ids=(9,)),),
+            k=1,
+        )
+    except ValueError as exc:
+        assert "edge" in str(exc).lower()
+    else:
+        raise AssertionError("expected out-of-range edge id to fail")
+
+
+def test_evaluate_od_route_set_changes_choice_when_network_costs_change():
+    candidates = (
+        CandidatePath(path_id=1, edge_ids=(0, 1), path_size=1.0),
+        CandidatePath(path_id=2, edge_ids=(2,), path_size=1.0),
+    )
+
+    first_world = make_routing_world((6.0, 6.0, 20.0))
+    second_world = make_routing_world((9.0, 9.0, 5.0))
+
+    first_choice = evaluate_od_route_set(
+        first_world,
+        origin_id="o",
+        destination_id="d",
+        candidates=candidates,
+        k=2,
+    )
+    second_choice = evaluate_od_route_set(
+        second_world,
+        origin_id="o",
+        destination_id="d",
+        candidates=candidates,
+        k=2,
+    )
+
+    assert first_choice.path_id == 1
+    assert second_choice.path_id == 2
+
+
+def test_evaluate_od_route_set_is_deterministic_and_read_only_with_unsorted_candidates():
+    world = make_routing_world((8.0, 1.0, 6.0))
+    candidates = (
+        CandidatePath(path_id=2, edge_ids=(2,), path_size=1.0),
+        CandidatePath(path_id=1, edge_ids=(0, 1), path_size=1.0),
+    )
+    request = ODRouteEvaluationRequest(
+        origin_id="origin-a",
+        destination_id="destination-b",
+        candidates=candidates,
+        k=2,
+        world=world,
+    )
+
+    first_choice = evaluate_od_route_set(
+        request.world,
+        origin_id=request.origin_id,
+        destination_id=request.destination_id,
+        candidates=request.candidates,
+        k=request.k,
+        weights=request.weights,
+    )
+    second_choice = evaluate_od_route_set(
+        request.world,
+        origin_id=request.origin_id,
+        destination_id=request.destination_id,
+        candidates=request.candidates,
+        k=request.k,
+        weights=request.weights,
+    )
+
+    assert first_choice == second_choice
+    assert first_choice.path_id == 2
+    assert request.world == world
