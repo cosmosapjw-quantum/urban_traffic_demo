@@ -8,6 +8,10 @@ from math import isfinite
 from time import perf_counter
 from typing import Any
 
+from metroflow.backends.rust_cpu import (
+    compute_ranked_route_candidates_rust,
+    rust_routing_backend_available,
+)
 from metroflow.routing.dynamic_potential import (
     build_greedy_route_candidate,
     compute_dynamic_potential_state,
@@ -163,6 +167,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
         raise ValueError("max_candidates must be >= 1")
 
     paths: tuple[tuple[int, ...], ...] = ()
+    candidate_enumeration_backend = "backend_greedy_route_candidate"
     potential_state = None
     potential_metadata: dict[str, Any] = {}
     if max_candidates >= 1:
@@ -195,7 +200,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             )
             paths = (tuple(int(x) for x in path),) if path else ()
         else:
-            paths = _build_ranked_route_candidate_paths(
+            paths, candidate_enumeration_backend = _build_ranked_route_candidate_paths(
                 road_csr=road_csr,
                 potential_state=potential_state,
                 origin_node_id=origin_node_id,
@@ -244,11 +249,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             "candidate_generation_mode": (
                 "baseline_greedy_single" if max_candidates == 1 else "baseline_ranked_k"
             ),
-            "candidate_enumeration_backend": (
-                "backend_greedy_route_candidate"
-                if max_candidates == 1
-                else "python_host_ranked_k"
-            ),
+            "candidate_enumeration_backend": candidate_enumeration_backend,
             "routing_backend": str(potential_metadata.get("routing_backend", routing_backend)),
             "routing_backend_requested": str(
                 potential_metadata.get("routing_backend_requested", routing_backend)
@@ -273,6 +274,114 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
 
 
 def _build_ranked_route_candidate_paths(
+    *,
+    road_csr,
+    potential_state,
+    origin_node_id: int,
+    destination_node_id: int,
+    incoming_link_id: int | None,
+    max_candidates: int,
+    max_hops: int,
+    routing_backend: str,
+) -> tuple[tuple[tuple[int, ...], ...], str]:
+    if routing_backend == "auto" and not rust_routing_backend_available():
+        return (
+            _build_ranked_route_candidate_paths_host(
+                road_csr=road_csr,
+                potential_state=potential_state,
+                origin_node_id=origin_node_id,
+                destination_node_id=destination_node_id,
+                incoming_link_id=incoming_link_id,
+                max_candidates=max_candidates,
+                max_hops=max_hops,
+                routing_backend=routing_backend,
+            ),
+            "python_host_ranked_k",
+        )
+    if routing_backend in {"rust_cpu", "auto"}:
+        try:
+            return (
+                _build_ranked_route_candidate_paths_rust(
+                    road_csr=road_csr,
+                    potential_state=potential_state,
+                    origin_node_id=origin_node_id,
+                    destination_node_id=destination_node_id,
+                    incoming_link_id=incoming_link_id,
+                    max_candidates=max_candidates,
+                    max_hops=max_hops,
+                ),
+                "rust_cpu_ranked_k",
+            )
+        except RuntimeError:
+            if routing_backend == "rust_cpu":
+                raise
+            return (
+                _build_ranked_route_candidate_paths_host(
+                    road_csr=road_csr,
+                    potential_state=potential_state,
+                    origin_node_id=origin_node_id,
+                    destination_node_id=destination_node_id,
+                    incoming_link_id=incoming_link_id,
+                    max_candidates=max_candidates,
+                    max_hops=max_hops,
+                    routing_backend=routing_backend,
+                ),
+                "python_host_ranked_k",
+            )
+    return (
+        _build_ranked_route_candidate_paths_host(
+            road_csr=road_csr,
+            potential_state=potential_state,
+            origin_node_id=origin_node_id,
+            destination_node_id=destination_node_id,
+            incoming_link_id=incoming_link_id,
+            max_candidates=max_candidates,
+            max_hops=max_hops,
+            routing_backend=routing_backend,
+        ),
+        "python_host_ranked_k",
+    )
+
+
+def _build_ranked_route_candidate_paths_rust(
+    *,
+    road_csr,
+    potential_state,
+    origin_node_id: int,
+    destination_node_id: int,
+    incoming_link_id: int | None,
+    max_candidates: int,
+    max_hops: int,
+) -> tuple[tuple[int, ...], ...]:
+    origin_node_index = int(road_csr.node_id_to_index[int(origin_node_id)])
+    destination_node_index = int(road_csr.node_id_to_index[int(destination_node_id)])
+    incoming_link_index = -1
+    if incoming_link_id is not None:
+        maybe_index = road_csr.link_id_to_index.get(int(incoming_link_id))
+        if maybe_index is None:
+            return ()
+        incoming_link_index = int(maybe_index)
+    return compute_ranked_route_candidates_rust(
+        node_count=road_csr.node_count,
+        link_ids=road_csr.link_ids,
+        link_dst_node_index=road_csr.link_dst_node_index,
+        outgoing_indptr=road_csr.outgoing_indptr,
+        outgoing_link_indices=road_csr.outgoing_link_indices,
+        turn_from_link_index=road_csr.turn_from_link_index,
+        turn_to_link_index=road_csr.turn_to_link_index,
+        turn_is_forbidden=road_csr.turn_is_forbidden,
+        node_cost_to_go=potential_state.node_cost_to_go,
+        link_travel_time_cost=potential_state.link_travel_time_cost,
+        blocked_link_mask=potential_state.blocked_link_mask,
+        origin_node_index=origin_node_index,
+        destination_node_index=destination_node_index,
+        incoming_link_index=incoming_link_index,
+        max_hops=max_hops,
+        max_candidates=max_candidates,
+    )
+
+
+def _build_ranked_route_candidate_paths_host(
     *,
     road_csr,
     potential_state,

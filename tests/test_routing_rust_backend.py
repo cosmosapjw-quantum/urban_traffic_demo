@@ -522,6 +522,95 @@ def test_route_candidate_refresh_passes_routing_backend(monkeypatch: pytest.Monk
     assert candidate_set.candidate_paths == ((12, 13),)
 
 
+def test_ranked_route_candidate_set_uses_explicit_rust_backend(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.routing import candidates
+    from metroflow.routing import dynamic_potential
+
+    road_csr, link_state = _make_routing_fixture()
+    baseline = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="baseline",
+    )
+    calls = []
+
+    def fake_compute_dynamic_potential_state(**kwargs):
+        assert kwargs["routing_backend"] == "rust_cpu"
+        return baseline
+
+    def fake_ranked_route_candidates_rust(**kwargs):
+        calls.append(kwargs)
+        return ((12, 13), (10, 11))
+
+    monkeypatch.setattr(
+        candidates,
+        "compute_dynamic_potential_state",
+        fake_compute_dynamic_potential_state,
+    )
+    monkeypatch.setattr(
+        candidates,
+        "compute_ranked_route_candidates_rust",
+        fake_ranked_route_candidates_rust,
+        raising=False,
+    )
+
+    candidate_set = candidates.create_route_candidate_set(
+        road_csr=road_csr,
+        link_state=link_state,
+        od_key=(1, 4),
+        origin_node_id=1,
+        destination_node_id=4,
+        current_tick=0,
+        max_candidates=2,
+        routing_backend="rust_cpu",
+    )
+
+    assert calls
+    assert calls[0]["max_candidates"] == 2
+    assert calls[0]["origin_node_index"] == road_csr.node_id_to_index[1]
+    assert candidate_set.candidate_paths == ((12, 13), (10, 11))
+    assert candidate_set.metadata["candidate_enumeration_backend"] == "rust_cpu_ranked_k"
+
+
+def test_rust_ranked_route_backend_matches_baseline_when_extension_is_available() -> None:
+    from metroflow.backends.rust_cpu import rust_routing_backend_available
+    from metroflow.routing import candidates
+
+    if not rust_routing_backend_available():
+        pytest.skip("_metroflow_rust extension with ranked routing is not importable")
+
+    road_csr, link_state = _make_routing_fixture()
+    baseline = candidates.create_route_candidate_set(
+        road_csr=road_csr,
+        link_state=link_state,
+        od_key=(1, 4),
+        origin_node_id=1,
+        destination_node_id=4,
+        current_tick=0,
+        max_candidates=2,
+        routing_backend="baseline",
+    )
+    accelerated = candidates.create_route_candidate_set(
+        road_csr=road_csr,
+        link_state=link_state,
+        od_key=(1, 4),
+        origin_node_id=1,
+        destination_node_id=4,
+        current_tick=0,
+        max_candidates=2,
+        routing_backend="rust_cpu",
+    )
+
+    assert accelerated.candidate_paths == baseline.candidate_paths
+    assert accelerated.metadata["candidate_path_costs"] == baseline.metadata[
+        "candidate_path_costs"
+    ]
+    assert accelerated.metadata["candidate_enumeration_backend"] == "rust_cpu_ranked_k"
+
+
 def test_route_candidate_refresh_records_effective_routing_backend_metadata(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

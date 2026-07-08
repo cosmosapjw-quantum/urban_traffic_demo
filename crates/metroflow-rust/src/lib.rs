@@ -1,7 +1,7 @@
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use std::cmp::Ordering;
-use std::collections::BinaryHeap;
+use std::collections::{BinaryHeap, HashSet};
 
 const EPS: f64 = 1e-6;
 const FLOW_MIN_TRAVEL_COST: f32 = 1.0e-3;
@@ -38,6 +38,41 @@ impl Ord for RoutingHeapState {
 }
 
 impl PartialOrd for RoutingHeapState {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+struct RankedRouteHeapState {
+    estimated_cost: f32,
+    path_cost: f32,
+    serial: usize,
+    path: Vec<i32>,
+    current_node_index: usize,
+    incoming_link_index: i32,
+    visited_nodes: Vec<bool>,
+}
+
+impl Eq for RankedRouteHeapState {}
+
+impl Ord for RankedRouteHeapState {
+    fn cmp(&self, other: &Self) -> Ordering {
+        other
+            .estimated_cost
+            .partial_cmp(&self.estimated_cost)
+            .unwrap_or(Ordering::Equal)
+            .then_with(|| {
+                other
+                    .path_cost
+                    .partial_cmp(&self.path_cost)
+                    .unwrap_or(Ordering::Equal)
+            })
+            .then_with(|| other.serial.cmp(&self.serial))
+    }
+}
+
+impl PartialOrd for RankedRouteHeapState {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
@@ -521,6 +556,199 @@ fn compute_greedy_route_candidate_impl(
     Ok(Vec::new())
 }
 
+#[allow(clippy::too_many_arguments)]
+fn scored_legal_next_link_indices(
+    current_node_index: usize,
+    incoming_link_index: i32,
+    link_ids: &[i32],
+    link_dst_node_index: &[i32],
+    outgoing_indptr: &[i32],
+    outgoing_link_indices: &[i32],
+    turn_from_link_index: &[i32],
+    turn_to_link_index: &[i32],
+    turn_is_forbidden: &[bool],
+    node_cost_to_go: &[f32],
+    link_travel_time_cost: &[f32],
+    blocked_link_mask: &[bool],
+) -> Vec<(f32, i32, usize)> {
+    let link_count = link_ids.len();
+    let mut allowed_by_turn = vec![false; link_count];
+    let mut require_turn_successor = false;
+    if incoming_link_index >= 0 && !turn_from_link_index.is_empty() {
+        require_turn_successor = true;
+        let incoming = incoming_link_index;
+        let mut saw_successor = false;
+        for turn_index in 0..turn_from_link_index.len() {
+            if turn_from_link_index[turn_index] == incoming {
+                saw_successor = true;
+                if !turn_is_forbidden[turn_index] {
+                    allowed_by_turn[turn_to_link_index[turn_index] as usize] = true;
+                }
+            }
+        }
+        if !saw_successor {
+            return Vec::new();
+        }
+    }
+
+    let start = outgoing_indptr[current_node_index] as usize;
+    let end = outgoing_indptr[current_node_index + 1] as usize;
+    let mut scored = Vec::new();
+    for pos in start..end {
+        let link_index = outgoing_link_indices[pos] as usize;
+        if require_turn_successor && !allowed_by_turn[link_index] {
+            continue;
+        }
+        if blocked_link_mask[link_index] {
+            continue;
+        }
+        let tail = node_cost_to_go[link_dst_node_index[link_index] as usize];
+        if !tail.is_finite() || tail >= ROUTING_INF_COST * 0.5 {
+            continue;
+        }
+        let total_cost = link_travel_time_cost[link_index] + tail;
+        if total_cost >= ROUTING_INF_COST * 0.5 {
+            continue;
+        }
+        scored.push((total_cost, link_ids[link_index], link_index));
+    }
+    scored.sort_by(|left, right| {
+        left.0
+            .partial_cmp(&right.0)
+            .unwrap_or(Ordering::Equal)
+            .then_with(|| left.1.cmp(&right.1))
+    });
+    scored
+}
+
+#[allow(clippy::too_many_arguments)]
+fn compute_ranked_route_candidates_impl(
+    node_count: usize,
+    link_ids: &[i32],
+    link_dst_node_index: &[i32],
+    outgoing_indptr: &[i32],
+    outgoing_link_indices: &[i32],
+    turn_from_link_index: &[i32],
+    turn_to_link_index: &[i32],
+    turn_is_forbidden: &[bool],
+    node_cost_to_go: &[f32],
+    link_travel_time_cost: &[f32],
+    blocked_link_mask: &[bool],
+    origin_node_index: usize,
+    destination_node_index: usize,
+    incoming_link_index: i32,
+    max_hops: usize,
+    max_candidates: usize,
+) -> Result<Vec<Vec<i32>>, String> {
+    if max_candidates == 0 {
+        return Err("max_candidates must be >= 1".to_string());
+    }
+    validate_greedy_route_inputs(
+        node_count,
+        link_ids,
+        link_dst_node_index,
+        outgoing_indptr,
+        outgoing_link_indices,
+        turn_from_link_index,
+        turn_to_link_index,
+        turn_is_forbidden,
+        node_cost_to_go,
+        link_travel_time_cost,
+        blocked_link_mask,
+        origin_node_index,
+        destination_node_index,
+        incoming_link_index,
+        max_hops,
+    )?;
+
+    if origin_node_index == destination_node_index {
+        return Ok(Vec::new());
+    }
+
+    let mut paths: Vec<Vec<i32>> = Vec::new();
+    let mut seen_paths: HashSet<Vec<i32>> = HashSet::new();
+    let mut heap = BinaryHeap::new();
+    let mut serial = 0usize;
+    let mut initial_visited = vec![false; node_count];
+    initial_visited[origin_node_index] = true;
+    heap.push(RankedRouteHeapState {
+        estimated_cost: 0.0,
+        path_cost: 0.0,
+        serial,
+        path: Vec::new(),
+        current_node_index: origin_node_index,
+        incoming_link_index,
+        visited_nodes: initial_visited,
+    });
+
+    let max_expansions = max_candidates * usize::max(16, link_ids.len() * 4);
+    let mut expansions = 0usize;
+    while let Some(state) = heap.pop() {
+        if paths.len() >= max_candidates || expansions >= max_expansions {
+            break;
+        }
+        expansions += 1;
+        if state.current_node_index == destination_node_index && !state.path.is_empty() {
+            if seen_paths.insert(state.path.clone()) {
+                paths.push(state.path);
+            }
+            continue;
+        }
+        if state.path.len() >= max_hops {
+            continue;
+        }
+
+        for (_action_cost, link_id, link_index) in scored_legal_next_link_indices(
+            state.current_node_index,
+            state.incoming_link_index,
+            link_ids,
+            link_dst_node_index,
+            outgoing_indptr,
+            outgoing_link_indices,
+            turn_from_link_index,
+            turn_to_link_index,
+            turn_is_forbidden,
+            node_cost_to_go,
+            link_travel_time_cost,
+            blocked_link_mask,
+        ) {
+            let next_node_index = link_dst_node_index[link_index] as usize;
+            if state.visited_nodes[next_node_index] {
+                continue;
+            }
+            let step_cost = link_travel_time_cost[link_index];
+            if !step_cost.is_finite() || step_cost >= ROUTING_INF_COST * 0.5 {
+                continue;
+            }
+            let tail_cost = if next_node_index == destination_node_index {
+                0.0
+            } else {
+                node_cost_to_go[next_node_index]
+            };
+            if !tail_cost.is_finite() || tail_cost >= ROUTING_INF_COST * 0.5 {
+                continue;
+            }
+            let mut next_path = state.path.clone();
+            next_path.push(link_id);
+            let next_path_cost = state.path_cost + step_cost;
+            let mut next_visited = state.visited_nodes.clone();
+            next_visited[next_node_index] = true;
+            serial += 1;
+            heap.push(RankedRouteHeapState {
+                estimated_cost: next_path_cost + tail_cost,
+                path_cost: next_path_cost,
+                serial,
+                path: next_path,
+                current_node_index: next_node_index,
+                incoming_link_index: link_index as i32,
+                visited_nodes: next_visited,
+            });
+        }
+    }
+
+    Ok(paths)
+}
+
 fn evolve_edges_batch_impl(
     queue: &[f64],
     stock: &[f64],
@@ -942,6 +1170,47 @@ fn compute_greedy_route_candidate(
     .map_err(PyValueError::new_err)
 }
 
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn compute_ranked_route_candidates(
+    node_count: usize,
+    link_ids: Vec<i32>,
+    link_dst_node_index: Vec<i32>,
+    outgoing_indptr: Vec<i32>,
+    outgoing_link_indices: Vec<i32>,
+    turn_from_link_index: Vec<i32>,
+    turn_to_link_index: Vec<i32>,
+    turn_is_forbidden: Vec<bool>,
+    node_cost_to_go: Vec<f32>,
+    link_travel_time_cost: Vec<f32>,
+    blocked_link_mask: Vec<bool>,
+    origin_node_index: usize,
+    destination_node_index: usize,
+    incoming_link_index: i32,
+    max_hops: usize,
+    max_candidates: usize,
+) -> PyResult<Vec<Vec<i32>>> {
+    compute_ranked_route_candidates_impl(
+        node_count,
+        &link_ids,
+        &link_dst_node_index,
+        &outgoing_indptr,
+        &outgoing_link_indices,
+        &turn_from_link_index,
+        &turn_to_link_index,
+        &turn_is_forbidden,
+        &node_cost_to_go,
+        &link_travel_time_cost,
+        &blocked_link_mask,
+        origin_node_index,
+        destination_node_index,
+        incoming_link_index,
+        max_hops,
+        max_candidates,
+    )
+    .map_err(PyValueError::new_err)
+}
+
 #[pymodule]
 fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evolve_edges_batch, m)?)?;
@@ -949,6 +1218,7 @@ fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(compute_dynamic_potential_node_costs, m)?)?;
     m.add_function(wrap_pyfunction!(compute_next_link_action_costs, m)?)?;
     m.add_function(wrap_pyfunction!(compute_greedy_route_candidate, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_ranked_route_candidates, m)?)?;
     Ok(())
 }
 
@@ -1297,6 +1567,56 @@ mod tests {
         .expect("unreachable greedy route should return no path");
 
         assert!(path.is_empty());
+    }
+
+    #[test]
+    fn computes_ranked_route_candidates_normal_paths() {
+        let paths = compute_ranked_route_candidates_impl(
+            4,
+            &[10, 11, 12, 13],
+            &[1, 3, 2, 3],
+            &[0, 2, 3, 4, 4],
+            &[0, 2, 1, 3],
+            &[],
+            &[],
+            &[],
+            &[2.0, 1.0, 1.0, 0.0],
+            &[50.0, 1.0, 1.0, 1.0],
+            &[false, false, false, false],
+            0,
+            3,
+            -1,
+            8,
+            2,
+        )
+        .expect("ranked routes should compute");
+
+        assert_eq!(paths, vec![vec![12, 13], vec![10, 11]]);
+    }
+
+    #[test]
+    fn computes_ranked_route_candidates_with_forbidden_turn() {
+        let paths = compute_ranked_route_candidates_impl(
+            4,
+            &[10, 11, 12, 13],
+            &[1, 3, 2, 3],
+            &[0, 1, 3, 4, 4],
+            &[0, 1, 2, 3],
+            &[0, 0, 2],
+            &[1, 2, 3],
+            &[true, false, false],
+            &[7.0, 2.0, 1.0, 0.0],
+            &[1.0, 1.0, 5.0, 1.0],
+            &[false, false, false, false],
+            0,
+            3,
+            -1,
+            8,
+            2,
+        )
+        .expect("forbidden-turn ranked routes should compute");
+
+        assert_eq!(paths, vec![vec![10, 12, 13]]);
     }
 
     #[test]
