@@ -95,6 +95,7 @@ def test_route_candidate_set_builds_ranked_diverse_baseline_paths():
     assert candidate_set.candidate_ids == (0, 1)
     assert candidate_set.candidate_paths == ((12, 13), (10, 11))
     assert candidate_set.metadata["candidate_generation_mode"] == "baseline_ranked_k"
+    assert candidate_set.metadata["candidate_enumeration_backend"] == "python_host_ranked_k"
     assert candidate_set.metadata["max_candidates_returned"] == 2
     assert candidate_set.metadata["candidate_path_costs"] == (2.0, 51.0)
     assert candidate_set.metadata["candidate_path_size_factors"] == (1.0, 1.0)

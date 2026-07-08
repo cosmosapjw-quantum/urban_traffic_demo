@@ -244,6 +244,11 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             "candidate_generation_mode": (
                 "baseline_greedy_single" if max_candidates == 1 else "baseline_ranked_k"
             ),
+            "candidate_enumeration_backend": (
+                "backend_greedy_route_candidate"
+                if max_candidates == 1
+                else "python_host_ranked_k"
+            ),
             "routing_backend": str(potential_metadata.get("routing_backend", routing_backend)),
             "routing_backend_requested": str(
                 potential_metadata.get("routing_backend_requested", routing_backend)

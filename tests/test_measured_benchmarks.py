@@ -302,6 +302,11 @@ def test_measured_routing_candidate_benchmark_records_baseline_path_metadata():
     assert result.candidate_count == 2
     assert result.candidate_path_costs == (2.0, 51.0)
     assert result.candidate_path_size_factors == (1.0, 1.0)
+    assert result.candidate_generation_mode == "baseline_ranked_k"
+    assert result.candidate_enumeration_backend == "python_host_ranked_k"
+    assert result.routing_backend_requested == "baseline"
+    assert result.routing_backend_actual == "baseline"
+    assert result.routing_backend_fallback is None
     assert result.dynamic_potential_recompute_total == 2
     assert result.dynamic_potential_cache_hits_total == 0
 

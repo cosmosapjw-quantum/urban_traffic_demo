@@ -114,7 +114,12 @@ class MeasuredRoutingBenchmarkResult:
     candidate_count: int
     candidate_path_costs: tuple[float, ...]
     candidate_path_size_factors: tuple[float, ...]
+    candidate_generation_mode: str
+    candidate_enumeration_backend: str
     routing_backend: RoutingBackend
+    routing_backend_requested: str
+    routing_backend_actual: str
+    routing_backend_fallback: str | None
     routing_copy_boundary_note: str
     dynamic_potential_recompute_total: int
     dynamic_potential_cache_hits_total: int
@@ -230,6 +235,11 @@ def run_measured_routing_candidate_benchmark(
     candidate_paths: tuple[tuple[int, ...], ...] = ()
     candidate_path_costs: tuple[float, ...] = ()
     candidate_path_size_factors: tuple[float, ...] = ()
+    candidate_generation_mode = "baseline_greedy_single"
+    candidate_enumeration_backend = "backend_greedy_route_candidate"
+    routing_backend_requested = str(config.routing_backend)
+    routing_backend_actual = str(config.routing_backend)
+    routing_backend_fallback: str | None = None
     stats: dict[str, object] = {}
     start_ns = perf_counter_ns()
     for _ in range(config.num_steps):
@@ -241,6 +251,15 @@ def run_measured_routing_candidate_benchmark(
                 routing_backend=config.routing_backend,
                 stats=stats,
             )
+            potential_metadata = dict(potential_state.metadata)
+            routing_backend_requested = str(
+                potential_metadata.get("routing_backend_requested", config.routing_backend)
+            )
+            routing_backend_actual = str(
+                potential_metadata.get("routing_backend", config.routing_backend)
+            )
+            fallback = potential_metadata.get("routing_backend_fallback")
+            routing_backend_fallback = None if fallback is None else str(fallback)
             candidate_path = build_greedy_route_candidate(
                 road_csr,
                 potential_state,
@@ -276,6 +295,18 @@ def run_measured_routing_candidate_benchmark(
                 float(item)
                 for item in tuple(metadata.get("candidate_path_size_factors", ()) or ())
             )
+            candidate_generation_mode = str(
+                metadata.get("candidate_generation_mode", candidate_generation_mode)
+            )
+            candidate_enumeration_backend = str(
+                metadata.get("candidate_enumeration_backend", candidate_enumeration_backend)
+            )
+            routing_backend_requested = str(
+                metadata.get("routing_backend_requested", config.routing_backend)
+            )
+            routing_backend_actual = str(metadata.get("routing_backend", config.routing_backend))
+            fallback = metadata.get("routing_backend_fallback")
+            routing_backend_fallback = None if fallback is None else str(fallback)
     elapsed_ns = perf_counter_ns() - start_ns
 
     return MeasuredRoutingBenchmarkResult(
@@ -293,7 +324,12 @@ def run_measured_routing_candidate_benchmark(
         candidate_count=len(candidate_paths),
         candidate_path_costs=candidate_path_costs,
         candidate_path_size_factors=candidate_path_size_factors,
+        candidate_generation_mode=candidate_generation_mode,
+        candidate_enumeration_backend=candidate_enumeration_backend,
         routing_backend=config.routing_backend,
+        routing_backend_requested=routing_backend_requested,
+        routing_backend_actual=routing_backend_actual,
+        routing_backend_fallback=routing_backend_fallback,
         routing_copy_boundary_note=_routing_copy_boundary_note(config.routing_backend),
         dynamic_potential_recompute_total=int(
             stats.get("dynamic_potential_recompute_total", 0)
