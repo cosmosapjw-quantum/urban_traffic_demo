@@ -562,6 +562,58 @@ def test_simulation_step_fails_no_route_trip_without_allocating_agent() -> None:
     assert next_state.dynamic.route_candidate_state.candidate_sets[(1, 2)].candidate_paths == ()
 
 
+def test_active_agent_allocation_records_selected_candidate_metadata() -> None:
+    from dataclasses import replace
+
+    from metroflow.demand.trips import TripRequestStatus
+    from metroflow.routing.candidates import RouteCandidateSet
+    from metroflow.sim.routing_runtime import (
+        SimulationRouteCacheState,
+        advance_runtime_active_agents,
+    )
+
+    state = _runtime_spine_state()
+    activated_trips = tuple(
+        replace(trip, status=TripRequestStatus.ACTIVATED)
+        for trip in state.dynamic.demand_state["trip_requests"]
+    )
+    candidate_set = RouteCandidateSet(
+        od_key=(1, 2),
+        candidate_ids=(7, 8),
+        candidate_paths=((10, 11), (10,)),
+        last_refresh_tick=0,
+        metadata={
+            "candidate_path_costs": (2.0, 3.0),
+            "candidate_path_size_factors": (0.75, 1.0),
+        },
+    )
+    state = state.with_dynamic_updates(
+        demand_state={
+            **state.dynamic.demand_state,
+            "trip_requests": activated_trips,
+            "queued_trip_requests": 0,
+            "pending_trip_requests": 1,
+            "activated_trip_requests": 1,
+        },
+        route_candidate_state=SimulationRouteCacheState(
+            candidate_sets={(1, 2): candidate_set},
+        ),
+    )
+
+    pool, counters, demand_state, _link_state = advance_runtime_active_agents(state)
+
+    assert pool is not None
+    assert counters["trip_allocated_this_tick"] == 1
+    assert demand_state["allocated_trip_request_ids"] == (1,)
+    memory = pool.plugin_memory[0]
+    assert memory["route_path"] == (10, 11)
+    assert memory["selected_candidate_index"] == 0
+    assert memory["selected_candidate_id"] == 7
+    assert memory["selected_candidate_count"] == 2
+    assert memory["selected_candidate_path_cost"] == 2.0
+    assert memory["selected_candidate_path_size_factor"] == 0.75
+
+
 def test_runtime_route_refresh_propagates_configured_routing_backend(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

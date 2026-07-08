@@ -61,6 +61,16 @@ class SimulationRouteCacheState:
             raise ValueError("cache_generation must be >= 0")
 
 
+@dataclass(frozen=True, slots=True)
+class _SelectedCandidateRoute:
+    candidate_index: int
+    candidate_id: int
+    candidate_count: int
+    path: tuple[int, ...]
+    path_cost: float
+    path_size_factor: float
+
+
 def create_simulation_route_cache_state() -> SimulationRouteCacheState:
     """Create an empty runtime route-cache state."""
 
@@ -183,11 +193,12 @@ def advance_runtime_active_agents(
             break
         od = _trip_od_nodes(trip, pois_by_id)
         candidate_set = route_state.candidate_sets.get(od[0]) if od is not None else None
-        path = _first_candidate_path(candidate_set)
-        if not path:
+        selection = _select_candidate_route(candidate_set)
+        if selection is None:
             failed_ids.add(trip_id)
             counters["trip_failed_this_tick"] += 1
             continue
+        path = selection.path
         _od_key, _origin_node_id, destination_node_id = od
         payload = ActiveAgentSlot.spawn(
             citizen_id=trip.citizen_id,
@@ -204,6 +215,11 @@ def advance_runtime_active_agents(
             "origin_poi_id": int(trip.origin_poi_id),
             "dest_poi_id": int(trip.dest_poi_id),
             "trip_request_id": trip_id,
+            "selected_candidate_index": selection.candidate_index,
+            "selected_candidate_id": selection.candidate_id,
+            "selected_candidate_count": selection.candidate_count,
+            "selected_candidate_path_cost": selection.path_cost,
+            "selected_candidate_path_size_factor": selection.path_size_factor,
         }
         pool_after_alloc = _replace_pool_plugin_memory(pool_after_alloc, plugin_memory)
         allocated_ids.add(trip_id)
@@ -809,9 +825,29 @@ def _trip_od_nodes(
 
 
 def _first_candidate_path(candidate_set: RouteCandidateSet | None) -> tuple[int, ...]:
+    selection = _select_candidate_route(candidate_set)
+    return () if selection is None else selection.path
+
+
+def _select_candidate_route(candidate_set: RouteCandidateSet | None) -> _SelectedCandidateRoute | None:
     if candidate_set is None or not candidate_set.candidate_paths:
-        return ()
-    return tuple(int(x) for x in candidate_set.candidate_paths[0])
+        return None
+    path = tuple(int(x) for x in candidate_set.candidate_paths[0])
+    if not path:
+        return None
+    metadata = candidate_set.metadata if isinstance(candidate_set.metadata, Mapping) else {}
+    costs = tuple(float(x) for x in tuple(metadata.get("candidate_path_costs", ()) or ()))
+    path_sizes = tuple(
+        float(x) for x in tuple(metadata.get("candidate_path_size_factors", ()) or ())
+    )
+    return _SelectedCandidateRoute(
+        candidate_index=0,
+        candidate_id=int(candidate_set.candidate_ids[0]) if candidate_set.candidate_ids else 0,
+        candidate_count=len(candidate_set.candidate_paths),
+        path=path,
+        path_cost=costs[0] if costs else 0.0,
+        path_size_factor=path_sizes[0] if path_sizes else 1.0,
+    )
 
 
 def _demand_lifecycle_counts(

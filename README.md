@@ -75,6 +75,7 @@ dynamic-potential/next-link/greedy 단일 path kernel의 optional accelerator로
 - active-agent spine은 activated trip을 route candidate의 첫 링크에 배정하고, source link queue에
   차량 1대를 삽입한다. link-to-link 이동은 직전 flow update의 `outflow_vehicles` 정수 예산을
   slot id 순서로 소비한다.
+- agent slot memory는 선택된 candidate id/index/count와 baseline path cost/path-size factor를 보존한다.
 - runtime reroute는 incident 또는 route refresh cadence에서만 현재 링크 이후 tail 후보를 검토한다.
   cooldown이 남은 slot은 기존 route tail을 유지하고 cooldown만 감소한다.
 - final-link completion은 아직 coarse residence rule이다. sink connector/discharge model은 다음 slice에서
