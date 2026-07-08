@@ -48,17 +48,18 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - baseline backend과 optional accelerator backend를 같은 input signature로 비교
 - 기본 benchmark는 NumPy baseline만 요구한다
 - optional Rust CPU benchmark는 `_metroflow_rust` 확장 빌드 후 `traffic.meso` edge batch,
-  `flow.engine` flow core, `routing.dynamic_potential` node cost-to-go 및 greedy single-candidate route path core를 대상으로 한다
+  `flow.engine` flow core, `routing.dynamic_potential` node cost-to-go, next-link action scoring,
+  greedy single-candidate route path core를 대상으로 한다
 - optional JAX benchmark는 `.[jax]` extra 설치 후 RTX 3080 Ti 12GB 단일 GPU만 대상으로 한다
 - distributed multi-GPU 측정 금지
 - Rust CPU parity test는 baseline `update_edge_state` 수식과 queue/stock/capacity 불변식을 동일 입력으로 비교한다
 - Rust CPU flow parity test는 baseline `compute_baseline_flow_arrays_core`와 turn priority, forbidden turn, zero-turn, zero-link, signal timer 결과를 동일 입력으로 비교한다
-- Rust CPU routing parity test는 baseline reverse-Dijkstra node cost-to-go와 blocked link, unreachable node,
-  zero-link, forbidden-turn greedy path 결과를 동일 입력으로 비교한다
+- Rust CPU routing parity test는 baseline reverse-Dijkstra node cost-to-go, next-link action costs,
+  blocked link, unreachable node, zero-link, forbidden-turn greedy path 결과를 동일 입력으로 비교한다
 - measured routing candidate benchmark는 baseline/Rust routing backend 요청이 dynamic-potential과 greedy path
   양쪽에 전달되는지, 그리고 result metadata가 final path 및 recompute/cache counters를 보존하는지 확인한다
-- routing `auto` fallback test는 Rust routing extension이 cost-to-go와 greedy path를 모두 제공하지 않으면
-  Rust wrapper를 호출하지 않고 baseline으로 내려가는지 확인한다
+- routing `auto` fallback test는 Rust routing extension이 cost-to-go, next-link scoring, greedy path를 모두
+  제공하지 않으면 Rust wrapper를 호출하지 않고 baseline으로 내려가는지 확인한다
 - runtime spine parity는 baseline config에서 event effect, flow update, route candidate cache, active-agent movement,
   replay fingerprint가 deterministic하게 재현되는지 확인한다
 - active-agent movement parity는 newly allocated slot의 same-tick movement 금지, source link queue insertion,

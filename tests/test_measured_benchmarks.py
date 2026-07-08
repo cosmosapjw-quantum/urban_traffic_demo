@@ -354,7 +354,7 @@ def test_measured_routing_candidate_benchmark_preserves_rust_backend_metadata(
     assert result.routing_backend == "rust_cpu"
     assert (
         result.routing_copy_boundary_note
-        == "rust_cpu Vec copy boundary for dynamic-potential and greedy path"
+        == "rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, and greedy path"
     )
     assert result.candidate_path == (12, 13)
     assert result.dynamic_potential_recompute_total == 2
@@ -393,7 +393,7 @@ def test_measured_runtime_benchmark_preserves_rust_routing_copy_boundary_note(
     assert result.routing_backend == "rust_cpu"
     assert (
         result.routing_copy_boundary_note
-        == "rust_cpu Vec copy boundary for dynamic-potential and greedy path"
+        == "rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, and greedy path"
     )
     assert result.initial_tick == 0
     assert result.final_tick == 2

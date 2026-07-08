@@ -12,6 +12,7 @@ import numpy as np
 from metroflow.backends.rust_cpu import (
     compute_dynamic_potential_node_costs_rust,
     compute_greedy_route_candidate_rust,
+    compute_next_link_action_costs_rust,
     rust_routing_backend_available,
 )
 from metroflow.city.graph import RoadNetworkCSR
@@ -248,9 +249,11 @@ def score_legal_next_links(
     *,
     current_node_id: int,
     incoming_link_id: int | None = None,
+    routing_backend: RoutingBackend = "baseline",
 ) -> BaselineNextLinkScores:
     """Score legal next links by `link_cost + potential(dst_node)` (lower is better)."""
 
+    _validate_routing_backend(routing_backend)
     node_index = network.node_id_to_index[int(current_node_id)]
     outgoing_idx = _outgoing_link_indices_for_node(network, node_index)
     allowed_idx = _filter_legal_turn_successors(
@@ -259,12 +262,13 @@ def score_legal_next_links(
         incoming_link_id=incoming_link_id,
     )
 
-    raw_costs = _compute_next_link_action_costs_host(
+    raw_costs = _compute_next_link_action_costs_for_backend(
         candidate_link_indices=tuple(int(x) for x in allowed_idx),
         link_dst_node_index=network.link_dst_node_index,
         node_cost_to_go=potential_state.node_cost_to_go,
         link_travel_time_cost=potential_state.link_travel_time_cost,
         blocked_link_mask=potential_state.blocked_link_mask,
+        routing_backend=routing_backend,
     )
     scored: list[tuple[float, int]] = []
     for i, link_index in enumerate(allowed_idx):
@@ -286,6 +290,44 @@ def score_legal_next_links(
         action_costs=action_costs,
         best_link_id=best_link_id,
         best_cost=best_cost,
+    )
+
+
+def _compute_next_link_action_costs_for_backend(
+    *,
+    candidate_link_indices: tuple[int, ...],
+    link_dst_node_index: Array,
+    node_cost_to_go: Array,
+    link_travel_time_cost: Array,
+    blocked_link_mask: Array,
+    routing_backend: RoutingBackend,
+) -> np.ndarray:
+    if routing_backend == "auto" and not rust_routing_backend_available():
+        return _compute_next_link_action_costs_host(
+            candidate_link_indices=candidate_link_indices,
+            link_dst_node_index=link_dst_node_index,
+            node_cost_to_go=node_cost_to_go,
+            link_travel_time_cost=link_travel_time_cost,
+            blocked_link_mask=blocked_link_mask,
+        )
+    if routing_backend in {"rust_cpu", "auto"}:
+        try:
+            return compute_next_link_action_costs_rust(
+                candidate_link_indices=candidate_link_indices,
+                link_dst_node_index=link_dst_node_index,
+                node_cost_to_go=node_cost_to_go,
+                link_travel_time_cost=link_travel_time_cost,
+                blocked_link_mask=blocked_link_mask,
+            )
+        except RuntimeError:
+            if routing_backend == "rust_cpu":
+                raise
+    return _compute_next_link_action_costs_host(
+        candidate_link_indices=candidate_link_indices,
+        link_dst_node_index=link_dst_node_index,
+        node_cost_to_go=node_cost_to_go,
+        link_travel_time_cost=link_travel_time_cost,
+        blocked_link_mask=blocked_link_mask,
     )
 
 

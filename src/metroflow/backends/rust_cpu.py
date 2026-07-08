@@ -48,9 +48,10 @@ def rust_routing_backend_available() -> bool:
         rust_extension = _load_rust_extension(RUST_ROUTING_BACKEND_UNAVAILABLE)
     except RuntimeError:
         return False
-    return hasattr(rust_extension, "compute_dynamic_potential_node_costs") and hasattr(
-        rust_extension,
-        "compute_greedy_route_candidate",
+    return (
+        hasattr(rust_extension, "compute_dynamic_potential_node_costs")
+        and hasattr(rust_extension, "compute_greedy_route_candidate")
+        and hasattr(rust_extension, "compute_next_link_action_costs")
     )
 
 
@@ -277,3 +278,28 @@ def compute_greedy_route_candidate_rust(
         raise RuntimeError(f"Rust CPU routing backend failed: {exc}") from exc
 
     return tuple(int(link_id) for link_id in path)
+
+
+def compute_next_link_action_costs_rust(
+    *,
+    candidate_link_indices: Sequence[int],
+    link_dst_node_index: Sequence[int],
+    node_cost_to_go: Sequence[float],
+    link_travel_time_cost: Sequence[float],
+    blocked_link_mask: Sequence[bool],
+) -> np.ndarray:
+    rust_extension = _load_rust_extension(RUST_ROUTING_BACKEND_UNAVAILABLE)
+    try:
+        costs = rust_extension.compute_next_link_action_costs(
+            _as_i32_routing_list(candidate_link_indices, "candidate_link_indices"),
+            _as_i32_routing_list(link_dst_node_index, "link_dst_node_index"),
+            _as_f32_routing_list(node_cost_to_go, "node_cost_to_go"),
+            _as_f32_routing_list(link_travel_time_cost, "link_travel_time_cost"),
+            _as_bool_routing_list(blocked_link_mask, "blocked_link_mask"),
+        )
+    except AttributeError as exc:
+        raise RuntimeError(RUST_ROUTING_BACKEND_UNAVAILABLE) from exc
+    except ValueError as exc:
+        raise RuntimeError(f"Rust CPU routing backend failed: {exc}") from exc
+
+    return np.asarray(costs, dtype=np.float32)

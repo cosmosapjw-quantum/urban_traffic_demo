@@ -198,6 +198,57 @@ fn compute_dynamic_potential_node_costs_impl(
     Ok(dist)
 }
 
+fn compute_next_link_action_costs_impl(
+    candidate_link_indices: &[i32],
+    link_dst_node_index: &[i32],
+    node_cost_to_go: &[f32],
+    link_travel_time_cost: &[f32],
+    blocked_link_mask: &[bool],
+) -> Result<Vec<f32>, String> {
+    let link_count = link_dst_node_index.len();
+    if link_travel_time_cost.len() != link_count {
+        return Err(format!(
+            "link_travel_time_cost length must match link_dst_node_index length: got {}, expected {}",
+            link_travel_time_cost.len(),
+            link_count
+        ));
+    }
+    if blocked_link_mask.len() != link_count {
+        return Err(format!(
+            "blocked_link_mask length must match link_dst_node_index length: got {}, expected {}",
+            blocked_link_mask.len(),
+            link_count
+        ));
+    }
+    for value in link_dst_node_index {
+        if *value < 0 || (*value as usize) >= node_cost_to_go.len() {
+            return Err("link_dst_node_index contains out-of-range node indices".to_string());
+        }
+    }
+    for value in candidate_link_indices {
+        if *value < 0 || (*value as usize) >= link_count {
+            return Err("candidate_link_indices contains out-of-range link indices".to_string());
+        }
+    }
+    validate_non_negative_f32("node_cost_to_go", node_cost_to_go)?;
+    validate_non_negative_f32("link_travel_time_cost", link_travel_time_cost)?;
+
+    let mut out = Vec::with_capacity(candidate_link_indices.len());
+    for value in candidate_link_indices {
+        let link_index = *value as usize;
+        let tail = node_cost_to_go[link_dst_node_index[link_index] as usize];
+        let total = link_travel_time_cost[link_index] + tail;
+        if blocked_link_mask[link_index] || !tail.is_finite() || tail >= ROUTING_INF_COST * 0.5 {
+            out.push(ROUTING_INF_COST);
+        } else if total >= ROUTING_INF_COST * 0.5 {
+            out.push(ROUTING_INF_COST);
+        } else {
+            out.push(total);
+        }
+    }
+    Ok(out)
+}
+
 #[allow(clippy::too_many_arguments)]
 fn validate_greedy_route_inputs(
     node_count: usize,
@@ -835,6 +886,24 @@ fn compute_dynamic_potential_node_costs(
 }
 
 #[pyfunction]
+fn compute_next_link_action_costs(
+    candidate_link_indices: Vec<i32>,
+    link_dst_node_index: Vec<i32>,
+    node_cost_to_go: Vec<f32>,
+    link_travel_time_cost: Vec<f32>,
+    blocked_link_mask: Vec<bool>,
+) -> PyResult<Vec<f32>> {
+    compute_next_link_action_costs_impl(
+        &candidate_link_indices,
+        &link_dst_node_index,
+        &node_cost_to_go,
+        &link_travel_time_cost,
+        &blocked_link_mask,
+    )
+    .map_err(PyValueError::new_err)
+}
+
+#[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn compute_greedy_route_candidate(
     node_count: usize,
@@ -878,6 +947,7 @@ fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evolve_edges_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_baseline_flow_arrays_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_dynamic_potential_node_costs, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_next_link_action_costs, m)?)?;
     m.add_function(wrap_pyfunction!(compute_greedy_route_candidate, m)?)?;
     Ok(())
 }
@@ -1278,5 +1348,66 @@ mod tests {
         .expect_err("link length mismatch should be rejected");
 
         assert!(error.contains("link_dst_node_index length must match"));
+    }
+
+    #[test]
+    fn computes_next_link_action_costs_normal_batch() {
+        let costs = compute_next_link_action_costs_impl(
+            &[0, 2],
+            &[1, 3, 2, 3],
+            &[2.0, 1.0, 1.0, 0.0],
+            &[50.0, 1.0, 1.0, 1.0],
+            &[false, false, false, false],
+        )
+        .expect("next-link action costs should compute");
+
+        assert_eq!(costs, vec![51.0, 2.0]);
+    }
+
+    #[test]
+    fn computes_next_link_action_costs_with_blocked_and_unreachable_links() {
+        let costs = compute_next_link_action_costs_impl(
+            &[0, 1, 2],
+            &[1, 3, 2, 3],
+            &[0.0, ROUTING_INF_COST, 1.0, 0.0],
+            &[50.0, 1.0, 1.0, 1.0],
+            &[false, true, false, false],
+        )
+        .expect("blocked and unreachable action costs should compute");
+
+        assert!(costs[0] >= ROUTING_INF_COST * 0.5);
+        assert!(costs[1] >= ROUTING_INF_COST * 0.5);
+        assert_eq!(costs[2], 2.0);
+    }
+
+    #[test]
+    fn rejects_next_link_action_cost_invalid_candidate_index() {
+        let error = compute_next_link_action_costs_impl(
+            &[4],
+            &[1, 3, 2, 3],
+            &[2.0, 1.0, 1.0, 0.0],
+            &[50.0, 1.0, 1.0, 1.0],
+            &[false, false, false, false],
+        )
+        .expect_err("invalid candidate link should be rejected");
+
+        assert_eq!(
+            error,
+            "candidate_link_indices contains out-of-range link indices"
+        );
+    }
+
+    #[test]
+    fn rejects_next_link_action_cost_length_mismatch() {
+        let error = compute_next_link_action_costs_impl(
+            &[0],
+            &[1, 3],
+            &[2.0, 1.0, 1.0, 0.0],
+            &[50.0],
+            &[false, false],
+        )
+        .expect_err("length mismatch should be rejected");
+
+        assert!(error.contains("link_travel_time_cost length must match"));
     }
 }

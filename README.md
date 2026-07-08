@@ -18,7 +18,8 @@
   `edge_backend="auto"`만 `rust_cpu` → `jax` → `baseline` 순서의 fallback을 허용한다.
 - `SimulationConfig`의 runtime backend 기본값은 `edge_backend="baseline"`,
   `flow_backend="baseline"`, `routing_backend="baseline"`이다. Rust routing backend는
-  dynamic-potential node cost-to-go와 deterministic greedy single-candidate path core를 담당한다.
+  dynamic-potential node cost-to-go, next-link action scoring,
+  deterministic greedy single-candidate path core를 담당한다.
 - 디스플레이 GPU 메모리 여유가 필요하면 실행 전에 `XLA_PYTHON_CLIENT_MEM_FRACTION=.70`처럼 제한한다.
 
 설치/확인:
@@ -48,7 +49,8 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=.70 .venv/bin/python -m pytest tests/test_meso_co
 ```
 
 현재 Rust CPU backend는 `traffic.meso` edge batch evolution과 `flow.engine` baseline flow array
-core, `routing.dynamic_potential` node cost-to-go와 greedy single-candidate route path core만 담당한다. Python wrapper가 NumPy-compatible
+core, `routing.dynamic_potential` node cost-to-go, next-link action scoring,
+greedy single-candidate route path core만 담당한다. Python wrapper가 NumPy-compatible
 입력을 edge는 `Vec<f64>`, flow는 `Vec<f32>` / `Vec<i32>` / `Vec<bool>`, routing은 CSR/비용 배열
 `Vec<i32>` / `Vec<f32>` / `Vec<bool>`로 복사한 뒤 Rust 확장 `_metroflow_rust`를 호출한다.
 explicit `rust_cpu` backend는 실패 시 예외를 내고, `auto`만 baseline fallback을 허용한다.
