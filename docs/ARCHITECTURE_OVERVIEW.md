@@ -57,7 +57,9 @@
 - `WorldState`/`step_world`는 compatibility contract이고, integrated long-run runtime은
   `sim.step.simulation_step`을 기준으로 확장함
 - 기본 backend contract는 NumPy host arrays이며, accelerator 배열은 core state에 저장하지 않음
-- JAX는 optional `jax` extra의 explicit backend로만 사용하고, Rust CPU backend는 이후 NumPy-compatible FFI 경계 뒤에 추가함
+- JAX는 optional `jax` extra의 explicit backend로만 사용하고, Rust CPU backend는 edge/flow/routing
+  좁은 core를 NumPy-compatible FFI 경계 뒤에서 선택적으로 가속함
+- generated city topology는 runtime acceptance 전에 weak-connectivity repair와 strict gate를 통과해야 함
 - `metro/` donor 구현은 루트 Python 3.12/CUDA13/runtime policy로 흡수한다.
 - root runtime은 외부 `metro/` 폴더 삭제 후에도 import/test가 가능해야 한다.
 - optional visual dependencies는 core import를 막으면 안 된다.

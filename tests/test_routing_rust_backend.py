@@ -1,0 +1,185 @@
+from __future__ import annotations
+
+import numpy as np
+import pytest
+
+
+def _make_routing_fixture():
+    from metroflow.city.graph import Node, RoadClass, RoadLink, build_road_network_csr
+    from metroflow.flow.state import LinkState
+
+    road_csr = build_road_network_csr(
+        nodes=(Node(1), Node(2), Node(3), Node(4)),
+        links=(
+            RoadLink(10, 1, 2, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            RoadLink(11, 2, 4, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            RoadLink(12, 1, 3, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            RoadLink(13, 3, 4, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+        ),
+    )
+    link_state = LinkState(
+        queue_vehicles=(0.0, 0.0, 0.0, 0.0),
+        inflow_vehicles=(0.0, 0.0, 0.0, 0.0),
+        outflow_vehicles=(0.0, 0.0, 0.0, 0.0),
+        travel_time_cost=(50.0, 1.0, 1.0, 1.0),
+        capacity_veh_per_tick=(5.0, 5.0, 5.0, 5.0),
+        incident_capacity_multiplier=(1.0, 1.0, 1.0, 1.0),
+    )
+    return road_csr, link_state
+
+
+def test_explicit_rust_routing_backend_is_fail_closed(monkeypatch: pytest.MonkeyPatch) -> None:
+    from metroflow.routing import dynamic_potential
+
+    road_csr, link_state = _make_routing_fixture()
+
+    def unavailable(**_kwargs):
+        raise RuntimeError("Rust CPU routing backend unavailable")
+
+    monkeypatch.setattr(
+        dynamic_potential,
+        "compute_dynamic_potential_node_costs_rust",
+        unavailable,
+        raising=False,
+    )
+
+    with pytest.raises(RuntimeError, match="Rust CPU routing backend unavailable"):
+        dynamic_potential.compute_dynamic_potential_state(
+            road_csr,
+            destination_node_id=4,
+            link_state=link_state,
+            routing_backend="rust_cpu",
+        )
+
+
+def test_auto_routing_backend_falls_back_to_baseline_when_rust_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.routing import dynamic_potential
+
+    road_csr, link_state = _make_routing_fixture()
+    baseline = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="baseline",
+    )
+
+    def unavailable(**_kwargs):
+        raise RuntimeError("Rust CPU routing backend unavailable")
+
+    monkeypatch.setattr(
+        dynamic_potential,
+        "compute_dynamic_potential_node_costs_rust",
+        unavailable,
+        raising=False,
+    )
+
+    automatic = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="auto",
+    )
+
+    np.testing.assert_allclose(automatic.node_cost_to_go, baseline.node_cost_to_go)
+    assert automatic.metadata["routing_backend"] == "baseline"
+    assert automatic.metadata["routing_backend_fallback"] == "rust_cpu_failed"
+
+
+def test_rust_routing_backend_uses_wrapper_output(monkeypatch: pytest.MonkeyPatch) -> None:
+    from metroflow.routing import dynamic_potential
+
+    road_csr, link_state = _make_routing_fixture()
+    baseline = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="baseline",
+    )
+    calls = []
+
+    def fake_rust(**kwargs):
+        calls.append(kwargs)
+        return baseline.node_cost_to_go.copy()
+
+    monkeypatch.setattr(
+        dynamic_potential,
+        "compute_dynamic_potential_node_costs_rust",
+        fake_rust,
+        raising=False,
+    )
+
+    accelerated = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="rust_cpu",
+    )
+
+    np.testing.assert_allclose(accelerated.node_cost_to_go, baseline.node_cost_to_go)
+    assert calls
+    assert calls[0]["destination_node_index"] == road_csr.node_id_to_index[4]
+    assert accelerated.metadata["routing_backend"] == "rust_cpu"
+
+
+def test_rust_routing_backend_matches_baseline_when_extension_is_available() -> None:
+    from metroflow.backends.rust_cpu import rust_routing_backend_available
+    from metroflow.routing import dynamic_potential
+
+    if not rust_routing_backend_available():
+        pytest.skip("_metroflow_rust extension is not importable")
+
+    road_csr, link_state = _make_routing_fixture()
+    baseline = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="baseline",
+    )
+    accelerated = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="rust_cpu",
+    )
+
+    np.testing.assert_allclose(accelerated.node_cost_to_go, baseline.node_cost_to_go)
+
+
+def test_route_candidate_refresh_passes_routing_backend(monkeypatch: pytest.MonkeyPatch) -> None:
+    from metroflow.routing import candidates
+    from metroflow.routing import dynamic_potential
+
+    road_csr, link_state = _make_routing_fixture()
+    baseline = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="baseline",
+    )
+    calls = []
+
+    def fake_compute_dynamic_potential_state(**kwargs):
+        calls.append(kwargs["routing_backend"])
+        return baseline
+
+    monkeypatch.setattr(
+        candidates,
+        "compute_dynamic_potential_state",
+        fake_compute_dynamic_potential_state,
+    )
+
+    candidate_set = candidates.refresh_od_route_candidate_set(
+        None,
+        road_csr=road_csr,
+        link_state=link_state,
+        od_key=(1, 4),
+        origin_node_id=1,
+        destination_node_id=4,
+        current_tick=0,
+        routing_backend="rust_cpu",
+    )
+
+    assert calls == ["rust_cpu"]
+    assert candidate_set.candidate_paths == ((12, 13),)

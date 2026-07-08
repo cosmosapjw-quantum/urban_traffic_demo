@@ -36,11 +36,12 @@
 ## backend boundary
 - backend 입력/출력은 contiguous NumPy-compatible arrays와 explicit dtype을 사용한다
 - backend는 hidden mutation 없이 새 배열/상태를 반환한다
-- Rust CPU backend의 현재 slice는 `traffic.meso` edge batch evolution과 `flow.engine` baseline flow array core만 담당한다
+- Rust CPU backend의 현재 slice는 `traffic.meso` edge batch evolution, `flow.engine` baseline flow array core,
+  `routing.dynamic_potential` node cost-to-go core만 담당한다
 - explicit `rust_cpu` backend는 fail-closed이고, `auto`에서만 baseline fallback을 허용한다
-- 현재 Rust CPU wrapper는 edge 입력을 `Vec<f64>`, flow 입력을 `Vec<f32>`/`Vec<i32>`/`Vec<bool>`로 복사한다
+- 현재 Rust CPU wrapper는 edge 입력을 `Vec<f64>`, flow/routing 입력을 `Vec<f32>`/`Vec<i32>`/`Vec<bool>`로 복사한다
 - `edge_backend="auto"`는 `rust_cpu` → `jax` → `baseline`, `flow_backend="auto"`는 `rust_cpu` → `baseline` 순서만 허용한다
-- runtime spine의 `routing_backend` 기본값은 `baseline`이며, 아직 구현되지 않은 explicit backend는 fail-closed이다
+- `routing_backend="auto"`는 `rust_cpu` → `baseline` 순서만 허용하며, greedy path construction은 Python baseline에 남아 있다
 - PyTorch/libtorch/custom CUDA는 profiling 이후 좁은 hot kernel에만 추가한다
 
 ## tests

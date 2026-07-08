@@ -124,6 +124,7 @@ def refresh_runtime_route_candidates(
             incident_active=active_event_count > 0,
             force_refresh=force_refresh,
             policy=policy,
+            routing_backend=state.config.routing_backend,
             potential_cache=potential_cache,
             cache_key=cache_key,
             stats=stats,
@@ -261,11 +262,7 @@ def runtime_route_cache_fingerprint(
 
 
 def _validate_routing_backend(routing_backend: str) -> None:
-    if routing_backend == "rust_cpu":
-        raise RuntimeError(
-            "Rust CPU routing backend unavailable; dynamic-potential Dijkstra is not implemented"
-        )
-    if routing_backend not in {"baseline", "auto"}:
+    if routing_backend not in {"baseline", "rust_cpu", "auto"}:
         raise ValueError("routing_backend must be one of: baseline, rust_cpu, auto")
 
 

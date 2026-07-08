@@ -13,8 +13,11 @@ from metroflow.metrics.benchmarks import (
     MeasuredFlowBenchmarkResult,
     MeasuredBenchmarkConfig,
     MeasuredBenchmarkResult,
+    MeasuredRuntimeBenchmarkConfig,
+    MeasuredRuntimeBenchmarkResult,
     run_city_smoke_benchmark,
     run_measured_flow_update_benchmark,
+    run_measured_runtime_spine_benchmark,
     run_measured_step_world_benchmark,
 )
 
@@ -244,3 +247,33 @@ def test_measured_flow_update_benchmark_preserves_rust_cpu_backend_metadata(
     assert result.turn_count == 1
     assert result.copy_boundary_note == "rust_cpu Vec copy boundary"
     assert calls == ["rust_cpu", "rust_cpu"]
+
+
+def test_measured_runtime_benchmark_preserves_rust_routing_copy_boundary_note(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    from metroflow.sim.config import SimulationConfig
+    from metroflow.sim.init import build_initial_simulation_state
+
+    bundle = build_initial_simulation_state(
+        config=SimulationConfig(routing_backend="rust_cpu", active_agent_capacity=4),
+        scenario_seed=2,
+        eager_trip_generation=False,
+    )
+
+    def fake_simulation_step(state, _control, key):
+        return state.with_clock(tick_index=state.tick_index + 1), None, None, key
+
+    monkeypatch.setattr(benchmark_module, "simulation_step", fake_simulation_step)
+
+    result = run_measured_runtime_spine_benchmark(
+        bundle.state,
+        bundle.rng_key,
+        MeasuredRuntimeBenchmarkConfig(workload_name="rust-routing-runtime", num_steps=2),
+    )
+
+    assert isinstance(result, MeasuredRuntimeBenchmarkResult)
+    assert result.routing_backend == "rust_cpu"
+    assert result.routing_copy_boundary_note == "rust_cpu Vec copy boundary"
+    assert result.initial_tick == 0
+    assert result.final_tick == 2

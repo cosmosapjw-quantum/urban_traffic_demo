@@ -90,6 +90,7 @@ class MeasuredRuntimeBenchmarkResult:
     active_agent_count: int
     flow_backend: str
     routing_backend: str
+    routing_copy_boundary_note: str
     route_candidate_refresh_total: int
     route_candidate_reuse_total: int
     dynamic_potential_recompute_total: int
@@ -199,6 +200,7 @@ def run_measured_runtime_spine_benchmark(
         active_agent_count=int(getattr(current_state.dynamic.active_agent_pool, "alive_count", 0) or 0),
         flow_backend=current_state.config.flow_backend,
         routing_backend=current_state.config.routing_backend,
+        routing_copy_boundary_note=_routing_copy_boundary_note(current_state.config.routing_backend),
         route_candidate_refresh_total=int(metrics_state.get("route_candidate_refresh_total", 0)),
         route_candidate_reuse_total=int(metrics_state.get("route_candidate_reuse_total", 0)),
         dynamic_potential_recompute_total=int(
@@ -214,6 +216,14 @@ def _flow_copy_boundary_note(flow_backend: FlowUpdateBackend) -> str:
     if flow_backend == "rust_cpu":
         return "rust_cpu Vec copy boundary"
     if flow_backend == "auto":
+        return "auto rust_cpu Vec copy boundary when available"
+    return "numpy baseline"
+
+
+def _routing_copy_boundary_note(routing_backend: str) -> str:
+    if routing_backend == "rust_cpu":
+        return "rust_cpu Vec copy boundary"
+    if routing_backend == "auto":
         return "auto rust_cpu Vec copy boundary when available"
     return "numpy baseline"
 

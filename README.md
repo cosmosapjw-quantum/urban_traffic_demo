@@ -17,8 +17,8 @@
 - `edge_backend="rust_cpu"`와 `edge_backend="jax"`는 실패 시 예외를 내고,
   `edge_backend="auto"`만 `rust_cpu` → `jax` → `baseline` 순서의 fallback을 허용한다.
 - `SimulationConfig`의 runtime backend 기본값은 `edge_backend="baseline"`,
-  `flow_backend="baseline"`, `routing_backend="baseline"`이다. 현재 routing backend는
-  baseline만 구현되어 있으며, explicit `routing_backend="rust_cpu"`는 fail-closed이다.
+  `flow_backend="baseline"`, `routing_backend="baseline"`이다. Rust routing backend는
+  dynamic-potential node cost-to-go core만 담당하며 greedy path construction은 Python에 남아 있다.
 - 디스플레이 GPU 메모리 여유가 필요하면 실행 전에 `XLA_PYTHON_CLIENT_MEM_FRACTION=.70`처럼 제한한다.
 
 설치/확인:
@@ -44,12 +44,14 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=.70 .venv/bin/python -m pytest tests/test_meso_co
 .venv/bin/python -m maturin develop --manifest-path crates/metroflow-rust/Cargo.toml
 .venv/bin/python -m pytest tests/test_meso_core.py::test_evolve_edges_fast_tick_rust_backend_matches_baseline_output -q
 .venv/bin/python -m pytest tests/test_flow_engine_rust_backend.py::test_rust_flow_backend_matches_baseline_output -q
+.venv/bin/python -m pytest tests/test_routing_rust_backend.py::test_rust_routing_backend_matches_baseline_when_extension_is_available -q
 ```
 
 현재 Rust CPU backend는 `traffic.meso` edge batch evolution과 `flow.engine` baseline flow array
-core만 담당한다. Python wrapper가 NumPy-compatible 입력을 edge는 `Vec<f64>`, flow는 `Vec<f32>` /
-`Vec<i32>` / `Vec<bool>`로 복사한 뒤 Rust 확장 `_metroflow_rust`를 호출한다. `flow_backend="rust_cpu"`
-는 실패 시 예외를 내고, `flow_backend="auto"`만 `rust_cpu` → `baseline` fallback을 허용한다.
+core, `routing.dynamic_potential` node cost-to-go core만 담당한다. Python wrapper가 NumPy-compatible
+입력을 edge는 `Vec<f64>`, flow는 `Vec<f32>` / `Vec<i32>` / `Vec<bool>`, routing은 CSR/비용 배열
+`Vec<i32>` / `Vec<f32>` / `Vec<bool>`로 복사한 뒤 Rust 확장 `_metroflow_rust`를 호출한다.
+explicit `rust_cpu` backend는 실패 시 예외를 내고, `auto`만 baseline fallback을 허용한다.
 
 ## 외부 `metro/` 구현 비교 반영
 - `metro/` 폴더는 v1 목적에 가까운 donor 구현으로 취급한다.
@@ -77,7 +79,8 @@ core만 담당한다. Python wrapper가 NumPy-compatible 입력을 edge는 `Vec<
 - review visualization은 `run_runtime_diagnostic_rollout`와 `write_runtime_diagnostic_html`로 생성한다.
   산출물은 static HTML/SVG이며 smoke diagnostic으로만 해석한다.
 - generated city map 검토는 `build_static_city_map_artifact`와 `write_static_city_map_html`을 사용한다.
-  산출물은 road class, zone/POI, bridge, queue/congestion overlay를 포함하는 static HTML/SVG이다.
+  산출물은 road class, zone/POI, bridge, connectivity repair link, queue/congestion overlay를 포함하는
+  static HTML/SVG이다.
 - `step_world`의 긴 인자 목록은 호환용으로 유지하고, 신규 호출자는 `step_world_from_inputs`와
   `FastTickInput`/`MediumTickInput`을 우선 사용한다.
 - 새 이식 코드는 baseline fallback, immutable `WorldState`, explicit units, deterministic replay 요구를 유지해야 한다.

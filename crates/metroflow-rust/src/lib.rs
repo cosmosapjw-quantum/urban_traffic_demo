@@ -1,8 +1,11 @@
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
+use std::cmp::Ordering;
+use std::collections::BinaryHeap;
 
 const EPS: f64 = 1e-6;
 const FLOW_MIN_TRAVEL_COST: f32 = 1.0e-3;
+const ROUTING_INF_COST: f32 = 1.0e12;
 
 type FlowBatchResult = (
     Vec<f32>,
@@ -15,6 +18,30 @@ type FlowBatchResult = (
     Vec<bool>,
     Vec<i32>,
 );
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+struct RoutingHeapState {
+    cost: f32,
+    node_index: usize,
+}
+
+impl Eq for RoutingHeapState {}
+
+impl Ord for RoutingHeapState {
+    fn cmp(&self, other: &Self) -> Ordering {
+        other
+            .cost
+            .partial_cmp(&self.cost)
+            .unwrap_or(Ordering::Equal)
+            .then_with(|| other.node_index.cmp(&self.node_index))
+    }
+}
+
+impl PartialOrd for RoutingHeapState {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
 
 fn validate_same_lengths(lengths: &[(&str, usize)]) -> Result<usize, String> {
     let expected = lengths
@@ -47,6 +74,128 @@ fn validate_non_negative_f32(name: &str, values: &[f32]) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+fn validate_routing_inputs(
+    node_count: usize,
+    incoming_indptr: &[i32],
+    incoming_link_indices: &[i32],
+    link_src_node_index: &[i32],
+    link_travel_time_cost: &[f32],
+    blocked_link_mask: &[bool],
+    destination_node_index: usize,
+) -> Result<usize, String> {
+    if destination_node_index >= node_count {
+        return Err("destination_node_index out of range".to_string());
+    }
+    if incoming_indptr.len() != node_count + 1 {
+        return Err(format!(
+            "incoming_indptr length must be node_count + 1: got {}, expected {}",
+            incoming_indptr.len(),
+            node_count + 1
+        ));
+    }
+    if incoming_indptr.first().copied().unwrap_or_default() != 0 {
+        return Err("incoming_indptr must start at 0".to_string());
+    }
+    for pair in incoming_indptr.windows(2) {
+        if pair[0] > pair[1] {
+            return Err("incoming_indptr must be non-decreasing".to_string());
+        }
+        if pair[0] < 0 || pair[1] < 0 {
+            return Err("incoming_indptr must be non-negative".to_string());
+        }
+    }
+
+    let link_count = link_src_node_index.len();
+    if incoming_link_indices.len() != link_count {
+        return Err(format!(
+            "incoming_link_indices length must match link_src_node_index length: got {}, expected {}",
+            incoming_link_indices.len(),
+            link_count
+        ));
+    }
+    if link_travel_time_cost.len() != link_count {
+        return Err(format!(
+            "link_travel_time_cost length must match link_src_node_index length: got {}, expected {}",
+            link_travel_time_cost.len(),
+            link_count
+        ));
+    }
+    if blocked_link_mask.len() != link_count {
+        return Err(format!(
+            "blocked_link_mask length must match link_src_node_index length: got {}, expected {}",
+            blocked_link_mask.len(),
+            link_count
+        ));
+    }
+    if incoming_indptr.last().copied().unwrap_or_default() as usize != link_count {
+        return Err("incoming_indptr last value must equal link count".to_string());
+    }
+    for value in incoming_link_indices {
+        if *value < 0 || (*value as usize) >= link_count {
+            return Err("incoming_link_indices contains out-of-range link indices".to_string());
+        }
+    }
+    for value in link_src_node_index {
+        if *value < 0 || (*value as usize) >= node_count {
+            return Err("link_src_node_index contains out-of-range node indices".to_string());
+        }
+    }
+    validate_non_negative_f32("link_travel_time_cost", link_travel_time_cost)?;
+    Ok(link_count)
+}
+
+fn compute_dynamic_potential_node_costs_impl(
+    node_count: usize,
+    incoming_indptr: &[i32],
+    incoming_link_indices: &[i32],
+    link_src_node_index: &[i32],
+    link_travel_time_cost: &[f32],
+    blocked_link_mask: &[bool],
+    destination_node_index: usize,
+) -> Result<Vec<f32>, String> {
+    validate_routing_inputs(
+        node_count,
+        incoming_indptr,
+        incoming_link_indices,
+        link_src_node_index,
+        link_travel_time_cost,
+        blocked_link_mask,
+        destination_node_index,
+    )?;
+
+    let mut dist = vec![ROUTING_INF_COST; node_count];
+    let mut heap = BinaryHeap::new();
+    dist[destination_node_index] = 0.0;
+    heap.push(RoutingHeapState {
+        cost: 0.0,
+        node_index: destination_node_index,
+    });
+
+    while let Some(RoutingHeapState { cost, node_index }) = heap.pop() {
+        if cost > dist[node_index] {
+            continue;
+        }
+        let start = incoming_indptr[node_index] as usize;
+        let end = incoming_indptr[node_index + 1] as usize;
+        for pos in start..end {
+            let link_index = incoming_link_indices[pos] as usize;
+            if blocked_link_mask[link_index] {
+                continue;
+            }
+            let prev_node_index = link_src_node_index[link_index] as usize;
+            let candidate = cost + link_travel_time_cost[link_index].max(1.0e-6_f32);
+            if candidate < dist[prev_node_index] {
+                dist[prev_node_index] = candidate;
+                heap.push(RoutingHeapState {
+                    cost: candidate,
+                    node_index: prev_node_index,
+                });
+            }
+        }
+    }
+    Ok(dist)
 }
 
 fn evolve_edges_batch_impl(
@@ -391,10 +540,33 @@ fn compute_baseline_flow_arrays_batch(
     .map_err(PyValueError::new_err)
 }
 
+#[pyfunction]
+fn compute_dynamic_potential_node_costs(
+    node_count: usize,
+    incoming_indptr: Vec<i32>,
+    incoming_link_indices: Vec<i32>,
+    link_src_node_index: Vec<i32>,
+    link_travel_time_cost: Vec<f32>,
+    blocked_link_mask: Vec<bool>,
+    destination_node_index: usize,
+) -> PyResult<Vec<f32>> {
+    compute_dynamic_potential_node_costs_impl(
+        node_count,
+        &incoming_indptr,
+        &incoming_link_indices,
+        &link_src_node_index,
+        &link_travel_time_cost,
+        &blocked_link_mask,
+        destination_node_index,
+    )
+    .map_err(PyValueError::new_err)
+}
+
 #[pymodule]
 fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evolve_edges_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_baseline_flow_arrays_batch, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_dynamic_potential_node_costs, m)?)?;
     Ok(())
 }
 
@@ -592,5 +764,84 @@ mod tests {
         .expect_err("negative queue should be rejected");
 
         assert_eq!(error, "queue_vehicles must be non-negative");
+    }
+
+    #[test]
+    fn computes_routing_potential_normal_path() {
+        let node_cost = compute_dynamic_potential_node_costs_impl(
+            3,
+            &[0, 0, 1, 2],
+            &[0, 1],
+            &[0, 1],
+            &[2.0, 3.0],
+            &[false, false],
+            2,
+        )
+        .expect("routing potential should compute");
+
+        assert_eq!(node_cost, vec![5.0, 3.0, 0.0]);
+    }
+
+    #[test]
+    fn computes_routing_potential_with_blocked_link() {
+        let node_cost = compute_dynamic_potential_node_costs_impl(
+            3,
+            &[0, 0, 1, 2],
+            &[0, 1],
+            &[0, 1],
+            &[2.0, 3.0],
+            &[true, false],
+            2,
+        )
+        .expect("blocked routing potential should compute");
+
+        assert!(node_cost[0] >= 1.0e11_f32);
+        assert_eq!(node_cost[1], 3.0);
+        assert_eq!(node_cost[2], 0.0);
+    }
+
+    #[test]
+    fn computes_routing_potential_for_zero_links() {
+        let node_cost =
+            compute_dynamic_potential_node_costs_impl(2, &[0, 0, 0], &[], &[], &[], &[], 1)
+                .expect("zero-link routing potential should compute");
+
+        assert!(node_cost[0] >= 1.0e11_f32);
+        assert_eq!(node_cost[1], 0.0);
+    }
+
+    #[test]
+    fn rejects_routing_invalid_index() {
+        let error = compute_dynamic_potential_node_costs_impl(
+            2,
+            &[0, 0, 1],
+            &[0],
+            &[2],
+            &[1.0],
+            &[false],
+            1,
+        )
+        .expect_err("invalid link source should be rejected");
+
+        assert_eq!(
+            error,
+            "link_src_node_index contains out-of-range node indices"
+        );
+    }
+
+    #[test]
+    fn rejects_routing_length_mismatch() {
+        let error = compute_dynamic_potential_node_costs_impl(
+            2,
+            &[0, 0, 1],
+            &[0],
+            &[0],
+            &[1.0, 2.0],
+            &[false],
+            1,
+        )
+        .expect_err("routing length mismatch should be rejected");
+
+        assert!(error.contains("link_travel_time_cost length must match"));
     }
 }

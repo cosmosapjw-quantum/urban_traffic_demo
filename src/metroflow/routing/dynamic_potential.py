@@ -5,16 +5,19 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from heapq import heappop, heappush
 from time import perf_counter
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 
+from metroflow.backends.rust_cpu import compute_dynamic_potential_node_costs_rust
 from metroflow.city.graph import RoadNetworkCSR
 from metroflow.flow.state import LinkState
 
 __all__ = [
     "DynamicPotentialState",
     "BaselineNextLinkScores",
+    "RoutingBackend",
+    "ROUTING_BACKENDS",
     "compute_dynamic_potential_state",
     "compute_next_link_action_costs_core",
     "score_legal_next_links",
@@ -22,6 +25,8 @@ __all__ = [
 ]
 
 Array = np.ndarray
+RoutingBackend = Literal["baseline", "rust_cpu", "auto"]
+ROUTING_BACKENDS = ("baseline", "rust_cpu", "auto")
 _INF_COST = 1e12
 _TURN_SUCCESSOR_CACHE: dict[
     tuple[int, int, int],
@@ -82,6 +87,7 @@ def compute_dynamic_potential_state(
     destination_node_id: int,
     link_state: LinkState | None = None,
     link_travel_time_cost: Array | None = None,
+    routing_backend: RoutingBackend = "baseline",
     cache: dict[Any, DynamicPotentialState] | None = None,
     cache_key: Any | None = None,
     stats: dict[str, Any] | None = None,
@@ -95,9 +101,10 @@ def compute_dynamic_potential_state(
 
     if not isinstance(network, RoadNetworkCSR):
         raise TypeError("network must be a RoadNetworkCSR")
+    _validate_routing_backend(routing_backend)
     effective_cache_key = None
     if cache is not None:
-        effective_cache_key = (
+        raw_cache_key = (
             cache_key
             if cache_key is not None
             else (
@@ -108,6 +115,11 @@ def compute_dynamic_potential_state(
                 id(link_travel_time_cost) if link_travel_time_cost is not None else None,
             )
         )
+        effective_cache_key = (
+            "dynamic_potential_backend",
+            str(routing_backend),
+            raw_cache_key,
+        )
         cached = cache.get(effective_cache_key)
         if cached is not None:
             if stats is not None:
@@ -116,32 +128,20 @@ def compute_dynamic_potential_state(
                 ) + 1
             return cached
     started = perf_counter()
-    if network.link_count == 0:
-        dest_idx = network.node_id_to_index[int(destination_node_id)]
-        node_cost = np.full((network.node_count,), _INF_COST, dtype=np.float32)
-        node_cost[dest_idx] = np.float32(0.0)
-        state = DynamicPotentialState(
-            destination_node_id=int(destination_node_id),
-            destination_node_index=dest_idx,
-            node_cost_to_go=node_cost,
-            link_travel_time_cost=np.zeros((0,), dtype=np.float32),
-            blocked_link_mask=np.zeros((0,), dtype=np.bool_),
-        )
-        if cache is not None and effective_cache_key is not None:
-            cache[effective_cache_key] = state
-        if stats is not None:
-            stats["dynamic_potential_recompute_total"] = int(
-                stats.get("dynamic_potential_recompute_total", 0)
-            ) + 1
-            stats["dynamic_potential_recompute_seconds_total"] = float(
-                stats.get("dynamic_potential_recompute_seconds_total", 0.0)
-            ) + max(perf_counter() - started, 0.0)
-        return state
-
     dest_idx = network.node_id_to_index[int(destination_node_id)]
-    costs = _resolve_link_costs(network, link_state=link_state, link_travel_time_cost=link_travel_time_cost)
+    costs = _resolve_link_costs(
+        network,
+        link_state=link_state,
+        link_travel_time_cost=link_travel_time_cost,
+    )
     blocked = _resolve_blocked_link_mask(network, link_state=link_state, size=network.link_count)
-    node_cost = _reverse_dijkstra_node_costs(network, costs=costs, blocked=blocked, destination_node_index=dest_idx)
+    node_cost, actual_backend, fallback_reason = _compute_node_cost_to_go(
+        network,
+        costs=costs,
+        blocked=blocked,
+        destination_node_index=dest_idx,
+        routing_backend=routing_backend,
+    )
 
     state = DynamicPotentialState(
         destination_node_id=int(destination_node_id),
@@ -153,6 +153,13 @@ def compute_dynamic_potential_state(
             "link_count": network.link_count,
             "node_count": network.node_count,
             "cache_key": effective_cache_key,
+            "routing_backend": actual_backend,
+            "routing_backend_requested": str(routing_backend),
+            **(
+                {"routing_backend_fallback": fallback_reason}
+                if fallback_reason is not None
+                else {}
+            ),
         },
     )
     if cache is not None and effective_cache_key is not None:
@@ -165,6 +172,59 @@ def compute_dynamic_potential_state(
             stats.get("dynamic_potential_recompute_seconds_total", 0.0)
         ) + max(perf_counter() - started, 0.0)
     return state
+
+
+def _validate_routing_backend(routing_backend: str) -> None:
+    if routing_backend not in ROUTING_BACKENDS:
+        raise ValueError("routing_backend must be one of: baseline, rust_cpu, auto")
+
+
+def _compute_node_cost_to_go(
+    network: RoadNetworkCSR,
+    *,
+    costs: Array,
+    blocked: Array,
+    destination_node_index: int,
+    routing_backend: RoutingBackend,
+) -> tuple[Array, str, str | None]:
+    if routing_backend in {"rust_cpu", "auto"}:
+        try:
+            return (
+                compute_dynamic_potential_node_costs_rust(
+                    node_count=network.node_count,
+                    incoming_indptr=network.incoming_indptr,
+                    incoming_link_indices=network.incoming_link_indices,
+                    link_src_node_index=network.link_src_node_index,
+                    link_travel_time_cost=costs,
+                    blocked_link_mask=blocked,
+                    destination_node_index=destination_node_index,
+                ),
+                "rust_cpu",
+                None,
+            )
+        except RuntimeError:
+            if routing_backend == "rust_cpu":
+                raise
+            return (
+                _reverse_dijkstra_node_costs(
+                    network,
+                    costs=costs,
+                    blocked=blocked,
+                    destination_node_index=destination_node_index,
+                ),
+                "baseline",
+                "rust_cpu_failed",
+            )
+    return (
+        _reverse_dijkstra_node_costs(
+            network,
+            costs=costs,
+            blocked=blocked,
+            destination_node_index=destination_node_index,
+        ),
+        "baseline",
+        None,
+    )
 
 
 def score_legal_next_links(

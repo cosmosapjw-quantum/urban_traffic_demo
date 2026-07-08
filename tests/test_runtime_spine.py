@@ -347,6 +347,52 @@ def test_simulation_step_fails_no_route_trip_without_allocating_agent() -> None:
     assert next_state.dynamic.route_candidate_state.candidate_sets[(1, 2)].candidate_paths == ()
 
 
+def test_runtime_route_refresh_propagates_configured_routing_backend(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from dataclasses import replace
+
+    from metroflow.demand.trips import TripRequestStatus
+    from metroflow.routing.candidates import RouteCandidateSet
+    from metroflow.sim.config import SimulationConfig
+    from metroflow.sim import routing_runtime
+
+    state = _runtime_spine_state()
+    state.config = SimulationConfig(active_agent_capacity=4, routing_backend="rust_cpu")
+    activated_trips = tuple(
+        replace(trip, status=TripRequestStatus.ACTIVATED)
+        for trip in state.dynamic.demand_state["trip_requests"]
+    )
+    state = state.with_dynamic_updates(
+        demand_state={
+            **state.dynamic.demand_state,
+            "trip_requests": activated_trips,
+            "activated_trip_requests": 1,
+        }
+    )
+    calls = []
+
+    def fake_refresh(existing, **kwargs):
+        calls.append(kwargs["routing_backend"])
+        return RouteCandidateSet(
+            od_key=kwargs["od_key"],
+            candidate_ids=(0,),
+            candidate_paths=((10, 11),),
+            last_refresh_tick=kwargs["current_tick"],
+        )
+
+    monkeypatch.setattr(routing_runtime, "refresh_od_route_candidate_set", fake_refresh)
+
+    route_state, counters = routing_runtime.refresh_runtime_route_candidates(
+        state,
+        force_refresh=True,
+    )
+
+    assert calls == ["rust_cpu"]
+    assert route_state.candidate_sets[(1, 2)].candidate_paths == ((10, 11),)
+    assert counters["route_candidate_refresh_this_tick"] == 0
+
+
 def test_runtime_replay_records_backend_and_cache_fingerprints() -> None:
     from metroflow.sim.control import SimulationControl
     from metroflow.sim.replay import (

@@ -13,6 +13,10 @@ RUST_FLOW_BACKEND_UNAVAILABLE = (
     "Rust CPU flow backend unavailable. Build it with: "
     ".venv/bin/python -m maturin develop --manifest-path crates/metroflow-rust/Cargo.toml"
 )
+RUST_ROUTING_BACKEND_UNAVAILABLE = (
+    "Rust CPU routing backend unavailable. Build it with: "
+    ".venv/bin/python -m maturin develop --manifest-path crates/metroflow-rust/Cargo.toml"
+)
 
 
 def _load_rust_extension(unavailable_message: str) -> ModuleType:
@@ -37,6 +41,14 @@ def rust_flow_backend_available() -> bool:
     except RuntimeError:
         return False
     return hasattr(rust_extension, "compute_baseline_flow_arrays_batch")
+
+
+def rust_routing_backend_available() -> bool:
+    try:
+        rust_extension = _load_rust_extension(RUST_ROUTING_BACKEND_UNAVAILABLE)
+    except RuntimeError:
+        return False
+    return hasattr(rust_extension, "compute_dynamic_potential_node_costs")
 
 
 def _as_f64_list(values: Sequence[float], name: str) -> list[float]:
@@ -76,6 +88,36 @@ def _as_bool_list(values: Sequence[bool], name: str) -> list[bool]:
         raise RuntimeError(f"Rust CPU flow backend failed: {name} must be boolean.") from exc
     if array.ndim != 1:
         raise RuntimeError(f"Rust CPU flow backend failed: {name} must be one-dimensional.")
+    return array.tolist()
+
+
+def _as_f32_routing_list(values: Sequence[float], name: str) -> list[float]:
+    try:
+        array = np.ascontiguousarray(values, dtype=np.float32)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"Rust CPU routing backend failed: {name} must be numeric.") from exc
+    if array.ndim != 1:
+        raise RuntimeError(f"Rust CPU routing backend failed: {name} must be one-dimensional.")
+    return array.tolist()
+
+
+def _as_i32_routing_list(values: Sequence[int], name: str) -> list[int]:
+    try:
+        array = np.ascontiguousarray(values, dtype=np.int32)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"Rust CPU routing backend failed: {name} must be integer.") from exc
+    if array.ndim != 1:
+        raise RuntimeError(f"Rust CPU routing backend failed: {name} must be one-dimensional.")
+    return array.tolist()
+
+
+def _as_bool_routing_list(values: Sequence[bool], name: str) -> list[bool]:
+    try:
+        array = np.ascontiguousarray(values, dtype=np.bool_)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"Rust CPU routing backend failed: {name} must be boolean.") from exc
+    if array.ndim != 1:
+        raise RuntimeError(f"Rust CPU routing backend failed: {name} must be one-dimensional.")
     return array.tolist()
 
 
@@ -158,3 +200,32 @@ def compute_baseline_flow_arrays_rust(
         "capacity_violation_flags_next": np.asarray(capacity_violation_flags_next, dtype=np.bool_),
         "signal_phase_timer_next": np.asarray(signal_phase_timer_next, dtype=np.int32),
     }
+
+
+def compute_dynamic_potential_node_costs_rust(
+    *,
+    node_count: int,
+    incoming_indptr: Sequence[int],
+    incoming_link_indices: Sequence[int],
+    link_src_node_index: Sequence[int],
+    link_travel_time_cost: Sequence[float],
+    blocked_link_mask: Sequence[bool],
+    destination_node_index: int,
+) -> np.ndarray:
+    rust_extension = _load_rust_extension(RUST_ROUTING_BACKEND_UNAVAILABLE)
+    try:
+        node_cost_to_go = rust_extension.compute_dynamic_potential_node_costs(
+            int(node_count),
+            _as_i32_routing_list(incoming_indptr, "incoming_indptr"),
+            _as_i32_routing_list(incoming_link_indices, "incoming_link_indices"),
+            _as_i32_routing_list(link_src_node_index, "link_src_node_index"),
+            _as_f32_routing_list(link_travel_time_cost, "link_travel_time_cost"),
+            _as_bool_routing_list(blocked_link_mask, "blocked_link_mask"),
+            int(destination_node_index),
+        )
+    except AttributeError as exc:
+        raise RuntimeError(RUST_ROUTING_BACKEND_UNAVAILABLE) from exc
+    except ValueError as exc:
+        raise RuntimeError(f"Rust CPU routing backend failed: {exc}") from exc
+
+    return np.asarray(node_cost_to_go, dtype=np.float32)

@@ -107,6 +107,7 @@ def create_route_candidate_set(
     incoming_link_id: int | None = None,
     max_candidates: int = 1,
     max_hops: int = 64,
+    routing_backend: str = "baseline",
     potential_cache: dict[Any, Any] | None = None,
     cache_key: Any | None = None,
     stats: dict[str, Any] | None = None,
@@ -128,6 +129,7 @@ def create_route_candidate_set(
         incoming_link_id=incoming_link_id,
         max_candidates=max_candidates,
         max_hops=max_hops,
+        routing_backend=routing_backend,
         potential_cache=potential_cache,
         cache_key=cache_key,
         stats=stats,
@@ -146,6 +148,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
     incoming_link_id = kwargs.get("incoming_link_id")
     max_candidates = int(kwargs.get("max_candidates", 1))
     max_hops = int(kwargs.get("max_hops", 64))
+    routing_backend = str(kwargs.get("routing_backend", "baseline"))
     potential_cache = kwargs.get("potential_cache")
     cache_key = kwargs.get("cache_key")
     stats = kwargs.get("stats")
@@ -168,6 +171,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             network=road_csr,
             link_state=link_state,
             destination_node_id=destination_node_id,
+            routing_backend=routing_backend,
             cache=potential_cache,
             cache_key=effective_cache_key,
             stats=stats,
@@ -200,6 +204,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             "max_candidates_requested": max_candidates,
             "max_hops": max_hops,
             "candidate_generation_mode": "baseline_greedy_single",
+            "routing_backend": routing_backend,
         },
     )
     if stats is not None:
@@ -223,6 +228,7 @@ def refresh_od_route_candidate_set(
     incident_active: bool = False,
     force_refresh: bool = False,
     policy: RouteCandidateRefreshPolicy | None = None,
+    routing_backend: str = "baseline",
     potential_cache: dict[Any, Any] | None = None,
     cache_key: Any | None = None,
     stats: dict[str, Any] | None = None,
@@ -260,6 +266,7 @@ def refresh_od_route_candidate_set(
         incoming_link_id=incoming_link_id,
         max_candidates=refresh_policy.max_candidates,
         max_hops=refresh_policy.max_hops,
+        routing_backend=routing_backend,
         potential_cache=potential_cache,
         cache_key=cache_key,
         stats=stats,
