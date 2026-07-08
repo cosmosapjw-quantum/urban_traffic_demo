@@ -63,6 +63,11 @@ core만 담당한다. Python wrapper가 NumPy-compatible 입력을 edge는 `Vec<
 - baseline `sim.init.build_initial_simulation_state`와 `sim.step.simulation_step`은 donor 의존성 없이
   city→demand→event effects→flow→route candidate cache→active agents→invariant→UI snapshot의
   deterministic runtime spine을 제공한다.
+- active-agent spine은 activated trip을 route candidate의 첫 링크에 배정하고, source link queue에
+  차량 1대를 삽입한다. link-to-link 이동은 직전 flow update의 `outflow_vehicles` 정수 예산을
+  slot id 순서로 소비한다.
+- final-link completion은 아직 coarse residence rule이다. sink connector/discharge model은 다음 slice에서
+  별도로 좁게 다룬다.
 - reporting/experiment 표면으로 simulator-only learning experience, run summary comparison,
   Navigator UI stream packetization, benchmark smoke runner, scenario presets, adaptive policy plugin registry를 흡수했다.
 - `SimulationState` runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`를 사용한다.

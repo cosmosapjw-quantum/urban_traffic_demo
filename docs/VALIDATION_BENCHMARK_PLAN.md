@@ -33,6 +33,8 @@ city100k-like synthetic benchmark:
 - route candidate refresh/reuse count
 - dynamic potential recompute/cache-hit count
 - active-agent allocation/move/complete count
+- source-link queue insertion count/queue delta
+- outflow-budgeted active-agent movement count
 
 `run_measured_runtime_spine_benchmark`는 `flow_backend`, `routing_backend`,
 route candidate counters, dynamic-potential counters, initial/final tick을 기록한다.
@@ -49,6 +51,8 @@ backend config 및 route-cache fingerprint를 고정한다.
 - Rust CPU flow parity test는 baseline `compute_baseline_flow_arrays_core`와 turn priority, forbidden turn, zero-turn, zero-link, signal timer 결과를 동일 입력으로 비교한다
 - runtime spine parity는 baseline config에서 event effect, flow update, route candidate cache, active-agent movement,
   replay fingerprint가 deterministic하게 재현되는지 확인한다
+- active-agent movement parity는 newly allocated slot의 same-tick movement 금지, source link queue insertion,
+  `outflow_vehicles` 예산 이하 link advance, no-outflow 대기를 고정한다
 - JAX 첫 호출 compile time과 steady-state runtime을 분리 기록
 - benchmark result는 요청 backend를 기록하고, explicit `rust_cpu`/`jax` 요청 실패는 실패로 남김
 - `auto` backend만 baseline fallback을 허용한다
