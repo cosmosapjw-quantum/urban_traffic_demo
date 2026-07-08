@@ -72,7 +72,7 @@ dynamic-potential/next-link/greedy 단일 path kernel의 optional accelerator로
 - baseline `sim.init.build_initial_simulation_state`와 `sim.step.simulation_step`은 donor 의존성 없이
   city→demand→event effects→flow→route candidate cache→active agents→invariant→UI snapshot의
   deterministic runtime spine을 제공한다.
-- active-agent spine은 activated trip을 route candidate의 첫 링크에 배정하고, source link queue에
+- active-agent spine은 activated trip을 선택된 route candidate의 첫 링크에 배정하고, source link queue에
   차량 1대를 삽입한다. link-to-link 이동은 직전 flow update의 `outflow_vehicles` 정수 예산을
   slot id 순서로 소비한다.
 - agent slot memory는 선택된 candidate id/index/count와 baseline path cost/path-size factor를 보존한다.

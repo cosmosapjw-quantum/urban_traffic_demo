@@ -832,21 +832,39 @@ def _first_candidate_path(candidate_set: RouteCandidateSet | None) -> tuple[int,
 def _select_candidate_route(candidate_set: RouteCandidateSet | None) -> _SelectedCandidateRoute | None:
     if candidate_set is None or not candidate_set.candidate_paths:
         return None
-    path = tuple(int(x) for x in candidate_set.candidate_paths[0])
-    if not path:
+    candidate_paths = tuple(tuple(int(x) for x in path) for path in candidate_set.candidate_paths)
+    viable_indices = tuple(index for index, path in enumerate(candidate_paths) if path)
+    if not viable_indices:
         return None
     metadata = candidate_set.metadata if isinstance(candidate_set.metadata, Mapping) else {}
     costs = tuple(float(x) for x in tuple(metadata.get("candidate_path_costs", ()) or ()))
     path_sizes = tuple(
         float(x) for x in tuple(metadata.get("candidate_path_size_factors", ()) or ())
     )
+    candidate_ids = tuple(int(x) for x in candidate_set.candidate_ids)
+    if len(costs) >= len(candidate_paths):
+        selected_index = min(
+            viable_indices,
+            key=lambda idx: (
+                costs[idx],
+                candidate_ids[idx] if idx < len(candidate_ids) else idx,
+                candidate_paths[idx],
+            ),
+        )
+    else:
+        selected_index = viable_indices[0]
+    path = candidate_paths[selected_index]
     return _SelectedCandidateRoute(
-        candidate_index=0,
-        candidate_id=int(candidate_set.candidate_ids[0]) if candidate_set.candidate_ids else 0,
-        candidate_count=len(candidate_set.candidate_paths),
+        candidate_index=selected_index,
+        candidate_id=(
+            candidate_ids[selected_index] if selected_index < len(candidate_ids) else selected_index
+        ),
+        candidate_count=len(candidate_paths),
         path=path,
-        path_cost=costs[0] if costs else 0.0,
-        path_size_factor=path_sizes[0] if path_sizes else 1.0,
+        path_cost=costs[selected_index] if selected_index < len(costs) else 0.0,
+        path_size_factor=(
+            path_sizes[selected_index] if selected_index < len(path_sizes) else 1.0
+        ),
     )
 
 

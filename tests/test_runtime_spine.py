@@ -580,11 +580,11 @@ def test_active_agent_allocation_records_selected_candidate_metadata() -> None:
     candidate_set = RouteCandidateSet(
         od_key=(1, 2),
         candidate_ids=(7, 8),
-        candidate_paths=((10, 11), (10,)),
+        candidate_paths=((10,), (10, 11)),
         last_refresh_tick=0,
         metadata={
-            "candidate_path_costs": (2.0, 3.0),
-            "candidate_path_size_factors": (0.75, 1.0),
+            "candidate_path_costs": (3.0, 2.0),
+            "candidate_path_size_factors": (1.0, 0.75),
         },
     )
     state = state.with_dynamic_updates(
@@ -607,8 +607,8 @@ def test_active_agent_allocation_records_selected_candidate_metadata() -> None:
     assert demand_state["allocated_trip_request_ids"] == (1,)
     memory = pool.plugin_memory[0]
     assert memory["route_path"] == (10, 11)
-    assert memory["selected_candidate_index"] == 0
-    assert memory["selected_candidate_id"] == 7
+    assert memory["selected_candidate_index"] == 1
+    assert memory["selected_candidate_id"] == 8
     assert memory["selected_candidate_count"] == 2
     assert memory["selected_candidate_path_cost"] == 2.0
     assert memory["selected_candidate_path_size_factor"] == 0.75
