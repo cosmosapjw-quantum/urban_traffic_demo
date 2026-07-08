@@ -393,6 +393,37 @@ def test_runtime_route_refresh_propagates_configured_routing_backend(
     assert counters["route_candidate_refresh_this_tick"] == 0
 
 
+def test_runtime_route_cache_fingerprint_includes_candidate_backend_metadata() -> None:
+    from metroflow.routing.candidates import RouteCandidateSet
+    from metroflow.sim.routing_runtime import runtime_route_cache_fingerprint
+
+    baseline_set = RouteCandidateSet(
+        od_key=(1, 2),
+        candidate_ids=(0,),
+        candidate_paths=((10, 11),),
+        last_refresh_tick=0,
+        metadata={
+            "routing_backend": "baseline",
+            "routing_backend_requested": "auto",
+            "routing_backend_fallback": "rust_cpu_unavailable",
+        },
+    )
+    rust_set = RouteCandidateSet(
+        od_key=(1, 2),
+        candidate_ids=(0,),
+        candidate_paths=((10, 11),),
+        last_refresh_tick=0,
+        metadata={
+            "routing_backend": "rust_cpu",
+            "routing_backend_requested": "auto",
+        },
+    )
+
+    assert runtime_route_cache_fingerprint(candidate_sets={(1, 2): baseline_set}) != (
+        runtime_route_cache_fingerprint(candidate_sets={(1, 2): rust_set})
+    )
+
+
 def test_runtime_replay_records_backend_and_cache_fingerprints() -> None:
     from metroflow.sim.control import SimulationControl
     from metroflow.sim.replay import (

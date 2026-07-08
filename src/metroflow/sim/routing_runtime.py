@@ -247,6 +247,7 @@ def runtime_route_cache_fingerprint(
                 "candidate_ids": list(value.candidate_ids),
                 "candidate_paths": [list(path) for path in value.candidate_paths],
                 "last_refresh_tick": value.last_refresh_tick,
+                "metadata": _stable_fingerprint_metadata(value.metadata),
             }
             for key, value in sorted(dict(candidate_sets or {}).items())
         ],
@@ -259,6 +260,24 @@ def runtime_route_cache_fingerprint(
     }
     stable = json.dumps(payload, separators=(",", ":"), sort_keys=True)
     return hashlib.sha256(stable.encode("utf-8")).hexdigest()
+
+
+def _stable_fingerprint_metadata(metadata: Mapping[str, Any] | None) -> dict[str, Any]:
+    stable: dict[str, Any] = {}
+    for key, value in sorted(dict(metadata or {}).items()):
+        converted = _stable_fingerprint_value(value)
+        if converted is not None:
+            stable[str(key)] = converted
+    return stable
+
+
+def _stable_fingerprint_value(value: Any) -> Any:
+    if isinstance(value, bool | int | float | str):
+        return value
+    if isinstance(value, tuple | list):
+        converted = [_stable_fingerprint_value(item) for item in value]
+        return [item for item in converted if item is not None]
+    return None
 
 
 def _validate_routing_backend(routing_backend: str) -> None:

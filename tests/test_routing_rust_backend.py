@@ -423,3 +423,55 @@ def test_route_candidate_refresh_passes_routing_backend(monkeypatch: pytest.Monk
     assert calls == ["rust_cpu"]
     assert greedy_calls == ["rust_cpu"]
     assert candidate_set.candidate_paths == ((12, 13),)
+
+
+def test_route_candidate_refresh_records_effective_routing_backend_metadata(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.routing import candidates
+    from metroflow.routing.dynamic_potential import DynamicPotentialState
+
+    road_csr, link_state = _make_routing_fixture()
+
+    def fake_compute_dynamic_potential_state(**_kwargs):
+        return DynamicPotentialState(
+            destination_node_id=4,
+            destination_node_index=road_csr.node_id_to_index[4],
+            node_cost_to_go=(2.0, 1.0, 1.0, 0.0),
+            link_travel_time_cost=link_state.travel_time_cost,
+            blocked_link_mask=(False, False, False, False),
+            metadata={
+                "routing_backend": "baseline",
+                "routing_backend_requested": "auto",
+                "routing_backend_fallback": "rust_cpu_unavailable",
+            },
+        )
+
+    def fake_build_greedy_route_candidate(**_kwargs):
+        return (12, 13)
+
+    monkeypatch.setattr(
+        candidates,
+        "compute_dynamic_potential_state",
+        fake_compute_dynamic_potential_state,
+    )
+    monkeypatch.setattr(
+        candidates,
+        "build_greedy_route_candidate",
+        fake_build_greedy_route_candidate,
+    )
+
+    candidate_set = candidates.refresh_od_route_candidate_set(
+        None,
+        road_csr=road_csr,
+        link_state=link_state,
+        od_key=(1, 4),
+        origin_node_id=1,
+        destination_node_id=4,
+        current_tick=0,
+        routing_backend="auto",
+    )
+
+    assert candidate_set.metadata["routing_backend"] == "baseline"
+    assert candidate_set.metadata["routing_backend_requested"] == "auto"
+    assert candidate_set.metadata["routing_backend_fallback"] == "rust_cpu_unavailable"

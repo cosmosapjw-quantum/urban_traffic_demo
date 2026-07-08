@@ -158,6 +158,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
         raise ValueError("T062 supports only a single baseline candidate; use max_candidates=1")
 
     path = ()
+    potential_metadata: dict[str, Any] = {}
     if max_candidates >= 1:
         effective_cache_key = cache_key
         if effective_cache_key is None:
@@ -176,6 +177,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             cache_key=effective_cache_key,
             stats=stats,
         )
+        potential_metadata = dict(potential_state.metadata)
         path = build_greedy_route_candidate(
             network=road_csr,
             potential_state=potential_state,
@@ -205,7 +207,19 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             "max_candidates_requested": max_candidates,
             "max_hops": max_hops,
             "candidate_generation_mode": "baseline_greedy_single",
-            "routing_backend": routing_backend,
+            "routing_backend": str(potential_metadata.get("routing_backend", routing_backend)),
+            "routing_backend_requested": str(
+                potential_metadata.get("routing_backend_requested", routing_backend)
+            ),
+            **(
+                {
+                    "routing_backend_fallback": str(
+                        potential_metadata["routing_backend_fallback"]
+                    )
+                }
+                if "routing_backend_fallback" in potential_metadata
+                else {}
+            ),
         },
     )
     if stats is not None:
