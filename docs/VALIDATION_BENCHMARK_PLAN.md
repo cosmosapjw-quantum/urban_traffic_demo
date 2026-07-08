@@ -87,6 +87,8 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - benchmark result는 요청 backend를 기록하고, explicit `rust_cpu`/`jax` 요청 실패는 실패로 남김
 - runtime benchmark result는 route-candidate refresh, dynamic-potential recompute, routing compile estimate
   timing totals를 metrics/run summary와 동일한 key로 보존한다
+- isolated routing-candidate benchmark result는 route-candidate refresh와 dynamic-potential recompute
+  timing totals를 own stats에서 보존한다
 - `auto` backend만 baseline fallback을 허용한다
 - display GPU OOM 회피가 필요하면 `XLA_PYTHON_CLIENT_MEM_FRACTION` 값을 결과에 기록
 - baseline보다 느리거나 값 drift가 있으면 baseline을 production default로 유지

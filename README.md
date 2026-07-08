@@ -94,8 +94,8 @@ Rust routing backend는 같은 contract를 optional accelerator로 제공한다.
 - integrated runtime benchmark는 `run_measured_runtime_spine_benchmark`를 사용하며 flow/routing backend와
   route candidate/dynamic-potential cache counters 및 timing totals를 결과에 보존한다.
 - isolated routing candidate benchmark는 `run_measured_routing_candidate_benchmark`를 사용하며
-  dynamic-potential recompute/cache counters, final candidate path, ranked-K candidate paths/costs/path-size
-  metadata, routing copy-boundary note를 기록한다.
+  dynamic-potential recompute/cache counters와 timing totals, final candidate path, ranked-K candidate
+  paths/costs/path-size metadata, routing copy-boundary note를 기록한다.
 - review visualization은 `run_runtime_diagnostic_rollout`와 `write_runtime_diagnostic_html`로 생성한다.
   산출물은 static HTML/SVG이며 smoke diagnostic으로만 해석한다.
 - generated city map 검토는 `build_static_city_map_artifact`와 `write_static_city_map_html`을 사용한다.

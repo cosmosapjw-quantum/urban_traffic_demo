@@ -119,6 +119,8 @@ class MeasuredRoutingBenchmarkResult:
     routing_copy_boundary_note: str
     dynamic_potential_recompute_total: int
     dynamic_potential_cache_hits_total: int
+    route_candidate_refresh_seconds_total: float = 0.0
+    dynamic_potential_recompute_seconds_total: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -307,6 +309,12 @@ def run_measured_routing_candidate_benchmark(
         ),
         dynamic_potential_cache_hits_total=int(
             stats.get("dynamic_potential_cache_hits_total", 0)
+        ),
+        route_candidate_refresh_seconds_total=float(
+            stats.get("route_candidate_refresh_seconds_total", 0.0)
+        ),
+        dynamic_potential_recompute_seconds_total=float(
+            stats.get("dynamic_potential_recompute_seconds_total", 0.0)
         ),
     )
 

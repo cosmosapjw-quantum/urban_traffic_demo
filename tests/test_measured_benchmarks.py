@@ -309,6 +309,8 @@ def test_measured_routing_candidate_benchmark_records_baseline_path_metadata():
     assert result.routing_backend_fallback is None
     assert result.dynamic_potential_recompute_total == 2
     assert result.dynamic_potential_cache_hits_total == 0
+    assert result.route_candidate_refresh_seconds_total >= 0.0
+    assert result.dynamic_potential_recompute_seconds_total >= 0.0
 
 
 def test_measured_routing_candidate_benchmark_records_single_candidate_metadata():
