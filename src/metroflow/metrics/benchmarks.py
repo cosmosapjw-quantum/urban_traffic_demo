@@ -138,6 +138,9 @@ class MeasuredRuntimeBenchmarkResult:
     route_candidate_reuse_total: int
     dynamic_potential_recompute_total: int
     dynamic_potential_cache_hits_total: int
+    route_candidate_refresh_seconds_total: float = 0.0
+    dynamic_potential_recompute_seconds_total: float = 0.0
+    routing_compile_seconds_estimate_total: float = 0.0
     reroute_decisions_total: int = 0
     persistence_decisions_total: int = 0
     active_agent_sink_wait_total: int = 0
@@ -354,6 +357,15 @@ def run_measured_runtime_spine_benchmark(
         ),
         dynamic_potential_cache_hits_total=int(
             metrics_state.get("dynamic_potential_cache_hits_total", 0)
+        ),
+        route_candidate_refresh_seconds_total=float(
+            metrics_state.get("route_candidate_refresh_seconds_total", 0.0)
+        ),
+        dynamic_potential_recompute_seconds_total=float(
+            metrics_state.get("dynamic_potential_recompute_seconds_total", 0.0)
+        ),
+        routing_compile_seconds_estimate_total=float(
+            metrics_state.get("routing_compile_seconds_estimate_total", 0.0)
         ),
         reroute_decisions_total=int(metrics_state.get("us2_reroute_decisions_total", 0)),
         persistence_decisions_total=int(

@@ -876,6 +876,67 @@ def test_runtime_sink_wait_counters_accumulate_for_run_summary(
     assert summary.active_agent_sink_wait_total == 3
 
 
+def test_runtime_route_timing_stats_propagate_to_run_summary(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.sim import step as step_module
+    from metroflow.sim.control import SimulationControl
+    from metroflow.sim.rng import key_from_seed
+    from metroflow.sim.routing_runtime import SimulationRouteCacheState
+    from metroflow.sim.run_summary import build_baseline_run_summary
+
+    state = _runtime_spine_state()
+
+    def fake_refresh_runtime_route_candidates(_state):
+        return (
+            SimulationRouteCacheState(
+                stats={
+                    "route_candidate_refresh_total": 2,
+                    "route_candidate_reuse_total": 1,
+                    "dynamic_potential_recompute_total": 3,
+                    "dynamic_potential_cache_hits_total": 4,
+                    "route_candidate_refresh_seconds_total": 0.125,
+                    "dynamic_potential_recompute_seconds_total": 0.25,
+                    "routing_compile_seconds_estimate_total": 0.5,
+                }
+            ),
+            {},
+        )
+
+    def fake_advance_runtime_active_agents(state):
+        return (
+            state.dynamic.active_agent_pool,
+            {},
+            state.dynamic.demand_state,
+            state.dynamic.flow_link_state,
+        )
+
+    monkeypatch.setattr(
+        step_module,
+        "refresh_runtime_route_candidates",
+        fake_refresh_runtime_route_candidates,
+    )
+    monkeypatch.setattr(
+        step_module,
+        "advance_runtime_active_agents",
+        fake_advance_runtime_active_agents,
+    )
+
+    next_state, _telemetry, _snapshot, _key = step_module.simulation_step(
+        state,
+        SimulationControl(),
+        key_from_seed(37),
+    )
+    summary = build_baseline_run_summary(next_state)
+
+    assert next_state.dynamic.metrics_state["route_candidate_refresh_seconds_total"] == 0.125
+    assert next_state.dynamic.metrics_state["dynamic_potential_recompute_seconds_total"] == 0.25
+    assert next_state.dynamic.metrics_state["routing_compile_seconds_estimate_total"] == 0.5
+    assert summary.route_candidate_refresh_seconds_total == 0.125
+    assert summary.dynamic_potential_recompute_seconds_total == 0.25
+    assert summary.routing_compile_seconds_estimate_total == 0.5
+
+
 def test_simulation_step_fails_no_route_trip_without_allocating_agent() -> None:
     from metroflow.sim.control import SimulationControl
     from metroflow.sim.rng import key_from_seed

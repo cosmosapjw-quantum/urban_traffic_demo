@@ -392,6 +392,15 @@ def _update_metrics_state(
             "dynamic_potential_cache_hits_total": int(
                 route_stats.get("dynamic_potential_cache_hits_total", 0)
             ),
+            "route_candidate_refresh_seconds_total": float(
+                route_stats.get("route_candidate_refresh_seconds_total", 0.0)
+            ),
+            "dynamic_potential_recompute_seconds_total": float(
+                route_stats.get("dynamic_potential_recompute_seconds_total", 0.0)
+            ),
+            "routing_compile_seconds_estimate_total": float(
+                route_stats.get("routing_compile_seconds_estimate_total", 0.0)
+            ),
             "active_agent_moved_this_tick": int(
                 tick_counters.get("active_agent_moved_this_tick", 0)
             ),

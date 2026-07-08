@@ -92,7 +92,7 @@ Rust routing backend는 같은 contract를 optional accelerator로 제공한다.
 - `SimulationState` runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`를 사용한다.
   replay boundary는 backend config와 route-cache fingerprint를 기록한다.
 - integrated runtime benchmark는 `run_measured_runtime_spine_benchmark`를 사용하며 flow/routing backend와
-  route candidate/dynamic-potential cache counters를 결과에 보존한다.
+  route candidate/dynamic-potential cache counters 및 timing totals를 결과에 보존한다.
 - isolated routing candidate benchmark는 `run_measured_routing_candidate_benchmark`를 사용하며
   dynamic-potential recompute/cache counters, final candidate path, ranked-K candidate paths/costs/path-size
   metadata, routing copy-boundary note를 기록한다.

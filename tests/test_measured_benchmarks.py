@@ -455,6 +455,9 @@ def test_measured_runtime_benchmark_preserves_reroute_counter_metadata(
             metrics.get("active_agent_sink_wait_total", 0)
         ) + 3
         metrics["active_agent_sink_wait_this_tick"] = 3
+        metrics["route_candidate_refresh_seconds_total"] = 0.125
+        metrics["dynamic_potential_recompute_seconds_total"] = 0.25
+        metrics["routing_compile_seconds_estimate_total"] = 0.5
         metrics["active_agent_rerouted_this_tick"] = 2
         metrics["active_agent_reroute_cooldown_this_tick"] = 1
         return (
@@ -478,5 +481,8 @@ def test_measured_runtime_benchmark_preserves_reroute_counter_metadata(
     assert result.persistence_decisions_total == 2
     assert result.active_agent_sink_wait_total == 6
     assert result.active_agent_sink_wait_this_tick == 3
+    assert result.route_candidate_refresh_seconds_total == 0.125
+    assert result.dynamic_potential_recompute_seconds_total == 0.25
+    assert result.routing_compile_seconds_estimate_total == 0.5
     assert result.active_agent_rerouted_this_tick == 2
     assert result.active_agent_reroute_cooldown_this_tick == 1
