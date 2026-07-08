@@ -49,4 +49,5 @@
 - 012-backend-rearchitecture: Moved JAX outside core contracts; root runtime stores NumPy arrays and keeps JAX as optional accelerator extra
 - 015-runtime-spine: Connected `SimulationState` step to event effects, flow update, route candidate cache, active-agent movement, runtime replay, and measured runtime benchmark
 - 016-route-candidate-k: Enabled deterministic Python baseline ranked K route candidates while keeping Rust routing as an optional kernel accelerator
+- 018-rust-ranked-routing: Added optional Rust CPU ranked-K route candidate enumeration with Python baseline parity and explicit/auto fallback policy
 - 017-path-size-choice: Added configurable path-size route-choice correction to runtime selection, replay fingerprint, and benchmark metadata

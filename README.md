@@ -19,9 +19,11 @@
 - `SimulationConfig`의 runtime backend 기본값은 `edge_backend="baseline"`,
   `flow_backend="baseline"`, `routing_backend="baseline"`이다. Rust routing backend는
   dynamic-potential node cost-to-go, next-link action scoring,
-  deterministic greedy single-candidate path core를 담당한다.
+  deterministic greedy single-candidate path core, ranked-K candidate enumeration을 담당한다.
 - `route_max_candidates`는 기본값 1을 유지하지만 2 이상을 명시하면 Python baseline이
   dynamic-potential heuristic과 turn restriction을 사용해 결정론적 ranked K 후보 경로를 생성한다.
+  `routing_backend="rust_cpu"` 또는 Rust 사용 가능한 `auto`에서는 같은 ranked-K enumeration을
+  Rust CPU copy-boundary backend로 실행할 수 있으며, baseline 결과와 parity를 유지해야 한다.
   candidate set metadata는 각 후보의 baseline path cost와 path-size factor를 함께 기록한다.
   `route_path_size_gamma` 기본값은 0.0이라 기존 비용 기반 선택을 보존하고, 0보다 크게 설정하면
   `-cost + gamma * log(path_size)` utility로 중복 경로를 보정한다.
@@ -55,12 +57,12 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=.70 .venv/bin/python -m pytest tests/test_meso_co
 
 현재 Rust CPU backend는 `traffic.meso` edge batch evolution과 `flow.engine` baseline flow array
 core, `routing.dynamic_potential` node cost-to-go, next-link action scoring,
-greedy single-candidate route path core만 담당한다. Python wrapper가 NumPy-compatible
+greedy single-candidate route path core, ranked-K route candidate enumeration을 담당한다. Python wrapper가 NumPy-compatible
 입력을 edge는 `Vec<f64>`, flow는 `Vec<f32>` / `Vec<i32>` / `Vec<bool>`, routing은 CSR/비용 배열
 `Vec<i32>` / `Vec<f32>` / `Vec<bool>`로 복사한 뒤 Rust 확장 `_metroflow_rust`를 호출한다.
 explicit `rust_cpu` backend는 실패 시 예외를 내고, `auto`만 baseline fallback을 허용한다.
-ranked K route candidate generation은 현재 Python baseline에서 수행하며, Rust routing backend는
-dynamic-potential/next-link/greedy 단일 path kernel의 optional accelerator로 남긴다.
+ranked-K route candidate generation은 Python baseline을 authority로 유지하며,
+Rust routing backend는 같은 contract를 optional accelerator로 제공한다.
 
 ## 외부 `metro/` 구현 비교 반영
 - `metro/` 폴더는 v1 목적에 가까운 donor 구현으로 취급한다.
