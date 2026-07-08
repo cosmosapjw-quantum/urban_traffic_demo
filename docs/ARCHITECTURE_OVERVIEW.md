@@ -52,8 +52,9 @@
 - active-agent movement는 lane-level/microscopic model이 아니다. activated trip allocation은 첫 route link의
   `LinkState.queue_vehicles`를 1대 증가시키고, 다음 tick의 link-to-link advance는 flow update가 산출한
   `outflow_vehicles` 예산을 deterministic slot 순서로 소비한다.
-- final-link arrival은 현재 coarse residence completion이며, sink connector/discharge coupling은 아직
-  backend migration 대상이 아니다.
+- final-link arrival은 sink discharge budget을 소비한다. 목적지 discharge는 final link의
+  effective capacity에서 산출한 정수 예산을 deterministic slot 순서로 쓰며, zero capacity/closure에서는
+  agent가 final link에 남는다.
 - `WorldState`/`step_world`는 compatibility contract이고, integrated long-run runtime은
   `sim.step.simulation_step`을 기준으로 확장함
 - 기본 backend contract는 NumPy host arrays이며, accelerator 배열은 core state에 저장하지 않음

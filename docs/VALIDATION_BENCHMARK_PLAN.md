@@ -78,7 +78,8 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - runtime spine parity는 baseline config에서 event effect, flow update, route candidate cache, active-agent movement,
   replay fingerprint가 deterministic하게 재현되는지 확인한다
 - active-agent movement parity는 newly allocated slot의 same-tick movement 금지, source link queue insertion,
-  `outflow_vehicles` 예산 이하 link advance, no-outflow 대기를 고정한다
+  `outflow_vehicles` 예산 이하 link advance, no-outflow 대기, final-link sink discharge budget 이하
+  completion, zero-capacity final-link 대기를 고정한다
 - active-agent reroute parity는 incident/refresh-cadence trigger, cooldown-preserve behavior,
   current-link 이후 route tail replacement, reroute/cooldown telemetry counters를 고정한다
 - JAX 첫 호출 compile time과 steady-state runtime을 분리 기록

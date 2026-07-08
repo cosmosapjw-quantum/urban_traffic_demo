@@ -410,9 +410,15 @@ def _flow_copy_boundary_note(flow_backend: FlowUpdateBackend) -> str:
 
 def _routing_copy_boundary_note(routing_backend: str) -> str:
     if routing_backend == "rust_cpu":
-        return "rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, and greedy path"
+        return (
+            "rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, "
+            "greedy path, and ranked-K candidates"
+        )
     if routing_backend == "auto":
-        return "auto rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, and greedy path when available"
+        return (
+            "auto rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, "
+            "greedy path, and ranked-K candidates when available"
+        )
     return "numpy baseline"
 
 

@@ -16,6 +16,8 @@
   source link queue 및 travel-time cost를 같은 tick에서 함께 갱신한다
 - active-agent link movement는 `flow_link_state.outflow_vehicles` 예산보다 많은 discrete agent를
   전진시키면 안 된다. 같은 tick에 새로 배정된 slot은 이동하지 않는다
+- active-agent final-link completion은 final link의 effective capacity에서 계산한 sink discharge budget보다
+  많은 discrete agent를 완료시키면 안 된다. zero capacity 또는 active closure에서는 final link에 대기한다
 - active-agent reroute는 incident 또는 refresh cadence에서만 평가한다. cooldown이 남은 slot은
   route tail을 바꾸지 않고 cooldown만 감소시킨다
 - route candidate cache key/fingerprint는 geometry id, link count, flow generation, incident generation,

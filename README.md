@@ -83,8 +83,9 @@ Rust routing backend는 같은 contract를 optional accelerator로 제공한다.
   path-size utility를 보존한다.
 - runtime reroute는 incident 또는 route refresh cadence에서만 현재 링크 이후 tail 후보를 검토한다.
   cooldown이 남은 slot은 기존 route tail을 유지하고 cooldown만 감소한다.
-- final-link completion은 아직 coarse residence rule이다. sink connector/discharge model은 다음 slice에서
-  별도로 좁게 다룬다.
+- final-link completion은 sink discharge budget을 소비한다. link-to-link movement는
+  `outflow_vehicles` 예산을 쓰고, destination discharge는 final link의 effective capacity가 0보다
+  클 때만 deterministic slot 순서로 완료된다.
 - reporting/experiment 표면으로 simulator-only learning experience, run summary comparison,
   Navigator UI stream packetization, benchmark smoke runner, scenario presets, adaptive policy plugin registry를 흡수했다.
 - `SimulationState` runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`를 사용한다.
