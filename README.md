@@ -20,6 +20,8 @@
   `flow_backend="baseline"`, `routing_backend="baseline"`이다. Rust routing backend는
   dynamic-potential node cost-to-go, next-link action scoring,
   deterministic greedy single-candidate path core를 담당한다.
+- `route_max_candidates`는 기본값 1을 유지하지만 2 이상을 명시하면 Python baseline이
+  dynamic-potential heuristic과 turn restriction을 사용해 결정론적 ranked K 후보 경로를 생성한다.
 - 디스플레이 GPU 메모리 여유가 필요하면 실행 전에 `XLA_PYTHON_CLIENT_MEM_FRACTION=.70`처럼 제한한다.
 
 설치/확인:
@@ -54,6 +56,8 @@ greedy single-candidate route path core만 담당한다. Python wrapper가 NumPy
 입력을 edge는 `Vec<f64>`, flow는 `Vec<f32>` / `Vec<i32>` / `Vec<bool>`, routing은 CSR/비용 배열
 `Vec<i32>` / `Vec<f32>` / `Vec<bool>`로 복사한 뒤 Rust 확장 `_metroflow_rust`를 호출한다.
 explicit `rust_cpu` backend는 실패 시 예외를 내고, `auto`만 baseline fallback을 허용한다.
+ranked K route candidate generation은 현재 Python baseline에서 수행하며, Rust routing backend는
+dynamic-potential/next-link/greedy 단일 path kernel의 optional accelerator로 남긴다.
 
 ## 외부 `metro/` 구현 비교 반영
 - `metro/` 폴더는 v1 목적에 가까운 donor 구현으로 취급한다.

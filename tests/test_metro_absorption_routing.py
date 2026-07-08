@@ -76,6 +76,26 @@ def test_route_candidate_refresh_reuses_until_interval_or_incident():
     assert first.candidate_paths == ((12, 13),)
 
 
+def test_route_candidate_set_builds_ranked_diverse_baseline_paths():
+    _graph, csr, link_state = make_csr_and_link_state()
+    candidates = import_module("metroflow.routing.candidates")
+
+    candidate_set = candidates.create_route_candidate_set(
+        road_csr=csr,
+        link_state=link_state,
+        od_key=("z1", "z4"),
+        origin_node_id=1,
+        destination_node_id=4,
+        current_tick=0,
+        max_candidates=2,
+    )
+
+    assert candidate_set.candidate_ids == (0, 1)
+    assert candidate_set.candidate_paths == ((12, 13), (10, 11))
+    assert candidate_set.metadata["candidate_generation_mode"] == "baseline_ranked_k"
+    assert candidate_set.metadata["max_candidates_returned"] == 2
+
+
 def test_policy_mixer_falls_back_when_adaptive_scores_are_invalid():
     policy_blend = import_module("metroflow.learning.policy_blend")
     policy_mixer = import_module("metroflow.routing.policy_mixer")

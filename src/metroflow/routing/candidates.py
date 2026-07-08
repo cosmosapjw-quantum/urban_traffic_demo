@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from heapq import heappop, heappush
+from math import isfinite
 from time import perf_counter
 from typing import Any
 
 from metroflow.routing.dynamic_potential import (
     build_greedy_route_candidate,
     compute_dynamic_potential_state,
+    score_legal_next_links,
 )
 
 __all__ = [
@@ -19,6 +22,8 @@ __all__ = [
     "refresh_od_route_candidate_set",
     "should_refresh_route_candidate_set",
 ]
+
+_INF_COST = 1e12
 
 
 @dataclass(slots=True)
@@ -114,9 +119,9 @@ def create_route_candidate_set(
 ) -> RouteCandidateSet:
     """Build a deterministic baseline candidate set from dynamic potential.
 
-    T062 intentionally emits a single baseline candidate path (`candidate_id=0`)
-    while preserving the RouteCandidateSet container and refresh policy boundary
-    for later multi-arm US3 candidate generation (`T064+`).
+    Candidate generation is deterministic. `max_candidates=1` preserves the
+    original greedy baseline path; larger values enumerate ranked loopless paths
+    using the dynamic-potential cost-to-go field as a host-side heuristic.
     """
 
     return build_route_candidate_set(
@@ -154,10 +159,10 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
     stats = kwargs.get("stats")
     started = perf_counter()
 
-    if max_candidates > 1:
-        raise ValueError("T062 supports only a single baseline candidate; use max_candidates=1")
+    if max_candidates < 1:
+        raise ValueError("max_candidates must be >= 1")
 
-    path = ()
+    paths: tuple[tuple[int, ...], ...] = ()
     potential_metadata: dict[str, Any] = {}
     if max_candidates >= 1:
         effective_cache_key = cache_key
@@ -178,20 +183,33 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             stats=stats,
         )
         potential_metadata = dict(potential_state.metadata)
-        path = build_greedy_route_candidate(
-            network=road_csr,
-            potential_state=potential_state,
-            origin_node_id=origin_node_id,
-            incoming_link_id=incoming_link_id,
-            max_hops=max_hops,
-            routing_backend=routing_backend,
-        )
+        if max_candidates == 1:
+            path = build_greedy_route_candidate(
+                network=road_csr,
+                potential_state=potential_state,
+                origin_node_id=origin_node_id,
+                incoming_link_id=incoming_link_id,
+                max_hops=max_hops,
+                routing_backend=routing_backend,
+            )
+            paths = (tuple(int(x) for x in path),) if path else ()
+        else:
+            paths = _build_ranked_route_candidate_paths(
+                road_csr=road_csr,
+                potential_state=potential_state,
+                origin_node_id=origin_node_id,
+                destination_node_id=destination_node_id,
+                incoming_link_id=incoming_link_id,
+                max_candidates=max_candidates,
+                max_hops=max_hops,
+                routing_backend=routing_backend,
+            )
 
     candidate_ids: tuple[int, ...]
     candidate_paths: tuple[tuple[int, ...], ...]
-    if path:
-        candidate_ids = (0,)
-        candidate_paths = (tuple(int(x) for x in path),)
+    if paths:
+        candidate_ids = tuple(range(len(paths)))
+        candidate_paths = paths
     else:
         candidate_ids = ()
         candidate_paths = ()
@@ -205,8 +223,11 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             "origin_node_id": origin_node_id,
             "destination_node_id": destination_node_id,
             "max_candidates_requested": max_candidates,
+            "max_candidates_returned": len(candidate_paths),
             "max_hops": max_hops,
-            "candidate_generation_mode": "baseline_greedy_single",
+            "candidate_generation_mode": (
+                "baseline_greedy_single" if max_candidates == 1 else "baseline_ranked_k"
+            ),
             "routing_backend": str(potential_metadata.get("routing_backend", routing_backend)),
             "routing_backend_requested": str(
                 potential_metadata.get("routing_backend_requested", routing_backend)
@@ -228,6 +249,91 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             stats.get("route_candidate_refresh_seconds_total", 0.0)
         ) + max(perf_counter() - started, 0.0)
     return candidate_set
+
+
+def _build_ranked_route_candidate_paths(
+    *,
+    road_csr,
+    potential_state,
+    origin_node_id: int,
+    destination_node_id: int,
+    incoming_link_id: int | None,
+    max_candidates: int,
+    max_hops: int,
+    routing_backend: str,
+) -> tuple[tuple[int, ...], ...]:
+    if int(origin_node_id) == int(destination_node_id):
+        return ()
+
+    link_cost = potential_state.link_travel_time_cost
+    node_cost = potential_state.node_cost_to_go
+    paths: list[tuple[int, ...]] = []
+    seen_paths: set[tuple[int, ...]] = set()
+    heap: list[tuple[float, float, int, tuple[int, ...], int, int | None, tuple[int, ...]]] = []
+    serial = 0
+    heappush(
+        heap,
+        (
+            0.0,
+            0.0,
+            serial,
+            (),
+            int(origin_node_id),
+            None if incoming_link_id is None else int(incoming_link_id),
+            (int(origin_node_id),),
+        ),
+    )
+
+    max_expansions = max(max_candidates * max(16, int(road_csr.link_count) * 4), 1)
+    expansions = 0
+    while heap and len(paths) < int(max_candidates) and expansions < max_expansions:
+        _estimated_cost, path_cost, _serial, path, current_node_id, last_link_id, visited = heappop(heap)
+        expansions += 1
+        if current_node_id == int(destination_node_id) and path:
+            if path not in seen_paths:
+                seen_paths.add(path)
+                paths.append(path)
+            continue
+        if len(path) >= int(max_hops):
+            continue
+
+        scores = score_legal_next_links(
+            road_csr,
+            potential_state,
+            current_node_id=current_node_id,
+            incoming_link_id=last_link_id,
+            routing_backend=routing_backend,
+        )
+        for link_id in scores.candidate_link_ids:
+            link_index = int(road_csr.link_id_to_index[int(link_id)])
+            link = road_csr.links[link_index]
+            next_node_id = int(link.dst_node_id)
+            if next_node_id in visited:
+                continue
+            step_cost = float(link_cost[link_index])
+            if not isfinite(step_cost) or step_cost >= (_INF_COST * 0.5):
+                continue
+            node_index = int(road_csr.node_id_to_index[next_node_id])
+            tail_cost = 0.0 if next_node_id == int(destination_node_id) else float(node_cost[node_index])
+            if not isfinite(tail_cost) or tail_cost >= (_INF_COST * 0.5):
+                continue
+            next_path = path + (int(link_id),)
+            next_path_cost = path_cost + step_cost
+            serial += 1
+            heappush(
+                heap,
+                (
+                    next_path_cost + tail_cost,
+                    next_path_cost,
+                    serial,
+                    next_path,
+                    next_node_id,
+                    int(link_id),
+                    visited + (next_node_id,),
+                ),
+            )
+
+    return tuple(paths)
 
 
 def refresh_od_route_candidate_set(

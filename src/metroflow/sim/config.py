@@ -128,8 +128,8 @@ class SimulationConfig:
             raise ValueError("flow_backend must be one of: baseline, rust_cpu, auto")
         if self.routing_backend not in ROUTING_RUNTIME_BACKENDS:
             raise ValueError("routing_backend must be one of: baseline, rust_cpu, auto")
-        if self.route_max_candidates != 1:
-            raise ValueError("route_max_candidates must be 1 until route diversity is implemented")
+        if self.route_max_candidates < 1:
+            raise ValueError("route_max_candidates must be >= 1")
         if self.route_max_hops < 1:
             raise ValueError("route_max_hops must be >= 1")
         if self.route_refresh_interval_ticks < 1:

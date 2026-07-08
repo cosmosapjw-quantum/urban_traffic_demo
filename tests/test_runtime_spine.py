@@ -262,6 +262,7 @@ def test_simulation_config_exposes_runtime_spine_defaults_and_validates_backends
     assert config.route_max_candidates == 1
     assert config.route_max_hops == 64
     assert config.route_refresh_interval_ticks == 8
+    assert SimulationConfig(route_max_candidates=2).route_max_candidates == 2
 
     with pytest.raises(ValueError, match="edge_backend"):
         SimulationConfig(edge_backend="bogus")
@@ -270,7 +271,7 @@ def test_simulation_config_exposes_runtime_spine_defaults_and_validates_backends
     with pytest.raises(ValueError, match="routing_backend"):
         SimulationConfig(routing_backend="jax")
     with pytest.raises(ValueError, match="route_max_candidates"):
-        SimulationConfig(route_max_candidates=2)
+        SimulationConfig(route_max_candidates=0)
 
 
 def test_simulation_step_updates_flow_after_events_and_records_runtime_telemetry() -> None:

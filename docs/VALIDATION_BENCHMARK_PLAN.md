@@ -41,6 +41,8 @@ routing copy-boundary note, route candidate counters, dynamic-potential counters
 runtime reroute/persistence counters, initial/final tick을 기록한다.
 `run_measured_routing_candidate_benchmark`는 OD 단위 dynamic-potential + greedy candidate path를 분리 측정하고,
 routing backend, final candidate path, path length, recompute/cache-hit count, copy-boundary note를 기록한다.
+`route_max_candidates > 1` baseline test는 ranked K candidate path 순서, turn restriction, blocked-link
+회피, deterministic tie-break, `max_candidates_returned` metadata를 고정한다.
 runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`로
 backend config 및 route-cache fingerprint를 고정하고, replay result는 runtime reroute/persistence totals를
 보존한다. route-cache fingerprint는 candidate path뿐 아니라
@@ -60,6 +62,8 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   blocked link, unreachable node, zero-link, forbidden-turn greedy path 결과를 동일 입력으로 비교한다
 - measured routing candidate benchmark는 baseline/Rust routing backend 요청이 dynamic-potential과 greedy path
   양쪽에 전달되는지, 그리고 result metadata가 final path 및 recompute/cache counters를 보존하는지 확인한다
+- ranked K route candidate generation은 Python baseline authority로 검증하고, Rust backend 성능 주장에
+  포함하지 않는다
 - routing `auto` fallback test는 Rust routing extension이 cost-to-go, next-link scoring, greedy path를 모두
   제공하지 않으면 Rust wrapper를 호출하지 않고 baseline으로 내려가는지 확인한다
 - runtime spine parity는 baseline config에서 event effect, flow update, route candidate cache, active-agent movement,

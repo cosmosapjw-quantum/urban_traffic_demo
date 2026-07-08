@@ -20,6 +20,8 @@
   route tail을 바꾸지 않고 cooldown만 감소시킨다
 - route candidate cache key/fingerprint는 geometry id, link count, flow generation, incident generation,
   destination, refresh policy를 포함해야 한다
+- `route_max_candidates > 1`은 Python baseline ranked K candidate generator만 사용한다.
+  turn restriction, blocked-link mask, max-hop limit을 보존하고 deterministic cost/id tie-break를 유지해야 한다
 
 ## JAX
 - 기본 runtime contract는 NumPy/stdlib host state를 사용한다
@@ -47,6 +49,8 @@
 - `routing_backend="auto"`는 `rust_cpu` → `baseline` 순서만 허용한다
 - routing `auto`는 Rust dynamic-potential cost-to-go, next-link action scoring, greedy path 함수가 모두
   사용 가능할 때만 Rust를 선택한다
+- Rust routing backend는 ranked K candidate set 전체를 소유하지 않는다. K 후보 생성은 Python baseline
+  control logic이며, Rust는 cost-to-go/next-link/greedy 단일 path kernel만 가속한다
 - PyTorch/libtorch/custom CUDA는 profiling 이후 좁은 hot kernel에만 추가한다
 
 ## tests
