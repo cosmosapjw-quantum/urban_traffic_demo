@@ -309,10 +309,12 @@ def _advance_runtime_routing_state(
 ) -> tuple[SimulationState, dict[str, int]]:
     route_state, route_counters = refresh_runtime_route_candidates(state)
     state = state.with_dynamic_updates(route_candidate_state=route_state)
-    pool, agent_counters, demand_state = advance_runtime_active_agents(state)
+    pool, agent_counters, demand_state, link_state = advance_runtime_active_agents(state)
     updates: dict[str, Any] = {"demand_state": demand_state}
     if pool is not None:
         updates["active_agent_pool"] = pool
+    if link_state is not None:
+        updates["flow_link_state"] = link_state
     return state.with_dynamic_updates(**updates), {**route_counters, **agent_counters}
 
 

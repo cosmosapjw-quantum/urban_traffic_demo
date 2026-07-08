@@ -10,6 +10,7 @@ from typing import Any, Mapping
 import numpy as np
 
 from metroflow.demand.trips import TripRequest, TripRequestStatus
+from metroflow.flow.state import LinkState
 from metroflow.routing.candidates import (
     RouteCandidateRefreshPolicy,
     RouteCandidateSet,
@@ -144,17 +145,17 @@ def refresh_runtime_route_candidates(
 
 def advance_runtime_active_agents(
     state: SimulationState,
-) -> tuple[ActiveAgentPool | None, dict[str, int], dict[str, Any]]:
+) -> tuple[ActiveAgentPool | None, dict[str, int], dict[str, Any], LinkState | None]:
     """Allocate activated trips to cached routes and move active agents one link."""
 
     pool = state.dynamic.active_agent_pool
     if not isinstance(pool, ActiveAgentPool):
-        return None, _agent_tick_counters(), _demand_mapping(state)
+        return None, _agent_tick_counters(), _demand_mapping(state), state.dynamic.flow_link_state
     route_state = coerce_simulation_route_cache_state(state.dynamic.route_candidate_state)
     demand_state = dict(_demand_mapping(state))
     trips = tuple(demand_state.get("trip_requests", ()))
     if not trips:
-        return pool, _agent_tick_counters(), demand_state
+        return pool, _agent_tick_counters(), demand_state, state.dynamic.flow_link_state
 
     allocated_ids = _id_set(demand_state.get("allocated_trip_request_ids", ()))
     completed_ids = _id_set(demand_state.get("completed_trip_request_ids", ()))
@@ -165,6 +166,7 @@ def advance_runtime_active_agents(
     counters = _agent_tick_counters()
     pois_by_id = _pois_by_id(state)
     newly_allocated_slot_ids: set[int] = set()
+    source_queue_increments_by_link_id: dict[int, int] = {}
 
     for trip in _activated_trip_requests(trips):
         trip_id = int(trip.trip_request_id)
@@ -199,6 +201,9 @@ def advance_runtime_active_agents(
         pool_after_alloc = _replace_pool_plugin_memory(pool_after_alloc, plugin_memory)
         allocated_ids.add(trip_id)
         newly_allocated_slot_ids.add(int(slot_id))
+        source_queue_increments_by_link_id[int(path[0])] = (
+            source_queue_increments_by_link_id.get(int(path[0]), 0) + 1
+        )
         counters["trip_allocated_this_tick"] += 1
 
     moved_pool, moved_counters, completed_now = _advance_pool_along_cached_routes(
@@ -218,7 +223,12 @@ def advance_runtime_active_agents(
         }
     )
     demand_state.update(_demand_lifecycle_counts(trips, completed_ids, failed_ids))
-    return moved_pool, counters, demand_state
+    return (
+        moved_pool,
+        counters,
+        demand_state,
+        _apply_source_queue_increments(state, source_queue_increments_by_link_id),
+    )
 
 
 def runtime_route_cache_fingerprint(
@@ -389,6 +399,50 @@ def _movement_budget_by_link_id(state: SimulationState) -> dict[int, int]:
         if 0 <= idx < int(outflow.shape[0]):
             budget[int(link_id)] = int(np.floor(max(0.0, float(outflow[idx])) + 1e-6))
     return budget
+
+
+def _apply_source_queue_increments(
+    state: SimulationState,
+    increments_by_link_id: Mapping[int, int],
+) -> LinkState | None:
+    link_state = state.dynamic.flow_link_state
+    if not isinstance(link_state, LinkState) or not increments_by_link_id:
+        return link_state
+    road_csr = _road_csr_from_state(state)
+    link_id_to_index = dict(getattr(road_csr, "link_id_to_index", {}) or {})
+    queue = np.asarray(link_state.queue_vehicles, dtype=np.float32).copy()
+    for link_id, count in sorted(dict(increments_by_link_id).items()):
+        idx = link_id_to_index.get(int(link_id))
+        if idx is None:
+            raise ValueError("allocated route source link is missing from road_csr")
+        queue[int(idx)] += np.float32(max(0, int(count)))
+    return LinkState.from_internal_arrays(
+        queue_vehicles=queue,
+        inflow_vehicles=link_state.inflow_vehicles,
+        outflow_vehicles=link_state.outflow_vehicles,
+        travel_time_cost=_travel_time_cost_for_queue(link_state, queue),
+        capacity_veh_per_tick=link_state.capacity_veh_per_tick,
+        incident_capacity_multiplier=link_state.incident_capacity_multiplier,
+        capacity_violation_flags=link_state.capacity_violation_flags,
+        metadata=link_state.metadata,
+    )
+
+
+def _travel_time_cost_for_queue(link_state: LinkState, queue_vehicles: np.ndarray) -> np.ndarray:
+    raw_base = link_state.metadata.get("free_flow_travel_time_cost")
+    if raw_base is None:
+        base = np.asarray(link_state.travel_time_cost, dtype=np.float32)
+    else:
+        base = np.asarray(raw_base, dtype=np.float32)
+    if base.ndim == 0:
+        base = np.full((link_state.link_count,), float(base), dtype=np.float32)
+    base = np.maximum(base, np.float32(1e-3))
+    queue = np.maximum(np.asarray(queue_vehicles, dtype=np.float32), np.float32(0.0))
+    capacity = np.maximum(
+        np.asarray(link_state.effective_capacity_vehicles, dtype=np.float32),
+        np.float32(1e-3),
+    )
+    return base * (np.float32(1.0) + (queue / (capacity + np.float32(1e-3))))
 
 
 def _replace_pool_plugin_memory(

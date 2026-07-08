@@ -233,11 +233,17 @@ def test_simulation_step_blocks_active_agent_movement_without_flow_outflow_budge
     assert first_state.dynamic.active_agent_pool.alive_count == 1
     assert first_state.dynamic.active_agent_pool.current_link_id[0].item() == 10
     assert first_telemetry.active_agent_moved_this_tick == 0
+    assert first_state.dynamic.flow_link_state.queue_vehicles.tolist() == [1.0, 0.0]
+    assert first_state.dynamic.flow_link_state.travel_time_cost[0].item() == pytest.approx(
+        1.0 * (1.0 + (1.0 / (2.0 + 1e-3)))
+    )
+    assert first_telemetry.queue_vehicles_total == 1.0
     assert second_state.dynamic.active_agent_pool.alive_count == 1
     assert second_state.dynamic.active_agent_pool.current_link_id[0].item() == 10
     assert second_state.dynamic.active_agent_pool.remaining_route_ptr[0].item() == 0
     assert second_telemetry.active_agent_moved_this_tick == 0
     assert second_telemetry.trip_completed_this_tick == 0
+    assert second_state.dynamic.flow_link_state.queue_vehicles.tolist() == [1.0, 0.0]
 
 
 def test_simulation_step_completes_agent_already_resident_on_final_link() -> None:
