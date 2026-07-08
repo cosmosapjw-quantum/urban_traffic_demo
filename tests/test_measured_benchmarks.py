@@ -397,3 +397,43 @@ def test_measured_runtime_benchmark_preserves_rust_routing_copy_boundary_note(
     )
     assert result.initial_tick == 0
     assert result.final_tick == 2
+
+
+def test_measured_runtime_benchmark_preserves_reroute_counter_metadata(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    from metroflow.sim.init import build_initial_simulation_state
+
+    bundle = build_initial_simulation_state(scenario_seed=4, eager_trip_generation=False)
+
+    def fake_simulation_step(state, _control, key):
+        metrics = dict(state.dynamic.metrics_state)
+        metrics["us2_reroute_decisions_total"] = int(
+            metrics.get("us2_reroute_decisions_total", 0)
+        ) + 2
+        metrics["us2_persistence_decisions_total"] = int(
+            metrics.get("us2_persistence_decisions_total", 0)
+        ) + 1
+        metrics["active_agent_rerouted_this_tick"] = 2
+        metrics["active_agent_reroute_cooldown_this_tick"] = 1
+        return (
+            state.with_clock(tick_index=state.tick_index + 1).with_dynamic_updates(
+                metrics_state=metrics
+            ),
+            None,
+            None,
+            key,
+        )
+
+    monkeypatch.setattr(benchmark_module, "simulation_step", fake_simulation_step)
+
+    result = run_measured_runtime_spine_benchmark(
+        bundle.state,
+        bundle.rng_key,
+        MeasuredRuntimeBenchmarkConfig(workload_name="runtime-reroute", num_steps=2),
+    )
+
+    assert result.reroute_decisions_total == 4
+    assert result.persistence_decisions_total == 2
+    assert result.active_agent_rerouted_this_tick == 2
+    assert result.active_agent_reroute_cooldown_this_tick == 1

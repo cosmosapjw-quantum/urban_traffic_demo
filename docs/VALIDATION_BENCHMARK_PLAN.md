@@ -37,7 +37,8 @@ city100k-like synthetic benchmark:
 - outflow-budgeted active-agent movement count
 
 `run_measured_runtime_spine_benchmark`는 `flow_backend`, `routing_backend`,
-routing copy-boundary note, route candidate counters, dynamic-potential counters, initial/final tick을 기록한다.
+routing copy-boundary note, route candidate counters, dynamic-potential counters,
+runtime reroute/persistence counters, initial/final tick을 기록한다.
 `run_measured_routing_candidate_benchmark`는 OD 단위 dynamic-potential + greedy candidate path를 분리 측정하고,
 routing backend, final candidate path, path length, recompute/cache-hit count, copy-boundary note를 기록한다.
 runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`로

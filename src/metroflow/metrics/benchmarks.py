@@ -130,6 +130,10 @@ class MeasuredRuntimeBenchmarkResult:
     route_candidate_reuse_total: int
     dynamic_potential_recompute_total: int
     dynamic_potential_cache_hits_total: int
+    reroute_decisions_total: int = 0
+    persistence_decisions_total: int = 0
+    active_agent_rerouted_this_tick: int = 0
+    active_agent_reroute_cooldown_this_tick: int = 0
 
 
 def record_input_signature_smoke_benchmark(
@@ -301,6 +305,16 @@ def run_measured_runtime_spine_benchmark(
         ),
         dynamic_potential_cache_hits_total=int(
             metrics_state.get("dynamic_potential_cache_hits_total", 0)
+        ),
+        reroute_decisions_total=int(metrics_state.get("us2_reroute_decisions_total", 0)),
+        persistence_decisions_total=int(
+            metrics_state.get("us2_persistence_decisions_total", 0)
+        ),
+        active_agent_rerouted_this_tick=int(
+            metrics_state.get("active_agent_rerouted_this_tick", 0)
+        ),
+        active_agent_reroute_cooldown_this_tick=int(
+            metrics_state.get("active_agent_reroute_cooldown_this_tick", 0)
         ),
     )
 
