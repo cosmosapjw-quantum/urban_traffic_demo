@@ -284,6 +284,7 @@ def test_measured_routing_candidate_benchmark_records_baseline_path_metadata():
             origin_node_id=1,
             destination_node_id=4,
             routing_backend="baseline",
+            max_candidates=2,
         ),
     )
 
@@ -297,6 +298,10 @@ def test_measured_routing_candidate_benchmark_records_baseline_path_metadata():
     assert result.destination_node_id == 4
     assert result.candidate_path == (12, 13)
     assert result.candidate_path_length == 2
+    assert result.candidate_paths == ((12, 13), (10, 11))
+    assert result.candidate_count == 2
+    assert result.candidate_path_costs == (2.0, 51.0)
+    assert result.candidate_path_size_factors == (1.0, 1.0)
     assert result.dynamic_potential_recompute_total == 2
     assert result.dynamic_potential_cache_hits_total == 0
 

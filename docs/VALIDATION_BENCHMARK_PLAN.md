@@ -39,8 +39,9 @@ city100k-like synthetic benchmark:
 `run_measured_runtime_spine_benchmark`는 `flow_backend`, `routing_backend`,
 routing copy-boundary note, route candidate counters, dynamic-potential counters,
 runtime reroute/persistence counters, initial/final tick을 기록한다.
-`run_measured_routing_candidate_benchmark`는 OD 단위 dynamic-potential + greedy candidate path를 분리 측정하고,
-routing backend, final candidate path, path length, recompute/cache-hit count, copy-boundary note를 기록한다.
+`run_measured_routing_candidate_benchmark`는 OD 단위 dynamic-potential + route candidate path를 분리 측정하고,
+routing backend, final candidate path, ranked-K candidate paths/costs/path-size metadata, path length,
+recompute/cache-hit count, copy-boundary note를 기록한다.
 `route_max_candidates > 1` baseline test는 ranked K candidate path 순서, turn restriction, blocked-link
 회피, deterministic tie-break, `max_candidates_returned`, candidate path cost, path-size factor metadata를
 고정한다.
@@ -65,7 +66,8 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - Rust CPU routing parity test는 baseline reverse-Dijkstra node cost-to-go, next-link action costs,
   blocked link, unreachable node, zero-link, forbidden-turn greedy path 결과를 동일 입력으로 비교한다
 - measured routing candidate benchmark는 baseline/Rust routing backend 요청이 dynamic-potential과 greedy path
-  양쪽에 전달되는지, 그리고 result metadata가 final path 및 recompute/cache counters를 보존하는지 확인한다
+  양쪽에 전달되는지, 그리고 result metadata가 final path, ranked-K candidate metadata,
+  recompute/cache counters를 보존하는지 확인한다
 - ranked K route candidate generation은 Python baseline authority로 검증하고, Rust backend 성능 주장에
   포함하지 않는다
 - routing `auto` fallback test는 Rust routing extension이 cost-to-go, next-link scoring, greedy path를 모두

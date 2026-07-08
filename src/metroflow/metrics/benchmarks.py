@@ -11,6 +11,7 @@ from metroflow.routing.dynamic_potential import (
     build_greedy_route_candidate,
     compute_dynamic_potential_state,
 )
+from metroflow.routing.candidates import create_route_candidate_set
 from metroflow.traffic.meso import EdgeEvolutionBackend
 from metroflow.sim.control import SimulationControl
 from metroflow.sim.rng import PRNGKeyArray
@@ -60,6 +61,7 @@ class MeasuredRoutingBenchmarkConfig:
     routing_backend: RoutingBackend = "baseline"
     incoming_link_id: int | None = None
     max_hops: int = 64
+    max_candidates: int = 1
 
 
 @dataclass(frozen=True)
@@ -108,6 +110,10 @@ class MeasuredRoutingBenchmarkResult:
     destination_node_id: int
     candidate_path: tuple[int, ...]
     candidate_path_length: int
+    candidate_paths: tuple[tuple[int, ...], ...]
+    candidate_count: int
+    candidate_path_costs: tuple[float, ...]
+    candidate_path_size_factors: tuple[float, ...]
     routing_backend: RoutingBackend
     routing_copy_boundary_note: str
     dynamic_potential_recompute_total: int
@@ -215,28 +221,61 @@ def run_measured_routing_candidate_benchmark(
         raise ValueError("num_steps must be positive.")
     if config.max_hops < 1:
         raise ValueError("max_hops must be >= 1.")
+    if config.max_candidates < 1:
+        raise ValueError("max_candidates must be >= 1.")
     if link_state.link_count != road_csr.link_count:
         raise ValueError("link_state.link_count must match road_csr.link_count.")
 
     candidate_path: tuple[int, ...] = ()
+    candidate_paths: tuple[tuple[int, ...], ...] = ()
+    candidate_path_costs: tuple[float, ...] = ()
+    candidate_path_size_factors: tuple[float, ...] = ()
     stats: dict[str, object] = {}
     start_ns = perf_counter_ns()
     for _ in range(config.num_steps):
-        potential_state = compute_dynamic_potential_state(
-            road_csr,
-            destination_node_id=config.destination_node_id,
-            link_state=link_state,
-            routing_backend=config.routing_backend,
-            stats=stats,
-        )
-        candidate_path = build_greedy_route_candidate(
-            road_csr,
-            potential_state,
-            origin_node_id=config.origin_node_id,
-            incoming_link_id=config.incoming_link_id,
-            max_hops=config.max_hops,
-            routing_backend=config.routing_backend,
-        )
+        if config.max_candidates == 1:
+            potential_state = compute_dynamic_potential_state(
+                road_csr,
+                destination_node_id=config.destination_node_id,
+                link_state=link_state,
+                routing_backend=config.routing_backend,
+                stats=stats,
+            )
+            candidate_path = build_greedy_route_candidate(
+                road_csr,
+                potential_state,
+                origin_node_id=config.origin_node_id,
+                incoming_link_id=config.incoming_link_id,
+                max_hops=config.max_hops,
+                routing_backend=config.routing_backend,
+            )
+            candidate_paths = (tuple(int(link_id) for link_id in candidate_path),) if candidate_path else ()
+            candidate_path_costs = ()
+            candidate_path_size_factors = ()
+        else:
+            candidate_set = create_route_candidate_set(
+                road_csr=road_csr,
+                link_state=link_state,
+                od_key=(int(config.origin_node_id), int(config.destination_node_id)),
+                origin_node_id=config.origin_node_id,
+                destination_node_id=config.destination_node_id,
+                current_tick=0,
+                incoming_link_id=config.incoming_link_id,
+                max_candidates=config.max_candidates,
+                max_hops=config.max_hops,
+                routing_backend=config.routing_backend,
+                stats=stats,
+            )
+            candidate_paths = candidate_set.candidate_paths
+            candidate_path = candidate_paths[0] if candidate_paths else ()
+            metadata = candidate_set.metadata
+            candidate_path_costs = tuple(
+                float(item) for item in tuple(metadata.get("candidate_path_costs", ()) or ())
+            )
+            candidate_path_size_factors = tuple(
+                float(item)
+                for item in tuple(metadata.get("candidate_path_size_factors", ()) or ())
+            )
     elapsed_ns = perf_counter_ns() - start_ns
 
     return MeasuredRoutingBenchmarkResult(
@@ -250,6 +289,10 @@ def run_measured_routing_candidate_benchmark(
         destination_node_id=int(config.destination_node_id),
         candidate_path=tuple(int(link_id) for link_id in candidate_path),
         candidate_path_length=len(candidate_path),
+        candidate_paths=tuple(tuple(int(link_id) for link_id in path) for path in candidate_paths),
+        candidate_count=len(candidate_paths),
+        candidate_path_costs=candidate_path_costs,
+        candidate_path_size_factors=candidate_path_size_factors,
         routing_backend=config.routing_backend,
         routing_copy_boundary_note=_routing_copy_boundary_note(config.routing_backend),
         dynamic_potential_recompute_total=int(
