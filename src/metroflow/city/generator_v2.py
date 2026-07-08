@@ -7,6 +7,7 @@ from typing import Any, Callable
 
 from .adversarial_validator import evaluate_adversarial_seed_gate
 from .backbone_builder import build_backbone
+from .connectivity import repair_weak_connectivity
 from .coupling_optimizer import check_coupling_targets, run_coupling_repair_loop
 from .district_cells import build_district_cells
 from .distributional_batch_gate import evaluate_distributional_batch_gate
@@ -41,17 +42,27 @@ class PreviewCityTopology:
     metadata: dict[str, Any] = field(default_factory=dict)
     _validated: bool = False
 
-    def validate(self) -> TopologyValidationReport:
+    def validate(
+        self,
+        *,
+        require_weak_connectivity: bool = False,
+    ) -> TopologyValidationReport:
         report = validate_road_network_topology(
             nodes=self.nodes,
             links=self.links,
             turns=self.turns,
             bridge_crossings=self.bridge_crossings,
+            require_weak_connectivity=require_weak_connectivity,
         )
         self._validated = report.ok
         return report
 
-    def build_csr(self, *, validate: bool | None = None) -> RoadNetworkCSR:
+    def build_csr(
+        self,
+        *,
+        validate: bool | None = None,
+        require_weak_connectivity: bool = False,
+    ) -> RoadNetworkCSR:
         should_validate = (not self._validated) if validate is None else bool(validate)
         return build_road_network_csr(
             nodes=self.nodes,
@@ -59,6 +70,7 @@ class PreviewCityTopology:
             turns=self.turns,
             bridge_crossings=self.bridge_crossings,
             validate=should_validate,
+            require_weak_connectivity=require_weak_connectivity,
         )
 
 
@@ -4426,6 +4438,21 @@ def _build_preview_topology(
         )
         tapered_corridor_count += 2
 
+    connectivity_repair = repair_weak_connectivity(
+        nodes=tuple(node_builder.nodes),
+        links=tuple(link_builder.links),
+    )
+    link_builder.links = list(connectivity_repair.links)
+    connectivity_report = validate_road_network_topology(
+        nodes=tuple(node_builder.nodes),
+        links=tuple(link_builder.links),
+        turns=(),
+        bridge_crossings=tuple(bridge_crossings),
+        require_weak_connectivity=True,
+    )
+    if not connectivity_report.ok:
+        raise ValueError(f"Generated city topology failed connectivity gate: {connectivity_report.summary()}")
+
     local_nodes = [node for node in node_builder.nodes if node.kind == NodeKind.INTERSECTION]
     frame_link_count = sum(1 for link in link_builder.links if _is_outer_frame_link(link, node_builder.nodes, x_levels, y_levels))
     non_orthogonal_link_count = sum(1 for link in link_builder.links if _is_non_orthogonal_link(link, node_builder.nodes))
@@ -4556,6 +4583,7 @@ def _build_preview_topology(
         "backbone_x_spacing_cv": _spacing_cv(x_levels),
         "backbone_y_spacing_cv": _spacing_cv(y_levels),
         "downtown_hub_degree_max": int(downtown_hub_degree_max),
+        **connectivity_repair.metadata,
     }
     return PreviewCityTopology(
         nodes=tuple(node_builder.nodes),

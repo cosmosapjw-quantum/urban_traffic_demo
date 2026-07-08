@@ -73,7 +73,7 @@ def build_initial_simulation_state(
             "seed": scenario_seed,
         }
     )
-    road_csr = topology.build_csr(validate=False)
+    road_csr = topology.build_csr(validate=True, require_weak_connectivity=True)
     zoning = generate_zones_and_pois(
         topology,
         config=city_cfg,

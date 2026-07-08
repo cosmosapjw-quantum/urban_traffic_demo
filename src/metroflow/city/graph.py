@@ -297,6 +297,8 @@ def validate_road_network_topology(
     links: Sequence[RoadLink],
     turns: Sequence[TurnMovement] = (),
     bridge_crossings: Sequence[BridgeCrossing] = (),
+    *,
+    require_weak_connectivity: bool = False,
 ) -> TopologyValidationReport:
     """Validate static topology entity references and graph consistency rules."""
 
@@ -404,6 +406,22 @@ def validate_road_network_topology(
                 )
             )
 
+    if require_weak_connectivity and not issues:
+        from metroflow.city.connectivity import analyze_weak_connectivity
+
+        report = analyze_weak_connectivity(nodes=nodes, links=links)
+        if report.component_count > 1:
+            issues.append(
+                TopologyValidationIssue(
+                    code="weak_connectivity_missing",
+                    message="Road network must be weakly connected",
+                    details={
+                        "component_count": report.component_count,
+                        "component_sizes": report.component_sizes,
+                    },
+                )
+            )
+
     return TopologyValidationReport(issues=tuple(issues))
 
 
@@ -414,6 +432,7 @@ def build_road_network_csr(
     bridge_crossings: Sequence[BridgeCrossing] = (),
     *,
     validate: bool = True,
+    require_weak_connectivity: bool = False,
 ) -> RoadNetworkCSR:
     """Build a CSR-backed static road network graph."""
 
@@ -423,7 +442,13 @@ def build_road_network_csr(
     bridges_t = tuple(bridge_crossings)
 
     if validate:
-        report = validate_road_network_topology(nodes_t, links_t, turns_t, bridges_t)
+        report = validate_road_network_topology(
+            nodes_t,
+            links_t,
+            turns_t,
+            bridges_t,
+            require_weak_connectivity=require_weak_connectivity,
+        )
         if not report.ok:
             raise ValueError(f"Invalid road network topology: {report.summary()}")
 

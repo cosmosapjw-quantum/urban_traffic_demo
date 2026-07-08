@@ -1,6 +1,10 @@
 from .contracts import GateDecision as GateDecision
 from .contracts import GateThresholds as GateThresholds
 from .contracts import GateVersions as GateVersions
+from .connectivity import WeakConnectivityRepairResult as WeakConnectivityRepairResult
+from .connectivity import WeakConnectivityReport as WeakConnectivityReport
+from .connectivity import analyze_weak_connectivity as analyze_weak_connectivity
+from .connectivity import repair_weak_connectivity as repair_weak_connectivity
 from .generator_v2 import GenerationPipeline as GenerationPipeline
 from .generator_v2 import GeneratorV2 as GeneratorV2
 from .generator_v2 import PreviewCityTopology as PreviewCityTopology
@@ -33,6 +37,10 @@ __all__ = [
     "TopologyValidationReport",
     "TurnMovement",
     "TurnType",
+    "WeakConnectivityRepairResult",
+    "WeakConnectivityReport",
+    "analyze_weak_connectivity",
     "build_road_network_csr",
+    "repair_weak_connectivity",
     "validate_road_network_topology",
 ]
