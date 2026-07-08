@@ -311,42 +311,67 @@ def test_measured_routing_candidate_benchmark_records_baseline_path_metadata():
     assert result.dynamic_potential_cache_hits_total == 0
 
 
+def test_measured_routing_candidate_benchmark_records_single_candidate_metadata():
+    road_csr, link_state = make_measured_routing_fixture()
+
+    result = run_measured_routing_candidate_benchmark(
+        road_csr,
+        link_state,
+        MeasuredRoutingBenchmarkConfig(
+            workload_name="baseline-single-routing-candidate",
+            num_steps=1,
+            origin_node_id=1,
+            destination_node_id=4,
+            routing_backend="baseline",
+        ),
+    )
+
+    assert result.candidate_path == (12, 13)
+    assert result.candidate_paths == ((12, 13),)
+    assert result.candidate_count == 1
+    assert result.candidate_path_costs == (2.0,)
+    assert result.candidate_path_size_factors == (1.0,)
+    assert result.candidate_generation_mode == "baseline_greedy_single"
+    assert result.candidate_enumeration_backend == "backend_greedy_route_candidate"
+    assert result.routing_backend_requested == "baseline"
+    assert result.routing_backend_actual == "baseline"
+    assert result.routing_backend_fallback is None
+
+
 def test_measured_routing_candidate_benchmark_preserves_rust_backend_metadata(
     monkeypatch: pytest.MonkeyPatch,
 ):
-    from metroflow.routing.dynamic_potential import DynamicPotentialState
+    from metroflow.routing.candidates import RouteCandidateSet
 
     road_csr, link_state = make_measured_routing_fixture()
-    calls: list[tuple[str, str]] = []
+    calls: list[str] = []
 
-    def fake_compute_dynamic_potential_state(*args, **kwargs):
-        calls.append(("potential", kwargs["routing_backend"]))
+    def fake_create_route_candidate_set(**kwargs):
+        calls.append(kwargs["routing_backend"])
         stats = kwargs.get("stats")
         if stats is not None:
             stats["dynamic_potential_recompute_total"] = int(
                 stats.get("dynamic_potential_recompute_total", 0)
             ) + 1
-        return DynamicPotentialState(
-            destination_node_id=4,
-            destination_node_index=road_csr.node_id_to_index[4],
-            node_cost_to_go=(2.0, 1.0, 1.0, 0.0),
-            link_travel_time_cost=link_state.travel_time_cost,
-            blocked_link_mask=(False, False, False, False),
+        return RouteCandidateSet(
+            od_key=(1, 4),
+            candidate_ids=(0,),
+            candidate_paths=((12, 13),),
+            last_refresh_tick=0,
+            metadata={
+                "candidate_path_costs": (2.0,),
+                "candidate_path_size_factors": (1.0,),
+                "candidate_generation_mode": "baseline_greedy_single",
+                "candidate_enumeration_backend": "backend_greedy_route_candidate",
+                "routing_backend": "rust_cpu",
+                "routing_backend_requested": "rust_cpu",
+            },
         )
 
-    def fake_build_greedy_route_candidate(*args, **kwargs):
-        calls.append(("greedy", kwargs["routing_backend"]))
-        return (12, 13)
-
     monkeypatch.setattr(
         benchmark_module,
-        "compute_dynamic_potential_state",
-        fake_compute_dynamic_potential_state,
-    )
-    monkeypatch.setattr(
-        benchmark_module,
-        "build_greedy_route_candidate",
-        fake_build_greedy_route_candidate,
+        "create_route_candidate_set",
+        fake_create_route_candidate_set,
     )
 
     result = run_measured_routing_candidate_benchmark(
@@ -367,13 +392,10 @@ def test_measured_routing_candidate_benchmark_preserves_rust_backend_metadata(
         == "rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, greedy path, and ranked-K candidates"
     )
     assert result.candidate_path == (12, 13)
+    assert result.candidate_path_costs == (2.0,)
+    assert result.candidate_path_size_factors == (1.0,)
     assert result.dynamic_potential_recompute_total == 2
-    assert calls == [
-        ("potential", "rust_cpu"),
-        ("greedy", "rust_cpu"),
-        ("potential", "rust_cpu"),
-        ("greedy", "rust_cpu"),
-    ]
+    assert calls == ["rust_cpu", "rust_cpu"]
 
 
 def test_measured_runtime_benchmark_preserves_rust_routing_copy_boundary_note(
