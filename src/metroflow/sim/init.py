@@ -282,4 +282,6 @@ def _initial_metrics_state(trips: TripRequestGenerationResult) -> dict[str, Any]
         "active_agent_moved_this_tick": 0,
         "active_agent_rerouted_this_tick": 0,
         "active_agent_reroute_cooldown_this_tick": 0,
+        "us2_reroute_decisions_total": 0,
+        "us2_persistence_decisions_total": 0,
     }

@@ -353,6 +353,10 @@ def _update_metrics_state(
     link_state = state.dynamic.flow_link_state
     queue_total = _sum_link_array(link_state, "queue_vehicles")
     outflow_total = _sum_link_array(link_state, "outflow_vehicles")
+    rerouted_tick = int(tick_counters.get("active_agent_rerouted_this_tick", 0))
+    reroute_cooldown_tick = int(
+        tick_counters.get("active_agent_reroute_cooldown_this_tick", 0)
+    )
     metrics.update(
         {
             "tick_index": state.tick_index,
@@ -389,12 +393,16 @@ def _update_metrics_state(
             "active_agent_moved_this_tick": int(
                 tick_counters.get("active_agent_moved_this_tick", 0)
             ),
-            "active_agent_rerouted_this_tick": int(
-                tick_counters.get("active_agent_rerouted_this_tick", 0)
-            ),
-            "active_agent_reroute_cooldown_this_tick": int(
-                tick_counters.get("active_agent_reroute_cooldown_this_tick", 0)
-            ),
+            "active_agent_rerouted_this_tick": rerouted_tick,
+            "active_agent_reroute_cooldown_this_tick": reroute_cooldown_tick,
+            "us2_reroute_decisions_total": int(
+                metrics.get("us2_reroute_decisions_total", 0)
+            )
+            + rerouted_tick,
+            "us2_persistence_decisions_total": int(
+                metrics.get("us2_persistence_decisions_total", 0)
+            )
+            + reroute_cooldown_tick,
         }
     )
     return metrics
