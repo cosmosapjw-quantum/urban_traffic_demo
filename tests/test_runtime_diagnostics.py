@@ -116,6 +116,8 @@ def test_runtime_diagnostic_rollout_captures_frames_route_cache_and_summary() ->
     assert report.frames[0].route_candidate_refresh_total == 1
     assert report.frames[0].candidate_paths_by_od == {"1->2": ((10, 11),)}
     assert report.frames[0].active_agent_moved_this_tick == 0
+    assert report.frames[0].active_agent_rerouted_this_tick == 0
+    assert report.frames[0].active_agent_reroute_cooldown_this_tick == 0
     assert report.frames[1].active_agent_count == 1
     assert report.frames[1].active_agent_moved_this_tick == 1
     assert report.frames[2].trip_completed_total == 1
@@ -149,3 +151,5 @@ def test_runtime_diagnostic_html_renderer_is_static_and_contains_svg_review_surf
     assert "tick 1" in html
     assert "route refresh" in html
     assert "moved" in html
+    assert "rerouted" in html
+    assert "cooldown" in html

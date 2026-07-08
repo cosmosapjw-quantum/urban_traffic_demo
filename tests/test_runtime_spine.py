@@ -107,6 +107,150 @@ def _runtime_spine_state(
     )
 
 
+def _runtime_reroute_state(*, reroute_cooldown_ticks: int = 0):
+    from metroflow.city.graph import (
+        Node,
+        RoadClass,
+        RoadLink,
+        TurnMovement,
+        TurnType,
+        build_road_network_csr,
+    )
+    from metroflow.city.zones import POI, POIType
+    from metroflow.demand.trips import TripRequest, TripRequestStatus
+    from metroflow.flow.events import TrafficEvent, TrafficEventSchedulerState
+    from metroflow.flow.state import LinkState, NodeState
+    from metroflow.routing.behavior_profiles import RouteChoiceProfile
+    from metroflow.sim.active_agents import ActiveAgentSlot, create_active_agent_pool, allocate_active_agent_slot
+    from metroflow.sim.config import DayType, SimulationConfig, TimeBand
+    from metroflow.sim.routing_runtime import create_simulation_route_cache_state
+    from metroflow.sim.state import SimulationDynamicRefs, SimulationState, SimulationStaticRefs
+
+    road_csr = build_road_network_csr(
+        nodes=(Node(1), Node(2), Node(3), Node(4)),
+        links=(
+            RoadLink(10, 1, 2, RoadClass.ARTERIAL, 100.0, 10.0, 2.0),
+            RoadLink(11, 2, 3, RoadClass.ARTERIAL, 100.0, 10.0, 2.0),
+            RoadLink(12, 3, 4, RoadClass.ARTERIAL, 100.0, 10.0, 2.0),
+            RoadLink(20, 2, 4, RoadClass.ARTERIAL, 100.0, 10.0, 2.0),
+        ),
+        turns=(
+            TurnMovement(10, 11, TurnType.THROUGH),
+            TurnMovement(10, 20, TurnType.RIGHT),
+            TurnMovement(11, 12, TurnType.THROUGH),
+        ),
+    )
+    link_state = LinkState(
+        queue_vehicles=np.zeros((road_csr.link_count,), dtype=np.float32),
+        inflow_vehicles=np.zeros((road_csr.link_count,), dtype=np.float32),
+        outflow_vehicles=np.zeros((road_csr.link_count,), dtype=np.float32),
+        travel_time_cost=np.asarray((1.0, 100.0, 100.0, 1.0), dtype=np.float32),
+        capacity_veh_per_tick=np.full((road_csr.link_count,), 2.0, dtype=np.float32),
+        incident_capacity_multiplier=np.ones((road_csr.link_count,), dtype=np.float32),
+        metadata={
+            "free_flow_travel_time_cost": np.ones((road_csr.link_count,), dtype=np.float32),
+            "runtime_flow_generation": 0,
+            "runtime_incident_generation": 1,
+        },
+    )
+    node_state = NodeState(
+        turn_from_link_index=road_csr.turn_from_link_index,
+        turn_to_link_index=road_csr.turn_to_link_index,
+        turn_demand=np.zeros((road_csr.turn_count,), dtype=np.float32),
+        turn_supply=np.zeros((road_csr.turn_count,), dtype=np.float32),
+        turn_flow=np.zeros((road_csr.turn_count,), dtype=np.float32),
+        signal_phase_index=np.zeros((road_csr.node_count,), dtype=np.int32),
+        signal_phase_timer=np.zeros((road_csr.node_count,), dtype=np.int32),
+        metadata={
+            "turn_base_priority": np.asarray(road_csr.turn_base_priority, dtype=np.float32),
+            "turn_is_forbidden": np.asarray(road_csr.turn_is_forbidden, dtype=np.bool_),
+        },
+    )
+    trip = TripRequest(
+        trip_request_id=1,
+        citizen_id=101,
+        origin_poi_id=1,
+        dest_poi_id=2,
+        planned_depart_tick=0,
+        day_type=DayType.WEEKDAY,
+        time_band=TimeBand.MORNING,
+        status=TripRequestStatus.ACTIVATED,
+    )
+    pool = create_active_agent_pool(4)
+    payload = ActiveAgentSlot.spawn(
+        citizen_id=101,
+        trip_id=1,
+        current_link_id=10,
+        dest_node_id=4,
+        behavior_profile_id=0,
+        remaining_route_ptr=0,
+        reroute_cooldown_ticks=reroute_cooldown_ticks,
+    )
+    pool, slot_id = allocate_active_agent_slot(pool, payload)
+    pool.plugin_memory[int(slot_id)] = {
+        "route_path": (10, 11, 12),
+        "origin_poi_id": 1,
+        "dest_poi_id": 2,
+        "trip_request_id": 1,
+    }
+    active_event = TrafficEvent(
+        event_id=5,
+        event_type="accident",
+        start_tick=0,
+        end_tick=20,
+        target_scope={"link_ids": (11,)},
+        severity=1.0,
+        effect_model="closure",
+        status="active",
+    )
+    return SimulationState(
+        config=SimulationConfig(active_agent_capacity=4),
+        static=SimulationStaticRefs(
+            scenario_id="runtime-reroute-test",
+            pois=(
+                POI(1, 1, POIType.HOME, node_id=1),
+                POI(2, 2, POIType.WORKPLACE, node_id=4),
+            ),
+            routing_static={"road_csr": road_csr},
+            ui_network_geometry_version="runtime-reroute-geom",
+            metadata={
+                "route_choice_profiles": (
+                    RouteChoiceProfile(
+                        behavior_profile_id=0,
+                        delay_sensitivity=2.0,
+                        reroute_willingness=1.0,
+                        persistence_bias=0.0,
+                        exploration_bias=0.5,
+                    ),
+                )
+            },
+        ),
+        dynamic=SimulationDynamicRefs(
+            demand_state={
+                "trip_requests": (trip,),
+                "allocated_trip_request_ids": (1,),
+                "queued_trip_requests": 0,
+                "pending_trip_requests": 1,
+                "activated_trip_requests": 1,
+            },
+            active_agent_pool=pool,
+            flow_link_state=link_state,
+            flow_node_state=node_state,
+            event_state=TrafficEventSchedulerState(active_events=(active_event,)),
+            route_candidate_state=create_simulation_route_cache_state(),
+            metrics_state={
+                "tick_index": 8,
+                "queued_trip_requests": 0,
+                "pending_trip_requests": 1,
+                "completed_trips_total": 0,
+                "failed_trips_total": 0,
+                "generated_trip_total": 1,
+                "capacity_violation_count": 0,
+            },
+        ),
+    ).with_clock(tick_index=8)
+
+
 def test_simulation_config_exposes_runtime_spine_defaults_and_validates_backends() -> None:
     from metroflow.sim.config import SimulationConfig
 
@@ -326,6 +470,33 @@ def test_simulation_step_completes_agent_already_resident_on_final_link() -> Non
     assert next_state.dynamic.active_agent_pool.alive_count == 0
     assert telemetry.trip_completed_this_tick == 1
     assert next_state.dynamic.metrics_state["completed_trips_total"] == 1
+
+
+def test_runtime_reroute_replaces_remaining_tail_on_incident() -> None:
+    from metroflow.sim.routing_runtime import advance_runtime_active_agents
+
+    state = _runtime_reroute_state()
+
+    pool, counters, _demand_state, _link_state = advance_runtime_active_agents(state)
+
+    assert pool.plugin_memory[0]["route_path"] == (10, 20)
+    assert pool.reroute_cooldown_ticks[0].item() == 3
+    assert counters["active_agent_rerouted_this_tick"] == 1
+    assert counters["active_agent_reroute_cooldown_this_tick"] == 0
+    assert counters["active_agent_moved_this_tick"] == 0
+
+
+def test_runtime_reroute_cooldown_preserves_existing_tail() -> None:
+    from metroflow.sim.routing_runtime import advance_runtime_active_agents
+
+    state = _runtime_reroute_state(reroute_cooldown_ticks=2)
+
+    pool, counters, _demand_state, _link_state = advance_runtime_active_agents(state)
+
+    assert pool.plugin_memory[0]["route_path"] == (10, 11, 12)
+    assert pool.reroute_cooldown_ticks[0].item() == 1
+    assert counters["active_agent_rerouted_this_tick"] == 0
+    assert counters["active_agent_reroute_cooldown_this_tick"] == 1
 
 
 def test_simulation_step_fails_no_route_trip_without_allocating_agent() -> None:

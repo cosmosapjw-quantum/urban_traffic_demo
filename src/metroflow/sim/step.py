@@ -243,6 +243,8 @@ def _zero_tick_counters() -> dict[str, int]:
         "dynamic_potential_recompute_this_tick": 0,
         "dynamic_potential_cache_hits_this_tick": 0,
         "flow_update_wall_ns": 0,
+        "active_agent_rerouted_this_tick": 0,
+        "active_agent_reroute_cooldown_this_tick": 0,
     }
 
 
@@ -387,6 +389,12 @@ def _update_metrics_state(
             "active_agent_moved_this_tick": int(
                 tick_counters.get("active_agent_moved_this_tick", 0)
             ),
+            "active_agent_rerouted_this_tick": int(
+                tick_counters.get("active_agent_rerouted_this_tick", 0)
+            ),
+            "active_agent_reroute_cooldown_this_tick": int(
+                tick_counters.get("active_agent_reroute_cooldown_this_tick", 0)
+            ),
         }
     )
     return metrics
@@ -428,6 +436,12 @@ def _build_step_telemetry(
         ),
         active_agent_moved_this_tick=int(
             metrics_state.get("active_agent_moved_this_tick", 0)
+        ),
+        active_agent_rerouted_this_tick=int(
+            metrics_state.get("active_agent_rerouted_this_tick", 0)
+        ),
+        active_agent_reroute_cooldown_this_tick=int(
+            metrics_state.get("active_agent_reroute_cooldown_this_tick", 0)
         ),
     )
 

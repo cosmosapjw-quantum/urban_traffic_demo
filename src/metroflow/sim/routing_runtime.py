@@ -16,6 +16,12 @@ from metroflow.routing.candidates import (
     RouteCandidateSet,
     refresh_od_route_candidate_set,
 )
+from metroflow.routing.behavior_profiles import RouteChoiceProfile
+from metroflow.routing.dynamic_potential import (
+    build_greedy_route_candidate,
+    compute_dynamic_potential_state,
+)
+from metroflow.routing.reroute_policy import decide_reroute_vs_persist
 from metroflow.sim.active_agents import (
     ActiveAgentPool,
     ActiveAgentSlot,
@@ -207,8 +213,14 @@ def advance_runtime_active_agents(
         )
         counters["trip_allocated_this_tick"] += 1
 
-    moved_pool, moved_counters, completed_now = _advance_pool_along_cached_routes(
+    pool_after_reroute, reroute_counters = _apply_runtime_reroute_policy(
+        state,
         pool_after_alloc,
+        skip_slot_ids=newly_allocated_slot_ids,
+    )
+    counters.update({key: counters.get(key, 0) + value for key, value in reroute_counters.items()})
+    moved_pool, moved_counters, completed_now = _advance_pool_along_cached_routes(
+        pool_after_reroute,
         movement_budget_by_link_id=_movement_budget_by_link_id(state),
         skip_slot_ids=newly_allocated_slot_ids,
     )
@@ -317,6 +329,8 @@ def _agent_tick_counters() -> dict[str, int]:
         "trip_completed_this_tick": 0,
         "trip_failed_this_tick": 0,
         "active_agent_moved_this_tick": 0,
+        "active_agent_rerouted_this_tick": 0,
+        "active_agent_reroute_cooldown_this_tick": 0,
     }
 
 
@@ -415,6 +429,276 @@ def _movement_budget_by_link_id(state: SimulationState) -> dict[int, int]:
         if 0 <= idx < int(outflow.shape[0]):
             budget[int(link_id)] = int(np.floor(max(0.0, float(outflow[idx])) + 1e-6))
     return budget
+
+
+def _apply_runtime_reroute_policy(
+    state: SimulationState,
+    pool: ActiveAgentPool,
+    *,
+    skip_slot_ids: set[int] | None = None,
+) -> tuple[ActiveAgentPool, dict[str, int]]:
+    counters = _agent_tick_counters()
+    trigger = _runtime_reroute_trigger(state)
+    if trigger is None or pool.alive_count <= 0:
+        return pool, counters
+    road_csr = _road_csr_from_state(state)
+    link_state = state.dynamic.flow_link_state
+    if road_csr is None or not isinstance(link_state, LinkState):
+        return pool, counters
+
+    skip = {int(slot_id) for slot_id in (skip_slot_ids or set())}
+    cooldown = np.asarray(pool.reroute_cooldown_ticks, dtype=np.int32).copy()
+    plugin_memory = dict(pool.plugin_memory)
+    changed = False
+
+    for slot_id, alive in enumerate(np.asarray(pool.alive_mask, dtype=np.bool_).tolist()):
+        if not alive or slot_id in skip:
+            continue
+        if int(cooldown[slot_id]) > 0:
+            cooldown[slot_id] = np.int32(max(0, int(cooldown[slot_id]) - 1))
+            counters["active_agent_reroute_cooldown_this_tick"] += 1
+            changed = True
+            continue
+
+        memory = _slot_plugin_memory(plugin_memory, slot_id)
+        current_link_id = int(pool.current_link_id[slot_id])
+        path = tuple(int(link_id) for link_id in tuple(memory.get("route_path", ())))
+        route_ptr = int(pool.remaining_route_ptr[slot_id])
+        existing_tail = _remaining_route_tail_after_current(
+            path=path,
+            route_ptr=route_ptr,
+            current_link_id=current_link_id,
+        )
+        if not existing_tail:
+            continue
+        candidate_tail = _build_reroute_tail_candidate(
+            state=state,
+            road_csr=road_csr,
+            link_state=link_state,
+            current_link_id=current_link_id,
+            destination_node_id=int(pool.dest_node_id[slot_id]),
+        )
+        if not candidate_tail or candidate_tail == existing_tail:
+            continue
+
+        decision = decide_reroute_vs_persist(
+            profile=_route_choice_profile_for_slot(state, int(pool.behavior_profile_id[slot_id])),
+            current_remaining_cost=_path_link_cost(
+                road_csr=road_csr,
+                link_state=link_state,
+                path=existing_tail,
+            ),
+            candidate_remaining_cost=_path_link_cost(
+                road_csr=road_csr,
+                link_state=link_state,
+                path=candidate_tail,
+            ),
+            incident_active=True,
+            reroute_cooldown_ticks=0,
+        )
+        cooldown[slot_id] = np.int32(decision.next_reroute_cooldown_ticks)
+        memory.update(
+            {
+                "last_reroute_tick": int(state.tick_index),
+                "last_reroute_trigger": trigger,
+                "last_reroute_reason": decision.reason.value,
+                "last_reroute_improvement_ratio": float(decision.improvement_ratio),
+            }
+        )
+        if decision.should_reroute:
+            memory["route_path"] = _route_prefix_through_current(
+                path=path,
+                route_ptr=route_ptr,
+                current_link_id=current_link_id,
+            ) + candidate_tail
+            counters["active_agent_rerouted_this_tick"] += 1
+        plugin_memory[int(slot_id)] = memory
+        changed = True
+
+    if not changed:
+        return pool, counters
+    return _replace_pool_reroute_state(pool, cooldown=cooldown, plugin_memory=plugin_memory), counters
+
+
+def _runtime_reroute_trigger(state: SimulationState) -> str | None:
+    if _active_events(state):
+        return "incident"
+    interval = max(1, int(state.config.route_refresh_interval_ticks))
+    if int(state.tick_index) % interval == 0:
+        return "refresh_interval"
+    return None
+
+
+def _slot_plugin_memory(plugin_memory: Mapping[Any, Any], slot_id: int) -> dict[str, Any]:
+    raw = dict(plugin_memory).get(int(slot_id), {})
+    return dict(raw) if isinstance(raw, Mapping) else {}
+
+
+def _remaining_route_tail_after_current(
+    *,
+    path: tuple[int, ...],
+    route_ptr: int,
+    current_link_id: int,
+) -> tuple[int, ...]:
+    ptr = int(route_ptr)
+    if 0 <= ptr < len(path) and int(path[ptr]) == int(current_link_id):
+        return tuple(path[ptr + 1 :])
+    try:
+        idx = tuple(path).index(int(current_link_id))
+    except ValueError:
+        return ()
+    return tuple(path[idx + 1 :])
+
+
+def _route_prefix_through_current(
+    *,
+    path: tuple[int, ...],
+    route_ptr: int,
+    current_link_id: int,
+) -> tuple[int, ...]:
+    ptr = int(route_ptr)
+    if 0 <= ptr < len(path) and int(path[ptr]) == int(current_link_id):
+        return tuple(path[: ptr + 1])
+    try:
+        idx = tuple(path).index(int(current_link_id))
+    except ValueError:
+        return (int(current_link_id),)
+    return tuple(path[: idx + 1])
+
+
+def _build_reroute_tail_candidate(
+    *,
+    state: SimulationState,
+    road_csr: Any,
+    link_state: LinkState,
+    current_link_id: int,
+    destination_node_id: int,
+) -> tuple[int, ...]:
+    link_index = dict(getattr(road_csr, "link_id_to_index", {}) or {}).get(int(current_link_id))
+    if link_index is None:
+        return ()
+    if int(destination_node_id) not in dict(getattr(road_csr, "node_id_to_index", {}) or {}):
+        return ()
+    current_link = tuple(getattr(road_csr, "links", ()))[int(link_index)]
+    origin_node_id = int(current_link.dst_node_id)
+    if origin_node_id == int(destination_node_id):
+        return ()
+    potential_state = compute_dynamic_potential_state(
+        network=road_csr,
+        link_state=link_state,
+        destination_node_id=int(destination_node_id),
+        routing_backend=state.config.routing_backend,
+    )
+    return build_greedy_route_candidate(
+        network=road_csr,
+        potential_state=potential_state,
+        origin_node_id=origin_node_id,
+        incoming_link_id=int(current_link_id),
+        max_hops=max(1, int(state.config.route_max_hops)),
+        routing_backend=state.config.routing_backend,
+    )
+
+
+def _path_link_cost(
+    *,
+    road_csr: Any,
+    link_state: LinkState,
+    path: tuple[int, ...],
+) -> float:
+    link_id_to_index = dict(getattr(road_csr, "link_id_to_index", {}) or {})
+    costs = np.asarray(link_state.travel_time_cost, dtype=np.float32)
+    total = 0.0
+    for link_id in tuple(path):
+        idx = link_id_to_index.get(int(link_id))
+        if idx is None or int(idx) < 0 or int(idx) >= int(costs.shape[0]):
+            return float("inf")
+        value = float(costs[int(idx)])
+        if not np.isfinite(value) or value <= 0.0:
+            return float("inf")
+        total += value
+    return float(total)
+
+
+def _route_choice_profile_for_slot(
+    state: SimulationState,
+    behavior_profile_id: int,
+) -> RouteChoiceProfile:
+    profiles = _route_choice_profile_lookup(state)
+    profile_id = int(behavior_profile_id)
+    if profile_id in profiles:
+        return profiles[profile_id]
+    return RouteChoiceProfile(
+        behavior_profile_id=profile_id,
+        delay_sensitivity=1.25,
+        reroute_willingness=0.65,
+        persistence_bias=0.5,
+        exploration_bias=0.1,
+    )
+
+
+def _route_choice_profile_lookup(state: SimulationState) -> dict[int, RouteChoiceProfile]:
+    metadata = state.static.metadata if isinstance(state.static.metadata, Mapping) else {}
+    raw_profiles = metadata.get("route_choice_profiles", metadata.get("behavior_profiles", ()))
+    if isinstance(raw_profiles, Mapping) and "behavior_profile_id" in raw_profiles:
+        candidates = (raw_profiles,)
+    elif isinstance(raw_profiles, Mapping):
+        candidates = tuple(raw_profiles.values())
+    else:
+        try:
+            candidates = tuple(raw_profiles or ())
+        except TypeError:
+            candidates = (raw_profiles,)
+    out: dict[int, RouteChoiceProfile] = {}
+    for raw in candidates:
+        profile = _coerce_route_choice_profile(raw)
+        if profile is not None:
+            out[int(profile.behavior_profile_id)] = profile
+    return out
+
+
+def _coerce_route_choice_profile(raw: Any) -> RouteChoiceProfile | None:
+    if isinstance(raw, RouteChoiceProfile):
+        return raw
+    if isinstance(raw, Mapping):
+        return RouteChoiceProfile(**dict(raw))
+    attrs = {
+        name: getattr(raw, name)
+        for name in (
+            "behavior_profile_id",
+            "delay_sensitivity",
+            "reroute_willingness",
+            "persistence_bias",
+            "exploration_bias",
+        )
+        if hasattr(raw, name)
+    }
+    if len(attrs) == 5:
+        return RouteChoiceProfile(**attrs)
+    return None
+
+
+def _replace_pool_reroute_state(
+    pool: ActiveAgentPool,
+    *,
+    cooldown: np.ndarray,
+    plugin_memory: dict[Any, Any],
+) -> ActiveAgentPool:
+    return ActiveAgentPool.from_internal_arrays(
+        capacity=pool.capacity,
+        free_slot_stack=pool.free_slot_stack,
+        free_slot_count=pool.free_slot_count,
+        alive_mask=pool.alive_mask,
+        alive_count=pool.alive_count,
+        citizen_id=pool.citizen_id,
+        trip_id=pool.trip_id,
+        current_link_id=pool.current_link_id,
+        progress_01=pool.progress_01,
+        remaining_route_ptr=pool.remaining_route_ptr,
+        dest_node_id=pool.dest_node_id,
+        behavior_profile_id=pool.behavior_profile_id,
+        reroute_cooldown_ticks=cooldown,
+        plugin_memory=plugin_memory,
+    )
 
 
 def _apply_source_queue_increments(

@@ -35,6 +35,8 @@ class RuntimeDiagnosticFrame:
     trip_completed_total: int
     trip_failed_total: int
     active_agent_moved_this_tick: int
+    active_agent_rerouted_this_tick: int
+    active_agent_reroute_cooldown_this_tick: int
     route_candidate_refresh_total: int
     route_candidate_reuse_total: int
     dynamic_potential_recompute_total: int
@@ -50,6 +52,10 @@ class RuntimeDiagnosticFrame:
         self.trip_completed_total = int(self.trip_completed_total)
         self.trip_failed_total = int(self.trip_failed_total)
         self.active_agent_moved_this_tick = int(self.active_agent_moved_this_tick)
+        self.active_agent_rerouted_this_tick = int(self.active_agent_rerouted_this_tick)
+        self.active_agent_reroute_cooldown_this_tick = int(
+            self.active_agent_reroute_cooldown_this_tick
+        )
         self.route_candidate_refresh_total = int(self.route_candidate_refresh_total)
         self.route_candidate_reuse_total = int(self.route_candidate_reuse_total)
         self.dynamic_potential_recompute_total = int(self.dynamic_potential_recompute_total)
@@ -71,6 +77,8 @@ class RuntimeDiagnosticFrame:
             "trip_completed_total": self.trip_completed_total,
             "trip_failed_total": self.trip_failed_total,
             "active_agent_moved_this_tick": self.active_agent_moved_this_tick,
+            "active_agent_rerouted_this_tick": self.active_agent_rerouted_this_tick,
+            "active_agent_reroute_cooldown_this_tick": self.active_agent_reroute_cooldown_this_tick,
             "route_candidate_refresh_total": self.route_candidate_refresh_total,
             "route_candidate_reuse_total": self.route_candidate_reuse_total,
             "dynamic_potential_recompute_total": self.dynamic_potential_recompute_total,
@@ -184,7 +192,7 @@ def render_runtime_diagnostic_html(report: RuntimeDiagnosticReport) -> str:
   <div class="chart">{svg}</div>
   <h2>Frame Metrics</h2>
   <table>
-    <thead><tr><th>tick</th><th>active</th><th>moved</th><th>queue</th><th>outflow</th><th>completed</th><th>failed</th><th>route refresh</th><th>cache hits</th></tr></thead>
+    <thead><tr><th>tick</th><th>active</th><th>moved</th><th>rerouted</th><th>cooldown</th><th>queue</th><th>outflow</th><th>completed</th><th>failed</th><th>route refresh</th><th>cache hits</th></tr></thead>
     <tbody>{frame_rows}</tbody>
   </table>
   <h2>Candidate Paths</h2>
@@ -231,6 +239,12 @@ def _build_diagnostic_frame(
         trip_completed_total=int(metrics.get("completed_trips_total", 0)),
         trip_failed_total=int(metrics.get("failed_trips_total", 0)),
         active_agent_moved_this_tick=int(metrics.get("active_agent_moved_this_tick", 0)),
+        active_agent_rerouted_this_tick=int(
+            metrics.get("active_agent_rerouted_this_tick", 0)
+        ),
+        active_agent_reroute_cooldown_this_tick=int(
+            metrics.get("active_agent_reroute_cooldown_this_tick", 0)
+        ),
         route_candidate_refresh_total=int(metrics.get("route_candidate_refresh_total", 0)),
         route_candidate_reuse_total=int(metrics.get("route_candidate_reuse_total", 0)),
         dynamic_potential_recompute_total=int(metrics.get("dynamic_potential_recompute_total", 0)),
@@ -255,6 +269,12 @@ def _build_report_summary(
         "route_candidate_reuse_total": int(metrics.get("route_candidate_reuse_total", 0)),
         "dynamic_potential_recompute_total": int(metrics.get("dynamic_potential_recompute_total", 0)),
         "dynamic_potential_cache_hits_total": int(metrics.get("dynamic_potential_cache_hits_total", 0)),
+        "active_agent_rerouted_this_tick": int(
+            metrics.get("active_agent_rerouted_this_tick", 0)
+        ),
+        "active_agent_reroute_cooldown_this_tick": int(
+            metrics.get("active_agent_reroute_cooldown_this_tick", 0)
+        ),
         "max_queue_vehicles_total": max((frame.queue_vehicles_total for frame in frames), default=0.0),
     }
 
@@ -277,6 +297,8 @@ def _render_frame_row(frame: RuntimeDiagnosticFrame) -> str:
         f"<td>tick {frame.tick_index}</td>"
         f"<td>{frame.active_agent_count}</td>"
         f"<td>{frame.active_agent_moved_this_tick}</td>"
+        f"<td>{frame.active_agent_rerouted_this_tick}</td>"
+        f"<td>{frame.active_agent_reroute_cooldown_this_tick}</td>"
         f"<td>{frame.queue_vehicles_total:.3f}</td>"
         f"<td>{frame.outflow_vehicles_total:.3f}</td>"
         f"<td>{frame.trip_completed_total}</td>"

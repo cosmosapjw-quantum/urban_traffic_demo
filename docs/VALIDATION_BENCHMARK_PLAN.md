@@ -64,6 +64,8 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   replay fingerprint가 deterministic하게 재현되는지 확인한다
 - active-agent movement parity는 newly allocated slot의 same-tick movement 금지, source link queue insertion,
   `outflow_vehicles` 예산 이하 link advance, no-outflow 대기를 고정한다
+- active-agent reroute parity는 incident/refresh-cadence trigger, cooldown-preserve behavior,
+  current-link 이후 route tail replacement, reroute/cooldown telemetry counters를 고정한다
 - JAX 첫 호출 compile time과 steady-state runtime을 분리 기록
 - benchmark result는 요청 backend를 기록하고, explicit `rust_cpu`/`jax` 요청 실패는 실패로 남김
 - `auto` backend만 baseline fallback을 허용한다

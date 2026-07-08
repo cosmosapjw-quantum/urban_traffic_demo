@@ -70,6 +70,8 @@ explicit `rust_cpu` backend는 실패 시 예외를 내고, `auto`만 baseline f
 - active-agent spine은 activated trip을 route candidate의 첫 링크에 배정하고, source link queue에
   차량 1대를 삽입한다. link-to-link 이동은 직전 flow update의 `outflow_vehicles` 정수 예산을
   slot id 순서로 소비한다.
+- runtime reroute는 incident 또는 route refresh cadence에서만 현재 링크 이후 tail 후보를 검토한다.
+  cooldown이 남은 slot은 기존 route tail을 유지하고 cooldown만 감소한다.
 - final-link completion은 아직 coarse residence rule이다. sink connector/discharge model은 다음 slice에서
   별도로 좁게 다룬다.
 - reporting/experiment 표면으로 simulator-only learning experience, run summary comparison,

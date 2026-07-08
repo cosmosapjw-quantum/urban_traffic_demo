@@ -80,6 +80,8 @@ class SimulationTelemetry:
     dynamic_potential_recompute_total: int = 0
     dynamic_potential_cache_hits_total: int = 0
     active_agent_moved_this_tick: int = 0
+    active_agent_rerouted_this_tick: int = 0
+    active_agent_reroute_cooldown_this_tick: int = 0
 
     def __post_init__(self) -> None:
         self.tick_index = int(self.tick_index)
@@ -102,6 +104,10 @@ class SimulationTelemetry:
         self.dynamic_potential_recompute_total = int(self.dynamic_potential_recompute_total)
         self.dynamic_potential_cache_hits_total = int(self.dynamic_potential_cache_hits_total)
         self.active_agent_moved_this_tick = int(self.active_agent_moved_this_tick)
+        self.active_agent_rerouted_this_tick = int(self.active_agent_rerouted_this_tick)
+        self.active_agent_reroute_cooldown_this_tick = int(
+            self.active_agent_reroute_cooldown_this_tick
+        )
 
         _validate_non_negative(self.tick_index, "tick_index")
         _validate_non_negative(self.active_agent_count, "active_agent_count")
@@ -132,6 +138,14 @@ class SimulationTelemetry:
         _validate_non_negative(
             self.active_agent_moved_this_tick,
             "active_agent_moved_this_tick",
+        )
+        _validate_non_negative(
+            self.active_agent_rerouted_this_tick,
+            "active_agent_rerouted_this_tick",
+        )
+        _validate_non_negative(
+            self.active_agent_reroute_cooldown_this_tick,
+            "active_agent_reroute_cooldown_this_tick",
         )
         if self.queue_vehicles_total < 0.0:
             raise ValueError("queue_vehicles_total must be >= 0")
@@ -164,6 +178,8 @@ class SimulationTelemetry:
             "dynamic_potential_recompute_total": self.dynamic_potential_recompute_total,
             "dynamic_potential_cache_hits_total": self.dynamic_potential_cache_hits_total,
             "active_agent_moved_this_tick": self.active_agent_moved_this_tick,
+            "active_agent_rerouted_this_tick": self.active_agent_rerouted_this_tick,
+            "active_agent_reroute_cooldown_this_tick": self.active_agent_reroute_cooldown_this_tick,
         }
 
     @classmethod
