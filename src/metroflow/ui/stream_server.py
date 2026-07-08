@@ -343,7 +343,110 @@ def _build_metrics_summary_payload(
         "map_foundation_failed_checks": map_gate["failed_checks"],
         "map_foundation_passed_check_count": map_gate["passed_check_count"],
         "map_foundation_check_count": map_gate["check_count"],
+        "flow_backend": str(
+            _metric_value(metrics_state, summary, "flow_backend", telemetry.flow_backend)
+        ),
+        "routing_backend": str(
+            _metric_value(metrics_state, summary, "routing_backend", telemetry.routing_backend)
+        ),
+        "flow_update_wall_ns": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "flow_update_wall_ns",
+                telemetry.flow_update_wall_ns,
+            )
+        ),
+        "queue_vehicles_total": float(
+            _metric_value(
+                metrics_state,
+                summary,
+                "queue_vehicles_total",
+                telemetry.queue_vehicles_total,
+            )
+        ),
+        "outflow_vehicles_total": float(
+            _metric_value(
+                metrics_state,
+                summary,
+                "outflow_vehicles_total",
+                telemetry.outflow_vehicles_total,
+            )
+        ),
+        "route_candidate_refresh_total": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "route_candidate_refresh_total",
+                telemetry.route_candidate_refresh_total,
+            )
+        ),
+        "route_candidate_reuse_total": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "route_candidate_reuse_total",
+                telemetry.route_candidate_reuse_total,
+            )
+        ),
+        "dynamic_potential_recompute_total": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "dynamic_potential_recompute_total",
+                telemetry.dynamic_potential_recompute_total,
+            )
+        ),
+        "dynamic_potential_cache_hits_total": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "dynamic_potential_cache_hits_total",
+                telemetry.dynamic_potential_cache_hits_total,
+            )
+        ),
+        "active_agent_moved_this_tick": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "active_agent_moved_this_tick",
+                telemetry.active_agent_moved_this_tick,
+            )
+        ),
+        "active_agent_rerouted_this_tick": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "active_agent_rerouted_this_tick",
+                telemetry.active_agent_rerouted_this_tick,
+            )
+        ),
+        "active_agent_reroute_cooldown_this_tick": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "active_agent_reroute_cooldown_this_tick",
+                telemetry.active_agent_reroute_cooldown_this_tick,
+            )
+        ),
+        "us2_reroute_decisions_total": int(
+            _metric_value(metrics_state, summary, "us2_reroute_decisions_total", 0)
+        ),
+        "us2_persistence_decisions_total": int(
+            _metric_value(metrics_state, summary, "us2_persistence_decisions_total", 0)
+        ),
     }
+
+
+def _metric_value(
+    metrics_state: Mapping[str, Any],
+    summary: Mapping[str, Any],
+    key: str,
+    default: Any,
+) -> Any:
+    if key in metrics_state:
+        return metrics_state[key]
+    return summary.get(key, default)
 
 
 def _event_signature(event: Any) -> str:

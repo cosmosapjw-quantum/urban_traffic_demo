@@ -138,6 +138,22 @@ def test_navigator_ui_stream_server_packetizes_step_output_and_control_ack() -> 
         bundle.rng_key,
     )
     assert key.tolist() != bundle.rng_key.tolist()
+    metrics_state = dict(state.dynamic.metrics_state)
+    metrics_state.update(
+        {
+            "routing_backend": "baseline",
+            "flow_backend": "baseline",
+            "route_candidate_refresh_total": 3,
+            "dynamic_potential_recompute_total": 2,
+            "dynamic_potential_cache_hits_total": 1,
+            "active_agent_moved_this_tick": 4,
+            "active_agent_rerouted_this_tick": 2,
+            "active_agent_reroute_cooldown_this_tick": 1,
+            "us2_reroute_decisions_total": 7,
+            "us2_persistence_decisions_total": 5,
+        }
+    )
+    state = state.with_dynamic_updates(metrics_state=metrics_state)
 
     server = NavigatorUIStreamServer(metrics_emit_interval_ticks=1)
     packets = server.ingest_step_output(
@@ -152,6 +168,19 @@ def test_navigator_ui_stream_server_packetizes_step_output_and_control_ack() -> 
     assert UIPacketType.CONGESTION_FRAME in packet_types
     assert UIPacketType.METRICS_SUMMARY in packet_types
     assert packets[0].run_id == "synthetic-33"
+    metrics_payload = next(
+        packet.payload for packet in packets if packet.type is UIPacketType.METRICS_SUMMARY
+    )
+    assert metrics_payload["routing_backend"] == "baseline"
+    assert metrics_payload["flow_backend"] == "baseline"
+    assert metrics_payload["route_candidate_refresh_total"] == 3
+    assert metrics_payload["dynamic_potential_recompute_total"] == 2
+    assert metrics_payload["dynamic_potential_cache_hits_total"] == 1
+    assert metrics_payload["active_agent_moved_this_tick"] == 4
+    assert metrics_payload["active_agent_rerouted_this_tick"] == 2
+    assert metrics_payload["active_agent_reroute_cooldown_this_tick"] == 1
+    assert metrics_payload["us2_reroute_decisions_total"] == 7
+    assert metrics_payload["us2_persistence_decisions_total"] == 5
 
     command = build_ui_packet_envelope(
         packet_type=UIPacketType.CONTROL_COMMAND,

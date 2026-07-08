@@ -121,6 +121,17 @@ def test_ui_snapshot_source_samples_link_congestion_and_summary_metrics() -> Non
                 "completed_trips_total": 2,
                 "failed_trips_total": 1,
                 "capacity_violation_count": 1,
+                "flow_backend": "baseline",
+                "routing_backend": "baseline",
+                "route_candidate_refresh_total": 3,
+                "route_candidate_reuse_total": 4,
+                "dynamic_potential_recompute_total": 5,
+                "dynamic_potential_cache_hits_total": 6,
+                "active_agent_moved_this_tick": 8,
+                "active_agent_rerouted_this_tick": 2,
+                "active_agent_reroute_cooldown_this_tick": 1,
+                "us2_reroute_decisions_total": 9,
+                "us2_persistence_decisions_total": 10,
             },
         ),
     )
@@ -137,6 +148,14 @@ def test_ui_snapshot_source_samples_link_congestion_and_summary_metrics() -> Non
     assert snapshot["active_events"] == ("event-1",)
     assert snapshot["summary_metrics"]["queued_trip_requests"] == 7
     assert snapshot["summary_metrics"]["capacity_violation_count"] == 1
+    assert snapshot["summary_metrics"]["routing_backend"] == "baseline"
+    assert snapshot["summary_metrics"]["route_candidate_refresh_total"] == 3
+    assert snapshot["summary_metrics"]["dynamic_potential_cache_hits_total"] == 6
+    assert snapshot["summary_metrics"]["active_agent_moved_this_tick"] == 8
+    assert snapshot["summary_metrics"]["active_agent_rerouted_this_tick"] == 2
+    assert snapshot["summary_metrics"]["active_agent_reroute_cooldown_this_tick"] == 1
+    assert snapshot["summary_metrics"]["us2_reroute_decisions_total"] == 9
+    assert snapshot["summary_metrics"]["us2_persistence_decisions_total"] == 10
 
 
 def test_disruption_scenario_controls_build_deterministic_event_sequence() -> None:

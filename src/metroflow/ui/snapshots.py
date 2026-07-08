@@ -174,6 +174,38 @@ def _summary_metrics(
         "completed_trips_total": completed_total,
         "failed_trips_total": failed_total,
         "capacity_violation_count": capacity_violation_count,
+        "flow_backend": str(metrics_state.get("flow_backend", state.config.flow_backend)),
+        "routing_backend": str(metrics_state.get("routing_backend", state.config.routing_backend)),
+        "flow_update_wall_ns": int(metrics_state.get("flow_update_wall_ns", 0)),
+        "queue_vehicles_total": float(metrics_state.get("queue_vehicles_total", 0.0)),
+        "outflow_vehicles_total": float(metrics_state.get("outflow_vehicles_total", 0.0)),
+        "route_candidate_refresh_total": int(
+            metrics_state.get("route_candidate_refresh_total", 0)
+        ),
+        "route_candidate_reuse_total": int(
+            metrics_state.get("route_candidate_reuse_total", 0)
+        ),
+        "dynamic_potential_recompute_total": int(
+            metrics_state.get("dynamic_potential_recompute_total", 0)
+        ),
+        "dynamic_potential_cache_hits_total": int(
+            metrics_state.get("dynamic_potential_cache_hits_total", 0)
+        ),
+        "active_agent_moved_this_tick": int(
+            metrics_state.get("active_agent_moved_this_tick", 0)
+        ),
+        "active_agent_rerouted_this_tick": int(
+            metrics_state.get("active_agent_rerouted_this_tick", 0)
+        ),
+        "active_agent_reroute_cooldown_this_tick": int(
+            metrics_state.get("active_agent_reroute_cooldown_this_tick", 0)
+        ),
+        "us2_reroute_decisions_total": int(
+            metrics_state.get("us2_reroute_decisions_total", 0)
+        ),
+        "us2_persistence_decisions_total": int(
+            metrics_state.get("us2_persistence_decisions_total", 0)
+        ),
         "negative_queue_detected": invariant_report.counters.negative_queue_violations > 0,
         "invariant_total_violations": int(invariant_report.counters.total_violations),
     }
