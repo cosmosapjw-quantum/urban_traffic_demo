@@ -153,6 +153,7 @@ def test_navigator_ui_stream_server_packetizes_step_output_and_control_ack() -> 
             "dynamic_potential_recompute_total": 2,
             "dynamic_potential_cache_hits_total": 1,
             "active_agent_moved_this_tick": 4,
+            "active_agent_sink_wait_this_tick": 3,
             "active_agent_rerouted_this_tick": 2,
             "active_agent_reroute_cooldown_this_tick": 1,
             "us2_reroute_decisions_total": 7,
@@ -183,6 +184,7 @@ def test_navigator_ui_stream_server_packetizes_step_output_and_control_ack() -> 
     assert metrics_payload["dynamic_potential_recompute_total"] == 2
     assert metrics_payload["dynamic_potential_cache_hits_total"] == 1
     assert metrics_payload["active_agent_moved_this_tick"] == 4
+    assert metrics_payload["active_agent_sink_wait_this_tick"] == 3
     assert metrics_payload["active_agent_rerouted_this_tick"] == 2
     assert metrics_payload["active_agent_reroute_cooldown_this_tick"] == 1
     assert metrics_payload["us2_reroute_decisions_total"] == 7

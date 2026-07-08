@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from typing import Any, Mapping
 
 from metroflow.sim.config import DayType, TimeBand
@@ -80,6 +80,7 @@ class SimulationTelemetry:
     dynamic_potential_recompute_total: int = 0
     dynamic_potential_cache_hits_total: int = 0
     active_agent_moved_this_tick: int = 0
+    active_agent_sink_wait_this_tick: int = 0
     active_agent_rerouted_this_tick: int = 0
     active_agent_reroute_cooldown_this_tick: int = 0
 
@@ -104,6 +105,7 @@ class SimulationTelemetry:
         self.dynamic_potential_recompute_total = int(self.dynamic_potential_recompute_total)
         self.dynamic_potential_cache_hits_total = int(self.dynamic_potential_cache_hits_total)
         self.active_agent_moved_this_tick = int(self.active_agent_moved_this_tick)
+        self.active_agent_sink_wait_this_tick = int(self.active_agent_sink_wait_this_tick)
         self.active_agent_rerouted_this_tick = int(self.active_agent_rerouted_this_tick)
         self.active_agent_reroute_cooldown_this_tick = int(
             self.active_agent_reroute_cooldown_this_tick
@@ -138,6 +140,10 @@ class SimulationTelemetry:
         _validate_non_negative(
             self.active_agent_moved_this_tick,
             "active_agent_moved_this_tick",
+        )
+        _validate_non_negative(
+            self.active_agent_sink_wait_this_tick,
+            "active_agent_sink_wait_this_tick",
         )
         _validate_non_negative(
             self.active_agent_rerouted_this_tick,
@@ -178,6 +184,7 @@ class SimulationTelemetry:
             "dynamic_potential_recompute_total": self.dynamic_potential_recompute_total,
             "dynamic_potential_cache_hits_total": self.dynamic_potential_cache_hits_total,
             "active_agent_moved_this_tick": self.active_agent_moved_this_tick,
+            "active_agent_sink_wait_this_tick": self.active_agent_sink_wait_this_tick,
             "active_agent_rerouted_this_tick": self.active_agent_rerouted_this_tick,
             "active_agent_reroute_cooldown_this_tick": self.active_agent_reroute_cooldown_this_tick,
         }
@@ -189,7 +196,8 @@ class SimulationTelemetry:
         missing = tuple(key for key in cls.required_keys() if key not in data)
         if missing:
             raise KeyError(f"missing telemetry keys: {', '.join(missing)}")
-        return cls(**{key: data[key] for key in cls.required_keys()})
+        known_fields = tuple(item.name for item in fields(cls))
+        return cls(**{key: data[key] for key in known_fields if key in data})
 
     @staticmethod
     def required_keys() -> tuple[str, ...]:

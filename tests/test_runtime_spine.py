@@ -107,6 +107,61 @@ def _runtime_spine_state(
     )
 
 
+def _runtime_state_with_agent_on_final_link(*, final_link_capacity: float):
+    from dataclasses import replace
+
+    from metroflow.demand.trips import TripRequestStatus
+    from metroflow.sim.active_agents import ActiveAgentSlot, ActiveAgentPool, allocate_active_agent_slot
+
+    state = _runtime_spine_state(capacity_veh_per_tick=(2.0, final_link_capacity))
+    activated_trips = tuple(
+        replace(trip, status=TripRequestStatus.ACTIVATED)
+        for trip in state.dynamic.demand_state["trip_requests"]
+    )
+    payload = ActiveAgentSlot.spawn(
+        citizen_id=101,
+        trip_id=1,
+        current_link_id=11,
+        dest_node_id=3,
+        behavior_profile_id=0,
+        remaining_route_ptr=1,
+    )
+    pool, slot_id = allocate_active_agent_slot(state.dynamic.active_agent_pool, payload)
+    pool = ActiveAgentPool.from_internal_arrays(
+        capacity=pool.capacity,
+        free_slot_stack=pool.free_slot_stack,
+        free_slot_count=pool.free_slot_count,
+        alive_mask=pool.alive_mask,
+        alive_count=pool.alive_count,
+        citizen_id=pool.citizen_id,
+        trip_id=pool.trip_id,
+        current_link_id=pool.current_link_id,
+        progress_01=pool.progress_01,
+        remaining_route_ptr=pool.remaining_route_ptr,
+        dest_node_id=pool.dest_node_id,
+        behavior_profile_id=pool.behavior_profile_id,
+        reroute_cooldown_ticks=pool.reroute_cooldown_ticks,
+        plugin_memory={
+            int(slot_id): {
+                "route_path": (10, 11),
+                "origin_poi_id": 1,
+                "dest_poi_id": 2,
+                "trip_request_id": 1,
+            }
+        },
+    )
+    return state.with_dynamic_updates(
+        active_agent_pool=pool,
+        demand_state={
+            **state.dynamic.demand_state,
+            "trip_requests": activated_trips,
+            "allocated_trip_request_ids": (1,),
+            "activated_trip_requests": 1,
+            "pending_trip_requests": 1,
+        },
+    )
+
+
 def _runtime_reroute_state(*, reroute_cooldown_ticks: int = 0):
     from metroflow.city.graph import (
         Node,
@@ -638,66 +693,62 @@ def test_simulation_step_completes_agent_already_resident_on_final_link() -> Non
 
 
 def test_runtime_final_link_completion_waits_for_sink_discharge_capacity() -> None:
-    from dataclasses import replace
-
-    from metroflow.demand.trips import TripRequestStatus
-    from metroflow.sim.active_agents import ActiveAgentSlot, ActiveAgentPool, allocate_active_agent_slot
     from metroflow.sim.routing_runtime import advance_runtime_active_agents
 
-    state = _runtime_spine_state(capacity_veh_per_tick=(2.0, 0.0))
-    activated_trips = tuple(
-        replace(trip, status=TripRequestStatus.ACTIVATED)
-        for trip in state.dynamic.demand_state["trip_requests"]
-    )
-    payload = ActiveAgentSlot.spawn(
-        citizen_id=101,
-        trip_id=1,
-        current_link_id=11,
-        dest_node_id=3,
-        behavior_profile_id=0,
-        remaining_route_ptr=1,
-    )
-    pool, slot_id = allocate_active_agent_slot(state.dynamic.active_agent_pool, payload)
-    pool = ActiveAgentPool.from_internal_arrays(
-        capacity=pool.capacity,
-        free_slot_stack=pool.free_slot_stack,
-        free_slot_count=pool.free_slot_count,
-        alive_mask=pool.alive_mask,
-        alive_count=pool.alive_count,
-        citizen_id=pool.citizen_id,
-        trip_id=pool.trip_id,
-        current_link_id=pool.current_link_id,
-        progress_01=pool.progress_01,
-        remaining_route_ptr=pool.remaining_route_ptr,
-        dest_node_id=pool.dest_node_id,
-        behavior_profile_id=pool.behavior_profile_id,
-        reroute_cooldown_ticks=pool.reroute_cooldown_ticks,
-        plugin_memory={
-            int(slot_id): {
-                "route_path": (10, 11),
-                "origin_poi_id": 1,
-                "dest_poi_id": 2,
-                "trip_request_id": 1,
-            }
-        },
-    )
-    state = state.with_dynamic_updates(
-        active_agent_pool=pool,
-        demand_state={
-            **state.dynamic.demand_state,
-            "trip_requests": activated_trips,
-            "allocated_trip_request_ids": (1,),
-            "activated_trip_requests": 1,
-            "pending_trip_requests": 1,
-        },
-    )
+    state = _runtime_state_with_agent_on_final_link(final_link_capacity=0.0)
 
     next_pool, counters, demand_state, _link_state = advance_runtime_active_agents(state)
 
     assert next_pool.alive_count == 1
     assert next_pool.current_link_id[0].item() == 11
     assert counters["trip_completed_this_tick"] == 0
+    assert counters["active_agent_sink_wait_this_tick"] == 1
     assert demand_state.get("completed_trip_request_ids", ()) == ()
+
+
+def test_simulation_step_reports_final_link_sink_wait_telemetry() -> None:
+    from metroflow.sim.control import SimulationControl
+    from metroflow.sim.rng import key_from_seed
+    from metroflow.sim.step import simulation_step
+
+    state = _runtime_state_with_agent_on_final_link(final_link_capacity=0.0)
+
+    next_state, telemetry, _snapshot, _key = simulation_step(
+        state,
+        SimulationControl(),
+        key_from_seed(29),
+    )
+
+    assert next_state.dynamic.active_agent_pool.alive_count == 1
+    assert telemetry.trip_completed_this_tick == 0
+    assert telemetry.active_agent_sink_wait_this_tick == 1
+    assert next_state.dynamic.metrics_state["active_agent_sink_wait_this_tick"] == 1
+
+
+def test_simulation_telemetry_mapping_round_trip_preserves_runtime_counters() -> None:
+    from metroflow.sim.control import SimulationTelemetry
+
+    telemetry = SimulationTelemetry(
+        tick_index=3,
+        active_agent_count=2,
+        flow_backend="rust_cpu",
+        routing_backend="rust_cpu",
+        flow_update_wall_ns=55,
+        active_agent_moved_this_tick=4,
+        active_agent_sink_wait_this_tick=3,
+        active_agent_rerouted_this_tick=2,
+        active_agent_reroute_cooldown_this_tick=1,
+    )
+
+    round_tripped = SimulationTelemetry.from_mapping(telemetry.as_dict())
+
+    assert round_tripped.flow_backend == "rust_cpu"
+    assert round_tripped.routing_backend == "rust_cpu"
+    assert round_tripped.flow_update_wall_ns == 55
+    assert round_tripped.active_agent_moved_this_tick == 4
+    assert round_tripped.active_agent_sink_wait_this_tick == 3
+    assert round_tripped.active_agent_rerouted_this_tick == 2
+    assert round_tripped.active_agent_reroute_cooldown_this_tick == 1
 
 
 def test_runtime_reroute_replaces_remaining_tail_on_incident() -> None:

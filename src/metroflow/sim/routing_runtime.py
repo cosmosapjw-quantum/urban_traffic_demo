@@ -344,6 +344,7 @@ def _agent_tick_counters() -> dict[str, int]:
         "trip_completed_this_tick": 0,
         "trip_failed_this_tick": 0,
         "active_agent_moved_this_tick": 0,
+        "active_agent_sink_wait_this_tick": 0,
         "active_agent_rerouted_this_tick": 0,
         "active_agent_reroute_cooldown_this_tick": 0,
     }
@@ -410,6 +411,7 @@ def _advance_pool_along_cached_routes(
         current_link_id = int(current_link[slot_id])
         if ptr >= len(path) - 1:
             if remaining_completion_budget.get(current_link_id, 0) <= 0:
+                counters["active_agent_sink_wait_this_tick"] += 1
                 continue
             remaining_completion_budget[current_link_id] = (
                 remaining_completion_budget[current_link_id] - 1

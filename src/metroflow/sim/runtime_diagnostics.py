@@ -41,6 +41,7 @@ class RuntimeDiagnosticFrame:
     route_candidate_reuse_total: int
     dynamic_potential_recompute_total: int
     dynamic_potential_cache_hits_total: int
+    active_agent_sink_wait_this_tick: int = 0
     sampled_link_congestion: tuple[dict[str, Any], ...] = field(default_factory=tuple)
     candidate_paths_by_od: dict[str, tuple[tuple[int, ...], ...]] = field(default_factory=dict)
     candidate_metadata_by_od: dict[str, dict[str, Any]] = field(default_factory=dict)
@@ -54,6 +55,7 @@ class RuntimeDiagnosticFrame:
         self.trip_completed_total = int(self.trip_completed_total)
         self.trip_failed_total = int(self.trip_failed_total)
         self.active_agent_moved_this_tick = int(self.active_agent_moved_this_tick)
+        self.active_agent_sink_wait_this_tick = int(self.active_agent_sink_wait_this_tick)
         self.active_agent_rerouted_this_tick = int(self.active_agent_rerouted_this_tick)
         self.active_agent_reroute_cooldown_this_tick = int(
             self.active_agent_reroute_cooldown_this_tick
@@ -86,6 +88,7 @@ class RuntimeDiagnosticFrame:
             "trip_completed_total": self.trip_completed_total,
             "trip_failed_total": self.trip_failed_total,
             "active_agent_moved_this_tick": self.active_agent_moved_this_tick,
+            "active_agent_sink_wait_this_tick": self.active_agent_sink_wait_this_tick,
             "active_agent_rerouted_this_tick": self.active_agent_rerouted_this_tick,
             "active_agent_reroute_cooldown_this_tick": self.active_agent_reroute_cooldown_this_tick,
             "route_candidate_refresh_total": self.route_candidate_refresh_total,
@@ -202,13 +205,14 @@ def render_runtime_diagnostic_html(report: RuntimeDiagnosticReport) -> str:
     <div class="metric">final tick<strong>{int(summary.get("final_tick", 0))}</strong></div>
     <div class="metric">completed trips<strong>{int(summary.get("final_completed_trips_total", 0))}</strong></div>
     <div class="metric">rerouted total<strong>{int(summary.get("active_agent_rerouted_total", 0))}</strong></div>
+    <div class="metric">sink wait total<strong>{int(summary.get("active_agent_sink_wait_total", 0))}</strong></div>
     <div class="metric">cache hits<strong>{int(summary.get("dynamic_potential_cache_hits_total", 0))}</strong></div>
   </section>
   <h2>Tick Timeline</h2>
   <div class="chart">{svg}</div>
   <h2>Frame Metrics</h2>
   <table>
-    <thead><tr><th>tick</th><th>active</th><th>moved</th><th>rerouted</th><th>cooldown</th><th>queue</th><th>outflow</th><th>completed</th><th>failed</th><th>route refresh</th><th>cache hits</th></tr></thead>
+    <thead><tr><th>tick</th><th>active</th><th>moved</th><th>sink wait</th><th>rerouted</th><th>cooldown</th><th>queue</th><th>outflow</th><th>completed</th><th>failed</th><th>route refresh</th><th>cache hits</th></tr></thead>
     <tbody>{frame_rows}</tbody>
   </table>
   <h2>Candidate Paths</h2>
@@ -260,6 +264,9 @@ def _build_diagnostic_frame(
         trip_completed_total=int(metrics.get("completed_trips_total", 0)),
         trip_failed_total=int(metrics.get("failed_trips_total", 0)),
         active_agent_moved_this_tick=int(metrics.get("active_agent_moved_this_tick", 0)),
+        active_agent_sink_wait_this_tick=int(
+            metrics.get("active_agent_sink_wait_this_tick", 0)
+        ),
         active_agent_rerouted_this_tick=int(
             metrics.get("active_agent_rerouted_this_tick", 0)
         ),
@@ -295,6 +302,9 @@ def _build_report_summary(
         "active_agent_rerouted_this_tick": int(
             metrics.get("active_agent_rerouted_this_tick", 0)
         ),
+        "active_agent_sink_wait_this_tick": int(
+            metrics.get("active_agent_sink_wait_this_tick", 0)
+        ),
         "active_agent_reroute_cooldown_this_tick": int(
             metrics.get("active_agent_reroute_cooldown_this_tick", 0)
         ),
@@ -313,6 +323,10 @@ def _with_frame_derived_summary(
     summary.setdefault(
         "active_agent_reroute_cooldown_total",
         sum(int(frame.active_agent_reroute_cooldown_this_tick) for frame in frames),
+    )
+    summary.setdefault(
+        "active_agent_sink_wait_total",
+        sum(int(frame.active_agent_sink_wait_this_tick) for frame in frames),
     )
     return summary
 
@@ -413,6 +427,7 @@ def _render_frame_row(frame: RuntimeDiagnosticFrame) -> str:
         f"<td>tick {frame.tick_index}</td>"
         f"<td>{frame.active_agent_count}</td>"
         f"<td>{frame.active_agent_moved_this_tick}</td>"
+        f"<td>{frame.active_agent_sink_wait_this_tick}</td>"
         f"<td>{frame.active_agent_rerouted_this_tick}</td>"
         f"<td>{frame.active_agent_reroute_cooldown_this_tick}</td>"
         f"<td>{frame.queue_vehicles_total:.3f}</td>"

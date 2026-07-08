@@ -188,6 +188,7 @@ def test_runtime_diagnostic_summary_accumulates_reroute_counters() -> None:
                 trip_completed_total=0,
                 trip_failed_total=0,
                 active_agent_moved_this_tick=0,
+                active_agent_sink_wait_this_tick=1,
                 active_agent_rerouted_this_tick=2,
                 active_agent_reroute_cooldown_this_tick=1,
                 route_candidate_refresh_total=1,
@@ -203,6 +204,7 @@ def test_runtime_diagnostic_summary_accumulates_reroute_counters() -> None:
                 trip_completed_total=0,
                 trip_failed_total=0,
                 active_agent_moved_this_tick=1,
+                active_agent_sink_wait_this_tick=2,
                 active_agent_rerouted_this_tick=0,
                 active_agent_reroute_cooldown_this_tick=3,
                 route_candidate_refresh_total=1,
@@ -217,5 +219,7 @@ def test_runtime_diagnostic_summary_accumulates_reroute_counters() -> None:
 
     assert report.summary["active_agent_rerouted_total"] == 2
     assert report.summary["active_agent_reroute_cooldown_total"] == 4
+    assert report.summary["active_agent_sink_wait_total"] == 3
     assert "rerouted total" in html
+    assert "sink wait total" in html
     assert "<strong>2</strong>" in html

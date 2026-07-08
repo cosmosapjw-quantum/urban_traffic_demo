@@ -54,7 +54,7 @@
   `outflow_vehicles` 예산을 deterministic slot 순서로 소비한다.
 - final-link arrival은 sink discharge budget을 소비한다. 목적지 discharge는 final link의
   effective capacity에서 산출한 정수 예산을 deterministic slot 순서로 쓰며, zero capacity/closure에서는
-  agent가 final link에 남는다.
+  agent가 final link에 남고 `active_agent_sink_wait_this_tick`으로 관측된다.
 - `WorldState`/`step_world`는 compatibility contract이고, integrated long-run runtime은
   `sim.step.simulation_step`을 기준으로 확장함
 - 기본 backend contract는 NumPy host arrays이며, accelerator 배열은 core state에 저장하지 않음

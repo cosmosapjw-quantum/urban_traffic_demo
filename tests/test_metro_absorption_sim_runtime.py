@@ -128,6 +128,7 @@ def test_ui_snapshot_source_samples_link_congestion_and_summary_metrics() -> Non
                 "dynamic_potential_recompute_total": 5,
                 "dynamic_potential_cache_hits_total": 6,
                 "active_agent_moved_this_tick": 8,
+                "active_agent_sink_wait_this_tick": 3,
                 "active_agent_rerouted_this_tick": 2,
                 "active_agent_reroute_cooldown_this_tick": 1,
                 "us2_reroute_decisions_total": 9,
@@ -152,6 +153,7 @@ def test_ui_snapshot_source_samples_link_congestion_and_summary_metrics() -> Non
     assert snapshot["summary_metrics"]["route_candidate_refresh_total"] == 3
     assert snapshot["summary_metrics"]["dynamic_potential_cache_hits_total"] == 6
     assert snapshot["summary_metrics"]["active_agent_moved_this_tick"] == 8
+    assert snapshot["summary_metrics"]["active_agent_sink_wait_this_tick"] == 3
     assert snapshot["summary_metrics"]["active_agent_rerouted_this_tick"] == 2
     assert snapshot["summary_metrics"]["active_agent_reroute_cooldown_this_tick"] == 1
     assert snapshot["summary_metrics"]["us2_reroute_decisions_total"] == 9

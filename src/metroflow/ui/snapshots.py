@@ -194,6 +194,9 @@ def _summary_metrics(
         "active_agent_moved_this_tick": int(
             metrics_state.get("active_agent_moved_this_tick", 0)
         ),
+        "active_agent_sink_wait_this_tick": int(
+            metrics_state.get("active_agent_sink_wait_this_tick", 0)
+        ),
         "active_agent_rerouted_this_tick": int(
             metrics_state.get("active_agent_rerouted_this_tick", 0)
         ),

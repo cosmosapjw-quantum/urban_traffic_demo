@@ -238,6 +238,7 @@ def _zero_tick_counters() -> dict[str, int]:
         "trip_activated_this_tick": 0,
         "trip_allocated_this_tick": 0,
         "active_agent_moved_this_tick": 0,
+        "active_agent_sink_wait_this_tick": 0,
         "route_candidate_refresh_this_tick": 0,
         "route_candidate_reuse_this_tick": 0,
         "dynamic_potential_recompute_this_tick": 0,
@@ -357,6 +358,7 @@ def _update_metrics_state(
     reroute_cooldown_tick = int(
         tick_counters.get("active_agent_reroute_cooldown_this_tick", 0)
     )
+    sink_wait_tick = int(tick_counters.get("active_agent_sink_wait_this_tick", 0))
     metrics.update(
         {
             "tick_index": state.tick_index,
@@ -393,6 +395,7 @@ def _update_metrics_state(
             "active_agent_moved_this_tick": int(
                 tick_counters.get("active_agent_moved_this_tick", 0)
             ),
+            "active_agent_sink_wait_this_tick": sink_wait_tick,
             "active_agent_rerouted_this_tick": rerouted_tick,
             "active_agent_reroute_cooldown_this_tick": reroute_cooldown_tick,
             "us2_reroute_decisions_total": int(
@@ -444,6 +447,9 @@ def _build_step_telemetry(
         ),
         active_agent_moved_this_tick=int(
             metrics_state.get("active_agent_moved_this_tick", 0)
+        ),
+        active_agent_sink_wait_this_tick=int(
+            metrics_state.get("active_agent_sink_wait_this_tick", 0)
         ),
         active_agent_rerouted_this_tick=int(
             metrics_state.get("active_agent_rerouted_this_tick", 0)
