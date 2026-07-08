@@ -44,6 +44,7 @@ class RuntimeDiagnosticFrame:
     sampled_link_congestion: tuple[dict[str, Any], ...] = field(default_factory=tuple)
     candidate_paths_by_od: dict[str, tuple[tuple[int, ...], ...]] = field(default_factory=dict)
     candidate_metadata_by_od: dict[str, dict[str, Any]] = field(default_factory=dict)
+    selected_candidate_slots: tuple[dict[str, Any], ...] = field(default_factory=tuple)
 
     def __post_init__(self) -> None:
         self.tick_index = int(self.tick_index)
@@ -70,6 +71,9 @@ class RuntimeDiagnosticFrame:
             str(key): _normalize_candidate_metadata(value)
             for key, value in dict(self.candidate_metadata_by_od).items()
         }
+        self.selected_candidate_slots = tuple(
+            _normalize_selected_candidate_slot(item) for item in self.selected_candidate_slots
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize this frame into JSON-safe diagnostic data."""
@@ -96,6 +100,9 @@ class RuntimeDiagnosticFrame:
             "candidate_metadata_by_od": {
                 key: dict(value) for key, value in self.candidate_metadata_by_od.items()
             },
+            "selected_candidate_slots": tuple(
+                dict(item) for item in self.selected_candidate_slots
+            ),
         }
 
 
@@ -160,6 +167,7 @@ def render_runtime_diagnostic_html(report: RuntimeDiagnosticReport) -> str:
     data_json = escape(report.to_json())
     frame_rows = "\n".join(_render_frame_row(frame) for frame in report.frames)
     candidate_rows = "\n".join(_render_candidate_row(frame) for frame in report.frames)
+    selected_rows = "\n".join(_render_selected_candidate_row(frame) for frame in report.frames)
     svg = _render_svg_timeline(report.frames)
     summary = report.summary
     return f"""<!doctype html>
@@ -207,6 +215,11 @@ def render_runtime_diagnostic_html(report: RuntimeDiagnosticReport) -> str:
   <table>
     <thead><tr><th>tick</th><th>OD</th><th>paths</th><th>costs</th><th>path size</th></tr></thead>
     <tbody>{candidate_rows}</tbody>
+  </table>
+  <h2>Selected Candidates</h2>
+  <table>
+    <thead><tr><th>tick</th><th>slot</th><th>candidate</th><th>cost</th><th>path size</th><th>utility</th></tr></thead>
+    <tbody>{selected_rows}</tbody>
   </table>
   <p class="note">This is a SMOKE diagnostic for runtime-spine review. It is not a validation claim or performance benchmark.</p>
 </main>
@@ -260,6 +273,7 @@ def _build_diagnostic_frame(
         sampled_link_congestion=tuple(snapshot.get("sampled_link_congestion", ()) or ()),
         candidate_paths_by_od=_candidate_paths_by_od(route_state.candidate_sets),
         candidate_metadata_by_od=_candidate_metadata_by_od(route_state.candidate_sets),
+        selected_candidate_slots=_selected_candidate_slots(state.dynamic.active_agent_pool),
     )
 
 
@@ -352,6 +366,47 @@ def _normalize_candidate_metadata(value: Any) -> dict[str, Any]:
     }
 
 
+def _selected_candidate_slots(active_agent_pool: Any) -> tuple[dict[str, Any], ...]:
+    plugin_memory = getattr(active_agent_pool, "plugin_memory", {})
+    if not isinstance(plugin_memory, Mapping):
+        return ()
+    slots: list[dict[str, Any]] = []
+    for slot_id, memory in sorted(dict(plugin_memory).items(), key=lambda item: int(item[0])):
+        if not isinstance(memory, Mapping):
+            continue
+        if "selected_candidate_id" not in memory:
+            continue
+        slots.append(
+            _normalize_selected_candidate_slot(
+                {
+                    "slot_id": slot_id,
+                    "candidate_id": memory.get("selected_candidate_id", 0),
+                    "candidate_index": memory.get("selected_candidate_index", 0),
+                    "candidate_count": memory.get("selected_candidate_count", 0),
+                    "path_cost": memory.get("selected_candidate_path_cost", 0.0),
+                    "path_size_factor": memory.get(
+                        "selected_candidate_path_size_factor",
+                        1.0,
+                    ),
+                    "utility": memory.get("selected_candidate_utility", 0.0),
+                }
+            )
+        )
+    return tuple(slots)
+
+
+def _normalize_selected_candidate_slot(value: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "slot_id": int(value.get("slot_id", 0)),
+        "candidate_id": int(value.get("candidate_id", 0)),
+        "candidate_index": int(value.get("candidate_index", 0)),
+        "candidate_count": int(value.get("candidate_count", 0)),
+        "path_cost": float(value.get("path_cost", 0.0)),
+        "path_size_factor": float(value.get("path_size_factor", 1.0)),
+        "utility": float(value.get("utility", 0.0)),
+    }
+
+
 def _render_frame_row(frame: RuntimeDiagnosticFrame) -> str:
     return (
         "<tr>"
@@ -387,6 +442,24 @@ def _render_candidate_row(frame: RuntimeDiagnosticFrame) -> str:
             f"<td><code>{escape(str(paths))}</code></td>"
             f"<td><code>{escape(str(costs))}</code></td>"
             f"<td><code>{escape(str(path_sizes))}</code></td>"
+            "</tr>"
+        )
+    return "\n".join(rows)
+
+
+def _render_selected_candidate_row(frame: RuntimeDiagnosticFrame) -> str:
+    if not frame.selected_candidate_slots:
+        return f"<tr><td>tick {frame.tick_index}</td><td>none</td><td>()</td><td>()</td><td>()</td><td>()</td></tr>"
+    rows = []
+    for item in frame.selected_candidate_slots:
+        rows.append(
+            "<tr>"
+            f"<td>tick {frame.tick_index}</td>"
+            f"<td>{int(item['slot_id'])}</td>"
+            f"<td>{int(item['candidate_id'])} / {int(item['candidate_index'])}</td>"
+            f"<td>{float(item['path_cost']):.3f}</td>"
+            f"<td>{float(item['path_size_factor']):.3f}</td>"
+            f"<td>{float(item['utility']):.3f}</td>"
             "</tr>"
         )
     return "\n".join(rows)

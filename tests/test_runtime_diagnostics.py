@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 
 
 def _diagnostic_state():
@@ -118,6 +119,14 @@ def test_runtime_diagnostic_rollout_captures_frames_route_cache_and_summary() ->
     assert report.frames[0].candidate_metadata_by_od["1->2"]["candidate_count"] == 1
     assert len(report.frames[0].candidate_metadata_by_od["1->2"]["candidate_path_costs"]) == 1
     assert report.frames[0].candidate_metadata_by_od["1->2"]["candidate_path_size_factors"] == (1.0,)
+    selected = report.frames[0].selected_candidate_slots[0]
+    assert selected["slot_id"] == 0
+    assert selected["candidate_id"] == 0
+    assert selected["candidate_index"] == 0
+    assert selected["candidate_count"] == 1
+    assert selected["path_size_factor"] == 1.0
+    assert selected["path_cost"] > 0.0
+    assert selected["utility"] == pytest.approx(-selected["path_cost"])
     assert report.frames[0].active_agent_moved_this_tick == 0
     assert report.frames[0].active_agent_rerouted_this_tick == 0
     assert report.frames[0].active_agent_reroute_cooldown_this_tick == 0
@@ -157,6 +166,7 @@ def test_runtime_diagnostic_html_renderer_is_static_and_contains_svg_review_surf
     assert "rerouted" in html
     assert "cooldown" in html
     assert "path size" in html
+    assert "Selected Candidates" in html
 
 
 def test_runtime_diagnostic_summary_accumulates_reroute_counters() -> None:
