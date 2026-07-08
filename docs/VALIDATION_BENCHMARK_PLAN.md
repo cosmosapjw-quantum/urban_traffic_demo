@@ -42,7 +42,8 @@ runtime reroute/persistence counters, initial/final tick을 기록한다.
 `run_measured_routing_candidate_benchmark`는 OD 단위 dynamic-potential + greedy candidate path를 분리 측정하고,
 routing backend, final candidate path, path length, recompute/cache-hit count, copy-boundary note를 기록한다.
 `route_max_candidates > 1` baseline test는 ranked K candidate path 순서, turn restriction, blocked-link
-회피, deterministic tie-break, `max_candidates_returned` metadata를 고정한다.
+회피, deterministic tie-break, `max_candidates_returned`, candidate path cost, path-size factor metadata를
+고정한다.
 runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`로
 backend config 및 route-cache fingerprint를 고정하고, replay result는 runtime reroute/persistence totals를
 보존한다. route-cache fingerprint는 candidate path뿐 아니라

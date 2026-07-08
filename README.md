@@ -22,6 +22,7 @@
   deterministic greedy single-candidate path core를 담당한다.
 - `route_max_candidates`는 기본값 1을 유지하지만 2 이상을 명시하면 Python baseline이
   dynamic-potential heuristic과 turn restriction을 사용해 결정론적 ranked K 후보 경로를 생성한다.
+  candidate set metadata는 각 후보의 baseline path cost와 path-size factor를 함께 기록한다.
 - 디스플레이 GPU 메모리 여유가 필요하면 실행 전에 `XLA_PYTHON_CLIENT_MEM_FRACTION=.70`처럼 제한한다.
 
 설치/확인:

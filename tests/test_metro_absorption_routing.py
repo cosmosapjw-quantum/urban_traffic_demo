@@ -1,5 +1,7 @@
 from importlib import import_module
 
+import pytest
+
 
 def make_csr_and_link_state():
     graph = import_module("metroflow.city.graph")
@@ -94,6 +96,52 @@ def test_route_candidate_set_builds_ranked_diverse_baseline_paths():
     assert candidate_set.candidate_paths == ((12, 13), (10, 11))
     assert candidate_set.metadata["candidate_generation_mode"] == "baseline_ranked_k"
     assert candidate_set.metadata["max_candidates_returned"] == 2
+    assert candidate_set.metadata["candidate_path_costs"] == (2.0, 51.0)
+    assert candidate_set.metadata["candidate_path_size_factors"] == (1.0, 1.0)
+
+
+def test_route_candidate_set_records_overlap_path_size_factors():
+    graph = import_module("metroflow.city.graph")
+    flow_state = import_module("metroflow.flow.state")
+    candidates = import_module("metroflow.routing.candidates")
+    csr = graph.build_road_network_csr(
+        nodes=(graph.Node(1), graph.Node(2), graph.Node(3), graph.Node(4)),
+        links=(
+            graph.RoadLink(10, 1, 2, graph.RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            graph.RoadLink(11, 2, 4, graph.RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            graph.RoadLink(12, 2, 3, graph.RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            graph.RoadLink(13, 3, 4, graph.RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+        ),
+        turns=(
+            graph.TurnMovement(10, 11, graph.TurnType.THROUGH),
+            graph.TurnMovement(10, 12, graph.TurnType.RIGHT),
+            graph.TurnMovement(12, 13, graph.TurnType.THROUGH),
+        ),
+    )
+    link_state = flow_state.LinkState(
+        queue_vehicles=(0.0, 0.0, 0.0, 0.0),
+        inflow_vehicles=(0.0, 0.0, 0.0, 0.0),
+        outflow_vehicles=(0.0, 0.0, 0.0, 0.0),
+        travel_time_cost=(1.0, 1.0, 1.0, 1.0),
+        capacity_veh_per_tick=(5.0, 5.0, 5.0, 5.0),
+        incident_capacity_multiplier=(1.0, 1.0, 1.0, 1.0),
+    )
+
+    candidate_set = candidates.create_route_candidate_set(
+        road_csr=csr,
+        link_state=link_state,
+        od_key=("z1", "z4"),
+        origin_node_id=1,
+        destination_node_id=4,
+        current_tick=0,
+        max_candidates=2,
+    )
+
+    assert candidate_set.candidate_paths == ((10, 11), (10, 12, 13))
+    assert candidate_set.metadata["candidate_path_costs"] == (2.0, 3.0)
+    assert candidate_set.metadata["candidate_path_size_factors"] == pytest.approx(
+        (0.75, 5.0 / 6.0)
+    )
 
 
 def test_policy_mixer_falls_back_when_adaptive_scores_are_invalid():

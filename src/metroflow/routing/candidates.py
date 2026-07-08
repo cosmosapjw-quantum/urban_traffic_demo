@@ -163,6 +163,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
         raise ValueError("max_candidates must be >= 1")
 
     paths: tuple[tuple[int, ...], ...] = ()
+    potential_state = None
     potential_metadata: dict[str, Any] = {}
     if max_candidates >= 1:
         effective_cache_key = cache_key
@@ -213,6 +214,19 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
     else:
         candidate_ids = ()
         candidate_paths = ()
+    candidate_path_costs = (
+        _candidate_path_costs(
+            road_csr=road_csr,
+            candidate_paths=candidate_paths,
+            link_travel_time_cost=potential_state.link_travel_time_cost,
+        )
+        if potential_state is not None
+        else ()
+    )
+    candidate_path_size_factors = _candidate_path_size_factors(
+        road_csr=road_csr,
+        candidate_paths=candidate_paths,
+    )
 
     candidate_set = RouteCandidateSet(
         od_key=od_key,
@@ -225,6 +239,8 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             "max_candidates_requested": max_candidates,
             "max_candidates_returned": len(candidate_paths),
             "max_hops": max_hops,
+            "candidate_path_costs": candidate_path_costs,
+            "candidate_path_size_factors": candidate_path_size_factors,
             "candidate_generation_mode": (
                 "baseline_greedy_single" if max_candidates == 1 else "baseline_ranked_k"
             ),
@@ -334,6 +350,50 @@ def _build_ranked_route_candidate_paths(
             )
 
     return tuple(paths)
+
+
+def _candidate_path_costs(
+    *,
+    road_csr,
+    candidate_paths: tuple[tuple[int, ...], ...],
+    link_travel_time_cost,
+) -> tuple[float, ...]:
+    costs: list[float] = []
+    for path in candidate_paths:
+        cost = 0.0
+        for link_id in path:
+            link_index = int(road_csr.link_id_to_index[int(link_id)])
+            cost += float(link_travel_time_cost[link_index])
+        costs.append(float(cost))
+    return tuple(costs)
+
+
+def _candidate_path_size_factors(
+    *,
+    road_csr,
+    candidate_paths: tuple[tuple[int, ...], ...],
+) -> tuple[float, ...]:
+    usage_count: dict[int, int] = {}
+    for path in candidate_paths:
+        for link_id in path:
+            link_id_i = int(link_id)
+            usage_count[link_id_i] = usage_count.get(link_id_i, 0) + 1
+
+    factors: list[float] = []
+    for path in candidate_paths:
+        lengths = tuple(
+            max(1.0e-6, float(road_csr.links[int(road_csr.link_id_to_index[int(link_id)])].length_m))
+            for link_id in path
+        )
+        total_length = sum(lengths)
+        if total_length <= 0.0:
+            factors.append(1.0)
+            continue
+        factor = 0.0
+        for link_id, length_m in zip(path, lengths, strict=True):
+            factor += (length_m / total_length) * (1.0 / max(usage_count[int(link_id)], 1))
+        factors.append(max(float(factor), 1.0e-12))
+    return tuple(factors)
 
 
 def refresh_od_route_candidate_set(
