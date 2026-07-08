@@ -33,7 +33,7 @@ def _diagnostic_state():
         inflow_vehicles=np.zeros((2,), dtype=np.float32),
         outflow_vehicles=np.zeros((2,), dtype=np.float32),
         travel_time_cost=np.ones((2,), dtype=np.float32),
-        capacity_veh_per_tick=np.asarray((2.0, 2.0), dtype=np.float32),
+        capacity_veh_per_tick=np.asarray((2.0, 10.0), dtype=np.float32),
         incident_capacity_multiplier=np.ones((2,), dtype=np.float32),
         metadata={
             "free_flow_travel_time_cost": np.ones((2,), dtype=np.float32),
@@ -106,17 +106,20 @@ def test_runtime_diagnostic_rollout_captures_frames_route_cache_and_summary() ->
     report = run_runtime_diagnostic_rollout(
         _diagnostic_state(),
         key_from_seed(123),
-        controls=(SimulationControl(), SimulationControl()),
+        controls=(SimulationControl(), SimulationControl(), SimulationControl()),
         max_link_samples=2,
     )
 
     assert report.label == "SMOKE DIAGNOSTIC"
-    assert len(report.frames) == 2
+    assert len(report.frames) == 3
     assert report.frames[0].tick_index == 1
     assert report.frames[0].route_candidate_refresh_total == 1
     assert report.frames[0].candidate_paths_by_od == {"1->2": ((10, 11),)}
-    assert report.frames[1].trip_completed_total == 1
-    assert report.summary["final_tick"] == 2
+    assert report.frames[0].active_agent_moved_this_tick == 0
+    assert report.frames[1].active_agent_count == 1
+    assert report.frames[1].active_agent_moved_this_tick == 1
+    assert report.frames[2].trip_completed_total == 1
+    assert report.summary["final_tick"] == 3
     assert report.summary["final_completed_trips_total"] == 1
     assert report.summary["route_candidate_reuse_total"] >= 1
     assert report.to_dict()["frames"][0]["sampled_link_congestion"]
@@ -145,3 +148,4 @@ def test_runtime_diagnostic_html_renderer_is_static_and_contains_svg_review_surf
     assert "<svg" in html
     assert "tick 1" in html
     assert "route refresh" in html
+    assert "moved" in html

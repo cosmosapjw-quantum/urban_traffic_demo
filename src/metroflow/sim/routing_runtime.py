@@ -164,6 +164,7 @@ def advance_runtime_active_agents(
     plugin_memory = dict(pool_after_alloc.plugin_memory)
     counters = _agent_tick_counters()
     pois_by_id = _pois_by_id(state)
+    newly_allocated_slot_ids: set[int] = set()
 
     for trip in _activated_trip_requests(trips):
         trip_id = int(trip.trip_request_id)
@@ -197,9 +198,14 @@ def advance_runtime_active_agents(
         }
         pool_after_alloc = _replace_pool_plugin_memory(pool_after_alloc, plugin_memory)
         allocated_ids.add(trip_id)
+        newly_allocated_slot_ids.add(int(slot_id))
         counters["trip_allocated_this_tick"] += 1
 
-    moved_pool, moved_counters, completed_now = _advance_pool_along_cached_routes(pool_after_alloc)
+    moved_pool, moved_counters, completed_now = _advance_pool_along_cached_routes(
+        pool_after_alloc,
+        movement_budget_by_link_id=_movement_budget_by_link_id(state),
+        skip_slot_ids=newly_allocated_slot_ids,
+    )
     counters.update({key: counters.get(key, 0) + value for key, value in moved_counters.items()})
     completed_ids.update(completed_now)
     counters["trip_completed_this_tick"] += len(completed_now)
@@ -290,9 +296,17 @@ def _agent_tick_counters() -> dict[str, int]:
 
 def _advance_pool_along_cached_routes(
     pool: ActiveAgentPool,
+    *,
+    movement_budget_by_link_id: Mapping[int, int],
+    skip_slot_ids: set[int] | None = None,
 ) -> tuple[ActiveAgentPool, dict[str, int], set[int]]:
     counters = _agent_tick_counters()
     completed_trip_ids: set[int] = set()
+    skip_slots = {int(slot_id) for slot_id in (skip_slot_ids or set())}
+    remaining_budget = {
+        int(link_id): max(0, int(count))
+        for link_id, count in dict(movement_budget_by_link_id).items()
+    }
     free_stack = np.asarray(pool.free_slot_stack, dtype=np.int32).copy()
     alive_mask = np.asarray(pool.alive_mask, dtype=np.bool_).copy()
     citizen = np.asarray(pool.citizen_id, dtype=np.int32).copy()
@@ -308,6 +322,8 @@ def _advance_pool_along_cached_routes(
     alive_count = int(pool.alive_count)
 
     for slot_id in [idx for idx, alive in enumerate(alive_mask.tolist()) if bool(alive)]:
+        if int(slot_id) in skip_slots:
+            continue
         slot_memory = plugin_memory.get(int(slot_id), {})
         path = tuple(int(x) for x in tuple(slot_memory.get("route_path", ())))
         ptr = int(route_ptr[slot_id])
@@ -327,6 +343,10 @@ def _advance_pool_along_cached_routes(
             free_count += 1
             alive_count -= 1
             continue
+        current_link_id = int(current_link[slot_id])
+        if remaining_budget.get(current_link_id, 0) <= 0:
+            continue
+        remaining_budget[current_link_id] = remaining_budget[current_link_id] - 1
         next_ptr = ptr + 1
         route_ptr[slot_id] = next_ptr
         current_link[slot_id] = path[next_ptr]
@@ -354,6 +374,21 @@ def _advance_pool_along_cached_routes(
         counters,
         completed_trip_ids,
     )
+
+
+def _movement_budget_by_link_id(state: SimulationState) -> dict[int, int]:
+    road_csr = _road_csr_from_state(state)
+    link_state = state.dynamic.flow_link_state
+    link_id_to_index = dict(getattr(road_csr, "link_id_to_index", {}) or {})
+    outflow = np.asarray(getattr(link_state, "outflow_vehicles", ()), dtype=np.float32)
+    if outflow.ndim != 1 or not link_id_to_index:
+        return {}
+    budget: dict[int, int] = {}
+    for link_id, link_index in link_id_to_index.items():
+        idx = int(link_index)
+        if 0 <= idx < int(outflow.shape[0]):
+            budget[int(link_id)] = int(np.floor(max(0.0, float(outflow[idx])) + 1e-6))
+    return budget
 
 
 def _replace_pool_plugin_memory(

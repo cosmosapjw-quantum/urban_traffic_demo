@@ -31,3 +31,19 @@ def test_core_runtime_imports_do_not_load_jax():
     )
 
     assert result.stdout.strip() == "False"
+
+
+def test_city_zones_imports_without_sim_runtime_cycle():
+    env = os.environ.copy()
+    env["PYTHONPATH"] = "src"
+    script = "from metroflow.city.zones import POI, POIType\nprint(POIType.HOME.value)\n"
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        check=True,
+        cwd=".",
+        env=env,
+        text=True,
+        capture_output=True,
+    )
+
+    assert result.stdout.strip() == "home"

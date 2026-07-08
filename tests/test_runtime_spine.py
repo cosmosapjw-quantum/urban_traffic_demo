@@ -4,7 +4,13 @@ import numpy as np
 import pytest
 
 
-def _runtime_spine_state(*, disconnected: bool = False):
+def _runtime_spine_state(
+    *,
+    disconnected: bool = False,
+    queue_vehicles: tuple[float, ...] = (3.0, 0.0),
+    capacity_veh_per_tick: tuple[float, ...] = (2.0, 2.0),
+    turn_demand: tuple[float, ...] = (2.0,),
+):
     from metroflow.city.graph import (
         Node,
         RoadClass,
@@ -33,18 +39,21 @@ def _runtime_spine_state(*, disconnected: bool = False):
     link_count = road_csr.link_count
     turn_count = road_csr.turn_count
     link_state = LinkState(
-        queue_vehicles=np.asarray(() if disconnected else (3.0, 0.0), dtype=np.float32),
+        queue_vehicles=np.asarray(() if disconnected else queue_vehicles, dtype=np.float32),
         inflow_vehicles=np.zeros((link_count,), dtype=np.float32),
         outflow_vehicles=np.zeros((link_count,), dtype=np.float32),
         travel_time_cost=np.ones((link_count,), dtype=np.float32),
-        capacity_veh_per_tick=np.asarray(() if disconnected else (2.0, 2.0), dtype=np.float32),
+        capacity_veh_per_tick=np.asarray(
+            () if disconnected else capacity_veh_per_tick,
+            dtype=np.float32,
+        ),
         incident_capacity_multiplier=np.ones((link_count,), dtype=np.float32),
         metadata={"free_flow_travel_time_cost": np.ones((link_count,), dtype=np.float32)},
     )
     node_state = NodeState(
         turn_from_link_index=road_csr.turn_from_link_index,
         turn_to_link_index=road_csr.turn_to_link_index,
-        turn_demand=np.asarray(() if disconnected else (2.0,), dtype=np.float32),
+        turn_demand=np.asarray(() if disconnected else turn_demand, dtype=np.float32),
         turn_supply=np.zeros((turn_count,), dtype=np.float32),
         turn_flow=np.zeros((turn_count,), dtype=np.float32),
         signal_phase_index=np.zeros((road_csr.node_count,), dtype=np.int32),
@@ -158,7 +167,7 @@ def test_simulation_step_refreshes_route_cache_and_moves_active_agent_determinis
     from metroflow.sim.rng import key_from_seed
     from metroflow.sim.step import simulation_step
 
-    state = _runtime_spine_state()
+    state = _runtime_spine_state(capacity_veh_per_tick=(2.0, 10.0))
 
     first_state, first_telemetry, _snapshot, key = simulation_step(
         state,
@@ -170,9 +179,9 @@ def test_simulation_step_refreshes_route_cache_and_moves_active_agent_determinis
     assert route_state is not None
     assert route_state.candidate_sets[(1, 2)].candidate_paths == ((10, 11),)
     assert first_state.dynamic.active_agent_pool.alive_count == 1
-    assert first_state.dynamic.active_agent_pool.current_link_id[0].item() == 11
-    assert first_state.dynamic.active_agent_pool.remaining_route_ptr[0].item() == 1
-    assert first_telemetry.active_agent_moved_this_tick == 1
+    assert first_state.dynamic.active_agent_pool.current_link_id[0].item() == 10
+    assert first_state.dynamic.active_agent_pool.remaining_route_ptr[0].item() == 0
+    assert first_telemetry.active_agent_moved_this_tick == 0
     assert first_telemetry.route_candidate_refresh_total == 1
     assert first_telemetry.dynamic_potential_recompute_total == 1
 
@@ -182,10 +191,135 @@ def test_simulation_step_refreshes_route_cache_and_moves_active_agent_determinis
         key,
     )
 
-    assert second_state.dynamic.active_agent_pool.alive_count == 0
-    assert second_telemetry.trip_completed_this_tick == 1
-    assert second_state.dynamic.metrics_state["completed_trips_total"] == 1
+    assert second_state.dynamic.active_agent_pool.alive_count == 1
+    assert second_state.dynamic.active_agent_pool.current_link_id[0].item() == 11
+    assert second_state.dynamic.active_agent_pool.remaining_route_ptr[0].item() == 1
+    assert second_telemetry.active_agent_moved_this_tick == 1
     assert second_state.dynamic.metrics_state["route_candidate_reuse_total"] >= 1
+
+    third_state, third_telemetry, _snapshot, _key = simulation_step(
+        second_state,
+        SimulationControl(),
+        _key,
+    )
+
+    assert third_state.dynamic.active_agent_pool.alive_count == 0
+    assert third_telemetry.trip_completed_this_tick == 1
+    assert third_state.dynamic.metrics_state["completed_trips_total"] == 1
+
+
+def test_simulation_step_blocks_active_agent_movement_without_flow_outflow_budget() -> None:
+    from metroflow.sim.control import SimulationControl
+    from metroflow.sim.rng import key_from_seed
+    from metroflow.sim.step import simulation_step
+
+    state = _runtime_spine_state(
+        queue_vehicles=(0.0, 0.0),
+        capacity_veh_per_tick=(2.0, 10.0),
+        turn_demand=(0.0,),
+    )
+
+    first_state, first_telemetry, _snapshot, key = simulation_step(
+        state,
+        SimulationControl(),
+        key_from_seed(7),
+    )
+    second_state, second_telemetry, _snapshot, _key = simulation_step(
+        first_state,
+        SimulationControl(),
+        key,
+    )
+
+    assert first_state.dynamic.active_agent_pool.alive_count == 1
+    assert first_state.dynamic.active_agent_pool.current_link_id[0].item() == 10
+    assert first_telemetry.active_agent_moved_this_tick == 0
+    assert second_state.dynamic.active_agent_pool.alive_count == 1
+    assert second_state.dynamic.active_agent_pool.current_link_id[0].item() == 10
+    assert second_state.dynamic.active_agent_pool.remaining_route_ptr[0].item() == 0
+    assert second_telemetry.active_agent_moved_this_tick == 0
+    assert second_telemetry.trip_completed_this_tick == 0
+
+
+def test_simulation_step_completes_agent_already_resident_on_final_link() -> None:
+    from dataclasses import replace
+
+    from metroflow.demand.trips import TripRequestStatus
+    from metroflow.sim.active_agents import ActiveAgentSlot, ActiveAgentPool, allocate_active_agent_slot
+    from metroflow.sim.control import SimulationControl
+    from metroflow.sim.rng import key_from_seed
+    from metroflow.sim.routing_runtime import refresh_runtime_route_candidates
+    from metroflow.sim.step import simulation_step
+
+    state = _runtime_spine_state(capacity_veh_per_tick=(2.0, 10.0))
+    activated_trips = tuple(
+        replace(trip, status=TripRequestStatus.ACTIVATED)
+        for trip in state.dynamic.demand_state["trip_requests"]
+    )
+    route_state, _counters = refresh_runtime_route_candidates(
+        state.with_dynamic_updates(
+            demand_state={
+                **state.dynamic.demand_state,
+                "trip_requests": activated_trips,
+                "activated_trip_requests": 1,
+                "pending_trip_requests": 1,
+            }
+        ),
+        force_refresh=True,
+    )
+
+    payload = ActiveAgentSlot.spawn(
+        citizen_id=101,
+        trip_id=1,
+        current_link_id=11,
+        dest_node_id=3,
+        behavior_profile_id=0,
+        remaining_route_ptr=1,
+    )
+    pool, slot_id = allocate_active_agent_slot(state.dynamic.active_agent_pool, payload)
+    pool = ActiveAgentPool.from_internal_arrays(
+        capacity=pool.capacity,
+        free_slot_stack=pool.free_slot_stack,
+        free_slot_count=pool.free_slot_count,
+        alive_mask=pool.alive_mask,
+        alive_count=pool.alive_count,
+        citizen_id=pool.citizen_id,
+        trip_id=pool.trip_id,
+        current_link_id=pool.current_link_id,
+        progress_01=pool.progress_01,
+        remaining_route_ptr=pool.remaining_route_ptr,
+        dest_node_id=pool.dest_node_id,
+        behavior_profile_id=pool.behavior_profile_id,
+        reroute_cooldown_ticks=pool.reroute_cooldown_ticks,
+        plugin_memory={
+            int(slot_id): {
+                "route_path": (10, 11),
+                "origin_poi_id": 1,
+                "dest_poi_id": 2,
+                "trip_request_id": 1,
+            }
+        },
+    )
+    ready_state = state.with_dynamic_updates(
+        active_agent_pool=pool,
+        route_candidate_state=route_state,
+        demand_state={
+            **state.dynamic.demand_state,
+            "trip_requests": activated_trips,
+            "allocated_trip_request_ids": (1,),
+            "activated_trip_requests": 1,
+            "pending_trip_requests": 1,
+        },
+    )
+
+    next_state, telemetry, _snapshot, _key = simulation_step(
+        ready_state,
+        SimulationControl(),
+        key_from_seed(19),
+    )
+
+    assert next_state.dynamic.active_agent_pool.alive_count == 0
+    assert telemetry.trip_completed_this_tick == 1
+    assert next_state.dynamic.metrics_state["completed_trips_total"] == 1
 
 
 def test_simulation_step_fails_no_route_trip_without_allocating_agent() -> None:

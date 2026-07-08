@@ -34,6 +34,7 @@ class RuntimeDiagnosticFrame:
     outflow_vehicles_total: float
     trip_completed_total: int
     trip_failed_total: int
+    active_agent_moved_this_tick: int
     route_candidate_refresh_total: int
     route_candidate_reuse_total: int
     dynamic_potential_recompute_total: int
@@ -48,6 +49,7 @@ class RuntimeDiagnosticFrame:
         self.outflow_vehicles_total = float(self.outflow_vehicles_total)
         self.trip_completed_total = int(self.trip_completed_total)
         self.trip_failed_total = int(self.trip_failed_total)
+        self.active_agent_moved_this_tick = int(self.active_agent_moved_this_tick)
         self.route_candidate_refresh_total = int(self.route_candidate_refresh_total)
         self.route_candidate_reuse_total = int(self.route_candidate_reuse_total)
         self.dynamic_potential_recompute_total = int(self.dynamic_potential_recompute_total)
@@ -68,6 +70,7 @@ class RuntimeDiagnosticFrame:
             "outflow_vehicles_total": self.outflow_vehicles_total,
             "trip_completed_total": self.trip_completed_total,
             "trip_failed_total": self.trip_failed_total,
+            "active_agent_moved_this_tick": self.active_agent_moved_this_tick,
             "route_candidate_refresh_total": self.route_candidate_refresh_total,
             "route_candidate_reuse_total": self.route_candidate_reuse_total,
             "dynamic_potential_recompute_total": self.dynamic_potential_recompute_total,
@@ -181,7 +184,7 @@ def render_runtime_diagnostic_html(report: RuntimeDiagnosticReport) -> str:
   <div class="chart">{svg}</div>
   <h2>Frame Metrics</h2>
   <table>
-    <thead><tr><th>tick</th><th>active</th><th>queue</th><th>outflow</th><th>completed</th><th>failed</th><th>route refresh</th><th>cache hits</th></tr></thead>
+    <thead><tr><th>tick</th><th>active</th><th>moved</th><th>queue</th><th>outflow</th><th>completed</th><th>failed</th><th>route refresh</th><th>cache hits</th></tr></thead>
     <tbody>{frame_rows}</tbody>
   </table>
   <h2>Candidate Paths</h2>
@@ -227,6 +230,7 @@ def _build_diagnostic_frame(
         outflow_vehicles_total=float(metrics.get("outflow_vehicles_total", 0.0)),
         trip_completed_total=int(metrics.get("completed_trips_total", 0)),
         trip_failed_total=int(metrics.get("failed_trips_total", 0)),
+        active_agent_moved_this_tick=int(metrics.get("active_agent_moved_this_tick", 0)),
         route_candidate_refresh_total=int(metrics.get("route_candidate_refresh_total", 0)),
         route_candidate_reuse_total=int(metrics.get("route_candidate_reuse_total", 0)),
         dynamic_potential_recompute_total=int(metrics.get("dynamic_potential_recompute_total", 0)),
@@ -272,6 +276,7 @@ def _render_frame_row(frame: RuntimeDiagnosticFrame) -> str:
         "<tr>"
         f"<td>tick {frame.tick_index}</td>"
         f"<td>{frame.active_agent_count}</td>"
+        f"<td>{frame.active_agent_moved_this_tick}</td>"
         f"<td>{frame.queue_vehicles_total:.3f}</td>"
         f"<td>{frame.outflow_vehicles_total:.3f}</td>"
         f"<td>{frame.trip_completed_total}</td>"
