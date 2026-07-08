@@ -56,6 +56,8 @@ backend config 및 route-cache fingerprint를 고정한다.
   zero-link, forbidden-turn greedy path 결과를 동일 입력으로 비교한다
 - measured routing candidate benchmark는 baseline/Rust routing backend 요청이 dynamic-potential과 greedy path
   양쪽에 전달되는지, 그리고 result metadata가 final path 및 recompute/cache counters를 보존하는지 확인한다
+- routing `auto` fallback test는 Rust routing extension이 cost-to-go와 greedy path를 모두 제공하지 않으면
+  Rust wrapper를 호출하지 않고 baseline으로 내려가는지 확인한다
 - runtime spine parity는 baseline config에서 event effect, flow update, route candidate cache, active-agent movement,
   replay fingerprint가 deterministic하게 재현되는지 확인한다
 - active-agent movement parity는 newly allocated slot의 same-tick movement 금지, source link queue insertion,

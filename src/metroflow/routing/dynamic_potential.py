@@ -12,6 +12,7 @@ import numpy as np
 from metroflow.backends.rust_cpu import (
     compute_dynamic_potential_node_costs_rust,
     compute_greedy_route_candidate_rust,
+    rust_routing_backend_available,
 )
 from metroflow.city.graph import RoadNetworkCSR
 from metroflow.flow.state import LinkState
@@ -190,6 +191,17 @@ def _compute_node_cost_to_go(
     destination_node_index: int,
     routing_backend: RoutingBackend,
 ) -> tuple[Array, str, str | None]:
+    if routing_backend == "auto" and not rust_routing_backend_available():
+        return (
+            _reverse_dijkstra_node_costs(
+                network,
+                costs=costs,
+                blocked=blocked,
+                destination_node_index=destination_node_index,
+            ),
+            "baseline",
+            "rust_cpu_unavailable",
+        )
     if routing_backend in {"rust_cpu", "auto"}:
         try:
             return (
@@ -293,6 +305,15 @@ def build_greedy_route_candidate(
     if int(origin_node_id) == int(destination_node_id):
         return ()
     hop_limit = max(1, int(max_hops)) if max_hops is not None else max(1, network.link_count + 1)
+
+    if routing_backend == "auto" and not rust_routing_backend_available():
+        return _build_greedy_route_candidate_baseline(
+            network,
+            potential_state,
+            origin_node_id=int(origin_node_id),
+            incoming_link_id=incoming_link_id,
+            hop_limit=hop_limit,
+        )
 
     if routing_backend in {"rust_cpu", "auto"}:
         try:

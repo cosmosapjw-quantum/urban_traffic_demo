@@ -123,6 +123,39 @@ def test_auto_routing_backend_falls_back_to_baseline_when_rust_fails(
     assert automatic.metadata["routing_backend_fallback"] == "rust_cpu_failed"
 
 
+def test_auto_routing_backend_skips_incomplete_rust_backend(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.routing import dynamic_potential
+
+    road_csr, link_state = _make_routing_fixture()
+
+    def fail_if_called(**_kwargs):
+        raise AssertionError("incomplete rust routing backend must not be called")
+
+    monkeypatch.setattr(
+        dynamic_potential,
+        "rust_routing_backend_available",
+        lambda: False,
+    )
+    monkeypatch.setattr(
+        dynamic_potential,
+        "compute_dynamic_potential_node_costs_rust",
+        fail_if_called,
+        raising=False,
+    )
+
+    automatic = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="auto",
+    )
+
+    assert automatic.metadata["routing_backend"] == "baseline"
+    assert automatic.metadata["routing_backend_fallback"] == "rust_cpu_unavailable"
+
+
 def test_rust_routing_backend_uses_wrapper_output(monkeypatch: pytest.MonkeyPatch) -> None:
     from metroflow.routing import dynamic_potential
 
@@ -235,6 +268,42 @@ def test_auto_greedy_route_backend_falls_back_to_baseline_when_rust_fails(
         dynamic_potential,
         "compute_greedy_route_candidate_rust",
         unavailable,
+        raising=False,
+    )
+
+    assert dynamic_potential.build_greedy_route_candidate(
+        road_csr,
+        potential,
+        origin_node_id=1,
+        routing_backend="auto",
+    ) == (12, 13)
+
+
+def test_auto_greedy_route_backend_skips_incomplete_rust_backend(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.routing import dynamic_potential
+
+    road_csr, link_state = _make_routing_fixture()
+    potential = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="baseline",
+    )
+
+    def fail_if_called(**_kwargs):
+        raise AssertionError("incomplete rust routing backend must not be called")
+
+    monkeypatch.setattr(
+        dynamic_potential,
+        "rust_routing_backend_available",
+        lambda: False,
+    )
+    monkeypatch.setattr(
+        dynamic_potential,
+        "compute_greedy_route_candidate_rust",
+        fail_if_called,
         raising=False,
     )
 
