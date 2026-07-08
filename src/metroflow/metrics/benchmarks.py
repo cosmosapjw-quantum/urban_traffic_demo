@@ -5,6 +5,12 @@ from metroflow.core.contracts import TickSchedule
 from metroflow.core.state import WorldState
 from metroflow.flow.engine import FlowUpdateBackend, update_link_node_flow
 from metroflow.flow.state import LinkState, NodeState
+from metroflow.city.graph import RoadNetworkCSR
+from metroflow.routing.dynamic_potential import (
+    RoutingBackend,
+    build_greedy_route_candidate,
+    compute_dynamic_potential_state,
+)
 from metroflow.traffic.meso import EdgeEvolutionBackend
 from metroflow.sim.control import SimulationControl
 from metroflow.sim.rng import PRNGKeyArray
@@ -46,6 +52,17 @@ class MeasuredFlowBenchmarkConfig:
 
 
 @dataclass(frozen=True)
+class MeasuredRoutingBenchmarkConfig:
+    workload_name: str
+    num_steps: int
+    origin_node_id: int
+    destination_node_id: int
+    routing_backend: RoutingBackend = "baseline"
+    incoming_link_id: int | None = None
+    max_hops: int = 64
+
+
+@dataclass(frozen=True)
 class MeasuredRuntimeBenchmarkConfig:
     workload_name: str
     num_steps: int
@@ -77,6 +94,24 @@ class MeasuredFlowBenchmarkResult:
     turn_count: int
     flow_backend: FlowUpdateBackend
     copy_boundary_note: str
+
+
+@dataclass(frozen=True)
+class MeasuredRoutingBenchmarkResult:
+    name: str
+    workload_name: str
+    wall_clock_ns: int
+    num_steps: int
+    link_count: int
+    turn_count: int
+    origin_node_id: int
+    destination_node_id: int
+    candidate_path: tuple[int, ...]
+    candidate_path_length: int
+    routing_backend: RoutingBackend
+    routing_copy_boundary_note: str
+    dynamic_potential_recompute_total: int
+    dynamic_potential_cache_hits_total: int
 
 
 @dataclass(frozen=True)
@@ -160,6 +195,64 @@ def run_measured_flow_update_benchmark(
         turn_count=node_state.turn_count,
         flow_backend=config.flow_backend,
         copy_boundary_note=_flow_copy_boundary_note(config.flow_backend),
+    )
+
+
+def run_measured_routing_candidate_benchmark(
+    road_csr: RoadNetworkCSR,
+    link_state: LinkState,
+    config: MeasuredRoutingBenchmarkConfig,
+) -> MeasuredRoutingBenchmarkResult:
+    workload_name = config.workload_name.strip()
+    if not workload_name:
+        raise ValueError("workload_name must be non-empty.")
+    if config.num_steps <= 0:
+        raise ValueError("num_steps must be positive.")
+    if config.max_hops < 1:
+        raise ValueError("max_hops must be >= 1.")
+    if link_state.link_count != road_csr.link_count:
+        raise ValueError("link_state.link_count must match road_csr.link_count.")
+
+    candidate_path: tuple[int, ...] = ()
+    stats: dict[str, object] = {}
+    start_ns = perf_counter_ns()
+    for _ in range(config.num_steps):
+        potential_state = compute_dynamic_potential_state(
+            road_csr,
+            destination_node_id=config.destination_node_id,
+            link_state=link_state,
+            routing_backend=config.routing_backend,
+            stats=stats,
+        )
+        candidate_path = build_greedy_route_candidate(
+            road_csr,
+            potential_state,
+            origin_node_id=config.origin_node_id,
+            incoming_link_id=config.incoming_link_id,
+            max_hops=config.max_hops,
+            routing_backend=config.routing_backend,
+        )
+    elapsed_ns = perf_counter_ns() - start_ns
+
+    return MeasuredRoutingBenchmarkResult(
+        name="measured_routing_candidate",
+        workload_name=workload_name,
+        wall_clock_ns=max(elapsed_ns, 0),
+        num_steps=config.num_steps,
+        link_count=road_csr.link_count,
+        turn_count=road_csr.turn_count,
+        origin_node_id=int(config.origin_node_id),
+        destination_node_id=int(config.destination_node_id),
+        candidate_path=tuple(int(link_id) for link_id in candidate_path),
+        candidate_path_length=len(candidate_path),
+        routing_backend=config.routing_backend,
+        routing_copy_boundary_note=_routing_copy_boundary_note(config.routing_backend),
+        dynamic_potential_recompute_total=int(
+            stats.get("dynamic_potential_recompute_total", 0)
+        ),
+        dynamic_potential_cache_hits_total=int(
+            stats.get("dynamic_potential_cache_hits_total", 0)
+        ),
     )
 
 

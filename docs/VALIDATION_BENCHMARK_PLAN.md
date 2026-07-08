@@ -38,6 +38,8 @@ city100k-like synthetic benchmark:
 
 `run_measured_runtime_spine_benchmark`는 `flow_backend`, `routing_backend`,
 routing copy-boundary note, route candidate counters, dynamic-potential counters, initial/final tick을 기록한다.
+`run_measured_routing_candidate_benchmark`는 OD 단위 dynamic-potential + greedy candidate path를 분리 측정하고,
+routing backend, final candidate path, path length, recompute/cache-hit count, copy-boundary note를 기록한다.
 runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`로
 backend config 및 route-cache fingerprint를 고정한다.
 
@@ -52,6 +54,8 @@ backend config 및 route-cache fingerprint를 고정한다.
 - Rust CPU flow parity test는 baseline `compute_baseline_flow_arrays_core`와 turn priority, forbidden turn, zero-turn, zero-link, signal timer 결과를 동일 입력으로 비교한다
 - Rust CPU routing parity test는 baseline reverse-Dijkstra node cost-to-go와 blocked link, unreachable node,
   zero-link, forbidden-turn greedy path 결과를 동일 입력으로 비교한다
+- measured routing candidate benchmark는 baseline/Rust routing backend 요청이 dynamic-potential과 greedy path
+  양쪽에 전달되는지, 그리고 result metadata가 final path 및 recompute/cache counters를 보존하는지 확인한다
 - runtime spine parity는 baseline config에서 event effect, flow update, route candidate cache, active-agent movement,
   replay fingerprint가 deterministic하게 재현되는지 확인한다
 - active-agent movement parity는 newly allocated slot의 same-tick movement 금지, source link queue insertion,

@@ -13,10 +13,13 @@ from metroflow.metrics.benchmarks import (
     MeasuredFlowBenchmarkResult,
     MeasuredBenchmarkConfig,
     MeasuredBenchmarkResult,
+    MeasuredRoutingBenchmarkConfig,
+    MeasuredRoutingBenchmarkResult,
     MeasuredRuntimeBenchmarkConfig,
     MeasuredRuntimeBenchmarkResult,
     run_city_smoke_benchmark,
     run_measured_flow_update_benchmark,
+    run_measured_routing_candidate_benchmark,
     run_measured_runtime_spine_benchmark,
     run_measured_step_world_benchmark,
 )
@@ -36,6 +39,26 @@ def make_measured_config() -> MeasuredBenchmarkConfig:
         schedule=TickSchedule(fast_every=1, medium_every=10, slow_every=100),
         edge_backend="baseline",
     )
+
+
+def make_measured_routing_fixture():
+    from metroflow.city.graph import Node, RoadClass, RoadLink, build_road_network_csr
+
+    road_csr = build_road_network_csr(
+        nodes=(Node(1), Node(2), Node(3), Node(4)),
+        links=(
+            RoadLink(10, 1, 2, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            RoadLink(11, 2, 4, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            RoadLink(12, 1, 3, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            RoadLink(13, 3, 4, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+        ),
+    )
+    link_state = create_link_state(
+        road_csr.link_count,
+        travel_time_cost=(50.0, 1.0, 1.0, 1.0),
+        capacity_veh_per_tick=(5.0, 5.0, 5.0, 5.0),
+    )
+    return road_csr, link_state
 
 
 def test_measured_benchmark_smoke_execution_returns_measured_record():
@@ -247,6 +270,100 @@ def test_measured_flow_update_benchmark_preserves_rust_cpu_backend_metadata(
     assert result.turn_count == 1
     assert result.copy_boundary_note == "rust_cpu Vec copy boundary"
     assert calls == ["rust_cpu", "rust_cpu"]
+
+
+def test_measured_routing_candidate_benchmark_records_baseline_path_metadata():
+    road_csr, link_state = make_measured_routing_fixture()
+
+    result = run_measured_routing_candidate_benchmark(
+        road_csr,
+        link_state,
+        MeasuredRoutingBenchmarkConfig(
+            workload_name="baseline-routing-candidate",
+            num_steps=2,
+            origin_node_id=1,
+            destination_node_id=4,
+            routing_backend="baseline",
+        ),
+    )
+
+    assert isinstance(result, MeasuredRoutingBenchmarkResult)
+    assert result.name == "measured_routing_candidate"
+    assert result.routing_backend == "baseline"
+    assert result.routing_copy_boundary_note == "numpy baseline"
+    assert result.link_count == 4
+    assert result.turn_count == 0
+    assert result.origin_node_id == 1
+    assert result.destination_node_id == 4
+    assert result.candidate_path == (12, 13)
+    assert result.candidate_path_length == 2
+    assert result.dynamic_potential_recompute_total == 2
+    assert result.dynamic_potential_cache_hits_total == 0
+
+
+def test_measured_routing_candidate_benchmark_preserves_rust_backend_metadata(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    from metroflow.routing.dynamic_potential import DynamicPotentialState
+
+    road_csr, link_state = make_measured_routing_fixture()
+    calls: list[tuple[str, str]] = []
+
+    def fake_compute_dynamic_potential_state(*args, **kwargs):
+        calls.append(("potential", kwargs["routing_backend"]))
+        stats = kwargs.get("stats")
+        if stats is not None:
+            stats["dynamic_potential_recompute_total"] = int(
+                stats.get("dynamic_potential_recompute_total", 0)
+            ) + 1
+        return DynamicPotentialState(
+            destination_node_id=4,
+            destination_node_index=road_csr.node_id_to_index[4],
+            node_cost_to_go=(2.0, 1.0, 1.0, 0.0),
+            link_travel_time_cost=link_state.travel_time_cost,
+            blocked_link_mask=(False, False, False, False),
+        )
+
+    def fake_build_greedy_route_candidate(*args, **kwargs):
+        calls.append(("greedy", kwargs["routing_backend"]))
+        return (12, 13)
+
+    monkeypatch.setattr(
+        benchmark_module,
+        "compute_dynamic_potential_state",
+        fake_compute_dynamic_potential_state,
+    )
+    monkeypatch.setattr(
+        benchmark_module,
+        "build_greedy_route_candidate",
+        fake_build_greedy_route_candidate,
+    )
+
+    result = run_measured_routing_candidate_benchmark(
+        road_csr,
+        link_state,
+        MeasuredRoutingBenchmarkConfig(
+            workload_name="rust-routing-candidate",
+            num_steps=2,
+            origin_node_id=1,
+            destination_node_id=4,
+            routing_backend="rust_cpu",
+        ),
+    )
+
+    assert result.routing_backend == "rust_cpu"
+    assert (
+        result.routing_copy_boundary_note
+        == "rust_cpu Vec copy boundary for dynamic-potential and greedy path"
+    )
+    assert result.candidate_path == (12, 13)
+    assert result.dynamic_potential_recompute_total == 2
+    assert calls == [
+        ("potential", "rust_cpu"),
+        ("greedy", "rust_cpu"),
+        ("potential", "rust_cpu"),
+        ("greedy", "rust_cpu"),
+    ]
 
 
 def test_measured_runtime_benchmark_preserves_rust_routing_copy_boundary_note(
