@@ -7,15 +7,20 @@ def test_static_city_map_artifact_renders_generated_topology_layers(tmp_path) ->
     from metroflow.ui.static_map import build_static_city_map_artifact, write_static_city_map_html
 
     bundle = build_initial_simulation_state(
-        config=SimulationConfig(population_target=120, active_agent_capacity=16),
+        config=SimulationConfig(population_target=100_000, active_agent_capacity=64),
         scenario_seed=44,
         eager_trip_generation=False,
     )
 
     artifact = build_static_city_map_artifact(bundle.state)
+    focused_artifact = build_static_city_map_artifact(
+        bundle.state,
+        focus_largest_component=True,
+    )
     payload = artifact.to_dict()
     html = artifact.to_html()
     out_path = write_static_city_map_html(artifact, tmp_path / "city-map.html")
+    repair_links = [link for link in payload["links"] if link["connectivity_repair"]]
 
     assert payload["scenario_id"] == "synthetic-44"
     assert payload["node_count"] == len(bundle.city_topology.nodes)
@@ -26,6 +31,11 @@ def test_static_city_map_artifact_renders_generated_topology_layers(tmp_path) ->
     assert payload["bounds"]["height"] > 0.0
     assert payload["road_class_counts"]
     assert payload["zone_type_counts"]
+    assert payload["metadata"]["connectivity_repair_link_count"] == 6
+    assert focused_artifact.metadata["map_focus"] == "largest_component"
+    assert len(repair_links) == 6
+    assert {link["component_id"] for link in payload["links"]} == {0}
+    assert any(link["bridge_group_id"] is not None for link in payload["links"])
     assert "<!doctype html>" in html
     assert "<svg" in html
     assert "data-static-city-map" in html
@@ -33,6 +43,9 @@ def test_static_city_map_artifact_renders_generated_topology_layers(tmp_path) ->
     assert "road-class" in html
     assert "zone-layer" in html
     assert "poi-layer" in html
+    assert "repair-link" in html
+    assert "data-bridge-group-id" in html
+    assert ">ramp<" in html
     assert "SMOKE REVIEW ARTIFACT" in html
     assert out_path.read_text(encoding="utf-8") == html
 

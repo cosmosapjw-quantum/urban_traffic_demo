@@ -11,6 +11,7 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from metroflow.city.connectivity import analyze_weak_connectivity
 from metroflow.flow.state import LinkState
 from metroflow.sim.state import SimulationState
 
@@ -102,7 +103,11 @@ class StaticCityMapArtifact:
         return render_static_city_map_html(self)
 
 
-def build_static_city_map_artifact(state: SimulationState) -> StaticCityMapArtifact:
+def build_static_city_map_artifact(
+    state: SimulationState,
+    *,
+    focus_largest_component: bool = False,
+) -> StaticCityMapArtifact:
     """Build a static map artifact from a generated `SimulationState`."""
 
     city = state.static.city_topology
@@ -113,15 +118,33 @@ def build_static_city_map_artifact(state: SimulationState) -> StaticCityMapArtif
     if not nodes_raw or not links_raw:
         raise ValueError("city_topology must contain non-empty nodes and links")
 
-    bounds = _geometry_bounds(nodes_raw)
+    component_report = analyze_weak_connectivity(nodes=nodes_raw, links=links_raw)
+    bounds_nodes = _bounds_nodes(
+        nodes_raw,
+        component_report=component_report,
+        focus_largest_component=focus_largest_component,
+    )
+    bounds = _geometry_bounds(bounds_nodes)
     node_xy = {
         int(node.node_id): (float(node.x), float(node.y))
         for node in nodes_raw
     }
+    repair_link_ids = {
+        int(link_id)
+        for link_id in tuple((getattr(city, "metadata", {}) or {}).get("connectivity_repair_link_ids", ()))
+    }
+    bridge_by_link_id = _bridge_metadata_by_link_id(city)
     flow_link_state = state.dynamic.flow_link_state
     link_state = flow_link_state if isinstance(flow_link_state, LinkState) else None
 
-    nodes = tuple(_node_payload(node, bounds=bounds) for node in nodes_raw)
+    nodes = tuple(
+        _node_payload(
+            node,
+            bounds=bounds,
+            component_id=component_report.node_component_id_by_node_id.get(int(node.node_id), -1),
+        )
+        for node in nodes_raw
+    )
     links = tuple(
         _link_payload(
             link,
@@ -129,6 +152,12 @@ def build_static_city_map_artifact(state: SimulationState) -> StaticCityMapArtif
             node_xy=node_xy,
             bounds=bounds,
             link_state=link_state,
+            component_id=component_report.node_component_id_by_node_id.get(
+                int(link.src_node_id),
+                -1,
+            ),
+            connectivity_repair=int(link.link_id) in repair_link_ids,
+            bridge_metadata=bridge_by_link_id.get(int(link.link_id)),
         )
         for idx, link in enumerate(links_raw)
     )
@@ -152,7 +181,12 @@ def build_static_city_map_artifact(state: SimulationState) -> StaticCityMapArtif
         zones=zones,
         pois=pois,
         bridges=bridges,
-        metadata=_artifact_metadata(state=state, city=city),
+        metadata=_artifact_metadata(
+            state=state,
+            city=city,
+            component_report=component_report,
+            map_focus="largest_component" if focus_largest_component else "full_extent",
+        ),
     )
 
 
@@ -190,8 +224,10 @@ def render_static_city_map_html(artifact: StaticCityMapArtifact) -> str:
     .road-class.ramp {{ stroke: #7d67ad; stroke-width: 1.4; }}
     .road-class.bridge {{ stroke: #2f7783; stroke-width: 2.4; }}
     .road-class.unknown {{ stroke: #777f89; stroke-width: 1; }}
+    .road-class.repair-link {{ stroke: #b85f4c; stroke-width: 2.2; stroke-dasharray: 7 4; opacity: 0.92; }}
     .zone-layer circle {{ fill-opacity: 0.12; stroke-width: 1.1; }}
     .poi-layer circle {{ stroke: #ffffff; stroke-width: 1.1; }}
+    .bridge-label text {{ font-size: 10px; fill: #1f4f59; paint-order: stroke; stroke: #ffffff; stroke-width: 3px; }}
     .legend text {{ font-size: 11px; fill: #354050; }}
     .note {{ color: #5b6674; font-size: 13px; line-height: 1.45; }}
   </style>
@@ -251,7 +287,24 @@ def _geometry_bounds(nodes: tuple[Any, ...]) -> dict[str, float]:
     }
 
 
-def _node_payload(node: Any, *, bounds: Mapping[str, float]) -> dict[str, Any]:
+def _bounds_nodes(
+    nodes: tuple[Any, ...],
+    *,
+    component_report: Any,
+    focus_largest_component: bool,
+) -> tuple[Any, ...]:
+    if not focus_largest_component or not component_report.component_node_ids:
+        return nodes
+    largest_ids = set(component_report.component_node_ids[0])
+    return tuple(node for node in nodes if int(node.node_id) in largest_ids) or nodes
+
+
+def _node_payload(
+    node: Any,
+    *,
+    bounds: Mapping[str, float],
+    component_id: int,
+) -> dict[str, Any]:
     return {
         "node_id": int(node.node_id),
         "x": float(node.x),
@@ -259,6 +312,7 @@ def _node_payload(node: Any, *, bounds: Mapping[str, float]) -> dict[str, Any]:
         "sx": _scale_x(float(node.x), bounds),
         "sy": _scale_y(float(node.y), bounds),
         "kind": str(getattr(getattr(node, "kind", ""), "value", getattr(node, "kind", ""))),
+        "component_id": int(component_id),
     }
 
 
@@ -269,6 +323,9 @@ def _link_payload(
     node_xy: Mapping[int, tuple[float, float]],
     bounds: Mapping[str, float],
     link_state: LinkState | None,
+    component_id: int,
+    connectivity_repair: bool,
+    bridge_metadata: Mapping[str, Any] | None,
 ) -> dict[str, Any]:
     src_xy, dst_xy = _node_xy_for_link(link, node_xy)
     queue = _array_value(link_state.queue_vehicles, idx, 0.0) if link_state is not None else 0.0
@@ -284,13 +341,21 @@ def _link_payload(
         "src_node_id": int(link.src_node_id),
         "dst_node_id": int(link.dst_node_id),
         "road_class": _road_class_value(link),
+        "component_id": int(component_id),
         "lanes": int(getattr(link, "lanes", 1)),
         "capacity_veh_per_tick": float(getattr(link, "capacity_veh_per_tick", 0.0)),
         "queue_vehicles": float(queue),
         "effective_capacity": float(cap),
         "travel_time_cost": float(cost),
         "congestion_ratio": congestion,
+        "connectivity_repair": bool(connectivity_repair),
         "bridge": bool(getattr(link, "bridge_group_id", None) is not None),
+        "bridge_group_id": (
+            None
+            if getattr(link, "bridge_group_id", None) is None
+            else int(getattr(link, "bridge_group_id"))
+        ),
+        "bridge_name": "" if bridge_metadata is None else str(bridge_metadata.get("name", "")),
         "polyline": (
             (_scale_x(src_xy[0], bounds), _scale_y(src_xy[1], bounds)),
             (_scale_x(dst_xy[0], bounds), _scale_y(dst_xy[1], bounds)),
@@ -338,6 +403,15 @@ def _bridge_payload(crossing: Any) -> dict[str, Any]:
     }
 
 
+def _bridge_metadata_by_link_id(city: Any) -> dict[int, dict[str, Any]]:
+    out: dict[int, dict[str, Any]] = {}
+    for crossing in tuple(getattr(city, "bridge_crossings", ()) or ()):
+        item = _bridge_payload(crossing)
+        for link_id in tuple(item["link_ids"]):
+            out[int(link_id)] = item
+    return out
+
+
 def _node_xy_for_link(
     link: Any,
     node_xy: Mapping[int, tuple[float, float]],
@@ -355,7 +429,13 @@ def _node_xy_for_link(
     return node_xy[src_node_id], node_xy[dst_node_id]
 
 
-def _artifact_metadata(*, state: SimulationState, city: Any) -> dict[str, Any]:
+def _artifact_metadata(
+    *,
+    state: SimulationState,
+    city: Any,
+    component_report: Any,
+    map_focus: str,
+) -> dict[str, Any]:
     raw = dict(getattr(city, "metadata", {}) or {})
     keep_keys = (
         "engine",
@@ -369,9 +449,18 @@ def _artifact_metadata(*, state: SimulationState, city: Any) -> dict[str, Any]:
         "outer_frame_link_share",
         "edge_link_share",
         "non_orthogonal_link_count",
+        "weak_component_count_before_repair",
+        "weak_component_sizes_before_repair",
+        "connectivity_repair_link_count",
+        "connectivity_repair_link_ids",
+        "weak_component_count_after_repair",
+        "weak_component_sizes_after_repair",
     )
     return {
         "scenario_seed": state.metadata.get("scenario_seed"),
+        "map_focus": str(map_focus),
+        "weak_component_count_rendered": component_report.component_count,
+        "weak_component_sizes_rendered": component_report.component_sizes,
         **{key: raw[key] for key in keep_keys if key in raw},
     }
 
@@ -382,12 +471,14 @@ def _render_map_svg(artifact: StaticCityMapArtifact) -> str:
     link_lines = "\n".join(_render_link_line(link) for link in artifact.links)
     zone_marks = "\n".join(_render_zone_circle(zone) for zone in artifact.zones)
     poi_marks = "\n".join(_render_poi_circle(poi) for poi in artifact.pois)
+    bridge_labels = _render_bridge_labels(artifact)
     legend = _render_svg_legend()
     return f"""<svg role="img" aria-label="static generated city map" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
   <rect x="0" y="0" width="{width}" height="{height}" fill="#ffffff" />
   <g class="zone-layer">{zone_marks}</g>
   <g class="road-layer">{link_lines}</g>
   <g class="poi-layer">{poi_marks}</g>
+  <g class="bridge-label">{bridge_labels}</g>
   {legend}
 </svg>"""
 
@@ -399,10 +490,16 @@ def _render_link_line(link: Mapping[str, Any]) -> str:
     opacity = 0.38 + min(congestion, 1.5) * 0.28
     if bool(link.get("bridge", False)):
         road_class = "bridge"
+    classes = ["road-class", road_class, f'component-{int(link.get("component_id", -1))}']
+    if bool(link.get("connectivity_repair", False)):
+        classes.append("repair-link")
     return (
-        f'<line class="road-class {road_class}" '
+        f'<line class="{" ".join(classes)}" '
         f'x1="{x1:.2f}" y1="{y1:.2f}" x2="{x2:.2f}" y2="{y2:.2f}" '
         f'opacity="{opacity:.3f}" data-link-id="{int(link.get("link_id", -1))}" '
+        f'data-component-id="{int(link.get("component_id", -1))}" '
+        f'data-connectivity-repair="{str(bool(link.get("connectivity_repair", False))).lower()}" '
+        f'data-bridge-group-id="{_optional_int_attr(link.get("bridge_group_id"))}" '
         f'data-congestion="{congestion:.4f}" />'
     )
 
@@ -442,7 +539,9 @@ def _render_svg_legend() -> str:
         ("arterial", "#d28b37"),
         ("collector", "#4f8f7b"),
         ("local", "#9fa8b3"),
+        ("ramp", "#7d67ad"),
         ("bridge", "#2f7783"),
+        ("repair-link", "#b85f4c"),
     )
     rows = []
     for idx, (label, color) in enumerate(entries):
@@ -452,6 +551,27 @@ def _render_svg_legend() -> str:
             f'<text x="56" y="{y + 4}">{escape(label)}</text>'
         )
     return f'<g class="legend">{"".join(rows)}</g>'
+
+
+def _render_bridge_labels(artifact: StaticCityMapArtifact) -> str:
+    labels: dict[int, tuple[str, float, float]] = {}
+    for link in artifact.links:
+        group_id = link.get("bridge_group_id")
+        if group_id is None:
+            continue
+        (x1, y1), (x2, y2) = tuple(link["polyline"])
+        labels.setdefault(
+            int(group_id),
+            (
+                str(link.get("bridge_name", f"bridge_{int(group_id)}")),
+                (float(x1) + float(x2)) / 2.0,
+                (float(y1) + float(y2)) / 2.0,
+            ),
+        )
+    return "\n".join(
+        f'<text x="{x:.2f}" y="{y - 8.0:.2f}">{escape(name)}</text>'
+        for _group_id, (name, x, y) in sorted(labels.items())
+    )
 
 
 def _render_count_rows(counts: Mapping[str, int]) -> str:
@@ -481,6 +601,10 @@ def _array_value(array: Any, idx: int, default: float) -> float:
 
 def _road_class_value(link: Any) -> str:
     return str(getattr(getattr(link, "road_class", "unknown"), "value", getattr(link, "road_class", "unknown")))
+
+
+def _optional_int_attr(value: Any) -> str:
+    return "" if value is None else str(int(value))
 
 
 def _css_token(value: str) -> str:
