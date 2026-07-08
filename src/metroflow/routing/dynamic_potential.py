@@ -9,7 +9,10 @@ from typing import Any, Literal
 
 import numpy as np
 
-from metroflow.backends.rust_cpu import compute_dynamic_potential_node_costs_rust
+from metroflow.backends.rust_cpu import (
+    compute_dynamic_potential_node_costs_rust,
+    compute_greedy_route_candidate_rust,
+)
 from metroflow.city.graph import RoadNetworkCSR
 from metroflow.flow.state import LinkState
 
@@ -109,7 +112,7 @@ def compute_dynamic_potential_state(
             if cache_key is not None
             else (
                 "dynamic_potential",
-                id(network),
+                _network_topology_cache_key(network),
                 int(destination_node_id),
                 id(link_state) if link_state is not None else None,
                 id(link_travel_time_cost) if link_travel_time_cost is not None else None,
@@ -281,13 +284,81 @@ def build_greedy_route_candidate(
     origin_node_id: int,
     incoming_link_id: int | None = None,
     max_hops: int | None = None,
+    routing_backend: RoutingBackend = "baseline",
 ) -> tuple[int, ...]:
     """Build a deterministic greedy route candidate from dynamic potential scores."""
 
+    _validate_routing_backend(routing_backend)
     destination_node_id = potential_state.destination_node_id
     if int(origin_node_id) == int(destination_node_id):
         return ()
     hop_limit = max(1, int(max_hops)) if max_hops is not None else max(1, network.link_count + 1)
+
+    if routing_backend in {"rust_cpu", "auto"}:
+        try:
+            return _build_greedy_route_candidate_rust(
+                network,
+                potential_state,
+                origin_node_id=int(origin_node_id),
+                incoming_link_id=incoming_link_id,
+                hop_limit=hop_limit,
+            )
+        except RuntimeError:
+            if routing_backend == "rust_cpu":
+                raise
+
+    return _build_greedy_route_candidate_baseline(
+        network,
+        potential_state,
+        origin_node_id=int(origin_node_id),
+        incoming_link_id=incoming_link_id,
+        hop_limit=hop_limit,
+    )
+
+
+def _build_greedy_route_candidate_rust(
+    network: RoadNetworkCSR,
+    potential_state: DynamicPotentialState,
+    *,
+    origin_node_id: int,
+    incoming_link_id: int | None,
+    hop_limit: int,
+) -> tuple[int, ...]:
+    origin_node_index = network.node_id_to_index[int(origin_node_id)]
+    incoming_link_index = -1
+    if incoming_link_id is not None:
+        maybe_index = network.link_id_to_index.get(int(incoming_link_id))
+        if maybe_index is None:
+            return ()
+        incoming_link_index = int(maybe_index)
+    return compute_greedy_route_candidate_rust(
+        node_count=network.node_count,
+        link_ids=network.link_ids,
+        link_dst_node_index=network.link_dst_node_index,
+        outgoing_indptr=network.outgoing_indptr,
+        outgoing_link_indices=network.outgoing_link_indices,
+        turn_from_link_index=network.turn_from_link_index,
+        turn_to_link_index=network.turn_to_link_index,
+        turn_is_forbidden=network.turn_is_forbidden,
+        node_cost_to_go=potential_state.node_cost_to_go,
+        link_travel_time_cost=potential_state.link_travel_time_cost,
+        blocked_link_mask=potential_state.blocked_link_mask,
+        origin_node_index=origin_node_index,
+        destination_node_index=potential_state.destination_node_index,
+        incoming_link_index=incoming_link_index,
+        max_hops=hop_limit,
+    )
+
+
+def _build_greedy_route_candidate_baseline(
+    network: RoadNetworkCSR,
+    potential_state: DynamicPotentialState,
+    *,
+    origin_node_id: int,
+    incoming_link_id: int | None,
+    hop_limit: int,
+) -> tuple[int, ...]:
+    destination_node_id = potential_state.destination_node_id
     cur_node_id = int(origin_node_id)
     cur_incoming_link_id = None if incoming_link_id is None else int(incoming_link_id)
     visited_nodes = {cur_node_id}
@@ -357,7 +428,7 @@ def _resolve_link_costs(
         if link_state.link_count != network.link_count:
             raise ValueError("link_state.link_count must match network.link_count")
         cache_key = (
-            id(network),
+            _network_topology_cache_key(network),
             int(network.link_count),
             id(link_state.travel_time_cost),
         )
@@ -389,7 +460,7 @@ def _resolve_blocked_link_mask(
     if link_state is None:
         return np.zeros((size,), dtype=np.bool_)
     cache_key = (
-        id(network),
+        _network_topology_cache_key(network),
         int(size),
         id(link_state.capacity_veh_per_tick),
         id(link_state.incident_capacity_multiplier),
@@ -517,7 +588,7 @@ def _reverse_dijkstra_node_costs(
 
 def _reverse_graph_arrays(network: RoadNetworkCSR) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     cache_key = (
-        id(network),
+        _network_topology_cache_key(network),
         int(network.node_count),
         int(network.link_count),
     )
@@ -536,7 +607,7 @@ def _reverse_graph_arrays(network: RoadNetworkCSR) -> tuple[np.ndarray, np.ndarr
 
 def _static_blockable_mask(network: RoadNetworkCSR) -> np.ndarray:
     cache_key = (
-        id(network),
+        _network_topology_cache_key(network),
         int(network.link_count),
     )
     cached = _STATIC_BLOCKABLE_MASK_CACHE.get(cache_key)
@@ -553,6 +624,21 @@ def _prune_small_cache(cache: dict[Any, Any], *, max_entries: int) -> None:
         cache.pop(next(iter(cache)))
 
 
+def _network_topology_cache_key(network: RoadNetworkCSR) -> Any:
+    key = getattr(network, "topology_cache_key", None)
+    if key is not None:
+        return key
+    return (
+        "road-network-csr-legacy",
+        int(network.node_count),
+        int(network.link_count),
+        int(network.turn_count),
+        tuple(int(x) for x in np.asarray(network.link_ids, dtype=np.int32).tolist()),
+        tuple(int(x) for x in np.asarray(network.link_src_node_index, dtype=np.int32).tolist()),
+        tuple(int(x) for x in np.asarray(network.link_dst_node_index, dtype=np.int32).tolist()),
+    )
+
+
 def _outgoing_link_indices_for_node(network: RoadNetworkCSR, node_index: int) -> tuple[int, ...]:
     lookup = _get_outgoing_link_index_lookup(network)
     return lookup[int(node_index)]
@@ -560,7 +646,7 @@ def _outgoing_link_indices_for_node(network: RoadNetworkCSR, node_index: int) ->
 
 def _get_outgoing_link_index_lookup(network: RoadNetworkCSR) -> tuple[tuple[int, ...], ...]:
     cache_key = (
-        id(network),
+        _network_topology_cache_key(network),
         int(network.node_count),
         int(network.link_count),
     )
@@ -611,7 +697,7 @@ def _get_turn_successor_lookup(
     network: RoadNetworkCSR,
 ) -> tuple[dict[int, tuple[int, ...]], dict[int, tuple[int, ...]]]:
     cache_key = (
-        id(network),
+        _network_topology_cache_key(network),
         int(network.turn_count),
         int(network.link_count),
     )

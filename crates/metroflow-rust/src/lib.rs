@@ -198,6 +198,278 @@ fn compute_dynamic_potential_node_costs_impl(
     Ok(dist)
 }
 
+#[allow(clippy::too_many_arguments)]
+fn validate_greedy_route_inputs(
+    node_count: usize,
+    link_ids: &[i32],
+    link_dst_node_index: &[i32],
+    outgoing_indptr: &[i32],
+    outgoing_link_indices: &[i32],
+    turn_from_link_index: &[i32],
+    turn_to_link_index: &[i32],
+    turn_is_forbidden: &[bool],
+    node_cost_to_go: &[f32],
+    link_travel_time_cost: &[f32],
+    blocked_link_mask: &[bool],
+    origin_node_index: usize,
+    destination_node_index: usize,
+    incoming_link_index: i32,
+    max_hops: usize,
+) -> Result<usize, String> {
+    if max_hops == 0 {
+        return Err("max_hops must be >= 1".to_string());
+    }
+    if origin_node_index >= node_count {
+        return Err("origin_node_index out of range".to_string());
+    }
+    if destination_node_index >= node_count {
+        return Err("destination_node_index out of range".to_string());
+    }
+    if node_cost_to_go.len() != node_count {
+        return Err(format!(
+            "node_cost_to_go length must match node_count: got {}, expected {}",
+            node_cost_to_go.len(),
+            node_count
+        ));
+    }
+
+    let link_count = link_ids.len();
+    for (name, length) in [
+        ("link_dst_node_index", link_dst_node_index.len()),
+        ("link_travel_time_cost", link_travel_time_cost.len()),
+        ("blocked_link_mask", blocked_link_mask.len()),
+    ] {
+        if length != link_count {
+            return Err(format!(
+                "{name} length must match link_ids length: got {length}, expected {link_count}"
+            ));
+        }
+    }
+    if outgoing_indptr.len() != node_count + 1 {
+        return Err(format!(
+            "outgoing_indptr length must be node_count + 1: got {}, expected {}",
+            outgoing_indptr.len(),
+            node_count + 1
+        ));
+    }
+    if outgoing_indptr.first().copied().unwrap_or_default() != 0 {
+        return Err("outgoing_indptr must start at 0".to_string());
+    }
+    for pair in outgoing_indptr.windows(2) {
+        if pair[0] > pair[1] {
+            return Err("outgoing_indptr must be non-decreasing".to_string());
+        }
+        if pair[0] < 0 || pair[1] < 0 {
+            return Err("outgoing_indptr must be non-negative".to_string());
+        }
+    }
+    if outgoing_indptr.last().copied().unwrap_or_default() as usize != outgoing_link_indices.len() {
+        return Err("outgoing_indptr last value must equal outgoing link index count".to_string());
+    }
+    if outgoing_link_indices.len() != link_count {
+        return Err(format!(
+            "outgoing_link_indices length must match link_ids length: got {}, expected {}",
+            outgoing_link_indices.len(),
+            link_count
+        ));
+    }
+    for value in outgoing_link_indices {
+        if *value < 0 || (*value as usize) >= link_count {
+            return Err("outgoing_link_indices contains out-of-range link indices".to_string());
+        }
+    }
+    for value in link_dst_node_index {
+        if *value < 0 || (*value as usize) >= node_count {
+            return Err("link_dst_node_index contains out-of-range node indices".to_string());
+        }
+    }
+    if incoming_link_index != -1
+        && (incoming_link_index < 0 || incoming_link_index as usize >= link_count)
+    {
+        return Err("incoming_link_index out of range".to_string());
+    }
+
+    let turn_count = turn_from_link_index.len();
+    if turn_to_link_index.len() != turn_count {
+        return Err(format!(
+            "turn_to_link_index length must match turn_from_link_index length: got {}, expected {}",
+            turn_to_link_index.len(),
+            turn_count
+        ));
+    }
+    if turn_is_forbidden.len() != turn_count {
+        return Err(format!(
+            "turn_is_forbidden length must match turn_from_link_index length: got {}, expected {}",
+            turn_is_forbidden.len(),
+            turn_count
+        ));
+    }
+    for value in turn_from_link_index {
+        if *value < 0 || (*value as usize) >= link_count {
+            return Err("turn_from_link_index contains out-of-range link indices".to_string());
+        }
+    }
+    for value in turn_to_link_index {
+        if *value < 0 || (*value as usize) >= link_count {
+            return Err("turn_to_link_index contains out-of-range link indices".to_string());
+        }
+    }
+    validate_non_negative_f32("node_cost_to_go", node_cost_to_go)?;
+    validate_non_negative_f32("link_travel_time_cost", link_travel_time_cost)?;
+    Ok(link_count)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn best_legal_next_link_index(
+    current_node_index: usize,
+    incoming_link_index: i32,
+    link_ids: &[i32],
+    link_dst_node_index: &[i32],
+    outgoing_indptr: &[i32],
+    outgoing_link_indices: &[i32],
+    turn_from_link_index: &[i32],
+    turn_to_link_index: &[i32],
+    turn_is_forbidden: &[bool],
+    node_cost_to_go: &[f32],
+    link_travel_time_cost: &[f32],
+    blocked_link_mask: &[bool],
+) -> Option<usize> {
+    let link_count = link_ids.len();
+    let mut allowed_by_turn = vec![false; link_count];
+    let mut require_turn_successor = false;
+    if incoming_link_index >= 0 && !turn_from_link_index.is_empty() {
+        require_turn_successor = true;
+        let incoming = incoming_link_index;
+        let mut saw_successor = false;
+        for turn_index in 0..turn_from_link_index.len() {
+            if turn_from_link_index[turn_index] == incoming {
+                saw_successor = true;
+                if !turn_is_forbidden[turn_index] {
+                    allowed_by_turn[turn_to_link_index[turn_index] as usize] = true;
+                }
+            }
+        }
+        if !saw_successor {
+            return None;
+        }
+    }
+
+    let start = outgoing_indptr[current_node_index] as usize;
+    let end = outgoing_indptr[current_node_index + 1] as usize;
+    let mut best_link_index: Option<usize> = None;
+    let mut best_cost = ROUTING_INF_COST;
+    for pos in start..end {
+        let link_index = outgoing_link_indices[pos] as usize;
+        if require_turn_successor && !allowed_by_turn[link_index] {
+            continue;
+        }
+        if blocked_link_mask[link_index] {
+            continue;
+        }
+        let tail = node_cost_to_go[link_dst_node_index[link_index] as usize];
+        if !tail.is_finite() || tail >= ROUTING_INF_COST * 0.5 {
+            continue;
+        }
+        let total_cost = link_travel_time_cost[link_index] + tail;
+        if total_cost >= ROUTING_INF_COST * 0.5 {
+            continue;
+        }
+        match best_link_index {
+            None => {
+                best_link_index = Some(link_index);
+                best_cost = total_cost;
+            }
+            Some(current_best) => {
+                if total_cost < best_cost
+                    || (total_cost == best_cost && link_ids[link_index] < link_ids[current_best])
+                {
+                    best_link_index = Some(link_index);
+                    best_cost = total_cost;
+                }
+            }
+        }
+    }
+    best_link_index
+}
+
+#[allow(clippy::too_many_arguments)]
+fn compute_greedy_route_candidate_impl(
+    node_count: usize,
+    link_ids: &[i32],
+    link_dst_node_index: &[i32],
+    outgoing_indptr: &[i32],
+    outgoing_link_indices: &[i32],
+    turn_from_link_index: &[i32],
+    turn_to_link_index: &[i32],
+    turn_is_forbidden: &[bool],
+    node_cost_to_go: &[f32],
+    link_travel_time_cost: &[f32],
+    blocked_link_mask: &[bool],
+    origin_node_index: usize,
+    destination_node_index: usize,
+    incoming_link_index: i32,
+    max_hops: usize,
+) -> Result<Vec<i32>, String> {
+    validate_greedy_route_inputs(
+        node_count,
+        link_ids,
+        link_dst_node_index,
+        outgoing_indptr,
+        outgoing_link_indices,
+        turn_from_link_index,
+        turn_to_link_index,
+        turn_is_forbidden,
+        node_cost_to_go,
+        link_travel_time_cost,
+        blocked_link_mask,
+        origin_node_index,
+        destination_node_index,
+        incoming_link_index,
+        max_hops,
+    )?;
+
+    if origin_node_index == destination_node_index {
+        return Ok(Vec::new());
+    }
+
+    let mut current_node_index = origin_node_index;
+    let mut current_incoming_link_index = incoming_link_index;
+    let mut visited_nodes = vec![false; node_count];
+    visited_nodes[current_node_index] = true;
+    let mut path = Vec::new();
+
+    for _ in 0..max_hops {
+        let Some(next_link_index) = best_legal_next_link_index(
+            current_node_index,
+            current_incoming_link_index,
+            link_ids,
+            link_dst_node_index,
+            outgoing_indptr,
+            outgoing_link_indices,
+            turn_from_link_index,
+            turn_to_link_index,
+            turn_is_forbidden,
+            node_cost_to_go,
+            link_travel_time_cost,
+            blocked_link_mask,
+        ) else {
+            return Ok(Vec::new());
+        };
+        path.push(link_ids[next_link_index]);
+        current_incoming_link_index = next_link_index as i32;
+        current_node_index = link_dst_node_index[next_link_index] as usize;
+        if current_node_index == destination_node_index {
+            return Ok(path);
+        }
+        if visited_nodes[current_node_index] {
+            return Ok(Vec::new());
+        }
+        visited_nodes[current_node_index] = true;
+    }
+
+    Ok(Vec::new())
+}
+
 fn evolve_edges_batch_impl(
     queue: &[f64],
     stock: &[f64],
@@ -562,11 +834,51 @@ fn compute_dynamic_potential_node_costs(
     .map_err(PyValueError::new_err)
 }
 
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn compute_greedy_route_candidate(
+    node_count: usize,
+    link_ids: Vec<i32>,
+    link_dst_node_index: Vec<i32>,
+    outgoing_indptr: Vec<i32>,
+    outgoing_link_indices: Vec<i32>,
+    turn_from_link_index: Vec<i32>,
+    turn_to_link_index: Vec<i32>,
+    turn_is_forbidden: Vec<bool>,
+    node_cost_to_go: Vec<f32>,
+    link_travel_time_cost: Vec<f32>,
+    blocked_link_mask: Vec<bool>,
+    origin_node_index: usize,
+    destination_node_index: usize,
+    incoming_link_index: i32,
+    max_hops: usize,
+) -> PyResult<Vec<i32>> {
+    compute_greedy_route_candidate_impl(
+        node_count,
+        &link_ids,
+        &link_dst_node_index,
+        &outgoing_indptr,
+        &outgoing_link_indices,
+        &turn_from_link_index,
+        &turn_to_link_index,
+        &turn_is_forbidden,
+        &node_cost_to_go,
+        &link_travel_time_cost,
+        &blocked_link_mask,
+        origin_node_index,
+        destination_node_index,
+        incoming_link_index,
+        max_hops,
+    )
+    .map_err(PyValueError::new_err)
+}
+
 #[pymodule]
 fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evolve_edges_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_baseline_flow_arrays_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_dynamic_potential_node_costs, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_greedy_route_candidate, m)?)?;
     Ok(())
 }
 
@@ -843,5 +1155,128 @@ mod tests {
         .expect_err("routing length mismatch should be rejected");
 
         assert!(error.contains("link_travel_time_cost length must match"));
+    }
+
+    #[test]
+    fn computes_greedy_route_candidate_normal_path() {
+        let path = compute_greedy_route_candidate_impl(
+            4,
+            &[10, 11, 12, 13],
+            &[1, 3, 2, 3],
+            &[0, 2, 3, 4, 4],
+            &[0, 2, 1, 3],
+            &[],
+            &[],
+            &[],
+            &[2.0, 1.0, 1.0, 0.0],
+            &[50.0, 1.0, 1.0, 1.0],
+            &[false, false, false, false],
+            0,
+            3,
+            -1,
+            8,
+        )
+        .expect("greedy route should compute");
+
+        assert_eq!(path, vec![12, 13]);
+    }
+
+    #[test]
+    fn computes_greedy_route_candidate_with_forbidden_turn() {
+        let path = compute_greedy_route_candidate_impl(
+            4,
+            &[10, 11, 12, 13],
+            &[1, 3, 2, 3],
+            &[0, 1, 3, 4, 4],
+            &[0, 1, 2, 3],
+            &[0, 0, 2],
+            &[1, 2, 3],
+            &[true, false, false],
+            &[7.0, 2.0, 1.0, 0.0],
+            &[1.0, 1.0, 5.0, 1.0],
+            &[false, false, false, false],
+            0,
+            3,
+            -1,
+            8,
+        )
+        .expect("forbidden-turn greedy route should compute");
+
+        assert_eq!(path, vec![10, 12, 13]);
+    }
+
+    #[test]
+    fn computes_greedy_route_candidate_empty_when_unreachable() {
+        let path = compute_greedy_route_candidate_impl(
+            4,
+            &[10, 11, 12, 13],
+            &[1, 3, 2, 3],
+            &[0, 2, 3, 4, 4],
+            &[0, 2, 1, 3],
+            &[],
+            &[],
+            &[],
+            &[2.0, 1.0, 1.0, 0.0],
+            &[50.0, 1.0, 1.0, 1.0],
+            &[true, false, true, false],
+            0,
+            3,
+            -1,
+            8,
+        )
+        .expect("unreachable greedy route should return no path");
+
+        assert!(path.is_empty());
+    }
+
+    #[test]
+    fn rejects_greedy_route_invalid_outgoing_index() {
+        let error = compute_greedy_route_candidate_impl(
+            2,
+            &[10],
+            &[1],
+            &[0, 1, 1],
+            &[3],
+            &[],
+            &[],
+            &[],
+            &[1.0, 0.0],
+            &[1.0],
+            &[false],
+            0,
+            1,
+            -1,
+            4,
+        )
+        .expect_err("invalid outgoing link index should be rejected");
+
+        assert_eq!(
+            error,
+            "outgoing_link_indices contains out-of-range link indices"
+        );
+    }
+
+    #[test]
+    fn rejects_greedy_route_length_mismatch() {
+        let error = compute_greedy_route_candidate_impl(
+            2,
+            &[10],
+            &[1, 1],
+            &[0, 1, 1],
+            &[0],
+            &[],
+            &[],
+            &[],
+            &[1.0, 0.0],
+            &[1.0],
+            &[false],
+            0,
+            1,
+            -1,
+            4,
+        )
+        .expect_err("link length mismatch should be rejected");
+
+        assert!(error.contains("link_dst_node_index length must match"));
     }
 }

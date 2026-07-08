@@ -48,7 +48,10 @@ def rust_routing_backend_available() -> bool:
         rust_extension = _load_rust_extension(RUST_ROUTING_BACKEND_UNAVAILABLE)
     except RuntimeError:
         return False
-    return hasattr(rust_extension, "compute_dynamic_potential_node_costs")
+    return hasattr(rust_extension, "compute_dynamic_potential_node_costs") and hasattr(
+        rust_extension,
+        "compute_greedy_route_candidate",
+    )
 
 
 def _as_f64_list(values: Sequence[float], name: str) -> list[float]:
@@ -229,3 +232,48 @@ def compute_dynamic_potential_node_costs_rust(
         raise RuntimeError(f"Rust CPU routing backend failed: {exc}") from exc
 
     return np.asarray(node_cost_to_go, dtype=np.float32)
+
+
+def compute_greedy_route_candidate_rust(
+    *,
+    node_count: int,
+    link_ids: Sequence[int],
+    link_dst_node_index: Sequence[int],
+    outgoing_indptr: Sequence[int],
+    outgoing_link_indices: Sequence[int],
+    turn_from_link_index: Sequence[int],
+    turn_to_link_index: Sequence[int],
+    turn_is_forbidden: Sequence[bool],
+    node_cost_to_go: Sequence[float],
+    link_travel_time_cost: Sequence[float],
+    blocked_link_mask: Sequence[bool],
+    origin_node_index: int,
+    destination_node_index: int,
+    incoming_link_index: int,
+    max_hops: int,
+) -> tuple[int, ...]:
+    rust_extension = _load_rust_extension(RUST_ROUTING_BACKEND_UNAVAILABLE)
+    try:
+        path = rust_extension.compute_greedy_route_candidate(
+            int(node_count),
+            _as_i32_routing_list(link_ids, "link_ids"),
+            _as_i32_routing_list(link_dst_node_index, "link_dst_node_index"),
+            _as_i32_routing_list(outgoing_indptr, "outgoing_indptr"),
+            _as_i32_routing_list(outgoing_link_indices, "outgoing_link_indices"),
+            _as_i32_routing_list(turn_from_link_index, "turn_from_link_index"),
+            _as_i32_routing_list(turn_to_link_index, "turn_to_link_index"),
+            _as_bool_routing_list(turn_is_forbidden, "turn_is_forbidden"),
+            _as_f32_routing_list(node_cost_to_go, "node_cost_to_go"),
+            _as_f32_routing_list(link_travel_time_cost, "link_travel_time_cost"),
+            _as_bool_routing_list(blocked_link_mask, "blocked_link_mask"),
+            int(origin_node_index),
+            int(destination_node_index),
+            int(incoming_link_index),
+            int(max_hops),
+        )
+    except AttributeError as exc:
+        raise RuntimeError(RUST_ROUTING_BACKEND_UNAVAILABLE) from exc
+    except ValueError as exc:
+        raise RuntimeError(f"Rust CPU routing backend failed: {exc}") from exc
+
+    return tuple(int(link_id) for link_id in path)

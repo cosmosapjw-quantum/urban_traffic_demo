@@ -45,13 +45,13 @@ backend config 및 route-cache fingerprint를 고정한다.
 - baseline backend과 optional accelerator backend를 같은 input signature로 비교
 - 기본 benchmark는 NumPy baseline만 요구한다
 - optional Rust CPU benchmark는 `_metroflow_rust` 확장 빌드 후 `traffic.meso` edge batch,
-  `flow.engine` flow core, `routing.dynamic_potential` node cost-to-go core를 대상으로 한다
+  `flow.engine` flow core, `routing.dynamic_potential` node cost-to-go 및 greedy single-candidate route path core를 대상으로 한다
 - optional JAX benchmark는 `.[jax]` extra 설치 후 RTX 3080 Ti 12GB 단일 GPU만 대상으로 한다
 - distributed multi-GPU 측정 금지
 - Rust CPU parity test는 baseline `update_edge_state` 수식과 queue/stock/capacity 불변식을 동일 입력으로 비교한다
 - Rust CPU flow parity test는 baseline `compute_baseline_flow_arrays_core`와 turn priority, forbidden turn, zero-turn, zero-link, signal timer 결과를 동일 입력으로 비교한다
 - Rust CPU routing parity test는 baseline reverse-Dijkstra node cost-to-go와 blocked link, unreachable node,
-  zero-link 결과를 동일 입력으로 비교한다
+  zero-link, forbidden-turn greedy path 결과를 동일 입력으로 비교한다
 - runtime spine parity는 baseline config에서 event effect, flow update, route candidate cache, active-agent movement,
   replay fingerprint가 deterministic하게 재현되는지 확인한다
 - active-agent movement parity는 newly allocated slot의 same-tick movement 금지, source link queue insertion,

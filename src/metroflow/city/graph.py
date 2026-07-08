@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Iterable, Sequence
@@ -208,6 +209,7 @@ class RoadNetworkCSR:
     turn_to_link_index: Array | None = None
     turn_base_priority: Array | None = None
     turn_is_forbidden: Array | None = None
+    topology_cache_key: tuple[Any, ...] | None = None
 
     def __post_init__(self) -> None:
         self.nodes = tuple(self.nodes)
@@ -271,6 +273,7 @@ class RoadNetworkCSR:
             [t.turn_type == TurnType.U_TURN_FORBIDDEN for t in self.turns],
             np.bool_,
         )
+        self.topology_cache_key = _build_topology_cache_key(self)
 
     @property
     def node_count(self) -> int:
@@ -290,6 +293,33 @@ class RoadNetworkCSR:
         end = int(self.outgoing_indptr[node_index + 1])
         indices = [int(x) for x in np.asarray(self.outgoing_link_indices[start:end]).tolist()]
         return tuple(self.links[i] for i in indices)
+
+
+def _build_topology_cache_key(network: RoadNetworkCSR) -> tuple[Any, ...]:
+    blockable = np.asarray([bool(link.is_blockable) for link in network.links], dtype=np.bool_)
+    return (
+        "road-network-csr-v1",
+        int(network.node_count),
+        int(network.link_count),
+        int(network.turn_count),
+        _array_digest(network.node_ids, np.int32),
+        _array_digest(network.link_ids, np.int32),
+        _array_digest(network.link_src_node_index, np.int32),
+        _array_digest(network.link_dst_node_index, np.int32),
+        _array_digest(network.outgoing_indptr, np.int32),
+        _array_digest(network.outgoing_link_indices, np.int32),
+        _array_digest(network.incoming_indptr, np.int32),
+        _array_digest(network.incoming_link_indices, np.int32),
+        _array_digest(network.turn_from_link_index, np.int32),
+        _array_digest(network.turn_to_link_index, np.int32),
+        _array_digest(network.turn_is_forbidden, np.bool_),
+        _array_digest(blockable, np.bool_),
+    )
+
+
+def _array_digest(values: Any, dtype: Any) -> str:
+    array = np.ascontiguousarray(values, dtype=dtype)
+    return hashlib.blake2b(array.tobytes(), digest_size=16).hexdigest()
 
 
 def validate_road_network_topology(

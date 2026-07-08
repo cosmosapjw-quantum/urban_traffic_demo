@@ -182,6 +182,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             origin_node_id=origin_node_id,
             incoming_link_id=incoming_link_id,
             max_hops=max_hops,
+            routing_backend=routing_backend,
         )
 
     candidate_ids: tuple[int, ...]
