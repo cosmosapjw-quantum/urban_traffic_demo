@@ -47,7 +47,7 @@ recompute/cache-hit count, copy-boundary note를 기록한다.
 고정한다.
 path-size correction test는 `route_path_size_gamma=0.0` 기본 비용 선택 보존, gamma 활성화 시
 `-cost + gamma * log(path_size)` utility 선택, replay config fingerprint, measured runtime benchmark metadata를
-고정한다.
+고정한다. run summary와 benchmark report도 route path-size gamma를 reviewer-facing metadata로 보존한다.
 runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`로
 backend config 및 route-cache fingerprint를 고정하고, replay result는 runtime reroute/persistence totals를
 보존한다. route-cache fingerprint는 candidate path뿐 아니라

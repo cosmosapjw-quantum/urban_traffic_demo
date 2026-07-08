@@ -42,6 +42,7 @@ class BaselineRunSummary:
     route_candidate_reuse_total: int = 0
     dynamic_potential_recompute_total: int = 0
     dynamic_potential_cache_hits_total: int = 0
+    route_path_size_gamma: float = 0.0
     route_candidate_refresh_seconds_total: float = 0.0
     dynamic_potential_recompute_seconds_total: float = 0.0
     routing_compile_seconds_estimate_total: float = 0.0
@@ -84,6 +85,7 @@ class BaselineRunSummary:
         self.route_candidate_reuse_total = int(self.route_candidate_reuse_total)
         self.dynamic_potential_recompute_total = int(self.dynamic_potential_recompute_total)
         self.dynamic_potential_cache_hits_total = int(self.dynamic_potential_cache_hits_total)
+        self.route_path_size_gamma = float(self.route_path_size_gamma)
         self.route_candidate_refresh_seconds_total = float(self.route_candidate_refresh_seconds_total)
         self.dynamic_potential_recompute_seconds_total = float(
             self.dynamic_potential_recompute_seconds_total
@@ -237,6 +239,7 @@ def build_baseline_run_summary(
         route_candidate_reuse_total=int(metrics_state.get("route_candidate_reuse_total", 0)),
         dynamic_potential_recompute_total=int(metrics_state.get("dynamic_potential_recompute_total", 0)),
         dynamic_potential_cache_hits_total=int(metrics_state.get("dynamic_potential_cache_hits_total", 0)),
+        route_path_size_gamma=float(state.config.route_path_size_gamma),
         route_candidate_refresh_seconds_total=float(metrics_state.get("route_candidate_refresh_seconds_total", 0.0)),
         dynamic_potential_recompute_seconds_total=float(
             metrics_state.get("dynamic_potential_recompute_seconds_total", 0.0)

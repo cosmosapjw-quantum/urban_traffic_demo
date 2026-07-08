@@ -34,6 +34,7 @@ class BenchmarkReport:
     route_candidate_reuse_total: int | None = None
     dynamic_potential_recompute_total: int | None = None
     dynamic_potential_cache_hits_total: int | None = None
+    route_path_size_gamma: float | None = None
     route_candidate_refresh_seconds_total: float | None = None
     dynamic_potential_recompute_seconds_total: float | None = None
     routing_compile_seconds_estimate_total: float | None = None
@@ -93,6 +94,7 @@ def benchmark_report_from_run_summary(
         route_candidate_reuse_total=_as_optional_int(run_summary.get("route_candidate_reuse_total")),
         dynamic_potential_recompute_total=_as_optional_int(run_summary.get("dynamic_potential_recompute_total")),
         dynamic_potential_cache_hits_total=_as_optional_int(run_summary.get("dynamic_potential_cache_hits_total")),
+        route_path_size_gamma=_as_optional_float(run_summary.get("route_path_size_gamma")),
         route_candidate_refresh_seconds_total=_as_optional_float(
             run_summary.get("route_candidate_refresh_seconds_total")
         ),
@@ -192,6 +194,7 @@ def format_benchmark_report_markdown(report: BenchmarkReport) -> str:
                 f"{_fmt(report.dynamic_potential_recompute_total)} / "
                 f"{_fmt(report.dynamic_potential_cache_hits_total)}"
             ),
+            f"- Route path-size gamma: {_fmt(report.route_path_size_gamma)}",
             (
                 "- Routing perf seconds (candidate refresh / dyn-potential / compile-estimate): "
                 f"{_fmt(report.route_candidate_refresh_seconds_total)} / "

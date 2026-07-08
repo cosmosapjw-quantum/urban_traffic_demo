@@ -47,6 +47,25 @@ def test_benchmark_summary_metrics_host_handles_empty_and_positive_durations() -
     assert nonempty["active_agent_p95"] == pytest.approx(29.0)
 
 
+def test_benchmark_report_preserves_route_choice_policy_metadata() -> None:
+    from metroflow.benchmarks.reporting import (
+        benchmark_report_from_run_summary,
+        format_benchmark_report_markdown,
+    )
+
+    report = benchmark_report_from_run_summary(
+        {
+            "scenario_id": "policy-summary",
+            "seed": 7,
+            "route_path_size_gamma": 1.5,
+        }
+    )
+    markdown = format_benchmark_report_markdown(report)
+
+    assert report.route_path_size_gamma == 1.5
+    assert "Route path-size gamma: 1.5" in markdown
+
+
 def test_policy_plugin_registry_validates_identity_and_duplicate_names() -> None:
     from metroflow.learning.plugins import create_policy_plugin, register_policy_plugin
 

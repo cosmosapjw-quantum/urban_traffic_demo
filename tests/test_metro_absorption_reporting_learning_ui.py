@@ -75,6 +75,7 @@ def test_learning_experience_batch_is_simulator_only_and_bounded() -> None:
 
 
 def test_baseline_run_summary_and_comparison_are_donor_independent() -> None:
+    from metroflow.sim.config import SimulationConfig
     from metroflow.sim.control import SimulationControl
     from metroflow.sim.init import build_initial_simulation_state
     from metroflow.sim.run_summary import (
@@ -84,7 +85,11 @@ def test_baseline_run_summary_and_comparison_are_donor_independent() -> None:
     )
     from metroflow.sim.step import simulation_step
 
-    bundle = build_initial_simulation_state(scenario_seed=32, eager_trip_generation=True)
+    bundle = build_initial_simulation_state(
+        scenario_seed=32,
+        config=SimulationConfig(route_path_size_gamma=1.5),
+        eager_trip_generation=True,
+    )
     state, _telemetry, _snapshot, _key = simulation_step(
         bundle.state,
         SimulationControl(ui_force_snapshot=True),
@@ -99,6 +104,7 @@ def test_baseline_run_summary_and_comparison_are_donor_independent() -> None:
     assert summary.ui_packets_emitted == 1
     assert summary.hotspot_links_top_k
     assert summary.map_foundation_profile == "sc020_sc042_map_foundation"
+    assert summary.route_path_size_gamma == 1.5
 
     adaptive = build_baseline_run_summary(
         state.with_dynamic_updates(
