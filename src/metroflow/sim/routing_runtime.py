@@ -15,13 +15,10 @@ from metroflow.flow.state import LinkState
 from metroflow.routing.candidates import (
     RouteCandidateRefreshPolicy,
     RouteCandidateSet,
+    create_route_candidate_set,
     refresh_od_route_candidate_set,
 )
 from metroflow.routing.behavior_profiles import RouteChoiceProfile
-from metroflow.routing.dynamic_potential import (
-    build_greedy_route_candidate,
-    compute_dynamic_potential_state,
-)
 from metroflow.routing.reroute_policy import decide_reroute_vs_persist
 from metroflow.sim.active_agents import (
     ActiveAgentPool,
@@ -220,12 +217,7 @@ def advance_runtime_active_agents(
             "origin_poi_id": int(trip.origin_poi_id),
             "dest_poi_id": int(trip.dest_poi_id),
             "trip_request_id": trip_id,
-            "selected_candidate_index": selection.candidate_index,
-            "selected_candidate_id": selection.candidate_id,
-            "selected_candidate_count": selection.candidate_count,
-            "selected_candidate_path_cost": selection.path_cost,
-            "selected_candidate_path_size_factor": selection.path_size_factor,
-            "selected_candidate_utility": selection.utility,
+            **_selected_candidate_memory(selection),
         }
         pool_after_alloc = _replace_pool_plugin_memory(pool_after_alloc, plugin_memory)
         allocated_ids.add(trip_id)
@@ -493,13 +485,14 @@ def _apply_runtime_reroute_policy(
         )
         if not existing_tail:
             continue
-        candidate_tail = _build_reroute_tail_candidate(
+        selection = _build_reroute_tail_selection(
             state=state,
             road_csr=road_csr,
             link_state=link_state,
             current_link_id=current_link_id,
             destination_node_id=int(pool.dest_node_id[slot_id]),
         )
+        candidate_tail = () if selection is None else selection.path
         if not candidate_tail or candidate_tail == existing_tail:
             continue
 
@@ -533,6 +526,7 @@ def _apply_runtime_reroute_policy(
                 route_ptr=route_ptr,
                 current_link_id=current_link_id,
             ) + candidate_tail
+            memory.update(_selected_candidate_memory(selection))
             counters["active_agent_rerouted_this_tick"] += 1
         plugin_memory[int(slot_id)] = memory
         changed = True
@@ -588,37 +582,50 @@ def _route_prefix_through_current(
     return tuple(path[: idx + 1])
 
 
-def _build_reroute_tail_candidate(
+def _build_reroute_tail_selection(
     *,
     state: SimulationState,
     road_csr: Any,
     link_state: LinkState,
     current_link_id: int,
     destination_node_id: int,
-) -> tuple[int, ...]:
+) -> _SelectedCandidateRoute | None:
     link_index = dict(getattr(road_csr, "link_id_to_index", {}) or {}).get(int(current_link_id))
     if link_index is None:
-        return ()
+        return None
     if int(destination_node_id) not in dict(getattr(road_csr, "node_id_to_index", {}) or {}):
-        return ()
+        return None
     current_link = tuple(getattr(road_csr, "links", ()))[int(link_index)]
     origin_node_id = int(current_link.dst_node_id)
     if origin_node_id == int(destination_node_id):
-        return ()
-    potential_state = compute_dynamic_potential_state(
-        network=road_csr,
+        return None
+    candidate_set = create_route_candidate_set(
+        road_csr=road_csr,
         link_state=link_state,
-        destination_node_id=int(destination_node_id),
-        routing_backend=state.config.routing_backend,
-    )
-    return build_greedy_route_candidate(
-        network=road_csr,
-        potential_state=potential_state,
+        od_key=(origin_node_id, int(destination_node_id)),
         origin_node_id=origin_node_id,
+        destination_node_id=int(destination_node_id),
+        current_tick=int(state.tick_index),
         incoming_link_id=int(current_link_id),
+        max_candidates=max(1, int(state.config.route_max_candidates)),
         max_hops=max(1, int(state.config.route_max_hops)),
         routing_backend=state.config.routing_backend,
     )
+    return _select_candidate_route(
+        candidate_set,
+        path_size_gamma=state.config.route_path_size_gamma,
+    )
+
+
+def _selected_candidate_memory(selection: _SelectedCandidateRoute) -> dict[str, Any]:
+    return {
+        "selected_candidate_index": selection.candidate_index,
+        "selected_candidate_id": selection.candidate_id,
+        "selected_candidate_count": selection.candidate_count,
+        "selected_candidate_path_cost": selection.path_cost,
+        "selected_candidate_path_size_factor": selection.path_size_factor,
+        "selected_candidate_utility": selection.utility,
+    }
 
 
 def _path_link_cost(
