@@ -451,6 +451,10 @@ def test_measured_runtime_benchmark_preserves_reroute_counter_metadata(
         metrics["us2_persistence_decisions_total"] = int(
             metrics.get("us2_persistence_decisions_total", 0)
         ) + 1
+        metrics["active_agent_sink_wait_total"] = int(
+            metrics.get("active_agent_sink_wait_total", 0)
+        ) + 3
+        metrics["active_agent_sink_wait_this_tick"] = 3
         metrics["active_agent_rerouted_this_tick"] = 2
         metrics["active_agent_reroute_cooldown_this_tick"] = 1
         return (
@@ -472,5 +476,7 @@ def test_measured_runtime_benchmark_preserves_reroute_counter_metadata(
 
     assert result.reroute_decisions_total == 4
     assert result.persistence_decisions_total == 2
+    assert result.active_agent_sink_wait_total == 6
+    assert result.active_agent_sink_wait_this_tick == 3
     assert result.active_agent_rerouted_this_tick == 2
     assert result.active_agent_reroute_cooldown_this_tick == 1

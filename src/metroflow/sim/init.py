@@ -281,6 +281,7 @@ def _initial_metrics_state(trips: TripRequestGenerationResult) -> dict[str, Any]
         "dynamic_potential_cache_hits_total": 0,
         "active_agent_moved_this_tick": 0,
         "active_agent_sink_wait_this_tick": 0,
+        "active_agent_sink_wait_total": 0,
         "active_agent_rerouted_this_tick": 0,
         "active_agent_reroute_cooldown_this_tick": 0,
         "us2_reroute_decisions_total": 0,

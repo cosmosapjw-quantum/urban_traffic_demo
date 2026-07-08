@@ -305,6 +305,7 @@ def _build_report_summary(
         "active_agent_sink_wait_this_tick": int(
             metrics.get("active_agent_sink_wait_this_tick", 0)
         ),
+        "active_agent_sink_wait_total": int(metrics.get("active_agent_sink_wait_total", 0)),
         "active_agent_reroute_cooldown_this_tick": int(
             metrics.get("active_agent_reroute_cooldown_this_tick", 0)
         ),

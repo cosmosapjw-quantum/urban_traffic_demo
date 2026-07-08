@@ -86,7 +86,7 @@ Rust routing backend는 같은 contract를 optional accelerator로 제공한다.
 - final-link completion은 sink discharge budget을 소비한다. link-to-link movement는
   `outflow_vehicles` 예산을 쓰고, destination discharge는 final link의 effective capacity가 0보다
   클 때만 deterministic slot 순서로 완료된다. sink discharge budget 때문에 대기한 agent 수는
-  `active_agent_sink_wait_this_tick` telemetry/metrics에 기록된다.
+  `active_agent_sink_wait_this_tick` 및 `active_agent_sink_wait_total` telemetry/metrics에 기록된다.
 - reporting/experiment 표면으로 simulator-only learning experience, run summary comparison,
   Navigator UI stream packetization, benchmark smoke runner, scenario presets, adaptive policy plugin registry를 흡수했다.
 - `SimulationState` runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`를 사용한다.

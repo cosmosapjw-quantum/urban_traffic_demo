@@ -840,6 +840,42 @@ def test_runtime_reroute_counters_accumulate_for_run_summary(
     assert summary.disruption_response_metrics_available is True
 
 
+def test_runtime_sink_wait_counters_accumulate_for_run_summary(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.sim import step as step_module
+    from metroflow.sim.control import SimulationControl
+    from metroflow.sim.rng import key_from_seed
+    from metroflow.sim.run_summary import build_baseline_run_summary
+
+    state = _runtime_spine_state()
+
+    def fake_advance_runtime_active_agents(state):
+        return (
+            state.dynamic.active_agent_pool,
+            {"active_agent_sink_wait_this_tick": 3},
+            state.dynamic.demand_state,
+            state.dynamic.flow_link_state,
+        )
+
+    monkeypatch.setattr(
+        step_module,
+        "advance_runtime_active_agents",
+        fake_advance_runtime_active_agents,
+    )
+
+    next_state, telemetry, _snapshot, _key = step_module.simulation_step(
+        state,
+        SimulationControl(),
+        key_from_seed(31),
+    )
+    summary = build_baseline_run_summary(next_state)
+
+    assert telemetry.active_agent_sink_wait_this_tick == 3
+    assert next_state.dynamic.metrics_state["active_agent_sink_wait_total"] == 3
+    assert summary.active_agent_sink_wait_total == 3
+
+
 def test_simulation_step_fails_no_route_trip_without_allocating_agent() -> None:
     from metroflow.sim.control import SimulationControl
     from metroflow.sim.rng import key_from_seed

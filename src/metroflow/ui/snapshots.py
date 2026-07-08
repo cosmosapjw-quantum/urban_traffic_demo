@@ -197,6 +197,9 @@ def _summary_metrics(
         "active_agent_sink_wait_this_tick": int(
             metrics_state.get("active_agent_sink_wait_this_tick", 0)
         ),
+        "active_agent_sink_wait_total": int(
+            metrics_state.get("active_agent_sink_wait_total", 0)
+        ),
         "active_agent_rerouted_this_tick": int(
             metrics_state.get("active_agent_rerouted_this_tick", 0)
         ),

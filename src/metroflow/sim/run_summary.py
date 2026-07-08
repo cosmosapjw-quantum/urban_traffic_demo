@@ -50,6 +50,7 @@ class BaselineRunSummary:
     ui_packet_counts: dict[str, int] = field(default_factory=dict)
     disruption_active_event_count: int = 0
     disruption_affected_link_count: int = 0
+    active_agent_sink_wait_total: int = 0
     reroute_decisions_total: int = 0
     persistence_decisions_total: int = 0
     reroute_share: float = 0.0
@@ -97,6 +98,7 @@ class BaselineRunSummary:
         self.ui_packet_counts = {str(k): int(v) for k, v in dict(self.ui_packet_counts).items()}
         self.disruption_active_event_count = int(self.disruption_active_event_count)
         self.disruption_affected_link_count = int(self.disruption_affected_link_count)
+        self.active_agent_sink_wait_total = int(self.active_agent_sink_wait_total)
         self.reroute_decisions_total = int(self.reroute_decisions_total)
         self.persistence_decisions_total = int(self.persistence_decisions_total)
         self.reroute_share = float(self.reroute_share)
@@ -249,6 +251,7 @@ def build_baseline_run_summary(
         ui_packet_counts=normalized_ui_packet_counts,
         disruption_active_event_count=_active_event_count_fallback(state),
         disruption_affected_link_count=_affected_link_count_fallback(state),
+        active_agent_sink_wait_total=int(metrics_state.get("active_agent_sink_wait_total", 0)),
         reroute_decisions_total=reroute_total,
         persistence_decisions_total=persistence_total,
         reroute_share=reroute_share,

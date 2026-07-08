@@ -421,6 +421,9 @@ def _build_metrics_summary_payload(
                 telemetry.active_agent_sink_wait_this_tick,
             )
         ),
+        "active_agent_sink_wait_total": int(
+            _metric_value(metrics_state, summary, "active_agent_sink_wait_total", 0)
+        ),
         "active_agent_rerouted_this_tick": int(
             _metric_value(
                 metrics_state,
