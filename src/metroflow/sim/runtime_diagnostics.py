@@ -43,6 +43,7 @@ class RuntimeDiagnosticFrame:
     dynamic_potential_cache_hits_total: int
     sampled_link_congestion: tuple[dict[str, Any], ...] = field(default_factory=tuple)
     candidate_paths_by_od: dict[str, tuple[tuple[int, ...], ...]] = field(default_factory=dict)
+    candidate_metadata_by_od: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.tick_index = int(self.tick_index)
@@ -64,6 +65,10 @@ class RuntimeDiagnosticFrame:
         self.candidate_paths_by_od = {
             str(key): tuple(tuple(int(link_id) for link_id in path) for path in value)
             for key, value in dict(self.candidate_paths_by_od).items()
+        }
+        self.candidate_metadata_by_od = {
+            str(key): _normalize_candidate_metadata(value)
+            for key, value in dict(self.candidate_metadata_by_od).items()
         }
 
     def to_dict(self) -> dict[str, Any]:
@@ -87,6 +92,9 @@ class RuntimeDiagnosticFrame:
             "candidate_paths_by_od": {
                 key: tuple(tuple(path) for path in paths)
                 for key, paths in self.candidate_paths_by_od.items()
+            },
+            "candidate_metadata_by_od": {
+                key: dict(value) for key, value in self.candidate_metadata_by_od.items()
             },
         }
 
@@ -197,7 +205,7 @@ def render_runtime_diagnostic_html(report: RuntimeDiagnosticReport) -> str:
   </table>
   <h2>Candidate Paths</h2>
   <table>
-    <thead><tr><th>tick</th><th>OD</th><th>paths</th></tr></thead>
+    <thead><tr><th>tick</th><th>OD</th><th>paths</th><th>costs</th><th>path size</th></tr></thead>
     <tbody>{candidate_rows}</tbody>
   </table>
   <p class="note">This is a SMOKE diagnostic for runtime-spine review. It is not a validation claim or performance benchmark.</p>
@@ -251,6 +259,7 @@ def _build_diagnostic_frame(
         dynamic_potential_cache_hits_total=int(metrics.get("dynamic_potential_cache_hits_total", 0)),
         sampled_link_congestion=tuple(snapshot.get("sampled_link_congestion", ()) or ()),
         candidate_paths_by_od=_candidate_paths_by_od(route_state.candidate_sets),
+        candidate_metadata_by_od=_candidate_metadata_by_od(route_state.candidate_sets),
     )
 
 
@@ -306,6 +315,43 @@ def _candidate_paths_by_od(candidate_sets: Mapping[Any, Any]) -> dict[str, tuple
     return out
 
 
+def _candidate_metadata_by_od(candidate_sets: Mapping[Any, Any]) -> dict[str, dict[str, Any]]:
+    out: dict[str, dict[str, Any]] = {}
+    for od_key, candidate_set in sorted(dict(candidate_sets).items(), key=lambda item: str(item[0])):
+        try:
+            origin, destination = tuple(od_key)
+        except ValueError:
+            continue
+        key = f"{int(origin)}->{int(destination)}"
+        metadata = getattr(candidate_set, "metadata", {})
+        if not isinstance(metadata, Mapping):
+            metadata = {}
+        out[key] = _normalize_candidate_metadata(
+            {
+                "candidate_count": len(getattr(candidate_set, "candidate_paths", ()) or ()),
+                "candidate_ids": tuple(getattr(candidate_set, "candidate_ids", ()) or ()),
+                "candidate_path_costs": metadata.get("candidate_path_costs", ()),
+                "candidate_path_size_factors": metadata.get("candidate_path_size_factors", ()),
+            }
+        )
+    return out
+
+
+def _normalize_candidate_metadata(value: Any) -> dict[str, Any]:
+    raw = dict(value) if isinstance(value, Mapping) else {}
+    return {
+        "candidate_count": int(raw.get("candidate_count", 0)),
+        "candidate_ids": tuple(int(item) for item in tuple(raw.get("candidate_ids", ()) or ())),
+        "candidate_path_costs": tuple(
+            float(item) for item in tuple(raw.get("candidate_path_costs", ()) or ())
+        ),
+        "candidate_path_size_factors": tuple(
+            float(item)
+            for item in tuple(raw.get("candidate_path_size_factors", ()) or ())
+        ),
+    }
+
+
 def _render_frame_row(frame: RuntimeDiagnosticFrame) -> str:
     return (
         "<tr>"
@@ -326,14 +372,21 @@ def _render_frame_row(frame: RuntimeDiagnosticFrame) -> str:
 
 def _render_candidate_row(frame: RuntimeDiagnosticFrame) -> str:
     if not frame.candidate_paths_by_od:
-        return f"<tr><td>tick {frame.tick_index}</td><td>none</td><td>()</td></tr>"
+        return f"<tr><td>tick {frame.tick_index}</td><td>none</td><td>()</td><td>()</td><td>()</td></tr>"
     rows = []
     for od_key, paths in sorted(frame.candidate_paths_by_od.items()):
+        metadata = frame.candidate_metadata_by_od.get(od_key, {})
+        costs = tuple(round(float(item), 3) for item in metadata.get("candidate_path_costs", ()))
+        path_sizes = tuple(
+            round(float(item), 3) for item in metadata.get("candidate_path_size_factors", ())
+        )
         rows.append(
             "<tr>"
             f"<td>tick {frame.tick_index}</td>"
             f"<td>{escape(od_key)}</td>"
             f"<td><code>{escape(str(paths))}</code></td>"
+            f"<td><code>{escape(str(costs))}</code></td>"
+            f"<td><code>{escape(str(path_sizes))}</code></td>"
             "</tr>"
         )
     return "\n".join(rows)
