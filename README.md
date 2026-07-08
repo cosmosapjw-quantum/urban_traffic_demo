@@ -76,6 +76,8 @@ core만 담당한다. Python wrapper가 NumPy-compatible 입력을 edge는 `Vec<
   route candidate/dynamic-potential cache counters를 결과에 보존한다.
 - review visualization은 `run_runtime_diagnostic_rollout`와 `write_runtime_diagnostic_html`로 생성한다.
   산출물은 static HTML/SVG이며 smoke diagnostic으로만 해석한다.
+- generated city map 검토는 `build_static_city_map_artifact`와 `write_static_city_map_html`을 사용한다.
+  산출물은 road class, zone/POI, bridge, queue/congestion overlay를 포함하는 static HTML/SVG이다.
 - `step_world`의 긴 인자 목록은 호환용으로 유지하고, 신규 호출자는 `step_world_from_inputs`와
   `FastTickInput`/`MediumTickInput`을 우선 사용한다.
 - 새 이식 코드는 baseline fallback, immutable `WorldState`, explicit units, deterministic replay 요구를 유지해야 한다.
