@@ -153,3 +153,55 @@ def test_runtime_diagnostic_html_renderer_is_static_and_contains_svg_review_surf
     assert "moved" in html
     assert "rerouted" in html
     assert "cooldown" in html
+
+
+def test_runtime_diagnostic_summary_accumulates_reroute_counters() -> None:
+    from metroflow.sim.runtime_diagnostics import (
+        RuntimeDiagnosticFrame,
+        RuntimeDiagnosticReport,
+        render_runtime_diagnostic_html,
+    )
+
+    report = RuntimeDiagnosticReport(
+        scenario_id="reroute-summary",
+        label="REROUTE SUMMARY",
+        frames=(
+            RuntimeDiagnosticFrame(
+                tick_index=1,
+                active_agent_count=1,
+                queue_vehicles_total=2.0,
+                outflow_vehicles_total=1.0,
+                trip_completed_total=0,
+                trip_failed_total=0,
+                active_agent_moved_this_tick=0,
+                active_agent_rerouted_this_tick=2,
+                active_agent_reroute_cooldown_this_tick=1,
+                route_candidate_refresh_total=1,
+                route_candidate_reuse_total=0,
+                dynamic_potential_recompute_total=1,
+                dynamic_potential_cache_hits_total=0,
+            ),
+            RuntimeDiagnosticFrame(
+                tick_index=2,
+                active_agent_count=1,
+                queue_vehicles_total=1.0,
+                outflow_vehicles_total=1.0,
+                trip_completed_total=0,
+                trip_failed_total=0,
+                active_agent_moved_this_tick=1,
+                active_agent_rerouted_this_tick=0,
+                active_agent_reroute_cooldown_this_tick=3,
+                route_candidate_refresh_total=1,
+                route_candidate_reuse_total=1,
+                dynamic_potential_recompute_total=1,
+                dynamic_potential_cache_hits_total=0,
+            ),
+        ),
+        summary={},
+    )
+    html = render_runtime_diagnostic_html(report)
+
+    assert report.summary["active_agent_rerouted_total"] == 2
+    assert report.summary["active_agent_reroute_cooldown_total"] == 4
+    assert "rerouted total" in html
+    assert "<strong>2</strong>" in html

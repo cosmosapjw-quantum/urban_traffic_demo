@@ -104,7 +104,7 @@ class RuntimeDiagnosticReport:
         self.scenario_id = str(self.scenario_id)
         self.label = str(self.label)
         self.frames = tuple(self.frames)
-        self.summary = dict(self.summary)
+        self.summary = _with_frame_derived_summary(dict(self.summary), self.frames)
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize the report into JSON-safe diagnostic data."""
@@ -185,7 +185,7 @@ def render_runtime_diagnostic_html(report: RuntimeDiagnosticReport) -> str:
   <section class="grid">
     <div class="metric">final tick<strong>{int(summary.get("final_tick", 0))}</strong></div>
     <div class="metric">completed trips<strong>{int(summary.get("final_completed_trips_total", 0))}</strong></div>
-    <div class="metric">route refresh<strong>{int(summary.get("route_candidate_refresh_total", 0))}</strong></div>
+    <div class="metric">rerouted total<strong>{int(summary.get("active_agent_rerouted_total", 0))}</strong></div>
     <div class="metric">cache hits<strong>{int(summary.get("dynamic_potential_cache_hits_total", 0))}</strong></div>
   </section>
   <h2>Tick Timeline</h2>
@@ -277,6 +277,21 @@ def _build_report_summary(
         ),
         "max_queue_vehicles_total": max((frame.queue_vehicles_total for frame in frames), default=0.0),
     }
+
+
+def _with_frame_derived_summary(
+    summary: dict[str, Any],
+    frames: tuple[RuntimeDiagnosticFrame, ...],
+) -> dict[str, Any]:
+    summary.setdefault(
+        "active_agent_rerouted_total",
+        sum(int(frame.active_agent_rerouted_this_tick) for frame in frames),
+    )
+    summary.setdefault(
+        "active_agent_reroute_cooldown_total",
+        sum(int(frame.active_agent_reroute_cooldown_this_tick) for frame in frames),
+    )
+    return summary
 
 
 def _candidate_paths_by_od(candidate_sets: Mapping[Any, Any]) -> dict[str, tuple[tuple[int, ...], ...]]:
