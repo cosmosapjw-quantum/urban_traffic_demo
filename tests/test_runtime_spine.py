@@ -668,6 +668,58 @@ def test_runtime_replay_records_backend_and_cache_fingerprints() -> None:
     assert len(result.telemetry_log) == 1
 
 
+def test_runtime_replay_records_reroute_counter_totals(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.sim import replay as replay_module
+    from metroflow.sim.control import SimulationControl, SimulationTelemetry
+    from metroflow.sim.replay import (
+        RuntimeReplayRequest,
+        make_runtime_replay_boundary,
+        replay_simulation_sequence,
+    )
+    from metroflow.sim.rng import key_from_seed
+
+    state = _runtime_spine_state()
+
+    def fake_simulation_step(state, _control, key):
+        metrics = dict(state.dynamic.metrics_state)
+        metrics["us2_reroute_decisions_total"] = 3
+        metrics["us2_persistence_decisions_total"] = 2
+        next_state = state.with_clock(tick_index=state.tick_index + 1).with_dynamic_updates(
+            metrics_state=metrics
+        )
+        return (
+            next_state,
+            SimulationTelemetry(
+                tick_index=next_state.tick_index,
+                active_agent_count=0,
+                active_agent_rerouted_this_tick=3,
+                active_agent_reroute_cooldown_this_tick=2,
+            ),
+            None,
+            key,
+        )
+
+    monkeypatch.setattr(replay_module, "simulation_step", fake_simulation_step)
+
+    result = replay_simulation_sequence(
+        RuntimeReplayRequest(
+            name="replay_runtime_reroute_counters",
+            initial_state=state,
+            declared_boundary=make_runtime_replay_boundary(state),
+            controls=(SimulationControl(),),
+            rng_key=key_from_seed(29),
+            num_steps=1,
+        )
+    )
+
+    assert result.reroute_decisions_total == 3
+    assert result.persistence_decisions_total == 2
+    assert result.telemetry_log[0].active_agent_rerouted_this_tick == 3
+    assert result.telemetry_log[0].active_agent_reroute_cooldown_this_tick == 2
+
+
 def test_measured_runtime_spine_benchmark_preserves_runtime_backend_metadata() -> None:
     from metroflow.metrics.benchmarks import (
         MeasuredRuntimeBenchmarkConfig,

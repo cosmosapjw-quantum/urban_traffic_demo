@@ -111,6 +111,8 @@ class RuntimeReplayResultRecord:
     edge_backend: str = "baseline"
     flow_backend: str = "baseline"
     routing_backend: str = "baseline"
+    reroute_decisions_total: int = 0
+    persistence_decisions_total: int = 0
 
 
 def journal_fingerprint(journal: InterventionJournal) -> str:
@@ -298,6 +300,11 @@ def replay_simulation_sequence(request: RuntimeReplayRequest) -> RuntimeReplayRe
         stats=route_state.stats,
         state=current_state,
     )
+    final_metrics = (
+        current_state.dynamic.metrics_state
+        if isinstance(current_state.dynamic.metrics_state, dict)
+        else {}
+    )
     return RuntimeReplayResultRecord(
         name="replay_simulation_sequence",
         num_steps=request.num_steps,
@@ -311,6 +318,10 @@ def replay_simulation_sequence(request: RuntimeReplayRequest) -> RuntimeReplayRe
         edge_backend=current_state.config.edge_backend,
         flow_backend=current_state.config.flow_backend,
         routing_backend=current_state.config.routing_backend,
+        reroute_decisions_total=int(final_metrics.get("us2_reroute_decisions_total", 0)),
+        persistence_decisions_total=int(
+            final_metrics.get("us2_persistence_decisions_total", 0)
+        ),
     )
 
 
