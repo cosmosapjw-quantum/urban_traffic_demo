@@ -274,6 +274,9 @@ def test_measured_runtime_benchmark_preserves_rust_routing_copy_boundary_note(
 
     assert isinstance(result, MeasuredRuntimeBenchmarkResult)
     assert result.routing_backend == "rust_cpu"
-    assert result.routing_copy_boundary_note == "rust_cpu Vec copy boundary"
+    assert (
+        result.routing_copy_boundary_note
+        == "rust_cpu Vec copy boundary for dynamic-potential and greedy path"
+    )
     assert result.initial_tick == 0
     assert result.final_tick == 2
