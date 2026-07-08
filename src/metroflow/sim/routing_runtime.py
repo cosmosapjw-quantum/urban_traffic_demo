@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import hashlib
 import json
+from math import isfinite, log
 from typing import Any, Mapping
 
 import numpy as np
@@ -69,6 +70,7 @@ class _SelectedCandidateRoute:
     path: tuple[int, ...]
     path_cost: float
     path_size_factor: float
+    utility: float
 
 
 def create_simulation_route_cache_state() -> SimulationRouteCacheState:
@@ -193,7 +195,10 @@ def advance_runtime_active_agents(
             break
         od = _trip_od_nodes(trip, pois_by_id)
         candidate_set = route_state.candidate_sets.get(od[0]) if od is not None else None
-        selection = _select_candidate_route(candidate_set)
+        selection = _select_candidate_route(
+            candidate_set,
+            path_size_gamma=state.config.route_path_size_gamma,
+        )
         if selection is None:
             failed_ids.add(trip_id)
             counters["trip_failed_this_tick"] += 1
@@ -220,6 +225,7 @@ def advance_runtime_active_agents(
             "selected_candidate_count": selection.candidate_count,
             "selected_candidate_path_cost": selection.path_cost,
             "selected_candidate_path_size_factor": selection.path_size_factor,
+            "selected_candidate_utility": selection.utility,
         }
         pool_after_alloc = _replace_pool_plugin_memory(pool_after_alloc, plugin_memory)
         allocated_ids.add(trip_id)
@@ -829,7 +835,11 @@ def _first_candidate_path(candidate_set: RouteCandidateSet | None) -> tuple[int,
     return () if selection is None else selection.path
 
 
-def _select_candidate_route(candidate_set: RouteCandidateSet | None) -> _SelectedCandidateRoute | None:
+def _select_candidate_route(
+    candidate_set: RouteCandidateSet | None,
+    *,
+    path_size_gamma: float = 0.0,
+) -> _SelectedCandidateRoute | None:
     if candidate_set is None or not candidate_set.candidate_paths:
         return None
     candidate_paths = tuple(tuple(int(x) for x in path) for path in candidate_set.candidate_paths)
@@ -843,17 +853,27 @@ def _select_candidate_route(candidate_set: RouteCandidateSet | None) -> _Selecte
     )
     candidate_ids = tuple(int(x) for x in candidate_set.candidate_ids)
     if len(costs) >= len(candidate_paths):
-        selected_index = min(
+        utilities = tuple(
+            _candidate_path_utility(
+                cost=costs[idx],
+                path_size_factor=path_sizes[idx] if idx < len(path_sizes) else 1.0,
+                path_size_gamma=path_size_gamma,
+            )
+            for idx in range(len(candidate_paths))
+        )
+        selected_index = max(
             viable_indices,
             key=lambda idx: (
-                costs[idx],
-                candidate_ids[idx] if idx < len(candidate_ids) else idx,
-                candidate_paths[idx],
+                utilities[idx],
+                -(candidate_ids[idx] if idx < len(candidate_ids) else idx),
+                tuple(-link_id for link_id in candidate_paths[idx]),
             ),
         )
     else:
         selected_index = viable_indices[0]
     path = candidate_paths[selected_index]
+    path_cost = costs[selected_index] if selected_index < len(costs) else 0.0
+    path_size_factor = path_sizes[selected_index] if selected_index < len(path_sizes) else 1.0
     return _SelectedCandidateRoute(
         candidate_index=selected_index,
         candidate_id=(
@@ -861,11 +881,32 @@ def _select_candidate_route(candidate_set: RouteCandidateSet | None) -> _Selecte
         ),
         candidate_count=len(candidate_paths),
         path=path,
-        path_cost=costs[selected_index] if selected_index < len(costs) else 0.0,
-        path_size_factor=(
-            path_sizes[selected_index] if selected_index < len(path_sizes) else 1.0
+        path_cost=path_cost,
+        path_size_factor=path_size_factor,
+        utility=(
+            _candidate_path_utility(
+                cost=path_cost,
+                path_size_factor=path_size_factor,
+                path_size_gamma=path_size_gamma,
+            )
+            if len(costs) >= len(candidate_paths)
+            else 0.0
         ),
     )
+
+
+def _candidate_path_utility(
+    *,
+    cost: float,
+    path_size_factor: float,
+    path_size_gamma: float,
+) -> float:
+    cost_f = float(cost)
+    if not isfinite(cost_f):
+        return float("-inf")
+    path_size_raw = float(path_size_factor)
+    path_size = path_size_raw if isfinite(path_size_raw) and path_size_raw > 0.0 else 1.0e-12
+    return -cost_f + max(0.0, float(path_size_gamma)) * log(path_size)
 
 
 def _demand_lifecycle_counts(

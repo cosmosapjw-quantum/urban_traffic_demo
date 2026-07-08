@@ -125,6 +125,7 @@ class MeasuredRuntimeBenchmarkResult:
     active_agent_count: int
     flow_backend: str
     routing_backend: str
+    route_path_size_gamma: float
     routing_copy_boundary_note: str
     route_candidate_refresh_total: int
     route_candidate_reuse_total: int
@@ -297,6 +298,7 @@ def run_measured_runtime_spine_benchmark(
         active_agent_count=int(getattr(current_state.dynamic.active_agent_pool, "alive_count", 0) or 0),
         flow_backend=current_state.config.flow_backend,
         routing_backend=current_state.config.routing_backend,
+        route_path_size_gamma=float(current_state.config.route_path_size_gamma),
         routing_copy_boundary_note=_routing_copy_boundary_note(current_state.config.routing_backend),
         route_candidate_refresh_total=int(metrics_state.get("route_candidate_refresh_total", 0)),
         route_candidate_reuse_total=int(metrics_state.get("route_candidate_reuse_total", 0)),

@@ -262,7 +262,9 @@ def test_simulation_config_exposes_runtime_spine_defaults_and_validates_backends
     assert config.route_max_candidates == 1
     assert config.route_max_hops == 64
     assert config.route_refresh_interval_ticks == 8
+    assert config.route_path_size_gamma == 0.0
     assert SimulationConfig(route_max_candidates=2).route_max_candidates == 2
+    assert SimulationConfig(route_path_size_gamma=1.5).route_path_size_gamma == 1.5
 
     with pytest.raises(ValueError, match="edge_backend"):
         SimulationConfig(edge_backend="bogus")
@@ -272,6 +274,8 @@ def test_simulation_config_exposes_runtime_spine_defaults_and_validates_backends
         SimulationConfig(routing_backend="jax")
     with pytest.raises(ValueError, match="route_max_candidates"):
         SimulationConfig(route_max_candidates=0)
+    with pytest.raises(ValueError, match="route_path_size_gamma"):
+        SimulationConfig(route_path_size_gamma=-0.1)
 
 
 def test_simulation_step_updates_flow_after_events_and_records_runtime_telemetry() -> None:
@@ -614,6 +618,60 @@ def test_active_agent_allocation_records_selected_candidate_metadata() -> None:
     assert memory["selected_candidate_path_size_factor"] == 0.75
 
 
+def test_active_agent_allocation_applies_path_size_correction_when_configured() -> None:
+    from dataclasses import replace
+
+    from metroflow.demand.trips import TripRequestStatus
+    from metroflow.routing.candidates import RouteCandidateSet
+    from metroflow.sim.config import SimulationConfig
+    from metroflow.sim.routing_runtime import (
+        SimulationRouteCacheState,
+        advance_runtime_active_agents,
+    )
+
+    state = _runtime_spine_state()
+    state.config = SimulationConfig(
+        active_agent_capacity=4,
+        route_path_size_gamma=2.0,
+    )
+    activated_trips = tuple(
+        replace(trip, status=TripRequestStatus.ACTIVATED)
+        for trip in state.dynamic.demand_state["trip_requests"]
+    )
+    candidate_set = RouteCandidateSet(
+        od_key=(1, 2),
+        candidate_ids=(7, 8),
+        candidate_paths=((10,), (10, 11)),
+        last_refresh_tick=0,
+        metadata={
+            "candidate_path_costs": (2.0, 3.0),
+            "candidate_path_size_factors": (0.2, 1.0),
+        },
+    )
+    state = state.with_dynamic_updates(
+        demand_state={
+            **state.dynamic.demand_state,
+            "trip_requests": activated_trips,
+            "queued_trip_requests": 0,
+            "pending_trip_requests": 1,
+            "activated_trip_requests": 1,
+        },
+        route_candidate_state=SimulationRouteCacheState(
+            candidate_sets={(1, 2): candidate_set},
+        ),
+    )
+
+    pool, counters, _demand_state, _link_state = advance_runtime_active_agents(state)
+
+    assert pool is not None
+    assert counters["trip_allocated_this_tick"] == 1
+    memory = pool.plugin_memory[0]
+    assert memory["route_path"] == (10, 11)
+    assert memory["selected_candidate_index"] == 1
+    assert memory["selected_candidate_id"] == 8
+    assert memory["selected_candidate_utility"] == pytest.approx(-3.0)
+
+
 def test_runtime_route_refresh_propagates_configured_routing_backend(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -688,6 +746,22 @@ def test_runtime_route_cache_fingerprint_includes_candidate_backend_metadata() -
 
     assert runtime_route_cache_fingerprint(candidate_sets={(1, 2): baseline_set}) != (
         runtime_route_cache_fingerprint(candidate_sets={(1, 2): rust_set})
+    )
+
+
+def test_runtime_replay_boundary_fingerprints_path_size_policy() -> None:
+    from metroflow.sim.config import SimulationConfig
+    from metroflow.sim.replay import make_runtime_replay_boundary
+
+    baseline_state = _runtime_spine_state()
+    corrected_state = _runtime_spine_state()
+    corrected_state.config = SimulationConfig(
+        active_agent_capacity=4,
+        route_path_size_gamma=2.0,
+    )
+
+    assert make_runtime_replay_boundary(baseline_state).config_fingerprint != (
+        make_runtime_replay_boundary(corrected_state).config_fingerprint
     )
 
 

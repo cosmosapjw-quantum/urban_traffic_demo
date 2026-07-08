@@ -23,6 +23,8 @@
 - `route_max_candidates`는 기본값 1을 유지하지만 2 이상을 명시하면 Python baseline이
   dynamic-potential heuristic과 turn restriction을 사용해 결정론적 ranked K 후보 경로를 생성한다.
   candidate set metadata는 각 후보의 baseline path cost와 path-size factor를 함께 기록한다.
+  `route_path_size_gamma` 기본값은 0.0이라 기존 비용 기반 선택을 보존하고, 0보다 크게 설정하면
+  `-cost + gamma * log(path_size)` utility로 중복 경로를 보정한다.
 - 디스플레이 GPU 메모리 여유가 필요하면 실행 전에 `XLA_PYTHON_CLIENT_MEM_FRACTION=.70`처럼 제한한다.
 
 설치/확인:
@@ -75,7 +77,8 @@ dynamic-potential/next-link/greedy 단일 path kernel의 optional accelerator로
 - active-agent spine은 activated trip을 선택된 route candidate의 첫 링크에 배정하고, source link queue에
   차량 1대를 삽입한다. link-to-link 이동은 직전 flow update의 `outflow_vehicles` 정수 예산을
   slot id 순서로 소비한다.
-- agent slot memory는 선택된 candidate id/index/count와 baseline path cost/path-size factor를 보존한다.
+- agent slot memory는 선택된 candidate id/index/count와 baseline path cost/path-size factor,
+  path-size utility를 보존한다.
 - runtime reroute는 incident 또는 route refresh cadence에서만 현재 링크 이후 tail 후보를 검토한다.
   cooldown이 남은 slot은 기존 route tail을 유지하고 cooldown만 감소한다.
 - final-link completion은 아직 coarse residence rule이다. sink connector/discharge model은 다음 slice에서

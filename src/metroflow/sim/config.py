@@ -95,6 +95,7 @@ class SimulationConfig:
     route_max_candidates: int = 1
     route_max_hops: int = 64
     route_refresh_interval_ticks: int = 8
+    route_path_size_gamma: float = 0.0
 
     def __post_init__(self) -> None:
         self.population_target = int(self.population_target)
@@ -109,6 +110,7 @@ class SimulationConfig:
         self.route_max_candidates = int(self.route_max_candidates)
         self.route_max_hops = int(self.route_max_hops)
         self.route_refresh_interval_ticks = int(self.route_refresh_interval_ticks)
+        self.route_path_size_gamma = float(self.route_path_size_gamma)
         self.day_type_set = _coerce_enum_tuple(self.day_type_set, DayType)
         self.time_bands = _coerce_enum_tuple(self.time_bands, TimeBand)
 
@@ -134,6 +136,8 @@ class SimulationConfig:
             raise ValueError("route_max_hops must be >= 1")
         if self.route_refresh_interval_ticks < 1:
             raise ValueError("route_refresh_interval_ticks must be >= 1")
+        if self.route_path_size_gamma < 0.0:
+            raise ValueError("route_path_size_gamma must be >= 0")
         if not self.day_type_set:
             raise ValueError("day_type_set must not be empty")
         if not self.time_bands:

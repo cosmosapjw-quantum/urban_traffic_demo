@@ -22,6 +22,8 @@
   destination, refresh policy를 포함해야 한다
 - `route_max_candidates > 1`은 Python baseline ranked K candidate generator만 사용한다.
   turn restriction, blocked-link mask, max-hop limit을 보존하고 deterministic cost/id tie-break를 유지해야 한다
+- `route_path_size_gamma` 기본값은 0.0이어야 하며, 0보다 큰 값만 path-size logit 보정을 활성화한다.
+  replay boundary와 measured runtime benchmark는 이 값을 보존해야 한다
 
 ## JAX
 - 기본 runtime contract는 NumPy/stdlib host state를 사용한다

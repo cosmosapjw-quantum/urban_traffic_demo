@@ -373,7 +373,11 @@ def test_measured_runtime_benchmark_preserves_rust_routing_copy_boundary_note(
     from metroflow.sim.init import build_initial_simulation_state
 
     bundle = build_initial_simulation_state(
-        config=SimulationConfig(routing_backend="rust_cpu", active_agent_capacity=4),
+        config=SimulationConfig(
+            routing_backend="rust_cpu",
+            active_agent_capacity=4,
+            route_path_size_gamma=2.0,
+        ),
         scenario_seed=2,
         eager_trip_generation=False,
     )
@@ -391,6 +395,7 @@ def test_measured_runtime_benchmark_preserves_rust_routing_copy_boundary_note(
 
     assert isinstance(result, MeasuredRuntimeBenchmarkResult)
     assert result.routing_backend == "rust_cpu"
+    assert result.route_path_size_gamma == 2.0
     assert (
         result.routing_copy_boundary_note
         == "rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, and greedy path"

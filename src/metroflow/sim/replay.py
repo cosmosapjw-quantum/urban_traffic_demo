@@ -351,6 +351,7 @@ def _runtime_config_fingerprint(state: SimulationState) -> str:
         "route_max_candidates": cfg.route_max_candidates,
         "route_max_hops": cfg.route_max_hops,
         "route_refresh_interval_ticks": cfg.route_refresh_interval_ticks,
+        "route_path_size_gamma": cfg.route_path_size_gamma,
     }
     stable_payload = json.dumps(payload, separators=(",", ":"), sort_keys=True)
     return hashlib.sha256(stable_payload.encode("utf-8")).hexdigest()
