@@ -11,18 +11,31 @@
 ## 핵심 모듈
 - core/
   - state, contracts, units, cache, journal
+- city/
+  - RoadNetworkCSR, generator_v2, realism gates, transit-ready schema, zones/POIs
+- flow/
+  - LinkState, NodeState, baseline link/node flow engine, traffic events
+- routing/
+  - dynamic potential, candidate refresh, reroute policy, policy mixer
+- learning/
+  - OD UCB, policy blend, simulator-only experience extraction, adaptive plugin registry
 - map/
-  - generator, lane_grammar, node_compiler
+  - legacy/simple generator facade, lane_grammar, node_compiler
 - demand/
-  - citizens, schedules, trip_generation, accessibility
+  - legacy citizens/schedules/trip_generation, zoning-backed population/trips, accessibility
 - traffic/
-  - meso, routing, incidents
+  - compatibility baseline meso/routing/incidents
 - landuse/
   - evolution
 - policy/
   - archetypes, ema, bandit, optional neural plugin
 - sim/
-  - scheduler, replay, orchestrator
+  - scheduler, replay, orchestrator, state/control/invariant contracts, baseline init/step,
+    runtime route-cache/active-agent spine, run summary, scenario presets
+- ui/
+  - packet envelopes, stream throttling, snapshot source, control adapter, disruption presets, Navigator stream server
+- benchmarks/
+  - benchmark smoke runner and report formatting
 - metrics/
   - observables, benchmarks
 - viz/
@@ -34,3 +47,12 @@
 - 모든 느린 feedback은 lagged
 - cache는 versioned
 - viewer는 core loop를 막지 않음
+- `SimulationState` runtime spine은 event effects, flow update, route candidate refresh,
+  active-agent movement, metrics/replay/UI snapshot을 deterministic 순서로 연결함
+- `WorldState`/`step_world`는 compatibility contract이고, integrated long-run runtime은
+  `sim.step.simulation_step`을 기준으로 확장함
+- 기본 backend contract는 NumPy host arrays이며, accelerator 배열은 core state에 저장하지 않음
+- JAX는 optional `jax` extra의 explicit backend로만 사용하고, Rust CPU backend는 이후 NumPy-compatible FFI 경계 뒤에 추가함
+- `metro/` donor 구현은 루트 Python 3.12/CUDA13/runtime policy로 흡수한다.
+- root runtime은 외부 `metro/` 폴더 삭제 후에도 import/test가 가능해야 한다.
+- optional visual dependencies는 core import를 막으면 안 된다.

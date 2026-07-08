@@ -7,7 +7,16 @@ import json
 from metroflow.core.contracts import TickSchedule, validate_state_contract
 from metroflow.core.journal import InterventionJournal
 from metroflow.core.state import WorldState
+from metroflow.sim.control import SimulationControl, SimulationTelemetry
 from metroflow.sim.orchestrator import step_world
+from metroflow.sim.rng import PRNGKeyArray
+from metroflow.sim.routing_runtime import (
+    coerce_simulation_route_cache_state,
+    runtime_route_cache_fingerprint,
+)
+from metroflow.sim.state import SimulationState
+from metroflow.sim.step import simulation_step
+from metroflow.traffic.meso import EDGE_EVOLUTION_BACKENDS, EdgeEvolutionBackend
 
 
 @dataclass(frozen=True)
@@ -28,6 +37,7 @@ class ReplayBoundary:
     policy_version: int
     journal_length: int
     journal_fingerprint: str
+    edge_backend: EdgeEvolutionBackend = "baseline"
 
 
 @dataclass(frozen=True)
@@ -49,6 +59,7 @@ class ReplayRequest:
     schedule: TickSchedule
     num_steps: int
     step_inputs: tuple[ReplayStepInput, ...]
+    edge_backend: EdgeEvolutionBackend = "baseline"
 
 
 @dataclass(frozen=True)
@@ -61,6 +72,45 @@ class ReplayResultRecord:
     initial_boundary: ReplayBoundary
     final_world: WorldState
     final_traffic_step: int
+    edge_backend: EdgeEvolutionBackend = "baseline"
+
+
+@dataclass(frozen=True)
+class RuntimeReplayBoundary:
+    scenario_id: str
+    random_seed: int
+    initial_tick: int
+    config_fingerprint: str
+    cache_fingerprint: str
+    edge_backend: str = "baseline"
+    flow_backend: str = "baseline"
+    routing_backend: str = "baseline"
+
+
+@dataclass(frozen=True)
+class RuntimeReplayRequest:
+    name: str
+    initial_state: SimulationState
+    declared_boundary: RuntimeReplayBoundary
+    controls: tuple[SimulationControl, ...]
+    rng_key: PRNGKeyArray
+    num_steps: int
+
+
+@dataclass(frozen=True)
+class RuntimeReplayResultRecord:
+    name: str
+    num_steps: int
+    transition_count: int
+    initial_boundary: RuntimeReplayBoundary
+    final_state: SimulationState
+    final_tick: int
+    final_rng_key: PRNGKeyArray
+    telemetry_log: tuple[SimulationTelemetry, ...]
+    cache_fingerprint: str
+    edge_backend: str = "baseline"
+    flow_backend: str = "baseline"
+    routing_backend: str = "baseline"
 
 
 def journal_fingerprint(journal: InterventionJournal) -> str:
@@ -112,8 +162,13 @@ def make_replay_input_signature(
     )
 
 
-def make_replay_boundary(world: WorldState, journal: InterventionJournal) -> ReplayBoundary:
+def make_replay_boundary(
+    world: WorldState,
+    journal: InterventionJournal,
+    edge_backend: EdgeEvolutionBackend = "baseline",
+) -> ReplayBoundary:
     validate_state_contract(world)
+    _validate_replay_edge_backend(edge_backend)
     return ReplayBoundary(
         seed=world.replay.seed,
         initial_traffic_step=world.traffic.step,
@@ -123,6 +178,7 @@ def make_replay_boundary(world: WorldState, journal: InterventionJournal) -> Rep
         policy_version=world.policy.version,
         journal_length=world.replay.journal_length,
         journal_fingerprint=journal_fingerprint(journal),
+        edge_backend=edge_backend,
     )
 
 
@@ -131,6 +187,11 @@ def _validate_replay_name(name: str) -> None:
         raise ValueError("replay request name must be non-empty.")
     if not name.startswith(("replay_", "replay-")):
         raise ValueError("replay request name must carry an explicit replay label.")
+
+
+def _validate_replay_edge_backend(edge_backend: str) -> None:
+    if edge_backend not in EDGE_EVOLUTION_BACKENDS:
+        raise ValueError("edge_backend must be one of: baseline, rust_cpu, jax, auto.")
 
 
 def _validate_replay_boundary(boundary: ReplayBoundary, world: WorldState, journal: InterventionJournal) -> None:
@@ -162,6 +223,9 @@ def _validate_replay_request(request: ReplayRequest) -> None:
         raise ValueError("num_steps must be non-negative.")
     if len(request.step_inputs) != request.num_steps:
         raise ValueError("num_steps must match len(step_inputs).")
+    _validate_replay_edge_backend(request.edge_backend)
+    if request.declared_boundary.edge_backend != request.edge_backend:
+        raise ValueError("declared replay boundary edge_backend must match the replay request.")
     validate_state_contract(request.initial_world)
     _validate_replay_boundary(request.declared_boundary, request.initial_world, request.journal)
 
@@ -178,6 +242,7 @@ def replay_step_world_sequence(request: ReplayRequest) -> ReplayResultRecord:
             edge_outflow_veh_per_tick=step_input.edge_outflow_veh_per_tick,
             edge_free_flow_time_ticks=step_input.edge_free_flow_time_ticks,
             edge_capacity_veh_per_tick=step_input.edge_capacity_veh_per_tick,
+            edge_backend=request.edge_backend,
             zonal_travel_times=step_input.zonal_travel_times,
             zone_opportunities=step_input.zone_opportunities,
         )
@@ -191,4 +256,90 @@ def replay_step_world_sequence(request: ReplayRequest) -> ReplayResultRecord:
         initial_boundary=request.declared_boundary,
         final_world=current_world,
         final_traffic_step=current_world.traffic.step,
+        edge_backend=request.edge_backend,
     )
+
+
+def make_runtime_replay_boundary(state: SimulationState) -> RuntimeReplayBoundary:
+    route_state = coerce_simulation_route_cache_state(state.dynamic.route_candidate_state)
+    return RuntimeReplayBoundary(
+        scenario_id=str(state.static.scenario_id),
+        random_seed=int(state.config.random_seed),
+        initial_tick=int(state.tick_index),
+        config_fingerprint=_runtime_config_fingerprint(state),
+        cache_fingerprint=runtime_route_cache_fingerprint(
+            candidate_sets=route_state.candidate_sets,
+            stats=route_state.stats,
+            state=state,
+        ),
+        edge_backend=state.config.edge_backend,
+        flow_backend=state.config.flow_backend,
+        routing_backend=state.config.routing_backend,
+    )
+
+
+def replay_simulation_sequence(request: RuntimeReplayRequest) -> RuntimeReplayResultRecord:
+    _validate_runtime_replay_request(request)
+
+    current_state = request.initial_state
+    current_key = request.rng_key
+    telemetry_log: list[SimulationTelemetry] = []
+    for control in request.controls:
+        current_state, telemetry, _snapshot, current_key = simulation_step(
+            current_state,
+            control,
+            current_key,
+        )
+        telemetry_log.append(telemetry)
+
+    route_state = coerce_simulation_route_cache_state(current_state.dynamic.route_candidate_state)
+    final_cache_fingerprint = runtime_route_cache_fingerprint(
+        candidate_sets=route_state.candidate_sets,
+        stats=route_state.stats,
+        state=current_state,
+    )
+    return RuntimeReplayResultRecord(
+        name="replay_simulation_sequence",
+        num_steps=request.num_steps,
+        transition_count=request.num_steps,
+        initial_boundary=request.declared_boundary,
+        final_state=current_state,
+        final_tick=current_state.tick_index,
+        final_rng_key=current_key,
+        telemetry_log=tuple(telemetry_log),
+        cache_fingerprint=final_cache_fingerprint,
+        edge_backend=current_state.config.edge_backend,
+        flow_backend=current_state.config.flow_backend,
+        routing_backend=current_state.config.routing_backend,
+    )
+
+
+def _validate_runtime_replay_request(request: RuntimeReplayRequest) -> None:
+    _validate_replay_name(request.name)
+    if request.num_steps < 0:
+        raise ValueError("num_steps must be non-negative.")
+    if len(request.controls) != request.num_steps:
+        raise ValueError("num_steps must match len(controls).")
+    expected = make_runtime_replay_boundary(request.initial_state)
+    if request.declared_boundary != expected:
+        raise ValueError("declared runtime replay boundary must match the initial state.")
+
+
+def _runtime_config_fingerprint(state: SimulationState) -> str:
+    cfg = state.config
+    payload = {
+        "population_target": cfg.population_target,
+        "tick_seconds": cfg.tick_seconds,
+        "active_agent_capacity": cfg.active_agent_capacity,
+        "random_seed": cfg.random_seed,
+        "learning_enabled": cfg.learning_enabled,
+        "ctm_mode_enabled": cfg.ctm_mode_enabled,
+        "edge_backend": cfg.edge_backend,
+        "flow_backend": cfg.flow_backend,
+        "routing_backend": cfg.routing_backend,
+        "route_max_candidates": cfg.route_max_candidates,
+        "route_max_hops": cfg.route_max_hops,
+        "route_refresh_interval_ticks": cfg.route_refresh_interval_ticks,
+    }
+    stable_payload = json.dumps(payload, separators=(",", ":"), sort_keys=True)
+    return hashlib.sha256(stable_payload.encode("utf-8")).hexdigest()

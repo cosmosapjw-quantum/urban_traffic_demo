@@ -37,9 +37,14 @@
 - benchmark 영향?
 
 ## Active Technologies
-- Python 3.11 + Python stdlib dataclasses + pytest; repository deps include `jax` and `jaxlib` but this feature stays in the pure baseline path (002-fast-edge-evolution)
-- Python 3.11 baseline with repository-local execution via `.venv` + Python stdlib dataclasses + pytest (004-multirate-orchestration)
-- Python 3.11 baseline via repository-local `.venv` + Python stdlib dataclasses + pytest (008-routing-runtime-integration)
+- Python 3.12 on Ubuntu 24.04 via repository-local `.venv` + Python stdlib dataclasses + pytest
+- NumPy baseline runtime by default; optional single-GPU JAX CUDA 13 extra for RTX 3080 Ti 12GB
+- Pure baseline path remains the default for deterministic replay and regression gates
 
 ## Recent Changes
 - 002-fast-edge-evolution: Added Python 3.11 + Python stdlib dataclasses + pytest; repository deps include `jax` and `jaxlib` but this feature stays in the pure baseline path
+- 009-gpu-venv-runtime: Updated runtime contract to Python 3.12 + `jax[cuda13]`; added optional JAX fast-edge backend with baseline fallback
+- 010-metro-absorption-foundation: Absorbed donor city/flow/routing/demand/UI/sim contract slices into root; root code must not import from external `metro/`
+- 011-metro-absorption-reporting: Added simulator-only learning experience, run summaries, UI stream server, benchmark smoke runner, scenario presets, and policy plugin registry without `metro/` dependency
+- 012-backend-rearchitecture: Moved JAX outside core contracts; root runtime stores NumPy arrays and keeps JAX as optional accelerator extra
+- 015-runtime-spine: Connected `SimulationState` step to event effects, flow update, route candidate cache, active-agent movement, runtime replay, and measured runtime benchmark

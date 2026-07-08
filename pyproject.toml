@@ -3,20 +3,32 @@ name = "metroflow"
 version = "0.0.2"
 description = "Urban traffic simulator developer docs + starter skeleton"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
-  "jax",
-  "jaxlib",
+  "numpy",
 ]
 
 [project.optional-dependencies]
+jax = [
+  "jax[cuda13]",
+]
 dev = [
+  "maturin",
   "pytest",
   "ruff",
 ]
 
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.ruff]
 line-length = 100
+exclude = ["metro"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src"]

@@ -3,6 +3,7 @@ from dataclasses import replace
 from metroflow.core.state import GraphState, TrafficState, make_empty_world_state
 from metroflow.traffic.routing import (
     CandidatePath,
+    GeneralizedCostWeights,
     ODRouteChoiceResult,
     ODRouteEvaluationRequest,
     ReroutePolicy,
@@ -14,6 +15,7 @@ from metroflow.traffic.routing import (
     path_size_factor,
     should_reroute,
 )
+from metroflow.traffic import routing as routing_module
 
 
 def make_materialized_graph(num_edges: int) -> GraphState:
@@ -40,6 +42,25 @@ def make_routing_world(edge_travel_time: tuple[float, ...]):
     )
 
 
+def make_two_path_world():
+    return replace(
+        make_empty_world_state(seed=7),
+        graph=GraphState(
+            num_nodes=4,
+            num_edges=4,
+            edge_src=(0, 1, 0, 2),
+            edge_dst=(1, 3, 2, 3),
+            edge_class=("road", "road", "road", "road"),
+        ),
+        traffic=TrafficState(
+            step=3,
+            edge_queue=(0.0, 0.0, 0.0, 0.0),
+            edge_stock=(1.0, 1.0, 1.0, 1.0),
+            edge_travel_time=(50.0, 1.0, 1.0, 1.0),
+        ),
+    )
+
+
 def test_path_size_factor_positive():
     ps = path_size_factor((2.0, 3.0), (1, 2))
     assert ps > 0.0
@@ -60,6 +81,38 @@ def test_candidate_path_k_is_deterministic_and_bounded():
 def test_generalized_cost_respects_explicit_weights():
     cost = generalized_cost(10.0, 2.0, event_delay=3.0, turn_penalty=1.0)
     assert cost == 16.0
+
+
+def test_generalized_cost_includes_density_delay_when_weighted():
+    cost = generalized_cost(
+        10.0,
+        2.0,
+        event_delay=3.0,
+        turn_penalty=1.0,
+        density_delay=4.0,
+    )
+
+    assert cost == 16.0
+
+    weighted = generalized_cost(
+        10.0,
+        2.0,
+        event_delay=3.0,
+        turn_penalty=1.0,
+        density_delay=4.0,
+        weights=GeneralizedCostWeights(density_weight=0.5),
+    )
+
+    assert weighted == 18.0
+
+
+def test_generalized_cost_rejects_negative_density_delay():
+    try:
+        generalized_cost(10.0, 2.0, density_delay=-1.0)
+    except ValueError as exc:
+        assert "non-negative" in str(exc)
+    else:
+        raise AssertionError("expected negative density delay to fail")
 
 
 def test_should_reroute_hard_event():
@@ -259,3 +312,44 @@ def test_evaluate_od_route_set_is_deterministic_and_read_only_with_unsorted_cand
     assert first_choice == second_choice
     assert first_choice.path_id == 2
     assert request.world == world
+
+
+def test_dynamic_potential_candidate_prefers_lower_current_travel_time():
+    world = make_two_path_world()
+
+    potential = routing_module.compute_dynamic_potential_state(world, destination_node=3)
+    candidate = routing_module.build_dynamic_potential_candidate(
+        world,
+        origin_node=0,
+        destination_node=3,
+        path_id=10,
+    )
+
+    assert potential.node_cost_to_go[0] == 2.0
+    assert candidate == CandidatePath(path_id=10, edge_ids=(2, 3), path_size=1.0)
+
+
+def test_dynamic_potential_candidate_respects_blocked_edges():
+    world = make_two_path_world()
+
+    candidate = routing_module.build_dynamic_potential_candidate(
+        world,
+        origin_node=0,
+        destination_node=3,
+        blocked_edge_ids=(2,),
+    )
+
+    assert candidate == CandidatePath(path_id=0, edge_ids=(0, 1), path_size=1.0)
+
+
+def test_dynamic_potential_candidate_returns_none_when_unreachable():
+    world = make_two_path_world()
+
+    candidate = routing_module.build_dynamic_potential_candidate(
+        world,
+        origin_node=0,
+        destination_node=3,
+        blocked_edge_ids=(0, 2),
+    )
+
+    assert candidate is None

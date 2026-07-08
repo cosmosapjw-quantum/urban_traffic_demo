@@ -4,12 +4,17 @@ import pytest
 
 import metroflow.metrics.benchmarks as benchmark_module
 from metroflow.core.contracts import TickSchedule
+from metroflow.flow.engine import BaselineFlowUpdateResult
 from metroflow.core.state import TrafficState, make_empty_world_state
+from metroflow.flow.state import create_link_state, create_node_state
 from metroflow.metrics.benchmarks import (
     BenchmarkResult,
+    MeasuredFlowBenchmarkConfig,
+    MeasuredFlowBenchmarkResult,
     MeasuredBenchmarkConfig,
     MeasuredBenchmarkResult,
     run_city_smoke_benchmark,
+    run_measured_flow_update_benchmark,
     run_measured_step_world_benchmark,
 )
 
@@ -26,6 +31,7 @@ def make_measured_config() -> MeasuredBenchmarkConfig:
         workload_name="baseline-fast",
         num_steps=3,
         schedule=TickSchedule(fast_every=1, medium_every=10, slow_every=100),
+        edge_backend="baseline",
     )
 
 
@@ -87,7 +93,12 @@ def test_identical_workload_shape_produces_valid_measured_result_records():
 
 
 def test_measured_benchmark_metadata_fields_are_populated_and_typed():
-    config = make_measured_config()
+    config = MeasuredBenchmarkConfig(
+        workload_name="jax-fast",
+        num_steps=3,
+        schedule=TickSchedule(fast_every=1, medium_every=10, slow_every=100),
+        edge_backend="jax",
+    )
     result = run_measured_step_world_benchmark(make_measured_world(), config)
 
     assert isinstance(result.name, str)
@@ -100,6 +111,21 @@ def test_measured_benchmark_metadata_fields_are_populated_and_typed():
     assert isinstance(result.schedule, TickSchedule)
     assert isinstance(result.edge_count, int)
     assert isinstance(result.zone_count, int)
+    assert result.edge_backend == "jax"
+    assert result.initial_traffic_step == 1
+    assert result.final_traffic_step == 4
+
+
+def test_measured_benchmark_preserves_rust_cpu_edge_backend_metadata():
+    config = MeasuredBenchmarkConfig(
+        workload_name="rust-cpu-fast",
+        num_steps=3,
+        schedule=TickSchedule(fast_every=1, medium_every=10, slow_every=100),
+        edge_backend="rust_cpu",
+    )
+    result = run_measured_step_world_benchmark(make_measured_world(), config)
+
+    assert result.edge_backend == "rust_cpu"
     assert result.initial_traffic_step == 1
     assert result.final_traffic_step == 4
 
@@ -128,12 +154,18 @@ def test_measured_benchmark_times_execution_loop_only(monkeypatch):
 
     def fake_step_world(world, **kwargs):
         events.append(("step", world.traffic.step, kwargs["schedule"]))
+        assert kwargs["edge_backend"] == "jax"
         return replace(world, traffic=replace(world.traffic, step=world.traffic.step + 1))
 
     monkeypatch.setattr(benchmark_module, "perf_counter_ns", fake_perf_counter_ns)
     monkeypatch.setattr(benchmark_module, "step_world", fake_step_world)
 
-    config = make_measured_config()
+    config = MeasuredBenchmarkConfig(
+        workload_name="jax-fast",
+        num_steps=3,
+        schedule=TickSchedule(fast_every=1, medium_every=10, slow_every=100),
+        edge_backend="jax",
+    )
     result = run_measured_step_world_benchmark(make_measured_world(), config)
 
     assert result.wall_clock_ns == 60
@@ -180,3 +212,35 @@ def test_measured_benchmark_continues_to_target_step_world_not_runtime_routing_w
 
     assert calls == [1, 2, 3]
     assert result.final_traffic_step == 4
+
+
+def test_measured_flow_update_benchmark_preserves_rust_cpu_backend_metadata(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    calls: list[str] = []
+    link_state = create_link_state(2, travel_time_cost=(5.0, 6.0), capacity_veh_per_tick=(1.0, 2.0))
+    node_state = create_node_state((0,), (1,), node_count=2)
+
+    def fake_update(link_state_arg, node_state_arg, **kwargs):
+        calls.append(kwargs["flow_backend"])
+        return BaselineFlowUpdateResult(
+            link_state=link_state_arg,
+            node_state=node_state_arg,
+        )
+
+    monkeypatch.setattr(benchmark_module, "update_link_node_flow", fake_update)
+
+    config = MeasuredFlowBenchmarkConfig(
+        workload_name="rust-flow-core",
+        num_steps=2,
+        flow_backend="rust_cpu",
+    )
+    result = run_measured_flow_update_benchmark(link_state, node_state, config)
+
+    assert isinstance(result, MeasuredFlowBenchmarkResult)
+    assert result.name == "measured_flow_update"
+    assert result.flow_backend == "rust_cpu"
+    assert result.link_count == 2
+    assert result.turn_count == 1
+    assert result.copy_boundary_note == "rust_cpu Vec copy boundary"
+    assert calls == ["rust_cpu", "rust_cpu"]

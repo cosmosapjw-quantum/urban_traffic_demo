@@ -9,7 +9,7 @@ from metroflow.landuse.evolution import (
     reduce_zonal_costs_to_lagged_accessibility,
 )
 from metroflow.sim.scheduler import scheduler_decision
-from metroflow.traffic.meso import evolve_edges_fast_tick
+from metroflow.traffic.meso import EdgeEvolutionBackend, evolve_edges_fast_tick
 from metroflow.traffic.routing import (
     CandidatePath,
     GeneralizedCostWeights,
@@ -27,6 +27,21 @@ class RuntimeRoutingInput:
     candidates: tuple[CandidatePath, ...] | None = None
     k: int | None = None
     weights: GeneralizedCostWeights | None = None
+
+
+@dataclass(frozen=True)
+class FastTickInput:
+    edge_inflow_veh_per_tick: tuple[float, ...] | None = None
+    edge_outflow_veh_per_tick: tuple[float, ...] | None = None
+    edge_free_flow_time_ticks: tuple[float, ...] | None = None
+    edge_capacity_veh_per_tick: tuple[float, ...] | None = None
+    edge_backend: EdgeEvolutionBackend = "baseline"
+
+
+@dataclass(frozen=True)
+class MediumTickInput:
+    zonal_travel_times: tuple[tuple[float, ...], ...] | None = None
+    zone_opportunities: tuple[float, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -95,6 +110,28 @@ def _validate_runtime_routing_input(
     validate_od_route_request(request)
 
 
+def step_world_from_inputs(
+    world: WorldState,
+    *,
+    schedule: TickSchedule | None = None,
+    fast_tick: FastTickInput | None = None,
+    medium_tick: MediumTickInput | None = None,
+) -> WorldState:
+    fast = fast_tick or FastTickInput()
+    medium = medium_tick or MediumTickInput()
+    return step_world(
+        world,
+        schedule=schedule,
+        edge_inflow_veh_per_tick=fast.edge_inflow_veh_per_tick,
+        edge_outflow_veh_per_tick=fast.edge_outflow_veh_per_tick,
+        edge_free_flow_time_ticks=fast.edge_free_flow_time_ticks,
+        edge_capacity_veh_per_tick=fast.edge_capacity_veh_per_tick,
+        edge_backend=fast.edge_backend,
+        zonal_travel_times=medium.zonal_travel_times,
+        zone_opportunities=medium.zone_opportunities,
+    )
+
+
 def step_world(
     world: WorldState,
     schedule: TickSchedule | None = None,
@@ -102,6 +139,7 @@ def step_world(
     edge_outflow_veh_per_tick: tuple[float, ...] | None = None,
     edge_free_flow_time_ticks: tuple[float, ...] | None = None,
     edge_capacity_veh_per_tick: tuple[float, ...] | None = None,
+    edge_backend: EdgeEvolutionBackend = "baseline",
     zonal_travel_times: tuple[tuple[float, ...], ...] | None = None,
     zone_opportunities: tuple[float, ...] | None = None,
 ) -> WorldState:
@@ -141,6 +179,7 @@ def step_world(
             edge_outflow_veh_per_tick=edge_outflow_veh_per_tick,
             edge_free_flow_time_ticks=edge_free_flow_time_ticks,
             edge_capacity_veh_per_tick=edge_capacity_veh_per_tick,
+            edge_backend=edge_backend,
         )
     if decision.run_slow:
         lagged_accessibility = reduce_zonal_costs_to_lagged_accessibility(pre_call_accessibility.zonal_costs)
@@ -182,6 +221,7 @@ def step_world_with_routing(
     edge_outflow_veh_per_tick: tuple[float, ...] | None = None,
     edge_free_flow_time_ticks: tuple[float, ...] | None = None,
     edge_capacity_veh_per_tick: tuple[float, ...] | None = None,
+    edge_backend: EdgeEvolutionBackend = "baseline",
     zonal_travel_times: tuple[tuple[float, ...], ...] | None = None,
     zone_opportunities: tuple[float, ...] | None = None,
     runtime_routing: RuntimeRoutingInput | None = None,
@@ -200,6 +240,7 @@ def step_world_with_routing(
         edge_outflow_veh_per_tick=edge_outflow_veh_per_tick,
         edge_free_flow_time_ticks=edge_free_flow_time_ticks,
         edge_capacity_veh_per_tick=edge_capacity_veh_per_tick,
+        edge_backend=edge_backend,
         zonal_travel_times=zonal_travel_times,
         zone_opportunities=zone_opportunities,
     )

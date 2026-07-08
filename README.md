@@ -8,6 +8,74 @@
 4. `src/metroflow/` 코드 스켈레톤
 5. 최소 테스트/벤치 스켈레톤
 
+## 로컬 Python / GPU 기준
+- Ubuntu 24.04 기본 Python 3.12를 기준으로 한다.
+- repo-local `.venv`를 사용한다.
+- 기본 설치는 NumPy baseline만 요구한다.
+- NVIDIA RTX 3080 Ti 12GB는 optional `jax` extra로 단일 GPU CUDA 13 경로를 선택적으로 사용한다.
+- core loop 기본값은 항상 baseline이며, JAX/CUDA 경로는 명시적으로 요청한 경우에만 사용한다.
+- `edge_backend="rust_cpu"`와 `edge_backend="jax"`는 실패 시 예외를 내고,
+  `edge_backend="auto"`만 `rust_cpu` → `jax` → `baseline` 순서의 fallback을 허용한다.
+- `SimulationConfig`의 runtime backend 기본값은 `edge_backend="baseline"`,
+  `flow_backend="baseline"`, `routing_backend="baseline"`이다. 현재 routing backend는
+  baseline만 구현되어 있으며, explicit `routing_backend="rust_cpu"`는 fail-closed이다.
+- 디스플레이 GPU 메모리 여유가 필요하면 실행 전에 `XLA_PYTHON_CLIENT_MEM_FRACTION=.70`처럼 제한한다.
+
+설치/확인:
+
+```bash
+python3.12 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -e ".[dev]"
+.venv/bin/python -m pytest -q
+```
+
+선택 JAX/CUDA 경로 확인:
+
+```bash
+.venv/bin/python -m pip install -e ".[dev,jax]"
+XLA_PYTHON_CLIENT_MEM_FRACTION=.70 .venv/bin/python -c "import jax; print(jax.default_backend()); print(jax.devices())"
+XLA_PYTHON_CLIENT_MEM_FRACTION=.70 .venv/bin/python -m pytest tests/test_meso_core.py::test_evolve_edges_fast_tick_jax_backend_matches_baseline_output -q
+```
+
+선택 Rust CPU edge backend 빌드/확인:
+
+```bash
+.venv/bin/python -m maturin develop --manifest-path crates/metroflow-rust/Cargo.toml
+.venv/bin/python -m pytest tests/test_meso_core.py::test_evolve_edges_fast_tick_rust_backend_matches_baseline_output -q
+.venv/bin/python -m pytest tests/test_flow_engine_rust_backend.py::test_rust_flow_backend_matches_baseline_output -q
+```
+
+현재 Rust CPU backend는 `traffic.meso` edge batch evolution과 `flow.engine` baseline flow array
+core만 담당한다. Python wrapper가 NumPy-compatible 입력을 edge는 `Vec<f64>`, flow는 `Vec<f32>` /
+`Vec<i32>` / `Vec<bool>`로 복사한 뒤 Rust 확장 `_metroflow_rust`를 호출한다. `flow_backend="rust_cpu"`
+는 실패 시 예외를 내고, `flow_backend="auto"`만 `rust_cpu` → `baseline` fallback을 허용한다.
+
+## 외부 `metro/` 구현 비교 반영
+- `metro/` 폴더는 v1 목적에 가까운 donor 구현으로 취급한다.
+- 현재 루트의 실행 기준은 Ubuntu 24.04 + Python 3.12 + RTX 3080 Ti CUDA 13이다.
+- `metro/` 코드는 루트 runtime policy, deterministic replay, baseline fallback을 유지하는 단위로 흡수한다.
+- root `src/metroflow/`와 `tests/`는 외부 `metro/` 폴더 없이 import/test가 가능해야 한다.
+- 1차 반영 대상은 deterministic city backbone 생성, baseline dynamic-potential routing,
+  RoadNetworkCSR, link/node flow state, active-agent pool, OD-UCB/policy blend, generator_v2 preview/gate contract이다.
+- 추가 흡수된 foundation slice는 zoning/POI placement, deterministic citizen/trip demand,
+  UI packet/stream-buffer contracts, simulation state/control/invariant contracts, UI snapshot/control/preset adapters이다.
+- baseline `sim.init.build_initial_simulation_state`와 `sim.step.simulation_step`은 donor 의존성 없이
+  city→demand→event effects→flow→route candidate cache→active agents→invariant→UI snapshot의
+  deterministic runtime spine을 제공한다.
+- reporting/experiment 표면으로 simulator-only learning experience, run summary comparison,
+  Navigator UI stream packetization, benchmark smoke runner, scenario presets, adaptive policy plugin registry를 흡수했다.
+- `SimulationState` runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`를 사용한다.
+  replay boundary는 backend config와 route-cache fingerprint를 기록한다.
+- integrated runtime benchmark는 `run_measured_runtime_spine_benchmark`를 사용하며 flow/routing backend와
+  route candidate/dynamic-potential cache counters를 결과에 보존한다.
+- review visualization은 `run_runtime_diagnostic_rollout`와 `write_runtime_diagnostic_html`로 생성한다.
+  산출물은 static HTML/SVG이며 smoke diagnostic으로만 해석한다.
+- `step_world`의 긴 인자 목록은 호환용으로 유지하고, 신규 호출자는 `step_world_from_inputs`와
+  `FastTickInput`/`MediumTickInput`을 우선 사용한다.
+- 새 이식 코드는 baseline fallback, immutable `WorldState`, explicit units, deterministic replay 요구를 유지해야 한다.
+- visual/render dependencies는 optional이어야 하며, core import를 막으면 안 된다.
+
 ## 핵심 구현 순서
 - 먼저 S2:
   - WorldState

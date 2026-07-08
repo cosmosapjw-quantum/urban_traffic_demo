@@ -286,6 +286,70 @@ def test_replay_continues_to_target_step_world_not_runtime_routing_wrapper(monke
     assert result.final_traffic_step == 3
 
 
+def test_replay_boundary_and_result_record_edge_backend():
+    world = make_materialized_world(seed=21, step=1, num_edges=1)
+    journal = InterventionJournal()
+    boundary = make_replay_boundary(world, journal, edge_backend="jax")
+
+    result = replay_step_world_sequence(
+        ReplayRequest(
+            name="replay_jax_edge_backend",
+            initial_world=world,
+            declared_boundary=boundary,
+            journal=journal,
+            schedule=TickSchedule(fast_every=1, medium_every=10, slow_every=100),
+            num_steps=1,
+            step_inputs=(ReplayStepInput(),),
+            edge_backend="jax",
+        )
+    )
+
+    assert result.initial_boundary.edge_backend == "jax"
+    assert result.edge_backend == "jax"
+
+
+def test_replay_boundary_and_result_record_preserve_rust_cpu_edge_backend():
+    world = replace(make_empty_world_state(seed=21), traffic=TrafficState(step=1))
+    journal = InterventionJournal()
+    boundary = make_replay_boundary(world, journal, edge_backend="rust_cpu")
+
+    result = replay_step_world_sequence(
+        ReplayRequest(
+            name="replay_rust_cpu_edge_backend",
+            initial_world=world,
+            declared_boundary=boundary,
+            journal=journal,
+            schedule=TickSchedule(fast_every=1, medium_every=10, slow_every=100),
+            num_steps=1,
+            step_inputs=(ReplayStepInput(),),
+            edge_backend="rust_cpu",
+        )
+    )
+
+    assert result.initial_boundary.edge_backend == "rust_cpu"
+    assert result.edge_backend == "rust_cpu"
+
+
+def test_replay_rejects_edge_backend_boundary_mismatch():
+    world = make_materialized_world(seed=21, step=1, num_edges=1)
+    journal = InterventionJournal()
+    boundary = make_replay_boundary(world, journal, edge_backend="baseline")
+
+    with pytest.raises(ValueError, match="edge_backend"):
+        replay_step_world_sequence(
+            ReplayRequest(
+                name="replay_backend_mismatch",
+                initial_world=world,
+                declared_boundary=boundary,
+                journal=journal,
+                schedule=TickSchedule(fast_every=1, medium_every=10, slow_every=100),
+                num_steps=1,
+                step_inputs=(ReplayStepInput(),),
+                edge_backend="jax",
+            )
+        )
+
+
 def test_replay_is_order_sensitive_through_journal_fingerprint():
     world = make_materialized_world(num_edges=1, step=1, seed=8, journal_length=2)
     schedule = TickSchedule()

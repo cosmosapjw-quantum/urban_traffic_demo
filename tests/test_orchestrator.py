@@ -13,6 +13,7 @@ from metroflow.core.state import (
     make_empty_world_state,
 )
 from metroflow.sim.orchestrator import RuntimeRoutingInput, RuntimeRoutingStepResult, step_world, step_world_with_routing
+from metroflow.sim import orchestrator as orchestrator_module
 from metroflow.traffic.routing import CandidatePath, ODRouteChoiceResult
 
 
@@ -70,6 +71,27 @@ def test_step_world_executes_fast_tick_edge_evolution_with_overrides():
     assert world2.traffic.edge_travel_time == (5.5, 6.0625)
 
 
+def test_step_world_from_inputs_accepts_structured_fast_tick_input():
+    world = make_world(step=1)
+    schedule = TickSchedule(fast_every=1, medium_every=5, slow_every=20)
+
+    world2 = orchestrator_module.step_world_from_inputs(
+        world,
+        schedule=schedule,
+        fast_tick=orchestrator_module.FastTickInput(
+            edge_inflow_veh_per_tick=(2.0, 0.5),
+            edge_outflow_veh_per_tick=(1.0, 0.25),
+            edge_free_flow_time_ticks=(5.0, 6.0),
+            edge_capacity_veh_per_tick=(2.0, 4.0),
+        ),
+    )
+
+    assert world2.traffic.step == 2
+    assert world2.traffic.edge_queue == (1.0, 0.25)
+    assert world2.traffic.edge_stock == (2.0, 1.25)
+    assert world2.traffic.edge_travel_time == (5.5, 6.0625)
+
+
 def test_step_world_passes_optional_edge_inputs_to_helper(monkeypatch: pytest.MonkeyPatch):
     world = make_world(step=1)
     schedule = TickSchedule()
@@ -89,6 +111,7 @@ def test_step_world_passes_optional_edge_inputs_to_helper(monkeypatch: pytest.Mo
         edge_outflow_veh_per_tick=(0.5, 0.25),
         edge_free_flow_time_ticks=(3.0, 4.0),
         edge_capacity_veh_per_tick=(5.0, 6.0),
+        edge_backend="jax",
     )
 
     assert result is world
@@ -98,6 +121,7 @@ def test_step_world_passes_optional_edge_inputs_to_helper(monkeypatch: pytest.Mo
         "edge_outflow_veh_per_tick": (0.5, 0.25),
         "edge_free_flow_time_ticks": (3.0, 4.0),
         "edge_capacity_veh_per_tick": (5.0, 6.0),
+        "edge_backend": "jax",
     }
 
 

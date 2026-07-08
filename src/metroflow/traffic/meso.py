@@ -1,7 +1,12 @@
 from dataclasses import dataclass, replace
-from typing import Optional, Tuple
+from functools import lru_cache
+from typing import Literal, Optional, Tuple
 
+from metroflow.backends.rust_cpu import evolve_edges_fast_tick_rust
 from metroflow.core.state import WorldState
+
+EdgeEvolutionBackend = Literal["baseline", "rust_cpu", "jax", "auto"]
+EDGE_EVOLUTION_BACKENDS = ("baseline", "rust_cpu", "jax", "auto")
 
 
 @dataclass(frozen=True)
@@ -61,13 +66,113 @@ def _normalize_edge_values(
     return values
 
 
+def _validate_edge_backend(edge_backend: str) -> None:
+    if edge_backend not in EDGE_EVOLUTION_BACKENDS:
+        raise ValueError("edge_backend must be one of: baseline, rust_cpu, jax, auto.")
+
+
+def _validate_edge_batch_for_accelerator(
+    queue: Tuple[float, ...],
+    stock: Tuple[float, ...],
+    inflow: Tuple[float, ...],
+    outflow: Tuple[float, ...],
+    free_flow: Tuple[float, ...],
+    capacity: Tuple[float, ...],
+) -> None:
+    if any(value < 0.0 for value in queue):
+        raise ValueError("queue must be non-negative")
+    if any(value < 0.0 for value in stock):
+        raise ValueError("stock must be non-negative")
+    if any(q > s for q, s in zip(queue, stock)):
+        raise ValueError("queue must not exceed stock")
+    if any(value < 0.0 for value in inflow):
+        raise ValueError("inflow must be non-negative")
+    if any(value < 0.0 for value in outflow):
+        raise ValueError("outflow must be non-negative")
+    if any(value < 0.0 for value in free_flow):
+        raise ValueError("free_flow_time must be non-negative")
+    if any(value < 0.0 for value in capacity):
+        raise ValueError("capacity must be non-negative")
+
+
+@lru_cache(maxsize=1)
+def _compiled_jax_edge_kernel():
+    import jax
+    import jax.numpy as jnp
+
+    jax.config.update("jax_enable_x64", True)
+
+    def kernel(queue, stock, inflow, outflow, free_flow, capacity):
+        available_mass = stock + inflow
+        feasible_outflow = jnp.where(
+            capacity <= 0.0,
+            0.0,
+            jnp.minimum(jnp.minimum(outflow, available_mass), capacity),
+        )
+        next_stock = available_mass - feasible_outflow
+        queued_mass = queue + jnp.maximum(inflow - feasible_outflow, 0.0)
+        next_queue = jnp.minimum(jnp.maximum(queued_mass, 0.0), next_stock)
+        next_travel_time = free_flow + next_queue / jnp.maximum(capacity, 1e-6)
+        return next_queue, next_stock, next_travel_time
+
+    return jax.jit(kernel)
+
+
+def _evolve_edges_fast_tick_jax(
+    queue: Tuple[float, ...],
+    stock: Tuple[float, ...],
+    inflow: Tuple[float, ...],
+    outflow: Tuple[float, ...],
+    free_flow: Tuple[float, ...],
+    capacity: Tuple[float, ...],
+) -> tuple[Tuple[float, ...], Tuple[float, ...], Tuple[float, ...]]:
+    _validate_edge_batch_for_accelerator(queue, stock, inflow, outflow, free_flow, capacity)
+    try:
+        import jax.numpy as jnp
+
+        kernel = _compiled_jax_edge_kernel()
+        next_queue, next_stock, next_travel_time = kernel(
+            jnp.asarray(queue),
+            jnp.asarray(stock),
+            jnp.asarray(inflow),
+            jnp.asarray(outflow),
+            jnp.asarray(free_flow),
+            jnp.asarray(capacity),
+        )
+        return (
+            tuple(float(value) for value in next_queue.tolist()),
+            tuple(float(value) for value in next_stock.tolist()),
+            tuple(float(value) for value in next_travel_time.tolist()),
+        )
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "JAX edge backend unavailable. Install metroflow[jax] to use edge_backend='jax'."
+        ) from exc
+    except Exception as exc:
+        raise RuntimeError("JAX edge backend failed.") from exc
+
+
+def _evolve_edges_fast_tick_rust(
+    queue: Tuple[float, ...],
+    stock: Tuple[float, ...],
+    inflow: Tuple[float, ...],
+    outflow: Tuple[float, ...],
+    free_flow: Tuple[float, ...],
+    capacity: Tuple[float, ...],
+) -> tuple[Tuple[float, ...], Tuple[float, ...], Tuple[float, ...]]:
+    _validate_edge_batch_for_accelerator(queue, stock, inflow, outflow, free_flow, capacity)
+    return evolve_edges_fast_tick_rust(queue, stock, inflow, outflow, free_flow, capacity)
+
+
 def evolve_edges_fast_tick(
     world: WorldState,
     edge_inflow_veh_per_tick: Optional[Tuple[float, ...]] = None,
     edge_outflow_veh_per_tick: Optional[Tuple[float, ...]] = None,
     edge_free_flow_time_ticks: Optional[Tuple[float, ...]] = None,
     edge_capacity_veh_per_tick: Optional[Tuple[float, ...]] = None,
+    edge_backend: EdgeEvolutionBackend = "baseline",
 ) -> WorldState:
+    _validate_edge_backend(edge_backend)
     num_edges = world.graph.num_edges
     next_step = world.traffic.step + 1
 
@@ -86,30 +191,65 @@ def evolve_edges_fast_tick(
     free_flow = _normalize_edge_values(edge_free_flow_time_ticks, num_edges, 1.0, "edge_free_flow_time_ticks")
     capacity = _normalize_edge_values(edge_capacity_veh_per_tick, num_edges, 1.0, "edge_capacity_veh_per_tick")
 
-    next_queue = []
-    next_stock = []
-    next_travel_time = []
-    for edge_idx in range(num_edges):
-        edge_state = update_edge_state(
-            queue=world.traffic.edge_queue[edge_idx],
-            stock=world.traffic.edge_stock[edge_idx],
-            inflow=inflow[edge_idx],
-            outflow=outflow[edge_idx],
-            free_flow_time=free_flow[edge_idx],
-            capacity=capacity[edge_idx],
-        )
-        next_queue.append(edge_state.queue)
-        next_stock.append(edge_state.stock)
-        next_travel_time.append(edge_state.travel_time)
+    accelerated = None
+    if edge_backend in {"rust_cpu", "auto"}:
+        try:
+            accelerated = _evolve_edges_fast_tick_rust(
+                world.traffic.edge_queue,
+                world.traffic.edge_stock,
+                inflow,
+                outflow,
+                free_flow,
+                capacity,
+            )
+        except RuntimeError:
+            if edge_backend == "rust_cpu":
+                raise
+
+    if accelerated is None and edge_backend in {"jax", "auto"}:
+        try:
+            accelerated = _evolve_edges_fast_tick_jax(
+                world.traffic.edge_queue,
+                world.traffic.edge_stock,
+                inflow,
+                outflow,
+                free_flow,
+                capacity,
+            )
+        except RuntimeError:
+            if edge_backend == "jax":
+                raise
+
+    if accelerated is None:
+        next_queue = []
+        next_stock = []
+        next_travel_time = []
+        for edge_idx in range(num_edges):
+            edge_state = update_edge_state(
+                queue=world.traffic.edge_queue[edge_idx],
+                stock=world.traffic.edge_stock[edge_idx],
+                inflow=inflow[edge_idx],
+                outflow=outflow[edge_idx],
+                free_flow_time=free_flow[edge_idx],
+                capacity=capacity[edge_idx],
+            )
+            next_queue.append(edge_state.queue)
+            next_stock.append(edge_state.stock)
+            next_travel_time.append(edge_state.travel_time)
+        next_queue_values = tuple(next_queue)
+        next_stock_values = tuple(next_stock)
+        next_travel_time_values = tuple(next_travel_time)
+    else:
+        next_queue_values, next_stock_values, next_travel_time_values = accelerated
 
     return replace(
         world,
         traffic=replace(
             world.traffic,
             step=next_step,
-            edge_queue=tuple(next_queue),
-            edge_stock=tuple(next_stock),
-            edge_travel_time=tuple(next_travel_time),
+            edge_queue=next_queue_values,
+            edge_stock=next_stock_values,
+            edge_travel_time=next_travel_time_values,
         ),
     )
 
@@ -119,7 +259,9 @@ def project_feasible_movements(
     receiving: Tuple[float, ...],
     movement_cap: Tuple[float, ...],
 ) -> Tuple[float, ...]:
-    n = min(len(sending), len(receiving), len(movement_cap))
+    if not (len(sending) == len(receiving) == len(movement_cap)):
+        raise ValueError("movement arrays must have matching lengths.")
+    n = len(sending)
     out = []
     for i in range(n):
         out.append(max(min(sending[i], receiving[i], movement_cap[i]), 0.0))
