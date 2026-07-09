@@ -204,6 +204,265 @@ def test_hardware_atlas_aggregates_runtime_suite_stage_timings(tmp_path) -> None
     ]
 
 
+def test_hardware_atlas_links_workload_matrix_to_decision_cards(tmp_path) -> None:
+    from metroflow.benchmarks.hardware_atlas import build_hardware_atlas
+
+    report = build_hardware_atlas(
+        source_root=_write_fixture_source(tmp_path),
+        runtime_suite_payload={
+            "workload_matrix": [
+                {
+                    "workload_class": "dense_flow_turn_batch",
+                    "label": "Dense flow/turn batch",
+                    "stage_group": "flow_update",
+                    "hardware_lanes": ["numpy_simd", "rust_cpu", "jax_gpu_optional"],
+                    "enabled": False,
+                    "coverage_state": "requires_dedicated_probe",
+                    "parameters": {"requires_dedicated_probe": True},
+                    "decision_state": "diagnostic",
+                },
+                {
+                    "workload_class": "generated_od_routing",
+                    "label": "Generated OD routing",
+                    "stage_group": "dynamic_potential_recompute",
+                    "hardware_lanes": ["python_orchestration", "rust_cpu", "nn_surrogate"],
+                    "enabled": True,
+                    "coverage_state": "measured_in_suite",
+                    "parameters": {
+                        "observed_run_count": 3,
+                        "route_candidate_refresh_total": 7,
+                    },
+                    "decision_state": "diagnostic",
+                },
+            ],
+            "per_seed_results": [
+                {
+                    "seed": 41,
+                    "runtime_stage_timings": [
+                        {
+                            "stage_name": "flow_update",
+                            "wall_clock_ns": 100,
+                            "wall_time_share": 0.20,
+                            "gpu_candidate": False,
+                        },
+                        {
+                            "stage_name": "dynamic_potential_recompute",
+                            "wall_clock_ns": 400,
+                            "wall_time_share": 0.50,
+                            "gpu_candidate": True,
+                        },
+                    ],
+                }
+            ],
+        },
+    )
+    links = {link["target"]: link for link in report["decision_workload_links"]}
+    summaries = {item["target"]: item for item in report["next_probe_summaries"]}
+
+    assert links["flow_update"]["workload_classes"] == ["dense_flow_turn_batch"]
+    assert links["flow_update"]["coverage_states"] == ["requires_dedicated_probe"]
+    assert links["flow_update"]["hardware_lanes"] == [
+        "numpy_simd",
+        "rust_cpu",
+        "jax_gpu_optional",
+    ]
+    assert links["flow_update"]["measured_workload_classes"] == []
+    assert links["flow_update"]["required_probe_workload_classes"] == [
+        "dense_flow_turn_batch"
+    ]
+    assert links["dynamic_potential_recompute"]["measured_workload_classes"] == [
+        "generated_od_routing"
+    ]
+    assert summaries["flow_update"]["decision_effect"] == "blocks_backend_implementation"
+    assert "dense flow" in summaries["flow_update"]["next_probe"].lower()
+    assert summaries["dynamic_potential_recompute"]["decision_effect"] == (
+        "supports_decision_card_review"
+    )
+
+
+def test_hardware_atlas_deduplicates_decision_workload_links(tmp_path) -> None:
+    from metroflow.benchmarks.hardware_atlas import build_hardware_atlas
+
+    report = build_hardware_atlas(
+        source_root=_write_fixture_source(tmp_path),
+        runtime_suite_payload={
+            "workload_matrix": [
+                {
+                    "workload_class": "dense_flow_turn_batch",
+                    "label": "Dense flow/turn batch",
+                    "stage_group": "flow_update",
+                    "hardware_lanes": ["numpy_simd"],
+                    "enabled": False,
+                    "coverage_state": "requires_dedicated_probe",
+                    "parameters": {},
+                    "decision_state": "diagnostic",
+                }
+            ],
+            "per_seed_results": [
+                {
+                    "seed": 41,
+                    "runtime_stage_timings": [
+                        {
+                            "stage_name": "flow_update",
+                            "wall_clock_ns": 100,
+                            "wall_time_share": 0.20,
+                            "gpu_candidate": False,
+                        },
+                        {
+                            "stage_name": "flow_update",
+                            "wall_clock_ns": 300,
+                            "wall_time_share": 0.40,
+                            "gpu_candidate": True,
+                        },
+                    ],
+                }
+            ],
+        },
+    )
+
+    targets = [link["target"] for link in report["decision_workload_links"]]
+
+    assert targets == ["flow_update"]
+    assert len(report["next_probe_summaries"]) == 1
+    assert [card["target"] for card in report["decision_cards"]] == ["flow_update"]
+
+
+def test_hardware_atlas_accepts_dataclass_workload_matrix_entries(tmp_path) -> None:
+    from metroflow.benchmarks.hardware_atlas import build_hardware_atlas
+    from metroflow.metrics.benchmarks import BenchmarkWorkloadMatrixEntry
+
+    report = build_hardware_atlas(
+        source_root=_write_fixture_source(tmp_path),
+        runtime_suite_payload={
+            "workload_matrix": [
+                BenchmarkWorkloadMatrixEntry(
+                    workload_class="dense_flow_turn_batch",
+                    label="Dense flow/turn batch",
+                    stage_group="flow_update",
+                    hardware_lanes=("numpy_simd", "rust_cpu", "jax_gpu_optional"),
+                    enabled=False,
+                    coverage_state="requires_dedicated_probe",
+                    parameters={"requires_dedicated_probe": True},
+                )
+            ],
+            "per_seed_results": [
+                {
+                    "seed": 41,
+                    "runtime_stage_timings": [
+                        {
+                            "stage_name": "flow_update",
+                            "wall_clock_ns": 100,
+                            "wall_time_share": 0.20,
+                            "gpu_candidate": False,
+                        }
+                    ],
+                }
+            ],
+        },
+    )
+
+    assert report["workload_matrix"][0]["workload_class"] == "dense_flow_turn_batch"
+    assert report["decision_workload_links"][0]["workload_classes"] == [
+        "dense_flow_turn_batch"
+    ]
+
+
+def test_hardware_atlas_marks_mixed_workload_coverage_as_partial(tmp_path) -> None:
+    from metroflow.benchmarks.hardware_atlas import build_hardware_atlas
+
+    report = build_hardware_atlas(
+        source_root=_write_fixture_source(tmp_path),
+        runtime_suite_payload={
+            "workload_matrix": [
+                {
+                    "workload_class": "observed_flow_smoke",
+                    "label": "Observed flow smoke",
+                    "stage_group": "flow_update",
+                    "hardware_lanes": ["numpy_simd"],
+                    "enabled": True,
+                    "coverage_state": "measured_in_suite",
+                    "parameters": {},
+                    "decision_state": "diagnostic",
+                },
+                {
+                    "workload_class": "dense_flow_turn_batch",
+                    "label": "Dense flow/turn batch",
+                    "stage_group": "flow_update",
+                    "hardware_lanes": ["numpy_simd", "jax_gpu_optional"],
+                    "enabled": False,
+                    "coverage_state": "requires_dedicated_probe",
+                    "parameters": {},
+                    "decision_state": "diagnostic",
+                },
+            ],
+            "per_seed_results": [
+                {
+                    "seed": 41,
+                    "runtime_stage_timings": [
+                        {
+                            "stage_name": "flow_update",
+                            "wall_clock_ns": 100,
+                            "wall_time_share": 0.20,
+                            "gpu_candidate": False,
+                        }
+                    ],
+                }
+            ],
+        },
+    )
+    link = report["decision_workload_links"][0]
+    summary = report["next_probe_summaries"][0]
+
+    assert link["decision_class"] == "partial_requires_probe"
+    assert link["coverage_states"] == [
+        "measured_in_suite",
+        "requires_dedicated_probe",
+    ]
+    assert summary["decision_effect"] == "supports_partial_review_requires_probe"
+
+
+def test_hardware_atlas_treats_measured_probe_workload_as_measured(tmp_path) -> None:
+    from metroflow.benchmarks.hardware_atlas import build_hardware_atlas
+
+    report = build_hardware_atlas(
+        source_root=_write_fixture_source(tmp_path),
+        runtime_suite_payload={
+            "workload_matrix": [
+                {
+                    "workload_class": "dense_flow_turn_batch",
+                    "label": "Dense flow/turn batch",
+                    "stage_group": "flow_update",
+                    "hardware_lanes": ["numpy_simd", "jax_gpu_optional"],
+                    "enabled": True,
+                    "coverage_state": "measured_in_probe",
+                    "parameters": {},
+                    "decision_state": "diagnostic",
+                }
+            ],
+            "per_seed_results": [
+                {
+                    "seed": 41,
+                    "runtime_stage_timings": [
+                        {
+                            "stage_name": "flow_update",
+                            "wall_clock_ns": 100,
+                            "wall_time_share": 0.20,
+                            "gpu_candidate": False,
+                        }
+                    ],
+                }
+            ],
+        },
+    )
+    link = report["decision_workload_links"][0]
+    summary = report["next_probe_summaries"][0]
+
+    assert link["measured_workload_classes"] == ["dense_flow_turn_batch"]
+    assert link["required_probe_workload_classes"] == []
+    assert link["decision_class"] == "supports"
+    assert summary["decision_effect"] == "supports_decision_card_review"
+
+
 def test_hardware_atlas_does_not_import_accelerator_modules(tmp_path) -> None:
     accelerator_prefixes = ("jax", "torch", "_metroflow_rust")
     saved_modules = {
@@ -271,6 +530,61 @@ def test_hardware_atlas_artifact_bundle_writes_json_markdown_html_and_manifest(t
     assert manifest["report_type"] == "hardware_fit_atlas_v1"
     assert manifest["entry_count"] == payload["entry_count"]
     assert manifest["stage_link_count"] == 1
+
+
+def test_hardware_atlas_artifact_bundle_records_workload_probe_summaries(tmp_path) -> None:
+    from metroflow.benchmarks.hardware_atlas import (
+        build_hardware_atlas,
+        write_hardware_atlas_artifact_bundle,
+    )
+
+    report = build_hardware_atlas(
+        source_root=_write_fixture_source(tmp_path),
+        runtime_suite_payload={
+            "workload_matrix": [
+                {
+                    "workload_class": "dense_flow_turn_batch",
+                    "label": "Dense flow/turn batch",
+                    "stage_group": "flow_update",
+                    "hardware_lanes": ["numpy_simd", "rust_cpu", "jax_gpu_optional"],
+                    "enabled": False,
+                    "coverage_state": "requires_dedicated_probe",
+                    "parameters": {},
+                    "decision_state": "diagnostic",
+                }
+            ],
+            "per_seed_results": [
+                {
+                    "seed": 41,
+                    "runtime_stage_timings": [
+                        {
+                            "stage_name": "flow_update",
+                            "wall_clock_ns": 100,
+                            "wall_time_share": 0.20,
+                            "gpu_candidate": False,
+                        }
+                    ],
+                }
+            ],
+        },
+    )
+    paths = write_hardware_atlas_artifact_bundle(
+        report,
+        output_prefix=tmp_path / "hardware-fit-atlas",
+    )
+
+    manifest = json.loads(paths["manifest"].read_text(encoding="utf-8"))
+    markdown = paths["markdown"].read_text(encoding="utf-8")
+    html = paths["html"].read_text(encoding="utf-8")
+
+    assert manifest["workload_class_count"] == 1
+    assert manifest["next_probe_summary_count"] == 1
+    assert "Workload Decision Links" in markdown
+    assert "Next Probe Summaries" in markdown
+    assert "dense_flow_turn_batch" in markdown
+    assert "jax_gpu_optional" in markdown
+    assert "jax_gpu_optional" in html
+    assert "blocks_backend_implementation" in html
 
 
 def test_hardware_atlas_cli_writes_artifact_bundle(tmp_path) -> None:

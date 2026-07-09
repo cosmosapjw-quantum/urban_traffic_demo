@@ -37,7 +37,7 @@ Status: complete in `3607530`.
 
 ## PR01 — Workload Matrix v1
 
-Status: in progress.
+Status: complete in `31064c5`.
 
 - Extend benchmark metadata for workload classes:
   - eager runtime 1-step and 2-step;
@@ -54,6 +54,8 @@ Status: in progress.
 - Commit: `test(benchmarks): add hardware-fit workload matrix`.
 
 ## PR02 — Atlas Decision-Card Closure
+
+Status: in progress.
 
 - Link workload matrix outputs to `hardware-fit-atlas` decision cards.
 - Render next-probe summaries for reviewer-facing markdown/HTML.

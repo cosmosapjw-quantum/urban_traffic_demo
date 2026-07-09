@@ -13,10 +13,13 @@ from typing import Any, Mapping, Sequence
 __all__ = [
     "HardwareAtlasEntry",
     "HardwareDecisionCard",
+    "build_next_probe_summaries",
     "build_hardware_atlas",
+    "extract_workload_matrix",
     "extract_runtime_stage_timings",
     "format_hardware_atlas_markdown",
     "hardware_atlas_to_dict",
+    "link_workload_matrix_to_decision_cards",
     "link_runtime_stage_timings_to_atlas",
     "render_hardware_atlas_html",
     "write_hardware_atlas_artifact_bundle",
@@ -105,6 +108,12 @@ def build_hardware_atlas(
     )
     stage_links = tuple(link_runtime_stage_timings_to_atlas(entries, extracted_timings))
     decision_cards = tuple(_build_decision_cards(entries, stage_links))
+    workload_matrix = extract_workload_matrix(runtime_suite_payload or {})
+    decision_workload_links = link_workload_matrix_to_decision_cards(
+        decision_cards=decision_cards,
+        workload_matrix=workload_matrix,
+    )
+    next_probe_summaries = build_next_probe_summaries(decision_workload_links)
     compact_ccot = _build_compact_ccot(entries, stage_links, decision_cards)
     report = {
         "report_type": "hardware_fit_atlas_v1",
@@ -115,6 +124,9 @@ def build_hardware_atlas(
         "entries": [asdict(entry) for entry in entries],
         "stage_links": list(stage_links),
         "decision_cards": [asdict(card) for card in decision_cards],
+        "workload_matrix": list(workload_matrix),
+        "decision_workload_links": decision_workload_links,
+        "next_probe_summaries": next_probe_summaries,
         "compact_ccot": compact_ccot,
         "notes": [
             "This atlas is a diagnostic planning artifact, not a validation claim.",
@@ -151,6 +163,137 @@ def extract_runtime_stage_timings(payload: Mapping[str, Any]) -> tuple[Mapping[s
             if isinstance(timings, Sequence) and not isinstance(timings, str | bytes):
                 rows.extend(_as_mapping(item) for item in timings)
     return _aggregate_stage_timing_rows(rows)
+
+
+def extract_workload_matrix(payload: Mapping[str, Any]) -> tuple[Mapping[str, Any], ...]:
+    """Extract workload matrix entries from a runtime suite payload."""
+
+    if not isinstance(payload, Mapping):
+        return ()
+    matrix = payload.get("workload_matrix")
+    if not isinstance(matrix, Sequence) or isinstance(matrix, str | bytes):
+        return ()
+    entries: list[Mapping[str, Any]] = []
+    for item in matrix:
+        item_map = _workload_entry_to_mapping(item)
+        workload_class = str(item_map.get("workload_class", "")).strip()
+        stage_group = str(item_map.get("stage_group", "")).strip()
+        if not workload_class or not stage_group:
+            continue
+        entries.append(
+            {
+                "workload_class": workload_class,
+                "label": str(item_map.get("label", workload_class)),
+                "stage_group": stage_group,
+                "hardware_lanes": list(_as_sequence(item_map.get("hardware_lanes"))),
+                "enabled": bool(item_map.get("enabled", False)),
+                "coverage_state": str(item_map.get("coverage_state", "diagnostic_metadata")),
+                "parameters": dict(_as_mapping(item_map.get("parameters"))),
+                "decision_state": str(item_map.get("decision_state", "diagnostic")),
+            }
+        )
+    return tuple(entries)
+
+
+def link_workload_matrix_to_decision_cards(
+    *,
+    decision_cards: Sequence[HardwareDecisionCard | Mapping[str, Any]],
+    workload_matrix: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Join workload coverage entries to existing decision cards by target."""
+
+    workloads_by_stage: dict[str, list[Mapping[str, Any]]] = {}
+    for entry in workload_matrix:
+        stage_group = str(entry.get("stage_group", "")).strip()
+        if not stage_group:
+            continue
+        workloads_by_stage.setdefault(stage_group, []).append(entry)
+
+    links: list[dict[str, Any]] = []
+    seen_targets: set[str] = set()
+    for card in decision_cards:
+        card_map = _decision_card_to_mapping(card)
+        target = str(card_map.get("target", "unknown"))
+        if target in seen_targets:
+            continue
+        seen_targets.add(target)
+        workloads = tuple(workloads_by_stage.get(target, ()))
+        if not workloads:
+            continue
+        workload_classes = _ordered_unique(
+            entry.get("workload_class", "unknown") for entry in workloads
+        )
+        coverage_states = _ordered_unique(
+            entry.get("coverage_state", "diagnostic_metadata") for entry in workloads
+        )
+        measured = _ordered_unique(
+            entry.get("workload_class", "unknown")
+            for entry in workloads
+            if _is_measured_workload_entry(entry)
+        )
+        required = _ordered_unique(
+            entry.get("workload_class", "unknown")
+            for entry in workloads
+            if not _is_measured_workload_entry(entry)
+        )
+        hardware_lanes = _ordered_unique(
+            lane
+            for entry in workloads
+            for lane in _as_sequence(entry.get("hardware_lanes"))
+        )
+        decision_class = _decision_class_for_workload_link(
+            measured=measured,
+            required=required,
+        )
+        links.append(
+            {
+                "target": target,
+                "workload_classes": workload_classes,
+                "coverage_states": coverage_states,
+                "hardware_lanes": hardware_lanes,
+                "decision_class": decision_class,
+                "measured_workload_classes": measured,
+                "required_probe_workload_classes": required,
+                "measurement_probe": str(card_map.get("measurement_probe", "N/A")),
+                "acceptance_threshold": str(card_map.get("acceptance_threshold", "N/A")),
+                "fallback": str(card_map.get("fallback", "N/A")),
+                "rollback": str(card_map.get("rollback", "N/A")),
+            }
+        )
+    return links
+
+
+def build_next_probe_summaries(
+    decision_workload_links: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Summarize decision-changing probes without inventing new card targets."""
+
+    summaries: list[dict[str, Any]] = []
+    seen_targets: set[str] = set()
+    for link in decision_workload_links:
+        target = str(link.get("target", "unknown"))
+        if target in seen_targets:
+            continue
+        seen_targets.add(target)
+        measured = tuple(str(item) for item in _as_sequence(link.get("measured_workload_classes")))
+        required = tuple(
+            str(item) for item in _as_sequence(link.get("required_probe_workload_classes"))
+        )
+        summaries.append(
+            {
+                "target": target,
+                "decision_effect": _decision_effect_for_workload_link(
+                    measured=measured,
+                    required=required,
+                    decision_class=str(link.get("decision_class", "")),
+                ),
+                "measured_workload_classes": list(measured),
+                "required_probe_workload_classes": list(required),
+                "next_probe": str(link.get("measurement_probe", "N/A")),
+                "falsifier": str(link.get("acceptance_threshold", "N/A")),
+            }
+        )
+    return summaries
 
 
 def link_runtime_stage_timings_to_atlas(
@@ -269,6 +412,51 @@ def format_hardware_atlas_markdown(report: Mapping[str, Any]) -> str:
             )
     else:
         lines.append("No acceleration decision cards were generated.")
+    lines.extend(["", "## Workload Decision Links", ""])
+    workload_links = tuple(
+        _as_mapping(item) for item in _as_sequence(payload.get("decision_workload_links"))
+    )
+    if workload_links:
+        lines.extend(
+            [
+                "| target | workloads | measured | required probes |",
+                "|---|---|---|---|",
+            ]
+        )
+        for link in workload_links:
+            lines.append(
+                "| "
+                f"{link.get('target', 'unknown')} | "
+                f"{', '.join(str(item) for item in _as_sequence(link.get('workload_classes'))) or 'none'} "
+                f"({', '.join(str(item) for item in _as_sequence(link.get('hardware_lanes'))) or 'no lanes'}) | "
+                f"{', '.join(str(item) for item in _as_sequence(link.get('measured_workload_classes'))) or 'none'} | "
+                f"{', '.join(str(item) for item in _as_sequence(link.get('required_probe_workload_classes'))) or 'none'} "
+                f"[{link.get('decision_class', 'unknown')}; "
+                f"{', '.join(str(item) for item in _as_sequence(link.get('coverage_states'))) or 'no coverage states'}] |"
+            )
+    else:
+        lines.append("No workload matrix entries were linked to decision cards.")
+    lines.extend(["", "## Next Probe Summaries", ""])
+    next_probe_summaries = tuple(
+        _as_mapping(item) for item in _as_sequence(payload.get("next_probe_summaries"))
+    )
+    if next_probe_summaries:
+        lines.extend(
+            [
+                "| target | decision effect | next probe | falsifier |",
+                "|---|---|---|---|",
+            ]
+        )
+        for summary in next_probe_summaries:
+            lines.append(
+                "| "
+                f"{summary.get('target', 'unknown')} | "
+                f"{summary.get('decision_effect', 'unknown')} | "
+                f"{summary.get('next_probe', 'N/A')} | "
+                f"{summary.get('falsifier', 'N/A')} |"
+            )
+    else:
+        lines.append("No workload-linked next probe summaries were generated.")
     lines.extend(["", "## Sample Entries", ""])
     lines.extend(["| symbol | roles | fit | probe |", "|---|---|---|---|"])
     for entry in tuple(_as_mapping(item) for item in _as_sequence(payload.get("entries")))[:40]:
@@ -295,6 +483,14 @@ def render_hardware_atlas_html(report: Mapping[str, Any]) -> str:
     )
     card_rows = "\n".join(
         _render_decision_card_row(item) for item in _as_sequence(payload.get("decision_cards"))
+    )
+    workload_link_rows = "\n".join(
+        _render_workload_decision_link_row(item)
+        for item in _as_sequence(payload.get("decision_workload_links"))
+    )
+    next_probe_rows = "\n".join(
+        _render_next_probe_summary_row(item)
+        for item in _as_sequence(payload.get("next_probe_summaries"))
     )
     return f"""<!doctype html>
 <html lang="en">
@@ -338,6 +534,16 @@ def render_hardware_atlas_html(report: Mapping[str, Any]) -> str:
     <thead><tr><th>target</th><th>fit</th><th>probe</th><th>acceptance</th></tr></thead>
     <tbody>{card_rows}</tbody>
   </table>
+  <h2>Workload Decision Links</h2>
+  <table>
+    <thead><tr><th>target</th><th>workloads</th><th>measured</th><th>required probes</th></tr></thead>
+    <tbody>{workload_link_rows}</tbody>
+  </table>
+  <h2>Next Probe Summaries</h2>
+  <table>
+    <thead><tr><th>target</th><th>decision effect</th><th>next probe</th><th>falsifier</th></tr></thead>
+    <tbody>{next_probe_rows}</tbody>
+  </table>
   <h2>Sample Entries</h2>
   <table>
     <thead><tr><th>symbol</th><th>roles</th><th>fit</th><th>reason</th></tr></thead>
@@ -377,6 +583,8 @@ def write_hardware_atlas_artifact_bundle(
         "entry_count": int(payload.get("entry_count", 0) or 0),
         "stage_link_count": len(_as_sequence(payload.get("stage_links"))),
         "decision_card_count": len(_as_sequence(payload.get("decision_cards"))),
+        "workload_class_count": len(_as_sequence(payload.get("workload_matrix"))),
+        "next_probe_summary_count": len(_as_sequence(payload.get("next_probe_summaries"))),
         "artifact_paths": {
             "markdown": str(markdown_path),
             "json": str(json_path),
@@ -675,8 +883,12 @@ def _build_decision_cards(
 ) -> tuple[HardwareDecisionCard, ...]:
     cards: list[HardwareDecisionCard] = []
     if stage_links:
+        seen_stage_targets: set[str] = set()
         for link in stage_links:
             stage_name = str(link.get("stage_name", "unknown"))
+            if stage_name in seen_stage_targets:
+                continue
+            seen_stage_targets.add(stage_name)
             fits = tuple(str(item) for item in _as_sequence(link.get("hardware_fit")))
             cards.append(
                 HardwareDecisionCard(
@@ -713,6 +925,41 @@ def _build_decision_cards(
             )
         )
     return tuple(cards)
+
+
+def _decision_class_for_workload_link(
+    *,
+    measured: Sequence[str],
+    required: Sequence[str],
+) -> str:
+    if measured and required:
+        return "partial_requires_probe"
+    if measured:
+        return "supports"
+    if required:
+        return "blocks"
+    return "defers"
+
+
+def _is_measured_workload_entry(entry: Mapping[str, Any]) -> bool:
+    return bool(entry.get("enabled", False)) and str(
+        entry.get("coverage_state", "")
+    ) in {"measured_in_suite", "measured_in_probe"}
+
+
+def _decision_effect_for_workload_link(
+    *,
+    measured: Sequence[str],
+    required: Sequence[str],
+    decision_class: str,
+) -> str:
+    if decision_class == "partial_requires_probe" or (measured and required):
+        return "supports_partial_review_requires_probe"
+    if decision_class == "supports" or measured:
+        return "supports_decision_card_review"
+    if decision_class == "blocks" or required:
+        return "blocks_backend_implementation"
+    return "defers_until_workload_matrix_available"
 
 
 def _build_compact_ccot(
@@ -913,6 +1160,37 @@ def _entry_to_mapping(entry: HardwareAtlasEntry | Mapping[str, Any]) -> Mapping[
     return entry
 
 
+def _decision_card_to_mapping(
+    card: HardwareDecisionCard | Mapping[str, Any],
+) -> Mapping[str, Any]:
+    if isinstance(card, HardwareDecisionCard):
+        return asdict(card)
+    return card
+
+
+def _workload_entry_to_mapping(value: Any) -> Mapping[str, Any]:
+    if isinstance(value, Mapping):
+        return value
+    if hasattr(value, "__dataclass_fields__") and not isinstance(value, type):
+        return asdict(value)
+    if hasattr(value, "__dict__"):
+        return {
+            key: getattr(value, key)
+            for key in (
+                "workload_class",
+                "label",
+                "stage_group",
+                "hardware_lanes",
+                "enabled",
+                "coverage_state",
+                "parameters",
+                "decision_state",
+            )
+            if hasattr(value, key)
+        }
+    return {}
+
+
 def _as_mapping(value: Any) -> Mapping[str, Any]:
     if isinstance(value, Mapping):
         return value
@@ -1012,5 +1290,29 @@ def _render_decision_card_row(item: Any) -> str:
         f"<td>{escape(', '.join(str(value) for value in _as_sequence(card.get('hardware_fit'))))}</td>"
         f"<td>{escape(str(card.get('measurement_probe', 'N/A')))}</td>"
         f"<td>{escape(str(card.get('acceptance_threshold', 'N/A')))}</td>"
+        "</tr>"
+    )
+
+
+def _render_workload_decision_link_row(item: Any) -> str:
+    link = _as_mapping(item)
+    return (
+        "<tr>"
+        f"<td>{escape(str(link.get('target', 'unknown')))}</td>"
+        f"<td>{escape(', '.join(str(value) for value in _as_sequence(link.get('workload_classes'))))}<br><code>{escape(', '.join(str(value) for value in _as_sequence(link.get('hardware_lanes'))))}</code></td>"
+        f"<td>{escape(', '.join(str(value) for value in _as_sequence(link.get('measured_workload_classes'))))}</td>"
+        f"<td>{escape(', '.join(str(value) for value in _as_sequence(link.get('required_probe_workload_classes'))))}<br><code>{escape(str(link.get('decision_class', 'unknown')))}</code><br><code>{escape(', '.join(str(value) for value in _as_sequence(link.get('coverage_states'))))}</code></td>"
+        "</tr>"
+    )
+
+
+def _render_next_probe_summary_row(item: Any) -> str:
+    summary = _as_mapping(item)
+    return (
+        "<tr>"
+        f"<td>{escape(str(summary.get('target', 'unknown')))}</td>"
+        f"<td>{escape(str(summary.get('decision_effect', 'unknown')))}</td>"
+        f"<td>{escape(str(summary.get('next_probe', 'N/A')))}</td>"
+        f"<td>{escape(str(summary.get('falsifier', 'N/A')))}</td>"
         "</tr>"
     )
