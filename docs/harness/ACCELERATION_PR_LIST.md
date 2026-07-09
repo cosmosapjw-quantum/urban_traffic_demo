@@ -80,7 +80,7 @@ Status: complete in `e292685`.
 
 ## PR04 — Rust Potential-Only Bakeoff
 
-Status: complete in this PR.
+Status: complete in `a80b369`.
 
 - Compare Python and Rust dynamic-potential only.
 - Do not enable whole-runtime Rust routing.
@@ -92,9 +92,13 @@ Status: complete in this PR.
 
 ## PR05 — Dense Flow Scale Probe
 
+Status: complete in this PR.
+
 - Build larger synthetic flow/turn workloads.
 - Compare NumPy baseline, Rust flow, and optional JAX compile/steady-state.
 - Do not add custom CUDA scaffold.
+- Scope guard: `jax_optional` is a benchmark probe backend, not a runtime
+  `flow_backend` value.
 - Tests: scaled dense flow benchmark schema, optional JAX skip, first-call vs
   steady-state timing fields.
 - Commit: `test(flow): add dense flow acceleration probe`.

@@ -1,5 +1,38 @@
 # Decision Log
 
+## 2026-07-10: Dense Flow Probe Is Benchmark-Only
+
+Status: accepted
+
+### Context
+
+The workload matrix still marks dense flow/turn batches as requiring a
+dedicated probe. The user wants GPU/NN lanes actively considered, but runtime
+flow authority remains NumPy baseline with optional Rust CPU only.
+
+### Compact CCoT
+
+Question: How should dense flow compare NumPy, Rust, and JAX without changing
+runtime backend policy?
+
+Evidence: `FLOW_UPDATE_BACKENDS` is `("baseline", "rust_cpu", "auto")`, while
+the hardware atlas lists dense flow as a NumPy/SIMD, Rust CPU, and optional
+JAX/GPU candidate.
+
+Inference: Dense flow needs a benchmark-only `probe_backend`, not a runtime
+`flow_backend` expansion.
+
+Counterevidence checked: Adding `flow_backend="jax"` would be premature because
+JAX compile-vs-steady-state timing and copy behavior are not yet measured.
+
+Decision: PR05 adds `jax_optional` only to the dense flow probe contract. Runtime
+flow backend values remain unchanged.
+
+Falsifier: If this PR changes runtime flow backend validation or adds CUDA/JAX
+runtime dependency, revert.
+
+Next action: Review, gate, and commit PR05 before opening route scoring probes.
+
 ## 2026-07-10: Rust Potential Bakeoff Must Stay Potential-Only
 
 Status: accepted

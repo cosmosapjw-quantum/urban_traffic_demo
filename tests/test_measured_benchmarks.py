@@ -1,6 +1,7 @@
 from dataclasses import replace
 import json
 import sys
+import types
 
 import pytest
 
@@ -11,6 +12,8 @@ from metroflow.core.state import TrafficState, make_empty_world_state
 from metroflow.flow.state import create_link_state, create_node_state
 from metroflow.metrics.benchmarks import (
     BenchmarkResult,
+    MeasuredDenseFlowScaleBenchmarkConfig,
+    MeasuredDenseFlowScaleBenchmarkResult,
     MeasuredDynamicPotentialBenchmarkConfig,
     MeasuredDynamicPotentialBenchmarkResult,
     MeasuredFlowBenchmarkConfig,
@@ -25,6 +28,7 @@ from metroflow.metrics.benchmarks import (
     MeasuredRuntimeBenchmarkSuiteResult,
     RuntimeStageTiming,
     run_city_smoke_benchmark,
+    run_measured_dense_flow_scale_benchmark,
     run_measured_dynamic_potential_benchmark,
     run_measured_flow_update_benchmark,
     run_measured_routing_candidate_benchmark,
@@ -336,6 +340,192 @@ def test_measured_flow_update_benchmark_preserves_rust_cpu_backend_metadata(
     assert result.turn_count == 1
     assert result.copy_boundary_note == "rust_cpu Vec copy boundary"
     assert calls == ["rust_cpu", "rust_cpu"]
+
+
+def test_measured_dense_flow_scale_benchmark_records_baseline_schema():
+    result = run_measured_dense_flow_scale_benchmark(
+        MeasuredDenseFlowScaleBenchmarkConfig(
+            workload_name="dense-flow-baseline",
+            num_steps=2,
+            link_count=128,
+            turns_per_link=3,
+            probe_backend="baseline",
+            seed=7,
+        )
+    )
+
+    assert isinstance(result, MeasuredDenseFlowScaleBenchmarkResult)
+    assert result.name == "measured_dense_flow_scale"
+    assert result.probe_backend == "baseline"
+    assert result.probe_backend_actual == "baseline"
+    assert result.probe_backend_fallback is None
+    assert result.copy_boundary_note == "numpy baseline dense flow"
+    assert result.link_count == 128
+    assert result.turn_count == 384
+    assert result.turns_per_link == 3
+    assert result.num_steps == 2
+    assert result.wall_clock_ns >= 0
+    assert result.baseline_wall_clock_ns >= 0
+    assert result.probe_wall_clock_ns == result.baseline_wall_clock_ns
+    assert result.jax_first_call_wall_ns == 0
+    assert result.jax_steady_state_wall_ns == 0
+    assert result.output_max_abs_diff_vs_baseline == 0.0
+    assert result.baseline_output_fingerprint == result.probe_output_fingerprint
+
+
+def test_measured_dense_flow_scale_benchmark_rejects_invalid_config():
+    with pytest.raises(ValueError, match="link_count"):
+        run_measured_dense_flow_scale_benchmark(
+            MeasuredDenseFlowScaleBenchmarkConfig(
+                workload_name="bad",
+                num_steps=1,
+                link_count=1,
+                turns_per_link=2,
+            )
+        )
+    with pytest.raises(ValueError, match="probe_backend"):
+        run_measured_dense_flow_scale_benchmark(
+            MeasuredDenseFlowScaleBenchmarkConfig(
+                workload_name="bad",
+                num_steps=1,
+                link_count=8,
+                turns_per_link=2,
+                probe_backend="jax",
+            )
+        )
+    with pytest.raises(ValueError, match="jax_optional requires num_steps >= 2"):
+        run_measured_dense_flow_scale_benchmark(
+            MeasuredDenseFlowScaleBenchmarkConfig(
+                workload_name="bad-jax",
+                num_steps=1,
+                link_count=8,
+                turns_per_link=2,
+                probe_backend="jax_optional",
+            )
+        )
+
+
+def test_measured_dense_flow_scale_probe_does_not_add_runtime_jax_flow_backend():
+    from metroflow.flow.engine import FLOW_UPDATE_BACKENDS
+
+    assert FLOW_UPDATE_BACKENDS == ("baseline", "rust_cpu", "auto")
+
+
+def test_measured_dense_flow_scale_benchmark_rust_matches_baseline_when_available():
+    from metroflow.backends.rust_cpu import rust_flow_backend_available
+
+    if not rust_flow_backend_available():
+        pytest.skip("_metroflow_rust extension is not importable")
+
+    result = run_measured_dense_flow_scale_benchmark(
+        MeasuredDenseFlowScaleBenchmarkConfig(
+            workload_name="dense-flow-rust",
+            num_steps=2,
+            link_count=128,
+            turns_per_link=3,
+            probe_backend="rust_cpu",
+            seed=11,
+        )
+    )
+
+    assert result.probe_backend == "rust_cpu"
+    assert result.probe_backend_actual == "rust_cpu"
+    assert result.copy_boundary_note == "rust_cpu Vec copy boundary dense flow"
+    assert result.output_max_abs_diff_vs_baseline <= 1e-5
+    assert result.baseline_output_fingerprint == result.probe_output_fingerprint
+
+
+def test_measured_dense_flow_scale_benchmark_jax_optional_records_timing_and_parity():
+    result = run_measured_dense_flow_scale_benchmark(
+        MeasuredDenseFlowScaleBenchmarkConfig(
+            workload_name="dense-flow-jax",
+            num_steps=2,
+            link_count=32,
+            turns_per_link=2,
+            probe_backend="jax_optional",
+            seed=13,
+        )
+    )
+
+    assert result.probe_backend == "jax_optional"
+    if not result.jax_available:
+        assert result.probe_backend_actual == "unavailable"
+        assert result.probe_backend_fallback in {"jax_unavailable", "jax_failed"}
+        assert result.jax_first_call_wall_ns == 0
+        assert result.jax_steady_state_wall_ns == 0
+        assert result.jax_input_copy_wall_ns == 0
+        assert result.jax_output_copy_wall_ns == 0
+        return
+    assert result.probe_backend_actual == "jax"
+    assert result.probe_backend_fallback is None
+    assert result.copy_boundary_note == "optional JAX dense flow compile/steady-state probe"
+    assert result.jax_first_call_wall_ns > 0
+    assert result.jax_steady_state_wall_ns > 0
+    assert result.jax_input_copy_wall_ns >= 0
+    assert result.jax_output_copy_wall_ns >= 0
+    assert result.probe_wall_clock_ns == (
+        result.jax_input_copy_wall_ns
+        + result.jax_first_call_wall_ns
+        + result.jax_steady_state_wall_ns
+        + result.jax_output_copy_wall_ns
+    )
+    assert result.output_max_abs_diff_vs_baseline <= 1e-4
+
+
+def test_measured_dense_flow_scale_jax_optional_runtime_failure_falls_back(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    fake_jax = types.SimpleNamespace(
+        jit=lambda _fn: (_ for _ in ()).throw(RuntimeError("xla unavailable")),
+        block_until_ready=lambda value: value,
+    )
+    fake_jnp = types.SimpleNamespace()
+    fake_jax.__path__ = []
+    fake_jax.numpy = fake_jnp
+    monkeypatch.setitem(sys.modules, "jax", fake_jax)
+    monkeypatch.setitem(sys.modules, "jax.numpy", fake_jnp)
+
+    result = run_measured_dense_flow_scale_benchmark(
+        MeasuredDenseFlowScaleBenchmarkConfig(
+            workload_name="dense-flow-jax-runtime-fallback",
+            num_steps=2,
+            link_count=8,
+            turns_per_link=2,
+            probe_backend="jax_optional",
+            seed=17,
+        )
+    )
+
+    assert result.jax_available is False
+    assert result.probe_backend_actual == "unavailable"
+    assert result.probe_backend_fallback == "jax_failed"
+    assert result.probe_wall_clock_ns == 0
+    assert result.jax_first_call_wall_ns == 0
+    assert result.jax_steady_state_wall_ns == 0
+    assert result.jax_input_copy_wall_ns == 0
+    assert result.jax_output_copy_wall_ns == 0
+    assert result.output_max_abs_diff_vs_baseline == 0.0
+    assert result.baseline_output_fingerprint == result.probe_output_fingerprint
+
+
+def test_dense_flow_output_fingerprint_includes_turn_demand():
+    link_state, node_state = benchmark_module._build_dense_flow_scale_state(
+        link_count=8,
+        turns_per_link=2,
+        seed=19,
+    )
+    original_output = benchmark_module._flow_output_arrays(link_state, node_state)
+    mutated_node_state = replace(
+        node_state,
+        turn_demand=node_state.turn_demand.copy(),
+    )
+    mutated_node_state.turn_demand[0] = mutated_node_state.turn_demand[0] + 1.0
+    mutated_output = benchmark_module._flow_output_arrays(link_state, mutated_node_state)
+
+    assert "turn_demand" in original_output
+    assert benchmark_module._fingerprint_flow_output(
+        original_output
+    ) != benchmark_module._fingerprint_flow_output(mutated_output)
 
 
 def test_measured_routing_candidate_benchmark_records_baseline_path_metadata():
