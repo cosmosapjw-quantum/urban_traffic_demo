@@ -1,16 +1,13 @@
 {
   "artifact_format_version": "runtime_suite_bundle_v1",
   "artifact_paths": {
-    "html": "artifacts/runtime_spine_review/runtime-suite-eager-2step-smoke.html",
-    "json": "artifacts/runtime_spine_review/runtime-suite-eager-2step-smoke.json",
-    "manifest": "artifacts/runtime_spine_review/runtime-suite-eager-2step-smoke.manifest.json",
-    "markdown": "artifacts/runtime_spine_review/runtime-suite-eager-2step-smoke.md"
+    "html": "artifacts/runtime_spine_review/runtime-suite-eager-rust-routing-1seed-release-smoke.html",
+    "json": "artifacts/runtime_spine_review/runtime-suite-eager-rust-routing-1seed-release-smoke.json",
+    "manifest": "artifacts/runtime_spine_review/runtime-suite-eager-rust-routing-1seed-release-smoke.manifest.json",
+    "markdown": "artifacts/runtime_spine_review/runtime-suite-eager-rust-routing-1seed-release-smoke.md"
   },
   "eager_trip_generation": true,
-  "gpu_review_eligible_stage_names": [
-    "route_candidate_refresh",
-    "route_candidate_potential"
-  ],
+  "gpu_review_eligible_stage_names": [],
   "jax_gpu_candidate_stage_names": [
     "flow_update",
     "route_candidate_refresh",
@@ -18,9 +15,7 @@
     "route_candidate_metadata",
     "active_agent_candidate_selection"
   ],
-  "jax_gpu_review_ready_stage_names": [
-    "route_candidate_refresh"
-  ],
+  "jax_gpu_review_ready_stage_names": [],
   "nn_surrogate_candidate_stage_names": [
     "route_candidate_refresh",
     "dynamic_potential_recompute",
@@ -31,11 +26,8 @@
     "active_agent_allocation",
     "active_agent_candidate_selection"
   ],
-  "nn_surrogate_review_ready_stage_names": [
-    "route_candidate_refresh",
-    "route_candidate_potential"
-  ],
-  "num_steps": 2,
+  "nn_surrogate_review_ready_stage_names": [],
+  "num_steps": 1,
   "rust_cpu_candidate_stage_names": [
     "flow_update",
     "route_candidate_refresh",
@@ -53,16 +45,11 @@
     "active_agent_plugin_memory_write",
     "active_agent_movement"
   ],
-  "rust_cpu_review_ready_stage_names": [
-    "route_candidate_refresh",
-    "route_candidate_potential"
-  ],
-  "seed_count": 3,
+  "rust_cpu_review_ready_stage_names": [],
+  "seed_count": 1,
   "seeds": [
-    41,
-    42,
-    43
+    41
   ],
   "timing_overlap_warning": true,
-  "workload_name": "smoke-runtime-suite-eager-2step"
+  "workload_name": "smoke-runtime-suite-eager-rust-routing-1seed-release"
 }

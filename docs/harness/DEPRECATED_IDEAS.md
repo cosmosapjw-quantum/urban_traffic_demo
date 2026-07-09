@@ -28,14 +28,34 @@ Status: deferred
 Reason:
 
 - Route refresh is already split into potential, path build, and metadata.
-- Potential and path-build are both below the 0.30 review threshold in current
-  smoke suites.
-- Another route split would not currently change the next implementation action.
+- After fixing baseline Dijkstra `float32` heap-staleness, potential/recompute
+  is review-ready and path-build is below the 0.30 review threshold.
+- More path-build splitting would not currently change the next implementation
+  action.
 
 Reopen condition:
 
-- Pool-write optimization is completed or falsified, and route refresh remains
+- Dynamic-potential recompute is reduced or falsified, and route refresh remains
   the leading review-ready stage.
+
+## Immediate Runtime-Wide Rust Routing Backend
+
+Status: deferred
+
+Reason:
+
+- Explicit `routing_backend="rust_cpu"` preserves fail-closed behavior, but the
+  1-seed/1-step eager runtime suite is slower than baseline with a release Rust
+  extension (`26.70s` versus `8.02s`).
+- Generated-OD micro evidence shows Rust dynamic-potential parity is useful and
+  release Rust reduces potential recompute cost, but whole-runtime activation
+  still pays too much path-build/metadata copy-boundary cost.
+
+Reopen condition:
+
+- A narrow Rust dynamic-potential/cache-amortization slice matches baseline on
+  generated OD workloads and completes the 3-seed eager suite inside the current
+  smoke budget.
 
 ## Custom CUDA Runtime Kernel Scaffolding
 
@@ -61,10 +81,11 @@ Reason:
 - `active_agent_pool_write` is now below the review gate after batching
   plugin-memory replacement.
 - `active_agent_pool_array_write` remains visible but below the review gate.
-- `route_candidate_path_build` is currently the stronger Rust CPU candidate.
+- route dynamic-potential recompute is currently the stronger CPU/backend
+  candidate.
 
 Reopen condition:
 
 - Typed-array pool replacement becomes review-ready across deterministic seeds,
-  or route path-build work is completed and active-agent array write again
+  or route potential work is completed and active-agent array write again
   dominates the next review-ready stage.

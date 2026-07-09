@@ -9,7 +9,7 @@
   "eager_trip_generation": true,
   "gpu_review_eligible_stage_names": [
     "route_candidate_refresh",
-    "route_candidate_path_build"
+    "route_candidate_potential"
   ],
   "jax_gpu_candidate_stage_names": [
     "flow_update",
@@ -33,7 +33,7 @@
   ],
   "nn_surrogate_review_ready_stage_names": [
     "route_candidate_refresh",
-    "route_candidate_path_build"
+    "route_candidate_potential"
   ],
   "num_steps": 1,
   "rust_cpu_candidate_stage_names": [
@@ -55,7 +55,7 @@
   ],
   "rust_cpu_review_ready_stage_names": [
     "route_candidate_refresh",
-    "route_candidate_path_build"
+    "route_candidate_potential"
   ],
   "seed_count": 3,
   "seeds": [

@@ -3,7 +3,7 @@
 - Seeds: 41, 42, 43
 - Seed count: 3
 - Steps per seed: 1
-- Wall-clock ns total: 13324983954
+- Wall-clock ns total: 22389378545
 - Per-seed results: 3
 - Runtime GPU candidate gate:
 - Workload: smoke-runtime-suite-eager
@@ -12,19 +12,19 @@
 - Seeds: 41, 42, 43
 - Threshold: 0.3
 - Minimum deterministic seeds: 3
-- Eligible stages: route_candidate_refresh, route_candidate_path_build
-- flow_update: candidate runs 0/3, mean share 4e-05, min share 3.6e-05, max share 4.3e-05, eligible no
-- route_candidate_refresh: candidate runs 3/3, mean share 0.699435, min share 0.698369, max share 0.700864, eligible yes
-- dynamic_potential_recompute: candidate runs 0/3, mean share 0.274919, min share 0.271184, max share 0.279621, eligible no
+- Eligible stages: route_candidate_refresh, route_candidate_potential
+- flow_update: candidate runs 0/3, mean share 2.3e-05, min share 2e-05, max share 2.7e-05, eligible no
+- route_candidate_refresh: candidate runs 3/3, mean share 0.825024, min share 0.82065, max share 0.828005, eligible yes
+- dynamic_potential_recompute: candidate runs 0/3, mean share 0.534764, min share 0.531099, max share 0.53671, eligible no
 - routing_compile_estimate: candidate runs 0/3, mean share 0.0, min share 0.0, max share 0.0, eligible no
-- reroute_decision: candidate runs 0/3, mean share 3e-06, min share 2e-06, max share 3e-06, eligible no
-- active_agent_update: candidate runs 0/3, mean share 0.192861, min share 0.188111, max share 0.195242, eligible no
-- route_candidate_potential: candidate runs 0/3, mean share 0.279811, min share 0.276055, max share 0.28443, eligible no
-- route_candidate_path_build: candidate runs 3/3, mean share 0.354543, min share 0.349769, max share 0.356985, eligible yes
-- route_candidate_metadata: candidate runs 0/3, mean share 0.038381, min share 0.037777, max share 0.038996, eligible no
-- active_agent_allocation: candidate runs 0/3, mean share 0.188428, min share 0.183699, max share 0.19101, eligible no
-- active_agent_candidate_selection: candidate runs 0/3, mean share 0.041488, min share 0.040265, max share 0.042358, eligible no
-- active_agent_pool_write: candidate runs 0/3, mean share 0.137235, min share 0.134133, max share 0.138974, eligible no
-- active_agent_pool_array_write: candidate runs 0/3, mean share 0.12832, min share 0.125346, max share 0.12982, eligible no
-- active_agent_plugin_memory_write: candidate runs 0/3, mean share 0.004017, min share 0.003927, max share 0.004092, eligible no
-- active_agent_movement: candidate runs 0/3, mean share 0.002945, min share 0.002748, max share 0.003104, eligible no
+- reroute_decision: candidate runs 0/3, mean share 1e-06, min share 1e-06, max share 1e-06, eligible no
+- active_agent_update: candidate runs 0/3, mean share 0.111696, min share 0.107941, max share 0.116071, eligible no
+- route_candidate_potential: candidate runs 3/3, mean share 0.537567, min share 0.533959, max share 0.539479, eligible yes
+- route_candidate_path_build: candidate runs 0/3, mean share 0.244385, min share 0.24349, max share 0.245876, eligible no
+- route_candidate_metadata: candidate runs 0/3, mean share 0.02359, min share 0.023371, max share 0.023794, eligible no
+- active_agent_allocation: candidate runs 0/3, mean share 0.109135, min share 0.105319, max share 0.113372, eligible no
+- active_agent_candidate_selection: candidate runs 0/3, mean share 0.022911, min share 0.02261, max share 0.023492, eligible no
+- active_agent_pool_write: candidate runs 0/3, mean share 0.081766, min share 0.078386, max share 0.086293, eligible no
+- active_agent_pool_array_write: candidate runs 0/3, mean share 0.076819, min share 0.073415, max share 0.081285, eligible no
+- active_agent_plugin_memory_write: candidate runs 0/3, mean share 0.00224, min share 0.002215, max share 0.002268, eligible no
+- active_agent_movement: candidate runs 0/3, mean share 0.001718, min share 0.00155, max share 0.001811, eligible no

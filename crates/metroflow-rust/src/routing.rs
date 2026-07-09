@@ -38,6 +38,13 @@ struct RankedRouteHeapState {
     visited_nodes: Vec<bool>,
 }
 
+#[derive(Clone, Debug, PartialEq)]
+struct TurnSuccessorLookup {
+    has_turns: bool,
+    has_successors: Vec<bool>,
+    allowed_successors: Vec<Vec<usize>>,
+}
+
 impl Eq for RankedRouteHeapState {}
 
 impl Ord for RankedRouteHeapState {
@@ -364,32 +371,12 @@ fn best_legal_next_link_index(
     link_dst_node_index: &[i32],
     outgoing_indptr: &[i32],
     outgoing_link_indices: &[i32],
-    turn_from_link_index: &[i32],
-    turn_to_link_index: &[i32],
-    turn_is_forbidden: &[bool],
+    turn_lookup: &TurnSuccessorLookup,
     node_cost_to_go: &[f32],
     link_travel_time_cost: &[f32],
     blocked_link_mask: &[bool],
 ) -> Option<usize> {
-    let link_count = link_ids.len();
-    let mut allowed_by_turn = vec![false; link_count];
-    let mut require_turn_successor = false;
-    if incoming_link_index >= 0 && !turn_from_link_index.is_empty() {
-        require_turn_successor = true;
-        let incoming = incoming_link_index;
-        let mut saw_successor = false;
-        for turn_index in 0..turn_from_link_index.len() {
-            if turn_from_link_index[turn_index] == incoming {
-                saw_successor = true;
-                if !turn_is_forbidden[turn_index] {
-                    allowed_by_turn[turn_to_link_index[turn_index] as usize] = true;
-                }
-            }
-        }
-        if !saw_successor {
-            return None;
-        }
-    }
+    let allowed_successors = allowed_successors_for_incoming(turn_lookup, incoming_link_index)?;
 
     let start = outgoing_indptr[current_node_index] as usize;
     let end = outgoing_indptr[current_node_index + 1] as usize;
@@ -397,8 +384,10 @@ fn best_legal_next_link_index(
     let mut best_cost = ROUTING_INF_COST;
     for pos in start..end {
         let link_index = outgoing_link_indices[pos] as usize;
-        if require_turn_successor && !allowed_by_turn[link_index] {
-            continue;
+        if let Some(allowed) = allowed_successors {
+            if allowed.binary_search(&link_index).is_err() {
+                continue;
+            }
         }
         if blocked_link_mask[link_index] {
             continue;
@@ -427,6 +416,50 @@ fn best_legal_next_link_index(
         }
     }
     best_link_index
+}
+
+fn build_turn_successor_lookup(
+    link_count: usize,
+    turn_from_link_index: &[i32],
+    turn_to_link_index: &[i32],
+    turn_is_forbidden: &[bool],
+) -> TurnSuccessorLookup {
+    let mut has_successors = vec![false; link_count];
+    let mut allowed_successors = vec![Vec::new(); link_count];
+    for turn_index in 0..turn_from_link_index.len() {
+        let from_link_index = turn_from_link_index[turn_index] as usize;
+        has_successors[from_link_index] = true;
+        if !turn_is_forbidden[turn_index] {
+            allowed_successors[from_link_index].push(turn_to_link_index[turn_index] as usize);
+        }
+    }
+    for successors in allowed_successors.iter_mut() {
+        successors.sort_unstable();
+        successors.dedup();
+    }
+    TurnSuccessorLookup {
+        has_turns: !turn_from_link_index.is_empty(),
+        has_successors,
+        allowed_successors,
+    }
+}
+
+fn allowed_successors_for_incoming(
+    turn_lookup: &TurnSuccessorLookup,
+    incoming_link_index: i32,
+) -> Option<Option<&[usize]>> {
+    if incoming_link_index < 0 || !turn_lookup.has_turns {
+        return Some(None);
+    }
+    let incoming = incoming_link_index as usize;
+    if !turn_lookup.has_successors[incoming] {
+        return None;
+    }
+    let allowed = turn_lookup.allowed_successors[incoming].as_slice();
+    if allowed.is_empty() {
+        return None;
+    }
+    Some(Some(allowed))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -474,6 +507,12 @@ pub(crate) fn compute_greedy_route_candidate_impl(
     let mut visited_nodes = vec![false; node_count];
     visited_nodes[current_node_index] = true;
     let mut path = Vec::new();
+    let turn_lookup = build_turn_successor_lookup(
+        link_ids.len(),
+        turn_from_link_index,
+        turn_to_link_index,
+        turn_is_forbidden,
+    );
 
     for _ in 0..max_hops {
         let Some(next_link_index) = best_legal_next_link_index(
@@ -483,9 +522,7 @@ pub(crate) fn compute_greedy_route_candidate_impl(
             link_dst_node_index,
             outgoing_indptr,
             outgoing_link_indices,
-            turn_from_link_index,
-            turn_to_link_index,
-            turn_is_forbidden,
+            &turn_lookup,
             node_cost_to_go,
             link_travel_time_cost,
             blocked_link_mask,
@@ -515,40 +552,26 @@ fn scored_legal_next_link_indices(
     link_dst_node_index: &[i32],
     outgoing_indptr: &[i32],
     outgoing_link_indices: &[i32],
-    turn_from_link_index: &[i32],
-    turn_to_link_index: &[i32],
-    turn_is_forbidden: &[bool],
+    turn_lookup: &TurnSuccessorLookup,
     node_cost_to_go: &[f32],
     link_travel_time_cost: &[f32],
     blocked_link_mask: &[bool],
 ) -> Vec<(f32, i32, usize)> {
-    let link_count = link_ids.len();
-    let mut allowed_by_turn = vec![false; link_count];
-    let mut require_turn_successor = false;
-    if incoming_link_index >= 0 && !turn_from_link_index.is_empty() {
-        require_turn_successor = true;
-        let incoming = incoming_link_index;
-        let mut saw_successor = false;
-        for turn_index in 0..turn_from_link_index.len() {
-            if turn_from_link_index[turn_index] == incoming {
-                saw_successor = true;
-                if !turn_is_forbidden[turn_index] {
-                    allowed_by_turn[turn_to_link_index[turn_index] as usize] = true;
-                }
-            }
-        }
-        if !saw_successor {
-            return Vec::new();
-        }
-    }
+    let Some(allowed_successors) =
+        allowed_successors_for_incoming(turn_lookup, incoming_link_index)
+    else {
+        return Vec::new();
+    };
 
     let start = outgoing_indptr[current_node_index] as usize;
     let end = outgoing_indptr[current_node_index + 1] as usize;
     let mut scored = Vec::new();
     for pos in start..end {
         let link_index = outgoing_link_indices[pos] as usize;
-        if require_turn_successor && !allowed_by_turn[link_index] {
-            continue;
+        if let Some(allowed) = allowed_successors {
+            if allowed.binary_search(&link_index).is_err() {
+                continue;
+            }
         }
         if blocked_link_mask[link_index] {
             continue;
@@ -622,6 +645,12 @@ pub(crate) fn compute_ranked_route_candidates_impl(
     let mut serial = 0usize;
     let mut initial_visited = vec![false; node_count];
     initial_visited[origin_node_index] = true;
+    let turn_lookup = build_turn_successor_lookup(
+        link_ids.len(),
+        turn_from_link_index,
+        turn_to_link_index,
+        turn_is_forbidden,
+    );
     heap.push(RankedRouteHeapState {
         estimated_cost: 0.0,
         path_cost: 0.0,
@@ -656,9 +685,7 @@ pub(crate) fn compute_ranked_route_candidates_impl(
             link_dst_node_index,
             outgoing_indptr,
             outgoing_link_indices,
-            turn_from_link_index,
-            turn_to_link_index,
-            turn_is_forbidden,
+            &turn_lookup,
             node_cost_to_go,
             link_travel_time_cost,
             blocked_link_mask,

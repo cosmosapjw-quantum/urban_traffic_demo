@@ -139,3 +139,62 @@ Next validation required:
 
 - Before route path-build Rust work, add RED parity tests around the smallest
   path-build boundary and keep Python baseline route legality authoritative.
+
+## 2026-07-09: Baseline Dynamic-Potential Float32 Heap-Staleness Fix
+
+Change class: routing correctness fix / acceleration decision reset
+
+Commands run for this ledger entry:
+
+```bash
+.venv/bin/python -m pytest tests/test_metro_absorption_routing.py::test_generated_baseline_dynamic_potential_does_not_drop_float32_heap_updates -q
+cargo fmt --all --check
+CARGO_TARGET_DIR=/tmp/metroflow-cargo-target cargo test --workspace
+CARGO_TARGET_DIR=/tmp/metroflow-cargo-target .venv/bin/python -m maturin develop --manifest-path crates/metroflow-rust/Cargo.toml
+.venv/bin/python -m pytest tests/test_metro_absorption_routing.py::test_generated_baseline_dynamic_potential_does_not_drop_float32_heap_updates tests/test_metro_absorption_routing.py::test_advanced_dynamic_potential_prefers_less_congested_path -q
+.venv/bin/python -m pytest tests/test_routing_rust_backend.py -q
+/usr/bin/time -f 'elapsed=%E cpu=%P' timeout 90s .venv/bin/python -m metroflow.benchmarks.run --runtime-suite --runtime-suite-workload smoke-runtime-suite-eager-baseline-1seed-postfix --runtime-suite-seeds 41 --runtime-suite-steps 1 --runtime-suite-eager-trip-generation --runtime-suite-artifact-prefix artifacts/runtime_spine_review/runtime-suite-eager-baseline-1seed-postfix-smoke
+/usr/bin/time -f 'elapsed=%E cpu=%P' timeout 90s .venv/bin/python -m metroflow.benchmarks.run --runtime-suite --runtime-suite-workload smoke-runtime-suite-eager-rust-routing-1seed-postfix --runtime-suite-seeds 41 --runtime-suite-steps 1 --runtime-suite-eager-trip-generation --runtime-suite-routing-backend rust_cpu --runtime-suite-artifact-prefix artifacts/runtime_spine_review/runtime-suite-eager-rust-routing-1seed-postfix-smoke
+CARGO_TARGET_DIR=/tmp/metroflow-cargo-target .venv/bin/python -m maturin develop --release --manifest-path crates/metroflow-rust/Cargo.toml
+/usr/bin/time -f 'elapsed=%E cpu=%P' timeout 90s .venv/bin/python -m metroflow.benchmarks.run --runtime-suite --runtime-suite-workload smoke-runtime-suite-eager-rust-routing-1seed-release --runtime-suite-seeds 41 --runtime-suite-steps 1 --runtime-suite-eager-trip-generation --runtime-suite-routing-backend rust_cpu --runtime-suite-artifact-prefix artifacts/runtime_spine_review/runtime-suite-eager-rust-routing-1seed-release-smoke
+.venv/bin/python -m metroflow.benchmarks.run --runtime-suite --runtime-suite-workload smoke-runtime-suite-eager --runtime-suite-seeds 41,42,43 --runtime-suite-steps 1 --runtime-suite-eager-trip-generation --runtime-suite-artifact-prefix artifacts/runtime_spine_review/runtime-suite-eager-smoke
+.venv/bin/python -m metroflow.benchmarks.run --runtime-suite --runtime-suite-workload smoke-runtime-suite-eager-2step --runtime-suite-seeds 41,42,43 --runtime-suite-steps 2 --runtime-suite-eager-trip-generation --runtime-suite-artifact-prefix artifacts/runtime_spine_review/runtime-suite-eager-2step-smoke
+```
+
+Observed results:
+
+- RED check: generated seed `41` baseline route `422 -> 8` produced no route
+  before the fix.
+- targeted generated-OD routing regression: `1 failed` before the fix, then
+  `2 passed` with the adjacent baseline routing test after the fix.
+- Rust gates: `cargo fmt --all --check` passed; `cargo test --workspace`
+  reported `52 passed`.
+- maturin rebuild succeeded for CPython 3.12.
+- Rust routing Python parity suite: `22 passed`.
+- baseline 1-seed/1-step eager suite completed in `elapsed=0:08.02`.
+- explicit Rust routing 1-seed/1-step eager suite timed out at `90s` with the
+  debug extension.
+- release Rust extension rebuild succeeded.
+- explicit Rust routing 1-seed/1-step eager suite completed in
+  `elapsed=0:26.70` with the release extension; route potential fell to
+  `0.019283` share, but path-build and metadata rose to `0.424858` and
+  `0.497658`.
+- regenerated 3-seed 1-step eager suite: `route_candidate_potential`
+  mean share `0.537567`; `route_candidate_path_build` mean share `0.244385`.
+- regenerated 3-seed 2-step eager suite: `route_candidate_potential`
+  mean share `0.509388`; `route_candidate_path_build` mean share `0.231000`.
+
+Diagnostic interpretation:
+
+- Previous route path-build review-readiness was caused by a baseline
+  correctness bug that made reachable ODs appear unreachable.
+- The current route acceleration target is dynamic-potential recompute/cache
+  amortization, not path-build.
+- Runtime-wide explicit Rust routing remains deferred until path-build/metadata
+  copy-boundary costs are amortized or bypassed with a narrower potential-only
+  contract.
+
+Next validation required:
+
+- Add generated-OD dynamic-potential cache/recompute microbenchmarks and compare
+  Python baseline vs Rust potential without enabling runtime-wide Rust routing.

@@ -633,7 +633,8 @@ def _reverse_dijkstra_node_costs(
 
     while heap:
         cur_cost, node_idx = heappop(heap)
-        if cur_cost > float(dist[node_idx]):
+        cur_cost32 = np.float32(cur_cost)
+        if cur_cost32 > dist[node_idx]:
             continue
         start = int(incoming_indptr[node_idx])
         end = int(incoming_indptr[node_idx + 1])
@@ -642,10 +643,10 @@ def _reverse_dijkstra_node_costs(
             if blocked_np[link_index]:
                 continue
             prev_node_idx = int(link_src[link_index])
-            cand = cur_cost + float(costs_np[link_index])
-            if cand < float(dist[prev_node_idx]):
-                dist[prev_node_idx] = np.float32(cand)
-                heappush(heap, (cand, prev_node_idx))
+            cand = np.float32(cur_cost32 + costs_np[link_index])
+            if cand < dist[prev_node_idx]:
+                dist[prev_node_idx] = cand
+                heappush(heap, (float(cand), prev_node_idx))
     return dist
 
 

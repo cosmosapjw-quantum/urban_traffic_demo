@@ -48,6 +48,42 @@ def test_advanced_dynamic_potential_prefers_less_congested_path():
     assert path == (12, 13)
 
 
+def test_generated_baseline_dynamic_potential_does_not_drop_float32_heap_updates():
+    dynamic_potential = import_module("metroflow.routing.dynamic_potential")
+    sim_config = import_module("metroflow.sim.config")
+    sim_init = import_module("metroflow.sim.init")
+
+    bundle = sim_init.build_initial_simulation_state(
+        config=sim_config.SimulationConfig(),
+        scenario_seed=41,
+        eager_trip_generation=True,
+    )
+    road_csr = bundle.state.static.routing_static["road_csr"]
+    link_state = bundle.state.dynamic.flow_link_state
+
+    potential = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=8,
+        link_state=link_state,
+        routing_backend="baseline",
+    )
+    path = dynamic_potential.build_greedy_route_candidate(
+        road_csr,
+        potential,
+        origin_node_id=422,
+        max_hops=64,
+        routing_backend="baseline",
+    )
+
+    assert path
+    current_node_id = 422
+    for link_id in path:
+        link = road_csr.links[road_csr.link_id_to_index[int(link_id)]]
+        assert link.src_node_id == current_node_id
+        current_node_id = link.dst_node_id
+    assert current_node_id == 8
+
+
 def test_route_candidate_refresh_reuses_until_interval_or_incident():
     _graph, csr, link_state = make_csr_and_link_state()
     candidates = import_module("metroflow.routing.candidates")

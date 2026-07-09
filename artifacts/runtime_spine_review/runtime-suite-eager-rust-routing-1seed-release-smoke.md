@@ -1,0 +1,30 @@
+- Runtime benchmark suite:
+- Workload: smoke-runtime-suite-eager-rust-routing-1seed-release
+- Seeds: 41
+- Seed count: 1
+- Steps per seed: 1
+- Wall-clock ns total: 26164632173
+- Per-seed results: 1
+- Runtime GPU candidate gate:
+- Workload: smoke-runtime-suite-eager-rust-routing-1seed-release
+- Deterministic runs: 1
+- Unique seeds: 1
+- Seeds: 41
+- Threshold: 0.3
+- Minimum deterministic seeds: 3
+- Eligible stages: none
+- flow_update: candidate runs 0/1, mean share 7e-06, min share 7e-06, max share 7e-06, eligible no
+- route_candidate_refresh: candidate runs 1/1, mean share 0.948591, min share 0.948591, max share 0.948591, eligible no
+- dynamic_potential_recompute: candidate runs 0/1, mean share 0.018314, min share 0.018314, max share 0.018314, eligible no
+- routing_compile_estimate: candidate runs 0/1, mean share 0.0, min share 0.0, max share 0.0, eligible no
+- reroute_decision: candidate runs 0/1, mean share 0.0, min share 0.0, max share 0.0, eligible no
+- active_agent_update: candidate runs 0/1, mean share 0.032341, min share 0.032341, max share 0.032341, eligible no
+- route_candidate_potential: candidate runs 0/1, mean share 0.019283, min share 0.019283, max share 0.019283, eligible no
+- route_candidate_path_build: candidate runs 1/1, mean share 0.424858, min share 0.424858, max share 0.424858, eligible no
+- route_candidate_metadata: candidate runs 1/1, mean share 0.497658, min share 0.497658, max share 0.497658, eligible no
+- active_agent_allocation: candidate runs 0/1, mean share 0.031605, min share 0.031605, max share 0.031605, eligible no
+- active_agent_candidate_selection: candidate runs 0/1, mean share 0.008073, min share 0.008073, max share 0.008073, eligible no
+- active_agent_pool_write: candidate runs 0/1, mean share 0.022218, min share 0.022218, max share 0.022218, eligible no
+- active_agent_pool_array_write: candidate runs 0/1, mean share 0.020694, min share 0.020694, max share 0.020694, eligible no
+- active_agent_plugin_memory_write: candidate runs 0/1, mean share 0.000666, min share 0.000666, max share 0.000666, eligible no
+- active_agent_movement: candidate runs 0/1, mean share 0.000511, min share 0.000511, max share 0.000511, eligible no

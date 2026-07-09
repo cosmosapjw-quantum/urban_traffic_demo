@@ -33,9 +33,14 @@ Project state summary:
 Observed on seeds `41,42,43` with eager trip generation:
 
 - `route_candidate_refresh` remains a large stage.
-- `route_candidate_path_build` is now review-ready in the 1-step and 2-step
+- Baseline dynamic-potential Dijkstra now preserves `float32` heap updates and
+  reaches generated OD routes that were previously misclassified as no-route.
+- `route_candidate_potential` is now review-ready in the 1-step and 2-step
   eager suites.
-- `route_candidate_potential` remains below the 0.30 review gate.
+- `dynamic_potential_recompute` is the dominant nested cost inside route
+  candidate refresh.
+- `route_candidate_path_build` is below the 0.30 review gate after the baseline
+  Dijkstra correctness fix.
 - `active_agent_update` and `active_agent_allocation` are no longer
   review-ready after batched plugin-memory replacement.
 - `active_agent_pool_write` is now split into
@@ -48,9 +53,18 @@ Current implication:
 
 - Active-agent pool-array replacement stays on the Rust CPU watchlist but should
   not drive the next slice.
-- Route next slice should target Rust/algorithmic path-build before custom CUDA.
-- NN remains a supervised surrogate research lane, not the next runtime hot-path
-  fix.
+- Route next slice should target dynamic-potential recompute and cache
+  amortization before greedy path-build.
+- Explicit whole-suite `routing_backend="rust_cpu"` is still not runtime-ready:
+  debug `maturin develop` timed out at 90 seconds, while release
+  `maturin develop --release` completed the 1-seed/1-step eager suite in
+  `26.70s` versus `8.02s` for baseline.
+- Release Rust routing moves cost away from dynamic-potential recompute and into
+  path-build/metadata copy-boundary work, so the next slice should be a narrower
+  potential-only/cache-amortization contract rather than whole-routing
+  activation.
+- NN remains a supervised cost-to-go surrogate research lane, not a runtime
+  authority or route-legality replacement.
 
 ## Metacognitive Self-Ask
 
@@ -121,8 +135,10 @@ Open a Rust CPU slice when:
 
 Current Rust-ready candidates:
 
-- route candidate path-build graph core
-- `active_agent_pool_array_write` only after route path-build is addressed or
+- dynamic-potential recompute/cache amortization
+- route candidate path-build graph core only after potential recompute is
+  reduced or falsified
+- `active_agent_pool_array_write` only after route potential work is addressed or
   active-agent array write becomes review-ready again
 
 ### JAX/GPU
@@ -136,6 +152,8 @@ Open a JAX/GPU slice when:
 
 Current JAX/GPU watchlist:
 
+- dynamic-potential cost-to-go batches after first-call compile and steady-state
+  timing are separated;
 - route candidate scoring or metadata batches at larger K;
 - flow update at larger dense workloads.
 
@@ -176,12 +194,14 @@ Review must explicitly check:
 
 Preferred next implementation slice:
 
-- add a Rust CPU candidate path-build core or narrower path-build contract;
+- fix or amortize dynamic-potential recompute first;
+- compare Rust CPU dynamic-potential against Python baseline on generated OD
+  workloads without enabling Rust path-build/metadata for the whole runtime;
 - keep Python greedy/baseline route legality authoritative;
 - keep existing active-agent timing evidence unchanged until active-agent array
   write becomes review-ready again.
 
 Stop condition:
 
-- If path-build sub-analysis shows scoring/metadata rather than graph
-  construction is dominant, step back before implementing Rust graph code.
+- If potential recompute optimization fails to reduce the review-ready route
+  refresh parent, step back before adding another routing backend surface.

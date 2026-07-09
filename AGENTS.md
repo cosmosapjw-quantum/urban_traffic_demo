@@ -78,3 +78,4 @@
 - 042-runtime-acceleration-guardrails: Added anti-local-minima self-ask, step-back, and compact CCoT review guardrails
 - 043-active-agent-pool-write-breakdown: Split pool-write timing into typed-array replacement and plugin-memory write sub-stages
 - 044-active-agent-plugin-memory-batch: Batched allocation plugin-memory replacement and redirected next slice to route path-build
+- 045-routing-potential-float32-fix: Fixed baseline dynamic-potential float32 heap-staleness and redirected route acceleration toward potential recompute/cache amortization

@@ -30,10 +30,19 @@ Derived conclusions:
   a watchlist item.
 - `active_agent_candidate_selection` is not currently the hot path.
 - Route candidate refresh is now the dominant review-ready parent stage.
-- `route_candidate_path_build` is review-ready in both 1-step and 2-step eager
-  suites, so immediate route work should be Rust/algorithmic before custom CUDA.
-- NN/JAX remains a watchlist for scoring and surrogate labels, not the next
-  runtime state-mutation fix.
+- `route_candidate_potential` and `dynamic_potential_recompute` are the current
+  review-ready route substages after fixing baseline Dijkstra `float32`
+  heap-staleness.
+- `route_candidate_path_build` is no longer review-ready after the baseline
+  correctness fix.
+- Explicit whole-runtime `routing_backend="rust_cpu"` is slower than baseline
+  for the 1-seed/1-step eager suite even with a release Rust extension
+  (`26.70s` versus baseline `8.02s`), because cost moves into Rust
+  path-build/metadata copy-boundary work.
+- Keep Rust routing work narrow: potential-only/cache amortization first,
+  path-build/metadata later only if their release-profile evidence improves.
+- NN/JAX remains a watchlist for cost-to-go surrogate labels or dense scoring,
+  not the next route-legality authority.
 
 ## Open Risks
 
@@ -46,5 +55,5 @@ Derived conclusions:
 ## Next Action
 
 Follow `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md` and open a
-narrow Rust CPU route path-build slice while keeping Python baseline route
-legality authoritative.
+narrow dynamic-potential recompute/cache-amortization slice while keeping Python
+baseline route legality authoritative.

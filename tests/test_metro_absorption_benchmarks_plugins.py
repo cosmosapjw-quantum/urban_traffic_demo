@@ -934,6 +934,54 @@ def test_benchmark_cli_runtime_suite_passes_eager_trip_generation(
     assert captured_calls[0]["eager_trip_generation"] is True
 
 
+def test_benchmark_cli_runtime_suite_passes_routing_backend(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.benchmarks import run as benchmark_run_module
+
+    captured_calls: list[dict[str, object]] = []
+
+    def fake_runtime_suite(**kwargs: object) -> dict[str, object]:
+        captured_calls.append(dict(kwargs))
+        return {
+            "suite_result": object(),
+            "gpu_candidate_gate_report": object(),
+            "report": "- Runtime benchmark suite:\n- Workload: rust-routing-suite",
+            "report_data": {
+                "name": "measured_runtime_spine_suite",
+                "workload_name": "rust-routing-suite",
+                "seeds": [1, 2, 3],
+                "seed_count": 3,
+                "num_steps": 1,
+                "wall_clock_ns_total": 3000,
+                "per_seed_results": [],
+                "gpu_candidate_gate_report": {
+                    "gpu_review_eligible_stage_names": [],
+                    "stage_summaries": [],
+                },
+            },
+        }
+
+    monkeypatch.setattr(
+        benchmark_run_module,
+        "run_runtime_benchmark_suite",
+        fake_runtime_suite,
+    )
+
+    exit_code = benchmark_run_module.main(
+        [
+            "--runtime-suite",
+            "--runtime-suite-workload",
+            "rust-routing-suite",
+            "--runtime-suite-routing-backend",
+            "rust_cpu",
+        ]
+    )
+
+    assert exit_code == 0
+    assert captured_calls[0]["routing_backend"] == "rust_cpu"
+
+
 def test_benchmark_cli_runtime_suite_rejects_empty_seed_list() -> None:
     from metroflow.benchmarks import run as benchmark_run_module
 

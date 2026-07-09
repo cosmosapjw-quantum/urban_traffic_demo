@@ -8,6 +8,7 @@ import time
 from collections import Counter
 from dataclasses import asdict
 from dataclasses import fields as dataclass_fields
+from dataclasses import replace as dataclass_replace
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -220,8 +221,20 @@ def run_runtime_benchmark_suite(
     control: SimulationControl | None = None,
     simulation_config: SimulationConfig | None = None,
     eager_trip_generation: bool = False,
+    routing_backend: str | None = None,
 ) -> dict[str, Any]:
     """Run the measured runtime spine suite and return review artifacts."""
+
+    resolved_simulation_config = simulation_config
+    if routing_backend is not None:
+        routing_backend = str(routing_backend)
+        if resolved_simulation_config is None:
+            resolved_simulation_config = SimulationConfig(routing_backend=routing_backend)
+        else:
+            resolved_simulation_config = dataclass_replace(
+                resolved_simulation_config,
+                routing_backend=routing_backend,
+            )
 
     suite_result = run_measured_runtime_spine_benchmark_suite(
         MeasuredRuntimeBenchmarkSuiteConfig(
@@ -229,7 +242,7 @@ def run_runtime_benchmark_suite(
             seeds=tuple(int(seed) for seed in seeds),
             num_steps=int(num_steps),
             control=SimulationControl() if control is None else control,
-            simulation_config=simulation_config,
+            simulation_config=resolved_simulation_config,
             eager_trip_generation=bool(eager_trip_generation),
         )
     )
@@ -534,12 +547,15 @@ def evaluate_canonical_64_seed_budget(
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     if args.runtime_suite:
-        result = run_runtime_benchmark_suite(
-            workload_name=args.runtime_suite_workload,
-            seeds=args.runtime_suite_seeds,
-            num_steps=args.runtime_suite_steps,
-            eager_trip_generation=args.runtime_suite_eager_trip_generation,
-        )
+        runtime_suite_kwargs: dict[str, Any] = {
+            "workload_name": args.runtime_suite_workload,
+            "seeds": args.runtime_suite_seeds,
+            "num_steps": args.runtime_suite_steps,
+            "eager_trip_generation": args.runtime_suite_eager_trip_generation,
+        }
+        if args.runtime_suite_routing_backend is not None:
+            runtime_suite_kwargs["routing_backend"] = args.runtime_suite_routing_backend
+        result = run_runtime_benchmark_suite(**runtime_suite_kwargs)
         print("MetroFlow runtime benchmark suite complete.")
         print(
             "Suite:",
@@ -547,6 +563,11 @@ def main(argv: list[str] | None = None) -> int:
             f"seeds={','.join(str(seed) for seed in args.runtime_suite_seeds)}",
             f"steps={args.runtime_suite_steps}",
             f"eager_trips={args.runtime_suite_eager_trip_generation}",
+            (
+                f"routing_backend={args.runtime_suite_routing_backend}"
+                if args.runtime_suite_routing_backend is not None
+                else "routing_backend=default"
+            ),
         )
         report_text = str(result["report"])
         if args.runtime_suite_report_path is not None:
@@ -660,6 +681,12 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--runtime-suite-html-path")
     parser.add_argument("--runtime-suite-artifact-prefix")
     parser.add_argument("--runtime-suite-eager-trip-generation", action="store_true")
+    parser.add_argument(
+        "--runtime-suite-routing-backend",
+        choices=("baseline", "rust_cpu", "auto"),
+        default=None,
+        help="Optional runtime suite routing backend override.",
+    )
     args = parser.parse_args(argv)
     if args.duration_ticks < 0:
         parser.error("--duration-ticks must be >= 0")

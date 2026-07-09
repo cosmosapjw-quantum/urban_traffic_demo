@@ -144,3 +144,46 @@ guardrails.
 
 Next action: Inspect `routing.candidates` path-build internals and add RED
 parity tests for the smallest Rust path-build boundary.
+
+## 2026-07-09: Baseline Dijkstra Fix Redirects Route Acceleration To Potential
+
+Status: accepted
+
+### Context
+
+The planned Rust path-build slice was step-backed after inspection showed Rust
+greedy/ranked path-building already existed. Generated-OD micro analysis then
+found a deeper issue: Python baseline dynamic-potential Dijkstra dropped valid
+heap entries because heap costs were Python floats while authoritative
+distances were stored as `float32`.
+
+### Compact CCoT
+
+Question: Should the next route slice still be Rust path-build?
+
+Evidence: After fixing baseline Dijkstra `float32` heap-staleness, regenerated
+1-step and 2-step eager suites show `route_candidate_potential` at `0.537567`
+and `0.509388` mean share, while `route_candidate_path_build` falls to
+`0.244385` and `0.231000`. Explicit Rust routing with a release extension
+completed the 1-seed/1-step eager suite in `26.70s`, slower than the baseline
+`8.02s`, with cost shifted into path-build and metadata copy-boundary work.
+
+Inference: The previous path-build recommendation was a local-minimum artifact
+of an incorrect baseline no-route behavior. The current review-ready route
+substage is dynamic-potential recompute/cache behavior.
+
+Counterevidence checked: Rust generated-OD micro routing matches the fixed
+baseline path for OD node `422 -> 8`, and release Rust potential recompute is
+fast. Whole-runtime Rust activation remains too slow because path-build and
+metadata copy-boundary costs are not amortized.
+
+Decision: Stop the whole-routing/path-build slice and move the next route work
+to dynamic-potential recompute/cache amortization. Keep runtime-wide Rust
+routing deferred.
+
+Falsifier: If a narrow potential/cache slice fails to reduce route refresh, or
+if a larger candidate-K workload makes path-build/scoring review-ready, reopen
+path-build or NN/JAX scoring.
+
+Next action: Add a generated-OD dynamic-potential benchmark/parity slice and
+measure cache reuse by destination before opening another Rust route surface.

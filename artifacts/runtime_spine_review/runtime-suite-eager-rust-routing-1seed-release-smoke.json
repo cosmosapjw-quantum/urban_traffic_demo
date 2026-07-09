@@ -1,0 +1,525 @@
+{
+  "acceleration_candidate_report": {
+    "eager_trip_generation": true,
+    "notes": [
+      "Stage shares can overlap when a coarse stage contains a nested measured stage; do not sum them as exclusive wall-clock partitions."
+    ],
+    "report_type": "runtime_acceleration_candidate_report_v1",
+    "stage_candidates": [
+      {
+        "custom_cuda_fit": "high",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "high",
+        "max_wall_clock_ns": 187247,
+        "max_wall_time_share": 7e-06,
+        "mean_wall_time_share": 7e-06,
+        "nn_surrogate_fit": "low",
+        "rationale": "array-style numeric update is tensor friendly when it becomes a sustained wall-time share",
+        "recommended_next_probe": "profile larger dense flow batches before opening custom CUDA",
+        "rust_cpu_fit": "medium",
+        "stage_name": "flow_update"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "medium",
+        "max_wall_clock_ns": 24819544837,
+        "max_wall_time_share": 0.948591,
+        "mean_wall_time_share": 0.948591,
+        "nn_surrogate_fit": "high",
+        "rationale": "mixed graph/orchestration workload; NN route scorer or batched JAX scoring may help after baseline labels exist",
+        "recommended_next_probe": "split OD batching, cache lookup, candidate scoring, and path construction timings",
+        "rust_cpu_fit": "medium",
+        "stage_name": "route_candidate_refresh"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 479186731,
+        "max_wall_time_share": 0.018314,
+        "mean_wall_time_share": 0.018314,
+        "nn_surrogate_fit": "high",
+        "rationale": "reverse graph search is irregular for GPU kernels, but it can supervise NN cost-to-go approximators",
+        "recommended_next_probe": "keep Dijkstra authoritative and collect labels for learned cost-to-go surrogate experiments",
+        "rust_cpu_fit": "high",
+        "stage_name": "dynamic_potential_recompute"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 0,
+        "max_wall_time_share": 0.0,
+        "mean_wall_time_share": 0.0,
+        "nn_surrogate_fit": "low",
+        "rationale": "stage has no established acceleration profile yet",
+        "recommended_next_probe": "add a stage-specific timing probe before selecting a backend",
+        "rust_cpu_fit": "medium",
+        "stage_name": "routing_compile_estimate"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "medium",
+        "max_wall_clock_ns": 10359,
+        "max_wall_time_share": 0.0,
+        "mean_wall_time_share": 0.0,
+        "nn_surrogate_fit": "high",
+        "rationale": "decision scoring can become batched tensor inference, while route legality remains baseline-checked",
+        "recommended_next_probe": "collect simulator labels for policy/choice NN and keep deterministic fallback",
+        "rust_cpu_fit": "medium",
+        "stage_name": "reroute_decision"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 846177724,
+        "max_wall_time_share": 0.032341,
+        "mean_wall_time_share": 0.032341,
+        "nn_surrogate_fit": "medium",
+        "rationale": "deterministic slot-order budget mutation is CPU/control-flow heavy; NN/GPU belongs in policy scoring, not state apply",
+        "recommended_next_probe": "separate Python pack, Rust action core, and immutable pool apply timings",
+        "rust_cpu_fit": "high",
+        "stage_name": "active_agent_update"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 504525018,
+        "max_wall_time_share": 0.019283,
+        "mean_wall_time_share": 0.019283,
+        "nn_surrogate_fit": "high",
+        "rationale": "potential computation is graph-search dominated but can produce supervised labels for NN cost-to-go surrogates",
+        "recommended_next_probe": "compare cache-hit time, baseline Dijkstra, Rust Dijkstra, and learned cost-to-go labels separately",
+        "rust_cpu_fit": "high",
+        "stage_name": "route_candidate_potential"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 11116265525,
+        "max_wall_time_share": 0.424858,
+        "mean_wall_time_share": 0.424858,
+        "nn_surrogate_fit": "medium",
+        "rationale": "path construction is branchy graph control flow; NN may help scoring, while Rust is the likely execution backend",
+        "recommended_next_probe": "split greedy next-link scoring from ranked-K heap expansion before choosing Rust or NN scorer work",
+        "rust_cpu_fit": "high",
+        "stage_name": "route_candidate_path_build"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "medium",
+        "max_wall_clock_ns": 13021037895,
+        "max_wall_time_share": 0.497658,
+        "mean_wall_time_share": 0.497658,
+        "nn_surrogate_fit": "low",
+        "rationale": "metadata scoring is more array-like than graph search but must remain baseline-checkable",
+        "recommended_next_probe": "profile path-cost and path-size batches at larger K before opening a tensor backend",
+        "rust_cpu_fit": "medium",
+        "stage_name": "route_candidate_metadata"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 826940325,
+        "max_wall_time_share": 0.031605,
+        "mean_wall_time_share": 0.031605,
+        "nn_surrogate_fit": "medium",
+        "rationale": "allocation includes route choice policy scoring and Python-owned immutable state writes",
+        "recommended_next_probe": "split candidate selection from pool slot allocation before adding policy inference",
+        "rust_cpu_fit": "medium",
+        "stage_name": "active_agent_allocation"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "medium",
+        "max_wall_clock_ns": 211234265,
+        "max_wall_time_share": 0.008073,
+        "mean_wall_time_share": 0.008073,
+        "nn_surrogate_fit": "high",
+        "rationale": "candidate selection is policy/scoring shaped and is the most plausible active-agent NN surface",
+        "recommended_next_probe": "batch route-choice scoring and collect baseline-selected labels before adding a neural scorer",
+        "rust_cpu_fit": "medium",
+        "stage_name": "active_agent_candidate_selection"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 581321179,
+        "max_wall_time_share": 0.022218,
+        "mean_wall_time_share": 0.022218,
+        "nn_surrogate_fit": "low",
+        "rationale": "pool writes are deterministic state mutation and should stay CPU/Rust-oriented",
+        "recommended_next_probe": "measure immutable pool replacement and plugin-memory writes separately if this grows",
+        "rust_cpu_fit": "high",
+        "stage_name": "active_agent_pool_write"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 541446242,
+        "max_wall_time_share": 0.020694,
+        "mean_wall_time_share": 0.020694,
+        "nn_surrogate_fit": "low",
+        "rationale": "typed active-agent pool arrays are deterministic state mutation and fit Rust CPU better than NN/GPU",
+        "recommended_next_probe": "compare Python immutable array replacement with a Rust action/apply plan before changing ownership",
+        "rust_cpu_fit": "high",
+        "stage_name": "active_agent_pool_array_write"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 17419072,
+        "max_wall_time_share": 0.000666,
+        "mean_wall_time_share": 0.000666,
+        "nn_surrogate_fit": "low",
+        "rationale": "plugin-memory writes are Python mapping churn; optimize data layout before adding accelerator backends",
+        "recommended_next_probe": "reduce dict-heavy selected-candidate metadata writes or move hot metadata into typed arrays",
+        "rust_cpu_fit": "medium",
+        "stage_name": "active_agent_plugin_memory_write"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 13369113,
+        "max_wall_time_share": 0.000511,
+        "mean_wall_time_share": 0.000511,
+        "nn_surrogate_fit": "low",
+        "rationale": "movement is deterministic slot-order state mutation and is a CPU backend target, not an NN surrogate target",
+        "recommended_next_probe": "separate budget lookup, Rust action plan, and pool replacement timings",
+        "rust_cpu_fit": "high",
+        "stage_name": "active_agent_movement"
+      }
+    ],
+    "stage_mean_wall_time_share_total": 2.024819,
+    "timing_overlap_warning": true,
+    "workload_name": "smoke-runtime-suite-eager-rust-routing-1seed-release"
+  },
+  "eager_trip_generation": true,
+  "gpu_candidate_gate_markdown": "- Runtime GPU candidate gate:\n- Workload: smoke-runtime-suite-eager-rust-routing-1seed-release\n- Deterministic runs: 1\n- Unique seeds: 1\n- Seeds: 41\n- Threshold: 0.3\n- Minimum deterministic seeds: 3\n- Eligible stages: none\n- flow_update: candidate runs 0/1, mean share 7e-06, min share 7e-06, max share 7e-06, eligible no\n- route_candidate_refresh: candidate runs 1/1, mean share 0.948591, min share 0.948591, max share 0.948591, eligible no\n- dynamic_potential_recompute: candidate runs 0/1, mean share 0.018314, min share 0.018314, max share 0.018314, eligible no\n- routing_compile_estimate: candidate runs 0/1, mean share 0.0, min share 0.0, max share 0.0, eligible no\n- reroute_decision: candidate runs 0/1, mean share 0.0, min share 0.0, max share 0.0, eligible no\n- active_agent_update: candidate runs 0/1, mean share 0.032341, min share 0.032341, max share 0.032341, eligible no\n- route_candidate_potential: candidate runs 0/1, mean share 0.019283, min share 0.019283, max share 0.019283, eligible no\n- route_candidate_path_build: candidate runs 1/1, mean share 0.424858, min share 0.424858, max share 0.424858, eligible no\n- route_candidate_metadata: candidate runs 1/1, mean share 0.497658, min share 0.497658, max share 0.497658, eligible no\n- active_agent_allocation: candidate runs 0/1, mean share 0.031605, min share 0.031605, max share 0.031605, eligible no\n- active_agent_candidate_selection: candidate runs 0/1, mean share 0.008073, min share 0.008073, max share 0.008073, eligible no\n- active_agent_pool_write: candidate runs 0/1, mean share 0.022218, min share 0.022218, max share 0.022218, eligible no\n- active_agent_pool_array_write: candidate runs 0/1, mean share 0.020694, min share 0.020694, max share 0.020694, eligible no\n- active_agent_plugin_memory_write: candidate runs 0/1, mean share 0.000666, min share 0.000666, max share 0.000666, eligible no\n- active_agent_movement: candidate runs 0/1, mean share 0.000511, min share 0.000511, max share 0.000511, eligible no",
+  "gpu_candidate_gate_report": {
+    "deterministic_run_count": 1,
+    "gpu_candidate_min_seed_count": 3,
+    "gpu_candidate_threshold": 0.3,
+    "gpu_review_eligible_stage_names": [],
+    "seeds": [
+      41
+    ],
+    "stage_summaries": [
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 187247,
+        "max_wall_time_share": 7e-06,
+        "mean_wall_time_share": 7e-06,
+        "min_wall_time_share": 7e-06,
+        "stage_name": "flow_update"
+      },
+      {
+        "candidate_run_count": 1,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 24819544837,
+        "max_wall_time_share": 0.948591,
+        "mean_wall_time_share": 0.948591,
+        "min_wall_time_share": 0.948591,
+        "stage_name": "route_candidate_refresh"
+      },
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 479186731,
+        "max_wall_time_share": 0.018314,
+        "mean_wall_time_share": 0.018314,
+        "min_wall_time_share": 0.018314,
+        "stage_name": "dynamic_potential_recompute"
+      },
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 0,
+        "max_wall_time_share": 0.0,
+        "mean_wall_time_share": 0.0,
+        "min_wall_time_share": 0.0,
+        "stage_name": "routing_compile_estimate"
+      },
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 10359,
+        "max_wall_time_share": 0.0,
+        "mean_wall_time_share": 0.0,
+        "min_wall_time_share": 0.0,
+        "stage_name": "reroute_decision"
+      },
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 846177724,
+        "max_wall_time_share": 0.032341,
+        "mean_wall_time_share": 0.032341,
+        "min_wall_time_share": 0.032341,
+        "stage_name": "active_agent_update"
+      },
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 504525018,
+        "max_wall_time_share": 0.019283,
+        "mean_wall_time_share": 0.019283,
+        "min_wall_time_share": 0.019283,
+        "stage_name": "route_candidate_potential"
+      },
+      {
+        "candidate_run_count": 1,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 11116265525,
+        "max_wall_time_share": 0.424858,
+        "mean_wall_time_share": 0.424858,
+        "min_wall_time_share": 0.424858,
+        "stage_name": "route_candidate_path_build"
+      },
+      {
+        "candidate_run_count": 1,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 13021037895,
+        "max_wall_time_share": 0.497658,
+        "mean_wall_time_share": 0.497658,
+        "min_wall_time_share": 0.497658,
+        "stage_name": "route_candidate_metadata"
+      },
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 826940325,
+        "max_wall_time_share": 0.031605,
+        "mean_wall_time_share": 0.031605,
+        "min_wall_time_share": 0.031605,
+        "stage_name": "active_agent_allocation"
+      },
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 211234265,
+        "max_wall_time_share": 0.008073,
+        "mean_wall_time_share": 0.008073,
+        "min_wall_time_share": 0.008073,
+        "stage_name": "active_agent_candidate_selection"
+      },
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 581321179,
+        "max_wall_time_share": 0.022218,
+        "mean_wall_time_share": 0.022218,
+        "min_wall_time_share": 0.022218,
+        "stage_name": "active_agent_pool_write"
+      },
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 541446242,
+        "max_wall_time_share": 0.020694,
+        "mean_wall_time_share": 0.020694,
+        "min_wall_time_share": 0.020694,
+        "stage_name": "active_agent_pool_array_write"
+      },
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 17419072,
+        "max_wall_time_share": 0.000666,
+        "mean_wall_time_share": 0.000666,
+        "min_wall_time_share": 0.000666,
+        "stage_name": "active_agent_plugin_memory_write"
+      },
+      {
+        "candidate_run_count": 0,
+        "deterministic_run_count": 1,
+        "gpu_review_eligible": false,
+        "max_wall_clock_ns": 13369113,
+        "max_wall_time_share": 0.000511,
+        "mean_wall_time_share": 0.000511,
+        "min_wall_time_share": 0.000511,
+        "stage_name": "active_agent_movement"
+      }
+    ],
+    "unique_seed_count": 1,
+    "workload_name": "smoke-runtime-suite-eager-rust-routing-1seed-release"
+  },
+  "name": "measured_runtime_spine_suite",
+  "num_steps": 1,
+  "per_seed_results": [
+    {
+      "active_agent_allocation_wall_ns_total": 826940325,
+      "active_agent_candidate_selection_wall_ns_total": 211234265,
+      "active_agent_count": 20000,
+      "active_agent_movement_wall_ns_total": 13369113,
+      "active_agent_plugin_memory_write_wall_ns_total": 17419072,
+      "active_agent_pool_array_write_wall_ns_total": 541446242,
+      "active_agent_pool_write_wall_ns_total": 581321179,
+      "active_agent_reroute_cooldown_this_tick": 0,
+      "active_agent_rerouted_this_tick": 0,
+      "active_agent_sink_wait_this_tick": 0,
+      "active_agent_sink_wait_total": 0,
+      "active_agent_update_wall_ns": 846177724,
+      "active_agent_update_wall_ns_total": 846177724,
+      "agent_backend": "baseline",
+      "agent_copy_boundary_note": "python baseline",
+      "dynamic_potential_cache_hits_total": 17425,
+      "dynamic_potential_recompute_seconds_total": 0.4791867308667861,
+      "dynamic_potential_recompute_total": 855,
+      "final_tick": 1,
+      "flow_backend": "baseline",
+      "flow_update_wall_ns_total": 187247,
+      "gpu_candidate_min_seed_count": 3,
+      "gpu_candidate_stage_names": [
+        "route_candidate_refresh",
+        "route_candidate_path_build",
+        "route_candidate_metadata"
+      ],
+      "gpu_candidate_threshold": 0.3,
+      "initial_tick": 0,
+      "name": "measured_runtime_spine",
+      "num_steps": 1,
+      "persistence_decisions_total": 0,
+      "reroute_decision_wall_ns_total": 10359,
+      "reroute_decisions_total": 0,
+      "route_candidate_metadata_seconds_total": 13.021037895145128,
+      "route_candidate_path_build_seconds_total": 11.116265525459312,
+      "route_candidate_potential_seconds_total": 0.5045250181574374,
+      "route_candidate_refresh_seconds_total": 24.819544837489957,
+      "route_candidate_refresh_total": 18280,
+      "route_candidate_reuse_total": 12789,
+      "route_path_size_gamma": 0.0,
+      "routing_backend": "rust_cpu",
+      "routing_compile_seconds_estimate_total": 0.0,
+      "routing_copy_boundary_note": "rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, greedy path, ranked-K candidates, candidate metadata, candidate selection, and reroute decision",
+      "runtime_stage_timings": [
+        {
+          "gpu_candidate": false,
+          "stage_name": "flow_update",
+          "wall_clock_ns": 187247,
+          "wall_time_share": 7e-06
+        },
+        {
+          "gpu_candidate": true,
+          "stage_name": "route_candidate_refresh",
+          "wall_clock_ns": 24819544837,
+          "wall_time_share": 0.948591
+        },
+        {
+          "gpu_candidate": false,
+          "stage_name": "dynamic_potential_recompute",
+          "wall_clock_ns": 479186731,
+          "wall_time_share": 0.018314
+        },
+        {
+          "gpu_candidate": false,
+          "stage_name": "routing_compile_estimate",
+          "wall_clock_ns": 0,
+          "wall_time_share": 0.0
+        },
+        {
+          "gpu_candidate": false,
+          "stage_name": "reroute_decision",
+          "wall_clock_ns": 10359,
+          "wall_time_share": 0.0
+        },
+        {
+          "gpu_candidate": false,
+          "stage_name": "active_agent_update",
+          "wall_clock_ns": 846177724,
+          "wall_time_share": 0.032341
+        },
+        {
+          "gpu_candidate": false,
+          "stage_name": "route_candidate_potential",
+          "wall_clock_ns": 504525018,
+          "wall_time_share": 0.019283
+        },
+        {
+          "gpu_candidate": true,
+          "stage_name": "route_candidate_path_build",
+          "wall_clock_ns": 11116265525,
+          "wall_time_share": 0.424858
+        },
+        {
+          "gpu_candidate": true,
+          "stage_name": "route_candidate_metadata",
+          "wall_clock_ns": 13021037895,
+          "wall_time_share": 0.497658
+        },
+        {
+          "gpu_candidate": false,
+          "stage_name": "active_agent_allocation",
+          "wall_clock_ns": 826940325,
+          "wall_time_share": 0.031605
+        },
+        {
+          "gpu_candidate": false,
+          "stage_name": "active_agent_candidate_selection",
+          "wall_clock_ns": 211234265,
+          "wall_time_share": 0.008073
+        },
+        {
+          "gpu_candidate": false,
+          "stage_name": "active_agent_pool_write",
+          "wall_clock_ns": 581321179,
+          "wall_time_share": 0.022218
+        },
+        {
+          "gpu_candidate": false,
+          "stage_name": "active_agent_pool_array_write",
+          "wall_clock_ns": 541446242,
+          "wall_time_share": 0.020694
+        },
+        {
+          "gpu_candidate": false,
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_clock_ns": 17419072,
+          "wall_time_share": 0.000666
+        },
+        {
+          "gpu_candidate": false,
+          "stage_name": "active_agent_movement",
+          "wall_clock_ns": 13369113,
+          "wall_time_share": 0.000511
+        }
+      ],
+      "seed": 41,
+      "wall_clock_ns": 26164632173,
+      "workload_name": "smoke-runtime-suite-eager-rust-routing-1seed-release"
+    }
+  ],
+  "seed_count": 1,
+  "seeds": [
+    41
+  ],
+  "wall_clock_ns_total": 26164632173,
+  "workload_name": "smoke-runtime-suite-eager-rust-routing-1seed-release"
+}

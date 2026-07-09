@@ -22,18 +22,26 @@ Current state:
   review gate.
 - `active_agent_candidate_selection` is not review-ready.
 - `route_candidate_refresh` is the current dominant parent stage.
-- `route_candidate_path_build` is review-ready in both 1-step and 2-step eager
-  suites.
+- `route_candidate_potential` / `dynamic_potential_recompute` is the current
+  review-ready nested route stage.
+- `route_candidate_path_build` fell below the review gate after fixing baseline
+  dynamic-potential `float32` heap-staleness.
+- Whole-runtime explicit `routing_backend="rust_cpu"` is slower than baseline
+  on the 1-seed/1-step eager suite even with a release Rust extension, so Rust
+  routing work must remain narrower than the whole routing backend.
 
 Next recommended slice:
 
-1. Open a narrow Rust CPU route path-build slice or first split path-build if
-   needed to keep the Rust contract small.
-2. Keep Python baseline route legality authoritative.
-3. Re-run eager runtime suite for seeds `41,42,43` at 1-step and 2-step after
-   the route path-build change.
-4. Keep active-agent pool-array replacement on the watchlist.
-5. Do not add NN/JAX scoring until a scoring stage becomes review-ready.
+1. Open a narrow dynamic-potential recompute/cache-amortization slice.
+2. Compare Rust CPU dynamic-potential against Python baseline on generated OD
+   workloads without enabling Rust path-build/metadata whole-runtime paths.
+3. Keep Python baseline route legality authoritative.
+4. Re-run eager runtime suite for seeds `41,42,43` at 1-step and 2-step after
+   the route-potential change.
+5. Keep active-agent pool-array replacement and route path-build on the
+   watchlist.
+6. Do not add NN/JAX scoring until cost-to-go labels, compile-vs-run timing, and
+   fallback semantics are defined.
 
 Required self-check before coding:
 
