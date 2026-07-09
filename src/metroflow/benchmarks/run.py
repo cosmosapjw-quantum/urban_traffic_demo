@@ -429,7 +429,13 @@ def main(argv: list[str] | None = None) -> int:
             f"seeds={','.join(str(seed) for seed in args.runtime_suite_seeds)}",
             f"steps={args.runtime_suite_steps}",
         )
-        print(result["report"])
+        report_text = str(result["report"])
+        if args.runtime_suite_report_path is not None:
+            report_path = Path(args.runtime_suite_report_path)
+            report_path.parent.mkdir(parents=True, exist_ok=True)
+            report_path.write_text(f"{report_text.rstrip()}\n", encoding="utf-8")
+            print("Report:", f"path={report_path}")
+        print(report_text)
         return 0
 
     result = run_benchmark_scenario(
@@ -508,6 +514,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--runtime-suite-workload", default="runtime-suite")
     parser.add_argument("--runtime-suite-seeds", default="41,42,43")
     parser.add_argument("--runtime-suite-steps", type=int, default=8)
+    parser.add_argument("--runtime-suite-report-path")
     args = parser.parse_args(argv)
     if args.duration_ticks < 0:
         parser.error("--duration-ticks must be >= 0")

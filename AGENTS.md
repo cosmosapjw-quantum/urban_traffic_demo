@@ -64,3 +64,4 @@
 - 029-runtime-suite-reporting: Added reviewer-facing markdown rendering for runtime benchmark suite GPU gate artifacts
 - 030-runtime-suite-runner: Added a public benchmark runner facade returning suite result, aggregate GPU gate report, and review markdown
 - 031-runtime-suite-cli: Added `--runtime-suite` benchmark CLI mode with fail-closed seed parsing
+- 032-runtime-suite-artifact: Added `--runtime-suite-report-path` markdown artifact output for long-run benchmark review

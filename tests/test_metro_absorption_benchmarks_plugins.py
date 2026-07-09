@@ -260,6 +260,43 @@ def test_benchmark_cli_runtime_suite_prints_report(
     assert "Eligible stages: flow_update" in output
 
 
+def test_benchmark_cli_runtime_suite_writes_report_file(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    from metroflow.benchmarks import run as benchmark_run_module
+
+    report_path = tmp_path / "runtime-suite.md"
+
+    def fake_runtime_suite(**kwargs: object) -> dict[str, object]:
+        return {
+            "suite_result": object(),
+            "gpu_candidate_gate_report": object(),
+            "report": "- Runtime benchmark suite:\n- Workload: file-suite",
+        }
+
+    monkeypatch.setattr(
+        benchmark_run_module,
+        "run_runtime_benchmark_suite",
+        fake_runtime_suite,
+    )
+
+    exit_code = benchmark_run_module.main(
+        [
+            "--runtime-suite",
+            "--runtime-suite-workload",
+            "file-suite",
+            "--runtime-suite-report-path",
+            str(report_path),
+        ]
+    )
+
+    assert exit_code == 0
+    assert report_path.read_text(encoding="utf-8") == (
+        "- Runtime benchmark suite:\n- Workload: file-suite\n"
+    )
+
+
 def test_benchmark_cli_runtime_suite_rejects_empty_seed_list() -> None:
     from metroflow.benchmarks import run as benchmark_run_module
 

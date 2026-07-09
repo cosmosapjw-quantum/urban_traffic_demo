@@ -122,3 +122,5 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   runtime core 또는 UI snapshot code에 의존성을 역류시키면 안 된다
 - benchmark CLI의 `--runtime-suite` 모드는 같은 facade를 호출한다. seed 목록은 comma-separated
   integer list로 받고 빈 목록은 argparse 단계에서 실패해야 한다
+- `--runtime-suite-report-path`는 review markdown artifact를 UTF-8 파일로 저장하며, 저장된 파일은
+  GPU/C++ 구현 허가가 아니라 long-run 검토 입력으로만 취급한다
