@@ -305,6 +305,7 @@ def test_runtime_benchmark_suite_runner_returns_review_artifacts(monkeypatch: py
         workload_name="runner-suite",
         seeds=(11, 12, 13),
         num_steps=5,
+        eager_trip_generation=True,
     )
 
     assert captured_config == [
@@ -312,11 +313,13 @@ def test_runtime_benchmark_suite_runner_returns_review_artifacts(monkeypatch: py
             workload_name="runner-suite",
             seeds=(11, 12, 13),
             num_steps=5,
+            eager_trip_generation=True,
         )
     ]
     assert result["suite_result"].workload_name == "runner-suite"
     assert result["report_data"]["workload_name"] == "runner-suite"
     assert result["report_data"]["seeds"] == [11, 12, 13]
+    assert result["report_data"]["eager_trip_generation"] is True
     assert result["gpu_candidate_gate_report"].gpu_review_eligible_stage_names == (
         "active_agent_update",
     )
@@ -533,6 +536,7 @@ def test_runtime_benchmark_suite_artifact_bundle_writes_manifest(tmp_path) -> No
                 "seeds": [1, 2, 3],
                 "seed_count": 3,
                 "num_steps": 2,
+                "eager_trip_generation": True,
                 "wall_clock_ns_total": 3000,
                 "per_seed_results": [
                     {
@@ -565,6 +569,7 @@ def test_runtime_benchmark_suite_artifact_bundle_writes_manifest(tmp_path) -> No
     assert "<main data-runtime-benchmark-suite=" in paths["html"].read_text(encoding="utf-8")
     assert manifest["artifact_format_version"] == "runtime_suite_bundle_v1"
     assert manifest["workload_name"] == "bundle-suite"
+    assert manifest["eager_trip_generation"] is True
     assert manifest["gpu_review_eligible_stage_names"] == ["flow_update"]
 
 

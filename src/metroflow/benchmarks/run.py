@@ -232,11 +232,13 @@ def run_runtime_benchmark_suite(
             eager_trip_generation=bool(eager_trip_generation),
         )
     )
+    report_data = runtime_benchmark_suite_to_dict(suite_result)
+    report_data["eager_trip_generation"] = bool(eager_trip_generation)
     return {
         "suite_result": suite_result,
         "gpu_candidate_gate_report": suite_result.gpu_candidate_gate_report,
         "report": format_runtime_benchmark_suite_markdown(suite_result),
-        "report_data": runtime_benchmark_suite_to_dict(suite_result),
+        "report_data": report_data,
     }
 
 
@@ -276,6 +278,7 @@ def write_runtime_benchmark_suite_artifact_bundle(
         "seeds": list(report_data.get("seeds", ()) or ()),
         "seed_count": int(report_data.get("seed_count", 0) or 0),
         "num_steps": int(report_data.get("num_steps", 0) or 0),
+        "eager_trip_generation": bool(report_data.get("eager_trip_generation", False)),
         "gpu_review_eligible_stage_names": list(
             gate_report.get("gpu_review_eligible_stage_names", ()) or ()
         ),

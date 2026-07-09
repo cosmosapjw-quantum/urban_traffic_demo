@@ -135,4 +135,4 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   volatile wall-clock 값을 검증 주장으로 승격하면 안 된다
 - `--runtime-suite-eager-trip-generation`은 초기 trip demand를 생성해 routing/active-agent stage timing을
   관측하기 위한 옵션이다. 이 옵션은 benchmark workload metadata로 취급하고 replay/validation claim으로
-  과장하지 않는다
+  과장하지 않는다. JSON payload와 bundle manifest는 `eager_trip_generation` 값을 보존해야 한다
