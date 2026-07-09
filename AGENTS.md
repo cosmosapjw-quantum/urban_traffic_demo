@@ -54,3 +54,4 @@
 - 019-rust-agent-backend: Added optional Rust CPU active-agent action planning with Python-owned immutable pool replacement
 - 020-runtime-stage-gate: Added runtime stage timing totals and GPU candidate reporting without adding CUDA dependencies
 - 021-runtime-gpu-gate-aggregate: Added multi-run runtime GPU candidate gate aggregation while keeping CUDA backend names documentation-only
+- 022-rust-crate-modules: Started Rust crate module split by extracting common constants, result aliases, and validators
