@@ -16,6 +16,11 @@ import numpy as np
 from metroflow.benchmarks.reporting import (
     benchmark_report_from_run_summary,
     format_benchmark_report_markdown,
+    format_runtime_benchmark_suite_markdown,
+)
+from metroflow.metrics.benchmarks import (
+    MeasuredRuntimeBenchmarkSuiteConfig,
+    run_measured_runtime_spine_benchmark_suite,
 )
 from metroflow.sim.config import DayType, SimulationConfig, TimeBand
 from metroflow.sim.control import SimulationControl
@@ -30,6 +35,7 @@ __all__ = [
     "run_benchmark_scenario",
     "run_benchmark",
     "execute_benchmark",
+    "run_runtime_benchmark_suite",
     "main",
 ]
 
@@ -200,6 +206,34 @@ def execute_benchmark(**kwargs: Any) -> dict[str, Any]:
     """Alias for `run_benchmark_scenario`."""
 
     return run_benchmark_scenario(**kwargs)
+
+
+def run_runtime_benchmark_suite(
+    *,
+    workload_name: str = "runtime-suite",
+    seeds: tuple[int, ...] = (41, 42, 43),
+    num_steps: int = 8,
+    control: SimulationControl | None = None,
+    simulation_config: SimulationConfig | None = None,
+    eager_trip_generation: bool = False,
+) -> dict[str, Any]:
+    """Run the measured runtime spine suite and return review artifacts."""
+
+    suite_result = run_measured_runtime_spine_benchmark_suite(
+        MeasuredRuntimeBenchmarkSuiteConfig(
+            workload_name=workload_name,
+            seeds=tuple(int(seed) for seed in seeds),
+            num_steps=int(num_steps),
+            control=SimulationControl() if control is None else control,
+            simulation_config=simulation_config,
+            eager_trip_generation=bool(eager_trip_generation),
+        )
+    )
+    return {
+        "suite_result": suite_result,
+        "gpu_candidate_gate_report": suite_result.gpu_candidate_gate_report,
+        "report": format_runtime_benchmark_suite_markdown(suite_result),
+    }
 
 
 def build_benchmark_run_summary(

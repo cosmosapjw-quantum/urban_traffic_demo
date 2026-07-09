@@ -117,3 +117,6 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   aggregate GPU candidate gate report, reviewer-facing gate markdown을 한 artifact로 묶는다
 - `format_runtime_benchmark_suite_markdown`은 suite artifact를 review markdown으로 렌더링하며,
   이 markdown은 GPU/C++ 구현 허가가 아니라 후보 stage 검토 자료로만 해석한다
+- `run_runtime_benchmark_suite`는 public benchmark runner facade로 suite artifact, aggregate gate
+  report, review markdown을 한 dict에 담아 반환한다. 이 facade는 장기 benchmark 실행 표면이며
+  runtime core 또는 UI snapshot code에 의존성을 역류시키면 안 된다

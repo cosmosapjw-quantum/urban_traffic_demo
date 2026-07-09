@@ -125,6 +125,91 @@ def test_runtime_benchmark_suite_report_renders_gpu_gate_metadata() -> None:
     assert "Eligible stages: flow_update" in markdown
 
 
+def test_runtime_benchmark_suite_runner_returns_review_artifacts(monkeypatch: pytest.MonkeyPatch) -> None:
+    from metroflow.benchmarks import run_runtime_benchmark_suite
+    from metroflow.benchmarks import run as benchmark_run_module
+    from metroflow.metrics.benchmarks import (
+        MeasuredRuntimeBenchmarkResult,
+        MeasuredRuntimeBenchmarkSuiteConfig,
+        MeasuredRuntimeBenchmarkSuiteResult,
+        RuntimeStageTiming,
+        format_runtime_gpu_candidate_gate_markdown,
+        summarize_runtime_gpu_candidate_gate,
+    )
+
+    captured_config: list[MeasuredRuntimeBenchmarkSuiteConfig] = []
+
+    def fake_suite_runner(
+        config: MeasuredRuntimeBenchmarkSuiteConfig,
+    ) -> MeasuredRuntimeBenchmarkSuiteResult:
+        captured_config.append(config)
+        per_seed_results = tuple(
+            MeasuredRuntimeBenchmarkResult(
+                name="measured_runtime_spine",
+                workload_name=config.workload_name,
+                wall_clock_ns=1000,
+                num_steps=config.num_steps,
+                initial_tick=0,
+                final_tick=config.num_steps,
+                active_agent_count=0,
+                flow_backend="baseline",
+                routing_backend="baseline",
+                agent_backend="baseline",
+                route_path_size_gamma=0.0,
+                routing_copy_boundary_note="numpy baseline",
+                agent_copy_boundary_note="python baseline",
+                route_candidate_refresh_total=0,
+                route_candidate_reuse_total=0,
+                dynamic_potential_recompute_total=0,
+                dynamic_potential_cache_hits_total=0,
+                seed=seed,
+                runtime_stage_timings=(
+                    RuntimeStageTiming("active_agent_update", 350, 0.35, True),
+                ),
+                gpu_candidate_stage_names=("active_agent_update",),
+            )
+            for seed in config.seeds
+        )
+        gate_report = summarize_runtime_gpu_candidate_gate(per_seed_results)
+        return MeasuredRuntimeBenchmarkSuiteResult(
+            name="measured_runtime_spine_suite",
+            workload_name=config.workload_name,
+            seed_count=len(config.seeds),
+            seeds=config.seeds,
+            num_steps=config.num_steps,
+            wall_clock_ns_total=sum(result.wall_clock_ns for result in per_seed_results),
+            per_seed_results=per_seed_results,
+            gpu_candidate_gate_report=gate_report,
+            gpu_candidate_gate_markdown=format_runtime_gpu_candidate_gate_markdown(gate_report),
+        )
+
+    monkeypatch.setattr(
+        benchmark_run_module,
+        "run_measured_runtime_spine_benchmark_suite",
+        fake_suite_runner,
+    )
+
+    result = run_runtime_benchmark_suite(
+        workload_name="runner-suite",
+        seeds=(11, 12, 13),
+        num_steps=5,
+    )
+
+    assert captured_config == [
+        MeasuredRuntimeBenchmarkSuiteConfig(
+            workload_name="runner-suite",
+            seeds=(11, 12, 13),
+            num_steps=5,
+        )
+    ]
+    assert result["suite_result"].workload_name == "runner-suite"
+    assert result["gpu_candidate_gate_report"].gpu_review_eligible_stage_names == (
+        "active_agent_update",
+    )
+    assert "Runtime benchmark suite" in result["report"]
+    assert "Eligible stages: active_agent_update" in result["report"]
+
+
 def test_policy_plugin_registry_validates_identity_and_duplicate_names() -> None:
     from metroflow.learning.plugins import create_policy_plugin, register_policy_plugin
 
