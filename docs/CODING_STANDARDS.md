@@ -57,6 +57,9 @@
 - explicit `rust_cpu` backend는 fail-closed이고, `auto`에서만 baseline fallback을 허용한다
 - 현재 Rust CPU wrapper는 edge 입력을 `Vec<f64>`, flow/routing 입력을 `Vec<f32>`/`Vec<i32>`/`Vec<bool>`,
   active-agent slot/action 입력을 `Vec<i32>`로 복사한다
+- Rust extension crate의 Python distribution name은 root package `metroflow`와 달라야 한다.
+  `maturin develop --manifest-path crates/metroflow-rust/Cargo.toml`이 root editable install을
+  shadow하면 CLI/import smoke를 실패로 간주한다
 - `edge_backend="auto"`는 `rust_cpu` → `jax` → `baseline`, `flow_backend="auto"`는 `rust_cpu` → `baseline` 순서만 허용한다
 - `routing_backend="auto"`는 `rust_cpu` → `baseline` 순서만 허용한다
 - `agent_backend="auto"`는 `rust_cpu` → `baseline` 순서만 허용한다

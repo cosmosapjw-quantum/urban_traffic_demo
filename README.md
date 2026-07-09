@@ -61,6 +61,11 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=.70 .venv/bin/python -m pytest tests/test_meso_co
 .venv/bin/python -m pytest tests/test_active_agent_rust_backend.py -q
 ```
 
+Rust extension crate는 crate-local `crates/metroflow-rust/pyproject.toml`에서 distribution name을
+`metroflow-rust`로 둔다. root Python package `metroflow`를 덮어쓰면
+`python -m metroflow...` CLI와 normal imports가 깨지므로, Rust build metadata는 root
+`pyproject.toml`과 분리되어야 한다.
+
 현재 Rust CPU backend는 `traffic.meso` edge batch evolution과 `flow.engine` baseline flow array
 core, `routing.dynamic_potential` node cost-to-go, next-link action scoring,
 greedy single-candidate route path core, ranked-K route candidate enumeration,

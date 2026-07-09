@@ -1,0 +1,13 @@
+[build-system]
+requires = ["maturin>=1.14,<2"]
+build-backend = "maturin"
+
+[project]
+name = "metroflow-rust"
+version = "0.1.0"
+description = "Optional Rust CPU kernels for Metroflow"
+requires-python = ">=3.12"
+
+[tool.maturin]
+bindings = "pyo3"
+module-name = "_metroflow_rust"

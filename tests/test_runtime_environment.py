@@ -24,3 +24,14 @@ def test_maturin_is_dev_only_for_rust_extension_builds():
     optional_deps = project["project"]["optional-dependencies"]
     assert "maturin" in optional_deps["dev"]
     assert "maturin" not in project["project"]["dependencies"]
+
+
+def test_rust_extension_distribution_does_not_shadow_python_package():
+    project = tomllib.loads(Path("pyproject.toml").read_text())
+    rust_project = tomllib.loads(Path("crates/metroflow-rust/pyproject.toml").read_text())
+    rust_crate = tomllib.loads(Path("crates/metroflow-rust/Cargo.toml").read_text())
+
+    assert rust_project["project"]["name"] == "metroflow-rust"
+    assert rust_project["project"]["name"] != project["project"]["name"]
+    assert rust_project["tool"]["maturin"]["module-name"] == "_metroflow_rust"
+    assert rust_crate["lib"]["name"] == "_metroflow_rust"
