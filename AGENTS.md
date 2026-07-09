@@ -61,3 +61,4 @@
 - 026-rust-reroute-module: Moved Rust CPU reroute decision core into a focused `reroute` module without changing the PyO3 API
 - 027-rust-routing-module: Moved Rust CPU routing kernels into a focused `routing` module while keeping `lib.rs` as the PyO3 facade
 - 028-runtime-benchmark-suite: Added Python runtime benchmark suite orchestration for unique seed runs and GPU gate markdown artifacts
+- 029-runtime-suite-reporting: Added reviewer-facing markdown rendering for runtime benchmark suite GPU gate artifacts

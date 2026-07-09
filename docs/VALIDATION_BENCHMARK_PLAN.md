@@ -115,3 +115,5 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   모든 run에서 threshold를 넘은 stage만 GPU/C++ review 후보로 표시한다
 - `run_measured_runtime_spine_benchmark_suite`는 seed별 runtime benchmark 실행, per-seed result,
   aggregate GPU candidate gate report, reviewer-facing gate markdown을 한 artifact로 묶는다
+- `format_runtime_benchmark_suite_markdown`은 suite artifact를 review markdown으로 렌더링하며,
+  이 markdown은 GPU/C++ 구현 허가가 아니라 후보 stage 검토 자료로만 해석한다

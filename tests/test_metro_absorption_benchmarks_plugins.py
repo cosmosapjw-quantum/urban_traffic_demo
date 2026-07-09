@@ -66,6 +66,65 @@ def test_benchmark_report_preserves_route_choice_policy_metadata() -> None:
     assert "Route path-size gamma: 1.5" in markdown
 
 
+def test_runtime_benchmark_suite_report_renders_gpu_gate_metadata() -> None:
+    from metroflow.benchmarks.reporting import format_runtime_benchmark_suite_markdown
+    from metroflow.metrics.benchmarks import (
+        MeasuredRuntimeBenchmarkResult,
+        MeasuredRuntimeBenchmarkSuiteResult,
+        RuntimeStageTiming,
+        format_runtime_gpu_candidate_gate_markdown,
+        summarize_runtime_gpu_candidate_gate,
+    )
+
+    per_seed_results = tuple(
+        MeasuredRuntimeBenchmarkResult(
+            name="measured_runtime_spine",
+            workload_name="runtime-suite-report",
+            wall_clock_ns=1000,
+            num_steps=2,
+            initial_tick=0,
+            final_tick=2,
+            active_agent_count=0,
+            flow_backend="baseline",
+            routing_backend="baseline",
+            agent_backend="baseline",
+            route_path_size_gamma=0.0,
+            routing_copy_boundary_note="numpy baseline",
+            agent_copy_boundary_note="python baseline",
+            route_candidate_refresh_total=0,
+            route_candidate_reuse_total=0,
+            dynamic_potential_recompute_total=0,
+            dynamic_potential_cache_hits_total=0,
+            seed=seed,
+            runtime_stage_timings=(
+                RuntimeStageTiming("flow_update", 400, 0.4, True),
+            ),
+            gpu_candidate_stage_names=("flow_update",),
+        )
+        for seed in (1, 2, 3)
+    )
+    gate_report = summarize_runtime_gpu_candidate_gate(per_seed_results)
+    suite_result = MeasuredRuntimeBenchmarkSuiteResult(
+        name="measured_runtime_spine_suite",
+        workload_name="runtime-suite-report",
+        seed_count=3,
+        seeds=(1, 2, 3),
+        num_steps=2,
+        wall_clock_ns_total=3000,
+        per_seed_results=per_seed_results,
+        gpu_candidate_gate_report=gate_report,
+        gpu_candidate_gate_markdown=format_runtime_gpu_candidate_gate_markdown(gate_report),
+    )
+
+    markdown = format_runtime_benchmark_suite_markdown(suite_result)
+
+    assert "Runtime benchmark suite" in markdown
+    assert "Workload: runtime-suite-report" in markdown
+    assert "Seeds: 1, 2, 3" in markdown
+    assert "Per-seed results: 3" in markdown
+    assert "Eligible stages: flow_update" in markdown
+
+
 def test_policy_plugin_registry_validates_identity_and_duplicate_names() -> None:
     from metroflow.learning.plugins import create_policy_plugin, register_policy_plugin
 

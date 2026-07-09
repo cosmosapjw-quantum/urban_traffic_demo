@@ -9,6 +9,7 @@ __all__ = [
     "BenchmarkReport",
     "benchmark_report_from_run_summary",
     "format_benchmark_report_markdown",
+    "format_runtime_benchmark_suite_markdown",
 ]
 
 
@@ -232,6 +233,27 @@ def format_benchmark_report_markdown(report: BenchmarkReport) -> str:
             ),
         ]
     )
+
+
+def format_runtime_benchmark_suite_markdown(result: Any) -> str:
+    """Render a measured runtime benchmark suite result for review."""
+
+    seeds = tuple(int(seed) for seed in getattr(result, "seeds", ()) or ())
+    seed_text = ", ".join(str(seed) for seed in seeds) or "N/A"
+    gate_markdown = str(getattr(result, "gpu_candidate_gate_markdown", "") or "")
+    per_seed_count = len(tuple(getattr(result, "per_seed_results", ()) or ()))
+    lines = [
+        "- Runtime benchmark suite:",
+        f"- Workload: {_fmt(getattr(result, 'workload_name', None))}",
+        f"- Seeds: {seed_text}",
+        f"- Seed count: {_fmt(getattr(result, 'seed_count', None))}",
+        f"- Steps per seed: {_fmt(getattr(result, 'num_steps', None))}",
+        f"- Wall-clock ns total: {_fmt(getattr(result, 'wall_clock_ns_total', None))}",
+        f"- Per-seed results: {per_seed_count}",
+    ]
+    if gate_markdown:
+        lines.append(gate_markdown)
+    return "\n".join(lines)
 
 
 def _as_optional_float(value: Any) -> float | None:
