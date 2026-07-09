@@ -1,0 +1,271 @@
+# Acceleration PR List
+
+Last updated: 2026-07-10
+Status: active execution queue
+
+## Execution Contract
+
+Every PR starts with a spec file under `specs/02x-<slug>/spec.md` and a task
+list under `specs/02x-<slug>/tasks.md`. Each PR is implemented by a fresh
+subagent or a tightly scoped inline task. The controller provides exact context;
+subagents must not rediscover the whole repository.
+
+Each PR has at most three review/fix loops:
+
+1. `/review-spec`: spec compliance, public contract, scope, forbidden work.
+2. `/review-code`: bugs, maintainability, test quality, import boundaries.
+3. `/review-drift`: atlas/benchmark evidence, local-minimum risk, claim
+   provenance.
+
+If findings remain after three loops, mark the PR `BLOCKED`, do not commit
+feature code, and record the blocker in `DECISION_LOG` or `PROJECT_STATE`.
+
+Commit only after targeted tests, full gates, exact staged-file review, and
+closed review findings.
+
+## PR00 — Docs Bootstrap
+
+Status: this PR list defines PR00 completion criteria.
+
+- Create `docs/PRD_ACCELERATED_RUNTIME.md`.
+- Create `docs/harness/ACCELERATION_PR_LIST.md`.
+- Create `docs/superpowers/plans/2026-07-10-metroflow-accelerated-runtime.md`.
+- Record the roadmap decision in source-of-truth docs.
+- Review: docs/spec only; verify no runtime claims or backend authorization are
+  added.
+- Commit: `docs(prd): define accelerated runtime roadmap`.
+
+## PR01 — Workload Matrix v1
+
+- Extend benchmark metadata for workload classes:
+  - eager runtime 1-step and 2-step;
+  - generated OD routing;
+  - dense flow/turn batch;
+  - route candidate K>1 scoring;
+  - active-agent dense pool.
+- Do not add backend logic.
+- Tests: benchmark payload schema, manifest metadata, no eager accelerator
+  imports.
+- Commit: `test(benchmarks): add hardware-fit workload matrix`.
+
+## PR02 — Atlas Decision-Card Closure
+
+- Link workload matrix outputs to `hardware-fit-atlas` decision cards.
+- Render next-probe summaries for reviewer-facing markdown/HTML.
+- Anti-drift gate: no duplicate stage cards; no new probe unless it changes a
+  decision.
+- Tests: stage-card aggregation, duplicate prevention, artifact schema.
+- Commit: `docs(benchmarks): link atlas cards to workload matrix`.
+
+## PR03 — Dynamic-Potential Cache Amortization
+
+- Target destination potential recompute/cache behavior in the Python baseline.
+- Improve cache reuse and invalidation before adding any new backend.
+- Preserve baseline route legality and replay fingerprints.
+- Tests: cache hit/recompute counters, invalidation generation changes,
+  no-route behavior, replay parity.
+- Commit: `perf(routing): amortize dynamic potential cache`.
+
+## PR04 — Rust Potential-Only Bakeoff
+
+- Compare Python and Rust dynamic-potential only.
+- Do not enable whole-runtime Rust routing.
+- Acceptance: generated OD parity, copy-boundary timing, and parent route
+  refresh reduction.
+- Tests: Rust extension optional skip, explicit fail-closed behavior, `auto`
+  fallback, copy-boundary metadata.
+- Commit: `perf(routing): benchmark rust potential core`.
+
+## PR05 — Dense Flow Scale Probe
+
+- Build larger synthetic flow/turn workloads.
+- Compare NumPy baseline, Rust flow, and optional JAX compile/steady-state.
+- Do not add custom CUDA scaffold.
+- Tests: scaled dense flow benchmark schema, optional JAX skip, first-call vs
+  steady-state timing fields.
+- Commit: `test(flow): add dense flow acceleration probe`.
+
+## PR06 — Route Metadata/Scoring Batch Probe
+
+- Measure K>1 candidate metadata, path-size scoring, and reroute scoring batch
+  shapes.
+- Determine NumPy/JAX/NN fit without changing route legality.
+- Tests: K>1 metadata timing, path-size utility preservation, reroute scoring
+  batch shape metadata.
+- Commit: `test(routing): add route scoring batch probes`.
+
+## PR07 — Simulator Label Dataset v0
+
+- Generate deterministic simulator-only labels for cost-to-go and route
+  scoring from baseline authority.
+- No external data and no runtime NN authority.
+- Tests: deterministic label export, label schema, replay fingerprint, no
+  external file/network dependency.
+- Commit: `feat(learning): add simulator label export`.
+
+## PR08 — Optional NN Experiment Harness
+
+- Add optional experiment surface only after PR07 labels exist.
+- Prefer optional Python-side training/inference first.
+- If PyTorch is introduced, it must be an optional extra and excluded from core
+  import.
+- Tests: optional dependency skip, model/version/fallback metadata, no route
+  legality authority.
+- Commit: `feat(learning): add optional route surrogate harness`.
+
+## PR09 — Active-Agent State Layout Recheck
+
+- Reopen active-agent array/pool work only if workload matrix makes it
+  review-ready.
+- If not review-ready, update `DEPRECATED_IDEAS.md` and skip implementation.
+- Tests if implemented: slot-order determinism, pool replacement parity,
+  telemetry preservation.
+- Commit if implemented: `perf(sim): refine active agent state layout`.
+
+## PR10 — Zero-Copy/Rayon Feasibility RFC
+
+- Evaluate Rust zero-copy NumPy FFI and Rayon only after copy-boundary cost is
+  measured.
+- RFC first; implementation only if evidence supports it.
+- Tests: documentation link checks and no build-surface changes unless a later
+  implementation PR opens them.
+- Commit: `docs(rust): define zero-copy backend admission`.
+
+## PR11 — C++/CUDA Admission RFC
+
+- Define future custom CUDA/libtorch candidate interface for one narrow kernel:
+  dense flow, route-score batch, or OD/policy batch.
+- No build scaffold unless a prior PR proves the gate.
+- Tests: docs/checklist only, no accepted runtime config values.
+- Commit: `docs(cuda): define custom kernel admission gate`.
+
+## PR12 — PRD/State Closure
+
+- Consolidate `PROJECT_STATE`, `DECISION_LOG`, `DEPRECATED_IDEAS`,
+  validation benchmark docs, and next-session prompt.
+- Record which PRs were completed, deferred, blocked, or superseded.
+- Tests: documentation consistency checks and final gates.
+- Commit: `docs(harness): record acceleration roadmap state`.
+
+## Spec Template
+
+Use this template at `specs/02x-<slug>/spec.md`:
+
+```markdown
+# <Feature Name> Spec
+
+## Goal
+<One sentence.>
+
+## Evidence
+- Hardware atlas card:
+- Runtime benchmark artifact:
+- Replay/parity artifact:
+
+## In Scope
+- <Specific behavior.>
+
+## Out Of Scope
+- <Forbidden behavior.>
+
+## Public Contract
+- APIs/config/artifact keys:
+- Fallback behavior:
+- Replay/cache impact:
+
+## Acceptance Criteria
+- Targeted tests:
+- Full gates:
+- Review loop max: 3
+
+## Compact CCoT
+Question:
+Evidence:
+Inference:
+Counterevidence checked:
+Decision:
+Falsifier:
+Next action:
+```
+
+Use this template at `specs/02x-<slug>/tasks.md`:
+
+```markdown
+# <Feature Name> Tasks
+
+- [ ] Write RED tests for the public contract.
+- [ ] Verify RED failure.
+- [ ] Implement the smallest baseline-safe change.
+- [ ] Run targeted tests.
+- [ ] Update docs/artifacts if decision boundaries changed.
+- [ ] Run `/review-spec`; fix findings.
+- [ ] Run `/review-code`; fix findings.
+- [ ] Run `/review-drift`; fix findings or stop after loop 3.
+- [ ] Run full gates.
+- [ ] Stage exact files and commit.
+```
+
+## Subagent Prompt Template
+
+```markdown
+You are implementing <PRxx title> in urban_traffic_demo.
+
+Controlling files:
+- AGENTS.md
+- docs/PRD_ACCELERATED_RUNTIME.md
+- docs/harness/ACCELERATION_PR_LIST.md
+- docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md
+- artifacts/runtime_spine_review/hardware-fit-atlas.md
+
+Task:
+<Paste exact PR section and task checklist.>
+
+Hard boundaries:
+- Do not add external-data learning.
+- Do not add RL/LLM route authority.
+- Do not add lane-level microscopic default.
+- Do not add PyTorch/libtorch/custom CUDA unless this PR explicitly admits it.
+- Preserve Python/NumPy baseline authority, fallback, immutable state, cache
+  invalidation, and deterministic replay.
+
+Required output:
+- Files changed.
+- Tests run with exact commands.
+- Review notes.
+- Commit SHA or BLOCKED reason.
+```
+
+## Review Checklist
+
+### /review-spec
+- Does the implementation satisfy the spec and nothing outside it?
+- Are public APIs, artifact keys, and fallback semantics explicit?
+- Are forbidden scopes absent?
+
+### /review-code
+- Are imports lazy where optional backends are involved?
+- Are tests behavior-focused and deterministic?
+- Are copy-boundaries and dtype conversions explicit?
+- Are unrelated refactors absent?
+
+### /review-drift
+- Does the latest atlas agree with measured stage evidence?
+- Does the PR change a decision, or only add reporting surface?
+- Are nested metrics not treated as exclusive wall-clock share?
+- Is GPU/NN kept away from deterministic state mutation?
+- Is the compact CCoT present and falsifiable?
+
+## Anti-Drift Rules
+
+- Stop after two consecutive PRs on the same stage unless the second changes the
+  parent-stage decision.
+- If stage share moves by less than 5 percentage points and recommendation is
+  unchanged, stop instrumentation and switch lanes.
+- If a nested metric improves but the parent does not, record it and stop that
+  lane.
+- GPU/NN cannot target deterministic state mutation. If a GPU/NN proposal
+  touches state apply, reroute it to Rust/Python layout work.
+- Smoke artifacts are diagnostics only. Validation claims require replay,
+  invariants, and deterministic multi-seed evidence.
+- Keep Rust/control-flow, NumPy/SIMD numeric, GPU tensor batch, and NN
+  surrogate lanes visible in every step-back.

@@ -12,6 +12,9 @@ Facts:
 - JAX CUDA 13 remains optional for RTX 3080 Ti 12GB experiments.
 - Whole-code hardware-fit atlas is the current step-back artifact for choosing
   Rust CPU, NumPy/SIMD, JAX/GPU, NN surrogate, or keep-Python lanes.
+- `docs/PRD_ACCELERATED_RUNTIME.md` and
+  `docs/harness/ACCELERATION_PR_LIST.md` are the active long-term roadmap for
+  spec-driven/subagent-driven acceleration work.
 
 ## Acceleration Evidence
 
@@ -60,4 +63,6 @@ Derived conclusions:
 
 Follow `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md`, refresh the
 hardware-fit atlas, then open the next measured slice only when its decision
-card is supported by runtime stage timings or a copy-inclusive microbench.
+card is supported by runtime stage timings or a copy-inclusive microbench. The
+next roadmap slice is PR01 Workload Matrix v1 in
+`docs/harness/ACCELERATION_PR_LIST.md`.

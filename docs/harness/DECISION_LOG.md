@@ -1,5 +1,42 @@
 # Decision Log
 
+## 2026-07-10: Spec-Driven Accelerated Runtime Roadmap
+
+Status: accepted
+
+### Context
+
+The hardware-fit atlas links static code roles to runtime stage evidence and
+shows that backend work must be selected by evidence, not repeated hot-path
+inspection. The user requested a long-term PRD and PR list for
+spec-driven/subagent-driven development.
+
+### Compact CCoT
+
+Question: How should Metroflow choose future Rust, NumPy/SIMD, GPU, and NN work
+without drifting into repeated instrumentation?
+
+Evidence: `artifacts/runtime_spine_review/hardware-fit-atlas.md` scanned 1105
+symbols and linked 15 runtime stages. Guardrails require decision-changing
+evidence before opening another backend slice.
+
+Inference: Future acceleration work needs a roadmap with PR-level specs,
+review-loop caps, and explicit anti-drift gates.
+
+Counterevidence checked: The atlas is static planning evidence, not performance
+proof. Runtime smoke artifacts remain diagnostic only.
+
+Decision: Use `docs/PRD_ACCELERATED_RUNTIME.md` and
+`docs/harness/ACCELERATION_PR_LIST.md` as the controlling roadmap for future
+acceleration work. Future PRs must start with specs, run capped review loops,
+and preserve baseline authority.
+
+Falsifier: If a PR cannot identify an atlas decision card and falsifiable
+measured probe, it must not implement backend logic.
+
+Next action: Open PR01 Workload Matrix v1 before implementing another backend
+slice.
+
 ## 2026-07-09: Runtime Acceleration Anti-Drift Guardrails
 
 Status: accepted
