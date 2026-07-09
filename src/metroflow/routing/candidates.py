@@ -9,6 +9,7 @@ from time import perf_counter
 from typing import Any
 
 from metroflow.backends.rust_cpu import (
+    compute_route_candidate_metadata_rust,
     compute_ranked_route_candidates_rust,
     rust_routing_backend_available,
 )
@@ -219,19 +220,21 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
     else:
         candidate_ids = ()
         candidate_paths = ()
-    candidate_path_costs = (
-        _candidate_path_costs(
+    candidate_metadata_backend = "python_host_candidate_metadata"
+    if potential_state is not None:
+        (
+            candidate_path_costs,
+            candidate_path_size_factors,
+            candidate_metadata_backend,
+        ) = _candidate_path_metadata(
             road_csr=road_csr,
             candidate_paths=candidate_paths,
             link_travel_time_cost=potential_state.link_travel_time_cost,
+            routing_backend=routing_backend,
         )
-        if potential_state is not None
-        else ()
-    )
-    candidate_path_size_factors = _candidate_path_size_factors(
-        road_csr=road_csr,
-        candidate_paths=candidate_paths,
-    )
+    else:
+        candidate_path_costs = ()
+        candidate_path_size_factors = ()
 
     candidate_set = RouteCandidateSet(
         od_key=od_key,
@@ -246,6 +249,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             "max_hops": max_hops,
             "candidate_path_costs": candidate_path_costs,
             "candidate_path_size_factors": candidate_path_size_factors,
+            "candidate_metadata_backend": candidate_metadata_backend,
             "candidate_generation_mode": (
                 "baseline_greedy_single" if max_candidates == 1 else "baseline_ranked_k"
             ),
@@ -464,6 +468,52 @@ def _build_ranked_route_candidate_paths_host(
             )
 
     return tuple(paths)
+
+
+def _candidate_path_metadata(
+    *,
+    road_csr,
+    candidate_paths: tuple[tuple[int, ...], ...],
+    link_travel_time_cost,
+    routing_backend: str,
+) -> tuple[tuple[float, ...], tuple[float, ...], str]:
+    if routing_backend == "auto" and not rust_routing_backend_available():
+        return (
+            _candidate_path_costs(
+                road_csr=road_csr,
+                candidate_paths=candidate_paths,
+                link_travel_time_cost=link_travel_time_cost,
+            ),
+            _candidate_path_size_factors(
+                road_csr=road_csr,
+                candidate_paths=candidate_paths,
+            ),
+            "python_host_candidate_metadata",
+        )
+    if routing_backend in {"rust_cpu", "auto"}:
+        try:
+            costs, path_size_factors = compute_route_candidate_metadata_rust(
+                link_ids=road_csr.link_ids,
+                link_length_m=tuple(float(link.length_m) for link in road_csr.links),
+                link_travel_time_cost=link_travel_time_cost,
+                candidate_paths=candidate_paths,
+            )
+            return costs, path_size_factors, "rust_cpu_candidate_metadata"
+        except RuntimeError:
+            if routing_backend == "rust_cpu":
+                raise
+    return (
+        _candidate_path_costs(
+            road_csr=road_csr,
+            candidate_paths=candidate_paths,
+            link_travel_time_cost=link_travel_time_cost,
+        ),
+        _candidate_path_size_factors(
+            road_csr=road_csr,
+            candidate_paths=candidate_paths,
+        ),
+        "python_host_candidate_metadata",
+    )
 
 
 def _candidate_path_costs(

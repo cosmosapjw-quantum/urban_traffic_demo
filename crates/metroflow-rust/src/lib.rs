@@ -1,7 +1,7 @@
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashSet};
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
 const EPS: f64 = 1e-6;
 const FLOW_MIN_TRAVEL_COST: f32 = 1.0e-3;
@@ -749,6 +749,77 @@ fn compute_ranked_route_candidates_impl(
     Ok(paths)
 }
 
+fn compute_route_candidate_metadata_impl(
+    link_ids: &[i32],
+    link_length_m: &[f32],
+    link_travel_time_cost: &[f32],
+    candidate_paths: &[Vec<i32>],
+) -> Result<(Vec<f32>, Vec<f32>), String> {
+    let link_count = link_ids.len();
+    if link_length_m.len() != link_count {
+        return Err(format!(
+            "link_length_m length must match link_ids length: got {}, expected {}",
+            link_length_m.len(),
+            link_count
+        ));
+    }
+    if link_travel_time_cost.len() != link_count {
+        return Err(format!(
+            "link_travel_time_cost length must match link_ids length: got {}, expected {}",
+            link_travel_time_cost.len(),
+            link_count
+        ));
+    }
+    validate_non_negative_f32("link_length_m", link_length_m)?;
+    validate_non_negative_f32("link_travel_time_cost", link_travel_time_cost)?;
+
+    let mut link_index_by_id: HashMap<i32, usize> = HashMap::with_capacity(link_count);
+    for (index, link_id) in link_ids.iter().enumerate() {
+        if link_index_by_id.insert(*link_id, index).is_some() {
+            return Err("link_ids must be unique".to_string());
+        }
+    }
+
+    let mut usage_count: HashMap<i32, usize> = HashMap::new();
+    for path in candidate_paths {
+        for link_id in path {
+            if !link_index_by_id.contains_key(link_id) {
+                return Err("candidate_paths contains unknown link id".to_string());
+            }
+            *usage_count.entry(*link_id).or_insert(0) += 1;
+        }
+    }
+
+    let mut costs = Vec::with_capacity(candidate_paths.len());
+    let mut path_size_factors = Vec::with_capacity(candidate_paths.len());
+    for path in candidate_paths {
+        let mut cost = 0.0_f32;
+        let mut lengths = Vec::with_capacity(path.len());
+        for link_id in path {
+            let link_index = *link_index_by_id
+                .get(link_id)
+                .ok_or_else(|| "candidate_paths contains unknown link id".to_string())?;
+            cost += link_travel_time_cost[link_index];
+            lengths.push(link_length_m[link_index].max(1.0e-6_f32));
+        }
+        costs.push(cost);
+
+        let total_length: f32 = lengths.iter().sum();
+        if total_length <= 0.0 {
+            path_size_factors.push(1.0);
+            continue;
+        }
+        let mut factor = 0.0_f32;
+        for (link_id, length_m) in path.iter().zip(lengths.iter()) {
+            let usage = *usage_count.get(link_id).unwrap_or(&1) as f32;
+            factor += (*length_m / total_length) * (1.0 / usage.max(1.0));
+        }
+        path_size_factors.push(factor.max(1.0e-12_f32));
+    }
+
+    Ok((costs, path_size_factors))
+}
+
 fn evolve_edges_batch_impl(
     queue: &[f64],
     stock: &[f64],
@@ -1211,6 +1282,22 @@ fn compute_ranked_route_candidates(
     .map_err(PyValueError::new_err)
 }
 
+#[pyfunction]
+fn compute_route_candidate_metadata(
+    link_ids: Vec<i32>,
+    link_length_m: Vec<f32>,
+    link_travel_time_cost: Vec<f32>,
+    candidate_paths: Vec<Vec<i32>>,
+) -> PyResult<(Vec<f32>, Vec<f32>)> {
+    compute_route_candidate_metadata_impl(
+        &link_ids,
+        &link_length_m,
+        &link_travel_time_cost,
+        &candidate_paths,
+    )
+    .map_err(PyValueError::new_err)
+}
+
 #[pymodule]
 fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evolve_edges_batch, m)?)?;
@@ -1219,6 +1306,7 @@ fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(compute_next_link_action_costs, m)?)?;
     m.add_function(wrap_pyfunction!(compute_greedy_route_candidate, m)?)?;
     m.add_function(wrap_pyfunction!(compute_ranked_route_candidates, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_route_candidate_metadata, m)?)?;
     Ok(())
 }
 
@@ -1617,6 +1705,47 @@ mod tests {
         .expect("forbidden-turn ranked routes should compute");
 
         assert_eq!(paths, vec![vec![10, 12, 13]]);
+    }
+
+    #[test]
+    fn computes_route_candidate_metadata_costs_and_path_size() {
+        let (costs, path_size) = compute_route_candidate_metadata_impl(
+            &[10, 11, 12],
+            &[100.0, 50.0, 50.0],
+            &[2.0, 3.0, 5.0],
+            &[vec![10, 11], vec![10, 12]],
+        )
+        .expect("route metadata should compute");
+
+        assert_eq!(costs, vec![5.0, 7.0]);
+        assert_eq!(path_size, vec![2.0 / 3.0, 2.0 / 3.0]);
+    }
+
+    #[test]
+    fn computes_route_candidate_metadata_empty_path() {
+        let (costs, path_size) =
+            compute_route_candidate_metadata_impl(&[10], &[100.0], &[2.0], &[vec![]])
+                .expect("empty route metadata should compute");
+
+        assert_eq!(costs, vec![0.0]);
+        assert_eq!(path_size, vec![1.0]);
+    }
+
+    #[test]
+    fn rejects_route_candidate_metadata_unknown_link_id() {
+        let error = compute_route_candidate_metadata_impl(&[10], &[100.0], &[2.0], &[vec![11]])
+            .expect_err("unknown link id should be rejected");
+
+        assert_eq!(error, "candidate_paths contains unknown link id");
+    }
+
+    #[test]
+    fn rejects_route_candidate_metadata_length_mismatch() {
+        let error =
+            compute_route_candidate_metadata_impl(&[10, 11], &[100.0], &[2.0, 3.0], &[vec![10]])
+                .expect_err("length mismatch should be rejected");
+
+        assert!(error.contains("link_length_m length must match link_ids length"));
     }
 
     #[test]

@@ -53,6 +53,7 @@ def rust_routing_backend_available() -> bool:
         and hasattr(rust_extension, "compute_greedy_route_candidate")
         and hasattr(rust_extension, "compute_next_link_action_costs")
         and hasattr(rust_extension, "compute_ranked_route_candidates")
+        and hasattr(rust_extension, "compute_route_candidate_metadata")
     )
 
 
@@ -326,6 +327,35 @@ def compute_ranked_route_candidates_rust(
         raise RuntimeError(f"Rust CPU routing backend failed: {exc}") from exc
 
     return tuple(tuple(int(link_id) for link_id in path) for path in paths)
+
+
+def compute_route_candidate_metadata_rust(
+    *,
+    link_ids: Sequence[int],
+    link_length_m: Sequence[float],
+    link_travel_time_cost: Sequence[float],
+    candidate_paths: Sequence[Sequence[int]],
+) -> tuple[tuple[float, ...], tuple[float, ...]]:
+    rust_extension = _load_rust_extension(RUST_ROUTING_BACKEND_UNAVAILABLE)
+    try:
+        costs, path_size_factors = rust_extension.compute_route_candidate_metadata(
+            _as_i32_routing_list(link_ids, "link_ids"),
+            _as_f32_routing_list(link_length_m, "link_length_m"),
+            _as_f32_routing_list(link_travel_time_cost, "link_travel_time_cost"),
+            [
+                _as_i32_routing_list(path, "candidate_path")
+                for path in candidate_paths
+            ],
+        )
+    except AttributeError as exc:
+        raise RuntimeError(RUST_ROUTING_BACKEND_UNAVAILABLE) from exc
+    except ValueError as exc:
+        raise RuntimeError(f"Rust CPU routing backend failed: {exc}") from exc
+
+    return (
+        tuple(float(value) for value in costs),
+        tuple(float(value) for value in path_size_factors),
+    )
 
 
 def compute_next_link_action_costs_rust(

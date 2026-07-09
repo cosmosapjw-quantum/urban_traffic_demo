@@ -48,15 +48,17 @@
 - backend는 hidden mutation 없이 새 배열/상태를 반환한다
 - Rust CPU backend의 현재 slice는 `traffic.meso` edge batch evolution, `flow.engine` baseline flow array core,
   `routing.dynamic_potential` node cost-to-go, next-link action scoring,
-  greedy single-candidate route path core, ranked-K route candidate enumeration을 담당한다
+  greedy single-candidate route path core, ranked-K route candidate enumeration,
+  candidate cost/path-size metadata를 담당한다
 - explicit `rust_cpu` backend는 fail-closed이고, `auto`에서만 baseline fallback을 허용한다
 - 현재 Rust CPU wrapper는 edge 입력을 `Vec<f64>`, flow/routing 입력을 `Vec<f32>`/`Vec<i32>`/`Vec<bool>`로 복사한다
 - `edge_backend="auto"`는 `rust_cpu` → `jax` → `baseline`, `flow_backend="auto"`는 `rust_cpu` → `baseline` 순서만 허용한다
 - `routing_backend="auto"`는 `rust_cpu` → `baseline` 순서만 허용한다
 - routing `auto`는 Rust dynamic-potential cost-to-go, next-link action scoring, greedy path,
-  ranked-K route candidate 함수가 모두 사용 가능할 때만 Rust를 선택한다
+  ranked-K route candidate, candidate metadata 함수가 모두 사용 가능할 때만 Rust를 선택한다
 - Rust routing backend는 ranked K candidate set을 가속할 수 있지만, Python baseline candidate order와
-  metadata가 authoritative contract다. result/report에는 `candidate_enumeration_backend`를 남겨야 한다
+  metadata가 authoritative contract다. result/report에는 `candidate_enumeration_backend`와
+  `candidate_metadata_backend`를 남겨야 한다
 - PyTorch/libtorch/custom CUDA는 profiling 이후 좁은 hot kernel에만 추가한다
 
 ## tests
