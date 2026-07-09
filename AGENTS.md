@@ -69,3 +69,4 @@
 - 034-runtime-suite-json: Added machine-readable runtime suite JSON artifacts for frontend/diagnostic consumers
 - 035-runtime-suite-html: Added standalone runtime suite HTML review rendering for stage gate and per-seed backend metadata
 - 036-runtime-suite-bundle: Added `--runtime-suite-artifact-prefix` to write markdown, JSON, HTML, and manifest together
+- 037-runtime-suite-eager-demand: Exposed `--runtime-suite-eager-trip-generation` for non-empty routing/agent benchmark workloads

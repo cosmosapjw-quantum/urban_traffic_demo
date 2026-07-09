@@ -131,6 +131,8 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   standalone review HTML로 렌더링한다.
   `--runtime-suite-artifact-prefix artifacts/runtime-suite`는 `.md`, `.json`, `.html`,
   `.manifest.json`을 한 번에 쓰는 long-run review bundle 표면이다.
+  `--runtime-suite-eager-trip-generation`은 초기 trip demand를 생성해 routing/active-agent 단계가
+  비어 있는 smoke 결과만 보지 않도록 한다.
 - isolated routing candidate benchmark는 `run_measured_routing_candidate_benchmark`를 사용하며
   dynamic-potential recompute/cache counters와 timing totals, final candidate path, ranked-K candidate
   paths/costs/path-size metadata, routing copy-boundary note를 기록한다.

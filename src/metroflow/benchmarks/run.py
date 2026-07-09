@@ -483,6 +483,7 @@ def main(argv: list[str] | None = None) -> int:
             workload_name=args.runtime_suite_workload,
             seeds=args.runtime_suite_seeds,
             num_steps=args.runtime_suite_steps,
+            eager_trip_generation=args.runtime_suite_eager_trip_generation,
         )
         print("MetroFlow runtime benchmark suite complete.")
         print(
@@ -490,6 +491,7 @@ def main(argv: list[str] | None = None) -> int:
             f"workload={args.runtime_suite_workload}",
             f"seeds={','.join(str(seed) for seed in args.runtime_suite_seeds)}",
             f"steps={args.runtime_suite_steps}",
+            f"eager_trips={args.runtime_suite_eager_trip_generation}",
         )
         report_text = str(result["report"])
         if args.runtime_suite_report_path is not None:
@@ -602,6 +604,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--runtime-suite-json-path")
     parser.add_argument("--runtime-suite-html-path")
     parser.add_argument("--runtime-suite-artifact-prefix")
+    parser.add_argument("--runtime-suite-eager-trip-generation", action="store_true")
     args = parser.parse_args(argv)
     if args.duration_ticks < 0:
         parser.error("--duration-ticks must be >= 0")

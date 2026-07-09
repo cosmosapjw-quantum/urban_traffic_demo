@@ -133,3 +133,6 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - `--runtime-suite-artifact-prefix`는 markdown, JSON, HTML, manifest를 함께 쓰는 bundle 표면이다.
   manifest는 artifact path, workload, seed list, step count, GPU review eligible stage만 보존하고,
   volatile wall-clock 값을 검증 주장으로 승격하면 안 된다
+- `--runtime-suite-eager-trip-generation`은 초기 trip demand를 생성해 routing/active-agent stage timing을
+  관측하기 위한 옵션이다. 이 옵션은 benchmark workload metadata로 취급하고 replay/validation claim으로
+  과장하지 않는다
