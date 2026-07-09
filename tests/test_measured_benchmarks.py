@@ -1,4 +1,6 @@
 from dataclasses import replace
+import json
+import sys
 
 import pytest
 
@@ -910,3 +912,241 @@ def test_measured_runtime_benchmark_suite_rejects_duplicate_seeds() -> None:
                 num_steps=1,
             )
         )
+
+
+def test_default_workload_matrix_covers_required_review_classes() -> None:
+    from metroflow.metrics.benchmarks import default_runtime_workload_matrix
+
+    matrix = default_runtime_workload_matrix(
+        num_steps=2,
+        eager_trip_generation=True,
+    )
+    entries = {entry.workload_class: entry for entry in matrix}
+
+    assert tuple(entries) == (
+        "eager_runtime_1_step",
+        "eager_runtime_2_step",
+        "generated_od_routing",
+        "dense_flow_turn_batch",
+        "route_candidate_k_gt_1_scoring",
+        "active_agent_dense_pool",
+    )
+    assert entries["eager_runtime_1_step"].enabled is True
+    assert entries["eager_runtime_2_step"].enabled is True
+    assert entries["generated_od_routing"].stage_group == "route_candidate_refresh"
+    assert entries["dense_flow_turn_batch"].hardware_lanes == (
+        "numpy_simd",
+        "rust_cpu",
+        "jax_gpu_optional",
+    )
+    assert entries["route_candidate_k_gt_1_scoring"].parameters["max_candidates_min"] == 2
+    assert entries["active_agent_dense_pool"].stage_group == "active_agent_update"
+
+
+def test_workload_matrix_separates_measured_coverage_from_required_probes() -> None:
+    from metroflow.metrics.benchmarks import default_runtime_workload_matrix
+
+    matrix = default_runtime_workload_matrix(
+        num_steps=2,
+        eager_trip_generation=False,
+    )
+    entries = {entry.workload_class: entry for entry in matrix}
+
+    assert entries["eager_runtime_1_step"].enabled is True
+    assert entries["eager_runtime_1_step"].coverage_state == "measured_in_suite"
+    assert entries["eager_runtime_2_step"].coverage_state == "measured_in_suite"
+    assert entries["generated_od_routing"].enabled is False
+    assert entries["generated_od_routing"].coverage_state == "requires_eager_runtime_suite"
+    assert entries["dense_flow_turn_batch"].enabled is False
+    assert entries["dense_flow_turn_batch"].coverage_state == "requires_dedicated_probe"
+    assert entries["route_candidate_k_gt_1_scoring"].enabled is False
+    assert entries["route_candidate_k_gt_1_scoring"].coverage_state == (
+        "requires_dedicated_probe"
+    )
+    assert entries["active_agent_dense_pool"].enabled is False
+    assert entries["active_agent_dense_pool"].coverage_state == "requires_dedicated_probe"
+
+
+def test_workload_matrix_builder_does_not_import_accelerator_modules() -> None:
+    accelerator_prefixes = ("jax", "torch", "_metroflow_rust")
+    saved_modules = {
+        name: module
+        for name, module in sys.modules.items()
+        if any(name == prefix or name.startswith(f"{prefix}.") for prefix in accelerator_prefixes)
+    }
+    for module_name in tuple(saved_modules):
+        sys.modules.pop(module_name, None)
+    try:
+        from metroflow.metrics.benchmarks import default_runtime_workload_matrix
+
+        default_runtime_workload_matrix(num_steps=1, eager_trip_generation=False)
+
+        assert "jax" not in sys.modules
+        assert "torch" not in sys.modules
+        assert "_metroflow_rust" not in sys.modules
+    finally:
+        for module_name in tuple(sys.modules):
+            if any(
+                module_name == prefix or module_name.startswith(f"{prefix}.")
+                for prefix in accelerator_prefixes
+            ):
+                sys.modules.pop(module_name, None)
+        sys.modules.update(saved_modules)
+
+
+def test_runtime_suite_result_serializes_workload_matrix(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.benchmarks.reporting import runtime_benchmark_suite_to_dict
+    from metroflow.sim.init import SimulationInitBundle
+    from metroflow.sim.rng import key_from_seed
+    from metroflow.sim.state import SimulationState
+
+    def fake_build_initial_simulation_state(*, scenario_seed: int, **_kwargs):
+        seed = int(scenario_seed)
+        state = SimulationState(metadata={"scenario_seed": seed})
+        return SimulationInitBundle(
+            state=state,
+            rng_key=key_from_seed(seed),
+            city_topology=None,
+            zoning=None,
+            population=None,
+            trip_requests=None,
+        )
+
+    def fake_runtime_benchmark(state, _rng_key, config):
+        return make_runtime_stage_result(
+            seed=int(state.metadata["scenario_seed"]),
+            flow_share=0.10,
+            active_agent_share=0.10,
+        )
+
+    monkeypatch.setattr(
+        benchmark_module,
+        "build_initial_simulation_state",
+        fake_build_initial_simulation_state,
+    )
+    monkeypatch.setattr(
+        benchmark_module,
+        "run_measured_runtime_spine_benchmark",
+        fake_runtime_benchmark,
+    )
+
+    result = run_measured_runtime_spine_benchmark_suite(
+        MeasuredRuntimeBenchmarkSuiteConfig(
+            workload_name="matrix-suite",
+            seeds=(201, 202, 203),
+            num_steps=2,
+            eager_trip_generation=True,
+        )
+    )
+    payload = runtime_benchmark_suite_to_dict(result)
+
+    assert result.workload_matrix[0].workload_class == "eager_runtime_1_step"
+    assert payload["workload_matrix"][0]["workload_class"] == "eager_runtime_1_step"
+    assert payload["workload_matrix"][1]["enabled"] is True
+    assert payload["workload_matrix"][2]["enabled"] is False
+    assert payload["workload_matrix"][2]["coverage_state"] == "configured_not_observed"
+    assert payload["workload_matrix"][4]["parameters"]["max_candidates_min"] == 2
+
+
+def test_runtime_suite_marks_generated_od_routing_measured_only_when_observed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.benchmarks.reporting import runtime_benchmark_suite_to_dict
+    from metroflow.sim.init import SimulationInitBundle
+    from metroflow.sim.rng import key_from_seed
+    from metroflow.sim.state import SimulationState
+
+    def fake_build_initial_simulation_state(*, scenario_seed: int, **_kwargs):
+        seed = int(scenario_seed)
+        state = SimulationState(metadata={"scenario_seed": seed})
+        return SimulationInitBundle(
+            state=state,
+            rng_key=key_from_seed(seed),
+            city_topology=None,
+            zoning=None,
+            population=None,
+            trip_requests=None,
+        )
+
+    def fake_runtime_benchmark(state, _rng_key, config):
+        seed = int(state.metadata["scenario_seed"])
+        return replace(
+            make_runtime_stage_result(
+                seed=seed,
+                flow_share=0.10,
+                active_agent_share=0.10,
+            ),
+            route_candidate_refresh_total=1 if seed == 301 else 0,
+        )
+
+    monkeypatch.setattr(
+        benchmark_module,
+        "build_initial_simulation_state",
+        fake_build_initial_simulation_state,
+    )
+    monkeypatch.setattr(
+        benchmark_module,
+        "run_measured_runtime_spine_benchmark",
+        fake_runtime_benchmark,
+    )
+
+    result = run_measured_runtime_spine_benchmark_suite(
+        MeasuredRuntimeBenchmarkSuiteConfig(
+            workload_name="observed-matrix-suite",
+            seeds=(301, 302, 303),
+            num_steps=2,
+            eager_trip_generation=True,
+        )
+    )
+    payload = runtime_benchmark_suite_to_dict(result)
+    generated_od_entry = payload["workload_matrix"][2]
+
+    assert generated_od_entry["workload_class"] == "generated_od_routing"
+    assert generated_od_entry["enabled"] is True
+    assert generated_od_entry["coverage_state"] == "measured_in_suite"
+    assert generated_od_entry["parameters"]["observed_run_count"] == 1
+    assert generated_od_entry["parameters"]["route_candidate_refresh_total"] == 1
+
+
+def test_runtime_suite_artifact_manifest_preserves_workload_matrix(tmp_path) -> None:
+    from metroflow.benchmarks.run import write_runtime_benchmark_suite_artifact_bundle
+
+    workload_matrix = [
+        {
+            "workload_class": "route_candidate_k_gt_1_scoring",
+            "label": "Route candidate K>1 scoring",
+            "stage_group": "route_candidate_metadata",
+            "hardware_lanes": ["numpy_simd", "jax_gpu_optional", "nn_surrogate"],
+            "enabled": True,
+            "coverage_state": "measured_in_probe",
+            "parameters": {"max_candidates_min": 2},
+            "decision_state": "diagnostic",
+        }
+    ]
+    paths = write_runtime_benchmark_suite_artifact_bundle(
+        {
+            "report": "- Runtime benchmark suite:\n- Workload: matrix-bundle",
+            "report_data": {
+                "name": "measured_runtime_spine_suite",
+                "workload_name": "matrix-bundle",
+                "seeds": [1, 2, 3],
+                "seed_count": 3,
+                "num_steps": 2,
+                "wall_clock_ns_total": 3000,
+                "per_seed_results": [],
+                "gpu_candidate_gate_report": {
+                    "gpu_review_eligible_stage_names": [],
+                    "stage_summaries": [],
+                },
+                "workload_matrix": workload_matrix,
+            },
+        },
+        output_prefix=tmp_path / "matrix-bundle",
+    )
+
+    manifest = json.loads(paths["manifest"].read_text(encoding="utf-8"))
+
+    assert manifest["workload_classes"] == ["route_candidate_k_gt_1_scoring"]
+    assert manifest["workload_matrix"] == workload_matrix

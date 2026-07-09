@@ -70,6 +70,45 @@ class MeasuredRuntimeBenchmarkConfig:
 
 
 @dataclass(frozen=True)
+class BenchmarkWorkloadMatrixEntry:
+    workload_class: str
+    label: str
+    stage_group: str
+    hardware_lanes: tuple[str, ...]
+    enabled: bool
+    coverage_state: str = "diagnostic_metadata"
+    parameters: dict[str, object] = field(default_factory=dict)
+    decision_state: str = "diagnostic"
+
+    def __post_init__(self) -> None:
+        workload_class = str(self.workload_class).strip()
+        if not workload_class:
+            raise ValueError("workload_class must be non-empty.")
+        label = str(self.label).strip()
+        if not label:
+            raise ValueError("label must be non-empty.")
+        stage_group = str(self.stage_group).strip()
+        if not stage_group:
+            raise ValueError("stage_group must be non-empty.")
+        object.__setattr__(self, "workload_class", workload_class)
+        object.__setattr__(self, "label", label)
+        object.__setattr__(self, "stage_group", stage_group)
+        object.__setattr__(
+            self,
+            "hardware_lanes",
+            tuple(str(lane) for lane in self.hardware_lanes),
+        )
+        object.__setattr__(self, "enabled", bool(self.enabled))
+        object.__setattr__(self, "coverage_state", str(self.coverage_state))
+        object.__setattr__(
+            self,
+            "parameters",
+            {str(key): value for key, value in dict(self.parameters).items()},
+        )
+        object.__setattr__(self, "decision_state", str(self.decision_state))
+
+
+@dataclass(frozen=True)
 class MeasuredRuntimeBenchmarkSuiteConfig:
     workload_name: str
     seeds: tuple[int, ...]
@@ -77,6 +116,7 @@ class MeasuredRuntimeBenchmarkSuiteConfig:
     control: SimulationControl = field(default_factory=SimulationControl)
     simulation_config: SimulationConfig | None = None
     eager_trip_generation: bool = False
+    workload_matrix: tuple[BenchmarkWorkloadMatrixEntry, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -208,6 +248,7 @@ class MeasuredRuntimeBenchmarkSuiteResult:
     per_seed_results: tuple[MeasuredRuntimeBenchmarkResult, ...]
     gpu_candidate_gate_report: "RuntimeGpuCandidateGateReport"
     gpu_candidate_gate_markdown: str
+    workload_matrix: tuple[BenchmarkWorkloadMatrixEntry, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "name", str(self.name))
@@ -221,6 +262,11 @@ class MeasuredRuntimeBenchmarkSuiteResult:
             self,
             "gpu_candidate_gate_markdown",
             str(self.gpu_candidate_gate_markdown),
+        )
+        object.__setattr__(
+            self,
+            "workload_matrix",
+            tuple(_normalize_workload_matrix_entry(item) for item in self.workload_matrix),
         )
 
 
@@ -314,6 +360,93 @@ def run_city_smoke_benchmark(*, population: int, edge_count: int, zone_count: in
         state_proxy_score=state_proxy_score,
         note=f"population={population} edges={edge_count} zones={zone_count}",
         signature=f"{population}:{edge_count}:{zone_count}",
+    )
+
+
+def default_runtime_workload_matrix(
+    *,
+    num_steps: int,
+    eager_trip_generation: bool,
+) -> tuple[BenchmarkWorkloadMatrixEntry, ...]:
+    """Return diagnostic workload-class coverage for runtime acceleration review."""
+
+    steps = max(0, int(num_steps))
+    eager = bool(eager_trip_generation)
+    return (
+        BenchmarkWorkloadMatrixEntry(
+            workload_class="eager_runtime_1_step",
+            label="Eager runtime 1-step",
+            stage_group="runtime_spine",
+            hardware_lanes=("python_orchestration", "numpy_authority"),
+            enabled=steps >= 1,
+            coverage_state="measured_in_suite" if steps >= 1 else "not_measured",
+            parameters={
+                "steps": min(steps, 1),
+                "eager_trip_generation": eager,
+            },
+        ),
+        BenchmarkWorkloadMatrixEntry(
+            workload_class="eager_runtime_2_step",
+            label="Eager runtime 2-step",
+            stage_group="runtime_spine",
+            hardware_lanes=("python_orchestration", "numpy_authority"),
+            enabled=steps >= 2,
+            coverage_state="measured_in_suite" if steps >= 2 else "not_measured",
+            parameters={
+                "steps": min(steps, 2),
+                "eager_trip_generation": eager,
+            },
+        ),
+        BenchmarkWorkloadMatrixEntry(
+            workload_class="generated_od_routing",
+            label="Generated OD routing",
+            stage_group="route_candidate_refresh",
+            hardware_lanes=("python_orchestration", "rust_cpu", "nn_surrogate"),
+            enabled=False,
+            coverage_state=(
+                "configured_not_observed" if eager else "requires_eager_runtime_suite"
+            ),
+            parameters={
+                "generated_city": True,
+                "routing_backend_default": "baseline",
+                "eager_trip_generation": eager,
+            },
+        ),
+        BenchmarkWorkloadMatrixEntry(
+            workload_class="dense_flow_turn_batch",
+            label="Dense flow/turn batch",
+            stage_group="flow_update",
+            hardware_lanes=("numpy_simd", "rust_cpu", "jax_gpu_optional"),
+            enabled=False,
+            coverage_state="requires_dedicated_probe",
+            parameters={
+                "requires_dedicated_probe": True,
+            },
+        ),
+        BenchmarkWorkloadMatrixEntry(
+            workload_class="route_candidate_k_gt_1_scoring",
+            label="Route candidate K>1 scoring",
+            stage_group="route_candidate_metadata",
+            hardware_lanes=("numpy_simd", "jax_gpu_optional", "nn_surrogate"),
+            enabled=False,
+            coverage_state="requires_dedicated_probe",
+            parameters={
+                "max_candidates_min": 2,
+                "requires_dedicated_probe": True,
+            },
+        ),
+        BenchmarkWorkloadMatrixEntry(
+            workload_class="active_agent_dense_pool",
+            label="Active-agent dense pool",
+            stage_group="active_agent_update",
+            hardware_lanes=("python_orchestration", "rust_cpu"),
+            enabled=False,
+            coverage_state="requires_dedicated_probe",
+            parameters={
+                "eager_trip_generation": eager,
+                "requires_dense_pool_probe": True,
+            },
+        ),
     )
 
 
@@ -748,6 +881,7 @@ def run_measured_runtime_spine_benchmark_suite(
         raise ValueError("seeds must contain at least one seed.")
     if len(set(seeds)) != len(seeds):
         raise ValueError("seeds must be unique for runtime benchmark suites.")
+    workload_matrix = _resolve_runtime_workload_matrix(config)
 
     per_seed_results: list[MeasuredRuntimeBenchmarkResult] = []
     for seed in seeds:
@@ -774,6 +908,7 @@ def run_measured_runtime_spine_benchmark_suite(
         )
 
     result_tuple = tuple(per_seed_results)
+    workload_matrix = _apply_runtime_workload_observations(workload_matrix, result_tuple)
     gate_report = summarize_runtime_gpu_candidate_gate(result_tuple)
     return MeasuredRuntimeBenchmarkSuiteResult(
         name="measured_runtime_spine_suite",
@@ -785,7 +920,84 @@ def run_measured_runtime_spine_benchmark_suite(
         per_seed_results=result_tuple,
         gpu_candidate_gate_report=gate_report,
         gpu_candidate_gate_markdown=format_runtime_gpu_candidate_gate_markdown(gate_report),
+        workload_matrix=workload_matrix,
     )
+
+
+def _resolve_runtime_workload_matrix(
+    config: MeasuredRuntimeBenchmarkSuiteConfig,
+) -> tuple[BenchmarkWorkloadMatrixEntry, ...]:
+    if config.workload_matrix is None:
+        return default_runtime_workload_matrix(
+            num_steps=config.num_steps,
+            eager_trip_generation=config.eager_trip_generation,
+        )
+    matrix = tuple(_normalize_workload_matrix_entry(item) for item in config.workload_matrix)
+    if not matrix:
+        raise ValueError("workload_matrix must contain at least one entry when provided.")
+    return matrix
+
+
+def _apply_runtime_workload_observations(
+    matrix: tuple[BenchmarkWorkloadMatrixEntry, ...],
+    results: tuple[MeasuredRuntimeBenchmarkResult, ...],
+) -> tuple[BenchmarkWorkloadMatrixEntry, ...]:
+    route_refresh_total = sum(
+        max(0, int(result.route_candidate_refresh_total)) for result in results
+    )
+    route_observed_count = sum(
+        1 for result in results if int(result.route_candidate_refresh_total) > 0
+    )
+    out: list[BenchmarkWorkloadMatrixEntry] = []
+    for entry in matrix:
+        if entry.workload_class != "generated_od_routing":
+            out.append(entry)
+            continue
+        parameters = dict(entry.parameters)
+        parameters["observed_run_count"] = int(route_observed_count)
+        parameters["route_candidate_refresh_total"] = int(route_refresh_total)
+        observed = route_refresh_total > 0
+        configured = bool(parameters.get("eager_trip_generation", False))
+        out.append(
+            BenchmarkWorkloadMatrixEntry(
+                workload_class=entry.workload_class,
+                label=entry.label,
+                stage_group=entry.stage_group,
+                hardware_lanes=entry.hardware_lanes,
+                enabled=observed,
+                coverage_state=(
+                    "measured_in_suite"
+                    if observed
+                    else (
+                        "configured_not_observed"
+                        if configured
+                        else "requires_eager_runtime_suite"
+                    )
+                ),
+                parameters=parameters,
+                decision_state=entry.decision_state,
+            )
+        )
+    return tuple(out)
+
+
+def _normalize_workload_matrix_entry(
+    entry: object,
+) -> BenchmarkWorkloadMatrixEntry:
+    if isinstance(entry, BenchmarkWorkloadMatrixEntry):
+        return entry
+    if isinstance(entry, dict):
+        return BenchmarkWorkloadMatrixEntry(
+            workload_class=str(entry.get("workload_class", "")),
+            label=str(entry.get("label", "")),
+            stage_group=str(entry.get("stage_group", "")),
+            hardware_lanes=tuple(str(item) for item in entry.get("hardware_lanes", ()) or ()),
+            enabled=bool(entry.get("enabled", False)),
+            coverage_state=str(entry.get("coverage_state", "diagnostic_metadata")),
+            parameters=dict(entry.get("parameters", {}) or {}),
+            decision_state=str(entry.get("decision_state", "diagnostic")),
+        )
+    raise TypeError("workload matrix entries must be BenchmarkWorkloadMatrixEntry values.")
 
 
 def _flow_copy_boundary_note(flow_backend: FlowUpdateBackend) -> str:

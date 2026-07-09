@@ -25,7 +25,7 @@ closed review findings.
 
 ## PR00 — Docs Bootstrap
 
-Status: this PR list defines PR00 completion criteria.
+Status: complete in `3607530`.
 
 - Create `docs/PRD_ACCELERATED_RUNTIME.md`.
 - Create `docs/harness/ACCELERATION_PR_LIST.md`.
@@ -37,6 +37,8 @@ Status: this PR list defines PR00 completion criteria.
 
 ## PR01 — Workload Matrix v1
 
+Status: in progress.
+
 - Extend benchmark metadata for workload classes:
   - eager runtime 1-step and 2-step;
   - generated OD routing;
@@ -44,6 +46,9 @@ Status: this PR list defines PR00 completion criteria.
   - route candidate K>1 scoring;
   - active-agent dense pool.
 - Do not add backend logic.
+- `enabled` means measured in the current suite; entries requiring another
+  probe must use explicit `coverage_state` metadata rather than claiming
+  coverage.
 - Tests: benchmark payload schema, manifest metadata, no eager accelerator
   imports.
 - Commit: `test(benchmarks): add hardware-fit workload matrix`.

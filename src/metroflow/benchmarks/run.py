@@ -315,6 +315,9 @@ def write_runtime_benchmark_suite_artifact_bundle(
     gate_report = report_data.get("gpu_candidate_gate_report", {})
     if not isinstance(gate_report, Mapping):
         gate_report = {}
+    workload_matrix = report_data.get("workload_matrix", ())
+    if not isinstance(workload_matrix, list | tuple):
+        workload_matrix = ()
     manifest = {
         "artifact_format_version": "runtime_suite_bundle_v1",
         "workload_name": str(report_data.get("workload_name", "unknown")),
@@ -322,6 +325,14 @@ def write_runtime_benchmark_suite_artifact_bundle(
         "seed_count": int(report_data.get("seed_count", 0) or 0),
         "num_steps": int(report_data.get("num_steps", 0) or 0),
         "eager_trip_generation": bool(report_data.get("eager_trip_generation", False)),
+        "workload_classes": [
+            str(item.get("workload_class", "unknown"))
+            for item in workload_matrix
+            if isinstance(item, Mapping)
+        ],
+        "workload_matrix": [
+            dict(item) for item in workload_matrix if isinstance(item, Mapping)
+        ],
         "gpu_review_eligible_stage_names": list(
             gate_report.get("gpu_review_eligible_stage_names", ()) or ()
         ),
