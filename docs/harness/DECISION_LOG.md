@@ -62,3 +62,46 @@ Do not add PyTorch/libtorch/custom CUDA dependencies in the next slice.
 
 Any `/review` that argues for GPU/NN must identify the exact scoring or dense
 numeric stage it targets and show that it is not deterministic state mutation.
+
+## 2026-07-09: Pool-Write Sub-Breakdown Redirects Next Slice
+
+Status: accepted
+
+### Context
+
+`active_agent_pool_write` was split into:
+
+- `active_agent_pool_array_write`
+- `active_agent_plugin_memory_write`
+
+The 1-step and 2-step eager suites both kept the parent `active_agent_pool_write`
+above the 0.30 review gate. The plugin-memory substage was larger than the
+typed-array substage but stayed below the 0.30 gate.
+
+### Compact CCoT
+
+Question: Should the next implementation be Rust pool-array write planning,
+plugin-memory data-layout reduction, or NN/JAX scoring?
+
+Evidence: In the regenerated eager suites, `active_agent_pool_write` stayed
+review-ready, `active_agent_pool_array_write` stayed near 0.09 to 0.10 mean
+share, `active_agent_plugin_memory_write` stayed near 0.26 to 0.28 mean share,
+and `active_agent_candidate_selection` stayed near 0.03 to 0.04 mean share.
+
+Inference: The parent pool-write stage remains the real active-agent issue, but
+the first subproblem is Python plugin-memory mapping churn, not typed-array pool
+replacement and not route-choice scoring.
+
+Counterevidence checked: `active_agent_plugin_memory_write` does not clear the
+0.30 review gate, so it is not a standalone accelerator target; it is a
+data-layout cleanup target inside the review-ready parent stage.
+
+Decision: Reduce dict-heavy selected-candidate metadata writes before opening a
+Rust pool-array backend slice.
+
+Falsifier: If metadata reduction does not lower parent pool-write cost, or if a
+broader deterministic suite makes typed-array pool replacement the dominant
+substage, reopen Rust pool-array planning.
+
+Next action: Move hot selected-candidate diagnostics out of per-slot plugin
+memory where possible, while preserving UI/replay-visible metadata behavior.

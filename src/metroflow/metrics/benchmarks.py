@@ -181,6 +181,8 @@ class MeasuredRuntimeBenchmarkResult:
     active_agent_allocation_wall_ns_total: int = 0
     active_agent_candidate_selection_wall_ns_total: int = 0
     active_agent_pool_write_wall_ns_total: int = 0
+    active_agent_pool_array_write_wall_ns_total: int = 0
+    active_agent_plugin_memory_write_wall_ns_total: int = 0
     active_agent_movement_wall_ns_total: int = 0
     runtime_stage_timings: tuple[RuntimeStageTiming, ...] = ()
     gpu_candidate_stage_names: tuple[str, ...] = ()
@@ -511,6 +513,16 @@ def run_measured_runtime_spine_benchmark(
         total_key="active_agent_pool_write_wall_ns_total",
         tick_key="active_agent_pool_write_wall_ns",
     )
+    active_agent_pool_array_write_wall_ns_total = _stage_ns_metric(
+        metrics_state,
+        total_key="active_agent_pool_array_write_wall_ns_total",
+        tick_key="active_agent_pool_array_write_wall_ns",
+    )
+    active_agent_plugin_memory_write_wall_ns_total = _stage_ns_metric(
+        metrics_state,
+        total_key="active_agent_plugin_memory_write_wall_ns_total",
+        tick_key="active_agent_plugin_memory_write_wall_ns",
+    )
     active_agent_movement_wall_ns_total = _stage_ns_metric(
         metrics_state,
         total_key="active_agent_movement_wall_ns_total",
@@ -544,6 +556,12 @@ def run_measured_runtime_spine_benchmark(
             active_agent_candidate_selection_wall_ns_total
         ),
         active_agent_pool_write_wall_ns=active_agent_pool_write_wall_ns_total,
+        active_agent_pool_array_write_wall_ns=(
+            active_agent_pool_array_write_wall_ns_total
+        ),
+        active_agent_plugin_memory_write_wall_ns=(
+            active_agent_plugin_memory_write_wall_ns_total
+        ),
         active_agent_movement_wall_ns=active_agent_movement_wall_ns_total,
     )
     return MeasuredRuntimeBenchmarkResult(
@@ -595,6 +613,12 @@ def run_measured_runtime_spine_benchmark(
             active_agent_candidate_selection_wall_ns_total
         ),
         active_agent_pool_write_wall_ns_total=active_agent_pool_write_wall_ns_total,
+        active_agent_pool_array_write_wall_ns_total=(
+            active_agent_pool_array_write_wall_ns_total
+        ),
+        active_agent_plugin_memory_write_wall_ns_total=(
+            active_agent_plugin_memory_write_wall_ns_total
+        ),
         active_agent_movement_wall_ns_total=active_agent_movement_wall_ns_total,
         runtime_stage_timings=stage_timings,
         gpu_candidate_stage_names=tuple(
@@ -857,6 +881,8 @@ def _runtime_stage_timing_breakdown(
     active_agent_allocation_wall_ns: int = 0,
     active_agent_candidate_selection_wall_ns: int = 0,
     active_agent_pool_write_wall_ns: int = 0,
+    active_agent_pool_array_write_wall_ns: int = 0,
+    active_agent_plugin_memory_write_wall_ns: int = 0,
     active_agent_movement_wall_ns: int = 0,
     gpu_candidate_threshold: float = 0.30,
 ) -> tuple[RuntimeStageTiming, ...]:
@@ -872,6 +898,8 @@ def _runtime_stage_timing_breakdown(
         "active_agent_allocation",
         "active_agent_candidate_selection",
         "active_agent_pool_write",
+        "active_agent_pool_array_write",
+        "active_agent_plugin_memory_write",
         "active_agent_movement",
     }
     raw = (
@@ -890,6 +918,11 @@ def _runtime_stage_timing_breakdown(
             active_agent_candidate_selection_wall_ns,
         ),
         ("active_agent_pool_write", active_agent_pool_write_wall_ns),
+        ("active_agent_pool_array_write", active_agent_pool_array_write_wall_ns),
+        (
+            "active_agent_plugin_memory_write",
+            active_agent_plugin_memory_write_wall_ns,
+        ),
         ("active_agent_movement", active_agent_movement_wall_ns),
     )
     out: list[RuntimeStageTiming] = []

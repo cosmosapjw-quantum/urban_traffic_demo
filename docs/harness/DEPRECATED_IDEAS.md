@@ -51,3 +51,21 @@ Reopen condition:
 
 - A dense flow, route-score, or OD/policy batch stage is review-ready across at
   least three deterministic seeds and has a narrow kernel contract.
+
+## Immediate Rust Pool-Array Write Backend
+
+Status: deferred
+
+Reason:
+
+- `active_agent_pool_array_write` is much smaller than
+  `active_agent_plugin_memory_write` in the current 1-step and 2-step eager
+  suites.
+- The larger substage is Python plugin-memory mapping churn, so Rust array-write
+  planning would target the wrong first subproblem.
+
+Reopen condition:
+
+- Plugin-memory write reduction is completed or falsified, and typed-array pool
+  replacement becomes the leading pool-write substage across deterministic
+  seeds.

@@ -22,44 +22,49 @@ Decision guardrails for future work:
   --runtime-suite-workload smoke-runtime-suite-eager-2step \
   --runtime-suite-seeds 41,42,43 \
   --runtime-suite-steps 2 \
-  --runtime-suite-eager-trip-generation
+  --runtime-suite-eager-trip-generation \
+  --runtime-suite-artifact-prefix artifacts/runtime_spine_review/runtime-suite-eager-2step-smoke
 ```
 
 ## Evidence
 
 | stage | 1-step mean share | 2-step mean share | gate status |
 |---|---:|---:|---|
-| route_candidate_refresh | 0.496430 | 0.465788 | eligible both runs |
-| route_candidate_potential | 0.198407 | 0.183364 | below 0.30 |
-| route_candidate_path_build | 0.251846 | 0.238289 | below 0.30 |
-| route_candidate_metadata | 0.027139 | 0.024714 | below 0.30 |
-| active_agent_update | 0.426526 | 0.403433 | eligible both runs |
-| active_agent_allocation | 0.423402 | 0.391733 | eligible both runs |
-| active_agent_candidate_selection | 0.034726 | 0.034645 | below 0.30 |
-| active_agent_pool_write | 0.380415 | 0.348166 | eligible both runs |
-| active_agent_movement | 0.002045 | 0.009464 | below 0.30 |
+| route_candidate_refresh | 0.491154 | 0.465925 | eligible both runs |
+| route_candidate_potential | 0.197926 | 0.185767 | below 0.30 |
+| route_candidate_path_build | 0.248170 | 0.236580 | below 0.30 |
+| route_candidate_metadata | 0.026730 | 0.024097 | below 0.30 |
+| active_agent_update | 0.432556 | 0.407347 | eligible both runs |
+| active_agent_allocation | 0.429381 | 0.396307 | eligible both runs |
+| active_agent_candidate_selection | 0.035368 | 0.033726 | below 0.30 |
+| active_agent_pool_write | 0.386110 | 0.354578 | eligible both runs |
+| active_agent_pool_array_write | 0.097621 | 0.089724 | below 0.30 |
+| active_agent_plugin_memory_write | 0.283766 | 0.260598 | below 0.30 |
+| active_agent_movement | 0.002056 | 0.009024 | below 0.30 |
 
 ## Findings
 
 1. Active-agent cost is not movement and not route-choice scoring. The dominant
-   nested stage is `active_agent_pool_write`, so the next active-agent slice
-   should target Python immutable pool/plugin-memory writes, likely with a
-   tighter typed-array data path or Rust allocation/write planning.
-2. NN/JAX route-choice scoring is not the immediate bottleneck in this workload.
+   nested stage is still `active_agent_pool_write`.
+2. Inside pool write, `active_agent_plugin_memory_write` is much larger than
+   `active_agent_pool_array_write`, but it does not clear the 0.30 review gate
+   in either suite. This supports a narrow Python data-layout slice before Rust
+   array-write planning.
+3. NN/JAX route-choice scoring is not the immediate bottleneck in this workload.
    `active_agent_candidate_selection` stays near 3.5 percent in both runs.
-3. Route refresh remains a major candidate, but it splits into two sub-threshold
+4. Route refresh remains a major candidate, but it splits into two sub-threshold
    graph workloads: `route_candidate_path_build` and `route_candidate_potential`.
    This argues for Rust/algorithmic route-core work before GPU kernels.
-4. NN remains relevant as a supervised surrogate surface for route cost-to-go
+5. NN remains relevant as a supervised surrogate surface for route cost-to-go
    and route scoring labels, but it should not replace deterministic routing
    authority or be treated as the next runtime hot-path fix.
 
 ## Next Slice Recommendation
 
-Proceed with a CPU/Rust data-layout slice before a JAX/NN implementation slice:
+Proceed with a Python data-layout slice before a Rust/JAX/NN implementation slice:
 
-- split active-agent pool write into typed-array replacement vs plugin-memory dict update;
 - reduce or remove dict-heavy plugin-memory writes for selected candidate metadata;
+- keep typed-array pool replacement as a Rust CPU watchlist, not the next patch;
 - keep route-candidate path-build/potential timings in the benchmark gate;
 - only open NN/JAX scoring once labels and stage shares show scoring, not state writes,
   is the limiting factor.

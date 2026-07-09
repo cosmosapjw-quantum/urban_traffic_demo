@@ -486,6 +486,22 @@ def _stage_acceleration_profile(stage_name: str) -> dict[str, str]:
             "recommended_next_probe": "measure immutable pool replacement and plugin-memory writes separately if this grows",
             "rationale": "pool writes are deterministic state mutation and should stay CPU/Rust-oriented",
         },
+        "active_agent_pool_array_write": {
+            "jax_gpu_fit": "low",
+            "nn_surrogate_fit": "low",
+            "rust_cpu_fit": "high",
+            "custom_cuda_fit": "low",
+            "recommended_next_probe": "compare Python immutable array replacement with a Rust action/apply plan before changing ownership",
+            "rationale": "typed active-agent pool arrays are deterministic state mutation and fit Rust CPU better than NN/GPU",
+        },
+        "active_agent_plugin_memory_write": {
+            "jax_gpu_fit": "low",
+            "nn_surrogate_fit": "low",
+            "rust_cpu_fit": "medium",
+            "custom_cuda_fit": "low",
+            "recommended_next_probe": "reduce dict-heavy selected-candidate metadata writes or move hot metadata into typed arrays",
+            "rationale": "plugin-memory writes are Python mapping churn; optimize data layout before adding accelerator backends",
+        },
         "active_agent_movement": {
             "jax_gpu_fit": "low",
             "nn_surrogate_fit": "low",

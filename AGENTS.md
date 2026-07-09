@@ -76,3 +76,4 @@
 - 040-runtime-nested-timing: Split route refresh and active-agent update into nested timing stages for deeper GPU/NN backend triage
 - 041-active-agent-allocation-timing: Split active-agent allocation timing into candidate-selection and pool-write sub-stages
 - 042-runtime-acceleration-guardrails: Added anti-local-minima self-ask, step-back, and compact CCoT review guardrails
+- 043-active-agent-pool-write-breakdown: Split pool-write timing into typed-array replacement and plugin-memory write sub-stages

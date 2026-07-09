@@ -24,7 +24,11 @@ specific decision. Link to the canonical evidence artifact instead.
 
 Derived conclusions:
 
-- `active_agent_pool_write` is the next active-agent target.
+- `active_agent_pool_write` remains the active-agent parent target.
+- `active_agent_plugin_memory_write` is the larger pool-write substage, but it
+  remains below the 0.30 review gate.
+- `active_agent_pool_array_write` is smaller and should not drive the next Rust
+  slice yet.
 - `active_agent_candidate_selection` is not currently the hot path.
 - Route candidate refresh remains important, but immediate route work should be
   Rust/algorithmic before custom CUDA.
@@ -41,6 +45,6 @@ Derived conclusions:
 
 ## Next Action
 
-Follow `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md` and split
-`active_agent_pool_write` into typed-array replacement vs plugin-memory dict
-update before implementing a Rust or data-layout optimization.
+Follow `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md` and reduce
+dict-heavy selected-candidate metadata writes before implementing a Rust
+pool-array optimization.

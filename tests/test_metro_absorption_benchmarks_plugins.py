@@ -350,6 +350,19 @@ def test_runtime_acceleration_candidate_report_profiles_nested_stage_fits() -> N
                         "max_wall_clock_ns": 40,
                     },
                     {
+                        "stage_name": "active_agent_pool_array_write",
+                        "mean_wall_time_share": 0.07,
+                        "max_wall_time_share": 0.08,
+                        "max_wall_clock_ns": 80,
+                    },
+                    {
+                        "stage_name": "active_agent_plugin_memory_write",
+                        "mean_wall_time_share": 0.31,
+                        "max_wall_time_share": 0.32,
+                        "max_wall_clock_ns": 320,
+                        "gpu_review_eligible": True,
+                    },
+                    {
                         "stage_name": "active_agent_movement",
                         "mean_wall_time_share": 0.34,
                         "max_wall_time_share": 0.35,
@@ -374,6 +387,10 @@ def test_runtime_acceleration_candidate_report_profiles_nested_stage_fits() -> N
     assert candidates["active_agent_candidate_selection"]["jax_gpu_fit"] == "medium"
     assert candidates["active_agent_pool_write"]["rust_cpu_fit"] == "high"
     assert candidates["active_agent_pool_write"]["nn_surrogate_fit"] == "low"
+    assert candidates["active_agent_pool_array_write"]["rust_cpu_fit"] == "high"
+    assert candidates["active_agent_pool_array_write"]["jax_gpu_fit"] == "low"
+    assert candidates["active_agent_plugin_memory_write"]["rust_cpu_fit"] == "medium"
+    assert candidates["active_agent_plugin_memory_write"]["nn_surrogate_fit"] == "low"
     assert candidates["active_agent_movement"]["rust_cpu_fit"] == "high"
     assert candidates["active_agent_movement"]["jax_gpu_fit"] == "low"
 

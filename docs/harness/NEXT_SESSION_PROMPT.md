@@ -19,17 +19,21 @@ Current state:
 - Rust CPU is optional and explicit/fail-closed.
 - JAX/GPU and NN surrogate lanes are active watchlists, not defaults.
 - Deep runtime audit found `active_agent_pool_write` as the current active-agent
-  hot path, while `active_agent_candidate_selection` is not review-ready.
+  parent hot path, while `active_agent_candidate_selection` is not review-ready.
+- `active_agent_pool_write` has already been split into
+  `active_agent_pool_array_write` and `active_agent_plugin_memory_write`.
+- `active_agent_plugin_memory_write` is larger than array write, but below the
+  standalone 0.30 review gate.
 
 Next recommended slice:
 
-1. Split `active_agent_pool_write` into typed-array pool replacement timing and
-   plugin-memory dict update timing.
-2. Re-run eager runtime suite for seeds `41,42,43`.
-3. If plugin-memory dict update dominates, reduce selected-candidate metadata
-   writes or move hot metadata into typed arrays.
-4. If typed-array pool replacement dominates, consider Rust/typed-array write
-   planning.
+1. Reduce selected-candidate metadata writes in per-slot plugin memory, or move
+   hot fields into typed diagnostics while preserving replay/UI behavior.
+2. Re-run eager runtime suite for seeds `41,42,43` at 1-step and 2-step.
+3. If parent `active_agent_pool_write` falls below the review gate, move back to
+   route candidate refresh/Rust graph-core planning.
+4. If typed-array pool replacement becomes dominant, consider Rust/typed-array
+   write planning.
 5. Do not add NN/JAX scoring until a scoring stage becomes review-ready.
 
 Required self-check before coding:

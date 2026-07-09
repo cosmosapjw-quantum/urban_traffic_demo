@@ -37,13 +37,18 @@ Observed on seeds `41,42,43` with eager trip generation:
   sub-threshold nested graph workloads.
 - `active_agent_update` is large because of `active_agent_allocation`.
 - `active_agent_allocation` is large because of `active_agent_pool_write`.
+- `active_agent_pool_write` is now split into
+  `active_agent_pool_array_write` and `active_agent_plugin_memory_write`.
+- `active_agent_plugin_memory_write` is the larger pool-write substage, but it
+  remains below the 0.30 review gate in the current 1-step and 2-step suites.
 - `active_agent_candidate_selection` is small in both 1-step and 2-step smoke
   workloads.
 
 Current implication:
 
-- Active-agent next slice should target pool/plugin-memory writes, not NN/JAX
-  route-choice scoring.
+- Active-agent next slice should reduce dict-heavy plugin-memory writes and
+  selected-candidate metadata churn, not Rust array-write or NN/JAX route-choice
+  scoring.
 - Route next slice should target Rust/algorithmic graph core before custom CUDA.
 - NN remains a supervised surrogate research lane, not the next runtime hot-path
   fix.
@@ -117,7 +122,8 @@ Open a Rust CPU slice when:
 
 Current Rust-ready candidates:
 
-- `active_agent_pool_write`
+- `active_agent_pool_array_write` after plugin-memory churn is reduced or
+  falsified
 - route candidate graph core, especially `route_candidate_path_build`
 
 ### JAX/GPU
@@ -171,13 +177,13 @@ Review must explicitly check:
 
 Preferred next implementation slice:
 
-- split `active_agent_pool_write` into typed-array replacement and
-  plugin-memory dict update;
-- reduce dict-heavy selected-candidate metadata writes when possible;
+- reduce dict-heavy selected-candidate metadata writes in plugin memory;
+- keep hot selected-candidate fields available through typed diagnostics when
+  possible;
 - keep existing route timing evidence unchanged until active-agent write cost is
   either reduced or falsified as the dominant cost.
 
 Stop condition:
 
-- If pool-write sub-breakdown shows dict/plugin-memory is not dominant, step
-  back before implementing Rust pool-write changes.
+- If plugin-memory write reduction does not reduce `active_agent_pool_write`,
+  step back before implementing Rust pool-array changes.

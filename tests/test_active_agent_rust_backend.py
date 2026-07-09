@@ -159,6 +159,8 @@ def _without_timing(counters: dict[str, int]) -> dict[str, int]:
             "active_agent_allocation_wall_ns",
             "active_agent_candidate_selection_wall_ns",
             "active_agent_movement_wall_ns",
+            "active_agent_plugin_memory_write_wall_ns",
+            "active_agent_pool_array_write_wall_ns",
             "active_agent_pool_write_wall_ns",
             "reroute_decision_wall_ns",
         }

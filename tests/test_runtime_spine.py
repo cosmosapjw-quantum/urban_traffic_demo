@@ -777,6 +777,8 @@ def test_simulation_step_accumulates_runtime_stage_timing_totals(
             "active_agent_allocation_wall_ns": 2,
             "active_agent_candidate_selection_wall_ns": 11,
             "active_agent_pool_write_wall_ns": 13,
+            "active_agent_pool_array_write_wall_ns": 17,
+            "active_agent_plugin_memory_write_wall_ns": 19,
             "active_agent_movement_wall_ns": 4,
         }
 
@@ -813,6 +815,18 @@ def test_simulation_step_accumulates_runtime_stage_timing_totals(
         == 22
     )
     assert final_state.dynamic.metrics_state["active_agent_pool_write_wall_ns_total"] == 26
+    assert (
+        final_state.dynamic.metrics_state[
+            "active_agent_pool_array_write_wall_ns_total"
+        ]
+        == 34
+    )
+    assert (
+        final_state.dynamic.metrics_state[
+            "active_agent_plugin_memory_write_wall_ns_total"
+        ]
+        == 38
+    )
     assert final_state.dynamic.metrics_state["active_agent_movement_wall_ns_total"] == 8
 
 
@@ -1060,16 +1074,26 @@ def test_simulation_step_fails_no_route_trip_without_allocating_agent() -> None:
     assert next_state.dynamic.route_candidate_state.candidate_sets[(1, 2)].candidate_paths == ()
 
 
-def test_active_agent_allocation_records_selected_candidate_metadata() -> None:
+def test_active_agent_allocation_records_selected_candidate_metadata(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     from dataclasses import replace
+    from itertools import count
 
     from metroflow.demand.trips import TripRequestStatus
     from metroflow.routing.candidates import RouteCandidateSet
+    from metroflow.sim import routing_runtime as routing_runtime_module
     from metroflow.sim.routing_runtime import (
         SimulationRouteCacheState,
         advance_runtime_active_agents,
     )
 
+    timer_ticks = count(start=100, step=10)
+    monkeypatch.setattr(
+        routing_runtime_module,
+        "perf_counter_ns",
+        lambda: next(timer_ticks),
+    )
     state = _runtime_spine_state()
     activated_trips = tuple(
         replace(trip, status=TripRequestStatus.ACTIVATED)
@@ -1102,6 +1126,12 @@ def test_active_agent_allocation_records_selected_candidate_metadata() -> None:
 
     assert pool is not None
     assert counters["trip_allocated_this_tick"] == 1
+    assert counters["active_agent_pool_array_write_wall_ns"] > 0
+    assert counters["active_agent_plugin_memory_write_wall_ns"] > 0
+    assert counters["active_agent_pool_write_wall_ns"] >= (
+        counters["active_agent_pool_array_write_wall_ns"]
+        + counters["active_agent_plugin_memory_write_wall_ns"]
+    )
     assert demand_state["allocated_trip_request_ids"] == (1,)
     memory = pool.plugin_memory[0]
     assert memory["route_path"] == (10, 11)

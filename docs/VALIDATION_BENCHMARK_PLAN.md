@@ -100,8 +100,8 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - benchmark result는 요청 backend를 기록하고, explicit `rust_cpu`/`jax` 요청 실패는 실패로 남김
 - runtime benchmark result는 route-candidate refresh, route-candidate potential/path-build/metadata,
   dynamic-potential recompute, routing compile estimate timing totals, flow/active-agent/reroute
-  decision wall-time totals, active-agent allocation/candidate-selection/pool-write/movement wall-time totals, `runtime_stage_timings`,
-  `gpu_candidate_stage_names`를 metrics/run summary와 동일한 key로 보존한다
+  decision wall-time totals, active-agent allocation/candidate-selection/pool-write/pool-array-write/plugin-memory-write/movement wall-time totals,
+  `runtime_stage_timings`, `gpu_candidate_stage_names`를 metrics/run summary와 동일한 key로 보존한다
 - isolated routing-candidate benchmark result는 route-candidate refresh와 dynamic-potential recompute
   timing totals를 own stats에서 보존한다
 - `auto` backend만 baseline fallback을 허용한다

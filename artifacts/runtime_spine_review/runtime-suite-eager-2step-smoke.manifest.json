@@ -1,10 +1,10 @@
 {
   "artifact_format_version": "runtime_suite_bundle_v1",
   "artifact_paths": {
-    "html": "artifacts/runtime_spine_review/runtime-suite-eager-smoke.html",
-    "json": "artifacts/runtime_spine_review/runtime-suite-eager-smoke.json",
-    "manifest": "artifacts/runtime_spine_review/runtime-suite-eager-smoke.manifest.json",
-    "markdown": "artifacts/runtime_spine_review/runtime-suite-eager-smoke.md"
+    "html": "artifacts/runtime_spine_review/runtime-suite-eager-2step-smoke.html",
+    "json": "artifacts/runtime_spine_review/runtime-suite-eager-2step-smoke.json",
+    "manifest": "artifacts/runtime_spine_review/runtime-suite-eager-2step-smoke.manifest.json",
+    "markdown": "artifacts/runtime_spine_review/runtime-suite-eager-2step-smoke.md"
   },
   "eager_trip_generation": true,
   "gpu_review_eligible_stage_names": [
@@ -38,7 +38,7 @@
     "active_agent_update",
     "active_agent_allocation"
   ],
-  "num_steps": 1,
+  "num_steps": 2,
   "rust_cpu_candidate_stage_names": [
     "flow_update",
     "route_candidate_refresh",
@@ -69,5 +69,5 @@
     43
   ],
   "timing_overlap_warning": true,
-  "workload_name": "smoke-runtime-suite-eager"
+  "workload_name": "smoke-runtime-suite-eager-2step"
 }
