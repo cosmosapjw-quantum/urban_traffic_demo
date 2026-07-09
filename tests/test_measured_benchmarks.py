@@ -17,6 +17,7 @@ from metroflow.metrics.benchmarks import (
     MeasuredRoutingBenchmarkResult,
     MeasuredRuntimeBenchmarkConfig,
     MeasuredRuntimeBenchmarkResult,
+    RuntimeStageTiming,
     run_city_smoke_benchmark,
     run_measured_flow_update_benchmark,
     run_measured_routing_candidate_benchmark,
@@ -59,6 +60,63 @@ def make_measured_routing_fixture():
         capacity_veh_per_tick=(5.0, 5.0, 5.0, 5.0),
     )
     return road_csr, link_state
+
+
+def make_runtime_stage_result(
+    *,
+    seed: int,
+    flow_share: float,
+    active_agent_share: float,
+) -> MeasuredRuntimeBenchmarkResult:
+    wall_clock_ns = 1_000
+    return MeasuredRuntimeBenchmarkResult(
+        name="measured_runtime_spine",
+        workload_name="runtime-stage-gate",
+        wall_clock_ns=wall_clock_ns,
+        num_steps=1,
+        initial_tick=0,
+        final_tick=1,
+        active_agent_count=0,
+        flow_backend="baseline",
+        routing_backend="baseline",
+        agent_backend="baseline",
+        route_path_size_gamma=0.0,
+        routing_copy_boundary_note="numpy baseline",
+        agent_copy_boundary_note="python baseline",
+        route_candidate_refresh_total=0,
+        route_candidate_reuse_total=0,
+        dynamic_potential_recompute_total=0,
+        dynamic_potential_cache_hits_total=0,
+        seed=seed,
+        runtime_stage_timings=(
+            RuntimeStageTiming(
+                "flow_update",
+                int(round(wall_clock_ns * flow_share)),
+                flow_share,
+                flow_share >= 0.30,
+            ),
+            RuntimeStageTiming(
+                "active_agent_update",
+                int(round(wall_clock_ns * active_agent_share)),
+                active_agent_share,
+                active_agent_share >= 0.30,
+            ),
+            RuntimeStageTiming(
+                "dynamic_potential_recompute",
+                600,
+                0.60,
+                False,
+            ),
+        ),
+        gpu_candidate_stage_names=tuple(
+            name
+            for name, share in (
+                ("flow_update", flow_share),
+                ("active_agent_update", active_agent_share),
+            )
+            if share >= 0.30
+        ),
+    )
 
 
 def test_measured_benchmark_smoke_execution_returns_measured_record():
@@ -600,3 +658,75 @@ def test_runtime_stage_timing_markdown_reports_gpu_candidate_gate() -> None:
     assert "threshold: 0.3" in markdown
     assert "minimum deterministic seeds: 3" in markdown
     assert "flow_update: 400 ns (share 0.4)" in markdown
+
+
+def test_runtime_gpu_candidate_gate_requires_stage_candidate_in_all_seed_runs() -> None:
+    report = benchmark_module.summarize_runtime_gpu_candidate_gate(
+        (
+            make_runtime_stage_result(seed=11, flow_share=0.35, active_agent_share=0.40),
+            make_runtime_stage_result(seed=12, flow_share=0.31, active_agent_share=0.20),
+            make_runtime_stage_result(seed=13, flow_share=0.45, active_agent_share=0.50),
+        )
+    )
+
+    assert report.workload_name == "runtime-stage-gate"
+    assert report.deterministic_run_count == 3
+    assert report.unique_seed_count == 3
+    assert report.seeds == (11, 12, 13)
+    assert report.gpu_review_eligible_stage_names == ("flow_update",)
+
+    summaries = {item.stage_name: item for item in report.stage_summaries}
+    assert summaries["flow_update"].candidate_run_count == 3
+    assert summaries["flow_update"].gpu_review_eligible is True
+    assert summaries["flow_update"].min_wall_time_share == 0.31
+    assert summaries["active_agent_update"].candidate_run_count == 2
+    assert summaries["active_agent_update"].gpu_review_eligible is False
+    assert summaries["dynamic_potential_recompute"].candidate_run_count == 0
+    assert summaries["dynamic_potential_recompute"].gpu_review_eligible is False
+
+
+def test_runtime_gpu_candidate_gate_requires_minimum_seed_count() -> None:
+    report = benchmark_module.summarize_runtime_gpu_candidate_gate(
+        (
+            make_runtime_stage_result(seed=21, flow_share=0.40, active_agent_share=0.40),
+            make_runtime_stage_result(seed=22, flow_share=0.50, active_agent_share=0.45),
+        )
+    )
+
+    assert report.deterministic_run_count == 2
+    assert report.unique_seed_count == 2
+    assert report.gpu_review_eligible_stage_names == ()
+    assert all(not item.gpu_review_eligible for item in report.stage_summaries)
+
+
+def test_runtime_gpu_candidate_gate_requires_unique_seed_count() -> None:
+    report = benchmark_module.summarize_runtime_gpu_candidate_gate(
+        (
+            make_runtime_stage_result(seed=44, flow_share=0.40, active_agent_share=0.40),
+            make_runtime_stage_result(seed=44, flow_share=0.50, active_agent_share=0.45),
+            make_runtime_stage_result(seed=44, flow_share=0.60, active_agent_share=0.50),
+        )
+    )
+
+    assert report.deterministic_run_count == 3
+    assert report.unique_seed_count == 1
+    assert report.gpu_review_eligible_stage_names == ()
+    assert all(not item.gpu_review_eligible for item in report.stage_summaries)
+
+
+def test_runtime_gpu_candidate_gate_markdown_reports_eligible_stage_names() -> None:
+    report = benchmark_module.summarize_runtime_gpu_candidate_gate(
+        (
+            make_runtime_stage_result(seed=31, flow_share=0.35, active_agent_share=0.40),
+            make_runtime_stage_result(seed=32, flow_share=0.31, active_agent_share=0.20),
+            make_runtime_stage_result(seed=33, flow_share=0.45, active_agent_share=0.50),
+        )
+    )
+
+    markdown = benchmark_module.format_runtime_gpu_candidate_gate_markdown(report)
+
+    assert "Runtime GPU candidate gate" in markdown
+    assert "Deterministic runs: 3" in markdown
+    assert "Unique seeds: 3" in markdown
+    assert "Eligible stages: flow_update" in markdown
+    assert "active_agent_update: candidate runs 2/3" in markdown

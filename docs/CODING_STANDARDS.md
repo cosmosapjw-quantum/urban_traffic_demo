@@ -73,6 +73,8 @@
 - runtime benchmark는 flow update, route candidate refresh, dynamic-potential recompute,
   reroute decision, active-agent update stage timing을 보존해야 한다. GPU 후보 표시는
   `gpu_candidate_stage_names` metadata로만 남기고 runtime backend 값으로 승격하지 않는다
+- GPU/C++ 착수 후보는 `summarize_runtime_gpu_candidate_gate`로 3개 이상의 unique deterministic
+  seed 결과를 집계해 모든 run에서 threshold를 넘는 stage만 `gpu_review_eligible`로 표시한다
 
 ## tests
 - 새 상태변수/계약 추가 시 테스트 동시 추가

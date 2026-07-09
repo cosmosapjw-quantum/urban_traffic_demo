@@ -110,3 +110,6 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - `format_runtime_stage_timing_markdown`은 measured runtime benchmark result의 stage timing과
   GPU 후보 gate를 reviewer-facing report section으로 렌더링한다. 이 section은 구현 허가가 아니라
   다음 backend slice를 정하기 위한 measurement artifact다
+- `summarize_runtime_gpu_candidate_gate`는 같은 workload의 measured runtime benchmark result를
+  3개 이상의 unique deterministic seed 단위로 집계한다. `format_runtime_gpu_candidate_gate_markdown`은
+  모든 run에서 threshold를 넘은 stage만 GPU/C++ review 후보로 표시한다
