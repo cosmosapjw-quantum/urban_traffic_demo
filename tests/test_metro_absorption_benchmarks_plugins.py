@@ -720,6 +720,15 @@ def test_runtime_benchmark_suite_artifact_bundle_writes_manifest(tmp_path) -> No
         "dynamic_potential_recompute",
         "active_agent_update",
     ]
+    assert manifest["jax_gpu_review_ready_stage_names"] == ["route_candidate_refresh"]
+    assert manifest["nn_surrogate_review_ready_stage_names"] == [
+        "route_candidate_refresh",
+        "active_agent_update",
+    ]
+    assert manifest["rust_cpu_review_ready_stage_names"] == [
+        "route_candidate_refresh",
+        "active_agent_update",
+    ]
 
 
 def test_benchmark_cli_runtime_suite_writes_artifact_bundle(

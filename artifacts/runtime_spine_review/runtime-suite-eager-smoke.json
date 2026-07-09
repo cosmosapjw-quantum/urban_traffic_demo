@@ -1,6 +1,96 @@
 {
+  "acceleration_candidate_report": {
+    "eager_trip_generation": true,
+    "notes": [
+      "Stage shares can overlap when a coarse stage contains a nested measured stage; do not sum them as exclusive wall-clock partitions."
+    ],
+    "report_type": "runtime_acceleration_candidate_report_v1",
+    "stage_candidates": [
+      {
+        "custom_cuda_fit": "high",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "high",
+        "max_wall_clock_ns": 245300,
+        "max_wall_time_share": 4.1e-05,
+        "mean_wall_time_share": 3.4e-05,
+        "nn_surrogate_fit": "low",
+        "rationale": "array-style numeric update is tensor friendly when it becomes a sustained wall-time share",
+        "recommended_next_probe": "profile larger dense flow batches before opening custom CUDA",
+        "rust_cpu_fit": "medium",
+        "stage_name": "flow_update"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": true,
+        "jax_gpu_fit": "medium",
+        "max_wall_clock_ns": 2945345962,
+        "max_wall_time_share": 0.499518,
+        "mean_wall_time_share": 0.497317,
+        "nn_surrogate_fit": "high",
+        "rationale": "mixed graph/orchestration workload; NN route scorer or batched JAX scoring may help after baseline labels exist",
+        "recommended_next_probe": "split OD batching, cache lookup, candidate scoring, and path construction timings",
+        "rust_cpu_fit": "medium",
+        "stage_name": "route_candidate_refresh"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 1170234138,
+        "max_wall_time_share": 0.199133,
+        "mean_wall_time_share": 0.197287,
+        "nn_surrogate_fit": "high",
+        "rationale": "reverse graph search is irregular for GPU kernels, but it can supervise NN cost-to-go approximators",
+        "recommended_next_probe": "keep Dijkstra authoritative and collect labels for learned cost-to-go surrogate experiments",
+        "rust_cpu_fit": "high",
+        "stage_name": "dynamic_potential_recompute"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 0,
+        "max_wall_time_share": 0.0,
+        "mean_wall_time_share": 0.0,
+        "nn_surrogate_fit": "low",
+        "rationale": "stage has no established acceleration profile yet",
+        "recommended_next_probe": "add a stage-specific timing probe before selecting a backend",
+        "rust_cpu_fit": "medium",
+        "stage_name": "routing_compile_estimate"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": false,
+        "jax_gpu_fit": "medium",
+        "max_wall_clock_ns": 11442,
+        "max_wall_time_share": 2e-06,
+        "mean_wall_time_share": 2e-06,
+        "nn_surrogate_fit": "high",
+        "rationale": "decision scoring can become batched tensor inference, while route legality remains baseline-checked",
+        "recommended_next_probe": "collect simulator labels for policy/choice NN and keep deterministic fallback",
+        "rust_cpu_fit": "medium",
+        "stage_name": "reroute_decision"
+      },
+      {
+        "custom_cuda_fit": "low",
+        "gpu_review_eligible": true,
+        "jax_gpu_fit": "low",
+        "max_wall_clock_ns": 2538938419,
+        "max_wall_time_share": 0.42758,
+        "mean_wall_time_share": 0.424065,
+        "nn_surrogate_fit": "medium",
+        "rationale": "deterministic slot-order budget mutation is CPU/control-flow heavy; NN/GPU belongs in policy scoring, not state apply",
+        "recommended_next_probe": "separate Python pack, Rust action core, and immutable pool apply timings",
+        "rust_cpu_fit": "high",
+        "stage_name": "active_agent_update"
+      }
+    ],
+    "stage_mean_wall_time_share_total": 1.118705,
+    "timing_overlap_warning": true,
+    "workload_name": "smoke-runtime-suite-eager"
+  },
   "eager_trip_generation": true,
-  "gpu_candidate_gate_markdown": "- Runtime GPU candidate gate:\n- Workload: smoke-runtime-suite-eager\n- Deterministic runs: 3\n- Unique seeds: 3\n- Seeds: 41, 42, 43\n- Threshold: 0.3\n- Minimum deterministic seeds: 3\n- Eligible stages: route_candidate_refresh, active_agent_update\n- flow_update: candidate runs 0/3, mean share 2.9e-05, min share 2.6e-05, max share 3.2e-05, eligible no\n- route_candidate_refresh: candidate runs 3/3, mean share 0.493567, min share 0.489221, max share 0.497698, eligible yes\n- dynamic_potential_recompute: candidate runs 0/3, mean share 0.194696, min share 0.193496, max share 0.195858, eligible no\n- routing_compile_estimate: candidate runs 0/3, mean share 0.0, min share 0.0, max share 0.0, eligible no\n- reroute_decision: candidate runs 0/3, mean share 2e-06, min share 1e-06, max share 2e-06, eligible no\n- active_agent_update: candidate runs 3/3, mean share 0.428454, min share 0.424482, max share 0.432044, eligible yes",
+  "gpu_candidate_gate_markdown": "- Runtime GPU candidate gate:\n- Workload: smoke-runtime-suite-eager\n- Deterministic runs: 3\n- Unique seeds: 3\n- Seeds: 41, 42, 43\n- Threshold: 0.3\n- Minimum deterministic seeds: 3\n- Eligible stages: route_candidate_refresh, active_agent_update\n- flow_update: candidate runs 0/3, mean share 3.4e-05, min share 2.8e-05, max share 4.1e-05, eligible no\n- route_candidate_refresh: candidate runs 3/3, mean share 0.497317, min share 0.493604, max share 0.499518, eligible yes\n- dynamic_potential_recompute: candidate runs 0/3, mean share 0.197287, min share 0.195649, max share 0.199133, eligible no\n- routing_compile_estimate: candidate runs 0/3, mean share 0.0, min share 0.0, max share 0.0, eligible no\n- reroute_decision: candidate runs 0/3, mean share 2e-06, min share 2e-06, max share 2e-06, eligible no\n- active_agent_update: candidate runs 3/3, mean share 0.424065, min share 0.422148, max share 0.42758, eligible yes",
   "gpu_candidate_gate_report": {
     "deterministic_run_count": 3,
     "gpu_candidate_min_seed_count": 3,
@@ -19,30 +109,30 @@
         "candidate_run_count": 0,
         "deterministic_run_count": 3,
         "gpu_review_eligible": false,
-        "max_wall_clock_ns": 194418,
-        "max_wall_time_share": 3.2e-05,
-        "mean_wall_time_share": 2.9e-05,
-        "min_wall_time_share": 2.6e-05,
+        "max_wall_clock_ns": 245300,
+        "max_wall_time_share": 4.1e-05,
+        "mean_wall_time_share": 3.4e-05,
+        "min_wall_time_share": 2.8e-05,
         "stage_name": "flow_update"
       },
       {
         "candidate_run_count": 3,
         "deterministic_run_count": 3,
         "gpu_review_eligible": true,
-        "max_wall_clock_ns": 3004552699,
-        "max_wall_time_share": 0.497698,
-        "mean_wall_time_share": 0.493567,
-        "min_wall_time_share": 0.489221,
+        "max_wall_clock_ns": 2945345962,
+        "max_wall_time_share": 0.499518,
+        "mean_wall_time_share": 0.497317,
+        "min_wall_time_share": 0.493604,
         "stage_name": "route_candidate_refresh"
       },
       {
         "candidate_run_count": 0,
         "deterministic_run_count": 3,
         "gpu_review_eligible": false,
-        "max_wall_clock_ns": 1175589034,
-        "max_wall_time_share": 0.195858,
-        "mean_wall_time_share": 0.194696,
-        "min_wall_time_share": 0.193496,
+        "max_wall_clock_ns": 1170234138,
+        "max_wall_time_share": 0.199133,
+        "mean_wall_time_share": 0.197287,
+        "min_wall_time_share": 0.195649,
         "stage_name": "dynamic_potential_recompute"
       },
       {
@@ -59,20 +149,20 @@
         "candidate_run_count": 0,
         "deterministic_run_count": 3,
         "gpu_review_eligible": false,
-        "max_wall_clock_ns": 10410,
+        "max_wall_clock_ns": 11442,
         "max_wall_time_share": 2e-06,
         "mean_wall_time_share": 2e-06,
-        "min_wall_time_share": 1e-06,
+        "min_wall_time_share": 2e-06,
         "stage_name": "reroute_decision"
       },
       {
         "candidate_run_count": 3,
         "deterministic_run_count": 3,
         "gpu_review_eligible": true,
-        "max_wall_clock_ns": 2575828941,
-        "max_wall_time_share": 0.432044,
-        "mean_wall_time_share": 0.428454,
-        "min_wall_time_share": 0.424482,
+        "max_wall_clock_ns": 2538938419,
+        "max_wall_time_share": 0.42758,
+        "mean_wall_time_share": 0.424065,
+        "min_wall_time_share": 0.422148,
         "stage_name": "active_agent_update"
       }
     ],
@@ -88,16 +178,16 @@
       "active_agent_rerouted_this_tick": 0,
       "active_agent_sink_wait_this_tick": 0,
       "active_agent_sink_wait_total": 0,
-      "active_agent_update_wall_ns": 2562552738,
-      "active_agent_update_wall_ns_total": 2562552738,
+      "active_agent_update_wall_ns": 2492577699,
+      "active_agent_update_wall_ns_total": 2492577699,
       "agent_backend": "baseline",
       "agent_copy_boundary_note": "python baseline",
       "dynamic_potential_cache_hits_total": 17425,
-      "dynamic_potential_recompute_seconds_total": 1.1755890342465136,
+      "dynamic_potential_recompute_seconds_total": 1.1552120630512945,
       "dynamic_potential_recompute_total": 855,
       "final_tick": 1,
       "flow_backend": "baseline",
-      "flow_update_wall_ns_total": 194418,
+      "flow_update_wall_ns_total": 187850,
       "gpu_candidate_min_seed_count": 3,
       "gpu_candidate_stage_names": [
         "route_candidate_refresh",
@@ -108,9 +198,9 @@
       "name": "measured_runtime_spine",
       "num_steps": 1,
       "persistence_decisions_total": 0,
-      "reroute_decision_wall_ns_total": 10410,
+      "reroute_decision_wall_ns_total": 11132,
       "reroute_decisions_total": 0,
-      "route_candidate_refresh_seconds_total": 3.0045526993926615,
+      "route_candidate_refresh_seconds_total": 2.945345962041756,
       "route_candidate_refresh_total": 18280,
       "route_candidate_reuse_total": 12789,
       "route_path_size_gamma": 0.0,
@@ -121,20 +211,20 @@
         {
           "gpu_candidate": false,
           "stage_name": "flow_update",
-          "wall_clock_ns": 194418,
+          "wall_clock_ns": 187850,
           "wall_time_share": 3.2e-05
         },
         {
           "gpu_candidate": true,
           "stage_name": "route_candidate_refresh",
-          "wall_clock_ns": 3004552699,
-          "wall_time_share": 0.497698
+          "wall_clock_ns": 2945345962,
+          "wall_time_share": 0.49883
         },
         {
           "gpu_candidate": false,
           "stage_name": "dynamic_potential_recompute",
-          "wall_clock_ns": 1175589034,
-          "wall_time_share": 0.194734
+          "wall_clock_ns": 1155212063,
+          "wall_time_share": 0.195649
         },
         {
           "gpu_candidate": false,
@@ -145,18 +235,18 @@
         {
           "gpu_candidate": false,
           "stage_name": "reroute_decision",
-          "wall_clock_ns": 10410,
+          "wall_clock_ns": 11132,
           "wall_time_share": 2e-06
         },
         {
           "gpu_candidate": true,
           "stage_name": "active_agent_update",
-          "wall_clock_ns": 2562552738,
-          "wall_time_share": 0.424482
+          "wall_clock_ns": 2492577699,
+          "wall_time_share": 0.422148
         }
       ],
       "seed": 41,
-      "wall_clock_ns": 6036897640,
+      "wall_clock_ns": 5904510907,
       "workload_name": "smoke-runtime-suite-eager"
     },
     {
@@ -165,16 +255,16 @@
       "active_agent_rerouted_this_tick": 0,
       "active_agent_sink_wait_this_tick": 0,
       "active_agent_sink_wait_total": 0,
-      "active_agent_update_wall_ns": 2557425321,
-      "active_agent_update_wall_ns_total": 2557425321,
+      "active_agent_update_wall_ns": 2459827599,
+      "active_agent_update_wall_ns_total": 2459827599,
       "agent_backend": "baseline",
       "agent_copy_boundary_note": "python baseline",
       "dynamic_potential_cache_hits_total": 17211,
-      "dynamic_potential_recompute_seconds_total": 1.168025336926803,
+      "dynamic_potential_recompute_seconds_total": 1.1594572730537038,
       "dynamic_potential_recompute_total": 857,
       "final_tick": 1,
       "flow_backend": "baseline",
-      "flow_update_wall_ns_total": 167756,
+      "flow_update_wall_ns_total": 165307,
       "gpu_candidate_min_seed_count": 3,
       "gpu_candidate_stage_names": [
         "route_candidate_refresh",
@@ -185,9 +275,9 @@
       "name": "measured_runtime_spine",
       "num_steps": 1,
       "persistence_decisions_total": 0,
-      "reroute_decision_wall_ns_total": 9798,
+      "reroute_decision_wall_ns_total": 11442,
       "reroute_decisions_total": 0,
-      "route_candidate_refresh_seconds_total": 2.9447333856951445,
+      "route_candidate_refresh_seconds_total": 2.908450395829277,
       "route_candidate_refresh_total": 18068,
       "route_candidate_reuse_total": 13131,
       "route_path_size_gamma": 0.0,
@@ -198,20 +288,20 @@
         {
           "gpu_candidate": false,
           "stage_name": "flow_update",
-          "wall_clock_ns": 167756,
+          "wall_clock_ns": 165307,
           "wall_time_share": 2.8e-05
         },
         {
           "gpu_candidate": true,
           "stage_name": "route_candidate_refresh",
-          "wall_clock_ns": 2944733386,
-          "wall_time_share": 0.493781
+          "wall_clock_ns": 2908450396,
+          "wall_time_share": 0.499518
         },
         {
           "gpu_candidate": false,
           "stage_name": "dynamic_potential_recompute",
-          "wall_clock_ns": 1168025337,
-          "wall_time_share": 0.195858
+          "wall_clock_ns": 1159457273,
+          "wall_time_share": 0.199133
         },
         {
           "gpu_candidate": false,
@@ -222,18 +312,18 @@
         {
           "gpu_candidate": false,
           "stage_name": "reroute_decision",
-          "wall_clock_ns": 9798,
+          "wall_clock_ns": 11442,
           "wall_time_share": 2e-06
         },
         {
           "gpu_candidate": true,
           "stage_name": "active_agent_update",
-          "wall_clock_ns": 2557425321,
-          "wall_time_share": 0.428836
+          "wall_clock_ns": 2459827599,
+          "wall_time_share": 0.422468
         }
       ],
       "seed": 42,
-      "wall_clock_ns": 5963639435,
+      "wall_clock_ns": 5822516449,
       "workload_name": "smoke-runtime-suite-eager"
     },
     {
@@ -242,16 +332,16 @@
       "active_agent_rerouted_this_tick": 0,
       "active_agent_sink_wait_this_tick": 0,
       "active_agent_sink_wait_total": 0,
-      "active_agent_update_wall_ns": 2575828941,
-      "active_agent_update_wall_ns_total": 2575828941,
+      "active_agent_update_wall_ns": 2538938419,
+      "active_agent_update_wall_ns_total": 2538938419,
       "agent_backend": "baseline",
       "agent_copy_boundary_note": "python baseline",
       "dynamic_potential_cache_hits_total": 17328,
-      "dynamic_potential_recompute_seconds_total": 1.153612683992833,
+      "dynamic_potential_recompute_seconds_total": 1.1702341376803815,
       "dynamic_potential_recompute_total": 860,
       "final_tick": 1,
       "flow_backend": "baseline",
-      "flow_update_wall_ns_total": 157116,
+      "flow_update_wall_ns_total": 245300,
       "gpu_candidate_min_seed_count": 3,
       "gpu_candidate_stage_names": [
         "route_candidate_refresh",
@@ -262,9 +352,9 @@
       "name": "measured_runtime_spine",
       "num_steps": 1,
       "persistence_decisions_total": 0,
-      "reroute_decision_wall_ns_total": 7093,
+      "reroute_decision_wall_ns_total": 9629,
       "reroute_decisions_total": 0,
-      "route_candidate_refresh_seconds_total": 2.9167141575890128,
+      "route_candidate_refresh_seconds_total": 2.9309827644610777,
       "route_candidate_refresh_total": 18188,
       "route_candidate_reuse_total": 13121,
       "route_path_size_gamma": 0.0,
@@ -275,20 +365,20 @@
         {
           "gpu_candidate": false,
           "stage_name": "flow_update",
-          "wall_clock_ns": 157116,
-          "wall_time_share": 2.6e-05
+          "wall_clock_ns": 245300,
+          "wall_time_share": 4.1e-05
         },
         {
           "gpu_candidate": true,
           "stage_name": "route_candidate_refresh",
-          "wall_clock_ns": 2916714158,
-          "wall_time_share": 0.489221
+          "wall_clock_ns": 2930982764,
+          "wall_time_share": 0.493604
         },
         {
           "gpu_candidate": false,
           "stage_name": "dynamic_potential_recompute",
-          "wall_clock_ns": 1153612684,
-          "wall_time_share": 0.193496
+          "wall_clock_ns": 1170234138,
+          "wall_time_share": 0.197078
         },
         {
           "gpu_candidate": false,
@@ -299,18 +389,18 @@
         {
           "gpu_candidate": false,
           "stage_name": "reroute_decision",
-          "wall_clock_ns": 7093,
-          "wall_time_share": 1e-06
+          "wall_clock_ns": 9629,
+          "wall_time_share": 2e-06
         },
         {
           "gpu_candidate": true,
           "stage_name": "active_agent_update",
-          "wall_clock_ns": 2575828941,
-          "wall_time_share": 0.432044
+          "wall_clock_ns": 2538938419,
+          "wall_time_share": 0.42758
         }
       ],
       "seed": 43,
-      "wall_clock_ns": 5961953207,
+      "wall_clock_ns": 5937927974,
       "workload_name": "smoke-runtime-suite-eager"
     }
   ],
@@ -320,6 +410,6 @@
     42,
     43
   ],
-  "wall_clock_ns_total": 17962490282,
+  "wall_clock_ns_total": 17664955330,
   "workload_name": "smoke-runtime-suite-eager"
 }

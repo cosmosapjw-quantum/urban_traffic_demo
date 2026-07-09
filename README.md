@@ -138,6 +138,8 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   JSON/HTML/manifest에는 GPU gate와 별도로 acceleration candidate report를 포함한다. 이 report는
   stage별 JAX/GPU 적합도, NN surrogate 적합도, Rust CPU 적합도, 다음 timing probe와 coarse/nested
   timing overlap 경고를 남기며, C++/CUDA 또는 NN 구현 허가가 아니라 다음 실험 선택 자료다.
+  manifest의 `*_candidate_stage_names`는 구조적 적합도 목록이고, `*_review_ready_stage_names`는
+  현재 workload의 GPU gate까지 통과한 목록이다.
 - isolated routing candidate benchmark는 `run_measured_routing_candidate_benchmark`를 사용하며
   dynamic-potential recompute/cache counters와 timing totals, final candidate path, ranked-K candidate
   paths/costs/path-size metadata, routing copy-boundary note를 기록한다.

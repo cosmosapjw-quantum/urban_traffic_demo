@@ -302,6 +302,21 @@ def write_runtime_benchmark_suite_artifact_bundle(
             acceleration_report,
             fit_key="rust_cpu_fit",
         ),
+        "jax_gpu_review_ready_stage_names": _candidate_stage_names_by_fit(
+            acceleration_report,
+            fit_key="jax_gpu_fit",
+            require_gpu_review_eligible=True,
+        ),
+        "nn_surrogate_review_ready_stage_names": _candidate_stage_names_by_fit(
+            acceleration_report,
+            fit_key="nn_surrogate_fit",
+            require_gpu_review_eligible=True,
+        ),
+        "rust_cpu_review_ready_stage_names": _candidate_stage_names_by_fit(
+            acceleration_report,
+            fit_key="rust_cpu_fit",
+            require_gpu_review_eligible=True,
+        ),
         "artifact_paths": {
             "markdown": str(markdown_path),
             "json": str(json_path),
@@ -325,10 +340,13 @@ def _candidate_stage_names_by_fit(
     acceleration_report: Mapping[str, Any],
     *,
     fit_key: str,
+    require_gpu_review_eligible: bool = False,
 ) -> list[str]:
     names: list[str] = []
     for item in acceleration_report.get("stage_candidates", ()) or ():
         if not isinstance(item, Mapping):
+            continue
+        if require_gpu_review_eligible and not bool(item.get("gpu_review_eligible", False)):
             continue
         if str(item.get(fit_key, "low")) in {"medium", "high"}:
             names.append(str(item.get("stage_name", "unknown")))

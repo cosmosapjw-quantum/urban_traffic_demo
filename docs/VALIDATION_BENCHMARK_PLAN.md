@@ -141,3 +141,5 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   적합도, Rust CPU 적합도, custom CUDA 적합도, 다음 timing probe를 기록한다. coarse stage와 nested
   stage가 함께 측정되면 `timing_overlap_warning`을 남겨 mean share 합계를 exclusive wall-clock
   partition으로 오독하지 않게 해야 한다
+- manifest의 `*_candidate_stage_names`는 구조적으로 medium/high fit인 stage 목록이고,
+  `*_review_ready_stage_names`는 그중 현재 suite의 `gpu_review_eligible`까지 통과한 stage만 담아야 한다
