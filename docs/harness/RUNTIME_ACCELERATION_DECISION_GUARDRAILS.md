@@ -33,23 +33,22 @@ Project state summary:
 Observed on seeds `41,42,43` with eager trip generation:
 
 - `route_candidate_refresh` remains a large stage.
-- `route_candidate_potential` and `route_candidate_path_build` are both
-  sub-threshold nested graph workloads.
-- `active_agent_update` is large because of `active_agent_allocation`.
-- `active_agent_allocation` is large because of `active_agent_pool_write`.
+- `route_candidate_path_build` is now review-ready in the 1-step and 2-step
+  eager suites.
+- `route_candidate_potential` remains below the 0.30 review gate.
+- `active_agent_update` and `active_agent_allocation` are no longer
+  review-ready after batched plugin-memory replacement.
 - `active_agent_pool_write` is now split into
   `active_agent_pool_array_write` and `active_agent_plugin_memory_write`.
-- `active_agent_plugin_memory_write` is the larger pool-write substage, but it
-  remains below the 0.30 review gate in the current 1-step and 2-step suites.
+- `active_agent_plugin_memory_write` is near zero after batched replacement.
 - `active_agent_candidate_selection` is small in both 1-step and 2-step smoke
   workloads.
 
 Current implication:
 
-- Active-agent next slice should reduce dict-heavy plugin-memory writes and
-  selected-candidate metadata churn, not Rust array-write or NN/JAX route-choice
-  scoring.
-- Route next slice should target Rust/algorithmic graph core before custom CUDA.
+- Active-agent pool-array replacement stays on the Rust CPU watchlist but should
+  not drive the next slice.
+- Route next slice should target Rust/algorithmic path-build before custom CUDA.
 - NN remains a supervised surrogate research lane, not the next runtime hot-path
   fix.
 
@@ -122,9 +121,9 @@ Open a Rust CPU slice when:
 
 Current Rust-ready candidates:
 
-- `active_agent_pool_array_write` after plugin-memory churn is reduced or
-  falsified
-- route candidate graph core, especially `route_candidate_path_build`
+- route candidate path-build graph core
+- `active_agent_pool_array_write` only after route path-build is addressed or
+  active-agent array write becomes review-ready again
 
 ### JAX/GPU
 
@@ -177,13 +176,12 @@ Review must explicitly check:
 
 Preferred next implementation slice:
 
-- reduce dict-heavy selected-candidate metadata writes in plugin memory;
-- keep hot selected-candidate fields available through typed diagnostics when
-  possible;
-- keep existing route timing evidence unchanged until active-agent write cost is
-  either reduced or falsified as the dominant cost.
+- add a Rust CPU candidate path-build core or narrower path-build contract;
+- keep Python greedy/baseline route legality authoritative;
+- keep existing active-agent timing evidence unchanged until active-agent array
+  write becomes review-ready again.
 
 Stop condition:
 
-- If plugin-memory write reduction does not reduce `active_agent_pool_write`,
-  step back before implementing Rust pool-array changes.
+- If path-build sub-analysis shows scoring/metadata rather than graph
+  construction is dominant, step back before implementing Rust graph code.

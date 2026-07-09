@@ -18,22 +18,21 @@ Current state:
 - Python 3.12 + NumPy baseline remains authoritative.
 - Rust CPU is optional and explicit/fail-closed.
 - JAX/GPU and NN surrogate lanes are active watchlists, not defaults.
-- Deep runtime audit found `active_agent_pool_write` as the current active-agent
-  parent hot path, while `active_agent_candidate_selection` is not review-ready.
-- `active_agent_pool_write` has already been split into
-  `active_agent_pool_array_write` and `active_agent_plugin_memory_write`.
-- `active_agent_plugin_memory_write` is larger than array write, but below the
-  standalone 0.30 review gate.
+- Batched plugin-memory replacement reduced `active_agent_pool_write` below the
+  review gate.
+- `active_agent_candidate_selection` is not review-ready.
+- `route_candidate_refresh` is the current dominant parent stage.
+- `route_candidate_path_build` is review-ready in both 1-step and 2-step eager
+  suites.
 
 Next recommended slice:
 
-1. Reduce selected-candidate metadata writes in per-slot plugin memory, or move
-   hot fields into typed diagnostics while preserving replay/UI behavior.
-2. Re-run eager runtime suite for seeds `41,42,43` at 1-step and 2-step.
-3. If parent `active_agent_pool_write` falls below the review gate, move back to
-   route candidate refresh/Rust graph-core planning.
-4. If typed-array pool replacement becomes dominant, consider Rust/typed-array
-   write planning.
+1. Open a narrow Rust CPU route path-build slice or first split path-build if
+   needed to keep the Rust contract small.
+2. Keep Python baseline route legality authoritative.
+3. Re-run eager runtime suite for seeds `41,42,43` at 1-step and 2-step after
+   the route path-build change.
+4. Keep active-agent pool-array replacement on the watchlist.
 5. Do not add NN/JAX scoring until a scoring stage becomes review-ready.
 
 Required self-check before coding:

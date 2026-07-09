@@ -58,14 +58,13 @@ Status: deferred
 
 Reason:
 
-- `active_agent_pool_array_write` is much smaller than
-  `active_agent_plugin_memory_write` in the current 1-step and 2-step eager
-  suites.
-- The larger substage is Python plugin-memory mapping churn, so Rust array-write
-  planning would target the wrong first subproblem.
+- `active_agent_pool_write` is now below the review gate after batching
+  plugin-memory replacement.
+- `active_agent_pool_array_write` remains visible but below the review gate.
+- `route_candidate_path_build` is currently the stronger Rust CPU candidate.
 
 Reopen condition:
 
-- Plugin-memory write reduction is completed or falsified, and typed-array pool
-  replacement becomes the leading pool-write substage across deterministic
-  seeds.
+- Typed-array pool replacement becomes review-ready across deterministic seeds,
+  or route path-build work is completed and active-agent array write again
+  dominates the next review-ready stage.

@@ -197,6 +197,7 @@ def advance_runtime_active_agents(
     pool_write_wall_ns = 0
     pool_array_write_wall_ns = 0
     plugin_memory_write_wall_ns = 0
+    plugin_memory_changed = False
     for trip in _activated_trip_requests(trips):
         trip_id = int(trip.trip_request_id)
         if trip_id in allocated_ids or trip_id in completed_ids or trip_id in failed_ids:
@@ -231,7 +232,6 @@ def advance_runtime_active_agents(
         pool_after_alloc, slot_id = allocate_active_agent_slot(pool_after_alloc, payload)
         pool_array_write_wall_ns += max(0, perf_counter_ns() - pool_array_write_start_ns)
         plugin_memory_write_start_ns = perf_counter_ns()
-        plugin_memory = dict(pool_after_alloc.plugin_memory)
         plugin_memory[int(slot_id)] = {
             "route_path": path,
             "origin_poi_id": int(trip.origin_poi_id),
@@ -239,7 +239,7 @@ def advance_runtime_active_agents(
             "trip_request_id": trip_id,
             **_selected_candidate_memory(selection),
         }
-        pool_after_alloc = _replace_pool_plugin_memory(pool_after_alloc, plugin_memory)
+        plugin_memory_changed = True
         plugin_memory_write_wall_ns += max(
             0,
             perf_counter_ns() - plugin_memory_write_start_ns,
@@ -251,6 +251,15 @@ def advance_runtime_active_agents(
         )
         counters["trip_allocated_this_tick"] += 1
         pool_write_wall_ns += max(0, perf_counter_ns() - pool_write_start_ns)
+    if plugin_memory_changed:
+        plugin_memory_write_start_ns = perf_counter_ns()
+        pool_after_alloc = _replace_pool_plugin_memory(pool_after_alloc, plugin_memory)
+        plugin_memory_replace_wall_ns = max(
+            0,
+            perf_counter_ns() - plugin_memory_write_start_ns,
+        )
+        plugin_memory_write_wall_ns += plugin_memory_replace_wall_ns
+        pool_write_wall_ns += plugin_memory_replace_wall_ns
     counters["active_agent_allocation_wall_ns"] = max(
         0,
         perf_counter_ns() - allocation_start_ns,

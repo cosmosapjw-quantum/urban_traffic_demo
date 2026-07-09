@@ -105,3 +105,42 @@ substage, reopen Rust pool-array planning.
 
 Next action: Move hot selected-candidate diagnostics out of per-slot plugin
 memory where possible, while preserving UI/replay-visible metadata behavior.
+
+## 2026-07-09: Batched Plugin Memory Moves Next Slice To Route Path Build
+
+Status: accepted
+
+### Context
+
+Allocation now accumulates plugin-memory updates during the trip allocation loop
+and applies one immutable pool replacement afterward. This removes repeated
+per-allocation plugin-memory pool reconstruction while preserving per-slot
+metadata behavior.
+
+### Compact CCoT
+
+Question: Did the plugin-memory reduction lower the active-agent parent stage
+enough to move to another bottleneck?
+
+Evidence: In regenerated 1-step and 2-step eager suites,
+`active_agent_pool_write` fell below the 0.30 review gate, while
+`route_candidate_refresh` stayed review-ready and `route_candidate_path_build`
+became review-ready in both suites.
+
+Inference: Continuing active-agent pool-write work would now be local-minimum
+behavior. The next review-ready CPU/control-flow target is route candidate
+path-building.
+
+Counterevidence checked: `active_agent_pool_array_write` remains visible, but it
+does not clear the review gate. `active_agent_candidate_selection` also remains
+small, so NN/JAX route-choice scoring is still not the immediate fix.
+
+Decision: Move the next implementation slice to a narrow Rust CPU route
+path-build contract, while keeping Python baseline route legality authoritative.
+
+Falsifier: If path-build sub-analysis shows scoring or metadata dominates
+instead of graph construction, stop before writing Rust graph code and update the
+guardrails.
+
+Next action: Inspect `routing.candidates` path-build internals and add RED
+parity tests for the smallest Rust path-build boundary.

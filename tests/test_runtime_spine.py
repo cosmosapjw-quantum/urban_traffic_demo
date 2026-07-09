@@ -1142,6 +1142,75 @@ def test_active_agent_allocation_records_selected_candidate_metadata(
     assert memory["selected_candidate_path_size_factor"] == 0.75
 
 
+def test_active_agent_allocation_batches_plugin_memory_replacement(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from dataclasses import replace
+
+    from metroflow.demand.trips import TripRequestStatus
+    from metroflow.routing.candidates import RouteCandidateSet
+    from metroflow.sim import routing_runtime as routing_runtime_module
+    from metroflow.sim.routing_runtime import (
+        SimulationRouteCacheState,
+        advance_runtime_active_agents,
+    )
+
+    state = _runtime_spine_state()
+    trip_one = replace(
+        state.dynamic.demand_state["trip_requests"][0],
+        status=TripRequestStatus.ACTIVATED,
+    )
+    trip_two = replace(
+        trip_one,
+        trip_request_id=2,
+        citizen_id=102,
+    )
+    candidate_set = RouteCandidateSet(
+        od_key=(1, 2),
+        candidate_ids=(7,),
+        candidate_paths=((10, 11),),
+        last_refresh_tick=0,
+        metadata={
+            "candidate_path_costs": (2.0,),
+            "candidate_path_size_factors": (1.0,),
+        },
+    )
+    state = state.with_dynamic_updates(
+        demand_state={
+            **state.dynamic.demand_state,
+            "trip_requests": (trip_one, trip_two),
+            "queued_trip_requests": 0,
+            "pending_trip_requests": 2,
+            "activated_trip_requests": 2,
+        },
+        route_candidate_state=SimulationRouteCacheState(
+            candidate_sets={(1, 2): candidate_set},
+        ),
+    )
+
+    original_replace = routing_runtime_module._replace_pool_plugin_memory
+    calls: list[int] = []
+
+    def counting_replace(pool, plugin_memory):
+        calls.append(len(plugin_memory))
+        return original_replace(pool, plugin_memory)
+
+    monkeypatch.setattr(
+        routing_runtime_module,
+        "_replace_pool_plugin_memory",
+        counting_replace,
+    )
+
+    pool, counters, demand_state, _link_state = advance_runtime_active_agents(state)
+
+    assert counters["trip_allocated_this_tick"] == 2
+    assert demand_state["allocated_trip_request_ids"] == (1, 2)
+    assert calls == [2]
+    assert sorted(pool.plugin_memory) == [0, 1]
+    assert pool.plugin_memory[0]["selected_candidate_id"] == 7
+    assert pool.plugin_memory[1]["selected_candidate_id"] == 7
+
+
 def test_active_agent_allocation_applies_path_size_correction_when_configured() -> None:
     from dataclasses import replace
 

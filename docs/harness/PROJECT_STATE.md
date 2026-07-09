@@ -24,14 +24,14 @@ specific decision. Link to the canonical evidence artifact instead.
 
 Derived conclusions:
 
-- `active_agent_pool_write` remains the active-agent parent target.
-- `active_agent_plugin_memory_write` is the larger pool-write substage, but it
-  remains below the 0.30 review gate.
-- `active_agent_pool_array_write` is smaller and should not drive the next Rust
-  slice yet.
+- `active_agent_pool_write` was reduced below the review gate by batching
+  plugin-memory replacement.
+- `active_agent_pool_array_write` remains below the review gate and should stay
+  a watchlist item.
 - `active_agent_candidate_selection` is not currently the hot path.
-- Route candidate refresh remains important, but immediate route work should be
-  Rust/algorithmic before custom CUDA.
+- Route candidate refresh is now the dominant review-ready parent stage.
+- `route_candidate_path_build` is review-ready in both 1-step and 2-step eager
+  suites, so immediate route work should be Rust/algorithmic before custom CUDA.
 - NN/JAX remains a watchlist for scoring and surrogate labels, not the next
   runtime state-mutation fix.
 
@@ -45,6 +45,6 @@ Derived conclusions:
 
 ## Next Action
 
-Follow `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md` and reduce
-dict-heavy selected-candidate metadata writes before implementing a Rust
-pool-array optimization.
+Follow `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md` and open a
+narrow Rust CPU route path-build slice while keeping Python baseline route
+legality authoritative.

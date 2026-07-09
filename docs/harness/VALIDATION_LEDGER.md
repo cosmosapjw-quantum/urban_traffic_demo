@@ -92,3 +92,50 @@ Next validation required:
 - After metadata reduction, regenerate the same 1-step and 2-step eager suites
   and compare `active_agent_pool_write`,
   `active_agent_plugin_memory_write`, and `active_agent_pool_array_write`.
+
+## 2026-07-09: Batched Active-Agent Plugin-Memory Replacement
+
+Change class: runtime data-layout optimization / benchmark diagnostic update
+
+Commands run for this ledger entry:
+
+```bash
+.venv/bin/python -m pytest tests/test_runtime_spine.py::test_active_agent_allocation_batches_plugin_memory_replacement -q
+.venv/bin/python -m pytest tests/test_runtime_spine.py::test_active_agent_allocation_batches_plugin_memory_replacement tests/test_runtime_spine.py::test_active_agent_allocation_records_selected_candidate_metadata tests/test_runtime_spine.py::test_active_agent_allocation_applies_path_size_correction_when_configured -q
+.venv/bin/python -m pytest tests/test_active_agent_rust_backend.py -q
+.venv/bin/python -m pytest tests/test_measured_benchmarks.py::test_measured_runtime_benchmark_reports_nested_route_and_agent_stage_shares tests/test_runtime_diagnostics.py::test_runtime_diagnostic_rollout_captures_frames_route_cache_and_summary -q
+.venv/bin/python -m pytest tests/test_runtime_spine.py -q
+.venv/bin/python -m metroflow.benchmarks.run --runtime-suite --runtime-suite-workload smoke-runtime-suite-eager --runtime-suite-seeds 41,42,43 --runtime-suite-steps 1 --runtime-suite-eager-trip-generation --runtime-suite-artifact-prefix artifacts/runtime_spine_review/runtime-suite-eager-smoke
+.venv/bin/python -m metroflow.benchmarks.run --runtime-suite --runtime-suite-workload smoke-runtime-suite-eager-2step --runtime-suite-seeds 41,42,43 --runtime-suite-steps 2 --runtime-suite-eager-trip-generation --runtime-suite-artifact-prefix artifacts/runtime_spine_review/runtime-suite-eager-2step-smoke
+.venv/bin/python -m ruff check .
+git diff --check
+.venv/bin/python -m pytest -q
+```
+
+Observed results:
+
+- RED check: expected failure before batching, `_replace_pool_plugin_memory`
+  was called once per allocation.
+- allocation targeted tests: `3 passed`
+- active-agent Rust parity tests: `6 passed`
+- runtime benchmark/diagnostic targeted tests: `2 passed`
+- runtime spine tests: `30 passed`
+- 1-step eager benchmark suite regenerated
+- 2-step eager benchmark suite regenerated
+- `ruff check .` passed
+- `git diff --check` clean
+- full test suite: `283 passed`
+
+Diagnostic interpretation:
+
+- `active_agent_pool_write` is now below the 0.30 review gate in both eager
+  suites.
+- `active_agent_plugin_memory_write` is near zero after batching.
+- `route_candidate_path_build` is now review-ready in both eager suites.
+- The next implementation slice moves to Rust CPU route path-build, not further
+  active-agent pool-write work, JAX/GPU, or NN scoring.
+
+Next validation required:
+
+- Before route path-build Rust work, add RED parity tests around the smallest
+  path-build boundary and keep Python baseline route legality authoritative.

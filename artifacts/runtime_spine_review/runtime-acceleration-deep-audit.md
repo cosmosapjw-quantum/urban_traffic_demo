@@ -30,41 +30,39 @@ Decision guardrails for future work:
 
 | stage | 1-step mean share | 2-step mean share | gate status |
 |---|---:|---:|---|
-| route_candidate_refresh | 0.491154 | 0.465925 | eligible both runs |
-| route_candidate_potential | 0.197926 | 0.185767 | below 0.30 |
-| route_candidate_path_build | 0.248170 | 0.236580 | below 0.30 |
-| route_candidate_metadata | 0.026730 | 0.024097 | below 0.30 |
-| active_agent_update | 0.432556 | 0.407347 | eligible both runs |
-| active_agent_allocation | 0.429381 | 0.396307 | eligible both runs |
-| active_agent_candidate_selection | 0.035368 | 0.033726 | below 0.30 |
-| active_agent_pool_write | 0.386110 | 0.354578 | eligible both runs |
-| active_agent_pool_array_write | 0.097621 | 0.089724 | below 0.30 |
-| active_agent_plugin_memory_write | 0.283766 | 0.260598 | below 0.30 |
-| active_agent_movement | 0.002056 | 0.009024 | below 0.30 |
+| route_candidate_refresh | 0.699435 | 0.637416 | eligible both runs |
+| route_candidate_potential | 0.279811 | 0.253102 | below 0.30 |
+| route_candidate_path_build | 0.354543 | 0.324356 | eligible both runs |
+| route_candidate_metadata | 0.038381 | 0.033308 | below 0.30 |
+| active_agent_update | 0.192861 | 0.188055 | below 0.30 |
+| active_agent_allocation | 0.188428 | 0.172839 | below 0.30 |
+| active_agent_candidate_selection | 0.041488 | 0.039138 | below 0.30 |
+| active_agent_pool_write | 0.137235 | 0.123834 | below 0.30 |
+| active_agent_pool_array_write | 0.128320 | 0.115920 | below 0.30 |
+| active_agent_plugin_memory_write | 0.004017 | 0.003606 | below 0.30 |
+| active_agent_movement | 0.002945 | 0.012519 | below 0.30 |
 
 ## Findings
 
-1. Active-agent cost is not movement and not route-choice scoring. The dominant
-   nested stage is still `active_agent_pool_write`.
-2. Inside pool write, `active_agent_plugin_memory_write` is much larger than
-   `active_agent_pool_array_write`, but it does not clear the 0.30 review gate
-   in either suite. This supports a narrow Python data-layout slice before Rust
-   array-write planning.
-3. NN/JAX route-choice scoring is not the immediate bottleneck in this workload.
-   `active_agent_candidate_selection` stays near 3.5 percent in both runs.
-4. Route refresh remains a major candidate, but it splits into two sub-threshold
-   graph workloads: `route_candidate_path_build` and `route_candidate_potential`.
-   This argues for Rust/algorithmic route-core work before GPU kernels.
-5. NN remains relevant as a supervised surrogate surface for route cost-to-go
-   and route scoring labels, but it should not replace deterministic routing
-   authority or be treated as the next runtime hot-path fix.
+1. Batched plugin-memory replacement removed the active-agent pool-write stage
+   from the review-ready set. `active_agent_plugin_memory_write` is now near
+   zero in both eager suites.
+2. `active_agent_pool_array_write` remains visible but sub-threshold; it should
+   stay on the Rust CPU watchlist rather than driving the next slice.
+3. NN/JAX route-choice scoring is still not the immediate bottleneck in this
+   workload. `active_agent_candidate_selection` remains near 4 percent.
+4. Route refresh is now the dominant review-ready parent stage, and
+   `route_candidate_path_build` is review-ready in both suites.
+5. The next backend migration should target Rust/algorithmic route path-building
+   before GPU kernels. NN remains relevant only as a supervised route scoring or
+   cost-to-go research lane after labels and stage shares justify it.
 
 ## Next Slice Recommendation
 
-Proceed with a Python data-layout slice before a Rust/JAX/NN implementation slice:
+Proceed with a Rust CPU route path-build slice before a JAX/NN implementation slice:
 
-- reduce or remove dict-heavy plugin-memory writes for selected candidate metadata;
-- keep typed-array pool replacement as a Rust CPU watchlist, not the next patch;
-- keep route-candidate path-build/potential timings in the benchmark gate;
+- keep active-agent pool-array replacement as a Rust CPU watchlist;
+- preserve deterministic baseline route legality and replay authority;
+- keep route-candidate potential and metadata timings in the benchmark gate;
 - only open NN/JAX scoring once labels and stage shares show scoring, not state writes,
   is the limiting factor.
