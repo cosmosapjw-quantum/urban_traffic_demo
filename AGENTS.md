@@ -56,3 +56,4 @@
 - 021-runtime-gpu-gate-aggregate: Added multi-run runtime GPU candidate gate aggregation while keeping CUDA backend names documentation-only
 - 022-rust-crate-modules: Started Rust crate module split by extracting common constants, result aliases, and validators
 - 023-rust-edge-module: Moved Rust CPU edge batch evolution into a focused `edge` module without changing the PyO3 API
+- 024-rust-flow-module: Moved Rust CPU flow array core into a focused `flow` module without changing the PyO3 API
