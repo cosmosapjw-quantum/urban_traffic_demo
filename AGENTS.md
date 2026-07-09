@@ -63,3 +63,4 @@
 - 028-runtime-benchmark-suite: Added Python runtime benchmark suite orchestration for unique seed runs and GPU gate markdown artifacts
 - 029-runtime-suite-reporting: Added reviewer-facing markdown rendering for runtime benchmark suite GPU gate artifacts
 - 030-runtime-suite-runner: Added a public benchmark runner facade returning suite result, aggregate GPU gate report, and review markdown
+- 031-runtime-suite-cli: Added `--runtime-suite` benchmark CLI mode with fail-closed seed parsing

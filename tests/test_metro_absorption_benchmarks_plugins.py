@@ -210,6 +210,71 @@ def test_runtime_benchmark_suite_runner_returns_review_artifacts(monkeypatch: py
     assert "Eligible stages: active_agent_update" in result["report"]
 
 
+def test_benchmark_cli_runtime_suite_prints_report(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from metroflow.benchmarks import run as benchmark_run_module
+
+    captured_calls: list[dict[str, object]] = []
+
+    def fake_runtime_suite(**kwargs: object) -> dict[str, object]:
+        captured_calls.append(dict(kwargs))
+        return {
+            "suite_result": object(),
+            "gpu_candidate_gate_report": object(),
+            "report": "- Runtime benchmark suite:\n- Eligible stages: flow_update",
+        }
+
+    monkeypatch.setattr(
+        benchmark_run_module,
+        "run_runtime_benchmark_suite",
+        fake_runtime_suite,
+    )
+
+    exit_code = benchmark_run_module.main(
+        [
+            "--runtime-suite",
+            "--runtime-suite-workload",
+            "cli-suite",
+            "--runtime-suite-seeds",
+            "5,6,7",
+            "--runtime-suite-steps",
+            "3",
+        ]
+    )
+
+    output = capsys.readouterr().out
+
+    assert exit_code == 0
+    assert captured_calls == [
+        {
+            "workload_name": "cli-suite",
+            "seeds": (5, 6, 7),
+            "num_steps": 3,
+        }
+    ]
+    assert "MetroFlow runtime benchmark suite complete." in output
+    assert "workload=cli-suite" in output
+    assert "seeds=5,6,7" in output
+    assert "Eligible stages: flow_update" in output
+
+
+def test_benchmark_cli_runtime_suite_rejects_empty_seed_list() -> None:
+    from metroflow.benchmarks import run as benchmark_run_module
+
+    with pytest.raises(SystemExit) as exc_info:
+        benchmark_run_module.main(
+            [
+                "--runtime-suite",
+                "--runtime-suite-seeds",
+                ",",
+            ]
+        )
+
+    assert exc_info.value.code == 2
+
+
 def test_policy_plugin_registry_validates_identity_and_duplicate_names() -> None:
     from metroflow.learning.plugins import create_policy_plugin, register_policy_plugin
 

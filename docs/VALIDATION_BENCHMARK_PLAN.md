@@ -120,3 +120,5 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - `run_runtime_benchmark_suite`는 public benchmark runner facade로 suite artifact, aggregate gate
   report, review markdown을 한 dict에 담아 반환한다. 이 facade는 장기 benchmark 실행 표면이며
   runtime core 또는 UI snapshot code에 의존성을 역류시키면 안 된다
+- benchmark CLI의 `--runtime-suite` 모드는 같은 facade를 호출한다. seed 목록은 comma-separated
+  integer list로 받고 빈 목록은 argparse 단계에서 실패해야 한다

@@ -117,6 +117,8 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   `format_runtime_benchmark_suite_markdown`은 suite result를 reviewer-facing markdown으로 렌더링한다.
   `run_runtime_benchmark_suite`는 suite result, aggregate GPU candidate gate report, reviewer-facing
   markdown을 함께 반환하는 public benchmark runner facade다.
+  CLI에서는 `python -m metroflow.benchmarks.run --runtime-suite --runtime-suite-seeds 41,42,43
+  --runtime-suite-steps 8`로 같은 review artifact를 stdout에 출력한다.
 - isolated routing candidate benchmark는 `run_measured_routing_candidate_benchmark`를 사용하며
   dynamic-potential recompute/cache counters와 timing totals, final candidate path, ranked-K candidate
   paths/costs/path-size metadata, routing copy-boundary note를 기록한다.

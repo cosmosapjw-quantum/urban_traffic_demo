@@ -416,6 +416,22 @@ def evaluate_canonical_64_seed_budget(
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
+    if args.runtime_suite:
+        result = run_runtime_benchmark_suite(
+            workload_name=args.runtime_suite_workload,
+            seeds=args.runtime_suite_seeds,
+            num_steps=args.runtime_suite_steps,
+        )
+        print("MetroFlow runtime benchmark suite complete.")
+        print(
+            "Suite:",
+            f"workload={args.runtime_suite_workload}",
+            f"seeds={','.join(str(seed) for seed in args.runtime_suite_seeds)}",
+            f"steps={args.runtime_suite_steps}",
+        )
+        print(result["report"])
+        return 0
+
     result = run_benchmark_scenario(
         scenario_id=args.scenario,
         seed=args.seed,
@@ -488,12 +504,34 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     )
     parser.add_argument("--ui", default="off", choices=("off", "stream"))
     parser.add_argument("--learning-enabled", action="store_true")
+    parser.add_argument("--runtime-suite", action="store_true")
+    parser.add_argument("--runtime-suite-workload", default="runtime-suite")
+    parser.add_argument("--runtime-suite-seeds", default="41,42,43")
+    parser.add_argument("--runtime-suite-steps", type=int, default=8)
     args = parser.parse_args(argv)
     if args.duration_ticks < 0:
         parser.error("--duration-ticks must be >= 0")
+    if args.runtime_suite_steps <= 0:
+        parser.error("--runtime-suite-steps must be > 0")
+    try:
+        args.runtime_suite_seeds = _parse_seed_list(args.runtime_suite_seeds)
+    except ValueError as exc:
+        parser.error(str(exc))
     args.day_type = DayType(args.day_type)
     args.time_band = TimeBand(args.time_band)
     return args
+
+
+def _parse_seed_list(raw_value: str) -> tuple[int, ...]:
+    seeds: list[int] = []
+    for part in str(raw_value).split(","):
+        stripped = part.strip()
+        if not stripped:
+            continue
+        seeds.append(int(stripped))
+    if not seeds:
+        raise ValueError("--runtime-suite-seeds must contain at least one integer seed")
+    return tuple(seeds)
 
 
 def _build_benchmark_config(
