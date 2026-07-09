@@ -1,5 +1,10 @@
 # Validation and Benchmark Plan
 
+Runtime acceleration planning is additionally governed by
+`docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md`. Benchmark evidence
+must pass its self-ask and step-back gates before another instrumentation or
+backend slice is opened.
+
 ## invariant tests
 - queue >= 0
 - stock >= 0
@@ -147,3 +152,8 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   합산값을 runtime 전체 share로 재해석하면 안 된다
 - manifest의 `*_candidate_stage_names`는 구조적으로 medium/high fit인 stage 목록이고,
   `*_review_ready_stage_names`는 그중 현재 suite의 `gpu_review_eligible`까지 통과한 stage만 담아야 한다
+- acceleration-related `/review` must use
+  `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md`,
+  `docs/harness/PROJECT_STATE.md`,
+  `docs/harness/DECISION_LOG.md`, and
+  `artifacts/runtime_spine_review/runtime-acceleration-deep-audit.md` as controlling context

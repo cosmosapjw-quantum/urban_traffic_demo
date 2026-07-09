@@ -5,6 +5,9 @@ Date: 2026-07-09
 This is a smoke diagnostic artifact for backend/NN triage. It is not a validation
 claim and does not authorize CUDA, libtorch, or NN runtime defaults.
 
+Decision guardrails for future work:
+`docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md`
+
 ## Commands
 
 ```bash

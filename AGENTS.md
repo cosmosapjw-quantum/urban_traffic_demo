@@ -35,6 +35,7 @@
 - cache invalidation 영향?
 - replay/regression 영향?
 - benchmark 영향?
+- acceleration 작업 전 `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md`의 self-ask/step-back gate 확인
 
 ## Active Technologies
 - Python 3.12 on Ubuntu 24.04 via repository-local `.venv` + Python stdlib dataclasses + pytest
@@ -74,3 +75,4 @@
 - 039-runtime-acceleration-report: Added JAX/GPU, NN surrogate, Rust CPU acceleration candidate reporting and timing-overlap warnings
 - 040-runtime-nested-timing: Split route refresh and active-agent update into nested timing stages for deeper GPU/NN backend triage
 - 041-active-agent-allocation-timing: Split active-agent allocation timing into candidate-selection and pool-write sub-stages
+- 042-runtime-acceleration-guardrails: Added anti-local-minima self-ask, step-back, and compact CCoT review guardrails

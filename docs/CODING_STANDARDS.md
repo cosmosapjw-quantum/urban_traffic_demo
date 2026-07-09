@@ -47,6 +47,9 @@
 - `RoadNetworkCSR`, `LinkState`, `NodeState`, `ActiveAgentPool` 저장 배열은 NumPy `ndarray`를 authoritative 형식으로 사용한다
 
 ## backend boundary
+- runtime acceleration changes must answer the self-ask and step-back gates in
+  `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md` before adding another timing
+  metric, backend, or NN/GPU experiment surface
 - backend 입력/출력은 contiguous NumPy-compatible arrays와 explicit dtype을 사용한다
 - backend는 hidden mutation 없이 새 배열/상태를 반환한다
 - Rust CPU backend의 현재 slice는 `traffic.meso` edge batch evolution, `flow.engine` baseline flow array core,
