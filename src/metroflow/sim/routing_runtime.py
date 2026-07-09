@@ -10,6 +10,10 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from metroflow.backends.rust_cpu import (
+    rust_routing_backend_available,
+    select_route_candidate_index_rust,
+)
 from metroflow.demand.trips import TripRequest, TripRequestStatus
 from metroflow.flow.state import LinkState
 from metroflow.routing.candidates import (
@@ -195,6 +199,7 @@ def advance_runtime_active_agents(
         selection = _select_candidate_route(
             candidate_set,
             path_size_gamma=state.config.route_path_size_gamma,
+            routing_backend=state.config.routing_backend,
         )
         if selection is None:
             failed_ids.add(trip_id)
@@ -654,6 +659,7 @@ def _build_reroute_tail_selection(
     return _select_candidate_route(
         candidate_set,
         path_size_gamma=state.config.route_path_size_gamma,
+        routing_backend=state.config.routing_backend,
     )
 
 
@@ -886,6 +892,7 @@ def _select_candidate_route(
     candidate_set: RouteCandidateSet | None,
     *,
     path_size_gamma: float = 0.0,
+    routing_backend: str = "baseline",
 ) -> _SelectedCandidateRoute | None:
     if candidate_set is None or not candidate_set.candidate_paths:
         return None
@@ -899,6 +906,90 @@ def _select_candidate_route(
         float(x) for x in tuple(metadata.get("candidate_path_size_factors", ()) or ())
     )
     candidate_ids = tuple(int(x) for x in candidate_set.candidate_ids)
+    selected_index, selected_utility = _select_candidate_route_index(
+        candidate_ids=candidate_ids,
+        candidate_paths=candidate_paths,
+        viable_indices=viable_indices,
+        costs=costs,
+        path_sizes=path_sizes,
+        path_size_gamma=path_size_gamma,
+        routing_backend=routing_backend,
+    )
+    if selected_index < 0:
+        return None
+    path = candidate_paths[selected_index]
+    path_cost = costs[selected_index] if selected_index < len(costs) else 0.0
+    path_size_factor = path_sizes[selected_index] if selected_index < len(path_sizes) else 1.0
+    return _SelectedCandidateRoute(
+        candidate_index=selected_index,
+        candidate_id=(
+            candidate_ids[selected_index] if selected_index < len(candidate_ids) else selected_index
+        ),
+        candidate_count=len(candidate_paths),
+        path=path,
+        path_cost=path_cost,
+        path_size_factor=path_size_factor,
+        utility=selected_utility,
+    )
+
+
+def _select_candidate_route_index(
+    *,
+    candidate_ids: tuple[int, ...],
+    candidate_paths: tuple[tuple[int, ...], ...],
+    viable_indices: tuple[int, ...],
+    costs: tuple[float, ...],
+    path_sizes: tuple[float, ...],
+    path_size_gamma: float,
+    routing_backend: str,
+) -> tuple[int, float]:
+    if routing_backend == "auto" and not rust_routing_backend_available():
+        return _select_candidate_route_index_host(
+            candidate_ids=candidate_ids,
+            candidate_paths=candidate_paths,
+            viable_indices=viable_indices,
+            costs=costs,
+            path_sizes=path_sizes,
+            path_size_gamma=path_size_gamma,
+        )
+    if routing_backend in {"rust_cpu", "auto"}:
+        try:
+            selected_index, utility = select_route_candidate_index_rust(
+                candidate_ids=candidate_ids,
+                candidate_paths=candidate_paths,
+                candidate_path_costs=costs,
+                candidate_path_size_factors=path_sizes,
+                path_size_gamma=path_size_gamma,
+            )
+            if selected_index < 0:
+                return -1, 0.0
+            if selected_index not in viable_indices:
+                raise RuntimeError(
+                    "Rust CPU routing backend failed: selected candidate index is not viable"
+                )
+            return int(selected_index), float(utility)
+        except RuntimeError:
+            if routing_backend == "rust_cpu":
+                raise
+    return _select_candidate_route_index_host(
+        candidate_ids=candidate_ids,
+        candidate_paths=candidate_paths,
+        viable_indices=viable_indices,
+        costs=costs,
+        path_sizes=path_sizes,
+        path_size_gamma=path_size_gamma,
+    )
+
+
+def _select_candidate_route_index_host(
+    *,
+    candidate_ids: tuple[int, ...],
+    candidate_paths: tuple[tuple[int, ...], ...],
+    viable_indices: tuple[int, ...],
+    costs: tuple[float, ...],
+    path_sizes: tuple[float, ...],
+    path_size_gamma: float,
+) -> tuple[int, float]:
     if len(costs) >= len(candidate_paths):
         utilities = tuple(
             _candidate_path_utility(
@@ -916,30 +1007,8 @@ def _select_candidate_route(
                 tuple(-link_id for link_id in candidate_paths[idx]),
             ),
         )
-    else:
-        selected_index = viable_indices[0]
-    path = candidate_paths[selected_index]
-    path_cost = costs[selected_index] if selected_index < len(costs) else 0.0
-    path_size_factor = path_sizes[selected_index] if selected_index < len(path_sizes) else 1.0
-    return _SelectedCandidateRoute(
-        candidate_index=selected_index,
-        candidate_id=(
-            candidate_ids[selected_index] if selected_index < len(candidate_ids) else selected_index
-        ),
-        candidate_count=len(candidate_paths),
-        path=path,
-        path_cost=path_cost,
-        path_size_factor=path_size_factor,
-        utility=(
-            _candidate_path_utility(
-                cost=path_cost,
-                path_size_factor=path_size_factor,
-                path_size_gamma=path_size_gamma,
-            )
-            if len(costs) >= len(candidate_paths)
-            else 0.0
-        ),
-    )
+        return selected_index, utilities[selected_index]
+    return viable_indices[0], 0.0
 
 
 def _candidate_path_utility(

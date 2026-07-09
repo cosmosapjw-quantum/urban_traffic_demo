@@ -820,6 +820,116 @@ fn compute_route_candidate_metadata_impl(
     Ok((costs, path_size_factors))
 }
 
+fn route_candidate_utility(cost: f32, path_size_factor: f32, path_size_gamma: f32) -> f32 {
+    if !cost.is_finite() {
+        return f32::NEG_INFINITY;
+    }
+    let path_size = if path_size_factor.is_finite() && path_size_factor > 0.0 {
+        path_size_factor
+    } else {
+        1.0e-12_f32
+    };
+    -cost + path_size_gamma.max(0.0) * path_size.ln()
+}
+
+fn route_path_tiebreak_greater(candidate: &[i32], best: &[i32]) -> bool {
+    for (candidate_link, best_link) in candidate.iter().zip(best.iter()) {
+        if candidate_link != best_link {
+            return candidate_link < best_link;
+        }
+    }
+    candidate.len() > best.len()
+}
+
+fn route_selection_tiebreak_greater(
+    candidate_index: usize,
+    candidate_path: &[i32],
+    best_index: usize,
+    best_path: &[i32],
+    candidate_ids: &[i32],
+) -> bool {
+    let candidate_id = candidate_ids
+        .get(candidate_index)
+        .copied()
+        .unwrap_or(candidate_index as i32);
+    let best_id = candidate_ids
+        .get(best_index)
+        .copied()
+        .unwrap_or(best_index as i32);
+    if candidate_id != best_id {
+        return candidate_id < best_id;
+    }
+    route_path_tiebreak_greater(candidate_path, best_path)
+}
+
+fn select_route_candidate_index_impl(
+    candidate_ids: &[i32],
+    candidate_paths: &[Vec<i32>],
+    candidate_path_costs: &[f32],
+    candidate_path_size_factors: &[f32],
+    path_size_gamma: f32,
+) -> Result<(i32, f32), String> {
+    for candidate_id in candidate_ids {
+        if *candidate_id < 0 {
+            return Err("candidate_ids must be non-negative".to_string());
+        }
+    }
+    for path in candidate_paths {
+        for link_id in path {
+            if *link_id < 0 {
+                return Err("candidate_paths must contain non-negative link ids".to_string());
+            }
+        }
+    }
+
+    let viable_indices: Vec<usize> = candidate_paths
+        .iter()
+        .enumerate()
+        .filter_map(|(index, path)| if path.is_empty() { None } else { Some(index) })
+        .collect();
+    if viable_indices.is_empty() {
+        return Ok((-1, 0.0));
+    }
+    if candidate_path_costs.len() < candidate_paths.len() {
+        return Ok((viable_indices[0] as i32, 0.0));
+    }
+
+    let mut best_index = viable_indices[0];
+    let mut best_utility = route_candidate_utility(
+        candidate_path_costs[best_index],
+        candidate_path_size_factors
+            .get(best_index)
+            .copied()
+            .unwrap_or(1.0),
+        path_size_gamma,
+    );
+    for candidate_index in viable_indices.iter().copied().skip(1) {
+        let utility = route_candidate_utility(
+            candidate_path_costs[candidate_index],
+            candidate_path_size_factors
+                .get(candidate_index)
+                .copied()
+                .unwrap_or(1.0),
+            path_size_gamma,
+        );
+        let is_better = utility > best_utility
+            || (utility == best_utility
+                && route_selection_tiebreak_greater(
+                    candidate_index,
+                    &candidate_paths[candidate_index],
+                    best_index,
+                    &candidate_paths[best_index],
+                    candidate_ids,
+                ));
+        if is_better {
+            best_index = candidate_index;
+            best_utility = utility;
+        }
+    }
+
+    Ok((best_index as i32, best_utility))
+}
+
 fn evolve_edges_batch_impl(
     queue: &[f64],
     stock: &[f64],
@@ -1298,6 +1408,24 @@ fn compute_route_candidate_metadata(
     .map_err(PyValueError::new_err)
 }
 
+#[pyfunction]
+fn select_route_candidate_index(
+    candidate_ids: Vec<i32>,
+    candidate_paths: Vec<Vec<i32>>,
+    candidate_path_costs: Vec<f32>,
+    candidate_path_size_factors: Vec<f32>,
+    path_size_gamma: f32,
+) -> PyResult<(i32, f32)> {
+    select_route_candidate_index_impl(
+        &candidate_ids,
+        &candidate_paths,
+        &candidate_path_costs,
+        &candidate_path_size_factors,
+        path_size_gamma,
+    )
+    .map_err(PyValueError::new_err)
+}
+
 #[pymodule]
 fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evolve_edges_batch, m)?)?;
@@ -1307,6 +1435,7 @@ fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(compute_greedy_route_candidate, m)?)?;
     m.add_function(wrap_pyfunction!(compute_ranked_route_candidates, m)?)?;
     m.add_function(wrap_pyfunction!(compute_route_candidate_metadata, m)?)?;
+    m.add_function(wrap_pyfunction!(select_route_candidate_index, m)?)?;
     Ok(())
 }
 
@@ -1746,6 +1875,63 @@ mod tests {
                 .expect_err("length mismatch should be rejected");
 
         assert!(error.contains("link_length_m length must match link_ids length"));
+    }
+
+    #[test]
+    fn selects_route_candidate_with_path_size_utility() {
+        let (index, utility) = select_route_candidate_index_impl(
+            &[7, 8],
+            &[vec![10], vec![10, 11]],
+            &[2.0, 3.0],
+            &[0.2, 1.0],
+            2.0,
+        )
+        .expect("candidate selection should compute");
+
+        assert_eq!(index, 1);
+        assert_eq!(utility, -3.0);
+    }
+
+    #[test]
+    fn selects_route_candidate_first_viable_when_costs_are_missing() {
+        let (index, utility) =
+            select_route_candidate_index_impl(&[7, 8], &[vec![], vec![10]], &[], &[], 2.0)
+                .expect("missing cost selection should compute");
+
+        assert_eq!(index, 1);
+        assert_eq!(utility, 0.0);
+    }
+
+    #[test]
+    fn selects_route_candidate_tie_by_candidate_id_then_path() {
+        let (index, _utility) = select_route_candidate_index_impl(
+            &[9, 7, 7],
+            &[vec![10, 11], vec![20], vec![10, 12]],
+            &[3.0, 3.0, 3.0],
+            &[1.0, 1.0, 1.0],
+            0.0,
+        )
+        .expect("tie-break selection should compute");
+
+        assert_eq!(index, 2);
+    }
+
+    #[test]
+    fn selects_route_candidate_empty_when_no_viable_path() {
+        let (index, utility) =
+            select_route_candidate_index_impl(&[7], &[vec![]], &[2.0], &[1.0], 0.0)
+                .expect("empty selection should compute");
+
+        assert_eq!(index, -1);
+        assert_eq!(utility, 0.0);
+    }
+
+    #[test]
+    fn rejects_route_candidate_selection_negative_link_id() {
+        let error = select_route_candidate_index_impl(&[7], &[vec![-10]], &[2.0], &[1.0], 0.0)
+            .expect_err("negative link id should be rejected");
+
+        assert_eq!(error, "candidate_paths must contain non-negative link ids");
     }
 
     #[test]

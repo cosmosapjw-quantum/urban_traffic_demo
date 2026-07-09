@@ -1062,6 +1062,130 @@ def test_active_agent_allocation_applies_path_size_correction_when_configured() 
     assert memory["selected_candidate_utility"] == pytest.approx(-3.0)
 
 
+def test_candidate_route_selection_uses_explicit_rust_backend(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.routing.candidates import RouteCandidateSet
+    from metroflow.sim import routing_runtime
+
+    candidate_set = RouteCandidateSet(
+        od_key=(1, 2),
+        candidate_ids=(7, 8),
+        candidate_paths=((10,), (10, 11)),
+        last_refresh_tick=0,
+        metadata={
+            "candidate_path_costs": (2.0, 3.0),
+            "candidate_path_size_factors": (0.2, 1.0),
+        },
+    )
+    calls = []
+
+    def fake_select_route_candidate_index_rust(**kwargs):
+        calls.append(kwargs)
+        return 1, -3.0
+
+    monkeypatch.setattr(
+        routing_runtime,
+        "select_route_candidate_index_rust",
+        fake_select_route_candidate_index_rust,
+        raising=False,
+    )
+
+    selection = routing_runtime._select_candidate_route(
+        candidate_set,
+        path_size_gamma=2.0,
+        routing_backend="rust_cpu",
+    )
+
+    assert calls
+    assert calls[0]["candidate_paths"] == ((10,), (10, 11))
+    assert selection is not None
+    assert selection.candidate_index == 1
+    assert selection.candidate_id == 8
+    assert selection.path == (10, 11)
+    assert selection.utility == pytest.approx(-3.0)
+
+
+def test_auto_candidate_route_selection_falls_back_to_host_when_rust_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.routing.candidates import RouteCandidateSet
+    from metroflow.sim import routing_runtime
+
+    candidate_set = RouteCandidateSet(
+        od_key=(1, 2),
+        candidate_ids=(7, 8),
+        candidate_paths=((10,), (10, 11)),
+        last_refresh_tick=0,
+        metadata={
+            "candidate_path_costs": (2.0, 3.0),
+            "candidate_path_size_factors": (0.2, 1.0),
+        },
+    )
+
+    def fake_select_route_candidate_index_rust(**_kwargs):
+        raise RuntimeError("Rust CPU routing backend failed: synthetic selection failure")
+
+    monkeypatch.setattr(routing_runtime, "rust_routing_backend_available", lambda: True)
+    monkeypatch.setattr(
+        routing_runtime,
+        "select_route_candidate_index_rust",
+        fake_select_route_candidate_index_rust,
+        raising=False,
+    )
+
+    selection = routing_runtime._select_candidate_route(
+        candidate_set,
+        path_size_gamma=2.0,
+        routing_backend="auto",
+    )
+
+    assert selection is not None
+    assert selection.candidate_index == 1
+    assert selection.candidate_id == 8
+    assert selection.utility == pytest.approx(-3.0)
+
+
+def test_rust_candidate_route_selection_matches_baseline_when_extension_is_available() -> None:
+    from metroflow.backends.rust_cpu import rust_routing_backend_available
+    from metroflow.routing.candidates import RouteCandidateSet
+    from metroflow.sim import routing_runtime
+
+    if not rust_routing_backend_available():
+        pytest.skip("_metroflow_rust extension with route selection is not importable")
+
+    candidate_set = RouteCandidateSet(
+        od_key=(1, 2),
+        candidate_ids=(7, 8, 9),
+        candidate_paths=((10,), (10, 11), (20,)),
+        last_refresh_tick=0,
+        metadata={
+            "candidate_path_costs": (2.0, 3.0, 3.0),
+            "candidate_path_size_factors": (0.2, 1.0, 1.0),
+        },
+    )
+
+    baseline = routing_runtime._select_candidate_route(
+        candidate_set,
+        path_size_gamma=2.0,
+        routing_backend="baseline",
+    )
+    accelerated = routing_runtime._select_candidate_route(
+        candidate_set,
+        path_size_gamma=2.0,
+        routing_backend="rust_cpu",
+    )
+
+    assert accelerated is not None
+    assert baseline is not None
+    assert accelerated.candidate_index == baseline.candidate_index
+    assert accelerated.candidate_id == baseline.candidate_id
+    assert accelerated.path == baseline.path
+    assert accelerated.path_cost == pytest.approx(baseline.path_cost)
+    assert accelerated.path_size_factor == pytest.approx(baseline.path_size_factor)
+    assert accelerated.utility == pytest.approx(baseline.utility)
+
+
 def test_runtime_route_refresh_propagates_configured_routing_backend(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
