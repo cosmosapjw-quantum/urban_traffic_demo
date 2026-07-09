@@ -1,0 +1,18 @@
+{
+  "artifact_format_version": "runtime_suite_bundle_v1",
+  "artifact_paths": {
+    "html": "artifacts/runtime_spine_review/runtime-suite-bundle-smoke.html",
+    "json": "artifacts/runtime_spine_review/runtime-suite-bundle-smoke.json",
+    "manifest": "artifacts/runtime_spine_review/runtime-suite-bundle-smoke.manifest.json",
+    "markdown": "artifacts/runtime_spine_review/runtime-suite-bundle-smoke.md"
+  },
+  "gpu_review_eligible_stage_names": [],
+  "num_steps": 1,
+  "seed_count": 3,
+  "seeds": [
+    41,
+    42,
+    43
+  ],
+  "workload_name": "smoke-runtime-suite-bundle"
+}

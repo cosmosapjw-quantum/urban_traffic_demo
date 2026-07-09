@@ -1,0 +1,21 @@
+- Runtime benchmark suite:
+- Workload: smoke-runtime-suite-bundle
+- Seeds: 41, 42, 43
+- Seed count: 3
+- Steps per seed: 1
+- Wall-clock ns total: 13814156
+- Per-seed results: 3
+- Runtime GPU candidate gate:
+- Workload: smoke-runtime-suite-bundle
+- Deterministic runs: 3
+- Unique seeds: 3
+- Seeds: 41, 42, 43
+- Threshold: 0.3
+- Minimum deterministic seeds: 3
+- Eligible stages: none
+- flow_update: candidate runs 0/3, mean share 0.03571, min share 0.028162, max share 0.045914, eligible no
+- route_candidate_refresh: candidate runs 0/3, mean share 0.0, min share 0.0, max share 0.0, eligible no
+- dynamic_potential_recompute: candidate runs 0/3, mean share 0.0, min share 0.0, max share 0.0, eligible no
+- routing_compile_estimate: candidate runs 0/3, mean share 0.0, min share 0.0, max share 0.0, eligible no
+- reroute_decision: candidate runs 0/3, mean share 0.0, min share 0.0, max share 0.0, eligible no
+- active_agent_update: candidate runs 0/3, mean share 0.000864, min share 0.000782, max share 0.00091, eligible no
