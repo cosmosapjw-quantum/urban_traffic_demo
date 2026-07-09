@@ -17,6 +17,7 @@ from metroflow.benchmarks.reporting import (
     benchmark_report_from_run_summary,
     format_benchmark_report_markdown,
     format_runtime_benchmark_suite_markdown,
+    runtime_benchmark_suite_to_dict,
 )
 from metroflow.metrics.benchmarks import (
     MeasuredRuntimeBenchmarkSuiteConfig,
@@ -233,6 +234,7 @@ def run_runtime_benchmark_suite(
         "suite_result": suite_result,
         "gpu_candidate_gate_report": suite_result.gpu_candidate_gate_report,
         "report": format_runtime_benchmark_suite_markdown(suite_result),
+        "report_data": runtime_benchmark_suite_to_dict(suite_result),
     }
 
 
@@ -435,6 +437,14 @@ def main(argv: list[str] | None = None) -> int:
             report_path.parent.mkdir(parents=True, exist_ok=True)
             report_path.write_text(f"{report_text.rstrip()}\n", encoding="utf-8")
             print("Report:", f"path={report_path}")
+        if args.runtime_suite_json_path is not None:
+            json_path = Path(args.runtime_suite_json_path)
+            json_path.parent.mkdir(parents=True, exist_ok=True)
+            json_path.write_text(
+                json.dumps(result["report_data"], indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            print("JSON:", f"path={json_path}")
         print(report_text)
         return 0
 
@@ -515,6 +525,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--runtime-suite-seeds", default="41,42,43")
     parser.add_argument("--runtime-suite-steps", type=int, default=8)
     parser.add_argument("--runtime-suite-report-path")
+    parser.add_argument("--runtime-suite-json-path")
     args = parser.parse_args(argv)
     if args.duration_ticks < 0:
         parser.error("--duration-ticks must be >= 0")

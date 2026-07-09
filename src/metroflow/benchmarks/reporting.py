@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field, is_dataclass
 from typing import Any, Mapping
 
 __all__ = [
@@ -10,6 +10,7 @@ __all__ = [
     "benchmark_report_from_run_summary",
     "format_benchmark_report_markdown",
     "format_runtime_benchmark_suite_markdown",
+    "runtime_benchmark_suite_to_dict",
 ]
 
 
@@ -254,6 +255,30 @@ def format_runtime_benchmark_suite_markdown(result: Any) -> str:
     if gate_markdown:
         lines.append(gate_markdown)
     return "\n".join(lines)
+
+
+def runtime_benchmark_suite_to_dict(result: Any) -> dict[str, Any]:
+    """Return a JSON-safe runtime benchmark suite payload."""
+
+    payload = _json_ready(result)
+    if not isinstance(payload, dict):
+        raise TypeError("runtime benchmark suite result must serialize to a mapping")
+    return payload
+
+
+def _json_ready(value: Any) -> Any:
+    if is_dataclass(value) and not isinstance(value, type):
+        return {
+            str(key): _json_ready(item)
+            for key, item in asdict(value).items()
+        }
+    if isinstance(value, Mapping):
+        return {str(key): _json_ready(item) for key, item in value.items()}
+    if isinstance(value, tuple | list):
+        return [_json_ready(item) for item in value]
+    if isinstance(value, str | int | float | bool) or value is None:
+        return value
+    return str(value)
 
 
 def _as_optional_float(value: Any) -> float | None:

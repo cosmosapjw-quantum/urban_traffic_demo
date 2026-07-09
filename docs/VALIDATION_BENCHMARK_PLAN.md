@@ -124,3 +124,6 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   integer list로 받고 빈 목록은 argparse 단계에서 실패해야 한다
 - `--runtime-suite-report-path`는 review markdown artifact를 UTF-8 파일로 저장하며, 저장된 파일은
   GPU/C++ 구현 허가가 아니라 long-run 검토 입력으로만 취급한다
+- `--runtime-suite-json-path`는 같은 suite result를 machine-readable JSON으로 저장한다. JSON은
+  seed, per-seed backend metadata, runtime stage timings, aggregate GPU candidate gate report를
+  보존해야 하며 markdown을 다시 파싱하는 용도로 쓰면 안 된다

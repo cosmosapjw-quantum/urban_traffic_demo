@@ -125,6 +125,72 @@ def test_runtime_benchmark_suite_report_renders_gpu_gate_metadata() -> None:
     assert "Eligible stages: flow_update" in markdown
 
 
+def test_runtime_benchmark_suite_report_dict_preserves_machine_readable_gate_metadata() -> None:
+    from metroflow.benchmarks.reporting import runtime_benchmark_suite_to_dict
+    from metroflow.metrics.benchmarks import (
+        MeasuredRuntimeBenchmarkResult,
+        MeasuredRuntimeBenchmarkSuiteResult,
+        RuntimeStageTiming,
+        format_runtime_gpu_candidate_gate_markdown,
+        summarize_runtime_gpu_candidate_gate,
+    )
+
+    per_seed_results = tuple(
+        MeasuredRuntimeBenchmarkResult(
+            name="measured_runtime_spine",
+            workload_name="runtime-suite-json",
+            wall_clock_ns=1000 + seed,
+            num_steps=2,
+            initial_tick=0,
+            final_tick=2,
+            active_agent_count=0,
+            flow_backend="baseline",
+            routing_backend="baseline",
+            agent_backend="baseline",
+            route_path_size_gamma=0.0,
+            routing_copy_boundary_note="numpy baseline",
+            agent_copy_boundary_note="python baseline",
+            route_candidate_refresh_total=0,
+            route_candidate_reuse_total=0,
+            dynamic_potential_recompute_total=0,
+            dynamic_potential_cache_hits_total=0,
+            seed=seed,
+            runtime_stage_timings=(
+                RuntimeStageTiming("flow_update", 450, 0.45, True),
+            ),
+            gpu_candidate_stage_names=("flow_update",),
+        )
+        for seed in (1, 2, 3)
+    )
+    gate_report = summarize_runtime_gpu_candidate_gate(per_seed_results)
+    suite_result = MeasuredRuntimeBenchmarkSuiteResult(
+        name="measured_runtime_spine_suite",
+        workload_name="runtime-suite-json",
+        seed_count=3,
+        seeds=(1, 2, 3),
+        num_steps=2,
+        wall_clock_ns_total=3006,
+        per_seed_results=per_seed_results,
+        gpu_candidate_gate_report=gate_report,
+        gpu_candidate_gate_markdown=format_runtime_gpu_candidate_gate_markdown(gate_report),
+    )
+
+    payload = runtime_benchmark_suite_to_dict(suite_result)
+
+    assert payload["name"] == "measured_runtime_spine_suite"
+    assert payload["workload_name"] == "runtime-suite-json"
+    assert payload["seeds"] == [1, 2, 3]
+    assert payload["per_seed_results"][0]["runtime_stage_timings"][0] == {
+        "stage_name": "flow_update",
+        "wall_clock_ns": 450,
+        "wall_time_share": 0.45,
+        "gpu_candidate": True,
+    }
+    assert payload["gpu_candidate_gate_report"]["gpu_review_eligible_stage_names"] == [
+        "flow_update",
+    ]
+
+
 def test_runtime_benchmark_suite_runner_returns_review_artifacts(monkeypatch: pytest.MonkeyPatch) -> None:
     from metroflow.benchmarks import run_runtime_benchmark_suite
     from metroflow.benchmarks import run as benchmark_run_module
@@ -203,6 +269,8 @@ def test_runtime_benchmark_suite_runner_returns_review_artifacts(monkeypatch: py
         )
     ]
     assert result["suite_result"].workload_name == "runner-suite"
+    assert result["report_data"]["workload_name"] == "runner-suite"
+    assert result["report_data"]["seeds"] == [11, 12, 13]
     assert result["gpu_candidate_gate_report"].gpu_review_eligible_stage_names == (
         "active_agent_update",
     )
@@ -295,6 +363,52 @@ def test_benchmark_cli_runtime_suite_writes_report_file(
     assert report_path.read_text(encoding="utf-8") == (
         "- Runtime benchmark suite:\n- Workload: file-suite\n"
     )
+
+
+def test_benchmark_cli_runtime_suite_writes_json_file(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    import json
+
+    from metroflow.benchmarks import run as benchmark_run_module
+
+    json_path = tmp_path / "runtime-suite.json"
+
+    def fake_runtime_suite(**kwargs: object) -> dict[str, object]:
+        return {
+            "suite_result": object(),
+            "gpu_candidate_gate_report": object(),
+            "report": "- Runtime benchmark suite:\n- Workload: json-suite",
+            "report_data": {
+                "name": "measured_runtime_spine_suite",
+                "workload_name": "json-suite",
+                "seeds": [8, 9, 10],
+            },
+        }
+
+    monkeypatch.setattr(
+        benchmark_run_module,
+        "run_runtime_benchmark_suite",
+        fake_runtime_suite,
+    )
+
+    exit_code = benchmark_run_module.main(
+        [
+            "--runtime-suite",
+            "--runtime-suite-workload",
+            "json-suite",
+            "--runtime-suite-json-path",
+            str(json_path),
+        ]
+    )
+
+    assert exit_code == 0
+    assert json.loads(json_path.read_text(encoding="utf-8")) == {
+        "name": "measured_runtime_spine_suite",
+        "seeds": [8, 9, 10],
+        "workload_name": "json-suite",
+    }
 
 
 def test_benchmark_cli_runtime_suite_rejects_empty_seed_list() -> None:
