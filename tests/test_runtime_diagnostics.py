@@ -127,6 +127,7 @@ def test_runtime_diagnostic_rollout_captures_frames_route_cache_and_summary() ->
     assert selected["path_size_factor"] == 1.0
     assert selected["path_cost"] > 0.0
     assert selected["utility"] == pytest.approx(-selected["path_cost"])
+    assert selected["selection_backend"] == "python_host_candidate_selection"
     assert report.frames[0].active_agent_moved_this_tick == 0
     assert report.frames[0].active_agent_rerouted_this_tick == 0
     assert report.frames[0].active_agent_reroute_cooldown_this_tick == 0

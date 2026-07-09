@@ -1104,6 +1104,7 @@ def test_candidate_route_selection_uses_explicit_rust_backend(
     assert selection.candidate_id == 8
     assert selection.path == (10, 11)
     assert selection.utility == pytest.approx(-3.0)
+    assert selection.selection_backend == "rust_cpu_candidate_selection"
 
 
 def test_auto_candidate_route_selection_falls_back_to_host_when_rust_fails(
@@ -1144,6 +1145,7 @@ def test_auto_candidate_route_selection_falls_back_to_host_when_rust_fails(
     assert selection.candidate_index == 1
     assert selection.candidate_id == 8
     assert selection.utility == pytest.approx(-3.0)
+    assert selection.selection_backend == "python_host_candidate_selection"
 
 
 def test_rust_candidate_route_selection_matches_baseline_when_extension_is_available() -> None:
@@ -1184,6 +1186,8 @@ def test_rust_candidate_route_selection_matches_baseline_when_extension_is_avail
     assert accelerated.path_cost == pytest.approx(baseline.path_cost)
     assert accelerated.path_size_factor == pytest.approx(baseline.path_size_factor)
     assert accelerated.utility == pytest.approx(baseline.utility)
+    assert accelerated.selection_backend == "rust_cpu_candidate_selection"
+    assert baseline.selection_backend == "python_host_candidate_selection"
 
 
 def test_runtime_route_refresh_propagates_configured_routing_backend(

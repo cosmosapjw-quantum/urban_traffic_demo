@@ -222,7 +222,7 @@ def render_runtime_diagnostic_html(report: RuntimeDiagnosticReport) -> str:
   </table>
   <h2>Selected Candidates</h2>
   <table>
-    <thead><tr><th>tick</th><th>slot</th><th>candidate</th><th>cost</th><th>path size</th><th>utility</th></tr></thead>
+    <thead><tr><th>tick</th><th>slot</th><th>candidate</th><th>cost</th><th>path size</th><th>utility</th><th>selection backend</th></tr></thead>
     <tbody>{selected_rows}</tbody>
   </table>
   <p class="note">This is a SMOKE diagnostic for runtime-spine review. It is not a validation claim or performance benchmark.</p>
@@ -404,6 +404,10 @@ def _selected_candidate_slots(active_agent_pool: Any) -> tuple[dict[str, Any], .
                         1.0,
                     ),
                     "utility": memory.get("selected_candidate_utility", 0.0),
+                    "selection_backend": memory.get(
+                        "selected_candidate_selection_backend",
+                        "python_host_candidate_selection",
+                    ),
                 }
             )
         )
@@ -419,6 +423,9 @@ def _normalize_selected_candidate_slot(value: Mapping[str, Any]) -> dict[str, An
         "path_cost": float(value.get("path_cost", 0.0)),
         "path_size_factor": float(value.get("path_size_factor", 1.0)),
         "utility": float(value.get("utility", 0.0)),
+        "selection_backend": str(
+            value.get("selection_backend", "python_host_candidate_selection")
+        ),
     }
 
 
@@ -465,7 +472,7 @@ def _render_candidate_row(frame: RuntimeDiagnosticFrame) -> str:
 
 def _render_selected_candidate_row(frame: RuntimeDiagnosticFrame) -> str:
     if not frame.selected_candidate_slots:
-        return f"<tr><td>tick {frame.tick_index}</td><td>none</td><td>()</td><td>()</td><td>()</td><td>()</td></tr>"
+        return f"<tr><td>tick {frame.tick_index}</td><td>none</td><td>()</td><td>()</td><td>()</td><td>()</td><td>()</td></tr>"
     rows = []
     for item in frame.selected_candidate_slots:
         rows.append(
@@ -476,6 +483,7 @@ def _render_selected_candidate_row(frame: RuntimeDiagnosticFrame) -> str:
             f"<td>{float(item['path_cost']):.3f}</td>"
             f"<td>{float(item['path_size_factor']):.3f}</td>"
             f"<td>{float(item['utility']):.3f}</td>"
+            f"<td><code>{escape(str(item['selection_backend']))}</code></td>"
             "</tr>"
         )
     return "\n".join(rows)

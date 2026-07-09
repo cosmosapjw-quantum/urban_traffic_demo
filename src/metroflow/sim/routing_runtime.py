@@ -72,6 +72,7 @@ class _SelectedCandidateRoute:
     path_cost: float
     path_size_factor: float
     utility: float
+    selection_backend: str
 
 
 def create_simulation_route_cache_state() -> SimulationRouteCacheState:
@@ -671,6 +672,7 @@ def _selected_candidate_memory(selection: _SelectedCandidateRoute) -> dict[str, 
         "selected_candidate_path_cost": selection.path_cost,
         "selected_candidate_path_size_factor": selection.path_size_factor,
         "selected_candidate_utility": selection.utility,
+        "selected_candidate_selection_backend": selection.selection_backend,
     }
 
 
@@ -906,7 +908,7 @@ def _select_candidate_route(
         float(x) for x in tuple(metadata.get("candidate_path_size_factors", ()) or ())
     )
     candidate_ids = tuple(int(x) for x in candidate_set.candidate_ids)
-    selected_index, selected_utility = _select_candidate_route_index(
+    selected_index, selected_utility, selection_backend = _select_candidate_route_index(
         candidate_ids=candidate_ids,
         candidate_paths=candidate_paths,
         viable_indices=viable_indices,
@@ -930,6 +932,7 @@ def _select_candidate_route(
         path_cost=path_cost,
         path_size_factor=path_size_factor,
         utility=selected_utility,
+        selection_backend=selection_backend,
     )
 
 
@@ -942,9 +945,9 @@ def _select_candidate_route_index(
     path_sizes: tuple[float, ...],
     path_size_gamma: float,
     routing_backend: str,
-) -> tuple[int, float]:
+) -> tuple[int, float, str]:
     if routing_backend == "auto" and not rust_routing_backend_available():
-        return _select_candidate_route_index_host(
+        selected_index, utility = _select_candidate_route_index_host(
             candidate_ids=candidate_ids,
             candidate_paths=candidate_paths,
             viable_indices=viable_indices,
@@ -952,6 +955,7 @@ def _select_candidate_route_index(
             path_sizes=path_sizes,
             path_size_gamma=path_size_gamma,
         )
+        return selected_index, utility, "python_host_candidate_selection"
     if routing_backend in {"rust_cpu", "auto"}:
         try:
             selected_index, utility = select_route_candidate_index_rust(
@@ -962,16 +966,16 @@ def _select_candidate_route_index(
                 path_size_gamma=path_size_gamma,
             )
             if selected_index < 0:
-                return -1, 0.0
+                return -1, 0.0, "rust_cpu_candidate_selection"
             if selected_index not in viable_indices:
                 raise RuntimeError(
                     "Rust CPU routing backend failed: selected candidate index is not viable"
                 )
-            return int(selected_index), float(utility)
+            return int(selected_index), float(utility), "rust_cpu_candidate_selection"
         except RuntimeError:
             if routing_backend == "rust_cpu":
                 raise
-    return _select_candidate_route_index_host(
+    selected_index, utility = _select_candidate_route_index_host(
         candidate_ids=candidate_ids,
         candidate_paths=candidate_paths,
         viable_indices=viable_indices,
@@ -979,6 +983,7 @@ def _select_candidate_route_index(
         path_sizes=path_sizes,
         path_size_gamma=path_size_gamma,
     )
+    return selected_index, utility, "python_host_candidate_selection"
 
 
 def _select_candidate_route_index_host(
