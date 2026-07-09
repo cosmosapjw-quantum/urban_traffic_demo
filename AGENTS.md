@@ -59,3 +59,4 @@
 - 024-rust-flow-module: Moved Rust CPU flow array core into a focused `flow` module without changing the PyO3 API
 - 025-rust-agent-module: Moved Rust CPU active-agent action planner into a focused `agent` module without changing the PyO3 API
 - 026-rust-reroute-module: Moved Rust CPU reroute decision core into a focused `reroute` module without changing the PyO3 API
+- 027-rust-routing-module: Moved Rust CPU routing kernels into a focused `routing` module while keeping `lib.rs` as the PyO3 facade
