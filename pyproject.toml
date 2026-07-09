@@ -12,6 +12,9 @@ dependencies = [
 jax = [
   "jax[cuda13]",
 ]
+torch = [
+  "torch",
+]
 dev = [
   "maturin",
   "pytest",

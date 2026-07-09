@@ -118,7 +118,7 @@ Status: complete in `c2c052f`.
 
 ## PR07 — Simulator Label Dataset v0
 
-Status: in progress.
+Status: complete in `b636b2a`.
 
 - Generate deterministic simulator-only labels for cost-to-go and route
   scoring from baseline authority.
@@ -131,10 +131,14 @@ Status: in progress.
 
 ## PR08 — Optional NN Experiment Harness
 
+Status: in progress.
+
 - Add optional experiment surface only after PR07 labels exist.
 - Prefer optional Python-side training/inference first.
 - If PyTorch is introduced, it must be an optional extra and excluded from core
   import.
+- Scope guard: surrogate outputs are experiment-only and cannot become route
+  legality or runtime fallback authority in this PR.
 - Tests: optional dependency skip, model/version/fallback metadata, no route
   legality authority.
 - Commit: `feat(learning): add optional route surrogate harness`.

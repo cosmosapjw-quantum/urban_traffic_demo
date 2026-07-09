@@ -1,5 +1,37 @@
 # Decision Log
 
+## 2026-07-10: Optional Route Surrogate Harness Is Experiment-Only
+
+Status: accepted
+
+### Context
+
+PR07 added deterministic simulator labels for cost-to-go and route scoring. The
+next PR may open the NN lane, but runtime route legality and fallback authority
+must remain baseline/Rust.
+
+### Compact CCoT
+
+Question: How can the NN lane begin without changing simulator authority?
+
+Evidence: PR07 labels provide schema-stable supervised targets. Guardrails allow
+optional model experiments only with model/version/fallback metadata.
+
+Inference: A small optional harness can summarize route-score labels and record
+fallback metadata, while route legality remains unchanged.
+
+Counterevidence checked: Adding runtime `torch_cuda`/NN backend config would
+promote an experiment into authority before replay gates exist.
+
+Decision: PR08 adds `torch` as an optional extra and a lazy experiment harness
+only. Runtime backend registries stay unchanged.
+
+Falsifier: If this PR imports torch at package import time or accepts runtime NN
+backend values, revert.
+
+Next action: Review, gate, and commit PR08 before considering active-agent state
+layout recheck.
+
 ## 2026-07-10: Simulator Labels Before NN Surrogate Harness
 
 Status: accepted

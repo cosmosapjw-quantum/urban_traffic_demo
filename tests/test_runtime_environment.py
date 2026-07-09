@@ -18,6 +18,14 @@ def test_jax_cuda13_is_optional_extra_not_baseline_dependency():
     assert "jaxlib" not in project["project"]["dependencies"]
 
 
+def test_torch_is_optional_extra_not_baseline_dependency():
+    project = tomllib.loads(Path("pyproject.toml").read_text())
+
+    optional_deps = project["project"]["optional-dependencies"]
+    assert optional_deps["torch"] == ["torch"]
+    assert "torch" not in project["project"]["dependencies"]
+
+
 def test_maturin_is_dev_only_for_rust_extension_builds():
     project = tomllib.loads(Path("pyproject.toml").read_text())
 

@@ -20,11 +20,21 @@ from .policy_blend import apply_policy_blend_control as apply_policy_blend_contr
 from .policy_blend import blend_route_scores as blend_route_scores
 from .policy_blend import compute_policy_mix_lambda as compute_policy_mix_lambda
 from .policy_blend import fallback_to_baseline as fallback_to_baseline
+from .surrogate import RouteSurrogateExperimentConfig as RouteSurrogateExperimentConfig
+from .surrogate import RouteSurrogateFitResult as RouteSurrogateFitResult
+from .surrogate import RouteSurrogateModel as RouteSurrogateModel
+from .surrogate import RouteSurrogatePrediction as RouteSurrogatePrediction
+from .surrogate import fit_route_surrogate_experiment as fit_route_surrogate_experiment
+from .surrogate import predict_route_surrogate_scores as predict_route_surrogate_scores
 
 __all__ = [
     "ODBanditState",
     "PolicyBlendFallbackReason",
     "PolicyBlendState",
+    "RouteSurrogateExperimentConfig",
+    "RouteSurrogateFitResult",
+    "RouteSurrogateModel",
+    "RouteSurrogatePrediction",
     "SimulatorLabelRecord",
     "apply_od_bandit_reward_update",
     "apply_policy_blend_control",
@@ -37,7 +47,9 @@ __all__ = [
     "export_cost_to_go_label_records",
     "export_route_scoring_label_records",
     "fallback_to_baseline",
+    "fit_route_surrogate_experiment",
     "init_od_bandit_state",
+    "predict_route_surrogate_scores",
     "select_ucb_arm",
     "select_ucb_arm_core",
     "update_od_ucb_arrays_core",
