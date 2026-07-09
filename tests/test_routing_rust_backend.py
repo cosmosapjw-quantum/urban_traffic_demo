@@ -754,6 +754,103 @@ def test_rust_ranked_route_backend_matches_baseline_when_extension_is_available(
     assert accelerated.metadata["candidate_metadata_backend"] == "rust_cpu_candidate_metadata"
 
 
+def test_explicit_rust_reroute_decision_core_uses_wrapper(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.routing import reroute_policy
+
+    calls = []
+
+    def fake_reroute_decision_rust(**kwargs):
+        calls.append(kwargs)
+        return np.asarray((True,), dtype=np.bool_), np.asarray((0.75,), dtype=np.float32)
+
+    monkeypatch.setattr(
+        reroute_policy,
+        "compute_reroute_decision_rust",
+        fake_reroute_decision_rust,
+        raising=False,
+    )
+
+    should, score = reroute_policy.compute_reroute_decision_core(
+        reroute_willingness=(0.9,),
+        delay_sensitivity=(1.0,),
+        exploration_bias=(0.2,),
+        persistence_bias=(0.0,),
+        improvement_ratio=(0.5,),
+        routing_backend="rust_cpu",
+    )
+
+    assert calls
+    assert calls[0]["improvement_ratio"] == (0.5,)
+    assert should.tolist() == [True]
+    np.testing.assert_allclose(score, np.asarray((0.75,), dtype=np.float32))
+
+
+def test_auto_reroute_decision_core_falls_back_to_baseline_when_rust_fails(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.routing import reroute_policy
+
+    kwargs = {
+        "reroute_willingness": (0.9, 0.1),
+        "delay_sensitivity": (1.0, 0.0),
+        "exploration_bias": (0.2, 0.0),
+        "persistence_bias": (0.0, 2.0),
+        "improvement_ratio": (0.5, 0.1),
+    }
+    baseline = reroute_policy.compute_reroute_decision_core(
+        **kwargs,
+        routing_backend="baseline",
+    )
+
+    def unavailable(**_kwargs):
+        raise RuntimeError("Rust CPU reroute backend unavailable")
+
+    monkeypatch.setattr(reroute_policy, "rust_reroute_backend_available", lambda: True)
+    monkeypatch.setattr(
+        reroute_policy,
+        "compute_reroute_decision_rust",
+        unavailable,
+        raising=False,
+    )
+
+    automatic = reroute_policy.compute_reroute_decision_core(
+        **kwargs,
+        routing_backend="auto",
+    )
+
+    np.testing.assert_array_equal(automatic[0], baseline[0])
+    np.testing.assert_allclose(automatic[1], baseline[1])
+
+
+def test_rust_reroute_decision_core_matches_baseline_when_extension_is_available() -> None:
+    from metroflow.backends.rust_cpu import rust_reroute_backend_available
+    from metroflow.routing import reroute_policy
+
+    if not rust_reroute_backend_available():
+        pytest.skip("_metroflow_rust extension with reroute decision core is not importable")
+
+    kwargs = {
+        "reroute_willingness": (0.9, 0.0, 0.4),
+        "delay_sensitivity": (1.0, 0.0, 2.0),
+        "exploration_bias": (0.2, 0.0, 0.7),
+        "persistence_bias": (0.0, 2.0, -1.0),
+        "improvement_ratio": (0.5, 0.1, 0.3),
+    }
+    baseline = reroute_policy.compute_reroute_decision_core(
+        **kwargs,
+        routing_backend="baseline",
+    )
+    accelerated = reroute_policy.compute_reroute_decision_core(
+        **kwargs,
+        routing_backend="rust_cpu",
+    )
+
+    np.testing.assert_array_equal(accelerated[0], baseline[0])
+    np.testing.assert_allclose(accelerated[1], baseline[1], rtol=1e-6)
+
+
 def test_route_candidate_refresh_records_effective_routing_backend_metadata(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

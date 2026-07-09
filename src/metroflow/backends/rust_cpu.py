@@ -58,6 +58,14 @@ def rust_routing_backend_available() -> bool:
     )
 
 
+def rust_reroute_backend_available() -> bool:
+    try:
+        rust_extension = _load_rust_extension(RUST_ROUTING_BACKEND_UNAVAILABLE)
+    except RuntimeError:
+        return False
+    return hasattr(rust_extension, "compute_reroute_decision_batch")
+
+
 def _as_f64_list(values: Sequence[float], name: str) -> list[float]:
     try:
         array = np.ascontiguousarray(values, dtype=np.float64)
@@ -413,3 +421,43 @@ def select_route_candidate_index_rust(
         raise RuntimeError(f"Rust CPU routing backend failed: {exc}") from exc
 
     return int(selected_index), float(utility)
+
+
+def compute_reroute_decision_rust(
+    *,
+    reroute_willingness,
+    delay_sensitivity,
+    exploration_bias,
+    persistence_bias,
+    improvement_ratio,
+) -> tuple[np.ndarray, np.ndarray]:
+    rust_extension = _load_rust_extension(RUST_ROUTING_BACKEND_UNAVAILABLE)
+    try:
+        broadcast = np.broadcast_arrays(
+            np.asarray(reroute_willingness, dtype=np.float32),
+            np.asarray(delay_sensitivity, dtype=np.float32),
+            np.asarray(exploration_bias, dtype=np.float32),
+            np.asarray(persistence_bias, dtype=np.float32),
+            np.asarray(improvement_ratio, dtype=np.float32),
+        )
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("Rust CPU reroute backend failed: inputs must broadcast.") from exc
+
+    shape = broadcast[0].shape
+    try:
+        should, score = rust_extension.compute_reroute_decision_batch(
+            np.ascontiguousarray(broadcast[0], dtype=np.float32).ravel().tolist(),
+            np.ascontiguousarray(broadcast[1], dtype=np.float32).ravel().tolist(),
+            np.ascontiguousarray(broadcast[2], dtype=np.float32).ravel().tolist(),
+            np.ascontiguousarray(broadcast[3], dtype=np.float32).ravel().tolist(),
+            np.ascontiguousarray(broadcast[4], dtype=np.float32).ravel().tolist(),
+        )
+    except AttributeError as exc:
+        raise RuntimeError(RUST_ROUTING_BACKEND_UNAVAILABLE) from exc
+    except ValueError as exc:
+        raise RuntimeError(f"Rust CPU reroute backend failed: {exc}") from exc
+
+    return (
+        np.asarray(should, dtype=np.bool_).reshape(shape),
+        np.asarray(score, dtype=np.float32).reshape(shape),
+    )

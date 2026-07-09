@@ -930,6 +930,69 @@ fn select_route_candidate_index_impl(
     Ok((best_index as i32, best_utility))
 }
 
+fn clamp01(value: f32) -> f32 {
+    if value < 0.0 {
+        0.0
+    } else if value > 1.0 {
+        1.0
+    } else {
+        value
+    }
+}
+
+fn nonnegative_or_nan(value: f32) -> f32 {
+    if value < 0.0 {
+        0.0
+    } else {
+        value
+    }
+}
+
+fn compute_reroute_decision_batch_impl(
+    reroute_willingness: &[f32],
+    delay_sensitivity: &[f32],
+    exploration_bias: &[f32],
+    persistence_bias: &[f32],
+    improvement_ratio: &[f32],
+) -> Result<(Vec<bool>, Vec<f32>), String> {
+    let len = reroute_willingness.len();
+    if delay_sensitivity.len() != len
+        || exploration_bias.len() != len
+        || persistence_bias.len() != len
+        || improvement_ratio.len() != len
+    {
+        return Err("reroute decision inputs must have equal lengths".to_string());
+    }
+
+    let mut should = Vec::with_capacity(len);
+    let mut scores = Vec::with_capacity(len);
+    for index in 0..len {
+        let reroute = clamp01(reroute_willingness[index]);
+        let delay = delay_sensitivity[index];
+        let explore = clamp01(exploration_bias[index]);
+        let improvement = nonnegative_or_nan(improvement_ratio[index]);
+        let delay_norm = if delay > 0.0 {
+            delay / (1.0 + delay)
+        } else {
+            0.0
+        };
+        let trigger_score = 0.45 * reroute
+            + 0.35 * (improvement * (0.75 + 0.75 * delay_norm)).min(1.0)
+            + 0.20 * explore;
+        let persistence = persistence_bias[index].abs();
+        let resistance = 0.40
+            + 0.15
+                * if persistence > 0.0 {
+                    persistence / (1.0 + persistence)
+                } else {
+                    0.0
+                };
+        should.push(trigger_score >= resistance && reroute_willingness[index] > 0.0);
+        scores.push(trigger_score);
+    }
+    Ok((should, scores))
+}
+
 fn evolve_edges_batch_impl(
     queue: &[f64],
     stock: &[f64],
@@ -1426,6 +1489,24 @@ fn select_route_candidate_index(
     .map_err(PyValueError::new_err)
 }
 
+#[pyfunction]
+fn compute_reroute_decision_batch(
+    reroute_willingness: Vec<f32>,
+    delay_sensitivity: Vec<f32>,
+    exploration_bias: Vec<f32>,
+    persistence_bias: Vec<f32>,
+    improvement_ratio: Vec<f32>,
+) -> PyResult<(Vec<bool>, Vec<f32>)> {
+    compute_reroute_decision_batch_impl(
+        &reroute_willingness,
+        &delay_sensitivity,
+        &exploration_bias,
+        &persistence_bias,
+        &improvement_ratio,
+    )
+    .map_err(PyValueError::new_err)
+}
+
 #[pymodule]
 fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evolve_edges_batch, m)?)?;
@@ -1436,6 +1517,7 @@ fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(compute_ranked_route_candidates, m)?)?;
     m.add_function(wrap_pyfunction!(compute_route_candidate_metadata, m)?)?;
     m.add_function(wrap_pyfunction!(select_route_candidate_index, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_reroute_decision_batch, m)?)?;
     Ok(())
 }
 
@@ -1932,6 +2014,36 @@ mod tests {
             .expect_err("negative link id should be rejected");
 
         assert_eq!(error, "candidate_paths must contain non-negative link ids");
+    }
+
+    #[test]
+    fn computes_reroute_decision_batch() {
+        let (should, scores) = compute_reroute_decision_batch_impl(
+            &[0.9, 0.1],
+            &[1.0, 0.0],
+            &[0.2, 0.0],
+            &[0.0, 2.0],
+            &[0.5, 0.1],
+        )
+        .expect("reroute decision should compute");
+
+        assert_eq!(should, vec![true, false]);
+        assert!((scores[0] - 0.641875).abs() < 1.0e-6);
+        assert!((scores[1] - 0.07125).abs() < 1.0e-6);
+    }
+
+    #[test]
+    fn rejects_reroute_decision_length_mismatch() {
+        let error = compute_reroute_decision_batch_impl(
+            &[0.9, 0.1],
+            &[1.0],
+            &[0.2, 0.0],
+            &[0.0, 2.0],
+            &[0.5, 0.1],
+        )
+        .expect_err("length mismatch should be rejected");
+
+        assert_eq!(error, "reroute decision inputs must have equal lengths");
     }
 
     #[test]

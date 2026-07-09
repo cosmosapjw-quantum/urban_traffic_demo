@@ -406,13 +406,14 @@ def _routing_copy_boundary_note(routing_backend: str) -> str:
     if routing_backend == "rust_cpu":
         return (
             "rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, "
-            "greedy path, ranked-K candidates, candidate metadata, and candidate selection"
+            "greedy path, ranked-K candidates, candidate metadata, candidate selection, "
+            "and reroute decision"
         )
     if routing_backend == "auto":
         return (
             "auto rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, "
-            "greedy path, ranked-K candidates, candidate metadata, and candidate selection "
-            "when available"
+            "greedy path, ranked-K candidates, candidate metadata, candidate selection, "
+            "and reroute decision when available"
         )
     return "numpy baseline"
 

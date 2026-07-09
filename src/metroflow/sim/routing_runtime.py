@@ -556,6 +556,7 @@ def _apply_runtime_reroute_policy(
             ),
             incident_active=True,
             reroute_cooldown_ticks=0,
+            routing_backend=state.config.routing_backend,
         )
         cooldown[slot_id] = np.int32(decision.next_reroute_cooldown_ticks)
         memory.update(

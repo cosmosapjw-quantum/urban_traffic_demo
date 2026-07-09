@@ -765,6 +765,41 @@ def test_runtime_reroute_replaces_remaining_tail_on_incident() -> None:
     assert counters["active_agent_moved_this_tick"] == 0
 
 
+def test_runtime_reroute_passes_configured_routing_backend(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.routing.reroute_policy import RerouteDecision, RerouteDecisionReason
+    from metroflow.sim.config import SimulationConfig
+    from metroflow.sim.routing_runtime import advance_runtime_active_agents
+    from metroflow.sim import routing_runtime
+
+    state = _runtime_reroute_state()
+    state.config = SimulationConfig(active_agent_capacity=4, routing_backend="rust_cpu")
+    calls = []
+
+    def fake_decide_reroute_vs_persist(**kwargs):
+        calls.append(kwargs["routing_backend"])
+        return RerouteDecision(
+            should_reroute=True,
+            reason=RerouteDecisionReason.REROUTE,
+            improvement_ratio=0.5,
+            trigger_score=0.75,
+            next_reroute_cooldown_ticks=3,
+        )
+
+    monkeypatch.setattr(
+        routing_runtime,
+        "decide_reroute_vs_persist",
+        fake_decide_reroute_vs_persist,
+    )
+
+    pool, counters, _demand_state, _link_state = advance_runtime_active_agents(state)
+
+    assert calls == ["rust_cpu"]
+    assert pool.plugin_memory[0]["route_path"] == (10, 20)
+    assert counters["active_agent_rerouted_this_tick"] == 1
+
+
 def test_runtime_reroute_cooldown_preserves_existing_tail() -> None:
     from metroflow.sim.routing_runtime import advance_runtime_active_agents
 

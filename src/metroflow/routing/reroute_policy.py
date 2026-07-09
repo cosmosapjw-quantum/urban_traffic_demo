@@ -9,6 +9,10 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from metroflow.backends.rust_cpu import (
+    compute_reroute_decision_rust,
+    rust_reroute_backend_available,
+)
 from metroflow.routing.behavior_profiles import RouteChoiceProfile
 
 __all__ = [
@@ -64,6 +68,7 @@ def decide_reroute_vs_persist(
     min_improvement_ratio: float = 0.05,
     cooldown_after_reroute_ticks: int = 3,
     decay_cooldown_when_no_incident: bool = False,
+    routing_backend: str = "baseline",
 ) -> RerouteDecision:
     """Decide whether an affected traveler reroutes or persists this tick.
 
@@ -130,6 +135,7 @@ def decide_reroute_vs_persist(
         exploration_bias=float(p.exploration_bias),
         persistence_bias=float(p.persistence_bias),
         improvement_ratio=float(improvement_ratio),
+        routing_backend=routing_backend,
     )
     trigger_score = float(trigger_score_arr)
     should_reroute = bool(
@@ -172,9 +178,49 @@ def compute_reroute_decision_core(
     exploration_bias: Any,
     persistence_bias: Any,
     improvement_ratio: Any,
+    routing_backend: str = "baseline",
 ) -> tuple[np.ndarray, np.ndarray]:
     """Array-core boundary used by the host wrapper (`decide_reroute_vs_persist`)."""
 
+    if routing_backend not in {"baseline", "rust_cpu", "auto"}:
+        raise ValueError("routing_backend must be one of: baseline, rust_cpu, auto")
+    if routing_backend == "auto" and not rust_reroute_backend_available():
+        return _compute_reroute_decision_core_baseline(
+            reroute_willingness=reroute_willingness,
+            delay_sensitivity=delay_sensitivity,
+            exploration_bias=exploration_bias,
+            persistence_bias=persistence_bias,
+            improvement_ratio=improvement_ratio,
+        )
+    if routing_backend in {"rust_cpu", "auto"}:
+        try:
+            return compute_reroute_decision_rust(
+                reroute_willingness=reroute_willingness,
+                delay_sensitivity=delay_sensitivity,
+                exploration_bias=exploration_bias,
+                persistence_bias=persistence_bias,
+                improvement_ratio=improvement_ratio,
+            )
+        except RuntimeError:
+            if routing_backend == "rust_cpu":
+                raise
+    return _compute_reroute_decision_core_baseline(
+        reroute_willingness=reroute_willingness,
+        delay_sensitivity=delay_sensitivity,
+        exploration_bias=exploration_bias,
+        persistence_bias=persistence_bias,
+        improvement_ratio=improvement_ratio,
+    )
+
+
+def _compute_reroute_decision_core_baseline(
+    *,
+    reroute_willingness: Any,
+    delay_sensitivity: Any,
+    exploration_bias: Any,
+    persistence_bias: Any,
+    improvement_ratio: Any,
+) -> tuple[np.ndarray, np.ndarray]:
     score = compute_reroute_trigger_score_core(
         reroute_willingness=reroute_willingness,
         delay_sensitivity=delay_sensitivity,
