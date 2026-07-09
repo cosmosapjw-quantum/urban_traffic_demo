@@ -775,6 +775,8 @@ def test_simulation_step_accumulates_runtime_stage_timing_totals(
             "active_agent_update_wall_ns": 7,
             "reroute_decision_wall_ns": 3,
             "active_agent_allocation_wall_ns": 2,
+            "active_agent_candidate_selection_wall_ns": 11,
+            "active_agent_pool_write_wall_ns": 13,
             "active_agent_movement_wall_ns": 4,
         }
 
@@ -804,6 +806,13 @@ def test_simulation_step_accumulates_runtime_stage_timing_totals(
     assert final_state.dynamic.metrics_state["active_agent_update_wall_ns_total"] == 14
     assert final_state.dynamic.metrics_state["reroute_decision_wall_ns_total"] == 6
     assert final_state.dynamic.metrics_state["active_agent_allocation_wall_ns_total"] == 4
+    assert (
+        final_state.dynamic.metrics_state[
+            "active_agent_candidate_selection_wall_ns_total"
+        ]
+        == 22
+    )
+    assert final_state.dynamic.metrics_state["active_agent_pool_write_wall_ns_total"] == 26
     assert final_state.dynamic.metrics_state["active_agent_movement_wall_ns_total"] == 8
 
 

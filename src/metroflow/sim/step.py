@@ -247,6 +247,8 @@ def _zero_tick_counters() -> dict[str, int]:
         "active_agent_update_wall_ns": 0,
         "reroute_decision_wall_ns": 0,
         "active_agent_allocation_wall_ns": 0,
+        "active_agent_candidate_selection_wall_ns": 0,
+        "active_agent_pool_write_wall_ns": 0,
         "active_agent_movement_wall_ns": 0,
         "active_agent_rerouted_this_tick": 0,
         "active_agent_reroute_cooldown_this_tick": 0,
@@ -374,6 +376,12 @@ def _update_metrics_state(
     active_agent_allocation_wall_ns = int(
         tick_counters.get("active_agent_allocation_wall_ns", 0)
     )
+    active_agent_candidate_selection_wall_ns = int(
+        tick_counters.get("active_agent_candidate_selection_wall_ns", 0)
+    )
+    active_agent_pool_write_wall_ns = int(
+        tick_counters.get("active_agent_pool_write_wall_ns", 0)
+    )
     active_agent_movement_wall_ns = int(
         tick_counters.get("active_agent_movement_wall_ns", 0)
     )
@@ -416,6 +424,18 @@ def _update_metrics_state(
                 metrics.get("active_agent_allocation_wall_ns_total", 0)
             )
             + active_agent_allocation_wall_ns,
+            "active_agent_candidate_selection_wall_ns": (
+                active_agent_candidate_selection_wall_ns
+            ),
+            "active_agent_candidate_selection_wall_ns_total": int(
+                metrics.get("active_agent_candidate_selection_wall_ns_total", 0)
+            )
+            + active_agent_candidate_selection_wall_ns,
+            "active_agent_pool_write_wall_ns": active_agent_pool_write_wall_ns,
+            "active_agent_pool_write_wall_ns_total": int(
+                metrics.get("active_agent_pool_write_wall_ns_total", 0)
+            )
+            + active_agent_pool_write_wall_ns,
             "active_agent_movement_wall_ns": active_agent_movement_wall_ns,
             "active_agent_movement_wall_ns_total": int(
                 metrics.get("active_agent_movement_wall_ns_total", 0)

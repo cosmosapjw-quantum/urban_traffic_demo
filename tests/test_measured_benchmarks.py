@@ -677,6 +677,8 @@ def test_measured_runtime_benchmark_reports_nested_route_and_agent_stage_shares(
                 "dynamic_potential_recompute_seconds_total": 0.00000030,
                 "active_agent_update_wall_ns_total": 450,
                 "active_agent_allocation_wall_ns_total": 80,
+                "active_agent_candidate_selection_wall_ns_total": 310,
+                "active_agent_pool_write_wall_ns_total": 90,
                 "active_agent_movement_wall_ns_total": 330,
             }
         )
@@ -706,11 +708,16 @@ def test_measured_runtime_benchmark_reports_nested_route_and_agent_stage_shares(
     assert result.route_candidate_path_build_seconds_total == 0.00000031
     assert result.route_candidate_metadata_seconds_total == 0.00000008
     assert result.active_agent_allocation_wall_ns_total == 80
+    assert result.active_agent_candidate_selection_wall_ns_total == 310
+    assert result.active_agent_pool_write_wall_ns_total == 90
     assert result.active_agent_movement_wall_ns_total == 330
     assert timings["route_candidate_potential"].wall_clock_ns == 350
     assert timings["route_candidate_path_build"].gpu_candidate is True
+    assert timings["active_agent_candidate_selection"].gpu_candidate is True
+    assert timings["active_agent_pool_write"].wall_clock_ns == 90
     assert timings["active_agent_movement"].wall_clock_ns == 330
     assert "route_candidate_path_build" in result.gpu_candidate_stage_names
+    assert "active_agent_candidate_selection" in result.gpu_candidate_stage_names
     assert "active_agent_movement" in result.gpu_candidate_stage_names
 
 

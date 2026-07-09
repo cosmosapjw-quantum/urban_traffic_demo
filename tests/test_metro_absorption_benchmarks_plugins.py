@@ -337,6 +337,19 @@ def test_runtime_acceleration_candidate_report_profiles_nested_stage_fits() -> N
                         "max_wall_clock_ns": 80,
                     },
                     {
+                        "stage_name": "active_agent_candidate_selection",
+                        "mean_wall_time_share": 0.33,
+                        "max_wall_time_share": 0.34,
+                        "max_wall_clock_ns": 330,
+                        "gpu_review_eligible": True,
+                    },
+                    {
+                        "stage_name": "active_agent_pool_write",
+                        "mean_wall_time_share": 0.04,
+                        "max_wall_time_share": 0.05,
+                        "max_wall_clock_ns": 40,
+                    },
+                    {
                         "stage_name": "active_agent_movement",
                         "mean_wall_time_share": 0.34,
                         "max_wall_time_share": 0.35,
@@ -357,6 +370,10 @@ def test_runtime_acceleration_candidate_report_profiles_nested_stage_fits() -> N
     assert candidates["route_candidate_path_build"]["nn_surrogate_fit"] == "medium"
     assert candidates["route_candidate_metadata"]["jax_gpu_fit"] == "medium"
     assert candidates["active_agent_allocation"]["nn_surrogate_fit"] == "medium"
+    assert candidates["active_agent_candidate_selection"]["nn_surrogate_fit"] == "high"
+    assert candidates["active_agent_candidate_selection"]["jax_gpu_fit"] == "medium"
+    assert candidates["active_agent_pool_write"]["rust_cpu_fit"] == "high"
+    assert candidates["active_agent_pool_write"]["nn_surrogate_fit"] == "low"
     assert candidates["active_agent_movement"]["rust_cpu_fit"] == "high"
     assert candidates["active_agent_movement"]["jax_gpu_fit"] == "low"
 

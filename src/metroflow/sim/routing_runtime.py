@@ -193,6 +193,8 @@ def advance_runtime_active_agents(
     source_queue_increments_by_link_id: dict[int, int] = {}
 
     allocation_start_ns = perf_counter_ns()
+    candidate_selection_wall_ns = 0
+    pool_write_wall_ns = 0
     for trip in _activated_trip_requests(trips):
         trip_id = int(trip.trip_request_id)
         if trip_id in allocated_ids or trip_id in completed_ids or trip_id in failed_ids:
@@ -201,17 +203,20 @@ def advance_runtime_active_agents(
             break
         od = _trip_od_nodes(trip, pois_by_id)
         candidate_set = route_state.candidate_sets.get(od[0]) if od is not None else None
+        selection_start_ns = perf_counter_ns()
         selection = _select_candidate_route(
             candidate_set,
             path_size_gamma=state.config.route_path_size_gamma,
             routing_backend=state.config.routing_backend,
         )
+        candidate_selection_wall_ns += max(0, perf_counter_ns() - selection_start_ns)
         if selection is None:
             failed_ids.add(trip_id)
             counters["trip_failed_this_tick"] += 1
             continue
         path = selection.path
         _od_key, _origin_node_id, destination_node_id = od
+        pool_write_start_ns = perf_counter_ns()
         payload = ActiveAgentSlot.spawn(
             citizen_id=trip.citizen_id,
             trip_id=trip_id,
@@ -236,10 +241,13 @@ def advance_runtime_active_agents(
             source_queue_increments_by_link_id.get(int(path[0]), 0) + 1
         )
         counters["trip_allocated_this_tick"] += 1
+        pool_write_wall_ns += max(0, perf_counter_ns() - pool_write_start_ns)
     counters["active_agent_allocation_wall_ns"] = max(
         0,
         perf_counter_ns() - allocation_start_ns,
     )
+    counters["active_agent_candidate_selection_wall_ns"] = candidate_selection_wall_ns
+    counters["active_agent_pool_write_wall_ns"] = pool_write_wall_ns
 
     reroute_start_ns = perf_counter_ns()
     pool_after_reroute, reroute_counters = _apply_runtime_reroute_policy(
@@ -380,6 +388,8 @@ def _agent_tick_counters() -> dict[str, int]:
         "active_agent_rerouted_this_tick": 0,
         "active_agent_reroute_cooldown_this_tick": 0,
         "active_agent_allocation_wall_ns": 0,
+        "active_agent_candidate_selection_wall_ns": 0,
+        "active_agent_pool_write_wall_ns": 0,
         "active_agent_movement_wall_ns": 0,
     }
 

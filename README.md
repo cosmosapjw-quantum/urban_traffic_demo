@@ -117,7 +117,8 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   reroute decision, active-agent update stage의 wall-time share와 future GPU 후보 stage를
   reviewer-facing section으로 렌더링한다.
   nested timing으로 route candidate potential/path-build/metadata와 active-agent allocation/movement도
-  함께 기록해 coarse stage 안의 병목을 분해한다.
+  함께 기록해 coarse stage 안의 병목을 분해한다. active-agent allocation은 candidate selection과
+  pool write로 한 번 더 나눠 NN/JAX scorer 후보와 CPU/Rust state-write 후보를 분리한다.
   `summarize_runtime_gpu_candidate_gate`와 `format_runtime_gpu_candidate_gate_markdown`은
   3개 이상의 unique deterministic seed 결과를 집계해 모든 run에서 30% 이상인 stage만 GPU
   review 후보로 남긴다.

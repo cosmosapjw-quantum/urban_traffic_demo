@@ -470,6 +470,22 @@ def _stage_acceleration_profile(stage_name: str) -> dict[str, str]:
             "recommended_next_probe": "split candidate selection from pool slot allocation before adding policy inference",
             "rationale": "allocation includes route choice policy scoring and Python-owned immutable state writes",
         },
+        "active_agent_candidate_selection": {
+            "jax_gpu_fit": "medium",
+            "nn_surrogate_fit": "high",
+            "rust_cpu_fit": "medium",
+            "custom_cuda_fit": "low",
+            "recommended_next_probe": "batch route-choice scoring and collect baseline-selected labels before adding a neural scorer",
+            "rationale": "candidate selection is policy/scoring shaped and is the most plausible active-agent NN surface",
+        },
+        "active_agent_pool_write": {
+            "jax_gpu_fit": "low",
+            "nn_surrogate_fit": "low",
+            "rust_cpu_fit": "high",
+            "custom_cuda_fit": "low",
+            "recommended_next_probe": "measure immutable pool replacement and plugin-memory writes separately if this grows",
+            "rationale": "pool writes are deterministic state mutation and should stay CPU/Rust-oriented",
+        },
         "active_agent_movement": {
             "jax_gpu_fit": "low",
             "nn_surrogate_fit": "low",
