@@ -178,8 +178,20 @@ def _summary_metrics(
         "routing_backend": str(metrics_state.get("routing_backend", state.config.routing_backend)),
         "agent_backend": str(metrics_state.get("agent_backend", state.config.agent_backend)),
         "flow_update_wall_ns": int(metrics_state.get("flow_update_wall_ns", 0)),
+        "flow_update_wall_ns_total": int(
+            metrics_state.get("flow_update_wall_ns_total", 0)
+        ),
         "active_agent_update_wall_ns": int(
             metrics_state.get("active_agent_update_wall_ns", 0)
+        ),
+        "active_agent_update_wall_ns_total": int(
+            metrics_state.get("active_agent_update_wall_ns_total", 0)
+        ),
+        "reroute_decision_wall_ns": int(
+            metrics_state.get("reroute_decision_wall_ns", 0)
+        ),
+        "reroute_decision_wall_ns_total": int(
+            metrics_state.get("reroute_decision_wall_ns_total", 0)
         ),
         "queue_vehicles_total": float(metrics_state.get("queue_vehicles_total", 0.0)),
         "outflow_vehicles_total": float(metrics_state.get("outflow_vehicles_total", 0.0)),

@@ -245,6 +245,7 @@ def _zero_tick_counters() -> dict[str, int]:
         "dynamic_potential_cache_hits_this_tick": 0,
         "flow_update_wall_ns": 0,
         "active_agent_update_wall_ns": 0,
+        "reroute_decision_wall_ns": 0,
         "active_agent_rerouted_this_tick": 0,
         "active_agent_reroute_cooldown_this_tick": 0,
     }
@@ -363,6 +364,11 @@ def _update_metrics_state(
         tick_counters.get("active_agent_reroute_cooldown_this_tick", 0)
     )
     sink_wait_tick = int(tick_counters.get("active_agent_sink_wait_this_tick", 0))
+    flow_update_wall_ns = int(tick_counters.get("flow_update_wall_ns", 0))
+    active_agent_update_wall_ns = int(
+        tick_counters.get("active_agent_update_wall_ns", 0)
+    )
+    reroute_decision_wall_ns = int(tick_counters.get("reroute_decision_wall_ns", 0))
     metrics.update(
         {
             "tick_index": state.tick_index,
@@ -382,10 +388,21 @@ def _update_metrics_state(
             "flow_backend": state.config.flow_backend,
             "routing_backend": state.config.routing_backend,
             "agent_backend": state.config.agent_backend,
-            "flow_update_wall_ns": int(tick_counters.get("flow_update_wall_ns", 0)),
-            "active_agent_update_wall_ns": int(
-                tick_counters.get("active_agent_update_wall_ns", 0)
-            ),
+            "flow_update_wall_ns": flow_update_wall_ns,
+            "flow_update_wall_ns_total": int(
+                metrics.get("flow_update_wall_ns_total", 0)
+            )
+            + flow_update_wall_ns,
+            "active_agent_update_wall_ns": active_agent_update_wall_ns,
+            "active_agent_update_wall_ns_total": int(
+                metrics.get("active_agent_update_wall_ns_total", 0)
+            )
+            + active_agent_update_wall_ns,
+            "reroute_decision_wall_ns": reroute_decision_wall_ns,
+            "reroute_decision_wall_ns_total": int(
+                metrics.get("reroute_decision_wall_ns_total", 0)
+            )
+            + reroute_decision_wall_ns,
             "queue_vehicles_total": queue_total,
             "outflow_vehicles_total": outflow_total,
             "route_candidate_refresh_total": int(
@@ -457,6 +474,9 @@ def _build_step_telemetry(
         flow_update_wall_ns=int(metrics_state.get("flow_update_wall_ns", 0)),
         active_agent_update_wall_ns=int(
             metrics_state.get("active_agent_update_wall_ns", 0)
+        ),
+        reroute_decision_wall_ns=int(
+            metrics_state.get("reroute_decision_wall_ns", 0)
         ),
         queue_vehicles_total=float(metrics_state.get("queue_vehicles_total", 0.0)),
         outflow_vehicles_total=float(metrics_state.get("outflow_vehicles_total", 0.0)),

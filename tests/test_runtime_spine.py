@@ -737,6 +737,8 @@ def test_simulation_telemetry_mapping_round_trip_preserves_runtime_counters() ->
         flow_backend="rust_cpu",
         routing_backend="rust_cpu",
         flow_update_wall_ns=55,
+        active_agent_update_wall_ns=44,
+        reroute_decision_wall_ns=33,
         active_agent_moved_this_tick=4,
         active_agent_sink_wait_this_tick=3,
         active_agent_rerouted_this_tick=2,
@@ -748,10 +750,57 @@ def test_simulation_telemetry_mapping_round_trip_preserves_runtime_counters() ->
     assert round_tripped.flow_backend == "rust_cpu"
     assert round_tripped.routing_backend == "rust_cpu"
     assert round_tripped.flow_update_wall_ns == 55
+    assert round_tripped.active_agent_update_wall_ns == 44
+    assert round_tripped.reroute_decision_wall_ns == 33
     assert round_tripped.active_agent_moved_this_tick == 4
     assert round_tripped.active_agent_sink_wait_this_tick == 3
     assert round_tripped.active_agent_rerouted_this_tick == 2
     assert round_tripped.active_agent_reroute_cooldown_this_tick == 1
+
+
+def test_simulation_step_accumulates_runtime_stage_timing_totals(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.sim import step as step_module
+    from metroflow.sim.control import SimulationControl
+    from metroflow.sim.rng import key_from_seed
+
+    state = _runtime_spine_state()
+
+    def fake_advance_flow_state(state):
+        return state, {"flow_update_wall_ns": 5}
+
+    def fake_advance_runtime_routing_state(state):
+        return state, {
+            "active_agent_update_wall_ns": 7,
+            "reroute_decision_wall_ns": 3,
+        }
+
+    monkeypatch.setattr(step_module, "_advance_flow_state", fake_advance_flow_state)
+    monkeypatch.setattr(
+        step_module,
+        "_advance_runtime_routing_state",
+        fake_advance_runtime_routing_state,
+    )
+
+    next_state, telemetry, _snapshot, key = step_module.simulation_step(
+        state,
+        SimulationControl(),
+        key_from_seed(41),
+    )
+    final_state, final_telemetry, _snapshot, _key = step_module.simulation_step(
+        next_state,
+        SimulationControl(),
+        key,
+    )
+
+    assert telemetry.flow_update_wall_ns == 5
+    assert telemetry.active_agent_update_wall_ns == 7
+    assert telemetry.reroute_decision_wall_ns == 3
+    assert final_telemetry.flow_update_wall_ns == 5
+    assert final_state.dynamic.metrics_state["flow_update_wall_ns_total"] == 10
+    assert final_state.dynamic.metrics_state["active_agent_update_wall_ns_total"] == 14
+    assert final_state.dynamic.metrics_state["reroute_decision_wall_ns_total"] == 6
 
 
 def test_runtime_reroute_replaces_remaining_tail_on_incident() -> None:

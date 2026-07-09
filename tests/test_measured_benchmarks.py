@@ -497,3 +497,106 @@ def test_measured_runtime_benchmark_preserves_reroute_counter_metadata(
     assert result.active_agent_rerouted_this_tick == 2
     assert result.active_agent_reroute_cooldown_this_tick == 1
     assert result.active_agent_update_wall_ns == 33
+
+
+def test_measured_runtime_benchmark_reports_stage_shares_and_gpu_candidates(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    from metroflow.sim.init import build_initial_simulation_state
+
+    bundle = build_initial_simulation_state(scenario_seed=5, eager_trip_generation=False)
+    timestamps = iter((1_000, 2_000))
+
+    def fake_perf_counter_ns() -> int:
+        return next(timestamps)
+
+    def fake_simulation_step(state, _control, key):
+        metrics = dict(state.dynamic.metrics_state)
+        metrics.update(
+            {
+                "flow_update_wall_ns_total": 400,
+                "route_candidate_refresh_seconds_total": 0.00000035,
+                "dynamic_potential_recompute_seconds_total": 0.0000002,
+                "routing_compile_seconds_estimate_total": 0.00000005,
+                "reroute_decision_wall_ns_total": 299,
+                "active_agent_update_wall_ns_total": 100,
+            }
+        )
+        return (
+            state.with_clock(tick_index=state.tick_index + 1).with_dynamic_updates(
+                metrics_state=metrics
+            ),
+            None,
+            None,
+            key,
+        )
+
+    monkeypatch.setattr(benchmark_module, "perf_counter_ns", fake_perf_counter_ns)
+    monkeypatch.setattr(benchmark_module, "simulation_step", fake_simulation_step)
+
+    result = run_measured_runtime_spine_benchmark(
+        bundle.state,
+        bundle.rng_key,
+        MeasuredRuntimeBenchmarkConfig(workload_name="runtime-stage-shares", num_steps=1),
+    )
+
+    assert result.wall_clock_ns == 1000
+    assert result.gpu_candidate_threshold == 0.30
+    assert result.gpu_candidate_min_seed_count == 3
+    assert result.gpu_candidate_stage_names == (
+        "flow_update",
+        "route_candidate_refresh",
+    )
+    runtime_stage_timing = benchmark_module.RuntimeStageTiming
+    assert result.runtime_stage_timings[:2] == (
+        runtime_stage_timing(
+            stage_name="flow_update",
+            wall_clock_ns=400,
+            wall_time_share=0.4,
+            gpu_candidate=True,
+        ),
+        runtime_stage_timing(
+            stage_name="route_candidate_refresh",
+            wall_clock_ns=350,
+            wall_time_share=0.35,
+            gpu_candidate=True,
+        ),
+    )
+    assert result.runtime_stage_timings[4].stage_name == "reroute_decision"
+    assert result.runtime_stage_timings[4].wall_clock_ns == 299
+    assert result.runtime_stage_timings[4].gpu_candidate is False
+
+
+def test_runtime_stage_timing_markdown_reports_gpu_candidate_gate() -> None:
+    runtime_stage_timing = benchmark_module.RuntimeStageTiming
+    result = MeasuredRuntimeBenchmarkResult(
+        name="measured_runtime_spine",
+        workload_name="runtime-stage-shares",
+        wall_clock_ns=1000,
+        num_steps=1,
+        initial_tick=0,
+        final_tick=1,
+        active_agent_count=0,
+        flow_backend="baseline",
+        routing_backend="baseline",
+        agent_backend="baseline",
+        route_path_size_gamma=0.0,
+        routing_copy_boundary_note="numpy baseline",
+        agent_copy_boundary_note="python baseline",
+        route_candidate_refresh_total=0,
+        route_candidate_reuse_total=0,
+        dynamic_potential_recompute_total=0,
+        dynamic_potential_cache_hits_total=0,
+        runtime_stage_timings=(
+            runtime_stage_timing("flow_update", 400, 0.4, True),
+            runtime_stage_timing("active_agent_update", 100, 0.1, False),
+        ),
+        gpu_candidate_stage_names=("flow_update",),
+    )
+
+    markdown = benchmark_module.format_runtime_stage_timing_markdown(result)
+
+    assert "GPU candidate stages: flow_update" in markdown
+    assert "threshold: 0.3" in markdown
+    assert "minimum deterministic seeds: 3" in markdown
+    assert "flow_update: 400 ns (share 0.4)" in markdown

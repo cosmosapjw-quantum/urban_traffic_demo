@@ -124,6 +124,20 @@ class MeasuredRoutingBenchmarkResult:
 
 
 @dataclass(frozen=True)
+class RuntimeStageTiming:
+    stage_name: str
+    wall_clock_ns: int
+    wall_time_share: float
+    gpu_candidate: bool
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "stage_name", str(self.stage_name))
+        object.__setattr__(self, "wall_clock_ns", int(self.wall_clock_ns))
+        object.__setattr__(self, "wall_time_share", float(self.wall_time_share))
+        object.__setattr__(self, "gpu_candidate", bool(self.gpu_candidate))
+
+
+@dataclass(frozen=True)
 class MeasuredRuntimeBenchmarkResult:
     name: str
     workload_name: str
@@ -145,6 +159,13 @@ class MeasuredRuntimeBenchmarkResult:
     route_candidate_refresh_seconds_total: float = 0.0
     dynamic_potential_recompute_seconds_total: float = 0.0
     routing_compile_seconds_estimate_total: float = 0.0
+    flow_update_wall_ns_total: int = 0
+    active_agent_update_wall_ns_total: int = 0
+    reroute_decision_wall_ns_total: int = 0
+    runtime_stage_timings: tuple[RuntimeStageTiming, ...] = ()
+    gpu_candidate_stage_names: tuple[str, ...] = ()
+    gpu_candidate_threshold: float = 0.30
+    gpu_candidate_min_seed_count: int = 3
     reroute_decisions_total: int = 0
     persistence_decisions_total: int = 0
     active_agent_sink_wait_total: int = 0
@@ -349,6 +370,36 @@ def run_measured_runtime_spine_benchmark(
         if isinstance(current_state.dynamic.metrics_state, dict)
         else {}
     )
+    flow_update_wall_ns_total = _stage_ns_metric(
+        metrics_state,
+        total_key="flow_update_wall_ns_total",
+        tick_key="flow_update_wall_ns",
+    )
+    active_agent_update_wall_ns_total = _stage_ns_metric(
+        metrics_state,
+        total_key="active_agent_update_wall_ns_total",
+        tick_key="active_agent_update_wall_ns",
+    )
+    reroute_decision_wall_ns_total = _stage_ns_metric(
+        metrics_state,
+        total_key="reroute_decision_wall_ns_total",
+        tick_key="reroute_decision_wall_ns",
+    )
+    stage_timings = _runtime_stage_timing_breakdown(
+        wall_clock_ns=max(elapsed_ns, 0),
+        flow_update_wall_ns=flow_update_wall_ns_total,
+        route_candidate_refresh_ns=_seconds_to_ns(
+            metrics_state.get("route_candidate_refresh_seconds_total", 0.0)
+        ),
+        dynamic_potential_recompute_ns=_seconds_to_ns(
+            metrics_state.get("dynamic_potential_recompute_seconds_total", 0.0)
+        ),
+        routing_compile_estimate_ns=_seconds_to_ns(
+            metrics_state.get("routing_compile_seconds_estimate_total", 0.0)
+        ),
+        reroute_decision_wall_ns=reroute_decision_wall_ns_total,
+        active_agent_update_wall_ns=active_agent_update_wall_ns_total,
+    )
     return MeasuredRuntimeBenchmarkResult(
         name="measured_runtime_spine",
         workload_name=workload_name,
@@ -379,6 +430,13 @@ def run_measured_runtime_spine_benchmark(
         ),
         routing_compile_seconds_estimate_total=float(
             metrics_state.get("routing_compile_seconds_estimate_total", 0.0)
+        ),
+        flow_update_wall_ns_total=flow_update_wall_ns_total,
+        active_agent_update_wall_ns_total=active_agent_update_wall_ns_total,
+        reroute_decision_wall_ns_total=reroute_decision_wall_ns_total,
+        runtime_stage_timings=stage_timings,
+        gpu_candidate_stage_names=tuple(
+            item.stage_name for item in stage_timings if item.gpu_candidate
         ),
         reroute_decisions_total=int(metrics_state.get("us2_reroute_decisions_total", 0)),
         persistence_decisions_total=int(
@@ -432,6 +490,86 @@ def _agent_copy_boundary_note(agent_backend: str) -> str:
     if agent_backend == "auto":
         return "auto rust_cpu Vec copy boundary for active-agent action planning when available"
     return "python baseline"
+
+
+def _stage_ns_metric(
+    metrics_state: dict[str, object],
+    *,
+    total_key: str,
+    tick_key: str,
+) -> int:
+    return max(0, int(metrics_state.get(total_key, metrics_state.get(tick_key, 0)) or 0))
+
+
+def _seconds_to_ns(value: object) -> int:
+    try:
+        seconds = float(value)
+    except (TypeError, ValueError):
+        return 0
+    return max(0, int(round(seconds * 1_000_000_000.0)))
+
+
+def _runtime_stage_timing_breakdown(
+    *,
+    wall_clock_ns: int,
+    flow_update_wall_ns: int,
+    route_candidate_refresh_ns: int,
+    dynamic_potential_recompute_ns: int,
+    routing_compile_estimate_ns: int,
+    reroute_decision_wall_ns: int,
+    active_agent_update_wall_ns: int,
+    gpu_candidate_threshold: float = 0.30,
+) -> tuple[RuntimeStageTiming, ...]:
+    denominator = max(1, int(wall_clock_ns))
+    gpu_candidate_stage_names = {
+        "flow_update",
+        "route_candidate_refresh",
+        "reroute_decision",
+        "active_agent_update",
+    }
+    raw = (
+        ("flow_update", flow_update_wall_ns),
+        ("route_candidate_refresh", route_candidate_refresh_ns),
+        ("dynamic_potential_recompute", dynamic_potential_recompute_ns),
+        ("routing_compile_estimate", routing_compile_estimate_ns),
+        ("reroute_decision", reroute_decision_wall_ns),
+        ("active_agent_update", active_agent_update_wall_ns),
+    )
+    out: list[RuntimeStageTiming] = []
+    for stage_name, wall_ns in raw:
+        wall_ns = max(0, int(wall_ns))
+        share = round(float(wall_ns / denominator), 6)
+        out.append(
+            RuntimeStageTiming(
+                stage_name=stage_name,
+                wall_clock_ns=wall_ns,
+                wall_time_share=share,
+                gpu_candidate=(
+                    stage_name in gpu_candidate_stage_names
+                    and share >= float(gpu_candidate_threshold)
+                ),
+            )
+        )
+    return tuple(out)
+
+
+def format_runtime_stage_timing_markdown(
+    result: MeasuredRuntimeBenchmarkResult,
+) -> str:
+    """Render runtime stage timing and future GPU gate metadata."""
+
+    candidate_names = ", ".join(result.gpu_candidate_stage_names) or "none"
+    lines = [
+        "- Runtime stage timing:",
+        f"- GPU candidate stages: {candidate_names}",
+        f"- GPU candidate threshold: {result.gpu_candidate_threshold}",
+        f"- GPU candidate minimum deterministic seeds: {result.gpu_candidate_min_seed_count}",
+    ]
+    lines.extend(
+        f"- {item.stage_name}: {item.wall_clock_ns} ns (share {item.wall_time_share})"
+        for item in result.runtime_stage_timings
+    )
+    return "\n".join(lines)
 
 
 def run_measured_step_world_benchmark(

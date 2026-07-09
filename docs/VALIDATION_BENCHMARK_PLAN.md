@@ -94,7 +94,8 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - JAX 첫 호출 compile time과 steady-state runtime을 분리 기록
 - benchmark result는 요청 backend를 기록하고, explicit `rust_cpu`/`jax` 요청 실패는 실패로 남김
 - runtime benchmark result는 route-candidate refresh, dynamic-potential recompute, routing compile estimate
-  timing totals와 `active_agent_update_wall_ns`를 metrics/run summary와 동일한 key로 보존한다
+  timing totals, flow/active-agent/reroute decision wall-time totals, `runtime_stage_timings`,
+  `gpu_candidate_stage_names`를 metrics/run summary와 동일한 key로 보존한다
 - isolated routing-candidate benchmark result는 route-candidate refresh와 dynamic-potential recompute
   timing totals를 own stats에서 보존한다
 - `auto` backend만 baseline fallback을 허용한다
@@ -106,3 +107,6 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   route candidate refresh, reroute decision, active-agent update wall-time share를 기준으로 산정하고,
   단일 stage가 3개 이상의 deterministic seed에서 30%를 넘은 뒤에만 NumPy array ownership, dtype,
   copy 여부를 포함하는 별도 acceptance contract를 연다
+- `format_runtime_stage_timing_markdown`은 measured runtime benchmark result의 stage timing과
+  GPU 후보 gate를 reviewer-facing report section으로 렌더링한다. 이 section은 구현 허가가 아니라
+  다음 backend slice를 정하기 위한 measurement artifact다

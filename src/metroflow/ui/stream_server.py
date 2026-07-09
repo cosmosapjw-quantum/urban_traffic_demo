@@ -360,12 +360,44 @@ def _build_metrics_summary_payload(
                 telemetry.flow_update_wall_ns,
             )
         ),
+        "flow_update_wall_ns_total": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "flow_update_wall_ns_total",
+                telemetry.flow_update_wall_ns,
+            )
+        ),
         "active_agent_update_wall_ns": int(
             _metric_value(
                 metrics_state,
                 summary,
                 "active_agent_update_wall_ns",
                 telemetry.active_agent_update_wall_ns,
+            )
+        ),
+        "active_agent_update_wall_ns_total": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "active_agent_update_wall_ns_total",
+                telemetry.active_agent_update_wall_ns,
+            )
+        ),
+        "reroute_decision_wall_ns": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "reroute_decision_wall_ns",
+                telemetry.reroute_decision_wall_ns,
+            )
+        ),
+        "reroute_decision_wall_ns_total": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "reroute_decision_wall_ns_total",
+                telemetry.reroute_decision_wall_ns,
             )
         ),
         "queue_vehicles_total": float(

@@ -106,6 +106,9 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
 - integrated runtime benchmark는 `run_measured_runtime_spine_benchmark`를 사용하며 flow/routing backend와
   agent backend, route candidate/dynamic-potential cache counters, active-agent update wall time 및
   timing totals를 결과에 보존한다.
+  `format_runtime_stage_timing_markdown`은 flow, route candidate refresh, dynamic potential,
+  reroute decision, active-agent update stage의 wall-time share와 future GPU 후보 stage를
+  reviewer-facing section으로 렌더링한다.
 - isolated routing candidate benchmark는 `run_measured_routing_candidate_benchmark`를 사용하며
   dynamic-potential recompute/cache counters와 timing totals, final candidate path, ranked-K candidate
   paths/costs/path-size metadata, routing copy-boundary note를 기록한다.

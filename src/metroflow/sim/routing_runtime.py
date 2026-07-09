@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 import hashlib
 import json
 from math import isfinite, log
+from time import perf_counter_ns
 from typing import Any, Mapping
 
 import numpy as np
@@ -235,10 +236,16 @@ def advance_runtime_active_agents(
         )
         counters["trip_allocated_this_tick"] += 1
 
+    reroute_start_ns = perf_counter_ns()
     pool_after_reroute, reroute_counters = _apply_runtime_reroute_policy(
         state,
         pool_after_alloc,
         skip_slot_ids=newly_allocated_slot_ids,
+    )
+    reroute_counters = dict(reroute_counters)
+    reroute_counters["reroute_decision_wall_ns"] = max(
+        0,
+        perf_counter_ns() - reroute_start_ns,
     )
     counters.update({key: counters.get(key, 0) + value for key, value in reroute_counters.items()})
     moved_pool, moved_counters, completed_now = _advance_pool_along_cached_routes(

@@ -42,7 +42,7 @@
 - Pure baseline path remains the default for deterministic replay and regression gates
 
 ## Recent Changes
-- 002-fast-edge-evolution: Added Python 3.11 + Python stdlib dataclasses + pytest; repository deps include `jax` and `jaxlib` but this feature stays in the pure baseline path
+- 002-fast-edge-evolution: Added the original pure-baseline fast edge evolution feature; JAX is now optional extra only
 - 009-gpu-venv-runtime: Updated runtime contract to Python 3.12 + `jax[cuda13]`; added optional JAX fast-edge backend with baseline fallback
 - 010-metro-absorption-foundation: Absorbed donor city/flow/routing/demand/UI/sim contract slices into root; root code must not import from external `metro/`
 - 011-metro-absorption-reporting: Added simulator-only learning experience, run summaries, UI stream server, benchmark smoke runner, scenario presets, and policy plugin registry without `metro/` dependency
@@ -52,3 +52,4 @@
 - 018-rust-ranked-routing: Added optional Rust CPU ranked-K route candidate enumeration with Python baseline parity and explicit/auto fallback policy
 - 017-path-size-choice: Added configurable path-size route-choice correction to runtime selection, replay fingerprint, and benchmark metadata
 - 019-rust-agent-backend: Added optional Rust CPU active-agent action planning with Python-owned immutable pool replacement
+- 020-runtime-stage-gate: Added runtime stage timing totals and GPU candidate reporting without adding CUDA dependencies

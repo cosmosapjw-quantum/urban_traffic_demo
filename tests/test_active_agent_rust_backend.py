@@ -150,6 +150,14 @@ def _agent_backend_state(
     )
 
 
+def _without_timing(counters: dict[str, int]) -> dict[str, int]:
+    return {
+        key: value
+        for key, value in counters.items()
+        if key not in {"reroute_decision_wall_ns"}
+    }
+
+
 def test_simulation_config_accepts_agent_backend_and_rejects_unknown() -> None:
     from metroflow.sim.config import SimulationConfig
 
@@ -186,7 +194,7 @@ def test_auto_agent_backend_falls_back_to_baseline_when_rust_unavailable(
     )
     auto_pool, auto_counters, auto_demand, _ = routing_runtime.advance_runtime_active_agents(auto_state)
 
-    assert auto_counters == baseline_counters
+    assert _without_timing(auto_counters) == _without_timing(baseline_counters)
     assert auto_demand["completed_trip_request_ids"] == baseline_demand["completed_trip_request_ids"]
     np.testing.assert_array_equal(auto_pool.current_link_id, baseline_pool.current_link_id)
     np.testing.assert_array_equal(auto_pool.remaining_route_ptr, baseline_pool.remaining_route_ptr)
@@ -208,7 +216,7 @@ def test_rust_agent_backend_matches_baseline_movement_when_extension_available()
     )
     rust_pool, rust_counters, rust_demand, _ = advance_runtime_active_agents(rust_state)
 
-    assert rust_counters == baseline_counters
+    assert _without_timing(rust_counters) == _without_timing(baseline_counters)
     assert rust_demand["completed_trip_request_ids"] == baseline_demand["completed_trip_request_ids"]
     np.testing.assert_array_equal(rust_pool.current_link_id, baseline_pool.current_link_id)
     np.testing.assert_array_equal(rust_pool.remaining_route_ptr, baseline_pool.remaining_route_ptr)
@@ -236,7 +244,7 @@ def test_rust_agent_backend_matches_baseline_final_link_sink_wait_when_available
         _agent_backend_state(agent_backend="rust_cpu", **kwargs)
     )
 
-    assert rust_counters == baseline_counters
+    assert _without_timing(rust_counters) == _without_timing(baseline_counters)
     assert rust_demand["completed_trip_request_ids"] == baseline_demand.get(
         "completed_trip_request_ids",
         (),
