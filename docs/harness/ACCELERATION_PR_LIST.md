@@ -175,7 +175,7 @@ Status: complete in `04554ca`.
 
 ## PR11 — C++/CUDA Admission RFC
 
-Status: RFC accepted; implementation not authorized.
+Status: complete in `55af343`.
 
 - Define future custom CUDA/libtorch candidate interface for one narrow kernel:
   dense flow, route-score batch, or OD/policy batch.
@@ -187,6 +187,8 @@ Status: RFC accepted; implementation not authorized.
 - Commit: `docs(cuda): define custom kernel admission gate`.
 
 ## PR12 — PRD/State Closure
+
+Status: complete; roadmap state consolidated.
 
 - Consolidate `PROJECT_STATE`, `DECISION_LOG`, `DEPRECATED_IDEAS`,
   validation benchmark docs, and next-session prompt.

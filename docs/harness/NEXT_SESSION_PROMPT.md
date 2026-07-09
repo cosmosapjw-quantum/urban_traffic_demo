@@ -35,15 +35,19 @@ Current state:
   review-ready.
 - PR10 Zero-Copy/Rayon RFC is accepted without authorizing zero-copy NumPy FFI,
   Rayon, or new Rust build surface.
-- PR11 C++/CUDA Admission RFC is accepted without authorizing C++/CUDA,
-  libtorch, CMake, or new runtime backend values.
+- PR11 C++/CUDA Admission RFC is complete in `55af343` without authorizing
+  C++/CUDA, libtorch, CMake, or new runtime backend values.
+- PR12 roadmap closure is complete; roadmap state, decision logs, validation
+  docs, and handoff are consolidated.
 
-Next recommended slice:
+Next recommended workflow:
 
-1. Open PR12 as the PRD/State Closure.
-2. Consolidate `PROJECT_STATE`, `DECISION_LOG`, `DEPRECATED_IDEAS`,
-   validation benchmark docs, and this next-session handoff.
-3. Record which PRs were completed, deferred, blocked, or superseded.
+1. Open a new spec only after refreshing the hardware-fit atlas or runtime
+   benchmark evidence that can change a parent-stage decision.
+2. Keep four lanes visible: Rust/control-flow, NumPy/SIMD numeric, GPU tensor
+   batch, and NN surrogate labels.
+3. Treat smoke artifacts as diagnostics only; validation claims still require
+   deterministic replay and invariant evidence.
 4. Keep Python baseline route legality and deterministic replay authoritative.
 5. Keep active-agent pool-array replacement and route path-build on the
    watchlist.

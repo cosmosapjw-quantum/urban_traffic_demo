@@ -1,5 +1,37 @@
 # Decision Log
 
+## 2026-07-10: Acceleration Roadmap Closure Requires Fresh Evidence Before New Spec
+
+Status: accepted
+
+### Context
+
+PR12 closed the spec-driven accelerated-runtime roadmap after PR08 through PR11.
+
+### Compact CCoT
+
+Question: What should happen after the roadmap closure?
+
+Evidence: PR08 opened only an optional NN experiment harness; PR09 deferred
+active-agent layout; PR10 and PR11 admitted zero-copy/Rayon and C++/CUDA only as
+future evidence-gated work.
+
+Inference: The next slice should not continue mechanically. It should begin
+only after refreshed atlas or runtime benchmark evidence can change a
+parent-stage decision.
+
+Counterevidence checked: Several lanes remain plausible, but none is authorized
+by roadmap closure alone.
+
+Decision: Treat PR12 as a consolidation point. New implementation specs must
+name the evidence they can falsify.
+
+Falsifier: A new benchmark or atlas-linked decision card identifies a
+parent-stage decision that changes under the existing guardrails.
+
+Next action: Start the next spec from refreshed evidence, not from stale PR
+momentum.
+
 ## 2026-07-10: C++/CUDA Requires One Narrow Evidence-Gated Kernel
 
 Status: accepted

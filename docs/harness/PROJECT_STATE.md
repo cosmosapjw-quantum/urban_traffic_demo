@@ -19,8 +19,9 @@ Facts:
   PR05 (`987cdbc`), PR06 (`c2c052f`), and PR07 (`b636b2a`) are complete.
 - PR08 (`29daebe`) is complete.
 - PR09 (`52e7aec`) and PR10 (`04554ca`) are complete.
-- PR11 C++/CUDA Admission RFC is accepted without authorizing C++/CUDA,
-  libtorch, CMake, or new runtime backend values.
+- PR11 (`55af343`) and PR12 are complete. The acceleration roadmap state is
+  consolidated without authorizing C++/CUDA, libtorch, CMake, Rayon, zero-copy
+  NumPy FFI, or new runtime backend values.
 
 ## Acceleration Evidence
 
@@ -65,7 +66,10 @@ Derived conclusions:
 - Static hardware-fit labels are not performance evidence unless linked to
   runtime stage timings or copy-inclusive microbench results.
 
-## Next Action
+## Next Implementation Decision
 
-Open PR12 as the PRD/State Closure. Consolidate roadmap state, decision logs,
-deprecated ideas, validation benchmark docs, and the next-session handoff.
+Open a new spec only after refreshing the hardware-fit atlas or runtime
+benchmark evidence that can change a parent-stage decision. The strongest
+watchlist lanes remain dynamic-potential/cache work, dense flow scaling,
+route-score batch probes, simulator-label-driven surrogate experiments, and
+active-agent pool-array replacement only if it becomes review-ready again.
