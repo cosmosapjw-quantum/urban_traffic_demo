@@ -448,6 +448,22 @@ def _build_metrics_summary_payload(
                 telemetry.dynamic_potential_cache_hits_total,
             )
         ),
+        "dynamic_potential_cache_pruned_total": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "dynamic_potential_cache_pruned_total",
+                telemetry.dynamic_potential_cache_pruned_total,
+            )
+        ),
+        "dynamic_potential_cache_entry_count": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "dynamic_potential_cache_entry_count",
+                telemetry.dynamic_potential_cache_entry_count,
+            )
+        ),
         "active_agent_moved_this_tick": int(
             _metric_value(
                 metrics_state,

@@ -575,6 +575,183 @@ def test_simulation_step_refreshes_route_cache_and_moves_active_agent_determinis
     assert third_state.dynamic.metrics_state["completed_trips_total"] == 1
 
 
+def test_runtime_route_potential_cache_prunes_stale_signature_entries() -> None:
+    from dataclasses import replace
+
+    from metroflow.demand.trips import TripRequestStatus
+    from metroflow.routing.dynamic_potential import DynamicPotentialState
+    from metroflow.sim.routing_runtime import (
+        SimulationRouteCacheState,
+        refresh_runtime_route_candidates,
+    )
+
+    state = _runtime_spine_state()
+    activated_trips = tuple(
+        replace(trip, status=TripRequestStatus.ACTIVATED)
+        for trip in state.dynamic.demand_state["trip_requests"]
+    )
+    state = state.with_dynamic_updates(
+        demand_state={
+            **state.dynamic.demand_state,
+            "trip_requests": activated_trips,
+            "activated_trip_requests": 1,
+        }
+    )
+    stale_potential = DynamicPotentialState(
+        destination_node_id=3,
+        destination_node_index=2,
+        node_cost_to_go=np.asarray([3.0, 2.0, 0.0], dtype=np.float32),
+        link_travel_time_cost=np.ones((2,), dtype=np.float32),
+        blocked_link_mask=np.zeros((2,), dtype=np.bool_),
+    )
+    stale_key = (
+        "dynamic_potential_backend",
+        "baseline",
+        (
+            "runtime_dynamic_potential",
+            ("runtime-spine-geom", 3, 2, 77, 0),
+            3,
+            state.config.route_max_hops,
+            state.config.route_max_candidates,
+        ),
+    )
+    stale_policy_key = (
+        "dynamic_potential_backend",
+        "baseline",
+        (
+            "runtime_dynamic_potential",
+            ("runtime-spine-geom", 3, 2, 0, 0),
+            3,
+            state.config.route_max_hops + 1,
+            state.config.route_max_candidates,
+        ),
+    )
+    stale_backend_key = (
+        "dynamic_potential_backend",
+        "rust_cpu",
+        (
+            "runtime_dynamic_potential",
+            ("runtime-spine-geom", 3, 2, 0, 0),
+            3,
+            state.config.route_max_hops,
+            state.config.route_max_candidates,
+        ),
+    )
+    state = state.with_dynamic_updates(
+        route_candidate_state=SimulationRouteCacheState(
+            potential_cache={
+                stale_key: stale_potential,
+                stale_policy_key: stale_potential,
+                stale_backend_key: stale_potential,
+            },
+            stats={"dynamic_potential_cache_pruned_total": 5},
+        )
+    )
+
+    route_state, counters = refresh_runtime_route_candidates(state, force_refresh=True)
+
+    assert stale_key not in route_state.potential_cache
+    assert stale_policy_key not in route_state.potential_cache
+    assert stale_backend_key not in route_state.potential_cache
+    assert len(route_state.potential_cache) == 1
+    assert route_state.stats["dynamic_potential_cache_pruned_total"] == 8
+    assert route_state.stats["dynamic_potential_cache_entry_count"] == 1
+    assert counters["dynamic_potential_cache_pruned_this_tick"] == 3
+    assert counters["dynamic_potential_cache_entry_count"] == 1
+
+
+def test_runtime_route_potential_cache_prunes_without_route_relevant_trips() -> None:
+    from metroflow.routing.dynamic_potential import DynamicPotentialState
+    from metroflow.sim.routing_runtime import (
+        SimulationRouteCacheState,
+        refresh_runtime_route_candidates,
+    )
+
+    state = _runtime_spine_state()
+    stale_potential = DynamicPotentialState(
+        destination_node_id=3,
+        destination_node_index=2,
+        node_cost_to_go=np.asarray([3.0, 2.0, 0.0], dtype=np.float32),
+        link_travel_time_cost=np.ones((2,), dtype=np.float32),
+        blocked_link_mask=np.zeros((2,), dtype=np.bool_),
+    )
+    stale_key = (
+        "dynamic_potential_backend",
+        "baseline",
+        (
+            "runtime_dynamic_potential",
+            ("runtime-spine-geom", 3, 2, 99, 0),
+            3,
+            state.config.route_max_hops,
+            state.config.route_max_candidates,
+        ),
+    )
+    state = state.with_dynamic_updates(
+        route_candidate_state=SimulationRouteCacheState(
+            potential_cache={stale_key: stale_potential},
+            stats={},
+        )
+    )
+
+    route_state, counters = refresh_runtime_route_candidates(state)
+
+    assert route_state.potential_cache == {}
+    assert route_state.stats["dynamic_potential_cache_pruned_total"] == 1
+    assert route_state.stats["dynamic_potential_cache_entry_count"] == 0
+    assert counters["dynamic_potential_cache_pruned_this_tick"] == 1
+    assert counters["dynamic_potential_cache_entry_count"] == 0
+
+
+def test_runtime_route_potential_cache_reuses_current_signature_entries(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from dataclasses import replace
+
+    from metroflow.demand.trips import TripRequest, TripRequestStatus
+    from metroflow.routing import dynamic_potential
+    from metroflow.sim.routing_runtime import refresh_runtime_route_candidates
+
+    state = _runtime_spine_state()
+    base_trip = state.dynamic.demand_state["trip_requests"][0]
+    second_trip = TripRequest(
+        trip_request_id=2,
+        citizen_id=202,
+        origin_poi_id=1,
+        dest_poi_id=2,
+        planned_depart_tick=0,
+        day_type=base_trip.day_type,
+        time_band=base_trip.time_band,
+    )
+    activated_trips = tuple(
+        replace(trip, status=TripRequestStatus.ACTIVATED) for trip in (base_trip, second_trip)
+    )
+    state = state.with_dynamic_updates(
+        demand_state={
+            **state.dynamic.demand_state,
+            "trip_requests": activated_trips,
+            "activated_trip_requests": 2,
+        }
+    )
+    calls = 0
+    original_compute = dynamic_potential._compute_node_cost_to_go
+
+    def counted_compute(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        return original_compute(*args, **kwargs)
+
+    monkeypatch.setattr(dynamic_potential, "_compute_node_cost_to_go", counted_compute)
+
+    route_state, counters = refresh_runtime_route_candidates(state, force_refresh=True)
+
+    assert calls == 1
+    assert route_state.stats["dynamic_potential_recompute_total"] == 1
+    assert route_state.stats["dynamic_potential_cache_hits_total"] == 1
+    assert route_state.stats["dynamic_potential_cache_entry_count"] == 1
+    assert counters["dynamic_potential_cache_hits_this_tick"] == 1
+    assert counters["dynamic_potential_cache_pruned_this_tick"] == 0
+
+
 def test_simulation_step_blocks_active_agent_movement_without_flow_outflow_budget() -> None:
     from metroflow.sim.control import SimulationControl
     from metroflow.sim.rng import key_from_seed
@@ -1009,6 +1186,8 @@ def test_runtime_route_timing_stats_propagate_to_run_summary(
                     "route_candidate_reuse_total": 1,
                     "dynamic_potential_recompute_total": 3,
                     "dynamic_potential_cache_hits_total": 4,
+                    "dynamic_potential_cache_pruned_total": 5,
+                    "dynamic_potential_cache_entry_count": 6,
                     "route_candidate_refresh_seconds_total": 0.125,
                     "dynamic_potential_recompute_seconds_total": 0.25,
                     "routing_compile_seconds_estimate_total": 0.5,
@@ -1046,11 +1225,15 @@ def test_runtime_route_timing_stats_propagate_to_run_summary(
     assert next_state.dynamic.metrics_state["route_candidate_refresh_seconds_total"] == 0.125
     assert next_state.dynamic.metrics_state["dynamic_potential_recompute_seconds_total"] == 0.25
     assert next_state.dynamic.metrics_state["routing_compile_seconds_estimate_total"] == 0.5
+    assert next_state.dynamic.metrics_state["dynamic_potential_cache_pruned_total"] == 5
+    assert next_state.dynamic.metrics_state["dynamic_potential_cache_entry_count"] == 6
     assert next_state.dynamic.metrics_state["agent_backend"] == "baseline"
     assert next_state.dynamic.metrics_state["active_agent_update_wall_ns"] >= 0
     assert summary.route_candidate_refresh_seconds_total == 0.125
     assert summary.dynamic_potential_recompute_seconds_total == 0.25
     assert summary.routing_compile_seconds_estimate_total == 0.5
+    assert summary.dynamic_potential_cache_pruned_total == 5
+    assert summary.dynamic_potential_cache_entry_count == 6
     assert summary.agent_backend == "baseline"
     assert summary.active_agent_update_wall_ns >= 0
 

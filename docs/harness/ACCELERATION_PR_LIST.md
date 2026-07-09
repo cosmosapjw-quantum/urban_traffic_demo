@@ -55,7 +55,7 @@ Status: complete in `31064c5`.
 
 ## PR02 — Atlas Decision-Card Closure
 
-Status: in progress.
+Status: complete in `b434258`.
 
 - Link workload matrix outputs to `hardware-fit-atlas` decision cards.
 - Render next-probe summaries for reviewer-facing markdown/HTML.
@@ -66,10 +66,15 @@ Status: in progress.
 
 ## PR03 — Dynamic-Potential Cache Amortization
 
+Status: complete in this PR.
+
 - Target destination potential recompute/cache behavior in the Python baseline.
-- Improve cache reuse and invalidation before adding any new backend.
+- Improve cache invalidation observability and stale-entry pruning before
+  adding any new backend or widening reuse policy.
 - Preserve baseline route legality and replay fingerprints.
-- Tests: cache hit/recompute counters, invalidation generation changes,
+- Scope guard: do not reuse potentials across `runtime_flow_generation` or
+  incident-generation changes.
+- Tests: cache hit/recompute/prune counters, invalidation generation changes,
   no-route behavior, replay parity.
 - Commit: `perf(routing): amortize dynamic potential cache`.
 

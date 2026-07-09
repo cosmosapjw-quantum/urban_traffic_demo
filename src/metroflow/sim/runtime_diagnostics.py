@@ -41,6 +41,8 @@ class RuntimeDiagnosticFrame:
     route_candidate_reuse_total: int
     dynamic_potential_recompute_total: int
     dynamic_potential_cache_hits_total: int
+    dynamic_potential_cache_pruned_total: int = 0
+    dynamic_potential_cache_entry_count: int = 0
     active_agent_sink_wait_this_tick: int = 0
     agent_backend: str = "baseline"
     active_agent_update_wall_ns: int = 0
@@ -66,6 +68,12 @@ class RuntimeDiagnosticFrame:
         self.route_candidate_reuse_total = int(self.route_candidate_reuse_total)
         self.dynamic_potential_recompute_total = int(self.dynamic_potential_recompute_total)
         self.dynamic_potential_cache_hits_total = int(self.dynamic_potential_cache_hits_total)
+        self.dynamic_potential_cache_pruned_total = int(
+            self.dynamic_potential_cache_pruned_total
+        )
+        self.dynamic_potential_cache_entry_count = int(
+            self.dynamic_potential_cache_entry_count
+        )
         self.agent_backend = str(self.agent_backend)
         self.active_agent_update_wall_ns = int(self.active_agent_update_wall_ns)
         if self.active_agent_update_wall_ns < 0:
@@ -101,6 +109,12 @@ class RuntimeDiagnosticFrame:
             "route_candidate_reuse_total": self.route_candidate_reuse_total,
             "dynamic_potential_recompute_total": self.dynamic_potential_recompute_total,
             "dynamic_potential_cache_hits_total": self.dynamic_potential_cache_hits_total,
+            "dynamic_potential_cache_pruned_total": (
+                self.dynamic_potential_cache_pruned_total
+            ),
+            "dynamic_potential_cache_entry_count": (
+                self.dynamic_potential_cache_entry_count
+            ),
             "agent_backend": self.agent_backend,
             "active_agent_update_wall_ns": self.active_agent_update_wall_ns,
             "sampled_link_congestion": tuple(dict(item) for item in self.sampled_link_congestion),
@@ -216,6 +230,8 @@ def render_runtime_diagnostic_html(report: RuntimeDiagnosticReport) -> str:
     <div class="metric">sink wait total<strong>{int(summary.get("active_agent_sink_wait_total", 0))}</strong></div>
     <div class="metric">agent backend<strong>{escape(str(summary.get("agent_backend", "baseline")))}</strong></div>
     <div class="metric">cache hits<strong>{int(summary.get("dynamic_potential_cache_hits_total", 0))}</strong></div>
+    <div class="metric">cache pruned<strong>{int(summary.get("dynamic_potential_cache_pruned_total", 0))}</strong></div>
+    <div class="metric">cache entries<strong>{int(summary.get("dynamic_potential_cache_entry_count", 0))}</strong></div>
   </section>
   <h2>Tick Timeline</h2>
   <div class="chart">{svg}</div>
@@ -286,6 +302,12 @@ def _build_diagnostic_frame(
         route_candidate_reuse_total=int(metrics.get("route_candidate_reuse_total", 0)),
         dynamic_potential_recompute_total=int(metrics.get("dynamic_potential_recompute_total", 0)),
         dynamic_potential_cache_hits_total=int(metrics.get("dynamic_potential_cache_hits_total", 0)),
+        dynamic_potential_cache_pruned_total=int(
+            metrics.get("dynamic_potential_cache_pruned_total", 0)
+        ),
+        dynamic_potential_cache_entry_count=int(
+            metrics.get("dynamic_potential_cache_entry_count", 0)
+        ),
         agent_backend=str(metrics.get("agent_backend", state.config.agent_backend)),
         active_agent_update_wall_ns=int(metrics.get("active_agent_update_wall_ns", 0)),
         sampled_link_congestion=tuple(snapshot.get("sampled_link_congestion", ()) or ()),
@@ -310,6 +332,12 @@ def _build_report_summary(
         "route_candidate_reuse_total": int(metrics.get("route_candidate_reuse_total", 0)),
         "dynamic_potential_recompute_total": int(metrics.get("dynamic_potential_recompute_total", 0)),
         "dynamic_potential_cache_hits_total": int(metrics.get("dynamic_potential_cache_hits_total", 0)),
+        "dynamic_potential_cache_pruned_total": int(
+            metrics.get("dynamic_potential_cache_pruned_total", 0)
+        ),
+        "dynamic_potential_cache_entry_count": int(
+            metrics.get("dynamic_potential_cache_entry_count", 0)
+        ),
         "agent_backend": str(metrics.get("agent_backend", state.config.agent_backend)),
         "active_agent_update_wall_ns": int(
             metrics.get("active_agent_update_wall_ns", 0)

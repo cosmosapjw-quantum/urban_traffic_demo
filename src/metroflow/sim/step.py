@@ -243,6 +243,8 @@ def _zero_tick_counters() -> dict[str, int]:
         "route_candidate_reuse_this_tick": 0,
         "dynamic_potential_recompute_this_tick": 0,
         "dynamic_potential_cache_hits_this_tick": 0,
+        "dynamic_potential_cache_pruned_this_tick": 0,
+        "dynamic_potential_cache_entry_count": 0,
         "flow_update_wall_ns": 0,
         "active_agent_update_wall_ns": 0,
         "reroute_decision_wall_ns": 0,
@@ -475,6 +477,12 @@ def _update_metrics_state(
             "dynamic_potential_cache_hits_total": int(
                 route_stats.get("dynamic_potential_cache_hits_total", 0)
             ),
+            "dynamic_potential_cache_pruned_total": int(
+                route_stats.get("dynamic_potential_cache_pruned_total", 0)
+            ),
+            "dynamic_potential_cache_entry_count": int(
+                route_stats.get("dynamic_potential_cache_entry_count", 0)
+            ),
             "route_candidate_refresh_seconds_total": float(
                 route_stats.get("route_candidate_refresh_seconds_total", 0.0)
             ),
@@ -556,6 +564,12 @@ def _build_step_telemetry(
         ),
         dynamic_potential_cache_hits_total=int(
             metrics_state.get("dynamic_potential_cache_hits_total", 0)
+        ),
+        dynamic_potential_cache_pruned_total=int(
+            metrics_state.get("dynamic_potential_cache_pruned_total", 0)
+        ),
+        dynamic_potential_cache_entry_count=int(
+            metrics_state.get("dynamic_potential_cache_entry_count", 0)
         ),
         active_agent_moved_this_tick=int(
             metrics_state.get("active_agent_moved_this_tick", 0)

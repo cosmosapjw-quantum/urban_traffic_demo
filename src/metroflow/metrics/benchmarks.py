@@ -171,6 +171,8 @@ class MeasuredRoutingBenchmarkResult:
     routing_copy_boundary_note: str
     dynamic_potential_recompute_total: int
     dynamic_potential_cache_hits_total: int
+    dynamic_potential_cache_pruned_total: int = 0
+    dynamic_potential_cache_entry_count: int = 0
     route_candidate_refresh_seconds_total: float = 0.0
     dynamic_potential_recompute_seconds_total: float = 0.0
 
@@ -208,6 +210,8 @@ class MeasuredRuntimeBenchmarkResult:
     route_candidate_reuse_total: int
     dynamic_potential_recompute_total: int
     dynamic_potential_cache_hits_total: int
+    dynamic_potential_cache_pruned_total: int = 0
+    dynamic_potential_cache_entry_count: int = 0
     seed: int | None = None
     route_candidate_refresh_seconds_total: float = 0.0
     route_candidate_potential_seconds_total: float = 0.0
@@ -580,6 +584,12 @@ def run_measured_routing_candidate_benchmark(
         dynamic_potential_cache_hits_total=int(
             stats.get("dynamic_potential_cache_hits_total", 0)
         ),
+        dynamic_potential_cache_pruned_total=int(
+            stats.get("dynamic_potential_cache_pruned_total", 0)
+        ),
+        dynamic_potential_cache_entry_count=int(
+            stats.get("dynamic_potential_cache_entry_count", 0)
+        ),
         route_candidate_refresh_seconds_total=float(
             stats.get("route_candidate_refresh_seconds_total", 0.0)
         ),
@@ -718,6 +728,12 @@ def run_measured_runtime_spine_benchmark(
         ),
         dynamic_potential_cache_hits_total=int(
             metrics_state.get("dynamic_potential_cache_hits_total", 0)
+        ),
+        dynamic_potential_cache_pruned_total=int(
+            metrics_state.get("dynamic_potential_cache_pruned_total", 0)
+        ),
+        dynamic_potential_cache_entry_count=int(
+            metrics_state.get("dynamic_potential_cache_entry_count", 0)
         ),
         seed=_runtime_state_seed(current_state),
         route_candidate_refresh_seconds_total=float(

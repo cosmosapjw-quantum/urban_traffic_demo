@@ -293,6 +293,8 @@ def _initial_metrics_state(trips: TripRequestGenerationResult) -> dict[str, Any]
         "route_candidate_reuse_total": 0,
         "dynamic_potential_recompute_total": 0,
         "dynamic_potential_cache_hits_total": 0,
+        "dynamic_potential_cache_pruned_total": 0,
+        "dynamic_potential_cache_entry_count": 0,
         "route_candidate_refresh_seconds_total": 0.0,
         "route_candidate_potential_seconds_total": 0.0,
         "route_candidate_path_build_seconds_total": 0.0,

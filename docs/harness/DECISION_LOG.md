@@ -1,5 +1,42 @@
 # Decision Log
 
+## 2026-07-10: Dynamic-Potential Cache Amortization Starts With Pruning
+
+Status: accepted
+
+### Context
+
+PR02 linked workload matrix coverage to hardware-fit decision cards. The next
+route-stage target is dynamic-potential recompute/cache behavior, but stale
+route-potential reuse would be unsafe because link flow and event generations
+affect travel costs.
+
+### Compact CCoT
+
+Question: What is the first safe dynamic-potential cache amortization step?
+
+Evidence: Runtime route-potential keys already include network identity,
+destination, max-hop/max-candidate policy, `runtime_flow_generation`, and
+`runtime_incident_generation`. Existing route state can still retain older
+cache entries after those signatures change.
+
+Inference: Pruning stale entries and reporting cache size/prune counters bounds
+runtime cache growth and makes invalidation auditable without changing route
+legality.
+
+Counterevidence checked: Removing flow generation from the key would improve
+reuse, but it can reuse costs after queue/capacity changes and is therefore not
+safe as a first slice.
+
+Decision: PR03 will add Python-baseline pruning and observability only. It will
+not widen dynamic-potential reuse across flow or incident generations.
+
+Falsifier: If replay parity or candidate paths change for identical current
+signatures, revert this slice before opening Rust/JAX/GPU route work.
+
+Next action: Run targeted cache tests, runtime-spine tests, review loops, then
+full gates before committing PR03.
+
 ## 2026-07-10: Spec-Driven Accelerated Runtime Roadmap
 
 Status: accepted

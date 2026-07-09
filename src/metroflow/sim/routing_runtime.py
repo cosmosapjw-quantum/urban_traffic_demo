@@ -110,10 +110,35 @@ def refresh_runtime_route_candidates(
     if road_csr is None or link_state is None:
         return route_state, _route_tick_counters(route_state.stats)
 
+    stats = dict(route_state.stats)
+    candidate_sets = dict(route_state.candidate_sets)
+    potential_cache = dict(route_state.potential_cache)
+    before = dict(stats)
+    potential_cache, pruned_count = _prune_stale_route_potential_cache(
+        potential_cache,
+        state=state,
+    )
+    if pruned_count:
+        stats["dynamic_potential_cache_pruned_total"] = int(
+            stats.get("dynamic_potential_cache_pruned_total", 0)
+        ) + int(pruned_count)
+    stats["dynamic_potential_cache_entry_count"] = int(len(potential_cache))
+
     demand_state = _demand_mapping(state)
     trips = _route_relevant_trip_requests(demand_state)
     if not trips:
-        return route_state, _route_tick_counters(route_state.stats)
+        next_state = SimulationRouteCacheState(
+            candidate_sets=candidate_sets,
+            potential_cache=potential_cache,
+            stats=stats,
+            cache_generation=route_state.cache_generation + 1,
+            last_signature=runtime_route_cache_fingerprint(
+                candidate_sets=candidate_sets,
+                stats=stats,
+                state=state,
+            ),
+        )
+        return next_state, _route_tick_counters(stats, before=before)
 
     pois_by_id = _pois_by_id(state)
     active_event_count = len(_active_events(state))
@@ -122,10 +147,6 @@ def refresh_runtime_route_candidates(
         max_candidates=state.config.route_max_candidates,
         max_hops=state.config.route_max_hops,
     )
-    stats = dict(route_state.stats)
-    candidate_sets = dict(route_state.candidate_sets)
-    potential_cache = dict(route_state.potential_cache)
-    before = dict(stats)
 
     for trip in trips:
         od = _trip_od_nodes(trip, pois_by_id)
@@ -153,6 +174,7 @@ def refresh_runtime_route_candidates(
             stats=stats,
         )
 
+    stats["dynamic_potential_cache_entry_count"] = int(len(potential_cache))
     next_state = SimulationRouteCacheState(
         candidate_sets=candidate_sets,
         potential_cache=potential_cache,
@@ -395,6 +417,13 @@ def _route_tick_counters(
             stats.get("dynamic_potential_cache_hits_total", 0)
         )
         - int(prior.get("dynamic_potential_cache_hits_total", 0)),
+        "dynamic_potential_cache_pruned_this_tick": int(
+            stats.get("dynamic_potential_cache_pruned_total", 0)
+        )
+        - int(prior.get("dynamic_potential_cache_pruned_total", 0)),
+        "dynamic_potential_cache_entry_count": int(
+            stats.get("dynamic_potential_cache_entry_count", 0)
+        ),
     }
 
 
@@ -1304,6 +1333,61 @@ def _route_potential_cache_key(
         int(state.config.route_max_hops),
         int(state.config.route_max_candidates),
     )
+
+
+def _prune_stale_route_potential_cache(
+    potential_cache: Mapping[Any, Any],
+    *,
+    state: SimulationState,
+) -> tuple[dict[Any, Any], int]:
+    """Drop runtime dynamic-potential entries for older state signatures."""
+
+    current_scope = _route_potential_cache_scope(state)
+    retained: dict[Any, Any] = {}
+    pruned = 0
+    for key, value in potential_cache.items():
+        if _route_potential_cache_key_scope(key) == current_scope:
+            retained[key] = value
+        else:
+            pruned += 1
+    return retained, pruned
+
+
+def _route_potential_cache_scope(state: SimulationState) -> tuple[Any, ...]:
+    return (
+        str(state.config.routing_backend),
+        _state_cache_signature(state),
+        int(state.config.route_max_hops),
+        int(state.config.route_max_candidates),
+    )
+
+
+def _route_potential_cache_key_scope(key: Any) -> tuple[Any, ...] | None:
+    if (
+        isinstance(key, tuple)
+        and len(key) == 3
+        and key[0] == "dynamic_potential_backend"
+        and isinstance(key[2], tuple)
+    ):
+        backend = str(key[1])
+        raw_key = key[2]
+    elif isinstance(key, tuple) and len(key) >= 5:
+        backend = "baseline"
+        raw_key = key
+    else:
+        return None
+    if (
+        len(raw_key) >= 5
+        and raw_key[0] == "runtime_dynamic_potential"
+        and isinstance(raw_key[1], tuple)
+    ):
+        return (
+            backend,
+            raw_key[1],
+            int(raw_key[3]),
+            int(raw_key[4]),
+        )
+    return None
 
 
 def _state_cache_signature(state: SimulationState | None) -> tuple[Any, ...] | None:

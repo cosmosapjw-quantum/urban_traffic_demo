@@ -15,6 +15,8 @@ Facts:
 - `docs/PRD_ACCELERATED_RUNTIME.md` and
   `docs/harness/ACCELERATION_PR_LIST.md` are the active long-term roadmap for
   spec-driven/subagent-driven acceleration work.
+- PR01 (`31064c5`), PR02 (`b434258`), and PR03 are complete. PR04 is the next
+  planned slice: Rust potential-only bakeoff without whole-runtime Rust routing.
 
 ## Acceleration Evidence
 
@@ -61,8 +63,6 @@ Derived conclusions:
 
 ## Next Action
 
-Follow `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md`, refresh the
-hardware-fit atlas, then open the next measured slice only when its decision
-card is supported by runtime stage timings or a copy-inclusive microbench. The
-next roadmap slice is PR01 Workload Matrix v1 in
-`docs/harness/ACCELERATION_PR_LIST.md`.
+Open PR04 as a Rust potential-only bakeoff. Do not enable whole-runtime Rust
+routing or relax the current flow/event generation cache key unless a later
+multi-seed probe proves the change is safe and decision-changing.

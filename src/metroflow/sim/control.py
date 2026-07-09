@@ -82,6 +82,8 @@ class SimulationTelemetry:
     route_candidate_reuse_total: int = 0
     dynamic_potential_recompute_total: int = 0
     dynamic_potential_cache_hits_total: int = 0
+    dynamic_potential_cache_pruned_total: int = 0
+    dynamic_potential_cache_entry_count: int = 0
     active_agent_moved_this_tick: int = 0
     active_agent_sink_wait_this_tick: int = 0
     active_agent_rerouted_this_tick: int = 0
@@ -110,6 +112,12 @@ class SimulationTelemetry:
         self.route_candidate_reuse_total = int(self.route_candidate_reuse_total)
         self.dynamic_potential_recompute_total = int(self.dynamic_potential_recompute_total)
         self.dynamic_potential_cache_hits_total = int(self.dynamic_potential_cache_hits_total)
+        self.dynamic_potential_cache_pruned_total = int(
+            self.dynamic_potential_cache_pruned_total
+        )
+        self.dynamic_potential_cache_entry_count = int(
+            self.dynamic_potential_cache_entry_count
+        )
         self.active_agent_moved_this_tick = int(self.active_agent_moved_this_tick)
         self.active_agent_sink_wait_this_tick = int(self.active_agent_sink_wait_this_tick)
         self.active_agent_rerouted_this_tick = int(self.active_agent_rerouted_this_tick)
@@ -150,6 +158,14 @@ class SimulationTelemetry:
         _validate_non_negative(
             self.dynamic_potential_cache_hits_total,
             "dynamic_potential_cache_hits_total",
+        )
+        _validate_non_negative(
+            self.dynamic_potential_cache_pruned_total,
+            "dynamic_potential_cache_pruned_total",
+        )
+        _validate_non_negative(
+            self.dynamic_potential_cache_entry_count,
+            "dynamic_potential_cache_entry_count",
         )
         _validate_non_negative(
             self.active_agent_moved_this_tick,
@@ -200,6 +216,8 @@ class SimulationTelemetry:
             "route_candidate_reuse_total": self.route_candidate_reuse_total,
             "dynamic_potential_recompute_total": self.dynamic_potential_recompute_total,
             "dynamic_potential_cache_hits_total": self.dynamic_potential_cache_hits_total,
+            "dynamic_potential_cache_pruned_total": self.dynamic_potential_cache_pruned_total,
+            "dynamic_potential_cache_entry_count": self.dynamic_potential_cache_entry_count,
             "active_agent_moved_this_tick": self.active_agent_moved_this_tick,
             "active_agent_sink_wait_this_tick": self.active_agent_sink_wait_this_tick,
             "active_agent_rerouted_this_tick": self.active_agent_rerouted_this_tick,

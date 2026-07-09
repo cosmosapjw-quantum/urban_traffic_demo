@@ -930,6 +930,8 @@ def _run_lightweight_benchmark_smoke(
         "route_candidate_reuse_total": 0,
         "dynamic_potential_recompute_total": 0,
         "dynamic_potential_cache_hits_total": 0,
+        "dynamic_potential_cache_pruned_total": 0,
+        "dynamic_potential_cache_entry_count": 0,
         "route_candidate_refresh_seconds_total": 0.0,
         "dynamic_potential_recompute_seconds_total": 0.0,
         "routing_compile_seconds_estimate_total": 0.0,

@@ -40,6 +40,8 @@ class BenchmarkReport:
     route_candidate_reuse_total: int | None = None
     dynamic_potential_recompute_total: int | None = None
     dynamic_potential_cache_hits_total: int | None = None
+    dynamic_potential_cache_pruned_total: int | None = None
+    dynamic_potential_cache_entry_count: int | None = None
     route_path_size_gamma: float | None = None
     route_candidate_refresh_seconds_total: float | None = None
     dynamic_potential_recompute_seconds_total: float | None = None
@@ -100,6 +102,12 @@ def benchmark_report_from_run_summary(
         route_candidate_reuse_total=_as_optional_int(run_summary.get("route_candidate_reuse_total")),
         dynamic_potential_recompute_total=_as_optional_int(run_summary.get("dynamic_potential_recompute_total")),
         dynamic_potential_cache_hits_total=_as_optional_int(run_summary.get("dynamic_potential_cache_hits_total")),
+        dynamic_potential_cache_pruned_total=_as_optional_int(
+            run_summary.get("dynamic_potential_cache_pruned_total")
+        ),
+        dynamic_potential_cache_entry_count=_as_optional_int(
+            run_summary.get("dynamic_potential_cache_entry_count")
+        ),
         route_path_size_gamma=_as_optional_float(run_summary.get("route_path_size_gamma")),
         route_candidate_refresh_seconds_total=_as_optional_float(
             run_summary.get("route_candidate_refresh_seconds_total")
@@ -194,11 +202,13 @@ def format_benchmark_report_markdown(report: BenchmarkReport) -> str:
             f"- p10 tick rate (Hz): {_fmt(report.tick_rate_p10_hz)}",
             f"- Invariant violations (counts): {_fmt_mapping(report.invariant_violations)}",
             (
-                "- Routing perf (candidate refresh/reuse, dyn-potential recompute/cache-hit): "
+                "- Routing perf (candidate refresh/reuse, dyn-potential recompute/cache-hit/pruned/entries): "
                 f"{_fmt(report.route_candidate_refresh_total)} / "
                 f"{_fmt(report.route_candidate_reuse_total)} / "
                 f"{_fmt(report.dynamic_potential_recompute_total)} / "
-                f"{_fmt(report.dynamic_potential_cache_hits_total)}"
+                f"{_fmt(report.dynamic_potential_cache_hits_total)} / "
+                f"{_fmt(report.dynamic_potential_cache_pruned_total)} / "
+                f"{_fmt(report.dynamic_potential_cache_entry_count)}"
             ),
             f"- Route path-size gamma: {_fmt(report.route_path_size_gamma)}",
             (

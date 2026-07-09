@@ -207,6 +207,12 @@ def _summary_metrics(
         "dynamic_potential_cache_hits_total": int(
             metrics_state.get("dynamic_potential_cache_hits_total", 0)
         ),
+        "dynamic_potential_cache_pruned_total": int(
+            metrics_state.get("dynamic_potential_cache_pruned_total", 0)
+        ),
+        "dynamic_potential_cache_entry_count": int(
+            metrics_state.get("dynamic_potential_cache_entry_count", 0)
+        ),
         "active_agent_moved_this_tick": int(
             metrics_state.get("active_agent_moved_this_tick", 0)
         ),
