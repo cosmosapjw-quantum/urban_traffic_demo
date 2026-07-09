@@ -1,12 +1,15 @@
 from dataclasses import dataclass, field, replace
+import hashlib
 from time import perf_counter_ns
+
+import numpy as np
 
 from metroflow.core.contracts import TickSchedule
 from metroflow.core.state import WorldState
 from metroflow.flow.engine import FlowUpdateBackend, update_link_node_flow
 from metroflow.flow.state import LinkState, NodeState
 from metroflow.city.graph import RoadNetworkCSR
-from metroflow.routing.dynamic_potential import RoutingBackend
+from metroflow.routing.dynamic_potential import RoutingBackend, compute_dynamic_potential_state
 from metroflow.routing.candidates import create_route_candidate_set
 from metroflow.traffic.meso import EdgeEvolutionBackend
 from metroflow.sim.control import SimulationControl
@@ -60,6 +63,14 @@ class MeasuredRoutingBenchmarkConfig:
     incoming_link_id: int | None = None
     max_hops: int = 64
     max_candidates: int = 1
+
+
+@dataclass(frozen=True)
+class MeasuredDynamicPotentialBenchmarkConfig:
+    workload_name: str
+    num_steps: int
+    destination_node_id: int
+    routing_backend: RoutingBackend = "baseline"
 
 
 @dataclass(frozen=True)
@@ -175,6 +186,28 @@ class MeasuredRoutingBenchmarkResult:
     dynamic_potential_cache_entry_count: int = 0
     route_candidate_refresh_seconds_total: float = 0.0
     dynamic_potential_recompute_seconds_total: float = 0.0
+
+
+@dataclass(frozen=True)
+class MeasuredDynamicPotentialBenchmarkResult:
+    name: str
+    workload_name: str
+    wall_clock_ns: int
+    num_steps: int
+    node_count: int
+    link_count: int
+    destination_node_id: int
+    destination_node_index: int
+    routing_backend: RoutingBackend
+    routing_backend_requested: str
+    routing_backend_actual: str
+    routing_backend_fallback: str | None
+    routing_copy_boundary_note: str
+    dynamic_potential_recompute_total: int
+    dynamic_potential_cache_hits_total: int
+    dynamic_potential_recompute_seconds_total: float
+    node_cost_fingerprint: str
+    reachable_node_count: int
 
 
 @dataclass(frozen=True)
@@ -488,6 +521,75 @@ def run_measured_flow_update_benchmark(
         turn_count=node_state.turn_count,
         flow_backend=config.flow_backend,
         copy_boundary_note=_flow_copy_boundary_note(config.flow_backend),
+    )
+
+
+def run_measured_dynamic_potential_benchmark(
+    road_csr: RoadNetworkCSR,
+    link_state: LinkState,
+    config: MeasuredDynamicPotentialBenchmarkConfig,
+) -> MeasuredDynamicPotentialBenchmarkResult:
+    workload_name = config.workload_name.strip()
+    if not workload_name:
+        raise ValueError("workload_name must be non-empty.")
+    if config.num_steps <= 0:
+        raise ValueError("num_steps must be positive.")
+    if link_state.link_count != road_csr.link_count:
+        raise ValueError("link_state.link_count must match road_csr.link_count.")
+
+    potential_state = None
+    routing_backend_requested = str(config.routing_backend)
+    routing_backend_actual = str(config.routing_backend)
+    routing_backend_fallback: str | None = None
+    stats: dict[str, object] = {}
+    start_ns = perf_counter_ns()
+    for _ in range(config.num_steps):
+        potential_state = compute_dynamic_potential_state(
+            road_csr,
+            destination_node_id=int(config.destination_node_id),
+            link_state=link_state,
+            routing_backend=config.routing_backend,
+            stats=stats,
+        )
+        metadata = potential_state.metadata
+        routing_backend_requested = str(
+            metadata.get("routing_backend_requested", config.routing_backend)
+        )
+        routing_backend_actual = str(metadata.get("routing_backend", config.routing_backend))
+        fallback = metadata.get("routing_backend_fallback")
+        routing_backend_fallback = None if fallback is None else str(fallback)
+    elapsed_ns = perf_counter_ns() - start_ns
+    if potential_state is None:
+        raise RuntimeError("dynamic potential benchmark did not execute")
+
+    node_cost = np.ascontiguousarray(potential_state.node_cost_to_go, dtype=np.float32)
+    return MeasuredDynamicPotentialBenchmarkResult(
+        name="measured_dynamic_potential",
+        workload_name=workload_name,
+        wall_clock_ns=max(elapsed_ns, 0),
+        num_steps=config.num_steps,
+        node_count=road_csr.node_count,
+        link_count=road_csr.link_count,
+        destination_node_id=int(config.destination_node_id),
+        destination_node_index=int(potential_state.destination_node_index),
+        routing_backend=config.routing_backend,
+        routing_backend_requested=routing_backend_requested,
+        routing_backend_actual=routing_backend_actual,
+        routing_backend_fallback=routing_backend_fallback,
+        routing_copy_boundary_note=_dynamic_potential_copy_boundary_note(
+            config.routing_backend
+        ),
+        dynamic_potential_recompute_total=int(
+            stats.get("dynamic_potential_recompute_total", 0)
+        ),
+        dynamic_potential_cache_hits_total=int(
+            stats.get("dynamic_potential_cache_hits_total", 0)
+        ),
+        dynamic_potential_recompute_seconds_total=float(
+            stats.get("dynamic_potential_recompute_seconds_total", 0.0)
+        ),
+        node_cost_fingerprint=hashlib.sha256(node_cost.tobytes()).hexdigest(),
+        reachable_node_count=int(np.count_nonzero(node_cost < 1e12)),
     )
 
 
@@ -1038,6 +1140,14 @@ def _routing_copy_boundary_note(routing_backend: str) -> str:
             "and reroute decision when available"
         )
     return "numpy baseline"
+
+
+def _dynamic_potential_copy_boundary_note(routing_backend: str) -> str:
+    if routing_backend == "rust_cpu":
+        return "rust_cpu Vec copy boundary for dynamic-potential only"
+    if routing_backend == "auto":
+        return "auto rust_cpu Vec copy boundary for dynamic-potential only when available"
+    return "numpy baseline dynamic-potential only"
 
 
 def _agent_copy_boundary_note(agent_backend: str) -> str:

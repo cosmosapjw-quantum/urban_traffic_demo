@@ -66,7 +66,7 @@ Status: complete in `b434258`.
 
 ## PR03 — Dynamic-Potential Cache Amortization
 
-Status: complete in this PR.
+Status: complete in `e292685`.
 
 - Target destination potential recompute/cache behavior in the Python baseline.
 - Improve cache invalidation observability and stale-entry pruning before
@@ -79,6 +79,8 @@ Status: complete in this PR.
 - Commit: `perf(routing): amortize dynamic potential cache`.
 
 ## PR04 — Rust Potential-Only Bakeoff
+
+Status: complete in this PR.
 
 - Compare Python and Rust dynamic-potential only.
 - Do not enable whole-runtime Rust routing.

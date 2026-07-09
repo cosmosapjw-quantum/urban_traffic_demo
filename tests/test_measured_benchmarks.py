@@ -11,6 +11,8 @@ from metroflow.core.state import TrafficState, make_empty_world_state
 from metroflow.flow.state import create_link_state, create_node_state
 from metroflow.metrics.benchmarks import (
     BenchmarkResult,
+    MeasuredDynamicPotentialBenchmarkConfig,
+    MeasuredDynamicPotentialBenchmarkResult,
     MeasuredFlowBenchmarkConfig,
     MeasuredFlowBenchmarkResult,
     MeasuredBenchmarkConfig,
@@ -23,6 +25,7 @@ from metroflow.metrics.benchmarks import (
     MeasuredRuntimeBenchmarkSuiteResult,
     RuntimeStageTiming,
     run_city_smoke_benchmark,
+    run_measured_dynamic_potential_benchmark,
     run_measured_flow_update_benchmark,
     run_measured_routing_candidate_benchmark,
     run_measured_runtime_spine_benchmark_suite,
@@ -374,6 +377,185 @@ def test_measured_routing_candidate_benchmark_records_baseline_path_metadata():
     assert result.dynamic_potential_cache_hits_total == 0
     assert result.route_candidate_refresh_seconds_total >= 0.0
     assert result.dynamic_potential_recompute_seconds_total >= 0.0
+
+
+def test_measured_dynamic_potential_benchmark_is_potential_only(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    road_csr, link_state = make_measured_routing_fixture()
+
+    def fail_candidate_generation(**_kwargs):
+        raise AssertionError("potential-only benchmark must not build route candidates")
+
+    monkeypatch.setattr(
+        benchmark_module,
+        "create_route_candidate_set",
+        fail_candidate_generation,
+    )
+
+    result = run_measured_dynamic_potential_benchmark(
+        road_csr,
+        link_state,
+        MeasuredDynamicPotentialBenchmarkConfig(
+            workload_name="baseline-potential-only",
+            num_steps=2,
+            destination_node_id=4,
+            routing_backend="baseline",
+        ),
+    )
+
+    assert isinstance(result, MeasuredDynamicPotentialBenchmarkResult)
+    assert result.name == "measured_dynamic_potential"
+    assert result.routing_backend == "baseline"
+    assert result.routing_backend_requested == "baseline"
+    assert result.routing_backend_actual == "baseline"
+    assert result.routing_backend_fallback is None
+    assert result.routing_copy_boundary_note == "numpy baseline dynamic-potential only"
+    assert result.node_count == 4
+    assert result.link_count == 4
+    assert result.destination_node_id == 4
+    assert result.dynamic_potential_recompute_total == 2
+    assert result.dynamic_potential_cache_hits_total == 0
+    assert result.reachable_node_count == 4
+    assert result.node_cost_fingerprint
+
+
+def test_measured_dynamic_potential_benchmark_auto_fallback_records_metadata(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    from metroflow.routing import dynamic_potential
+
+    road_csr, link_state = make_measured_routing_fixture()
+    monkeypatch.setattr(dynamic_potential, "rust_routing_backend_available", lambda: False)
+
+    result = run_measured_dynamic_potential_benchmark(
+        road_csr,
+        link_state,
+        MeasuredDynamicPotentialBenchmarkConfig(
+            workload_name="auto-potential-only",
+            num_steps=1,
+            destination_node_id=4,
+            routing_backend="auto",
+        ),
+    )
+
+    assert result.routing_backend == "auto"
+    assert result.routing_backend_requested == "auto"
+    assert result.routing_backend_actual == "baseline"
+    assert result.routing_backend_fallback == "rust_cpu_unavailable"
+    assert result.routing_copy_boundary_note == (
+        "auto rust_cpu Vec copy boundary for dynamic-potential only when available"
+    )
+
+
+def test_measured_dynamic_potential_benchmark_explicit_rust_fails_closed(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    from metroflow.routing import dynamic_potential
+
+    road_csr, link_state = make_measured_routing_fixture()
+    monkeypatch.setattr(dynamic_potential, "rust_routing_backend_available", lambda: True)
+
+    def fail_rust(**_kwargs):
+        raise RuntimeError("Rust CPU routing backend unavailable")
+
+    monkeypatch.setattr(
+        dynamic_potential,
+        "compute_dynamic_potential_node_costs_rust",
+        fail_rust,
+    )
+
+    with pytest.raises(RuntimeError, match="Rust CPU routing backend unavailable"):
+        run_measured_dynamic_potential_benchmark(
+            road_csr,
+            link_state,
+            MeasuredDynamicPotentialBenchmarkConfig(
+                workload_name="rust-potential-only",
+                num_steps=1,
+                destination_node_id=4,
+                routing_backend="rust_cpu",
+            ),
+        )
+
+
+def test_measured_dynamic_potential_benchmark_rust_matches_baseline_when_available():
+    from metroflow.backends.rust_cpu import rust_routing_backend_available
+
+    if not rust_routing_backend_available():
+        pytest.skip("_metroflow_rust extension is not importable")
+
+    road_csr, link_state = make_measured_routing_fixture()
+    baseline = run_measured_dynamic_potential_benchmark(
+        road_csr,
+        link_state,
+        MeasuredDynamicPotentialBenchmarkConfig(
+            workload_name="baseline-potential-only",
+            num_steps=1,
+            destination_node_id=4,
+            routing_backend="baseline",
+        ),
+    )
+    accelerated = run_measured_dynamic_potential_benchmark(
+        road_csr,
+        link_state,
+        MeasuredDynamicPotentialBenchmarkConfig(
+            workload_name="rust-potential-only",
+            num_steps=1,
+            destination_node_id=4,
+            routing_backend="rust_cpu",
+        ),
+    )
+
+    assert accelerated.routing_backend_actual == "rust_cpu"
+    assert accelerated.node_cost_fingerprint == baseline.node_cost_fingerprint
+    assert accelerated.reachable_node_count == baseline.reachable_node_count
+
+
+def test_measured_dynamic_potential_benchmark_generated_od_rust_parity_when_available():
+    from metroflow.backends.rust_cpu import rust_routing_backend_available
+    from metroflow.sim.config import SimulationConfig
+    from metroflow.sim.init import build_initial_simulation_state
+
+    if not rust_routing_backend_available():
+        pytest.skip("_metroflow_rust extension is not importable")
+
+    bundle = build_initial_simulation_state(
+        config=SimulationConfig(population_target=512),
+        scenario_seed=44,
+        eager_trip_generation=True,
+    )
+    state = bundle.state
+    road_csr = state.static.routing_static["road_csr"]
+    link_state = state.dynamic.flow_link_state
+    trip = state.dynamic.demand_state["trip_requests"][0]
+    pois_by_id = {int(poi.poi_id): poi for poi in state.static.pois}
+    destination_node_id = int(pois_by_id[int(trip.dest_poi_id)].node_id)
+    baseline = run_measured_dynamic_potential_benchmark(
+        road_csr,
+        link_state,
+        MeasuredDynamicPotentialBenchmarkConfig(
+            workload_name="generated-od-baseline-potential-only",
+            num_steps=1,
+            destination_node_id=destination_node_id,
+            routing_backend="baseline",
+        ),
+    )
+    accelerated = run_measured_dynamic_potential_benchmark(
+        road_csr,
+        link_state,
+        MeasuredDynamicPotentialBenchmarkConfig(
+            workload_name="generated-od-rust-potential-only",
+            num_steps=1,
+            destination_node_id=destination_node_id,
+            routing_backend="rust_cpu",
+        ),
+    )
+
+    assert accelerated.routing_backend_actual == "rust_cpu"
+    assert accelerated.node_count == baseline.node_count
+    assert accelerated.link_count == baseline.link_count
+    assert accelerated.destination_node_id == baseline.destination_node_id
+    assert accelerated.node_cost_fingerprint == baseline.node_cost_fingerprint
 
 
 def test_route_candidate_set_records_internal_refresh_timing_breakdown():

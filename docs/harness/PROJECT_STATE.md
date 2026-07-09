@@ -15,8 +15,8 @@ Facts:
 - `docs/PRD_ACCELERATED_RUNTIME.md` and
   `docs/harness/ACCELERATION_PR_LIST.md` are the active long-term roadmap for
   spec-driven/subagent-driven acceleration work.
-- PR01 (`31064c5`), PR02 (`b434258`), and PR03 are complete. PR04 is the next
-  planned slice: Rust potential-only bakeoff without whole-runtime Rust routing.
+- PR01 (`31064c5`), PR02 (`b434258`), PR03 (`e292685`), and PR04 are
+  complete. PR05 dense flow scale probe is next.
 
 ## Acceleration Evidence
 
@@ -63,6 +63,6 @@ Derived conclusions:
 
 ## Next Action
 
-Open PR04 as a Rust potential-only bakeoff. Do not enable whole-runtime Rust
-routing or relax the current flow/event generation cache key unless a later
-multi-seed probe proves the change is safe and decision-changing.
+Open PR05 as a dense flow scale probe. Do not add custom CUDA or GPU runtime
+config values; compare NumPy baseline, Rust flow, and optional JAX only through
+copy/compile-aware measured probes.

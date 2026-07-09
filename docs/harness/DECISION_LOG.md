@@ -1,5 +1,40 @@
 # Decision Log
 
+## 2026-07-10: Rust Potential Bakeoff Must Stay Potential-Only
+
+Status: accepted
+
+### Context
+
+Dynamic-potential recompute remains a review-ready route substage, while prior
+whole-runtime Rust routing was slower because it included path-build and
+metadata copy-boundary work. PR04 therefore needs a measured potential-only
+contract before any routing-backend widening.
+
+### Compact CCoT
+
+Question: How should Rust potential be measured without re-authorizing
+whole-runtime Rust routing?
+
+Evidence: Existing route candidate benchmarks call full candidate generation,
+which mixes potential recompute with greedy/ranked path building, route
+metadata, selection, and fallback metadata.
+
+Inference: A separate `measured_dynamic_potential` benchmark is needed to test
+only the destination cost-to-go core and its Vec copy boundary.
+
+Counterevidence checked: Whole-runtime Rust routing evidence remains negative
+for the eager suite and must not be used as proof that the narrower potential
+core is bad or good.
+
+Decision: PR04 adds only the potential-only measured benchmark and parity
+checks. Runtime routing defaults and route legality remain unchanged.
+
+Falsifier: If the benchmark calls route-candidate generation, changes runtime
+routing defaults, or treats smoke timing as validation, revert the PR.
+
+Next action: Review, gate, and commit PR04 before opening dense-flow probes.
+
 ## 2026-07-10: Dynamic-Potential Cache Amortization Starts With Pruning
 
 Status: accepted
