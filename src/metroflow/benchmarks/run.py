@@ -40,6 +40,7 @@ __all__ = [
     "run_benchmark",
     "execute_benchmark",
     "run_runtime_benchmark_suite",
+    "run_hardware_atlas",
     "write_runtime_benchmark_suite_artifact_bundle",
     "main",
 ]
@@ -253,6 +254,28 @@ def run_runtime_benchmark_suite(
         "suite_result": suite_result,
         "gpu_candidate_gate_report": suite_result.gpu_candidate_gate_report,
         "report": format_runtime_benchmark_suite_markdown(suite_result),
+        "report_data": report_data,
+    }
+
+
+def run_hardware_atlas(
+    *,
+    source_root: str | Path | None = None,
+    runtime_suite_payload: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build a hardware-fit atlas and return report text plus machine-readable data."""
+
+    from metroflow.benchmarks.hardware_atlas import (
+        build_hardware_atlas,
+        format_hardware_atlas_markdown,
+    )
+
+    report_data = build_hardware_atlas(
+        source_root=source_root,
+        runtime_suite_payload=runtime_suite_payload,
+    )
+    return {
+        "report": format_hardware_atlas_markdown(report_data),
         "report_data": report_data,
     }
 
@@ -546,6 +569,28 @@ def evaluate_canonical_64_seed_budget(
 
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
+    if args.hardware_atlas:
+        from metroflow.benchmarks.hardware_atlas import write_hardware_atlas_artifact_bundle
+
+        runtime_suite_payload = None
+        if args.hardware_atlas_runtime_suite_json is not None:
+            runtime_suite_path = Path(args.hardware_atlas_runtime_suite_json)
+            runtime_suite_payload = json.loads(runtime_suite_path.read_text(encoding="utf-8"))
+        result = run_hardware_atlas(
+            source_root=args.hardware_atlas_source_root,
+            runtime_suite_payload=runtime_suite_payload,
+        )
+        print("MetroFlow hardware fit atlas complete.")
+        print("Atlas:", f"source_root={args.hardware_atlas_source_root}")
+        if args.hardware_atlas_artifact_prefix is not None:
+            bundle_paths = write_hardware_atlas_artifact_bundle(
+                result["report_data"],
+                output_prefix=args.hardware_atlas_artifact_prefix,
+            )
+            print("Bundle:", f"manifest={bundle_paths['manifest']}")
+        print(str(result["report"]))
+        return 0
+
     if args.runtime_suite:
         runtime_suite_kwargs: dict[str, Any] = {
             "workload_name": args.runtime_suite_workload,
@@ -687,6 +732,17 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
         default=None,
         help="Optional runtime suite routing backend override.",
     )
+    parser.add_argument("--hardware-atlas", action="store_true")
+    parser.add_argument(
+        "--hardware-atlas-source-root",
+        default=str(Path(__file__).resolve().parents[1]),
+        help="Source root to statically scan for the hardware-fit atlas.",
+    )
+    parser.add_argument(
+        "--hardware-atlas-runtime-suite-json",
+        help="Optional runtime suite JSON payload used to link stage timings.",
+    )
+    parser.add_argument("--hardware-atlas-artifact-prefix")
     args = parser.parse_args(argv)
     if args.duration_ticks < 0:
         parser.error("--duration-ticks must be >= 0")

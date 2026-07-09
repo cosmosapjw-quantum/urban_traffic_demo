@@ -147,6 +147,14 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   적합도, Rust CPU 적합도, custom CUDA 적합도, 다음 timing probe를 기록한다. coarse stage와 nested
   stage가 함께 측정되면 `timing_overlap_warning`을 남겨 mean share 합계를 exclusive wall-clock
   partition으로 오독하지 않게 해야 한다
+- hardware-fit atlas는 `python -m metroflow.benchmarks.run --hardware-atlas
+  --hardware-atlas-artifact-prefix artifacts/runtime_spine_review/hardware-fit-atlas`로 생성한다.
+  이 artifact는 AST/text 기반으로 function/class symbol의 role tag, data surface, hotspot signal,
+  Rust CPU/NumPy-SIMD/JAX-GPU/future torch/custom CUDA/NN surrogate/keep-Python 적합도,
+  compact CCoT, decision card를 기록한다
+- hardware-fit atlas는 JAX, torch, CUDA, `_metroflow_rust`를 import하지 않아야 한다. runtime suite
+  JSON을 `--hardware-atlas-runtime-suite-json`으로 전달하면 stage timing을 symbol group에 연결하지만,
+  이 연결은 다음 probe 선택 자료이지 validation claim이나 backend 구현 허가가 아니다
 - nested stage는 coarse stage를 대체하지 않는다. route-candidate potential/path-build/metadata와
   active-agent allocation/candidate-selection/pool-write/movement는 병목 분해용 evidence이며,
   합산값을 runtime 전체 share로 재해석하면 안 된다

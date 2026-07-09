@@ -143,6 +143,15 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   timing overlap 경고를 남기며, C++/CUDA 또는 NN 구현 허가가 아니라 다음 실험 선택 자료다.
   manifest의 `*_candidate_stage_names`는 구조적 적합도 목록이고, `*_review_ready_stage_names`는
   현재 workload의 GPU gate까지 통과한 목록이다.
+- whole-code hardware-fit atlas는 static AST/text scan으로 function/class symbol의 role tag,
+  data surface, hotspot signal, hardware fit, compact CCoT, decision card를 만든다. 이 artifact는
+  JAX, torch, CUDA, `_metroflow_rust`를 import하지 않으며, GPU/C++/NN 구현 허가가 아니라
+  다음 measurement probe 선택 자료다.
+  `python -m metroflow.benchmarks.run --hardware-atlas --hardware-atlas-artifact-prefix
+  artifacts/runtime_spine_review/hardware-fit-atlas`로 `.md`, `.json`, `.html`, `.manifest.json`
+  bundle을 생성한다. 기존 runtime suite JSON을 함께 연결하려면
+  `--hardware-atlas-runtime-suite-json artifacts/runtime_spine_review/runtime-suite-eager-smoke.json`을
+  추가한다.
 - isolated routing candidate benchmark는 `run_measured_routing_candidate_benchmark`를 사용하며
   dynamic-potential recompute/cache counters와 timing totals, final candidate path, ranked-K candidate
   paths/costs/path-size metadata, routing copy-boundary note를 기록한다.

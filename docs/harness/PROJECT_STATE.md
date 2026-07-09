@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-07-09
+Last updated: 2026-07-10
 
 ## Runtime Baseline
 
@@ -10,6 +10,8 @@ Facts:
 - Default runtime authority is Python/NumPy deterministic baseline.
 - Rust CPU backend is optional and explicit/fail-closed.
 - JAX CUDA 13 remains optional for RTX 3080 Ti 12GB experiments.
+- Whole-code hardware-fit atlas is the current step-back artifact for choosing
+  Rust CPU, NumPy/SIMD, JAX/GPU, NN surrogate, or keep-Python lanes.
 
 ## Acceleration Evidence
 
@@ -51,9 +53,11 @@ Derived conclusions:
   partitions.
 - Repeated instrumentation can become a local-minimum trap if it no longer
   changes the next implementation decision.
+- Static hardware-fit labels are not performance evidence unless linked to
+  runtime stage timings or copy-inclusive microbench results.
 
 ## Next Action
 
-Follow `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md` and open a
-narrow dynamic-potential recompute/cache-amortization slice while keeping Python
-baseline route legality authoritative.
+Follow `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md`, refresh the
+hardware-fit atlas, then open the next measured slice only when its decision
+card is supported by runtime stage timings or a copy-inclusive microbench.

@@ -1,7 +1,7 @@
 # Runtime Acceleration Decision Guardrails
 
 Status: active
-Last updated: 2026-07-09
+Last updated: 2026-07-10
 
 This document controls runtime backend/NN triage after the deep acceleration
 audit. It exists to prevent local-minimum optimization loops, evidence drift,
@@ -14,6 +14,7 @@ Applies to:
 - Rust CPU backend migration choices.
 - JAX/GPU/NN surrogate experiment admission.
 - Runtime benchmark interpretation.
+- Whole-code hardware-fit atlas interpretation.
 - `/review` checks for acceleration-related diffs.
 
 Does not authorize:
@@ -21,6 +22,32 @@ Does not authorize:
 - PyTorch/libtorch/custom CUDA dependencies.
 - NN as routing authority.
 - Runtime defaults other than deterministic Python/NumPy baseline.
+
+## Whole-Code Hardware-Fit Atlas
+
+Before opening a new backend implementation slice after a step-back request,
+generate or refresh the hardware-fit atlas:
+
+```bash
+.venv/bin/python -m metroflow.benchmarks.run --hardware-atlas \
+  --hardware-atlas-artifact-prefix artifacts/runtime_spine_review/hardware-fit-atlas
+```
+
+If a runtime suite JSON artifact already exists, link its stage timings:
+
+```bash
+.venv/bin/python -m metroflow.benchmarks.run --hardware-atlas \
+  --hardware-atlas-runtime-suite-json artifacts/runtime_spine_review/runtime-suite-eager-smoke.json \
+  --hardware-atlas-artifact-prefix artifacts/runtime_spine_review/hardware-fit-atlas
+```
+
+The atlas is a diagnostic planning artifact. It maps static symbol roles to
+Rust CPU, NumPy/SIMD, JAX/GPU, future torch/custom CUDA, NN surrogate, and
+keep-Python lanes without importing JAX, torch, CUDA, or `_metroflow_rust`.
+
+Atlas decision cards are not implementation authorization. They only identify
+which measured probe can change the next action. Open implementation only when
+runtime-stage evidence or copy-inclusive microbench evidence supports the card.
 
 ## Current Evidence Baseline
 
@@ -181,12 +208,15 @@ Every acceleration-related `/review` must read:
 4. `docs/harness/DECISION_LOG.md`
 5. `docs/harness/DEPRECATED_IDEAS.md`
 6. `docs/VALIDATION_BENCHMARK_PLAN.md`
+7. The latest `artifacts/runtime_spine_review/hardware-fit-atlas.md`, if the
+   review changes acceleration direction or opens a new backend slice.
 
 Review must explicitly check:
 
 - Is the patch adding instrumentation without a decision it can change?
 - Is a nested metric being treated as exclusive wall-clock share?
 - Is GPU/NN being aimed at deterministic state mutation?
+- Does the static hardware-fit atlas agree with the measured runtime stage?
 - Does the patch preserve explicit fail-closed backend behavior?
 - Are docs and benchmark artifacts updated when the decision boundary changes?
 
@@ -194,6 +224,7 @@ Review must explicitly check:
 
 Preferred next implementation slice:
 
+- refresh the hardware-fit atlas when changing backend direction;
 - fix or amortize dynamic-potential recompute first;
 - compare Rust CPU dynamic-potential against Python baseline on generated OD
   workloads without enabling Rust path-build/metadata for the whole runtime;

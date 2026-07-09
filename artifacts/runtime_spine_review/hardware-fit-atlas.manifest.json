@@ -1,0 +1,14 @@
+{
+  "artifact_format_version": "hardware_fit_atlas_bundle_v1",
+  "artifact_paths": {
+    "html": "artifacts/runtime_spine_review/hardware-fit-atlas.html",
+    "json": "artifacts/runtime_spine_review/hardware-fit-atlas.json",
+    "manifest": "artifacts/runtime_spine_review/hardware-fit-atlas.manifest.json",
+    "markdown": "artifacts/runtime_spine_review/hardware-fit-atlas.md"
+  },
+  "decision_card_count": 15,
+  "entry_count": 1105,
+  "report_type": "hardware_fit_atlas_v1",
+  "source_root": "src/metroflow",
+  "stage_link_count": 15
+}
