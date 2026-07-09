@@ -11,6 +11,8 @@ from typing import Any, Mapping
 import numpy as np
 
 from metroflow.backends.rust_cpu import (
+    advance_active_agents_rust,
+    rust_agent_backend_available,
     rust_routing_backend_available,
     select_route_candidate_index_rust,
 )
@@ -244,6 +246,7 @@ def advance_runtime_active_agents(
         movement_budget_by_link_id=_movement_budget_by_link_id(state),
         completion_budget_by_link_id=_sink_discharge_budget_by_link_id(state),
         skip_slot_ids=newly_allocated_slot_ids,
+        agent_backend=state.config.agent_backend,
     )
     counters.update({key: counters.get(key, 0) + value for key, value in moved_counters.items()})
     completed_ids.update(completed_now)
@@ -318,6 +321,11 @@ def _validate_routing_backend(routing_backend: str) -> None:
         raise ValueError("routing_backend must be one of: baseline, rust_cpu, auto")
 
 
+def _validate_agent_backend(agent_backend: str) -> None:
+    if agent_backend not in {"baseline", "rust_cpu", "auto"}:
+        raise ValueError("agent_backend must be one of: baseline, rust_cpu, auto")
+
+
 def _route_tick_counters(
     stats: Mapping[str, Any],
     *,
@@ -362,7 +370,29 @@ def _advance_pool_along_cached_routes(
     movement_budget_by_link_id: Mapping[int, int],
     completion_budget_by_link_id: Mapping[int, int] | None = None,
     skip_slot_ids: set[int] | None = None,
+    agent_backend: str = "baseline",
 ) -> tuple[ActiveAgentPool, dict[str, int], set[int]]:
+    _validate_agent_backend(agent_backend)
+    if agent_backend in {"rust_cpu", "auto"}:
+        if not rust_agent_backend_available():
+            if agent_backend == "rust_cpu":
+                raise RuntimeError(
+                    "Rust CPU active-agent backend unavailable. Build it with: "
+                    ".venv/bin/python -m maturin develop --manifest-path "
+                    "crates/metroflow-rust/Cargo.toml"
+                )
+        else:
+            try:
+                return _advance_pool_along_cached_routes_rust(
+                    pool,
+                    movement_budget_by_link_id=movement_budget_by_link_id,
+                    completion_budget_by_link_id=completion_budget_by_link_id,
+                    skip_slot_ids=skip_slot_ids,
+                )
+            except RuntimeError:
+                if agent_backend == "rust_cpu":
+                    raise
+
     counters = _agent_tick_counters()
     completed_trip_ids: set[int] = set()
     skip_slots = {int(slot_id) for slot_id in (skip_slot_ids or set())}
@@ -454,6 +484,134 @@ def _advance_pool_along_cached_routes(
         counters,
         completed_trip_ids,
     )
+
+
+def _advance_pool_along_cached_routes_rust(
+    pool: ActiveAgentPool,
+    *,
+    movement_budget_by_link_id: Mapping[int, int],
+    completion_budget_by_link_id: Mapping[int, int] | None = None,
+    skip_slot_ids: set[int] | None = None,
+) -> tuple[ActiveAgentPool, dict[str, int], set[int]]:
+    counters = _agent_tick_counters()
+    skip_slots = {int(slot_id) for slot_id in (skip_slot_ids or set())}
+    alive_mask = np.asarray(pool.alive_mask, dtype=np.bool_)
+    slot_ids = tuple(int(idx) for idx, alive in enumerate(alive_mask.tolist()) if bool(alive))
+    route_offsets: list[int] = [0]
+    route_link_ids: list[int] = []
+    plugin_memory = dict(pool.plugin_memory)
+    for slot_id in slot_ids:
+        slot_memory = plugin_memory.get(int(slot_id), {})
+        path = tuple(int(x) for x in tuple(slot_memory.get("route_path", ())))
+        route_link_ids.extend(path)
+        route_offsets.append(len(route_link_ids))
+
+    movement_items = tuple(
+        (int(link_id), max(0, int(count)))
+        for link_id, count in sorted(dict(movement_budget_by_link_id).items())
+    )
+    completion_items = tuple(
+        (int(link_id), max(0, int(count)))
+        for link_id, count in sorted(dict(completion_budget_by_link_id or {}).items())
+    )
+    plan = advance_active_agents_rust(
+        slot_ids=slot_ids,
+        trip_ids=tuple(int(pool.trip_id[slot_id]) for slot_id in slot_ids),
+        current_link_ids=tuple(int(pool.current_link_id[slot_id]) for slot_id in slot_ids),
+        route_ptrs=tuple(int(pool.remaining_route_ptr[slot_id]) for slot_id in slot_ids),
+        cooldown_ticks=tuple(int(pool.reroute_cooldown_ticks[slot_id]) for slot_id in slot_ids),
+        route_offsets=tuple(route_offsets),
+        route_link_ids=tuple(route_link_ids),
+        movement_budget_link_ids=tuple(link_id for link_id, _count in movement_items),
+        movement_budget_counts=tuple(count for _link_id, count in movement_items),
+        completion_budget_link_ids=tuple(link_id for link_id, _count in completion_items),
+        completion_budget_counts=tuple(count for _link_id, count in completion_items),
+        skip_slot_ids=tuple(sorted(skip_slots)),
+    )
+    _validate_agent_action_plan(plan, slot_count=len(slot_ids))
+
+    free_stack = np.asarray(pool.free_slot_stack, dtype=np.int32).copy()
+    alive_mask_next = alive_mask.copy()
+    citizen = np.asarray(pool.citizen_id, dtype=np.int32).copy()
+    trip = np.asarray(pool.trip_id, dtype=np.int32).copy()
+    current_link = np.asarray(pool.current_link_id, dtype=np.int32).copy()
+    progress = np.asarray(pool.progress_01, dtype=np.float32).copy()
+    route_ptr = np.asarray(pool.remaining_route_ptr, dtype=np.int32).copy()
+    dest = np.asarray(pool.dest_node_id, dtype=np.int32).copy()
+    behavior = np.asarray(pool.behavior_profile_id, dtype=np.int32).copy()
+    cooldown = np.asarray(pool.reroute_cooldown_ticks, dtype=np.int32).copy()
+    free_count = int(pool.free_slot_count)
+    alive_count = int(pool.alive_count)
+
+    next_current = np.asarray(plan["next_current_link_ids"], dtype=np.int32)
+    next_ptr = np.asarray(plan["next_route_ptrs"], dtype=np.int32)
+    next_cooldown = np.asarray(plan["next_cooldown_ticks"], dtype=np.int32)
+    for pos, slot_id in enumerate(slot_ids):
+        current_link[slot_id] = next_current[pos]
+        route_ptr[slot_id] = next_ptr[pos]
+        cooldown[slot_id] = next_cooldown[pos]
+
+    moved_slot_ids = tuple(int(slot_id) for slot_id in plan["moved_slot_ids"].tolist())
+    for slot_id in moved_slot_ids:
+        progress[slot_id] = 0.0
+    counters["active_agent_moved_this_tick"] = len(moved_slot_ids)
+    sink_wait_slot_ids = tuple(
+        int(slot_id) for slot_id in plan["sink_wait_slot_ids"].tolist()
+    )
+    counters["active_agent_sink_wait_this_tick"] = len(sink_wait_slot_ids)
+
+    completed_trip_ids = {
+        int(trip_id) for trip_id in np.asarray(plan["completed_trip_ids"], dtype=np.int32).tolist()
+    }
+    released_slot_ids = tuple(
+        int(slot_id) for slot_id in plan["released_slot_ids"].tolist()
+    )
+    for slot_id in released_slot_ids:
+        if not 0 <= slot_id < pool.capacity:
+            raise RuntimeError("Rust CPU active-agent backend failed: released slot out of range")
+        plugin_memory.pop(int(slot_id), None)
+        alive_mask_next[slot_id] = False
+        citizen[slot_id] = -1
+        trip[slot_id] = -1
+        current_link[slot_id] = -1
+        progress[slot_id] = 0.0
+        route_ptr[slot_id] = 0
+        dest[slot_id] = -1
+        behavior[slot_id] = -1
+        cooldown[slot_id] = 0
+        free_stack[free_count] = int(slot_id)
+        free_count += 1
+        alive_count -= 1
+
+    return (
+        ActiveAgentPool.from_internal_arrays(
+            capacity=pool.capacity,
+            free_slot_stack=free_stack,
+            free_slot_count=free_count,
+            alive_mask=alive_mask_next,
+            alive_count=alive_count,
+            citizen_id=citizen,
+            trip_id=trip,
+            current_link_id=current_link,
+            progress_01=progress,
+            remaining_route_ptr=route_ptr,
+            dest_node_id=dest,
+            behavior_profile_id=behavior,
+            reroute_cooldown_ticks=cooldown,
+            plugin_memory=plugin_memory,
+        ),
+        counters,
+        completed_trip_ids,
+    )
+
+
+def _validate_agent_action_plan(plan: Mapping[str, np.ndarray], *, slot_count: int) -> None:
+    for key in ("next_current_link_ids", "next_route_ptrs", "next_cooldown_ticks"):
+        values = np.asarray(plan[key], dtype=np.int32)
+        if values.shape != (slot_count,):
+            raise RuntimeError(
+                f"Rust CPU active-agent backend failed: {key} length mismatch"
+            )
 
 
 def _movement_budget_by_link_id(state: SimulationState) -> dict[int, int]:

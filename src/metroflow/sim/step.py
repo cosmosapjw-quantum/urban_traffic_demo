@@ -244,6 +244,7 @@ def _zero_tick_counters() -> dict[str, int]:
         "dynamic_potential_recompute_this_tick": 0,
         "dynamic_potential_cache_hits_this_tick": 0,
         "flow_update_wall_ns": 0,
+        "active_agent_update_wall_ns": 0,
         "active_agent_rerouted_this_tick": 0,
         "active_agent_reroute_cooldown_this_tick": 0,
     }
@@ -312,7 +313,10 @@ def _advance_runtime_routing_state(
 ) -> tuple[SimulationState, dict[str, int]]:
     route_state, route_counters = refresh_runtime_route_candidates(state)
     state = state.with_dynamic_updates(route_candidate_state=route_state)
+    start_ns = perf_counter_ns()
     pool, agent_counters, demand_state, link_state = advance_runtime_active_agents(state)
+    agent_counters = dict(agent_counters)
+    agent_counters["active_agent_update_wall_ns"] = max(0, perf_counter_ns() - start_ns)
     updates: dict[str, Any] = {"demand_state": demand_state}
     if pool is not None:
         updates["active_agent_pool"] = pool
@@ -377,7 +381,11 @@ def _update_metrics_state(
             + int(tick_counters.get("trip_generated_this_tick", 0)),
             "flow_backend": state.config.flow_backend,
             "routing_backend": state.config.routing_backend,
+            "agent_backend": state.config.agent_backend,
             "flow_update_wall_ns": int(tick_counters.get("flow_update_wall_ns", 0)),
+            "active_agent_update_wall_ns": int(
+                tick_counters.get("active_agent_update_wall_ns", 0)
+            ),
             "queue_vehicles_total": queue_total,
             "outflow_vehicles_total": outflow_total,
             "route_candidate_refresh_total": int(
@@ -445,7 +453,11 @@ def _build_step_telemetry(
         ui_snapshot_emitted=ui_snapshot_emitted,
         flow_backend=str(metrics_state.get("flow_backend", state.config.flow_backend)),
         routing_backend=str(metrics_state.get("routing_backend", state.config.routing_backend)),
+        agent_backend=str(metrics_state.get("agent_backend", state.config.agent_backend)),
         flow_update_wall_ns=int(metrics_state.get("flow_update_wall_ns", 0)),
+        active_agent_update_wall_ns=int(
+            metrics_state.get("active_agent_update_wall_ns", 0)
+        ),
         queue_vehicles_total=float(metrics_state.get("queue_vehicles_total", 0.0)),
         outflow_vehicles_total=float(metrics_state.get("outflow_vehicles_total", 0.0)),
         route_candidate_refresh_total=int(

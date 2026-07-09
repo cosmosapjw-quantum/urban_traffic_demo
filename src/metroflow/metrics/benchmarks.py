@@ -134,8 +134,10 @@ class MeasuredRuntimeBenchmarkResult:
     active_agent_count: int
     flow_backend: str
     routing_backend: str
+    agent_backend: str
     route_path_size_gamma: float
     routing_copy_boundary_note: str
+    agent_copy_boundary_note: str
     route_candidate_refresh_total: int
     route_candidate_reuse_total: int
     dynamic_potential_recompute_total: int
@@ -147,6 +149,7 @@ class MeasuredRuntimeBenchmarkResult:
     persistence_decisions_total: int = 0
     active_agent_sink_wait_total: int = 0
     active_agent_sink_wait_this_tick: int = 0
+    active_agent_update_wall_ns: int = 0
     active_agent_rerouted_this_tick: int = 0
     active_agent_reroute_cooldown_this_tick: int = 0
 
@@ -356,8 +359,10 @@ def run_measured_runtime_spine_benchmark(
         active_agent_count=int(getattr(current_state.dynamic.active_agent_pool, "alive_count", 0) or 0),
         flow_backend=current_state.config.flow_backend,
         routing_backend=current_state.config.routing_backend,
+        agent_backend=current_state.config.agent_backend,
         route_path_size_gamma=float(current_state.config.route_path_size_gamma),
         routing_copy_boundary_note=_routing_copy_boundary_note(current_state.config.routing_backend),
+        agent_copy_boundary_note=_agent_copy_boundary_note(current_state.config.agent_backend),
         route_candidate_refresh_total=int(metrics_state.get("route_candidate_refresh_total", 0)),
         route_candidate_reuse_total=int(metrics_state.get("route_candidate_reuse_total", 0)),
         dynamic_potential_recompute_total=int(
@@ -384,6 +389,9 @@ def run_measured_runtime_spine_benchmark(
         ),
         active_agent_sink_wait_this_tick=int(
             metrics_state.get("active_agent_sink_wait_this_tick", 0)
+        ),
+        active_agent_update_wall_ns=int(
+            metrics_state.get("active_agent_update_wall_ns", 0)
         ),
         active_agent_rerouted_this_tick=int(
             metrics_state.get("active_agent_rerouted_this_tick", 0)
@@ -416,6 +424,14 @@ def _routing_copy_boundary_note(routing_backend: str) -> str:
             "and reroute decision when available"
         )
     return "numpy baseline"
+
+
+def _agent_copy_boundary_note(agent_backend: str) -> str:
+    if agent_backend == "rust_cpu":
+        return "rust_cpu Vec copy boundary for active-agent action planning"
+    if agent_backend == "auto":
+        return "auto rust_cpu Vec copy boundary for active-agent action planning when available"
+    return "python baseline"
 
 
 def run_measured_step_world_benchmark(

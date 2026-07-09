@@ -72,7 +72,9 @@ class SimulationTelemetry:
     ui_snapshot_emitted: bool = False
     flow_backend: str = "baseline"
     routing_backend: str = "baseline"
+    agent_backend: str = "baseline"
     flow_update_wall_ns: int = 0
+    active_agent_update_wall_ns: int = 0
     queue_vehicles_total: float = 0.0
     outflow_vehicles_total: float = 0.0
     route_candidate_refresh_total: int = 0
@@ -97,7 +99,9 @@ class SimulationTelemetry:
         self.ui_snapshot_emitted = bool(self.ui_snapshot_emitted)
         self.flow_backend = str(self.flow_backend)
         self.routing_backend = str(self.routing_backend)
+        self.agent_backend = str(self.agent_backend)
         self.flow_update_wall_ns = int(self.flow_update_wall_ns)
+        self.active_agent_update_wall_ns = int(self.active_agent_update_wall_ns)
         self.queue_vehicles_total = float(self.queue_vehicles_total)
         self.outflow_vehicles_total = float(self.outflow_vehicles_total)
         self.route_candidate_refresh_total = int(self.route_candidate_refresh_total)
@@ -121,6 +125,10 @@ class SimulationTelemetry:
             "capacity_violation_count_delta",
         )
         _validate_non_negative(self.flow_update_wall_ns, "flow_update_wall_ns")
+        _validate_non_negative(
+            self.active_agent_update_wall_ns,
+            "active_agent_update_wall_ns",
+        )
         _validate_non_negative(
             self.route_candidate_refresh_total,
             "route_candidate_refresh_total",
@@ -176,7 +184,9 @@ class SimulationTelemetry:
             "ui_snapshot_emitted": self.ui_snapshot_emitted,
             "flow_backend": self.flow_backend,
             "routing_backend": self.routing_backend,
+            "agent_backend": self.agent_backend,
             "flow_update_wall_ns": self.flow_update_wall_ns,
+            "active_agent_update_wall_ns": self.active_agent_update_wall_ns,
             "queue_vehicles_total": self.queue_vehicles_total,
             "outflow_vehicles_total": self.outflow_vehicles_total,
             "route_candidate_refresh_total": self.route_candidate_refresh_total,

@@ -411,6 +411,7 @@ def test_measured_runtime_benchmark_preserves_rust_routing_copy_boundary_note(
     bundle = build_initial_simulation_state(
         config=SimulationConfig(
             routing_backend="rust_cpu",
+            agent_backend="rust_cpu",
             active_agent_capacity=4,
             route_path_size_gamma=2.0,
         ),
@@ -431,6 +432,7 @@ def test_measured_runtime_benchmark_preserves_rust_routing_copy_boundary_note(
 
     assert isinstance(result, MeasuredRuntimeBenchmarkResult)
     assert result.routing_backend == "rust_cpu"
+    assert result.agent_backend == "rust_cpu"
     assert result.route_path_size_gamma == 2.0
     expected_note = (
         "rust_cpu Vec copy boundary for dynamic-potential, next-link scoring, "
@@ -438,6 +440,7 @@ def test_measured_runtime_benchmark_preserves_rust_routing_copy_boundary_note(
         "and reroute decision"
     )
     assert result.routing_copy_boundary_note == expected_note
+    assert result.agent_copy_boundary_note == "rust_cpu Vec copy boundary for active-agent action planning"
     assert result.initial_tick == 0
     assert result.final_tick == 2
 
@@ -466,6 +469,7 @@ def test_measured_runtime_benchmark_preserves_reroute_counter_metadata(
         metrics["routing_compile_seconds_estimate_total"] = 0.5
         metrics["active_agent_rerouted_this_tick"] = 2
         metrics["active_agent_reroute_cooldown_this_tick"] = 1
+        metrics["active_agent_update_wall_ns"] = 33
         return (
             state.with_clock(tick_index=state.tick_index + 1).with_dynamic_updates(
                 metrics_state=metrics
@@ -492,3 +496,4 @@ def test_measured_runtime_benchmark_preserves_reroute_counter_metadata(
     assert result.routing_compile_seconds_estimate_total == 0.5
     assert result.active_agent_rerouted_this_tick == 2
     assert result.active_agent_reroute_cooldown_this_tick == 1
+    assert result.active_agent_update_wall_ns == 33

@@ -17,6 +17,10 @@ RUST_ROUTING_BACKEND_UNAVAILABLE = (
     "Rust CPU routing backend unavailable. Build it with: "
     ".venv/bin/python -m maturin develop --manifest-path crates/metroflow-rust/Cargo.toml"
 )
+RUST_AGENT_BACKEND_UNAVAILABLE = (
+    "Rust CPU active-agent backend unavailable. Build it with: "
+    ".venv/bin/python -m maturin develop --manifest-path crates/metroflow-rust/Cargo.toml"
+)
 
 
 def _load_rust_extension(unavailable_message: str) -> ModuleType:
@@ -64,6 +68,14 @@ def rust_reroute_backend_available() -> bool:
     except RuntimeError:
         return False
     return hasattr(rust_extension, "compute_reroute_decision_batch")
+
+
+def rust_agent_backend_available() -> bool:
+    try:
+        rust_extension = _load_rust_extension(RUST_AGENT_BACKEND_UNAVAILABLE)
+    except RuntimeError:
+        return False
+    return hasattr(rust_extension, "advance_active_agents_batch")
 
 
 def _as_f64_list(values: Sequence[float], name: str) -> list[float]:
@@ -133,6 +145,18 @@ def _as_bool_routing_list(values: Sequence[bool], name: str) -> list[bool]:
         raise RuntimeError(f"Rust CPU routing backend failed: {name} must be boolean.") from exc
     if array.ndim != 1:
         raise RuntimeError(f"Rust CPU routing backend failed: {name} must be one-dimensional.")
+    return array.tolist()
+
+
+def _as_i32_agent_list(values: Sequence[int], name: str) -> list[int]:
+    try:
+        array = np.ascontiguousarray(values, dtype=np.int32)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(f"Rust CPU active-agent backend failed: {name} must be integer.") from exc
+    if array.ndim != 1:
+        raise RuntimeError(
+            f"Rust CPU active-agent backend failed: {name} must be one-dimensional."
+        )
     return array.tolist()
 
 
@@ -461,3 +485,58 @@ def compute_reroute_decision_rust(
         np.asarray(should, dtype=np.bool_).reshape(shape),
         np.asarray(score, dtype=np.float32).reshape(shape),
     )
+
+
+def advance_active_agents_rust(
+    *,
+    slot_ids: Sequence[int],
+    trip_ids: Sequence[int],
+    current_link_ids: Sequence[int],
+    route_ptrs: Sequence[int],
+    cooldown_ticks: Sequence[int],
+    route_offsets: Sequence[int],
+    route_link_ids: Sequence[int],
+    movement_budget_link_ids: Sequence[int],
+    movement_budget_counts: Sequence[int],
+    completion_budget_link_ids: Sequence[int],
+    completion_budget_counts: Sequence[int],
+    skip_slot_ids: Sequence[int],
+) -> dict[str, np.ndarray]:
+    rust_extension = _load_rust_extension(RUST_AGENT_BACKEND_UNAVAILABLE)
+    try:
+        (
+            next_current_link_ids,
+            next_route_ptrs,
+            next_cooldown_ticks,
+            moved_slot_ids,
+            sink_wait_slot_ids,
+            released_slot_ids,
+            completed_trip_ids,
+        ) = rust_extension.advance_active_agents_batch(
+            _as_i32_agent_list(slot_ids, "slot_ids"),
+            _as_i32_agent_list(trip_ids, "trip_ids"),
+            _as_i32_agent_list(current_link_ids, "current_link_ids"),
+            _as_i32_agent_list(route_ptrs, "route_ptrs"),
+            _as_i32_agent_list(cooldown_ticks, "cooldown_ticks"),
+            _as_i32_agent_list(route_offsets, "route_offsets"),
+            _as_i32_agent_list(route_link_ids, "route_link_ids"),
+            _as_i32_agent_list(movement_budget_link_ids, "movement_budget_link_ids"),
+            _as_i32_agent_list(movement_budget_counts, "movement_budget_counts"),
+            _as_i32_agent_list(completion_budget_link_ids, "completion_budget_link_ids"),
+            _as_i32_agent_list(completion_budget_counts, "completion_budget_counts"),
+            _as_i32_agent_list(skip_slot_ids, "skip_slot_ids"),
+        )
+    except AttributeError as exc:
+        raise RuntimeError(RUST_AGENT_BACKEND_UNAVAILABLE) from exc
+    except ValueError as exc:
+        raise RuntimeError(f"Rust CPU active-agent backend failed: {exc}") from exc
+
+    return {
+        "next_current_link_ids": np.asarray(next_current_link_ids, dtype=np.int32),
+        "next_route_ptrs": np.asarray(next_route_ptrs, dtype=np.int32),
+        "next_cooldown_ticks": np.asarray(next_cooldown_ticks, dtype=np.int32),
+        "moved_slot_ids": np.asarray(moved_slot_ids, dtype=np.int32),
+        "sink_wait_slot_ids": np.asarray(sink_wait_slot_ids, dtype=np.int32),
+        "released_slot_ids": np.asarray(released_slot_ids, dtype=np.int32),
+        "completed_trip_ids": np.asarray(completed_trip_ids, dtype=np.int32),
+    }

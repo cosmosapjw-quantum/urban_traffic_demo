@@ -36,9 +36,9 @@ city100k-like synthetic benchmark:
 - source-link queue insertion count/queue delta
 - outflow-budgeted active-agent movement count
 
-`run_measured_runtime_spine_benchmark`는 `flow_backend`, `routing_backend`,
-routing copy-boundary note, route candidate counters, dynamic-potential counters,
-runtime reroute/persistence counters, initial/final tick을 기록한다.
+`run_measured_runtime_spine_benchmark`는 `flow_backend`, `routing_backend`, `agent_backend`,
+routing/agent copy-boundary note, route candidate counters, dynamic-potential counters,
+active-agent update wall time, runtime reroute/persistence counters, initial/final tick을 기록한다.
 `run_measured_routing_candidate_benchmark`는 OD 단위 dynamic-potential + route candidate path를 분리 측정하고,
 routing backend, final candidate path, ranked-K candidate paths/costs/path-size metadata, path length,
 recompute/cache-hit count, copy-boundary note를 기록한다.
@@ -59,7 +59,8 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - optional Rust CPU benchmark는 `_metroflow_rust` 확장 빌드 후 `traffic.meso` edge batch,
   `flow.engine` flow core, `routing.dynamic_potential` node cost-to-go, next-link action scoring,
   greedy single-candidate route path core, ranked-K route candidate enumeration,
-  candidate cost/path-size metadata, candidate selection, reroute decision core를 대상으로 한다
+  candidate cost/path-size metadata, candidate selection, reroute decision core,
+  active-agent movement action planning을 대상으로 한다
 - optional JAX benchmark는 `.[jax]` extra 설치 후 RTX 3080 Ti 12GB 단일 GPU만 대상으로 한다
 - distributed multi-GPU 측정 금지
 - Rust CPU parity test는 baseline `update_edge_state` 수식과 queue/stock/capacity 불변식을 동일 입력으로 비교한다
@@ -85,16 +86,23 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   `outflow_vehicles` 예산 이하 link advance, no-outflow 대기, final-link sink discharge budget 이하
   completion, zero-capacity final-link 대기와 `active_agent_sink_wait_this_tick`/`active_agent_sink_wait_total`
   telemetry를 고정한다
+- Rust CPU active-agent parity test는 slot order budget consumption, skipped same-tick slots,
+  no-route release, final-link sink wait/completion, shared-link budget ordering, wrapper copy-boundary
+  action plan을 Python baseline과 동일 입력으로 비교한다
 - active-agent reroute parity는 incident/refresh-cadence trigger, cooldown-preserve behavior,
   current-link 이후 route tail replacement, reroute/cooldown telemetry counters를 고정한다
 - JAX 첫 호출 compile time과 steady-state runtime을 분리 기록
 - benchmark result는 요청 backend를 기록하고, explicit `rust_cpu`/`jax` 요청 실패는 실패로 남김
 - runtime benchmark result는 route-candidate refresh, dynamic-potential recompute, routing compile estimate
-  timing totals를 metrics/run summary와 동일한 key로 보존한다
+  timing totals와 `active_agent_update_wall_ns`를 metrics/run summary와 동일한 key로 보존한다
 - isolated routing-candidate benchmark result는 route-candidate refresh와 dynamic-potential recompute
   timing totals를 own stats에서 보존한다
 - `auto` backend만 baseline fallback을 허용한다
 - display GPU OOM 회피가 필요하면 `XLA_PYTHON_CLIENT_MEM_FRACTION` 값을 결과에 기록
 - baseline보다 느리거나 값 drift가 있으면 baseline을 production default로 유지
-- `rust_cpu`는 현재 NumPy-compatible 입력을 edge `Vec<f64>`, flow/routing `Vec<f32>`/`Vec<i32>`/`Vec<bool>`로 복사하므로 benchmark 결과에 copy boundary를 기록한다
-- future `torch_cuda` backend는 NumPy array ownership, dtype, copy 여부를 결과에 기록한다
+- `rust_cpu`는 현재 NumPy-compatible 입력을 edge `Vec<f64>`, flow/routing `Vec<f32>`/`Vec<i32>`/`Vec<bool>`,
+  active-agent `Vec<i32>`로 복사하므로 benchmark 결과에 copy boundary를 기록한다
+- future `torch_cuda`/`custom_cuda` backend는 아직 config 값으로 받지 않는다. 후보 stage는 flow,
+  route candidate refresh, reroute decision, active-agent update wall-time share를 기준으로 산정하고,
+  단일 stage가 3개 이상의 deterministic seed에서 30%를 넘은 뒤에만 NumPy array ownership, dtype,
+  copy 여부를 포함하는 별도 acceptance contract를 연다

@@ -42,10 +42,14 @@ class BaselineRunSummary:
     route_candidate_reuse_total: int = 0
     dynamic_potential_recompute_total: int = 0
     dynamic_potential_cache_hits_total: int = 0
+    flow_backend: str = "baseline"
+    routing_backend: str = "baseline"
+    agent_backend: str = "baseline"
     route_path_size_gamma: float = 0.0
     route_candidate_refresh_seconds_total: float = 0.0
     dynamic_potential_recompute_seconds_total: float = 0.0
     routing_compile_seconds_estimate_total: float = 0.0
+    active_agent_update_wall_ns: int = 0
     hotspot_links_top_k: tuple[dict[str, Any], ...] = field(default_factory=tuple)
     ui_packet_counts: dict[str, int] = field(default_factory=dict)
     disruption_active_event_count: int = 0
@@ -86,6 +90,9 @@ class BaselineRunSummary:
         self.route_candidate_reuse_total = int(self.route_candidate_reuse_total)
         self.dynamic_potential_recompute_total = int(self.dynamic_potential_recompute_total)
         self.dynamic_potential_cache_hits_total = int(self.dynamic_potential_cache_hits_total)
+        self.flow_backend = str(self.flow_backend)
+        self.routing_backend = str(self.routing_backend)
+        self.agent_backend = str(self.agent_backend)
         self.route_path_size_gamma = float(self.route_path_size_gamma)
         self.route_candidate_refresh_seconds_total = float(self.route_candidate_refresh_seconds_total)
         self.dynamic_potential_recompute_seconds_total = float(
@@ -94,6 +101,7 @@ class BaselineRunSummary:
         self.routing_compile_seconds_estimate_total = float(
             self.routing_compile_seconds_estimate_total
         )
+        self.active_agent_update_wall_ns = int(self.active_agent_update_wall_ns)
         self.hotspot_links_top_k = tuple(dict(item) for item in self.hotspot_links_top_k)
         self.ui_packet_counts = {str(k): int(v) for k, v in dict(self.ui_packet_counts).items()}
         self.disruption_active_event_count = int(self.disruption_active_event_count)
@@ -241,12 +249,16 @@ def build_baseline_run_summary(
         route_candidate_reuse_total=int(metrics_state.get("route_candidate_reuse_total", 0)),
         dynamic_potential_recompute_total=int(metrics_state.get("dynamic_potential_recompute_total", 0)),
         dynamic_potential_cache_hits_total=int(metrics_state.get("dynamic_potential_cache_hits_total", 0)),
+        flow_backend=str(metrics_state.get("flow_backend", state.config.flow_backend)),
+        routing_backend=str(metrics_state.get("routing_backend", state.config.routing_backend)),
+        agent_backend=str(metrics_state.get("agent_backend", state.config.agent_backend)),
         route_path_size_gamma=float(state.config.route_path_size_gamma),
         route_candidate_refresh_seconds_total=float(metrics_state.get("route_candidate_refresh_seconds_total", 0.0)),
         dynamic_potential_recompute_seconds_total=float(
             metrics_state.get("dynamic_potential_recompute_seconds_total", 0.0)
         ),
         routing_compile_seconds_estimate_total=float(metrics_state.get("routing_compile_seconds_estimate_total", 0.0)),
+        active_agent_update_wall_ns=int(metrics_state.get("active_agent_update_wall_ns", 0)),
         hotspot_links_top_k=_hotspot_links_top_k(state, k=hotspot_top_k),
         ui_packet_counts=normalized_ui_packet_counts,
         disruption_active_event_count=_active_event_count_fallback(state),

@@ -85,6 +85,7 @@ class RuntimeReplayBoundary:
     edge_backend: str = "baseline"
     flow_backend: str = "baseline"
     routing_backend: str = "baseline"
+    agent_backend: str = "baseline"
 
 
 @dataclass(frozen=True)
@@ -111,6 +112,7 @@ class RuntimeReplayResultRecord:
     edge_backend: str = "baseline"
     flow_backend: str = "baseline"
     routing_backend: str = "baseline"
+    agent_backend: str = "baseline"
     reroute_decisions_total: int = 0
     persistence_decisions_total: int = 0
 
@@ -277,6 +279,7 @@ def make_runtime_replay_boundary(state: SimulationState) -> RuntimeReplayBoundar
         edge_backend=state.config.edge_backend,
         flow_backend=state.config.flow_backend,
         routing_backend=state.config.routing_backend,
+        agent_backend=state.config.agent_backend,
     )
 
 
@@ -318,6 +321,7 @@ def replay_simulation_sequence(request: RuntimeReplayRequest) -> RuntimeReplayRe
         edge_backend=current_state.config.edge_backend,
         flow_backend=current_state.config.flow_backend,
         routing_backend=current_state.config.routing_backend,
+        agent_backend=current_state.config.agent_backend,
         reroute_decisions_total=int(final_metrics.get("us2_reroute_decisions_total", 0)),
         persistence_decisions_total=int(
             final_metrics.get("us2_persistence_decisions_total", 0)
@@ -348,6 +352,7 @@ def _runtime_config_fingerprint(state: SimulationState) -> str:
         "edge_backend": cfg.edge_backend,
         "flow_backend": cfg.flow_backend,
         "routing_backend": cfg.routing_backend,
+        "agent_backend": cfg.agent_backend,
         "route_max_candidates": cfg.route_max_candidates,
         "route_max_hops": cfg.route_max_hops,
         "route_refresh_interval_ticks": cfg.route_refresh_interval_ticks,

@@ -19,6 +19,7 @@ __all__ = [
 EDGE_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "jax", "auto")
 FLOW_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
 ROUTING_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
+AGENT_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
 
 
 class StrEnum(str, Enum):
@@ -92,6 +93,7 @@ class SimulationConfig:
     edge_backend: str = "baseline"
     flow_backend: str = "baseline"
     routing_backend: str = "baseline"
+    agent_backend: str = "baseline"
     route_max_candidates: int = 1
     route_max_hops: int = 64
     route_refresh_interval_ticks: int = 8
@@ -107,6 +109,7 @@ class SimulationConfig:
         self.edge_backend = str(self.edge_backend)
         self.flow_backend = str(self.flow_backend)
         self.routing_backend = str(self.routing_backend)
+        self.agent_backend = str(self.agent_backend)
         self.route_max_candidates = int(self.route_max_candidates)
         self.route_max_hops = int(self.route_max_hops)
         self.route_refresh_interval_ticks = int(self.route_refresh_interval_ticks)
@@ -130,6 +133,8 @@ class SimulationConfig:
             raise ValueError("flow_backend must be one of: baseline, rust_cpu, auto")
         if self.routing_backend not in ROUTING_RUNTIME_BACKENDS:
             raise ValueError("routing_backend must be one of: baseline, rust_cpu, auto")
+        if self.agent_backend not in AGENT_RUNTIME_BACKENDS:
+            raise ValueError("agent_backend must be one of: baseline, rust_cpu, auto")
         if self.route_max_candidates < 1:
             raise ValueError("route_max_candidates must be >= 1")
         if self.route_max_hops < 1:

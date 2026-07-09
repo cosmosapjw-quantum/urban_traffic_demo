@@ -474,6 +474,7 @@ def test_simulation_config_exposes_runtime_spine_defaults_and_validates_backends
     assert config.edge_backend == "baseline"
     assert config.flow_backend == "baseline"
     assert config.routing_backend == "baseline"
+    assert config.agent_backend == "baseline"
     assert config.route_max_candidates == 1
     assert config.route_max_hops == 64
     assert config.route_refresh_interval_ticks == 8
@@ -487,6 +488,8 @@ def test_simulation_config_exposes_runtime_spine_defaults_and_validates_backends
         SimulationConfig(flow_backend="bogus")
     with pytest.raises(ValueError, match="routing_backend"):
         SimulationConfig(routing_backend="jax")
+    with pytest.raises(ValueError, match="agent_backend"):
+        SimulationConfig(agent_backend="torch_cuda")
     with pytest.raises(ValueError, match="route_max_candidates"):
         SimulationConfig(route_max_candidates=0)
     with pytest.raises(ValueError, match="route_path_size_gamma"):
@@ -967,9 +970,13 @@ def test_runtime_route_timing_stats_propagate_to_run_summary(
     assert next_state.dynamic.metrics_state["route_candidate_refresh_seconds_total"] == 0.125
     assert next_state.dynamic.metrics_state["dynamic_potential_recompute_seconds_total"] == 0.25
     assert next_state.dynamic.metrics_state["routing_compile_seconds_estimate_total"] == 0.5
+    assert next_state.dynamic.metrics_state["agent_backend"] == "baseline"
+    assert next_state.dynamic.metrics_state["active_agent_update_wall_ns"] >= 0
     assert summary.route_candidate_refresh_seconds_total == 0.125
     assert summary.dynamic_potential_recompute_seconds_total == 0.25
     assert summary.routing_compile_seconds_estimate_total == 0.5
+    assert summary.agent_backend == "baseline"
+    assert summary.active_agent_update_wall_ns >= 0
 
 
 def test_simulation_step_fails_no_route_trip_without_allocating_agent() -> None:
@@ -1318,6 +1325,23 @@ def test_runtime_replay_boundary_fingerprints_path_size_policy() -> None:
     )
 
 
+def test_runtime_replay_boundary_fingerprints_agent_backend() -> None:
+    from metroflow.sim.config import SimulationConfig
+    from metroflow.sim.replay import make_runtime_replay_boundary
+
+    baseline_state = _runtime_spine_state()
+    rust_state = _runtime_spine_state()
+    rust_state.config = SimulationConfig(
+        active_agent_capacity=4,
+        agent_backend="rust_cpu",
+    )
+
+    assert make_runtime_replay_boundary(baseline_state).config_fingerprint != (
+        make_runtime_replay_boundary(rust_state).config_fingerprint
+    )
+    assert make_runtime_replay_boundary(rust_state).agent_backend == "rust_cpu"
+
+
 def test_runtime_replay_records_backend_and_cache_fingerprints() -> None:
     from metroflow.sim.control import SimulationControl
     from metroflow.sim.replay import (
@@ -1344,6 +1368,8 @@ def test_runtime_replay_records_backend_and_cache_fingerprints() -> None:
     assert result.final_tick == 1
     assert result.initial_boundary.flow_backend == "baseline"
     assert result.initial_boundary.routing_backend == "baseline"
+    assert result.initial_boundary.agent_backend == "baseline"
+    assert result.agent_backend == "baseline"
     assert result.cache_fingerprint
     assert len(result.telemetry_log) == 1
 
@@ -1419,5 +1445,8 @@ def test_measured_runtime_spine_benchmark_preserves_runtime_backend_metadata() -
     assert result.name == "measured_runtime_spine"
     assert result.flow_backend == "baseline"
     assert result.routing_backend == "baseline"
+    assert result.agent_backend == "baseline"
+    assert result.agent_copy_boundary_note == "python baseline"
+    assert result.active_agent_update_wall_ns >= 0
     assert result.route_candidate_refresh_total >= 1
     assert result.final_tick == 2

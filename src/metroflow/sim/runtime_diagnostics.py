@@ -42,6 +42,8 @@ class RuntimeDiagnosticFrame:
     dynamic_potential_recompute_total: int
     dynamic_potential_cache_hits_total: int
     active_agent_sink_wait_this_tick: int = 0
+    agent_backend: str = "baseline"
+    active_agent_update_wall_ns: int = 0
     sampled_link_congestion: tuple[dict[str, Any], ...] = field(default_factory=tuple)
     candidate_paths_by_od: dict[str, tuple[tuple[int, ...], ...]] = field(default_factory=dict)
     candidate_metadata_by_od: dict[str, dict[str, Any]] = field(default_factory=dict)
@@ -64,6 +66,10 @@ class RuntimeDiagnosticFrame:
         self.route_candidate_reuse_total = int(self.route_candidate_reuse_total)
         self.dynamic_potential_recompute_total = int(self.dynamic_potential_recompute_total)
         self.dynamic_potential_cache_hits_total = int(self.dynamic_potential_cache_hits_total)
+        self.agent_backend = str(self.agent_backend)
+        self.active_agent_update_wall_ns = int(self.active_agent_update_wall_ns)
+        if self.active_agent_update_wall_ns < 0:
+            raise ValueError("active_agent_update_wall_ns must be >= 0")
         self.sampled_link_congestion = tuple(dict(item) for item in self.sampled_link_congestion)
         self.candidate_paths_by_od = {
             str(key): tuple(tuple(int(link_id) for link_id in path) for path in value)
@@ -95,6 +101,8 @@ class RuntimeDiagnosticFrame:
             "route_candidate_reuse_total": self.route_candidate_reuse_total,
             "dynamic_potential_recompute_total": self.dynamic_potential_recompute_total,
             "dynamic_potential_cache_hits_total": self.dynamic_potential_cache_hits_total,
+            "agent_backend": self.agent_backend,
+            "active_agent_update_wall_ns": self.active_agent_update_wall_ns,
             "sampled_link_congestion": tuple(dict(item) for item in self.sampled_link_congestion),
             "candidate_paths_by_od": {
                 key: tuple(tuple(path) for path in paths)
@@ -206,6 +214,7 @@ def render_runtime_diagnostic_html(report: RuntimeDiagnosticReport) -> str:
     <div class="metric">completed trips<strong>{int(summary.get("final_completed_trips_total", 0))}</strong></div>
     <div class="metric">rerouted total<strong>{int(summary.get("active_agent_rerouted_total", 0))}</strong></div>
     <div class="metric">sink wait total<strong>{int(summary.get("active_agent_sink_wait_total", 0))}</strong></div>
+    <div class="metric">agent backend<strong>{escape(str(summary.get("agent_backend", "baseline")))}</strong></div>
     <div class="metric">cache hits<strong>{int(summary.get("dynamic_potential_cache_hits_total", 0))}</strong></div>
   </section>
   <h2>Tick Timeline</h2>
@@ -277,6 +286,8 @@ def _build_diagnostic_frame(
         route_candidate_reuse_total=int(metrics.get("route_candidate_reuse_total", 0)),
         dynamic_potential_recompute_total=int(metrics.get("dynamic_potential_recompute_total", 0)),
         dynamic_potential_cache_hits_total=int(metrics.get("dynamic_potential_cache_hits_total", 0)),
+        agent_backend=str(metrics.get("agent_backend", state.config.agent_backend)),
+        active_agent_update_wall_ns=int(metrics.get("active_agent_update_wall_ns", 0)),
         sampled_link_congestion=tuple(snapshot.get("sampled_link_congestion", ()) or ()),
         candidate_paths_by_od=_candidate_paths_by_od(route_state.candidate_sets),
         candidate_metadata_by_od=_candidate_metadata_by_od(route_state.candidate_sets),
@@ -299,6 +310,10 @@ def _build_report_summary(
         "route_candidate_reuse_total": int(metrics.get("route_candidate_reuse_total", 0)),
         "dynamic_potential_recompute_total": int(metrics.get("dynamic_potential_recompute_total", 0)),
         "dynamic_potential_cache_hits_total": int(metrics.get("dynamic_potential_cache_hits_total", 0)),
+        "agent_backend": str(metrics.get("agent_backend", state.config.agent_backend)),
+        "active_agent_update_wall_ns": int(
+            metrics.get("active_agent_update_wall_ns", 0)
+        ),
         "active_agent_rerouted_this_tick": int(
             metrics.get("active_agent_rerouted_this_tick", 0)
         ),

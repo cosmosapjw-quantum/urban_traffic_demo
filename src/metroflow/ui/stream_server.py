@@ -349,12 +349,23 @@ def _build_metrics_summary_payload(
         "routing_backend": str(
             _metric_value(metrics_state, summary, "routing_backend", telemetry.routing_backend)
         ),
+        "agent_backend": str(
+            _metric_value(metrics_state, summary, "agent_backend", telemetry.agent_backend)
+        ),
         "flow_update_wall_ns": int(
             _metric_value(
                 metrics_state,
                 summary,
                 "flow_update_wall_ns",
                 telemetry.flow_update_wall_ns,
+            )
+        ),
+        "active_agent_update_wall_ns": int(
+            _metric_value(
+                metrics_state,
+                summary,
+                "active_agent_update_wall_ns",
+                telemetry.active_agent_update_wall_ns,
             )
         ),
         "queue_vehicles_total": float(

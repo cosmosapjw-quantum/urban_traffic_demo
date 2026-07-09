@@ -16,6 +16,9 @@
   source link queue 및 travel-time cost를 같은 tick에서 함께 갱신한다
 - active-agent link movement는 `flow_link_state.outflow_vehicles` 예산보다 많은 discrete agent를
   전진시키면 안 된다. 같은 tick에 새로 배정된 slot은 이동하지 않는다
+- `agent_backend="rust_cpu"`는 active-agent pool/plugin memory를 직접 mutate하면 안 된다.
+  Python wrapper가 slot/path/budget arrays를 복사해 Rust action plan을 받고,
+  `ActiveAgentPool.from_internal_arrays(...)`를 통해 immutable replacement를 적용한다
 - active-agent final-link completion은 final link의 effective capacity에서 계산한 sink discharge budget보다
   많은 discrete agent를 완료시키면 안 된다. zero capacity 또는 active closure에서는 final link에 대기하고
   `active_agent_sink_wait_this_tick` 및 `active_agent_sink_wait_total` counter를 증가시킨다
@@ -49,11 +52,14 @@
 - Rust CPU backend의 현재 slice는 `traffic.meso` edge batch evolution, `flow.engine` baseline flow array core,
   `routing.dynamic_potential` node cost-to-go, next-link action scoring,
   greedy single-candidate route path core, ranked-K route candidate enumeration,
-  candidate cost/path-size metadata, candidate selection, reroute decision core를 담당한다
+  candidate cost/path-size metadata, candidate selection, reroute decision core,
+  active-agent movement action planning을 담당한다
 - explicit `rust_cpu` backend는 fail-closed이고, `auto`에서만 baseline fallback을 허용한다
-- 현재 Rust CPU wrapper는 edge 입력을 `Vec<f64>`, flow/routing 입력을 `Vec<f32>`/`Vec<i32>`/`Vec<bool>`로 복사한다
+- 현재 Rust CPU wrapper는 edge 입력을 `Vec<f64>`, flow/routing 입력을 `Vec<f32>`/`Vec<i32>`/`Vec<bool>`,
+  active-agent slot/action 입력을 `Vec<i32>`로 복사한다
 - `edge_backend="auto"`는 `rust_cpu` → `jax` → `baseline`, `flow_backend="auto"`는 `rust_cpu` → `baseline` 순서만 허용한다
 - `routing_backend="auto"`는 `rust_cpu` → `baseline` 순서만 허용한다
+- `agent_backend="auto"`는 `rust_cpu` → `baseline` 순서만 허용한다
 - routing candidate `auto`는 Rust dynamic-potential cost-to-go, next-link action scoring,
   greedy path, ranked-K route candidate, candidate metadata, candidate selection 함수가 모두
   사용 가능할 때만 Rust를 선택한다
@@ -62,6 +68,8 @@
   metadata가 authoritative contract다. result/report에는 `candidate_enumeration_backend`와
   `candidate_metadata_backend`를 남겨야 한다
 - PyTorch/libtorch/custom CUDA는 profiling 이후 좁은 hot kernel에만 추가한다
+- `torch_cuda`/`custom_cuda`는 현재 runtime config 값이 아니며, 단일 stage가 최소 3개 deterministic
+  seed에서 wall time의 30%를 넘고 Rust/baseline parity가 green일 때만 별도 slice로 검토한다
 
 ## tests
 - 새 상태변수/계약 추가 시 테스트 동시 추가

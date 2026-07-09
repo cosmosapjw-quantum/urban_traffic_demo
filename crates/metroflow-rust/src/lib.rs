@@ -19,6 +19,16 @@ type FlowBatchResult = (
     Vec<i32>,
 );
 
+type AgentBatchResult = (
+    Vec<i32>,
+    Vec<i32>,
+    Vec<i32>,
+    Vec<i32>,
+    Vec<i32>,
+    Vec<i32>,
+    Vec<i32>,
+);
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 struct RoutingHeapState {
     cost: f32,
@@ -1296,6 +1306,160 @@ fn compute_baseline_flow_arrays_batch_impl(
     ))
 }
 
+#[allow(clippy::too_many_arguments)]
+fn advance_active_agents_batch_impl(
+    slot_ids: &[i32],
+    trip_ids: &[i32],
+    current_link_ids: &[i32],
+    route_ptrs: &[i32],
+    cooldown_ticks: &[i32],
+    route_offsets: &[i32],
+    route_link_ids: &[i32],
+    movement_budget_link_ids: &[i32],
+    movement_budget_counts: &[i32],
+    completion_budget_link_ids: &[i32],
+    completion_budget_counts: &[i32],
+    skip_slot_ids: &[i32],
+) -> Result<AgentBatchResult, String> {
+    let slot_count = slot_ids.len();
+    for (name, length) in [
+        ("trip_ids", trip_ids.len()),
+        ("current_link_ids", current_link_ids.len()),
+        ("route_ptrs", route_ptrs.len()),
+        ("cooldown_ticks", cooldown_ticks.len()),
+    ] {
+        if length != slot_count {
+            return Err(format!(
+                "{name} length must match slot_ids length: got {length}, expected {slot_count}"
+            ));
+        }
+    }
+    if route_offsets.len() != slot_count + 1 {
+        return Err(format!(
+            "route_offsets length must be slot_ids length + 1: got {}, expected {}",
+            route_offsets.len(),
+            slot_count + 1
+        ));
+    }
+    if movement_budget_link_ids.len() != movement_budget_counts.len() {
+        return Err("movement budget ids/counts must have equal lengths".to_string());
+    }
+    if completion_budget_link_ids.len() != completion_budget_counts.len() {
+        return Err("completion budget ids/counts must have equal lengths".to_string());
+    }
+
+    let mut previous_offset = 0_i32;
+    for offset in route_offsets {
+        if *offset < previous_offset {
+            return Err("route_offsets must be non-decreasing".to_string());
+        }
+        if *offset < 0 || (*offset as usize) > route_link_ids.len() {
+            return Err("route_offsets contains out-of-range offsets".to_string());
+        }
+        previous_offset = *offset;
+    }
+    if route_offsets.last().copied().unwrap_or_default() as usize != route_link_ids.len() {
+        return Err("route_offsets last value must equal route_link_ids length".to_string());
+    }
+    for (name, values) in [
+        ("slot_ids", slot_ids),
+        ("trip_ids", trip_ids),
+        ("current_link_ids", current_link_ids),
+        ("route_ptrs", route_ptrs),
+        ("cooldown_ticks", cooldown_ticks),
+        ("route_link_ids", route_link_ids),
+        ("movement_budget_link_ids", movement_budget_link_ids),
+        ("movement_budget_counts", movement_budget_counts),
+        ("completion_budget_link_ids", completion_budget_link_ids),
+        ("completion_budget_counts", completion_budget_counts),
+        ("skip_slot_ids", skip_slot_ids),
+    ] {
+        if values.iter().any(|value| *value < 0) {
+            return Err(format!("{name} must be non-negative"));
+        }
+    }
+
+    let mut movement_budget: HashMap<i32, i32> = HashMap::new();
+    for (link_id, count) in movement_budget_link_ids
+        .iter()
+        .zip(movement_budget_counts.iter())
+    {
+        movement_budget
+            .entry(*link_id)
+            .and_modify(|existing| *existing += *count)
+            .or_insert(*count);
+    }
+    let mut completion_budget: HashMap<i32, i32> = HashMap::new();
+    for (link_id, count) in completion_budget_link_ids
+        .iter()
+        .zip(completion_budget_counts.iter())
+    {
+        completion_budget
+            .entry(*link_id)
+            .and_modify(|existing| *existing += *count)
+            .or_insert(*count);
+    }
+    let skip_slots: HashSet<i32> = skip_slot_ids.iter().copied().collect();
+    let mut next_current_link_ids = current_link_ids.to_vec();
+    let mut next_route_ptrs = route_ptrs.to_vec();
+    let mut next_cooldown_ticks = cooldown_ticks.to_vec();
+    let mut moved_slot_ids = Vec::new();
+    let mut sink_wait_slot_ids = Vec::new();
+    let mut released_slot_ids = Vec::new();
+    let mut completed_trip_ids = Vec::new();
+
+    for idx in 0..slot_count {
+        let slot_id = slot_ids[idx];
+        if skip_slots.contains(&slot_id) {
+            continue;
+        }
+        let start = route_offsets[idx] as usize;
+        let end = route_offsets[idx + 1] as usize;
+        let path = &route_link_ids[start..end];
+        if path.is_empty() {
+            released_slot_ids.push(slot_id);
+            completed_trip_ids.push(trip_ids[idx]);
+            continue;
+        }
+        let current_link_id = current_link_ids[idx];
+        let ptr = route_ptrs[idx] as usize;
+        if ptr >= path.len().saturating_sub(1) {
+            let remaining = completion_budget
+                .get(&current_link_id)
+                .copied()
+                .unwrap_or(0);
+            if remaining <= 0 {
+                sink_wait_slot_ids.push(slot_id);
+                continue;
+            }
+            completion_budget.insert(current_link_id, remaining - 1);
+            released_slot_ids.push(slot_id);
+            completed_trip_ids.push(trip_ids[idx]);
+            continue;
+        }
+        let remaining = movement_budget.get(&current_link_id).copied().unwrap_or(0);
+        if remaining <= 0 {
+            continue;
+        }
+        movement_budget.insert(current_link_id, remaining - 1);
+        let next_ptr = ptr + 1;
+        next_route_ptrs[idx] = next_ptr as i32;
+        next_current_link_ids[idx] = path[next_ptr];
+        next_cooldown_ticks[idx] = (cooldown_ticks[idx] - 1).max(0);
+        moved_slot_ids.push(slot_id);
+    }
+
+    Ok((
+        next_current_link_ids,
+        next_route_ptrs,
+        next_cooldown_ticks,
+        moved_slot_ids,
+        sink_wait_slot_ids,
+        released_slot_ids,
+        completed_trip_ids,
+    ))
+}
+
 #[pyfunction]
 fn evolve_edges_batch(
     queue: Vec<f64>,
@@ -1507,6 +1671,39 @@ fn compute_reroute_decision_batch(
     .map_err(PyValueError::new_err)
 }
 
+#[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn advance_active_agents_batch(
+    slot_ids: Vec<i32>,
+    trip_ids: Vec<i32>,
+    current_link_ids: Vec<i32>,
+    route_ptrs: Vec<i32>,
+    cooldown_ticks: Vec<i32>,
+    route_offsets: Vec<i32>,
+    route_link_ids: Vec<i32>,
+    movement_budget_link_ids: Vec<i32>,
+    movement_budget_counts: Vec<i32>,
+    completion_budget_link_ids: Vec<i32>,
+    completion_budget_counts: Vec<i32>,
+    skip_slot_ids: Vec<i32>,
+) -> PyResult<AgentBatchResult> {
+    advance_active_agents_batch_impl(
+        &slot_ids,
+        &trip_ids,
+        &current_link_ids,
+        &route_ptrs,
+        &cooldown_ticks,
+        &route_offsets,
+        &route_link_ids,
+        &movement_budget_link_ids,
+        &movement_budget_counts,
+        &completion_budget_link_ids,
+        &completion_budget_counts,
+        &skip_slot_ids,
+    )
+    .map_err(PyValueError::new_err)
+}
+
 #[pymodule]
 fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evolve_edges_batch, m)?)?;
@@ -1518,6 +1715,7 @@ fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(compute_route_candidate_metadata, m)?)?;
     m.add_function(wrap_pyfunction!(select_route_candidate_index, m)?)?;
     m.add_function(wrap_pyfunction!(compute_reroute_decision_batch, m)?)?;
+    m.add_function(wrap_pyfunction!(advance_active_agents_batch, m)?)?;
     Ok(())
 }
 
@@ -2156,5 +2354,189 @@ mod tests {
         .expect_err("length mismatch should be rejected");
 
         assert!(error.contains("link_travel_time_cost length must match"));
+    }
+
+    #[test]
+    fn advances_active_agent_with_movement_budget() {
+        let result = advance_active_agents_batch_impl(
+            &[0],
+            &[101],
+            &[10],
+            &[0],
+            &[2],
+            &[0, 2],
+            &[10, 11],
+            &[10],
+            &[1],
+            &[],
+            &[],
+            &[],
+        )
+        .expect("agent action plan should compute");
+
+        assert_eq!(result.0, vec![11]);
+        assert_eq!(result.1, vec![1]);
+        assert_eq!(result.2, vec![1]);
+        assert_eq!(result.3, vec![0]);
+        assert!(result.4.is_empty());
+        assert!(result.5.is_empty());
+        assert!(result.6.is_empty());
+    }
+
+    #[test]
+    fn active_agent_waits_at_sink_when_completion_budget_is_zero() {
+        let result = advance_active_agents_batch_impl(
+            &[0],
+            &[101],
+            &[11],
+            &[1],
+            &[0],
+            &[0, 2],
+            &[10, 11],
+            &[],
+            &[],
+            &[11],
+            &[0],
+            &[],
+        )
+        .expect("sink wait action plan should compute");
+
+        assert_eq!(result.4, vec![0]);
+        assert!(result.5.is_empty());
+        assert!(result.6.is_empty());
+    }
+
+    #[test]
+    fn active_agent_completes_when_sink_budget_is_available() {
+        let result = advance_active_agents_batch_impl(
+            &[0],
+            &[101],
+            &[11],
+            &[1],
+            &[0],
+            &[0, 2],
+            &[10, 11],
+            &[],
+            &[],
+            &[11],
+            &[1],
+            &[],
+        )
+        .expect("completion action plan should compute");
+
+        assert!(result.4.is_empty());
+        assert_eq!(result.5, vec![0]);
+        assert_eq!(result.6, vec![101]);
+    }
+
+    #[test]
+    fn active_agent_skip_slot_does_not_move() {
+        let result = advance_active_agents_batch_impl(
+            &[0],
+            &[101],
+            &[10],
+            &[0],
+            &[2],
+            &[0, 2],
+            &[10, 11],
+            &[10],
+            &[1],
+            &[],
+            &[],
+            &[0],
+        )
+        .expect("skipped action plan should compute");
+
+        assert_eq!(result.0, vec![10]);
+        assert_eq!(result.1, vec![0]);
+        assert_eq!(result.2, vec![2]);
+        assert!(result.3.is_empty());
+    }
+
+    #[test]
+    fn active_agent_empty_route_releases_slot() {
+        let result = advance_active_agents_batch_impl(
+            &[0],
+            &[101],
+            &[10],
+            &[0],
+            &[0],
+            &[0, 0],
+            &[],
+            &[10],
+            &[1],
+            &[],
+            &[],
+            &[],
+        )
+        .expect("empty route release should compute");
+
+        assert_eq!(result.5, vec![0]);
+        assert_eq!(result.6, vec![101]);
+    }
+
+    #[test]
+    fn active_agent_shared_link_budget_uses_slot_order() {
+        let result = advance_active_agents_batch_impl(
+            &[0, 1],
+            &[101, 102],
+            &[10, 10],
+            &[0, 0],
+            &[0, 0],
+            &[0, 2, 4],
+            &[10, 11, 10, 12],
+            &[10],
+            &[1],
+            &[],
+            &[],
+            &[],
+        )
+        .expect("shared budget should compute");
+
+        assert_eq!(result.0, vec![11, 10]);
+        assert_eq!(result.1, vec![1, 0]);
+        assert_eq!(result.3, vec![0]);
+    }
+
+    #[test]
+    fn rejects_active_agent_length_mismatch() {
+        let error = advance_active_agents_batch_impl(
+            &[0],
+            &[101, 102],
+            &[10],
+            &[0],
+            &[0],
+            &[0, 2],
+            &[10, 11],
+            &[],
+            &[],
+            &[],
+            &[],
+            &[],
+        )
+        .expect_err("length mismatch should be rejected");
+
+        assert!(error.contains("trip_ids length must match slot_ids length"));
+    }
+
+    #[test]
+    fn rejects_active_agent_route_offset_mismatch() {
+        let error = advance_active_agents_batch_impl(
+            &[0],
+            &[101],
+            &[10],
+            &[0],
+            &[0],
+            &[0, 3],
+            &[10, 11],
+            &[],
+            &[],
+            &[],
+            &[],
+            &[],
+        )
+        .expect_err("invalid route offset should be rejected");
+
+        assert_eq!(error, "route_offsets contains out-of-range offsets");
     }
 }

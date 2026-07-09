@@ -129,12 +129,15 @@ def test_runtime_diagnostic_rollout_captures_frames_route_cache_and_summary() ->
     assert selected["utility"] == pytest.approx(-selected["path_cost"])
     assert selected["selection_backend"] == "python_host_candidate_selection"
     assert report.frames[0].active_agent_moved_this_tick == 0
+    assert report.frames[0].agent_backend == "baseline"
+    assert report.frames[0].active_agent_update_wall_ns >= 0
     assert report.frames[0].active_agent_rerouted_this_tick == 0
     assert report.frames[0].active_agent_reroute_cooldown_this_tick == 0
     assert report.frames[1].active_agent_count == 1
     assert report.frames[1].active_agent_moved_this_tick == 1
     assert report.frames[2].trip_completed_total == 1
     assert report.summary["final_tick"] == 3
+    assert report.summary["agent_backend"] == "baseline"
     assert report.summary["final_completed_trips_total"] == 1
     assert report.summary["route_candidate_reuse_total"] >= 1
     assert report.to_dict()["frames"][0]["sampled_link_congestion"]
@@ -166,6 +169,7 @@ def test_runtime_diagnostic_html_renderer_is_static_and_contains_svg_review_surf
     assert "moved" in html
     assert "rerouted" in html
     assert "cooldown" in html
+    assert "agent backend" in html
     assert "path size" in html
     assert "Selected Candidates" in html
 
