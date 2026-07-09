@@ -129,6 +129,8 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   machine-readable JSON으로 저장한다.
   `--runtime-suite-html-path artifacts/runtime-suite.html`은 stage gate와 per-seed backend를
   standalone review HTML로 렌더링한다.
+  `--runtime-suite-artifact-prefix artifacts/runtime-suite`는 `.md`, `.json`, `.html`,
+  `.manifest.json`을 한 번에 쓰는 long-run review bundle 표면이다.
 - isolated routing candidate benchmark는 `run_measured_routing_candidate_benchmark`를 사용하며
   dynamic-potential recompute/cache counters와 timing totals, final candidate path, ranked-K candidate
   paths/costs/path-size metadata, routing copy-boundary note를 기록한다.

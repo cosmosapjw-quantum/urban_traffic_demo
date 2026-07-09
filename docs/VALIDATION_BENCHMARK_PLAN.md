@@ -130,3 +130,6 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - `--runtime-suite-html-path`는 같은 JSON payload를 embedded data attribute와 stage/per-seed tables로
   렌더링한다. 이 HTML은 review/diagnostic artifact이며 runtime core 또는 UI snapshot dependency를
   추가하면 안 된다
+- `--runtime-suite-artifact-prefix`는 markdown, JSON, HTML, manifest를 함께 쓰는 bundle 표면이다.
+  manifest는 artifact path, workload, seed list, step count, GPU review eligible stage만 보존하고,
+  volatile wall-clock 값을 검증 주장으로 승격하면 안 된다

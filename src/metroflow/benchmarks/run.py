@@ -38,6 +38,7 @@ __all__ = [
     "run_benchmark",
     "execute_benchmark",
     "run_runtime_benchmark_suite",
+    "write_runtime_benchmark_suite_artifact_bundle",
     "main",
 ]
 
@@ -236,6 +237,64 @@ def run_runtime_benchmark_suite(
         "gpu_candidate_gate_report": suite_result.gpu_candidate_gate_report,
         "report": format_runtime_benchmark_suite_markdown(suite_result),
         "report_data": runtime_benchmark_suite_to_dict(suite_result),
+    }
+
+
+def write_runtime_benchmark_suite_artifact_bundle(
+    result: Mapping[str, Any],
+    *,
+    output_prefix: str | Path,
+) -> dict[str, Path]:
+    """Write markdown, JSON, HTML, and manifest artifacts for one runtime suite."""
+
+    prefix = Path(output_prefix)
+    markdown_path = Path(f"{prefix}.md")
+    json_path = Path(f"{prefix}.json")
+    html_path = Path(f"{prefix}.html")
+    manifest_path = Path(f"{prefix}.manifest.json")
+    for path in (markdown_path, json_path, html_path, manifest_path):
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+    report_text = str(result["report"])
+    report_data = result["report_data"]
+    if not isinstance(report_data, Mapping):
+        raise TypeError("runtime suite result report_data must be a mapping")
+
+    markdown_path.write_text(f"{report_text.rstrip()}\n", encoding="utf-8")
+    json_path.write_text(
+        json.dumps(report_data, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    html_path.write_text(render_runtime_benchmark_suite_html(report_data), encoding="utf-8")
+
+    gate_report = report_data.get("gpu_candidate_gate_report", {})
+    if not isinstance(gate_report, Mapping):
+        gate_report = {}
+    manifest = {
+        "artifact_format_version": "runtime_suite_bundle_v1",
+        "workload_name": str(report_data.get("workload_name", "unknown")),
+        "seeds": list(report_data.get("seeds", ()) or ()),
+        "seed_count": int(report_data.get("seed_count", 0) or 0),
+        "num_steps": int(report_data.get("num_steps", 0) or 0),
+        "gpu_review_eligible_stage_names": list(
+            gate_report.get("gpu_review_eligible_stage_names", ()) or ()
+        ),
+        "artifact_paths": {
+            "markdown": str(markdown_path),
+            "json": str(json_path),
+            "html": str(html_path),
+            "manifest": str(manifest_path),
+        },
+    }
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return {
+        "markdown": markdown_path,
+        "json": json_path,
+        "html": html_path,
+        "manifest": manifest_path,
     }
 
 
@@ -454,6 +513,12 @@ def main(argv: list[str] | None = None) -> int:
                 encoding="utf-8",
             )
             print("HTML:", f"path={html_path}")
+        if args.runtime_suite_artifact_prefix is not None:
+            bundle_paths = write_runtime_benchmark_suite_artifact_bundle(
+                result,
+                output_prefix=args.runtime_suite_artifact_prefix,
+            )
+            print("Bundle:", f"manifest={bundle_paths['manifest']}")
         print(report_text)
         return 0
 
@@ -536,6 +601,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--runtime-suite-report-path")
     parser.add_argument("--runtime-suite-json-path")
     parser.add_argument("--runtime-suite-html-path")
+    parser.add_argument("--runtime-suite-artifact-prefix")
     args = parser.parse_args(argv)
     if args.duration_ticks < 0:
         parser.error("--duration-ticks must be >= 0")

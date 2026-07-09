@@ -517,6 +517,116 @@ def test_benchmark_cli_runtime_suite_writes_html_file(
     assert "baseline / baseline / baseline" in html
 
 
+def test_runtime_benchmark_suite_artifact_bundle_writes_manifest(tmp_path) -> None:
+    import json
+
+    from metroflow.benchmarks.run import write_runtime_benchmark_suite_artifact_bundle
+
+    prefix = tmp_path / "runtime-suite"
+    paths = write_runtime_benchmark_suite_artifact_bundle(
+        {
+            "report": "- Runtime benchmark suite:\n- Workload: bundle-suite",
+            "report_data": {
+                "name": "measured_runtime_spine_suite",
+                "workload_name": "bundle-suite",
+                "seeds": [1, 2, 3],
+                "seed_count": 3,
+                "num_steps": 2,
+                "wall_clock_ns_total": 3000,
+                "per_seed_results": [
+                    {
+                        "seed": 1,
+                        "flow_backend": "baseline",
+                        "routing_backend": "baseline",
+                        "agent_backend": "baseline",
+                        "wall_clock_ns": 1000,
+                    }
+                ],
+                "gpu_candidate_gate_report": {
+                    "gpu_review_eligible_stage_names": ["flow_update"],
+                    "stage_summaries": [],
+                },
+            },
+        },
+        output_prefix=prefix,
+    )
+
+    manifest = json.loads(paths["manifest"].read_text(encoding="utf-8"))
+
+    assert paths["markdown"] == tmp_path / "runtime-suite.md"
+    assert paths["json"] == tmp_path / "runtime-suite.json"
+    assert paths["html"] == tmp_path / "runtime-suite.html"
+    assert paths["manifest"] == tmp_path / "runtime-suite.manifest.json"
+    assert paths["markdown"].read_text(encoding="utf-8") == (
+        "- Runtime benchmark suite:\n- Workload: bundle-suite\n"
+    )
+    assert json.loads(paths["json"].read_text(encoding="utf-8"))["seeds"] == [1, 2, 3]
+    assert "<main data-runtime-benchmark-suite=" in paths["html"].read_text(encoding="utf-8")
+    assert manifest["artifact_format_version"] == "runtime_suite_bundle_v1"
+    assert manifest["workload_name"] == "bundle-suite"
+    assert manifest["gpu_review_eligible_stage_names"] == ["flow_update"]
+
+
+def test_benchmark_cli_runtime_suite_writes_artifact_bundle(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    import json
+
+    from metroflow.benchmarks import run as benchmark_run_module
+
+    prefix = tmp_path / "runtime-suite"
+
+    def fake_runtime_suite(**kwargs: object) -> dict[str, object]:
+        return {
+            "suite_result": object(),
+            "gpu_candidate_gate_report": object(),
+            "report": "- Runtime benchmark suite:\n- Workload: cli-bundle",
+            "report_data": {
+                "name": "measured_runtime_spine_suite",
+                "workload_name": "cli-bundle",
+                "seeds": [4, 5, 6],
+                "seed_count": 3,
+                "num_steps": 1,
+                "wall_clock_ns_total": 3000,
+                "per_seed_results": [],
+                "gpu_candidate_gate_report": {
+                    "gpu_review_eligible_stage_names": [],
+                    "stage_summaries": [],
+                },
+            },
+        }
+
+    monkeypatch.setattr(
+        benchmark_run_module,
+        "run_runtime_benchmark_suite",
+        fake_runtime_suite,
+    )
+
+    exit_code = benchmark_run_module.main(
+        [
+            "--runtime-suite",
+            "--runtime-suite-workload",
+            "cli-bundle",
+            "--runtime-suite-artifact-prefix",
+            str(prefix),
+        ]
+    )
+
+    manifest_path = tmp_path / "runtime-suite.manifest.json"
+
+    assert exit_code == 0
+    assert (tmp_path / "runtime-suite.md").exists()
+    assert (tmp_path / "runtime-suite.json").exists()
+    assert (tmp_path / "runtime-suite.html").exists()
+    assert json.loads(manifest_path.read_text(encoding="utf-8"))["artifact_paths"] == {
+        "html": str(tmp_path / "runtime-suite.html"),
+        "json": str(tmp_path / "runtime-suite.json"),
+        "manifest": str(manifest_path),
+        "markdown": str(tmp_path / "runtime-suite.md"),
+    }
+
+
 def test_benchmark_cli_runtime_suite_rejects_empty_seed_list() -> None:
     from metroflow.benchmarks import run as benchmark_run_module
 
