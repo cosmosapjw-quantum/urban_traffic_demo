@@ -13,6 +13,7 @@ __all__ = [
     "format_benchmark_report_markdown",
     "format_runtime_benchmark_suite_markdown",
     "render_runtime_benchmark_suite_html",
+    "runtime_acceleration_candidate_report",
     "runtime_benchmark_suite_to_dict",
 ]
 
@@ -273,6 +274,9 @@ def render_runtime_benchmark_suite_html(result: Any) -> str:
     """Render a standalone HTML review artifact for a runtime benchmark suite."""
 
     payload = runtime_benchmark_suite_to_dict(result)
+    acceleration_report = _as_mapping(
+        payload.get("acceleration_candidate_report")
+    ) or runtime_acceleration_candidate_report(payload)
     data_json = escape(json.dumps(payload, separators=(",", ":"), sort_keys=True))
     stage_rows = "\n".join(
         _render_runtime_suite_stage_row(item)
@@ -292,6 +296,10 @@ def render_runtime_benchmark_suite_html(result: Any) -> str:
             )
         )
     ) or "none"
+    acceleration_rows = "\n".join(
+        _render_runtime_acceleration_row(item)
+        for item in _as_sequence(acceleration_report.get("stage_candidates"))
+    )
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -335,11 +343,40 @@ def render_runtime_benchmark_suite_html(result: Any) -> str:
     <thead><tr><th>seed</th><th>wall-clock ns</th><th>flow / routing / agent backend</th></tr></thead>
     <tbody>{seed_rows}</tbody>
   </table>
+  <h2>Acceleration Candidate Review</h2>
+  <table>
+    <thead><tr><th>stage</th><th>mean share</th><th>JAX/GPU</th><th>NN surrogate</th><th>Rust CPU</th><th>next probe</th></tr></thead>
+    <tbody>{acceleration_rows}</tbody>
+  </table>
   <p class="note">This static HTML is a review artifact for backend migration planning. It is not a validation claim or GPU/C++ implementation authorization.</p>
 </main>
 </body>
 </html>
 """
+
+
+def runtime_acceleration_candidate_report(result: Any) -> dict[str, Any]:
+    """Summarize runtime stages as Rust/GPU/NN acceleration candidates."""
+
+    payload = runtime_benchmark_suite_to_dict(result)
+    gate_report = _as_mapping(payload.get("gpu_candidate_gate_report"))
+    stage_summaries = tuple(_as_mapping(item) for item in _as_sequence(gate_report.get("stage_summaries")))
+    mean_share_total = sum(_as_float(stage.get("mean_wall_time_share")) for stage in stage_summaries)
+    stage_candidates = tuple(_acceleration_candidate_for_stage(stage) for stage in stage_summaries)
+    return {
+        "report_type": "runtime_acceleration_candidate_report_v1",
+        "workload_name": str(payload.get("workload_name", "unknown")),
+        "eager_trip_generation": bool(payload.get("eager_trip_generation", False)),
+        "stage_mean_wall_time_share_total": round(mean_share_total, 6),
+        "timing_overlap_warning": mean_share_total > 1.0,
+        "stage_candidates": list(stage_candidates),
+        "notes": [
+            (
+                "Stage shares can overlap when a coarse stage contains a nested measured stage; "
+                "do not sum them as exclusive wall-clock partitions."
+            )
+        ] if mean_share_total > 1.0 else [],
+    }
 
 
 def _json_ready(value: Any) -> Any:
@@ -355,6 +392,94 @@ def _json_ready(value: Any) -> Any:
     if isinstance(value, str | int | float | bool) or value is None:
         return value
     return str(value)
+
+
+def _acceleration_candidate_for_stage(stage: Mapping[str, Any]) -> dict[str, Any]:
+    stage_name = str(stage.get("stage_name", "unknown"))
+    profile = _stage_acceleration_profile(stage_name)
+    return {
+        "stage_name": stage_name,
+        "mean_wall_time_share": _as_float(stage.get("mean_wall_time_share")),
+        "max_wall_time_share": _as_float(stage.get("max_wall_time_share")),
+        "max_wall_clock_ns": int(stage.get("max_wall_clock_ns", 0) or 0),
+        "gpu_review_eligible": bool(stage.get("gpu_review_eligible", False)),
+        "jax_gpu_fit": profile["jax_gpu_fit"],
+        "nn_surrogate_fit": profile["nn_surrogate_fit"],
+        "rust_cpu_fit": profile["rust_cpu_fit"],
+        "custom_cuda_fit": profile["custom_cuda_fit"],
+        "recommended_next_probe": profile["recommended_next_probe"],
+        "rationale": profile["rationale"],
+    }
+
+
+def _stage_acceleration_profile(stage_name: str) -> dict[str, str]:
+    profiles = {
+        "route_candidate_refresh": {
+            "jax_gpu_fit": "medium",
+            "nn_surrogate_fit": "high",
+            "rust_cpu_fit": "medium",
+            "custom_cuda_fit": "low",
+            "recommended_next_probe": "split OD batching, cache lookup, candidate scoring, and path construction timings",
+            "rationale": "mixed graph/orchestration workload; NN route scorer or batched JAX scoring may help after baseline labels exist",
+        },
+        "dynamic_potential_recompute": {
+            "jax_gpu_fit": "low",
+            "nn_surrogate_fit": "high",
+            "rust_cpu_fit": "high",
+            "custom_cuda_fit": "low",
+            "recommended_next_probe": "keep Dijkstra authoritative and collect labels for learned cost-to-go surrogate experiments",
+            "rationale": "reverse graph search is irregular for GPU kernels, but it can supervise NN cost-to-go approximators",
+        },
+        "active_agent_update": {
+            "jax_gpu_fit": "low",
+            "nn_surrogate_fit": "medium",
+            "rust_cpu_fit": "high",
+            "custom_cuda_fit": "low",
+            "recommended_next_probe": "separate Python pack, Rust action core, and immutable pool apply timings",
+            "rationale": "deterministic slot-order budget mutation is CPU/control-flow heavy; NN/GPU belongs in policy scoring, not state apply",
+        },
+        "flow_update": {
+            "jax_gpu_fit": "high",
+            "nn_surrogate_fit": "low",
+            "rust_cpu_fit": "medium",
+            "custom_cuda_fit": "high",
+            "recommended_next_probe": "profile larger dense flow batches before opening custom CUDA",
+            "rationale": "array-style numeric update is tensor friendly when it becomes a sustained wall-time share",
+        },
+        "reroute_decision": {
+            "jax_gpu_fit": "medium",
+            "nn_surrogate_fit": "high",
+            "rust_cpu_fit": "medium",
+            "custom_cuda_fit": "low",
+            "recommended_next_probe": "collect simulator labels for policy/choice NN and keep deterministic fallback",
+            "rationale": "decision scoring can become batched tensor inference, while route legality remains baseline-checked",
+        },
+    }
+    return profiles.get(
+        stage_name,
+        {
+            "jax_gpu_fit": "low",
+            "nn_surrogate_fit": "low",
+            "rust_cpu_fit": "medium",
+            "custom_cuda_fit": "low",
+            "recommended_next_probe": "add a stage-specific timing probe before selecting a backend",
+            "rationale": "stage has no established acceleration profile yet",
+        },
+    )
+
+
+def _render_runtime_acceleration_row(item: Any) -> str:
+    candidate = _as_mapping(item)
+    return (
+        "<tr>"
+        f"<td>{escape(str(candidate.get('stage_name', 'unknown')))}</td>"
+        f"<td>{escape(_fmt(candidate.get('mean_wall_time_share')))}</td>"
+        f"<td>{escape(str(candidate.get('jax_gpu_fit', 'low')))}</td>"
+        f"<td>{escape(str(candidate.get('nn_surrogate_fit', 'low')))}</td>"
+        f"<td>{escape(str(candidate.get('rust_cpu_fit', 'medium')))}</td>"
+        f"<td>{escape(str(candidate.get('recommended_next_probe', 'N/A')))}</td>"
+        "</tr>"
+    )
 
 
 def _render_runtime_suite_stage_row(item: Any) -> str:
@@ -400,6 +525,13 @@ def _as_sequence(value: Any) -> tuple[Any, ...]:
     if isinstance(value, tuple | list):
         return tuple(value)
     return ()
+
+
+def _as_float(value: Any) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def _as_optional_float(value: Any) -> float | None:

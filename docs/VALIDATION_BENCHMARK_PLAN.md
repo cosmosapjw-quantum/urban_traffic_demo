@@ -131,8 +131,13 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   렌더링한다. 이 HTML은 review/diagnostic artifact이며 runtime core 또는 UI snapshot dependency를
   추가하면 안 된다
 - `--runtime-suite-artifact-prefix`는 markdown, JSON, HTML, manifest를 함께 쓰는 bundle 표면이다.
-  manifest는 artifact path, workload, seed list, step count, GPU review eligible stage만 보존하고,
-  volatile wall-clock 값을 검증 주장으로 승격하면 안 된다
+  manifest는 artifact path, workload, seed list, step count, GPU review eligible stage와
+  JAX/GPU, NN surrogate, Rust CPU 후보 stage 이름만 보존하고, volatile wall-clock 값을 검증 주장으로
+  승격하면 안 된다
 - `--runtime-suite-eager-trip-generation`은 초기 trip demand를 생성해 routing/active-agent stage timing을
   관측하기 위한 옵션이다. 이 옵션은 benchmark workload metadata로 취급하고 replay/validation claim으로
   과장하지 않는다. JSON payload와 bundle manifest는 `eager_trip_generation` 값을 보존해야 한다
+- runtime acceleration candidate report는 GPU gate와 별도로 stage별 JAX/GPU 적합도, NN surrogate
+  적합도, Rust CPU 적합도, custom CUDA 적합도, 다음 timing probe를 기록한다. coarse stage와 nested
+  stage가 함께 측정되면 `timing_overlap_warning`을 남겨 mean share 합계를 exclusive wall-clock
+  partition으로 오독하지 않게 해야 한다

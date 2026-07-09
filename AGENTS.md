@@ -71,3 +71,4 @@
 - 036-runtime-suite-bundle: Added `--runtime-suite-artifact-prefix` to write markdown, JSON, HTML, and manifest together
 - 037-runtime-suite-eager-demand: Exposed `--runtime-suite-eager-trip-generation` for non-empty routing/agent benchmark workloads
 - 038-runtime-suite-eager-metadata: Preserved eager trip generation in runtime suite JSON payloads and bundle manifests
+- 039-runtime-acceleration-report: Added JAX/GPU, NN surrogate, Rust CPU acceleration candidate reporting and timing-overlap warnings

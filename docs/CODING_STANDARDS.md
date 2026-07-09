@@ -76,6 +76,8 @@
 - runtime benchmark는 flow update, route candidate refresh, dynamic-potential recompute,
   reroute decision, active-agent update stage timing을 보존해야 한다. GPU 후보 표시는
   `gpu_candidate_stage_names` metadata로만 남기고 runtime backend 값으로 승격하지 않는다
+- runtime acceleration candidate report는 GPU gate와 분리한다. JAX/GPU fit, NN surrogate fit,
+  Rust CPU fit, custom CUDA fit은 planning metadata이며 backend config 값이나 validation claim이 아니다.
 - GPU/C++ 착수 후보는 `summarize_runtime_gpu_candidate_gate`로 3개 이상의 unique deterministic
   seed 결과를 집계해 모든 run에서 threshold를 넘는 stage만 `gpu_review_eligible`로 표시한다
 - `run_measured_runtime_spine_benchmark_suite`는 seed 중복을 fail-closed로 거부하고,

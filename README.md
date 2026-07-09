@@ -14,6 +14,8 @@
 - 기본 설치는 NumPy baseline만 요구한다.
 - NVIDIA RTX 3080 Ti 12GB는 optional `jax` extra로 단일 GPU CUDA 13 경로를 선택적으로 사용한다.
 - core loop 기본값은 항상 baseline이며, JAX/CUDA 경로는 명시적으로 요청한 경우에만 사용한다.
+- JAX/GPU와 NN surrogate는 route scoring, policy scoring, dense flow batch처럼 tensor-friendly stage의
+  후보 실험 표면으로 유지한다. deterministic NumPy/Rust baseline은 replay와 validation authority다.
 - `edge_backend="rust_cpu"`와 `edge_backend="jax"`는 실패 시 예외를 내고,
   `edge_backend="auto"`만 `rust_cpu` → `jax` → `baseline` 순서의 fallback을 허용한다.
 - `SimulationConfig`의 runtime backend 기본값은 `edge_backend="baseline"`,
@@ -133,6 +135,9 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   `.manifest.json`을 한 번에 쓰는 long-run review bundle 표면이다.
   `--runtime-suite-eager-trip-generation`은 초기 trip demand를 생성해 routing/active-agent 단계가
   비어 있는 smoke 결과만 보지 않도록 한다.
+  JSON/HTML/manifest에는 GPU gate와 별도로 acceleration candidate report를 포함한다. 이 report는
+  stage별 JAX/GPU 적합도, NN surrogate 적합도, Rust CPU 적합도, 다음 timing probe와 coarse/nested
+  timing overlap 경고를 남기며, C++/CUDA 또는 NN 구현 허가가 아니라 다음 실험 선택 자료다.
 - isolated routing candidate benchmark는 `run_measured_routing_candidate_benchmark`를 사용하며
   dynamic-potential recompute/cache counters와 timing totals, final candidate path, ranked-K candidate
   paths/costs/path-size metadata, routing copy-boundary note를 기록한다.

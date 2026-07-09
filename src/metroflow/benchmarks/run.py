@@ -18,6 +18,7 @@ from metroflow.benchmarks.reporting import (
     format_benchmark_report_markdown,
     format_runtime_benchmark_suite_markdown,
     render_runtime_benchmark_suite_html,
+    runtime_acceleration_candidate_report,
     runtime_benchmark_suite_to_dict,
 )
 from metroflow.metrics.benchmarks import (
@@ -234,6 +235,7 @@ def run_runtime_benchmark_suite(
     )
     report_data = runtime_benchmark_suite_to_dict(suite_result)
     report_data["eager_trip_generation"] = bool(eager_trip_generation)
+    report_data["acceleration_candidate_report"] = runtime_acceleration_candidate_report(report_data)
     return {
         "suite_result": suite_result,
         "gpu_candidate_gate_report": suite_result.gpu_candidate_gate_report,
@@ -258,9 +260,14 @@ def write_runtime_benchmark_suite_artifact_bundle(
         path.parent.mkdir(parents=True, exist_ok=True)
 
     report_text = str(result["report"])
-    report_data = result["report_data"]
-    if not isinstance(report_data, Mapping):
+    raw_report_data = result["report_data"]
+    if not isinstance(raw_report_data, Mapping):
         raise TypeError("runtime suite result report_data must be a mapping")
+    report_data = dict(raw_report_data)
+    acceleration_report = report_data.get("acceleration_candidate_report")
+    if not isinstance(acceleration_report, Mapping):
+        acceleration_report = runtime_acceleration_candidate_report(report_data)
+        report_data["acceleration_candidate_report"] = acceleration_report
 
     markdown_path.write_text(f"{report_text.rstrip()}\n", encoding="utf-8")
     json_path.write_text(
@@ -282,6 +289,19 @@ def write_runtime_benchmark_suite_artifact_bundle(
         "gpu_review_eligible_stage_names": list(
             gate_report.get("gpu_review_eligible_stage_names", ()) or ()
         ),
+        "timing_overlap_warning": bool(acceleration_report.get("timing_overlap_warning", False)),
+        "jax_gpu_candidate_stage_names": _candidate_stage_names_by_fit(
+            acceleration_report,
+            fit_key="jax_gpu_fit",
+        ),
+        "nn_surrogate_candidate_stage_names": _candidate_stage_names_by_fit(
+            acceleration_report,
+            fit_key="nn_surrogate_fit",
+        ),
+        "rust_cpu_candidate_stage_names": _candidate_stage_names_by_fit(
+            acceleration_report,
+            fit_key="rust_cpu_fit",
+        ),
         "artifact_paths": {
             "markdown": str(markdown_path),
             "json": str(json_path),
@@ -299,6 +319,20 @@ def write_runtime_benchmark_suite_artifact_bundle(
         "html": html_path,
         "manifest": manifest_path,
     }
+
+
+def _candidate_stage_names_by_fit(
+    acceleration_report: Mapping[str, Any],
+    *,
+    fit_key: str,
+) -> list[str]:
+    names: list[str] = []
+    for item in acceleration_report.get("stage_candidates", ()) or ():
+        if not isinstance(item, Mapping):
+            continue
+        if str(item.get(fit_key, "low")) in {"medium", "high"}:
+            names.append(str(item.get("stage_name", "unknown")))
+    return names
 
 
 def build_benchmark_run_summary(

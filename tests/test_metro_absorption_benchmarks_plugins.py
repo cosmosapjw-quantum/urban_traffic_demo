@@ -237,6 +237,105 @@ def test_runtime_benchmark_suite_html_renders_stage_gate_metadata() -> None:
     assert "baseline / baseline / baseline" in html
 
 
+def test_runtime_acceleration_candidate_report_flags_gpu_nn_fit_and_overlap() -> None:
+    from metroflow.benchmarks.reporting import runtime_acceleration_candidate_report
+
+    payload = {
+        "workload_name": "eager-gpu-nn-review",
+        "eager_trip_generation": True,
+        "gpu_candidate_gate_report": {
+            "gpu_review_eligible_stage_names": [
+                "route_candidate_refresh",
+                "active_agent_update",
+            ],
+            "stage_summaries": [
+                {
+                    "stage_name": "route_candidate_refresh",
+                    "candidate_run_count": 3,
+                    "deterministic_run_count": 3,
+                    "mean_wall_time_share": 0.50,
+                    "min_wall_time_share": 0.49,
+                    "max_wall_time_share": 0.51,
+                    "max_wall_clock_ns": 900,
+                    "gpu_review_eligible": True,
+                },
+                {
+                    "stage_name": "dynamic_potential_recompute",
+                    "candidate_run_count": 0,
+                    "deterministic_run_count": 3,
+                    "mean_wall_time_share": 0.20,
+                    "min_wall_time_share": 0.19,
+                    "max_wall_time_share": 0.21,
+                    "max_wall_clock_ns": 500,
+                    "gpu_review_eligible": False,
+                },
+                {
+                    "stage_name": "active_agent_update",
+                    "candidate_run_count": 3,
+                    "deterministic_run_count": 3,
+                    "mean_wall_time_share": 0.42,
+                    "min_wall_time_share": 0.40,
+                    "max_wall_time_share": 0.43,
+                    "max_wall_clock_ns": 700,
+                    "gpu_review_eligible": True,
+                },
+            ],
+        },
+    }
+
+    report = runtime_acceleration_candidate_report(payload)
+    candidates = {
+        candidate["stage_name"]: candidate
+        for candidate in report["stage_candidates"]
+    }
+
+    assert report["report_type"] == "runtime_acceleration_candidate_report_v1"
+    assert report["eager_trip_generation"] is True
+    assert report["timing_overlap_warning"] is True
+    assert candidates["route_candidate_refresh"]["nn_surrogate_fit"] == "high"
+    assert candidates["route_candidate_refresh"]["jax_gpu_fit"] == "medium"
+    assert candidates["active_agent_update"]["rust_cpu_fit"] == "high"
+    assert candidates["active_agent_update"]["nn_surrogate_fit"] == "medium"
+    assert candidates["dynamic_potential_recompute"]["nn_surrogate_fit"] == "high"
+
+
+def test_runtime_benchmark_suite_html_renders_acceleration_candidate_report() -> None:
+    from metroflow.benchmarks.reporting import render_runtime_benchmark_suite_html
+
+    html = render_runtime_benchmark_suite_html(
+        {
+            "name": "measured_runtime_spine_suite",
+            "workload_name": "runtime-suite-acceleration",
+            "eager_trip_generation": True,
+            "seeds": [1, 2, 3],
+            "seed_count": 3,
+            "num_steps": 2,
+            "wall_clock_ns_total": 3000,
+            "per_seed_results": [],
+            "gpu_candidate_gate_report": {
+                "gpu_review_eligible_stage_names": ["route_candidate_refresh"],
+                "stage_summaries": [
+                    {
+                        "stage_name": "route_candidate_refresh",
+                        "candidate_run_count": 3,
+                        "deterministic_run_count": 3,
+                        "mean_wall_time_share": 0.50,
+                        "min_wall_time_share": 0.49,
+                        "max_wall_time_share": 0.51,
+                        "max_wall_clock_ns": 900,
+                        "gpu_review_eligible": True,
+                    }
+                ],
+            },
+        }
+    )
+
+    assert "Acceleration Candidate Review" in html
+    assert "<td>route_candidate_refresh</td>" in html
+    assert "<td>medium</td>" in html
+    assert "<td>high</td>" in html
+
+
 def test_runtime_benchmark_suite_runner_returns_review_artifacts(monkeypatch: pytest.MonkeyPatch) -> None:
     from metroflow.benchmarks import run_runtime_benchmark_suite
     from metroflow.benchmarks import run as benchmark_run_module
@@ -320,6 +419,7 @@ def test_runtime_benchmark_suite_runner_returns_review_artifacts(monkeypatch: py
     assert result["report_data"]["workload_name"] == "runner-suite"
     assert result["report_data"]["seeds"] == [11, 12, 13]
     assert result["report_data"]["eager_trip_generation"] is True
+    assert result["report_data"]["acceleration_candidate_report"]["eager_trip_generation"] is True
     assert result["gpu_candidate_gate_report"].gpu_review_eligible_stage_names == (
         "active_agent_update",
     )
@@ -548,8 +648,42 @@ def test_runtime_benchmark_suite_artifact_bundle_writes_manifest(tmp_path) -> No
                     }
                 ],
                 "gpu_candidate_gate_report": {
-                    "gpu_review_eligible_stage_names": ["flow_update"],
-                    "stage_summaries": [],
+                    "gpu_review_eligible_stage_names": [
+                        "route_candidate_refresh",
+                        "active_agent_update",
+                    ],
+                    "stage_summaries": [
+                        {
+                            "stage_name": "route_candidate_refresh",
+                            "candidate_run_count": 3,
+                            "deterministic_run_count": 3,
+                            "mean_wall_time_share": 0.50,
+                            "min_wall_time_share": 0.49,
+                            "max_wall_time_share": 0.51,
+                            "max_wall_clock_ns": 900,
+                            "gpu_review_eligible": True,
+                        },
+                        {
+                            "stage_name": "dynamic_potential_recompute",
+                            "candidate_run_count": 0,
+                            "deterministic_run_count": 3,
+                            "mean_wall_time_share": 0.20,
+                            "min_wall_time_share": 0.19,
+                            "max_wall_time_share": 0.21,
+                            "max_wall_clock_ns": 500,
+                            "gpu_review_eligible": False,
+                        },
+                        {
+                            "stage_name": "active_agent_update",
+                            "candidate_run_count": 3,
+                            "deterministic_run_count": 3,
+                            "mean_wall_time_share": 0.42,
+                            "min_wall_time_share": 0.40,
+                            "max_wall_time_share": 0.43,
+                            "max_wall_clock_ns": 700,
+                            "gpu_review_eligible": True,
+                        },
+                    ],
                 },
             },
         },
@@ -570,7 +704,22 @@ def test_runtime_benchmark_suite_artifact_bundle_writes_manifest(tmp_path) -> No
     assert manifest["artifact_format_version"] == "runtime_suite_bundle_v1"
     assert manifest["workload_name"] == "bundle-suite"
     assert manifest["eager_trip_generation"] is True
-    assert manifest["gpu_review_eligible_stage_names"] == ["flow_update"]
+    assert manifest["gpu_review_eligible_stage_names"] == [
+        "route_candidate_refresh",
+        "active_agent_update",
+    ]
+    assert manifest["timing_overlap_warning"] is True
+    assert manifest["jax_gpu_candidate_stage_names"] == ["route_candidate_refresh"]
+    assert manifest["nn_surrogate_candidate_stage_names"] == [
+        "route_candidate_refresh",
+        "dynamic_potential_recompute",
+        "active_agent_update",
+    ]
+    assert manifest["rust_cpu_candidate_stage_names"] == [
+        "route_candidate_refresh",
+        "dynamic_potential_recompute",
+        "active_agent_update",
+    ]
 
 
 def test_benchmark_cli_runtime_suite_writes_artifact_bundle(
