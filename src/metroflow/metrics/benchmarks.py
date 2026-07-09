@@ -12,6 +12,10 @@ from metroflow.flow.state import LinkState, NodeState
 from metroflow.city.graph import RoadNetworkCSR
 from metroflow.routing.dynamic_potential import RoutingBackend, compute_dynamic_potential_state
 from metroflow.routing.candidates import create_route_candidate_set
+from metroflow.routing.reroute_policy import (
+    compute_reroute_decision_core,
+    rust_reroute_backend_available,
+)
 from metroflow.traffic.meso import EdgeEvolutionBackend
 from metroflow.sim.control import SimulationControl
 from metroflow.sim.config import SimulationConfig
@@ -19,10 +23,12 @@ from metroflow.sim.init import build_initial_simulation_state
 from metroflow.sim.rng import PRNGKeyArray
 from metroflow.sim.replay import ReplayInputSignatureRecord
 from metroflow.sim.orchestrator import step_world
+from metroflow.sim.routing_runtime import _select_candidate_route
 from metroflow.sim.state import SimulationState
 from metroflow.sim.step import simulation_step
 
 DenseFlowScaleProbeBackend = Literal["baseline", "rust_cpu", "jax_optional"]
+RouteScoreProbeBackend = Literal["baseline", "jax_optional"]
 
 
 @dataclass(frozen=True)
@@ -76,6 +82,21 @@ class MeasuredRoutingBenchmarkConfig:
     incoming_link_id: int | None = None
     max_hops: int = 64
     max_candidates: int = 1
+
+
+@dataclass(frozen=True)
+class MeasuredRouteScoringBatchBenchmarkConfig:
+    workload_name: str
+    num_steps: int
+    origin_node_id: int
+    destination_node_id: int
+    max_candidates: int = 2
+    max_hops: int = 64
+    path_size_gamma: float = 0.0
+    routing_backend: RoutingBackend = "baseline"
+    reroute_backend: RoutingBackend = "baseline"
+    reroute_batch_size: int = 32
+    score_probe_backend: RouteScoreProbeBackend = "baseline"
 
 
 @dataclass(frozen=True)
@@ -224,6 +245,59 @@ class MeasuredRoutingBenchmarkResult:
     dynamic_potential_cache_entry_count: int = 0
     route_candidate_refresh_seconds_total: float = 0.0
     dynamic_potential_recompute_seconds_total: float = 0.0
+
+
+@dataclass(frozen=True)
+class MeasuredRouteScoringBatchBenchmarkResult:
+    name: str
+    workload_name: str
+    wall_clock_ns: int
+    num_steps: int
+    link_count: int
+    turn_count: int
+    origin_node_id: int
+    destination_node_id: int
+    max_candidates: int
+    path_size_gamma: float
+    candidate_paths: tuple[tuple[int, ...], ...]
+    candidate_count: int
+    candidate_path_costs: tuple[float, ...]
+    candidate_path_size_factors: tuple[float, ...]
+    selected_candidate_index: int
+    selected_candidate_id: int
+    selected_candidate_utility: float
+    selection_backend: str
+    candidate_generation_mode: str
+    candidate_enumeration_backend: str
+    candidate_metadata_backend: str
+    routing_backend: RoutingBackend
+    routing_backend_requested: str
+    routing_backend_actual: str
+    routing_backend_fallback: str | None
+    reroute_backend: RoutingBackend
+    reroute_backend_actual: str
+    reroute_backend_fallback: str | None
+    score_probe_backend: str
+    score_probe_backend_actual: str
+    score_probe_backend_fallback: str | None
+    routing_copy_boundary_note: str
+    route_score_batch_shape: tuple[int, ...]
+    reroute_score_batch_shape: tuple[int, ...]
+    route_score_fingerprint: str
+    score_probe_fingerprint: str
+    score_probe_max_abs_diff_vs_baseline: float
+    reroute_score_fingerprint: str
+    reroute_decision_count: int
+    route_candidate_refresh_seconds_total: float
+    route_candidate_path_build_seconds_total: float
+    route_candidate_metadata_seconds_total: float
+    dynamic_potential_recompute_seconds_total: float
+    route_score_wall_ns_total: int
+    reroute_score_wall_ns_total: int
+    score_probe_wall_ns_total: int
+    jax_score_available: bool
+    jax_score_first_call_wall_ns: int
+    jax_score_steady_state_wall_ns: int
 
 
 @dataclass(frozen=True)
@@ -835,6 +909,215 @@ def run_measured_routing_candidate_benchmark(
     )
 
 
+def run_measured_route_scoring_batch_benchmark(
+    road_csr: RoadNetworkCSR,
+    link_state: LinkState,
+    config: MeasuredRouteScoringBatchBenchmarkConfig,
+) -> MeasuredRouteScoringBatchBenchmarkResult:
+    workload_name = config.workload_name.strip()
+    if not workload_name:
+        raise ValueError("workload_name must be non-empty.")
+    if config.num_steps <= 0:
+        raise ValueError("num_steps must be positive.")
+    if config.max_candidates < 2:
+        raise ValueError("max_candidates must be >= 2.")
+    if config.max_hops < 1:
+        raise ValueError("max_hops must be >= 1.")
+    if config.reroute_batch_size < 1:
+        raise ValueError("reroute_batch_size must be >= 1.")
+    if config.score_probe_backend not in {"baseline", "jax_optional"}:
+        raise ValueError("score_probe_backend must be one of: baseline, jax_optional.")
+    if config.score_probe_backend == "jax_optional" and config.num_steps < 2:
+        raise ValueError("jax_optional requires num_steps >= 2.")
+    if link_state.link_count != road_csr.link_count:
+        raise ValueError("link_state.link_count must match road_csr.link_count.")
+
+    candidate_paths: tuple[tuple[int, ...], ...] = ()
+    candidate_path_costs: tuple[float, ...] = ()
+    candidate_path_size_factors: tuple[float, ...] = ()
+    selected_candidate_index = -1
+    selected_candidate_id = -1
+    selected_candidate_utility = 0.0
+    selection_backend = "none"
+    candidate_generation_mode = "baseline_ranked_k"
+    candidate_enumeration_backend = "python_host_ranked_k"
+    candidate_metadata_backend = "python_host_candidate_metadata"
+    routing_backend_requested = str(config.routing_backend)
+    routing_backend_actual = str(config.routing_backend)
+    routing_backend_fallback: str | None = None
+    route_score_values = np.zeros((0,), dtype=np.float32)
+    reroute_score_values = np.zeros((0,), dtype=np.float32)
+    reroute_should = np.zeros((0,), dtype=np.bool_)
+    reroute_backend_actual = str(config.reroute_backend)
+    reroute_backend_fallback: str | None = None
+    route_score_wall_ns_total = 0
+    reroute_score_wall_ns_total = 0
+    stats: dict[str, object] = {}
+    reroute_inputs = _build_reroute_scoring_inputs(int(config.reroute_batch_size))
+    start_ns = perf_counter_ns()
+    for _ in range(int(config.num_steps)):
+        candidate_set = create_route_candidate_set(
+            road_csr=road_csr,
+            link_state=link_state,
+            od_key=(int(config.origin_node_id), int(config.destination_node_id)),
+            origin_node_id=int(config.origin_node_id),
+            destination_node_id=int(config.destination_node_id),
+            current_tick=0,
+            max_candidates=int(config.max_candidates),
+            max_hops=int(config.max_hops),
+            routing_backend=config.routing_backend,
+            stats=stats,
+        )
+        candidate_paths = candidate_set.candidate_paths
+        metadata = candidate_set.metadata
+        candidate_path_costs = tuple(
+            float(item) for item in tuple(metadata.get("candidate_path_costs", ()) or ())
+        )
+        candidate_path_size_factors = tuple(
+            float(item) for item in tuple(metadata.get("candidate_path_size_factors", ()) or ())
+        )
+        candidate_generation_mode = str(
+            metadata.get("candidate_generation_mode", candidate_generation_mode)
+        )
+        candidate_enumeration_backend = str(
+            metadata.get("candidate_enumeration_backend", candidate_enumeration_backend)
+        )
+        candidate_metadata_backend = str(
+            metadata.get("candidate_metadata_backend", candidate_metadata_backend)
+        )
+        routing_backend_requested = str(
+            metadata.get("routing_backend_requested", config.routing_backend)
+        )
+        routing_backend_actual = str(metadata.get("routing_backend", config.routing_backend))
+        fallback = metadata.get("routing_backend_fallback")
+        routing_backend_fallback = None if fallback is None else str(fallback)
+
+        route_score_start_ns = perf_counter_ns()
+        route_score_values = _route_score_values(
+            candidate_path_costs,
+            candidate_path_size_factors,
+            path_size_gamma=float(config.path_size_gamma),
+        )
+        selected = _select_candidate_route(
+            candidate_set,
+            path_size_gamma=float(config.path_size_gamma),
+            routing_backend=config.routing_backend,
+        )
+        route_score_wall_ns_total += max(0, perf_counter_ns() - route_score_start_ns)
+        if selected is None:
+            selected_candidate_index = -1
+            selected_candidate_id = -1
+            selected_candidate_utility = 0.0
+            selection_backend = "none"
+        else:
+            selected_candidate_index = int(selected.candidate_index)
+            selected_candidate_id = int(selected.candidate_id)
+            selected_candidate_utility = float(selected.utility)
+            selection_backend = str(selected.selection_backend)
+
+        (
+            reroute_should,
+            reroute_score_values,
+            reroute_backend_actual,
+            reroute_backend_fallback,
+            reroute_ns,
+        ) = _run_reroute_scoring_probe(
+            reroute_inputs,
+            routing_backend=config.reroute_backend,
+        )
+        reroute_score_wall_ns_total += int(reroute_ns)
+    elapsed_ns = perf_counter_ns() - start_ns
+
+    (
+        score_probe_values,
+        score_probe_ns,
+        jax_first_ns,
+        jax_steady_ns,
+        jax_available,
+        score_probe_backend_actual,
+        score_probe_backend_fallback,
+    ) = _run_route_score_probe_backend(
+        route_score_values,
+        candidate_path_costs,
+        candidate_path_size_factors,
+        path_size_gamma=float(config.path_size_gamma),
+        num_steps=int(config.num_steps),
+        score_probe_backend=config.score_probe_backend,
+    )
+
+    return MeasuredRouteScoringBatchBenchmarkResult(
+        name="measured_route_scoring_batch",
+        workload_name=workload_name,
+        wall_clock_ns=max(elapsed_ns, 0) + int(score_probe_ns),
+        num_steps=int(config.num_steps),
+        link_count=road_csr.link_count,
+        turn_count=road_csr.turn_count,
+        origin_node_id=int(config.origin_node_id),
+        destination_node_id=int(config.destination_node_id),
+        max_candidates=int(config.max_candidates),
+        path_size_gamma=float(config.path_size_gamma),
+        candidate_paths=tuple(tuple(int(link_id) for link_id in path) for path in candidate_paths),
+        candidate_count=len(candidate_paths),
+        candidate_path_costs=candidate_path_costs,
+        candidate_path_size_factors=candidate_path_size_factors,
+        selected_candidate_index=selected_candidate_index,
+        selected_candidate_id=selected_candidate_id,
+        selected_candidate_utility=selected_candidate_utility,
+        selection_backend=selection_backend,
+        candidate_generation_mode=candidate_generation_mode,
+        candidate_enumeration_backend=candidate_enumeration_backend,
+        candidate_metadata_backend=candidate_metadata_backend,
+        routing_backend=config.routing_backend,
+        routing_backend_requested=routing_backend_requested,
+        routing_backend_actual=routing_backend_actual,
+        routing_backend_fallback=routing_backend_fallback,
+        reroute_backend=config.reroute_backend,
+        reroute_backend_actual=reroute_backend_actual,
+        reroute_backend_fallback=reroute_backend_fallback,
+        score_probe_backend=str(config.score_probe_backend),
+        score_probe_backend_actual=score_probe_backend_actual,
+        score_probe_backend_fallback=score_probe_backend_fallback,
+        routing_copy_boundary_note=_routing_copy_boundary_note(config.routing_backend),
+        route_score_batch_shape=tuple(int(x) for x in route_score_values.shape),
+        reroute_score_batch_shape=tuple(int(x) for x in reroute_score_values.shape),
+        route_score_fingerprint=_fingerprint_numeric_arrays(
+            {"route_score_values": route_score_values}
+        ),
+        score_probe_fingerprint=_fingerprint_numeric_arrays(
+            {"route_score_values": score_probe_values}
+        ),
+        score_probe_max_abs_diff_vs_baseline=_max_abs_float32_array_diff(
+            route_score_values,
+            score_probe_values,
+        ),
+        reroute_score_fingerprint=_fingerprint_numeric_arrays(
+            {
+                "reroute_should": reroute_should,
+                "reroute_score_values": reroute_score_values,
+            }
+        ),
+        reroute_decision_count=int(np.count_nonzero(reroute_should)),
+        route_candidate_refresh_seconds_total=float(
+            stats.get("route_candidate_refresh_seconds_total", 0.0)
+        ),
+        route_candidate_path_build_seconds_total=float(
+            stats.get("route_candidate_path_build_seconds_total", 0.0)
+        ),
+        route_candidate_metadata_seconds_total=float(
+            stats.get("route_candidate_metadata_seconds_total", 0.0)
+        ),
+        dynamic_potential_recompute_seconds_total=float(
+            stats.get("dynamic_potential_recompute_seconds_total", 0.0)
+        ),
+        route_score_wall_ns_total=int(route_score_wall_ns_total),
+        reroute_score_wall_ns_total=int(reroute_score_wall_ns_total),
+        score_probe_wall_ns_total=int(score_probe_ns),
+        jax_score_available=bool(jax_available),
+        jax_score_first_call_wall_ns=int(jax_first_ns),
+        jax_score_steady_state_wall_ns=int(jax_steady_ns),
+    )
+
+
 def run_measured_runtime_spine_benchmark(
     state: SimulationState,
     rng_key: PRNGKeyArray,
@@ -1250,6 +1533,177 @@ def _normalize_workload_matrix_entry(
             decision_state=str(entry.get("decision_state", "diagnostic")),
         )
     raise TypeError("workload matrix entries must be BenchmarkWorkloadMatrixEntry values.")
+
+
+def _route_score_values(
+    candidate_path_costs: tuple[float, ...],
+    candidate_path_size_factors: tuple[float, ...],
+    *,
+    path_size_gamma: float,
+) -> np.ndarray:
+    costs = np.asarray(candidate_path_costs, dtype=np.float32)
+    if costs.ndim != 1:
+        raise ValueError("candidate_path_costs must be 1-D")
+    if int(costs.shape[0]) == 0:
+        return costs
+    path_sizes = np.ones_like(costs, dtype=np.float32)
+    raw_path_sizes = np.asarray(candidate_path_size_factors, dtype=np.float32)
+    if raw_path_sizes.ndim == 1 and int(raw_path_sizes.shape[0]) >= int(costs.shape[0]):
+        path_sizes = raw_path_sizes[: int(costs.shape[0])]
+    safe_path_sizes = np.where(
+        np.logical_and(np.isfinite(path_sizes), path_sizes > 0.0),
+        path_sizes,
+        np.asarray(1.0e-12, dtype=np.float32),
+    )
+    gamma = max(0.0, float(path_size_gamma))
+    return np.asarray(-costs + gamma * np.log(safe_path_sizes), dtype=np.float32)
+
+
+def _build_reroute_scoring_inputs(batch_size: int) -> dict[str, np.ndarray]:
+    count = int(batch_size)
+    if count < 1:
+        raise ValueError("batch_size must be >= 1")
+    x = np.linspace(0.0, 1.0, num=count, dtype=np.float32)
+    return {
+        "reroute_willingness": np.clip(0.15 + 0.80 * x, 0.0, 1.0),
+        "delay_sensitivity": np.asarray(0.25 + 2.50 * x, dtype=np.float32),
+        "exploration_bias": np.clip(0.05 + 0.40 * (1.0 - x), 0.0, 1.0),
+        "persistence_bias": np.asarray(-0.25 + 0.75 * x, dtype=np.float32),
+        "improvement_ratio": np.asarray(0.01 + 0.40 * x, dtype=np.float32),
+    }
+
+
+def _run_reroute_scoring_probe(
+    inputs: Mapping[str, np.ndarray],
+    *,
+    routing_backend: RoutingBackend,
+) -> tuple[np.ndarray, np.ndarray, str, str | None, int]:
+    backend = str(routing_backend)
+    fallback: str | None = None
+    actual_backend = backend
+    effective_backend = backend
+    if backend == "auto":
+        if rust_reroute_backend_available():
+            effective_backend = "rust_cpu"
+            actual_backend = "rust_cpu"
+        else:
+            effective_backend = "baseline"
+            actual_backend = "baseline"
+            fallback = "rust_cpu_unavailable"
+
+    start_ns = perf_counter_ns()
+    try:
+        should, score = compute_reroute_decision_core(
+            reroute_willingness=inputs["reroute_willingness"],
+            delay_sensitivity=inputs["delay_sensitivity"],
+            exploration_bias=inputs["exploration_bias"],
+            persistence_bias=inputs["persistence_bias"],
+            improvement_ratio=inputs["improvement_ratio"],
+            routing_backend=effective_backend,
+        )
+    except RuntimeError:
+        if backend != "auto":
+            raise
+        fallback = "rust_cpu_failed"
+        actual_backend = "baseline"
+        should, score = compute_reroute_decision_core(
+            reroute_willingness=inputs["reroute_willingness"],
+            delay_sensitivity=inputs["delay_sensitivity"],
+            exploration_bias=inputs["exploration_bias"],
+            persistence_bias=inputs["persistence_bias"],
+            improvement_ratio=inputs["improvement_ratio"],
+            routing_backend="baseline",
+        )
+    elapsed_ns = max(0, perf_counter_ns() - start_ns)
+    return (
+        np.asarray(should, dtype=np.bool_),
+        np.asarray(score, dtype=np.float32),
+        actual_backend,
+        fallback,
+        elapsed_ns,
+    )
+
+
+def _run_route_score_probe_backend(
+    baseline_scores: np.ndarray,
+    candidate_path_costs: tuple[float, ...],
+    candidate_path_size_factors: tuple[float, ...],
+    *,
+    path_size_gamma: float,
+    num_steps: int,
+    score_probe_backend: str,
+) -> tuple[np.ndarray, int, int, int, bool, str, str | None]:
+    baseline = np.asarray(baseline_scores, dtype=np.float32)
+    if score_probe_backend == "baseline":
+        return baseline.copy(), 0, 0, 0, False, "baseline", None
+    if score_probe_backend != "jax_optional":
+        raise ValueError("score_probe_backend must be one of: baseline, jax_optional.")
+    try:
+        import jax
+        import jax.numpy as jnp
+    except ImportError:
+        return baseline.copy(), 0, 0, 0, False, "unavailable", "jax_unavailable"
+
+    try:
+        costs = np.asarray(candidate_path_costs, dtype=np.float32)
+        path_sizes = np.ones_like(costs, dtype=np.float32)
+        raw_path_sizes = np.asarray(candidate_path_size_factors, dtype=np.float32)
+        if raw_path_sizes.ndim == 1 and int(raw_path_sizes.shape[0]) >= int(costs.shape[0]):
+            path_sizes = raw_path_sizes[: int(costs.shape[0])]
+        costs_jax = jnp.asarray(costs, dtype=jnp.float32)
+        path_sizes_jax = jnp.asarray(path_sizes, dtype=jnp.float32)
+        gamma_jax = jnp.asarray(max(0.0, float(path_size_gamma)), dtype=jnp.float32)
+
+        @jax.jit
+        def score(costs_now, path_sizes_now, gamma_now):
+            safe_path_sizes = jnp.where(
+                jnp.logical_and(jnp.isfinite(path_sizes_now), path_sizes_now > 0.0),
+                path_sizes_now,
+                jnp.asarray(1.0e-12, dtype=jnp.float32),
+            )
+            return -costs_now + gamma_now * jnp.log(safe_path_sizes)
+
+        first_start_ns = perf_counter_ns()
+        result = score(costs_jax, path_sizes_jax, gamma_jax)
+        jax.block_until_ready(result)
+        first_ns = max(0, perf_counter_ns() - first_start_ns)
+        steady_start_ns = perf_counter_ns()
+        for _ in range(int(num_steps) - 1):
+            result = score(costs_jax, path_sizes_jax, gamma_jax)
+        jax.block_until_ready(result)
+        steady_ns = max(0, perf_counter_ns() - steady_start_ns)
+        return (
+            np.asarray(result, dtype=np.float32),
+            first_ns + steady_ns,
+            first_ns,
+            steady_ns,
+            True,
+            "jax",
+            None,
+        )
+    except Exception:
+        return baseline.copy(), 0, 0, 0, False, "unavailable", "jax_failed"
+
+
+def _fingerprint_numeric_arrays(arrays: Mapping[str, np.ndarray]) -> str:
+    digest = hashlib.sha256()
+    for key in sorted(arrays):
+        array = np.ascontiguousarray(arrays[key])
+        digest.update(str(key).encode("utf-8"))
+        digest.update(str(array.dtype).encode("utf-8"))
+        digest.update(np.asarray(array.shape, dtype=np.int64).tobytes())
+        digest.update(array.tobytes())
+    return digest.hexdigest()
+
+
+def _max_abs_float32_array_diff(baseline: np.ndarray, probe: np.ndarray) -> float:
+    baseline_arr = np.asarray(baseline, dtype=np.float32)
+    probe_arr = np.asarray(probe, dtype=np.float32)
+    if baseline_arr.shape != probe_arr.shape:
+        return float("inf")
+    if baseline_arr.size == 0:
+        return 0.0
+    return float(np.max(np.abs(baseline_arr - probe_arr)))
 
 
 def _build_dense_flow_scale_state(

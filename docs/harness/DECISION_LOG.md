@@ -1,5 +1,40 @@
 # Decision Log
 
+## 2026-07-10: Route Scoring Probe Is Not Route Authority
+
+Status: accepted
+
+### Context
+
+PR04 showed that broad whole-runtime Rust routing is premature because
+path-build/metadata copy-boundary work can dominate. PR05 opened a dense-flow
+probe without changing runtime backend values. The next watchlist lane is route
+metadata/scoring shape evidence for NumPy/JAX/NN decisions.
+
+### Compact CCoT
+
+Question: How should K>1 route metadata, path-size scoring, and reroute scoring
+be measured without changing route legality?
+
+Evidence: Existing route candidate generation records candidate paths, path
+costs, path-size factors, and selection metadata. Reroute scoring already has a
+NumPy core and optional Rust explicit backend.
+
+Inference: PR06 should add measured scoring batch probes, not a new routing
+authority or runtime GPU backend.
+
+Counterevidence checked: JAX/NN may fit dense score arrays, but cannot own graph
+legality or state mutation without replay-safe labels and fallback.
+
+Decision: Route scoring probes remain benchmark-only. Baseline/Rust authority
+continues to own candidate legality and deterministic decisions.
+
+Falsifier: If this PR adds runtime GPU/NN backend values or changes candidate
+path legality, revert.
+
+Next action: Add RED tests for K>1 metadata timing, path-size utility, reroute
+batch shape, and optional JAX fallback metadata.
+
 ## 2026-07-10: Dense Flow Probe Is Benchmark-Only
 
 Status: accepted

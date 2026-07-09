@@ -92,7 +92,7 @@ Status: complete in `a80b369`.
 
 ## PR05 — Dense Flow Scale Probe
 
-Status: complete in this PR.
+Status: complete in `987cdbc`.
 
 - Build larger synthetic flow/turn workloads.
 - Compare NumPy baseline, Rust flow, and optional JAX compile/steady-state.
@@ -105,9 +105,13 @@ Status: complete in this PR.
 
 ## PR06 — Route Metadata/Scoring Batch Probe
 
+Status: in progress.
+
 - Measure K>1 candidate metadata, path-size scoring, and reroute scoring batch
   shapes.
 - Determine NumPy/JAX/NN fit without changing route legality.
+- Scope guard: scoring probes are benchmark-only and cannot become route
+  legality or runtime state-mutation authority.
 - Tests: K>1 metadata timing, path-size utility preservation, reroute scoring
   batch shape metadata.
 - Commit: `test(routing): add route scoring batch probes`.

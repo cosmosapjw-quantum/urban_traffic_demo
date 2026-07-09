@@ -1,5 +1,6 @@
 from dataclasses import replace
 import json
+import math
 import sys
 import types
 
@@ -26,12 +27,15 @@ from metroflow.metrics.benchmarks import (
     MeasuredRuntimeBenchmarkSuiteConfig,
     MeasuredRuntimeBenchmarkResult,
     MeasuredRuntimeBenchmarkSuiteResult,
+    MeasuredRouteScoringBatchBenchmarkConfig,
+    MeasuredRouteScoringBatchBenchmarkResult,
     RuntimeStageTiming,
     run_city_smoke_benchmark,
     run_measured_dense_flow_scale_benchmark,
     run_measured_dynamic_potential_benchmark,
     run_measured_flow_update_benchmark,
     run_measured_routing_candidate_benchmark,
+    run_measured_route_scoring_batch_benchmark,
     run_measured_runtime_spine_benchmark_suite,
     run_measured_runtime_spine_benchmark,
     run_measured_step_world_benchmark,
@@ -69,6 +73,38 @@ def make_measured_routing_fixture():
     link_state = create_link_state(
         road_csr.link_count,
         travel_time_cost=(50.0, 1.0, 1.0, 1.0),
+        capacity_veh_per_tick=(5.0, 5.0, 5.0, 5.0),
+    )
+    return road_csr, link_state
+
+
+def make_overlapping_measured_routing_fixture():
+    from metroflow.city.graph import (
+        Node,
+        RoadClass,
+        RoadLink,
+        TurnMovement,
+        TurnType,
+        build_road_network_csr,
+    )
+
+    road_csr = build_road_network_csr(
+        nodes=(Node(1), Node(2), Node(3), Node(4)),
+        links=(
+            RoadLink(10, 1, 2, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            RoadLink(11, 2, 4, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            RoadLink(12, 2, 3, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+            RoadLink(13, 3, 4, RoadClass.ARTERIAL, 100.0, 10.0, 5.0),
+        ),
+        turns=(
+            TurnMovement(10, 11, TurnType.THROUGH),
+            TurnMovement(10, 12, TurnType.RIGHT),
+            TurnMovement(12, 13, TurnType.THROUGH),
+        ),
+    )
+    link_state = create_link_state(
+        road_csr.link_count,
+        travel_time_cost=(1.0, 1.0, 1.0, 1.0),
         capacity_veh_per_tick=(5.0, 5.0, 5.0, 5.0),
     )
     return road_csr, link_state
@@ -800,6 +836,202 @@ def test_measured_routing_candidate_benchmark_records_single_candidate_metadata(
     assert result.routing_backend_requested == "baseline"
     assert result.routing_backend_actual == "baseline"
     assert result.routing_backend_fallback is None
+
+
+def test_measured_route_scoring_batch_benchmark_records_k2_metadata_and_reroute_shape():
+    road_csr, link_state = make_overlapping_measured_routing_fixture()
+
+    result = run_measured_route_scoring_batch_benchmark(
+        road_csr,
+        link_state,
+        MeasuredRouteScoringBatchBenchmarkConfig(
+            workload_name="route-score-k2",
+            num_steps=2,
+            origin_node_id=1,
+            destination_node_id=4,
+            max_candidates=2,
+            path_size_gamma=12.0,
+            reroute_batch_size=16,
+        ),
+    )
+
+    assert isinstance(result, MeasuredRouteScoringBatchBenchmarkResult)
+    assert result.name == "measured_route_scoring_batch"
+    assert result.candidate_count == 2
+    assert result.candidate_paths == ((10, 11), (10, 12, 13))
+    assert result.candidate_path_costs == (2.0, 3.0)
+    assert result.candidate_path_size_factors == pytest.approx((0.75, 5.0 / 6.0))
+    assert result.selected_candidate_index == 1
+    assert result.selected_candidate_id == 1
+    assert result.selected_candidate_utility == pytest.approx(
+        -3.0 + 12.0 * math.log(5.0 / 6.0)
+    )
+    assert result.selection_backend == "python_host_candidate_selection"
+    assert result.route_score_batch_shape == (2,)
+    assert result.reroute_score_batch_shape == (16,)
+    assert result.reroute_decision_count >= 0
+    assert result.route_score_fingerprint
+    assert result.reroute_score_fingerprint
+    assert result.score_probe_max_abs_diff_vs_baseline == 0.0
+    assert result.route_candidate_metadata_seconds_total >= 0.0
+    assert result.route_score_wall_ns_total >= 0
+    assert result.reroute_score_wall_ns_total >= 0
+    assert result.score_probe_backend == "baseline"
+    assert result.score_probe_backend_actual == "baseline"
+    assert result.score_probe_backend_fallback is None
+
+
+def test_measured_route_scoring_batch_path_size_gamma_changes_selection():
+    road_csr, link_state = make_overlapping_measured_routing_fixture()
+
+    no_correction = run_measured_route_scoring_batch_benchmark(
+        road_csr,
+        link_state,
+        MeasuredRouteScoringBatchBenchmarkConfig(
+            workload_name="route-score-no-path-size",
+            num_steps=1,
+            origin_node_id=1,
+            destination_node_id=4,
+            max_candidates=2,
+            path_size_gamma=0.0,
+        ),
+    )
+    corrected = run_measured_route_scoring_batch_benchmark(
+        road_csr,
+        link_state,
+        MeasuredRouteScoringBatchBenchmarkConfig(
+            workload_name="route-score-with-path-size",
+            num_steps=1,
+            origin_node_id=1,
+            destination_node_id=4,
+            max_candidates=2,
+            path_size_gamma=12.0,
+        ),
+    )
+
+    assert no_correction.selected_candidate_index == 0
+    assert no_correction.selected_candidate_utility == pytest.approx(-2.0)
+    assert corrected.selected_candidate_index == 1
+    assert corrected.selected_candidate_utility == pytest.approx(
+        -3.0 + 12.0 * math.log(5.0 / 6.0)
+    )
+
+
+def test_measured_route_scoring_batch_benchmark_rejects_invalid_config():
+    road_csr, link_state = make_measured_routing_fixture()
+
+    with pytest.raises(ValueError, match="max_candidates must be >= 2"):
+        run_measured_route_scoring_batch_benchmark(
+            road_csr,
+            link_state,
+            MeasuredRouteScoringBatchBenchmarkConfig(
+                workload_name="bad",
+                num_steps=1,
+                origin_node_id=1,
+                destination_node_id=4,
+                max_candidates=1,
+            ),
+        )
+    with pytest.raises(ValueError, match="score_probe_backend"):
+        run_measured_route_scoring_batch_benchmark(
+            road_csr,
+            link_state,
+            MeasuredRouteScoringBatchBenchmarkConfig(
+                workload_name="bad",
+                num_steps=2,
+                origin_node_id=1,
+                destination_node_id=4,
+                max_candidates=2,
+                score_probe_backend="torch_cuda",
+            ),
+        )
+    with pytest.raises(ValueError, match="jax_optional requires num_steps >= 2"):
+        run_measured_route_scoring_batch_benchmark(
+            road_csr,
+            link_state,
+            MeasuredRouteScoringBatchBenchmarkConfig(
+                workload_name="bad-jax",
+                num_steps=1,
+                origin_node_id=1,
+                destination_node_id=4,
+                max_candidates=2,
+                score_probe_backend="jax_optional",
+            ),
+        )
+
+
+def test_measured_route_scoring_batch_probe_does_not_add_runtime_jax_backend():
+    from metroflow.sim.config import SimulationConfig
+
+    with pytest.raises(ValueError, match="routing_backend"):
+        SimulationConfig(routing_backend="jax")
+
+
+def test_measured_route_scoring_batch_jax_optional_runtime_failure_falls_back(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    road_csr, link_state = make_measured_routing_fixture()
+    fake_jax = types.SimpleNamespace(
+        jit=lambda _fn: (_ for _ in ()).throw(RuntimeError("xla unavailable")),
+        block_until_ready=lambda value: value,
+    )
+    fake_jnp = types.SimpleNamespace()
+    fake_jax.__path__ = []
+    fake_jax.numpy = fake_jnp
+    monkeypatch.setitem(sys.modules, "jax", fake_jax)
+    monkeypatch.setitem(sys.modules, "jax.numpy", fake_jnp)
+
+    result = run_measured_route_scoring_batch_benchmark(
+        road_csr,
+        link_state,
+        MeasuredRouteScoringBatchBenchmarkConfig(
+            workload_name="route-score-jax-fallback",
+            num_steps=2,
+            origin_node_id=1,
+            destination_node_id=4,
+            max_candidates=2,
+            score_probe_backend="jax_optional",
+        ),
+    )
+
+    assert result.score_probe_backend == "jax_optional"
+    assert result.score_probe_backend_actual == "unavailable"
+    assert result.score_probe_backend_fallback == "jax_failed"
+    assert result.jax_score_available is False
+    assert result.jax_score_first_call_wall_ns == 0
+    assert result.jax_score_steady_state_wall_ns == 0
+    assert result.route_score_fingerprint == result.score_probe_fingerprint
+    assert result.score_probe_max_abs_diff_vs_baseline == 0.0
+
+
+def test_measured_route_scoring_batch_jax_optional_records_timing_when_available():
+    road_csr, link_state = make_overlapping_measured_routing_fixture()
+
+    result = run_measured_route_scoring_batch_benchmark(
+        road_csr,
+        link_state,
+        MeasuredRouteScoringBatchBenchmarkConfig(
+            workload_name="route-score-jax-optional",
+            num_steps=2,
+            origin_node_id=1,
+            destination_node_id=4,
+            max_candidates=2,
+            path_size_gamma=12.0,
+            score_probe_backend="jax_optional",
+        ),
+    )
+
+    assert result.score_probe_backend == "jax_optional"
+    if not result.jax_score_available:
+        assert result.score_probe_backend_actual == "unavailable"
+        assert result.score_probe_backend_fallback in {"jax_unavailable", "jax_failed"}
+        return
+    assert result.score_probe_backend_actual == "jax"
+    assert result.score_probe_backend_fallback is None
+    assert result.jax_score_first_call_wall_ns > 0
+    assert result.jax_score_steady_state_wall_ns > 0
+    assert result.score_probe_max_abs_diff_vs_baseline <= 1e-5
+    assert result.wall_clock_ns >= result.score_probe_wall_ns_total
 
 
 def test_measured_routing_candidate_benchmark_preserves_rust_backend_metadata(
