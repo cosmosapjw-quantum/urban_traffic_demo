@@ -4,11 +4,13 @@ use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 
 mod common;
+mod edge;
 
 use common::{
-    validate_non_negative, validate_non_negative_f32, validate_same_lengths, AgentBatchResult,
-    FlowBatchResult, EPS, FLOW_MIN_TRAVEL_COST, ROUTING_INF_COST,
+    validate_non_negative_f32, AgentBatchResult, FlowBatchResult, FLOW_MIN_TRAVEL_COST,
+    ROUTING_INF_COST,
 };
+use edge::evolve_edges_batch_impl;
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 struct RoutingHeapState {
@@ -951,65 +953,6 @@ fn compute_reroute_decision_batch_impl(
     Ok((should, scores))
 }
 
-fn evolve_edges_batch_impl(
-    queue: &[f64],
-    stock: &[f64],
-    inflow: &[f64],
-    outflow: &[f64],
-    free_flow: &[f64],
-    capacity: &[f64],
-) -> Result<(Vec<f64>, Vec<f64>, Vec<f64>), String> {
-    let num_edges = validate_same_lengths(&[
-        ("queue", queue.len()),
-        ("stock", stock.len()),
-        ("inflow", inflow.len()),
-        ("outflow", outflow.len()),
-        ("free_flow", free_flow.len()),
-        ("capacity", capacity.len()),
-    ])?;
-
-    validate_non_negative("queue", queue)?;
-    validate_non_negative("stock", stock)?;
-    validate_non_negative("inflow", inflow)?;
-    validate_non_negative("outflow", outflow)?;
-    validate_non_negative("free_flow_time", free_flow)?;
-    validate_non_negative("capacity", capacity)?;
-
-    let mut next_queue = Vec::with_capacity(num_edges);
-    let mut next_stock = Vec::with_capacity(num_edges);
-    let mut next_travel_time = Vec::with_capacity(num_edges);
-
-    for edge_idx in 0..num_edges {
-        let queue_value = queue[edge_idx];
-        let stock_value = stock[edge_idx];
-        if queue_value > stock_value {
-            return Err("queue must not exceed stock".to_string());
-        }
-
-        let inflow_value = inflow[edge_idx];
-        let outflow_value = outflow[edge_idx];
-        let free_flow_value = free_flow[edge_idx];
-        let capacity_value = capacity[edge_idx];
-
-        let available_mass = stock_value + inflow_value;
-        let feasible_outflow = if capacity_value <= 0.0 {
-            0.0
-        } else {
-            outflow_value.min(available_mass).min(capacity_value)
-        };
-        let stock_after = available_mass - feasible_outflow;
-        let queued_mass = queue_value + (inflow_value - feasible_outflow).max(0.0);
-        let queue_after = queued_mass.max(0.0).min(stock_after);
-        let travel_time_after = free_flow_value + queue_after / capacity_value.max(EPS);
-
-        next_queue.push(queue_after);
-        next_stock.push(stock_after);
-        next_travel_time.push(travel_time_after);
-    }
-
-    Ok((next_queue, next_stock, next_travel_time))
-}
-
 fn validate_flow_lengths(
     queue_vehicles: &[f32],
     effective_capacity_vehicles: &[f32],
@@ -1728,6 +1671,17 @@ mod tests {
             .expect_err("queue above stock should be rejected");
 
         assert_eq!(error, "queue must not exceed stock");
+    }
+
+    #[test]
+    fn edge_module_preserves_batch_evolution_contract() {
+        let (queue, stock, travel_time) =
+            crate::edge::evolve_edges_batch_impl(&[0.0], &[1.0], &[2.0], &[1.0], &[10.0], &[2.0])
+                .expect("edge module should evolve a batch");
+
+        assert_eq!(queue, vec![1.0]);
+        assert_eq!(stock, vec![2.0]);
+        assert_eq!(travel_time, vec![10.5]);
     }
 
     #[test]
