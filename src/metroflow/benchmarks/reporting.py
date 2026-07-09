@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, is_dataclass
+from html import escape
+import json
 from typing import Any, Mapping
 
 __all__ = [
@@ -10,6 +12,7 @@ __all__ = [
     "benchmark_report_from_run_summary",
     "format_benchmark_report_markdown",
     "format_runtime_benchmark_suite_markdown",
+    "render_runtime_benchmark_suite_html",
     "runtime_benchmark_suite_to_dict",
 ]
 
@@ -266,6 +269,79 @@ def runtime_benchmark_suite_to_dict(result: Any) -> dict[str, Any]:
     return payload
 
 
+def render_runtime_benchmark_suite_html(result: Any) -> str:
+    """Render a standalone HTML review artifact for a runtime benchmark suite."""
+
+    payload = runtime_benchmark_suite_to_dict(result)
+    data_json = escape(json.dumps(payload, separators=(",", ":"), sort_keys=True))
+    stage_rows = "\n".join(
+        _render_runtime_suite_stage_row(item)
+        for item in _as_sequence(
+            _as_mapping(payload.get("gpu_candidate_gate_report")).get("stage_summaries")
+        )
+    )
+    seed_rows = "\n".join(
+        _render_runtime_suite_seed_row(item)
+        for item in _as_sequence(payload.get("per_seed_results"))
+    )
+    eligible = ", ".join(
+        str(item)
+        for item in _as_sequence(
+            _as_mapping(payload.get("gpu_candidate_gate_report")).get(
+                "gpu_review_eligible_stage_names"
+            )
+        )
+    ) or "none"
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Runtime Benchmark Suite</title>
+  <style>
+    :root {{ color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }}
+    body {{ margin: 0; background: #f5f7fa; color: #1b2430; }}
+    main {{ max-width: 1120px; margin: 0 auto; padding: 28px; }}
+    h1 {{ font-size: 26px; margin: 0 0 6px; letter-spacing: 0; }}
+    h2 {{ font-size: 16px; margin: 24px 0 10px; letter-spacing: 0; }}
+    .meta {{ color: #5c6878; margin-bottom: 18px; }}
+    .grid {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }}
+    .metric {{ background: #ffffff; border: 1px solid #d8dee7; border-radius: 8px; padding: 12px; }}
+    .metric strong {{ display: block; margin-top: 4px; font-size: 20px; }}
+    table {{ width: 100%; border-collapse: collapse; background: #ffffff; border: 1px solid #d8dee7; }}
+    th, td {{ border-bottom: 1px solid #e4e8ee; padding: 9px 10px; text-align: left; font-size: 13px; }}
+    th {{ background: #edf1f5; font-weight: 650; }}
+    .note {{ color: #5c6878; font-size: 13px; line-height: 1.45; }}
+    code {{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }}
+  </style>
+</head>
+<body>
+<main data-runtime-benchmark-suite="{data_json}">
+  <h1>Runtime Benchmark Suite</h1>
+  <div class="meta">workload <code>{escape(str(payload.get("workload_name", "unknown")))}</code></div>
+  <section class="grid">
+    <div class="metric">seeds<strong>{escape(_fmt(payload.get("seed_count")))}</strong></div>
+    <div class="metric">steps per seed<strong>{escape(_fmt(payload.get("num_steps")))}</strong></div>
+    <div class="metric">wall-clock ns<strong>{escape(_fmt(payload.get("wall_clock_ns_total")))}</strong></div>
+    <div class="metric">eligible stages<strong>{escape(eligible)}</strong></div>
+  </section>
+  <h2>GPU/C++ Candidate Gate</h2>
+  <table>
+    <thead><tr><th>stage</th><th>candidate runs</th><th>runs</th><th>mean share</th><th>min share</th><th>max share</th><th>max ns</th><th>eligible</th></tr></thead>
+    <tbody>{stage_rows}</tbody>
+  </table>
+  <h2>Per-Seed Runs</h2>
+  <table>
+    <thead><tr><th>seed</th><th>wall-clock ns</th><th>flow / routing / agent backend</th></tr></thead>
+    <tbody>{seed_rows}</tbody>
+  </table>
+  <p class="note">This static HTML is a review artifact for backend migration planning. It is not a validation claim or GPU/C++ implementation authorization.</p>
+</main>
+</body>
+</html>
+"""
+
+
 def _json_ready(value: Any) -> Any:
     if is_dataclass(value) and not isinstance(value, type):
         return {
@@ -279,6 +355,51 @@ def _json_ready(value: Any) -> Any:
     if isinstance(value, str | int | float | bool) or value is None:
         return value
     return str(value)
+
+
+def _render_runtime_suite_stage_row(item: Any) -> str:
+    stage = _as_mapping(item)
+    eligible = "yes" if bool(stage.get("gpu_review_eligible", False)) else "no"
+    return (
+        "<tr>"
+        f"<td>{escape(str(stage.get('stage_name', 'unknown')))}</td>"
+        f"<td>{escape(_fmt(stage.get('candidate_run_count')))}</td>"
+        f"<td>{escape(_fmt(stage.get('deterministic_run_count')))}</td>"
+        f"<td>{escape(_fmt(stage.get('mean_wall_time_share')))}</td>"
+        f"<td>{escape(_fmt(stage.get('min_wall_time_share')))}</td>"
+        f"<td>{escape(_fmt(stage.get('max_wall_time_share')))}</td>"
+        f"<td>{escape(_fmt(stage.get('max_wall_clock_ns')))}</td>"
+        f"<td>{eligible}</td>"
+        "</tr>"
+    )
+
+
+def _render_runtime_suite_seed_row(item: Any) -> str:
+    run = _as_mapping(item)
+    backends = (
+        f"{run.get('flow_backend', 'unknown')} / "
+        f"{run.get('routing_backend', 'unknown')} / "
+        f"{run.get('agent_backend', 'unknown')}"
+    )
+    return (
+        "<tr>"
+        f"<td>{escape(_fmt(run.get('seed')))}</td>"
+        f"<td>{escape(_fmt(run.get('wall_clock_ns')))}</td>"
+        f"<td>{escape(backends)}</td>"
+        "</tr>"
+    )
+
+
+def _as_mapping(value: Any) -> Mapping[str, Any]:
+    if isinstance(value, Mapping):
+        return value
+    return {}
+
+
+def _as_sequence(value: Any) -> tuple[Any, ...]:
+    if isinstance(value, tuple | list):
+        return tuple(value)
+    return ()
 
 
 def _as_optional_float(value: Any) -> float | None:

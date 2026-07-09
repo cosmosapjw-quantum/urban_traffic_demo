@@ -67,3 +67,4 @@
 - 032-runtime-suite-artifact: Added `--runtime-suite-report-path` markdown artifact output for long-run benchmark review
 - 033-rust-packaging-split: Added crate-local maturin metadata so Rust extension install does not shadow the root `metroflow` package
 - 034-runtime-suite-json: Added machine-readable runtime suite JSON artifacts for frontend/diagnostic consumers
+- 035-runtime-suite-html: Added standalone runtime suite HTML review rendering for stage gate and per-seed backend metadata

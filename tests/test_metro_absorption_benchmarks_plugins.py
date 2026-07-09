@@ -191,6 +191,52 @@ def test_runtime_benchmark_suite_report_dict_preserves_machine_readable_gate_met
     ]
 
 
+def test_runtime_benchmark_suite_html_renders_stage_gate_metadata() -> None:
+    from metroflow.benchmarks.reporting import render_runtime_benchmark_suite_html
+
+    html = render_runtime_benchmark_suite_html(
+        {
+            "name": "measured_runtime_spine_suite",
+            "workload_name": "runtime-suite-html",
+            "seeds": [1, 2, 3],
+            "seed_count": 3,
+            "num_steps": 2,
+            "wall_clock_ns_total": 3000,
+            "per_seed_results": [
+                {
+                    "seed": 1,
+                    "flow_backend": "baseline",
+                    "routing_backend": "baseline",
+                    "agent_backend": "baseline",
+                    "wall_clock_ns": 1000,
+                }
+            ],
+            "gpu_candidate_gate_report": {
+                "gpu_review_eligible_stage_names": ["flow_update"],
+                "stage_summaries": [
+                    {
+                        "stage_name": "flow_update",
+                        "candidate_run_count": 3,
+                        "deterministic_run_count": 3,
+                        "mean_wall_time_share": 0.45,
+                        "min_wall_time_share": 0.44,
+                        "max_wall_time_share": 0.46,
+                        "max_wall_clock_ns": 900,
+                        "gpu_review_eligible": True,
+                    }
+                ],
+            },
+        }
+    )
+
+    assert "<main data-runtime-benchmark-suite=" in html
+    assert "Runtime Benchmark Suite" in html
+    assert "runtime-suite-html" in html
+    assert "<td>flow_update</td>" in html
+    assert "<td>yes</td>" in html
+    assert "baseline / baseline / baseline" in html
+
+
 def test_runtime_benchmark_suite_runner_returns_review_artifacts(monkeypatch: pytest.MonkeyPatch) -> None:
     from metroflow.benchmarks import run_runtime_benchmark_suite
     from metroflow.benchmarks import run as benchmark_run_module
@@ -409,6 +455,66 @@ def test_benchmark_cli_runtime_suite_writes_json_file(
         "seeds": [8, 9, 10],
         "workload_name": "json-suite",
     }
+
+
+def test_benchmark_cli_runtime_suite_writes_html_file(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    from metroflow.benchmarks import run as benchmark_run_module
+
+    html_path = tmp_path / "runtime-suite.html"
+
+    def fake_runtime_suite(**kwargs: object) -> dict[str, object]:
+        return {
+            "suite_result": object(),
+            "gpu_candidate_gate_report": object(),
+            "report": "- Runtime benchmark suite:\n- Workload: html-suite",
+            "report_data": {
+                "name": "measured_runtime_spine_suite",
+                "workload_name": "html-suite",
+                "seeds": [8, 9, 10],
+                "seed_count": 3,
+                "num_steps": 1,
+                "wall_clock_ns_total": 3000,
+                "per_seed_results": [
+                    {
+                        "seed": 8,
+                        "flow_backend": "baseline",
+                        "routing_backend": "baseline",
+                        "agent_backend": "baseline",
+                        "wall_clock_ns": 1000,
+                    }
+                ],
+                "gpu_candidate_gate_report": {
+                    "gpu_review_eligible_stage_names": [],
+                    "stage_summaries": [],
+                },
+            },
+        }
+
+    monkeypatch.setattr(
+        benchmark_run_module,
+        "run_runtime_benchmark_suite",
+        fake_runtime_suite,
+    )
+
+    exit_code = benchmark_run_module.main(
+        [
+            "--runtime-suite",
+            "--runtime-suite-workload",
+            "html-suite",
+            "--runtime-suite-html-path",
+            str(html_path),
+        ]
+    )
+
+    html = html_path.read_text(encoding="utf-8")
+
+    assert exit_code == 0
+    assert "<main data-runtime-benchmark-suite=" in html
+    assert "html-suite" in html
+    assert "baseline / baseline / baseline" in html
 
 
 def test_benchmark_cli_runtime_suite_rejects_empty_seed_list() -> None:

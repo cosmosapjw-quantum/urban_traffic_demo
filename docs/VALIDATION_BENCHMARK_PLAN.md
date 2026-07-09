@@ -127,3 +127,6 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - `--runtime-suite-json-path`는 같은 suite result를 machine-readable JSON으로 저장한다. JSON은
   seed, per-seed backend metadata, runtime stage timings, aggregate GPU candidate gate report를
   보존해야 하며 markdown을 다시 파싱하는 용도로 쓰면 안 된다
+- `--runtime-suite-html-path`는 같은 JSON payload를 embedded data attribute와 stage/per-seed tables로
+  렌더링한다. 이 HTML은 review/diagnostic artifact이며 runtime core 또는 UI snapshot dependency를
+  추가하면 안 된다
