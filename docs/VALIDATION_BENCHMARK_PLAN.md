@@ -113,3 +113,5 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - `summarize_runtime_gpu_candidate_gate`는 같은 workload의 measured runtime benchmark result를
   3개 이상의 unique deterministic seed 단위로 집계한다. `format_runtime_gpu_candidate_gate_markdown`은
   모든 run에서 threshold를 넘은 stage만 GPU/C++ review 후보로 표시한다
+- `run_measured_runtime_spine_benchmark_suite`는 seed별 runtime benchmark 실행, per-seed result,
+  aggregate GPU candidate gate report, reviewer-facing gate markdown을 한 artifact로 묶는다

@@ -16,11 +16,14 @@ from metroflow.metrics.benchmarks import (
     MeasuredRoutingBenchmarkConfig,
     MeasuredRoutingBenchmarkResult,
     MeasuredRuntimeBenchmarkConfig,
+    MeasuredRuntimeBenchmarkSuiteConfig,
     MeasuredRuntimeBenchmarkResult,
+    MeasuredRuntimeBenchmarkSuiteResult,
     RuntimeStageTiming,
     run_city_smoke_benchmark,
     run_measured_flow_update_benchmark,
     run_measured_routing_candidate_benchmark,
+    run_measured_runtime_spine_benchmark_suite,
     run_measured_runtime_spine_benchmark,
     run_measured_step_world_benchmark,
 )
@@ -730,3 +733,79 @@ def test_runtime_gpu_candidate_gate_markdown_reports_eligible_stage_names() -> N
     assert "Unique seeds: 3" in markdown
     assert "Eligible stages: flow_update" in markdown
     assert "active_agent_update: candidate runs 2/3" in markdown
+
+
+def test_measured_runtime_benchmark_suite_runs_unique_seeds_and_reports_gate(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.sim.init import SimulationInitBundle
+    from metroflow.sim.rng import key_from_seed
+    from metroflow.sim.state import SimulationState
+
+    built_seeds: list[int] = []
+    run_seeds: list[int] = []
+
+    def fake_build_initial_simulation_state(*, scenario_seed: int, **_kwargs):
+        seed = int(scenario_seed)
+        built_seeds.append(seed)
+        state = SimulationState(metadata={"scenario_seed": seed})
+        return SimulationInitBundle(
+            state=state,
+            rng_key=key_from_seed(seed),
+            city_topology=None,
+            zoning=None,
+            population=None,
+            trip_requests=None,
+        )
+
+    def fake_runtime_benchmark(state, _rng_key, config):
+        seed = int(state.metadata["scenario_seed"])
+        run_seeds.append(seed)
+        return make_runtime_stage_result(
+            seed=seed,
+            flow_share=0.35,
+            active_agent_share=0.10,
+        )
+
+    monkeypatch.setattr(
+        benchmark_module,
+        "build_initial_simulation_state",
+        fake_build_initial_simulation_state,
+    )
+    monkeypatch.setattr(
+        benchmark_module,
+        "run_measured_runtime_spine_benchmark",
+        fake_runtime_benchmark,
+    )
+
+    result = run_measured_runtime_spine_benchmark_suite(
+        MeasuredRuntimeBenchmarkSuiteConfig(
+            workload_name="runtime-suite",
+            seeds=(101, 102, 103),
+            num_steps=2,
+        )
+    )
+
+    assert isinstance(result, MeasuredRuntimeBenchmarkSuiteResult)
+    assert built_seeds == [101, 102, 103]
+    assert run_seeds == [101, 102, 103]
+    assert result.name == "measured_runtime_spine_suite"
+    assert result.workload_name == "runtime-suite"
+    assert result.seed_count == 3
+    assert result.seeds == (101, 102, 103)
+    assert len(result.per_seed_results) == 3
+    assert result.gpu_candidate_gate_report.gpu_review_eligible_stage_names == (
+        "flow_update",
+    )
+    assert "Eligible stages: flow_update" in result.gpu_candidate_gate_markdown
+
+
+def test_measured_runtime_benchmark_suite_rejects_duplicate_seeds() -> None:
+    with pytest.raises(ValueError, match="seeds must be unique"):
+        run_measured_runtime_spine_benchmark_suite(
+            MeasuredRuntimeBenchmarkSuiteConfig(
+                workload_name="runtime-suite",
+                seeds=(101, 101, 102),
+                num_steps=1,
+            )
+        )

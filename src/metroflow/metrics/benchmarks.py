@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from time import perf_counter_ns
 
 from metroflow.core.contracts import TickSchedule
@@ -10,6 +10,8 @@ from metroflow.routing.dynamic_potential import RoutingBackend
 from metroflow.routing.candidates import create_route_candidate_set
 from metroflow.traffic.meso import EdgeEvolutionBackend
 from metroflow.sim.control import SimulationControl
+from metroflow.sim.config import SimulationConfig
+from metroflow.sim.init import build_initial_simulation_state
 from metroflow.sim.rng import PRNGKeyArray
 from metroflow.sim.replay import ReplayInputSignatureRecord
 from metroflow.sim.orchestrator import step_world
@@ -65,6 +67,16 @@ class MeasuredRuntimeBenchmarkConfig:
     workload_name: str
     num_steps: int
     control: SimulationControl = field(default_factory=SimulationControl)
+
+
+@dataclass(frozen=True)
+class MeasuredRuntimeBenchmarkSuiteConfig:
+    workload_name: str
+    seeds: tuple[int, ...]
+    num_steps: int
+    control: SimulationControl = field(default_factory=SimulationControl)
+    simulation_config: SimulationConfig | None = None
+    eager_trip_generation: bool = False
 
 
 @dataclass(frozen=True)
@@ -174,6 +186,33 @@ class MeasuredRuntimeBenchmarkResult:
     active_agent_update_wall_ns: int = 0
     active_agent_rerouted_this_tick: int = 0
     active_agent_reroute_cooldown_this_tick: int = 0
+
+
+@dataclass(frozen=True)
+class MeasuredRuntimeBenchmarkSuiteResult:
+    name: str
+    workload_name: str
+    seed_count: int
+    seeds: tuple[int, ...]
+    num_steps: int
+    wall_clock_ns_total: int
+    per_seed_results: tuple[MeasuredRuntimeBenchmarkResult, ...]
+    gpu_candidate_gate_report: "RuntimeGpuCandidateGateReport"
+    gpu_candidate_gate_markdown: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "name", str(self.name))
+        object.__setattr__(self, "workload_name", str(self.workload_name))
+        object.__setattr__(self, "seed_count", int(self.seed_count))
+        object.__setattr__(self, "seeds", tuple(int(seed) for seed in self.seeds))
+        object.__setattr__(self, "num_steps", int(self.num_steps))
+        object.__setattr__(self, "wall_clock_ns_total", int(self.wall_clock_ns_total))
+        object.__setattr__(self, "per_seed_results", tuple(self.per_seed_results))
+        object.__setattr__(
+            self,
+            "gpu_candidate_gate_markdown",
+            str(self.gpu_candidate_gate_markdown),
+        )
 
 
 @dataclass(frozen=True)
@@ -612,6 +651,59 @@ def summarize_runtime_gpu_candidate_gate(
             item.stage_name for item in stage_summaries if item.gpu_review_eligible
         ),
         stage_summaries=tuple(stage_summaries),
+    )
+
+
+def run_measured_runtime_spine_benchmark_suite(
+    config: MeasuredRuntimeBenchmarkSuiteConfig,
+) -> MeasuredRuntimeBenchmarkSuiteResult:
+    workload_name = config.workload_name.strip()
+    if not workload_name:
+        raise ValueError("workload_name must be non-empty.")
+    if config.num_steps <= 0:
+        raise ValueError("num_steps must be positive.")
+    seeds = tuple(int(seed) for seed in config.seeds)
+    if not seeds:
+        raise ValueError("seeds must contain at least one seed.")
+    if len(set(seeds)) != len(seeds):
+        raise ValueError("seeds must be unique for runtime benchmark suites.")
+
+    per_seed_results: list[MeasuredRuntimeBenchmarkResult] = []
+    for seed in seeds:
+        bundle = build_initial_simulation_state(
+            config=config.simulation_config,
+            scenario_seed=seed,
+            eager_trip_generation=config.eager_trip_generation,
+        )
+        result = run_measured_runtime_spine_benchmark(
+            bundle.state,
+            bundle.rng_key,
+            MeasuredRuntimeBenchmarkConfig(
+                workload_name=workload_name,
+                num_steps=config.num_steps,
+                control=config.control,
+            ),
+        )
+        per_seed_results.append(
+            replace(
+                result,
+                workload_name=workload_name,
+                seed=seed,
+            )
+        )
+
+    result_tuple = tuple(per_seed_results)
+    gate_report = summarize_runtime_gpu_candidate_gate(result_tuple)
+    return MeasuredRuntimeBenchmarkSuiteResult(
+        name="measured_runtime_spine_suite",
+        workload_name=workload_name,
+        seed_count=len(seeds),
+        seeds=seeds,
+        num_steps=int(config.num_steps),
+        wall_clock_ns_total=sum(result.wall_clock_ns for result in result_tuple),
+        per_seed_results=result_tuple,
+        gpu_candidate_gate_report=gate_report,
+        gpu_candidate_gate_markdown=format_runtime_gpu_candidate_gate_markdown(gate_report),
     )
 
 

@@ -112,6 +112,8 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   `summarize_runtime_gpu_candidate_gate`와 `format_runtime_gpu_candidate_gate_markdown`은
   3개 이상의 unique deterministic seed 결과를 집계해 모든 run에서 30% 이상인 stage만 GPU
   review 후보로 남긴다.
+  `run_measured_runtime_spine_benchmark_suite`는 seed별 runtime benchmark를 실행한 뒤 같은
+  gate report와 markdown을 함께 반환하는 Python orchestration surface다.
 - isolated routing candidate benchmark는 `run_measured_routing_candidate_benchmark`를 사용하며
   dynamic-potential recompute/cache counters와 timing totals, final candidate path, ranked-K candidate
   paths/costs/path-size metadata, routing copy-boundary note를 기록한다.
