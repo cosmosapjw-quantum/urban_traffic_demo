@@ -1,5 +1,37 @@
 # Decision Log
 
+## 2026-07-10: Simulator Labels Before NN Surrogate Harness
+
+Status: accepted
+
+### Context
+
+PR06 added route metadata/scoring batch probes but did not make JAX/NN route
+authority. The guardrails require deterministic simulator labels before any NN
+surrogate admission.
+
+### Compact CCoT
+
+Question: What should happen before an optional route/cost surrogate harness?
+
+Evidence: Baseline dynamic potential and route candidate scoring already
+produce deterministic cost-to-go and selected-route labels.
+
+Inference: A schema-stable, simulator-only label dataset is the required next
+substrate before any optional model work.
+
+Counterevidence checked: Adding PyTorch/JAX training now would bypass label
+provenance, fallback, and replay gates.
+
+Decision: PR07 exports baseline-authoritative labels only. No runtime model
+authority, external data, or new accelerator dependency is admitted.
+
+Falsifier: If this PR reads external datasets or changes route legality/default
+backend behavior, revert.
+
+Next action: Add RED tests for label schema, determinism, JSONL stability, and
+import boundaries.
+
 ## 2026-07-10: Route Scoring Probe Is Not Route Authority
 
 Status: accepted

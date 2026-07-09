@@ -105,7 +105,7 @@ Status: complete in `987cdbc`.
 
 ## PR06 — Route Metadata/Scoring Batch Probe
 
-Status: in progress.
+Status: complete in `c2c052f`.
 
 - Measure K>1 candidate metadata, path-size scoring, and reroute scoring batch
   shapes.
@@ -118,9 +118,13 @@ Status: in progress.
 
 ## PR07 — Simulator Label Dataset v0
 
+Status: in progress.
+
 - Generate deterministic simulator-only labels for cost-to-go and route
   scoring from baseline authority.
 - No external data and no runtime NN authority.
+- Scope guard: labels are supervised experiment substrate only and cannot become
+  route legality or runtime fallback authority in this PR.
 - Tests: deterministic label export, label schema, replay fingerprint, no
   external file/network dependency.
 - Commit: `feat(learning): add simulator label export`.

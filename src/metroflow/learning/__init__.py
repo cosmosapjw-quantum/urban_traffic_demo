@@ -10,6 +10,10 @@ from .od_ucb import select_ucb_arm_core as select_ucb_arm_core
 from .od_ucb import update_od_ucb_arrays_core as update_od_ucb_arrays_core
 from .od_ucb import update_od_ucb_state as update_od_ucb_state
 from .od_ucb import update_online_od_bandit as update_online_od_bandit
+from .labels import SimulatorLabelRecord as SimulatorLabelRecord
+from .labels import export_cost_to_go_label_records as export_cost_to_go_label_records
+from .labels import export_route_scoring_label_records as export_route_scoring_label_records
+from .labels import write_label_records_jsonl as write_label_records_jsonl
 from .policy_blend import PolicyBlendFallbackReason as PolicyBlendFallbackReason
 from .policy_blend import PolicyBlendState as PolicyBlendState
 from .policy_blend import apply_policy_blend_control as apply_policy_blend_control
@@ -21,6 +25,7 @@ __all__ = [
     "ODBanditState",
     "PolicyBlendFallbackReason",
     "PolicyBlendState",
+    "SimulatorLabelRecord",
     "apply_od_bandit_reward_update",
     "apply_policy_blend_control",
     "blend_route_scores",
@@ -29,6 +34,8 @@ __all__ = [
     "compute_policy_mix_lambda",
     "compute_ucb_scores_core",
     "create_od_ucb_state",
+    "export_cost_to_go_label_records",
+    "export_route_scoring_label_records",
     "fallback_to_baseline",
     "init_od_bandit_state",
     "select_ucb_arm",
@@ -36,4 +43,5 @@ __all__ = [
     "update_od_ucb_arrays_core",
     "update_od_ucb_state",
     "update_online_od_bandit",
+    "write_label_records_jsonl",
 ]

@@ -15,9 +15,9 @@ Facts:
 - `docs/PRD_ACCELERATED_RUNTIME.md` and
   `docs/harness/ACCELERATION_PR_LIST.md` are the active long-term roadmap for
   spec-driven/subagent-driven acceleration work.
-- PR01 (`31064c5`), PR02 (`b434258`), PR03 (`e292685`), PR04 (`a80b369`), and
-  PR05 (`987cdbc`) are complete. PR06 route metadata/scoring batch probe is
-  active.
+- PR01 (`31064c5`), PR02 (`b434258`), PR03 (`e292685`), PR04 (`a80b369`),
+  PR05 (`987cdbc`), and PR06 (`c2c052f`) are complete. PR07 simulator label
+  dataset export is active.
 
 ## Acceleration Evidence
 
@@ -64,6 +64,6 @@ Derived conclusions:
 
 ## Next Action
 
-Finish PR06 as a route metadata/scoring batch probe. Keep route legality in the
-baseline/Rust authority path; use NumPy/JAX/NN only for measured scoring-shape
-evidence and do not add runtime GPU config values.
+Finish PR07 as simulator-only label export. Labels may support future NN/JAX
+experiments, but baseline/Rust routing authority and deterministic fallback must
+remain unchanged.
