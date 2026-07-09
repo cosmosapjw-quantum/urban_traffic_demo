@@ -116,6 +116,9 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   route candidate refresh, reroute decision, active-agent update wall-time share를 기준으로 산정하고,
   단일 stage가 3개 이상의 deterministic seed에서 30%를 넘은 뒤에만 NumPy array ownership, dtype,
   copy 여부를 포함하는 별도 acceptance contract를 연다
+- C++/libtorch/custom CUDA implementation PR은 `docs/cuda/CPP_CUDA_ADMISSION.md`의 조건처럼
+  dense flow, route-score batch, OD/policy batch 중 하나의 narrow kernel만 대상으로 해야 하며,
+  compile/build time, steady-state time, host-device copy cost를 분리해 기록해야 한다
 - `format_runtime_stage_timing_markdown`은 measured runtime benchmark result의 stage timing과
   GPU 후보 gate를 reviewer-facing report section으로 렌더링한다. 이 section은 구현 허가가 아니라
   다음 backend slice를 정하기 위한 measurement artifact다

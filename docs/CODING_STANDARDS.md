@@ -63,6 +63,8 @@
 - Rust zero-copy NumPy FFI 또는 Rayon parallelism은
   `docs/rust/ZERO_COPY_RAYON_ADMISSION.md`의 admission rule을 통과한 별도 PR에서만
   구현한다
+- C++/libtorch/custom CUDA build surface 또는 `torch_cuda`/`custom_cuda` runtime backend는
+  `docs/cuda/CPP_CUDA_ADMISSION.md`의 admission rule을 통과한 별도 PR에서만 구현한다
 - Rust extension crate의 Python distribution name은 root package `metroflow`와 달라야 한다.
   `maturin develop --manifest-path crates/metroflow-rust/Cargo.toml`이 root editable install을
   shadow하면 CLI/import smoke를 실패로 간주한다

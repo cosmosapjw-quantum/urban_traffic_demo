@@ -35,13 +35,15 @@ Current state:
   review-ready.
 - PR10 Zero-Copy/Rayon RFC is accepted without authorizing zero-copy NumPy FFI,
   Rayon, or new Rust build surface.
+- PR11 C++/CUDA Admission RFC is accepted without authorizing C++/CUDA,
+  libtorch, CMake, or new runtime backend values.
 
 Next recommended slice:
 
-1. Open PR11 as the C++/CUDA Admission RFC.
-2. Keep PR11 documentation-only unless a prior dense flow, route-score, or
-   OD/policy batch probe proves one narrow GPU kernel clears the evidence gate.
-3. Do not add C++/CUDA, libtorch, CMake, or new runtime backend values in PR11.
+1. Open PR12 as the PRD/State Closure.
+2. Consolidate `PROJECT_STATE`, `DECISION_LOG`, `DEPRECATED_IDEAS`,
+   validation benchmark docs, and this next-session handoff.
+3. Record which PRs were completed, deferred, blocked, or superseded.
 4. Keep Python baseline route legality and deterministic replay authoritative.
 5. Keep active-agent pool-array replacement and route path-build on the
    watchlist.

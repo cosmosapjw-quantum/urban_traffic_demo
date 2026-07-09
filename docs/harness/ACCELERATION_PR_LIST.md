@@ -161,7 +161,7 @@ Status: complete in `52e7aec`.
 
 ## PR10 — Zero-Copy/Rayon Feasibility RFC
 
-Status: RFC accepted; implementation not authorized.
+Status: complete in `04554ca`.
 
 - Evaluate Rust zero-copy NumPy FFI and Rayon only after copy-boundary cost is
   measured.
@@ -175,10 +175,15 @@ Status: RFC accepted; implementation not authorized.
 
 ## PR11 — C++/CUDA Admission RFC
 
+Status: RFC accepted; implementation not authorized.
+
 - Define future custom CUDA/libtorch candidate interface for one narrow kernel:
   dense flow, route-score batch, or OD/policy batch.
 - No build scaffold unless a prior PR proves the gate.
 - Tests: docs/checklist only, no accepted runtime config values.
+- No C++/CUDA, libtorch, CMake, or new runtime backend values are allowed in
+  this PR.
+- Admission RFC: `docs/cuda/CPP_CUDA_ADMISSION.md`.
 - Commit: `docs(cuda): define custom kernel admission gate`.
 
 ## PR12 — PRD/State Closure

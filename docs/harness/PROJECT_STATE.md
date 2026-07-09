@@ -18,8 +18,9 @@ Facts:
 - PR01 (`31064c5`), PR02 (`b434258`), PR03 (`e292685`), PR04 (`a80b369`),
   PR05 (`987cdbc`), PR06 (`c2c052f`), and PR07 (`b636b2a`) are complete.
 - PR08 (`29daebe`) is complete.
-- PR09 (`52e7aec`) is complete. PR10 Zero-Copy/Rayon RFC is accepted without
-  authorizing zero-copy NumPy FFI, Rayon, or new Rust build surface.
+- PR09 (`52e7aec`) and PR10 (`04554ca`) are complete.
+- PR11 C++/CUDA Admission RFC is accepted without authorizing C++/CUDA,
+  libtorch, CMake, or new runtime backend values.
 
 ## Acceleration Evidence
 
@@ -66,6 +67,5 @@ Derived conclusions:
 
 ## Next Action
 
-Open PR11 as the C++/CUDA Admission RFC. Keep it documentation-only unless a
-prior dense flow, route-score, or OD/policy batch probe proves that one narrow
-GPU kernel clears the evidence gate.
+Open PR12 as the PRD/State Closure. Consolidate roadmap state, decision logs,
+deprecated ideas, validation benchmark docs, and the next-session handoff.

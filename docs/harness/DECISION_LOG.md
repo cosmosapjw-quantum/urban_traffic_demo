@@ -1,5 +1,37 @@
 # Decision Log
 
+## 2026-07-10: C++/CUDA Requires One Narrow Evidence-Gated Kernel
+
+Status: accepted
+
+### Context
+
+PR11 evaluated whether to add C++/libtorch/custom CUDA build surface for the
+GPU/NN acceleration lane.
+
+### Compact CCoT
+
+Question: Should Metroflow add C++/CUDA/libtorch build surface now?
+
+Evidence: Dense flow, route-score batch, and OD/policy batch are plausible GPU
+targets, but current evidence does not identify one copy/compile-inclusive
+kernel that clears the parent-stage gate.
+
+Inference: The GPU lane should remain explicit and evidence-gated, with an
+admission RFC before build complexity enters the project.
+
+Counterevidence checked: RTX 3080 Ti 12GB and optional JAX/torch extras make GPU
+experiments relevant, but hardware availability is not implementation
+authorization.
+
+Decision: PR11 is documentation-only. Future names `torch_cuda` and
+`custom_cuda` remain documented but are not accepted runtime config values.
+
+Falsifier: A dense flow, route-score batch, or OD/policy batch probe proves
+copy/compile-inclusive parent-stage improvement across deterministic workloads.
+
+Next action: Open PR12 to consolidate project state and handoff docs.
+
 ## 2026-07-10: Zero-Copy/Rayon Requires Copy-Boundary Evidence
 
 Status: accepted
