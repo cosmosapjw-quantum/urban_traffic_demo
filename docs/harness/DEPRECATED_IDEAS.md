@@ -1,6 +1,6 @@
 # Deprecated Ideas
 
-Last updated: 2026-07-09
+Last updated: 2026-07-10
 
 Deprecated here means "do not pursue in the next slice unless new benchmark
 evidence falsifies the current decision." It does not mean permanently banned.
@@ -83,6 +83,8 @@ Reason:
 - `active_agent_pool_array_write` remains visible but below the review gate.
 - route dynamic-potential recompute is currently the stronger CPU/backend
   candidate.
+- PR09 rechecked this decision after PR08 and found no new workload-matrix
+  evidence that makes active-agent state layout review-ready.
 
 Reopen condition:
 

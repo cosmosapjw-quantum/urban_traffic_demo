@@ -16,8 +16,9 @@ Facts:
   `docs/harness/ACCELERATION_PR_LIST.md` are the active long-term roadmap for
   spec-driven/subagent-driven acceleration work.
 - PR01 (`31064c5`), PR02 (`b434258`), PR03 (`e292685`), PR04 (`a80b369`),
-  PR05 (`987cdbc`), PR06 (`c2c052f`), and PR07 (`b636b2a`) are complete. PR08
-  optional NN experiment harness is active.
+  PR05 (`987cdbc`), PR06 (`c2c052f`), and PR07 (`b636b2a`) are complete.
+- PR08 (`29daebe`) is complete. PR09 active-agent state layout recheck is
+  deferred by evidence.
 
 ## Acceleration Evidence
 
@@ -64,6 +65,6 @@ Derived conclusions:
 
 ## Next Action
 
-Finish PR08 as an optional route surrogate experiment harness. PyTorch may be an
-optional extra only; surrogate output must remain experiment-only and never route
-legality/runtime authority.
+Open PR10 as the Zero-Copy/Rayon Feasibility RFC. Keep it RFC-only unless
+copy-boundary measurements prove that zero-copy NumPy FFI or Rayon changes a
+parent-stage decision.

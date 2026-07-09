@@ -1,5 +1,38 @@
 # Decision Log
 
+## 2026-07-10: Active-Agent State Layout Recheck Deferred
+
+Status: accepted
+
+### Context
+
+PR09 reopened the active-agent layout question only to check whether current
+workload evidence authorizes another implementation slice.
+
+### Compact CCoT
+
+Question: Should PR09 implement active-agent state layout changes now?
+
+Evidence: The deep runtime audit records `active_agent_pool_write`,
+`active_agent_pool_array_write`, `active_agent_plugin_memory_write`, candidate
+selection, and movement below the 0.30 review gate, while route candidate
+refresh and dynamic-potential recompute remain review-ready.
+
+Inference: Active-agent layout is still a watchlist item, not the next
+implementation target.
+
+Counterevidence checked: The hardware atlas still marks active-agent symbols as
+possible CPU/Rust/NumPy fits, but atlas cards are diagnostic and require
+runtime-stage or copy-inclusive evidence before implementation.
+
+Decision: PR09 is docs-only: defer active-agent state layout implementation and
+advance to PR10 Zero-Copy/Rayon RFC.
+
+Falsifier: A broader deterministic workload or post-route-potential benchmark
+makes typed-array pool replacement exceed the review gate across seeds.
+
+Next action: Open PR10 as an RFC without adding zero-copy/Rayon build surface.
+
 ## 2026-07-10: Optional Route Surrogate Harness Is Experiment-Only
 
 Status: accepted

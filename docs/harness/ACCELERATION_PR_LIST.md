@@ -131,7 +131,7 @@ Status: complete in `b636b2a`.
 
 ## PR08 — Optional NN Experiment Harness
 
-Status: in progress.
+Status: complete in `29daebe`.
 
 - Add optional experiment surface only after PR07 labels exist.
 - Prefer optional Python-side training/inference first.
@@ -145,12 +145,19 @@ Status: in progress.
 
 ## PR09 — Active-Agent State Layout Recheck
 
+Status: deferred by evidence.
+
 - Reopen active-agent array/pool work only if workload matrix makes it
   review-ready.
-- If not review-ready, update `DEPRECATED_IDEAS.md` and skip implementation.
-- Tests if implemented: slot-order determinism, pool replacement parity,
-  telemetry preservation.
-- Commit if implemented: `perf(sim): refine active agent state layout`.
+- Current evidence keeps `active_agent_pool_array_write` below the review gate.
+  No active-agent state layout implementation is authorized in this PR.
+- Update `DEPRECATED_IDEAS.md`, `PROJECT_STATE.md`, and `DECISION_LOG.md`;
+  preserve existing slot-order determinism, pool replacement parity, and
+  telemetry tests without changing runtime behavior.
+- Reopen only if typed-array pool replacement becomes review-ready across
+  deterministic seeds, or route potential work is completed and active-agent
+  array write again dominates the next review-ready stage.
+- Commit: `docs(harness): defer active agent layout recheck`.
 
 ## PR10 — Zero-Copy/Rayon Feasibility RFC
 

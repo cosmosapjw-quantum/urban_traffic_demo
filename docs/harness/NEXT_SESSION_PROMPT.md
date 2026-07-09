@@ -29,15 +29,18 @@ Current state:
 - Whole-runtime explicit `routing_backend="rust_cpu"` is slower than baseline
   on the 1-seed/1-step eager suite even with a release Rust extension, so Rust
   routing work must remain narrower than the whole routing backend.
+- PR08 optional route surrogate harness is complete in `29daebe`.
+- PR09 active-agent state layout recheck is deferred by evidence; active-agent
+  pool-array replacement stays on the watchlist until it becomes review-ready.
 
 Next recommended slice:
 
-1. Open a narrow dynamic-potential recompute/cache-amortization slice.
-2. Compare Rust CPU dynamic-potential against Python baseline on generated OD
-   workloads without enabling Rust path-build/metadata whole-runtime paths.
-3. Keep Python baseline route legality authoritative.
-4. Re-run eager runtime suite for seeds `41,42,43` at 1-step and 2-step after
-   the route-potential change.
+1. Open PR10 as the Zero-Copy/Rayon Feasibility RFC.
+2. Keep PR10 RFC-only unless copy-boundary measurements prove that zero-copy
+   NumPy FFI or Rayon changes a parent-stage decision.
+3. Do not add Rust zero-copy build surface, Rayon parallelism, C++/CUDA,
+   libtorch, or new runtime backend values in PR10.
+4. Keep Python baseline route legality and deterministic replay authoritative.
 5. Keep active-agent pool-array replacement and route path-build on the
    watchlist.
 6. Do not add NN/JAX scoring until cost-to-go labels, compile-vs-run timing, and
