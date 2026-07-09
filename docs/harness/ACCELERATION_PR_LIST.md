@@ -145,7 +145,7 @@ Status: complete in `29daebe`.
 
 ## PR09 — Active-Agent State Layout Recheck
 
-Status: deferred by evidence.
+Status: complete in `52e7aec`.
 
 - Reopen active-agent array/pool work only if workload matrix makes it
   review-ready.
@@ -161,11 +161,16 @@ Status: deferred by evidence.
 
 ## PR10 — Zero-Copy/Rayon Feasibility RFC
 
+Status: RFC accepted; implementation not authorized.
+
 - Evaluate Rust zero-copy NumPy FFI and Rayon only after copy-boundary cost is
   measured.
 - RFC first; implementation only if evidence supports it.
 - Tests: documentation link checks and no build-surface changes unless a later
   implementation PR opens them.
+- No zero-copy NumPy FFI, Rayon, or new Rust build surface is allowed in this
+  PR.
+- Admission RFC: `docs/rust/ZERO_COPY_RAYON_ADMISSION.md`.
 - Commit: `docs(rust): define zero-copy backend admission`.
 
 ## PR11 — C++/CUDA Admission RFC

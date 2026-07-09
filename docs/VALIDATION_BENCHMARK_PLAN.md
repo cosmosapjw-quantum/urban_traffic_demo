@@ -109,6 +109,9 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - baseline보다 느리거나 값 drift가 있으면 baseline을 production default로 유지
 - `rust_cpu`는 현재 NumPy-compatible 입력을 edge `Vec<f64>`, flow/routing `Vec<f32>`/`Vec<i32>`/`Vec<bool>`,
   active-agent `Vec<i32>`로 복사하므로 benchmark 결과에 copy boundary를 기록한다
+- zero-copy NumPy FFI 또는 Rayon implementation PR은
+  `docs/rust/ZERO_COPY_RAYON_ADMISSION.md`의 조건처럼 copy-boundary timing이 parent-stage
+  decision을 바꿀 수 있음을 먼저 보여야 한다
 - future `torch_cuda`/`custom_cuda` backend는 아직 config 값으로 받지 않는다. 후보 stage는 flow,
   route candidate refresh, reroute decision, active-agent update wall-time share를 기준으로 산정하고,
   단일 stage가 3개 이상의 deterministic seed에서 30%를 넘은 뒤에만 NumPy array ownership, dtype,

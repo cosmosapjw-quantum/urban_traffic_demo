@@ -17,8 +17,9 @@ Facts:
   spec-driven/subagent-driven acceleration work.
 - PR01 (`31064c5`), PR02 (`b434258`), PR03 (`e292685`), PR04 (`a80b369`),
   PR05 (`987cdbc`), PR06 (`c2c052f`), and PR07 (`b636b2a`) are complete.
-- PR08 (`29daebe`) is complete. PR09 active-agent state layout recheck is
-  deferred by evidence.
+- PR08 (`29daebe`) is complete.
+- PR09 (`52e7aec`) is complete. PR10 Zero-Copy/Rayon RFC is accepted without
+  authorizing zero-copy NumPy FFI, Rayon, or new Rust build surface.
 
 ## Acceleration Evidence
 
@@ -65,6 +66,6 @@ Derived conclusions:
 
 ## Next Action
 
-Open PR10 as the Zero-Copy/Rayon Feasibility RFC. Keep it RFC-only unless
-copy-boundary measurements prove that zero-copy NumPy FFI or Rayon changes a
-parent-stage decision.
+Open PR11 as the C++/CUDA Admission RFC. Keep it documentation-only unless a
+prior dense flow, route-score, or OD/policy batch probe proves that one narrow
+GPU kernel clears the evidence gate.

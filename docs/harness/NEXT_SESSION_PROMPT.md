@@ -30,16 +30,18 @@ Current state:
   on the 1-seed/1-step eager suite even with a release Rust extension, so Rust
   routing work must remain narrower than the whole routing backend.
 - PR08 optional route surrogate harness is complete in `29daebe`.
-- PR09 active-agent state layout recheck is deferred by evidence; active-agent
-  pool-array replacement stays on the watchlist until it becomes review-ready.
+- PR09 is complete; active-agent state layout implementation remains deferred by
+  evidence, and pool-array replacement stays on the watchlist until it becomes
+  review-ready.
+- PR10 Zero-Copy/Rayon RFC is accepted without authorizing zero-copy NumPy FFI,
+  Rayon, or new Rust build surface.
 
 Next recommended slice:
 
-1. Open PR10 as the Zero-Copy/Rayon Feasibility RFC.
-2. Keep PR10 RFC-only unless copy-boundary measurements prove that zero-copy
-   NumPy FFI or Rayon changes a parent-stage decision.
-3. Do not add Rust zero-copy build surface, Rayon parallelism, C++/CUDA,
-   libtorch, or new runtime backend values in PR10.
+1. Open PR11 as the C++/CUDA Admission RFC.
+2. Keep PR11 documentation-only unless a prior dense flow, route-score, or
+   OD/policy batch probe proves one narrow GPU kernel clears the evidence gate.
+3. Do not add C++/CUDA, libtorch, CMake, or new runtime backend values in PR11.
 4. Keep Python baseline route legality and deterministic replay authoritative.
 5. Keep active-agent pool-array replacement and route path-build on the
    watchlist.

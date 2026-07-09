@@ -1,5 +1,37 @@
 # Decision Log
 
+## 2026-07-10: Zero-Copy/Rayon Requires Copy-Boundary Evidence
+
+Status: accepted
+
+### Context
+
+PR10 evaluated whether the current Rust CPU backend should move from Vec copy
+boundaries to zero-copy NumPy FFI or Rayon parallelism.
+
+### Compact CCoT
+
+Question: Should Metroflow add zero-copy NumPy FFI or Rayon now?
+
+Evidence: Current benchmark metadata records copy-boundary notes, but PR09
+deferred active-agent layout and whole-runtime Rust routing remains blocked by
+parent-stage path-build/metadata boundary costs.
+
+Inference: The correct next step is an admission RFC, not new Rust dependencies
+or parallel runtime behavior.
+
+Counterevidence checked: Several Rust wrapper symbols are hardware-fit
+candidates, but the atlas is diagnostic and cannot authorize implementation
+without measured parent-stage evidence.
+
+Decision: Keep PR10 RFC-only. Require copy-boundary timing to change a
+parent-stage decision before opening zero-copy NumPy FFI or Rayon.
+
+Falsifier: A deterministic benchmark proves that copy-boundary cost blocks a
+review-ready parent stage after Rust compute itself is faster.
+
+Next action: Open PR11 as the C++/CUDA Admission RFC.
+
 ## 2026-07-10: Active-Agent State Layout Recheck Deferred
 
 Status: accepted
