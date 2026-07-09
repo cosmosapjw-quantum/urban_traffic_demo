@@ -72,3 +72,4 @@
 - 037-runtime-suite-eager-demand: Exposed `--runtime-suite-eager-trip-generation` for non-empty routing/agent benchmark workloads
 - 038-runtime-suite-eager-metadata: Preserved eager trip generation in runtime suite JSON payloads and bundle manifests
 - 039-runtime-acceleration-report: Added JAX/GPU, NN surrogate, Rust CPU acceleration candidate reporting and timing-overlap warnings
+- 040-runtime-nested-timing: Split route refresh and active-agent update into nested timing stages for deeper GPU/NN backend triage

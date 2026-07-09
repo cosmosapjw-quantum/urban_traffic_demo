@@ -299,6 +299,68 @@ def test_runtime_acceleration_candidate_report_flags_gpu_nn_fit_and_overlap() ->
     assert candidates["dynamic_potential_recompute"]["nn_surrogate_fit"] == "high"
 
 
+def test_runtime_acceleration_candidate_report_profiles_nested_stage_fits() -> None:
+    from metroflow.benchmarks.reporting import runtime_acceleration_candidate_report
+
+    report = runtime_acceleration_candidate_report(
+        {
+            "workload_name": "nested-gpu-nn-review",
+            "gpu_candidate_gate_report": {
+                "gpu_review_eligible_stage_names": [
+                    "route_candidate_path_build",
+                    "active_agent_movement",
+                ],
+                "stage_summaries": [
+                    {
+                        "stage_name": "route_candidate_potential",
+                        "mean_wall_time_share": 0.20,
+                        "max_wall_time_share": 0.21,
+                        "max_wall_clock_ns": 200,
+                    },
+                    {
+                        "stage_name": "route_candidate_path_build",
+                        "mean_wall_time_share": 0.36,
+                        "max_wall_time_share": 0.38,
+                        "max_wall_clock_ns": 360,
+                        "gpu_review_eligible": True,
+                    },
+                    {
+                        "stage_name": "route_candidate_metadata",
+                        "mean_wall_time_share": 0.05,
+                        "max_wall_time_share": 0.06,
+                        "max_wall_clock_ns": 50,
+                    },
+                    {
+                        "stage_name": "active_agent_allocation",
+                        "mean_wall_time_share": 0.08,
+                        "max_wall_time_share": 0.09,
+                        "max_wall_clock_ns": 80,
+                    },
+                    {
+                        "stage_name": "active_agent_movement",
+                        "mean_wall_time_share": 0.34,
+                        "max_wall_time_share": 0.35,
+                        "max_wall_clock_ns": 340,
+                        "gpu_review_eligible": True,
+                    },
+                ],
+            },
+        }
+    )
+    candidates = {
+        candidate["stage_name"]: candidate
+        for candidate in report["stage_candidates"]
+    }
+
+    assert candidates["route_candidate_potential"]["nn_surrogate_fit"] == "high"
+    assert candidates["route_candidate_path_build"]["rust_cpu_fit"] == "high"
+    assert candidates["route_candidate_path_build"]["nn_surrogate_fit"] == "medium"
+    assert candidates["route_candidate_metadata"]["jax_gpu_fit"] == "medium"
+    assert candidates["active_agent_allocation"]["nn_surrogate_fit"] == "medium"
+    assert candidates["active_agent_movement"]["rust_cpu_fit"] == "high"
+    assert candidates["active_agent_movement"]["jax_gpu_fit"] == "low"
+
+
 def test_runtime_benchmark_suite_html_renders_acceleration_candidate_report() -> None:
     from metroflow.benchmarks.reporting import render_runtime_benchmark_suite_html
 

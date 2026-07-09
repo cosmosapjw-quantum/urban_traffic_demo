@@ -246,6 +246,8 @@ def _zero_tick_counters() -> dict[str, int]:
         "flow_update_wall_ns": 0,
         "active_agent_update_wall_ns": 0,
         "reroute_decision_wall_ns": 0,
+        "active_agent_allocation_wall_ns": 0,
+        "active_agent_movement_wall_ns": 0,
         "active_agent_rerouted_this_tick": 0,
         "active_agent_reroute_cooldown_this_tick": 0,
     }
@@ -369,6 +371,12 @@ def _update_metrics_state(
         tick_counters.get("active_agent_update_wall_ns", 0)
     )
     reroute_decision_wall_ns = int(tick_counters.get("reroute_decision_wall_ns", 0))
+    active_agent_allocation_wall_ns = int(
+        tick_counters.get("active_agent_allocation_wall_ns", 0)
+    )
+    active_agent_movement_wall_ns = int(
+        tick_counters.get("active_agent_movement_wall_ns", 0)
+    )
     metrics.update(
         {
             "tick_index": state.tick_index,
@@ -403,6 +411,16 @@ def _update_metrics_state(
                 metrics.get("reroute_decision_wall_ns_total", 0)
             )
             + reroute_decision_wall_ns,
+            "active_agent_allocation_wall_ns": active_agent_allocation_wall_ns,
+            "active_agent_allocation_wall_ns_total": int(
+                metrics.get("active_agent_allocation_wall_ns_total", 0)
+            )
+            + active_agent_allocation_wall_ns,
+            "active_agent_movement_wall_ns": active_agent_movement_wall_ns,
+            "active_agent_movement_wall_ns_total": int(
+                metrics.get("active_agent_movement_wall_ns_total", 0)
+            )
+            + active_agent_movement_wall_ns,
             "queue_vehicles_total": queue_total,
             "outflow_vehicles_total": outflow_total,
             "route_candidate_refresh_total": int(
@@ -419,6 +437,15 @@ def _update_metrics_state(
             ),
             "route_candidate_refresh_seconds_total": float(
                 route_stats.get("route_candidate_refresh_seconds_total", 0.0)
+            ),
+            "route_candidate_potential_seconds_total": float(
+                route_stats.get("route_candidate_potential_seconds_total", 0.0)
+            ),
+            "route_candidate_path_build_seconds_total": float(
+                route_stats.get("route_candidate_path_build_seconds_total", 0.0)
+            ),
+            "route_candidate_metadata_seconds_total": float(
+                route_stats.get("route_candidate_metadata_seconds_total", 0.0)
             ),
             "dynamic_potential_recompute_seconds_total": float(
                 route_stats.get("dynamic_potential_recompute_seconds_total", 0.0)

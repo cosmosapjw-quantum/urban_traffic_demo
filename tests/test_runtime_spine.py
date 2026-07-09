@@ -774,6 +774,8 @@ def test_simulation_step_accumulates_runtime_stage_timing_totals(
         return state, {
             "active_agent_update_wall_ns": 7,
             "reroute_decision_wall_ns": 3,
+            "active_agent_allocation_wall_ns": 2,
+            "active_agent_movement_wall_ns": 4,
         }
 
     monkeypatch.setattr(step_module, "_advance_flow_state", fake_advance_flow_state)
@@ -801,6 +803,8 @@ def test_simulation_step_accumulates_runtime_stage_timing_totals(
     assert final_state.dynamic.metrics_state["flow_update_wall_ns_total"] == 10
     assert final_state.dynamic.metrics_state["active_agent_update_wall_ns_total"] == 14
     assert final_state.dynamic.metrics_state["reroute_decision_wall_ns_total"] == 6
+    assert final_state.dynamic.metrics_state["active_agent_allocation_wall_ns_total"] == 4
+    assert final_state.dynamic.metrics_state["active_agent_movement_wall_ns_total"] == 8
 
 
 def test_runtime_reroute_replaces_remaining_tail_on_incident() -> None:

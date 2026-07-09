@@ -93,8 +93,9 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   current-link 이후 route tail replacement, reroute/cooldown telemetry counters를 고정한다
 - JAX 첫 호출 compile time과 steady-state runtime을 분리 기록
 - benchmark result는 요청 backend를 기록하고, explicit `rust_cpu`/`jax` 요청 실패는 실패로 남김
-- runtime benchmark result는 route-candidate refresh, dynamic-potential recompute, routing compile estimate
-  timing totals, flow/active-agent/reroute decision wall-time totals, `runtime_stage_timings`,
+- runtime benchmark result는 route-candidate refresh, route-candidate potential/path-build/metadata,
+  dynamic-potential recompute, routing compile estimate timing totals, flow/active-agent/reroute
+  decision wall-time totals, active-agent allocation/movement wall-time totals, `runtime_stage_timings`,
   `gpu_candidate_stage_names`를 metrics/run summary와 동일한 key로 보존한다
 - isolated routing-candidate benchmark result는 route-candidate refresh와 dynamic-potential recompute
   timing totals를 own stats에서 보존한다
@@ -141,5 +142,7 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   적합도, Rust CPU 적합도, custom CUDA 적합도, 다음 timing probe를 기록한다. coarse stage와 nested
   stage가 함께 측정되면 `timing_overlap_warning`을 남겨 mean share 합계를 exclusive wall-clock
   partition으로 오독하지 않게 해야 한다
+- nested stage는 coarse stage를 대체하지 않는다. route-candidate potential/path-build/metadata와
+  active-agent allocation/movement는 병목 분해용 evidence이며, 합산값을 runtime 전체 share로 재해석하면 안 된다
 - manifest의 `*_candidate_stage_names`는 구조적으로 medium/high fit인 stage 목록이고,
   `*_review_ready_stage_names`는 그중 현재 suite의 `gpu_review_eligible`까지 통과한 stage만 담아야 한다

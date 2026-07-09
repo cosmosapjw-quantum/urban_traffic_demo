@@ -374,6 +374,33 @@ def test_measured_routing_candidate_benchmark_records_baseline_path_metadata():
     assert result.dynamic_potential_recompute_seconds_total >= 0.0
 
 
+def test_route_candidate_set_records_internal_refresh_timing_breakdown():
+    from metroflow.routing.candidates import create_route_candidate_set
+
+    road_csr, link_state = make_measured_routing_fixture()
+    stats: dict[str, object] = {}
+
+    candidate_set = create_route_candidate_set(
+        road_csr=road_csr,
+        link_state=link_state,
+        od_key=(1, 4),
+        origin_node_id=1,
+        destination_node_id=4,
+        current_tick=0,
+        max_candidates=2,
+        max_hops=4,
+        routing_backend="baseline",
+        potential_cache={},
+        stats=stats,
+    )
+
+    assert candidate_set.candidate_paths
+    assert stats["route_candidate_refresh_total"] == 1
+    assert float(stats["route_candidate_potential_seconds_total"]) >= 0.0
+    assert float(stats["route_candidate_path_build_seconds_total"]) >= 0.0
+    assert float(stats["route_candidate_metadata_seconds_total"]) >= 0.0
+
+
 def test_measured_routing_candidate_benchmark_records_single_candidate_metadata():
     road_csr, link_state = make_measured_routing_fixture()
 
@@ -626,6 +653,65 @@ def test_measured_runtime_benchmark_reports_stage_shares_and_gpu_candidates(
     assert result.runtime_stage_timings[4].stage_name == "reroute_decision"
     assert result.runtime_stage_timings[4].wall_clock_ns == 299
     assert result.runtime_stage_timings[4].gpu_candidate is False
+
+
+def test_measured_runtime_benchmark_reports_nested_route_and_agent_stage_shares(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    from metroflow.sim.init import build_initial_simulation_state
+
+    bundle = build_initial_simulation_state(scenario_seed=6, eager_trip_generation=False)
+    timestamps = iter((10_000, 11_000))
+
+    def fake_perf_counter_ns() -> int:
+        return next(timestamps)
+
+    def fake_simulation_step(state, _control, key):
+        metrics = dict(state.dynamic.metrics_state)
+        metrics.update(
+            {
+                "route_candidate_refresh_seconds_total": 0.00000055,
+                "route_candidate_potential_seconds_total": 0.00000035,
+                "route_candidate_path_build_seconds_total": 0.00000031,
+                "route_candidate_metadata_seconds_total": 0.00000008,
+                "dynamic_potential_recompute_seconds_total": 0.00000030,
+                "active_agent_update_wall_ns_total": 450,
+                "active_agent_allocation_wall_ns_total": 80,
+                "active_agent_movement_wall_ns_total": 330,
+            }
+        )
+        return (
+            state.with_clock(tick_index=state.tick_index + 1).with_dynamic_updates(
+                metrics_state=metrics
+            ),
+            None,
+            None,
+            key,
+        )
+
+    monkeypatch.setattr(benchmark_module, "perf_counter_ns", fake_perf_counter_ns)
+    monkeypatch.setattr(benchmark_module, "simulation_step", fake_simulation_step)
+
+    result = run_measured_runtime_spine_benchmark(
+        bundle.state,
+        bundle.rng_key,
+        MeasuredRuntimeBenchmarkConfig(
+            workload_name="runtime-nested-stage-shares",
+            num_steps=1,
+        ),
+    )
+    timings = {item.stage_name: item for item in result.runtime_stage_timings}
+
+    assert result.route_candidate_potential_seconds_total == 0.00000035
+    assert result.route_candidate_path_build_seconds_total == 0.00000031
+    assert result.route_candidate_metadata_seconds_total == 0.00000008
+    assert result.active_agent_allocation_wall_ns_total == 80
+    assert result.active_agent_movement_wall_ns_total == 330
+    assert timings["route_candidate_potential"].wall_clock_ns == 350
+    assert timings["route_candidate_path_build"].gpu_candidate is True
+    assert timings["active_agent_movement"].wall_clock_ns == 330
+    assert "route_candidate_path_build" in result.gpu_candidate_stage_names
+    assert "active_agent_movement" in result.gpu_candidate_stage_names
 
 
 def test_runtime_stage_timing_markdown_reports_gpu_candidate_gate() -> None:

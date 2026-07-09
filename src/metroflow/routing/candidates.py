@@ -180,6 +180,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
                 id(road_csr),
                 id(link_state),
             )
+        potential_started = perf_counter()
         potential_state = compute_dynamic_potential_state(
             network=road_csr,
             link_state=link_state,
@@ -189,7 +190,13 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             cache_key=effective_cache_key,
             stats=stats,
         )
+        _add_stats_seconds(
+            stats,
+            "route_candidate_potential_seconds_total",
+            max(perf_counter() - potential_started, 0.0),
+        )
         potential_metadata = dict(potential_state.metadata)
+        path_started = perf_counter()
         if max_candidates == 1:
             path = build_greedy_route_candidate(
                 network=road_csr,
@@ -211,6 +218,11 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
                 max_hops=max_hops,
                 routing_backend=routing_backend,
             )
+        _add_stats_seconds(
+            stats,
+            "route_candidate_path_build_seconds_total",
+            max(perf_counter() - path_started, 0.0),
+        )
 
     candidate_ids: tuple[int, ...]
     candidate_paths: tuple[tuple[int, ...], ...]
@@ -222,6 +234,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
         candidate_paths = ()
     candidate_metadata_backend = "python_host_candidate_metadata"
     if potential_state is not None:
+        metadata_started = perf_counter()
         (
             candidate_path_costs,
             candidate_path_size_factors,
@@ -231,6 +244,11 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             candidate_paths=candidate_paths,
             link_travel_time_cost=potential_state.link_travel_time_cost,
             routing_backend=routing_backend,
+        )
+        _add_stats_seconds(
+            stats,
+            "route_candidate_metadata_seconds_total",
+            max(perf_counter() - metadata_started, 0.0),
         )
     else:
         candidate_path_costs = ()
@@ -275,6 +293,16 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             stats.get("route_candidate_refresh_seconds_total", 0.0)
         ) + max(perf_counter() - started, 0.0)
     return candidate_set
+
+
+def _add_stats_seconds(
+    stats: dict[str, Any] | None,
+    key: str,
+    seconds: float,
+) -> None:
+    if stats is None:
+        return
+    stats[str(key)] = float(stats.get(str(key), 0.0)) + max(float(seconds), 0.0)
 
 
 def _build_ranked_route_candidate_paths(

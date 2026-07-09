@@ -73,8 +73,9 @@
 - PyTorch/libtorch/custom CUDA는 profiling 이후 좁은 hot kernel에만 추가한다
 - `torch_cuda`/`custom_cuda`는 현재 runtime config 값이 아니며, 단일 stage가 최소 3개 deterministic
   seed에서 wall time의 30%를 넘고 Rust/baseline parity가 green일 때만 별도 slice로 검토한다
-- runtime benchmark는 flow update, route candidate refresh, dynamic-potential recompute,
-  reroute decision, active-agent update stage timing을 보존해야 한다. GPU 후보 표시는
+- runtime benchmark는 flow update, route candidate refresh, route candidate potential/path-build/metadata,
+  dynamic-potential recompute, reroute decision, active-agent update, active-agent allocation/movement
+  stage timing을 보존해야 한다. GPU 후보 표시는
   `gpu_candidate_stage_names` metadata로만 남기고 runtime backend 값으로 승격하지 않는다
 - runtime acceleration candidate report는 GPU gate와 분리한다. JAX/GPU fit, NN surrogate fit,
   Rust CPU fit, custom CUDA fit은 planning metadata이며 backend config 값이나 validation claim이 아니다.

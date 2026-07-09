@@ -170,11 +170,16 @@ class MeasuredRuntimeBenchmarkResult:
     dynamic_potential_cache_hits_total: int
     seed: int | None = None
     route_candidate_refresh_seconds_total: float = 0.0
+    route_candidate_potential_seconds_total: float = 0.0
+    route_candidate_path_build_seconds_total: float = 0.0
+    route_candidate_metadata_seconds_total: float = 0.0
     dynamic_potential_recompute_seconds_total: float = 0.0
     routing_compile_seconds_estimate_total: float = 0.0
     flow_update_wall_ns_total: int = 0
     active_agent_update_wall_ns_total: int = 0
     reroute_decision_wall_ns_total: int = 0
+    active_agent_allocation_wall_ns_total: int = 0
+    active_agent_movement_wall_ns_total: int = 0
     runtime_stage_timings: tuple[RuntimeStageTiming, ...] = ()
     gpu_candidate_stage_names: tuple[str, ...] = ()
     gpu_candidate_threshold: float = 0.30
@@ -489,11 +494,30 @@ def run_measured_runtime_spine_benchmark(
         total_key="reroute_decision_wall_ns_total",
         tick_key="reroute_decision_wall_ns",
     )
+    active_agent_allocation_wall_ns_total = _stage_ns_metric(
+        metrics_state,
+        total_key="active_agent_allocation_wall_ns_total",
+        tick_key="active_agent_allocation_wall_ns",
+    )
+    active_agent_movement_wall_ns_total = _stage_ns_metric(
+        metrics_state,
+        total_key="active_agent_movement_wall_ns_total",
+        tick_key="active_agent_movement_wall_ns",
+    )
     stage_timings = _runtime_stage_timing_breakdown(
         wall_clock_ns=max(elapsed_ns, 0),
         flow_update_wall_ns=flow_update_wall_ns_total,
         route_candidate_refresh_ns=_seconds_to_ns(
             metrics_state.get("route_candidate_refresh_seconds_total", 0.0)
+        ),
+        route_candidate_potential_ns=_seconds_to_ns(
+            metrics_state.get("route_candidate_potential_seconds_total", 0.0)
+        ),
+        route_candidate_path_build_ns=_seconds_to_ns(
+            metrics_state.get("route_candidate_path_build_seconds_total", 0.0)
+        ),
+        route_candidate_metadata_ns=_seconds_to_ns(
+            metrics_state.get("route_candidate_metadata_seconds_total", 0.0)
         ),
         dynamic_potential_recompute_ns=_seconds_to_ns(
             metrics_state.get("dynamic_potential_recompute_seconds_total", 0.0)
@@ -503,6 +527,8 @@ def run_measured_runtime_spine_benchmark(
         ),
         reroute_decision_wall_ns=reroute_decision_wall_ns_total,
         active_agent_update_wall_ns=active_agent_update_wall_ns_total,
+        active_agent_allocation_wall_ns=active_agent_allocation_wall_ns_total,
+        active_agent_movement_wall_ns=active_agent_movement_wall_ns_total,
     )
     return MeasuredRuntimeBenchmarkResult(
         name="measured_runtime_spine",
@@ -530,6 +556,15 @@ def run_measured_runtime_spine_benchmark(
         route_candidate_refresh_seconds_total=float(
             metrics_state.get("route_candidate_refresh_seconds_total", 0.0)
         ),
+        route_candidate_potential_seconds_total=float(
+            metrics_state.get("route_candidate_potential_seconds_total", 0.0)
+        ),
+        route_candidate_path_build_seconds_total=float(
+            metrics_state.get("route_candidate_path_build_seconds_total", 0.0)
+        ),
+        route_candidate_metadata_seconds_total=float(
+            metrics_state.get("route_candidate_metadata_seconds_total", 0.0)
+        ),
         dynamic_potential_recompute_seconds_total=float(
             metrics_state.get("dynamic_potential_recompute_seconds_total", 0.0)
         ),
@@ -539,6 +574,8 @@ def run_measured_runtime_spine_benchmark(
         flow_update_wall_ns_total=flow_update_wall_ns_total,
         active_agent_update_wall_ns_total=active_agent_update_wall_ns_total,
         reroute_decision_wall_ns_total=reroute_decision_wall_ns_total,
+        active_agent_allocation_wall_ns_total=active_agent_allocation_wall_ns_total,
+        active_agent_movement_wall_ns_total=active_agent_movement_wall_ns_total,
         runtime_stage_timings=stage_timings,
         gpu_candidate_stage_names=tuple(
             item.stage_name for item in stage_timings if item.gpu_candidate
@@ -788,20 +825,30 @@ def _seconds_to_ns(value: object) -> int:
 def _runtime_stage_timing_breakdown(
     *,
     wall_clock_ns: int,
-    flow_update_wall_ns: int,
-    route_candidate_refresh_ns: int,
-    dynamic_potential_recompute_ns: int,
-    routing_compile_estimate_ns: int,
-    reroute_decision_wall_ns: int,
-    active_agent_update_wall_ns: int,
+    flow_update_wall_ns: int = 0,
+    route_candidate_refresh_ns: int = 0,
+    route_candidate_potential_ns: int = 0,
+    route_candidate_path_build_ns: int = 0,
+    route_candidate_metadata_ns: int = 0,
+    dynamic_potential_recompute_ns: int = 0,
+    routing_compile_estimate_ns: int = 0,
+    reroute_decision_wall_ns: int = 0,
+    active_agent_update_wall_ns: int = 0,
+    active_agent_allocation_wall_ns: int = 0,
+    active_agent_movement_wall_ns: int = 0,
     gpu_candidate_threshold: float = 0.30,
 ) -> tuple[RuntimeStageTiming, ...]:
     denominator = max(1, int(wall_clock_ns))
     gpu_candidate_stage_names = {
         "flow_update",
         "route_candidate_refresh",
+        "route_candidate_potential",
+        "route_candidate_path_build",
+        "route_candidate_metadata",
         "reroute_decision",
         "active_agent_update",
+        "active_agent_allocation",
+        "active_agent_movement",
     }
     raw = (
         ("flow_update", flow_update_wall_ns),
@@ -810,6 +857,11 @@ def _runtime_stage_timing_breakdown(
         ("routing_compile_estimate", routing_compile_estimate_ns),
         ("reroute_decision", reroute_decision_wall_ns),
         ("active_agent_update", active_agent_update_wall_ns),
+        ("route_candidate_potential", route_candidate_potential_ns),
+        ("route_candidate_path_build", route_candidate_path_build_ns),
+        ("route_candidate_metadata", route_candidate_metadata_ns),
+        ("active_agent_allocation", active_agent_allocation_wall_ns),
+        ("active_agent_movement", active_agent_movement_wall_ns),
     )
     out: list[RuntimeStageTiming] = []
     for stage_name, wall_ns in raw:

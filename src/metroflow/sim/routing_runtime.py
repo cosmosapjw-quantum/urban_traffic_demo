@@ -192,6 +192,7 @@ def advance_runtime_active_agents(
     newly_allocated_slot_ids: set[int] = set()
     source_queue_increments_by_link_id: dict[int, int] = {}
 
+    allocation_start_ns = perf_counter_ns()
     for trip in _activated_trip_requests(trips):
         trip_id = int(trip.trip_request_id)
         if trip_id in allocated_ids or trip_id in completed_ids or trip_id in failed_ids:
@@ -235,6 +236,10 @@ def advance_runtime_active_agents(
             source_queue_increments_by_link_id.get(int(path[0]), 0) + 1
         )
         counters["trip_allocated_this_tick"] += 1
+    counters["active_agent_allocation_wall_ns"] = max(
+        0,
+        perf_counter_ns() - allocation_start_ns,
+    )
 
     reroute_start_ns = perf_counter_ns()
     pool_after_reroute, reroute_counters = _apply_runtime_reroute_policy(
@@ -248,12 +253,18 @@ def advance_runtime_active_agents(
         perf_counter_ns() - reroute_start_ns,
     )
     counters.update({key: counters.get(key, 0) + value for key, value in reroute_counters.items()})
+    movement_start_ns = perf_counter_ns()
     moved_pool, moved_counters, completed_now = _advance_pool_along_cached_routes(
         pool_after_reroute,
         movement_budget_by_link_id=_movement_budget_by_link_id(state),
         completion_budget_by_link_id=_sink_discharge_budget_by_link_id(state),
         skip_slot_ids=newly_allocated_slot_ids,
         agent_backend=state.config.agent_backend,
+    )
+    moved_counters = dict(moved_counters)
+    moved_counters["active_agent_movement_wall_ns"] = max(
+        0,
+        perf_counter_ns() - movement_start_ns,
     )
     counters.update({key: counters.get(key, 0) + value for key, value in moved_counters.items()})
     completed_ids.update(completed_now)
@@ -368,6 +379,8 @@ def _agent_tick_counters() -> dict[str, int]:
         "active_agent_sink_wait_this_tick": 0,
         "active_agent_rerouted_this_tick": 0,
         "active_agent_reroute_cooldown_this_tick": 0,
+        "active_agent_allocation_wall_ns": 0,
+        "active_agent_movement_wall_ns": 0,
     }
 
 

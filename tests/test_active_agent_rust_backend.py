@@ -154,7 +154,12 @@ def _without_timing(counters: dict[str, int]) -> dict[str, int]:
     return {
         key: value
         for key, value in counters.items()
-        if key not in {"reroute_decision_wall_ns"}
+        if key
+        not in {
+            "active_agent_allocation_wall_ns",
+            "active_agent_movement_wall_ns",
+            "reroute_decision_wall_ns",
+        }
     }
 
 
