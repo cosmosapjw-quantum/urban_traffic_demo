@@ -1,0 +1,22 @@
+{
+  "artifact_format_version": "runtime_suite_bundle_v1",
+  "artifact_paths": {
+    "html": "artifacts/runtime_spine_review/runtime-suite-eager-smoke.html",
+    "json": "artifacts/runtime_spine_review/runtime-suite-eager-smoke.json",
+    "manifest": "artifacts/runtime_spine_review/runtime-suite-eager-smoke.manifest.json",
+    "markdown": "artifacts/runtime_spine_review/runtime-suite-eager-smoke.md"
+  },
+  "eager_trip_generation": true,
+  "gpu_review_eligible_stage_names": [
+    "route_candidate_refresh",
+    "active_agent_update"
+  ],
+  "num_steps": 1,
+  "seed_count": 3,
+  "seeds": [
+    41,
+    42,
+    43
+  ],
+  "workload_name": "smoke-runtime-suite-eager"
+}
