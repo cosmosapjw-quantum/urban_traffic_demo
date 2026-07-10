@@ -390,7 +390,7 @@ def build_local_fabric(
         + (core_fan_segment_count * 0.02)
         + max(0.0, 0.45 - float(perimeter_segment_count / max(total_segments, 1))) * 0.8,
     )
-    csur_module_signature = tuple(
+    road_hierarchy_module_signature = tuple(
         label
         for label, active in (
             ("collector_spine", collector_spine_segment_count > 0),
@@ -423,7 +423,7 @@ def build_local_fabric(
         "direct_downtown_spoke_share": float(downtown_thread_segment_count / max(len(collector_segments), 1)),
         "intra_cell_subdivision_count": int(intra_cell_subdivision_count),
         "cell_perimeter_road_share": float(perimeter_road_segment_count / max(total_segments, 1)),
-        "csur_module_signature": csur_module_signature,
+        "road_hierarchy_module_signature": road_hierarchy_module_signature,
         "hierarchy_legibility_score": float(hierarchy_legibility_score),
     }
 

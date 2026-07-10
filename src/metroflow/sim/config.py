@@ -14,12 +14,14 @@ __all__ = [
     "LearningMixBounds",
     "SimulationConfig",
     "CityGenerationConfig",
+    "CITY_TOPOLOGY_MODES",
 ]
 
 EDGE_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "jax", "auto")
 FLOW_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
 ROUTING_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
 AGENT_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
+CITY_TOPOLOGY_MODES = ("standard", "sidecar_local_fabric")
 
 
 class StrEnum(str, Enum):
@@ -155,6 +157,7 @@ class SimulationConfig:
 class CityGenerationConfig:
     """Synthetic city generation configuration for topology/zones/POIs."""
 
+    topology_mode: str = "standard"
     road_hierarchy_profile: dict[RoadHierarchyClass, float] = field(
         default_factory=lambda: {
             RoadHierarchyClass.LOCAL: 0.7,
@@ -178,6 +181,7 @@ class CityGenerationConfig:
     poi_density_profile: str = "baseline"
 
     def __post_init__(self) -> None:
+        self.topology_mode = str(self.topology_mode)
         self.road_hierarchy_profile = _coerce_share_mapping(
             self.road_hierarchy_profile,
             RoadHierarchyClass,
@@ -188,6 +192,11 @@ class CityGenerationConfig:
         self.radial_corridor_count = int(self.radial_corridor_count)
         self.barrier_count = int(self.barrier_count)
         self.bridge_count = int(self.bridge_count)
+
+        if self.topology_mode not in CITY_TOPOLOGY_MODES:
+            raise ValueError(
+                "topology_mode must be one of: standard, sidecar_local_fabric"
+            )
 
         if self.ring_road_count < 0:
             raise ValueError("ring_road_count must be >= 0")

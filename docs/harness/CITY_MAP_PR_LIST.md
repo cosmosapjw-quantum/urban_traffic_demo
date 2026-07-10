@@ -41,14 +41,18 @@ Status: complete.
 
 ## PR35 - Centerline Topology Compiler
 
-Status: pending.
+Status: complete.
 
 - Compile generated links into canonical physical centerlines.
-- Add deterministic endpoint snapping and intersection validation.
+- Add deterministic endpoint anchoring validation and a diagnostic interior
+  intersection audit. PR40 owns the fail-closed planar-intersection gate after
+  node compilation; PR35 does not promote this diagnostic to validation.
 - Migrate legacy `csur_module_*` diagnostic keys to project-owned
   `road_hierarchy_module_*` names with documented artifact impact.
 - Expose `sidecar_local_fabric` through an explicit city-generation config,
   but keep the current standard mode as default until gates pass.
+- Validation: `34 passed` focused review suite; full gate `372 passed`; Ruff
+  and diff check passed.
 - Commit: `feat(map): compile generated centerlines`.
 
 ## PR36 - Road Section Grammar

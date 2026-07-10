@@ -5,6 +5,13 @@ from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
+from metroflow.map.road_geometry import (
+    RoadGeometryCatalog,
+    build_endpoint_geometry_catalog,
+    count_interior_centerline_intersections,
+    validate_geometry_endpoint_anchors,
+)
+
 from .adversarial_validator import evaluate_adversarial_seed_gate
 from .backbone_builder import build_backbone
 from .connectivity import repair_weak_connectivity
@@ -39,6 +46,7 @@ class PreviewCityTopology:
     links: tuple[RoadLink, ...]
     turns: tuple[TurnMovement, ...] = ()
     bridge_crossings: tuple[BridgeCrossing, ...] = ()
+    road_geometry: RoadGeometryCatalog | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
     _validated: bool = False
 
@@ -123,7 +131,8 @@ class GeneratorV2:
         seed = int(cfg.get("seed", 0))
         style_id = str(cfg.get("style_id") or _default_style_for_scenario(scenario_id))
         width, height = _dimensions_for_scenario(scenario_id)
-        if str(cfg.get("preview_mode", "standard")) == "sidecar_morphology":
+        preview_mode = str(cfg.get("preview_mode", "standard"))
+        if preview_mode == "sidecar_morphology":
             morphology_field = build_morphology_field(
                 scenario_id=scenario_id,
                 seed=seed,
@@ -131,13 +140,15 @@ class GeneratorV2:
                 width=width,
                 height=height,
             )
-            return _build_sidecar_morphology_preview_topology(
-                scenario_id=scenario_id,
-                seed=seed,
-                style_id=style_id,
-                morphology_field=morphology_field,
+            return _finalize_preview_topology(
+                _build_sidecar_morphology_preview_topology(
+                    scenario_id=scenario_id,
+                    seed=seed,
+                    style_id=style_id,
+                    morphology_field=morphology_field,
+                )
             )
-        if str(cfg.get("preview_mode", "standard")) == "sidecar_district_cells":
+        if preview_mode == "sidecar_district_cells":
             morphology_field = build_morphology_field(
                 scenario_id=scenario_id,
                 seed=seed,
@@ -147,15 +158,17 @@ class GeneratorV2:
             )
             district_cells = build_district_cells(morphology_field=morphology_field)
             district_mesh = build_district_mesh_from_cells(district_cells=district_cells)
-            return _build_sidecar_district_cell_preview_topology(
-                scenario_id=scenario_id,
-                seed=seed,
-                style_id=style_id,
-                morphology_field=morphology_field,
-                district_cells=district_cells,
-                district_mesh=district_mesh,
+            return _finalize_preview_topology(
+                _build_sidecar_district_cell_preview_topology(
+                    scenario_id=scenario_id,
+                    seed=seed,
+                    style_id=style_id,
+                    morphology_field=morphology_field,
+                    district_cells=district_cells,
+                    district_mesh=district_mesh,
+                )
             )
-        if str(cfg.get("preview_mode", "standard")) == "sidecar_local_fabric":
+        if preview_mode == "sidecar_local_fabric":
             morphology_field = build_morphology_field(
                 scenario_id=scenario_id,
                 seed=seed,
@@ -169,23 +182,32 @@ class GeneratorV2:
                 morphology_field=morphology_field,
                 district_cells=district_cells,
             )
-            return _build_sidecar_local_fabric_preview_topology(
-                scenario_id=scenario_id,
-                seed=seed,
-                style_id=style_id,
-                morphology_field=morphology_field,
-                district_cells=district_cells,
-                district_mesh=district_mesh,
-                local_fabric=local_fabric,
+            return _finalize_preview_topology(
+                _build_sidecar_local_fabric_preview_topology(
+                    scenario_id=scenario_id,
+                    seed=seed,
+                    style_id=style_id,
+                    morphology_field=morphology_field,
+                    district_cells=district_cells,
+                    district_mesh=district_mesh,
+                    local_fabric=local_fabric,
+                )
+            )
+        if preview_mode != "standard":
+            raise ValueError(
+                "preview_mode must be one of: standard, sidecar_morphology, "
+                "sidecar_district_cells, sidecar_local_fabric"
             )
         backbone = build_backbone(style_id=style_id, seed=seed, width=width, height=height)
         district_mesh = build_district_mesh(seed=seed, width=width, height=height, backbone=backbone)
-        return _build_preview_topology(
-            scenario_id=scenario_id,
-            seed=seed,
-            style_id=style_id,
-            backbone=backbone,
-            district_mesh=district_mesh,
+        return _finalize_preview_topology(
+            _build_preview_topology(
+                scenario_id=scenario_id,
+                seed=seed,
+                style_id=style_id,
+                backbone=backbone,
+                district_mesh=district_mesh,
+            )
         )
 
     def run_us1_gate_pipeline(
@@ -242,6 +264,46 @@ class GeneratorV2:
             sidecar_image_path=sidecar_image_path,
             sidecar_history_path=sidecar_history_path,
         )
+
+
+def _finalize_preview_topology(topology: PreviewCityTopology) -> PreviewCityTopology:
+    repair = repair_weak_connectivity(nodes=topology.nodes, links=topology.links)
+    metadata = dict(topology.metadata)
+    if repair.repair_link_ids or "weak_component_count_after_repair" not in metadata:
+        metadata.update(repair.metadata)
+    geometry = build_endpoint_geometry_catalog(nodes=repair.nodes, links=repair.links)
+    validate_geometry_endpoint_anchors(
+        catalog=geometry,
+        nodes=repair.nodes,
+        links=repair.links,
+    )
+    metadata.update(
+        {
+            "road_geometry_fingerprint": geometry.fingerprint,
+            "physical_centerline_count": len(geometry.centerlines),
+            "geometry_assignment_count": len(geometry.assignments),
+            "unmodeled_centerline_intersection_count": (
+                count_interior_centerline_intersections(geometry)
+            ),
+            "centerline_intersection_audit_status": "diagnostic_not_validation",
+        }
+    )
+    finalized = PreviewCityTopology(
+        nodes=repair.nodes,
+        links=repair.links,
+        turns=topology.turns,
+        bridge_crossings=topology.bridge_crossings,
+        road_geometry=geometry,
+        metadata=metadata,
+    )
+    report = finalized.validate(require_weak_connectivity=True)
+    if not report.ok:
+        raise ValueError(f"generated topology finalization failed: {report.summary()}")
+    if "active_sidecar_hierarchy_report" in metadata:
+        metadata["active_sidecar_hierarchy_report"] = build_active_sidecar_hierarchy_report(
+            topology=finalized
+        )
+    return finalized
 
 
 def _default_style_for_scenario(scenario_id: str) -> str:
@@ -4831,6 +4893,7 @@ def _build_sidecar_local_fabric_preview_topology(
             capacity_veh_per_tick=float(link.capacity_veh_per_tick),
             lanes=int(link.lanes),
             bridge_group_id=link.bridge_group_id,
+            physical_road_id=link.physical_road_id,
         )
         for index, link in enumerate(filtered_base_links)
     ]
@@ -4883,10 +4946,10 @@ def _build_sidecar_local_fabric_preview_topology(
         "collector_stitch": int(local_fabric.get("collector_spine_segment_count", 0))
         + int(local_fabric.get("inter_district_connector_count", 0)),
     }
-    csur_module_signature = tuple(
+    road_hierarchy_module_signature = tuple(
         label for label, value in hierarchy_module_counts.items() if int(value) > 0
     )
-    csur_module_alignment_ok = (
+    road_hierarchy_module_alignment_ok = (
         hierarchy_module_counts["expressway_spine"] >= 4
         and hierarchy_module_counts["ramp_interface"] >= 1
         and hierarchy_module_counts["bridge_crossing"] >= 3
@@ -4918,8 +4981,10 @@ def _build_sidecar_local_fabric_preview_topology(
             "cell_perimeter_road_share": float(local_fabric.get("cell_perimeter_road_share", 0.0)),
             "hierarchy_legibility_score": float(local_fabric.get("hierarchy_legibility_score", 0.0)),
             "hierarchy_module_counts": dict(hierarchy_module_counts),
-            "csur_module_signature": csur_module_signature,
-            "csur_module_alignment_ok": bool(csur_module_alignment_ok),
+            "road_hierarchy_module_signature": road_hierarchy_module_signature,
+            "road_hierarchy_module_alignment_ok": bool(
+                road_hierarchy_module_alignment_ok
+            ),
             "interchange_like_node_count": int(interchange_like_node_count),
         }
     )
@@ -4965,6 +5030,22 @@ class _NodeBuilder:
 class _LinkBuilder:
     node_builder: _NodeBuilder
     links: list[RoadLink] = field(default_factory=list)
+    next_physical_road_id: int = field(init=False)
+
+    def __post_init__(self) -> None:
+        self.next_physical_road_id = max(
+            (
+                int(link.physical_road_id)
+                for link in self.links
+                if link.physical_road_id is not None
+            ),
+            default=-1,
+        ) + 1
+
+    def allocate_physical_road_id(self) -> int:
+        physical_road_id = self.next_physical_road_id
+        self.next_physical_road_id += 1
+        return physical_road_id
 
     def add(
         self,
@@ -4976,6 +5057,7 @@ class _LinkBuilder:
         speed_mps: float,
         capacity: float,
         bridge_group_id: int | None = None,
+        physical_road_id: int | None = None,
     ) -> int:
         src = self.node_builder.nodes[int(src_node_id)]
         dst = self.node_builder.nodes[int(dst_node_id)]
@@ -4990,6 +5072,7 @@ class _LinkBuilder:
             capacity_veh_per_tick=float(capacity),
             lanes=int(lanes),
             bridge_group_id=bridge_group_id,
+            physical_road_id=physical_road_id,
         )
         self.links.append(link)
         return link.link_id
@@ -5006,6 +5089,7 @@ def _add_bidirectional_link_pair(
     capacity: float,
     bridge_group_id: int | None = None,
 ) -> tuple[int, int]:
+    physical_road_id = link_builder.allocate_physical_road_id()
     forward = link_builder.add(
         src_node_id=src_node_id,
         dst_node_id=dst_node_id,
@@ -5014,6 +5098,7 @@ def _add_bidirectional_link_pair(
         speed_mps=speed_mps,
         capacity=capacity,
         bridge_group_id=bridge_group_id,
+        physical_road_id=physical_road_id,
     )
     reverse = link_builder.add(
         src_node_id=dst_node_id,
@@ -5023,6 +5108,7 @@ def _add_bidirectional_link_pair(
         speed_mps=speed_mps,
         capacity=capacity,
         bridge_group_id=bridge_group_id,
+        physical_road_id=physical_road_id,
     )
     return (forward, reverse)
 

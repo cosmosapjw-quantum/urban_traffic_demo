@@ -70,8 +70,7 @@ section compilation, and node-interface compilation as separate authorities.
 - **FORBIDDEN:** claiming that CSUR provides a complete city-map generator or
   that Metroflow already implements CSUR-compatible assets.
 
-Current `csur_module_*` metadata keys are deprecated, non-evidentiary legacy
-diagnostic labels, not compatibility claims. New consumers are forbidden. The
-machine-readable policy fixes their current source-file allowlist, and PR35
-must migrate them to project-owned `road_hierarchy_module_*` names with an
-explicit artifact compatibility note.
+Historical `csur_module_*` metadata keys were deprecated, non-evidentiary
+diagnostic labels, not compatibility claims. PR35 removed them from runtime
+sources in favor of project-owned `road_hierarchy_module_*` names. Historical
+artifacts are not rewritten.

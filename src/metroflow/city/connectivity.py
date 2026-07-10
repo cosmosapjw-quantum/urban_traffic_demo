@@ -118,6 +118,14 @@ def repair_weak_connectivity(
     nodes_by_id = {int(node.node_id): node for node in nodes_t}
     main_component = before.component_node_ids[0]
     next_link_id = max((int(link.link_id) for link in links_t), default=-1) + 1
+    next_physical_road_id = max(
+        (
+            int(link.physical_road_id)
+            for link in links_t
+            if link.physical_road_id is not None
+        ),
+        default=-1,
+    ) + 1
     repaired_links = list(links_t)
     repair_link_ids: list[int] = []
 
@@ -135,6 +143,7 @@ def repair_weak_connectivity(
             lanes=lanes,
             speed_mps=speed_mps,
             capacity_veh_per_tick=capacity_veh_per_tick,
+            physical_road_id=next_physical_road_id,
         )
         reverse = _stitch_link(
             link_id=next_link_id + 1,
@@ -144,10 +153,12 @@ def repair_weak_connectivity(
             lanes=lanes,
             speed_mps=speed_mps,
             capacity_veh_per_tick=capacity_veh_per_tick,
+            physical_road_id=next_physical_road_id,
         )
         repaired_links.extend((forward, reverse))
         repair_link_ids.extend((forward.link_id, reverse.link_id))
         next_link_id += 2
+        next_physical_road_id += 1
 
     links_repaired = tuple(repaired_links)
     after = analyze_weak_connectivity(nodes=nodes_t, links=links_repaired)
@@ -194,6 +205,7 @@ def _stitch_link(
     lanes: int,
     speed_mps: float,
     capacity_veh_per_tick: float,
+    physical_road_id: int,
 ) -> RoadLink:
     length = math.hypot(float(dst_node.x) - float(src_node.x), float(dst_node.y) - float(src_node.y))
     return RoadLink(
@@ -205,6 +217,7 @@ def _stitch_link(
         free_flow_speed_mps=float(speed_mps),
         capacity_veh_per_tick=float(capacity_veh_per_tick),
         lanes=int(lanes),
+        physical_road_id=int(physical_road_id),
     )
 
 

@@ -16,6 +16,8 @@ __all__ = [
     "LinkGeometryAssignment",
     "RoadGeometryCatalog",
     "build_endpoint_geometry_catalog",
+    "validate_geometry_endpoint_anchors",
+    "count_interior_centerline_intersections",
 ]
 
 PointM = tuple[float, float]
@@ -216,6 +218,7 @@ class _LinkLike(Protocol):
     road_class: object
     length_m: float
     bridge_group_id: int | None
+    physical_road_id: int | None
 
 
 def build_endpoint_geometry_catalog(
@@ -239,12 +242,19 @@ def build_endpoint_geometry_catalog(
         lo, hi = sorted((src_id, dst_id))
         road_class = getattr(link.road_class, "value", link.road_class)
         bridge_group = -1 if link.bridge_group_id is None else int(link.bridge_group_id)
+        physical_road_id = getattr(link, "physical_road_id", None)
+        has_explicit_road_id = physical_road_id is not None
         key = (
-            lo,
-            hi,
-            str(road_class),
-            bridge_group,
-            round(float(link.length_m), 6),
+            ("physical", int(physical_road_id))
+            if has_explicit_road_id
+            else (
+                "inferred",
+                lo,
+                hi,
+                str(road_class),
+                bridge_group,
+                round(float(link.length_m), 6),
+            )
         )
         grouped.setdefault(key, []).append(link)
 
@@ -252,8 +262,12 @@ def build_endpoint_geometry_catalog(
     assignments: list[LinkGeometryAssignment] = []
     geometry_id = 0
     for key in sorted(grouped):
-        lo, hi = int(key[0]), int(key[1])
         group = tuple(sorted(grouped[key], key=lambda item: int(item.link_id)))
+        explicit_physical_id = int(key[1]) if key[0] == "physical" else None
+        if explicit_physical_id is not None:
+            _validate_explicit_physical_group(group, physical_road_id=explicit_physical_id)
+        first = group[0]
+        lo, hi = sorted((int(first.src_node_id), int(first.dst_node_id)))
         forward = [item for item in group if int(item.src_node_id) == lo]
         reverse = [item for item in group if int(item.src_node_id) == hi]
         if len(group) > 1 and not (
@@ -274,7 +288,8 @@ def build_endpoint_geometry_catalog(
                     points_m=((float(lo_node.x), float(lo_node.y)), (float(hi_node.x), float(hi_node.y))),
                     source=source,
                     source_ref=f"endpoint:{lo}:{hi}:{ordinal}",
-                    layer=1 if int(key[3]) >= 0 else 0,
+                    layer=1 if first.bridge_group_id is not None else 0,
+                    corridor_id=explicit_physical_id,
                 )
             )
             if ordinal < len(forward):
@@ -298,6 +313,136 @@ def build_endpoint_geometry_catalog(
         centerlines=tuple(centerlines),
         assignments=tuple(assignments),
     )
+
+
+def validate_geometry_endpoint_anchors(
+    *,
+    catalog: RoadGeometryCatalog,
+    nodes: Sequence[_NodeLike],
+    links: Sequence[_LinkLike],
+    tolerance_m: float = 1e-6,
+) -> None:
+    """Fail when oriented centerline endpoints do not anchor to link nodes."""
+
+    tolerance_m = float(tolerance_m)
+    if not math.isfinite(tolerance_m) or tolerance_m < 0.0:
+        raise ValueError("tolerance_m must be finite and >= 0")
+    node_by_id = {int(node.node_id): node for node in nodes}
+    for link in links:
+        link_id = int(link.link_id)
+        src = node_by_id.get(int(link.src_node_id))
+        dst = node_by_id.get(int(link.dst_node_id))
+        if src is None or dst is None:
+            raise ValueError(f"link {link_id} references a missing endpoint node")
+        points = catalog.points_for_link(link_id)
+        start_error = math.hypot(points[0][0] - float(src.x), points[0][1] - float(src.y))
+        end_error = math.hypot(points[-1][0] - float(dst.x), points[-1][1] - float(dst.y))
+        if start_error > tolerance_m or end_error > tolerance_m:
+            raise ValueError(
+                f"link {link_id} centerline endpoints exceed snap tolerance_m={tolerance_m}"
+            )
+
+
+def count_interior_centerline_intersections(
+    catalog: RoadGeometryCatalog,
+    *,
+    cell_size_m: float = 250.0,
+) -> int:
+    """Count same-layer proper segment crossings as a diagnostic audit."""
+
+    cell_size_m = float(cell_size_m)
+    if not math.isfinite(cell_size_m) or cell_size_m <= 0.0:
+        raise ValueError("cell_size_m must be finite and > 0")
+    segments: list[tuple[PointM, PointM, int]] = []
+    for centerline in catalog.centerlines:
+        segments.extend(
+            (left, right, centerline.layer)
+            for left, right in zip(centerline.points_m, centerline.points_m[1:])
+        )
+    cells: dict[tuple[int, int], list[int]] = {}
+    for index, (left, right, _layer) in enumerate(segments):
+        min_x = math.floor(min(left[0], right[0]) / cell_size_m)
+        max_x = math.floor(max(left[0], right[0]) / cell_size_m)
+        min_y = math.floor(min(left[1], right[1]) / cell_size_m)
+        max_y = math.floor(max(left[1], right[1]) / cell_size_m)
+        for cell_x in range(min_x, max_x + 1):
+            for cell_y in range(min_y, max_y + 1):
+                cells.setdefault((cell_x, cell_y), []).append(index)
+
+    checked: set[tuple[int, int]] = set()
+    count = 0
+    for indices in cells.values():
+        unique_indices = tuple(sorted(set(indices)))
+        for offset, left_index in enumerate(unique_indices):
+            for right_index in unique_indices[offset + 1 :]:
+                pair = (left_index, right_index)
+                if pair in checked:
+                    continue
+                checked.add(pair)
+                left_a, left_b, left_layer = segments[left_index]
+                right_a, right_b, right_layer = segments[right_index]
+                if left_layer != right_layer:
+                    continue
+                if _has_shared_endpoint(left_a, left_b, right_a, right_b):
+                    continue
+                if _segments_cross_properly(left_a, left_b, right_a, right_b):
+                    count += 1
+    return count
+
+
+def _validate_explicit_physical_group(
+    group: Sequence[_LinkLike],
+    *,
+    physical_road_id: int,
+) -> None:
+    if len(group) not in {1, 2}:
+        raise ValueError(
+            f"physical_road_id {physical_road_id} must reference one link or one directed pair"
+        )
+    if len(group) == 1:
+        return
+    first, second = group
+    same_endpoints = (
+        int(first.src_node_id) == int(second.dst_node_id)
+        and int(first.dst_node_id) == int(second.src_node_id)
+    )
+    first_class = str(getattr(first.road_class, "value", first.road_class))
+    second_class = str(getattr(second.road_class, "value", second.road_class))
+    compatible = (
+        same_endpoints
+        and first_class == second_class
+        and first.bridge_group_id == second.bridge_group_id
+        and math.isclose(float(first.length_m), float(second.length_m), abs_tol=1e-6)
+    )
+    if not compatible:
+        raise ValueError(
+            f"physical_road_id {physical_road_id} references incompatible directed links"
+        )
+
+
+def _has_shared_endpoint(
+    left_a: PointM,
+    left_b: PointM,
+    right_a: PointM,
+    right_b: PointM,
+) -> bool:
+    return bool({left_a, left_b} & {right_a, right_b})
+
+
+def _segments_cross_properly(
+    left_a: PointM,
+    left_b: PointM,
+    right_a: PointM,
+    right_b: PointM,
+) -> bool:
+    def orientation(a: PointM, b: PointM, c: PointM) -> float:
+        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+
+    first = orientation(left_a, left_b, right_a)
+    second = orientation(left_a, left_b, right_b)
+    third = orientation(right_a, right_b, left_a)
+    fourth = orientation(right_a, right_b, left_b)
+    return first * second < 0.0 and third * fourth < 0.0
 
 
 def _sha256_json(payload: object) -> str:

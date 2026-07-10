@@ -66,8 +66,12 @@ def build_active_sidecar_hierarchy_report(*, topology: Any) -> dict[str, Any]:
         "interchange_like_node_count": int(metadata.get("interchange_like_node_count", interchange_like_node_count)),
         "hierarchy_legibility_score": float(metadata.get("hierarchy_legibility_score", 0.0)),
         "hierarchy_module_counts": hierarchy_module_counts,
-        "csur_module_signature": tuple(metadata.get("csur_module_signature", ()) or ()),
-        "csur_module_alignment_ok": bool(metadata.get("csur_module_alignment_ok", False)),
+        "road_hierarchy_module_signature": tuple(
+            metadata.get("road_hierarchy_module_signature", ()) or ()
+        ),
+        "road_hierarchy_module_alignment_ok": bool(
+            metadata.get("road_hierarchy_module_alignment_ok", False)
+        ),
     }
 
 

@@ -105,7 +105,7 @@ def test_legacy_csur_metadata_cannot_gain_new_consumers() -> None:
         if any(key in path.read_text(encoding="utf-8") for key in legacy_keys)
     }
 
-    assert policy["legacy_metadata"]["status"] == "deprecated_non_evidentiary"
+    assert policy["legacy_metadata"]["status"] == "removed_from_runtime"
     assert source_files == set(policy["legacy_metadata"]["allowed_source_files"])
 
 

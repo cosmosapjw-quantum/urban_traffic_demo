@@ -37,17 +37,12 @@
     "crates/metroflow-rust/src"
   ],
   "legacy_metadata": {
-    "status": "deprecated_non_evidentiary",
+    "status": "removed_from_runtime",
     "keys": [
       "csur_module_signature",
       "csur_module_alignment_ok"
     ],
-    "allowed_source_files": [
-      "src/metroflow/city/gate_reporting.py",
-      "src/metroflow/city/generator_v2.py",
-      "src/metroflow/city/local_fabric.py",
-      "src/metroflow/ui/static_map.py"
-    ],
+    "allowed_source_files": [],
     "removal_pr": 35
   }
 }

@@ -89,6 +89,7 @@ class RoadLink:
     lanes: int = 1
     bridge_group_id: int | None = None
     is_blockable: bool = True
+    physical_road_id: int | None = None
 
     def __post_init__(self) -> None:
         self.link_id = int(self.link_id)
@@ -103,6 +104,9 @@ class RoadLink:
             None if self.bridge_group_id is None else int(self.bridge_group_id)
         )
         self.is_blockable = bool(self.is_blockable)
+        self.physical_road_id = (
+            None if self.physical_road_id is None else int(self.physical_road_id)
+        )
 
         if self.src_node_id == self.dst_node_id:
             raise ValueError("RoadLink src_node_id and dst_node_id must differ")
@@ -116,6 +120,8 @@ class RoadLink:
             raise ValueError("RoadLink lanes must be >= 1")
         if self.road_class == RoadClass.BRIDGE and self.bridge_group_id is None:
             raise ValueError("RoadLink bridge_group_id is required for bridge links")
+        if self.physical_road_id is not None and self.physical_road_id < 0:
+            raise ValueError("RoadLink physical_road_id must be >= 0 when provided")
 
 
 @dataclass(slots=True)

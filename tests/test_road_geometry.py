@@ -128,6 +128,88 @@ def test_endpoint_geometry_catalog_rejects_ambiguous_parallel_links() -> None:
         build_endpoint_geometry_catalog(nodes=nodes, links=links)
 
 
+def test_endpoint_geometry_catalog_rejects_reused_physical_road_id() -> None:
+    from metroflow.city.graph import Node, RoadClass, RoadLink
+    from metroflow.map.road_geometry import build_endpoint_geometry_catalog
+
+    nodes = (
+        Node(1, x=0.0, y=0.0),
+        Node(2, x=10.0, y=0.0),
+        Node(3, x=20.0, y=0.0),
+    )
+    links = (
+        RoadLink(
+            10,
+            1,
+            2,
+            RoadClass.LOCAL,
+            10.0,
+            9.0,
+            4.0,
+            physical_road_id=7,
+        ),
+        RoadLink(
+            11,
+            3,
+            2,
+            RoadClass.LOCAL,
+            10.0,
+            9.0,
+            4.0,
+            physical_road_id=7,
+        ),
+    )
+
+    with pytest.raises(ValueError, match="incompatible directed links"):
+        build_endpoint_geometry_catalog(nodes=nodes, links=links)
+
+
+def test_geometry_endpoint_and_intersection_audits() -> None:
+    from metroflow.city.graph import Node, RoadClass, RoadLink
+    from metroflow.map.road_geometry import (
+        LinkGeometryAssignment,
+        RoadCenterline,
+        RoadGeometryCatalog,
+        count_interior_centerline_intersections,
+        validate_geometry_endpoint_anchors,
+    )
+
+    nodes = (
+        Node(1, x=0.0, y=0.0),
+        Node(2, x=10.0, y=10.0),
+        Node(3, x=0.0, y=10.0),
+        Node(4, x=10.0, y=0.0),
+    )
+    links = (
+        RoadLink(10, 1, 2, RoadClass.LOCAL, 14.0, 9.0, 4.0),
+        RoadLink(11, 3, 4, RoadClass.LOCAL, 14.0, 9.0, 4.0),
+    )
+    catalog = RoadGeometryCatalog(
+        centerlines=(
+            RoadCenterline(1, ((0.0, 0.0), (10.0, 10.0))),
+            RoadCenterline(2, ((0.0, 10.0), (10.0, 0.0))),
+        ),
+        assignments=(
+            LinkGeometryAssignment(10, 1),
+            LinkGeometryAssignment(11, 2),
+        ),
+    )
+
+    validate_geometry_endpoint_anchors(catalog=catalog, nodes=nodes, links=links)
+    assert count_interior_centerline_intersections(catalog, cell_size_m=5.0) == 1
+
+    mismatched = RoadGeometryCatalog(
+        centerlines=(RoadCenterline(1, ((1.0, 0.0), (10.0, 10.0))),),
+        assignments=(LinkGeometryAssignment(10, 1),),
+    )
+    with pytest.raises(ValueError, match="snap tolerance"):
+        validate_geometry_endpoint_anchors(
+            catalog=mismatched,
+            nodes=nodes,
+            links=(links[0],),
+        )
+
+
 def test_endpoint_geometry_catalog_is_deterministic_for_input_order() -> None:
     from metroflow.city.graph import Node, RoadClass, RoadLink
     from metroflow.map.road_geometry import build_endpoint_geometry_catalog

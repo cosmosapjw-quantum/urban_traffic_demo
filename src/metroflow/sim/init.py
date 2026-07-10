@@ -71,6 +71,7 @@ def build_initial_simulation_state(
                 else "synthetic_smoke"
             ),
             "seed": scenario_seed,
+            "preview_mode": city_cfg.topology_mode,
         }
     )
     road_csr = topology.build_csr(validate=True, require_weak_connectivity=True)
@@ -99,7 +100,13 @@ def build_initial_simulation_state(
     )
     flow_link_state = _build_initial_link_state(road_csr)
     flow_node_state = _build_initial_node_state(road_csr)
-    geometry_version = f"city-{scenario_seed}-n{road_csr.node_count}-l{road_csr.link_count}"
+    if topology.road_geometry is None:
+        raise ValueError("generated topology must include road_geometry")
+    geometry_fingerprint = topology.road_geometry.fingerprint
+    geometry_version = (
+        f"city-{scenario_seed}-{geometry_fingerprint}-"
+        f"n{road_csr.node_count}-l{road_csr.link_count}"
+    )
 
     dynamic = SimulationDynamicRefs(
         clock_state=clock_state,
@@ -145,10 +152,16 @@ def build_initial_simulation_state(
                 "trip_request_count_init": len(trip_requests.trip_requests),
                 "eager_trip_generation": int(bool(eager_trip_generation)),
                 "city_topology_engine": str(topology.metadata.get("engine", "")),
+                "city_topology_mode": city_cfg.topology_mode,
+                "road_geometry_fingerprint": geometry_fingerprint,
             },
         ),
         dynamic=dynamic,
-        metadata={"scenario_seed": scenario_seed},
+        metadata={
+            "scenario_seed": scenario_seed,
+            "city_topology_mode": city_cfg.topology_mode,
+            "road_geometry_fingerprint": geometry_fingerprint,
+        },
     )
     return SimulationInitBundle(
         state=state,
