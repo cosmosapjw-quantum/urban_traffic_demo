@@ -57,11 +57,17 @@ Status: complete.
 
 ## PR36 - Road Section Grammar
 
-Status: pending.
+Status: complete.
 
 - Replace placeholder lane grammar with project-authored unit, section-end,
   and base/shift/transition/ramp contracts.
+- Enforce directional one-lane deltas and ordered unit continuity: transition
+  permits one lane edit; ramp permits one adjacent lane+channel edit.
+- Reject coercive numeric/boolean inputs and separate structural from identity
+  profile fingerprints.
 - Add canonical profile fingerprints and fail-closed validation.
+- Validation: `25 passed` focused review suite; full gate `388 passed`; Ruff
+  and diff check passed.
 - Commit: `feat(map): add road section grammar`.
 
 ## PR37 - Section And Node Compiler
