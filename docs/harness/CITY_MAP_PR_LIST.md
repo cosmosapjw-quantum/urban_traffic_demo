@@ -72,11 +72,13 @@ Status: complete.
 
 ## PR37 - Section And Node Compiler
 
-Status: pending.
+Status: complete.
 
 - Assign profiles from road hierarchy and compile aggregate lanes/capacity.
-- Compile node through continuity, turn-pocket eligibility, conflict groups,
+- Compile node through continuity, turn-pocket eligibility, non-through movement count,
   and signal eligibility without lane-level simulation.
+- Validation: `7 passed` targeted; public records reject coercive inputs and
+  preserve deep immutability; full repository, Ruff, and diff gates passed.
 - Commit: `feat(map): compile sections and nodes`.
 
 ## PR38 - Static Ribbon Renderer

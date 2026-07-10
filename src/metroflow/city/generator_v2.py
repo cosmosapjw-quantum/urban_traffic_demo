@@ -11,6 +11,8 @@ from metroflow.map.road_geometry import (
     count_interior_centerline_intersections,
     validate_geometry_endpoint_anchors,
 )
+from metroflow.map.section_compiler import RoadSectionCatalog, compile_road_sections
+from metroflow.map.node_compiler import NodeInterfaceCatalog, compile_node_interfaces
 
 from .adversarial_validator import evaluate_adversarial_seed_gate
 from .backbone_builder import build_backbone
@@ -47,6 +49,8 @@ class PreviewCityTopology:
     turns: tuple[TurnMovement, ...] = ()
     bridge_crossings: tuple[BridgeCrossing, ...] = ()
     road_geometry: RoadGeometryCatalog | None = None
+    road_sections: RoadSectionCatalog | None = None
+    node_interfaces: NodeInterfaceCatalog | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
     _validated: bool = False
 
@@ -277,6 +281,15 @@ def _finalize_preview_topology(topology: PreviewCityTopology) -> PreviewCityTopo
         nodes=repair.nodes,
         links=repair.links,
     )
+    road_sections = compile_road_sections(
+        links=repair.links,
+        road_geometry=geometry,
+    )
+    node_interfaces = compile_node_interfaces(
+        nodes=repair.nodes,
+        links=repair.links,
+        road_geometry=geometry,
+    )
     metadata.update(
         {
             "road_geometry_fingerprint": geometry.fingerprint,
@@ -286,6 +299,10 @@ def _finalize_preview_topology(topology: PreviewCityTopology) -> PreviewCityTopo
                 count_interior_centerline_intersections(geometry)
             ),
             "centerline_intersection_audit_status": "diagnostic_not_validation",
+            "road_section_fingerprint": road_sections.fingerprint,
+            "road_section_profile_count": len(road_sections.profiles),
+            "node_interface_fingerprint": node_interfaces.fingerprint,
+            "node_interface_count": len(node_interfaces.interfaces),
         }
     )
     finalized = PreviewCityTopology(
@@ -294,6 +311,8 @@ def _finalize_preview_topology(topology: PreviewCityTopology) -> PreviewCityTopo
         turns=topology.turns,
         bridge_crossings=topology.bridge_crossings,
         road_geometry=geometry,
+        road_sections=road_sections,
+        node_interfaces=node_interfaces,
         metadata=metadata,
     )
     report = finalized.validate(require_weak_connectivity=True)

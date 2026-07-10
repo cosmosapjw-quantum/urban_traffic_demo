@@ -9,23 +9,33 @@ from .lane_grammar import RoadSectionUnit as RoadSectionUnit
 from .lane_grammar import RoadUnitKind as RoadUnitKind
 from .lane_grammar import SegmentInterfaceType as SegmentInterfaceType
 from .lane_grammar import TravelDirection as TravelDirection
+from .node_compiler import CompiledNodeInterface as CompiledNodeInterface
+from .node_compiler import NodeInterfaceCatalog as NodeInterfaceCatalog
 from .node_compiler import NodeRuleSet as NodeRuleSet
+from .node_compiler import compile_node_interfaces as compile_node_interfaces
 from .road_geometry import CenterlineSource as CenterlineSource
 from .road_geometry import LinkGeometryAssignment as LinkGeometryAssignment
 from .road_geometry import RoadCenterline as RoadCenterline
 from .road_geometry import RoadGeometryCatalog as RoadGeometryCatalog
 from .road_geometry import build_endpoint_geometry_catalog as build_endpoint_geometry_catalog
+from .section_compiler import LinkSectionAssignment as LinkSectionAssignment
+from .section_compiler import RoadSectionCatalog as RoadSectionCatalog
+from .section_compiler import compile_road_sections as compile_road_sections
 
 __all__ = [
     "CarriagewayProfile",
     "CenterlineSource",
+    "CompiledNodeInterface",
     "LinkGeometryAssignment",
+    "LinkSectionAssignment",
+    "NodeInterfaceCatalog",
     "NodeRuleSet",
     "RoadCenterline",
     "RoadDesignStandard",
     "RoadGeometryCatalog",
     "RoadSectionEnd",
     "RoadSectionProfile",
+    "RoadSectionCatalog",
     "RoadSectionUnit",
     "RoadUnitKind",
     "SegmentInterfaceType",
@@ -34,4 +44,6 @@ __all__ = [
     "build_synthetic_city_graph",
     "build_synthetic_city_world",
     "build_endpoint_geometry_catalog",
+    "compile_node_interfaces",
+    "compile_road_sections",
 ]
