@@ -17,6 +17,7 @@ __all__ = [
     "SimulationConfig",
     "CityGenerationConfig",
     "CITY_TOPOLOGY_MODES",
+    "ZONE_POI_COUPLING_MODES",
 ]
 
 EDGE_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "jax", "auto")
@@ -28,6 +29,7 @@ CITY_TOPOLOGY_MODES = (
     "sidecar_local_fabric",
     "sidecar_local_fabric_planar",
 )
+ZONE_POI_COUPLING_MODES = ("legacy", "morphology_gated")
 
 
 class StrEnum(str, Enum):
@@ -186,10 +188,12 @@ class CityGenerationConfig:
         }
     )
     poi_density_profile: str = "baseline"
+    zone_poi_coupling_mode: str = "legacy"
 
     def __post_init__(self) -> None:
         self.topology_mode = str(self.topology_mode)
         self.morphology_style_id = str(self.morphology_style_id)
+        self.zone_poi_coupling_mode = str(self.zone_poi_coupling_mode)
         self.road_hierarchy_profile = _coerce_share_mapping(
             self.road_hierarchy_profile,
             RoadHierarchyClass,
@@ -208,6 +212,10 @@ class CityGenerationConfig:
             )
         if self.morphology_style_id != "auto":
             get_morphology_archetype(self.morphology_style_id)
+        if self.zone_poi_coupling_mode not in ZONE_POI_COUPLING_MODES:
+            raise ValueError(
+                "zone_poi_coupling_mode must be one of: legacy, morphology_gated"
+            )
         if (
             self.topology_mode == "standard"
             and self.morphology_style_id not in {"auto", "ring_radial", "polycentric_tod"}

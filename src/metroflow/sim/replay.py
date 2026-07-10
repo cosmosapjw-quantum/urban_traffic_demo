@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 import hashlib
 import json
@@ -86,6 +87,7 @@ class RuntimeReplayBoundary:
     flow_backend: str = "baseline"
     routing_backend: str = "baseline"
     agent_backend: str = "baseline"
+    static_input_fingerprint: str = ""
 
 
 @dataclass(frozen=True)
@@ -276,6 +278,7 @@ def make_runtime_replay_boundary(state: SimulationState) -> RuntimeReplayBoundar
             stats=route_state.stats,
             state=state,
         ),
+        static_input_fingerprint=_runtime_static_input_fingerprint(state),
         edge_backend=state.config.edge_backend,
         flow_backend=state.config.flow_backend,
         routing_backend=state.config.routing_backend,
@@ -357,6 +360,89 @@ def _runtime_config_fingerprint(state: SimulationState) -> str:
         "route_max_hops": cfg.route_max_hops,
         "route_refresh_interval_ticks": cfg.route_refresh_interval_ticks,
         "route_path_size_gamma": cfg.route_path_size_gamma,
+    }
+    stable_payload = json.dumps(payload, separators=(",", ":"), sort_keys=True)
+    return hashlib.sha256(stable_payload.encode("utf-8")).hexdigest()
+
+
+def _runtime_static_input_fingerprint(state: SimulationState) -> str:
+    """Hash replay-relevant static city inputs independently of runtime config."""
+
+    static = state.static
+    topology = static.city_topology
+    geometry = getattr(topology, "road_geometry", None)
+    routing_static = (
+        static.routing_static if isinstance(static.routing_static, Mapping) else {}
+    )
+    node_zone_by_id = routing_static.get("node_zone_by_id", {})
+    zone_node_ids = routing_static.get("zone_node_ids", {})
+    metadata = static.metadata if isinstance(static.metadata, dict) else {}
+    payload = {
+        "scenario_id": str(static.scenario_id),
+        "actual_road_geometry_fingerprint": str(
+            getattr(geometry, "fingerprint", "")
+        ),
+        "declared_road_geometry_fingerprint": str(
+            metadata.get("road_geometry_fingerprint", "")
+        ),
+        "zoning_placement_fingerprint": str(
+            metadata.get("zoning_placement_fingerprint", "")
+        ),
+        "zone_poi_coupling": {
+            key: str(metadata.get(key, ""))
+            for key in (
+                "zone_poi_coupling_requested_mode",
+                "zone_poi_coupling_resolved_mode",
+                "zone_poi_coupling_fallback_reason",
+                "zone_poi_coupling_gate_version",
+                "zone_poi_coupling_gate_digest",
+                "zone_poi_coupling_anchor_digest",
+            )
+        },
+        "zones": [
+            {
+                "zone_id": int(zone.zone_id),
+                "zone_type": str(getattr(zone.zone_type, "value", zone.zone_type)),
+                "centroid_x": float(zone.centroid_x),
+                "centroid_y": float(zone.centroid_y),
+                "population_capacity": int(zone.population_capacity),
+                "job_capacity": int(zone.job_capacity),
+                "leisure_capacity": int(zone.leisure_capacity),
+            }
+            for zone in sorted(tuple(static.zones or ()), key=lambda item: item.zone_id)
+        ],
+        "pois": [
+            {
+                "poi_id": int(poi.poi_id),
+                "zone_id": int(poi.zone_id),
+                "poi_type": str(getattr(poi.poi_type, "value", poi.poi_type)),
+                "node_id": int(poi.node_id),
+                "capacity_hint": int(poi.capacity_hint),
+            }
+            for poi in sorted(tuple(static.pois or ()), key=lambda item: item.poi_id)
+        ],
+        "node_zone_by_id": sorted(
+            (int(node_id), int(zone_id))
+            for node_id, zone_id in (
+                node_zone_by_id.items()
+                if isinstance(node_zone_by_id, Mapping)
+                else ()
+            )
+        ),
+        "zone_node_ids": [
+            (zone_id, tuple(sorted(node_ids)))
+            for zone_id, node_ids in sorted(
+                (
+                    (int(raw_zone_id), tuple(int(node_id) for node_id in node_ids))
+                    for raw_zone_id, node_ids in (
+                        zone_node_ids.items()
+                        if isinstance(zone_node_ids, Mapping)
+                        else ()
+                    )
+                ),
+                key=lambda item: item[0],
+            )
+        ],
     }
     stable_payload = json.dumps(payload, separators=(",", ":"), sort_keys=True)
     return hashlib.sha256(stable_payload.encode("utf-8")).hexdigest()

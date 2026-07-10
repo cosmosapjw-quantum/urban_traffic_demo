@@ -20,6 +20,7 @@ __all__ = [
     "MORPHOLOGY_QUALITY_GATE_THRESHOLDS",
     "compute_morphology_quality_metrics",
     "evaluate_morphology_quality_gate",
+    "morphology_placement_anchor_digest",
 ]
 
 MORPHOLOGY_QUALITY_GATE_VERSION = "morphology_quality_v2"
@@ -188,6 +189,7 @@ class MorphologyQualityGate:
     geometry_fingerprint: str
     metrics_digest: str
     failures: tuple[str, ...]
+    placement_anchor_digest: str = ""
 
     def as_dict(self) -> Mapping[str, bool | str | tuple[str, ...]]:
         return MappingProxyType(
@@ -198,6 +200,7 @@ class MorphologyQualityGate:
                 "style_id": self.style_id,
                 "geometry_fingerprint": self.geometry_fingerprint,
                 "metrics_digest": self.metrics_digest,
+                "placement_anchor_digest": self.placement_anchor_digest,
                 "failures": self.failures,
             }
         )
@@ -312,6 +315,7 @@ def evaluate_morphology_quality_gate(
     style_id: str,
     geometry_fingerprint: str,
     metrics: MorphologyQualityMetrics,
+    placement_anchor_digest: str = "",
 ) -> MorphologyQualityGate:
     """Evaluate broad synthetic-fabric thresholds without empirical fitting."""
 
@@ -418,8 +422,93 @@ def evaluate_morphology_quality_gate(
         style_id=style,
         geometry_fingerprint=str(geometry_fingerprint),
         metrics_digest=metrics_digest,
+        placement_anchor_digest=str(placement_anchor_digest),
         failures=tuple(failures),
     )
+
+
+def morphology_placement_anchor_digest(
+    *,
+    metadata: Mapping[str, Any],
+    nodes: tuple[Any, ...],
+    require_nonempty: bool = False,
+) -> str:
+    """Hash strict, bounded morphology anchors used by downstream placement."""
+
+    district_centers = _strict_anchor_sequence(
+        metadata.get("district_centers"),
+        field_name="district_centers",
+    )
+    subcenter_points = _strict_anchor_sequence(
+        metadata.get("subcenter_points"),
+        field_name="subcenter_points",
+    )
+    downtown_raw = metadata.get("downtown_anchor")
+    downtown = (
+        _strict_anchor_point(downtown_raw, field_name="downtown_anchor")
+        if downtown_raw is not None
+        else (district_centers[0] if district_centers else None)
+    )
+    if require_nonempty and (downtown is None or not district_centers):
+        raise ValueError("morphology placement requires downtown and district anchors")
+
+    anchors = tuple(
+        point
+        for point in (
+            *((downtown,) if downtown is not None else ()),
+            *district_centers,
+            *subcenter_points,
+        )
+    )
+    node_points = tuple((float(node.x), float(node.y)) for node in nodes)
+    if not node_points or any(
+        not math.isfinite(value) for point in node_points for value in point
+    ):
+        raise ValueError("morphology placement nodes must be finite and nonempty")
+    min_x = min(point[0] for point in node_points)
+    max_x = max(point[0] for point in node_points)
+    min_y = min(point[1] for point in node_points)
+    max_y = max(point[1] for point in node_points)
+    if any(
+        point[0] < min_x
+        or point[0] > max_x
+        or point[1] < min_y
+        or point[1] > max_y
+        for point in anchors
+    ):
+        raise ValueError("morphology placement anchors must lie within node bounds")
+
+    payload = {
+        "downtown_anchor": downtown,
+        "district_centers": district_centers,
+        "subcenter_points": subcenter_points,
+    }
+    stable_payload = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(stable_payload.encode("utf-8")).hexdigest()
+
+
+def _strict_anchor_sequence(
+    raw: Any,
+    *,
+    field_name: str,
+) -> tuple[tuple[float, float], ...]:
+    if raw is None:
+        return ()
+    if not isinstance(raw, (tuple, list)):
+        raise ValueError(f"{field_name} must be a sequence of coordinate pairs")
+    return tuple(
+        _strict_anchor_point(item, field_name=field_name)
+        for item in raw
+    )
+
+
+def _strict_anchor_point(raw: Any, *, field_name: str) -> tuple[float, float]:
+    if not isinstance(raw, (tuple, list)) or len(raw) != 2:
+        raise ValueError(f"{field_name} must contain coordinate pairs")
+    point = (float(raw[0]), float(raw[1]))
+    if not all(math.isfinite(value) for value in point):
+        raise ValueError(f"{field_name} coordinates must be finite")
+    return point
 
 
 def _physical_edges(topology: _TopologyLike) -> tuple[_PhysicalEdge, ...]:

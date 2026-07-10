@@ -311,6 +311,7 @@ def test_generated_topology_exposes_quality_metrics() -> None:
     assert gate["style_id"] == "polycentric_tod"
     assert gate["geometry_fingerprint"] == topology.road_geometry.fingerprint
     assert len(gate["metrics_digest"]) == 64
+    assert len(gate["placement_anchor_digest"]) == 64
 
 
 def test_project_owned_quality_gate_rejects_sparse_disconnected_fabric() -> None:

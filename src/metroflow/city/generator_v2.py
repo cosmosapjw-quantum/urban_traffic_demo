@@ -41,6 +41,7 @@ from .morphology_metrics import compute_street_network_morphometrics
 from .morphology_quality import (
     compute_morphology_quality_metrics,
     evaluate_morphology_quality_gate,
+    morphology_placement_anchor_digest,
 )
 from .planarization import planarize_endpoint_topology
 from .quality_oracles import evaluate_hard_fail_oracle
@@ -417,10 +418,15 @@ def _finalize_preview_topology(
         )
     morphometrics = compute_street_network_morphometrics(finalized)
     quality_metrics = compute_morphology_quality_metrics(finalized)
+    placement_anchor_digest = morphology_placement_anchor_digest(
+        metadata=metadata,
+        nodes=finalized.nodes,
+    )
     quality_gate = evaluate_morphology_quality_gate(
         style_id=str(metadata.get("style_id", "unknown")),
         geometry_fingerprint=geometry.fingerprint,
         metrics=quality_metrics,
+        placement_anchor_digest=placement_anchor_digest,
     )
     metadata.update(
         {

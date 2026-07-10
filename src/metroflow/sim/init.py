@@ -109,6 +109,18 @@ def build_initial_simulation_state(
         f"city-{scenario_seed}-{geometry_fingerprint}-"
         f"n{road_csr.node_count}-l{road_csr.link_count}"
     )
+    zoning_runtime_metadata = {
+        key: zoning.metadata.get(key, "")
+        for key in (
+            "zoning_placement_fingerprint",
+            "zone_poi_coupling_requested_mode",
+            "zone_poi_coupling_resolved_mode",
+            "zone_poi_coupling_fallback_reason",
+            "zone_poi_coupling_gate_version",
+            "zone_poi_coupling_gate_digest",
+            "zone_poi_coupling_anchor_digest",
+        )
+    }
 
     dynamic = SimulationDynamicRefs(
         clock_state=clock_state,
@@ -157,6 +169,7 @@ def build_initial_simulation_state(
                 "city_topology_mode": city_cfg.topology_mode,
                 "city_morphology_style_id": resolved_morphology_style_id,
                 "road_geometry_fingerprint": geometry_fingerprint,
+                **zoning_runtime_metadata,
             },
         ),
         dynamic=dynamic,
@@ -165,6 +178,7 @@ def build_initial_simulation_state(
             "city_topology_mode": city_cfg.topology_mode,
             "city_morphology_style_id": resolved_morphology_style_id,
             "road_geometry_fingerprint": geometry_fingerprint,
+            **zoning_runtime_metadata,
         },
     )
     return SimulationInitBundle(

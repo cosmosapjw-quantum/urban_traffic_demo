@@ -88,6 +88,11 @@ Derived conclusions:
   continuous infill. All explicit styles pass gate v2 across the deterministic
   matrix; integrated river audit leaves barrier crossings to bridge links.
   The maps remain schematic and are not named-city realism evidence.
+- PR44 keeps legacy zone/POI placement as the default and exact fallback. The
+  explicit morphology mode recomputes gate v2 against actual geometry, verifies
+  bounded district/subcenter anchor provenance, preserves aggregate land-use
+  contracts, and fingerprints the effective placement in runtime replay.
+  Final gate: `493 passed`; Ruff and diff checks clean.
 - Canonical diagnostic bundle:
   `artifacts/city_continuous_fabric_20260711/` and
   `artifacts/city_continuous_fabric_quality_20260711/`.
@@ -99,6 +104,8 @@ benchmark evidence that can change a parent-stage decision. The strongest
 watchlist lanes remain dynamic-potential/cache work, dense flow scaling,
 route-score batch probes, simulator-label-driven surrogate experiments, and
 active-agent pool-array replacement only if it becomes review-ready again.
-City-map work may proceed to PR44 morphology-gated zone/POI placement. Legacy
-placement remains default/fallback, and the v2 topology gate plus static-input
-fingerprint must be preserved. Renderer-only work remains out of scope.
+The next city-map slice is PR45, a diagnostic morphology accessibility audit.
+It may add zone/POI overlays and multi-seed access/OD metrics, but it must not
+change demand, route legality, or runtime defaults. PR46 demand coupling remains
+conditional on a decision-changing PR45 defect. Renderer-only work and named-city
+fit remain out of scope.

@@ -716,3 +716,41 @@ incoherent blocks despite both structural metrics passing.
 
 Next action: Open PR44 with legacy-default placement, gate-based admission, and
 replay/static-input fingerprint coverage.
+
+## 2026-07-11: Admit Morphology Placement Behind Recomputed Evidence
+
+Status: accepted after three review perspectives
+
+### Compact CCoT
+
+Question: Can accepted street morphology influence zone/POI placement without
+weakening the NumPy baseline or deterministic replay authority?
+
+Evidence: PR43 gate v2 passes the deterministic style matrix, but the first
+PR44 review showed that trusting a stored `accepted` boolean and an arbitrary
+64-character digest was forgeable. It also showed that district/subcenter
+anchors were not bound to the gate and that equivalent immutable routing maps
+could hash differently.
+
+Inference: Morphology coupling is admissible only when current topology metrics
+are recomputed, the complete gate matches, and the exact finite in-bounds anchor
+payload is separately digested. Effective static placement must be hashed from
+actual zones, POIs, and normalized routing maps rather than requested config.
+
+Counterevidence checked: A stored gate can be stale or fabricated; a valid road
+geometry fingerprint alone does not authenticate placement anchors; positional
+dataclass fields and mapping representation can create compatibility or replay
+drift. Regression tests now exercise each case and POI-only mutation.
+
+Decision: Keep `legacy` as default and exact fallback. Admit explicit
+`morphology_gated` only after current gate/anchor verification, preserve all
+aggregate IDs/counts/capacities, and include placement plus gate provenance in
+the replay boundary. No Rust, JAX, GPU, external-data, or demand authority is
+added.
+
+Falsifier: Multi-seed accessibility audit reveals inaccessible POI clusters,
+unstable morphology separation, or demand distortion despite the structural
+gate.
+
+Next action: Open PR45 as a diagnostic zone/POI accessibility and visual-overlay
+audit. Do not change demand sampling unless that audit changes the decision.

@@ -58,6 +58,20 @@ backend config 및 route-cache fingerprint를 고정하고, replay result는 run
 보존한다. route-cache fingerprint는 candidate path뿐 아니라
 effective/requested routing backend와 fallback metadata도 포함한다.
 
+## generated land-use admission
+
+- `zone_poi_coupling_mode="legacy"`가 기본값이며 explicit legacy와 결과가 같아야 한다.
+- `morphology_gated`는 저장된 boolean을 그대로 신뢰하지 않는다. 현재 topology에서 morphology
+  metrics를 다시 계산하고 gate v2 전체 payload, 실제 road geometry fingerprint, finite/in-bounds
+  district/subcenter anchor digest를 모두 대조한다.
+- gate/geometry/style/anchor가 없거나 stale이면 morphology placement를 사용하지 않고 exact legacy
+  placement로 fallback하며 reason metadata를 남긴다.
+- admitted mode도 zone/POI ID, count, type mix, capacity aggregate를 바꾸지 않는다.
+- runtime replay static-input fingerprint는 실제 zone/POI 값, normalized node-zone maps, road geometry,
+  coupling gate/anchor provenance를 포함한다. 같은 의미의 dict/immutable mapping 및 key ordering은
+  같은 hash를 만들어야 하고 POI-only mutation은 다른 hash를 만들어야 한다.
+- static zoning/POI visual output은 diagnostic smoke artifact이며 접근성·수요 validation 주장이 아니다.
+
 ## backend benchmark
 - baseline backend과 optional accelerator backend를 같은 input signature로 비교
 - 기본 benchmark는 NumPy baseline만 요구한다

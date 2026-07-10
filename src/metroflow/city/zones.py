@@ -5,9 +5,17 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass, field
 from enum import Enum
+import hashlib
+import json
+import math
 from typing import Any, Iterable, Iterator, Mapping, Protocol
 
 from metroflow.city.graph import Node
+from metroflow.city.morphology_quality import (
+    compute_morphology_quality_metrics,
+    evaluate_morphology_quality_gate,
+    morphology_placement_anchor_digest,
+)
 from metroflow.sim.config import CityGenerationConfig, ZoneType
 
 __all__ = [
@@ -17,13 +25,21 @@ __all__ = [
     "ZoningPlacementResult",
     "generate_zones_and_pois",
     "build_zones_and_pois",
+    "zoning_placement_fingerprint",
 ]
+
+_MORPHOLOGY_COUPLING_GATE_VERSION = "morphology_quality_v2"
+_MORPHOLOGY_COUPLING_GATE_SCOPE = (
+    "weak_connectivity_block_density_intersection_mix_"
+    "global_local_cell_presence_junction_proximity"
+)
 
 
 class SyntheticCityTopologyLike(Protocol):
     """Topology surface required by zoning without depending on a generator module."""
 
     nodes: tuple[Node, ...]
+    road_geometry: Any
     metadata: Mapping[str, Any]
 
 
@@ -186,12 +202,14 @@ def generate_zones_and_pois(
         raise ValueError("topology.nodes must contain at least 4 nodes for zone placement")
 
     seed = int(seed)
+    coupling = _resolve_zone_poi_coupling(topology=topology, config=cfg)
     layout_plan = _plan_zoning_layout(
         nodes=nodes,
         cfg=cfg,
         seed=seed,
         population_target=population_target,
         topology=topology,
+        coupling_mode=coupling.resolved_mode,
     )
     node_by_id = {node.node_id: node for node in nodes}
     centers = tuple(node_by_id[node_id] for node_id in layout_plan.center_node_ids)
@@ -256,6 +274,8 @@ def generate_zones_and_pois(
         poi_density_profile=cfg.poi_density_profile,
         seed=seed,
         population_target=layout_plan.population_target,
+        node_by_id=node_by_id,
+        coupling_mode=coupling.resolved_mode,
     )
     zone_type_counts = Counter(str(zone.zone_type.value) for zone in zones)
     zone_density_tiers = {
@@ -291,14 +311,33 @@ def generate_zones_and_pois(
             "poi_density_profile": cfg.poi_density_profile,
             "population_target": layout_plan.population_target,
             "zone_type_counts": dict(sorted(zone_type_counts.items())),
-            "zoning_policy": "hybrid_centroid_capacity",
-            "poi_placement_policy": "hybrid_center_and_distributed",
+            "zoning_policy": (
+                "morphology_anchor_centroid_capacity"
+                if coupling.resolved_mode == "morphology_gated"
+                else "hybrid_centroid_capacity"
+            ),
+            "zoning_center_selection_policy": layout_plan.selection_policy,
+            "poi_placement_policy": (
+                "morphology_spatial_cycle_and_center"
+                if coupling.resolved_mode == "morphology_gated"
+                else "hybrid_center_and_distributed"
+            ),
+            "zone_poi_coupling_requested_mode": coupling.requested_mode,
+            "zone_poi_coupling_resolved_mode": coupling.resolved_mode,
+            "zone_poi_coupling_fallback_reason": coupling.fallback_reason,
+            "zone_poi_coupling_gate_version": coupling.gate_version,
+            "zone_poi_coupling_gate_digest": coupling.gate_digest,
+            "zone_poi_coupling_anchor_digest": coupling.anchor_digest,
+            "morphology_style_id": str(topology_metadata.get("style_id", "")),
             "zone_density_tiers": zone_density_tiers,
             "district_archetype_by_zone_id": district_archetypes,
             "district_id_by_zone_id": district_id_by_zone_id,
             "subcenter_zone_ids": subcenter_zone_ids,
             "poi_type_counts": dict(sorted(poi_type_counts.items())),
         },
+    )
+    result.metadata["zoning_placement_fingerprint"] = zoning_placement_fingerprint(
+        result
     )
     if validate:
         issues = result.validate(topology=topology)
@@ -326,11 +365,240 @@ def build_zones_and_pois(
     )
 
 
+def zoning_placement_fingerprint(result: ZoningPlacementResult) -> str:
+    """Hash the effective zoning/POI placement, not its requested configuration."""
+
+    payload = {
+        "zones": [
+            {
+                "zone_id": zone.zone_id,
+                "zone_type": zone.zone_type.value,
+                "centroid_x": zone.centroid_x,
+                "centroid_y": zone.centroid_y,
+                "population_capacity": zone.population_capacity,
+                "job_capacity": zone.job_capacity,
+                "leisure_capacity": zone.leisure_capacity,
+            }
+            for zone in sorted(result.zones, key=lambda item: item.zone_id)
+        ],
+        "pois": [
+            {
+                "poi_id": poi.poi_id,
+                "zone_id": poi.zone_id,
+                "poi_type": poi.poi_type.value,
+                "node_id": poi.node_id,
+                "capacity_hint": poi.capacity_hint,
+            }
+            for poi in sorted(result.pois, key=lambda item: item.poi_id)
+        ],
+        "node_zone_by_id": sorted(result.node_zone_by_id.items()),
+        "zone_node_ids": [
+            (int(zone_id), tuple(sorted(int(node_id) for node_id in node_ids)))
+            for zone_id, node_ids in sorted(result.zone_node_ids.items())
+        ],
+        "resolved_mode": result.metadata.get(
+            "zone_poi_coupling_resolved_mode", "legacy"
+        ),
+        "zoning_policy": result.metadata.get("zoning_policy", ""),
+        "poi_placement_policy": result.metadata.get("poi_placement_policy", ""),
+    }
+    stable_payload = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(stable_payload.encode("utf-8")).hexdigest()
+
+
+def _resolve_zone_poi_coupling(
+    *,
+    topology: SyntheticCityTopologyLike,
+    config: CityGenerationConfig,
+) -> _ZonePoiCouplingDecision:
+    requested = str(config.zone_poi_coupling_mode)
+    if requested == "legacy":
+        return _ZonePoiCouplingDecision(
+            requested_mode=requested,
+            resolved_mode="legacy",
+            fallback_reason="",
+            gate_version="",
+            gate_digest="",
+            anchor_digest="",
+        )
+
+    metadata = topology.metadata if isinstance(topology.metadata, Mapping) else {}
+    raw_gate = metadata.get("morphology_quality_gate")
+    if not isinstance(raw_gate, Mapping):
+        return _legacy_coupling_fallback(requested, "gate_missing")
+
+    gate_version = str(raw_gate.get("gate_version", ""))
+    gate_digest = str(raw_gate.get("metrics_digest", ""))
+    if raw_gate.get("accepted") is not True:
+        return _legacy_coupling_fallback(
+            requested,
+            "gate_rejected",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    raw_failures = raw_gate.get("failures", ())
+    if (
+        not isinstance(raw_failures, (tuple, list))
+        or any(not isinstance(item, str) for item in raw_failures)
+        or raw_failures
+    ):
+        return _legacy_coupling_fallback(
+            requested,
+            "gate_rejected",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    if gate_version != _MORPHOLOGY_COUPLING_GATE_VERSION:
+        return _legacy_coupling_fallback(
+            requested,
+            "gate_version_mismatch",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    if str(raw_gate.get("gate_scope", "")) != _MORPHOLOGY_COUPLING_GATE_SCOPE:
+        return _legacy_coupling_fallback(
+            requested,
+            "gate_scope_mismatch",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+
+    geometry = getattr(topology, "road_geometry", None)
+    actual_fingerprint = str(getattr(geometry, "fingerprint", ""))
+    gate_fingerprint = str(raw_gate.get("geometry_fingerprint", ""))
+    metadata_fingerprint = str(metadata.get("road_geometry_fingerprint", ""))
+    if (
+        not actual_fingerprint
+        or gate_fingerprint != actual_fingerprint
+        or metadata_fingerprint != actual_fingerprint
+    ):
+        return _legacy_coupling_fallback(
+            requested,
+            "gate_geometry_mismatch",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    if str(raw_gate.get("style_id", "")) != str(metadata.get("style_id", "")):
+        return _legacy_coupling_fallback(
+            requested,
+            "gate_style_mismatch",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    raw_anchor_digest = str(raw_gate.get("placement_anchor_digest", ""))
+    if not _is_sha256_digest(gate_digest) or not _is_sha256_digest(
+        raw_anchor_digest
+    ):
+        return _legacy_coupling_fallback(
+            requested,
+            "gate_metadata_invalid",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    try:
+        current_anchor_digest = morphology_placement_anchor_digest(
+            metadata=metadata,
+            nodes=tuple(topology.nodes),
+            require_nonempty=True,
+        )
+    except (TypeError, ValueError, OverflowError):
+        return _legacy_coupling_fallback(
+            requested,
+            "anchor_metadata_invalid",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    if current_anchor_digest != raw_anchor_digest:
+        return _legacy_coupling_fallback(
+            requested,
+            "anchor_digest_mismatch",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    try:
+        current_metrics = compute_morphology_quality_metrics(topology)
+        current_gate = evaluate_morphology_quality_gate(
+            style_id=str(metadata.get("style_id", "")),
+            geometry_fingerprint=actual_fingerprint,
+            metrics=current_metrics,
+            placement_anchor_digest=current_anchor_digest,
+        )
+    except (TypeError, ValueError, OverflowError):
+        return _legacy_coupling_fallback(
+            requested,
+            "gate_recompute_failed",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    if not current_gate.accepted:
+        return _legacy_coupling_fallback(
+            requested,
+            "gate_rejected",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    if current_gate.metrics_digest != gate_digest:
+        return _legacy_coupling_fallback(
+            requested,
+            "gate_metrics_mismatch",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    if dict(current_gate.as_dict()) != dict(raw_gate):
+        return _legacy_coupling_fallback(
+            requested,
+            "gate_metadata_invalid",
+            gate_version=gate_version,
+            gate_digest=gate_digest,
+        )
+    return _ZonePoiCouplingDecision(
+        requested_mode=requested,
+        resolved_mode="morphology_gated",
+        fallback_reason="",
+        gate_version=gate_version,
+        gate_digest=gate_digest,
+        anchor_digest=current_anchor_digest,
+    )
+
+
+def _legacy_coupling_fallback(
+    requested_mode: str,
+    fallback_reason: str,
+    *,
+    gate_version: str = "",
+    gate_digest: str = "",
+    anchor_digest: str = "",
+) -> _ZonePoiCouplingDecision:
+    return _ZonePoiCouplingDecision(
+        requested_mode=requested_mode,
+        resolved_mode="legacy",
+        fallback_reason=fallback_reason,
+        gate_version=gate_version,
+        gate_digest=gate_digest,
+        anchor_digest=anchor_digest,
+    )
+
+
+def _is_sha256_digest(value: str) -> bool:
+    return len(value) == 64 and all(character in "0123456789abcdef" for character in value)
+
+
 @dataclass(slots=True)
 class _ZoningLayoutPlan:
     center_node_ids: tuple[int, ...]
     zone_types: tuple[ZoneType, ...]
     population_target: int
+    selection_policy: str = "legacy_coordinate_stride"
+
+
+@dataclass(frozen=True, slots=True)
+class _ZonePoiCouplingDecision:
+    requested_mode: str
+    resolved_mode: str
+    fallback_reason: str
+    gate_version: str
+    gate_digest: str
+    anchor_digest: str
 
 
 def _plan_zoning_layout(
@@ -340,6 +608,7 @@ def _plan_zoning_layout(
     seed: int,
     population_target: int | None,
     topology: SyntheticCityTopologyLike,
+    coupling_mode: str = "legacy",
 ) -> _ZoningLayoutPlan:
     """Plan zoning IDs/types before object materialization (JAX-portable boundary)."""
 
@@ -351,15 +620,25 @@ def _plan_zoning_layout(
         population_target=resolved_population_target,
         node_count=len(nodes),
     )
-    centers = _choose_zone_centers(nodes, seed=seed, count=zone_count_target)
     zone_types = _zone_types_for_count(
         zone_count=zone_count_target,
         population_target=resolved_population_target,
     )
+    if coupling_mode == "morphology_gated":
+        centers = _choose_morphology_zone_centers(
+            nodes,
+            topology=topology,
+            zone_types=zone_types,
+        )
+        selection_policy = "morphology_anchor_farthest_point_v1"
+    else:
+        centers = _choose_zone_centers(nodes, seed=seed, count=zone_count_target)
+        selection_policy = "legacy_coordinate_stride"
     return _ZoningLayoutPlan(
         center_node_ids=tuple(node.node_id for node in centers),  # type: ignore[arg-type]
         zone_types=zone_types,
         population_target=resolved_population_target,
+        selection_policy=selection_policy,
     )
 
 
@@ -395,6 +674,173 @@ def _choose_zone_centers(
             if len(selected) >= requested:
                 break
     return tuple(selected[:requested])
+
+
+def _choose_morphology_zone_centers(
+    nodes: tuple[Node, ...],
+    *,
+    topology: SyntheticCityTopologyLike,
+    zone_types: tuple[ZoneType, ...],
+) -> tuple[Node, ...]:
+    """Choose diverse centers, then align their roles to the morphology anchors."""
+
+    count = len(zone_types)
+    metadata = topology.metadata if isinstance(topology.metadata, Mapping) else {}
+    district_points = _coerce_xy_points(metadata.get("district_centers"))
+    subcenter_points = _coerce_xy_points(metadata.get("subcenter_points"))
+    downtown_points = _coerce_xy_points((metadata.get("downtown_anchor"),))
+    if downtown_points:
+        downtown = downtown_points[0]
+    elif district_points:
+        downtown = district_points[0]
+    else:
+        downtown = _mean_node_position(nodes)
+
+    anchor_points = _unique_xy_points(
+        (downtown,) + subcenter_points + district_points
+    )
+    selected: list[Node] = []
+    selected_ids: set[int] = set()
+    for point in anchor_points:
+        node = _nearest_unused_node(nodes, point=point, used_ids=selected_ids)
+        if node is None:
+            break
+        selected.append(node)
+        selected_ids.add(node.node_id)
+        if len(selected) >= count:
+            break
+
+    if not selected:
+        node = _nearest_unused_node(nodes, point=downtown, used_ids=set())
+        if node is not None:
+            selected.append(node)
+            selected_ids.add(node.node_id)
+    while len(selected) < count:
+        candidates = tuple(node for node in nodes if node.node_id not in selected_ids)
+        if not candidates:
+            break
+        node = max(
+            candidates,
+            key=lambda candidate: (
+                min(_distance_sq_nodes(candidate, other) for other in selected),
+                -candidate.node_id,
+            ),
+        )
+        selected.append(node)
+        selected_ids.add(node.node_id)
+
+    if len(selected) != count:
+        raise ValueError("morphology zone center selection could not satisfy zone count")
+    return _align_centers_to_zone_types(
+        centers=tuple(selected),
+        zone_types=zone_types,
+        downtown=downtown,
+        subcenter_points=subcenter_points,
+    )
+
+
+def _align_centers_to_zone_types(
+    *,
+    centers: tuple[Node, ...],
+    zone_types: tuple[ZoneType, ...],
+    downtown: tuple[float, float],
+    subcenter_points: tuple[tuple[float, float], ...],
+) -> tuple[Node, ...]:
+    remaining = list(centers)
+    assigned: dict[ZoneType, list[Node]] = {zone_type: [] for zone_type in ZoneType}
+    requested_counts = Counter(zone_types)
+
+    for _ in range(requested_counts[ZoneType.CBD_COMMERCIAL]):
+        assigned[ZoneType.CBD_COMMERCIAL].append(
+            _pop_best_node(remaining, key=lambda node: _distance_sq_point(node, downtown))
+        )
+    activity_points = subcenter_points or (downtown,)
+    for idx in range(requested_counts[ZoneType.MIXED_USE]):
+        point = activity_points[idx % len(activity_points)]
+        assigned[ZoneType.MIXED_USE].append(
+            _pop_best_node(remaining, key=lambda node: _distance_sq_point(node, point))
+        )
+    for _ in range(requested_counts[ZoneType.INDUSTRIAL]):
+        assigned[ZoneType.INDUSTRIAL].append(
+            _pop_best_node(
+                remaining,
+                key=lambda node: -_distance_sq_point(node, downtown),
+            )
+        )
+    assigned[ZoneType.RESIDENTIAL].extend(
+        sorted(
+            remaining,
+            key=lambda node: (
+                math.atan2(node.y - downtown[1], node.x - downtown[0]),
+                _distance_sq_point(node, downtown),
+                node.node_id,
+            ),
+        )
+    )
+
+    output: list[Node] = []
+    offsets = {zone_type: 0 for zone_type in ZoneType}
+    for zone_type in zone_types:
+        offset = offsets[zone_type]
+        candidates = assigned[zone_type]
+        if offset >= len(candidates):
+            raise ValueError(f"missing morphology center for zone type {zone_type.value}")
+        output.append(candidates[offset])
+        offsets[zone_type] += 1
+    return tuple(output)
+
+
+def _pop_best_node(nodes: list[Node], *, key: Any) -> Node:
+    if not nodes:
+        raise ValueError("morphology zone center pool exhausted")
+    best_index = min(range(len(nodes)), key=lambda idx: (key(nodes[idx]), nodes[idx].node_id))
+    return nodes.pop(best_index)
+
+
+def _nearest_unused_node(
+    nodes: tuple[Node, ...],
+    *,
+    point: tuple[float, float],
+    used_ids: set[int],
+) -> Node | None:
+    candidates = tuple(node for node in nodes if node.node_id not in used_ids)
+    if not candidates:
+        return None
+    return min(
+        candidates,
+        key=lambda node: (_distance_sq_point(node, point), node.node_id),
+    )
+
+
+def _mean_node_position(nodes: tuple[Node, ...]) -> tuple[float, float]:
+    return (
+        sum(float(node.x) for node in nodes) / len(nodes),
+        sum(float(node.y) for node in nodes) / len(nodes),
+    )
+
+
+def _unique_xy_points(
+    points: tuple[tuple[float, float], ...],
+) -> tuple[tuple[float, float], ...]:
+    output: list[tuple[float, float]] = []
+    seen: set[tuple[float, float]] = set()
+    for x, y in points:
+        point = (float(x), float(y))
+        if point in seen:
+            continue
+        seen.add(point)
+        output.append(point)
+    return tuple(output)
+
+
+def _distance_sq_point(node: Node, point: tuple[float, float]) -> float:
+    return (float(node.x) - point[0]) ** 2 + (float(node.y) - point[1]) ** 2
+
+
+def _distance_sq_nodes(left: Node, right: Node) -> float:
+    return (float(left.x) - float(right.x)) ** 2 + (
+        float(left.y) - float(right.y)
+    ) ** 2
 
 
 def _resolve_population_target(
@@ -498,6 +944,8 @@ def _generate_pois(
     poi_density_profile: str,
     seed: int,
     population_target: int,
+    node_by_id: Mapping[int, Node],
+    coupling_mode: str,
 ) -> tuple[POI, ...]:
     density = str(poi_density_profile).lower()
     poi_multiplier = {"sparse": 1, "baseline": 2, "dense": 3}.get(density, 2)
@@ -519,6 +967,12 @@ def _generate_pois(
         anchor_nodes = zone_node_ids.get(zone.zone_id, ())
         if not anchor_nodes:
             continue
+        if coupling_mode == "morphology_gated":
+            anchor_nodes = _spatially_order_zone_nodes(
+                anchor_nodes,
+                node_by_id=node_by_id,
+                zone=zone,
+            )
         mix = _poi_mix_for_zone(zone.zone_type, multiplier=poi_multiplier)
         node_cycle = _cycle_nodes(anchor_nodes, offset=seed_offset + zone.zone_id)
         center_node_id = center_node_id_by_zone.get(zone.zone_id)
@@ -543,6 +997,28 @@ def _generate_pois(
                 )
                 poi_id += 1
     return tuple(pois)
+
+
+def _spatially_order_zone_nodes(
+    node_ids: tuple[int, ...],
+    *,
+    node_by_id: Mapping[int, Node],
+    zone: Zone,
+) -> tuple[int, ...]:
+    return tuple(
+        sorted(
+            node_ids,
+            key=lambda node_id: (
+                math.atan2(
+                    float(node_by_id[node_id].y) - zone.centroid_y,
+                    float(node_by_id[node_id].x) - zone.centroid_x,
+                ),
+                (float(node_by_id[node_id].x) - zone.centroid_x) ** 2
+                + (float(node_by_id[node_id].y) - zone.centroid_y) ** 2,
+                node_id,
+            ),
+        )
+    )
 
 
 def _poi_mix_for_zone(zone_type: ZoneType, *, multiplier: int) -> tuple[tuple[POIType, int], ...]:

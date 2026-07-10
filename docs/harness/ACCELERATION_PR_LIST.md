@@ -1,6 +1,6 @@
 # Acceleration PR List
 
-Last updated: 2026-07-10
+Last updated: 2026-07-11
 Status: active execution queue
 
 ## Execution Contract
@@ -195,6 +195,78 @@ Status: complete; roadmap state consolidated.
 - Record which PRs were completed, deferred, blocked, or superseded.
 - Tests: documentation consistency checks and final gates.
 - Commit: `docs(harness): record acceleration roadmap state`.
+
+## City Substrate Extension Queue
+
+The acceleration roadmap remains authoritative. PR34-PR44 are a bounded city
+substrate lane opened because route legality and replay evidence require a
+credible static network. Static-map artifacts remain diagnostic and do not
+authorize a backend or empirical-realism claim.
+
+## PR34-PR40 — Typed Map Contract And Validation Closure
+
+Status: complete in `a13b93e0` through `23d9cb7`.
+
+- Added typed physical centerlines, road sections, compiled node interfaces,
+  width-aware rendering, offline OSM XML import, and fail-closed map gates.
+- Preserved `standard` as the runtime default after the planar mode showed a
+  material full-suite cost and route-ID regression.
+- No runtime network fetch or external-data learning was admitted.
+
+## PR41 — Deterministic Morphology Diversity
+
+Status: complete in `25f0ba0`.
+
+- Added deterministic morphology grammars rather than extending one radial
+  form or fitting a named-city clone.
+- Literature/reference-city values remain comparison context only.
+
+## PR42 — Morphology Quality Gate v1
+
+Status: complete in `4554ebc`.
+
+- Added multi-seed continuity, density, intersection-mix, and district
+  presence gates.
+- Visual evidence showed that local quality did not establish citywide fabric.
+
+## PR43 — Continuous Street Fabric And Gate v2
+
+Status: complete in `f4f57f6`.
+
+- Added local-street cell presence and local-junction proximity.
+- Rejected a presence-only Goodhart failure before admitting style-aware
+  continuous fabric.
+
+## PR44 — Morphology-Gated Zone/POI Coupling
+
+Status: complete; final gate `493 passed` with Ruff and diff checks clean.
+
+- Keep `zone_poi_coupling_mode="legacy"` as default and exact fallback.
+- Admit morphology placement only after recomputing the v2 quality gate against
+  actual geometry and verifying a bounded placement-anchor digest.
+- Preserve zone/POI IDs, counts, types, capacities, and deterministic replay.
+- Seal actual zone/POI placement and gate provenance in the runtime replay
+  boundary.
+- Commit target: `feat(city): couple land use to morphology`.
+
+## PR45 — Morphology Accessibility Audit
+
+Status: queued; diagnostic-only.
+
+- Measure zone/POI access-node coverage, intra/inter-district OD reachability,
+  and morphology-mode placement separation across at least three seeds.
+- Render a static zone/POI overlay using existing typed geometry; do not change
+  demand, route legality, or runtime defaults.
+- Open PR46 only if this audit identifies a decision-changing accessibility or
+  demand-distribution defect.
+
+## PR46 — Demand Coupling Admission
+
+Status: conditional.
+
+- Consider morphology-aware simulator-only trip sampling only after PR45.
+- Preserve baseline demand fallback, stable replay inputs, and aggregate trip
+  controls. External data and learned demand remain forbidden.
 
 ## Spec Template
 
