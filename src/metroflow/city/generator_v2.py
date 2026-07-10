@@ -35,7 +35,9 @@ from .graph import (
     validate_road_network_topology,
 )
 from .local_fabric import build_local_fabric
+from .map_validation import require_valid_city_map_contract
 from .morphology_field import build_morphology_field
+from .planarization import planarize_endpoint_topology
 from .quality_oracles import evaluate_hard_fail_oracle
 from .transit_builder import apply_transit_builder_stage
 
@@ -172,7 +174,10 @@ class GeneratorV2:
                     district_mesh=district_mesh,
                 )
             )
-        if preview_mode == "sidecar_local_fabric":
+        if preview_mode in {
+            "sidecar_local_fabric",
+            "sidecar_local_fabric_planar",
+        }:
             morphology_field = build_morphology_field(
                 scenario_id=scenario_id,
                 seed=seed,
@@ -195,12 +200,16 @@ class GeneratorV2:
                     district_cells=district_cells,
                     district_mesh=district_mesh,
                     local_fabric=local_fabric,
-                )
+                ),
+                require_planar_geometry=(
+                    preview_mode == "sidecar_local_fabric_planar"
+                ),
             )
         if preview_mode != "standard":
             raise ValueError(
                 "preview_mode must be one of: standard, sidecar_morphology, "
-                "sidecar_district_cells, sidecar_local_fabric"
+                "sidecar_district_cells, sidecar_local_fabric, "
+                "sidecar_local_fabric_planar"
             )
         backbone = build_backbone(style_id=style_id, seed=seed, width=width, height=height)
         district_mesh = build_district_mesh(seed=seed, width=width, height=height, backbone=backbone)
@@ -270,35 +279,101 @@ class GeneratorV2:
         )
 
 
-def _finalize_preview_topology(topology: PreviewCityTopology) -> PreviewCityTopology:
+def _finalize_preview_topology(
+    topology: PreviewCityTopology,
+    *,
+    require_planar_geometry: bool = False,
+) -> PreviewCityTopology:
     repair = repair_weak_connectivity(nodes=topology.nodes, links=topology.links)
     metadata = dict(topology.metadata)
     if repair.repair_link_ids or "weak_component_count_after_repair" not in metadata:
         metadata.update(repair.metadata)
-    geometry = build_endpoint_geometry_catalog(nodes=repair.nodes, links=repair.links)
+    finalized_nodes = repair.nodes
+    finalized_links = repair.links
+    finalized_bridge_crossings = topology.bridge_crossings
+    if require_planar_geometry:
+        if topology.turns:
+            raise ValueError("planarization requires generated topology without turns")
+        preliminary_geometry = build_endpoint_geometry_catalog(
+            nodes=finalized_nodes,
+            links=finalized_links,
+        )
+        planarized = planarize_endpoint_topology(
+            nodes=finalized_nodes,
+            links=finalized_links,
+            road_geometry=preliminary_geometry,
+        )
+        finalized_nodes = planarized.nodes
+        finalized_links = planarized.links
+        finalized_bridge_crossings = tuple(
+            BridgeCrossing(
+                bridge_group_id=crossing.bridge_group_id,
+                link_ids=tuple(
+                    new_link_id
+                    for old_link_id in crossing.link_ids
+                    for new_link_id in planarized.old_link_to_new_link_ids[old_link_id]
+                ),
+                barrier_id=crossing.barrier_id,
+                crossing_name=crossing.crossing_name,
+                bottleneck_rank_hint=crossing.bottleneck_rank_hint,
+            )
+            for crossing in topology.bridge_crossings
+        )
+        mapped_repair_ids = tuple(
+            new_link_id
+            for old_link_id in repair.repair_link_ids
+            for new_link_id in planarized.old_link_to_new_link_ids[old_link_id]
+        )
+        metadata.update(
+            {
+                "planarization_status": "passed",
+                "proper_intersection_count_before_planarization": (
+                    planarized.proper_intersection_count_before
+                ),
+                "proper_intersection_count_after_planarization": (
+                    planarized.proper_intersection_count_after
+                ),
+                "planarization_added_node_count": (
+                    planarized.added_intersection_node_count
+                ),
+                "planarization_admission_status": (
+                    "explicit_only_runtime_default_not_promoted"
+                ),
+                "connectivity_repair_original_link_ids": repair.repair_link_ids,
+                "connectivity_repair_link_ids": mapped_repair_ids,
+                "connectivity_repair_link_count": len(mapped_repair_ids),
+            }
+        )
+    geometry = build_endpoint_geometry_catalog(
+        nodes=finalized_nodes,
+        links=finalized_links,
+    )
     validate_geometry_endpoint_anchors(
         catalog=geometry,
-        nodes=repair.nodes,
-        links=repair.links,
+        nodes=finalized_nodes,
+        links=finalized_links,
     )
     road_sections = compile_road_sections(
-        links=repair.links,
+        links=finalized_links,
         road_geometry=geometry,
     )
     node_interfaces = compile_node_interfaces(
-        nodes=repair.nodes,
-        links=repair.links,
+        nodes=finalized_nodes,
+        links=finalized_links,
         road_geometry=geometry,
     )
+    intersection_count = count_interior_centerline_intersections(geometry)
     metadata.update(
         {
             "road_geometry_fingerprint": geometry.fingerprint,
             "physical_centerline_count": len(geometry.centerlines),
             "geometry_assignment_count": len(geometry.assignments),
-            "unmodeled_centerline_intersection_count": (
-                count_interior_centerline_intersections(geometry)
+            "unmodeled_centerline_intersection_count": intersection_count,
+            "centerline_intersection_audit_status": (
+                "validation_gate_passed"
+                if require_planar_geometry
+                else "diagnostic_not_validation"
             ),
-            "centerline_intersection_audit_status": "diagnostic_not_validation",
             "road_section_fingerprint": road_sections.fingerprint,
             "road_section_profile_count": len(road_sections.profiles),
             "node_interface_fingerprint": node_interfaces.fingerprint,
@@ -306,10 +381,10 @@ def _finalize_preview_topology(topology: PreviewCityTopology) -> PreviewCityTopo
         }
     )
     finalized = PreviewCityTopology(
-        nodes=repair.nodes,
-        links=repair.links,
+        nodes=finalized_nodes,
+        links=finalized_links,
         turns=topology.turns,
-        bridge_crossings=topology.bridge_crossings,
+        bridge_crossings=finalized_bridge_crossings,
         road_geometry=geometry,
         road_sections=road_sections,
         node_interfaces=node_interfaces,
@@ -318,6 +393,18 @@ def _finalize_preview_topology(topology: PreviewCityTopology) -> PreviewCityTopo
     report = finalized.validate(require_weak_connectivity=True)
     if not report.ok:
         raise ValueError(f"generated topology finalization failed: {report.summary()}")
+    if require_planar_geometry:
+        map_report = require_valid_city_map_contract(
+            finalized,
+            od_sample_count=32,
+            seed=int(metadata.get("seed", 0)),
+        )
+        metadata.update(
+            {
+                "city_map_validation_status": "passed",
+                "city_map_validation_metrics": dict(map_report.metrics),
+            }
+        )
     if "active_sidecar_hierarchy_report" in metadata:
         metadata["active_sidecar_hierarchy_report"] = build_active_sidecar_hierarchy_report(
             topology=finalized

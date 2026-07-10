@@ -1,5 +1,113 @@
 # Validation Ledger
 
+## 2026-07-10: Explicit Planar City Contract Closure
+
+Change class: topology/geometry validation plus diagnostic visualization
+
+Commands and gates:
+
+```bash
+.venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+google-chrome --headless=new --disable-gpu --hide-scrollbars \
+  --window-size=1440,1100 --screenshot=<variant>.png file:///tmp/metroflow-pr40/<variant>.html
+```
+
+Observed results:
+
+- final full suite: `426 passed` in about `136.7 s`
+- focused planar/closure/geometry suite: `23 passed` in about `88.7 s`
+- Ruff and whitespace gates passed
+- explicit planar seed 44: `2665 -> 0` proper same-layer crossings
+- sampled OD reachability: `32 / 32`
+- diagnostic initialization wall time in manifest: about `5.24 s`
+- trial default promotion was rejected after a `48 s -> 281 s` full-suite
+  regression and a route-ID compatibility failure
+
+Tracked diagnostic bundle:
+
+- `artifacts/static_city_map_planar_review_20260710/full.png`
+- `artifacts/static_city_map_planar_review_20260710/focused.png`
+- `artifacts/static_city_map_planar_review_20260710/roads.png`
+- `artifacts/static_city_map_planar_review_20260710/zones.png`
+- `artifacts/static_city_map_planar_review_20260710/pois.png`
+- `artifacts/static_city_map_planar_review_20260710/manifest.json`
+- `artifacts/static_city_map_planar_review_20260710/visual_audit.md`
+
+Claim boundary:
+
+- **VALIDATED CONTRACT:** explicit planar mode has complete typed assignments,
+  endpoint anchors, no proper same-layer crossings, deterministic sampled OD
+  reachability, and replay parity in the tested seed matrix.
+- **DIAGNOSTIC ONLY:** PNG appearance and initialization timing.
+- **NOT VALIDATED:** real-world morphology, lane-level behavior, geographic
+  correspondence, or suitability as the default runtime topology.
+
+Decision: keep `standard` as the runtime default. Require explicit
+`sidecar_local_fabric_planar` until morphology, initialization budget, and route
+identifier compatibility are addressed in separate evidence-gated work.
+
+## 2026-07-10: Static City Map Diagnostic Review
+
+Change class: plotting/reporting diagnostic artifact
+
+Commands run for this ledger entry:
+
+```bash
+.venv/bin/python -m pytest tests/test_static_city_map.py tests/test_city_connectivity.py -q
+google-chrome --headless=new --disable-gpu --no-sandbox --hide-scrollbars \
+  --run-all-compositor-stages-before-draw --virtual-time-budget=1000 \
+  --window-size=1280,1120 \
+  --screenshot=artifacts/static_city_map_review_20260710/static_city_map_full_extent_page.png \
+  file://$PWD/artifacts/static_city_map_review_20260710/static_city_map_full_extent.html
+google-chrome --headless=new --disable-gpu --no-sandbox --hide-scrollbars \
+  --run-all-compositor-stages-before-draw --virtual-time-budget=1000 \
+  --window-size=1280,1120 \
+  --screenshot=artifacts/static_city_map_review_20260710/static_city_map_largest_component_page.png \
+  file://$PWD/artifacts/static_city_map_review_20260710/static_city_map_largest_component.html
+convert artifacts/static_city_map_review_20260710/static_city_map_full_extent_page.png \
+  -crop 1220x766+30+193 +repage \
+  artifacts/static_city_map_review_20260710/static_city_map_full_extent_map_only.png
+git diff --check
+```
+
+Observed results:
+
+- static-map/connectivity tests: `7 passed`
+- Chrome PNG render succeeded for full extent and largest-component HTML
+- ImageMagick crop succeeded for map-only PNG
+- Image smoke metrics were nonblank:
+  - full page: `1280x1120`, `16025` unique colors, nonwhite fraction `0.312464`
+  - map-only crop: `1220x766`, `13405` unique colors, nonwhite fraction `0.124470`
+  - largest-component page: `1280x1120`, `16025` unique colors, nonwhite fraction `0.312464`
+
+Diagnostic artifacts added:
+
+- `artifacts/static_city_map_review_20260710/static_city_map_full_extent.html`
+- `artifacts/static_city_map_review_20260710/static_city_map_largest_component.html`
+- `artifacts/static_city_map_review_20260710/static_city_map_full_extent_page.png`
+- `artifacts/static_city_map_review_20260710/static_city_map_full_extent_map_only.png`
+- `artifacts/static_city_map_review_20260710/static_city_map_largest_component_page.png`
+- `artifacts/static_city_map_review_20260710/static_city_map_manifest.json`
+- `artifacts/static_city_map_review_20260710/static_city_map_visual_audit.md`
+
+Diagnostic interpretation:
+
+- Seed `44` generated topology renders as one weak component after deterministic
+  repair.
+- Metadata still records pre-repair weak components with sizes `1121`, `3`,
+  `3`, and `1`, and `6` repair links.
+- POI overplotting remains the main visual audit limitation for local-road
+  inspection.
+- This is a smoke/diagnostic artifact, not validation evidence for dynamic
+  traffic, route feasibility, lane-level correctness, or real-world geography.
+
+Next validation required:
+
+- Add layer-isolated roads-only, zones-only, and POIs-only static PNGs before
+  using the map for detailed local-connectivity review.
+
 ## 2026-07-09: Runtime Acceleration Guardrails
 
 Change class: documentation / planning governance / review control

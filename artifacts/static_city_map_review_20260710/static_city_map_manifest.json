@@ -1,0 +1,143 @@
+{
+  "artifacts": {
+    "audit_md": "static_city_map_visual_audit.md",
+    "full_extent_html": "static_city_map_full_extent.html",
+    "full_extent_png": "static_city_map_full_extent_page.png",
+    "largest_component_html": "static_city_map_largest_component.html",
+    "largest_component_png": "static_city_map_largest_component_page.png",
+    "map_only_png": "static_city_map_full_extent_map_only.png"
+  },
+  "bounds": {
+    "height": 4185.0432,
+    "max_x": 2433.0240000000003,
+    "max_y": 2092.5216,
+    "min_x": -2605.8239999999996,
+    "min_y": -2092.5216,
+    "width": 5038.848
+  },
+  "config": {
+    "active_agent_capacity": 64,
+    "eager_trip_generation": false,
+    "population_target": 100000
+  },
+  "connectivity": {
+    "after_repair_count": 1,
+    "after_repair_sizes": [
+      1128
+    ],
+    "before_repair_count": 4,
+    "before_repair_sizes": [
+      1121,
+      3,
+      3,
+      1
+    ],
+    "connectivity_repair_link_count": 6,
+    "rendered_component_count": 1,
+    "rendered_component_sizes": [
+      1128
+    ]
+  },
+  "counts": {
+    "bridge_links": 8,
+    "links": 5642,
+    "nodes": 1128,
+    "pois": 3458,
+    "repair_links": 6,
+    "zones": 24
+  },
+  "full_extent_metadata": {
+    "active_call_path": "generator_v2.preview_topology",
+    "connectivity_repair_link_count": 6,
+    "connectivity_repair_link_ids": [
+      5636,
+      5637,
+      5638,
+      5639,
+      5640,
+      5641
+    ],
+    "edge_link_share": 0.03544842254519674,
+    "engine": "generator_v2",
+    "map_focus": "full_extent",
+    "non_orthogonal_link_count": 4516,
+    "outer_frame_link_share": 0.002835873803615739,
+    "scenario_seed": 44,
+    "seed": 44,
+    "style_id": "ring_radial",
+    "weak_component_count_after_repair": 1,
+    "weak_component_count_before_repair": 4,
+    "weak_component_count_rendered": 1,
+    "weak_component_sizes_after_repair": [
+      1128
+    ],
+    "weak_component_sizes_before_repair": [
+      1121,
+      3,
+      3,
+      1
+    ],
+    "weak_component_sizes_rendered": [
+      1128
+    ]
+  },
+  "generated_at_local_date": "2026-07-10",
+  "label": "DIAGNOSTIC_STATIC_CITY_MAP_REVIEW_NOT_VALIDATION",
+  "largest_component_metadata": {
+    "active_call_path": "generator_v2.preview_topology",
+    "connectivity_repair_link_count": 6,
+    "connectivity_repair_link_ids": [
+      5636,
+      5637,
+      5638,
+      5639,
+      5640,
+      5641
+    ],
+    "edge_link_share": 0.03544842254519674,
+    "engine": "generator_v2",
+    "map_focus": "largest_component",
+    "non_orthogonal_link_count": 4516,
+    "outer_frame_link_share": 0.002835873803615739,
+    "scenario_seed": 44,
+    "seed": 44,
+    "style_id": "ring_radial",
+    "weak_component_count_after_repair": 1,
+    "weak_component_count_before_repair": 4,
+    "weak_component_count_rendered": 1,
+    "weak_component_sizes_after_repair": [
+      1128
+    ],
+    "weak_component_sizes_before_repair": [
+      1121,
+      3,
+      3,
+      1
+    ],
+    "weak_component_sizes_rendered": [
+      1128
+    ]
+  },
+  "poi_type_counts": {
+    "home": 1246,
+    "leisure": 896,
+    "workplace": 1316
+  },
+  "python_entrypoint": "metroflow.sim.init.build_initial_simulation_state + metroflow.ui.static_map",
+  "road_class_counts": {
+    "arterial": 114,
+    "bridge": 8,
+    "collector": 658,
+    "expressway": 32,
+    "local": 4814,
+    "ramp": 16
+  },
+  "scenario_id": "synthetic-44",
+  "scenario_seed": 44,
+  "zone_type_counts": {
+    "cbd_commercial": 5,
+    "industrial": 4,
+    "mixed_use": 5,
+    "residential": 10
+  }
+}

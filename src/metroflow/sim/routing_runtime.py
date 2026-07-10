@@ -359,11 +359,16 @@ def runtime_route_cache_fingerprint(
             str(key): stats[key]
             for key in sorted(dict(stats or {}))
             if isinstance(stats[key], (int, float, str, bool))
+            and _is_replay_stable_cache_stat(str(key))
         },
         "state": _state_cache_signature(state) if state is not None else None,
     }
     stable = json.dumps(payload, separators=(",", ":"), sort_keys=True)
     return hashlib.sha256(stable.encode("utf-8")).hexdigest()
+
+
+def _is_replay_stable_cache_stat(key: str) -> bool:
+    return not key.endswith(("_seconds_total", "_wall_ns", "_wall_ns_total"))
 
 
 def _stable_fingerprint_metadata(metadata: Mapping[str, Any] | None) -> dict[str, Any]:

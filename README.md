@@ -163,6 +163,10 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
 - 로컬 OSM XML reference는 `import_osm_xml_file`로 meter-space typed geometry/topology에
   정규화할 수 있다. 이 경로는 표준 라이브러리만 사용하고 네트워크 요청을 하지 않으며,
   default runtime 입력이나 synthetic generator validation evidence가 아니다.
+- same-layer 교차를 graph node로 승격한 검토용 topology는
+  `CityGenerationConfig(topology_mode="sidecar_local_fabric_planar")`로 명시한다.
+  이 모드는 topology/geometry gate를 통과하지만 초기화 비용과 route-ID 호환성 때문에
+  runtime default로 승격되지 않았다.
 - `step_world`의 긴 인자 목록은 호환용으로 유지하고, 신규 호출자는 `step_world_from_inputs`와
   `FastTickInput`/`MediumTickInput`을 우선 사용한다.
 - 새 이식 코드는 baseline fallback, immutable `WorldState`, explicit units, deterministic replay 요구를 유지해야 한다.

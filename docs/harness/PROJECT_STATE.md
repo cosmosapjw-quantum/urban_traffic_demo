@@ -66,6 +66,20 @@ Derived conclusions:
 - Static hardware-fit labels are not performance evidence unless linked to
   runtime stage timings or copy-inclusive microbench results.
 
+## City Map State
+
+- Typed physical centerlines, road sections, node interfaces, width-aware SVG
+  ribbons, and offline no-network OSM XML import are implemented.
+- `sidecar_local_fabric_planar` is an explicit fail-closed review mode with
+  endpoint, intersection, section, sampled-OD, and replay gates.
+- `standard` remains the runtime default. A planar default trial raised the full
+  suite from about 48 seconds to 281 seconds and broke a route-ID regression.
+- The final planar seed-44 image is topologically legal but still visually
+  dominated by sparse hub clusters and long direct corridors. Morphology realism
+  remains open and is not solved by further renderer or planarization work.
+- Canonical diagnostic bundle:
+  `artifacts/static_city_map_planar_review_20260710/`.
+
 ## Next Implementation Decision
 
 Open a new spec only after refreshing the hardware-fit atlas or runtime

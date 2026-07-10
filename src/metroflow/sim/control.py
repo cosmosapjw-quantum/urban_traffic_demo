@@ -224,6 +224,18 @@ class SimulationTelemetry:
             "active_agent_reroute_cooldown_this_tick": self.active_agent_reroute_cooldown_this_tick,
         }
 
+    def as_replay_dict(self) -> dict[str, Any]:
+        """Serialize deterministic telemetry fields, excluding wall-clock diagnostics."""
+
+        payload = self.as_dict()
+        for key in (
+            "flow_update_wall_ns",
+            "active_agent_update_wall_ns",
+            "reroute_decision_wall_ns",
+        ):
+            payload.pop(key, None)
+        return payload
+
     @classmethod
     def from_mapping(cls, data: Mapping[str, Any]) -> "SimulationTelemetry":
         """Construct telemetry from a mapping with contract field names."""

@@ -590,3 +590,33 @@ section, and node contracts from neutral behavioral specifications.
 Falsifier: A separate explicit licensing decision authorizes GPL source reuse.
 
 Next action: Implement PR34 typed road geometry contracts.
+
+## 2026-07-10: Planar City Mode Remains Explicit
+
+Status: accepted
+
+### Compact CCoT
+
+Question: Should the planar sidecar topology replace the runtime default?
+
+Evidence: Explicit planar seed 44 reduces proper same-layer crossings from
+2665 to zero and passes typed assignment, sampled-OD, and replay gates. A trial
+default promotion increased the full suite from about 48 seconds to 281 seconds
+and broke an existing route-ID regression. Visual review still shows sparse hub
+clusters connected by long direct corridors.
+
+Inference: Planarization closes a topology correctness gate but neither the
+runtime budget nor morphology realism gate.
+
+Counterevidence checked: The final reviewed suite passes after default rollback,
+and the explicit mode remains available for visual and structural review.
+
+Decision: Keep `standard` as default and admit
+`sidecar_local_fabric_planar` only through explicit configuration.
+
+Falsifier: A later generator/layout slice achieves realistic block morphology,
+route-contract migration, and acceptable initialization cost across the required
+seed matrix.
+
+Next action: compare local-fabric morphology against offline OSM-derived
+structural metrics before changing runtime defaults.

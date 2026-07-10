@@ -91,3 +91,20 @@ Reopen condition:
 - Typed-array pool replacement becomes review-ready across deterministic seeds,
   or route potential work is completed and active-agent array write again
   dominates the next review-ready stage.
+
+## Immediate Planar City Default Promotion
+
+Status: deferred
+
+Reason:
+
+- The explicit planar mode closes proper-crossing and sampled-OD gates.
+- A default trial increased the full suite from about 48 seconds to 281 seconds
+  and invalidated an existing route-ID regression.
+- Visual inspection still shows hub-and-spoke morphology rather than realistic
+  continuous blocks, so the added cost does not close the product-quality gap.
+
+Reopen condition:
+
+- A morphology redesign, route-ID migration plan, and multi-seed initialization
+  budget all pass without weakening deterministic replay or fallback policy.

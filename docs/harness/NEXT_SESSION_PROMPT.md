@@ -39,6 +39,11 @@ Current state:
   C++/CUDA, libtorch, CMake, or new runtime backend values.
 - PR12 roadmap closure is complete; roadmap state, decision logs, validation
   docs, and handoff are consolidated.
+- City-map PR33-PR40 are complete. `sidecar_local_fabric_planar` is explicit-only;
+  `standard` remains default after the rejected performance/compatibility trial.
+- The next city-quality work is morphology/block formation measured against the
+  offline OSM reference adapter, not more renderer styling or unconditional
+  planarization.
 
 Next recommended workflow:
 

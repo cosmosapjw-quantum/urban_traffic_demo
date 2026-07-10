@@ -1,0 +1,90 @@
+{
+  "artifacts": {
+    "focused": {
+      "directed_link_count": 12868,
+      "focus": "largest_component",
+      "node_count": 3280,
+      "physical_road_count": 6434,
+      "poi_count": 3458,
+      "visible_layers": [
+        "roads",
+        "zones",
+        "pois"
+      ],
+      "zone_count": 24
+    },
+    "full": {
+      "directed_link_count": 12868,
+      "focus": "full_extent",
+      "node_count": 3280,
+      "physical_road_count": 6434,
+      "poi_count": 3458,
+      "visible_layers": [
+        "roads",
+        "zones",
+        "pois"
+      ],
+      "zone_count": 24
+    },
+    "pois": {
+      "directed_link_count": 12868,
+      "focus": "full_extent",
+      "node_count": 3280,
+      "physical_road_count": 6434,
+      "poi_count": 3458,
+      "visible_layers": [
+        "pois"
+      ],
+      "zone_count": 24
+    },
+    "roads": {
+      "directed_link_count": 12868,
+      "focus": "full_extent",
+      "node_count": 3280,
+      "physical_road_count": 6434,
+      "poi_count": 3458,
+      "visible_layers": [
+        "roads"
+      ],
+      "zone_count": 24
+    },
+    "zones": {
+      "directed_link_count": 12868,
+      "focus": "full_extent",
+      "node_count": 3280,
+      "physical_road_count": 6434,
+      "poi_count": 3458,
+      "visible_layers": [
+        "zones"
+      ],
+      "zone_count": 24
+    }
+  },
+  "city_map_validation_metrics": {
+    "geometry_assignment_count": 12868,
+    "link_count": 12868,
+    "node_count": 3280,
+    "node_interface_count": 3280,
+    "proper_intersection_count": 0,
+    "reachable_od_count": 32,
+    "sampled_od_count": 32,
+    "section_assignment_count": 12868,
+    "validation_seed": 44,
+    "weak_component_count": 1
+  },
+  "directed_link_count": 12868,
+  "init_wall_seconds_diagnostic": 5.2355776769982185,
+  "label": "DIAGNOSTIC_ONLY_NOT_VALIDATION",
+  "node_count": 3280,
+  "node_interface_fingerprint": "76dd43393f3b758e677a4201096c61f6ab31d893def515d2e80efbf0e514a348",
+  "physical_centerline_count": 6434,
+  "planarization_added_node_count": 2240,
+  "planarization_admission_status": "explicit_only_runtime_default_not_promoted",
+  "proper_intersection_count_after_planarization": 0,
+  "proper_intersection_count_before_planarization": 2665,
+  "road_geometry_fingerprint": "b3305ddf4a6502375339d0395b716713dfa3999007e912ab483925ad6e7e328c",
+  "road_section_fingerprint": "fbc692fef90f302aa03d3694cb67a9ec98f6a304ecd056139a046b6fc797a2ad",
+  "scenario_seed": 44,
+  "schema_version": 1,
+  "topology_mode": "sidecar_local_fabric_planar"
+}

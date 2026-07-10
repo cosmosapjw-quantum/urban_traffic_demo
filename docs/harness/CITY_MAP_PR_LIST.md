@@ -1,6 +1,6 @@
 # City Map Re-Architecture PR List
 
-Status: active
+Status: complete
 Last updated: 2026-07-10
 
 ## Execution Contract
@@ -107,11 +107,15 @@ Status: complete.
 
 ## PR40 - Validation Closure
 
-Status: pending.
+Status: complete.
 
 - Gate deterministic fingerprints, weak connectivity, intersection validity,
   random OD reachability, section continuity, and replay compatibility.
 - Regenerate diagnostic map artifacts and record remaining visual limitations.
+- Admission: explicit `sidecar_local_fabric_planar` only. Default promotion was
+  rejected after a material suite-time regression and route-ID breakage.
+- Validation: full repository `426 passed`; focused closure/planar/geometry
+  `23 passed`; Ruff and diff checks passed; final PNG bundle visually audited.
 - Commit: `test(map): close city map validation gates`.
 
 ## Hardware-Fit Boundary

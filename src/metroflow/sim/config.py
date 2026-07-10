@@ -21,7 +21,11 @@ EDGE_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "jax", "auto")
 FLOW_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
 ROUTING_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
 AGENT_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
-CITY_TOPOLOGY_MODES = ("standard", "sidecar_local_fabric")
+CITY_TOPOLOGY_MODES = (
+    "standard",
+    "sidecar_local_fabric",
+    "sidecar_local_fabric_planar",
+)
 
 
 class StrEnum(str, Enum):
@@ -195,7 +199,8 @@ class CityGenerationConfig:
 
         if self.topology_mode not in CITY_TOPOLOGY_MODES:
             raise ValueError(
-                "topology_mode must be one of: standard, sidecar_local_fabric"
+                "topology_mode must be one of: standard, sidecar_local_fabric, "
+                "sidecar_local_fabric_planar"
             )
 
         if self.ring_road_count < 0:
