@@ -71,6 +71,13 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   coupling gate/anchor provenance를 포함한다. 같은 의미의 dict/immutable mapping 및 key ordering은
   같은 hash를 만들어야 하고 POI-only mutation은 다른 hash를 만들어야 한다.
 - static zoning/POI visual output은 diagnostic smoke artifact이며 접근성·수요 validation 주장이 아니다.
+- morphology land-use accessibility audit은 최소 3개 unique seed에서 legacy/morphology 각각의 POI
+  access validity, zone-node coverage, directed representative-zone reachability, aggregate contract,
+  placement separation을 함께 기록한다.
+- audit output directory는 비어 있어야 하고 registered style id만 허용한다. manifest는 생성된 HTML,
+  JSON, Markdown 파일을 열거하며 모든 산출물은 `pr46_authorized=false`를 유지한다.
+- static map은 기록된 zoning fingerprint를 실제 zones/POIs/node-zone map으로 재계산해 대조한다.
+  fingerprint가 없으면 coupling provenance를 표시하지 않고, mismatch는 fail-closed 오류다.
 
 ## backend benchmark
 - baseline backend과 optional accelerator backend를 같은 input signature로 비교

@@ -14,7 +14,7 @@ from metroflow.map.road_geometry import (
 )
 from metroflow.map.section_compiler import RoadSectionCatalog, compile_road_sections
 
-from .connectivity import analyze_weak_connectivity
+from .connectivity import analyze_directed_reachability, analyze_weak_connectivity
 from .graph import Node, RoadLink, validate_road_network_topology
 
 __all__ = [
@@ -219,24 +219,9 @@ def _sample_reachable_od_pairs(
             destination_index += 1
         pairs.append((node_ids[origin_index], node_ids[destination_index]))
 
-    outgoing: dict[int, list[int]] = {node_id: [] for node_id in node_ids}
-    for link in links:
-        outgoing[link.src_node_id].append(link.dst_node_id)
-    reachable_by_origin: dict[int, set[int]] = {}
-    for origin, _destination in pairs:
-        if origin in reachable_by_origin:
-            continue
-        reached = {origin}
-        stack = [origin]
-        while stack:
-            current = stack.pop()
-            for next_node in outgoing[current]:
-                if next_node not in reached:
-                    reached.add(next_node)
-                    stack.append(next_node)
-        reachable_by_origin[origin] = reached
-    reachable_count = sum(
-        destination in reachable_by_origin[origin]
-        for origin, destination in pairs
+    report = analyze_directed_reachability(
+        nodes=nodes,
+        links=links,
+        pairs=pairs,
     )
-    return len(pairs), reachable_count
+    return report.pair_count, report.reachable_pair_count

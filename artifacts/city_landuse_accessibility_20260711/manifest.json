@@ -1,0 +1,79 @@
+{
+  "artifact_files": [
+    "grid_core-legacy.html",
+    "grid_core-morphology.html",
+    "index.html",
+    "morphology-landuse-accessibility.json",
+    "morphology-landuse-accessibility.md",
+    "organic-legacy.html",
+    "organic-morphology.html",
+    "polycentric_tod-legacy.html",
+    "polycentric_tod-morphology.html",
+    "ring_radial-legacy.html",
+    "ring_radial-morphology.html",
+    "river_constrained-legacy.html",
+    "river_constrained-morphology.html",
+    "superblock_mixed-legacy.html",
+    "superblock_mixed-morphology.html"
+  ],
+  "artifact_format_version": "morphology_landuse_accessibility_bundle_v1",
+  "data_json": "morphology-landuse-accessibility.json",
+  "demand_policy_changed": false,
+  "evidence_status": "diagnostic_not_validation",
+  "html_retention": "reproducible_local_output_not_required_in_version_control",
+  "index_html": "index.html",
+  "map_entries": [
+    {
+      "legacy_html": "ring_radial-legacy.html",
+      "morphology_html": "ring_radial-morphology.html",
+      "seed": 17,
+      "style_id": "ring_radial"
+    },
+    {
+      "legacy_html": "grid_core-legacy.html",
+      "morphology_html": "grid_core-morphology.html",
+      "seed": 17,
+      "style_id": "grid_core"
+    },
+    {
+      "legacy_html": "polycentric_tod-legacy.html",
+      "morphology_html": "polycentric_tod-morphology.html",
+      "seed": 17,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "legacy_html": "river_constrained-legacy.html",
+      "morphology_html": "river_constrained-morphology.html",
+      "seed": 17,
+      "style_id": "river_constrained"
+    },
+    {
+      "legacy_html": "superblock_mixed-legacy.html",
+      "morphology_html": "superblock_mixed-morphology.html",
+      "seed": 17,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "legacy_html": "organic-legacy.html",
+      "morphology_html": "organic-morphology.html",
+      "seed": 17,
+      "style_id": "organic"
+    }
+  ],
+  "pr46_authorized": false,
+  "review_markdown": "morphology-landuse-accessibility.md",
+  "runtime_backend_changed": false,
+  "seeds": [
+    17,
+    29,
+    41
+  ],
+  "style_ids": [
+    "ring_radial",
+    "grid_core",
+    "polycentric_tod",
+    "river_constrained",
+    "superblock_mixed",
+    "organic"
+  ]
+}

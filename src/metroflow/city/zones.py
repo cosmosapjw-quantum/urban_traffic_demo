@@ -133,6 +133,9 @@ class ZoningPlacementResult:
         zone_ids = [zone.zone_id for zone in self.zones]
         if len(set(zone_ids)) != len(zone_ids):
             issues.append("duplicate zone_id values")
+        poi_ids = [poi.poi_id for poi in self.pois]
+        if len(set(poi_ids)) != len(poi_ids):
+            issues.append("duplicate poi_id values")
         if set(zone.zone_type for zone in self.zones) != set(ZoneType):
             issues.append("zones must include all four zone types")
 

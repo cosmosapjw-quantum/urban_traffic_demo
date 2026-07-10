@@ -12,6 +12,7 @@ from typing import Any, Mapping
 import numpy as np
 
 from metroflow.city.connectivity import analyze_weak_connectivity
+from metroflow.city.zones import ZoningPlacementResult, zoning_placement_fingerprint
 from metroflow.flow.state import LinkState
 from metroflow.map.lane_grammar import RoadUnitKind
 from metroflow.map.road_geometry import (
@@ -798,6 +799,7 @@ def _artifact_metadata(
     road_sections: RoadSectionCatalog,
 ) -> dict[str, Any]:
     raw = dict(getattr(city, "metadata", {}) or {})
+    static_metadata = _verified_landuse_metadata(state)
     _require_matching_fingerprint(
         raw,
         key="road_geometry_fingerprint",
@@ -844,6 +846,17 @@ def _artifact_metadata(
         "weak_component_count_after_repair",
         "weak_component_sizes_after_repair",
     )
+    landuse_keep_keys = (
+        "zoning_placement_fingerprint",
+        "zoning_policy",
+        "poi_placement_policy",
+        "zone_poi_coupling_requested_mode",
+        "zone_poi_coupling_resolved_mode",
+        "zone_poi_coupling_fallback_reason",
+        "zone_poi_coupling_gate_version",
+        "zone_poi_coupling_gate_digest",
+        "zone_poi_coupling_anchor_digest",
+    )
     return {
         "scenario_seed": state.metadata.get("scenario_seed"),
         "map_focus": str(map_focus),
@@ -854,9 +867,46 @@ def _artifact_metadata(
         "weak_component_count_rendered": component_report.component_count,
         "weak_component_sizes_rendered": component_report.component_sizes,
         **{key: raw[key] for key in keep_keys if key in raw},
+        **{
+            key: static_metadata[key]
+            for key in landuse_keep_keys
+            if key in static_metadata
+        },
         "road_geometry_fingerprint": road_geometry.fingerprint,
         "road_section_fingerprint": road_sections.fingerprint,
     }
+
+
+def _verified_landuse_metadata(state: SimulationState) -> dict[str, Any]:
+    metadata = dict(state.static.metadata)
+    recorded = metadata.get("zoning_placement_fingerprint")
+    if recorded is None:
+        return {}
+    routing_static = state.static.routing_static
+    if not isinstance(routing_static, Mapping):
+        raise ValueError(
+            "zoning placement fingerprint requires static routing mappings"
+        )
+    result = ZoningPlacementResult(
+        zones=tuple(state.static.zones or ()),
+        pois=tuple(state.static.pois or ()),
+        node_zone_by_id=dict(routing_static.get("node_zone_by_id", {})),
+        zone_node_ids=dict(routing_static.get("zone_node_ids", {})),
+        metadata={
+            key: metadata.get(key, "")
+            for key in (
+                "zone_poi_coupling_resolved_mode",
+                "zoning_policy",
+                "poi_placement_policy",
+            )
+        },
+    )
+    actual = zoning_placement_fingerprint(result)
+    if str(recorded) != actual:
+        raise ValueError(
+            "static zoning_placement_fingerprint does not match rendered zones/POIs"
+        )
+    return metadata
 
 
 def _require_matching_fingerprint(

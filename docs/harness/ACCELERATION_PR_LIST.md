@@ -251,20 +251,24 @@ Status: complete; final gate `493 passed` with Ruff and diff checks clean.
 
 ## PR45 — Morphology Accessibility Audit
 
-Status: queued; diagnostic-only.
+Status: complete; final gate `499 passed` with Ruff and diff checks clean.
 
 - Measure zone/POI access-node coverage, intra/inter-district OD reachability,
   and morphology-mode placement separation across at least three seeds.
 - Render a static zone/POI overlay using existing typed geometry; do not change
   demand, route legality, or runtime defaults.
-- Open PR46 only if this audit identifies a decision-changing accessibility or
-  demand-distribution defect.
+- The six-style, three-seed matrix retained `1.0` POI access validity and
+  directed representative-zone reachability while preserving aggregate IDs,
+  types, and capacities. This is diagnostic, not empirical validation.
+- Static overlays show substantial placement separation, but no parcel/zone
+  polygon support. The audit does not authorize PR46.
 
 ## PR46 — Demand Coupling Admission
 
 Status: conditional.
 
-- Consider morphology-aware simulator-only trip sampling only after PR45.
+- Consider morphology-aware simulator-only trip sampling only after separate
+  decision-changing demand-defect evidence. PR45 alone is insufficient.
 - Preserve baseline demand fallback, stable replay inputs, and aggregate trip
   controls. External data and learned demand remain forbidden.
 

@@ -754,3 +754,38 @@ gate.
 
 Next action: Open PR45 as a diagnostic zone/POI accessibility and visual-overlay
 audit. Do not change demand sampling unless that audit changes the decision.
+
+## 2026-07-11: Accessibility Audit Does Not Authorize Demand Expansion
+
+Status: diagnostic accepted; PR46 not authorized
+
+### Compact CCoT
+
+Question: Does morphology-gated zone/POI placement introduce an access or
+directed-reachability defect that requires downstream demand-policy work?
+
+Evidence: Across six morphology styles and seeds 17, 29, and 41, legacy and
+morphology placements each retain `1.0` POI access validity, `1.0` zone-node
+coverage, and `1.0` directed representative-zone reachability. Aggregate IDs,
+types, and capacities are preserved. Every zone center and at least 99.7% of
+POI access nodes change. Static PNG review shows clearer district/subcenter
+distribution but no zone polygons or parcel support.
+
+Inference: PR44 placement is structurally distinct and no access blocker was
+observed in this matrix. The audit is too weak to validate demand realism or to
+justify a new demand-coupling policy.
+
+Counterevidence checked: Weak connectivity alone was replaced by explicit
+directed ordered-pair analysis; renderer zoning provenance is recomputed;
+duplicate IDs and stale artifact directories fail closed. Full reachability is
+still expected on these strongly connected generated networks.
+
+Decision: Retain PR45 as diagnostic evidence only. Set `pr46_authorized=false`.
+Do not continue with another renderer/reachability counter in the city lane.
+
+Falsifier: A separate demand-defect or zone-spatial-support audit demonstrates
+materially wrong trip distributions, inaccessible parcels, or unstable
+placement behavior across workloads.
+
+Next action: Step back to the Rust/control-flow, NumPy/SIMD, GPU tensor, and NN
+surrogate lanes before opening the next implementation PR.

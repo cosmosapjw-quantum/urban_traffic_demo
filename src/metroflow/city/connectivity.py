@@ -10,11 +10,28 @@ from typing import Any, Sequence
 from metroflow.city.graph import Node, RoadClass, RoadLink
 
 __all__ = [
+    "DirectedReachabilityReport",
     "WeakConnectivityReport",
     "WeakConnectivityRepairResult",
     "analyze_weak_connectivity",
+    "analyze_directed_reachability",
     "repair_weak_connectivity",
 ]
+
+
+@dataclass(frozen=True, slots=True)
+class DirectedReachabilityReport:
+    """Reachability for an explicit ordered set of directed node pairs."""
+
+    pair_count: int
+    reachable_pair_count: int
+    unreachable_pairs: tuple[tuple[int, int], ...]
+
+    @property
+    def reachability_share(self) -> float:
+        if self.pair_count == 0:
+            return 1.0
+        return float(self.reachable_pair_count / self.pair_count)
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,6 +104,72 @@ def analyze_weak_connectivity(
     return WeakConnectivityReport(
         component_node_ids=tuple(components),
         node_component_id_by_node_id=component_by_node_id,
+    )
+
+
+def analyze_directed_reachability(
+    *,
+    nodes: Sequence[Node],
+    links: Sequence[RoadLink],
+    pairs: Sequence[tuple[int, int]],
+) -> DirectedReachabilityReport:
+    """Evaluate explicit ordered OD pairs on the directed topology."""
+
+    node_ids = tuple(int(node.node_id) for node in nodes)
+    if len(set(node_ids)) != len(node_ids):
+        raise ValueError("nodes must have unique node_id values")
+    node_id_set = set(node_ids)
+    normalized_pairs = tuple((int(origin), int(destination)) for origin, destination in pairs)
+    missing_pair_nodes = sorted(
+        {
+            node_id
+            for pair in normalized_pairs
+            for node_id in pair
+            if node_id not in node_id_set
+        }
+    )
+    if missing_pair_nodes:
+        raise ValueError(
+            "directed reachability pairs reference missing node ids: "
+            f"{missing_pair_nodes}"
+        )
+
+    outgoing: dict[int, list[int]] = {node_id: [] for node_id in node_ids}
+    for link in links:
+        src = int(link.src_node_id)
+        dst = int(link.dst_node_id)
+        if src not in outgoing or dst not in outgoing:
+            raise ValueError(
+                f"link {int(link.link_id)} references missing node endpoint"
+            )
+        outgoing[src].append(dst)
+    for neighbors in outgoing.values():
+        neighbors.sort()
+
+    reached_by_origin: dict[int, set[int]] = {}
+    for origin, _destination in normalized_pairs:
+        if origin in reached_by_origin:
+            continue
+        reached = {origin}
+        queue: deque[int] = deque([origin])
+        while queue:
+            current = queue.popleft()
+            for neighbor in outgoing[current]:
+                if neighbor in reached:
+                    continue
+                reached.add(neighbor)
+                queue.append(neighbor)
+        reached_by_origin[origin] = reached
+
+    unreachable = tuple(
+        pair
+        for pair in normalized_pairs
+        if pair[1] not in reached_by_origin[pair[0]]
+    )
+    return DirectedReachabilityReport(
+        pair_count=len(normalized_pairs),
+        reachable_pair_count=len(normalized_pairs) - len(unreachable),
+        unreachable_pairs=unreachable,
     )
 
 

@@ -113,6 +113,8 @@ def build_initial_simulation_state(
         key: zoning.metadata.get(key, "")
         for key in (
             "zoning_placement_fingerprint",
+            "zoning_policy",
+            "poi_placement_policy",
             "zone_poi_coupling_requested_mode",
             "zone_poi_coupling_resolved_mode",
             "zone_poi_coupling_fallback_reason",

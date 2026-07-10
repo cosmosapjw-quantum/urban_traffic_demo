@@ -93,9 +93,19 @@ Derived conclusions:
   bounded district/subcenter anchor provenance, preserves aggregate land-use
   contracts, and fingerprints the effective placement in runtime replay.
   Final gate: `493 passed`; Ruff and diff checks clean.
+- PR45 reuses a public directed-pair reachability analyzer and the existing
+  typed map renderer to audit morphology land use. Across six styles and seeds
+  17, 29, and 41, both legacy and morphology placement retain `1.0` POI access
+  validity and directed representative-zone reachability. All aggregate
+  contracts hold; zone centers all change and at least 99.7% of POI access
+  nodes change. These are diagnostic results and do not authorize PR46. Final
+  gate: `499 passed`; Ruff and diff checks clean.
 - Canonical diagnostic bundle:
   `artifacts/city_continuous_fabric_20260711/` and
   `artifacts/city_continuous_fabric_quality_20260711/`.
+- Land-use accessibility diagnostics:
+  `artifacts/city_landuse_accessibility_20260711/` and
+  `artifacts/city_landuse_accessibility_visual_20260711/`.
 
 ## Next Implementation Decision
 
@@ -104,8 +114,7 @@ benchmark evidence that can change a parent-stage decision. The strongest
 watchlist lanes remain dynamic-potential/cache work, dense flow scaling,
 route-score batch probes, simulator-label-driven surrogate experiments, and
 active-agent pool-array replacement only if it becomes review-ready again.
-The next city-map slice is PR45, a diagnostic morphology accessibility audit.
-It may add zone/POI overlays and multi-seed access/OD metrics, but it must not
-change demand, route legality, or runtime defaults. PR46 demand coupling remains
-conditional on a decision-changing PR45 defect. Renderer-only work and named-city
-fit remain out of scope.
+PR45 closes the current city-map lane without authorizing PR46. Further
+land-use work requires a new zone-spatial-support or demand-defect spec; more
+renderer/accessibility counters would repeat the same conclusion. Step back to
+the four hardware-fit lanes before selecting the next implementation slice.
