@@ -13,6 +13,12 @@ import numpy as np
 
 from metroflow.city.connectivity import analyze_weak_connectivity
 from metroflow.flow.state import LinkState
+from metroflow.map.lane_grammar import RoadUnitKind
+from metroflow.map.road_geometry import (
+    RoadGeometryCatalog,
+    build_endpoint_geometry_catalog,
+)
+from metroflow.map.section_compiler import RoadSectionCatalog, compile_road_sections
 from metroflow.sim.state import SimulationState
 
 __all__ = [
@@ -37,6 +43,8 @@ class StaticCityMapArtifact:
     bridges: tuple[dict[str, Any], ...] = field(default_factory=tuple)
     metadata: dict[str, Any] = field(default_factory=dict)
     label: str = "SMOKE REVIEW ARTIFACT"
+    roads: tuple[dict[str, Any], ...] = field(default_factory=tuple)
+    visible_layers: tuple[str, ...] = ("roads", "zones", "pois")
 
     def __post_init__(self) -> None:
         self.scenario_id = str(self.scenario_id)
@@ -44,10 +52,16 @@ class StaticCityMapArtifact:
         self.bounds = {str(key): float(value) for key, value in dict(self.bounds).items()}
         self.nodes = tuple(dict(item) for item in self.nodes)
         self.links = tuple(dict(item) for item in self.links)
+        roads = tuple(dict(item) for item in self.roads)
+        self.roads = roads or _legacy_roads_from_links(
+            links=self.links,
+            bounds=self.bounds,
+        )
         self.zones = tuple(dict(item) for item in self.zones)
         self.pois = tuple(dict(item) for item in self.pois)
         self.bridges = tuple(dict(item) for item in self.bridges)
         self.metadata = dict(self.metadata)
+        self.visible_layers = _normalize_visible_layers(self.visible_layers)
         self.label = str(self.label)
 
     @property
@@ -57,6 +71,10 @@ class StaticCityMapArtifact:
     @property
     def link_count(self) -> int:
         return len(self.links)
+
+    @property
+    def road_count(self) -> int:
+        return len(self.roads)
 
     @property
     def zone_count(self) -> int:
@@ -70,6 +88,9 @@ class StaticCityMapArtifact:
         """Serialize this artifact to a stable JSON-safe dictionary."""
 
         road_class_counts = Counter(str(link.get("road_class", "")) for link in self.links)
+        physical_road_class_counts = Counter(
+            str(road.get("road_class", "")) for road in self.roads
+        )
         zone_type_counts = Counter(str(zone.get("zone_type", "")) for zone in self.zones)
         poi_type_counts = Counter(str(poi.get("poi_type", "")) for poi in self.pois)
         return {
@@ -78,18 +99,24 @@ class StaticCityMapArtifact:
             "label": self.label,
             "node_count": self.node_count,
             "link_count": self.link_count,
+            "road_count": self.road_count,
             "zone_count": self.zone_count,
             "poi_count": self.poi_count,
             "bounds": dict(self.bounds),
             "road_class_counts": dict(sorted(road_class_counts.items())),
+            "physical_road_class_counts": dict(
+                sorted(physical_road_class_counts.items())
+            ),
             "zone_type_counts": dict(sorted(zone_type_counts.items())),
             "poi_type_counts": dict(sorted(poi_type_counts.items())),
             "nodes": tuple(dict(item) for item in self.nodes),
             "links": tuple(dict(item) for item in self.links),
+            "roads": tuple(dict(item) for item in self.roads),
             "zones": tuple(dict(item) for item in self.zones),
             "pois": tuple(dict(item) for item in self.pois),
             "bridges": tuple(dict(item) for item in self.bridges),
             "metadata": dict(self.metadata),
+            "visible_layers": self.visible_layers,
         }
 
     def to_json(self) -> str:
@@ -107,6 +134,7 @@ def build_static_city_map_artifact(
     state: SimulationState,
     *,
     focus_largest_component: bool = False,
+    visible_layers: tuple[str, ...] = ("roads", "zones", "pois"),
 ) -> StaticCityMapArtifact:
     """Build a static map artifact from a generated `SimulationState`."""
 
@@ -117,6 +145,7 @@ def build_static_city_map_artifact(
     links_raw = tuple(getattr(city, "links", ()) or ())
     if not nodes_raw or not links_raw:
         raise ValueError("city_topology must contain non-empty nodes and links")
+    resolved_layers = _normalize_visible_layers(visible_layers)
 
     component_report = analyze_weak_connectivity(nodes=nodes_raw, links=links_raw)
     bounds_nodes = _bounds_nodes(
@@ -124,11 +153,28 @@ def build_static_city_map_artifact(
         component_report=component_report,
         focus_largest_component=focus_largest_component,
     )
-    bounds = _geometry_bounds(bounds_nodes)
     node_xy = {
         int(node.node_id): (float(node.x), float(node.y))
         for node in nodes_raw
     }
+    for link in links_raw:
+        _node_xy_for_link(link, node_xy)
+    road_geometry = _resolve_road_geometry(
+        city=city,
+        nodes=nodes_raw,
+        links=links_raw,
+    )
+    focused_geometry_ids = _focused_geometry_ids(
+        links=links_raw,
+        road_geometry=road_geometry,
+        component_report=component_report,
+        focus_largest_component=focus_largest_component,
+    )
+    bounds = _geometry_bounds(
+        bounds_nodes,
+        road_geometry=road_geometry,
+        geometry_ids=focused_geometry_ids,
+    )
     repair_link_ids = {
         int(link_id)
         for link_id in tuple((getattr(city, "metadata", {}) or {}).get("connectivity_repair_link_ids", ()))
@@ -136,7 +182,6 @@ def build_static_city_map_artifact(
     bridge_by_link_id = _bridge_metadata_by_link_id(city)
     flow_link_state = state.dynamic.flow_link_state
     link_state = flow_link_state if isinstance(flow_link_state, LinkState) else None
-
     nodes = tuple(
         _node_payload(
             node,
@@ -161,6 +206,18 @@ def build_static_city_map_artifact(
         )
         for idx, link in enumerate(links_raw)
     )
+    road_sections = _resolve_road_sections(
+        city=city,
+        links=links_raw,
+        road_geometry=road_geometry,
+    )
+    roads = _physical_road_payloads(
+        links_raw=links_raw,
+        link_payloads=links,
+        road_geometry=road_geometry,
+        road_sections=road_sections,
+        bounds=bounds,
+    )
     zones = tuple(_zone_payload(zone, bounds=bounds) for zone in tuple(state.static.zones or ()))
     pois = tuple(_poi_payload(poi, node_xy=node_xy, bounds=bounds) for poi in tuple(state.static.pois or ()))
     bridges = tuple(_bridge_payload(crossing) for crossing in tuple(getattr(city, "bridge_crossings", ()) or ()))
@@ -168,16 +225,10 @@ def build_static_city_map_artifact(
     return StaticCityMapArtifact(
         scenario_id=str(state.static.scenario_id or "unknown"),
         geometry_version=str(state.static.ui_network_geometry_version or "unknown"),
-        bounds={
-            "min_x": bounds["min_x"],
-            "min_y": bounds["min_y"],
-            "max_x": bounds["max_x"],
-            "max_y": bounds["max_y"],
-            "width": bounds["width"],
-            "height": bounds["height"],
-        },
+        bounds=dict(bounds),
         nodes=nodes,
         links=links,
+        roads=roads,
         zones=zones,
         pois=pois,
         bridges=bridges,
@@ -186,7 +237,10 @@ def build_static_city_map_artifact(
             city=city,
             component_report=component_report,
             map_focus="largest_component" if focus_largest_component else "full_extent",
+            road_geometry=road_geometry,
+            road_sections=road_sections,
         ),
+        visible_layers=resolved_layers,
     )
 
 
@@ -195,8 +249,15 @@ def render_static_city_map_html(artifact: StaticCityMapArtifact) -> str:
 
     payload_json = escape(artifact.to_json())
     svg = _render_map_svg(artifact)
-    road_rows = _render_count_rows(artifact.to_dict()["road_class_counts"])
+    road_rows = _render_count_rows(
+        artifact.to_dict()["physical_road_class_counts"]
+    )
     zone_rows = _render_count_rows(artifact.to_dict()["zone_type_counts"])
+    visible_layers = ",".join(artifact.visible_layers)
+    layer_controls = "".join(
+        _render_layer_control(layer, layer in artifact.visible_layers)
+        for layer in ("roads", "zones", "pois")
+    )
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -211,44 +272,64 @@ def render_static_city_map_html(artifact: StaticCityMapArtifact) -> str:
     h2 {{ margin: 24px 0 8px; font-size: 16px; letter-spacing: 0; }}
     .meta {{ color: #5b6674; margin-bottom: 16px; }}
     .map-frame {{ border: 1px solid #ccd3dc; background: #ffffff; border-radius: 8px; overflow: auto; }}
-    .metric-row {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }}
+    .metric-row {{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }}
     .metric {{ background: #ffffff; border: 1px solid #d5dbe3; border-radius: 8px; padding: 11px; }}
     .metric strong {{ display: block; margin-top: 3px; font-size: 21px; }}
+    .layer-controls {{ display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }}
+    .layer-controls button {{ border: 1px solid #aeb8c4; background: #ffffff; color: #263442; padding: 6px 10px; border-radius: 6px; cursor: pointer; }}
+    .layer-controls button[aria-pressed="true"] {{ background: #263442; color: #ffffff; border-color: #263442; }}
     table {{ border-collapse: collapse; width: 100%; background: #ffffff; border: 1px solid #d5dbe3; }}
     td, th {{ border-bottom: 1px solid #e4e8ed; padding: 8px 10px; text-align: left; font-size: 13px; }}
     th {{ background: #ecf0f4; font-weight: 650; }}
-    .road-class.local {{ stroke: #9fa8b3; stroke-width: 0.75; }}
-    .road-class.collector {{ stroke: #4f8f7b; stroke-width: 1.2; }}
-    .road-class.arterial {{ stroke: #d28b37; stroke-width: 1.8; }}
-    .road-class.expressway {{ stroke: #315f9f; stroke-width: 2.8; }}
-    .road-class.ramp {{ stroke: #7d67ad; stroke-width: 1.4; }}
-    .road-class.bridge {{ stroke: #2f7783; stroke-width: 2.4; }}
-    .road-class.unknown {{ stroke: #777f89; stroke-width: 1; }}
-    .road-class.repair-link {{ stroke: #b85f4c; stroke-width: 2.2; stroke-dasharray: 7 4; opacity: 0.92; }}
+    .road-shoulder {{ fill: none; stroke: #727b84; stroke-linecap: round; stroke-linejoin: round; opacity: 0.58; }}
+    .road-ribbon {{ fill: none; stroke-linecap: round; stroke-linejoin: round; }}
+    .road-ribbon.local {{ stroke: #b7bec6; }}
+    .road-ribbon.collector {{ stroke: #5f9b84; }}
+    .road-ribbon.arterial {{ stroke: #d99b49; }}
+    .road-ribbon.expressway {{ stroke: #4778b5; }}
+    .road-ribbon.ramp {{ stroke: #8671b1; }}
+    .road-ribbon.bridge {{ stroke: #3b8791; }}
+    .road-ribbon.unknown {{ stroke: #838b94; }}
+    .road-median {{ fill: none; stroke: #f5f5f2; stroke-linecap: round; stroke-linejoin: round; opacity: 0.9; }}
+    .road-repair {{ fill: none; stroke: #b85f4c; stroke-width: 1.8; stroke-dasharray: 7 4; opacity: 0.96; }}
     .zone-layer circle {{ fill-opacity: 0.12; stroke-width: 1.1; }}
-    .poi-layer circle {{ stroke: #ffffff; stroke-width: 1.1; }}
+    .poi-layer circle {{ stroke: #ffffff; stroke-width: 0.8; opacity: 0.72; }}
     .bridge-label text {{ font-size: 10px; fill: #1f4f59; paint-order: stroke; stroke: #ffffff; stroke-width: 3px; }}
     .legend text {{ font-size: 11px; fill: #354050; }}
     .note {{ color: #5b6674; font-size: 13px; line-height: 1.45; }}
   </style>
 </head>
 <body>
-<main class="metroflow-static-city-map" data-static-city-map="{payload_json}">
+<main class="metroflow-static-city-map" data-static-city-map="{payload_json}" data-visible-layers="{escape(visible_layers)}">
   <h1>Metroflow Static City Map</h1>
   <div class="meta">{escape(artifact.label)} &middot; scenario <code>{escape(artifact.scenario_id)}</code> &middot; geometry <code>{escape(artifact.geometry_version)}</code></div>
   <section class="metric-row">
     <div class="metric">nodes<strong>{artifact.node_count}</strong></div>
+    <div class="metric">physical roads<strong>{artifact.road_count}</strong></div>
     <div class="metric">links<strong>{artifact.link_count}</strong></div>
     <div class="metric">zones<strong>{artifact.zone_count}</strong></div>
     <div class="metric">POIs<strong>{artifact.poi_count}</strong></div>
   </section>
+  <div class="layer-controls" role="group" aria-label="map layers">{layer_controls}</div>
   <section class="map-frame">{svg}</section>
-  <h2>Road Class Counts</h2>
+  <h2>Physical Road Class Counts</h2>
   <table><thead><tr><th>road class</th><th>count</th></tr></thead><tbody>{road_rows}</tbody></table>
   <h2>Zone Type Counts</h2>
   <table><thead><tr><th>zone type</th><th>count</th></tr></thead><tbody>{zone_rows}</tbody></table>
   <p class="note">This static map is a smoke review artifact for generated-city structure and runtime overlay inspection. It is not a validation claim.</p>
 </main>
+<script>
+  document.querySelectorAll("[data-layer-toggle]").forEach((button) => {{
+    button.addEventListener("click", () => {{
+      const layer = button.dataset.layerToggle;
+      const group = document.querySelector(`.${{layer.slice(0, -1)}}-layer`);
+      if (!group) return;
+      const next = button.getAttribute("aria-pressed") !== "true";
+      button.setAttribute("aria-pressed", String(next));
+      group.hidden = !next;
+    }});
+  }});
+</script>
 </body>
 </html>
 """
@@ -266,9 +347,28 @@ def write_static_city_map_html(
     return path
 
 
-def _geometry_bounds(nodes: tuple[Any, ...]) -> dict[str, float]:
-    xs = np.asarray([float(node.x) for node in nodes], dtype=np.float64)
-    ys = np.asarray([float(node.y) for node in nodes], dtype=np.float64)
+def _geometry_bounds(
+    nodes: tuple[Any, ...],
+    *,
+    road_geometry: RoadGeometryCatalog,
+    geometry_ids: frozenset[int] | None = None,
+) -> dict[str, float]:
+    geometry_points = tuple(
+        point
+        for centerline in road_geometry.centerlines
+        if geometry_ids is None or centerline.geometry_id in geometry_ids
+        for point in centerline.points_m
+    )
+    xs = np.asarray(
+        [float(node.x) for node in nodes]
+        + [float(point[0]) for point in geometry_points],
+        dtype=np.float64,
+    )
+    ys = np.asarray(
+        [float(node.y) for node in nodes]
+        + [float(point[1]) for point in geometry_points],
+        dtype=np.float64,
+    )
     min_x = float(np.min(xs))
     max_x = float(np.max(xs))
     min_y = float(np.min(ys))
@@ -277,14 +377,49 @@ def _geometry_bounds(nodes: tuple[Any, ...]) -> dict[str, float]:
     height = max(max_y - min_y, 1.0)
     pad_x = width * 0.04
     pad_y = height * 0.04
+    padded_min_x = min_x - pad_x
+    padded_max_x = max_x + pad_x
+    padded_min_y = min_y - pad_y
+    padded_max_y = max_y + pad_y
+    padded_width = padded_max_x - padded_min_x
+    padded_height = padded_max_y - padded_min_y
+    scale = min(1000.0 / padded_width, 680.0 / padded_height)
+    rendered_width = padded_width * scale
+    rendered_height = padded_height * scale
     return {
-        "min_x": min_x - pad_x,
-        "max_x": max_x + pad_x,
-        "min_y": min_y - pad_y,
-        "max_y": max_y + pad_y,
-        "width": width + (2.0 * pad_x),
-        "height": height + (2.0 * pad_y),
+        "min_x": padded_min_x,
+        "max_x": padded_max_x,
+        "min_y": padded_min_y,
+        "max_y": padded_max_y,
+        "width": padded_width,
+        "height": padded_height,
+        "scale_px_per_m": scale,
+        "offset_x_px": 40.0 + ((1000.0 - rendered_width) * 0.5),
+        "offset_y_px": 40.0 + ((680.0 - rendered_height) * 0.5),
     }
+
+
+def _focused_geometry_ids(
+    *,
+    links: tuple[Any, ...],
+    road_geometry: RoadGeometryCatalog,
+    component_report: Any,
+    focus_largest_component: bool,
+) -> frozenset[int] | None:
+    if not focus_largest_component or not component_report.component_node_ids:
+        return None
+    largest_node_ids = set(component_report.component_node_ids[0])
+    largest_link_ids = {
+        int(link.link_id)
+        for link in links
+        if int(link.src_node_id) in largest_node_ids
+        and int(link.dst_node_id) in largest_node_ids
+    }
+    return frozenset(
+        assignment.geometry_id
+        for assignment in road_geometry.assignments
+        if assignment.link_id in largest_link_ids
+    )
 
 
 def _bounds_nodes(
@@ -363,6 +498,230 @@ def _link_payload(
     }
 
 
+def _legacy_roads_from_links(
+    *,
+    links: tuple[dict[str, Any], ...],
+    bounds: Mapping[str, float],
+) -> tuple[dict[str, Any], ...]:
+    """Preserve direct artifact construction while marking approximate geometry."""
+
+    groups: dict[tuple[object, ...], list[dict[str, Any]]] = {}
+    for link in links:
+        link_id = int(link.get("link_id", -1))
+        src = link.get("src_node_id")
+        dst = link.get("dst_node_id")
+        if src is None or dst is None:
+            key: tuple[object, ...] = ("link", link_id)
+        else:
+            key = (
+                "endpoints",
+                min(int(src), int(dst)),
+                max(int(src), int(dst)),
+                str(link.get("road_class", "unknown")),
+            )
+        groups.setdefault(key, []).append(link)
+
+    scale = float(
+        bounds.get(
+            "scale_px_per_m",
+            min(
+                1000.0 / max(float(bounds.get("width", 1.0)), 1.0),
+                680.0 / max(float(bounds.get("height", 1.0)), 1.0),
+            ),
+        )
+    )
+    roads: list[dict[str, Any]] = []
+    for geometry_id, key in enumerate(sorted(groups, key=repr)):
+        group = tuple(sorted(groups[key], key=lambda item: int(item.get("link_id", -1))))
+        first = group[0]
+        points = tuple(first.get("polyline", ()))
+        if len(points) < 2:
+            raise ValueError(
+                "StaticCityMapArtifact links require polylines when roads are omitted"
+            )
+        lane_count = sum(max(1, int(link.get("lanes", 1))) for link in group)
+        section_width_m = lane_count * 3.5
+        road_class = str(first.get("road_class", "unknown"))
+        roads.append(
+            {
+                "geometry_id": geometry_id,
+                "source": "legacy_link_fallback",
+                "source_ref": "",
+                "layer": 0,
+                "corridor_id": None,
+                "link_ids": tuple(int(link.get("link_id", -1)) for link in group),
+                "directional_link_count": len(group),
+                "road_class": road_class,
+                "section_profile_id": "legacy_approximation",
+                "section_width_m": section_width_m,
+                "render_width_px": max(0.75, section_width_m * scale),
+                "has_median": False,
+                "has_shoulder": False,
+                "ramp": road_class == "ramp",
+                "component_id": int(first.get("component_id", -1)),
+                "connectivity_repair": any(
+                    bool(link.get("connectivity_repair", False)) for link in group
+                ),
+                "bridge": any(bool(link.get("bridge", False)) for link in group),
+                "bridge_group_id": first.get("bridge_group_id"),
+                "bridge_name": str(first.get("bridge_name", "")),
+                "congestion_ratio": max(
+                    float(link.get("congestion_ratio", 0.0)) for link in group
+                ),
+                "polyline": points,
+            }
+        )
+    return tuple(roads)
+
+
+def _resolve_road_geometry(
+    *,
+    city: Any,
+    nodes: tuple[Any, ...],
+    links: tuple[Any, ...],
+) -> RoadGeometryCatalog:
+    geometry = getattr(city, "road_geometry", None)
+    if geometry is None:
+        return build_endpoint_geometry_catalog(nodes=nodes, links=links)
+    if not isinstance(geometry, RoadGeometryCatalog):
+        raise TypeError("city_topology.road_geometry must be a RoadGeometryCatalog")
+    return geometry
+
+
+def _resolve_road_sections(
+    *,
+    city: Any,
+    links: tuple[Any, ...],
+    road_geometry: RoadGeometryCatalog,
+) -> RoadSectionCatalog:
+    sections = getattr(city, "road_sections", None)
+    if sections is None:
+        return compile_road_sections(links=links, road_geometry=road_geometry)
+    if not isinstance(sections, RoadSectionCatalog):
+        raise TypeError("city_topology.road_sections must be a RoadSectionCatalog")
+    return sections
+
+
+def _physical_road_payloads(
+    *,
+    links_raw: tuple[Any, ...],
+    link_payloads: tuple[dict[str, Any], ...],
+    road_geometry: RoadGeometryCatalog,
+    road_sections: RoadSectionCatalog,
+    bounds: Mapping[str, float],
+) -> tuple[dict[str, Any], ...]:
+    link_by_id = {int(link.link_id): link for link in links_raw}
+    payload_by_link_id = {
+        int(payload["link_id"]): payload for payload in link_payloads
+    }
+    assignment_ids = {item.link_id for item in road_geometry.assignments}
+    if assignment_ids != set(link_by_id):
+        raise ValueError("road geometry assignments must exactly cover topology links")
+
+    link_ids_by_geometry: dict[int, list[int]] = {}
+    for assignment in road_geometry.assignments:
+        link_ids_by_geometry.setdefault(assignment.geometry_id, []).append(
+            assignment.link_id
+        )
+
+    pixels_per_meter = float(
+        bounds.get(
+            "scale_px_per_m",
+            min(
+                1000.0 / float(bounds["width"]),
+                680.0 / float(bounds["height"]),
+            ),
+        )
+    )
+    roads: list[dict[str, Any]] = []
+    for centerline in road_geometry.centerlines:
+        link_ids = tuple(sorted(link_ids_by_geometry.get(centerline.geometry_id, ())))
+        if not link_ids:
+            raise ValueError(
+                f"physical centerline {centerline.geometry_id} has no link assignments"
+            )
+        link_classes = {_road_class_value(link_by_id[link_id]) for link_id in link_ids}
+        if len(link_classes) != 1:
+            raise ValueError(
+                f"physical centerline {centerline.geometry_id} has mixed road classes"
+            )
+        section_assignments = tuple(
+            road_sections.assignment_for_link(link_id) for link_id in link_ids
+        )
+        profile_ids = {assignment.profile_id for assignment in section_assignments}
+        section_widths = {
+            round(float(assignment.total_width_m), 9)
+            for assignment in section_assignments
+        }
+        if len(profile_ids) != 1 or len(section_widths) != 1:
+            raise ValueError(
+                f"physical centerline {centerline.geometry_id} has inconsistent sections"
+            )
+        profile_id = next(iter(profile_ids))
+        profile = road_sections.profile(profile_id)
+        section_width_m = next(iter(section_widths))
+        unit_kinds = {unit.kind for unit in profile.start.units}
+        directed_payloads = tuple(payload_by_link_id[link_id] for link_id in link_ids)
+        road_class = next(iter(link_classes))
+        bridge_group_ids = {
+            payload["bridge_group_id"]
+            for payload in directed_payloads
+            if payload["bridge_group_id"] is not None
+        }
+        if len(bridge_group_ids) > 1:
+            raise ValueError(
+                f"physical centerline {centerline.geometry_id} has mixed bridge groups"
+            )
+        bridge_group_id = (
+            next(iter(bridge_group_ids)) if bridge_group_ids else None
+        )
+        roads.append(
+            {
+                "geometry_id": int(centerline.geometry_id),
+                "source": centerline.source.value,
+                "source_ref": centerline.source_ref,
+                "layer": int(centerline.layer),
+                "corridor_id": centerline.corridor_id,
+                "link_ids": link_ids,
+                "directional_link_count": len(link_ids),
+                "road_class": road_class,
+                "section_profile_id": profile_id,
+                "section_width_m": section_width_m,
+                "render_width_px": max(0.75, section_width_m * pixels_per_meter),
+                "has_median": RoadUnitKind.MEDIAN in unit_kinds,
+                "has_shoulder": RoadUnitKind.SHOULDER in unit_kinds,
+                "ramp": road_class == "ramp",
+                "component_id": int(directed_payloads[0]["component_id"]),
+                "connectivity_repair": any(
+                    bool(payload["connectivity_repair"])
+                    for payload in directed_payloads
+                ),
+                "bridge": bool(bridge_group_ids),
+                "bridge_group_id": bridge_group_id,
+                "bridge_name": next(
+                    (
+                        str(payload["bridge_name"])
+                        for payload in directed_payloads
+                        if payload["bridge_name"]
+                    ),
+                    "",
+                ),
+                "congestion_ratio": max(
+                    float(payload["congestion_ratio"])
+                    for payload in directed_payloads
+                ),
+                "polyline": tuple(
+                    (
+                        _scale_x(point[0], bounds),
+                        _scale_y(point[1], bounds),
+                    )
+                    for point in centerline.points_m
+                ),
+            }
+        )
+    return tuple(roads)
+
+
 def _zone_payload(zone: Any, *, bounds: Mapping[str, float]) -> dict[str, Any]:
     return {
         "zone_id": int(zone.zone_id),
@@ -435,8 +794,20 @@ def _artifact_metadata(
     city: Any,
     component_report: Any,
     map_focus: str,
+    road_geometry: RoadGeometryCatalog,
+    road_sections: RoadSectionCatalog,
 ) -> dict[str, Any]:
     raw = dict(getattr(city, "metadata", {}) or {})
+    _require_matching_fingerprint(
+        raw,
+        key="road_geometry_fingerprint",
+        actual=road_geometry.fingerprint,
+    )
+    _require_matching_fingerprint(
+        raw,
+        key="road_section_fingerprint",
+        actual=road_sections.fingerprint,
+    )
     keep_keys = (
         "engine",
         "active_call_path",
@@ -447,6 +818,10 @@ def _artifact_metadata(
         "hierarchy_legibility_score",
         "road_hierarchy_module_alignment_ok",
         "road_geometry_fingerprint",
+        "road_section_fingerprint",
+        "road_section_profile_count",
+        "node_interface_fingerprint",
+        "node_interface_count",
         "physical_centerline_count",
         "outer_frame_link_share",
         "edge_link_share",
@@ -461,49 +836,113 @@ def _artifact_metadata(
     return {
         "scenario_seed": state.metadata.get("scenario_seed"),
         "map_focus": str(map_focus),
+        "edge_backend": state.config.edge_backend,
+        "flow_backend": state.config.flow_backend,
+        "routing_backend": state.config.routing_backend,
+        "agent_backend": state.config.agent_backend,
         "weak_component_count_rendered": component_report.component_count,
         "weak_component_sizes_rendered": component_report.component_sizes,
         **{key: raw[key] for key in keep_keys if key in raw},
+        "road_geometry_fingerprint": road_geometry.fingerprint,
+        "road_section_fingerprint": road_sections.fingerprint,
     }
+
+
+def _require_matching_fingerprint(
+    metadata: Mapping[str, Any],
+    *,
+    key: str,
+    actual: str,
+) -> None:
+    recorded = metadata.get(key)
+    if recorded is not None and str(recorded) != str(actual):
+        raise ValueError(
+            f"city topology {key} does not match the catalog being rendered"
+        )
 
 
 def _render_map_svg(artifact: StaticCityMapArtifact) -> str:
     width = 1080
     height = 760
-    link_lines = "\n".join(_render_link_line(link) for link in artifact.links)
-    zone_marks = "\n".join(_render_zone_circle(zone) for zone in artifact.zones)
-    poi_marks = "\n".join(_render_poi_circle(poi) for poi in artifact.pois)
+    road_paths = (
+        "\n".join(_render_road_ribbon(road) for road in artifact.roads)
+        if "roads" in artifact.visible_layers
+        else ""
+    )
+    zone_marks = (
+        "\n".join(_render_zone_circle(zone) for zone in artifact.zones)
+        if "zones" in artifact.visible_layers
+        else ""
+    )
+    poi_marks = (
+        "\n".join(_render_poi_circle(poi) for poi in artifact.pois)
+        if "pois" in artifact.visible_layers
+        else ""
+    )
     bridge_labels = _render_bridge_labels(artifact)
     legend = _render_svg_legend()
     return f"""<svg role="img" aria-label="static generated city map" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
   <rect x="0" y="0" width="{width}" height="{height}" fill="#ffffff" />
   <g class="zone-layer">{zone_marks}</g>
-  <g class="road-layer">{link_lines}</g>
+  <g class="road-layer">{road_paths}</g>
   <g class="poi-layer">{poi_marks}</g>
   <g class="bridge-label">{bridge_labels}</g>
   {legend}
 </svg>"""
 
 
-def _render_link_line(link: Mapping[str, Any]) -> str:
-    (x1, y1), (x2, y2) = tuple(link["polyline"])
-    road_class = _css_token(str(link.get("road_class", "unknown")))
-    congestion = max(0.0, min(float(link.get("congestion_ratio", 0.0)), 2.0))
-    opacity = 0.38 + min(congestion, 1.5) * 0.28
-    if bool(link.get("bridge", False)):
-        road_class = "bridge"
-    classes = ["road-class", road_class, f'component-{int(link.get("component_id", -1))}']
-    if bool(link.get("connectivity_repair", False)):
-        classes.append("repair-link")
-    return (
-        f'<line class="{" ".join(classes)}" '
-        f'x1="{x1:.2f}" y1="{y1:.2f}" x2="{x2:.2f}" y2="{y2:.2f}" '
-        f'opacity="{opacity:.3f}" data-link-id="{int(link.get("link_id", -1))}" '
-        f'data-component-id="{int(link.get("component_id", -1))}" '
-        f'data-connectivity-repair="{str(bool(link.get("connectivity_repair", False))).lower()}" '
-        f'data-bridge-group-id="{_optional_int_attr(link.get("bridge_group_id"))}" '
-        f'data-congestion="{congestion:.4f}" />'
+def _render_road_ribbon(road: Mapping[str, Any]) -> str:
+    points = tuple(road["polyline"])
+    if len(points) < 2:
+        raise ValueError("physical road polyline must contain at least two points")
+    path_data = " ".join(
+        ("M" if idx == 0 else "L") + f" {float(x):.2f} {float(y):.2f}"
+        for idx, (x, y) in enumerate(points)
     )
+    road_class = _css_token(str(road.get("road_class", "unknown")))
+    congestion = max(0.0, min(float(road.get("congestion_ratio", 0.0)), 2.0))
+    opacity = min(0.98, 0.68 + min(congestion, 1.5) * 0.18)
+    if bool(road.get("bridge", False)):
+        road_class = "bridge"
+    classes = [
+        "road-ribbon",
+        "road-class",
+        road_class,
+        f'component-{int(road.get("component_id", -1))}',
+    ]
+    if bool(road.get("ramp", False)):
+        classes.append("ramp-road")
+    if bool(road.get("bridge", False)):
+        classes.append("bridge-road")
+    width = float(road["render_width_px"])
+    common_data = (
+        f'data-geometry-id="{int(road.get("geometry_id", -1))}" '
+        f'data-link-ids="{escape(",".join(str(value) for value in road.get("link_ids", ())))}" '
+        f'data-section-profile-id="{escape(str(road.get("section_profile_id", "")))}" '
+        f'data-section-width-m="{float(road.get("section_width_m", 0.0)):.3f}" '
+        f'data-component-id="{int(road.get("component_id", -1))}" '
+        f'data-connectivity-repair="{str(bool(road.get("connectivity_repair", False))).lower()}" '
+        f'data-bridge-group-id="{_optional_int_attr(road.get("bridge_group_id"))}" '
+        f'data-congestion="{congestion:.4f}"'
+    )
+    paths: list[str] = []
+    if bool(road.get("has_shoulder", False)):
+        paths.append(
+            f'<path class="road-shoulder" d="{path_data}" '
+            f'stroke-width="{width + 1.4:.3f}" {common_data} />'
+        )
+    paths.append(
+        f'<path class="{" ".join(classes)}" d="{path_data}" '
+        f'stroke-width="{width:.3f}" opacity="{opacity:.3f}" {common_data} />'
+    )
+    if bool(road.get("has_median", False)):
+        paths.append(
+            f'<path class="road-median" d="{path_data}" '
+            f'stroke-width="{max(0.55, width * 0.08):.3f}" {common_data} />'
+        )
+    if bool(road.get("connectivity_repair", False)):
+        paths.append(f'<path class="road-repair" d="{path_data}" {common_data} />')
+    return "\n".join(paths)
 
 
 def _render_zone_circle(zone: Mapping[str, Any]) -> str:
@@ -530,7 +969,7 @@ def _render_poi_circle(poi: Mapping[str, Any]) -> str:
         "leisure": "#b85f4c",
     }.get(token, "#47515f")
     return (
-        f'<circle class="poi {token}" cx="{x:.2f}" cy="{y:.2f}" r="3.2" '
+        f'<circle class="poi {token}" cx="{x:.2f}" cy="{y:.2f}" r="2.2" '
         f'fill="{fill}" data-poi-id="{int(poi.get("poi_id", -1))}" />'
     )
 
@@ -557,17 +996,20 @@ def _render_svg_legend() -> str:
 
 def _render_bridge_labels(artifact: StaticCityMapArtifact) -> str:
     labels: dict[int, tuple[str, float, float]] = {}
-    for link in artifact.links:
-        group_id = link.get("bridge_group_id")
+    if "roads" not in artifact.visible_layers:
+        return ""
+    for road in artifact.roads:
+        group_id = road.get("bridge_group_id")
         if group_id is None:
             continue
-        (x1, y1), (x2, y2) = tuple(link["polyline"])
+        points = tuple(road["polyline"])
+        midpoint = points[len(points) // 2]
         labels.setdefault(
             int(group_id),
             (
-                str(link.get("bridge_name", f"bridge_{int(group_id)}")),
-                (float(x1) + float(x2)) / 2.0,
-                (float(y1) + float(y2)) / 2.0,
+                str(road.get("bridge_name", f"bridge_{int(group_id)}")),
+                float(midpoint[0]),
+                float(midpoint[1]),
             ),
         )
     return "\n".join(
@@ -585,12 +1027,47 @@ def _render_count_rows(counts: Mapping[str, int]) -> str:
     )
 
 
+def _render_layer_control(layer: str, selected: bool) -> str:
+    label = {"roads": "Roads", "zones": "Zones", "pois": "POIs"}[layer]
+    disabled = "" if selected else ' disabled aria-disabled="true"'
+    return (
+        f'<button type="button" data-layer-toggle="{layer}" '
+        f'aria-pressed="{str(bool(selected)).lower()}"{disabled}>{label}</button>'
+    )
+
+
+def _normalize_visible_layers(values: object) -> tuple[str, ...]:
+    if isinstance(values, str):
+        raise ValueError("visible_layers must be an iterable of layer names")
+    try:
+        requested = tuple(str(value) for value in values)  # type: ignore[union-attr]
+    except TypeError as exc:
+        raise ValueError("visible_layers must be an iterable of layer names") from exc
+    allowed = ("roads", "zones", "pois")
+    unknown = tuple(sorted(set(requested) - set(allowed)))
+    if unknown:
+        raise ValueError(f"unknown static map layer name(s): {unknown}")
+    if len(set(requested)) != len(requested):
+        raise ValueError("visible_layers must not contain duplicates")
+    return tuple(layer for layer in allowed if layer in requested)
+
+
 def _scale_x(x: float, bounds: Mapping[str, float]) -> float:
+    if "scale_px_per_m" in bounds:
+        return float(bounds["offset_x_px"]) + (
+            (float(x) - float(bounds["min_x"]))
+            * float(bounds["scale_px_per_m"])
+        )
     return 40.0 + (1000.0 * (float(x) - float(bounds["min_x"])) / float(bounds["width"]))
 
 
 def _scale_y(y: float, bounds: Mapping[str, float]) -> float:
     # SVG y grows downward; city coordinates grow upward.
+    if "scale_px_per_m" in bounds:
+        return float(bounds["offset_y_px"]) + (
+            (float(bounds["max_y"]) - float(y))
+            * float(bounds["scale_px_per_m"])
+        )
     return 720.0 - (680.0 * (float(y) - float(bounds["min_y"])) / float(bounds["height"]))
 
 

@@ -83,11 +83,14 @@ Status: complete.
 
 ## PR38 - Static Ribbon Renderer
 
-Status: pending.
+Status: complete.
 
 - Render centerline polylines as width-aware road ribbons with optional median,
   shoulder, ramp, repair-link, and bridge layers.
 - Add roads-only, zones-only, and POIs-only diagnostic outputs.
+- Validation: `11 passed` targeted; uniform meter projection, rendered-catalog
+  provenance, layer availability, legacy fallback, and component focus covered;
+  visual audit remains diagnostic only.
 - Commit: `feat(ui): render typed road geometry`.
 
 ## PR39 - OSM Reference Import
