@@ -23,6 +23,7 @@ Thumbs.db
 # Generated standalone review payloads are reproducible but too large to track.
 artifacts/static_city_map_review_20260710/*.html
 artifacts/city_morphology_atlas_20260710/*.html
+artifacts/city_morphology_atlas_20260711/*.html
 
 .vscode/
 .idea/

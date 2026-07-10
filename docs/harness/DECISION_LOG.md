@@ -653,3 +653,36 @@ than adding more preset names.
 
 Next action: Implement block-continuity, street-density, connector-length, and
 intersection-mix distribution gates before zone/POI morphology coupling.
+
+## 2026-07-11: Citywide Coverage Before Land-Use Coupling
+
+Status: accepted
+
+### Compact CCoT
+
+Question: Do the PR42 density and continuity gates justify morphology-aware
+zone/POI placement next?
+
+Evidence: Across seeds 17, 29, and 41, the targeted grammar changes improve
+polycentric/mixed four-way shares and river dead-end/block-continuity metrics
+without degrading the unaffected styles. The regenerated six-style contact
+sheet still shows compact precinct islands connected by long bare links, while
+district quadrant presence saturates at or near one.
+
+Inference: PR42 validates local connectivity and intersection mix, but its
+district-envelope metric is blind to inter-district gaps. Passing it is not
+evidence of continuous citywide fabric.
+
+Counterevidence checked: Convex-hull street density is nontrivial and sampled
+OD/topology gates pass, but aggregate length and reachability do not establish
+spatially distributed block fabric.
+
+Decision: Scope the v1 gate explicitly to connectivity, density, and
+intersection mix. Insert PR43 global spatial coverage and continuous corridor
+fabric before PR44 morphology-gated zone/POI placement.
+
+Falsifier: A deterministic global coverage probe shows the apparent gaps are a
+renderer artifact rather than a centerline-distribution defect.
+
+Next action: Add a probe that changes the infill decision, then implement
+style-aware inter-district fabric only for failing styles.

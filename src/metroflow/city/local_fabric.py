@@ -5,6 +5,8 @@ from typing import Any
 
 __all__ = ["build_local_fabric"]
 
+_T_JUNCTION_STAGGER_FRACTION = 0.14
+
 
 def build_local_fabric(
     *,
@@ -521,6 +523,7 @@ def _build_archetype_local_fabric(
                 half_width=half_width,
                 half_height=half_height,
                 angle_degrees=orientation,
+                street_pattern=street_pattern,
             ):
                 _append_segment(
                     local_segments,
@@ -554,6 +557,19 @@ def _build_archetype_local_fabric(
                         (x, round(center[1] - half_height, 3)),
                         (x, center[1]),
                         (x, round(center[1] + half_height, 3)),
+                    ),
+                )
+            y_values = (-1.0, -0.5, 0.0, 0.5, 1.0)
+            for side in (-1.0, 1.0):
+                x = round(center[0] + side * half_width, 3)
+                _append_segment(
+                    local_segments,
+                    local_keys,
+                    kind="local",
+                    regime="district_corridor_return",
+                    points=tuple(
+                        (x, round(center[1] + offset * half_height, 3))
+                        for offset in y_values
                     ),
                 )
 
@@ -669,17 +685,78 @@ def _local_grid_polylines(
     half_width: float,
     half_height: float,
     angle_degrees: float,
+    street_pattern: str,
 ) -> tuple[tuple[tuple[float, float], ...], ...]:
     values = (-1.0, -0.5, 0.0, 0.5, 1.0)
+    staggered_x = {
+        "polycentric_mesh": (-0.5, 0.0, 0.5),
+        "multi_grid": (-0.5, 0.5),
+    }.get(street_pattern, ())
+    stagger = _T_JUNCTION_STAGGER_FRACTION
+    center_row_x = tuple(
+        sorted(values + tuple(x + stagger for x in staggered_x))
+    )
     rows = tuple(
-        tuple(_rotate_point(center, x * half_width, y * half_height, angle_degrees) for x in values)
+        tuple(
+            _rotate_point(
+                center,
+                x * half_width,
+                y * half_height,
+                angle_degrees,
+            )
+            for x in (center_row_x if y == 0.0 else values)
+        )
         for y in values
     )
-    columns = tuple(
-        tuple(_rotate_point(center, x * half_width, y * half_height, angle_degrees) for y in values)
-        for x in values
-    )
-    return rows + columns
+    columns: list[tuple[tuple[float, float], ...]] = []
+    for x in values:
+        if x not in staggered_x:
+            columns.append(
+                tuple(
+                    _rotate_point(
+                        center,
+                        x * half_width,
+                        y * half_height,
+                        angle_degrees,
+                    )
+                    for y in values
+                )
+            )
+            continue
+        columns.append(
+            tuple(
+                _rotate_point(
+                    center,
+                    x * half_width,
+                    y * half_height,
+                    angle_degrees,
+                )
+                for y in (-1.0, -0.5, 0.0)
+            )
+        )
+        columns.append(
+            (
+                _rotate_point(
+                    center,
+                    (x + stagger) * half_width,
+                    0.0,
+                    angle_degrees,
+                ),
+                _rotate_point(
+                    center,
+                    x * half_width,
+                    0.5 * half_height,
+                    angle_degrees,
+                ),
+                _rotate_point(
+                    center,
+                    x * half_width,
+                    half_height,
+                    angle_degrees,
+                ),
+            )
+        )
+    return rows + tuple(columns)
 
 
 def _rotate_point(

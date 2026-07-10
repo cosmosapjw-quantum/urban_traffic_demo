@@ -56,6 +56,8 @@ def write_city_morphology_atlas(
             "center_pattern": metadata.get("morphology_center_pattern"),
             "reference_cities": list(metadata.get("morphology_reference_cities", ())),
             "morphometrics": dict(metadata["street_network_morphometrics"]),
+            "quality_metrics": dict(metadata["morphology_quality_metrics"]),
+            "quality_gate": dict(metadata["morphology_quality_gate"]),
             "node_count": len(bundle.city_topology.nodes),
             "link_count": len(bundle.city_topology.links),
             "geometry_fingerprint": bundle.city_topology.road_geometry.fingerprint,
@@ -66,7 +68,7 @@ def write_city_morphology_atlas(
         paths[f"{style_id}_html"] = html_path
 
     manifest = {
-        "artifact_format_version": "city_morphology_atlas_v1",
+        "artifact_format_version": "city_morphology_atlas_v2",
         "evidence_status": "diagnostic_not_city_replication",
         "seed": int(seed),
         "topology_mode": str(topology_mode),
@@ -92,6 +94,7 @@ def _render_atlas_index(manifest: dict[str, object]) -> str:
     for raw_entry in manifest["styles"]:
         entry = dict(raw_entry)
         metrics = dict(entry["morphometrics"])
+        quality = dict(entry["quality_metrics"])
         panels.append(
             "<section>"
             f"<h2>{escape(str(entry['style_id']))}</h2>"
@@ -100,6 +103,10 @@ def _render_atlas_index(manifest: dict[str, object]) -> str:
             f"<p>order {float(metrics['orientation_order']):.3f} &middot; "
             f"entropy {float(metrics['orientation_entropy']):.3f} &middot; "
             f"degree {float(metrics['mean_node_degree']):.3f}</p>"
+            f"<p>density {float(quality['street_density_km_per_km2']):.2f} km/km&sup2; &middot; "
+            f"continuity {float(quality['block_continuity']):.3f} &middot; "
+            "district quadrant presence "
+            f"{float(quality['district_quadrant_presence_share']):.3f}</p>"
             f"<iframe loading=\"lazy\" src=\"{escape(str(entry['html']))}\" "
             f"title=\"{escape(str(entry['style_id']))}\"></iframe>"
             "</section>"

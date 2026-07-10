@@ -77,14 +77,15 @@ Derived conclusions:
 - The final planar seed-44 image is topologically legal but still visually
   dominated by sparse hub clusters and long direct corridors. Morphology realism
   remains open and is not solved by further renderer or planarization work.
-- PR41 adds six deterministic morphology grammars and a literature-compatible
-  physical-network metric surface. The forms are now materially distinct, but
-  the comparison atlas still shows incomplete local-fabric coverage, excess
-  four-way intersections in some styles, and excess dead ends in the constrained
-  corridor style. This is implemented diversity substrate, not real-city
-  replication or full realism validation.
+- PR42 adds a three-seed physical-network quality envelope and a versioned,
+  narrowly scoped structural gate. Staggered streets reduce excess four-way
+  intersections without cutting network continuity, and river return streets
+  reduce corridor dead ends. The new visual audit still shows isolated precinct
+  patches separated by bare inter-district links, so citywide continuity and
+  morphology-aware land use remain open.
 - Canonical diagnostic bundle:
-  `artifacts/city_morphology_atlas_20260710/`.
+  `artifacts/city_morphology_atlas_20260711/` and
+  `artifacts/city_morphology_quality_20260711/`.
 
 ## Next Implementation Decision
 
@@ -93,5 +94,7 @@ benchmark evidence that can change a parent-stage decision. The strongest
 watchlist lanes remain dynamic-potential/cache work, dense flow scaling,
 route-score batch probes, simulator-label-driven surrogate experiments, and
 active-agent pool-array replacement only if it becomes review-ready again.
-City-map work is separately bounded by PR42 block-continuity and density-envelope
-gates; it must not reopen renderer-only work as a realism fix.
+City-map work is separately bounded by PR43 continuous-fabric coverage. The
+next probe must distinguish precinct islands from citywide street coverage and
+change generator behavior; renderer-only work and zone/POI coupling remain
+deferred until that gate passes.

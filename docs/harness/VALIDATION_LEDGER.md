@@ -340,3 +340,42 @@ Claim boundary:
   urban realism.
 - PR42 must address block continuity, district street density,
   connector/local length ratios, and intersection-mix distributions.
+
+## 2026-07-11: Block Continuity And Density Envelope
+
+Change class: generated-city structural metric, narrow admission gate, and
+evidence-backed local-fabric repair
+
+Commands run:
+
+```bash
+.venv/bin/python -m pytest tests/test_city_morphology_quality.py tests/test_city_morphology_diversity.py tests/test_static_city_map.py -q
+.venv/bin/python -m metroflow.ui.morphology_atlas --output-dir artifacts/city_morphology_atlas_20260711 --seed 17
+.venv/bin/python -m metroflow.ui.morphology_quality_report --output-dir artifacts/city_morphology_quality_20260711 --seeds 17,29,41
+/usr/bin/time -f 'elapsed=%E cpu=%P maxrss_kb=%M' .venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Observed results:
+
+- targeted morphology/static suite: `49 passed`
+- full suite: `472 passed in 125.08s`
+- full-suite process: `elapsed=2:05.74`, `cpu=110%`,
+  `maxrss_kb=1172748`
+- Ruff and diff checks passed
+- polycentric four-way median: `0.656 -> 0.603`
+- mixed-grid four-way median: `0.630 -> 0.587`
+- river dead-end median: `0.324 -> 0.119`
+- river block-continuity median: `0.637 -> 0.882`
+- independent re-review closed non-finite, connectivity, threshold-duplication,
+  metric-naming, seed-matrix, and reporting-layer findings
+
+Claim boundary:
+
+- The versioned v1 gate validates weak connectivity, block continuity,
+  convex-hull density, district quadrant presence, and intersection mix only.
+- The PNG atlas remains diagnostic. It shows unresolved precinct islands and
+  does not validate continuous citywide fabric or named-city replication.
+- Zone/POI morphology coupling remains blocked until PR43 global spatial
+  coverage and continuous-fabric work passes.

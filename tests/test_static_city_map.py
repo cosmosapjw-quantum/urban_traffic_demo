@@ -39,6 +39,7 @@ def test_static_city_map_artifact_renders_generated_topology_layers(tmp_path) ->
     assert "<!doctype html>" in html
     assert "<svg" in html
     assert "data-static-city-map" in html
+    assert artifact.metadata["morphology_quality_gate"]["accepted"] is True
     assert "metroflow-static-city-map" in html
     assert "road-class" in html
     assert "zone-layer" in html

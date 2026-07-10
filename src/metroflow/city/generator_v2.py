@@ -38,6 +38,10 @@ from .local_fabric import build_local_fabric
 from .map_validation import require_valid_city_map_contract
 from .morphology_field import build_morphology_field
 from .morphology_metrics import compute_street_network_morphometrics
+from .morphology_quality import (
+    compute_morphology_quality_metrics,
+    evaluate_morphology_quality_gate,
+)
 from .planarization import planarize_endpoint_topology
 from .quality_oracles import evaluate_hard_fail_oracle
 from .transit_builder import apply_transit_builder_stage
@@ -412,12 +416,26 @@ def _finalize_preview_topology(
             }
         )
     morphometrics = compute_street_network_morphometrics(finalized)
+    quality_metrics = compute_morphology_quality_metrics(finalized)
+    quality_gate = evaluate_morphology_quality_gate(
+        style_id=str(metadata.get("style_id", "unknown")),
+        geometry_fingerprint=geometry.fingerprint,
+        metrics=quality_metrics,
+    )
     metadata.update(
         {
             "street_network_morphometrics": dict(morphometrics.as_dict()),
             "street_network_morphometrics_status": "diagnostic_not_city_replication",
+            "morphology_quality_metrics": dict(quality_metrics.as_dict()),
+            "morphology_quality_status": "diagnostic_not_city_replication",
+            "morphology_quality_gate": dict(quality_gate.as_dict()),
         }
     )
+    if require_planar_geometry and not quality_gate.accepted:
+        raise ValueError(
+            "generated topology morphology quality gate failed: "
+            + "; ".join(quality_gate.failures)
+        )
     if "active_sidecar_hierarchy_report" in metadata:
         metadata["active_sidecar_hierarchy_report"] = build_active_sidecar_hierarchy_report(
             topology=finalized

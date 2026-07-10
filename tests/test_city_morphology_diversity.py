@@ -237,12 +237,17 @@ def test_morphology_atlas_writes_review_bundle_without_raw_osm(tmp_path) -> None
     manifest = json.loads(paths["manifest"].read_text(encoding="utf-8"))
     index = paths["index"].read_text(encoding="utf-8")
 
-    assert manifest["artifact_format_version"] == "city_morphology_atlas_v1"
+    assert manifest["artifact_format_version"] == "city_morphology_atlas_v2"
     assert manifest["raw_osm_data_included"] is False
     assert manifest["html_retention"] == (
         "reproducible_local_output_not_required_in_version_control"
     )
     assert [item["style_id"] for item in manifest["styles"]] == ["grid_core", "organic"]
+    assert all("quality_metrics" in item for item in manifest["styles"])
+    assert all(
+        item["quality_gate"]["gate_version"] == "morphology_quality_v1"
+        for item in manifest["styles"]
+    )
     assert "Diagnostic comparison only" in index
     assert paths["grid_core_html"].is_file()
     assert paths["organic_html"].is_file()

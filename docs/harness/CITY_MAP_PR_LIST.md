@@ -1,7 +1,7 @@
 # City Map Re-Architecture PR List
 
 Status: active
-Last updated: 2026-07-10
+Last updated: 2026-07-11
 
 ## Execution Contract
 
@@ -144,10 +144,39 @@ Status: complete.
 
 ## PR42 - Block Continuity And Density Envelope
 
-Status: proposed.
+Status: complete.
 
 - Measure occupied-area street density, block continuity, connector/local
-  length ratio, intersection-type mix, and district coverage across seeds.
+  length ratio, intersection-type mix, and district quadrant presence across
+  seeds.
 - Reduce excess four-way share in polycentric/mixed styles and excess dead ends
   in corridor styles without fitting named cities.
-- Couple zone/POI placement to morphology only after structural gates pass.
+- Three-seed evidence: polycentric four-way median `0.656 -> 0.603`, mixed
+  `0.630 -> 0.587`; river dead-end median `0.324 -> 0.119` and block
+  continuity `0.637 -> 0.882`.
+- The v1 gate is intentionally scoped to connectivity, density, and
+  intersection mix. It does not validate continuous citywide fabric.
+- Validation: targeted morphology/static suite `49 passed`; full repository
+  `472 passed`; Ruff and diff checks passed; independent finding/fix re-review
+  closed all reported issues.
+
+## PR43 - Continuous Fabric Coverage
+
+Status: proposed.
+
+- Add a deterministic global spatial-coverage measure that can distinguish
+  continuous street fabric from dense but isolated district patches.
+- Replace long bare inter-district connectors with style-aware corridor infill
+  or a continuous global lattice where the morphology calls for it.
+- Preserve style diversity, planar/OD gates, and project-owned broad
+  thresholds; do not fit named cities.
+- Defer morphology-aware zone/POI placement until this gate passes.
+
+## PR44 - Morphology-Gated Zone And POI Coupling
+
+Status: blocked on PR43.
+
+- Keep legacy placement as the default and deterministic fallback.
+- Admit morphology-aware placement only from a versioned accepted gate.
+- Use synthetic district/subcenter context, never empirical named-city fitting
+  or external runtime data.

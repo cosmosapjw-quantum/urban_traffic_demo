@@ -24,6 +24,14 @@ from .morphology_metrics import StreetNetworkMorphometrics as StreetNetworkMorph
 from .morphology_metrics import (
     compute_street_network_morphometrics as compute_street_network_morphometrics,
 )
+from .morphology_quality import MorphologyQualityMetrics as MorphologyQualityMetrics
+from .morphology_quality import MorphologyQualityGate as MorphologyQualityGate
+from .morphology_quality import (
+    compute_morphology_quality_metrics as compute_morphology_quality_metrics,
+)
+from .morphology_quality import (
+    evaluate_morphology_quality_gate as evaluate_morphology_quality_gate,
+)
 from .morphology_reference import MORPHOLOGY_ARCHETYPES as MORPHOLOGY_ARCHETYPES
 from .morphology_reference import MorphologyArchetype as MorphologyArchetype
 from .morphology_reference import (
@@ -39,6 +47,8 @@ __all__ = [
     "GeneratorV2",
     "MORPHOLOGY_ARCHETYPES",
     "MorphologyArchetype",
+    "MorphologyQualityMetrics",
+    "MorphologyQualityGate",
     "Node",
     "NodeKind",
     "PreviewCityTopology",
@@ -55,7 +65,9 @@ __all__ = [
     "analyze_weak_connectivity",
     "build_road_network_csr",
     "compute_street_network_morphometrics",
+    "compute_morphology_quality_metrics",
     "empirical_street_network_references",
+    "evaluate_morphology_quality_gate",
     "get_morphology_archetype",
     "repair_weak_connectivity",
     "validate_road_network_topology",
