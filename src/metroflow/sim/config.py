@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Iterable, Mapping
 
+from metroflow.city.morphology_reference import get_morphology_archetype
+
 __all__ = [
     "DayType",
     "TimeBand",
@@ -162,6 +164,7 @@ class CityGenerationConfig:
     """Synthetic city generation configuration for topology/zones/POIs."""
 
     topology_mode: str = "standard"
+    morphology_style_id: str = "auto"
     road_hierarchy_profile: dict[RoadHierarchyClass, float] = field(
         default_factory=lambda: {
             RoadHierarchyClass.LOCAL: 0.7,
@@ -186,6 +189,7 @@ class CityGenerationConfig:
 
     def __post_init__(self) -> None:
         self.topology_mode = str(self.topology_mode)
+        self.morphology_style_id = str(self.morphology_style_id)
         self.road_hierarchy_profile = _coerce_share_mapping(
             self.road_hierarchy_profile,
             RoadHierarchyClass,
@@ -201,6 +205,16 @@ class CityGenerationConfig:
             raise ValueError(
                 "topology_mode must be one of: standard, sidecar_local_fabric, "
                 "sidecar_local_fabric_planar"
+            )
+        if self.morphology_style_id != "auto":
+            get_morphology_archetype(self.morphology_style_id)
+        if (
+            self.topology_mode == "standard"
+            and self.morphology_style_id not in {"auto", "ring_radial", "polycentric_tod"}
+        ):
+            raise ValueError(
+                "explicit non-legacy morphology_style_id requires "
+                "sidecar_local_fabric or sidecar_local_fabric_planar"
             )
 
         if self.ring_road_count < 0:

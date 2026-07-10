@@ -1,6 +1,6 @@
 # City Map Re-Architecture PR List
 
-Status: complete
+Status: active
 Last updated: 2026-07-10
 
 ## Execution Contract
@@ -127,3 +127,27 @@ Status: complete.
 - Consider JAX/GPU only for measured dense morphology-field or batched scoring
   work, with compile and steady-state timing separated.
 - Do not add C++/CUDA, PyTorch, or new runtime backend names in this roadmap.
+
+## PR41 - Urban Morphology Diversity
+
+Status: complete.
+
+- Add reference-only empirical city metrics from peer-reviewed OSM analysis.
+- Add physical-centerline orientation, circuity, grain, and connectivity metrics.
+- Make existing style IDs select distinct grid, multi-grid, polycentric,
+  corridor-constrained, organic, and legacy radial grammars.
+- Preserve scenario-resolved `auto` defaults and explicit planar acceptance.
+- Generate a six-style comparison atlas and record limitations without city
+  replication claims.
+- Validation: `13 passed` feature tests; full repository `439 passed`; Ruff and
+  diff checks passed; PNG contact sheet visually audited.
+
+## PR42 - Block Continuity And Density Envelope
+
+Status: proposed.
+
+- Measure occupied-area street density, block continuity, connector/local
+  length ratio, intersection-type mix, and district coverage across seeds.
+- Reduce excess four-way share in polycentric/mixed styles and excess dead ends
+  in corridor styles without fitting named cities.
+- Couple zone/POI placement to morphology only after structural gates pass.

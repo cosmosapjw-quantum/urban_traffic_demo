@@ -79,6 +79,7 @@
 - 043-active-agent-pool-write-breakdown: Split pool-write timing into typed-array replacement and plugin-memory write sub-stages
 - 044-active-agent-plugin-memory-batch: Batched allocation plugin-memory replacement and redirected next slice to route path-build
 - 045-routing-potential-float32-fix: Fixed baseline dynamic-potential float32 heap-staleness and redirected route acceleration toward potential recompute/cache amortization
+- 041-urban-morphology-diversity: Added literature-backed diagnostic morphometrics and distinct grid, polycentric, constrained-corridor, multi-grid, organic, and radial city grammars
 - 046-city-map-contracts: Added source provenance, typed centerlines, road-section grammar, and static node-interface catalogs without CSUR source reuse
 - 047-static-ribbon-map: Added physical-road width-aware SVG rendering, isolated layers, uniform meter projection, and rendered-catalog provenance
 - 048-offline-osm-reference: Added standard-library offline OSM XML projection, splitting, clipping, simplification, and typed reference import

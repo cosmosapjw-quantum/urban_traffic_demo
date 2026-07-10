@@ -37,6 +37,7 @@ from .graph import (
 from .local_fabric import build_local_fabric
 from .map_validation import require_valid_city_map_contract
 from .morphology_field import build_morphology_field
+from .morphology_metrics import compute_street_network_morphometrics
 from .planarization import planarize_endpoint_topology
 from .quality_oracles import evaluate_hard_fail_oracle
 from .transit_builder import apply_transit_builder_stage
@@ -210,6 +211,11 @@ class GeneratorV2:
                 "preview_mode must be one of: standard, sidecar_morphology, "
                 "sidecar_district_cells, sidecar_local_fabric, "
                 "sidecar_local_fabric_planar"
+            )
+        if style_id not in {"ring_radial", "polycentric_tod"}:
+            raise ValueError(
+                "standard preview_mode supports only ring_radial or polycentric_tod; "
+                "use a sidecar preview_mode for other morphology styles"
             )
         backbone = build_backbone(style_id=style_id, seed=seed, width=width, height=height)
         district_mesh = build_district_mesh(seed=seed, width=width, height=height, backbone=backbone)
@@ -405,6 +411,13 @@ def _finalize_preview_topology(
                 "city_map_validation_metrics": dict(map_report.metrics),
             }
         )
+    morphometrics = compute_street_network_morphometrics(finalized)
+    metadata.update(
+        {
+            "street_network_morphometrics": dict(morphometrics.as_dict()),
+            "street_network_morphometrics_status": "diagnostic_not_city_replication",
+        }
+    )
     if "active_sidecar_hierarchy_report" in metadata:
         metadata["active_sidecar_hierarchy_report"] = build_active_sidecar_hierarchy_report(
             topology=finalized
@@ -4862,6 +4875,12 @@ def _build_sidecar_morphology_preview_topology(
         "active_call_path": "generator_v2.preview_topology.sidecar_morphology",
         "scenario_id": scenario_id,
         "style_id": style_id,
+        "morphology_center_pattern": morphology_field.get("morphology_center_pattern"),
+        "morphology_street_pattern": morphology_field.get("morphology_street_pattern"),
+        "morphology_evidence_status": morphology_field.get("morphology_evidence_status"),
+        "morphology_reference_cities": tuple(
+            morphology_field.get("morphology_reference_cities", ()) or ()
+        ),
         "seed": int(seed),
         "render_bounds": morphology_field.get("render_bounds"),
         "barrier_count": len(tuple(morphology_field.get("barrier_polylines", ()) or ())),

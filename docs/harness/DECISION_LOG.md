@@ -620,3 +620,36 @@ seed matrix.
 
 Next action: compare local-fabric morphology against offline OSM-derived
 structural metrics before changing runtime defaults.
+
+## 2026-07-10: Morphology Diversity Before Named-City Calibration
+
+Status: accepted
+
+### Compact CCoT
+
+Question: Should generated-city realism continue by refining the radial layout
+or by fitting one imported real city?
+
+Evidence: The 100-city street-network literature reports a broad continuum of
+orientation order, circuity, node degree, dead ends, and four-way intersections.
+The PR41 comparison atlas confirms that one generator rule cannot represent this
+range and that distinct grammar outputs can be measured without raw OSM runtime
+dependencies.
+
+Inference: The correct next substrate is a family of deterministic grammars plus
+a common metric surface, not a universal radial model or a named-city clone.
+
+Counterevidence checked: The six forms are visually distinct and pass planar
+graph gates, but several remain sparse and their intersection mixes fall outside
+the observed reference envelope. Metric separation alone is not realism.
+
+Decision: Admit PR41 as diversity substrate. Keep empirical city values
+reference-only, raw OSM offline, `auto` defaults unchanged, and all visual output
+diagnostic-only.
+
+Falsifier: If multi-seed PR42 tests show the styles collapse to the same block,
+density, or intersection distributions, redesign the grammar boundary rather
+than adding more preset names.
+
+Next action: Implement block-continuity, street-density, connector-length, and
+intersection-mix distribution gates before zone/POI morphology coupling.

@@ -426,7 +426,12 @@ def _has_shared_endpoint(
     right_a: PointM,
     right_b: PointM,
 ) -> bool:
-    return bool({left_a, left_b} & {right_a, right_b})
+    return any(
+        math.isclose(left[0], right[0], abs_tol=1e-8)
+        and math.isclose(left[1], right[1], abs_tol=1e-8)
+        for left in (left_a, left_b)
+        for right in (right_a, right_b)
+    )
 
 
 def _segments_cross_properly(
@@ -435,14 +440,22 @@ def _segments_cross_properly(
     right_a: PointM,
     right_b: PointM,
 ) -> bool:
-    def orientation(a: PointM, b: PointM, c: PointM) -> float:
-        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
-
-    first = orientation(left_a, left_b, right_a)
-    second = orientation(left_a, left_b, right_b)
-    third = orientation(right_a, right_b, left_a)
-    fourth = orientation(right_a, right_b, left_b)
-    return first * second < 0.0 and third * fourth < 0.0
+    left_dx = left_b[0] - left_a[0]
+    left_dy = left_b[1] - left_a[1]
+    right_dx = right_b[0] - right_a[0]
+    right_dy = right_b[1] - right_a[1]
+    denominator = left_dx * right_dy - left_dy * right_dx
+    if math.isclose(denominator, 0.0, abs_tol=1e-12):
+        return False
+    offset_x = right_a[0] - left_a[0]
+    offset_y = right_a[1] - left_a[1]
+    left_t = (offset_x * right_dy - offset_y * right_dx) / denominator
+    right_t = (offset_x * left_dy - offset_y * left_dx) / denominator
+    tolerance = 1e-8
+    return (
+        tolerance < left_t < 1.0 - tolerance
+        and tolerance < right_t < 1.0 - tolerance
+    )
 
 
 def _sha256_json(payload: object) -> str:

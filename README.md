@@ -167,6 +167,15 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   `CityGenerationConfig(topology_mode="sidecar_local_fabric_planar")`로 명시한다.
   이 모드는 topology/geometry gate를 통과하지만 초기화 비용과 route-ID 호환성 때문에
   runtime default로 승격되지 않았다.
+- 방사형 이외의 합성 형태는 `CityGenerationConfig(morphology_style_id=...)`로 선택한다.
+  지원 값은 `grid_core`, `polycentric_tod`, `river_constrained`, `superblock_mixed`,
+  `organic`, `ring_radial`이며 기본 `auto`는 기존 scenario별 선택을 보존한다. 문헌 기반
+  실측값과 생성 morphometric은 reference/diagnostic 전용이고 특정 실제 도시 재현 주장이 아니다.
+  `grid_core`, `river_constrained`, `superblock_mixed`, `organic`은 sidecar topology mode에서만
+  허용되며 지원하지 않는 `standard` 조합은 fail-closed한다.
+- 동일 seed의 형태 비교 bundle은
+  `python -m metroflow.ui.morphology_atlas --output-dir artifacts/city_morphology_atlas_20260710
+  --seed 17`로 생성한다.
 - `step_world`의 긴 인자 목록은 호환용으로 유지하고, 신규 호출자는 `step_world_from_inputs`와
   `FastTickInput`/`MediumTickInput`을 우선 사용한다.
 - 새 이식 코드는 baseline fallback, immutable `WorldState`, explicit units, deterministic replay 요구를 유지해야 한다.

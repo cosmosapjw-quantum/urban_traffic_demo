@@ -306,3 +306,37 @@ Next validation required:
 
 - Add generated-OD dynamic-potential cache/recompute microbenchmarks and compare
   Python baseline vs Rust potential without enabling runtime-wide Rust routing.
+
+## 2026-07-10: Urban Morphology Diversity Substrate
+
+Change class: generated-city morphology contract and diagnostic validation
+
+Commands run:
+
+```bash
+.venv/bin/python -m pytest tests/test_city_morphology_diversity.py tests/test_city_planarization.py tests/test_city_map_validation_closure.py -q
+.venv/bin/python -m pytest tests/test_metro_absorption_city_generator.py tests/test_centerline_topology_compiler.py tests/test_static_city_map.py tests/test_metro_absorption_sim_init_step.py tests/test_replay.py -q
+.venv/bin/python -m metroflow.ui.morphology_atlas --output-dir artifacts/city_morphology_atlas_20260710 --seed 17
+.venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Observed results:
+
+- feature test suite: `13 passed`
+- planar/closure review suite: `21 passed`
+- init/replay/static compatibility suite: `39 passed`
+- full suite: `439 passed in 68.95s`
+- Ruff and diff checks passed
+- all six explicit planar styles have one weak component, zero remaining
+  proper same-layer crossings, and passing sampled-OD validation
+- orientation-order spans `0.103–0.853`; dead-end share spans `0.022–0.323`
+
+Claim boundary:
+
+- Graph integrity and deterministic style separation are validated.
+- The atlas is diagnostic and does not validate named-city replication or full
+  urban realism.
+- PR42 must address block continuity, district street density,
+  connector/local length ratios, and intersection-mix distributions.

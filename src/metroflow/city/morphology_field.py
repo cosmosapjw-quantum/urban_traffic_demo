@@ -3,6 +3,8 @@ from __future__ import annotations
 import math
 from typing import Any
 
+from .morphology_reference import get_morphology_archetype
+
 __all__ = ["build_morphology_field"]
 
 
@@ -18,17 +20,15 @@ def build_morphology_field(
     half_w = float(width) * 0.5
     half_h = float(height) * 0.5
     phase = (int(seed) % 19) * 0.071
-
-    downtown_anchor = (0.0, 0.0)
-    subcenter_anchors = _build_subcenter_anchors(
-        scenario=scenario,
-        half_w=half_w,
-        half_h=half_h,
-    )
-    inner_anchors = _build_inner_anchors(
-        scenario=scenario,
-        half_w=half_w,
-        half_h=half_h,
+    archetype = get_morphology_archetype(style_id)
+    downtown_anchor, subcenter_anchors, inner_anchors, district_orientations = (
+        _build_archetype_anchors(
+            style_id=archetype.style_id,
+            scenario=scenario,
+            seed=int(seed),
+            half_w=half_w,
+            half_h=half_h,
+        )
     )
     district_anchors = (downtown_anchor,) + subcenter_anchors + inner_anchors
 
@@ -61,7 +61,8 @@ def build_morphology_field(
         district_bounds.append((min(xs), min(ys), max(xs), max(ys)))
         envelope_areas.append((max(xs) - min(xs)) * (max(ys) - min(ys)))
 
-    corridor_polylines = _build_corridor_polylines(
+    corridor_polylines = _build_archetype_corridor_polylines(
+        style_id=archetype.style_id,
         downtown_anchor=downtown_anchor,
         inner_anchors=inner_anchors,
         subcenter_anchors=subcenter_anchors,
@@ -89,8 +90,16 @@ def build_morphology_field(
             outer_ring_regular_pair_count += 1
         else:
             cross_ring_pair_count += 1
-    barrier_polyline = _build_barrier_polyline(half_w=half_w, half_h=half_h, phase=phase)
-    barrier_crossing_candidates = _build_barrier_crossings(corridor_polylines, barrier_polyline)
+    barrier_polyline = (
+        _build_barrier_polyline(half_w=half_w, half_h=half_h, phase=phase)
+        if archetype.style_id in {"ring_radial", "river_constrained"}
+        else ()
+    )
+    barrier_crossing_candidates = (
+        _build_river_crossings(corridor_polylines)
+        if archetype.style_id == "river_constrained"
+        else _build_barrier_crossings(corridor_polylines, barrier_polyline)
+    )
 
     total_area = sum(envelope_areas) or 1.0
     downtown_area = envelope_areas[0] if envelope_areas else 0.0
@@ -107,6 +116,10 @@ def build_morphology_field(
         "engine": "generator_v2_sidecar_morphology",
         "scenario_id": scenario,
         "style_id": str(style_id),
+        "morphology_center_pattern": archetype.center_pattern,
+        "morphology_street_pattern": archetype.street_pattern,
+        "morphology_evidence_status": archetype.evidence_status,
+        "morphology_reference_cities": archetype.empirical_reference_cities,
         "seed": int(seed),
         "render_bounds": (-half_w * 0.98, half_w * 0.98, -half_h * 0.98, half_h * 0.98),
         "district_envelopes": tuple(district_envelopes),
@@ -119,6 +132,7 @@ def build_morphology_field(
         "downtown_anchor": downtown_anchor,
         "subcenter_anchors": tuple(subcenter_anchors),
         "inner_anchors": tuple(inner_anchors),
+        "district_orientations_degrees": tuple(district_orientations),
         "outer_envelope_share": float(outer_area / total_area),
         "center_bias": float((downtown_area + inner_area) / total_area),
         "city_mass_width_ratio": float(city_mass_width_ratio),
@@ -127,6 +141,282 @@ def build_morphology_field(
         "outer_ring_inward_bend_count": int(outer_ring_inward_bend_count),
         "cross_ring_pair_count": int(cross_ring_pair_count),
     }
+
+
+def _build_archetype_anchors(
+    *,
+    style_id: str,
+    scenario: str,
+    seed: int,
+    half_w: float,
+    half_h: float,
+) -> tuple[
+    tuple[float, float],
+    tuple[tuple[float, float], ...],
+    tuple[tuple[float, float], ...],
+    tuple[float, ...],
+]:
+    if style_id == "ring_radial":
+        subcenters = _build_subcenter_anchors(
+            scenario=scenario,
+            half_w=half_w,
+            half_h=half_h,
+        )
+        inner = _build_inner_anchors(
+            scenario=scenario,
+            half_w=half_w,
+            half_h=half_h,
+        )
+        return (0.0, 0.0), subcenters, inner, (0.0,) * (1 + len(subcenters) + len(inner))
+
+    if style_id == "grid_core":
+        scales = (
+            (-0.42, -0.36),
+            (0.0, -0.36),
+            (0.42, -0.36),
+            (-0.42, 0.0),
+            (0.42, 0.0),
+            (-0.42, 0.36),
+            (0.0, 0.36),
+            (0.42, 0.36),
+        )
+        subcenters = _scaled_points(scales, half_w=half_w, half_h=half_h)
+        inner = _scaled_points(
+            ((-0.20, -0.18), (0.20, -0.18), (-0.20, 0.18), (0.20, 0.18)),
+            half_w=half_w,
+            half_h=half_h,
+        )
+        angle = float((seed % 5) * 2)
+        return (0.0, 0.0), subcenters, inner, (angle,) * 13
+
+    if style_id == "polycentric_tod":
+        all_centers = _scaled_points(
+            (
+                (-0.34, -0.24),
+                (0.28, -0.27),
+                (-0.30, 0.27),
+                (0.31, 0.24),
+                (0.0, -0.03),
+                (0.03, 0.39),
+            ),
+            half_w=half_w,
+            half_h=half_h,
+        )
+        downtown = all_centers[0]
+        subcenters = all_centers[1:]
+        inner = tuple(
+            (
+                round((left[0] + right[0]) * 0.5, 3),
+                round((left[1] + right[1]) * 0.5, 3),
+            )
+            for left, right in zip(all_centers, all_centers[1:] + all_centers[:1])
+        )[:4]
+        orientations = tuple(float((seed * 7 + index * 23) % 90) for index in range(10))
+        return downtown, subcenters, inner, orientations
+
+    if style_id == "river_constrained":
+        centers = _scaled_points(
+            (
+                (-0.38, -0.20),
+                (-0.12, -0.19),
+                (0.17, -0.18),
+                (0.39, -0.17),
+                (-0.31, 0.22),
+                (-0.02, 0.21),
+                (0.28, 0.23),
+            ),
+            half_w=half_w,
+            half_h=half_h,
+        )
+        downtown = centers[1]
+        subcenters = centers[:1] + centers[2:]
+        inner = _scaled_points(
+            ((-0.21, -0.04), (0.05, -0.03), (0.30, 0.04), (-0.10, 0.06)),
+            half_w=half_w,
+            half_h=half_h,
+        )
+        return downtown, subcenters, inner, (0.0,) * 11
+
+    if style_id == "superblock_mixed":
+        centers = _scaled_points(
+            (
+                (-0.29, -0.25),
+                (0.27, -0.24),
+                (-0.28, 0.25),
+                (0.29, 0.24),
+                (0.0, 0.0),
+            ),
+            half_w=half_w,
+            half_h=half_h,
+        )
+        inner = _scaled_points(
+            ((-0.14, -0.11), (0.14, -0.11), (-0.14, 0.12), (0.14, 0.12)),
+            half_w=half_w,
+            half_h=half_h,
+        )
+        orientations = tuple((11.0, 11.0, 34.0, 34.0, 58.0, 11.0, 34.0, 58.0, 11.0, 34.0))
+        return centers[4], centers[:4], inner, orientations
+
+    # Organic anchors are deterministic accretions rather than an ordered shell.
+    points: list[tuple[float, float]] = []
+    for index in range(9):
+        angle = (index * 2.399963229728653) + seed * 0.071
+        radius = 0.13 + index * 0.035
+        points.append(
+            (
+                round(math.cos(angle) * half_w * radius, 3),
+                round(math.sin(angle) * half_h * radius * (0.82 + (index % 3) * 0.09), 3),
+            )
+        )
+    downtown = points[2]
+    subcenters = tuple(points[:2] + points[3:7])
+    inner = tuple(points[7:]) + ((round(-half_w * 0.08, 3), round(half_h * 0.05, 3)),)
+    orientations = tuple(float((seed * 13 + index * 37) % 180) for index in range(10))
+    return downtown, subcenters, inner, orientations
+
+
+def _scaled_points(
+    scales: tuple[tuple[float, float], ...],
+    *,
+    half_w: float,
+    half_h: float,
+) -> tuple[tuple[float, float], ...]:
+    return tuple(
+        (round(half_w * scale_x, 3), round(half_h * scale_y, 3))
+        for scale_x, scale_y in scales
+    )
+
+
+def _build_archetype_corridor_polylines(
+    *,
+    style_id: str,
+    downtown_anchor: tuple[float, float],
+    inner_anchors: tuple[tuple[float, float], ...],
+    subcenter_anchors: tuple[tuple[float, float], ...],
+    half_w: float,
+    half_h: float,
+    phase: float,
+) -> tuple[tuple[tuple[float, float], ...], ...]:
+    if style_id == "ring_radial":
+        return _build_corridor_polylines(
+            downtown_anchor=downtown_anchor,
+            inner_anchors=inner_anchors,
+            subcenter_anchors=subcenter_anchors,
+            half_w=half_w,
+            half_h=half_h,
+            phase=phase,
+        )
+    if style_id == "grid_core":
+        x_values = tuple(round(half_w * value, 3) for value in (-0.48, -0.24, 0.0, 0.24, 0.48))
+        y_values = tuple(round(half_h * value, 3) for value in (-0.44, -0.22, 0.0, 0.22, 0.44))
+        return tuple(tuple((x, y) for x in x_values) for y in y_values) + tuple(
+            tuple((x, y) for y in y_values) for x in x_values
+        )
+    if style_id == "river_constrained":
+        x_values = tuple(round(half_w * value, 3) for value in (-0.50, -0.26, 0.0, 0.26, 0.50))
+        y_values = tuple(round(half_h * value, 3) for value in (-0.30, -0.16, 0.16, 0.30))
+        longitudinal = tuple(tuple((x, y) for x in x_values) for y in y_values)
+        crossings = tuple(
+            ((x, y_values[0]), (x, y_values[1]), (x, y_values[2]), (x, y_values[3]))
+            for x in x_values[1:4]
+        )
+        return longitudinal + crossings
+    if style_id == "superblock_mixed":
+        centers = (downtown_anchor,) + subcenter_anchors
+        polylines: list[tuple[tuple[float, float], ...]] = []
+        for index, center in enumerate(centers[:5]):
+            polylines.extend(
+                _rotated_grid_polylines(
+                    center=center,
+                    half_width=half_w * 0.13,
+                    half_height=half_h * 0.12,
+                    angle_degrees=(11.0, 34.0, 58.0)[index % 3],
+                )
+            )
+        for left, right in zip(centers, centers[1:]):
+            polylines.append((left, right))
+        return tuple(polylines)
+
+    centers = (downtown_anchor,) + subcenter_anchors + inner_anchors
+    edges = _nearest_neighbor_edges(centers, extra_edges=(style_id == "polycentric_tod"))
+    polylines = []
+    for index, (left, right) in enumerate(edges):
+        if style_id == "organic":
+            dx = float(right[0]) - float(left[0])
+            dy = float(right[1]) - float(left[1])
+            bend = (
+                round((left[0] + right[0]) * 0.5 - dy * (0.08 + (index % 3) * 0.025), 3),
+                round((left[1] + right[1]) * 0.5 + dx * (0.08 + (index % 2) * 0.03), 3),
+            )
+            polylines.append((left, bend, right))
+        else:
+            polylines.append((left, right))
+    return tuple(polylines)
+
+
+def _rotated_grid_polylines(
+    *,
+    center: tuple[float, float],
+    half_width: float,
+    half_height: float,
+    angle_degrees: float,
+) -> tuple[tuple[tuple[float, float], ...], ...]:
+    values = (-1.0, 0.0, 1.0)
+    rows = tuple(
+        tuple(_rotate_local_point(center, x * half_width, y * half_height, angle_degrees) for x in values)
+        for y in values
+    )
+    columns = tuple(
+        tuple(_rotate_local_point(center, x * half_width, y * half_height, angle_degrees) for y in values)
+        for x in values
+    )
+    return rows + columns
+
+
+def _rotate_local_point(
+    center: tuple[float, float],
+    x: float,
+    y: float,
+    angle_degrees: float,
+) -> tuple[float, float]:
+    angle = math.radians(angle_degrees)
+    return (
+        round(center[0] + x * math.cos(angle) - y * math.sin(angle), 3),
+        round(center[1] + x * math.sin(angle) + y * math.cos(angle), 3),
+    )
+
+
+def _nearest_neighbor_edges(
+    points: tuple[tuple[float, float], ...],
+    *,
+    extra_edges: bool,
+) -> tuple[tuple[tuple[float, float], tuple[float, float]], ...]:
+    if len(points) < 2:
+        return ()
+    connected = {0}
+    remaining = set(range(1, len(points)))
+    edges: list[tuple[tuple[float, float], tuple[float, float]]] = []
+    while remaining:
+        left_index, right_index = min(
+            (
+                (left, right)
+                for left in connected
+                for right in remaining
+            ),
+            key=lambda pair: (
+                math.hypot(
+                    points[pair[1]][0] - points[pair[0]][0],
+                    points[pair[1]][1] - points[pair[0]][1],
+                ),
+                pair,
+            ),
+        )
+        edges.append((points[left_index], points[right_index]))
+        connected.add(right_index)
+        remaining.remove(right_index)
+    if extra_edges and len(points) >= 5:
+        edges.extend(((points[0], points[3]), (points[1], points[4]), (points[2], points[5])))
+    return tuple(edges)
 
 
 def _build_subcenter_anchors(
@@ -313,6 +603,26 @@ def _build_barrier_crossings(
             (
                 round((float(left[0]) + float(right[0])) * 0.5, 3),
                 round((float(left[1]) + float(right[1])) * 0.5, 3),
+            )
+        )
+    return tuple(candidates)
+
+
+def _build_river_crossings(
+    corridor_polylines: tuple[tuple[tuple[float, float], ...], ...],
+) -> tuple[tuple[float, float], ...]:
+    candidates: list[tuple[float, float]] = []
+    for polyline in corridor_polylines:
+        if len(polyline) < 4:
+            continue
+        lower_bank = polyline[1]
+        upper_bank = polyline[2]
+        if not math.isclose(float(lower_bank[0]), float(upper_bank[0]), abs_tol=1e-9):
+            continue
+        candidates.append(
+            (
+                round(float(lower_bank[0]), 3),
+                round((float(lower_bank[1]) + float(upper_bank[1])) * 0.5, 3),
             )
         )
     return tuple(candidates)

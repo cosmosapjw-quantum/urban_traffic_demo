@@ -1,0 +1,162 @@
+{
+  "artifact_format_version": "city_morphology_atlas_v1",
+  "evidence_status": "diagnostic_not_city_replication",
+  "html_retention": "reproducible_local_output_not_required_in_version_control",
+  "literature_source": "https://doi.org/10.1007/s41109-019-0189-1",
+  "raw_osm_data_included": false,
+  "seed": 17,
+  "styles": [
+    {
+      "center_pattern": "monocentric",
+      "geometry_fingerprint": "14eeb0bd184847f89582b9c160e26c54056f0714fdb779c65d20180ce798da82",
+      "html": "ring_radial.html",
+      "link_count": 13274,
+      "morphometrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.07533234859675036,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.5905465288035451,
+        "mean_node_degree": 3.9214180206794684,
+        "median_segment_length_m": 4.984314295868618,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.462855603000864,
+        "orientation_order": 0.10681670656994591,
+        "physical_segment_count": 6637
+      },
+      "node_count": 3385,
+      "reference_cities": [],
+      "street_pattern": "radial_ring",
+      "style_id": "ring_radial",
+      "validation_status": "passed"
+    },
+    {
+      "center_pattern": "distributed_grid",
+      "geometry_fingerprint": "92b78b6ebca9ad40d65969edf60517945bed47a6d0f0ab6388d4d0f79d2f8545",
+      "html": "grid_core.html",
+      "link_count": 2190,
+      "morphometrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.0499219968798752,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.5569422776911076,
+        "mean_node_degree": 3.4165366614664587,
+        "median_segment_length_m": 35.27894230273916,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.229231808087114,
+        "orientation_order": 0.8528223722440497,
+        "physical_segment_count": 1095
+      },
+      "node_count": 641,
+      "reference_cities": [
+        "Chicago",
+        "Buenos Aires"
+      ],
+      "street_pattern": "orthogonal_grid",
+      "style_id": "grid_core",
+      "validation_status": "passed"
+    },
+    {
+      "center_pattern": "polycentric",
+      "geometry_fingerprint": "f483d0e07697567e57929ba184cb933e7de6f3233e70424b45ec14432e7ee816",
+      "html": "polycentric_tod.html",
+      "link_count": 2098,
+      "morphometrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.02226027397260274,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.6523972602739726,
+        "mean_node_degree": 3.5924657534246576,
+        "median_segment_length_m": 26.397110263392467,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.276083792967533,
+        "orientation_order": 0.26026198856026095,
+        "physical_segment_count": 1049
+      },
+      "node_count": 584,
+      "reference_cities": [
+        "Boston"
+      ],
+      "street_pattern": "polycentric_mesh",
+      "style_id": "polycentric_tod",
+      "validation_status": "passed"
+    },
+    {
+      "center_pattern": "linear_banks",
+      "geometry_fingerprint": "2262a669b144fef124dfa8aca4203ae5cee020e06a86794482e6c38816d2843d",
+      "html": "river_constrained.html",
+      "link_count": 1426,
+      "morphometrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.32270916334661354,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.43824701195219123,
+        "mean_node_degree": 2.8406374501992033,
+        "median_segment_length_m": 35.278999999999996,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.638589041560995,
+        "orientation_order": 0.6751639842323438,
+        "physical_segment_count": 713
+      },
+      "node_count": 502,
+      "reference_cities": [
+        "Hong Kong"
+      ],
+      "street_pattern": "corridor_constrained",
+      "style_id": "river_constrained",
+      "validation_status": "passed"
+    },
+    {
+      "center_pattern": "district_clusters",
+      "geometry_fingerprint": "7ff50629b24c69980d5c71f146352e8ddc6c431e4b2ca7c6dec1e2a1c25c92da",
+      "html": "superblock_mixed.html",
+      "link_count": 2164,
+      "morphometrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.0392156862745098,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.6356209150326797,
+        "mean_node_degree": 3.5359477124183005,
+        "median_segment_length_m": 30.117863450503172,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.98340480955317,
+        "orientation_order": 0.4716508594577513,
+        "physical_segment_count": 1082
+      },
+      "node_count": 612,
+      "reference_cities": [
+        "Detroit",
+        "Seattle"
+      ],
+      "street_pattern": "multi_grid",
+      "style_id": "superblock_mixed",
+      "validation_status": "passed"
+    },
+    {
+      "center_pattern": "accreted",
+      "geometry_fingerprint": "838d62d55ac856632a55be6e2bbb8c3a80d0bbf96d4c352ecdcc9f8e306b480e",
+      "html": "organic.html",
+      "link_count": 2308,
+      "morphometrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.04813664596273292,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.35093167701863354,
+        "mean_node_degree": 3.5838509316770186,
+        "median_segment_length_m": 10.811736467138056,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.466786979496781,
+        "orientation_order": 0.1034315294893271,
+        "physical_segment_count": 1154
+      },
+      "node_count": 644,
+      "reference_cities": [
+        "Charlotte",
+        "Seoul"
+      ],
+      "street_pattern": "organic_mesh",
+      "style_id": "organic",
+      "validation_status": "passed"
+    }
+  ],
+  "topology_mode": "sidecar_local_fabric_planar"
+}

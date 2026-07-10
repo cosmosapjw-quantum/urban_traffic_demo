@@ -63,17 +63,19 @@ def build_initial_simulation_state(
         day_type=sim_config.day_type_set[0],
         time_band=sim_config.time_bands[0],
     )
-    topology = GeneratorV2().generate_preview_topology(
-        {
-            "scenario_id": (
-                "synthetic_100k"
-                if sim_config.population_target >= 100_000
-                else "synthetic_smoke"
-            ),
-            "seed": scenario_seed,
-            "preview_mode": city_cfg.topology_mode,
-        }
-    )
+    city_context: dict[str, Any] = {
+        "scenario_id": (
+            "synthetic_100k"
+            if sim_config.population_target >= 100_000
+            else "synthetic_smoke"
+        ),
+        "seed": scenario_seed,
+        "preview_mode": city_cfg.topology_mode,
+    }
+    if city_cfg.morphology_style_id != "auto":
+        city_context["style_id"] = city_cfg.morphology_style_id
+    topology = GeneratorV2().generate_preview_topology(city_context)
+    resolved_morphology_style_id = str(topology.metadata.get("style_id", ""))
     road_csr = topology.build_csr(validate=True, require_weak_connectivity=True)
     zoning = generate_zones_and_pois(
         topology,
@@ -153,6 +155,7 @@ def build_initial_simulation_state(
                 "eager_trip_generation": int(bool(eager_trip_generation)),
                 "city_topology_engine": str(topology.metadata.get("engine", "")),
                 "city_topology_mode": city_cfg.topology_mode,
+                "city_morphology_style_id": resolved_morphology_style_id,
                 "road_geometry_fingerprint": geometry_fingerprint,
             },
         ),
@@ -160,6 +163,7 @@ def build_initial_simulation_state(
         metadata={
             "scenario_seed": scenario_seed,
             "city_topology_mode": city_cfg.topology_mode,
+            "city_morphology_style_id": resolved_morphology_style_id,
             "road_geometry_fingerprint": geometry_fingerprint,
         },
     )

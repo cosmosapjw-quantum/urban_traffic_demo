@@ -170,18 +170,37 @@ def planarize_endpoint_topology(
         )
         point_by_root.setdefault(root, point_by_coordinate[coordinate_key])
     node_id_by_root: dict[tuple[float, float], int] = {}
+    coincident_node_aliases: dict[int, int] = {}
     for root in sorted(point_by_root):
         endpoint_ids = endpoint_ids_by_root[root]
-        if len(endpoint_ids) > 1:
-            raise ValueError("one geometric crossing resolves to multiple endpoint nodes")
         if endpoint_ids:
-            node_id = next(iter(endpoint_ids))
+            node_id = min(endpoint_ids)
+            coincident_node_aliases.update(
+                {
+                    endpoint_id: node_id
+                    for endpoint_id in endpoint_ids
+                    if endpoint_id != node_id
+                }
+            )
         else:
             point = point_by_root[root]
             node_id = next_node_id
             next_node_id += 1
             output_nodes.append(Node(node_id=node_id, x=point[0], y=point[1]))
         node_id_by_root[root] = node_id
+    if coincident_node_aliases:
+        output_nodes = [
+            node
+            for node in output_nodes
+            if node.node_id not in coincident_node_aliases
+        ]
+        split_nodes_by_geometry = {
+            geometry_id: [
+                (position, coincident_node_aliases.get(node_id, node_id))
+                for position, node_id in split_nodes
+            ]
+            for geometry_id, split_nodes in split_nodes_by_geometry.items()
+        }
     for coordinate_key in point_by_coordinate:
         crossing_node_by_coordinate[coordinate_key] = node_id_by_root[
             _find_key(parent, coordinate_key)
@@ -375,25 +394,22 @@ def _proper_intersection(
     left: _Segment,
     right: _Segment,
 ) -> tuple[PointM, float, float] | None:
-    first = _orientation(left.start, left.end, right.start)
-    second = _orientation(left.start, left.end, right.end)
-    third = _orientation(right.start, right.end, left.start)
-    fourth = _orientation(right.start, right.end, left.end)
-    if not (first * second < 0.0 and third * fourth < 0.0):
-        return None
     left_dx = left.end[0] - left.start[0]
     left_dy = left.end[1] - left.start[1]
     right_dx = right.end[0] - right.start[0]
     right_dy = right.end[1] - right.start[1]
     denominator = left_dx * right_dy - left_dy * right_dx
-    if denominator == 0.0:
+    if math.isclose(denominator, 0.0, abs_tol=1e-12):
         return None
     offset_x = right.start[0] - left.start[0]
     offset_y = right.start[1] - left.start[1]
     left_t = (offset_x * right_dy - offset_y * right_dx) / denominator
     right_t = (offset_x * left_dy - offset_y * left_dx) / denominator
-    left_t = max(0.0, min(1.0, left_t))
-    right_t = max(0.0, min(1.0, right_t))
+    if not (
+        _SPLIT_TOLERANCE < left_t < 1.0 - _SPLIT_TOLERANCE
+        and _SPLIT_TOLERANCE < right_t < 1.0 - _SPLIT_TOLERANCE
+    ):
+        return None
     point = (
         left.start[0] + left_t * left_dx,
         left.start[1] + left_t * left_dy,
@@ -401,12 +417,13 @@ def _proper_intersection(
     return point, left_t, right_t
 
 
-def _orientation(a: PointM, b: PointM, c: PointM) -> float:
-    return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
-
-
 def _has_shared_endpoint(left: _Segment, right: _Segment) -> bool:
-    return bool({left.start, left.end} & {right.start, right.end})
+    return any(
+        math.isclose(left_point[0], right_point[0], abs_tol=_SPLIT_TOLERANCE)
+        and math.isclose(left_point[1], right_point[1], abs_tol=_SPLIT_TOLERANCE)
+        for left_point in (left.start, left.end)
+        for right_point in (right.start, right.end)
+    )
 
 
 def _geometry_endpoint_node_ids(

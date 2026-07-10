@@ -77,8 +77,14 @@ Derived conclusions:
 - The final planar seed-44 image is topologically legal but still visually
   dominated by sparse hub clusters and long direct corridors. Morphology realism
   remains open and is not solved by further renderer or planarization work.
+- PR41 adds six deterministic morphology grammars and a literature-compatible
+  physical-network metric surface. The forms are now materially distinct, but
+  the comparison atlas still shows incomplete local-fabric coverage, excess
+  four-way intersections in some styles, and excess dead ends in the constrained
+  corridor style. This is implemented diversity substrate, not real-city
+  replication or full realism validation.
 - Canonical diagnostic bundle:
-  `artifacts/static_city_map_planar_review_20260710/`.
+  `artifacts/city_morphology_atlas_20260710/`.
 
 ## Next Implementation Decision
 
@@ -87,3 +93,5 @@ benchmark evidence that can change a parent-stage decision. The strongest
 watchlist lanes remain dynamic-potential/cache work, dense flow scaling,
 route-score batch probes, simulator-label-driven surrogate experiments, and
 active-agent pool-array replacement only if it becomes review-ready again.
+City-map work is separately bounded by PR42 block-continuity and density-envelope
+gates; it must not reopen renderer-only work as a realism fix.

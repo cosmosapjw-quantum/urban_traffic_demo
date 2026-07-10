@@ -20,6 +20,16 @@ from .graph import TurnMovement as TurnMovement
 from .graph import TurnType as TurnType
 from .graph import build_road_network_csr as build_road_network_csr
 from .graph import validate_road_network_topology as validate_road_network_topology
+from .morphology_metrics import StreetNetworkMorphometrics as StreetNetworkMorphometrics
+from .morphology_metrics import (
+    compute_street_network_morphometrics as compute_street_network_morphometrics,
+)
+from .morphology_reference import MORPHOLOGY_ARCHETYPES as MORPHOLOGY_ARCHETYPES
+from .morphology_reference import MorphologyArchetype as MorphologyArchetype
+from .morphology_reference import (
+    empirical_street_network_references as empirical_street_network_references,
+)
+from .morphology_reference import get_morphology_archetype as get_morphology_archetype
 __all__ = [
     "BridgeCrossing",
     "GateDecision",
@@ -27,12 +37,15 @@ __all__ = [
     "GateVersions",
     "GenerationPipeline",
     "GeneratorV2",
+    "MORPHOLOGY_ARCHETYPES",
+    "MorphologyArchetype",
     "Node",
     "NodeKind",
     "PreviewCityTopology",
     "RoadClass",
     "RoadLink",
     "RoadNetworkCSR",
+    "StreetNetworkMorphometrics",
     "TopologyValidationIssue",
     "TopologyValidationReport",
     "TurnMovement",
@@ -41,6 +54,9 @@ __all__ = [
     "WeakConnectivityReport",
     "analyze_weak_connectivity",
     "build_road_network_csr",
+    "compute_street_network_morphometrics",
+    "empirical_street_network_references",
+    "get_morphology_archetype",
     "repair_weak_connectivity",
     "validate_road_network_topology",
 ]

@@ -11,6 +11,14 @@ def build_local_fabric(
     morphology_field: dict[str, Any],
     district_cells: dict[str, Any],
 ) -> dict[str, Any]:
+    street_pattern = str(morphology_field.get("morphology_street_pattern", "radial_ring"))
+    if street_pattern != "radial_ring":
+        return _build_archetype_local_fabric(
+            morphology_field=morphology_field,
+            district_cells=district_cells,
+            street_pattern=street_pattern,
+        )
+
     cells = tuple(district_cells.get("district_cells", ()) or ())
     local_segments: list[dict[str, Any]] = []
     collector_segments: list[dict[str, Any]] = []
@@ -426,6 +434,292 @@ def build_local_fabric(
         "road_hierarchy_module_signature": road_hierarchy_module_signature,
         "hierarchy_legibility_score": float(hierarchy_legibility_score),
     }
+
+
+def _build_archetype_local_fabric(
+    *,
+    morphology_field: dict[str, Any],
+    district_cells: dict[str, Any],
+    street_pattern: str,
+) -> dict[str, Any]:
+    cells = tuple(district_cells.get("district_cells", ()) or ())
+    district_centers = tuple(morphology_field.get("district_centers", ()) or ())
+    orientations = tuple(morphology_field.get("district_orientations_degrees", ()) or ())
+    local_segments: list[dict[str, Any]] = []
+    collector_segments: list[dict[str, Any]] = []
+    local_keys: set[tuple[Any, ...]] = set()
+    collector_keys: set[tuple[Any, ...]] = set()
+    centers_by_district: dict[str, list[tuple[float, float]]] = {}
+    cells_by_district: dict[str, list[dict[str, Any]]] = {}
+
+    for index, cell in enumerate(cells):
+        center = _rounded_point(cell["center"])
+        polygon = tuple(cell.get("polygon", ()) or ())
+        if len(polygon) < 4:
+            continue
+        district_id = str(cell["district_id"])
+        centers_by_district.setdefault(district_id, []).append(center)
+        cells_by_district.setdefault(district_id, []).append(cell)
+        if street_pattern in {"orthogonal_grid", "multi_grid", "polycentric_mesh"}:
+            continue
+        elif street_pattern == "corridor_constrained":
+            continue
+        else:
+            subdivision = tuple(_rounded_point(point) for point in cell.get("subdivision_points", ()))
+            loop = subdivision[:4]
+            if len(loop) >= 3:
+                _append_segment(
+                    local_segments,
+                    local_keys,
+                    kind="local",
+                    regime=f"organic_loop_{cell['regime']}",
+                    points=loop + (loop[0],),
+                )
+            for point_index, point in enumerate(subdivision):
+                bend = (
+                    round((center[0] + point[0]) * 0.5 + math.sin(index + point_index) * 5.0, 3),
+                    round((center[1] + point[1]) * 0.5 + math.cos(index - point_index) * 5.0, 3),
+                )
+                _append_segment(
+                    local_segments,
+                    local_keys,
+                    kind="local",
+                    regime=f"organic_accretion_{cell['regime']}",
+                    points=(center, bend, point),
+                )
+
+    for district_id in sorted(cells_by_district):
+        district_index = int(district_id.rsplit("_", 1)[-1])
+        district_group = cells_by_district[district_id]
+        points = tuple(
+            _rounded_point(point)
+            for cell in district_group
+            for point in tuple(cell.get("polygon", ()) or ())[:-1]
+        )
+        if not points:
+            continue
+        min_x = min(point[0] for point in points)
+        max_x = max(point[0] for point in points)
+        min_y = min(point[1] for point in points)
+        max_y = max(point[1] for point in points)
+        center = (
+            round((min_x + max_x) * 0.5, 3),
+            round((min_y + max_y) * 0.5, 3),
+        )
+        half_width = max((max_x - min_x) * 0.56, 30.0)
+        half_height = max((max_y - min_y) * 0.56, 30.0)
+        orientation = (
+            float(orientations[district_index % len(orientations)])
+            if orientations
+            else 0.0
+        )
+        if street_pattern == "orthogonal_grid":
+            orientation = float(orientations[0]) if orientations else 0.0
+        if street_pattern in {"orthogonal_grid", "multi_grid", "polycentric_mesh"}:
+            for grid_points in _local_grid_polylines(
+                center=center,
+                half_width=half_width,
+                half_height=half_height,
+                angle_degrees=orientation,
+            ):
+                _append_segment(
+                    local_segments,
+                    local_keys,
+                    kind="local",
+                    regime=f"district_{street_pattern}",
+                    points=grid_points,
+                )
+        elif street_pattern == "corridor_constrained":
+            for offset in (-1.0, -0.5, 0.0, 0.5, 1.0):
+                y = round(center[1] + offset * half_height, 3)
+                _append_segment(
+                    local_segments,
+                    local_keys,
+                    kind="local",
+                    regime="district_corridor_parallel",
+                    points=(
+                        (round(center[0] - half_width, 3), y),
+                        (center[0], y),
+                        (round(center[0] + half_width, 3), y),
+                    ),
+                )
+            for offset in (-0.5, 0.5):
+                x = round(center[0] + offset * half_width, 3)
+                _append_segment(
+                    local_segments,
+                    local_keys,
+                    kind="local",
+                    regime="district_corridor_cross",
+                    points=(
+                        (x, round(center[1] - half_height, 3)),
+                        (x, center[1]),
+                        (x, round(center[1] + half_height, 3)),
+                    ),
+                )
+
+    same_district_stitch_count = 0
+    district_hubs: list[tuple[str, tuple[float, float]]] = []
+    for district_id in sorted(centers_by_district):
+        centers = tuple(centers_by_district[district_id])
+        if not centers:
+            continue
+        district_index = int(district_id.rsplit("_", 1)[-1])
+        anchor = (
+            _rounded_point(district_centers[district_index])
+            if district_index < len(district_centers)
+            else centers[0]
+        )
+        hub = min(centers, key=lambda point: (_distance(point, anchor), point))
+        district_hubs.append((district_id, hub))
+        if hub != anchor and _append_segment(
+            collector_segments,
+            collector_keys,
+            kind="collector",
+            regime=f"district_gateway_{street_pattern}",
+            points=(hub, anchor),
+        ):
+            same_district_stitch_count += 1
+        for left, right in _nearest_tree_edges(centers):
+            if _append_segment(
+                collector_segments,
+                collector_keys,
+                kind="collector",
+                regime=f"district_mesh_{street_pattern}",
+                points=(left, right),
+            ):
+                same_district_stitch_count += 1
+        if street_pattern == "organic_mesh" and len(centers) >= 3:
+            ordered_centers = tuple(
+                sorted(
+                    centers,
+                    key=lambda point: math.atan2(point[1] - anchor[1], point[0] - anchor[0]),
+                )
+            )
+            for left, right in zip(ordered_centers, ordered_centers[1:] + ordered_centers[:1]):
+                if _append_segment(
+                    local_segments,
+                    local_keys,
+                    kind="local",
+                    regime="organic_district_loop",
+                    points=(left, right),
+                ):
+                    same_district_stitch_count += 1
+
+    inter_district_count = 0
+    hub_points = tuple(hub for _district_id, hub in district_hubs)
+    if street_pattern == "corridor_constrained":
+        ordered = tuple(sorted(hub_points, key=lambda point: (point[0], point[1])))
+        connector_edges = tuple(zip(ordered, ordered[1:]))
+    else:
+        connector_edges = _nearest_tree_edges(hub_points)
+        if street_pattern == "polycentric_mesh" and len(hub_points) >= 4:
+            connector_edges += ((hub_points[0], hub_points[-1]),)
+        elif street_pattern == "organic_mesh" and len(hub_points) >= 5:
+            connector_edges += (
+                (hub_points[0], hub_points[3]),
+                (hub_points[1], hub_points[4]),
+            )
+    for left, right in connector_edges:
+        if _append_segment(
+            collector_segments,
+            collector_keys,
+            kind="collector",
+            regime=f"inter_district_{street_pattern}",
+            points=(left, right),
+        ):
+            inter_district_count += 1
+
+    total_segments = len(local_segments) + len(collector_segments)
+    signature = (
+        "district_stitch",
+        "inter_district_connector",
+        street_pattern,
+    )
+    return {
+        "engine": "generator_v2_archetype_local_fabric",
+        "scenario_id": morphology_field.get("scenario_id"),
+        "style_id": morphology_field.get("style_id"),
+        "seed": int(morphology_field.get("seed", 0)),
+        "morphology_street_pattern": street_pattern,
+        "local_segments": tuple(local_segments),
+        "collector_segments": tuple(collector_segments),
+        "local_segment_count": len(local_segments),
+        "collector_segment_count": len(collector_segments),
+        "interior_weave_score": float(len(local_segments) / max(total_segments, 1)),
+        "interior_mesh_segment_count": total_segments,
+        "perimeter_segment_count": 0,
+        "perimeter_segment_share": 0.0,
+        "collector_spine_segment_count": len(collector_segments),
+        "same_district_stitch_segment_count": same_district_stitch_count,
+        "inter_district_connector_count": inter_district_count,
+        "core_fan_segment_count": 0,
+        "downtown_thread_segment_count": 0,
+        "district_transfer_hub_count": len(district_hubs),
+        "direct_downtown_spoke_share": 0.0,
+        "intra_cell_subdivision_count": len(local_segments),
+        "cell_perimeter_road_share": 0.0,
+        "road_hierarchy_module_signature": signature,
+        "hierarchy_legibility_score": min(1.0, 0.45 + inter_district_count * 0.05),
+    }
+
+
+def _local_grid_polylines(
+    *,
+    center: tuple[float, float],
+    half_width: float,
+    half_height: float,
+    angle_degrees: float,
+) -> tuple[tuple[tuple[float, float], ...], ...]:
+    values = (-1.0, -0.5, 0.0, 0.5, 1.0)
+    rows = tuple(
+        tuple(_rotate_point(center, x * half_width, y * half_height, angle_degrees) for x in values)
+        for y in values
+    )
+    columns = tuple(
+        tuple(_rotate_point(center, x * half_width, y * half_height, angle_degrees) for y in values)
+        for x in values
+    )
+    return rows + columns
+
+
+def _rotate_point(
+    center: tuple[float, float],
+    x: float,
+    y: float,
+    angle_degrees: float,
+) -> tuple[float, float]:
+    angle = math.radians(angle_degrees)
+    return (
+        round(center[0] + x * math.cos(angle) - y * math.sin(angle), 3),
+        round(center[1] + x * math.sin(angle) + y * math.cos(angle), 3),
+    )
+
+
+def _nearest_tree_edges(
+    points: tuple[tuple[float, float], ...],
+) -> tuple[tuple[tuple[float, float], tuple[float, float]], ...]:
+    if len(points) < 2:
+        return ()
+    connected = {0}
+    remaining = set(range(1, len(points)))
+    edges: list[tuple[tuple[float, float], tuple[float, float]]] = []
+    while remaining:
+        left_index, right_index = min(
+            ((left, right) for left in connected for right in remaining),
+            key=lambda pair: (_distance(points[pair[0]], points[pair[1]]), pair),
+        )
+        edges.append((points[left_index], points[right_index]))
+        connected.add(right_index)
+        remaining.remove(right_index)
+    return tuple(edges)
+
+
+def _rounded_point(point: Any) -> tuple[float, float]:
+    return (round(float(point[0]), 3), round(float(point[1]), 3))
+
+
+def _distance(left: tuple[float, float], right: tuple[float, float]) -> float:
+    return math.hypot(right[0] - left[0], right[1] - left[1])
 
 
 def _append_segment(

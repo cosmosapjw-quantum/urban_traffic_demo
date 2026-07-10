@@ -18,6 +18,7 @@ _STYLE_CATALOG: dict[str, StyleProfile] = {
     "polycentric_tod": StyleProfile("polycentric_tod", 0.45, 0.75, 1.40, 1300.0),
     "river_constrained": StyleProfile("river_constrained", 0.50, 0.80, 1.30, 1100.0),
     "superblock_mixed": StyleProfile("superblock_mixed", 0.48, 0.78, 1.35, 1200.0),
+    "organic": StyleProfile("organic", 0.60, 0.92, 1.10, 800.0),
 }
 
 
