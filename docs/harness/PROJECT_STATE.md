@@ -55,6 +55,10 @@ Derived conclusions:
   path-build/metadata later only if their release-profile evidence improves.
 - NN/JAX remains a watchlist for cost-to-go surrogate labels or dense scoring,
   not the next route-legality authority.
+- PR47 confirms real RTX 3080 Ti acceleration for frozen-input 512-step dense
+  flow chunks at 4,096 and 16,384 links after warmup. The 65,536-link case fails
+  the fixed `1e-3` drift gate. Per-tick host synchronization and mutable runtime
+  inputs remain unmeasured, so no JAX runtime flow backend is authorized.
 
 ## Open Risks
 
@@ -114,7 +118,9 @@ benchmark evidence that can change a parent-stage decision. The strongest
 watchlist lanes remain dynamic-potential/cache work, dense flow scaling,
 route-score batch probes, simulator-label-driven surrogate experiments, and
 active-agent pool-array replacement only if it becomes review-ready again.
-PR45 closes the current city-map lane without authorizing PR46. Further
-land-use work requires a new zone-spatial-support or demand-defect spec; more
-renderer/accessibility counters would repeat the same conclusion. Step back to
-the four hardware-fit lanes before selecting the next implementation slice.
+PR45 closes the current city-map lane without authorizing PR46. PR47 moves the
+GPU dense-flow chunk to a bounded watchlist but does not authorize runtime
+integration. To avoid another flow-local instrumentation loop, the next
+implementation candidate is PR48: improve simulator-only cost-to-go feature and
+label contracts before any JAX/NN training bakeoff. Baseline Dijkstra remains
+authoritative.

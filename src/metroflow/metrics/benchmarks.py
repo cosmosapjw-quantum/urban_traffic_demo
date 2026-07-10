@@ -5,6 +5,15 @@ from typing import Literal, Mapping
 
 import numpy as np
 
+from metroflow.backends.jax_flow import JaxFlowUnavailableError, run_dense_flow_jax
+from metroflow.benchmarks.dense_flow_workload import (
+    build_dense_flow_jax_inputs,
+    build_dense_flow_scale_state as _build_dense_flow_scale_state,
+    fingerprint_flow_output as _fingerprint_flow_output,
+    flow_output_arrays as _flow_output_arrays,
+    max_abs_flow_output_diff as _max_abs_flow_output_diff,
+    run_flow_update_steps as _run_flow_update_steps,
+)
 from metroflow.core.contracts import TickSchedule
 from metroflow.core.state import WorldState
 from metroflow.flow.engine import FlowUpdateBackend, update_link_node_flow
@@ -1706,122 +1715,6 @@ def _max_abs_float32_array_diff(baseline: np.ndarray, probe: np.ndarray) -> floa
     return float(np.max(np.abs(baseline_arr - probe_arr)))
 
 
-def _build_dense_flow_scale_state(
-    *,
-    link_count: int,
-    turns_per_link: int,
-    seed: int,
-) -> tuple[LinkState, NodeState]:
-    rng = np.random.default_rng(int(seed))
-    link_count = int(link_count)
-    turns_per_link = int(turns_per_link)
-    turn_count = link_count * turns_per_link
-    queue = rng.uniform(0.0, 6.0, size=link_count).astype(np.float32)
-    capacity = rng.uniform(1.0, 8.0, size=link_count).astype(np.float32)
-    base_travel = rng.uniform(1.0, 4.0, size=link_count).astype(np.float32)
-    from_idx = np.repeat(np.arange(link_count, dtype=np.int32), turns_per_link)
-    offsets = np.tile(np.arange(1, turns_per_link + 1, dtype=np.int32), link_count)
-    to_idx = np.asarray((from_idx + offsets) % link_count, dtype=np.int32)
-    turn_demand = rng.uniform(0.05, 3.0, size=turn_count).astype(np.float32)
-    turn_priority = rng.uniform(0.5, 2.0, size=turn_count).astype(np.float32)
-    turn_is_forbidden = ((np.arange(turn_count, dtype=np.int32) + int(seed)) % 29) == 0
-    signal_timer = rng.integers(0, 4, size=link_count, dtype=np.int32)
-    link_state = LinkState.from_internal_arrays(
-        queue_vehicles=queue,
-        inflow_vehicles=np.zeros((link_count,), dtype=np.float32),
-        outflow_vehicles=np.zeros((link_count,), dtype=np.float32),
-        travel_time_cost=base_travel,
-        capacity_veh_per_tick=capacity,
-        incident_capacity_multiplier=np.ones((link_count,), dtype=np.float32),
-        capacity_violation_flags=np.zeros((link_count,), dtype=np.bool_),
-        metadata={"free_flow_travel_time_cost": base_travel},
-    )
-    node_state = NodeState.from_internal_arrays(
-        turn_from_link_index=from_idx,
-        turn_to_link_index=to_idx,
-        turn_demand=turn_demand,
-        turn_supply=np.zeros((turn_count,), dtype=np.float32),
-        turn_flow=np.zeros((turn_count,), dtype=np.float32),
-        signal_phase_index=np.zeros((link_count,), dtype=np.int32),
-        signal_phase_timer=signal_timer,
-        metadata={
-            "turn_base_priority": turn_priority,
-            "turn_is_forbidden": turn_is_forbidden,
-        },
-    )
-    return link_state, node_state
-
-
-def _run_flow_update_steps(
-    link_state: LinkState,
-    node_state: NodeState,
-    *,
-    num_steps: int,
-    flow_backend: FlowUpdateBackend,
-) -> tuple[LinkState, NodeState, int]:
-    current_link = link_state
-    current_node = node_state
-    start_ns = perf_counter_ns()
-    for _ in range(int(num_steps)):
-        result = update_link_node_flow(
-            current_link,
-            current_node,
-            validate=False,
-            flow_backend=flow_backend,
-        )
-        current_link = result.link_state
-        current_node = result.node_state
-    return current_link, current_node, max(0, perf_counter_ns() - start_ns)
-
-
-def _flow_output_arrays(link_state: LinkState, node_state: NodeState) -> dict[str, np.ndarray]:
-    return {
-        "queue_vehicles": np.asarray(link_state.queue_vehicles, dtype=np.float32),
-        "inflow_vehicles": np.asarray(link_state.inflow_vehicles, dtype=np.float32),
-        "outflow_vehicles": np.asarray(link_state.outflow_vehicles, dtype=np.float32),
-        "travel_time_cost": np.asarray(link_state.travel_time_cost, dtype=np.float32),
-        "capacity_violation_flags": np.asarray(
-            link_state.capacity_violation_flags,
-            dtype=np.bool_,
-        ),
-        "turn_demand": np.asarray(node_state.turn_demand, dtype=np.float32),
-        "turn_supply": np.asarray(node_state.turn_supply, dtype=np.float32),
-        "turn_flow": np.asarray(node_state.turn_flow, dtype=np.float32),
-        "signal_phase_timer": np.asarray(node_state.signal_phase_timer, dtype=np.int32),
-    }
-
-
-def _fingerprint_flow_output(output: Mapping[str, np.ndarray]) -> str:
-    digest = hashlib.sha256()
-    for key in sorted(output):
-        array = np.ascontiguousarray(output[key])
-        digest.update(key.encode("utf-8"))
-        digest.update(str(array.dtype).encode("utf-8"))
-        digest.update(np.asarray(array.shape, dtype=np.int64).tobytes())
-        digest.update(array.tobytes())
-    return digest.hexdigest()
-
-
-def _max_abs_flow_output_diff(
-    baseline: Mapping[str, np.ndarray],
-    probe: Mapping[str, np.ndarray],
-) -> float:
-    max_diff = 0.0
-    for key, baseline_value in baseline.items():
-        probe_value = probe[key]
-        if np.asarray(baseline_value).dtype == np.dtype("bool"):
-            max_diff = max(max_diff, float(np.any(baseline_value != probe_value)))
-            continue
-        diff = np.max(
-            np.abs(
-                np.asarray(baseline_value, dtype=np.float32)
-                - np.asarray(probe_value, dtype=np.float32)
-            )
-        )
-        max_diff = max(max_diff, float(diff))
-    return max_diff
-
-
 def _run_dense_flow_jax_optional_probe(
     link_state: LinkState,
     node_state: NodeState,
@@ -1830,157 +1723,33 @@ def _run_dense_flow_jax_optional_probe(
     fallback_output: Mapping[str, np.ndarray],
 ) -> tuple[dict[str, np.ndarray], int, int, int, int, int, bool, str, str | None]:
     try:
-        import jax
-        import jax.numpy as jnp
-    except ImportError:
+        result = run_dense_flow_jax(
+            **build_dense_flow_jax_inputs(link_state, node_state),
+            num_steps=int(num_steps),
+            execution_mode="host_step_loop",
+            require_gpu=False,
+        )
+        probe_ns = (
+            result.input_copy_wall_ns
+            + result.first_call_wall_ns
+            + result.steady_state_wall_ns
+            + result.output_copy_wall_ns
+        )
         return (
-            {key: np.asarray(value).copy() for key, value in fallback_output.items()},
-            0,
-            0,
-            0,
-            0,
-            0,
-            False,
-            "unavailable",
-            "jax_unavailable",
-        )
-
-    try:
-        from_idx = np.asarray(node_state.turn_from_link_index, dtype=np.int32)
-        to_idx = np.asarray(node_state.turn_to_link_index, dtype=np.int32)
-        turn_demand = np.asarray(node_state.turn_demand, dtype=np.float32)
-        turn_priority = np.asarray(
-            node_state.metadata["turn_base_priority"],
-            dtype=np.float32,
-        )
-        turn_is_forbidden = np.asarray(
-            node_state.metadata["turn_is_forbidden"],
-            dtype=np.bool_,
-        )
-        effective_capacity = np.asarray(
-            link_state.effective_capacity_vehicles,
-            dtype=np.float32,
-        )
-        base_travel_time = np.asarray(
-            link_state.metadata["free_flow_travel_time_cost"],
-            dtype=np.float32,
-        )
-
-        input_copy_start_ns = perf_counter_ns()
-        from_index_jax = jnp.asarray(from_idx, dtype=jnp.int32)
-        to_index_jax = jnp.asarray(to_idx, dtype=jnp.int32)
-        demand_jax = jnp.asarray(turn_demand, dtype=jnp.float32)
-        priority_jax = jnp.asarray(turn_priority, dtype=jnp.float32)
-        forbidden_jax = jnp.asarray(turn_is_forbidden, dtype=jnp.bool_)
-        capacity_jax = jnp.asarray(effective_capacity, dtype=jnp.float32)
-        base_travel_time_jax = jnp.asarray(base_travel_time, dtype=jnp.float32)
-        queue = jnp.asarray(link_state.queue_vehicles, dtype=jnp.float32)
-        signal_timer = jnp.asarray(node_state.signal_phase_timer, dtype=jnp.int32)
-        jax.block_until_ready(
-            (
-                from_index_jax,
-                to_index_jax,
-                demand_jax,
-                priority_jax,
-                forbidden_jax,
-                capacity_jax,
-                base_travel_time_jax,
-                queue,
-                signal_timer,
-            )
-        )
-        input_copy_ns = max(0, perf_counter_ns() - input_copy_start_ns)
-
-        @jax.jit
-        def step(queue_now, signal_phase_timer):
-            priority_weight = jnp.where(
-                forbidden_jax,
-                0.0,
-                jnp.maximum(priority_jax, 0.0),
-            )
-            weighted_demand = jnp.where(
-                demand_jax > 0.0,
-                demand_jax * priority_weight,
-                0.0,
-            )
-            weighted_by_from = jnp.zeros_like(queue_now).at[from_index_jax].add(
-                weighted_demand
-            )
-            weighted_by_to = jnp.zeros_like(queue_now).at[to_index_jax].add(
-                weighted_demand
-            )
-            from_den = weighted_by_from[from_index_jax]
-            to_den = weighted_by_to[to_index_jax]
-            from_share = jnp.where(from_den > 0.0, weighted_demand / from_den, 0.0)
-            to_share = jnp.where(to_den > 0.0, weighted_demand / to_den, 0.0)
-            from_available = jnp.minimum(queue_now, capacity_jax)
-            receiving_supply = jnp.maximum(capacity_jax - queue_now, 0.0)
-            turn_supply = jnp.minimum(
-                from_available[from_index_jax] * from_share,
-                receiving_supply[to_index_jax] * to_share,
-            )
-            turn_flow = jnp.where(
-                forbidden_jax,
-                0.0,
-                jnp.minimum(demand_jax, turn_supply),
-            )
-            outflow = jnp.zeros_like(queue_now).at[from_index_jax].add(turn_flow)
-            inflow = jnp.zeros_like(queue_now).at[to_index_jax].add(turn_flow)
-            queue_next = jnp.maximum(0.0, queue_now - outflow + inflow)
-            travel_time = base_travel_time_jax * (
-                1.0 + queue_next / (capacity_jax + 1e-3)
-            )
-            return (
-                queue_next,
-                inflow,
-                outflow,
-                travel_time,
-                outflow > (capacity_jax + 1e-6),
-                demand_jax,
-                jnp.maximum(turn_supply, 0.0),
-                jnp.maximum(turn_flow, 0.0),
-                signal_phase_timer + 1,
-            )
-
-        first_start_ns = perf_counter_ns()
-        result = step(queue, signal_timer)
-        jax.block_until_ready(result)
-        first_ns = max(0, perf_counter_ns() - first_start_ns)
-        queue = result[0]
-        signal_timer = result[-1]
-        steady_start_ns = perf_counter_ns()
-        for _ in range(int(num_steps) - 1):
-            result = step(queue, signal_timer)
-            queue = result[0]
-            signal_timer = result[-1]
-        jax.block_until_ready(result)
-        steady_ns = max(0, perf_counter_ns() - steady_start_ns)
-        output_copy_start_ns = perf_counter_ns()
-        output = {
-            "queue_vehicles": np.asarray(result[0], dtype=np.float32),
-            "inflow_vehicles": np.asarray(result[1], dtype=np.float32),
-            "outflow_vehicles": np.asarray(result[2], dtype=np.float32),
-            "travel_time_cost": np.asarray(result[3], dtype=np.float32),
-            "capacity_violation_flags": np.asarray(result[4], dtype=np.bool_),
-            "turn_demand": np.asarray(result[5], dtype=np.float32),
-            "turn_supply": np.asarray(result[6], dtype=np.float32),
-            "turn_flow": np.asarray(result[7], dtype=np.float32),
-            "signal_phase_timer": np.asarray(result[8], dtype=np.int32),
-        }
-        output_copy_ns = max(0, perf_counter_ns() - output_copy_start_ns)
-        probe_ns = input_copy_ns + first_ns + steady_ns + output_copy_ns
-        return (
-            output,
+            dict(result.output),
             probe_ns,
-            first_ns,
-            steady_ns,
-            input_copy_ns,
-            output_copy_ns,
+            result.first_call_wall_ns,
+            result.steady_state_wall_ns,
+            result.input_copy_wall_ns,
+            result.output_copy_wall_ns,
             True,
             "jax",
             None,
         )
-    except Exception:
+    except (JaxFlowUnavailableError, RuntimeError) as exc:
+        fallback_reason = (
+            "jax_unavailable" if isinstance(exc, JaxFlowUnavailableError) else "jax_failed"
+        )
         return (
             {key: np.asarray(value).copy() for key, value in fallback_output.items()},
             0,
@@ -1990,7 +1759,7 @@ def _run_dense_flow_jax_optional_probe(
             0,
             False,
             "unavailable",
-            "jax_failed",
+            fallback_reason,
         )
 
 

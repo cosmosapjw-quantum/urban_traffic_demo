@@ -272,6 +272,33 @@ Status: conditional.
 - Preserve baseline demand fallback, stable replay inputs, and aggregate trip
   controls. External data and learned demand remain forbidden.
 
+## PR47 — JAX Dense-Flow Persistent Chunk Bakeoff
+
+Status: accepted.
+
+- Extract the optional dense-flow JAX equations from benchmark orchestration
+  into a lazy backend module without adding a runtime `flow_backend` value.
+- Measure a 512-step frozen-input device chunk on the RTX 3080 Ti across seeds
+  41, 42, and 43 with JAX runtime warmup recorded separately.
+- 4,096 and 16,384 links pass the warm first-call/copy, steady/copy, and `1e-3`
+  drift gates. 65,536 links is rejected because drift reaches `0.0015769`.
+- Keep `runtime_flow_backend_authorized=false`; per-tick host synchronization,
+  mutable event/agent inputs, checkpoint ownership, and replay are unmeasured.
+- Canonical artifact:
+  `artifacts/gpu_dense_flow_bakeoff_20260711/`.
+- Commit target: `feat(gpu): add dense flow chunk bakeoff`.
+
+## PR48 — Cost-To-Go Surrogate Feature Contract
+
+Status: queued; experiment-only.
+
+- Inspect PR07 cost-to-go labels for learnable geometric/topological features;
+  IDs alone are not an admissible surrogate input contract.
+- Keep baseline Dijkstra as label and route-legality authority.
+- Add no runtime NN backend. A later JAX training bakeoff requires deterministic
+  train/validation split, error-by-distance reporting, model fingerprint, and
+  explicit baseline fallback.
+
 ## Spec Template
 
 Use this template at `specs/02x-<slug>/spec.md`:

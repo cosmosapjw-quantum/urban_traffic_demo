@@ -789,3 +789,37 @@ placement behavior across workloads.
 
 Next action: Step back to the Rust/control-flow, NumPy/SIMD, GPU tensor, and NN
 surrogate lanes before opening the next implementation PR.
+
+## 2026-07-11: Keep JAX Dense Flow At The Chunk Experiment Boundary
+
+Status: diagnostic accepted; runtime backend not authorized
+
+### Compact CCoT
+
+Question: Does the dense-flow result justify adding a JAX runtime flow backend?
+
+Evidence: On the RTX 3080 Ti, three-seed 512-step frozen-input device chunks at
+4,096 and 16,384 links pass the predeclared warm first-call/copy, steady/copy,
+and `1e-3` drift gates. The 65,536-link case reaches `0.0015769` maximum drift
+and is rejected. Process/device warmup is about 873 ms and is reported
+separately.
+
+Inference: Persistent-device numeric chunks have a credible GPU acceleration
+surface, but the measurement does not represent the current per-tick host
+ownership and mutation boundary.
+
+Counterevidence checked: The runtime applies event, route, active-agent, replay,
+and immutable-state work around each flow update. Those synchronization and
+checkpoint costs are unmeasured, and the largest measured shape fails the fixed
+numeric gate.
+
+Decision: Keep `runtime_flow_backend_authorized=false`. Preserve the lazy JAX
+kernel as an experiment-only chunk probe, reject 65,536 links, and do not add
+`jax` to the runtime flow backend contract.
+
+Falsifier: An explicit checkpoint-cadence integration preserves replay and
+state invariants while showing net parent-stage improvement across three seeds
+without relaxing the numeric gate.
+
+Next action: Switch lanes to PR48 and strengthen simulator-only cost-to-go
+feature/label contracts before opening any NN training or runtime authority.

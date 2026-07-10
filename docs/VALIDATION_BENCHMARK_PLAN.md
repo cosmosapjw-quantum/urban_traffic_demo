@@ -118,6 +118,15 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - active-agent reroute parity는 incident/refresh-cadence trigger, cooldown-preserve behavior,
   current-link 이후 route tail replacement, reroute/cooldown telemetry counters를 고정한다
 - JAX 첫 호출 compile time과 steady-state runtime을 분리 기록
+- JAX dense-flow persistent chunk bakeoff는 process/device warmup을 별도 기록하고, per-shape
+  first call은 warm-process trace/compile/execute estimate로만 부른다. first-result output copy는 steady
+  result copy를 사용한 estimate임을 명시해야 한다.
+- device chunk 내부 demand/capacity/topology/priority는 고정 입력이다. event/agent mutation,
+  per-tick host synchronization, inter-invocation compile-cache reuse, replay parity를 측정하지 않았으므로
+  chunk speedup만으로 runtime `flow_backend="jax"`를 추가할 수 없다.
+- GPU chunk admission은 3개 unique seed 모두에서 warm first-call+copy 및 steady+copy speedup이 1보다
+  크고, integer/bool output이 exact하며, finite float max drift가 `1e-3` 이하일 때만 허용한다.
+  65,536-link canonical run은 drift 초과로 fail-closed 상태다.
 - benchmark result는 요청 backend를 기록하고, explicit `rust_cpu`/`jax` 요청 실패는 실패로 남김
 - runtime benchmark result는 route-candidate refresh, route-candidate potential/path-build/metadata,
   dynamic-potential recompute, routing compile estimate timing totals, flow/active-agent/reroute

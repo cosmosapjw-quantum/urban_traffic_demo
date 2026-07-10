@@ -53,6 +53,21 @@ XLA_PYTHON_CLIENT_MEM_FRACTION=.70 .venv/bin/python -c "import jax; print(jax.de
 XLA_PYTHON_CLIENT_MEM_FRACTION=.70 .venv/bin/python -m pytest tests/test_meso_core.py::test_evolve_edges_fast_tick_jax_backend_matches_baseline_output -q
 ```
 
+Dense-flow persistent-device GPU bakeoff:
+
+```bash
+XLA_PYTHON_CLIENT_MEM_FRACTION=.70 .venv/bin/python \
+  -m metroflow.benchmarks.gpu_flow_bakeoff \
+  --output-dir artifacts/gpu_dense_flow_bakeoff_20260711 \
+  --link-counts 4096,16384,65536 --seeds 41,42,43 \
+  --num-steps 512 --turns-per-link 3
+```
+
+이 bakeoff는 chunk 내부의 demand/capacity/topology를 고정한 GPU 실험이다. 현재 runtime의
+per-tick host synchronization, event/agent mutation, replay를 검증하지 않으므로
+`flow_backend="jax"`를 허가하지 않는다. canonical 결과에서 4,096/16,384 links는 실험 gate를
+통과하지만 65,536 links는 `1e-3` drift gate를 넘어서 탈락한다.
+
 선택 Rust CPU edge backend 빌드/확인:
 
 ```bash
