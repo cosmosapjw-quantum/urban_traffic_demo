@@ -5,7 +5,8 @@
 - pure shortest-path world is insufficient
 - mesoscopic core is the right backbone
 - lagged LUTI feedback is required
-- CSUR contributes lane grammar + interface synthesis + node connector logic
+- modular road-asset research motivates lane-section and interface contracts;
+  Metroflow owns the implementation and node-connector logic
 - WorldState + multirate scheduler must come first
 
 ## Key risks

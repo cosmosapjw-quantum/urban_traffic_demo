@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "status": "active",
+  "upstream": {
+    "repository": "https://github.com/citiesskylines-csur/CSUR",
+    "reviewed_commit": "a47270e0a20ff5bda23db3d7db34a993b36c9a69",
+    "license": "GPL-3.0"
+  },
+  "reuse_policy": "concepts_only_no_source_copy",
+  "permitted_concept_ids": [
+    "typed_cross_section_units",
+    "independent_start_end_sections",
+    "base_shift_transition_ramp_interfaces",
+    "alignment_and_lane_delta_validation",
+    "deterministic_profile_identifier"
+  ],
+  "excluded_source_surfaces": [
+    "modeling",
+    "graphics",
+    "prefab",
+    "bin",
+    "builder_asset_enumeration",
+    "game_engine_assumptions"
+  ],
+  "forbidden_dependency_tokens": [
+    "csur"
+  ],
+  "dependency_manifests": [
+    "pyproject.toml",
+    "Cargo.toml",
+    "Cargo.lock",
+    "crates/metroflow-rust/pyproject.toml",
+    "crates/metroflow-rust/Cargo.toml"
+  ],
+  "runtime_source_roots": [
+    "src/metroflow",
+    "crates/metroflow-rust/src"
+  ],
+  "legacy_metadata": {
+    "status": "deprecated_non_evidentiary",
+    "keys": [
+      "csur_module_signature",
+      "csur_module_alignment_ok"
+    ],
+    "allowed_source_files": [
+      "src/metroflow/city/gate_reporting.py",
+      "src/metroflow/city/generator_v2.py",
+      "src/metroflow/city/local_fabric.py",
+      "src/metroflow/ui/static_map.py"
+    ],
+    "removal_pr": 35
+  }
+}

@@ -2,7 +2,8 @@
 
 ## 최종 결론
 - 도시 생성은 단일 procedural trick으로는 부족하다.
-- shape/tensor/growth skeleton + CA/LUTI zoning + CSUR lane grammar가 필요하다.
+- shape/tensor/growth skeleton + CA/LUTI zoning + project-authored modular
+  road-section grammar가 필요하다.
 - traffic backbone은 mesoscopic hybrid core가 맞다.
 - persistent citizen은 유지하되 active trip만 fast loop에 올린다.
 - route choice는 generalized cost + path-size correction + conditional reroute여야 한다.

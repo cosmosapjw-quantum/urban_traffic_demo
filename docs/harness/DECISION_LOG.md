@@ -557,3 +557,36 @@ path-build or NN/JAX scoring.
 
 Next action: Add a generated-OD dynamic-potential benchmark/parity slice and
 measure cache reuse by destination before opening another Rust route surface.
+
+## 2026-07-10: City Map External-Source Boundary
+
+Status: accepted
+
+### Context
+
+Static visual review showed that the current endpoint-line renderer and default
+grid-derived topology cannot be repaired by importing a road-asset generator.
+The reviewed CSUR repository supplies useful cross-section and segment-interface
+concepts but is GPL-3.0 and delegates city-level placement and bending to the
+game.
+
+### Compact CCoT
+
+Question: Should Metroflow directly absorb CSUR's road and city-map code?
+
+Evidence: CSUR is a GPL-3.0 road-asset framework; Metroflow has no root license
+decision, and its city-layout problem is upstream of road-section rendering.
+
+Inference: Direct source absorption would add licensing and game-engine coupling
+without solving centerline generation.
+
+Counterevidence checked: CSUR's pure Python core is technically separable, but
+technical separability does not remove provenance obligations or add city-scale
+topology generation.
+
+Decision: Keep a hard source boundary and implement Metroflow-owned geometry,
+section, and node contracts from neutral behavioral specifications.
+
+Falsifier: A separate explicit licensing decision authorizes GPL source reuse.
+
+Next action: Implement PR34 typed road geometry contracts.

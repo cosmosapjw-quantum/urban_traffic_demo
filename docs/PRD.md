@@ -23,7 +23,7 @@
 - navigator-style UI
 
 ## In-scope
-- shape + LUTI + CSUR lane grammar 하이브리드 지도 생성
+- shape + LUTI + project-authored modular road-section grammar 지도 생성
 - link/node 기반 mesoscopic traffic
 - zonal accessibility cache
 - slow land-use feedback
