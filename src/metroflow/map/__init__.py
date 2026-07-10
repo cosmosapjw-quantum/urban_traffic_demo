@@ -13,6 +13,10 @@ from .node_compiler import CompiledNodeInterface as CompiledNodeInterface
 from .node_compiler import NodeInterfaceCatalog as NodeInterfaceCatalog
 from .node_compiler import NodeRuleSet as NodeRuleSet
 from .node_compiler import compile_node_interfaces as compile_node_interfaces
+from .osm_import import OSMImportConfig as OSMImportConfig
+from .osm_import import OSMImportResult as OSMImportResult
+from .osm_import import import_osm_xml_file as import_osm_xml_file
+from .osm_import import import_osm_xml_text as import_osm_xml_text
 from .road_geometry import CenterlineSource as CenterlineSource
 from .road_geometry import LinkGeometryAssignment as LinkGeometryAssignment
 from .road_geometry import RoadCenterline as RoadCenterline
@@ -30,6 +34,8 @@ __all__ = [
     "LinkSectionAssignment",
     "NodeInterfaceCatalog",
     "NodeRuleSet",
+    "OSMImportConfig",
+    "OSMImportResult",
     "RoadCenterline",
     "RoadDesignStandard",
     "RoadGeometryCatalog",
@@ -46,4 +52,6 @@ __all__ = [
     "build_endpoint_geometry_catalog",
     "compile_node_interfaces",
     "compile_road_sections",
+    "import_osm_xml_file",
+    "import_osm_xml_text",
 ]

@@ -95,11 +95,14 @@ Status: complete.
 
 ## PR39 - OSM Reference Import
 
-Status: pending.
+Status: complete.
 
 - Add offline normalized OSM XML import as optional development tooling.
 - Project, clip, split shared-node intersections, simplify, and classify ways.
 - Runtime must not fetch network data or require OSM dependencies.
+- Validation: `12 passed` targeted; source identity, lane semantics, closed
+  roundabouts, implicit motorway direction, antimeridian projection, exact
+  input provenance, and fresh-process import firewall covered.
 - Commit: `feat(map): add offline osm centerlines`.
 
 ## PR40 - Validation Closure

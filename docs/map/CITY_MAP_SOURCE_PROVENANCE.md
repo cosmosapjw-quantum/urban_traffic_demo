@@ -66,9 +66,15 @@ section compilation, and node-interface compilation as separate authorities.
 - **VALIDATED:** the reviewed CSUR snapshot is GPL-3.0 and describes itself as
   a road-asset generation framework.
 - **SPECIFIED:** Metroflow will implement its own typed road-section grammar.
-- **PROPOSED:** OSM and tensor-field centerlines may feed the same compiler.
+- **IMPLEMENTED:** caller-supplied offline OSM XML can feed the same typed
+  centerline/section compiler through a standard-library, no-network adapter.
+- **PROPOSED:** tensor-field centerlines may feed the same compiler.
 - **FORBIDDEN:** claiming that CSUR provides a complete city-map generator or
   that Metroflow already implements CSUR-compatible assets.
+
+The OSM adapter records the exact input SHA-256 and declared XML version. It is
+reference/development tooling only; it is not imported into default city init,
+does not fetch data, and does not validate the synthetic generator by itself.
 
 Historical `csur_module_*` metadata keys were deprecated, non-evidentiary
 diagnostic labels, not compatibility claims. PR35 removed them from runtime
