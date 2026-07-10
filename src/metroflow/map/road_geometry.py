@@ -1,0 +1,331 @@
+"""Typed static road geometry independent from directed runtime topology."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+from dataclasses import dataclass, field
+from enum import Enum
+from types import MappingProxyType
+from typing import Mapping, Protocol, Sequence
+
+__all__ = [
+    "CenterlineSource",
+    "RoadCenterline",
+    "LinkGeometryAssignment",
+    "RoadGeometryCatalog",
+    "build_endpoint_geometry_catalog",
+]
+
+PointM = tuple[float, float]
+
+
+class CenterlineSource(str, Enum):
+    """Provenance class for a static road centerline."""
+
+    SYNTHETIC = "synthetic"
+    TENSOR_FIELD = "tensor_field"
+    OSM = "osm"
+    IMPORTED = "imported"
+
+
+@dataclass(frozen=True, slots=True)
+class RoadCenterline:
+    """Physical road centerline with coordinates measured in meters."""
+
+    geometry_id: int
+    points_m: tuple[PointM, ...]
+    source: CenterlineSource | str = CenterlineSource.SYNTHETIC
+    source_ref: str = ""
+    layer: int = 0
+    corridor_id: int | None = None
+
+    def __post_init__(self) -> None:
+        geometry_id = int(self.geometry_id)
+        points = _coerce_points_m(self.points_m)
+        source = CenterlineSource(self.source)
+        source_ref = str(self.source_ref)
+        layer = int(self.layer)
+        corridor_id = None if self.corridor_id is None else int(self.corridor_id)
+
+        if geometry_id < 0:
+            raise ValueError("geometry_id must be >= 0")
+        if len(points) < 2:
+            raise ValueError("points_m must contain at least two points")
+        if any(not math.isfinite(value) for point in points for value in point):
+            raise ValueError("points_m coordinates must be finite")
+        if any(left == right for left, right in zip(points, points[1:])):
+            raise ValueError("points_m must not contain consecutive duplicate points")
+        if corridor_id is not None and corridor_id < 0:
+            raise ValueError("corridor_id must be >= 0 when provided")
+
+        object.__setattr__(self, "geometry_id", geometry_id)
+        object.__setattr__(self, "points_m", points)
+        object.__setattr__(self, "source", source)
+        object.__setattr__(self, "source_ref", source_ref)
+        object.__setattr__(self, "layer", layer)
+        object.__setattr__(self, "corridor_id", corridor_id)
+
+    @property
+    def length_m(self) -> float:
+        """Polyline arc length in meters."""
+
+        return float(
+            sum(
+                math.hypot(right[0] - left[0], right[1] - left[1])
+                for left, right in zip(self.points_m, self.points_m[1:])
+            )
+        )
+
+    @property
+    def fingerprint(self) -> str:
+        """Stable SHA-256 fingerprint over canonical geometry values."""
+
+        return _sha256_json(self._canonical_payload())
+
+    def _canonical_payload(self) -> dict[str, object]:
+        return {
+            "geometry_id": self.geometry_id,
+            "points_m": self.points_m,
+            "source": self.source.value,
+            "source_ref": self.source_ref,
+            "layer": self.layer,
+            "corridor_id": self.corridor_id,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class LinkGeometryAssignment:
+    """Orient one directed link along a shared physical centerline."""
+
+    link_id: int
+    geometry_id: int
+    reversed: bool = False
+    lateral_offset_m: float = 0.0
+
+    def __post_init__(self) -> None:
+        link_id = int(self.link_id)
+        geometry_id = int(self.geometry_id)
+        lateral_offset_m = _canonical_float(self.lateral_offset_m)
+        if link_id < 0:
+            raise ValueError("link_id must be >= 0")
+        if geometry_id < 0:
+            raise ValueError("geometry_id must be >= 0")
+        if not math.isfinite(lateral_offset_m):
+            raise ValueError("lateral_offset_m must be finite")
+        object.__setattr__(self, "link_id", link_id)
+        object.__setattr__(self, "geometry_id", geometry_id)
+        object.__setattr__(self, "reversed", bool(self.reversed))
+        object.__setattr__(self, "lateral_offset_m", lateral_offset_m)
+
+    def _canonical_payload(self) -> dict[str, object]:
+        return {
+            "link_id": self.link_id,
+            "geometry_id": self.geometry_id,
+            "reversed": self.reversed,
+            "lateral_offset_m": self.lateral_offset_m,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class RoadGeometryCatalog:
+    """Validated immutable catalog of physical centerlines and link mappings."""
+
+    centerlines: tuple[RoadCenterline, ...]
+    assignments: tuple[LinkGeometryAssignment, ...]
+    _geometry_by_id: Mapping[int, RoadCenterline] = field(
+        init=False,
+        repr=False,
+        compare=False,
+    )
+    _assignment_by_link_id: Mapping[int, LinkGeometryAssignment] = field(
+        init=False,
+        repr=False,
+        compare=False,
+    )
+
+    def __post_init__(self) -> None:
+        centerlines = tuple(sorted(self.centerlines, key=lambda item: item.geometry_id))
+        assignments = tuple(sorted(self.assignments, key=lambda item: item.link_id))
+        geometry_by_id = {item.geometry_id: item for item in centerlines}
+        assignment_by_link_id = {item.link_id: item for item in assignments}
+
+        if len(geometry_by_id) != len(centerlines):
+            raise ValueError("duplicate geometry_id values are not allowed")
+        if len(assignment_by_link_id) != len(assignments):
+            raise ValueError("duplicate link_id geometry assignments are not allowed")
+        missing = sorted(
+            {
+                assignment.geometry_id
+                for assignment in assignments
+                if assignment.geometry_id not in geometry_by_id
+            }
+        )
+        if missing:
+            raise ValueError(f"assignment references missing geometry_id values: {missing}")
+
+        object.__setattr__(self, "centerlines", centerlines)
+        object.__setattr__(self, "assignments", assignments)
+        object.__setattr__(self, "_geometry_by_id", MappingProxyType(geometry_by_id))
+        object.__setattr__(
+            self,
+            "_assignment_by_link_id",
+            MappingProxyType(assignment_by_link_id),
+        )
+
+    @property
+    def fingerprint(self) -> str:
+        """Stable catalog fingerprint independent of input tuple ordering."""
+
+        return _sha256_json(
+            {
+                "centerlines": [item._canonical_payload() for item in self.centerlines],
+                "assignments": [item._canonical_payload() for item in self.assignments],
+            }
+        )
+
+    def centerline(self, geometry_id: int) -> RoadCenterline:
+        try:
+            return self._geometry_by_id[int(geometry_id)]
+        except KeyError as exc:
+            raise KeyError(f"unknown geometry_id {int(geometry_id)}") from exc
+
+    def assignment_for_link(self, link_id: int) -> LinkGeometryAssignment:
+        try:
+            return self._assignment_by_link_id[int(link_id)]
+        except KeyError as exc:
+            raise KeyError(f"no geometry assignment for link_id {int(link_id)}") from exc
+
+    def points_for_link(self, link_id: int) -> tuple[PointM, ...]:
+        assignment = self.assignment_for_link(link_id)
+        points = self.centerline(assignment.geometry_id).points_m
+        return tuple(reversed(points)) if assignment.reversed else points
+
+
+class _NodeLike(Protocol):
+    node_id: int
+    x: float
+    y: float
+
+
+class _LinkLike(Protocol):
+    link_id: int
+    src_node_id: int
+    dst_node_id: int
+    road_class: object
+    length_m: float
+    bridge_group_id: int | None
+
+
+def build_endpoint_geometry_catalog(
+    *,
+    nodes: Sequence[_NodeLike],
+    links: Sequence[_LinkLike],
+    source: CenterlineSource | str = CenterlineSource.SYNTHETIC,
+) -> RoadGeometryCatalog:
+    """Build canonical straight centerlines from an endpoint-only topology."""
+
+    node_by_id = {int(node.node_id): node for node in nodes}
+    if len(node_by_id) != len(nodes):
+        raise ValueError("nodes must have unique node_id values")
+
+    grouped: dict[tuple[object, ...], list[_LinkLike]] = {}
+    for link in links:
+        src_id = int(link.src_node_id)
+        dst_id = int(link.dst_node_id)
+        if src_id not in node_by_id or dst_id not in node_by_id:
+            raise ValueError(f"link {int(link.link_id)} references a missing endpoint node")
+        lo, hi = sorted((src_id, dst_id))
+        road_class = getattr(link.road_class, "value", link.road_class)
+        bridge_group = -1 if link.bridge_group_id is None else int(link.bridge_group_id)
+        key = (
+            lo,
+            hi,
+            str(road_class),
+            bridge_group,
+            round(float(link.length_m), 6),
+        )
+        grouped.setdefault(key, []).append(link)
+
+    centerlines: list[RoadCenterline] = []
+    assignments: list[LinkGeometryAssignment] = []
+    geometry_id = 0
+    for key in sorted(grouped):
+        lo, hi = int(key[0]), int(key[1])
+        group = tuple(sorted(grouped[key], key=lambda item: int(item.link_id)))
+        forward = [item for item in group if int(item.src_node_id) == lo]
+        reverse = [item for item in group if int(item.src_node_id) == hi]
+        if len(group) > 1 and not (
+            len(group) == 2 and len(forward) == 1 and len(reverse) == 1
+        ):
+            link_ids = [int(item.link_id) for item in group]
+            raise ValueError(
+                "endpoint geometry cannot infer ambiguous parallel link pairing "
+                f"for link_ids {link_ids}"
+            )
+        pair_count = max(len(forward), len(reverse))
+        for ordinal in range(pair_count):
+            lo_node = node_by_id[lo]
+            hi_node = node_by_id[hi]
+            centerlines.append(
+                RoadCenterline(
+                    geometry_id=geometry_id,
+                    points_m=((float(lo_node.x), float(lo_node.y)), (float(hi_node.x), float(hi_node.y))),
+                    source=source,
+                    source_ref=f"endpoint:{lo}:{hi}:{ordinal}",
+                    layer=1 if int(key[3]) >= 0 else 0,
+                )
+            )
+            if ordinal < len(forward):
+                assignments.append(
+                    LinkGeometryAssignment(
+                        link_id=int(forward[ordinal].link_id),
+                        geometry_id=geometry_id,
+                    )
+                )
+            if ordinal < len(reverse):
+                assignments.append(
+                    LinkGeometryAssignment(
+                        link_id=int(reverse[ordinal].link_id),
+                        geometry_id=geometry_id,
+                        reversed=True,
+                    )
+                )
+            geometry_id += 1
+
+    return RoadGeometryCatalog(
+        centerlines=tuple(centerlines),
+        assignments=tuple(assignments),
+    )
+
+
+def _sha256_json(payload: object) -> str:
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("ascii")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _coerce_points_m(values: Sequence[Sequence[float]]) -> tuple[PointM, ...]:
+    points: list[PointM] = []
+    for index, point in enumerate(values):
+        try:
+            if len(point) != 2:
+                raise ValueError
+            x_m = _canonical_float(point[0])
+            y_m = _canonical_float(point[1])
+        except (IndexError, TypeError, ValueError) as exc:
+            raise ValueError(
+                f"points_m[{index}] must contain exactly two numeric coordinates"
+            ) from exc
+        points.append((x_m, y_m))
+    return tuple(points)
+
+
+def _canonical_float(value: float) -> float:
+    number = float(value)
+    return 0.0 if number == 0.0 else number

@@ -30,11 +30,13 @@ Status: complete.
 
 ## PR34 - Typed Road Geometry Contract
 
-Status: pending.
+Status: complete.
 
 - Add typed centerlines, link-to-geometry assignments, and deterministic
   geometry fingerprints.
 - Preserve endpoint-only topology behavior as the default adapter.
+- Validation: `10 passed` targeted; full gate `361 passed`; Ruff and diff check
+  passed.
 - Commit: `feat(map): add typed road geometry contract`.
 
 ## PR35 - Centerline Topology Compiler
