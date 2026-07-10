@@ -4,6 +4,7 @@ import json
 import math
 import subprocess
 import sys
+from dataclasses import replace
 
 import pytest
 
@@ -115,6 +116,147 @@ def test_block_continuity_handles_long_chain_without_recursive_dfs() -> None:
     assert metrics.bridge_length_share == 1.0
 
 
+def test_global_street_cell_presence_separates_lattice_from_precinct_islands() -> None:
+    from metroflow.city.morphology_quality import (
+        compute_morphology_quality_metrics,
+        evaluate_morphology_quality_gate,
+    )
+
+    def lattice(
+        *,
+        origins: tuple[tuple[float, float], ...],
+        width: float,
+        grid_size: int,
+    ) -> tuple[tuple[tuple[float, float], ...], tuple[tuple[int, int, str], ...]]:
+        coordinates: list[tuple[float, float]] = []
+        edges: list[tuple[int, int, str]] = []
+        for origin_x, origin_y in origins:
+            first_node = len(coordinates)
+            step = width / (grid_size - 1)
+            coordinates.extend(
+                (origin_x + x * step, origin_y + y * step)
+                for y in range(grid_size)
+                for x in range(grid_size)
+            )
+            for y in range(grid_size):
+                for x in range(grid_size):
+                    node_id = first_node + y * grid_size + x
+                    if x + 1 < grid_size:
+                        edges.append((node_id, node_id + 1, "local"))
+                    if y + 1 < grid_size:
+                        edges.append((node_id, node_id + grid_size, "local"))
+        return tuple(coordinates), tuple(edges)
+
+    continuous_coordinates, continuous_edges = lattice(
+        origins=((0.0, 0.0),),
+        width=1_000.0,
+        grid_size=7,
+    )
+    island_coordinates, island_edges = lattice(
+        origins=((0.0, 0.0), (800.0, 0.0), (0.0, 800.0), (800.0, 800.0)),
+        width=200.0,
+        grid_size=7,
+    )
+    center_id = len(island_coordinates)
+    island_coordinates += ((500.0, 500.0),)
+    island_edges += tuple(
+        (node_id, center_id, "collector")
+        for node_id in (48, 91, 104, 147)
+    )
+
+    continuous = _topology_from_edges(
+        continuous_edges,
+        coordinates=continuous_coordinates,
+    )
+    islands = _topology_from_edges(
+        island_edges,
+        coordinates=island_coordinates,
+    )
+    continuous_metrics = compute_morphology_quality_metrics(continuous)
+    island_metrics = compute_morphology_quality_metrics(islands)
+
+    assert island_metrics.physical_road_length_m >= (
+        continuous_metrics.physical_road_length_m * 0.85
+    )
+    assert continuous_metrics.global_street_cell_presence_share >= (
+        island_metrics.global_street_cell_presence_share + 0.15
+    )
+    assert continuous_metrics.global_local_street_cell_presence_share >= (
+        island_metrics.global_local_street_cell_presence_share + 0.20
+    )
+    assert continuous_metrics.global_local_junction_proximity_share >= (
+        island_metrics.global_local_junction_proximity_share + 0.20
+    )
+    assert continuous_metrics.coverage_grid_resolution == 24
+    continuous_gate = evaluate_morphology_quality_gate(
+        style_id="organic",
+        geometry_fingerprint="continuous-fixture",
+        metrics=continuous_metrics,
+    )
+    island_gate = evaluate_morphology_quality_gate(
+        style_id="organic",
+        geometry_fingerprint="island-fixture",
+        metrics=island_metrics,
+    )
+    assert continuous_gate.accepted is True
+    assert island_gate.accepted is False
+    assert any(
+        failure.startswith("global_local_street_cell_presence_share")
+        for failure in island_gate.failures
+    )
+    wrong_resolution_gate = evaluate_morphology_quality_gate(
+        style_id="organic",
+        geometry_fingerprint="wrong-resolution",
+        metrics=replace(
+            continuous_metrics,
+            coverage_grid_resolution=1,
+            junction_grid_resolution=1,
+            junction_proximity_radius_cells=99.0,
+        ),
+    )
+    assert wrong_resolution_gate.accepted is False
+    assert {
+        "coverage_grid_resolution must equal 24",
+        "junction_grid_resolution must equal 12",
+        "junction_proximity_radius_cells must equal 0.5",
+    } <= set(wrong_resolution_gate.failures)
+
+
+def test_long_local_cycle_passes_presence_but_fails_junction_gate() -> None:
+    from metroflow.city.morphology_quality import (
+        compute_morphology_quality_metrics,
+        evaluate_morphology_quality_gate,
+    )
+
+    row_count = 12
+    coordinates = tuple(
+        point
+        for row in range(row_count)
+        for point in ((0.0, row * 100.0), (1_000.0, row * 100.0))
+    )
+    edges: list[tuple[int, int, str]] = []
+    for row in range(row_count):
+        left = row * 2
+        right = left + 1
+        edges.append((left, right, "local"))
+        if row + 1 < row_count:
+            side = right if row % 2 == 0 else left
+            edges.append((side, side + 2, "local"))
+    edges.append(((row_count - 1) * 2, 0, "local"))
+    topology = _topology_from_edges(tuple(edges), coordinates=coordinates)
+    metrics = compute_morphology_quality_metrics(topology)
+    gate = evaluate_morphology_quality_gate(
+        style_id="organic",
+        geometry_fingerprint="long-lines",
+        metrics=metrics,
+    )
+
+    assert metrics.global_local_street_cell_presence_share >= 0.40
+    assert metrics.global_local_junction_proximity_share == 0.0
+    assert metrics.block_continuity == 1.0
+    assert "global_local_junction_proximity_share must be >= 0.4" in gate.failures
+
+
 def test_quality_envelope_preserves_seed_runs_and_aggregates(tmp_path) -> None:
     from metroflow.ui.morphology_quality_report import write_morphology_quality_envelope
 
@@ -128,7 +270,7 @@ def test_quality_envelope_preserves_seed_runs_and_aggregates(tmp_path) -> None:
     payload = json.loads(paths["json"].read_text(encoding="utf-8"))
     markdown = paths["markdown"].read_text(encoding="utf-8")
 
-    assert payload["artifact_format_version"] == "city_morphology_quality_v1"
+    assert payload["artifact_format_version"] == "city_morphology_quality_v2"
     assert payload["evidence_status"] == "diagnostic_not_city_replication"
     assert payload["seeds"] == [3, 5, 7]
     assert [entry["style_id"] for entry in payload["styles"]] == ["grid_core", "organic"]
@@ -161,9 +303,10 @@ def test_generated_topology_exposes_quality_metrics() -> None:
     assert metrics["district_count"] > 0
     gate = topology.metadata["morphology_quality_gate"]
     assert gate["accepted"] is True
-    assert gate["gate_version"] == "morphology_quality_v1"
+    assert gate["gate_version"] == "morphology_quality_v2"
     assert gate["gate_scope"] == (
-        "weak_connectivity_block_density_intersection_mix_only"
+        "weak_connectivity_block_density_intersection_mix_"
+        "global_local_cell_presence_junction_proximity"
     )
     assert gate["style_id"] == "polycentric_tod"
     assert gate["geometry_fingerprint"] == topology.road_geometry.fingerprint
@@ -191,6 +334,12 @@ def test_project_owned_quality_gate_rejects_sparse_disconnected_fabric() -> None
         degree_four_share=0.1,
         degree_five_plus_share=0.0,
         district_quadrant_presence_share=0.5,
+        global_street_cell_presence_share=0.5,
+        global_local_street_cell_presence_share=0.4,
+        coverage_grid_resolution=24,
+        global_local_junction_proximity_share=0.4,
+        junction_grid_resolution=12,
+        junction_proximity_radius_cells=0.5,
         weak_component_count=2,
         district_count=4,
         physical_segment_count=10,
@@ -225,6 +374,12 @@ def test_quality_metrics_reject_nonfinite_values_before_gate_evaluation() -> Non
             degree_four_share=0.0,
             degree_five_plus_share=0.0,
             district_quadrant_presence_share=1.0,
+            global_street_cell_presence_share=1.0,
+            global_local_street_cell_presence_share=1.0,
+            coverage_grid_resolution=24,
+            global_local_junction_proximity_share=1.0,
+            junction_grid_resolution=12,
+            junction_proximity_radius_cells=0.5,
             weak_component_count=1,
             district_count=1,
             physical_segment_count=2,
@@ -269,7 +424,7 @@ def test_gate_rejects_disconnected_cycles_even_with_full_block_continuity() -> N
     assert metrics.block_continuity == 1.0
     assert metrics.weak_component_count == 2
     assert gate.accepted is False
-    assert gate.failures == ("weak_component_count must equal 1",)
+    assert "weak_component_count must equal 1" in gate.failures
 
 
 @pytest.mark.parametrize("seed", (5, 17, 29, 41))

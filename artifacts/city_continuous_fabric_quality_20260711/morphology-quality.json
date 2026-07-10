@@ -1,0 +1,1294 @@
+{
+  "artifact_format_version": "city_morphology_quality_v2",
+  "evidence_status": "diagnostic_not_city_replication",
+  "metric_definitions": {
+    "block_continuity": "one minus physical road length share on graph bridges",
+    "connector_to_local_length_ratio": "non-local physical length divided by local physical length",
+    "district_quadrant_presence_share": "mean occupied quadrant share inside district envelopes",
+    "global_local_junction_proximity_share": "12 by 12 hull-cell centers within 0.5 cell diagonals of a local degree-3 junction",
+    "global_local_street_cell_presence_share": "local-class centerlines present on a 24 by 24 convex-hull raster",
+    "global_street_cell_presence_share": "all physical centerlines present on a 24 by 24 convex-hull raster",
+    "street_density_km_per_km2": "physical centerline km per node convex-hull km2"
+  },
+  "scenario_id": "synthetic_smoke",
+  "seeds": [
+    17,
+    29,
+    41
+  ],
+  "styles": [
+    {
+      "aggregate": {
+        "block_continuity": {
+          "max": 0.9728884968286035,
+          "median": 0.9726892519215442,
+          "min": 0.9716431506586785
+        },
+        "bridge_length_share": {
+          "max": 0.028356849341321544,
+          "median": 0.027310748078455807,
+          "min": 0.027111503171396538
+        },
+        "connector_to_local_length_ratio": {
+          "max": 0.8871773121397306,
+          "median": 0.8785957320737237,
+          "min": 0.8771003622932609
+        },
+        "convex_hull_area_m2": {
+          "max": 7870886.808884,
+          "median": 7870886.808884,
+          "min": 7870886.808884
+        },
+        "coverage_grid_resolution": {
+          "max": 24.0,
+          "median": 24.0,
+          "min": 24.0
+        },
+        "degree_five_plus_share": {
+          "max": 0.1342281879194631,
+          "median": 0.1336996336996337,
+          "min": 0.13300626873807578
+        },
+        "degree_four_share": {
+          "max": 0.6185243328100472,
+          "median": 0.6112751677852349,
+          "min": 0.6086127010084492
+        },
+        "degree_one_share": {
+          "max": 0.06950122649223221,
+          "median": 0.06845637583892618,
+          "min": 0.06619570905285191
+        },
+        "degree_three_share": {
+          "max": 0.053147996729354045,
+          "median": 0.052348993288590606,
+          "min": 0.05128205128205128
+        },
+        "degree_two_share": {
+          "max": 0.1357318070318888,
+          "median": 0.13369127516778523,
+          "min": 0.130298273155416
+        },
+        "district_count": {
+          "max": 13.0,
+          "median": 13.0,
+          "min": 13.0
+        },
+        "district_quadrant_presence_share": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "global_local_junction_proximity_share": {
+          "max": 0.6428571428571429,
+          "median": 0.6428571428571429,
+          "min": 0.6428571428571429
+        },
+        "global_local_street_cell_presence_share": {
+          "max": 0.625,
+          "median": 0.6181818181818182,
+          "min": 0.6113636363636363
+        },
+        "global_street_cell_presence_share": {
+          "max": 0.6931818181818182,
+          "median": 0.6886363636363636,
+          "min": 0.6863636363636364
+        },
+        "junction_grid_resolution": {
+          "max": 12.0,
+          "median": 12.0,
+          "min": 12.0
+        },
+        "junction_proximity_radius_cells": {
+          "max": 0.5,
+          "median": 0.5,
+          "min": 0.5
+        },
+        "median_connector_length_m": {
+          "max": 6.259389515955442,
+          "median": 6.176968512317552,
+          "min": 6.170686566083227
+        },
+        "median_local_length_m": {
+          "max": 4.580883370107402,
+          "median": 4.532279909512431,
+          "min": 4.432827312540886
+        },
+        "physical_road_length_m": {
+          "max": 136708.644401965,
+          "median": 136226.02714648278,
+          "min": 135440.13290432934
+        },
+        "physical_segment_count": {
+          "max": 7540.0,
+          "median": 7332.0,
+          "min": 7204.0
+        },
+        "street_density_km_per_km2": {
+          "max": 17.36889981033137,
+          "median": 17.307583053122073,
+          "min": 17.207734807144707
+        },
+        "weak_component_count": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        }
+      },
+      "runs": [
+        {
+          "geometry_fingerprint": "9409811dca2bc1ef5fff254f0b66634f951871b5f19c5df79b99238512a2663f",
+          "metrics": {
+            "block_continuity": 0.9728884968286035,
+            "bridge_length_share": 0.027111503171396538,
+            "connector_to_local_length_ratio": 0.8771003622932609,
+            "convex_hull_area_m2": 7870886.808884,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.1342281879194631,
+            "degree_four_share": 0.6112751677852349,
+            "degree_one_share": 0.06845637583892618,
+            "degree_three_share": 0.052348993288590606,
+            "degree_two_share": 0.13369127516778523,
+            "district_count": 13,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.6428571428571429,
+            "global_local_street_cell_presence_share": 0.6181818181818182,
+            "global_street_cell_presence_share": 0.6863636363636364,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 6.170686566083227,
+            "median_local_length_m": 4.532279909512431,
+            "physical_road_length_m": 136226.02714648278,
+            "physical_segment_count": 7332,
+            "street_density_km_per_km2": 17.307583053122073,
+            "weak_component_count": 1
+          },
+          "seed": 17
+        },
+        {
+          "geometry_fingerprint": "74c3998d0b96388aa00e53006d2850eadeb30090b02750eb7d34de0502959571",
+          "metrics": {
+            "block_continuity": 0.9726892519215442,
+            "bridge_length_share": 0.027310748078455807,
+            "connector_to_local_length_ratio": 0.8871773121397306,
+            "convex_hull_area_m2": 7870886.808884,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.1336996336996337,
+            "degree_four_share": 0.6185243328100472,
+            "degree_one_share": 0.06619570905285191,
+            "degree_three_share": 0.05128205128205128,
+            "degree_two_share": 0.130298273155416,
+            "district_count": 13,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.6428571428571429,
+            "global_local_street_cell_presence_share": 0.625,
+            "global_street_cell_presence_share": 0.6931818181818182,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 6.176968512317552,
+            "median_local_length_m": 4.432827312540886,
+            "physical_road_length_m": 136708.644401965,
+            "physical_segment_count": 7540,
+            "street_density_km_per_km2": 17.36889981033137,
+            "weak_component_count": 1
+          },
+          "seed": 29
+        },
+        {
+          "geometry_fingerprint": "ce57b08807a809142b3947ba22a3ac4d7f63a480a6249d63609fc1441d09471b",
+          "metrics": {
+            "block_continuity": 0.9716431506586785,
+            "bridge_length_share": 0.028356849341321544,
+            "connector_to_local_length_ratio": 0.8785957320737237,
+            "convex_hull_area_m2": 7870886.808884,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.13300626873807578,
+            "degree_four_share": 0.6086127010084492,
+            "degree_one_share": 0.06950122649223221,
+            "degree_three_share": 0.053147996729354045,
+            "degree_two_share": 0.1357318070318888,
+            "district_count": 13,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.6428571428571429,
+            "global_local_street_cell_presence_share": 0.6113636363636363,
+            "global_street_cell_presence_share": 0.6886363636363636,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 6.259389515955442,
+            "median_local_length_m": 4.580883370107402,
+            "physical_road_length_m": 135440.13290432934,
+            "physical_segment_count": 7204,
+            "street_density_km_per_km2": 17.207734807144707,
+            "weak_component_count": 1
+          },
+          "seed": 41
+        }
+      ],
+      "style_id": "ring_radial"
+    },
+    {
+      "aggregate": {
+        "block_continuity": {
+          "max": 0.9803276391575906,
+          "median": 0.9802689590812503,
+          "min": 0.9802667783284281
+        },
+        "bridge_length_share": {
+          "max": 0.019733221671571922,
+          "median": 0.01973104091874963,
+          "min": 0.019672360842409458
+        },
+        "connector_to_local_length_ratio": {
+          "max": 0.22475129886689402,
+          "median": 0.22448131989787598,
+          "min": 0.2235785808699538
+        },
+        "convex_hull_area_m2": {
+          "max": 11365604.096,
+          "median": 11365604.096,
+          "min": 11365604.096
+        },
+        "coverage_grid_resolution": {
+          "max": 24.0,
+          "median": 24.0,
+          "min": 24.0
+        },
+        "degree_five_plus_share": {
+          "max": 0.08130081300813008,
+          "median": 0.07958477508650519,
+          "min": 0.07755581668625147
+        },
+        "degree_four_share": {
+          "max": 0.5686274509803921,
+          "median": 0.5656213704994193,
+          "min": 0.5652173913043478
+        },
+        "degree_one_share": {
+          "max": 0.041128084606345476,
+          "median": 0.03948896631823461,
+          "min": 0.0392156862745098
+        },
+        "degree_three_share": {
+          "max": 0.2291421856639248,
+          "median": 0.2264808362369338,
+          "min": 0.22606689734717417
+        },
+        "degree_two_share": {
+          "max": 0.08710801393728224,
+          "median": 0.08695652173913043,
+          "min": 0.08650519031141868
+        },
+        "district_count": {
+          "max": 13.0,
+          "median": 13.0,
+          "min": 13.0
+        },
+        "district_quadrant_presence_share": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "global_local_junction_proximity_share": {
+          "max": 0.9583333333333334,
+          "median": 0.9583333333333334,
+          "min": 0.9583333333333334
+        },
+        "global_local_street_cell_presence_share": {
+          "max": 0.7621527777777778,
+          "median": 0.7586805555555556,
+          "min": 0.7534722222222222
+        },
+        "global_street_cell_presence_share": {
+          "max": 0.8159722222222222,
+          "median": 0.8107638888888888,
+          "min": 0.8090277777777778
+        },
+        "junction_grid_resolution": {
+          "max": 12.0,
+          "median": 12.0,
+          "min": 12.0
+        },
+        "junction_proximity_radius_cells": {
+          "max": 0.5,
+          "median": 0.5,
+          "min": 0.5
+        },
+        "median_connector_length_m": {
+          "max": 30.839868470499823,
+          "median": 30.518220534345012,
+          "min": 27.797791472190056
+        },
+        "median_local_length_m": {
+          "max": 42.403681067056695,
+          "median": 40.99963300427208,
+          "min": 39.9093860944675
+        },
+        "physical_road_length_m": {
+          "max": 127185.80411021817,
+          "median": 126832.91389354707,
+          "min": 126528.68277446607
+        },
+        "physical_segment_count": {
+          "max": 1572.0,
+          "median": 1560.0,
+          "min": 1536.0
+        },
+        "street_density_km_per_km2": {
+          "max": 11.190413024766524,
+          "median": 11.159364062151745,
+          "min": 11.132596358780123
+        },
+        "weak_component_count": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        }
+      },
+      "runs": [
+        {
+          "geometry_fingerprint": "c417f9f73c623ea897ce0040b60961387f256dc68ba72081df40b15d4b84b49f",
+          "metrics": {
+            "block_continuity": 0.9802667783284281,
+            "bridge_length_share": 0.019733221671571922,
+            "connector_to_local_length_ratio": 0.2235785808699538,
+            "convex_hull_area_m2": 11365604.096,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.08130081300813008,
+            "degree_four_share": 0.5656213704994193,
+            "degree_one_share": 0.03948896631823461,
+            "degree_three_share": 0.2264808362369338,
+            "degree_two_share": 0.08710801393728224,
+            "district_count": 13,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.9583333333333334,
+            "global_local_street_cell_presence_share": 0.7586805555555556,
+            "global_street_cell_presence_share": 0.8107638888888888,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 30.839868470499823,
+            "median_local_length_m": 40.99963300427208,
+            "physical_road_length_m": 127185.80411021817,
+            "physical_segment_count": 1560,
+            "street_density_km_per_km2": 11.190413024766524,
+            "weak_component_count": 1
+          },
+          "seed": 17
+        },
+        {
+          "geometry_fingerprint": "c5ec3f571ce4278fa9f62c35710d9bd7d7d858699e4d72a5665ac7d0be9b7e2f",
+          "metrics": {
+            "block_continuity": 0.9802689590812503,
+            "bridge_length_share": 0.01973104091874963,
+            "connector_to_local_length_ratio": 0.22475129886689402,
+            "convex_hull_area_m2": 11365604.096,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.07958477508650519,
+            "degree_four_share": 0.5686274509803921,
+            "degree_one_share": 0.0392156862745098,
+            "degree_three_share": 0.22606689734717417,
+            "degree_two_share": 0.08650519031141868,
+            "district_count": 13,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.9583333333333334,
+            "global_local_street_cell_presence_share": 0.7621527777777778,
+            "global_street_cell_presence_share": 0.8159722222222222,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 27.797791472190056,
+            "median_local_length_m": 39.9093860944675,
+            "physical_road_length_m": 126832.91389354707,
+            "physical_segment_count": 1572,
+            "street_density_km_per_km2": 11.159364062151745,
+            "weak_component_count": 1
+          },
+          "seed": 29
+        },
+        {
+          "geometry_fingerprint": "b32ce804ee0cf05afb6ad3932d547456a903134a22f17efbc0652fa410a9dd8a",
+          "metrics": {
+            "block_continuity": 0.9803276391575906,
+            "bridge_length_share": 0.019672360842409458,
+            "connector_to_local_length_ratio": 0.22448131989787598,
+            "convex_hull_area_m2": 11365604.096,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.07755581668625147,
+            "degree_four_share": 0.5652173913043478,
+            "degree_one_share": 0.041128084606345476,
+            "degree_three_share": 0.2291421856639248,
+            "degree_two_share": 0.08695652173913043,
+            "district_count": 13,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.9583333333333334,
+            "global_local_street_cell_presence_share": 0.7534722222222222,
+            "global_street_cell_presence_share": 0.8090277777777778,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 30.518220534345012,
+            "median_local_length_m": 42.403681067056695,
+            "physical_road_length_m": 126528.68277446607,
+            "physical_segment_count": 1536,
+            "street_density_km_per_km2": 11.132596358780123,
+            "weak_component_count": 1
+          },
+          "seed": 41
+        }
+      ],
+      "style_id": "grid_core"
+    },
+    {
+      "aggregate": {
+        "block_continuity": {
+          "max": 0.977422282148674,
+          "median": 0.9764279515752372,
+          "min": 0.97509703984895
+        },
+        "bridge_length_share": {
+          "max": 0.02490296015104995,
+          "median": 0.023572048424762806,
+          "min": 0.022577717851325976
+        },
+        "connector_to_local_length_ratio": {
+          "max": 0.4469173024748524,
+          "median": 0.44662015809018135,
+          "min": 0.44437506209122707
+        },
+        "convex_hull_area_m2": {
+          "max": 2381397.2146325,
+          "median": 2368395.0574685,
+          "min": 2342919.3365375
+        },
+        "coverage_grid_resolution": {
+          "max": 24.0,
+          "median": 24.0,
+          "min": 24.0
+        },
+        "degree_five_plus_share": {
+          "max": 0.011122345803842264,
+          "median": 0.008247422680412371,
+          "min": 0.00816326530612245
+        },
+        "degree_four_share": {
+          "max": 0.5928571428571429,
+          "median": 0.5915065722952477,
+          "min": 0.5876288659793815
+        },
+        "degree_one_share": {
+          "max": 0.021233569261880688,
+          "median": 0.01958762886597938,
+          "min": 0.019387755102040816
+        },
+        "degree_three_share": {
+          "max": 0.2536082474226804,
+          "median": 0.25075834175935285,
+          "min": 0.25
+        },
+        "degree_two_share": {
+          "max": 0.1309278350515464,
+          "median": 0.12959183673469388,
+          "min": 0.12537917087967643
+        },
+        "district_count": {
+          "max": 10.0,
+          "median": 10.0,
+          "min": 10.0
+        },
+        "district_quadrant_presence_share": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "global_local_junction_proximity_share": {
+          "max": 0.5289256198347108,
+          "median": 0.5084745762711864,
+          "min": 0.48739495798319327
+        },
+        "global_local_street_cell_presence_share": {
+          "max": 0.48440748440748443,
+          "median": 0.4830508474576271,
+          "min": 0.4820295983086681
+        },
+        "global_street_cell_presence_share": {
+          "max": 0.5696465696465697,
+          "median": 0.5644820295983086,
+          "min": 0.559322033898305
+        },
+        "junction_grid_resolution": {
+          "max": 12.0,
+          "median": 12.0,
+          "min": 12.0
+        },
+        "junction_proximity_radius_cells": {
+          "max": 0.5,
+          "median": 0.5,
+          "min": 0.5
+        },
+        "median_connector_length_m": {
+          "max": 15.997741306044572,
+          "median": 14.590605686364082,
+          "min": 14.316382272147633
+        },
+        "median_local_length_m": {
+          "max": 19.05884962425594,
+          "median": 18.515941482949238,
+          "min": 18.344335665908936
+        },
+        "physical_road_length_m": {
+          "max": 49881.51850749375,
+          "median": 49590.07949864203,
+          "min": 49574.378637321824
+        },
+        "physical_segment_count": {
+          "max": 1706.0,
+          "median": 1688.0,
+          "min": 1668.0
+        },
+        "street_density_km_per_km2": {
+          "max": 21.165935474299804,
+          "median": 21.061316755495376,
+          "min": 20.817349719195082
+        },
+        "weak_component_count": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        }
+      },
+      "runs": [
+        {
+          "geometry_fingerprint": "0615ccd6db38d581d880e83c85675a9b30fdbb46a245f8c3838afd9797ee0456",
+          "metrics": {
+            "block_continuity": 0.9764279515752372,
+            "bridge_length_share": 0.023572048424762806,
+            "connector_to_local_length_ratio": 0.4469173024748524,
+            "convex_hull_area_m2": 2381397.2146325,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.008247422680412371,
+            "degree_four_share": 0.5876288659793815,
+            "degree_one_share": 0.01958762886597938,
+            "degree_three_share": 0.2536082474226804,
+            "degree_two_share": 0.1309278350515464,
+            "district_count": 10,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.5084745762711864,
+            "global_local_street_cell_presence_share": 0.4830508474576271,
+            "global_street_cell_presence_share": 0.559322033898305,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 14.316382272147633,
+            "median_local_length_m": 18.515941482949238,
+            "physical_road_length_m": 49574.378637321824,
+            "physical_segment_count": 1668,
+            "street_density_km_per_km2": 20.817349719195082,
+            "weak_component_count": 1
+          },
+          "seed": 17
+        },
+        {
+          "geometry_fingerprint": "87413240858c82f65521896df5f7ddca72f945eaaa9f6cf32df46135fcb7e5e4",
+          "metrics": {
+            "block_continuity": 0.97509703984895,
+            "bridge_length_share": 0.02490296015104995,
+            "connector_to_local_length_ratio": 0.44437506209122707,
+            "convex_hull_area_m2": 2368395.0574685,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.00816326530612245,
+            "degree_four_share": 0.5928571428571429,
+            "degree_one_share": 0.019387755102040816,
+            "degree_three_share": 0.25,
+            "degree_two_share": 0.12959183673469388,
+            "district_count": 10,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.48739495798319327,
+            "global_local_street_cell_presence_share": 0.4820295983086681,
+            "global_street_cell_presence_share": 0.5644820295983086,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 15.997741306044572,
+            "median_local_length_m": 19.05884962425594,
+            "physical_road_length_m": 49881.51850749375,
+            "physical_segment_count": 1688,
+            "street_density_km_per_km2": 21.061316755495376,
+            "weak_component_count": 1
+          },
+          "seed": 29
+        },
+        {
+          "geometry_fingerprint": "477bcaa16fe1eb7768b5589b6010237403d8480b9a21ecbf516682c9849d43e4",
+          "metrics": {
+            "block_continuity": 0.977422282148674,
+            "bridge_length_share": 0.022577717851325976,
+            "connector_to_local_length_ratio": 0.44662015809018135,
+            "convex_hull_area_m2": 2342919.3365375,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.011122345803842264,
+            "degree_four_share": 0.5915065722952477,
+            "degree_one_share": 0.021233569261880688,
+            "degree_three_share": 0.25075834175935285,
+            "degree_two_share": 0.12537917087967643,
+            "district_count": 10,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.5289256198347108,
+            "global_local_street_cell_presence_share": 0.48440748440748443,
+            "global_street_cell_presence_share": 0.5696465696465697,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 14.590605686364082,
+            "median_local_length_m": 18.344335665908936,
+            "physical_road_length_m": 49590.07949864203,
+            "physical_segment_count": 1706,
+            "street_density_km_per_km2": 21.165935474299804,
+            "weak_component_count": 1
+          },
+          "seed": 41
+        }
+      ],
+      "style_id": "polycentric_tod"
+    },
+    {
+      "aggregate": {
+        "block_continuity": {
+          "max": 0.9100254086306495,
+          "median": 0.9037290024565097,
+          "min": 0.8966002327995923
+        },
+        "bridge_length_share": {
+          "max": 0.10339976720040765,
+          "median": 0.09627099754349032,
+          "min": 0.08997459136935046
+        },
+        "connector_to_local_length_ratio": {
+          "max": 0.4405048274510726,
+          "median": 0.43352709235446896,
+          "min": 0.42430758105356287
+        },
+        "convex_hull_area_m2": {
+          "max": 3212000.0,
+          "median": 3212000.0,
+          "min": 3212000.0
+        },
+        "coverage_grid_resolution": {
+          "max": 24.0,
+          "median": 24.0,
+          "min": 24.0
+        },
+        "degree_five_plus_share": {
+          "max": 0.03963011889035667,
+          "median": 0.036290322580645164,
+          "min": 0.023676880222841225
+        },
+        "degree_four_share": {
+          "max": 0.4274193548387097,
+          "median": 0.4240422721268164,
+          "min": 0.4220055710306407
+        },
+        "degree_one_share": {
+          "max": 0.09543010752688172,
+          "median": 0.0947075208913649,
+          "min": 0.09247027741083223
+        },
+        "degree_three_share": {
+          "max": 0.18662952646239556,
+          "median": 0.1774193548387097,
+          "min": 0.17437252311756934
+        },
+        "degree_two_share": {
+          "max": 0.27298050139275765,
+          "median": 0.26948480845442535,
+          "min": 0.26344086021505375
+        },
+        "district_count": {
+          "max": 11.0,
+          "median": 11.0,
+          "min": 11.0
+        },
+        "district_quadrant_presence_share": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "global_local_junction_proximity_share": {
+          "max": 0.5763888888888888,
+          "median": 0.5694444444444444,
+          "min": 0.5555555555555556
+        },
+        "global_local_street_cell_presence_share": {
+          "max": 0.625,
+          "median": 0.625,
+          "min": 0.6180555555555556
+        },
+        "global_street_cell_presence_share": {
+          "max": 0.7465277777777778,
+          "median": 0.7378472222222222,
+          "min": 0.734375
+        },
+        "junction_grid_resolution": {
+          "max": 12.0,
+          "median": 12.0,
+          "min": 12.0
+        },
+        "junction_proximity_radius_cells": {
+          "max": 0.5,
+          "median": 0.5,
+          "min": 0.5
+        },
+        "median_connector_length_m": {
+          "max": 31.305955374870432,
+          "median": 29.665014483459103,
+          "min": 29.137140966039766
+        },
+        "median_local_length_m": {
+          "max": 42.52800000000002,
+          "median": 37.39099999999996,
+          "min": 36.053999999999974
+        },
+        "physical_road_length_m": {
+          "max": 70128.7050080209,
+          "median": 69237.61969235782,
+          "min": 68337.95523664022
+        },
+        "physical_segment_count": {
+          "max": 1165.0,
+          "median": 1141.0,
+          "min": 1084.0
+        },
+        "street_density_km_per_km2": {
+          "max": 21.83334527024312,
+          "median": 21.555921448430208,
+          "min": 21.275826661469555
+        },
+        "weak_component_count": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        }
+      },
+      "runs": [
+        {
+          "geometry_fingerprint": "9d55455b4290922cd2898177986fdcebd956b99a564c9804320a5b72a44cf322",
+          "metrics": {
+            "block_continuity": 0.9037290024565097,
+            "bridge_length_share": 0.09627099754349032,
+            "connector_to_local_length_ratio": 0.42430758105356287,
+            "convex_hull_area_m2": 3212000.0,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.03963011889035667,
+            "degree_four_share": 0.4240422721268164,
+            "degree_one_share": 0.09247027741083223,
+            "degree_three_share": 0.17437252311756934,
+            "degree_two_share": 0.26948480845442535,
+            "district_count": 11,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.5555555555555556,
+            "global_local_street_cell_presence_share": 0.625,
+            "global_street_cell_presence_share": 0.734375,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 29.137140966039766,
+            "median_local_length_m": 36.053999999999974,
+            "physical_road_length_m": 70128.7050080209,
+            "physical_segment_count": 1165,
+            "street_density_km_per_km2": 21.83334527024312,
+            "weak_component_count": 1
+          },
+          "seed": 17
+        },
+        {
+          "geometry_fingerprint": "2f581f7266eec44dff566490c1754843641e75ce8b2ec066d2eb674ccb2326cc",
+          "metrics": {
+            "block_continuity": 0.9100254086306495,
+            "bridge_length_share": 0.08997459136935046,
+            "connector_to_local_length_ratio": 0.43352709235446896,
+            "convex_hull_area_m2": 3212000.0,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.036290322580645164,
+            "degree_four_share": 0.4274193548387097,
+            "degree_one_share": 0.09543010752688172,
+            "degree_three_share": 0.1774193548387097,
+            "degree_two_share": 0.26344086021505375,
+            "district_count": 11,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.5694444444444444,
+            "global_local_street_cell_presence_share": 0.625,
+            "global_street_cell_presence_share": 0.7378472222222222,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 31.305955374870432,
+            "median_local_length_m": 37.39099999999996,
+            "physical_road_length_m": 69237.61969235782,
+            "physical_segment_count": 1141,
+            "street_density_km_per_km2": 21.555921448430208,
+            "weak_component_count": 1
+          },
+          "seed": 29
+        },
+        {
+          "geometry_fingerprint": "60c5628cf2c9d2064eda3839c2fe3d5da80f9362f870e4acd02f92245c8e7f08",
+          "metrics": {
+            "block_continuity": 0.8966002327995923,
+            "bridge_length_share": 0.10339976720040765,
+            "connector_to_local_length_ratio": 0.4405048274510726,
+            "convex_hull_area_m2": 3212000.0,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.023676880222841225,
+            "degree_four_share": 0.4220055710306407,
+            "degree_one_share": 0.0947075208913649,
+            "degree_three_share": 0.18662952646239556,
+            "degree_two_share": 0.27298050139275765,
+            "district_count": 11,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.5763888888888888,
+            "global_local_street_cell_presence_share": 0.6180555555555556,
+            "global_street_cell_presence_share": 0.7465277777777778,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 29.665014483459103,
+            "median_local_length_m": 42.52800000000002,
+            "physical_road_length_m": 68337.95523664022,
+            "physical_segment_count": 1084,
+            "street_density_km_per_km2": 21.275826661469555,
+            "weak_component_count": 1
+          },
+          "seed": 41
+        }
+      ],
+      "style_id": "river_constrained"
+    },
+    {
+      "aggregate": {
+        "block_continuity": {
+          "max": 0.9799972573782848,
+          "median": 0.9797847512645077,
+          "min": 0.9795470797164091
+        },
+        "bridge_length_share": {
+          "max": 0.02045292028359093,
+          "median": 0.020215248735492287,
+          "min": 0.02000274262171522
+        },
+        "connector_to_local_length_ratio": {
+          "max": 0.3909177375386299,
+          "median": 0.39075958281877954,
+          "min": 0.3889901805997757
+        },
+        "convex_hull_area_m2": {
+          "max": 7815967.624286001,
+          "median": 7815967.624286001,
+          "min": 7815967.624286001
+        },
+        "coverage_grid_resolution": {
+          "max": 24.0,
+          "median": 24.0,
+          "min": 24.0
+        },
+        "degree_five_plus_share": {
+          "max": 0.014423076923076924,
+          "median": 0.014150943396226415,
+          "min": 0.014150943396226415
+        },
+        "degree_four_share": {
+          "max": 0.5518867924528302,
+          "median": 0.5518867924528302,
+          "min": 0.5432692307692307
+        },
+        "degree_one_share": {
+          "max": 0.030048076923076924,
+          "median": 0.0294811320754717,
+          "min": 0.027122641509433963
+        },
+        "degree_three_share": {
+          "max": 0.2956730769230769,
+          "median": 0.29009433962264153,
+          "min": 0.28773584905660377
+        },
+        "degree_two_share": {
+          "max": 0.11910377358490566,
+          "median": 0.11658653846153846,
+          "min": 0.11438679245283019
+        },
+        "district_count": {
+          "max": 9.0,
+          "median": 9.0,
+          "min": 9.0
+        },
+        "district_quadrant_presence_share": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "global_local_junction_proximity_share": {
+          "max": 0.5961538461538461,
+          "median": 0.5961538461538461,
+          "min": 0.5961538461538461
+        },
+        "global_local_street_cell_presence_share": {
+          "max": 0.6220095693779905,
+          "median": 0.6148325358851675,
+          "min": 0.6148325358851675
+        },
+        "global_street_cell_presence_share": {
+          "max": 0.6842105263157895,
+          "median": 0.6818181818181818,
+          "min": 0.6818181818181818
+        },
+        "junction_grid_resolution": {
+          "max": 12.0,
+          "median": 12.0,
+          "min": 12.0
+        },
+        "junction_proximity_radius_cells": {
+          "max": 0.5,
+          "median": 0.5,
+          "min": 0.5
+        },
+        "median_connector_length_m": {
+          "max": 25.509060051528518,
+          "median": 23.329154139582315,
+          "min": 22.497678536923083
+        },
+        "median_local_length_m": {
+          "max": 30.23919320419419,
+          "median": 29.953214605252583,
+          "min": 29.73123851264181
+        },
+        "physical_road_length_m": {
+          "max": 83980.60442454077,
+          "median": 83633.62995381847,
+          "min": 83590.07562482542
+        },
+        "physical_segment_count": {
+          "max": 1455.0,
+          "median": 1455.0,
+          "min": 1422.0
+        },
+        "street_density_km_per_km2": {
+          "max": 10.744748246345573,
+          "median": 10.70035521820096,
+          "min": 10.694782737468348
+        },
+        "weak_component_count": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        }
+      },
+      "runs": [
+        {
+          "geometry_fingerprint": "0514187738146e8048f19b248ddbe40b1446b93f0344e49871d8fbe3082d61c6",
+          "metrics": {
+            "block_continuity": 0.9799972573782848,
+            "bridge_length_share": 0.02000274262171522,
+            "connector_to_local_length_ratio": 0.3909177375386299,
+            "convex_hull_area_m2": 7815967.624286001,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.014150943396226415,
+            "degree_four_share": 0.5518867924528302,
+            "degree_one_share": 0.027122641509433963,
+            "degree_three_share": 0.28773584905660377,
+            "degree_two_share": 0.11910377358490566,
+            "district_count": 9,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.5961538461538461,
+            "global_local_street_cell_presence_share": 0.6148325358851675,
+            "global_street_cell_presence_share": 0.6818181818181818,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 22.497678536923083,
+            "median_local_length_m": 30.23919320419419,
+            "physical_road_length_m": 83590.07562482542,
+            "physical_segment_count": 1455,
+            "street_density_km_per_km2": 10.694782737468348,
+            "weak_component_count": 1
+          },
+          "seed": 17
+        },
+        {
+          "geometry_fingerprint": "a45ba5a8a69d4973438d31abbab74d0ddd749f7b01f4660a396d8ffe19372d50",
+          "metrics": {
+            "block_continuity": 0.9795470797164091,
+            "bridge_length_share": 0.02045292028359093,
+            "connector_to_local_length_ratio": 0.3889901805997757,
+            "convex_hull_area_m2": 7815967.624286001,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.014423076923076924,
+            "degree_four_share": 0.5432692307692307,
+            "degree_one_share": 0.030048076923076924,
+            "degree_three_share": 0.2956730769230769,
+            "degree_two_share": 0.11658653846153846,
+            "district_count": 9,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.5961538461538461,
+            "global_local_street_cell_presence_share": 0.6148325358851675,
+            "global_street_cell_presence_share": 0.6818181818181818,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 25.509060051528518,
+            "median_local_length_m": 29.953214605252583,
+            "physical_road_length_m": 83980.60442454077,
+            "physical_segment_count": 1422,
+            "street_density_km_per_km2": 10.744748246345573,
+            "weak_component_count": 1
+          },
+          "seed": 29
+        },
+        {
+          "geometry_fingerprint": "d3daa8b3a8e3dc0afd331bec1f5c812565cc606bf1545ff3b160bd85bf4f5f3e",
+          "metrics": {
+            "block_continuity": 0.9797847512645077,
+            "bridge_length_share": 0.020215248735492287,
+            "connector_to_local_length_ratio": 0.39075958281877954,
+            "convex_hull_area_m2": 7815967.624286001,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.014150943396226415,
+            "degree_four_share": 0.5518867924528302,
+            "degree_one_share": 0.0294811320754717,
+            "degree_three_share": 0.29009433962264153,
+            "degree_two_share": 0.11438679245283019,
+            "district_count": 9,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.5961538461538461,
+            "global_local_street_cell_presence_share": 0.6220095693779905,
+            "global_street_cell_presence_share": 0.6842105263157895,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 23.329154139582315,
+            "median_local_length_m": 29.73123851264181,
+            "physical_road_length_m": 83633.62995381847,
+            "physical_segment_count": 1455,
+            "street_density_km_per_km2": 10.70035521820096,
+            "weak_component_count": 1
+          },
+          "seed": 41
+        }
+      ],
+      "style_id": "superblock_mixed"
+    },
+    {
+      "aggregate": {
+        "block_continuity": {
+          "max": 0.8924082162510958,
+          "median": 0.8854202193065352,
+          "min": 0.8744585684803338
+        },
+        "bridge_length_share": {
+          "max": 0.1255414315196662,
+          "median": 0.1145797806934647,
+          "min": 0.10759178374890425
+        },
+        "connector_to_local_length_ratio": {
+          "max": 0.5079518097217314,
+          "median": 0.49422732186019885,
+          "min": 0.4912445549661529
+        },
+        "convex_hull_area_m2": {
+          "max": 1493717.9176125,
+          "median": 1483379.193955,
+          "min": 1432652.939538
+        },
+        "coverage_grid_resolution": {
+          "max": 24.0,
+          "median": 24.0,
+          "min": 24.0
+        },
+        "degree_five_plus_share": {
+          "max": 0.1258660508083141,
+          "median": 0.12408759124087591,
+          "min": 0.1180327868852459
+        },
+        "degree_four_share": {
+          "max": 0.4633879781420765,
+          "median": 0.4387990762124711,
+          "min": 0.4148418491484185
+        },
+        "degree_one_share": {
+          "max": 0.05474452554744526,
+          "median": 0.054272517321016164,
+          "min": 0.046994535519125684
+        },
+        "degree_three_share": {
+          "max": 0.16058394160583941,
+          "median": 0.15242494226327943,
+          "min": 0.14754098360655737
+        },
+        "degree_two_share": {
+          "max": 0.24574209245742093,
+          "median": 0.22863741339491916,
+          "min": 0.22404371584699453
+        },
+        "district_count": {
+          "max": 10.0,
+          "median": 10.0,
+          "min": 10.0
+        },
+        "district_quadrant_presence_share": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "global_local_junction_proximity_share": {
+          "max": 0.47959183673469385,
+          "median": 0.45098039215686275,
+          "min": 0.4205607476635514
+        },
+        "global_local_street_cell_presence_share": {
+          "max": 0.493573264781491,
+          "median": 0.49061032863849763,
+          "min": 0.4846938775510204
+        },
+        "global_street_cell_presence_share": {
+          "max": 0.6384976525821596,
+          "median": 0.6272493573264781,
+          "min": 0.6198979591836735
+        },
+        "junction_grid_resolution": {
+          "max": 12.0,
+          "median": 12.0,
+          "min": 12.0
+        },
+        "junction_proximity_radius_cells": {
+          "max": 0.5,
+          "median": 0.5,
+          "min": 0.5
+        },
+        "median_connector_length_m": {
+          "max": 12.364125697376018,
+          "median": 10.971742367942179,
+          "min": 10.752852986285548
+        },
+        "median_local_length_m": {
+          "max": 10.157091582218309,
+          "median": 9.443108609572004,
+          "min": 8.501627046158324
+        },
+        "physical_road_length_m": {
+          "max": 33534.779436628196,
+          "median": 32922.44387994782,
+          "min": 32510.220014386046
+        },
+        "physical_segment_count": {
+          "max": 1653.0,
+          "median": 1558.0,
+          "min": 1463.0
+        },
+        "street_density_km_per_km2": {
+          "max": 22.980055372353203,
+          "median": 22.450543734675733,
+          "min": 21.91632466389594
+        },
+        "weak_component_count": {
+          "max": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        }
+      },
+      "runs": [
+        {
+          "geometry_fingerprint": "d10e0991ef0009c9c277810293c9b5a6baa0d423a29eab0b79918f13956a9141",
+          "metrics": {
+            "block_continuity": 0.8924082162510958,
+            "bridge_length_share": 0.10759178374890425,
+            "connector_to_local_length_ratio": 0.4912445549661529,
+            "convex_hull_area_m2": 1483379.193955,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.12408759124087591,
+            "degree_four_share": 0.4148418491484185,
+            "degree_one_share": 0.05474452554744526,
+            "degree_three_share": 0.16058394160583941,
+            "degree_two_share": 0.24574209245742093,
+            "district_count": 10,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.45098039215686275,
+            "global_local_street_cell_presence_share": 0.4846938775510204,
+            "global_street_cell_presence_share": 0.6198979591836735,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 12.364125697376018,
+            "median_local_length_m": 10.157091582218309,
+            "physical_road_length_m": 32510.220014386046,
+            "physical_segment_count": 1463,
+            "street_density_km_per_km2": 21.91632466389594,
+            "weak_component_count": 1
+          },
+          "seed": 17
+        },
+        {
+          "geometry_fingerprint": "f9ffaabf1497a1061af09e19e12a4f05650b9c3931690e021568f78e6c40b9ab",
+          "metrics": {
+            "block_continuity": 0.8744585684803338,
+            "bridge_length_share": 0.1255414315196662,
+            "connector_to_local_length_ratio": 0.5079518097217314,
+            "convex_hull_area_m2": 1493717.9176125,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.1258660508083141,
+            "degree_four_share": 0.4387990762124711,
+            "degree_one_share": 0.054272517321016164,
+            "degree_three_share": 0.15242494226327943,
+            "degree_two_share": 0.22863741339491916,
+            "district_count": 10,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.4205607476635514,
+            "global_local_street_cell_presence_share": 0.49061032863849763,
+            "global_street_cell_presence_share": 0.6384976525821596,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 10.971742367942179,
+            "median_local_length_m": 9.443108609572004,
+            "physical_road_length_m": 33534.779436628196,
+            "physical_segment_count": 1558,
+            "street_density_km_per_km2": 22.450543734675733,
+            "weak_component_count": 1
+          },
+          "seed": 29
+        },
+        {
+          "geometry_fingerprint": "28c775fb8e32341864a0980faab39734ad624e8bedd9e9f2a5813fa67e3ab8be",
+          "metrics": {
+            "block_continuity": 0.8854202193065352,
+            "bridge_length_share": 0.1145797806934647,
+            "connector_to_local_length_ratio": 0.49422732186019885,
+            "convex_hull_area_m2": 1432652.939538,
+            "coverage_grid_resolution": 24,
+            "degree_five_plus_share": 0.1180327868852459,
+            "degree_four_share": 0.4633879781420765,
+            "degree_one_share": 0.046994535519125684,
+            "degree_three_share": 0.14754098360655737,
+            "degree_two_share": 0.22404371584699453,
+            "district_count": 10,
+            "district_quadrant_presence_share": 1.0,
+            "evidence_status": "diagnostic",
+            "global_local_junction_proximity_share": 0.47959183673469385,
+            "global_local_street_cell_presence_share": 0.493573264781491,
+            "global_street_cell_presence_share": 0.6272493573264781,
+            "junction_grid_resolution": 12,
+            "junction_proximity_radius_cells": 0.5,
+            "median_connector_length_m": 10.752852986285548,
+            "median_local_length_m": 8.501627046158324,
+            "physical_road_length_m": 32922.44387994782,
+            "physical_segment_count": 1653,
+            "street_density_km_per_km2": 22.980055372353203,
+            "weak_component_count": 1
+          },
+          "seed": 41
+        }
+      ],
+      "style_id": "organic"
+    }
+  ],
+  "topology_mode": "sidecar_local_fabric_planar"
+}

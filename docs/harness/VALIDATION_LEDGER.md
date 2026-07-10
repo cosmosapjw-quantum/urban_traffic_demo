@@ -379,3 +379,46 @@ Claim boundary:
   does not validate continuous citywide fabric or named-city replication.
 - Zone/POI morphology coupling remains blocked until PR43 global spatial
   coverage and continuous-fabric work passes.
+
+## 2026-07-11: Continuous Fabric Coverage
+
+Change class: global local-fabric metrics, style-aware infill, and structural
+gate v2
+
+Commands run:
+
+```bash
+.venv/bin/python -m pytest tests/test_city_continuous_fabric.py tests/test_city_morphology_quality.py tests/test_city_morphology_diversity.py tests/test_city_planarization.py tests/test_city_map_validation_closure.py tests/test_static_city_map.py -q
+.venv/bin/python -m metroflow.ui.morphology_atlas --output-dir artifacts/city_continuous_fabric_20260711 --seed 17
+.venv/bin/python -m metroflow.ui.morphology_quality_report --output-dir artifacts/city_continuous_fabric_quality_20260711 --seeds 17,29,41
+/usr/bin/time -f 'elapsed=%E cpu=%P maxrss_kb=%M' .venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Observed results:
+
+- targeted city suite: `67 passed in 83.02s`
+- full suite: `479 passed in 134.19s`
+- full-suite process: `elapsed=2:14.81`, `cpu=111%`,
+  `maxrss_kb=1173412`
+- Ruff and diff checks passed
+- three-seed median local cell presence:
+  `ring 0.172 -> 0.618`, `grid 0.309 -> 0.759`,
+  `polycentric 0.338 -> 0.483`, `river 0.342 -> 0.625`,
+  `mixed 0.267 -> 0.615`, `organic 0.152 -> 0.491`
+- final three-seed junction-proximity minima range from `0.421` to `0.958`
+- integrated river test: zero local-road/barrier crossings; intentional bridge
+  crossings remain
+- independent re-review closed all four initial findings
+
+Claim boundary:
+
+- Gate v2 is a project-owned synthetic regression gate, not empirical city
+  validation.
+- Presence-only admission was rejected after visual Goodhart evidence; exact
+  raster parameters and junction proximity are part of the versioned contract.
+- The final atlas is still schematic and does not model parcels, buildings,
+  terrain, or morphology-aware land use.
+- PR44 may open zone/POI coupling only with legacy default/fallback and replay
+  fingerprint coverage.

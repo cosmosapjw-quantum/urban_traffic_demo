@@ -3,6 +3,11 @@ from __future__ import annotations
 import math
 from typing import Any
 
+from .continuous_fabric import (
+    build_continuous_fabric_infill,
+    split_segments_at_barriers,
+)
+
 __all__ = ["build_local_fabric"]
 
 _T_JUNCTION_STAGGER_FRACTION = 0.14
@@ -26,6 +31,20 @@ def build_local_fabric(
     collector_segments: list[dict[str, Any]] = []
     local_keys: set[tuple[Any, ...]] = set()
     collector_keys: set[tuple[Any, ...]] = set()
+    continuous_infill = build_continuous_fabric_infill(
+        morphology_field=morphology_field,
+        street_pattern=street_pattern,
+    )
+    continuous_fabric_segment_count = sum(
+        _append_segment(
+            local_segments,
+            local_keys,
+            kind="local",
+            regime=str(segment["regime"]),
+            points=tuple(segment["points"]),
+        )
+        for segment in continuous_infill["local_segments"]
+    )
     interior_mesh_segment_count = 0
     perimeter_segment_count = 0
     collector_spine_segment_count = 0
@@ -421,7 +440,9 @@ def build_local_fabric(
         "local_segment_count": len(local_segments),
         "collector_segment_count": len(collector_segments),
         "interior_weave_score": float(sum(weave_scores) / max(len(weave_scores), 1)),
-        "interior_mesh_segment_count": int(interior_mesh_segment_count),
+        "interior_mesh_segment_count": int(
+            interior_mesh_segment_count + continuous_fabric_segment_count
+        ),
         "perimeter_segment_count": int(perimeter_segment_count),
         "perimeter_segment_share": float(perimeter_segment_count / max(total_segments, 1)),
         "collector_spine_segment_count": int(collector_spine_segment_count),
@@ -435,6 +456,8 @@ def build_local_fabric(
         "cell_perimeter_road_share": float(perimeter_road_segment_count / max(total_segments, 1)),
         "road_hierarchy_module_signature": road_hierarchy_module_signature,
         "hierarchy_legibility_score": float(hierarchy_legibility_score),
+        "continuous_fabric_strategy": str(continuous_infill["strategy"]),
+        "continuous_fabric_segment_count": int(continuous_fabric_segment_count),
     }
 
 
@@ -451,6 +474,20 @@ def _build_archetype_local_fabric(
     collector_segments: list[dict[str, Any]] = []
     local_keys: set[tuple[Any, ...]] = set()
     collector_keys: set[tuple[Any, ...]] = set()
+    continuous_infill = build_continuous_fabric_infill(
+        morphology_field=morphology_field,
+        street_pattern=street_pattern,
+    )
+    continuous_fabric_segment_count = sum(
+        _append_segment(
+            local_segments,
+            local_keys,
+            kind="local",
+            regime=str(segment["regime"]),
+            points=tuple(segment["points"]),
+        )
+        for segment in continuous_infill["local_segments"]
+    )
     centers_by_district: dict[str, list[tuple[float, float]]] = {}
     cells_by_district: dict[str, list[dict[str, Any]]] = {}
 
@@ -645,6 +682,23 @@ def _build_archetype_local_fabric(
         ):
             inter_district_count += 1
 
+    if street_pattern == "corridor_constrained":
+        barriers = tuple(
+            tuple(_rounded_point(point) for point in polyline)
+            for polyline in tuple(morphology_field.get("barrier_polylines", ()) or ())
+            if len(polyline) >= 2
+        )
+        local_segments = list(
+            split_segments_at_barriers(
+                segments=tuple(local_segments),
+                barrier_polylines=barriers,
+            )
+        )
+        continuous_fabric_segment_count = sum(
+            str(segment["regime"]).startswith("continuous_")
+            for segment in local_segments
+        )
+
     total_segments = len(local_segments) + len(collector_segments)
     signature = (
         "district_stitch",
@@ -676,6 +730,8 @@ def _build_archetype_local_fabric(
         "cell_perimeter_road_share": 0.0,
         "road_hierarchy_module_signature": signature,
         "hierarchy_legibility_score": min(1.0, 0.45 + inter_district_count * 0.05),
+        "continuous_fabric_strategy": str(continuous_infill["strategy"]),
+        "continuous_fabric_segment_count": int(continuous_fabric_segment_count),
     }
 
 
@@ -689,13 +745,28 @@ def _local_grid_polylines(
 ) -> tuple[tuple[tuple[float, float], ...], ...]:
     values = (-1.0, -0.5, 0.0, 0.5, 1.0)
     staggered_x = {
-        "polycentric_mesh": (-0.5, 0.0, 0.5),
-        "multi_grid": (-0.5, 0.5),
+        "polycentric_mesh": values,
+        "multi_grid": values,
     }.get(street_pattern, ())
     stagger = _T_JUNCTION_STAGGER_FRACTION
-    center_row_x = tuple(
-        sorted(values + tuple(x + stagger for x in staggered_x))
-    )
+    stagger_by_x = {
+        x: (-stagger if x == 1.0 else stagger)
+        for x in staggered_x
+    }
+    second_stagger_by_x = {
+        x: (stagger if x == -1.0 else -stagger)
+        for x in staggered_x
+    }
+
+    def row_x_values(y: float) -> tuple[float, ...]:
+        if y == 0.0:
+            extra = tuple(x + stagger_by_x[x] for x in staggered_x)
+        elif y == 0.5:
+            extra = tuple(x + second_stagger_by_x[x] for x in staggered_x)
+        else:
+            extra = ()
+        return tuple(sorted(values + extra))
+
     rows = tuple(
         tuple(
             _rotate_point(
@@ -704,7 +775,7 @@ def _local_grid_polylines(
                 y * half_height,
                 angle_degrees,
             )
-            for x in (center_row_x if y == 0.0 else values)
+            for x in row_x_values(y)
         )
         for y in values
     )
@@ -738,13 +809,23 @@ def _local_grid_polylines(
             (
                 _rotate_point(
                     center,
-                    (x + stagger) * half_width,
+                    (x + stagger_by_x[x]) * half_width,
                     0.0,
                     angle_degrees,
                 ),
                 _rotate_point(
                     center,
                     x * half_width,
+                    0.5 * half_height,
+                    angle_degrees,
+                ),
+            )
+        )
+        columns.append(
+            (
+                _rotate_point(
+                    center,
+                    (x + second_stagger_by_x[x]) * half_width,
                     0.5 * half_height,
                     angle_degrees,
                 ),

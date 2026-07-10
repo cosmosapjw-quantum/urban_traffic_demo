@@ -79,7 +79,7 @@ def write_morphology_quality_envelope(
         )
 
     payload = {
-        "artifact_format_version": "city_morphology_quality_v1",
+        "artifact_format_version": "city_morphology_quality_v2",
         "evidence_status": "diagnostic_not_city_replication",
         "scenario_id": str(scenario_id),
         "topology_mode": str(topology_mode),
@@ -90,6 +90,9 @@ def write_morphology_quality_envelope(
             "street_density_km_per_km2": "physical centerline km per node convex-hull km2",
             "district_quadrant_presence_share": "mean occupied quadrant share inside district envelopes",
             "connector_to_local_length_ratio": "non-local physical length divided by local physical length",
+            "global_street_cell_presence_share": "all physical centerlines present on a 24 by 24 convex-hull raster",
+            "global_local_street_cell_presence_share": "local-class centerlines present on a 24 by 24 convex-hull raster",
+            "global_local_junction_proximity_share": "12 by 12 hull-cell centers within 0.5 cell diagonals of a local degree-3 junction",
         },
     }
     target = Path(output_dir)
@@ -118,7 +121,7 @@ def _render_quality_markdown(payload: dict[str, Any]) -> str:
         "",
         "Diagnostic structural envelope only. It is not city-replication or runtime-validation evidence.",
         "",
-        "| Style | Density km/km2 | Block continuity | Dead ends | Four-way | District coverage |",
+        "| Style | Density km/km2 | Local cells | Junction proximity | Block continuity | Four-way |",
         "|---|---:|---:|---:|---:|---:|",
     ]
     for entry in payload["styles"]:
@@ -129,22 +132,23 @@ def _render_quality_markdown(payload: dict[str, Any]) -> str:
 
         lines.append(
             f"| {entry['style_id']} | {median('street_density_km_per_km2'):.3f} | "
-            f"{median('block_continuity'):.3f} | {median('degree_one_share'):.3f} | "
-            f"{median('degree_four_share'):.3f} | "
-            f"{median('district_quadrant_presence_share'):.3f} |"
+            f"{median('global_local_street_cell_presence_share'):.3f} | "
+            f"{median('global_local_junction_proximity_share'):.3f} | "
+            f"{median('block_continuity'):.3f} | "
+            f"{median('degree_four_share'):.3f} |"
         )
     lines.extend(
         [
             "",
             "## Compact CCoT",
             "",
-            "Question: Which generated styles fail the local structural envelope?",
-            "Evidence: Three-seed density, bridge length, degree mix, and district quadrant presence.",
-            "Inference: Style grammar changes are permitted only for stable multi-seed outliers.",
+            "Question: Do generated styles distribute local streets beyond precinct islands?",
+            "Evidence: Three-seed 24 by 24 local-street cell presence plus the v1 structural metrics.",
+            "Inference: Style grammar changes are admitted only when local presence improves without v1 regressions.",
             "Counterevidence checked: Static maps and named-city references are diagnostic only.",
-            "Decision: Keep this v1 gate scoped to local connectivity, density, and intersection mix.",
-            "Falsifier: A proposed grammar change does not improve its parent metric across all seeds.",
-            "Next action: Use visual counterevidence to design a separate global spatial-coverage probe.",
+            "Decision: Gate v2 requires project-owned minimum local cell presence without empirical fitting.",
+            "Falsifier: Infill improves raster presence but degrades topology, OD, or visual continuity.",
+            "Next action: Visually audit the regenerated atlas before land-use coupling.",
             "",
         ]
     )

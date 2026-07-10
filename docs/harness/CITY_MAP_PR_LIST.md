@@ -162,7 +162,7 @@ Status: complete.
 
 ## PR43 - Continuous Fabric Coverage
 
-Status: proposed.
+Status: complete.
 
 - Add a deterministic global spatial-coverage measure that can distinguish
   continuous street fabric from dense but isolated district patches.
@@ -171,10 +171,24 @@ Status: proposed.
 - Preserve style diversity, planar/OD gates, and project-owned broad
   thresholds; do not fit named cities.
 - Defer morphology-aware zone/POI placement until this gate passes.
+- Pre-change local cell-presence medians ranged from `0.152` to `0.342` for
+  non-grid local fabrics; the synthetic continuous lattice scores `0.498` and
+  the comparable-length precinct-island fixture is materially lower.
+- Gate v2 adds a project-owned `0.40` minimum after style-aware infill while
+  retaining all PR42 thresholds.
+- A visual-review counterexample showed that long lines can game cell
+  presence, so v2 also requires `0.40` local-junction proximity on a 12 by 12
+  raster with a `0.5` cell-diagonal radius.
+- Three-seed local-presence medians improved: ring `0.172 -> 0.618`, grid
+  `0.309 -> 0.759`, polycentric `0.338 -> 0.483`, river `0.342 -> 0.625`,
+  mixed `0.267 -> 0.615`, organic `0.152 -> 0.491`.
+- Validation: focused city suite `67 passed`; full repository `479 passed`;
+  Ruff and diff checks passed; independent finding/fix re-review closed all
+  four findings.
 
 ## PR44 - Morphology-Gated Zone And POI Coupling
 
-Status: blocked on PR43.
+Status: proposed.
 
 - Keep legacy placement as the default and deterministic fallback.
 - Admit morphology-aware placement only from a versioned accepted gate.

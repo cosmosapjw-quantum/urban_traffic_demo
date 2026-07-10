@@ -686,3 +686,33 @@ renderer artifact rather than a centerline-distribution defect.
 
 Next action: Add a probe that changes the infill decision, then implement
 style-aware inter-district fabric only for failing styles.
+
+## 2026-07-11: Reject Presence-Only Fabric Admission
+
+Status: accepted
+
+### Compact CCoT
+
+Question: Is global local-street cell presence sufficient to admit continuous
+fabric?
+
+Evidence: The first infill draft raised presence above the proposed threshold,
+but visual review showed wide X-shaped lines rather than coherent blocks. A
+long-line synthetic cycle can also pass presence while having no local
+degree-3 junctions.
+
+Inference: Presence alone is vulnerable to Goodhart behavior and cannot own the
+admission decision.
+
+Counterevidence checked: The final style forms retain high presence, pass all
+PR42 gates, and also distribute local junctions across a separate coarse raster.
+
+Decision: Gate v2 requires both `0.40` local cell presence and `0.40` local
+junction proximity with exact versioned raster parameters. Reject unknown
+patterns and constrained corridors without valid barriers.
+
+Falsifier: Morphology-aware land use exposes inaccessible or semantically
+incoherent blocks despite both structural metrics passing.
+
+Next action: Open PR44 with legacy-default placement, gate-based admission, and
+replay/static-input fingerprint coverage.

@@ -821,6 +821,8 @@ def _artifact_metadata(
         "morphology_quality_metrics",
         "morphology_quality_status",
         "morphology_quality_gate",
+        "continuous_fabric_strategy",
+        "continuous_fabric_segment_count",
         "seed",
         "ring_road_count",
         "bridge_count",

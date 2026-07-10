@@ -16,12 +16,16 @@ from metroflow.map.road_geometry import RoadGeometryCatalog
 __all__ = [
     "MorphologyQualityMetrics",
     "MorphologyQualityGate",
+    "GLOBAL_STREET_CELL_GRID_RESOLUTION",
     "MORPHOLOGY_QUALITY_GATE_THRESHOLDS",
     "compute_morphology_quality_metrics",
     "evaluate_morphology_quality_gate",
 ]
 
-MORPHOLOGY_QUALITY_GATE_VERSION = "morphology_quality_v1"
+MORPHOLOGY_QUALITY_GATE_VERSION = "morphology_quality_v2"
+GLOBAL_STREET_CELL_GRID_RESOLUTION = 24
+GLOBAL_LOCAL_JUNCTION_GRID_RESOLUTION = 12
+GLOBAL_LOCAL_JUNCTION_RADIUS_CELLS = 0.5
 MORPHOLOGY_QUALITY_GATE_THRESHOLDS = MappingProxyType(
     {
         "minimum_street_density_km_per_km2": 10.0,
@@ -31,6 +35,8 @@ MORPHOLOGY_QUALITY_GATE_THRESHOLDS = MappingProxyType(
         "maximum_mixed_grid_four_way_share": 0.62,
         "maximum_river_dead_end_share": 0.13,
         "minimum_river_block_continuity": 0.87,
+        "minimum_global_local_street_cell_presence_share": 0.40,
+        "minimum_global_local_junction_proximity_share": 0.40,
     }
 )
 
@@ -60,6 +66,12 @@ class MorphologyQualityMetrics:
     degree_four_share: float
     degree_five_plus_share: float
     district_quadrant_presence_share: float
+    global_street_cell_presence_share: float
+    global_local_street_cell_presence_share: float
+    coverage_grid_resolution: int
+    global_local_junction_proximity_share: float
+    junction_grid_resolution: int
+    junction_proximity_radius_cells: float
     weak_component_count: int
     district_count: int
     physical_segment_count: int
@@ -81,6 +93,10 @@ class MorphologyQualityMetrics:
             self.degree_four_share,
             self.degree_five_plus_share,
             self.district_quadrant_presence_share,
+            self.global_street_cell_presence_share,
+            self.global_local_street_cell_presence_share,
+            self.global_local_junction_proximity_share,
+            self.junction_proximity_radius_cells,
         )
         if not all(math.isfinite(value) for value in finite_fields):
             raise ValueError("morphology quality metric values must be finite")
@@ -103,6 +119,9 @@ class MorphologyQualityMetrics:
             self.degree_four_share,
             self.degree_five_plus_share,
             self.district_quadrant_presence_share,
+            self.global_street_cell_presence_share,
+            self.global_local_street_cell_presence_share,
+            self.global_local_junction_proximity_share,
         )
         if any(value < 0.0 or value > 1.0 for value in shares):
             raise ValueError("morphology quality shares must be in [0, 1]")
@@ -116,6 +135,12 @@ class MorphologyQualityMetrics:
             raise ValueError("node degree shares must not sum above 1")
         if self.weak_component_count < 1:
             raise ValueError("weak_component_count must be >= 1")
+        if self.coverage_grid_resolution < 1:
+            raise ValueError("coverage_grid_resolution must be >= 1")
+        if self.junction_grid_resolution < 1:
+            raise ValueError("junction_grid_resolution must be >= 1")
+        if self.junction_proximity_radius_cells <= 0.0:
+            raise ValueError("junction_proximity_radius_cells must be > 0")
         if self.district_count < 0:
             raise ValueError("district_count must be >= 0")
         if self.physical_segment_count < 1:
@@ -138,6 +163,12 @@ class MorphologyQualityMetrics:
                 "degree_four_share": self.degree_four_share,
                 "degree_five_plus_share": self.degree_five_plus_share,
                 "district_quadrant_presence_share": self.district_quadrant_presence_share,
+                "global_street_cell_presence_share": self.global_street_cell_presence_share,
+                "global_local_street_cell_presence_share": self.global_local_street_cell_presence_share,
+                "coverage_grid_resolution": self.coverage_grid_resolution,
+                "global_local_junction_proximity_share": self.global_local_junction_proximity_share,
+                "junction_grid_resolution": self.junction_grid_resolution,
+                "junction_proximity_radius_cells": self.junction_proximity_radius_cells,
                 "weak_component_count": self.weak_component_count,
                 "district_count": self.district_count,
                 "physical_segment_count": self.physical_segment_count,
@@ -219,6 +250,26 @@ def compute_morphology_quality_metrics(
         edges=edges,
         node_ids=tuple(int(node.node_id) for node in topology.nodes),
     )
+    global_street_cell_presence_share = _global_street_cell_presence(
+        edges=edges,
+        hull=hull,
+        resolution=GLOBAL_STREET_CELL_GRID_RESOLUTION,
+    )
+    global_local_street_cell_presence_share = _global_street_cell_presence(
+        edges=tuple(edge for edge in edges if edge.road_class == RoadClass.LOCAL),
+        hull=hull,
+        resolution=GLOBAL_STREET_CELL_GRID_RESOLUTION,
+    )
+    global_local_junction_proximity_share = _global_local_junction_proximity(
+        edges=edges,
+        node_points={
+            int(node.node_id): (float(node.x), float(node.y))
+            for node in topology.nodes
+        },
+        hull=hull,
+        resolution=GLOBAL_LOCAL_JUNCTION_GRID_RESOLUTION,
+        radius_cells=GLOBAL_LOCAL_JUNCTION_RADIUS_CELLS,
+    )
 
     return MorphologyQualityMetrics(
         convex_hull_area_m2=float(hull_area_m2),
@@ -240,6 +291,16 @@ def compute_morphology_quality_metrics(
             edges=edges,
             district_envelopes=district_envelopes,
         ),
+        global_street_cell_presence_share=global_street_cell_presence_share,
+        global_local_street_cell_presence_share=(
+            global_local_street_cell_presence_share
+        ),
+        coverage_grid_resolution=GLOBAL_STREET_CELL_GRID_RESOLUTION,
+        global_local_junction_proximity_share=(
+            global_local_junction_proximity_share
+        ),
+        junction_grid_resolution=GLOBAL_LOCAL_JUNCTION_GRID_RESOLUTION,
+        junction_proximity_radius_cells=GLOBAL_LOCAL_JUNCTION_RADIUS_CELLS,
         weak_component_count=weak_component_count,
         district_count=len(district_envelopes),
         physical_segment_count=len(edges),
@@ -257,8 +318,42 @@ def evaluate_morphology_quality_gate(
     style = str(style_id)
     thresholds = MORPHOLOGY_QUALITY_GATE_THRESHOLDS
     failures: list[str] = []
+    if metrics.coverage_grid_resolution != GLOBAL_STREET_CELL_GRID_RESOLUTION:
+        failures.append(
+            f"coverage_grid_resolution must equal {GLOBAL_STREET_CELL_GRID_RESOLUTION}"
+        )
+    if metrics.junction_grid_resolution != GLOBAL_LOCAL_JUNCTION_GRID_RESOLUTION:
+        failures.append(
+            "junction_grid_resolution must equal "
+            f"{GLOBAL_LOCAL_JUNCTION_GRID_RESOLUTION}"
+        )
+    if not math.isclose(
+        metrics.junction_proximity_radius_cells,
+        GLOBAL_LOCAL_JUNCTION_RADIUS_CELLS,
+        abs_tol=1e-12,
+    ):
+        failures.append(
+            "junction_proximity_radius_cells must equal "
+            f"{GLOBAL_LOCAL_JUNCTION_RADIUS_CELLS:g}"
+        )
     if metrics.weak_component_count != 1:
         failures.append("weak_component_count must equal 1")
+    if (
+        metrics.global_local_street_cell_presence_share
+        < thresholds["minimum_global_local_street_cell_presence_share"]
+    ):
+        failures.append(
+            "global_local_street_cell_presence_share must be >= "
+            f"{thresholds['minimum_global_local_street_cell_presence_share']:g}"
+        )
+    if (
+        metrics.global_local_junction_proximity_share
+        < thresholds["minimum_global_local_junction_proximity_share"]
+    ):
+        failures.append(
+            "global_local_junction_proximity_share must be >= "
+            f"{thresholds['minimum_global_local_junction_proximity_share']:g}"
+        )
     if (
         metrics.street_density_km_per_km2
         < thresholds["minimum_street_density_km_per_km2"]
@@ -316,7 +411,10 @@ def evaluate_morphology_quality_gate(
     return MorphologyQualityGate(
         accepted=not failures,
         gate_version=MORPHOLOGY_QUALITY_GATE_VERSION,
-        gate_scope="weak_connectivity_block_density_intersection_mix_only",
+        gate_scope=(
+            "weak_connectivity_block_density_intersection_mix_"
+            "global_local_cell_presence_junction_proximity"
+        ),
         style_id=style,
         geometry_fingerprint=str(geometry_fingerprint),
         metrics_digest=metrics_digest,
@@ -442,6 +540,107 @@ def _weak_component_count(
                 visited.add(neighbor_id)
                 stack.append(neighbor_id)
     return component_count
+
+
+def _global_street_cell_presence(
+    *,
+    edges: tuple[_PhysicalEdge, ...],
+    hull: tuple[tuple[float, float], ...],
+    resolution: int,
+) -> float:
+    min_x = min(point[0] for point in hull)
+    max_x = max(point[0] for point in hull)
+    min_y = min(point[1] for point in hull)
+    max_y = max(point[1] for point in hull)
+    cell_width = (max_x - min_x) / resolution
+    cell_height = (max_y - min_y) / resolution
+    eligible = {
+        (x_index, y_index)
+        for y_index in range(resolution)
+        for x_index in range(resolution)
+        if _point_in_polygon_or_boundary(
+            (
+                min_x + (x_index + 0.5) * cell_width,
+                min_y + (y_index + 0.5) * cell_height,
+            ),
+            hull,
+        )
+    }
+    if not eligible:
+        return 0.0
+
+    occupied: set[tuple[int, int]] = set()
+    for edge in edges:
+        for left, right in zip(edge.points_m, edge.points_m[1:]):
+            x_span_cells = abs(right[0] - left[0]) / cell_width
+            y_span_cells = abs(right[1] - left[1]) / cell_height
+            sample_count = max(1, int(math.ceil(max(x_span_cells, y_span_cells) * 2.0)))
+            for sample_index in range(sample_count + 1):
+                share = sample_index / sample_count
+                x = left[0] + (right[0] - left[0]) * share
+                y = left[1] + (right[1] - left[1]) * share
+                x_index = min(
+                    resolution - 1,
+                    max(0, int((x - min_x) / cell_width)),
+                )
+                y_index = min(
+                    resolution - 1,
+                    max(0, int((y - min_y) / cell_height)),
+                )
+                cell = (x_index, y_index)
+                if cell in eligible:
+                    occupied.add(cell)
+    return float(len(occupied) / len(eligible))
+
+
+def _global_local_junction_proximity(
+    *,
+    edges: tuple[_PhysicalEdge, ...],
+    node_points: dict[int, tuple[float, float]],
+    hull: tuple[tuple[float, float], ...],
+    resolution: int,
+    radius_cells: float,
+) -> float:
+    local_degree = {node_id: 0 for node_id in node_points}
+    for edge in edges:
+        if edge.road_class != RoadClass.LOCAL:
+            continue
+        local_degree[edge.src_node_id] = local_degree.get(edge.src_node_id, 0) + 1
+        local_degree[edge.dst_node_id] = local_degree.get(edge.dst_node_id, 0) + 1
+    junctions = tuple(
+        node_points[node_id]
+        for node_id, degree in local_degree.items()
+        if degree >= 3
+    )
+    if not junctions:
+        return 0.0
+
+    min_x = min(point[0] for point in hull)
+    max_x = max(point[0] for point in hull)
+    min_y = min(point[1] for point in hull)
+    max_y = max(point[1] for point in hull)
+    cell_width = (max_x - min_x) / resolution
+    cell_height = (max_y - min_y) / resolution
+    radius_m = math.hypot(cell_width, cell_height) * radius_cells
+    eligible_centers = tuple(
+        center
+        for y_index in range(resolution)
+        for x_index in range(resolution)
+        for center in (
+            (
+                min_x + (x_index + 0.5) * cell_width,
+                min_y + (y_index + 0.5) * cell_height,
+            ),
+        )
+        if _point_in_polygon_or_boundary(center, hull)
+    )
+    if not eligible_centers:
+        return 0.0
+    covered_count = sum(
+        any(math.dist(center, junction) <= radius_m for junction in junctions)
+        for center in eligible_centers
+    )
+    return float(covered_count / len(eligible_centers))
 
 
 def _convex_hull(

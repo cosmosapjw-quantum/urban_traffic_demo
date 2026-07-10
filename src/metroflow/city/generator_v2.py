@@ -5123,6 +5123,10 @@ def _build_sidecar_local_fabric_preview_topology(
             "intra_cell_subdivision_count": int(local_fabric.get("intra_cell_subdivision_count", 0)),
             "cell_perimeter_road_share": float(local_fabric.get("cell_perimeter_road_share", 0.0)),
             "hierarchy_legibility_score": float(local_fabric.get("hierarchy_legibility_score", 0.0)),
+            "continuous_fabric_strategy": local_fabric.get("continuous_fabric_strategy"),
+            "continuous_fabric_segment_count": int(
+                local_fabric.get("continuous_fabric_segment_count", 0)
+            ),
             "hierarchy_module_counts": dict(hierarchy_module_counts),
             "road_hierarchy_module_signature": road_hierarchy_module_signature,
             "road_hierarchy_module_alignment_ok": bool(

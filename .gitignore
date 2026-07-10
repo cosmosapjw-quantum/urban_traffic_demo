@@ -24,6 +24,7 @@ Thumbs.db
 artifacts/static_city_map_review_20260710/*.html
 artifacts/city_morphology_atlas_20260710/*.html
 artifacts/city_morphology_atlas_20260711/*.html
+artifacts/city_continuous_fabric_20260711/*.html
 
 .vscode/
 .idea/

@@ -83,9 +83,14 @@ Derived conclusions:
   reduce corridor dead ends. The new visual audit still shows isolated precinct
   patches separated by bare inter-district links, so citywide continuity and
   morphology-aware land use remain open.
+- PR43 adds global local-street cell presence and local-junction proximity,
+  rejects a presence-only Goodhart failure, and supplies style-specific
+  continuous infill. All explicit styles pass gate v2 across the deterministic
+  matrix; integrated river audit leaves barrier crossings to bridge links.
+  The maps remain schematic and are not named-city realism evidence.
 - Canonical diagnostic bundle:
-  `artifacts/city_morphology_atlas_20260711/` and
-  `artifacts/city_morphology_quality_20260711/`.
+  `artifacts/city_continuous_fabric_20260711/` and
+  `artifacts/city_continuous_fabric_quality_20260711/`.
 
 ## Next Implementation Decision
 
@@ -94,7 +99,6 @@ benchmark evidence that can change a parent-stage decision. The strongest
 watchlist lanes remain dynamic-potential/cache work, dense flow scaling,
 route-score batch probes, simulator-label-driven surrogate experiments, and
 active-agent pool-array replacement only if it becomes review-ready again.
-City-map work is separately bounded by PR43 continuous-fabric coverage. The
-next probe must distinguish precinct islands from citywide street coverage and
-change generator behavior; renderer-only work and zone/POI coupling remain
-deferred until that gate passes.
+City-map work may proceed to PR44 morphology-gated zone/POI placement. Legacy
+placement remains default/fallback, and the v2 topology gate plus static-input
+fingerprint must be preserved. Renderer-only work remains out of scope.
