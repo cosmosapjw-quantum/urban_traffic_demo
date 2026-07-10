@@ -14,6 +14,20 @@ from .labels import SimulatorLabelRecord as SimulatorLabelRecord
 from .labels import export_cost_to_go_label_records as export_cost_to_go_label_records
 from .labels import export_route_scoring_label_records as export_route_scoring_label_records
 from .labels import write_label_records_jsonl as write_label_records_jsonl
+from .cost_to_go_features import (
+    COST_TO_GO_FEATURE_NAMES as COST_TO_GO_FEATURE_NAMES,
+)
+from .cost_to_go_features import (
+    COST_TO_GO_FEATURE_SCHEMA_VERSION as COST_TO_GO_FEATURE_SCHEMA_VERSION,
+)
+from .cost_to_go_features import CostToGoDatasetSplit as CostToGoDatasetSplit
+from .cost_to_go_features import CostToGoFeatureDataset as CostToGoFeatureDataset
+from .cost_to_go_features import (
+    build_cost_to_go_feature_dataset as build_cost_to_go_feature_dataset,
+)
+from .cost_to_go_features import (
+    split_cost_to_go_feature_dataset as split_cost_to_go_feature_dataset,
+)
 from .policy_blend import PolicyBlendFallbackReason as PolicyBlendFallbackReason
 from .policy_blend import PolicyBlendState as PolicyBlendState
 from .policy_blend import apply_policy_blend_control as apply_policy_blend_control
@@ -36,10 +50,15 @@ __all__ = [
     "RouteSurrogateModel",
     "RouteSurrogatePrediction",
     "SimulatorLabelRecord",
+    "COST_TO_GO_FEATURE_NAMES",
+    "COST_TO_GO_FEATURE_SCHEMA_VERSION",
+    "CostToGoDatasetSplit",
+    "CostToGoFeatureDataset",
     "apply_od_bandit_reward_update",
     "apply_policy_blend_control",
     "blend_route_scores",
     "build_od_ucb_state",
+    "build_cost_to_go_feature_dataset",
     "choose_ucb_arm",
     "compute_policy_mix_lambda",
     "compute_ucb_scores_core",
@@ -52,6 +71,7 @@ __all__ = [
     "predict_route_surrogate_scores",
     "select_ucb_arm",
     "select_ucb_arm_core",
+    "split_cost_to_go_feature_dataset",
     "update_od_ucb_arrays_core",
     "update_od_ucb_state",
     "update_online_od_bandit",

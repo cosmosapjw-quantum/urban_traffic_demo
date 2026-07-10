@@ -224,15 +224,17 @@ Review must explicitly check:
 
 Preferred next implementation slice:
 
-- refresh the hardware-fit atlas when changing backend direction;
-- fix or amortize dynamic-potential recompute first;
-- compare Rust CPU dynamic-potential against Python baseline on generated OD
-  workloads without enabling Rust path-build/metadata for the whole runtime;
-- keep Python greedy/baseline route legality authoritative;
-- keep existing active-agent timing evidence unchanged until active-agent array
-  write becomes review-ready again.
+- close PR48's target-independent cost-to-go feature and group-split contract;
+- audit that contract across multiple generated city styles, seeds,
+  destinations, and dynamic states before fitting a model;
+- keep Python baseline Dijkstra as label and route-legality authority;
+- keep Rust potential/cache work and active-agent array write on their existing
+  watchlists while the NN label lane receives this bounded step-back slice;
+- return to GPU flow only through the explicit checkpoint-cadence falsifier in
+  PR47, not through another nested flow timing counter.
 
 Stop condition:
 
-- If potential recompute optimization fails to reduce the review-ready route
-  refresh parent, step back before adding another routing backend surface.
+- If PR49 finds degenerate row-local features or cross-map holdout cannot be
+  constructed, do not tune an MLP. Specify adjacency/edge tensors or stop the
+  surrogate lane before PR50.

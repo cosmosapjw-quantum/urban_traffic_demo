@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 import json
 import sys
 import subprocess
@@ -93,6 +94,47 @@ def test_label_fingerprint_changes_when_authoritative_cost_changes():
     assert [record.fingerprint for record in baseline] != [
         record.fingerprint for record in changed
     ]
+
+
+def test_label_records_are_immutable_and_reject_stale_fingerprints():
+    from metroflow.learning.labels import export_cost_to_go_label_records
+
+    road_csr, link_state = make_label_fixture()
+    record = export_cost_to_go_label_records(
+        road_csr=road_csr,
+        link_state=link_state,
+        destination_node_ids=(4,),
+    )[0]
+
+    with pytest.raises(TypeError):
+        record.features["node_id"] = 99
+    with pytest.raises(TypeError):
+        record.features["model_inputs"]["is_destination"] = 0.5
+    with pytest.raises(ValueError, match="fingerprint does not match"):
+        replace(
+            record,
+            labels={"label_cost_to_go": float(record.labels["label_cost_to_go"]) + 1.0},
+        )
+
+
+def test_cost_to_go_export_deduplicates_destination_ids_compatibly():
+    from metroflow.learning.labels import export_cost_to_go_label_records
+
+    road_csr, link_state = make_label_fixture()
+    unique = export_cost_to_go_label_records(
+        road_csr=road_csr,
+        link_state=link_state,
+        destination_node_ids=(4,),
+    )
+    duplicated = export_cost_to_go_label_records(
+        road_csr=road_csr,
+        link_state=link_state,
+        destination_node_ids=(4, 4),
+    )
+
+    assert tuple(record.fingerprint for record in duplicated) == tuple(
+        record.fingerprint for record in unique
+    )
 
 
 def test_route_scoring_label_export_records_selected_baseline_candidate():

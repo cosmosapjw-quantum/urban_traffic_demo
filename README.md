@@ -16,6 +16,9 @@
 - core loop 기본값은 항상 baseline이며, JAX/CUDA 경로는 명시적으로 요청한 경우에만 사용한다.
 - JAX/GPU와 NN surrogate는 route scoring, policy scoring, dense flow batch처럼 tensor-friendly stage의
   후보 실험 표면으로 유지한다. deterministic NumPy/Rust baseline은 replay와 validation authority다.
+- cost-to-go NN 실험은 baseline Dijkstra label, ID-free versioned model inputs,
+  target-independent destination-group split을 먼저 요구한다. Row-local v1은
+  cross-city 일반화 증거가 아니며 runtime route legality를 소유하지 않는다.
 - `edge_backend="rust_cpu"`와 `edge_backend="jax"`는 실패 시 예외를 내고,
   `edge_backend="auto"`만 `rust_cpu` → `jax` → `baseline` 순서의 fallback을 허용한다.
 - `SimulationConfig`의 runtime backend 기본값은 `edge_backend="baseline"`,

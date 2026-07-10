@@ -290,14 +290,39 @@ Status: accepted.
 
 ## PR48 — Cost-To-Go Surrogate Feature Contract
 
-Status: queued; experiment-only.
+Status: accepted; experiment-only.
 
-- Inspect PR07 cost-to-go labels for learnable geometric/topological features;
-  IDs alone are not an admissible surrogate input contract.
+- Add a versioned 20-column row-local geometry/topology/dynamic-state feature
+  contract; IDs remain provenance and are excluded from the model matrix.
+- Fingerprint static geometry and dynamic link state independently.
+- Add an input-only static-network/destination group split. It supports
+  same-network unseen-destination claims only; cross-network generalization is
+  not yet validated.
 - Keep baseline Dijkstra as label and route-legality authority.
-- Add no runtime NN backend. A later JAX training bakeoff requires deterministic
-  train/validation split, error-by-distance reporting, model fingerprint, and
-  explicit baseline fallback.
+- Add no runtime NN backend and import no accelerator.
+- Commit target: `feat(learning): add cost-to-go feature contract`.
+
+## PR49 — Multi-City Cost-To-Go Feature Audit
+
+Status: queued; diagnostic-only.
+
+- Build a deterministic simulator-only corpus across at least three city styles,
+  three seeds, multiple destinations, and at least two dynamic link states.
+- Report feature variance, constant/near-constant columns, distance bins, target
+  range, closure coverage, group counts, and cross-map holdout feasibility.
+- Do not fit a model. The audit decides whether row-local v1 is admissible for a
+  JAX MLP probe or whether adjacency/edge tensors are required first.
+
+## PR50 — JAX Cost-To-Go Surrogate Bakeoff
+
+Status: conditional on PR49; GPU experiment-only.
+
+- Fit a small JAX model only on PR49-authorized features and grouped partitions.
+- Record first-call compile, steady train/inference timing, error by distance and
+  city holdout, model/data/split fingerprints, and deterministic baseline
+  fallback metadata.
+- Never use predictions for route legality or runtime state mutation. Runtime
+  integration requires a later explicit spec and replay gate.
 
 ## Spec Template
 

@@ -823,3 +823,37 @@ without relaxing the numeric gate.
 
 Next action: Switch lanes to PR48 and strengthen simulator-only cost-to-go
 feature/label contracts before opening any NN training or runtime authority.
+
+## 2026-07-11: Require A Leakage-Safe Feature Contract Before NN Fitting
+
+Status: accepted after spec, code, and drift review
+
+### Compact CCoT
+
+Question: What substrate is required before a GPU cost-to-go surrogate result
+can be interpreted?
+
+Evidence: Existing PR27 rows expose node and destination identifiers, while the
+authoritative target changes with geometry, directed topology, link travel
+cost, effective capacity, and closures. Record fingerprints include labels and
+cannot own split assignment.
+
+Inference: Model inputs and split groups must be versioned and derived only
+from input provenance before any fit/accuracy number is useful.
+
+Counterevidence checked: A row-local feature vector does not encode full graph
+adjacency and cannot establish cross-city generalization. Per-network
+normalization is input-derived, not fitted from train/validation labels.
+
+Decision: Add a NumPy-only 20-column feature contract, independent static and
+dynamic fingerprints, raw distance diagnostics, and a target-independent
+static-network/destination group split. Keep Dijkstra and route
+legality authoritative.
+
+Falsifier: Multi-city audit shows constant/degenerate features, destination
+leakage, insufficient closure coverage, or a need for explicit adjacency and
+edge tensors.
+
+Next action: PR49 audits multi-city feature support. PR50 may fit a JAX model
+only if PR49 authorizes the row-local contract; neither PR adds runtime
+authority.

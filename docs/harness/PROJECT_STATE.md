@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-07-10
+Last updated: 2026-07-11
 
 ## Runtime Baseline
 
@@ -59,6 +59,11 @@ Derived conclusions:
   flow chunks at 4,096 and 16,384 links after warmup. The 65,536-link case fails
   the fixed `1e-3` drift gate. Per-tick host synchronization and mutable runtime
   inputs remain unmeasured, so no JAX runtime flow backend is authorized.
+- PR48 replaces identifier-only cost-to-go rows with a versioned NumPy feature
+  contract and target-independent grouped split. The feature surface is
+  row-local and experiment-only; it does not establish cross-city
+  generalization or authorize an NN backend. Final gate: `522 passed`; all
+  three review perspectives, Ruff, and diff checks are clean.
 
 ## Open Risks
 
@@ -120,7 +125,6 @@ route-score batch probes, simulator-label-driven surrogate experiments, and
 active-agent pool-array replacement only if it becomes review-ready again.
 PR45 closes the current city-map lane without authorizing PR46. PR47 moves the
 GPU dense-flow chunk to a bounded watchlist but does not authorize runtime
-integration. To avoid another flow-local instrumentation loop, the next
-implementation candidate is PR48: improve simulator-only cost-to-go feature and
-label contracts before any JAX/NN training bakeoff. Baseline Dijkstra remains
-authoritative.
+integration. PR48 is the active feature-contract slice. After its gates close,
+PR49 must audit feature variance and cross-map holdout feasibility before PR50
+may run a JAX/NN training bakeoff. Baseline Dijkstra remains authoritative.

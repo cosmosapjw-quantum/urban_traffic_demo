@@ -110,3 +110,10 @@
 - baseline fallback 필수
 - reward/cost clipping rule 명시
 - update cadence 문서화
+- cost-to-go supervised labels는 baseline dynamic-potential만 authority로
+  사용한다. ID/index는 provenance이며 model feature가 아니다.
+- surrogate split key는 label/fingerprint가 아니라 static network와
+  destination input provenance로 만들고 동일 destination의 여러 scenario,
+  tick, dynamic state를 한 partition에 유지한다.
+- row-local feature matrix는 cross-city graph representation이 아니다. 여러
+  map holdout evidence 없이 일반화 또는 runtime routing authority를 주장하지 않는다.

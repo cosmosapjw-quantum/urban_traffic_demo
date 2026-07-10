@@ -118,6 +118,13 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - active-agent reroute parity는 incident/refresh-cadence trigger, cooldown-preserve behavior,
   current-link 이후 route tail replacement, reroute/cooldown telemetry counters를 고정한다
 - JAX 첫 호출 compile time과 steady-state runtime을 분리 기록
+- cost-to-go surrogate data는 baseline dynamic-potential labels만 사용한다.
+  Model matrix에서 ID/index를 제외하고 feature/static-network/dynamic-state
+  fingerprint를 분리하며, static-network/destination group을 train과
+  validation에 중복 배치하지 않는다.
+- row-local cost-to-go v1 split은 same-network unseen-destination 진단만
+  지지한다. Cross-city validation claim은 별도 map holdout과 feature-variance
+  audit 전에는 금지한다.
 - JAX dense-flow persistent chunk bakeoff는 process/device warmup을 별도 기록하고, per-shape
   first call은 warm-process trace/compile/execute estimate로만 부른다. first-result output copy는 steady
   result copy를 사용한 estimate임을 명시해야 한다.

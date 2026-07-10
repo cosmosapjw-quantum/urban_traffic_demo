@@ -10,12 +10,14 @@ from dataclasses import dataclass, field
 import hashlib
 import json
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Mapping, Sequence
 
 import numpy as np
 
 from metroflow.city.graph import RoadNetworkCSR
 from metroflow.flow.state import LinkState
+from metroflow.learning.cost_to_go_features import _build_cost_to_go_feature_context
 from metroflow.routing.candidates import create_route_candidate_set
 from metroflow.routing.dynamic_potential import compute_dynamic_potential_state
 from metroflow.sim.routing_runtime import _select_candidate_route
@@ -39,9 +41,9 @@ class SimulatorLabelRecord:
     scenario_id: str
     tick_index: int
     routing_backend: str
-    features: dict[str, Any]
-    labels: dict[str, Any]
-    metadata: dict[str, Any] = field(default_factory=dict)
+    features: Mapping[str, Any]
+    labels: Mapping[str, Any]
+    metadata: Mapping[str, Any] = field(default_factory=dict)
     schema_version: int = SCHEMA_VERSION
     fingerprint: str = ""
 
@@ -73,21 +75,23 @@ class SimulatorLabelRecord:
         object.__setattr__(self, "labels", labels)
         object.__setattr__(self, "metadata", metadata)
         object.__setattr__(self, "schema_version", schema_version)
+        expected_fingerprint = _fingerprint_payload(
+            {
+                "schema_version": schema_version,
+                "label_kind": label_kind,
+                "source_authority": source_authority,
+                "scenario_id": scenario_id,
+                "tick_index": tick_index,
+                "routing_backend": str(self.routing_backend),
+                "features": features,
+                "labels": labels,
+                "metadata": metadata,
+            }
+        )
         fingerprint = str(self.fingerprint).strip()
-        if not fingerprint:
-            fingerprint = _fingerprint_payload(
-                {
-                    "schema_version": schema_version,
-                    "label_kind": label_kind,
-                    "source_authority": source_authority,
-                    "scenario_id": scenario_id,
-                    "tick_index": tick_index,
-                    "routing_backend": str(self.routing_backend),
-                    "features": features,
-                    "labels": labels,
-                    "metadata": metadata,
-                }
-            )
+        if fingerprint and fingerprint != expected_fingerprint:
+            raise ValueError("fingerprint does not match simulator label record contents")
+        fingerprint = expected_fingerprint
         object.__setattr__(self, "fingerprint", fingerprint)
 
     def to_json_dict(self) -> dict[str, Any]:
@@ -98,9 +102,9 @@ class SimulatorLabelRecord:
             "scenario_id": self.scenario_id,
             "tick_index": int(self.tick_index),
             "routing_backend": self.routing_backend,
-            "features": self.features,
-            "labels": self.labels,
-            "metadata": self.metadata,
+            "features": _json_ready(self.features),
+            "labels": _json_ready(self.labels),
+            "metadata": _json_ready(self.metadata),
             "fingerprint": self.fingerprint,
         }
 
@@ -120,8 +124,12 @@ def export_cost_to_go_label_records(
         raise ValueError("cost-to-go label export requires routing_backend='baseline'")
     if link_state.link_count != road_csr.link_count:
         raise ValueError("link_state.link_count must match road_csr.link_count")
+    destination_ids = tuple(
+        dict.fromkeys(int(node_id) for node_id in destination_node_ids)
+    )
+    feature_context = _build_cost_to_go_feature_context(road_csr, link_state)
     records: list[SimulatorLabelRecord] = []
-    for destination_node_id in tuple(int(node_id) for node_id in destination_node_ids):
+    for destination_node_id in destination_ids:
         potential = compute_dynamic_potential_state(
             road_csr,
             destination_node_id=destination_node_id,
@@ -148,6 +156,12 @@ def export_cost_to_go_label_records(
                         "destination_node_index": int(
                             potential.destination_node_index
                         ),
+                        "model_inputs": feature_context.model_inputs(
+                            node_index=int(node_index),
+                            destination_node_index=int(
+                                potential.destination_node_index
+                            ),
+                        ),
                     },
                     labels={"label_cost_to_go": cost_f},
                     metadata={
@@ -160,6 +174,13 @@ def export_cost_to_go_label_records(
                         "label_units": {
                             "label_cost_to_go": "generalized_travel_time_cost_ticks",
                         },
+                        **feature_context.record_metadata(
+                            node_index=int(node_index),
+                            destination_node_index=int(
+                                potential.destination_node_index
+                            ),
+                            destination_node_id=int(destination_node_id),
+                        ),
                     },
                 )
             )
@@ -320,8 +341,10 @@ def _route_score_values(
     )
 
 
-def _canonical_mapping(value: Mapping[str, Any] | dict[str, Any]) -> dict[str, Any]:
-    return {str(key): _canonical_value(raw) for key, raw in dict(value).items()}
+def _canonical_mapping(value: Mapping[str, Any] | dict[str, Any]) -> Mapping[str, Any]:
+    return MappingProxyType(
+        {str(key): _canonical_value(raw) for key, raw in dict(value).items()}
+    )
 
 
 def _canonical_value(value: Any) -> Any:
