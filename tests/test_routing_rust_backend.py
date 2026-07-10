@@ -474,6 +474,41 @@ def test_greedy_route_topology_cache_ignores_stale_legacy_network_id_key() -> No
     assert path == (10, 12, 13)
 
 
+def test_dynamic_link_arrays_are_resolved_from_current_values() -> None:
+    from metroflow.routing import dynamic_potential
+
+    road_csr, link_state = _make_routing_fixture()
+    cache: dict[object, object] = {}
+    initial = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="baseline",
+        cache=cache,
+    )
+    link_state.travel_time_cost[:] = (1.0, 1.0, 5.0, 1.0)
+    link_state.incident_capacity_multiplier[2] = 0.0
+    current = dynamic_potential.compute_dynamic_potential_state(
+        road_csr,
+        destination_node_id=4,
+        link_state=link_state,
+        routing_backend="baseline",
+        cache=cache,
+    )
+    scores = dynamic_potential.score_legal_next_links(
+        road_csr,
+        current,
+        current_node_id=1,
+    )
+
+    assert initial.link_travel_time_cost.tolist() == [50.0, 1.0, 1.0, 1.0]
+    assert current.link_travel_time_cost.tolist() == [1.0, 1.0, 5.0, 1.0]
+    assert current.blocked_link_mask.tolist() == [False, False, True, False]
+    assert scores.candidate_link_ids == (10,)
+    assert scores.action_costs == (2.0,)
+    assert cache == {}
+
+
 def test_route_candidate_refresh_passes_routing_backend(monkeypatch: pytest.MonkeyPatch) -> None:
     from metroflow.routing import candidates
     from metroflow.routing import dynamic_potential

@@ -172,14 +172,6 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
     potential_state = None
     potential_metadata: dict[str, Any] = {}
     if max_candidates >= 1:
-        effective_cache_key = cache_key
-        if effective_cache_key is None:
-            effective_cache_key = (
-                "route_candidate_set",
-                int(destination_node_id),
-                id(road_csr),
-                id(link_state),
-            )
         potential_started = perf_counter()
         potential_state = compute_dynamic_potential_state(
             network=road_csr,
@@ -187,7 +179,7 @@ def build_route_candidate_set(**kwargs) -> RouteCandidateSet:
             destination_node_id=destination_node_id,
             routing_backend=routing_backend,
             cache=potential_cache,
-            cache_key=effective_cache_key,
+            cache_key=cache_key,
             stats=stats,
         )
         _add_stats_seconds(

@@ -39,8 +39,6 @@ _TURN_SUCCESSOR_CACHE: dict[
 ] = {}
 _OUTGOING_LINK_LOOKUP_CACHE: dict[tuple[int, int, int], tuple[tuple[int, ...], ...]] = {}
 _STATIC_BLOCKABLE_MASK_CACHE: dict[tuple[int, int], np.ndarray] = {}
-_LINK_COST_CACHE: dict[tuple[int, int, int], np.ndarray] = {}
-_BLOCKED_MASK_CACHE: dict[tuple[int, int, int, int], np.ndarray] = {}
 _REVERSE_GRAPH_CACHE: dict[tuple[int, int, int], tuple[np.ndarray, np.ndarray, np.ndarray]] = {}
 
 
@@ -101,29 +99,19 @@ def compute_dynamic_potential_state(
 
     When `link_state` is provided, current `travel_time_cost` drives the
     baseline potential and links with zero effective capacity are treated as
-    blocked if the static link is blockable.
+    blocked if the static link is blockable. A supplied cache is used only
+    when `cache_key` is explicit; callers own generation-based invalidation.
     """
 
     if not isinstance(network, RoadNetworkCSR):
         raise TypeError("network must be a RoadNetworkCSR")
     _validate_routing_backend(routing_backend)
     effective_cache_key = None
-    if cache is not None:
-        raw_cache_key = (
-            cache_key
-            if cache_key is not None
-            else (
-                "dynamic_potential",
-                _network_topology_cache_key(network),
-                int(destination_node_id),
-                id(link_state) if link_state is not None else None,
-                id(link_travel_time_cost) if link_travel_time_cost is not None else None,
-            )
-        )
+    if cache is not None and cache_key is not None:
         effective_cache_key = (
             "dynamic_potential_backend",
             str(routing_backend),
-            raw_cache_key,
+            cache_key,
         )
         cached = cache.get(effective_cache_key)
         if cached is not None:
@@ -490,18 +478,10 @@ def _resolve_link_costs(
     if link_state is not None:
         if link_state.link_count != network.link_count:
             raise ValueError("link_state.link_count must match network.link_count")
-        cache_key = (
-            _network_topology_cache_key(network),
-            int(network.link_count),
-            id(link_state.travel_time_cost),
+        return np.maximum(
+            np.asarray(link_state.travel_time_cost, dtype=np.float32),
+            np.float32(1e-6),
         )
-        cached = _LINK_COST_CACHE.get(cache_key)
-        if cached is not None:
-            return cached
-        value = np.maximum(np.asarray(link_state.travel_time_cost, dtype=np.float32), np.float32(1e-6))
-        _LINK_COST_CACHE[cache_key] = value
-        _prune_small_cache(_LINK_COST_CACHE, max_entries=64)
-        return value
     if link_travel_time_cost is not None:
         arr = np.asarray(link_travel_time_cost, dtype=np.float32)
         if arr.ndim != 1 or int(arr.shape[0]) != network.link_count:
@@ -522,23 +502,11 @@ def _resolve_blocked_link_mask(
 ) -> Array:
     if link_state is None:
         return np.zeros((size,), dtype=np.bool_)
-    cache_key = (
-        _network_topology_cache_key(network),
-        int(size),
-        id(link_state.capacity_veh_per_tick),
-        id(link_state.incident_capacity_multiplier),
-    )
-    cached = _BLOCKED_MASK_CACHE.get(cache_key)
-    if cached is not None:
-        return cached
     static_blockable = _static_blockable_mask(network)
     capacity = np.asarray(link_state.capacity_veh_per_tick, dtype=np.float32)
     incident = np.asarray(link_state.incident_capacity_multiplier, dtype=np.float32)
     blocked = (capacity * incident) <= np.float32(0.0)
-    value = np.asarray(blocked, dtype=np.bool_) & static_blockable
-    _BLOCKED_MASK_CACHE[cache_key] = value
-    _prune_small_cache(_BLOCKED_MASK_CACHE, max_entries=64)
-    return value
+    return np.asarray(blocked, dtype=np.bool_) & static_blockable
 
 
 def _compute_next_link_action_costs_host(
