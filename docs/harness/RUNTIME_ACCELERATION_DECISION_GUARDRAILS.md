@@ -1,7 +1,7 @@
 # Runtime Acceleration Decision Guardrails
 
 Status: active
-Last updated: 2026-07-10
+Last updated: 2026-07-11
 
 This document controls runtime backend/NN triage after the deep acceleration
 audit. It exists to prevent local-minimum optimization loops, evidence drift,
@@ -225,8 +225,10 @@ Review must explicitly check:
 Preferred next implementation slice:
 
 - close PR48's target-independent cost-to-go feature and group-split contract;
-- audit that contract across multiple generated city styles, seeds,
-  destinations, and dynamic states before fitting a model;
+- retain PR49's failed row-local relation gate as evidence; do not relax its
+  quantization or conflict threshold to admit an MLP;
+- define adjacency/edge-state tensors and batching masks before any graph-aware
+  model fit;
 - keep Python baseline Dijkstra as label and route-legality authority;
 - keep Rust potential/cache work and active-agent array write on their existing
   watchlists while the NN label lane receives this bounded step-back slice;
@@ -235,6 +237,6 @@ Preferred next implementation slice:
 
 Stop condition:
 
-- If PR49 finds degenerate row-local features or cross-map holdout cannot be
-  constructed, do not tune an MLP. Specify adjacency/edge tensors or stop the
-  surrogate lane before PR50.
+- PR49 found high row-local target conflict despite nondegenerate features and
+  valid holdout support. Do not tune an MLP. PR50 is the adjacency/edge tensor
+  contract; graph-aware training remains conditional in PR51.

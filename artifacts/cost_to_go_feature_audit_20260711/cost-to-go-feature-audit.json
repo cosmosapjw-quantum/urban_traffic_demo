@@ -1,0 +1,678 @@
+{
+  "aggregate": {
+    "all_maps_have_closure_support": true,
+    "all_maps_have_v1_split": true,
+    "all_state_rows_retained": true,
+    "corpus_fingerprint": "e877226abc86a308b63d4b34e8eeff4ed0adbf481d8b93169c039760bf08b018",
+    "cross_map_holdout_feasible": true,
+    "destination_group_count": 36,
+    "dynamic_feature_changed_count": 32484,
+    "dynamic_feature_changed_share": 1.0,
+    "dynamic_joint_changed_count": 32448,
+    "dynamic_joint_changed_share": 0.9988917620982638,
+    "dynamic_matched_row_count": 32484,
+    "dynamic_state_count": 18,
+    "dynamic_target_changed_count": 32448,
+    "dynamic_target_changed_share": 0.9988917620982638,
+    "map_count": 9,
+    "nonconstant_feature_share": 0.9,
+    "raw_distance_maximum_m": 4778.549138138061,
+    "raw_distance_minimum_m": 0.0,
+    "row_count": 64968,
+    "target_maximum": 870.4700927734375,
+    "target_minimum": 0.0,
+    "target_standard_deviation": 137.817740463858
+  },
+  "artifact_format_version": "cost_to_go_feature_audit_v1",
+  "config": {
+    "canonical_gate_profile": true,
+    "closure_fraction": 0.03,
+    "destination_count": 4,
+    "minimum_nonconstant_feature_share": 0.7,
+    "near_constant_std_threshold": 1e-06,
+    "seeds": [
+      17,
+      29,
+      41
+    ],
+    "style_ids": [
+      "grid_core",
+      "polycentric_tod",
+      "organic"
+    ],
+    "topology_mode": "sidecar_local_fabric_planar"
+  },
+  "decision": {
+    "adjacency_required_before_mlp": true,
+    "decision_state": "relation_rejected",
+    "next_pr": "PR50_adjacency_edge_tensor_contract",
+    "raw_label_rows_persisted": false,
+    "route_legality_changed": false,
+    "row_local_mlp_probe_authorized": false,
+    "runtime_nn_backend_authorized": false
+  },
+  "distance_bins": [
+    {
+      "lower_inclusive": 0.0,
+      "row_count": 6974,
+      "target_mean": 70.50336896197174,
+      "target_standard_deviation": 56.70137678242406,
+      "upper_exclusive": 0.25
+    },
+    {
+      "lower_inclusive": 0.25,
+      "row_count": 31788,
+      "target_mean": 156.6240549635944,
+      "target_standard_deviation": 101.50624876857813,
+      "upper_exclusive": 0.5
+    },
+    {
+      "lower_inclusive": 0.5,
+      "row_count": 24240,
+      "target_mean": 268.62953230162265,
+      "target_standard_deviation": 142.14381649282734,
+      "upper_exclusive": 0.75
+    },
+    {
+      "lower_inclusive": 0.75,
+      "row_count": 1966,
+      "target_mean": 319.9365094826156,
+      "target_standard_deviation": 198.30469969580827,
+      "upper_exclusive": 1.0
+    }
+  ],
+  "evidence_status": "diagnostic_not_validation",
+  "feature_columns": [
+    {
+      "feature_name": "relative_x_by_spatial_diagonal",
+      "maximum": 0.7875176668167114,
+      "mean": 0.0028218016693100727,
+      "minimum": -0.7566120624542236,
+      "near_constant": false,
+      "nonzero_share": 0.995197635759143,
+      "standard_deviation": 0.3670244583524177
+    },
+    {
+      "feature_name": "relative_y_by_spatial_diagonal",
+      "maximum": 0.69135582447052,
+      "mean": 0.006092156358741807,
+      "minimum": -0.6726728081703186,
+      "near_constant": false,
+      "nonzero_share": 0.995197635759143,
+      "standard_deviation": 0.312221652253105
+    },
+    {
+      "feature_name": "euclidean_distance_by_spatial_diagonal",
+      "maximum": 1.0,
+      "mean": 0.45166324953255427,
+      "minimum": 0.0,
+      "near_constant": false,
+      "nonzero_share": 0.9988917620982638,
+      "standard_deviation": 0.16803183924602466
+    },
+    {
+      "feature_name": "node_in_degree_by_max",
+      "maximum": 1.0,
+      "mean": 0.3892598008598663,
+      "minimum": 0.0714285746216774,
+      "near_constant": false,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.1601868733757724
+    },
+    {
+      "feature_name": "node_out_degree_by_max",
+      "maximum": 1.0,
+      "mean": 0.3892598008598663,
+      "minimum": 0.0714285746216774,
+      "near_constant": false,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.1601868733757724
+    },
+    {
+      "feature_name": "destination_in_degree_by_max",
+      "maximum": 0.5,
+      "mean": 0.24162141984314178,
+      "minimum": 0.0714285746216774,
+      "near_constant": false,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.11247845870082437
+    },
+    {
+      "feature_name": "destination_out_degree_by_max",
+      "maximum": 0.5,
+      "mean": 0.24162141984314178,
+      "minimum": 0.0714285746216774,
+      "near_constant": false,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.11247845870082437
+    },
+    {
+      "feature_name": "usable_outgoing_travel_time_min_by_max",
+      "maximum": 0.9587883949279785,
+      "mean": 0.0645557860400745,
+      "minimum": 1.7111475244746543e-05,
+      "near_constant": false,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.14855287634374337
+    },
+    {
+      "feature_name": "usable_outgoing_travel_time_mean_by_max",
+      "maximum": 0.9781034588813782,
+      "mean": 0.10794116185558439,
+      "minimum": 3.262906466261484e-05,
+      "near_constant": false,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.16917238091265957
+    },
+    {
+      "feature_name": "usable_incoming_travel_time_mean_by_max",
+      "maximum": 0.9696969389915466,
+      "mean": 0.1079483126335936,
+      "minimum": 0.00013172748731449246,
+      "near_constant": false,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.1693029990515637
+    },
+    {
+      "feature_name": "outgoing_effective_capacity_sum_by_max",
+      "maximum": 1.0,
+      "mean": 0.2646483057370647,
+      "minimum": 0.04828660562634468,
+      "near_constant": false,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.1462376256952339
+    },
+    {
+      "feature_name": "incoming_effective_capacity_sum_by_max",
+      "maximum": 1.0,
+      "mean": 0.26464830569761455,
+      "minimum": 0.04828660562634468,
+      "near_constant": false,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.14658354999509832
+    },
+    {
+      "feature_name": "outgoing_blocked_link_fraction",
+      "maximum": 0.6666666865348816,
+      "mean": 0.01435476127842673,
+      "minimum": 0.0,
+      "near_constant": false,
+      "nonzero_share": 0.050363255756680214,
+      "standard_deviation": 0.06625045133080389
+    },
+    {
+      "feature_name": "incoming_blocked_link_fraction",
+      "maximum": 0.75,
+      "mean": 0.015131817745055608,
+      "minimum": 0.0,
+      "near_constant": false,
+      "nonzero_share": 0.05147149365841645,
+      "standard_deviation": 0.06903856384429634
+    },
+    {
+      "feature_name": "global_max_travel_time_by_one_tick",
+      "maximum": 78.1540756225586,
+      "mean": 53.989571394613264,
+      "minimum": 32.01042175292969,
+      "near_constant": false,
+      "nonzero_share": 1.0,
+      "standard_deviation": 16.790006664814975
+    },
+    {
+      "feature_name": "global_mean_travel_time_by_max",
+      "maximum": 0.21840982139110565,
+      "mean": 0.10207221045284608,
+      "minimum": 0.04807605221867561,
+      "near_constant": false,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.06518508777800958
+    },
+    {
+      "feature_name": "global_blocked_link_fraction",
+      "maximum": 0.030275778844952583,
+      "mean": 0.015100104340143743,
+      "minimum": 0.0,
+      "near_constant": false,
+      "nonzero_share": 0.5,
+      "standard_deviation": 0.01510016757727183
+    },
+    {
+      "feature_name": "has_usable_outgoing",
+      "maximum": 1.0,
+      "mean": 1.0,
+      "minimum": 1.0,
+      "near_constant": true,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature_name": "has_usable_incoming",
+      "maximum": 1.0,
+      "mean": 1.0,
+      "minimum": 1.0,
+      "near_constant": true,
+      "nonzero_share": 1.0,
+      "standard_deviation": 0.0
+    },
+    {
+      "feature_name": "is_destination",
+      "maximum": 1.0,
+      "mean": 0.0011082379017362395,
+      "minimum": 0.0,
+      "near_constant": false,
+      "nonzero_share": 0.0011082379017362395,
+      "standard_deviation": 0.033271755446465316
+    }
+  ],
+  "feature_contract_fingerprint": "817eaa1248f0b58253752b5cc9aae1fb5a882ee451b2a7e6400a594a06db6047",
+  "feature_names": [
+    "relative_x_by_spatial_diagonal",
+    "relative_y_by_spatial_diagonal",
+    "euclidean_distance_by_spatial_diagonal",
+    "node_in_degree_by_max",
+    "node_out_degree_by_max",
+    "destination_in_degree_by_max",
+    "destination_out_degree_by_max",
+    "usable_outgoing_travel_time_min_by_max",
+    "usable_outgoing_travel_time_mean_by_max",
+    "usable_incoming_travel_time_mean_by_max",
+    "outgoing_effective_capacity_sum_by_max",
+    "incoming_effective_capacity_sum_by_max",
+    "outgoing_blocked_link_fraction",
+    "incoming_blocked_link_fraction",
+    "global_max_travel_time_by_one_tick",
+    "global_mean_travel_time_by_max",
+    "global_blocked_link_fraction",
+    "has_usable_outgoing",
+    "has_usable_incoming",
+    "is_destination"
+  ],
+  "feature_target_relation": {
+    "comparison_group_count": 3796,
+    "conflict_share": 0.6907303586514093,
+    "conflicting_row_count": 8994,
+    "coverage_share": 0.20042174609038296,
+    "covered_row_count": 13021,
+    "maximum_conflict_share": 0.25,
+    "maximum_normalized_target_range": 0.1,
+    "minimum_coverage_share": 0.05,
+    "passed": false,
+    "quantization_width": 0.05,
+    "target_normalization": "label_cost_to_go / global_max_travel_time_by_one_tick"
+  },
+  "map_holdout": {
+    "feasible": true,
+    "held_out_seed": 29,
+    "split_fingerprint": "ff6d63ba13a465c032dea2c20b4920bd77ee04c8180e409602a772051d80e18a",
+    "split_seed": 49,
+    "split_unit": "scenario_seed_across_all_styles",
+    "train_static_network_fingerprints": [
+      "0baab515f3a8ca10d37fdb48b3deba3b87bf66d927b894b2c4bd004ae2859642",
+      "18f5873892aeb377666df39fde48bcf2f3181d7cfefa11b20aa2d72c0c6e3716",
+      "7b63e46efcc1f808551ec71e84c2b750f8bc93678fe7d218c75111571813c768",
+      "9fc69cceeb947dd6c31c079f4adc27375606d1cab3c84694f2cf872e0ad9a8fc",
+      "c3b0e717b1884565256c0ede116cbe687888e4da635859c4956621513daedbb5",
+      "cc149735cd70d32da4d9abcb83f1d7f679155f9a7e2ee5cbda1e662317c0f15c"
+    ],
+    "train_style_ids": [
+      "grid_core",
+      "organic",
+      "polycentric_tod"
+    ],
+    "validation_static_network_fingerprints": [
+      "19ceeb1a2d4898373091a6de8d38720921d19b2d26b9bcc64a72f7369ed2f449",
+      "392c8eec475e1121e2663ea391482fab9e3456354fe78ef910523382bfe2aa8c",
+      "cc9e475308db6da7e1129dde1361ab361547c0ad5c33a0cb10dfb0303e146bb6"
+    ],
+    "validation_style_ids": [
+      "grid_core",
+      "organic",
+      "polycentric_tod"
+    ]
+  },
+  "runs": [
+    {
+      "all_state_rows_retained": true,
+      "closure_eligible_link_count": 3120,
+      "closure_link_count": 94,
+      "closure_link_share": 0.03012820512820513,
+      "closure_requested_link_count": 94,
+      "dataset_fingerprint": "15e8afd6073c44f4b28cab60c2227d569d9bf2d383faf25ba8de09c0df9cb2bc",
+      "destination_group_count": 4,
+      "destination_node_ids": [
+        37,
+        156,
+        47,
+        146
+      ],
+      "dynamic_feature_changed_count": 3444,
+      "dynamic_feature_changed_share": 1.0,
+      "dynamic_joint_changed_count": 3440,
+      "dynamic_joint_changed_share": 0.9988385598141696,
+      "dynamic_matched_row_count": 3444,
+      "dynamic_state_fingerprints": [
+        "273a6f3d866cdbedf509e64da81deb14f20643510f992d5cdcb279245a134426",
+        "44d168ad1649a0f77a806cbc1baea1dc58d8c1e95a40f4360bd2f2d202a99a8b"
+      ],
+      "dynamic_target_changed_count": 3440,
+      "dynamic_target_changed_share": 0.9988385598141696,
+      "expected_record_count_per_state": 3444,
+      "link_count": 3120,
+      "node_count": 861,
+      "per_map_split_feasible": true,
+      "seed": 17,
+      "split_fingerprint": "b873536c06e348e93129a0116ab90ec9bc06b004a30e280b035da994a7703529",
+      "state_record_counts": {
+        "free_flow": 3444,
+        "stressed_closure": 3444
+      },
+      "static_network_fingerprint": "c3b0e717b1884565256c0ede116cbe687888e4da635859c4956621513daedbb5",
+      "style_id": "grid_core"
+    },
+    {
+      "all_state_rows_retained": true,
+      "closure_eligible_link_count": 3144,
+      "closure_link_count": 95,
+      "closure_link_share": 0.030216284987277353,
+      "closure_requested_link_count": 95,
+      "dataset_fingerprint": "028dcb040bde87994d7167fde50e6e45dece5dbcbc2b954c68b9fe310478ef52",
+      "destination_group_count": 4,
+      "destination_node_ids": [
+        37,
+        156,
+        47,
+        146
+      ],
+      "dynamic_feature_changed_count": 3468,
+      "dynamic_feature_changed_share": 1.0,
+      "dynamic_joint_changed_count": 3464,
+      "dynamic_joint_changed_share": 0.9988465974625144,
+      "dynamic_matched_row_count": 3468,
+      "dynamic_state_fingerprints": [
+        "14d6bc053a46679aa273aa47c79e2d5cac02a08645a64f13edb6c3836ce67eca",
+        "5901638a327265e82d16b5d468e5e7496009dff77878fc46e2558364fac5ef13"
+      ],
+      "dynamic_target_changed_count": 3464,
+      "dynamic_target_changed_share": 0.9988465974625144,
+      "expected_record_count_per_state": 3468,
+      "link_count": 3144,
+      "node_count": 867,
+      "per_map_split_feasible": true,
+      "seed": 29,
+      "split_fingerprint": "551ecdaa630882afb7a864d296606bfed3e5e724f2280f57059a47ff497a1dff",
+      "state_record_counts": {
+        "free_flow": 3468,
+        "stressed_closure": 3468
+      },
+      "static_network_fingerprint": "cc9e475308db6da7e1129dde1361ab361547c0ad5c33a0cb10dfb0303e146bb6",
+      "style_id": "grid_core"
+    },
+    {
+      "all_state_rows_retained": true,
+      "closure_eligible_link_count": 3072,
+      "closure_link_count": 93,
+      "closure_link_share": 0.0302734375,
+      "closure_requested_link_count": 93,
+      "dataset_fingerprint": "9d40ea7d9771bb372be7e56a6e3bd6eed8617f10dcf3fb43e4dbd6618bac6faf",
+      "destination_group_count": 4,
+      "destination_node_ids": [
+        37,
+        156,
+        47,
+        146
+      ],
+      "dynamic_feature_changed_count": 3404,
+      "dynamic_feature_changed_share": 1.0,
+      "dynamic_joint_changed_count": 3400,
+      "dynamic_joint_changed_share": 0.9988249118683902,
+      "dynamic_matched_row_count": 3404,
+      "dynamic_state_fingerprints": [
+        "58b58cf94302c7e66a880b1cd983cb23eb9c3d473b65844d2746ade73ffb00d5",
+        "d9fb8598079b0f3d77aae475219a13753efe22fe90f0c00ab618fcd7155de891"
+      ],
+      "dynamic_target_changed_count": 3400,
+      "dynamic_target_changed_share": 0.9988249118683902,
+      "expected_record_count_per_state": 3404,
+      "link_count": 3072,
+      "node_count": 851,
+      "per_map_split_feasible": true,
+      "seed": 41,
+      "split_fingerprint": "2dcc7942797a50a89c88cc7d56b3de91c324e0ed815ce6c278bc1017896f047b",
+      "state_record_counts": {
+        "free_flow": 3404,
+        "stressed_closure": 3404
+      },
+      "static_network_fingerprint": "18f5873892aeb377666df39fde48bcf2f3181d7cfefa11b20aa2d72c0c6e3716",
+      "style_id": "grid_core"
+    },
+    {
+      "all_state_rows_retained": true,
+      "closure_eligible_link_count": 3336,
+      "closure_link_count": 101,
+      "closure_link_share": 0.0302757793764988,
+      "closure_requested_link_count": 101,
+      "dataset_fingerprint": "fb275d222de399762706f3db2f311a80bf4326d71ba486937275d6da778c3181",
+      "destination_group_count": 4,
+      "destination_node_ids": [
+        71,
+        205,
+        103,
+        170
+      ],
+      "dynamic_feature_changed_count": 3880,
+      "dynamic_feature_changed_share": 1.0,
+      "dynamic_joint_changed_count": 3876,
+      "dynamic_joint_changed_share": 0.9989690721649485,
+      "dynamic_matched_row_count": 3880,
+      "dynamic_state_fingerprints": [
+        "4921357f981f8a420efd49d6d0f416acf56941a4a29de6106a8f5bbfd371b396",
+        "927fa2e720acd2d7894dd51c79edeee5842c843398a61ee9d24a4ad62c9f66e7"
+      ],
+      "dynamic_target_changed_count": 3876,
+      "dynamic_target_changed_share": 0.9989690721649485,
+      "expected_record_count_per_state": 3880,
+      "link_count": 3336,
+      "node_count": 970,
+      "per_map_split_feasible": true,
+      "seed": 17,
+      "split_fingerprint": "075a478cba493315ea6244c4ef854a5b0cb07c1a17204ba0dc7a02641125d9ac",
+      "state_record_counts": {
+        "free_flow": 3880,
+        "stressed_closure": 3880
+      },
+      "static_network_fingerprint": "9fc69cceeb947dd6c31c079f4adc27375606d1cab3c84694f2cf872e0ad9a8fc",
+      "style_id": "polycentric_tod"
+    },
+    {
+      "all_state_rows_retained": true,
+      "closure_eligible_link_count": 3376,
+      "closure_link_count": 102,
+      "closure_link_share": 0.030213270142180094,
+      "closure_requested_link_count": 102,
+      "dataset_fingerprint": "0ad56879f92dc82e1b8cb49dad3e08459b746ab08763408a80ed24ce7f13b017",
+      "destination_group_count": 4,
+      "destination_node_ids": [
+        71,
+        205,
+        103,
+        170
+      ],
+      "dynamic_feature_changed_count": 3920,
+      "dynamic_feature_changed_share": 1.0,
+      "dynamic_joint_changed_count": 3916,
+      "dynamic_joint_changed_share": 0.9989795918367347,
+      "dynamic_matched_row_count": 3920,
+      "dynamic_state_fingerprints": [
+        "972dd8413df433de641386fcca2b023a9f1c6026137f8953ecee5332f1077bf1",
+        "f9cff741a0c0018aef377eb562cc6420e90312bbf62ee8c40df34d31b1eff2e1"
+      ],
+      "dynamic_target_changed_count": 3916,
+      "dynamic_target_changed_share": 0.9989795918367347,
+      "expected_record_count_per_state": 3920,
+      "link_count": 3376,
+      "node_count": 980,
+      "per_map_split_feasible": true,
+      "seed": 29,
+      "split_fingerprint": "ad2e58877d4eb01bde7edfc3715af5932cd9a972e87fb90f7a941ac62f777231",
+      "state_record_counts": {
+        "free_flow": 3920,
+        "stressed_closure": 3920
+      },
+      "static_network_fingerprint": "19ceeb1a2d4898373091a6de8d38720921d19b2d26b9bcc64a72f7369ed2f449",
+      "style_id": "polycentric_tod"
+    },
+    {
+      "all_state_rows_retained": true,
+      "closure_eligible_link_count": 3412,
+      "closure_link_count": 103,
+      "closure_link_share": 0.03018757327080891,
+      "closure_requested_link_count": 103,
+      "dataset_fingerprint": "f31f6c2338995c530f13fdce31cf242c99e56e5aafc33a75a038abeae094ab41",
+      "destination_group_count": 4,
+      "destination_node_ids": [
+        66,
+        175,
+        103,
+        170
+      ],
+      "dynamic_feature_changed_count": 3956,
+      "dynamic_feature_changed_share": 1.0,
+      "dynamic_joint_changed_count": 3952,
+      "dynamic_joint_changed_share": 0.9989888776541962,
+      "dynamic_matched_row_count": 3956,
+      "dynamic_state_fingerprints": [
+        "1e3e5db4add4ed21e41a6abef5fa7962dc43d2e5da08a06d65f70198913fb45f",
+        "b568e03a01914f76540bc6c03695640241fe88bb16b6f2386009e11d74c9fc9a"
+      ],
+      "dynamic_target_changed_count": 3952,
+      "dynamic_target_changed_share": 0.9989888776541962,
+      "expected_record_count_per_state": 3956,
+      "link_count": 3412,
+      "node_count": 989,
+      "per_map_split_feasible": true,
+      "seed": 41,
+      "split_fingerprint": "04033fb228af40496976bb0e39282831a29be666394fe307639fc7a7a571ee95",
+      "state_record_counts": {
+        "free_flow": 3956,
+        "stressed_closure": 3956
+      },
+      "static_network_fingerprint": "7b63e46efcc1f808551ec71e84c2b750f8bc93678fe7d218c75111571813c768",
+      "style_id": "polycentric_tod"
+    },
+    {
+      "all_state_rows_retained": true,
+      "closure_eligible_link_count": 2926,
+      "closure_link_count": 88,
+      "closure_link_share": 0.03007518796992481,
+      "closure_requested_link_count": 88,
+      "dataset_fingerprint": "4da4a11a17d6e76600bde6cec2a429e9944713fe9f56c4088ccb1a60ed804c32",
+      "destination_group_count": 4,
+      "destination_node_ids": [
+        59,
+        66,
+        330,
+        74
+      ],
+      "dynamic_feature_changed_count": 3288,
+      "dynamic_feature_changed_share": 1.0,
+      "dynamic_joint_changed_count": 3284,
+      "dynamic_joint_changed_share": 0.9987834549878345,
+      "dynamic_matched_row_count": 3288,
+      "dynamic_state_fingerprints": [
+        "674f6d41dbd5814627d90be8fcf7e08823099bc461a65a9c570a7878d407d053",
+        "dbb9a8357849ab187f0b4ec1d198306b7f81d7958f4a95772eaecf24d2ddd783"
+      ],
+      "dynamic_target_changed_count": 3284,
+      "dynamic_target_changed_share": 0.9987834549878345,
+      "expected_record_count_per_state": 3288,
+      "link_count": 2926,
+      "node_count": 822,
+      "per_map_split_feasible": true,
+      "seed": 17,
+      "split_fingerprint": "0e0a056e54e66b8ce6d252f9e2ea0ae1ed2ffc957b2c20de3067aeb9e9354043",
+      "state_record_counts": {
+        "free_flow": 3288,
+        "stressed_closure": 3288
+      },
+      "static_network_fingerprint": "0baab515f3a8ca10d37fdb48b3deba3b87bf66d927b894b2c4bd004ae2859642",
+      "style_id": "organic"
+    },
+    {
+      "all_state_rows_retained": true,
+      "closure_eligible_link_count": 3116,
+      "closure_link_count": 94,
+      "closure_link_share": 0.030166880616174584,
+      "closure_requested_link_count": 94,
+      "dataset_fingerprint": "522ed31f2cf51bf4ec6888c70350668ed73b334c949286b61d3c29818dc693cb",
+      "destination_group_count": 4,
+      "destination_node_ids": [
+        51,
+        65,
+        63,
+        374
+      ],
+      "dynamic_feature_changed_count": 3464,
+      "dynamic_feature_changed_share": 1.0,
+      "dynamic_joint_changed_count": 3460,
+      "dynamic_joint_changed_share": 0.9988452655889145,
+      "dynamic_matched_row_count": 3464,
+      "dynamic_state_fingerprints": [
+        "abaa07c7233caffdb5827dd0f285728a500011c5a2f004bd91535f0dea7bd8e6",
+        "e7beacdac84119845bb6e7fc0bd0794f74db8156615d926bb2dbbfbe0207e243"
+      ],
+      "dynamic_target_changed_count": 3460,
+      "dynamic_target_changed_share": 0.9988452655889145,
+      "expected_record_count_per_state": 3464,
+      "link_count": 3116,
+      "node_count": 866,
+      "per_map_split_feasible": true,
+      "seed": 29,
+      "split_fingerprint": "8e0ba59221178e0ef31ff58d584932da9fa27551604b0d9209edfcfc9c07e343",
+      "state_record_counts": {
+        "free_flow": 3464,
+        "stressed_closure": 3464
+      },
+      "static_network_fingerprint": "392c8eec475e1121e2663ea391482fab9e3456354fe78ef910523382bfe2aa8c",
+      "style_id": "organic"
+    },
+    {
+      "all_state_rows_retained": true,
+      "closure_eligible_link_count": 3306,
+      "closure_link_count": 100,
+      "closure_link_share": 0.030248033877797943,
+      "closure_requested_link_count": 100,
+      "dataset_fingerprint": "8fb5537b253a079a8554f3f33c3ccca61a0925478fea2e17e6563f4dd65d18a4",
+      "destination_group_count": 4,
+      "destination_node_ids": [
+        77,
+        343,
+        63,
+        42
+      ],
+      "dynamic_feature_changed_count": 3660,
+      "dynamic_feature_changed_share": 1.0,
+      "dynamic_joint_changed_count": 3656,
+      "dynamic_joint_changed_share": 0.9989071038251366,
+      "dynamic_matched_row_count": 3660,
+      "dynamic_state_fingerprints": [
+        "eff872191666c3e0f9156af0ecf686b340db015f9e15534923988dfc12545275",
+        "fde698ad9cd073a3f28d991ee93ff4ec5e811f018af720fa1e60265658383d26"
+      ],
+      "dynamic_target_changed_count": 3656,
+      "dynamic_target_changed_share": 0.9989071038251366,
+      "expected_record_count_per_state": 3660,
+      "link_count": 3306,
+      "node_count": 915,
+      "per_map_split_feasible": true,
+      "seed": 41,
+      "split_fingerprint": "b47533d3ba3a00229b39bca1ba21023d6fcc5df52369de4a2050908ea4d8a722",
+      "state_record_counts": {
+        "free_flow": 3660,
+        "stressed_closure": 3660
+      },
+      "static_network_fingerprint": "cc149735cd70d32da4d9abcb83f1d7f679155f9a7e2ee5cbda1e662317c0f15c",
+      "style_id": "organic"
+    }
+  ],
+  "threshold_provenance": "fixed_in_pr_before_canonical_run_not_prior_preregistered"
+}

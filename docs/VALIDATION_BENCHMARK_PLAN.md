@@ -125,6 +125,9 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - row-local cost-to-go v1 split은 same-network unseen-destination 진단만
   지지한다. Cross-city validation claim은 별도 map holdout과 feature-variance
   audit 전에는 금지한다.
+- PR49 canonical audit의 near-duplicate target conflict gate는 row-local MLP를
+  거부한다. 이 threshold를 완화하지 않으며, graph-aware 실험은 directed
+  adjacency, edge-state, padding mask, map-holdout fingerprint가 먼저 고정돼야 한다.
 - JAX dense-flow persistent chunk bakeoff는 process/device warmup을 별도 기록하고, per-shape
   first call은 warm-process trace/compile/execute estimate로만 부른다. first-result output copy는 steady
   result copy를 사용한 estimate임을 명시해야 한다.

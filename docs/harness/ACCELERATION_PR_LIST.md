@@ -304,7 +304,7 @@ Status: accepted; experiment-only.
 
 ## PR49 — Multi-City Cost-To-Go Feature Audit
 
-Status: queued; diagnostic-only.
+Status: accepted; diagnostic-only.
 
 - Build a deterministic simulator-only corpus across at least three city styles,
   three seeds, multiple destinations, and at least two dynamic link states.
@@ -312,17 +312,31 @@ Status: queued; diagnostic-only.
   range, closure coverage, group counts, and cross-map holdout feasibility.
 - Do not fit a model. The audit decides whether row-local v1 is admissible for a
   JAX MLP probe or whether adjacency/edge tensors are required first.
+- Canonical result: 64,968 rows retained, 90% nonconstant features, deterministic
+  seed holdout, but 69.07% near-duplicate target conflict. The row-local MLP
+  probe is rejected without changing the 25% limit fixed before the canonical
+  run in this PR. This is not claimed as prior preregistration.
+- Canonical artifact: `artifacts/cost_to_go_feature_audit_20260711/`.
 
-## PR50 — JAX Cost-To-Go Surrogate Bakeoff
+## PR50 — Cost-To-Go Graph Tensor Contract
 
-Status: conditional on PR49; GPU experiment-only.
+Status: authorized by PR49 rejection; data-contract only.
 
-- Fit a small JAX model only on PR49-authorized features and grouped partitions.
-- Record first-call compile, steady train/inference timing, error by distance and
-  city holdout, model/data/split fingerprints, and deterministic baseline
-  fallback metadata.
-- Never use predictions for route legality or runtime state mutation. Runtime
-  integration requires a later explicit spec and replay gate.
+- Add immutable NumPy adjacency/edge-state tensors that preserve directed CSR,
+  link travel cost, blocked mask, geometry, and destination context.
+- Define padding/batching/mask and map-holdout contracts without fitting a model.
+- Prove tensor fingerprints respond to topology and dynamic-state changes while
+  baseline Dijkstra remains label and route-legality authority.
+
+## PR51 — JAX Graph-Aware Cost-To-Go Bakeoff
+
+Status: conditional on PR50; GPU experiment-only.
+
+- Fit one bounded graph-aware JAX experiment using PR50 tensors and PR49's fixed
+  seed holdout. Compare against a row-local control so adjacency value is
+  falsifiable.
+- Record compile/steady timing, error by distance/map/state, fingerprints, and
+  baseline fallback. No runtime backend or route-legality ownership.
 
 ## Spec Template
 

@@ -1,0 +1,19 @@
+{
+  "adjacency_required_before_mlp": true,
+  "artifact_files": [
+    "cost-to-go-feature-audit.json",
+    "cost-to-go-feature-audit.md"
+  ],
+  "artifact_format_version": "cost_to_go_feature_audit_bundle_v1",
+  "corpus_fingerprint": "e877226abc86a308b63d4b34e8eeff4ed0adbf481d8b93169c039760bf08b018",
+  "data_json": "cost-to-go-feature-audit.json",
+  "decision_state": "relation_rejected",
+  "evidence_status": "diagnostic_not_validation",
+  "feature_target_relation_passed": false,
+  "map_holdout_split_fingerprint": "ff6d63ba13a465c032dea2c20b4920bd77ee04c8180e409602a772051d80e18a",
+  "raw_label_rows_persisted": false,
+  "review_markdown": "cost-to-go-feature-audit.md",
+  "row_local_mlp_probe_authorized": false,
+  "runtime_nn_backend_authorized": false,
+  "threshold_provenance": "fixed_in_pr_before_canonical_run_not_prior_preregistered"
+}

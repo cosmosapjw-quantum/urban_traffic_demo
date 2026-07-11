@@ -857,3 +857,42 @@ edge tensors.
 Next action: PR49 audits multi-city feature support. PR50 may fit a JAX model
 only if PR49 authorizes the row-local contract; neither PR adds runtime
 authority.
+
+## 2026-07-11: Reject Row-Local Cost-To-Go MLP Before Training
+
+Status: accepted
+
+### Compact CCoT
+
+Question: Does PR48's row-local feature contract contain enough target-related
+information to justify a JAX MLP bakeoff?
+
+Evidence: Nine planar generated maps, four destinations, and free-flow plus
+stressed/closure states retain all 64,968 expected rows. Ninety percent of
+features are nonconstant, 99.89% of matched rows change features and targets
+together, and the seed-49 map holdout is feasible. However, 20.04% of rows enter
+cross-map near-duplicate comparisons and 69.07% of covered rows conflict in
+normalized target, exceeding the 25% maximum fixed in this PR before the
+canonical run. This is not claimed as prior tracked preregistration.
+
+Inference: The corpus and holdout are usable, but row-local inputs omit global
+graph information needed to distinguish many authoritative costs.
+
+Counterevidence checked: Closure-induced reachability loss was removed before
+the canonical run; all rows remain. The conflict result is not caused by target
+permutation or missing dynamic response. The fixed 25% threshold was not relaxed
+after failure, but it has no earlier immutable preregistration record.
+
+Decision: Do not open the row-local JAX MLP. Keep runtime NN authorization false
+and replace PR50 with an adjacency/edge-state tensor contract. Move graph-aware
+JAX fitting to conditional PR51.
+
+Falsifier: A graph-tensor contract cannot preserve directed topology and dynamic
+edge state in deterministic, memory-bounded batches without target leakage.
+
+Next action: PR50 freezes directed graph tensors, padding/masks, fingerprints,
+and map holdout inputs without fitting a model.
+
+Review closure: `/review-spec`, `/review-code`, and `/review-drift` report no
+remaining findings after three bounded fix loops. Final gate: `547 passed`, Ruff
+clean, and `git diff --check` clean.

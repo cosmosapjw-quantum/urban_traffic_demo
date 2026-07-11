@@ -64,6 +64,11 @@ Derived conclusions:
   row-local and experiment-only; it does not establish cross-city
   generalization or authorize an NN backend. Final gate: `522 passed`; all
   three review perspectives, Ruff, and diff checks are clean.
+- PR49 audits 64,968 rows across nine planar generated maps and two dynamic
+  states. Row retention, dynamic response, and deterministic seed holdout pass,
+  but the fixed near-duplicate relation gate fails (`0.6907` conflict versus
+  `0.25` maximum). A row-local MLP is not authorized. The result is accepted as
+  diagnostic-only after three review perspectives; final gate: `547 passed`.
 
 ## Open Risks
 
@@ -125,6 +130,7 @@ route-score batch probes, simulator-label-driven surrogate experiments, and
 active-agent pool-array replacement only if it becomes review-ready again.
 PR45 closes the current city-map lane without authorizing PR46. PR47 moves the
 GPU dense-flow chunk to a bounded watchlist but does not authorize runtime
-integration. PR48 is the active feature-contract slice. After its gates close,
-PR49 must audit feature variance and cross-map holdout feasibility before PR50
-may run a JAX/NN training bakeoff. Baseline Dijkstra remains authoritative.
+integration. PR49 rejects the row-local MLP path without threshold tuning. The
+next slice is PR50's adjacency/edge-state graph tensor contract; only PR51 may
+attempt a graph-aware JAX bakeoff after that contract passes. Baseline Dijkstra
+remains authoritative.

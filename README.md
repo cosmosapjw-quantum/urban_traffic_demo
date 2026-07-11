@@ -19,6 +19,9 @@
 - cost-to-go NN 실험은 baseline Dijkstra label, ID-free versioned model inputs,
   target-independent destination-group split을 먼저 요구한다. Row-local v1은
   cross-city 일반화 증거가 아니며 runtime route legality를 소유하지 않는다.
+- multi-city audit는 row-local v1의 target conflict가 높아 MLP 경로를
+  fail-closed로 거부했다. 다음 NN/GPU 단계는 adjacency/edge-state tensor
+  계약 이후의 graph-aware JAX 실험이며 baseline Dijkstra authority는 유지된다.
 - `edge_backend="rust_cpu"`와 `edge_backend="jax"`는 실패 시 예외를 내고,
   `edge_backend="auto"`만 `rust_cpu` → `jax` → `baseline` 순서의 fallback을 허용한다.
 - `SimulationConfig`의 runtime backend 기본값은 `edge_backend="baseline"`,
