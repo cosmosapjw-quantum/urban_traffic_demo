@@ -28,6 +28,30 @@ from .cost_to_go_features import (
 from .cost_to_go_features import (
     split_cost_to_go_feature_dataset as split_cost_to_go_feature_dataset,
 )
+from .cost_to_go_graph_tensors import (
+    COST_TO_GO_EDGE_FEATURE_NAMES as COST_TO_GO_EDGE_FEATURE_NAMES,
+)
+from .cost_to_go_graph_tensors import (
+    COST_TO_GO_GRAPH_CONTRACT_FINGERPRINT as COST_TO_GO_GRAPH_CONTRACT_FINGERPRINT,
+)
+from .cost_to_go_graph_tensors import (
+    COST_TO_GO_GRAPH_SCHEMA_VERSION as COST_TO_GO_GRAPH_SCHEMA_VERSION,
+)
+from .cost_to_go_graph_tensors import CostToGoGraphBatch as CostToGoGraphBatch
+from .cost_to_go_graph_tensors import CostToGoGraphSample as CostToGoGraphSample
+from .cost_to_go_graph_tensors import CostToGoGraphSplit as CostToGoGraphSplit
+from .cost_to_go_graph_tensors import (
+    build_cost_to_go_graph_batch as build_cost_to_go_graph_batch,
+)
+from .cost_to_go_graph_tensors import (
+    build_cost_to_go_graph_sample as build_cost_to_go_graph_sample,
+)
+from .cost_to_go_graph_tensors import (
+    compute_cost_to_go_map_holdout_fingerprint as compute_cost_to_go_map_holdout_fingerprint,
+)
+from .cost_to_go_graph_tensors import (
+    split_cost_to_go_graph_samples as split_cost_to_go_graph_samples,
+)
 from .policy_blend import PolicyBlendFallbackReason as PolicyBlendFallbackReason
 from .policy_blend import PolicyBlendState as PolicyBlendState
 from .policy_blend import apply_policy_blend_control as apply_policy_blend_control
@@ -52,13 +76,22 @@ __all__ = [
     "SimulatorLabelRecord",
     "COST_TO_GO_FEATURE_NAMES",
     "COST_TO_GO_FEATURE_SCHEMA_VERSION",
+    "COST_TO_GO_EDGE_FEATURE_NAMES",
+    "COST_TO_GO_GRAPH_CONTRACT_FINGERPRINT",
+    "COST_TO_GO_GRAPH_SCHEMA_VERSION",
     "CostToGoDatasetSplit",
     "CostToGoFeatureDataset",
+    "CostToGoGraphBatch",
+    "CostToGoGraphSample",
+    "CostToGoGraphSplit",
     "apply_od_bandit_reward_update",
     "apply_policy_blend_control",
     "blend_route_scores",
     "build_od_ucb_state",
     "build_cost_to_go_feature_dataset",
+    "build_cost_to_go_graph_batch",
+    "build_cost_to_go_graph_sample",
+    "compute_cost_to_go_map_holdout_fingerprint",
     "choose_ucb_arm",
     "compute_policy_mix_lambda",
     "compute_ucb_scores_core",
@@ -72,6 +105,7 @@ __all__ = [
     "select_ucb_arm",
     "select_ucb_arm_core",
     "split_cost_to_go_feature_dataset",
+    "split_cost_to_go_graph_samples",
     "update_od_ucb_arrays_core",
     "update_od_ucb_state",
     "update_online_od_bandit",

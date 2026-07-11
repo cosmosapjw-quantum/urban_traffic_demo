@@ -320,17 +320,21 @@ Status: accepted; diagnostic-only.
 
 ## PR50 — Cost-To-Go Graph Tensor Contract
 
-Status: authorized by PR49 rejection; data-contract only.
+Status: accepted; data-contract only.
 
 - Add immutable NumPy adjacency/edge-state tensors that preserve directed CSR,
   link travel cost, blocked mask, geometry, and destination context.
 - Define padding/batching/mask and map-holdout contracts without fitting a model.
 - Prove tensor fingerprints respond to topology and dynamic-state changes while
   baseline Dijkstra remains label and route-legality authority.
+- Current implementation uses local directed indices, 13 dimensionless edge
+  features, an explicit blocked mask, baseline node target masks, prefix-padded
+  batches, a peak-allocation byte budget, and PR49 holdout recomputation. No
+  accelerator is imported and sample construction is builder-only.
 
 ## PR51 — JAX Graph-Aware Cost-To-Go Bakeoff
 
-Status: conditional on PR50; GPU experiment-only.
+Status: authorized by PR50; spec required; GPU experiment-only.
 
 - Fit one bounded graph-aware JAX experiment using PR50 tensors and PR49's fixed
   seed holdout. Compare against a row-local control so adjacency value is

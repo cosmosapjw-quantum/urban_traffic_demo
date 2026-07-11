@@ -128,6 +128,10 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - PR49 canonical audit의 near-duplicate target conflict gate는 row-local MLP를
   거부한다. 이 threshold를 완화하지 않으며, graph-aware 실험은 directed
   adjacency, edge-state, padding mask, map-holdout fingerprint가 먼저 고정돼야 한다.
+- PR50 graph tensor contract는 directed edge parity, baseline target/mask parity,
+  static/dynamic/sample fingerprint response, read-only exact dtype, padded slice
+  reconstruction, byte-budget rejection, static-network split disjointness를
+  검증해야 한다. 이 gate는 PR51 실험만 열며 validation/runtime claim은 열지 않는다.
 - JAX dense-flow persistent chunk bakeoff는 process/device warmup을 별도 기록하고, per-shape
   first call은 warm-process trace/compile/execute estimate로만 부른다. first-result output copy는 steady
   result copy를 사용한 estimate임을 명시해야 한다.

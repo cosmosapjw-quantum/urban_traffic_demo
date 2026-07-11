@@ -896,3 +896,37 @@ and map holdout inputs without fitting a model.
 Review closure: `/review-spec`, `/review-code`, and `/review-drift` report no
 remaining findings after three bounded fix loops. Final gate: `547 passed`, Ruff
 clean, and `git diff --check` clean.
+
+## 2026-07-11: Freeze Graph Tensors Before Graph-Aware Training
+
+Status: accepted
+
+### Compact CCoT
+
+Question: What graph-aware substrate is justified after PR49 rejects row-local
+target identifiability?
+
+Evidence: Baseline targets depend on directed topology, link travel cost, and
+blocked state. PR49 supplies a viable map holdout but no evidence that a graph
+model will be accurate or fast.
+
+Inference: Model selection must wait until graph arrays, masks, batching,
+fingerprints, and split provenance are deterministic and independently
+reviewable.
+
+Counterevidence checked: Tensor construction is not a performance benchmark and
+does not resolve PR49's relation conflict by itself.
+
+Decision: Add immutable NumPy graph samples, byte-bounded prefix padding, and an
+explicit static-network split. Keep baseline Dijkstra as label and route-
+legality authority; add no JAX model or runtime backend.
+
+Falsifier: Directed edges or baseline targets cannot be reconstructed exactly
+under masks, or static networks leak between train and validation.
+
+Next action: Specify PR51's bounded JAX graph-aware versus row-local control
+bakeoff. Runtime integration remains forbidden.
+
+Review closure: all three review perspectives report no remaining findings.
+Final gate: `560 passed`, Ruff clean, and `git diff --check` clean. The generated
+861-node/3,120-edge batch smoke remains diagnostic-only.

@@ -117,3 +117,10 @@
   tick, dynamic state를 한 partition에 유지한다.
 - row-local feature matrix는 cross-city graph representation이 아니다. 여러
   map holdout evidence 없이 일반화 또는 runtime routing authority를 주장하지 않는다.
+- cost-to-go graph tensor는 local directed indices만 model input으로 사용하고,
+  persistent IDs는 fingerprint provenance에만 남긴다. Node/edge/target padding은
+  명시 mask와 byte budget을 가져야 하며 baseline Dijkstra target을 재계산하거나
+  route legality를 대체하지 않는다.
+- graph sample은 verified network/link-state/baseline builder에서만 생성하고,
+  array는 write flag를 다시 켤 수 없는 immutable buffer를 사용한다. Map holdout
+  fingerprint는 validation set과 독립 문자열로 받지 않고 전체 split payload에서 재계산한다.

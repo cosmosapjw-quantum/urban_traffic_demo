@@ -22,6 +22,9 @@
 - multi-city audit는 row-local v1의 target conflict가 높아 MLP 경로를
   fail-closed로 거부했다. 다음 NN/GPU 단계는 adjacency/edge-state tensor
   계약 이후의 graph-aware JAX 실험이며 baseline Dijkstra authority는 유지된다.
+- graph tensor 계약은 directed edge index, dynamic edge features/blocked mask,
+  baseline node target mask, byte-bounded padding, static-network holdout을
+  read-only NumPy로 고정한다. 이는 PR51 실험 substrate이며 runtime NN backend가 아니다.
 - `edge_backend="rust_cpu"`와 `edge_backend="jax"`는 실패 시 예외를 내고,
   `edge_backend="auto"`만 `rust_cpu` → `jax` → `baseline` 순서의 fallback을 허용한다.
 - `SimulationConfig`의 runtime backend 기본값은 `edge_backend="baseline"`,

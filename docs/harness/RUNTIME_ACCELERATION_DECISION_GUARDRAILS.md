@@ -224,11 +224,11 @@ Review must explicitly check:
 
 Preferred next implementation slice:
 
-- close PR48's target-independent cost-to-go feature and group-split contract;
 - retain PR49's failed row-local relation gate as evidence; do not relax its
   quantization or conflict threshold to admit an MLP;
-- define adjacency/edge-state tensors and batching masks before any graph-aware
-  model fit;
+- use PR50's accepted immutable graph tensors and exact PR49 map holdout;
+- specify one bounded PR51 graph-aware JAX bakeoff with a row-local control,
+  compile-versus-steady timing, deterministic fingerprints, and no runtime path;
 - keep Python baseline Dijkstra as label and route-legality authority;
 - keep Rust potential/cache work and active-agent array write on their existing
   watchlists while the NN label lane receives this bounded step-back slice;
@@ -237,6 +237,7 @@ Preferred next implementation slice:
 
 Stop condition:
 
-- PR49 found high row-local target conflict despite nondegenerate features and
-  valid holdout support. Do not tune an MLP. PR50 is the adjacency/edge tensor
-  contract; graph-aware training remains conditional in PR51.
+- PR49 found high row-local target conflict and PR50 closes the graph data
+  contract. PR51 may evaluate graph-aware prediction, but any failure in map
+  holdout error, determinism, compile/steady timing, or fallback stops the NN
+  lane without runtime integration.

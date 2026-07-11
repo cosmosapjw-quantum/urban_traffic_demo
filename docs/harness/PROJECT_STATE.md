@@ -69,6 +69,10 @@ Derived conclusions:
   but the fixed near-duplicate relation gate fails (`0.6907` conflict versus
   `0.25` maximum). A row-local MLP is not authorized. The result is accepted as
   diagnostic-only after three review perspectives; final gate: `547 passed`.
+- PR50 implements a NumPy-only directed graph sample, memory-bounded padded
+  batch, and explicit static-network holdout contract. It is accepted after
+  spec/code/drift review with a `560 passed` final gate. PR51 may run a bounded
+  experiment, but no runtime NN backend is authorized.
 
 ## Open Risks
 
