@@ -5,6 +5,29 @@ Runtime acceleration planning is additionally governed by
 must pass its self-ask and step-back gates before another instrumentation or
 backend slice is opened.
 
+## runtime-closure prerequisite
+
+All acceleration and 100k integration claims are blocked until the NumPy
+baseline passes a generated-city closure gate:
+
+- compiled topology exposes typed legal turn movements;
+- active route tails produce deterministic per-turn demand before flow;
+- at least one generated multi-hop trip moves and completes;
+- source insertion, link queues/stocks, sinks, failures, and completions satisfy
+  one link-level vehicle-conservation equation;
+- a canonical digest covers all dynamic state and replays exactly;
+- medium/slow accessibility and land-use cadences are either ported into
+  `SimulationState` or removed from the integrated-runtime claim.
+
+The current blocker is reproduced with:
+
+```bash
+.venv/bin/python -m metroflow.benchmarks.runtime_self_drive_probe \
+  --scenario-seed 41 --steps 3 --expect-stalled
+```
+
+This command is a fail-closed defect probe, not a passing validation benchmark.
+
 ## invariant tests
 - queue >= 0
 - stock >= 0

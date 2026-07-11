@@ -81,6 +81,14 @@ Derived conclusions:
 
 ## Open Risks
 
+- **Critical runtime-closure blocker:** generated networks do not provide a
+  turn-movement authority and `SimulationState` initialization leaves
+  `turn_demand` at zero. An eager seed-41 three-tick probe activates 15 agents
+  and queues 15 vehicles, but records zero turn demand, zero outflow, and zero
+  movement through tick 3.
+- `SimulationState.simulation_step` does not run the legacy accessibility and
+  land-use cadences. The new runtime and frozen `WorldState` orchestrator remain
+  split authorities rather than one city-to-traffic-to-LUTI loop.
 - Smoke eager workloads may overrepresent activation/allocation cost.
 - Nested timing shares overlap and must not be summed as exclusive wall-clock
   partitions.
@@ -132,16 +140,23 @@ Derived conclusions:
 
 ## Next Implementation Decision
 
-Open a new spec only after refreshing the hardware-fit atlas or runtime
-benchmark evidence that can change a parent-stage decision. The strongest
-watchlist lanes remain Rust dynamic-potential/cache work, NumPy/SIMD flow and
-route-score batches, JAX dense-flow checkpoint cadence, one future narrow
-custom-kernel candidate, and active-agent pool-array replacement only if it
-becomes review-ready again.
+Do not open another acceleration spec yet. First define typed turn movements,
+derive per-turn demand from active route tails, and prove generated multi-hop
+movement, completion, link-level vehicle conservation, and a full dynamic-state
+replay digest. Then port the legacy medium/slow accessibility and land-use
+cadences into `SimulationState` or explicitly retire that product claim.
+
+After runtime closure, refresh the hardware-fit atlas or benchmark evidence that
+can change a parent-stage decision. The watchlist lanes remain Rust dynamic-
+potential/cache work, NumPy/SIMD flow and route-score batches, JAX dense-flow
+checkpoint cadence, one future narrow custom-kernel candidate, and active-agent
+pool-array replacement only if it becomes review-ready again.
 PR45 closes the current city-map lane without authorizing PR46. PR47 moves the
 GPU dense-flow chunk to a bounded watchlist but does not authorize runtime
 integration. PR49 rejects the row-local MLP path without threshold tuning;
 PR50 freezes the graph tensor contract; PR51's fixed graph model also misses
-its accuracy gate. Baseline Dijkstra remains authoritative. PR52 is an owner
-step-back across four distinct lanes: Rust/control-flow, NumPy/SIMD numeric,
-GPU tensor, and one future narrow custom-kernel candidate.
+its accuracy gate. Baseline Dijkstra remains authoritative. PR52's four-lane
+owner step-back is blocked until the functional runtime closure above passes.
+
+External audit packet:
+`docs/audit/metroflow_external_audit_20260711/README.md`.

@@ -423,6 +423,102 @@ Claim boundary:
 - PR44 may open zone/POI coupling only with legacy default/fallback and replay
   fingerprint coverage.
 
+## 2026-07-11: PR47 JAX Dense-Flow Persistent Chunk
+
+Change class: optional GPU microbenchmark; historical ledger closure
+
+Canonical command:
+
+```bash
+XLA_PYTHON_CLIENT_MEM_FRACTION=.70 .venv/bin/python \
+  -m metroflow.benchmarks.gpu_flow_bakeoff \
+  --output-dir artifacts/gpu_dense_flow_bakeoff_20260711 \
+  --link-counts 4096,16384,65536 --seeds 41,42,43 \
+  --num-steps 512 --turns-per-link 3
+```
+
+Recorded result:
+
+- 4,096 links: drift `0.0008612`, minimum warm/steady speedup
+  `1.1247x` / `12.2843x`; pass.
+- 16,384 links: drift `0.0008769`, minimum warm/steady speedup
+  `4.2620x` / `37.7757x`; pass.
+- 65,536 links: drift `0.0015769` above the fixed `0.001` gate; fail.
+- Frozen 512-step device chunks do not measure per-tick host mutation,
+  synchronization, checkpoint ownership, or runtime replay. No runtime backend
+  is authorized.
+
+Provenance limitation: the artifact predates the common audit-manifest schema
+and has no independent attestation. A fresh reproduction must use a new output
+directory and record commit, environment, command, and checksums.
+
+## 2026-07-11: PR48 Cost-To-Go Feature Contract
+
+Change class: NumPy experiment data contract; historical ledger closure
+
+Canonical verification commands:
+
+```bash
+.venv/bin/python -m pytest tests/test_cost_to_go_features.py tests/test_runtime_environment.py -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Recorded result and boundary:
+
+- Versioned 20-column ID-free model matrix, independent static/dynamic
+  fingerprints, baseline-Dijkstra targets, and target-independent group split
+  are implemented.
+- Final repository gate at that commit was `522 passed`.
+- No model was fitted and no cross-network generalization or runtime NN backend
+  was authorized.
+
+## 2026-07-11: PR49 Multi-City Cost-To-Go Feature Audit
+
+Change class: simulator-only feature identifiability diagnostic; historical
+ledger closure
+
+Canonical commands:
+
+```bash
+.venv/bin/python -m metroflow.learning.cost_to_go_audit \
+  --output-dir artifacts/cost_to_go_feature_audit_20260711 \
+  --style-ids grid_core,polycentric_tod,organic \
+  --seeds 17,29,41 --destination-count 4 --closure-fraction 0.03
+.venv/bin/python -m pytest tests/test_cost_to_go_feature_audit.py tests/test_cost_to_go_features.py -q
+```
+
+Recorded result and boundary:
+
+- 64,968 rows retained; 90% nonconstant features; 99.889% joint dynamic
+  response; 20.042% relation coverage.
+- Near-duplicate target conflict is `8,994/13,021 = 69.073%`, above the fixed
+  25% maximum. The row-local MLP hypothesis is rejected without threshold
+  tuning.
+- The artifact persists summaries, not raw rows or independent attestation.
+
+## 2026-07-11: PR50 Cost-To-Go Graph Tensor Contract
+
+Change class: NumPy directed graph data contract; historical ledger closure
+
+Canonical verification commands:
+
+```bash
+.venv/bin/python -m pytest tests/test_cost_to_go_graph_tensors.py tests/test_cost_to_go_feature_audit.py -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Recorded result and boundary:
+
+- Directed local edge indices, 13 edge features, blocked mask, baseline node
+  targets, byte-bounded padded batches, fingerprints, and static-network split
+  are implemented.
+- Recorded smoke: 861 nodes, 3,120 edges, 1,722 targets, 534,996 final bytes,
+  1,069,992 estimated peak bytes; final repository gate `560 passed`.
+- This validates a data contract only. It provides no accuracy, speed, or
+  runtime-authority claim.
+
 ## 2026-07-11: JAX Graph Cost-To-Go Diagnostic
 
 Change class: optional GPU experiment, graph-vs-row-local numerical comparison,
@@ -475,6 +571,55 @@ Reproducibility and claim boundary:
 
 Next validation required:
 
-- PR52 requires an owner-selected step-back among Rust/control-flow,
-  NumPy/SIMD numeric, JAX dense-flow checkpoint cadence, and a future narrow
-  custom-kernel lane. Do not tune the failed PR51 graph hypothesis.
+- The external whole-repository audit supersedes PR52 lane selection. Close
+  typed turn authority, route-derived demand, generated multi-hop movement,
+  vehicle conservation, and full-state replay before refreshing any
+  acceleration evidence. Do not tune the failed PR51 graph hypothesis.
+
+## 2026-07-11: Whole-Repository External Audit Packet
+
+Change class: history/architecture/research audit, executable defect probe,
+claim ledger, and integrity-checked external review packaging
+
+Commands run:
+
+```bash
+.venv/bin/python -m metroflow.benchmarks.runtime_self_drive_probe \
+  --scenario-seed 41 --steps 3 --expect-stalled
+.venv/bin/python -m pytest tests/test_external_audit_package.py -q
+.venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+cargo fmt --all --check
+CARGO_TARGET_DIR=/tmp/metroflow-cargo-target cargo test --workspace
+```
+
+Observed results:
+
+- defect probe: 16 initial trips; 15 active agents and 15 queued vehicles by
+  tick 1; zero turn demand, outflow, and movement through tick 3;
+- external-audit package tests: `8 passed`;
+- full Python suite: `578 passed in 159.46s`;
+- Ruff passed and `git diff --check` was clean;
+- Cargo format passed; Rust workspace: `52 passed`;
+- three bounded review/fix loops closed document, drift, packaging, checksum,
+  ref-race, path, shallow-history, and fault-injection findings.
+
+Claim boundary:
+
+- The audit packet is externally reviewable source/history evidence, not
+  scientific validation or independent reproduction.
+- The executable probe confirms a critical baseline defect: generated routes
+  do not produce turn demand, so the integrated runtime is not self-driving.
+- The audit blocks PR52 acceleration selection until generated multi-hop
+  movement, conservation, full-state replay, and runtime authority closure pass.
+- No root license exists; archive integrity is not a redistribution grant.
+
+Packet source:
+`docs/audit/metroflow_external_audit_20260711/README.md`.
+
+Delivery packaging command, to be run only after committing this packet:
+
+```bash
+.venv/bin/python tools/build_external_audit_bundle.py --output-dir dist
+```

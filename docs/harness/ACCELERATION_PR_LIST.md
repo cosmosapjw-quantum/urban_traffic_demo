@@ -205,7 +205,7 @@ authorize a backend or empirical-realism claim.
 
 ## PR34-PR40 — Typed Map Contract And Validation Closure
 
-Status: complete in `a13b93e0` through `23d9cb7`.
+Status: complete in `13b93e0` through `23d9cb7`.
 
 - Added typed physical centerlines, road sections, compiled node interfaces,
   width-aware rendering, offline OSM XML import, and fail-closed map gates.
@@ -349,7 +349,8 @@ experiment-only; no runtime promotion.
 
 ## PR52 — Acceleration Lane Step-Back
 
-Status: owner decision required; no implementation authorized.
+Status: blocked by the 2026-07-11 external runtime-closure audit; no
+implementation authorized.
 
 - Stop graph-NN tuning because its accuracy gate fails independently of the
   determinism failure.
@@ -358,6 +359,10 @@ Status: owner decision required; no implementation authorized.
   host mutation/synchronization, and one future narrow custom-kernel candidate.
 - Select one lane only after updating the hardware-fit decision card; do not
   reopen graph training with adjusted thresholds or architecture.
+- Before selecting an acceleration lane, generated routes must produce typed
+  turn demand, agents must complete a multi-hop trip, and link-level vehicle
+  conservation/full-state replay must pass. See
+  `docs/audit/metroflow_external_audit_20260711/05_ADVERSARIAL_TECHNICAL_AUDIT.md`.
 
 ## Spec Template
 

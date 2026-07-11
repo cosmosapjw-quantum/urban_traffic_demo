@@ -1,12 +1,14 @@
-# Urban Traffic Simulator — Developer Documentation + Starter Skeleton Bundle
+# Metroflow Urban Traffic Research Simulator
 
-이 번들은 다음을 포함한다.
+Metroflow는 결정론적 합성 도시, mesoscopic link/node flow, 동적 경로 탐색,
+active agents, replay, 정적 지도 진단, 그리고 optional Rust/JAX 실험 표면을
+결합하는 연구용 프로토타입이다. Python 3.12 + NumPy baseline이 권위 경로이며,
+현재 구현은 실도시 검증이나 완결된 100k 통합 시뮬레이션으로 간주하면 안 된다.
 
-1. 개발자 문서 세트(md)
-2. spec-kit 입력/타깃 문서
-3. 세분화된 작업 티켓 백로그
-4. `src/metroflow/` 코드 스켈레톤
-5. 최소 테스트/벤치 스켈레톤
+외부 감사용 전체 발전사, 알고리즘 설명, 실패한 실험, claim boundary, 재현
+절차는 `docs/audit/metroflow_external_audit_20260711/README.md`에서 시작한다.
+특히 현재 `SimulationState` runtime의 generated route-to-turn-demand 연결이
+완결되지 않아 차량이 source queue에서 정지하는 blocker가 기록되어 있다.
 
 ## 로컬 Python / GPU 기준
 - Ubuntu 24.04 기본 Python 3.12를 기준으로 한다.
@@ -16,13 +18,15 @@
   GPU benchmark/NN experiment에만 선택적으로 사용한다.
 - core loop 기본값은 항상 baseline이며, JAX/CUDA 경로는 명시적으로 요청한 경우에만 사용한다.
 - JAX/GPU와 NN surrogate는 route scoring, policy scoring, dense flow batch처럼 tensor-friendly stage의
-  후보 실험 표면으로 유지한다. deterministic NumPy/Rust baseline은 replay와 validation authority다.
+  후보 실험 표면으로 유지한다. Python/NumPy baseline만 replay와 validation authority이며 Rust는
+  parity-tested optional accelerator다.
 - cost-to-go NN 실험은 baseline Dijkstra label, ID-free versioned model inputs,
   target-independent destination-group split을 먼저 요구한다. Row-local v1은
   cross-city 일반화 증거가 아니며 runtime route legality를 소유하지 않는다.
 - multi-city audit는 row-local v1의 target conflict가 높아 MLP 경로를
-  fail-closed로 거부했다. 다음 NN/GPU 단계는 adjacency/edge-state tensor
-  계약 이후의 graph-aware JAX 실험이며 baseline Dijkstra authority는 유지된다.
+  fail-closed로 거부했다. 이후 adjacency/edge-state tensor와 graph-aware JAX
+  실험도 accuracy/determinism gate를 통과하지 못했으며 baseline Dijkstra
+  authority는 유지된다.
 - graph tensor 계약은 directed edge index, dynamic edge features/blocked mask,
   baseline node target mask, byte-bounded padding, static-network holdout을
   read-only NumPy로 고정한다. 이는 PR51 실험 substrate이며 runtime NN backend가 아니다.
@@ -123,7 +127,8 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   UI packet/stream-buffer contracts, simulation state/control/invariant contracts, UI snapshot/control/preset adapters이다.
 - baseline `sim.init.build_initial_simulation_state`와 `sim.step.simulation_step`은 donor 의존성 없이
   city→demand→event effects→flow→route candidate cache→active agents→invariant→UI snapshot의
-  deterministic runtime spine을 제공한다.
+  deterministic runtime spine substrate를 제공한다. 다만 generated route를 turn demand로 변환하는
+  authority가 아직 없어 현재 integrated runtime은 차량을 스스로 이동시키는 완결 루프가 아니다.
 - active-agent spine은 activated trip을 선택된 route candidate의 첫 링크에 배정하고, source link queue에
   차량 1대를 삽입한다. link-to-link 이동은 직전 flow update의 `outflow_vehicles` 정수 예산을
   slot id 순서로 소비한다.
@@ -225,5 +230,7 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   - lagged land-use feedback
 
 ## 다음 작업
-- `docs/TICKET_BACKLOG.md` 와 `specs/001-metroflow/tasks_detailed.md` 를 기준으로
-  `src/metroflow/` 구현을 채워가면 된다.
+- `docs/harness/PROJECT_STATE.md`, `docs/harness/CLAIM_LEDGER.md`, 그리고
+  `docs/audit/metroflow_external_audit_20260711/README.md`를 현재 authority로 사용한다.
+- acceleration PR52보다 먼저 typed turn movement, route-derived turn demand,
+  generated multi-hop movement/conservation, full-state replay를 닫는다.

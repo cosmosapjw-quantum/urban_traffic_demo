@@ -968,3 +968,41 @@ custom-kernel lane.
 Review closure: `/review-spec`, `/review-code`, and `/review-drift` report no
 remaining findings after two bounded fix loops. Final gate: `570 passed`, Ruff
 clean, and `git diff --check` clean.
+
+## 2026-07-11: Block Acceleration Until The Runtime Self-Drives
+
+Status: accepted audit finding
+
+### Compact CCoT
+
+Question: Is the current integrated runtime functionally complete enough to
+select PR52's next acceleration lane?
+
+Evidence: Generated topology contains no turn-movement authority;
+`build_initial_simulation_state` initializes zero turn demand; the flow engine
+preserves zero demand and emits zero outflow; active-agent movement consumes
+outflow budgets. In a seed-41 eager three-tick probe, 15 agents remain active
+and 15 vehicles remain queued while turn demand, outflow, and movement stay
+zero. Accessibility and land-use cadences exist only in the legacy
+`WorldState` orchestrator.
+
+Inference: Parent-stage acceleration evidence is being collected around a
+runtime that does not execute its central generated traffic loop. Optimizing a
+nested route/flow/backend stage now would repeat the local-minimum failure at a
+higher architectural level.
+
+Counterevidence checked: Handcrafted runtime tests can move agents when turns
+and demand are injected, and isolated flow/Rust/JAX fixtures are valid. They do
+not prove generated-city demand assembly or the integrated LUTI loop.
+
+Decision: Block PR52 and all runtime backend promotion. Make typed turn
+movements, route-derived turn demand, generated multi-hop movement, vehicle
+conservation, and full-state replay the next specification.
+
+Falsifier: A deterministic generated-city test demonstrates nonzero legal turn
+flow, multi-hop movement/completion, conserved mass, and replay equality across
+the complete dynamic state.
+
+Next action: implement runtime closure in the NumPy baseline, then refresh the
+hardware-fit atlas on the closed workload before choosing Rust, NumPy/SIMD,
+JAX/GPU, or custom-kernel work.

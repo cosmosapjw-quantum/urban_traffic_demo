@@ -1,7 +1,7 @@
 [project]
 name = "metroflow"
 version = "0.0.2"
-description = "Urban traffic simulator developer docs + starter skeleton"
+description = "Deterministic synthetic urban traffic research simulator"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

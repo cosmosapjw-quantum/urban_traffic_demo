@@ -57,6 +57,28 @@ Primary artifact:
 Project state summary:
 `docs/harness/PROJECT_STATE.md`
 
+## External Runtime-Closure Override
+
+The 2026-07-11 whole-repository audit supersedes acceleration ordering until a
+functional baseline gate passes. Generated topology/initialization currently
+provides no route-derived turn demand: eager agents enter source queues while
+turn demand, outflow, and movement remain zero. `SimulationState` also does not
+execute the legacy accessibility/land-use cadences.
+
+Consequences:
+
+- no Rust, NumPy/SIMD, JAX/GPU, NN, zero-copy, Rayon, or custom-kernel slice is
+  currently implementation-ready;
+- all candidate lists below are **post-closure watchlists**, not current work;
+- the sole next slice is typed turn authority, route-tail demand assembly,
+  generated multi-hop movement/completion, vehicle conservation, and a
+  canonical full dynamic-state replay digest;
+- only after that slice passes may the hardware-fit atlas be refreshed on the
+  functional workload.
+
+Canonical finding:
+`docs/audit/metroflow_external_audit_20260711/05_ADVERSARIAL_TECHNICAL_AUDIT.md`.
+
 Observed on seeds `41,42,43` with eager trip generation:
 
 - `route_candidate_refresh` remains a large stage.
@@ -76,11 +98,11 @@ Observed on seeds `41,42,43` with eager trip generation:
 - `active_agent_candidate_selection` is small in both 1-step and 2-step smoke
   workloads.
 
-Current implication:
+Historical acceleration implication, retained as a post-closure watchlist:
 
 - Active-agent pool-array replacement stays on the Rust CPU watchlist but should
   not drive the next slice.
-- Route next slice should target dynamic-potential recompute and cache
+- After runtime closure, a route slice should target dynamic-potential recompute and cache
   amortization before greedy path-build.
 - Explicit whole-suite `routing_backend="rust_cpu"` is still not runtime-ready:
   debug `maturin develop` timed out at 90 seconds, while release
@@ -151,6 +173,8 @@ ordinary implementation commits.
 
 ## Backend Admission Rules
 
+These rules are dormant until the external runtime-closure override passes.
+
 ### Rust CPU
 
 Open a Rust CPU slice when:
@@ -160,7 +184,7 @@ Open a Rust CPU slice when:
 - the Python boundary can remain NumPy-owned or explicit copy-boundary;
 - explicit `rust_cpu` can fail closed and `auto` can fallback.
 
-Current Rust-ready candidates:
+Post-closure Rust watchlist:
 
 - dynamic-potential recompute/cache amortization
 - route candidate path-build graph core only after potential recompute is
@@ -177,7 +201,7 @@ Open a JAX/GPU slice when:
 - baseline labels remain authoritative;
 - first-call compile time and steady-state time are measured separately.
 
-Current JAX/GPU watchlist:
+Post-closure JAX/GPU watchlist:
 
 - dynamic-potential cost-to-go batches after first-call compile and steady-state
   timing are separated;
@@ -193,7 +217,7 @@ Open an NN surrogate slice only when:
 - the target is scoring/cost approximation, not state mutation;
 - replay can record model/version/fallback metadata.
 
-Current NN watchlist:
+Post-closure NN watchlist:
 
 - cost-to-go surrogate labels from dynamic potential;
 - route scoring labels after candidate scoring becomes a material stage.
@@ -224,20 +248,17 @@ Review must explicitly check:
 
 Preferred next implementation slice:
 
-- retain PR49's failed row-local relation gate and PR51's failed graph accuracy
-  gate as evidence; do not tune thresholds or architecture to admit an NN;
-- run a step-back owner decision across the remaining Rust/control-flow,
-  NumPy/SIMD, GPU tensor, and future custom-kernel lanes;
-- if the GPU lane is selected, return only through PR47's explicit dense-flow
-  checkpoint-cadence host-synchronization falsifier;
-- keep Python baseline Dijkstra as label and route-legality authority;
-- keep Rust potential/cache work and active-agent array write on their existing
-  watchlists; the failed NN hypothesis receives no additional tuning slice;
-- return to GPU flow only through the explicit checkpoint-cadence falsifier in
-  PR47, not through another nested flow timing counter.
+- add typed generated-network turn movements;
+- derive deterministic per-turn demand from active route tails before flow;
+- demonstrate generated multi-hop movement and completion;
+- enforce link-level vehicle conservation and a canonical dynamic-state digest;
+- preserve Python/NumPy route legality, replay authority, and baseline fallback;
+- keep PR49/PR51 failures and all acceleration lanes as post-closure evidence.
 
 Stop condition:
 
 - PR51 misses the fixed accuracy gate independently of its repeat determinism
   failure. Additional graph-NN instrumentation cannot change the parent-stage
-  decision, so stop that lane and require an owner-selected step-back target.
+  decision, so stop that lane.
+- Acceleration work cannot change the parent product decision while generated
+  traffic is stalled, so stop all backend work until runtime closure passes.

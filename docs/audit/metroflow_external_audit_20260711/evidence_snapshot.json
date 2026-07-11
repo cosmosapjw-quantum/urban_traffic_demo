@@ -1,0 +1,97 @@
+{
+  "schema_version": "metroflow.external-audit-evidence.v1",
+  "audit_date": "2026-07-11",
+  "source_baseline_commit": "96e54ca907babe6425212ac2e088615687549d72",
+  "scope": "tracked repository, reachable git history, retained artifacts, deterministic local probes",
+  "verdict": "research prototype; integrated generated-city traffic loop not closed",
+  "history": {
+    "commit_count": 120,
+    "recorded_author_count": 1,
+    "first_commit": "049236458fdb5a7e327b0e494ab5f5cc3ad25b61",
+    "first_commit_subject": "import repaired bundle",
+    "pre_import_history_available": false,
+    "merge_commit_count": 0
+  },
+  "inventory": {
+    "python_source_files": 127,
+    "rust_source_files": 7,
+    "python_test_files": 56,
+    "python_test_function_count": 508,
+    "tracked_artifact_file_count": 99,
+    "ignored_artifact_file_count_on_audit_host": 36,
+    "artifact_file_count_on_audit_host": 135
+  },
+  "functional_probe": {
+    "seed": 41,
+    "population_target": 100,
+    "eager_trip_generation": true,
+    "initial_trip_count": 16,
+    "tick_1_active_agents": 15,
+    "tick_1_failed_agents": 1,
+    "tick_3_active_agents": 15,
+    "tick_3_queue_vehicles": 15.0,
+    "tick_1_to_3_turn_demand_sum": 0.0,
+    "tick_1_to_3_outflow_sum": 0.0,
+    "tick_1_to_3_moved_agents": 0,
+    "interpretation": "source queues are seeded, but no route-derived turn demand or movement is produced"
+  },
+  "experiments": {
+    "rust_runtime_routing": {
+      "baseline_external_seconds": 8.02,
+      "rust_release_external_seconds": 26.70,
+      "decision": "reject whole-runtime Rust routing default for tested workload"
+    },
+    "planar_seed_44": {
+      "proper_crossings_before": 2665,
+      "proper_crossings_after": 0,
+      "sampled_od_routes": "32/32",
+      "full_suite_seconds_before_approx": 48,
+      "full_suite_seconds_after_approx": 281,
+      "decision": "retain explicit sidecar; do not make default"
+    },
+    "jax_dense_flow": {
+      "link_4096_max_drift": 0.0008612,
+      "link_4096_steady_speedup": 12.2843,
+      "link_16384_max_drift": 0.0008769,
+      "link_16384_steady_speedup": 37.7757,
+      "link_65536_max_drift": 0.0015769,
+      "link_65536_steady_speedup": 85.3313,
+      "drift_gate": 0.001,
+      "decision": "no runtime backend authorization"
+    },
+    "row_local_feature_audit": {
+      "rows": 64968,
+      "nonconstant_feature_fraction": 0.90,
+      "relation_coverage_fraction": 0.20042,
+      "conflict_fraction": 0.69073,
+      "maximum_conflict_gate": 0.25,
+      "decision": "reject row-local MLP"
+    },
+    "jax_graph_cost_to_go": {
+      "graph_control_ratio_by_seed": [1.0305, 1.1823, 0.9615],
+      "mean_ratio": 1.0581,
+      "seed_gate_pass_count": 0,
+      "seed_count": 3,
+      "repeat_max_prediction_difference": 0.1617336,
+      "formal_state": "inconclusive",
+      "decision": "no tuning or runtime promotion"
+    }
+  },
+  "claim_limits": [
+    "no empirical real-city validation",
+    "no integrated 100k rollout evidence",
+    "no independently attested experiment provenance",
+    "no root redistribution license",
+    "smoke and visual artifacts are diagnostic only"
+  ],
+  "audit_packet_verification": {
+    "python_tests_passed": 578,
+    "python_test_elapsed_seconds": 159.46,
+    "external_audit_package_tests_passed": 8,
+    "rust_tests_passed": 52,
+    "cargo_fmt": "passed",
+    "ruff": "passed",
+    "git_diff_check": "clean",
+    "bounded_review_loops": 3
+  }
+}

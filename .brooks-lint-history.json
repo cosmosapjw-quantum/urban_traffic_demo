@@ -20,5 +20,16 @@
       "suggestion": 0
     },
     "scope": "PR43 continuous fabric coverage after fixes"
+  },
+  {
+    "date": "2026-07-11",
+    "mode": "Health Dashboard",
+    "score": 71,
+    "findings": {
+      "critical": 2,
+      "warning": 10,
+      "suggestion": 2
+    },
+    "scope": "whole-repository external audit at source baseline 96e54ca"
   }
 ]

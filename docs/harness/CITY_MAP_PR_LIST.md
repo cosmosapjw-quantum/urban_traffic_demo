@@ -188,7 +188,8 @@ Status: complete.
 
 ## PR44 - Morphology-Gated Zone And POI Coupling
 
-Status: proposed.
+Status: complete; legacy remains the default and morphology placement remains
+fail-closed behind the recomputed v2 gate.
 
 - Keep legacy placement as the default and deterministic fallback.
 - Admit morphology-aware placement only from a versioned accepted gate.

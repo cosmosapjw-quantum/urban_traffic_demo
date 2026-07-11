@@ -12,9 +12,16 @@ Read these first:
 5. `docs/harness/DEPRECATED_IDEAS.md`
 6. `artifacts/runtime_spine_review/runtime-acceleration-deep-audit.md`
 7. `docs/VALIDATION_BENCHMARK_PLAN.md`
+8. `docs/harness/CLAIM_LEDGER.md`
+9. `docs/audit/metroflow_external_audit_20260711/README.md`
 
 Current state:
 
+- The external audit found a critical functional blocker before PR52:
+  generated networks/initialization provide no route-derived turn demand, so
+  eager active agents fill source queues but do not move.
+- `SimulationState` also lacks the legacy accessibility/land-use multirate
+  cadences; do not describe the runtime as a closed LUTI loop.
 - Python 3.12 + NumPy baseline remains authoritative.
 - Rust CPU is optional and explicit/fail-closed.
 - JAX/GPU remains an active watchlist, not a default. PR49 and PR51 close the
@@ -51,23 +58,22 @@ Current state:
   provenance without accelerator imports.
 - PR51's fixed JAX/Optax graph bakeoff misses its accuracy gate independently
   of repeat nondeterminism. It does not authorize a runtime NN backend.
-- PR52 requires an owner-selected acceleration lane before implementation.
+- PR52's owner-selected acceleration lane is blocked until runtime closure.
 
 Next recommended workflow:
 
-1. Open a new spec only after refreshing the hardware-fit atlas or runtime
-   benchmark evidence that can change a parent-stage decision.
-2. Keep four remaining lanes distinct: Rust/control-flow, NumPy/SIMD numeric,
-   GPU tensor batch, and a future narrow custom-kernel candidate. Preserve the
-   failed NN results as stop evidence rather than silently reopening them.
-3. Treat smoke artifacts as diagnostics only; validation claims still require
-   deterministic replay and invariant evidence.
-4. Keep Python baseline route legality and deterministic replay authoritative.
-5. Keep active-agent pool-array replacement and route path-build on the
-   watchlist.
-6. Do not tune or reopen the PR51 graph model. A different NN hypothesis needs
-   a future owner-authorized spec, new falsifier, and unchanged baseline
-   fallback/route-legality authority.
+1. Open a runtime-closure spec for typed turn movements, route-tail demand
+   assembly, generated multi-hop movement/completion, vehicle conservation, and
+   a canonical full dynamic-state replay digest.
+2. Port or explicitly retire the legacy medium/slow accessibility and land-use
+   cadences before describing `SimulationState` as an integrated LUTI runtime.
+3. Keep Python/NumPy baseline route legality and replay authoritative; do not
+   use Rust, GPU, or NN work to mask missing baseline behavior.
+4. After closure, refresh the hardware-fit atlas on the functional workload and
+   keep Rust/control-flow, NumPy/SIMD, GPU tensor, and custom-kernel lanes
+   distinct.
+5. Preserve failed NN results as stop evidence. A different hypothesis requires
+   a future owner-authorized spec and new falsifier.
 
 Required self-check before coding:
 
@@ -80,6 +86,8 @@ Decision:
 Falsifier:
 Next action:
 ```
+
+Treat PR52 as blocked until the runtime-closure gate is green.
 
 Required gates:
 
