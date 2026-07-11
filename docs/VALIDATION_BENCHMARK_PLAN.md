@@ -132,6 +132,10 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   static/dynamic/sample fingerprint response, read-only exact dtype, padded slice
   reconstruction, byte-budget rejection, static-network split disjointness를
   검증해야 한다. 이 gate는 PR51 실험만 열며 validation/runtime claim은 열지 않는다.
+- PR51 graph-aware JAX bakeoff는 exact PR49 holdout, 3 model seeds, row-local
+  parameter-matched control, train-only normalization, compile/steady timing,
+  repeat prediction/MAE difference를 기록한다. Canonical result는 mean MAE ratio
+  `1.0581`, seed pass `0/3`, repeat failure이므로 runtime/validation 승격을 금지한다.
 - JAX dense-flow persistent chunk bakeoff는 process/device warmup을 별도 기록하고, per-shape
   first call은 warm-process trace/compile/execute estimate로만 부른다. first-result output copy는 steady
   result copy를 사용한 estimate임을 명시해야 한다.

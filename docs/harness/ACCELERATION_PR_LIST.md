@@ -334,13 +334,30 @@ Status: accepted; data-contract only.
 
 ## PR51 — JAX Graph-Aware Cost-To-Go Bakeoff
 
-Status: authorized by PR50; spec required; GPU experiment-only.
+Status: accepted diagnostic; all three review perspectives closed; GPU
+experiment-only; no runtime promotion.
 
 - Fit one bounded graph-aware JAX experiment using PR50 tensors and PR49's fixed
   seed holdout. Compare against a row-local control so adjacency value is
   falsifiable.
 - Record compile/steady timing, error by distance/map/state, fingerprints, and
   baseline fallback. No runtime backend or route-legality ownership.
+- Canonical result: mean graph/control normalized-MAE ratio `1.0581`, individual
+  gate pass `0/3`, and repeat prediction difference `0.16173`. Formal decision
+  is `inconclusive`; accuracy independently misses the fixed support gate.
+- Canonical artifact: `artifacts/jax_graph_cost_to_go_bakeoff_20260711/`.
+
+## PR52 — Acceleration Lane Step-Back
+
+Status: owner decision required; no implementation authorized.
+
+- Stop graph-NN tuning because its accuracy gate fails independently of the
+  determinism failure.
+- Compare four remaining lanes without collapsing their hardware fit:
+  Rust/control-flow, NumPy/SIMD numeric, JAX dense-flow checkpoint cadence with
+  host mutation/synchronization, and one future narrow custom-kernel candidate.
+- Select one lane only after updating the hardware-fit decision card; do not
+  reopen graph training with adjusted thresholds or architecture.
 
 ## Spec Template
 
@@ -462,5 +479,6 @@ Required output:
   touches state apply, reroute it to Rust/Python layout work.
 - Smoke artifacts are diagnostics only. Validation claims require replay,
   invariants, and deterministic multi-seed evidence.
-- Keep Rust/control-flow, NumPy/SIMD numeric, GPU tensor batch, and NN
-  surrogate lanes visible in every step-back.
+- Keep Rust/control-flow, NumPy/SIMD numeric, GPU tensor batch, and future
+  narrow custom-kernel lanes visible in every post-PR51 step-back. Preserve the
+  failed NN hypotheses as explicit stop evidence.

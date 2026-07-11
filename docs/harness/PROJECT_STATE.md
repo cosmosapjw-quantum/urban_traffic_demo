@@ -53,8 +53,8 @@ Derived conclusions:
   path-build/metadata copy-boundary work.
 - Keep Rust routing work narrow: potential-only/cache amortization first,
   path-build/metadata later only if their release-profile evidence improves.
-- NN/JAX remains a watchlist for cost-to-go surrogate labels or dense scoring,
-  not the next route-legality authority.
+- JAX remains a GPU tensor watchlist for dense flow/scoring only. The current
+  row-local and fixed graph cost-to-go NN hypotheses are closed by PR49/PR51.
 - PR47 confirms real RTX 3080 Ti acceleration for frozen-input 512-step dense
   flow chunks at 4,096 and 16,384 links after warmup. The 65,536-link case fails
   the fixed `1e-3` drift gate. Per-tick host synchronization and mutable runtime
@@ -71,8 +71,13 @@ Derived conclusions:
   diagnostic-only after three review perspectives; final gate: `547 passed`.
 - PR50 implements a NumPy-only directed graph sample, memory-bounded padded
   batch, and explicit static-network holdout contract. It is accepted after
-  spec/code/drift review with a `560 passed` final gate. PR51 may run a bounded
-  experiment, but no runtime NN backend is authorized.
+  spec/code/drift review with a `560 passed` final gate. It authorized only the
+  now-completed PR51 experiment, not a runtime NN backend.
+- PR51 runs the fixed JAX/Optax graph-aware versus row-local control on the RTX
+  3080 Ti. Mean normalized-MAE ratio is `1.0581`, no model seed reaches the
+  `0.90` gate, and repeat determinism fails. The formal result is inconclusive,
+  but the independent accuracy miss stops graph-NN tuning and runtime promotion.
+  All three review perspectives are closed; final gate: `570 passed`.
 
 ## Open Risks
 
@@ -129,12 +134,14 @@ Derived conclusions:
 
 Open a new spec only after refreshing the hardware-fit atlas or runtime
 benchmark evidence that can change a parent-stage decision. The strongest
-watchlist lanes remain dynamic-potential/cache work, dense flow scaling,
-route-score batch probes, simulator-label-driven surrogate experiments, and
-active-agent pool-array replacement only if it becomes review-ready again.
+watchlist lanes remain Rust dynamic-potential/cache work, NumPy/SIMD flow and
+route-score batches, JAX dense-flow checkpoint cadence, one future narrow
+custom-kernel candidate, and active-agent pool-array replacement only if it
+becomes review-ready again.
 PR45 closes the current city-map lane without authorizing PR46. PR47 moves the
 GPU dense-flow chunk to a bounded watchlist but does not authorize runtime
-integration. PR49 rejects the row-local MLP path without threshold tuning. The
-next slice is PR50's adjacency/edge-state graph tensor contract; only PR51 may
-attempt a graph-aware JAX bakeoff after that contract passes. Baseline Dijkstra
-remains authoritative.
+integration. PR49 rejects the row-local MLP path without threshold tuning;
+PR50 freezes the graph tensor contract; PR51's fixed graph model also misses
+its accuracy gate. Baseline Dijkstra remains authoritative. PR52 is an owner
+step-back across four distinct lanes: Rust/control-flow, NumPy/SIMD numeric,
+GPU tensor, and one future narrow custom-kernel candidate.

@@ -17,7 +17,8 @@ Current state:
 
 - Python 3.12 + NumPy baseline remains authoritative.
 - Rust CPU is optional and explicit/fail-closed.
-- JAX/GPU and NN surrogate lanes are active watchlists, not defaults.
+- JAX/GPU remains an active watchlist, not a default. PR49 and PR51 close the
+  current row-local and fixed graph cost-to-go NN hypotheses without tuning.
 - Batched plugin-memory replacement reduced `active_agent_pool_write` below the
   review gate.
 - `active_agent_candidate_selection` is not review-ready.
@@ -44,20 +45,29 @@ Current state:
 - The next city-quality work is morphology/block formation measured against the
   offline OSM reference adapter, not more renderer styling or unconditional
   planarization.
+- PR49 audits 64,968 deterministic simulator rows and rejects a row-local MLP
+  because the fixed relation gate fails.
+- PR50 freezes immutable directed graph tensors and exact map-holdout
+  provenance without accelerator imports.
+- PR51's fixed JAX/Optax graph bakeoff misses its accuracy gate independently
+  of repeat nondeterminism. It does not authorize a runtime NN backend.
+- PR52 requires an owner-selected acceleration lane before implementation.
 
 Next recommended workflow:
 
 1. Open a new spec only after refreshing the hardware-fit atlas or runtime
    benchmark evidence that can change a parent-stage decision.
-2. Keep four lanes visible: Rust/control-flow, NumPy/SIMD numeric, GPU tensor
-   batch, and NN surrogate labels.
+2. Keep four remaining lanes distinct: Rust/control-flow, NumPy/SIMD numeric,
+   GPU tensor batch, and a future narrow custom-kernel candidate. Preserve the
+   failed NN results as stop evidence rather than silently reopening them.
 3. Treat smoke artifacts as diagnostics only; validation claims still require
    deterministic replay and invariant evidence.
 4. Keep Python baseline route legality and deterministic replay authoritative.
 5. Keep active-agent pool-array replacement and route path-build on the
    watchlist.
-6. Do not add NN/JAX scoring until cost-to-go labels, compile-vs-run timing, and
-   fallback semantics are defined.
+6. Do not tune or reopen the PR51 graph model. A different NN hypothesis needs
+   a future owner-authorized spec, new falsifier, and unchanged baseline
+   fallback/route-legality authority.
 
 Required self-check before coding:
 

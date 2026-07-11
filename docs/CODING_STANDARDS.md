@@ -124,3 +124,6 @@
 - graph sample은 verified network/link-state/baseline builder에서만 생성하고,
   array는 write flag를 다시 켤 수 없는 immutable buffer를 사용한다. Map holdout
   fingerprint는 validation set과 독립 문자열로 받지 않고 전체 split payload에서 재계산한다.
+- optional JAX NN bakeoff는 Optax optimizer, train-only normalization, fixed
+  map holdout, parameter-count fairness, first/steady timing, repeat determinism을
+  기록한다. Accuracy gate가 독립적으로 실패하면 determinism 세부 튜닝을 반복하지 않는다.

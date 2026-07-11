@@ -930,3 +930,41 @@ bakeoff. Runtime integration remains forbidden.
 Review closure: all three review perspectives report no remaining findings.
 Final gate: `560 passed`, Ruff clean, and `git diff --check` clean. The generated
 861-node/3,120-edge batch smoke remains diagnostic-only.
+
+## 2026-07-11: Do Not Promote The Graph Cost-To-Go Surrogate
+
+Status: accepted diagnostic; no runtime promotion
+
+### Compact CCoT
+
+Question: Does PR50 graph context add held-out-map signal beyond a
+parameter-matched row-local control?
+
+Evidence: The fixed JAX/Optax experiment uses 72 graphs, the exact PR49 map
+holdout, three model seeds, 30 epochs, and 16 shared reverse-message steps. The
+graph/control normalized-MAE ratios are `1.0305`, `1.1823`, and `0.9615`; mean
+ratio is `1.0581`, with `0/3` reaching the fixed `0.90` seed gate. The seed-41
+repeat differs by `0.16173` in normalized prediction and fails determinism.
+
+Inference: The formal state is `inconclusive` because determinism fails, but
+the accuracy gate fails independently. Fixing determinism cannot make the
+current fixed model satisfy the parent decision gate.
+
+Counterevidence checked: One seed and several organic slices improve, but gains
+are not stable across seeds/styles. Graph steady inference is about `2.30-2.33 ms`
+versus `0.11-0.12 ms` for the row-local control. No runtime or real-city claim is
+measured.
+
+Decision: Do not tune architecture, epochs, seeds, or thresholds. Keep baseline
+Dijkstra authoritative and stop the graph-NN lane before runtime integration.
+
+Falsifier: None within PR51; changing the model would be a new hypothesis and
+requires an owner-authorized future spec after a whole-lane step-back.
+
+Next action: PR52 is an owner decision across distinct Rust/control-flow,
+NumPy/SIMD numeric, JAX dense-flow checkpoint-cadence, and one future narrow
+custom-kernel lane.
+
+Review closure: `/review-spec`, `/review-code`, and `/review-drift` report no
+remaining findings after two bounded fix loops. Final gate: `570 passed`, Ruff
+clean, and `git diff --check` clean.

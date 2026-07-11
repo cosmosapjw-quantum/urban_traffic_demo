@@ -12,7 +12,8 @@
 - Ubuntu 24.04 기본 Python 3.12를 기준으로 한다.
 - repo-local `.venv`를 사용한다.
 - 기본 설치는 NumPy baseline만 요구한다.
-- NVIDIA RTX 3080 Ti 12GB는 optional `jax` extra로 단일 GPU CUDA 13 경로를 선택적으로 사용한다.
+- NVIDIA RTX 3080 Ti 12GB는 optional `jax` extra의 JAX CUDA 13과 Optax를
+  GPU benchmark/NN experiment에만 선택적으로 사용한다.
 - core loop 기본값은 항상 baseline이며, JAX/CUDA 경로는 명시적으로 요청한 경우에만 사용한다.
 - JAX/GPU와 NN surrogate는 route scoring, policy scoring, dense flow batch처럼 tensor-friendly stage의
   후보 실험 표면으로 유지한다. deterministic NumPy/Rust baseline은 replay와 validation authority다.
@@ -25,6 +26,10 @@
 - graph tensor 계약은 directed edge index, dynamic edge features/blocked mask,
   baseline node target mask, byte-bounded padding, static-network holdout을
   read-only NumPy로 고정한다. 이는 PR51 실험 substrate이며 runtime NN backend가 아니다.
+- PR51 canonical graph-aware JAX bakeoff는 평균 held-out normalized-MAE ratio
+  `1.0581`, seed gate `0/3`, repeat determinism 실패로 graph signal을 지지하지
+  못했다. Threshold/architecture를 재조정하지 않고 현재 graph cost-to-go
+  runtime NN 경로를 닫는다.
 - `edge_backend="rust_cpu"`와 `edge_backend="jax"`는 실패 시 예외를 내고,
   `edge_backend="auto"`만 `rust_cpu` → `jax` → `baseline` 순서의 fallback을 허용한다.
 - `SimulationConfig`의 runtime backend 기본값은 `edge_backend="baseline"`,

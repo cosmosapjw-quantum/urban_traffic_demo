@@ -13,8 +13,9 @@ def test_jax_cuda13_is_optional_extra_not_baseline_dependency():
     project = tomllib.loads(Path("pyproject.toml").read_text())
 
     optional_deps = project["project"]["optional-dependencies"]
-    assert optional_deps["jax"] == ["jax[cuda13]"]
+    assert optional_deps["jax"] == ["jax[cuda13]", "optax"]
     assert "jax[cuda13]" not in project["project"]["dependencies"]
+    assert "optax" not in project["project"]["dependencies"]
     assert "jaxlib" not in project["project"]["dependencies"]
 
 

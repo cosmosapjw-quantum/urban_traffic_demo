@@ -1,0 +1,17 @@
+{
+  "accuracy_gate_passed": false,
+  "artifact_files": [
+    "jax-graph-cost-to-go-bakeoff.json",
+    "jax-graph-cost-to-go-bakeoff.md"
+  ],
+  "artifact_format_version": "jax_graph_cost_to_go_bakeoff_bundle_v1",
+  "data_json": "jax-graph-cost-to-go-bakeoff.json",
+  "decision_state": "inconclusive",
+  "evidence_status": "diagnostic_not_runtime_validation",
+  "graph_signal_supported": false,
+  "graph_split_fingerprint": "8a66ef492e803189e3d8794aaa845fc191e010da51e21449ee103d9f8ad7b28e",
+  "raw_predictions_persisted": false,
+  "review_markdown": "jax-graph-cost-to-go-bakeoff.md",
+  "route_legality_changed": false,
+  "runtime_nn_backend_authorized": false
+}

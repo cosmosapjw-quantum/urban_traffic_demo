@@ -224,20 +224,20 @@ Review must explicitly check:
 
 Preferred next implementation slice:
 
-- retain PR49's failed row-local relation gate as evidence; do not relax its
-  quantization or conflict threshold to admit an MLP;
-- use PR50's accepted immutable graph tensors and exact PR49 map holdout;
-- specify one bounded PR51 graph-aware JAX bakeoff with a row-local control,
-  compile-versus-steady timing, deterministic fingerprints, and no runtime path;
+- retain PR49's failed row-local relation gate and PR51's failed graph accuracy
+  gate as evidence; do not tune thresholds or architecture to admit an NN;
+- run a step-back owner decision across the remaining Rust/control-flow,
+  NumPy/SIMD, GPU tensor, and future custom-kernel lanes;
+- if the GPU lane is selected, return only through PR47's explicit dense-flow
+  checkpoint-cadence host-synchronization falsifier;
 - keep Python baseline Dijkstra as label and route-legality authority;
 - keep Rust potential/cache work and active-agent array write on their existing
-  watchlists while the NN label lane receives this bounded step-back slice;
+  watchlists; the failed NN hypothesis receives no additional tuning slice;
 - return to GPU flow only through the explicit checkpoint-cadence falsifier in
   PR47, not through another nested flow timing counter.
 
 Stop condition:
 
-- PR49 found high row-local target conflict and PR50 closes the graph data
-  contract. PR51 may evaluate graph-aware prediction, but any failure in map
-  holdout error, determinism, compile/steady timing, or fallback stops the NN
-  lane without runtime integration.
+- PR51 misses the fixed accuracy gate independently of its repeat determinism
+  failure. Additional graph-NN instrumentation cannot change the parent-stage
+  decision, so stop that lane and require an owner-selected step-back target.

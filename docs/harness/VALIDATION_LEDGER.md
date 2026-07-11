@@ -422,3 +422,59 @@ Claim boundary:
   terrain, or morphology-aware land use.
 - PR44 may open zone/POI coupling only with legacy default/fallback and replay
   fingerprint coverage.
+
+## 2026-07-11: JAX Graph Cost-To-Go Diagnostic
+
+Change class: optional GPU experiment, graph-vs-row-local numerical comparison,
+and diagnostic artifact reporting
+
+Commands run:
+
+```bash
+nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader
+XLA_PYTHON_CLIENT_MEM_FRACTION=0.70 .venv/bin/python -m metroflow.benchmarks.jax_graph_cost_to_go_bakeoff --output-dir /tmp/metroflow-pr51-rerun.WRKG0l
+.venv/bin/python -m pytest tests/test_jax_graph_cost_to_go_bakeoff.py tests/test_runtime_environment.py -q
+.venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Observed results:
+
+- hardware: NVIDIA GeForce RTX 3080 Ti, 12,288 MiB, driver `595.71.05`
+- optional stack: JAX `0.10.2`, Optax `0.2.8`, GPU platform selected
+- canonical workload: 72 graphs, 48 train, 24 held-out-map validation
+- graph/control normalized-MAE ratios: `1.0305`, `1.1823`, `0.9615`
+- mean ratio: `1.0581`; fixed `<=0.90` seed gate: `0/3`
+- repeat maximum prediction difference: `0.16173`; determinism gate failed
+- 144 unique map/state/distance/model/seed slices reconstruct top-level metrics
+- targeted PR51/runtime-environment suite: `15 passed`
+- full suite: `570 passed in 155.34s`
+- full-suite process: `elapsed=2:36.12`, `cpu=117%`, `maxrss_kb=1324980`
+- Ruff and diff checks passed; three review perspectives report no findings
+
+Numerical impact:
+
+- No runtime state, route legality, replay authority, or backend default changed.
+- The formal diagnostic state is `inconclusive` because repeat determinism
+  fails. The accuracy gate fails independently, so deterministic-kernel work
+  cannot admit this fixed graph model.
+- Parameter/optimizer/device setup is synchronized before first-step timing;
+  distance slices and top-level error aggregates are fail-closed.
+
+Reproducibility and claim boundary:
+
+- Architecture, seeds, epochs, and thresholds are author-attested as fixed in
+  the working tree before the canonical run; there is no independent versioned
+  preregistration record.
+- The bundle at `artifacts/jax_graph_cost_to_go_bakeoff_20260711/` is diagnostic
+  only and persists no labels, tensors, predictions, optimizer state, or model
+  parameters.
+- Baseline Dijkstra remains label and route-legality authority. PR51 does not
+  validate real-city behavior or authorize a runtime NN backend.
+
+Next validation required:
+
+- PR52 requires an owner-selected step-back among Rust/control-flow,
+  NumPy/SIMD numeric, JAX dense-flow checkpoint cadence, and a future narrow
+  custom-kernel lane. Do not tune the failed PR51 graph hypothesis.
