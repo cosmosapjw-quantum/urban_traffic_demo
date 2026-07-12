@@ -17,9 +17,17 @@ Read these first:
 
 Current state:
 
-- The external audit found a critical functional blocker before PR52:
-  generated networks/initialization provide no route-derived turn demand, so
-  eager active agents fill source queues but do not move.
+- The external audit's historical route-to-turn-demand blocker is remediated in
+  the Python/NumPy baseline. The seed-41 20-tick probe compiles 51,886 turns,
+  completes all 15 routable trips, fails one no-route trip explicitly, and ends
+  with zero active agents/queue mass and no invariant failure.
+- Two fresh seed-41 20-tick replays have the same canonical final-state digest;
+  service/receiving/turn residuals, sink flow, lifecycle, agent state, config,
+  and static routing authority are included while host timing is excluded.
+- This is bounded internal evidence, not a 100k or physical traffic result.
+  Agents move at most one route turn per tick, `progress_01` is not calibrated
+  position, the point queue has no spillback, and the new per-turn Rust ABI is
+  unsupported/fail-closed.
 - `SimulationState` also lacks the legacy accessibility/land-use multirate
   cadences; do not describe the runtime as a closed LUTI loop.
 - Python 3.12 + NumPy baseline remains authoritative.
@@ -58,18 +66,19 @@ Current state:
   provenance without accelerator imports.
 - PR51's fixed JAX/Optax graph bakeoff misses its accuracy gate independently
   of repeat nondeterminism. It does not authorize a runtime NN backend.
-- PR52's owner-selected acceleration lane is blocked until runtime closure.
+- PR52's owner-selected acceleration lane remains blocked until post-closure
+  replay/scale evidence and the hardware-fit atlas are refreshed.
 
 Next recommended workflow:
 
-1. Open a runtime-closure spec for typed turn movements, route-tail demand
-   assembly, generated multi-hop movement/completion, vehicle conservation, and
-   a canonical full dynamic-state replay digest.
+1. Review and harden the runtime-closure patch across merge/diverge, incident,
+   sink, failure-path, generated replay, and controlled scale/memory cases.
+   Extend the green seed-41 digest gate to those broader workloads.
 2. Port or explicitly retire the legacy medium/slow accessibility and land-use
    cadences before describing `SimulationState` as an integrated LUTI runtime.
 3. Keep Python/NumPy baseline route legality and replay authoritative; do not
    use Rust, GPU, or NN work to mask missing baseline behavior.
-4. After closure, refresh the hardware-fit atlas on the functional workload and
+4. After post-closure replay/scale gates, refresh the hardware-fit atlas on the functional workload and
    keep Rust/control-flow, NumPy/SIMD, GPU tensor, and custom-kernel lanes
    distinct.
 5. Preserve failed NN results as stop evidence. A different hypothesis requires
@@ -87,7 +96,8 @@ Falsifier:
 Next action:
 ```
 
-Treat PR52 as blocked until the runtime-closure gate is green.
+Treat PR52 as blocked until the post-closure replay/scale gate is green and the
+hardware-fit evidence is refreshed.
 
 Required gates:
 

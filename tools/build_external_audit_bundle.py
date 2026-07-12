@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 import shlex
 import shutil
 import subprocess
@@ -23,6 +24,13 @@ from typing import Any, Sequence
 REPO_ROOT = Path(__file__).resolve().parents[1]
 AUDIT_RELATIVE = Path("docs/audit/metroflow_external_audit_20260711")
 DEFAULT_AUDIT_DATE = "2026-07-11"
+
+_MARKDOWN_INLINE_LINK = re.compile(
+    r"(?P<open>!?\[[^\]\n]*\]\()"
+    r"(?P<destination><[^>\n]+>|[^)\s\n]+)"
+    r"(?P<close>(?:[ \t]+(?:\"[^\"\n]*\"|'[^'\n]*'|\([^)]*\)))?[ \t]*\))"
+)
+_URI_SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
 
 
 def _run(
@@ -128,6 +136,69 @@ def _validate_checksum_path(value: str) -> None:
         raise RuntimeError(f"unsafe audit package path: {value!r}")
 
 
+def _local_markdown_target(destination: str) -> tuple[PurePosixPath, str, str] | None:
+    """Return a safe package-local Markdown target and its textual components."""
+
+    wrapped = destination.startswith("<") and destination.endswith(">")
+    raw = destination[1:-1] if wrapped else destination
+    if not raw or raw.startswith(("#", "?", "//")) or _URI_SCHEME.match(raw):
+        return None
+    if raw.startswith("/"):
+        raise RuntimeError(f"absolute Markdown link is not portable in audit package: {raw!r}")
+
+    split_at = len(raw)
+    for separator in ("?", "#"):
+        position = raw.find(separator)
+        if position >= 0:
+            split_at = min(split_at, position)
+    path_text = raw[:split_at]
+    suffix = raw[split_at:]
+    _validate_checksum_path(path_text)
+    return PurePosixPath(path_text), suffix, "angle" if wrapped else "plain"
+
+
+def _rewrite_audit_entrypoint(markdown: str) -> str:
+    """Rebase package-local links from the source audit directory to reports/."""
+
+    def replace(match: re.Match[str]) -> str:
+        destination = match.group("destination")
+        target = _local_markdown_target(destination)
+        if target is None:
+            return match.group(0)
+        path, suffix, style = target
+        rewritten = f"reports/{path.as_posix()}{suffix}"
+        if style == "angle":
+            rewritten = f"<{rewritten}>"
+        return f"{match.group('open')}{rewritten}{match.group('close')}"
+
+    return _MARKDOWN_INLINE_LINK.sub(replace, markdown)
+
+
+def _verify_packaged_entrypoint_links(
+    archive: zipfile.ZipFile,
+    *,
+    names: set[str],
+    prefix: str,
+) -> None:
+    entrypoint_relative = PurePosixPath("AUDIT_START_HERE.md")
+    entrypoint_member = f"{prefix}{entrypoint_relative.as_posix()}"
+    if entrypoint_member not in names:
+        raise RuntimeError("ZIP is missing AUDIT_START_HERE.md")
+    markdown = archive.read(entrypoint_member).decode("utf-8")
+    for match in _MARKDOWN_INLINE_LINK.finditer(markdown):
+        target = _local_markdown_target(match.group("destination"))
+        if target is None:
+            continue
+        path, _, _ = target
+        relative = entrypoint_relative.parent / path
+        member = f"{prefix}{relative.as_posix()}"
+        if member not in names:
+            raise RuntimeError(
+                "AUDIT_START_HERE.md references missing package member: "
+                f"{relative.as_posix()}"
+            )
+
+
 def _extract_commit_snapshot(destination: Path, *, repo_root: Path, commit: str) -> None:
     destination.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(suffix=".tar") as archive_file:
@@ -228,6 +299,11 @@ def _verify_zip_integrity(
             if not name.startswith(prefix):
                 raise RuntimeError(f"ZIP member escapes package root: {name}")
             _validate_checksum_path(name)
+        _verify_packaged_entrypoint_links(
+            archive,
+            names=names,
+            prefix=prefix,
+        )
         if checksum_member not in names:
             raise RuntimeError("ZIP is missing SHA256SUMS")
         listed: set[str] = set()
@@ -355,7 +431,14 @@ def build_bundle(
             if not audit_snapshot.is_dir():
                 raise RuntimeError(f"audit documents are missing from commit: {audit_relative}")
 
-            shutil.copy2(audit_snapshot / "README.md", package_root / "AUDIT_START_HERE.md")
+            reports_root = package_root / "reports"
+            shutil.copytree(audit_snapshot, reports_root)
+            _write_text(
+                package_root / "AUDIT_START_HERE.md",
+                _rewrite_audit_entrypoint(
+                    (audit_snapshot / "README.md").read_text(encoding="utf-8")
+                ),
+            )
             shutil.copy2(
                 audit_snapshot / "NO_LICENSE_NOTICE.md",
                 package_root / "NO_LICENSE_NOTICE.md",
@@ -471,6 +554,7 @@ def build_bundle(
                     "snapshot": "repository/",
                     "history_bundle": "history/metroflow-all-refs.bundle",
                     "audit_entrypoint": "AUDIT_START_HERE.md",
+                    "audit_reports": "reports/",
                     "checksums": "SHA256SUMS",
                 },
                 "limitations": [

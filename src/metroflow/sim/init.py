@@ -100,7 +100,10 @@ def build_initial_simulation_state(
         start_tick=clock_state.tick_index,
         eager_trip_generation=eager_trip_generation,
     )
-    flow_link_state = _build_initial_link_state(road_csr)
+    flow_link_state = _build_initial_link_state(
+        road_csr,
+        tick_seconds=sim_config.tick_seconds,
+    )
     flow_node_state = _build_initial_node_state(road_csr)
     if topology.road_geometry is None:
         raise ValueError("generated topology must include road_geometry")
@@ -227,16 +230,43 @@ def _build_initial_trip_requests(
     )
 
 
-def _build_initial_link_state(road_csr: Any) -> LinkState:
+def _build_initial_link_state(
+    road_csr: Any,
+    *,
+    tick_seconds: float = 1.0,
+) -> LinkState:
+    """Build runtime link state in explicit simulation-tick units.
+
+    Generated ``RoadLink.capacity_veh_per_tick`` values use the generator's
+    one-second reference tick.  Runtime capacity is rescaled to the configured
+    tick duration, while free-flow time is stored as a number of runtime ticks.
+    This keeps the represented physical free-flow time and service rate stable
+    when ``SimulationConfig.tick_seconds`` changes.
+    """
+
+    tick_seconds = float(tick_seconds)
+    if tick_seconds <= 0.0:
+        raise ValueError("tick_seconds must be > 0")
+    capacity_reference_tick_seconds = 1.0
     travel_time_cost = np.asarray(
         [
-            max(1e-3, float(link.length_m) / max(1e-3, float(link.free_flow_speed_mps)))
+            max(
+                1e-3,
+                float(link.length_m)
+                / max(1e-3, float(link.free_flow_speed_mps))
+                / tick_seconds,
+            )
             for link in road_csr.links
         ],
         dtype=np.float32,
     )
     capacity = np.asarray(
-        [max(0.0, float(link.capacity_veh_per_tick)) for link in road_csr.links],
+        [
+            max(0.0, float(link.capacity_veh_per_tick))
+            * tick_seconds
+            / capacity_reference_tick_seconds
+            for link in road_csr.links
+        ],
         dtype=np.float32,
     )
     link_count = int(road_csr.link_count)
@@ -252,6 +282,9 @@ def _build_initial_link_state(road_csr: Any) -> LinkState:
         capacity_violation_flags=np.zeros((link_count,), dtype=np.bool_),
         metadata={
             "free_flow_travel_time_cost": travel_time_cost,
+            "travel_time_cost_unit": "simulation_ticks",
+            "tick_seconds": tick_seconds,
+            "capacity_reference_tick_seconds": capacity_reference_tick_seconds,
             "runtime_flow_generation": 0,
             "runtime_incident_generation": 0,
         },

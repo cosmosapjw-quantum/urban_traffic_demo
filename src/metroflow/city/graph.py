@@ -124,7 +124,7 @@ class RoadLink:
             raise ValueError("RoadLink physical_road_id must be >= 0 when provided")
 
 
-@dataclass(slots=True)
+@dataclass(frozen=True, slots=True)
 class TurnMovement:
     from_link_id: int
     to_link_id: int
@@ -133,11 +133,13 @@ class TurnMovement:
     signal_phase_id: int | None = None
 
     def __post_init__(self) -> None:
-        self.from_link_id = int(self.from_link_id)
-        self.to_link_id = int(self.to_link_id)
-        self.turn_type = TurnType(self.turn_type)
-        self.base_priority = float(self.base_priority)
-        self.signal_phase_id = (
+        object.__setattr__(self, "from_link_id", int(self.from_link_id))
+        object.__setattr__(self, "to_link_id", int(self.to_link_id))
+        object.__setattr__(self, "turn_type", TurnType(self.turn_type))
+        object.__setattr__(self, "base_priority", float(self.base_priority))
+        object.__setattr__(
+            self,
+            "signal_phase_id",
             None if self.signal_phase_id is None else int(self.signal_phase_id)
         )
         if self.base_priority < 0:

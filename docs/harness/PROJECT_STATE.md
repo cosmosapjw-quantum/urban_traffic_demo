@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-07-11
+Last updated: 2026-07-12
 
 ## Runtime Baseline
 
@@ -81,11 +81,33 @@ Derived conclusions:
 
 ## Open Risks
 
-- **Critical runtime-closure blocker:** generated networks do not provide a
-  turn-movement authority and `SimulationState` initialization leaves
-  `turn_demand` at zero. An eager seed-41 three-tick probe activates 15 agents
-  and queues 15 vehicles, but records zero turn demand, zero outflow, and zero
-  movement through tick 3.
+- **The audited runtime-closure blocker is closed only at a bounded internal
+  level.** Finalized generated networks now expose exhaustive typed turn
+  authority, active route tails produce turn/sink demand, and exact realized
+  tokens update agents and queue mass together. In the seed-41 20-tick probe,
+  all 15 routable trips complete, one no-route trip fails explicitly, and both
+  active agents and queue mass end at zero with no invariant failure.
+- Two independently initialized seed-41 20-tick runs also produce the same
+  canonical final-state fingerprint. The digest covers full config, static
+  routing authority, and replay-authoritative dynamic state including
+  service/receiving/turn residuals, sink flow, demand lifecycle, and agent state;
+  host timing diagnostics are excluded.
+- Sink and internal-turn requests share a deficit scheduler rather than fixed
+  internal-first priority. Runtime invariants independently recheck both source
+  service and downstream receiving tokens, and final-link completion requires
+  the link endpoint to equal the declared agent destination.
+- Discrete token/residual metadata is required after the authority activates.
+  Missing, non-finite, negative, non-integral, shape-inconsistent, or divergent
+  link/node sink tokens fail closed rather than being overwritten next tick.
+- That probe is not a 100k run or physical traffic validation. Agents advance
+  at most one route turn per tick, `progress_01` is not calibrated sub-link
+  position, and the point-queue model has no finite storage or spillback.
+- The new exact per-turn agent contract remains Python-authoritative. Explicit
+  unsupported Rust agent/flow paths fail closed; Rust parity and performance
+  must be re-established on the new contract before promotion.
+- Exhaustive turn compilation creates 51,886 rows for seed 41. A local
+  developer measurement observed about 30% generation-time and 17–22 MB RSS
+  overhead; this is diagnostic, not a controlled scale benchmark.
 - `SimulationState.simulation_step` does not run the legacy accessibility and
   land-use cadences. The new runtime and frozen `WorldState` orchestrator remain
   split authorities rather than one city-to-traffic-to-LUTI loop.
@@ -140,11 +162,13 @@ Derived conclusions:
 
 ## Next Implementation Decision
 
-Do not open another acceleration spec yet. First define typed turn movements,
-derive per-turn demand from active route tails, and prove generated multi-hop
-movement, completion, link-level vehicle conservation, and a full dynamic-state
-replay digest. Then port the legacy medium/slow accessibility and land-use
-cadences into `SimulationState` or explicitly retire that product claim.
+Do not open another acceleration spec yet. The small functional closure and
+exact replay gates are green, so next broaden generated/event conservation,
+replay, and failure-path coverage and run controlled scale/memory measurements.
+Define physical link-traversal
+semantics before interpreting completed ticks as realistic travel time. Then
+port the legacy medium/slow accessibility and land-use cadences into
+`SimulationState` or explicitly retire that product claim.
 
 After runtime closure, refresh the hardware-fit atlas or benchmark evidence that
 can change a parent-stage decision. The watchlist lanes remain Rust dynamic-
@@ -156,7 +180,8 @@ GPU dense-flow chunk to a bounded watchlist but does not authorize runtime
 integration. PR49 rejects the row-local MLP path without threshold tuning;
 PR50 freezes the graph tensor contract; PR51's fixed graph model also misses
 its accuracy gate. Baseline Dijkstra remains authoritative. PR52's four-lane
-owner step-back is blocked until the functional runtime closure above passes.
+owner step-back remains blocked until the post-closure replay/scale evidence is
+refreshed on the functional workload.
 
 External audit packet:
 `docs/audit/metroflow_external_audit_20260711/README.md`.

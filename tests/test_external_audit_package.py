@@ -3,7 +3,8 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+import re
 import subprocess
 import sys
 import zipfile
@@ -17,6 +18,10 @@ from tools.build_external_audit_bundle import build_bundle
 
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT_ROOT = ROOT / "docs" / "audit" / "metroflow_external_audit_20260711"
+MARKDOWN_INLINE_LINK = re.compile(
+    r"!?\[[^\]\n]*\]\((?P<destination><[^>\n]+>|[^)\s\n]+)"
+)
+URI_SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -37,12 +42,31 @@ def _create_audit_fixture_repo(path: Path) -> Path:
     _git(path, "config", "user.email", "audit@example.invalid")
     audit = path / "docs" / "audit" / "packet"
     audit.mkdir(parents=True)
-    (audit / "README.md").write_text("# Fixture audit\n", encoding="utf-8")
+    (audit / "README.md").write_text(
+        "# Fixture audit\n\n"
+        "- [Report](02_REPORT.md)\n"
+        "- [No license](NO_LICENSE_NOTICE.md#scope)\n"
+        "- [External](https://example.invalid/audit)\n",
+        encoding="utf-8",
+    )
+    (audit / "02_REPORT.md").write_text("# Report\n", encoding="utf-8")
     (audit / "NO_LICENSE_NOTICE.md").write_text("# No license\n", encoding="utf-8")
     (path / "README.md").write_text("fixture\n", encoding="utf-8")
     _git(path, "add", ".")
     _git(path, "commit", "-m", "fixture audit")
     return path
+
+
+def _entrypoint_local_paths(markdown: str) -> list[PurePosixPath]:
+    paths: list[PurePosixPath] = []
+    for match in MARKDOWN_INLINE_LINK.finditer(markdown):
+        destination = match.group("destination")
+        raw = destination[1:-1] if destination.startswith("<") else destination
+        if not raw or raw.startswith(("#", "?", "//")) or URI_SCHEME.match(raw):
+            continue
+        path_text = raw.split("#", 1)[0].split("?", 1)[0]
+        paths.append(PurePosixPath(path_text))
+    return paths
 
 
 def test_external_audit_packet_has_required_documents_and_claim_boundaries() -> None:
@@ -57,15 +81,26 @@ def test_external_audit_packet_has_required_documents_and_claim_boundaries() -> 
         "07_REPRODUCTION_AND_EXTERNAL_REVIEW.md",
         "08_SOURCE_AND_ARTIFACT_INDEX.md",
         "09_REVIEW_CLOSURE.md",
+        "10_RUNTIME_CLOSURE_REMEDIATION_20260712.md",
         "NO_LICENSE_NOTICE.md",
         "evidence_snapshot.json",
     }
-    assert required == {path.name for path in AUDIT_ROOT.iterdir() if path.is_file()}
+    assert required <= {path.name for path in AUDIT_ROOT.iterdir() if path.is_file()}
 
     entrypoint = (AUDIT_ROOT / "README.md").read_text(encoding="utf-8")
     assert "not yet a validated 100k-city traffic simulator" in entrypoint
     assert "turn demand" in entrypoint
     assert "no root license" in entrypoint
+    assert "Historical scope and 2026-07-12 remediation notice" in entrypoint
+    assert "10_RUNTIME_CLOSURE_REMEDIATION_20260712.md" in entrypoint
+
+    supplement = (
+        AUDIT_ROOT / "10_RUNTIME_CLOSURE_REMEDIATION_20260712.md"
+    ).read_text(encoding="utf-8")
+    assert "INTERNALLY VERIFIED" in supplement
+    assert "100k-city traffic simulator" in supplement
+    assert "finite vehicle storage" in supplement
+    assert "no root license" in supplement
 
 
 def test_external_audit_evidence_snapshot_is_fail_closed() -> None:
@@ -79,18 +114,31 @@ def test_external_audit_evidence_snapshot_is_fail_closed() -> None:
     assert "no root redistribution license" in payload["claim_limits"]
 
 
-def test_external_audit_runtime_self_drive_probe_reproduces_stall() -> None:
-    result = run_runtime_self_drive_probe(scenario_seed=41, steps=3)
+def test_runtime_self_drive_probe_closes_the_audited_blocker() -> None:
+    result = run_runtime_self_drive_probe(scenario_seed=41, steps=20)
 
-    assert result["runtime_closure_blocker_reproduced"] is True
+    assert result["schema_version"] == "metroflow.runtime-self-drive-probe.v2"
+    assert result["runtime_closure_blocker_reproduced"] is False
+    assert result["runtime_closure_verified"] is True
     assert result["initial"] == {
         "trip_count": 16,
+        "turn_count": 51_886,
+        "permitted_turn_count": 45_544,
         "turn_demand_total": 0.0,
         "queue_vehicles_total": 0.0,
     }
-    assert [row["active_agent_count"] for row in result["ticks"]] == [15, 15, 15]
-    assert [row["moved_agent_count"] for row in result["ticks"]] == [0, 0, 0]
-    assert [row["queue_vehicles_total"] for row in result["ticks"]] == [15.0, 15.0, 15.0]
+    assert result["completed_trip_count_total"] == 15
+    assert result["failed_trip_count_total"] == 1
+    assert result["ticks"][0]["active_agent_count"] == 15
+    assert result["ticks"][0]["moved_agent_count"] == 0
+    assert result["ticks"][1]["moved_agent_count"] == 15
+    assert result["ticks"][-1]["active_agent_count"] == 0
+    assert result["ticks"][-1]["queue_vehicles_total"] == 0.0
+    assert all(row["invariant_ok"] for row in result["ticks"])
+    assert all(
+        row["maximum_link_agent_mass_delta"] == 0.0
+        for row in result["ticks"]
+    )
 
 
 def test_external_audit_builder_uses_only_standard_library_imports() -> None:
@@ -152,6 +200,14 @@ def test_external_audit_builder_creates_closed_integrity_package(tmp_path: Path)
             listed.add(member)
         assert listed == names - {f"{prefix}SHA256SUMS"}
         assert f"{prefix}history/metroflow-all-refs.bundle" in names
+        assert f"{prefix}reports/README.md" in names
+        entrypoint = archive.read(f"{prefix}AUDIT_START_HERE.md").decode("utf-8")
+        local_paths = _entrypoint_local_paths(entrypoint)
+        assert local_paths
+        assert all(f"{prefix}{path.as_posix()}" in names for path in local_paths)
+        assert "reports/02_REPORT.md" in entrypoint
+        assert "reports/NO_LICENSE_NOTICE.md#scope" in entrypoint
+        assert "https://example.invalid/audit" in entrypoint
         bundle_bytes = archive.read(f"{prefix}history/metroflow-all-refs.bundle")
 
     bundle_path = tmp_path / "round-trip.bundle"
@@ -172,6 +228,26 @@ def test_external_audit_builder_creates_closed_integrity_package(tmp_path: Path)
         stderr=subprocess.STDOUT,
     )
     assert _git(clone, "rev-parse", "HEAD") == metadata["packaged_commit"]
+
+
+def test_external_audit_builder_rejects_missing_entrypoint_link(tmp_path: Path) -> None:
+    repo = _create_audit_fixture_repo(tmp_path / "repo")
+    readme = repo / "docs" / "audit" / "packet" / "README.md"
+    readme.write_text(
+        readme.read_text(encoding="utf-8") + "- [Missing](MISSING_REPORT.md)\n",
+        encoding="utf-8",
+    )
+    _git(repo, "add", str(readme.relative_to(repo)))
+    _git(repo, "commit", "-m", "add broken audit link")
+
+    with pytest.raises(RuntimeError, match="references missing package member"):
+        build_bundle(
+            tmp_path / "output",
+            audit_date="2026-07-11",
+            allow_dirty=False,
+            repo_root=repo,
+            audit_relative=Path("docs/audit/packet"),
+        )
 
 
 def test_external_audit_builder_rejects_dirty_shallow_and_invalid_date(

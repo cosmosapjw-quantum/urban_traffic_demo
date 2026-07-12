@@ -1006,3 +1006,57 @@ the complete dynamic state.
 Next action: implement runtime closure in the NumPy baseline, then refresh the
 hardware-fit atlas on the closed workload before choosing Rust, NumPy/SIMD,
 JAX/GPU, or custom-kernel work.
+
+## 2026-07-12: Close The Historical Self-Drive Blocker, Keep Product Claims Closed
+
+Status: accepted bounded remediation; broader validation pending
+
+### Compact CCoT
+
+Question: Does the Python/NumPy `SimulationState` runtime now turn generated
+routes into authoritative vehicle movement without losing queue or lifecycle
+mass?
+
+Evidence: Finalized generated topology now compiles exhaustive deterministic
+incoming-by-outgoing turn rows with explicit forbidden immediate returns.
+Before flow, active route tails build exact turn and sink demand; after flow,
+agents consume only their matching realized turn/sink tokens. Source service
+and downstream receiving rates use deterministic integer tokens with fractional
+carry. The seed-41 20-tick probe compiles 51,886 rows, completes all 15 routable
+trips by tick 16, records one explicit no-route failure, and ends with zero
+active agents and queue mass. Every tick passes invariants and exact per-link
+agent/queue equality.
+
+Two independently initialized seed-41 20-tick replays also produce the same
+canonical final-state fingerprint and replay telemetry. The digest includes
+full config, static routing authority, service/receiving/turn residuals, sink
+flow, demand lifecycle, and active-agent state while excluding host timing.
+Sink and internal movements share the same deficit scheduler; receiving-token
+excess is independently checked and final-link completion verifies the declared
+destination endpoint.
+Missing or non-finite token/residual metadata and non-integral vehicle tokens
+are rejected before the next flow solve can erase the corrupted authority.
+
+Inference: The specific 2026-07-11 route-to-turn-demand blocker is closed in the
+authoritative Python baseline for the bounded generated workload. The old
+`--expect-stalled` result remains revision-specific negative evidence.
+
+Counterevidence checked: One small deterministic scenario does not validate
+100k scale, arbitrary incidents/merge patterns, physical travel time, finite
+storage/spillback, Rust per-turn parity, or a unified LUTI loop. Exhaustive turn
+compilation also has a measured local cost of roughly 30% generation time and
+17–22 MB RSS on seed 41.
+
+Decision: Mark functional closure `INTERNALLY VERIFIED`, not scientifically or
+operationally validated. Keep Python/NumPy authoritative, fail closed on the
+unsupported Rust per-turn agent/flow contract, and keep PR52 blocked until the
+closed workload has broader replay/scale evidence and a refreshed hardware-fit
+decision.
+
+Falsifier: Any generated/event replay shows missing or duplicate turn authority,
+agent/queue divergence, lifecycle loss, source or receiving-capacity excess, or
+non-deterministic residual/sink state.
+
+Next action: broaden conservation and exact replay coverage, define physical
+traversal semantics, measure turn/runtime scale cost, and either integrate or
+retire the legacy accessibility/land-use claim before accelerator promotion.

@@ -31,6 +31,7 @@ from .graph import (
     RoadNetworkCSR,
     TopologyValidationReport,
     TurnMovement,
+    TurnType,
     build_road_network_csr,
     validate_road_network_topology,
 )
@@ -46,6 +47,7 @@ from .morphology_quality import (
 from .planarization import planarize_endpoint_topology
 from .quality_oracles import evaluate_hard_fail_oracle
 from .transit_builder import apply_transit_builder_stage
+from .turn_compiler import compile_turn_authority
 
 StageFn = Callable[[dict[str, Any]], dict[str, Any]]
 
@@ -295,6 +297,10 @@ def _finalize_preview_topology(
     *,
     require_planar_geometry: bool = False,
 ) -> PreviewCityTopology:
+    if topology.turns:
+        raise ValueError(
+            "generated topology finalization requires no precompiled turns"
+        )
     repair = repair_weak_connectivity(nodes=topology.nodes, links=topology.links)
     metadata = dict(topology.metadata)
     if repair.repair_link_ids or "weak_component_count_after_repair" not in metadata:
@@ -303,8 +309,6 @@ def _finalize_preview_topology(
     finalized_links = repair.links
     finalized_bridge_crossings = topology.bridge_crossings
     if require_planar_geometry:
-        if topology.turns:
-            raise ValueError("planarization requires generated topology without turns")
         preliminary_geometry = build_endpoint_geometry_catalog(
             nodes=finalized_nodes,
             links=finalized_links,
@@ -373,6 +377,11 @@ def _finalize_preview_topology(
         links=finalized_links,
         road_geometry=geometry,
     )
+    turn_authority = compile_turn_authority(
+        links=finalized_links,
+        road_geometry=geometry,
+        node_interfaces=node_interfaces,
+    )
     intersection_count = count_interior_centerline_intersections(geometry)
     metadata.update(
         {
@@ -389,12 +398,25 @@ def _finalize_preview_topology(
             "road_section_profile_count": len(road_sections.profiles),
             "node_interface_fingerprint": node_interfaces.fingerprint,
             "node_interface_count": len(node_interfaces.interfaces),
+            "turn_authority_fingerprint": turn_authority.fingerprint,
+            "turn_authority_pair_count": len(turn_authority.movements),
+            "permitted_turn_movement_count": sum(
+                movement.turn_type is not TurnType.U_TURN_FORBIDDEN
+                for movement in turn_authority.movements
+            ),
+            "forbidden_u_turn_count": sum(
+                movement.turn_type is TurnType.U_TURN_FORBIDDEN
+                for movement in turn_authority.movements
+            ),
+            "turn_authority_policy": (
+                "all_adjacent_pairs_explicit_immediate_return_forbidden_v1"
+            ),
         }
     )
     finalized = PreviewCityTopology(
         nodes=finalized_nodes,
         links=finalized_links,
-        turns=topology.turns,
+        turns=turn_authority.movements,
         bridge_crossings=finalized_bridge_crossings,
         road_geometry=geometry,
         road_sections=road_sections,

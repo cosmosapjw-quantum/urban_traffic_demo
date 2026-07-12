@@ -23,7 +23,9 @@ from metroflow.sim.invariants import InvariantReport
 from metroflow.sim.invariants import validate_invariants as _validate_invariants_core
 from metroflow.sim.rng import PRNGKeyArray
 from metroflow.sim.routing_runtime import (
-    advance_runtime_active_agents,
+    commit_runtime_active_agent_flows,
+    prepare_runtime_active_agents,
+    rebuild_runtime_turn_demand,
     refresh_runtime_route_candidates,
 )
 from metroflow.sim.state import SimulationState
@@ -49,7 +51,7 @@ def init_simulation(
     bundle = build_initial_simulation_state(
         config=_coerce_config(config),
         scenario_seed=int(scenario_seed),
-        eager_trip_generation=bool(getattr(config, "learning_enabled", False)),
+        eager_trip_generation=bool(getattr(config, "eager_trip_generation", False)),
     )
     return bundle.state, bundle.rng_key
 
@@ -72,10 +74,22 @@ def simulation_step(
         next_state = _apply_event_effects_to_flow_state(next_state)
         next_state, activation_counters = _activate_due_trip_requests(next_state)
         tick_counters.update(activation_counters)
+        next_state, routing_prepare_counters, newly_admitted_slot_ids = (
+            _prepare_runtime_routing_state(next_state)
+        )
+        tick_counters.update(routing_prepare_counters)
         next_state, flow_counters = _advance_flow_state(next_state)
         tick_counters.update(flow_counters)
-        next_state, routing_counters = _advance_runtime_routing_state(next_state)
-        tick_counters.update(routing_counters)
+        next_state, routing_commit_counters = _commit_runtime_routing_state(
+            next_state,
+            newly_admitted_slot_ids=newly_admitted_slot_ids,
+        )
+        tick_counters.update(
+            {
+                key: tick_counters.get(key, 0) + value
+                for key, value in routing_commit_counters.items()
+            }
+        )
     invariant_report = _validate_invariants_core(next_state)
 
     ui_snapshot_source = _build_optional_ui_snapshot_source(
@@ -302,6 +316,7 @@ def _advance_flow_state(state: SimulationState) -> tuple[SimulationState, dict[s
         node_state,
         validate=False,
         flow_backend=state.config.flow_backend,
+        discrete_agent_authority=True,
     )
     counters["flow_update_wall_ns"] = max(0, perf_counter_ns() - start_ns)
     next_link_state = _with_link_metadata_increment(
@@ -317,13 +332,15 @@ def _advance_flow_state(state: SimulationState) -> tuple[SimulationState, dict[s
     )
 
 
-def _advance_runtime_routing_state(
+def _prepare_runtime_routing_state(
     state: SimulationState,
-) -> tuple[SimulationState, dict[str, int]]:
+) -> tuple[SimulationState, dict[str, int], set[int]]:
     route_state, route_counters = refresh_runtime_route_candidates(state)
     state = state.with_dynamic_updates(route_candidate_state=route_state)
     start_ns = perf_counter_ns()
-    pool, agent_counters, demand_state, link_state = advance_runtime_active_agents(state)
+    pool, agent_counters, demand_state, link_state, newly_admitted_slot_ids = (
+        prepare_runtime_active_agents(state)
+    )
     agent_counters = dict(agent_counters)
     agent_counters["active_agent_update_wall_ns"] = max(0, perf_counter_ns() - start_ns)
     updates: dict[str, Any] = {"demand_state": demand_state}
@@ -331,7 +348,58 @@ def _advance_runtime_routing_state(
         updates["active_agent_pool"] = pool
     if link_state is not None:
         updates["flow_link_state"] = link_state
-    return state.with_dynamic_updates(**updates), {**route_counters, **agent_counters}
+    state = state.with_dynamic_updates(**updates)
+    node_state = rebuild_runtime_turn_demand(
+        state,
+        skip_slot_ids=newly_admitted_slot_ids,
+    )
+    if node_state is not None:
+        state = state.with_dynamic_updates(flow_node_state=node_state)
+    return (
+        state,
+        {**route_counters, **agent_counters},
+        newly_admitted_slot_ids,
+    )
+
+
+def _commit_runtime_routing_state(
+    state: SimulationState,
+    *,
+    newly_admitted_slot_ids: set[int],
+) -> tuple[SimulationState, dict[str, int]]:
+    start_ns = perf_counter_ns()
+    pool, counters, demand_state = commit_runtime_active_agent_flows(
+        state,
+        skip_slot_ids=newly_admitted_slot_ids,
+    )
+    counters = dict(counters)
+    elapsed_ns = max(0, perf_counter_ns() - start_ns)
+    counters["active_agent_movement_wall_ns"] = max(
+        int(counters.get("active_agent_movement_wall_ns", 0)),
+        elapsed_ns,
+    )
+    counters["active_agent_update_wall_ns"] = elapsed_ns
+    updates: dict[str, Any] = {"demand_state": demand_state}
+    if pool is not None:
+        updates["active_agent_pool"] = pool
+    return state.with_dynamic_updates(**updates), counters
+
+
+def _advance_runtime_routing_state(
+    state: SimulationState,
+) -> tuple[SimulationState, dict[str, int]]:
+    """Compatibility wrapper for the old single-phase private helper."""
+
+    prepared, counters, newly_admitted = _prepare_runtime_routing_state(state)
+    flowed, flow_counters = _advance_flow_state(prepared)
+    committed, commit_counters = _commit_runtime_routing_state(
+        flowed,
+        newly_admitted_slot_ids=newly_admitted,
+    )
+    merged = {**counters, **flow_counters}
+    for key, value in commit_counters.items():
+        merged[key] = merged.get(key, 0) + value
+    return committed, merged
 
 
 def _build_optional_ui_snapshot_source(

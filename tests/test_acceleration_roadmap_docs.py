@@ -76,8 +76,8 @@ def test_project_state_advances_to_prd_state_closure_after_pr11():
     assert "PR09 (`52e7aec`) and PR10 (`04554ca`) are complete" in normalized
     assert "PR11 (`55af343`) and PR12 are complete" in normalized
     assert "Do not open another acceleration spec yet" in normalized
-    assert "Open a runtime-closure spec" in prompt_normalized
-    assert "PR52's owner-selected acceleration lane is blocked" in prompt_normalized
+    assert "Review and harden the runtime-closure patch" in prompt_normalized
+    assert "PR52's owner-selected acceleration lane remains blocked" in prompt_normalized
     assert "PR09 is complete" in prompt_normalized
     assert "state layout implementation remains deferred" in prompt_normalized
     assert "Open a narrow dynamic-potential recompute/cache-amortization slice" not in next_prompt
@@ -134,7 +134,7 @@ def test_pr11_cpp_cuda_admission_rfc_is_docs_only():
     assert "No C++/CUDA, libtorch, CMake, or new runtime backend values" in pr11
     assert "docs/cuda/CPP_CUDA_ADMISSION.md" in pr11
     assert "Do not open another acceleration spec yet" in normalized_state
-    assert "Open a runtime-closure spec" in prompt_normalized
+    assert "Review and harden the runtime-closure patch" in prompt_normalized
     assert "Status: RFC only" in admission
     assert "No implementation is authorized by this document" in normalized_admission
     assert "dense flow" in admission
@@ -182,7 +182,7 @@ def test_pr12_closure_records_current_roadmap_state_and_next_handoff():
     assert "Status: complete; roadmap state consolidated." in pr12
     assert "PR11 (`55af343`) and PR12" in normalized_state
     assert "Next Implementation Decision" in project_state
-    assert "Open a runtime-closure spec" in normalized_prompt
+    assert "Review and harden the runtime-closure patch" in normalized_prompt
     assert "C++/CUDA Requires One Narrow Evidence-Gated Kernel" in decision_log
     assert "Immediate Rust Pool-Array Write Backend" in deprecated
     assert "CPP_CUDA_ADMISSION.md" in validation

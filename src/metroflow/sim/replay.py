@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass
+from enum import Enum
 import hashlib
 import json
+from typing import Any
+
+import numpy as np
 
 from metroflow.core.contracts import TickSchedule, validate_state_contract
 from metroflow.core.journal import InterventionJournal
@@ -88,6 +92,7 @@ class RuntimeReplayBoundary:
     routing_backend: str = "baseline"
     agent_backend: str = "baseline"
     static_input_fingerprint: str = ""
+    initial_state_fingerprint: str = ""
 
 
 @dataclass(frozen=True)
@@ -117,6 +122,7 @@ class RuntimeReplayResultRecord:
     agent_backend: str = "baseline"
     reroute_decisions_total: int = 0
     persistence_decisions_total: int = 0
+    final_state_fingerprint: str = ""
 
 
 def journal_fingerprint(journal: InterventionJournal) -> str:
@@ -279,6 +285,7 @@ def make_runtime_replay_boundary(state: SimulationState) -> RuntimeReplayBoundar
             state=state,
         ),
         static_input_fingerprint=_runtime_static_input_fingerprint(state),
+        initial_state_fingerprint=runtime_state_fingerprint(state),
         edge_backend=state.config.edge_backend,
         flow_backend=state.config.flow_backend,
         routing_backend=state.config.routing_backend,
@@ -329,6 +336,7 @@ def replay_simulation_sequence(request: RuntimeReplayRequest) -> RuntimeReplayRe
         persistence_decisions_total=int(
             final_metrics.get("us2_persistence_decisions_total", 0)
         ),
+        final_state_fingerprint=runtime_state_fingerprint(current_state),
     )
 
 
@@ -344,25 +352,9 @@ def _validate_runtime_replay_request(request: RuntimeReplayRequest) -> None:
 
 
 def _runtime_config_fingerprint(state: SimulationState) -> str:
-    cfg = state.config
-    payload = {
-        "population_target": cfg.population_target,
-        "tick_seconds": cfg.tick_seconds,
-        "active_agent_capacity": cfg.active_agent_capacity,
-        "random_seed": cfg.random_seed,
-        "learning_enabled": cfg.learning_enabled,
-        "ctm_mode_enabled": cfg.ctm_mode_enabled,
-        "edge_backend": cfg.edge_backend,
-        "flow_backend": cfg.flow_backend,
-        "routing_backend": cfg.routing_backend,
-        "agent_backend": cfg.agent_backend,
-        "route_max_candidates": cfg.route_max_candidates,
-        "route_max_hops": cfg.route_max_hops,
-        "route_refresh_interval_ticks": cfg.route_refresh_interval_ticks,
-        "route_path_size_gamma": cfg.route_path_size_gamma,
-    }
-    stable_payload = json.dumps(payload, separators=(",", ":"), sort_keys=True)
-    return hashlib.sha256(stable_payload.encode("utf-8")).hexdigest()
+    """Hash the complete runtime config so new fields fail closed by default."""
+
+    return _runtime_value_fingerprint(state.config)
 
 
 def _runtime_static_input_fingerprint(state: SimulationState) -> str:
@@ -443,6 +435,159 @@ def _runtime_static_input_fingerprint(state: SimulationState) -> str:
                 key=lambda item: item[0],
             )
         ],
+        # The generated geometry fingerprint does not encode runtime turn
+        # authority or every routing input.  Hash the concrete static runtime
+        # references used by the current tick transition as well, so a changed
+        # legal turn, link attribute, or runtime-static metadata cannot reuse a
+        # stale replay boundary. Population/schedule catalogs are excluded until
+        # a SimulationState transition reads them; authoritative trip demand is
+        # already covered in the complete dynamic-state fingerprint.
+        "runtime_static_refs_fingerprint": _runtime_value_fingerprint(
+            {
+                "routing_static": {
+                    key: value
+                    for key, value in routing_static.items()
+                    if key not in {"node_zone_by_id", "zone_node_ids"}
+                },
+                "ui_network_geometry_version": static.ui_network_geometry_version,
+                "metadata": static.metadata,
+            }
+        ),
     }
     stable_payload = json.dumps(payload, separators=(",", ":"), sort_keys=True)
     return hashlib.sha256(stable_payload.encode("utf-8")).hexdigest()
+
+
+def runtime_state_fingerprint(state: SimulationState) -> str:
+    """Hash all replay-authoritative runtime state.
+
+    The digest covers complete config and static-input fingerprints plus every
+    dynamic state container, including flow residuals, realized sink flow,
+    demand lifecycle sets, active-agent packed arrays/plugin memory, events, and
+    route-cache contents.  Host timing diagnostics are deliberately excluded:
+    they are observations of execution speed, not inputs to deterministic state
+    evolution.
+    """
+
+    return _runtime_value_fingerprint(
+        {
+            "config_fingerprint": _runtime_config_fingerprint(state),
+            "static_input_fingerprint": _runtime_static_input_fingerprint(state),
+            "dynamic": state.dynamic,
+            "metadata": state.metadata,
+        }
+    )
+
+
+def _runtime_value_fingerprint(value: Any) -> str:
+    return _runtime_value_digest(value).hex()
+
+
+def _runtime_value_digest(value: Any) -> bytes:
+    digest = hashlib.sha256()
+
+    if value is None:
+        digest.update(b"none")
+        return digest.digest()
+    if isinstance(value, Enum):
+        digest.update(b"enum")
+        _digest_add_text(digest, f"{type(value).__module__}.{type(value).__qualname__}")
+        digest.update(_runtime_value_digest(value.value))
+        return digest.digest()
+    if isinstance(value, bool):
+        digest.update(b"bool1" if value else b"bool0")
+        return digest.digest()
+    if isinstance(value, int):
+        digest.update(b"int")
+        _digest_add_text(digest, str(value))
+        return digest.digest()
+    if isinstance(value, float):
+        digest.update(b"float")
+        _digest_add_text(digest, value.hex())
+        return digest.digest()
+    if isinstance(value, str):
+        digest.update(b"str")
+        _digest_add_text(digest, value)
+        return digest.digest()
+    if isinstance(value, bytes):
+        digest.update(b"bytes")
+        _digest_add_bytes(digest, value)
+        return digest.digest()
+    if isinstance(value, np.generic):
+        return _runtime_value_digest(np.asarray(value))
+    if isinstance(value, np.ndarray):
+        digest.update(b"ndarray")
+        _digest_add_text(digest, repr(tuple(int(size) for size in value.shape)))
+        if value.dtype.hasobject:
+            digest.update(_runtime_value_digest(value.tolist()))
+            return digest.digest()
+        array = np.ascontiguousarray(value)
+        if array.dtype.byteorder == ">" or (
+            array.dtype.byteorder == "=" and not np.little_endian
+        ):
+            array = array.byteswap().view(array.dtype.newbyteorder("<"))
+        normalized_dtype = array.dtype.newbyteorder("<")
+        if array.dtype != normalized_dtype:
+            array = array.view(normalized_dtype)
+        _digest_add_text(digest, normalized_dtype.str)
+        _digest_add_bytes(digest, array.tobytes(order="C"))
+        return digest.digest()
+    if is_dataclass(value) and not isinstance(value, type):
+        digest.update(b"dataclass")
+        _digest_add_text(digest, f"{type(value).__module__}.{type(value).__qualname__}")
+        replay_fields = tuple(
+            item for item in fields(value) if _is_replay_authoritative_key(item.name)
+        )
+        digest.update(len(replay_fields).to_bytes(8, byteorder="big"))
+        for item in replay_fields:
+            _digest_add_text(digest, item.name)
+            digest.update(_runtime_value_digest(getattr(value, item.name)))
+        return digest.digest()
+    if isinstance(value, Mapping):
+        digest.update(b"mapping")
+        item_digests: list[bytes] = []
+        for key, item_value in value.items():
+            if isinstance(key, str) and not _is_replay_authoritative_key(key):
+                continue
+            item_digest = hashlib.sha256()
+            item_digest.update(_runtime_value_digest(key))
+            item_digest.update(_runtime_value_digest(item_value))
+            item_digests.append(item_digest.digest())
+        digest.update(len(item_digests).to_bytes(8, byteorder="big"))
+        for item_digest in sorted(item_digests):
+            digest.update(item_digest)
+        return digest.digest()
+    if isinstance(value, tuple | list):
+        digest.update(b"tuple" if isinstance(value, tuple) else b"list")
+        digest.update(len(value).to_bytes(8, byteorder="big"))
+        for item in value:
+            digest.update(_runtime_value_digest(item))
+        return digest.digest()
+    if isinstance(value, set | frozenset):
+        digest.update(b"frozenset" if isinstance(value, frozenset) else b"set")
+        item_digests = sorted(_runtime_value_digest(item) for item in value)
+        digest.update(len(item_digests).to_bytes(8, byteorder="big"))
+        for item_digest in item_digests:
+            digest.update(item_digest)
+        return digest.digest()
+    if hasattr(value, "__array__") and hasattr(value, "dtype") and hasattr(value, "shape"):
+        return _runtime_value_digest(np.asarray(value))
+    raise TypeError(
+        "runtime replay fingerprint cannot serialize "
+        f"{type(value).__module__}.{type(value).__qualname__}"
+    )
+
+
+def _is_replay_authoritative_key(key: str) -> bool:
+    return not str(key).endswith(
+        ("_seconds_total", "_wall_ns", "_wall_ns_total")
+    )
+
+
+def _digest_add_text(digest: Any, value: str) -> None:
+    _digest_add_bytes(digest, str(value).encode("utf-8"))
+
+
+def _digest_add_bytes(digest: Any, value: bytes) -> None:
+    digest.update(len(value).to_bytes(8, byteorder="big"))
+    digest.update(value)

@@ -349,7 +349,7 @@ experiment-only; no runtime promotion.
 
 ## PR52 — Acceleration Lane Step-Back
 
-Status: blocked by the 2026-07-11 external runtime-closure audit; no
+Status: still blocked pending post-closure replay/scale evidence; no
 implementation authorized.
 
 - Stop graph-NN tuning because its accuracy gate fails independently of the
@@ -359,10 +359,12 @@ implementation authorized.
   host mutation/synchronization, and one future narrow custom-kernel candidate.
 - Select one lane only after updating the hardware-fit decision card; do not
   reopen graph training with adjusted thresholds or architecture.
-- Before selecting an acceleration lane, generated routes must produce typed
-  turn demand, agents must complete a multi-hop trip, and link-level vehicle
-  conservation/full-state replay must pass. See
-  `docs/audit/metroflow_external_audit_20260711/05_ADVERSARIAL_TECHNICAL_AUDIT.md`.
+- Typed turn demand, generated multi-hop completion, and exact queue/agent mass
+  now pass the seed-41 small probe. Before selecting an acceleration lane,
+  broaden those gates and the now-green exact replay across generated/event
+  workloads, run controlled scale/memory measurements, and
+  refresh the hardware-fit atlas. See the audit packet's
+  `10_RUNTIME_CLOSURE_REMEDIATION_20260712.md`.
 
 ## Spec Template
 

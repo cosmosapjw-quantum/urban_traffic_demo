@@ -623,3 +623,77 @@ Delivery packaging command, to be run only after committing this packet:
 ```bash
 .venv/bin/python tools/build_external_audit_bundle.py --output-dir dist
 ```
+
+## 2026-07-12: Runtime Closure Remediation
+
+Change class: Python/NumPy functional baseline correction, generated turn
+authority, exact agent/queue flow commit, explicit tick units, and historical
+audit supplement
+
+Commands run during remediation:
+
+```bash
+.venv/bin/python -m metroflow.benchmarks.runtime_self_drive_probe \
+  --scenario-seed 41 --steps 20 --expect-closed
+.venv/bin/python -m pytest \
+  tests/test_flow_units.py \
+  tests/test_runtime_flow_closure.py \
+  tests/test_runtime_replay_closure.py \
+  tests/test_runtime_spine.py -q \
+  -k 'not test_runtime_reroute_passes_configured_routing_backend'
+.venv/bin/python -m pytest tests/test_external_audit_package.py -q
+.venv/bin/python -m pytest -q \
+  --deselect tests/test_meso_core.py::test_evolve_edges_fast_tick_explicit_jax_backend_is_fail_closed \
+  --deselect tests/test_replay.py::test_replay_boundary_and_result_record_edge_backend \
+  --deselect tests/test_runtime_spine.py::test_runtime_reroute_passes_configured_routing_backend
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Recorded bounded result:
+
+- generated seed 41: 16 trips, 51,886 compiled turn rows, 45,544 permitted;
+- 15 routable trips complete by tick 16; one no-route trip fails explicitly;
+- tick 20 has zero active agents and zero queue vehicles;
+- all 20 ticks pass runtime invariants with maximum per-link agent/queue delta
+  `0.0`;
+- focused flow/closure/replay/runtime suite: `53 passed, 1 skipped, 1 deselected`;
+- external-audit package suite: `9 passed`;
+- runtime closure replay suite: `9 passed`;
+- dependency-neutral broad suite: `583 passed, 20 skipped, 3 deselected in
+  193.44s`; the three explicit optional-integration tests then report `3
+  skipped` after receiving dependency guards;
+- Ruff and `git diff --check` pass.
+- JAX and the built `_metroflow_rust` extension are absent in this container.
+  Cargo is also unavailable, so the new Rust unit test was added but not
+  executed here; Rust formatting/workspace results must be refreshed in a Rust
+  toolchain environment before delivery.
+
+Functional impact:
+
+- generated routes now produce legal per-turn and sink demand before flow;
+- realized integer tokens update the matching agents and queue mass atomically;
+- source service and downstream receiving capacity share deterministic residual
+  authorities, including merge contention;
+- sink and internal-turn demand share deficit scheduling, receiving-token
+  excess is an invariant failure, and a final-link endpoint must match the
+  active-agent destination before completion;
+- missing/non-finite runtime authority and non-integral vehicle tokens fail
+  closed both in invariant validation and before a subsequent flow overwrite;
+- free-flow time is stored in configured tick units and point-queue delay is
+  `t_ff + queue/capacity`;
+- unsupported explicit Rust per-turn agent/flow paths fail closed; `auto`
+  preserves the Python baseline fallback.
+- canonical replay fingerprints full config, static routing authority, and all
+  replay-authoritative dynamic state; two fresh seed-41 20-tick runs have equal
+  final-state fingerprints and stale residual boundaries fail before execution.
+
+Claim boundary:
+
+- This closes the audit's historical self-drive defect only at
+  `INTERNALLY VERIFIED` small-probe scope.
+- It does not validate 100k operation, physical link traversal, finite storage
+  or spillback, named-city behavior, empirical traffic, or the split LUTI loop.
+- The 2026-07-11 packet remains historical evidence. Later ZIPs must include
+  `10_RUNTIME_CLOSURE_REMEDIATION_20260712.md` and identify their own committed
+  `packaged_commit`; no root redistribution license has been added.

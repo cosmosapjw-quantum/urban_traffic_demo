@@ -4,6 +4,17 @@ Audit date: 2026-07-11
 Source baseline: `96e54ca907babe6425212ac2e088615687549d72`
 Audit posture: hostile, evidence-gated, no scientific-validation presumption
 
+> **Historical scope and 2026-07-12 remediation notice:** The executive
+> verdict and critical findings below describe the frozen 2026-07-11 source
+> baseline. The audit delivery commit `e428de848184f9b079e47f027f0b205c80b9d443`
+> also retains that result as negative evidence. Post-audit code now closes the
+> small-probe turn-demand blocker in the Python runtime, but only at the
+> `INTERNALLY VERIFIED` level. Read
+> [10 Runtime Closure Remediation](10_RUNTIME_CLOSURE_REMEDIATION_20260712.md)
+> before treating this packet as a statement about a later packaged revision.
+> The remediation is not 100k-scale, empirical, LUTI, licensing, or independent
+> validation.
+
 ## Executive Verdict
 
 Metroflow is a substantial deterministic **research prototype and architecture
@@ -14,13 +25,13 @@ and bounded GPU/NN experiments. Its strongest engineering practice is that
 failed experiments are normally retained as negative evidence instead of being
 tuned into success.
 
-The main product claim is nevertheless not closed. The integrated
+At the audited baseline, the main product claim was not closed. The integrated
 `SimulationState` path does not produce turn demand from active routes. A
 three-tick functional probe activates trips and seeds source queues, but
 `turn_demand`, outflow, and movement remain zero. The default initializer also
 creates no eager trips, and accessibility/land-use evolution remains in the
 legacy `WorldState` orchestrator rather than the integrated runtime spine.
-Therefore the current code does not yet execute the promised complete
+Therefore that source baseline does not execute the promised complete
 city-to-demand-to-traffic-to-LUTI loop.
 
 The package is suitable for an external code/design audit. It is **not** an
@@ -31,8 +42,10 @@ license. Those limitations are explicit rather than hidden.
 
 ## Critical Findings
 
-1. **Integrated traffic closure is missing.** Active trips do not populate
-   node turn demand, so the authoritative runtime cannot self-drive vehicles.
+1. **Integrated traffic closure was missing at the audited baseline.** Active
+   trips did not populate node turn demand, so the authoritative runtime could
+   not self-drive vehicles. The bounded 2026-07-12 remediation status is
+   documented separately.
 2. **The two runtime spines are semantically split.** `SimulationState` owns the
    new flow/routing/agent path; `WorldState` owns accessibility and land-use.
 3. **City generation has become a monolith.** `generator_v2.py` has 5,654 lines
@@ -55,6 +68,7 @@ license. Those limitations are explicit rather than hidden.
 - [07 Reproduction And External Review](07_REPRODUCTION_AND_EXTERNAL_REVIEW.md)
 - [08 Source And Artifact Index](08_SOURCE_AND_ARTIFACT_INDEX.md)
 - [09 Review Closure](09_REVIEW_CLOSURE.md)
+- [10 Runtime Closure Remediation](10_RUNTIME_CLOSURE_REMEDIATION_20260712.md)
 - [Evidence snapshot](evidence_snapshot.json)
 - [No-license notice](NO_LICENSE_NOTICE.md)
 
@@ -73,8 +87,10 @@ license. Those limitations are explicit rather than hidden.
 
 ## Reading Order For An External Auditor
 
-1. Read this verdict and the claim ledger before reading performance tables.
-2. Re-run the small self-drive probe in the reproduction guide.
+1. Read this historical verdict, the remediation supplement, and the claim
+   ledger before reading performance tables.
+2. Re-run the baseline and current small self-drive probes in the reproduction
+   guide at their stated revisions.
 3. Inspect `sim.step`, `flow.engine`, and `sim.routing_runtime` together.
 4. Treat all PNG/HTML artifacts as diagnostics, never validation evidence.
 5. Verify the git bundle and checksums before relying on chronology.

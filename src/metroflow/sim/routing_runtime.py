@@ -18,7 +18,7 @@ from metroflow.backends.rust_cpu import (
     select_route_candidate_index_rust,
 )
 from metroflow.demand.trips import TripRequest, TripRequestStatus
-from metroflow.flow.state import LinkState
+from metroflow.flow.state import LinkState, NodeState
 from metroflow.routing.candidates import (
     RouteCandidateRefreshPolicy,
     RouteCandidateSet,
@@ -40,6 +40,9 @@ __all__ = [
     "coerce_simulation_route_cache_state",
     "runtime_route_cache_fingerprint",
     "refresh_runtime_route_candidates",
+    "prepare_runtime_active_agents",
+    "rebuild_runtime_turn_demand",
+    "commit_runtime_active_agent_flows",
     "advance_runtime_active_agents",
 ]
 
@@ -189,10 +192,325 @@ def refresh_runtime_route_candidates(
     return next_state, _route_tick_counters(stats, before=before)
 
 
+def prepare_runtime_active_agents(
+    state: SimulationState,
+) -> tuple[
+    ActiveAgentPool | None,
+    dict[str, int],
+    dict[str, Any],
+    LinkState | None,
+    set[int],
+]:
+    """Allocate/reroute/admit agents before the current tick's flow solve.
+
+    The returned slot-id set is an ephemeral causality barrier: newly admitted
+    vehicles contribute one source-link queue vehicle now, but cannot request a
+    turn or sink token until the next simulation tick.
+    """
+
+    pool = state.dynamic.active_agent_pool
+    if not isinstance(pool, ActiveAgentPool):
+        return (
+            None,
+            _agent_tick_counters(),
+            _demand_mapping(state),
+            state.dynamic.flow_link_state,
+            set(),
+        )
+    route_state = coerce_simulation_route_cache_state(state.dynamic.route_candidate_state)
+    demand_state = dict(_demand_mapping(state))
+    trips = tuple(demand_state.get("trip_requests", ()))
+    allocated_ids = _id_set(demand_state.get("allocated_trip_request_ids", ()))
+    completed_ids = _id_set(demand_state.get("completed_trip_request_ids", ()))
+    failed_ids = _id_set(demand_state.get("failed_trip_request_ids", ()))
+
+    pool_after_alloc = pool
+    plugin_memory = dict(pool_after_alloc.plugin_memory)
+    counters = _agent_tick_counters()
+    pois_by_id = _pois_by_id(state)
+    newly_allocated_slot_ids: set[int] = set()
+    source_queue_increments_by_link_id: dict[int, int] = {}
+
+    allocation_start_ns = perf_counter_ns()
+    candidate_selection_wall_ns = 0
+    pool_write_wall_ns = 0
+    pool_array_write_wall_ns = 0
+    plugin_memory_write_wall_ns = 0
+    plugin_memory_changed = False
+    for trip in _activated_trip_requests(trips):
+        trip_id = int(trip.trip_request_id)
+        if trip_id in allocated_ids or trip_id in completed_ids or trip_id in failed_ids:
+            continue
+        if pool_after_alloc.free_slot_count <= 0:
+            break
+        od = _trip_od_nodes(trip, pois_by_id)
+        candidate_set = route_state.candidate_sets.get(od[0]) if od is not None else None
+        selection_start_ns = perf_counter_ns()
+        selection = _select_candidate_route(
+            candidate_set,
+            path_size_gamma=state.config.route_path_size_gamma,
+            routing_backend=state.config.routing_backend,
+        )
+        candidate_selection_wall_ns += max(0, perf_counter_ns() - selection_start_ns)
+        if selection is None or od is None:
+            failed_ids.add(trip_id)
+            counters["trip_failed_this_tick"] += 1
+            continue
+        path = selection.path
+        _od_key, _origin_node_id, destination_node_id = od
+        pool_write_start_ns = perf_counter_ns()
+        pool_array_write_start_ns = perf_counter_ns()
+        payload = ActiveAgentSlot.spawn(
+            citizen_id=trip.citizen_id,
+            trip_id=trip_id,
+            current_link_id=path[0],
+            dest_node_id=destination_node_id,
+            behavior_profile_id=0,
+            remaining_route_ptr=0,
+        )
+        pool_after_alloc, slot_id = allocate_active_agent_slot(pool_after_alloc, payload)
+        pool_array_write_wall_ns += max(0, perf_counter_ns() - pool_array_write_start_ns)
+        plugin_memory_write_start_ns = perf_counter_ns()
+        plugin_memory[int(slot_id)] = {
+            "route_path": path,
+            "origin_poi_id": int(trip.origin_poi_id),
+            "dest_poi_id": int(trip.dest_poi_id),
+            "trip_request_id": trip_id,
+            "runtime_admitted_tick": int(state.tick_index),
+            **_selected_candidate_memory(selection),
+        }
+        plugin_memory_changed = True
+        plugin_memory_write_wall_ns += max(
+            0,
+            perf_counter_ns() - plugin_memory_write_start_ns,
+        )
+        allocated_ids.add(trip_id)
+        newly_allocated_slot_ids.add(int(slot_id))
+        source_queue_increments_by_link_id[int(path[0])] = (
+            source_queue_increments_by_link_id.get(int(path[0]), 0) + 1
+        )
+        counters["trip_allocated_this_tick"] += 1
+        pool_write_wall_ns += max(0, perf_counter_ns() - pool_write_start_ns)
+
+    if plugin_memory_changed:
+        plugin_memory_write_start_ns = perf_counter_ns()
+        pool_after_alloc = _replace_pool_plugin_memory(pool_after_alloc, plugin_memory)
+        replacement_ns = max(0, perf_counter_ns() - plugin_memory_write_start_ns)
+        plugin_memory_write_wall_ns += replacement_ns
+        pool_write_wall_ns += replacement_ns
+
+    counters["active_agent_allocation_wall_ns"] = max(
+        0,
+        perf_counter_ns() - allocation_start_ns,
+    )
+    counters["active_agent_candidate_selection_wall_ns"] = candidate_selection_wall_ns
+    counters["active_agent_pool_write_wall_ns"] = pool_write_wall_ns
+    counters["active_agent_pool_array_write_wall_ns"] = pool_array_write_wall_ns
+    counters["active_agent_plugin_memory_write_wall_ns"] = plugin_memory_write_wall_ns
+
+    reroute_start_ns = perf_counter_ns()
+    pool_after_reroute, reroute_counters = _apply_runtime_reroute_policy(
+        state,
+        pool_after_alloc,
+        skip_slot_ids=newly_allocated_slot_ids,
+    )
+    reroute_counters = dict(reroute_counters)
+    reroute_counters["reroute_decision_wall_ns"] = max(
+        0,
+        perf_counter_ns() - reroute_start_ns,
+    )
+    counters.update(
+        {key: counters.get(key, 0) + value for key, value in reroute_counters.items()}
+    )
+
+    demand_state.update(
+        {
+            "allocated_trip_request_ids": tuple(sorted(allocated_ids)),
+            "completed_trip_request_ids": tuple(sorted(completed_ids)),
+            "failed_trip_request_ids": tuple(sorted(failed_ids)),
+        }
+    )
+    demand_state.update(
+        _demand_lifecycle_counts(trips, allocated_ids, completed_ids, failed_ids)
+    )
+    return (
+        pool_after_reroute,
+        counters,
+        demand_state,
+        _apply_source_queue_increments(state, source_queue_increments_by_link_id),
+        newly_allocated_slot_ids,
+    )
+
+
+def rebuild_runtime_turn_demand(
+    state: SimulationState,
+    *,
+    skip_slot_ids: set[int] | None = None,
+) -> NodeState | None:
+    """Rebuild exact per-turn and final-link sink demand from active routes."""
+
+    node_state = state.dynamic.flow_node_state
+    link_state = state.dynamic.flow_link_state
+    pool = state.dynamic.active_agent_pool
+    road_csr = _road_csr_from_state(state)
+    if (
+        not isinstance(node_state, NodeState)
+        or not isinstance(link_state, LinkState)
+        or not isinstance(pool, ActiveAgentPool)
+        or road_csr is None
+    ):
+        return node_state if isinstance(node_state, NodeState) else None
+
+    skip_slots = {int(slot_id) for slot_id in (skip_slot_ids or set())}
+    turn_demand = np.zeros((node_state.turn_count,), dtype=np.float32)
+    sink_demand = np.zeros((link_state.link_count,), dtype=np.float32)
+    turn_lookup = _runtime_turn_index_lookup(state)
+    link_id_to_index = dict(getattr(road_csr, "link_id_to_index", {}) or {})
+    missing_intents: list[tuple[int, int, int]] = []
+    invalid_sink_intents: list[tuple[int, int, int, int]] = []
+
+    for slot_id, alive in enumerate(np.asarray(pool.alive_mask, dtype=np.bool_).tolist()):
+        if not bool(alive) or int(slot_id) in skip_slots:
+            continue
+        memory = pool.plugin_memory.get(int(slot_id), {})
+        path = tuple(int(link_id) for link_id in tuple(memory.get("route_path", ())))
+        ptr = int(pool.remaining_route_ptr[slot_id])
+        current_link_id = int(pool.current_link_id[slot_id])
+        if not path or not 0 <= ptr < len(path) or int(path[ptr]) != current_link_id:
+            missing_intents.append((int(slot_id), current_link_id, -1))
+            continue
+        if ptr == len(path) - 1:
+            link_index = link_id_to_index.get(current_link_id)
+            if link_index is None:
+                missing_intents.append((int(slot_id), current_link_id, -1))
+                continue
+            final_link = road_csr.links[int(link_index)]
+            actual_destination = int(final_link.dst_node_id)
+            expected_destination = int(pool.dest_node_id[slot_id])
+            if actual_destination != expected_destination:
+                invalid_sink_intents.append(
+                    (
+                        int(slot_id),
+                        current_link_id,
+                        actual_destination,
+                        expected_destination,
+                    )
+                )
+                continue
+            sink_demand[int(link_index)] += np.float32(1.0)
+            continue
+        next_link_id = int(path[ptr + 1])
+        turn_index = turn_lookup.get((current_link_id, next_link_id))
+        if turn_index is None:
+            missing_intents.append((int(slot_id), current_link_id, next_link_id))
+            continue
+        turn_demand[int(turn_index)] += np.float32(1.0)
+
+    if missing_intents:
+        first = missing_intents[0]
+        raise RuntimeError(
+            "active route intent has no unique legal compiled turn: "
+            f"slot={first[0]} from_link={first[1]} to_link={first[2]} "
+            f"(missing_count={len(missing_intents)})"
+        )
+    if invalid_sink_intents:
+        first = invalid_sink_intents[0]
+        raise RuntimeError(
+            "final route link does not terminate at active-agent destination: "
+            f"slot={first[0]} link={first[1]} link_dst_node={first[2]} "
+            f"agent_dest_node={first[3]} (invalid_count={len(invalid_sink_intents)})"
+        )
+
+    metadata = dict(node_state.metadata)
+    metadata.update(
+        {
+            "runtime_sink_demand_by_link_index": sink_demand,
+            "runtime_missing_route_turn_intents": tuple(missing_intents),
+            "runtime_missing_route_turn_intent_count": len(missing_intents),
+        }
+    )
+    return NodeState.from_internal_arrays(
+        turn_from_link_index=node_state.turn_from_link_index,
+        turn_to_link_index=node_state.turn_to_link_index,
+        turn_demand=turn_demand,
+        turn_supply=np.zeros_like(turn_demand),
+        turn_flow=np.zeros_like(turn_demand),
+        signal_phase_index=node_state.signal_phase_index,
+        signal_phase_timer=node_state.signal_phase_timer,
+        metadata=metadata,
+    )
+
+
+def commit_runtime_active_agent_flows(
+    state: SimulationState,
+    *,
+    skip_slot_ids: set[int] | None = None,
+) -> tuple[ActiveAgentPool | None, dict[str, int], dict[str, Any]]:
+    """Commit agents using realized turn-specific and sink integer tokens."""
+
+    pool = state.dynamic.active_agent_pool
+    if not isinstance(pool, ActiveAgentPool):
+        return None, _agent_tick_counters(), _demand_mapping(state)
+    if state.config.agent_backend == "rust_cpu":
+        raise RuntimeError(
+            "Rust CPU active-agent backend does not implement the per-turn token contract"
+        )
+    # `auto` deliberately falls back until the Rust ABI exposes turn ids/tokens.
+    node_state = state.dynamic.flow_node_state
+    if not isinstance(node_state, NodeState):
+        return pool, _agent_tick_counters(), _demand_mapping(state)
+
+    turn_tokens = np.floor(
+        np.maximum(np.asarray(node_state.turn_flow, dtype=np.float32), 0.0) + 1.0e-6
+    ).astype(np.int64)
+    road_csr = _road_csr_from_state(state)
+    link_count = int(getattr(road_csr, "link_count", 0) or 0)
+    raw_sink_tokens = node_state.metadata.get(
+        "runtime_sink_flow_by_link_index",
+        np.zeros((link_count,), dtype=np.float32),
+    )
+    sink_tokens = np.floor(
+        np.maximum(np.asarray(raw_sink_tokens, dtype=np.float32), 0.0) + 1.0e-6
+    ).astype(np.int64)
+    if sink_tokens.shape != (link_count,):
+        raise ValueError("runtime_sink_flow_by_link_index shape mismatch")
+
+    moved_pool, counters, completed_now = _advance_pool_along_realized_turns(
+        state,
+        pool,
+        turn_tokens=turn_tokens,
+        sink_tokens=sink_tokens,
+        skip_slot_ids=skip_slot_ids,
+    )
+    demand_state = dict(_demand_mapping(state))
+    trips = tuple(demand_state.get("trip_requests", ()))
+    allocated_ids = _id_set(demand_state.get("allocated_trip_request_ids", ()))
+    completed_ids = _id_set(demand_state.get("completed_trip_request_ids", ()))
+    failed_ids = _id_set(demand_state.get("failed_trip_request_ids", ()))
+    completed_ids.update(completed_now)
+    counters["trip_completed_this_tick"] += len(completed_now)
+    demand_state.update(
+        {
+            "allocated_trip_request_ids": tuple(sorted(allocated_ids)),
+            "completed_trip_request_ids": tuple(sorted(completed_ids)),
+            "failed_trip_request_ids": tuple(sorted(failed_ids)),
+        }
+    )
+    demand_state.update(
+        _demand_lifecycle_counts(trips, allocated_ids, completed_ids, failed_ids)
+    )
+    return moved_pool, counters, demand_state
+
+
 def advance_runtime_active_agents(
     state: SimulationState,
 ) -> tuple[ActiveAgentPool | None, dict[str, int], dict[str, Any], LinkState | None]:
-    """Allocate activated trips to cached routes and move active agents one link."""
+    """Legacy aggregate-link helper; not authoritative for ``sim.step``.
+
+    New runtime code must use prepare/rebuild/flow/commit so branching turns and
+    queue mass share one exact per-turn authority.  This wrapper remains only for
+    isolated compatibility probes of the pre-closure contract.
+    """
 
     pool = state.dynamic.active_agent_pool
     if not isinstance(pool, ActiveAgentPool):
@@ -327,7 +645,9 @@ def advance_runtime_active_agents(
             "failed_trip_request_ids": tuple(sorted(failed_ids)),
         }
     )
-    demand_state.update(_demand_lifecycle_counts(trips, completed_ids, failed_ids))
+    demand_state.update(
+        _demand_lifecycle_counts(trips, allocated_ids, completed_ids, failed_ids)
+    )
     return (
         moved_pool,
         counters,
@@ -448,6 +768,160 @@ def _agent_tick_counters() -> dict[str, int]:
         "active_agent_plugin_memory_write_wall_ns": 0,
         "active_agent_movement_wall_ns": 0,
     }
+
+
+def _runtime_turn_index_lookup(state: SimulationState) -> dict[tuple[int, int], int]:
+    road_csr = _road_csr_from_state(state)
+    node_state = state.dynamic.flow_node_state
+    if road_csr is None or not isinstance(node_state, NodeState):
+        return {}
+    link_ids = np.asarray(getattr(road_csr, "link_ids", ()), dtype=np.int32)
+    from_idx = np.asarray(node_state.turn_from_link_index, dtype=np.int32)
+    to_idx = np.asarray(node_state.turn_to_link_index, dtype=np.int32)
+    forbidden = np.asarray(
+        node_state.metadata.get(
+            "turn_is_forbidden",
+            np.zeros((node_state.turn_count,), dtype=np.bool_),
+        ),
+        dtype=np.bool_,
+    )
+    if forbidden.ndim == 0:
+        forbidden = np.full((node_state.turn_count,), bool(forbidden), dtype=np.bool_)
+    if forbidden.shape != (node_state.turn_count,):
+        raise ValueError("turn_is_forbidden shape mismatch")
+    lookup: dict[tuple[int, int], int] = {}
+    for turn_index in range(node_state.turn_count):
+        if bool(forbidden[turn_index]):
+            continue
+        source_index = int(from_idx[turn_index])
+        target_index = int(to_idx[turn_index])
+        if not (0 <= source_index < len(link_ids) and 0 <= target_index < len(link_ids)):
+            raise ValueError("runtime turn table references an out-of-range link index")
+        key = (int(link_ids[source_index]), int(link_ids[target_index]))
+        if key in lookup:
+            raise RuntimeError(
+                "compiled runtime turn table contains duplicate legal movement "
+                f"{key} at indices {lookup[key]} and {turn_index}"
+            )
+        lookup[key] = int(turn_index)
+    return lookup
+
+
+def _advance_pool_along_realized_turns(
+    state: SimulationState,
+    pool: ActiveAgentPool,
+    *,
+    turn_tokens: np.ndarray,
+    sink_tokens: np.ndarray,
+    skip_slot_ids: set[int] | None = None,
+) -> tuple[ActiveAgentPool, dict[str, int], set[int]]:
+    counters = _agent_tick_counters()
+    completed_trip_ids: set[int] = set()
+    skip_slots = {int(slot_id) for slot_id in (skip_slot_ids or set())}
+    remaining_turn_tokens = np.asarray(turn_tokens, dtype=np.int64).copy()
+    remaining_sink_tokens = np.asarray(sink_tokens, dtype=np.int64).copy()
+    turn_lookup = _runtime_turn_index_lookup(state)
+    road_csr = _road_csr_from_state(state)
+    link_id_to_index = dict(getattr(road_csr, "link_id_to_index", {}) or {})
+
+    free_stack = np.asarray(pool.free_slot_stack, dtype=np.int32).copy()
+    alive_mask = np.asarray(pool.alive_mask, dtype=np.bool_).copy()
+    citizen = np.asarray(pool.citizen_id, dtype=np.int32).copy()
+    trip = np.asarray(pool.trip_id, dtype=np.int32).copy()
+    current_link = np.asarray(pool.current_link_id, dtype=np.int32).copy()
+    progress = np.asarray(pool.progress_01, dtype=np.float32).copy()
+    route_ptr = np.asarray(pool.remaining_route_ptr, dtype=np.int32).copy()
+    dest = np.asarray(pool.dest_node_id, dtype=np.int32).copy()
+    behavior = np.asarray(pool.behavior_profile_id, dtype=np.int32).copy()
+    cooldown = np.asarray(pool.reroute_cooldown_ticks, dtype=np.int32).copy()
+    plugin_memory = dict(pool.plugin_memory)
+    free_count = int(pool.free_slot_count)
+    alive_count = int(pool.alive_count)
+
+    def release_slot(slot_id: int) -> None:
+        nonlocal free_count, alive_count
+        completed_trip_ids.add(int(trip[slot_id]))
+        plugin_memory.pop(int(slot_id), None)
+        alive_mask[slot_id] = False
+        citizen[slot_id] = -1
+        trip[slot_id] = -1
+        current_link[slot_id] = -1
+        progress[slot_id] = 0.0
+        route_ptr[slot_id] = 0
+        dest[slot_id] = -1
+        behavior[slot_id] = -1
+        cooldown[slot_id] = 0
+        free_stack[free_count] = int(slot_id)
+        free_count += 1
+        alive_count -= 1
+
+    for slot_id, alive in enumerate(alive_mask.tolist()):
+        if not bool(alive) or int(slot_id) in skip_slots:
+            continue
+        memory = plugin_memory.get(int(slot_id), {})
+        path = tuple(int(link_id) for link_id in tuple(memory.get("route_path", ())))
+        ptr = int(route_ptr[slot_id])
+        current_link_id = int(current_link[slot_id])
+        if not path or not 0 <= ptr < len(path) or int(path[ptr]) != current_link_id:
+            continue
+        if ptr == len(path) - 1:
+            link_index = link_id_to_index.get(current_link_id)
+            if link_index is None:
+                raise RuntimeError(
+                    "final active-agent route link is absent from the runtime network: "
+                    f"slot={slot_id} link={current_link_id}"
+                )
+            final_link = road_csr.links[int(link_index)]
+            if int(final_link.dst_node_id) != int(dest[slot_id]):
+                raise RuntimeError(
+                    "final route link does not terminate at active-agent destination: "
+                    f"slot={slot_id} link={current_link_id} "
+                    f"link_dst_node={int(final_link.dst_node_id)} "
+                    f"agent_dest_node={int(dest[slot_id])}"
+                )
+            if remaining_sink_tokens[int(link_index)] <= 0:
+                counters["active_agent_sink_wait_this_tick"] += 1
+                continue
+            remaining_sink_tokens[int(link_index)] -= 1
+            release_slot(int(slot_id))
+            continue
+
+        next_link_id = int(path[ptr + 1])
+        turn_index = turn_lookup.get((current_link_id, next_link_id))
+        if turn_index is None or remaining_turn_tokens[int(turn_index)] <= 0:
+            continue
+        remaining_turn_tokens[int(turn_index)] -= 1
+        route_ptr[slot_id] = ptr + 1
+        current_link[slot_id] = next_link_id
+        progress[slot_id] = 0.0
+        cooldown[slot_id] = max(0, int(cooldown[slot_id]) - 1)
+        counters["active_agent_moved_this_tick"] += 1
+
+    if bool(np.any(remaining_turn_tokens != 0)) or bool(np.any(remaining_sink_tokens != 0)):
+        raise RuntimeError(
+            "realized flow tokens did not reconcile with eligible active-agent intents"
+        )
+
+    return (
+        ActiveAgentPool.from_internal_arrays(
+            capacity=pool.capacity,
+            free_slot_stack=free_stack,
+            free_slot_count=free_count,
+            alive_mask=alive_mask,
+            alive_count=alive_count,
+            citizen_id=citizen,
+            trip_id=trip,
+            current_link_id=current_link,
+            progress_01=progress,
+            remaining_route_ptr=route_ptr,
+            dest_node_id=dest,
+            behavior_profile_id=behavior,
+            reroute_cooldown_ticks=cooldown,
+            plugin_memory=plugin_memory,
+        ),
+        counters,
+        completed_trip_ids,
+    )
 
 
 def _advance_pool_along_cached_routes(
@@ -1064,7 +1538,9 @@ def _travel_time_cost_for_queue(link_state: LinkState, queue_vehicles: np.ndarra
         np.asarray(link_state.effective_capacity_vehicles, dtype=np.float32),
         np.float32(1e-3),
     )
-    return base * (np.float32(1.0) + (queue / (capacity + np.float32(1e-3))))
+    # Both terms are simulation ticks: base free-flow ticks plus vertical
+    # point-queue waiting ticks q / service_capacity.
+    return base + (queue / capacity)
 
 
 def _replace_pool_plugin_memory(
@@ -1277,6 +1753,7 @@ def _candidate_path_utility(
 
 def _demand_lifecycle_counts(
     trips: tuple[Any, ...],
+    allocated_ids: set[int],
     completed_ids: set[int],
     failed_ids: set[int],
 ) -> dict[str, int]:
@@ -1285,7 +1762,11 @@ def _demand_lifecycle_counts(
     for raw_trip in trips:
         trip = _coerce_trip(raw_trip)
         trip_id = int(trip.trip_request_id)
-        if trip_id in completed_ids or trip_id in failed_ids:
+        if (
+            trip_id in allocated_ids
+            or trip_id in completed_ids
+            or trip_id in failed_ids
+        ):
             continue
         if trip.status is TripRequestStatus.QUEUED:
             queued += 1

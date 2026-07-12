@@ -145,6 +145,7 @@ def test_evolve_edges_fast_tick_explicit_rust_backend_reports_unavailable(
 
 
 def test_evolve_edges_fast_tick_explicit_jax_backend_is_fail_closed(monkeypatch: pytest.MonkeyPatch):
+    pytest.importorskip("jax")
     world = replace(
         make_empty_world_state(seed=13),
         graph=make_materialized_graph(1),

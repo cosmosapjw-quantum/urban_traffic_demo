@@ -5,10 +5,12 @@ Runtime acceleration planning is additionally governed by
 must pass its self-ask and step-back gates before another instrumentation or
 backend slice is opened.
 
-## runtime-closure prerequisite
+## runtime-closure status and prerequisite
 
-All acceleration and 100k integration claims are blocked until the NumPy
-baseline passes a generated-city closure gate:
+The NumPy baseline now passes the first five functional closure checks below on
+the deterministic seed-41 small workload. Acceleration and 100k integration
+claims remain blocked until the remaining replay, scale, physical-semantics,
+and LUTI boundaries are closed or explicitly removed from the product claim:
 
 - compiled topology exposes typed legal turn movements;
 - active route tails produce deterministic per-turn demand before flow;
@@ -19,14 +21,20 @@ baseline passes a generated-city closure gate:
 - medium/slow accessibility and land-use cadences are either ported into
   `SimulationState` or removed from the integrated-runtime claim.
 
-The current blocker is reproduced with:
+Current bounded positive probe:
 
 ```bash
 .venv/bin/python -m metroflow.benchmarks.runtime_self_drive_probe \
-  --scenario-seed 41 --steps 3 --expect-stalled
+  --scenario-seed 41 --steps 20 --expect-closed
 ```
 
-This command is a fail-closed defect probe, not a passing validation benchmark.
+Expected internal evidence: 16 generated trips, 15 completions, one explicit
+no-route failure, zero remaining active agents/queue mass, no invariant failure,
+zero per-link agent/queue delta, and equal final-state fingerprints from two
+fresh 20-tick replay runs. This is a fail-closed functional regression
+probe, not a 100k, empirical, or physical traffic validation benchmark. The
+historical `--steps 3 --expect-stalled` negative control applies only to audit
+delivery commit `e428de848184`.
 
 ## invariant tests
 - queue >= 0

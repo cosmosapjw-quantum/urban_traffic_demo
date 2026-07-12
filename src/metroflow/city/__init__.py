@@ -38,6 +38,8 @@ from .morphology_reference import (
     empirical_street_network_references as empirical_street_network_references,
 )
 from .morphology_reference import get_morphology_archetype as get_morphology_archetype
+from .turn_compiler import TurnAuthorityCatalog as TurnAuthorityCatalog
+from .turn_compiler import compile_turn_authority as compile_turn_authority
 __all__ = [
     "BridgeCrossing",
     "GateDecision",
@@ -58,6 +60,7 @@ __all__ = [
     "StreetNetworkMorphometrics",
     "TopologyValidationIssue",
     "TopologyValidationReport",
+    "TurnAuthorityCatalog",
     "TurnMovement",
     "TurnType",
     "WeakConnectivityRepairResult",
@@ -66,6 +69,7 @@ __all__ = [
     "build_road_network_csr",
     "compute_street_network_morphometrics",
     "compute_morphology_quality_metrics",
+    "compile_turn_authority",
     "empirical_street_network_references",
     "evaluate_morphology_quality_gate",
     "get_morphology_archetype",

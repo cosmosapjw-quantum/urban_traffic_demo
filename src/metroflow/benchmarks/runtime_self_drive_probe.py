@@ -1,4 +1,4 @@
-"""Reproduce the generated-runtime movement-closure audit finding."""
+"""Probe generated-runtime movement closure or reproduce its historical stall."""
 
 from __future__ import annotations
 
@@ -17,9 +17,9 @@ __all__ = ["run_runtime_self_drive_probe"]
 def run_runtime_self_drive_probe(
     *,
     scenario_seed: int = 41,
-    steps: int = 3,
+    steps: int = 20,
 ) -> dict[str, Any]:
-    """Run a small generated workload and report whether the audited stall remains."""
+    """Run a small generated workload and report stall and closure predicates."""
 
     step_count = int(steps)
     if step_count <= 0:
@@ -37,8 +37,11 @@ def run_runtime_self_drive_probe(
     )
     state = bundle.state
     rng_key = bundle.rng_key
+    road_csr = state.static.routing_static["road_csr"]
     initial = {
         "trip_count": len(bundle.trip_requests.trip_requests),
+        "turn_count": int(road_csr.turn_count),
+        "permitted_turn_count": int((~road_csr.turn_is_forbidden).sum()),
         "turn_demand_total": float(state.dynamic.flow_node_state.turn_demand.sum()),
         "queue_vehicles_total": float(state.dynamic.flow_link_state.queue_vehicles.sum()),
     }
@@ -47,6 +50,21 @@ def run_runtime_self_drive_probe(
     control = SimulationControl.noop()
     for _ in range(step_count):
         state, telemetry, _, rng_key = simulation_step(state, control, rng_key)
+        pool = state.dynamic.active_agent_pool
+        agent_count_by_link = [0] * int(road_csr.link_count)
+        for slot_id, alive in enumerate(pool.alive_mask.tolist()):
+            if not bool(alive):
+                continue
+            link_id = int(pool.current_link_id[slot_id])
+            agent_count_by_link[int(road_csr.link_id_to_index[link_id])] += 1
+        queue_by_link = state.dynamic.flow_link_state.queue_vehicles
+        maximum_link_mass_delta = max(
+            (
+                abs(float(queue_by_link[index]) - float(agent_count_by_link[index]))
+                for index in range(int(road_csr.link_count))
+            ),
+            default=0.0,
+        )
         tick_rows.append(
             {
                 "tick_index": state.tick_index,
@@ -63,6 +81,8 @@ def run_runtime_self_drive_probe(
                 "queue_vehicles_total": float(
                     state.dynamic.flow_link_state.queue_vehicles.sum()
                 ),
+                "invariant_ok": bool(state.dynamic.invariant_state.ok),
+                "maximum_link_agent_mass_delta": maximum_link_mass_delta,
             }
         )
 
@@ -75,24 +95,51 @@ def run_runtime_self_drive_probe(
         and all(row["outflow_vehicles_total"] == 0.0 for row in tick_rows)
         and all(row["moved_agent_count"] == 0 for row in tick_rows)
     )
+    completed_total = sum(int(row["completed_trip_count"]) for row in tick_rows)
+    failed_total = sum(int(row["failed_trip_count"]) for row in tick_rows)
+    closure_verified = bool(
+        initial["trip_count"] > 0
+        and initial["turn_count"] > 0
+        and tick_rows
+        and any(row["turn_demand_total"] > 0.0 for row in tick_rows)
+        and any(row["outflow_vehicles_total"] > 0.0 for row in tick_rows)
+        and any(row["moved_agent_count"] > 0 for row in tick_rows)
+        and all(bool(row["invariant_ok"]) for row in tick_rows)
+        and all(
+            float(row["maximum_link_agent_mass_delta"]) <= 1.0e-6
+            for row in tick_rows
+        )
+        and int(tick_rows[-1]["active_agent_count"]) == 0
+        and float(tick_rows[-1]["queue_vehicles_total"]) == 0.0
+        and completed_total + failed_total == int(initial["trip_count"])
+    )
     return {
-        "schema_version": "metroflow.runtime-self-drive-probe.v1",
+        "schema_version": "metroflow.runtime-self-drive-probe.v2",
         "scenario_seed": int(scenario_seed),
         "steps": step_count,
         "initial": initial,
         "ticks": tick_rows,
         "runtime_closure_blocker_reproduced": blocker_reproduced,
+        "runtime_closure_verified": closure_verified,
+        "completed_trip_count_total": completed_total,
+        "failed_trip_count_total": failed_total,
     }
 
 
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--scenario-seed", type=int, default=41)
-    parser.add_argument("--steps", type=int, default=3)
-    parser.add_argument(
+    parser.add_argument("--steps", type=int, default=20)
+    expectation = parser.add_mutually_exclusive_group()
+    expectation.add_argument(
         "--expect-stalled",
         action="store_true",
-        help="fail unless the audited zero-turn-demand movement blocker is reproduced",
+        help="fail unless the historical zero-turn-demand blocker is reproduced",
+    )
+    expectation.add_argument(
+        "--expect-closed",
+        action="store_true",
+        help="fail unless generated trips move, terminate, and conserve link mass",
     )
     return parser.parse_args()
 
@@ -106,6 +153,8 @@ def main() -> int:
     print(json.dumps(result, indent=2, sort_keys=True))
     if args.expect_stalled and not result["runtime_closure_blocker_reproduced"]:
         return 2
+    if args.expect_closed and not result["runtime_closure_verified"]:
+        return 3
     return 0
 
 

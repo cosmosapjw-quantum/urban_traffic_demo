@@ -287,6 +287,7 @@ def test_replay_continues_to_target_step_world_not_runtime_routing_wrapper(monke
 
 
 def test_replay_boundary_and_result_record_edge_backend():
+    pytest.importorskip("jax")
     world = make_materialized_world(seed=21, step=1, num_edges=1)
     journal = InterventionJournal()
     boundary = make_replay_boundary(world, journal, edge_backend="jax")

@@ -1,7 +1,7 @@
 # Claim Ledger
 
 Status: active source of truth
-Last updated: 2026-07-11
+Last updated: 2026-07-12
 
 This file is the compact project-level claim authority. The external-audit
 version with evidence and falsifiers is:
@@ -14,6 +14,10 @@ version with evidence and falsifiers is:
   six morphology grammars, zones, POIs, deterministic citizens/trips.
 - NumPy point-queue/node flow arrays, reverse-Dijkstra routing, ranked-K
   candidates, path-size selection, event/cadence rerouting, active-agent pool.
+- Exhaustive deterministic generated turn authority, route-tail per-turn/sink
+  demand, fair sink/turn deficit allocation, fractional service/receiving carry,
+  exact agent/queue token commit, final-link destination validation, and
+  fail-closed finite/integral token metadata validation.
 - Replay fingerprints, measured benchmark/report surfaces, static/runtime
   diagnostic renderers, Rust parity kernels, and bounded GPU/NN experiments.
 
@@ -25,12 +29,18 @@ version with evidence and falsifiers is:
   fixture matrices.
 - Isolated Rust kernels match their Python/NumPy fixtures.
 - JAX frozen dense-flow chunks accelerate tested 4,096/16,384-link workloads.
+- The seed-41 eager self-drive probe compiles 51,886 turns, completes all 15
+  routable trips by tick 16, records one explicit no-route failure, and reaches
+  zero active agents/queue mass with exact per-link agent/queue equality through
+  20 ticks.
+- Two fresh seed-41 20-tick replays produce the same canonical final-state
+  fingerprint and replay telemetry; stale residual boundaries fail before run.
 
 ## Refuted Or Blocked
 
-- The integrated generated-city runtime is not self-driving: generated topology
-  supplies no turn authority, initialized turn demand is zero, and active agents
-  receive no outflow movement budget.
+- At the frozen 2026-07-11 audit baseline, the integrated generated-city runtime
+  was not self-driving. That result remains a historical negative control and is
+  superseded only by the bounded 2026-07-12 remediation evidence above.
 - Whole-runtime Rust routing is slower than baseline in the recorded eager
   smoke workload.
 - The row-local cost-to-go MLP input hypothesis fails its relation-conflict gate.
@@ -41,7 +51,11 @@ version with evidence and falsifiers is:
 
 - Complete 100k-population integrated runtime behavior.
 - Real-city road morphology, traffic flow, route choice, demand, or LUTI fit.
-- Full-state replay conservation under a generated multi-hop workload.
+- Broad generated/event conservation and replay across arbitrary, long-running,
+  incident, merge/diverge, reroute, and failure workloads.
+- Physically calibrated link traversal, finite storage, spillback, or shockwave
+  propagation in the active-agent point-queue runtime.
+- A unified `SimulationState` traffic/accessibility/land-use feedback loop.
 - Runtime JAX/GPU flow with realistic host mutation and checkpoints.
 - Production neural-network inference or route authority.
 - Independent artifact reproduction or redistribution under a root license.

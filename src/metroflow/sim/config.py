@@ -108,6 +108,7 @@ class SimulationConfig:
     route_max_hops: int = 64
     route_refresh_interval_ticks: int = 8
     route_path_size_gamma: float = 0.0
+    eager_trip_generation: bool = False
 
     def __post_init__(self) -> None:
         self.population_target = int(self.population_target)
@@ -124,6 +125,7 @@ class SimulationConfig:
         self.route_max_hops = int(self.route_max_hops)
         self.route_refresh_interval_ticks = int(self.route_refresh_interval_ticks)
         self.route_path_size_gamma = float(self.route_path_size_gamma)
+        self.eager_trip_generation = bool(self.eager_trip_generation)
         self.day_type_set = _coerce_enum_tuple(self.day_type_set, DayType)
         self.time_bands = _coerce_enum_tuple(self.time_bands, TimeBand)
 
