@@ -1099,6 +1099,65 @@ def test_runtime_reroute_replaces_remaining_tail_on_incident() -> None:
     assert counters["active_agent_moved_this_tick"] == 0
 
 
+def test_runtime_reroute_deduplicates_same_tick_selection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.sim import routing_runtime
+    from metroflow.sim.active_agents import ActiveAgentSlot, allocate_active_agent_slot
+
+    state = _runtime_reroute_state()
+    pool = state.dynamic.active_agent_pool
+    payload = ActiveAgentSlot.spawn(
+        citizen_id=202,
+        trip_id=2,
+        current_link_id=int(pool.current_link_id[0]),
+        dest_node_id=int(pool.dest_node_id[0]),
+        behavior_profile_id=int(pool.behavior_profile_id[0]),
+        remaining_route_ptr=int(pool.remaining_route_ptr[0]),
+    )
+    pool, slot_id = allocate_active_agent_slot(pool, payload)
+    plugin_memory = dict(pool.plugin_memory)
+    plugin_memory[int(slot_id)] = {
+        **dict(plugin_memory[0]),
+        "trip_request_id": 2,
+    }
+    pool = pool.from_internal_arrays(
+        capacity=pool.capacity,
+        free_slot_stack=pool.free_slot_stack,
+        free_slot_count=pool.free_slot_count,
+        alive_mask=pool.alive_mask,
+        alive_count=pool.alive_count,
+        citizen_id=pool.citizen_id,
+        trip_id=pool.trip_id,
+        current_link_id=pool.current_link_id,
+        progress_01=pool.progress_01,
+        remaining_route_ptr=pool.remaining_route_ptr,
+        dest_node_id=pool.dest_node_id,
+        behavior_profile_id=pool.behavior_profile_id,
+        reroute_cooldown_ticks=pool.reroute_cooldown_ticks,
+        plugin_memory=plugin_memory,
+    )
+    state = state.with_dynamic_updates(active_agent_pool=pool)
+    calls = 0
+
+    def no_candidate(**_kwargs):
+        nonlocal calls
+        calls += 1
+        return None
+
+    monkeypatch.setattr(
+        routing_runtime,
+        "_build_reroute_tail_selection",
+        no_candidate,
+    )
+
+    next_pool, counters = routing_runtime._apply_runtime_reroute_policy(state, pool)
+
+    assert next_pool is pool
+    assert counters["active_agent_rerouted_this_tick"] == 0
+    assert calls == 1
+
+
 def test_runtime_reroute_passes_configured_routing_backend(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

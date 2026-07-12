@@ -1346,6 +1346,8 @@ def _apply_runtime_reroute_policy(
     cooldown = np.asarray(pool.reroute_cooldown_ticks, dtype=np.int32).copy()
     plugin_memory = dict(pool.plugin_memory)
     turn_lookup = _runtime_turn_index_lookup(state)
+    potential_cache: dict[Any, Any] = {}
+    selection_cache: dict[tuple[int, int], _SelectedCandidateRoute | None] = {}
     changed = False
 
     for slot_id, alive in enumerate(np.asarray(pool.alive_mask, dtype=np.bool_).tolist()):
@@ -1368,13 +1370,18 @@ def _apply_runtime_reroute_policy(
         )
         if not existing_tail:
             continue
-        selection = _build_reroute_tail_selection(
-            state=state,
-            road_csr=road_csr,
-            link_state=link_state,
-            current_link_id=current_link_id,
-            destination_node_id=int(pool.dest_node_id[slot_id]),
-        )
+        destination_node_id = int(pool.dest_node_id[slot_id])
+        selection_key = (current_link_id, destination_node_id)
+        if selection_key not in selection_cache:
+            selection_cache[selection_key] = _build_reroute_tail_selection(
+                state=state,
+                road_csr=road_csr,
+                link_state=link_state,
+                current_link_id=current_link_id,
+                destination_node_id=destination_node_id,
+                potential_cache=potential_cache,
+            )
+        selection = selection_cache[selection_key]
         candidate_tail = () if selection is None else selection.path
         if not candidate_tail or candidate_tail == existing_tail:
             continue
@@ -1487,6 +1494,7 @@ def _build_reroute_tail_selection(
     link_state: LinkState,
     current_link_id: int,
     destination_node_id: int,
+    potential_cache: dict[Any, Any] | None = None,
 ) -> _SelectedCandidateRoute | None:
     link_index = dict(getattr(road_csr, "link_id_to_index", {}) or {}).get(int(current_link_id))
     if link_index is None:
@@ -1508,6 +1516,11 @@ def _build_reroute_tail_selection(
         max_candidates=max(1, int(state.config.route_max_candidates)),
         max_hops=max(1, int(state.config.route_max_hops)),
         routing_backend=state.config.routing_backend,
+        potential_cache=potential_cache,
+        cache_key=_route_potential_cache_key(
+            state=state,
+            destination_node_id=int(destination_node_id),
+        ),
     )
     return _select_candidate_route(
         candidate_set,
