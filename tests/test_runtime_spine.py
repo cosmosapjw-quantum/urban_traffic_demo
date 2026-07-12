@@ -1781,14 +1781,21 @@ def test_runtime_replay_records_backend_and_cache_fingerprints() -> None:
     from metroflow.sim.rng import key_from_seed
 
     state = _runtime_spine_state()
-    boundary = make_runtime_replay_boundary(state)
+    controls = (SimulationControl(),)
+    replay_key = key_from_seed(11)
+    boundary = make_runtime_replay_boundary(
+        state,
+        controls=controls,
+        rng_key=replay_key,
+        num_steps=1,
+    )
     result = replay_simulation_sequence(
         RuntimeReplayRequest(
             name="replay_runtime_spine",
             initial_state=state,
             declared_boundary=boundary,
-            controls=(SimulationControl(),),
-            rng_key=key_from_seed(11),
+            controls=controls,
+            rng_key=replay_key,
             num_steps=1,
         )
     )
@@ -1838,13 +1845,20 @@ def test_runtime_replay_records_reroute_counter_totals(
 
     monkeypatch.setattr(replay_module, "simulation_step", fake_simulation_step)
 
+    controls = (SimulationControl(),)
+    replay_key = key_from_seed(29)
     result = replay_simulation_sequence(
         RuntimeReplayRequest(
             name="replay_runtime_reroute_counters",
             initial_state=state,
-            declared_boundary=make_runtime_replay_boundary(state),
-            controls=(SimulationControl(),),
-            rng_key=key_from_seed(29),
+            declared_boundary=make_runtime_replay_boundary(
+                state,
+                controls=controls,
+                rng_key=replay_key,
+                num_steps=1,
+            ),
+            controls=controls,
+            rng_key=replay_key,
             num_steps=1,
         )
     )

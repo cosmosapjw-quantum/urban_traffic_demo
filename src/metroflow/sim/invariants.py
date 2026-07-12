@@ -184,6 +184,21 @@ def check_non_negative_queue(
     arr = np.asarray(queue_values, dtype=np.float32)
     if arr.ndim == 0:
         arr = arr.reshape((1,))
+    finite_mask = np.isfinite(arr)
+    if not bool(np.all(finite_mask)):
+        first_index = int(np.nonzero(~finite_mask)[0][0])
+        return (
+            InvariantViolation(
+                code="non_finite_queue_detected",
+                check_name="non_negative_queue",
+                message="Queue values must be finite",
+                details={
+                    "field_name": field_name,
+                    "non_finite_count": int(np.sum(~finite_mask)),
+                    "first_non_finite_index": first_index,
+                },
+            ),
+        )
     negative_mask = arr < 0
     if not bool(np.any(negative_mask)):
         return ()
@@ -663,6 +678,79 @@ def _check_runtime_token_authority(
         )
     elif bool(np.any(np.abs(turn_flow - np.rint(turn_flow)) > 1.0e-6)):
         add_invalid("turn_flow", "non_integral")
+    inflow = np.asarray(link_state.inflow_vehicles, dtype=np.float32)
+    outflow = np.asarray(link_state.outflow_vehicles, dtype=np.float32)
+    queue = np.asarray(link_state.queue_vehicles, dtype=np.float32)
+    for key, values in (
+        ("inflow_vehicles", inflow),
+        ("outflow_vehicles", outflow),
+        ("queue_vehicles", queue),
+    ):
+        if not bool(np.all(np.isfinite(values))):
+            add_invalid(
+                key,
+                "non_finite",
+                non_finite_count=int(np.sum(~np.isfinite(values))),
+            )
+    if turn_flow.shape == (node_state.turn_count,):
+        internal_outflow = np.zeros((link_state.link_count,), dtype=np.float32)
+        internal_inflow = np.zeros((link_state.link_count,), dtype=np.float32)
+        np.add.at(internal_outflow, node_state.turn_from_link_index, turn_flow)
+        np.add.at(internal_inflow, node_state.turn_to_link_index, turn_flow)
+        if link_sink_flow is not None and not bool(
+            np.array_equal(outflow, internal_outflow + link_sink_flow)
+        ):
+            add_invalid("outflow_vehicles", "turn_and_sink_flow_mismatch")
+        if not bool(np.array_equal(inflow, internal_inflow)):
+            add_invalid("inflow_vehicles", "turn_flow_mismatch")
+
+    transition_active = bool(
+        state.dynamic.metadata.get("runtime_transition_authority_active", False)
+    )
+    transition_tick = int(
+        state.dynamic.metadata.get("runtime_transition_counter_tick", -1)
+    )
+    if transition_active and transition_tick == int(state.tick_index):
+        input_queue = check_vector(
+            link_state.metadata,
+            "runtime_flow_input_queue_vehicles",
+            link_state.link_count,
+            require_non_negative=True,
+        )
+        witness_tick = int(link_state.metadata.get("runtime_transition_tick", -1))
+        if witness_tick != int(state.tick_index):
+            add_invalid(
+                "runtime_transition_tick",
+                "tick_mismatch",
+                expected_tick=int(state.tick_index),
+                actual_tick=witness_tick,
+            )
+        if input_queue is not None and bool(np.all(np.isfinite(input_queue))):
+            expected_queue = input_queue - outflow + inflow
+            mismatch = np.nonzero(np.abs(queue - expected_queue) > 1.0e-6)[0]
+            if mismatch.size:
+                add_invalid(
+                    "queue_vehicles",
+                    "transition_mass_mismatch",
+                    mismatch_count=int(mismatch.size),
+                    first_link_index=int(mismatch[0]),
+                )
+        completed_count = int(
+            state.dynamic.metadata.get(
+                "runtime_transition_completed_trip_count",
+                0,
+            )
+        )
+        sink_flow_total = int(
+            np.rint(np.sum(link_sink_flow)) if link_sink_flow is not None else 0
+        )
+        if completed_count != sink_flow_total:
+            add_invalid(
+                "runtime_transition_completed_trip_count",
+                "sink_completion_mismatch",
+                completed_trip_count=completed_count,
+                sink_flow_total=sink_flow_total,
+            )
     return tuple(violations)
 
 
@@ -706,7 +794,9 @@ def _validate_active_agent_pool_fast(pool: ActiveAgentPool) -> tuple[str, ...]:
             )
 
     progress = np.asarray(pool.progress_01, dtype=np.float32)
-    if bool(np.any(progress < 0.0)) or bool(np.any(progress > 1.0)):
+    if not bool(np.all(np.isfinite(progress))):
+        issues.append("progress_01 contains non-finite values")
+    elif bool(np.any(progress < 0.0)) or bool(np.any(progress > 1.0)):
         issues.append("progress_01 contains values outside [0, 1]")
 
     cooldown = np.asarray(pool.reroute_cooldown_ticks, dtype=np.int32)
@@ -753,6 +843,17 @@ def _check_runtime_vehicle_queue_authority(
             )
         expected[int(link_index)] += np.float32(1.0)
     observed = np.asarray(link_state.queue_vehicles, dtype=np.float32)
+    if not bool(np.all(np.isfinite(observed))):
+        return (
+            InvariantViolation(
+                code="runtime_vehicle_queue_non_finite",
+                check_name="runtime_vehicle_queue_authority",
+                message="Per-link queue authority must be finite",
+                details={
+                    "non_finite_count": int(np.sum(~np.isfinite(observed))),
+                },
+            ),
+        )
     mismatch = np.nonzero(np.abs(observed - expected) > 1.0e-6)[0]
     if mismatch.size == 0:
         return ()

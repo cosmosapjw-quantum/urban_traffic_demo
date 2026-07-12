@@ -264,6 +264,118 @@ def test_final_link_sink_atomically_removes_agent_and_queue_vehicle() -> None:
     assert next_state.dynamic.invariant_state.ok
 
 
+def test_runtime_transition_witness_rejects_erased_completion_flow() -> None:
+    from metroflow.flow.state import LinkState, NodeState
+    from metroflow.sim.invariants import validate_invariants
+
+    state = _closure_state(
+        queue=(0.0, 1.0),
+        capacity=(1.0, 1.0),
+        active_paths=((10, 11),),
+        current_ptrs=(1,),
+    )
+    next_state, _telemetry, _snapshot, _key = _step(state)
+    links = next_state.dynamic.flow_link_state
+    nodes = next_state.dynamic.flow_node_state
+    link_metadata = dict(links.metadata)
+    link_metadata["runtime_sink_flow_vehicles"] = np.zeros((2,), dtype=np.float32)
+    node_metadata = dict(nodes.metadata)
+    node_metadata["runtime_sink_flow_by_link_index"] = np.zeros(
+        (2,), dtype=np.float32
+    )
+    corrupted_links = LinkState.from_internal_arrays(
+        queue_vehicles=links.queue_vehicles,
+        inflow_vehicles=links.inflow_vehicles,
+        outflow_vehicles=np.zeros((2,), dtype=np.float32),
+        travel_time_cost=links.travel_time_cost,
+        capacity_veh_per_tick=links.capacity_veh_per_tick,
+        incident_capacity_multiplier=links.incident_capacity_multiplier,
+        capacity_violation_flags=links.capacity_violation_flags,
+        metadata=link_metadata,
+    )
+    corrupted_nodes = NodeState.from_internal_arrays(
+        turn_from_link_index=nodes.turn_from_link_index,
+        turn_to_link_index=nodes.turn_to_link_index,
+        turn_demand=nodes.turn_demand,
+        turn_supply=nodes.turn_supply,
+        turn_flow=nodes.turn_flow,
+        signal_phase_index=nodes.signal_phase_index,
+        signal_phase_timer=nodes.signal_phase_timer,
+        metadata=node_metadata,
+    )
+
+    report = validate_invariants(
+        next_state.with_dynamic_updates(
+            flow_link_state=corrupted_links,
+            flow_node_state=corrupted_nodes,
+        )
+    )
+
+    assert not report.ok
+    reasons = {violation.details.get("reason") for violation in report.violations}
+    assert "transition_mass_mismatch" in reasons
+    assert "sink_completion_mismatch" in reasons
+
+
+def test_runtime_invariants_reject_non_finite_queue_and_agent_progress() -> None:
+    from metroflow.flow.state import LinkState
+    from metroflow.sim.invariants import validate_invariants
+
+    state = _closure_state(
+        queue=(1.0, 0.0),
+        active_paths=((10, 11),),
+        current_ptrs=(0,),
+    )
+    links = state.dynamic.flow_link_state
+    bad_queue = np.asarray(links.queue_vehicles, dtype=np.float32).copy()
+    bad_queue[0] = np.nan
+    corrupted_links = LinkState.from_internal_arrays(
+        queue_vehicles=bad_queue,
+        inflow_vehicles=links.inflow_vehicles,
+        outflow_vehicles=links.outflow_vehicles,
+        travel_time_cost=links.travel_time_cost,
+        capacity_veh_per_tick=links.capacity_veh_per_tick,
+        incident_capacity_multiplier=links.incident_capacity_multiplier,
+        capacity_violation_flags=links.capacity_violation_flags,
+        metadata=links.metadata,
+    )
+    queue_report = validate_invariants(
+        state.with_dynamic_updates(flow_link_state=corrupted_links)
+    )
+    assert not queue_report.ok
+    assert "non_finite_queue_detected" in {
+        violation.code for violation in queue_report.violations
+    }
+
+    pool = state.dynamic.active_agent_pool
+    bad_progress = np.asarray(pool.progress_01, dtype=np.float32).copy()
+    bad_progress[0] = np.inf
+    corrupted_pool = pool.from_internal_arrays(
+        capacity=pool.capacity,
+        free_slot_stack=pool.free_slot_stack,
+        free_slot_count=pool.free_slot_count,
+        alive_mask=pool.alive_mask,
+        alive_count=pool.alive_count,
+        citizen_id=pool.citizen_id,
+        trip_id=pool.trip_id,
+        current_link_id=pool.current_link_id,
+        progress_01=bad_progress,
+        remaining_route_ptr=pool.remaining_route_ptr,
+        dest_node_id=pool.dest_node_id,
+        behavior_profile_id=pool.behavior_profile_id,
+        reroute_cooldown_ticks=pool.reroute_cooldown_ticks,
+        plugin_memory=pool.plugin_memory,
+    )
+    progress_report = validate_invariants(
+        state.with_dynamic_updates(active_agent_pool=corrupted_pool)
+    )
+    assert not progress_report.ok
+    assert any(
+        "progress_01 contains non-finite" in violation.message
+        for violation in progress_report.violations
+    )
+
+
 def test_allocation_is_unadmitted_pending_to_active_and_cannot_move_same_tick() -> None:
     state = _closure_state(queued_trip=True)
 

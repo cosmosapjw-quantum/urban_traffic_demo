@@ -47,10 +47,18 @@ def run_runtime_self_drive_probe(
     }
 
     tick_rows: list[dict[str, int | float]] = []
+    route_length_by_trip_id: dict[int, int] = {}
     control = SimulationControl.noop()
     for _ in range(step_count):
         state, telemetry, _, rng_key = simulation_step(state, control, rng_key)
         pool = state.dynamic.active_agent_pool
+        for slot_id, alive in enumerate(pool.alive_mask.tolist()):
+            if not bool(alive):
+                continue
+            memory = pool.plugin_memory.get(int(slot_id), {})
+            route_length_by_trip_id[int(pool.trip_id[slot_id])] = len(
+                tuple(memory.get("route_path", ()))
+            )
         agent_count_by_link = [0] * int(road_csr.link_count)
         for slot_id, alive in enumerate(pool.alive_mask.tolist()):
             if not bool(alive):
@@ -97,6 +105,27 @@ def run_runtime_self_drive_probe(
     )
     completed_total = sum(int(row["completed_trip_count"]) for row in tick_rows)
     failed_total = sum(int(row["failed_trip_count"]) for row in tick_rows)
+    final_demand_state = state.dynamic.demand_state
+    completed_ids = {
+        int(value)
+        for value in tuple(final_demand_state.get("completed_trip_request_ids", ()))
+    }
+    failed_ids = {
+        int(value)
+        for value in tuple(final_demand_state.get("failed_trip_request_ids", ()))
+    }
+    failure_reasons = {
+        int(trip_id): str(reason)
+        for trip_id, reason in dict(
+            final_demand_state.get("failed_trip_reason_by_id", {}) or {}
+        ).items()
+    }
+    completed_multihop_count = sum(
+        1 for trip_id in completed_ids if route_length_by_trip_id.get(trip_id, 0) > 1
+    )
+    failures_classified_no_route = all(
+        failure_reasons.get(trip_id) == "no_route_candidate" for trip_id in failed_ids
+    )
     closure_verified = bool(
         initial["trip_count"] > 0
         and initial["turn_count"] > 0
@@ -112,6 +141,9 @@ def run_runtime_self_drive_probe(
         and int(tick_rows[-1]["active_agent_count"]) == 0
         and float(tick_rows[-1]["queue_vehicles_total"]) == 0.0
         and completed_total + failed_total == int(initial["trip_count"])
+        and completed_total > 0
+        and completed_multihop_count > 0
+        and failures_classified_no_route
     )
     return {
         "schema_version": "metroflow.runtime-self-drive-probe.v2",
@@ -123,6 +155,8 @@ def run_runtime_self_drive_probe(
         "runtime_closure_verified": closure_verified,
         "completed_trip_count_total": completed_total,
         "failed_trip_count_total": failed_total,
+        "completed_multihop_trip_count_total": completed_multihop_count,
+        "failures_classified_no_route": failures_classified_no_route,
     }
 
 

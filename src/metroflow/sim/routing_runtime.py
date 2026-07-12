@@ -233,6 +233,12 @@ def prepare_runtime_active_agents(
     allocated_ids = _id_set(demand_state.get("allocated_trip_request_ids", ()))
     completed_ids = _id_set(demand_state.get("completed_trip_request_ids", ()))
     failed_ids = _id_set(demand_state.get("failed_trip_request_ids", ()))
+    failed_reasons = {
+        int(trip_id): str(reason)
+        for trip_id, reason in dict(
+            demand_state.get("failed_trip_reason_by_id", {}) or {}
+        ).items()
+    }
 
     pool_after_alloc = pool
     plugin_memory = dict(pool_after_alloc.plugin_memory)
@@ -266,6 +272,7 @@ def prepare_runtime_active_agents(
         candidate_selection_wall_ns += max(0, perf_counter_ns() - selection_start_ns)
         if selection is None or od is None:
             failed_ids.add(trip_id)
+            failed_reasons[trip_id] = "no_route_candidate"
             counters["trip_failed_this_tick"] += 1
             continue
         path = selection.path
@@ -347,6 +354,7 @@ def prepare_runtime_active_agents(
             "allocated_trip_request_ids": tuple(sorted(allocated_ids)),
             "completed_trip_request_ids": tuple(sorted(completed_ids)),
             "failed_trip_request_ids": tuple(sorted(failed_ids)),
+            "failed_trip_reason_by_id": dict(sorted(failed_reasons.items())),
         }
     )
     demand_state.update(

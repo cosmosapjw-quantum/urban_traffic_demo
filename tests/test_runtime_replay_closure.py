@@ -314,6 +314,110 @@ def test_runtime_replay_boundary_fingerprints_compiled_turn_authority() -> None:
     )
 
 
+def test_runtime_replay_boundary_binds_controls_rng_and_step_count() -> None:
+    from metroflow.sim.control import SimulationControl
+    from metroflow.sim.replay import (
+        RuntimeReplayRequest,
+        make_runtime_replay_boundary,
+        replay_simulation_sequence,
+    )
+    from metroflow.sim.rng import key_from_seed
+
+    state = _compact_runtime_state()
+    controls = (SimulationControl.noop(),)
+    replay_key = key_from_seed(7)
+    boundary = make_runtime_replay_boundary(
+        state,
+        controls=controls,
+        rng_key=replay_key,
+        num_steps=1,
+    )
+
+    assert boundary.num_steps == 1
+    assert boundary.rng_key_fingerprint
+    assert boundary.control_sequence_fingerprint
+    with pytest.raises(ValueError, match="declared runtime replay boundary"):
+        replay_simulation_sequence(
+            RuntimeReplayRequest(
+                name="replay_control_mismatch",
+                initial_state=state,
+                declared_boundary=boundary,
+                controls=(SimulationControl(pause=True),),
+                rng_key=replay_key,
+                num_steps=1,
+            )
+        )
+    with pytest.raises(ValueError, match="declared runtime replay boundary"):
+        replay_simulation_sequence(
+            RuntimeReplayRequest(
+                name="replay_rng_mismatch",
+                initial_state=state,
+                declared_boundary=boundary,
+                controls=controls,
+                rng_key=key_from_seed(8),
+                num_steps=1,
+            )
+        )
+
+
+def test_runtime_state_fingerprint_distinguishes_structured_dtypes() -> None:
+    from metroflow.sim.replay import runtime_state_fingerprint
+
+    state = _compact_runtime_state()
+    first_dtype = np.dtype([("a", np.int32), ("b", np.int32)])
+    second_dtype = np.dtype([("x", np.int64)])
+    first = replace(
+        state,
+        metadata={"structured": np.zeros((1,), dtype=first_dtype)},
+    )
+    second = replace(
+        state,
+        metadata={"structured": np.zeros((1,), dtype=second_dtype)},
+    )
+
+    assert first_dtype.str == second_dtype.str == "|V8"
+    assert runtime_state_fingerprint(first) != runtime_state_fingerprint(second)
+
+
+def test_runtime_replay_result_isolated_from_mutable_input_aliases() -> None:
+    from metroflow.sim.replay import (
+        RuntimeReplayRequest,
+        make_runtime_replay_boundary,
+        replay_simulation_sequence,
+        runtime_state_fingerprint,
+    )
+    from metroflow.sim.rng import key_from_seed
+
+    state = _compact_runtime_state()
+    controls = ()
+    replay_key = key_from_seed(9)
+    boundary = make_runtime_replay_boundary(
+        state,
+        controls=controls,
+        rng_key=replay_key,
+        num_steps=0,
+    )
+    result = replay_simulation_sequence(
+        RuntimeReplayRequest(
+            name="replay_sealed_result",
+            initial_state=state,
+            declared_boundary=boundary,
+            controls=controls,
+            rng_key=replay_key,
+            num_steps=0,
+        )
+    )
+    sealed_capacity = result.final_state.dynamic.flow_link_state.capacity_veh_per_tick
+    original_value = float(sealed_capacity[0])
+
+    state.dynamic.flow_link_state.capacity_veh_per_tick[0] += np.float32(5.0)
+
+    assert float(sealed_capacity[0]) == original_value
+    assert result.final_state_fingerprint == runtime_state_fingerprint(result.final_state)
+    with pytest.raises(ValueError, match="read-only"):
+        sealed_capacity[0] = np.float32(99.0)
+
+
 def test_seed41_generated_closure_replay_has_exact_state_digest() -> None:
     from metroflow.sim.config import SimulationConfig
     from metroflow.sim.control import SimulationControl
@@ -337,11 +441,17 @@ def test_seed41_generated_closure_replay_has_exact_state_digest() -> None:
             eager_trip_generation=True,
         )
         controls = tuple(SimulationControl.noop() for _ in range(20))
+        boundary = make_runtime_replay_boundary(
+            bundle.state,
+            controls=controls,
+            rng_key=bundle.rng_key,
+            num_steps=len(controls),
+        )
         result = replay_simulation_sequence(
             RuntimeReplayRequest(
                 name="replay_seed41_runtime_closure",
                 initial_state=bundle.state,
-                declared_boundary=make_runtime_replay_boundary(bundle.state),
+                declared_boundary=boundary,
                 controls=controls,
                 rng_key=bundle.rng_key,
                 num_steps=len(controls),

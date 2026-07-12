@@ -93,6 +93,9 @@ class RuntimeReplayBoundary:
     agent_backend: str = "baseline"
     static_input_fingerprint: str = ""
     initial_state_fingerprint: str = ""
+    num_steps: int = 0
+    rng_key_fingerprint: str = ""
+    control_sequence_fingerprint: str = ""
 
 
 @dataclass(frozen=True)
@@ -123,6 +126,8 @@ class RuntimeReplayResultRecord:
     reroute_decisions_total: int = 0
     persistence_decisions_total: int = 0
     final_state_fingerprint: str = ""
+    rng_key_fingerprint: str = ""
+    control_sequence_fingerprint: str = ""
 
 
 def journal_fingerprint(journal: InterventionJournal) -> str:
@@ -272,7 +277,29 @@ def replay_step_world_sequence(request: ReplayRequest) -> ReplayResultRecord:
     )
 
 
-def make_runtime_replay_boundary(state: SimulationState) -> RuntimeReplayBoundary:
+def make_runtime_replay_boundary(
+    state: SimulationState,
+    *,
+    controls: tuple[SimulationControl, ...] | None = None,
+    rng_key: PRNGKeyArray | None = None,
+    num_steps: int | None = None,
+) -> RuntimeReplayBoundary:
+    bind_replay_inputs = any(
+        value is not None for value in (controls, rng_key, num_steps)
+    )
+    if bind_replay_inputs and any(
+        value is None for value in (controls, rng_key, num_steps)
+    ):
+        raise ValueError(
+            "controls, rng_key, and num_steps must be provided together"
+        )
+    controls_tuple = tuple(controls or ())
+    step_count = int(num_steps or 0)
+    if bind_replay_inputs and len(controls_tuple) != step_count:
+        raise ValueError("num_steps must match len(controls)")
+    normalized_rng_key = (
+        _normalize_runtime_rng_key(rng_key) if bind_replay_inputs else None
+    )
     route_state = coerce_simulation_route_cache_state(state.dynamic.route_candidate_state)
     return RuntimeReplayBoundary(
         scenario_id=str(state.static.scenario_id),
@@ -290,14 +317,23 @@ def make_runtime_replay_boundary(state: SimulationState) -> RuntimeReplayBoundar
         flow_backend=state.config.flow_backend,
         routing_backend=state.config.routing_backend,
         agent_backend=state.config.agent_backend,
+        num_steps=step_count,
+        rng_key_fingerprint=(
+            _runtime_value_fingerprint(normalized_rng_key)
+            if normalized_rng_key is not None
+            else ""
+        ),
+        control_sequence_fingerprint=(
+            _runtime_value_fingerprint(controls_tuple) if bind_replay_inputs else ""
+        ),
     )
 
 
 def replay_simulation_sequence(request: RuntimeReplayRequest) -> RuntimeReplayResultRecord:
     _validate_runtime_replay_request(request)
 
-    current_state = request.initial_state
-    current_key = request.rng_key
+    current_state = _snapshot_runtime_state(request.initial_state, readonly=False)
+    current_key = _normalize_runtime_rng_key(request.rng_key).copy()
     telemetry_log: list[SimulationTelemetry] = []
     for control in request.controls:
         current_state, telemetry, _snapshot, current_key = simulation_step(
@@ -307,15 +343,20 @@ def replay_simulation_sequence(request: RuntimeReplayRequest) -> RuntimeReplayRe
         )
         telemetry_log.append(telemetry)
 
-    route_state = coerce_simulation_route_cache_state(current_state.dynamic.route_candidate_state)
+    sealed_final_state = _snapshot_runtime_state(current_state, readonly=True)
+    sealed_final_key = _normalize_runtime_rng_key(current_key).copy()
+    sealed_final_key.setflags(write=False)
+    route_state = coerce_simulation_route_cache_state(
+        sealed_final_state.dynamic.route_candidate_state
+    )
     final_cache_fingerprint = runtime_route_cache_fingerprint(
         candidate_sets=route_state.candidate_sets,
         stats=route_state.stats,
-        state=current_state,
+        state=sealed_final_state,
     )
     final_metrics = (
-        current_state.dynamic.metrics_state
-        if isinstance(current_state.dynamic.metrics_state, dict)
+        sealed_final_state.dynamic.metrics_state
+        if isinstance(sealed_final_state.dynamic.metrics_state, dict)
         else {}
     )
     return RuntimeReplayResultRecord(
@@ -323,20 +364,24 @@ def replay_simulation_sequence(request: RuntimeReplayRequest) -> RuntimeReplayRe
         num_steps=request.num_steps,
         transition_count=request.num_steps,
         initial_boundary=request.declared_boundary,
-        final_state=current_state,
-        final_tick=current_state.tick_index,
-        final_rng_key=current_key,
+        final_state=sealed_final_state,
+        final_tick=sealed_final_state.tick_index,
+        final_rng_key=sealed_final_key,
         telemetry_log=tuple(telemetry_log),
         cache_fingerprint=final_cache_fingerprint,
-        edge_backend=current_state.config.edge_backend,
-        flow_backend=current_state.config.flow_backend,
-        routing_backend=current_state.config.routing_backend,
-        agent_backend=current_state.config.agent_backend,
+        edge_backend=sealed_final_state.config.edge_backend,
+        flow_backend=sealed_final_state.config.flow_backend,
+        routing_backend=sealed_final_state.config.routing_backend,
+        agent_backend=sealed_final_state.config.agent_backend,
         reroute_decisions_total=int(final_metrics.get("us2_reroute_decisions_total", 0)),
         persistence_decisions_total=int(
             final_metrics.get("us2_persistence_decisions_total", 0)
         ),
-        final_state_fingerprint=runtime_state_fingerprint(current_state),
+        final_state_fingerprint=runtime_state_fingerprint(sealed_final_state),
+        rng_key_fingerprint=request.declared_boundary.rng_key_fingerprint,
+        control_sequence_fingerprint=(
+            request.declared_boundary.control_sequence_fingerprint
+        ),
     )
 
 
@@ -346,9 +391,80 @@ def _validate_runtime_replay_request(request: RuntimeReplayRequest) -> None:
         raise ValueError("num_steps must be non-negative.")
     if len(request.controls) != request.num_steps:
         raise ValueError("num_steps must match len(controls).")
-    expected = make_runtime_replay_boundary(request.initial_state)
+    expected = make_runtime_replay_boundary(
+        request.initial_state,
+        controls=request.controls,
+        rng_key=request.rng_key,
+        num_steps=request.num_steps,
+    )
     if request.declared_boundary != expected:
         raise ValueError("declared runtime replay boundary must match the initial state.")
+
+
+def _normalize_runtime_rng_key(rng_key: PRNGKeyArray | None) -> np.ndarray:
+    if rng_key is None:
+        raise ValueError("rng_key is required")
+    normalized = np.asarray(rng_key, dtype=np.uint32)
+    if normalized.shape != (2,):
+        raise ValueError("runtime replay rng_key must have shape (2,)")
+    return normalized
+
+
+def _snapshot_runtime_state(
+    state: SimulationState,
+    *,
+    readonly: bool,
+) -> SimulationState:
+    snapshot = _snapshot_runtime_value(state, readonly=readonly)
+    if not isinstance(snapshot, SimulationState):
+        raise TypeError("runtime replay snapshot did not produce SimulationState")
+    return snapshot
+
+
+def _snapshot_runtime_value(value: Any, *, readonly: bool) -> Any:
+    if value is None or isinstance(value, str | bytes | bool | int | float | Enum):
+        return value
+    if isinstance(value, np.generic):
+        return value.copy()
+    if isinstance(value, np.ndarray):
+        out = np.array(value, copy=True, order="K")
+        if readonly:
+            out.setflags(write=False)
+        return out
+    if is_dataclass(value) and not isinstance(value, type):
+        kwargs = {
+            item.name: _snapshot_runtime_value(
+                getattr(value, item.name),
+                readonly=readonly,
+            )
+            for item in fields(value)
+            if item.init
+        }
+        return type(value)(**kwargs)
+    if isinstance(value, Mapping):
+        return {
+            _snapshot_runtime_value(key, readonly=readonly): _snapshot_runtime_value(
+                item_value,
+                readonly=readonly,
+            )
+            for key, item_value in value.items()
+        }
+    if isinstance(value, tuple):
+        return tuple(_snapshot_runtime_value(item, readonly=readonly) for item in value)
+    if isinstance(value, list):
+        return [_snapshot_runtime_value(item, readonly=readonly) for item in value]
+    if isinstance(value, set):
+        return {_snapshot_runtime_value(item, readonly=readonly) for item in value}
+    if isinstance(value, frozenset):
+        return frozenset(
+            _snapshot_runtime_value(item, readonly=readonly) for item in value
+        )
+    if hasattr(value, "__array__") and hasattr(value, "dtype") and hasattr(value, "shape"):
+        return _snapshot_runtime_value(np.asarray(value), readonly=readonly)
+    raise TypeError(
+        "runtime replay snapshot cannot clone "
+        f"{type(value).__module__}.{type(value).__qualname__}"
+    )
 
 
 def _runtime_config_fingerprint(state: SimulationState) -> str:
@@ -530,6 +646,14 @@ def _runtime_value_digest(value: Any) -> bytes:
         if array.dtype != normalized_dtype:
             array = array.view(normalized_dtype)
         _digest_add_text(digest, normalized_dtype.str)
+        _digest_add_text(
+            digest,
+            repr(np.lib.format.dtype_to_descr(normalized_dtype)),
+        )
+        _digest_add_text(digest, str(int(normalized_dtype.itemsize)))
+        _digest_add_text(digest, str(int(normalized_dtype.alignment)))
+        digest.update(b"aligned1" if normalized_dtype.isalignedstruct else b"aligned0")
+        digest.update(_runtime_value_digest(dict(normalized_dtype.metadata or {})))
         _digest_add_bytes(digest, array.tobytes(order="C"))
         return digest.digest()
     if is_dataclass(value) and not isinstance(value, type):

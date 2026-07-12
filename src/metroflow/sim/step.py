@@ -91,6 +91,11 @@ def simulation_step(
                 for key, value in routing_commit_counters.items()
             }
         )
+    next_state = _record_runtime_transition_counters(
+        next_state,
+        tick_counters=tick_counters,
+        executed=not cur_control.pause,
+    )
     invariant_report = _validate_invariants_core(next_state)
 
     ui_snapshot_source = _build_optional_ui_snapshot_source(
@@ -344,8 +349,29 @@ def _advance_flow_state(state: SimulationState) -> tuple[SimulationState, dict[s
         discrete_agent_authority=True,
     )
     counters["flow_update_wall_ns"] = max(0, perf_counter_ns() - start_ns)
+    transition_metadata = dict(result.link_state.metadata)
+    transition_metadata.update(
+        {
+            "runtime_transition_authority_version": 1,
+            "runtime_transition_tick": int(state.tick_index),
+            "runtime_flow_input_queue_vehicles": np.asarray(
+                link_state.queue_vehicles,
+                dtype=np.float32,
+            ).copy(),
+        }
+    )
+    witnessed_link_state = LinkState.from_internal_arrays(
+        queue_vehicles=result.link_state.queue_vehicles,
+        inflow_vehicles=result.link_state.inflow_vehicles,
+        outflow_vehicles=result.link_state.outflow_vehicles,
+        travel_time_cost=result.link_state.travel_time_cost,
+        capacity_veh_per_tick=result.link_state.capacity_veh_per_tick,
+        incident_capacity_multiplier=result.link_state.incident_capacity_multiplier,
+        capacity_violation_flags=result.link_state.capacity_violation_flags,
+        metadata=transition_metadata,
+    )
     next_link_state = _with_link_metadata_increment(
-        result.link_state,
+        witnessed_link_state,
         key="runtime_flow_generation",
     )
     return (
@@ -408,6 +434,31 @@ def _commit_runtime_routing_state(
     if pool is not None:
         updates["active_agent_pool"] = pool
     return state.with_dynamic_updates(**updates), counters
+
+
+def _record_runtime_transition_counters(
+    state: SimulationState,
+    *,
+    tick_counters: Mapping[str, int],
+    executed: bool,
+) -> SimulationState:
+    metadata = dict(state.dynamic.metadata)
+    metadata.update(
+        {
+            "runtime_transition_authority_active": bool(executed),
+            "runtime_transition_counter_tick": int(state.tick_index),
+            "runtime_transition_completed_trip_count": int(
+                tick_counters.get("trip_completed_this_tick", 0)
+            ),
+            "runtime_transition_failed_trip_count": int(
+                tick_counters.get("trip_failed_this_tick", 0)
+            ),
+            "runtime_transition_allocated_trip_count": int(
+                tick_counters.get("trip_allocated_this_tick", 0)
+            ),
+        }
+    )
+    return state.with_dynamic_updates(metadata=metadata)
 
 
 def _advance_runtime_routing_state(
