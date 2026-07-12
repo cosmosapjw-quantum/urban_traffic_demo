@@ -117,6 +117,12 @@ def refresh_runtime_route_candidates(
     candidate_sets = dict(route_state.candidate_sets)
     potential_cache = dict(route_state.potential_cache)
     before = dict(stats)
+    transition_tick = int(
+        _dynamic_metadata(state).get("runtime_incident_transition_tick", -1)
+    )
+    effective_force_refresh = bool(force_refresh) or transition_tick == int(
+        state.tick_index
+    )
     potential_cache, pruned_count = _prune_stale_route_potential_cache(
         potential_cache,
         state=state,
@@ -151,11 +157,15 @@ def refresh_runtime_route_candidates(
         max_hops=state.config.route_max_hops,
     )
 
+    refreshed_od_keys: set[tuple[int, int]] = set()
     for trip in trips:
         od = _trip_od_nodes(trip, pois_by_id)
         if od is None:
             continue
         od_key, origin_node_id, destination_node_id = od
+        if od_key in refreshed_od_keys:
+            continue
+        refreshed_od_keys.add(od_key)
         cache_key = _route_potential_cache_key(
             state=state,
             destination_node_id=destination_node_id,
@@ -169,7 +179,7 @@ def refresh_runtime_route_candidates(
             destination_node_id=destination_node_id,
             current_tick=state.tick_index,
             incident_active=active_event_count > 0,
-            force_refresh=force_refresh,
+            force_refresh=effective_force_refresh,
             policy=policy,
             routing_backend=state.config.routing_backend,
             potential_cache=potential_cache,
@@ -228,6 +238,8 @@ def prepare_runtime_active_agents(
     plugin_memory = dict(pool_after_alloc.plugin_memory)
     counters = _agent_tick_counters()
     pois_by_id = _pois_by_id(state)
+    road_csr = _road_csr_from_state(state)
+    turn_lookup = _runtime_turn_index_lookup(state)
     newly_allocated_slot_ids: set[int] = set()
     source_queue_increments_by_link_id: dict[int, int] = {}
 
@@ -258,6 +270,13 @@ def prepare_runtime_active_agents(
             continue
         path = selection.path
         _od_key, _origin_node_id, destination_node_id = od
+        _validate_route_path_authority(
+            road_csr=road_csr,
+            turn_lookup=turn_lookup,
+            path=path,
+            destination_node_id=destination_node_id,
+            context=f"trip={trip_id}",
+        )
         pool_write_start_ns = perf_counter_ns()
         pool_array_write_start_ns = perf_counter_ns()
         payload = ActiveAgentSlot.spawn(
@@ -376,9 +395,17 @@ def rebuild_runtime_turn_demand(
         path = tuple(int(link_id) for link_id in tuple(memory.get("route_path", ())))
         ptr = int(pool.remaining_route_ptr[slot_id])
         current_link_id = int(pool.current_link_id[slot_id])
+        _validate_slot_trip_identity(pool, int(slot_id), memory)
         if not path or not 0 <= ptr < len(path) or int(path[ptr]) != current_link_id:
             missing_intents.append((int(slot_id), current_link_id, -1))
             continue
+        _validate_route_path_authority(
+            road_csr=road_csr,
+            turn_lookup=turn_lookup,
+            path=path,
+            destination_node_id=int(pool.dest_node_id[slot_id]),
+            context=f"slot={slot_id}",
+        )
         if ptr == len(path) - 1:
             link_index = link_id_to_index.get(current_link_id)
             if link_index is None:
@@ -770,7 +797,65 @@ def _agent_tick_counters() -> dict[str, int]:
     }
 
 
-def _runtime_turn_index_lookup(state: SimulationState) -> dict[tuple[int, int], int]:
+def _validate_slot_trip_identity(
+    pool: ActiveAgentPool,
+    slot_id: int,
+    memory: Mapping[str, Any],
+) -> None:
+    packed_trip_id = int(pool.trip_id[int(slot_id)])
+    raw_memory_trip_id = memory.get("trip_request_id")
+    try:
+        memory_trip_id = int(raw_memory_trip_id)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError(
+            "active-agent route memory is missing a valid trip_request_id: "
+            f"slot={slot_id} packed_trip_id={packed_trip_id}"
+        ) from exc
+    if memory_trip_id != packed_trip_id:
+        raise RuntimeError(
+            "active-agent route memory trip identity mismatch: "
+            f"slot={slot_id} packed_trip_id={packed_trip_id} "
+            f"memory_trip_request_id={memory_trip_id}"
+        )
+
+
+def _validate_route_path_authority(
+    *,
+    road_csr: Any,
+    turn_lookup: Mapping[tuple[int, int], int],
+    path: tuple[int, ...],
+    destination_node_id: int,
+    context: str,
+) -> None:
+    if road_csr is None or not path:
+        raise RuntimeError(f"active route path is empty or has no road authority: {context}")
+    link_id_to_index = getattr(road_csr, "link_id_to_index", {})
+    for link_id in path:
+        if int(link_id) not in link_id_to_index:
+            raise RuntimeError(
+                f"active route path references unknown link {int(link_id)}: {context}"
+            )
+    final_link_id = int(path[-1])
+    final_link = road_csr.links[int(link_id_to_index[final_link_id])]
+    actual_destination = int(final_link.dst_node_id)
+    expected_destination = int(destination_node_id)
+    if actual_destination != expected_destination:
+        raise RuntimeError(
+            "final route link does not terminate at active-agent destination: "
+            f"{context} link={final_link_id} link_dst_node={actual_destination} "
+            f"agent_dest_node={expected_destination}"
+        )
+    for from_link_id, to_link_id in zip(path, path[1:], strict=False):
+        if (int(from_link_id), int(to_link_id)) not in turn_lookup:
+            raise RuntimeError(
+                "active route path contains no unique legal compiled turn: "
+                f"{context} from_link={int(from_link_id)} to_link={int(to_link_id)}"
+            )
+
+
+def _runtime_turn_index_lookup(
+    state: SimulationState,
+) -> Mapping[tuple[int, int], int]:
     road_csr = _road_csr_from_state(state)
     node_state = state.dynamic.flow_node_state
     if road_csr is None or not isinstance(node_state, NodeState):
@@ -789,6 +874,23 @@ def _runtime_turn_index_lookup(state: SimulationState) -> dict[tuple[int, int], 
         forbidden = np.full((node_state.turn_count,), bool(forbidden), dtype=np.bool_)
     if forbidden.shape != (node_state.turn_count,):
         raise ValueError("turn_is_forbidden shape mismatch")
+    static_from = np.asarray(
+        getattr(road_csr, "turn_from_link_index", ()), dtype=np.int32
+    )
+    static_to = np.asarray(
+        getattr(road_csr, "turn_to_link_index", ()), dtype=np.int32
+    )
+    static_forbidden = np.asarray(
+        getattr(road_csr, "turn_is_forbidden", ()), dtype=np.bool_
+    )
+    static_lookup = getattr(road_csr, "turn_pair_to_index", None)
+    if (
+        isinstance(static_lookup, Mapping)
+        and np.array_equal(from_idx, static_from)
+        and np.array_equal(to_idx, static_to)
+        and np.array_equal(forbidden, static_forbidden)
+    ):
+        return static_lookup
     lookup: dict[tuple[int, int], int] = {}
     for turn_index in range(node_state.turn_count):
         if bool(forbidden[turn_index]):
@@ -862,8 +964,16 @@ def _advance_pool_along_realized_turns(
         path = tuple(int(link_id) for link_id in tuple(memory.get("route_path", ())))
         ptr = int(route_ptr[slot_id])
         current_link_id = int(current_link[slot_id])
+        _validate_slot_trip_identity(pool, int(slot_id), memory)
         if not path or not 0 <= ptr < len(path) or int(path[ptr]) != current_link_id:
             continue
+        _validate_route_path_authority(
+            road_csr=road_csr,
+            turn_lookup=turn_lookup,
+            path=path,
+            destination_node_id=int(dest[slot_id]),
+            context=f"slot={slot_id}",
+        )
         if ptr == len(path) - 1:
             link_index = link_id_to_index.get(current_link_id)
             if link_index is None:
@@ -1227,6 +1337,7 @@ def _apply_runtime_reroute_policy(
     skip = {int(slot_id) for slot_id in (skip_slot_ids or set())}
     cooldown = np.asarray(pool.reroute_cooldown_ticks, dtype=np.int32).copy()
     plugin_memory = dict(pool.plugin_memory)
+    turn_lookup = _runtime_turn_index_lookup(state)
     changed = False
 
     for slot_id, alive in enumerate(np.asarray(pool.alive_mask, dtype=np.bool_).tolist()):
@@ -1286,11 +1397,19 @@ def _apply_runtime_reroute_policy(
             }
         )
         if decision.should_reroute:
-            memory["route_path"] = _route_prefix_through_current(
+            next_path = _route_prefix_through_current(
                 path=path,
                 route_ptr=route_ptr,
                 current_link_id=current_link_id,
             ) + candidate_tail
+            _validate_route_path_authority(
+                road_csr=road_csr,
+                turn_lookup=turn_lookup,
+                path=next_path,
+                destination_node_id=int(pool.dest_node_id[slot_id]),
+                context=f"reroute slot={slot_id}",
+            )
+            memory["route_path"] = next_path
             memory.update(_selected_candidate_memory(selection))
             counters["active_agent_rerouted_this_tick"] += 1
         plugin_memory[int(slot_id)] = memory
@@ -1302,6 +1421,12 @@ def _apply_runtime_reroute_policy(
 
 
 def _runtime_reroute_trigger(state: SimulationState) -> str | None:
+    metadata = _dynamic_metadata(state)
+    if int(metadata.get("runtime_incident_transition_tick", -1)) == int(
+        state.tick_index
+    ):
+        transition = str(metadata.get("runtime_incident_transition", "changed"))
+        return f"incident_{transition}"
     if _active_events(state):
         return "incident"
     interval = max(1, int(state.config.route_refresh_interval_ticks))
@@ -1566,6 +1691,7 @@ def _replace_pool_plugin_memory(
 
 
 def _route_relevant_trip_requests(demand_state: Mapping[str, Any]) -> tuple[TripRequest, ...]:
+    allocated_ids = _id_set(demand_state.get("allocated_trip_request_ids", ()))
     completed_ids = _id_set(demand_state.get("completed_trip_request_ids", ()))
     failed_ids = _id_set(demand_state.get("failed_trip_request_ids", ()))
     trips = []
@@ -1574,7 +1700,11 @@ def _route_relevant_trip_requests(demand_state: Mapping[str, Any]) -> tuple[Trip
         if trip.status is not TripRequestStatus.ACTIVATED:
             continue
         trip_id = int(trip.trip_request_id)
-        if trip_id not in completed_ids and trip_id not in failed_ids:
+        if (
+            trip_id not in allocated_ids
+            and trip_id not in completed_ids
+            and trip_id not in failed_ids
+        ):
             trips.append(trip)
     return tuple(sorted(trips, key=lambda item: int(item.trip_request_id)))
 
@@ -1805,6 +1935,11 @@ def _active_events(state: SimulationState) -> tuple[Any, ...]:
     if isinstance(event_state, Mapping):
         return tuple(event_state.get("active_events", ()) or ())
     return tuple(getattr(event_state, "active_events", ()) or ())
+
+
+def _dynamic_metadata(state: SimulationState) -> Mapping[str, Any]:
+    metadata = state.dynamic.metadata
+    return metadata if isinstance(metadata, Mapping) else {}
 
 
 def _route_potential_cache_key(

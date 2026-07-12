@@ -689,6 +689,22 @@ def _validate_active_agent_pool_fast(pool: ActiveAgentPool) -> tuple[str, ...]:
     if alive_ids.intersection(free_ids):
         issues.append("slot ids appear in both alive set and free_slot_stack")
 
+    for slot_id in sorted(alive_ids):
+        memory = pool.plugin_memory.get(int(slot_id))
+        if not isinstance(memory, Mapping):
+            issues.append(f"alive slot {slot_id} has no route plugin memory")
+            continue
+        try:
+            memory_trip_id = int(memory.get("trip_request_id"))
+        except (TypeError, ValueError):
+            issues.append(f"alive slot {slot_id} has invalid route-memory trip id")
+            continue
+        packed_trip_id = int(pool.trip_id[slot_id])
+        if memory_trip_id != packed_trip_id:
+            issues.append(
+                f"alive slot {slot_id} route-memory trip id != packed trip id"
+            )
+
     progress = np.asarray(pool.progress_01, dtype=np.float32)
     if bool(np.any(progress < 0.0)) or bool(np.any(progress > 1.0)):
         issues.append("progress_01 contains values outside [0, 1]")

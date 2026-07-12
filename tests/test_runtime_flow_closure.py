@@ -309,6 +309,38 @@ def test_missing_compiled_turn_and_explicit_rust_agent_contract_fail_closed() ->
     with pytest.raises(RuntimeError, match="does not terminate.*destination"):
         rebuild_runtime_turn_demand(invalid_sink)
 
+    invalid_before_first_move = _closure_state(
+        branch=True,
+        queue=(1.0, 0.0, 0.0),
+        active_paths=((10, 11),),
+        current_ptrs=(0,),
+    )
+    invalid_pool = invalid_before_first_move.dynamic.active_agent_pool
+    invalid_dest = np.asarray(invalid_pool.dest_node_id, dtype=np.int32).copy()
+    invalid_dest[0] = 4
+    invalid_pool = invalid_pool.from_internal_arrays(
+        capacity=invalid_pool.capacity,
+        free_slot_stack=invalid_pool.free_slot_stack,
+        free_slot_count=invalid_pool.free_slot_count,
+        alive_mask=invalid_pool.alive_mask,
+        alive_count=invalid_pool.alive_count,
+        citizen_id=invalid_pool.citizen_id,
+        trip_id=invalid_pool.trip_id,
+        current_link_id=invalid_pool.current_link_id,
+        progress_01=invalid_pool.progress_01,
+        remaining_route_ptr=invalid_pool.remaining_route_ptr,
+        dest_node_id=invalid_dest,
+        behavior_profile_id=invalid_pool.behavior_profile_id,
+        reroute_cooldown_ticks=invalid_pool.reroute_cooldown_ticks,
+        plugin_memory=invalid_pool.plugin_memory,
+    )
+    with pytest.raises(RuntimeError, match="does not terminate.*destination"):
+        rebuild_runtime_turn_demand(
+            invalid_before_first_move.with_dynamic_updates(
+                active_agent_pool=invalid_pool
+            )
+        )
+
     rust_state = replace(state, config=replace(state.config, agent_backend="rust_cpu"))
     with pytest.raises(RuntimeError, match="per-turn token contract"):
         _step(rust_state)
@@ -398,5 +430,58 @@ def test_eager_demand_switch_is_independent_of_learning_switch(
         SimulationConfig(learning_enabled=False, eager_trip_generation=True),
         2,
     )
+    step_module.init_simulation(
+        {"learning_enabled": False, "eager_trip_generation": True},
+        3,
+    )
 
-    assert captured == [False, True]
+    assert captured == [False, True, True]
+
+
+def test_runtime_route_memory_is_bound_to_packed_trip_identity() -> None:
+    from metroflow.sim.invariants import validate_invariants
+    from metroflow.sim.routing_runtime import rebuild_runtime_turn_demand
+
+    state = _closure_state(
+        queue=(1.0, 0.0),
+        active_paths=((10, 11),),
+        current_ptrs=(0,),
+    )
+    pool = state.dynamic.active_agent_pool
+    plugin_memory = dict(pool.plugin_memory)
+    plugin_memory[0] = {**plugin_memory[0], "trip_request_id": 999}
+    corrupted_pool = pool.from_internal_arrays(
+        capacity=pool.capacity,
+        free_slot_stack=pool.free_slot_stack,
+        free_slot_count=pool.free_slot_count,
+        alive_mask=pool.alive_mask,
+        alive_count=pool.alive_count,
+        citizen_id=pool.citizen_id,
+        trip_id=pool.trip_id,
+        current_link_id=pool.current_link_id,
+        progress_01=pool.progress_01,
+        remaining_route_ptr=pool.remaining_route_ptr,
+        dest_node_id=pool.dest_node_id,
+        behavior_profile_id=pool.behavior_profile_id,
+        reroute_cooldown_ticks=pool.reroute_cooldown_ticks,
+        plugin_memory=plugin_memory,
+    )
+    corrupted = state.with_dynamic_updates(active_agent_pool=corrupted_pool)
+
+    with pytest.raises(RuntimeError, match="trip identity mismatch"):
+        rebuild_runtime_turn_demand(corrupted)
+    report = validate_invariants(corrupted)
+    assert not report.ok
+    assert any(
+        "route-memory trip id != packed trip id" in violation.message
+        for violation in report.violations
+    )
+
+
+def test_runtime_turn_lookup_reuses_static_compiled_mapping() -> None:
+    from metroflow.sim.routing_runtime import _runtime_turn_index_lookup
+
+    state = _closure_state()
+    road_csr = state.static.routing_static["road_csr"]
+
+    assert _runtime_turn_index_lookup(state) is road_csr.turn_pair_to_index

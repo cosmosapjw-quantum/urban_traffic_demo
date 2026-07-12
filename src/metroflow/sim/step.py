@@ -43,15 +43,16 @@ UISnapshotSource = dict[str, Any]
 
 
 def init_simulation(
-    config: SimulationConfig,
+    config: SimulationConfig | Mapping[str, Any],
     scenario_seed: int,
 ) -> tuple[SimulationState, PRNGKeyArray]:
     """Initialize the baseline simulation state and root PRNG key."""
 
+    resolved_config = _coerce_config(config)
     bundle = build_initial_simulation_state(
-        config=_coerce_config(config),
+        config=resolved_config,
         scenario_seed=int(scenario_seed),
-        eager_trip_generation=bool(getattr(config, "eager_trip_generation", False)),
+        eager_trip_generation=resolved_config.eager_trip_generation,
     )
     return bundle.state, bundle.rng_key
 
@@ -290,14 +291,38 @@ def _apply_event_effects_to_flow_state(state: SimulationState) -> SimulationStat
         active_events=active_events,
         validate=False,
     )
-    next_link_state = _with_link_metadata_increment(
-        result.link_state,
-        key="runtime_incident_generation",
+    previous_multiplier = np.asarray(
+        link_state.incident_capacity_multiplier,
+        dtype=np.float32,
+    )
+    next_multiplier = np.asarray(
+        result.link_state.incident_capacity_multiplier,
+        dtype=np.float32,
+    )
+    incident_changed = not bool(np.array_equal(previous_multiplier, next_multiplier))
+    next_link_state = (
+        _with_link_metadata_increment(
+            result.link_state,
+            key="runtime_incident_generation",
+        )
+        if incident_changed
+        else result.link_state
     )
     next_metadata = dict(state.dynamic.metadata)
     next_metadata["us2_active_event_applied_event_ids"] = result.applied_event_ids
     next_metadata["us2_active_event_ignored_event_ids"] = result.ignored_event_ids
     next_metadata["us2_active_event_affected_link_ids"] = result.affected_link_ids
+    if incident_changed:
+        had_incident = bool(np.any(previous_multiplier < 1.0))
+        has_incident = bool(np.any(next_multiplier < 1.0))
+        if not had_incident and has_incident:
+            transition = "activated"
+        elif had_incident and not has_incident:
+            transition = "cleared"
+        else:
+            transition = "changed"
+        next_metadata["runtime_incident_transition"] = transition
+        next_metadata["runtime_incident_transition_tick"] = int(state.tick_index)
     return state.with_dynamic_updates(
         flow_link_state=next_link_state,
         metadata=next_metadata,

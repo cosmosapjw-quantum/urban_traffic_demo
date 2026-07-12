@@ -5,7 +5,8 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Iterable, Sequence
+from types import MappingProxyType
+from typing import Any, Iterable, Mapping, Sequence
 
 import numpy as np
 
@@ -217,6 +218,11 @@ class RoadNetworkCSR:
     turn_to_link_index: Array | None = None
     turn_base_priority: Array | None = None
     turn_is_forbidden: Array | None = None
+    turn_pair_to_index: Mapping[tuple[int, int], int] = field(
+        init=False,
+        repr=False,
+        default_factory=dict,
+    )
     topology_cache_key: tuple[Any, ...] | None = None
 
     def __post_init__(self) -> None:
@@ -281,6 +287,15 @@ class RoadNetworkCSR:
             [t.turn_type == TurnType.U_TURN_FORBIDDEN for t in self.turns],
             np.bool_,
         )
+        legal_turn_pairs: dict[tuple[int, int], int] = {}
+        for turn_index, turn in enumerate(self.turns):
+            if bool(self.turn_is_forbidden[turn_index]):
+                continue
+            pair = (int(turn.from_link_id), int(turn.to_link_id))
+            if pair in legal_turn_pairs:
+                raise ValueError(f"duplicate legal turn pair: {pair}")
+            legal_turn_pairs[pair] = int(turn_index)
+        self.turn_pair_to_index = MappingProxyType(legal_turn_pairs)
         self.topology_cache_key = _build_topology_cache_key(self)
 
     @property

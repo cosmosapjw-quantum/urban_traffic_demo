@@ -529,6 +529,74 @@ def test_simulation_step_updates_flow_after_events_and_records_runtime_telemetry
     assert next_state.dynamic.metadata["us2_active_event_affected_link_ids"] == (10,)
 
 
+def test_incident_generation_and_refresh_cover_activation_and_clearance() -> None:
+    from dataclasses import replace
+
+    from metroflow.demand.trips import TripRequestStatus
+    from metroflow.flow.events import (
+        TrafficEvent,
+        TrafficEventSchedulerState,
+        TrafficEventStatus,
+    )
+    from metroflow.sim import routing_runtime, step as step_module
+    from metroflow.sim.routing_runtime import refresh_runtime_route_candidates
+
+    state = _runtime_spine_state()
+    event = TrafficEvent(
+        event_id=91,
+        event_type="audit_closure",
+        start_tick=0,
+        end_tick=5,
+        target_scope={"link_ids": (10,)},
+        severity=1.0,
+        effect_model="closure",
+        status=TrafficEventStatus.ACTIVE,
+    )
+    active = state.with_dynamic_updates(
+        event_state=TrafficEventSchedulerState(active_events=(event,))
+    )
+
+    activated = step_module._apply_event_effects_to_flow_state(active)
+    repeated = step_module._apply_event_effects_to_flow_state(activated)
+    cleared = step_module._apply_event_effects_to_flow_state(
+        repeated.with_dynamic_updates(event_state=TrafficEventSchedulerState())
+    )
+
+    activated_generation = int(
+        activated.dynamic.flow_link_state.metadata["runtime_incident_generation"]
+    )
+    assert activated.dynamic.metadata["runtime_incident_transition"] == "activated"
+    assert int(
+        repeated.dynamic.flow_link_state.metadata["runtime_incident_generation"]
+    ) == activated_generation
+    assert int(cleared.dynamic.flow_link_state.metadata["runtime_incident_generation"]) == (
+        activated_generation + 1
+    )
+    assert cleared.dynamic.metadata["runtime_incident_transition"] == "cleared"
+    assert routing_runtime._runtime_reroute_trigger(cleared) == "incident_cleared"
+
+    activated_trips = tuple(
+        replace(trip, status=TripRequestStatus.ACTIVATED)
+        for trip in cleared.dynamic.demand_state["trip_requests"]
+    )
+    refresh_state = cleared.with_dynamic_updates(
+        demand_state={
+            **cleared.dynamic.demand_state,
+            "trip_requests": activated_trips,
+            "allocated_trip_request_ids": (),
+        }
+    )
+    first_route_state, _ = refresh_runtime_route_candidates(
+        refresh_state,
+        force_refresh=True,
+    )
+    refresh_state = refresh_state.with_dynamic_updates(
+        route_candidate_state=first_route_state
+    )
+    _second_route_state, counters = refresh_runtime_route_candidates(refresh_state)
+    assert counters["route_candidate_refresh_this_tick"] == 1
+
+
 def test_simulation_step_refreshes_route_cache_and_moves_active_agent_deterministically() -> None:
     from metroflow.sim.control import SimulationControl
     from metroflow.sim.rng import key_from_seed
@@ -562,7 +630,7 @@ def test_simulation_step_refreshes_route_cache_and_moves_active_agent_determinis
     assert second_state.dynamic.active_agent_pool.current_link_id[0].item() == 11
     assert second_state.dynamic.active_agent_pool.remaining_route_ptr[0].item() == 1
     assert second_telemetry.active_agent_moved_this_tick == 1
-    assert second_state.dynamic.metrics_state["route_candidate_reuse_total"] >= 1
+    assert second_state.dynamic.metrics_state["route_candidate_reuse_total"] == 0
 
     third_state, third_telemetry, _snapshot, _key = simulation_step(
         second_state,
@@ -702,7 +770,7 @@ def test_runtime_route_potential_cache_prunes_without_route_relevant_trips() -> 
     assert counters["dynamic_potential_cache_entry_count"] == 0
 
 
-def test_runtime_route_potential_cache_reuses_current_signature_entries(
+def test_runtime_route_refresh_deduplicates_shared_od_requests(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from dataclasses import replace
@@ -746,9 +814,9 @@ def test_runtime_route_potential_cache_reuses_current_signature_entries(
 
     assert calls == 1
     assert route_state.stats["dynamic_potential_recompute_total"] == 1
-    assert route_state.stats["dynamic_potential_cache_hits_total"] == 1
+    assert route_state.stats.get("dynamic_potential_cache_hits_total", 0) == 0
     assert route_state.stats["dynamic_potential_cache_entry_count"] == 1
-    assert counters["dynamic_potential_cache_hits_this_tick"] == 1
+    assert counters["dynamic_potential_cache_hits_this_tick"] == 0
     assert counters["dynamic_potential_cache_pruned_this_tick"] == 0
 
 
