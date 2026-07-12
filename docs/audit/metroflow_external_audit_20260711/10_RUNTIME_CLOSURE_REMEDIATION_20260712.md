@@ -105,6 +105,25 @@ explicit absence guards were exercised, but the changed Rust point-queue unit
 test was not compiled or run here. A Rust-toolchain delivery gate remains
 mandatory.
 
+## Follow-Up Acceptance Review In The Delivery Environment
+
+The preceding paragraph is retained as provenance for the proposal author's
+environment. A later review on the target workstation found Python 3.12.3,
+Rust/Cargo 1.94.1, JAX 0.10.2, and the RTX 3080 Ti CUDA device available.
+`cargo fmt --all --check`, 53 Rust workspace tests, a maturin rebuild, and 35
+Python Rust parity tests pass there.
+
+The pulled proposal was not accepted unchanged. Corrective review commits
+`44d1145`, `505bb11`, `e30af45`, `368e719`, and `eb042bc` address fractional
+token phasing, route/event authority, replay inputs and transition mass, stale
+JAX equations, and duplicate same-tick reroute work. The retained evidence is
+`artifacts/runtime_spine_review/external-proposal-validation-20260712.md`.
+
+Ten deterministic seeds close 158 generated trips with zero observed
+link-agent mass delta. The corrected 10k seed-41 workload closes 3,105 trips at
+tick 156 in 16.0 local seconds. The 100k bounded run does not close within 240
+seconds and remains explicitly `NOT VALIDATED`.
+
 ## Remaining Model And Product Limits
 
 ### Agent time and position are still coarse

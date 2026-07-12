@@ -18,8 +18,10 @@ version with evidence and falsifiers is:
   demand, fair sink/turn deficit allocation, fractional service/receiving carry,
   exact agent/queue token commit, final-link destination validation, and
   fail-closed finite/integral token metadata validation.
-- Replay fingerprints, measured benchmark/report surfaces, static/runtime
-  diagnostic renderers, Rust parity kernels, and bounded GPU/NN experiments.
+- Replay fingerprints bound to complete initial state, ordered controls, actual
+  RNG key, and step count; per-tick queue-transition witnesses; measured
+  benchmark/report surfaces; static/runtime diagnostic renderers; Rust parity
+  kernels; and bounded GPU/NN experiments.
 
 ## Internally Verified
 
@@ -35,6 +37,13 @@ version with evidence and falsifiers is:
   20 ticks.
 - Two fresh seed-41 20-tick replays produce the same canonical final-state
   fingerprint and replay telemetry; stale residual boundaries fail before run.
+- Ten deterministic 64-tick generated runs close 158 trips as 148 completions
+  and 10 classified no-route failures with zero observed link-level
+  agent/queue delta. A seed-41 10k-population run closes 3,105 trips at tick 156
+  in the local corrected-runtime measurement.
+- Optional JAX dense-flow parity is restored after aligning its point-queue
+  receiving and additive-delay equations with NumPy/Rust; the measured
+  4,096/16,384-link maximum drift is below `1.6e-5`.
 
 ## Refuted Or Blocked
 
@@ -49,7 +58,9 @@ version with evidence and falsifiers is:
 
 ## Not Validated
 
-- Complete 100k-population integrated runtime behavior.
+- Complete 100k-population integrated runtime behavior. A bounded seed-41 run
+  reaches tick 128 in 226.09 s with 10,626 vehicles still active and therefore
+  does not establish closure or operational throughput.
 - Real-city road morphology, traffic flow, route choice, demand, or LUTI fit.
 - Broad generated/event conservation and replay across arbitrary, long-running,
   incident, merge/diverge, reroute, and failure workloads.

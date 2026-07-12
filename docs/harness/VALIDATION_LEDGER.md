@@ -697,3 +697,87 @@ Claim boundary:
 - The 2026-07-11 packet remains historical evidence. Later ZIPs must include
   `10_RUNTIME_CLOSURE_REMEDIATION_20260712.md` and identify their own committed
   `packaged_commit`; no root redistribution license has been added.
+
+## 2026-07-12: Pulled Proposal Acceptance And Adversarial Validation
+
+Change class: external proposal review, corrective runtime/flow/replay/JAX
+patches, multi-seed/scale experiments, and claim-boundary refresh
+
+Reviewed commits:
+
+- proposal: `46f0fd7abcc484a2f52db16bf17bf0b4d64a6300`;
+- corrective commits: `44d1145`, `505bb11`, `e30af45`, `368e719`, `eb042bc`.
+
+Core commands run:
+
+```bash
+.venv/bin/python -m maturin develop \
+  --manifest-path crates/metroflow-rust/Cargo.toml
+cargo fmt --all --check
+CARGO_TARGET_DIR=/tmp/metroflow-cargo-target cargo test --workspace
+.venv/bin/python -m pytest \
+  tests/test_active_agent_rust_backend.py \
+  tests/test_flow_engine_rust_backend.py \
+  tests/test_routing_rust_backend.py -q
+.venv/bin/python -m metroflow.benchmarks.runtime_self_drive_probe \
+  --scenario-seed 41 --steps 20 --expect-closed
+XLA_PYTHON_CLIENT_MEM_FRACTION=0.70 \
+  .venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Final gates:
+
+- full Python/JAX-enabled suite: `623 passed in 198.69s`;
+- Rust workspace: `53 passed`;
+- installed-extension Rust parity: `35 passed`;
+- Ruff, Cargo format, and `git diff --check`: passed;
+- JAX 0.10.2 reports `cuda:0` on the RTX 3080 Ti.
+
+Adversarial findings corrected:
+
+- independently rounded fractional service/receiving tokens could phase-starve
+  a valid turn; bounded one-token carry restores four expected movements over
+  the 10-tick `0.6/0.4` probe;
+- residual `1.0`, negative turn indices, and NaN/Inf tick units now fail closed;
+- route destination and plugin-memory trip identity are validated before first
+  movement; incident activation and clearance both invalidate routing;
+- static legal turn-pair lookup is reused instead of rebuilding 51,886 rows
+  twice per tick;
+- replay boundary binds ordered controls, actual RNG key, and step count;
+  replay snapshots detach input aliases and transition witnesses reconcile
+  flow-input queue, realized flow, output queue, and sink completion;
+- NaN queue/progress values and structured-dtype digest collisions are rejected;
+- JAX dense flow now uses the same point-queue receiving and additive-delay
+  equations as NumPy/Rust;
+- same-tick reroute destination potentials and identical link/destination
+  selections are shared without changing per-agent policy decisions.
+
+Measured experiments:
+
+- ten seeds x 64 ticks: 158 trips, 148 completed, 10 classified no-route,
+  146 multi-hop completions, all runs closed, all invariants passed, maximum
+  observed link-agent mass delta `0.0`;
+- population 1,000: 147 trips close at tick 19 in 0.695 local seconds;
+- population 10,000: 3,105 trips close at tick 156; same-tick reroute caching
+  reduces local runtime from 77.068 s to 16.022 s with unchanged terminal counts;
+- population 100,000: 31,069 trips initialize, but the 240 s bounded post-fix
+  run reaches only tick 128 (20,280 complete, 163 no-route, 10,626 active);
+  observed invariants and queue/agent mass remain exact, but closure is not
+  validated;
+- 16,384-link/32,768-turn/16-step JAX: maximum NumPy drift `1.43e-5`, steady
+  chunk 1.20 ms, compile/copy-inclusive first probe about 67.6 ms versus NumPy
+  12.50 ms. This is an amortization candidate, not runtime promotion evidence.
+
+Artifact:
+`artifacts/runtime_spine_review/external-proposal-validation-20260712.md`.
+
+Claim boundary:
+
+- corrected functional closure is internally verified at multi-seed and 10k
+  synthetic scope;
+- 100k closure/throughput, physical traversal, spillback, real-city validity,
+  LUTI integration, and independent reproduction remain unvalidated;
+- Python/NumPy remains authoritative; Rust/JAX remain optional; no NN/custom
+  CUDA/runtime-backend promotion follows from these diagnostics.

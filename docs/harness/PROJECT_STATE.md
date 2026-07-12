@@ -41,10 +41,13 @@ Derived conclusions:
 - `active_agent_pool_array_write` remains below the review gate and should stay
   a watchlist item.
 - `active_agent_candidate_selection` is not currently the hot path.
-- Route candidate refresh is now the dominant review-ready parent stage.
-- `route_candidate_potential` and `dynamic_potential_recompute` are the current
-  review-ready route substages after fixing baseline Dijkstra `float32`
-  heap-staleness.
+- Route candidate refresh was the dominant review-ready parent stage in the
+  earlier small eager suite. Post-closure scale evidence moves the current
+  blocker to 100k first-tick allocation/orchestration and cadence rerouting.
+- `route_candidate_potential` and `dynamic_potential_recompute` remain relevant
+  inside cadence rerouting after fixing baseline Dijkstra `float32`
+  heap-staleness, but their next probe must reduce the 100k parent-stage wall
+  time rather than only a nested metric.
 - `route_candidate_path_build` is no longer review-ready after the baseline
   correctness fix.
 - Explicit whole-runtime `routing_backend="rust_cpu"` is slower than baseline
@@ -78,6 +81,17 @@ Derived conclusions:
   `0.90` gate, and repeat determinism fails. The formal result is inconclusive,
   but the independent accuracy miss stops graph-NN tuning and runtime promotion.
   All three review perspectives are closed; final gate: `570 passed`.
+- The pulled runtime-closure proposal at `46f0fd7` is accepted only with the
+  corrective commits `44d1145`, `505bb11`, `e30af45`, `368e719`, and
+  `eb042bc`. The review artifact is
+  `artifacts/runtime_spine_review/external-proposal-validation-20260712.md`.
+- Static legal turn-pair lookup and same-tick reroute potential/selection reuse
+  remove proven duplicate work. The seed-41 10k workload falls from 77.1 s to
+  16.0 s with unchanged terminal counts. At 100k, cadence reroute remains a
+  material parent-stage cost and the 240 s bounded run does not close.
+- JAX dense-flow equations again match the NumPy/Rust point-queue contract.
+  Steady 16,384-link GPU chunks are faster locally, but compile/copy-inclusive
+  first execution remains slower than NumPy, so runtime promotion is not open.
 
 ## Open Risks
 
@@ -108,6 +122,16 @@ Derived conclusions:
 - Exhaustive turn compilation creates 51,886 rows for seed 41. A local
   developer measurement observed about 30% generation-time and 17–22 MB RSS
   overhead; this is diagnostic, not a controlled scale benchmark.
+- Broader local evidence now covers ten seeds and a closed 10k run, but the
+  100k seed-41 run reaches only tick 128 within the 240 s limit. At that point
+  20,280 trips are complete, 163 are classified no-route, 10,626 remain active,
+  and observed queue/agent mass is still exact. This is bounded progress, not a
+  successful 100k validation.
+- Runtime replay now binds ordered controls, the actual RNG key, and step count,
+  and transition witnesses reconcile flow-input queue, realized flow, output
+  queue, and sink completions. Replay result arrays are detached/read-only, but
+  the stored fingerprint remains the final integrity authority for Python
+  object snapshots.
 - `SimulationState.simulation_step` does not run the legacy accessibility and
   land-use cadences. The new runtime and frozen `WorldState` orchestrator remain
   split authorities rather than one city-to-traffic-to-LUTI loop.
@@ -162,19 +186,21 @@ Derived conclusions:
 
 ## Next Implementation Decision
 
-Do not open another acceleration spec yet. The small functional closure and
-exact replay gates are green, so next broaden generated/event conservation,
-replay, and failure-path coverage and run controlled scale/memory measurements.
+Do not open another acceleration spec yet. Do not promote another runtime
+backend either. Functional closure, broader generated/event conservation, and
+replay-input/transition gates are green at small and 10k scale, while the 100k
+bounded run remains incomplete.
 Define physical link-traversal
 semantics before interpreting completed ticks as realistic travel time. Then
 port the legacy medium/slow accessibility and land-use cadences into
 `SimulationState` or explicitly retire that product claim.
 
-After runtime closure, refresh the hardware-fit atlas or benchmark evidence that
-can change a parent-stage decision. The watchlist lanes remain Rust dynamic-
-potential/cache work, NumPy/SIMD flow and route-score batches, JAX dense-flow
-checkpoint cadence, one future narrow custom-kernel candidate, and active-agent
-pool-array replacement only if it becomes review-ready again.
+The next parent-stage decision is the remaining 100k cadence reroute and
+first-tick allocation/orchestration cost. Preserve four visible lanes: Rust for
+branch-heavy graph/action planning, NumPy/SIMD for flow arrays, JAX/GPU for
+amortized dense chunks/scoring, and NN only for simulator-labelled surrogate
+experiments. Define physical traversal before interpreting faster closure as
+traffic realism.
 PR45 closes the current city-map lane without authorizing PR46. PR47 moves the
 GPU dense-flow chunk to a bounded watchlist but does not authorize runtime
 integration. PR49 rejects the row-local MLP path without threshold tuning;

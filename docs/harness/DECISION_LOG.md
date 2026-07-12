@@ -1060,3 +1060,40 @@ non-deterministic residual/sink state.
 Next action: broaden conservation and exact replay coverage, define physical
 traversal semantics, measure turn/runtime scale cost, and either integrate or
 retire the legacy accessibility/land-use claim before accelerator promotion.
+
+## 2026-07-12: Accept Pulled Closure Only After Corrective Review
+
+Status: accepted corrected branch; backend promotion remains blocked
+
+### Compact CCoT
+
+Question: Can pulled commit `46f0fd7` be accepted unchanged and used as the
+new acceleration baseline?
+
+Evidence: The proposal reproduces seed-41 closure, but adversarial probes found
+fractional token phase starvation, replay inputs outside the boundary,
+transition conservation gaps, incident-clearance staleness, route identity and
+destination gaps, NaN invariant escapes, and stale JAX equations. Corrective
+commits close those defects. Ten seeds and a 10k workload close with exact
+observed mass. A 100k bounded run reaches only tick 128 in 226.09 s and remains
+open. JAX parity is restored, but compile/copy-inclusive execution is still
+slower on the measured first run.
+
+Inference: The corrected NumPy runtime is a stronger internal baseline, not a
+validated product-scale model or authorization to change backend defaults.
+
+Counterevidence checked: Rust workspace/parity tests, RTX 3080 Ti JAX probes,
+2,000 randomized discrete-flow cases, asymmetric fractional capacities,
+incident activation/clearance, malformed route/replay inputs, ten generated
+seeds, and 1k/10k/100k scale workloads.
+
+Decision: Keep `44d1145`, `505bb11`, `e30af45`, `368e719`, and `eb042bc` on top
+of the proposal. Preserve Python/NumPy authority and optional fail-closed
+backends. Keep 100k, physical traffic, NN authority, and custom CUDA claims
+closed.
+
+Falsifier: A deterministic mass/replay failure or a copy-inclusive measured
+backend advantage on the closed parent stage reopens the relevant decision.
+
+Next action: reduce or redesign 100k cadence reroute cost, then specify physical
+link traversal and rerun the bounded scale/replay matrix.
