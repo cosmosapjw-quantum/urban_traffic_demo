@@ -274,7 +274,8 @@ def _build_step_function(jnp: Any):
         from_share = jnp.where(from_den > 0.0, weighted_demand / from_den, 0.0)
         to_share = jnp.where(to_den > 0.0, weighted_demand / to_den, 0.0)
         from_available = jnp.minimum(queue_now, capacity)
-        receiving_supply = jnp.maximum(capacity - queue_now, 0.0)
+        # Point-queue capacity is an admission rate, not finite link storage.
+        receiving_supply = capacity
         turn_supply = jnp.minimum(
             from_available[from_index] * from_share,
             receiving_supply[to_index] * to_share,
@@ -285,9 +286,7 @@ def _build_step_function(jnp: Any):
         queue_next = jnp.maximum(0.0, queue_now - outflow + inflow)
         safe_base_travel_time = jnp.maximum(base_travel_time, 1e-3)
         safe_travel_capacity = jnp.maximum(capacity, 1e-3)
-        travel_time = safe_base_travel_time * (
-            1.0 + queue_next / (safe_travel_capacity + 1e-3)
-        )
+        travel_time = safe_base_travel_time + queue_next / safe_travel_capacity
         return (
             queue_next,
             inflow,
