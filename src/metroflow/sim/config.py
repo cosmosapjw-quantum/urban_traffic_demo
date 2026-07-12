@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
+from math import isfinite
 from typing import Iterable, Mapping
 
 from metroflow.city.morphology_reference import get_morphology_archetype
@@ -133,8 +134,8 @@ class SimulationConfig:
             raise ValueError("population_target must be >= 1")
         if self.active_agent_capacity <= 0:
             raise ValueError("active_agent_capacity must be > 0")
-        if self.tick_seconds <= 0:
-            raise ValueError("tick_seconds must be > 0")
+        if not isfinite(self.tick_seconds) or self.tick_seconds <= 0:
+            raise ValueError("tick_seconds must be finite and > 0")
         if self.ui_stream_hz_limit <= 0:
             raise ValueError("ui_stream_hz_limit must be > 0")
         if self.max_trip_spawns_per_tick <= 0:

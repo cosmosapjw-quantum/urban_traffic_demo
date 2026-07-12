@@ -533,6 +533,7 @@ def _check_runtime_token_authority(
         require_integral: bool = False,
         require_non_negative: bool = False,
         unit_residual: bool = False,
+        upper_bound: float | None = None,
     ) -> np.ndarray | None:
         raw = metadata.get(key)
         if raw is None:
@@ -562,9 +563,11 @@ def _check_runtime_token_authority(
             add_invalid(key, "non_integral")
         if unit_residual and (
             bool(np.any(values < 0.0))
-            or bool(np.any(values > (1.0 + 1.0e-6)))
+            or bool(np.any(values >= 1.0))
         ):
             add_invalid(key, "outside_unit_residual_range")
+        if upper_bound is not None and bool(np.any(values > float(upper_bound))):
+            add_invalid(key, "above_upper_bound", upper_bound=float(upper_bound))
         return values
 
     check_vector(
@@ -587,12 +590,33 @@ def _check_runtime_token_authority(
         link_state.link_count,
         unit_residual=True,
     )
+    authority_version = int(
+        link_state.metadata.get("runtime_token_authority_version", 1)
+    )
+    if authority_version >= 2:
+        check_vector(
+            link_state.metadata,
+            "runtime_link_service_token_carry",
+            link_state.link_count,
+            require_integral=True,
+            require_non_negative=True,
+            upper_bound=1.0,
+        )
     check_vector(
         link_state.metadata,
         "runtime_link_receiving_residual",
         link_state.link_count,
         unit_residual=True,
     )
+    if authority_version >= 2:
+        check_vector(
+            link_state.metadata,
+            "runtime_link_receiving_token_carry",
+            link_state.link_count,
+            require_integral=True,
+            require_non_negative=True,
+            upper_bound=1.0,
+        )
     link_sink_flow = check_vector(
         link_state.metadata,
         "runtime_sink_flow_vehicles",

@@ -114,6 +114,21 @@ def test_auto_flow_backend_falls_back_to_baseline_when_rust_fails(monkeypatch: p
     assert_flow_arrays_close(automatic, baseline)
 
 
+@pytest.mark.parametrize("flow_backend", ["baseline", "rust_cpu", "auto"])
+def test_flow_backends_reject_negative_turn_indices(flow_backend: str) -> None:
+    with pytest.raises(ValueError, match="turn_from_link_index contains out-of-range"):
+        compute_baseline_flow_arrays_core(
+            queue_vehicles=np.asarray((1.0,), dtype=np.float32),
+            effective_capacity_vehicles=np.asarray((1.0,), dtype=np.float32),
+            turn_from_link_index=np.asarray((-1,), dtype=np.int32),
+            turn_to_link_index=np.asarray((0,), dtype=np.int32),
+            turn_demand=np.asarray((1.0,), dtype=np.float32),
+            signal_phase_timer=np.asarray((0,), dtype=np.int32),
+            base_travel_time_cost=np.asarray((1.0,), dtype=np.float32),
+            flow_backend=flow_backend,
+        )
+
+
 def test_rust_flow_backend_matches_baseline_output():
     rust_module = pytest.importorskip("_metroflow_rust")
     if not hasattr(rust_module, "compute_baseline_flow_arrays_batch"):

@@ -50,8 +50,7 @@ def update_link_node_flow(
     optional turn metadata (`turn_base_priority`, `turn_is_forbidden`).
     """
 
-    if validate:
-        _validate_turn_index_ranges(node_state, link_state.link_count)
+    _validate_turn_index_ranges(node_state, link_state.link_count)
 
     if discrete_agent_authority and flow_backend == "rust_cpu":
         raise RuntimeError(
@@ -162,6 +161,7 @@ def _apply_discrete_agent_flow_authority(
         link_count,
         required=prior_discrete_authority,
         upper_bound=1.0,
+        upper_bound_exclusive=True,
     )
     prior_receiving_credit = _metadata_vector(
         link_state.metadata,
@@ -169,6 +169,7 @@ def _apply_discrete_agent_flow_authority(
         link_count,
         required=prior_discrete_authority,
         upper_bound=1.0,
+        upper_bound_exclusive=True,
     )
     prior_sink_credit = _metadata_vector(
         node_state.metadata,
@@ -178,6 +179,23 @@ def _apply_discrete_agent_flow_authority(
         required=prior_discrete_authority,
     )
     if prior_discrete_authority:
+        authority_version = int(
+            link_state.metadata.get("runtime_token_authority_version", 1)
+        )
+        prior_service_carry = _metadata_vector(
+            link_state.metadata,
+            "runtime_link_service_token_carry",
+            link_count,
+            required=authority_version >= 2,
+            upper_bound=1.0,
+        )
+        prior_receiving_carry = _metadata_vector(
+            link_state.metadata,
+            "runtime_link_receiving_token_carry",
+            link_count,
+            required=authority_version >= 2,
+            upper_bound=1.0,
+        )
         prior_service_tokens = _metadata_vector(
             link_state.metadata,
             "runtime_link_service_tokens",
@@ -203,6 +221,8 @@ def _apply_discrete_agent_flow_authority(
             required=True,
         )
         for key, values in (
+            ("runtime_link_service_token_carry", prior_service_carry),
+            ("runtime_link_receiving_token_carry", prior_receiving_carry),
             ("runtime_link_service_tokens", prior_service_tokens),
             ("runtime_link_receiving_tokens", prior_receiving_tokens),
             ("runtime_sink_flow_vehicles", prior_link_sink_flow),
@@ -214,6 +234,9 @@ def _apply_discrete_agent_flow_authority(
             raise ValueError(
                 "runtime link/node sink flow token metadata must match exactly"
             )
+    else:
+        prior_service_carry = np.zeros((link_count,), dtype=np.float32)
+        prior_receiving_carry = np.zeros((link_count,), dtype=np.float32)
     sink_demand = _metadata_vector(
         node_state.metadata,
         "runtime_sink_demand_by_link_index",
@@ -250,6 +273,18 @@ def _apply_discrete_agent_flow_authority(
     )
     receiving_tokens = np.floor(receiving_accrued + 1.0e-9).astype(np.int64)
     next_receiving_credit = receiving_accrued - receiving_tokens
+    service_carry_enabled = has_sending_demand & (effective_capacity > 0.0)
+    receiving_carry_enabled = has_receiving_demand & (effective_capacity > 0.0)
+    service_tokens += np.where(
+        service_carry_enabled,
+        np.rint(prior_service_carry).astype(np.int64),
+        0,
+    )
+    receiving_tokens += np.where(
+        receiving_carry_enabled,
+        np.rint(prior_receiving_carry).astype(np.int64),
+        0,
+    )
 
     internal_demand_by_source = _segment_sum(
         np.where(eligible_turn_demand, turn_demand, 0.0),
@@ -385,6 +420,16 @@ def _apply_discrete_agent_flow_authority(
     inflow = _segment_sum(realized_turn_f, to_idx, link_count)
     outflow = internal_outflow + sink_flow_f
     queue_next = np.maximum(0.0, queue_now - outflow + inflow)
+    next_service_carry = np.where(
+        service_carry_enabled,
+        np.minimum(remaining_service, 1),
+        0,
+    ).astype(np.float32)
+    next_receiving_carry = np.where(
+        receiving_carry_enabled,
+        np.minimum(remaining_receiving, 1),
+        0,
+    ).astype(np.float32)
     base_travel_time = np.asarray(arrays["base_travel_time_cost"], dtype=np.float32)
 
     next_arrays = dict(arrays)
@@ -413,18 +458,19 @@ def _apply_discrete_agent_flow_authority(
     metadata = {
         "link": {
             "runtime_discrete_agent_authority": True,
-            "runtime_link_service_residual": np.asarray(
-                next_service_credit,
-                dtype=np.float32,
+            "runtime_token_authority_version": 2,
+            "runtime_link_service_residual": _unit_residual_float32(
+                next_service_credit
             ),
+            "runtime_link_service_token_carry": next_service_carry,
             "runtime_link_service_tokens": np.asarray(
                 service_tokens,
                 dtype=np.float32,
             ),
-            "runtime_link_receiving_residual": np.asarray(
-                next_receiving_credit,
-                dtype=np.float32,
+            "runtime_link_receiving_residual": _unit_residual_float32(
+                next_receiving_credit
             ),
+            "runtime_link_receiving_token_carry": next_receiving_carry,
             "runtime_link_receiving_tokens": np.asarray(
                 receiving_tokens,
                 dtype=np.float32,
@@ -456,6 +502,7 @@ def _metadata_vector(
     allow_negative: bool = False,
     required: bool = False,
     upper_bound: float | None = None,
+    upper_bound_exclusive: bool = False,
 ) -> Array:
     raw = metadata.get(key)
     if raw is None:
@@ -471,11 +518,22 @@ def _metadata_vector(
         raise ValueError(f"{key} must contain only finite values")
     if not allow_negative and bool(np.any(values < 0.0)):
         raise ValueError(f"{key} must be non-negative")
-    if upper_bound is not None and bool(
-        np.any(values > (float(upper_bound) + 1.0e-6))
-    ):
-        raise ValueError(f"{key} must be <= {float(upper_bound)}")
+    if upper_bound is not None:
+        bound = float(upper_bound)
+        if upper_bound_exclusive and bool(np.any(values >= bound)):
+            raise ValueError(f"{key} must be < {bound}")
+        if not upper_bound_exclusive and bool(np.any(values > (bound + 1.0e-6))):
+            raise ValueError(f"{key} must be <= {bound}")
     return values
+
+
+def _unit_residual_float32(values: Array) -> Array:
+    residual = np.asarray(values, dtype=np.float64)
+    residual = np.where(np.abs(residual) <= 1.0e-9, 0.0, residual)
+    if bool(np.any(residual < 0.0)) or bool(np.any(residual >= 1.0)):
+        raise RuntimeError("unit residual calculation escaped [0, 1)")
+    upper = np.nextafter(np.float32(1.0), np.float32(0.0))
+    return np.minimum(residual.astype(np.float32), upper)
 
 
 def compute_baseline_flow_arrays(
@@ -555,6 +613,18 @@ def compute_baseline_flow_arrays_core(
         turn_is_forbidden = np.zeros((turn_count,), dtype=np.bool_)
     else:
         turn_is_forbidden = np.asarray(turn_is_forbidden, dtype=np.bool_)
+
+    _validate_flow_core_shapes_and_indices(
+        queue_vehicles=queue_now,
+        effective_capacity_vehicles=effective_capacity,
+        turn_from_link_index=from_idx,
+        turn_to_link_index=to_idx,
+        turn_demand=turn_demand,
+        signal_phase_timer=signal_phase_timer,
+        base_travel_time_cost=base_travel_time_cost,
+        turn_priority=turn_priority,
+        turn_is_forbidden=turn_is_forbidden,
+    )
 
     if flow_backend in {"rust_cpu", "auto"}:
         try:
@@ -759,6 +829,51 @@ def _validate_turn_index_ranges(node_state: NodeState, link_count: int) -> None:
         raise ValueError("turn_from_link_index contains out-of-range link indices")
     if bool(np.any(to_idx < 0)) or bool(np.any(to_idx >= link_count)):
         raise ValueError("turn_to_link_index contains out-of-range link indices")
+
+
+def _validate_flow_core_shapes_and_indices(
+    *,
+    queue_vehicles: Array,
+    effective_capacity_vehicles: Array,
+    turn_from_link_index: Array,
+    turn_to_link_index: Array,
+    turn_demand: Array,
+    signal_phase_timer: Array,
+    base_travel_time_cost: Array,
+    turn_priority: Array,
+    turn_is_forbidden: Array,
+) -> None:
+    if queue_vehicles.ndim != 1:
+        raise ValueError("queue_vehicles must be one-dimensional")
+    link_count = int(queue_vehicles.shape[0])
+    for name, values in (
+        ("effective_capacity_vehicles", effective_capacity_vehicles),
+        ("base_travel_time_cost", base_travel_time_cost),
+    ):
+        if values.shape != (link_count,):
+            raise ValueError(f"{name} must have shape ({link_count},)")
+    turn_count = int(turn_demand.shape[0])
+    for name, values in (
+        ("turn_from_link_index", turn_from_link_index),
+        ("turn_to_link_index", turn_to_link_index),
+        ("turn_priority", turn_priority),
+        ("turn_is_forbidden", turn_is_forbidden),
+    ):
+        if values.shape != (turn_count,):
+            raise ValueError(f"{name} must have shape ({turn_count},)")
+    if signal_phase_timer.ndim != 1:
+        raise ValueError("signal_phase_timer must be one-dimensional")
+    if turn_count:
+        if link_count == 0:
+            raise ValueError("turn arrays require non-empty link arrays")
+        if bool(np.any(turn_from_link_index < 0)) or bool(
+            np.any(turn_from_link_index >= link_count)
+        ):
+            raise ValueError("turn_from_link_index contains out-of-range link indices")
+        if bool(np.any(turn_to_link_index < 0)) or bool(
+            np.any(turn_to_link_index >= link_count)
+        ):
+            raise ValueError("turn_to_link_index contains out-of-range link indices")
 
 
 def _segment_sum(values: Array, indices: Array, num_segments: int) -> Array:

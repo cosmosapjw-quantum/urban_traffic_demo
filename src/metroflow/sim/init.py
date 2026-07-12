@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 from typing import Any
 
 import numpy as np
@@ -245,8 +246,8 @@ def _build_initial_link_state(
     """
 
     tick_seconds = float(tick_seconds)
-    if tick_seconds <= 0.0:
-        raise ValueError("tick_seconds must be > 0")
+    if not isfinite(tick_seconds) or tick_seconds <= 0.0:
+        raise ValueError("tick_seconds must be finite and > 0")
     capacity_reference_tick_seconds = 1.0
     travel_time_cost = np.asarray(
         [
