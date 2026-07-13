@@ -1,7 +1,7 @@
 # City Map Re-Architecture PR List
 
 Status: active
-Last updated: 2026-07-11
+Last updated: 2026-07-13
 
 ## Execution Contract
 
@@ -195,3 +195,43 @@ fail-closed behind the recomputed v2 gate.
 - Admit morphology-aware placement only from a versioned accepted gate.
 - Use synthetic district/subcenter context, never empirical named-city fitting
   or external runtime data.
+
+## Realistic Synthetic City Queue
+
+The controlling product contract is
+`docs/PRD_REALISTIC_SYNTHETIC_CITY.md`. PR53-PR64 replace further schematic
+sidecar refinement with a terrain-to-block-to-runtime pipeline. Existing
+PR33-PR45 evidence remains the compatibility and negative-control baseline.
+
+- **PR53 - Product Contract Freeze:** complete; froze thresholds, public
+  contracts, claim boundary, and ordered queue. Commit:
+  `docs(city): define realistic synthetic city target`.
+- **PR54 - Generator Boundary Extraction:** preserve current fingerprints while
+  isolating compatibility, typed stage, and finalization boundaries. Commit:
+  `refactor(city): isolate generation stage contracts`.
+- **PR55 - Terrain And Development Fields:** bounded read-only NumPy fields and
+  deterministic centers. Commit: `feat(city): add terrain and development fields`.
+- **PR56 - Hierarchical Street Skeleton:** terrain-aware gateways, arterial
+  connectivity, and bounded redundancy. Commit:
+  `feat(city): generate hierarchical street skeleton`.
+- **PR57 - Continuous Local Fabric:** orientation-field local growth and
+  collector coupling. Commit: `feat(city): grow continuous local street fabric`.
+- **PR58 - Planar Block Compiler:** bounded-face extraction and fragment gates.
+  Commit: `feat(city): compile planar urban blocks`.
+- **PR59 - Block Land Use And POIs:** block-based zones, capacity, buffers, and
+  POIs. Commit: `feat(city): couple land use to urban blocks`.
+- **PR60 - Simulation Map Compiler:** compile the complete bundle into existing
+  topology, replay, initialization, and UI contracts. Commit:
+  `feat(city): compile realistic map runtime authority`.
+- **PR61 - Physical Link Traversal:** explicit spatial queue, finite storage,
+  and spillback NumPy baseline. Commit:
+  `feat(sim): add physical link traversal`.
+- **PR62 - Empirical Plausibility Audit:** six styles by five seeds against the
+  pinned aggregate envelope. Commit:
+  `test(city): audit synthetic city plausibility`.
+- **PR63 - Scale And Hardware-Fit Closure:** 1k/10k/100k generation and runtime
+  evidence before any Rust generation core is opened. Commit:
+  `perf(city): close realistic map scale gate`.
+- **PR64 - Default Promotion:** conditional; promote only if every frozen gate
+  passes, otherwise record `BLOCKED` without changing the default. Commit when
+  admitted: `feat(city): promote realistic generator default`.
