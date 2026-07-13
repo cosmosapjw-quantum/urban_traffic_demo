@@ -20,7 +20,7 @@ class PhysicalStreet:
     lanes: int
     free_flow_speed_mps: float
     capacity_veh_per_second: float
-    source_anchor_ids: tuple[int, int]
+    source_anchor_ids: tuple[int, int] | None
     bridge_group_id: int | None = None
     provenance: str = "hierarchical_skeleton_v1"
 
@@ -31,7 +31,11 @@ class PhysicalStreet:
         lanes = int(self.lanes)
         speed = float(self.free_flow_speed_mps)
         capacity = float(self.capacity_veh_per_second)
-        anchors = tuple(int(value) for value in self.source_anchor_ids)
+        anchors = (
+            None
+            if self.source_anchor_ids is None
+            else tuple(int(value) for value in self.source_anchor_ids)
+        )
         bridge_group_id = (
             None if self.bridge_group_id is None else int(self.bridge_group_id)
         )
@@ -47,7 +51,7 @@ class PhysicalStreet:
             raise ValueError("street lanes and speed must be positive")
         if not math.isfinite(capacity) or capacity <= 0.0:
             raise ValueError("street capacity_veh_per_second must be positive")
-        if len(anchors) != 2 or anchors[0] == anchors[1]:
+        if anchors is not None and (len(anchors) != 2 or anchors[0] == anchors[1]):
             raise ValueError("source_anchor_ids must contain two distinct IDs")
         if road_class is RoadClass.BRIDGE and bridge_group_id is None:
             raise ValueError("bridge streets require bridge_group_id")
@@ -102,13 +106,17 @@ class PhysicalStreetPlan:
             raise ValueError("tree_edge_count must equal anchor_count - 1")
         if int(self.redundancy_edge_count) < 0:
             raise ValueError("redundancy_edge_count must be >= 0")
+        if any(street.source_anchor_ids is None for street in streets):
+            raise ValueError("skeleton streets require source_anchor_ids")
         logical_pairs = {
-            tuple(sorted(street.source_anchor_ids)) for street in streets
+            tuple(sorted(street.source_anchor_ids))
+            for street in streets
+            if street.source_anchor_ids is not None
         }
         if any(
             anchor_id < 0 or anchor_id >= len(anchors)
             for street in streets
-            for anchor_id in street.source_anchor_ids
+            for anchor_id in (street.source_anchor_ids or ())
         ):
             raise ValueError("street source anchor is outside anchor range")
         if len(logical_pairs) != int(self.tree_edge_count) + int(

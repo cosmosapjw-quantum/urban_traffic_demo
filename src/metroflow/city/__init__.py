@@ -41,6 +41,10 @@ from .morphology_reference import (
     empirical_street_network_references as empirical_street_network_references,
 )
 from .morphology_reference import get_morphology_archetype as get_morphology_archetype
+from .realistic_local_fabric import RealisticStreetNetwork as RealisticStreetNetwork
+from .realistic_local_fabric import (
+    build_continuous_local_fabric as build_continuous_local_fabric,
+)
 from .street_plan import PhysicalStreet as PhysicalStreet
 from .street_plan import PhysicalStreetPlan as PhysicalStreetPlan
 from .terrain_field import TerrainField as TerrainField
@@ -69,6 +73,7 @@ __all__ = [
     "RoadClass",
     "RoadLink",
     "RoadNetworkCSR",
+    "RealisticStreetNetwork",
     "StreetNetworkMorphometrics",
     "TerrainField",
     "TopologyValidationIssue",
@@ -83,6 +88,7 @@ __all__ = [
     "analyze_weak_connectivity",
     "build_road_network_csr",
     "build_hierarchical_street_skeleton",
+    "build_continuous_local_fabric",
     "build_terrain_field",
     "build_urban_form_field",
     "compute_street_network_morphometrics",

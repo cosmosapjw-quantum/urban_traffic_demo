@@ -214,7 +214,7 @@ PR33-PR45 evidence remains the compatibility and negative-control baseline.
 - **PR56 - Hierarchical Street Skeleton:** complete; terrain-aware gateways, arterial
   connectivity, and bounded redundancy. Commit:
   `feat(city): generate hierarchical street skeleton`.
-- **PR57 - Continuous Local Fabric:** orientation-field local growth and
+- **PR57 - Continuous Local Fabric:** complete; orientation-field local growth and
   collector coupling. Commit: `feat(city): grow continuous local street fabric`.
 - **PR58 - Planar Block Compiler:** bounded-face extraction and fragment gates.
   Commit: `feat(city): compile planar urban blocks`.
