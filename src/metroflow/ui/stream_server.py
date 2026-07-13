@@ -352,6 +352,14 @@ def _build_metrics_summary_payload(
         "agent_backend": str(
             _metric_value(metrics_state, summary, "agent_backend", telemetry.agent_backend)
         ),
+        "traffic_model": str(
+            _metric_value(
+                metrics_state,
+                summary,
+                "traffic_model",
+                telemetry.traffic_model,
+            )
+        ),
         "flow_update_wall_ns": int(
             _metric_value(
                 metrics_state,

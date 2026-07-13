@@ -113,9 +113,11 @@ Derived conclusions:
 - Discrete token/residual metadata is required after the authority activates.
   Missing, non-finite, negative, non-integral, shape-inconsistent, or divergent
   link/node sink tokens fail closed rather than being overwritten next tick.
-- That probe is not a 100k run or physical traffic validation. Agents advance
-  at most one route turn per tick, `progress_01` is not calibrated sub-link
-  position, and the point-queue model has no finite storage or spillback.
+- That historical probe is not a 100k run or physical traffic validation. The
+  default point queue still advances at most one route turn per tick. The new
+  explicit NumPy `spatial_queue_v1` instead treats `progress_01` as link
+  residency and enforces finite storage/source/downstream spillback, but it is
+  not calibrated for real traffic, shockwaves, or lane-level behavior.
 - The new exact per-turn agent contract remains Python-authoritative. Explicit
   unsupported Rust agent/flow paths fail closed; Rust parity and performance
   must be re-established on the new contract before promotion.

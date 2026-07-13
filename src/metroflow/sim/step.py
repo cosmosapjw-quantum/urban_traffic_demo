@@ -23,6 +23,7 @@ from metroflow.sim.invariants import InvariantReport
 from metroflow.sim.invariants import validate_invariants as _validate_invariants_core
 from metroflow.sim.rng import PRNGKeyArray
 from metroflow.sim.routing_runtime import (
+    advance_runtime_agent_progress,
     commit_runtime_active_agent_flows,
     prepare_runtime_active_agents,
     rebuild_runtime_turn_demand,
@@ -259,6 +260,10 @@ def _zero_tick_counters() -> dict[str, int]:
         "trip_allocated_this_tick": 0,
         "active_agent_moved_this_tick": 0,
         "active_agent_sink_wait_this_tick": 0,
+        "active_agent_progressed_this_tick": 0,
+        "active_agent_exit_queue_count": 0,
+        "active_agent_in_transit_count": 0,
+        "trip_source_spillback_wait_this_tick": 0,
         "route_candidate_refresh_this_tick": 0,
         "route_candidate_reuse_this_tick": 0,
         "dynamic_potential_recompute_this_tick": 0,
@@ -341,12 +346,21 @@ def _advance_flow_state(state: SimulationState) -> tuple[SimulationState, dict[s
     if not isinstance(link_state, LinkState) or not isinstance(node_state, NodeState):
         return state, counters
     start_ns = perf_counter_ns()
+    storage_capacity = None
+    if state.config.traffic_model == "spatial_queue_v1":
+        storage_capacity = np.asarray(
+            link_state.metadata.get("storage_capacity_vehicles", ()),
+            dtype=np.float32,
+        )
+        if storage_capacity.shape != (link_state.link_count,):
+            raise RuntimeError("spatial flow update lacks storage capacity")
     result = update_link_node_flow(
         link_state,
         node_state,
         validate=False,
         flow_backend=state.config.flow_backend,
         discrete_agent_authority=True,
+        storage_capacity_vehicles=storage_capacity,
     )
     counters["flow_update_wall_ns"] = max(0, perf_counter_ns() - start_ns)
     transition_metadata = dict(result.link_state.metadata)
@@ -400,6 +414,24 @@ def _prepare_runtime_routing_state(
     if link_state is not None:
         updates["flow_link_state"] = link_state
     state = state.with_dynamic_updates(**updates)
+    if pool is not None:
+        progress_start_ns = perf_counter_ns()
+        progressed_pool, progress_counters = advance_runtime_agent_progress(
+            state,
+            pool,
+            skip_slot_ids=newly_admitted_slot_ids,
+        )
+        progress_elapsed_ns = max(0, perf_counter_ns() - progress_start_ns)
+        state = state.with_dynamic_updates(active_agent_pool=progressed_pool)
+        agent_counters["active_agent_update_wall_ns"] = int(
+            agent_counters.get("active_agent_update_wall_ns", 0)
+        ) + progress_elapsed_ns
+        agent_counters.update(
+            {
+                key: agent_counters.get(key, 0) + int(value)
+                for key, value in progress_counters.items()
+            }
+        )
     node_state = rebuild_runtime_turn_demand(
         state,
         skip_slot_ids=newly_admitted_slot_ids,
@@ -556,6 +588,7 @@ def _update_metrics_state(
             "generated_trip_total": int(metrics.get("generated_trip_total", 0))
             + int(tick_counters.get("trip_generated_this_tick", 0)),
             "flow_backend": state.config.flow_backend,
+            "traffic_model": state.config.traffic_model,
             "routing_backend": state.config.routing_backend,
             "agent_backend": state.config.agent_backend,
             "flow_update_wall_ns": flow_update_wall_ns,
@@ -649,6 +682,24 @@ def _update_metrics_state(
                 tick_counters.get("active_agent_moved_this_tick", 0)
             ),
             "active_agent_sink_wait_this_tick": sink_wait_tick,
+            "active_agent_progressed_this_tick": int(
+                tick_counters.get("active_agent_progressed_this_tick", 0)
+            ),
+            "active_agent_exit_queue_count": int(
+                tick_counters.get("active_agent_exit_queue_count", 0)
+            ),
+            "active_agent_in_transit_count": int(
+                tick_counters.get("active_agent_in_transit_count", 0)
+            ),
+            "trip_source_spillback_wait_this_tick": int(
+                tick_counters.get("trip_source_spillback_wait_this_tick", 0)
+            ),
+            "spillback_blocked_turn_count": int(
+                getattr(link_state, "metadata", {}).get(
+                    "runtime_spillback_blocked_turn_count",
+                    0,
+                )
+            ),
             "active_agent_sink_wait_total": int(
                 metrics.get("active_agent_sink_wait_total", 0)
             )
@@ -690,6 +741,9 @@ def _build_step_telemetry(
         flow_backend=str(metrics_state.get("flow_backend", state.config.flow_backend)),
         routing_backend=str(metrics_state.get("routing_backend", state.config.routing_backend)),
         agent_backend=str(metrics_state.get("agent_backend", state.config.agent_backend)),
+        traffic_model=str(
+            metrics_state.get("traffic_model", state.config.traffic_model)
+        ),
         flow_update_wall_ns=int(metrics_state.get("flow_update_wall_ns", 0)),
         active_agent_update_wall_ns=int(
             metrics_state.get("active_agent_update_wall_ns", 0)
@@ -726,6 +780,21 @@ def _build_step_telemetry(
         ),
         active_agent_reroute_cooldown_this_tick=int(
             metrics_state.get("active_agent_reroute_cooldown_this_tick", 0)
+        ),
+        active_agent_progressed_this_tick=int(
+            metrics_state.get("active_agent_progressed_this_tick", 0)
+        ),
+        active_agent_exit_queue_count=int(
+            metrics_state.get("active_agent_exit_queue_count", 0)
+        ),
+        active_agent_in_transit_count=int(
+            metrics_state.get("active_agent_in_transit_count", 0)
+        ),
+        trip_source_spillback_wait_this_tick=int(
+            metrics_state.get("trip_source_spillback_wait_this_tick", 0)
+        ),
+        spillback_blocked_turn_count=int(
+            metrics_state.get("spillback_blocked_turn_count", 0)
         ),
     )
 

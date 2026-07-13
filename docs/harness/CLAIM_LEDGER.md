@@ -1,7 +1,7 @@
 # Claim Ledger
 
 Status: active source of truth
-Last updated: 2026-07-12
+Last updated: 2026-07-13
 
 This file is the compact project-level claim authority. The external-audit
 version with evidence and falsifiers is:
@@ -14,6 +14,9 @@ version with evidence and falsifiers is:
   six morphology grammars, zones, POIs, deterministic citizens/trips.
 - NumPy point-queue/node flow arrays, reverse-Dijkstra routing, ranked-K
   candidates, path-size selection, event/cadence rerouting, active-agent pool.
+- Explicit NumPy `spatial_queue_v1` with length/speed link residency, finite
+  lane-length storage, exit-ready demand, source admission blocking, and
+  deterministic downstream spillback; `point_queue_v1` remains the default.
 - Exhaustive deterministic generated turn authority, route-tail per-turn/sink
   demand, fair sink/turn deficit allocation, fractional service/receiving carry,
   exact agent/queue token commit, final-link destination validation, and
@@ -64,8 +67,9 @@ version with evidence and falsifiers is:
 - Real-city road morphology, traffic flow, route choice, demand, or LUTI fit.
 - Broad generated/event conservation and replay across arbitrary, long-running,
   incident, merge/diverge, reroute, and failure workloads.
-- Physically calibrated link traversal, finite storage, spillback, or shockwave
-  propagation in the active-agent point-queue runtime.
+- Empirically calibrated link traversal, storage/jam density, spillback wave
+  speed, fundamental diagram, or shockwave propagation. The explicit spatial
+  queue is implemented substrate, not empirical traffic validation.
 - A unified `SimulationState` traffic/accessibility/land-use feedback loop.
 - Runtime JAX/GPU flow with realistic host mutation and checkpoints.
 - Production neural-network inference or route authority.

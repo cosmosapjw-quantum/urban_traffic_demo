@@ -934,6 +934,7 @@ def _artifact_metadata(
         "flow_backend": state.config.flow_backend,
         "routing_backend": state.config.routing_backend,
         "agent_backend": state.config.agent_backend,
+        "traffic_model": state.config.traffic_model,
         "weak_component_count_rendered": component_report.component_count,
         "weak_component_sizes_rendered": component_report.component_sizes,
         **{key: raw[key] for key in keep_keys if key in raw},

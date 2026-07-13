@@ -364,6 +364,7 @@ class MeasuredRuntimeBenchmarkResult:
     route_candidate_reuse_total: int
     dynamic_potential_recompute_total: int
     dynamic_potential_cache_hits_total: int
+    traffic_model: str = "point_queue_v1"
     dynamic_potential_cache_pruned_total: int = 0
     dynamic_potential_cache_entry_count: int = 0
     seed: int | None = None
@@ -1257,6 +1258,7 @@ def run_measured_runtime_spine_benchmark(
         dynamic_potential_cache_hits_total=int(
             metrics_state.get("dynamic_potential_cache_hits_total", 0)
         ),
+        traffic_model=current_state.config.traffic_model,
         dynamic_potential_cache_pruned_total=int(
             metrics_state.get("dynamic_potential_cache_pruned_total", 0)
         ),

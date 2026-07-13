@@ -1,5 +1,67 @@
 # Validation Ledger
 
+## 2026-07-13: Explicit Spatial Queue Runtime
+
+Change class: runtime traffic semantics, finite-storage invariants, replay and
+diagnostic provenance
+
+Commands and gates:
+
+```bash
+.venv/bin/python -m pytest tests/test_spatial_queue_runtime.py -q
+.venv/bin/python -m pytest \
+  tests/test_spatial_queue_runtime.py tests/test_runtime_spine.py \
+  tests/test_runtime_flow_closure.py tests/test_runtime_replay_closure.py \
+  tests/test_measured_benchmarks.py tests/test_runtime_diagnostics.py \
+  tests/test_metro_absorption_reporting_learning_ui.py \
+  tests/test_static_city_map.py tests/test_runtime_environment.py \
+  tests/test_imports.py -q
+.venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Observed results:
+
+- spatial queue targeted suite: `12 passed in 1.49s`;
+- related runtime/UI/backend suite: `135 passed in 46.69s`;
+- full repository: `759 passed in 503.97s`;
+- fresh `sim.config`, `sim.step`, and `traffic` import loaded no JAX, torch, or
+  `_metroflow_rust` modules;
+- Ruff and whitespace gates passed.
+
+Functional impact:
+
+- `point_queue_v1` remains the default replay/regression authority;
+- explicit NumPy `spatial_queue_v1` advances resident agents from physical link
+  length, free-flow speed, and tick duration, and only exit-ready agents submit
+  turn or sink demand;
+- storage is derived in vehicles as
+  `floor(length_m * lanes / jam_spacing_m)` with a minimum of one vehicle;
+- source admission and downstream receiving both fail closed when storage is
+  exhausted, including deterministic competing-turn ordering;
+- finite-storage shape, authority, and occupancy are independently checked by
+  runtime invariants;
+- telemetry, replay, UI snapshots/static metadata, and measured runtime
+  benchmarks preserve `traffic_model` and deterministic spillback counters.
+
+Review corrections:
+
+- replaced an invalid source-full fixture whose queue had no corresponding
+  agent with a lifecycle- and mass-consistent two-trip scenario;
+- added missing telemetry serialization and benchmark/UI model provenance;
+- stopped counting exit-wait agents as physically progressed on every tick;
+- included physical-progress planning time in the parent active-agent stage.
+
+Claim boundary:
+
+- **INTERNALLY VERIFIED:** explicit coarse link residency, finite storage,
+  deterministic spillback, exact queue/agent mass, pause, and replay in the
+  exercised synthetic fixtures.
+- **NOT VALIDATED:** empirical travel time, jam density, fundamental diagram,
+  backward shockwave speed, lane behavior, real-city traffic, or 100k closure.
+- No Rust, JAX, C++/CUDA, lane-level, or external-data-learning path was opened.
+
 ## 2026-07-10: Explicit Planar City Contract Closure
 
 Change class: topology/geometry validation plus diagnostic visualization

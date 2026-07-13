@@ -235,8 +235,12 @@ PR33-PR45 evidence remains the compatibility and negative-control baseline.
   related integration `99 passed`; full repository `747 passed`; Ruff and diff
   checks passed. Commit:
   `feat(city): compile realistic map runtime authority`.
-- **PR61 - Physical Link Traversal:** explicit spatial queue, finite storage,
-  and spillback NumPy baseline. Commit:
+- **PR61 - Physical Link Traversal:** complete; preserved the default point
+  queue while adding explicit NumPy length/speed residency, finite lane-length
+  storage, exit-ready demand, source/downstream spillback, replay/UI/benchmark
+  provenance, and finite-storage invariants. Validation: targeted `12 passed`;
+  related runtime/UI/backend `135 passed`; full repository `759 passed`; fresh
+  import firewall, Ruff, and diff checks passed. Commit:
   `feat(sim): add physical link traversal`.
 - **PR62 - Empirical Plausibility Audit:** six styles by five seeds against the
   pinned aggregate envelope. Commit:

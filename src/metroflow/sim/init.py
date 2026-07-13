@@ -26,6 +26,7 @@ from metroflow.sim.state import (
     SimulationState,
     SimulationStaticRefs,
 )
+from metroflow.traffic.spatial_queue import compute_link_storage_capacity
 from metroflow.ui.stream_buffer import UISnapshotStreamBuffer
 
 __all__ = [
@@ -118,6 +119,8 @@ def build_initial_simulation_state(
     flow_link_state = _build_initial_link_state(
         road_csr,
         tick_seconds=sim_config.tick_seconds,
+        traffic_model=sim_config.traffic_model,
+        jam_spacing_m=sim_config.jam_spacing_m,
     )
     flow_node_state = _build_initial_node_state(road_csr)
     if topology.road_geometry is None:
@@ -260,6 +263,8 @@ def _build_initial_link_state(
     road_csr: Any,
     *,
     tick_seconds: float = 1.0,
+    traffic_model: str = "point_queue_v1",
+    jam_spacing_m: float = 7.5,
 ) -> LinkState:
     """Build runtime link state in explicit simulation-tick units.
 
@@ -298,6 +303,27 @@ def _build_initial_link_state(
     link_count = int(road_csr.link_count)
     zeros = np.zeros((link_count,), dtype=np.float32)
     ones = np.ones((link_count,), dtype=np.float32)
+    metadata: dict[str, Any] = {
+        "free_flow_travel_time_cost": travel_time_cost,
+        "travel_time_cost_unit": "simulation_ticks",
+        "tick_seconds": tick_seconds,
+        "capacity_reference_tick_seconds": capacity_reference_tick_seconds,
+        "traffic_model": str(traffic_model),
+        "runtime_flow_generation": 0,
+        "runtime_incident_generation": 0,
+    }
+    if str(traffic_model) == "spatial_queue_v1":
+        storage = compute_link_storage_capacity(
+            road_csr,
+            jam_spacing_m=float(jam_spacing_m),
+        )
+        metadata.update(
+            {
+                "storage_capacity_vehicles": storage,
+                "storage_capacity_unit": "vehicles",
+                "jam_spacing_m": float(jam_spacing_m),
+            }
+        )
     return LinkState(
         queue_vehicles=zeros,
         inflow_vehicles=zeros,
@@ -306,14 +332,7 @@ def _build_initial_link_state(
         capacity_veh_per_tick=capacity,
         incident_capacity_multiplier=ones,
         capacity_violation_flags=np.zeros((link_count,), dtype=np.bool_),
-        metadata={
-            "free_flow_travel_time_cost": travel_time_cost,
-            "travel_time_cost_unit": "simulation_ticks",
-            "tick_seconds": tick_seconds,
-            "capacity_reference_tick_seconds": capacity_reference_tick_seconds,
-            "runtime_flow_generation": 0,
-            "runtime_incident_generation": 0,
-        },
+        metadata=metadata,
     )
 
 

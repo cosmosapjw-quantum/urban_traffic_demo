@@ -33,6 +33,7 @@ from metroflow.sim.active_agents import (
     allocate_active_agent_slot,
 )
 from metroflow.sim.state import SimulationState
+from metroflow.traffic.spatial_queue import advance_agent_link_progress
 
 __all__ = [
     "SimulationRouteCacheState",
@@ -44,6 +45,7 @@ __all__ = [
     "rebuild_runtime_turn_demand",
     "commit_runtime_active_agent_flows",
     "advance_runtime_active_agents",
+    "advance_runtime_agent_progress",
 ]
 
 
@@ -284,6 +286,13 @@ def prepare_runtime_active_agents(
             destination_node_id=destination_node_id,
             context=f"trip={trip_id}",
         )
+        if not _source_link_admission_available(
+            state,
+            source_link_id=int(path[0]),
+            pending_increments=source_queue_increments_by_link_id,
+        ):
+            counters["trip_source_spillback_wait_this_tick"] += 1
+            continue
         pool_write_start_ns = perf_counter_ns()
         pool_array_write_start_ns = perf_counter_ns()
         payload = ActiveAgentSlot.spawn(
@@ -369,6 +378,31 @@ def prepare_runtime_active_agents(
     )
 
 
+def advance_runtime_agent_progress(
+    state: SimulationState,
+    pool: ActiveAgentPool,
+    *,
+    skip_slot_ids: set[int] | None = None,
+) -> tuple[ActiveAgentPool, dict[str, int]]:
+    """Advance physical link residency only for the explicit spatial mode."""
+
+    if state.config.traffic_model != "spatial_queue_v1":
+        return pool, {
+            "active_agent_progressed_this_tick": 0,
+            "active_agent_exit_queue_count": 0,
+            "active_agent_in_transit_count": 0,
+        }
+    road_csr = _road_csr_from_state(state)
+    if road_csr is None:
+        raise RuntimeError("spatial queue progress requires road CSR authority")
+    return advance_agent_link_progress(
+        pool,
+        road_csr=road_csr,
+        tick_seconds=state.config.tick_seconds,
+        skip_slot_ids=skip_slot_ids,
+    )
+
+
 def rebuild_runtime_turn_demand(
     state: SimulationState,
     *,
@@ -406,6 +440,10 @@ def rebuild_runtime_turn_demand(
         _validate_slot_trip_identity(pool, int(slot_id), memory)
         if not path or not 0 <= ptr < len(path) or int(path[ptr]) != current_link_id:
             missing_intents.append((int(slot_id), current_link_id, -1))
+            continue
+        if state.config.traffic_model == "spatial_queue_v1" and float(
+            pool.progress_01[slot_id]
+        ) < 1.0 - 1.0e-6:
             continue
         _validate_route_path_authority(
             road_csr=road_csr,
@@ -794,6 +832,10 @@ def _agent_tick_counters() -> dict[str, int]:
         "trip_failed_this_tick": 0,
         "active_agent_moved_this_tick": 0,
         "active_agent_sink_wait_this_tick": 0,
+        "active_agent_progressed_this_tick": 0,
+        "active_agent_exit_queue_count": 0,
+        "active_agent_in_transit_count": 0,
+        "trip_source_spillback_wait_this_tick": 0,
         "active_agent_rerouted_this_tick": 0,
         "active_agent_reroute_cooldown_this_tick": 0,
         "active_agent_allocation_wall_ns": 0,
@@ -803,6 +845,37 @@ def _agent_tick_counters() -> dict[str, int]:
         "active_agent_plugin_memory_write_wall_ns": 0,
         "active_agent_movement_wall_ns": 0,
     }
+
+
+def _source_link_admission_available(
+    state: SimulationState,
+    *,
+    source_link_id: int,
+    pending_increments: Mapping[int, int],
+) -> bool:
+    if state.config.traffic_model != "spatial_queue_v1":
+        return True
+    link_state = state.dynamic.flow_link_state
+    road_csr = _road_csr_from_state(state)
+    if not isinstance(link_state, LinkState) or road_csr is None:
+        raise RuntimeError("spatial source admission requires flow and road authority")
+    storage = np.asarray(
+        link_state.metadata.get("storage_capacity_vehicles", ()),
+        dtype=np.float32,
+    )
+    if storage.shape != (link_state.link_count,):
+        raise RuntimeError("spatial source admission lacks storage capacity")
+    link_index = getattr(road_csr, "link_id_to_index", {}).get(int(source_link_id))
+    if link_index is None:
+        raise RuntimeError(
+            f"spatial source admission references unknown link {int(source_link_id)}"
+        )
+    projected = (
+        float(link_state.queue_vehicles[int(link_index)])
+        + int(pending_increments.get(int(source_link_id), 0))
+        + 1.0
+    )
+    return projected <= float(storage[int(link_index)]) + 1.0e-6
 
 
 def _validate_slot_trip_identity(

@@ -586,7 +586,8 @@ def _render_runtime_suite_seed_row(item: Any) -> str:
     backends = (
         f"{run.get('flow_backend', 'unknown')} / "
         f"{run.get('routing_backend', 'unknown')} / "
-        f"{run.get('agent_backend', 'unknown')}"
+        f"{run.get('agent_backend', 'unknown')} / "
+        f"{run.get('traffic_model', 'point_queue_v1')}"
     )
     return (
         "<tr>"

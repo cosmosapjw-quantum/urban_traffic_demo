@@ -19,12 +19,14 @@ __all__ = [
     "CityGenerationConfig",
     "CITY_TOPOLOGY_MODES",
     "ZONE_POI_COUPLING_MODES",
+    "TRAFFIC_MODELS",
 ]
 
 EDGE_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "jax", "auto")
 FLOW_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
 ROUTING_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
 AGENT_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
+TRAFFIC_MODELS = ("point_queue_v1", "spatial_queue_v1")
 CITY_TOPOLOGY_MODES = (
     "standard",
     "sidecar_local_fabric",
@@ -101,6 +103,8 @@ class SimulationConfig:
     learning_enabled: bool = False
     learning_mix_bounds: LearningMixBounds = field(default_factory=LearningMixBounds)
     ctm_mode_enabled: bool = False
+    traffic_model: str = "point_queue_v1"
+    jam_spacing_m: float = 7.5
     max_trip_spawns_per_tick: int = 512
     edge_backend: str = "baseline"
     flow_backend: str = "baseline"
@@ -119,6 +123,8 @@ class SimulationConfig:
         self.tick_seconds = float(self.tick_seconds)
         self.ui_stream_hz_limit = float(self.ui_stream_hz_limit)
         self.max_trip_spawns_per_tick = int(self.max_trip_spawns_per_tick)
+        self.traffic_model = str(self.traffic_model)
+        self.jam_spacing_m = float(self.jam_spacing_m)
         self.edge_backend = str(self.edge_backend)
         self.flow_backend = str(self.flow_backend)
         self.routing_backend = str(self.routing_backend)
@@ -141,6 +147,12 @@ class SimulationConfig:
             raise ValueError("ui_stream_hz_limit must be > 0")
         if self.max_trip_spawns_per_tick <= 0:
             raise ValueError("max_trip_spawns_per_tick must be > 0")
+        if self.traffic_model not in TRAFFIC_MODELS:
+            raise ValueError(
+                "traffic_model must be one of: point_queue_v1, spatial_queue_v1"
+            )
+        if not isfinite(self.jam_spacing_m) or not 2.0 <= self.jam_spacing_m <= 20.0:
+            raise ValueError("jam_spacing_m must be finite and in [2, 20]")
         if self.edge_backend not in EDGE_RUNTIME_BACKENDS:
             raise ValueError("edge_backend must be one of: baseline, rust_cpu, jax, auto")
         if self.flow_backend not in FLOW_RUNTIME_BACKENDS:
@@ -149,6 +161,8 @@ class SimulationConfig:
             raise ValueError("routing_backend must be one of: baseline, rust_cpu, auto")
         if self.agent_backend not in AGENT_RUNTIME_BACKENDS:
             raise ValueError("agent_backend must be one of: baseline, rust_cpu, auto")
+        if self.traffic_model == "spatial_queue_v1" and self.flow_backend != "baseline":
+            raise ValueError("spatial_queue_v1 requires flow_backend=baseline")
         if self.route_max_candidates < 1:
             raise ValueError("route_max_candidates must be >= 1")
         if self.route_max_hops < 1:

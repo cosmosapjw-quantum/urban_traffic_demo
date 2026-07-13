@@ -147,17 +147,21 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   agent 제거와 final-link queue 감소를 같은 transaction으로 적용한다. final link의
   `dst_node_id`가 agent destination과 다르면 fail-closed한다. sink discharge budget 때문에 대기한 agent 수는
   `active_agent_sink_wait_this_tick` 및 `active_agent_sink_wait_total` telemetry/metrics에 기록된다.
-- 현재 agent는 tick당 최대 한 route turn만 통과하며 `progress_01`은 물리적 sub-link 위치가 아니다.
-  Flow는 finite storage와 spillback이 없는 point-queue 모델이다. 새 per-turn agent ABI는 Python
-  authority이며 unsupported Rust agent/flow 선택은 fail-closed한다.
+- 기본 `traffic_model="point_queue_v1"`에서는 agent가 tick당 최대 한 route turn만 통과하며
+  `progress_01`은 물리 위치 authority가 아니다. 명시적 NumPy
+  `traffic_model="spatial_queue_v1"`에서는 `progress_01`이 링크 길이·자유류 속도·tick 길이에 따른
+  link-residency를 나타내고, exit-ready agent만 turn/sink demand를 제출한다. 링크 저장량은
+  `floor(length_m * lanes / jam_spacing_m)` 차량이며 source/downstream full 조건은 deterministic
+  spillback으로 대기한다. 이 모드는 lane-level, shockwave, 또는 실증 보정 교통모형이 아니다.
+  새 per-turn agent ABI는 Python authority이며 unsupported Rust agent/flow 선택은 fail-closed한다.
 - reporting/experiment 표면으로 simulator-only learning experience, run summary comparison,
   Navigator UI stream packetization, benchmark smoke runner, scenario presets, adaptive policy plugin registry를 흡수했다.
 - `SimulationState` runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`를 사용한다.
   replay boundary는 전체 config, 실제 static routing authority, initial dynamic-state fingerprint를
   기록하고 결과는 final dynamic-state fingerprint를 보존한다. Host timing 진단만 제외하며
   service/receiving/turn residual, sink flow, demand lifecycle, agent 배열/경로를 포함한다.
-- integrated runtime benchmark는 `run_measured_runtime_spine_benchmark`를 사용하며 flow/routing backend와
-  agent backend, route candidate/dynamic-potential cache counters, active-agent update wall time 및
+- integrated runtime benchmark는 `run_measured_runtime_spine_benchmark`를 사용하며 flow/routing/agent
+  backend와 `traffic_model`, route candidate/dynamic-potential cache counters, active-agent update wall time 및
   timing totals를 결과에 보존한다.
   `format_runtime_stage_timing_markdown`은 flow, route candidate refresh, dynamic potential,
   reroute decision, active-agent update stage의 wall-time share와 future GPU 후보 stage를

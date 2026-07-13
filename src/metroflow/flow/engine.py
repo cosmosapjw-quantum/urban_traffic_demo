@@ -41,6 +41,7 @@ def update_link_node_flow(
     validate: bool = False,
     flow_backend: FlowUpdateBackend = "baseline",
     discrete_agent_authority: bool = False,
+    storage_capacity_vehicles: Array | None = None,
 ) -> BaselineFlowUpdateResult:
     """Apply a simplified node-turn allocation and link queue update.
 
@@ -56,6 +57,10 @@ def update_link_node_flow(
         raise RuntimeError(
             "Rust CPU flow backend does not implement the per-turn discrete-agent "
             "authority contract"
+        )
+    if storage_capacity_vehicles is not None and not discrete_agent_authority:
+        raise ValueError(
+            "storage_capacity_vehicles requires discrete_agent_authority"
         )
     resolved_flow_backend: FlowUpdateBackend = (
         "baseline" if discrete_agent_authority and flow_backend == "auto" else flow_backend
@@ -73,6 +78,7 @@ def update_link_node_flow(
             arrays=arrays,
             link_state=link_state,
             node_state=node_state,
+            storage_capacity_vehicles=storage_capacity_vehicles,
         )
         next_link_metadata.update(authority_metadata["link"])
         next_node_metadata.update(authority_metadata["node"])
@@ -115,6 +121,7 @@ def _apply_discrete_agent_flow_authority(
     arrays: dict[str, Array],
     link_state: LinkState,
     node_state: NodeState,
+    storage_capacity_vehicles: Array | None = None,
 ) -> tuple[dict[str, Array], dict[str, dict[str, Array]]]:
     """Convert fractional node allocations into deterministic vehicle tokens.
 
@@ -144,6 +151,36 @@ def _apply_discrete_agent_flow_authority(
     )
     link_count = int(queue_now.shape[0])
     turn_count = int(turn_demand.shape[0])
+    storage_capacity: np.ndarray | None = None
+    receiving_space: np.ndarray | None = None
+    if storage_capacity_vehicles is not None:
+        storage_capacity = np.asarray(
+            storage_capacity_vehicles,
+            dtype=np.float32,
+        )
+        if storage_capacity.shape != (link_count,):
+            raise ValueError("storage_capacity_vehicles shape mismatch")
+        if not bool(np.all(np.isfinite(storage_capacity))) or bool(
+            np.any(storage_capacity < 1.0)
+        ):
+            raise ValueError(
+                "storage_capacity_vehicles must be finite and >= 1"
+            )
+        if bool(np.any(queue_now > storage_capacity + 1.0e-6)):
+            raise ValueError("link queue exceeds finite storage capacity")
+        receiving_space = np.maximum(storage_capacity - queue_now, 0.0)
+        if turn_count:
+            has_space = receiving_space[to_idx] >= np.float32(1.0 - 1.0e-6)
+            fractional_turn_flow = np.where(
+                has_space,
+                fractional_turn_flow,
+                0.0,
+            )
+            fractional_turn_supply = np.where(
+                has_space,
+                fractional_turn_supply,
+                0.0,
+            )
     prior_discrete_authority = bool(
         link_state.metadata.get("runtime_discrete_agent_authority", False)
     )
@@ -285,6 +322,11 @@ def _apply_discrete_agent_flow_authority(
         np.rint(prior_receiving_carry).astype(np.int64),
         0,
     )
+    if receiving_space is not None:
+        receiving_tokens = np.minimum(
+            receiving_tokens,
+            np.floor(receiving_space + 1.0e-6).astype(np.int64),
+        )
 
     internal_demand_by_source = _segment_sum(
         np.where(eligible_turn_demand, turn_demand, 0.0),
@@ -420,6 +462,10 @@ def _apply_discrete_agent_flow_authority(
     inflow = _segment_sum(realized_turn_f, to_idx, link_count)
     outflow = internal_outflow + sink_flow_f
     queue_next = np.maximum(0.0, queue_now - outflow + inflow)
+    if storage_capacity is not None and bool(
+        np.any(queue_next > storage_capacity + 1.0e-6)
+    ):
+        raise RuntimeError("spatial queue update exceeded finite link storage")
     next_service_carry = np.where(
         service_carry_enabled,
         np.minimum(remaining_service, 1),
@@ -476,6 +522,26 @@ def _apply_discrete_agent_flow_authority(
                 dtype=np.float32,
             ),
             "runtime_sink_flow_vehicles": sink_flow_f,
+            "runtime_storage_capacity_vehicles": (
+                np.asarray(storage_capacity, dtype=np.float32)
+                if storage_capacity is not None
+                else np.zeros((link_count,), dtype=np.float32)
+            ),
+            "runtime_receiving_space_vehicles": (
+                np.asarray(receiving_space, dtype=np.float32)
+                if receiving_space is not None
+                else np.zeros((link_count,), dtype=np.float32)
+            ),
+            "runtime_spillback_blocked_turn_count": int(
+                np.sum(
+                    (turn_demand > 0.0)
+                    & (
+                        receiving_space[to_idx] < np.float32(1.0 - 1.0e-6)
+                        if receiving_space is not None
+                        else np.zeros((turn_count,), dtype=np.bool_)
+                    )
+                )
+            ),
         },
         "node": {
             "runtime_fractional_turn_supply": fractional_turn_supply,

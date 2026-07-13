@@ -73,6 +73,7 @@ class SimulationTelemetry:
     flow_backend: str = "baseline"
     routing_backend: str = "baseline"
     agent_backend: str = "baseline"
+    traffic_model: str = "point_queue_v1"
     flow_update_wall_ns: int = 0
     active_agent_update_wall_ns: int = 0
     reroute_decision_wall_ns: int = 0
@@ -88,6 +89,11 @@ class SimulationTelemetry:
     active_agent_sink_wait_this_tick: int = 0
     active_agent_rerouted_this_tick: int = 0
     active_agent_reroute_cooldown_this_tick: int = 0
+    active_agent_progressed_this_tick: int = 0
+    active_agent_exit_queue_count: int = 0
+    active_agent_in_transit_count: int = 0
+    trip_source_spillback_wait_this_tick: int = 0
+    spillback_blocked_turn_count: int = 0
 
     def __post_init__(self) -> None:
         self.tick_index = int(self.tick_index)
@@ -103,6 +109,7 @@ class SimulationTelemetry:
         self.flow_backend = str(self.flow_backend)
         self.routing_backend = str(self.routing_backend)
         self.agent_backend = str(self.agent_backend)
+        self.traffic_model = str(self.traffic_model)
         self.flow_update_wall_ns = int(self.flow_update_wall_ns)
         self.active_agent_update_wall_ns = int(self.active_agent_update_wall_ns)
         self.reroute_decision_wall_ns = int(self.reroute_decision_wall_ns)
@@ -124,6 +131,15 @@ class SimulationTelemetry:
         self.active_agent_reroute_cooldown_this_tick = int(
             self.active_agent_reroute_cooldown_this_tick
         )
+        self.active_agent_progressed_this_tick = int(
+            self.active_agent_progressed_this_tick
+        )
+        self.active_agent_exit_queue_count = int(self.active_agent_exit_queue_count)
+        self.active_agent_in_transit_count = int(self.active_agent_in_transit_count)
+        self.trip_source_spillback_wait_this_tick = int(
+            self.trip_source_spillback_wait_this_tick
+        )
+        self.spillback_blocked_turn_count = int(self.spillback_blocked_turn_count)
 
         _validate_non_negative(self.tick_index, "tick_index")
         _validate_non_negative(self.active_agent_count, "active_agent_count")
@@ -183,6 +199,26 @@ class SimulationTelemetry:
             self.active_agent_reroute_cooldown_this_tick,
             "active_agent_reroute_cooldown_this_tick",
         )
+        _validate_non_negative(
+            self.active_agent_progressed_this_tick,
+            "active_agent_progressed_this_tick",
+        )
+        _validate_non_negative(
+            self.active_agent_exit_queue_count,
+            "active_agent_exit_queue_count",
+        )
+        _validate_non_negative(
+            self.active_agent_in_transit_count,
+            "active_agent_in_transit_count",
+        )
+        _validate_non_negative(
+            self.trip_source_spillback_wait_this_tick,
+            "trip_source_spillback_wait_this_tick",
+        )
+        _validate_non_negative(
+            self.spillback_blocked_turn_count,
+            "spillback_blocked_turn_count",
+        )
         if self.queue_vehicles_total < 0.0:
             raise ValueError("queue_vehicles_total must be >= 0")
         if self.outflow_vehicles_total < 0.0:
@@ -207,6 +243,7 @@ class SimulationTelemetry:
             "flow_backend": self.flow_backend,
             "routing_backend": self.routing_backend,
             "agent_backend": self.agent_backend,
+            "traffic_model": self.traffic_model,
             "flow_update_wall_ns": self.flow_update_wall_ns,
             "active_agent_update_wall_ns": self.active_agent_update_wall_ns,
             "reroute_decision_wall_ns": self.reroute_decision_wall_ns,
@@ -222,6 +259,11 @@ class SimulationTelemetry:
             "active_agent_sink_wait_this_tick": self.active_agent_sink_wait_this_tick,
             "active_agent_rerouted_this_tick": self.active_agent_rerouted_this_tick,
             "active_agent_reroute_cooldown_this_tick": self.active_agent_reroute_cooldown_this_tick,
+            "active_agent_progressed_this_tick": self.active_agent_progressed_this_tick,
+            "active_agent_exit_queue_count": self.active_agent_exit_queue_count,
+            "active_agent_in_transit_count": self.active_agent_in_transit_count,
+            "trip_source_spillback_wait_this_tick": self.trip_source_spillback_wait_this_tick,
+            "spillback_blocked_turn_count": self.spillback_blocked_turn_count,
         }
 
     def as_replay_dict(self) -> dict[str, Any]:

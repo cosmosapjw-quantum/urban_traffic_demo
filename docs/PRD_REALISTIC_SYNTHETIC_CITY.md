@@ -93,9 +93,11 @@ must be at most `2x` wall time and `1.5x` peak RSS; the 20-tick parent runtime
 stage must be at most `1.25x`; and a bounded 100k run must not advance fewer
 ticks in the same wall-time budget.
 
-Promotion does not authorize empirical traffic realism. Physical link
-traversal, finite storage, and spillback require their own explicit runtime
-contract before tick completion can be interpreted as physical travel.
+Promotion does not authorize empirical traffic realism. The explicit
+`spatial_queue_v1` runtime now supplies length/speed traversal, finite storage,
+and deterministic spillback as a structural baseline. Tick completion still
+cannot be interpreted as calibrated real traffic without PR62/PR63 evidence
+and a separate empirical traffic-validation program.
 
 ## Claim Boundary
 

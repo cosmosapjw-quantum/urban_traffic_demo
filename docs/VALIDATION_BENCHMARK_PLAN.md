@@ -71,8 +71,10 @@ city100k-like synthetic benchmark:
 - active-agent allocation/move/complete count
 - source-link queue insertion count/queue delta
 - outflow-budgeted active-agent movement count
+- traffic model provenance, physical-progress count, exit-ready count, source
+  spillback waits, and downstream storage-blocked turn count
 
-`run_measured_runtime_spine_benchmark`는 `flow_backend`, `routing_backend`, `agent_backend`,
+`run_measured_runtime_spine_benchmark`는 `flow_backend`, `routing_backend`, `agent_backend`, `traffic_model`,
 routing/agent copy-boundary note, route candidate counters, dynamic-potential counters,
 active-agent update wall time, runtime reroute/persistence counters, initial/final tick을 기록한다.
 `run_measured_routing_candidate_benchmark`는 OD 단위 dynamic-potential + route candidate path를 분리 측정하고,
@@ -143,6 +145,10 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   `outflow_vehicles` 예산 이하 link advance, no-outflow 대기, final-link sink discharge budget 이하
   completion, zero-capacity final-link 대기와 `active_agent_sink_wait_this_tick`/`active_agent_sink_wait_total`
   telemetry를 고정한다
+- spatial-queue parity는 physical link travel time, exit-ready demand gating,
+  one-space merge ordering, finite source/downstream storage, queue/storage
+  invariant, pause, replay, benchmark/UI provenance를 고정한다. 이 테스트는
+  empirical traffic 또는 shockwave validation이 아니다.
 - Rust CPU active-agent parity test는 slot order budget consumption, skipped same-tick slots,
   no-route release, final-link sink wait/completion, shared-link budget ordering, wrapper copy-boundary
   action plan을 Python baseline과 동일 입력으로 비교한다

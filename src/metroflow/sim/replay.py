@@ -91,6 +91,7 @@ class RuntimeReplayBoundary:
     flow_backend: str = "baseline"
     routing_backend: str = "baseline"
     agent_backend: str = "baseline"
+    traffic_model: str = "point_queue_v1"
     static_input_fingerprint: str = ""
     initial_state_fingerprint: str = ""
     num_steps: int = 0
@@ -123,6 +124,7 @@ class RuntimeReplayResultRecord:
     flow_backend: str = "baseline"
     routing_backend: str = "baseline"
     agent_backend: str = "baseline"
+    traffic_model: str = "point_queue_v1"
     reroute_decisions_total: int = 0
     persistence_decisions_total: int = 0
     final_state_fingerprint: str = ""
@@ -317,6 +319,7 @@ def make_runtime_replay_boundary(
         flow_backend=state.config.flow_backend,
         routing_backend=state.config.routing_backend,
         agent_backend=state.config.agent_backend,
+        traffic_model=state.config.traffic_model,
         num_steps=step_count,
         rng_key_fingerprint=(
             _runtime_value_fingerprint(normalized_rng_key)
@@ -373,6 +376,7 @@ def replay_simulation_sequence(request: RuntimeReplayRequest) -> RuntimeReplayRe
         flow_backend=sealed_final_state.config.flow_backend,
         routing_backend=sealed_final_state.config.routing_backend,
         agent_backend=sealed_final_state.config.agent_backend,
+        traffic_model=sealed_final_state.config.traffic_model,
         reroute_decisions_total=int(final_metrics.get("us2_reroute_decisions_total", 0)),
         persistence_decisions_total=int(
             final_metrics.get("us2_persistence_decisions_total", 0)

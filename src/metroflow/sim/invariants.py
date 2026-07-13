@@ -20,6 +20,7 @@ __all__ = [
     "ConservationSnapshot",
     "check_conservation_hook",
     "check_non_negative_queue",
+    "check_finite_link_storage",
     "check_capacity_violation_flags",
     "validate_invariants",
 ]
@@ -222,6 +223,63 @@ def check_non_negative_queue(
     )
 
 
+def check_finite_link_storage(
+    queue_values: Iterable[float] | Any,
+    storage_capacity_values: Iterable[float] | Any,
+    *,
+    tolerance: float = 1e-6,
+) -> tuple[InvariantViolation, ...]:
+    """Validate spatial-queue storage authority and occupied mass."""
+
+    queue = np.asarray(queue_values, dtype=np.float32)
+    storage = np.asarray(storage_capacity_values, dtype=np.float32)
+    if queue.ndim != 1 or storage.shape != queue.shape:
+        return (
+            InvariantViolation(
+                code="finite_link_storage_shape_mismatch",
+                check_name="finite_link_storage",
+                message="Spatial link storage must match the one-dimensional link queue",
+                details={
+                    "queue_shape": tuple(int(value) for value in queue.shape),
+                    "storage_shape": tuple(int(value) for value in storage.shape),
+                },
+            ),
+        )
+    invalid_storage = ~np.isfinite(storage) | (storage < 1.0)
+    if bool(np.any(invalid_storage)):
+        first = int(np.nonzero(invalid_storage)[0][0])
+        return (
+            InvariantViolation(
+                code="finite_link_storage_invalid",
+                check_name="finite_link_storage",
+                message="Spatial link storage must be finite and at least one vehicle",
+                details={
+                    "invalid_count": int(np.sum(invalid_storage)),
+                    "first_link_index": first,
+                    "first_storage_capacity": float(storage[first]),
+                },
+            ),
+        )
+    exceeded = queue > storage + float(tolerance)
+    if not bool(np.any(exceeded)):
+        return ()
+    first = int(np.nonzero(exceeded)[0][0])
+    return (
+        InvariantViolation(
+            code="finite_link_storage_exceeded",
+            check_name="finite_link_storage",
+            message="Spatial link occupancy must not exceed finite vehicle storage",
+            details={
+                "exceeded_count": int(np.sum(exceeded)),
+                "first_link_index": first,
+                "queue_vehicles": float(queue[first]),
+                "storage_capacity_vehicles": float(storage[first]),
+                "tolerance": float(tolerance),
+            },
+        ),
+    )
+
+
 def check_capacity_violation_flags(
     outflow_values: Iterable[float] | Any,
     effective_capacity_values: Iterable[float] | Any,
@@ -374,6 +432,14 @@ def validate_invariants(state: SimulationState) -> InvariantReport:
         checks_run.pop()
     else:
         violations.extend(check_non_negative_queue(queue_values))
+
+    checks_run.append("finite_link_storage")
+    storage_violations = _check_runtime_finite_link_storage(state)
+    if storage_violations is None:
+        checks_skipped.append("finite_link_storage")
+        checks_run.pop()
+    else:
+        violations.extend(storage_violations)
 
     checks_run.append("runtime_vehicle_queue_authority")
     authority_violations = _check_runtime_vehicle_queue_authority(state)
@@ -873,6 +939,32 @@ def _check_runtime_vehicle_queue_authority(
             },
         ),
     )
+
+
+def _check_runtime_finite_link_storage(
+    state: SimulationState,
+) -> tuple[InvariantViolation, ...] | None:
+    if state.config.traffic_model != "spatial_queue_v1":
+        return None
+    link_state = state.dynamic.flow_link_state
+    if not isinstance(link_state, LinkState):
+        return (
+            InvariantViolation(
+                code="finite_link_storage_authority_missing",
+                check_name="finite_link_storage",
+                message="Spatial traffic mode requires link-state storage authority",
+            ),
+        )
+    storage = link_state.metadata.get("storage_capacity_vehicles")
+    if storage is None:
+        return (
+            InvariantViolation(
+                code="finite_link_storage_authority_missing",
+                check_name="finite_link_storage",
+                message="Spatial traffic mode requires per-link storage capacity",
+            ),
+        )
+    return check_finite_link_storage(link_state.queue_vehicles, storage)
 
 
 def _extract_conservation_snapshot(state: SimulationState) -> ConservationSnapshot | None:
