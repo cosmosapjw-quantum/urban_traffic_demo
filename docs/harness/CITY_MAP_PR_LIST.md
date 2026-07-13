@@ -216,8 +216,12 @@ PR33-PR45 evidence remains the compatibility and negative-control baseline.
   `feat(city): generate hierarchical street skeleton`.
 - **PR57 - Continuous Local Fabric:** complete; orientation-field local growth and
   collector coupling. Commit: `feat(city): grow continuous local street fabric`.
-- **PR58 - Planar Block Compiler:** bounded-face extraction and fragment gates.
-  Commit: `feat(city): compile planar urban blocks`.
+- **PR58 - Planar Block Compiler:** complete; same-layer T-junction splitting,
+  proper-crossing planarization, short-fragment contraction, simple bounded-face
+  extraction, and source-street frontage gates pass the 6-style by 4-seed
+  matrix. Validation: targeted `29 passed`; full repository `691 passed`;
+  Ruff and diff checks passed. Commit:
+  `feat(city): compile planar urban blocks`.
 - **PR59 - Block Land Use And POIs:** block-based zones, capacity, buffers, and
   POIs. Commit: `feat(city): couple land use to urban blocks`.
 - **PR60 - Simulation Map Compiler:** compile the complete bundle into existing

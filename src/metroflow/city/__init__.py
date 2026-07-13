@@ -41,6 +41,9 @@ from .morphology_reference import (
     empirical_street_network_references as empirical_street_network_references,
 )
 from .morphology_reference import get_morphology_archetype as get_morphology_archetype
+from .planar_blocks import CityBlock as CityBlock
+from .planar_blocks import CityBlockCatalog as CityBlockCatalog
+from .planar_blocks import compile_planar_city_blocks as compile_planar_city_blocks
 from .realistic_local_fabric import RealisticStreetNetwork as RealisticStreetNetwork
 from .realistic_local_fabric import (
     build_continuous_local_fabric as build_continuous_local_fabric,
@@ -56,6 +59,8 @@ from .urban_form import UrbanFormField as UrbanFormField
 from .urban_form import build_urban_form_field as build_urban_form_field
 __all__ = [
     "BridgeCrossing",
+    "CityBlock",
+    "CityBlockCatalog",
     "GateDecision",
     "GateThresholds",
     "GateVersions",
@@ -94,6 +99,7 @@ __all__ = [
     "compute_street_network_morphometrics",
     "compute_morphology_quality_metrics",
     "compile_turn_authority",
+    "compile_planar_city_blocks",
     "empirical_street_network_references",
     "evaluate_morphology_quality_gate",
     "get_morphology_archetype",
