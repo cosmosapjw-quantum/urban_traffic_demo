@@ -1,3 +1,8 @@
+from .block_land_use import BlockLandUse as BlockLandUse
+from .block_land_use import BlockLandUseType as BlockLandUseType
+from .block_land_use import BlockPOI as BlockPOI
+from .block_land_use import LandUseCatalog as LandUseCatalog
+from .block_land_use import build_block_land_use_catalog as build_block_land_use_catalog
 from .contracts import GateDecision as GateDecision
 from .contracts import GateThresholds as GateThresholds
 from .contracts import GateVersions as GateVersions
@@ -58,6 +63,9 @@ from .urban_form import UrbanCenter as UrbanCenter
 from .urban_form import UrbanFormField as UrbanFormField
 from .urban_form import build_urban_form_field as build_urban_form_field
 __all__ = [
+    "BlockLandUse",
+    "BlockLandUseType",
+    "BlockPOI",
     "BridgeCrossing",
     "CityBlock",
     "CityBlockCatalog",
@@ -66,6 +74,7 @@ __all__ = [
     "GateVersions",
     "GenerationPipeline",
     "GeneratorV2",
+    "LandUseCatalog",
     "MORPHOLOGY_ARCHETYPES",
     "MorphologyArchetype",
     "MorphologyQualityMetrics",
@@ -91,6 +100,7 @@ __all__ = [
     "WeakConnectivityRepairResult",
     "WeakConnectivityReport",
     "analyze_weak_connectivity",
+    "build_block_land_use_catalog",
     "build_road_network_csr",
     "build_hierarchical_street_skeleton",
     "build_continuous_local_fabric",

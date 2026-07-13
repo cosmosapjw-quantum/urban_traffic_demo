@@ -222,8 +222,12 @@ PR33-PR45 evidence remains the compatibility and negative-control baseline.
   matrix. Validation: targeted `29 passed`; full repository `691 passed`;
   Ruff and diff checks passed. Commit:
   `feat(city): compile planar urban blocks`.
-- **PR59 - Block Land Use And POIs:** block-based zones, capacity, buffers, and
-  POIs. Commit: `feat(city): couple land use to urban blocks`.
+- **PR59 - Block Land Use And POIs:** complete; immutable block assignments use
+  terrain, center proximity, slope, and road hierarchy; explicit per-hectare
+  capacities, frontage access nodes, industrial buffers, and essential POIs
+  pass the 6-style by 4-seed matrix. Validation: targeted `27 passed`; full
+  repository `718 passed`; Ruff and diff checks passed. Commit:
+  `feat(city): couple land use to urban blocks`.
 - **PR60 - Simulation Map Compiler:** compile the complete bundle into existing
   topology, replay, initialization, and UI contracts. Commit:
   `feat(city): compile realistic map runtime authority`.
