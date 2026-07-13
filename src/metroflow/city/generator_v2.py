@@ -81,6 +81,20 @@ class GeneratorV2:
         style_id = str(cfg.get("style_id") or _default_style_for_scenario(scenario_id))
         width, height = _dimensions_for_scenario(scenario_id)
         preview_mode = str(cfg.get("preview_mode", "standard"))
+        if preview_mode == "realistic_synthetic_v1":
+            from metroflow.sim.config import CityGenerationConfig
+
+            from .realistic_city import generate_city_map
+
+            return generate_city_map(
+                CityGenerationConfig(
+                    topology_mode="realistic_synthetic_v1",
+                    morphology_style_id=style_id,
+                    zone_poi_coupling_mode="block_based_v1",
+                ),
+                scenario_id=scenario_id,
+                seed=seed,
+            ).topology
         if preview_mode == "sidecar_morphology":
             morphology_field = build_morphology_field(
                 scenario_id=scenario_id,
@@ -152,7 +166,7 @@ class GeneratorV2:
             raise ValueError(
                 "preview_mode must be one of: standard, sidecar_morphology, "
                 "sidecar_district_cells, sidecar_local_fabric, "
-                "sidecar_local_fabric_planar"
+                "sidecar_local_fabric_planar, realistic_synthetic_v1"
             )
         if style_id not in {"ring_radial", "polycentric_tod"}:
             raise ValueError(

@@ -8,7 +8,9 @@ from typing import Any
 
 import numpy as np
 
+from metroflow.city.blueprint import GeneratedCityMap
 from metroflow.city.generator_v2 import GeneratorV2, PreviewCityTopology
+from metroflow.city.realistic_city import generate_city_map
 from metroflow.city.zones import ZoningPlacementResult, generate_zones_and_pois
 from metroflow.demand.population import PopulationGenerationResult, generate_citizen_population
 from metroflow.demand.trips import TripRequestGenerationResult, generate_trip_requests
@@ -42,6 +44,7 @@ class SimulationInitBundle:
     zoning: ZoningPlacementResult
     population: PopulationGenerationResult
     trip_requests: TripRequestGenerationResult
+    generated_city_map: GeneratedCityMap | None = None
 
 
 def build_initial_simulation_state(
@@ -75,16 +78,27 @@ def build_initial_simulation_state(
     }
     if city_cfg.morphology_style_id != "auto":
         city_context["style_id"] = city_cfg.morphology_style_id
-    topology = GeneratorV2().generate_preview_topology(city_context)
+    generated_city_map: GeneratedCityMap | None = None
+    if city_cfg.topology_mode == "realistic_synthetic_v1":
+        generated_city_map = generate_city_map(
+            city_cfg,
+            scenario_id=str(city_context["scenario_id"]),
+            seed=scenario_seed,
+        )
+        topology = generated_city_map.topology
+        zoning = generated_city_map.zoning
+        road_csr = generated_city_map.road_csr
+    else:
+        topology = GeneratorV2().generate_preview_topology(city_context)
+        road_csr = topology.build_csr(validate=True, require_weak_connectivity=True)
+        zoning = generate_zones_and_pois(
+            topology,
+            config=city_cfg,
+            seed=scenario_seed,
+            population_target=sim_config.population_target,
+            validate=True,
+        )
     resolved_morphology_style_id = str(topology.metadata.get("style_id", ""))
-    road_csr = topology.build_csr(validate=True, require_weak_connectivity=True)
-    zoning = generate_zones_and_pois(
-        topology,
-        config=city_cfg,
-        seed=scenario_seed,
-        population_target=sim_config.population_target,
-        validate=True,
-    )
     population = generate_citizen_population(
         zoning,
         config=sim_config,
@@ -125,6 +139,8 @@ def build_initial_simulation_state(
             "zone_poi_coupling_gate_version",
             "zone_poi_coupling_gate_digest",
             "zone_poi_coupling_anchor_digest",
+            "land_use_catalog_fingerprint",
+            "city_blueprint_fingerprint",
         )
     }
 
@@ -163,6 +179,14 @@ def build_initial_simulation_state(
                 "road_csr": road_csr,
                 "node_zone_by_id": dict(zoning.node_zone_by_id),
                 "zone_node_ids": dict(zoning.zone_node_ids),
+                **(
+                    {
+                        "land_use_catalog": generated_city_map.blueprint.land_use,
+                        "terrain_field": generated_city_map.blueprint.terrain,
+                    }
+                    if generated_city_map is not None
+                    else {}
+                ),
             },
             ui_network_geometry_version=geometry_version,
             metadata={
@@ -194,6 +218,7 @@ def build_initial_simulation_state(
         zoning=zoning,
         population=population,
         trip_requests=trip_requests,
+        generated_city_map=generated_city_map,
     )
 
 

@@ -228,8 +228,12 @@ PR33-PR45 evidence remains the compatibility and negative-control baseline.
   pass the 6-style by 4-seed matrix. Validation: targeted `27 passed`; full
   repository `718 passed`; Ruff and diff checks passed. Commit:
   `feat(city): couple land use to urban blocks`.
-- **PR60 - Simulation Map Compiler:** compile the complete bundle into existing
-  topology, replay, initialization, and UI contracts. Commit:
+- **PR60 - Simulation Map Compiler:** complete; explicit paired config,
+  composed blueprint, no-repair topology/CSR/zoning compiler, 512 sampled OD
+  gate, replay fingerprints, runtime initialization, and polygon static-map
+  payload pass the 6-style by 4-seed matrix. Validation: targeted `32 passed`;
+  related integration `99 passed`; full repository `747 passed`; Ruff and diff
+  checks passed. Commit:
   `feat(city): compile realistic map runtime authority`.
 - **PR61 - Physical Link Traversal:** explicit spatial queue, finite storage,
   and spillback NumPy baseline. Commit:

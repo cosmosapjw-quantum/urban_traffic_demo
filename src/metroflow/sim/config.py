@@ -29,8 +29,9 @@ CITY_TOPOLOGY_MODES = (
     "standard",
     "sidecar_local_fabric",
     "sidecar_local_fabric_planar",
+    "realistic_synthetic_v1",
 )
-ZONE_POI_COUPLING_MODES = ("legacy", "morphology_gated")
+ZONE_POI_COUPLING_MODES = ("legacy", "morphology_gated", "block_based_v1")
 
 
 class StrEnum(str, Enum):
@@ -211,13 +212,27 @@ class CityGenerationConfig:
         if self.topology_mode not in CITY_TOPOLOGY_MODES:
             raise ValueError(
                 "topology_mode must be one of: standard, sidecar_local_fabric, "
-                "sidecar_local_fabric_planar"
+                "sidecar_local_fabric_planar, realistic_synthetic_v1"
             )
         if self.morphology_style_id != "auto":
             get_morphology_archetype(self.morphology_style_id)
         if self.zone_poi_coupling_mode not in ZONE_POI_COUPLING_MODES:
             raise ValueError(
-                "zone_poi_coupling_mode must be one of: legacy, morphology_gated"
+                "zone_poi_coupling_mode must be one of: legacy, morphology_gated, "
+                "block_based_v1"
+            )
+        if self.topology_mode == "realistic_synthetic_v1" and (
+            self.zone_poi_coupling_mode != "block_based_v1"
+        ):
+            raise ValueError(
+                "realistic_synthetic_v1 requires zone_poi_coupling_mode="
+                "block_based_v1"
+            )
+        if self.zone_poi_coupling_mode == "block_based_v1" and (
+            self.topology_mode != "realistic_synthetic_v1"
+        ):
+            raise ValueError(
+                "block_based_v1 requires topology_mode=realistic_synthetic_v1"
             )
         if (
             self.topology_mode == "standard"

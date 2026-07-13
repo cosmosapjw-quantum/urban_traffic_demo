@@ -496,6 +496,18 @@ def _runtime_static_input_fingerprint(state: SimulationState) -> str:
         "zoning_placement_fingerprint": str(
             metadata.get("zoning_placement_fingerprint", "")
         ),
+        "city_blueprint_fingerprint": str(
+            metadata.get("city_blueprint_fingerprint", "")
+        ),
+        "land_use_catalog_fingerprint": str(
+            metadata.get("land_use_catalog_fingerprint", "")
+        ),
+        "generated_city_map_fingerprint": str(
+            getattr(topology, "metadata", {}).get(
+                "generated_city_map_fingerprint",
+                "",
+            )
+        ),
         "zone_poi_coupling": {
             key: str(metadata.get(key, ""))
             for key in (

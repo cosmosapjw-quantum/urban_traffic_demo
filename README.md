@@ -213,6 +213,13 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   `CityGenerationConfig(topology_mode="sidecar_local_fabric_planar")`로 명시한다.
   이 모드는 topology/geometry gate를 통과하지만 초기화 비용과 route-ID 호환성 때문에
   runtime default로 승격되지 않았다.
+- terrain, continuous streets, planar blocks, block land use, POIs, sections,
+  turns, CSR을 하나의 simulation input으로 컴파일하는 현실형 경로는
+  `CityGenerationConfig(topology_mode="realistic_synthetic_v1",
+  zone_poi_coupling_mode="block_based_v1")`로 명시한다. 이 조합은
+  fail-closed이며 legacy fallback이 없고 아직 runtime default가 아니다.
+  `metroflow.city.generate_city_map(config, scenario_id, seed)`가 composed
+  blueprint와 runtime map의 권위 entrypoint다.
 - 방사형 이외의 합성 형태는 `CityGenerationConfig(morphology_style_id=...)`로 선택한다.
   지원 값은 `grid_core`, `polycentric_tod`, `river_constrained`, `superblock_mixed`,
   `organic`, `ring_radial`이며 기본 `auto`는 기존 scenario별 선택을 보존한다. 문헌 기반

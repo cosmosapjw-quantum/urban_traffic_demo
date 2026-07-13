@@ -16,12 +16,11 @@ from .planar_blocks import CityBlock, CityBlockCatalog
 from .realistic_local_fabric import RealisticStreetNetwork
 from .terrain_field import TerrainField
 from .urban_form import UrbanFormField
-from .zones import POIType
-
 __all__ = [
     "BlockLandUse",
     "BlockLandUseType",
     "BlockPOI",
+    "BlockPOIType",
     "LandUseCatalog",
     "build_block_land_use_catalog",
 ]
@@ -39,6 +38,12 @@ class BlockLandUseType(StrEnum):
     MIXED_USE = "mixed_use"
     INDUSTRIAL = "industrial"
     OPEN_SPACE = "open_space"
+
+
+class BlockPOIType(StrEnum):
+    HOME = "home"
+    WORKPLACE = "workplace"
+    LEISURE = "leisure"
 
 
 @dataclass(frozen=True, slots=True)
@@ -152,7 +157,7 @@ class BlockLandUse:
 class BlockPOI:
     poi_id: int
     block_id: int
-    poi_type: POIType | str
+    poi_type: BlockPOIType | str
     x_m: float
     y_m: float
     access_node_id: int
@@ -161,7 +166,7 @@ class BlockPOI:
     def __post_init__(self) -> None:
         poi_id = int(self.poi_id)
         block_id = int(self.block_id)
-        poi_type = POIType(self.poi_type)
+        poi_type = BlockPOIType(self.poi_type)
         x_m = float(self.x_m)
         y_m = float(self.y_m)
         access_node_id = int(self.access_node_id)
@@ -219,10 +224,10 @@ class LandUseCatalog:
         if int(self.developed_block_count) != len(developed) or not developed:
             raise ValueError("developed_block_count does not match land-use blocks")
         block_by_id = {item.block_id: item for item in blocks}
-        poi_types_by_block: dict[int, set[POIType]] = {
+        poi_types_by_block: dict[int, set[BlockPOIType]] = {
             item.block_id: set() for item in blocks
         }
-        poi_capacities_by_block: dict[int, dict[POIType, int]] = {
+        poi_capacities_by_block: dict[int, dict[BlockPOIType, int]] = {
             item.block_id: {} for item in blocks
         }
         for poi in pois:
@@ -241,7 +246,7 @@ class LandUseCatalog:
                 raise ValueError("land-use block cannot repeat a POI type")
             poi_types_by_block[poi.block_id].add(poi.poi_type)
             poi_capacities_by_block[poi.block_id][poi.poi_type] = poi.capacity_hint
-        if {poi.poi_type for poi in pois} != set(POIType):
+        if {poi.poi_type for poi in pois} != set(BlockPOIType):
             raise ValueError("land-use catalog requires home, workplace, and leisure POIs")
         for block in developed:
             expected_mix = dict(_poi_mix(block))
@@ -255,7 +260,7 @@ class LandUseCatalog:
             if item.land_use_type is BlockLandUseType.RESIDENTIAL
         )
         accessible_residential = sum(
-            {POIType.HOME, POIType.LEISURE}
+            {BlockPOIType.HOME, BlockPOIType.LEISURE}
             <= poi_types_by_block[item.block_id]
             for item in residential
         )
@@ -362,14 +367,14 @@ def build_block_land_use_catalog(
         for item in blocks
         if item.land_use_type is BlockLandUseType.RESIDENTIAL
     }
-    poi_types_by_block: dict[int, set[POIType]] = {
+    poi_types_by_block: dict[int, set[BlockPOIType]] = {
         block_id: set() for block_id in residential_ids
     }
     for poi in pois:
         if poi.block_id in poi_types_by_block:
             poi_types_by_block[poi.block_id].add(poi.poi_type)
     essential_ratio = sum(
-        {POIType.HOME, POIType.LEISURE} <= poi_types
+        {BlockPOIType.HOME, BlockPOIType.LEISURE} <= poi_types
         for poi_types in poi_types_by_block.values()
     ) / max(len(residential_ids), 1)
     developed = tuple(item for item in blocks if item.is_developed)
@@ -631,24 +636,24 @@ def _build_pois(blocks: tuple[BlockLandUse, ...]) -> tuple[BlockPOI, ...]:
     return tuple(pois)
 
 
-def _poi_mix(block: BlockLandUse) -> tuple[tuple[POIType, int], ...]:
+def _poi_mix(block: BlockLandUse) -> tuple[tuple[BlockPOIType, int], ...]:
     if block.land_use_type is BlockLandUseType.RESIDENTIAL:
         return (
-            (POIType.HOME, block.population_capacity),
-            (POIType.LEISURE, block.leisure_capacity),
+            (BlockPOIType.HOME, block.population_capacity),
+            (BlockPOIType.LEISURE, block.leisure_capacity),
         )
     if block.land_use_type is BlockLandUseType.COMMERCIAL:
         return (
-            (POIType.WORKPLACE, block.job_capacity),
-            (POIType.LEISURE, block.leisure_capacity),
+            (BlockPOIType.WORKPLACE, block.job_capacity),
+            (BlockPOIType.LEISURE, block.leisure_capacity),
         )
     if block.land_use_type is BlockLandUseType.INDUSTRIAL:
-        return ((POIType.WORKPLACE, block.job_capacity),)
+        return ((BlockPOIType.WORKPLACE, block.job_capacity),)
     if block.land_use_type is BlockLandUseType.MIXED_USE:
         return (
-            (POIType.HOME, block.population_capacity),
-            (POIType.WORKPLACE, block.job_capacity),
-            (POIType.LEISURE, block.leisure_capacity),
+            (BlockPOIType.HOME, block.population_capacity),
+            (BlockPOIType.WORKPLACE, block.job_capacity),
+            (BlockPOIType.LEISURE, block.leisure_capacity),
         )
     return ()
 

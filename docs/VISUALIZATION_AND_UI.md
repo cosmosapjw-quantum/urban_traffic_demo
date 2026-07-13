@@ -33,5 +33,6 @@
 - frame skip 허용
 - logging artifact를 실제 현상으로 오독하지 않게 metric 정의를 문서화
 - 중간 지도 품질 검토는 `metroflow.ui.static_map`의 static HTML/SVG artifact를 우선 사용한다
-- static city map은 road class, zone/POI, bridge, queue/congestion overlay를 포함하지만
-  interactive viewer나 품질 검증 판정은 아니다
+- static city map은 road class, zone/POI, bridge, queue/congestion overlay를 포함하고,
+  현실형 mode에서는 block-authoritative land-use polygon을 표시한다. 이는 interactive
+  viewer나 품질 검증 판정이 아니다

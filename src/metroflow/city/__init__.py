@@ -1,6 +1,7 @@
 from .block_land_use import BlockLandUse as BlockLandUse
 from .block_land_use import BlockLandUseType as BlockLandUseType
 from .block_land_use import BlockPOI as BlockPOI
+from .block_land_use import BlockPOIType as BlockPOIType
 from .block_land_use import LandUseCatalog as LandUseCatalog
 from .block_land_use import build_block_land_use_catalog as build_block_land_use_catalog
 from .contracts import GateDecision as GateDecision
@@ -66,13 +67,16 @@ __all__ = [
     "BlockLandUse",
     "BlockLandUseType",
     "BlockPOI",
+    "BlockPOIType",
     "BridgeCrossing",
     "CityBlock",
     "CityBlockCatalog",
+    "CityBlueprint",
     "GateDecision",
     "GateThresholds",
     "GateVersions",
     "GenerationPipeline",
+    "GeneratedCityMap",
     "GeneratorV2",
     "LandUseCatalog",
     "MORPHOLOGY_ARCHETYPES",
@@ -88,6 +92,7 @@ __all__ = [
     "RoadLink",
     "RoadNetworkCSR",
     "RealisticStreetNetwork",
+    "RealisticCityQualityResult",
     "StreetNetworkMorphometrics",
     "TerrainField",
     "TopologyValidationIssue",
@@ -112,7 +117,28 @@ __all__ = [
     "compile_planar_city_blocks",
     "empirical_street_network_references",
     "evaluate_morphology_quality_gate",
+    "generate_city_map",
     "get_morphology_archetype",
     "repair_weak_connectivity",
     "validate_road_network_topology",
 ]
+
+
+def __getattr__(name: str):
+    if name in {"CityBlueprint", "GeneratedCityMap", "RealisticCityQualityResult"}:
+        from .blueprint import (
+            CityBlueprint,
+            GeneratedCityMap,
+            RealisticCityQualityResult,
+        )
+
+        return {
+            "CityBlueprint": CityBlueprint,
+            "GeneratedCityMap": GeneratedCityMap,
+            "RealisticCityQualityResult": RealisticCityQualityResult,
+        }[name]
+    if name == "generate_city_map":
+        from .realistic_city import generate_city_map
+
+        return generate_city_map
+    raise AttributeError(name)
