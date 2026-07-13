@@ -211,7 +211,7 @@ PR33-PR45 evidence remains the compatibility and negative-control baseline.
   `refactor(city): isolate generation stage contracts`.
 - **PR55 - Terrain And Development Fields:** complete; bounded read-only NumPy fields and
   deterministic centers. Commit: `feat(city): add terrain and development fields`.
-- **PR56 - Hierarchical Street Skeleton:** terrain-aware gateways, arterial
+- **PR56 - Hierarchical Street Skeleton:** complete; terrain-aware gateways, arterial
   connectivity, and bounded redundancy. Commit:
   `feat(city): generate hierarchical street skeleton`.
 - **PR57 - Continuous Local Fabric:** orientation-field local growth and

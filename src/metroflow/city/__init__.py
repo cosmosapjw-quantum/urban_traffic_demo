@@ -20,6 +20,9 @@ from .graph import TurnMovement as TurnMovement
 from .graph import TurnType as TurnType
 from .graph import build_road_network_csr as build_road_network_csr
 from .graph import validate_road_network_topology as validate_road_network_topology
+from .hierarchical_streets import (
+    build_hierarchical_street_skeleton as build_hierarchical_street_skeleton,
+)
 from .morphology_metrics import StreetNetworkMorphometrics as StreetNetworkMorphometrics
 from .morphology_metrics import (
     compute_street_network_morphometrics as compute_street_network_morphometrics,
@@ -38,6 +41,8 @@ from .morphology_reference import (
     empirical_street_network_references as empirical_street_network_references,
 )
 from .morphology_reference import get_morphology_archetype as get_morphology_archetype
+from .street_plan import PhysicalStreet as PhysicalStreet
+from .street_plan import PhysicalStreetPlan as PhysicalStreetPlan
 from .terrain_field import TerrainField as TerrainField
 from .terrain_field import build_terrain_field as build_terrain_field
 from .turn_compiler import TurnAuthorityCatalog as TurnAuthorityCatalog
@@ -58,6 +63,8 @@ __all__ = [
     "MorphologyQualityGate",
     "Node",
     "NodeKind",
+    "PhysicalStreet",
+    "PhysicalStreetPlan",
     "PreviewCityTopology",
     "RoadClass",
     "RoadLink",
@@ -75,6 +82,7 @@ __all__ = [
     "WeakConnectivityReport",
     "analyze_weak_connectivity",
     "build_road_network_csr",
+    "build_hierarchical_street_skeleton",
     "build_terrain_field",
     "build_urban_form_field",
     "compute_street_network_morphometrics",
