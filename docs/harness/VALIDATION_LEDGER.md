@@ -941,3 +941,17 @@ Evidence:
 Claim boundary: local host diagnostic only. It establishes neither empirical
 city realism nor calibrated traffic. PR62 remains the independent morphology
 gate, and no timing result can override it.
+
+## 2026-07-13: PR64 Default Promotion Closure
+
+Command:
+
+```bash
+.venv/bin/python -m pytest \
+  tests/test_realistic_city_default_promotion.py -q
+```
+
+Result: canonical PR62 and PR63 fingerprints reload, both gates remain false,
+the default remains `standard`, and the machine decision records `BLOCKED`.
+No runtime or generator feature code is added. Final repository gate:
+`778 passed in 590.18s`; Ruff and diff checks pass.

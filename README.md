@@ -239,6 +239,10 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   actual-population, equal-budget throughput gate를 실패했고 단일 Rust
   generation stage도 승인하지 않았다. RSS와 20-tick latency 일부 통과는
   PR62 morphology 실패나 다른 PR63 실패를 상쇄하지 않는다.
+- PR64 default promotion 결정은
+  `docs/harness/REALISTIC_CITY_DEFAULT_PROMOTION_DECISION.md`에 `BLOCKED`로
+  고정되어 있다. 기본 `standard`와 legacy zone/POI coupling은 변경되지
+  않았으며 재개에는 수정된 generator의 PR62/PR63 전체 재통과가 필요하다.
 - 방사형 이외의 합성 형태는 `CityGenerationConfig(morphology_style_id=...)`로 선택한다.
   지원 값은 `grid_core`, `polycentric_tod`, `river_constrained`, `superblock_mixed`,
   `organic`, `ring_radial`이며 기본 `auto`는 기존 scenario별 선택을 보존한다. 문헌 기반

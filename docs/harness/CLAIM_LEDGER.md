@@ -65,7 +65,10 @@ version with evidence and falsifiers is:
   audit passes zero maps: every map is too highly connected and has too few
   dead ends relative to the pinned envelope; seven also exceed the developed
   branch-free corridor threshold. Visual inspection shows repeated triangular
-  fabric and no collector-length hierarchy.
+  fabric and no collector-length hierarchy. PR63 independently fails 100k
+  generation wall, realized population, and paired throughput on all three
+  seeds, while admitting no single Rust generation stage. PR64 preserves
+  `standard` and records the conjunctive decision as `BLOCKED`.
 
 ## Not Validated
 

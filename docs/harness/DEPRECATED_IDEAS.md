@@ -108,3 +108,20 @@ Reopen condition:
 
 - A morphology redesign, route-ID migration plan, and multi-seed initialization
   budget all pass without weakening deterministic replay or fallback policy.
+
+## Immediate Realistic Synthetic City Default Promotion
+
+Status: blocked
+
+Reason:
+
+- PR62 passes `0/30` maps under the frozen morphology/plausibility gate.
+- PR63 exceeds the generation wall limit, underfills the requested 100k
+  population, and advances fewer equal-budget ticks on every seed.
+- No Rust-eligible generation stage reaches 30 percent on all fixed seeds, so
+  backend work cannot be used as a promotion shortcut.
+
+Reopen condition:
+
+- A revised generator passes complete PR62 and PR63 matrices under unchanged
+  thresholds and valid source fingerprints.

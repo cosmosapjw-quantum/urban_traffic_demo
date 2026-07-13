@@ -1,6 +1,6 @@
 # PRD - Realistic Synthetic City
 
-Status: active contract
+Status: active contract; default promotion blocked by PR62-PR64
 Last updated: 2026-07-13
 
 ## Product Goal
@@ -113,6 +113,11 @@ latency ratios pass, but gates are conjunctive. No A*/planarization/face stage
 reaches the 30-percent Rust admission threshold on all seeds. The authoritative
 diagnostic is
 `artifacts/runtime_spine_review/realistic-city-pr63-scale.md`.
+
+PR64 consumes both canonical fingerprints and records `BLOCKED` without a
+runtime default change. The decision authority is
+`docs/harness/REALISTIC_CITY_DEFAULT_PROMOTION_DECISION.md`. Reopening requires
+a revised generator and complete reruns under the unchanged thresholds.
 
 ## Claim Boundary
 

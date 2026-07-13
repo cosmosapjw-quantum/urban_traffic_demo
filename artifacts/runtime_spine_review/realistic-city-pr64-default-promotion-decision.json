@@ -1,0 +1,38 @@
+{
+  "schema_version": "realistic_city_default_promotion_decision_v1",
+  "decision_date": "2026-07-13",
+  "status": "BLOCKED",
+  "current_default": "standard",
+  "requested_default": "realistic_synthetic_v1",
+  "default_changed": false,
+  "feature_commit_allowed": false,
+  "source_evidence": {
+    "pr62": {
+      "path": "artifacts/runtime_spine_review/realistic-city-pr62-plausibility.json",
+      "fingerprint": "6ab9f8c9c62f36aeedffd67707f2c3e9072274ca91f1e836dc14d69fcde3316b",
+      "pass": false
+    },
+    "pr63": {
+      "path": "artifacts/runtime_spine_review/realistic-city-pr63-scale.json",
+      "fingerprint": "149571c18552e5cc655a0c33844fe487a7b6165cea808b1c55a3b47655f5278e",
+      "pass": false
+    }
+  },
+  "gate_results": {
+    "morphology_plausibility": false,
+    "generation_wall": false,
+    "generation_peak_rss": true,
+    "realized_population": false,
+    "fixed_20_tick_latency": true,
+    "paired_budget_throughput": false,
+    "rust_generation_probe_admission": false
+  },
+  "blockers": [
+    "pr62_morphology_plausibility_failed",
+    "pr63_generation_wall_failed",
+    "pr63_realized_population_failed",
+    "pr63_paired_throughput_failed"
+  ],
+  "claim_boundary": "No default promotion, empirical realism claim, or backend admission follows from partial gate success.",
+  "reopening_rule": "Revise the generator, preserve frozen thresholds, rerun complete PR62 and PR63 matrices, and require every conjunctive gate to pass."
+}

@@ -1136,3 +1136,29 @@ pass, or an eligible generation stage above 30 percent on all fixed seeds.
 Next action: record PR64 BLOCKED and return to the generator/product contract:
 replace the repeated triangular fabric and capacity underfill before rerunning
 the frozen audits.
+
+## 2026-07-13: Preserve Standard As The City Default
+
+Status: PR64 blocked closure accepted
+
+Question: Can partial PR63 performance passes override failed PR62/PR63 gates?
+
+Evidence: Authoritative loaders reconstruct PR62 fingerprint
+`6ab9f8c9c62f36aeedffd67707f2c3e9072274ca91f1e836dc14d69fcde3316b`
+and PR63 fingerprint
+`149571c18552e5cc655a0c33844fe487a7b6165cea808b1c55a3b47655f5278e`.
+Both report overall failure, while the default config remains `standard` with
+legacy zone/POI coupling.
+
+Inference: Promotion is conjunctive. RSS and fixed-latency passes do not offset
+morphology, generation, population, or throughput failures.
+
+Counterevidence checked: deterministic topology compilation, connectivity,
+sampled OD reachability, spatial-queue substrate, passing RSS, and passing
+fixed-latency ratios.
+
+Decision: close PR64 as `BLOCKED`; do not create a feature promotion commit.
+
+Falsifier: both frozen audits pass completely after a generator revision.
+
+Next action: specify the generator redesign before any new acceleration lane.

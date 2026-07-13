@@ -147,6 +147,10 @@ Derived conclusions:
   Generation RSS and fixed-step latency ratios pass, but no eligible generation
   stage clears the all-seed 30-percent Rust gate. Performance work cannot
   substitute for the PR62 morphology redesign.
+- PR64 is closed as `BLOCKED`. Both canonical source fingerprints validate,
+  `standard` remains the default, and no feature/backend implementation was
+  admitted. The machine decision is
+  `artifacts/runtime_spine_review/realistic-city-pr64-default-promotion-decision.json`.
 - `SimulationState.simulation_step` does not run the legacy accessibility and
   land-use cadences. The new runtime and frozen `WorldState` orchestrator remain
   split authorities rather than one city-to-traffic-to-LUTI loop.
@@ -212,10 +216,10 @@ but remains uncalibrated and cannot turn completed ticks into traffic-realism
 evidence. Port the legacy medium/slow accessibility and land-use cadences into
 `SimulationState` or explicitly retire that product claim.
 
-The immediate product decision is PR64 fail-closed recording, followed by a new
-generator specification that replaces the triangular local fabric and fixes
-zone/home capacity so requested populations are realized. Only after PR62 and
-PR63 are rerun should acceleration be reconsidered. Preserve four visible
+The immediate product decision is a new generator specification that replaces
+the triangular local fabric and fixes zone/home capacity so requested
+populations are realized. Only after PR62 and PR63 are rerun should acceleration
+be reconsidered. Preserve four visible
 lanes: Rust for branch-heavy graph/action planning, NumPy/SIMD for flow arrays,
 JAX/GPU for amortized dense chunks/scoring, and NN only for simulator-labelled
 surrogate experiments.

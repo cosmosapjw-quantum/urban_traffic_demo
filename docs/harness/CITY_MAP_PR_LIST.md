@@ -203,6 +203,9 @@ The controlling product contract is
 sidecar refinement with a terrain-to-block-to-runtime pipeline. Existing
 PR33-PR45 evidence remains the compatibility and negative-control baseline.
 
+Status: closed as `BLOCKED`; the explicit realistic path remains available,
+but `standard` remains the default pending a new generator redesign spec.
+
 - **PR53 - Product Contract Freeze:** complete; froze thresholds, public
   contracts, claim boundary, and ordered queue. Commit:
   `docs(city): define realistic synthetic city target`.
@@ -263,6 +266,9 @@ PR33-PR45 evidence remains the compatibility and negative-control baseline.
   seeds, so no Rust generation probe is admitted. Canonical artifact:
   `artifacts/runtime_spine_review/realistic-city-pr63-scale.md`. Commit:
   `perf(city): close realistic map scale gate`.
-- **PR64 - Default Promotion:** conditional; promote only if every frozen gate
-  passes, otherwise record `BLOCKED` without changing the default. Commit when
-  admitted: `feat(city): promote realistic generator default`.
+- **PR64 - Default Promotion:** closed as `BLOCKED`; PR62 and PR63 source
+  fingerprints reload successfully, but their conjunctive gates fail.
+  `standard` remains the default and the planned feature commit
+  `feat(city): promote realistic generator default` is forbidden. Decision:
+  `docs/harness/REALISTIC_CITY_DEFAULT_PROMOTION_DECISION.md`. Closure commit:
+  `docs(city): record realistic promotion blocker`.
