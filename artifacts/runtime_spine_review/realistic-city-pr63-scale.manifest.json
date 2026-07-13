@@ -1,0 +1,25 @@
+{
+  "claim_status": "diagnostic_scale_gate",
+  "default_promotion_eligible": false,
+  "files": {
+    "html": {
+      "bytes": 3385,
+      "path": "artifacts/runtime_spine_review/realistic-city-pr63-scale.html",
+      "sha256": "ca4a48533305641c4b674a18cc013027678a8d7b772108280fe8adf2dc37bb88"
+    },
+    "json": {
+      "bytes": 82047,
+      "path": "artifacts/runtime_spine_review/realistic-city-pr63-scale.json",
+      "sha256": "52de4cc50a37fc43855e16d7b17dcbade137f8697ad5747f522d91f1074a1339"
+    },
+    "markdown": {
+      "bytes": 7858,
+      "path": "artifacts/runtime_spine_review/realistic-city-pr63-scale.md",
+      "sha256": "401722226ba88af7a4a6c95c93c71b33f02ad997ccff0865135693ef1100d1a0"
+    }
+  },
+  "report_fingerprint": "149571c18552e5cc655a0c33844fe487a7b6165cea808b1c55a3b47655f5278e",
+  "schema_version": "realistic_city_scale_manifest_v1",
+  "visual_audit_dependency": "artifacts/runtime_spine_review/realistic-city-pr62-plausibility.png",
+  "visual_claim_status": "reused_diagnostic_only_no_generator_change"
+}

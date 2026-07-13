@@ -1097,3 +1097,42 @@ backend advantage on the closed parent stage reopens the relevant decision.
 
 Next action: reduce or redesign 100k cadence reroute cost, then specify physical
 link traversal and rerun the bounded scale/replay matrix.
+
+## 2026-07-13: Close PR63 Scale Gate Without Opening A Backend
+
+Status: diagnostic accepted; promotion and Rust generation probe blocked
+
+### Compact CCoT
+
+Question: Does the realistic synthetic city meet the frozen 100k cost and
+throughput gates, or expose one generation stage suitable for a Rust follow-up?
+
+Evidence: Forty-two fresh subprocess measurements cover populations 1k, 10k,
+and 100k; seeds 17, 29, and 41; legacy and realistic generation/fixed runtime;
+three separate realistic stage profiles; and six paired-budget runs. At 100k,
+generation is `2.55-2.77x` legacy, actual citizens are `61,655-62,604` rather
+than 100,000, and realistic completes `16-17` paired-budget ticks versus
+legacy `20-21`. RSS and 20-tick parent latency ratios pass. Continuous fabric,
+planar blocks, and topology compile peak below 30 percent and no eligible stage
+clears 30 percent on every seed.
+
+Inference: Performance is not the only blocker, but it independently rejects
+default promotion. The cost is spread across several stages, so a Rust port of
+one branch-heavy stage is not admitted by the frozen rule.
+
+Counterevidence checked: cumulative `ru_maxrss`, substage wrapper overhead,
+seed pairing, deadline overshoot, zero-tick vacuity, empty trip workloads,
+population underfill, 1k/10k shared map extent, and the separate PR62
+morphology failure.
+
+Decision: accept the measurement harness and canonical artifact. Keep
+`standard` as default, do not open Rust generation work, and close PR64 as
+`BLOCKED` rather than relaxing thresholds.
+
+Falsifier: a complete fixed matrix with exact 100k citizen realization,
+generation at most `2x`, non-decreasing paired throughput, PR62 plausibility
+pass, or an eligible generation stage above 30 percent on all fixed seeds.
+
+Next action: record PR64 BLOCKED and return to the generator/product contract:
+replace the repeated triangular fabric and capacity underfill before rerunning
+the frozen audits.

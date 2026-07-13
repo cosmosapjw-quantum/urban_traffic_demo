@@ -252,8 +252,16 @@ PR33-PR45 evidence remains the compatibility and negative-control baseline.
   audit generated all 30 maps in `144.26 s` at `272,112 KiB` maximum RSS;
   full repository `767 passed`; Ruff and diff checks passed. Commit:
   `test(city): audit synthetic city plausibility`.
-- **PR63 - Scale And Hardware-Fit Closure:** 1k/10k/100k generation and runtime
-  evidence before any Rust generation core is opened. Commit:
+- **PR63 - Scale And Hardware-Fit Closure:** complete as a fresh-process
+  diagnostic and fail-closed as a performance/product gate. The canonical
+  42-run matrix covers three populations, three seeds, both city modes, three
+  realistic stage profiles, and six paired-budget runs. At 100k every seed
+  fails generation wall (`2.55-2.77x`), actual citizen realization
+  (`61,655-62,604` realistic and `62,500` legacy), and paired throughput
+  (`16-17` realistic ticks versus `20-21` legacy). RSS and fixed 20-tick
+  latency ratios pass. No eligible generation stage reaches 30 percent on all
+  seeds, so no Rust generation probe is admitted. Canonical artifact:
+  `artifacts/runtime_spine_review/realistic-city-pr63-scale.md`. Commit:
   `perf(city): close realistic map scale gate`.
 - **PR64 - Default Promotion:** conditional; promote only if every frozen gate
   passes, otherwise record `BLOCKED` without changing the default. Commit when

@@ -911,3 +911,33 @@ Claim boundary:
   LUTI integration, and independent reproduction remain unvalidated;
 - Python/NumPy remains authoritative; Rust/JAX remain optional; no NN/custom
   CUDA/runtime-backend promotion follows from these diagnostics.
+
+## 2026-07-13: PR63 Realistic City Scale And Hardware-Fit Gate
+
+Change class: fresh-process diagnostic benchmark and promotion gate
+
+Canonical command:
+
+```bash
+/usr/bin/time -f 'elapsed=%e max_rss_kib=%M' \
+  .venv/bin/python -m metroflow.benchmarks.realistic_city_scale \
+  --artifact-prefix \
+  artifacts/runtime_spine_review/realistic-city-pr63-scale
+```
+
+Evidence:
+
+- `18` city-authority runs, `18` fixed 20-tick runs, `3` realistic stage
+  profiles, and `6` paired-budget runs;
+- populations `1,000`, `10,000`, and `100,000`; seeds `17,29,41`;
+- total elapsed `894.31 s`; parent maximum RSS `229,980 KiB`;
+- report fingerprint
+  `149571c18552e5cc655a0c33844fe487a7b6165cea808b1c55a3b47655f5278e`;
+- performance gate failed, default promotion false, Rust generation probe false;
+- artifact bundle:
+  `artifacts/runtime_spine_review/realistic-city-pr63-scale.{json,md,html}`
+  and `.manifest.json`.
+
+Claim boundary: local host diagnostic only. It establishes neither empirical
+city realism nor calibrated traffic. PR62 remains the independent morphology
+gate, and no timing result can override it.

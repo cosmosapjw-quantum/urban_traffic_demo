@@ -131,6 +131,33 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - compiled-fragment circuity is 1.0 by construction and is explicitly reported
   as a measurement limitation, not realistic-curvature evidence.
 
+## realistic city scale and hardware-fit audit
+
+```bash
+/usr/bin/time -f 'elapsed=%e max_rss_kib=%M' \
+  .venv/bin/python -m metroflow.benchmarks.realistic_city_scale \
+  --artifact-prefix artifacts/runtime_spine_review/realistic-city-pr63-scale
+```
+
+- fixed matrix: populations `1k,10k,100k` x seeds `17,29,41` x legacy and
+  realistic modes;
+- generation, fixed 20-tick runtime, paired-budget runtime, and realistic
+  stage profiling run in separate fresh processes;
+- generation peak RSS uses the city-authority-only phase, not a process that
+  has already allocated population, trips, flow arrays, or active agents;
+- paired-budget ticks count only completions before the deadline, and zero
+  legacy progress fails rather than passing vacuously;
+- runtime comparison records requested/actual citizen and trip counts; 100k is
+  comparable only when both modes realize exactly 100,000 citizens;
+- Rust follow-up requires one eligible A*/planarization/face stage to consume
+  at least 30 percent of city-authority time on every fixed seed;
+- canonical PR63 result fails generation, citizen-realization, and paired
+  throughput gates on all seeds; RSS and fixed-step latency ratios pass; no
+  Rust generation probe is admitted;
+- the 1k and 10k rows share `synthetic_smoke`, while 100k switches extent and
+  auto style. The artifact is not a continuous three-size city curve or an
+  empirical validation claim.
+
 ## backend benchmark
 - baseline backend과 optional accelerator backend를 같은 input signature로 비교
 - 기본 benchmark는 NumPy baseline만 요구한다

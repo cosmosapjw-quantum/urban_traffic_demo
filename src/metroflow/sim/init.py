@@ -48,6 +48,14 @@ class SimulationInitBundle:
     generated_city_map: GeneratedCityMap | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class _InitialCityAuthority:
+    topology: PreviewCityTopology
+    zoning: ZoningPlacementResult
+    road_csr: Any
+    generated_city_map: GeneratedCityMap | None
+
+
 def build_initial_simulation_state(
     *,
     config: SimulationConfig | None = None,
@@ -68,37 +76,15 @@ def build_initial_simulation_state(
         day_type=sim_config.day_type_set[0],
         time_band=sim_config.time_bands[0],
     )
-    city_context: dict[str, Any] = {
-        "scenario_id": (
-            "synthetic_100k"
-            if sim_config.population_target >= 100_000
-            else "synthetic_smoke"
-        ),
-        "seed": scenario_seed,
-        "preview_mode": city_cfg.topology_mode,
-    }
-    if city_cfg.morphology_style_id != "auto":
-        city_context["style_id"] = city_cfg.morphology_style_id
-    generated_city_map: GeneratedCityMap | None = None
-    if city_cfg.topology_mode == "realistic_synthetic_v1":
-        generated_city_map = generate_city_map(
-            city_cfg,
-            scenario_id=str(city_context["scenario_id"]),
-            seed=scenario_seed,
-        )
-        topology = generated_city_map.topology
-        zoning = generated_city_map.zoning
-        road_csr = generated_city_map.road_csr
-    else:
-        topology = GeneratorV2().generate_preview_topology(city_context)
-        road_csr = topology.build_csr(validate=True, require_weak_connectivity=True)
-        zoning = generate_zones_and_pois(
-            topology,
-            config=city_cfg,
-            seed=scenario_seed,
-            population_target=sim_config.population_target,
-            validate=True,
-        )
+    city_authority = _build_initial_city_authority(
+        sim_config=sim_config,
+        city_config=city_cfg,
+        scenario_seed=scenario_seed,
+    )
+    generated_city_map = city_authority.generated_city_map
+    topology = city_authority.topology
+    zoning = city_authority.zoning
+    road_csr = city_authority.road_csr
     resolved_morphology_style_id = str(topology.metadata.get("style_id", ""))
     population = generate_citizen_population(
         zoning,
@@ -222,6 +208,55 @@ def build_initial_simulation_state(
         population=population,
         trip_requests=trip_requests,
         generated_city_map=generated_city_map,
+    )
+
+
+def _build_initial_city_authority(
+    *,
+    sim_config: SimulationConfig,
+    city_config: CityGenerationConfig,
+    scenario_seed: int,
+) -> _InitialCityAuthority:
+    scenario_id = (
+        "synthetic_100k"
+        if sim_config.population_target >= 100_000
+        else "synthetic_smoke"
+    )
+    city_context: dict[str, Any] = {
+        "scenario_id": scenario_id,
+        "seed": int(scenario_seed),
+        "preview_mode": city_config.topology_mode,
+    }
+    if city_config.morphology_style_id != "auto":
+        city_context["style_id"] = city_config.morphology_style_id
+
+    if city_config.topology_mode == "realistic_synthetic_v1":
+        generated = generate_city_map(
+            city_config,
+            scenario_id=scenario_id,
+            seed=scenario_seed,
+        )
+        return _InitialCityAuthority(
+            topology=generated.topology,
+            zoning=generated.zoning,
+            road_csr=generated.road_csr,
+            generated_city_map=generated,
+        )
+
+    topology = GeneratorV2().generate_preview_topology(city_context)
+    road_csr = topology.build_csr(validate=True, require_weak_connectivity=True)
+    zoning = generate_zones_and_pois(
+        topology,
+        config=city_config,
+        seed=scenario_seed,
+        population_target=sim_config.population_target,
+        validate=True,
+    )
+    return _InitialCityAuthority(
+        topology=topology,
+        zoning=zoning,
+        road_csr=road_csr,
+        generated_city_map=None,
     )
 
 

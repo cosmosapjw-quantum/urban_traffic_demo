@@ -105,6 +105,15 @@ also exceed the 800 m developed branch-free corridor threshold. The result is
 recorded rather than tuned away. PR63 may still measure cost and hardware fit,
 but it cannot override this morphology failure.
 
+PR63 independently blocks promotion on scale/product evidence. Across seeds
+17, 29, and 41, 100k realistic generation is `2.55-2.77x` legacy, actual
+citizen creation reaches only `61,655-62,604`, and equal-budget runtime advances
+`16-17` ticks versus legacy `20-21`. Peak generation RSS and fixed 20-tick
+latency ratios pass, but gates are conjunctive. No A*/planarization/face stage
+reaches the 30-percent Rust admission threshold on all seeds. The authoritative
+diagnostic is
+`artifacts/runtime_spine_review/realistic-city-pr63-scale.md`.
+
 ## Claim Boundary
 
 Allowed after the corresponding gates pass:

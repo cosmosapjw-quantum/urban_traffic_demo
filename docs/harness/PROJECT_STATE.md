@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-07-12
+Last updated: 2026-07-13
 
 ## Runtime Baseline
 
@@ -141,6 +141,12 @@ Derived conclusions:
   repeated triangular local fabric with zero collector length share. Do not
   relax the pinned envelope or describe the generator as morphologically
   plausible until the street/block growth algorithm changes.
+- PR63 also blocks default promotion. Its fresh-process 1k/10k/100k matrix
+  finds 100k generation at `2.55-2.77x` legacy, underfilled citizen populations
+  in both modes, and lower equal-budget realistic throughput on every seed.
+  Generation RSS and fixed-step latency ratios pass, but no eligible generation
+  stage clears the all-seed 30-percent Rust gate. Performance work cannot
+  substitute for the PR62 morphology redesign.
 - `SimulationState.simulation_step` does not run the legacy accessibility and
   land-use cadences. The new runtime and frozen `WorldState` orchestrator remain
   split authorities rather than one city-to-traffic-to-LUTI loop.
@@ -198,18 +204,21 @@ Derived conclusions:
 Do not open another acceleration spec yet. Do not promote another runtime
 backend either. Functional closure, broader generated/event conservation, and
 replay-input/transition gates are green at small and 10k scale, while the 100k
-bounded run remains incomplete.
-Define physical link-traversal
-semantics before interpreting completed ticks as realistic travel time. Then
-port the legacy medium/slow accessibility and land-use cadences into
+bounded run remains incomplete. PR63 now additionally shows that the realistic
+city path misses generation, realized-population, and equal-budget throughput
+gates without identifying a single Rust-ready generation stage.
+The explicit `spatial_queue_v1` physical traversal substrate is implemented,
+but remains uncalibrated and cannot turn completed ticks into traffic-realism
+evidence. Port the legacy medium/slow accessibility and land-use cadences into
 `SimulationState` or explicitly retire that product claim.
 
-The next parent-stage decision is the remaining 100k cadence reroute and
-first-tick allocation/orchestration cost. Preserve four visible lanes: Rust for
-branch-heavy graph/action planning, NumPy/SIMD for flow arrays, JAX/GPU for
-amortized dense chunks/scoring, and NN only for simulator-labelled surrogate
-experiments. Define physical traversal before interpreting faster closure as
-traffic realism.
+The immediate product decision is PR64 fail-closed recording, followed by a new
+generator specification that replaces the triangular local fabric and fixes
+zone/home capacity so requested populations are realized. Only after PR62 and
+PR63 are rerun should acceleration be reconsidered. Preserve four visible
+lanes: Rust for branch-heavy graph/action planning, NumPy/SIMD for flow arrays,
+JAX/GPU for amortized dense chunks/scoring, and NN only for simulator-labelled
+surrogate experiments.
 PR45 closes the current city-map lane without authorizing PR46. PR47 moves the
 GPU dense-flow chunk to a bounded watchlist but does not authorize runtime
 integration. PR49 rejects the row-local MLP path without threshold tuning;
