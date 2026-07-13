@@ -7,7 +7,7 @@ from .connectivity import analyze_weak_connectivity as analyze_weak_connectivity
 from .connectivity import repair_weak_connectivity as repair_weak_connectivity
 from .generator_v2 import GenerationPipeline as GenerationPipeline
 from .generator_v2 import GeneratorV2 as GeneratorV2
-from .generator_v2 import PreviewCityTopology as PreviewCityTopology
+from .generated_map import PreviewCityTopology as PreviewCityTopology
 from .graph import BridgeCrossing as BridgeCrossing
 from .graph import Node as Node
 from .graph import NodeKind as NodeKind

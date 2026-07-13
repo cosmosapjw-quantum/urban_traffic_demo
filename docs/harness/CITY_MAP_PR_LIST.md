@@ -206,7 +206,7 @@ PR33-PR45 evidence remains the compatibility and negative-control baseline.
 - **PR53 - Product Contract Freeze:** complete; froze thresholds, public
   contracts, claim boundary, and ordered queue. Commit:
   `docs(city): define realistic synthetic city target`.
-- **PR54 - Generator Boundary Extraction:** preserve current fingerprints while
+- **PR54 - Generator Boundary Extraction:** complete; preserved current fingerprints while
   isolating compatibility, typed stage, and finalization boundaries. Commit:
   `refactor(city): isolate generation stage contracts`.
 - **PR55 - Terrain And Development Fields:** bounded read-only NumPy fields and
