@@ -99,6 +99,12 @@ and deterministic spillback as a structural baseline. Tick completion still
 cannot be interpreted as calibrated real traffic without PR62/PR63 evidence
 and a separate empirical traffic-validation program.
 
+PR62 canonical evidence currently blocks promotion: all 30 fixed maps fail the
+broad street-network envelope on mean node degree and dead-end share, and seven
+also exceed the 800 m developed branch-free corridor threshold. The result is
+recorded rather than tuned away. PR63 may still measure cost and hardware fit,
+but it cannot override this morphology failure.
+
 ## Claim Boundary
 
 Allowed after the corresponding gates pass:

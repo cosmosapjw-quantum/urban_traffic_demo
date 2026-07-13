@@ -25,6 +25,9 @@ version with evidence and falsifiers is:
   RNG key, and step count; per-tick queue-transition witnesses; measured
   benchmark/report surfaces; static/runtime diagnostic renderers; Rust parity
   kernels; and bounded GPU/NN experiments.
+- A deterministic realistic-city plausibility audit binds the pinned reference
+  corpus, mechanical 20-percent envelopes, PR53 structural gates, 30 generated
+  map fingerprints, diagnostic motif/hierarchy counters, and review artifacts.
 
 ## Internally Verified
 
@@ -58,6 +61,11 @@ version with evidence and falsifiers is:
 - The row-local cost-to-go MLP input hypothesis fails its relation-conflict gate.
 - The fixed graph-aware model misses its accuracy gate and repeat determinism.
 - The 65,536-link JAX dense-flow chunk exceeds the fixed drift gate.
+- `realistic_synthetic_v1` default promotion is blocked. The fixed 30-map PR62
+  audit passes zero maps: every map is too highly connected and has too few
+  dead ends relative to the pinned envelope; seven also exceed the developed
+  branch-free corridor threshold. Visual inspection shows repeated triangular
+  fabric and no collector-length hierarchy.
 
 ## Not Validated
 

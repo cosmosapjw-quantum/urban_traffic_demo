@@ -134,6 +134,13 @@ Derived conclusions:
   queue, and sink completions. Replay result arrays are detached/read-only, but
   the stored fingerprint remains the final integrity authority for Python
   object snapshots.
+- The realistic-city compiler remains explicit and deterministic, but PR62
+  blocks default promotion: its six-style by five-seed audit passes `0/30` maps.
+  Mean node degree and dead-end share fail on every map, seven maps exceed the
+  800 m developed branch-free corridor gate, and the contact sheet confirms a
+  repeated triangular local fabric with zero collector length share. Do not
+  relax the pinned envelope or describe the generator as morphologically
+  plausible until the street/block growth algorithm changes.
 - `SimulationState.simulation_step` does not run the legacy accessibility and
   land-use cadences. The new runtime and frozen `WorldState` orchestrator remain
   split authorities rather than one city-to-traffic-to-LUTI loop.

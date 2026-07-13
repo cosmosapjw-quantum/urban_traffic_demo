@@ -1,5 +1,73 @@
 # Validation Ledger
 
+## 2026-07-13: Realistic City Plausibility Audit
+
+Change class: fixed-corpus morphology audit, structural distribution gate, and
+diagnostic contact-sheet review
+
+Commands and gates:
+
+```bash
+.venv/bin/python -m pytest tests/test_realistic_city_plausibility.py -q
+/usr/bin/time -f 'elapsed=%e max_rss_kb=%M' \
+  .venv/bin/python -m metroflow.benchmarks.realistic_city_audit \
+  --artifact-prefix artifacts/runtime_spine_review/realistic-city-pr62-plausibility
+google-chrome --headless=new --disable-gpu --no-sandbox --hide-scrollbars \
+  --window-size=2400,3600 \
+  --screenshot=artifacts/runtime_spine_review/realistic-city-pr62-plausibility.png \
+  file://$PWD/artifacts/runtime_spine_review/realistic-city-pr62-plausibility.html
+.venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Observed results:
+
+- audit unit/artifact suite: `8 passed in 13.56s`;
+- canonical matrix: six registered styles x seeds `17,29,41,44,53`;
+- all 30 maps generated; report fingerprint
+  `6ab9f8c9c62f36aeedffd67707f2c3e9072274ca91f1e836dc14d69fcde3316b`;
+- canonical audit: `0/30` maps passed, `144.26 s` wall time, `272,112 KiB`
+  maximum RSS;
+- full repository: `767 passed in 563.66s`;
+- Ruff and whitespace gates passed;
+- Chrome produced a nonblank `2400x3600` PNG contact sheet whose five layers
+  align with the same representative generated maps.
+
+Failure evidence:
+
+- every map is outside the pinned 20-percent-expanded envelope on mean node
+  degree and dead-end share;
+- seven maps exceed the frozen 800 m developed branch-free corridor gate;
+- independent `grid_core` seed-17 recount: 799 nodes, 2,147 physical edges,
+  mean degree 5.374, 528 degree-six nodes, and only 29 parallel-edge extras;
+- representative local-road length share is 95-98 percent while collector
+  length share is zero;
+- dominant 10 m segment bins hold 42-65 percent and dominant 2,500 m2 block
+  bins hold roughly 70-95 percent, matching the repeated triangular lattice in
+  the contact sheet.
+
+Review corrections:
+
+- split audit authority from reporting/CLI instead of retaining a new 1,084-line
+  mixed-responsibility module;
+- removed preview geometry from JSON, reducing it from 31 MB to 108 KB without
+  changing the report fingerprint;
+- added chain, junction, and cycle gold tests for the branch-free corridor gate;
+- documented compiled-fragment circuity as 1.0 by construction rather than
+  presenting it as realistic-curvature evidence.
+
+Claim boundary:
+
+- **IMPLEMENTED:** deterministic 30-map audit, fixed reference envelope,
+  structural gates, compact artifacts, and aligned diagnostic contact sheet.
+- **BLOCKED:** `realistic_synthetic_v1` default promotion and broad
+  morphological-plausibility claim.
+- **STILL VALID:** deterministic topology/CSR/zone/replay simulation-input
+  substrate from PR60.
+- **NOT VALIDATED:** named-city similarity, empirical traffic/demand/land-use,
+  street curvature, or global representativeness of the eight-city corpus.
+
 ## 2026-07-13: Explicit Spatial Queue Runtime
 
 Change class: runtime traffic semantics, finite-storage invariants, replay and

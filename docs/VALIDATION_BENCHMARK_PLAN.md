@@ -112,6 +112,25 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - static map은 기록된 zoning fingerprint를 실제 zones/POIs/node-zone map으로 재계산해 대조한다.
   fingerprint가 없으면 coupling provenance를 표시하지 않고, mismatch는 fail-closed 오류다.
 
+## realistic city plausibility audit
+
+```bash
+.venv/bin/python -m metroflow.benchmarks.realistic_city_audit \
+  --artifact-prefix artifacts/runtime_spine_review/realistic-city-pr62-plausibility
+```
+
+- fixed matrix: six registered styles x seeds `17,29,41,44,53`;
+- empirical envelopes: pinned eight-city corpus min/max expanded mechanically by
+  20 percent; no per-style or post-result tuning;
+- every map must also retain PR53 connectivity, no-repair, intersection,
+  compiler, OD, access, segment, block, frontage, and land-use gates;
+- hierarchy, orientation concentration, repeated length/block bins, terrain,
+  and land-use mix remain diagnostic-only counterevidence;
+- canonical PR62 result: `0/30` pass, mean-degree and dead-end failures on all
+  maps, branch-free corridor failure on seven maps;
+- compiled-fragment circuity is 1.0 by construction and is explicitly reported
+  as a measurement limitation, not realistic-curvature evidence.
+
 ## backend benchmark
 - baseline backend과 optional accelerator backend를 같은 input signature로 비교
 - 기본 benchmark는 NumPy baseline만 요구한다

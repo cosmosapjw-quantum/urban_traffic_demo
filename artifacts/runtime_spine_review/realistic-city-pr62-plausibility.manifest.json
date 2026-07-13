@@ -1,0 +1,24 @@
+{
+  "artifact_format_version": "realistic_city_plausibility_audit_v1",
+  "evidence_status": "diagnostic_plausibility_audit",
+  "external_data_learning_used": false,
+  "files": {
+    "html": {
+      "path": "realistic-city-pr62-plausibility.html",
+      "sha256": "5023ce0098c689d588bf007876a34fa905c79f31d2bbc8e8d3d55871c4f5e3fe"
+    },
+    "json": {
+      "path": "realistic-city-pr62-plausibility.json",
+      "sha256": "f1fb63b5f28d00b984325cd785c33552f593e0ffa10b26626211a92f77556556"
+    },
+    "markdown": {
+      "path": "realistic-city-pr62-plausibility.md",
+      "sha256": "1329ee15d60bb1093cd9c15f8d0c3db784dd6e973762fb8fed43b5b1ddde39cb"
+    }
+  },
+  "map_count": 30,
+  "overall_pass": false,
+  "raw_osm_data_included": false,
+  "reference_corpus_fingerprint": "5f414a7a5a768a5006b168d04b587f130f5c215aec38a792ddbe0efcd9ec1cdf",
+  "report_fingerprint": "6ab9f8c9c62f36aeedffd67707f2c3e9072274ca91f1e836dc14d69fcde3316b"
+}

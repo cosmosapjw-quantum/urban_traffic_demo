@@ -242,8 +242,15 @@ PR33-PR45 evidence remains the compatibility and negative-control baseline.
   related runtime/UI/backend `135 passed`; full repository `759 passed`; fresh
   import firewall, Ruff, and diff checks passed. Commit:
   `feat(sim): add physical link traversal`.
-- **PR62 - Empirical Plausibility Audit:** six styles by five seeds against the
-  pinned aggregate envelope. Commit:
+- **PR62 - Empirical Plausibility Audit:** complete as an audit surface and
+  fail-closed as a product gate. The fixed 30-map matrix generated successfully
+  but `0/30` maps passed: all exceed the empirical mean-degree/dead-end envelope
+  and seven exceed the 800 m developed branch-free corridor gate. Diagnostic
+  contact-sheet review independently confirms a universal triangular lattice,
+  repeated block areas, zero collector share, and weak terrain response.
+  Thresholds were not changed. Validation: targeted `8 passed`; canonical
+  audit generated all 30 maps in `144.26 s` at `272,112 KiB` maximum RSS;
+  full repository `767 passed`; Ruff and diff checks passed. Commit:
   `test(city): audit synthetic city plausibility`.
 - **PR63 - Scale And Hardware-Fit Closure:** 1k/10k/100k generation and runtime
   evidence before any Rust generation core is opened. Commit:

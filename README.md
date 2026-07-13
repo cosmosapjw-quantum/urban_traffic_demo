@@ -224,6 +224,14 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   fail-closed이며 legacy fallback이 없고 아직 runtime default가 아니다.
   `metroflow.city.generate_city_map(config, scenario_id, seed)`가 composed
   blueprint와 runtime map의 권위 entrypoint다.
+- 현실형 family의 고정 plausibility audit은
+  `python -m metroflow.benchmarks.realistic_city_audit --artifact-prefix
+  artifacts/runtime_spine_review/realistic-city-pr62-plausibility`로 실행한다.
+  6 styles x seeds `17,29,41,44,53`의 canonical 결과는 `0/30` pass로
+  fail-closed다. 모든 map이 empirical dead-end share 하한과 mean-degree
+  상한을 벗어나며 7개 map은 developed branch-free corridor 800m gate도
+  넘는다. 이는 deterministic simulation-input substrate를 폐기하지 않지만
+  현실형 generator의 default promotion을 차단한다.
 - 방사형 이외의 합성 형태는 `CityGenerationConfig(morphology_style_id=...)`로 선택한다.
   지원 값은 `grid_core`, `polycentric_tod`, `river_constrained`, `superblock_mixed`,
   `organic`, `ring_radial`이며 기본 `auto`는 기존 scenario별 선택을 보존한다. 문헌 기반
