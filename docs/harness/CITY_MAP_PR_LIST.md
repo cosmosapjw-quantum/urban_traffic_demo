@@ -209,7 +209,7 @@ PR33-PR45 evidence remains the compatibility and negative-control baseline.
 - **PR54 - Generator Boundary Extraction:** complete; preserved current fingerprints while
   isolating compatibility, typed stage, and finalization boundaries. Commit:
   `refactor(city): isolate generation stage contracts`.
-- **PR55 - Terrain And Development Fields:** bounded read-only NumPy fields and
+- **PR55 - Terrain And Development Fields:** complete; bounded read-only NumPy fields and
   deterministic centers. Commit: `feat(city): add terrain and development fields`.
 - **PR56 - Hierarchical Street Skeleton:** terrain-aware gateways, arterial
   connectivity, and bounded redundancy. Commit:

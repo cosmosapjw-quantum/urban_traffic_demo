@@ -38,8 +38,13 @@ from .morphology_reference import (
     empirical_street_network_references as empirical_street_network_references,
 )
 from .morphology_reference import get_morphology_archetype as get_morphology_archetype
+from .terrain_field import TerrainField as TerrainField
+from .terrain_field import build_terrain_field as build_terrain_field
 from .turn_compiler import TurnAuthorityCatalog as TurnAuthorityCatalog
 from .turn_compiler import compile_turn_authority as compile_turn_authority
+from .urban_form import UrbanCenter as UrbanCenter
+from .urban_form import UrbanFormField as UrbanFormField
+from .urban_form import build_urban_form_field as build_urban_form_field
 __all__ = [
     "BridgeCrossing",
     "GateDecision",
@@ -58,15 +63,20 @@ __all__ = [
     "RoadLink",
     "RoadNetworkCSR",
     "StreetNetworkMorphometrics",
+    "TerrainField",
     "TopologyValidationIssue",
     "TopologyValidationReport",
     "TurnAuthorityCatalog",
     "TurnMovement",
     "TurnType",
+    "UrbanCenter",
+    "UrbanFormField",
     "WeakConnectivityRepairResult",
     "WeakConnectivityReport",
     "analyze_weak_connectivity",
     "build_road_network_csr",
+    "build_terrain_field",
+    "build_urban_form_field",
     "compute_street_network_morphometrics",
     "compute_morphology_quality_metrics",
     "compile_turn_authority",
