@@ -40,10 +40,6 @@ def collect_scores(
 ) -> tuple[tuple[MorphologyScore, ...], tuple[str, ...]]:
     """Score every arm that can produce a topology; report what was skipped."""
 
-    from metroflow.city.generator_v2 import GeneratorV2
-    from metroflow.city.plausibility_audit import _realistic_city_config
-    from metroflow.city.realistic_city import generate_city_map
-
     scores: list[MorphologyScore] = []
     skipped: list[str] = []
 
@@ -52,14 +48,7 @@ def collect_scores(
             for seed in seeds:
                 case = f"{style_id}/{seed}"
                 try:
-                    topology = GeneratorV2().generate_preview_topology(
-                        {
-                            "scenario_id": "morphology_control_table",
-                            "seed": seed,
-                            "preview_mode": arm,
-                            "style_id": style_id,
-                        }
-                    )
+                    topology = build_arm_topology(arm=arm, style_id=style_id, seed=seed)
                 except Exception as exc:  # noqa: BLE001 - recorded, never silenced
                     skipped.append(f"{arm}:{case}:{type(exc).__name__}:{exc}")
                     continue
@@ -69,17 +58,13 @@ def collect_scores(
         for seed in seeds:
             case = f"{style_id}/{seed}"
             try:
-                generated = generate_city_map(
-                    _realistic_city_config(style_id),
-                    scenario_id="morphology_control_table",
-                    seed=seed,
+                topology = build_arm_topology(
+                    arm=REALISTIC_ARM, style_id=style_id, seed=seed
                 )
             except Exception as exc:  # noqa: BLE001 - recorded, never silenced
                 skipped.append(f"{REALISTIC_ARM}:{case}:{type(exc).__name__}:{exc}")
                 continue
-            scores.append(
-                score_street_morphology(generated.topology, arm=REALISTIC_ARM, case=case)
-            )
+            scores.append(score_street_morphology(topology, arm=REALISTIC_ARM, case=case))
 
     for style_id in styles:
         for seed in seeds:
@@ -87,7 +72,9 @@ def collect_scores(
             try:
                 scores.append(
                     score_street_morphology(
-                        _growth_topology(style_id=style_id, seed=seed), arm=GROWTH_ARM, case=case
+                        build_arm_topology(arm=GROWTH_ARM, style_id=style_id, seed=seed),
+                        arm=GROWTH_ARM,
+                        case=case,
                     )
                 )
             except Exception as exc:  # noqa: BLE001 - recorded, never silenced
@@ -96,11 +83,60 @@ def collect_scores(
     for path in osm_paths:
         case = path.name
         try:
-            scores.append(score_street_morphology(_osm_topology(path), arm="osm", case=case))
+            scores.append(score_street_morphology(build_osm_topology(path), arm="osm", case=case))
         except Exception as exc:  # noqa: BLE001 - recorded, never silenced
             skipped.append(f"osm:{case}:{type(exc).__name__}:{exc}")
 
     return tuple(scores), tuple(skipped)
+
+
+CONTROL_TABLE_SCENARIO_ID = "morphology_control_table"
+
+
+def build_arm_topology(
+    *,
+    arm: str,
+    style_id: str,
+    seed: int,
+    scenario_id: str = CONTROL_TABLE_SCENARIO_ID,
+):
+    """Build one arm's preview topology, or raise saying why it cannot.
+
+    Single definition of "what each arm's map is". Previously this lived inline
+    in `collect_scores` and was re-implemented by every other caller, which is
+    how two callers can end up measuring two different things under one name.
+    """
+
+    if arm in LEGACY_ARMS:
+        from metroflow.city.generator_v2 import GeneratorV2
+
+        return GeneratorV2().generate_preview_topology(
+            {
+                "scenario_id": scenario_id,
+                "seed": seed,
+                "preview_mode": arm,
+                "style_id": style_id,
+            }
+        )
+
+    if arm == REALISTIC_ARM:
+        from metroflow.city.plausibility_audit import _realistic_city_config
+        from metroflow.city.realistic_city import generate_city_map
+
+        generated = generate_city_map(
+            _realistic_city_config(style_id),
+            scenario_id=scenario_id,
+            seed=seed,
+        )
+        return generated.topology
+
+    if arm == GROWTH_ARM:
+        return _growth_topology(style_id=style_id, seed=seed)
+
+    raise ValueError(
+        f"unknown arm {arm!r}; expected one of "
+        f"{', '.join((*LEGACY_ARMS, REALISTIC_ARM, GROWTH_ARM))}"
+    )
 
 
 def _growth_topology(*, style_id: str, seed: int):
@@ -116,7 +152,7 @@ def _growth_topology(*, style_id: str, seed: int):
     return compile_grown_network(network.streets)
 
 
-def _osm_topology(path: Path):
+def build_osm_topology(path: Path):
     """Load an offline OSM extract as the positive control arm.
 
     Reads local bytes only; `osm_import` performs no network access.
@@ -150,9 +186,16 @@ def render_markdown(table: MorphologyControlTable, skipped: tuple[str, ...]) -> 
         "",
         f"Fingerprint: `{table.fingerprint}`",
         "",
-        "One pinned envelope applied to every arm. Metrics are measured on the",
-        "OSMnx-equivalent simplified graph, because the reference corpus reports",
-        "values after degree-2 interstitial nodes are contracted.",
+        "One pinned envelope applied to every arm. Metrics are measured on a",
+        "home-grown degree-2 contraction, because the reference corpus reports",
+        "values after OSMnx contracts interstitial nodes.",
+        "",
+        "**Parity with OSMnx is asserted, not demonstrated.** No oracle test",
+        "compares this contraction against a pinned OSMnx, and the orientation",
+        "histogram is known to take one bearing per member edge while circuity",
+        "takes the contracted chain's chord -- a hybrid matching neither of",
+        "Boeing's two published definitions. Treat every number below as",
+        "provisional until PR-A lands the parity suite.",
         "",
         "| " + " | ".join(header) + " |",
         "|" + "|".join(["---"] * len(header)) + "|",
@@ -180,6 +223,35 @@ def render_markdown(table: MorphologyControlTable, skipped: tuple[str, ...]) -> 
         lines.append(
             f"- `{envelope.metric}` bounds `[{envelope.lower:.4f}, {envelope.upper:.4f}]`"
             + (f" - {', '.join(flags)}" if flags else "")
+        )
+
+    lines += [
+        "",
+        "## Geometry vs topology (reported, not gated)",
+        "",
+        "Streets that meet on the ground but not in the graph. None of the seven",
+        "metrics above can see this, so a network missing a quarter of its edges",
+        "scores the same as one that is whole. Not a gate: the post-PR-B values",
+        "are unknown, and a threshold chosen before the measurement exists is",
+        "how the PR53 criteria were frozen before an algorithm existed.",
+        "",
+        "| arm | cases | proper crossings | unregistered touches |",
+        "|---|---|---|---|",
+    ]
+    by_arm: dict[str, list[MorphologyScore]] = {}
+    for score in table.scores:
+        by_arm.setdefault(score.arm, []).append(score)
+    for arm, scores in by_arm.items():
+        crossings = [s.proper_crossing_count for s in scores if s.proper_crossing_count is not None]
+        touches = [
+            s.unregistered_touch_count for s in scores if s.unregistered_touch_count is not None
+        ]
+        if not crossings:
+            lines.append(f"| {arm} | {len(scores)} | not measured | not measured |")
+            continue
+        lines.append(
+            f"| {arm} | {len(scores)} | "
+            f"{min(crossings)}-{max(crossings)} | {min(touches)}-{max(touches)} |"
         )
 
     if skipped:

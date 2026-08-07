@@ -21,7 +21,11 @@ import json
 from types import MappingProxyType
 from typing import Any, Iterable, Mapping, Protocol
 
-from metroflow.map.road_geometry import RoadGeometryCatalog
+from metroflow.map.road_geometry import (
+    RoadGeometryCatalog,
+    count_interior_centerline_intersections,
+    count_unregistered_centerline_touches,
+)
 
 from .morphology_metrics import compute_street_network_morphometrics
 from .plausibility_audit import (
@@ -69,6 +73,12 @@ class MorphologyScore:
     simplified: bool
     node_count: int
     physical_segment_count: int
+    # Geometry-vs-topology consistency. None means "not measured", which is what
+    # a score reconstructed from a stored artifact carries. Deliberately kept out
+    # of `as_dict`: the fingerprint hashes that payload, and a diagnostic must
+    # never invalidate a pinned artifact.
+    proper_crossing_count: int | None = None
+    unregistered_touch_count: int | None = None
 
     def __post_init__(self) -> None:
         if not str(self.arm).strip():
@@ -92,6 +102,21 @@ class MorphologyScore:
             "simplified": self.simplified,
             "node_count": self.node_count,
             "physical_segment_count": self.physical_segment_count,
+        }
+
+    def topology_diagnostics(self) -> dict[str, int | None]:
+        """How far the drawn network is from the graph it compiles to.
+
+        The seven envelope metrics cannot see this: a street that begins on
+        another street's interior leaves both of them measurable and neither of
+        them connected. Reported, never gated — the post-PR-B values are not
+        known yet, and freezing a threshold before the measurement exists is the
+        mistake this project already made once.
+        """
+
+        return {
+            "proper_crossing_count": self.proper_crossing_count,
+            "unregistered_touch_count": self.unregistered_touch_count,
         }
 
 
@@ -160,6 +185,10 @@ class MorphologyControlTable:
             "envelope_diagnostics": {
                 item.metric: item.diagnostics() for item in self.envelopes
             },
+            "topology_diagnostics": {
+                f"{item.arm}:{item.case}": item.topology_diagnostics()
+                for item in self.scores
+            },
             "vacuous_metrics": list(self.vacuous_metrics),
             "summaries": [item.as_dict() for item in self.summaries],
             "scores": [item.as_dict() for item in self.scores],
@@ -197,6 +226,7 @@ def score_street_morphology(
         for name in EMPIRICAL_MORPHOLOGY_METRICS
         if not resolved[name].contains(metrics[name])
     )
+    geometry = topology.road_geometry
     return MorphologyScore(
         arm=str(arm),
         case=str(case),
@@ -205,6 +235,8 @@ def score_street_morphology(
         simplified=bool(simplify_interstitial_nodes),
         node_count=len(topology.nodes),
         physical_segment_count=street.physical_segment_count,
+        proper_crossing_count=count_interior_centerline_intersections(geometry),
+        unregistered_touch_count=count_unregistered_centerline_touches(geometry),
     )
 
 
