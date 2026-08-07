@@ -34,8 +34,18 @@ Additional structural interpretation is informed by:
 
 The observed values in `morphology_reference.py` are reference-only. They are
 not training data, calibration objectives, or evidence that a generated map
-replicates a named city. Raw OSM extracts are not committed: OpenStreetMap data
-is ODbL and remains behind the existing explicit offline XML importer.
+replicates a named city. They are also hand-transcribed literals, not values
+this repo can re-derive: only two of the eight reference cities have a committed
+extract, and both disagree with the table by two orders of magnitude
+(Charlotte `orientation_order` 0.002 vs 0.1494 measured, Seoul 0.009 vs 0.3898),
+because the corpus measured whole municipalities and the extracts are core
+bounding boxes.
+
+Raw OSM extracts **are** committed, under `artifacts/osm_control/` — this
+paragraph previously said they were not. OpenStreetMap data is ODbL, so the
+extracts and anything derived from them carry the attribution recorded in
+`artifacts/osm_control/README.md`. The runtime still fetches nothing: the
+offline XML importer reads local bytes only (spec 039 FR-001).
 
 ## Diagnostic Contract
 

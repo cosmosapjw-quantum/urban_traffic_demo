@@ -82,18 +82,34 @@ class GrowthConfig:
     snap_node_fraction: float = 0.58
     snap_edge_fraction: float = 0.30
 
-    # Share of local tips that are released as deliberate cul-de-sacs. This is
-    # the only source of dead ends in the whole pipeline.
+    # Intended share of local tips released as deliberate cul-de-sacs.
+    #
+    # It does not currently do that. `may_dead_end` is passed into `grow()` and
+    # never read in its body; its only effect is at the call site, where a tip
+    # flagged True gets FEWER growth steps than one flagged False -- the
+    # polarity is inverted relative to the name. Dead ends in the compiled graph
+    # come from tips that failed to contact, not from this share, and
+    # `GrownNetwork.dead_end_count` is always 0.
     local_cul_de_sac_share: float = 0.34
     min_intensity: float = 0.055
     seed_jitter_m: float = 30.0
     redundancy_constraint_enabled: bool = False
     """Reject a seed whose ground a PARALLEL road of its class already covers.
 
-    Off by default: it removes the measured duplication (local redundancy 0.59)
-    but currently collapses connectivity to mean degree ~1.1 with dead-end share
-    ~0.95, because rejected seeds are also the ones that would have formed
-    junctions. See tests/test_growth_redundancy_and_bypass.py.
+    Off by default, and therefore dead: nothing in `src/` or `tests/` sets it
+    True, so the shipped generator performs no occupancy rejection at all.
+
+    It is also broken where it would run. `class_occupied` measures
+    point-to-point distance to indexed VERTICES, not distance to segments, and
+    `_index_vertex` skips vertex 0 entirely; at the tuned radius that misses
+    11.2% of the seeds a segment-distance test rejects. At the default radius
+    (135.3 m) it fires on 5707 of 5708 local seeds, which is unusable.
+
+    The `0.59` duplication figure this docstring previously quoted does not
+    reproduce at head -- it is off by 2.6x and its units were wrong (the metric
+    returns redundant cells over occupied cells, not streets). Direction-aware
+    duplication is 0.2270 as the test measures it, 0.2570 under a
+    segmentation-invariant raster. See tests/test_growth_redundancy_and_bypass.py.
     """
     redundancy_radius_fraction: float = 0.55
     """Rejection radius as a fraction of that tier's spacing."""
@@ -105,8 +121,16 @@ class GrowthConfig:
     spacing_scale: float = 3.0
     """Uniform multiplier on every street spacing.
 
-    Calibrated against the offline OSM control extracts measured with the same
-    code: real fabric sits at 5.3-13.9 km/km2 and 18-104 intersections/km2.
+    Calibrated against the offline OSM control extracts, which makes those
+    extracts a development set rather than an independent control.
+
+    The quoted band needs its convention named. `5.3-13.9 km/km2` is measured
+    over a node BOUNDING BOX; the instrument this generator is actually scored
+    with (`morphology_quality.py`, node convex hull) gives `7.4-17.8 km/km2` on
+    the same five extracts. Generated fabric sits at 24.1-40.2 km/km2 over the
+    30-case grid, i.e. outside the band under either convention. Intersection
+    density is likewise outside its band, not inside it: generated 73.2-120.7
+    against 17.9-105.7 measured on the extracts.
     """
     district_profiles_enabled: bool = True
     """Vary local spacing, block size and cul-de-sac share by district.

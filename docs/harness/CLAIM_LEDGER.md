@@ -1,7 +1,12 @@
 # Claim Ledger
 
 Status: active source of truth
-Last updated: 2026-07-13
+Last updated: 2026-08-07
+
+Numeric claims in this file must be traceable to a committed artifact. Where a
+claim and an artifact disagreed, the artifact was the reproducible side and the
+prose was corrected — see the `growth_fabric_v1` entry under Internally
+Verified, which previously carried four ranges that reproduced nothing.
 
 This file is the compact project-level claim authority. The external-audit
 version with evidence and falsifiers is:
@@ -68,30 +73,113 @@ version with evidence and falsifiers is:
 - Optional JAX dense-flow parity is restored after aligning its point-queue
   receiving and additive-delay equations with NumPy/Rust; the measured
   4,096/16,384-link maximum drift is below `1.6e-5`.
-- Accretive growth replaces the stencil family and clears the morphology gate.
-  `growth_fabric_v1` grows streets step by step under local constraints instead
-  of connecting a fixed point set, which produces by construction the three
-  properties no stencil can reach: T-junctions from snapping onto a street
-  interior, dead ends from tips that cannot legally extend, and curvature from
-  per-step turning. On the calibrated instrument over the fixed 6-style x
-  5-seed matrix it passes all seven empirical metrics on `29/30` maps, against
-  `15/30` for `sidecar_local_fabric` and `0/30` for `realistic_synthetic_v1`.
-  Measured ranges: mean node degree `3.11-3.39` (was `4.98-5.72`), dead-end
-  share `0.056-0.122` (was `0.0000-0.0025`), circuity `1.009-1.013` (was
-  exactly `1.0`), and per-style orientation order spanning `0.001` for
-  `ring_radial` to `0.78` for `grid_core`. A companion compiler keeps each
-  junction-to-junction chain as one curved centerline with arc-length links,
-  which is what allows circuity above `1.0` at all.
-- The repaired morphology instrument admits a real-city positive control. Five
-  offline OSM extracts spanning gridiron (Chicago), planned superblock
-  (Barcelona), traditional organic (Seoul), polycentric TOD (Tokyo), and
-  distributed sprawl (Charlotte) all land inside the pinned envelope on every
-  one of the seven metrics, with `orientation_order` spanning `0.121-0.873` and
-  median segment length `52.3-122.0 m`. The envelope is therefore falsifiable
-  and admits the real-world span; it is not the reason synthetic maps fail.
+- `growth_fabric_v1` scores `30/30` on the seven empirical metrics over the
+  fixed 6-style x 5-seed matrix, against `15/30` for `sidecar_local_fabric`,
+  `0/30` for `realistic_synthetic_v1` and `0/10` for the runtime default.
+  Measured ranges, read directly from
+  `artifacts/runtime_spine_review/morphology-control-table-20260807.json`:
+  mean node degree `2.8603-3.2601`, dead-end share `0.1073-0.2299`, circuity
+  `1.0165-1.0211`, orientation order `0.0024-0.6463`.
+
+  **This entry previously recorded `29/30` and four ranges that reproduce
+  nothing in the tree** (`3.11-3.39`, `0.056-0.122`, `1.009-1.013`,
+  `0.001-0.78`). They match neither the simplified path the artifact uses nor
+  the unsimplified path `plausibility_audit` uses. The artifact is the
+  reproducible side: head re-measures all 210 values to within `1e-9`. The
+  prose was written after the generator was rewritten, without regenerating
+  the artifact it claimed to summarize.
+
+  **What this score does not establish.** The seven metrics accept the same
+  network with and without 24.4% of its edges: 97.98% of 3117 branch anchors
+  lie >0.5 m from any vertex of their own parent, so re-inserting them takes
+  weak components `40 -> 1` and mean degree `2.665 -> 3.525` while the envelope
+  admits both. The claim that growth yields "T-junctions by construction" is
+  refuted at the origin: a branch begins on its parent's interior and is not
+  connected to it. `GrownNetwork.dead_end_count` is always `0`, and
+  `may_dead_end` is never read inside `grow()` -- its only effect is two fewer
+  steps, with the polarity inverted relative to its name. Curvature is real.
+- The morphology instrument admits five offline OSM extracts on all seven
+  metrics (`orientation_order` `0.121-0.873`, median segment length
+  `52.3-122.0 m`), so the envelope is falsifiable in the weak sense that real
+  data can be measured against it.
+
+  **This is not the independent positive control it was presented as.**
+  (a) The same five extracts were used to calibrate `GrowthConfig.spacing_scale`,
+  so they are a development set, not a holdout. (b) They are 5-12 km2 core
+  bounding boxes; the pinned Boeing corpus measured whole municipalities, and
+  the two disagree by two orders of magnitude on the same cities -- Charlotte
+  `orientation_order` `0.002` in the corpus against `0.1494` measured on our
+  extract, Seoul `0.009` against `0.3898`. Envelope and control were never the
+  same population. (c) The scores are measured through instrument defects that
+  are live on this data: zero-chord segments inflate circuity (barcelona
+  `1.0324 -> 1.0255` corrected, chicago `1.0380 -> 1.0365`), and parallel edges
+  between one node pair are silently contracted (charlotte 5, seoul 4, chicago
+  2, tokyo 2 pairs). (d) Under the importer's shipped default policy
+  (`strict`), 6 of the 7 fetched extracts fail to import at all; the `5/5`
+  figure holds only under the opt-in `osm_wiki` policy.
 
 ## Refuted Or Blocked
 
+- **The morphology instrument is not fit to authorize a runtime promotion, and
+  the claim that it is "OSMnx-equivalent" is unsupported.** Measured
+  2026-08-07 against head `367f25d`, after an external adversarial audit:
+  (a) the orientation histogram takes one unweighted bearing per member edge
+  while circuity takes the contracted chain's chord — a hybrid matching neither
+  Boeing $H_o$ nor $H_w$, and no code path reads an interior polyline vertex
+  for a bearing, so $H_w$ is not computable here at all;
+  (b) the metric is representation-dependent: the same V-shaped road returns
+  entropy `ln 2` stored as one polyline and `ln 4` stored as two edges;
+  (c) zero-chord segments add arc length to the circuity numerator and nothing
+  to the denominator — a bare ring scores `4e14`, a lollipop `5.0`, and the
+  defect is live on the OSM extracts;
+  (d) parallel edges between one node pair are contracted into a closed loop,
+  live on 4 of 5 extracts;
+  (e) bearings are undirected, so the entropy floor is `ln 2`, not the `0`
+  declared in `_THEORETICAL_RANGES`;
+  (f) `orientation_order` is a pure function of `orientation_entropy`
+  (bit-exact on 165/165 stored pairs, and self-consistent in Boeing's own
+  published table), so the "seven metric" gate has at most six independent
+  dimensions and one was counted twice;
+  (g) two live measurement paths disagree — the simplify flag flips 8 of 30
+  verdicts on the growth arm (30/30 vs 22/30).
+  No generator may be promoted on this instrument until these are repaired and
+  every arm is re-scored.
+- **The seven metrics cannot detect a disconnected network.** 97.98% of 3117
+  branch anchors lie >0.5 m from any vertex of their own parent, because
+  `_branch_pass` interpolates the anchor and never inserts it, while
+  `compile_grown_network` derives junctions only from 1 m-rounded shared
+  vertices. Re-inserting the anchors takes weak components `40 -> 1` and mean
+  degree `2.665 -> 3.525`, adding 3058 undirected edges — 24.4% of the correct
+  edge set — and the envelope accepts the network in both states. Related
+  compiler losses: a second street between one node pair is silently dropped
+  (10 chains / 0.65 km on `grid_core`/17) and rings are dropped entirely.
+  Reported diagnostics now exist: `grid_core`/17 scores 6909 proper crossings
+  and 6261 unregistered touches, against **0 and 0 on all five OSM extracts**.
+- **`artifacts/runtime_spine_review/morphology-control-table-20260807.json`
+  cannot be reproduced at the commit that introduced it.** It landed in
+  `c00c9e9`, whose runner imports `metroflow.city.growth_fabric` — a module
+  first added in the following commit, `dae8b66`. The artifact scores an arm
+  whose code did not yet exist in its own tree. This came from rebuilding the
+  branch history into thematic commits without checking that each one stands
+  alone. History is not being rewritten (an external auditor has already
+  fetched this branch); the artifact will be regenerated at head with full
+  provenance — commit, config hash, scorer source hash, fixture hashes, and the
+  seed/style matrix, none of which it currently records.
+- **`river_constrained` maps are severed by their river** with 0 links across
+  it (53 weak components, banks of 2789 and 2382 nodes, giant-component share
+  0.52). `RoadClass.RAMP` and `RoadClass.BRIDGE` exist but `growth_fabric`
+  emits neither and `compile_grown_network` would raise `KeyError` on one. The
+  morphology gate scored these maps without noticing.
+- **The bypass does not exist as a function.** The 8 tangential expressways
+  form a forest (cyclomatic number 0, 51.7% angular coverage), and the test
+  that claims otherwise is satisfied by any single expressway 1200 m from the
+  core — in practice by a gateway radial, not a bypass arc, whose maximum
+  clearance is exactly its 2100 m seeding radius.
+- **`morphology_quality`'s gate rejects 5 of its own 5 real-city controls.**
+  Charlotte fails `street_density_km_per_km2 >= 10` at 7.439; all five fail
+  `weak_component_count == 1`; four of five fail `block_continuity`; Chicago
+  fails both cell-presence thresholds. The gate also has no density *ceiling*,
+  which is why a 1.8x overshoot was invisible to the entire suite.
 - At the frozen 2026-07-11 audit baseline, the integrated generated-city runtime
   was not self-driving. That result remains a historical negative control and is
   superseded only by the bounded 2026-07-12 remediation evidence above.
