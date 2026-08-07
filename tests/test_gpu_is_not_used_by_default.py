@@ -116,3 +116,18 @@ def test_a_real_device_is_reachable_under_the_opt_in(request: pytest.FixtureRequ
 
     jax = pytest.importorskip("jax")
     assert jax.default_backend() == "gpu"
+
+
+def test_torch_also_cannot_reach_the_gpu_by_default() -> None:
+    """JAX_PLATFORMS pins JAX only; torch reads none of it.
+
+    Torch does not preallocate the way JAX does, so it is a smaller hazard, but
+    "the suite must not use the GPU unless a test asks" is not satisfied by
+    covering one framework. Hiding the device covers every consumer, including
+    ones added later that nobody remembers to pin.
+    """
+
+    assert os.environ.get("CUDA_VISIBLE_DEVICES") == ""
+
+    torch = pytest.importorskip("torch", reason="torch not installed")
+    assert not torch.cuda.is_available(), "torch can still reach the device"

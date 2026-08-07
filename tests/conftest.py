@@ -8,17 +8,23 @@ reserved 9,194 MiB of a 12,288 MiB card for its whole duration: JAX preallocates
 initializes, and a few tests exercise the optional JAX flow backend. Measured on
 an RTX 3080 Ti; 12288 * 0.75 = 9216 against 9194 observed.
 
-Two independent defences, because either alone leaves a gap:
+Three independent defences, because each alone leaves a gap:
 
 - `JAX_PLATFORMS=cpu` stops a device from being created at all. This is the one
   that matters, and it only works if set before JAX is imported -- hence a
   module-level assignment in conftest rather than a fixture.
 - `XLA_PYTHON_CLIENT_PREALLOCATE=false` bounds the damage if something forces a
   GPU platform anyway.
+- `CUDA_VISIBLE_DEVICES=""` hides the device from every consumer, not just JAX.
+  Torch reads none of JAX's variables, and it is not the last framework anyone
+  will add here; pinning frameworks one at a time only works until someone
+  forgets. Torch does not preallocate, so this is about coverage rather than
+  size.
 
-Neither changes dtypes, execution order or results, so backend-parity and drift
-assertions still mean what they meant. An explicit setting in the environment
-always wins, so a deliberate benchmark configuration is never overridden.
+None of them changes dtypes, execution order or results, so backend-parity and
+drift assertions still mean what they meant. An explicit setting in the
+environment always wins, so a deliberate benchmark configuration is never
+overridden.
 
 GPU work is opt-in via `--run-gpu`, which clears the CPU pin and selects tests
 marked `@pytest.mark.gpu`. Without it those tests are deselected, so "default to
@@ -48,8 +54,9 @@ def pytest_configure(config: pytest.Config) -> None:
         # flag means "let a test reach the device", not "let JAX take three
         # quarters of the card". And delete it only if it still holds the value
         # we set, so an explicit export by the caller survives.
-        if os.environ.get("JAX_PLATFORMS") == _DEFAULTS["JAX_PLATFORMS"]:
-            del os.environ["JAX_PLATFORMS"]
+        for name in ("JAX_PLATFORMS", "CUDA_VISIBLE_DEVICES"):
+            if os.environ.get(name) == _DEFAULTS[name]:
+                del os.environ[name]
 
 
 def pytest_collection_modifyitems(
@@ -63,7 +70,11 @@ def pytest_collection_modifyitems(
             item.add_marker(skip)
 
 
-_DEFAULTS = {"JAX_PLATFORMS": "cpu", "XLA_PYTHON_CLIENT_PREALLOCATE": "false"}
+_DEFAULTS = {
+    "JAX_PLATFORMS": "cpu",
+    "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
+    "CUDA_VISIBLE_DEVICES": "",
+}
 
 for _name, _value in _DEFAULTS.items():
     os.environ.setdefault(_name, _value)
