@@ -27,7 +27,7 @@ from metroflow.map.road_geometry import (
     count_unregistered_centerline_touches,
 )
 
-from .morphology_metrics import compute_street_network_morphometrics
+from .morphology_metrics import MeasurementSpec, compute_street_network_morphometrics
 from .plausibility_audit import (
     EmpiricalMetricEnvelope,
     build_empirical_metric_envelopes,
@@ -79,6 +79,7 @@ class MorphologyScore:
     # never invalidate a pinned artifact.
     proper_crossing_count: int | None = None
     unregistered_touch_count: int | None = None
+    measurement_spec: str | None = None
 
     def __post_init__(self) -> None:
         if not str(self.arm).strip():
@@ -115,6 +116,7 @@ class MorphologyScore:
         """
 
         return {
+            "measurement_spec": self.measurement_spec,
             "proper_crossing_count": self.proper_crossing_count,
             "unregistered_touch_count": self.unregistered_touch_count,
         }
@@ -206,20 +208,18 @@ def score_street_morphology(
     *,
     arm: str,
     case: str = "",
-    simplify_interstitial_nodes: bool = True,
+    spec: MeasurementSpec = MeasurementSpec.BOEING_2019_HO,
     envelopes: Mapping[str, EmpiricalMetricEnvelope] | None = None,
 ) -> MorphologyScore:
     """Measure one topology against the pinned empirical envelope.
 
-    Defaults to the simplified graph because the pinned corpus reports OSMnx
-    values measured after `simplify_graph` contracts degree-2 nodes.
+    Defaults to `BOEING_2019_HO` because that is the statistic the pinned corpus
+    reports, and it is the only spec checked against a pinned OSMnx.
     """
 
+    spec = MeasurementSpec(spec)
     resolved = build_empirical_metric_envelopes() if envelopes is None else envelopes
-    street = compute_street_network_morphometrics(
-        topology,
-        simplify_interstitial_nodes=simplify_interstitial_nodes,
-    )
+    street = compute_street_network_morphometrics(topology, spec=spec)
     metrics = {name: float(getattr(street, name)) for name in EMPIRICAL_MORPHOLOGY_METRICS}
     failed = tuple(
         name
@@ -232,7 +232,11 @@ def score_street_morphology(
         case=str(case),
         metrics=metrics,
         failed_metrics=failed,
-        simplified=bool(simplify_interstitial_nodes),
+        # Kept as a bool so the pinned v1 artifact payload stays byte-comparable;
+        # the spec name itself is reported in the diagnostics, outside the
+        # fingerprint.
+        simplified=spec is MeasurementSpec.BOEING_2019_HO,
+        measurement_spec=spec.value,
         node_count=len(topology.nodes),
         physical_segment_count=street.physical_segment_count,
         proper_crossing_count=count_interior_centerline_intersections(geometry),

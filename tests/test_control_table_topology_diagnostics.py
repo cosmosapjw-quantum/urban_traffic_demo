@@ -64,6 +64,9 @@ def test_diagnostics_are_reported_but_never_enter_the_fingerprint() -> None:
 
     assert "topology_diagnostics" in payload
     assert payload["topology_diagnostics"]["growth_fabric_v1:grid_core/17"] == {
+        # Which definition produced the score travels with the score. That is
+        # the whole lesson of the two-measurement-paths defect.
+        "measurement_spec": "BOEING_2019_HO",
         "proper_crossing_count": 6909,
         "unregistered_touch_count": 6261,
     }

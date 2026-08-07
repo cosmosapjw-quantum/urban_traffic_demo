@@ -32,7 +32,10 @@ def test_empirical_reference_corpus_preserves_source_and_observed_values() -> No
 def test_street_network_morphometrics_measure_physical_grid_without_directed_duplication() -> None:
     from metroflow.city.generator_v2 import PreviewCityTopology
     from metroflow.city.graph import Node, RoadClass, RoadLink
-    from metroflow.city.morphology_metrics import compute_street_network_morphometrics
+    from metroflow.city.morphology_metrics import (
+        MeasurementSpec,
+        compute_street_network_morphometrics,
+    )
     from metroflow.map.road_geometry import build_endpoint_geometry_catalog
 
     nodes = (
@@ -59,7 +62,13 @@ def test_street_network_morphometrics_measure_physical_grid_without_directed_dup
     geometry = build_endpoint_geometry_catalog(nodes=nodes, links=links)
     topology = PreviewCityTopology(nodes=nodes, links=links, road_geometry=geometry)
 
-    metrics = compute_street_network_morphometrics(topology)
+    # The unsimplified diagnostic: this shape is a junction-free ring, which
+    # BOEING_2019_HO drops exactly as OSMnx `simplify_graph` does. What is being
+    # checked here is that paired directed links are not double counted, and
+    # that is a property of the compiled view.
+    metrics = compute_street_network_morphometrics(
+        topology, spec=MeasurementSpec.RUNTIME_COMPILED_DIAGNOSTIC
+    )
 
     assert metrics.physical_segment_count == 4
     assert math.isclose(metrics.orientation_entropy, math.log(4.0))

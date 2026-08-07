@@ -15,7 +15,7 @@ from .gate_reporting import build_active_sidecar_hierarchy_report
 from .generated_map import PreviewCityTopology
 from .graph import BridgeCrossing, TurnType
 from .map_validation import require_valid_city_map_contract
-from .morphology_metrics import compute_street_network_morphometrics
+from .morphology_metrics import MeasurementSpec, compute_street_network_morphometrics
 from .morphology_quality import (
     compute_morphology_quality_metrics,
     evaluate_morphology_quality_gate,
@@ -173,7 +173,12 @@ def finalize_preview_topology(
                 "city_map_validation_metrics": dict(map_report.metrics),
             }
         )
-    morphometrics = compute_street_network_morphometrics(finalized)
+    # Runtime metadata reports what the compiled topology actually is, not a
+    # Boeing-comparable statistic. Named explicitly so nobody reads these numbers
+    # against the reference corpus.
+    morphometrics = compute_street_network_morphometrics(
+        finalized, spec=MeasurementSpec.RUNTIME_COMPILED_DIAGNOSTIC
+    )
     quality_metrics = compute_morphology_quality_metrics(finalized)
     placement_anchor_digest = morphology_placement_anchor_digest(
         metadata=metadata,

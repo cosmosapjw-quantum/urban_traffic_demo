@@ -44,7 +44,10 @@ def test_baseline_fixture_is_strict_json_and_carries_provenance() -> None:
     assert baseline["schema_version"] == "morphology_pre_v2_baseline_v1"
     assert len(baseline["captured_at_commit"]) == 40
     assert baseline["seed"] == 29
-    assert "simplify_interstitial_nodes=False" in baseline["measurement"]
+    assert "simplify_interstitial_nodes=False" in baseline["measurement"], (
+        "the fixture must name the definition it captured; that string is the "
+        "only record of which of the two definitions these numbers are"
+    )
     assert baseline["evidence_status"] == "baseline_capture_not_validation"
 
 
@@ -96,14 +99,28 @@ def _rebuild(arm: str, case: str, scenario_id: str):
     "record", _baseline()["records"], ids=lambda r: f"{r['arm']}:{r['case']}"
 )
 def test_default_measurement_still_reproduces_the_pinned_baseline(record: dict) -> None:
-    """The bare call must return exactly what it returned at capture time."""
+    """RUNTIME_COMPILED_DIAGNOSTIC must return exactly what the old default did.
 
-    from metroflow.city.morphology_metrics import compute_street_network_morphometrics
+    This is the evidence that removing the default was value-preserving. Newly
+    added keys (`measurement_spec`, the dropped-ring counters) are not in the
+    fixture and are not asserted here; every key that existed at capture time
+    must match bit-for-bit.
+    """
+
+    from metroflow.city.morphology_metrics import (
+        MeasurementSpec,
+        compute_street_network_morphometrics,
+    )
 
     topology = _rebuild(record["arm"], record["case"], _baseline()["scenario_id"])
 
-    measured = dict(compute_street_network_morphometrics(topology).as_dict())
+    measured = dict(
+        compute_street_network_morphometrics(
+            topology, spec=MeasurementSpec.RUNTIME_COMPILED_DIAGNOSTIC
+        ).as_dict()
+    )
 
-    assert measured == record["metrics"], (
+    pinned = record["metrics"]
+    assert {key: measured[key] for key in pinned} == pinned, (
         f"{record['arm']}:{record['case']} drifted from the pre-V2 baseline"
     )
