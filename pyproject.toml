@@ -21,6 +21,16 @@ dev = [
   "pytest",
   "ruff",
 ]
+# Test-only. Provides an independent implementation of Boeing's morphology
+# definitions, so the repo's home-grown degree-2 contraction can be checked
+# against a pinned oracle instead of asserting parity. Never imported by
+# `metroflow` at runtime: the runtime depends on numpy alone, and `osm_import`
+# reads local bytes only (spec 039 FR-001) -- osmnx is used here purely via
+# `graph_from_xml` on committed fixtures.
+oracle = [
+  "osmnx==2.1.1",
+  "networkx>=2.5",
+]
 
 [build-system]
 requires = ["setuptools>=68"]

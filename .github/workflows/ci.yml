@@ -1,0 +1,93 @@
+name: ci
+
+# This repository had no CI. Every pin in it — artifact fingerprints, the
+# morphology envelope, the replay contract — was enforced only by someone
+# remembering to run pytest locally, which is how a control-table artifact ended
+# up committed one commit before the module it scores.
+#
+# The default job stays dependency-free and fast. The OSMnx oracle needs ~28 MB
+# of geo wheels to re-derive Boeing's definitions from an independent
+# implementation, so it runs as its own opt-in job rather than taxing every push.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_oracle:
+        description: "Re-derive the OSMnx morphology oracle and check parity"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+
+      - name: Lint
+        run: python -m ruff check src tests tools
+
+      # The NumPy path is authoritative; the Rust and JAX backends are optional
+      # and are not built here. A test that silently falls back to NumPy when an
+      # optional backend was explicitly selected is forbidden by the claim
+      # ledger, so their absence must surface as a skip, never as a pass.
+      - name: Tests
+        run: python -m pytest -q
+
+  oracle-parity:
+    # Opt-in: manual dispatch with run_oracle, or a pull request labelled
+    # `oracle`. PR-A lands the golden fixture and the regeneration script; until
+    # then this job reports that it has nothing to check rather than inventing a
+    # green tick.
+    if: >-
+      (github.event_name == 'workflow_dispatch' && inputs.run_oracle) ||
+      contains(github.event.pull_request.labels.*.name, 'oracle')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Check the oracle exists yet
+        id: probe
+        run: |
+          if [ -f tools/regen_osmnx_oracle.py ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No OSMnx oracle in this tree yet (lands in PR-A). Nothing to verify."
+          fi
+
+      - name: Install with the oracle extra
+        if: steps.probe.outputs.present == 'true'
+        run: python -m pip install -e ".[dev,oracle]"
+
+      # Parity is re-derived, not trusted: the committed golden values must be
+      # reproducible from a pinned OSMnx against the committed .osm fixtures.
+      # Reading local files only — osm_import performs no network access
+      # (spec 039 FR-001).
+      - name: Re-derive and compare
+        if: steps.probe.outputs.present == 'true'
+        run: python tools/regen_osmnx_oracle.py --check
