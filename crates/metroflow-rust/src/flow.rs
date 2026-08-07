@@ -81,8 +81,8 @@ fn update_flow_travel_time_cost(
             let base_value = base.max(FLOW_MIN_TRAVEL_COST);
             let queue_value = queue.max(0.0);
             let capacity_value = capacity.max(FLOW_MIN_TRAVEL_COST);
-            let congestion_ratio = queue_value / (capacity_value + FLOW_MIN_TRAVEL_COST);
-            base_value * (1.0 + congestion_ratio)
+            let queue_delay_ticks = queue_value / capacity_value;
+            base_value + queue_delay_ticks
         })
         .collect()
 }
@@ -175,11 +175,9 @@ pub(crate) fn compute_baseline_flow_arrays_batch_impl(
         .zip(effective_capacity_vehicles.iter())
         .map(|(queue, capacity)| queue.min(*capacity))
         .collect();
-    let receiving_supply_link: Vec<f32> = queue_vehicles
-        .iter()
-        .zip(effective_capacity_vehicles.iter())
-        .map(|(queue, capacity)| (capacity - queue).max(0.0))
-        .collect();
+    // Point-queue baseline: per-tick capacity is an admission/service rate,
+    // not a finite storage bound. Spillback needs a separate storage state.
+    let receiving_supply_link: Vec<f32> = effective_capacity_vehicles.to_vec();
 
     let weighted_by_from = segment_sum_f32(&weighted_demand, turn_from_link_index, link_count);
     let weighted_by_to = segment_sum_f32(&weighted_demand, turn_to_link_index, link_count);

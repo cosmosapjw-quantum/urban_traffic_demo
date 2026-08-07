@@ -7,8 +7,12 @@ active agents, replay, 정적 지도 진단, 그리고 optional Rust/JAX 실험 
 
 외부 감사용 전체 발전사, 알고리즘 설명, 실패한 실험, claim boundary, 재현
 절차는 `docs/audit/metroflow_external_audit_20260711/README.md`에서 시작한다.
-특히 현재 `SimulationState` runtime의 generated route-to-turn-demand 연결이
-완결되지 않아 차량이 source queue에서 정지하는 blocker가 기록되어 있다.
+그 문서의 정지 verdict는 `96e54ca` source baseline과 `e428de8` audit delivery의
+역사적 negative control이다. 2026-07-12 후속 수정은 generated route-to-turn-demand
+연결과 정확한 turn/sink token commit을 NumPy baseline에서 닫았으며, 범위와 남은
+한계는 audit packet의 `10_RUNTIME_CLOSURE_REMEDIATION_20260712.md`에 기록한다.
+이는 seed 41 소형 probe의 내부 검증일 뿐 100k scale, 실도시, 물리적 통행시간,
+통합 LUTI, 또는 재배포 권한을 검증하지 않는다.
 
 ## 로컬 Python / GPU 기준
 - Ubuntu 24.04 기본 Python 3.12를 기준으로 한다.
@@ -126,26 +130,38 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
 - 추가 흡수된 foundation slice는 zoning/POI placement, deterministic citizen/trip demand,
   UI packet/stream-buffer contracts, simulation state/control/invariant contracts, UI snapshot/control/preset adapters이다.
 - baseline `sim.init.build_initial_simulation_state`와 `sim.step.simulation_step`은 donor 의존성 없이
-  city→demand→event effects→flow→route candidate cache→active agents→invariant→UI snapshot의
-  deterministic runtime spine substrate를 제공한다. 다만 generated route를 turn demand로 변환하는
-  authority가 아직 없어 현재 integrated runtime은 차량을 스스로 이동시키는 완결 루프가 아니다.
+  city→demand→event effects→route/agent intent→turn/sink demand→flow→exact commit→invariant→UI snapshot의
+  deterministic runtime spine substrate를 제공한다. Finalized generated topology의 exhaustive
+  incoming×outgoing turn authority와 active route-tail turn/sink demand를 사용해 Python/NumPy
+  baseline이 정확한 정수 movement token을 agent와 queue에 함께 commit한다.
 - active-agent spine은 activated trip을 선택된 route candidate의 첫 링크에 배정하고, source link queue에
-  차량 1대를 삽입한다. link-to-link 이동은 직전 flow update의 `outflow_vehicles` 정수 예산을
-  slot id 순서로 소비한다.
+  차량 1대를 삽입한다. 새로 삽입된 agent는 같은 tick에 이동하지 않으며, 이후 link-to-link 이동은
+  해당 route turn의 realized token만 소비한다. Source service와 downstream receiving capacity는
+  fractional residual을 가진 하나의 deterministic integer authority로 조정된다.
 - agent slot memory는 선택된 candidate id/index/count와 baseline path cost/path-size factor,
   path-size utility를 보존한다.
 - runtime reroute는 incident 또는 route refresh cadence에서만 현재 링크 이후 tail 후보를 검토한다.
   cooldown이 남은 slot은 기존 route tail을 유지하고 cooldown만 감소한다.
 - final-link completion은 sink discharge budget을 소비한다. link-to-link movement는
-  `outflow_vehicles` 예산을 쓰고, destination discharge는 final link의 effective capacity가 0보다
-  클 때만 deterministic slot 순서로 완료된다. sink discharge budget 때문에 대기한 agent 수는
+  internal turn과 같은 deficit scheduler에서 source-service token을 공정하게 경쟁하고,
+  agent 제거와 final-link queue 감소를 같은 transaction으로 적용한다. final link의
+  `dst_node_id`가 agent destination과 다르면 fail-closed한다. sink discharge budget 때문에 대기한 agent 수는
   `active_agent_sink_wait_this_tick` 및 `active_agent_sink_wait_total` telemetry/metrics에 기록된다.
+- 기본 `traffic_model="point_queue_v1"`에서는 agent가 tick당 최대 한 route turn만 통과하며
+  `progress_01`은 물리 위치 authority가 아니다. 명시적 NumPy
+  `traffic_model="spatial_queue_v1"`에서는 `progress_01`이 링크 길이·자유류 속도·tick 길이에 따른
+  link-residency를 나타내고, exit-ready agent만 turn/sink demand를 제출한다. 링크 저장량은
+  `floor(length_m * lanes / jam_spacing_m)` 차량이며 source/downstream full 조건은 deterministic
+  spillback으로 대기한다. 이 모드는 lane-level, shockwave, 또는 실증 보정 교통모형이 아니다.
+  새 per-turn agent ABI는 Python authority이며 unsupported Rust agent/flow 선택은 fail-closed한다.
 - reporting/experiment 표면으로 simulator-only learning experience, run summary comparison,
   Navigator UI stream packetization, benchmark smoke runner, scenario presets, adaptive policy plugin registry를 흡수했다.
 - `SimulationState` runtime replay는 `make_runtime_replay_boundary`와 `replay_simulation_sequence`를 사용한다.
-  replay boundary는 backend config와 route-cache fingerprint를 기록한다.
-- integrated runtime benchmark는 `run_measured_runtime_spine_benchmark`를 사용하며 flow/routing backend와
-  agent backend, route candidate/dynamic-potential cache counters, active-agent update wall time 및
+  replay boundary는 전체 config, 실제 static routing authority, initial dynamic-state fingerprint를
+  기록하고 결과는 final dynamic-state fingerprint를 보존한다. Host timing 진단만 제외하며
+  service/receiving/turn residual, sink flow, demand lifecycle, agent 배열/경로를 포함한다.
+- integrated runtime benchmark는 `run_measured_runtime_spine_benchmark`를 사용하며 flow/routing/agent
+  backend와 `traffic_model`, route candidate/dynamic-potential cache counters, active-agent update wall time 및
   timing totals를 결과에 보존한다.
   `format_runtime_stage_timing_markdown`은 flow, route candidate refresh, dynamic potential,
   reroute decision, active-agent update stage의 wall-time share와 future GPU 후보 stage를
@@ -201,6 +217,32 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
   `CityGenerationConfig(topology_mode="sidecar_local_fabric_planar")`로 명시한다.
   이 모드는 topology/geometry gate를 통과하지만 초기화 비용과 route-ID 호환성 때문에
   runtime default로 승격되지 않았다.
+- terrain, continuous streets, planar blocks, block land use, POIs, sections,
+  turns, CSR을 하나의 simulation input으로 컴파일하는 현실형 경로는
+  `CityGenerationConfig(topology_mode="realistic_synthetic_v1",
+  zone_poi_coupling_mode="block_based_v1")`로 명시한다. 이 조합은
+  fail-closed이며 legacy fallback이 없고 아직 runtime default가 아니다.
+  `metroflow.city.generate_city_map(config, scenario_id, seed)`가 composed
+  blueprint와 runtime map의 권위 entrypoint다.
+- 현실형 family의 고정 plausibility audit은
+  `python -m metroflow.benchmarks.realistic_city_audit --artifact-prefix
+  artifacts/runtime_spine_review/realistic-city-pr62-plausibility`로 실행한다.
+  6 styles x seeds `17,29,41,44,53`의 canonical 결과는 `0/30` pass로
+  fail-closed다. 모든 map이 empirical dead-end share 하한과 mean-degree
+  상한을 벗어나며 7개 map은 developed branch-free corridor 800m gate도
+  넘는다. 이는 deterministic simulation-input substrate를 폐기하지 않지만
+  현실형 generator의 default promotion을 차단한다.
+- 현실형 scale/hardware-fit audit은
+  `python -m metroflow.benchmarks.realistic_city_scale --artifact-prefix
+  artifacts/runtime_spine_review/realistic-city-pr63-scale`로 실행한다.
+  canonical 1k/10k/100k x seeds `17,29,41` 결과는 generation,
+  actual-population, equal-budget throughput gate를 실패했고 단일 Rust
+  generation stage도 승인하지 않았다. RSS와 20-tick latency 일부 통과는
+  PR62 morphology 실패나 다른 PR63 실패를 상쇄하지 않는다.
+- PR64 default promotion 결정은
+  `docs/harness/REALISTIC_CITY_DEFAULT_PROMOTION_DECISION.md`에 `BLOCKED`로
+  고정되어 있다. 기본 `standard`와 legacy zone/POI coupling은 변경되지
+  않았으며 재개에는 수정된 generator의 PR62/PR63 전체 재통과가 필요하다.
 - 방사형 이외의 합성 형태는 `CityGenerationConfig(morphology_style_id=...)`로 선택한다.
   지원 값은 `grid_core`, `polycentric_tod`, `river_constrained`, `superblock_mixed`,
   `organic`, `ring_radial`이며 기본 `auto`는 기존 scenario별 선택을 보존한다. 문헌 기반
@@ -232,5 +274,7 @@ seed에서 wall time의 30%를 지속적으로 넘고 Rust/baseline parity가 gr
 ## 다음 작업
 - `docs/harness/PROJECT_STATE.md`, `docs/harness/CLAIM_LEDGER.md`, 그리고
   `docs/audit/metroflow_external_audit_20260711/README.md`를 현재 authority로 사용한다.
-- acceleration PR52보다 먼저 typed turn movement, route-derived turn demand,
-  generated multi-hop movement/conservation, full-state replay를 닫는다.
+- seed 41에서 통과한 functional closure와 exact dynamic-state replay를 더 넓은 generated/event
+  workload와 scale/memory benchmark로 확장하고 물리적 link traversal 의미를 명시한다.
+- legacy accessibility/land-use cadence를 `SimulationState`에 통합하거나 complete LUTI claim을
+  명시적으로 폐기하기 전에는 city-to-traffic-to-LUTI loop를 완결됐다고 부르지 않는다.

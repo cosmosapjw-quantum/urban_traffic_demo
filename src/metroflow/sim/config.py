@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
+from math import isfinite
 from typing import Iterable, Mapping
 
 from metroflow.city.morphology_reference import get_morphology_archetype
@@ -18,18 +19,21 @@ __all__ = [
     "CityGenerationConfig",
     "CITY_TOPOLOGY_MODES",
     "ZONE_POI_COUPLING_MODES",
+    "TRAFFIC_MODELS",
 ]
 
 EDGE_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "jax", "auto")
 FLOW_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
 ROUTING_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
 AGENT_RUNTIME_BACKENDS = ("baseline", "rust_cpu", "auto")
+TRAFFIC_MODELS = ("point_queue_v1", "spatial_queue_v1")
 CITY_TOPOLOGY_MODES = (
     "standard",
     "sidecar_local_fabric",
     "sidecar_local_fabric_planar",
+    "realistic_synthetic_v1",
 )
-ZONE_POI_COUPLING_MODES = ("legacy", "morphology_gated")
+ZONE_POI_COUPLING_MODES = ("legacy", "morphology_gated", "block_based_v1")
 
 
 class StrEnum(str, Enum):
@@ -99,6 +103,8 @@ class SimulationConfig:
     learning_enabled: bool = False
     learning_mix_bounds: LearningMixBounds = field(default_factory=LearningMixBounds)
     ctm_mode_enabled: bool = False
+    traffic_model: str = "point_queue_v1"
+    jam_spacing_m: float = 7.5
     max_trip_spawns_per_tick: int = 512
     edge_backend: str = "baseline"
     flow_backend: str = "baseline"
@@ -108,6 +114,7 @@ class SimulationConfig:
     route_max_hops: int = 64
     route_refresh_interval_ticks: int = 8
     route_path_size_gamma: float = 0.0
+    eager_trip_generation: bool = False
 
     def __post_init__(self) -> None:
         self.population_target = int(self.population_target)
@@ -116,6 +123,8 @@ class SimulationConfig:
         self.tick_seconds = float(self.tick_seconds)
         self.ui_stream_hz_limit = float(self.ui_stream_hz_limit)
         self.max_trip_spawns_per_tick = int(self.max_trip_spawns_per_tick)
+        self.traffic_model = str(self.traffic_model)
+        self.jam_spacing_m = float(self.jam_spacing_m)
         self.edge_backend = str(self.edge_backend)
         self.flow_backend = str(self.flow_backend)
         self.routing_backend = str(self.routing_backend)
@@ -124,6 +133,7 @@ class SimulationConfig:
         self.route_max_hops = int(self.route_max_hops)
         self.route_refresh_interval_ticks = int(self.route_refresh_interval_ticks)
         self.route_path_size_gamma = float(self.route_path_size_gamma)
+        self.eager_trip_generation = bool(self.eager_trip_generation)
         self.day_type_set = _coerce_enum_tuple(self.day_type_set, DayType)
         self.time_bands = _coerce_enum_tuple(self.time_bands, TimeBand)
 
@@ -131,12 +141,18 @@ class SimulationConfig:
             raise ValueError("population_target must be >= 1")
         if self.active_agent_capacity <= 0:
             raise ValueError("active_agent_capacity must be > 0")
-        if self.tick_seconds <= 0:
-            raise ValueError("tick_seconds must be > 0")
+        if not isfinite(self.tick_seconds) or self.tick_seconds <= 0:
+            raise ValueError("tick_seconds must be finite and > 0")
         if self.ui_stream_hz_limit <= 0:
             raise ValueError("ui_stream_hz_limit must be > 0")
         if self.max_trip_spawns_per_tick <= 0:
             raise ValueError("max_trip_spawns_per_tick must be > 0")
+        if self.traffic_model not in TRAFFIC_MODELS:
+            raise ValueError(
+                "traffic_model must be one of: point_queue_v1, spatial_queue_v1"
+            )
+        if not isfinite(self.jam_spacing_m) or not 2.0 <= self.jam_spacing_m <= 20.0:
+            raise ValueError("jam_spacing_m must be finite and in [2, 20]")
         if self.edge_backend not in EDGE_RUNTIME_BACKENDS:
             raise ValueError("edge_backend must be one of: baseline, rust_cpu, jax, auto")
         if self.flow_backend not in FLOW_RUNTIME_BACKENDS:
@@ -145,6 +161,8 @@ class SimulationConfig:
             raise ValueError("routing_backend must be one of: baseline, rust_cpu, auto")
         if self.agent_backend not in AGENT_RUNTIME_BACKENDS:
             raise ValueError("agent_backend must be one of: baseline, rust_cpu, auto")
+        if self.traffic_model == "spatial_queue_v1" and self.flow_backend != "baseline":
+            raise ValueError("spatial_queue_v1 requires flow_backend=baseline")
         if self.route_max_candidates < 1:
             raise ValueError("route_max_candidates must be >= 1")
         if self.route_max_hops < 1:
@@ -208,13 +226,27 @@ class CityGenerationConfig:
         if self.topology_mode not in CITY_TOPOLOGY_MODES:
             raise ValueError(
                 "topology_mode must be one of: standard, sidecar_local_fabric, "
-                "sidecar_local_fabric_planar"
+                "sidecar_local_fabric_planar, realistic_synthetic_v1"
             )
         if self.morphology_style_id != "auto":
             get_morphology_archetype(self.morphology_style_id)
         if self.zone_poi_coupling_mode not in ZONE_POI_COUPLING_MODES:
             raise ValueError(
-                "zone_poi_coupling_mode must be one of: legacy, morphology_gated"
+                "zone_poi_coupling_mode must be one of: legacy, morphology_gated, "
+                "block_based_v1"
+            )
+        if self.topology_mode == "realistic_synthetic_v1" and (
+            self.zone_poi_coupling_mode != "block_based_v1"
+        ):
+            raise ValueError(
+                "realistic_synthetic_v1 requires zone_poi_coupling_mode="
+                "block_based_v1"
+            )
+        if self.zone_poi_coupling_mode == "block_based_v1" and (
+            self.topology_mode != "realistic_synthetic_v1"
+        ):
+            raise ValueError(
+                "block_based_v1 requires topology_mode=realistic_synthetic_v1"
             )
         if (
             self.topology_mode == "standard"

@@ -5,10 +5,12 @@ Runtime acceleration planning is additionally governed by
 must pass its self-ask and step-back gates before another instrumentation or
 backend slice is opened.
 
-## runtime-closure prerequisite
+## runtime-closure status and prerequisite
 
-All acceleration and 100k integration claims are blocked until the NumPy
-baseline passes a generated-city closure gate:
+The NumPy baseline now passes the first five functional closure checks below on
+the deterministic seed-41 small workload. Acceleration and 100k integration
+claims remain blocked until the remaining replay, scale, physical-semantics,
+and LUTI boundaries are closed or explicitly removed from the product claim:
 
 - compiled topology exposes typed legal turn movements;
 - active route tails produce deterministic per-turn demand before flow;
@@ -19,14 +21,20 @@ baseline passes a generated-city closure gate:
 - medium/slow accessibility and land-use cadences are either ported into
   `SimulationState` or removed from the integrated-runtime claim.
 
-The current blocker is reproduced with:
+Current bounded positive probe:
 
 ```bash
 .venv/bin/python -m metroflow.benchmarks.runtime_self_drive_probe \
-  --scenario-seed 41 --steps 3 --expect-stalled
+  --scenario-seed 41 --steps 20 --expect-closed
 ```
 
-This command is a fail-closed defect probe, not a passing validation benchmark.
+Expected internal evidence: 16 generated trips, 15 completions, one explicit
+no-route failure, zero remaining active agents/queue mass, no invariant failure,
+zero per-link agent/queue delta, and equal final-state fingerprints from two
+fresh 20-tick replay runs. This is a fail-closed functional regression
+probe, not a 100k, empirical, or physical traffic validation benchmark. The
+historical `--steps 3 --expect-stalled` negative control applies only to audit
+delivery commit `e428de848184`.
 
 ## invariant tests
 - queue >= 0
@@ -63,8 +71,10 @@ city100k-like synthetic benchmark:
 - active-agent allocation/move/complete count
 - source-link queue insertion count/queue delta
 - outflow-budgeted active-agent movement count
+- traffic model provenance, physical-progress count, exit-ready count, source
+  spillback waits, and downstream storage-blocked turn count
 
-`run_measured_runtime_spine_benchmark`는 `flow_backend`, `routing_backend`, `agent_backend`,
+`run_measured_runtime_spine_benchmark`는 `flow_backend`, `routing_backend`, `agent_backend`, `traffic_model`,
 routing/agent copy-boundary note, route candidate counters, dynamic-potential counters,
 active-agent update wall time, runtime reroute/persistence counters, initial/final tick을 기록한다.
 `run_measured_routing_candidate_benchmark`는 OD 단위 dynamic-potential + route candidate path를 분리 측정하고,
@@ -102,6 +112,52 @@ effective/requested routing backend와 fallback metadata도 포함한다.
 - static map은 기록된 zoning fingerprint를 실제 zones/POIs/node-zone map으로 재계산해 대조한다.
   fingerprint가 없으면 coupling provenance를 표시하지 않고, mismatch는 fail-closed 오류다.
 
+## realistic city plausibility audit
+
+```bash
+.venv/bin/python -m metroflow.benchmarks.realistic_city_audit \
+  --artifact-prefix artifacts/runtime_spine_review/realistic-city-pr62-plausibility
+```
+
+- fixed matrix: six registered styles x seeds `17,29,41,44,53`;
+- empirical envelopes: pinned eight-city corpus min/max expanded mechanically by
+  20 percent; no per-style or post-result tuning;
+- every map must also retain PR53 connectivity, no-repair, intersection,
+  compiler, OD, access, segment, block, frontage, and land-use gates;
+- hierarchy, orientation concentration, repeated length/block bins, terrain,
+  and land-use mix remain diagnostic-only counterevidence;
+- canonical PR62 result: `0/30` pass, mean-degree and dead-end failures on all
+  maps, branch-free corridor failure on seven maps;
+- compiled-fragment circuity is 1.0 by construction and is explicitly reported
+  as a measurement limitation, not realistic-curvature evidence.
+
+## realistic city scale and hardware-fit audit
+
+```bash
+/usr/bin/time -f 'elapsed=%e max_rss_kib=%M' \
+  .venv/bin/python -m metroflow.benchmarks.realistic_city_scale \
+  --artifact-prefix artifacts/runtime_spine_review/realistic-city-pr63-scale
+```
+
+- fixed matrix: populations `1k,10k,100k` x seeds `17,29,41` x legacy and
+  realistic modes;
+- generation, fixed 20-tick runtime, paired-budget runtime, and realistic
+  stage profiling run in separate fresh processes;
+- generation peak RSS uses the city-authority-only phase, not a process that
+  has already allocated population, trips, flow arrays, or active agents;
+- paired-budget ticks count only completions before the deadline, and zero
+  legacy progress fails rather than passing vacuously;
+- runtime comparison records requested/actual citizen and trip counts; 100k is
+  comparable only when both modes realize exactly 100,000 citizens;
+- Rust follow-up requires one eligible A*/planarization/face stage to consume
+  at least 30 percent of city-authority time on every fixed seed;
+- canonical PR63 result fails generation, citizen-realization, and paired
+  throughput gates on all seeds; RSS and fixed-step latency ratios pass; no
+  Rust generation probe is admitted;
+- the 1k and 10k rows share `synthetic_smoke`, while 100k switches extent and
+  auto style. The artifact is not a continuous three-size city curve or an
+  empirical validation claim.
+
 ## backend benchmark
 - baseline backend과 optional accelerator backend를 같은 input signature로 비교
 - 기본 benchmark는 NumPy baseline만 요구한다
@@ -135,6 +191,10 @@ effective/requested routing backend와 fallback metadata도 포함한다.
   `outflow_vehicles` 예산 이하 link advance, no-outflow 대기, final-link sink discharge budget 이하
   completion, zero-capacity final-link 대기와 `active_agent_sink_wait_this_tick`/`active_agent_sink_wait_total`
   telemetry를 고정한다
+- spatial-queue parity는 physical link travel time, exit-ready demand gating,
+  one-space merge ordering, finite source/downstream storage, queue/storage
+  invariant, pause, replay, benchmark/UI provenance를 고정한다. 이 테스트는
+  empirical traffic 또는 shockwave validation이 아니다.
 - Rust CPU active-agent parity test는 slot order budget consumption, skipped same-tick slots,
   no-route release, final-link sink wait/completion, shared-link budget ordering, wrapper copy-boundary
   action plan을 Python baseline과 동일 입력으로 비교한다

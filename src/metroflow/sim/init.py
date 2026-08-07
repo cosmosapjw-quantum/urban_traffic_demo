@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 from typing import Any
 
 import numpy as np
 
+from metroflow.city.blueprint import GeneratedCityMap
 from metroflow.city.generator_v2 import GeneratorV2, PreviewCityTopology
+from metroflow.city.realistic_city import generate_city_map
 from metroflow.city.zones import ZoningPlacementResult, generate_zones_and_pois
 from metroflow.demand.population import PopulationGenerationResult, generate_citizen_population
 from metroflow.demand.trips import TripRequestGenerationResult, generate_trip_requests
@@ -23,6 +26,7 @@ from metroflow.sim.state import (
     SimulationState,
     SimulationStaticRefs,
 )
+from metroflow.traffic.spatial_queue import compute_link_storage_capacity
 from metroflow.ui.stream_buffer import UISnapshotStreamBuffer
 
 __all__ = [
@@ -41,6 +45,15 @@ class SimulationInitBundle:
     zoning: ZoningPlacementResult
     population: PopulationGenerationResult
     trip_requests: TripRequestGenerationResult
+    generated_city_map: GeneratedCityMap | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class _InitialCityAuthority:
+    topology: PreviewCityTopology
+    zoning: ZoningPlacementResult
+    road_csr: Any
+    generated_city_map: GeneratedCityMap | None
 
 
 def build_initial_simulation_state(
@@ -63,27 +76,16 @@ def build_initial_simulation_state(
         day_type=sim_config.day_type_set[0],
         time_band=sim_config.time_bands[0],
     )
-    city_context: dict[str, Any] = {
-        "scenario_id": (
-            "synthetic_100k"
-            if sim_config.population_target >= 100_000
-            else "synthetic_smoke"
-        ),
-        "seed": scenario_seed,
-        "preview_mode": city_cfg.topology_mode,
-    }
-    if city_cfg.morphology_style_id != "auto":
-        city_context["style_id"] = city_cfg.morphology_style_id
-    topology = GeneratorV2().generate_preview_topology(city_context)
-    resolved_morphology_style_id = str(topology.metadata.get("style_id", ""))
-    road_csr = topology.build_csr(validate=True, require_weak_connectivity=True)
-    zoning = generate_zones_and_pois(
-        topology,
-        config=city_cfg,
-        seed=scenario_seed,
-        population_target=sim_config.population_target,
-        validate=True,
+    city_authority = _build_initial_city_authority(
+        sim_config=sim_config,
+        city_config=city_cfg,
+        scenario_seed=scenario_seed,
     )
+    generated_city_map = city_authority.generated_city_map
+    topology = city_authority.topology
+    zoning = city_authority.zoning
+    road_csr = city_authority.road_csr
+    resolved_morphology_style_id = str(topology.metadata.get("style_id", ""))
     population = generate_citizen_population(
         zoning,
         config=sim_config,
@@ -100,7 +102,12 @@ def build_initial_simulation_state(
         start_tick=clock_state.tick_index,
         eager_trip_generation=eager_trip_generation,
     )
-    flow_link_state = _build_initial_link_state(road_csr)
+    flow_link_state = _build_initial_link_state(
+        road_csr,
+        tick_seconds=sim_config.tick_seconds,
+        traffic_model=sim_config.traffic_model,
+        jam_spacing_m=sim_config.jam_spacing_m,
+    )
     flow_node_state = _build_initial_node_state(road_csr)
     if topology.road_geometry is None:
         raise ValueError("generated topology must include road_geometry")
@@ -121,6 +128,8 @@ def build_initial_simulation_state(
             "zone_poi_coupling_gate_version",
             "zone_poi_coupling_gate_digest",
             "zone_poi_coupling_anchor_digest",
+            "land_use_catalog_fingerprint",
+            "city_blueprint_fingerprint",
         )
     }
 
@@ -159,6 +168,14 @@ def build_initial_simulation_state(
                 "road_csr": road_csr,
                 "node_zone_by_id": dict(zoning.node_zone_by_id),
                 "zone_node_ids": dict(zoning.zone_node_ids),
+                **(
+                    {
+                        "land_use_catalog": generated_city_map.blueprint.land_use,
+                        "terrain_field": generated_city_map.blueprint.terrain,
+                    }
+                    if generated_city_map is not None
+                    else {}
+                ),
             },
             ui_network_geometry_version=geometry_version,
             metadata={
@@ -190,6 +207,56 @@ def build_initial_simulation_state(
         zoning=zoning,
         population=population,
         trip_requests=trip_requests,
+        generated_city_map=generated_city_map,
+    )
+
+
+def _build_initial_city_authority(
+    *,
+    sim_config: SimulationConfig,
+    city_config: CityGenerationConfig,
+    scenario_seed: int,
+) -> _InitialCityAuthority:
+    scenario_id = (
+        "synthetic_100k"
+        if sim_config.population_target >= 100_000
+        else "synthetic_smoke"
+    )
+    city_context: dict[str, Any] = {
+        "scenario_id": scenario_id,
+        "seed": int(scenario_seed),
+        "preview_mode": city_config.topology_mode,
+    }
+    if city_config.morphology_style_id != "auto":
+        city_context["style_id"] = city_config.morphology_style_id
+
+    if city_config.topology_mode == "realistic_synthetic_v1":
+        generated = generate_city_map(
+            city_config,
+            scenario_id=scenario_id,
+            seed=scenario_seed,
+        )
+        return _InitialCityAuthority(
+            topology=generated.topology,
+            zoning=generated.zoning,
+            road_csr=generated.road_csr,
+            generated_city_map=generated,
+        )
+
+    topology = GeneratorV2().generate_preview_topology(city_context)
+    road_csr = topology.build_csr(validate=True, require_weak_connectivity=True)
+    zoning = generate_zones_and_pois(
+        topology,
+        config=city_config,
+        seed=scenario_seed,
+        population_target=sim_config.population_target,
+        validate=True,
+    )
+    return _InitialCityAuthority(
+        topology=topology,
+        zoning=zoning,
+        road_csr=road_csr,
+        generated_city_map=None,
     )
 
 
@@ -227,21 +294,71 @@ def _build_initial_trip_requests(
     )
 
 
-def _build_initial_link_state(road_csr: Any) -> LinkState:
+def _build_initial_link_state(
+    road_csr: Any,
+    *,
+    tick_seconds: float = 1.0,
+    traffic_model: str = "point_queue_v1",
+    jam_spacing_m: float = 7.5,
+) -> LinkState:
+    """Build runtime link state in explicit simulation-tick units.
+
+    Generated ``RoadLink.capacity_veh_per_tick`` values use the generator's
+    one-second reference tick.  Runtime capacity is rescaled to the configured
+    tick duration, while free-flow time is stored as a number of runtime ticks.
+    This keeps the represented physical free-flow time and service rate stable
+    when ``SimulationConfig.tick_seconds`` changes.
+    """
+
+    tick_seconds = float(tick_seconds)
+    if not isfinite(tick_seconds) or tick_seconds <= 0.0:
+        raise ValueError("tick_seconds must be finite and > 0")
+    capacity_reference_tick_seconds = 1.0
     travel_time_cost = np.asarray(
         [
-            max(1e-3, float(link.length_m) / max(1e-3, float(link.free_flow_speed_mps)))
+            max(
+                1e-3,
+                float(link.length_m)
+                / max(1e-3, float(link.free_flow_speed_mps))
+                / tick_seconds,
+            )
             for link in road_csr.links
         ],
         dtype=np.float32,
     )
     capacity = np.asarray(
-        [max(0.0, float(link.capacity_veh_per_tick)) for link in road_csr.links],
+        [
+            max(0.0, float(link.capacity_veh_per_tick))
+            * tick_seconds
+            / capacity_reference_tick_seconds
+            for link in road_csr.links
+        ],
         dtype=np.float32,
     )
     link_count = int(road_csr.link_count)
     zeros = np.zeros((link_count,), dtype=np.float32)
     ones = np.ones((link_count,), dtype=np.float32)
+    metadata: dict[str, Any] = {
+        "free_flow_travel_time_cost": travel_time_cost,
+        "travel_time_cost_unit": "simulation_ticks",
+        "tick_seconds": tick_seconds,
+        "capacity_reference_tick_seconds": capacity_reference_tick_seconds,
+        "traffic_model": str(traffic_model),
+        "runtime_flow_generation": 0,
+        "runtime_incident_generation": 0,
+    }
+    if str(traffic_model) == "spatial_queue_v1":
+        storage = compute_link_storage_capacity(
+            road_csr,
+            jam_spacing_m=float(jam_spacing_m),
+        )
+        metadata.update(
+            {
+                "storage_capacity_vehicles": storage,
+                "storage_capacity_unit": "vehicles",
+                "jam_spacing_m": float(jam_spacing_m),
+            }
+        )
     return LinkState(
         queue_vehicles=zeros,
         inflow_vehicles=zeros,
@@ -250,11 +367,7 @@ def _build_initial_link_state(road_csr: Any) -> LinkState:
         capacity_veh_per_tick=capacity,
         incident_capacity_multiplier=ones,
         capacity_violation_flags=np.zeros((link_count,), dtype=np.bool_),
-        metadata={
-            "free_flow_travel_time_cost": travel_time_cost,
-            "runtime_flow_generation": 0,
-            "runtime_incident_generation": 0,
-        },
+        metadata=metadata,
     )
 
 

@@ -23,7 +23,10 @@ from metroflow.sim.invariants import InvariantReport
 from metroflow.sim.invariants import validate_invariants as _validate_invariants_core
 from metroflow.sim.rng import PRNGKeyArray
 from metroflow.sim.routing_runtime import (
-    advance_runtime_active_agents,
+    advance_runtime_agent_progress,
+    commit_runtime_active_agent_flows,
+    prepare_runtime_active_agents,
+    rebuild_runtime_turn_demand,
     refresh_runtime_route_candidates,
 )
 from metroflow.sim.state import SimulationState
@@ -41,15 +44,16 @@ UISnapshotSource = dict[str, Any]
 
 
 def init_simulation(
-    config: SimulationConfig,
+    config: SimulationConfig | Mapping[str, Any],
     scenario_seed: int,
 ) -> tuple[SimulationState, PRNGKeyArray]:
     """Initialize the baseline simulation state and root PRNG key."""
 
+    resolved_config = _coerce_config(config)
     bundle = build_initial_simulation_state(
-        config=_coerce_config(config),
+        config=resolved_config,
         scenario_seed=int(scenario_seed),
-        eager_trip_generation=bool(getattr(config, "learning_enabled", False)),
+        eager_trip_generation=resolved_config.eager_trip_generation,
     )
     return bundle.state, bundle.rng_key
 
@@ -72,10 +76,27 @@ def simulation_step(
         next_state = _apply_event_effects_to_flow_state(next_state)
         next_state, activation_counters = _activate_due_trip_requests(next_state)
         tick_counters.update(activation_counters)
+        next_state, routing_prepare_counters, newly_admitted_slot_ids = (
+            _prepare_runtime_routing_state(next_state)
+        )
+        tick_counters.update(routing_prepare_counters)
         next_state, flow_counters = _advance_flow_state(next_state)
         tick_counters.update(flow_counters)
-        next_state, routing_counters = _advance_runtime_routing_state(next_state)
-        tick_counters.update(routing_counters)
+        next_state, routing_commit_counters = _commit_runtime_routing_state(
+            next_state,
+            newly_admitted_slot_ids=newly_admitted_slot_ids,
+        )
+        tick_counters.update(
+            {
+                key: tick_counters.get(key, 0) + value
+                for key, value in routing_commit_counters.items()
+            }
+        )
+    next_state = _record_runtime_transition_counters(
+        next_state,
+        tick_counters=tick_counters,
+        executed=not cur_control.pause,
+    )
     invariant_report = _validate_invariants_core(next_state)
 
     ui_snapshot_source = _build_optional_ui_snapshot_source(
@@ -239,6 +260,10 @@ def _zero_tick_counters() -> dict[str, int]:
         "trip_allocated_this_tick": 0,
         "active_agent_moved_this_tick": 0,
         "active_agent_sink_wait_this_tick": 0,
+        "active_agent_progressed_this_tick": 0,
+        "active_agent_exit_queue_count": 0,
+        "active_agent_in_transit_count": 0,
+        "trip_source_spillback_wait_this_tick": 0,
         "route_candidate_refresh_this_tick": 0,
         "route_candidate_reuse_this_tick": 0,
         "dynamic_potential_recompute_this_tick": 0,
@@ -276,14 +301,38 @@ def _apply_event_effects_to_flow_state(state: SimulationState) -> SimulationStat
         active_events=active_events,
         validate=False,
     )
-    next_link_state = _with_link_metadata_increment(
-        result.link_state,
-        key="runtime_incident_generation",
+    previous_multiplier = np.asarray(
+        link_state.incident_capacity_multiplier,
+        dtype=np.float32,
+    )
+    next_multiplier = np.asarray(
+        result.link_state.incident_capacity_multiplier,
+        dtype=np.float32,
+    )
+    incident_changed = not bool(np.array_equal(previous_multiplier, next_multiplier))
+    next_link_state = (
+        _with_link_metadata_increment(
+            result.link_state,
+            key="runtime_incident_generation",
+        )
+        if incident_changed
+        else result.link_state
     )
     next_metadata = dict(state.dynamic.metadata)
     next_metadata["us2_active_event_applied_event_ids"] = result.applied_event_ids
     next_metadata["us2_active_event_ignored_event_ids"] = result.ignored_event_ids
     next_metadata["us2_active_event_affected_link_ids"] = result.affected_link_ids
+    if incident_changed:
+        had_incident = bool(np.any(previous_multiplier < 1.0))
+        has_incident = bool(np.any(next_multiplier < 1.0))
+        if not had_incident and has_incident:
+            transition = "activated"
+        elif had_incident and not has_incident:
+            transition = "cleared"
+        else:
+            transition = "changed"
+        next_metadata["runtime_incident_transition"] = transition
+        next_metadata["runtime_incident_transition_tick"] = int(state.tick_index)
     return state.with_dynamic_updates(
         flow_link_state=next_link_state,
         metadata=next_metadata,
@@ -297,15 +346,46 @@ def _advance_flow_state(state: SimulationState) -> tuple[SimulationState, dict[s
     if not isinstance(link_state, LinkState) or not isinstance(node_state, NodeState):
         return state, counters
     start_ns = perf_counter_ns()
+    storage_capacity = None
+    if state.config.traffic_model == "spatial_queue_v1":
+        storage_capacity = np.asarray(
+            link_state.metadata.get("storage_capacity_vehicles", ()),
+            dtype=np.float32,
+        )
+        if storage_capacity.shape != (link_state.link_count,):
+            raise RuntimeError("spatial flow update lacks storage capacity")
     result = update_link_node_flow(
         link_state,
         node_state,
         validate=False,
         flow_backend=state.config.flow_backend,
+        discrete_agent_authority=True,
+        storage_capacity_vehicles=storage_capacity,
     )
     counters["flow_update_wall_ns"] = max(0, perf_counter_ns() - start_ns)
+    transition_metadata = dict(result.link_state.metadata)
+    transition_metadata.update(
+        {
+            "runtime_transition_authority_version": 1,
+            "runtime_transition_tick": int(state.tick_index),
+            "runtime_flow_input_queue_vehicles": np.asarray(
+                link_state.queue_vehicles,
+                dtype=np.float32,
+            ).copy(),
+        }
+    )
+    witnessed_link_state = LinkState.from_internal_arrays(
+        queue_vehicles=result.link_state.queue_vehicles,
+        inflow_vehicles=result.link_state.inflow_vehicles,
+        outflow_vehicles=result.link_state.outflow_vehicles,
+        travel_time_cost=result.link_state.travel_time_cost,
+        capacity_veh_per_tick=result.link_state.capacity_veh_per_tick,
+        incident_capacity_multiplier=result.link_state.incident_capacity_multiplier,
+        capacity_violation_flags=result.link_state.capacity_violation_flags,
+        metadata=transition_metadata,
+    )
     next_link_state = _with_link_metadata_increment(
-        result.link_state,
+        witnessed_link_state,
         key="runtime_flow_generation",
     )
     return (
@@ -317,13 +397,15 @@ def _advance_flow_state(state: SimulationState) -> tuple[SimulationState, dict[s
     )
 
 
-def _advance_runtime_routing_state(
+def _prepare_runtime_routing_state(
     state: SimulationState,
-) -> tuple[SimulationState, dict[str, int]]:
+) -> tuple[SimulationState, dict[str, int], set[int]]:
     route_state, route_counters = refresh_runtime_route_candidates(state)
     state = state.with_dynamic_updates(route_candidate_state=route_state)
     start_ns = perf_counter_ns()
-    pool, agent_counters, demand_state, link_state = advance_runtime_active_agents(state)
+    pool, agent_counters, demand_state, link_state, newly_admitted_slot_ids = (
+        prepare_runtime_active_agents(state)
+    )
     agent_counters = dict(agent_counters)
     agent_counters["active_agent_update_wall_ns"] = max(0, perf_counter_ns() - start_ns)
     updates: dict[str, Any] = {"demand_state": demand_state}
@@ -331,7 +413,101 @@ def _advance_runtime_routing_state(
         updates["active_agent_pool"] = pool
     if link_state is not None:
         updates["flow_link_state"] = link_state
-    return state.with_dynamic_updates(**updates), {**route_counters, **agent_counters}
+    state = state.with_dynamic_updates(**updates)
+    if pool is not None:
+        progress_start_ns = perf_counter_ns()
+        progressed_pool, progress_counters = advance_runtime_agent_progress(
+            state,
+            pool,
+            skip_slot_ids=newly_admitted_slot_ids,
+        )
+        progress_elapsed_ns = max(0, perf_counter_ns() - progress_start_ns)
+        state = state.with_dynamic_updates(active_agent_pool=progressed_pool)
+        agent_counters["active_agent_update_wall_ns"] = int(
+            agent_counters.get("active_agent_update_wall_ns", 0)
+        ) + progress_elapsed_ns
+        agent_counters.update(
+            {
+                key: agent_counters.get(key, 0) + int(value)
+                for key, value in progress_counters.items()
+            }
+        )
+    node_state = rebuild_runtime_turn_demand(
+        state,
+        skip_slot_ids=newly_admitted_slot_ids,
+    )
+    if node_state is not None:
+        state = state.with_dynamic_updates(flow_node_state=node_state)
+    return (
+        state,
+        {**route_counters, **agent_counters},
+        newly_admitted_slot_ids,
+    )
+
+
+def _commit_runtime_routing_state(
+    state: SimulationState,
+    *,
+    newly_admitted_slot_ids: set[int],
+) -> tuple[SimulationState, dict[str, int]]:
+    start_ns = perf_counter_ns()
+    pool, counters, demand_state = commit_runtime_active_agent_flows(
+        state,
+        skip_slot_ids=newly_admitted_slot_ids,
+    )
+    counters = dict(counters)
+    elapsed_ns = max(0, perf_counter_ns() - start_ns)
+    counters["active_agent_movement_wall_ns"] = max(
+        int(counters.get("active_agent_movement_wall_ns", 0)),
+        elapsed_ns,
+    )
+    counters["active_agent_update_wall_ns"] = elapsed_ns
+    updates: dict[str, Any] = {"demand_state": demand_state}
+    if pool is not None:
+        updates["active_agent_pool"] = pool
+    return state.with_dynamic_updates(**updates), counters
+
+
+def _record_runtime_transition_counters(
+    state: SimulationState,
+    *,
+    tick_counters: Mapping[str, int],
+    executed: bool,
+) -> SimulationState:
+    metadata = dict(state.dynamic.metadata)
+    metadata.update(
+        {
+            "runtime_transition_authority_active": bool(executed),
+            "runtime_transition_counter_tick": int(state.tick_index),
+            "runtime_transition_completed_trip_count": int(
+                tick_counters.get("trip_completed_this_tick", 0)
+            ),
+            "runtime_transition_failed_trip_count": int(
+                tick_counters.get("trip_failed_this_tick", 0)
+            ),
+            "runtime_transition_allocated_trip_count": int(
+                tick_counters.get("trip_allocated_this_tick", 0)
+            ),
+        }
+    )
+    return state.with_dynamic_updates(metadata=metadata)
+
+
+def _advance_runtime_routing_state(
+    state: SimulationState,
+) -> tuple[SimulationState, dict[str, int]]:
+    """Compatibility wrapper for the old single-phase private helper."""
+
+    prepared, counters, newly_admitted = _prepare_runtime_routing_state(state)
+    flowed, flow_counters = _advance_flow_state(prepared)
+    committed, commit_counters = _commit_runtime_routing_state(
+        flowed,
+        newly_admitted_slot_ids=newly_admitted,
+    )
+    merged = {**counters, **flow_counters}
+    for key, value in commit_counters.items():
+        merged[key] = merged.get(key, 0) + value
+    return committed, merged
 
 
 def _build_optional_ui_snapshot_source(
@@ -412,6 +588,7 @@ def _update_metrics_state(
             "generated_trip_total": int(metrics.get("generated_trip_total", 0))
             + int(tick_counters.get("trip_generated_this_tick", 0)),
             "flow_backend": state.config.flow_backend,
+            "traffic_model": state.config.traffic_model,
             "routing_backend": state.config.routing_backend,
             "agent_backend": state.config.agent_backend,
             "flow_update_wall_ns": flow_update_wall_ns,
@@ -505,6 +682,24 @@ def _update_metrics_state(
                 tick_counters.get("active_agent_moved_this_tick", 0)
             ),
             "active_agent_sink_wait_this_tick": sink_wait_tick,
+            "active_agent_progressed_this_tick": int(
+                tick_counters.get("active_agent_progressed_this_tick", 0)
+            ),
+            "active_agent_exit_queue_count": int(
+                tick_counters.get("active_agent_exit_queue_count", 0)
+            ),
+            "active_agent_in_transit_count": int(
+                tick_counters.get("active_agent_in_transit_count", 0)
+            ),
+            "trip_source_spillback_wait_this_tick": int(
+                tick_counters.get("trip_source_spillback_wait_this_tick", 0)
+            ),
+            "spillback_blocked_turn_count": int(
+                getattr(link_state, "metadata", {}).get(
+                    "runtime_spillback_blocked_turn_count",
+                    0,
+                )
+            ),
             "active_agent_sink_wait_total": int(
                 metrics.get("active_agent_sink_wait_total", 0)
             )
@@ -546,6 +741,9 @@ def _build_step_telemetry(
         flow_backend=str(metrics_state.get("flow_backend", state.config.flow_backend)),
         routing_backend=str(metrics_state.get("routing_backend", state.config.routing_backend)),
         agent_backend=str(metrics_state.get("agent_backend", state.config.agent_backend)),
+        traffic_model=str(
+            metrics_state.get("traffic_model", state.config.traffic_model)
+        ),
         flow_update_wall_ns=int(metrics_state.get("flow_update_wall_ns", 0)),
         active_agent_update_wall_ns=int(
             metrics_state.get("active_agent_update_wall_ns", 0)
@@ -582,6 +780,21 @@ def _build_step_telemetry(
         ),
         active_agent_reroute_cooldown_this_tick=int(
             metrics_state.get("active_agent_reroute_cooldown_this_tick", 0)
+        ),
+        active_agent_progressed_this_tick=int(
+            metrics_state.get("active_agent_progressed_this_tick", 0)
+        ),
+        active_agent_exit_queue_count=int(
+            metrics_state.get("active_agent_exit_queue_count", 0)
+        ),
+        active_agent_in_transit_count=int(
+            metrics_state.get("active_agent_in_transit_count", 0)
+        ),
+        trip_source_spillback_wait_this_tick=int(
+            metrics_state.get("trip_source_spillback_wait_this_tick", 0)
+        ),
+        spillback_blocked_turn_count=int(
+            metrics_state.get("spillback_blocked_turn_count", 0)
         ),
     )
 

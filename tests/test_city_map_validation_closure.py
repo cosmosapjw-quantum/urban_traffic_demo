@@ -161,13 +161,19 @@ def test_planar_city_initialization_remains_replay_deterministic() -> None:
         eager_trip_generation=True,
     ).state
     controls = (SimulationControl(), SimulationControl())
+    replay_key = key_from_seed(23)
     first_result = replay_simulation_sequence(
         RuntimeReplayRequest(
             name="replay_planar_city_first",
             initial_state=first,
-            declared_boundary=make_runtime_replay_boundary(first),
+            declared_boundary=make_runtime_replay_boundary(
+                first,
+                controls=controls,
+                rng_key=replay_key,
+                num_steps=2,
+            ),
             controls=controls,
-            rng_key=key_from_seed(23),
+            rng_key=replay_key,
             num_steps=2,
         )
     )
@@ -175,9 +181,14 @@ def test_planar_city_initialization_remains_replay_deterministic() -> None:
         RuntimeReplayRequest(
             name="replay_planar_city_second",
             initial_state=second,
-            declared_boundary=make_runtime_replay_boundary(second),
+            declared_boundary=make_runtime_replay_boundary(
+                second,
+                controls=controls,
+                rng_key=replay_key,
+                num_steps=2,
+            ),
             controls=controls,
-            rng_key=key_from_seed(23),
+            rng_key=replay_key,
             num_steps=2,
         )
     )

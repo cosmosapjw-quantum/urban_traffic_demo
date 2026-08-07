@@ -1,5 +1,135 @@
 # Validation Ledger
 
+## 2026-07-13: Realistic City Plausibility Audit
+
+Change class: fixed-corpus morphology audit, structural distribution gate, and
+diagnostic contact-sheet review
+
+Commands and gates:
+
+```bash
+.venv/bin/python -m pytest tests/test_realistic_city_plausibility.py -q
+/usr/bin/time -f 'elapsed=%e max_rss_kb=%M' \
+  .venv/bin/python -m metroflow.benchmarks.realistic_city_audit \
+  --artifact-prefix artifacts/runtime_spine_review/realistic-city-pr62-plausibility
+google-chrome --headless=new --disable-gpu --no-sandbox --hide-scrollbars \
+  --window-size=2400,3600 \
+  --screenshot=artifacts/runtime_spine_review/realistic-city-pr62-plausibility.png \
+  file://$PWD/artifacts/runtime_spine_review/realistic-city-pr62-plausibility.html
+.venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Observed results:
+
+- audit unit/artifact suite: `8 passed in 13.56s`;
+- canonical matrix: six registered styles x seeds `17,29,41,44,53`;
+- all 30 maps generated; report fingerprint
+  `6ab9f8c9c62f36aeedffd67707f2c3e9072274ca91f1e836dc14d69fcde3316b`;
+- canonical audit: `0/30` maps passed, `144.26 s` wall time, `272,112 KiB`
+  maximum RSS;
+- full repository: `767 passed in 563.66s`;
+- Ruff and whitespace gates passed;
+- Chrome produced a nonblank `2400x3600` PNG contact sheet whose five layers
+  align with the same representative generated maps.
+
+Failure evidence:
+
+- every map is outside the pinned 20-percent-expanded envelope on mean node
+  degree and dead-end share;
+- seven maps exceed the frozen 800 m developed branch-free corridor gate;
+- independent `grid_core` seed-17 recount: 799 nodes, 2,147 physical edges,
+  mean degree 5.374, 528 degree-six nodes, and only 29 parallel-edge extras;
+- representative local-road length share is 95-98 percent while collector
+  length share is zero;
+- dominant 10 m segment bins hold 42-65 percent and dominant 2,500 m2 block
+  bins hold roughly 70-95 percent, matching the repeated triangular lattice in
+  the contact sheet.
+
+Review corrections:
+
+- split audit authority from reporting/CLI instead of retaining a new 1,084-line
+  mixed-responsibility module;
+- removed preview geometry from JSON, reducing it from 31 MB to 108 KB without
+  changing the report fingerprint;
+- added chain, junction, and cycle gold tests for the branch-free corridor gate;
+- documented compiled-fragment circuity as 1.0 by construction rather than
+  presenting it as realistic-curvature evidence.
+
+Claim boundary:
+
+- **IMPLEMENTED:** deterministic 30-map audit, fixed reference envelope,
+  structural gates, compact artifacts, and aligned diagnostic contact sheet.
+- **BLOCKED:** `realistic_synthetic_v1` default promotion and broad
+  morphological-plausibility claim.
+- **STILL VALID:** deterministic topology/CSR/zone/replay simulation-input
+  substrate from PR60.
+- **NOT VALIDATED:** named-city similarity, empirical traffic/demand/land-use,
+  street curvature, or global representativeness of the eight-city corpus.
+
+## 2026-07-13: Explicit Spatial Queue Runtime
+
+Change class: runtime traffic semantics, finite-storage invariants, replay and
+diagnostic provenance
+
+Commands and gates:
+
+```bash
+.venv/bin/python -m pytest tests/test_spatial_queue_runtime.py -q
+.venv/bin/python -m pytest \
+  tests/test_spatial_queue_runtime.py tests/test_runtime_spine.py \
+  tests/test_runtime_flow_closure.py tests/test_runtime_replay_closure.py \
+  tests/test_measured_benchmarks.py tests/test_runtime_diagnostics.py \
+  tests/test_metro_absorption_reporting_learning_ui.py \
+  tests/test_static_city_map.py tests/test_runtime_environment.py \
+  tests/test_imports.py -q
+.venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Observed results:
+
+- spatial queue targeted suite: `12 passed in 1.49s`;
+- related runtime/UI/backend suite: `135 passed in 46.69s`;
+- full repository: `759 passed in 503.97s`;
+- fresh `sim.config`, `sim.step`, and `traffic` import loaded no JAX, torch, or
+  `_metroflow_rust` modules;
+- Ruff and whitespace gates passed.
+
+Functional impact:
+
+- `point_queue_v1` remains the default replay/regression authority;
+- explicit NumPy `spatial_queue_v1` advances resident agents from physical link
+  length, free-flow speed, and tick duration, and only exit-ready agents submit
+  turn or sink demand;
+- storage is derived in vehicles as
+  `floor(length_m * lanes / jam_spacing_m)` with a minimum of one vehicle;
+- source admission and downstream receiving both fail closed when storage is
+  exhausted, including deterministic competing-turn ordering;
+- finite-storage shape, authority, and occupancy are independently checked by
+  runtime invariants;
+- telemetry, replay, UI snapshots/static metadata, and measured runtime
+  benchmarks preserve `traffic_model` and deterministic spillback counters.
+
+Review corrections:
+
+- replaced an invalid source-full fixture whose queue had no corresponding
+  agent with a lifecycle- and mass-consistent two-trip scenario;
+- added missing telemetry serialization and benchmark/UI model provenance;
+- stopped counting exit-wait agents as physically progressed on every tick;
+- included physical-progress planning time in the parent active-agent stage.
+
+Claim boundary:
+
+- **INTERNALLY VERIFIED:** explicit coarse link residency, finite storage,
+  deterministic spillback, exact queue/agent mass, pause, and replay in the
+  exercised synthetic fixtures.
+- **NOT VALIDATED:** empirical travel time, jam density, fundamental diagram,
+  backward shockwave speed, lane behavior, real-city traffic, or 100k closure.
+- No Rust, JAX, C++/CUDA, lane-level, or external-data-learning path was opened.
+
 ## 2026-07-10: Explicit Planar City Contract Closure
 
 Change class: topology/geometry validation plus diagnostic visualization
@@ -623,3 +753,205 @@ Delivery packaging command, to be run only after committing this packet:
 ```bash
 .venv/bin/python tools/build_external_audit_bundle.py --output-dir dist
 ```
+
+## 2026-07-12: Runtime Closure Remediation
+
+Change class: Python/NumPy functional baseline correction, generated turn
+authority, exact agent/queue flow commit, explicit tick units, and historical
+audit supplement
+
+Commands run during remediation:
+
+```bash
+.venv/bin/python -m metroflow.benchmarks.runtime_self_drive_probe \
+  --scenario-seed 41 --steps 20 --expect-closed
+.venv/bin/python -m pytest \
+  tests/test_flow_units.py \
+  tests/test_runtime_flow_closure.py \
+  tests/test_runtime_replay_closure.py \
+  tests/test_runtime_spine.py -q \
+  -k 'not test_runtime_reroute_passes_configured_routing_backend'
+.venv/bin/python -m pytest tests/test_external_audit_package.py -q
+.venv/bin/python -m pytest -q \
+  --deselect tests/test_meso_core.py::test_evolve_edges_fast_tick_explicit_jax_backend_is_fail_closed \
+  --deselect tests/test_replay.py::test_replay_boundary_and_result_record_edge_backend \
+  --deselect tests/test_runtime_spine.py::test_runtime_reroute_passes_configured_routing_backend
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Recorded bounded result:
+
+- generated seed 41: 16 trips, 51,886 compiled turn rows, 45,544 permitted;
+- 15 routable trips complete by tick 16; one no-route trip fails explicitly;
+- tick 20 has zero active agents and zero queue vehicles;
+- all 20 ticks pass runtime invariants with maximum per-link agent/queue delta
+  `0.0`;
+- focused flow/closure/replay/runtime suite: `53 passed, 1 skipped, 1 deselected`;
+- external-audit package suite: `9 passed`;
+- runtime closure replay suite: `9 passed`;
+- dependency-neutral broad suite: `583 passed, 20 skipped, 3 deselected in
+  193.44s`; the three explicit optional-integration tests then report `3
+  skipped` after receiving dependency guards;
+- Ruff and `git diff --check` pass.
+- JAX and the built `_metroflow_rust` extension are absent in this container.
+  Cargo is also unavailable, so the new Rust unit test was added but not
+  executed here; Rust formatting/workspace results must be refreshed in a Rust
+  toolchain environment before delivery.
+
+Functional impact:
+
+- generated routes now produce legal per-turn and sink demand before flow;
+- realized integer tokens update the matching agents and queue mass atomically;
+- source service and downstream receiving capacity share deterministic residual
+  authorities, including merge contention;
+- sink and internal-turn demand share deficit scheduling, receiving-token
+  excess is an invariant failure, and a final-link endpoint must match the
+  active-agent destination before completion;
+- missing/non-finite runtime authority and non-integral vehicle tokens fail
+  closed both in invariant validation and before a subsequent flow overwrite;
+- free-flow time is stored in configured tick units and point-queue delay is
+  `t_ff + queue/capacity`;
+- unsupported explicit Rust per-turn agent/flow paths fail closed; `auto`
+  preserves the Python baseline fallback.
+- canonical replay fingerprints full config, static routing authority, and all
+  replay-authoritative dynamic state; two fresh seed-41 20-tick runs have equal
+  final-state fingerprints and stale residual boundaries fail before execution.
+
+Claim boundary:
+
+- This closes the audit's historical self-drive defect only at
+  `INTERNALLY VERIFIED` small-probe scope.
+- It does not validate 100k operation, physical link traversal, finite storage
+  or spillback, named-city behavior, empirical traffic, or the split LUTI loop.
+- The 2026-07-11 packet remains historical evidence. Later ZIPs must include
+  `10_RUNTIME_CLOSURE_REMEDIATION_20260712.md` and identify their own committed
+  `packaged_commit`; no root redistribution license has been added.
+
+## 2026-07-12: Pulled Proposal Acceptance And Adversarial Validation
+
+Change class: external proposal review, corrective runtime/flow/replay/JAX
+patches, multi-seed/scale experiments, and claim-boundary refresh
+
+Reviewed commits:
+
+- proposal: `46f0fd7abcc484a2f52db16bf17bf0b4d64a6300`;
+- corrective commits: `44d1145`, `505bb11`, `e30af45`, `368e719`, `eb042bc`.
+
+Core commands run:
+
+```bash
+.venv/bin/python -m maturin develop \
+  --manifest-path crates/metroflow-rust/Cargo.toml
+cargo fmt --all --check
+CARGO_TARGET_DIR=/tmp/metroflow-cargo-target cargo test --workspace
+.venv/bin/python -m pytest \
+  tests/test_active_agent_rust_backend.py \
+  tests/test_flow_engine_rust_backend.py \
+  tests/test_routing_rust_backend.py -q
+.venv/bin/python -m metroflow.benchmarks.runtime_self_drive_probe \
+  --scenario-seed 41 --steps 20 --expect-closed
+XLA_PYTHON_CLIENT_MEM_FRACTION=0.70 \
+  .venv/bin/python -m pytest -q
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Final gates:
+
+- full Python/JAX-enabled suite: `623 passed in 198.69s`;
+- Rust workspace: `53 passed`;
+- installed-extension Rust parity: `35 passed`;
+- Ruff, Cargo format, and `git diff --check`: passed;
+- JAX 0.10.2 reports `cuda:0` on the RTX 3080 Ti.
+
+Adversarial findings corrected:
+
+- independently rounded fractional service/receiving tokens could phase-starve
+  a valid turn; bounded one-token carry restores four expected movements over
+  the 10-tick `0.6/0.4` probe;
+- residual `1.0`, negative turn indices, and NaN/Inf tick units now fail closed;
+- route destination and plugin-memory trip identity are validated before first
+  movement; incident activation and clearance both invalidate routing;
+- static legal turn-pair lookup is reused instead of rebuilding 51,886 rows
+  twice per tick;
+- replay boundary binds ordered controls, actual RNG key, and step count;
+  replay snapshots detach input aliases and transition witnesses reconcile
+  flow-input queue, realized flow, output queue, and sink completion;
+- NaN queue/progress values and structured-dtype digest collisions are rejected;
+- JAX dense flow now uses the same point-queue receiving and additive-delay
+  equations as NumPy/Rust;
+- same-tick reroute destination potentials and identical link/destination
+  selections are shared without changing per-agent policy decisions.
+
+Measured experiments:
+
+- ten seeds x 64 ticks: 158 trips, 148 completed, 10 classified no-route,
+  146 multi-hop completions, all runs closed, all invariants passed, maximum
+  observed link-agent mass delta `0.0`;
+- population 1,000: 147 trips close at tick 19 in 0.695 local seconds;
+- population 10,000: 3,105 trips close at tick 156; same-tick reroute caching
+  reduces local runtime from 77.068 s to 16.022 s with unchanged terminal counts;
+- population 100,000: 31,069 trips initialize, but the 240 s bounded post-fix
+  run reaches only tick 128 (20,280 complete, 163 no-route, 10,626 active);
+  observed invariants and queue/agent mass remain exact, but closure is not
+  validated;
+- 16,384-link/32,768-turn/16-step JAX: maximum NumPy drift `1.43e-5`, steady
+  chunk 1.20 ms, compile/copy-inclusive first probe about 67.6 ms versus NumPy
+  12.50 ms. This is an amortization candidate, not runtime promotion evidence.
+
+Artifact:
+`artifacts/runtime_spine_review/external-proposal-validation-20260712.md`.
+
+Claim boundary:
+
+- corrected functional closure is internally verified at multi-seed and 10k
+  synthetic scope;
+- 100k closure/throughput, physical traversal, spillback, real-city validity,
+  LUTI integration, and independent reproduction remain unvalidated;
+- Python/NumPy remains authoritative; Rust/JAX remain optional; no NN/custom
+  CUDA/runtime-backend promotion follows from these diagnostics.
+
+## 2026-07-13: PR63 Realistic City Scale And Hardware-Fit Gate
+
+Change class: fresh-process diagnostic benchmark and promotion gate
+
+Canonical command:
+
+```bash
+/usr/bin/time -f 'elapsed=%e max_rss_kib=%M' \
+  .venv/bin/python -m metroflow.benchmarks.realistic_city_scale \
+  --artifact-prefix \
+  artifacts/runtime_spine_review/realistic-city-pr63-scale
+```
+
+Evidence:
+
+- `18` city-authority runs, `18` fixed 20-tick runs, `3` realistic stage
+  profiles, and `6` paired-budget runs;
+- populations `1,000`, `10,000`, and `100,000`; seeds `17,29,41`;
+- total elapsed `894.31 s`; parent maximum RSS `229,980 KiB`;
+- report fingerprint
+  `149571c18552e5cc655a0c33844fe487a7b6165cea808b1c55a3b47655f5278e`;
+- performance gate failed, default promotion false, Rust generation probe false;
+- artifact bundle:
+  `artifacts/runtime_spine_review/realistic-city-pr63-scale.{json,md,html}`
+  and `.manifest.json`.
+
+Claim boundary: local host diagnostic only. It establishes neither empirical
+city realism nor calibrated traffic. PR62 remains the independent morphology
+gate, and no timing result can override it.
+
+## 2026-07-13: PR64 Default Promotion Closure
+
+Command:
+
+```bash
+.venv/bin/python -m pytest \
+  tests/test_realistic_city_default_promotion.py -q
+```
+
+Result: canonical PR62 and PR63 fingerprints reload, both gates remain false,
+the default remains `standard`, and the machine decision records `BLOCKED`.
+No runtime or generator feature code is added. Final repository gate:
+`778 passed in 590.18s`; Ruff and diff checks pass.

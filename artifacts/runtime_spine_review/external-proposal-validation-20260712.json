@@ -1,0 +1,131 @@
+{
+  "schema_version": "metroflow.external-proposal-validation.v1",
+  "artifact_role": "diagnostic_and_internal_verification",
+  "source_proposal_commit": "46f0fd7abcc484a2f52db16bf17bf0b4d64a6300",
+  "reviewed_commit": "eb042bc38cb58cc065d3e82df97e72f6f313e6a9",
+  "review_fix_commits": [
+    "44d1145",
+    "505bb11",
+    "e30af45",
+    "368e719",
+    "eb042bc"
+  ],
+  "environment": {
+    "python": "3.12.3",
+    "rustc": "1.94.1",
+    "cargo": "1.94.1",
+    "jax": "0.10.2",
+    "gpu": "NVIDIA GeForce RTX 3080 Ti",
+    "gpu_memory_mib": 12288,
+    "driver": "595.71.05",
+    "compute_capability": "8.6"
+  },
+  "multi_seed_runtime_closure": {
+    "seeds": [1, 2, 3, 4, 5, 17, 29, 41, 42, 43],
+    "steps_per_seed": 64,
+    "trip_count_total": 158,
+    "completed_trip_count_total": 148,
+    "completed_multihop_trip_count_total": 146,
+    "failed_trip_count_total": 10,
+    "all_failures_classified_no_route": true,
+    "all_runs_closed": true,
+    "all_invariants_passed": true,
+    "maximum_link_agent_mass_delta": 0.0
+  },
+  "scale_runs": [
+    {
+      "population": 1000,
+      "scenario_seed": 41,
+      "trip_count": 147,
+      "final_tick": 19,
+      "completed": 139,
+      "failed_no_route": 8,
+      "active_final": 0,
+      "queue_final": 0.0,
+      "runtime_seconds": 0.695,
+      "all_invariants_passed": true
+    },
+    {
+      "population": 10000,
+      "scenario_seed": 41,
+      "trip_count": 3105,
+      "final_tick": 156,
+      "completed": 3026,
+      "failed_no_route": 79,
+      "active_final": 0,
+      "queue_final": 0.0,
+      "runtime_seconds_before_same_tick_reroute_cache": 77.068,
+      "runtime_seconds_after_same_tick_reroute_cache": 16.022,
+      "all_invariants_passed": true
+    }
+  ],
+  "population_100k_bounded_run": {
+    "scenario_seed": 41,
+    "trip_count": 31069,
+    "initialization_seconds": 1.435,
+    "tick_1_seconds": 9.915,
+    "tick_8_seconds_after_same_tick_reroute_cache": 13.254,
+    "tick_128_elapsed_seconds": 226.09,
+    "tick_128_completed": 20280,
+    "tick_128_failed_no_route": 163,
+    "tick_128_active": 10626,
+    "tick_128_queue": 10626.0,
+    "all_observed_invariants_passed": true,
+    "maximum_observed_agent_queue_mass_delta": 0.0,
+    "terminated_within_240_seconds": false,
+    "claim_state": "not_validated"
+  },
+  "dense_flow_backend_probe": [
+    {
+      "links": 4096,
+      "turns": 8192,
+      "steps": 16,
+      "numpy_baseline_ns": 4229666,
+      "jax_compile_first_call_ns": 90028756,
+      "jax_steady_chunk_ns": 1312118,
+      "jax_input_copy_ns": 109900214,
+      "jax_output_copy_ns": 1150241,
+      "jax_max_abs_diff": 0.0000152587890625
+    },
+    {
+      "links": 16384,
+      "turns": 32768,
+      "steps": 16,
+      "numpy_baseline_ns": 12496745,
+      "rust_copy_boundary_ns": 728178503,
+      "jax_compile_first_call_ns": 64522624,
+      "jax_steady_chunk_ns": 1202607,
+      "jax_input_copy_ns": 974196,
+      "jax_output_copy_ns": 924764,
+      "jax_max_abs_diff": 0.00001430511474609375
+    }
+  ],
+  "adversarial_checks": {
+    "random_discrete_flow_cases": 2000,
+    "fractional_capacity_expected_vehicles_over_10_ticks": 4,
+    "fractional_capacity_observed_before_fix": 2,
+    "fractional_capacity_observed_after_fix": 4,
+    "incident_closed_link_outflow": 0.0,
+    "incident_reopened_link_outflow": 3.0,
+    "runtime_replay_inputs_bound": true,
+    "structured_dtype_collision_closed": true,
+    "mutable_input_alias_isolated": true
+  },
+  "final_gates": {
+    "python_pytest_passed": 623,
+    "python_pytest_seconds": 198.69,
+    "ruff": "passed",
+    "git_diff_check": "passed",
+    "cargo_fmt": "passed",
+    "rust_workspace_tests_passed": 53,
+    "python_rust_parity_tests_passed": 35,
+    "jax_cuda_device": "cuda:0"
+  },
+  "claim_boundary": [
+    "Synthetic internal evidence only",
+    "No real-city or empirical traffic validation",
+    "No physical link traversal or spillback validation",
+    "No 100k closure or operational throughput claim",
+    "No runtime JAX, Rust, NN, or CUDA backend promotion"
+  ]
+}

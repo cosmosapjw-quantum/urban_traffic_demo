@@ -177,6 +177,9 @@ def _summary_metrics(
         "flow_backend": str(metrics_state.get("flow_backend", state.config.flow_backend)),
         "routing_backend": str(metrics_state.get("routing_backend", state.config.routing_backend)),
         "agent_backend": str(metrics_state.get("agent_backend", state.config.agent_backend)),
+        "traffic_model": str(
+            metrics_state.get("traffic_model", state.config.traffic_model)
+        ),
         "flow_update_wall_ns": int(metrics_state.get("flow_update_wall_ns", 0)),
         "flow_update_wall_ns_total": int(
             metrics_state.get("flow_update_wall_ns_total", 0)

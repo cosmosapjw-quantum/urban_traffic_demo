@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-07-11
+Last updated: 2026-07-13
 
 ## Runtime Baseline
 
@@ -41,10 +41,13 @@ Derived conclusions:
 - `active_agent_pool_array_write` remains below the review gate and should stay
   a watchlist item.
 - `active_agent_candidate_selection` is not currently the hot path.
-- Route candidate refresh is now the dominant review-ready parent stage.
-- `route_candidate_potential` and `dynamic_potential_recompute` are the current
-  review-ready route substages after fixing baseline Dijkstra `float32`
-  heap-staleness.
+- Route candidate refresh was the dominant review-ready parent stage in the
+  earlier small eager suite. Post-closure scale evidence moves the current
+  blocker to 100k first-tick allocation/orchestration and cadence rerouting.
+- `route_candidate_potential` and `dynamic_potential_recompute` remain relevant
+  inside cadence rerouting after fixing baseline Dijkstra `float32`
+  heap-staleness, but their next probe must reduce the 100k parent-stage wall
+  time rather than only a nested metric.
 - `route_candidate_path_build` is no longer review-ready after the baseline
   correctness fix.
 - Explicit whole-runtime `routing_backend="rust_cpu"` is slower than baseline
@@ -78,14 +81,76 @@ Derived conclusions:
   `0.90` gate, and repeat determinism fails. The formal result is inconclusive,
   but the independent accuracy miss stops graph-NN tuning and runtime promotion.
   All three review perspectives are closed; final gate: `570 passed`.
+- The pulled runtime-closure proposal at `46f0fd7` is accepted only with the
+  corrective commits `44d1145`, `505bb11`, `e30af45`, `368e719`, and
+  `eb042bc`. The review artifact is
+  `artifacts/runtime_spine_review/external-proposal-validation-20260712.md`.
+- Static legal turn-pair lookup and same-tick reroute potential/selection reuse
+  remove proven duplicate work. The seed-41 10k workload falls from 77.1 s to
+  16.0 s with unchanged terminal counts. At 100k, cadence reroute remains a
+  material parent-stage cost and the 240 s bounded run does not close.
+- JAX dense-flow equations again match the NumPy/Rust point-queue contract.
+  Steady 16,384-link GPU chunks are faster locally, but compile/copy-inclusive
+  first execution remains slower than NumPy, so runtime promotion is not open.
 
 ## Open Risks
 
-- **Critical runtime-closure blocker:** generated networks do not provide a
-  turn-movement authority and `SimulationState` initialization leaves
-  `turn_demand` at zero. An eager seed-41 three-tick probe activates 15 agents
-  and queues 15 vehicles, but records zero turn demand, zero outflow, and zero
-  movement through tick 3.
+- **The audited runtime-closure blocker is closed only at a bounded internal
+  level.** Finalized generated networks now expose exhaustive typed turn
+  authority, active route tails produce turn/sink demand, and exact realized
+  tokens update agents and queue mass together. In the seed-41 20-tick probe,
+  all 15 routable trips complete, one no-route trip fails explicitly, and both
+  active agents and queue mass end at zero with no invariant failure.
+- Two independently initialized seed-41 20-tick runs also produce the same
+  canonical final-state fingerprint. The digest covers full config, static
+  routing authority, and replay-authoritative dynamic state including
+  service/receiving/turn residuals, sink flow, demand lifecycle, and agent state;
+  host timing diagnostics are excluded.
+- Sink and internal-turn requests share a deficit scheduler rather than fixed
+  internal-first priority. Runtime invariants independently recheck both source
+  service and downstream receiving tokens, and final-link completion requires
+  the link endpoint to equal the declared agent destination.
+- Discrete token/residual metadata is required after the authority activates.
+  Missing, non-finite, negative, non-integral, shape-inconsistent, or divergent
+  link/node sink tokens fail closed rather than being overwritten next tick.
+- That historical probe is not a 100k run or physical traffic validation. The
+  default point queue still advances at most one route turn per tick. The new
+  explicit NumPy `spatial_queue_v1` instead treats `progress_01` as link
+  residency and enforces finite storage/source/downstream spillback, but it is
+  not calibrated for real traffic, shockwaves, or lane-level behavior.
+- The new exact per-turn agent contract remains Python-authoritative. Explicit
+  unsupported Rust agent/flow paths fail closed; Rust parity and performance
+  must be re-established on the new contract before promotion.
+- Exhaustive turn compilation creates 51,886 rows for seed 41. A local
+  developer measurement observed about 30% generation-time and 17–22 MB RSS
+  overhead; this is diagnostic, not a controlled scale benchmark.
+- Broader local evidence now covers ten seeds and a closed 10k run, but the
+  100k seed-41 run reaches only tick 128 within the 240 s limit. At that point
+  20,280 trips are complete, 163 are classified no-route, 10,626 remain active,
+  and observed queue/agent mass is still exact. This is bounded progress, not a
+  successful 100k validation.
+- Runtime replay now binds ordered controls, the actual RNG key, and step count,
+  and transition witnesses reconcile flow-input queue, realized flow, output
+  queue, and sink completions. Replay result arrays are detached/read-only, but
+  the stored fingerprint remains the final integrity authority for Python
+  object snapshots.
+- The realistic-city compiler remains explicit and deterministic, but PR62
+  blocks default promotion: its six-style by five-seed audit passes `0/30` maps.
+  Mean node degree and dead-end share fail on every map, seven maps exceed the
+  800 m developed branch-free corridor gate, and the contact sheet confirms a
+  repeated triangular local fabric with zero collector length share. Do not
+  relax the pinned envelope or describe the generator as morphologically
+  plausible until the street/block growth algorithm changes.
+- PR63 also blocks default promotion. Its fresh-process 1k/10k/100k matrix
+  finds 100k generation at `2.55-2.77x` legacy, underfilled citizen populations
+  in both modes, and lower equal-budget realistic throughput on every seed.
+  Generation RSS and fixed-step latency ratios pass, but no eligible generation
+  stage clears the all-seed 30-percent Rust gate. Performance work cannot
+  substitute for the PR62 morphology redesign.
+- PR64 is closed as `BLOCKED`. Both canonical source fingerprints validate,
+  `standard` remains the default, and no feature/backend implementation was
+  admitted. The machine decision is
+  `artifacts/runtime_spine_review/realistic-city-pr64-default-promotion-decision.json`.
 - `SimulationState.simulation_step` does not run the legacy accessibility and
   land-use cadences. The new runtime and frozen `WorldState` orchestrator remain
   split authorities rather than one city-to-traffic-to-LUTI loop.
@@ -140,23 +205,31 @@ Derived conclusions:
 
 ## Next Implementation Decision
 
-Do not open another acceleration spec yet. First define typed turn movements,
-derive per-turn demand from active route tails, and prove generated multi-hop
-movement, completion, link-level vehicle conservation, and a full dynamic-state
-replay digest. Then port the legacy medium/slow accessibility and land-use
-cadences into `SimulationState` or explicitly retire that product claim.
+Do not open another acceleration spec yet. Do not promote another runtime
+backend either. Functional closure, broader generated/event conservation, and
+replay-input/transition gates are green at small and 10k scale, while the 100k
+bounded run remains incomplete. PR63 now additionally shows that the realistic
+city path misses generation, realized-population, and equal-budget throughput
+gates without identifying a single Rust-ready generation stage.
+The explicit `spatial_queue_v1` physical traversal substrate is implemented,
+but remains uncalibrated and cannot turn completed ticks into traffic-realism
+evidence. Port the legacy medium/slow accessibility and land-use cadences into
+`SimulationState` or explicitly retire that product claim.
 
-After runtime closure, refresh the hardware-fit atlas or benchmark evidence that
-can change a parent-stage decision. The watchlist lanes remain Rust dynamic-
-potential/cache work, NumPy/SIMD flow and route-score batches, JAX dense-flow
-checkpoint cadence, one future narrow custom-kernel candidate, and active-agent
-pool-array replacement only if it becomes review-ready again.
+The immediate product decision is a new generator specification that replaces
+the triangular local fabric and fixes zone/home capacity so requested
+populations are realized. Only after PR62 and PR63 are rerun should acceleration
+be reconsidered. Preserve four visible
+lanes: Rust for branch-heavy graph/action planning, NumPy/SIMD for flow arrays,
+JAX/GPU for amortized dense chunks/scoring, and NN only for simulator-labelled
+surrogate experiments.
 PR45 closes the current city-map lane without authorizing PR46. PR47 moves the
 GPU dense-flow chunk to a bounded watchlist but does not authorize runtime
 integration. PR49 rejects the row-local MLP path without threshold tuning;
 PR50 freezes the graph tensor contract; PR51's fixed graph model also misses
 its accuracy gate. Baseline Dijkstra remains authoritative. PR52's four-lane
-owner step-back is blocked until the functional runtime closure above passes.
+owner step-back remains blocked until the post-closure replay/scale evidence is
+refreshed on the functional workload.
 
 External audit packet:
 `docs/audit/metroflow_external_audit_20260711/README.md`.

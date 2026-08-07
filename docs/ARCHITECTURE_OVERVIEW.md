@@ -52,6 +52,10 @@
 - active-agent movement는 lane-level/microscopic model이 아니다. activated trip allocation은 첫 route link의
   `LinkState.queue_vehicles`를 1대 증가시키고, 다음 tick의 link-to-link advance는 flow update가 산출한
   `outflow_vehicles` 예산을 deterministic slot 순서로 소비한다.
+- 기본 `point_queue_v1`은 기존 즉시 exit-demand 계약을 유지한다. 명시적 NumPy
+  `spatial_queue_v1`은 link length/free-flow speed 기반 `progress_01`, finite lane-length storage,
+  exit-ready demand, source admission blocking, downstream spillback을 추가한다. 두 모드 모두
+  exact per-turn token commit과 immutable pool replacement를 공유한다.
 - final-link arrival은 sink discharge budget을 소비한다. 목적지 discharge는 final link의
   effective capacity에서 산출한 정수 예산을 deterministic slot 순서로 쓰며, zero capacity/closure에서는
   agent가 final link에 남고 `active_agent_sink_wait_this_tick`/`active_agent_sink_wait_total`로 관측된다.

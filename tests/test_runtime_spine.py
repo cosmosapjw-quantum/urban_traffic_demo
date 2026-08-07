@@ -529,6 +529,74 @@ def test_simulation_step_updates_flow_after_events_and_records_runtime_telemetry
     assert next_state.dynamic.metadata["us2_active_event_affected_link_ids"] == (10,)
 
 
+def test_incident_generation_and_refresh_cover_activation_and_clearance() -> None:
+    from dataclasses import replace
+
+    from metroflow.demand.trips import TripRequestStatus
+    from metroflow.flow.events import (
+        TrafficEvent,
+        TrafficEventSchedulerState,
+        TrafficEventStatus,
+    )
+    from metroflow.sim import routing_runtime, step as step_module
+    from metroflow.sim.routing_runtime import refresh_runtime_route_candidates
+
+    state = _runtime_spine_state()
+    event = TrafficEvent(
+        event_id=91,
+        event_type="audit_closure",
+        start_tick=0,
+        end_tick=5,
+        target_scope={"link_ids": (10,)},
+        severity=1.0,
+        effect_model="closure",
+        status=TrafficEventStatus.ACTIVE,
+    )
+    active = state.with_dynamic_updates(
+        event_state=TrafficEventSchedulerState(active_events=(event,))
+    )
+
+    activated = step_module._apply_event_effects_to_flow_state(active)
+    repeated = step_module._apply_event_effects_to_flow_state(activated)
+    cleared = step_module._apply_event_effects_to_flow_state(
+        repeated.with_dynamic_updates(event_state=TrafficEventSchedulerState())
+    )
+
+    activated_generation = int(
+        activated.dynamic.flow_link_state.metadata["runtime_incident_generation"]
+    )
+    assert activated.dynamic.metadata["runtime_incident_transition"] == "activated"
+    assert int(
+        repeated.dynamic.flow_link_state.metadata["runtime_incident_generation"]
+    ) == activated_generation
+    assert int(cleared.dynamic.flow_link_state.metadata["runtime_incident_generation"]) == (
+        activated_generation + 1
+    )
+    assert cleared.dynamic.metadata["runtime_incident_transition"] == "cleared"
+    assert routing_runtime._runtime_reroute_trigger(cleared) == "incident_cleared"
+
+    activated_trips = tuple(
+        replace(trip, status=TripRequestStatus.ACTIVATED)
+        for trip in cleared.dynamic.demand_state["trip_requests"]
+    )
+    refresh_state = cleared.with_dynamic_updates(
+        demand_state={
+            **cleared.dynamic.demand_state,
+            "trip_requests": activated_trips,
+            "allocated_trip_request_ids": (),
+        }
+    )
+    first_route_state, _ = refresh_runtime_route_candidates(
+        refresh_state,
+        force_refresh=True,
+    )
+    refresh_state = refresh_state.with_dynamic_updates(
+        route_candidate_state=first_route_state
+    )
+    _second_route_state, counters = refresh_runtime_route_candidates(refresh_state)
+    assert counters["route_candidate_refresh_this_tick"] == 1
+
+
 def test_simulation_step_refreshes_route_cache_and_moves_active_agent_deterministically() -> None:
     from metroflow.sim.control import SimulationControl
     from metroflow.sim.rng import key_from_seed
@@ -562,7 +630,7 @@ def test_simulation_step_refreshes_route_cache_and_moves_active_agent_determinis
     assert second_state.dynamic.active_agent_pool.current_link_id[0].item() == 11
     assert second_state.dynamic.active_agent_pool.remaining_route_ptr[0].item() == 1
     assert second_telemetry.active_agent_moved_this_tick == 1
-    assert second_state.dynamic.metrics_state["route_candidate_reuse_total"] >= 1
+    assert second_state.dynamic.metrics_state["route_candidate_reuse_total"] == 0
 
     third_state, third_telemetry, _snapshot, _key = simulation_step(
         second_state,
@@ -702,7 +770,7 @@ def test_runtime_route_potential_cache_prunes_without_route_relevant_trips() -> 
     assert counters["dynamic_potential_cache_entry_count"] == 0
 
 
-def test_runtime_route_potential_cache_reuses_current_signature_entries(
+def test_runtime_route_refresh_deduplicates_shared_od_requests(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from dataclasses import replace
@@ -746,13 +814,13 @@ def test_runtime_route_potential_cache_reuses_current_signature_entries(
 
     assert calls == 1
     assert route_state.stats["dynamic_potential_recompute_total"] == 1
-    assert route_state.stats["dynamic_potential_cache_hits_total"] == 1
+    assert route_state.stats.get("dynamic_potential_cache_hits_total", 0) == 0
     assert route_state.stats["dynamic_potential_cache_entry_count"] == 1
-    assert counters["dynamic_potential_cache_hits_this_tick"] == 1
+    assert counters["dynamic_potential_cache_hits_this_tick"] == 0
     assert counters["dynamic_potential_cache_pruned_this_tick"] == 0
 
 
-def test_simulation_step_blocks_active_agent_movement_without_flow_outflow_budget() -> None:
+def test_simulation_step_derives_turn_flow_before_moving_on_second_tick() -> None:
     from metroflow.sim.control import SimulationControl
     from metroflow.sim.rng import key_from_seed
     from metroflow.sim.step import simulation_step
@@ -778,16 +846,15 @@ def test_simulation_step_blocks_active_agent_movement_without_flow_outflow_budge
     assert first_state.dynamic.active_agent_pool.current_link_id[0].item() == 10
     assert first_telemetry.active_agent_moved_this_tick == 0
     assert first_state.dynamic.flow_link_state.queue_vehicles.tolist() == [1.0, 0.0]
-    assert first_state.dynamic.flow_link_state.travel_time_cost[0].item() == pytest.approx(
-        1.0 * (1.0 + (1.0 / (2.0 + 1e-3)))
-    )
+    assert first_state.dynamic.flow_link_state.travel_time_cost[0].item() == pytest.approx(1.5)
     assert first_telemetry.queue_vehicles_total == 1.0
     assert second_state.dynamic.active_agent_pool.alive_count == 1
-    assert second_state.dynamic.active_agent_pool.current_link_id[0].item() == 10
-    assert second_state.dynamic.active_agent_pool.remaining_route_ptr[0].item() == 0
-    assert second_telemetry.active_agent_moved_this_tick == 0
+    assert second_state.dynamic.active_agent_pool.current_link_id[0].item() == 11
+    assert second_state.dynamic.active_agent_pool.remaining_route_ptr[0].item() == 1
+    assert second_telemetry.active_agent_moved_this_tick == 1
     assert second_telemetry.trip_completed_this_tick == 0
-    assert second_state.dynamic.flow_link_state.queue_vehicles.tolist() == [1.0, 0.0]
+    assert second_state.dynamic.flow_link_state.queue_vehicles.tolist() == [0.0, 1.0]
+    assert second_state.dynamic.invariant_state.ok
 
 
 def test_simulation_step_completes_agent_already_resident_on_final_link() -> None:
@@ -800,7 +867,10 @@ def test_simulation_step_completes_agent_already_resident_on_final_link() -> Non
     from metroflow.sim.routing_runtime import refresh_runtime_route_candidates
     from metroflow.sim.step import simulation_step
 
-    state = _runtime_spine_state(capacity_veh_per_tick=(2.0, 10.0))
+    state = _runtime_spine_state(
+        queue_vehicles=(0.0, 1.0),
+        capacity_veh_per_tick=(2.0, 10.0),
+    )
     activated_trips = tuple(
         replace(trip, status=TripRequestStatus.ACTIVATED)
         for trip in state.dynamic.demand_state["trip_requests"]
@@ -856,8 +926,8 @@ def test_simulation_step_completes_agent_already_resident_on_final_link() -> Non
             **state.dynamic.demand_state,
             "trip_requests": activated_trips,
             "allocated_trip_request_ids": (1,),
-            "activated_trip_requests": 1,
-            "pending_trip_requests": 1,
+            "activated_trip_requests": 0,
+            "pending_trip_requests": 0,
         },
     )
 
@@ -947,7 +1017,7 @@ def test_simulation_step_accumulates_runtime_stage_timing_totals(
     def fake_advance_flow_state(state):
         return state, {"flow_update_wall_ns": 5}
 
-    def fake_advance_runtime_routing_state(state):
+    def fake_prepare_runtime_routing_state(state):
         return state, {
             "active_agent_update_wall_ns": 7,
             "reroute_decision_wall_ns": 3,
@@ -956,14 +1026,22 @@ def test_simulation_step_accumulates_runtime_stage_timing_totals(
             "active_agent_pool_write_wall_ns": 13,
             "active_agent_pool_array_write_wall_ns": 17,
             "active_agent_plugin_memory_write_wall_ns": 19,
-            "active_agent_movement_wall_ns": 4,
-        }
+        }, set()
+
+    def fake_commit_runtime_routing_state(state, *, newly_admitted_slot_ids):
+        assert newly_admitted_slot_ids == set()
+        return state, {"active_agent_movement_wall_ns": 4}
 
     monkeypatch.setattr(step_module, "_advance_flow_state", fake_advance_flow_state)
     monkeypatch.setattr(
         step_module,
-        "_advance_runtime_routing_state",
-        fake_advance_runtime_routing_state,
+        "_prepare_runtime_routing_state",
+        fake_prepare_runtime_routing_state,
+    )
+    monkeypatch.setattr(
+        step_module,
+        "_commit_runtime_routing_state",
+        fake_commit_runtime_routing_state,
     )
 
     next_state, telemetry, _snapshot, key = step_module.simulation_step(
@@ -1021,9 +1099,69 @@ def test_runtime_reroute_replaces_remaining_tail_on_incident() -> None:
     assert counters["active_agent_moved_this_tick"] == 0
 
 
+def test_runtime_reroute_deduplicates_same_tick_selection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from metroflow.sim import routing_runtime
+    from metroflow.sim.active_agents import ActiveAgentSlot, allocate_active_agent_slot
+
+    state = _runtime_reroute_state()
+    pool = state.dynamic.active_agent_pool
+    payload = ActiveAgentSlot.spawn(
+        citizen_id=202,
+        trip_id=2,
+        current_link_id=int(pool.current_link_id[0]),
+        dest_node_id=int(pool.dest_node_id[0]),
+        behavior_profile_id=int(pool.behavior_profile_id[0]),
+        remaining_route_ptr=int(pool.remaining_route_ptr[0]),
+    )
+    pool, slot_id = allocate_active_agent_slot(pool, payload)
+    plugin_memory = dict(pool.plugin_memory)
+    plugin_memory[int(slot_id)] = {
+        **dict(plugin_memory[0]),
+        "trip_request_id": 2,
+    }
+    pool = pool.from_internal_arrays(
+        capacity=pool.capacity,
+        free_slot_stack=pool.free_slot_stack,
+        free_slot_count=pool.free_slot_count,
+        alive_mask=pool.alive_mask,
+        alive_count=pool.alive_count,
+        citizen_id=pool.citizen_id,
+        trip_id=pool.trip_id,
+        current_link_id=pool.current_link_id,
+        progress_01=pool.progress_01,
+        remaining_route_ptr=pool.remaining_route_ptr,
+        dest_node_id=pool.dest_node_id,
+        behavior_profile_id=pool.behavior_profile_id,
+        reroute_cooldown_ticks=pool.reroute_cooldown_ticks,
+        plugin_memory=plugin_memory,
+    )
+    state = state.with_dynamic_updates(active_agent_pool=pool)
+    calls = 0
+
+    def no_candidate(**_kwargs):
+        nonlocal calls
+        calls += 1
+        return None
+
+    monkeypatch.setattr(
+        routing_runtime,
+        "_build_reroute_tail_selection",
+        no_candidate,
+    )
+
+    next_pool, counters = routing_runtime._apply_runtime_reroute_policy(state, pool)
+
+    assert next_pool is pool
+    assert counters["active_agent_rerouted_this_tick"] == 0
+    assert calls == 1
+
+
 def test_runtime_reroute_passes_configured_routing_backend(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    pytest.importorskip("_metroflow_rust")
     from metroflow.routing.reroute_policy import RerouteDecision, RerouteDecisionReason
     from metroflow.sim.config import SimulationConfig
     from metroflow.sim.routing_runtime import advance_runtime_active_agents
@@ -1098,21 +1236,30 @@ def test_runtime_reroute_counters_accumulate_for_run_summary(
 
     state = _runtime_spine_state()
 
-    def fake_advance_runtime_active_agents(state):
+    def fake_prepare_runtime_routing_state(state):
         return (
-            state.dynamic.active_agent_pool,
+            state,
             {
                 "active_agent_rerouted_this_tick": 2,
                 "active_agent_reroute_cooldown_this_tick": 1,
             },
-            state.dynamic.demand_state,
-            state.dynamic.flow_link_state,
+            set(),
         )
 
     monkeypatch.setattr(
         step_module,
-        "advance_runtime_active_agents",
-        fake_advance_runtime_active_agents,
+        "_prepare_runtime_routing_state",
+        fake_prepare_runtime_routing_state,
+    )
+    monkeypatch.setattr(
+        step_module,
+        "_advance_flow_state",
+        lambda state: (state, {"flow_update_wall_ns": 0}),
+    )
+    monkeypatch.setattr(
+        step_module,
+        "_commit_runtime_routing_state",
+        lambda state, *, newly_admitted_slot_ids: (state, {}),
     )
 
     next_state, telemetry, _snapshot, _key = step_module.simulation_step(
@@ -1141,18 +1288,14 @@ def test_runtime_sink_wait_counters_accumulate_for_run_summary(
 
     state = _runtime_spine_state()
 
-    def fake_advance_runtime_active_agents(state):
-        return (
-            state.dynamic.active_agent_pool,
-            {"active_agent_sink_wait_this_tick": 3},
-            state.dynamic.demand_state,
-            state.dynamic.flow_link_state,
-        )
+    def fake_commit_runtime_routing_state(state, *, newly_admitted_slot_ids):
+        assert isinstance(newly_admitted_slot_ids, set)
+        return state, {"active_agent_sink_wait_this_tick": 3}
 
     monkeypatch.setattr(
         step_module,
-        "advance_runtime_active_agents",
-        fake_advance_runtime_active_agents,
+        "_commit_runtime_routing_state",
+        fake_commit_runtime_routing_state,
     )
 
     next_state, telemetry, _snapshot, _key = step_module.simulation_step(
@@ -1196,12 +1339,13 @@ def test_runtime_route_timing_stats_propagate_to_run_summary(
             {},
         )
 
-    def fake_advance_runtime_active_agents(state):
+    def fake_prepare_runtime_active_agents(state):
         return (
             state.dynamic.active_agent_pool,
             {},
             state.dynamic.demand_state,
             state.dynamic.flow_link_state,
+            set(),
         )
 
     monkeypatch.setattr(
@@ -1211,8 +1355,8 @@ def test_runtime_route_timing_stats_propagate_to_run_summary(
     )
     monkeypatch.setattr(
         step_module,
-        "advance_runtime_active_agents",
-        fake_advance_runtime_active_agents,
+        "prepare_runtime_active_agents",
+        fake_prepare_runtime_active_agents,
     )
 
     next_state, _telemetry, _snapshot, _key = step_module.simulation_step(
@@ -1696,14 +1840,21 @@ def test_runtime_replay_records_backend_and_cache_fingerprints() -> None:
     from metroflow.sim.rng import key_from_seed
 
     state = _runtime_spine_state()
-    boundary = make_runtime_replay_boundary(state)
+    controls = (SimulationControl(),)
+    replay_key = key_from_seed(11)
+    boundary = make_runtime_replay_boundary(
+        state,
+        controls=controls,
+        rng_key=replay_key,
+        num_steps=1,
+    )
     result = replay_simulation_sequence(
         RuntimeReplayRequest(
             name="replay_runtime_spine",
             initial_state=state,
             declared_boundary=boundary,
-            controls=(SimulationControl(),),
-            rng_key=key_from_seed(11),
+            controls=controls,
+            rng_key=replay_key,
             num_steps=1,
         )
     )
@@ -1753,13 +1904,20 @@ def test_runtime_replay_records_reroute_counter_totals(
 
     monkeypatch.setattr(replay_module, "simulation_step", fake_simulation_step)
 
+    controls = (SimulationControl(),)
+    replay_key = key_from_seed(29)
     result = replay_simulation_sequence(
         RuntimeReplayRequest(
             name="replay_runtime_reroute_counters",
             initial_state=state,
-            declared_boundary=make_runtime_replay_boundary(state),
-            controls=(SimulationControl(),),
-            rng_key=key_from_seed(29),
+            declared_boundary=make_runtime_replay_boundary(
+                state,
+                controls=controls,
+                rng_key=replay_key,
+                num_steps=1,
+            ),
+            controls=controls,
+            rng_key=replay_key,
             num_steps=1,
         )
     )

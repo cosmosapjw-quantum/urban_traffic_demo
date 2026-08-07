@@ -51,21 +51,49 @@ python3.12 -m venv .venv
 git diff --check
 ```
 
-## 4. Critical Self-Drive Probe
+## 4. Critical Self-Drive Probes
 
-Run this before any performance experiment:
+The 2026-07-11 result and the 2026-07-12 remediation are different revisioned
+claims. Run both before any performance experiment. Do not run the historical
+expectation against the remediated working tree and then describe the mismatch
+as an audit failure.
+
+### 4.1 Historical Negative Control
+
+The executable audit probe was retained in audit delivery commit
+`e428de848184f9b079e47f027f0b205c80b9d443`. Check out that exact revision:
 
 ```bash
+git checkout e428de848184f9b079e47f027f0b205c80b9d443
 .venv/bin/python -m metroflow.benchmarks.runtime_self_drive_probe \
   --scenario-seed 41 --steps 3 --expect-stalled
 ```
 
 The command uses the public `SimulationInitBundle`, `SimulationControl`, RNG,
-and four-value `simulation_step` contract. At the audited baseline, queues fill
-but turn demand/outflow/movement remain zero. `--expect-stalled` fails closed if
-that exact blocker is no longer reproduced. If this changes, require a new
-generated multi-hop conservation test and update the claim ledger; a nonzero
-print alone is insufficient.
+and four-value `simulation_step` contract. It diagnoses the frozen source
+baseline `96e54ca907babe6425212ac2e088615687549d72`: queues fill, but turn
+demand, outflow, and movement remain zero. `--expect-stalled` fails closed if
+that exact historical blocker is not reproduced.
+
+### 4.2 Remediated Bounded Check
+
+Check out the later remediation revision recorded as `packaged_commit` in
+`provenance/package_metadata.json`, then run:
+
+```bash
+.venv/bin/python -m metroflow.benchmarks.runtime_self_drive_probe \
+  --scenario-seed 41 --steps 20 --expect-closed
+```
+
+The 2026-07-12 developer run reports 16 generated trips, 51,886 compiled turns
+(45,544 permitted), 15 completed trips, one explicit no-route failure, no
+remaining active agents or queue mass, passing runtime invariants at every
+tick, and exact equality between per-link queue mass and active-agent counts.
+This is `INTERNALLY VERIFIED` functional evidence for one small deterministic
+scenario. It is not a 100k-city benchmark, full traffic-model validation,
+observed-data validation, or independent reproduction. Review the exact claim
+boundary and remaining blockers in
+[10 Runtime Closure Remediation](10_RUNTIME_CLOSURE_REMEDIATION_20260712.md).
 
 ## 5. Rust Verification
 
@@ -154,5 +182,7 @@ plausible image can conceal disconnected or illegal topology.
 5. accelerator bakeoff;
 6. observed-data calibration and external reproduction.
 
-Reversing this order risks optimizing a model that does not yet execute its
-central behavior.
+The 2026-07-12 remediation supplies bounded internal evidence for item 1 only;
+it does not promote items 2 through 6 to complete. Reversing this order risks
+optimizing a model that has not yet established its central behavior at the
+claimed scale and fidelity.

@@ -139,7 +139,7 @@ def test_runtime_diagnostic_rollout_captures_frames_route_cache_and_summary() ->
     assert report.summary["final_tick"] == 3
     assert report.summary["agent_backend"] == "baseline"
     assert report.summary["final_completed_trips_total"] == 1
-    assert report.summary["route_candidate_reuse_total"] >= 1
+    assert report.summary["route_candidate_reuse_total"] == 0
     assert report.to_dict()["frames"][0]["sampled_link_congestion"]
 
 

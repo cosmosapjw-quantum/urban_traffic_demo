@@ -1,0 +1,2843 @@
+{
+  "budget_runs": [
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1875,
+      "citizen_count": 61993,
+      "city_authority_wall_ns": 3050107068,
+      "city_fingerprint": "fefc5a1806f1092a960a4bf45fd32e222d5da76271e8afe118595c4548918184",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 3339728298,
+      "link_count": 6128,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1150,
+      "operation": "time_budget",
+      "peak_rss_kib": 102812,
+      "population_target": 100000,
+      "process_peak_rss_kib": 229172,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 48204611321,
+      "scenario_id": "synthetic_100k",
+      "seed": 17,
+      "tick_budget_ns": 48019088604,
+      "ticks_completed": 16,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 31130,
+      "turn_count": 36494,
+      "worker_pid": 904364,
+      "zone_count": 1875
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 62500,
+      "city_authority_wall_ns": 1174889361,
+      "city_fingerprint": "08564025b84de38c77409cc697021febec71be339c8bc811daa222ae041144d8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1472616851,
+      "link_count": 5642,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1128,
+      "operation": "time_budget",
+      "peak_rss_kib": 104924,
+      "population_target": 100000,
+      "process_peak_rss_kib": 221124,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 48466728458,
+      "scenario_id": "synthetic_100k",
+      "seed": 17,
+      "tick_budget_ns": 48019088604,
+      "ticks_completed": 20,
+      "topology_mode": "standard",
+      "trip_request_count": 31385,
+      "turn_count": 52176,
+      "worker_pid": 901656,
+      "zone_count": 24
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1864,
+      "citizen_count": 61655,
+      "city_authority_wall_ns": 2925057099,
+      "city_fingerprint": "d593538a5ee058aedd467e8c4e79b605e39dda77af16f1124dad70e2fc148af4",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 3228145317,
+      "link_count": 6130,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1143,
+      "operation": "time_budget",
+      "peak_rss_kib": 101892,
+      "population_target": 100000,
+      "process_peak_rss_kib": 227152,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 48583629371,
+      "scenario_id": "synthetic_100k",
+      "seed": 29,
+      "tick_budget_ns": 48285189502,
+      "ticks_completed": 17,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 30799,
+      "turn_count": 36906,
+      "worker_pid": 909846,
+      "zone_count": 1864
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 62500,
+      "city_authority_wall_ns": 1185459249,
+      "city_fingerprint": "08564025b84de38c77409cc697021febec71be339c8bc811daa222ae041144d8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1475420525,
+      "link_count": 5642,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1128,
+      "operation": "time_budget",
+      "peak_rss_kib": 104424,
+      "population_target": 100000,
+      "process_peak_rss_kib": 220608,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 48661027729,
+      "scenario_id": "synthetic_100k",
+      "seed": 29,
+      "tick_budget_ns": 48285189502,
+      "ticks_completed": 21,
+      "topology_mode": "standard",
+      "trip_request_count": 31210,
+      "turn_count": 52176,
+      "worker_pid": 907145,
+      "zone_count": 24
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1877,
+      "citizen_count": 62604,
+      "city_authority_wall_ns": 3240647511,
+      "city_fingerprint": "e3b2177b65b7b01c6545e477ef6cad13d74877a87673155ca1461ed9e732cae8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 3549321719,
+      "link_count": 6186,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1151,
+      "operation": "time_budget",
+      "peak_rss_kib": 105060,
+      "population_target": 100000,
+      "process_peak_rss_kib": 229980,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 49866276263,
+      "scenario_id": "synthetic_100k",
+      "seed": 41,
+      "tick_budget_ns": 48844114501,
+      "ticks_completed": 16,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 31115,
+      "turn_count": 37078,
+      "worker_pid": 915483,
+      "zone_count": 1877
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 62500,
+      "city_authority_wall_ns": 1153131434,
+      "city_fingerprint": "08564025b84de38c77409cc697021febec71be339c8bc811daa222ae041144d8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1453769825,
+      "link_count": 5642,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1128,
+      "operation": "time_budget",
+      "peak_rss_kib": 105132,
+      "population_target": 100000,
+      "process_peak_rss_kib": 223724,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 48904857674,
+      "scenario_id": "synthetic_100k",
+      "seed": 41,
+      "tick_budget_ns": 48844114501,
+      "ticks_completed": 21,
+      "topology_mode": "standard",
+      "trip_request_count": 31069,
+      "turn_count": 52176,
+      "worker_pid": 912856,
+      "zone_count": 24
+    }
+  ],
+  "claim_boundary": "local diagnostic only; performance cannot override PR62 plausibility",
+  "claim_status": "diagnostic_scale_gate",
+  "default_promotion_eligible": false,
+  "environment": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "cpu_count": "24",
+    "machine": "x86_64",
+    "numpy_version": "2.5.1",
+    "peak_rss_unit": "KiB_linux_ru_maxrss",
+    "platform": "Linux-6.17.0-35-generic-x86_64-with-glibc2.39",
+    "python_version": "3.12.3"
+  },
+  "fingerprint": "149571c18552e5cc655a0c33844fe487a7b6165cea808b1c55a3b47655f5278e",
+  "fixed_runs": [
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3611,
+      "citizen_count": 1000,
+      "city_authority_wall_ns": 5850837763,
+      "city_fingerprint": "446bfadf1f31b7a93699a7a05675a3fa76e514b0605f37626a6b56d339740d6a",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 5905922387,
+      "link_count": 11280,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1974,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 153564,
+      "population_target": 1000,
+      "process_peak_rss_kib": 153564,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 108087137
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 3091266053
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 2860076386
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 4858930604
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 4996759118
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 2861498728
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 213646708
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 9998118
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 22207778
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 4524505
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 11506610
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 10736790
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 383238
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 100693110
+        }
+      ],
+      "runtime_wall_ns": 8600863364,
+      "scenario_id": "synthetic_smoke",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 474,
+      "turn_count": 72210,
+      "worker_pid": 872803,
+      "zone_count": 3611
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 310,
+      "city_authority_wall_ns": 1168418173,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1187969756,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 99008,
+      "population_target": 1000,
+      "process_peak_rss_kib": 99008,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 69195772
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 142157336
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 101333152
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 82159751
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 117567986
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 101458189
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 39197398
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 781884
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 7195294
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 1295656
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 4515107
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 4203079
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 163143
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 26197061
+        }
+      ],
+      "runtime_wall_ns": 512500334,
+      "scenario_id": "synthetic_smoke",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "standard",
+      "trip_request_count": 148,
+      "turn_count": 51886,
+      "worker_pid": 872692,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3664,
+      "citizen_count": 1000,
+      "city_authority_wall_ns": 6405629872,
+      "city_fingerprint": "725874d44f6af329a42fd99aff73d813ef7d82c428a67de656c6af1ad80acafb",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 6457579623,
+      "link_count": 11474,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 2039,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 155176,
+      "population_target": 1000,
+      "process_peak_rss_kib": 155176,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 105279984
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 3505500992
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 3257284386
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 5258990524
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 5406139912
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 3258996721
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 229201599
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 10415354
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 23980340
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 4583806
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 12753004
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 11899831
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 435377
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 108756313
+        }
+      ],
+      "runtime_wall_ns": 9448224616,
+      "scenario_id": "synthetic_smoke",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 536,
+      "turn_count": 72304,
+      "worker_pid": 873830,
+      "zone_count": 3664
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 310,
+      "city_authority_wall_ns": 1202542925,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1223000243,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 98764,
+      "population_target": 1000,
+      "process_peak_rss_kib": 98764,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 71166843
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 148904291
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 104948718
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 94288894
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 139550313
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 105093464
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 42118178
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 893731
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 10660952
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 2135834
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 6547156
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 6052567
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 255143
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 32327476
+        }
+      ],
+      "runtime_wall_ns": 552014536,
+      "scenario_id": "synthetic_smoke",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "standard",
+      "trip_request_count": 175,
+      "turn_count": 51886,
+      "worker_pid": 873705,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3166,
+      "citizen_count": 1000,
+      "city_authority_wall_ns": 5648100293,
+      "city_fingerprint": "6ab2b4907f42d9d53b5cfecee112eca06ae2ec56ab5759771a97c694ac0f579d",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 5696514278,
+      "link_count": 10374,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1972,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 146980,
+      "population_target": 1000,
+      "process_peak_rss_kib": 146980,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 94906816
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 3163925084
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 2976939006
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 5217732268
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 5359144086
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 2978377480
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 167034247
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 11922105
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 25008445
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 4861806
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 13409304
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 12495533
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 464965
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 103954774
+        }
+      ],
+      "runtime_wall_ns": 9057346364,
+      "scenario_id": "synthetic_smoke",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 502,
+      "turn_count": 61884,
+      "worker_pid": 874930,
+      "zone_count": 3166
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 310,
+      "city_authority_wall_ns": 1249857318,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1272020151,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 98916,
+      "population_target": 1000,
+      "process_peak_rss_kib": 98916,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 76210160
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 142615931
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 97642696
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 89359539
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 130872554
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 97777124
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 43202263
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 937980
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 7917697
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 1423768
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 4928009
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 4570313
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 173154
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 31217593
+        }
+      ],
+      "runtime_wall_ns": 545536305,
+      "scenario_id": "synthetic_smoke",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "standard",
+      "trip_request_count": 147,
+      "turn_count": 51886,
+      "worker_pid": 874759,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3611,
+      "citizen_count": 10000,
+      "city_authority_wall_ns": 5699545320,
+      "city_fingerprint": "446bfadf1f31b7a93699a7a05675a3fa76e514b0605f37626a6b56d339740d6a",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 5813570376,
+      "link_count": 11280,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1974,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 155064,
+      "population_target": 10000,
+      "process_peak_rss_kib": 193484,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 211942664
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 10304643386
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 9107300740
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 19836335784
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 20759855004
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 9116007807
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 1074082212
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 72090729
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 222893960
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 42970660
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 122859879
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 114392295
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 4250910
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 659875699
+        }
+      ],
+      "runtime_wall_ns": 34019857741,
+      "scenario_id": "synthetic_smoke",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 4993,
+      "turn_count": 72210,
+      "worker_pid": 876102,
+      "zone_count": 3611
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 6250,
+      "city_authority_wall_ns": 1182911592,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1221173244,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 98796,
+      "population_target": 10000,
+      "process_peak_rss_kib": 98796,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 98923043
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 1063542259
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 774692575
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 1956447389
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 2378681250
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 777032261
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 258202793
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 15864682
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 150960799
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 28310320
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 93593420
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 87223685
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 3194808
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 256506181
+        }
+      ],
+      "runtime_wall_ns": 4673263563,
+      "scenario_id": "synthetic_smoke",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "standard",
+      "trip_request_count": 3078,
+      "turn_count": 51886,
+      "worker_pid": 875780,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3664,
+      "citizen_count": 10000,
+      "city_authority_wall_ns": 6324077626,
+      "city_fingerprint": "725874d44f6af329a42fd99aff73d813ef7d82c428a67de656c6af1ad80acafb",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 6438076586,
+      "link_count": 11474,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 2039,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 154152,
+      "population_target": 10000,
+      "process_peak_rss_kib": 194900,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 181748305
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 11228063809
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 10040898418
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 20588720353
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 21526879873
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 10050399113
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 1059304023
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 73457202
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 211400864
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 40394232
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 115910326
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 107985895
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 3921429
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 685991350
+        }
+      ],
+      "runtime_wall_ns": 35793886609,
+      "scenario_id": "synthetic_smoke",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 4996,
+      "turn_count": 72304,
+      "worker_pid": 878948,
+      "zone_count": 3664
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 6250,
+      "city_authority_wall_ns": 1180306463,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1220774712,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 99396,
+      "population_target": 10000,
+      "process_peak_rss_kib": 99396,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 107158806
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 1086383186
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 777807837
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 1949677663
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 2390224388
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 780362952
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 275933965
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 16792030
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 150310627
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 27739900
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 93318321
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 86942062
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 3267906
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 274807184
+        }
+      ],
+      "runtime_wall_ns": 4783030069,
+      "scenario_id": "synthetic_smoke",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "standard",
+      "trip_request_count": 3134,
+      "turn_count": 51886,
+      "worker_pid": 878539,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3166,
+      "citizen_count": 10000,
+      "city_authority_wall_ns": 5513988881,
+      "city_fingerprint": "6ab2b4907f42d9d53b5cfecee112eca06ae2ec56ab5759771a97c694ac0f579d",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 5591915028,
+      "link_count": 10374,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1972,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 147276,
+      "population_target": 10000,
+      "process_peak_rss_kib": 185888,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 160217643
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 10286885775
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 9078331392
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 19924907906
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 20981077782
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 9087357307
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 1030583342
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 125522546
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 231217751
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 44981321
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 124467580
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 115776521
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 4306673
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 785398860
+        }
+      ],
+      "runtime_wall_ns": 34264210102,
+      "scenario_id": "synthetic_smoke",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 4974,
+      "turn_count": 61884,
+      "worker_pid": 881687,
+      "zone_count": 3166
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 6250,
+      "city_authority_wall_ns": 1256335366,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1297282817,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 99308,
+      "population_target": 10000,
+      "process_peak_rss_kib": 99308,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 96076167
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 1104449390
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 796534781
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 1887646837
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 2304501385
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 799043138
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 276223347
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 16426090
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 144715753
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 27457346
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 89630977
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 83502180
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 3096781
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 258482085
+        }
+      ],
+      "runtime_wall_ns": 4624841088,
+      "scenario_id": "synthetic_smoke",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "standard",
+      "trip_request_count": 3105,
+      "turn_count": 51886,
+      "worker_pid": 881364,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1875,
+      "citizen_count": 61993,
+      "city_authority_wall_ns": 3141890650,
+      "city_fingerprint": "fefc5a1806f1092a960a4bf45fd32e222d5da76271e8afe118595c4548918184",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 3460413388,
+      "link_count": 6128,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1150,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 103568,
+      "population_target": 100000,
+      "process_peak_rss_kib": 228992,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 135603608
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 15445597922
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 9457297896
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 17968245038
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 22876520504
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 9499160964
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 5109456133
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 582981535
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 1248899156
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 239275338
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 699631709
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 649787257
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 26350793
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 3538488343
+        }
+      ],
+      "runtime_wall_ns": 52642047070,
+      "scenario_id": "synthetic_100k",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 31130,
+      "turn_count": 36494,
+      "worker_pid": 886472,
+      "zone_count": 1875
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 62500,
+      "city_authority_wall_ns": 1198265580,
+      "city_fingerprint": "08564025b84de38c77409cc697021febec71be339c8bc811daa222ae041144d8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1515425604,
+      "link_count": 5642,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1128,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 104152,
+      "population_target": 100000,
+      "process_peak_rss_kib": 221036,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 170949539
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 15453990563
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 11233287370
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 16659331656
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 20056621209
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 11280452193
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 3567841645
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 361287752
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 1195944439
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 230014533
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 719921927
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 670410123
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 26675298
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 2086520405
+        }
+      ],
+      "runtime_wall_ns": 48019088604,
+      "scenario_id": "synthetic_100k",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "standard",
+      "trip_request_count": 31385,
+      "turn_count": 52176,
+      "worker_pid": 883827,
+      "zone_count": 24
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1864,
+      "citizen_count": 61655,
+      "city_authority_wall_ns": 2994784017,
+      "city_fingerprint": "d593538a5ee058aedd467e8c4e79b605e39dda77af16f1124dad70e2fc148af4",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 3369776417,
+      "link_count": 6130,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1143,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 103164,
+      "population_target": 100000,
+      "process_peak_rss_kib": 227136,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 127773721
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 15403491568
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 9402622803
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 17937014019
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 22801402510
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 9444311863
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 5093654187
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 616880384
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 1170479480
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 224408794
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 647080132
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 600237175
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 24774345
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 3571325743
+        }
+      ],
+      "runtime_wall_ns": 52195717597,
+      "scenario_id": "synthetic_100k",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 30799,
+      "turn_count": 36906,
+      "worker_pid": 892311,
+      "zone_count": 1864
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 62500,
+      "city_authority_wall_ns": 1138042874,
+      "city_fingerprint": "08564025b84de38c77409cc697021febec71be339c8bc811daa222ae041144d8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1425436651,
+      "link_count": 5642,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1128,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 104432,
+      "population_target": 100000,
+      "process_peak_rss_kib": 220796,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 173060420
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 15192339996
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 11055794250
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 17239117211
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 20675394834
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 11102216928
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 3486030883
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 361193550
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 1211064636
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 239794419
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 722646601
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 671715431
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 27191233
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 2111095639
+        }
+      ],
+      "runtime_wall_ns": 48285189502,
+      "scenario_id": "synthetic_100k",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "standard",
+      "trip_request_count": 31210,
+      "turn_count": 52176,
+      "worker_pid": 889534,
+      "zone_count": 24
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1877,
+      "citizen_count": 62604,
+      "city_authority_wall_ns": 3458942931,
+      "city_fingerprint": "e3b2177b65b7b01c6545e477ef6cad13d74877a87673155ca1461ed9e732cae8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 3786426929,
+      "link_count": 6186,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1151,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 103236,
+      "population_target": 100000,
+      "process_peak_rss_kib": 229356,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 126691513
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 16052037200
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 9539336659
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 18527889266
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 23392541012
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 9581712022
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 5580034344
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 589204767
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 1203208064
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 228875848
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 671206087
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 622857644
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 25290326
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 3534286956
+        }
+      ],
+      "runtime_wall_ns": 53763860406,
+      "scenario_id": "synthetic_100k",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 31115,
+      "turn_count": 37078,
+      "worker_pid": 897986,
+      "zone_count": 1877
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 62500,
+      "city_authority_wall_ns": 1206394917,
+      "city_fingerprint": "08564025b84de38c77409cc697021febec71be339c8bc811daa222ae041144d8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": true,
+      "initialization_wall_ns": 1510952156,
+      "link_count": 5642,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1128,
+      "operation": "fixed_steps",
+      "peak_rss_kib": 104424,
+      "population_target": 100000,
+      "process_peak_rss_kib": 222056,
+      "requested_steps": 20,
+      "runtime_stage_wall_ns": [
+        {
+          "stage_name": "flow_update",
+          "wall_ns": 192160535
+        },
+        {
+          "stage_name": "route_candidate_refresh",
+          "wall_ns": 15207203196
+        },
+        {
+          "stage_name": "dynamic_potential_recompute",
+          "wall_ns": 11124205630
+        },
+        {
+          "stage_name": "routing_compile_estimate",
+          "wall_ns": 0
+        },
+        {
+          "stage_name": "reroute_decision",
+          "wall_ns": 17491363072
+        },
+        {
+          "stage_name": "active_agent_update",
+          "wall_ns": 20983324777
+        },
+        {
+          "stage_name": "route_candidate_potential",
+          "wall_ns": 11168596919
+        },
+        {
+          "stage_name": "route_candidate_path_build",
+          "wall_ns": 3454585399
+        },
+        {
+          "stage_name": "route_candidate_metadata",
+          "wall_ns": 354366369
+        },
+        {
+          "stage_name": "active_agent_allocation",
+          "wall_ns": 1222521680
+        },
+        {
+          "stage_name": "active_agent_candidate_selection",
+          "wall_ns": 242561130
+        },
+        {
+          "stage_name": "active_agent_pool_write",
+          "wall_ns": 735048757
+        },
+        {
+          "stage_name": "active_agent_pool_array_write",
+          "wall_ns": 683296780
+        },
+        {
+          "stage_name": "active_agent_plugin_memory_write",
+          "wall_ns": 27794733
+        },
+        {
+          "stage_name": "active_agent_movement",
+          "wall_ns": 2148460584
+        }
+      ],
+      "runtime_wall_ns": 48844114501,
+      "scenario_id": "synthetic_100k",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 20,
+      "topology_mode": "standard",
+      "trip_request_count": 31069,
+      "turn_count": 52176,
+      "worker_pid": 895250,
+      "zone_count": 24
+    }
+  ],
+  "generation_runs": [
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3611,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 5765996882,
+      "city_fingerprint": "446bfadf1f31b7a93699a7a05675a3fa76e514b0605f37626a6b56d339740d6a",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 11280,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1974,
+      "operation": "city_authority",
+      "peak_rss_kib": 155040,
+      "population_target": 1000,
+      "process_peak_rss_kib": 155040,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 72210,
+      "worker_pid": 869038,
+      "zone_count": 3611
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 1263488444,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "city_authority",
+      "peak_rss_kib": 98348,
+      "population_target": 1000,
+      "process_peak_rss_kib": 98348,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "standard",
+      "trip_request_count": 0,
+      "turn_count": 51886,
+      "worker_pid": 868969,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3664,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 6243635916,
+      "city_fingerprint": "725874d44f6af329a42fd99aff73d813ef7d82c428a67de656c6af1ad80acafb",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 11474,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 2039,
+      "operation": "city_authority",
+      "peak_rss_kib": 155908,
+      "population_target": 1000,
+      "process_peak_rss_kib": 155908,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 72304,
+      "worker_pid": 869498,
+      "zone_count": 3664
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 1176134483,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "city_authority",
+      "peak_rss_kib": 98692,
+      "population_target": 1000,
+      "process_peak_rss_kib": 98692,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "standard",
+      "trip_request_count": 0,
+      "turn_count": 51886,
+      "worker_pid": 869408,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3166,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 5638581359,
+      "city_fingerprint": "6ab2b4907f42d9d53b5cfecee112eca06ae2ec56ab5759771a97c694ac0f579d",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 10374,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1972,
+      "operation": "city_authority",
+      "peak_rss_kib": 147140,
+      "population_target": 1000,
+      "process_peak_rss_kib": 147140,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 61884,
+      "worker_pid": 869922,
+      "zone_count": 3166
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 1211621323,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "city_authority",
+      "peak_rss_kib": 99680,
+      "population_target": 1000,
+      "process_peak_rss_kib": 99680,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "standard",
+      "trip_request_count": 0,
+      "turn_count": 51886,
+      "worker_pid": 869834,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3611,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 5757640331,
+      "city_fingerprint": "446bfadf1f31b7a93699a7a05675a3fa76e514b0605f37626a6b56d339740d6a",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 11280,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1974,
+      "operation": "city_authority",
+      "peak_rss_kib": 154532,
+      "population_target": 10000,
+      "process_peak_rss_kib": 154532,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 72210,
+      "worker_pid": 870379,
+      "zone_count": 3611
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 1229608557,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "city_authority",
+      "peak_rss_kib": 98588,
+      "population_target": 10000,
+      "process_peak_rss_kib": 98588,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "standard",
+      "trip_request_count": 0,
+      "turn_count": 51886,
+      "worker_pid": 870295,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3664,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 6518130123,
+      "city_fingerprint": "725874d44f6af329a42fd99aff73d813ef7d82c428a67de656c6af1ad80acafb",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 11474,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 2039,
+      "operation": "city_authority",
+      "peak_rss_kib": 154272,
+      "population_target": 10000,
+      "process_peak_rss_kib": 154272,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 72304,
+      "worker_pid": 870795,
+      "zone_count": 3664
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 1202047436,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "city_authority",
+      "peak_rss_kib": 98312,
+      "population_target": 10000,
+      "process_peak_rss_kib": 98312,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "standard",
+      "trip_request_count": 0,
+      "turn_count": 51886,
+      "worker_pid": 870743,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 3166,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 5753576053,
+      "city_fingerprint": "6ab2b4907f42d9d53b5cfecee112eca06ae2ec56ab5759771a97c694ac0f579d",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 10374,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1972,
+      "operation": "city_authority",
+      "peak_rss_kib": 146676,
+      "population_target": 10000,
+      "process_peak_rss_kib": 146676,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 61884,
+      "worker_pid": 871364,
+      "zone_count": 3166
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 1169345090,
+      "city_fingerprint": "9f83754500e450d0da9eef71276efb067aac0519992b0e2078816f5a77df6cbd",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 5646,
+      "morphology_style_id": "polycentric_tod",
+      "node_count": 1141,
+      "operation": "city_authority",
+      "peak_rss_kib": 98756,
+      "population_target": 10000,
+      "process_peak_rss_kib": 98756,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_smoke",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "standard",
+      "trip_request_count": 0,
+      "turn_count": 51886,
+      "worker_pid": 871278,
+      "zone_count": 4
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1875,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 3171299508,
+      "city_fingerprint": "fefc5a1806f1092a960a4bf45fd32e222d5da76271e8afe118595c4548918184",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 6128,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1150,
+      "operation": "city_authority",
+      "peak_rss_kib": 84872,
+      "population_target": 100000,
+      "process_peak_rss_kib": 84872,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_100k",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 36494,
+      "worker_pid": 871850,
+      "zone_count": 1875
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 1242330528,
+      "city_fingerprint": "08564025b84de38c77409cc697021febec71be339c8bc811daa222ae041144d8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 5642,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1128,
+      "operation": "city_authority",
+      "peak_rss_kib": 98776,
+      "population_target": 100000,
+      "process_peak_rss_kib": 98776,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_100k",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "standard",
+      "trip_request_count": 0,
+      "turn_count": 52176,
+      "worker_pid": 871716,
+      "zone_count": 24
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1864,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 3040481389,
+      "city_fingerprint": "d593538a5ee058aedd467e8c4e79b605e39dda77af16f1124dad70e2fc148af4",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 6130,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1143,
+      "operation": "city_authority",
+      "peak_rss_kib": 84872,
+      "population_target": 100000,
+      "process_peak_rss_kib": 84872,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_100k",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 36906,
+      "worker_pid": 872094,
+      "zone_count": 1864
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 1177609554,
+      "city_fingerprint": "08564025b84de38c77409cc697021febec71be339c8bc811daa222ae041144d8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 5642,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1128,
+      "operation": "city_authority",
+      "peak_rss_kib": 97944,
+      "population_target": 100000,
+      "process_peak_rss_kib": 97944,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_100k",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "standard",
+      "trip_request_count": 0,
+      "turn_count": 52176,
+      "worker_pid": 872037,
+      "zone_count": 24
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1877,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 3215792977,
+      "city_fingerprint": "e3b2177b65b7b01c6545e477ef6cad13d74877a87673155ca1461ed9e732cae8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 6186,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1151,
+      "operation": "city_authority",
+      "peak_rss_kib": 84588,
+      "population_target": 100000,
+      "process_peak_rss_kib": 84588,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_100k",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 37078,
+      "worker_pid": 872469,
+      "zone_count": 1877
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 0,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 1160960493,
+      "city_fingerprint": "08564025b84de38c77409cc697021febec71be339c8bc811daa222ae041144d8",
+      "city_stage_wall_ns": [],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 5642,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1128,
+      "operation": "city_authority",
+      "peak_rss_kib": 99540,
+      "population_target": 100000,
+      "process_peak_rss_kib": 99540,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_100k",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "standard",
+      "trip_request_count": 0,
+      "turn_count": 52176,
+      "worker_pid": 872360,
+      "zone_count": 24
+    }
+  ],
+  "modes": [
+    "standard",
+    "realistic_synthetic_v1"
+  ],
+  "num_steps": 20,
+  "peak_rss_scope": "fresh phase boundary; performance gate uses city_authority phase",
+  "performance_gate_pass": false,
+  "performance_pairs": [
+    {
+      "all_pass": false,
+      "generation_gate_pass": false,
+      "generation_ratio": 2.552701907040314,
+      "legacy_budget_ticks": 20,
+      "legacy_citizen_count": 62500,
+      "legacy_trip_request_count": 31385,
+      "paired_tick_budget_ns": 48019088604,
+      "peak_rss_gate_pass": true,
+      "peak_rss_ratio": 0.8592370616344052,
+      "population_gate_pass": false,
+      "realistic_budget_ticks": 16,
+      "realistic_citizen_count": 61993,
+      "realistic_trip_request_count": 31130,
+      "runtime_gate_pass": true,
+      "runtime_ratio": 1.0962733487951895,
+      "seed": 17,
+      "tick_progress_gate_pass": false,
+      "workload_gate_pass": true
+    },
+    {
+      "all_pass": false,
+      "generation_gate_pass": false,
+      "generation_ratio": 2.5819095800236687,
+      "legacy_budget_ticks": 21,
+      "legacy_citizen_count": 62500,
+      "legacy_trip_request_count": 31210,
+      "paired_tick_budget_ns": 48285189502,
+      "peak_rss_gate_pass": true,
+      "peak_rss_ratio": 0.8665359797435269,
+      "population_gate_pass": false,
+      "realistic_budget_ticks": 17,
+      "realistic_citizen_count": 61655,
+      "realistic_trip_request_count": 30799,
+      "runtime_gate_pass": true,
+      "runtime_ratio": 1.0809881484432824,
+      "seed": 29,
+      "tick_progress_gate_pass": false,
+      "workload_gate_pass": true
+    },
+    {
+      "all_pass": false,
+      "generation_gate_pass": false,
+      "generation_ratio": 2.769941782161919,
+      "legacy_budget_ticks": 21,
+      "legacy_citizen_count": 62500,
+      "legacy_trip_request_count": 31069,
+      "paired_tick_budget_ns": 48844114501,
+      "peak_rss_gate_pass": true,
+      "peak_rss_ratio": 0.849789029535865,
+      "population_gate_pass": false,
+      "realistic_budget_ticks": 16,
+      "realistic_citizen_count": 62604,
+      "realistic_trip_request_count": 31115,
+      "runtime_gate_pass": true,
+      "runtime_ratio": 1.100723412744012,
+      "seed": 41,
+      "tick_progress_gate_pass": false,
+      "workload_gate_pass": true
+    }
+  ],
+  "performance_thresholds": {
+    "generation_ratio_max": 2.0,
+    "paired_budget_tick_ratio_min": 1.0,
+    "peak_rss_ratio_max": 1.5,
+    "runtime_ratio_max": 1.25
+  },
+  "populations": [
+    1000,
+    10000,
+    100000
+  ],
+  "prior_plausibility_gate_status": "failed_pr62",
+  "rust_candidate_stage": null,
+  "rust_generation_probe_admitted": false,
+  "rust_stage_share_threshold": 0.3,
+  "schema_version": "realistic_city_scale_v1",
+  "seeds": [
+    17,
+    29,
+    41
+  ],
+  "stage_profile_runs": [
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1875,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 3116693905,
+      "city_fingerprint": "fefc5a1806f1092a960a4bf45fd32e222d5da76271e8afe118595c4548918184",
+      "city_stage_wall_ns": [
+        {
+          "stage_name": "terrain_field",
+          "wall_ns": 1445197
+        },
+        {
+          "stage_name": "urban_form_field",
+          "wall_ns": 1247732
+        },
+        {
+          "stage_name": "hierarchical_street_skeleton",
+          "wall_ns": 134394387
+        },
+        {
+          "stage_name": "continuous_local_fabric",
+          "wall_ns": 782921373
+        },
+        {
+          "stage_name": "planar_blocks",
+          "wall_ns": 860448205
+        },
+        {
+          "stage_name": "block_land_use",
+          "wall_ns": 151981664
+        },
+        {
+          "stage_name": "runtime_topology_compile",
+          "wall_ns": 656889505
+        },
+        {
+          "stage_name": "runtime_zoning_compile",
+          "wall_ns": 24970199
+        },
+        {
+          "stage_name": "quality_evaluation",
+          "wall_ns": 416789188
+        }
+      ],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 6128,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1150,
+      "operation": "city_stage_profile",
+      "peak_rss_kib": 84820,
+      "population_target": 100000,
+      "process_peak_rss_kib": 84820,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_100k",
+      "seed": 17,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 36494,
+      "worker_pid": 901062,
+      "zone_count": 1875
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1864,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 3151179203,
+      "city_fingerprint": "d593538a5ee058aedd467e8c4e79b605e39dda77af16f1124dad70e2fc148af4",
+      "city_stage_wall_ns": [
+        {
+          "stage_name": "terrain_field",
+          "wall_ns": 1510740
+        },
+        {
+          "stage_name": "urban_form_field",
+          "wall_ns": 1189082
+        },
+        {
+          "stage_name": "hierarchical_street_skeleton",
+          "wall_ns": 127480099
+        },
+        {
+          "stage_name": "continuous_local_fabric",
+          "wall_ns": 862049707
+        },
+        {
+          "stage_name": "planar_blocks",
+          "wall_ns": 767748281
+        },
+        {
+          "stage_name": "block_land_use",
+          "wall_ns": 149811897
+        },
+        {
+          "stage_name": "runtime_topology_compile",
+          "wall_ns": 698587666
+        },
+        {
+          "stage_name": "runtime_zoning_compile",
+          "wall_ns": 26279126
+        },
+        {
+          "stage_name": "quality_evaluation",
+          "wall_ns": 421980485
+        }
+      ],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 6130,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1143,
+      "operation": "city_stage_profile",
+      "peak_rss_kib": 84380,
+      "population_target": 100000,
+      "process_peak_rss_kib": 84380,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_100k",
+      "seed": 29,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 36906,
+      "worker_pid": 901230,
+      "zone_count": 1864
+    },
+    {
+      "active_agent_capacity": 20000,
+      "block_count": 1877,
+      "citizen_count": 0,
+      "city_authority_wall_ns": 3216344366,
+      "city_fingerprint": "e3b2177b65b7b01c6545e477ef6cad13d74877a87673155ca1461ed9e732cae8",
+      "city_stage_wall_ns": [
+        {
+          "stage_name": "terrain_field",
+          "wall_ns": 1476305
+        },
+        {
+          "stage_name": "urban_form_field",
+          "wall_ns": 1207596
+        },
+        {
+          "stage_name": "hierarchical_street_skeleton",
+          "wall_ns": 115755415
+        },
+        {
+          "stage_name": "continuous_local_fabric",
+          "wall_ns": 888783552
+        },
+        {
+          "stage_name": "planar_blocks",
+          "wall_ns": 867948385
+        },
+        {
+          "stage_name": "block_land_use",
+          "wall_ns": 145859719
+        },
+        {
+          "stage_name": "runtime_topology_compile",
+          "wall_ns": 650792951
+        },
+        {
+          "stage_name": "runtime_zoning_compile",
+          "wall_ns": 26126025
+        },
+        {
+          "stage_name": "quality_evaluation",
+          "wall_ns": 421542407
+        }
+      ],
+      "eager_trip_generation": false,
+      "initialization_wall_ns": 0,
+      "link_count": 6186,
+      "morphology_style_id": "ring_radial",
+      "node_count": 1151,
+      "operation": "city_stage_profile",
+      "peak_rss_kib": 84448,
+      "population_target": 100000,
+      "process_peak_rss_kib": 84448,
+      "requested_steps": 0,
+      "runtime_stage_wall_ns": [],
+      "runtime_wall_ns": 0,
+      "scenario_id": "synthetic_100k",
+      "seed": 41,
+      "tick_budget_ns": 0,
+      "ticks_completed": 0,
+      "topology_mode": "realistic_synthetic_v1",
+      "trip_request_count": 0,
+      "turn_count": 37078,
+      "worker_pid": 901429,
+      "zone_count": 1877
+    }
+  ],
+  "stage_shares": [
+    {
+      "maximum_share": 0.00047942052884892693,
+      "mean_share": 0.00046737232046013794,
+      "minimum_share": 0.00045900091283944313,
+      "rust_probe_eligible": false,
+      "seed_shares": [
+        {
+          "seed": 17,
+          "share": 0.00046369551969204366
+        },
+        {
+          "seed": 29,
+          "share": 0.00047942052884892693
+        },
+        {
+          "seed": 41,
+          "share": 0.00045900091283944313
+        }
+      ],
+      "stage_name": "terrain_field"
+    },
+    {
+      "maximum_share": 0.0004003383193961744,
+      "mean_share": 0.00038437982487078795,
+      "minimum_share": 0.0003754560652041822,
+      "rust_probe_eligible": false,
+      "seed_shares": [
+        {
+          "seed": 17,
+          "share": 0.0004003383193961744
+        },
+        {
+          "seed": 29,
+          "share": 0.00037734509001200714
+        },
+        {
+          "seed": 41,
+          "share": 0.0003754560652041822
+        }
+      ],
+      "stage_name": "urban_form_field"
+    },
+    {
+      "maximum_share": 0.043120816832347864,
+      "mean_share": 0.03985509691434813,
+      "minimum_share": 0.03598974544630586,
+      "rust_probe_eligible": false,
+      "seed_shares": [
+        {
+          "seed": 17,
+          "share": 0.043120816832347864
+        },
+        {
+          "seed": 29,
+          "share": 0.04045472846439067
+        },
+        {
+          "seed": 41,
+          "share": 0.03598974544630586
+        }
+      ],
+      "stage_name": "hierarchical_street_skeleton"
+    },
+    {
+      "maximum_share": 0.27633345527156156,
+      "mean_share": 0.26703338111361846,
+      "minimum_share": 0.2512025232070392,
+      "rust_probe_eligible": false,
+      "seed_shares": [
+        {
+          "seed": 17,
+          "share": 0.2512025232070392
+        },
+        {
+          "seed": 29,
+          "share": 0.2735641648622546
+        },
+        {
+          "seed": 41,
+          "share": 0.27633345527156156
+        }
+      ],
+      "stage_name": "continuous_local_fabric"
+    },
+    {
+      "maximum_share": 0.27607722517107436,
+      "mean_share": 0.2631903947751569,
+      "minimum_share": 0.24363840693956243,
+      "rust_probe_eligible": false,
+      "seed_shares": [
+        {
+          "seed": 17,
+          "share": 0.27607722517107436
+        },
+        {
+          "seed": 29,
+          "share": 0.24363840693956243
+        },
+        {
+          "seed": 41,
+          "share": 0.2698555522148339
+        }
+      ],
+      "stage_name": "planar_blocks"
+    },
+    {
+      "maximum_share": 0.0487637440931178,
+      "mean_share": 0.04721827118242145,
+      "minimum_share": 0.04534953425444246,
+      "rust_probe_eligible": false,
+      "seed_shares": [
+        {
+          "seed": 17,
+          "share": 0.0487637440931178
+        },
+        {
+          "seed": 29,
+          "share": 0.047541535199704096
+        },
+        {
+          "seed": 41,
+          "share": 0.04534953425444246
+        }
+      ],
+      "stage_name": "block_land_use"
+    },
+    {
+      "maximum_share": 0.22169087220902176,
+      "mean_share": 0.21159834741614017,
+      "minimum_share": 0.20233932593771273,
+      "rust_probe_eligible": false,
+      "seed_shares": [
+        {
+          "seed": 17,
+          "share": 0.21076484410168603
+        },
+        {
+          "seed": 29,
+          "share": 0.22169087220902176
+        },
+        {
+          "seed": 41,
+          "share": 0.20233932593771273
+        }
+      ],
+      "stage_name": "runtime_topology_compile"
+    },
+    {
+      "maximum_share": 0.008339457805186587,
+      "mean_share": 0.008158036847768326,
+      "minimum_share": 0.008011758536807611,
+      "rust_probe_eligible": false,
+      "seed_shares": [
+        {
+          "seed": 17,
+          "share": 0.008011758536807611
+        },
+        {
+          "seed": 29,
+          "share": 0.008339457805186587
+        },
+        {
+          "seed": 41,
+          "share": 0.00812289420131078
+        }
+      ],
+      "stage_name": "runtime_zoning_compile"
+    },
+    {
+      "maximum_share": 0.1339119287783647,
+      "mean_share": 0.13290083210901935,
+      "minimum_share": 0.13106258504410406,
+      "rust_probe_eligible": false,
+      "seed_shares": [
+        {
+          "seed": 17,
+          "share": 0.13372798250458925
+        },
+        {
+          "seed": 29,
+          "share": 0.1339119287783647
+        },
+        {
+          "seed": 41,
+          "share": 0.13106258504410406
+        }
+      ],
+      "stage_name": "quality_evaluation"
+    },
+    {
+      "maximum_share": 0.030112450651684976,
+      "mean_share": 0.029193887496196322,
+      "minimum_share": 0.027467071714249718,
+      "rust_probe_eligible": false,
+      "seed_shares": [
+        {
+          "seed": 17,
+          "share": 0.027467071714249718
+        },
+        {
+          "seed": 29,
+          "share": 0.03000214012265427
+        },
+        {
+          "seed": 41,
+          "share": 0.030112450651684976
+        }
+      ],
+      "stage_name": "unattributed_pipeline_overhead"
+    }
+  ],
+  "thread_policy": "fresh_process_single_thread_numeric_env"
+}

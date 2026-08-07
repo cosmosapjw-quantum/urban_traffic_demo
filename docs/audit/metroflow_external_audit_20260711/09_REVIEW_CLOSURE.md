@@ -1,5 +1,12 @@
 # Review And Verification Closure
 
+> **Scope:** This file records closure of the 2026-07-11 audit packet at source
+> baseline `96e54ca907babe6425212ac2e088615687549d72` and audit delivery commit
+> `e428de848184f9b079e47f027f0b205c80b9d443`. It is historical evidence, not a
+> current-runtime status page. See
+> [10 Runtime Closure Remediation](10_RUNTIME_CLOSURE_REMEDIATION_20260712.md)
+> for the bounded post-audit change and its still-open limitations.
+
 ## Workflow Used
 
 The packet was built with four evidence roles:
@@ -46,21 +53,30 @@ CARGO_TARGET_DIR=/tmp/metroflow-cargo-target cargo test --workspace
 # 52 passed
 ```
 
-Rust source was not changed, so no maturin rebuild was required for this
-documentation/diagnostic/package slice.
+At audit delivery commit `e428de848184`, Rust source had not changed, so no
+maturin rebuild was required for that documentation/diagnostic/package slice.
+This statement does not apply to later remediation revisions.
 
 ## What Review Closure Means
 
-Closure means the packet accurately represents the available repository
-evidence and the builder fails closed at its documented integrity boundary. It
-does not close the product blockers in the audit:
+For the historical audit delivery, closure means the packet accurately
+represents the available repository evidence and the builder fails closed at
+its documented integrity boundary. It did not close the product blockers found
+at that source baseline:
 
-- generated traffic does not self-drive through turns;
+- generated traffic did not self-drive through turns;
 - the two runtime spines are not unified;
 - real-city traffic/morphology validation is absent;
 - historical experiment provenance is incomplete;
 - redistribution remains blocked by the missing root license and donor origin.
 
-The delivery ZIP must be built only after the audit commit, from a clean,
-non-shallow repository. Its sidecar SHA-256 and packaged commit are the final
-delivery identifiers.
+The 2026-07-12 work changes only the first bullet from `REFUTED AT BASELINE` to
+`INTERNALLY VERIFIED` for a seed-41, 20-tick deterministic probe. It does not
+retroactively rewrite the baseline evidence, and it does not resolve the other
+bullets. A newly built delivery must include the remediation supplement and
+identify its own later `packaged_commit`; the original
+`e428de848184` ZIP remains a historical package.
+
+Any delivery ZIP must be built from a clean, non-shallow repository after the
+applicable audit or remediation changes are committed. Its sidecar SHA-256 and
+packaged commit are the final delivery identifiers.

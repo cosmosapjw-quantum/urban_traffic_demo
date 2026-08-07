@@ -1,7 +1,7 @@
 # City Map Re-Architecture PR List
 
 Status: active
-Last updated: 2026-07-11
+Last updated: 2026-07-13
 
 ## Execution Contract
 
@@ -195,3 +195,80 @@ fail-closed behind the recomputed v2 gate.
 - Admit morphology-aware placement only from a versioned accepted gate.
 - Use synthetic district/subcenter context, never empirical named-city fitting
   or external runtime data.
+
+## Realistic Synthetic City Queue
+
+The controlling product contract is
+`docs/PRD_REALISTIC_SYNTHETIC_CITY.md`. PR53-PR64 replace further schematic
+sidecar refinement with a terrain-to-block-to-runtime pipeline. Existing
+PR33-PR45 evidence remains the compatibility and negative-control baseline.
+
+Status: closed as `BLOCKED`; the explicit realistic path remains available,
+but `standard` remains the default pending a new generator redesign spec.
+
+- **PR53 - Product Contract Freeze:** complete; froze thresholds, public
+  contracts, claim boundary, and ordered queue. Commit:
+  `docs(city): define realistic synthetic city target`.
+- **PR54 - Generator Boundary Extraction:** complete; preserved current fingerprints while
+  isolating compatibility, typed stage, and finalization boundaries. Commit:
+  `refactor(city): isolate generation stage contracts`.
+- **PR55 - Terrain And Development Fields:** complete; bounded read-only NumPy fields and
+  deterministic centers. Commit: `feat(city): add terrain and development fields`.
+- **PR56 - Hierarchical Street Skeleton:** complete; terrain-aware gateways, arterial
+  connectivity, and bounded redundancy. Commit:
+  `feat(city): generate hierarchical street skeleton`.
+- **PR57 - Continuous Local Fabric:** complete; orientation-field local growth and
+  collector coupling. Commit: `feat(city): grow continuous local street fabric`.
+- **PR58 - Planar Block Compiler:** complete; same-layer T-junction splitting,
+  proper-crossing planarization, short-fragment contraction, simple bounded-face
+  extraction, and source-street frontage gates pass the 6-style by 4-seed
+  matrix. Validation: targeted `29 passed`; full repository `691 passed`;
+  Ruff and diff checks passed. Commit:
+  `feat(city): compile planar urban blocks`.
+- **PR59 - Block Land Use And POIs:** complete; immutable block assignments use
+  terrain, center proximity, slope, and road hierarchy; explicit per-hectare
+  capacities, frontage access nodes, industrial buffers, and essential POIs
+  pass the 6-style by 4-seed matrix. Validation: targeted `27 passed`; full
+  repository `718 passed`; Ruff and diff checks passed. Commit:
+  `feat(city): couple land use to urban blocks`.
+- **PR60 - Simulation Map Compiler:** complete; explicit paired config,
+  composed blueprint, no-repair topology/CSR/zoning compiler, 512 sampled OD
+  gate, replay fingerprints, runtime initialization, and polygon static-map
+  payload pass the 6-style by 4-seed matrix. Validation: targeted `32 passed`;
+  related integration `99 passed`; full repository `747 passed`; Ruff and diff
+  checks passed. Commit:
+  `feat(city): compile realistic map runtime authority`.
+- **PR61 - Physical Link Traversal:** complete; preserved the default point
+  queue while adding explicit NumPy length/speed residency, finite lane-length
+  storage, exit-ready demand, source/downstream spillback, replay/UI/benchmark
+  provenance, and finite-storage invariants. Validation: targeted `12 passed`;
+  related runtime/UI/backend `135 passed`; full repository `759 passed`; fresh
+  import firewall, Ruff, and diff checks passed. Commit:
+  `feat(sim): add physical link traversal`.
+- **PR62 - Empirical Plausibility Audit:** complete as an audit surface and
+  fail-closed as a product gate. The fixed 30-map matrix generated successfully
+  but `0/30` maps passed: all exceed the empirical mean-degree/dead-end envelope
+  and seven exceed the 800 m developed branch-free corridor gate. Diagnostic
+  contact-sheet review independently confirms a universal triangular lattice,
+  repeated block areas, zero collector share, and weak terrain response.
+  Thresholds were not changed. Validation: targeted `8 passed`; canonical
+  audit generated all 30 maps in `144.26 s` at `272,112 KiB` maximum RSS;
+  full repository `767 passed`; Ruff and diff checks passed. Commit:
+  `test(city): audit synthetic city plausibility`.
+- **PR63 - Scale And Hardware-Fit Closure:** complete as a fresh-process
+  diagnostic and fail-closed as a performance/product gate. The canonical
+  42-run matrix covers three populations, three seeds, both city modes, three
+  realistic stage profiles, and six paired-budget runs. At 100k every seed
+  fails generation wall (`2.55-2.77x`), actual citizen realization
+  (`61,655-62,604` realistic and `62,500` legacy), and paired throughput
+  (`16-17` realistic ticks versus `20-21` legacy). RSS and fixed 20-tick
+  latency ratios pass. No eligible generation stage reaches 30 percent on all
+  seeds, so no Rust generation probe is admitted. Canonical artifact:
+  `artifacts/runtime_spine_review/realistic-city-pr63-scale.md`. Commit:
+  `perf(city): close realistic map scale gate`.
+- **PR64 - Default Promotion:** closed as `BLOCKED`; PR62 and PR63 source
+  fingerprints reload successfully, but their conjunctive gates fail.
+  `standard` remains the default and the planned feature commit
+  `feat(city): promote realistic generator default` is forbidden. Decision:
+  `docs/harness/REALISTIC_CITY_DEFAULT_PROMOTION_DECISION.md`. Closure commit:
+  `docs(city): record realistic promotion blocker`.

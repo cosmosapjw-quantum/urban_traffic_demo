@@ -823,6 +823,8 @@ def _build_benchmark_config(
         learning_enabled=resolved_learning_enabled,
         learning_mix_bounds=base_config.learning_mix_bounds,
         ctm_mode_enabled=base_config.ctm_mode_enabled,
+        traffic_model=base_config.traffic_model,
+        jam_spacing_m=base_config.jam_spacing_m,
     )
 
 

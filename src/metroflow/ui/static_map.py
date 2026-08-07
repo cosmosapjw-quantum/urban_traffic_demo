@@ -11,6 +11,7 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from metroflow.city.block_land_use import LandUseCatalog
 from metroflow.city.connectivity import analyze_weak_connectivity
 from metroflow.city.zones import ZoningPlacementResult, zoning_placement_fingerprint
 from metroflow.flow.state import LinkState
@@ -219,8 +220,30 @@ def build_static_city_map_artifact(
         road_sections=road_sections,
         bounds=bounds,
     )
-    zones = tuple(_zone_payload(zone, bounds=bounds) for zone in tuple(state.static.zones or ()))
-    pois = tuple(_poi_payload(poi, node_xy=node_xy, bounds=bounds) for poi in tuple(state.static.pois or ()))
+    routing_static = (
+        state.static.routing_static
+        if isinstance(state.static.routing_static, Mapping)
+        else {}
+    )
+    land_use_catalog = routing_static.get("land_use_catalog")
+    if isinstance(land_use_catalog, LandUseCatalog):
+        zones = tuple(
+            _block_land_use_payload(block, bounds=bounds)
+            for block in land_use_catalog.blocks
+        )
+        pois = tuple(
+            _block_poi_payload(poi, bounds=bounds)
+            for poi in land_use_catalog.pois
+        )
+    else:
+        zones = tuple(
+            _zone_payload(zone, bounds=bounds)
+            for zone in tuple(state.static.zones or ())
+        )
+        pois = tuple(
+            _poi_payload(poi, node_xy=node_xy, bounds=bounds)
+            for poi in tuple(state.static.pois or ())
+        )
     bridges = tuple(_bridge_payload(crossing) for crossing in tuple(getattr(city, "bridge_crossings", ()) or ()))
 
     return StaticCityMapArtifact(
@@ -293,7 +316,7 @@ def render_static_city_map_html(artifact: StaticCityMapArtifact) -> str:
     .road-ribbon.unknown {{ stroke: #838b94; }}
     .road-median {{ fill: none; stroke: #f5f5f2; stroke-linecap: round; stroke-linejoin: round; opacity: 0.9; }}
     .road-repair {{ fill: none; stroke: #b85f4c; stroke-width: 1.8; stroke-dasharray: 7 4; opacity: 0.96; }}
-    .zone-layer circle {{ fill-opacity: 0.12; stroke-width: 1.1; }}
+    .zone-layer circle, .zone-layer polygon {{ fill-opacity: 0.18; stroke-width: 0.65; }}
     .poi-layer circle {{ stroke: #ffffff; stroke-width: 0.8; opacity: 0.72; }}
     .bridge-label text {{ font-size: 10px; fill: #1f4f59; paint-order: stroke; stroke: #ffffff; stroke-width: 3px; }}
     .legend text {{ font-size: 11px; fill: #354050; }}
@@ -737,6 +760,50 @@ def _zone_payload(zone: Any, *, bounds: Mapping[str, float]) -> dict[str, Any]:
     }
 
 
+def _block_land_use_payload(
+    block: Any,
+    *,
+    bounds: Mapping[str, float],
+) -> dict[str, Any]:
+    return {
+        "zone_id": int(block.block_id) + 1,
+        "block_id": int(block.block_id),
+        "zone_type": str(block.land_use_type.value),
+        "centroid": (
+            _scale_x(float(block.centroid_m[0]), bounds),
+            _scale_y(float(block.centroid_m[1]), bounds),
+        ),
+        "polygon": tuple(
+            (_scale_x(float(x), bounds), _scale_y(float(y), bounds))
+            for x, y in block.polygon_m
+        ),
+        "population_capacity": int(block.population_capacity),
+        "job_capacity": int(block.job_capacity),
+        "leisure_capacity": int(block.leisure_capacity),
+        "development_intensity": float(block.development_intensity),
+        "access_node_id": block.access_node_id,
+    }
+
+
+def _block_poi_payload(
+    poi: Any,
+    *,
+    bounds: Mapping[str, float],
+) -> dict[str, Any]:
+    return {
+        "poi_id": int(poi.poi_id),
+        "zone_id": int(poi.block_id) + 1,
+        "block_id": int(poi.block_id),
+        "poi_type": str(poi.poi_type.value),
+        "node_id": int(poi.access_node_id),
+        "capacity_hint": int(poi.capacity_hint),
+        "point": (
+            _scale_x(float(poi.x_m), bounds),
+            _scale_y(float(poi.y_m), bounds),
+        ),
+    }
+
+
 def _poi_payload(
     poi: Any,
     *,
@@ -845,6 +912,9 @@ def _artifact_metadata(
         "connectivity_repair_link_ids",
         "weak_component_count_after_repair",
         "weak_component_sizes_after_repair",
+        "city_blueprint_fingerprint",
+        "land_use_catalog_fingerprint",
+        "generated_city_map_fingerprint",
     )
     landuse_keep_keys = (
         "zoning_placement_fingerprint",
@@ -864,6 +934,7 @@ def _artifact_metadata(
         "flow_backend": state.config.flow_backend,
         "routing_backend": state.config.routing_backend,
         "agent_backend": state.config.agent_backend,
+        "traffic_model": state.config.traffic_model,
         "weak_component_count_rendered": component_report.component_count,
         "weak_component_sizes_rendered": component_report.component_sizes,
         **{key: raw[key] for key in keep_keys if key in raw},
@@ -931,7 +1002,7 @@ def _render_map_svg(artifact: StaticCityMapArtifact) -> str:
         else ""
     )
     zone_marks = (
-        "\n".join(_render_zone_circle(zone) for zone in artifact.zones)
+        "\n".join(_render_zone_mark(zone) for zone in artifact.zones)
         if "zones" in artifact.visible_layers
         else ""
     )
@@ -1006,15 +1077,28 @@ def _render_road_ribbon(road: Mapping[str, Any]) -> str:
     return "\n".join(paths)
 
 
-def _render_zone_circle(zone: Mapping[str, Any]) -> str:
+def _render_zone_mark(zone: Mapping[str, Any]) -> str:
     x, y = tuple(zone["centroid"])
     token = _css_token(str(zone.get("zone_type", "unknown")))
     fill = {
         "residential": "#4f8f7b",
+        "commercial": "#315f9f",
         "cbd_commercial": "#315f9f",
         "industrial": "#9a6d43",
         "mixed_use": "#7d67ad",
+        "open_space": "#85a66f",
     }.get(token, "#8c96a3")
+    if "polygon" in zone:
+        points = " ".join(
+            f"{float(point_x):.2f},{float(point_y):.2f}"
+            for point_x, point_y in tuple(zone["polygon"])
+        )
+        return (
+            f'<polygon class="zone {token}" points="{points}" '
+            f'fill="{fill}" stroke="{fill}" '
+            f'data-zone-id="{int(zone.get("zone_id", -1))}" '
+            f'data-block-id="{int(zone.get("block_id", -1))}" />'
+        )
     return (
         f'<circle class="zone {token}" cx="{x:.2f}" cy="{y:.2f}" r="18" '
         f'fill="{fill}" stroke="{fill}" data-zone-id="{int(zone.get("zone_id", -1))}" />'

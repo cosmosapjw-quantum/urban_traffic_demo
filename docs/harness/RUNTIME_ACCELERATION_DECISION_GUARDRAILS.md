@@ -57,24 +57,27 @@ Primary artifact:
 Project state summary:
 `docs/harness/PROJECT_STATE.md`
 
-## External Runtime-Closure Override
+## External Runtime-Closure Override Status
 
-The 2026-07-11 whole-repository audit supersedes acceleration ordering until a
-functional baseline gate passes. Generated topology/initialization currently
-provides no route-derived turn demand: eager agents enter source queues while
-turn demand, outflow, and movement remain zero. `SimulationState` also does not
-execute the legacy accessibility/land-use cadences.
+The 2026-07-11 whole-repository audit remains the historical negative control.
+The 2026-07-12 Python/NumPy remediation now compiles turn authority, derives
+route-tail turn/sink demand, and commits exact flow tokens. The seed-41 20-tick
+probe completes all 15 routable trips with conserved queue/agent mass, and two
+fresh runs have equal canonical final-state digests. This closes the original
+functional blocker and small replay gate at `INTERNALLY VERIFIED`, small-probe
+scope. `SimulationState` still does not execute the legacy accessibility and
+land-use cadences.
 
 Consequences:
 
 - no Rust, NumPy/SIMD, JAX/GPU, NN, zero-copy, Rayon, or custom-kernel slice is
-  currently implementation-ready;
-- all candidate lists below are **post-closure watchlists**, not current work;
-- the sole next slice is typed turn authority, route-tail demand assembly,
-  generated multi-hop movement/completion, vehicle conservation, and a
-  canonical full dynamic-state replay digest;
-- only after that slice passes may the hardware-fit atlas be refreshed on the
-  functional workload.
+  yet implementation-ready from this one small probe;
+- candidate lists below remain **post-closure watchlists**, not authorization;
+- the next slice is broader generated/event conservation/replay, controlled
+  scale/memory measurement, and an
+  explicit physical traversal boundary;
+- only after that evidence is green may the hardware-fit atlas be refreshed on
+  the functional workload and one acceleration lane reconsidered.
 
 Canonical finding:
 `docs/audit/metroflow_external_audit_20260711/05_ADVERSARIAL_TECHNICAL_AUDIT.md`.
@@ -173,7 +176,8 @@ ordinary implementation commits.
 
 ## Backend Admission Rules
 
-These rules are dormant until the external runtime-closure override passes.
+These rules remain dormant until the post-closure replay/scale evidence refresh
+passes; the seed-41 functional probe alone is insufficient admission evidence.
 
 ### Rust CPU
 
@@ -248,10 +252,14 @@ Review must explicitly check:
 
 Preferred next implementation slice:
 
-- add typed generated-network turn movements;
-- derive deterministic per-turn demand from active route tails before flow;
-- demonstrate generated multi-hop movement and completion;
-- enforce link-level vehicle conservation and a canonical dynamic-state digest;
+- broaden generated multi-hop movement, completion, merge/diverge, incident,
+  sink, failure-path, and link-level vehicle-conservation coverage;
+- extend the canonical dynamic-state digest regression across incident,
+  merge/diverge, reroute, failure, and longer generated workloads;
+- measure exhaustive turn-authority and closed-runtime time/memory at controlled
+  scale before selecting an accelerator;
+- specify physical link traversal/progress semantics or preserve them as an
+  explicit model ceiling;
 - preserve Python/NumPy route legality, replay authority, and baseline fallback;
 - keep PR49/PR51 failures and all acceleration lanes as post-closure evidence.
 
@@ -260,5 +268,6 @@ Stop condition:
 - PR51 misses the fixed accuracy gate independently of its repeat determinism
   failure. Additional graph-NN instrumentation cannot change the parent-stage
   decision, so stop that lane.
-- Acceleration work cannot change the parent product decision while generated
-  traffic is stalled, so stop all backend work until runtime closure passes.
+- Acceleration work cannot change the parent product decision until the closed
+  workload has replay/scale evidence, so stop backend promotion until that
+  evidence refresh passes.

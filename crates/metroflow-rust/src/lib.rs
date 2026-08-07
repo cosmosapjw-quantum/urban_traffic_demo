@@ -398,6 +398,26 @@ mod tests {
     }
 
     #[test]
+    fn flow_point_queue_uses_rate_supply_and_additive_waiting_ticks() {
+        let result = compute_baseline_flow_arrays_batch_impl(
+            &[1.0, 2.0],
+            &[1.0, 2.0],
+            &[0],
+            &[1],
+            &[1.0],
+            &[0, 0],
+            &[2.0, 4.0],
+            &[1.0],
+            &[false],
+        )
+        .expect("point-queue flow should update");
+
+        assert_eq!(result.2, vec![1.0]);
+        assert_eq!(result.5, vec![0.0, 3.0]);
+        assert_eq!(result.6, vec![2.0, 5.5]);
+    }
+
+    #[test]
     fn computes_flow_zero_turns() {
         let result = compute_baseline_flow_arrays_batch_impl(
             &[2.0, 0.0],

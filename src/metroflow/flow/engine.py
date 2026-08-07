@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import heapq
 from typing import Any, Literal
 
 import numpy as np
@@ -39,6 +40,8 @@ def update_link_node_flow(
     *,
     validate: bool = False,
     flow_backend: FlowUpdateBackend = "baseline",
+    discrete_agent_authority: bool = False,
+    storage_capacity_vehicles: Array | None = None,
 ) -> BaselineFlowUpdateResult:
     """Apply a simplified node-turn allocation and link queue update.
 
@@ -48,16 +51,37 @@ def update_link_node_flow(
     optional turn metadata (`turn_base_priority`, `turn_is_forbidden`).
     """
 
-    if validate:
-        _validate_turn_index_ranges(node_state, link_state.link_count)
+    _validate_turn_index_ranges(node_state, link_state.link_count)
 
+    if discrete_agent_authority and flow_backend == "rust_cpu":
+        raise RuntimeError(
+            "Rust CPU flow backend does not implement the per-turn discrete-agent "
+            "authority contract"
+        )
+    if storage_capacity_vehicles is not None and not discrete_agent_authority:
+        raise ValueError(
+            "storage_capacity_vehicles requires discrete_agent_authority"
+        )
+    resolved_flow_backend: FlowUpdateBackend = (
+        "baseline" if discrete_agent_authority and flow_backend == "auto" else flow_backend
+    )
     arrays = compute_baseline_flow_arrays(
         link_state=link_state,
         node_state=node_state,
-        flow_backend=flow_backend,
+        flow_backend=resolved_flow_backend,
     )
     next_link_metadata = dict(link_state.metadata)
     next_link_metadata[_FREE_FLOW_TRAVEL_TIME_KEY] = arrays["base_travel_time_cost"]
+    next_node_metadata = dict(node_state.metadata)
+    if discrete_agent_authority:
+        arrays, authority_metadata = _apply_discrete_agent_flow_authority(
+            arrays=arrays,
+            link_state=link_state,
+            node_state=node_state,
+            storage_capacity_vehicles=storage_capacity_vehicles,
+        )
+        next_link_metadata.update(authority_metadata["link"])
+        next_node_metadata.update(authority_metadata["node"])
 
     next_link_state = LinkState(
         queue_vehicles=arrays["queue_vehicles_next"],
@@ -77,7 +101,7 @@ def update_link_node_flow(
         turn_flow=arrays["turn_flow_next"],
         signal_phase_index=node_state.signal_phase_index,
         signal_phase_timer=arrays["signal_phase_timer_next"],
-        metadata=dict(node_state.metadata),
+        metadata=next_node_metadata,
     )
 
     if validate:
@@ -90,6 +114,492 @@ def update_link_node_flow(
             )
 
     return BaselineFlowUpdateResult(link_state=next_link_state, node_state=next_node_state)
+
+
+def _apply_discrete_agent_flow_authority(
+    *,
+    arrays: dict[str, Array],
+    link_state: LinkState,
+    node_state: NodeState,
+    storage_capacity_vehicles: Array | None = None,
+) -> tuple[dict[str, Array], dict[str, dict[str, Array]]]:
+    """Convert fractional node allocations into deterministic vehicle tokens.
+
+    The continuous node model remains the allocator, but the queue and active-agent
+    runtime share one integer authority.  Fractional service and turn allocations are
+    carried deterministically across ticks. Final-link sink demand participates in
+    the same deficit scheduler as internal turns, so neither movement class can
+    starve the other and completing an agent removes its queue vehicle in the same
+    flow transaction.
+    """
+
+    queue_now = np.maximum(np.asarray(link_state.queue_vehicles, dtype=np.float32), 0.0)
+    effective_capacity = np.maximum(
+        np.asarray(link_state.effective_capacity_vehicles, dtype=np.float32),
+        0.0,
+    )
+    from_idx = np.asarray(node_state.turn_from_link_index, dtype=np.int32)
+    to_idx = np.asarray(node_state.turn_to_link_index, dtype=np.int32)
+    turn_demand = np.maximum(np.asarray(node_state.turn_demand, dtype=np.float32), 0.0)
+    fractional_turn_flow = np.maximum(
+        np.asarray(arrays["turn_flow_next"], dtype=np.float32),
+        0.0,
+    )
+    fractional_turn_supply = np.maximum(
+        np.asarray(arrays["turn_supply_next"], dtype=np.float32),
+        0.0,
+    )
+    link_count = int(queue_now.shape[0])
+    turn_count = int(turn_demand.shape[0])
+    storage_capacity: np.ndarray | None = None
+    receiving_space: np.ndarray | None = None
+    if storage_capacity_vehicles is not None:
+        storage_capacity = np.asarray(
+            storage_capacity_vehicles,
+            dtype=np.float32,
+        )
+        if storage_capacity.shape != (link_count,):
+            raise ValueError("storage_capacity_vehicles shape mismatch")
+        if not bool(np.all(np.isfinite(storage_capacity))) or bool(
+            np.any(storage_capacity < 1.0)
+        ):
+            raise ValueError(
+                "storage_capacity_vehicles must be finite and >= 1"
+            )
+        if bool(np.any(queue_now > storage_capacity + 1.0e-6)):
+            raise ValueError("link queue exceeds finite storage capacity")
+        receiving_space = np.maximum(storage_capacity - queue_now, 0.0)
+        if turn_count:
+            has_space = receiving_space[to_idx] >= np.float32(1.0 - 1.0e-6)
+            fractional_turn_flow = np.where(
+                has_space,
+                fractional_turn_flow,
+                0.0,
+            )
+            fractional_turn_supply = np.where(
+                has_space,
+                fractional_turn_supply,
+                0.0,
+            )
+    prior_discrete_authority = bool(
+        link_state.metadata.get("runtime_discrete_agent_authority", False)
+    )
+
+    prior_turn_credit = _metadata_vector(
+        node_state.metadata,
+        "runtime_turn_flow_residual",
+        turn_count,
+        allow_negative=True,
+        required=prior_discrete_authority,
+    )
+    prior_service_credit = _metadata_vector(
+        link_state.metadata,
+        "runtime_link_service_residual",
+        link_count,
+        required=prior_discrete_authority,
+        upper_bound=1.0,
+        upper_bound_exclusive=True,
+    )
+    prior_receiving_credit = _metadata_vector(
+        link_state.metadata,
+        "runtime_link_receiving_residual",
+        link_count,
+        required=prior_discrete_authority,
+        upper_bound=1.0,
+        upper_bound_exclusive=True,
+    )
+    prior_sink_credit = _metadata_vector(
+        node_state.metadata,
+        "runtime_sink_flow_residual",
+        link_count,
+        allow_negative=True,
+        required=prior_discrete_authority,
+    )
+    if prior_discrete_authority:
+        authority_version = int(
+            link_state.metadata.get("runtime_token_authority_version", 1)
+        )
+        prior_service_carry = _metadata_vector(
+            link_state.metadata,
+            "runtime_link_service_token_carry",
+            link_count,
+            required=authority_version >= 2,
+            upper_bound=1.0,
+        )
+        prior_receiving_carry = _metadata_vector(
+            link_state.metadata,
+            "runtime_link_receiving_token_carry",
+            link_count,
+            required=authority_version >= 2,
+            upper_bound=1.0,
+        )
+        prior_service_tokens = _metadata_vector(
+            link_state.metadata,
+            "runtime_link_service_tokens",
+            link_count,
+            required=True,
+        )
+        prior_receiving_tokens = _metadata_vector(
+            link_state.metadata,
+            "runtime_link_receiving_tokens",
+            link_count,
+            required=True,
+        )
+        prior_link_sink_flow = _metadata_vector(
+            link_state.metadata,
+            "runtime_sink_flow_vehicles",
+            link_count,
+            required=True,
+        )
+        prior_node_sink_flow = _metadata_vector(
+            node_state.metadata,
+            "runtime_sink_flow_by_link_index",
+            link_count,
+            required=True,
+        )
+        for key, values in (
+            ("runtime_link_service_token_carry", prior_service_carry),
+            ("runtime_link_receiving_token_carry", prior_receiving_carry),
+            ("runtime_link_service_tokens", prior_service_tokens),
+            ("runtime_link_receiving_tokens", prior_receiving_tokens),
+            ("runtime_sink_flow_vehicles", prior_link_sink_flow),
+            ("runtime_sink_flow_by_link_index", prior_node_sink_flow),
+        ):
+            if bool(np.any(np.abs(values - np.rint(values)) > 1.0e-6)):
+                raise ValueError(f"{key} must contain integer vehicle tokens")
+        if not bool(np.array_equal(prior_link_sink_flow, prior_node_sink_flow)):
+            raise ValueError(
+                "runtime link/node sink flow token metadata must match exactly"
+            )
+    else:
+        prior_service_carry = np.zeros((link_count,), dtype=np.float32)
+        prior_receiving_carry = np.zeros((link_count,), dtype=np.float32)
+    sink_demand = _metadata_vector(
+        node_state.metadata,
+        "runtime_sink_demand_by_link_index",
+        link_count,
+    )
+    sink_demand = np.floor(np.maximum(sink_demand, 0.0) + 1.0e-6).astype(np.int64)
+
+    eligible_turn_demand = (turn_demand > 0.0) & (fractional_turn_flow > 0.0)
+    has_turn_demand = np.zeros((link_count,), dtype=np.bool_)
+    has_receiving_demand = np.zeros((link_count,), dtype=np.bool_)
+    if turn_count:
+        np.logical_or.at(has_turn_demand, from_idx, eligible_turn_demand)
+        np.logical_or.at(has_receiving_demand, to_idx, eligible_turn_demand)
+    has_sending_demand = has_turn_demand | (sink_demand > 0)
+    service_accrued = np.zeros((link_count,), dtype=np.float64)
+    service_accrued[has_sending_demand] = np.asarray(
+        prior_service_credit[has_sending_demand],
+        dtype=np.float64,
+    )
+    service_accrued[has_sending_demand] += np.asarray(
+        effective_capacity[has_sending_demand],
+        dtype=np.float64,
+    )
+    service_tokens = np.floor(service_accrued + 1.0e-9).astype(np.int64)
+    next_service_credit = service_accrued - service_tokens
+    receiving_accrued = np.zeros((link_count,), dtype=np.float64)
+    receiving_accrued[has_receiving_demand] = np.asarray(
+        prior_receiving_credit[has_receiving_demand],
+        dtype=np.float64,
+    )
+    receiving_accrued[has_receiving_demand] += np.asarray(
+        effective_capacity[has_receiving_demand],
+        dtype=np.float64,
+    )
+    receiving_tokens = np.floor(receiving_accrued + 1.0e-9).astype(np.int64)
+    next_receiving_credit = receiving_accrued - receiving_tokens
+    service_carry_enabled = has_sending_demand & (effective_capacity > 0.0)
+    receiving_carry_enabled = has_receiving_demand & (effective_capacity > 0.0)
+    service_tokens += np.where(
+        service_carry_enabled,
+        np.rint(prior_service_carry).astype(np.int64),
+        0,
+    )
+    receiving_tokens += np.where(
+        receiving_carry_enabled,
+        np.rint(prior_receiving_carry).astype(np.int64),
+        0,
+    )
+    if receiving_space is not None:
+        receiving_tokens = np.minimum(
+            receiving_tokens,
+            np.floor(receiving_space + 1.0e-6).astype(np.int64),
+        )
+
+    internal_demand_by_source = _segment_sum(
+        np.where(eligible_turn_demand, turn_demand, 0.0),
+        from_idx,
+        link_count,
+    ).astype(np.float64)
+    fractional_internal_by_source = _segment_sum(
+        fractional_turn_flow,
+        from_idx,
+        link_count,
+    ).astype(np.float64)
+    sink_demand_f64 = np.asarray(sink_demand, dtype=np.float64)
+    total_service_demand = internal_demand_by_source + sink_demand_f64
+    desired_internal_credit = np.divide(
+        np.asarray(effective_capacity, dtype=np.float64)
+        * internal_demand_by_source,
+        total_service_demand,
+        out=np.zeros((link_count,), dtype=np.float64),
+        where=total_service_demand > 0.0,
+    )
+    internal_credit_budget = np.minimum(
+        desired_internal_credit,
+        fractional_internal_by_source,
+    )
+    sink_credit_budget = np.minimum(
+        sink_demand_f64,
+        np.maximum(
+            np.asarray(effective_capacity, dtype=np.float64)
+            - internal_credit_budget,
+            0.0,
+        ),
+    )
+    turn_credit_increment = np.zeros((turn_count,), dtype=np.float64)
+    if turn_count:
+        source_fractional_total = fractional_internal_by_source[from_idx]
+        turn_credit_increment = np.divide(
+            np.asarray(fractional_turn_flow, dtype=np.float64)
+            * internal_credit_budget[from_idx],
+            source_fractional_total,
+            out=np.zeros((turn_count,), dtype=np.float64),
+            where=source_fractional_total > 0.0,
+        )
+    turn_accrued = np.where(
+        turn_demand > 0.0,
+        np.asarray(prior_turn_credit, dtype=np.float64)
+        + turn_credit_increment,
+        0.0,
+    )
+    sink_accrued = np.where(
+        sink_demand > 0,
+        np.asarray(prior_sink_credit, dtype=np.float64) + sink_credit_budget,
+        0.0,
+    )
+    realized_turn = np.zeros((turn_count,), dtype=np.int64)
+    sink_flow = np.zeros((link_count,), dtype=np.int64)
+    remaining_service = service_tokens.copy()
+    remaining_receiving = receiving_tokens.copy()
+    remaining_vehicles = np.floor(queue_now + 1.0e-6).astype(np.int64)
+    remaining_turn_demand = np.floor(turn_demand + 1.0e-6).astype(np.int64)
+    remaining_sink_demand = sink_demand.copy()
+    next_turn_credit = turn_accrued.copy()
+    next_sink_credit = sink_accrued.copy()
+
+    # Deficit-style apportionment preserves fractional turn shares and gives
+    # final-link sinks a bounded share of the same source-service authority.
+    # The second tuple item is the deterministic class tie-break: sink before
+    # turn when credits are equal, then source/turn row index.
+    service_heap: list[tuple[float, int, int]] = [
+        (-float(next_turn_credit[turn_index]), 1, int(turn_index))
+        for turn_index in np.nonzero(eligible_turn_demand)[0].tolist()
+    ]
+    service_heap.extend(
+        (-float(next_sink_credit[source]), 0, int(source))
+        for source in np.nonzero(sink_demand > 0)[0].tolist()
+    )
+    heapq.heapify(service_heap)
+    while service_heap:
+        _negative_score, movement_class, movement_index = heapq.heappop(service_heap)
+        if movement_class == 0:
+            source = int(movement_index)
+            if (
+                remaining_sink_demand[source] <= 0
+                or remaining_service[source] <= 0
+                or remaining_vehicles[source] <= 0
+            ):
+                continue
+            sink_flow[source] += 1
+            remaining_sink_demand[source] -= 1
+            remaining_service[source] -= 1
+            remaining_vehicles[source] -= 1
+            next_sink_credit[source] -= 1.0
+            if (
+                remaining_sink_demand[source] > 0
+                and remaining_service[source] > 0
+                and remaining_vehicles[source] > 0
+            ):
+                heapq.heappush(
+                    service_heap,
+                    (-float(next_sink_credit[source]), 0, source),
+                )
+            continue
+
+        turn_index = int(movement_index)
+        source = int(from_idx[turn_index])
+        destination = int(to_idx[turn_index])
+        if (
+            remaining_turn_demand[turn_index] <= 0
+            or remaining_service[source] <= 0
+            or remaining_vehicles[source] <= 0
+            or remaining_receiving[destination] <= 0
+        ):
+            continue
+        realized_turn[turn_index] += 1
+        remaining_turn_demand[turn_index] -= 1
+        remaining_service[source] -= 1
+        remaining_receiving[destination] -= 1
+        remaining_vehicles[source] -= 1
+        next_turn_credit[turn_index] -= 1.0
+        if (
+            remaining_turn_demand[turn_index] > 0
+            and remaining_service[source] > 0
+            and remaining_vehicles[source] > 0
+            and remaining_receiving[destination] > 0
+        ):
+            heapq.heappush(
+                service_heap,
+                (-float(next_turn_credit[turn_index]), 1, turn_index),
+            )
+
+    realized_turn_f = np.asarray(realized_turn, dtype=np.float32)
+    sink_flow_f = np.asarray(sink_flow, dtype=np.float32)
+    internal_outflow = _segment_sum(realized_turn_f, from_idx, link_count)
+    inflow = _segment_sum(realized_turn_f, to_idx, link_count)
+    outflow = internal_outflow + sink_flow_f
+    queue_next = np.maximum(0.0, queue_now - outflow + inflow)
+    if storage_capacity is not None and bool(
+        np.any(queue_next > storage_capacity + 1.0e-6)
+    ):
+        raise RuntimeError("spatial queue update exceeded finite link storage")
+    next_service_carry = np.where(
+        service_carry_enabled,
+        np.minimum(remaining_service, 1),
+        0,
+    ).astype(np.float32)
+    next_receiving_carry = np.where(
+        receiving_carry_enabled,
+        np.minimum(remaining_receiving, 1),
+        0,
+    ).astype(np.float32)
+    base_travel_time = np.asarray(arrays["base_travel_time_cost"], dtype=np.float32)
+
+    next_arrays = dict(arrays)
+    next_arrays.update(
+        {
+            "turn_supply_next": realized_turn_f,
+            "turn_flow_next": realized_turn_f,
+            "inflow_vehicles_next": inflow,
+            "outflow_vehicles_next": outflow,
+            "queue_vehicles_next": queue_next,
+            "travel_time_cost_next": _update_travel_time_cost(
+                base_travel_time,
+                queue_next,
+                effective_capacity,
+            ),
+            "capacity_violation_flags_next": (
+                outflow
+                > (np.asarray(service_tokens, dtype=np.float32) + 1.0e-6)
+            )
+            | (
+                inflow
+                > (np.asarray(receiving_tokens, dtype=np.float32) + 1.0e-6)
+            ),
+        }
+    )
+    metadata = {
+        "link": {
+            "runtime_discrete_agent_authority": True,
+            "runtime_token_authority_version": 2,
+            "runtime_link_service_residual": _unit_residual_float32(
+                next_service_credit
+            ),
+            "runtime_link_service_token_carry": next_service_carry,
+            "runtime_link_service_tokens": np.asarray(
+                service_tokens,
+                dtype=np.float32,
+            ),
+            "runtime_link_receiving_residual": _unit_residual_float32(
+                next_receiving_credit
+            ),
+            "runtime_link_receiving_token_carry": next_receiving_carry,
+            "runtime_link_receiving_tokens": np.asarray(
+                receiving_tokens,
+                dtype=np.float32,
+            ),
+            "runtime_sink_flow_vehicles": sink_flow_f,
+            "runtime_storage_capacity_vehicles": (
+                np.asarray(storage_capacity, dtype=np.float32)
+                if storage_capacity is not None
+                else np.zeros((link_count,), dtype=np.float32)
+            ),
+            "runtime_receiving_space_vehicles": (
+                np.asarray(receiving_space, dtype=np.float32)
+                if receiving_space is not None
+                else np.zeros((link_count,), dtype=np.float32)
+            ),
+            "runtime_spillback_blocked_turn_count": int(
+                np.sum(
+                    (turn_demand > 0.0)
+                    & (
+                        receiving_space[to_idx] < np.float32(1.0 - 1.0e-6)
+                        if receiving_space is not None
+                        else np.zeros((turn_count,), dtype=np.bool_)
+                    )
+                )
+            ),
+        },
+        "node": {
+            "runtime_fractional_turn_supply": fractional_turn_supply,
+            "runtime_fractional_turn_flow": fractional_turn_flow,
+            "runtime_turn_flow_residual": np.asarray(
+                next_turn_credit,
+                dtype=np.float32,
+            ),
+            "runtime_sink_flow_residual": np.asarray(
+                next_sink_credit,
+                dtype=np.float32,
+            ),
+            "runtime_sink_flow_by_link_index": sink_flow_f,
+        },
+    }
+    return next_arrays, metadata
+
+
+def _metadata_vector(
+    metadata: dict[str, Any],
+    key: str,
+    size: int,
+    *,
+    allow_negative: bool = False,
+    required: bool = False,
+    upper_bound: float | None = None,
+    upper_bound_exclusive: bool = False,
+) -> Array:
+    raw = metadata.get(key)
+    if raw is None:
+        if required:
+            raise ValueError(f"{key} is required by prior discrete-agent authority")
+        return np.zeros((int(size),), dtype=np.float32)
+    values = np.asarray(raw, dtype=np.float32)
+    if values.ndim == 0:
+        values = np.full((int(size),), float(values), dtype=np.float32)
+    elif values.shape != (int(size),):
+        raise ValueError(f"{key} must be scalar or shape ({int(size)},)")
+    if not bool(np.all(np.isfinite(values))):
+        raise ValueError(f"{key} must contain only finite values")
+    if not allow_negative and bool(np.any(values < 0.0)):
+        raise ValueError(f"{key} must be non-negative")
+    if upper_bound is not None:
+        bound = float(upper_bound)
+        if upper_bound_exclusive and bool(np.any(values >= bound)):
+            raise ValueError(f"{key} must be < {bound}")
+        if not upper_bound_exclusive and bool(np.any(values > (bound + 1.0e-6))):
+            raise ValueError(f"{key} must be <= {bound}")
+    return values
+
+
+def _unit_residual_float32(values: Array) -> Array:
+    residual = np.asarray(values, dtype=np.float64)
+    residual = np.where(np.abs(residual) <= 1.0e-9, 0.0, residual)
+    if bool(np.any(residual < 0.0)) or bool(np.any(residual >= 1.0)):
+        raise RuntimeError("unit residual calculation escaped [0, 1)")
+    upper = np.nextafter(np.float32(1.0), np.float32(0.0))
+    return np.minimum(residual.astype(np.float32), upper)
 
 
 def compute_baseline_flow_arrays(
@@ -169,6 +679,18 @@ def compute_baseline_flow_arrays_core(
         turn_is_forbidden = np.zeros((turn_count,), dtype=np.bool_)
     else:
         turn_is_forbidden = np.asarray(turn_is_forbidden, dtype=np.bool_)
+
+    _validate_flow_core_shapes_and_indices(
+        queue_vehicles=queue_now,
+        effective_capacity_vehicles=effective_capacity,
+        turn_from_link_index=from_idx,
+        turn_to_link_index=to_idx,
+        turn_demand=turn_demand,
+        signal_phase_timer=signal_phase_timer,
+        base_travel_time_cost=base_travel_time_cost,
+        turn_priority=turn_priority,
+        turn_is_forbidden=turn_is_forbidden,
+    )
 
     if flow_backend in {"rust_cpu", "auto"}:
         try:
@@ -252,7 +774,11 @@ def _compute_baseline_flow_arrays_numpy_core(
     weighted_demand = np.where(turn_demand > 0, turn_demand * priority_weight, 0.0)
 
     from_available_link = np.minimum(queue_now, effective_capacity)
-    receiving_supply_link = np.maximum(effective_capacity - queue_now, 0.0)
+    # Point-queue baseline: capacity is a per-tick service/admission rate, not
+    # a finite vehicle-storage bound.  Subtracting queue vehicles from
+    # vehicles/tick is dimensionally invalid.  Spillback requires a separate
+    # storage/jam-occupancy authority and is intentionally not implied here.
+    receiving_supply_link = effective_capacity
 
     weighted_by_from = _segment_sum(weighted_demand, from_idx, link_count)
     weighted_by_to = _segment_sum(weighted_demand, to_idx, link_count)
@@ -371,6 +897,51 @@ def _validate_turn_index_ranges(node_state: NodeState, link_count: int) -> None:
         raise ValueError("turn_to_link_index contains out-of-range link indices")
 
 
+def _validate_flow_core_shapes_and_indices(
+    *,
+    queue_vehicles: Array,
+    effective_capacity_vehicles: Array,
+    turn_from_link_index: Array,
+    turn_to_link_index: Array,
+    turn_demand: Array,
+    signal_phase_timer: Array,
+    base_travel_time_cost: Array,
+    turn_priority: Array,
+    turn_is_forbidden: Array,
+) -> None:
+    if queue_vehicles.ndim != 1:
+        raise ValueError("queue_vehicles must be one-dimensional")
+    link_count = int(queue_vehicles.shape[0])
+    for name, values in (
+        ("effective_capacity_vehicles", effective_capacity_vehicles),
+        ("base_travel_time_cost", base_travel_time_cost),
+    ):
+        if values.shape != (link_count,):
+            raise ValueError(f"{name} must have shape ({link_count},)")
+    turn_count = int(turn_demand.shape[0])
+    for name, values in (
+        ("turn_from_link_index", turn_from_link_index),
+        ("turn_to_link_index", turn_to_link_index),
+        ("turn_priority", turn_priority),
+        ("turn_is_forbidden", turn_is_forbidden),
+    ):
+        if values.shape != (turn_count,):
+            raise ValueError(f"{name} must have shape ({turn_count},)")
+    if signal_phase_timer.ndim != 1:
+        raise ValueError("signal_phase_timer must be one-dimensional")
+    if turn_count:
+        if link_count == 0:
+            raise ValueError("turn arrays require non-empty link arrays")
+        if bool(np.any(turn_from_link_index < 0)) or bool(
+            np.any(turn_from_link_index >= link_count)
+        ):
+            raise ValueError("turn_from_link_index contains out-of-range link indices")
+        if bool(np.any(turn_to_link_index < 0)) or bool(
+            np.any(turn_to_link_index >= link_count)
+        ):
+            raise ValueError("turn_to_link_index contains out-of-range link indices")
+
+
 def _segment_sum(values: Array, indices: Array, num_segments: int) -> Array:
     out = np.zeros((int(num_segments),), dtype=np.float32)
     np.add.at(out, np.asarray(indices, dtype=np.int32), np.asarray(values, dtype=np.float32))
@@ -385,5 +956,7 @@ def _update_travel_time_cost(
     base = np.maximum(np.asarray(base_cost, dtype=np.float32), 1e-3)
     queue = np.maximum(np.asarray(queue_vehicles, dtype=np.float32), 0.0)
     cap = np.maximum(np.asarray(effective_capacity, dtype=np.float32), 1e-3)
-    congestion_ratio = queue / (cap + 1e-3)
-    return base * (1.0 + congestion_ratio)
+    # ``base`` and the returned generalized cost are simulation ticks.
+    # queue [veh] / capacity [veh/tick] is an additive waiting time [tick].
+    queue_delay_ticks = queue / cap
+    return base + queue_delay_ticks

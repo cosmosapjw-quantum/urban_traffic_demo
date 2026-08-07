@@ -307,9 +307,26 @@ def validate_link_state(link_state: LinkState) -> tuple[str, ...]:
         np.any(link_state.incident_capacity_multiplier > 1)
     ):
         issues.append("incident_capacity_multiplier contains values outside [0, 1]")
-    observed_capacity_exceed = link_state.outflow_vehicles > (
-        link_state.effective_capacity_vehicles + 1e-6
-    )
+    capacity_authority = link_state.effective_capacity_vehicles
+    if bool(link_state.metadata.get("runtime_discrete_agent_authority", False)):
+        raw_service_tokens = link_state.metadata.get("runtime_link_service_tokens")
+        if raw_service_tokens is None:
+            issues.append(
+                "runtime_link_service_tokens missing for discrete-agent authority"
+            )
+        else:
+            service_tokens = np.asarray(raw_service_tokens, dtype=np.float32)
+            if service_tokens.shape != (link_state.link_count,):
+                issues.append("runtime_link_service_tokens shape mismatch")
+            elif not bool(np.all(np.isfinite(service_tokens))):
+                issues.append("runtime_link_service_tokens contains non-finite values")
+            elif bool(np.any(service_tokens < 0.0)):
+                issues.append("runtime_link_service_tokens contains negative values")
+            elif bool(np.any(np.abs(service_tokens - np.rint(service_tokens)) > 1e-6)):
+                issues.append("runtime_link_service_tokens contains non-integral values")
+            else:
+                capacity_authority = service_tokens
+    observed_capacity_exceed = link_state.outflow_vehicles > (capacity_authority + 1e-6)
     expected_flags = int(np.sum(observed_capacity_exceed))
     actual_flags = int(np.sum(link_state.capacity_violation_flags))
     if actual_flags < expected_flags:

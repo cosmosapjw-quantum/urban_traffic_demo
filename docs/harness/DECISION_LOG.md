@@ -1006,3 +1006,159 @@ the complete dynamic state.
 Next action: implement runtime closure in the NumPy baseline, then refresh the
 hardware-fit atlas on the closed workload before choosing Rust, NumPy/SIMD,
 JAX/GPU, or custom-kernel work.
+
+## 2026-07-12: Close The Historical Self-Drive Blocker, Keep Product Claims Closed
+
+Status: accepted bounded remediation; broader validation pending
+
+### Compact CCoT
+
+Question: Does the Python/NumPy `SimulationState` runtime now turn generated
+routes into authoritative vehicle movement without losing queue or lifecycle
+mass?
+
+Evidence: Finalized generated topology now compiles exhaustive deterministic
+incoming-by-outgoing turn rows with explicit forbidden immediate returns.
+Before flow, active route tails build exact turn and sink demand; after flow,
+agents consume only their matching realized turn/sink tokens. Source service
+and downstream receiving rates use deterministic integer tokens with fractional
+carry. The seed-41 20-tick probe compiles 51,886 rows, completes all 15 routable
+trips by tick 16, records one explicit no-route failure, and ends with zero
+active agents and queue mass. Every tick passes invariants and exact per-link
+agent/queue equality.
+
+Two independently initialized seed-41 20-tick replays also produce the same
+canonical final-state fingerprint and replay telemetry. The digest includes
+full config, static routing authority, service/receiving/turn residuals, sink
+flow, demand lifecycle, and active-agent state while excluding host timing.
+Sink and internal movements share the same deficit scheduler; receiving-token
+excess is independently checked and final-link completion verifies the declared
+destination endpoint.
+Missing or non-finite token/residual metadata and non-integral vehicle tokens
+are rejected before the next flow solve can erase the corrupted authority.
+
+Inference: The specific 2026-07-11 route-to-turn-demand blocker is closed in the
+authoritative Python baseline for the bounded generated workload. The old
+`--expect-stalled` result remains revision-specific negative evidence.
+
+Counterevidence checked: One small deterministic scenario does not validate
+100k scale, arbitrary incidents/merge patterns, physical travel time, finite
+storage/spillback, Rust per-turn parity, or a unified LUTI loop. Exhaustive turn
+compilation also has a measured local cost of roughly 30% generation time and
+17–22 MB RSS on seed 41.
+
+Decision: Mark functional closure `INTERNALLY VERIFIED`, not scientifically or
+operationally validated. Keep Python/NumPy authoritative, fail closed on the
+unsupported Rust per-turn agent/flow contract, and keep PR52 blocked until the
+closed workload has broader replay/scale evidence and a refreshed hardware-fit
+decision.
+
+Falsifier: Any generated/event replay shows missing or duplicate turn authority,
+agent/queue divergence, lifecycle loss, source or receiving-capacity excess, or
+non-deterministic residual/sink state.
+
+Next action: broaden conservation and exact replay coverage, define physical
+traversal semantics, measure turn/runtime scale cost, and either integrate or
+retire the legacy accessibility/land-use claim before accelerator promotion.
+
+## 2026-07-12: Accept Pulled Closure Only After Corrective Review
+
+Status: accepted corrected branch; backend promotion remains blocked
+
+### Compact CCoT
+
+Question: Can pulled commit `46f0fd7` be accepted unchanged and used as the
+new acceleration baseline?
+
+Evidence: The proposal reproduces seed-41 closure, but adversarial probes found
+fractional token phase starvation, replay inputs outside the boundary,
+transition conservation gaps, incident-clearance staleness, route identity and
+destination gaps, NaN invariant escapes, and stale JAX equations. Corrective
+commits close those defects. Ten seeds and a 10k workload close with exact
+observed mass. A 100k bounded run reaches only tick 128 in 226.09 s and remains
+open. JAX parity is restored, but compile/copy-inclusive execution is still
+slower on the measured first run.
+
+Inference: The corrected NumPy runtime is a stronger internal baseline, not a
+validated product-scale model or authorization to change backend defaults.
+
+Counterevidence checked: Rust workspace/parity tests, RTX 3080 Ti JAX probes,
+2,000 randomized discrete-flow cases, asymmetric fractional capacities,
+incident activation/clearance, malformed route/replay inputs, ten generated
+seeds, and 1k/10k/100k scale workloads.
+
+Decision: Keep `44d1145`, `505bb11`, `e30af45`, `368e719`, and `eb042bc` on top
+of the proposal. Preserve Python/NumPy authority and optional fail-closed
+backends. Keep 100k, physical traffic, NN authority, and custom CUDA claims
+closed.
+
+Falsifier: A deterministic mass/replay failure or a copy-inclusive measured
+backend advantage on the closed parent stage reopens the relevant decision.
+
+Next action: reduce or redesign 100k cadence reroute cost, then specify physical
+link traversal and rerun the bounded scale/replay matrix.
+
+## 2026-07-13: Close PR63 Scale Gate Without Opening A Backend
+
+Status: diagnostic accepted; promotion and Rust generation probe blocked
+
+### Compact CCoT
+
+Question: Does the realistic synthetic city meet the frozen 100k cost and
+throughput gates, or expose one generation stage suitable for a Rust follow-up?
+
+Evidence: Forty-two fresh subprocess measurements cover populations 1k, 10k,
+and 100k; seeds 17, 29, and 41; legacy and realistic generation/fixed runtime;
+three separate realistic stage profiles; and six paired-budget runs. At 100k,
+generation is `2.55-2.77x` legacy, actual citizens are `61,655-62,604` rather
+than 100,000, and realistic completes `16-17` paired-budget ticks versus
+legacy `20-21`. RSS and 20-tick parent latency ratios pass. Continuous fabric,
+planar blocks, and topology compile peak below 30 percent and no eligible stage
+clears 30 percent on every seed.
+
+Inference: Performance is not the only blocker, but it independently rejects
+default promotion. The cost is spread across several stages, so a Rust port of
+one branch-heavy stage is not admitted by the frozen rule.
+
+Counterevidence checked: cumulative `ru_maxrss`, substage wrapper overhead,
+seed pairing, deadline overshoot, zero-tick vacuity, empty trip workloads,
+population underfill, 1k/10k shared map extent, and the separate PR62
+morphology failure.
+
+Decision: accept the measurement harness and canonical artifact. Keep
+`standard` as default, do not open Rust generation work, and close PR64 as
+`BLOCKED` rather than relaxing thresholds.
+
+Falsifier: a complete fixed matrix with exact 100k citizen realization,
+generation at most `2x`, non-decreasing paired throughput, PR62 plausibility
+pass, or an eligible generation stage above 30 percent on all fixed seeds.
+
+Next action: record PR64 BLOCKED and return to the generator/product contract:
+replace the repeated triangular fabric and capacity underfill before rerunning
+the frozen audits.
+
+## 2026-07-13: Preserve Standard As The City Default
+
+Status: PR64 blocked closure accepted
+
+Question: Can partial PR63 performance passes override failed PR62/PR63 gates?
+
+Evidence: Authoritative loaders reconstruct PR62 fingerprint
+`6ab9f8c9c62f36aeedffd67707f2c3e9072274ca91f1e836dc14d69fcde3316b`
+and PR63 fingerprint
+`149571c18552e5cc655a0c33844fe487a7b6165cea808b1c55a3b47655f5278e`.
+Both report overall failure, while the default config remains `standard` with
+legacy zone/POI coupling.
+
+Inference: Promotion is conjunctive. RSS and fixed-latency passes do not offset
+morphology, generation, population, or throughput failures.
+
+Counterevidence checked: deterministic topology compilation, connectivity,
+sampled OD reachability, spatial-queue substrate, passing RSS, and passing
+fixed-latency ratios.
+
+Decision: close PR64 as `BLOCKED`; do not create a feature promotion commit.
+
+Falsifier: both frozen audits pass completely after a generator revision.
+
+Next action: specify the generator redesign before any new acceleration lane.
