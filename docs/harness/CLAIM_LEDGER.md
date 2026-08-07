@@ -43,8 +43,12 @@ version with evidence and falsifiers is:
   corpus, mechanical 20-percent envelopes, PR53 structural gates, 30 generated
   map fingerprints, diagnostic motif/hierarchy counters, and review artifacts.
 - A generator-independent morphology control table scores any
-  `PreviewCityTopology` against the pinned envelope, on the OSMnx-equivalent
-  simplified graph, with per-metric discriminative-power diagnostics.
+  `PreviewCityTopology` against the pinned envelope under an explicitly named
+  `MeasurementSpec`, with per-metric discriminative-power diagnostics. The
+  default `BOEING_2019_HO` is checked against a pinned `osmnx==2.1.1` rather
+  than asserted to match it: this entry previously claimed an
+  "OSMnx-equivalent simplified graph" while the code implemented a hybrid that
+  matched neither of Boeing's published statistics.
 - An opt-in `osm_wiki` lane-tagging policy interprets three documented OSM
   patterns - single-track two-way streets, contraflow lanes on one-way streets,
   and partially tagged directions - that the strict reader rejected as
@@ -120,6 +124,29 @@ version with evidence and falsifiers is:
 
 ## Refuted Or Blocked
 
+- **Repairing the morphology instrument changed every metric value and no
+  verdict.** Re-scored under `MeasurementSpec.BOEING_2019_HO`, with the
+  member-edge bearing, parallel-edge contraction and zero-chord circuity defects
+  fixed and parity checked against a pinned `osmnx==2.1.1`:
+  `standard` 0/10, `sidecar_local_fabric` 15/30, `sidecar_local_fabric_planar`
+  0/30, `realistic_synthetic_v1` 0/30, `growth_fabric_v1` 30/30, `osm` 5/5 —
+  identical to the pre-repair table
+  (`artifacts/runtime_spine_review/morphology-control-table-v2-20260807.*`).
+
+  Two things follow, and the second matters more than the first. The instrument
+  defects were real but were not what produced the favourable result for
+  `growth_fabric_v1`. And a gate whose verdicts survive that much change to its
+  own definitions is not discriminating: the same seven metrics accept a network
+  with and without 24.4% of its edges.
+
+  The geometry-vs-topology diagnostics show the inversion directly.
+  `realistic_synthetic_v1`, which fails all seven metrics on 30/30 maps, is the
+  only synthetic arm that is geometrically consistent — 0 proper crossings and 0
+  unregistered touches, matching all five real extracts.
+  `growth_fabric_v1`, which passes all seven on 30/30, carries 5333–12474
+  crossings and 5137–8412 touches. The runtime default `standard` is worst at
+  13957–15614. **Passing the seven metrics is at present anti-correlated with
+  being a consistent graph.**
 - **The morphology instrument is not fit to authorize a runtime promotion, and
   the claim that it is "OSMnx-equivalent" is unsupported.** Measured
   2026-08-07 against head `367f25d`, after an external adversarial audit:
@@ -253,3 +280,28 @@ No backend or scientific claim may be promoted solely from parity, static atlas
 classification, one smoke workload, or visual inspection. Functional closure,
 deterministic invariants, a falsifiable measured probe, exact provenance, and
 baseline fallback are required.
+
+## Environment
+
+- The NumPy path is authoritative and city generation touches no accelerator.
+  Verified by generating a 7,108-node map and asserting that no `jax`, `torch`,
+  `cupy` or `_metroflow_rust` module was imported: `src/metroflow/city/` contains
+  zero references to any of them. JAX appears only in `traffic/meso.py`,
+  `backends/jax_flow.py` and two benchmark modules; the ten Rust kernels are
+  called only from `routing/`, `flow/`, `traffic/`, `sim/` and `benchmarks/`.
+  The accelerator axis is auxiliary by construction, not by convention.
+- Measured 2026-08-07 on an RTX 3080 Ti (12,288 MiB, driver 595.71.05,
+  CUDA 13.2, nvcc 13.3): `jax==0.10.2` with `jax-cuda13-plugin` initializes
+  `CudaDevice(id=0)` and executes real work. Its `float32` working precision
+  matches `flow/engine.py`, so the recorded 65,536-link drift is accumulation,
+  not a dtype mismatch.
+- PyTorch is declared as an optional extra and is **not installed**. Only
+  `learning/surrogate.py` imports it, lazily; its tests pass without it. Any
+  claim requiring the surrogate path is therefore unexercised in this
+  environment.
+- `pytest` used to reserve 9,194 MiB of VRAM for an entire run -- JAX
+  preallocates 75% of the card the first time a device initializes, and a few
+  tests exercise the optional JAX backend. `tests/conftest.py` now defaults
+  `XLA_PYTHON_CLIENT_PREALLOCATE=false`, which changes allocation strategy only:
+  the backend still reports `gpu` and dtypes, ordering and results are
+  unaffected. An explicit environment setting still wins.
