@@ -10,7 +10,7 @@ from dataclasses import dataclass, field
 from numbers import Real
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Mapping
+from typing import Any, Mapping, MutableMapping
 from xml.etree import ElementTree
 
 from metroflow.city.graph import (
@@ -52,6 +52,12 @@ _HIGHWAY_CLASS = {
     "secondary_link": RoadClass.RAMP,
     "tertiary_link": RoadClass.RAMP,
 }
+_LANE_TAGGING_POLICIES = frozenset({"strict", "osm_wiki"})
+_LANE_INTERPRETATION_KINDS = (
+    "single_track_two_way",
+    "oneway_contraflow_ignored",
+    "partial_directional",
+)
 _DEFAULT_SPEED_MPS = {
     RoadClass.LOCAL: 40.0 / 3.6,
     RoadClass.COLLECTOR: 50.0 / 3.6,
@@ -68,8 +74,23 @@ class OSMImportConfig:
     simplify_tolerance_m: float = 0.0
     clip_bounds_m: tuple[float, float, float, float] | None = None
     capacity_veh_per_lane_per_tick: float = 1.0
+    lane_tagging_policy: str = "strict"
+    """How to read lane tags that are valid OSM but ambiguous to a strict reader.
+
+    `strict` (default) preserves the specified fail-closed contract. `osm_wiki`
+    additionally interprets three documented tagging patterns - single-track
+    two-way streets, contraflow lanes on one-way streets, and partially tagged
+    directions - which together block 6 of 7 real city extracts. Genuinely
+    contradictory or unparseable tags still fail closed under both policies, and
+    every interpretation is counted in the result metadata.
+    """
 
     def __post_init__(self) -> None:
+        if str(self.lane_tagging_policy) not in _LANE_TAGGING_POLICIES:
+            raise ValueError(
+                "lane_tagging_policy must be one of "
+                f"{sorted(_LANE_TAGGING_POLICIES)}"
+            )
         tolerance = _strict_real(self.simplify_tolerance_m, "simplify_tolerance_m")
         capacity = _strict_real(
             self.capacity_veh_per_lane_per_tick,
@@ -258,11 +279,13 @@ def _import_osm_xml_text(
         for node_id in referenced_node_ids
     }
     shared_node_ids = _shared_node_ids(included_ways)
+    lane_interpretations: dict[str, int] = {key: 0 for key in _LANE_INTERPRETATION_KINDS}
     physical_segments = _build_physical_segments(
         ways=included_ways,
         projected_by_source_id=projected_by_source_id,
         shared_node_ids=shared_node_ids,
         config=resolved_config,
+        interpretations=lane_interpretations,
     )
     if not physical_segments:
         raise ValueError("OSM import produced no geometry after clipping")
@@ -291,6 +314,8 @@ def _import_osm_xml_text(
         "capacity_veh_per_lane_per_tick": (
             resolved_config.capacity_veh_per_lane_per_tick
         ),
+        "lane_tagging_policy": resolved_config.lane_tagging_policy,
+        "lane_interpretation_counts": dict(lane_interpretations),
         "source_node_count": len(nodes_by_source_id),
         "source_way_count": len(all_ways),
         "included_way_count": len(included_ways),
@@ -429,6 +454,7 @@ def _build_physical_segments(
     projected_by_source_id: Mapping[int, tuple[float, float]],
     shared_node_ids: frozenset[int],
     config: OSMImportConfig,
+    interpretations: MutableMapping[str, int] | None = None,
 ) -> tuple[_PhysicalSegment, ...]:
     out: list[_PhysicalSegment] = []
     for way in ways:
@@ -437,6 +463,8 @@ def _build_physical_segments(
         lanes_forward, lanes_backward = _parse_directional_lanes(
             way.tags,
             oneway=oneway,
+            policy=config.lane_tagging_policy,
+            interpretations=interpretations,
         )
         speed_mps = _parse_speed_mps(way.tags, road_class=road_class)
         layer = _parse_layer(way.tags)
@@ -633,7 +661,15 @@ def _parse_directional_lanes(
     tags: Mapping[str, str],
     *,
     oneway: str,
+    policy: str = "strict",
+    interpretations: MutableMapping[str, int] | None = None,
 ) -> tuple[int, int]:
+    lenient = policy == "osm_wiki"
+
+    def _record(kind: str) -> None:
+        if interpretations is not None:
+            interpretations[kind] = interpretations.get(kind, 0) + 1
+
     total = _parse_present_positive_int_tag(tags, "lanes")
     forward = _parse_present_positive_int_tag(tags, "lanes:forward")
     backward = _parse_present_positive_int_tag(tags, "lanes:backward")
@@ -641,23 +677,40 @@ def _parse_directional_lanes(
         directional = forward if oneway == "forward" else backward
         opposite = backward if oneway == "forward" else forward
         if opposite is not None:
-            raise ValueError("oneway road declares lanes in the opposing direction")
+            if not lenient:
+                raise ValueError("oneway road declares lanes in the opposing direction")
+            # A contraflow bus or cycle lane. It carries no general motor
+            # traffic, so the drive network drops it and keeps the way.
+            _record("oneway_contraflow_ignored")
+            if directional is None and total is not None:
+                directional = max(1, total - opposite)
         lane_count = directional if directional is not None else total
         if lane_count is None:
             lane_count = 1
         if total is not None and directional is not None and total != directional:
-            raise ValueError("oneway directional lane count must equal total lanes")
+            if not (lenient and opposite is not None):
+                raise ValueError("oneway directional lane count must equal total lanes")
         return lane_count, 0
     if total is None and forward is None and backward is None:
         return 1, 1
     if total is None:
         if forward is None or backward is None:
-            raise ValueError(
-                "bidirectional lane tags require both directions or total lanes"
+            if not lenient:
+                raise ValueError(
+                    "bidirectional lane tags require both directions or total lanes"
+                )
+            # Only one side is tagged; the other is implied, not invalid.
+            _record("partial_directional")
+            return (forward if forward is not None else 1), (
+                backward if backward is not None else 1
             )
         return forward, backward
     if total < 2:
-        raise ValueError("bidirectional total lanes must be >= 2")
+        if not lenient:
+            raise ValueError("bidirectional total lanes must be >= 2")
+        # A single-track two-way street: one lane shared by both directions.
+        _record("single_track_two_way")
+        return 1, 1
     if forward is not None and backward is not None:
         if forward + backward != total:
             raise ValueError("directional lane counts must sum to total lanes")
