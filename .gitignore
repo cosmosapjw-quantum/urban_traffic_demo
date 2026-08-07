@@ -33,3 +33,6 @@ artifacts/city_landuse_accessibility_20260711/*.html
 .agents/
 .specify/
 specs/
+
+# Rust build output
+target/
