@@ -18,6 +18,7 @@ __all__ = [
     "build_endpoint_geometry_catalog",
     "validate_geometry_endpoint_anchors",
     "count_interior_centerline_intersections",
+    "count_unregistered_centerline_touches",
 ]
 
 PointM = tuple[float, float]
@@ -388,6 +389,106 @@ def count_interior_centerline_intersections(
                 if _segments_cross_properly(left_a, left_b, right_a, right_b):
                     count += 1
     return count
+
+
+def count_unregistered_centerline_touches(
+    catalog: RoadGeometryCatalog,
+    *,
+    tolerance_m: float = 0.25,
+    cell_size_m: float = 250.0,
+) -> int:
+    """Count vertices that sit on another centerline's interior without a node.
+
+    Distinct from `count_interior_centerline_intersections`, which needs two
+    segments to properly cross. The dominant defect in the grown fabric is not a
+    crossing at all: a street *begins* partway along another street, so the two
+    touch without intersecting and without sharing a vertex. On the ground it is
+    a T-junction; in the graph it is nothing.
+
+    A vertex is only counted when it is far enough from every vertex of the other
+    centerline to be a genuinely unregistered contact — a vertex the two streets
+    already share is a junction that was recorded properly. Different layers
+    never touch, matching the crossing counter's grade-separation rule.
+
+    Returns distinct touching vertices, so a vertex lying on several centerlines
+    counts once. Diagnostic only.
+    """
+
+    tolerance_m = float(tolerance_m)
+    if not math.isfinite(tolerance_m) or tolerance_m <= 0.0:
+        raise ValueError("tolerance_m must be finite and > 0")
+    cell_size_m = float(cell_size_m)
+    if not math.isfinite(cell_size_m) or cell_size_m <= 0.0:
+        raise ValueError("cell_size_m must be finite and > 0")
+
+    centerlines = tuple(catalog.centerlines)
+
+    segments: list[tuple[PointM, PointM, int, int]] = []
+    for index, centerline in enumerate(centerlines):
+        segments.extend(
+            (left, right, centerline.layer, index)
+            for left, right in zip(centerline.points_m, centerline.points_m[1:])
+        )
+
+    cells: dict[tuple[int, int], list[int]] = {}
+    for index, (left, right, _layer, _owner) in enumerate(segments):
+        min_x = math.floor((min(left[0], right[0]) - tolerance_m) / cell_size_m)
+        max_x = math.floor((max(left[0], right[0]) + tolerance_m) / cell_size_m)
+        min_y = math.floor((min(left[1], right[1]) - tolerance_m) / cell_size_m)
+        max_y = math.floor((max(left[1], right[1]) + tolerance_m) / cell_size_m)
+        for cell_x in range(min_x, max_x + 1):
+            for cell_y in range(min_y, max_y + 1):
+                cells.setdefault((cell_x, cell_y), []).append(index)
+
+    touches = 0
+    for owner_index, centerline in enumerate(centerlines):
+        for point in centerline.points_m:
+            cell = (
+                math.floor(point[0] / cell_size_m),
+                math.floor(point[1] / cell_size_m),
+            )
+            candidates = cells.get(cell, ())
+            touched = False
+            for segment_index in candidates:
+                left, right, layer, other_index = segments[segment_index]
+                if other_index == owner_index or layer != centerline.layer:
+                    continue
+                if _point_to_segment_distance(point, left, right) > tolerance_m:
+                    continue
+                # A shared vertex means the junction was recorded. Only an
+                # unrecorded contact is a defect.
+                if _touches_a_vertex_of(point, centerlines[other_index], tolerance_m):
+                    continue
+                touched = True
+                break
+            if touched:
+                touches += 1
+    return touches
+
+
+def _touches_a_vertex_of(
+    point: PointM,
+    centerline: RoadCenterline,
+    tolerance_m: float,
+) -> bool:
+    return any(
+        math.hypot(point[0] - vertex[0], point[1] - vertex[1]) <= tolerance_m
+        for vertex in centerline.points_m
+    )
+
+
+def _point_to_segment_distance(point: PointM, left: PointM, right: PointM) -> float:
+    dx = right[0] - left[0]
+    dy = right[1] - left[1]
+    span = dx * dx + dy * dy
+    if span <= 0.0:
+        return math.hypot(point[0] - left[0], point[1] - left[1])
+    position = ((point[0] - left[0]) * dx + (point[1] - left[1]) * dy) / span
+    position = min(max(position, 0.0), 1.0)
+    return math.hypot(
+        point[0] - (left[0] + position * dx),
+        point[1] - (left[1] + position * dy),
+    )
 
 
 def _validate_explicit_physical_group(
