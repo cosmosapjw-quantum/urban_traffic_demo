@@ -181,11 +181,24 @@ class EmpiricalMetricEnvelope:
         information while breaking round-trips of previously written artifacts.
         """
 
+        # `math.inf` and `math.nan` serialize as bare Infinity and NaN, which
+        # RFC 8259 forbids and JSON.parse rejects -- an artifact only Python can
+        # read is not one an external reviewer can audit. Both are emitted as
+        # null alongside an explicit status, so "unbounded above" and "undefined"
+        # stay distinguishable from "absent".
+        unbounded_above = math.isinf(self.theoretical_max)
+        coverage_defined = math.isfinite(self.theoretical_coverage)
         return {
             "metric": self.metric,
             "theoretical_min": self.theoretical_min,
-            "theoretical_max": self.theoretical_max,
-            "theoretical_coverage": self.theoretical_coverage,
+            "theoretical_max": None if unbounded_above else self.theoretical_max,
+            "theoretical_max_status": "unbounded" if unbounded_above else "finite",
+            "theoretical_coverage": (
+                self.theoretical_coverage if coverage_defined else None
+            ),
+            "theoretical_coverage_status": (
+                "defined" if coverage_defined else "undefined_unbounded_range"
+            ),
             "lower_bound_is_inert": self.lower_bound_is_inert,
             "upper_bound_is_inert": self.upper_bound_is_inert,
             "is_vacuous": self.is_vacuous,

@@ -75,8 +75,14 @@ def test_diagnostics_are_reported_but_never_enter_the_fingerprint() -> None:
     assert "unregistered_touch_count" not in payload["scores"][0]
 
 
-def test_the_pinned_control_table_fingerprint_is_unchanged() -> None:
-    """The whole point of 'reported only': the frozen artifact still matches."""
+def test_the_pinned_v1_control_table_fingerprint_still_round_trips() -> None:
+    """The frozen v1 artifact must stay readable and verifiable after the bump.
+
+    The schema is now v2 (named measurement spec, OSMnx-checked default, strict
+    JSON diagnostics), so the v1 version string is supplied explicitly. Anything
+    else would silently reinterpret an artifact under a definition it was not
+    measured with -- which is the defect this whole change exists to remove.
+    """
 
     import json
     from pathlib import Path
@@ -115,6 +121,8 @@ def test_the_pinned_control_table_fingerprint_is_unchanged() -> None:
             build_empirical_metric_envelopes()[name]
             for name in EMPIRICAL_MORPHOLOGY_METRICS
         ),
+        schema_version=stored["schema_version"],
     )
 
+    assert stored["schema_version"] == "morphology_control_table_v1"
     assert rebuilt.fingerprint == stored["fingerprint"]

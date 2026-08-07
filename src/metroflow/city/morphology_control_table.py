@@ -52,7 +52,12 @@ EMPIRICAL_MORPHOLOGY_METRICS = (
     "four_way_share",
 )
 
-CONTROL_TABLE_SCHEMA_VERSION = "morphology_control_table_v1"
+# v2: scores are measured under an explicitly named MeasurementSpec rather than
+# a boolean, the default statistic is BOEING_2019_HO with OSMnx parity checked
+# rather than asserted, and `envelope_diagnostics` emits null with a status field
+# instead of bare NaN/Infinity. The measured values differ from v1 even where the
+# verdicts do not, so the version is bumped rather than the payload reinterpreted.
+CONTROL_TABLE_SCHEMA_VERSION = "morphology_control_table_v2"
 EVIDENCE_STATUS = "diagnostic_not_empirical_validation"
 
 

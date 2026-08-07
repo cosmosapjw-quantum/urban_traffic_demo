@@ -1,0 +1,3657 @@
+{
+  "claim_boundary": "Diagnostic street-morphology comparison against a pinned reference corpus. Not empirical traffic, demand, route-choice or named-city validation.",
+  "envelope_diagnostics": {
+    "circuity": {
+      "is_vacuous": false,
+      "lower_bound_is_inert": true,
+      "metric": "circuity",
+      "theoretical_coverage": null,
+      "theoretical_coverage_status": "undefined_unbounded_range",
+      "theoretical_max": null,
+      "theoretical_max_status": "unbounded",
+      "theoretical_min": 1.0,
+      "upper_bound_is_inert": false
+    },
+    "dead_end_share": {
+      "is_vacuous": false,
+      "lower_bound_is_inert": false,
+      "metric": "dead_end_share",
+      "theoretical_coverage": 0.32399999999999995,
+      "theoretical_coverage_status": "defined",
+      "theoretical_max": 1.0,
+      "theoretical_max_status": "finite",
+      "theoretical_min": 0.0,
+      "upper_bound_is_inert": false
+    },
+    "four_way_share": {
+      "is_vacuous": false,
+      "lower_bound_is_inert": false,
+      "metric": "four_way_share",
+      "theoretical_coverage": 0.5799999999999998,
+      "theoretical_coverage_status": "defined",
+      "theoretical_max": 1.0,
+      "theoretical_max_status": "finite",
+      "theoretical_min": 0.0,
+      "upper_bound_is_inert": false
+    },
+    "mean_node_degree": {
+      "is_vacuous": false,
+      "lower_bound_is_inert": false,
+      "metric": "mean_node_degree",
+      "theoretical_coverage": null,
+      "theoretical_coverage_status": "undefined_unbounded_range",
+      "theoretical_max": null,
+      "theoretical_max_status": "unbounded",
+      "theoretical_min": 0.0,
+      "upper_bound_is_inert": false
+    },
+    "median_segment_length_m": {
+      "is_vacuous": false,
+      "lower_bound_is_inert": false,
+      "metric": "median_segment_length_m",
+      "theoretical_coverage": null,
+      "theoretical_coverage_status": "undefined_unbounded_range",
+      "theoretical_max": null,
+      "theoretical_max_status": "unbounded",
+      "theoretical_min": 0.0,
+      "upper_bound_is_inert": false
+    },
+    "orientation_entropy": {
+      "is_vacuous": false,
+      "lower_bound_is_inert": false,
+      "metric": "orientation_entropy",
+      "theoretical_coverage": 0.6632776331344784,
+      "theoretical_coverage_status": "defined",
+      "theoretical_max": 3.58351893845611,
+      "theoretical_max_status": "finite",
+      "theoretical_min": 0.6931471805599453,
+      "upper_bound_is_inert": true
+    },
+    "orientation_order": {
+      "is_vacuous": true,
+      "lower_bound_is_inert": false,
+      "metric": "orientation_order",
+      "theoretical_coverage": 0.9984,
+      "theoretical_coverage_status": "defined",
+      "theoretical_max": 1.0,
+      "theoretical_max_status": "finite",
+      "theoretical_min": 0.0,
+      "upper_bound_is_inert": true
+    }
+  },
+  "envelopes": [
+    {
+      "expansion_fraction": 0.2,
+      "lower": 0.0016,
+      "metric": "orientation_order",
+      "reference_max": 0.899,
+      "reference_min": 0.002,
+      "source_cities": [
+        "Chicago",
+        "Detroit",
+        "Seattle",
+        "Boston",
+        "Charlotte",
+        "Seoul",
+        "Hong Kong",
+        "Buenos Aires"
+      ],
+      "source_url": "https://doi.org/10.1007/s41109-019-0189-1",
+      "upper": 1.0
+    },
+    {
+      "expansion_fraction": 0.2,
+      "lower": 1.6664000000000003,
+      "metric": "orientation_entropy",
+      "reference_max": 3.582,
+      "reference_min": 2.083,
+      "source_cities": [
+        "Chicago",
+        "Detroit",
+        "Seattle",
+        "Boston",
+        "Charlotte",
+        "Seoul",
+        "Hong Kong",
+        "Buenos Aires"
+      ],
+      "source_url": "https://doi.org/10.1007/s41109-019-0189-1",
+      "upper": 3.58351893845611
+    },
+    {
+      "expansion_fraction": 0.2,
+      "lower": 42.800000000000004,
+      "metric": "median_segment_length_m",
+      "reference_max": 117.2,
+      "reference_min": 53.5,
+      "source_cities": [
+        "Chicago",
+        "Detroit",
+        "Seattle",
+        "Boston",
+        "Charlotte",
+        "Seoul",
+        "Hong Kong",
+        "Buenos Aires"
+      ],
+      "source_url": "https://doi.org/10.1007/s41109-019-0189-1",
+      "upper": 140.64
+    },
+    {
+      "expansion_fraction": 0.2,
+      "lower": 1.0,
+      "metric": "circuity",
+      "reference_max": 1.137,
+      "reference_min": 1.011,
+      "source_cities": [
+        "Chicago",
+        "Detroit",
+        "Seattle",
+        "Boston",
+        "Charlotte",
+        "Seoul",
+        "Hong Kong",
+        "Buenos Aires"
+      ],
+      "source_url": "https://doi.org/10.1007/s41109-019-0189-1",
+      "upper": 1.3644
+    },
+    {
+      "expansion_fraction": 0.2,
+      "lower": 2.0368,
+      "metric": "mean_node_degree",
+      "reference_max": 3.548,
+      "reference_min": 2.546,
+      "source_cities": [
+        "Chicago",
+        "Detroit",
+        "Seattle",
+        "Boston",
+        "Charlotte",
+        "Seoul",
+        "Hong Kong",
+        "Buenos Aires"
+      ],
+      "source_url": "https://doi.org/10.1007/s41109-019-0189-1",
+      "upper": 4.2576
+    },
+    {
+      "expansion_fraction": 0.2,
+      "lower": 0.0216,
+      "metric": "dead_end_share",
+      "reference_max": 0.288,
+      "reference_min": 0.027,
+      "source_cities": [
+        "Chicago",
+        "Detroit",
+        "Seattle",
+        "Boston",
+        "Charlotte",
+        "Seoul",
+        "Hong Kong",
+        "Buenos Aires"
+      ],
+      "source_url": "https://doi.org/10.1007/s41109-019-0189-1",
+      "upper": 0.34559999999999996
+    },
+    {
+      "expansion_fraction": 0.2,
+      "lower": 0.11120000000000002,
+      "metric": "four_way_share",
+      "reference_max": 0.576,
+      "reference_min": 0.139,
+      "source_cities": [
+        "Chicago",
+        "Detroit",
+        "Seattle",
+        "Boston",
+        "Charlotte",
+        "Seoul",
+        "Hong Kong",
+        "Buenos Aires"
+      ],
+      "source_url": "https://doi.org/10.1007/s41109-019-0189-1",
+      "upper": 0.6911999999999999
+    }
+  ],
+  "evidence_status": "diagnostic_not_empirical_validation",
+  "fingerprint": "e7067a7084f22f956aff135d8d631eb815f0e214f32d3ce745360b32e237f23f",
+  "schema_version": "morphology_control_table_v2",
+  "scores": [
+    {
+      "arm": "standard",
+      "case": "ring_radial/17",
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "metrics": {
+        "circuity": 1.0342080449187188,
+        "dead_end_share": 0.07456140350877193,
+        "four_way_share": 0.1286549707602339,
+        "mean_node_degree": 6.178362573099415,
+        "median_segment_length_m": 104.28556615850538,
+        "orientation_entropy": 3.3892990419356908,
+        "orientation_order": 0.16897319571224945
+      },
+      "node_count": 926,
+      "passed": false,
+      "physical_segment_count": 2113,
+      "simplified": true
+    },
+    {
+      "arm": "standard",
+      "case": "ring_radial/29",
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "metrics": {
+        "circuity": 1.0342080449187188,
+        "dead_end_share": 0.07456140350877193,
+        "four_way_share": 0.1286549707602339,
+        "mean_node_degree": 6.178362573099415,
+        "median_segment_length_m": 104.28556615850538,
+        "orientation_entropy": 3.3892990419356908,
+        "orientation_order": 0.16897319571224945
+      },
+      "node_count": 926,
+      "passed": false,
+      "physical_segment_count": 2113,
+      "simplified": true
+    },
+    {
+      "arm": "standard",
+      "case": "ring_radial/41",
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "metrics": {
+        "circuity": 1.0342080449187188,
+        "dead_end_share": 0.07456140350877193,
+        "four_way_share": 0.1286549707602339,
+        "mean_node_degree": 6.178362573099415,
+        "median_segment_length_m": 104.28556615850538,
+        "orientation_entropy": 3.3892990419356908,
+        "orientation_order": 0.16897319571224945
+      },
+      "node_count": 926,
+      "passed": false,
+      "physical_segment_count": 2113,
+      "simplified": true
+    },
+    {
+      "arm": "standard",
+      "case": "ring_radial/44",
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "metrics": {
+        "circuity": 1.0342080449187188,
+        "dead_end_share": 0.07456140350877193,
+        "four_way_share": 0.1286549707602339,
+        "mean_node_degree": 6.178362573099415,
+        "median_segment_length_m": 104.28556615850538,
+        "orientation_entropy": 3.3892990419356908,
+        "orientation_order": 0.16897319571224945
+      },
+      "node_count": 926,
+      "passed": false,
+      "physical_segment_count": 2113,
+      "simplified": true
+    },
+    {
+      "arm": "standard",
+      "case": "ring_radial/53",
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "metrics": {
+        "circuity": 1.0342080449187188,
+        "dead_end_share": 0.07456140350877193,
+        "four_way_share": 0.1286549707602339,
+        "mean_node_degree": 6.178362573099415,
+        "median_segment_length_m": 104.28556615850538,
+        "orientation_entropy": 3.3892990419356908,
+        "orientation_order": 0.16897319571224945
+      },
+      "node_count": 926,
+      "passed": false,
+      "physical_segment_count": 2113,
+      "simplified": true
+    },
+    {
+      "arm": "standard",
+      "case": "polycentric_tod/17",
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "metrics": {
+        "circuity": 1.0335180031459918,
+        "dead_end_share": 0.05270655270655271,
+        "four_way_share": 0.1339031339031339,
+        "mean_node_degree": 6.034188034188034,
+        "median_segment_length_m": 113.48012896157279,
+        "orientation_entropy": 3.3559296698445,
+        "orientation_order": 0.19643179303066205
+      },
+      "node_count": 945,
+      "passed": false,
+      "physical_segment_count": 2118,
+      "simplified": true
+    },
+    {
+      "arm": "standard",
+      "case": "polycentric_tod/29",
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "metrics": {
+        "circuity": 1.0335180031459918,
+        "dead_end_share": 0.05270655270655271,
+        "four_way_share": 0.1339031339031339,
+        "mean_node_degree": 6.034188034188034,
+        "median_segment_length_m": 113.48012896157279,
+        "orientation_entropy": 3.3559296698445,
+        "orientation_order": 0.19643179303066205
+      },
+      "node_count": 945,
+      "passed": false,
+      "physical_segment_count": 2118,
+      "simplified": true
+    },
+    {
+      "arm": "standard",
+      "case": "polycentric_tod/41",
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "metrics": {
+        "circuity": 1.0335180031459918,
+        "dead_end_share": 0.05270655270655271,
+        "four_way_share": 0.1339031339031339,
+        "mean_node_degree": 6.034188034188034,
+        "median_segment_length_m": 113.48012896157279,
+        "orientation_entropy": 3.3559296698445,
+        "orientation_order": 0.19643179303066205
+      },
+      "node_count": 945,
+      "passed": false,
+      "physical_segment_count": 2118,
+      "simplified": true
+    },
+    {
+      "arm": "standard",
+      "case": "polycentric_tod/44",
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "metrics": {
+        "circuity": 1.0335180031459918,
+        "dead_end_share": 0.05270655270655271,
+        "four_way_share": 0.1339031339031339,
+        "mean_node_degree": 6.034188034188034,
+        "median_segment_length_m": 113.48012896157279,
+        "orientation_entropy": 3.3559296698445,
+        "orientation_order": 0.19643179303066205
+      },
+      "node_count": 945,
+      "passed": false,
+      "physical_segment_count": 2118,
+      "simplified": true
+    },
+    {
+      "arm": "standard",
+      "case": "polycentric_tod/53",
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "metrics": {
+        "circuity": 1.0335180031459918,
+        "dead_end_share": 0.05270655270655271,
+        "four_way_share": 0.1339031339031339,
+        "mean_node_degree": 6.034188034188034,
+        "median_segment_length_m": 113.48012896157279,
+        "orientation_entropy": 3.3559296698445,
+        "orientation_order": 0.19643179303066205
+      },
+      "node_count": 945,
+      "passed": false,
+      "physical_segment_count": 2118,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "ring_radial/17",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.1953655513932335,
+        "dead_end_share": 0.41734860883797054,
+        "four_way_share": 0.12274959083469722,
+        "mean_node_degree": 3.8330605564648117,
+        "median_segment_length_m": 32.83313273204368,
+        "orientation_entropy": 3.4270194570991244,
+        "orientation_order": 0.13737882616103925
+      },
+      "node_count": 1109,
+      "passed": false,
+      "physical_segment_count": 1171,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "ring_radial/29",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.1944910311887087,
+        "dead_end_share": 0.41475409836065574,
+        "four_way_share": 0.12459016393442623,
+        "mean_node_degree": 3.839344262295082,
+        "median_segment_length_m": 33.35536544545717,
+        "orientation_entropy": 3.3966116758531144,
+        "orientation_order": 0.16289424053289436
+      },
+      "node_count": 1108,
+      "passed": false,
+      "physical_segment_count": 1171,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "ring_radial/41",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.1949134623280055,
+        "dead_end_share": 0.41734860883797054,
+        "four_way_share": 0.12274959083469722,
+        "mean_node_degree": 3.8330605564648117,
+        "median_segment_length_m": 32.353300310787446,
+        "orientation_entropy": 3.417145609570665,
+        "orientation_order": 0.1457060473880073
+      },
+      "node_count": 1109,
+      "passed": false,
+      "physical_segment_count": 1171,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "ring_radial/44",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.1949504820670491,
+        "dead_end_share": 0.41734860883797054,
+        "four_way_share": 0.12274959083469722,
+        "mean_node_degree": 3.8330605564648117,
+        "median_segment_length_m": 32.09481211542992,
+        "orientation_entropy": 3.424858376387504,
+        "orientation_order": 0.13920485056258147
+      },
+      "node_count": 1109,
+      "passed": false,
+      "physical_segment_count": 1171,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "ring_radial/53",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.1961981854422061,
+        "dead_end_share": 0.4157119476268412,
+        "four_way_share": 0.12438625204582651,
+        "mean_node_degree": 3.8330605564648117,
+        "median_segment_length_m": 32.80305491857163,
+        "orientation_entropy": 3.403402400539163,
+        "orientation_order": 0.15722930819904313
+      },
+      "node_count": 1108,
+      "passed": false,
+      "physical_segment_count": 1171,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "grid_core/17",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0302702679888252,
+        "dead_end_share": 0.07606263982102908,
+        "four_way_share": 0.4317673378076063,
+        "mean_node_degree": 3.4093959731543624,
+        "median_segment_length_m": 75.70541857753646,
+        "orientation_entropy": 2.0229985094042733,
+        "orientation_order": 0.9160295535261056
+      },
+      "node_count": 522,
+      "passed": true,
+      "physical_segment_count": 762,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "grid_core/29",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0298274317173726,
+        "dead_end_share": 0.07606263982102908,
+        "four_way_share": 0.4317673378076063,
+        "mean_node_degree": 3.4093959731543624,
+        "median_segment_length_m": 76.20863025274761,
+        "orientation_entropy": 2.5320113721315525,
+        "orientation_order": 0.7281021170029967
+      },
+      "node_count": 522,
+      "passed": true,
+      "physical_segment_count": 762,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "grid_core/41",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.029379303377651,
+        "dead_end_share": 0.078125,
+        "four_way_share": 0.43080357142857145,
+        "mean_node_degree": 3.40625,
+        "median_segment_length_m": 76.12334901329552,
+        "orientation_entropy": 2.0263976285409218,
+        "orientation_order": 0.9151305883126932
+      },
+      "node_count": 522,
+      "passed": true,
+      "physical_segment_count": 763,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "grid_core/44",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0299206831086027,
+        "dead_end_share": 0.07606263982102908,
+        "four_way_share": 0.42953020134228187,
+        "mean_node_degree": 3.4093959731543624,
+        "median_segment_length_m": 73.60434824111954,
+        "orientation_entropy": 2.559428476900531,
+        "orientation_order": 0.7149333363935568
+      },
+      "node_count": 522,
+      "passed": true,
+      "physical_segment_count": 762,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "grid_core/53",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.030459958115908,
+        "dead_end_share": 0.07399103139013453,
+        "four_way_share": 0.4327354260089686,
+        "mean_node_degree": 3.412556053811659,
+        "median_segment_length_m": 74.54137745574594,
+        "orientation_entropy": 2.5431068679181927,
+        "orientation_order": 0.7228103218664659
+      },
+      "node_count": 522,
+      "passed": true,
+      "physical_segment_count": 761,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "polycentric_tod/17",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.2110069497549039,
+        "dead_end_share": 0.059375,
+        "four_way_share": 0.146875,
+        "mean_node_degree": 3.09375,
+        "median_segment_length_m": 50.66961658627385,
+        "orientation_entropy": 3.3893574650399003,
+        "orientation_order": 0.16892471667062103
+      },
+      "node_count": 447,
+      "passed": true,
+      "physical_segment_count": 495,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "polycentric_tod/29",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.188710835680593,
+        "dead_end_share": 0.059375,
+        "four_way_share": 0.15,
+        "mean_node_degree": 3.09375,
+        "median_segment_length_m": 52.47768315564812,
+        "orientation_entropy": 3.3211184654041355,
+        "orientation_order": 0.22458520698361195
+      },
+      "node_count": 447,
+      "passed": true,
+      "physical_segment_count": 495,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "polycentric_tod/41",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.1824175299034847,
+        "dead_end_share": 0.06501547987616099,
+        "four_way_share": 0.13312693498452013,
+        "mean_node_degree": 3.08359133126935,
+        "median_segment_length_m": 52.829192166831405,
+        "orientation_entropy": 3.3068027891024134,
+        "orientation_order": 0.23601727543874196
+      },
+      "node_count": 447,
+      "passed": true,
+      "physical_segment_count": 498,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "polycentric_tod/44",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.2105641256583437,
+        "dead_end_share": 0.0625,
+        "four_way_share": 0.125,
+        "mean_node_degree": 3.09375,
+        "median_segment_length_m": 52.9949001414287,
+        "orientation_entropy": 3.375575129579018,
+        "orientation_order": 0.18032201355533795
+      },
+      "node_count": 447,
+      "passed": true,
+      "physical_segment_count": 495,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "polycentric_tod/53",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.2142853725845089,
+        "dead_end_share": 0.06230529595015576,
+        "four_way_share": 0.14641744548286603,
+        "mean_node_degree": 3.0903426791277258,
+        "median_segment_length_m": 51.67735953974429,
+        "orientation_entropy": 3.4051635383878986,
+        "orientation_order": 0.15575701888447346
+      },
+      "node_count": 447,
+      "passed": true,
+      "physical_segment_count": 496,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "river_constrained/17",
+      "failed_metrics": [
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.2413010893747676,
+        "dead_end_share": 0.3125,
+        "four_way_share": 0.044642857142857144,
+        "mean_node_degree": 2.544642857142857,
+        "median_segment_length_m": 140.0,
+        "orientation_entropy": 2.366550851199476,
+        "orientation_order": 0.8009644944521478
+      },
+      "node_count": 428,
+      "passed": false,
+      "physical_segment_count": 285,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "river_constrained/29",
+      "failed_metrics": [
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.2327378262217132,
+        "dead_end_share": 0.31277533039647576,
+        "four_way_share": 0.05286343612334802,
+        "mean_node_degree": 2.537444933920705,
+        "median_segment_length_m": 138.985,
+        "orientation_entropy": 2.3981230395713067,
+        "orientation_order": 0.7879369161875194
+      },
+      "node_count": 423,
+      "passed": false,
+      "physical_segment_count": 288,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "river_constrained/41",
+      "failed_metrics": [
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.2438553437427768,
+        "dead_end_share": 0.30493273542600896,
+        "four_way_share": 0.04484304932735426,
+        "mean_node_degree": 2.5470852017937218,
+        "median_segment_length_m": 140.0,
+        "orientation_entropy": 2.4292104142388835,
+        "orientation_order": 0.7747059053099854
+      },
+      "node_count": 419,
+      "passed": false,
+      "physical_segment_count": 284,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "river_constrained/44",
+      "failed_metrics": [
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.2738054674548849,
+        "dead_end_share": 0.2968036529680365,
+        "four_way_share": 0.045662100456621,
+        "mean_node_degree": 2.5662100456621006,
+        "median_segment_length_m": 140.0,
+        "orientation_entropy": 2.3735362291955435,
+        "orientation_order": 0.7981177046986889
+      },
+      "node_count": 422,
+      "passed": false,
+      "physical_segment_count": 281,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "river_constrained/53",
+      "failed_metrics": [
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.2201573690886027,
+        "dead_end_share": 0.3141592920353982,
+        "four_way_share": 0.05309734513274336,
+        "mean_node_degree": 2.5309734513274336,
+        "median_segment_length_m": 138.75,
+        "orientation_entropy": 2.4481046092610352,
+        "orientation_order": 0.7664687903831272
+      },
+      "node_count": 424,
+      "passed": false,
+      "physical_segment_count": 286,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "superblock_mixed/17",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0807644423995113,
+        "dead_end_share": 0.06784660766961652,
+        "four_way_share": 0.18584070796460178,
+        "mean_node_degree": 3.1563421828908553,
+        "median_segment_length_m": 61.55900990106972,
+        "orientation_entropy": 3.039719231126184,
+        "orientation_order": 0.4337345883054615
+      },
+      "node_count": 440,
+      "passed": true,
+      "physical_segment_count": 535,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "superblock_mixed/29",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0782547134594502,
+        "dead_end_share": 0.0728862973760933,
+        "four_way_share": 0.18075801749271136,
+        "mean_node_degree": 3.142857142857143,
+        "median_segment_length_m": 62.9048023762892,
+        "orientation_entropy": 3.0142501176186207,
+        "orientation_order": 0.45104556382130034
+      },
+      "node_count": 440,
+      "passed": true,
+      "physical_segment_count": 539,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "superblock_mixed/41",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.078056042493643,
+        "dead_end_share": 0.0728862973760933,
+        "four_way_share": 0.1836734693877551,
+        "mean_node_degree": 3.142857142857143,
+        "median_segment_length_m": 59.15165275047009,
+        "orientation_entropy": 3.061974939684409,
+        "orientation_order": 0.4183877088953518
+      },
+      "node_count": 440,
+      "passed": true,
+      "physical_segment_count": 539,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "superblock_mixed/44",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0804024671378605,
+        "dead_end_share": 0.06764705882352941,
+        "four_way_share": 0.18529411764705883,
+        "mean_node_degree": 3.152941176470588,
+        "median_segment_length_m": 59.43602120768185,
+        "orientation_entropy": 3.0600199493298335,
+        "orientation_order": 0.4197440331812585
+      },
+      "node_count": 440,
+      "passed": true,
+      "physical_segment_count": 536,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "superblock_mixed/53",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0786769037716801,
+        "dead_end_share": 0.07017543859649122,
+        "four_way_share": 0.18128654970760233,
+        "mean_node_degree": 3.146198830409357,
+        "median_segment_length_m": 60.278451733388835,
+        "orientation_entropy": 2.9987719282609993,
+        "orientation_order": 0.46143457823129597
+      },
+      "node_count": 440,
+      "passed": true,
+      "physical_segment_count": 538,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "organic/17",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.1607146559953165,
+        "dead_end_share": 0.20833333333333334,
+        "four_way_share": 0.037037037037037035,
+        "mean_node_degree": 3.537037037037037,
+        "median_segment_length_m": 36.333506733891085,
+        "orientation_entropy": 3.462890576485818,
+        "orientation_order": 0.10678662029567987
+      },
+      "node_count": 418,
+      "passed": false,
+      "physical_segment_count": 382,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "organic/29",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.1181209669891217,
+        "dead_end_share": 0.21559633027522937,
+        "four_way_share": 0.027522935779816515,
+        "mean_node_degree": 3.522935779816514,
+        "median_segment_length_m": 37.32517446814502,
+        "orientation_entropy": 3.460410963628546,
+        "orientation_order": 0.1089184753293666
+      },
+      "node_count": 416,
+      "passed": false,
+      "physical_segment_count": 384,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "organic/41",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.125758028781861,
+        "dead_end_share": 0.2,
+        "four_way_share": 0.023255813953488372,
+        "mean_node_degree": 3.5534883720930233,
+        "median_segment_length_m": 38.03120011560884,
+        "orientation_entropy": 3.446500531231826,
+        "orientation_order": 0.12083078879538922
+      },
+      "node_count": 420,
+      "passed": false,
+      "physical_segment_count": 382,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "organic/44",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.0964300503545055,
+        "dead_end_share": 0.21363636363636362,
+        "four_way_share": 0.045454545454545456,
+        "mean_node_degree": 3.518181818181818,
+        "median_segment_length_m": 36.986152341112756,
+        "orientation_entropy": 3.446677260814033,
+        "orientation_order": 0.1206799477059155
+      },
+      "node_count": 422,
+      "passed": false,
+      "physical_segment_count": 387,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "organic/53",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.160460116735053,
+        "dead_end_share": 0.2037037037037037,
+        "four_way_share": 0.037037037037037035,
+        "mean_node_degree": 3.5462962962962963,
+        "median_segment_length_m": 36.96929634709093,
+        "orientation_entropy": 3.4799313577854414,
+        "orientation_order": 0.09206685284030802
+      },
+      "node_count": 420,
+      "passed": false,
+      "physical_segment_count": 383,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "ring_radial/17",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.0558033391986683,
+        "dead_end_share": 0.07902076231794236,
+        "four_way_share": 0.7056089246978617,
+        "mean_node_degree": 4.235512860241711,
+        "median_segment_length_m": 5.093540616779889,
+        "orientation_entropy": 3.4724192050012896,
+        "orientation_order": 0.09857065096413598
+      },
+      "node_count": 3725,
+      "passed": false,
+      "physical_segment_count": 6834,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "ring_radial/29",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.0565105799368169,
+        "dead_end_share": 0.07611311672683514,
+        "four_way_share": 0.7111913357400722,
+        "mean_node_degree": 4.2370637785800245,
+        "median_segment_length_m": 5.101863490986041,
+        "orientation_entropy": 3.4598765093395434,
+        "orientation_order": 0.10937764043468423
+      },
+      "node_count": 3822,
+      "passed": false,
+      "physical_segment_count": 7042,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "ring_radial/41",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.055918726568569,
+        "dead_end_share": 0.0804162724692526,
+        "four_way_share": 0.7041942604856513,
+        "mean_node_degree": 4.229580573951435,
+        "median_segment_length_m": 5.206808437346931,
+        "orientation_entropy": 3.4568382288578348,
+        "orientation_order": 0.1119856664566683
+      },
+      "node_count": 3669,
+      "passed": false,
+      "physical_segment_count": 6706,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "ring_radial/44",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.0567205977061467,
+        "dead_end_share": 0.08001255098839033,
+        "four_way_share": 0.7069344210856605,
+        "mean_node_degree": 4.225917791026044,
+        "median_segment_length_m": 5.135053372004353,
+        "orientation_entropy": 3.4733753960582887,
+        "orientation_order": 0.09774410769886455
+      },
+      "node_count": 3685,
+      "passed": false,
+      "physical_segment_count": 6734,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "ring_radial/53",
+      "failed_metrics": [
+        "median_segment_length_m",
+        "four_way_share"
+      ],
+      "metrics": {
+        "circuity": 1.058311255554488,
+        "dead_end_share": 0.07736826073713067,
+        "four_way_share": 0.7094121230581785,
+        "mean_node_degree": 4.23149558330795,
+        "median_segment_length_m": 5.080097789354655,
+        "orientation_entropy": 3.456081717455876,
+        "orientation_order": 0.11263445275182149
+      },
+      "node_count": 3780,
+      "passed": false,
+      "physical_segment_count": 6946,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "grid_core/17",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0194560867363243,
+        "dead_end_share": 0.043256997455470736,
+        "four_way_share": 0.6195928753180662,
+        "mean_node_degree": 3.7786259541984735,
+        "median_segment_length_m": 39.59744493019717,
+        "orientation_entropy": 2.1388925110418557,
+        "orientation_order": 0.882678556911671
+      },
+      "node_count": 861,
+      "passed": false,
+      "physical_segment_count": 1485,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "grid_core/29",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.01978032841856,
+        "dead_end_share": 0.04292929292929293,
+        "four_way_share": 0.6224747474747475,
+        "mean_node_degree": 3.7803030303030303,
+        "median_segment_length_m": 37.518191494260506,
+        "orientation_entropy": 2.6545876697530537,
+        "orientation_order": 0.666811114440025
+      },
+      "node_count": 867,
+      "passed": false,
+      "physical_segment_count": 1497,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "grid_core/41",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0197863561746794,
+        "dead_end_share": 0.04504504504504504,
+        "four_way_share": 0.6190476190476191,
+        "mean_node_degree": 3.763191763191763,
+        "median_segment_length_m": 39.50934346122292,
+        "orientation_entropy": 2.179507334828863,
+        "orientation_order": 0.8696741034441446
+      },
+      "node_count": 851,
+      "passed": false,
+      "physical_segment_count": 1462,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "grid_core/44",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.02011795027625,
+        "dead_end_share": 0.043256997455470736,
+        "four_way_share": 0.6170483460559797,
+        "mean_node_degree": 3.78117048346056,
+        "median_segment_length_m": 37.55682879633305,
+        "orientation_entropy": 2.6846601826271357,
+        "orientation_order": 0.6508233029747909
+      },
+      "node_count": 861,
+      "passed": false,
+      "physical_segment_count": 1486,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "grid_core/53",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0202769012652129,
+        "dead_end_share": 0.04203821656050955,
+        "four_way_share": 0.6203821656050955,
+        "mean_node_degree": 3.780891719745223,
+        "median_segment_length_m": 39.409600463520114,
+        "orientation_entropy": 2.6793987610917926,
+        "orientation_order": 0.6536475353313751
+      },
+      "node_count": 861,
+      "passed": false,
+      "physical_segment_count": 1484,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "polycentric_tod/17",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0426939902743428,
+        "dead_end_share": 0.022538552787663108,
+        "four_way_share": 0.6761565836298933,
+        "mean_node_degree": 3.6559905100830368,
+        "median_segment_length_m": 17.69927367158714,
+        "orientation_entropy": 3.4005697906993637,
+        "orientation_order": 0.1595946394709229
+      },
+      "node_count": 970,
+      "passed": false,
+      "physical_segment_count": 1541,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "polycentric_tod/29",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0430835179337825,
+        "dead_end_share": 0.022274325908558032,
+        "four_way_share": 0.6811254396248535,
+        "mean_node_degree": 3.660023446658851,
+        "median_segment_length_m": 18.688048634921493,
+        "orientation_entropy": 3.3323257290560506,
+        "orientation_order": 0.21557617431439502
+      },
+      "node_count": 980,
+      "passed": false,
+      "physical_segment_count": 1561,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "polycentric_tod/41",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0429783318485373,
+        "dead_end_share": 0.024277456647398842,
+        "four_way_share": 0.6763005780346821,
+        "mean_node_degree": 3.6578034682080927,
+        "median_segment_length_m": 17.192568377064386,
+        "orientation_entropy": 3.3627317571655504,
+        "orientation_order": 0.19087200301787866
+      },
+      "node_count": 989,
+      "passed": false,
+      "physical_segment_count": 1582,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "polycentric_tod/44",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0442394066177798,
+        "dead_end_share": 0.023557126030624265,
+        "four_way_share": 0.6702002355712603,
+        "mean_node_degree": 3.658421672555948,
+        "median_segment_length_m": 17.539851920973575,
+        "orientation_entropy": 3.415233998222344,
+        "orientation_order": 0.14731355992180328
+      },
+      "node_count": 976,
+      "passed": false,
+      "physical_segment_count": 1553,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "polycentric_tod/53",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0467945364716686,
+        "dead_end_share": 0.023952095808383235,
+        "four_way_share": 0.6718562874251497,
+        "mean_node_degree": 3.650299401197605,
+        "median_segment_length_m": 18.338692409994735,
+        "orientation_entropy": 3.4106740034050835,
+        "orientation_order": 0.1511420389020306
+      },
+      "node_count": 961,
+      "passed": false,
+      "physical_segment_count": 1524,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "river_constrained/17",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.1191138962499696,
+        "dead_end_share": 0.12658227848101267,
+        "four_way_share": 0.5804701627486437,
+        "mean_node_degree": 3.4755877034358047,
+        "median_segment_length_m": 35.27199999999999,
+        "orientation_entropy": 2.424147284078114,
+        "orientation_order": 0.776888102839133
+      },
+      "node_count": 757,
+      "passed": false,
+      "physical_segment_count": 961,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "river_constrained/29",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.1196226986652342,
+        "dead_end_share": 0.12956204379562045,
+        "four_way_share": 0.5802919708029197,
+        "mean_node_degree": 3.448905109489051,
+        "median_segment_length_m": 35.54086190903411,
+        "orientation_entropy": 2.4290417754927223,
+        "orientation_order": 0.7747787591926871
+      },
+      "node_count": 744,
+      "passed": false,
+      "physical_segment_count": 945,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "river_constrained/41",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.1206559818726736,
+        "dead_end_share": 0.13026819923371646,
+        "four_way_share": 0.5804597701149425,
+        "mean_node_degree": 3.4022988505747125,
+        "median_segment_length_m": 37.17599999999999,
+        "orientation_entropy": 2.498627754721105,
+        "orientation_order": 0.7437162592013443
+      },
+      "node_count": 718,
+      "passed": false,
+      "physical_segment_count": 888,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "river_constrained/44",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.1180622498550383,
+        "dead_end_share": 0.11926605504587157,
+        "four_way_share": 0.5871559633027523,
+        "mean_node_degree": 3.4825688073394496,
+        "median_segment_length_m": 36.77699999999999,
+        "orientation_entropy": 2.4229486876024917,
+        "orientation_order": 0.7774031405827669
+      },
+      "node_count": 748,
+      "passed": false,
+      "physical_segment_count": 949,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "river_constrained/53",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.1175668758634838,
+        "dead_end_share": 0.1286231884057971,
+        "four_way_share": 0.5851449275362319,
+        "mean_node_degree": 3.4528985507246377,
+        "median_segment_length_m": 34.72500000000002,
+        "orientation_entropy": 2.4406945726397575,
+        "orientation_order": 0.7697168972860615
+      },
+      "node_count": 750,
+      "passed": false,
+      "physical_segment_count": 953,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "superblock_mixed/17",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0438682344603203,
+        "dead_end_share": 0.030789825970548863,
+        "four_way_share": 0.6265060240963856,
+        "mean_node_degree": 3.6251673360107093,
+        "median_segment_length_m": 28.574472623649346,
+        "orientation_entropy": 3.093725481445187,
+        "orientation_order": 0.39613829471866213
+      },
+      "node_count": 848,
+      "passed": false,
+      "physical_segment_count": 1354,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "superblock_mixed/29",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.043363744987875,
+        "dead_end_share": 0.034013605442176874,
+        "four_way_share": 0.6149659863945578,
+        "mean_node_degree": 3.6054421768707483,
+        "median_segment_length_m": 29.903297869360355,
+        "orientation_entropy": 3.049230176309401,
+        "orientation_order": 0.4272012290440561
+      },
+      "node_count": 832,
+      "passed": false,
+      "physical_segment_count": 1325,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "superblock_mixed/41",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.043822001607949,
+        "dead_end_share": 0.033288948069241014,
+        "four_way_share": 0.6231691078561917,
+        "mean_node_degree": 3.6165113182423436,
+        "median_segment_length_m": 27.809376302395542,
+        "orientation_entropy": 3.1161698405205014,
+        "orientation_order": 0.38015830176099474
+      },
+      "node_count": 848,
+      "passed": false,
+      "physical_segment_count": 1358,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "superblock_mixed/44",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.044699530799812,
+        "dead_end_share": 0.030913978494623656,
+        "four_way_share": 0.6236559139784946,
+        "mean_node_degree": 3.620967741935484,
+        "median_segment_length_m": 28.046220023563148,
+        "orientation_entropy": 3.098110829214886,
+        "orientation_order": 0.3930324074208613
+      },
+      "node_count": 844,
+      "passed": false,
+      "physical_segment_count": 1347,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "superblock_mixed/53",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0446295210770051,
+        "dead_end_share": 0.03287671232876712,
+        "four_way_share": 0.6136986301369863,
+        "mean_node_degree": 3.6054794520547944,
+        "median_segment_length_m": 30.020258376636267,
+        "orientation_entropy": 3.040194922061441,
+        "orientation_order": 0.4334087119058522
+      },
+      "node_count": 828,
+      "passed": false,
+      "physical_segment_count": 1316,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "organic/17",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0268935941639319,
+        "dead_end_share": 0.07258064516129033,
+        "four_way_share": 0.55,
+        "mean_node_degree": 4.067741935483871,
+        "median_segment_length_m": 11.662773835300628,
+        "orientation_entropy": 3.4672081453122168,
+        "orientation_order": 0.10306849795738127
+      },
+      "node_count": 822,
+      "passed": false,
+      "physical_segment_count": 1261,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "organic/29",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0294178900122228,
+        "dead_end_share": 0.07035928143712575,
+        "four_way_share": 0.5688622754491018,
+        "mean_node_degree": 4.07185628742515,
+        "median_segment_length_m": 10.986588938587722,
+        "orientation_entropy": 3.447508359527515,
+        "orientation_order": 0.11997042021330317
+      },
+      "node_count": 866,
+      "passed": false,
+      "physical_segment_count": 1360,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "organic/41",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0274010777081486,
+        "dead_end_share": 0.06056338028169014,
+        "four_way_share": 0.5971830985915493,
+        "mean_node_degree": 4.07887323943662,
+        "median_segment_length_m": 10.315251704415958,
+        "orientation_entropy": 3.4255451580399257,
+        "orientation_order": 0.1386247580139499
+      },
+      "node_count": 915,
+      "passed": false,
+      "physical_segment_count": 1448,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "organic/44",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0257790282594688,
+        "dead_end_share": 0.07121212121212121,
+        "four_way_share": 0.5712121212121212,
+        "mean_node_degree": 4.0606060606060606,
+        "median_segment_length_m": 11.024958219422302,
+        "orientation_entropy": 3.4584684072833016,
+        "orientation_order": 0.11058681497551492
+      },
+      "node_count": 862,
+      "passed": false,
+      "physical_segment_count": 1340,
+      "simplified": true
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "organic/53",
+      "failed_metrics": [
+        "median_segment_length_m"
+      ],
+      "metrics": {
+        "circuity": 1.0293592739455448,
+        "dead_end_share": 0.0704,
+        "four_way_share": 0.5424,
+        "mean_node_degree": 4.0928,
+        "median_segment_length_m": 11.825736045803003,
+        "orientation_entropy": 3.504223778644078,
+        "orientation_order": 0.07087516472229571
+      },
+      "node_count": 829,
+      "passed": false,
+      "physical_segment_count": 1279,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "ring_radial/17",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0022374872830977,
+        "dead_end_share": 0.001759014951627089,
+        "four_way_share": 0.51363236587511,
+        "mean_node_degree": 5.491644678979771,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0829259538868357,
+        "orientation_order": 0.8994788529180463
+      },
+      "node_count": 1172,
+      "passed": false,
+      "physical_segment_count": 3122,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "ring_radial/29",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0018530962746048,
+        "dead_end_share": 0.0017513134851138354,
+        "four_way_share": 0.5131348511383538,
+        "mean_node_degree": 5.5131348511383536,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0774465922073215,
+        "orientation_order": 0.9010539339179002
+      },
+      "node_count": 1175,
+      "passed": false,
+      "physical_segment_count": 3148,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "ring_radial/41",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.002378944402352,
+        "dead_end_share": 0.001702127659574468,
+        "four_way_share": 0.5242553191489362,
+        "mean_node_degree": 5.448510638297872,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0939340614729964,
+        "orientation_order": 0.8962769011419713
+      },
+      "node_count": 1213,
+      "passed": false,
+      "physical_segment_count": 3201,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "ring_radial/44",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0019311969512383,
+        "dead_end_share": 0.0016992353440951572,
+        "four_way_share": 0.5106202209005948,
+        "mean_node_degree": 5.452846219201359,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0892915201034628,
+        "orientation_order": 0.8976334083741517
+      },
+      "node_count": 1213,
+      "passed": false,
+      "physical_segment_count": 3209,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "ring_radial/53",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0017363932567795,
+        "dead_end_share": 0.0016806722689075631,
+        "four_way_share": 0.5512605042016807,
+        "mean_node_degree": 5.3579831932773105,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0986193125993307,
+        "orientation_order": 0.894898862136106
+      },
+      "node_count": 1233,
+      "passed": false,
+      "physical_segment_count": 3188,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "grid_core/17",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0019310424117653,
+        "dead_end_share": 0.00258732212160414,
+        "four_way_share": 0.22509702457956016,
+        "mean_node_degree": 5.487710219922381,
+        "median_segment_length_m": 139.13,
+        "orientation_entropy": 1.9673772320146068,
+        "orientation_order": 0.9300597386860674
+      },
+      "node_count": 799,
+      "passed": false,
+      "physical_segment_count": 2121,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "grid_core/29",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0031236986201162,
+        "dead_end_share": 0.0014184397163120568,
+        "four_way_share": 0.5347517730496454,
+        "mean_node_degree": 5.692198581560284,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.052533204945205,
+        "orientation_order": 0.9080586231411865
+      },
+      "node_count": 1434,
+      "passed": false,
+      "physical_segment_count": 4013,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "grid_core/41",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0036578291860596,
+        "dead_end_share": 0.0014234875444839859,
+        "four_way_share": 0.5437722419928825,
+        "mean_node_degree": 5.64982206405694,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0561617080072874,
+        "orientation_order": 0.9070544246287232
+      },
+      "node_count": 1430,
+      "passed": false,
+      "physical_segment_count": 3969,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "grid_core/44",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0031024732140164,
+        "dead_end_share": 0.001394700139470014,
+        "four_way_share": 0.5474198047419805,
+        "mean_node_degree": 5.638772663877266,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0498085639450263,
+        "orientation_order": 0.908809089769986
+      },
+      "node_count": 1454,
+      "passed": false,
+      "physical_segment_count": 4043,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "grid_core/53",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0011736441640633,
+        "dead_end_share": 0.0013698630136986301,
+        "four_way_share": 0.55,
+        "mean_node_degree": 5.616438356164384,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0663772972327887,
+        "orientation_order": 0.9041979373177984
+      },
+      "node_count": 1488,
+      "passed": false,
+      "physical_segment_count": 4100,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "polycentric_tod/17",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.000605976648998,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5196729688298416,
+        "mean_node_degree": 5.746550843127236,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0483406593350035,
+        "orientation_order": 0.9092121300876626
+      },
+      "node_count": 1974,
+      "passed": false,
+      "physical_segment_count": 5623,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "polycentric_tod/29",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0006053472112248,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.541769649036085,
+        "mean_node_degree": 5.655956500247158,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.0478761253783215,
+        "orientation_order": 0.909339490523149
+      },
+      "node_count": 2039,
+      "passed": false,
+      "physical_segment_count": 5721,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "polycentric_tod/41",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0030553308766679,
+        "dead_end_share": 0.0005224660397074191,
+        "four_way_share": 0.6123301985370951,
+        "mean_node_degree": 5.359456635318704,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.0346346029961446,
+        "orientation_order": 0.9129323022588376
+      },
+      "node_count": 1972,
+      "passed": false,
+      "physical_segment_count": 5129,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "polycentric_tod/44",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0032276904266806,
+        "dead_end_share": 0.000526592943654555,
+        "four_way_share": 0.6050552922590837,
+        "mean_node_degree": 5.394418114797261,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.02552976454847,
+        "orientation_order": 0.915360567376148
+      },
+      "node_count": 1956,
+      "passed": false,
+      "physical_segment_count": 5122,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "polycentric_tod/53",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.002813484859868,
+        "dead_end_share": 0.0005277044854881266,
+        "four_way_share": 0.6105540897097625,
+        "mean_node_degree": 5.351978891820581,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.0334870168443144,
+        "orientation_order": 0.9132402555486615
+      },
+      "node_count": 1951,
+      "passed": false,
+      "physical_segment_count": 5071,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "river_constrained/17",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.003962103127242,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5923875432525951,
+        "mean_node_degree": 5.159861591695502,
+        "median_segment_length_m": 98.18904725069905,
+        "orientation_entropy": 2.1205757806702716,
+        "orientation_order": 0.888319800463243
+      },
+      "node_count": 1506,
+      "passed": false,
+      "physical_segment_count": 3728,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "river_constrained/29",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0034740665657675,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.581033262561925,
+        "mean_node_degree": 5.140835102618542,
+        "median_segment_length_m": 98.18904725069909,
+        "orientation_entropy": 2.11138685796803,
+        "orientation_order": 0.8910974809093211
+      },
+      "node_count": 1463,
+      "passed": false,
+      "physical_segment_count": 3632,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "river_constrained/41",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0024510118293322,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5869252873563219,
+        "mean_node_degree": 5.1048850574712645,
+        "median_segment_length_m": 98.18904725069909,
+        "orientation_entropy": 2.1155425403495354,
+        "orientation_order": 0.8898456098442402
+      },
+      "node_count": 1438,
+      "passed": false,
+      "physical_segment_count": 3553,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "river_constrained/44",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0029599145154433,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5864553314121037,
+        "mean_node_degree": 5.136887608069165,
+        "median_segment_length_m": 98.18904725069912,
+        "orientation_entropy": 2.109413326442585,
+        "orientation_order": 0.8916894883323567
+      },
+      "node_count": 1430,
+      "passed": false,
+      "physical_segment_count": 3565,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "river_constrained/53",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0023110455016662,
+        "dead_end_share": 0.0007183908045977011,
+        "four_way_share": 0.5783045977011494,
+        "mean_node_degree": 5.079022988505747,
+        "median_segment_length_m": 98.1961043015454,
+        "orientation_entropy": 2.134204458586676,
+        "orientation_order": 0.8841356320659617
+      },
+      "node_count": 1440,
+      "passed": false,
+      "physical_segment_count": 3535,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "superblock_mixed/17",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0037565200972531,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.6198050282195998,
+        "mean_node_degree": 5.343252950230887,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.016614430029496,
+        "orientation_order": 0.9177050144268892
+      },
+      "node_count": 1998,
+      "passed": false,
+      "physical_segment_count": 5207,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "superblock_mixed/29",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.003188514387475,
+        "dead_end_share": 0.0010188487009679063,
+        "four_way_share": 0.6235354049923586,
+        "mean_node_degree": 5.302088639836985,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.0076305296962107,
+        "orientation_order": 0.9200341839390652
+      },
+      "node_count": 2002,
+      "passed": false,
+      "physical_segment_count": 5204,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "superblock_mixed/41",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0005933814451347,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5235414534288638,
+        "mean_node_degree": 5.750255885363357,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.045649567517683,
+        "orientation_order": 0.9099487007488744
+      },
+      "node_count": 1969,
+      "passed": false,
+      "physical_segment_count": 5618,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "superblock_mixed/44",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0006160283473229,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5293822199899548,
+        "mean_node_degree": 5.714716223003516,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0533553290060955,
+        "orientation_order": 0.9078315758734108
+      },
+      "node_count": 2017,
+      "passed": false,
+      "physical_segment_count": 5689,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "superblock_mixed/53",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0005076497145573,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5297979797979798,
+        "mean_node_degree": 5.715151515151515,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0560595461388886,
+        "orientation_order": 0.9070827728370715
+      },
+      "node_count": 2003,
+      "passed": false,
+      "physical_segment_count": 5658,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "organic/17",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0008774133640665,
+        "dead_end_share": 0.0012690355329949238,
+        "four_way_share": 0.524746192893401,
+        "mean_node_degree": 5.450507614213198,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.063837433125273,
+        "orientation_order": 0.9049121733131482
+      },
+      "node_count": 1613,
+      "passed": false,
+      "physical_segment_count": 4295,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "organic/29",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0013584975355456,
+        "dead_end_share": 0.001913265306122449,
+        "four_way_share": 0.5338010204081632,
+        "mean_node_degree": 5.394132653061225,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0573435124709714,
+        "orientation_order": 0.9067261793684641
+      },
+      "node_count": 1600,
+      "passed": false,
+      "physical_segment_count": 4229,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "organic/41",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.001068868613578,
+        "dead_end_share": 0.0019292604501607716,
+        "four_way_share": 0.5318327974276528,
+        "mean_node_degree": 5.452090032154341,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0776545435329137,
+        "orientation_order": 0.900994383908254
+      },
+      "node_count": 1586,
+      "passed": false,
+      "physical_segment_count": 4239,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "organic/44",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.001192277695413,
+        "dead_end_share": 0.0013245033112582781,
+        "four_way_share": 0.5231788079470199,
+        "mean_node_degree": 5.467549668874172,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0795250157741543,
+        "orientation_order": 0.9004579406098426
+      },
+      "node_count": 1542,
+      "passed": false,
+      "physical_segment_count": 4128,
+      "simplified": true
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "organic/53",
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "metrics": {
+        "circuity": 1.0012278363746503,
+        "dead_end_share": 0.001397624039133473,
+        "four_way_share": 0.5129280223619846,
+        "mean_node_degree": 5.49685534591195,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0853505744774044,
+        "orientation_order": 0.8987779091535194
+      },
+      "node_count": 1461,
+      "passed": false,
+      "physical_segment_count": 3933,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "ring_radial/17",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0180725715640158,
+        "dead_end_share": 0.11275337837837837,
+        "four_way_share": 0.20101351351351351,
+        "mean_node_degree": 3.260135135135135,
+        "median_segment_length_m": 112.98404832849633,
+        "orientation_entropy": 3.5770112868942765,
+        "orientation_order": 0.005914747703317236
+      },
+      "node_count": 7287,
+      "passed": true,
+      "physical_segment_count": 7720,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "ring_radial/29",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0183571179102129,
+        "dead_end_share": 0.12308687217072645,
+        "four_way_share": 0.20349213192498383,
+        "mean_node_degree": 3.2075878422073725,
+        "median_segment_length_m": 116.6937760137813,
+        "orientation_entropy": 3.5804681354022363,
+        "orientation_order": 0.0027750327347876302
+      },
+      "node_count": 7135,
+      "passed": true,
+      "physical_segment_count": 7440,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "ring_radial/41",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0193883132007107,
+        "dead_end_share": 0.11797392605257534,
+        "four_way_share": 0.1953408848044454,
+        "mean_node_degree": 3.240435990596281,
+        "median_segment_length_m": 115.3733980306019,
+        "orientation_entropy": 3.573344315169644,
+        "orientation_order": 0.009239898121140788
+      },
+      "node_count": 7223,
+      "passed": true,
+      "physical_segment_count": 7581,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "ring_radial/44",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0184212185563428,
+        "dead_end_share": 0.10727496917385944,
+        "four_way_share": 0.2127003699136868,
+        "mean_node_degree": 3.251130291820797,
+        "median_segment_length_m": 115.18497677690485,
+        "orientation_entropy": 3.572676719281479,
+        "orientation_order": 0.009844663841066637
+      },
+      "node_count": 7538,
+      "passed": true,
+      "physical_segment_count": 7910,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "ring_radial/53",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0179364977657308,
+        "dead_end_share": 0.10872828651082994,
+        "four_way_share": 0.1953677889770534,
+        "mean_node_degree": 3.2404031739223678,
+        "median_segment_length_m": 111.89577703455888,
+        "orientation_entropy": 3.5687102579205594,
+        "orientation_order": 0.01343401807943756
+      },
+      "node_count": 7112,
+      "passed": true,
+      "physical_segment_count": 7555,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "grid_core/17",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.019014763922536,
+        "dead_end_share": 0.16331041257367387,
+        "four_way_share": 0.17166011787819255,
+        "mean_node_degree": 3.0152259332023577,
+        "median_segment_length_m": 123.99999999999999,
+        "orientation_entropy": 2.7949954118292974,
+        "orientation_order": 0.5889555576290155
+      },
+      "node_count": 6278,
+      "passed": true,
+      "physical_segment_count": 6139,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "grid_core/29",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.017650408830403,
+        "dead_end_share": 0.16622179082746907,
+        "four_way_share": 0.17835476826013102,
+        "mean_node_degree": 2.992962873089056,
+        "median_segment_length_m": 123.99999999999994,
+        "orientation_entropy": 2.6924063577268162,
+        "orientation_order": 0.6466444309020307
+      },
+      "node_count": 6327,
+      "passed": true,
+      "physical_segment_count": 6167,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "grid_core/41",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0183941566885366,
+        "dead_end_share": 0.18721583311045734,
+        "four_way_share": 0.1767852366943033,
+        "mean_node_degree": 2.956940358384595,
+        "median_segment_length_m": 128.62130492127045,
+        "orientation_entropy": 2.6368353534332227,
+        "orientation_order": 0.6760731347738298
+      },
+      "node_count": 5736,
+      "passed": true,
+      "physical_segment_count": 5528,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "grid_core/44",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.019675421258862,
+        "dead_end_share": 0.17331932773109243,
+        "four_way_share": 0.18303571428571427,
+        "mean_node_degree": 2.994747899159664,
+        "median_segment_length_m": 124.00000000000034,
+        "orientation_entropy": 2.6647318421152506,
+        "orientation_order": 0.6614599196238182
+      },
+      "node_count": 5895,
+      "passed": true,
+      "physical_segment_count": 5702,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "grid_core/53",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.019417170804689,
+        "dead_end_share": 0.16629100926621587,
+        "four_way_share": 0.1652892561983471,
+        "mean_node_degree": 3.0032556974705735,
+        "median_segment_length_m": 124.0,
+        "orientation_entropy": 2.778451658048458,
+        "orientation_order": 0.5985534595252018
+      },
+      "node_count": 6166,
+      "passed": true,
+      "physical_segment_count": 5996,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "polycentric_tod/17",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0184257424123506,
+        "dead_end_share": 0.1578385305425032,
+        "four_way_share": 0.1710807347287484,
+        "mean_node_degree": 3.0089705254164887,
+        "median_segment_length_m": 124.00000000000009,
+        "orientation_entropy": 3.1823579439416463,
+        "orientation_order": 0.3318183911922189
+      },
+      "node_count": 7108,
+      "passed": true,
+      "physical_segment_count": 7044,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "polycentric_tod/29",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0174804522856313,
+        "dead_end_share": 0.15252837977296183,
+        "four_way_share": 0.1803921568627451,
+        "mean_node_degree": 3.07203302373581,
+        "median_segment_length_m": 123.99999999999997,
+        "orientation_entropy": 3.172379553346818,
+        "orientation_order": 0.33922220046808027
+      },
+      "node_count": 7449,
+      "passed": true,
+      "physical_segment_count": 7442,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "polycentric_tod/41",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0200700322710519,
+        "dead_end_share": 0.17846707125196673,
+        "four_way_share": 0.16880197797257812,
+        "mean_node_degree": 2.9687570240503485,
+        "median_segment_length_m": 126.46952012586726,
+        "orientation_entropy": 3.1708356717110915,
+        "orientation_order": 0.34036405171132333
+      },
+      "node_count": 6841,
+      "passed": true,
+      "physical_segment_count": 6604,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "polycentric_tod/44",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0210729086245145,
+        "dead_end_share": 0.18670309653916212,
+        "four_way_share": 0.17281420765027322,
+        "mean_node_degree": 2.9854280510018216,
+        "median_segment_length_m": 125.49525827828344,
+        "orientation_entropy": 3.1885541073665147,
+        "orientation_order": 0.32720017614619623
+      },
+      "node_count": 6761,
+      "passed": true,
+      "physical_segment_count": 6556,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "polycentric_tod/53",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0176308064854895,
+        "dead_end_share": 0.16968663397996162,
+        "four_way_share": 0.1903645278192283,
+        "mean_node_degree": 3.023662332125346,
+        "median_segment_length_m": 124.00000000000006,
+        "orientation_entropy": 3.167795226795354,
+        "orientation_order": 0.34260987053965963
+      },
+      "node_count": 7205,
+      "passed": true,
+      "physical_segment_count": 7092,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "river_constrained/17",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0183509587537123,
+        "dead_end_share": 0.22063854047890535,
+        "four_way_share": 0.16961231470923605,
+        "mean_node_degree": 2.8819840364880274,
+        "median_segment_length_m": 129.0595739029385,
+        "orientation_entropy": 2.90962348020964,
+        "orientation_order": 0.5193393257689107
+      },
+      "node_count": 5351,
+      "passed": true,
+      "physical_segment_count": 5055,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "river_constrained/29",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0184389627252484,
+        "dead_end_share": 0.22248381400824013,
+        "four_way_share": 0.1553855208946439,
+        "mean_node_degree": 2.8693349028840496,
+        "median_segment_length_m": 130.2973056227583,
+        "orientation_entropy": 2.8707282116210826,
+        "orientation_order": 0.5435714499828035
+      },
+      "node_count": 5203,
+      "passed": true,
+      "physical_segment_count": 4875,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "river_constrained/41",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0173033686233723,
+        "dead_end_share": 0.19921875,
+        "four_way_share": 0.1671875,
+        "mean_node_degree": 2.927604166666667,
+        "median_segment_length_m": 124.00000000000011,
+        "orientation_entropy": 2.9030550736411795,
+        "orientation_order": 0.5234754878327191
+      },
+      "node_count": 5880,
+      "passed": true,
+      "physical_segment_count": 5621,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "river_constrained/44",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.016467863374594,
+        "dead_end_share": 0.22123640526617058,
+        "four_way_share": 0.1668574699484831,
+        "mean_node_degree": 2.8603319977103605,
+        "median_segment_length_m": 127.20494866408248,
+        "orientation_entropy": 2.8653973631535536,
+        "orientation_order": 0.5468437851025432
+      },
+      "node_count": 5324,
+      "passed": true,
+      "physical_segment_count": 4997,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "river_constrained/53",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0202145422607063,
+        "dead_end_share": 0.22991527899503358,
+        "four_way_share": 0.16944200993280747,
+        "mean_node_degree": 2.867075664621677,
+        "median_segment_length_m": 126.95996872134884,
+        "orientation_entropy": 2.8882431936147084,
+        "orientation_order": 0.5327370152599931
+      },
+      "node_count": 5273,
+      "passed": true,
+      "physical_segment_count": 4907,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "superblock_mixed/17",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0177615445566512,
+        "dead_end_share": 0.17206654991243434,
+        "four_way_share": 0.18257443082311733,
+        "mean_node_degree": 3.0197022767075308,
+        "median_segment_length_m": 125.27234611418297,
+        "orientation_entropy": 3.45744041777321,
+        "orientation_order": 0.11146905808208796
+      },
+      "node_count": 6996,
+      "passed": true,
+      "physical_segment_count": 6897,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "superblock_mixed/29",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0197396382231871,
+        "dead_end_share": 0.16300211416490487,
+        "four_way_share": 0.17315010570824524,
+        "mean_node_degree": 3.035095137420719,
+        "median_segment_length_m": 124.0,
+        "orientation_entropy": 3.415226819692233,
+        "orientation_order": 0.14731959363946134
+      },
+      "node_count": 7246,
+      "passed": true,
+      "physical_segment_count": 7178,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "superblock_mixed/41",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.018889127046124,
+        "dead_end_share": 0.17354497354497356,
+        "four_way_share": 0.17312169312169312,
+        "mean_node_degree": 3.005714285714286,
+        "median_segment_length_m": 124.00000000000003,
+        "orientation_entropy": 3.435446401133868,
+        "orientation_order": 0.13023992326352385
+      },
+      "node_count": 7210,
+      "passed": true,
+      "physical_segment_count": 7101,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "superblock_mixed/44",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0201970346086007,
+        "dead_end_share": 0.16429665281120104,
+        "four_way_share": 0.1811419820608182,
+        "mean_node_degree": 3.0146576241522642,
+        "median_segment_length_m": 124.00000000000003,
+        "orientation_entropy": 3.4653410048349844,
+        "orientation_order": 0.1046773544108891
+      },
+      "node_count": 6962,
+      "passed": true,
+      "physical_segment_count": 6890,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "superblock_mixed/53",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0200180531602685,
+        "dead_end_share": 0.16474177380692961,
+        "four_way_share": 0.1786881673567226,
+        "mean_node_degree": 3.019394203530181,
+        "median_segment_length_m": 124.00000000000011,
+        "orientation_entropy": 3.4327880275881735,
+        "orientation_order": 0.13249514625806502
+      },
+      "node_count": 7032,
+      "passed": true,
+      "physical_segment_count": 6928,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "organic/17",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.020969406622205,
+        "dead_end_share": 0.1906848051648605,
+        "four_way_share": 0.1660133732995158,
+        "mean_node_degree": 2.934747521328107,
+        "median_segment_length_m": 125.01025278063491,
+        "orientation_entropy": 3.491866246228976,
+        "orientation_order": 0.08168590650738772
+      },
+      "node_count": 6656,
+      "passed": true,
+      "physical_segment_count": 6364,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "organic/29",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.01980622861616,
+        "dead_end_share": 0.1851769419096372,
+        "four_way_share": 0.17805475183618963,
+        "mean_node_degree": 2.9646116180725572,
+        "median_segment_length_m": 123.99999999999991,
+        "orientation_entropy": 3.4808071877527214,
+        "orientation_order": 0.09130706364420327
+      },
+      "node_count": 6827,
+      "passed": true,
+      "physical_segment_count": 6660,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "organic/41",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0211219678673569,
+        "dead_end_share": 0.158203125,
+        "four_way_share": 0.1875,
+        "mean_node_degree": 3.0546875,
+        "median_segment_length_m": 123.99999999999997,
+        "orientation_entropy": 3.504314277217724,
+        "orientation_order": 0.07079576050033298
+      },
+      "node_count": 7182,
+      "passed": true,
+      "physical_segment_count": 7038,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "organic/44",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.019603152448526,
+        "dead_end_share": 0.15731100045269353,
+        "four_way_share": 0.17722951561792666,
+        "mean_node_degree": 3.0140334993209597,
+        "median_segment_length_m": 123.99999999999997,
+        "orientation_entropy": 3.5083547625599003,
+        "orientation_order": 0.06724714682052868
+      },
+      "node_count": 6768,
+      "passed": true,
+      "physical_segment_count": 6658,
+      "simplified": true
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "organic/53",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0186063240883467,
+        "dead_end_share": 0.17397521448999045,
+        "four_way_share": 0.17492850333651097,
+        "mean_node_degree": 2.970924690181125,
+        "median_segment_length_m": 124.00000000000004,
+        "orientation_entropy": 3.4890696944277857,
+        "orientation_order": 0.08412363614132601
+      },
+      "node_count": 6431,
+      "passed": true,
+      "physical_segment_count": 6233,
+      "simplified": true
+    },
+    {
+      "arm": "osm",
+      "case": "barcelona.osm",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.03239482833452,
+        "dead_end_share": 0.16198704103671707,
+        "four_way_share": 0.48596112311015116,
+        "mean_node_degree": 3.2095032397408207,
+        "median_segment_length_m": 116.4939079818347,
+        "orientation_entropy": 2.810982775624924,
+        "orientation_order": 0.5795727192435836
+      },
+      "node_count": 819,
+      "passed": true,
+      "physical_segment_count": 743,
+      "simplified": true
+    },
+    {
+      "arm": "osm",
+      "case": "charlotte.osm",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0449423589357738,
+        "dead_end_share": 0.22968197879858657,
+        "four_way_share": 0.22614840989399293,
+        "mean_node_degree": 2.7985865724381624,
+        "median_segment_length_m": 121.99663353229678,
+        "orientation_entropy": 3.3915162982875366,
+        "orientation_order": 0.1671323419941313
+      },
+      "node_count": 370,
+      "passed": true,
+      "physical_segment_count": 396,
+      "simplified": true
+    },
+    {
+      "arm": "osm",
+      "case": "chicago.osm",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0379519745101418,
+        "dead_end_share": 0.21933962264150944,
+        "four_way_share": 0.4009433962264151,
+        "mean_node_degree": 3.0235849056603774,
+        "median_segment_length_m": 116.17587730689719,
+        "orientation_entropy": 1.9331203026817332,
+        "orientation_order": 0.9380631202988732
+      },
+      "node_count": 816,
+      "passed": true,
+      "physical_segment_count": 641,
+      "simplified": true
+    },
+    {
+      "arm": "osm",
+      "case": "seoul.osm",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0274599545476377,
+        "dead_end_share": 0.135678391959799,
+        "four_way_share": 0.20268006700167504,
+        "mean_node_degree": 2.9514237855946397,
+        "median_segment_length_m": 60.571999005166916,
+        "orientation_entropy": 3.070734284713736,
+        "orientation_order": 0.4122912508482144
+      },
+      "node_count": 723,
+      "passed": true,
+      "physical_segment_count": 881,
+      "simplified": true
+    },
+    {
+      "arm": "osm",
+      "case": "tokyo.osm",
+      "failed_metrics": [],
+      "metrics": {
+        "circuity": 1.0517441520496462,
+        "dead_end_share": 0.11702127659574468,
+        "four_way_share": 0.2404255319148936,
+        "mean_node_degree": 3.046808510638298,
+        "median_segment_length_m": 52.27797776651144,
+        "orientation_entropy": 3.4543806187174515,
+        "orientation_order": 0.11409245383823086
+      },
+      "node_count": 1128,
+      "passed": true,
+      "physical_segment_count": 1432,
+      "simplified": true
+    }
+  ],
+  "skipped_cases": [
+    "standard:grid_core/17:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:grid_core/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:grid_core/41:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:grid_core/44:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:grid_core/53:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:river_constrained/17:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:river_constrained/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:river_constrained/41:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:river_constrained/44:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:river_constrained/53:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:superblock_mixed/17:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:superblock_mixed/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:superblock_mixed/41:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:superblock_mixed/44:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:superblock_mixed/53:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:organic/17:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:organic/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:organic/41:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:organic/44:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:organic/53:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "osm:paris.osm:ValueError:lanes:forward leaves no backward traffic lane",
+    "osm:prague.osm:ValueError:unsupported oneway value 'alternating'"
+  ],
+  "summaries": [
+    {
+      "arm": "standard",
+      "case_count": 10,
+      "metric_pass_counts": {
+        "circuity": 10,
+        "dead_end_share": 10,
+        "four_way_share": 10,
+        "mean_node_degree": 0,
+        "median_segment_length_m": 10,
+        "orientation_entropy": 10,
+        "orientation_order": 10
+      },
+      "passed_case_count": 0
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case_count": 30,
+      "metric_pass_counts": {
+        "circuity": 30,
+        "dead_end_share": 25,
+        "four_way_share": 20,
+        "mean_node_degree": 30,
+        "median_segment_length_m": 20,
+        "orientation_entropy": 30,
+        "orientation_order": 30
+      },
+      "passed_case_count": 15
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case_count": 30,
+      "metric_pass_counts": {
+        "circuity": 30,
+        "dead_end_share": 30,
+        "four_way_share": 25,
+        "mean_node_degree": 30,
+        "median_segment_length_m": 0,
+        "orientation_entropy": 30,
+        "orientation_order": 30
+      },
+      "passed_case_count": 0
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case_count": 30,
+      "metric_pass_counts": {
+        "circuity": 30,
+        "dead_end_share": 0,
+        "four_way_share": 30,
+        "mean_node_degree": 0,
+        "median_segment_length_m": 30,
+        "orientation_entropy": 30,
+        "orientation_order": 30
+      },
+      "passed_case_count": 0
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case_count": 30,
+      "metric_pass_counts": {
+        "circuity": 30,
+        "dead_end_share": 30,
+        "four_way_share": 30,
+        "mean_node_degree": 30,
+        "median_segment_length_m": 30,
+        "orientation_entropy": 30,
+        "orientation_order": 30
+      },
+      "passed_case_count": 30
+    },
+    {
+      "arm": "osm",
+      "case_count": 5,
+      "metric_pass_counts": {
+        "circuity": 5,
+        "dead_end_share": 5,
+        "four_way_share": 5,
+        "mean_node_degree": 5,
+        "median_segment_length_m": 5,
+        "orientation_entropy": 5,
+        "orientation_order": 5
+      },
+      "passed_case_count": 5
+    }
+  ],
+  "topology_diagnostics": {
+    "growth_fabric_v1:grid_core/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 6909,
+      "unregistered_touch_count": 6261
+    },
+    "growth_fabric_v1:grid_core/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 6228,
+      "unregistered_touch_count": 6124
+    },
+    "growth_fabric_v1:grid_core/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 5925,
+      "unregistered_touch_count": 5563
+    },
+    "growth_fabric_v1:grid_core/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 6018,
+      "unregistered_touch_count": 5744
+    },
+    "growth_fabric_v1:grid_core/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 6387,
+      "unregistered_touch_count": 5979
+    },
+    "growth_fabric_v1:organic/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 6968,
+      "unregistered_touch_count": 6459
+    },
+    "growth_fabric_v1:organic/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 7433,
+      "unregistered_touch_count": 6838
+    },
+    "growth_fabric_v1:organic/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 8065,
+      "unregistered_touch_count": 7219
+    },
+    "growth_fabric_v1:organic/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 6879,
+      "unregistered_touch_count": 6703
+    },
+    "growth_fabric_v1:organic/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 6405,
+      "unregistered_touch_count": 6216
+    },
+    "growth_fabric_v1:polycentric_tod/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 7843,
+      "unregistered_touch_count": 7163
+    },
+    "growth_fabric_v1:polycentric_tod/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 8598,
+      "unregistered_touch_count": 7590
+    },
+    "growth_fabric_v1:polycentric_tod/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 7219,
+      "unregistered_touch_count": 6724
+    },
+    "growth_fabric_v1:polycentric_tod/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 7877,
+      "unregistered_touch_count": 6903
+    },
+    "growth_fabric_v1:polycentric_tod/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 8257,
+      "unregistered_touch_count": 7388
+    },
+    "growth_fabric_v1:ring_radial/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 11814,
+      "unregistered_touch_count": 8236
+    },
+    "growth_fabric_v1:ring_radial/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 11589,
+      "unregistered_touch_count": 7983
+    },
+    "growth_fabric_v1:ring_radial/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 11992,
+      "unregistered_touch_count": 8144
+    },
+    "growth_fabric_v1:ring_radial/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 12474,
+      "unregistered_touch_count": 8412
+    },
+    "growth_fabric_v1:ring_radial/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 11129,
+      "unregistered_touch_count": 7933
+    },
+    "growth_fabric_v1:river_constrained/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 5983,
+      "unregistered_touch_count": 5286
+    },
+    "growth_fabric_v1:river_constrained/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 5695,
+      "unregistered_touch_count": 5137
+    },
+    "growth_fabric_v1:river_constrained/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 6211,
+      "unregistered_touch_count": 5809
+    },
+    "growth_fabric_v1:river_constrained/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 5347,
+      "unregistered_touch_count": 5250
+    },
+    "growth_fabric_v1:river_constrained/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 5333,
+      "unregistered_touch_count": 5171
+    },
+    "growth_fabric_v1:superblock_mixed/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 8496,
+      "unregistered_touch_count": 7106
+    },
+    "growth_fabric_v1:superblock_mixed/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 8881,
+      "unregistered_touch_count": 7422
+    },
+    "growth_fabric_v1:superblock_mixed/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 8482,
+      "unregistered_touch_count": 7376
+    },
+    "growth_fabric_v1:superblock_mixed/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 8103,
+      "unregistered_touch_count": 7065
+    },
+    "growth_fabric_v1:superblock_mixed/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 8468,
+      "unregistered_touch_count": 7197
+    },
+    "osm:barcelona.osm": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "osm:charlotte.osm": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "osm:chicago.osm": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "osm:seoul.osm": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "osm:tokyo.osm": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:grid_core/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:grid_core/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:grid_core/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:grid_core/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:grid_core/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:organic/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:organic/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:organic/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:organic/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:organic/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:polycentric_tod/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:polycentric_tod/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:polycentric_tod/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:polycentric_tod/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:polycentric_tod/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:ring_radial/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:ring_radial/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:ring_radial/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:ring_radial/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:ring_radial/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:river_constrained/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:river_constrained/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:river_constrained/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:river_constrained/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:river_constrained/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:superblock_mixed/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:superblock_mixed/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:superblock_mixed/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:superblock_mixed/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "realistic_synthetic_v1:superblock_mixed/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 0
+    },
+    "sidecar_local_fabric:grid_core/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 384,
+      "unregistered_touch_count": 79
+    },
+    "sidecar_local_fabric:grid_core/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 390,
+      "unregistered_touch_count": 88
+    },
+    "sidecar_local_fabric:grid_core/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 370,
+      "unregistered_touch_count": 80
+    },
+    "sidecar_local_fabric:grid_core/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 385,
+      "unregistered_touch_count": 98
+    },
+    "sidecar_local_fabric:grid_core/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 384,
+      "unregistered_touch_count": 78
+    },
+    "sidecar_local_fabric:organic/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 475,
+      "unregistered_touch_count": 52
+    },
+    "sidecar_local_fabric:organic/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 526,
+      "unregistered_touch_count": 56
+    },
+    "sidecar_local_fabric:organic/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 571,
+      "unregistered_touch_count": 61
+    },
+    "sidecar_local_fabric:organic/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 513,
+      "unregistered_touch_count": 84
+    },
+    "sidecar_local_fabric:organic/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 488,
+      "unregistered_touch_count": 86
+    },
+    "sidecar_local_fabric:polycentric_tod/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 523,
+      "unregistered_touch_count": 56
+    },
+    "sidecar_local_fabric:polycentric_tod/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 533,
+      "unregistered_touch_count": 53
+    },
+    "sidecar_local_fabric:polycentric_tod/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 542,
+      "unregistered_touch_count": 60
+    },
+    "sidecar_local_fabric:polycentric_tod/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 529,
+      "unregistered_touch_count": 58
+    },
+    "sidecar_local_fabric:polycentric_tod/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 514,
+      "unregistered_touch_count": 41
+    },
+    "sidecar_local_fabric:ring_radial/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 3048,
+      "unregistered_touch_count": 860
+    },
+    "sidecar_local_fabric:ring_radial/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 3157,
+      "unregistered_touch_count": 988
+    },
+    "sidecar_local_fabric:ring_radial/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 2975,
+      "unregistered_touch_count": 793
+    },
+    "sidecar_local_fabric:ring_radial/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 2986,
+      "unregistered_touch_count": 756
+    },
+    "sidecar_local_fabric:ring_radial/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 3103,
+      "unregistered_touch_count": 982
+    },
+    "sidecar_local_fabric:river_constrained/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 347,
+      "unregistered_touch_count": 231
+    },
+    "sidecar_local_fabric:river_constrained/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 336,
+      "unregistered_touch_count": 212
+    },
+    "sidecar_local_fabric:river_constrained/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 305,
+      "unregistered_touch_count": 208
+    },
+    "sidecar_local_fabric:river_constrained/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 342,
+      "unregistered_touch_count": 236
+    },
+    "sidecar_local_fabric:river_constrained/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 341,
+      "unregistered_touch_count": 220
+    },
+    "sidecar_local_fabric:superblock_mixed/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 411,
+      "unregistered_touch_count": 32
+    },
+    "sidecar_local_fabric:superblock_mixed/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 394,
+      "unregistered_touch_count": 39
+    },
+    "sidecar_local_fabric:superblock_mixed/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 411,
+      "unregistered_touch_count": 42
+    },
+    "sidecar_local_fabric:superblock_mixed/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 407,
+      "unregistered_touch_count": 29
+    },
+    "sidecar_local_fabric:superblock_mixed/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 390,
+      "unregistered_touch_count": 26
+    },
+    "sidecar_local_fabric_planar:grid_core/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 68
+    },
+    "sidecar_local_fabric_planar:grid_core/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 68
+    },
+    "sidecar_local_fabric_planar:grid_core/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 75
+    },
+    "sidecar_local_fabric_planar:grid_core/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 77
+    },
+    "sidecar_local_fabric_planar:grid_core/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 66
+    },
+    "sidecar_local_fabric_planar:organic/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 58
+    },
+    "sidecar_local_fabric_planar:organic/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 107
+    },
+    "sidecar_local_fabric_planar:organic/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 101
+    },
+    "sidecar_local_fabric_planar:organic/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 101
+    },
+    "sidecar_local_fabric_planar:organic/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 126
+    },
+    "sidecar_local_fabric_planar:polycentric_tod/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 71
+    },
+    "sidecar_local_fabric_planar:polycentric_tod/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 40
+    },
+    "sidecar_local_fabric_planar:polycentric_tod/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 66
+    },
+    "sidecar_local_fabric_planar:polycentric_tod/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 61
+    },
+    "sidecar_local_fabric_planar:polycentric_tod/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 43
+    },
+    "sidecar_local_fabric_planar:ring_radial/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 1164
+    },
+    "sidecar_local_fabric_planar:ring_radial/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 1333
+    },
+    "sidecar_local_fabric_planar:ring_radial/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 1004
+    },
+    "sidecar_local_fabric_planar:ring_radial/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 847
+    },
+    "sidecar_local_fabric_planar:ring_radial/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 1350
+    },
+    "sidecar_local_fabric_planar:river_constrained/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 218
+    },
+    "sidecar_local_fabric_planar:river_constrained/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 203
+    },
+    "sidecar_local_fabric_planar:river_constrained/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 196
+    },
+    "sidecar_local_fabric_planar:river_constrained/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 226
+    },
+    "sidecar_local_fabric_planar:river_constrained/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 204
+    },
+    "sidecar_local_fabric_planar:superblock_mixed/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 6
+    },
+    "sidecar_local_fabric_planar:superblock_mixed/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 32
+    },
+    "sidecar_local_fabric_planar:superblock_mixed/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 9
+    },
+    "sidecar_local_fabric_planar:superblock_mixed/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 15
+    },
+    "sidecar_local_fabric_planar:superblock_mixed/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 0,
+      "unregistered_touch_count": 7
+    },
+    "standard:polycentric_tod/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 15614,
+      "unregistered_touch_count": 1976
+    },
+    "standard:polycentric_tod/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 15614,
+      "unregistered_touch_count": 1976
+    },
+    "standard:polycentric_tod/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 15614,
+      "unregistered_touch_count": 1976
+    },
+    "standard:polycentric_tod/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 15614,
+      "unregistered_touch_count": 1976
+    },
+    "standard:polycentric_tod/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 15614,
+      "unregistered_touch_count": 1976
+    },
+    "standard:ring_radial/17": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 13957,
+      "unregistered_touch_count": 1839
+    },
+    "standard:ring_radial/29": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 13957,
+      "unregistered_touch_count": 1839
+    },
+    "standard:ring_radial/41": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 13957,
+      "unregistered_touch_count": 1839
+    },
+    "standard:ring_radial/44": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 13957,
+      "unregistered_touch_count": 1839
+    },
+    "standard:ring_radial/53": {
+      "measurement_spec": "BOEING_2019_HO",
+      "proper_crossing_count": 13957,
+      "unregistered_touch_count": 1839
+    }
+  },
+  "vacuous_metrics": [
+    "orientation_order"
+  ]
+}

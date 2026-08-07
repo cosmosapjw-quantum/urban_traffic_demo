@@ -186,16 +186,22 @@ def render_markdown(table: MorphologyControlTable, skipped: tuple[str, ...]) -> 
         "",
         f"Fingerprint: `{table.fingerprint}`",
         "",
-        "One pinned envelope applied to every arm. Metrics are measured on a",
-        "home-grown degree-2 contraction, because the reference corpus reports",
-        "values after OSMnx contracts interstitial nodes.",
+        "One pinned envelope applied to every arm, measured under",
+        "`MeasurementSpec.BOEING_2019_HO`: one endpoint-chord bearing per",
+        "simplified edge, unweighted, self-loops excluded.",
         "",
-        "**Parity with OSMnx is asserted, not demonstrated.** No oracle test",
-        "compares this contraction against a pinned OSMnx, and the orientation",
-        "histogram is known to take one bearing per member edge while circuity",
-        "takes the contracted chain's chord -- a hybrid matching neither of",
-        "Boeing's two published definitions. Treat every number below as",
-        "provisional until PR-A lands the parity suite.",
+        "Parity is checked against a pinned `osmnx==2.1.1`, not asserted. On the",
+        "five importable OSM extracts the dead-end node COUNT agrees exactly;",
+        "four-way counts agree exactly on three and are one node out on two.",
+        "Residual share-level differences reach 3.24% and are entirely the",
+        "denominator: `osm_import` builds a graph 1-15 nodes smaller than OSMnx",
+        "does. That is an importer defect, bounded by test, not a metric",
+        "disagreement.",
+        "",
+        "Repairing the instrument moved every metric value and changed **no**",
+        "verdict. The defects were real but were not what produced the result",
+        "below -- which is itself a finding about how little this gate",
+        "discriminates.",
         "",
         "| " + " | ".join(header) + " |",
         "|" + "|".join(["---"] * len(header)) + "|",
@@ -283,7 +289,12 @@ def write_artifacts(
     payload["skipped_cases"] = list(skipped)
 
     json_path = prefix.with_suffix(".json")
-    json_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    # allow_nan=False makes a non-finite value an error at write time rather
+    # than a bare NaN in a committed artifact that strict parsers reject.
+    json_path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n",
+        encoding="utf-8",
+    )
     markdown_path = prefix.with_suffix(".md")
     markdown_path.write_text(render_markdown(table, skipped), encoding="utf-8")
 
@@ -301,6 +312,7 @@ def write_artifacts(
             },
             indent=2,
             sort_keys=True,
+            allow_nan=False,
         )
         + "\n",
         encoding="utf-8",
