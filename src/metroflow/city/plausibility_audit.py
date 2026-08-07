@@ -43,6 +43,24 @@ _EMPIRICAL_EXPANSION_FRACTION = 0.20
 _SHARE_METRICS = frozenset(
     {"orientation_order", "dead_end_share", "four_way_share"}
 )
+# The range each metric can take by construction. A derived bound outside this
+# range is inert: no map can violate it, so the gate stops discriminating on
+# that metric. Clamping to these values can only ever make a bound stricter.
+_ORIENTATION_BIN_COUNT = 36
+_THEORETICAL_RANGES: Mapping[str, tuple[float, float]] = MappingProxyType(
+    {
+        "orientation_order": (0.0, 1.0),
+        "orientation_entropy": (0.0, math.log(float(_ORIENTATION_BIN_COUNT))),
+        "median_segment_length_m": (0.0, math.inf),
+        "circuity": (1.0, math.inf),
+        "mean_node_degree": (0.0, math.inf),
+        "dead_end_share": (0.0, 1.0),
+        "four_way_share": (0.0, 1.0),
+    }
+)
+# A finite-range envelope covering at least this fraction of its own range
+# cannot meaningfully fail.
+_VACUOUS_COVERAGE_FRACTION = 0.95
 _EMPIRICAL_METRICS = (
     "orientation_order",
     "orientation_entropy",
@@ -72,8 +90,17 @@ class EmpiricalMetricEnvelope:
     expansion_fraction: float
     source_url: str
     source_cities: tuple[str, ...]
+    # Derived from the metric name so every construction path - including the
+    # artifact loader, which replays stored bounds - reports the same range.
+    theoretical_min: float = field(init=False)
+    theoretical_max: float = field(init=False)
 
     def __post_init__(self) -> None:
+        theoretical_min, theoretical_max = _THEORETICAL_RANGES.get(
+            str(self.metric), (-math.inf, math.inf)
+        )
+        object.__setattr__(self, "theoretical_min", float(theoretical_min))
+        object.__setattr__(self, "theoretical_max", float(theoretical_max))
         values = (
             float(self.reference_min),
             float(self.reference_max),
@@ -98,6 +125,36 @@ class EmpiricalMetricEnvelope:
             self.lower - tolerance <= value <= self.upper + tolerance
         )
 
+    @property
+    def lower_bound_is_inert(self) -> bool:
+        """No attainable value can fall below this bound."""
+
+        return float(self.lower) <= float(self.theoretical_min)
+
+    @property
+    def upper_bound_is_inert(self) -> bool:
+        """No attainable value can rise above this bound."""
+
+        return float(self.upper) >= float(self.theoretical_max)
+
+    @property
+    def theoretical_coverage(self) -> float:
+        """Fraction of the metric's attainable range the envelope admits."""
+
+        span = float(self.theoretical_max) - float(self.theoretical_min)
+        if not math.isfinite(span) or span <= 0.0:
+            return math.nan
+        return (float(self.upper) - float(self.lower)) / span
+
+    @property
+    def is_vacuous(self) -> bool:
+        """The envelope admits so much of the range that it cannot fail."""
+
+        if self.lower_bound_is_inert and self.upper_bound_is_inert:
+            return True
+        coverage = self.theoretical_coverage
+        return math.isfinite(coverage) and coverage >= _VACUOUS_COVERAGE_FRACTION
+
     def as_dict(self) -> dict[str, Any]:
         return {
             "metric": self.metric,
@@ -108,6 +165,23 @@ class EmpiricalMetricEnvelope:
             "expansion_fraction": self.expansion_fraction,
             "source_url": self.source_url,
             "source_cities": list(self.source_cities),
+        }
+
+    def diagnostics(self) -> dict[str, Any]:
+        """Discriminative-power diagnostics, deliberately outside the fingerprint.
+
+        These are fully derived from the bounds, so hashing them would add no
+        information while breaking round-trips of previously written artifacts.
+        """
+
+        return {
+            "metric": self.metric,
+            "theoretical_min": self.theoretical_min,
+            "theoretical_max": self.theoretical_max,
+            "theoretical_coverage": self.theoretical_coverage,
+            "lower_bound_is_inert": self.lower_bound_is_inert,
+            "upper_bound_is_inert": self.upper_bound_is_inert,
+            "is_vacuous": self.is_vacuous,
         }
 
 
@@ -307,11 +381,11 @@ def build_empirical_metric_envelopes() -> Mapping[str, EmpiricalMetricEnvelope]:
         reference_max = max(values)
         lower = reference_min * (1.0 - _EMPIRICAL_EXPANSION_FRACTION)
         upper = reference_max * (1.0 + _EMPIRICAL_EXPANSION_FRACTION)
-        if metric in _SHARE_METRICS:
-            lower = max(0.0, lower)
-            upper = min(1.0, upper)
-        if metric == "circuity":
-            lower = max(1.0, lower)
+        theoretical_min, theoretical_max = _THEORETICAL_RANGES[metric]
+        # Clamp into the attainable range. This only ever tightens a bound, so
+        # it cannot turn a failing map into a passing one.
+        lower = max(lower, theoretical_min)
+        upper = min(upper, theoretical_max)
         out[metric] = EmpiricalMetricEnvelope(
             metric=metric,
             reference_min=reference_min,
