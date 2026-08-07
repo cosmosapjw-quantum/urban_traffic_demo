@@ -1,5 +1,13 @@
 # TDD + SDD MASTER SPEC
 
+## 최종 통합 수학·물리 모델
+
+교통 수요, 링크/노드 흐름, 경로 선택, 재탐색, 접근성, 토지이용,
+제한적 온라인 적응을 하나의 규범적 모델로 연결한 문서는
+[`TRAFFIC_SIMULATION_FINAL_MODEL_SPEC.md`](TRAFFIC_SIMULATION_FINAL_MODEL_SPEC.md)다.
+이 문서는 코드 구현 현황이 아니라 기능별 최종 스펙을 통합한 목표 구현
+규격이며, 헌법과 기능별 focused spec/contract가 충돌 시 우선한다.
+
 ## 문서 우선(SDD) 순서
 1. spec
 2. plan
