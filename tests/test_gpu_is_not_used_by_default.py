@@ -68,10 +68,13 @@ def test_a_jax_touching_run_holds_no_vram() -> None:
         pytest.skip("no NVIDIA GPU on this machine")
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # DEVNULL, not PIPE: nothing reads the pipe until wait(), so a child that
+    # produces more than the buffer holds blocks forever -- which is exactly what
+    # happens when the bracketed tests fail and print tracebacks.
     run = subprocess.Popen(
         [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
          "tests/test_meso_core.py", "tests/test_jax_dense_flow_bakeoff.py"],
-        cwd=root, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+        cwd=root, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )
     peak = 0
     while run.poll() is None:
@@ -84,7 +87,10 @@ def test_a_jax_touching_run_holds_no_vram() -> None:
             pid, _, used = line.partition(",")
             if pid.strip() == str(run.pid):
                 peak = max(peak, int(used.strip() or 0))
-    run.wait()
+    # Without this the assertion passes when the child never ran at all -- a
+    # missing file or an import error gives peak == 0 just as convincingly as a
+    # clean run does.
+    assert run.wait() == 0, "the bracketed JAX test files did not pass"
 
     assert peak == 0, f"the JAX test files reserved {peak} MiB of VRAM"
 
@@ -150,46 +156,60 @@ def test_torch_also_cannot_reach_the_gpu_by_default() -> None:
     assert not torch.cuda.is_available(), "torch can still reach the device"
 
 
-def test_an_explicitly_exported_setting_is_never_removed() -> None:
-    """The docstring promised this while the code did the opposite.
+@pytest.mark.gpu
+def test_a_caller_exported_device_mask_survives_the_opt_in() -> None:
+    """The lift must remove only what conftest itself set.
 
-    --run-gpu compared against the DEFAULT value rather than tracking what it had
-    set, so a caller who deliberately exported CUDA_VISIBLE_DEVICES="" had it
-    deleted.
+    Runs under --run-gpu, which is the only mode in which the code under test
+    executes. The previous version of this test never passed the flag, imported a
+    SECOND copy of conftest (tests/ has no __init__.py, so `from tests import
+    conftest` is not the module pytest loaded), and was skipped by this file's own
+    autouse fixture anyway. Restoring the original bug verbatim left it green --
+    verified by mutation -- so it locked nothing.
+
+    Driven by `_run_pytest_with_run_gpu` below, which exports the mask and checks
+    this assertion actually ran.
     """
 
-    from tests import conftest  # type: ignore[import-not-found]
+    expected = os.environ.get("METROFLOW_EXPECT_MASK")
+    if expected is None:
+        pytest.skip("driven by test_the_opt_in_does_not_delete_a_caller_export")
+    assert os.environ.get("CUDA_VISIBLE_DEVICES") == expected, (
+        "--run-gpu removed a mask the caller exported explicitly"
+    )
+
+
+def test_the_opt_in_does_not_delete_a_caller_export() -> None:
+    """Drive the gpu-marked probe above in a real --run-gpu session."""
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    env = dict(os.environ, CUDA_VISIBLE_DEVICES="")
+    env = dict(os.environ, CUDA_VISIBLE_DEVICES="", METROFLOW_EXPECT_MASK="")
     probe = subprocess.run(
-        [sys.executable, "-c",
-         "import os,sys;sys.path.insert(0,'tests');import conftest;"
-         "print('applied', sorted(conftest._APPLIED_BY_US))"],
+        [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "--run-gpu",
+         "tests/test_gpu_is_not_used_by_default.py::"
+         "test_a_caller_exported_device_mask_survives_the_opt_in"],
         cwd=root, env=env, capture_output=True, text=True,
     )
 
-    assert "CUDA_VISIBLE_DEVICES" not in probe.stdout, (
-        "conftest claimed a variable it did not set: " + probe.stdout
+    assert probe.returncode == 0, (
+        f"the probe did not pass under --run-gpu:\n{probe.stdout}\n{probe.stderr}"
     )
-    assert conftest._APPLIED_BY_US <= set(conftest._DEFAULTS)
+    assert "1 passed" in probe.stdout, (
+        f"the probe did not actually run; it must not be skipped:\n{probe.stdout}"
+    )
 
 
-def test_pinning_jax_to_cuda_is_not_sabotaged_by_the_device_mask() -> None:
-    """Masking every device while JAX is told to use CUDA gives NO_DEVICE.
+def test_conftest_only_claims_variables_it_actually_set() -> None:
+    """`_APPLIED_BY_US` must reflect reality, in the module pytest loaded.
 
-    That is not the fail-closed backend error the claim ledger requires; it is a
-    driver error from a configuration this file created.
+    Asserted against the LIVE conftest module, not a re-import: with no
+    __init__.py in tests/, `from tests import conftest` mints a second module
+    whose _apply_defaults sees everything already set and records nothing, so the
+    old assertion was `set() <= {...}` and could not fail.
     """
 
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    env = dict(os.environ, JAX_PLATFORMS="cuda")
-    env.pop("CUDA_VISIBLE_DEVICES", None)
-    probe = subprocess.run(
-        [sys.executable, "-c",
-         "import os,sys;sys.path.insert(0,'tests');import conftest;"
-         "print('mask=' + repr(os.environ.get('CUDA_VISIBLE_DEVICES')))"],
-        cwd=root, env=env, capture_output=True, text=True,
-    )
+    import conftest  # the module pytest itself loaded
 
-    assert "mask=None" in probe.stdout, probe.stdout
+    for name in conftest._APPLIED_BY_US:
+        assert name in conftest._DEFAULTS
+        assert os.environ.get(name) == conftest._DEFAULTS[name]

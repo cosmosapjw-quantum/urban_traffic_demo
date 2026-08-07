@@ -35,11 +35,18 @@ Additional structural interpretation is informed by:
 The observed values in `morphology_reference.py` are reference-only. They are
 not training data, calibration objectives, or evidence that a generated map
 replicates a named city. They are also hand-transcribed literals, not values
-this repo can re-derive: only two of the eight reference cities have a committed
-extract, and both disagree with the table by two orders of magnitude
-(Charlotte `orientation_order` 0.002 vs 0.1494 measured, Seoul 0.009 vs 0.3898),
-because the corpus measured whole municipalities and the extracts are core
-bounding boxes.
+this repo can re-derive: **three** of the eight reference cities have a committed
+extract, and they do not agree with the table uniformly. Charlotte
+(`orientation_order` 0.002 in the corpus vs 0.167 measured) and Seoul
+(0.009 vs 0.412) differ by two orders of magnitude, while **Chicago agrees
+closely** (0.899 vs 0.938).
+
+An earlier version of this paragraph said "only two ... and both disagree",
+which was wrong on both counts. The pattern that actually holds is more
+informative than the one it asserted: a core bounding box resembles the whole
+municipality when the city is a uniform grid, and stops resembling it when the
+city is sprawling or organic. So the extract-vs-corpus gap is a property of the
+morphology being sampled, not a constant offset that could be corrected for.
 
 Raw OSM extracts **are** committed, under `artifacts/osm_control/` — this
 paragraph previously said they were not. OpenStreetMap data is ODbL, so the

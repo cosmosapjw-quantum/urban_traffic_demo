@@ -117,11 +117,17 @@ version with evidence and falsifiers is:
   **This is not the independent positive control it was presented as.**
   (a) The same five extracts were used to calibrate `GrowthConfig.spacing_scale`,
   so they are a development set, not a holdout. (b) They are 5-12 km2 core
-  bounding boxes; the pinned Boeing corpus measured whole municipalities, and
-  the two disagree by two orders of magnitude on the same cities -- Charlotte
-  `orientation_order` `0.002` in the corpus against `0.1494` measured on our
-  extract, Seoul `0.009` against `0.3898`. Envelope and control were never the
-  same population. (c) The scores are measured through instrument defects that
+  bounding boxes; the pinned Boeing corpus measured whole municipalities. Three
+  of the corpus's eight cities have a committed extract, and they disagree
+  unevenly: measured under `BOEING_2019_HO`, Charlotte `orientation_order` is
+  `0.002` in the corpus against `0.167` on our extract and Seoul `0.009` against
+  `0.412`, while **Chicago agrees closely at `0.899` against `0.938`**. A core
+  bbox resembles its municipality when the city is a uniform grid and stops
+  resembling it when the city is sprawling or organic, so the gap is a property
+  of the morphology sampled rather than an offset that could be corrected for.
+  Envelope and control were never the same population. (Earlier text here said
+  "two ... and both disagree" and quoted the superseded v1 figures `0.1494` and
+  `0.3898`.) (c) The scores are measured through instrument defects that
   are live on this data: parallel edges between one node pair were silently
   contracted (charlotte 5, seoul 4, chicago 2, tokyo 2 pairs), which is fixed
   under `BOEING_2019_HO`. The circuity figures previously quoted here
