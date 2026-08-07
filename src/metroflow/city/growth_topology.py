@@ -83,6 +83,7 @@ class StreetTopologyBuilder:
         self._points: list[PointM] = []
         self._incident: list[set[StreetId]] = []
         self._streets: list[_Street] = []
+        self._grade_separated: set[tuple[NodeId, NodeId]] = set()
 
     # --- construction ------------------------------------------------------
 
@@ -127,7 +128,13 @@ class StreetTopologyBuilder:
         self._incident[node_id].add(street_id)
         return node_id
 
-    def extend_street_to_node(self, street_id: StreetId, node_id: NodeId) -> NodeId:
+    def extend_street_to_node(
+        self,
+        street_id: StreetId,
+        node_id: NodeId,
+        *,
+        max_gap_m: float,
+    ) -> NodeId:
         """Terminate a street ON an existing node, rather than beside it.
 
         Without this, `contact()` is inert: it splits the target correctly and
@@ -135,12 +142,32 @@ class StreetTopologyBuilder:
         away, so the two streets are drawn meeting and remain unconnected. That
         is the defect this module exists to remove, so the API has to make
         finishing on a node possible.
+
+        `max_gap_m` is required and has no default. This appends a real segment
+        from the tip to the junction, so the caller is deciding how much street
+        it is willing to invent; a universal default would either forbid genuine
+        extension or silently weld across kilometres. Pass the same tolerance the
+        contact search used.
         """
 
         street = self._require_street(street_id)
         self._require_node(node_id)
         if street.node_ids[-1] == node_id:
             return node_id
+        if node_id in street.node_ids:
+            # Appending it again makes the street double back, producing a chain
+            # whose src equals its dst -- which `compile_grown_network` discards
+            # outright. That is the silent chain loss this module exists to stop.
+            raise ValueError(
+                f"node {node_id} is already on street {street_id}; "
+                "extending to it would fold the street back on itself"
+            )
+        gap = math.dist(self._points[street.node_ids[-1]], self._points[node_id])
+        if gap > float(max_gap_m):
+            raise ValueError(
+                f"node {node_id} is {gap:.3f} m from the end of street {street_id}, "
+                f"beyond max_gap_m={max_gap_m}; welding it would invent that length"
+            )
         street.node_ids.append(node_id)
         self._incident[node_id].add(street_id)
         return node_id
@@ -175,10 +202,12 @@ class StreetTopologyBuilder:
             if span <= 0.0:
                 continue
             # Advance on the segment's own extent, not on a tolerance-shifted
-            # one. Comparing against `arc_length_m - WELD_TOLERANCE_M` meant a
-            # street built from sub-tolerance segments never satisfied the
-            # condition, so every request fell out of the loop and returned the
-            # far end regardless of what was asked for.
+            # one. The tolerance-shifted comparison let a request skip past the
+            # segment it belonged in and weld to a vertex further along -- always
+            # inside the declared tolerance, but not the nearest one. (It was
+            # first described as falling through to the far end; that is
+            # unreachable, because the guard above rejects
+            # arc_length_m > total + WELD_TOLERANCE_M before the loop starts.)
             if travelled + span < arc_length_m:
                 travelled += span
                 continue
@@ -202,6 +231,13 @@ class StreetTopologyBuilder:
                 left[0] + ratio * (right[0] - left[0]),
                 left[1] + ratio * (right[1] - left[1]),
             )
+            # The segment's own endpoints are already ruled out above, but a
+            # NON-adjacent vertex of the same street can still lie inside the
+            # weld radius (a street that doubles back near itself). Minting here
+            # would leave the builder violating its own coincidence invariant.
+            for existing in street.node_ids:
+                if math.dist(self._points[existing], point) <= WELD_TOLERANCE_M:
+                    return existing
             node_id = self._mint_node(point)
             street.node_ids.insert(index + 1, node_id)
             self._incident[node_id].add(street_id)
@@ -297,31 +333,47 @@ class StreetTopologyBuilder:
         self._require_node(node_id)
         return frozenset(self._streets[street_id].layer for street_id in self._incident[node_id])
 
+    def register_grade_separation(self, node_a: NodeId, node_b: NodeId) -> None:
+        """Declare that two nodes share a point WITHOUT meeting.
+
+        A bridge passing over a road and a ramp touching down on one look
+        identical to any rule that compares the layers of the incident streets,
+        and an orphaned node has no incident street to compare at all. So the
+        exemption is declared where the crossing is built, and everything else
+        stays a defect.
+        """
+
+        self._require_node(node_a)
+        self._require_node(node_b)
+        self._grade_separated.add((min(node_a, node_b), max(node_a, node_b)))
+
     def assert_no_coincident_nodes(self, *, tolerance_m: float = WELD_TOLERANCE_M) -> None:
         """Fail loudly rather than let two junctions stack at one location.
 
-        Only within a grade. Two nodes at the same coordinate on different
-        layers are a bridge over a road: they cross and do not meet, and
-        collapsing them would be the opposite error to the one this guards.
+        A pair is exempt only if `register_grade_separation` declared it. An
+        earlier version inferred the exemption from the layers of the incident
+        streets, which was wrong twice over: it silently exempted a ramp landing
+        on a ground street, and an orphaned node has no incident street, so its
+        empty layer set intersected nothing and skipped every comparison.
         """
 
         cell = max(float(tolerance_m), 1e-9)
         buckets: dict[tuple[int, int], list[NodeId]] = {}
         for node_id, (x, y) in enumerate(self._points):
             key = (math.floor(x / cell), math.floor(y / cell))
-            layers = self.layers_of(node_id)
             for dx in (-1, 0, 1):
                 for dy in (-1, 0, 1):
                     for other in buckets.get((key[0] + dx, key[1] + dy), ()):
                         if math.dist(self._points[other], (x, y)) > tolerance_m:
                             continue
-                        if not (layers & self.layers_of(other)):
-                            continue  # grade-separated crossing, not a junction
+                        pair = (min(other, node_id), max(other, node_id))
+                        if pair in self._grade_separated:
+                            continue  # declared crossing, not a junction
                         raise CoincidentNodeError(
                             f"nodes {other} and {node_id} are both at "
-                            f"{self._points[other]!r} on layer(s) "
-                            f"{sorted(layers & self.layers_of(other))}; "
-                            "a junction must be one node"
+                            f"{self._points[other]!r}; a junction must be one "
+                            "node, and a deliberate crossing must be declared "
+                            "with register_grade_separation"
                         )
             buckets.setdefault(key, []).append(node_id)
 

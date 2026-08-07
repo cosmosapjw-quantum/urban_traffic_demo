@@ -6,20 +6,10 @@ One pinned envelope applied to every arm, measured under
 `MeasurementSpec.BOEING_2019_HO`: one endpoint-chord bearing per
 simplified edge, unweighted, self-loops excluded.
 
-Parity is checked against a pinned `osmnx==2.1.1`, not asserted. On the
-five importable OSM extracts the dead-end node COUNT agrees exactly;
-four-way counts agree exactly on three and are one node out on two.
-Residual share-level differences reach 3.24% and are entirely the
-denominator: `osm_import` builds a graph 1-15 nodes smaller than OSMnx
-does. That is an importer defect, bounded by test, not a metric
-disagreement.
+Parity against a pinned `osmnx==2.1.1` is checked by
+`tests/test_morphology_oracle_parity.py`, not asserted here.
 
-Repairing the instrument moved 392 of 945 metric values (41.5%) and
-changed **no** verdict. The bearing fix moved orientation_entropy and
-orientation_order on all 135 scores; the parallel-edge fix moved the
-other five metrics only on the 11-29 cases where those shapes occur.
-The defects were real but were not what produced the result below --
-which is itself a finding about how little this gate discriminates.
+This table covers 135 scores across 6 arms, including 5 real-data control cases.
 
 | arm | cases | all-7 pass | orientation_order | orientation_entropy | median_segment_length_m | circuity | mean_node_degree | dead_end_share | four_way_share |
 |---|---|---|---|---|---|---|---|---|---|

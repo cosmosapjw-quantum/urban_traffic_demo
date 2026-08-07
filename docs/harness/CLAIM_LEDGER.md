@@ -108,8 +108,10 @@ version with evidence and falsifiers is:
   `may_dead_end` is never read inside `grow()` -- its only effect is two fewer
   steps, with the polarity inverted relative to its name. Curvature is real.
 - The morphology instrument admits five offline OSM extracts on all seven
-  metrics (`orientation_order` `0.121-0.873`, median segment length
-  `52.3-122.0 m`), so the envelope is falsifiable in the weak sense that real
+  metrics (`orientation_order` `0.114-0.938` in the current v2 artifact --
+  `0.121-0.873` was the superseded v1 figure and was left here after the
+  re-scoring -- median segment length `52.3-122.0 m`), so the envelope is
+  falsifiable in the weak sense that real
   data can be measured against it.
 
   **This is not the independent positive control it was presented as.**
@@ -120,10 +122,13 @@ version with evidence and falsifiers is:
   `orientation_order` `0.002` in the corpus against `0.1494` measured on our
   extract, Seoul `0.009` against `0.3898`. Envelope and control were never the
   same population. (c) The scores are measured through instrument defects that
-  are live on this data: zero-chord segments inflate circuity (barcelona
-  `1.0324 -> 1.0255` corrected, chicago `1.0380 -> 1.0365`), and parallel edges
-  between one node pair are silently contracted (charlotte 5, seoul 4, chicago
-  2, tokyo 2 pairs). (d) Under the importer's shipped default policy
+  are live on this data: parallel edges between one node pair were silently
+  contracted (charlotte 5, seoul 4, chicago 2, tokyo 2 pairs), which is fixed
+  under `BOEING_2019_HO`. The circuity figures previously quoted here
+  (`1.0324 -> 1.0255`, `1.0380 -> 1.0365`) do NOT reproduce: v1 and v2 carry
+  bit-identical circuity for both cities, because self-loop length belongs in
+  the numerator under Boeing's definition and the repair deliberately preserves
+  that. (d) Under the importer's shipped default policy
   (`strict`), 6 of the 7 fetched extracts fail to import at all; the `5/5`
   figure holds only under the opt-in `osm_wiki` policy.
 
@@ -313,13 +318,29 @@ baseline fallback are required.
   `CudaDevice(id=0)` and executes real work. Its `float32` working precision
   matches `flow/engine.py`, so the recorded 65,536-link drift is accumulation,
   not a dtype mismatch.
-- PyTorch is declared as an optional extra and is **not installed**. Only
-  `learning/surrogate.py` imports it, lazily; its tests pass without it. Any
-  claim requiring the surrogate path is therefore unexercised in this
-  environment.
+- PyTorch **is** installed: `torch 2.13.0+cu130`, executing on the device
+  (`torch.cuda.is_available()` is True unmasked). An earlier version of this
+  bullet said it was absent, which was true when written and false by the next
+  commit. Only `learning/surrogate.py` imports it, lazily, so the surrogate path
+  is now reachable but still not exercised by any test that asserts on its
+  numerical behaviour.
+
+  The first install attempt failed with `[Errno 28] No space left on device` and
+  left a truncated `libtorch_python.so` that raised SIGBUS on import, after
+  downgrading ten of JAX's CUDA packages (cublas 13.6->13.1, cudnn 9.24->9.20,
+  nccl 2.30->2.29). JAX kept working, but both frameworks now share one set of
+  `nvidia-*` packages in this venv, so any future install touching either can
+  move the other's dependencies.
 - `pytest` used to reserve 9,194 MiB of VRAM for an entire run -- JAX
   preallocates 75% of the card the first time a device initializes, and a few
-  tests exercise the optional JAX backend. `tests/conftest.py` now defaults
-  `XLA_PYTHON_CLIENT_PREALLOCATE=false`, which changes allocation strategy only:
-  the backend still reports `gpu` and dtypes, ordering and results are
-  unaffected. An explicit environment setting still wins.
+  tests exercise the optional JAX backend. `tests/conftest.py` now sets three
+  defaults: `JAX_PLATFORMS=cpu` (no device is created at all),
+  `XLA_PYTHON_CLIENT_PREALLOCATE=false` (bounds the damage if one is), and
+  `CUDA_VISIBLE_DEVICES=""` (hides it from torch and anything added later, since
+  neither reads JAX's variables). None changes dtypes, ordering or results.
+
+  Only values conftest itself set are ever removed, and only under `--run-gpu`;
+  an explicit export by the caller survives. The device mask is skipped when the
+  caller has pinned `JAX_PLATFORMS` to a non-cpu platform, because masking every
+  device from a JAX told to use CUDA yields `CUDA_ERROR_NO_DEVICE` rather than a
+  fail-closed backend error.

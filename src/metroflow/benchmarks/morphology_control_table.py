@@ -190,20 +190,22 @@ def render_markdown(table: MorphologyControlTable, skipped: tuple[str, ...]) -> 
         "`MeasurementSpec.BOEING_2019_HO`: one endpoint-chord bearing per",
         "simplified edge, unweighted, self-loops excluded.",
         "",
-        "Parity is checked against a pinned `osmnx==2.1.1`, not asserted. On the",
-        "five importable OSM extracts the dead-end node COUNT agrees exactly;",
-        "four-way counts agree exactly on three and are one node out on two.",
-        "Residual share-level differences reach 3.24% and are entirely the",
-        "denominator: `osm_import` builds a graph 1-15 nodes smaller than OSMnx",
-        "does. That is an importer defect, bounded by test, not a metric",
-        "disagreement.",
+        "Parity against a pinned `osmnx==2.1.1` is checked by",
+        "`tests/test_morphology_oracle_parity.py`, not asserted here.",
         "",
-        "Repairing the instrument moved 392 of 945 metric values (41.5%) and",
-        "changed **no** verdict. The bearing fix moved orientation_entropy and",
-        "orientation_order on all 135 scores; the parallel-edge fix moved the",
-        "other five metrics only on the 11-29 cases where those shapes occur.",
-        "The defects were real but were not what produced the result below --",
-        "which is itself a finding about how little this gate discriminates.",
+        # Everything above is a property of the CODE and is true of any run.
+        # Anything quantitative about the OSM control or the v1-to-v2 delta is a
+        # property of a PARTICULAR run, and was previously hardcoded here -- so a
+        # run with no --osm-extract still printed a paragraph about "the five
+        # importable OSM extracts". Say only what this table contains.
+        f"This table covers {len(table.scores)} scores across "
+        f"{len(table.summaries)} arms"
+        + (
+            f", including {sum(1 for item in table.scores if item.arm == 'osm')} "
+            "real-data control cases."
+            if any(item.arm == "osm" for item in table.scores)
+            else ", with no real-data control arm in this run."
+        ),
         "",
         "| " + " | ".join(header) + " |",
         "|" + "|".join(["---"] * len(header)) + "|",

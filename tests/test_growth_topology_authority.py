@@ -433,12 +433,21 @@ def test_a_sub_tolerance_segment_returns_the_nearer_vertex_not_the_left_one() ->
     assert builder.split_at_arc_length(street, 0.24) == middle
 
 
-def test_a_request_past_a_run_of_tiny_segments_does_not_snap_to_the_far_end() -> None:
-    """The loop could fall through to `return node_ids[-1]`, the wrong end.
+def test_a_request_on_a_street_of_tiny_segments_resolves_to_the_nearest_vertex() -> None:
+    """Same root cause as the sibling test, on a street built entirely of them.
 
-    A street whose segments are all under the weld tolerance never satisfies the
-    advance condition, so every request fell out of the loop and returned the
-    last node regardless of what was asked for.
+    This was originally described -- here, in the source comment, and in the
+    commit message -- as the loop falling through to `return node_ids[-1]` and
+    returning the WRONG END. That failure mode never occurred and is
+    unreachable: getting past the final segment requires
+    `arc_length_m > total + WELD_TOLERANCE_M`, which the guard at the top of the
+    function already rejects with a ValueError.
+
+    What actually failed is the sibling defect -- welding to a non-nearest
+    vertex (node 0 where node 2 was nearer, node 3 where node 5 was) -- always
+    within the declared tolerance. The test is kept because that is a real
+    regression to guard; the explanation is corrected because a test that fails
+    for a different reason than it states is worth very little.
     """
 
     from metroflow.city.growth_topology import StreetTopologyBuilder
@@ -468,27 +477,140 @@ def test_a_street_can_terminate_on_an_existing_node() -> None:
     arriving = builder.open_street(points=((37.0, 60.0), (37.0, 10.0)))
 
     node_id = builder.contact(target, point=(37.0, 4.0), tolerance_m=10.0)
-    builder.extend_street_to_node(arriving, node_id)
+    # Same bound the contact search used: the tip legitimately extends to reach
+    # the junction, and the caller states how much street that may invent.
+    builder.extend_street_to_node(arriving, node_id, max_gap_m=10.0)
 
     assert builder.node_ids_of(arriving)[-1] == node_id
     assert set(builder.incident_street_ids(node_id)) == {target, arriving}
     assert builder.points_of(arriving)[-1] == pytest.approx((37.0, 0.0), abs=1e-9)
 
 
-def test_coincident_node_detection_ignores_a_grade_separated_crossing() -> None:
+def test_a_declared_grade_separated_crossing_is_exempt() -> None:
     """A bridge over a road shares a coordinate and is not a junction.
 
-    A coordinate-only invariant would make grade separation unrepresentable,
-    which matters because RAMP and BRIDGE are exactly what the generator still
-    has to grow.
+    The exemption is DECLARED, not inferred from the layers of the incident
+    streets. Inferring it was wrong twice: a ramp landing on a ground street is
+    a real junction that layer comparison silently exempted, and an orphaned
+    node has no incident street at all, so its empty layer set intersected
+    nothing and skipped every comparison.
+    """
+
+    from metroflow.city.growth_topology import CoincidentNodeError, StreetTopologyBuilder
+
+    builder = StreetTopologyBuilder()
+    ground = builder.open_street(points=((0.0, 0.0), (100.0, 0.0)), layer=0)
+    bridge = builder.open_street(points=((50.0, -50.0), (50.0, 50.0)), layer=1)
+    under = builder.split_at_arc_length(ground, 50.0)
+    over = builder.split_at_arc_length(bridge, 50.0)
+
+    # Undeclared, two nodes at one point is the defect this guards.
+    with pytest.raises(CoincidentNodeError):
+        builder.assert_no_coincident_nodes()
+
+    builder.register_grade_separation(under, over)
+    builder.assert_no_coincident_nodes()
+
+
+# --- defects found by review loop 2 ----------------------------------------
+
+
+def test_terminating_on_a_node_already_on_the_street_is_rejected() -> None:
+    """Otherwise the street doubles back and the compiler drops the chain.
+
+    `extend_street_to_node` only guarded against the node already being the LAST
+    one. Pointing it at an interior node appended a duplicate, producing a chain
+    whose src equals its dst -- which `compile_grown_network` discards via
+    `if src == dst: continue`. That is the silent chain loss this very file's
+    xfail condemns, reintroduced by the fix for a different defect.
     """
 
     from metroflow.city.growth_topology import StreetTopologyBuilder
 
     builder = StreetTopologyBuilder()
-    builder.open_street(points=((0.0, 0.0), (100.0, 0.0)), layer=0)
-    builder.open_street(points=((50.0, -50.0), (50.0, 50.0)), layer=1)
-    builder.split_at_arc_length(0, 50.0)
-    builder.split_at_arc_length(1, 50.0)
+    street = builder.open_street(points=((0.0, 0.0), (50.0, 0.0), (100.0, 0.0)))
+    interior = builder.node_ids_of(street)[1]
 
-    builder.assert_no_coincident_nodes()  # different layers: not a junction
+    with pytest.raises(ValueError, match="already on street"):
+        builder.extend_street_to_node(street, interior, max_gap_m=100.0)
+
+
+def test_terminating_on_a_distant_node_is_rejected() -> None:
+    """`contact()` bounds its reach; this had no bound at all.
+
+    Welding a 1 m street to a node 9 km away silently produced a 9001 m street.
+    """
+
+    from metroflow.city.growth_topology import StreetTopologyBuilder
+
+    builder = StreetTopologyBuilder()
+    near = builder.open_street(points=((0.0, 0.0), (1.0, 0.0)))
+    far = builder.open_street(points=((9000.0, 0.0), (9001.0, 0.0)))
+    far_node = builder.node_ids_of(far)[0]
+
+    with pytest.raises(ValueError, match="max_gap_m"):
+        builder.extend_street_to_node(near, far_node, max_gap_m=5.0)
+
+
+def test_a_node_with_no_incident_street_cannot_hide_a_coincidence() -> None:
+    """`layers_of` returned an empty set, and empty intersects nothing.
+
+    So an orphaned node sitting exactly on a junction was skipped by the very
+    invariant that exists to catch two nodes at one point.
+    """
+
+    from metroflow.city.growth_topology import CoincidentNodeError, StreetTopologyBuilder
+
+    builder = StreetTopologyBuilder()
+    builder.open_street(points=((0.0, 0.0), (100.0, 0.0)), layer=0)
+    orphan = builder._mint_node((50.0, 0.0))  # no incident street
+    assert builder.incident_street_ids(orphan) == ()
+    builder.split_at_arc_length(0, 50.0)
+
+    with pytest.raises(CoincidentNodeError):
+        builder.assert_no_coincident_nodes()
+
+
+def test_a_ramp_touching_down_on_a_ground_street_is_a_junction() -> None:
+    """Grade separation must not blanket-exempt everything that shares a point.
+
+    A bridge passing OVER a road is not a junction. A ramp landing ON one is.
+    Both look identical to a check that only compares street layers, so the
+    exemption has to be a property of the shared node, not of the streets.
+    """
+
+    from metroflow.city.growth_topology import CoincidentNodeError, StreetTopologyBuilder
+
+    builder = StreetTopologyBuilder()
+    ground = builder.open_street(points=((0.0, 0.0), (100.0, 0.0)), layer=0)
+    landing = builder.split_at_arc_length(ground, 50.0)
+
+    # A ramp that ends at the same place but mints its own node there is exactly
+    # the unconnected-touch defect, and must be caught.
+    builder.open_street(points=((50.0, 40.0), (50.0, 0.0)), layer=0)
+
+    with pytest.raises(CoincidentNodeError):
+        builder.assert_no_coincident_nodes()
+
+    assert builder.point_of(landing) == (50.0, 0.0)
+
+
+def test_splitting_never_mints_a_node_that_violates_the_invariant() -> None:
+    """The module's own primitive must respect the module's own invariant.
+
+    Splitting could place a new node 0.15 m from an existing one -- inside the
+    weld tolerance -- so `assert_no_coincident_nodes` failed on a builder that
+    had done nothing but call `split_at_arc_length`.
+    """
+
+    from metroflow.city.growth_topology import StreetTopologyBuilder
+
+    builder = StreetTopologyBuilder()
+    street = builder.open_street(
+        points=((0.0, 0.0), (10.0, 0.0), (10.0, 5.0), (0.4, 0.15))
+    )
+    builder.assert_no_coincident_nodes()
+
+    builder.split_at_arc_length(street, 0.4)
+
+    builder.assert_no_coincident_nodes()

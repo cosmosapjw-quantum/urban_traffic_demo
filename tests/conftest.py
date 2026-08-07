@@ -8,27 +8,35 @@ reserved 9,194 MiB of a 12,288 MiB card for its whole duration: JAX preallocates
 initializes, and a few tests exercise the optional JAX flow backend. Measured on
 an RTX 3080 Ti; 12288 * 0.75 = 9216 against 9194 observed.
 
-Three independent defences, because each alone leaves a gap:
+Three defaults, each covering a gap the others leave:
 
-- `JAX_PLATFORMS=cpu` stops a device from being created at all. This is the one
-  that matters, and it only works if set before JAX is imported -- hence a
-  module-level assignment in conftest rather than a fixture.
+- `JAX_PLATFORMS=cpu` stops a JAX device being created at all. Only works if set
+  before JAX is imported, hence a module-level assignment rather than a fixture.
 - `XLA_PYTHON_CLIENT_PREALLOCATE=false` bounds the damage if something forces a
   GPU platform anyway.
 - `CUDA_VISIBLE_DEVICES=""` hides the device from every consumer, not just JAX.
-  Torch reads none of JAX's variables, and it is not the last framework anyone
-  will add here; pinning frameworks one at a time only works until someone
-  forgets. Torch does not preallocate, so this is about coverage rather than
-  size.
+  torch reads none of JAX's variables and will not be the last accelerator
+  library added here; pinning frameworks one at a time works until someone
+  forgets.
 
 None of them changes dtypes, execution order or results, so backend-parity and
-drift assertions still mean what they meant. An explicit setting in the
-environment always wins, so a deliberate benchmark configuration is never
-overridden.
+drift assertions still mean what they meant.
 
-GPU work is opt-in via `--run-gpu`, which clears the CPU pin and selects tests
-marked `@pytest.mark.gpu`. Without it those tests are deselected, so "default to
-CPU" does not quietly mean "GPU is untestable".
+Only values this file actually set are ever removed, and only under `--run-gpu`.
+An earlier version compared against the default value instead, so a caller who
+exported `CUDA_VISIBLE_DEVICES=""` deliberately had it deleted out from under
+them -- "an explicit setting always wins" was written in this docstring while the
+code did the opposite.
+
+`CUDA_VISIBLE_DEVICES=""` is also skipped entirely when the caller has pinned
+`JAX_PLATFORMS` to something other than cpu, because hiding every device from a
+JAX explicitly told to use CUDA produces `CUDA_ERROR_NO_DEVICE` rather than the
+fail-closed backend error the claim ledger requires.
+
+GPU work is opt-in via `--run-gpu`, which lifts the platform pin and the device
+mask (keeping the preallocation guard) and runs tests marked `@pytest.mark.gpu`.
+Without it those tests are SKIPPED -- they appear in the report as skips, not as
+pytest "deselected" items, which is a different mechanism.
 """
 
 from __future__ import annotations
@@ -36,6 +44,21 @@ from __future__ import annotations
 import os
 
 import pytest
+
+_DEFAULTS = {
+    "JAX_PLATFORMS": "cpu",
+    "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
+    "CUDA_VISIBLE_DEVICES": "",
+}
+
+# Lifted by --run-gpu. The preallocation guard is deliberately absent: the flag
+# means "let a test reach the device", not "let JAX take three quarters of it".
+_LIFTED_BY_RUN_GPU = ("JAX_PLATFORMS", "CUDA_VISIBLE_DEVICES")
+
+# Populated below with exactly the names this file set, so nothing the caller
+# configured is ever removed.
+_APPLIED_BY_US: set[str] = set()
+
 
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
@@ -48,15 +71,12 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "gpu: needs a real GPU device; requires --run-gpu")
-    if config.getoption("--run-gpu"):
-        # Lift ONLY the platform pin. Deleting the preallocation guard as well
-        # would hand back the 9,194 MiB grab this file exists to prevent -- the
-        # flag means "let a test reach the device", not "let JAX take three
-        # quarters of the card". And delete it only if it still holds the value
-        # we set, so an explicit export by the caller survives.
-        for name in ("JAX_PLATFORMS", "CUDA_VISIBLE_DEVICES"):
-            if os.environ.get(name) == _DEFAULTS[name]:
-                del os.environ[name]
+    if not config.getoption("--run-gpu"):
+        return
+    for name in _LIFTED_BY_RUN_GPU:
+        if name in _APPLIED_BY_US:
+            del os.environ[name]
+            _APPLIED_BY_US.discard(name)
 
 
 def pytest_collection_modifyitems(
@@ -70,11 +90,17 @@ def pytest_collection_modifyitems(
             item.add_marker(skip)
 
 
-_DEFAULTS = {
-    "JAX_PLATFORMS": "cpu",
-    "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
-    "CUDA_VISIBLE_DEVICES": "",
-}
+def _apply_defaults() -> None:
+    caller_pinned_jax = os.environ.get("JAX_PLATFORMS", "cpu") != "cpu"
+    for name, value in _DEFAULTS.items():
+        if name in os.environ:
+            continue  # the caller's configuration wins, always
+        if name == "CUDA_VISIBLE_DEVICES" and caller_pinned_jax:
+            # Masking every device while JAX is explicitly pointed at CUDA gives
+            # CUDA_ERROR_NO_DEVICE, not a clean backend failure.
+            continue
+        os.environ[name] = value
+        _APPLIED_BY_US.add(name)
 
-for _name, _value in _DEFAULTS.items():
-    os.environ.setdefault(_name, _value)
+
+_apply_defaults()
