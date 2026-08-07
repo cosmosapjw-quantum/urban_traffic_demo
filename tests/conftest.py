@@ -31,9 +31,6 @@ import os
 
 import pytest
 
-_GPU_ENV = ("JAX_PLATFORMS", "XLA_PYTHON_CLIENT_PREALLOCATE")
-
-
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--run-gpu",
@@ -46,11 +43,13 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "gpu: needs a real GPU device; requires --run-gpu")
     if config.getoption("--run-gpu"):
-        # Undo the pin so the device is reachable, but only the pin: anything the
-        # caller set explicitly is left alone.
-        for name in _GPU_ENV:
-            if os.environ.get(name) == _DEFAULTS[name]:
-                del os.environ[name]
+        # Lift ONLY the platform pin. Deleting the preallocation guard as well
+        # would hand back the 9,194 MiB grab this file exists to prevent -- the
+        # flag means "let a test reach the device", not "let JAX take three
+        # quarters of the card". And delete it only if it still holds the value
+        # we set, so an explicit export by the caller survives.
+        if os.environ.get("JAX_PLATFORMS") == _DEFAULTS["JAX_PLATFORMS"]:
+            del os.environ["JAX_PLATFORMS"]
 
 
 def pytest_collection_modifyitems(

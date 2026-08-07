@@ -86,6 +86,24 @@ def test_a_gpu_opt_in_exists_and_is_off_by_default() -> None:
 
 
 @pytest.mark.gpu
+def test_the_opt_in_lifts_the_pin_without_handing_back_the_whole_card(
+    request: pytest.FixtureRequest,
+) -> None:
+    """--run-gpu means "reach the device", not "take three quarters of it".
+
+    An earlier version of the hook deleted both variables, so opting into a
+    single GPU test restored the 9,194 MiB preallocation the file exists to
+    prevent.
+    """
+
+    assert request.config.getoption("--run-gpu")
+    assert "JAX_PLATFORMS" not in os.environ, "the platform pin must be lifted"
+    assert os.environ.get("XLA_PYTHON_CLIENT_PREALLOCATE") == "false", (
+        "the preallocation guard must survive --run-gpu"
+    )
+
+
+@pytest.mark.gpu
 def test_a_real_device_is_reachable_under_the_opt_in(request: pytest.FixtureRequest) -> None:
     """Runs only with --run-gpu, which is the point.
 

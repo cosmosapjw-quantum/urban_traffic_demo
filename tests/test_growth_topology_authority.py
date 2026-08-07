@@ -67,31 +67,53 @@ def _weak_components(topology) -> int:
 # --- the defect itself -----------------------------------------------------
 
 
+def _starts_on_another_streets_interior(streets, tolerance_m: float = 0.5) -> int:
+    """Street start points that lie on another street but are not a vertex of it.
+
+    This is the branch-anchor defect stated as something measurable. A child is
+    seeded at a point interpolated inside its parent's segment; the parent never
+    gains a vertex there, so the two are drawn touching and are not connected.
+    """
+
+    from metroflow.map.road_geometry import _point_to_segment_distance
+
+    polylines = [street.points_m for street in streets]
+    orphaned = 0
+    for index, street in enumerate(streets):
+        start = street.points_m[0]
+        for other_index, other in enumerate(polylines):
+            if other_index == index:
+                continue
+            if any(math.dist(start, vertex) <= tolerance_m for vertex in other):
+                continue  # a shared vertex is a properly recorded junction
+            if any(
+                _point_to_segment_distance(start, left, right) <= tolerance_m
+                for left, right in zip(other, other[1:])
+            ):
+                orphaned += 1
+                break
+    return orphaned
+
+
 @pytest.mark.xfail(
     strict=True,
     reason=(
-        "PR-B integration pending. growth_fabric does not yet use StreetTopologyBuilder: _branch_pass interpolates the anchor and never inserts it into the parent, so 97.98% of 3117 anchors on polycentric_tod/17 are >0.5 m from any parent vertex."
+        "PR-B integration pending. _branch_pass interpolates the anchor and never "
+        "inserts it into the parent, so 6107 of 6257 streets (97.6%) on "
+        "polycentric_tod/17 begin on another street's interior with no node there."
     ),
 )
 def test_every_branch_anchor_joins_its_parent_to_both_children() -> None:
     """A branch origin drawn on its parent must be a junction in the graph."""
 
-    from metroflow.city.growth_fabric import compile_grown_network
-
     network = _grown()
-    topology = compile_grown_network(network)
 
-    orphaned = [
-        junction
-        for junction in network.junctions
-        if len(junction.incident_street_ids) < 2
-    ]
+    orphaned = _starts_on_another_streets_interior(network.streets)
 
-    assert not orphaned, f"{len(orphaned)} recorded junctions are not shared"
-    assert all(
-        junction.node_id is not None for junction in network.junctions
-    ), "every junction must carry the stable node id it was created with"
-    assert len(topology.nodes) >= len(network.junctions)
+    assert orphaned == 0, (
+        f"{orphaned} of {len(network.streets)} streets begin on another street's "
+        "interior without a node there"
+    )
 
 
 @pytest.mark.xfail(
@@ -110,7 +132,7 @@ def test_the_grown_network_is_one_connected_component() -> None:
     from metroflow.city.growth_fabric import compile_grown_network
 
     for style_id in ("polycentric_tod", "grid_core", "ring_radial"):
-        topology = compile_grown_network(_grown(style_id=style_id))
+        topology = compile_grown_network(_grown(style_id=style_id).streets)
         assert _weak_components(topology) == 1, f"{style_id} is not connected"
 
 
@@ -125,7 +147,7 @@ def test_mean_node_degree_reflects_the_edges_that_actually_exist() -> None:
 
     from metroflow.city.growth_fabric import compile_grown_network
 
-    topology = compile_grown_network(_grown())
+    topology = compile_grown_network(_grown().streets)
     degree = 2.0 * len(_undirected(topology)) / len(topology.nodes)
 
     assert degree > 3.3, f"mean node degree {degree:.3f} is too low for a connected fabric"
@@ -150,8 +172,8 @@ def test_translating_the_whole_city_does_not_change_its_graph() -> None:
     from metroflow.city.growth_fabric import compile_grown_network
 
     network = _grown(style_id="grid_core")
-    reference = compile_grown_network(network)
-    shifted = compile_grown_network(_translated(network, 0.37, 0.37))
+    reference = compile_grown_network(network.streets)
+    shifted = compile_grown_network(_translated(network, 0.37, 0.37).streets)
 
     assert len(shifted.nodes) == len(reference.nodes)
     assert len(shifted.links) == len(reference.links)
@@ -170,7 +192,7 @@ def _translated(network, dx: float, dy: float):
 @pytest.mark.xfail(
     strict=True,
     reason=(
-        "PR-B integration pending. compile_grown_network's seen_pairs silently drops the second street between one node pair: 10 chains / 0.65 km on grid_core/17, and no drop ledger exists."
+        "PR-B integration pending. compile_grown_network's seen_pairs silently drops the second street between one node pair: grid_core/17 builds 8355 chains and emits 8345 centerlines, losing 10."
     ),
 )
 def test_two_streets_between_the_same_pair_of_junctions_both_survive() -> None:
@@ -182,9 +204,46 @@ def test_two_streets_between_the_same_pair_of_junctions_both_survive() -> None:
 
     from metroflow.city.growth_fabric import compile_grown_network
 
-    topology = compile_grown_network(_grown())
+    streets = _grown(style_id="grid_core").streets
+    topology = compile_grown_network(streets)
 
-    assert topology.metadata.get("dropped_chain_count", 0) == 0
+    # Assert the loss itself, not the presence of a diagnostic key: a key that is
+    # never emitted makes `.get(key, 0) == 0` pass with the defect intact.
+    assert _chain_count(streets) == len(topology.road_geometry.centerlines), (
+        f"{_chain_count(streets) - len(topology.road_geometry.centerlines)} chains "
+        "were built and silently dropped before becoming centerlines"
+    )
+
+
+def _chain_count(streets, quantum_m: float = 1.0) -> int:
+    """Count the junction-to-junction chains `compile_grown_network` builds.
+
+    Mirrors the compiler's own splitting rule so the comparison is against what
+    it decided to keep, not against an independent idea of what it should have.
+    """
+
+    def key(point):
+        return (round(point[0] / quantum_m), round(point[1] / quantum_m))
+
+    use_count: dict[tuple[int, int], int] = {}
+    for street in streets:
+        for index, point in enumerate(street.points_m):
+            k = key(point)
+            use_count[k] = use_count.get(k, 0) + (
+                2 if index in (0, len(street.points_m) - 1) else 1
+            )
+
+    chains = 0
+    for street in streets:
+        points = street.points_m
+        current = [points[0]]
+        for index in range(1, len(points)):
+            current.append(points[index])
+            if index == len(points) - 1 or use_count.get(key(points[index]), 0) >= 2:
+                if len(current) >= 2:
+                    chains += 1
+                current = [points[index]]
+    return chains
 
 
 # --- geometry and topology must agree --------------------------------------
@@ -202,7 +261,7 @@ def test_streets_that_cross_at_the_same_grade_meet_at_a_node() -> None:
     from metroflow.city.growth_fabric import compile_grown_network
     from metroflow.map.road_geometry import count_interior_centerline_intersections
 
-    topology = compile_grown_network(_grown(style_id="grid_core"))
+    topology = compile_grown_network(_grown(style_id="grid_core").streets)
 
     assert count_interior_centerline_intersections(topology.road_geometry) == 0
 
@@ -219,7 +278,7 @@ def test_streets_that_touch_without_crossing_also_meet_at_a_node() -> None:
     from metroflow.city.growth_fabric import compile_grown_network
     from metroflow.map.road_geometry import count_unregistered_centerline_touches
 
-    topology = compile_grown_network(_grown(style_id="grid_core"))
+    topology = compile_grown_network(_grown(style_id="grid_core").streets)
 
     assert count_unregistered_centerline_touches(topology.road_geometry) == 0
 
@@ -349,3 +408,87 @@ def test_contacting_a_street_splits_it_at_the_true_projection() -> None:
     x, y = builder.point_of(node_id)
     assert (x, y) == pytest.approx((37.0, 0.0), abs=1e-9)
     assert math.isclose(builder.arc_length_of(target), 100.0, abs_tol=1e-9)
+
+
+# --- defects found by adversarial review of this module --------------------
+
+
+def test_a_sub_tolerance_segment_returns_the_nearer_vertex_not_the_left_one() -> None:
+    """Both weld checks can be true at once, and the left one won a tie it lost.
+
+    On a segment shorter than 2 * WELD_TOLERANCE_M, `remainder <= tol` and
+    `span - remainder <= tol` are both satisfiable. Returning the first match
+    hands back the left vertex even when the request is nearer the right one.
+    """
+
+    from metroflow.city.growth_topology import StreetTopologyBuilder
+
+    builder = StreetTopologyBuilder()
+    street = builder.open_street(points=((0.0, 0.0), (0.4, 0.0), (100.0, 0.0)))
+    left, middle, _right = builder.node_ids_of(street)
+
+    # 0.24 along a 0.4 m segment satisfies BOTH weld checks (0.24 <= 0.25 and
+    # 0.4 - 0.24 = 0.16 <= 0.25), and the right vertex is the nearer one.
+    assert builder.split_at_arc_length(street, 0.10) == left
+    assert builder.split_at_arc_length(street, 0.24) == middle
+
+
+def test_a_request_past_a_run_of_tiny_segments_does_not_snap_to_the_far_end() -> None:
+    """The loop could fall through to `return node_ids[-1]`, the wrong end.
+
+    A street whose segments are all under the weld tolerance never satisfies the
+    advance condition, so every request fell out of the loop and returned the
+    last node regardless of what was asked for.
+    """
+
+    from metroflow.city.growth_topology import StreetTopologyBuilder
+
+    builder = StreetTopologyBuilder()
+    points = tuple((0.1 * index, 0.0) for index in range(10))
+    street = builder.open_street(points=points)
+    node_ids = builder.node_ids_of(street)
+
+    assert builder.split_at_arc_length(street, 0.0) == node_ids[0]
+    assert builder.split_at_arc_length(street, 0.2) == node_ids[2]
+    assert builder.split_at_arc_length(street, 0.5) == node_ids[5]
+
+
+def test_a_street_can_terminate_on_an_existing_node() -> None:
+    """Without this, `contact()` splits the target and connects nothing.
+
+    The arriving tip needs to BECOME the node the split created; otherwise it
+    stays a separate vertex beside it and the two streets remain unconnected --
+    the same defect the module exists to remove.
+    """
+
+    from metroflow.city.growth_topology import StreetTopologyBuilder
+
+    builder = StreetTopologyBuilder()
+    target = builder.open_street(points=((0.0, 0.0), (100.0, 0.0)))
+    arriving = builder.open_street(points=((37.0, 60.0), (37.0, 10.0)))
+
+    node_id = builder.contact(target, point=(37.0, 4.0), tolerance_m=10.0)
+    builder.extend_street_to_node(arriving, node_id)
+
+    assert builder.node_ids_of(arriving)[-1] == node_id
+    assert set(builder.incident_street_ids(node_id)) == {target, arriving}
+    assert builder.points_of(arriving)[-1] == pytest.approx((37.0, 0.0), abs=1e-9)
+
+
+def test_coincident_node_detection_ignores_a_grade_separated_crossing() -> None:
+    """A bridge over a road shares a coordinate and is not a junction.
+
+    A coordinate-only invariant would make grade separation unrepresentable,
+    which matters because RAMP and BRIDGE are exactly what the generator still
+    has to grow.
+    """
+
+    from metroflow.city.growth_topology import StreetTopologyBuilder
+
+    builder = StreetTopologyBuilder()
+    builder.open_street(points=((0.0, 0.0), (100.0, 0.0)), layer=0)
+    builder.open_street(points=((50.0, -50.0), (50.0, 50.0)), layer=1)
+    builder.split_at_arc_length(0, 50.0)
+    builder.split_at_arc_length(1, 50.0)
+
+    builder.assert_no_coincident_nodes()  # different layers: not a junction

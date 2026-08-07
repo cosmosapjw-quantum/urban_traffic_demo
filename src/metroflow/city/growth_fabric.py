@@ -128,9 +128,16 @@ class GrowthConfig:
     over a node BOUNDING BOX; the instrument this generator is actually scored
     with (`morphology_quality.py`, node convex hull) gives `7.4-17.8 km/km2` on
     the same five extracts. Generated fabric sits at 24.1-40.2 km/km2 over the
-    30-case grid, i.e. outside the band under either convention. Intersection
-    density is likewise outside its band, not inside it: generated 73.2-120.7
-    against 17.9-105.7 measured on the extracts.
+    30-case grid, i.e. outside the band under either convention.
+
+    Intersection density is a different story and earlier text here got it
+    wrong in both directions. Measured under ONE convention -- hull area, nodes
+    of unique-neighbour degree >= 3 -- the extracts give 25.1-132.9 /km2 and
+    generated fabric 102.2-138.6 /km2. So it overlaps the real range and sits
+    near its top, rather than being comfortably inside it (the original claim)
+    or clearly outside it (the first correction). Both earlier figures mixed a
+    bounding-box denominator with a raw incident-edge degree, which double
+    counts wherever parallel edges exist -- live on 4 of the 5 extracts.
     """
     district_profiles_enabled: bool = True
     """Vary local spacing, block size and cul-de-sac share by district.

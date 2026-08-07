@@ -7,18 +7,16 @@ name: ci
 #
 # The default job stays dependency-free and fast. The OSMnx oracle needs ~28 MB
 # of geo wheels to re-derive Boeing's definitions from an independent
-# implementation, so it runs as its own opt-in job rather than taxing every push.
+# implementation, so it runs as its own job rather than taxing the default one.
+# It is NOT opt-in: the instrument's headline claim is that OSMnx parity is
+# checked rather than asserted, and a job nobody triggers leaves that claim
+# exactly as unenforced as the assertion it replaced.
 
 on:
   push:
     branches: ["**"]
   pull_request:
   workflow_dispatch:
-    inputs:
-      run_oracle:
-        description: "Re-derive the OSMnx morphology oracle and check parity"
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -53,13 +51,14 @@ jobs:
         run: python -m pytest -q
 
   oracle-parity:
-    # Opt-in: manual dispatch with run_oracle, or a pull request labelled
-    # `oracle`. PR-A lands the golden fixture and the regeneration script; until
-    # then this job reports that it has nothing to check rather than inventing a
-    # green tick.
-    if: >-
-      (github.event_name == 'workflow_dispatch' && inputs.run_oracle) ||
-      contains(github.event.pull_request.labels.*.name, 'oracle')
+    # Runs on every push and pull request, not on request.
+    #
+    # The morphology instrument's headline claim is that OSMnx parity is checked
+    # rather than asserted. A job that only fires on manual dispatch leaves that
+    # claim unenforced, which is the same shape as the defect the instrument work
+    # exists to remove: a guarantee nobody re-derives. The ~28 MB of geo wheels
+    # buy the one thing that makes the claim true, and they stay out of the
+    # default `test` job so the everyday suite remains dependency-free.
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -70,24 +69,15 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - name: Check the oracle exists yet
-        id: probe
-        run: |
-          if [ -f tools/regen_osmnx_oracle.py ]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::No OSMnx oracle in this tree yet (lands in PR-A). Nothing to verify."
-          fi
-
       - name: Install with the oracle extra
-        if: steps.probe.outputs.present == 'true'
         run: python -m pip install -e ".[dev,oracle]"
 
       # Parity is re-derived, not trusted: the committed golden values must be
       # reproducible from a pinned OSMnx against the committed .osm fixtures.
       # Reading local files only — osm_import performs no network access
       # (spec 039 FR-001).
-      - name: Re-derive and compare
-        if: steps.probe.outputs.present == 'true'
+      - name: Re-derive the oracle from the committed fixtures and compare
         run: python tools/regen_osmnx_oracle.py --check
+
+      - name: Run the parity assertions
+        run: python -m pytest tests/test_osmnx_oracle.py tests/test_morphology_oracle_parity.py -q

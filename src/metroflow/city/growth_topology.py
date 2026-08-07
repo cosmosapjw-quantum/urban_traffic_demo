@@ -68,6 +68,11 @@ class CoincidentNodeError(ValueError):
 class _Street:
     street_id: StreetId
     node_ids: list[NodeId]
+    # Grade. Two streets that share a coordinate on DIFFERENT layers cross; they
+    # do not meet. Without this the coincidence invariant would make grade
+    # separation unrepresentable, and RAMP and BRIDGE are exactly what the
+    # generator still has to grow.
+    layer: int = 0
     metadata: dict = field(default_factory=dict)
 
 
@@ -86,6 +91,7 @@ class StreetTopologyBuilder:
         *,
         points: Sequence[PointM],
         start_node_id: NodeId | None = None,
+        layer: int = 0,
         metadata: dict | None = None,
     ) -> StreetId:
         """Create a street through `points`, optionally starting at a known node.
@@ -107,7 +113,9 @@ class StreetTopologyBuilder:
                 continue
             node_ids.append(self._mint_node(point))
 
-        self._streets.append(_Street(street_id, node_ids, dict(metadata or {})))
+        self._streets.append(
+            _Street(street_id, node_ids, int(layer), dict(metadata or {}))
+        )
         for node_id in node_ids:
             self._incident[node_id].add(street_id)
         return street_id
@@ -115,6 +123,24 @@ class StreetTopologyBuilder:
     def extend_street(self, street_id: StreetId, point: PointM) -> NodeId:
         street = self._require_street(street_id)
         node_id = self._mint_node(point)
+        street.node_ids.append(node_id)
+        self._incident[node_id].add(street_id)
+        return node_id
+
+    def extend_street_to_node(self, street_id: StreetId, node_id: NodeId) -> NodeId:
+        """Terminate a street ON an existing node, rather than beside it.
+
+        Without this, `contact()` is inert: it splits the target correctly and
+        the arriving tip still ends at its own separate vertex a few centimetres
+        away, so the two streets are drawn meeting and remain unconnected. That
+        is the defect this module exists to remove, so the API has to make
+        finishing on a node possible.
+        """
+
+        street = self._require_street(street_id)
+        self._require_node(node_id)
+        if street.node_ids[-1] == node_id:
+            return node_id
         street.node_ids.append(node_id)
         self._incident[node_id].add(street_id)
         return node_id
@@ -148,14 +174,27 @@ class StreetTopologyBuilder:
             span = math.dist(left, right)
             if span <= 0.0:
                 continue
-            if travelled + span < arc_length_m - WELD_TOLERANCE_M:
+            # Advance on the segment's own extent, not on a tolerance-shifted
+            # one. Comparing against `arc_length_m - WELD_TOLERANCE_M` meant a
+            # street built from sub-tolerance segments never satisfied the
+            # condition, so every request fell out of the loop and returned the
+            # far end regardless of what was asked for.
+            if travelled + span < arc_length_m:
                 travelled += span
                 continue
 
             remainder = arc_length_m - travelled
-            if remainder <= WELD_TOLERANCE_M:
+            # Both weld checks can hold at once when span <= 2 * tolerance.
+            # Returning the first match handed back the left vertex even when
+            # the request was nearer the right one, so choose by distance.
+            left_close = remainder <= WELD_TOLERANCE_M
+            right_close = span - remainder <= WELD_TOLERANCE_M
+            if left_close and right_close:
+                nearer = index if remainder <= span - remainder else index + 1
+                return street.node_ids[nearer]
+            if left_close:
                 return street.node_ids[index]
-            if span - remainder <= WELD_TOLERANCE_M:
+            if right_close:
                 return street.node_ids[index + 1]
 
             ratio = remainder / span
@@ -252,21 +291,38 @@ class StreetTopologyBuilder:
 
     # --- invariants --------------------------------------------------------
 
+    def layers_of(self, node_id: NodeId) -> frozenset[int]:
+        """Grades the streets through this node occupy."""
+
+        self._require_node(node_id)
+        return frozenset(self._streets[street_id].layer for street_id in self._incident[node_id])
+
     def assert_no_coincident_nodes(self, *, tolerance_m: float = WELD_TOLERANCE_M) -> None:
-        """Fail loudly rather than let two junctions stack at one location."""
+        """Fail loudly rather than let two junctions stack at one location.
+
+        Only within a grade. Two nodes at the same coordinate on different
+        layers are a bridge over a road: they cross and do not meet, and
+        collapsing them would be the opposite error to the one this guards.
+        """
 
         cell = max(float(tolerance_m), 1e-9)
         buckets: dict[tuple[int, int], list[NodeId]] = {}
         for node_id, (x, y) in enumerate(self._points):
             key = (math.floor(x / cell), math.floor(y / cell))
+            layers = self.layers_of(node_id)
             for dx in (-1, 0, 1):
                 for dy in (-1, 0, 1):
                     for other in buckets.get((key[0] + dx, key[1] + dy), ()):
-                        if math.dist(self._points[other], (x, y)) <= tolerance_m:
-                            raise CoincidentNodeError(
-                                f"nodes {other} and {node_id} are both at "
-                                f"{self._points[other]!r}; a junction must be one node"
-                            )
+                        if math.dist(self._points[other], (x, y)) > tolerance_m:
+                            continue
+                        if not (layers & self.layers_of(other)):
+                            continue  # grade-separated crossing, not a junction
+                        raise CoincidentNodeError(
+                            f"nodes {other} and {node_id} are both at "
+                            f"{self._points[other]!r} on layer(s) "
+                            f"{sorted(layers & self.layers_of(other))}; "
+                            "a junction must be one node"
+                        )
             buckets.setdefault(key, []).append(node_id)
 
     # --- internals ---------------------------------------------------------

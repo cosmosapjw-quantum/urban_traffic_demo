@@ -80,17 +80,22 @@ version with evidence and falsifiers is:
 - `growth_fabric_v1` scores `30/30` on the seven empirical metrics over the
   fixed 6-style x 5-seed matrix, against `15/30` for `sidecar_local_fabric`,
   `0/30` for `realistic_synthetic_v1` and `0/10` for the runtime default.
-  Measured ranges, read directly from
-  `artifacts/runtime_spine_review/morphology-control-table-20260807.json`:
+  Measured ranges, read directly from the current authority
+  `artifacts/runtime_spine_review/morphology-control-table-v2-20260807.json`:
   mean node degree `2.8603-3.2601`, dead-end share `0.1073-0.2299`, circuity
-  `1.0165-1.0211`, orientation order `0.0024-0.6463`.
+  `1.0165-1.0211`, orientation order `0.0028-0.6761`. The first three are
+  unchanged from the superseded v1 artifact; orientation order moved with the
+  bearing fix, and this entry previously quoted its v1 value (`0.0024-0.6463`)
+  after the re-scoring had already superseded it.
 
   **This entry previously recorded `29/30` and four ranges that reproduce
   nothing in the tree** (`3.11-3.39`, `0.056-0.122`, `1.009-1.013`,
   `0.001-0.78`). They match neither the simplified path the artifact uses nor
-  the unsimplified path `plausibility_audit` uses. The artifact is the
-  reproducible side: head re-measures all 210 values to within `1e-9`. The
-  prose was written after the generator was rewritten, without regenerating
+  the unsimplified path `plausibility_audit` uses. The artifact was the
+  reproducible side at the time: head then re-measured all 210 of its values to
+  within `1e-9`. That reproduction no longer holds, and cannot: the instrument
+  has since been repaired, so v1 is a historical record and v2 is the authority.
+  The prose was written after the generator was rewritten, without regenerating
   the artifact it claimed to summarize.
 
   **What this score does not establish.** The seven metrics accept the same
@@ -124,10 +129,23 @@ version with evidence and falsifiers is:
 
 ## Refuted Or Blocked
 
-- **Repairing the morphology instrument changed every metric value and no
-  verdict.** Re-scored under `MeasurementSpec.BOEING_2019_HO`, with the
-  member-edge bearing, parallel-edge contraction and zero-chord circuity defects
-  fixed and parity checked against a pinned `osmnx==2.1.1`:
+- **Repairing the morphology instrument moved 392 of 945 metric values (41.5%)
+  and changed no verdict.** 553 values are bit-identical between the v1 and v2
+  artifacts. The member-edge bearing fix moved `orientation_entropy` and
+  `orientation_order` on all 135 scores; the parallel-edge contraction fix moved
+  the other five metrics on 11-29 cases each, being inert wherever those shapes
+  do not occur. An earlier version of this entry claimed *every* value moved,
+  which the two committed tables refute.
+
+  The zero-chord circuity item is **not** in that list of fixes, because it
+  turned out not to be a defect: OSMnx's own `circuity_avg` adds self-loop
+  length to the numerator against a zero chord, so the repair preserves that and
+  changes only the degenerate case where the denominator is zero, which now
+  raises instead of returning 4e14. The draft design had called the lollipop's
+  circuity of 5.0 a bug; the oracle shows OSMnx computes 4.99 for the same graph.
+
+  Re-scored under `MeasurementSpec.BOEING_2019_HO` with parity checked against a
+  pinned `osmnx==2.1.1`:
   `standard` 0/10, `sidecar_local_fabric` 15/30, `sidecar_local_fabric_planar`
   0/30, `realistic_synthetic_v1` 0/30, `growth_fabric_v1` 30/30, `osm` 5/5 —
   identical to the pre-repair table

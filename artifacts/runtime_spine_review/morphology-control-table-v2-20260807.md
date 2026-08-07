@@ -14,10 +14,12 @@ denominator: `osm_import` builds a graph 1-15 nodes smaller than OSMnx
 does. That is an importer defect, bounded by test, not a metric
 disagreement.
 
-Repairing the instrument moved every metric value and changed **no**
-verdict. The defects were real but were not what produced the result
-below -- which is itself a finding about how little this gate
-discriminates.
+Repairing the instrument moved 392 of 945 metric values (41.5%) and
+changed **no** verdict. The bearing fix moved orientation_entropy and
+orientation_order on all 135 scores; the parallel-edge fix moved the
+other five metrics only on the 11-29 cases where those shapes occur.
+The defects were real but were not what produced the result below --
+which is itself a finding about how little this gate discriminates.
 
 | arm | cases | all-7 pass | orientation_order | orientation_entropy | median_segment_length_m | circuity | mean_node_degree | dead_end_share | four_way_share |
 |---|---|---|---|---|---|---|---|---|---|
