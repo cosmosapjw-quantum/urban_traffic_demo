@@ -140,6 +140,30 @@ version with evidence and falsifiers is:
 
 ## Refuted Or Blocked
 
+- **The generator was repaired, and the metric/consistency inversion is gone.**
+  Re-scored into
+  `artifacts/runtime_spine_review/morphology-control-table-v3-20260808.*`:
+  `growth_fabric_v1` passes all seven metrics on 30/30 maps AND carries 1-17
+  proper crossings and 2-30 unregistered touches, against 5333-12474 and
+  5137-8412 before. It is now the only synthetic arm that is both.
+
+  Measured over 6 styles x 3 seeds on the repaired generator: density
+  `8.06-11.24 km/km2` against a real `7.44-17.77` (18/18 inside), dead-end share
+  `0.152-0.258` against a real maximum of `0.288` (18/18 under), mean node
+  degree `2.830-3.097` against a real `2.55-3.55`, local duplication
+  `0.068-0.082` against a `0.15` threshold. The strict xfail asserting no
+  setting could reach density, dead ends and duplication together is retired as
+  refuted.
+
+  **What this still does not establish.** `spacing_scale = 3.0` was calibrated
+  against the pipeline while its spacing units were inconsistent, so that
+  constant carries no authority now and has not been re-derived. Density sits in
+  the lower half of the real band and the rendered fabric looks thinner than the
+  extracts; nothing yet measures block-size distribution, which is what would
+  distinguish correct calibration from under-seeding. One isolated 330 m
+  expressway stub survives on `polycentric_tod`/17 (2 nodes of 2032), reported
+  via `largest_component_share` and `isolated_fragment_sizes`. No traffic
+  quantity has been measured on any of this.
 - **Repairing the morphology instrument moved 392 of 945 metric values (41.5%)
   and changed no verdict.** 553 values are bit-identical between the v1 and v2
   artifacts. The member-edge bearing fix moved `orientation_entropy` and
