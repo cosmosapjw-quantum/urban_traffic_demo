@@ -44,8 +44,12 @@ def write_realistic_city_scale_artifacts(
             for key, path in paths.items()
             if key != "manifest"
         },
+        # Points at the measured artifact, not at the screenshot beside it. The
+        # PNG was deleted with the rest of the image set: the claim ledger
+        # forbids presenting image artifacts as scientific validation, so a
+        # manifest naming one as a dependency was recording the wrong thing.
         "visual_audit_dependency": (
-            "artifacts/runtime_spine_review/realistic-city-pr62-plausibility.png"
+            "artifacts/runtime_spine_review/realistic-city-pr62-plausibility.json"
         ),
         "visual_claim_status": "reused_diagnostic_only_no_generator_change",
     }
