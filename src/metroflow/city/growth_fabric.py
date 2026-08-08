@@ -340,6 +340,22 @@ class _Fabric:
                 best, best_distance = (street_id, hit), distance
         return best
 
+    def nearest_crossing_target(self, point: tuple[float, float]) -> int | None:
+        """Street whose geometry passes closest to `point`."""
+
+        best, best_distance = None, float("inf")
+        for key in self.segment_grid.near(point[0], point[1], self._cell):
+            street_id, vertex_index = self._segment_refs[key]
+            points = self.builder.points_of(street_id)
+            if vertex_index + 1 >= len(points):
+                continue
+            distance = _point_to_segment_distance(
+                point, points[vertex_index], points[vertex_index + 1]
+            )
+            if distance < best_distance:
+                best, best_distance = street_id, distance
+        return best
+
     def bind_node_into_street(
         self, street_id: int, node_id: int, *, tolerance_m: float
     ) -> bool:
@@ -807,6 +823,10 @@ def grow_street_network(
     )
 
     _register_remaining_crossings(fabric)
+    _extend_dangling_tips(fabric, max_reach_m=cfg.local_step_m * 1.5)
+    # Extending creates new geometry, which can cross something. Re-run the
+    # crossing sweep so the invariant holds over the repaired network too.
+    _register_remaining_crossings(fabric)
 
     # The builder is the authority now, so the network carries it: junction and
     # dead-end counts are read off recorded incidence rather than guessed from
@@ -876,7 +896,16 @@ def _branch_pass(
         points = list(fabric.points_of(street_index))
         anchor_arcs: list[float] = []
         travelled = 0.0
-        next_seed = spacing_m * float(rng.uniform(0.3, 1.0))
+        # The phase must be drawn from the SAME spacing the increment uses.
+        # Drawing it from raw class spacing while incrementing by the scaled,
+        # district-resolved value put the two a factor of `spacing_scale` apart:
+        # local raw is 82 m against 246-990 m scaled, so every source shorter
+        # than one scaled interval was seeded every time and the increment never
+        # fired again. That also made `spacing_scale` -- documented as the OSM
+        # calibration knob -- inert for the first anchor on every street.
+        next_seed = _local_spacing_at(
+            points[0], cfg, spacing_m, profile_at=profile_at, tier=tier
+        ) * float(rng.uniform(0.3, 1.0))
         for left, right in zip(points, points[1:]):
             segment = math.dist(left, right)
             if segment <= 1e-9:
@@ -1102,6 +1131,10 @@ def _compile_from_incidence(builder, streets) -> PreviewCityTopology:
             # silently; nothing may leave this function unrecorded.
             "dropped_chain_count": len(dropped),
             "dropped_chain_reasons": tuple(dropped[:32]),
+            # Fragments that reach nothing. A road nobody can drive to is a
+            # generator defect, so it is counted rather than quietly tolerated
+            # or silently deleted.
+            **_connectivity_metadata(links, len(used_nodes)),
         },
     )
 
@@ -1321,3 +1354,126 @@ def _find_crossings(fabric: _Fabric) -> list[tuple[int, int, tuple[float, float]
                 if key not in found:
                     found[key] = (left_street, right_street, hit)
     return [found[key] for key in sorted(found)]
+
+
+# A tip may only be extended by this much before the extension stops being a
+# repair and starts being a road nobody was building. Expressed as a multiple of
+# the local step so it scales with the fabric rather than being an absolute.
+EXTEND_TO_CROSS_MIN_ANGLE_DEG = 25.0
+
+
+def _extend_dangling_tips(fabric: _Fabric, *, max_reach_m: float) -> int:
+    """Extend free-ending tips to the street they nearly reached.
+
+    Connectivity repair, not density control. Fixing the branch-spacing units
+    took density into the real band and pushed dead-end share to 0.284-0.434
+    against a real-city maximum of 0.288: seeding fewer streets leaves the ones
+    that did grow dangling. This converts those cul-de-sacs into junctions
+    without seeding more street.
+
+    It adds length, so it can only push density up -- which is why it runs after
+    the spacing is right rather than instead of fixing it.
+
+    Deterministic: every candidate is collected first and applied shortest-first,
+    ties broken by street id, so the outcome cannot depend on discovery order.
+    """
+
+    builder = fabric.builder
+    candidates: list[tuple[float, int, int, tuple[float, float]]] = []
+
+    for street_id in builder.street_ids:
+        node_ids = builder.node_ids_of(street_id)
+        if len(node_ids) < 2:
+            continue
+        for position in (0, -1):
+            tip_node = node_ids[position]
+            if len(builder.incident_street_ids(tip_node)) != 1:
+                continue  # already a junction
+            inner = node_ids[1] if position == 0 else node_ids[-2]
+            tip = builder.point_of(tip_node)
+            heading = math.atan2(
+                tip[1] - builder.point_of(inner)[1],
+                tip[0] - builder.point_of(inner)[0],
+            )
+            reach = (
+                tip[0] + max_reach_m * math.cos(heading),
+                tip[1] + max_reach_m * math.sin(heading),
+            )
+            hit = fabric.nearest_crossing(tip, reach, exclude_street=street_id)
+            if hit is None:
+                continue
+            target_street, point = hit
+            if not _meets_at_a_useful_angle(fabric, target_street, point, heading):
+                continue
+            candidates.append((math.dist(tip, point), street_id, tip_node, point))
+
+    extended = 0
+    for _distance, street_id, tip_node, point in sorted(
+        candidates, key=lambda item: (item[0], item[1], item[2])
+    ):
+        if len(builder.incident_street_ids(tip_node)) != 1:
+            continue  # an earlier extension already joined this tip
+        target = fabric.nearest_crossing_target(point)
+        if target is None or target == street_id:
+            continue
+        junction = fabric.contact(target, point, 1.0)
+        if junction is None:
+            continue
+        if fabric.extend_to_node(street_id, junction, max_gap_m=max_reach_m * 1.2):
+            extended += 1
+    return extended
+
+
+def _meets_at_a_useful_angle(
+    fabric: _Fabric,
+    street_id: int,
+    point: tuple[float, float],
+    heading: float,
+) -> bool:
+    """Reject a near-parallel meeting: that is a duplicate, not a junction."""
+
+    points = fabric.builder.points_of(street_id)
+    best, best_distance = None, float("inf")
+    for left, right in zip(points, points[1:]):
+        distance = _point_to_segment_distance(point, left, right)
+        if distance < best_distance:
+            best, best_distance = (left, right), distance
+    if best is None:
+        return False
+    left, right = best
+    target_heading = math.atan2(right[1] - left[1], right[0] - left[0])
+    delta = abs(math.atan2(math.sin(heading - target_heading), math.cos(heading - target_heading)))
+    delta = min(delta, math.pi - delta)
+    return delta >= math.radians(EXTEND_TO_CROSS_MIN_ANGLE_DEG)
+
+
+def _connectivity_metadata(links, node_count: int) -> dict:
+    """Largest-component share and the size of every fragment outside it."""
+
+    if node_count == 0:
+        return {"largest_component_share": 0.0, "isolated_fragment_sizes": ()}
+    adjacency: dict[int, set[int]] = {index: set() for index in range(node_count)}
+    for link in links:
+        adjacency[int(link.src_node_id)].add(int(link.dst_node_id))
+        adjacency[int(link.dst_node_id)].add(int(link.src_node_id))
+
+    seen: set[int] = set()
+    sizes: list[int] = []
+    for start in range(node_count):
+        if start in seen:
+            continue
+        stack, size = [start], 0
+        seen.add(start)
+        while stack:
+            node = stack.pop()
+            size += 1
+            for other in adjacency[node]:
+                if other not in seen:
+                    seen.add(other)
+                    stack.append(other)
+        sizes.append(size)
+    sizes.sort(reverse=True)
+    return {
+        "largest_component_share": sizes[0] / node_count,
+        "isolated_fragment_sizes": tuple(sizes[1:]),
+    }

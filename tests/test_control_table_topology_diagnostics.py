@@ -31,11 +31,12 @@ def test_a_score_reports_geometry_topology_consistency_counts() -> None:
 
     diagnostics = _score().topology_diagnostics()
 
-    # PR-B took these from 6909 and 6261. The residual has one named cause: the
-    # 0.25 m weld tolerance, where splitting at a projection may snap to a
-    # nearby vertex and leave a sliver crossing.
-    assert diagnostics["proper_crossing_count"] == 24
-    assert diagnostics["unregistered_touch_count"] == 14
+    # 6909 and 6261 originally; 24 and 14 after PR-B; 6 and 5 after PR-C thinned
+    # the fabric. The residual has one named cause: the 0.25 m weld tolerance,
+    # where splitting at a projection may snap to a nearby vertex and leave a
+    # sliver crossing.
+    assert diagnostics["proper_crossing_count"] == 6
+    assert diagnostics["unregistered_touch_count"] == 5
 
 
 def test_the_osm_control_shows_what_a_real_city_scores() -> None:
@@ -70,8 +71,8 @@ def test_diagnostics_are_reported_but_never_enter_the_fingerprint() -> None:
         # Which definition produced the score travels with the score. That is
         # the whole lesson of the two-measurement-paths defect.
         "measurement_spec": "BOEING_2019_HO",
-        "proper_crossing_count": 24,
-        "unregistered_touch_count": 14,
+        "proper_crossing_count": 6,
+        "unregistered_touch_count": 5,
     }
     # The per-score payload the fingerprint hashes must not carry them.
     assert "proper_crossing_count" not in payload["scores"][0]

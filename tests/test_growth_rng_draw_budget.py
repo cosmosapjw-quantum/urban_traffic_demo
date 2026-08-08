@@ -24,7 +24,7 @@ import pytest
 # Measured on the current tree at 367f25d. Not a target, not a threshold — a
 # record of what the walk consumes today.
 PINNED_DRAWS: dict[str, dict[str, int]] = {
-    "grid_core/17": {"normal": 13288, "random": 3260, "uniform": 1596},
+    "grid_core/17": {"normal": 6705, "random": 1214, "uniform": 907},
 }
 
 # Justification for the one change to this pin so far.
@@ -52,6 +52,18 @@ PINNED_DRAWS: dict[str, dict[str, int]] = {
 # the intended behaviour -- a street that crosses another at grade should meet
 # it, not run through it -- and it takes unregistered crossings from 6909 to 24
 # on this case.
+#
+# Third change, PR-C: 13288/3260/1596 -> 6705/1214/907.
+#
+# The first branch anchor's phase was drawn from RAW class spacing while every
+# increment used the SCALED, district-resolved value -- a factor of
+# `spacing_scale` apart. Every source shorter than one scaled interval was
+# therefore seeded every time, and `spacing_scale` was inert for the first
+# anchor on every street. Drawing the phase from the same spacing halves the
+# seed count, and each unseeded branch is a walk not taken.
+#
+# This is the change that took density from 13.13-17.35 to 8.06-11.24 km/km2
+# against a real band of 7.44-17.77.
 
 
 class _CountingGenerator:
