@@ -64,7 +64,15 @@ def test_a_jax_touching_run_holds_no_vram() -> None:
     would do the allocating.
     """
 
-    if subprocess.run(["nvidia-smi", "-L"], capture_output=True).returncode != 0:
+    # Two distinct absences, and reading the returncode only covers one of them:
+    # with no NVIDIA driver installed there is no `nvidia-smi` to run, and
+    # `subprocess.run` raises before producing a returncode to check. That is
+    # every GitHub runner, which is precisely where this module claims to work.
+    try:
+        probe = subprocess.run(["nvidia-smi", "-L"], capture_output=True)
+    except OSError:
+        pytest.skip("nvidia-smi is not installed; VRAM cannot be measured here")
+    if probe.returncode != 0:
         pytest.skip("no NVIDIA GPU on this machine")
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -93,6 +101,42 @@ def test_a_jax_touching_run_holds_no_vram() -> None:
     assert run.wait() == 0, "the bracketed JAX test files did not pass"
 
     assert peak == 0, f"the JAX test files reserved {peak} MiB of VRAM"
+
+
+def test_the_vram_probe_skips_where_nvidia_smi_is_absent(tmp_path) -> None:
+    """A host without the tool cannot measure VRAM, and must say so.
+
+    This module's own docstring promises that "CI on a GPU-less runner should
+    exercise the same code path everyone else does". It did not: the guard above
+    reads `nvidia-smi`'s returncode, and when the binary is absent entirely
+    `subprocess.run` raises `FileNotFoundError` before there is a returncode to
+    read. GitHub's runners have no NVIDIA driver, so the guard against a missing
+    GPU was itself the thing that failed there.
+
+    Skip, not pass. There is no VRAM to hold on such a host, so the assertion
+    would be vacuously true -- a green that measured nothing, which is the same
+    defect the oracle check was just repaired for.
+
+    Driven as a real subprocess with an empty PATH, because asserting on a
+    mocked `subprocess.run` would test the mock.
+    """
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+         "tests/test_gpu_is_not_used_by_default.py::test_a_jax_touching_run_holds_no_vram"],
+        cwd=root,
+        env={**os.environ, "PATH": str(tmp_path)},
+        capture_output=True,
+        text=True,
+    )
+    combined = result.stdout + result.stderr
+
+    assert "FileNotFoundError" not in combined, (
+        "the missing-GPU guard raises instead of skipping when nvidia-smi is absent"
+    )
+    assert result.returncode == 0, combined[-2000:]
+    assert "1 skipped" in result.stdout, combined[-2000:]
 
 
 def test_a_gpu_opt_in_exists_and_is_off_by_default() -> None:
