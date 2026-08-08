@@ -102,7 +102,9 @@ measured — passes all seven metrics on 15/30 maps, versus 0/30 for the
 `realistic_synthetic_v1` rewrite and 0/10 for the runtime default.
 
 Attack: reproduce it. Then note the countervailing evidence: rendering
-`sidecar_local_fabric` (`artifacts/city_map_superblock_mixed_s17.png`) shows
+`sidecar_local_fabric`
+(`artifacts/external_audit_2_maps/sidecar_local_fabric--superblock_mixed--s17.svg`)
+shows
 something that passes all seven metrics and is plainly not a city. Does that
 invalidate the metric set, the claim, or both? What does it say about promoting
 `growth_fabric_v1` on the same seven numbers?
