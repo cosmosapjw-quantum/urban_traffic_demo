@@ -24,8 +24,26 @@ import pytest
 # Measured on the current tree at 367f25d. Not a target, not a threshold — a
 # record of what the walk consumes today.
 PINNED_DRAWS: dict[str, dict[str, int]] = {
-    "grid_core/17": {"normal": 22141, "random": 5604, "uniform": 2392},
+    "grid_core/17": {"normal": 16061, "random": 3816, "uniform": 1807},
 }
+
+# Justification for the one change to this pin so far.
+#
+# Before PR-B: normal 22141, random 5604, uniform 2392.
+# After PR-B:  normal 16061, random 3816, uniform 1807.
+#
+# PR-B made branch anchors split their parent instead of being interpolated and
+# discarded. Two consequences reduce the draw count, and both are intended:
+#
+# 1. `_branch_pass` now resolves each anchor's spacing through one
+#    `_local_spacing_at` helper, so the increment and the district lookup agree.
+#    Previously the first anchor used raw class spacing while the increment used
+#    scaled spacing, which seeded more anchors than the configuration asked for.
+# 2. Fewer seeded anchors means fewer grow() walks, and each walk draws one
+#    `normal` per step and one `random` per cul-de-sac decision.
+#
+# Street count moved 5532 -> 3758 on grid_core/17 accordingly. Every seeded map
+# is re-rolled by this, which is exactly what the pin exists to make visible.
 
 
 class _CountingGenerator:
@@ -106,6 +124,6 @@ def test_counting_wrapper_does_not_perturb_the_generated_map() -> None:
     unwrapped = build_arm_topology(arm="growth_fabric_v1", style_id="grid_core", seed=17)
 
     assert (
-        compile_grown_network(wrapped.streets).road_geometry.fingerprint
+        compile_grown_network(wrapped).road_geometry.fingerprint
         == unwrapped.road_geometry.fingerprint
     )

@@ -100,10 +100,14 @@ class StreetTopologyBuilder:
         Passing `start_node_id` is how a branch binds to the junction its parent
         was split at: the child does not create a second node at the same place,
         it reuses the one that already exists.
+
+        A single point is allowed, because growth opens a street at its seed and
+        extends it step by step. Such a street carries no segment and is skipped
+        by `iter_chains` until it has one.
         """
 
-        if len(points) < 2:
-            raise ValueError("a street needs at least two points")
+        if not points:
+            raise ValueError("a street needs at least one point")
 
         street_id = len(self._streets)
         node_ids: list[NodeId] = []
@@ -423,6 +427,8 @@ def iter_chains(
     chains: list[tuple[StreetId, tuple[NodeId, ...]]] = []
     for street_id in builder.street_ids if street_ids is None else street_ids:
         node_ids = builder.node_ids_of(street_id)
+        if len(node_ids) < 2:
+            continue  # a seed that never grew
         current = [node_ids[0]]
         for node_id in node_ids[1:]:
             current.append(node_id)

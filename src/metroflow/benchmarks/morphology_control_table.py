@@ -149,7 +149,9 @@ def _growth_topology(*, style_id: str, seed: int):
     terrain = build_terrain_field(width=6000, height=6000, seed=seed, style_id=style_id)
     urban_form = build_urban_form_field(terrain=terrain, style_id=style_id, seed=seed)
     network = grow_street_network(terrain=terrain, urban_form=urban_form, seed=seed)
-    return compile_grown_network(network.streets)
+    # Pass the NETWORK, so the compiler consumes recorded incidence rather
+    # than re-deriving junctions from rounded coordinates.
+    return compile_grown_network(network)
 
 
 def build_osm_topology(path: Path):

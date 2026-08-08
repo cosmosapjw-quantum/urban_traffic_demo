@@ -112,6 +112,17 @@ def test_default_measurement_still_reproduces_the_pinned_baseline(record: dict) 
         compute_street_network_morphometrics,
     )
 
+    if record["arm"] == "growth_fabric_v1":
+        pytest.skip(
+            "growth_fabric_v1's GENERATOR changed in PR-B (branch anchors now "
+            "split their parent), so its maps are no longer the ones captured. "
+            "This fixture pins the MEASUREMENT, not the generator: the other "
+            "five arms are untouched by PR-B and still reproduce bit-for-bit, "
+            "which is what proves removing the default was value-preserving. "
+            "Re-capturing this arm would destroy that property, since the "
+            "fixture's whole value is having been taken before the change."
+        )
+
     topology = _rebuild(record["arm"], record["case"], _baseline()["scenario_id"])
 
     measured = dict(
