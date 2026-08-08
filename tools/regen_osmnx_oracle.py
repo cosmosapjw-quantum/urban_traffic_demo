@@ -130,7 +130,13 @@ def collect() -> dict[str, Any]:
     for path in sorted(_OSM_DIR.glob("*.osm")):
         try:
             cities[path.name] = measure(path)
-        except Exception as exc:  # noqa: BLE001 - recorded, never silenced
+        except ImportError:
+            # A missing dependency is one environment fault, not one fault per
+            # fixture. Recording it per file is what put seven identical scipy
+            # errors under the names of seven innocent .osm files, and pointed
+            # the operator at the fixtures. `main` names the install command.
+            raise
+        except Exception as exc:  # noqa: BLE001 - recorded, and printed by _check
             failed[path.name] = f"{type(exc).__name__}: {exc}"
 
     return {
@@ -179,6 +185,24 @@ def _check(payload: dict[str, Any]) -> int:
     stored = json.loads(_GOLDEN.read_text(encoding="utf-8"))
 
     problems: list[str] = []
+
+    # Measurement failures are reported first and by name. A fixture that raised
+    # is not a metric disagreement, and describing it as one -- "city set
+    # changed ... != current []" -- sends the reader to the input data when the
+    # cause is the environment. Recording a reason nobody prints is silencing
+    # it, which is what `collect`'s "recorded, never silenced" used to mean.
+    for name, reason in sorted(payload["failed"].items()):
+        problems.append(f"{name}: measurement failed -- {reason}")
+
+    # An empty measurement compares equal to an empty golden: the set check
+    # agrees, the per-city loop has nothing to iterate, and the gate reports
+    # "oracle reproduces: 0 cities". Parity over nothing is not parity.
+    if not payload["cities"]:
+        problems.append(
+            f"no fixture was measured; {_OSM_DIR} yielded no usable extract, so "
+            "this check compared nothing"
+        )
+
     if stored["oracle"] != payload["oracle"]:
         problems.append(
             f"oracle provenance changed: stored {stored['oracle']} != current {payload['oracle']}"
@@ -225,12 +249,26 @@ def main() -> int:
     if args.check:
         return _check(payload)
 
+    # A partial golden is not a smaller oracle, it is a quieter one: the next
+    # --check passes against the reduced set and the missing cities become the
+    # new reference. Dropping a fixture must be an explicit decision, so refuse
+    # to write rather than exit 0 having measured six of seven.
+    for name, reason in sorted(payload["failed"].items()):
+        print(f"FAILED   {name}: {reason}")
+    if payload["failed"]:
+        print(
+            f"{len(payload['failed'])} fixture(s) could not be measured; "
+            "golden not written"
+        )
+        return 1
+    if not payload["cities"]:
+        print(f"no .osm fixture found under {_OSM_DIR}; golden not written")
+        return 1
+
     _write(payload)
     print(f"wrote {_GOLDEN.relative_to(_REPO_ROOT)}")
     print(f"  osmnx    {payload['oracle']['osmnx_version']}")
     print(f"  measured {len(payload['cities'])} cities")
-    for name, reason in payload["failed"].items():
-        print(f"  FAILED   {name}: {reason}")
     return 0
 
 

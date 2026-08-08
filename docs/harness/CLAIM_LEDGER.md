@@ -337,6 +337,18 @@ classification, one smoke workload, or visual inspection. Functional closure,
 deterministic invariants, a falsifiable measured probe, exact provenance, and
 baseline fallback are required.
 
+## Known Debt
+
+- The lint gate covers `E4, E7, E9, F` and nothing else. That is the set the
+  tree was written against; it is now declared in `[tool.ruff.lint]` rather than
+  inherited from ruff's defaults, because the defaults are version-scoped. Under
+  ruff 0.16.2's own defaults the same tree reports **529** findings and under
+  `--select ALL` **14,149**. Neither set has been reviewed and neither is
+  claimed clean. Reproduce with
+  `.venv/bin/python -m ruff check --no-cache --select ALL src tests tools`.
+  Widening the selection is a deliberate change of its own, not a side effect of
+  a version bump.
+
 ## Environment
 
 - The NumPy path is authoritative and city generation touches no accelerator.
