@@ -1,5 +1,20 @@
 # Validation Ledger
 
+> **2026-08-08 — the image artifacts named below are no longer tracked.** All 44
+> committed PNGs were deleted in preparation for the second external audit. Two
+> reasons, and neither is that they were wrong. They were rendered by code that
+> has since been substantially repaired, so a reviewer opening one would be
+> looking at a generator that no longer exists — and the claim ledger forbids
+> presenting image artifacts as scientific validation, which a file list headed
+> "tracked diagnostic bundle" quietly does. The **measured** artifacts beside
+> them (`.json`, `.md`, `.manifest.json`) are untouched, and every entry's
+> reproduction commands still regenerate its screenshots on demand.
+>
+> The replacement gallery is `artifacts/external_audit_2_maps/`, rendered by
+> `tools/render_audit_maps.py` from the current tree, captioned out of
+> `morphology-control-table-v3-20260808.json`, and byte-reproducible via
+> `--check`. It illustrates; it still measures nothing.
+
 ## 2026-07-13: Realistic City Plausibility Audit
 
 Change class: fixed-corpus morphology audit, structural distribution gate, and
