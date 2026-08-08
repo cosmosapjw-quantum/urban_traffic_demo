@@ -306,6 +306,50 @@ class _Fabric:
                 best_street, best_distance = street_id, distance
         return best_street
 
+    def nearest_crossing(
+        self,
+        tip: tuple[float, float],
+        nxt: tuple[float, float],
+        *,
+        exclude_street: int,
+    ) -> tuple[int, tuple[float, float]] | None:
+        """First street the STEP crosses, and where.
+
+        Testing only the arriving point misses every street the step clears in
+        one stride, which is why 1942 crossings on grid_core/17 stayed
+        unregistered after contacts were fixed: a step is tens of metres and the
+        contact radius is a fraction of that.
+        """
+
+        best: tuple[int, tuple[float, float]] | None = None
+        best_distance = float("inf")
+        radius = math.dist(tip, nxt)
+        midpoint = ((tip[0] + nxt[0]) / 2.0, (tip[1] + nxt[1]) / 2.0)
+        for key in self.segment_grid.near(midpoint[0], midpoint[1], radius):
+            street_id, vertex_index = self._segment_refs[key]
+            if street_id == exclude_street:
+                continue
+            points = self.builder.points_of(street_id)
+            if vertex_index + 1 >= len(points):
+                continue
+            hit = _segment_intersection(tip, nxt, points[vertex_index], points[vertex_index + 1])
+            if hit is None:
+                continue
+            distance = math.dist(tip, hit)
+            if distance < best_distance:
+                best, best_distance = (street_id, hit), distance
+        return best
+
+    def bind_node_into_street(
+        self, street_id: int, node_id: int, *, tolerance_m: float
+    ) -> bool:
+        bound = self.builder.bind_node_into_street(
+            street_id, node_id, tolerance_m=tolerance_m
+        )
+        if bound:
+            self._reindex_street(street_id)
+        return bound
+
     def contact(
         self, street_id: int, point: tuple[float, float], radius: float
     ) -> int | None:
@@ -329,10 +373,17 @@ class _Fabric:
     def _reindex_street(self, street_id: int) -> None:
         """A split renumbers this street's segments, so index them all again.
 
-        Over-covering is safe: the grid is a candidate filter and every hit is
-        re-measured against live geometry.
+        The dedupe guard is keyed on (street, vertex index), and a split SHIFTS
+        every index after it -- so without clearing the guard first, the
+        renumbered segments are silently skipped and the crossing search stops
+        seeing parts of a street it has already split. Over-covering is safe:
+        the grid is a candidate filter and every hit is re-measured against live
+        geometry.
         """
 
+        self._indexed_segments = {
+            key for key in self._indexed_segments if key[0] != street_id
+        }
         points = self.builder.points_of(street_id)
         for index in range(len(points) - 1):
             self._index_segment(street_id, index)
@@ -345,9 +396,19 @@ class _Fabric:
         left, right = points[vertex_index], points[vertex_index + 1]
         key = len(self._segment_refs)
         self._segment_refs.append((street_id, vertex_index))
-        midpoint = ((left[0] + right[0]) / 2.0, (left[1] + right[1]) / 2.0)
-        for sample in (left, midpoint, right):
-            self.segment_grid.add(sample[0], sample[1], key)
+        # Sample along the segment, not just its ends and middle. An arterial
+        # step is 110 m against a 44 m grid cell, so three samples leave cells
+        # the segment passes through with no entry, and a crossing search
+        # centred in one of them finds nothing.
+        span = math.dist(left, right)
+        samples = max(int(span / (self._cell * 0.5)) + 1, 2)
+        for index in range(samples + 1):
+            t = index / samples
+            self.segment_grid.add(
+                left[0] + t * (right[0] - left[0]),
+                left[1] + t * (right[1] - left[1]),
+                key,
+            )
 
     def _index_class_segment(self, street_id: int, vertex_index: int) -> None:
         road_class = self.street_class[street_id]
@@ -527,6 +588,38 @@ def grow_street_network(
                 fabric.extend_to_node(street_index, node_hit, max_gap_m=step_m)
                 ended_free = False
                 break  # snapped onto an existing junction: raises its degree
+            # A step that crosses a street must register that crossing, even
+            # when neither endpoint lands near it, and even when this street is
+            # not the kind that stops on contact. Two roads meeting at grade is
+            # a junction regardless of whether either of them ends there --
+            # gating registration on `terminate_on_contact` left every
+            # expressway and bypass arc crossing the city unrecorded.
+            #
+            # Not gated on `may_contact` either: `_segment_intersection` is
+            # strictly interior, so a child leaving its parent's node shares an
+            # endpoint rather than crossing, and needs no clearance window.
+            crossing = fabric.nearest_crossing(tip, nxt, exclude_street=street_index)
+            if crossing is not None:
+                crossed_street, hit = crossing
+                junction = fabric.contact(crossed_street, hit, step_m)
+                bound = fabric.extend_to_node(
+                    street_index, junction, max_gap_m=step_m * 1.5
+                ) if junction is not None else False
+                if bound and not terminate_on_contact:
+                    # Carry on THROUGH the junction, so a limited-access road
+                    # still records where it meets the surface streets.
+                    tip = fabric.point_of(junction)
+                    continue
+                # Whether or not the tip could be bound to the junction, this
+                # step has reached a street it crosses and must not continue
+                # past it. Falling through to `extend(nxt)` would step straight
+                # over the crossing and leave it unregistered -- which is what
+                # kept 123 arterial-by-local crossings alive after the swept
+                # test landed, since `extend_to_node` legitimately refuses when
+                # the junction is already on this street or lies beyond the gap.
+                ended_free = False
+                break
+
             contact_radius = step_m * cfg.snap_edge_fraction
             target = (
                 fabric.nearest_contact_street(
@@ -712,6 +805,8 @@ def grow_street_network(
         tier="local",
         occupancy_fraction=cfg.redundancy_radius_fraction,
     )
+
+    _register_remaining_crossings(fabric)
 
     # The builder is the authority now, so the network carries it: junction and
     # dead-end counts are read off recorded incidence rather than guessed from
@@ -1127,3 +1222,102 @@ def _compile_from_coordinates(streets, *, quantum_m: float = 1.0) -> PreviewCity
     )
 
 
+
+
+def _segment_intersection(
+    a1: tuple[float, float],
+    a2: tuple[float, float],
+    b1: tuple[float, float],
+    b2: tuple[float, float],
+) -> tuple[float, float] | None:
+    """Proper crossing point of two segments, or None.
+
+    Proper means strictly interior to both: segments that merely share an
+    endpoint already meet at a node, and treating that as a crossing would split
+    a street at a junction it already has.
+    """
+
+    d1x, d1y = a2[0] - a1[0], a2[1] - a1[1]
+    d2x, d2y = b2[0] - b1[0], b2[1] - b1[1]
+    denominator = d1x * d2y - d1y * d2x
+    if abs(denominator) < 1e-12:
+        return None  # parallel or degenerate
+    ox, oy = b1[0] - a1[0], b1[1] - a1[1]
+    t = (ox * d2y - oy * d2x) / denominator
+    u = (ox * d1y - oy * d1x) / denominator
+    if not (1e-9 < t < 1.0 - 1e-9) or not (1e-9 < u < 1.0 - 1e-9):
+        return None
+    return (a1[0] + t * d1x, a1[1] + t * d1y)
+
+
+def _register_remaining_crossings(fabric: _Fabric, *, max_rounds: int = 6) -> int:
+    """Split every same-grade crossing the growth loop did not catch.
+
+    The loop tests each step before taking it, which cannot cover geometry
+    created after the test: `extend_to_node` appends a segment from the tip to
+    the junction, and that segment can cross a third street nobody re-examined.
+    Measured on grid_core/17, the loop catches 893 crossings and leaves 223.
+
+    Patching each growth path to re-test its own output would make the invariant
+    depend on every future path remembering to do so. A sweep afterwards makes it
+    structural: whatever the loop produced, a same-grade crossing ends up as a
+    junction. Splitting introduces new segments, so it iterates until a round
+    finds none -- bounded, because each split strictly shortens the segments that
+    remain crossable.
+    """
+
+    registered = 0
+    for _round in range(max_rounds):
+        crossings = _find_crossings(fabric)
+        if not crossings:
+            break
+        for left_street, right_street, point in crossings:
+            # Split ONE street, then make the other adopt that same node.
+            # Splitting both independently mints two nodes at one point, which
+            # is the very coincidence this module exists to prevent.
+            junction = fabric.contact(left_street, point, 1.0)
+            if junction is None:
+                continue
+            if fabric.bind_node_into_street(right_street, junction, tolerance_m=1.0):
+                registered += 1
+    return registered
+
+
+def _find_crossings(fabric: _Fabric) -> list[tuple[int, int, tuple[float, float]]]:
+    """Same-grade proper crossings between distinct streets, deterministic order."""
+
+    cell = max(fabric.segment_grid.cell_m, 1.0)
+    buckets: dict[tuple[int, int], list[tuple[int, int]]] = {}
+    for street_id in fabric.builder.street_ids:
+        points = fabric.builder.points_of(street_id)
+        for index in range(len(points) - 1):
+            left, right = points[index], points[index + 1]
+            keys = {
+                (int(math.floor(p[0] / cell)), int(math.floor(p[1] / cell)))
+                for p in (left, right, ((left[0] + right[0]) / 2, (left[1] + right[1]) / 2))
+            }
+            for key in keys:
+                buckets.setdefault(key, []).append((street_id, index))
+
+    found: dict[tuple[int, int], tuple[int, int, tuple[float, float]]] = {}
+    for entries in buckets.values():
+        for i in range(len(entries)):
+            for j in range(i + 1, len(entries)):
+                left_street, left_index = entries[i]
+                right_street, right_index = entries[j]
+                if left_street == right_street:
+                    continue
+                left_points = fabric.builder.points_of(left_street)
+                right_points = fabric.builder.points_of(right_street)
+                if left_index + 1 >= len(left_points) or right_index + 1 >= len(right_points):
+                    continue
+                hit = _segment_intersection(
+                    left_points[left_index], left_points[left_index + 1],
+                    right_points[right_index], right_points[right_index + 1],
+                )
+                if hit is None:
+                    continue
+                key = (min(left_street, right_street), max(left_street, right_street))
+                if key not in found:
+                    found[key] = (left_street, right_street, hit)
+    return [found[key] for key in sorted(found)]

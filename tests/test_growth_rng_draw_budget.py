@@ -24,7 +24,7 @@ import pytest
 # Measured on the current tree at 367f25d. Not a target, not a threshold — a
 # record of what the walk consumes today.
 PINNED_DRAWS: dict[str, dict[str, int]] = {
-    "grid_core/17": {"normal": 16061, "random": 3816, "uniform": 1807},
+    "grid_core/17": {"normal": 13288, "random": 3260, "uniform": 1596},
 }
 
 # Justification for the one change to this pin so far.
@@ -44,6 +44,14 @@ PINNED_DRAWS: dict[str, dict[str, int]] = {
 #
 # Street count moved 5532 -> 3758 on grid_core/17 accordingly. Every seeded map
 # is re-rolled by this, which is exactly what the pin exists to make visible.
+#
+# Second change, same PR: 16061/3816/1807 -> 13288/3260/1596.
+#
+# Registering crossings terminates a growing street where it meets another one,
+# so walks are shorter and each unspent step is one `normal` not drawn. This is
+# the intended behaviour -- a street that crosses another at grade should meet
+# it, not run through it -- and it takes unregistered crossings from 6909 to 24
+# on this case.
 
 
 class _CountingGenerator:

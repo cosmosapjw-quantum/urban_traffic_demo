@@ -282,6 +282,47 @@ class StreetTopologyBuilder:
             return None
         return self.split_at_arc_length(street_id, best[1])
 
+    def bind_node_into_street(
+        self,
+        street_id: StreetId,
+        node_id: NodeId,
+        *,
+        tolerance_m: float,
+    ) -> bool:
+        """Insert an EXISTING node into a street at its projection.
+
+        This is what a crossing needs. Splitting both streets independently
+        mints two nodes at one point, which is the coincident-node defect --
+        declaring them grade-separated would hide it rather than fix it. Here
+        the second street adopts the node the first one already has, so the
+        crossing is one junction.
+        """
+
+        street = self._require_street(street_id)
+        self._require_node(node_id)
+        if node_id in street.node_ids:
+            return True
+
+        point = self._points[node_id]
+        best_index, best_distance = None, float(tolerance_m)
+        travelled = 0.0
+        for index in range(len(street.node_ids) - 1):
+            left = self._points[street.node_ids[index]]
+            right = self._points[street.node_ids[index + 1]]
+            span = math.dist(left, right)
+            if span <= 0.0:
+                continue
+            distance, _along = _project(point, left, right)
+            if distance <= best_distance:
+                best_index, best_distance = index, distance
+            travelled += span
+        if best_index is None:
+            return False
+
+        street.node_ids.insert(best_index + 1, node_id)
+        self._incident[node_id].add(street_id)
+        return True
+
     # --- queries -----------------------------------------------------------
 
     def point_of(self, node_id: NodeId) -> PointM:

@@ -133,7 +133,7 @@ def test_the_grown_network_is_one_connected_component() -> None:
 @pytest.mark.xfail(
     strict=True,
     reason=(
-        "Branch anchors are connected now and the network is one component, but mean degree is 2.525, not the 3.525 the counterfactual predicted. The prediction assumed the same street set; splitting parents changed it (4628 streets against 6257). What remains is a dead-end problem: tips that fail to contact still terminate free, and PR-C's extend-to-cross is what closes them."
+        "2.665 -> 2.756, not the 3.525 the counterfactual predicted. That prediction assumed the same street set; splitting parents changed it (3764 streets against 6257). What remains is a dead-end problem rather than missing edges: tips that fail to contact still terminate free. PR-C's extend-to-cross is what closes them."
     ),
 )
 def test_mean_node_degree_reflects_the_edges_that_actually_exist() -> None:
@@ -200,7 +200,7 @@ def test_two_streets_between_the_same_pair_of_junctions_both_survive() -> None:
 @pytest.mark.xfail(
     strict=True,
     reason=(
-        "6909 -> 1942 on grid_core/17, against 0 on all five real extracts. Contact now splits the target properly, but grow() still tests only the NEXT point against nearby segments; a step that steps clean over a street is never seen. Closing this needs a swept-segment test between tip and next point."
+        "6909 -> 24 on grid_core/17, against 0 on all five real extracts. A swept test during growth catches 893, and a repair pass afterwards catches the rest -- geometry created AFTER a test cannot be covered by that test, and `extend_to_node` appends a segment nobody re-examines. The last 24 are the 0.25 m weld tolerance: splitting at a projection may snap to a nearby vertex, leaving a sliver crossing."
     ),
 )
 def test_streets_that_cross_at_the_same_grade_meet_at_a_node() -> None:
@@ -217,7 +217,7 @@ def test_streets_that_cross_at_the_same_grade_meet_at_a_node() -> None:
 @pytest.mark.xfail(
     strict=True,
     reason=(
-        "6261 -> 159 on grid_core/17, against 0 on all five real extracts. The remainder share the missing swept-segment test with the crossing count."
+        "6261 -> 14 on grid_core/17, against 0 on all five real extracts. The remainder share the weld-tolerance cause with the crossing count."
     ),
 )
 def test_streets_that_touch_without_crossing_also_meet_at_a_node() -> None:
