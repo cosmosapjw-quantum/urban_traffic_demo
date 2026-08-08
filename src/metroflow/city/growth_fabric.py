@@ -34,6 +34,7 @@ import math
 
 import numpy as np
 
+from .growth_topology import StreetTopologyBuilder, iter_chains
 from .district_profiles import assign_district_archetypes, profile_for
 from .generated_map import PreviewCityTopology
 from .graph import Node, RoadClass, RoadLink
@@ -42,6 +43,7 @@ from metroflow.map.road_geometry import (
     LinkGeometryAssignment,
     RoadCenterline,
     RoadGeometryCatalog,
+    _point_to_segment_distance,
 )
 
 __all__ = [
@@ -82,18 +84,34 @@ class GrowthConfig:
     snap_node_fraction: float = 0.58
     snap_edge_fraction: float = 0.30
 
-    # Share of local tips that are released as deliberate cul-de-sacs. This is
-    # the only source of dead ends in the whole pipeline.
+    # Intended share of local tips released as deliberate cul-de-sacs.
+    #
+    # It does not currently do that. `may_dead_end` is passed into `grow()` and
+    # never read in its body; its only effect is at the call site, where a tip
+    # flagged True gets FEWER growth steps than one flagged False -- the
+    # polarity is inverted relative to the name. Dead ends in the compiled graph
+    # come from tips that failed to contact, not from this share, and
+    # `GrownNetwork.dead_end_count` is always 0.
     local_cul_de_sac_share: float = 0.34
     min_intensity: float = 0.055
     seed_jitter_m: float = 30.0
     redundancy_constraint_enabled: bool = False
     """Reject a seed whose ground a PARALLEL road of its class already covers.
 
-    Off by default: it removes the measured duplication (local redundancy 0.59)
-    but currently collapses connectivity to mean degree ~1.1 with dead-end share
-    ~0.95, because rejected seeds are also the ones that would have formed
-    junctions. See tests/test_growth_redundancy_and_bypass.py.
+    Off by default, and therefore dead: nothing in `src/` or `tests/` sets it
+    True, so the shipped generator performs no occupancy rejection at all.
+
+    It is also broken where it would run. `class_occupied` measures
+    point-to-point distance to indexed VERTICES, not distance to segments, and
+    `_index_vertex` skips vertex 0 entirely; at the tuned radius that misses
+    11.2% of the seeds a segment-distance test rejects. At the default radius
+    (135.3 m) it fires on 5707 of 5708 local seeds, which is unusable.
+
+    The `0.59` duplication figure this docstring previously quoted does not
+    reproduce at head -- it is off by 2.6x and its units were wrong (the metric
+    returns redundant cells over occupied cells, not streets). Direction-aware
+    duplication is 0.2270 as the test measures it, 0.2570 under a
+    segmentation-invariant raster. See tests/test_growth_redundancy_and_bypass.py.
     """
     redundancy_radius_fraction: float = 0.55
     """Rejection radius as a fraction of that tier's spacing."""
@@ -105,8 +123,23 @@ class GrowthConfig:
     spacing_scale: float = 3.0
     """Uniform multiplier on every street spacing.
 
-    Calibrated against the offline OSM control extracts measured with the same
-    code: real fabric sits at 5.3-13.9 km/km2 and 18-104 intersections/km2.
+    Calibrated against the offline OSM control extracts, which makes those
+    extracts a development set rather than an independent control.
+
+    The quoted band needs its convention named. `5.3-13.9 km/km2` is measured
+    over a node BOUNDING BOX; the instrument this generator is actually scored
+    with (`morphology_quality.py`, node convex hull) gives `7.4-17.8 km/km2` on
+    the same five extracts. Generated fabric sits at 24.1-40.2 km/km2 over the
+    30-case grid, i.e. outside the band under either convention.
+
+    Intersection density is a different story and earlier text here got it
+    wrong in both directions. Measured under ONE convention -- hull area, nodes
+    of unique-neighbour degree >= 3 -- the extracts give 25.1-132.9 /km2 and
+    generated fabric 102.2-138.6 /km2. So it overlaps the real range and sits
+    near its top, rather than being comfortably inside it (the original claim)
+    or clearly outside it (the first correction). Both earlier figures mixed a
+    bounding-box denominator with a raw incident-edge degree, which double
+    counts wherever parallel edges exist -- live on 4 of the 5 extracts.
     """
     district_profiles_enabled: bool = True
     """Vary local spacing, block size and cul-de-sac share by district.
@@ -129,6 +162,10 @@ class GrownNetwork:
     streets: tuple[GrownStreet, ...]
     dead_end_count: int
     junction_count: int
+    # The recorded topology. `compile_grown_network` consumes this instead of
+    # re-deriving junctions from rounded coordinates; `None` only for networks
+    # built by older callers that pass a bare street tuple.
+    topology: object | None = None
 
 
 class _Grid:
@@ -159,111 +196,249 @@ class _Grid:
 
 
 class _Fabric:
-    """Accumulates grown streets and answers snap queries against them."""
+    """Accumulates grown streets, with topology recorded as it is created.
+
+    Backed by `StreetTopologyBuilder`: a junction is a node id minted where the
+    junction happens and shared by everything incident to it. The previous
+    version kept plain point lists and left a later pass to infer junctions from
+    coordinates, which is how 97.6% of streets came to begin on another street's
+    interior with no node there.
+
+    The spatial grids index BUILDER ids, so they are a search accelerator and
+    never an authority: what is connected to what is answered by the builder.
+    """
 
     def __init__(self, cell_m: float) -> None:
         self._cell = float(cell_m)
-        self.nodes: list[tuple[float, float]] = []
+        self.builder = StreetTopologyBuilder()
         self.node_grid = _Grid(cell_m)
-        # Each street is a growing polyline plus the node ids at its two ends.
-        self.streets: list[list[tuple[float, float]]] = []
         self.street_class: list[RoadClass] = []
-        self.vertex_grid = _Grid(cell_m)
-        self.vertex_owner: list[tuple[int, int]] = []
-        # Where each class already has pavement, so growth does not lay a second
-        # road of the same class on ground the first one already covers.
+        # street id -> True once it owns at least one segment, so contact search
+        # can skip seeds that have not grown.
+        self.segment_grid = _Grid(cell_m)
+        self._indexed_segments: set[tuple[int, int]] = set()
+        self._segment_refs: list[tuple[int, int]] = []
         self.class_grid: dict[RoadClass, _Grid] = {}
         self.class_points: dict[RoadClass, list[tuple[tuple[float, float], int, float]]] = {}
 
-    def add_node(self, point: tuple[float, float]) -> int:
-        node_id = len(self.nodes)
-        self.nodes.append(point)
+    # --- geometry, delegated to the builder --------------------------------
+
+    @property
+    def streets(self) -> list[list[tuple[float, float]]]:
+        """Point view, for callers that only read geometry."""
+
+        return [list(self.builder.points_of(sid)) for sid in self.builder.street_ids]
+
+    def points_of(self, street_id: int) -> tuple[tuple[float, float], ...]:
+        return self.builder.points_of(street_id)
+
+    def open_street(
+        self,
+        road_class: RoadClass,
+        start: tuple[float, float],
+        *,
+        start_node_id: int | None = None,
+    ) -> int:
+        street_id = self.builder.open_street(points=(start,), start_node_id=start_node_id)
+        self.street_class.append(road_class)
+        node_id = self.builder.node_ids_of(street_id)[0]
+        self.node_grid.add(start[0], start[1], node_id)
+        return street_id
+
+    def extend(self, street_id: int, point: tuple[float, float]) -> None:
+        node_id = self.builder.extend_street(street_id, point)
         self.node_grid.add(point[0], point[1], node_id)
-        return node_id
+        self._index_last_segment(street_id)
+
+    def extend_to_node(self, street_id: int, node_id: int, *, max_gap_m: float) -> bool:
+        """Finish a street ON an existing junction. False if it cannot legally."""
+
+        try:
+            self.builder.extend_street_to_node(street_id, node_id, max_gap_m=max_gap_m)
+        except ValueError:
+            # Already on this street, or too far to weld without inventing
+            # length. Either way the tip simply stops here.
+            return False
+        self._index_last_segment(street_id)
+        return True
+
+    def split_at_arc_length(self, street_id: int, arc_length_m: float) -> int:
+        return self.builder.split_at_arc_length(street_id, arc_length_m)
+
+    def arc_length_of(self, street_id: int) -> float:
+        return self.builder.arc_length_of(street_id)
+
+    # --- snap queries -------------------------------------------------------
 
     def nearest_node(self, point: tuple[float, float], radius: float) -> int | None:
         best_id, best_distance = None, radius
         for node_id in self.node_grid.near(point[0], point[1], radius):
-            other = self.nodes[node_id]
-            distance = math.dist(point, other)
+            distance = math.dist(point, self.builder.point_of(node_id))
             if distance <= best_distance:
                 best_id, best_distance = node_id, distance
         return best_id
 
-    def nearest_contact(
-        self, point: tuple[float, float], radius: float, *, exclude_street: int
-    ) -> tuple[int, tuple[float, float]] | None:
-        """Closest point on any nearby street SEGMENT, not just its vertices.
+    def point_of(self, node_id: int) -> tuple[float, float]:
+        return self.builder.point_of(node_id)
 
-        Vertices sit one growth step apart (tens of metres) while the snap
-        radius is a fraction of a step, so a vertex-only test lets a street
-        cross another and carry on without connecting. Measuring to the segment
-        is what makes a crossing become a junction.
+    def nearest_contact_street(
+        self, point: tuple[float, float], radius: float, *, exclude_street: int
+    ) -> int | None:
+        """Which street runs closest to `point`, measured to its SEGMENTS.
+
+        Returns the street, not a coordinate. The caller then asks the builder
+        to split it, which inserts the projection into that street's own
+        polyline -- so a contact that is not a shared node is unrepresentable
+        rather than merely discouraged.
+        """
+
+        best_street, best_distance = None, radius
+        for key in self.segment_grid.near(point[0], point[1], radius):
+            street_id, vertex_index = self._segment_refs[key]
+            if street_id == exclude_street:
+                continue
+            points = self.builder.points_of(street_id)
+            if vertex_index + 1 >= len(points):
+                continue
+            left, right = points[vertex_index], points[vertex_index + 1]
+            distance = _point_to_segment_distance(point, left, right)
+            if distance <= best_distance:
+                best_street, best_distance = street_id, distance
+        return best_street
+
+    def nearest_crossing(
+        self,
+        tip: tuple[float, float],
+        nxt: tuple[float, float],
+        *,
+        exclude_street: int,
+    ) -> tuple[int, tuple[float, float]] | None:
+        """First street the STEP crosses, and where.
+
+        Testing only the arriving point misses every street the step clears in
+        one stride, which is why 1942 crossings on grid_core/17 stayed
+        unregistered after contacts were fixed: a step is tens of metres and the
+        contact radius is a fraction of that.
         """
 
         best: tuple[int, tuple[float, float]] | None = None
-        best_distance = radius
-        for index in self.vertex_grid.near(point[0], point[1], radius):
-            street_index, vertex_index = self.vertex_owner[index]
-            if street_index == exclude_street:
+        best_distance = float("inf")
+        radius = math.dist(tip, nxt)
+        midpoint = ((tip[0] + nxt[0]) / 2.0, (tip[1] + nxt[1]) / 2.0)
+        for key in self.segment_grid.near(midpoint[0], midpoint[1], radius):
+            street_id, vertex_index = self._segment_refs[key]
+            if street_id == exclude_street:
                 continue
-            street = self.streets[street_index]
-            for offset in (-1, 0):
-                left_index = vertex_index + offset
-                if left_index < 0 or left_index + 1 >= len(street):
-                    continue
-                left, right = street[left_index], street[left_index + 1]
-                dx, dy = right[0] - left[0], right[1] - left[1]
-                length_sq = dx * dx + dy * dy
-                if length_sq <= 1e-12:
-                    continue
-                t = ((point[0] - left[0]) * dx + (point[1] - left[1]) * dy) / length_sq
-                t = max(0.0, min(1.0, t))
-                closest = (left[0] + t * dx, left[1] + t * dy)
-                distance = math.dist(point, closest)
-                if distance > best_distance:
-                    continue
-                # Snap to a real VERTEX of the other street, not to an arbitrary
-                # point along it. `compile_grown_network` detects junctions by
-                # shared coordinates, so a mid-segment contact leaves the other
-                # street with no matching point and no junction is ever formed.
-                vertex = left if math.dist(closest, left) <= math.dist(closest, right) else right
-                best, best_distance = (street_index, vertex), distance
+            points = self.builder.points_of(street_id)
+            if vertex_index + 1 >= len(points):
+                continue
+            hit = _segment_intersection(tip, nxt, points[vertex_index], points[vertex_index + 1])
+            if hit is None:
+                continue
+            distance = math.dist(tip, hit)
+            if distance < best_distance:
+                best, best_distance = (street_id, hit), distance
         return best
 
-    def open_street(self, road_class: RoadClass, start: tuple[float, float]) -> int:
-        street_index = len(self.streets)
-        self.streets.append([start])
-        self.street_class.append(road_class)
-        self._index_vertex(street_index, 0)
-        return street_index
+    def nearest_crossing_target(self, point: tuple[float, float]) -> int | None:
+        """Street whose geometry passes closest to `point`."""
 
-    def extend(self, street_index: int, point: tuple[float, float]) -> None:
-        self.streets[street_index].append(point)
-        self._index_vertex(street_index, len(self.streets[street_index]) - 1)
+        best, best_distance = None, float("inf")
+        for key in self.segment_grid.near(point[0], point[1], self._cell):
+            street_id, vertex_index = self._segment_refs[key]
+            points = self.builder.points_of(street_id)
+            if vertex_index + 1 >= len(points):
+                continue
+            distance = _point_to_segment_distance(
+                point, points[vertex_index], points[vertex_index + 1]
+            )
+            if distance < best_distance:
+                best, best_distance = street_id, distance
+        return best
 
-    def _index_vertex(self, street_index: int, vertex_index: int) -> None:
-        point = self.streets[street_index][vertex_index]
-        self.vertex_owner.append((street_index, vertex_index))
-        self.vertex_grid.add(point[0], point[1], len(self.vertex_owner) - 1)
-        road_class = self.street_class[street_index]
+    def bind_node_into_street(
+        self, street_id: int, node_id: int, *, tolerance_m: float
+    ) -> bool:
+        bound = self.builder.bind_node_into_street(
+            street_id, node_id, tolerance_m=tolerance_m
+        )
+        if bound:
+            self._reindex_street(street_id)
+        return bound
+
+    def contact(
+        self, street_id: int, point: tuple[float, float], radius: float
+    ) -> int | None:
+        node_id = self.builder.contact(street_id, point=point, tolerance_m=radius)
+        if node_id is not None:
+            self._reindex_street(street_id)
+            self.node_grid.add(*self.builder.point_of(node_id), node_id)
+        return node_id
+
+    # --- indexing -----------------------------------------------------------
+
+    _segment_refs: list[tuple[int, int]]
+
+    def _index_last_segment(self, street_id: int) -> None:
+        points = self.builder.points_of(street_id)
+        if len(points) < 2:
+            return
+        self._index_segment(street_id, len(points) - 2)
+        self._index_class_segment(street_id, len(points) - 2)
+
+    def _reindex_street(self, street_id: int) -> None:
+        """A split renumbers this street's segments, so index them all again.
+
+        The dedupe guard is keyed on (street, vertex index), and a split SHIFTS
+        every index after it -- so without clearing the guard first, the
+        renumbered segments are silently skipped and the crossing search stops
+        seeing parts of a street it has already split. Over-covering is safe:
+        the grid is a candidate filter and every hit is re-measured against live
+        geometry.
+        """
+
+        self._indexed_segments = {
+            key for key in self._indexed_segments if key[0] != street_id
+        }
+        points = self.builder.points_of(street_id)
+        for index in range(len(points) - 1):
+            self._index_segment(street_id, index)
+
+    def _index_segment(self, street_id: int, vertex_index: int) -> None:
+        if (street_id, vertex_index) in self._indexed_segments:
+            return
+        self._indexed_segments.add((street_id, vertex_index))
+        points = self.builder.points_of(street_id)
+        left, right = points[vertex_index], points[vertex_index + 1]
+        key = len(self._segment_refs)
+        self._segment_refs.append((street_id, vertex_index))
+        # Sample along the segment, not just its ends and middle. An arterial
+        # step is 110 m against a 44 m grid cell, so three samples leave cells
+        # the segment passes through with no entry, and a crossing search
+        # centred in one of them finds nothing.
+        span = math.dist(left, right)
+        samples = max(int(span / (self._cell * 0.5)) + 1, 2)
+        for index in range(samples + 1):
+            t = index / samples
+            self.segment_grid.add(
+                left[0] + t * (right[0] - left[0]),
+                left[1] + t * (right[1] - left[1]),
+                key,
+            )
+
+    def _index_class_segment(self, street_id: int, vertex_index: int) -> None:
+        road_class = self.street_class[street_id]
         grid = self.class_grid.get(road_class)
         if grid is None:
             grid = _Grid(self._cell)
             self.class_grid[road_class] = grid
             self.class_points[road_class] = []
-        points = self.class_points[road_class]
-        street = self.streets[street_index]
-        if vertex_index == 0:
-            # A lone start point has no direction yet. Storing it as heading 0
-            # makes every street look parallel to the x-axis and the occupancy
-            # test then rejects nearly every seed. The segment leaving this
-            # point is indexed when the next vertex arrives.
-            return
-        previous = street[vertex_index - 1]
-        heading = math.atan2(point[1] - previous[1], point[0] - previous[0])
-        grid.add(point[0], point[1], len(points))
-        points.append((point, street_index, heading))
+        points = self.builder.points_of(street_id)
+        left, right = points[vertex_index], points[vertex_index + 1]
+        heading = math.atan2(right[1] - left[1], right[0] - left[0])
+        entries = self.class_points[road_class]
+        grid.add(right[0], right[1], len(entries))
+        entries.append((right, street_id, heading))
 
     def class_occupied(
         self,
@@ -354,6 +529,7 @@ def grow_street_network(
         may_dead_end: bool,
         terminate_on_contact: bool = True,
         occupancy_radius_m: float = 0.0,
+        start_node_id: int | None = None,
     ) -> tuple[int, bool] | None:
         """Grow one street from `start`. Returns (street_index, ended_free)."""
 
@@ -382,14 +558,13 @@ def grow_street_network(
                 parallel_tolerance_rad=math.radians(cfg.parallel_tolerance_deg),
             ):
                 return None
-        street_index = fabric.open_street(road_class, start)
+        street_index = fabric.open_street(
+            road_class, start, start_node_id=start_node_id
+        )
         # A branch is seeded ON its parent, so contact detection must stay off
         # until the tip has cleared it - otherwise every street terminates on
         # step one and the whole fabric collapses into stubs.
         clearance_steps = 1
-        # A street's origin is a junction: later tips may snap onto it, which
-        # is what turns a pair of T-junctions into a four-way crossing.
-        fabric.add_node(start)
         tip = start
         ended_free = True
         for step_index in range(max_steps):
@@ -423,33 +598,73 @@ def grow_street_network(
                 else None
             )
             if node_hit is not None:
-                fabric.extend(street_index, fabric.nodes[node_hit])
+                # Bind to the junction itself. Appending a copy of its
+                # coordinates is what used to leave two nodes at one point with
+                # nothing joining them.
+                fabric.extend_to_node(street_index, node_hit, max_gap_m=step_m)
                 ended_free = False
                 break  # snapped onto an existing junction: raises its degree
-            vertex_hit = (
-                fabric.nearest_contact(
-                    nxt, step_m * cfg.snap_edge_fraction, exclude_street=street_index
+            # A step that crosses a street must register that crossing, even
+            # when neither endpoint lands near it, and even when this street is
+            # not the kind that stops on contact. Two roads meeting at grade is
+            # a junction regardless of whether either of them ends there --
+            # gating registration on `terminate_on_contact` left every
+            # expressway and bypass arc crossing the city unrecorded.
+            #
+            # Not gated on `may_contact` either: `_segment_intersection` is
+            # strictly interior, so a child leaving its parent's node shares an
+            # endpoint rather than crossing, and needs no clearance window.
+            crossing = fabric.nearest_crossing(tip, nxt, exclude_street=street_index)
+            if crossing is not None:
+                crossed_street, hit = crossing
+                junction = fabric.contact(crossed_street, hit, step_m)
+                bound = fabric.extend_to_node(
+                    street_index, junction, max_gap_m=step_m * 1.5
+                ) if junction is not None else False
+                if bound and not terminate_on_contact:
+                    # Carry on THROUGH the junction, so a limited-access road
+                    # still records where it meets the surface streets.
+                    tip = fabric.point_of(junction)
+                    continue
+                # Whether or not the tip could be bound to the junction, this
+                # step has reached a street it crosses and must not continue
+                # past it. Falling through to `extend(nxt)` would step straight
+                # over the crossing and leave it unregistered -- which is what
+                # kept 123 arterial-by-local crossings alive after the swept
+                # test landed, since `extend_to_node` legitimately refuses when
+                # the junction is already on this street or lies beyond the gap.
+                ended_free = False
+                break
+
+            contact_radius = step_m * cfg.snap_edge_fraction
+            target = (
+                fabric.nearest_contact_street(
+                    nxt, contact_radius, exclude_street=street_index
                 )
                 if may_contact
                 else None
             )
-            if vertex_hit is not None:
-                _other_index, contact = vertex_hit
-                fabric.extend(street_index, contact)
-                # Splitting a street interior creates a new degree-3 junction.
-                # Register it so later growth can snap onto it and lift it to a
-                # four-way, instead of only ever producing T-junctions.
-                fabric.add_node(contact)
-                ended_free = False
-                break
+            if target is not None:
+                # Split the TARGET at the true projection, which inserts that
+                # vertex into the target's own polyline, then finish this street
+                # on the node that split produced. Both streets now carry the
+                # same node id, so the junction exists in the graph and not only
+                # on the page. The old path appended a copy of a nearby vertex
+                # and left them unconnected.
+                junction = fabric.contact(target, nxt, contact_radius)
+                if junction is not None and fabric.extend_to_node(
+                    street_index, junction, max_gap_m=step_m
+                ):
+                    ended_free = False
+                    break
 
             fabric.extend(street_index, nxt)
             tip = nxt
 
-        if len(fabric.streets[street_index]) < 2:
-            # Too short to be a street. Truncate to a single point so it is
-            # filtered out later; stale vertex references are guarded above.
-            del fabric.streets[street_index][1:]
+        if len(fabric.points_of(street_index)) < 2:
+            # A seed that never grew. It owns one node and no segment, so
+            # `iter_chains` skips it; nothing needs truncating because the
+            # builder never materialised a segment to begin with.
             return None
         return street_index, ended_free
 
@@ -607,12 +822,44 @@ def grow_street_network(
         occupancy_fraction=cfg.redundancy_radius_fraction,
     )
 
+    _register_remaining_crossings(fabric)
+    _extend_dangling_tips(fabric, max_reach_m=cfg.local_step_m * 1.5)
+    # Extending creates new geometry, which can cross something. Re-run the
+    # crossing sweep so the invariant holds over the repaired network too.
+    _register_remaining_crossings(fabric)
+
+    # The builder is the authority now, so the network carries it: junction and
+    # dead-end counts are read off recorded incidence rather than guessed from
+    # coordinates. `dead_end_count` used to be hardcoded to 0.
+    builder = fabric.builder
     streets = tuple(
-        GrownStreet(street_id=index, road_class=fabric.street_class[index], points_m=tuple(points))
-        for index, points in enumerate(fabric.streets)
-        if len(points) >= 2
+        GrownStreet(
+            street_id=street_id,
+            road_class=fabric.street_class[street_id],
+            points_m=builder.points_of(street_id),
+        )
+        for street_id in builder.street_ids
+        if len(builder.node_ids_of(street_id)) >= 2
     )
-    return GrownNetwork(streets=streets, dead_end_count=0, junction_count=len(fabric.nodes))
+    junctions = builder.junction_node_ids()
+    dead_ends = sum(
+        1
+        for node_id in junctions
+        if len(builder.incident_street_ids(node_id)) == 1
+        and sum(
+            1
+            for street_id in builder.incident_street_ids(node_id)
+            for position in (0, -1)
+            if builder.node_ids_of(street_id)[position] == node_id
+        )
+        == 1
+    )
+    return GrownNetwork(
+        streets=streets,
+        dead_end_count=dead_ends,
+        junction_count=len(junctions),
+        topology=builder,
+    )
 
 
 def _branch_pass(
@@ -636,58 +883,109 @@ def _branch_pass(
     """Seed new streets at fixed arc spacing along already-grown streets."""
 
     sources = [
-        index
-        for index, points in enumerate(fabric.streets)
-        if len(points) >= 2 and fabric.street_class[index] in source_classes
+        street_id
+        for street_id in fabric.builder.street_ids
+        if len(fabric.builder.node_ids_of(street_id)) >= 2
+        and fabric.street_class[street_id] in source_classes
     ]
     for street_index in sources:
-        points = list(fabric.streets[street_index])
+        # Anchors are chosen as ARC LENGTHS first, then resolved. Splitting the
+        # parent inserts vertices into it, which would invalidate any positional
+        # walk mid-iteration -- arc length is invariant under exactly that
+        # mutation, which is why the topology model addresses positions this way.
+        points = list(fabric.points_of(street_index))
+        anchor_arcs: list[float] = []
         travelled = 0.0
-        next_seed = spacing_m * float(rng.uniform(0.3, 1.0))
+        # The phase must be drawn from the SAME spacing the increment uses.
+        # Drawing it from raw class spacing while incrementing by the scaled,
+        # district-resolved value put the two a factor of `spacing_scale` apart:
+        # local raw is 82 m against 246-990 m scaled, so every source shorter
+        # than one scaled interval was seeded every time and the increment never
+        # fired again. That also made `spacing_scale` -- documented as the OSM
+        # calibration knob -- inert for the first anchor on every street.
+        next_seed = _local_spacing_at(
+            points[0], cfg, spacing_m, profile_at=profile_at, tier=tier
+        ) * float(rng.uniform(0.3, 1.0))
         for left, right in zip(points, points[1:]):
             segment = math.dist(left, right)
             if segment <= 1e-9:
                 continue
             while travelled + segment >= next_seed:
-                t = (next_seed - travelled) / segment
-                anchor = (
-                    left[0] + t * (right[0] - left[0]),
-                    left[1] + t * (right[1] - left[1]),
+                anchor_arcs.append(next_seed)
+                probe = (
+                    left[0] + ((next_seed - travelled) / segment) * (right[0] - left[0]),
+                    left[1] + ((next_seed - travelled) / segment) * (right[1] - left[1]),
                 )
-                # Read the district at the anchor, so spacing, block size and
-                # cul-de-sac share follow the district rather than the city.
-                profile = profile_at(anchor) if profile_at is not None else None
-                if profile is None:
-                    local_spacing, local_step = spacing_m * cfg.spacing_scale, step_m
-                    local_turn, local_steps = turn_deg, max_steps
-                    local_dead_end = cul_de_sac_share
-                elif tier == "collector":
-                    local_spacing = profile.collector_spacing_m * cfg.spacing_scale
-                    local_step, local_turn = step_m, turn_deg
-                    local_steps, local_dead_end = max_steps, cul_de_sac_share
-                else:
-                    local_spacing = profile.local_spacing_m * cfg.spacing_scale
-                    local_step = profile.local_step_m
-                    local_turn = profile.local_turn_deg
-                    local_steps = profile.local_max_steps
-                    local_dead_end = profile.cul_de_sac_share
-
-                tangent = math.atan2(right[1] - left[1], right[0] - left[0])
-                for side in (tangent + math.pi / 2.0, tangent - math.pi / 2.0):
-                    may_dead_end = float(rng.random()) < local_dead_end
-                    grow(
-                        anchor,
-                        side,
-                        road_class,
-                        local_step,
-                        local_turn,
-                        local_steps if may_dead_end else local_steps + 2,
-                        floor,
-                        may_dead_end=may_dead_end,
-                        occupancy_radius_m=local_spacing * occupancy_fraction,
-                    )
-                next_seed += local_spacing
+                next_seed += _local_spacing_at(
+                    probe, cfg, spacing_m, profile_at=profile_at, tier=tier
+                )
             travelled += segment
+
+        for anchor_arc in anchor_arcs:
+            # Split the parent HERE. The node this returns belongs to the parent
+            # and to both children, so the branch origin is a junction in the
+            # graph and not merely a point where three polylines happen to
+            # coincide. Previously the anchor was interpolated and discarded,
+            # leaving 97.6% of streets beginning on another street's interior
+            # with no node there.
+            anchor_node = fabric.split_at_arc_length(street_index, anchor_arc)
+            anchor = fabric.point_of(anchor_node)
+            profile = profile_at(anchor) if profile_at is not None else None
+            if profile is None:
+                local_step, local_turn = step_m, turn_deg
+                local_steps, local_dead_end = max_steps, cul_de_sac_share
+            elif tier == "collector":
+                local_step, local_turn = step_m, turn_deg
+                local_steps, local_dead_end = max_steps, cul_de_sac_share
+            else:
+                local_step = profile.local_step_m
+                local_turn = profile.local_turn_deg
+                local_steps = profile.local_max_steps
+                local_dead_end = profile.cul_de_sac_share
+            local_spacing = _local_spacing_at(
+                anchor, cfg, spacing_m, profile_at=profile_at, tier=tier
+            )
+
+            tangent = _tangent_at(fabric, street_index, anchor_node)
+            for side in (tangent + math.pi / 2.0, tangent - math.pi / 2.0):
+                may_dead_end = float(rng.random()) < local_dead_end
+                grow(
+                    anchor,
+                    side,
+                    road_class,
+                    local_step,
+                    local_turn,
+                    local_steps if may_dead_end else local_steps + 2,
+                    floor,
+                    may_dead_end=may_dead_end,
+                    occupancy_radius_m=local_spacing * occupancy_fraction,
+                    # Bind the child to the junction the split produced, rather
+                    # than starting a fresh node at the same coordinates.
+                    start_node_id=anchor_node,
+                )
+
+
+def _local_spacing_at(point, cfg, spacing_m, *, profile_at, tier):
+    """Spacing the district at `point` asks for, scaled."""
+
+    profile = profile_at(point) if profile_at is not None else None
+    if profile is None:
+        return spacing_m * cfg.spacing_scale
+    if tier == "collector":
+        return profile.collector_spacing_m * cfg.spacing_scale
+    return profile.local_spacing_m * cfg.spacing_scale
+
+
+def _tangent_at(fabric: "_Fabric", street_id: int, node_id: int) -> float:
+    """Direction of the parent street where the branch leaves it."""
+
+    node_ids = fabric.builder.node_ids_of(street_id)
+    index = node_ids.index(node_id)
+    left_index = max(index - 1, 0)
+    right_index = min(index + 1, len(node_ids) - 1)
+    left = fabric.point_of(node_ids[left_index])
+    right = fabric.point_of(node_ids[right_index])
+    return math.atan2(right[1] - left[1], right[0] - left[0])
 
 
 # --- compilation -----------------------------------------------------------
@@ -706,8 +1004,149 @@ DESIGN = {
 }
 
 
-def compile_grown_network(streets, *, quantum_m: float = 1.0) -> PreviewCityTopology:
-    """Split streets at shared vertices; keep each chain as ONE curved centerline."""
+def compile_grown_network(network, *, quantum_m: float = 1.0) -> PreviewCityTopology:
+    """Compile a grown network into a topology, from recorded incidence.
+
+    Accepts a `GrownNetwork` (preferred) or a bare tuple of `GrownStreet`.
+
+    With a `GrownNetwork` the junctions come from `StreetTopologyBuilder`: a node
+    is where growth said a junction is. Nothing here compares coordinates, so
+    translating the city cannot change its graph, two streets between one pair of
+    junctions both survive, and a branch origin is connected to its parent.
+
+    The bare-tuple path is the previous behaviour -- junctions inferred from
+    coordinates rounded to `quantum_m` -- kept for callers that hold streets
+    without their topology. It carries every defect the builder exists to
+    remove, and says so.
+    """
+
+    builder = getattr(network, "topology", None)
+    streets = getattr(network, "streets", network)
+    if builder is None:
+        return _compile_from_coordinates(streets, quantum_m=quantum_m)
+    return _compile_from_incidence(builder, streets)
+
+
+def _compile_from_incidence(builder, streets) -> PreviewCityTopology:
+    class_by_street = {street.street_id: street.road_class for street in streets}
+
+    chains = iter_chains(builder)
+    used_nodes: list[int] = []
+    index_by_node: dict[int, int] = {}
+
+    def node_index(node_id: int) -> int:
+        existing = index_by_node.get(node_id)
+        if existing is not None:
+            return existing
+        compact = len(used_nodes)
+        index_by_node[node_id] = compact
+        used_nodes.append(node_id)
+        return compact
+
+    links: list[RoadLink] = []
+    centerlines: list[RoadCenterline] = []
+    assignments: list[LinkGeometryAssignment] = []
+    dropped: list[str] = []
+
+    for street_id, chain_nodes in chains:
+        road_class = class_by_street.get(street_id)
+        if road_class is None:
+            dropped.append(f"street {street_id}: no road class")
+            continue
+        points = [builder.point_of(node_id) for node_id in chain_nodes]
+        arc = sum(math.dist(a, b) for a, b in zip(points, points[1:]))
+        if arc <= 0.0:
+            dropped.append(f"street {street_id}: zero-length chain")
+            continue
+        if chain_nodes[0] == chain_nodes[-1]:
+            # A closed chain cannot be one link: `RoadLink` requires src != dst.
+            # Split it at its midpoint node so the loop survives as two links
+            # rather than being dropped, which is what the old compiler did.
+            middle = len(chain_nodes) // 2
+            if middle == 0:
+                dropped.append(f"street {street_id}: unsplittable closed chain")
+                continue
+            halves = [chain_nodes[: middle + 1], chain_nodes[middle:]]
+        else:
+            halves = [list(chain_nodes)]
+
+        for part in halves:
+            if len(part) < 2 or part[0] == part[-1]:
+                dropped.append(f"street {street_id}: degenerate chain half")
+                continue
+            part_points = [builder.point_of(node_id) for node_id in part]
+            part_arc = sum(math.dist(a, b) for a, b in zip(part_points, part_points[1:]))
+            if part_arc <= 0.0:
+                dropped.append(f"street {street_id}: zero-length chain half")
+                continue
+            src, dst = node_index(part[0]), node_index(part[-1])
+            lanes, speed, capacity = DESIGN[road_class]
+            geometry_id = len(centerlines)
+            centerlines.append(
+                RoadCenterline(
+                    geometry_id=geometry_id,
+                    points_m=tuple(part_points),
+                    source=CenterlineSource.SYNTHETIC,
+                )
+            )
+            forward_id = len(links)
+            for source, destination in ((src, dst), (dst, src)):
+                links.append(
+                    RoadLink(
+                        link_id=len(links),
+                        src_node_id=source,
+                        dst_node_id=destination,
+                        road_class=road_class,
+                        length_m=part_arc,
+                        free_flow_speed_mps=speed,
+                        capacity_veh_per_tick=capacity,
+                        lanes=lanes,
+                        physical_road_id=geometry_id,
+                    )
+                )
+            assignments.append(
+                LinkGeometryAssignment(link_id=forward_id, geometry_id=geometry_id)
+            )
+            assignments.append(
+                LinkGeometryAssignment(
+                    link_id=forward_id + 1, geometry_id=geometry_id, reversed=True
+                )
+            )
+
+    nodes = tuple(
+        Node(compact, x=float(builder.point_of(node_id)[0]), y=float(builder.point_of(node_id)[1]))
+        for compact, node_id in enumerate(used_nodes)
+    )
+    return PreviewCityTopology(
+        nodes=nodes,
+        links=tuple(links),
+        road_geometry=RoadGeometryCatalog(
+            centerlines=tuple(centerlines), assignments=tuple(assignments)
+        ),
+        metadata={
+            "engine": "growth_fabric_v1",
+            "topology_source": "recorded_incidence",
+            # Every chain the compiler declined to emit, with its reason. The
+            # previous compiler dropped a second street between one node pair
+            # silently; nothing may leave this function unrecorded.
+            "dropped_chain_count": len(dropped),
+            "dropped_chain_reasons": tuple(dropped[:32]),
+            # Fragments that reach nothing. A road nobody can drive to is a
+            # generator defect, so it is counted rather than quietly tolerated
+            # or silently deleted.
+            **_connectivity_metadata(links, len(used_nodes)),
+        },
+    )
+
+
+def _compile_from_coordinates(streets, *, quantum_m: float = 1.0) -> PreviewCityTopology:
+    """Legacy path: infer junctions by rounding coordinates.
+
+    Retained only for callers holding streets without their builder. Every
+    defect measured against this path is still present here -- a branch origin
+    is not a junction, a translation changes the graph, and a second street
+    between one node pair is dropped.
+    """
 
     def key(point):
         return (round(point[0] / quantum_m), round(point[1] / quantum_m))
@@ -816,3 +1255,225 @@ def compile_grown_network(streets, *, quantum_m: float = 1.0) -> PreviewCityTopo
     )
 
 
+
+
+def _segment_intersection(
+    a1: tuple[float, float],
+    a2: tuple[float, float],
+    b1: tuple[float, float],
+    b2: tuple[float, float],
+) -> tuple[float, float] | None:
+    """Proper crossing point of two segments, or None.
+
+    Proper means strictly interior to both: segments that merely share an
+    endpoint already meet at a node, and treating that as a crossing would split
+    a street at a junction it already has.
+    """
+
+    d1x, d1y = a2[0] - a1[0], a2[1] - a1[1]
+    d2x, d2y = b2[0] - b1[0], b2[1] - b1[1]
+    denominator = d1x * d2y - d1y * d2x
+    if abs(denominator) < 1e-12:
+        return None  # parallel or degenerate
+    ox, oy = b1[0] - a1[0], b1[1] - a1[1]
+    t = (ox * d2y - oy * d2x) / denominator
+    u = (ox * d1y - oy * d1x) / denominator
+    if not (1e-9 < t < 1.0 - 1e-9) or not (1e-9 < u < 1.0 - 1e-9):
+        return None
+    return (a1[0] + t * d1x, a1[1] + t * d1y)
+
+
+def _register_remaining_crossings(fabric: _Fabric, *, max_rounds: int = 6) -> int:
+    """Split every same-grade crossing the growth loop did not catch.
+
+    The loop tests each step before taking it, which cannot cover geometry
+    created after the test: `extend_to_node` appends a segment from the tip to
+    the junction, and that segment can cross a third street nobody re-examined.
+    Measured on grid_core/17, the loop catches 893 crossings and leaves 223.
+
+    Patching each growth path to re-test its own output would make the invariant
+    depend on every future path remembering to do so. A sweep afterwards makes it
+    structural: whatever the loop produced, a same-grade crossing ends up as a
+    junction. Splitting introduces new segments, so it iterates until a round
+    finds none -- bounded, because each split strictly shortens the segments that
+    remain crossable.
+    """
+
+    registered = 0
+    for _round in range(max_rounds):
+        crossings = _find_crossings(fabric)
+        if not crossings:
+            break
+        for left_street, right_street, point in crossings:
+            # Split ONE street, then make the other adopt that same node.
+            # Splitting both independently mints two nodes at one point, which
+            # is the very coincidence this module exists to prevent.
+            junction = fabric.contact(left_street, point, 1.0)
+            if junction is None:
+                continue
+            if fabric.bind_node_into_street(right_street, junction, tolerance_m=1.0):
+                registered += 1
+    return registered
+
+
+def _find_crossings(fabric: _Fabric) -> list[tuple[int, int, tuple[float, float]]]:
+    """Same-grade proper crossings between distinct streets, deterministic order."""
+
+    cell = max(fabric.segment_grid.cell_m, 1.0)
+    buckets: dict[tuple[int, int], list[tuple[int, int]]] = {}
+    for street_id in fabric.builder.street_ids:
+        points = fabric.builder.points_of(street_id)
+        for index in range(len(points) - 1):
+            left, right = points[index], points[index + 1]
+            keys = {
+                (int(math.floor(p[0] / cell)), int(math.floor(p[1] / cell)))
+                for p in (left, right, ((left[0] + right[0]) / 2, (left[1] + right[1]) / 2))
+            }
+            for key in keys:
+                buckets.setdefault(key, []).append((street_id, index))
+
+    found: dict[tuple[int, int], tuple[int, int, tuple[float, float]]] = {}
+    for entries in buckets.values():
+        for i in range(len(entries)):
+            for j in range(i + 1, len(entries)):
+                left_street, left_index = entries[i]
+                right_street, right_index = entries[j]
+                if left_street == right_street:
+                    continue
+                left_points = fabric.builder.points_of(left_street)
+                right_points = fabric.builder.points_of(right_street)
+                if left_index + 1 >= len(left_points) or right_index + 1 >= len(right_points):
+                    continue
+                hit = _segment_intersection(
+                    left_points[left_index], left_points[left_index + 1],
+                    right_points[right_index], right_points[right_index + 1],
+                )
+                if hit is None:
+                    continue
+                key = (min(left_street, right_street), max(left_street, right_street))
+                if key not in found:
+                    found[key] = (left_street, right_street, hit)
+    return [found[key] for key in sorted(found)]
+
+
+# A tip may only be extended by this much before the extension stops being a
+# repair and starts being a road nobody was building. Expressed as a multiple of
+# the local step so it scales with the fabric rather than being an absolute.
+EXTEND_TO_CROSS_MIN_ANGLE_DEG = 25.0
+
+
+def _extend_dangling_tips(fabric: _Fabric, *, max_reach_m: float) -> int:
+    """Extend free-ending tips to the street they nearly reached.
+
+    Connectivity repair, not density control. Fixing the branch-spacing units
+    took density into the real band and pushed dead-end share to 0.284-0.434
+    against a real-city maximum of 0.288: seeding fewer streets leaves the ones
+    that did grow dangling. This converts those cul-de-sacs into junctions
+    without seeding more street.
+
+    It adds length, so it can only push density up -- which is why it runs after
+    the spacing is right rather than instead of fixing it.
+
+    Deterministic: every candidate is collected first and applied shortest-first,
+    ties broken by street id, so the outcome cannot depend on discovery order.
+    """
+
+    builder = fabric.builder
+    candidates: list[tuple[float, int, int, tuple[float, float]]] = []
+
+    for street_id in builder.street_ids:
+        node_ids = builder.node_ids_of(street_id)
+        if len(node_ids) < 2:
+            continue
+        for position in (0, -1):
+            tip_node = node_ids[position]
+            if len(builder.incident_street_ids(tip_node)) != 1:
+                continue  # already a junction
+            inner = node_ids[1] if position == 0 else node_ids[-2]
+            tip = builder.point_of(tip_node)
+            heading = math.atan2(
+                tip[1] - builder.point_of(inner)[1],
+                tip[0] - builder.point_of(inner)[0],
+            )
+            reach = (
+                tip[0] + max_reach_m * math.cos(heading),
+                tip[1] + max_reach_m * math.sin(heading),
+            )
+            hit = fabric.nearest_crossing(tip, reach, exclude_street=street_id)
+            if hit is None:
+                continue
+            target_street, point = hit
+            if not _meets_at_a_useful_angle(fabric, target_street, point, heading):
+                continue
+            candidates.append((math.dist(tip, point), street_id, tip_node, point))
+
+    extended = 0
+    for _distance, street_id, tip_node, point in sorted(
+        candidates, key=lambda item: (item[0], item[1], item[2])
+    ):
+        if len(builder.incident_street_ids(tip_node)) != 1:
+            continue  # an earlier extension already joined this tip
+        target = fabric.nearest_crossing_target(point)
+        if target is None or target == street_id:
+            continue
+        junction = fabric.contact(target, point, 1.0)
+        if junction is None:
+            continue
+        if fabric.extend_to_node(street_id, junction, max_gap_m=max_reach_m * 1.2):
+            extended += 1
+    return extended
+
+
+def _meets_at_a_useful_angle(
+    fabric: _Fabric,
+    street_id: int,
+    point: tuple[float, float],
+    heading: float,
+) -> bool:
+    """Reject a near-parallel meeting: that is a duplicate, not a junction."""
+
+    points = fabric.builder.points_of(street_id)
+    best, best_distance = None, float("inf")
+    for left, right in zip(points, points[1:]):
+        distance = _point_to_segment_distance(point, left, right)
+        if distance < best_distance:
+            best, best_distance = (left, right), distance
+    if best is None:
+        return False
+    left, right = best
+    target_heading = math.atan2(right[1] - left[1], right[0] - left[0])
+    delta = abs(math.atan2(math.sin(heading - target_heading), math.cos(heading - target_heading)))
+    delta = min(delta, math.pi - delta)
+    return delta >= math.radians(EXTEND_TO_CROSS_MIN_ANGLE_DEG)
+
+
+def _connectivity_metadata(links, node_count: int) -> dict:
+    """Largest-component share and the size of every fragment outside it."""
+
+    if node_count == 0:
+        return {"largest_component_share": 0.0, "isolated_fragment_sizes": ()}
+    adjacency: dict[int, set[int]] = {index: set() for index in range(node_count)}
+    for link in links:
+        adjacency[int(link.src_node_id)].add(int(link.dst_node_id))
+        adjacency[int(link.dst_node_id)].add(int(link.src_node_id))
+
+    seen: set[int] = set()
+    sizes: list[int] = []
+    for start in range(node_count):
+        if start in seen:
+            continue
+        stack, size = [start], 0
+        seen.add(start)
+        while stack:
+            node = stack.pop()
+            size += 1
+            for other in adjacency[node]:
+                if other not in seen:
+                    seen.add(other)
+                    stack.append(other)
+        sizes.append(size)
+    sizes.sort(reverse=True)
+    return {
+        "largest_component_share": sizes[0] / node_count,
+        "isolated_fragment_sizes": tuple(sizes[1:]),
+    }

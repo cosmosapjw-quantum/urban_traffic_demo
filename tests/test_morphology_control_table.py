@@ -12,6 +12,15 @@ from __future__ import annotations
 
 
 def _square_topology():
+    """A closed square with one stub, so it survives contraction.
+
+    A bare 4-node ring is junction-free: it has no endpoint to anchor a chain,
+    and `BOEING_2019_HO` drops it exactly as OSMnx `simplify_graph` does (that
+    reference behaviour is measured in
+    tests/test_morphology_metrics_simplification.py). The single stub gives the
+    ring an endpoint, so the shape stays measurable while remaining a square.
+    """
+
     from metroflow.city.generated_map import PreviewCityTopology
     from metroflow.city.graph import Node, RoadClass, RoadLink
     from metroflow.map.road_geometry import build_endpoint_geometry_catalog
@@ -19,10 +28,10 @@ def _square_topology():
     nodes = tuple(
         Node(index, x=x, y=y)
         for index, (x, y) in enumerate(
-            ((0.0, 0.0), (100.0, 0.0), (100.0, 100.0), (0.0, 100.0))
+            ((0.0, 0.0), (100.0, 0.0), (100.0, 100.0), (0.0, 100.0), (0.0, -100.0))
         )
     )
-    pairs = ((0, 1), (1, 2), (2, 3), (3, 0))
+    pairs = ((0, 1), (1, 2), (2, 3), (3, 0), (0, 4))
     links = tuple(
         RoadLink(
             link_id=index * 2 + direction,
@@ -66,13 +75,17 @@ def test_score_uses_the_simplified_graph_by_default() -> None:
 
     from metroflow.city.morphology_control_table import score_street_morphology
 
+    from metroflow.city.morphology_metrics import MeasurementSpec
+
     simplified = score_street_morphology(_square_topology(), arm="a")
     compiled = score_street_morphology(
-        _square_topology(), arm="a", simplify_interstitial_nodes=False
+        _square_topology(), arm="a", spec=MeasurementSpec.RUNTIME_COMPILED_DIAGNOSTIC
     )
 
     assert simplified.simplified is True
-    assert simplified.metrics["median_segment_length_m"] == 400.0
+    assert simplified.measurement_spec == "BOEING_2019_HO"
+    # The ring contracts to one 400 m self-loop; the stub stays 100 m.
+    assert simplified.metrics["median_segment_length_m"] == 250.0
     assert compiled.metrics["median_segment_length_m"] == 100.0
 
 

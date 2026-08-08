@@ -1,0 +1,522 @@
+{
+  "captured_at_commit": "367f25d3ead3406386b266d2fa835cee0698f556",
+  "evidence_status": "baseline_capture_not_validation",
+  "measurement": "compute_street_network_morphometrics(topology) with no keyword argument, i.e. the pre-V2 default simplify_interstitial_nodes=False",
+  "records": [
+    {
+      "arm": "standard",
+      "case": "ring_radial/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.0550755939524838,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.09503239740820735,
+        "mean_node_degree": 5.086393088552915,
+        "median_segment_length_m": 98.68794455251364,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.4217289531604242,
+        "orientation_order": 0.14184565524503823,
+        "physical_segment_count": 2355
+      }
+    },
+    {
+      "arm": "standard",
+      "case": "polycentric_tod/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.039153439153439155,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.09947089947089947,
+        "mean_node_degree": 4.996825396825397,
+        "median_segment_length_m": 105.25402753339172,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.400535812245714,
+        "orientation_order": 0.1596229925286231,
+        "physical_segment_count": 2361
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "ring_radial/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.2283393501805054,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.06859205776173286,
+        "mean_node_degree": 3.012635379061372,
+        "median_segment_length_m": 25.78297564285393,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.4557385679911086,
+        "orientation_order": 0.11292866053143369,
+        "physical_segment_count": 1669
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "grid_core/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.06513409961685823,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.36973180076628354,
+        "mean_node_degree": 3.206896551724138,
+        "median_segment_length_m": 68.06754513716503,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.3083960308126494,
+        "orientation_order": 0.8238799823238329,
+        "physical_segment_count": 837
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "polycentric_tod/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.042505592841163314,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.10738255033557047,
+        "mean_node_degree": 2.7829977628635345,
+        "median_segment_length_m": 46.94000248802028,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.2638315589475555,
+        "orientation_order": 0.26982290807615295,
+        "physical_segment_count": 622
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "river_constrained/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.16784869976359337,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.028368794326241134,
+        "mean_node_degree": 2.2884160756501184,
+        "median_segment_length_m": 127.21000000000001,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.1718857190157594,
+        "orientation_order": 0.8721665535083657,
+        "physical_segment_count": 484
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "superblock_mixed/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.056818181818181816,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.1409090909090909,
+        "mean_node_degree": 2.890909090909091,
+        "median_segment_length_m": 50.35270714649646,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.881337849661321,
+        "orientation_order": 0.5370237049781073,
+        "physical_segment_count": 636
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric",
+      "case": "organic/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.11298076923076923,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.014423076923076924,
+        "mean_node_degree": 2.798076923076923,
+        "median_segment_length_m": 22.786925806005836,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.506893948529227,
+        "orientation_order": 0.06853090807314044,
+        "physical_segment_count": 582
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "ring_radial/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.06619570905285191,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.6185243328100472,
+        "mean_node_degree": 3.945578231292517,
+        "median_segment_length_m": 4.980673285365959,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.466522437840937,
+        "orientation_order": 0.10365951840557863,
+        "physical_segment_count": 7540
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "grid_core/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.0392156862745098,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.5686274509803921,
+        "mean_node_degree": 3.6262975778546713,
+        "median_segment_length_m": 36.507044792764816,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.554191344456354,
+        "orientation_order": 0.717472857599524,
+        "physical_segment_count": 1572
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "polycentric_tod/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.019387755102040816,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.5928571428571429,
+        "mean_node_degree": 3.4448979591836735,
+        "median_segment_length_m": 18.738248029545318,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.3098398347683915,
+        "orientation_order": 0.23359907723384954,
+        "physical_segment_count": 1688
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "river_constrained/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.09543010752688172,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.4274193548387097,
+        "mean_node_degree": 3.067204301075269,
+        "median_segment_length_m": 35.33121663628357,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.190197658741064,
+        "orientation_order": 0.8661375640335487,
+        "physical_segment_count": 1141
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "superblock_mixed/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.030048076923076924,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.5432692307692307,
+        "mean_node_degree": 3.418269230769231,
+        "median_segment_length_m": 29.011022470754558,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.9959555013162036,
+        "orientation_order": 0.4633143011048101,
+        "physical_segment_count": 1422
+      }
+    },
+    {
+      "arm": "sidecar_local_fabric_planar",
+      "case": "organic/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.054272517321016164,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.4387990762124711,
+        "mean_node_degree": 3.5981524249422634,
+        "median_segment_length_m": 9.752714903763726,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.4726601705858635,
+        "orientation_order": 0.09836239305886052,
+        "physical_segment_count": 1558
+      }
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "ring_radial/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.001702127659574468,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.49872340425531914,
+        "mean_node_degree": 5.414468085106383,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.043551425035682,
+        "orientation_order": 0.9105208956440937,
+        "physical_segment_count": 3181
+      }
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "grid_core/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.001394700139470014,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.5258019525801952,
+        "mean_node_degree": 5.630404463040446,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.0305802622172227,
+        "orientation_order": 0.9140178384027666,
+        "physical_segment_count": 4037
+      }
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "polycentric_tod/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.0,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.5375183913683178,
+        "mean_node_degree": 5.627268268759195,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.0336328038094043,
+        "orientation_order": 0.9132011640530433,
+        "physical_segment_count": 5737
+      }
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "river_constrained/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.0,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.5611756664388243,
+        "mean_node_degree": 5.033492822966507,
+        "median_segment_length_m": 98.18904725069909,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.0792699696702672,
+        "orientation_order": 0.9005311720633036,
+        "physical_segment_count": 3682
+      }
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "superblock_mixed/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.000999000999000999,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.6113886113886113,
+        "mean_node_degree": 5.2377622377622375,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 1.9886808061590187,
+        "orientation_order": 0.9248374535815964,
+        "physical_segment_count": 5243
+      }
+    },
+    {
+      "arm": "realistic_synthetic_v1",
+      "case": "organic/29",
+      "metrics": {
+        "circuity": 1.0,
+        "dead_end_share": 0.001875,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.523125,
+        "mean_node_degree": 5.32625,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.0229014792913187,
+        "orientation_order": 0.9160551448187,
+        "physical_segment_count": 4261
+      }
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "ring_radial/29",
+      "metrics": {
+        "circuity": 1.0119138582823117,
+        "dead_end_share": 0.08002803083391731,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.13230553608969867,
+        "mean_node_degree": 2.7851436580238262,
+        "median_segment_length_m": 94.94718136804022,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.580893495649831,
+        "orientation_order": 0.002388353266198018,
+        "physical_segment_count": 9936
+      }
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "grid_core/29",
+      "metrics": {
+        "circuity": 1.0092497159206817,
+        "dead_end_share": 0.10826616089773984,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.1161688003793267,
+        "mean_node_degree": 2.646752015173068,
+        "median_segment_length_m": 95.14363422341282,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.7318303496637686,
+        "orientation_order": 0.624990957519892,
+        "physical_segment_count": 8373
+      }
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "polycentric_tod/29",
+      "metrics": {
+        "circuity": 1.0102677594773453,
+        "dead_end_share": 0.09920794737548665,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.11733118539401262,
+        "mean_node_degree": 2.6972748019868438,
+        "median_segment_length_m": 101.99999999999994,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.1793840144336194,
+        "orientation_order": 0.3340293149893998,
+        "physical_segment_count": 10046
+      }
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "river_constrained/29",
+      "metrics": {
+        "circuity": 1.0087686304638848,
+        "dead_end_share": 0.1453007880069191,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.1014799154334038,
+        "mean_node_degree": 2.567749375360369,
+        "median_segment_length_m": 104.0,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.8812529741297355,
+        "orientation_order": 0.5370762709991346,
+        "physical_segment_count": 6680
+      }
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "superblock_mixed/29",
+      "metrics": {
+        "circuity": 1.009831353844399,
+        "dead_end_share": 0.10640353298371516,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.11302787744962738,
+        "mean_node_degree": 2.6756831355230473,
+        "median_segment_length_m": 103.73927658044374,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.4301265317245053,
+        "orientation_order": 0.13475008529233357,
+        "physical_segment_count": 9694
+      }
+    },
+    {
+      "arm": "growth_fabric_v1",
+      "case": "organic/29",
+      "metrics": {
+        "circuity": 1.0098629214998978,
+        "dead_end_share": 0.12186904936282408,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.11718177823348469,
+        "mean_node_degree": 2.6348322835799034,
+        "median_segment_length_m": 96.49803557613218,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.4864435220172614,
+        "orientation_order": 0.08640989776227459,
+        "physical_segment_count": 8994
+      }
+    },
+    {
+      "arm": "osm",
+      "case": "barcelona.osm",
+      "metrics": {
+        "circuity": 1.0017674146825328,
+        "dead_end_share": 0.09157509157509157,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.27472527472527475,
+        "mean_node_degree": 2.6837606837606836,
+        "median_segment_length_m": 56.44864595444404,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.8695237071546997,
+        "orientation_order": 0.5443118631425574,
+        "physical_segment_count": 1099
+      }
+    },
+    {
+      "arm": "osm",
+      "case": "charlotte.osm",
+      "metrics": {
+        "circuity": 1.0329459767093292,
+        "dead_end_share": 0.17567567567567569,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.17297297297297298,
+        "mean_node_degree": 2.610810810810811,
+        "median_segment_length_m": 105.72317559903074,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.412771159476178,
+        "orientation_order": 0.14938237912074515,
+        "physical_segment_count": 483
+      }
+    },
+    {
+      "arm": "osm",
+      "case": "chicago.osm",
+      "metrics": {
+        "circuity": 1.0094834062893356,
+        "dead_end_share": 0.11397058823529412,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.20833333333333334,
+        "mean_node_degree": 2.531862745098039,
+        "median_segment_length_m": 68.10348318474833,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 2.167960964206218,
+        "orientation_order": 0.8734406552765167,
+        "physical_segment_count": 1033
+      }
+    },
+    {
+      "arm": "osm",
+      "case": "seoul.osm",
+      "metrics": {
+        "circuity": 1.0177943006239507,
+        "dead_end_share": 0.11203319502074689,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.1673582295988935,
+        "mean_node_degree": 2.7856154910096818,
+        "median_segment_length_m": 54.15440767118905,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.102705692997886,
+        "orientation_order": 0.38976958515798676,
+        "physical_segment_count": 1007
+      }
+    },
+    {
+      "arm": "osm",
+      "case": "tokyo.osm",
+      "metrics": {
+        "circuity": 1.019236567426195,
+        "dead_end_share": 0.0975177304964539,
+        "evidence_status": "diagnostic",
+        "four_way_share": 0.20035460992907803,
+        "mean_node_degree": 2.872340425531915,
+        "median_segment_length_m": 49.24345820187891,
+        "orientation_bin_count": 36,
+        "orientation_entropy": 3.4463599602910087,
+        "orientation_order": 0.12095075875638939,
+        "physical_segment_count": 1620
+      }
+    }
+  ],
+  "scenario_id": "morphology_control_table",
+  "schema_version": "morphology_pre_v2_baseline_v1",
+  "seed": 29,
+  "skipped": [
+    "standard:grid_core/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:river_constrained/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:superblock_mixed/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "standard:organic/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles",
+    "osm:paris.osm:ValueError:lanes:forward leaves no backward traffic lane",
+    "osm:prague.osm:ValueError:unsupported oneway value 'alternating'"
+  ],
+  "styles": [
+    "ring_radial",
+    "grid_core",
+    "polycentric_tod",
+    "river_constrained",
+    "superblock_mixed",
+    "organic"
+  ]
+}

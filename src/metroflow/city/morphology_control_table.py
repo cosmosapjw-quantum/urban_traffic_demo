@@ -21,9 +21,13 @@ import json
 from types import MappingProxyType
 from typing import Any, Iterable, Mapping, Protocol
 
-from metroflow.map.road_geometry import RoadGeometryCatalog
+from metroflow.map.road_geometry import (
+    RoadGeometryCatalog,
+    count_interior_centerline_intersections,
+    count_unregistered_centerline_touches,
+)
 
-from .morphology_metrics import compute_street_network_morphometrics
+from .morphology_metrics import MeasurementSpec, compute_street_network_morphometrics
 from .plausibility_audit import (
     EmpiricalMetricEnvelope,
     build_empirical_metric_envelopes,
@@ -48,7 +52,12 @@ EMPIRICAL_MORPHOLOGY_METRICS = (
     "four_way_share",
 )
 
-CONTROL_TABLE_SCHEMA_VERSION = "morphology_control_table_v1"
+# v2: scores are measured under an explicitly named MeasurementSpec rather than
+# a boolean, the default statistic is BOEING_2019_HO with OSMnx parity checked
+# rather than asserted, and `envelope_diagnostics` emits null with a status field
+# instead of bare NaN/Infinity. The measured values differ from v1 even where the
+# verdicts do not, so the version is bumped rather than the payload reinterpreted.
+CONTROL_TABLE_SCHEMA_VERSION = "morphology_control_table_v2"
 EVIDENCE_STATUS = "diagnostic_not_empirical_validation"
 
 
@@ -69,6 +78,13 @@ class MorphologyScore:
     simplified: bool
     node_count: int
     physical_segment_count: int
+    # Geometry-vs-topology consistency. None means "not measured", which is what
+    # a score reconstructed from a stored artifact carries. Deliberately kept out
+    # of `as_dict`: the fingerprint hashes that payload, and a diagnostic must
+    # never invalidate a pinned artifact.
+    proper_crossing_count: int | None = None
+    unregistered_touch_count: int | None = None
+    measurement_spec: str | None = None
 
     def __post_init__(self) -> None:
         if not str(self.arm).strip():
@@ -92,6 +108,22 @@ class MorphologyScore:
             "simplified": self.simplified,
             "node_count": self.node_count,
             "physical_segment_count": self.physical_segment_count,
+        }
+
+    def topology_diagnostics(self) -> dict[str, int | None]:
+        """How far the drawn network is from the graph it compiles to.
+
+        The seven envelope metrics cannot see this: a street that begins on
+        another street's interior leaves both of them measurable and neither of
+        them connected. Reported, never gated — the post-PR-B values are not
+        known yet, and freezing a threshold before the measurement exists is the
+        mistake this project already made once.
+        """
+
+        return {
+            "measurement_spec": self.measurement_spec,
+            "proper_crossing_count": self.proper_crossing_count,
+            "unregistered_touch_count": self.unregistered_touch_count,
         }
 
 
@@ -160,6 +192,10 @@ class MorphologyControlTable:
             "envelope_diagnostics": {
                 item.metric: item.diagnostics() for item in self.envelopes
             },
+            "topology_diagnostics": {
+                f"{item.arm}:{item.case}": item.topology_diagnostics()
+                for item in self.scores
+            },
             "vacuous_metrics": list(self.vacuous_metrics),
             "summaries": [item.as_dict() for item in self.summaries],
             "scores": [item.as_dict() for item in self.scores],
@@ -177,34 +213,39 @@ def score_street_morphology(
     *,
     arm: str,
     case: str = "",
-    simplify_interstitial_nodes: bool = True,
+    spec: MeasurementSpec = MeasurementSpec.BOEING_2019_HO,
     envelopes: Mapping[str, EmpiricalMetricEnvelope] | None = None,
 ) -> MorphologyScore:
     """Measure one topology against the pinned empirical envelope.
 
-    Defaults to the simplified graph because the pinned corpus reports OSMnx
-    values measured after `simplify_graph` contracts degree-2 nodes.
+    Defaults to `BOEING_2019_HO` because that is the statistic the pinned corpus
+    reports, and it is the only spec checked against a pinned OSMnx.
     """
 
+    spec = MeasurementSpec(spec)
     resolved = build_empirical_metric_envelopes() if envelopes is None else envelopes
-    street = compute_street_network_morphometrics(
-        topology,
-        simplify_interstitial_nodes=simplify_interstitial_nodes,
-    )
+    street = compute_street_network_morphometrics(topology, spec=spec)
     metrics = {name: float(getattr(street, name)) for name in EMPIRICAL_MORPHOLOGY_METRICS}
     failed = tuple(
         name
         for name in EMPIRICAL_MORPHOLOGY_METRICS
         if not resolved[name].contains(metrics[name])
     )
+    geometry = topology.road_geometry
     return MorphologyScore(
         arm=str(arm),
         case=str(case),
         metrics=metrics,
         failed_metrics=failed,
-        simplified=bool(simplify_interstitial_nodes),
+        # Kept as a bool so the pinned v1 artifact payload stays byte-comparable;
+        # the spec name itself is reported in the diagnostics, outside the
+        # fingerprint.
+        simplified=spec is MeasurementSpec.BOEING_2019_HO,
+        measurement_spec=spec.value,
         node_count=len(topology.nodes),
         physical_segment_count=street.physical_segment_count,
+        proper_crossing_count=count_interior_centerline_intersections(geometry),
+        unregistered_touch_count=count_unregistered_centerline_touches(geometry),
     )
 
 

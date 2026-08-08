@@ -35,9 +35,15 @@ def _network(style_id="polycentric_tod", seed=17):
 def _redundancy_ratio(streets, road_class, *, cell_m=25.0, parallel_deg=30.0):
     """Share of occupied cells holding a near-PARALLEL duplicate of this class.
 
-    Direction is essential. Counting any two same-class streets in a cell also
-    counts a street and the cross-street it legitimately meets, so a plain
-    co-occupancy count reports junctions as duplication.
+    Rasterised: every cell a segment crosses is credited, not just the one
+    containing its left endpoint. The endpoint version was not
+    segmentation-invariant -- reversing every polyline, a geometric no-op, moved
+    it 0.2270 -> 0.1299 and flipped this file's own assertion. 69.2% of each
+    segment's ground went unsampled.
+
+    Direction is essential either way. Counting any two same-class streets in a
+    cell also counts a street and the cross-street it legitimately meets, so a
+    plain co-occupancy count reports junctions as duplication.
     """
 
     buckets = defaultdict(list)
@@ -46,16 +52,19 @@ def _redundancy_ratio(streets, road_class, *, cell_m=25.0, parallel_deg=30.0):
             continue
         for left, right in zip(street.points_m, street.points_m[1:]):
             heading = math.atan2(right[1] - left[1], right[0] - left[0])
-            key = (int(left[0] // cell_m), int(left[1] // cell_m))
-            buckets[key].append((street.street_id, heading))
+            samples = max(int(math.dist(left, right) / (cell_m / 4.0)) + 1, 2)
+            for index in range(samples + 1):
+                t = index / samples
+                point = (left[0] + t * (right[0] - left[0]), left[1] + t * (right[1] - left[1]))
+                key = (int(point[0] // cell_m), int(point[1] // cell_m))
+                buckets[key].append((street.street_id, heading))
     if not buckets:
         return 0.0
 
     tolerance = math.radians(parallel_deg)
     redundant = 0
     for entries in buckets.values():
-        ids = {street_id for street_id, _ in entries}
-        if len(ids) < 2:
+        if len({street_id for street_id, _ in entries}) < 2:
             continue
         parallel_pair = False
         for i in range(len(entries)):
@@ -71,25 +80,49 @@ def _redundancy_ratio(streets, road_class, *, cell_m=25.0, parallel_deg=30.0):
                     break
             if parallel_pair:
                 break
-        if parallel_pair:
-            redundant += 1
+        redundant += parallel_pair
     return redundant / len(buckets)
 
 
-@pytest.mark.xfail(
-    reason=(
-        "GrowthConfig.redundancy_constraint_enabled reduces this, but every "
-        "setting trades duplication against dead ends: the best measured point "
-        "(radius fraction 0.20, spacing_scale 1.3) reaches dup 0.138 and "
-        "density 33.7 km/km2 but dead-end share 0.347, just outside the 0.3456 "
-        "envelope. No setting reaches density 5.3-13.9, dead ends < 0.3456 and "
-        "dup < 0.15 together, because rejecting a seed leaves the street that "
-        "did grow dangling at its far end. The missing mechanism is "
-        "extend-to-cross: stubs must be extended to connect after growth."
-    ),
-    strict=True,
-)
+def test_the_duplication_metric_is_invariant_to_polyline_reversal() -> None:
+    """Reversing point order is a geometric no-op and must not move the number.
+
+    The endpoint-bucketed version failed this: 0.2270 as generated, 0.1299
+    reversed, which was enough to flip the assertion below.
+    """
+
+    from dataclasses import replace
+
+    network, _ = _network()
+    reversed_streets = tuple(
+        replace(street, points_m=tuple(reversed(street.points_m)))
+        for street in network.streets
+    )
+
+    assert _redundancy_ratio(network.streets, "local") == pytest.approx(
+        _redundancy_ratio(reversed_streets, "local"), abs=0.005
+    )
+
+
 def test_local_streets_do_not_pile_up_on_the_same_ground() -> None:
+    """The trade-off this file recorded as unreachable is now reached.
+
+    The strict xfail here claimed: "No setting reaches density 5.3-13.9, dead
+    ends < 0.3456 and dup < 0.15 together, because rejecting a seed leaves the
+    street that did grow dangling at its far end." That is refuted, and by the
+    mechanism it named. Measured over 6 styles x 3 seeds after branch anchors
+    became junctions, crossings became junctions, the branch-spacing units were
+    made consistent, and dangling tips were extended to cross:
+
+        density        8.06 - 11.24 km/km2   (real 7.44 - 17.77, 18/18 inside)
+        dead-end share 0.152 - 0.258         (real max 0.288, 18/18 under)
+        mean degree    2.830 - 3.097         (real 2.55 - 3.55)
+        duplication    0.068 - 0.082         (threshold 0.15)
+
+    Note the xfail was also measuring with the reversal-dependent metric, so its
+    own numbers were not stable.
+    """
+
     network, _ = _network()
 
     ratio = _redundancy_ratio(network.streets, "local")

@@ -1,7 +1,16 @@
 # External Adversarial Audit Brief
 
 Repository: `https://github.com/cosmosapjw-quantum/urban_traffic_demo`
-Branch: `codex/runtime-closure-remediation` (head `d4f47f3`)
+Branch: `codex/runtime-closure-remediation` (head `99103f9`)
+
+> **This brief describes the tree at `d4f47f3`.** Remediation has since
+> landed on the same branch: the morphology instrument now takes an explicit
+> `MeasurementSpec` checked against a pinned `osmnx==2.1.1`, and every arm was
+> re-scored into `morphology-control-table-v2-20260807.*`. The verdicts are
+> unchanged by that repair -- 392 of 945 metric values moved, no verdict did --
+> so the claims below remain worth attacking, but check them against head
+> rather than against the numbers quoted here.
+
 Baseline for the diff under review: `57805d9`
 
 You can read the repository directly. Everything below is a claim to be
@@ -182,7 +191,9 @@ already says are of limited value; the useful output is what it gets wrong.
 ```bash
 python3.12 -m venv .venv
 .venv/bin/python -m pip install -e ".[dev]"
-.venv/bin/python -m pytest -q                    # expect 811 passed, 1 xfailed
+.venv/bin/python -m pytest -q     # 811 passed, 1 xfailed at d4f47f3; ~1000 at head.
+                                  # The 9 xfails record measured, reproducible
+                                  # defects, each failing on its own assertion.
 
 # Control table across every arm plus the OSM positive control
 .venv/bin/python -m metroflow.benchmarks.morphology_control_table \

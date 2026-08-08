@@ -16,7 +16,7 @@ import numpy as np
 
 from .blueprint import GeneratedCityMap
 from .graph import RoadClass
-from .morphology_metrics import compute_street_network_morphometrics
+from .morphology_metrics import MeasurementSpec, compute_street_network_morphometrics
 from .morphology_reference import (
     MORPHOLOGY_ARCHETYPES,
     empirical_street_network_references,
@@ -50,7 +50,14 @@ _ORIENTATION_BIN_COUNT = 36
 _THEORETICAL_RANGES: Mapping[str, tuple[float, float]] = MappingProxyType(
     {
         "orientation_order": (0.0, 1.0),
-        "orientation_entropy": (0.0, math.log(float(_ORIENTATION_BIN_COUNT))),
+        # Bearings are recorded with their reciprocals, so bins i and i+18 always
+        # carry equal counts and the distribution is exactly period-180. The
+        # minimum is therefore one street direction occupying two bins, ln 2 --
+        # not 0, which no network can reach. Declaring 0 made the vacuity
+        # diagnostic understate this envelope's permissiveness by 24% relative.
+        # The raw lower bound is 1.6664, so this clamp does not bind and no
+        # admitted interval changes.
+        "orientation_entropy": (math.log(2.0), math.log(float(_ORIENTATION_BIN_COUNT))),
         "median_segment_length_m": (0.0, math.inf),
         "circuity": (1.0, math.inf),
         "mean_node_degree": (0.0, math.inf),
@@ -174,11 +181,24 @@ class EmpiricalMetricEnvelope:
         information while breaking round-trips of previously written artifacts.
         """
 
+        # `math.inf` and `math.nan` serialize as bare Infinity and NaN, which
+        # RFC 8259 forbids and JSON.parse rejects -- an artifact only Python can
+        # read is not one an external reviewer can audit. Both are emitted as
+        # null alongside an explicit status, so "unbounded above" and "undefined"
+        # stay distinguishable from "absent".
+        unbounded_above = math.isinf(self.theoretical_max)
+        coverage_defined = math.isfinite(self.theoretical_coverage)
         return {
             "metric": self.metric,
             "theoretical_min": self.theoretical_min,
-            "theoretical_max": self.theoretical_max,
-            "theoretical_coverage": self.theoretical_coverage,
+            "theoretical_max": None if unbounded_above else self.theoretical_max,
+            "theoretical_max_status": "unbounded" if unbounded_above else "finite",
+            "theoretical_coverage": (
+                self.theoretical_coverage if coverage_defined else None
+            ),
+            "theoretical_coverage_status": (
+                "defined" if coverage_defined else "undefined_unbounded_range"
+            ),
             "lower_bound_is_inert": self.lower_bound_is_inert,
             "upper_bound_is_inert": self.upper_bound_is_inert,
             "is_vacuous": self.is_vacuous,
@@ -556,7 +576,15 @@ def _audit_generated_city_map(
 
 
 def _map_metrics(generated: GeneratedCityMap) -> dict[str, int | float]:
-    street = compute_street_network_morphometrics(generated.topology)
+    # RUNTIME_COMPILED_DIAGNOSTIC reproduces this path's historical values
+    # exactly, so the pinned PR62 report fingerprint does not move. It is named
+    # rather than defaulted because the same function now serves two definitions,
+    # and this one must NOT be compared against the Boeing corpus: it counts
+    # every compiled node, so node spacing rather than morphology drives its
+    # degree and dead-end figures.
+    street = compute_street_network_morphometrics(
+        generated.topology, spec=MeasurementSpec.RUNTIME_COMPILED_DIAGNOSTIC
+    )
     quality = generated.quality.metrics
     blocks = generated.blueprint.blocks.blocks
     land_use_blocks = generated.blueprint.land_use.blocks

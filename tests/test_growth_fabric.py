@@ -31,7 +31,7 @@ def _topology(style_id="grid_core", seed=17):
 
     terrain, urban_form = _fields(style_id, seed)
     network = grow_street_network(terrain=terrain, urban_form=urban_form, seed=seed)
-    return compile_grown_network(network.streets)
+    return compile_grown_network(network)
 
 
 def _degrees(topology):
@@ -117,9 +117,35 @@ def test_compiled_links_carry_arc_length_not_chord_length() -> None:
     assert checked > 0
 
 
-def test_compiled_topology_has_no_duplicate_or_self_links() -> None:
+def test_compiled_topology_has_no_self_links_and_keeps_real_multiedges() -> None:
+    """Two streets between one pair of junctions is a road layout, not an error.
+
+    This previously asserted `len(pairs) == len(set(pairs))`, forbidding any
+    repeated node pair. That is what `seen_pairs` enforced by silently dropping
+    the second street -- a dual carriageway is exactly this shape, and OSMnx
+    keeps both. The compiler now preserves them, so the test asserts what is
+    actually required: no self-link, and every repeated pair carried by a
+    DISTINCT physical road rather than by a duplicated one.
+    """
+
     topology = _topology()
     pairs = [(link.src_node_id, link.dst_node_id) for link in topology.links]
 
     assert all(src != dst for src, dst in pairs)
-    assert len(pairs) == len(set(pairs))
+
+    by_pair: dict[tuple[int, int], set[int]] = {}
+    for link in topology.links:
+        by_pair.setdefault(
+            (link.src_node_id, link.dst_node_id), set()
+        ).add(link.physical_road_id)
+    for pair, roads in by_pair.items():
+        repeats = sum(
+            1
+            for link in topology.links
+            if (link.src_node_id, link.dst_node_id) == pair
+        )
+        assert len(roads) == repeats, (
+            f"pair {pair} has {repeats} links sharing {len(roads)} physical roads"
+        )
+
+    assert topology.metadata["dropped_chain_count"] == 0

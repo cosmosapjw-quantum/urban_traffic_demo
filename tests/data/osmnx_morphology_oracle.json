@@ -1,0 +1,169 @@
+{
+  "attribution": "Derived from OpenStreetMap data, (c) OpenStreetMap contributors, ODbL. See artifacts/osm_control/README.md.",
+  "cities": {
+    "barcelona.osm": {
+      "graph": {
+        "directed_edge_count": 810,
+        "largest_component_node_share": 0.9916317991631799,
+        "node_count": 478,
+        "self_loop_proportion": 0.0,
+        "street_segment_count": 758,
+        "undirected_edge_count": 758,
+        "weak_component_count": 3
+      },
+      "metrics": {
+        "circuity": 1.0168265155623744,
+        "dead_end_share": 0.15690376569037656,
+        "four_way_share": 0.4707112970711297,
+        "mean_node_degree": 3.1715481171548117,
+        "median_segment_length_m": 116.02250807992813,
+        "orientation_entropy": 2.78739672900363,
+        "orientation_order": 0.5933780323304294
+      },
+      "source_sha256": "3c9b817b53c447672c1068974d43fb0af2125c43282850aa6e5ad7a7e7ec8999"
+    },
+    "charlotte.osm": {
+      "graph": {
+        "directed_edge_count": 698,
+        "largest_component_node_share": 0.9823943661971831,
+        "node_count": 284,
+        "self_loop_proportion": 0.007556675062972292,
+        "street_segment_count": 397,
+        "undirected_edge_count": 397,
+        "weak_component_count": 2
+      },
+      "metrics": {
+        "circuity": 1.0436695511946599,
+        "dead_end_share": 0.22887323943661972,
+        "four_way_share": 0.22535211267605634,
+        "mean_node_degree": 2.7816901408450705,
+        "median_segment_length_m": 121.30284350465163,
+        "orientation_entropy": 3.3887542400876782,
+        "orientation_order": 0.16942520001507644
+      },
+      "source_sha256": "b292fe6ceff06f7b12ccaaffe5e7befe8b5069ad34ad3656675190d7ac9595d5"
+    },
+    "chicago.osm": {
+      "graph": {
+        "directed_edge_count": 872,
+        "largest_component_node_share": 0.9814385150812065,
+        "node_count": 431,
+        "self_loop_proportion": 0.004629629629629629,
+        "street_segment_count": 648,
+        "undirected_edge_count": 648,
+        "weak_component_count": 3
+      },
+      "metrics": {
+        "circuity": 1.0190117040456115,
+        "dead_end_share": 0.21577726218097448,
+        "four_way_share": 0.39675174013921116,
+        "mean_node_degree": 2.9976798143851506,
+        "median_segment_length_m": 115.33207438380151,
+        "orientation_entropy": 1.9482776693921005,
+        "orientation_order": 0.9345818984416815
+      },
+      "source_sha256": "e1c291bac91e52dab44aead6539a0b8b2c9fcc577c5493c4edc277aa1ad9bafe"
+    },
+    "paris.osm": {
+      "graph": {
+        "directed_edge_count": 1066,
+        "largest_component_node_share": 0.9575971731448764,
+        "node_count": 566,
+        "self_loop_proportion": 0.001221001221001221,
+        "street_segment_count": 819,
+        "undirected_edge_count": 819,
+        "weak_component_count": 6
+      },
+      "metrics": {
+        "circuity": 1.020190337856106,
+        "dead_end_share": 0.18197879858657243,
+        "four_way_share": 0.23498233215547704,
+        "mean_node_degree": 2.8904593639575973,
+        "median_segment_length_m": 78.91571390423246,
+        "orientation_entropy": 3.43825107340978,
+        "orientation_order": 0.12785741447658527
+      },
+      "source_sha256": "9d8953d8a6f07d50fbb94845a2221076a651fdcadd0b6225ab31bdfa3a1bbfe7"
+    },
+    "prague.osm": {
+      "graph": {
+        "directed_edge_count": 732,
+        "largest_component_node_share": 0.9783132530120482,
+        "node_count": 415,
+        "self_loop_proportion": 0.0,
+        "street_segment_count": 544,
+        "undirected_edge_count": 544,
+        "weak_component_count": 3
+      },
+      "metrics": {
+        "circuity": 1.0683778696192774,
+        "dead_end_share": 0.2216867469879518,
+        "four_way_share": 0.12048192771084337,
+        "mean_node_degree": 2.597590361445783,
+        "median_segment_length_m": 62.67890228816245,
+        "orientation_entropy": 3.4741397177228075,
+        "orientation_order": 0.09708314630106951
+      },
+      "source_sha256": "33dd486fc8e34ec72753e4ff32992d48c69f48e389e5c9c75f0147f9de7a5979"
+    },
+    "seoul.osm": {
+      "graph": {
+        "directed_edge_count": 1352,
+        "largest_component_node_share": 0.9933333333333333,
+        "node_count": 600,
+        "self_loop_proportion": 0.0,
+        "street_segment_count": 884,
+        "undirected_edge_count": 884,
+        "weak_component_count": 3
+      },
+      "metrics": {
+        "circuity": 1.025810334377249,
+        "dead_end_share": 0.135,
+        "four_way_share": 0.2,
+        "mean_node_degree": 2.933333333333333,
+        "median_segment_length_m": 60.22676151817031,
+        "orientation_entropy": 3.073076369549219,
+        "orientation_order": 0.4106557865451662
+      },
+      "source_sha256": "0e352c52ae86095217f7b5dbcf3c8a41b7d39266772fdfe5f0838f49f2d31e40"
+    },
+    "tokyo.osm": {
+      "graph": {
+        "directed_edge_count": 2072,
+        "largest_component_node_share": 0.9873284054910243,
+        "node_count": 947,
+        "self_loop_proportion": 0.0,
+        "street_segment_count": 1439,
+        "undirected_edge_count": 1439,
+        "weak_component_count": 5
+      },
+      "metrics": {
+        "circuity": 1.0499184052681598,
+        "dead_end_share": 0.11615628299894404,
+        "four_way_share": 0.23864836325237593,
+        "mean_node_degree": 3.0390707497360085,
+        "median_segment_length_m": 52.171202675739046,
+        "orientation_entropy": 3.4534590230858195,
+        "orientation_order": 0.11488184703274629
+      },
+      "source_sha256": "4b667c98c2b1e8f75b116a9d778e1fa9cccdf27b37ed573a8bc58ef1fb80c6fe"
+    }
+  },
+  "evidence_status": "instrument_oracle_not_traffic_validation",
+  "failed": {},
+  "oracle": {
+    "conventions": "One bearing per simplified undirected edge, taken from its endpoint chord; self-loops excluded; reciprocal bearings added; unweighted. orientation_order is Boeing's closed form applied to this entropy, since OSMnx provides no such function.",
+    "networkx_version": "3.6.1",
+    "options": {
+      "min_length": 0,
+      "num_bins": 36,
+      "retain_all": true,
+      "simplify": true,
+      "statistic": "BOEING_2019_HO",
+      "undirected": true,
+      "weight": null
+    },
+    "osmnx_version": "2.1.1"
+  },
+  "schema_version": "osmnx_morphology_oracle_v1"
+}

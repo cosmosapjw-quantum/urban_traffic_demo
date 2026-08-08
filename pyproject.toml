@@ -19,7 +19,27 @@ torch = [
 dev = [
   "maturin",
   "pytest",
-  "ruff",
+  # Pinned exactly. Unpinned, CI installed ruff 0.16.2 while this machine had
+  # 0.15.7, and the same config over the same code gave 0 findings here against
+  # 529 there -- a gate whose verdict depended on the day it ran. The rule
+  # selection is declared under [tool.ruff.lint] for the same reason.
+  "ruff==0.16.2",
+]
+# Test-only. Provides an independent implementation of Boeing's morphology
+# definitions, so the repo's home-grown degree-2 contraction can be checked
+# against a pinned oracle instead of asserting parity. Never imported by
+# `metroflow` at runtime: the runtime depends on numpy alone, and `osm_import`
+# reads local bytes only (spec 039 FR-001) -- osmnx is used here purely via
+# `graph_from_xml` on committed fixtures.
+oracle = [
+  "osmnx==2.1.1",
+  "networkx>=2.5",
+  # Not optional in practice: `osmnx.bearing.orientation_entropy` raises
+  # ImportError without it, and orientation entropy is the metric the parity
+  # claim rests on. Omitting it shipped an extra that installs an oracle which
+  # cannot measure -- invisible here only because the jax/torch extras happen to
+  # pull scipy in, so the one machine that ran it satisfied the need by accident.
+  "scipy>=1.11",
 ]
 
 [build-system]
@@ -32,6 +52,18 @@ where = ["src"]
 [tool.ruff]
 line-length = 100
 exclude = ["metro"]
+
+[tool.ruff.lint]
+# Declared, not inherited. With no `select`, the enabled rules were whichever
+# set that day's ruff defaulted to, so the gate's meaning moved under us on a
+# version bump rather than on a decision. This is the set the code was written
+# against -- ruff's historical default -- now stated explicitly:
+#   E4 imports, E7 statements, E9 syntax/IO errors, F pyflakes.
+select = ["E4", "E7", "E9", "F"]
+# Adopting more is a separate, deliberate change. Under `--select ALL` the tree
+# reports 14149 findings and under ruff 0.16.2's own defaults 529; neither has
+# been reviewed, and widening the gate inside an unrelated branch would land
+# hundreds of unreviewed edits. Recorded in docs/harness/CLAIM_LEDGER.md.
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -16,6 +16,7 @@ from metroflow.map.road_geometry import RoadGeometryCatalog
 __all__ = [
     "MorphologyQualityMetrics",
     "MorphologyQualityGate",
+    "DENSITY_AREA_CONVENTION",
     "GLOBAL_STREET_CELL_GRID_RESOLUTION",
     "MORPHOLOGY_QUALITY_GATE_THRESHOLDS",
     "compute_morphology_quality_metrics",
@@ -24,12 +25,28 @@ __all__ = [
 ]
 
 MORPHOLOGY_QUALITY_GATE_VERSION = "morphology_quality_v2"
+# `street_density_km_per_km2` divides by the node convex hull. Named because the
+# alternative (a node bounding box) gives ~25% lower figures on the same data --
+# the five OSM extracts measure 7.4-17.8 over the hull and 5.3-14.1 over the box
+# -- so an unnamed convention silently changes every overshoot factor derived
+# from it. The "5.3-13.9 km/km2" band quoted elsewhere is the box convention.
+DENSITY_AREA_CONVENTION = "node_convex_hull"
 GLOBAL_STREET_CELL_GRID_RESOLUTION = 24
 GLOBAL_LOCAL_JUNCTION_GRID_RESOLUTION = 12
 GLOBAL_LOCAL_JUNCTION_RADIUS_CELLS = 0.5
 MORPHOLOGY_QUALITY_GATE_THRESHOLDS = MappingProxyType(
     {
-        "minimum_street_density_km_per_km2": 10.0,
+        # Derived as [0.8*min, 1.2*max] over the five importable OSM extracts
+        # measured with this instrument (charlotte 7.439 to tokyo 17.769), the
+        # same envelope construction the Boeing gate uses. The previous floor of
+        # 10.0 was authored, and it rejects Charlotte -- a real city.
+        #
+        # The ceiling is the half that was missing entirely. With a floor and no
+        # ceiling a generator can emit unlimited street length and the gate stays
+        # silent, which is how grown fabric at ~32 km/km2, nearly twice the
+        # densest real extract, went unnoticed by the whole suite.
+        "minimum_street_density_km_per_km2": 5.951,
+        "maximum_street_density_km_per_km2": 21.323,
         "minimum_block_continuity": 0.85,
         "maximum_dead_end_share": 0.15,
         "minimum_district_quadrant_presence_share": 0.90,
@@ -190,6 +207,10 @@ class MorphologyQualityGate:
     metrics_digest: str
     failures: tuple[str, ...]
     placement_anchor_digest: str = ""
+    # Observations that do not block admission. Deliberately excluded from
+    # `as_dict`, because that payload lands in city metadata and is bound into
+    # replay fingerprints -- an advisory must not be able to invalidate a replay.
+    advisories: tuple[str, ...] = ()
 
     def as_dict(self) -> Mapping[str, bool | str | tuple[str, ...]]:
         return MappingProxyType(
@@ -366,6 +387,27 @@ def evaluate_morphology_quality_gate(
             "street_density_km_per_km2 must be >= "
             f"{thresholds['minimum_street_density_km_per_km2']:g}"
         )
+    # The ceiling is ADVISORY, not a failure, and that is deliberate.
+    #
+    # Enforcing it today would reject the runtime default: `standard` measures
+    # 28.9-35.7 km/km2 and `realistic_synthetic_v1` 23.6-35.3, against a densest
+    # real extract of 17.8. `zones.py` consults this gate to choose between
+    # current and legacy zone-POI coupling, so failing those maps would silently
+    # change zone assignment, demand and therefore simulation output -- a runtime
+    # behaviour change smuggled in as an instrument fix.
+    #
+    # It is reported now so the overshoot is visible, and becomes blocking once
+    # the density work lands. Report first, gate later.
+    advisories: list[str] = []
+    if (
+        metrics.street_density_km_per_km2
+        > thresholds["maximum_street_density_km_per_km2"]
+    ):
+        advisories.append(
+            "street_density_km_per_km2 exceeds the real-city ceiling "
+            f"{thresholds['maximum_street_density_km_per_km2']:g} "
+            f"(measured {metrics.street_density_km_per_km2:.3f})"
+        )
     if metrics.block_continuity < thresholds["minimum_block_continuity"]:
         failures.append(
             "block_continuity must be >= "
@@ -424,6 +466,7 @@ def evaluate_morphology_quality_gate(
         metrics_digest=metrics_digest,
         placement_anchor_digest=str(placement_anchor_digest),
         failures=tuple(failures),
+        advisories=tuple(advisories),
     )
 
 
