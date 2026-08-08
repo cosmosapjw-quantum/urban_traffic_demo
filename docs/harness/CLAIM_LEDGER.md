@@ -81,12 +81,15 @@ version with evidence and falsifiers is:
   fixed 6-style x 5-seed matrix, against `15/30` for `sidecar_local_fabric`,
   `0/30` for `realistic_synthetic_v1` and `0/10` for the runtime default.
   Measured ranges, read directly from the current authority
-  `artifacts/runtime_spine_review/morphology-control-table-v2-20260807.json`:
-  mean node degree `2.8603-3.2601`, dead-end share `0.1073-0.2299`, circuity
-  `1.0165-1.0211`, orientation order `0.0028-0.6761`. The first three are
-  unchanged from the superseded v1 artifact; orientation order moved with the
-  bearing fix, and this entry previously quoted its v1 value (`0.0024-0.6463`)
-  after the re-scoring had already superseded it.
+  `artifacts/runtime_spine_review/morphology-control-table-v3-20260808.json`:
+  mean node degree `2.8140-3.1143`, dead-end share `0.1506-0.2692`, circuity
+  `1.0032-1.0072`, orientation order `0.0061-0.9270`.
+
+  This entry has now been corrected three times, and the pattern is the point:
+  it quoted v1 figures after v2 superseded them, then v2 figures after v3. Each
+  correction was found by an adversarial review rather than by the author.
+  Numbers here must name the artifact they came from and be re-read when it is
+  regenerated.
 
   **This entry previously recorded `29/30` and four ranges that reproduce
   nothing in the tree** (`3.11-3.39`, `0.056-0.122`, `1.009-1.013`,
