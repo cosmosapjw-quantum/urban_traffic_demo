@@ -359,19 +359,13 @@ class _Fabric:
                 best, best_distance = street_id, distance
         return best
 
-    def bind_node_into_street(
-        self, street_id: int, node_id: int, *, tolerance_m: float
-    ) -> bool:
-        bound = self.builder.bind_node_into_street(
-            street_id, node_id, tolerance_m=tolerance_m
-        )
+    def bind_node_into_street(self, street_id: int, node_id: int, *, tolerance_m: float) -> bool:
+        bound = self.builder.bind_node_into_street(street_id, node_id, tolerance_m=tolerance_m)
         if bound:
             self._reindex_street(street_id)
         return bound
 
-    def contact(
-        self, street_id: int, point: tuple[float, float], radius: float
-    ) -> int | None:
+    def contact(self, street_id: int, point: tuple[float, float], radius: float) -> int | None:
         node_id = self.builder.contact(street_id, point=point, tolerance_m=radius)
         if node_id is not None:
             self._reindex_street(street_id)
@@ -400,9 +394,7 @@ class _Fabric:
         geometry.
         """
 
-        self._indexed_segments = {
-            key for key in self._indexed_segments if key[0] != street_id
-        }
+        self._indexed_segments = {key for key in self._indexed_segments if key[0] != street_id}
         points = self.builder.points_of(street_id)
         for index in range(len(points) - 1):
             self._index_segment(street_id, index)
@@ -472,9 +464,9 @@ class _Fabric:
             if math.dist(point, other) > radius:
                 continue
             # Compare undirected orientations: opposite headings are parallel.
-            delta = abs(math.atan2(
-                math.sin(heading - other_heading), math.cos(heading - other_heading)
-            ))
+            delta = abs(
+                math.atan2(math.sin(heading - other_heading), math.cos(heading - other_heading))
+            )
             if min(delta, math.pi - delta) <= parallel_tolerance_rad:
                 return True
         return False
@@ -561,9 +553,7 @@ def grow_street_network(
                 parallel_tolerance_rad=math.radians(cfg.parallel_tolerance_deg),
             ):
                 return None
-        street_index = fabric.open_street(
-            road_class, start, start_node_id=start_node_id
-        )
+        street_index = fabric.open_street(road_class, start, start_node_id=start_node_id)
         # A branch is seeded ON its parent, so contact detection must stay off
         # until the tip has cleared it - otherwise every street terminates on
         # step one and the whole fabric collapses into stubs.
@@ -596,9 +586,7 @@ def grow_street_network(
 
             may_contact = terminate_on_contact and step_index >= clearance_steps
             node_hit = (
-                fabric.nearest_node(nxt, step_m * cfg.snap_node_fraction)
-                if may_contact
-                else None
+                fabric.nearest_node(nxt, step_m * cfg.snap_node_fraction) if may_contact else None
             )
             if node_hit is not None:
                 # Bind to the junction itself. Appending a copy of its
@@ -621,9 +609,11 @@ def grow_street_network(
             if crossing is not None:
                 crossed_street, hit = crossing
                 junction = fabric.contact(crossed_street, hit, step_m)
-                bound = fabric.extend_to_node(
-                    street_index, junction, max_gap_m=step_m * 1.5
-                ) if junction is not None else False
+                bound = (
+                    fabric.extend_to_node(street_index, junction, max_gap_m=step_m * 1.5)
+                    if junction is not None
+                    else False
+                )
                 if bound and not terminate_on_contact:
                     # Carry on THROUGH the junction, so a limited-access road
                     # still records where it meets the surface streets.
@@ -641,9 +631,7 @@ def grow_street_network(
 
             contact_radius = step_m * cfg.snap_edge_fraction
             target = (
-                fabric.nearest_contact_street(
-                    nxt, contact_radius, exclude_street=street_index
-                )
+                fabric.nearest_contact_street(nxt, contact_radius, exclude_street=street_index)
                 if may_contact
                 else None
             )
@@ -685,9 +673,7 @@ def grow_street_network(
 
         if not district_profiles:
             return None
-        index = min(
-            range(len(centers)), key=lambda i: math.dist(point, centers[i])
-        )
+        index = min(range(len(centers)), key=lambda i: math.dist(point, centers[i]))
         return district_profiles[index]
 
     # --- arterials: long, low-curvature spokes and rings between anchors ------
@@ -1106,9 +1092,7 @@ def _compile_from_incidence(builder, streets) -> PreviewCityTopology:
                         physical_road_id=geometry_id,
                     )
                 )
-            assignments.append(
-                LinkGeometryAssignment(link_id=forward_id, geometry_id=geometry_id)
-            )
+            assignments.append(LinkGeometryAssignment(link_id=forward_id, geometry_id=geometry_id))
             assignments.append(
                 LinkGeometryAssignment(
                     link_id=forward_id + 1, geometry_id=geometry_id, reversed=True
@@ -1211,9 +1195,11 @@ def _compile_from_coordinates(streets, *, quantum_m: float = 1.0) -> PreviewCity
         lanes, speed, capacity = DESIGN[road_class]
         geometry_id = len(centerlines)
         # Anchor endpoints exactly on the node coordinates.
-        snapped = [(nodes[src].x, nodes[src].y)] + [
-            (float(p[0]), float(p[1])) for p in deduped[1:-1]
-        ] + [(nodes[dst].x, nodes[dst].y)]
+        snapped = (
+            [(nodes[src].x, nodes[src].y)]
+            + [(float(p[0]), float(p[1])) for p in deduped[1:-1]]
+            + [(nodes[dst].x, nodes[dst].y)]
+        )
         cleaned = [snapped[0]]
         for p in snapped[1:]:
             if math.dist(p, cleaned[-1]) > 1e-9:
@@ -1231,16 +1217,28 @@ def _compile_from_coordinates(streets, *, quantum_m: float = 1.0) -> PreviewCity
         forward_id = len(links)
         links.append(
             RoadLink(
-                link_id=forward_id, src_node_id=src, dst_node_id=dst,
-                road_class=road_class, length_m=arc, free_flow_speed_mps=speed,
-                capacity_veh_per_tick=capacity, lanes=lanes, physical_road_id=geometry_id,
+                link_id=forward_id,
+                src_node_id=src,
+                dst_node_id=dst,
+                road_class=road_class,
+                length_m=arc,
+                free_flow_speed_mps=speed,
+                capacity_veh_per_tick=capacity,
+                lanes=lanes,
+                physical_road_id=geometry_id,
             )
         )
         links.append(
             RoadLink(
-                link_id=forward_id + 1, src_node_id=dst, dst_node_id=src,
-                road_class=road_class, length_m=arc, free_flow_speed_mps=speed,
-                capacity_veh_per_tick=capacity, lanes=lanes, physical_road_id=geometry_id,
+                link_id=forward_id + 1,
+                src_node_id=dst,
+                dst_node_id=src,
+                road_class=road_class,
+                length_m=arc,
+                free_flow_speed_mps=speed,
+                capacity_veh_per_tick=capacity,
+                lanes=lanes,
+                physical_road_id=geometry_id,
             )
         )
         assignments.append(LinkGeometryAssignment(link_id=forward_id, geometry_id=geometry_id))
@@ -1248,15 +1246,13 @@ def _compile_from_coordinates(streets, *, quantum_m: float = 1.0) -> PreviewCity
             LinkGeometryAssignment(link_id=forward_id + 1, geometry_id=geometry_id, reversed=True)
         )
 
-    geometry = RoadGeometryCatalog(
-        centerlines=tuple(centerlines), assignments=tuple(assignments)
-    )
+    geometry = RoadGeometryCatalog(centerlines=tuple(centerlines), assignments=tuple(assignments))
     return PreviewCityTopology(
-        nodes=tuple(nodes), links=tuple(links), road_geometry=geometry,
+        nodes=tuple(nodes),
+        links=tuple(links),
+        road_geometry=geometry,
         metadata={"engine": "growth_fabric_v1"},
     )
-
-
 
 
 def _segment_intersection(
@@ -1369,9 +1365,8 @@ def _find_crossings(fabric: _Fabric) -> list[tuple[int, int, tuple[float, float]
                 right_street, right_index = right_ref
                 if left_street == right_street:
                     continue
-                if (
-                    fabric.builder.street_layer(left_street)
-                    != fabric.builder.street_layer(right_street)
+                if fabric.builder.street_layer(left_street) != fabric.builder.street_layer(
+                    right_street
                 ):
                     continue
                 candidates.add((left_ref, right_ref))
@@ -1383,8 +1378,10 @@ def _find_crossings(fabric: _Fabric) -> list[tuple[int, int, tuple[float, float]
         if left_index + 1 >= len(left_points) or right_index + 1 >= len(right_points):
             continue
         hit = _segment_intersection(
-            left_points[left_index], left_points[left_index + 1],
-            right_points[right_index], right_points[right_index + 1],
+            left_points[left_index],
+            left_points[left_index + 1],
+            right_points[right_index],
+            right_points[right_index + 1],
         )
         if hit is not None:
             found.append((left_street, right_street, hit))
@@ -1523,11 +1520,9 @@ def _find_endpoint_touches(
             inner = fabric.builder.point_of(source_nodes[1 if position == 0 else -2])
             heading = math.atan2(tip[1] - inner[1], tip[0] - inner[0])
             for target in fabric.builder.street_ids:
-                if (
-                    target == source
-                    or fabric.builder.street_layer(target)
-                    != fabric.builder.street_layer(source)
-                ):
+                if target == source or fabric.builder.street_layer(
+                    target
+                ) != fabric.builder.street_layer(source):
                     continue
                 target_points = fabric.builder.points_of(target)
                 for left, right in zip(target_points, target_points[1:]):
@@ -1542,9 +1537,11 @@ def _find_endpoint_touches(
                     if distance > WELD_TOLERANCE_M:
                         continue
                     target_heading = math.atan2(dy, dx)
-                    delta = abs(math.atan2(
-                        math.sin(heading - target_heading), math.cos(heading - target_heading)
-                    ))
+                    delta = abs(
+                        math.atan2(
+                            math.sin(heading - target_heading), math.cos(heading - target_heading)
+                        )
+                    )
                     if min(delta, math.pi - delta) < math.radians(EXTEND_TO_CROSS_MIN_ANGLE_DEG):
                         continue
                     candidates.append((distance, source, node_id, target))

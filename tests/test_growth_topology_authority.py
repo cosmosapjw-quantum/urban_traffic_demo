@@ -36,8 +36,10 @@ def _grown(style_id: str = "polycentric_tod", seed: int = 17):
 
 def _undirected(topology) -> set[tuple[int, int]]:
     return {
-        (min(int(link.src_node_id), int(link.dst_node_id)),
-         max(int(link.src_node_id), int(link.dst_node_id)))
+        (
+            min(int(link.src_node_id), int(link.dst_node_id)),
+            max(int(link.src_node_id), int(link.dst_node_id)),
+        )
         for link in topology.links
     }
 
@@ -127,8 +129,7 @@ def test_the_grown_network_is_one_connected_component() -> None:
         # stub, 2 nodes of 2032. That is a real defect and it is REPORTED rather
         # than tolerated silently or deleted quietly, so it cannot grow unnoticed.
         assert share >= 0.99, (
-            f"{style_id}: largest component holds only {share:.3f} of nodes, "
-            f"fragments {fragments}"
+            f"{style_id}: largest component holds only {share:.3f} of nodes, fragments {fragments}"
         )
         assert all(size <= 4 for size in fragments), (
             f"{style_id}: a substantial fragment is unreachable: {fragments}"
@@ -554,9 +555,7 @@ def test_splitting_never_mints_a_node_that_violates_the_invariant() -> None:
     from metroflow.city.growth_topology import StreetTopologyBuilder
 
     builder = StreetTopologyBuilder()
-    street = builder.open_street(
-        points=((0.0, 0.0), (10.0, 0.0), (10.0, 5.0), (0.4, 0.15))
-    )
+    street = builder.open_street(points=((0.0, 0.0), (10.0, 0.0), (10.0, 5.0), (0.4, 0.15)))
     builder.assert_no_coincident_nodes()
 
     builder.split_at_arc_length(street, 0.4)

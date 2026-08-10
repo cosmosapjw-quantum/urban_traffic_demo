@@ -118,9 +118,7 @@ class StreetTopologyBuilder:
                 continue
             node_ids.append(self._mint_node(point))
 
-        self._streets.append(
-            _Street(street_id, node_ids, int(layer), dict(metadata or {}))
-        )
+        self._streets.append(_Street(street_id, node_ids, int(layer), dict(metadata or {})))
         for node_id in node_ids:
             self._incident[node_id].add(street_id)
         return street_id

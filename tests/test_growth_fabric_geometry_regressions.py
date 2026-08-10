@@ -81,9 +81,7 @@ def test_crossing_repair_reaches_a_fixed_point_for_seven_street_pair_crossings()
 
     assert _register_remaining_crossings(fabric) == 7
     assert _find_crossings(fabric) == []
-    shared = set(fabric.builder.node_ids_of(horizontal)) & set(
-        fabric.builder.node_ids_of(zigzag)
-    )
+    shared = set(fabric.builder.node_ids_of(horizontal)) & set(fabric.builder.node_ids_of(zigzag))
     assert len(shared) == 7
 
 
@@ -96,9 +94,7 @@ def test_crossing_repair_fails_closed_when_a_welded_shared_node_cannot_resolve_a
     fabric = _Fabric(cell_m=40.0)
     horizontal = _street(fabric, (0.0, 0.0), (50.0, 0.0), (100.0, 0.0))
     shared_node = fabric.builder.node_ids_of(horizontal)[1]
-    bent_vertical = fabric.open_street(
-        RoadClass.LOCAL, (50.0, 0.0), start_node_id=shared_node
-    )
+    bent_vertical = fabric.open_street(RoadClass.LOCAL, (50.0, 0.0), start_node_id=shared_node)
     fabric.extend(bent_vertical, (50.1, -10.0))
     fabric.extend(bent_vertical, (50.1, 10.0))
 
