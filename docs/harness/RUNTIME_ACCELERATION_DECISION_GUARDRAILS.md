@@ -271,3 +271,34 @@ Stop condition:
 - Acceleration work cannot change the parent product decision until the closed
   workload has replay/scale evidence, so stop backend promotion until that
   evidence refresh passes.
+
+## PR65 Scalable Map DAG Guardrail
+
+The user-approved PR65-PR82 Scalable Map Breakthrough DAG is governed by the
+execution contract in `docs/harness/CITY_MAP_PR_LIST.md`. PR65 is a two-file
+docs-only contract. It does not authorize Task B, Task C, G5, performance,
+readiness, or any traffic-algorithm PR, and it does not alter the deterministic
+Python/NumPy baseline, optional-backend policy, cache invalidation, units, or
+replay obligations above.
+
+For every later DAG node, `/review-spec`, `/review-code`, and `/review-drift`
+are required review surfaces. The drift, code-inflation, process-accretion,
+and claim-accretion watchdogs defined in the city-map execution contract must
+all report zero findings before a frozen-head merge. A node has at most three
+finding/fix rounds; use `BLOCKED_REVIEW_LIMIT` after round three and
+`BLOCKED_SCOPE_SPLIT` whenever the fix would widen the frozen node.
+
+Acceleration evidence cannot be repurposed as admission evidence for a map-DAG
+node, and map-DAG review cannot authorize acceleration work. The one M1
+Decision Card required per PR has `meta_depth: 1`, names an observable output,
+and must return immediately to a productive action when
+`META_RECURSION_BLOCKED` occurs. An M1 card is neither correctness, readiness,
+validation, performance, nor claim evidence.
+
+Round 1 clarification: the canonical city-map contract, including latest-base
+resolution, mandatory isolated worktrees, serial shared-file owners, frozen PR
+body fields, immutable `REVIEW_RECEIPT/Rn` comments, and same-frozen-head merge
+requirements, is authoritative in `CITY_MAP_PR_LIST.md`. Future DAG nodes
+create their one M1 card only when executed; the reusable template and current
+PR65 card do not authorize a future node. These review controls do not expand
+runtime acceleration authority or relax this document's baseline safeguards.

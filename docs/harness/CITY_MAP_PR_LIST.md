@@ -272,3 +272,192 @@ but `standard` remains the default pending a new generator redesign spec.
   `feat(city): promote realistic generator default` is forbidden. Decision:
   `docs/harness/REALISTIC_CITY_DEFAULT_PROMOTION_DECISION.md`. Closure commit:
   `docs(city): record realistic promotion blocker`.
+
+## Scalable Map Breakthrough Execution DAG (PR65-PR82)
+
+Status: `PR65_DOCS_ONLY`; every later node is `NOT_AUTHORIZED` unless its
+listed predecessor is frozen-head green and its required review and watchdog
+findings are zero. This is an execution-contract record for the user-approved
+2026-08-10 DAG, not implementation, readiness, validation, or traffic-model
+authority.
+
+### Global Execution Constraints
+
+Each node must base on the latest merge of
+`origin/008-routing-runtime-integration`. The dirty primary checkout remains
+read-only; every node uses a mandatory isolated worktree. A prior PR65 base or
+receipt is not permission to reuse a stale base for a later node.
+
+PR73, PR74, and PR75 are serial. Task C and G5 same-file owners are also
+serial; no parallel branch may edit a shared owner. The only nodes permitted to
+run 1M/resource gates are PR78, PR80, and PR81. PR74 uses bounded focused
+checks only; its deterministic parity checks do not open a 1M/resource gate.
+
+### Canonical Mermaid DAG
+
+```mermaid
+flowchart TD
+    PR65[PR65 execution contract] --> PR66[PR66 S0 baseline]
+    PR66 --> PR67[PR67 scale and geometry]
+    PR67 --> PR68[PR68 S2 topology]
+    PR68 --> PR69[PR69 Task 3B blocks/DCEL]
+    PR69 --> PR70[PR70 Task 4 adapter]
+    PR70 --> PR71[PR71 Task 5 authority]
+    PR71 --> PR72[PR72 oracle and admission packet]
+    PR72 --> PR73[PR73 Task B grammar]
+    PR73 --> PR74[PR74 H-002 ordering]
+    PR74 --> PR75[PR75 projection registry 180 leaves]
+    PR75 --> PR76[PR76 stable capture C plan]
+    PR76 --> PR77[PR77 stable capture C integration]
+    PR77 --> PR78[PR78 performance evidence]
+    PR77 --> PR79[PR79 G5 docs-first contract]
+    PR78 --> PR80[PR80 G5 instrumentation]
+    PR79 --> PR80[PR80 G5 instrumentation]
+    PR80 --> PR81[PR81 H-001 capacity evidence]
+    PR81 --> PR82[PR82 final closeout]
+    PR78 --> PR82[PR82 final closeout]
+```
+
+### PR65 Boundary
+
+PR65 documents this DAG and its review/watchdog/M1 contract in existing
+harness documents only. It does **not** authorize Task B, Task C, G5,
+performance work, readiness work, or any traffic-algorithm PR. It changes no
+source, tests, tools, CI, manifest, ledger, API, default, unit, cache,
+replay, fallback, or threshold.
+
+### Node Queue
+
+- **PR65 — Execution contract:** `PR65_DOCS_ONLY`; record this DAG and the
+  frozen-review rules. No implementation authority is created.
+- **PR66 — S0 baseline:** `NOT_AUTHORIZED`; import only the required
+  null-operator source, tests, and JSON manifest after PR65 closes.
+- **PR67 — Scale and geometry prerequisites:** `NOT_AUTHORIZED`; import the
+  CityScaleSpec/v2 configuration and the growth-geometry fixed-point repair as
+  separate commits with separate focused gates.
+- **PR68 — Task 3 S2 topology:** `NOT_AUTHORIZED`; import reviewed topology
+  source/tests and revalidate the current seal.
+- **PR69 — Task 3B blocks/DCEL:** `NOT_AUTHORIZED`; import blocks/DCEL and
+  lazy exports while preserving the recorded performance failure.
+- **PR70 — Task 4 adapter:** `NOT_AUTHORIZED`; import the compiler adapter and
+  its import-isolation correction.
+- **PR71 — Task 5 authority:** `NOT_AUTHORIZED`; import the static-authority
+  candidate and obtain final independent review.
+- **PR72 — Oracle and admission packet:** `NOT_AUTHORIZED`; import the
+  preoptimization oracle/controller/manifest and reviewed immutable Task B
+  manifest/vector packet, then verify it in a clean clone.
+- **PR73 — Task B grammar:** `NOT_AUTHORIZED`; clean-room exact records and
+  canonical scalar/dataclass/enum/mapping grammar. The frozen Task B line caps
+  are **1,922** and **4,423**; crossing either cap is
+  `BLOCKED_SCOPE_SPLIT`, not a reason to compress or widen scope silently.
+- **PR74 — H-002 ordering:** `NOT_AUTHORIZED`; implement normalized-value
+  ordering with deterministic parity and bounded focused checks only; 1M and
+  resource gates remain reserved for PR78, PR80, and PR81.
+- **PR75 — Projection, registry, and 180 leaves:** `NOT_AUTHORIZED`; implement
+  CSR/deep projection P, linearizable registry R, and the six-style oracle.
+- **PR76 — Stable capture C plan:** `NOT_AUTHORIZED`; freeze and independently
+  review the current-hash Task 4/5 integration plan.
+- **PR77 — Stable capture C integration:** `NOT_AUTHORIZED`; implement receipt
+  registration, Task 4 admission, and Task 5 stable capture.
+- **PR78 — Performance evidence:** `NOT_AUTHORIZED`; run official isolated RSS
+  and separate wall gates twice, plus H-006 no-op.
+- **PR79 — G5 docs-first contract:** `NOT_AUTHORIZED`; freeze ownership,
+  byte/count grammar, and failure-prefix state before code.
+- **PR80 — G5 instrumentation:** `NOT_AUTHORIZED`; implement phase
+  instrumentation and rerun the PR78 resource gate.
+- **PR81 — H-001 capacity evidence:** `NOT_AUTHORIZED`; measure exclusive
+  Task 3B capacity on final G5 source without production changes, then stop
+  exploration at the frozen bound.
+- **PR82 — Final closeout:** `NOT_AUTHORIZED`; record seven independent
+  verdicts. If any predecessor is blocked, the only permitted closeout is an
+  honest docs-only `BLOCKED` closeout; it must not claim successor success.
+
+### Frozen Review And Merge Contract
+
+Every DAG PR must expose a frozen PR body containing: PR number and scope;
+base SHA; frozen head SHA; parent receipt; allowed files **and symbols**;
+forbidden scope; acceptance commands; code/process/claim budgets; falsifier;
+predecessor and dependency state; exact command receipts; review-round count
+and findings; watchdog verdicts; one M1 Decision Card; declared artifacts; and
+an explicit authorization boundary. These fields are evidence labels, not
+implementation or readiness claims.
+
+The required review surfaces are:
+
+1. `/review-spec` — verify scope, dependencies, contracts, and forbidden
+   authority claims.
+2. `/review-code` — verify the frozen diff against the allowed paths and
+   stated behavior.
+3. `/review-drift` — verify no unreviewed expansion of process, claims, or
+   implementation has entered the node.
+
+The four mandatory watchdogs are:
+
+- **Drift watchdog:** rejects unallowed files, API, default, unit, cache,
+  replay, fallback, or threshold changes; stale parent seals; and false-RED
+  reclassification.
+- **Code-inflation watchdog:** rejects unapproved symbols, modules,
+  dependencies, config, or backends; speculative helpers; and dead scaffolds.
+  Task B totals may not exceed 1,922 source lines or 4,423 test lines.
+- **Process-accretion watchdog:** rejects scripts, jobs, ledgers, reports, or
+  manifests without a consumer and retirement condition, and repeated
+  shared-ledger mutation.
+- **Claim-accretion watchdog:** rejects smoke-to-validation,
+  implementation-to-readiness, and partial-to-aggregate/transitive promotion.
+  Every numerical claim binds candidate SHA + exact command + artifact.
+
+One review round has this exact sequence: `/review-spec` → `/review-code` →
+`/review-drift` → four watchdogs → one bounded fix batch → targeted gate and
+frozen-head CI → same-finding closure. Each round posts a new immutable
+`REVIEW_RECEIPT/Rn` PR comment. At most three rounds are allowed. After round
+three, any finding yields `BLOCKED_REVIEW_LIMIT`; if a finding requires new
+scope, split rather than stretch the node and stop as `BLOCKED_SCOPE_SPLIT`.
+
+A merge is permitted only when the **same frozen head** has green CI, all
+acceptance gates and watchdogs green, zero findings, zero open subagents, and
+green predecessor gates. Merge with a merge commit that preserves internal TDD
+commits; force-push is forbidden after review. No tracked change may follow the
+frozen-head review. Review and watchdog evidence do not themselves authorize an
+unlisted successor.
+
+### M1 Decision Cards
+
+Each executed PR has exactly one M1 Decision Card. `meta_depth: 1` means one
+bounded decision about the next observable action. M1 is not correctness,
+readiness, validation, performance, or claim evidence. Any attempt to add
+another meta-level is `META_RECURSION_BLOCKED`; immediately return to the
+card's listed productive action and produce its observable output.
+
+#### M1 Decision Card — PR65
+
+```text
+meta_depth: 1
+Question: What is the smallest observable change that safely opens this DAG?
+Evidence: Remote base is green and lacks the scalable foundation; two existing
+  harness documents already own roadmap and acceleration guardrails.
+Inference: A two-file docs-only contract is sufficient for PR65.
+Counterevidence checked: No new script, CI, ledger, implementation, or traffic
+  authority is needed.
+Decision: Modify only the two allowed documents.
+Falsifier: Any tracked path outside the allowlist or any readiness/traffic claim.
+Observable output: DIFF
+Next action: implement
+```
+
+#### Reusable M1 Template (not an instantiated card)
+
+```text
+meta_depth: 1
+Question:
+Evidence:
+Inference:
+Counterevidence checked:
+Decision:
+Falsifier:
+Observable output: TEST | BENCHMARK | DIFF | DECISION | BLOCKER
+Next action:
+```
+
+Each future PR creates its one M1 Decision Card only when that PR is executed
+under its own authorization. No future-node card exists now; `NOT_AUTHORIZED`
+is preserved until the applicable predecessor and review gates are satisfied.
