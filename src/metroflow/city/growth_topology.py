@@ -346,6 +346,11 @@ class StreetTopologyBuilder:
     def metadata_of(self, street_id: StreetId) -> dict:
         return self._require_street(street_id).metadata
 
+    def street_layer(self, street_id: StreetId) -> int:
+        """Return a street's authoritative grade without exposing mutable state."""
+
+        return self._require_street(street_id).layer
+
     @property
     def street_ids(self) -> tuple[StreetId, ...]:
         return tuple(street.street_id for street in self._streets)
