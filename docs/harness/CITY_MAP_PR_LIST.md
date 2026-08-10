@@ -359,12 +359,15 @@ The terminal chain state is `PR65=PASS`, `PR66=PASS`,
 
 PR67's frozen head `1b93dcd11b0747b205bd4723be2a02696b24c3b8`
 failed both required `audit-gallery` jobs on
-`growth_fabric_v1 / river_constrained / seed 17`. The exact local consumer was
-`PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python
-tools/render_audit_maps.py --check`. Its first three growth renders also changed
-while the frozen control-table counts no longer described their current
-topologies. PR67 forbade the artifact/control-table work needed for an honest
-repair, so its immutable
+`growth_fabric_v1 / river_constrained / seed 17`. Both CI jobs ran
+`python tools/render_audit_maps.py --check`; the frozen-head failures are bound
+to jobs
+[93370744782](https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/31361369336/job/93370744782)
+and
+[93370753371](https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/31361372504/job/93370753371).
+The first three growth renders also changed while the frozen control-table
+counts no longer described their current topologies. PR67 forbade the
+artifact/control-table work needed for an honest repair, so its immutable
 [Round 2 receipt](https://github.com/cosmosapjw-quantum/urban_traffic_demo/pull/8#issuecomment-5236789182)
 closed it as a scope split rather than widening or masking the node.
 
