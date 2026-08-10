@@ -272,3 +272,365 @@ but `standard` remains the default pending a new generator redesign spec.
   `feat(city): promote realistic generator default` is forbidden. Decision:
   `docs/harness/REALISTIC_CITY_DEFAULT_PROMOTION_DECISION.md`. Closure commit:
   `docs(city): record realistic promotion blocker`.
+
+## Scalable Map Breakthrough Execution DAG (PR65-PR82)
+
+Status: `PR65_DOCS_ONLY`; every later node is `NOT_AUTHORIZED` unless its
+listed predecessor is frozen-head green and its required review and watchdog
+findings are zero. This is an execution-contract record for the user-approved
+2026-08-10 DAG, not implementation, readiness, validation, or traffic-model
+authority.
+
+### PR65 Boundary
+
+PR65 documents this DAG and its review/watchdog/M1 contract in existing
+harness documents only. It does **not** authorize Task B, Task C, G5,
+performance work, readiness work, or any traffic-algorithm PR. It changes no
+source, tests, tools, CI, manifest, ledger, API, default, unit, cache,
+replay, fallback, or threshold.
+
+### Node Queue
+
+- **PR65 — Execution contract:** `PR65_DOCS_ONLY`; record this DAG and the
+  frozen-review rules. No implementation authority is created.
+- **PR66 — S0 baseline:** `NOT_AUTHORIZED`; import only the required
+  null-operator source, tests, and JSON manifest after PR65 closes.
+- **PR67 — Scale and geometry prerequisites:** `NOT_AUTHORIZED`; import the
+  CityScaleSpec/v2 configuration and the growth-geometry fixed-point repair as
+  separate commits with separate focused gates.
+- **PR68 — Task 3 S2 topology:** `NOT_AUTHORIZED`; import reviewed topology
+  source/tests and revalidate the current seal.
+- **PR69 — Task 3B blocks/DCEL:** `NOT_AUTHORIZED`; import blocks/DCEL and
+  lazy exports while preserving the recorded performance failure.
+- **PR70 — Task 4 adapter:** `NOT_AUTHORIZED`; import the compiler adapter and
+  its import-isolation correction.
+- **PR71 — Task 5 authority:** `NOT_AUTHORIZED`; import the static-authority
+  candidate and obtain final independent review.
+- **PR72 — Oracle and admission packet:** `NOT_AUTHORIZED`; import the
+  preoptimization oracle/controller/manifest and reviewed immutable Task B
+  manifest/vector packet, then verify it in a clean clone.
+- **PR73 — Task B grammar:** `NOT_AUTHORIZED`; clean-room exact records and
+  canonical scalar/dataclass/enum/mapping grammar. The frozen Task B line caps
+  are **1,922** and **4,423**; crossing either cap is
+  `BLOCKED_SCOPE_SPLIT`, not a reason to compress or widen scope silently.
+- **PR74 — H-002 ordering:** `NOT_AUTHORIZED`; implement normalized-value
+  ordering with deterministic parity and resource gates.
+- **PR75 — Projection, registry, and 180 leaves:** `NOT_AUTHORIZED`; implement
+  CSR/deep projection P, linearizable registry R, and the six-style oracle.
+- **PR76 — Stable capture C plan:** `NOT_AUTHORIZED`; freeze and independently
+  review the current-hash Task 4/5 integration plan.
+- **PR77 — Stable capture C integration:** `NOT_AUTHORIZED`; implement receipt
+  registration, Task 4 admission, and Task 5 stable capture.
+- **PR78 — Performance evidence:** `NOT_AUTHORIZED`; run official isolated RSS
+  and separate wall gates twice, plus H-006 no-op.
+- **PR79 — G5 docs-first contract:** `NOT_AUTHORIZED`; freeze ownership,
+  byte/count grammar, and failure-prefix state before code.
+- **PR80 — G5 instrumentation:** `NOT_AUTHORIZED`; implement phase
+  instrumentation and rerun the PR78 resource gate.
+- **PR81 — H-001 capacity evidence:** `NOT_AUTHORIZED`; measure exclusive
+  Task 3B capacity on final G5 source without production changes, then stop
+  exploration at the frozen bound.
+- **PR82 — Final closeout:** `NOT_AUTHORIZED`; record seven independent
+  verdicts. If any predecessor is blocked, the only permitted closeout is an
+  honest docs-only `BLOCKED` closeout; it must not claim successor success.
+
+### Frozen Review And Merge Contract
+
+Every DAG PR must expose a frozen PR body containing: PR number and scope;
+base SHA; frozen head SHA; allowed tracked paths; predecessor and dependency
+state; required commands and their exact receipts; review-round count and
+findings; watchdog verdicts; one M1 Decision Card; declared artifacts; and an
+explicit authorization boundary. These fields are evidence labels, not
+implementation or readiness claims.
+
+The required review surfaces are:
+
+1. `/review-spec` — verify scope, dependencies, contracts, and forbidden
+   authority claims.
+2. `/review-code` — verify the frozen diff against the allowed paths and
+   stated behavior.
+3. `/review-drift` — verify no unreviewed expansion of process, claims, or
+   implementation has entered the node.
+
+The four mandatory watchdogs are:
+
+- **Drift watchdog:** compares the frozen scope, base, head, and dependencies
+  against the PR body; any mismatch is a finding.
+- **Code-inflation watchdog:** rejects source, test, tool, CI, manifest,
+  ledger, or unnecessary code-path growth outside the declared node.
+- **Process-accretion watchdog:** rejects new review layers, receipts, agents,
+  or procedural gates that do not change an executable decision.
+- **Claim-accretion watchdog:** rejects language that upgrades a proposal,
+  diagnostic, or blocked node into implemented, ready, validated, or
+  authorized status.
+
+At most three finding/fix rounds are allowed across these surfaces and
+watchdogs. After round three, stop as `BLOCKED_REVIEW_LIMIT`; if a finding
+requires new scope, split rather than stretch the node and stop as
+`BLOCKED_SCOPE_SPLIT`. A merge is permitted only from a frozen head after all
+required commands pass, all three review surfaces have zero findings, all four
+watchdogs have zero findings, predecessor gates are green, and no tracked
+change follows the frozen-head review. Review and watchdog evidence do not
+themselves authorize an unlisted successor.
+
+### M1 Decision Cards
+
+Each PR has exactly one M1 Decision Card. `meta_depth: 1` means one bounded
+decision about the next observable action. M1 is not correctness, readiness,
+validation, performance, or claim evidence. Any attempt to add another
+meta-level is `META_RECURSION_BLOCKED`; immediately return to the card's
+listed productive action and produce its observable output.
+
+#### M1 Decision Card — PR65
+
+```text
+meta_depth: 1
+Question: What is the smallest observable change that safely opens this DAG?
+Evidence: Remote base is green and lacks the scalable foundation; two existing
+  harness documents already own roadmap and acceleration guardrails.
+Inference: A two-file docs-only contract is sufficient for PR65.
+Counterevidence checked: No new script, CI, ledger, implementation, or traffic
+  authority is needed.
+Decision: Modify only the two allowed documents.
+Falsifier: Any tracked path outside the allowlist or any readiness/traffic claim.
+Observable output: DIFF
+Next action: implement
+```
+
+#### M1 Decision Card — PR66
+
+```text
+meta_depth: 1
+Question: What is the smallest S0 import that preserves a null baseline?
+Evidence: PR66 is limited to a required null operator, its tests, and JSON manifest.
+Inference: No topology or traffic work is needed.
+Counterevidence checked: PR65 does not authorize source imports by itself.
+Decision: Hold until PR65 frozen-head green, then make the narrow import.
+Falsifier: Any additional runtime or map behavior requirement.
+Observable output: DIFF
+Next action: return to the frozen PR65 prerequisite.
+```
+
+#### M1 Decision Card — PR67
+
+```text
+meta_depth: 1
+Question: Can scale configuration and geometry repair remain independently testable?
+Evidence: The DAG requires separate commits and focused gates.
+Inference: Coupling them would hide the responsible failure surface.
+Counterevidence checked: PR66 admission has not occurred.
+Decision: Keep two bounded commits pending authorization.
+Falsifier: A shared contract that cannot be tested separately.
+Observable output: TEST
+Next action: return to the frozen PR66 prerequisite.
+```
+
+#### M1 Decision Card — PR68
+
+```text
+meta_depth: 1
+Question: What proves imported S2 topology remains the reviewed topology?
+Evidence: The DAG requires source/tests plus current-seal revalidation.
+Inference: The seal check is the smallest discriminating output.
+Counterevidence checked: No blocks/DCEL work belongs here.
+Decision: Hold topology import until PR67 is frozen-head green.
+Falsifier: A seal mismatch or a need for adjacent feature scope.
+Observable output: TEST
+Next action: return to the frozen PR67 prerequisite.
+```
+
+#### M1 Decision Card — PR69
+
+```text
+meta_depth: 1
+Question: Can Task 3B preserve its known performance failure while importing blocks/DCEL?
+Evidence: The DAG requires the failure to remain recorded.
+Inference: A passing-looking replacement would erase material evidence.
+Counterevidence checked: PR68 has not admitted topology.
+Decision: Preserve the failure state and keep the node blocked pending PR68.
+Falsifier: Any edit that suppresses or regrades the recorded failure.
+Observable output: BLOCKER
+Next action: return to the frozen PR68 prerequisite.
+```
+
+#### M1 Decision Card — PR70
+
+```text
+meta_depth: 1
+Question: What is the smallest adapter change that proves import isolation?
+Evidence: PR70 is limited to an adapter and its isolation correction.
+Inference: A focused import-isolation check bounds the node.
+Counterevidence checked: Static authority is owned by PR71.
+Decision: Hold adapter work until PR69 is frozen-head green.
+Falsifier: An adapter dependency on unadmitted authority behavior.
+Observable output: TEST
+Next action: return to the frozen PR69 prerequisite.
+```
+
+#### M1 Decision Card — PR71
+
+```text
+meta_depth: 1
+Question: What is the smallest authority decision after adapter admission?
+Evidence: PR71 requires a static-authority candidate and independent review.
+Inference: Candidate code alone is not authority.
+Counterevidence checked: No Task B packet is admitted here.
+Decision: Wait for PR70 and require final independent review.
+Falsifier: Any authority claim without the required review.
+Observable output: DECISION
+Next action: return to the frozen PR70 prerequisite.
+```
+
+#### M1 Decision Card — PR72
+
+```text
+meta_depth: 1
+Question: What makes the oracle/admission packet observable without optimization claims?
+Evidence: The DAG requires immutable packet import and clean-clone verification.
+Inference: Clean-clone verification is the bounded admission output.
+Counterevidence checked: Grammar implementation belongs to PR73.
+Decision: Hold the packet until PR71 frozen-head review is green.
+Falsifier: A mutable packet or a failed clean-clone check.
+Observable output: TEST
+Next action: return to the frozen PR71 prerequisite.
+```
+
+#### M1 Decision Card — PR73
+
+```text
+meta_depth: 1
+Question: How can Task B grammar remain clean-room and bounded?
+Evidence: The frozen line caps are 1,922 and 4,423, and PR72 owns admission.
+Inference: Cap enforcement and canonical records limit the node.
+Counterevidence checked: No projection, registry, or G5 scope is admitted.
+Decision: Hold until PR72 is green; split on either cap breach.
+Falsifier: A cap breach, non-canonical grammar, or packet mismatch.
+Observable output: DIFF
+Next action: return to the frozen PR72 prerequisite.
+```
+
+#### M1 Decision Card — PR74
+
+```text
+meta_depth: 1
+Question: What proves normalized-value ordering is deterministic?
+Evidence: PR74 requires parity and resource gates.
+Inference: Deterministic parity is the first discriminating result.
+Counterevidence checked: Projection and leaf expansion are PR75 scope.
+Decision: Hold ordering work until PR73 frozen-head green.
+Falsifier: Any parity or resource-gate failure.
+Observable output: TEST
+Next action: return to the frozen PR73 prerequisite.
+```
+
+#### M1 Decision Card — PR75
+
+```text
+meta_depth: 1
+Question: Can projection, registry, and six-style oracle be bounded to one node?
+Evidence: The DAG names CSR/deep P, linearizable R, and 180 leaves together.
+Inference: The six-style oracle is the observable integration boundary.
+Counterevidence checked: Stable capture belongs to PR76/PR77.
+Decision: Hold until PR74 gates are green.
+Falsifier: Non-linearizable registry behavior or oracle failure.
+Observable output: TEST
+Next action: return to the frozen PR74 prerequisite.
+```
+
+#### M1 Decision Card — PR76
+
+```text
+meta_depth: 1
+Question: What must be frozen before stable capture integration?
+Evidence: PR76 requires a current-hash Task 4/5 plan and independent review.
+Inference: The reviewed plan is the only output of this node.
+Counterevidence checked: No receipt registration belongs in the plan node.
+Decision: Hold until PR75 frozen-head green.
+Falsifier: A hash change after review or an integration edit.
+Observable output: DECISION
+Next action: return to the frozen PR75 prerequisite.
+```
+
+#### M1 Decision Card — PR77
+
+```text
+meta_depth: 1
+Question: What proves stable capture is registered without widening scope?
+Evidence: PR77 names receipt registration, Task 4 admission, and Task 5 capture.
+Inference: A receipt-bound admission result is the bounded output.
+Counterevidence checked: Resource evidence belongs to PR78.
+Decision: Hold integration until PR76 independent review is green.
+Falsifier: A missing receipt or a changed reviewed hash.
+Observable output: TEST
+Next action: return to the frozen PR76 prerequisite.
+```
+
+#### M1 Decision Card — PR78
+
+```text
+meta_depth: 1
+Question: What performance evidence can distinguish RSS from wall behavior?
+Evidence: PR78 requires isolated RSS and separate wall gates twice plus H-006.
+Inference: Separate repeated receipts avoid conflating resource dimensions.
+Counterevidence checked: G5 instrumentation is not yet authorized.
+Decision: Hold measurement until PR77 frozen-head green.
+Falsifier: A missing repeat, combined metric, or failed H-006 no-op.
+Observable output: BENCHMARK
+Next action: return to the frozen PR77 prerequisite.
+```
+
+#### M1 Decision Card — PR79
+
+```text
+meta_depth: 1
+Question: What can G5 freeze before code exists?
+Evidence: PR79 is docs-first: ownership, byte/count grammar, failure-prefix state.
+Inference: A contract can make later instrumentation falsifiable.
+Counterevidence checked: PR78 resource evidence does not authorize code expansion.
+Decision: Hold until PR78 green and document only the named contract.
+Falsifier: Any instrumentation or production change in the docs-first node.
+Observable output: DIFF
+Next action: return to the frozen PR78 prerequisite.
+```
+
+#### M1 Decision Card — PR80
+
+```text
+meta_depth: 1
+Question: What makes G5 instrumentation decision-relevant?
+Evidence: PR80 reruns the PR78 resource gate after phase instrumentation.
+Inference: The rerun is required to distinguish added observability from gain.
+Counterevidence checked: Capacity evidence is owned by PR81.
+Decision: Hold until PR79 contract is frozen-head green.
+Falsifier: A phase metric without the resource-gate rerun.
+Observable output: BENCHMARK
+Next action: return to the frozen PR79 prerequisite.
+```
+
+#### M1 Decision Card — PR81
+
+```text
+meta_depth: 1
+Question: What capacity claim can be made without production change?
+Evidence: PR81 is exclusive Task 3B measurement on final G5 source at a frozen bound.
+Inference: The bound is evidence only and ends exploration.
+Counterevidence checked: No new production optimization is permitted.
+Decision: Hold until PR80 resource evidence is green.
+Falsifier: A production edit or measurement beyond the frozen bound.
+Observable output: BENCHMARK
+Next action: return to the frozen PR80 prerequisite.
+```
+
+#### M1 Decision Card — PR82
+
+```text
+meta_depth: 1
+Question: What closeout is honest when a predecessor is blocked?
+Evidence: PR82 requires seven independent verdicts and blocked-closeout semantics.
+Inference: A docs-only BLOCKED record is the sole permissible result in that case.
+Counterevidence checked: A green subset cannot authorize a success claim.
+Decision: Hold until all predecessors are evaluated; preserve any block.
+Falsifier: Any omitted verdict or successor-success claim after a block.
+Observable output: BLOCKER
+Next action: return to the frozen predecessor verdicts.
+```
