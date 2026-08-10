@@ -5,8 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from math import isfinite
+from numbers import Integral
 from typing import Iterable, Mapping
 
+from metroflow.city.scale import CityScaleSpec
 from metroflow.city.morphology_reference import get_morphology_archetype
 
 __all__ = [
@@ -16,6 +18,7 @@ __all__ = [
     "ZoneType",
     "LearningMixBounds",
     "SimulationConfig",
+    "CityScaleSpec",
     "CityGenerationConfig",
     "CITY_TOPOLOGY_MODES",
     "ZONE_POI_COUPLING_MODES",
@@ -32,6 +35,7 @@ CITY_TOPOLOGY_MODES = (
     "sidecar_local_fabric",
     "sidecar_local_fabric_planar",
     "realistic_synthetic_v1",
+    "scalable_synthetic_v2",
 )
 ZONE_POI_COUPLING_MODES = ("legacy", "morphology_gated", "block_based_v1")
 
@@ -117,6 +121,10 @@ class SimulationConfig:
     eager_trip_generation: bool = False
 
     def __post_init__(self) -> None:
+        if isinstance(self.population_target, bool) or not isinstance(
+            self.population_target, Integral
+        ):
+            raise TypeError("population_target must be a non-bool integer")
         self.population_target = int(self.population_target)
         self.active_agent_capacity = int(self.active_agent_capacity)
         self.random_seed = int(self.random_seed)
@@ -148,9 +156,7 @@ class SimulationConfig:
         if self.max_trip_spawns_per_tick <= 0:
             raise ValueError("max_trip_spawns_per_tick must be > 0")
         if self.traffic_model not in TRAFFIC_MODELS:
-            raise ValueError(
-                "traffic_model must be one of: point_queue_v1, spatial_queue_v1"
-            )
+            raise ValueError("traffic_model must be one of: point_queue_v1, spatial_queue_v1")
         if not isfinite(self.jam_spacing_m) or not 2.0 <= self.jam_spacing_m <= 20.0:
             raise ValueError("jam_spacing_m must be finite and in [2, 20]")
         if self.edge_backend not in EDGE_RUNTIME_BACKENDS:
@@ -207,11 +213,14 @@ class CityGenerationConfig:
     )
     poi_density_profile: str = "baseline"
     zone_poi_coupling_mode: str = "legacy"
+    scale_spec: CityScaleSpec | None = None
 
     def __post_init__(self) -> None:
         self.topology_mode = str(self.topology_mode)
         self.morphology_style_id = str(self.morphology_style_id)
         self.zone_poi_coupling_mode = str(self.zone_poi_coupling_mode)
+        if self.scale_spec is not None and not isinstance(self.scale_spec, CityScaleSpec):
+            raise TypeError("scale_spec must be a CityScaleSpec")
         self.road_hierarchy_profile = _coerce_share_mapping(
             self.road_hierarchy_profile,
             RoadHierarchyClass,
@@ -226,32 +235,50 @@ class CityGenerationConfig:
         if self.topology_mode not in CITY_TOPOLOGY_MODES:
             raise ValueError(
                 "topology_mode must be one of: standard, sidecar_local_fabric, "
-                "sidecar_local_fabric_planar, realistic_synthetic_v1"
+                "sidecar_local_fabric_planar, realistic_synthetic_v1, "
+                "scalable_synthetic_v2"
             )
         if self.morphology_style_id != "auto":
             get_morphology_archetype(self.morphology_style_id)
+        if self.topology_mode == "scalable_synthetic_v2" and self.morphology_style_id not in {
+            "ring_radial",
+            "grid_core",
+            "polycentric_tod",
+            "river_constrained",
+            "superblock_mixed",
+            "organic",
+        }:
+            raise ValueError("scalable_synthetic_v2 requires an explicit supported style")
         if self.zone_poi_coupling_mode not in ZONE_POI_COUPLING_MODES:
             raise ValueError(
-                "zone_poi_coupling_mode must be one of: legacy, morphology_gated, "
-                "block_based_v1"
+                "zone_poi_coupling_mode must be one of: legacy, morphology_gated, block_based_v1"
             )
         if self.topology_mode == "realistic_synthetic_v1" and (
             self.zone_poi_coupling_mode != "block_based_v1"
         ):
             raise ValueError(
-                "realistic_synthetic_v1 requires zone_poi_coupling_mode="
-                "block_based_v1"
+                "realistic_synthetic_v1 requires zone_poi_coupling_mode=block_based_v1"
             )
+        if self.topology_mode == "scalable_synthetic_v2" and self.scale_spec is None:
+            raise ValueError("mode/scale_spec relationship requires a scale_spec for v2")
+        if self.topology_mode == "scalable_synthetic_v2" and (
+            self.zone_poi_coupling_mode != "block_based_v1"
+        ):
+            raise ValueError("mode/scale_spec relationship requires block_based_v1 for v2")
+        if self.topology_mode != "scalable_synthetic_v2" and self.scale_spec is not None:
+            raise ValueError("mode/scale_spec relationship permits scale_spec only for v2")
         if self.zone_poi_coupling_mode == "block_based_v1" and (
-            self.topology_mode != "realistic_synthetic_v1"
+            self.topology_mode not in {"realistic_synthetic_v1", "scalable_synthetic_v2"}
         ):
             raise ValueError(
-                "block_based_v1 requires topology_mode=realistic_synthetic_v1"
+                "block_based_v1 requires topology_mode=realistic_synthetic_v1 or "
+                "scalable_synthetic_v2"
             )
-        if (
-            self.topology_mode == "standard"
-            and self.morphology_style_id not in {"auto", "ring_radial", "polycentric_tod"}
-        ):
+        if self.topology_mode == "standard" and self.morphology_style_id not in {
+            "auto",
+            "ring_radial",
+            "polycentric_tod",
+        }:
             raise ValueError(
                 "explicit non-legacy morphology_style_id requires "
                 "sidecar_local_fabric or sidecar_local_fabric_planar"
