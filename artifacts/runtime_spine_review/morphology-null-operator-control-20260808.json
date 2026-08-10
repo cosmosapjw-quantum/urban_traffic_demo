@@ -1,0 +1,2994 @@
+{
+  "base_arm": "realistic_synthetic_v1",
+  "claim_boundary": "This measures the instrument, not any generator. A passing row is not a realistic city; it is a randomly thinned graph that the envelope accepted. Nothing here authorizes any promotion.",
+  "evidence_status": "instrument_control_not_a_generator",
+  "operator": "uniform_random_undirected_street_deletion, weak connectivity preserved",
+  "provenance": {
+    "commit": "3c6a5c794ca5e06878ecb50eb935435208b8f2be",
+    "seeds": [
+      17,
+      29,
+      41,
+      44,
+      53
+    ],
+    "sources": {
+      "src/metroflow/benchmarks/null_operator_control.py": "9ff34a1c934ab0e9d4a15e4b5613ed16de5ec591f2df7521fb24d4ed6b11eb72",
+      "src/metroflow/city/morphology_control_table.py": "85ac94c92415f3b34cfa733a1a42e7314644f1c4ad6af18af2153ebc7fa81952",
+      "src/metroflow/city/morphology_metrics.py": "e37ead94e487b0324c7901763c4ceb35840b546da70938e4ed7d2733fe5f0f3c"
+    },
+    "styles": [
+      "ring_radial",
+      "grid_core",
+      "polycentric_tod",
+      "river_constrained",
+      "superblock_mixed",
+      "organic"
+    ],
+    "sweep": [
+      0.0,
+      0.2,
+      0.35,
+      0.5,
+      0.6
+    ]
+  },
+  "question": "Can the seven-metric morphology envelope be satisfied by an operator that produces no urban information?",
+  "rows": [
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 6314,
+      "metrics": {
+        "circuity": 1.0022374872830977,
+        "dead_end_share": 0.001759014951627089,
+        "four_way_share": 0.51363236587511,
+        "mean_node_degree": 5.491644678979771,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0829259538868357,
+        "orientation_order": 0.8994788529180463
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 17,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 5042,
+      "metrics": {
+        "circuity": 1.0178237617928134,
+        "dead_end_share": 0.03425309229305423,
+        "four_way_share": 0.285442435775452,
+        "mean_node_degree": 4.567078972407232,
+        "median_segment_length_m": 98.18904725069898,
+        "orientation_entropy": 2.1077487708871656,
+        "orientation_order": 0.8921875567500755
+      },
+      "passed": false,
+      "realised_fraction": 0.19974101651019746,
+      "requested_fraction": 0.2,
+      "seed": 17,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4088,
+      "metrics": {
+        "circuity": 1.050979452091664,
+        "dead_end_share": 0.11410118406889128,
+        "four_way_share": 0.24004305705059203,
+        "mean_node_degree": 3.877287405812702,
+        "median_segment_length_m": 98.18904725069905,
+        "orientation_entropy": 2.166462850348871,
+        "orientation_order": 0.873925308495223
+      },
+      "passed": true,
+      "realised_fraction": 0.349951440595662,
+      "requested_fraction": 0.35,
+      "seed": 17,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 3150,
+      "metrics": {
+        "circuity": 1.1023948649568205,
+        "dead_end_share": 0.3028503562945368,
+        "four_way_share": 0.18883610451306412,
+        "mean_node_degree": 2.9572446555819476,
+        "median_segment_length_m": 104.35000000000002,
+        "orientation_entropy": 2.270911952618489,
+        "orientation_order": 0.8379077515709678
+      },
+      "passed": true,
+      "realised_fraction": 0.49983813531887344,
+      "requested_fraction": 0.5,
+      "seed": 17,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 2528,
+      "metrics": {
+        "circuity": 1.1580985977637255,
+        "dead_end_share": 0.5062814070351759,
+        "four_way_share": 0.12562814070351758,
+        "mean_node_degree": 2.2311557788944723,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.4091224779257154,
+        "orientation_order": 0.7833012433632222
+      },
+      "passed": false,
+      "realised_fraction": 0.5998705082550987,
+      "requested_fraction": 0.6,
+      "seed": 17,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 6362,
+      "metrics": {
+        "circuity": 1.0018530962746048,
+        "dead_end_share": 0.0017513134851138354,
+        "four_way_share": 0.5131348511383538,
+        "mean_node_degree": 5.5131348511383536,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0774465922073215,
+        "orientation_order": 0.9010539339179002
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 29,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 5098,
+      "metrics": {
+        "circuity": 1.0183332490417742,
+        "dead_end_share": 0.03247373447946514,
+        "four_way_share": 0.3037249283667622,
+        "mean_node_degree": 4.624641833810888,
+        "median_segment_length_m": 98.18904725069898,
+        "orientation_entropy": 2.095751050800084,
+        "orientation_order": 0.8957435627201024
+      },
+      "passed": false,
+      "realised_fraction": 0.199935504675911,
+      "requested_fraction": 0.2,
+      "seed": 29,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4132,
+      "metrics": {
+        "circuity": 1.0469290346399618,
+        "dead_end_share": 0.10793650793650794,
+        "four_way_share": 0.24761904761904763,
+        "mean_node_degree": 3.8857142857142857,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.184493000952758,
+        "orientation_order": 0.8680306522236665
+      },
+      "passed": true,
+      "realised_fraction": 0.34988713318284426,
+      "requested_fraction": 0.35,
+      "seed": 29,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 3186,
+      "metrics": {
+        "circuity": 1.1083099332313173,
+        "dead_end_share": 0.29797377830750893,
+        "four_way_share": 0.18831942789034564,
+        "mean_node_degree": 2.99642431466031,
+        "median_segment_length_m": 98.19610430154549,
+        "orientation_entropy": 2.2946147110052153,
+        "orientation_order": 0.829105064753456
+      },
+      "passed": true,
+      "realised_fraction": 0.4998387616897775,
+      "requested_fraction": 0.5,
+      "seed": 29,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 2558,
+      "metrics": {
+        "circuity": 1.1703063994750986,
+        "dead_end_share": 0.49554140127388535,
+        "four_way_share": 0.13630573248407643,
+        "mean_node_degree": 2.264968152866242,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.4454230071218865,
+        "orientation_order": 0.7676468671826028
+      },
+      "passed": false,
+      "realised_fraction": 0.599806514027733,
+      "requested_fraction": 0.6,
+      "seed": 29,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 6478,
+      "metrics": {
+        "circuity": 1.002378944402352,
+        "dead_end_share": 0.001702127659574468,
+        "four_way_share": 0.5242553191489362,
+        "mean_node_degree": 5.448510638297872,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0939340614729964,
+        "orientation_order": 0.8962769011419713
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 41,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 5176,
+      "metrics": {
+        "circuity": 1.0190128170748396,
+        "dead_end_share": 0.038033395176252316,
+        "four_way_share": 0.32189239332096475,
+        "mean_node_degree": 4.551020408163265,
+        "median_segment_length_m": 98.18904725069898,
+        "orientation_entropy": 2.108774586508655,
+        "orientation_order": 0.8918807478556556
+      },
+      "passed": false,
+      "realised_fraction": 0.1998742928975487,
+      "requested_fraction": 0.2,
+      "seed": 41,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4210,
+      "metrics": {
+        "circuity": 1.0512665650556705,
+        "dead_end_share": 0.11995863495346432,
+        "four_way_share": 0.2781799379524302,
+        "mean_node_degree": 3.8448810754912097,
+        "median_segment_length_m": 98.18904725069906,
+        "orientation_entropy": 2.1834823549965403,
+        "orientation_order": 0.8683646288669035
+      },
+      "passed": true,
+      "realised_fraction": 0.34978001257071023,
+      "requested_fraction": 0.35,
+      "seed": 41,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 3240,
+      "metrics": {
+        "circuity": 1.1168548580216768,
+        "dead_end_share": 0.30114942528735633,
+        "four_way_share": 0.20344827586206896,
+        "mean_node_degree": 2.935632183908046,
+        "median_segment_length_m": 98.19610430154549,
+        "orientation_entropy": 2.25419983996443,
+        "orientation_order": 0.8439743633191343
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 41,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 2602,
+      "metrics": {
+        "circuity": 1.1811895542040236,
+        "dead_end_share": 0.5150375939849624,
+        "four_way_share": 0.12656641604010024,
+        "mean_node_degree": 2.2205513784461153,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.4365680138771086,
+        "orientation_order": 0.7715158673873539
+      },
+      "passed": false,
+      "realised_fraction": 0.5999371464487744,
+      "requested_fraction": 0.6,
+      "seed": 41,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 6490,
+      "metrics": {
+        "circuity": 1.0019311969512383,
+        "dead_end_share": 0.0016992353440951572,
+        "four_way_share": 0.5106202209005948,
+        "mean_node_degree": 5.452846219201359,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0892915201034628,
+        "orientation_order": 0.8976334083741517
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 44,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 5194,
+      "metrics": {
+        "circuity": 1.0183712250970398,
+        "dead_end_share": 0.030330882352941176,
+        "four_way_share": 0.30330882352941174,
+        "mean_node_degree": 4.544117647058823,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.1076053805484736,
+        "orientation_order": 0.8922304083184232
+      },
+      "passed": false,
+      "realised_fraction": 0.1998742928975487,
+      "requested_fraction": 0.2,
+      "seed": 44,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4232,
+      "metrics": {
+        "circuity": 1.0507559298309823,
+        "dead_end_share": 0.11514522821576763,
+        "four_way_share": 0.24066390041493776,
+        "mean_node_degree": 3.8734439834024896,
+        "median_segment_length_m": 98.18904725069905,
+        "orientation_entropy": 2.156172639219567,
+        "orientation_order": 0.8772291575008531
+      },
+      "passed": true,
+      "realised_fraction": 0.34978001257071023,
+      "requested_fraction": 0.35,
+      "seed": 44,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 3260,
+      "metrics": {
+        "circuity": 1.0983691844941348,
+        "dead_end_share": 0.3086560364464693,
+        "four_way_share": 0.18223234624145787,
+        "mean_node_degree": 2.949886104783599,
+        "median_segment_length_m": 103.94,
+        "orientation_entropy": 2.2831468822219456,
+        "orientation_order": 0.8333930284704034
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 44,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 2618,
+      "metrics": {
+        "circuity": 1.1663798729119403,
+        "dead_end_share": 0.51,
+        "four_way_share": 0.13625,
+        "mean_node_degree": 2.24,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.4518585530259025,
+        "orientation_order": 0.7648146102408748
+      },
+      "passed": false,
+      "realised_fraction": 0.5999371464487744,
+      "requested_fraction": 0.6,
+      "seed": 44,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 6462,
+      "metrics": {
+        "circuity": 1.0017363932567795,
+        "dead_end_share": 0.0016806722689075631,
+        "four_way_share": 0.5512605042016807,
+        "mean_node_degree": 5.3579831932773105,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0986193125993307,
+        "orientation_order": 0.894898862136106
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 53,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 5166,
+      "metrics": {
+        "circuity": 1.0186067110993449,
+        "dead_end_share": 0.03388278388278388,
+        "four_way_share": 0.32142857142857145,
+        "mean_node_degree": 4.472527472527473,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.1301867970725588,
+        "orientation_order": 0.8853771008065179
+      },
+      "passed": false,
+      "realised_fraction": 0.19987507807620236,
+      "requested_fraction": 0.2,
+      "seed": 53,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4200,
+      "metrics": {
+        "circuity": 1.0533545676616798,
+        "dead_end_share": 0.12295081967213115,
+        "four_way_share": 0.2520491803278688,
+        "mean_node_degree": 3.776639344262295,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.198132308588582,
+        "orientation_order": 0.8634820372796772
+      },
+      "passed": true,
+      "realised_fraction": 0.3497813866333542,
+      "requested_fraction": 0.35,
+      "seed": 53,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 3234,
+      "metrics": {
+        "circuity": 1.1139082939192952,
+        "dead_end_share": 0.33104238258877433,
+        "four_way_share": 0.19358533791523483,
+        "mean_node_degree": 2.879725085910653,
+        "median_segment_length_m": 98.1961043015454,
+        "orientation_entropy": 2.317008783018334,
+        "orientation_order": 0.8205745720708515
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 53,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 2592,
+      "metrics": {
+        "circuity": 1.184807297794909,
+        "dead_end_share": 0.5403022670025189,
+        "four_way_share": 0.13476070528967254,
+        "mean_node_degree": 2.158690176322418,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.538289882579129,
+        "orientation_order": 0.7251139599621773
+      },
+      "passed": false,
+      "realised_fraction": 0.5999375390381012,
+      "requested_fraction": 0.6,
+      "seed": 53,
+      "style_id": "ring_radial"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 4294,
+      "metrics": {
+        "circuity": 1.0019310424117653,
+        "dead_end_share": 0.00258732212160414,
+        "four_way_share": 0.22509702457956016,
+        "mean_node_degree": 5.487710219922381,
+        "median_segment_length_m": 139.13,
+        "orientation_entropy": 1.9673772320146068,
+        "orientation_order": 0.9300597386860674
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 17,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 3438,
+      "metrics": {
+        "circuity": 1.0111357292752088,
+        "dead_end_share": 0.017615176151761516,
+        "four_way_share": 0.3157181571815718,
+        "mean_node_degree": 4.493224932249323,
+        "median_segment_length_m": 139.13,
+        "orientation_entropy": 1.9970453218590956,
+        "orientation_order": 0.9227356027149799
+      },
+      "passed": false,
+      "realised_fraction": 0.19971671388101983,
+      "requested_fraction": 0.2,
+      "seed": 17,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 2798,
+      "metrics": {
+        "circuity": 1.0439300213647993,
+        "dead_end_share": 0.0729483282674772,
+        "four_way_share": 0.31155015197568386,
+        "mean_node_degree": 3.82370820668693,
+        "median_segment_length_m": 139.13,
+        "orientation_entropy": 2.0957648379426197,
+        "orientation_order": 0.8957395105704822
+      },
+      "passed": true,
+      "realised_fraction": 0.34985835694050993,
+      "requested_fraction": 0.35,
+      "seed": 17,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 2152,
+      "metrics": {
+        "circuity": 1.0970418625232095,
+        "dead_end_share": 0.2639593908629442,
+        "four_way_share": 0.23011844331641285,
+        "mean_node_degree": 2.937394247038917,
+        "median_segment_length_m": 139.13,
+        "orientation_entropy": 2.187967963664863,
+        "orientation_order": 0.8668790922640283
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 17,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 1724,
+      "metrics": {
+        "circuity": 1.1626150884782287,
+        "dead_end_share": 0.4740740740740741,
+        "four_way_share": 0.13148148148148148,
+        "mean_node_degree": 2.2333333333333334,
+        "median_segment_length_m": 139.13,
+        "orientation_entropy": 2.413616372801016,
+        "orientation_order": 0.7813928861221252
+      },
+      "passed": false,
+      "realised_fraction": 0.5996222851746931,
+      "requested_fraction": 0.6,
+      "seed": 17,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 8074,
+      "metrics": {
+        "circuity": 1.0031236986201162,
+        "dead_end_share": 0.0014184397163120568,
+        "four_way_share": 0.5347517730496454,
+        "mean_node_degree": 5.692198581560284,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.052533204945205,
+        "orientation_order": 0.9080586231411865
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 29,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 6466,
+      "metrics": {
+        "circuity": 1.0131372643413792,
+        "dead_end_share": 0.02241112828438949,
+        "four_way_share": 0.28516228748068007,
+        "mean_node_degree": 4.780525502318393,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.106067023014513,
+        "orientation_order": 0.892689603779501
+      },
+      "passed": false,
+      "realised_fraction": 0.19984935977906101,
+      "requested_fraction": 0.2,
+      "seed": 29,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5258,
+      "metrics": {
+        "circuity": 1.0365752507859993,
+        "dead_end_share": 0.09487179487179487,
+        "four_way_share": 0.23931623931623933,
+        "mean_node_degree": 4.042735042735043,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.153978687029308,
+        "orientation_order": 0.8779278902046068
+      },
+      "passed": true,
+      "realised_fraction": 0.3499874466482551,
+      "requested_fraction": 0.35,
+      "seed": 29,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4052,
+      "metrics": {
+        "circuity": 1.0968828911121273,
+        "dead_end_share": 0.2676864244741874,
+        "four_way_share": 0.20936902485659656,
+        "mean_node_degree": 3.1319311663479925,
+        "median_segment_length_m": 98.19610430154545,
+        "orientation_entropy": 2.233358889814793,
+        "orientation_order": 0.8513776598949873
+      },
+      "passed": true,
+      "realised_fraction": 0.49987446648255085,
+      "requested_fraction": 0.5,
+      "seed": 29,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3248,
+      "metrics": {
+        "circuity": 1.1484899994645958,
+        "dead_end_share": 0.472,
+        "four_way_share": 0.133,
+        "mean_node_degree": 2.38,
+        "median_segment_length_m": 125.60677881909385,
+        "orientation_entropy": 2.336182949542501,
+        "orientation_order": 0.8131055331022383
+      },
+      "passed": false,
+      "realised_fraction": 0.5997991463720813,
+      "requested_fraction": 0.6,
+      "seed": 29,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 7988,
+      "metrics": {
+        "circuity": 1.0036578291860596,
+        "dead_end_share": 0.0014234875444839859,
+        "four_way_share": 0.5437722419928825,
+        "mean_node_degree": 5.64982206405694,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0561617080072874,
+        "orientation_order": 0.9070544246287232
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 41,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 6394,
+      "metrics": {
+        "circuity": 1.0193390127207256,
+        "dead_end_share": 0.02558139534883721,
+        "four_way_share": 0.28604651162790695,
+        "mean_node_degree": 4.73953488372093,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0837483755481503,
+        "orientation_order": 0.899241368517647
+      },
+      "passed": false,
+      "realised_fraction": 0.2,
+      "requested_fraction": 0.2,
+      "seed": 41,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5200,
+      "metrics": {
+        "circuity": 1.0494568101868473,
+        "dead_end_share": 0.10061242344706911,
+        "four_way_share": 0.23009623797025372,
+        "mean_node_degree": 4.047244094488189,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.1503187108830133,
+        "orientation_order": 0.8790890862033713
+      },
+      "passed": true,
+      "realised_fraction": 0.349936788874842,
+      "requested_fraction": 0.35,
+      "seed": 41,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4012,
+      "metrics": {
+        "circuity": 1.1009221455160165,
+        "dead_end_share": 0.28639846743295017,
+        "four_way_share": 0.210727969348659,
+        "mean_node_degree": 3.103448275862069,
+        "median_segment_length_m": 98.19610430154552,
+        "orientation_entropy": 2.222373526483752,
+        "orientation_order": 0.8552075536224606
+      },
+      "passed": true,
+      "realised_fraction": 0.49987357774968394,
+      "requested_fraction": 0.5,
+      "seed": 41,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3204,
+      "metrics": {
+        "circuity": 1.159948312586413,
+        "dead_end_share": 0.4867075664621677,
+        "four_way_share": 0.1492842535787321,
+        "mean_node_degree": 2.3517382413087935,
+        "median_segment_length_m": 103.93000000000006,
+        "orientation_entropy": 2.364511350001845,
+        "orientation_order": 0.8017918511042429
+      },
+      "passed": false,
+      "realised_fraction": 0.6,
+      "requested_fraction": 0.6,
+      "seed": 41,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 8126,
+      "metrics": {
+        "circuity": 1.0031024732140164,
+        "dead_end_share": 0.001394700139470014,
+        "four_way_share": 0.5474198047419805,
+        "mean_node_degree": 5.638772663877266,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0498085639450263,
+        "orientation_order": 0.908809089769986
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 44,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 6516,
+      "metrics": {
+        "circuity": 1.0161191401493823,
+        "dead_end_share": 0.019011406844106463,
+        "four_way_share": 0.2965779467680608,
+        "mean_node_degree": 4.743726235741445,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.097142511586955,
+        "orientation_order": 0.8953342043804718
+      },
+      "passed": false,
+      "realised_fraction": 0.2,
+      "requested_fraction": 0.2,
+      "seed": 44,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5296,
+      "metrics": {
+        "circuity": 1.046531513643685,
+        "dead_end_share": 0.09090909090909091,
+        "four_way_share": 0.2564322469982847,
+        "mean_node_degree": 4.04802744425386,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.1786049494451203,
+        "orientation_order": 0.8699704608988533
+      },
+      "passed": true,
+      "realised_fraction": 0.35,
+      "requested_fraction": 0.35,
+      "seed": 44,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4078,
+      "metrics": {
+        "circuity": 1.119576701347463,
+        "dead_end_share": 0.26692836113837093,
+        "four_way_share": 0.21786064769381747,
+        "mean_node_degree": 3.1481844946025515,
+        "median_segment_length_m": 98.19610430154549,
+        "orientation_entropy": 2.2600447916130415,
+        "orientation_order": 0.841865762436015
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 44,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3266,
+      "metrics": {
+        "circuity": 1.1814148827011943,
+        "dead_end_share": 0.47848360655737704,
+        "four_way_share": 0.14241803278688525,
+        "mean_node_degree": 2.3668032786885247,
+        "median_segment_length_m": 108.2953209647429,
+        "orientation_entropy": 2.383711470416549,
+        "orientation_order": 0.7939347639754536
+      },
+      "passed": false,
+      "realised_fraction": 0.6,
+      "requested_fraction": 0.6,
+      "seed": 44,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 8256,
+      "metrics": {
+        "circuity": 1.0011736441640633,
+        "dead_end_share": 0.0013698630136986301,
+        "four_way_share": 0.55,
+        "mean_node_degree": 5.616438356164384,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0663772972327887,
+        "orientation_order": 0.9041979373177984
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 53,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 6598,
+      "metrics": {
+        "circuity": 1.0172023520646716,
+        "dead_end_share": 0.03150787696924231,
+        "four_way_share": 0.28507126781695424,
+        "mean_node_degree": 4.717179294823706,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.1051693935727744,
+        "orientation_order": 0.8929570907587902
+      },
+      "passed": false,
+      "realised_fraction": 0.19990236758603858,
+      "requested_fraction": 0.2,
+      "seed": 53,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5366,
+      "metrics": {
+        "circuity": 1.0456196879997786,
+        "dead_end_share": 0.1087866108786611,
+        "four_way_share": 0.2217573221757322,
+        "mean_node_degree": 4.0,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.1498266555414345,
+        "orientation_order": 0.8792447767981562
+      },
+      "passed": true,
+      "realised_fraction": 0.34976812301684157,
+      "requested_fraction": 0.35,
+      "seed": 53,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4124,
+      "metrics": {
+        "circuity": 1.1028195095762794,
+        "dead_end_share": 0.29197761194029853,
+        "four_way_share": 0.208955223880597,
+        "mean_node_degree": 3.0708955223880596,
+        "median_segment_length_m": 98.19610430154545,
+        "orientation_entropy": 2.276280328668275,
+        "orientation_order": 0.8359344412750132
+      },
+      "passed": true,
+      "realised_fraction": 0.4998779594825482,
+      "requested_fraction": 0.5,
+      "seed": 53,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3304,
+      "metrics": {
+        "circuity": 1.1379380004480382,
+        "dead_end_share": 0.507218479307026,
+        "four_way_share": 0.136669874879692,
+        "mean_node_degree": 2.3156881616939367,
+        "median_segment_length_m": 104.20000000000007,
+        "orientation_entropy": 2.3796197775209467,
+        "orientation_order": 0.79562197431198
+      },
+      "passed": false,
+      "realised_fraction": 0.5999511837930193,
+      "requested_fraction": 0.6,
+      "seed": 53,
+      "style_id": "grid_core"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 11280,
+      "metrics": {
+        "circuity": 1.000605976648998,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5196729688298416,
+        "mean_node_degree": 5.746550843127236,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0483406593350035,
+        "orientation_order": 0.9092121300876626
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 17,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 9026,
+      "metrics": {
+        "circuity": 1.0117624600756432,
+        "dead_end_share": 0.024875621890547265,
+        "four_way_share": 0.27252625760088445,
+        "mean_node_degree": 4.807075732448867,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.078169893213492,
+        "orientation_order": 0.9008467285171025
+      },
+      "passed": false,
+      "realised_fraction": 0.1998567335243553,
+      "requested_fraction": 0.2,
+      "seed": 17,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 7334,
+      "metrics": {
+        "circuity": 1.038334690800492,
+        "dead_end_share": 0.09975216852540272,
+        "four_way_share": 0.21995043370508055,
+        "mean_node_degree": 4.0978934324659235,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.140196964222388,
+        "orientation_order": 0.8822715057929902
+      },
+      "passed": true,
+      "realised_fraction": 0.34992836676217765,
+      "requested_fraction": 0.35,
+      "seed": 17,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5642,
+      "metrics": {
+        "circuity": 1.0899892842950665,
+        "dead_end_share": 0.2773224043715847,
+        "four_way_share": 0.21106557377049182,
+        "mean_node_degree": 3.157103825136612,
+        "median_segment_length_m": 104.33999999999992,
+        "orientation_entropy": 2.2165925042847223,
+        "orientation_order": 0.857202949559932
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 17,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 4516,
+      "metrics": {
+        "circuity": 1.1467249137436182,
+        "dead_end_share": 0.4626755358462675,
+        "four_way_share": 0.16260162601626016,
+        "mean_node_degree": 2.419807834441981,
+        "median_segment_length_m": 138.57999999999998,
+        "orientation_entropy": 2.38035756148453,
+        "orientation_order": 0.7953182615000748
+      },
+      "passed": false,
+      "realised_fraction": 0.5999283667621776,
+      "requested_fraction": 0.6,
+      "seed": 17,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 11474,
+      "metrics": {
+        "circuity": 1.0006053472112248,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.541769649036085,
+        "mean_node_degree": 5.655956500247158,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.0478761253783215,
+        "orientation_order": 0.909339490523149
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 29,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 9170,
+      "metrics": {
+        "circuity": 1.0132738931497145,
+        "dead_end_share": 0.019946091644204852,
+        "four_way_share": 0.29973045822102423,
+        "mean_node_degree": 4.745013477088949,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0754417768186335,
+        "orientation_order": 0.9016271242645356
+      },
+      "passed": false,
+      "realised_fraction": 0.19992984917572781,
+      "requested_fraction": 0.2,
+      "seed": 29,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 7452,
+      "metrics": {
+        "circuity": 1.0359602606458567,
+        "dead_end_share": 0.09367396593673966,
+        "four_way_share": 0.22749391727493917,
+        "mean_node_degree": 4.052311435523114,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.1644147076840046,
+        "orientation_order": 0.8745863964849389
+      },
+      "passed": true,
+      "realised_fraction": 0.3498772360575237,
+      "requested_fraction": 0.35,
+      "seed": 29,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5732,
+      "metrics": {
+        "circuity": 1.0871383887809998,
+        "dead_end_share": 0.27518593644354294,
+        "four_way_share": 0.19810682893847195,
+        "mean_node_degree": 3.1183231913455036,
+        "median_segment_length_m": 98.19610430154545,
+        "orientation_entropy": 2.2526835315770963,
+        "orientation_order": 0.8445190685237921
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 29,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 4590,
+      "metrics": {
+        "circuity": 1.154603156056715,
+        "dead_end_share": 0.47748391708363114,
+        "four_way_share": 0.14224446032880628,
+        "mean_node_degree": 2.365975696926376,
+        "median_segment_length_m": 108.41823599190855,
+        "orientation_entropy": 2.3804044498978625,
+        "orientation_order": 0.7952989520068847
+      },
+      "passed": false,
+      "realised_fraction": 0.5999649245878639,
+      "requested_fraction": 0.6,
+      "seed": 29,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 10374,
+      "metrics": {
+        "circuity": 1.0030553308766679,
+        "dead_end_share": 0.0005224660397074191,
+        "four_way_share": 0.6123301985370951,
+        "mean_node_degree": 5.359456635318704,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.0346346029961446,
+        "orientation_order": 0.9129323022588376
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 41,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 8304,
+      "metrics": {
+        "circuity": 1.01835620469528,
+        "dead_end_share": 0.0319634703196347,
+        "four_way_share": 0.3150684931506849,
+        "mean_node_degree": 4.488584474885845,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0787887868862205,
+        "orientation_order": 0.9006692608205691
+      },
+      "passed": false,
+      "realised_fraction": 0.19992213354097724,
+      "requested_fraction": 0.2,
+      "seed": 41,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 6750,
+      "metrics": {
+        "circuity": 1.0516623152619247,
+        "dead_end_share": 0.11867704280155641,
+        "four_way_share": 0.22892347600518806,
+        "mean_node_degree": 3.819714656290532,
+        "median_segment_length_m": 98.18904725069899,
+        "orientation_entropy": 2.1743945254459724,
+        "orientation_order": 0.8713487709139253
+      },
+      "passed": true,
+      "realised_fraction": 0.3498150671598209,
+      "requested_fraction": 0.35,
+      "seed": 41,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5194,
+      "metrics": {
+        "circuity": 1.1100475031278128,
+        "dead_end_share": 0.31801604668125455,
+        "four_way_share": 0.1714077315827863,
+        "mean_node_degree": 2.911743253099927,
+        "median_segment_length_m": 98.1961043015454,
+        "orientation_entropy": 2.2949298982802215,
+        "orientation_order": 0.828986443048347
+      },
+      "passed": true,
+      "realised_fraction": 0.49990266692622154,
+      "requested_fraction": 0.5,
+      "seed": 41,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 4158,
+      "metrics": {
+        "circuity": 1.1668944261106593,
+        "dead_end_share": 0.5279265493496557,
+        "four_way_share": 0.12012241775057383,
+        "mean_node_degree": 2.1637337413925017,
+        "median_segment_length_m": 98.19610430154545,
+        "orientation_entropy": 2.4248035473344545,
+        "orientation_order": 0.7766058539198849
+      },
+      "passed": false,
+      "realised_fraction": 0.5999610667704887,
+      "requested_fraction": 0.6,
+      "seed": 41,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 10358,
+      "metrics": {
+        "circuity": 1.0032276904266806,
+        "dead_end_share": 0.000526592943654555,
+        "four_way_share": 0.6050552922590837,
+        "mean_node_degree": 5.394418114797261,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.02552976454847,
+        "orientation_order": 0.915360567376148
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 44,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 8286,
+      "metrics": {
+        "circuity": 1.0203283729975332,
+        "dead_end_share": 0.03170028818443804,
+        "four_way_share": 0.315850144092219,
+        "mean_node_degree": 4.5210374639769455,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.069885613694685,
+        "orientation_order": 0.9032069673679143
+      },
+      "passed": false,
+      "realised_fraction": 0.2,
+      "requested_fraction": 0.2,
+      "seed": 44,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 6732,
+      "metrics": {
+        "circuity": 1.0474999217306635,
+        "dead_end_share": 0.12173358827278521,
+        "four_way_share": 0.2198852772466539,
+        "mean_node_degree": 3.797323135755258,
+        "median_segment_length_m": 98.18904725069898,
+        "orientation_entropy": 2.1359476647690014,
+        "orientation_order": 0.8835948963215331
+      },
+      "passed": true,
+      "realised_fraction": 0.35,
+      "requested_fraction": 0.35,
+      "seed": 44,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5176,
+      "metrics": {
+        "circuity": 1.1217750273130116,
+        "dead_end_share": 0.32554744525547447,
+        "four_way_share": 0.17956204379562044,
+        "mean_node_degree": 2.9226277372262772,
+        "median_segment_length_m": 98.19610430154545,
+        "orientation_entropy": 2.2776644724759323,
+        "orientation_order": 0.8354237210486607
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 44,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 4144,
+      "metrics": {
+        "circuity": 1.1798915815349362,
+        "dead_end_share": 0.5280122793553338,
+        "four_way_share": 0.12356101304681504,
+        "mean_node_degree": 2.178050652340752,
+        "median_segment_length_m": 98.19610430154549,
+        "orientation_entropy": 2.418474934017366,
+        "orientation_order": 0.7793202592532
+      },
+      "passed": false,
+      "realised_fraction": 0.6,
+      "requested_fraction": 0.6,
+      "seed": 44,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 10254,
+      "metrics": {
+        "circuity": 1.002813484859868,
+        "dead_end_share": 0.0005277044854881266,
+        "four_way_share": 0.6105540897097625,
+        "mean_node_degree": 5.351978891820581,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.0334870168443144,
+        "orientation_order": 0.9132402555486615
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 53,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 8206,
+      "metrics": {
+        "circuity": 1.0197087936466285,
+        "dead_end_share": 0.038505747126436785,
+        "four_way_share": 0.31091954022988505,
+        "mean_node_degree": 4.4735632183908045,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0707676525724805,
+        "orientation_order": 0.9029570218121484
+      },
+      "passed": false,
+      "realised_fraction": 0.19988172678888233,
+      "requested_fraction": 0.2,
+      "seed": 53,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 6670,
+      "metrics": {
+        "circuity": 1.0516762492808793,
+        "dead_end_share": 0.1332033788174139,
+        "four_way_share": 0.2508122157244964,
+        "mean_node_degree": 3.798570500324886,
+        "median_segment_length_m": 98.18904725069898,
+        "orientation_entropy": 2.1662421612491376,
+        "orientation_order": 0.8739966248206346
+      },
+      "passed": true,
+      "realised_fraction": 0.3498915828898088,
+      "requested_fraction": 0.35,
+      "seed": 53,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5128,
+      "metrics": {
+        "circuity": 1.1042048492948133,
+        "dead_end_share": 0.32568149210903874,
+        "four_way_share": 0.17288378766140602,
+        "mean_node_degree": 2.87948350071736,
+        "median_segment_length_m": 98.1961043015454,
+        "orientation_entropy": 2.269787382969782,
+        "orientation_order": 0.838319608989112
+      },
+      "passed": true,
+      "realised_fraction": 0.49990143899073525,
+      "requested_fraction": 0.5,
+      "seed": 53,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 4110,
+      "metrics": {
+        "circuity": 1.166745539123483,
+        "dead_end_share": 0.5289256198347108,
+        "four_way_share": 0.11344853493613824,
+        "mean_node_degree": 2.1562734785875284,
+        "median_segment_length_m": 98.1961043015454,
+        "orientation_entropy": 2.4226185301228362,
+        "orientation_order": 0.7775449049360392
+      },
+      "passed": false,
+      "realised_fraction": 0.5998423023851764,
+      "requested_fraction": 0.6,
+      "seed": 53,
+      "style_id": "polycentric_tod"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 7578,
+      "metrics": {
+        "circuity": 1.003962103127242,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5923875432525951,
+        "mean_node_degree": 5.159861591695502,
+        "median_segment_length_m": 98.18904725069905,
+        "orientation_entropy": 2.1205757806702716,
+        "orientation_order": 0.888319800463243
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 17,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 6066,
+      "metrics": {
+        "circuity": 1.023498369435409,
+        "dead_end_share": 0.047619047619047616,
+        "four_way_share": 0.3010752688172043,
+        "mean_node_degree": 4.345622119815668,
+        "median_segment_length_m": 98.18904725069912,
+        "orientation_entropy": 2.150435328645168,
+        "orientation_order": 0.8790521726251483
+      },
+      "passed": false,
+      "realised_fraction": 0.19978717744080873,
+      "requested_fraction": 0.2,
+      "seed": 17,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4926,
+      "metrics": {
+        "circuity": 1.0657069569407411,
+        "dead_end_share": 0.1456140350877193,
+        "four_way_share": 0.24561403508771928,
+        "mean_node_degree": 3.6789473684210527,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.235992201516483,
+        "orientation_order": 0.8504521642140207
+      },
+      "passed": true,
+      "realised_fraction": 0.34982708167065707,
+      "requested_fraction": 0.35,
+      "seed": 17,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3792,
+      "metrics": {
+        "circuity": 1.1419356392157172,
+        "dead_end_share": 0.35777998017839446,
+        "four_way_share": 0.17641228939544104,
+        "mean_node_degree": 2.7730426164519324,
+        "median_segment_length_m": 138.58000000000004,
+        "orientation_entropy": 2.3469477786370048,
+        "orientation_order": 0.8088454817579867
+      },
+      "passed": false,
+      "realised_fraction": 0.49986698590050543,
+      "requested_fraction": 0.5,
+      "seed": 17,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share",
+        "four_way_share"
+      ],
+      "link_count": 3040,
+      "metrics": {
+        "circuity": 1.1893891654030038,
+        "dead_end_share": 0.5721757322175732,
+        "four_way_share": 0.09518828451882845,
+        "mean_node_degree": 2.0292887029288704,
+        "median_segment_length_m": 138.58000000000015,
+        "orientation_entropy": 2.5398205083390173,
+        "orientation_order": 0.7243830071690942
+      },
+      "passed": false,
+      "realised_fraction": 0.5996275605214153,
+      "requested_fraction": 0.6,
+      "seed": 17,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 7364,
+      "metrics": {
+        "circuity": 1.0034740665657675,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.581033262561925,
+        "mean_node_degree": 5.140835102618542,
+        "median_segment_length_m": 98.18904725069909,
+        "orientation_entropy": 2.11138685796803,
+        "orientation_order": 0.8910974809093211
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 29,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 5890,
+      "metrics": {
+        "circuity": 1.0233457090512075,
+        "dead_end_share": 0.028951486697965573,
+        "four_way_share": 0.3333333333333333,
+        "mean_node_degree": 4.31924882629108,
+        "median_segment_length_m": 98.19610430154543,
+        "orientation_entropy": 2.1551366137970915,
+        "orientation_order": 0.8775593606908239
+      },
+      "passed": false,
+      "realised_fraction": 0.19994514536478333,
+      "requested_fraction": 0.2,
+      "seed": 29,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4784,
+      "metrics": {
+        "circuity": 1.0611954424804197,
+        "dead_end_share": 0.13178984861976847,
+        "four_way_share": 0.25022261798753337,
+        "mean_node_degree": 3.6544968833481746,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.230997560359755,
+        "orientation_order": 0.8522051225915799
+      },
+      "passed": true,
+      "realised_fraction": 0.3499725726823917,
+      "requested_fraction": 0.35,
+      "seed": 29,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3682,
+      "metrics": {
+        "circuity": 1.116994884177452,
+        "dead_end_share": 0.35445544554455444,
+        "four_way_share": 0.15841584158415842,
+        "mean_node_degree": 2.7485148514851487,
+        "median_segment_length_m": 138.58000000000004,
+        "orientation_entropy": 2.361228018966442,
+        "orientation_order": 0.8031201674505497
+      },
+      "passed": false,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 29,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share",
+        "four_way_share"
+      ],
+      "link_count": 2950,
+      "metrics": {
+        "circuity": 1.1671629810516282,
+        "dead_end_share": 0.5736842105263158,
+        "four_way_share": 0.11052631578947368,
+        "mean_node_degree": 2.0252631578947367,
+        "median_segment_length_m": 138.58999999999992,
+        "orientation_entropy": 2.530547785747854,
+        "orientation_order": 0.7287963405487912
+      },
+      "passed": false,
+      "realised_fraction": 0.5990126165660998,
+      "requested_fraction": 0.6,
+      "seed": 29,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 7198,
+      "metrics": {
+        "circuity": 1.0024510118293322,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5869252873563219,
+        "mean_node_degree": 5.1048850574712645,
+        "median_segment_length_m": 98.18904725069909,
+        "orientation_entropy": 2.1155425403495354,
+        "orientation_order": 0.8898456098442402
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 41,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 5754,
+      "metrics": {
+        "circuity": 1.0256073041696894,
+        "dead_end_share": 0.03946329913180742,
+        "four_way_share": 0.31333859510655093,
+        "mean_node_degree": 4.271507498026835,
+        "median_segment_length_m": 98.19610430154543,
+        "orientation_entropy": 2.136181173993829,
+        "orientation_order": 0.8835223670635496
+      },
+      "passed": false,
+      "realised_fraction": 0.19988770353733856,
+      "requested_fraction": 0.2,
+      "seed": 41,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4674,
+      "metrics": {
+        "circuity": 1.0731014221683532,
+        "dead_end_share": 0.13619744058500913,
+        "four_way_share": 0.2659963436928702,
+        "mean_node_degree": 3.643510054844607,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.209835084377295,
+        "orientation_order": 0.8595178120857083
+      },
+      "passed": true,
+      "realised_fraction": 0.3498034811903425,
+      "requested_fraction": 0.35,
+      "seed": 41,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3600,
+      "metrics": {
+        "circuity": 1.1372055524556066,
+        "dead_end_share": 0.3538306451612903,
+        "four_way_share": 0.16330645161290322,
+        "mean_node_degree": 2.7298387096774195,
+        "median_segment_length_m": 138.58000000000004,
+        "orientation_entropy": 2.34166407698925,
+        "orientation_order": 0.8109424417197805
+      },
+      "passed": false,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 41,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share",
+        "four_way_share"
+      ],
+      "link_count": 2908,
+      "metrics": {
+        "circuity": 1.198814178889639,
+        "dead_end_share": 0.5678610206297503,
+        "four_way_share": 0.10206297502714441,
+        "mean_node_degree": 2.034744842562432,
+        "median_segment_length_m": 138.58000000000015,
+        "orientation_entropy": 2.5443367171584157,
+        "orientation_order": 0.7222206278142067
+      },
+      "passed": false,
+      "realised_fraction": 0.5965749578888265,
+      "requested_fraction": 0.6,
+      "seed": 41,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 7214,
+      "metrics": {
+        "circuity": 1.0029599145154433,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5864553314121037,
+        "mean_node_degree": 5.136887608069165,
+        "median_segment_length_m": 98.18904725069912,
+        "orientation_entropy": 2.109413326442585,
+        "orientation_order": 0.8916894883323567
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 44,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 5776,
+      "metrics": {
+        "circuity": 1.025796876582867,
+        "dead_end_share": 0.03269537480063796,
+        "four_way_share": 0.3157894736842105,
+        "mean_node_degree": 4.3253588516746415,
+        "median_segment_length_m": 98.19610430154545,
+        "orientation_entropy": 2.1408271649733863,
+        "orientation_order": 0.8820746007959355
+      },
+      "passed": false,
+      "realised_fraction": 0.1999435984207558,
+      "requested_fraction": 0.2,
+      "seed": 44,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4702,
+      "metrics": {
+        "circuity": 1.0627253128615515,
+        "dead_end_share": 0.1284153005464481,
+        "four_way_share": 0.26958105646630237,
+        "mean_node_degree": 3.6775956284153004,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.205150295427985,
+        "orientation_order": 0.8611115583752296
+      },
+      "passed": true,
+      "realised_fraction": 0.3499717992103779,
+      "requested_fraction": 0.35,
+      "seed": 44,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 3614,
+      "metrics": {
+        "circuity": 1.1326263602014972,
+        "dead_end_share": 0.34368530020703936,
+        "four_way_share": 0.18012422360248448,
+        "mean_node_degree": 2.780538302277433,
+        "median_segment_length_m": 138.58000000000004,
+        "orientation_entropy": 2.3332542920598316,
+        "orientation_order": 0.8142562071966055
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 44,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share",
+        "four_way_share"
+      ],
+      "link_count": 2920,
+      "metrics": {
+        "circuity": 1.1844347548839556,
+        "dead_end_share": 0.5560538116591929,
+        "four_way_share": 0.10538116591928251,
+        "mean_node_degree": 2.0672645739910314,
+        "median_segment_length_m": 138.58999999999992,
+        "orientation_entropy": 2.5906674970042456,
+        "orientation_order": 0.699549297953877
+      },
+      "passed": false,
+      "realised_fraction": 0.5970107163000564,
+      "requested_fraction": 0.6,
+      "seed": 44,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 7166,
+      "metrics": {
+        "circuity": 1.0023110455016662,
+        "dead_end_share": 0.0007183908045977011,
+        "four_way_share": 0.5783045977011494,
+        "mean_node_degree": 5.079022988505747,
+        "median_segment_length_m": 98.1961043015454,
+        "orientation_entropy": 2.134204458586676,
+        "orientation_order": 0.8841356320659617
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 53,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 5736,
+      "metrics": {
+        "circuity": 1.030066179436942,
+        "dead_end_share": 0.03571428571428571,
+        "four_way_share": 0.31587301587301586,
+        "mean_node_degree": 4.266666666666667,
+        "median_segment_length_m": 98.19610430154546,
+        "orientation_entropy": 2.160251119195234,
+        "orientation_order": 0.8759249390779518
+      },
+      "passed": false,
+      "realised_fraction": 0.1999435984207558,
+      "requested_fraction": 0.2,
+      "seed": 53,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4662,
+      "metrics": {
+        "circuity": 1.07965248783061,
+        "dead_end_share": 0.13247470101195952,
+        "four_way_share": 0.25666973321067155,
+        "mean_node_degree": 3.639374425022999,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.2346308836157998,
+        "orientation_order": 0.85093096751251
+      },
+      "passed": true,
+      "realised_fraction": 0.3499717992103779,
+      "requested_fraction": 0.35,
+      "seed": 53,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3586,
+      "metrics": {
+        "circuity": 1.1458150771798497,
+        "dead_end_share": 0.35670103092783506,
+        "four_way_share": 0.18865979381443299,
+        "mean_node_degree": 2.727835051546392,
+        "median_segment_length_m": 138.58000000000004,
+        "orientation_entropy": 2.373086084267759,
+        "orientation_order": 0.798301764099131
+      },
+      "passed": false,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 53,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share",
+        "four_way_share"
+      ],
+      "link_count": 2916,
+      "metrics": {
+        "circuity": 1.2049929163699997,
+        "dead_end_share": 0.5631284916201117,
+        "four_way_share": 0.10837988826815642,
+        "mean_node_degree": 2.040223463687151,
+        "median_segment_length_m": 138.58999999999992,
+        "orientation_entropy": 2.6267232339246105,
+        "orientation_order": 0.6812906265208435
+      },
+      "passed": false,
+      "realised_fraction": 0.5941906373378455,
+      "requested_fraction": 0.6,
+      "seed": 53,
+      "style_id": "river_constrained"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 10512,
+      "metrics": {
+        "circuity": 1.0037565200972531,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.6198050282195998,
+        "mean_node_degree": 5.343252950230887,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.016614430029496,
+        "orientation_order": 0.9177050144268892
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 17,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 8400,
+      "metrics": {
+        "circuity": 1.0204517466777254,
+        "dead_end_share": 0.04145371947756956,
+        "four_way_share": 0.33617262918796137,
+        "mean_node_degree": 4.500851788756388,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0671338372628894,
+        "orientation_order": 0.9039846738915555
+      },
+      "passed": false,
+      "realised_fraction": 0.2,
+      "requested_fraction": 0.2,
+      "seed": 17,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 6824,
+      "metrics": {
+        "circuity": 1.0495924402736398,
+        "dead_end_share": 0.1390644753476612,
+        "four_way_share": 0.22187104930467763,
+        "mean_node_degree": 3.7876106194690267,
+        "median_segment_length_m": 98.18904725069899,
+        "orientation_entropy": 2.1372096189828507,
+        "orientation_order": 0.883202657527505
+      },
+      "passed": true,
+      "realised_fraction": 0.3498559077809798,
+      "requested_fraction": 0.35,
+      "seed": 17,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5252,
+      "metrics": {
+        "circuity": 1.0979542197177306,
+        "dead_end_share": 0.33849401829697395,
+        "four_way_share": 0.1717100633356791,
+        "mean_node_degree": 2.883884588318086,
+        "median_segment_length_m": 98.19610430154545,
+        "orientation_entropy": 2.2723797268096257,
+        "orientation_order": 0.8373694122987377
+      },
+      "passed": true,
+      "realised_fraction": 0.49990393852065323,
+      "requested_fraction": 0.5,
+      "seed": 17,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 4206,
+      "metrics": {
+        "circuity": 1.1612644294620136,
+        "dead_end_share": 0.5436598329536826,
+        "four_way_share": 0.13059984813971146,
+        "mean_node_degree": 2.1594533029612757,
+        "median_segment_length_m": 98.19610430154549,
+        "orientation_entropy": 2.4462911036681976,
+        "orientation_order": 0.7672658226043462
+      },
+      "passed": false,
+      "realised_fraction": 0.6,
+      "requested_fraction": 0.6,
+      "seed": 17,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 10486,
+      "metrics": {
+        "circuity": 1.003188514387475,
+        "dead_end_share": 0.0010188487009679063,
+        "four_way_share": 0.6235354049923586,
+        "mean_node_degree": 5.302088639836985,
+        "median_segment_length_m": 98.18904725069892,
+        "orientation_entropy": 2.0076305296962107,
+        "orientation_order": 0.9200341839390652
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 29,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 8386,
+      "metrics": {
+        "circuity": 1.0219825576093764,
+        "dead_end_share": 0.02649379932356257,
+        "four_way_share": 0.30665163472378804,
+        "mean_node_degree": 4.470124013528749,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0515989848939724,
+        "orientation_order": 0.9083162882635132
+      },
+      "passed": false,
+      "realised_fraction": 0.19988412514484358,
+      "requested_fraction": 0.2,
+      "seed": 29,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 6810,
+      "metrics": {
+        "circuity": 1.0606366011332047,
+        "dead_end_share": 0.11656843483955469,
+        "four_way_share": 0.21676489849377864,
+        "mean_node_degree": 3.8375900458415195,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.160563898694997,
+        "orientation_order": 0.8758246337912338
+      },
+      "passed": true,
+      "realised_fraction": 0.3499420625724218,
+      "requested_fraction": 0.35,
+      "seed": 29,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5246,
+      "metrics": {
+        "circuity": 1.119217765267474,
+        "dead_end_share": 0.3376251788268956,
+        "four_way_share": 0.17525035765379113,
+        "mean_node_degree": 2.888412017167382,
+        "median_segment_length_m": 98.19610430154545,
+        "orientation_entropy": 2.248588732007135,
+        "orientation_order": 0.8459852888967172
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 29,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 4204,
+      "metrics": {
+        "circuity": 1.1612568979771467,
+        "dead_end_share": 0.543026706231454,
+        "four_way_share": 0.11350148367952523,
+        "mean_node_degree": 2.148367952522255,
+        "median_segment_length_m": 98.19610430154545,
+        "orientation_entropy": 2.432056341200012,
+        "orientation_order": 0.7734746550001553
+      },
+      "passed": false,
+      "realised_fraction": 0.5998455001931248,
+      "requested_fraction": 0.6,
+      "seed": 29,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 11266,
+      "metrics": {
+        "circuity": 1.0005933814451347,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5235414534288638,
+        "mean_node_degree": 5.750255885363357,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.045649567517683,
+        "orientation_order": 0.9099487007488744
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 41,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 9004,
+      "metrics": {
+        "circuity": 1.0141756444043226,
+        "dead_end_share": 0.02273987798114254,
+        "four_way_share": 0.2872989462007765,
+        "mean_node_degree": 4.809761508596783,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0788795308452936,
+        "orientation_order": 0.9006432266612535
+      },
+      "passed": false,
+      "realised_fraction": 0.19992808342322904,
+      "requested_fraction": 0.2,
+      "seed": 41,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 7306,
+      "metrics": {
+        "circuity": 1.0397900535475098,
+        "dead_end_share": 0.09461152882205513,
+        "four_way_share": 0.23934837092731828,
+        "mean_node_degree": 4.110275689223058,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.1253444617539707,
+        "orientation_order": 0.8868645093990726
+      },
+      "passed": true,
+      "realised_fraction": 0.34987414599065086,
+      "requested_fraction": 0.35,
+      "seed": 41,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5618,
+      "metrics": {
+        "circuity": 1.0854660643303429,
+        "dead_end_share": 0.2635228848821082,
+        "four_way_share": 0.19833564493758668,
+        "mean_node_degree": 3.1650485436893203,
+        "median_segment_length_m": 104.34999999999994,
+        "orientation_entropy": 2.246667477220944,
+        "orientation_order": 0.8466708363518812
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 41,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 4492,
+      "metrics": {
+        "circuity": 1.144151256755214,
+        "dead_end_share": 0.46661828737300437,
+        "four_way_share": 0.14586357039187228,
+        "mean_node_degree": 2.402031930333817,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.362625601557806,
+        "orientation_order": 0.8025553022529471
+      },
+      "passed": false,
+      "realised_fraction": 0.5999640417116145,
+      "requested_fraction": 0.6,
+      "seed": 41,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 11430,
+      "metrics": {
+        "circuity": 1.0006160283473229,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5293822199899548,
+        "mean_node_degree": 5.714716223003516,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0533553290060955,
+        "orientation_order": 0.9078315758734108
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 44,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 9144,
+      "metrics": {
+        "circuity": 1.014914856939813,
+        "dead_end_share": 0.018609742747673783,
+        "four_way_share": 0.28188286808976465,
+        "mean_node_degree": 4.796934865900383,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0840315650483996,
+        "orientation_order": 0.8991595292028319
+      },
+      "passed": false,
+      "realised_fraction": 0.19996470172961525,
+      "requested_fraction": 0.2,
+      "seed": 44,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 7434,
+      "metrics": {
+        "circuity": 1.0449868375634384,
+        "dead_end_share": 0.096,
+        "four_way_share": 0.232,
+        "mean_node_degree": 4.092307692307692,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.1391549932602696,
+        "orientation_order": 0.8825967066898148
+      },
+      "passed": true,
+      "realised_fraction": 0.3499823508648076,
+      "requested_fraction": 0.35,
+      "seed": 44,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5720,
+      "metrics": {
+        "circuity": 1.0878970530047158,
+        "dead_end_share": 0.28010825439783493,
+        "four_way_share": 0.2029769959404601,
+        "mean_node_degree": 3.1407307171853858,
+        "median_segment_length_m": 103.93000000000006,
+        "orientation_entropy": 2.2436970242497285,
+        "orientation_order": 0.8477277518331836
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 44,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 4580,
+      "metrics": {
+        "circuity": 1.1424002826337234,
+        "dead_end_share": 0.4760885082084226,
+        "four_way_share": 0.1470378301213419,
+        "mean_node_degree": 2.3897216274089934,
+        "median_segment_length_m": 135.77952362534944,
+        "orientation_entropy": 2.402372233231713,
+        "orientation_order": 0.7861520503940339
+      },
+      "passed": false,
+      "realised_fraction": 0.5998941051888458,
+      "requested_fraction": 0.6,
+      "seed": 44,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 11362,
+      "metrics": {
+        "circuity": 1.0005076497145573,
+        "dead_end_share": 0.0,
+        "four_way_share": 0.5297979797979798,
+        "mean_node_degree": 5.715151515151515,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0560595461388886,
+        "orientation_order": 0.9070827728370715
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 53,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 9098,
+      "metrics": {
+        "circuity": 1.013623011425823,
+        "dead_end_share": 0.025288620120945574,
+        "four_way_share": 0.29851566794942275,
+        "mean_node_degree": 4.7993402968664105,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.077587876823343,
+        "orientation_order": 0.9010134768806004
+      },
+      "passed": false,
+      "realised_fraction": 0.19985775248933144,
+      "requested_fraction": 0.2,
+      "seed": 53,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 7398,
+      "metrics": {
+        "circuity": 1.038535675132104,
+        "dead_end_share": 0.09715346534653466,
+        "four_way_share": 0.23391089108910892,
+        "mean_node_degree": 4.099009900990099,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.1428457513934265,
+        "orientation_order": 0.8814427898965441
+      },
+      "passed": true,
+      "realised_fraction": 0.34992887624466573,
+      "requested_fraction": 0.35,
+      "seed": 53,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5690,
+      "metrics": {
+        "circuity": 1.0820270345310066,
+        "dead_end_share": 0.2839756592292089,
+        "four_way_share": 0.18187964841108858,
+        "mean_node_degree": 3.138607167004733,
+        "median_segment_length_m": 98.19610430154545,
+        "orientation_entropy": 2.236979909654115,
+        "orientation_order": 0.8501042865147826
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 53,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 4552,
+      "metrics": {
+        "circuity": 1.1499031781401,
+        "dead_end_share": 0.475254730713246,
+        "four_way_share": 0.14410480349344978,
+        "mean_node_degree": 2.3973799126637556,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.3761300435091512,
+        "orientation_order": 0.7970554866149068
+      },
+      "passed": false,
+      "realised_fraction": 0.5999288762446657,
+      "requested_fraction": 0.6,
+      "seed": 53,
+      "style_id": "superblock_mixed"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 8664,
+      "metrics": {
+        "circuity": 1.0008774133640665,
+        "dead_end_share": 0.0012690355329949238,
+        "four_way_share": 0.524746192893401,
+        "mean_node_degree": 5.450507614213198,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.063837433125273,
+        "orientation_order": 0.9049121733131482
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 17,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 6922,
+      "metrics": {
+        "circuity": 1.016148968127182,
+        "dead_end_share": 0.02146814404432133,
+        "four_way_share": 0.29986149584487537,
+        "mean_node_degree": 4.5595567867036015,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0980163349193686,
+        "orientation_order": 0.8950767214613636
+      },
+      "passed": false,
+      "realised_fraction": 0.1999532273152479,
+      "requested_fraction": 0.2,
+      "seed": 17,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5622,
+      "metrics": {
+        "circuity": 1.0457596996101064,
+        "dead_end_share": 0.10304449648711944,
+        "four_way_share": 0.2505854800936768,
+        "mean_node_degree": 3.870413739266198,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.1717146156783533,
+        "orientation_order": 0.8722222321946073
+      },
+      "passed": true,
+      "realised_fraction": 0.3498596819457437,
+      "requested_fraction": 0.35,
+      "seed": 17,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4328,
+      "metrics": {
+        "circuity": 1.1073099081868447,
+        "dead_end_share": 0.3006189213085765,
+        "four_way_share": 0.1839080459770115,
+        "mean_node_degree": 2.9743589743589745,
+        "median_segment_length_m": 98.19610430154549,
+        "orientation_entropy": 2.2931704756789935,
+        "orientation_order": 0.8296480808508846
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 17,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3472,
+      "metrics": {
+        "circuity": 1.172011087538161,
+        "dead_end_share": 0.5131578947368421,
+        "four_way_share": 0.12406015037593984,
+        "mean_node_degree": 2.231203007518797,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.4348149203475447,
+        "orientation_order": 0.7722779921068698
+      },
+      "passed": false,
+      "realised_fraction": 0.5998596819457437,
+      "requested_fraction": 0.6,
+      "seed": 17,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 8522,
+      "metrics": {
+        "circuity": 1.0013584975355456,
+        "dead_end_share": 0.001913265306122449,
+        "four_way_share": 0.5338010204081632,
+        "mean_node_degree": 5.394132653061225,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0573435124709714,
+        "orientation_order": 0.9067261793684641
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 29,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 6820,
+      "metrics": {
+        "circuity": 1.0195821306505355,
+        "dead_end_share": 0.03169014084507042,
+        "four_way_share": 0.2964788732394366,
+        "mean_node_degree": 4.549295774647887,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0846540314646136,
+        "orientation_order": 0.8989795250257225
+      },
+      "passed": false,
+      "realised_fraction": 0.19980947844724933,
+      "requested_fraction": 0.2,
+      "seed": 29,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5546,
+      "metrics": {
+        "circuity": 1.0496351970409927,
+        "dead_end_share": 0.1104,
+        "four_way_share": 0.24,
+        "mean_node_degree": 3.8768,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.181794483432237,
+        "orientation_order": 0.8689214570902588
+      },
+      "passed": true,
+      "realised_fraction": 0.3498452012383901,
+      "requested_fraction": 0.35,
+      "seed": 29,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4274,
+      "metrics": {
+        "circuity": 1.1073168140967848,
+        "dead_end_share": 0.306948109058927,
+        "four_way_share": 0.19261213720316622,
+        "mean_node_degree": 2.944591029023747,
+        "median_segment_length_m": 98.1961043015454,
+        "orientation_entropy": 2.319253323625344,
+        "orientation_order": 0.8197081123601854
+      },
+      "passed": true,
+      "realised_fraction": 0.4998809240295308,
+      "requested_fraction": 0.5,
+      "seed": 29,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3420,
+      "metrics": {
+        "circuity": 1.1743880313159871,
+        "dead_end_share": 0.5224299065420561,
+        "four_way_share": 0.1280373831775701,
+        "mean_node_degree": 2.205607476635514,
+        "median_segment_length_m": 125.60824991130758,
+        "orientation_entropy": 2.493974161044363,
+        "orientation_order": 0.7458561672867532
+      },
+      "passed": false,
+      "realised_fraction": 0.5999047392236246,
+      "requested_fraction": 0.6,
+      "seed": 29,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 8540,
+      "metrics": {
+        "circuity": 1.001068868613578,
+        "dead_end_share": 0.0019292604501607716,
+        "four_way_share": 0.5318327974276528,
+        "mean_node_degree": 5.452090032154341,
+        "median_segment_length_m": 98.18904725069895,
+        "orientation_entropy": 2.0776545435329137,
+        "orientation_order": 0.900994383908254
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 41,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 6838,
+      "metrics": {
+        "circuity": 1.017603149496414,
+        "dead_end_share": 0.026685393258426966,
+        "four_way_share": 0.30547752808988765,
+        "mean_node_degree": 4.574438202247191,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.111128843967927,
+        "orientation_order": 0.8911749699896457
+      },
+      "passed": false,
+      "realised_fraction": 0.19990525817148272,
+      "requested_fraction": 0.2,
+      "seed": 41,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5550,
+      "metrics": {
+        "circuity": 1.049927422768012,
+        "dead_end_share": 0.10270700636942676,
+        "four_way_share": 0.25477707006369427,
+        "mean_node_degree": 3.893312101910828,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.1623493662760445,
+        "orientation_order": 0.8752512760310833
+      },
+      "passed": true,
+      "realised_fraction": 0.3498342018000947,
+      "requested_fraction": 0.35,
+      "seed": 41,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4272,
+      "metrics": {
+        "circuity": 1.1051728114121018,
+        "dead_end_share": 0.3052351375332742,
+        "four_way_share": 0.1898846495119787,
+        "mean_node_degree": 2.9760425909494232,
+        "median_segment_length_m": 98.19610430154549,
+        "orientation_entropy": 2.3151561963514227,
+        "orientation_order": 0.821288153649675
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 41,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3422,
+      "metrics": {
+        "circuity": 1.1549343705346138,
+        "dead_end_share": 0.5155513666352498,
+        "four_way_share": 0.1291234684260132,
+        "mean_node_degree": 2.235626767200754,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.4656311282778187,
+        "orientation_order": 0.7586957081941125
+      },
+      "passed": false,
+      "realised_fraction": 0.5999526290857413,
+      "requested_fraction": 0.6,
+      "seed": 41,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 8320,
+      "metrics": {
+        "circuity": 1.001192277695413,
+        "dead_end_share": 0.0013245033112582781,
+        "four_way_share": 0.5231788079470199,
+        "mean_node_degree": 5.467549668874172,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0795250157741543,
+        "orientation_order": 0.9004579406098426
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 44,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 6670,
+      "metrics": {
+        "circuity": 1.0174616500291946,
+        "dead_end_share": 0.02586206896551724,
+        "four_way_share": 0.3067528735632184,
+        "mean_node_degree": 4.5761494252873565,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.1149880361561695,
+        "orientation_order": 0.8900130640817685
+      },
+      "passed": false,
+      "realised_fraction": 0.19985376553741166,
+      "requested_fraction": 0.2,
+      "seed": 44,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5416,
+      "metrics": {
+        "circuity": 1.0494547800085574,
+        "dead_end_share": 0.11717495987158909,
+        "four_way_share": 0.26163723916532905,
+        "mean_node_degree": 3.871589085072231,
+        "median_segment_length_m": 98.189047250699,
+        "orientation_entropy": 2.1677566105019492,
+        "orientation_order": 0.8735068202887961
+      },
+      "passed": true,
+      "realised_fraction": 0.34998781379478433,
+      "requested_fraction": 0.35,
+      "seed": 44,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 4164,
+      "metrics": {
+        "circuity": 1.1102363441729888,
+        "dead_end_share": 0.3112701252236136,
+        "four_way_share": 0.18962432915921287,
+        "mean_node_degree": 2.966010733452594,
+        "median_segment_length_m": 98.19610430154549,
+        "orientation_entropy": 2.2724853052676233,
+        "orientation_order": 0.8373306546117905
+      },
+      "passed": true,
+      "realised_fraction": 0.499878137947843,
+      "requested_fraction": 0.5,
+      "seed": 44,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3330,
+      "metrics": {
+        "circuity": 1.1714740840207627,
+        "dead_end_share": 0.5090735434574976,
+        "four_way_share": 0.11843361986628462,
+        "mean_node_degree": 2.2349570200573066,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.423859454392009,
+        "orientation_order": 0.7770118377557582
+      },
+      "passed": false,
+      "realised_fraction": 0.5998050207165488,
+      "requested_fraction": 0.6,
+      "seed": 44,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree",
+        "dead_end_share"
+      ],
+      "link_count": 7926,
+      "metrics": {
+        "circuity": 1.0012278363746503,
+        "dead_end_share": 0.001397624039133473,
+        "four_way_share": 0.5129280223619846,
+        "mean_node_degree": 5.49685534591195,
+        "median_segment_length_m": 98.18904725069896,
+        "orientation_entropy": 2.0853505744774044,
+        "orientation_order": 0.8987779091535194
+      },
+      "passed": false,
+      "realised_fraction": 0.0,
+      "requested_fraction": 0.0,
+      "seed": 53,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "mean_node_degree"
+      ],
+      "link_count": 6348,
+      "metrics": {
+        "circuity": 1.0168391947638498,
+        "dead_end_share": 0.02212051868802441,
+        "four_way_share": 0.30739893211289093,
+        "mean_node_degree": 4.613272311212815,
+        "median_segment_length_m": 98.18904725069898,
+        "orientation_entropy": 2.1172432290960335,
+        "orientation_order": 0.8893312258962685
+      },
+      "passed": false,
+      "realised_fraction": 0.19984607491021036,
+      "requested_fraction": 0.2,
+      "seed": 53,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 5152,
+      "metrics": {
+        "circuity": 1.0497392521091335,
+        "dead_end_share": 0.10371650821089023,
+        "four_way_share": 0.2480553154710458,
+        "mean_node_degree": 3.927398444252377,
+        "median_segment_length_m": 98.18904725069909,
+        "orientation_entropy": 2.173729810390785,
+        "orientation_order": 0.8715656985298281
+      },
+      "passed": true,
+      "realised_fraction": 0.34992303745510517,
+      "requested_fraction": 0.35,
+      "seed": 53,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [],
+      "link_count": 3970,
+      "metrics": {
+        "circuity": 1.1105630635035866,
+        "dead_end_share": 0.3017241379310345,
+        "four_way_share": 0.21264367816091953,
+        "mean_node_degree": 3.003831417624521,
+        "median_segment_length_m": 138.57999999999993,
+        "orientation_entropy": 2.2439862711722944,
+        "orientation_order": 0.8476249956597021
+      },
+      "passed": true,
+      "realised_fraction": 0.5,
+      "requested_fraction": 0.5,
+      "seed": 53,
+      "style_id": "organic"
+    },
+    {
+      "failed_metrics": [
+        "dead_end_share"
+      ],
+      "link_count": 3180,
+      "metrics": {
+        "circuity": 1.1660322087494221,
+        "dead_end_share": 0.5080482897384306,
+        "four_way_share": 0.13279678068410464,
+        "mean_node_degree": 2.2595573440643864,
+        "median_segment_length_m": 138.57999999999998,
+        "orientation_entropy": 2.3753032066757385,
+        "orientation_order": 0.7973943952175955
+      },
+      "passed": false,
+      "realised_fraction": 0.5997947665469472,
+      "requested_fraction": 0.6,
+      "seed": 53,
+      "style_id": "organic"
+    }
+  ],
+  "schema_version": "morphology_null_operator_control_v1",
+  "stage": "S0",
+  "summary": {
+    "p=0.0": {
+      "passed": 0,
+      "total": 30
+    },
+    "p=0.2": {
+      "passed": 0,
+      "total": 30
+    },
+    "p=0.35": {
+      "passed": 30,
+      "total": 30
+    },
+    "p=0.5": {
+      "passed": 26,
+      "total": 30
+    },
+    "p=0.6": {
+      "passed": 0,
+      "total": 30
+    }
+  }
+}
