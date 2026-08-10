@@ -310,10 +310,12 @@ flowchart TD
     PR75 --> PR76[PR76 stable capture C plan]
     PR76 --> PR77[PR77 stable capture C integration]
     PR77 --> PR78[PR78 performance evidence]
-    PR78 --> PR79[PR79 G5 docs-first contract]
+    PR77 --> PR79[PR79 G5 docs-first contract]
+    PR78 --> PR80[PR80 G5 instrumentation]
     PR79 --> PR80[PR80 G5 instrumentation]
     PR80 --> PR81[PR81 H-001 capacity evidence]
     PR81 --> PR82[PR82 final closeout]
+    PR78 --> PR82[PR82 final closeout]
 ```
 
 ### PR65 Boundary
