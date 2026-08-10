@@ -294,3 +294,11 @@ Decision Card required per PR has `meta_depth: 1`, names an observable output,
 and must return immediately to a productive action when
 `META_RECURSION_BLOCKED` occurs. An M1 card is neither correctness, readiness,
 validation, performance, nor claim evidence.
+
+Round 1 clarification: the canonical city-map contract, including latest-base
+resolution, mandatory isolated worktrees, serial shared-file owners, frozen PR
+body fields, immutable `REVIEW_RECEIPT/Rn` comments, and same-frozen-head merge
+requirements, is authoritative in `CITY_MAP_PR_LIST.md`. Future DAG nodes
+create their one M1 card only when executed; the reusable template and current
+PR65 card do not authorize a future node. These review controls do not expand
+runtime acceleration authority or relax this document's baseline safeguards.
