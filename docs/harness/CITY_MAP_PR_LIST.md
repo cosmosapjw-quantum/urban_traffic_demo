@@ -275,11 +275,10 @@ but `standard` remains the default pending a new generator redesign spec.
 
 ## Scalable Map Breakthrough Execution DAG (PR65-PR82)
 
-Status: `PR65_DOCS_ONLY`; every later node is `NOT_AUTHORIZED` unless its
-listed predecessor is frozen-head green and its required review and watchdog
-findings are zero. This is an execution-contract record for the user-approved
-2026-08-10 DAG, not implementation, readiness, validation, or traffic-model
-authority.
+Status: `PR82_DOCS_ONLY_BLOCKED_CLOSEOUT`. PR65 and PR66 merged; PR67 stopped
+as `BLOCKED_SCOPE_SPLIT`; PR68 through PR81 were not reached. This remains an
+execution record for the user-approved 2026-08-10 DAG, not implementation,
+readiness, validation, or traffic-model authority.
 
 ### Global Execution Constraints
 
@@ -328,49 +327,61 @@ replay, fallback, or threshold.
 
 ### Node Queue
 
-- **PR65 — Execution contract:** `PR65_DOCS_ONLY`; record this DAG and the
-  frozen-review rules. No implementation authority is created.
-- **PR66 — S0 baseline:** `NOT_AUTHORIZED`; import only the required
-  null-operator source, tests, and JSON manifest after PR65 closes.
-- **PR67 — Scale and geometry prerequisites:** `NOT_AUTHORIZED`; import the
-  CityScaleSpec/v2 configuration and the growth-geometry fixed-point repair as
-  separate commits with separate focused gates.
-- **PR68 — Task 3 S2 topology:** `NOT_AUTHORIZED`; import reviewed topology
-  source/tests and revalidate the current seal.
-- **PR69 — Task 3B blocks/DCEL:** `NOT_AUTHORIZED`; import blocks/DCEL and
-  lazy exports while preserving the recorded performance failure.
-- **PR70 — Task 4 adapter:** `NOT_AUTHORIZED`; import the compiler adapter and
-  its import-isolation correction.
-- **PR71 — Task 5 authority:** `NOT_AUTHORIZED`; import the static-authority
-  candidate and obtain final independent review.
-- **PR72 — Oracle and admission packet:** `NOT_AUTHORIZED`; import the
-  preoptimization oracle/controller/manifest and reviewed immutable Task B
-  manifest/vector packet, then verify it in a clean clone.
-- **PR73 — Task B grammar:** `NOT_AUTHORIZED`; clean-room exact records and
-  canonical scalar/dataclass/enum/mapping grammar. The frozen Task B line caps
-  are **1,922** and **4,423**; crossing either cap is
-  `BLOCKED_SCOPE_SPLIT`, not a reason to compress or widen scope silently.
-- **PR74 — H-002 ordering:** `NOT_AUTHORIZED`; implement normalized-value
-  ordering with deterministic parity and bounded focused checks only; 1M and
-  resource gates remain reserved for PR78, PR80, and PR81.
-- **PR75 — Projection, registry, and 180 leaves:** `NOT_AUTHORIZED`; implement
-  CSR/deep projection P, linearizable registry R, and the six-style oracle.
-- **PR76 — Stable capture C plan:** `NOT_AUTHORIZED`; freeze and independently
-  review the current-hash Task 4/5 integration plan.
-- **PR77 — Stable capture C integration:** `NOT_AUTHORIZED`; implement receipt
-  registration, Task 4 admission, and Task 5 stable capture.
-- **PR78 — Performance evidence:** `NOT_AUTHORIZED`; run official isolated RSS
-  and separate wall gates twice, plus H-006 no-op.
-- **PR79 — G5 docs-first contract:** `NOT_AUTHORIZED`; freeze ownership,
-  byte/count grammar, and failure-prefix state before code.
-- **PR80 — G5 instrumentation:** `NOT_AUTHORIZED`; implement phase
-  instrumentation and rerun the PR78 resource gate.
-- **PR81 — H-001 capacity evidence:** `NOT_AUTHORIZED`; measure exclusive
-  Task 3B capacity on final G5 source without production changes, then stop
-  exploration at the frozen bound.
-- **PR82 — Final closeout:** `NOT_AUTHORIZED`; record seven independent
-  verdicts. If any predecessor is blocked, the only permitted closeout is an
-  honest docs-only `BLOCKED` closeout; it must not claim successor success.
+- **PR65 — Execution contract:** `PASS`; the docs-only execution contract
+  merged in GitHub PR #6 as `ecdccf181e60b36bd3309b2b1586174b4b9474d4`.
+- **PR66 — S0 baseline:** `PASS`; the deterministic null-operator baseline
+  merged in GitHub PR #7 as `070bac8c403c2327e27007ecc20c62371395c5d1`.
+- **PR67 — Scale and geometry prerequisites:** `BLOCKED_SCOPE_SPLIT`; GitHub
+  PR #8 closed unmerged after required frozen-head CI exposed a deterministic
+  geometry failure and a required artifact/control-table scope expansion.
+- **PR68 — Task 3 S2 topology:** `NOT_REACHED`; PR67 is blocked.
+- **PR69 — Task 3B blocks/DCEL:** `NOT_REACHED`; PR67 is blocked.
+- **PR70 — Task 4 adapter:** `NOT_REACHED`; PR67 is blocked.
+- **PR71 — Task 5 authority:** `NOT_REACHED`; PR67 is blocked.
+- **PR72 — Oracle and admission packet:** `NOT_REACHED`; PR67 is blocked.
+- **PR73 — Task B grammar:** `NOT_REACHED`; PR67 is blocked.
+- **PR74 — H-002 ordering:** `NOT_REACHED`; PR67 is blocked.
+- **PR75 — Projection, registry, and 180 leaves:** `NOT_REACHED`; PR67 is
+  blocked.
+- **PR76 — Stable capture C plan:** `NOT_REACHED`; PR67 is blocked.
+- **PR77 — Stable capture C integration:** `NOT_REACHED`; PR67 is blocked.
+- **PR78 — Performance evidence:** `NOT_REACHED`; PR67 is blocked.
+- **PR79 — G5 docs-first contract:** `NOT_REACHED`; PR67 is blocked.
+- **PR80 — G5 instrumentation:** `NOT_REACHED`; PR67 is blocked.
+- **PR81 — H-001 capacity evidence:** `NOT_REACHED`; PR67 is blocked.
+- **PR82 — Final closeout:** `BLOCKED`; this one-file docs-only closeout records
+  the dependency stop without claiming successor success.
+
+### PR82 Docs-Only Blocked Closeout
+
+The terminal chain state is `PR65=PASS`, `PR66=PASS`,
+`PR67=BLOCKED_SCOPE_SPLIT`, `PR68-PR81=NOT_REACHED`, and `PR82=BLOCKED`.
+
+PR67's frozen head `1b93dcd11b0747b205bd4723be2a02696b24c3b8`
+failed both required `audit-gallery` jobs on
+`growth_fabric_v1 / river_constrained / seed 17`. The exact local consumer was
+`PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python
+tools/render_audit_maps.py --check`. Its first three growth renders also changed
+while the frozen control-table counts no longer described their current
+topologies. PR67 forbade the artifact/control-table work needed for an honest
+repair, so its immutable
+[Round 2 receipt](https://github.com/cosmosapjw-quantum/urban_traffic_demo/pull/8#issuecomment-5236789182)
+closed it as a scope split rather than widening or masking the node.
+
+| Independent verdict | Status | Basis |
+|---|---|---|
+| Task B current-code correctness | `NOT_REACHED` | PR73 was not reached. |
+| Strict-TDD admission | `NOT_REACHED` | PR73-PR75 were not reached. |
+| H-002 memory/runtime admission | `NOT_REACHED` | PR74 was not reached. |
+| Task C readiness | `NOT_REACHED` | PR76-PR77 were not reached. |
+| Task 3B performance | `NOT_REACHED` | PR69 and PR81 were not reached. |
+| G5 authority | `NOT_REACHED` | PR79-PR80 were not reached. |
+| Traffic-algorithm readiness | `NOT_REACHED` | No traffic node exists in this DAG. |
+
+No row implies another row, and no aggregate or transitive PASS is issued.
+This closeout records only the chain disposition. It does not reclassify
+historical dirty-checkout or research evidence, authorize a PR67 retry, reopen
+PR68 or any later node, or authorize traffic-algorithm work.
 
 ### Frozen Review And Merge Contract
 
@@ -444,6 +455,20 @@ Observable output: DIFF
 Next action: implement
 ```
 
+#### M1 Decision Card — PR82
+
+```text
+meta_depth: 1
+Question: What is the smallest truthful terminal output after PR67's structural scope blocker?
+Evidence: PR65 and PR66 merged; PR67 closed unmerged after deterministic frozen-head CI and artifact/control drift.
+Inference: One SSOT-only disposition can record the dependency stop without fabricating successor verdicts.
+Counterevidence checked: Source-only masking leaves an invalid geometry invariant, and artifact refresh is outside PR67's frozen scope.
+Decision: Record the docs-only blocked closeout.
+Falsifier: Any second tracked path, successor PASS, readiness claim, or valid merged PR67 receipt.
+Observable output: DECISION
+Next action: stop
+```
+
 #### Reusable M1 Template (not an instantiated card)
 
 ```text
@@ -459,5 +484,5 @@ Next action:
 ```
 
 Each future PR creates its one M1 Decision Card only when that PR is executed
-under its own authorization. No future-node card exists now; `NOT_AUTHORIZED`
-is preserved until the applicable predecessor and review gates are satisfied.
+under its own authorization. No unexecuted node has a card; the blocked
+closeout creates no authority to continue this DAG.
