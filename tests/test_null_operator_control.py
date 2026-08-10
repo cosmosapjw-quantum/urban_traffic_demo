@@ -94,6 +94,73 @@ def test_the_operator_reads_nothing_but_the_graph() -> None:
     )
 
 
+def test_the_historical_null_operator_artifact_binds_current_source_bytes() -> None:
+    """The imported evidence is structurally complete and names current sources."""
+
+    import hashlib
+    import json
+    from pathlib import Path
+
+    def assert_summary_matches_rows(rows: list[dict[str, object]], summary: object) -> None:
+        fractions = sorted({float(row["requested_fraction"]) for row in rows})
+        derived = {
+            f"p={fraction}": {
+                "passed": sum(
+                    bool(row["passed"])
+                    for row in rows
+                    if float(row["requested_fraction"]) == fraction
+                ),
+                "total": sum(
+                    1
+                    for row in rows
+                    if float(row["requested_fraction"]) == fraction
+                ),
+            }
+            for fraction in fractions
+        }
+        assert derived == summary
+
+    root = Path(__file__).parents[1]
+    artifact_dir = root / "artifacts/runtime_spine_review"
+    artifact_path = artifact_dir / "morphology-null-operator-control-20260808.json"
+    manifest_path = artifact_dir / "morphology-null-operator-control-20260808.manifest.json"
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    artifact_bytes = artifact_path.read_bytes()
+    artifact = json.loads(artifact_bytes)
+
+    assert manifest["files"] == {
+        artifact_path.name: hashlib.sha256(artifact_bytes).hexdigest()
+    }
+
+    rows = artifact["rows"]
+    assert len(rows) == 6 * 5 * 5
+    assert {row["style_id"] for row in rows} == {
+        "ring_radial",
+        "grid_core",
+        "polycentric_tod",
+        "river_constrained",
+        "superblock_mixed",
+        "organic",
+    }
+    assert {row["seed"] for row in rows} == {17, 29, 41, 44, 53}
+    assert {row["requested_fraction"] for row in rows} == {0.0, 0.2, 0.35, 0.5, 0.6}
+    assert len({(row["style_id"], row["seed"], row["requested_fraction"]) for row in rows}) == len(rows)
+    assert_summary_matches_rows(rows, artifact["summary"])
+
+    mutated_summary = {
+        key: dict(value) for key, value in artifact["summary"].items()
+    }
+    mutated_summary["p=0.35"]["passed"] = 29
+    with pytest.raises(AssertionError):
+        assert_summary_matches_rows(rows, mutated_summary)
+
+    source_digests = artifact["provenance"]["sources"]
+    assert len(source_digests) == 3
+    for relative_path, recorded_digest in source_digests.items():
+        assert hashlib.sha256((root / relative_path).read_bytes()).hexdigest() == recorded_digest
+
+
 @pytest.mark.xfail(
     strict=True,
     reason=(
