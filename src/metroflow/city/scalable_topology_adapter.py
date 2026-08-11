@@ -16,6 +16,7 @@ from metroflow.city.graph import (
     RoadClass,
     RoadLink,
     RoadNetworkCSR,
+    TurnMovement,
     TurnType,
 )
 from metroflow.city.map_validation import require_valid_city_map_contract
@@ -31,14 +32,23 @@ from metroflow.city.scalable_topology import (
     ScalableStreetNetwork,
 )
 from metroflow.city.turn_compiler import TurnAuthorityCatalog, compile_turn_authority
-from metroflow.map.node_compiler import NodeInterfaceCatalog, compile_node_interfaces
+from metroflow.map.lane_grammar import RoadSectionProfile
+from metroflow.map.node_compiler import (
+    CompiledNodeInterface,
+    NodeInterfaceCatalog,
+    compile_node_interfaces,
+)
 from metroflow.map.road_geometry import (
     CenterlineSource,
     LinkGeometryAssignment,
     RoadCenterline,
     RoadGeometryCatalog,
 )
-from metroflow.map.section_compiler import RoadSectionCatalog, compile_road_sections
+from metroflow.map.section_compiler import (
+    LinkSectionAssignment,
+    RoadSectionCatalog,
+    compile_road_sections,
+)
 
 __all__ = (
     "ScalableCompiledTopology",
@@ -60,12 +70,54 @@ class ScalableNumericProfile:
     section_roadside_profile: str
     median_when_bidirectional: bool
 
+    def __post_init__(self) -> None:
+        if type(self.profile_id) is not str:
+            raise TypeError("profile_id must be an exact string")
+        if type(self.lanes_per_direction) is not int:
+            raise TypeError("lanes_per_direction must be an exact integer")
+        if type(self.free_flow_speed_mps) is not float:
+            raise TypeError("free_flow_speed_mps must be an exact float")
+        if type(self.capacity_veh_per_second) is not float:
+            raise TypeError("capacity_veh_per_second must be an exact float")
+        if type(self.operational_road_class) is not RoadClass:
+            raise TypeError("operational_road_class must be an exact RoadClass")
+        if type(self.section_roadside_profile) is not str:
+            raise TypeError("section_roadside_profile must be an exact string")
+        if type(self.median_when_bidirectional) is not bool:
+            raise TypeError("median_when_bidirectional must be an exact bool")
+        if (
+            not self.profile_id
+            or self.lanes_per_direction < 1
+            or self.free_flow_speed_mps <= 0.0
+            or self.capacity_veh_per_second < 0.0
+            or not self.section_roadside_profile
+        ):
+            raise ValueError("numeric profile values must be non-empty and non-negative")
+
 
 @dataclass(frozen=True, slots=True)
 class ScalableGroupCrosswalk:
     semantic_group: str
     dense_group_id: int
     member_physical_road_ids: tuple[int, ...]
+
+    def __post_init__(self) -> None:
+        if type(self.semantic_group) is not str:
+            raise TypeError("semantic_group must be an exact string")
+        if type(self.dense_group_id) is not int:
+            raise TypeError("dense_group_id must be an exact integer")
+        if type(self.member_physical_road_ids) is not tuple or any(
+            type(road_id) is not int for road_id in self.member_physical_road_ids
+        ):
+            raise TypeError("member_physical_road_ids must be an exact integer tuple")
+        if (
+            not self.semantic_group
+            or self.dense_group_id < 0
+            or not self.member_physical_road_ids
+            or tuple(sorted(set(self.member_physical_road_ids)))
+            != self.member_physical_road_ids
+        ):
+            raise ValueError("group crosswalk values must be unique and canonical")
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,6 +139,51 @@ class ScalableRoadCrosswalk:
     structure_group_id: int | None
     failure_group: str | None
     bridge_group_id: int | None
+
+    def __post_init__(self) -> None:
+        exact_int_names = ("physical_road_id", "layer", "geometry_id")
+        if any(type(getattr(self, name)) is not int for name in exact_int_names):
+            raise TypeError("road crosswalk IDs and layer must be exact integers")
+        if type(self.road_semantic_id) is not str or type(self.profile_id) is not str:
+            raise TypeError("road crosswalk semantic and profile IDs must be strings")
+        if type(self.hierarchy) is not RoadHierarchy:
+            raise TypeError("road crosswalk hierarchy must be exact")
+        if type(self.facility) is not FacilityKind:
+            raise TypeError("road crosswalk facility must be exact")
+        if self.layer_transition is not None and (
+            type(self.layer_transition) is not tuple
+            or len(self.layer_transition) != 2
+            or any(type(layer) is not int for layer in self.layer_transition)
+        ):
+            raise TypeError("layer_transition must be an exact integer pair")
+        if type(self.access_directions) is not tuple or any(
+            type(direction) is not str for direction in self.access_directions
+        ):
+            raise TypeError("access_directions must be an exact string tuple")
+        if self.access_directions not in {
+            ("forward",),
+            ("reverse",),
+            ("forward", "reverse"),
+        }:
+            raise ValueError("access_directions must be canonical")
+        for name in (
+            "provenance",
+            "centerline_source_ref",
+            "structure_group",
+            "failure_group",
+        ):
+            value = getattr(self, name)
+            if value is not None and type(value) is not str:
+                raise TypeError(f"{name} must be an exact string when present")
+        for name in (
+            "forward_link_id",
+            "reverse_link_id",
+            "structure_group_id",
+            "bridge_group_id",
+        ):
+            value = getattr(self, name)
+            if value is not None and type(value) is not int:
+                raise TypeError(f"{name} must be an exact integer when present")
 
 
 @dataclass(frozen=True, slots=True)
@@ -119,6 +216,229 @@ class ScalableCompiledTopology:
     forbidden_u_turn_count: int
     bridge_crossing_count: int
     fingerprint: str
+
+    def __post_init__(self) -> None:
+        if type(self.topology) is not PreviewCityTopology:
+            raise TypeError("topology must be an exact PreviewCityTopology")
+        if type(self.road_csr) is not RoadNetworkCSR:
+            raise TypeError("road_csr must be an exact RoadNetworkCSR")
+        tuple_fields = (
+            "numeric_profiles",
+            "road_crosswalk",
+            "structure_group_crosswalk",
+            "failure_group_crosswalk",
+            "metadata_items",
+        )
+        for name in tuple_fields:
+            if type(getattr(self, name)) is not tuple:
+                raise TypeError(f"{name} must be an exact tuple")
+        if any(
+            type(row) is not ScalableNumericProfile
+            for row in self.numeric_profiles
+        ):
+            raise TypeError("numeric_profiles must contain exact rows")
+        if any(
+            type(row) is not ScalableRoadCrosswalk for row in self.road_crosswalk
+        ):
+            raise TypeError("road_crosswalk must contain exact rows")
+        for name in ("structure_group_crosswalk", "failure_group_crosswalk"):
+            if any(
+                type(row) is not ScalableGroupCrosswalk
+                for row in getattr(self, name)
+            ):
+                raise TypeError(f"{name} must contain exact rows")
+        if any(
+            type(item) is not tuple
+            or len(item) != 2
+            or type(item[0]) is not str
+            for item in self.metadata_items
+        ):
+            raise TypeError("metadata_items must contain exact string-key pairs")
+
+        topology = self.topology
+        csr = self.road_csr
+        topology_rows = (
+            ("nodes", Node),
+            ("links", RoadLink),
+            ("turns", TurnMovement),
+            ("bridge_crossings", BridgeCrossing),
+        )
+        for name, row_type in topology_rows:
+            rows = getattr(topology, name)
+            if type(rows) is not tuple or any(type(row) is not row_type for row in rows):
+                raise TypeError(f"topology {name} must contain exact rows")
+            csr_rows = getattr(csr, name)
+            if type(csr_rows) is not tuple or any(
+                type(row) is not row_type for row in csr_rows
+            ):
+                raise TypeError(f"road_csr CSR {name} must contain exact rows")
+            if csr_rows != rows:
+                raise ValueError(f"road_csr CSR {name} differ from topology")
+
+        geometry = topology.road_geometry
+        sections = topology.road_sections
+        interfaces = topology.node_interfaces
+        if type(geometry) is not RoadGeometryCatalog:
+            raise TypeError("road geometry catalog must be exact")
+        if type(sections) is not RoadSectionCatalog:
+            raise TypeError("road section catalog must be exact")
+        if type(interfaces) is not NodeInterfaceCatalog:
+            raise TypeError("node interface catalog must be exact")
+        catalog_rows = (
+            (geometry.centerlines, RoadCenterline, "centerline"),
+            (geometry.assignments, LinkGeometryAssignment, "geometry assignment"),
+            (sections.profiles, RoadSectionProfile, "section profile"),
+            (sections.assignments, LinkSectionAssignment, "section assignment"),
+            (interfaces.interfaces, CompiledNodeInterface, "node interface"),
+        )
+        for rows, row_type, name in catalog_rows:
+            if type(rows) is not tuple or any(type(row) is not row_type for row in rows):
+                raise TypeError(f"{name} catalog must contain exact rows")
+
+        string_fields = (
+            "schema_version",
+            "numeric_profile_policy_version",
+            "source_network_fingerprint",
+            "source_block_authority_fingerprint",
+            "terrain_fingerprint",
+            "scale_fingerprint",
+            "style_fingerprint",
+            "road_geometry_fingerprint",
+            "road_section_fingerprint",
+            "node_interface_fingerprint",
+            "turn_authority_fingerprint",
+            "fingerprint",
+        )
+        if any(type(getattr(self, name)) is not str for name in string_fields):
+            raise TypeError("wrapper identity fields must be exact strings")
+        count_fields = (
+            "source_node_count",
+            "source_physical_road_count",
+            "source_block_count",
+            "compiled_node_count",
+            "compiled_link_count",
+            "compiled_turn_count",
+            "permitted_turn_count",
+            "forbidden_u_turn_count",
+            "bridge_crossing_count",
+        )
+        if any(type(getattr(self, name)) is not int for name in count_fields):
+            raise TypeError("wrapper counts must be exact integers")
+        if any(getattr(self, name) < 0 for name in count_fields):
+            raise ValueError("wrapper counts must be non-negative")
+
+        physical_ids = tuple(row.physical_road_id for row in self.road_crosswalk)
+        if physical_ids != tuple(range(len(physical_ids))):
+            raise ValueError("road crosswalk physical IDs must be dense and ordered")
+        profile_ids = tuple(row.profile_id for row in self.numeric_profiles)
+        if len(profile_ids) != len(set(profile_ids)) or profile_ids != tuple(
+            sorted(profile_ids)
+        ):
+            raise ValueError("numeric profile IDs must be unique and ordered")
+
+        for crosswalk_name, semantic_name, dense_name in (
+            (
+                "structure_group_crosswalk",
+                "structure_group",
+                "structure_group_id",
+            ),
+            (
+                "failure_group_crosswalk",
+                "failure_group",
+                "bridge_group_id",
+            ),
+        ):
+            group_rows = getattr(self, crosswalk_name)
+            semantics = tuple(row.semantic_group for row in group_rows)
+            dense_ids = tuple(row.dense_group_id for row in group_rows)
+            if len(semantics) != len(set(semantics)):
+                raise ValueError(f"{crosswalk_name} has duplicate group semantics")
+            if dense_ids != tuple(range(len(group_rows))):
+                raise ValueError(f"{crosswalk_name} dense group IDs are not canonical")
+            group_by_semantic = {
+                row.semantic_group: row.dense_group_id for row in group_rows
+            }
+            for group_row in group_rows:
+                expected_members = tuple(
+                    row.physical_road_id
+                    for row in self.road_crosswalk
+                    if getattr(row, semantic_name) == group_row.semantic_group
+                )
+                if group_row.member_physical_road_ids != expected_members:
+                    raise ValueError(f"{crosswalk_name} member rows differ")
+            for road_row in self.road_crosswalk:
+                semantic = getattr(road_row, semantic_name)
+                dense_id = getattr(road_row, dense_name)
+                expected_dense_id = (
+                    None if semantic is None else group_by_semantic.get(semantic)
+                )
+                if dense_id != expected_dense_id:
+                    raise ValueError(f"{crosswalk_name} road mapping differs")
+
+        node_ids = {node.node_id for node in topology.nodes}
+        link_ids = {link.link_id for link in topology.links}
+        geometry_ids = {row.geometry_id for row in self.road_crosswalk}
+        if {row.geometry_id for row in geometry.centerlines} != geometry_ids:
+            raise ValueError("centerline catalog coverage count differs")
+        if {row.link_id for row in geometry.assignments} != link_ids:
+            raise ValueError("geometry assignment catalog coverage count differs")
+        if {row.link_id for row in sections.assignments} != link_ids:
+            raise ValueError("section assignment catalog coverage count differs")
+        if {row.node_id for row in interfaces.interfaces} != node_ids:
+            raise ValueError("node interface catalog coverage count differs")
+
+        permitted_turn_count = sum(
+            movement.turn_type is not TurnType.U_TURN_FORBIDDEN
+            for movement in topology.turns
+        )
+        expected_counts = {
+            "source_node_count": len(topology.nodes),
+            "source_physical_road_count": len(self.road_crosswalk),
+            "compiled_node_count": len(topology.nodes),
+            "compiled_link_count": len(topology.links),
+            "compiled_turn_count": len(topology.turns),
+            "permitted_turn_count": permitted_turn_count,
+            "forbidden_u_turn_count": len(topology.turns) - permitted_turn_count,
+            "bridge_crossing_count": len(topology.bridge_crossings),
+        }
+        for name, expected in expected_counts.items():
+            if getattr(self, name) != expected:
+                raise ValueError(f"{name} differs from current row count")
+
+        if type(topology.metadata) is not dict:
+            raise TypeError("topology metadata must be an exact dict")
+        metadata = dict(self.metadata_items)
+        if len(metadata) != len(self.metadata_items):
+            raise ValueError("metadata_items keys must be unique")
+        if tuple(topology.metadata.items()) != self.metadata_items:
+            raise ValueError("topology and wrapper metadata items differ")
+        expected_metadata_counts = {
+            "source_node_count": self.source_node_count,
+            "source_physical_road_count": self.source_physical_road_count,
+            "source_block_count": self.source_block_count,
+            "compiled_node_count": self.compiled_node_count,
+            "compiled_link_count": self.compiled_link_count,
+            "physical_centerline_count": len(geometry.centerlines),
+            "geometry_assignment_count": len(geometry.assignments),
+            "road_section_assignment_count": len(sections.assignments),
+            "node_interface_count": len(interfaces.interfaces),
+            "turn_authority_pair_count": len(topology.turns),
+            "permitted_turn_movement_count": permitted_turn_count,
+            "forbidden_u_turn_count": len(topology.turns) - permitted_turn_count,
+            "bridge_crossing_count": len(topology.bridge_crossings),
+        }
+        for name, expected in expected_metadata_counts.items():
+            if metadata.get(name) != expected:
+                raise ValueError(f"metadata {name} differs from current row count")
+        expected_fingerprints = {
+            "road_geometry_fingerprint": self.road_geometry_fingerprint,
+            "road_section_fingerprint": self.road_section_fingerprint,
+            "node_interface_fingerprint": self.node_interface_fingerprint,
+            "turn_authority_fingerprint": self.turn_authority_fingerprint,
+        }
+        for name, expected in expected_fingerprints.items():
+            if metadata.get(name) != expected:
+                raise ValueError(f"metadata {name} differs from wrapper identity")
 
 
 @dataclass(frozen=True, slots=True)
