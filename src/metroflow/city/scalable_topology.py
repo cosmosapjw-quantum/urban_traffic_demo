@@ -24,6 +24,7 @@ STYLE_IDS = (
     "ring_radial",
     "grid_core",
     "polycentric_tod",
+    "river_constrained",
     "superblock_mixed",
     "organic",
 )
@@ -1023,7 +1024,12 @@ def _canonical_generated_specs(
         raise ValueError("style_id must be supported by the topology generator")
     y_values = _local_axis(extent[2], extent[3], terrain, "y")
     row_x_values = {
-        y_mm: _local_axis(extent[0], extent[1], terrain, "x", fixed_mm=y_mm) for y_mm in y_values
+        y_mm: tuple(
+            x_mm
+            for x_mm in _local_axis(extent[0], extent[1], terrain, "x", fixed_mm=y_mm)
+            if style_id != "river_constrained" or x_mm != terrain.barrier_seam_x_mm
+        )
+        for y_mm in y_values
     }
     center_row = min(y_values, key=abs)
     centers = _centers(row_x_values[center_row], y_values, style_id, scale_spec.urbanized_area_km2)
@@ -1054,6 +1060,8 @@ def _canonical_generated_specs(
         layer: int,
         *,
         transition: tuple[int, int] | None = None,
+        structure_group: str | None = None,
+        failure_group: str | None = None,
         row_interval: RowIntervalAuthority | None = None,
         points: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
@@ -1075,6 +1083,8 @@ def _canonical_generated_specs(
                 facility.value,
                 layer,
                 transition,
+                structure_group,
+                failure_group,
                 profile,
                 _row_interval_content(row_interval),
             )
@@ -1090,8 +1100,8 @@ def _canonical_generated_specs(
                 layer,
                 directions,
                 transition,
-                None,
-                None,
+                structure_group,
+                failure_group,
                 profile,
                 provenance,
                 role,
@@ -1107,6 +1117,8 @@ def _canonical_generated_specs(
     for row, y_mm in enumerate(y_values):
         values = row_x_values[y_mm]
         for column, (left, right) in enumerate(zip(values, values[1:])):
+            if style_id == "river_constrained" and left < 0 < right:
+                continue
             hierarchy = _surface_hierarchy(
                 row, column, left, y_mm, right, y_mm, style_id, centers, True
             )
@@ -1131,79 +1143,93 @@ def _canonical_generated_specs(
             )
     for row, (lower_y, upper_y) in enumerate(zip(y_values, y_values[1:])):
         lower, upper = row_x_values[lower_y], row_x_values[upper_y]
-        for column, (lower_index, upper_index) in enumerate(_monotone_partial_match(lower, upper)):
-            lower_x, upper_x = lower[lower_index], upper[upper_index]
-            hierarchy = _surface_hierarchy(
-                row,
-                column,
-                lower_x,
-                lower_y,
-                upper_x,
-                upper_y,
-                style_id,
-                centers,
-                False,
+        row_pairs = ((lower, upper),)
+        if style_id == "river_constrained":
+            row_pairs = (
+                (
+                    tuple(x_mm for x_mm in lower if x_mm < 0),
+                    tuple(x_mm for x_mm in upper if x_mm < 0),
+                ),
+                (
+                    tuple(x_mm for x_mm in lower if x_mm > 0),
+                    tuple(x_mm for x_mm in upper if x_mm > 0),
+                ),
             )
-            role = _surface_semantic_role(
-                "surface-vertical",
-                lower_x,
-                lower_y,
-                upper_x,
-                upper_y,
-                style_id,
-                centers,
-                hierarchy,
-            )
-            points = None
-            if style_id == "organic":
-                role = "organic-connector"
-                points = _organic_connector_points(
-                    seed, (lower_x, lower_y), (upper_x, upper_y), extent
+        for lower_bank, upper_bank in row_pairs:
+            for column, (lower_index, upper_index) in enumerate(
+                _monotone_partial_match(lower_bank, upper_bank)
+            ):
+                lower_x, upper_x = lower_bank[lower_index], upper_bank[upper_index]
+                hierarchy = _surface_hierarchy(
+                    row,
+                    column,
+                    lower_x,
+                    lower_y,
+                    upper_x,
+                    upper_y,
+                    style_id,
+                    centers,
+                    False,
                 )
+                role = _surface_semantic_role(
+                    "surface-vertical",
+                    lower_x,
+                    lower_y,
+                    upper_x,
+                    upper_y,
+                    style_id,
+                    centers,
+                    hierarchy,
+                )
+                points = None
+                if style_id == "organic":
+                    role = "organic-connector"
+                    points = _organic_connector_points(
+                        seed, (lower_x, lower_y), (upper_x, upper_y), extent
+                    )
+                road_between(
+                    role,
+                    surface[(lower_x, lower_y)],
+                    surface[(upper_x, upper_y)],
+                    hierarchy,
+                    FacilityKind.SURFACE,
+                    0,
+                    points=points,
+                )
+
+    if style_id == "river_constrained":
+        bridge_rows = tuple(
+            sorted({len(y_values) // 4, len(y_values) // 2, 3 * len(y_values) // 4})
+        )
+        for group_index, row_index in enumerate(bridge_rows):
+            y_mm = y_values[row_index]
+            row_values = row_x_values[y_mm]
+            left_x = max(x_mm for x_mm in row_values if x_mm < 0)
+            right_x = min(x_mm for x_mm in row_values if x_mm > 0)
+            group = f"river-bridge-group-{group_index}"
             road_between(
-                role,
-                surface[(lower_x, lower_y)],
-                surface[(upper_x, upper_y)],
-                hierarchy,
-                FacilityKind.SURFACE,
+                "river-bridge",
+                surface[(left_x, y_mm)],
+                surface[(right_x, y_mm)],
+                RoadHierarchy.ARTERIAL,
+                FacilityKind.BRIDGE,
                 0,
-                points=points,
+                structure_group=group,
+                failure_group=group,
             )
 
-    top_y, bottom_y = y_values[-1], y_values[0]
-    upper_row = row_x_values[top_y]
-    lower_row = row_x_values[bottom_y]
-    upper_side_y = y_values[2 * (len(y_values) - 1) // 3]
-    lower_side_y = y_values[(len(y_values) - 1) // 3]
-    gateways = (
-        surface[(upper_row[(len(upper_row) - 1) // 3], top_y)],
-        surface[(upper_row[2 * (len(upper_row) - 1) // 3], top_y)],
-        surface[(row_x_values[upper_side_y][-1], upper_side_y)],
-        surface[(row_x_values[lower_side_y][-1], lower_side_y)],
-        surface[(lower_row[2 * (len(lower_row) - 1) // 3], bottom_y)],
-        surface[(lower_row[(len(lower_row) - 1) // 3], bottom_y)],
-        surface[(row_x_values[lower_side_y][0], lower_side_y)],
-        surface[(row_x_values[upper_side_y][0], upper_side_y)],
+    min_x, max_x, min_y, max_y = extent
+    gateway_points = (
+        (min_x, min_y),
+        (0, min_y),
+        (max_x, min_y),
+        (max_x, 0),
+        (max_x, max_y),
+        (0, max_y),
+        (min_x, max_y),
+        (min_x, 0),
     )
-    upper_nodes = tuple(
-        node_at(
-            gateway.x_mm - (20_000 if gateway.x_mm > 0 else -20_000 if gateway.x_mm < 0 else 0),
-            gateway.y_mm - (20_000 if gateway.y_mm > 0 else -20_000 if gateway.y_mm < 0 else 0),
-            1,
-            "mainline-gateway",
-        )
-        for gateway in gateways
-    )
-    for gateway, upper in zip(gateways, upper_nodes):
-        road_between(
-            "ramp-access",
-            gateway,
-            upper,
-            RoadHierarchy.ARTERIAL,
-            FacilityKind.RAMP,
-            1,
-            transition=(0, 1),
-        )
+    upper_nodes = tuple(node_at(x_mm, y_mm, 1, "mainline-gateway") for x_mm, y_mm in gateway_points)
     for start, end in zip(upper_nodes, upper_nodes[1:] + upper_nodes[:1]):
         road_between(
             "mainline-ring",
@@ -1213,10 +1239,103 @@ def _canonical_generated_specs(
             FacilityKind.MAINLINE,
             1,
         )
+
+    surface_degree: dict[str, int] = defaultdict(int)
+    for road in road_specs:
+        if road.facility in {FacilityKind.SURFACE, FacilityKind.BRIDGE}:
+            surface_degree[road.start_semantic_id] += 1
+            surface_degree[road.end_semantic_id] += 1
+
+    def horizontal_neighbour(anchor: _NodeSpec) -> _NodeSpec | None:
+        values = row_x_values[anchor.y_mm]
+        index = values.index(anchor.x_mm)
+        if style_id == "river_constrained":
+            direction = -1 if anchor.x_mm < 0 else 1
+        elif anchor.x_mm == min_x or (anchor.x_mm not in {min_x, max_x} and anchor.x_mm <= 0):
+            direction = 1
+        else:
+            direction = -1
+        neighbour_index = index + direction
+        if not 0 <= neighbour_index < len(values):
+            return None
+        return surface[(values[neighbour_index], anchor.y_mm)]
+
+    reserved_anchors: set[str] = set()
+    for index, upper in enumerate(upper_nodes):
+        candidates = []
+        for anchor in surface.values():
+            if anchor.x_mm not in {min_x, max_x} and anchor.y_mm not in {min_y, max_y}:
+                continue
+            neighbour = horizontal_neighbour(anchor)
+            if (
+                neighbour is None
+                or anchor.semantic_id in reserved_anchors
+                or neighbour.semantic_id in reserved_anchors
+                or surface_degree[anchor.semantic_id] > 3
+                or surface_degree[neighbour.semantic_id] > 3
+            ):
+                continue
+            distance = (anchor.x_mm - upper.x_mm) ** 2 + (anchor.y_mm - upper.y_mm) ** 2
+            candidates.append((distance, anchor.semantic_id, anchor, neighbour))
+        if not candidates:
+            raise ValueError("mainline gateway lacks a bounded surface access triangle")
+        _, _, anchor, neighbour = min(candidates)
+        reserved_anchors.update((anchor.semantic_id, neighbour.semantic_id))
+        anchor_x_values = row_x_values[anchor.y_mm]
+        x_index = anchor_x_values.index(anchor.x_mm)
+        y_index = y_values.index(anchor.y_mm)
+        if anchor.x_mm == min_x:
+            dx = (anchor_x_values[x_index + 1] - anchor.x_mm) // 3
+        elif anchor.x_mm == max_x:
+            dx = (anchor_x_values[x_index - 1] - anchor.x_mm) // 3
+        elif style_id == "river_constrained" and anchor.x_mm < 0:
+            dx = (anchor_x_values[x_index - 1] - anchor.x_mm) // 3
+        elif style_id == "river_constrained":
+            dx = (anchor_x_values[x_index + 1] - anchor.x_mm) // 3
+        elif anchor.x_mm <= 0:
+            dx = (anchor_x_values[x_index + 1] - anchor.x_mm) // 3
+        else:
+            dx = (anchor_x_values[x_index - 1] - anchor.x_mm) // 3
+        if anchor.y_mm == min_y:
+            dy = (y_values[y_index + 1] - anchor.y_mm) // 3
+        elif anchor.y_mm == max_y:
+            dy = (y_values[y_index - 1] - anchor.y_mm) // 3
+        elif anchor.y_mm <= 0:
+            dy = (y_values[y_index + 1] - anchor.y_mm) // 3
+        else:
+            dy = (y_values[y_index - 1] - anchor.y_mm) // 3
+        if dx == 0 or dy == 0:
+            raise ValueError("surface access triangle must have nonzero area")
+        access = node_at(anchor.x_mm + dx, anchor.y_mm + dy, 0, f"ramp-access-{index}")
+        road_between(
+            "ramp-access",
+            access,
+            upper,
+            RoadHierarchy.ARTERIAL,
+            FacilityKind.RAMP,
+            1,
+            transition=(0, 1),
+        )
+        road_between(
+            "surface-access-primary",
+            access,
+            anchor,
+            RoadHierarchy.ARTERIAL,
+            FacilityKind.SURFACE,
+            0,
+        )
+        road_between(
+            "surface-access-secondary",
+            access,
+            neighbour,
+            RoadHierarchy.ARTERIAL,
+            FacilityKind.SURFACE,
+            0,
+        )
     return _CanonicalGeneratedSpecs(
         tuple(sorted(node_by_key.values(), key=lambda item: item.semantic_id)),
         tuple(sorted(road_specs, key=lambda item: item.semantic_id)),
-        tuple(gateway.semantic_id for gateway in gateways),
+        tuple(gateway.semantic_id for gateway in upper_nodes),
         centers,
     )
 
@@ -1312,6 +1431,84 @@ def _computed_seam_diagnostics(
     )
 
 
+def _crosses_barrier(road: PhysicalRoadRecord, barrier_x_mm: int) -> bool:
+    barrier_x_mm = _require_int("barrier_x_mm", barrier_x_mm)
+    return any(
+        left[0] != right[0] and min(left[0], right[0]) <= barrier_x_mm <= max(left[0], right[0])
+        for left, right in zip(road.points_mm, road.points_mm[1:])
+    )
+
+
+def _roads_cross_bank_connected(
+    network: ScalableStreetNetwork, roads: Sequence[PhysicalRoadRecord]
+) -> bool:
+    nodes = {node.node_id: node for node in network.nodes}
+    adjacency: dict[int, set[int]] = defaultdict(set)
+    for road in roads:
+        adjacency[road.start_node_id].add(road.end_node_id)
+        adjacency[road.end_node_id].add(road.start_node_id)
+    left = next(
+        (node_id for node_id, node in nodes.items() if node.x_mm < 0 and node_id in adjacency),
+        None,
+    )
+    if left is None:
+        return False
+    seen, queue = {left}, deque((left,))
+    while queue:
+        node_id = queue.popleft()
+        for other in adjacency[node_id]:
+            if other not in seen:
+                seen.add(other)
+                queue.append(other)
+    return any(nodes[node_id].x_mm > 0 for node_id in seen)
+
+
+def _river_bridge_groups(network: ScalableStreetNetwork) -> frozenset[str]:
+    barrier = network.terrain.barrier_seam_x_mm
+    if barrier is None:
+        raise ValueError("river network requires explicit barrier seam authority")
+    crossing_roads = tuple(
+        road for road in network.roads if road.layer == 0 and _crosses_barrier(road, barrier)
+    )
+    if any(road.facility is not FacilityKind.BRIDGE for road in crossing_roads):
+        raise ValueError("river barrier may be crossed only by bridge records")
+    groups = frozenset(
+        road.failure_group for road in crossing_roads if road.failure_group is not None
+    )
+    if len(groups) < 3:
+        raise ValueError("river requires at least three independent bridge failure groups")
+    for group in groups:
+        members = tuple(road for road in crossing_roads if road.failure_group == group)
+        if not _roads_cross_bank_connected(network, members):
+            raise ValueError("each river bridge group must complete a cross-bank connection")
+    return groups
+
+
+def _surface_cross_bank_connected(network: ScalableStreetNetwork, *, excluded_group: str) -> bool:
+    nodes = {node.node_id: node for node in network.nodes if node.layer == 0}
+    roads = tuple(
+        road
+        for road in network.roads
+        if road.facility in {FacilityKind.SURFACE, FacilityKind.BRIDGE}
+        and road.failure_group != excluded_group
+    )
+    adjacency: dict[int, set[int]] = defaultdict(set)
+    for road in roads:
+        adjacency[road.start_node_id].add(road.end_node_id)
+        adjacency[road.end_node_id].add(road.start_node_id)
+    left = next((node_id for node_id, node in nodes.items() if node.x_mm < 0), None)
+    if left is None:
+        return False
+    seen, queue = {left}, deque((left,))
+    while queue:
+        node_id = queue.popleft()
+        for other in adjacency[node_id]:
+            if other not in seen:
+                seen.add(other)
+                queue.append(other)
+    return any(nodes[node_id].x_mm > 0 for node_id in seen)
+
+
 def _network_fingerprint(
     scale_spec: ScalableScaleSnapshot,
     style_id: str,
@@ -1380,8 +1577,14 @@ def build_scalable_street_network(
         TILE_SIZE_M,
         seed,
         style_id,
-        None,
-        _terrain_fingerprint(width_mm / 1_000.0, height_mm / 1_000.0, seed, style_id, None),
+        0 if style_id == "river_constrained" else None,
+        _terrain_fingerprint(
+            width_mm / 1_000.0,
+            height_mm / 1_000.0,
+            seed,
+            style_id,
+            0 if style_id == "river_constrained" else None,
+        ),
     )
     canonical = _canonical_generated_specs(snapshot, style_id, seed, terrain, extent)
     nodes = tuple(
