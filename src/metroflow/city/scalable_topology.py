@@ -530,6 +530,113 @@ class StructuralAudit:
     river_group_removal_failures: tuple[str, ...]
 
 
+@dataclass(frozen=True, slots=True)
+class ScalableStreetNetwork:
+    scale_spec: ScalableScaleSnapshot
+    style_id: str
+    seed: int
+    schema_version: str
+    scale_fingerprint: str
+    style_fingerprint: str
+    extent_mm: tuple[int, int, int, int]
+    width_m: float
+    height_m: float
+    centers: tuple[tuple[int, int], ...]
+    gateway_node_ids: tuple[int, ...]
+    nodes: tuple[PhysicalNodeRecord, ...]
+    roads: tuple[PhysicalRoadRecord, ...]
+    endpoint_incidence: tuple[tuple[int, tuple[int, ...]], ...]
+    terrain: ScalableTerrainField
+    tile_coordinates: tuple[tuple[int, int], ...]
+    seam_diagnostics: tuple[tuple[str, int], ...]
+    hidden_repair_count: int
+    fingerprint: str
+
+    def __post_init__(self) -> None:
+        if type(self.scale_spec) is not ScalableScaleSnapshot:
+            raise TypeError("scale_spec must be an exact ScalableScaleSnapshot")
+        if type(self.terrain) is not ScalableTerrainField:
+            raise TypeError("terrain must be an exact ScalableTerrainField")
+        style_id = _snapshot_str("style_id", self.style_id)
+        if style_id not in STYLE_IDS:
+            raise ValueError("style_id must be supported")
+        schema_version = _snapshot_str("schema_version", self.schema_version)
+        if schema_version != SCHEMA_VERSION:
+            raise ValueError("schema_version is not canonical")
+        object.__setattr__(self, "style_id", style_id)
+        object.__setattr__(self, "seed", _require_int("network seed", self.seed))
+        object.__setattr__(self, "schema_version", schema_version)
+        object.__setattr__(
+            self, "scale_fingerprint", _require_digest("scale_fingerprint", self.scale_fingerprint)
+        )
+        object.__setattr__(
+            self, "style_fingerprint", _require_digest("style_fingerprint", self.style_fingerprint)
+        )
+        object.__setattr__(self, "fingerprint", _require_digest("fingerprint", self.fingerprint))
+        extent = _snapshot_tuple("extent_mm", self.extent_mm)
+        if len(extent) != 4:
+            raise ValueError("extent_mm must contain four integers")
+        object.__setattr__(
+            self, "extent_mm", tuple(_require_int("extent_mm", value) for value in extent)
+        )
+        if type(self.width_m) not in (int, float) or type(self.height_m) not in (int, float):
+            raise TypeError("network dimensions must be exact built-in numbers")
+        object.__setattr__(self, "width_m", float(self.width_m))
+        object.__setattr__(self, "height_m", float(self.height_m))
+        object.__setattr__(
+            self,
+            "centers",
+            tuple(
+                _snapshot_int_pair("center", center)
+                for center in _snapshot_tuple("centers", self.centers)
+            ),
+        )
+        object.__setattr__(
+            self,
+            "gateway_node_ids",
+            tuple(
+                _require_int("gateway_node_id", value)
+                for value in _snapshot_tuple("gateway_node_ids", self.gateway_node_ids)
+            ),
+        )
+        nodes = _snapshot_tuple("nodes", self.nodes)
+        roads = _snapshot_tuple("roads", self.roads)
+        if any(type(node) is not PhysicalNodeRecord for node in nodes):
+            raise TypeError("nodes must contain exact PhysicalNodeRecord values")
+        if any(type(road) is not PhysicalRoadRecord for road in roads):
+            raise TypeError("roads must contain exact PhysicalRoadRecord values")
+        object.__setattr__(self, "nodes", nodes)
+        object.__setattr__(self, "roads", roads)
+        incidence = tuple(
+            (
+                _require_int("incidence node_id", node_id),
+                tuple(_require_int("incidence road_id", road_id) for road_id in road_ids),
+            )
+            for node_id, road_ids in _snapshot_tuple("endpoint_incidence", self.endpoint_incidence)
+        )
+        object.__setattr__(self, "endpoint_incidence", incidence)
+        object.__setattr__(
+            self,
+            "tile_coordinates",
+            tuple(
+                _snapshot_int_pair("tile coordinate", value)
+                for value in _snapshot_tuple("tile_coordinates", self.tile_coordinates)
+            ),
+        )
+        object.__setattr__(
+            self,
+            "seam_diagnostics",
+            tuple(
+                (_snapshot_str("diagnostic name", name), _require_int("diagnostic count", count))
+                for name, count in _snapshot_tuple("seam_diagnostics", self.seam_diagnostics)
+            ),
+        )
+        hidden_repair_count = _require_int("hidden_repair_count", self.hidden_repair_count)
+        if hidden_repair_count != 0:
+            raise ValueError("hidden_repair_count must be zero")
+        object.__setattr__(self, "hidden_repair_count", hidden_repair_count)
+
+
 def audit_physical_records(
     nodes: Sequence[PhysicalNodeRecord], roads: Sequence[PhysicalRoadRecord]
 ) -> StructuralAudit:
@@ -750,4 +857,449 @@ def _road_self_intersections(road: PhysicalRoadRecord) -> int:
         _proper_intersection(left_a, left_b, right_a, right_b)
         for index, (left_a, left_b) in enumerate(segments)
         for right_a, right_b in segments[index + 2 :]
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class _NodeSpec:
+    semantic_id: str
+    x_mm: int
+    y_mm: int
+    layer: int
+    semantic_role: str
+
+
+@dataclass(frozen=True, slots=True)
+class _RoadSpec:
+    semantic_id: str
+    start_semantic_id: str
+    end_semantic_id: str
+    points_mm: tuple[tuple[int, int], ...]
+    hierarchy: RoadHierarchy
+    facility: FacilityKind
+    layer: int
+    access_directions: frozenset[str]
+    layer_transition: tuple[int, int] | None
+    structure_group: str | None
+    failure_group: str | None
+    profile_id: str
+    provenance: str
+    semantic_role: str
+    row_interval: RowIntervalAuthority | None
+
+
+@dataclass(frozen=True, slots=True)
+class _CanonicalGeneratedSpecs:
+    nodes: tuple[_NodeSpec, ...]
+    roads: tuple[_RoadSpec, ...]
+    gateway_semantic_ids: tuple[str, ...]
+    centers: tuple[tuple[int, int], ...]
+
+
+def _canonical_generated_specs(
+    scale_spec: ScalableScaleSnapshot,
+    style_id: str,
+    seed: int,
+    terrain: ScalableTerrainField,
+    extent: tuple[int, int, int, int],
+) -> _CanonicalGeneratedSpecs:
+    if style_id != "grid_core":
+        raise ValueError("style_id must be supported by the grid generator")
+    y_values = _local_axis(extent[2], extent[3], terrain, "y")
+    row_x_values = {
+        y_mm: _local_axis(extent[0], extent[1], terrain, "x", fixed_mm=y_mm) for y_mm in y_values
+    }
+    node_by_key: dict[tuple[int, int, int], _NodeSpec] = {}
+    road_specs: list[_RoadSpec] = []
+
+    def node_at(x_mm: int, y_mm: int, layer: int, role: str) -> _NodeSpec:
+        key = (x_mm, y_mm, layer)
+        existing = node_by_key.get(key)
+        if existing is not None:
+            return existing
+        spec = _NodeSpec(
+            _semantic_id((SCHEMA_VERSION, "node", seed, style_id, role, key)),
+            x_mm,
+            y_mm,
+            layer,
+            role,
+        )
+        node_by_key[key] = spec
+        return spec
+
+    def road_between(
+        role: str,
+        start: _NodeSpec,
+        end: _NodeSpec,
+        hierarchy: RoadHierarchy,
+        facility: FacilityKind,
+        layer: int,
+        *,
+        transition: tuple[int, int] | None = None,
+        row_interval: RowIntervalAuthority | None = None,
+    ) -> None:
+        points = ((start.x_mm, start.y_mm), (end.x_mm, end.y_mm))
+        directions = frozenset({"forward", "reverse"})
+        profile = _profile_for(facility, hierarchy)
+        provenance = "tmfcg_s2_construction"
+        semantic_id = _semantic_id(
+            (
+                SCHEMA_VERSION,
+                "road",
+                seed,
+                style_id,
+                role,
+                start.semantic_id,
+                end.semantic_id,
+                points,
+                hierarchy.value,
+                facility.value,
+                layer,
+                transition,
+                profile,
+                _row_interval_content(row_interval),
+            )
+        )
+        road_specs.append(
+            _RoadSpec(
+                semantic_id,
+                start.semantic_id,
+                end.semantic_id,
+                points,
+                hierarchy,
+                facility,
+                layer,
+                directions,
+                transition,
+                None,
+                None,
+                profile,
+                provenance,
+                role,
+                row_interval,
+            )
+        )
+
+    surface = {
+        (x_mm, y_mm): node_at(x_mm, y_mm, 0, "surface")
+        for y_mm in y_values
+        for x_mm in row_x_values[y_mm]
+    }
+    for y_mm in y_values:
+        values = row_x_values[y_mm]
+        for left, right in zip(values, values[1:]):
+            hierarchy = RoadHierarchy.ARTERIAL if y_mm == 0 else RoadHierarchy.LOCAL
+            road_between(
+                "surface-horizontal",
+                surface[(left, y_mm)],
+                surface[(right, y_mm)],
+                hierarchy,
+                FacilityKind.SURFACE,
+                0,
+                row_interval=_row_interval_authority(left, right, y_mm, terrain, extent),
+            )
+    for lower_y, upper_y in zip(y_values, y_values[1:]):
+        lower, upper = row_x_values[lower_y], row_x_values[upper_y]
+        for lower_index, upper_index in _monotone_partial_match(lower, upper):
+            lower_x, upper_x = lower[lower_index], upper[upper_index]
+            hierarchy = (
+                RoadHierarchy.ARTERIAL if lower_x == 0 and upper_x == 0 else RoadHierarchy.LOCAL
+            )
+            road_between(
+                "surface-vertical",
+                surface[(lower_x, lower_y)],
+                surface[(upper_x, upper_y)],
+                hierarchy,
+                FacilityKind.SURFACE,
+                0,
+            )
+
+    top_y, bottom_y = y_values[-1], y_values[0]
+    upper_row = row_x_values[top_y]
+    lower_row = row_x_values[bottom_y]
+    upper_side_y = y_values[2 * (len(y_values) - 1) // 3]
+    lower_side_y = y_values[(len(y_values) - 1) // 3]
+    gateways = (
+        surface[(upper_row[(len(upper_row) - 1) // 3], top_y)],
+        surface[(upper_row[2 * (len(upper_row) - 1) // 3], top_y)],
+        surface[(row_x_values[upper_side_y][-1], upper_side_y)],
+        surface[(row_x_values[lower_side_y][-1], lower_side_y)],
+        surface[(lower_row[2 * (len(lower_row) - 1) // 3], bottom_y)],
+        surface[(lower_row[(len(lower_row) - 1) // 3], bottom_y)],
+        surface[(row_x_values[lower_side_y][0], lower_side_y)],
+        surface[(row_x_values[upper_side_y][0], upper_side_y)],
+    )
+    upper_nodes = tuple(
+        node_at(
+            gateway.x_mm - (20_000 if gateway.x_mm > 0 else -20_000 if gateway.x_mm < 0 else 0),
+            gateway.y_mm - (20_000 if gateway.y_mm > 0 else -20_000 if gateway.y_mm < 0 else 0),
+            1,
+            "mainline-gateway",
+        )
+        for gateway in gateways
+    )
+    for gateway, upper in zip(gateways, upper_nodes):
+        road_between(
+            "ramp-access",
+            gateway,
+            upper,
+            RoadHierarchy.ARTERIAL,
+            FacilityKind.RAMP,
+            1,
+            transition=(0, 1),
+        )
+    for start, end in zip(upper_nodes, upper_nodes[1:] + upper_nodes[:1]):
+        road_between(
+            "mainline-ring",
+            start,
+            end,
+            RoadHierarchy.EXPRESSWAY,
+            FacilityKind.MAINLINE,
+            1,
+        )
+    return _CanonicalGeneratedSpecs(
+        tuple(sorted(node_by_key.values(), key=lambda item: item.semantic_id)),
+        tuple(sorted(road_specs, key=lambda item: item.semantic_id)),
+        tuple(gateway.semantic_id for gateway in gateways),
+        ((0, 0),),
+    )
+
+
+def _row_interval_content(authority: RowIntervalAuthority | None) -> tuple | None:
+    if authority is None:
+        return None
+    return (
+        authority.row_y_mm,
+        authority.left_x_mm,
+        authority.tile_left_mm,
+        authority.tile_right_mm,
+        authority.owner_cell,
+        authority.nominal_spacing_mm,
+        authority.realized_spacing_mm,
+        authority.seam_truncated,
+    )
+
+
+def _node_content(node: PhysicalNodeRecord) -> tuple:
+    return (node.node_id, node.semantic_id, node.x_mm, node.y_mm, node.layer, node.semantic_role)
+
+
+def _road_content(road: PhysicalRoadRecord) -> tuple:
+    return (
+        road.road_id,
+        road.semantic_id,
+        road.start_node_id,
+        road.end_node_id,
+        road.points_mm,
+        road.hierarchy.value,
+        road.facility.value,
+        road.layer,
+        tuple(sorted(road.access_directions)),
+        road.layer_transition,
+        road.structure_group,
+        road.failure_group,
+        road.profile_id,
+        road.provenance,
+        road.semantic_role,
+        _row_interval_content(road.row_interval),
+    )
+
+
+def _style_fingerprint(
+    style_id: str,
+    seed: int,
+    centers: Sequence[tuple[int, int]],
+    nodes: Sequence[PhysicalNodeRecord],
+    roads: Sequence[PhysicalRoadRecord],
+) -> str:
+    return _semantic_id(
+        (
+            SCHEMA_VERSION,
+            "style",
+            style_id,
+            seed,
+            tuple(centers),
+            tuple(_node_content(node) for node in nodes),
+            tuple(_road_content(road) for road in roads),
+        )
+    )
+
+
+def _endpoint_incidence(
+    nodes: Sequence[PhysicalNodeRecord], roads: Sequence[PhysicalRoadRecord]
+) -> tuple[tuple[int, tuple[int, ...]], ...]:
+    values: dict[int, list[int]] = {node.node_id: [] for node in nodes}
+    for road in roads:
+        values[road.start_node_id].append(road.road_id)
+        values[road.end_node_id].append(road.road_id)
+    return tuple((node_id, tuple(sorted(road_ids))) for node_id, road_ids in sorted(values.items()))
+
+
+def _computed_seam_diagnostics(
+    extent: tuple[int, int, int, int],
+    nodes: Sequence[PhysicalNodeRecord],
+    terrain: ScalableTerrainField,
+    tiles: Sequence[tuple[int, int]],
+) -> tuple[tuple[str, int], ...]:
+    surface = tuple(node for node in nodes if node.layer == 0)
+    x_coordinates = {node.x_mm for node in surface}
+    y_coordinates = {node.y_mm for node in surface}
+    x_seams = set(_seam_coordinates(extent[0], extent[1]))
+    y_seams = set(_seam_coordinates(extent[2], extent[3]))
+    barrier = terrain.barrier_seam_x_mm
+    expected_x = x_seams - ({barrier} if barrier is not None else set())
+    mismatch_count = len(expected_x - x_coordinates) + len(y_seams - y_coordinates)
+    return (
+        ("barrier_seam_exception_count", int(barrier is not None)),
+        ("seam_mismatch_count", mismatch_count),
+        ("tile_count", len(tuple(tiles))),
+    )
+
+
+def _network_fingerprint(
+    scale_spec: ScalableScaleSnapshot,
+    style_id: str,
+    seed: int,
+    extent_mm: tuple[int, int, int, int],
+    centers: Sequence[tuple[int, int]],
+    gateway_node_ids: Sequence[int],
+    nodes: Sequence[PhysicalNodeRecord],
+    roads: Sequence[PhysicalRoadRecord],
+    incidence: Sequence[tuple[int, tuple[int, ...]]],
+    terrain: ScalableTerrainField,
+    tiles: Sequence[tuple[int, int]],
+    diagnostics: Sequence[tuple[str, int]],
+    hidden_repair_count: int,
+) -> str:
+    return _semantic_id(
+        (
+            SCHEMA_VERSION,
+            (scale_spec.target_population, scale_spec.urbanized_area_km2),
+            style_id,
+            seed,
+            extent_mm,
+            tuple(centers),
+            tuple(gateway_node_ids),
+            tuple(_node_content(node) for node in nodes),
+            tuple(_road_content(road) for road in roads),
+            tuple(incidence),
+            (
+                terrain.width_m,
+                terrain.height_m,
+                terrain.cell_size_m,
+                terrain.tile_size_m,
+                terrain.seed,
+                terrain.style_id,
+                terrain.barrier_seam_x_mm,
+                terrain.fingerprint,
+            ),
+            tuple(tiles),
+            tuple(diagnostics),
+            hidden_repair_count,
+        )
+    )
+
+
+def build_scalable_street_network(
+    scale_spec: object,
+    style_id: str,
+    seed: int,
+    *,
+    tile_order: Sequence[tuple[int, int]] | None = None,
+) -> ScalableStreetNetwork:
+    snapshot = _snapshot_scale_spec(scale_spec)
+    style_id = _snapshot_str("style_id", style_id)
+    if style_id not in STYLE_IDS:
+        raise ValueError(f"style_id must be one of: {', '.join(STYLE_IDS)}")
+    seed = _require_int("seed", seed)
+    width_mm, height_mm = _extent_mm(snapshot.urbanized_area_km2)
+    min_x, min_y = -width_mm // 2, -height_mm // 2
+    extent = (min_x, min_x + width_mm, min_y, min_y + height_mm)
+    tiles = _tile_domain(extent)
+    _validate_tile_order(tiles, tile_order)
+    terrain = ScalableTerrainField(
+        width_mm / 1_000.0,
+        height_mm / 1_000.0,
+        TERRAIN_CELL_SIZE_M,
+        TILE_SIZE_M,
+        seed,
+        style_id,
+        None,
+        _terrain_fingerprint(width_mm / 1_000.0, height_mm / 1_000.0, seed, style_id, None),
+    )
+    canonical = _canonical_generated_specs(snapshot, style_id, seed, terrain, extent)
+    nodes = tuple(
+        PhysicalNodeRecord(
+            index, spec.semantic_id, spec.x_mm, spec.y_mm, spec.layer, spec.semantic_role
+        )
+        for index, spec in enumerate(canonical.nodes)
+    )
+    if len(nodes) > MAX_JUNCTIONS:
+        raise ValueError(f"junction budget exceeded: {len(nodes)} > {MAX_JUNCTIONS}")
+    node_ids = {node.semantic_id: node.node_id for node in nodes}
+    roads = tuple(
+        PhysicalRoadRecord(
+            index,
+            spec.semantic_id,
+            node_ids[spec.start_semantic_id],
+            node_ids[spec.end_semantic_id],
+            spec.points_mm,
+            spec.hierarchy,
+            spec.facility,
+            spec.layer,
+            spec.access_directions,
+            spec.layer_transition,
+            spec.structure_group,
+            spec.failure_group,
+            spec.profile_id,
+            spec.provenance,
+            spec.semantic_role,
+            spec.row_interval,
+        )
+        for index, spec in enumerate(canonical.roads)
+    )
+    if len(roads) > MAX_PHYSICAL_ROADS:
+        raise ValueError(f"road budget exceeded: {len(roads)} > {MAX_PHYSICAL_ROADS}")
+    incidence = _endpoint_incidence(nodes, roads)
+    gateway_node_ids = tuple(node_ids[value] for value in canonical.gateway_semantic_ids)
+    diagnostics = _computed_seam_diagnostics(extent, nodes, terrain, tiles)
+    scale_fingerprint = _semantic_id(
+        (SCHEMA_VERSION, "scale", snapshot.target_population, snapshot.urbanized_area_km2)
+    )
+    style_fingerprint = _style_fingerprint(style_id, seed, canonical.centers, nodes, roads)
+    fingerprint = _network_fingerprint(
+        snapshot,
+        style_id,
+        seed,
+        extent,
+        canonical.centers,
+        gateway_node_ids,
+        nodes,
+        roads,
+        incidence,
+        terrain,
+        tiles,
+        diagnostics,
+        0,
+    )
+    return ScalableStreetNetwork(
+        snapshot,
+        style_id,
+        seed,
+        SCHEMA_VERSION,
+        scale_fingerprint,
+        style_fingerprint,
+        extent,
+        width_mm / 1_000.0,
+        height_mm / 1_000.0,
+        canonical.centers,
+        gateway_node_ids,
+        nodes,
+        roads,
+        incidence,
+        terrain,
+        tiles,
+        diagnostics,
+        0,
+        fingerprint,
     )
