@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import inspect
+import subprocess
+import sys
 
 import pytest
 
@@ -1189,7 +1191,7 @@ def test_wrapper_constructor_rejects_duplicate_group_semantics(
     road_group_name: str,
     road_group_id_name: str,
 ) -> None:
-    from dataclasses import fields, replace
+    from dataclasses import replace
 
     import metroflow.city.scalable_topology_adapter as adapter
 
@@ -1202,9 +1204,8 @@ def test_wrapper_constructor_rejects_duplicate_group_semantics(
     } == {row.semantic_group for row in rows}
     duplicate = replace(rows[1], semantic_group=rows[0].semantic_group)
     values = {
-        field.name: getattr(river_compiled, field.name)
-        for field in fields(river_compiled)
-        if field.name != "fingerprint"
+        name: getattr(river_compiled, name)
+        for name in river_compiled.__slots__[:-1]
     }
     values[crosswalk_name] = (rows[0], duplicate, *rows[2:])
 
@@ -1215,7 +1216,7 @@ def test_wrapper_constructor_rejects_duplicate_group_semantics(
 def test_wrapper_constructor_rejects_resealed_turn_distribution_counts(
     public_compiled,
 ) -> None:
-    from dataclasses import fields, replace
+    from dataclasses import replace
 
     import metroflow.city.scalable_topology_adapter as adapter
 
@@ -1224,11 +1225,7 @@ def test_wrapper_constructor_rejects_resealed_turn_distribution_counts(
     metadata["permitted_turn_movement_count"] += 1
     metadata["forbidden_u_turn_count"] -= 1
     topology = replace(compiled.topology, metadata=metadata)
-    values = {
-        field.name: getattr(compiled, field.name)
-        for field in fields(compiled)
-        if field.name != "fingerprint"
-    }
+    values = {name: getattr(compiled, name) for name in compiled.__slots__[:-1]}
     values.update(
         topology=topology,
         metadata_items=tuple(metadata.items()),
@@ -1243,18 +1240,14 @@ def test_wrapper_constructor_rejects_resealed_turn_distribution_counts(
 def test_wrapper_constructor_rejects_resealed_source_node_count_mismatch(
     public_compiled,
 ) -> None:
-    from dataclasses import fields, replace
+    from dataclasses import replace
 
     import metroflow.city.scalable_topology_adapter as adapter
 
     _, _, compiled = public_compiled
     metadata = dict(compiled.metadata_items)
     metadata["source_node_count"] += 1
-    values = {
-        field.name: getattr(compiled, field.name)
-        for field in fields(compiled)
-        if field.name != "fingerprint"
-    }
+    values = {name: getattr(compiled, name) for name in compiled.__slots__[:-1]}
     values.update(
         topology=replace(compiled.topology, metadata=metadata),
         metadata_items=tuple(metadata.items()),
@@ -1280,18 +1273,14 @@ def test_wrapper_constructor_rejects_resealed_derived_metadata_count(
     public_compiled,
     metadata_name: str,
 ) -> None:
-    from dataclasses import fields, replace
+    from dataclasses import replace
 
     import metroflow.city.scalable_topology_adapter as adapter
 
     _, _, compiled = public_compiled
     metadata = dict(compiled.metadata_items)
     metadata[metadata_name] += 1
-    values = {
-        field.name: getattr(compiled, field.name)
-        for field in fields(compiled)
-        if field.name != "fingerprint"
-    }
+    values = {name: getattr(compiled, name) for name in compiled.__slots__[:-1]}
     values.update(
         topology=replace(compiled.topology, metadata=metadata),
         metadata_items=tuple(metadata.items()),
@@ -1315,7 +1304,7 @@ def test_wrapper_constructor_rejects_resealed_catalog_coverage_count(
     public_compiled,
     catalog_row: str,
 ) -> None:
-    from dataclasses import fields, replace
+    from dataclasses import replace
 
     import metroflow.city.scalable_topology_adapter as adapter
     from metroflow.map.node_compiler import NodeInterfaceCatalog
@@ -1363,11 +1352,7 @@ def test_wrapper_constructor_rejects_resealed_catalog_coverage_count(
         node_interfaces=interfaces,
         metadata=metadata,
     )
-    values = {
-        field.name: getattr(compiled, field.name)
-        for field in fields(compiled)
-        if field.name != "fingerprint"
-    }
+    values = {name: getattr(compiled, name) for name in compiled.__slots__[:-1]}
     values.update(
         topology=replace(topology, **replacements),
         metadata_items=tuple(metadata.items()),
@@ -1440,11 +1425,7 @@ def test_wrapper_constructor_rejects_nonexact_catalog_nested_rows(
         interfaces = NodeInterfaceCatalog(
             (derived(interfaces.interfaces[0]), *interfaces.interfaces[1:])
         )
-    values = {
-        field.name: getattr(compiled, field.name)
-        for field in fields(compiled)
-        if field.name != "fingerprint"
-    }
+    values = {name: getattr(compiled, name) for name in compiled.__slots__[:-1]}
     values["topology"] = replace(
         topology,
         road_geometry=geometry,
@@ -1454,3 +1435,145 @@ def test_wrapper_constructor_rejects_nonexact_catalog_nested_rows(
 
     with pytest.raises(TypeError, match="exact|catalog|row"):
         adapter._new_compiled_wrapper(**values)
+
+
+def test_isolated_import_never_calls_generation_repair_or_runtime() -> None:
+    code = r"""
+import importlib, sys
+import metroflow.city as city
+import metroflow.city.connectivity as connectivity
+import metroflow.city.scalable_blocks as blocks
+import metroflow.map.road_geometry as geometry
+def forbidden(*args, **kwargs):
+    raise AssertionError("forbidden generation or repair call")
+for name in ("repair_weak_connectivity", "build_hierarchical_street_skeleton", "build_continuous_local_fabric", "build_terrain_field", "build_urban_form_field"):
+    setattr(city, name, forbidden)
+connectivity.repair_weak_connectivity = forbidden
+blocks.build_scalable_block_authority = forbidden
+geometry.build_endpoint_geometry_catalog = forbidden
+importlib.import_module("metroflow.city.scalable_topology_adapter")
+exact = ("metroflow.city.topology_finalizer", "metroflow.city.planarization", "metroflow.city.planar_blocks", "metroflow.city.block_land_use", "metroflow.city.generator_v2", "metroflow.city.realistic_city", "metroflow.sim.config", "jax", "torch", "_metroflow_rust")
+prefixes = ("metroflow.sim", "metroflow.demand", "metroflow.landuse", "metroflow.routing", "metroflow.backends")
+assert not set(exact) & sys.modules
+assert not any(name == prefix or name.startswith(prefix + ".")
+               for name in sys.modules for prefix in prefixes)
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", code], capture_output=True, text=True, check=False
+    )
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize(
+    "style_id",
+    (
+        "ring_radial",
+        "grid_core",
+        "polycentric_tod",
+        "river_constrained",
+        "superblock_mixed",
+        "organic",
+    ),
+)
+def test_all_generated_styles_compile_without_repair_or_nondeterminism(
+    style_id: str,
+    monkeypatch,
+) -> None:
+    from metroflow.city.scale import CityScaleSpec
+    from metroflow.city.scalable_blocks import build_scalable_block_authority
+    from metroflow.city.scalable_topology import build_scalable_street_network
+    from metroflow.city.scalable_topology_adapter import compile_scalable_topology
+    from metroflow.city import connectivity
+    from metroflow.map import road_geometry
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("repair or endpoint reconstruction called")
+
+    monkeypatch.setattr(connectivity, "repair_weak_connectivity", forbidden)
+    monkeypatch.setattr(road_geometry, "build_endpoint_geometry_catalog", forbidden)
+    network = build_scalable_street_network(
+        CityScaleSpec(100_000, 40.0), style_id, 17
+    )
+    blocks = build_scalable_block_authority(network)
+    first = compile_scalable_topology(network, block_authority=blocks)
+    second = compile_scalable_topology(network, block_authority=blocks)
+    assert first.fingerprint == second.fingerprint
+    assert dict(first.metadata_items)["connectivity_repair_link_count"] == 0
+
+
+def test_wrapper_identity_binds_numeric_link_bridge_metadata_and_block_seal(
+    public_compiled,
+    river_compiled,
+) -> None:
+    from dataclasses import replace
+
+    import metroflow.city.scalable_topology_adapter as adapter
+    from metroflow.map.road_geometry import RoadGeometryCatalog
+
+    _, _, compiled = public_compiled
+    original_fingerprint = compiled.fingerprint
+    link = compiled.topology.links[0]
+    original_speed = link.free_flow_speed_mps
+    link.free_flow_speed_mps += 1.0
+    try:
+        assert adapter._compiled_fingerprint(compiled) != original_fingerprint
+    finally:
+        link.free_flow_speed_mps = original_speed
+    profile = replace(
+        compiled.numeric_profiles[0],
+        free_flow_speed_mps=compiled.numeric_profiles[0].free_flow_speed_mps + 1.0,
+    )
+    assert adapter._compiled_fingerprint(
+        replace(compiled, numeric_profiles=(profile, *compiled.numeric_profiles[1:]))
+    ) != original_fingerprint
+    assert adapter._compiled_fingerprint(
+        replace(compiled, source_block_authority_fingerprint="f" * 64)
+    ) != original_fingerprint
+    road_row = replace(compiled.road_crosswalk[0], provenance="synthetic:changed")
+    assert adapter._compiled_fingerprint(
+        replace(compiled, road_crosswalk=(road_row, *compiled.road_crosswalk[1:]))
+    ) != original_fingerprint
+    centerline = replace(
+        compiled.topology.road_geometry.centerlines[0], source_ref="scalable:changed"
+    )
+    geometry = RoadGeometryCatalog(
+        (centerline, *compiled.topology.road_geometry.centerlines[1:]),
+        compiled.topology.road_geometry.assignments,
+    )
+    changed_topology = replace(compiled.topology, road_geometry=geometry)
+    assert adapter._compiled_fingerprint(
+        replace(compiled, topology=changed_topology)
+    ) != original_fingerprint
+    bridge = river_compiled.topology.bridge_crossings[0]
+    bridge_name = bridge.crossing_name
+    bridge.crossing_name = f"{bridge_name}:changed"
+    try:
+        assert adapter._compiled_fingerprint(river_compiled) != river_compiled.fingerprint
+    finally:
+        bridge.crossing_name = bridge_name
+
+
+def test_public_rows_are_frozen_and_reject_coercive_nested_values(
+    public_compiled,
+    river_compiled,
+) -> None:
+    from dataclasses import FrozenInstanceError, replace
+
+    _, _, compiled = public_compiled
+    rows = (
+        (compiled.numeric_profiles[0], "profile_id"),
+        (compiled.road_crosswalk[0], "provenance"),
+        (river_compiled.structure_group_crosswalk[0], "semantic_group"),
+        (compiled, "fingerprint"),
+    )
+    for row, name in rows:
+        with pytest.raises(FrozenInstanceError):
+            setattr(row, name, "changed")
+    with pytest.raises(TypeError):
+        replace(compiled.numeric_profiles[0], lanes_per_direction=True)
+    with pytest.raises(TypeError):
+        replace(river_compiled.structure_group_crosswalk[0], member_physical_road_ids=[])
+    with pytest.raises(TypeError):
+        replace(compiled.road_crosswalk[0], access_directions=["forward"])
+    with pytest.raises(TypeError):
+        replace(compiled, metadata_items=list(compiled.metadata_items))
