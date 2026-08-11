@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from collections import defaultdict, deque
-from dataclasses import dataclass, field, fields
+from collections import Counter, defaultdict, deque
+from dataclasses import dataclass, field, fields, replace
 from fractions import Fraction
 from functools import cmp_to_key
 import hashlib
@@ -931,6 +931,251 @@ def _validate_embedding_permutations(authority: ScalableBlockAuthority) -> None:
             raise ValueError("canonical ray rotation inverse mismatch")
 
 
+def _validate_extent(extent: object) -> tuple[int, int, int, int]:
+    if type(extent) is not tuple or len(extent) != 4:
+        raise ValueError("extent must contain four integer-mm values")
+    result = tuple(_plain_int(value, "extent") for value in extent)
+    if result[0] >= result[1] or result[2] >= result[3]:
+        raise ValueError("extent must be ordered")
+    return result
+
+
+def _canonical_tile_domain(
+    extent: tuple[int, int, int, int],
+) -> tuple[tuple[int, int], ...]:
+    minimum_x, maximum_x, minimum_y, maximum_y = extent
+    return tuple(
+        (tile_x, tile_y)
+        for tile_y in range(
+            math.floor(minimum_y / TILE_SIZE_MM),
+            math.floor(maximum_y / TILE_SIZE_MM) + 1,
+        )
+        for tile_x in range(
+            math.floor(minimum_x / TILE_SIZE_MM),
+            math.floor(maximum_x / TILE_SIZE_MM) + 1,
+        )
+    )
+
+
+def _tile_rectangle(
+    coordinate: tuple[int, int], extent: tuple[int, int, int, int]
+) -> tuple[int, int, int, int] | None:
+    tile_x, tile_y = coordinate
+    left = max(extent[0], tile_x * TILE_SIZE_MM)
+    right = min(extent[1], (tile_x + 1) * TILE_SIZE_MM)
+    bottom = max(extent[2], tile_y * TILE_SIZE_MM)
+    top = min(extent[3], (tile_y + 1) * TILE_SIZE_MM)
+    return None if left >= right or bottom >= top else (left, right, bottom, top)
+
+
+def _clip_walk(
+    polygon: tuple[PointMM, ...], rectangle: tuple[int, int, int, int]
+) -> tuple[FractionPoint, ...]:
+    vertices = [(Fraction(x_value), Fraction(y_value)) for x_value, y_value in polygon[:-1]]
+    left, right, bottom, top = rectangle
+    for axis, bound, keep_greater in (
+        (0, Fraction(left), True),
+        (0, Fraction(right), False),
+        (1, Fraction(bottom), True),
+        (1, Fraction(top), False),
+    ):
+        if not vertices:
+            break
+        output: list[FractionPoint] = []
+        previous = vertices[-1]
+        previous_inside = previous[axis] >= bound if keep_greater else previous[axis] <= bound
+        for current in vertices:
+            current_inside = current[axis] >= bound if keep_greater else current[axis] <= bound
+            if current_inside != previous_inside:
+                delta = current[axis] - previous[axis]
+                parameter = (bound - previous[axis]) / delta
+                output.append(
+                    (
+                        previous[0] + parameter * (current[0] - previous[0]),
+                        previous[1] + parameter * (current[1] - previous[1]),
+                    )
+                )
+            if current_inside:
+                output.append(current)
+            previous, previous_inside = current, current_inside
+        vertices = output
+    cleaned: list[FractionPoint] = []
+    for point in vertices:
+        if not cleaned or cleaned[-1] != point:
+            cleaned.append(point)
+    if len(cleaned) > 1 and cleaned[0] == cleaned[-1]:
+        cleaned.pop()
+    return () if len(cleaned) < 3 else (*cleaned, cleaned[0])
+
+
+def _point_on_fraction_segment(
+    point: FractionPoint, start: FractionPoint, end: FractionPoint
+) -> bool:
+    return (
+        (end[0] - start[0]) * (point[1] - start[1]) == (end[1] - start[1]) * (point[0] - start[0])
+        and min(start[0], end[0]) <= point[0] <= max(start[0], end[0])
+        and min(start[1], end[1]) <= point[1] <= max(start[1], end[1])
+    )
+
+
+def _split_clipped_walk(
+    walk: tuple[FractionPoint, ...],
+) -> tuple[tuple[FractionPoint, ...], ...]:
+    if not walk:
+        return ()
+    vertices = tuple(sorted(set(walk[:-1])))
+    directed: Counter[tuple[FractionPoint, FractionPoint]] = Counter()
+    for start, end in zip(walk, walk[1:]):
+        on_segment = [point for point in vertices if _point_on_fraction_segment(point, start, end)]
+        delta_x, delta_y = end[0] - start[0], end[1] - start[1]
+        if abs(delta_x) >= abs(delta_y):
+            on_segment.sort(
+                key=lambda point: (point[0] - start[0]) / delta_x if delta_x else Fraction()
+            )
+        else:
+            on_segment.sort(key=lambda point: (point[1] - start[1]) / delta_y)
+        for left, right in zip(on_segment, on_segment[1:]):
+            if left != right:
+                directed[(left, right)] += 1
+    for edge in tuple(directed):
+        reverse = (edge[1], edge[0])
+        cancellation = min(directed[edge], directed.get(reverse, 0))
+        directed[edge] -= cancellation
+        directed[reverse] -= cancellation
+    remaining = Counter({edge: count for edge, count in directed.items() if count})
+    outgoing: Counter[FractionPoint] = Counter()
+    incoming: Counter[FractionPoint] = Counter()
+    for (start, end), count in remaining.items():
+        outgoing[start] += count
+        incoming[end] += count
+    if outgoing != incoming:
+        raise ValueError("clipped polygon components have inconsistent incidence")
+    cycles: list[tuple[FractionPoint, ...]] = []
+    while remaining:
+        start, current = min(edge for edge, count in remaining.items() if count)
+        cycle = [start, current]
+        remaining[(start, current)] -= 1
+        if remaining[(start, current)] == 0:
+            del remaining[(start, current)]
+        while current != start:
+            choices = sorted(
+                end for (origin, end), count in remaining.items() if origin == current and count
+            )
+            if not choices:
+                raise ValueError("clipped polygon component is not closed")
+            following = choices[0]
+            remaining[(current, following)] -= 1
+            if remaining[(current, following)] == 0:
+                del remaining[(current, following)]
+            current = following
+            cycle.append(current)
+        if len(set(cycle[:-1])) < 3 or _signed_area2(tuple(cycle)) == 0:
+            continue
+        body = tuple(cycle[:-1])
+        if _signed_area2(tuple(cycle)) < 0:
+            body = tuple(reversed(body))
+        chosen = min(body[index:] + body[:index] for index in range(len(body)))
+        cycles.append((*chosen, chosen[0]))
+    return tuple(sorted(cycles))
+
+
+def _clip_ring_parts(
+    polygon: tuple[PointMM, ...], rectangle: tuple[int, int, int, int]
+) -> tuple[tuple[FractionPoint, ...], ...]:
+    return _split_clipped_walk(_clip_walk(polygon, rectangle))
+
+
+def _fraction_area(polygon: tuple[FractionPoint, ...]) -> Fraction:
+    return Fraction(abs(_signed_area2(polygon)), 2) if polygon else Fraction()
+
+
+def _diagnostic_ring(polygon: tuple[FractionPoint, ...]) -> tuple[PointMM, ...]:
+    points: list[PointMM] = []
+    for x_value, y_value in polygon[:-1]:
+        point = (round(x_value), round(y_value))
+        if not points or points[-1] != point:
+            points.append(point)
+    if len(points) > 1 and points[0] == points[-1]:
+        points.pop()
+    if len(set(points)) < 3:
+        raise ValueError("positive exact clip collapses in diagnostic integer-mm geometry")
+    ring = _canonical_polygon((*points, points[0]), clockwise=False)
+    if _signed_area2(ring) == 0:
+        raise ValueError("positive exact clip collapses in diagnostic integer-mm geometry")
+    return ring
+
+
+def _build_tile_clips(
+    faces: tuple[V2Face, ...],
+    boundaries: tuple[V2FaceBoundary, ...],
+    tiles: tuple[tuple[int, int], ...],
+    tile_order: tuple[tuple[int, int], ...],
+    extent: tuple[int, int, int, int],
+) -> tuple[tuple[V2FaceTileClip, ...], dict[int, tuple[int, int]]]:
+    boundary_by_id = {boundary.boundary_id: boundary for boundary in boundaries}
+    pending = []
+    owner_by_face: dict[int, tuple[int, int]] = {}
+    for face in faces:
+        if face.is_unbounded:
+            continue
+        outer = boundary_by_id[face.outer_boundary_id].polygon_mm
+        holes = tuple(boundary_by_id[index].polygon_mm for index in face.hole_boundary_ids)
+        positive_tiles: list[tuple[int, int]] = []
+        for coordinate in tile_order:
+            rectangle = _tile_rectangle(coordinate, extent)
+            if rectangle is None:
+                continue
+            outer_parts = _clip_ring_parts(outer, rectangle)
+            outer_area = sum((_fraction_area(part) for part in outer_parts), Fraction())
+            hole_parts = tuple(_clip_ring_parts(hole, rectangle) for hole in holes)
+            net_area = outer_area - sum(
+                (_fraction_area(part) for parts in hole_parts for part in parts), Fraction()
+            )
+            if net_area < 0:
+                raise ValueError("hole clip area exceeds outer clip area")
+            if net_area == 0:
+                continue
+            diagnostic_outer = tuple(_diagnostic_ring(part) for part in outer_parts)
+            diagnostic_holes = tuple(
+                _diagnostic_ring(part) for parts in hole_parts for part in parts
+            )
+            diagnostic_area = sum(abs(_signed_area2(part)) for part in diagnostic_outer) - sum(
+                abs(_signed_area2(part)) for part in diagnostic_holes
+            )
+            pending.append(
+                (
+                    face,
+                    coordinate,
+                    (*diagnostic_outer, *diagnostic_holes),
+                    net_area,
+                    diagnostic_area,
+                )
+            )
+            positive_tiles.append(coordinate)
+        if not positive_tiles:
+            raise ValueError("bounded face has no positive-area canonical tile clip")
+        owner_by_face[face.face_id] = min(positive_tiles)
+    pending.sort(key=lambda item: (item[0].semantic_id, item[1], item[2]))
+    return (
+        tuple(
+            V2FaceTileClip(
+                index,
+                face.face_id,
+                face.semantic_id,
+                coordinate,
+                diagnostic,
+                net_area,
+                diagnostic_area,
+                coordinate == owner_by_face[face.face_id],
+            )
+            for index, (face, coordinate, diagnostic, net_area, diagnostic_area) in enumerate(
+                pending
+            )
+        ),
+        owner_by_face,
+    )
+
+
 def _build_blocks(
     faces: tuple[V2Face, ...],
     boundaries: tuple[V2FaceBoundary, ...],
@@ -1093,6 +1338,33 @@ def _build_block_authority_from_records(
     if type(roads) is not tuple or any(type(road) is not PhysicalRoadRecord for road in roads):
         raise TypeError("roads must contain exact PhysicalRoadRecord values")
     source_fingerprint = _plain_digest(source_network_fingerprint, "source_network_fingerprint")
+    extent = _validate_extent(extent_mm)
+    canonical_tiles = _canonical_tile_domain(extent)
+    if (
+        type(tile_coordinates) is not tuple
+        or any(
+            type(coordinate) is not tuple
+            or len(coordinate) != 2
+            or any(type(value) is not int for value in coordinate)
+            for coordinate in tile_coordinates
+        )
+        or len(tile_coordinates) != len(canonical_tiles)
+        or set(tile_coordinates) != set(canonical_tiles)
+    ):
+        raise ValueError("tile_coordinates must equal the canonical tile domain")
+    traversal = canonical_tiles if tile_order is None else tile_order
+    if (
+        type(traversal) is not tuple
+        or any(
+            type(coordinate) is not tuple
+            or len(coordinate) != 2
+            or any(type(value) is not int for value in coordinate)
+            for coordinate in traversal
+        )
+        or len(traversal) != len(canonical_tiles)
+        or set(traversal) != set(canonical_tiles)
+    ):
+        raise ValueError("tile_order must be a canonical tile permutation")
     selected_roads = tuple(
         road
         for road in roads
@@ -1290,6 +1562,10 @@ def _build_block_authority_from_records(
         )
         for face_id, face in enumerate(face_drafts)
     )
+    tile_clips, owner_by_face = _build_tile_clips(
+        faces, boundaries, canonical_tiles, traversal, extent
+    )
+    faces = tuple(replace(face, owner_tile=owner_by_face.get(face.face_id)) for face in faces)
     blocks = _build_blocks(faces, boundaries, half_edges, edges, source_fingerprint)
     access_index = _build_access_index(blocks)
     vertex_count = len(
@@ -1305,8 +1581,8 @@ def _build_block_authority_from_records(
         EMBEDDING_POLICY,
         TILE_POLICY,
         SUBDIVISION_SCHEMA,
-        tuple(extent_mm),
-        tuple(tile_coordinates),
+        extent,
+        canonical_tiles,
         edges,
         ramp_records,
         half_edges,
@@ -1314,7 +1590,7 @@ def _build_block_authority_from_records(
         faces,
         blocks,
         access_index,
-        (),
+        tile_clips,
         vertex_count,
         edge_count,
         face_count,
