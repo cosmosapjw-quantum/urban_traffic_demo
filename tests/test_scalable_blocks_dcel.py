@@ -303,27 +303,26 @@ def test_authority_records_are_deeply_frozen() -> None:
                 check(f"{type(record).__name__}.{item.name}:{kind}", item.name, lambda record=record, changes=changes: replace(record, **changes))
         subtype = type(f"{type(record).__name__}Proxy", (type(record),), {})
         check(subtype.__name__, "", lambda subtype=subtype, record=record: subtype(**{item.name: getattr(record, item.name) for item in fields(record)}))
-
+    class AccessorBomb:
+        touched = False
+        def __getattribute__(self, name):
+            object.__setattr__(self, "touched", True)
+            raise RuntimeError("authority attribute read")
+    bomb = AccessorBomb()
+    for invalid in (object(), None, 0, bomb):
+        check(f"authority input {type(invalid).__name__}", "", lambda invalid=invalid: blocks.validate_scalable_block_authority(invalid))
     class ComparisonBomb:
-        def __eq__(self, other):
-            raise RuntimeError("comparison reached")
-
+        def __eq__(self, other): raise RuntimeError("comparison reached")
         __ne__ = __eq__
-
     forged = object.__new__(ScalableBlockAuthority)
     for item in fields(authority):
         object.__setattr__(forged, item.name, getattr(authority, item.name))
     object.__setattr__(forged, "schema_version", ComparisonBomb())
-    precedence = (
-        (forged, None, "schema_version"),
-        (records[0], {"semantic_id": "bad", "facility": 1}, "facility"),
-        (records[3], {"semantic_id": "bad", "is_unbounded": 1}, "is_unbounded"),
-        (records[5], {"semantic_id": "bad", "net_area_mm2": 1}, "net_area_mm2"),
-    )
+    precedence = ((forged, None, "schema_version"), (records[0], {"semantic_id": "bad", "facility": 1}, "facility"), (records[3], {"semantic_id": "bad", "is_unbounded": 1}, "is_unbounded"), (records[5], {"semantic_id": "bad", "net_area_mm2": 1}, "net_area_mm2"))
     for record, changes, field_name in precedence:
         check(f"precedence {field_name}", field_name, lambda record=record, changes=changes: blocks.validate_scalable_block_authority(record) if changes is None else replace(record, **changes))
     # fmt: on
-    assert failures == []
+    assert (failures, object.__getattribute__(bomb, "touched")) == ([], False)
 
 
 def test_square_has_total_dcel_and_one_unbounded_face() -> None:
