@@ -5,8 +5,10 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+from collections import defaultdict, deque
 from dataclasses import dataclass
 from enum import Enum
+from fractions import Fraction
 from math import isfinite
 from typing import Sequence
 
@@ -510,3 +512,242 @@ def _monotone_partial_match(
     ):
         raise ValueError("row strip matching must be strictly monotone")
     return pairs
+
+
+@dataclass(frozen=True, slots=True)
+class StructuralAudit:
+    is_connected: bool
+    same_layer_proper_crossing_count: int
+    t_touch_count: int
+    collinear_overlap_count: int
+    self_intersection_count: int
+    nonadjacent_weld_count: int
+    duplicate_road_count: int
+    different_layer_false_junction_count: int
+    endpoint_anchor_mismatch_count: int
+    center_disjoint_gateway_path_count: int
+    river_cross_bank_group_count: int
+    river_group_removal_failures: tuple[str, ...]
+
+
+def audit_physical_records(
+    nodes: Sequence[PhysicalNodeRecord], roads: Sequence[PhysicalRoadRecord]
+) -> StructuralAudit:
+    node_records, road_records = tuple(nodes), tuple(roads)
+    node_ids = [node.node_id for node in node_records]
+    node_semantics = [node.semantic_id for node in node_records]
+    if len(node_ids) != len(set(node_ids)) or len(node_semantics) != len(set(node_semantics)):
+        raise ValueError("duplicate node dense or semantic id")
+    road_ids = [road.road_id for road in road_records]
+    road_semantics = [road.semantic_id for road in road_records]
+    if len(road_ids) != len(set(road_ids)) or len(road_semantics) != len(set(road_semantics)):
+        raise ValueError("duplicate road dense or semantic id")
+    by_id = {node.node_id: node for node in node_records}
+    incidence: dict[int, list[int]] = defaultdict(list)
+    anchor_mismatches = false_layer_junctions = duplicates = 0
+    duplicate_keys: set[tuple[object, ...]] = set()
+    segments: list[tuple[int, int, int, tuple[int, int], tuple[int, int]]] = []
+    for road in road_records:
+        start, end = by_id.get(road.start_node_id), by_id.get(road.end_node_id)
+        if start is None or end is None:
+            anchor_mismatches += 2
+        else:
+            anchor_mismatches += int(start.point_mm != road.points_mm[0])
+            anchor_mismatches += int(end.point_mm != road.points_mm[-1])
+            incidence[start.node_id].append(road.road_id)
+            incidence[end.node_id].append(road.road_id)
+            endpoint_layers = (start.layer, end.layer)
+            if road.facility is FacilityKind.RAMP:
+                if road.layer_transition is None or frozenset(endpoint_layers) != frozenset(
+                    road.layer_transition
+                ):
+                    false_layer_junctions += 1
+            elif any(layer != road.layer for layer in endpoint_layers):
+                false_layer_junctions += 1
+        duplicates += int(road.canonical_key in duplicate_keys)
+        duplicate_keys.add(road.canonical_key)
+        segments.extend(
+            (road.road_id, road.layer, index, left, right)
+            for index, (left, right) in enumerate(zip(road.points_mm, road.points_mm[1:]))
+        )
+    proper, touches, overlaps, self_intersections = _segment_audit(segments)
+    vertex_touches, vertex_welds = _polyline_vertex_audit(road_records)
+    return StructuralAudit(
+        _is_connected(tuple(node_ids), incidence, road_records),
+        proper,
+        touches + vertex_touches,
+        overlaps,
+        self_intersections,
+        _nonadjacent_welds(node_records) + vertex_welds,
+        duplicates,
+        false_layer_junctions,
+        anchor_mismatches,
+        0,
+        0,
+        (),
+    )
+
+
+def _is_connected(
+    node_ids: tuple[int, ...],
+    incidence: dict[int, list[int]],
+    roads: Sequence[PhysicalRoadRecord],
+) -> bool:
+    if not node_ids:
+        return False
+    roads_by_id = {road.road_id: road for road in roads}
+    seen, queue = {node_ids[0]}, deque((node_ids[0],))
+    while queue:
+        node_id = queue.popleft()
+        for road_id in incidence.get(node_id, ()):
+            road = roads_by_id[road_id]
+            other = road.end_node_id if road.start_node_id == node_id else road.start_node_id
+            if other not in seen:
+                seen.add(other)
+                queue.append(other)
+    return len(seen) == len(node_ids)
+
+
+def _segment_audit(
+    segments: Sequence[tuple[int, int, int, tuple[int, int], tuple[int, int]]],
+) -> tuple[int, int, int, int]:
+    buckets: dict[tuple[int, int], list[int]] = defaultdict(list)
+    for index, (_road_id, _layer, _segment_index, left, right) in enumerate(segments):
+        for cell in _segment_supercover_cells(left, right, 250_000):
+            buckets[cell].append(index)
+    checked: set[tuple[int, int]] = set()
+    proper = touches = overlaps = self_intersections = 0
+    for entries in buckets.values():
+        for offset, left_index in enumerate(entries):
+            for right_index in entries[offset + 1 :]:
+                pair = tuple(sorted((left_index, right_index)))
+                if pair in checked:
+                    continue
+                checked.add(pair)
+                left_road, left_layer, left_segment, a, b = segments[left_index]
+                right_road, right_layer, right_segment, c, d = segments[right_index]
+                if left_layer != right_layer:
+                    continue
+                same_road = left_road == right_road
+                if same_road and abs(left_segment - right_segment) <= 1:
+                    continue
+                if _proper_intersection(a, b, c, d):
+                    if same_road:
+                        self_intersections += 1
+                    else:
+                        proper += 1
+                overlaps += int(_collinear_overlap(a, b, c, d))
+                touches += sum(
+                    _point_in_open_segment(point, other_left, other_right)
+                    for point, other_left, other_right in (
+                        (a, c, d),
+                        (b, c, d),
+                        (c, a, b),
+                        (d, a, b),
+                    )
+                )
+    return (proper, touches, overlaps, self_intersections)
+
+
+def _segment_supercover_cells(
+    left: tuple[int, int], right: tuple[int, int], cell_mm: int
+) -> tuple[tuple[int, int], ...]:
+    cell_mm = _require_int("cell_mm", cell_mm)
+    if cell_mm <= 0:
+        raise ValueError("cell_mm must be positive")
+    dx, dy = right[0] - left[0], right[1] - left[1]
+    events = {Fraction(0), Fraction(1)}
+    for start, delta in ((left[0], dx), (left[1], dy)):
+        if delta == 0:
+            continue
+        low, high = sorted((start, start + delta))
+        for grid_line in range(low // cell_mm + 1, (high - 1) // cell_mm + 1):
+            event = Fraction(grid_line * cell_mm - start, delta)
+            if 0 < event < 1:
+                events.add(event)
+    ordered = sorted(events)
+    cells: set[tuple[int, int]] = set()
+
+    def add_point(x: Fraction, y: Fraction) -> None:
+        x_denominator, y_denominator = x.denominator * cell_mm, y.denominator * cell_mm
+        x_cell, y_cell = x.numerator // x_denominator, y.numerator // y_denominator
+        x_cells = (x_cell - 1, x_cell) if x.numerator % x_denominator == 0 else (x_cell,)
+        y_cells = (y_cell - 1, y_cell) if y.numerator % y_denominator == 0 else (y_cell,)
+        cells.update((cell_x, cell_y) for cell_x in x_cells for cell_y in y_cells)
+
+    for event in ordered:
+        add_point(Fraction(left[0]) + event * dx, Fraction(left[1]) + event * dy)
+    for first, second in zip(ordered, ordered[1:]):
+        middle = (first + second) / 2
+        add_point(Fraction(left[0]) + middle * dx, Fraction(left[1]) + middle * dy)
+    return tuple(sorted(cells))
+
+
+def _proper_intersection(a, b, c, d) -> bool:
+    def orient(p, q, r):
+        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+
+    ab_c, ab_d = orient(a, b, c), orient(a, b, d)
+    cd_a, cd_b = orient(c, d, a), orient(c, d, b)
+    if 0 in (ab_c, ab_d, cd_a, cd_b):
+        return False
+    return (ab_c > 0) != (ab_d > 0) and (cd_a > 0) != (cd_b > 0)
+
+
+def _point_in_open_segment(point, left, right) -> bool:
+    if (right[0] - left[0]) * (point[1] - left[1]) != (right[1] - left[1]) * (point[0] - left[0]):
+        return False
+    return (
+        point not in (left, right)
+        and min(left[0], right[0]) <= point[0] <= max(left[0], right[0])
+        and min(left[1], right[1]) <= point[1] <= max(left[1], right[1])
+    )
+
+
+def _collinear_overlap(a, b, c, d) -> bool:
+    cross_c = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+    cross_d = (b[0] - a[0]) * (d[1] - a[1]) - (b[1] - a[1]) * (d[0] - a[0])
+    if cross_c != 0 or cross_d != 0:
+        return False
+    if abs(b[0] - a[0]) >= abs(b[1] - a[1]):
+        first, second = sorted((a[0], b[0])), sorted((c[0], d[0]))
+    else:
+        first, second = sorted((a[1], b[1])), sorted((c[1], d[1]))
+    return max(first[0], second[0]) < min(first[1], second[1])
+
+
+def _nonadjacent_welds(nodes: Sequence[PhysicalNodeRecord]) -> int:
+    positions: dict[tuple[int, int, int], int] = defaultdict(int)
+    for node in nodes:
+        positions[(node.x_mm, node.y_mm, node.layer)] += 1
+    return sum(count * (count - 1) // 2 for count in positions.values())
+
+
+def _polyline_vertex_audit(roads: Sequence[PhysicalRoadRecord]) -> tuple[int, int]:
+    interior: dict[tuple[int, int, int], list[int]] = defaultdict(list)
+    endpoints: dict[tuple[int, int, int], list[int]] = defaultdict(list)
+    welds = 0
+    for road in roads:
+        seen: set[tuple[int, int]] = set()
+        for point in road.points_mm:
+            welds += int(point in seen)
+            seen.add(point)
+        endpoints[(road.layer, *road.points_mm[0])].append(road.road_id)
+        endpoints[(road.layer, *road.points_mm[-1])].append(road.road_id)
+        for point in road.points_mm[1:-1]:
+            interior[(road.layer, *point)].append(road.road_id)
+    touches = 0
+    for key, owners in interior.items():
+        unique_owners = set(owners)
+        welds += len(unique_owners) * (len(unique_owners) - 1) // 2
+        touches += sum(road_id not in unique_owners for road_id in endpoints.get(key, ()))
+    return (touches, welds)
+
+
+def _road_self_intersections(road: PhysicalRoadRecord) -> int:
+    segments = tuple(zip(road.points_mm, road.points_mm[1:]))
+    return sum(
+        _proper_intersection(left_a, left_b, right_a, right_b)
+        for index, (left_a, left_b) in enumerate(segments)
+        for right_a, right_b in segments[index + 2 :]
+    )
