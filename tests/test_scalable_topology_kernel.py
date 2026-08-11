@@ -98,6 +98,7 @@ def test_scalar_records_define_explicit_units_and_authority() -> None:
         "ring_radial",
         "grid_core",
         "polycentric_tod",
+        "river_constrained",
         "superblock_mixed",
         "organic",
     )
@@ -669,12 +670,14 @@ def test_nonriver_style_inventory_replays_and_remains_distinct() -> None:
         "ring_radial",
         "grid_core",
         "polycentric_tod",
+        "river_constrained",
         "superblock_mixed",
         "organic",
     )
+    nonriver_styles = tuple(style_id for style_id in STYLE_IDS if style_id != "river_constrained")
     fingerprints = set()
     geometries = set()
-    for style_id in STYLE_IDS:
+    for style_id in nonriver_styles:
         for seed in (17, 29):
             first = build_scalable_street_network(CityScaleSpec(100_000, 40.0), style_id, seed)
             second = build_scalable_street_network(CityScaleSpec(100_000, 40.0), style_id, seed)
@@ -683,8 +686,6 @@ def test_nonriver_style_inventory_replays_and_remains_distinct() -> None:
             geometries.add(tuple((node.x_mm, node.y_mm) for node in first.nodes if node.layer == 0))
     assert len(fingerprints) == 10
     assert len(geometries) == 10
-    with pytest.raises(ValueError, match="style_id"):
-        build_scalable_street_network(CityScaleSpec(100_000, 40.0), "river_constrained", 17)
 
 
 def test_ring_radial_center_has_four_arterial_surface_arms() -> None:
@@ -779,3 +780,73 @@ def test_nonriver_center_formula_and_mainline_access_use_bounded_400k_scale() ->
             if {road.start_node_id, road.end_node_id} & mainline_nodes
             and road.facility is not FacilityKind.MAINLINE
         )
+
+
+def test_river_barrier_seam_and_ramp_triangle_are_explicit_structural_authority() -> None:
+    """An implicit river crossing or ramp access would bypass physical authority."""
+    from metroflow.city.scalable_topology import (
+        FacilityKind,
+        build_scalable_street_network,
+    )
+
+    river = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "river_constrained", 17)
+    assert river == build_scalable_street_network(
+        CityScaleSpec(100_000, 40.0),
+        "river_constrained",
+        17,
+        tile_order=tuple(reversed(river.tile_coordinates)),
+    )
+    assert river.terrain.barrier_seam_x_mm == 0
+    diagnostics = dict(river.seam_diagnostics)
+    assert diagnostics["barrier_seam_exception_count"] == 1
+    assert diagnostics["seam_mismatch_count"] == 0
+    crossings = [
+        road
+        for road in river.roads
+        if road.layer == 0 and road.points_mm[0][0] < 0 < road.points_mm[-1][0]
+    ]
+    assert crossings
+    assert all(road.facility is FacilityKind.BRIDGE for road in crossings)
+
+    grid = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    by_id = {road.road_id: road for road in grid.roads}
+    incidence = dict(grid.endpoint_incidence)
+    for ramp in (road for road in grid.roads if road.facility is FacilityKind.RAMP):
+        access_id = next(
+            node_id
+            for node_id in (ramp.start_node_id, ramp.end_node_id)
+            if grid.nodes[node_id].layer == 0
+        )
+        surface_links = [
+            by_id[road_id]
+            for road_id in incidence[access_id]
+            if by_id[road_id].facility is FacilityKind.SURFACE
+        ]
+        assert len(surface_links) == 2
+        anchors = {
+            road.end_node_id if road.start_node_id == access_id else road.start_node_id
+            for road in surface_links
+        }
+        assert any({road.start_node_id, road.end_node_id} == anchors for road in grid.roads)
+
+
+def test_river_failure_groups_are_complete_and_survive_each_removal() -> None:
+    from metroflow.city.scalable_topology import (
+        FacilityKind,
+        _river_bridge_groups,
+        _surface_cross_bank_connected,
+        build_scalable_street_network,
+    )
+
+    for seed in (17, 29):
+        network = build_scalable_street_network(
+            CityScaleSpec(100_000, 40.0), "river_constrained", seed
+        )
+        groups = _river_bridge_groups(network)
+        assert len(groups) >= 3
+        assert all(
+            road.failure_group in groups
+            for road in network.roads
+            if road.facility is FacilityKind.BRIDGE
+        )
+        assert all(_surface_cross_bank_connected(network, excluded_group=group) for group in groups)
