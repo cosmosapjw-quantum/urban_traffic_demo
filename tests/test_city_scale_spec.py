@@ -6,6 +6,10 @@ import pytest
 from metroflow.city.scale import CityScaleSpec, __all__
 
 
+class _AreaInt(int):
+    pass
+
+
 def test_city_scale_spec_is_a_frozen_slotted_two_field_value_object() -> None:
     """Deleting the scale value object's dataclass contract breaks city callers."""
     assert __all__ == ["CityScaleSpec"]
@@ -47,3 +51,21 @@ def test_city_scale_spec_rejects_non_integral_population_authority(population: o
     """Coercing non-integral population inputs would bypass the city authority boundary."""
     with pytest.raises(TypeError, match="population"):
         CityScaleSpec(target_population=population, urbanized_area_km2=40.0)
+
+
+@pytest.mark.parametrize(
+    ("area", "error"),
+    [
+        (True, TypeError),
+        ("40", TypeError),
+        (_AreaInt(40), TypeError),
+        (float("nan"), ValueError),
+        (float("inf"), ValueError),
+    ],
+)
+def test_city_scale_spec_rejects_non_authoritative_or_nonfinite_area(
+    area: object, error: type[Exception]
+) -> None:
+    """Coercing area inputs would erase the city boundary's unit authority."""
+    with pytest.raises(error, match="area"):
+        CityScaleSpec(target_population=100_000, urbanized_area_km2=area)
