@@ -644,3 +644,474 @@ def test_public_validator_rejects_self_consistently_resealed_metadata_lie(
             )
     finally:
         metadata["source_node_count"] = original_count
+
+
+def test_private_lowering_covers_all_profiles_layers_and_section_policy() -> None:
+    from metroflow.city.graph import RoadClass
+    from metroflow.city.scalable_topology_adapter import _lower_scalable_records
+
+    nodes = tuple(
+        _node(
+            node_id,
+            node_id * 1_000,
+            (node_id % 3) * 500,
+            layer=1 if node_id in {8, 9, 11} else 0,
+        )
+        for node_id in range(20)
+    )
+    road_specs = (
+        ("surface", "local", 0, None, None, None),
+        ("surface", "collector", 0, None, None, None),
+        ("surface", "arterial", 0, None, None, None),
+        ("surface", "expressway", 0, None, None, None),
+        ("mainline", "expressway", 1, None, None, None),
+        ("ramp", "arterial", 1, (0, 1), None, None),
+        ("bridge", "local", 0, None, "deck-local", "pier-local"),
+        (
+            "bridge",
+            "collector",
+            0,
+            None,
+            "deck-collector",
+            "pier-collector",
+        ),
+        (
+            "bridge",
+            "arterial",
+            0,
+            None,
+            "deck-arterial",
+            "pier-arterial",
+        ),
+        (
+            "bridge",
+            "expressway",
+            0,
+            None,
+            "deck-expressway",
+            "pier-expressway",
+        ),
+    )
+    roads = tuple(
+        _road(
+            road_id,
+            road_id * 2,
+            road_id * 2 + 1,
+            (
+                nodes[road_id * 2].point_mm,
+                nodes[road_id * 2 + 1].point_mm,
+            ),
+            facility=facility,
+            hierarchy=hierarchy,
+            layer=layer,
+            layer_transition=transition,
+            structure_group=structure_group,
+            failure_group=failure_group,
+        )
+        for road_id, (
+            facility,
+            hierarchy,
+            layer,
+            transition,
+            structure_group,
+            failure_group,
+        ) in enumerate(road_specs)
+    )
+    lowered = _lower_scalable_records(nodes=nodes, roads=roads)
+
+    assert tuple(profile.profile_id for profile in lowered.numeric_profiles) == (
+        "v2:bridge:arterial",
+        "v2:bridge:collector",
+        "v2:bridge:expressway",
+        "v2:bridge:local",
+        "v2:mainline",
+        "v2:ramp",
+        "v2:surface:arterial",
+        "v2:surface:collector",
+        "v2:surface:expressway",
+        "v2:surface:local",
+        "v2:tunnel:arterial",
+        "v2:tunnel:collector",
+        "v2:tunnel:expressway",
+        "v2:tunnel:local",
+    )
+    assert tuple(row.profile_id for row in lowered.road_crosswalk) == (
+        "v2:surface:local",
+        "v2:surface:collector",
+        "v2:surface:arterial",
+        "v2:surface:expressway",
+        "v2:mainline",
+        "v2:ramp",
+        "v2:bridge:local",
+        "v2:bridge:collector",
+        "v2:bridge:arterial",
+        "v2:bridge:expressway",
+    )
+    assert tuple(centerline.layer for centerline in lowered.centerlines) == tuple(
+        spec[2] for spec in road_specs
+    )
+    policy = {profile.profile_id: profile for profile in lowered.numeric_profiles}
+    assert (
+        policy["v2:ramp"].operational_road_class,
+        policy["v2:ramp"].section_roadside_profile,
+        policy["v2:ramp"].median_when_bidirectional,
+    ) == (RoadClass.RAMP, "rural", False)
+    assert (
+        policy["v2:bridge:arterial"].operational_road_class,
+        policy["v2:bridge:arterial"].section_roadside_profile,
+        policy["v2:bridge:arterial"].median_when_bidirectional,
+    ) == (RoadClass.BRIDGE, "limited_access", True)
+
+
+def test_reverse_only_and_ramp_turns_remain_explicit() -> None:
+    from metroflow.city.graph import TurnType
+    from metroflow.city.scalable_topology_adapter import _lower_scalable_records
+    from metroflow.city.turn_compiler import compile_turn_authority
+    from metroflow.map.node_compiler import compile_node_interfaces
+    from metroflow.map.road_geometry import RoadGeometryCatalog
+
+    nodes = (
+        _node(0, 0, 0),
+        _node(1, 1_000, 0),
+        _node(2, 1_000, 1_000, layer=1),
+        _node(3, 2_000, 1_000, layer=1),
+    )
+    roads = (
+        _road(
+            0,
+            1,
+            0,
+            (nodes[1].point_mm, nodes[0].point_mm),
+            access_directions=frozenset({"reverse"}),
+        ),
+        _road(
+            1,
+            1,
+            2,
+            (nodes[1].point_mm, nodes[2].point_mm),
+            hierarchy="arterial",
+            facility="ramp",
+            layer=1,
+            layer_transition=(0, 1),
+        ),
+        _road(
+            2,
+            2,
+            3,
+            (nodes[2].point_mm, nodes[3].point_mm),
+            hierarchy="expressway",
+            facility="mainline",
+            layer=1,
+        ),
+    )
+    lowered = _lower_scalable_records(nodes=nodes, roads=roads)
+    geometry = RoadGeometryCatalog(lowered.centerlines, lowered.assignments)
+    interfaces = compile_node_interfaces(
+        nodes=lowered.nodes,
+        links=lowered.links,
+        road_geometry=geometry,
+    )
+    turns = compile_turn_authority(
+        links=lowered.links,
+        road_geometry=geometry,
+        node_interfaces=interfaces,
+    ).movements
+
+    assert lowered.road_crosswalk[0].forward_link_id is None
+    assert lowered.road_crosswalk[0].reverse_link_id == 0
+    assert lowered.links[0].src_node_id == 0
+    assert lowered.links[0].dst_node_id == 1
+    assert {movement.turn_type for movement in turns} >= {
+        TurnType.RAMP_ON,
+        TurnType.RAMP_OFF,
+        TurnType.U_TURN_FORBIDDEN,
+    }
+
+
+@pytest.mark.parametrize(
+    (
+        "facility",
+        "hierarchy",
+        "road_layer",
+        "start_layer",
+        "end_layer",
+        "layer_transition",
+        "structure_group",
+        "failure_group",
+    ),
+    (
+        pytest.param(
+            "mainline",
+            "local",
+            1,
+            1,
+            1,
+            None,
+            None,
+            None,
+            id="mainline-local-1-1-1-None-None-None",
+        ),
+        pytest.param(
+            "surface",
+            "local",
+            1,
+            1,
+            1,
+            None,
+            None,
+            None,
+            id="surface-local-1-1-1-None-None-None",
+        ),
+        pytest.param(
+            "bridge",
+            "arterial",
+            0,
+            0,
+            0,
+            None,
+            None,
+            "failure",
+            id="bridge-arterial-0-0-0-None-None-failure",
+        ),
+        pytest.param(
+            "ramp",
+            "collector",
+            1,
+            1,
+            0,
+            (1, 0),
+            None,
+            None,
+            id="ramp-collector-1-1-0-transition3-None-None",
+        ),
+        pytest.param(
+            "tunnel",
+            "local",
+            -1,
+            -1,
+            -1,
+            None,
+            None,
+            None,
+            id="tunnel-local--1--1--1-None-None-None",
+        ),
+    ),
+)
+def test_private_lowering_rejects_closed_facility_layer_contracts(
+    facility: str,
+    hierarchy: str,
+    road_layer: int,
+    start_layer: int,
+    end_layer: int,
+    layer_transition: tuple[int, int] | None,
+    structure_group: str | None,
+    failure_group: str | None,
+) -> None:
+    from metroflow.city.scalable_topology_adapter import _lower_scalable_records
+
+    nodes = (
+        _node(0, 0, 0, layer=start_layer),
+        _node(1, 1_000, 0, layer=end_layer),
+    )
+    road = _road(
+        0,
+        0,
+        1,
+        (nodes[0].point_mm, nodes[1].point_mm),
+        facility=facility,
+        hierarchy=hierarchy,
+        layer=road_layer,
+        layer_transition=layer_transition,
+        structure_group=structure_group,
+        failure_group=failure_group,
+    )
+    with pytest.raises(ValueError, match="facility|layer|bridge|ramp|tunnel"):
+        _lower_scalable_records(nodes=nodes, roads=(road,))
+
+
+def test_public_compiler_call_budget_metadata_and_complete_catalogs(
+    public_sources,
+    monkeypatch,
+) -> None:
+    import metroflow.city.map_validation as map_validation
+    import metroflow.city.scalable_topology_adapter as adapter
+    from metroflow.city.generated_map import PreviewCityTopology
+
+    calls = {
+        "section": 0,
+        "validator_section": 0,
+        "node": 0,
+        "turn": 0,
+        "csr": 0,
+    }
+
+    def counted(name, function):
+        def wrapper(*args, **kwargs):
+            calls[name] += 1
+            return function(*args, **kwargs)
+
+        return wrapper
+
+    monkeypatch.setattr(
+        adapter,
+        "compile_road_sections",
+        counted("section", adapter.compile_road_sections),
+    )
+    monkeypatch.setattr(
+        map_validation,
+        "compile_road_sections",
+        counted("validator_section", map_validation.compile_road_sections),
+    )
+    monkeypatch.setattr(
+        adapter,
+        "compile_node_interfaces",
+        counted("node", adapter.compile_node_interfaces),
+    )
+    monkeypatch.setattr(
+        adapter,
+        "compile_turn_authority",
+        counted("turn", adapter.compile_turn_authority),
+    )
+    monkeypatch.setattr(
+        PreviewCityTopology,
+        "build_csr",
+        counted("csr", PreviewCityTopology.build_csr),
+    )
+    network, blocks = public_sources
+    compiled = adapter.compile_scalable_topology(network, block_authority=blocks)
+
+    assert calls == {
+        "section": 1,
+        "validator_section": 1,
+        "node": 1,
+        "turn": 1,
+        "csr": 1,
+    }
+    assert tuple(dict(compiled.metadata_items)) == (
+        "engine",
+        "topology_mode",
+        "adapter_schema_version",
+        "numeric_profile_policy_version",
+        "turn_authority_policy",
+        "seed",
+        "style_id",
+        "source_network_fingerprint",
+        "source_block_authority_fingerprint",
+        "block_authority_schema_version",
+        "terrain_fingerprint",
+        "scale_fingerprint",
+        "style_fingerprint",
+        "road_geometry_fingerprint",
+        "road_section_fingerprint",
+        "node_interface_fingerprint",
+        "turn_authority_fingerprint",
+        "numeric_profile_payload",
+        "source_node_count",
+        "source_physical_road_count",
+        "source_block_count",
+        "compiled_node_count",
+        "compiled_link_count",
+        "physical_centerline_count",
+        "geometry_assignment_count",
+        "road_section_assignment_count",
+        "node_interface_count",
+        "turn_authority_pair_count",
+        "permitted_turn_movement_count",
+        "forbidden_u_turn_count",
+        "bridge_crossing_count",
+        "weak_component_count",
+        "hidden_repair_count",
+        "dropped_physical_road_count",
+        "dropped_chain_count",
+        "connectivity_repair_link_count",
+        "connectivity_repair_link_ids",
+        "planarization_status",
+        "capacity_reference_tick_seconds",
+        "capacity_source_unit",
+    )
+    link_ids = {link.link_id for link in compiled.topology.links}
+    assert {
+        assignment.link_id
+        for assignment in compiled.topology.road_geometry.assignments
+    } == link_ids
+    assert {
+        assignment.link_id
+        for assignment in compiled.topology.road_sections.assignments
+    } == link_ids
+    assert len(compiled.topology.node_interfaces.interfaces) == len(
+        compiled.topology.nodes
+    )
+
+
+def test_public_validator_does_not_reconstruct_road_geometry_catalog(
+    public_compiled,
+    monkeypatch,
+) -> None:
+    import metroflow.city.scalable_topology_adapter as adapter
+    from metroflow.map.road_geometry import RoadGeometryCatalog
+
+    network, blocks, compiled = public_compiled
+    calls = 0
+    original_init = RoadGeometryCatalog.__init__
+
+    def counted_init(self, *args, **kwargs):
+        nonlocal calls
+        calls += 1
+        original_init(self, *args, **kwargs)
+
+    monkeypatch.setattr(RoadGeometryCatalog, "__init__", counted_init)
+    adapter.require_valid_scalable_compiled_topology(
+        compiled,
+        network=network,
+        block_authority=blocks,
+    )
+
+    assert calls == 0
+
+
+def test_public_compile_constructs_road_geometry_catalog_exactly_once(
+    public_sources,
+    monkeypatch,
+) -> None:
+    import metroflow.city.scalable_topology_adapter as adapter
+    from metroflow.map.road_geometry import RoadGeometryCatalog
+
+    calls = 0
+    original_init = RoadGeometryCatalog.__init__
+
+    def counted_init(self, *args, **kwargs):
+        nonlocal calls
+        calls += 1
+        original_init(self, *args, **kwargs)
+
+    monkeypatch.setattr(RoadGeometryCatalog, "__init__", counted_init)
+    network, blocks = public_sources
+    adapter.compile_scalable_topology(network, block_authority=blocks)
+
+    assert calls == 1
+
+
+def test_public_validator_constructs_one_turn_catalog_validation_view(
+    public_compiled,
+    monkeypatch,
+) -> None:
+    import metroflow.city.scalable_topology_adapter as adapter
+    from metroflow.city.turn_compiler import TurnAuthorityCatalog
+
+    network, blocks, compiled = public_compiled
+    calls = 0
+    original_init = TurnAuthorityCatalog.__init__
+
+    def counted_init(self, *args, **kwargs):
+        nonlocal calls
+        calls += 1
+        original_init(self, *args, **kwargs)
+
+    monkeypatch.setattr(TurnAuthorityCatalog, "__init__", counted_init)
+    adapter.require_valid_scalable_compiled_topology(
+        compiled,
+        network=network,
+        block_authority=blocks,
+    )
+
+    assert calls == 1
