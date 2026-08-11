@@ -1471,69 +1471,107 @@ def test_wrapper_identity_binds_numeric_link_bridge_metadata_and_block_seal(
     public_compiled,
     river_compiled,
 ) -> None:
-    from dataclasses import replace
-
     import metroflow.city.scalable_topology_adapter as adapter
-    from metroflow.map.road_geometry import RoadGeometryCatalog
+    from metroflow.city.scale import CityScaleSpec
+    from metroflow.city.scalable_blocks import build_scalable_block_authority
+    from metroflow.city.scalable_topology import build_scalable_street_network
 
-    _, _, compiled = public_compiled
-    original_fingerprint = compiled.fingerprint
-    link = compiled.topology.links[0]
-    original_speed = link.free_flow_speed_mps
-    link.free_flow_speed_mps += 1.0
-    try:
-        assert adapter._compiled_fingerprint(compiled) != original_fingerprint
-    finally:
-        link.free_flow_speed_mps = original_speed
-    profile = replace(
-        compiled.numeric_profiles[0],
-        free_flow_speed_mps=compiled.numeric_profiles[0].free_flow_speed_mps + 1.0,
+    network, blocks, compiled = public_compiled
+    river_network = build_scalable_street_network(
+        CityScaleSpec(100_000, 40.0), "river_constrained", 17
     )
-    assert (
-        adapter._compiled_fingerprint(
-            replace(compiled, numeric_profiles=(profile, *compiled.numeric_profiles[1:]))
+    river_blocks = build_scalable_block_authority(river_network)
+    public = (network, blocks, compiled)
+    river = (river_network, river_blocks, river_compiled)
+    for source_network, source_blocks, current in (public, river):
+        adapter.require_valid_scalable_compiled_topology(
+            current, network=source_network, block_authority=source_blocks
         )
-        != original_fingerprint
-    )
-    assert (
-        adapter._compiled_fingerprint(
-            replace(compiled, source_block_authority_fingerprint="f" * 64)
-        )
-        != original_fingerprint
-    )
-    metadata = compiled.topology.metadata
-    capacity_unit = metadata["capacity_source_unit"]
-    metadata["capacity_source_unit"] = "changed"
-    try:
-        assert adapter._compiled_fingerprint(compiled) != original_fingerprint
-    finally:
-        metadata["capacity_source_unit"] = capacity_unit
-    road_row = replace(compiled.road_crosswalk[0], provenance="synthetic:changed")
-    assert (
-        adapter._compiled_fingerprint(
-            replace(compiled, road_crosswalk=(road_row, *compiled.road_crosswalk[1:]))
-        )
-        != original_fingerprint
-    )
-    centerline = replace(
-        compiled.topology.road_geometry.centerlines[0], source_ref="scalable:changed"
-    )
-    geometry = RoadGeometryCatalog(
-        (centerline, *compiled.topology.road_geometry.centerlines[1:]),
-        compiled.topology.road_geometry.assignments,
-    )
-    changed_topology = replace(compiled.topology, road_geometry=geometry)
-    assert (
-        adapter._compiled_fingerprint(replace(compiled, topology=changed_topology))
-        != original_fingerprint
-    )
+
+    topology = compiled.topology
+    csr = compiled.road_csr
+    roads = river_compiled.road_crosswalk
+    link = topology.links[0]
+    profile = compiled.numeric_profiles[0]
+    road = compiled.road_crosswalk[0]
+    structure = river_compiled.structure_group_crosswalk[0]
+    failure = river_compiled.failure_group_crosswalk[0]
     bridge = river_compiled.topology.bridge_crossings[0]
-    bridge_name = bridge.crossing_name
-    bridge.crossing_name = f"{bridge_name}:changed"
-    try:
-        assert adapter._compiled_fingerprint(river_compiled) != river_compiled.fingerprint
-    finally:
-        bridge.crossing_name = bridge_name
+    centerline = topology.road_geometry.centerlines[0]
+    profile_metadata = dict(compiled.metadata_items)
+    profile_payload = list(profile_metadata["numeric_profile_payload"])
+    profile_payload[0] = (
+        *profile_payload[0][:2],
+        profile.free_flow_speed_mps + 1.0,
+        *profile_payload[0][3:],
+    )
+    profile_metadata["numeric_profile_payload"] = tuple(profile_payload)
+    capacity_metadata = dict(compiled.metadata_items)
+    capacity_metadata["capacity_source_unit"] = "changed"
+    structure_name = f"{structure.semantic_group}:changed"
+    failure_name = f"{failure.semantic_group}:changed"
+
+    def group_changes(group, field, changed):
+        semantic = group.semantic_group
+        members = ((row, field, changed) for row in roads if getattr(row, field) == semantic)
+        return ((group, "semantic_group", changed), *members)
+
+    structure_changes = group_changes(structure, "structure_group", structure_name)
+    failure_changes = group_changes(failure, "failure_group", failure_name)
+    profile_changes = (
+        (profile, "free_flow_speed_mps", profile.free_flow_speed_mps + 1.0),
+        (topology, "metadata", profile_metadata),
+        (compiled, "metadata_items", tuple(profile_metadata.items())),
+    )
+    cases = (
+        ("link", public, ((link, "free_flow_speed_mps", link.free_flow_speed_mps + 1.0),)),
+        ("numeric_profile", public, profile_changes),
+        ("road_crosswalk", public, ((road, "provenance", "synthetic:changed"),)),
+        ("structure_group_crosswalk", river, structure_changes),
+        ("failure_group_crosswalk", river, failure_changes),
+        ("bridge", river, ((bridge, "crossing_name", f"{bridge.crossing_name}:changed"),)),
+        ("topology_cache_key", public, ((csr, "topology_cache_key", ("forged",)),)),
+        (
+            "source_block_fingerprint",
+            public,
+            ((compiled, "source_block_authority_fingerprint", "f" * 64),),
+        ),
+        (
+            "capacity_metadata",
+            public,
+            (
+                (topology, "metadata", capacity_metadata),
+                (compiled, "metadata_items", tuple(capacity_metadata.items())),
+            ),
+        ),
+        ("road_geometry", public, ((centerline, "source_ref", "scalable:changed"),)),
+    )
+    outcomes = {}
+    for name, (source_network, source_blocks, current), changes in cases:
+        originals = tuple((target, field, getattr(target, field)) for target, field, _ in changes)
+        original_fingerprint = current.fingerprint
+        validator_reached = False
+        try:
+            for target, field, changed in changes:
+                object.__setattr__(target, field, changed)
+            object.__setattr__(current, "fingerprint", adapter._compiled_fingerprint(current))
+            assert current.fingerprint != original_fingerprint
+            validator_reached = True
+            adapter.require_valid_scalable_compiled_topology(
+                current, network=source_network, block_authority=source_blocks
+            )
+        except (TypeError, ValueError) as error:
+            status = "REJECTED" if validator_reached else "ERROR"
+            outcomes[name] = f"{status}:{type(error).__name__}:{error}"
+        except Exception as error:
+            outcomes[name] = f"ERROR:{type(error).__name__}:{error}"
+        else:
+            outcomes[name] = "ACCEPTED"
+        finally:
+            for target, field, original in reversed(originals):
+                object.__setattr__(target, field, original)
+            object.__setattr__(current, "fingerprint", original_fingerprint)
+    assert all(result.startswith("REJECTED:") for result in outcomes.values()), outcomes
 
 
 def test_public_rows_are_frozen_and_reject_coercive_nested_values(
