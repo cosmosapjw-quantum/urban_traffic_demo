@@ -888,3 +888,122 @@ def test_bridge_or_ramp_void_retains_ordinary_neighbor_and_both_rejects() -> Non
         "ramp_roles": ["DEVELOPABLE", "INTERCHANGE_VOID"],
         "both_error": "bounded face has simultaneous bridge and ramp void reasons",
     }
+
+
+def test_developable_faces_each_emit_one_exact_block() -> None:
+    nodes, roads = _square_fixture()
+    authority = _build_raw(nodes, roads)
+    face = next(face for face in authority.faces if not face.is_unbounded)
+
+    assert len(authority.blocks) == 1
+    block = authority.blocks[0]
+    assert (block.parent_face_id, block.subdivision_schema) == (face.face_id, "face_cell_v1")
+    assert block.outer_polygon_mm == (
+        (0, 0),
+        (1_000, 0),
+        (1_000, 1_000),
+        (0, 1_000),
+        (0, 0),
+    )
+    assert block.hole_polygons_mm == ()
+    assert block.net_area_mm2 == Fraction(1_000_000)
+    assert block.perimeter_squared_terms == (1_000_000,) * 4
+    assert block.frontage_road_ids == (0, 1, 2, 3)
+    assert block.access_node_ids == (0, 1, 2, 3)
+    assert block.interior_witness_mm == face.interior_witness_mm
+
+
+def test_primary_access_ties_are_resolved_by_node_semantic_id() -> None:
+    nodes, roads = _square_fixture()
+    semantic_ids = ("f" * 64, "e" * 64, "d" * 64, "0" * 64)
+    nodes = tuple(replace(node, semantic_id=semantic_ids[node.node_id]) for node in nodes)
+
+    authority = _build_raw(nodes, roads)
+
+    assert authority.blocks[0].primary_access_node_id == 3
+
+
+def test_nested_annulus_block_preserves_hole_area_perimeter_and_incidence() -> None:
+    outer_nodes, outer_roads = _square_fixture(size=10_000)
+    inner_nodes, inner_roads = _square_fixture(
+        x0=3_000, y0=3_000, size=4_000, node_base=4, road_base=4
+    )
+
+    authority = _build_raw(outer_nodes + inner_nodes, outer_roads + inner_roads)
+    annulus = next(block for block in authority.blocks if block.hole_polygons_mm)
+
+    assert annulus.net_area_mm2 == Fraction(84_000_000)
+    assert annulus.hole_polygons_mm == (
+        ((3_000, 3_000), (7_000, 3_000), (7_000, 7_000), (3_000, 7_000), (3_000, 3_000)),
+    )
+    assert annulus.perimeter_squared_terms == (100_000_000,) * 4 + (16_000_000,) * 4
+    assert annulus.frontage_road_ids == tuple(range(8))
+    assert annulus.access_node_ids == tuple(range(8))
+
+
+def test_oblique_perimeter_is_symbolic_and_diagnostic_float_is_not_identity() -> None:
+    nodes = tuple(
+        _node(index, *point) for index, point in enumerate(((0, 0), (7, 0), (7, 3), (2, 3)))
+    )
+    roads = tuple(
+        _road(index, left, right, (nodes[left].point_mm, nodes[right].point_mm))
+        for index, (left, right) in enumerate(((0, 1), (1, 2), (2, 3), (3, 0)))
+    )
+
+    block = _build_raw(nodes, roads).blocks[0]
+
+    assert block.perimeter_squared_terms == (49, 9, 25, 13)
+    assert block.perimeter_m == pytest.approx((7 + 3 + 5 + 13**0.5) / 1_000)
+    assert replace(block, perimeter_m=block.perimeter_m + 1.0) == block
+
+
+def test_access_index_is_exact_bidirectional_and_primary_is_deterministic() -> None:
+    points = ((0, 0), (1_000, 0), (2_000, 0), (0, 1_000), (1_000, 1_000), (2_000, 1_000))
+    nodes = tuple(_node(index, *point) for index, point in enumerate(points))
+    pairs = ((0, 1), (1, 2), (3, 4), (4, 5), (0, 3), (1, 4), (2, 5))
+    roads = tuple(
+        _road(index, left, right, (points[left], points[right]))
+        for index, (left, right) in enumerate(pairs)
+    )
+    authority = _build_raw(nodes, roads)
+    index = authority.access_index
+    block_to_roads, block_to_nodes = dict(index.block_to_road_ids), dict(index.block_to_node_ids)
+    road_to_blocks, node_to_blocks = dict(index.road_to_block_ids), dict(index.node_to_block_ids)
+
+    assert len(authority.blocks) == 2
+    for block in authority.blocks:
+        assert block_to_roads[block.block_id] == block.frontage_road_ids
+        assert block_to_nodes[block.block_id] == block.access_node_ids
+        assert dict(index.primary_access_by_block)[block.block_id] == block.primary_access_node_id
+        assert all(block.block_id in road_to_blocks[value] for value in block.frontage_road_ids)
+        assert all(block.block_id in node_to_blocks[value] for value in block.access_node_ids)
+    assert index.incidence_visit_count == sum(
+        len(block.frontage_road_ids) + len(block.access_node_ids) for block in authority.blocks
+    )
+
+
+def test_void_faces_emit_no_blocks_while_ordinary_neighbors_do() -> None:
+    points = ((0, 0), (1_000, 0), (2_000, 0), (0, 1_000), (1_000, 1_000), (2_000, 1_000))
+    nodes = tuple(_node(index, *point) for index, point in enumerate(points))
+    pairs = ((0, 1), (1, 2), (3, 4), (4, 5), (0, 3), (1, 4), (2, 5))
+    roads = tuple(
+        _road(
+            index,
+            left,
+            right,
+            (points[left], points[right]),
+            facility="bridge" if index == 0 else "surface",
+        )
+        for index, (left, right) in enumerate(pairs)
+    )
+
+    authority = _build_raw(nodes, roads)
+    developable_ids = {face.face_id for face in authority.faces if face.role == "DEVELOPABLE"}
+
+    assert len(authority.blocks) == 1
+    assert {block.parent_face_id for block in authority.blocks} == developable_ids
+    assert all(
+        face.role != "DEVELOPABLE"
+        for face in authority.faces
+        if face.face_id not in developable_ids
+    )
