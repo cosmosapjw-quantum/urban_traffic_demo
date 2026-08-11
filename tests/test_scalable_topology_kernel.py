@@ -1293,3 +1293,82 @@ def test_mutable_behavior_proxy_cannot_survive_network_admission() -> None:
     network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
     with pytest.raises(TypeError, match="exact ScalableStreetNetwork"):
         _copy_as_subclass(network, ToggleNetwork)
+
+
+def test_builder_performs_exactly_one_full_structural_admission_audit(monkeypatch) -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    original = getattr(kernel, "audit_structural_network", lambda _network: None)
+    calls = 0
+
+    def counted(network):
+        nonlocal calls
+        calls += 1
+        return original(network)
+
+    monkeypatch.setattr(kernel, "audit_structural_network", counted, raising=False)
+    kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "organic", 17)
+    assert calls == 1
+
+
+@pytest.mark.parametrize(
+    "style_id",
+    (
+        "ring_radial",
+        "grid_core",
+        "polycentric_tod",
+        "river_constrained",
+        "superblock_mixed",
+        "organic",
+    ),
+)
+def test_every_style_is_connected_and_has_closed_structural_admission(
+    style_id: str,
+) -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), style_id, 17)
+    audit = kernel.audit_structural_network(network)
+    assert {road.hierarchy for road in network.roads} == set(kernel.RoadHierarchy)
+    assert audit.is_connected
+    assert (
+        audit.same_layer_proper_crossing_count,
+        audit.t_touch_count,
+        audit.collinear_overlap_count,
+        audit.self_intersection_count,
+        audit.nonadjacent_weld_count,
+        audit.duplicate_road_count,
+        audit.different_layer_false_junction_count,
+        audit.endpoint_anchor_mismatch_count,
+    ) == (0, 0, 0, 0, 0, 0, 0, 0)
+    assert audit.center_disjoint_gateway_path_count == len(network.centers)
+    assert max(len(road_ids) for _node_id, road_ids in network.endpoint_incidence) <= 4
+    assert network.seam_diagnostics == kernel._computed_seam_diagnostics(
+        network.extent_mm,
+        network.nodes,
+        network.terrain,
+        network.tile_coordinates,
+    )
+
+
+def test_river_audit_owns_complete_groups_and_each_removal() -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(
+        CityScaleSpec(100_000, 40.0), "river_constrained", 17
+    )
+    audit = kernel.audit_structural_network(network)
+    groups = kernel._river_bridge_groups(network)
+    assert audit.river_cross_bank_group_count == len(groups) >= 3
+    assert audit.river_group_removal_failures == ()
+    assert all(
+        kernel._surface_cross_bank_connected(network, excluded_group=group) for group in groups
+    )
+
+
+def test_final_surface_degree_cap_is_enforced_by_builder(monkeypatch) -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    monkeypatch.setattr(kernel, "MAX_SURFACE_DEGREE", 0)
+    with pytest.raises(ValueError, match="degree"):
+        kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
