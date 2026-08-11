@@ -1372,6 +1372,48 @@ def _require_canonical_csr(
     if dict(road_csr.turn_pair_to_index) != expected_legal_pairs:
         raise ValueError("CSR legal turn-row indices are not canonical")
 
+    cache_key = road_csr.topology_cache_key
+    if (
+        type(cache_key) is not tuple
+        or len(cache_key) != 16
+        or type(cache_key[0]) is not str
+        or any(type(value) is not int for value in cache_key[1:4])
+        or any(type(value) is not str for value in cache_key[4:])
+    ):
+        raise TypeError("CSR topology_cache_key must contain exact nested values")
+    cache_arrays = (
+        (expected_arrays["node_ids"], np.int32),
+        (expected_arrays["link_ids"], np.int32),
+        (expected_arrays["link_src_node_index"], np.int32),
+        (expected_arrays["link_dst_node_index"], np.int32),
+        (expected_arrays["outgoing_indptr"], np.int32),
+        (expected_arrays["outgoing_link_indices"], np.int32),
+        (expected_arrays["incoming_indptr"], np.int32),
+        (expected_arrays["incoming_link_indices"], np.int32),
+        (expected_arrays["turn_from_link_index"], np.int32),
+        (expected_arrays["turn_to_link_index"], np.int32),
+        (expected_arrays["turn_is_forbidden"], np.bool_),
+        (
+            np.asarray([bool(link.is_blockable) for link in topology.links], dtype=np.bool_),
+            np.bool_,
+        ),
+    )
+    expected_cache_key = (
+        "road-network-csr-v1",
+        len(topology.nodes),
+        len(topology.links),
+        len(topology.turns),
+        *(
+            hashlib.blake2b(
+                np.ascontiguousarray(values, dtype=dtype).tobytes(),
+                digest_size=16,
+            ).hexdigest()
+            for values, dtype in cache_arrays
+        ),
+    )
+    if cache_key != expected_cache_key:
+        raise ValueError("CSR topology_cache_key differs from current rows")
+
 
 def require_valid_scalable_compiled_topology(
     compiled: ScalableCompiledTopology,
@@ -1402,10 +1444,59 @@ def require_valid_scalable_compiled_topology(
         nodes=admitted_network.nodes,
         roads=admitted_network.roads,
     )
-    if road_geometry.centerlines != admitted_lowered.centerlines:
-        raise ValueError("road geometry centerlines differ from admitted source rows")
-    if road_geometry.assignments != admitted_lowered.assignments:
-        raise ValueError("road geometry assignments differ from admitted source rows")
+    source_rows = (
+        ("nodes", topology.nodes, admitted_lowered.nodes, Node),
+        ("links", topology.links, admitted_lowered.links, RoadLink),
+        (
+            "road geometry centerlines",
+            road_geometry.centerlines,
+            admitted_lowered.centerlines,
+            RoadCenterline,
+        ),
+        (
+            "road geometry assignments",
+            road_geometry.assignments,
+            admitted_lowered.assignments,
+            LinkGeometryAssignment,
+        ),
+        (
+            "numeric profiles",
+            compiled.numeric_profiles,
+            admitted_lowered.numeric_profiles,
+            ScalableNumericProfile,
+        ),
+        (
+            "road crosswalk",
+            compiled.road_crosswalk,
+            admitted_lowered.road_crosswalk,
+            ScalableRoadCrosswalk,
+        ),
+        (
+            "structure group crosswalk",
+            compiled.structure_group_crosswalk,
+            admitted_lowered.structure_group_crosswalk,
+            ScalableGroupCrosswalk,
+        ),
+        (
+            "failure group crosswalk",
+            compiled.failure_group_crosswalk,
+            admitted_lowered.failure_group_crosswalk,
+            ScalableGroupCrosswalk,
+        ),
+        (
+            "bridge crossings",
+            topology.bridge_crossings,
+            admitted_lowered.bridge_crossings,
+            BridgeCrossing,
+        ),
+    )
+    for name, current_rows, admitted_rows, row_type in source_rows:
+        if type(current_rows) is not tuple or any(
+            type(row) is not row_type for row in current_rows
+        ):
+            raise TypeError(f"{name} must contain exact source-derived rows")
+        if current_rows != admitted_rows:
+            raise ValueError(f"{name} differ from admitted source rows")
     current_geometry = road_geometry
     if current_geometry.fingerprint != compiled.road_geometry_fingerprint:
         raise ValueError("road geometry fingerprint mismatch")
@@ -1433,7 +1524,7 @@ def require_valid_scalable_compiled_topology(
     expected_metadata_items = _metadata_items_for(
         network=admitted_network,
         block_authority=admitted_blocks,
-        numeric_profiles=compiled.numeric_profiles,
+        numeric_profiles=admitted_lowered.numeric_profiles,
         topology=topology,
         turn_fingerprint=current_turns.fingerprint,
     )
