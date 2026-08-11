@@ -687,3 +687,128 @@ def test_equal_coordinates_on_an_excluded_layer_do_not_create_dcel_incidence() -
         baseline.euler_rhs,
         baseline.boundary_half_edge_occurrence_count,
     )
+
+
+def test_positive_half_square_uses_an_exact_rational_interior_witness() -> None:
+    nodes = tuple(
+        _node(index, x_mm, y_mm) for index, (x_mm, y_mm) in enumerate(((0, 0), (1, 0), (0, 1)))
+    )
+    roads = tuple(
+        _road(index, left, right, (nodes[left].point_mm, nodes[right].point_mm))
+        for index, (left, right) in enumerate(((0, 1), (1, 2), (2, 0)))
+    )
+
+    authority = _build_raw(nodes, roads)
+    bounded = next(face for face in authority.faces if not face.is_unbounded)
+
+    assert bounded.interior_witness_mm == (Fraction(1, 4), Fraction(1, 2))
+
+
+def test_boundary_cycles_are_bound_to_the_authoritative_next_permutation() -> None:
+    nodes, roads = _square_fixture()
+    authority = _build_raw(nodes, roads)
+    incoming_by_node = {}
+    for half_edge in authority.half_edges:
+        incoming_by_node.setdefault(half_edge.destination_node_id, []).append(half_edge)
+    left, right = next(
+        tuple(incoming)
+        for incoming in incoming_by_node.values()
+        if len(incoming) == 2 and incoming[0].next_id != incoming[1].next_id
+    )
+    left_target = authority.half_edges[left.next_id]
+    right_target = authority.half_edges[right.next_id]
+    replacements = {
+        left.half_edge_id: replace(left, next_id=right_target.half_edge_id),
+        right.half_edge_id: replace(right, next_id=left_target.half_edge_id),
+        left_target.half_edge_id: replace(left_target, prev_id=right.half_edge_id),
+        right_target.half_edge_id: replace(right_target, prev_id=left.half_edge_id),
+    }
+    changed = tuple(
+        replacements.get(half_edge.half_edge_id, half_edge) for half_edge in authority.half_edges
+    )
+
+    with pytest.raises(ValueError, match="canonical ray rotation"):
+        replace(authority, half_edges=changed, fingerprint="")
+
+
+def test_standalone_authority_reaudits_cross_component_embedding_geometry() -> None:
+    first_nodes, first_roads = _square_fixture()
+    second_nodes, second_roads = _square_fixture(x0=3_000, node_base=4, road_base=4)
+    authority = _build_raw(first_nodes + second_nodes, first_roads + second_roads)
+    edge = authority.embedding_edges[0]
+    forged_edge = replace(edge, points_mm=((500, -500), (500, 4_000)))
+    forged_edges = tuple(
+        forged_edge if candidate.embedding_edge_id == edge.embedding_edge_id else candidate
+        for candidate in authority.embedding_edges
+    )
+
+    with pytest.raises(ValueError, match="embedding geometry audit"):
+        replace(authority, embedding_edges=forged_edges, fingerprint="")
+
+
+def test_nested_annulus_preserves_exact_face_hole_partition() -> None:
+    outer_nodes, outer_roads = _square_fixture(size=10_000)
+    inner_nodes, inner_roads = _square_fixture(
+        x0=3_000, y0=3_000, size=4_000, node_base=4, road_base=4
+    )
+
+    canonical = _build_raw(outer_nodes + inner_nodes, outer_roads + inner_roads)
+    reversed_input = _build_raw(
+        tuple(reversed(outer_nodes + inner_nodes)),
+        tuple(reversed(outer_roads + inner_roads)),
+    )
+    annulus = next(face for face in canonical.faces if face.hole_boundary_ids)
+    boundary_by_id = {boundary.boundary_id: boundary for boundary in canonical.boundaries}
+    outer = boundary_by_id[annulus.outer_boundary_id]
+    hole = boundary_by_id[annulus.hole_boundary_ids[0]]
+    unbounded = next(face for face in canonical.faces if face.is_unbounded)
+
+    assert outer.signed_twice_area_mm2 == 200_000_000
+    assert hole.signed_twice_area_mm2 == -32_000_000
+    assert len(unbounded.unbounded_component_boundary_ids) == 1
+    assert canonical.faces == reversed_input.faces
+    assert canonical.boundaries == reversed_input.boundaries
+
+
+@pytest.mark.parametrize(
+    ("nodes", "roads", "message"),
+    (
+        (
+            (_node(0, 0, 0), _node(1, 10, 10), _node(2, 0, 10), _node(3, 10, 0)),
+            (_road(0, 0, 1, ((0, 0), (10, 10))), _road(1, 2, 3, ((0, 10), (10, 0)))),
+            "crossing",
+        ),
+        (
+            (_node(0, 0, 0), _node(1, 10, 0), _node(2, 5, 0), _node(3, 5, 5)),
+            (_road(0, 0, 1, ((0, 0), (10, 0))), _road(1, 2, 3, ((5, 0), (5, 5)))),
+            "T-touch",
+        ),
+        (
+            (_node(0, 0, 0), _node(1, 10, 0), _node(2, 5, 0), _node(3, 15, 0)),
+            (_road(0, 0, 1, ((0, 0), (10, 0))), _road(1, 2, 3, ((5, 0), (15, 0)))),
+            "overlap",
+        ),
+        (
+            (_node(0, 0, 0), _node(1, 10, 0)),
+            (_road(0, 0, 1, ((1, 0), (10, 0))),),
+            "endpoint",
+        ),
+        (
+            (_node(0, 0, 0), _node(1, 10, 0)),
+            (_road(0, 0, 1, ((0, 0), (10, 10), (0, 10), (10, 0))),),
+            "self-intersection",
+        ),
+    ),
+)
+def test_malformed_geometry_fails_closed_without_repair(nodes, roads, message: str) -> None:
+    with pytest.raises(ValueError, match=message):
+        _build_raw(nodes, roads)
+
+
+def test_internal_cut_edge_rejects_non_simple_bounded_carrier() -> None:
+    nodes, roads = _square_fixture()
+    nodes = nodes + (_node(4, 500, 500),)
+    roads = roads + (_road(4, 0, 4, ((0, 0), (500, 500))),)
+
+    with pytest.raises(ValueError, match="non-simple bounded face carrier"):
+        _build_raw(nodes, roads)
