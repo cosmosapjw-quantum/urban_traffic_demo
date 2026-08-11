@@ -437,3 +437,28 @@ def test_structure_and_failure_crosswalks_are_independent_at_equal_counts() -> N
         6: 0,
         7: 0,
     }
+
+
+def test_public_compile_keeps_full_turn_row_indices_in_legal_csr(
+    public_sources,
+) -> None:
+    from metroflow.city.graph import TurnType
+    from metroflow.city.scalable_topology_adapter import compile_scalable_topology
+
+    network, blocks = public_sources
+    compiled = compile_scalable_topology(network, block_authority=blocks)
+
+    assert compiled.topology.turns == compiled.road_csr.turns
+    assert compiled.compiled_turn_count == len(compiled.topology.turns)
+    assert compiled.forbidden_u_turn_count > 0
+    assert compiled.permitted_turn_count > 0
+    assert (
+        compiled.permitted_turn_count + compiled.forbidden_u_turn_count
+        == compiled.compiled_turn_count
+    )
+    for row_index, movement in enumerate(compiled.topology.turns):
+        pair = (movement.from_link_id, movement.to_link_id)
+        if movement.turn_type is TurnType.U_TURN_FORBIDDEN:
+            assert pair not in compiled.road_csr.turn_pair_to_index
+        else:
+            assert compiled.road_csr.turn_pair_to_index[pair] == row_index
