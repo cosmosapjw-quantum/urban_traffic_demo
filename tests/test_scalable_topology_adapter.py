@@ -54,5 +54,5 @@ def test_scalable_topology_adapter_public_api_is_exact() -> None:
         "compiled": adapter.ScalableCompiledTopology,
         "network": ScalableStreetNetwork,
         "block_authority": ScalableBlockAuthority,
-        "return": type(None),
+        "return": None,
     }
