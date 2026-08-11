@@ -188,15 +188,15 @@ def test_scalable_topology_adapter_public_api_is_exact() -> None:
         "return": adapter.ScalableCompiledTopology,
     }
 
-    validator_signature = inspect.signature(
-        adapter.require_valid_scalable_compiled_topology
-    )
+    validator_signature = inspect.signature(adapter.require_valid_scalable_compiled_topology)
     assert tuple(validator_signature.parameters) == (
         "compiled",
         "network",
         "block_authority",
     )
-    assert validator_signature.parameters["compiled"].kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
+    assert (
+        validator_signature.parameters["compiled"].kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
+    )
     assert validator_signature.parameters["network"].kind is inspect.Parameter.KEYWORD_ONLY
     assert validator_signature.parameters["block_authority"].kind is inspect.Parameter.KEYWORD_ONLY
     assert inspect.get_annotations(
@@ -278,9 +278,7 @@ def test_pure_lowering_preserves_curved_geometry_and_expands_directions() -> Non
         "failure_group",
         "bridge_group_id",
     )
-    assert tuple(
-        profile.profile_id for profile in lowered.numeric_profiles
-    ) == (
+    assert tuple(profile.profile_id for profile in lowered.numeric_profiles) == (
         "v2:bridge:arterial",
         "v2:bridge:collector",
         "v2:bridge:expressway",
@@ -385,8 +383,7 @@ def test_source_embedding_is_cross_bound_before_lowering(
         failure_group="alternate-failure",
     )
     alternate_roads = tuple(
-        alternate_road if road.road_id == source_road.road_id else road
-        for road in network.roads
+        alternate_road if road.road_id == source_road.road_id else road for road in network.roads
     )
     alternate = _build_block_authority_from_records(
         network=network,
@@ -405,10 +402,7 @@ def test_source_embedding_is_cross_bound_before_lowering(
 def test_structure_and_failure_crosswalks_are_independent_at_equal_counts() -> None:
     from metroflow.city.scalable_topology_adapter import _lower_scalable_records
 
-    nodes = tuple(
-        _node(node_id, node_id * 2_000, (node_id % 2) * 1_000)
-        for node_id in range(8)
-    )
+    nodes = tuple(_node(node_id, node_id * 2_000, (node_id % 2) * 1_000) for node_id in range(8))
     group_rows = (
         ("deck-shared", "pier-shared"),
         ("deck-shared", "pier-other"),
@@ -475,9 +469,7 @@ def test_structure_and_failure_crosswalks_are_independent_at_equal_counts() -> N
         (0, (2, 3, 6, 7), "pier-other"),
         (1, (0, 1, 4, 5), "pier-shared"),
     )
-    bridge_group_by_link = {
-        link.link_id: link.bridge_group_id for link in lowered.links
-    }
+    bridge_group_by_link = {link.link_id: link.bridge_group_id for link in lowered.links}
     assert bridge_group_by_link == {
         0: 1,
         1: 1,
@@ -548,21 +540,14 @@ def test_fully_resealed_source_projection_is_rejected_before_lowering(
         )
         expected_message = "embedding source record"
     else:
-        road = next(
-            road
-            for road in network.roads
-            if road.facility is FacilityKind.RAMP
-        )
+        road = next(road for road in network.roads if road.facility is FacilityKind.RAMP)
         forged_road = replace(
             road,
-            semantic_id=hashlib.sha256(
-                f"foreign-ramp:{road.semantic_id}".encode()
-            ).hexdigest(),
+            semantic_id=hashlib.sha256(f"foreign-ramp:{road.semantic_id}".encode()).hexdigest(),
         )
         expected_message = "ramp source record"
     forged_roads = tuple(
-        forged_road if candidate.road_id == road.road_id else candidate
-        for candidate in roads
+        forged_road if candidate.road_id == road.road_id else candidate for candidate in roads
     )
     forged = _build_block_authority_from_records(
         network=network,
@@ -1049,16 +1034,12 @@ def test_public_compiler_call_budget_metadata_and_complete_catalogs(
     )
     link_ids = {link.link_id for link in compiled.topology.links}
     assert {
-        assignment.link_id
-        for assignment in compiled.topology.road_geometry.assignments
+        assignment.link_id for assignment in compiled.topology.road_geometry.assignments
     } == link_ids
     assert {
-        assignment.link_id
-        for assignment in compiled.topology.road_sections.assignments
+        assignment.link_id for assignment in compiled.topology.road_sections.assignments
     } == link_ids
-    assert len(compiled.topology.node_interfaces.interfaces) == len(
-        compiled.topology.nodes
-    )
+    assert len(compiled.topology.node_interfaces.interfaces) == len(compiled.topology.nodes)
 
 
 def test_public_validator_does_not_reconstruct_road_geometry_catalog(
@@ -1203,10 +1184,7 @@ def test_wrapper_constructor_rejects_duplicate_group_semantics(
         if getattr(row, road_group_id_name) is not None
     } == {row.semantic_group for row in rows}
     duplicate = replace(rows[1], semantic_group=rows[0].semantic_group)
-    values = {
-        name: getattr(river_compiled, name)
-        for name in river_compiled.__slots__[:-1]
-    }
+    values = {name: getattr(river_compiled, name) for name in river_compiled.__slots__[:-1]}
     values[crosswalk_name] = (rows[0], duplicate, *rows[2:])
 
     with pytest.raises(ValueError, match="duplicate|unique|group"):
@@ -1326,19 +1304,13 @@ def test_wrapper_constructor_rejects_resealed_catalog_coverage_count(
             source_ref=f"{last.source_ref}:extra",
             corridor_id=last.corridor_id + 1,
         )
-        geometry = RoadGeometryCatalog(
-            geometry.centerlines + (extra,), geometry.assignments
-        )
+        geometry = RoadGeometryCatalog(geometry.centerlines + (extra,), geometry.assignments)
         metadata["physical_centerline_count"] += 1
     elif catalog_row == "geometry_assignment":
-        geometry = RoadGeometryCatalog(
-            geometry.centerlines, geometry.assignments[:-1]
-        )
+        geometry = RoadGeometryCatalog(geometry.centerlines, geometry.assignments[:-1])
         metadata["geometry_assignment_count"] -= 1
     elif catalog_row == "section_assignment":
-        sections = RoadSectionCatalog(
-            sections.profiles, sections.assignments[:-1]
-        )
+        sections = RoadSectionCatalog(sections.profiles, sections.assignments[:-1])
         metadata["road_section_assignment_count"] -= 1
     else:
         interfaces = NodeInterfaceCatalog(interfaces.interfaces[:-1])
@@ -1389,11 +1361,7 @@ def test_wrapper_constructor_rejects_nonexact_catalog_nested_rows(
     def derived(row):
         derived_type = type(f"Derived{type(row).__name__}", (type(row),), {})
         return derived_type(
-            **{
-                field.name: getattr(row, field.name)
-                for field in fields(row)
-                if field.init
-            }
+            **{field.name: getattr(row, field.name) for field in fields(row) if field.init}
         )
 
     _, _, compiled = public_compiled
@@ -1491,9 +1459,7 @@ def test_all_generated_styles_compile_without_repair_or_nondeterminism(
 
     monkeypatch.setattr(connectivity, "repair_weak_connectivity", forbidden)
     monkeypatch.setattr(road_geometry, "build_endpoint_geometry_catalog", forbidden)
-    network = build_scalable_street_network(
-        CityScaleSpec(100_000, 40.0), style_id, 17
-    )
+    network = build_scalable_street_network(CityScaleSpec(100_000, 40.0), style_id, 17)
     blocks = build_scalable_block_authority(network)
     first = compile_scalable_topology(network, block_authority=blocks)
     second = compile_scalable_topology(network, block_authority=blocks)
@@ -1523,12 +1489,18 @@ def test_wrapper_identity_binds_numeric_link_bridge_metadata_and_block_seal(
         compiled.numeric_profiles[0],
         free_flow_speed_mps=compiled.numeric_profiles[0].free_flow_speed_mps + 1.0,
     )
-    assert adapter._compiled_fingerprint(
-        replace(compiled, numeric_profiles=(profile, *compiled.numeric_profiles[1:]))
-    ) != original_fingerprint
-    assert adapter._compiled_fingerprint(
-        replace(compiled, source_block_authority_fingerprint="f" * 64)
-    ) != original_fingerprint
+    assert (
+        adapter._compiled_fingerprint(
+            replace(compiled, numeric_profiles=(profile, *compiled.numeric_profiles[1:]))
+        )
+        != original_fingerprint
+    )
+    assert (
+        adapter._compiled_fingerprint(
+            replace(compiled, source_block_authority_fingerprint="f" * 64)
+        )
+        != original_fingerprint
+    )
     metadata = compiled.topology.metadata
     capacity_unit = metadata["capacity_source_unit"]
     metadata["capacity_source_unit"] = "changed"
@@ -1537,9 +1509,12 @@ def test_wrapper_identity_binds_numeric_link_bridge_metadata_and_block_seal(
     finally:
         metadata["capacity_source_unit"] = capacity_unit
     road_row = replace(compiled.road_crosswalk[0], provenance="synthetic:changed")
-    assert adapter._compiled_fingerprint(
-        replace(compiled, road_crosswalk=(road_row, *compiled.road_crosswalk[1:]))
-    ) != original_fingerprint
+    assert (
+        adapter._compiled_fingerprint(
+            replace(compiled, road_crosswalk=(road_row, *compiled.road_crosswalk[1:]))
+        )
+        != original_fingerprint
+    )
     centerline = replace(
         compiled.topology.road_geometry.centerlines[0], source_ref="scalable:changed"
     )
@@ -1548,9 +1523,10 @@ def test_wrapper_identity_binds_numeric_link_bridge_metadata_and_block_seal(
         compiled.topology.road_geometry.assignments,
     )
     changed_topology = replace(compiled.topology, road_geometry=geometry)
-    assert adapter._compiled_fingerprint(
-        replace(compiled, topology=changed_topology)
-    ) != original_fingerprint
+    assert (
+        adapter._compiled_fingerprint(replace(compiled, topology=changed_topology))
+        != original_fingerprint
+    )
     bridge = river_compiled.topology.bridge_crossings[0]
     bridge_name = bridge.crossing_name
     bridge.crossing_name = f"{bridge_name}:changed"

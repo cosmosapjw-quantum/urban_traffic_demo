@@ -114,8 +114,7 @@ class ScalableGroupCrosswalk:
             not self.semantic_group
             or self.dense_group_id < 0
             or not self.member_physical_road_ids
-            or tuple(sorted(set(self.member_physical_road_ids)))
-            != self.member_physical_road_ids
+            or tuple(sorted(set(self.member_physical_road_ids))) != self.member_physical_road_ids
         ):
             raise ValueError("group crosswalk values must be unique and canonical")
 
@@ -232,25 +231,15 @@ class ScalableCompiledTopology:
         for name in tuple_fields:
             if type(getattr(self, name)) is not tuple:
                 raise TypeError(f"{name} must be an exact tuple")
-        if any(
-            type(row) is not ScalableNumericProfile
-            for row in self.numeric_profiles
-        ):
+        if any(type(row) is not ScalableNumericProfile for row in self.numeric_profiles):
             raise TypeError("numeric_profiles must contain exact rows")
-        if any(
-            type(row) is not ScalableRoadCrosswalk for row in self.road_crosswalk
-        ):
+        if any(type(row) is not ScalableRoadCrosswalk for row in self.road_crosswalk):
             raise TypeError("road_crosswalk must contain exact rows")
         for name in ("structure_group_crosswalk", "failure_group_crosswalk"):
-            if any(
-                type(row) is not ScalableGroupCrosswalk
-                for row in getattr(self, name)
-            ):
+            if any(type(row) is not ScalableGroupCrosswalk for row in getattr(self, name)):
                 raise TypeError(f"{name} must contain exact rows")
         if any(
-            type(item) is not tuple
-            or len(item) != 2
-            or type(item[0]) is not str
+            type(item) is not tuple or len(item) != 2 or type(item[0]) is not str
             for item in self.metadata_items
         ):
             raise TypeError("metadata_items must contain exact string-key pairs")
@@ -268,9 +257,7 @@ class ScalableCompiledTopology:
             if type(rows) is not tuple or any(type(row) is not row_type for row in rows):
                 raise TypeError(f"topology {name} must contain exact rows")
             csr_rows = getattr(csr, name)
-            if type(csr_rows) is not tuple or any(
-                type(row) is not row_type for row in csr_rows
-            ):
+            if type(csr_rows) is not tuple or any(type(row) is not row_type for row in csr_rows):
                 raise TypeError(f"road_csr CSR {name} must contain exact rows")
             if csr_rows != rows:
                 raise ValueError(f"road_csr CSR {name} differ from topology")
@@ -331,9 +318,7 @@ class ScalableCompiledTopology:
         if physical_ids != tuple(range(len(physical_ids))):
             raise ValueError("road crosswalk physical IDs must be dense and ordered")
         profile_ids = tuple(row.profile_id for row in self.numeric_profiles)
-        if len(profile_ids) != len(set(profile_ids)) or profile_ids != tuple(
-            sorted(profile_ids)
-        ):
+        if len(profile_ids) != len(set(profile_ids)) or profile_ids != tuple(sorted(profile_ids)):
             raise ValueError("numeric profile IDs must be unique and ordered")
 
         for crosswalk_name, semantic_name, dense_name in (
@@ -355,9 +340,7 @@ class ScalableCompiledTopology:
                 raise ValueError(f"{crosswalk_name} has duplicate group semantics")
             if dense_ids != tuple(range(len(group_rows))):
                 raise ValueError(f"{crosswalk_name} dense group IDs are not canonical")
-            group_by_semantic = {
-                row.semantic_group: row.dense_group_id for row in group_rows
-            }
+            group_by_semantic = {row.semantic_group: row.dense_group_id for row in group_rows}
             for group_row in group_rows:
                 expected_members = tuple(
                     row.physical_road_id
@@ -369,9 +352,7 @@ class ScalableCompiledTopology:
             for road_row in self.road_crosswalk:
                 semantic = getattr(road_row, semantic_name)
                 dense_id = getattr(road_row, dense_name)
-                expected_dense_id = (
-                    None if semantic is None else group_by_semantic.get(semantic)
-                )
+                expected_dense_id = None if semantic is None else group_by_semantic.get(semantic)
                 if dense_id != expected_dense_id:
                     raise ValueError(f"{crosswalk_name} road mapping differs")
 
@@ -388,8 +369,7 @@ class ScalableCompiledTopology:
             raise ValueError("node interface catalog coverage count differs")
 
         permitted_turn_count = sum(
-            movement.turn_type is not TurnType.U_TURN_FORBIDDEN
-            for movement in topology.turns
+            movement.turn_type is not TurnType.U_TURN_FORBIDDEN for movement in topology.turns
         )
         expected_counts = {
             "source_node_count": len(topology.nodes),
@@ -640,12 +620,9 @@ def _lower_scalable_records(*, nodes, roads):
         for dense_group_id, semantic_group in enumerate(sorted(failure_members))
     )
     structure_group_id = {
-        row.semantic_group: row.dense_group_id
-        for row in structure_group_crosswalk
+        row.semantic_group: row.dense_group_id for row in structure_group_crosswalk
     }
-    failure_group_id = {
-        row.semantic_group: row.dense_group_id for row in failure_group_crosswalk
-    }
+    failure_group_id = {row.semantic_group: row.dense_group_id for row in failure_group_crosswalk}
     lowered_nodes = tuple(
         Node(
             node_id=node.node_id,
@@ -663,22 +640,15 @@ def _lower_scalable_records(*, nodes, roads):
     bridge_link_ids: dict[int, list[int]] = defaultdict(list)
     for road in source_roads:
         resolved_profile_id = (
-            "v2:mainline"
-            if road.facility is FacilityKind.MAINLINE
-            else road.profile_id
+            "v2:mainline" if road.facility is FacilityKind.MAINLINE else road.profile_id
         )
         try:
             profile = profile_by_id[resolved_profile_id]
         except KeyError as error:
-            raise ValueError(
-                f"unsupported numeric profile {resolved_profile_id!r}"
-            ) from error
+            raise ValueError(f"unsupported numeric profile {resolved_profile_id!r}") from error
         geometry_id = road.road_id
         source_ref = f"scalable:{road.semantic_id}"
-        points_m = tuple(
-            (x_mm / 1_000.0, y_mm / 1_000.0)
-            for x_mm, y_mm in road.points_mm
-        )
+        points_m = tuple((x_mm / 1_000.0, y_mm / 1_000.0) for x_mm, y_mm in road.points_mm)
         centerlines.append(
             RoadCenterline(
                 geometry_id=geometry_id,
@@ -706,9 +676,7 @@ def _lower_scalable_records(*, nodes, roads):
             dst_node_id = road.start_node_id if is_reverse else road.end_node_id
             if road.facility is FacilityKind.BRIDGE:
                 if road.structure_group is None or road.failure_group is None:
-                    raise ValueError(
-                        "bridge roads require structure and failure groups"
-                    )
+                    raise ValueError("bridge roads require structure and failure groups")
                 bridge_group_id = failure_group_id[road.failure_group]
             else:
                 bridge_group_id = None
@@ -762,9 +730,7 @@ def _lower_scalable_records(*, nodes, roads):
                 ),
                 failure_group=road.failure_group,
                 bridge_group_id=(
-                    None
-                    if road.failure_group is None
-                    else failure_group_id[road.failure_group]
+                    None if road.failure_group is None else failure_group_id[road.failure_group]
                 ),
             )
         )
@@ -901,13 +867,9 @@ def _admit_scalable_sources(
             raise ValueError("embedding source record mismatch")
 
     expected_ramp_road_ids = {
-        road.road_id
-        for road in admitted_network.roads
-        if road.facility is FacilityKind.RAMP
+        road.road_id for road in admitted_network.roads if road.facility is FacilityKind.RAMP
     }
-    if {ramp.source_road_id for ramp in block_authority.ramp_incidence} != (
-        expected_ramp_road_ids
-    ):
+    if {ramp.source_road_id for ramp in block_authority.ramp_incidence} != (expected_ramp_road_ids):
         raise ValueError("ramp incidence coverage differs from the source network")
     for ramp in block_authority.ramp_incidence:
         road = road_by_id[ramp.source_road_id]
@@ -1147,8 +1109,7 @@ def _metadata_items_for(
     if type(node_interfaces) is not NodeInterfaceCatalog:
         raise TypeError("topology node_interfaces must be an exact catalog")
     permitted_turn_count = sum(
-        movement.turn_type is not TurnType.U_TURN_FORBIDDEN
-        for movement in topology.turns
+        movement.turn_type is not TurnType.U_TURN_FORBIDDEN for movement in topology.turns
     )
     forbidden_u_turn_count = len(topology.turns) - permitted_turn_count
     numeric_profile_payload = tuple(
@@ -1242,12 +1203,9 @@ def compile_scalable_topology(
         node_interfaces=node_interfaces,
     )
     permitted_turn_count = sum(
-        movement.turn_type is not TurnType.U_TURN_FORBIDDEN
-        for movement in turn_authority.movements
+        movement.turn_type is not TurnType.U_TURN_FORBIDDEN for movement in turn_authority.movements
     )
-    forbidden_u_turn_count = (
-        len(turn_authority.movements) - permitted_turn_count
-    )
+    forbidden_u_turn_count = len(turn_authority.movements) - permitted_turn_count
     topology = PreviewCityTopology(
         nodes=lowered.nodes,
         links=lowered.links,
@@ -1338,12 +1296,8 @@ def _require_canonical_csr(
     if road_csr.bridge_crossings != topology.bridge_crossings:
         raise ValueError("CSR bridge rows differ from current topology")
 
-    node_id_to_index = {
-        node.node_id: index for index, node in enumerate(topology.nodes)
-    }
-    link_id_to_index = {
-        link.link_id: index for index, link in enumerate(topology.links)
-    }
+    node_id_to_index = {node.node_id: index for index, node in enumerate(topology.nodes)}
+    link_id_to_index = {link.link_id: index for index, link in enumerate(topology.links)}
     if road_csr.node_id_to_index != node_id_to_index:
         raise ValueError("CSR node index mapping is not canonical")
     if road_csr.link_id_to_index != link_id_to_index:
@@ -1365,12 +1319,8 @@ def _require_canonical_csr(
             np.asarray(indices, dtype=np.int32),
         )
 
-    src_indices = tuple(
-        node_id_to_index[link.src_node_id] for link in topology.links
-    )
-    dst_indices = tuple(
-        node_id_to_index[link.dst_node_id] for link in topology.links
-    )
+    src_indices = tuple(node_id_to_index[link.src_node_id] for link in topology.links)
+    dst_indices = tuple(node_id_to_index[link.dst_node_id] for link in topology.links)
     outgoing_indptr, outgoing_indices = adjacency_arrays(src_indices)
     incoming_indptr, incoming_indices = adjacency_arrays(dst_indices)
     expected_arrays = {
@@ -1389,10 +1339,7 @@ def _require_canonical_csr(
         "incoming_indptr": incoming_indptr,
         "incoming_link_indices": incoming_indices,
         "turn_from_link_index": np.asarray(
-            [
-                link_id_to_index[movement.from_link_id]
-                for movement in topology.turns
-            ],
+            [link_id_to_index[movement.from_link_id] for movement in topology.turns],
             dtype=np.int32,
         ),
         "turn_to_link_index": np.asarray(
@@ -1404,10 +1351,7 @@ def _require_canonical_csr(
             dtype=np.float32,
         ),
         "turn_is_forbidden": np.asarray(
-            [
-                movement.turn_type is TurnType.U_TURN_FORBIDDEN
-                for movement in topology.turns
-            ],
+            [movement.turn_type is TurnType.U_TURN_FORBIDDEN for movement in topology.turns],
             dtype=np.bool_,
         ),
     }
@@ -1517,12 +1461,10 @@ def require_valid_scalable_compiled_topology(
         "compiled_link_count": len(topology.links),
         "compiled_turn_count": len(topology.turns),
         "permitted_turn_count": sum(
-            movement.turn_type is not TurnType.U_TURN_FORBIDDEN
-            for movement in topology.turns
+            movement.turn_type is not TurnType.U_TURN_FORBIDDEN for movement in topology.turns
         ),
         "forbidden_u_turn_count": sum(
-            movement.turn_type is TurnType.U_TURN_FORBIDDEN
-            for movement in topology.turns
+            movement.turn_type is TurnType.U_TURN_FORBIDDEN for movement in topology.turns
         ),
         "bridge_crossing_count": len(topology.bridge_crossings),
     }
