@@ -1027,7 +1027,9 @@ def test_nested_records_and_forged_void_reasons_are_revalidated() -> None:
     class TupleProxy(tuple):
         pass
 
-    evil = EvilEdge(**{item.name: getattr(edge, item.name) for item in fields(type(edge))})
+    evil = object.__new__(EvilEdge)
+    for item in fields(type(edge)):
+        object.__setattr__(evil, item.name, getattr(edge, item.name))
     nested = object.__new__(blocks.V2EmbeddingEdge)
     for item in fields(type(edge)):
         object.__setattr__(
