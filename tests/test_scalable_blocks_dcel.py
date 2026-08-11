@@ -16,14 +16,9 @@ SOURCE_FINGERPRINT = hashlib.sha256(b"task3b-source-fixture").hexdigest()
 def _node(node_id: int, x_mm: int, y_mm: int, *, layer: int = 0):
     from metroflow.city.scalable_topology import PhysicalNodeRecord
 
-    return PhysicalNodeRecord(
-        node_id,
-        hashlib.sha256(f"fixture-node-{node_id}".encode()).hexdigest(),
-        x_mm,
-        y_mm,
-        layer,
-        "fixture",
-    )
+    # fmt: off
+    return PhysicalNodeRecord(node_id, hashlib.sha256(f"fixture-node-{node_id}".encode()).hexdigest(), x_mm, y_mm, layer, "fixture")
+    # fmt: on
 
 
 def _road(
@@ -36,32 +31,13 @@ def _road(
     layer: int = 0,
     layer_transition: tuple[int, int] | None = None,
 ):
-    from metroflow.city.scalable_topology import (
-        FacilityKind,
-        PhysicalRoadRecord,
-        RoadHierarchy,
-    )
+    from metroflow.city.scalable_topology import FacilityKind, PhysicalRoadRecord, RoadHierarchy
 
     facility_kind = FacilityKind(facility)
-    profile_id = (
-        "v2:ramp" if facility_kind is FacilityKind.RAMP else f"v2:{facility_kind.value}:local"
-    )
-    return PhysicalRoadRecord(
-        road_id,
-        hashlib.sha256(f"fixture-road-{road_id}".encode()).hexdigest(),
-        start_node_id,
-        end_node_id,
-        points_mm,
-        RoadHierarchy.LOCAL,
-        facility_kind,
-        layer,
-        frozenset({"forward", "reverse"}),
-        layer_transition,
-        f"structure-{road_id}" if facility_kind is FacilityKind.BRIDGE else None,
-        f"failure-{road_id}" if facility_kind is FacilityKind.BRIDGE else None,
-        profile_id,
-        "task3b-test",
-    )
+    # fmt: off
+    profile_id = "v2:ramp" if facility_kind is FacilityKind.RAMP else f"v2:{facility_kind.value}:local"
+    return PhysicalRoadRecord(road_id, hashlib.sha256(f"fixture-road-{road_id}".encode()).hexdigest(), start_node_id, end_node_id, points_mm, RoadHierarchy.LOCAL, facility_kind, layer, frozenset({"forward", "reverse"}), layer_transition, f"structure-{road_id}" if facility_kind is FacilityKind.BRIDGE else None, f"failure-{road_id}" if facility_kind is FacilityKind.BRIDGE else None, profile_id, "task3b-test")
+    # fmt: on
 
 
 def _square_fixture(
@@ -73,23 +49,14 @@ def _square_fixture(
     road_base: int = 0,
     bridge_road_offset: int | None = None,
 ):
-    points = (
-        (x0, y0),
-        (x0 + size, y0),
-        (x0 + size, y0 + size),
-        (x0, y0 + size),
-    )
+    points = ((x0, y0), (x0 + size, y0), (x0 + size, y0 + size), (x0, y0 + size))
     nodes = tuple(_node(node_base + index, x_mm, y_mm) for index, (x_mm, y_mm) in enumerate(points))
+    # fmt: off
     roads = tuple(
-        _road(
-            road_base + offset,
-            node_base + left,
-            node_base + right,
-            (points[left], points[right]),
-            facility="bridge" if bridge_road_offset == offset else "surface",
-        )
+        _road(road_base + offset, node_base + left, node_base + right, (points[left], points[right]), facility="bridge" if bridge_road_offset == offset else "surface")
         for offset, (left, right) in enumerate(((0, 1), (1, 2), (2, 3), (3, 0)))
     )
+    # fmt: on
     return nodes, roads
 
 
@@ -103,14 +70,9 @@ def _build_raw(
 ):
     from metroflow.city.scalable_blocks import _build_block_authority_from_records
 
-    return _build_block_authority_from_records(
-        nodes=tuple(nodes),
-        roads=tuple(roads),
-        source_network_fingerprint=SOURCE_FINGERPRINT,
-        extent_mm=extent_mm,
-        tile_coordinates=tuple(tile_coordinates),
-        tile_order=tile_order,
-    )
+    # fmt: off
+    return _build_block_authority_from_records(nodes=tuple(nodes), roads=tuple(roads), source_network_fingerprint=SOURCE_FINGERPRINT, extent_mm=extent_mm, tile_coordinates=tuple(tile_coordinates), tile_order=tile_order)
+    # fmt: on
 
 
 def test_scalable_blocks_module_import_exists() -> None:
@@ -124,17 +86,12 @@ def test_scalable_blocks_module_import_exists() -> None:
 
 
 def test_fresh_scalable_blocks_import_does_not_load_legacy_compilers() -> None:
-    legacy_modules = (
-        "metroflow.city.block_land_use",
-        "metroflow.city.planar_blocks",
-        "metroflow.city.planarization",
-        "metroflow.city.topology_finalizer",
-        "metroflow.city.generator_v2",
+    legacy_modules = tuple(
+        f"metroflow.city.{name}"
+        for name in "block_land_use planar_blocks planarization topology_finalizer generator_v2".split()
     )
     script = f"""
-import json
-import sys
-import metroflow.city.scalable_blocks
+import json, sys; import metroflow.city.scalable_blocks
 print(json.dumps([name for name in {list(legacy_modules)!r} if name in sys.modules]))
 """
     completed = subprocess.run(
@@ -148,12 +105,9 @@ print(json.dumps([name for name in {list(legacy_modules)!r} if name in sys.modul
 
 
 def test_lazy_city_exports_preserve_identity_all_and_unknown_attribute() -> None:
-    legacy_modules = (
-        "metroflow.city.block_land_use",
-        "metroflow.city.planar_blocks",
-        "metroflow.city.planarization",
-        "metroflow.city.topology_finalizer",
-        "metroflow.city.generator_v2",
+    legacy_modules = tuple(
+        f"metroflow.city.{name}"
+        for name in "block_land_use planar_blocks planarization topology_finalizer generator_v2".split()
     )
     lazy_exports = {
         "BlockLandUse": ".block_land_use",
@@ -169,60 +123,19 @@ def test_lazy_city_exports_preserve_identity_all_and_unknown_attribute() -> None
         "GeneratorV2": ".generator_v2",
     }
     script = f"""
-import hashlib
-import importlib
-import json
-import sys
-
-import metroflow.city.scalable_blocks as blocks
-import metroflow.city as city
-
-legacy_modules = {list(legacy_modules)!r}
-expected_map = {lazy_exports!r}
-payload = {{
-    "loaded_before": [name for name in legacy_modules if name in sys.modules],
-    "lazy_map": city.__dict__.get("_LAZY_EXPORT_MODULE"),
-}}
+import hashlib, importlib, json, sys; import metroflow.city.scalable_blocks as blocks; import metroflow.city as city
+legacy_modules={list(legacy_modules)!r}; expected_map={lazy_exports!r}
+payload={{"loaded_before":[n for n in legacy_modules if n in sys.modules],"lazy_map":city.__dict__.get("_LAZY_EXPORT_MODULE")}}
 if not payload["loaded_before"] and payload["lazy_map"] == expected_map:
-    identities = {{}}
-    from_identities = {{}}
-    for name, module_name in expected_map.items():
-        direct = getattr(importlib.import_module(module_name, city.__name__), name)
-        identities[name] = getattr(city, name) is direct
-        namespace = {{}}
-        exec(f"from metroflow.city import {{name}}", namespace)
-        from_identities[name] = namespace[name] is direct
-    from metroflow.city.blueprint import (
-        CityBlueprint,
-        GeneratedCityMap,
-        RealisticCityQualityResult,
-    )
+    direct={{n:getattr(importlib.import_module(m,city.__name__),n) for n,m in expected_map.items()}}
+    imported={{}}
+    for name in expected_map:
+        namespace={{}}; exec(f"from metroflow.city import {{name}}",namespace); imported[name]=namespace[name]
+    from metroflow.city.blueprint import CityBlueprint,GeneratedCityMap,RealisticCityQualityResult
     from metroflow.city.realistic_city import generate_city_map
-    payload.update(
-        identities=identities,
-        from_identities=from_identities,
-        existing_lazy={{
-            "CityBlueprint": city.CityBlueprint is CityBlueprint,
-            "GeneratedCityMap": city.GeneratedCityMap is GeneratedCityMap,
-            "RealisticCityQualityResult": (
-                city.RealisticCityQualityResult is RealisticCityQualityResult
-            ),
-            "generate_city_map": city.generate_city_map is generate_city_map,
-        }},
-        unknown=(
-            "no error"
-            if hasattr(city, "definitely_not_a_city_export")
-            else "definitely_not_a_city_export"
-        ),
-        task3b_exported=any(
-            name in city.__all__
-            for name in blocks.__dict__.get("__all__", ())
-        ),
-    )
-payload["all_sha256"] = hashlib.sha256(
-    json.dumps(city.__all__, separators=(",", ":")).encode()
-).hexdigest()
-print(json.dumps(payload, sort_keys=True))
+    payload.update(identities={{n:getattr(city,n) is v for n,v in direct.items()}},from_identities={{n:imported[n] is v for n,v in direct.items()}},existing_lazy={{"CityBlueprint":city.CityBlueprint is CityBlueprint,"GeneratedCityMap":city.GeneratedCityMap is GeneratedCityMap,"RealisticCityQualityResult":city.RealisticCityQualityResult is RealisticCityQualityResult,"generate_city_map":city.generate_city_map is generate_city_map}},unknown="no error" if hasattr(city,"definitely_not_a_city_export") else "definitely_not_a_city_export",task3b_exported=any(n in city.__all__ for n in blocks.__dict__.get("__all__",())))
+payload["all_sha256"]=hashlib.sha256(json.dumps(city.__all__,separators=(",",":")).encode()).hexdigest()
+print(json.dumps(payload,sort_keys=True))
 """
     completed = subprocess.run(
         [sys.executable, "-c", script],
@@ -246,33 +159,11 @@ print(json.dumps(payload, sort_keys=True))
 
 def test_scalable_blocks_public_api_exists() -> None:
     import metroflow.city.scalable_blocks as blocks
-    from metroflow.city.scalable_blocks import (
-        ScalableBlockAuthority,
-        V2Block,
-        V2BlockAccessIndex,
-        V2EmbeddingEdge,
-        V2Face,
-        V2FaceBoundary,
-        V2FaceTileClip,
-        V2HalfEdge,
-        V2RampIncidence,
-        build_scalable_block_authority,
-        validate_scalable_block_authority,
-    )
 
-    assert blocks.__all__ == [
-        "ScalableBlockAuthority",
-        "V2Block",
-        "V2BlockAccessIndex",
-        "V2EmbeddingEdge",
-        "V2Face",
-        "V2FaceBoundary",
-        "V2FaceTileClip",
-        "V2HalfEdge",
-        "V2RampIncidence",
-        "build_scalable_block_authority",
-        "validate_scalable_block_authority",
-    ]
+    assert (
+        blocks.__all__
+        == "ScalableBlockAuthority V2Block V2BlockAccessIndex V2EmbeddingEdge V2Face V2FaceBoundary V2FaceTileClip V2HalfEdge V2RampIncidence build_scalable_block_authority validate_scalable_block_authority".split()
+    )
     assert (
         blocks.SCHEMA_VERSION,
         blocks.SUBDIVISION_SCHEMA,
@@ -290,25 +181,11 @@ def test_scalable_blocks_public_api_exists() -> None:
     assert blocks.FractionPoint == tuple[Fraction, Fraction]
     assert blocks.ExactCoordinateMM == int | Fraction
     assert blocks.ExactPointMM == tuple[int | Fraction, int | Fraction]
-    assert all(
-        value is not None
-        for value in (
-            ScalableBlockAuthority,
-            V2Block,
-            V2BlockAccessIndex,
-            V2EmbeddingEdge,
-            V2Face,
-            V2FaceBoundary,
-            V2FaceTileClip,
-            V2HalfEdge,
-            V2RampIncidence,
-            build_scalable_block_authority,
-            validate_scalable_block_authority,
-        )
-    )
+    assert all(getattr(blocks, name) is not None for name in blocks.__all__)
 
 
 def test_authority_records_are_deeply_frozen() -> None:
+    import metroflow.city.scalable_blocks as blocks
     from metroflow.city.scalable_blocks import (
         ScalableBlockAuthority,
         V2Block,
@@ -338,37 +215,18 @@ def test_authority_records_are_deeply_frozen() -> None:
         assert tuple(field.name for field in fields(record_type)) == expected
         assert record_type.__slots__ == expected
 
+    # fmt: off
     records = (
-        V2EmbeddingEdge(
-            0, digest, 0, digest, 0, 1, digest, digest, ((0, 0), (1, 0)), 0, "surface", digest
-        ),
+        V2EmbeddingEdge(0, digest, 0, digest, 0, 1, digest, digest, ((0, 0), (1, 0)), 0, "surface", digest),
         V2HalfEdge(0, digest, 0, 0, 0, 1, ((0, 0), (1, 0)), 1, 0, 0, 0),
-        V2FaceBoundary(
-            0, digest, (0,), ((0, 0), (1, 0), (0, 0)), 0, 0, "OUTER", (Fraction(0), Fraction(0))
-        ),
+        V2FaceBoundary(0, digest, (0,), ((0, 0), (1, 0), (0, 0)), 0, 0, "OUTER", (Fraction(0), Fraction(0))),
         V2Face(0, digest, True, "UNBOUNDED", None, (), (0,), None, None, (), (), digest),
         V2RampIncidence(0, digest, 0, digest, 0, 1, digest, digest, digest),
-        V2Block(
-            0,
-            digest,
-            0,
-            "face_cell_v1",
-            ((0, 0), (1, 0), (0, 0)),
-            (),
-            Fraction(0),
-            (1, 1),
-            2.0,
-            (0,),
-            (0, 1),
-            0,
-            (Fraction(0), Fraction(0)),
-            digest,
-        ),
-        V2BlockAccessIndex(
-            ((0, (0,)),), ((0, (0, 1)),), ((0, (0,)),), ((0, (0,)), (1, (0,))), ((0, 0),), 4
-        ),
+        V2Block(0, digest, 0, "face_cell_v1", ((0, 0), (1, 0), (0, 0)), (), Fraction(0), (1, 1), 2.0, (0,), (0, 1), 0, (Fraction(0), Fraction(0)), digest),
+        V2BlockAccessIndex(((0, (0,)),), ((0, (0, 1)),), ((0, (0,)),), ((0, (0,)), (1, (0,))), ((0, 0),), 4),
         V2FaceTileClip(0, 0, digest, (0, 0), (((0, 0), (1, 0), (0, 0)),), Fraction(0), 0, True),
     )
+    # fmt: on
     for record in records:
         assert not hasattr(record, "__dict__")
         first_field = fields(type(record))[0].name
@@ -386,6 +244,86 @@ def test_authority_records_are_deeply_frozen() -> None:
         replace(records[6], block_to_road_ids={0: (0,)})
     with pytest.raises(TypeError, match="plain integer"):
         replace(records[1], half_edge_id=True)
+
+    # fmt: off
+    IntProxy, StrProxy = type("IntProxy", (int,), {}), type("StrProxy", (str,), {})
+    FloatProxy, FractionProxy = type("FloatProxy", (float,), {}), type("FractionProxy", (Fraction,), {})
+    # fmt: on
+
+    def corrupt(value):
+        if type(value) is tuple:
+            return (corrupt(value[0]), *value[1:]) if value else (Fraction(),)
+        if type(value) is int:
+            return Fraction(value, 1)
+        if type(value) is str:
+            return 0
+        if type(value) is Fraction:
+            return 0.0
+        return object()
+
+    authority = _build_raw(*_square_fixture())
+    failures = []
+
+    def check(label, field_name, action):
+        try:
+            action()
+        except TypeError as error:
+            if field_name and field_name not in str(error):
+                failures.append(f"unnamed {label}")
+        except Exception as error:
+            failures.append(f"wrong {type(error).__name__} {label}")
+        else:
+            failures.append(f"DID NOT RAISE {label}")
+
+    # fmt: off
+    for record in (*records, authority):
+        for item in fields(record):
+            value, annotation = getattr(record, item.name), str(item.type)
+            if annotation in {"int", "int | None"}:
+                variants = (("category", Fraction(value or 0, 1)), ("subclass", IntProxy(value or 0)))
+            elif annotation == "str":
+                variants = (("category", 0), ("subclass", StrProxy(value)))
+            elif annotation == "bool":
+                variants = (("category", 1),)
+            elif annotation == "float":
+                variants = (("category", 1), ("subclass", FloatProxy(value)))
+            elif annotation == "Fraction":
+                variants = (("category", int(value)), ("subclass", FractionProxy(value)))
+            elif "tuple" in annotation:
+                base = value if type(value) is tuple else ()
+                variants = (("container", list(base)), ("subclass", TupleProxy(base)), ("nested", corrupt(base)))
+            elif "ExactPointMM" in annotation:
+                variants = (("category", (0.0, 0)), ("subclass", TupleProxy((0, 0))))
+            else:
+                variants = (("category", object()),)
+            for kind, bad in variants:
+                changes = {item.name: bad}
+                if record is authority and item.name != "fingerprint":
+                    changes["fingerprint"] = ""
+                check(f"{type(record).__name__}.{item.name}:{kind}", item.name, lambda record=record, changes=changes: replace(record, **changes))
+        subtype = type(f"{type(record).__name__}Proxy", (type(record),), {})
+        check(subtype.__name__, "", lambda subtype=subtype, record=record: subtype(**{item.name: getattr(record, item.name) for item in fields(record)}))
+
+    class ComparisonBomb:
+        def __eq__(self, other):
+            raise RuntimeError("comparison reached")
+
+        __ne__ = __eq__
+
+    forged = object.__new__(ScalableBlockAuthority)
+    for item in fields(authority):
+        object.__setattr__(forged, item.name, getattr(authority, item.name))
+    object.__setattr__(forged, "schema_version", ComparisonBomb())
+    precedence = (
+        (forged, None, "schema_version"),
+        (records[0], {"semantic_id": "bad", "facility": 1}, "facility"),
+        (records[3], {"semantic_id": "bad", "is_unbounded": 1}, "is_unbounded"),
+        (records[5], {"semantic_id": "bad", "net_area_mm2": 1}, "net_area_mm2"),
+    )
+    for record, changes, field_name in precedence:
+        check(f"precedence {field_name}", field_name, lambda record=record, changes=changes: blocks.validate_scalable_block_authority(record) if changes is None else replace(record, **changes))
+    # fmt: on
+    assert failures == []
 
 
 def test_square_has_total_dcel_and_one_unbounded_face() -> None:
@@ -530,6 +468,8 @@ def test_positive_half_square_uses_an_exact_rational_interior_witness() -> None:
 
 
 def test_boundary_cycles_are_bound_to_the_authoritative_next_permutation() -> None:
+    import metroflow.city.scalable_blocks as blocks
+
     nodes, roads = _square_fixture()
     authority = _build_raw(nodes, roads)
     incoming_by_node = {}
@@ -554,6 +494,17 @@ def test_boundary_cycles_are_bound_to_the_authoritative_next_permutation() -> No
 
     with pytest.raises(ValueError, match="canonical ray rotation"):
         replace(authority, half_edges=changed, fingerprint="")
+
+    # fmt: off
+    unbounded = next(boundary for boundary in authority.boundaries if boundary.role == "UNBOUNDED_COMPONENT")
+    cycle = (*unbounded.half_edge_ids[1:], unbounded.half_edge_ids[0])
+    semantic = hashlib.sha256(blocks.SCHEMA_VERSION.encode() + b":boundary:" + json.dumps(tuple(authority.half_edges[index].semantic_id for index in cycle), separators=(",", ":")).encode()).hexdigest()
+    rotated = replace(unbounded, semantic_id=semantic, half_edge_ids=cycle)
+    outside = next(face for face in authority.faces if face.is_unbounded)
+    face_semantic = hashlib.sha256(blocks.SCHEMA_VERSION.encode() + b":face:" + json.dumps(("unbounded", (semantic,)), separators=(",", ":")).encode()).hexdigest()
+    with pytest.raises(ValueError, match="canonical boundary cycle"):
+        replace(authority, boundaries=tuple(rotated if item is unbounded else item for item in authority.boundaries), faces=tuple(replace(item, semantic_id=face_semantic) if item is outside else item for item in authority.faces), fingerprint="")
+    # fmt: on
 
 
 def test_standalone_authority_reaudits_cross_component_embedding_geometry() -> None:
@@ -593,38 +544,31 @@ def test_nested_annulus_preserves_exact_face_hole_partition() -> None:
     assert len(unbounded.unbounded_component_boundary_ids) == 1
     assert canonical.faces == reversed_input.faces
     assert canonical.boundaries == reversed_input.boundaries
+    failures = []
+    # fmt: off
+    for role in ("OUTER", "HOLE", "UNBOUNDED_COMPONENT"):
+        target = next(boundary for boundary in canonical.boundaries if boundary.role == role)
+        changed = tuple(replace(boundary, interior_witness_mm=(Fraction(-1), Fraction(-1))) if boundary is target else boundary for boundary in canonical.boundaries)
+        try:
+            replace(canonical, boundaries=changed, fingerprint="")
+        except ValueError as error:
+            if "boundary witness" not in str(error):
+                failures.append(f"wrong witness error {role}:{error}")
+        else:
+            failures.append(f"DID NOT RAISE boundary witness {role}")
+    # fmt: on
+    assert failures == []
 
 
-@pytest.mark.parametrize(
-    ("nodes", "roads", "message"),
-    (
-        (
-            (_node(0, 0, 0), _node(1, 10, 10), _node(2, 0, 10), _node(3, 10, 0)),
-            (_road(0, 0, 1, ((0, 0), (10, 10))), _road(1, 2, 3, ((0, 10), (10, 0)))),
-            "crossing",
-        ),
-        (
-            (_node(0, 0, 0), _node(1, 10, 0), _node(2, 5, 0), _node(3, 5, 5)),
-            (_road(0, 0, 1, ((0, 0), (10, 0))), _road(1, 2, 3, ((5, 0), (5, 5)))),
-            "T-touch",
-        ),
-        (
-            (_node(0, 0, 0), _node(1, 10, 0), _node(2, 5, 0), _node(3, 15, 0)),
-            (_road(0, 0, 1, ((0, 0), (10, 0))), _road(1, 2, 3, ((5, 0), (15, 0)))),
-            "overlap",
-        ),
-        (
-            (_node(0, 0, 0), _node(1, 10, 0)),
-            (_road(0, 0, 1, ((1, 0), (10, 0))),),
-            "endpoint",
-        ),
-        (
-            (_node(0, 0, 0), _node(1, 10, 0)),
-            (_road(0, 0, 1, ((0, 0), (10, 10), (0, 10), (10, 0))),),
-            "self-intersection",
-        ),
-    ),
-)
+# fmt: off
+@pytest.mark.parametrize(("nodes", "roads", "message"), (
+    ((_node(0, 0, 0), _node(1, 10, 10), _node(2, 0, 10), _node(3, 10, 0)), (_road(0, 0, 1, ((0, 0), (10, 10))), _road(1, 2, 3, ((0, 10), (10, 0)))), "crossing"),
+    ((_node(0, 0, 0), _node(1, 10, 0), _node(2, 5, 0), _node(3, 5, 5)), (_road(0, 0, 1, ((0, 0), (10, 0))), _road(1, 2, 3, ((5, 0), (5, 5)))), "T-touch"),
+    ((_node(0, 0, 0), _node(1, 10, 0), _node(2, 5, 0), _node(3, 15, 0)), (_road(0, 0, 1, ((0, 0), (10, 0))), _road(1, 2, 3, ((5, 0), (15, 0)))), "overlap"),
+    ((_node(0, 0, 0), _node(1, 10, 0)), (_road(0, 0, 1, ((1, 0), (10, 0))),), "endpoint"),
+    ((_node(0, 0, 0), _node(1, 10, 0)), (_road(0, 0, 1, ((0, 0), (10, 10), (0, 10), (10, 0))),), "self-intersection"),
+))
+# fmt: on
 def test_malformed_geometry_fails_closed_without_repair(nodes, roads, message: str) -> None:
     with pytest.raises(ValueError, match=message):
         _build_raw(nodes, roads)
@@ -637,6 +581,19 @@ def test_internal_cut_edge_rejects_non_simple_bounded_carrier() -> None:
 
     with pytest.raises(ValueError, match="non-simple bounded face carrier"):
         _build_raw(nodes, roads)
+    carriers = (
+        ((_node(0, 0, 0), _node(1, 10, 0)), (_road(0, 0, 1, ((0, 0), (10, 0))),)),
+        ((_node(0, 0, 0), _node(1, 10, 0), _node(2, 20, 0)), (_road(0, 0, 1, ((0, 0), (10, 0))), _road(1, 1, 2, ((10, 0), (20, 0))))),
+    )
+    errors = []
+    for carrier in carriers:
+        try:
+            _build_raw(*carrier)
+        except ValueError as error:
+            errors.append(str(error))
+        except Exception as error:
+            errors.append(type(error).__name__)
+    assert errors == ["zero-area boundary carrier"] * 2
 
 
 def test_bridge_and_ramp_faces_retain_exact_void_roles_and_reasons() -> None:
@@ -673,6 +630,26 @@ def test_bridge_and_ramp_faces_retain_exact_void_roles_and_reasons() -> None:
         "bridge": ("BARRIER_VOID", (bridge_roads[0].semantic_id,), ()),
         "ramp": ("INTERCHANGE_VOID", (), (ramp.semantic_id,), (ramp.semantic_id,)),
     }
+    incident = ramp_authority.ramp_incidence[0]
+    changes = (
+        {"end_node_id": incident.start_node_id, "end_node_semantic_id": incident.start_node_semantic_id},
+        {"start_node_semantic_id": "f" * 64},
+        {"source_road_id": ramp_authority.embedding_edges[0].source_road_id},
+    )
+    failures = []
+    for change in changes:
+        candidate = replace(incident, **change)
+        payload = (candidate.source_road_semantic_id, candidate.start_node_semantic_id, candidate.end_node_semantic_id, candidate.source_fingerprint)
+        semantic = hashlib.sha256(b"scalable_blocks_dcel_v1:ramp-incidence:" + json.dumps(payload, separators=(",", ":")).encode()).hexdigest()
+        candidate = replace(candidate, semantic_id=semantic)
+        try:
+            replace(ramp_authority, ramp_incidence=(candidate,), fingerprint="")
+        except ValueError as error:
+            if "ramp incidence authority" not in str(error):
+                failures.append(f"wrong ramp error:{error}")
+        else:
+            failures.append(f"DID NOT RAISE ramp incidence {tuple(change)}")
+    assert failures == []
 
 
 def test_bridge_or_ramp_void_retains_ordinary_neighbor_and_both_rejects() -> None:
@@ -835,6 +812,8 @@ def test_void_faces_emit_no_blocks_while_ordinary_neighbors_do() -> None:
 
 
 def test_square_tile_ownership_and_raw_tile_domains_fail_closed() -> None:
+    import metroflow.city.scalable_blocks as blocks
+
     nodes, roads = _square_fixture()
     authority = _build_raw(nodes, roads)
     face = next(face for face in authority.faces if not face.is_unbounded)
@@ -864,6 +843,31 @@ def test_square_tile_ownership_and_raw_tile_domains_fail_closed() -> None:
             "tile_order must be a canonical tile permutation",
         ],
     )
+    failures = []
+
+    def reject(label, action):
+        try:
+            action()
+        except ValueError as error:
+            if label not in str(error):
+                failures.append(f"wrong {label} error:{error}")
+        else:
+            failures.append(f"DID NOT RAISE {label}")
+
+    # fmt: off
+    outside_points = ((-100, 0), (100, 0), (100, 100), (-100, 100))
+    outside_nodes = tuple(_node(index, *point) for index, point in enumerate(outside_points))
+    outside_roads = tuple(_road(index, index, (index + 1) % 4, (point, outside_points[(index + 1) % 4])) for index, point in enumerate(outside_points))
+    reject("authority extent", lambda: _build_raw(outside_nodes, outside_roads, extent_mm=(0, 100, 0, 100)))
+    partial = object.__new__(type(authority))
+    for item in fields(authority):
+        object.__setattr__(partial, item.name, getattr(authority, item.name))
+    object.__setattr__(partial, "extent_mm", (0, 500, 0, 1_000))
+    clip = replace(authority.tile_clips[0], diagnostic_polygons_mm=(((0, 0), (500, 0), (500, 1_000), (0, 1_000), (0, 0)),), exact_net_area_mm2=Fraction(500_000), diagnostic_twice_area_mm2=1_000_000)
+    object.__setattr__(partial, "tile_clips", (clip,))
+    reject("clip area conservation", lambda: blocks._validate_tile_clips_against_faces(partial))
+    # fmt: on
+    assert failures == []
 
 
 def test_tile_clip_uses_exact_fraction_area_and_not_rounded_diagnostic_area() -> None:
@@ -1242,14 +1246,7 @@ def test_public_builder_rejects_nonexact_network() -> None:
     ("style_id", "seed"),
     tuple(
         (style_id, seed)
-        for style_id in (
-            "ring_radial",
-            "grid_core",
-            "polycentric_tod",
-            "river_constrained",
-            "superblock_mixed",
-            "organic",
-        )
+        for style_id in "ring_radial grid_core polycentric_tod river_constrained superblock_mixed organic".split()
         for seed in (17, 29)
     ),
 )
