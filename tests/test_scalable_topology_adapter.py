@@ -349,3 +349,91 @@ def test_source_embedding_is_cross_bound_before_lowering(
     monkeypatch.setattr(adapter, "_lower_scalable_records", fail_if_lowered)
     with pytest.raises(ValueError, match="embedding"):
         adapter.compile_scalable_topology(network, block_authority=alternate)
+
+
+def test_structure_and_failure_crosswalks_are_independent_at_equal_counts() -> None:
+    from metroflow.city.scalable_topology_adapter import _lower_scalable_records
+
+    nodes = tuple(
+        _node(node_id, node_id * 2_000, (node_id % 2) * 1_000)
+        for node_id in range(8)
+    )
+    group_rows = (
+        ("deck-shared", "pier-shared"),
+        ("deck-shared", "pier-other"),
+        ("deck-other", "pier-shared"),
+        ("deck-other", "pier-other"),
+    )
+    roads = tuple(
+        _road(
+            road_id,
+            road_id * 2,
+            road_id * 2 + 1,
+            (
+                nodes[road_id * 2].point_mm,
+                nodes[road_id * 2 + 1].point_mm,
+            ),
+            hierarchy="arterial",
+            facility="bridge",
+            structure_group=structure_group,
+            failure_group=failure_group,
+        )
+        for road_id, (structure_group, failure_group) in enumerate(group_rows)
+    )
+
+    lowered = _lower_scalable_records(nodes=nodes, roads=roads)
+
+    assert tuple(
+        (
+            row.semantic_group,
+            row.dense_group_id,
+            row.member_physical_road_ids,
+        )
+        for row in lowered.structure_group_crosswalk
+    ) == (
+        ("deck-other", 0, (2, 3)),
+        ("deck-shared", 1, (0, 1)),
+    )
+    assert tuple(
+        (
+            row.semantic_group,
+            row.dense_group_id,
+            row.member_physical_road_ids,
+        )
+        for row in lowered.failure_group_crosswalk
+    ) == (
+        ("pier-other", 0, (1, 3)),
+        ("pier-shared", 1, (0, 2)),
+    )
+    assert tuple(
+        (
+            row.physical_road_id,
+            row.structure_group_id,
+            row.bridge_group_id,
+        )
+        for row in lowered.road_crosswalk
+    ) == ((0, 1, 1), (1, 1, 0), (2, 0, 1), (3, 0, 0))
+    assert tuple(
+        (
+            crossing.bridge_group_id,
+            crossing.link_ids,
+            crossing.crossing_name,
+        )
+        for crossing in lowered.bridge_crossings
+    ) == (
+        (0, (2, 3, 6, 7), "pier-other"),
+        (1, (0, 1, 4, 5), "pier-shared"),
+    )
+    bridge_group_by_link = {
+        link.link_id: link.bridge_group_id for link in lowered.links
+    }
+    assert bridge_group_by_link == {
+        0: 1,
+        1: 1,
+        2: 0,
+        3: 0,
+        4: 1,
+        5: 1,
+        6: 0,
+        7: 0,
+    }
