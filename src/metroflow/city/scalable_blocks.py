@@ -13,7 +13,9 @@ from metroflow.city.scalable_topology import (
     FacilityKind,
     PhysicalNodeRecord,
     PhysicalRoadRecord,
+    RoadHierarchy,
     ScalableStreetNetwork,
+    audit_physical_records,
 )
 
 __all__ = [
@@ -377,6 +379,8 @@ class ScalableBlockAuthority:
             _plain_str(getattr(self, name), name)
         _plain_digest(self.source_network_fingerprint, "source_network_fingerprint")
         _plain_digest(self.fingerprint, "fingerprint", allow_empty=True)
+        _validate_embedding_geometry(self)
+        _validate_embedding_permutations(self)
 
 
 @dataclass(slots=True)
@@ -598,6 +602,148 @@ def _signed_area2(polygon: tuple[ExactPointMM, ...]) -> ExactCoordinateMM:
     return sum(left[0] * right[1] - right[0] * left[1] for left, right in zip(polygon, polygon[1:]))
 
 
+def _point_status(point: ExactPointMM, polygon: tuple[ExactPointMM, ...]) -> int:
+    inside = False
+    point_x, point_y = point
+    for left, right in zip(polygon, polygon[1:]):
+        cross = (right[0] - left[0]) * (point_y - left[1]) - (right[1] - left[1]) * (
+            point_x - left[0]
+        )
+        if (
+            cross == 0
+            and min(left[0], right[0]) <= point_x <= max(left[0], right[0])
+            and min(left[1], right[1]) <= point_y <= max(left[1], right[1])
+        ):
+            return 0
+        if (left[1] > point_y) == (right[1] > point_y):
+            continue
+        intersection_x = Fraction(left[0]) + (point_y - left[1]) * (right[0] - left[0]) / (
+            right[1] - left[1]
+        )
+        if intersection_x > point_x:
+            inside = not inside
+    return 1 if inside else -1
+
+
+def _strictly_contains_ring(outer: tuple[PointMM, ...], inner: tuple[PointMM, ...]) -> bool:
+    return all(_point_status(point, outer) == 1 for point in inner[:-1])
+
+
+def _group_oriented_rings(
+    boundaries: list[_BoundaryDraft],
+) -> tuple[tuple[int, ...], dict[int, tuple[int, ...]], tuple[int, ...]]:
+    positive = tuple(
+        index for index, boundary in enumerate(boundaries) if boundary.signed_twice_area_mm2 > 0
+    )
+    negative = tuple(
+        index for index, boundary in enumerate(boundaries) if boundary.signed_twice_area_mm2 < 0
+    )
+    holes_by_outer: dict[int, list[int]] = defaultdict(list)
+    unbounded: list[int] = []
+    for inner_index in negative:
+        inner = boundaries[inner_index]
+        candidates = [
+            outer_index
+            for outer_index in positive
+            if abs(boundaries[outer_index].signed_twice_area_mm2) > abs(inner.signed_twice_area_mm2)
+            and _strictly_contains_ring(boundaries[outer_index].polygon_mm, inner.polygon_mm)
+        ]
+        if not candidates:
+            unbounded.append(inner_index)
+            continue
+        owner = min(
+            candidates,
+            key=lambda index: (
+                abs(boundaries[index].signed_twice_area_mm2),
+                boundaries[index].semantic_id,
+            ),
+        )
+        holes_by_outer[owner].append(inner_index)
+    return (
+        positive,
+        {
+            index: tuple(sorted(values, key=lambda value: boundaries[value].semantic_id))
+            for index, values in holes_by_outer.items()
+        },
+        tuple(sorted(unbounded, key=lambda index: boundaries[index].semantic_id)),
+    )
+
+
+def _canonical_polygon(polygon: tuple[PointMM, ...], *, clockwise: bool) -> tuple[PointMM, ...]:
+    points = polygon[:-1] if polygon and polygon[0] == polygon[-1] else polygon
+    if not points:
+        return ()
+    closed = (*points, points[0])
+    if (_signed_area2(closed) < 0) != clockwise:
+        points = tuple(reversed(points))
+    chosen = min(points[index:] + points[:index] for index in range(len(points)))
+    return (*chosen, chosen[0])
+
+
+def _interior_witness(
+    outer: tuple[PointMM, ...], holes: tuple[tuple[PointMM, ...], ...]
+) -> ExactPointMM:
+    vertices = outer[:-1]
+    centroid = (
+        round(Fraction(sum(point[0] for point in vertices), len(vertices))),
+        round(Fraction(sum(point[1] for point in vertices), len(vertices))),
+    )
+    candidates: set[PointMM] = {centroid}
+    ordinates = sorted(
+        {point[1] for point in vertices} | {point[1] for hole in holes for point in hole[:-1]}
+    )
+    for ordinate in ordinates:
+        candidates.update(((centroid[0], ordinate - 1), (centroid[0], ordinate + 1)))
+    for lower, upper in zip(ordinates, ordinates[1:]):
+        if upper - lower > 1:
+            candidates.add((centroid[0], (lower + upper) // 2))
+    for left, right in zip(outer, outer[1:]):
+        midpoint = ((left[0] + right[0]) // 2, (left[1] + right[1]) // 2)
+        delta_x, delta_y = right[0] - left[0], right[1] - left[1]
+        candidates.add(
+            (
+                midpoint[0] + (0 if delta_y == 0 else -1 if delta_y > 0 else 1),
+                midpoint[1] + (0 if delta_x == 0 else 1 if delta_x > 0 else -1),
+            )
+        )
+    valid = [
+        point
+        for point in candidates
+        if _point_status(point, outer) == 1
+        and all(_point_status(point, hole) == -1 for hole in holes)
+    ]
+    if valid:
+        return min(valid)
+
+    rational_candidates: list[ExactPointMM] = []
+    for ordinate in (
+        Fraction(lower + upper, 2)
+        for lower, upper in zip(ordinates, ordinates[1:])
+        if lower < upper
+    ):
+        intersections: set[Fraction] = set()
+        for ring in (outer, *holes):
+            for left, right in zip(ring, ring[1:]):
+                if (left[1] > ordinate) == (right[1] > ordinate):
+                    continue
+                intersections.add(
+                    Fraction(left[0])
+                    + (ordinate - left[1]) * (right[0] - left[0]) / (right[1] - left[1])
+                )
+        ordered = sorted(intersections)
+        for left_x, right_x in zip(ordered, ordered[1:]):
+            point = ((left_x + right_x) / 2, ordinate)
+            if (
+                left_x < right_x
+                and _point_status(point, outer) == 1
+                and all(_point_status(point, hole) == -1 for hole in holes)
+            ):
+                rational_candidates.append(point)
+    if not rational_candidates:
+        raise ValueError("bounded face has no canonical exact interior witness")
+    return min(rational_candidates)
+
+
 def _trace_boundaries(
     directed: list[_DirectedDraft], component_by_node: dict[int, int]
 ) -> list[_BoundaryDraft]:
@@ -617,11 +763,20 @@ def _trace_boundaries(
         half_edge_ids = tuple(cycle)
         polygon = _cycle_polygon(half_edge_ids, directed)
         area = _signed_area2(polygon)
+        if area > 0 and (len(polygon) < 4 or len(set(polygon[:-1])) != len(polygon) - 1):
+            raise ValueError("non-simple bounded face carrier")
+        if area:
+            polygon = _canonical_polygon(polygon, clockwise=area < 0)
+            area = _signed_area2(polygon)
         witness_points = polygon[:-1] if len(polygon) > 1 else polygon
         divisor = max(1, len(witness_points))
         witness = (
-            Fraction(sum(point[0] for point in witness_points), divisor),
-            Fraction(sum(point[1] for point in witness_points), divisor),
+            _interior_witness(polygon, ())
+            if area > 0
+            else (
+                Fraction(sum(point[0] for point in witness_points), divisor),
+                Fraction(sum(point[1] for point in witness_points), divisor),
+            )
         )
         semantic_id = _digest(
             "boundary",
@@ -642,6 +797,95 @@ def _trace_boundaries(
     return boundaries
 
 
+def _reject_geometry_audit(
+    nodes: tuple[PhysicalNodeRecord, ...], roads: tuple[PhysicalRoadRecord, ...]
+) -> None:
+    audit = audit_physical_records(nodes, roads)
+    violations = (
+        ("endpoint", audit.endpoint_anchor_mismatch_count),
+        ("self-intersection", audit.self_intersection_count),
+        ("crossing", audit.same_layer_proper_crossing_count),
+        ("overlap", audit.collinear_overlap_count),
+        ("T-touch", audit.t_touch_count),
+        ("nonadjacent weld", audit.nonadjacent_weld_count),
+        ("duplicate road", audit.duplicate_road_count),
+        ("different-layer junction", audit.different_layer_false_junction_count),
+    )
+    for label, count in violations:
+        if count:
+            raise ValueError(f"embedding geometry audit {label}: {count}")
+
+
+def _validate_embedding_geometry(authority: ScalableBlockAuthority) -> None:
+    node_values: dict[int, tuple[str, PointMM, int]] = {}
+    for edge in authority.embedding_edges:
+        for node_id, semantic_id, point in (
+            (edge.start_node_id, edge.start_node_semantic_id, edge.points_mm[0]),
+            (edge.end_node_id, edge.end_node_semantic_id, edge.points_mm[-1]),
+        ):
+            value = (semantic_id, point, edge.layer)
+            if node_id in node_values and node_values[node_id] != value:
+                raise ValueError("embedding geometry audit endpoint authority mismatch")
+            node_values[node_id] = value
+    nodes = tuple(
+        PhysicalNodeRecord(node_id, semantic_id, point[0], point[1], layer, "task3b")
+        for node_id, (semantic_id, point, layer) in sorted(node_values.items())
+    )
+    roads = tuple(
+        PhysicalRoadRecord(
+            edge.source_road_id,
+            edge.source_road_semantic_id,
+            edge.start_node_id,
+            edge.end_node_id,
+            edge.points_mm,
+            RoadHierarchy.LOCAL,
+            FacilityKind(edge.facility),
+            edge.layer,
+            frozenset({"forward", "reverse"}),
+            None,
+            None,
+            None,
+            f"v2:{edge.facility}:local",
+            "task3b-authority",
+        )
+        for edge in authority.embedding_edges
+    )
+    _reject_geometry_audit(nodes, roads)
+
+
+def _validate_embedding_permutations(authority: ScalableBlockAuthority) -> None:
+    half_edges = authority.half_edges
+    outgoing: dict[int, list[int]] = defaultdict(list)
+    for half_edge_id, half_edge in enumerate(half_edges):
+        if half_edge.half_edge_id != half_edge_id:
+            raise ValueError("canonical ray rotation dense ID mismatch")
+        if not 0 <= half_edge.twin_id < len(half_edges):
+            raise ValueError("canonical ray rotation twin out of range")
+        twin = half_edges[half_edge.twin_id]
+        if twin.twin_id != half_edge_id or twin.points_mm != tuple(reversed(half_edge.points_mm)):
+            raise ValueError("canonical ray rotation twin mismatch")
+        outgoing[half_edge.origin_node_id].append(half_edge_id)
+    for half_edge_ids in outgoing.values():
+        half_edge_ids.sort(
+            key=cmp_to_key(
+                lambda left, right: _compare_rays(_ray(half_edges[left]), _ray(half_edges[right]))
+            )
+        )
+        for left, right in zip(half_edge_ids, half_edge_ids[1:]):
+            if _same_ray(_ray(half_edges[left]), _ray(half_edges[right])):
+                raise ValueError("duplicate outgoing ray")
+    for half_edge_id, half_edge in enumerate(half_edges):
+        destination_order = outgoing[half_edge.destination_node_id]
+        twin_position = destination_order.index(half_edge.twin_id)
+        expected_next = destination_order[(twin_position - 1) % len(destination_order)]
+        if half_edge.next_id != expected_next:
+            raise ValueError("canonical ray rotation mismatch")
+        if not 0 <= half_edge.prev_id < len(half_edges):
+            raise ValueError("canonical ray rotation prev out of range")
+        if half_edges[half_edge.next_id].prev_id != half_edge_id:
+            raise ValueError("canonical ray rotation inverse mismatch")
+
+
 def _build_block_authority_from_records(
     *,
     nodes,
@@ -656,16 +900,33 @@ def _build_block_authority_from_records(
     if type(roads) is not tuple or any(type(road) is not PhysicalRoadRecord for road in roads):
         raise TypeError("roads must contain exact PhysicalRoadRecord values")
     source_fingerprint = _plain_digest(source_network_fingerprint, "source_network_fingerprint")
+    selected_roads = tuple(
+        road
+        for road in roads
+        if road.layer == 0
+        and road.layer_transition is None
+        and road.facility in {FacilityKind.SURFACE, FacilityKind.BRIDGE}
+    )
+    selected_node_ids = {
+        node_id for road in selected_roads for node_id in (road.start_node_id, road.end_node_id)
+    }
     edges = _embedding_edges(nodes, roads, source_fingerprint)
     directed = _directed_embedding(edges)
+    _reject_geometry_audit(
+        tuple(node for node in nodes if node.node_id in selected_node_ids),
+        selected_roads,
+    )
     component_by_node, component_count = _embedding_components(edges)
     boundary_drafts = _trace_boundaries(directed, component_by_node)
 
-    unbounded_indices = tuple(
-        index
-        for index, boundary in enumerate(boundary_drafts)
-        if boundary.signed_twice_area_mm2 <= 0
-    )
+    positive_indices, holes_by_outer, unbounded_indices = _group_oriented_rings(boundary_drafts)
+    for index in positive_indices:
+        boundary_drafts[index].role = "OUTER"
+    for values in holes_by_outer.values():
+        for index in values:
+            boundary_drafts[index].role = "HOLE"
+    for index in unbounded_indices:
+        boundary_drafts[index].role = "UNBOUNDED_COMPONENT"
     face_drafts = [
         _FaceDraft(
             _digest(
@@ -685,19 +946,31 @@ def _build_block_authority_from_records(
             None,
         )
     ]
-    face_drafts.extend(
-        _FaceDraft(
-            _digest("face", ("bounded", boundary.semantic_id)),
-            False,
-            "DEVELOPABLE",
-            index,
-            (),
-            (),
-            boundary.interior_witness_mm,
+    for index in positive_indices:
+        hole_indices = holes_by_outer.get(index, ())
+        witness = _interior_witness(
+            boundary_drafts[index].polygon_mm,
+            tuple(boundary_drafts[value].polygon_mm for value in hole_indices),
         )
-        for index, boundary in enumerate(boundary_drafts)
-        if boundary.signed_twice_area_mm2 > 0
-    )
+        boundary_drafts[index].interior_witness_mm = witness
+        face_drafts.append(
+            _FaceDraft(
+                _digest(
+                    "face",
+                    (
+                        "bounded",
+                        boundary_drafts[index].semantic_id,
+                        tuple(boundary_drafts[value].semantic_id for value in hole_indices),
+                    ),
+                ),
+                False,
+                "DEVELOPABLE",
+                index,
+                hole_indices,
+                (),
+                witness,
+            )
+        )
     face_drafts.sort(key=lambda face: face.semantic_id)
     _require_unique_semantics(tuple(face.semantic_id for face in face_drafts), "face")
 
