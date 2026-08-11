@@ -1529,6 +1529,13 @@ def test_wrapper_identity_binds_numeric_link_bridge_metadata_and_block_seal(
     assert adapter._compiled_fingerprint(
         replace(compiled, source_block_authority_fingerprint="f" * 64)
     ) != original_fingerprint
+    metadata = compiled.topology.metadata
+    capacity_unit = metadata["capacity_source_unit"]
+    metadata["capacity_source_unit"] = "changed"
+    try:
+        assert adapter._compiled_fingerprint(compiled) != original_fingerprint
+    finally:
+        metadata["capacity_source_unit"] = capacity_unit
     road_row = replace(compiled.road_crosswalk[0], provenance="synthetic:changed")
     assert adapter._compiled_fingerprint(
         replace(compiled, road_crosswalk=(road_row, *compiled.road_crosswalk[1:]))
