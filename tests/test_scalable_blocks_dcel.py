@@ -812,3 +812,79 @@ def test_internal_cut_edge_rejects_non_simple_bounded_carrier() -> None:
 
     with pytest.raises(ValueError, match="non-simple bounded face carrier"):
         _build_raw(nodes, roads)
+
+
+def test_bridge_and_ramp_faces_retain_exact_void_roles_and_reasons() -> None:
+    bridge_nodes, bridge_roads = _square_fixture(bridge_road_offset=0)
+    bridge = _build_raw(bridge_nodes, bridge_roads)
+    bridge_face = next(face for face in bridge.faces if not face.is_unbounded)
+
+    ramp_nodes, surface_roads = _square_fixture()
+    ramp_nodes = ramp_nodes + (_node(4, -1_000, 0, layer=1),)
+    ramp = _road(
+        4,
+        0,
+        4,
+        ((0, 0), (-1_000, 0)),
+        facility="ramp",
+        layer_transition=(0, 1),
+    )
+    ramp_authority = _build_raw(ramp_nodes, surface_roads + (ramp,))
+    ramp_face = next(face for face in ramp_authority.faces if not face.is_unbounded)
+
+    assert {
+        "bridge": (
+            bridge_face.role,
+            bridge_face.void_road_semantic_ids,
+            bridge_face.void_ramp_semantic_ids,
+        ),
+        "ramp": (
+            ramp_face.role,
+            ramp_face.void_road_semantic_ids,
+            ramp_face.void_ramp_semantic_ids,
+            tuple(item.source_road_semantic_id for item in ramp_authority.ramp_incidence),
+        ),
+    } == {
+        "bridge": ("BARRIER_VOID", (bridge_roads[0].semantic_id,), ()),
+        "ramp": ("INTERCHANGE_VOID", (), (ramp.semantic_id,), (ramp.semantic_id,)),
+    }
+
+
+def test_bridge_or_ramp_void_retains_ordinary_neighbor_and_both_rejects() -> None:
+    points = (
+        (0, 0),
+        (1_000, 0),
+        (2_000, 0),
+        (0, 1_000),
+        (1_000, 1_000),
+        (2_000, 1_000),
+    )
+    nodes = tuple(_node(index, *point) for index, point in enumerate(points))
+    pairs = ((0, 1), (1, 2), (3, 4), (4, 5), (0, 3), (1, 4), (2, 5))
+    surface = tuple(
+        _road(index, left, right, (points[left], points[right]))
+        for index, (left, right) in enumerate(pairs)
+    )
+    bridge_roads = (
+        _road(0, 0, 1, (points[0], points[1]), facility="bridge"),
+        *surface[1:],
+    )
+    ramp_node = _node(6, -1_000, 0, layer=1)
+    ramp = _road(7, 0, 6, (points[0], ramp_node.point_mm), facility="ramp", layer_transition=(0, 1))
+    bridge = _build_raw(nodes, bridge_roads)
+    ramp_authority = _build_raw(nodes + (ramp_node,), surface + (ramp,))
+    both_error = None
+    try:
+        _build_raw(nodes + (ramp_node,), bridge_roads + (ramp,))
+    except ValueError as error:
+        both_error = str(error)
+
+    assert {
+        "bridge_roles": sorted(face.role for face in bridge.faces if not face.is_unbounded),
+        "ramp_roles": sorted(face.role for face in ramp_authority.faces if not face.is_unbounded),
+        "both_error": both_error,
+    } == {
+        "bridge_roles": ["BARRIER_VOID", "DEVELOPABLE"],
+        "ramp_roles": ["DEVELOPABLE", "INTERCHANGE_VOID"],
+        "both_error": "bounded face has simultaneous bridge and ramp void reasons",
+    }
