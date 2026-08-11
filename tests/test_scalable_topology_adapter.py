@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import inspect
 
+import pytest
+
 
 def _node(
     node_id: int,
@@ -93,6 +95,34 @@ def _road(
         provenance=provenance,
         semantic_role=semantic_role,
     )
+
+
+def _build_block_authority_from_records(*, network, roads):
+    from metroflow.city.scalable_blocks import (
+        _build_block_authority_from_records as build_from_records,
+    )
+
+    return build_from_records(
+        nodes=network.nodes,
+        roads=tuple(roads),
+        source_network_fingerprint=network.fingerprint,
+        extent_mm=network.extent_mm,
+        tile_coordinates=network.tile_coordinates,
+    )
+
+
+@pytest.fixture(scope="module")
+def public_sources():
+    from metroflow.city.scale import CityScaleSpec
+    from metroflow.city.scalable_blocks import build_scalable_block_authority
+    from metroflow.city.scalable_topology import build_scalable_street_network
+
+    network = build_scalable_street_network(
+        CityScaleSpec(100_000, 40.0),
+        "grid_core",
+        17,
+    )
+    return network, build_scalable_block_authority(network)
 
 
 def test_scalable_topology_adapter_public_api_is_exact() -> None:
@@ -277,3 +307,45 @@ def test_pure_lowering_preserves_curved_geometry_and_expands_directions() -> Non
     assert lowered.structure_group_crosswalk == ()
     assert lowered.failure_group_crosswalk == ()
     assert lowered.bridge_crossings == ()
+
+
+def test_source_embedding_is_cross_bound_before_lowering(
+    public_sources,
+    monkeypatch,
+) -> None:
+    from dataclasses import replace
+
+    import metroflow.city.scalable_topology_adapter as adapter
+    from metroflow.city.scalable_blocks import validate_scalable_block_authority
+    from metroflow.city.scalable_topology import FacilityKind
+
+    network, blocks = public_sources
+    source_edge = next(
+        edge
+        for edge in blocks.embedding_edges
+        if network.roads[edge.source_road_id].facility is FacilityKind.SURFACE
+    )
+    source_road = network.roads[source_edge.source_road_id]
+    alternate_road = replace(
+        source_road,
+        facility=FacilityKind.BRIDGE,
+        profile_id=f"v2:bridge:{source_road.hierarchy.value}",
+        structure_group="alternate-structure",
+        failure_group="alternate-failure",
+    )
+    alternate_roads = tuple(
+        alternate_road if road.road_id == source_road.road_id else road
+        for road in network.roads
+    )
+    alternate = _build_block_authority_from_records(
+        network=network,
+        roads=alternate_roads,
+    )
+    validate_scalable_block_authority(alternate)
+
+    def fail_if_lowered(*, nodes, roads):
+        raise AssertionError("lowering was reached before source admission")
+
+    monkeypatch.setattr(adapter, "_lower_scalable_records", fail_if_lowered)
+    with pytest.raises(ValueError, match="embedding"):
+        adapter.compile_scalable_topology(network, block_authority=alternate)
