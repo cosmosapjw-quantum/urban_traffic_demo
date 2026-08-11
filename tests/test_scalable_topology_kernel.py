@@ -51,6 +51,8 @@ def _rebuild_network_identity(
     *,
     node_changes: dict[int, dict[str, object]] | None = None,
     road_changes: dict[int, dict[str, object]] | None = None,
+    drop_road_ids: frozenset[int] = frozenset(),
+    duplicate_road_id: int | None = None,
     network_changes: dict[str, object] | None = None,
 ) -> object:
     """Re-key every public identity after an adversarial record change."""
@@ -61,6 +63,7 @@ def _rebuild_network_identity(
     network_changes = network_changes or {}
     seed = network_changes.get("seed", network.seed)
     style_id = network_changes.get("style_id", network.style_id)
+    terrain = network_changes.get("terrain", network.terrain)
 
     pending_nodes = []
     for node in network.nodes:
@@ -84,7 +87,10 @@ def _rebuild_network_identity(
     by_old_id = {old_id: rebuilt for rebuilt, (old_id, _candidate) in zip(nodes, pending_nodes)}
 
     pending_roads = []
-    for road in network.roads:
+    source_roads = [road for road in network.roads if road.road_id not in drop_road_ids]
+    if duplicate_road_id is not None:
+        source_roads.append(network.roads[duplicate_road_id])
+    for road in source_roads:
         candidate = replace(road, **road_changes.get(road.road_id, {}))
         start = by_old_id[candidate.start_node_id]
         end = by_old_id[candidate.end_node_id]
@@ -142,7 +148,7 @@ def _rebuild_network_identity(
     gateway_node_ids = tuple(by_old_id[node_id].node_id for node_id in requested_gateways)
     centers = network_changes.get("centers", network.centers)
     diagnostics = kernel._computed_seam_diagnostics(
-        network.extent_mm, nodes, network.terrain, network.tile_coordinates
+        network.extent_mm, nodes, terrain, network.tile_coordinates
     )
     style_fingerprint = kernel._style_fingerprint(style_id, seed, centers, nodes, roads)
     fingerprint = kernel._network_fingerprint(
@@ -155,7 +161,7 @@ def _rebuild_network_identity(
         nodes,
         roads,
         incidence,
-        network.terrain,
+        terrain,
         network.tile_coordinates,
         diagnostics,
         network.hidden_repair_count,
@@ -170,9 +176,14 @@ def _rebuild_network_identity(
         endpoint_incidence=incidence,
         seam_diagnostics=diagnostics,
         centers=centers,
+        terrain=terrain,
         style_fingerprint=style_fingerprint,
         fingerprint=fingerprint,
     )
+
+
+def _copy_as_subclass(record: object, subclass: type) -> object:
+    return subclass(**{field.name: getattr(record, field.name) for field in fields(record)})
 
 
 def test_scalable_topology_import_isolated() -> None:
@@ -1184,3 +1195,101 @@ def test_road_semantic_identity_has_canonical_reverse_orientation() -> None:
         *arguments[6:],
     )
     assert forward == reverse == road.semantic_id
+
+
+@pytest.mark.parametrize(
+    "semantic_role", ("surface-vertical", "surface-horizontal", "perimeter-mainline")
+)
+def test_fully_rekeyed_deletion_cannot_remove_a_canonical_road(
+    semantic_role: str,
+) -> None:
+    """Deleting one member must fail exact generated-set admission."""
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    road = next(road for road in network.roads if road.semantic_role == semantic_role)
+    with pytest.raises(ValueError, match="canonical|record set|complete"):
+        _rebuild_network_identity(network, drop_road_ids=frozenset({road.road_id}))
+
+
+def test_count_preserving_canonical_duplicate_cannot_substitute_a_missing_road() -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    horizontal = [road for road in network.roads if road.semantic_role == "surface-horizontal"]
+    with pytest.raises(ValueError, match="canonical|record set|complete|duplicate"):
+        _rebuild_network_identity(
+            network,
+            drop_road_ids=frozenset({horizontal[0].road_id}),
+            duplicate_road_id=horizontal[1].road_id,
+        )
+
+
+def test_rekeyed_network_seed_must_equal_terrain_seed() -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    with pytest.raises(ValueError, match="terrain.*seed|seed.*terrain"):
+        _rebuild_network_identity(network, network_changes={"seed": 18})
+
+
+@pytest.mark.parametrize("field_case", ("width", "height", "tile", "barrier", "fingerprint"))
+def test_network_admission_rejects_each_nonbehavioral_terrain_mismatch(
+    field_case: str,
+) -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    values = {field.name: getattr(network.terrain, field.name) for field in fields(network.terrain)}
+    values.update(
+        {
+            "width": {"width_m": network.width_m + 1.0},
+            "height": {"height_m": network.height_m + 1.0},
+            "tile": {"tile_size_m": 1_500.0},
+            "barrier": {"barrier_seam_x_mm": 0},
+            "fingerprint": {"fingerprint": _digest("forged-terrain")},
+        }[field_case]
+    )
+    if field_case != "fingerprint":
+        values["fingerprint"] = kernel._terrain_fingerprint(
+            values["width_m"],
+            values["height_m"],
+            values["seed"],
+            values["style_id"],
+            values["barrier_seam_x_mm"],
+            values["cell_size_m"],
+            values["tile_size_m"],
+        )
+    forged_terrain = object.__new__(kernel.ScalableTerrainField)
+    for name, value in values.items():
+        object.__setattr__(forged_terrain, name, value)
+    with pytest.raises(ValueError, match="terrain|extent|fingerprint|barrier"):
+        _rebuild_network_identity(network, network_changes={"terrain": forged_terrain})
+
+
+def test_network_record_subclass_is_not_exact_authority() -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    class NetworkProxy(kernel.ScalableStreetNetwork):
+        __slots__ = ()
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    with pytest.raises(TypeError, match="exact ScalableStreetNetwork"):
+        _copy_as_subclass(network, NetworkProxy)
+
+
+def test_mutable_behavior_proxy_cannot_survive_network_admission() -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    class ToggleNetwork(kernel.ScalableStreetNetwork):
+        __slots__ = ()
+        hide_roads = False
+
+        def __getattribute__(self, name: str):
+            if name == "roads" and type(self).hide_roads:
+                return ()
+            return super().__getattribute__(name)
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    with pytest.raises(TypeError, match="exact ScalableStreetNetwork"):
+        _copy_as_subclass(network, ToggleNetwork)
