@@ -1602,7 +1602,18 @@ def _build_block_authority_from_records(
 def build_scalable_block_authority(
     network: ScalableStreetNetwork,
 ) -> ScalableBlockAuthority:
-    raise NotImplementedError("public scalable block builder is not implemented")
+    if type(network) is not ScalableStreetNetwork:
+        raise TypeError("network must be an exact ScalableStreetNetwork")
+    admitted = ScalableStreetNetwork(
+        **{item.name: getattr(network, item.name) for item in fields(ScalableStreetNetwork)}
+    )
+    return _build_block_authority_from_records(
+        nodes=admitted.nodes,
+        roads=admitted.roads,
+        source_network_fingerprint=admitted.fingerprint,
+        extent_mm=admitted.extent_mm,
+        tile_coordinates=admitted.tile_coordinates,
+    )
 
 
 def _record_payload(value: object) -> object:
