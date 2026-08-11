@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from collections import defaultdict
 from dataclasses import dataclass
 
 from metroflow.city.generated_map import PreviewCityTopology
@@ -248,6 +249,36 @@ def _lower_scalable_records(*, nodes, roads):
         )
     )
     profile_by_id = {profile.profile_id: profile for profile in numeric_profiles}
+    structure_members: dict[str, list[int]] = defaultdict(list)
+    failure_members: dict[str, list[int]] = defaultdict(list)
+    for road in source_roads:
+        if road.structure_group is not None:
+            structure_members[road.structure_group].append(road.road_id)
+        if road.failure_group is not None:
+            failure_members[road.failure_group].append(road.road_id)
+    structure_group_crosswalk = tuple(
+        ScalableGroupCrosswalk(
+            semantic_group=semantic_group,
+            dense_group_id=dense_group_id,
+            member_physical_road_ids=tuple(structure_members[semantic_group]),
+        )
+        for dense_group_id, semantic_group in enumerate(sorted(structure_members))
+    )
+    failure_group_crosswalk = tuple(
+        ScalableGroupCrosswalk(
+            semantic_group=semantic_group,
+            dense_group_id=dense_group_id,
+            member_physical_road_ids=tuple(failure_members[semantic_group]),
+        )
+        for dense_group_id, semantic_group in enumerate(sorted(failure_members))
+    )
+    structure_group_id = {
+        row.semantic_group: row.dense_group_id
+        for row in structure_group_crosswalk
+    }
+    failure_group_id = {
+        row.semantic_group: row.dense_group_id for row in failure_group_crosswalk
+    }
     lowered_nodes = tuple(
         Node(
             node_id=node.node_id,
@@ -262,7 +293,7 @@ def _lower_scalable_records(*, nodes, roads):
     centerlines: list[RoadCenterline] = []
     assignments: list[LinkGeometryAssignment] = []
     road_crosswalk: list[ScalableRoadCrosswalk] = []
-    bridge_link_ids: list[int] = []
+    bridge_link_ids: dict[int, list[int]] = defaultdict(list)
     for road in source_roads:
         try:
             profile = profile_by_id[road.profile_id]
@@ -299,7 +330,14 @@ def _lower_scalable_records(*, nodes, roads):
             is_reverse = direction == "reverse"
             src_node_id = road.end_node_id if is_reverse else road.start_node_id
             dst_node_id = road.start_node_id if is_reverse else road.end_node_id
-            bridge_group_id = 0 if road.facility is FacilityKind.BRIDGE else None
+            if road.facility is FacilityKind.BRIDGE:
+                if road.structure_group is None or road.failure_group is None:
+                    raise ValueError(
+                        "bridge roads require structure and failure groups"
+                    )
+                bridge_group_id = failure_group_id[road.failure_group]
+            else:
+                bridge_group_id = None
             links.append(
                 RoadLink(
                     link_id=link_id,
@@ -322,7 +360,7 @@ def _lower_scalable_records(*, nodes, roads):
                 )
             )
             if bridge_group_id is not None:
-                bridge_link_ids.append(link_id)
+                bridge_link_ids[bridge_group_id].append(link_id)
             if is_reverse:
                 reverse_link_id = link_id
             else:
@@ -343,23 +381,31 @@ def _lower_scalable_records(*, nodes, roads):
                 forward_link_id=forward_link_id,
                 reverse_link_id=reverse_link_id,
                 structure_group=road.structure_group,
-                structure_group_id=0 if road.structure_group is not None else None,
+                structure_group_id=(
+                    None
+                    if road.structure_group is None
+                    else structure_group_id[road.structure_group]
+                ),
                 failure_group=road.failure_group,
-                bridge_group_id=0 if road.failure_group is not None else None,
+                bridge_group_id=(
+                    None
+                    if road.failure_group is None
+                    else failure_group_id[road.failure_group]
+                ),
             )
         )
 
-    bridge_crossings = (
-        (
-            BridgeCrossing(
-                bridge_group_id=0,
-                link_ids=tuple(bridge_link_ids),
-                barrier_id=0,
-                crossing_name="unbound_bridge_failure_authority",
-            ),
+    failure_semantic_by_id = {
+        row.dense_group_id: row.semantic_group for row in failure_group_crosswalk
+    }
+    bridge_crossings = tuple(
+        BridgeCrossing(
+            bridge_group_id=dense_group_id,
+            link_ids=tuple(bridge_link_ids[dense_group_id]),
+            barrier_id=dense_group_id,
+            crossing_name=failure_semantic_by_id[dense_group_id],
         )
-        if bridge_link_ids
-        else ()
+        for dense_group_id in sorted(bridge_link_ids)
     )
     return _LoweredScalableRecords(
         nodes=lowered_nodes,
@@ -368,8 +414,8 @@ def _lower_scalable_records(*, nodes, roads):
         assignments=tuple(assignments),
         numeric_profiles=numeric_profiles,
         road_crosswalk=tuple(road_crosswalk),
-        structure_group_crosswalk=(),
-        failure_group_crosswalk=(),
+        structure_group_crosswalk=structure_group_crosswalk,
+        failure_group_crosswalk=failure_group_crosswalk,
         bridge_crossings=bridge_crossings,
     )
 
