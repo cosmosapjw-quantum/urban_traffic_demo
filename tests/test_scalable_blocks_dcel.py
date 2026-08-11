@@ -1004,3 +1004,187 @@ def test_seam_only_contact_emits_no_clip_and_diagnostic_collapse_rejects() -> No
         ),
         error,
     ) == (((0, 0),), "positive exact clip collapses in diagnostic integer-mm geometry")
+
+
+def test_nested_records_and_forged_void_reasons_are_revalidated() -> None:
+    import metroflow.city.scalable_blocks as blocks
+
+    nodes, roads = _square_fixture()
+    authority = _build_raw(nodes, roads)
+    edge, bounded = (
+        authority.embedding_edges[0],
+        next(face for face in authority.faces if not face.is_unbounded),
+    )
+
+    class EvilEdge(blocks.V2EmbeddingEdge):
+        pass
+
+    class TupleProxy(tuple):
+        pass
+
+    evil = EvilEdge(**{item.name: getattr(edge, item.name) for item in fields(type(edge))})
+    nested = object.__new__(blocks.V2EmbeddingEdge)
+    for item in fields(type(edge)):
+        object.__setattr__(
+            nested,
+            item.name,
+            TupleProxy(edge.points_mm) if item.name == "points_mm" else getattr(edge, item.name),
+        )
+    boundary = authority.boundaries[bounded.outer_boundary_id]
+    false_reason = ("a" * 64,)
+    payload = ("bounded", boundary.semantic_id, (), "BARRIER_VOID", false_reason, ())
+    forged_semantic = hashlib.sha256(
+        blocks.SCHEMA_VERSION.encode()
+        + b":face:"
+        + json.dumps(payload, separators=(",", ":")).encode()
+    ).hexdigest()
+    forged_face = replace(
+        bounded,
+        semantic_id=forged_semantic,
+        role="BARRIER_VOID",
+        void_road_semantic_ids=false_reason,
+    )
+    forged_faces = tuple(forged_face if face is bounded else face for face in authority.faces)
+    forged_clips = tuple(
+        replace(clip, face_semantic_id=forged_semantic) if clip.face_id == bounded.face_id else clip
+        for clip in authority.tile_clips
+    )
+    candidates = (
+        ("non-exact authority record", {"embedding_edges": (evil, *authority.embedding_edges[1:])}),
+        (
+            "nested authority snapshot",
+            {"embedding_edges": (nested, *authority.embedding_edges[1:])},
+        ),
+        (
+            "void road reason",
+            {
+                "faces": forged_faces,
+                "blocks": (),
+                "access_index": blocks.V2BlockAccessIndex((), (), (), (), (), 0),
+                "tile_clips": forged_clips,
+            },
+        ),
+    )
+    failures = []
+    for label, changes in candidates:
+        try:
+            replace(authority, **changes, fingerprint="")
+        except (TypeError, ValueError) as error:
+            assert label in str(error)
+        else:
+            failures.append(f"DID NOT RAISE {label}")
+    assert failures == []
+    blocks.validate_scalable_block_authority(authority)
+
+
+def test_negative_dense_references_never_alias_python_tuple_indices() -> None:
+    import metroflow.city.scalable_blocks as blocks
+
+    nodes, roads = _square_fixture()
+    authority = _build_raw(nodes, roads)
+    candidates = (
+        {
+            "half_edges": (
+                replace(authority.half_edges[0], left_face_id=-1),
+                *authority.half_edges[1:],
+            )
+        },
+        {
+            "boundaries": (
+                replace(authority.boundaries[0], half_edge_ids=(-1,)),
+                *authority.boundaries[1:],
+            )
+        },
+        {
+            "faces": tuple(
+                replace(face, outer_boundary_id=-1) if not face.is_unbounded else face
+                for face in authority.faces
+            )
+        },
+        {"blocks": (replace(authority.blocks[0], parent_face_id=-1),)},
+        {"tile_clips": (replace(authority.tile_clips[0], face_id=-1),)},
+    )
+    failures = []
+    for changes in candidates:
+        try:
+            replace(authority, **changes, fingerprint="")
+        except ValueError as error:
+            assert "out of range" in str(error)
+        else:
+            failures.append("DID NOT RAISE negative dense reference")
+    assert failures == []
+    blocks.validate_scalable_block_authority(authority)
+
+
+def test_semantic_collision_fails_closed() -> None:
+    nodes, roads = _square_fixture()
+    square = _build_raw(nodes, roads)
+    points = ((0, 0), (1_000, 0), (2_000, 0), (0, 1_000), (1_000, 1_000), (2_000, 1_000))
+    grid_nodes = tuple(_node(index, *point) for index, point in enumerate(points))
+    pairs = ((0, 1), (1, 2), (3, 4), (4, 5), (0, 3), (1, 4), (2, 5))
+    grid = _build_raw(
+        grid_nodes,
+        tuple(
+            _road(index, left, right, (points[left], points[right]))
+            for index, (left, right) in enumerate(pairs)
+        ),
+    )
+    candidates = (
+        (
+            square,
+            {
+                "embedding_edges": (
+                    square.embedding_edges[0],
+                    replace(
+                        square.embedding_edges[1], semantic_id=square.embedding_edges[0].semantic_id
+                    ),
+                    *square.embedding_edges[2:],
+                )
+            },
+        ),
+        (
+            grid,
+            {
+                "blocks": (
+                    grid.blocks[0],
+                    replace(grid.blocks[1], semantic_id=grid.blocks[0].semantic_id),
+                )
+            },
+        ),
+    )
+    failures = []
+    for authority, changes in candidates:
+        try:
+            replace(authority, **changes, fingerprint="")
+        except ValueError as error:
+            assert "semantic collision" in str(error)
+        else:
+            failures.append("DID NOT RAISE semantic collision")
+    assert failures == []
+
+
+def test_resealed_hole_omission_is_rejected() -> None:
+    import metroflow.city.scalable_blocks as blocks
+
+    outer_nodes, outer_roads = _square_fixture(size=10_000)
+    inner_nodes, inner_roads = _square_fixture(
+        x0=3_000, y0=3_000, size=4_000, node_base=4, road_base=4
+    )
+    authority = _build_raw(outer_nodes + inner_nodes, outer_roads + inner_roads)
+    annulus = next(block for block in authority.blocks if block.hole_polygons_mm)
+    forged = replace(
+        annulus,
+        hole_polygons_mm=(),
+        net_area_mm2=Fraction(100_000_000),
+        perimeter_squared_terms=annulus.perimeter_squared_terms[:4],
+        frontage_road_ids=annulus.frontage_road_ids[:4],
+        access_node_ids=annulus.access_node_ids[:4],
+    )
+
+    with pytest.raises(ValueError, match="block.*face|hole|canonical"):
+        replace(
+            authority,
+            blocks=tuple(forged if block is annulus else block for block in authority.blocks),
+            fingerprint="",
+        )
+    blocks.validate_scalable_block_authority(authority)
