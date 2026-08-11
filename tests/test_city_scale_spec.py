@@ -37,3 +37,13 @@ def test_city_scale_spec_normalizes_integer_inputs_to_builtin_value_types() -> N
         1_000_000,
         150.0,
     )
+
+
+@pytest.mark.parametrize(
+    "population",
+    [True, 100_000.0, 100_000.5, "100000", float("nan"), float("inf")],
+)
+def test_city_scale_spec_rejects_non_integral_population_authority(population: object) -> None:
+    """Coercing non-integral population inputs would bypass the city authority boundary."""
+    with pytest.raises(TypeError, match="population"):
+        CityScaleSpec(target_population=population, urbanized_area_km2=40.0)
