@@ -558,3 +558,89 @@ def test_fully_resealed_source_projection_is_rejected_before_lowering(
     monkeypatch.setattr(adapter, "_lower_scalable_records", fail_if_lowered)
     with pytest.raises(ValueError, match=expected_message):
         adapter.compile_scalable_topology(network, block_authority=forged)
+
+
+def test_public_validator_rejects_mutable_metadata_and_raw_csr_array(
+    public_compiled,
+) -> None:
+    import numpy as np
+
+    import metroflow.city.scalable_topology_adapter as adapter
+
+    network, blocks, compiled = public_compiled
+    metadata = compiled.topology.metadata
+    original_capacity_unit = metadata["capacity_source_unit"]
+    metadata["capacity_source_unit"] = "vehicles_per_tick"
+    try:
+        with pytest.raises(ValueError):
+            adapter.require_valid_scalable_compiled_topology(
+                compiled,
+                network=network,
+                block_authority=blocks,
+            )
+    finally:
+        metadata["capacity_source_unit"] = original_capacity_unit
+
+    original_node_ids = compiled.road_csr.node_ids
+    compiled.road_csr.node_ids = np.asarray(original_node_ids).copy()
+    try:
+        with pytest.raises(ValueError, match="CSR|array"):
+            adapter.require_valid_scalable_compiled_topology(
+                compiled,
+                network=network,
+                block_authority=blocks,
+            )
+    finally:
+        compiled.road_csr.node_ids = original_node_ids
+
+
+def test_public_validator_recomputes_turn_fingerprint_from_current_rows(
+    public_compiled,
+) -> None:
+    from dataclasses import replace
+
+    import metroflow.city.scalable_topology_adapter as adapter
+
+    network, blocks, compiled = public_compiled
+    original_turns = compiled.topology.turns
+    compiled.topology.turns = (
+        replace(
+            original_turns[0],
+            base_priority=original_turns[0].base_priority + 0.25,
+        ),
+        *original_turns[1:],
+    )
+    try:
+        with pytest.raises(ValueError, match="turn"):
+            adapter.require_valid_scalable_compiled_topology(
+                compiled,
+                network=network,
+                block_authority=blocks,
+            )
+    finally:
+        compiled.topology.turns = original_turns
+
+
+def test_public_validator_rejects_self_consistently_resealed_metadata_lie(
+    public_compiled,
+) -> None:
+    from dataclasses import replace
+
+    import metroflow.city.scalable_topology_adapter as adapter
+
+    network, blocks, compiled = public_compiled
+    metadata = compiled.topology.metadata
+    original_count = metadata["source_node_count"]
+    metadata["source_node_count"] = original_count + 1
+    lying_items = tuple(metadata.items())
+    lying = replace(compiled, metadata_items=lying_items, fingerprint="")
+    lying = replace(lying, fingerprint=adapter._compiled_fingerprint(lying))
+    try:
+        with pytest.raises(ValueError, match="metadata|source_node_count"):
+            adapter.require_valid_scalable_compiled_topology(
+                lying,
+                network=network,
+                block_authority=blocks,
+            )
+    finally:
+        metadata["source_node_count"] = original_count
