@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from metroflow.city.generated_map import PreviewCityTopology
 from metroflow.city.graph import (
@@ -12,7 +14,9 @@ from metroflow.city.graph import (
     RoadClass,
     RoadLink,
     RoadNetworkCSR,
+    TurnType,
 )
+from metroflow.city.map_validation import require_valid_city_map_contract
 from metroflow.city.scalable_blocks import (
     ScalableBlockAuthority,
     validate_scalable_block_authority,
@@ -24,11 +28,15 @@ from metroflow.city.scalable_topology import (
     RoadHierarchy,
     ScalableStreetNetwork,
 )
+from metroflow.city.turn_compiler import compile_turn_authority
+from metroflow.map.node_compiler import compile_node_interfaces
 from metroflow.map.road_geometry import (
     CenterlineSource,
     LinkGeometryAssignment,
     RoadCenterline,
+    RoadGeometryCatalog,
 )
+from metroflow.map.section_compiler import compile_road_sections
 
 __all__ = (
     "ScalableCompiledTopology",
@@ -540,20 +548,192 @@ def _admit_scalable_sources(
     return admitted_network, block_authority
 
 
+def _compiled_fingerprint(compiled: ScalableCompiledTopology) -> str:
+    payload = {
+        "schema_version": compiled.schema_version,
+        "numeric_profile_policy_version": compiled.numeric_profile_policy_version,
+        "profile_ids": tuple(
+            profile.profile_id for profile in compiled.numeric_profiles
+        ),
+        "source_network_fingerprint": compiled.source_network_fingerprint,
+        "source_block_authority_fingerprint": (
+            compiled.source_block_authority_fingerprint
+        ),
+        "terrain_fingerprint": compiled.terrain_fingerprint,
+        "scale_fingerprint": compiled.scale_fingerprint,
+        "style_fingerprint": compiled.style_fingerprint,
+        "road_geometry_fingerprint": compiled.road_geometry_fingerprint,
+        "road_section_fingerprint": compiled.road_section_fingerprint,
+        "node_interface_fingerprint": compiled.node_interface_fingerprint,
+        "turn_authority_fingerprint": compiled.turn_authority_fingerprint,
+        "metadata_items": compiled.metadata_items,
+        "counts": (
+            compiled.source_node_count,
+            compiled.source_physical_road_count,
+            compiled.source_block_count,
+            compiled.compiled_node_count,
+            compiled.compiled_link_count,
+            compiled.compiled_turn_count,
+            compiled.permitted_turn_count,
+            compiled.forbidden_u_turn_count,
+            compiled.bridge_crossing_count,
+        ),
+    }
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("ascii")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _new_compiled_wrapper(**values) -> ScalableCompiledTopology:
+    compiled = ScalableCompiledTopology(fingerprint="", **values)
+    return replace(compiled, fingerprint=_compiled_fingerprint(compiled))
+
+
 def compile_scalable_topology(
     network: ScalableStreetNetwork,
     *,
     block_authority: ScalableBlockAuthority,
 ) -> ScalableCompiledTopology:
-    admitted_network, _admitted_blocks = _admit_scalable_sources(
+    admitted_network, admitted_blocks = _admit_scalable_sources(
         network,
         block_authority,
     )
-    _lower_scalable_records(
+    lowered = _lower_scalable_records(
         nodes=admitted_network.nodes,
         roads=admitted_network.roads,
     )
-    raise NotImplementedError
+    road_geometry = RoadGeometryCatalog(
+        centerlines=lowered.centerlines,
+        assignments=lowered.assignments,
+    )
+    road_sections = compile_road_sections(
+        links=lowered.links,
+        road_geometry=road_geometry,
+    )
+    node_interfaces = compile_node_interfaces(
+        nodes=lowered.nodes,
+        links=lowered.links,
+        road_geometry=road_geometry,
+    )
+    turn_authority = compile_turn_authority(
+        links=lowered.links,
+        road_geometry=road_geometry,
+        node_interfaces=node_interfaces,
+    )
+    permitted_turn_count = sum(
+        movement.turn_type is not TurnType.U_TURN_FORBIDDEN
+        for movement in turn_authority.movements
+    )
+    forbidden_u_turn_count = (
+        len(turn_authority.movements) - permitted_turn_count
+    )
+    numeric_profile_payload = tuple(
+        (
+            profile.profile_id,
+            profile.lanes_per_direction,
+            profile.free_flow_speed_mps,
+            profile.capacity_veh_per_second,
+            profile.operational_road_class.value,
+            profile.section_roadside_profile,
+            profile.median_when_bidirectional,
+        )
+        for profile in lowered.numeric_profiles
+    )
+    metadata_items = (
+        ("engine", "metroflow"),
+        ("topology_mode", "scalable_static"),
+        ("adapter_schema_version", "scalable_topology_adapter_v1"),
+        ("numeric_profile_policy_version", "scalable_v2_numeric_profiles_v1"),
+        (
+            "turn_authority_policy",
+            "all_adjacent_pairs_explicit_immediate_return_forbidden_v1",
+        ),
+        ("seed", admitted_network.seed),
+        ("style_id", admitted_network.style_id),
+        ("source_network_fingerprint", admitted_network.fingerprint),
+        ("source_block_authority_fingerprint", admitted_blocks.fingerprint),
+        ("block_authority_schema_version", admitted_blocks.schema_version),
+        ("terrain_fingerprint", admitted_network.terrain.fingerprint),
+        ("scale_fingerprint", admitted_network.scale_fingerprint),
+        ("style_fingerprint", admitted_network.style_fingerprint),
+        ("road_geometry_fingerprint", road_geometry.fingerprint),
+        ("road_section_fingerprint", road_sections.fingerprint),
+        ("node_interface_fingerprint", node_interfaces.fingerprint),
+        ("turn_authority_fingerprint", turn_authority.fingerprint),
+        ("numeric_profile_payload", numeric_profile_payload),
+        ("source_node_count", len(admitted_network.nodes)),
+        ("source_physical_road_count", len(admitted_network.roads)),
+        ("source_block_count", len(admitted_blocks.blocks)),
+        ("compiled_node_count", len(lowered.nodes)),
+        ("compiled_link_count", len(lowered.links)),
+        ("physical_centerline_count", len(road_geometry.centerlines)),
+        ("geometry_assignment_count", len(road_geometry.assignments)),
+        ("road_section_assignment_count", len(road_sections.assignments)),
+        ("node_interface_count", len(node_interfaces.interfaces)),
+        ("turn_authority_pair_count", len(turn_authority.movements)),
+        ("permitted_turn_movement_count", permitted_turn_count),
+        ("forbidden_u_turn_count", forbidden_u_turn_count),
+        ("bridge_crossing_count", len(lowered.bridge_crossings)),
+        ("weak_component_count", 1),
+        ("hidden_repair_count", admitted_network.hidden_repair_count),
+        ("dropped_physical_road_count", 0),
+        ("dropped_chain_count", 0),
+        ("connectivity_repair_link_count", 0),
+        ("connectivity_repair_link_ids", ()),
+        ("planarization_status", "not_requested"),
+        ("capacity_reference_tick_seconds", 1.0),
+        ("capacity_source_unit", "vehicles_per_second"),
+    )
+    topology = PreviewCityTopology(
+        nodes=lowered.nodes,
+        links=lowered.links,
+        turns=turn_authority.movements,
+        bridge_crossings=lowered.bridge_crossings,
+        road_geometry=road_geometry,
+        road_sections=road_sections,
+        node_interfaces=node_interfaces,
+        metadata=dict(metadata_items),
+    )
+    validation_report = require_valid_city_map_contract(
+        topology,
+        seed=admitted_network.seed,
+    )
+    if validation_report.metrics["weak_component_count"] != 1:
+        raise ValueError("compiled topology must have one weak component")
+    road_csr = topology.build_csr(validate=False)
+    return _new_compiled_wrapper(
+        schema_version="scalable_topology_adapter_v1",
+        numeric_profile_policy_version="scalable_v2_numeric_profiles_v1",
+        topology=topology,
+        road_csr=road_csr,
+        numeric_profiles=lowered.numeric_profiles,
+        road_crosswalk=lowered.road_crosswalk,
+        structure_group_crosswalk=lowered.structure_group_crosswalk,
+        failure_group_crosswalk=lowered.failure_group_crosswalk,
+        metadata_items=metadata_items,
+        source_network_fingerprint=admitted_network.fingerprint,
+        source_block_authority_fingerprint=admitted_blocks.fingerprint,
+        terrain_fingerprint=admitted_network.terrain.fingerprint,
+        scale_fingerprint=admitted_network.scale_fingerprint,
+        style_fingerprint=admitted_network.style_fingerprint,
+        road_geometry_fingerprint=road_geometry.fingerprint,
+        road_section_fingerprint=road_sections.fingerprint,
+        node_interface_fingerprint=node_interfaces.fingerprint,
+        turn_authority_fingerprint=turn_authority.fingerprint,
+        source_node_count=len(admitted_network.nodes),
+        source_physical_road_count=len(admitted_network.roads),
+        source_block_count=len(admitted_blocks.blocks),
+        compiled_node_count=len(lowered.nodes),
+        compiled_link_count=len(lowered.links),
+        compiled_turn_count=len(turn_authority.movements),
+        permitted_turn_count=permitted_turn_count,
+        forbidden_u_turn_count=forbidden_u_turn_count,
+        bridge_crossing_count=len(lowered.bridge_crossings),
+    )
 
 
 def require_valid_scalable_compiled_topology(
