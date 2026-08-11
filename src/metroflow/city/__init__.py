@@ -1,9 +1,5 @@
-from .block_land_use import BlockLandUse as BlockLandUse
-from .block_land_use import BlockLandUseType as BlockLandUseType
-from .block_land_use import BlockPOI as BlockPOI
-from .block_land_use import BlockPOIType as BlockPOIType
-from .block_land_use import LandUseCatalog as LandUseCatalog
-from .block_land_use import build_block_land_use_catalog as build_block_land_use_catalog
+from importlib import import_module
+
 from .contracts import GateDecision as GateDecision
 from .contracts import GateThresholds as GateThresholds
 from .contracts import GateVersions as GateVersions
@@ -11,8 +7,6 @@ from .connectivity import WeakConnectivityRepairResult as WeakConnectivityRepair
 from .connectivity import WeakConnectivityReport as WeakConnectivityReport
 from .connectivity import analyze_weak_connectivity as analyze_weak_connectivity
 from .connectivity import repair_weak_connectivity as repair_weak_connectivity
-from .generator_v2 import GenerationPipeline as GenerationPipeline
-from .generator_v2 import GeneratorV2 as GeneratorV2
 from .generated_map import PreviewCityTopology as PreviewCityTopology
 from .graph import BridgeCrossing as BridgeCrossing
 from .graph import Node as Node
@@ -47,9 +41,6 @@ from .morphology_reference import (
     empirical_street_network_references as empirical_street_network_references,
 )
 from .morphology_reference import get_morphology_archetype as get_morphology_archetype
-from .planar_blocks import CityBlock as CityBlock
-from .planar_blocks import CityBlockCatalog as CityBlockCatalog
-from .planar_blocks import compile_planar_city_blocks as compile_planar_city_blocks
 from .realistic_local_fabric import RealisticStreetNetwork as RealisticStreetNetwork
 from .realistic_local_fabric import (
     build_continuous_local_fabric as build_continuous_local_fabric,
@@ -63,6 +54,22 @@ from .turn_compiler import compile_turn_authority as compile_turn_authority
 from .urban_form import UrbanCenter as UrbanCenter
 from .urban_form import UrbanFormField as UrbanFormField
 from .urban_form import build_urban_form_field as build_urban_form_field
+
+_LAZY_EXPORT_MODULE = {
+    "BlockLandUse": ".block_land_use",
+    "BlockLandUseType": ".block_land_use",
+    "BlockPOI": ".block_land_use",
+    "BlockPOIType": ".block_land_use",
+    "LandUseCatalog": ".block_land_use",
+    "build_block_land_use_catalog": ".block_land_use",
+    "CityBlock": ".planar_blocks",
+    "CityBlockCatalog": ".planar_blocks",
+    "compile_planar_city_blocks": ".planar_blocks",
+    "GenerationPipeline": ".generator_v2",
+    "GeneratorV2": ".generator_v2",
+}
+
+
 __all__ = [
     "BlockLandUse",
     "BlockLandUseType",
@@ -125,6 +132,9 @@ __all__ = [
 
 
 def __getattr__(name: str):
+    if name in _LAZY_EXPORT_MODULE:
+        module_name = _LAZY_EXPORT_MODULE[name]
+        return getattr(import_module(module_name, __name__), name)
     if name in {"CityBlueprint", "GeneratedCityMap", "RealisticCityQualityResult"}:
         from .blueprint import (
             CityBlueprint,
