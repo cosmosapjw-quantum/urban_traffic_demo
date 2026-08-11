@@ -252,6 +252,43 @@ def _lower_scalable_records(*, nodes, roads):
     if tuple(road.road_id for road in source_roads) != tuple(range(len(source_roads))):
         raise ValueError("physical road IDs must be dense and ordered")
 
+    node_by_id = {node.node_id: node for node in source_nodes}
+    for road in source_roads:
+        try:
+            endpoint_layers = (
+                node_by_id[road.start_node_id].layer,
+                node_by_id[road.end_node_id].layer,
+            )
+        except KeyError as error:
+            raise ValueError("road endpoint is absent from physical nodes") from error
+        if road.facility is FacilityKind.SURFACE:
+            if road.layer != 0 or endpoint_layers != (0, 0):
+                raise ValueError("surface roads require layer-0 endpoints")
+        elif road.facility is FacilityKind.MAINLINE:
+            if (
+                road.hierarchy is not RoadHierarchy.EXPRESSWAY
+                or road.layer != 1
+                or endpoint_layers != (1, 1)
+            ):
+                raise ValueError(
+                    "mainline roads require expressway hierarchy and layer-1 endpoints"
+                )
+        elif road.facility is FacilityKind.RAMP:
+            if (
+                road.hierarchy is not RoadHierarchy.ARTERIAL
+                or road.layer != 1
+                or road.layer_transition != (0, 1)
+                or endpoint_layers != (0, 1)
+            ):
+                raise ValueError(
+                    "ramp roads require arterial hierarchy and a layer-0-to-1 transition"
+                )
+        elif road.facility is FacilityKind.BRIDGE:
+            if road.layer != 0 or endpoint_layers != (0, 0):
+                raise ValueError("bridge roads require layer-0 endpoints")
+        else:
+            raise ValueError("tunnel facility is not admitted by this adapter schema")
+
     numeric_profiles = tuple(
         sorted(
             (ScalableNumericProfile(*row) for row in _NUMERIC_PROFILE_POLICY),
