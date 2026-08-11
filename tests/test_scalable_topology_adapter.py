@@ -125,6 +125,18 @@ def public_sources():
     return network, build_scalable_block_authority(network)
 
 
+@pytest.fixture(scope="module")
+def public_compiled(public_sources):
+    from metroflow.city.scalable_topology_adapter import compile_scalable_topology
+
+    network, blocks = public_sources
+    return (
+        network,
+        blocks,
+        compile_scalable_topology(network, block_authority=blocks),
+    )
+
+
 def test_scalable_topology_adapter_public_api_is_exact() -> None:
     import metroflow.city.scalable_topology_adapter as adapter
     from metroflow.city.scalable_blocks import ScalableBlockAuthority
@@ -483,3 +495,66 @@ def test_public_compile_keeps_full_turn_row_indices_in_legal_csr(
             assert pair not in compiled.road_csr.turn_pair_to_index
         else:
             assert compiled.road_csr.turn_pair_to_index[pair] == row_index
+
+
+@pytest.mark.parametrize(
+    "projection_kind",
+    ("reverse_embedding", "foreign_ramp_semantic"),
+)
+def test_fully_resealed_source_projection_is_rejected_before_lowering(
+    public_sources,
+    monkeypatch,
+    projection_kind: str,
+) -> None:
+    from dataclasses import replace
+
+    import metroflow.city.scalable_topology_adapter as adapter
+    from metroflow.city.scalable_blocks import validate_scalable_block_authority
+    from metroflow.city.scalable_topology import FacilityKind
+
+    network, blocks = public_sources
+    roads = network.roads
+    if projection_kind == "reverse_embedding":
+        edge = blocks.embedding_edges[0]
+        road = network.roads[edge.source_road_id]
+        swapped_directions = frozenset(
+            "reverse" if direction == "forward" else "forward"
+            for direction in road.access_directions
+        )
+        forged_road = replace(
+            road,
+            start_node_id=road.end_node_id,
+            end_node_id=road.start_node_id,
+            points_mm=tuple(reversed(road.points_mm)),
+            access_directions=swapped_directions,
+        )
+        expected_message = "embedding source record"
+    else:
+        road = next(
+            road
+            for road in network.roads
+            if road.facility is FacilityKind.RAMP
+        )
+        forged_road = replace(
+            road,
+            semantic_id=hashlib.sha256(
+                f"foreign-ramp:{road.semantic_id}".encode()
+            ).hexdigest(),
+        )
+        expected_message = "ramp source record"
+    forged_roads = tuple(
+        forged_road if candidate.road_id == road.road_id else candidate
+        for candidate in roads
+    )
+    forged = _build_block_authority_from_records(
+        network=network,
+        roads=forged_roads,
+    )
+    validate_scalable_block_authority(forged)
+
+    def fail_if_lowered(*, nodes, roads):
+        raise AssertionError("hostile projection reached lowering")
+
+    monkeypatch.setattr(adapter, "_lower_scalable_records", fail_if_lowered)
+    with pytest.raises(ValueError, match=expected_message):
+        adapter.compile_scalable_topology(network, block_authority=forged)
