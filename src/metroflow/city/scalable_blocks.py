@@ -8,6 +8,7 @@ from fractions import Fraction
 from functools import cmp_to_key
 import hashlib
 import json
+import math
 
 from metroflow.city.scalable_topology import (
     FacilityKind,
@@ -930,6 +931,154 @@ def _validate_embedding_permutations(authority: ScalableBlockAuthority) -> None:
             raise ValueError("canonical ray rotation inverse mismatch")
 
 
+def _build_blocks(
+    faces: tuple[V2Face, ...],
+    boundaries: tuple[V2FaceBoundary, ...],
+    half_edges: tuple[V2HalfEdge, ...],
+    embedding_edges: tuple[V2EmbeddingEdge, ...],
+    source_fingerprint: str,
+) -> tuple[V2Block, ...]:
+    boundary_by_id = {boundary.boundary_id: boundary for boundary in boundaries}
+    node_semantic_by_id: dict[int, str] = {}
+    for edge in embedding_edges:
+        node_semantic_by_id[edge.start_node_id] = edge.start_node_semantic_id
+        node_semantic_by_id[edge.end_node_id] = edge.end_node_semantic_id
+    drafts = []
+    for face in faces:
+        if face.role != "DEVELOPABLE" or face.outer_boundary_id is None:
+            continue
+        outer_boundary = boundary_by_id[face.outer_boundary_id]
+        hole_boundaries = tuple(
+            boundary_by_id[boundary_id] for boundary_id in face.hole_boundary_ids
+        )
+        outer_polygon = _canonical_polygon(outer_boundary.polygon_mm, clockwise=False)
+        hole_polygons = tuple(
+            sorted(
+                (
+                    _canonical_polygon(boundary.polygon_mm, clockwise=False)
+                    for boundary in hole_boundaries
+                )
+            )
+        )
+        polygons = (outer_polygon, *hole_polygons)
+        perimeter_squared_terms = tuple(
+            (right[0] - left[0]) ** 2 + (right[1] - left[1]) ** 2
+            for polygon in polygons
+            for left, right in zip(polygon, polygon[1:])
+        )
+        boundary_half_edge_ids = tuple(
+            half_edge_id
+            for boundary in (outer_boundary, *hole_boundaries)
+            for half_edge_id in boundary.half_edge_ids
+        )
+        frontage_road_ids = tuple(
+            sorted({half_edges[index].source_road_id for index in boundary_half_edge_ids})
+        )
+        access_node_ids = tuple(
+            sorted(
+                {
+                    node_id
+                    for index in boundary_half_edge_ids
+                    for node_id in (
+                        half_edges[index].origin_node_id,
+                        half_edges[index].destination_node_id,
+                    )
+                }
+            )
+        )
+        primary_access_node_id = min(
+            access_node_ids,
+            key=lambda node_id: (node_semantic_by_id[node_id], node_id),
+        )
+        net_area = Fraction(
+            abs(outer_boundary.signed_twice_area_mm2)
+            - sum(abs(boundary.signed_twice_area_mm2) for boundary in hole_boundaries),
+            2,
+        )
+        semantic_id = _digest(
+            "block",
+            (
+                face.semantic_id,
+                SUBDIVISION_SCHEMA,
+                outer_polygon,
+                hole_polygons,
+                (net_area.numerator, net_area.denominator),
+                perimeter_squared_terms,
+                frontage_road_ids,
+                tuple(node_semantic_by_id[node_id] for node_id in access_node_ids),
+                node_semantic_by_id[primary_access_node_id],
+                source_fingerprint,
+            ),
+        )
+        drafts.append(
+            (
+                semantic_id,
+                face.face_id,
+                outer_polygon,
+                hole_polygons,
+                net_area,
+                perimeter_squared_terms,
+                frontage_road_ids,
+                access_node_ids,
+                primary_access_node_id,
+                face.interior_witness_mm,
+            )
+        )
+    drafts.sort(key=lambda item: item[0])
+    _require_unique_semantics(tuple(item[0] for item in drafts), "block")
+    return tuple(
+        V2Block(
+            block_id,
+            semantic_id,
+            parent_face_id,
+            SUBDIVISION_SCHEMA,
+            outer_polygon,
+            hole_polygons,
+            net_area,
+            perimeter_squared_terms,
+            sum(math.sqrt(value) for value in perimeter_squared_terms) / 1_000.0,
+            frontage_road_ids,
+            access_node_ids,
+            primary_access_node_id,
+            interior_witness,
+            source_fingerprint,
+        )
+        for block_id, (
+            semantic_id,
+            parent_face_id,
+            outer_polygon,
+            hole_polygons,
+            net_area,
+            perimeter_squared_terms,
+            frontage_road_ids,
+            access_node_ids,
+            primary_access_node_id,
+            interior_witness,
+        ) in enumerate(drafts)
+    )
+
+
+def _build_access_index(blocks: tuple[V2Block, ...]) -> V2BlockAccessIndex:
+    road_to_blocks: dict[int, list[int]] = defaultdict(list)
+    node_to_blocks: dict[int, list[int]] = defaultdict(list)
+    incidence_visit_count = 0
+    for block in blocks:
+        for road_id in block.frontage_road_ids:
+            road_to_blocks[road_id].append(block.block_id)
+            incidence_visit_count += 1
+        for node_id in block.access_node_ids:
+            node_to_blocks[node_id].append(block.block_id)
+            incidence_visit_count += 1
+    return V2BlockAccessIndex(
+        tuple((block.block_id, block.frontage_road_ids) for block in blocks),
+        tuple((block.block_id, block.access_node_ids) for block in blocks),
+        tuple((key, tuple(sorted(values))) for key, values in sorted(road_to_blocks.items())),
+        tuple((key, tuple(sorted(values))) for key, values in sorted(node_to_blocks.items())),
+        tuple((block.block_id, block.primary_access_node_id) for block in blocks),
+        incidence_visit_count,
+    )
+
+
 def _build_block_authority_from_records(
     *,
     nodes,
@@ -1141,6 +1290,8 @@ def _build_block_authority_from_records(
         )
         for face_id, face in enumerate(face_drafts)
     )
+    blocks = _build_blocks(faces, boundaries, half_edges, edges, source_fingerprint)
+    access_index = _build_access_index(blocks)
     vertex_count = len(
         {node_id for edge in edges for node_id in (edge.start_node_id, edge.end_node_id)}
     )
@@ -1161,8 +1312,8 @@ def _build_block_authority_from_records(
         half_edges,
         boundaries,
         faces,
-        (),
-        V2BlockAccessIndex((), (), (), (), (), 0),
+        blocks,
+        access_index,
         (),
         vertex_count,
         edge_count,
