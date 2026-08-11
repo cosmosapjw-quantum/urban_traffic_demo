@@ -94,7 +94,13 @@ def test_scalar_records_define_explicit_units_and_authority() -> None:
         300_000,
         4,
     )
-    assert STYLE_IDS == ("grid_core",)
+    assert STYLE_IDS == (
+        "ring_radial",
+        "grid_core",
+        "polycentric_tod",
+        "superblock_mixed",
+        "organic",
+    )
     assert tuple(member.value for member in RoadHierarchy) == (
         "expressway",
         "arterial",
@@ -348,7 +354,7 @@ def test_row_interval_authority_equals_literal_geometry_and_terrain_owner() -> N
         None,
         _terrain_fingerprint(4_500.0, 1_000.0, 17, "grid_core", None),
     )
-    extent = (0, 4_500_000, 0, 1_000_000)
+    extent = (0, 4_500_000, 0, 900_000)
     authority = _row_interval_authority(1_950_000, 2_000_000, 75_000, terrain, extent)
     assert authority.owner_cell == (39, 1)
     assert (authority.tile_left_mm, authority.tile_right_mm) == (0, 2_000_000)
@@ -623,6 +629,153 @@ def test_grid_core_rejects_non_city_scale_unknown_style_and_noninteger_seed() ->
     with pytest.raises(TypeError, match="CityScaleSpec"):
         build_scalable_street_network(object(), "grid_core", 17)
     with pytest.raises(ValueError, match="style_id"):
-        build_scalable_street_network(CityScaleSpec(100_000, 40.0), "organic", 17)
+        build_scalable_street_network(CityScaleSpec(100_000, 40.0), "unknown_style", 17)
     with pytest.raises(TypeError, match="seed"):
         build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", True)
+
+
+def test_polycentric_centers_have_distinct_public_arterial_corridors() -> None:
+    """Collapsing centers onto one unnamed corridor would erase polycentric form."""
+    from metroflow.city.scalable_topology import RoadHierarchy, build_scalable_street_network
+
+    for seed in (17, 29):
+        network = build_scalable_street_network(
+            CityScaleSpec(100_000, 40.0), "polycentric_tod", seed
+        )
+        corridor_ids: list[set[str]] = []
+        assert len(network.centers) >= 3
+        for index, center in enumerate(network.centers):
+            prefix = f"polycentric-center-{index}-"
+            roads = [
+                road
+                for road in network.roads
+                if road.hierarchy is RoadHierarchy.ARTERIAL
+                and road.semantic_role.startswith(prefix)
+            ]
+            assert len(roads) >= 4
+            assert any(center in (road.points_mm[0], road.points_mm[-1]) for road in roads)
+            corridor_ids.append({road.semantic_id for road in roads})
+        assert all(
+            left.isdisjoint(right)
+            for offset, left in enumerate(corridor_ids)
+            for right in corridor_ids[offset + 1 :]
+        )
+
+
+def test_nonriver_style_inventory_replays_and_remains_distinct() -> None:
+    from metroflow.city.scalable_topology import STYLE_IDS, build_scalable_street_network
+
+    assert STYLE_IDS == (
+        "ring_radial",
+        "grid_core",
+        "polycentric_tod",
+        "superblock_mixed",
+        "organic",
+    )
+    fingerprints = set()
+    geometries = set()
+    for style_id in STYLE_IDS:
+        for seed in (17, 29):
+            first = build_scalable_street_network(CityScaleSpec(100_000, 40.0), style_id, seed)
+            second = build_scalable_street_network(CityScaleSpec(100_000, 40.0), style_id, seed)
+            assert first == second
+            fingerprints.add(first.fingerprint)
+            geometries.add(tuple((node.x_mm, node.y_mm) for node in first.nodes if node.layer == 0))
+    assert len(fingerprints) == 10
+    assert len(geometries) == 10
+    with pytest.raises(ValueError, match="style_id"):
+        build_scalable_street_network(CityScaleSpec(100_000, 40.0), "river_constrained", 17)
+
+
+def test_ring_radial_center_has_four_arterial_surface_arms() -> None:
+    from metroflow.city.scalable_topology import (
+        FacilityKind,
+        RoadHierarchy,
+        build_scalable_street_network,
+    )
+
+    for seed in (17, 29):
+        network = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "ring_radial", seed)
+        center_x, center_y = network.centers[0]
+        axes = [
+            road
+            for road in network.roads
+            if road.facility is FacilityKind.SURFACE
+            and (
+                all(point[0] == center_x for point in road.points_mm)
+                or all(point[1] == center_y for point in road.points_mm)
+            )
+        ]
+        assert axes
+        assert all(road.hierarchy is RoadHierarchy.ARTERIAL for road in axes)
+        assert min(point[0] for road in axes for point in road.points_mm) < center_x
+        assert max(point[0] for road in axes for point in road.points_mm) > center_x
+        assert min(point[1] for road in axes for point in road.points_mm) < center_y
+        assert max(point[1] for road in axes for point in road.points_mm) > center_y
+
+
+def test_superblock_collectors_alternate_and_organic_connectors_are_bounded() -> None:
+    from metroflow.city.scalable_topology import (
+        FacilityKind,
+        RoadHierarchy,
+        build_scalable_street_network,
+    )
+
+    for seed in (17, 29):
+        superblock = build_scalable_street_network(
+            CityScaleSpec(100_000, 40.0), "superblock_mixed", seed
+        )
+        collector_roles = {
+            road.semantic_role
+            for road in superblock.roads
+            if road.hierarchy is RoadHierarchy.COLLECTOR
+        }
+        assert any("horizontal" in role for role in collector_roles)
+        assert any("vertical" in role for role in collector_roles)
+
+        organic = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "organic", seed)
+        connectors = [
+            road
+            for road in organic.roads
+            if road.facility is FacilityKind.SURFACE and road.semantic_role == "organic-connector"
+        ]
+        assert connectors
+        min_x, max_x, min_y, max_y = organic.extent_mm
+        for road in connectors:
+            assert len(road.points_mm) == 3
+            start, midpoint, end = road.points_mm
+            displacement = midpoint[0] - (start[0] + end[0]) // 2
+            assert 0 < abs(displacement) <= 20_000
+            assert min_x <= midpoint[0] <= max_x
+            assert min_y <= midpoint[1] <= max_y
+
+
+def test_nonriver_center_formula_and_mainline_access_use_bounded_400k_scale() -> None:
+    from metroflow.city.scalable_topology import (
+        FacilityKind,
+        RoadHierarchy,
+        build_scalable_street_network,
+    )
+
+    expected_centers = {
+        "ring_radial": 1,
+        "grid_core": 1,
+        "polycentric_tod": 3,
+        "superblock_mixed": 3,
+        "organic": 1,
+    }
+    for style_id, expected in expected_centers.items():
+        network = build_scalable_street_network(CityScaleSpec(400_000, 160.0), style_id, 17)
+        assert len(network.centers) == expected
+        mainline_nodes = {node.node_id for node in network.nodes if node.layer == 1}
+        assert not any(
+            road.hierarchy is RoadHierarchy.LOCAL
+            and ({road.start_node_id, road.end_node_id} & mainline_nodes)
+            for road in network.roads
+        )
+        assert all(
+            road.facility is FacilityKind.RAMP and road.layer_transition == (0, 1)
+            for road in network.roads
+            if {road.start_node_id, road.end_node_id} & mainline_nodes
+            and road.facility is not FacilityKind.MAINLINE
+        )
