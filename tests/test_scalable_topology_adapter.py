@@ -642,18 +642,18 @@ def test_public_validator_recomputes_turn_fingerprint_from_current_rows(
 def test_public_validator_rejects_self_consistently_resealed_metadata_lie(
     public_compiled,
 ) -> None:
-    from dataclasses import replace
-
     import metroflow.city.scalable_topology_adapter as adapter
 
     network, blocks, compiled = public_compiled
     metadata = compiled.topology.metadata
     original_count = metadata["source_node_count"]
-    metadata["source_node_count"] = original_count + 1
-    lying_items = tuple(metadata.items())
-    lying = replace(compiled, metadata_items=lying_items, fingerprint="")
-    lying = replace(lying, fingerprint=adapter._compiled_fingerprint(lying))
     try:
+        metadata["source_node_count"] = original_count + 1
+        lying = object.__new__(type(compiled))
+        for name in compiled.__slots__:
+            object.__setattr__(lying, name, getattr(compiled, name))
+        object.__setattr__(lying, "metadata_items", tuple(metadata.items()))
+        object.__setattr__(lying, "fingerprint", adapter._compiled_fingerprint(lying))
         with pytest.raises(ValueError, match="metadata|source_node_count"):
             adapter.require_valid_scalable_compiled_topology(
                 lying,
