@@ -6,6 +6,8 @@ import math
 from collections import defaultdict
 from dataclasses import dataclass, replace
 
+import numpy as np
+
 from metroflow.city.generated_map import PreviewCityTopology
 from metroflow.city.graph import (
     BridgeCrossing,
@@ -28,15 +30,15 @@ from metroflow.city.scalable_topology import (
     RoadHierarchy,
     ScalableStreetNetwork,
 )
-from metroflow.city.turn_compiler import compile_turn_authority
-from metroflow.map.node_compiler import compile_node_interfaces
+from metroflow.city.turn_compiler import TurnAuthorityCatalog, compile_turn_authority
+from metroflow.map.node_compiler import NodeInterfaceCatalog, compile_node_interfaces
 from metroflow.map.road_geometry import (
     CenterlineSource,
     LinkGeometryAssignment,
     RoadCenterline,
     RoadGeometryCatalog,
 )
-from metroflow.map.section_compiler import compile_road_sections
+from metroflow.map.section_compiler import RoadSectionCatalog, compile_road_sections
 
 __all__ = (
     "ScalableCompiledTopology",
@@ -635,6 +637,87 @@ def _new_compiled_wrapper(**values) -> ScalableCompiledTopology:
     return replace(compiled, fingerprint=_compiled_fingerprint(compiled))
 
 
+def _metadata_items_for(
+    *,
+    network: ScalableStreetNetwork,
+    block_authority: ScalableBlockAuthority,
+    numeric_profiles: tuple[ScalableNumericProfile, ...],
+    topology: PreviewCityTopology,
+    turn_fingerprint: str,
+) -> tuple[tuple[str, object], ...]:
+    road_geometry = topology.road_geometry
+    road_sections = topology.road_sections
+    node_interfaces = topology.node_interfaces
+    if type(road_geometry) is not RoadGeometryCatalog:
+        raise TypeError("topology road_geometry must be an exact catalog")
+    if type(road_sections) is not RoadSectionCatalog:
+        raise TypeError("topology road_sections must be an exact catalog")
+    if type(node_interfaces) is not NodeInterfaceCatalog:
+        raise TypeError("topology node_interfaces must be an exact catalog")
+    permitted_turn_count = sum(
+        movement.turn_type is not TurnType.U_TURN_FORBIDDEN
+        for movement in topology.turns
+    )
+    forbidden_u_turn_count = len(topology.turns) - permitted_turn_count
+    numeric_profile_payload = tuple(
+        (
+            profile.profile_id,
+            profile.lanes_per_direction,
+            profile.free_flow_speed_mps,
+            profile.capacity_veh_per_second,
+            profile.operational_road_class.value,
+            profile.section_roadside_profile,
+            profile.median_when_bidirectional,
+        )
+        for profile in numeric_profiles
+    )
+    return (
+        ("engine", "metroflow"),
+        ("topology_mode", "scalable_static"),
+        ("adapter_schema_version", "scalable_topology_adapter_v1"),
+        ("numeric_profile_policy_version", "scalable_v2_numeric_profiles_v1"),
+        (
+            "turn_authority_policy",
+            "all_adjacent_pairs_explicit_immediate_return_forbidden_v1",
+        ),
+        ("seed", network.seed),
+        ("style_id", network.style_id),
+        ("source_network_fingerprint", network.fingerprint),
+        ("source_block_authority_fingerprint", block_authority.fingerprint),
+        ("block_authority_schema_version", block_authority.schema_version),
+        ("terrain_fingerprint", network.terrain.fingerprint),
+        ("scale_fingerprint", network.scale_fingerprint),
+        ("style_fingerprint", network.style_fingerprint),
+        ("road_geometry_fingerprint", road_geometry.fingerprint),
+        ("road_section_fingerprint", road_sections.fingerprint),
+        ("node_interface_fingerprint", node_interfaces.fingerprint),
+        ("turn_authority_fingerprint", turn_fingerprint),
+        ("numeric_profile_payload", numeric_profile_payload),
+        ("source_node_count", len(network.nodes)),
+        ("source_physical_road_count", len(network.roads)),
+        ("source_block_count", len(block_authority.blocks)),
+        ("compiled_node_count", len(topology.nodes)),
+        ("compiled_link_count", len(topology.links)),
+        ("physical_centerline_count", len(road_geometry.centerlines)),
+        ("geometry_assignment_count", len(road_geometry.assignments)),
+        ("road_section_assignment_count", len(road_sections.assignments)),
+        ("node_interface_count", len(node_interfaces.interfaces)),
+        ("turn_authority_pair_count", len(topology.turns)),
+        ("permitted_turn_movement_count", permitted_turn_count),
+        ("forbidden_u_turn_count", forbidden_u_turn_count),
+        ("bridge_crossing_count", len(topology.bridge_crossings)),
+        ("weak_component_count", 1),
+        ("hidden_repair_count", network.hidden_repair_count),
+        ("dropped_physical_road_count", 0),
+        ("dropped_chain_count", 0),
+        ("connectivity_repair_link_count", 0),
+        ("connectivity_repair_link_ids", ()),
+        ("planarization_status", "not_requested"),
+        ("capacity_reference_tick_seconds", 1.0),
+        ("capacity_source_unit", "vehicles_per_second"),
+    )
+
+
 def compile_scalable_topology(
     network: ScalableStreetNetwork,
     *,
@@ -673,63 +756,6 @@ def compile_scalable_topology(
     forbidden_u_turn_count = (
         len(turn_authority.movements) - permitted_turn_count
     )
-    numeric_profile_payload = tuple(
-        (
-            profile.profile_id,
-            profile.lanes_per_direction,
-            profile.free_flow_speed_mps,
-            profile.capacity_veh_per_second,
-            profile.operational_road_class.value,
-            profile.section_roadside_profile,
-            profile.median_when_bidirectional,
-        )
-        for profile in lowered.numeric_profiles
-    )
-    metadata_items = (
-        ("engine", "metroflow"),
-        ("topology_mode", "scalable_static"),
-        ("adapter_schema_version", "scalable_topology_adapter_v1"),
-        ("numeric_profile_policy_version", "scalable_v2_numeric_profiles_v1"),
-        (
-            "turn_authority_policy",
-            "all_adjacent_pairs_explicit_immediate_return_forbidden_v1",
-        ),
-        ("seed", admitted_network.seed),
-        ("style_id", admitted_network.style_id),
-        ("source_network_fingerprint", admitted_network.fingerprint),
-        ("source_block_authority_fingerprint", admitted_blocks.fingerprint),
-        ("block_authority_schema_version", admitted_blocks.schema_version),
-        ("terrain_fingerprint", admitted_network.terrain.fingerprint),
-        ("scale_fingerprint", admitted_network.scale_fingerprint),
-        ("style_fingerprint", admitted_network.style_fingerprint),
-        ("road_geometry_fingerprint", road_geometry.fingerprint),
-        ("road_section_fingerprint", road_sections.fingerprint),
-        ("node_interface_fingerprint", node_interfaces.fingerprint),
-        ("turn_authority_fingerprint", turn_authority.fingerprint),
-        ("numeric_profile_payload", numeric_profile_payload),
-        ("source_node_count", len(admitted_network.nodes)),
-        ("source_physical_road_count", len(admitted_network.roads)),
-        ("source_block_count", len(admitted_blocks.blocks)),
-        ("compiled_node_count", len(lowered.nodes)),
-        ("compiled_link_count", len(lowered.links)),
-        ("physical_centerline_count", len(road_geometry.centerlines)),
-        ("geometry_assignment_count", len(road_geometry.assignments)),
-        ("road_section_assignment_count", len(road_sections.assignments)),
-        ("node_interface_count", len(node_interfaces.interfaces)),
-        ("turn_authority_pair_count", len(turn_authority.movements)),
-        ("permitted_turn_movement_count", permitted_turn_count),
-        ("forbidden_u_turn_count", forbidden_u_turn_count),
-        ("bridge_crossing_count", len(lowered.bridge_crossings)),
-        ("weak_component_count", 1),
-        ("hidden_repair_count", admitted_network.hidden_repair_count),
-        ("dropped_physical_road_count", 0),
-        ("dropped_chain_count", 0),
-        ("connectivity_repair_link_count", 0),
-        ("connectivity_repair_link_ids", ()),
-        ("planarization_status", "not_requested"),
-        ("capacity_reference_tick_seconds", 1.0),
-        ("capacity_source_unit", "vehicles_per_second"),
-    )
     topology = PreviewCityTopology(
         nodes=lowered.nodes,
         links=lowered.links,
@@ -738,8 +764,16 @@ def compile_scalable_topology(
         road_geometry=road_geometry,
         road_sections=road_sections,
         node_interfaces=node_interfaces,
-        metadata=dict(metadata_items),
+        metadata={},
     )
+    metadata_items = _metadata_items_for(
+        network=admitted_network,
+        block_authority=admitted_blocks,
+        numeric_profiles=lowered.numeric_profiles,
+        topology=topology,
+        turn_fingerprint=turn_authority.fingerprint,
+    )
+    topology.metadata = dict(metadata_items)
     validation_report = require_valid_city_map_contract(
         topology,
         seed=admitted_network.seed,
@@ -747,6 +781,24 @@ def compile_scalable_topology(
     if validation_report.metrics["weak_component_count"] != 1:
         raise ValueError("compiled topology must have one weak component")
     road_csr = topology.build_csr(validate=False)
+    for array_name in (
+        "node_ids",
+        "link_ids",
+        "link_src_node_index",
+        "link_dst_node_index",
+        "outgoing_indptr",
+        "outgoing_link_indices",
+        "incoming_indptr",
+        "incoming_link_indices",
+        "turn_from_link_index",
+        "turn_to_link_index",
+        "turn_base_priority",
+        "turn_is_forbidden",
+    ):
+        array = getattr(road_csr, array_name)
+        if type(array) is not np.ndarray:
+            raise TypeError(f"CSR {array_name} must be an exact NumPy array")
+        array.setflags(write=False)
     return _new_compiled_wrapper(
         schema_version="scalable_topology_adapter_v1",
         numeric_profile_policy_version="scalable_v2_numeric_profiles_v1",
@@ -778,12 +830,215 @@ def compile_scalable_topology(
     )
 
 
+def _require_canonical_csr(
+    road_csr: RoadNetworkCSR,
+    *,
+    topology: PreviewCityTopology,
+) -> None:
+    if type(road_csr) is not RoadNetworkCSR:
+        raise TypeError("road_csr must be an exact RoadNetworkCSR")
+    if road_csr.nodes != topology.nodes:
+        raise ValueError("CSR node rows differ from current topology")
+    if road_csr.links != topology.links:
+        raise ValueError("CSR link rows differ from current topology")
+    if road_csr.turns != topology.turns:
+        raise ValueError("CSR turn rows differ from current topology")
+    if road_csr.bridge_crossings != topology.bridge_crossings:
+        raise ValueError("CSR bridge rows differ from current topology")
+
+    node_id_to_index = {
+        node.node_id: index for index, node in enumerate(topology.nodes)
+    }
+    link_id_to_index = {
+        link.link_id: index for index, link in enumerate(topology.links)
+    }
+    if road_csr.node_id_to_index != node_id_to_index:
+        raise ValueError("CSR node index mapping is not canonical")
+    if road_csr.link_id_to_index != link_id_to_index:
+        raise ValueError("CSR link index mapping is not canonical")
+
+    def adjacency_arrays(
+        endpoint_indices: tuple[int, ...],
+    ) -> tuple[np.ndarray, np.ndarray]:
+        buckets: list[list[int]] = [[] for _ in topology.nodes]
+        for link_index, node_index in enumerate(endpoint_indices):
+            buckets[node_index].append(link_index)
+        indptr = [0]
+        indices: list[int] = []
+        for bucket in buckets:
+            indices.extend(bucket)
+            indptr.append(len(indices))
+        return (
+            np.asarray(indptr, dtype=np.int32),
+            np.asarray(indices, dtype=np.int32),
+        )
+
+    src_indices = tuple(
+        node_id_to_index[link.src_node_id] for link in topology.links
+    )
+    dst_indices = tuple(
+        node_id_to_index[link.dst_node_id] for link in topology.links
+    )
+    outgoing_indptr, outgoing_indices = adjacency_arrays(src_indices)
+    incoming_indptr, incoming_indices = adjacency_arrays(dst_indices)
+    expected_arrays = {
+        "node_ids": np.asarray(
+            [node.node_id for node in topology.nodes],
+            dtype=np.int32,
+        ),
+        "link_ids": np.asarray(
+            [link.link_id for link in topology.links],
+            dtype=np.int32,
+        ),
+        "link_src_node_index": np.asarray(src_indices, dtype=np.int32),
+        "link_dst_node_index": np.asarray(dst_indices, dtype=np.int32),
+        "outgoing_indptr": outgoing_indptr,
+        "outgoing_link_indices": outgoing_indices,
+        "incoming_indptr": incoming_indptr,
+        "incoming_link_indices": incoming_indices,
+        "turn_from_link_index": np.asarray(
+            [
+                link_id_to_index[movement.from_link_id]
+                for movement in topology.turns
+            ],
+            dtype=np.int32,
+        ),
+        "turn_to_link_index": np.asarray(
+            [link_id_to_index[movement.to_link_id] for movement in topology.turns],
+            dtype=np.int32,
+        ),
+        "turn_base_priority": np.asarray(
+            [movement.base_priority for movement in topology.turns],
+            dtype=np.float32,
+        ),
+        "turn_is_forbidden": np.asarray(
+            [
+                movement.turn_type is TurnType.U_TURN_FORBIDDEN
+                for movement in topology.turns
+            ],
+            dtype=np.bool_,
+        ),
+    }
+    for name, expected in expected_arrays.items():
+        observed = getattr(road_csr, name)
+        if type(observed) is not np.ndarray:
+            raise ValueError(f"CSR array {name} must be an exact NumPy array")
+        if observed.dtype != expected.dtype or not np.array_equal(observed, expected):
+            raise ValueError(f"CSR array {name} differs from current rows")
+        if observed.flags.writeable:
+            raise ValueError(f"CSR array {name} must be read-only")
+
+    expected_legal_pairs = {
+        (movement.from_link_id, movement.to_link_id): row_index
+        for row_index, movement in enumerate(topology.turns)
+        if movement.turn_type is not TurnType.U_TURN_FORBIDDEN
+    }
+    if dict(road_csr.turn_pair_to_index) != expected_legal_pairs:
+        raise ValueError("CSR legal turn-row indices are not canonical")
+
+
 def require_valid_scalable_compiled_topology(
     compiled: ScalableCompiledTopology,
     *,
     network: ScalableStreetNetwork,
     block_authority: ScalableBlockAuthority,
 ) -> None:
-    raise NotImplementedError(
-        "S6_OWNER_RED: current-content validation is not implemented"
+    if type(compiled) is not ScalableCompiledTopology:
+        raise TypeError("compiled must be an exact ScalableCompiledTopology")
+    admitted_network, admitted_blocks = _admit_scalable_sources(
+        network,
+        block_authority,
     )
+    topology = compiled.topology
+    if type(topology) is not PreviewCityTopology:
+        raise TypeError("compiled topology must be an exact PreviewCityTopology")
+    road_geometry = topology.road_geometry
+    road_sections = topology.road_sections
+    node_interfaces = topology.node_interfaces
+    if type(road_geometry) is not RoadGeometryCatalog:
+        raise TypeError("compiled road geometry catalog is not exact")
+    if type(road_sections) is not RoadSectionCatalog:
+        raise TypeError("compiled road section catalog is not exact")
+    if type(node_interfaces) is not NodeInterfaceCatalog:
+        raise TypeError("compiled node interface catalog is not exact")
+
+    current_geometry = RoadGeometryCatalog(
+        centerlines=tuple(road_geometry.centerlines),
+        assignments=tuple(road_geometry.assignments),
+    )
+    if current_geometry != road_geometry:
+        raise ValueError("road geometry current rows are not canonical")
+    if current_geometry.fingerprint != compiled.road_geometry_fingerprint:
+        raise ValueError("road geometry fingerprint mismatch")
+    current_sections = RoadSectionCatalog(
+        profiles=tuple(road_sections.profiles),
+        assignments=tuple(road_sections.assignments),
+    )
+    if current_sections != road_sections:
+        raise ValueError("road section current rows are not canonical")
+    if current_sections.fingerprint != compiled.road_section_fingerprint:
+        raise ValueError("road section fingerprint mismatch")
+    current_interfaces = NodeInterfaceCatalog(
+        interfaces=tuple(node_interfaces.interfaces),
+    )
+    if current_interfaces != node_interfaces:
+        raise ValueError("node interface current rows are not canonical")
+    if current_interfaces.fingerprint != compiled.node_interface_fingerprint:
+        raise ValueError("node interface fingerprint mismatch")
+    current_turns = TurnAuthorityCatalog(tuple(topology.turns))
+    if current_turns.movements != topology.turns:
+        raise ValueError("turn authority current rows are not canonical")
+    if current_turns.fingerprint != compiled.turn_authority_fingerprint:
+        raise ValueError("turn authority fingerprint mismatch")
+
+    expected_metadata_items = _metadata_items_for(
+        network=admitted_network,
+        block_authority=admitted_blocks,
+        numeric_profiles=compiled.numeric_profiles,
+        topology=topology,
+        turn_fingerprint=current_turns.fingerprint,
+    )
+    if tuple(topology.metadata.items()) != expected_metadata_items:
+        raise ValueError("topology metadata differs from source-derived metadata")
+    if compiled.metadata_items != expected_metadata_items:
+        raise ValueError("wrapper metadata_items differ from source-derived metadata")
+
+    expected_scalar_values = {
+        "schema_version": "scalable_topology_adapter_v1",
+        "numeric_profile_policy_version": "scalable_v2_numeric_profiles_v1",
+        "source_network_fingerprint": admitted_network.fingerprint,
+        "source_block_authority_fingerprint": admitted_blocks.fingerprint,
+        "terrain_fingerprint": admitted_network.terrain.fingerprint,
+        "scale_fingerprint": admitted_network.scale_fingerprint,
+        "style_fingerprint": admitted_network.style_fingerprint,
+        "road_geometry_fingerprint": current_geometry.fingerprint,
+        "road_section_fingerprint": current_sections.fingerprint,
+        "node_interface_fingerprint": current_interfaces.fingerprint,
+        "turn_authority_fingerprint": current_turns.fingerprint,
+        "source_node_count": len(admitted_network.nodes),
+        "source_physical_road_count": len(admitted_network.roads),
+        "source_block_count": len(admitted_blocks.blocks),
+        "compiled_node_count": len(topology.nodes),
+        "compiled_link_count": len(topology.links),
+        "compiled_turn_count": len(topology.turns),
+        "permitted_turn_count": sum(
+            movement.turn_type is not TurnType.U_TURN_FORBIDDEN
+            for movement in topology.turns
+        ),
+        "forbidden_u_turn_count": sum(
+            movement.turn_type is TurnType.U_TURN_FORBIDDEN
+            for movement in topology.turns
+        ),
+        "bridge_crossing_count": len(topology.bridge_crossings),
+    }
+    for name, expected in expected_scalar_values.items():
+        if getattr(compiled, name) != expected:
+            raise ValueError(f"compiled {name} differs from current authority")
+
+    require_valid_city_map_contract(
+        topology,
+        seed=admitted_network.seed,
+    )
+    _require_canonical_csr(compiled.road_csr, topology=topology)
+    if compiled.fingerprint != _compiled_fingerprint(compiled):
+        raise ValueError("compiled wrapper fingerprint mismatch")
