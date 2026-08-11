@@ -999,12 +999,15 @@ def require_valid_scalable_compiled_topology(
     if type(node_interfaces) is not NodeInterfaceCatalog:
         raise TypeError("compiled node interface catalog is not exact")
 
-    current_geometry = RoadGeometryCatalog(
-        centerlines=tuple(road_geometry.centerlines),
-        assignments=tuple(road_geometry.assignments),
+    admitted_lowered = _lower_scalable_records(
+        nodes=admitted_network.nodes,
+        roads=admitted_network.roads,
     )
-    if current_geometry != road_geometry:
-        raise ValueError("road geometry current rows are not canonical")
+    if road_geometry.centerlines != admitted_lowered.centerlines:
+        raise ValueError("road geometry centerlines differ from admitted source rows")
+    if road_geometry.assignments != admitted_lowered.assignments:
+        raise ValueError("road geometry assignments differ from admitted source rows")
+    current_geometry = road_geometry
     if current_geometry.fingerprint != compiled.road_geometry_fingerprint:
         raise ValueError("road geometry fingerprint mismatch")
     current_sections = RoadSectionCatalog(
