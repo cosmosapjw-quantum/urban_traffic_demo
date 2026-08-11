@@ -630,6 +630,8 @@ class ScalableStreetNetwork:
     fingerprint: str
 
     def __post_init__(self) -> None:
+        if type(self) is not ScalableStreetNetwork:
+            raise TypeError("network must be an exact ScalableStreetNetwork")
         if type(self.scale_spec) is not ScalableScaleSnapshot:
             raise TypeError("scale_spec must be an exact ScalableScaleSnapshot")
         if type(self.terrain) is not ScalableTerrainField:
@@ -712,7 +714,10 @@ class ScalableStreetNetwork:
         if hidden_repair_count != 0:
             raise ValueError("hidden_repair_count must be zero")
         object.__setattr__(self, "hidden_repair_count", hidden_repair_count)
-        _validate_canonical_generated_authority(self, {node.node_id: node for node in self.nodes})
+        by_id = {node.node_id: node for node in self.nodes}
+        _validate_terrain_network_authority(self)
+        _validate_canonical_generated_authority(self, by_id)
+        _validate_exact_canonical_record_set(self, by_id)
 
 
 def audit_physical_records(
@@ -1620,6 +1625,143 @@ def _network_fingerprint(
             hidden_repair_count,
         )
     )
+
+
+def _validate_terrain_network_authority(network: ScalableStreetNetwork) -> None:
+    width_mm, height_mm = _extent_mm(network.scale_spec.urbanized_area_km2)
+    min_x, min_y = -width_mm // 2, -height_mm // 2
+    expected_extent = (min_x, min_x + width_mm, min_y, min_y + height_mm)
+    if network.extent_mm != expected_extent:
+        raise ValueError("network extent does not match immutable scale authority")
+    if (network.width_m, network.height_m) != (width_mm / 1_000.0, height_mm / 1_000.0):
+        raise ValueError("network dimensions do not match extent authority")
+
+    terrain = network.terrain
+    if terrain.seed != network.seed:
+        raise ValueError("terrain seed must equal network seed")
+    if terrain.style_id != network.style_id:
+        raise ValueError("terrain style must equal network style")
+    if (terrain.width_m, terrain.height_m) != (network.width_m, network.height_m):
+        raise ValueError("terrain dimensions must equal network extent")
+    if terrain.cell_size_m != TERRAIN_CELL_SIZE_M:
+        raise ValueError("terrain cell size is not canonical")
+    if terrain.tile_size_m != TILE_SIZE_M:
+        raise ValueError("terrain tile size is not canonical")
+    expected_barrier = 0 if network.style_id == "river_constrained" else None
+    if terrain.barrier_seam_x_mm != expected_barrier:
+        raise ValueError("terrain barrier does not match style authority")
+    expected_terrain_fingerprint = _terrain_fingerprint(
+        terrain.width_m,
+        terrain.height_m,
+        terrain.seed,
+        terrain.style_id,
+        terrain.barrier_seam_x_mm,
+        terrain.cell_size_m,
+        terrain.tile_size_m,
+    )
+    if terrain.fingerprint != expected_terrain_fingerprint:
+        raise ValueError("terrain fingerprint does not match terrain content")
+    expected_scale_fingerprint = _semantic_id(
+        (
+            SCHEMA_VERSION,
+            "scale",
+            network.scale_spec.target_population,
+            network.scale_spec.urbanized_area_km2,
+        )
+    )
+    if network.scale_fingerprint != expected_scale_fingerprint:
+        raise ValueError("scale fingerprint does not match immutable scale content")
+    if network.tile_coordinates != _tile_domain(network.extent_mm):
+        raise ValueError("tile coordinates do not match the exact extent domain")
+    diagnostics = _computed_seam_diagnostics(
+        network.extent_mm,
+        network.nodes,
+        terrain,
+        network.tile_coordinates,
+    )
+    if network.seam_diagnostics != diagnostics:
+        raise ValueError("seam diagnostics do not match constructed terrain authority")
+    min_x, max_x, min_y, max_y = network.extent_mm
+    if any(
+        not (min_x <= node.x_mm <= max_x and min_y <= node.y_mm <= max_y) for node in network.nodes
+    ) or any(
+        not (min_x <= x_mm <= max_x and min_y <= y_mm <= max_y)
+        for road in network.roads
+        for x_mm, y_mm in road.points_mm
+    ):
+        raise ValueError("generated geometry lies outside immutable extent authority")
+
+
+def _validate_exact_canonical_record_set(
+    network: ScalableStreetNetwork,
+    by_id: dict[int, PhysicalNodeRecord],
+) -> None:
+    if tuple(node.node_id for node in network.nodes) != tuple(range(len(network.nodes))):
+        raise ValueError("node dense ids are not canonical")
+    if tuple(road.road_id for road in network.roads) != tuple(range(len(network.roads))):
+        raise ValueError("road dense ids are not canonical")
+    if tuple(node.semantic_id for node in network.nodes) != tuple(
+        sorted(node.semantic_id for node in network.nodes)
+    ):
+        raise ValueError("node semantic order is not canonical")
+    if tuple(road.semantic_id for road in network.roads) != tuple(
+        sorted(road.semantic_id for road in network.roads)
+    ):
+        raise ValueError("road semantic order is not canonical")
+    if network.endpoint_incidence != _endpoint_incidence(network.nodes, network.roads):
+        raise ValueError("endpoint incidence does not match exact record authority")
+
+    expected = _canonical_generated_specs(
+        network.scale_spec,
+        network.style_id,
+        network.seed,
+        network.terrain,
+        network.extent_mm,
+    )
+    actual_nodes = tuple(
+        _NodeSpec(
+            node.semantic_id,
+            node.x_mm,
+            node.y_mm,
+            node.layer,
+            node.semantic_role,
+        )
+        for node in network.nodes
+    )
+    if actual_nodes != expected.nodes:
+        raise ValueError("node record set does not match complete canonical construction")
+    try:
+        actual_roads = tuple(
+            _RoadSpec(
+                road.semantic_id,
+                by_id[road.start_node_id].semantic_id,
+                by_id[road.end_node_id].semantic_id,
+                road.points_mm,
+                road.hierarchy,
+                road.facility,
+                road.layer,
+                road.access_directions,
+                road.layer_transition,
+                road.structure_group,
+                road.failure_group,
+                road.profile_id,
+                road.provenance,
+                road.semantic_role,
+                road.row_interval,
+            )
+            for road in network.roads
+        )
+        gateway_semantics = tuple(
+            by_id[node_id].semantic_id for node_id in network.gateway_node_ids
+        )
+    except KeyError as error:
+        raise ValueError("record set references a noncanonical node id") from error
+    if actual_roads != expected.roads:
+        raise ValueError("road record set does not match complete canonical construction")
+    if gateway_semantics != expected.gateway_semantic_ids:
+        raise ValueError("gateway set does not match complete canonical construction")
+    if network.centers != expected.centers:
+        raise ValueError("center set does not match complete canonical construction")
 
 
 def _validate_canonical_generated_authority(
