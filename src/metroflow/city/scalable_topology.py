@@ -20,7 +20,13 @@ TERRAIN_CELL_SIZE_M = 50.0
 MAX_JUNCTIONS = 120_000
 MAX_PHYSICAL_ROADS = 300_000
 MAX_SURFACE_DEGREE = 4
-STYLE_IDS = ("grid_core",)
+STYLE_IDS = (
+    "ring_radial",
+    "grid_core",
+    "polycentric_tod",
+    "superblock_mixed",
+    "organic",
+)
 
 
 class RoadHierarchy(str, Enum):
@@ -896,6 +902,116 @@ class _CanonicalGeneratedSpecs:
     centers: tuple[tuple[int, int], ...]
 
 
+def _centers(
+    x_values: tuple[int, ...],
+    y_values: tuple[int, ...],
+    style_id: str,
+    area_km2: float,
+) -> tuple[tuple[int, int], ...]:
+    if style_id in {"ring_radial", "grid_core", "organic"}:
+        count = 1
+    elif style_id in {"polycentric_tod", "superblock_mixed"}:
+        count = max(3, min(8, round(area_km2 / 50.0)))
+    else:
+        count = max(2, min(5, round(area_km2 / 80.0)))
+    center_y = min(y_values, key=abs)
+    if count == 1:
+        return ((min(x_values, key=abs), center_y),)
+    return tuple(
+        (x_values[round((index + 1) * (len(x_values) - 1) / (count + 1))], center_y)
+        for index in range(count)
+    )
+
+
+def _surface_hierarchy(
+    row: int,
+    column: int,
+    left_x: int,
+    left_y: int,
+    right_x: int,
+    right_y: int,
+    style_id: str,
+    centers: tuple[tuple[int, int], ...],
+    horizontal: bool,
+) -> RoadHierarchy:
+    if style_id == "ring_radial" and (
+        (horizontal and left_y == centers[0][1])
+        or (not horizontal and left_x == right_x == centers[0][0])
+    ):
+        return RoadHierarchy.ARTERIAL
+    if style_id == "polycentric_tod":
+        distance = min(
+            min(
+                (left_x - center_x) ** 2 + (left_y - center_y) ** 2,
+                (right_x - center_x) ** 2 + (right_y - center_y) ** 2,
+            )
+            for center_x, center_y in centers
+        )
+        if distance < 900_000**2:
+            return RoadHierarchy.ARTERIAL
+    if style_id == "superblock_mixed":
+        midpoint_x = (left_x + right_x) // 2
+        midpoint_y = (left_y + right_y) // 2
+        district = math.floor(midpoint_x / 2_000_000) + math.floor(midpoint_y / 2_000_000)
+        if (district % 2 == 0) == horizontal:
+            return RoadHierarchy.COLLECTOR
+        if row % 9 == 0 or column % 9 == 0:
+            return RoadHierarchy.ARTERIAL
+        return RoadHierarchy.LOCAL
+    if row % 9 == 0 or column % 9 == 0:
+        return RoadHierarchy.ARTERIAL
+    if row % 3 == 0 or column % 3 == 0:
+        return RoadHierarchy.COLLECTOR
+    return RoadHierarchy.LOCAL
+
+
+def _surface_semantic_role(
+    base_role: str,
+    left_x: int,
+    left_y: int,
+    right_x: int,
+    right_y: int,
+    style_id: str,
+    centers: tuple[tuple[int, int], ...],
+    hierarchy: RoadHierarchy,
+) -> str:
+    if style_id == "polycentric_tod" and hierarchy is RoadHierarchy.ARTERIAL:
+        center_index = min(
+            range(len(centers)),
+            key=lambda index: min(
+                (left_x - centers[index][0]) ** 2 + (left_y - centers[index][1]) ** 2,
+                (right_x - centers[index][0]) ** 2 + (right_y - centers[index][1]) ** 2,
+            ),
+        )
+        return f"polycentric-center-{center_index}-{base_role}"
+    if style_id == "superblock_mixed" and hierarchy is RoadHierarchy.COLLECTOR:
+        orientation = "horizontal" if left_y == right_y else "vertical"
+        return f"superblock-{orientation}-collector"
+    return base_role
+
+
+def _organic_connector_points(
+    seed: int,
+    start: tuple[int, int],
+    end: tuple[int, int],
+    extent: tuple[int, int, int, int],
+) -> tuple[tuple[int, int], ...]:
+    payload = f"{seed}:{start[0]}:{start[1]}:{end[0]}:{end[1]}".encode()
+    raw = int.from_bytes(hashlib.sha256(payload).digest()[:4], "big")
+    displacement = 1 + raw % 5_000
+    if raw & 1:
+        displacement = -displacement
+    midpoint_x = (start[0] + end[0]) // 2
+    midpoint_y = (start[1] + end[1]) // 2
+    min_x, max_x, min_y, max_y = extent
+    if not min_x <= midpoint_x + displacement <= max_x:
+        displacement = -displacement
+    midpoint = (midpoint_x + displacement, midpoint_y)
+    if not (min_x <= midpoint[0] <= max_x and min_y <= midpoint[1] <= max_y):
+        raise ValueError("organic connector midpoint cannot fit declared extent")
+    return (start, midpoint, end)
+
+
 def _canonical_generated_specs(
     scale_spec: ScalableScaleSnapshot,
     style_id: str,
@@ -903,12 +1019,14 @@ def _canonical_generated_specs(
     terrain: ScalableTerrainField,
     extent: tuple[int, int, int, int],
 ) -> _CanonicalGeneratedSpecs:
-    if style_id != "grid_core":
-        raise ValueError("style_id must be supported by the grid generator")
+    if style_id not in STYLE_IDS:
+        raise ValueError("style_id must be supported by the topology generator")
     y_values = _local_axis(extent[2], extent[3], terrain, "y")
     row_x_values = {
         y_mm: _local_axis(extent[0], extent[1], terrain, "x", fixed_mm=y_mm) for y_mm in y_values
     }
+    center_row = min(y_values, key=abs)
+    centers = _centers(row_x_values[center_row], y_values, style_id, scale_spec.urbanized_area_km2)
     node_by_key: dict[tuple[int, int, int], _NodeSpec] = {}
     road_specs: list[_RoadSpec] = []
 
@@ -937,8 +1055,9 @@ def _canonical_generated_specs(
         *,
         transition: tuple[int, int] | None = None,
         row_interval: RowIntervalAuthority | None = None,
+        points: tuple[tuple[int, int], ...] | None = None,
     ) -> None:
-        points = ((start.x_mm, start.y_mm), (end.x_mm, end.y_mm))
+        points = points or ((start.x_mm, start.y_mm), (end.x_mm, end.y_mm))
         directions = frozenset({"forward", "reverse"})
         profile = _profile_for(facility, hierarchy)
         provenance = "tmfcg_s2_construction"
@@ -985,12 +1104,24 @@ def _canonical_generated_specs(
         for y_mm in y_values
         for x_mm in row_x_values[y_mm]
     }
-    for y_mm in y_values:
+    for row, y_mm in enumerate(y_values):
         values = row_x_values[y_mm]
-        for left, right in zip(values, values[1:]):
-            hierarchy = RoadHierarchy.ARTERIAL if y_mm == 0 else RoadHierarchy.LOCAL
-            road_between(
+        for column, (left, right) in enumerate(zip(values, values[1:])):
+            hierarchy = _surface_hierarchy(
+                row, column, left, y_mm, right, y_mm, style_id, centers, True
+            )
+            role = _surface_semantic_role(
                 "surface-horizontal",
+                left,
+                y_mm,
+                right,
+                y_mm,
+                style_id,
+                centers,
+                hierarchy,
+            )
+            road_between(
+                role,
                 surface[(left, y_mm)],
                 surface[(right, y_mm)],
                 hierarchy,
@@ -998,20 +1129,45 @@ def _canonical_generated_specs(
                 0,
                 row_interval=_row_interval_authority(left, right, y_mm, terrain, extent),
             )
-    for lower_y, upper_y in zip(y_values, y_values[1:]):
+    for row, (lower_y, upper_y) in enumerate(zip(y_values, y_values[1:])):
         lower, upper = row_x_values[lower_y], row_x_values[upper_y]
-        for lower_index, upper_index in _monotone_partial_match(lower, upper):
+        for column, (lower_index, upper_index) in enumerate(_monotone_partial_match(lower, upper)):
             lower_x, upper_x = lower[lower_index], upper[upper_index]
-            hierarchy = (
-                RoadHierarchy.ARTERIAL if lower_x == 0 and upper_x == 0 else RoadHierarchy.LOCAL
+            hierarchy = _surface_hierarchy(
+                row,
+                column,
+                lower_x,
+                lower_y,
+                upper_x,
+                upper_y,
+                style_id,
+                centers,
+                False,
             )
-            road_between(
+            role = _surface_semantic_role(
                 "surface-vertical",
+                lower_x,
+                lower_y,
+                upper_x,
+                upper_y,
+                style_id,
+                centers,
+                hierarchy,
+            )
+            points = None
+            if style_id == "organic":
+                role = "organic-connector"
+                points = _organic_connector_points(
+                    seed, (lower_x, lower_y), (upper_x, upper_y), extent
+                )
+            road_between(
+                role,
                 surface[(lower_x, lower_y)],
                 surface[(upper_x, upper_y)],
                 hierarchy,
                 FacilityKind.SURFACE,
                 0,
+                points=points,
             )
 
     top_y, bottom_y = y_values[-1], y_values[0]
@@ -1061,7 +1217,7 @@ def _canonical_generated_specs(
         tuple(sorted(node_by_key.values(), key=lambda item: item.semantic_id)),
         tuple(sorted(road_specs, key=lambda item: item.semantic_id)),
         tuple(gateway.semantic_id for gateway in gateways),
-        ((0, 0),),
+        centers,
     )
 
 
