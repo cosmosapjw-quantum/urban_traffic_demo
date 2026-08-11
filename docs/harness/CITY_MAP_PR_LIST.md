@@ -489,3 +489,101 @@ Next action:
 Each future PR creates its one M1 Decision Card only when that PR is executed
 under its own authorization. No unexecuted node has a card; the blocked
 closeout creates no authority to continue this DAG.
+
+## Scalable Map Recovery DAG (PR83-PR101)
+
+Status: `PR83_AUDIT_RESET_PLANNED`. This is a new recovery execution record,
+not a regrade of PR65-PR82. Roadmap IDs below are independent of GitHub pull
+request numbers. PR83 is docs-only and grants no implementation, readiness,
+traffic, runtime, or admission authority.
+
+### Read-Only Audit Record
+
+- Canonical restart base is PR82/GitHub #9's one-file docs-only blocked
+  closeout, merged as `26e99d6450c684ead31bdf733e3f7a2ea2510dd2`. It did not
+  admit or repair PR67.
+- PR67/GitHub #8 head `1b93dcd11b0747b205bd4723be2a02696b24c3b8` was closed
+  unmerged from base `070bac8c403c2327e27007ecc20c62371395c5d1`. Full-test jobs
+  `93370744824` and `93370753400` each finished with 2 failures, 1025 passes,
+  38 skips, and 4 xfails: both topology diagnostics expected
+  `proper_crossing_count == 6` and observed `0`.
+- Audit-gallery jobs `93370744782` and `93370753371` failed
+  `python tools/render_audit_maps.py --check` for `growth_fabric_v1 /`
+  `river_constrained / seed 17` with
+  `RuntimeError: crossing repair made no progress with 1 crossings remaining`.
+- Scalable Task3-Task5 directly require `CityScaleSpec`, but have no
+  `growth_fabric` or `growth_topology` import. PR67 accidentally serialized
+  that prerequisite behind legacy-growth geometry and artifact maintenance.
+- The dirty donor and its historical Task4/Task5/Task B/oracle reports are
+  comparison inputs only, not canonical parent receipts or same-head reviews.
+  Historical oracle manifest `12b9ee...` is comparison-only and must be
+  regenerated after PR90.
+
+This record does not claim that Scope A independently passed or was admitted,
+that only gallery failed, that an OSM oracle validates PR67 geometry, or any
+runtime, traffic, readiness, or aggregate/transitive status.
+
+### Canonical Recovery Mermaid DAG
+
+```mermaid
+flowchart TD
+    PR83["audit reset"] --> PR84["CityScaleSpec only"]
+    PR84 --> PR85["Task3 S2 topology"]
+    PR85 --> PR86["Task3B blocks/DCEL"]
+    PR86 --> PR87["Task4 adapter"]
+    PR87 --> PR88["Task5 authority"]
+    PR88 --> PR89["growth evidence integrity"]
+    PR89 --> PR90["growth geometry + v4 evidence"]
+    PR90 --> PR91["oracle + Task B admission"]
+    PR91 --> PR92["Task B base grammar"]
+    PR92 --> PR93["H-002 ordering"]
+    PR93 --> PR94["P/R + CSR + 180 leaves"]
+    PR94 --> PR95["capture C plan"]
+    PR95 --> PR96["capture C integration"]
+    PR96 --> PR97["RSS/wall evidence"]
+    PR97 --> PR98["G5 docs-first"]
+    PR98 --> PR99["G5 instrumentation"]
+    PR99 --> PR100["H-001 capacity evidence"]
+    PR100 --> PR101["final closeout"]
+    PR97 --> PR101
+```
+
+The user-selected legacy-growth lane is deliberately ordered after Task5 and
+before oracle creation: PR90 -> PR91 is a publication/provenance gate, not a
+production-import claim. Production imports remain independent of that
+publication order.
+
+### Node State, Ownership, And Stop Semantics
+
+Every node from PR83 through PR101 begins `PLANNED` and may become `PASS`,
+`BLOCKED`, or `NOT_REACHED` only from its own same-head receipt. The active
+node exclusively owns its declared allowlisted files and symbols; a shared
+owner is serial, and a dirty donor is read-only comparison input. Neither a
+predecessor's receipt nor a historical donor artifact authorizes a candidate.
+
+- PR83 is limited to this audit reset and has no implementation/readiness/
+  traffic authority.
+- A metric-threshold `FAIL` with valid evidence may merge as truthful evidence.
+  A protocol, provenance, scope, or review failure stops implementation.
+- After any structural blocker, PR101 runs docs-only from the last green base
+  and records each remaining node as `NOT_REACHED`.
+- Traffic implementation is excluded even if a final traffic-readiness verdict
+  passes.
+
+### Review Bindings For Recovery Nodes
+
+The shared Frozen Review And Merge Contract, three review surfaces, four
+watchdogs, and reusable M1 template above remain unchanged. Before candidate
+publication, each recovery node freezes base/head, parent receipt, allowlisted
+files and symbols, forbidden scope, acceptance commands, code/process/claim
+budgets, falsifier, artifact owner, and claim ceiling. Each round uses the
+shared review/watchdog sequence, one bounded fix batch, targeted gate,
+same-head full CI, closure confirmation, and immutable `REVIEW_RECEIPT/Rn`
+comment. The maximum is three rounds; force-push is forbidden. A residual
+finding is `BLOCKED_REVIEW_LIMIT`, a scope expansion is
+`BLOCKED_SCOPE_SPLIT`, and a stale parent invalidates the candidate.
+
+PR83's sole instantiated M1 card belongs only in its frozen PR body and later
+GitHub PR body. The shared M1 contract applies here: recursive reflection is
+`META_RECURSION_BLOCKED`, M1 is not correctness/readiness evidence, its
+observable output is `DECISION`, and its next action is `implement`.
