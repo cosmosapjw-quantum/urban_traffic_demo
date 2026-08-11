@@ -778,6 +778,26 @@ def audit_physical_records(
     )
 
 
+def audit_structural_network(network: ScalableStreetNetwork) -> StructuralAudit:
+    base = audit_physical_records(network.nodes, network.roads)
+    center_paths = sum(_two_gateway_paths(network, center) for center in network.centers)
+    river_group_count, river_failures = _river_group_audit(network)
+    return StructuralAudit(
+        base.is_connected,
+        base.same_layer_proper_crossing_count,
+        base.t_touch_count,
+        base.collinear_overlap_count,
+        base.self_intersection_count,
+        base.nonadjacent_weld_count,
+        base.duplicate_road_count,
+        base.different_layer_false_junction_count,
+        base.endpoint_anchor_mismatch_count,
+        center_paths,
+        river_group_count,
+        river_failures,
+    )
+
+
 def _is_connected(
     node_ids: tuple[int, ...],
     incidence: dict[int, list[int]],
@@ -1335,6 +1355,12 @@ def _canonical_generated_specs(
         return surface[(values[neighbour_index], anchor.y_mm)]
 
     reserved_anchors: set[str] = set()
+    surface_segments = tuple(
+        (left, right)
+        for road in road_specs
+        if road.layer == 0
+        for left, right in zip(road.points_mm, road.points_mm[1:])
+    )
     for index, upper in enumerate(upper_nodes):
         candidates = []
         for anchor in surface.values():
@@ -1353,34 +1379,68 @@ def _canonical_generated_specs(
             candidates.append((distance, anchor.semantic_id, anchor, neighbour))
         if not candidates:
             raise ValueError("mainline gateway lacks a bounded surface access triangle")
-        _, _, anchor, neighbour = min(candidates)
+
+        def carrier_is_clear(
+            access_point: tuple[int, int],
+            candidate_anchor: _NodeSpec,
+            candidate_neighbour: _NodeSpec,
+        ) -> bool:
+            for endpoint in (
+                (candidate_anchor.x_mm, candidate_anchor.y_mm),
+                (candidate_neighbour.x_mm, candidate_neighbour.y_mm),
+            ):
+                for left, right in surface_segments:
+                    if (
+                        _proper_intersection(access_point, endpoint, left, right)
+                        or _collinear_overlap(access_point, endpoint, left, right)
+                        or _point_in_open_segment(access_point, left, right)
+                        or _point_in_open_segment(endpoint, left, right)
+                        or _point_in_open_segment(left, access_point, endpoint)
+                        or _point_in_open_segment(right, access_point, endpoint)
+                    ):
+                        return False
+            return True
+
+        selection = None
+        for _, _, candidate_anchor, candidate_neighbour in sorted(
+            candidates,
+            key=lambda item: (item[0], item[1]),
+        ):
+            y_index = y_values.index(candidate_anchor.y_mm)
+            if candidate_anchor.y_mm == min_y:
+                dy = (y_values[y_index + 1] - candidate_anchor.y_mm) // 3
+            elif candidate_anchor.y_mm == max_y:
+                dy = (y_values[y_index - 1] - candidate_anchor.y_mm) // 3
+            elif candidate_anchor.y_mm <= 0:
+                dy = (y_values[y_index + 1] - candidate_anchor.y_mm) // 3
+            else:
+                dy = (y_values[y_index - 1] - candidate_anchor.y_mm) // 3
+            if dy == 0:
+                continue
+            for numerator, denominator in ((1, 3), (1, 2), (2, 3)):
+                candidate_point = (
+                    candidate_anchor.x_mm
+                    + (candidate_neighbour.x_mm - candidate_anchor.x_mm) * numerator // denominator,
+                    candidate_anchor.y_mm + dy,
+                )
+                if carrier_is_clear(
+                    candidate_point,
+                    candidate_anchor,
+                    candidate_neighbour,
+                ):
+                    selection = (
+                        candidate_anchor,
+                        candidate_neighbour,
+                        candidate_point,
+                    )
+                    break
+            if selection is not None:
+                break
+        if selection is None:
+            raise ValueError("surface access triangle cannot avoid existing surface geometry")
+        anchor, neighbour, access_point = selection
         reserved_anchors.update((anchor.semantic_id, neighbour.semantic_id))
-        anchor_x_values = row_x_values[anchor.y_mm]
-        x_index = anchor_x_values.index(anchor.x_mm)
-        y_index = y_values.index(anchor.y_mm)
-        if anchor.x_mm == min_x:
-            dx = (anchor_x_values[x_index + 1] - anchor.x_mm) // 3
-        elif anchor.x_mm == max_x:
-            dx = (anchor_x_values[x_index - 1] - anchor.x_mm) // 3
-        elif style_id == "river_constrained" and anchor.x_mm < 0:
-            dx = (anchor_x_values[x_index - 1] - anchor.x_mm) // 3
-        elif style_id == "river_constrained":
-            dx = (anchor_x_values[x_index + 1] - anchor.x_mm) // 3
-        elif anchor.x_mm <= 0:
-            dx = (anchor_x_values[x_index + 1] - anchor.x_mm) // 3
-        else:
-            dx = (anchor_x_values[x_index - 1] - anchor.x_mm) // 3
-        if anchor.y_mm == min_y:
-            dy = (y_values[y_index + 1] - anchor.y_mm) // 3
-        elif anchor.y_mm == max_y:
-            dy = (y_values[y_index - 1] - anchor.y_mm) // 3
-        elif anchor.y_mm <= 0:
-            dy = (y_values[y_index + 1] - anchor.y_mm) // 3
-        else:
-            dy = (y_values[y_index - 1] - anchor.y_mm) // 3
-        if dx == 0 or dy == 0:
-            raise ValueError("surface access triangle must have nonzero area")
-        access = node_at(anchor.x_mm + dx, anchor.y_mm + dy, 0, f"ramp-access-{index}")
+        access = node_at(*access_point, 0, f"ramp-access-{index}")
         road_between(
             "mainline-ramp",
             access,
@@ -1405,6 +1465,10 @@ def _canonical_generated_specs(
             RoadHierarchy.ARTERIAL,
             FacilityKind.SURFACE,
             0,
+        )
+        surface_segments += (
+            (access_point, (anchor.x_mm, anchor.y_mm)),
+            (access_point, (neighbour.x_mm, neighbour.y_mm)),
         )
     return _CanonicalGeneratedSpecs(
         tuple(sorted(node_by_key.values(), key=lambda item: item.semantic_id)),
@@ -1581,6 +1645,84 @@ def _surface_cross_bank_connected(network: ScalableStreetNetwork, *, excluded_gr
                 seen.add(other)
                 queue.append(other)
     return any(nodes[node_id].x_mm > 0 for node_id in seen)
+
+
+def _effective_failure_group(road: PhysicalRoadRecord) -> str:
+    return road.failure_group or f"road:{road.semantic_id}"
+
+
+def _path_to_gateway(
+    network: ScalableStreetNetwork,
+    start: int,
+    excluded: set[int],
+    targets: set[int],
+) -> tuple[tuple[int, ...], int] | None:
+    roads = {road.road_id: road for road in network.roads}
+    incidence = dict(network.endpoint_incidence)
+    previous: dict[int, tuple[int, int] | None] = {start: None}
+    queue = deque((start,))
+    reached = None
+    while queue:
+        node_id = queue.popleft()
+        if node_id in targets and node_id != start:
+            reached = node_id
+            break
+        for road_id in incidence.get(node_id, ()):
+            if road_id in excluded:
+                continue
+            road = roads[road_id]
+            other = road.end_node_id if road.start_node_id == node_id else road.start_node_id
+            if other not in previous:
+                previous[other] = (node_id, road_id)
+                queue.append(other)
+    if reached is None:
+        return None
+    target = reached
+    path = []
+    while previous[target] is not None:
+        parent, road_id = previous[target]
+        path.append(road_id)
+        target = parent
+    return (tuple(path), reached)
+
+
+def _two_gateway_paths(network: ScalableStreetNetwork, center: tuple[int, int]) -> bool:
+    center_id = next(
+        (node.node_id for node in network.nodes if node.layer == 0 and node.point_mm == center),
+        None,
+    )
+    if center_id is None:
+        return False
+    first = _path_to_gateway(network, center_id, set(), set(network.gateway_node_ids))
+    if first is None:
+        return False
+    first_roads, first_gateway = first
+    roads = {road.road_id: road for road in network.roads}
+    excluded_groups = {_effective_failure_group(roads[road_id]) for road_id in first_roads}
+    excluded_roads = {
+        road.road_id for road in network.roads if _effective_failure_group(road) in excluded_groups
+    }
+    return (
+        _path_to_gateway(
+            network,
+            center_id,
+            excluded_roads,
+            set(network.gateway_node_ids) - {first_gateway},
+        )
+        is not None
+    )
+
+
+def _river_group_audit(network: ScalableStreetNetwork) -> tuple[int, tuple[str, ...]]:
+    if network.style_id != "river_constrained":
+        return (0, ())
+    groups = _river_bridge_groups(network)
+    failures = tuple(
+        group
+        for group in sorted(groups)
+        if not _surface_cross_bank_connected(network, excluded_group=group)
+    )
+    return (len(groups), failures)
 
 
 def _network_fingerprint(
@@ -1899,6 +2041,57 @@ def _validate_canonical_generated_authority(
         raise ValueError("centers do not match canonical construction")
 
 
+def _validate_network_authority(network: ScalableStreetNetwork) -> None:
+    if type(network) is not ScalableStreetNetwork:
+        raise TypeError("network must be an exact ScalableStreetNetwork")
+    if len(network.nodes) > MAX_JUNCTIONS:
+        raise ValueError("network exceeds junction budget")
+    if len(network.roads) > MAX_PHYSICAL_ROADS:
+        raise ValueError("network exceeds physical-road budget")
+    if len(network.gateway_node_ids) != 8 or len(set(network.gateway_node_ids)) != 8:
+        raise ValueError("network requires exactly eight distinct gateways")
+    by_id = {node.node_id: node for node in network.nodes}
+    if any(
+        node_id not in by_id or by_id[node_id].layer != 1 for node_id in network.gateway_node_ids
+    ):
+        raise ValueError("gateway authority must name layer-1 mainline nodes")
+
+    _validate_terrain_network_authority(network)
+    _validate_canonical_generated_authority(network, by_id)
+    _validate_exact_canonical_record_set(network, by_id)
+    for road in network.roads:
+        if road.row_interval is not None:
+            _validate_row_interval_authority(road, network.terrain, network.extent_mm)
+    if dict(network.seam_diagnostics)["seam_mismatch_count"] != 0:
+        raise ValueError("network has an unowned terrain seam mismatch")
+
+    audit = audit_structural_network(network)
+    unresolved = (
+        audit.same_layer_proper_crossing_count,
+        audit.t_touch_count,
+        audit.collinear_overlap_count,
+        audit.self_intersection_count,
+        audit.nonadjacent_weld_count,
+        audit.duplicate_road_count,
+        audit.different_layer_false_junction_count,
+        audit.endpoint_anchor_mismatch_count,
+    )
+    if not audit.is_connected or any(unresolved):
+        raise ValueError("network records fail reject-only structural audit")
+    maximum_degree = max(
+        (len(road_ids) for _node_id, road_ids in network.endpoint_incidence),
+        default=0,
+    )
+    if maximum_degree > MAX_SURFACE_DEGREE:
+        raise ValueError("network exceeds maximum surface degree")
+    if audit.center_disjoint_gateway_path_count != len(network.centers):
+        raise ValueError("centers require two failure-group-disjoint gateway paths")
+    if network.style_id == "river_constrained" and (
+        audit.river_cross_bank_group_count < 3 or audit.river_group_removal_failures
+    ):
+        raise ValueError("river bridge failure-group authority is incomplete")
+
+
 def build_scalable_street_network(
     scale_spec: object,
     style_id: str,
@@ -1987,7 +2180,7 @@ def build_scalable_street_network(
         diagnostics,
         0,
     )
-    return ScalableStreetNetwork(
+    network = ScalableStreetNetwork(
         snapshot,
         style_id,
         seed,
@@ -2008,3 +2201,5 @@ def build_scalable_street_network(
         0,
         fingerprint,
     )
+    _validate_network_authority(network)
+    return network
