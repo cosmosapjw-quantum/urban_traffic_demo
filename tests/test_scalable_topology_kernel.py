@@ -46,6 +46,135 @@ def _road(
     )
 
 
+def _rebuild_network_identity(
+    network: object,
+    *,
+    node_changes: dict[int, dict[str, object]] | None = None,
+    road_changes: dict[int, dict[str, object]] | None = None,
+    network_changes: dict[str, object] | None = None,
+) -> object:
+    """Re-key every public identity after an adversarial record change."""
+    import metroflow.city.scalable_topology as kernel
+
+    node_changes = node_changes or {}
+    road_changes = road_changes or {}
+    network_changes = network_changes or {}
+    seed = network_changes.get("seed", network.seed)
+    style_id = network_changes.get("style_id", network.style_id)
+
+    pending_nodes = []
+    for node in network.nodes:
+        candidate = replace(node, **node_changes.get(node.node_id, {}))
+        semantic_id = kernel._semantic_id(
+            (
+                kernel.SCHEMA_VERSION,
+                "node",
+                seed,
+                style_id,
+                candidate.semantic_role,
+                (candidate.x_mm, candidate.y_mm, candidate.layer),
+            )
+        )
+        pending_nodes.append((node.node_id, replace(candidate, semantic_id=semantic_id)))
+    pending_nodes.sort(key=lambda item: item[1].semantic_id)
+    nodes = tuple(
+        replace(candidate, node_id=index)
+        for index, (_old_id, candidate) in enumerate(pending_nodes)
+    )
+    by_old_id = {old_id: rebuilt for rebuilt, (old_id, _candidate) in zip(nodes, pending_nodes)}
+
+    pending_roads = []
+    for road in network.roads:
+        candidate = replace(road, **road_changes.get(road.road_id, {}))
+        start = by_old_id[candidate.start_node_id]
+        end = by_old_id[candidate.end_node_id]
+        directions = tuple(sorted(candidate.access_directions))
+        swapped_directions = tuple(
+            sorted(
+                "reverse"
+                if direction == "forward"
+                else "forward"
+                if direction == "reverse"
+                else direction
+                for direction in directions
+            )
+        )
+        orientation = min(
+            (start.semantic_id, end.semantic_id, candidate.points_mm, directions),
+            (
+                end.semantic_id,
+                start.semantic_id,
+                tuple(reversed(candidate.points_mm)),
+                swapped_directions,
+            ),
+        )
+        semantic_id = kernel._semantic_id(
+            (
+                kernel.SCHEMA_VERSION,
+                "road",
+                seed,
+                style_id,
+                candidate.semantic_role,
+                orientation,
+                candidate.hierarchy.value,
+                candidate.facility.value,
+                candidate.layer,
+                candidate.layer_transition,
+                candidate.structure_group,
+                candidate.failure_group,
+                candidate.profile_id,
+                candidate.provenance,
+                kernel._row_interval_content(candidate.row_interval),
+            )
+        )
+        pending_roads.append(
+            replace(
+                candidate,
+                start_node_id=start.node_id,
+                end_node_id=end.node_id,
+                semantic_id=semantic_id,
+            )
+        )
+    pending_roads.sort(key=lambda road: road.semantic_id)
+    roads = tuple(replace(road, road_id=index) for index, road in enumerate(pending_roads))
+    incidence = kernel._endpoint_incidence(nodes, roads)
+    requested_gateways = network_changes.get("gateway_node_ids", network.gateway_node_ids)
+    gateway_node_ids = tuple(by_old_id[node_id].node_id for node_id in requested_gateways)
+    centers = network_changes.get("centers", network.centers)
+    diagnostics = kernel._computed_seam_diagnostics(
+        network.extent_mm, nodes, network.terrain, network.tile_coordinates
+    )
+    style_fingerprint = kernel._style_fingerprint(style_id, seed, centers, nodes, roads)
+    fingerprint = kernel._network_fingerprint(
+        network.scale_spec,
+        style_id,
+        seed,
+        network.extent_mm,
+        centers,
+        gateway_node_ids,
+        nodes,
+        roads,
+        incidence,
+        network.terrain,
+        network.tile_coordinates,
+        diagnostics,
+        network.hidden_repair_count,
+    )
+    return replace(
+        network,
+        seed=seed,
+        style_id=style_id,
+        nodes=nodes,
+        roads=roads,
+        gateway_node_ids=gateway_node_ids,
+        endpoint_incidence=incidence,
+        seam_diagnostics=diagnostics,
+        centers=centers,
+        style_fingerprint=style_fingerprint,
+        fingerprint=fingerprint,
+    )
+
+
 def test_scalable_topology_import_isolated() -> None:
     """Importing the S2 kernel must not admit downstream or simulator modules."""
     import metroflow.city.scalable_topology as topology
@@ -850,3 +979,208 @@ def test_river_failure_groups_are_complete_and_survive_each_removal() -> None:
             if road.facility is FacilityKind.BRIDGE
         )
         assert all(_surface_cross_bank_connected(network, excluded_group=group) for group in groups)
+
+
+@pytest.mark.parametrize("role_class", ("surface", "mainline-gateway", "ramp-access"))
+def test_recomputed_authority_rejects_every_forged_node_role_class(
+    role_class: str,
+) -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    node = next(
+        node
+        for node in network.nodes
+        if node.semantic_role == role_class
+        or (role_class == "ramp-access" and node.semantic_role.startswith("ramp-access-"))
+    )
+
+    with pytest.raises(ValueError, match="role|canonical"):
+        _rebuild_network_identity(
+            network,
+            node_changes={node.node_id: {"semantic_role": f"forged-{node.semantic_role}"}},
+        )
+
+
+@pytest.mark.parametrize(
+    ("style_id", "role_class"),
+    (
+        ("grid_core", "mainline"),
+        ("grid_core", "ramp"),
+        ("grid_core", "surface-horizontal"),
+        ("grid_core", "surface-vertical"),
+        ("grid_core", "surface-access-primary"),
+        ("grid_core", "surface-access-secondary"),
+        ("river_constrained", "river-bridge"),
+        ("organic", "organic-connector"),
+        ("polycentric_tod", "polycentric-row"),
+        ("polycentric_tod", "polycentric-connector"),
+    ),
+)
+def test_recomputed_authority_rejects_every_forged_road_role_class(
+    style_id: str,
+    role_class: str,
+) -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), style_id, 17)
+
+    def matches(road) -> bool:
+        if role_class == "mainline":
+            return road.facility is kernel.FacilityKind.MAINLINE
+        if role_class == "ramp":
+            return road.facility is kernel.FacilityKind.RAMP
+        if role_class == "polycentric-row":
+            return road.semantic_role.startswith("polycentric-center-") and road.row_interval
+        if role_class == "polycentric-connector":
+            return road.semantic_role.startswith("polycentric-center-") and not road.row_interval
+        return road.semantic_role == role_class
+
+    road = next(road for road in network.roads if matches(road))
+    with pytest.raises(ValueError, match="role|canonical"):
+        _rebuild_network_identity(
+            network,
+            road_changes={road.road_id: {"semantic_role": f"forged-{road.semantic_role}"}},
+        )
+
+
+def test_recomputed_authority_rejects_one_millimeter_organic_midpoint_forgery() -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "organic", 17)
+    road = next(road for road in network.roads if road.semantic_role == "organic-connector")
+    start, midpoint, end = road.points_mm
+    forged = (start, (midpoint[0] + 1, midpoint[1]), end)
+    with pytest.raises(ValueError, match="organic|canonical|geometry"):
+        _rebuild_network_identity(network, road_changes={road.road_id: {"points_mm": forged}})
+
+
+@pytest.mark.parametrize("midpoint_kind", ("off-row", "collinear", "out-of-order"))
+def test_recomputed_authority_rejects_any_midpoint_on_a_row_interval(
+    midpoint_kind: str,
+) -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    road = next(road for road in network.roads if road.row_interval is not None)
+    start, end = road.points_mm
+    if midpoint_kind == "off-row":
+        midpoint = ((start[0] + end[0]) // 2, start[1] + 1)
+    elif midpoint_kind == "collinear":
+        midpoint = ((start[0] + end[0]) // 2, start[1])
+    else:
+        midpoint = (end[0] + 1, start[1])
+    with pytest.raises(ValueError, match="row|horizontal|canonical"):
+        _rebuild_network_identity(
+            network,
+            road_changes={road.road_id: {"points_mm": (start, midpoint, end)}},
+        )
+
+
+@pytest.mark.parametrize(
+    "field_case", ("provenance", "directions", "structure-group", "failure-group")
+)
+def test_recomputed_authority_rejects_noncanonical_generated_road_fields(
+    field_case: str,
+) -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    road = next(road for road in network.roads if road.semantic_role == "surface-vertical")
+    changes = {
+        "provenance": {"provenance": "forged"},
+        "directions": {"access_directions": frozenset({"forward"})},
+        "structure-group": {"structure_group": "forged-group"},
+        "failure-group": {"failure_group": "forged-group"},
+    }[field_case]
+    with pytest.raises(ValueError, match="canonical|provenance|direction|group"):
+        _rebuild_network_identity(network, road_changes={road.road_id: changes})
+
+
+@pytest.mark.parametrize("field_case", ("hierarchy", "facility", "layer"))
+def test_recomputed_authority_rejects_noncanonical_role_derived_road_shape(
+    field_case: str,
+) -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    road = next(
+        road
+        for road in network.roads
+        if road.semantic_role == "surface-vertical" and road.hierarchy is kernel.RoadHierarchy.LOCAL
+    )
+    if field_case == "hierarchy":
+        changes = {
+            "hierarchy": kernel.RoadHierarchy.ARTERIAL,
+            "profile_id": "v2:surface:arterial",
+        }
+    elif field_case == "facility":
+        changes = {
+            "facility": kernel.FacilityKind.BRIDGE,
+            "profile_id": f"v2:bridge:{road.hierarchy.value}",
+        }
+    else:
+        changes = {"layer": 1}
+    with pytest.raises(ValueError, match="canonical|facility|hierarchy|layer"):
+        _rebuild_network_identity(network, road_changes={road.road_id: changes})
+
+
+@pytest.mark.parametrize("field_case", ("centers", "gateway-order"))
+def test_recomputed_authority_rejects_forged_centers_and_gateway_order(
+    field_case: str,
+) -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(
+        CityScaleSpec(100_000, 40.0), "polycentric_tod", 17
+    )
+    if field_case == "centers":
+        changes = {
+            "centers": ((network.centers[0][0] + 1, network.centers[0][1]),) + network.centers[1:]
+        }
+    else:
+        changes = {"gateway_node_ids": tuple(reversed(network.gateway_node_ids))}
+    with pytest.raises(ValueError, match="center|gateway|canonical"):
+        _rebuild_network_identity(network, network_changes=changes)
+
+
+def test_canonical_generated_network_survives_full_identity_round_trip() -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "organic", 17)
+    assert _rebuild_network_identity(network) == network
+
+
+def test_road_semantic_identity_has_canonical_reverse_orientation() -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    road = network.roads[0]
+    start, end = network.nodes[road.start_node_id], network.nodes[road.end_node_id]
+    arguments = (
+        network.seed,
+        network.style_id,
+        road.semantic_role,
+        start.semantic_id,
+        end.semantic_id,
+        road.points_mm,
+        road.hierarchy,
+        road.facility,
+        road.layer,
+        road.access_directions,
+        road.layer_transition,
+        road.structure_group,
+        road.failure_group,
+        road.profile_id,
+        road.provenance,
+        road.row_interval,
+    )
+    forward = kernel._road_semantic_id(*arguments)
+    reverse = kernel._road_semantic_id(
+        *arguments[:3],
+        arguments[4],
+        arguments[3],
+        tuple(reversed(road.points_mm)),
+        *arguments[6:],
+    )
+    assert forward == reverse == road.semantic_id
