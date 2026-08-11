@@ -516,6 +516,30 @@ def _admit_scalable_sources(
         )
         if observed not in {forward, reverse}:
             raise ValueError("embedding edge geometry mismatch")
+        expected_source_record = (
+            road.semantic_id,
+            road.start_node_id,
+            road.end_node_id,
+            start.semantic_id,
+            end.semantic_id,
+            road.points_mm,
+            road.layer,
+            road.facility.value,
+            admitted_network.fingerprint,
+        )
+        observed_source_record = (
+            edge.source_road_semantic_id,
+            edge.start_node_id,
+            edge.end_node_id,
+            edge.start_node_semantic_id,
+            edge.end_node_semantic_id,
+            edge.points_mm,
+            edge.layer,
+            edge.facility,
+            edge.source_fingerprint,
+        )
+        if observed_source_record != expected_source_record:
+            raise ValueError("embedding source record mismatch")
 
     expected_ramp_road_ids = {
         road.road_id
@@ -535,6 +559,24 @@ def _admit_scalable_sources(
             (road.end_node_id, road.start_node_id),
         }:
             raise ValueError("ramp incidence endpoint mismatch")
+        start = node_by_id[road.start_node_id]
+        end = node_by_id[road.end_node_id]
+        if (
+            ramp.source_road_semantic_id,
+            ramp.start_node_id,
+            ramp.end_node_id,
+            ramp.start_node_semantic_id,
+            ramp.end_node_semantic_id,
+            ramp.source_fingerprint,
+        ) != (
+            road.semantic_id,
+            road.start_node_id,
+            road.end_node_id,
+            start.semantic_id,
+            end.semantic_id,
+            admitted_network.fingerprint,
+        ):
+            raise ValueError("ramp source record mismatch")
 
     road_ids = set(road_by_id)
     node_ids = set(node_by_id)
