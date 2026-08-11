@@ -501,3 +501,128 @@ def test_record_audit_counts_more_than_six_events_without_truncation() -> None:
 
     assert audit.same_layer_proper_crossing_count == 8
     assert audit.endpoint_anchor_mismatch_count == 18
+
+
+def test_grid_core_builder_owns_scale_extent_and_immutable_records() -> None:
+    """Removing the builder would leave Task3 without canonical physical records."""
+    from metroflow.city.scalable_topology import (
+        build_scalable_street_network,
+        ScalableStreetNetwork,
+    )
+
+    caller_scale = CityScaleSpec(100_000, 40.0)
+    network = build_scalable_street_network(caller_scale, "grid_core", 17)
+    object.__setattr__(caller_scale, "target_population", 200_000)
+
+    assert isinstance(network, ScalableStreetNetwork)
+    assert network.scale_spec.target_population == 100_000
+    assert network.extent_mm == (-3_585_686, 3_585_686, -2_788_867, 2_788_867)
+    assert (network.width_m, network.height_m) == pytest.approx((7_171.372, 5_577.734))
+    assert network.hidden_repair_count == 0
+    assert len(network.gateway_node_ids) == 8
+    assert isinstance(network.nodes, tuple) and isinstance(network.roads, tuple)
+
+
+def test_grid_core_replays_and_fingerprints_seed_and_scale() -> None:
+    from metroflow.city.scalable_topology import build_scalable_street_network
+
+    first = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    same = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    changed_seed = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 29)
+    changed_scale = build_scalable_street_network(CityScaleSpec(150_000, 50.0), "grid_core", 17)
+
+    assert first == same
+    assert len({first.fingerprint, changed_seed.fingerprint, changed_scale.fingerprint}) == 3
+    assert first.scale_fingerprint != changed_scale.scale_fingerprint
+    assert first.style_fingerprint != changed_seed.style_fingerprint
+
+
+def test_grid_core_tile_order_is_a_permutation_not_generation_input() -> None:
+    from metroflow.city.scalable_topology import build_scalable_street_network
+
+    canonical = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    tiles = canonical.tile_coordinates
+    reversed_network = build_scalable_street_network(
+        CityScaleSpec(100_000, 40.0),
+        "grid_core",
+        17,
+        tile_order=tuple(reversed(tiles)),
+    )
+
+    assert canonical == reversed_network
+    with pytest.raises(ValueError, match="exact permutation"):
+        build_scalable_street_network(
+            CityScaleSpec(100_000, 40.0), "grid_core", 17, tile_order=tiles[:-1]
+        )
+
+
+def test_grid_core_has_dense_semantic_order_eight_ramps_and_literal_rows() -> None:
+    from metroflow.city.scalable_topology import (
+        FacilityKind,
+        audit_physical_records,
+        build_scalable_street_network,
+    )
+
+    network = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    ramps = [road for road in network.roads if road.facility is FacilityKind.RAMP]
+    row_roads = [road for road in network.roads if road.row_interval is not None]
+
+    assert [node.node_id for node in network.nodes] == list(range(len(network.nodes)))
+    assert [road.road_id for road in network.roads] == list(range(len(network.roads)))
+    assert [node.semantic_id for node in network.nodes] == sorted(
+        node.semantic_id for node in network.nodes
+    )
+    assert [road.semantic_id for road in network.roads] == sorted(
+        road.semantic_id for road in network.roads
+    )
+    assert len(ramps) == 8
+    assert all(ramp.layer_transition == (0, 1) for ramp in ramps)
+    assert all(ramp.points_mm[0] != ramp.points_mm[-1] for ramp in ramps)
+    assert row_roads
+    assert all(
+        road.points_mm
+        == (
+            (road.row_interval.left_x_mm, road.row_interval.row_y_mm),
+            (
+                road.row_interval.left_x_mm + road.row_interval.realized_spacing_mm,
+                road.row_interval.row_y_mm,
+            ),
+        )
+        for road in row_roads
+    )
+    audit = audit_physical_records(network.nodes, network.roads)
+    assert audit.is_connected
+    assert (
+        audit.same_layer_proper_crossing_count,
+        audit.t_touch_count,
+        audit.collinear_overlap_count,
+        audit.self_intersection_count,
+        audit.nonadjacent_weld_count,
+        audit.different_layer_false_junction_count,
+        audit.endpoint_anchor_mismatch_count,
+    ) == (0, 0, 0, 0, 0, 0, 0)
+
+
+def test_grid_core_exposes_tile_seams_and_fails_closed_on_budgets(monkeypatch) -> None:
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    surface_x = {node.x_mm for node in network.nodes if node.layer == 0}
+    surface_y = {node.y_mm for node in network.nodes if node.layer == 0}
+    assert {-2_000_000, 0, 2_000_000} <= surface_x
+    assert {-2_000_000, 0, 2_000_000} <= surface_y
+
+    monkeypatch.setattr(kernel, "MAX_PHYSICAL_ROADS", 1)
+    with pytest.raises(ValueError, match="road budget"):
+        kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+
+
+def test_grid_core_rejects_non_city_scale_unknown_style_and_noninteger_seed() -> None:
+    from metroflow.city.scalable_topology import build_scalable_street_network
+
+    with pytest.raises(TypeError, match="CityScaleSpec"):
+        build_scalable_street_network(object(), "grid_core", 17)
+    with pytest.raises(ValueError, match="style_id"):
+        build_scalable_street_network(CityScaleSpec(100_000, 40.0), "organic", 17)
+    with pytest.raises(TypeError, match="seed"):
+        build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", True)
