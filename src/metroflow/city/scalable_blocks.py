@@ -2,10 +2,19 @@
 
 from __future__ import annotations
 
+from collections import defaultdict, deque
 from dataclasses import dataclass, field, fields
 from fractions import Fraction
+from functools import cmp_to_key
+import hashlib
+import json
 
-from metroflow.city.scalable_topology import ScalableStreetNetwork
+from metroflow.city.scalable_topology import (
+    FacilityKind,
+    PhysicalNodeRecord,
+    PhysicalRoadRecord,
+    ScalableStreetNetwork,
+)
 
 __all__ = [
     "ScalableBlockAuthority",
@@ -368,6 +377,429 @@ class ScalableBlockAuthority:
             _plain_str(getattr(self, name), name)
         _plain_digest(self.source_network_fingerprint, "source_network_fingerprint")
         _plain_digest(self.fingerprint, "fingerprint", allow_empty=True)
+
+
+@dataclass(slots=True)
+class _DirectedDraft:
+    semantic_id: str
+    embedding_edge_id: int
+    source_road_id: int
+    origin_node_id: int
+    destination_node_id: int
+    points_mm: tuple[PointMM, ...]
+    twin_id: int = -1
+    next_id: int = -1
+    prev_id: int = -1
+    left_face_id: int = -1
+
+
+@dataclass(slots=True)
+class _BoundaryDraft:
+    semantic_id: str
+    half_edge_ids: tuple[int, ...]
+    polygon_mm: tuple[PointMM, ...]
+    signed_twice_area_mm2: int
+    component_id: int
+    role: str
+    interior_witness_mm: ExactPointMM
+
+
+@dataclass(slots=True)
+class _FaceDraft:
+    semantic_id: str
+    is_unbounded: bool
+    role: str
+    outer_boundary_index: int | None
+    hole_boundary_indices: tuple[int, ...]
+    unbounded_boundary_indices: tuple[int, ...]
+    interior_witness_mm: ExactPointMM | None
+
+
+def _digest(tag: str, payload: object) -> str:
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(
+        SCHEMA_VERSION.encode() + b":" + tag.encode() + b":" + encoded
+    ).hexdigest()
+
+
+def _require_unique_semantics(values: tuple[str, ...], name: str) -> None:
+    if len(values) != len(set(values)):
+        raise ValueError(f"duplicate {name} semantic id")
+
+
+def _embedding_edges(
+    nodes: tuple[PhysicalNodeRecord, ...],
+    roads: tuple[PhysicalRoadRecord, ...],
+    source_fingerprint: str,
+) -> tuple[V2EmbeddingEdge, ...]:
+    by_id = {node.node_id: node for node in nodes}
+    selected: list[tuple[str, PhysicalRoadRecord, PhysicalNodeRecord, PhysicalNodeRecord]] = []
+    for road in roads:
+        if (
+            road.layer != 0
+            or road.layer_transition is not None
+            or road.facility not in {FacilityKind.SURFACE, FacilityKind.BRIDGE}
+        ):
+            continue
+        start, end = by_id.get(road.start_node_id), by_id.get(road.end_node_id)
+        if start is None or end is None:
+            raise ValueError("embedding road endpoint is absent")
+        semantic_id = _digest(
+            "embedding-edge",
+            (
+                road.semantic_id,
+                start.semantic_id,
+                end.semantic_id,
+                road.points_mm,
+                road.layer,
+                road.facility.value,
+                source_fingerprint,
+            ),
+        )
+        selected.append((semantic_id, road, start, end))
+    selected.sort(key=lambda item: item[0])
+    _require_unique_semantics(tuple(item[0] for item in selected), "embedding edge")
+    return tuple(
+        V2EmbeddingEdge(
+            embedding_edge_id=index,
+            semantic_id=semantic_id,
+            source_road_id=road.road_id,
+            source_road_semantic_id=road.semantic_id,
+            start_node_id=start.node_id,
+            end_node_id=end.node_id,
+            start_node_semantic_id=start.semantic_id,
+            end_node_semantic_id=end.semantic_id,
+            points_mm=road.points_mm,
+            layer=road.layer,
+            facility=road.facility.value,
+            source_fingerprint=source_fingerprint,
+        )
+        for index, (semantic_id, road, start, end) in enumerate(selected)
+    )
+
+
+def _ray(half_edge: _DirectedDraft) -> tuple[int, int]:
+    left, right = half_edge.points_mm[0], half_edge.points_mm[1]
+    return (right[0] - left[0], right[1] - left[1])
+
+
+def _ray_half(ray: tuple[int, int]) -> int:
+    x_value, y_value = ray
+    return 0 if y_value > 0 or (y_value == 0 and x_value >= 0) else 1
+
+
+def _compare_rays(left: tuple[int, int], right: tuple[int, int]) -> int:
+    left_half, right_half = _ray_half(left), _ray_half(right)
+    if left_half != right_half:
+        return -1 if left_half < right_half else 1
+    cross = left[0] * right[1] - left[1] * right[0]
+    if cross:
+        return -1 if cross > 0 else 1
+    left_length = left[0] * left[0] + left[1] * left[1]
+    right_length = right[0] * right[0] + right[1] * right[1]
+    return (left_length > right_length) - (left_length < right_length)
+
+
+def _same_ray(left: tuple[int, int], right: tuple[int, int]) -> bool:
+    return left[0] * right[1] == left[1] * right[0] and left[0] * right[0] + left[1] * right[1] > 0
+
+
+def _directed_embedding(edges: tuple[V2EmbeddingEdge, ...]) -> list[_DirectedDraft]:
+    directed: list[_DirectedDraft] = []
+    for edge in edges:
+        for direction, origin, destination, points in (
+            ("forward", edge.start_node_id, edge.end_node_id, edge.points_mm),
+            ("reverse", edge.end_node_id, edge.start_node_id, tuple(reversed(edge.points_mm))),
+        ):
+            directed.append(
+                _DirectedDraft(
+                    _digest("half-edge", (edge.semantic_id, direction)),
+                    edge.embedding_edge_id,
+                    edge.source_road_id,
+                    origin,
+                    destination,
+                    points,
+                )
+            )
+    directed.sort(key=lambda item: item.semantic_id)
+    _require_unique_semantics(tuple(item.semantic_id for item in directed), "half edge")
+    by_edge: dict[int, list[int]] = defaultdict(list)
+    for half_edge_id, half_edge in enumerate(directed):
+        by_edge[half_edge.embedding_edge_id].append(half_edge_id)
+    for pair in by_edge.values():
+        if len(pair) != 2:
+            raise ValueError("embedding edge must emit exactly two half-edges")
+        directed[pair[0]].twin_id = pair[1]
+        directed[pair[1]].twin_id = pair[0]
+
+    outgoing: dict[int, list[int]] = defaultdict(list)
+    for half_edge_id, half_edge in enumerate(directed):
+        outgoing[half_edge.origin_node_id].append(half_edge_id)
+    for half_edge_ids in outgoing.values():
+        half_edge_ids.sort(
+            key=cmp_to_key(
+                lambda left, right: _compare_rays(_ray(directed[left]), _ray(directed[right]))
+            )
+        )
+        for left, right in zip(half_edge_ids, half_edge_ids[1:]):
+            if _same_ray(_ray(directed[left]), _ray(directed[right])):
+                raise ValueError("duplicate outgoing ray")
+    for half_edge_id, half_edge in enumerate(directed):
+        destination_order = outgoing[half_edge.destination_node_id]
+        twin_position = destination_order.index(half_edge.twin_id)
+        half_edge.next_id = destination_order[(twin_position - 1) % len(destination_order)]
+    for half_edge_id, half_edge in enumerate(directed):
+        next_edge = directed[half_edge.next_id]
+        if next_edge.prev_id != -1:
+            raise ValueError("half-edge next permutation is not injective")
+        next_edge.prev_id = half_edge_id
+    return directed
+
+
+def _embedding_components(edges: tuple[V2EmbeddingEdge, ...]) -> tuple[dict[int, int], int]:
+    adjacency: dict[int, set[int]] = defaultdict(set)
+    for edge in edges:
+        adjacency[edge.start_node_id].add(edge.end_node_id)
+        adjacency[edge.end_node_id].add(edge.start_node_id)
+    component_by_node: dict[int, int] = {}
+    for origin in sorted(adjacency):
+        if origin in component_by_node:
+            continue
+        component_id = len(set(component_by_node.values()))
+        component_by_node[origin] = component_id
+        queue = deque((origin,))
+        while queue:
+            node_id = queue.popleft()
+            for neighbor in sorted(adjacency[node_id]):
+                if neighbor not in component_by_node:
+                    component_by_node[neighbor] = component_id
+                    queue.append(neighbor)
+    return component_by_node, len(set(component_by_node.values()))
+
+
+def _cycle_polygon(
+    half_edge_ids: tuple[int, ...], directed: list[_DirectedDraft]
+) -> tuple[PointMM, ...]:
+    polygon: list[PointMM] = []
+    for half_edge_id in half_edge_ids:
+        points = directed[half_edge_id].points_mm
+        if not polygon:
+            polygon.extend(points)
+        elif polygon[-1] == points[0]:
+            polygon.extend(points[1:])
+        else:
+            polygon.extend(points)
+    if polygon and polygon[-1] != polygon[0]:
+        polygon.append(polygon[0])
+    return tuple(polygon)
+
+
+def _signed_area2(polygon: tuple[ExactPointMM, ...]) -> ExactCoordinateMM:
+    return sum(left[0] * right[1] - right[0] * left[1] for left, right in zip(polygon, polygon[1:]))
+
+
+def _trace_boundaries(
+    directed: list[_DirectedDraft], component_by_node: dict[int, int]
+) -> list[_BoundaryDraft]:
+    boundaries: list[_BoundaryDraft] = []
+    visited: set[int] = set()
+    for start in range(len(directed)):
+        if start in visited:
+            continue
+        cycle: list[int] = []
+        current = start
+        while current not in visited:
+            visited.add(current)
+            cycle.append(current)
+            current = directed[current].next_id
+        if current != start:
+            raise ValueError("half-edge permutation does not close its boundary")
+        half_edge_ids = tuple(cycle)
+        polygon = _cycle_polygon(half_edge_ids, directed)
+        area = _signed_area2(polygon)
+        witness_points = polygon[:-1] if len(polygon) > 1 else polygon
+        divisor = max(1, len(witness_points))
+        witness = (
+            Fraction(sum(point[0] for point in witness_points), divisor),
+            Fraction(sum(point[1] for point in witness_points), divisor),
+        )
+        semantic_id = _digest(
+            "boundary",
+            tuple(directed[index].semantic_id for index in half_edge_ids),
+        )
+        boundaries.append(
+            _BoundaryDraft(
+                semantic_id,
+                half_edge_ids,
+                polygon,
+                area,
+                component_by_node[directed[start].origin_node_id],
+                "OUTER" if area > 0 else "UNBOUNDED_COMPONENT",
+                witness,
+            )
+        )
+    _require_unique_semantics(tuple(item.semantic_id for item in boundaries), "boundary")
+    return boundaries
+
+
+def _build_block_authority_from_records(
+    *,
+    nodes,
+    roads,
+    source_network_fingerprint,
+    extent_mm,
+    tile_coordinates,
+    tile_order=None,
+) -> ScalableBlockAuthority:
+    if type(nodes) is not tuple or any(type(node) is not PhysicalNodeRecord for node in nodes):
+        raise TypeError("nodes must contain exact PhysicalNodeRecord values")
+    if type(roads) is not tuple or any(type(road) is not PhysicalRoadRecord for road in roads):
+        raise TypeError("roads must contain exact PhysicalRoadRecord values")
+    source_fingerprint = _plain_digest(source_network_fingerprint, "source_network_fingerprint")
+    edges = _embedding_edges(nodes, roads, source_fingerprint)
+    directed = _directed_embedding(edges)
+    component_by_node, component_count = _embedding_components(edges)
+    boundary_drafts = _trace_boundaries(directed, component_by_node)
+
+    unbounded_indices = tuple(
+        index
+        for index, boundary in enumerate(boundary_drafts)
+        if boundary.signed_twice_area_mm2 <= 0
+    )
+    face_drafts = [
+        _FaceDraft(
+            _digest(
+                "face",
+                (
+                    "unbounded",
+                    tuple(
+                        sorted(boundary_drafts[index].semantic_id for index in unbounded_indices)
+                    ),
+                ),
+            ),
+            True,
+            "UNBOUNDED",
+            None,
+            (),
+            unbounded_indices,
+            None,
+        )
+    ]
+    face_drafts.extend(
+        _FaceDraft(
+            _digest("face", ("bounded", boundary.semantic_id)),
+            False,
+            "DEVELOPABLE",
+            index,
+            (),
+            (),
+            boundary.interior_witness_mm,
+        )
+        for index, boundary in enumerate(boundary_drafts)
+        if boundary.signed_twice_area_mm2 > 0
+    )
+    face_drafts.sort(key=lambda face: face.semantic_id)
+    _require_unique_semantics(tuple(face.semantic_id for face in face_drafts), "face")
+
+    boundary_order = sorted(
+        range(len(boundary_drafts)), key=lambda index: boundary_drafts[index].semantic_id
+    )
+    boundary_id_by_index = {old: new for new, old in enumerate(boundary_order)}
+    face_id_by_boundary: dict[int, int] = {}
+    for face_id, face in enumerate(face_drafts):
+        for boundary_index in face.unbounded_boundary_indices:
+            face_id_by_boundary[boundary_index] = face_id
+        if face.outer_boundary_index is not None:
+            face_id_by_boundary[face.outer_boundary_index] = face_id
+        for boundary_index in face.hole_boundary_indices:
+            face_id_by_boundary[boundary_index] = face_id
+    boundary_index_by_half_edge = {
+        half_edge_id: boundary_index
+        for boundary_index, boundary in enumerate(boundary_drafts)
+        for half_edge_id in boundary.half_edge_ids
+    }
+    for half_edge_id, half_edge in enumerate(directed):
+        half_edge.left_face_id = face_id_by_boundary[boundary_index_by_half_edge[half_edge_id]]
+
+    half_edges = tuple(
+        V2HalfEdge(
+            half_edge_id,
+            half_edge.semantic_id,
+            half_edge.embedding_edge_id,
+            half_edge.source_road_id,
+            half_edge.origin_node_id,
+            half_edge.destination_node_id,
+            half_edge.points_mm,
+            half_edge.twin_id,
+            half_edge.next_id,
+            half_edge.prev_id,
+            half_edge.left_face_id,
+        )
+        for half_edge_id, half_edge in enumerate(directed)
+    )
+    boundaries = tuple(
+        V2FaceBoundary(
+            boundary_id,
+            boundary_drafts[old_index].semantic_id,
+            boundary_drafts[old_index].half_edge_ids,
+            boundary_drafts[old_index].polygon_mm,
+            boundary_drafts[old_index].signed_twice_area_mm2,
+            boundary_drafts[old_index].component_id,
+            boundary_drafts[old_index].role,
+            boundary_drafts[old_index].interior_witness_mm,
+        )
+        for boundary_id, old_index in enumerate(boundary_order)
+    )
+    faces = tuple(
+        V2Face(
+            face_id,
+            face.semantic_id,
+            face.is_unbounded,
+            face.role,
+            None
+            if face.outer_boundary_index is None
+            else boundary_id_by_index[face.outer_boundary_index],
+            tuple(boundary_id_by_index[index] for index in face.hole_boundary_indices),
+            tuple(boundary_id_by_index[index] for index in face.unbounded_boundary_indices),
+            None,
+            face.interior_witness_mm,
+            (),
+            (),
+            source_fingerprint,
+        )
+        for face_id, face in enumerate(face_drafts)
+    )
+    vertex_count = len(
+        {node_id for edge in edges for node_id in (edge.start_node_id, edge.end_node_id)}
+    )
+    edge_count, face_count = len(edges), len(faces)
+    euler_lhs, euler_rhs = vertex_count - edge_count + face_count, 1 + component_count
+    if euler_lhs != euler_rhs:
+        raise ValueError("DCEL Euler authority mismatch")
+    return ScalableBlockAuthority(
+        SCHEMA_VERSION,
+        source_fingerprint,
+        EMBEDDING_POLICY,
+        TILE_POLICY,
+        SUBDIVISION_SCHEMA,
+        tuple(extent_mm),
+        tuple(tile_coordinates),
+        edges,
+        (),
+        half_edges,
+        boundaries,
+        faces,
+        (),
+        V2BlockAccessIndex((), (), (), (), (), 0),
+        (),
+        vertex_count,
+        edge_count,
+        face_count,
+        component_count,
+        euler_lhs,
+        euler_rhs,
+        len(half_edges),
+    )
 
 
 def build_scalable_block_authority(
