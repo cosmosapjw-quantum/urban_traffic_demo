@@ -240,71 +240,7 @@ print(json.dumps(payload, sort_keys=True))
     assert payload["unknown"] == "definitely_not_a_city_export"
     assert not payload["task3b_exported"]
     assert (
-        payload["all_sha256"]
-        == hashlib.sha256(
-            json.dumps(
-                [
-                    "BlockLandUse",
-                    "BlockLandUseType",
-                    "BlockPOI",
-                    "BlockPOIType",
-                    "BridgeCrossing",
-                    "CityBlock",
-                    "CityBlockCatalog",
-                    "CityBlueprint",
-                    "GateDecision",
-                    "GateThresholds",
-                    "GateVersions",
-                    "GenerationPipeline",
-                    "GeneratedCityMap",
-                    "GeneratorV2",
-                    "LandUseCatalog",
-                    "MORPHOLOGY_ARCHETYPES",
-                    "MorphologyArchetype",
-                    "MorphologyQualityMetrics",
-                    "MorphologyQualityGate",
-                    "Node",
-                    "NodeKind",
-                    "PhysicalStreet",
-                    "PhysicalStreetPlan",
-                    "PreviewCityTopology",
-                    "RoadClass",
-                    "RoadLink",
-                    "RoadNetworkCSR",
-                    "RealisticStreetNetwork",
-                    "RealisticCityQualityResult",
-                    "StreetNetworkMorphometrics",
-                    "TerrainField",
-                    "TopologyValidationIssue",
-                    "TopologyValidationReport",
-                    "TurnAuthorityCatalog",
-                    "TurnMovement",
-                    "TurnType",
-                    "UrbanCenter",
-                    "UrbanFormField",
-                    "WeakConnectivityRepairResult",
-                    "WeakConnectivityReport",
-                    "analyze_weak_connectivity",
-                    "build_block_land_use_catalog",
-                    "build_road_network_csr",
-                    "build_hierarchical_street_skeleton",
-                    "build_continuous_local_fabric",
-                    "build_terrain_field",
-                    "build_urban_form_field",
-                    "compute_street_network_morphometrics",
-                    "compute_morphology_quality_metrics",
-                    "compile_turn_authority",
-                    "compile_planar_city_blocks",
-                    "empirical_street_network_references",
-                    "evaluate_morphology_quality_gate",
-                    "generate_city_map",
-                    "get_morphology_archetype",
-                    "repair_weak_connectivity",
-                    "validate_road_network_topology",
-                ],
-                separators=(",", ":"),
-            ).encode()
-        ).hexdigest()
+        payload["all_sha256"] == "d9ecd1fafb10ff370d8a5662392ba29891bb527823cd88ae977fbb6fc0c54171"
     )
 
 
@@ -387,129 +323,18 @@ def test_authority_records_are_deeply_frozen() -> None:
 
     digest = SOURCE_FINGERPRINT
     layouts = {
-        V2EmbeddingEdge: (
-            "embedding_edge_id",
-            "semantic_id",
-            "source_road_id",
-            "source_road_semantic_id",
-            "start_node_id",
-            "end_node_id",
-            "start_node_semantic_id",
-            "end_node_semantic_id",
-            "points_mm",
-            "layer",
-            "facility",
-            "source_fingerprint",
-        ),
-        V2HalfEdge: (
-            "half_edge_id",
-            "semantic_id",
-            "embedding_edge_id",
-            "source_road_id",
-            "origin_node_id",
-            "destination_node_id",
-            "points_mm",
-            "twin_id",
-            "next_id",
-            "prev_id",
-            "left_face_id",
-        ),
-        V2FaceBoundary: (
-            "boundary_id",
-            "semantic_id",
-            "half_edge_ids",
-            "polygon_mm",
-            "signed_twice_area_mm2",
-            "component_id",
-            "role",
-            "interior_witness_mm",
-        ),
-        V2Face: (
-            "face_id",
-            "semantic_id",
-            "is_unbounded",
-            "role",
-            "outer_boundary_id",
-            "hole_boundary_ids",
-            "unbounded_component_boundary_ids",
-            "owner_tile",
-            "interior_witness_mm",
-            "void_road_semantic_ids",
-            "void_ramp_semantic_ids",
-            "source_fingerprint",
-        ),
-        V2RampIncidence: (
-            "ramp_incidence_id",
-            "semantic_id",
-            "source_road_id",
-            "source_road_semantic_id",
-            "start_node_id",
-            "end_node_id",
-            "start_node_semantic_id",
-            "end_node_semantic_id",
-            "source_fingerprint",
-        ),
-        V2Block: (
-            "block_id",
-            "semantic_id",
-            "parent_face_id",
-            "subdivision_schema",
-            "outer_polygon_mm",
-            "hole_polygons_mm",
-            "net_area_mm2",
-            "perimeter_squared_terms",
-            "perimeter_m",
-            "frontage_road_ids",
-            "access_node_ids",
-            "primary_access_node_id",
-            "interior_witness_mm",
-            "source_fingerprint",
-        ),
-        V2BlockAccessIndex: (
-            "block_to_road_ids",
-            "block_to_node_ids",
-            "road_to_block_ids",
-            "node_to_block_ids",
-            "primary_access_by_block",
-            "incidence_visit_count",
-        ),
-        V2FaceTileClip: (
-            "clip_id",
-            "face_id",
-            "face_semantic_id",
-            "tile_coordinate",
-            "diagnostic_polygons_mm",
-            "exact_net_area_mm2",
-            "diagnostic_twice_area_mm2",
-            "is_owner",
-        ),
-        ScalableBlockAuthority: (
-            "schema_version",
-            "source_network_fingerprint",
-            "embedding_policy",
-            "tile_policy",
-            "subdivision_schema",
-            "extent_mm",
-            "tile_coordinates",
-            "embedding_edges",
-            "ramp_incidence",
-            "half_edges",
-            "boundaries",
-            "faces",
-            "blocks",
-            "access_index",
-            "tile_clips",
-            "vertex_count",
-            "edge_count",
-            "face_count",
-            "component_count",
-            "euler_lhs",
-            "euler_rhs",
-            "boundary_half_edge_occurrence_count",
-            "fingerprint",
-        ),
+        V2EmbeddingEdge: "embedding_edge_id semantic_id source_road_id source_road_semantic_id start_node_id end_node_id start_node_semantic_id end_node_semantic_id points_mm layer facility source_fingerprint",
+        V2HalfEdge: "half_edge_id semantic_id embedding_edge_id source_road_id origin_node_id destination_node_id points_mm twin_id next_id prev_id left_face_id",
+        V2FaceBoundary: "boundary_id semantic_id half_edge_ids polygon_mm signed_twice_area_mm2 component_id role interior_witness_mm",
+        V2Face: "face_id semantic_id is_unbounded role outer_boundary_id hole_boundary_ids unbounded_component_boundary_ids owner_tile interior_witness_mm void_road_semantic_ids void_ramp_semantic_ids source_fingerprint",
+        V2RampIncidence: "ramp_incidence_id semantic_id source_road_id source_road_semantic_id start_node_id end_node_id start_node_semantic_id end_node_semantic_id source_fingerprint",
+        V2Block: "block_id semantic_id parent_face_id subdivision_schema outer_polygon_mm hole_polygons_mm net_area_mm2 perimeter_squared_terms perimeter_m frontage_road_ids access_node_ids primary_access_node_id interior_witness_mm source_fingerprint",
+        V2BlockAccessIndex: "block_to_road_ids block_to_node_ids road_to_block_ids node_to_block_ids primary_access_by_block incidence_visit_count",
+        V2FaceTileClip: "clip_id face_id face_semantic_id tile_coordinate diagnostic_polygons_mm exact_net_area_mm2 diagnostic_twice_area_mm2 is_owner",
+        ScalableBlockAuthority: "schema_version source_network_fingerprint embedding_policy tile_policy subdivision_schema extent_mm tile_coordinates embedding_edges ramp_incidence half_edges boundaries faces blocks access_index tile_clips vertex_count edge_count face_count component_count euler_lhs euler_rhs boundary_half_edge_occurrence_count fingerprint",
     }
-    for record_type, expected in layouts.items():
+    for record_type, names in layouts.items():
+        expected = tuple(names.split())
         assert tuple(field.name for field in fields(record_type)) == expected
         assert record_type.__slots__ == expected
 
@@ -1007,3 +832,175 @@ def test_void_faces_emit_no_blocks_while_ordinary_neighbors_do() -> None:
         for face in authority.faces
         if face.face_id not in developable_ids
     )
+
+
+def test_square_tile_ownership_and_raw_tile_domains_fail_closed() -> None:
+    nodes, roads = _square_fixture()
+    authority = _build_raw(nodes, roads)
+    face = next(face for face in authority.faces if not face.is_unbounded)
+    errors = []
+    for kwargs in (
+        {"tile_coordinates": ()},
+        {"tile_coordinates": ((0, 0), (0, 0))},
+        {"tile_order": ()},
+        {"tile_order": ((1, 0),)},
+    ):
+        try:
+            _build_raw(nodes, roads, **kwargs)
+        except ValueError as error:
+            errors.append(str(error))
+
+    assert (
+        face.owner_tile,
+        tuple((clip.tile_coordinate, clip.is_owner) for clip in authority.tile_clips),
+        errors,
+    ) == (
+        (0, 0),
+        (((0, 0), True),),
+        [
+            "tile_coordinates must equal the canonical tile domain",
+            "tile_coordinates must equal the canonical tile domain",
+            "tile_order must be a canonical tile permutation",
+            "tile_order must be a canonical tile permutation",
+        ],
+    )
+
+
+def test_tile_clip_uses_exact_fraction_area_and_not_rounded_diagnostic_area() -> None:
+    points = ((1_999_999, 0), (2_000_001, 0), (2_000_001, 3))
+    nodes = tuple(_node(index, *point) for index, point in enumerate(points))
+    roads = tuple(
+        _road(index, left, right, (points[left], points[right]))
+        for index, (left, right) in enumerate(((0, 1), (1, 2), (2, 0)))
+    )
+    authority = _build_raw(
+        nodes,
+        roads,
+        extent_mm=(0, 3_999_999, 0, 4),
+        tile_coordinates=((0, 0), (1, 0)),
+        tile_order=((1, 0), (0, 0)),
+    )
+    face = next(face for face in authority.faces if not face.is_unbounded)
+    clips = tuple(clip for clip in authority.tile_clips if clip.face_id == face.face_id)
+
+    assert tuple((clip.tile_coordinate, clip.exact_net_area_mm2) for clip in clips) == (
+        ((0, 0), Fraction(3, 4)),
+        ((1, 0), Fraction(9, 4)),
+    )
+    assert face.owner_tile == (0, 0)
+    assert sum((clip.exact_net_area_mm2 for clip in clips), Fraction()) == 3
+    assert clips[0].diagnostic_twice_area_mm2 != 2 * clips[0].exact_net_area_mm2
+
+
+def test_concave_clip_splits_disconnected_components_without_zero_width_bridge() -> None:
+    points = (
+        (0, 0),
+        (1_500_000, 0),
+        (1_500_000, 3_999_999),
+        (1_000_000, 3_999_999),
+        (1_000_000, 1_000_000),
+        (500_000, 1_000_000),
+        (500_000, 3_999_999),
+        (0, 3_999_999),
+    )
+    nodes = tuple(_node(index, *point) for index, point in enumerate(points))
+    roads = tuple(
+        _road(index, index, (index + 1) % len(points), (point, points[(index + 1) % len(points)]))
+        for index, point in enumerate(points)
+    )
+    authority = _build_raw(
+        nodes,
+        roads,
+        extent_mm=(0, 1_999_999, 0, 3_999_999),
+        tile_coordinates=((0, 0), (0, 1)),
+    )
+    face = next(face for face in authority.faces if not face.is_unbounded)
+    clip = next(
+        clip
+        for clip in authority.tile_clips
+        if clip.face_id == face.face_id and clip.tile_coordinate == (0, 1)
+    )
+
+    assert len(clip.diagnostic_polygons_mm) == 2
+    assert all(
+        ring[0] == ring[-1] and len(set(ring[:-1])) == 4 for ring in clip.diagnostic_polygons_mm
+    )
+
+
+def test_nested_annulus_tile_ownership_is_input_order_invariant() -> None:
+    outer_nodes, outer_roads = _square_fixture(size=10_000)
+    inner_nodes, inner_roads = _square_fixture(
+        x0=3_000, y0=3_000, size=4_000, node_base=4, road_base=4
+    )
+    canonical = _build_raw(outer_nodes + inner_nodes, outer_roads + inner_roads)
+    reverse = _build_raw(
+        tuple(reversed(outer_nodes + inner_nodes)),
+        tuple(reversed(outer_roads + inner_roads)),
+        tile_order=((0, 0),),
+    )
+
+    assert canonical == reverse
+    assert all(face.owner_tile == (0, 0) for face in canonical.faces if not face.is_unbounded)
+
+
+def test_exact_clips_cover_annulus_across_four_tiles_and_ignore_traversal() -> None:
+    outer_nodes, outer_roads = _square_fixture(x0=500_000, y0=500_000, size=3_000_000)
+    inner_nodes, inner_roads = _square_fixture(
+        x0=1_500_000, y0=1_500_000, size=1_000_000, node_base=4, road_base=4
+    )
+    tiles = ((0, 0), (1, 0), (0, 1), (1, 1))
+    values = outer_nodes + inner_nodes, outer_roads + inner_roads
+    canonical = _build_raw(
+        *values,
+        extent_mm=(0, 3_999_999, 0, 3_999_999),
+        tile_coordinates=tiles,
+        tile_order=tiles,
+    )
+    reverse = _build_raw(
+        tuple(reversed(values[0])),
+        tuple(reversed(values[1])),
+        extent_mm=(0, 3_999_999, 0, 3_999_999),
+        tile_coordinates=tuple(reversed(tiles)),
+        tile_order=tuple(reversed(tiles)),
+    )
+    annulus = next(block for block in canonical.blocks if block.hole_polygons_mm)
+    clips = tuple(clip for clip in canonical.tile_clips if clip.face_id == annulus.parent_face_id)
+
+    assert canonical == reverse
+    assert len(clips) == 4 and sum(clip.is_owner for clip in clips) == 1
+    assert sum((clip.exact_net_area_mm2 for clip in clips), Fraction()) == annulus.net_area_mm2
+    assert next(clip.tile_coordinate for clip in clips if clip.is_owner) == (0, 0)
+
+
+def test_seam_only_contact_emits_no_clip_and_diagnostic_collapse_rejects() -> None:
+    nodes, roads = _square_fixture(x0=1_000_000, size=1_000_000)
+    authority = _build_raw(
+        nodes,
+        roads,
+        extent_mm=(0, 3_999_999, 0, 1_999_999),
+        tile_coordinates=((0, 0), (1, 0)),
+    )
+    face = next(face for face in authority.faces if not face.is_unbounded)
+    tiny = ((1_999_999, 0), (2_000_003, 0), (2_000_003, 2))
+    tiny_nodes = tuple(_node(index, *point) for index, point in enumerate(tiny))
+    tiny_roads = tuple(
+        _road(index, left, right, (tiny[left], tiny[right]))
+        for index, (left, right) in enumerate(((0, 1), (1, 2), (2, 0)))
+    )
+    error = None
+    try:
+        _build_raw(
+            tiny_nodes,
+            tiny_roads,
+            extent_mm=(0, 3_999_999, 0, 3),
+            tile_coordinates=((0, 0), (1, 0)),
+        )
+    except ValueError as caught:
+        error = str(caught)
+
+    assert (
+        tuple(
+            clip.tile_coordinate for clip in authority.tile_clips if clip.face_id == face.face_id
+        ),
+        error,
+    ) == (((0, 0),), "positive exact clip collapses in diagnostic integer-mm geometry")
