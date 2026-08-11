@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+import math
 from dataclasses import dataclass
 from enum import Enum
 from math import isfinite
+from typing import Sequence
 
 from metroflow.city.scale import CityScaleSpec
 
@@ -258,3 +262,251 @@ class PhysicalRoadRecord:
             points,
             self.layer,
         )
+
+
+@dataclass(frozen=True, slots=True)
+class ScalableTerrainField:
+    width_m: float
+    height_m: float
+    cell_size_m: float
+    tile_size_m: float
+    seed: int
+    style_id: str
+    barrier_seam_x_mm: int | None
+    fingerprint: str
+
+    def __post_init__(self) -> None:
+        values = (self.width_m, self.height_m, self.cell_size_m, self.tile_size_m)
+        if any(type(value) not in (int, float) for value in values):
+            raise TypeError("terrain dimensions must be exact built-in numbers")
+        width_m, height_m, cell_size_m, tile_size_m = map(float, values)
+        if not all(isfinite(value) and value > 0.0 for value in values[:3]):
+            raise ValueError("terrain dimensions must be finite and positive")
+        if cell_size_m > TERRAIN_CELL_SIZE_M:
+            raise ValueError("terrain cell_size_m must be in (0, 50]")
+        if not isfinite(tile_size_m) or tile_size_m != TILE_SIZE_M:
+            raise ValueError("terrain tile_size_m must be 2000")
+        seed = _require_int("terrain seed", self.seed)
+        style_id = _snapshot_str("terrain style_id", self.style_id)
+        if style_id not in STYLE_IDS:
+            raise ValueError("terrain style_id must be a supported style")
+        barrier = self.barrier_seam_x_mm
+        if barrier is not None:
+            barrier = _require_int("barrier_seam_x_mm", barrier)
+        if style_id == "river_constrained":
+            if barrier != 0:
+                raise ValueError("river terrain requires the explicit x=0 barrier seam")
+        elif barrier is not None:
+            raise ValueError("only river terrain may declare a barrier seam")
+        object.__setattr__(self, "width_m", width_m)
+        object.__setattr__(self, "height_m", height_m)
+        object.__setattr__(self, "cell_size_m", cell_size_m)
+        object.__setattr__(self, "tile_size_m", tile_size_m)
+        object.__setattr__(self, "seed", seed)
+        object.__setattr__(self, "style_id", style_id)
+        object.__setattr__(self, "barrier_seam_x_mm", barrier)
+        object.__setattr__(self, "fingerprint", _require_digest("fingerprint", self.fingerprint))
+
+    def cell_key_at(self, x_m: float, y_m: float) -> tuple[int, int]:
+        return (
+            math.floor(float(x_m) / self.cell_size_m),
+            math.floor(float(y_m) / self.cell_size_m),
+        )
+
+    def intensity_at(self, x_m: float, y_m: float) -> float:
+        cell_x, cell_y = self.cell_key_at(x_m, y_m)
+        payload = f"{self.seed}:{self.style_id}:{cell_x}:{cell_y}".encode()
+        value = int.from_bytes(hashlib.sha256(payload).digest()[:4], "big")
+        return 0.12 + 0.56 * value / 4_294_967_295.0
+
+    def spacing_at(self, x_m: float, y_m: float) -> float:
+        return max(80.0, min(220.0, 220.0 - 140.0 * math.sqrt(self.intensity_at(x_m, y_m))))
+
+    def is_barrier_at(self, x_m: float, y_m: float) -> bool:
+        return (
+            self.barrier_seam_x_mm is not None
+            and abs(float(x_m) * 1_000.0 - self.barrier_seam_x_mm) < 0.5
+        )
+
+
+def _semantic_id(parts: object) -> str:
+    payload = json.dumps(parts, separators=(",", ":"), sort_keys=True, default=str).encode()
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _terrain_fingerprint(
+    width_m: float,
+    height_m: float,
+    seed: int,
+    style_id: str,
+    barrier_seam_x_mm: int | None,
+    cell_size_m: float = TERRAIN_CELL_SIZE_M,
+    tile_size_m: float = TILE_SIZE_M,
+) -> str:
+    return _semantic_id(
+        (
+            SCHEMA_VERSION,
+            "terrain",
+            width_m,
+            height_m,
+            cell_size_m,
+            tile_size_m,
+            seed,
+            style_id,
+            barrier_seam_x_mm,
+        )
+    )
+
+
+def _extent_mm(area_km2: float) -> tuple[int, int]:
+    if type(area_km2) not in (int, float):
+        raise TypeError("area_km2 must be an exact built-in number")
+    area = float(area_km2)
+    if not isfinite(area) or area <= 0:
+        raise ValueError("area_km2 must be finite and positive")
+    width_m = math.sqrt(area * 1_000_000.0 * 9.0 / 7.0)
+    return (int(round(width_m * 1_000.0)), int(round(width_m * 7.0 / 9.0 * 1_000.0)))
+
+
+def _tile_domain(extent: tuple[int, int, int, int]) -> tuple[tuple[int, int], ...]:
+    if not isinstance(extent, tuple) or len(extent) != 4:
+        raise TypeError("extent must be a four-integer tuple")
+    min_x, max_x, min_y, max_y = (_require_int("extent", value) for value in extent)
+    tile_mm = int(TILE_SIZE_M * 1_000.0)
+    return tuple(
+        (tile_x, tile_y)
+        for tile_y in range(math.floor(min_y / tile_mm), math.floor(max_y / tile_mm) + 1)
+        for tile_x in range(math.floor(min_x / tile_mm), math.floor(max_x / tile_mm) + 1)
+    )
+
+
+def _validate_tile_order(
+    canonical: tuple[tuple[int, int], ...],
+    tile_order: Sequence[tuple[int, int]] | None,
+) -> None:
+    if tile_order is None:
+        return
+    supplied = tuple(_snapshot_int_pair("tile_order", pair) for pair in tile_order)
+    if len(supplied) != len(canonical) or set(supplied) != set(canonical):
+        raise ValueError("tile_order must be an exact permutation of the canonical tile domain")
+
+
+def _seam_coordinates(minimum: int, maximum: int) -> tuple[int, ...]:
+    minimum = _require_int("minimum", minimum)
+    maximum = _require_int("maximum", maximum)
+    if minimum > maximum:
+        raise ValueError("minimum must not exceed maximum")
+    tile_mm = int(TILE_SIZE_M * 1_000.0)
+    return tuple(
+        index * tile_mm
+        for index in range(math.ceil(minimum / tile_mm), math.floor(maximum / tile_mm) + 1)
+    )
+
+
+def _local_axis(
+    minimum: int,
+    maximum: int,
+    terrain: ScalableTerrainField,
+    axis: str,
+    *,
+    fixed_mm: int = 0,
+) -> tuple[int, ...]:
+    minimum = _require_int("minimum", minimum)
+    maximum = _require_int("maximum", maximum)
+    fixed_mm = _require_int("fixed_mm", fixed_mm)
+    if minimum >= maximum:
+        raise ValueError("axis extent must be increasing")
+    if axis not in {"x", "y"}:
+        raise ValueError("axis must be x or y")
+    seams = tuple(value for value in _seam_coordinates(minimum, maximum) if value > minimum)
+    values = [minimum]
+    while values[-1] < maximum:
+        current = values[-1]
+        if axis == "x":
+            spacing_m = terrain.spacing_at(current / 1_000.0, fixed_mm / 1_000.0)
+        else:
+            spacing_m = terrain.spacing_at(fixed_mm / 1_000.0, current / 1_000.0)
+        nominal_right = current + int(round(spacing_m * 1_000.0))
+        next_seam = next((seam for seam in seams if seam > current), maximum)
+        right = min(nominal_right, next_seam, maximum)
+        if right <= current:
+            raise ValueError("terrain lattice spacing must advance")
+        values.append(right)
+    return tuple(values)
+
+
+def _row_interval_authority(
+    left_x_mm: int,
+    right_x_mm: int,
+    row_y_mm: int,
+    terrain: ScalableTerrainField,
+    extent: tuple[int, int, int, int],
+) -> RowIntervalAuthority:
+    left_x_mm = _require_int("left_x_mm", left_x_mm)
+    right_x_mm = _require_int("right_x_mm", right_x_mm)
+    row_y_mm = _require_int("row_y_mm", row_y_mm)
+    if right_x_mm <= left_x_mm:
+        raise ValueError("row interval must advance")
+    boundaries = tuple(sorted({extent[0], *_seam_coordinates(extent[0], extent[1]), extent[1]}))
+    tile_left = max(value for value in boundaries if value <= left_x_mm)
+    tile_right = min(value for value in boundaries if value > left_x_mm)
+    nominal = int(round(terrain.spacing_at(left_x_mm / 1_000.0, row_y_mm / 1_000.0) * 1_000.0))
+    realized = right_x_mm - left_x_mm
+    return RowIntervalAuthority(
+        row_y_mm,
+        left_x_mm,
+        tile_left,
+        tile_right,
+        terrain.cell_key_at(left_x_mm / 1_000.0, row_y_mm / 1_000.0),
+        nominal,
+        realized,
+        right_x_mm == tile_right and realized < nominal,
+    )
+
+
+def _validate_row_interval_authority(
+    road: PhysicalRoadRecord,
+    terrain: ScalableTerrainField,
+    extent: tuple[int, int, int, int],
+) -> None:
+    authority = road.row_interval
+    if authority is None:
+        raise ValueError("road has no row interval authority")
+    expected = _row_interval_authority(
+        authority.left_x_mm,
+        authority.left_x_mm + authority.realized_spacing_mm,
+        authority.row_y_mm,
+        terrain,
+        extent,
+    )
+    if authority != expected:
+        raise ValueError("row interval authority does not match terrain owner and seam rule")
+    expected_points = (
+        (authority.left_x_mm, authority.row_y_mm),
+        (authority.left_x_mm + authority.realized_spacing_mm, authority.row_y_mm),
+    )
+    if road.points_mm != expected_points:
+        raise ValueError("horizontal road geometry does not match its row interval authority")
+
+
+def _monotone_partial_match(
+    lower: Sequence[int],
+    upper: Sequence[int],
+) -> tuple[tuple[int, int], ...]:
+    if len(lower) < 2 or len(upper) < 2:
+        raise ValueError("row strip requires at least two boundary vertices")
+    if len(lower) <= len(upper):
+        pairs = tuple(
+            (index, round(index * (len(upper) - 1) / (len(lower) - 1)))
+            for index in range(len(lower))
+        )
+    else:
+        pairs = tuple(
+            (round(index * (len(lower) - 1) / (len(upper) - 1)), index)
+            for index in range(len(upper))
+        )
+    if any(left >= right for (left, _), (right, _) in zip(pairs, pairs[1:])) or any(
+        left >= right for (_, left), (_, right) in zip(pairs, pairs[1:])
+    ):
+        raise ValueError("row strip matching must be strictly monotone")
+    return pairs
