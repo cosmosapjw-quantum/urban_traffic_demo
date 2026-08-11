@@ -863,9 +863,10 @@ def test_square_tile_ownership_and_raw_tile_domains_fail_closed() -> None:
     for item in fields(authority):
         object.__setattr__(partial, item.name, getattr(authority, item.name))
     object.__setattr__(partial, "extent_mm", (0, 500, 0, 1_000))
+    object.__setattr__(partial, "fingerprint", "")
     clip = replace(authority.tile_clips[0], diagnostic_polygons_mm=(((0, 0), (500, 0), (500, 1_000), (0, 1_000), (0, 0)),), exact_net_area_mm2=Fraction(500_000), diagnostic_twice_area_mm2=1_000_000)
     object.__setattr__(partial, "tile_clips", (clip,))
-    reject("clip area conservation", lambda: blocks._validate_tile_clips_against_faces(partial))
+    reject("clip area conservation", lambda: blocks.validate_scalable_block_authority(partial))
     # fmt: on
     assert failures == []
 
