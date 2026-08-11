@@ -69,3 +69,22 @@ def test_city_scale_spec_rejects_non_authoritative_or_nonfinite_area(
     """Coercing area inputs would erase the city boundary's unit authority."""
     with pytest.raises(error, match="area"):
         CityScaleSpec(target_population=100_000, urbanized_area_km2=area)
+
+
+@pytest.mark.parametrize(
+    ("population", "area", "dimension"),
+    [
+        (99_999, 40.0, "population"),
+        (1_000_001, 150.0, "population"),
+        (100_000, 0.0, "area"),
+        (100_000, 400.1, "area"),
+        (100_000, 40.1, "density"),
+        (1_000_000, 149.0, "density"),
+    ],
+)
+def test_city_scale_spec_enforces_population_area_and_density_bounds(
+    population: int, area: float, dimension: str
+) -> None:
+    """Removing any scale bound would admit an invalid city specification."""
+    with pytest.raises(ValueError, match=dimension):
+        CityScaleSpec(target_population=population, urbanized_area_km2=area)
