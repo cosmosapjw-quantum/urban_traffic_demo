@@ -1,3 +1,4 @@
+import hashlib
 import subprocess
 import sys
 from dataclasses import FrozenInstanceError, fields, replace
@@ -8,6 +9,41 @@ from metroflow.city.scale import CityScaleSpec
 
 
 _DIGEST = "0" * 64
+
+
+def _digest(label: str) -> str:
+    return hashlib.sha256(label.encode()).hexdigest()
+
+
+def _road(
+    road_id: int,
+    label: str,
+    start_node_id: int,
+    end_node_id: int,
+    points_mm: tuple[tuple[int, int], ...],
+):
+    from metroflow.city.scalable_topology import (
+        FacilityKind,
+        PhysicalRoadRecord,
+        RoadHierarchy,
+    )
+
+    return PhysicalRoadRecord(
+        road_id,
+        _digest(label),
+        start_node_id,
+        end_node_id,
+        points_mm,
+        RoadHierarchy.LOCAL,
+        FacilityKind.SURFACE,
+        0,
+        frozenset({"forward", "reverse"}),
+        None,
+        None,
+        None,
+        "v2:surface:local",
+        "test",
+    )
 
 
 def test_scalable_topology_import_isolated() -> None:
@@ -341,3 +377,127 @@ def test_row_interval_authority_equals_literal_geometry_and_terrain_owner() -> N
     forged = replace(authority, owner_cell=(38, 1))
     with pytest.raises(ValueError, match="row interval authority"):
         _validate_row_interval_authority(replace(road, row_interval=forged), terrain, extent)
+
+
+def test_physical_record_audit_counts_exact_intersections() -> None:
+    """Removing the record audit would admit unresolved same-layer crossings."""
+    from metroflow.city.scalable_topology import PhysicalNodeRecord, audit_physical_records
+
+    nodes = (
+        PhysicalNodeRecord(0, _digest("west"), -10, 0, 0),
+        PhysicalNodeRecord(1, _digest("east"), 10, 0, 0),
+        PhysicalNodeRecord(2, _digest("south"), 0, -10, 0),
+        PhysicalNodeRecord(3, _digest("north"), 0, 10, 0),
+    )
+    audit = audit_physical_records(
+        nodes,
+        (
+            _road(0, "horizontal", 0, 1, ((-10, 0), (10, 0))),
+            _road(1, "vertical", 2, 3, ((0, -10), (0, 10))),
+        ),
+    )
+
+    assert not audit.is_connected
+    assert audit.same_layer_proper_crossing_count == 1
+    assert audit.t_touch_count == 0
+    assert audit.collinear_overlap_count == 0
+    assert audit.endpoint_anchor_mismatch_count == 0
+
+
+def test_physical_record_audit_rejects_duplicate_ids_and_semantics() -> None:
+    from metroflow.city.scalable_topology import PhysicalNodeRecord, audit_physical_records
+
+    duplicate_nodes = (
+        PhysicalNodeRecord(0, _digest("node-a"), 0, 0, 0),
+        PhysicalNodeRecord(0, _digest("node-b"), 1, 0, 0),
+    )
+    with pytest.raises(ValueError, match="duplicate node"):
+        audit_physical_records(duplicate_nodes, ())
+
+    nodes = (
+        PhysicalNodeRecord(0, _digest("node-a"), 0, 0, 0),
+        PhysicalNodeRecord(1, _digest("node-b"), 1, 0, 0),
+    )
+    road = _road(0, "road", 0, 1, ((0, 0), (1, 0)))
+    with pytest.raises(ValueError, match="duplicate road"):
+        audit_physical_records(nodes, (road, replace(road, road_id=1)))
+
+
+def test_physical_record_audit_tracks_connectivity_and_endpoint_layers() -> None:
+    from metroflow.city.scalable_topology import PhysicalNodeRecord, audit_physical_records
+
+    nodes = (
+        PhysicalNodeRecord(0, _digest("layer-a"), 0, 0, 1),
+        PhysicalNodeRecord(1, _digest("layer-b"), 1, 0, 0),
+        PhysicalNodeRecord(2, _digest("layer-c"), 2, 0, 0),
+    )
+    first = _road(0, "layer-road", 0, 1, ((0, 0), (1, 0)))
+    second = _road(1, "connected-road", 1, 2, ((1, 0), (2, 0)))
+
+    audit = audit_physical_records(nodes, (first, second))
+
+    assert audit.is_connected
+    assert audit.different_layer_false_junction_count == 1
+
+
+def test_record_audit_counts_touches_overlaps_self_intersections_and_welds() -> None:
+    from metroflow.city.scalable_topology import PhysicalNodeRecord, audit_physical_records
+
+    nodes = (
+        PhysicalNodeRecord(0, _digest("a"), 0, 0, 0),
+        PhysicalNodeRecord(1, _digest("b"), 3_000, 0, 0),
+        PhysicalNodeRecord(2, _digest("c"), 1_000, 2_000, 0),
+        PhysicalNodeRecord(3, _digest("d"), 0, 1_000, 0),
+    )
+    overlap = _road(0, "overlap", 0, 1, ((0, 0), (2_000, 0), (1_000, 0), (3_000, 0)))
+    foreign = _road(1, "touch", 2, 3, ((1_000, 2_000), (1_000, 0), (0, 1_000)))
+    returned = _road(2, "returned", 0, 3, ((0, 0), (1_000, 0), (0, 0), (0, 1_000)))
+    bow = _road(3, "bow", 0, 1, ((0, 0), (2_000, 2_000), (0, 2_000), (2_000, 0)))
+
+    audit = audit_physical_records(nodes, (overlap, foreign, returned, bow))
+
+    assert audit.t_touch_count >= 1
+    assert audit.collinear_overlap_count >= 1
+    assert audit.self_intersection_count >= 1
+    assert audit.nonadjacent_weld_count >= 1
+
+
+def test_segment_supercover_and_predicates_preserve_long_diagonal_events() -> None:
+    from metroflow.city.scalable_topology import (
+        _collinear_overlap,
+        _point_in_open_segment,
+        _proper_intersection,
+        _segment_supercover_cells,
+    )
+
+    assert _proper_intersection((0, 0), (10, 10), (0, 10), (10, 0))
+    assert _point_in_open_segment((5, 0), (0, 0), (10, 0))
+    assert _collinear_overlap((0, 0), (10, 0), (5, 0), (15, 0))
+    cells = _segment_supercover_cells((0, 0), (40_000_000, 40_000_000), 250_000)
+    assert len(cells) < 1_000
+    assert {(0, 0), (160, 160)} <= set(cells)
+
+
+def test_record_audit_counts_more_than_six_events_without_truncation() -> None:
+    from metroflow.city.scalable_topology import PhysicalNodeRecord, audit_physical_records
+
+    nodes = tuple(
+        PhysicalNodeRecord(index, _digest(f"many-node-{index}"), index * 1_000, 0, 0)
+        for index in range(16)
+    )
+    vertical = tuple(
+        _road(
+            index,
+            f"vertical-{index}",
+            index * 2,
+            index * 2 + 1,
+            ((index * 1_000, -10_000), (index * 1_000, 10_000)),
+        )
+        for index in range(8)
+    )
+    horizontal = _road(8, "horizontal-many", 0, 1, ((-1_000, 0), (8_000, 0)))
+
+    audit = audit_physical_records(nodes, vertical + (horizontal,))
+
+    assert audit.same_layer_proper_crossing_count == 8
+    assert audit.endpoint_anchor_mismatch_count == 18
