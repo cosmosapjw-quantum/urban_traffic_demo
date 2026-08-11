@@ -137,6 +137,22 @@ def public_compiled(public_sources):
     )
 
 
+@pytest.fixture(scope="module")
+def river_compiled():
+    from metroflow.city.scale import CityScaleSpec
+    from metroflow.city.scalable_blocks import build_scalable_block_authority
+    from metroflow.city.scalable_topology import build_scalable_street_network
+    from metroflow.city.scalable_topology_adapter import compile_scalable_topology
+
+    network = build_scalable_street_network(
+        CityScaleSpec(100_000, 40.0),
+        "river_constrained",
+        17,
+    )
+    blocks = build_scalable_block_authority(network)
+    return compile_scalable_topology(network, block_authority=blocks)
+
+
 def test_scalable_topology_adapter_public_api_is_exact() -> None:
     import metroflow.city.scalable_topology_adapter as adapter
     from metroflow.city.scalable_blocks import ScalableBlockAuthority
@@ -1091,6 +1107,41 @@ def test_public_compile_constructs_road_geometry_catalog_exactly_once(
     assert calls == 1
 
 
+def test_wrapper_constructor_rejects_nonexact_csr_nested_rows(
+    public_compiled,
+) -> None:
+    from dataclasses import replace
+
+    from metroflow.city.graph import Node, RoadNetworkCSR
+
+    class DerivedNode(Node):
+        pass
+
+    _, _, compiled = public_compiled
+    csr = compiled.road_csr
+    derived_nodes = tuple(
+        DerivedNode(
+            node.node_id,
+            node.kind,
+            node.x,
+            node.y,
+            node.zone_id,
+            node.signal_group_id,
+        )
+        for node in csr.nodes
+    )
+    derived_csr = RoadNetworkCSR(
+        nodes=derived_nodes,
+        links=csr.links,
+        turns=csr.turns,
+        bridge_crossings=csr.bridge_crossings,
+    )
+    assert type(derived_csr.nodes[0]) is DerivedNode
+
+    with pytest.raises(TypeError, match="CSR|road_csr"):
+        replace(compiled, road_csr=derived_csr)
+
+
 def test_public_validator_constructs_one_turn_catalog_validation_view(
     public_compiled,
     monkeypatch,
@@ -1115,3 +1166,291 @@ def test_public_validator_constructs_one_turn_catalog_validation_view(
     )
 
     assert calls == 1
+
+
+@pytest.mark.parametrize(
+    ("crosswalk_name", "road_group_name", "road_group_id_name"),
+    (
+        (
+            "structure_group_crosswalk",
+            "structure_group",
+            "structure_group_id",
+        ),
+        (
+            "failure_group_crosswalk",
+            "failure_group",
+            "bridge_group_id",
+        ),
+    ),
+)
+def test_wrapper_constructor_rejects_duplicate_group_semantics(
+    river_compiled,
+    crosswalk_name: str,
+    road_group_name: str,
+    road_group_id_name: str,
+) -> None:
+    from dataclasses import fields, replace
+
+    import metroflow.city.scalable_topology_adapter as adapter
+
+    rows = getattr(river_compiled, crosswalk_name)
+    assert len(rows) >= 2
+    assert {
+        getattr(row, road_group_name)
+        for row in river_compiled.road_crosswalk
+        if getattr(row, road_group_id_name) is not None
+    } == {row.semantic_group for row in rows}
+    duplicate = replace(rows[1], semantic_group=rows[0].semantic_group)
+    values = {
+        field.name: getattr(river_compiled, field.name)
+        for field in fields(river_compiled)
+        if field.name != "fingerprint"
+    }
+    values[crosswalk_name] = (rows[0], duplicate, *rows[2:])
+
+    with pytest.raises(ValueError, match="duplicate|unique|group"):
+        adapter._new_compiled_wrapper(**values)
+
+
+def test_wrapper_constructor_rejects_resealed_turn_distribution_counts(
+    public_compiled,
+) -> None:
+    from dataclasses import fields, replace
+
+    import metroflow.city.scalable_topology_adapter as adapter
+
+    _, _, compiled = public_compiled
+    metadata = dict(compiled.metadata_items)
+    metadata["permitted_turn_movement_count"] += 1
+    metadata["forbidden_u_turn_count"] -= 1
+    topology = replace(compiled.topology, metadata=metadata)
+    values = {
+        field.name: getattr(compiled, field.name)
+        for field in fields(compiled)
+        if field.name != "fingerprint"
+    }
+    values.update(
+        topology=topology,
+        metadata_items=tuple(metadata.items()),
+        permitted_turn_count=compiled.permitted_turn_count + 1,
+        forbidden_u_turn_count=compiled.forbidden_u_turn_count - 1,
+    )
+
+    with pytest.raises(ValueError, match="turn|count"):
+        adapter._new_compiled_wrapper(**values)
+
+
+def test_wrapper_constructor_rejects_resealed_source_node_count_mismatch(
+    public_compiled,
+) -> None:
+    from dataclasses import fields, replace
+
+    import metroflow.city.scalable_topology_adapter as adapter
+
+    _, _, compiled = public_compiled
+    metadata = dict(compiled.metadata_items)
+    metadata["source_node_count"] += 1
+    values = {
+        field.name: getattr(compiled, field.name)
+        for field in fields(compiled)
+        if field.name != "fingerprint"
+    }
+    values.update(
+        topology=replace(compiled.topology, metadata=metadata),
+        metadata_items=tuple(metadata.items()),
+        source_node_count=compiled.source_node_count + 1,
+    )
+
+    with pytest.raises(ValueError, match="source|node|count"):
+        adapter._new_compiled_wrapper(**values)
+
+
+@pytest.mark.parametrize(
+    "metadata_name",
+    (
+        "physical_centerline_count",
+        "geometry_assignment_count",
+        "road_section_assignment_count",
+        "node_interface_count",
+        "turn_authority_pair_count",
+        "bridge_crossing_count",
+    ),
+)
+def test_wrapper_constructor_rejects_resealed_derived_metadata_count(
+    public_compiled,
+    metadata_name: str,
+) -> None:
+    from dataclasses import fields, replace
+
+    import metroflow.city.scalable_topology_adapter as adapter
+
+    _, _, compiled = public_compiled
+    metadata = dict(compiled.metadata_items)
+    metadata[metadata_name] += 1
+    values = {
+        field.name: getattr(compiled, field.name)
+        for field in fields(compiled)
+        if field.name != "fingerprint"
+    }
+    values.update(
+        topology=replace(compiled.topology, metadata=metadata),
+        metadata_items=tuple(metadata.items()),
+    )
+    scalar_name = {
+        "turn_authority_pair_count": "compiled_turn_count",
+        "bridge_crossing_count": "bridge_crossing_count",
+    }.get(metadata_name)
+    if scalar_name is not None:
+        values[scalar_name] += 1
+
+    with pytest.raises(ValueError, match="metadata|count"):
+        adapter._new_compiled_wrapper(**values)
+
+
+@pytest.mark.parametrize(
+    "catalog_row",
+    ("centerline", "geometry_assignment", "section_assignment", "node_interface"),
+)
+def test_wrapper_constructor_rejects_resealed_catalog_coverage_count(
+    public_compiled,
+    catalog_row: str,
+) -> None:
+    from dataclasses import fields, replace
+
+    import metroflow.city.scalable_topology_adapter as adapter
+    from metroflow.map.node_compiler import NodeInterfaceCatalog
+    from metroflow.map.road_geometry import RoadGeometryCatalog
+    from metroflow.map.section_compiler import RoadSectionCatalog
+
+    _, _, compiled = public_compiled
+    topology = compiled.topology
+    geometry = topology.road_geometry
+    sections = topology.road_sections
+    interfaces = topology.node_interfaces
+    metadata = dict(compiled.metadata_items)
+    replacements = {}
+    if catalog_row == "centerline":
+        last = geometry.centerlines[-1]
+        extra = replace(
+            last,
+            geometry_id=last.geometry_id + 1,
+            source_ref=f"{last.source_ref}:extra",
+            corridor_id=last.corridor_id + 1,
+        )
+        geometry = RoadGeometryCatalog(
+            geometry.centerlines + (extra,), geometry.assignments
+        )
+        metadata["physical_centerline_count"] += 1
+    elif catalog_row == "geometry_assignment":
+        geometry = RoadGeometryCatalog(
+            geometry.centerlines, geometry.assignments[:-1]
+        )
+        metadata["geometry_assignment_count"] -= 1
+    elif catalog_row == "section_assignment":
+        sections = RoadSectionCatalog(
+            sections.profiles, sections.assignments[:-1]
+        )
+        metadata["road_section_assignment_count"] -= 1
+    else:
+        interfaces = NodeInterfaceCatalog(interfaces.interfaces[:-1])
+        metadata["node_interface_count"] -= 1
+    metadata["road_geometry_fingerprint"] = geometry.fingerprint
+    metadata["road_section_fingerprint"] = sections.fingerprint
+    metadata["node_interface_fingerprint"] = interfaces.fingerprint
+    replacements.update(
+        road_geometry=geometry,
+        road_sections=sections,
+        node_interfaces=interfaces,
+        metadata=metadata,
+    )
+    values = {
+        field.name: getattr(compiled, field.name)
+        for field in fields(compiled)
+        if field.name != "fingerprint"
+    }
+    values.update(
+        topology=replace(topology, **replacements),
+        metadata_items=tuple(metadata.items()),
+        road_geometry_fingerprint=geometry.fingerprint,
+        road_section_fingerprint=sections.fingerprint,
+        node_interface_fingerprint=interfaces.fingerprint,
+    )
+
+    with pytest.raises(ValueError, match="coverage|catalog|count"):
+        adapter._new_compiled_wrapper(**values)
+
+
+@pytest.mark.parametrize(
+    "catalog_row",
+    (
+        "centerline",
+        "geometry_assignment",
+        "section_profile",
+        "section_assignment",
+        "node_interface",
+    ),
+)
+def test_wrapper_constructor_rejects_nonexact_catalog_nested_rows(
+    public_compiled,
+    catalog_row: str,
+) -> None:
+    from dataclasses import fields, replace
+
+    import metroflow.city.scalable_topology_adapter as adapter
+    from metroflow.map.node_compiler import NodeInterfaceCatalog
+    from metroflow.map.road_geometry import RoadGeometryCatalog
+    from metroflow.map.section_compiler import RoadSectionCatalog
+
+    def derived(row):
+        derived_type = type(f"Derived{type(row).__name__}", (type(row),), {})
+        return derived_type(
+            **{
+                field.name: getattr(row, field.name)
+                for field in fields(row)
+                if field.init
+            }
+        )
+
+    _, _, compiled = public_compiled
+    topology = compiled.topology
+    geometry = topology.road_geometry
+    sections = topology.road_sections
+    interfaces = topology.node_interfaces
+    if catalog_row == "centerline":
+        geometry = RoadGeometryCatalog(
+            (derived(geometry.centerlines[0]), *geometry.centerlines[1:]),
+            geometry.assignments,
+        )
+    elif catalog_row == "geometry_assignment":
+        geometry = RoadGeometryCatalog(
+            geometry.centerlines,
+            (derived(geometry.assignments[0]), *geometry.assignments[1:]),
+        )
+    elif catalog_row == "section_profile":
+        sections = RoadSectionCatalog(
+            (derived(sections.profiles[0]), *sections.profiles[1:]),
+            sections.assignments,
+        )
+    elif catalog_row == "section_assignment":
+        sections = RoadSectionCatalog(
+            sections.profiles,
+            (derived(sections.assignments[0]), *sections.assignments[1:]),
+        )
+    else:
+        interfaces = NodeInterfaceCatalog(
+            (derived(interfaces.interfaces[0]), *interfaces.interfaces[1:])
+        )
+    values = {
+        field.name: getattr(compiled, field.name)
+        for field in fields(compiled)
+        if field.name != "fingerprint"
+    }
+    values["topology"] = replace(
+        topology,
+        road_geometry=geometry,
+        road_sections=sections,
+        node_interfaces=interfaces,
+    )
+
+    with pytest.raises(TypeError, match="exact|catalog|row"):
+        adapter._new_compiled_wrapper(**values)
