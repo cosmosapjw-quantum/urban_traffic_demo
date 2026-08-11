@@ -417,6 +417,8 @@ class _FaceDraft:
     hole_boundary_indices: tuple[int, ...]
     unbounded_boundary_indices: tuple[int, ...]
     interior_witness_mm: ExactPointMM | None
+    void_road_semantic_ids: tuple[str, ...] = ()
+    void_ramp_semantic_ids: tuple[str, ...] = ()
 
 
 def _digest(tag: str, payload: object) -> str:
@@ -477,6 +479,48 @@ def _embedding_edges(
             layer=road.layer,
             facility=road.facility.value,
             source_fingerprint=source_fingerprint,
+        )
+        for index, (semantic_id, road, start, end) in enumerate(selected)
+    )
+
+
+def _ramp_incidence(
+    nodes: tuple[PhysicalNodeRecord, ...],
+    roads: tuple[PhysicalRoadRecord, ...],
+    source_fingerprint: str,
+) -> tuple[V2RampIncidence, ...]:
+    by_id = {node.node_id: node for node in nodes}
+    selected: list[tuple[str, PhysicalRoadRecord, PhysicalNodeRecord, PhysicalNodeRecord]] = []
+    for road in roads:
+        if road.facility is not FacilityKind.RAMP:
+            continue
+        start, end = by_id.get(road.start_node_id), by_id.get(road.end_node_id)
+        if start is None or end is None:
+            raise ValueError("ramp endpoint is absent")
+        semantic_id = _digest(
+            "ramp-incidence",
+            (
+                road.semantic_id,
+                start.semantic_id,
+                end.semantic_id,
+                road.layer_transition,
+                source_fingerprint,
+            ),
+        )
+        selected.append((semantic_id, road, start, end))
+    selected.sort(key=lambda item: item[0])
+    _require_unique_semantics(tuple(item[0] for item in selected), "ramp incidence")
+    return tuple(
+        V2RampIncidence(
+            index,
+            semantic_id,
+            road.road_id,
+            road.semantic_id,
+            start.node_id,
+            end.node_id,
+            start.semantic_id,
+            end.semantic_id,
+            source_fingerprint,
         )
         for index, (semantic_id, road, start, end) in enumerate(selected)
     )
@@ -911,6 +955,7 @@ def _build_block_authority_from_records(
         node_id for road in selected_roads for node_id in (road.start_node_id, road.end_node_id)
     }
     edges = _embedding_edges(nodes, roads, source_fingerprint)
+    ramp_records = _ramp_incidence(nodes, roads, source_fingerprint)
     directed = _directed_embedding(edges)
     _reject_geometry_audit(
         tuple(node for node in nodes if node.node_id in selected_node_ids),
@@ -970,6 +1015,60 @@ def _build_block_authority_from_records(
                 (),
                 witness,
             )
+        )
+    bridge_semantic_by_road_id = {
+        edge.source_road_id: edge.source_road_semantic_id
+        for edge in edges
+        if edge.facility == FacilityKind.BRIDGE.value
+    }
+    for face in face_drafts:
+        if face.is_unbounded or face.outer_boundary_index is None:
+            continue
+        boundary_indices = (face.outer_boundary_index, *face.hole_boundary_indices)
+        half_edge_ids = {
+            half_edge_id
+            for boundary_index in boundary_indices
+            for half_edge_id in boundary_drafts[boundary_index].half_edge_ids
+        }
+        road_ids = {directed[index].source_road_id for index in half_edge_ids}
+        node_ids = {
+            node_id
+            for index in half_edge_ids
+            for node_id in (
+                directed[index].origin_node_id,
+                directed[index].destination_node_id,
+            )
+        }
+        face.void_road_semantic_ids = tuple(
+            sorted(
+                semantic_id
+                for road_id, semantic_id in bridge_semantic_by_road_id.items()
+                if road_id in road_ids
+            )
+        )
+        face.void_ramp_semantic_ids = tuple(
+            sorted(
+                ramp.source_road_semantic_id
+                for ramp in ramp_records
+                if ramp.start_node_id in node_ids or ramp.end_node_id in node_ids
+            )
+        )
+        if face.void_road_semantic_ids and face.void_ramp_semantic_ids:
+            raise ValueError("bounded face has simultaneous bridge and ramp void reasons")
+        if face.void_road_semantic_ids:
+            face.role = "BARRIER_VOID"
+        elif face.void_ramp_semantic_ids:
+            face.role = "INTERCHANGE_VOID"
+        face.semantic_id = _digest(
+            "face",
+            (
+                "bounded",
+                boundary_drafts[face.outer_boundary_index].semantic_id,
+                tuple(boundary_drafts[index].semantic_id for index in face.hole_boundary_indices),
+                face.role,
+                face.void_road_semantic_ids,
+                face.void_ramp_semantic_ids,
+            ),
         )
     face_drafts.sort(key=lambda face: face.semantic_id)
     _require_unique_semantics(tuple(face.semantic_id for face in face_drafts), "face")
@@ -1036,8 +1135,8 @@ def _build_block_authority_from_records(
             tuple(boundary_id_by_index[index] for index in face.unbounded_boundary_indices),
             None,
             face.interior_witness_mm,
-            (),
-            (),
+            face.void_road_semantic_ids,
+            face.void_ramp_semantic_ids,
             source_fingerprint,
         )
         for face_id, face in enumerate(face_drafts)
@@ -1058,7 +1157,7 @@ def _build_block_authority_from_records(
         tuple(extent_mm),
         tuple(tile_coordinates),
         edges,
-        (),
+        ramp_records,
         half_edges,
         boundaries,
         faces,
