@@ -1188,3 +1188,110 @@ def test_resealed_hole_omission_is_rejected() -> None:
             fingerprint="",
         )
     blocks.validate_scalable_block_authority(authority)
+
+
+def test_public_builder_rejects_nonexact_network() -> None:
+    from metroflow.city.scale import CityScaleSpec
+    from metroflow.city.scalable_blocks import (
+        build_scalable_block_authority,
+        validate_scalable_block_authority,
+    )
+    from metroflow.city.scalable_topology import (
+        ScalableStreetNetwork,
+        build_scalable_street_network,
+    )
+
+    network = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+
+    class NetworkSubtype(ScalableStreetNetwork):
+        pass
+
+    class NetworkProxy:
+        def __getattr__(self, name):
+            return getattr(network, name)
+
+    forged = object.__new__(ScalableStreetNetwork)
+    for item in fields(ScalableStreetNetwork):
+        object.__setattr__(forged, item.name, getattr(network, item.name))
+    object.__setattr__(forged, "fingerprint", "0" * 64)
+    failures = []
+    for label, candidate in (
+        ("object", object()),
+        ("subtype", object.__new__(NetworkSubtype)),
+        ("proxy", NetworkProxy()),
+        ("forged", forged),
+    ):
+        try:
+            build_scalable_block_authority(candidate)
+        except NotImplementedError:
+            failures.append(f"DID NOT IMPLEMENT {label} network rejection")
+        except (TypeError, ValueError):
+            pass
+        else:
+            failures.append(f"DID NOT REJECT {label} network")
+    try:
+        authority = build_scalable_block_authority(network)
+    except NotImplementedError:
+        failures.append("DID NOT IMPLEMENT exact network builder")
+    else:
+        validate_scalable_block_authority(authority)
+    assert failures == []
+
+
+@pytest.mark.parametrize(
+    ("style_id", "seed"),
+    tuple(
+        (style_id, seed)
+        for style_id in (
+            "ring_radial",
+            "grid_core",
+            "polycentric_tod",
+            "river_constrained",
+            "superblock_mixed",
+            "organic",
+        )
+        for seed in (17, 29)
+    ),
+)
+def test_public_six_style_authority_is_tile_order_invariant_and_complete(
+    style_id: str, seed: int
+) -> None:
+    from metroflow.city.scale import CityScaleSpec
+    from metroflow.city.scalable_blocks import (
+        build_scalable_block_authority,
+        validate_scalable_block_authority,
+    )
+    from metroflow.city.scalable_topology import build_scalable_street_network
+
+    scale = CityScaleSpec(100_000, 40.0)
+    canonical = build_scalable_street_network(scale, style_id, seed)
+    shuffled = tuple(
+        sorted(
+            canonical.tile_coordinates,
+            key=lambda tile: hashlib.sha256(f"{style_id}:{seed}:{tile}".encode()).digest(),
+        )
+    )
+    networks = (
+        canonical,
+        build_scalable_street_network(
+            scale, style_id, seed, tile_order=tuple(reversed(canonical.tile_coordinates))
+        ),
+        build_scalable_street_network(scale, style_id, seed, tile_order=shuffled),
+    )
+    assert networks[0] == networks[1] == networks[2]
+    authorities = tuple(build_scalable_block_authority(network) for network in networks)
+    assert authorities[0] == authorities[1] == authorities[2]
+    for network, authority in zip(networks, authorities):
+        validate_scalable_block_authority(authority)
+        assert authority.source_network_fingerprint == network.fingerprint
+        assert len(authority.embedding_edges) == sum(
+            road.layer == 0
+            and road.layer_transition is None
+            and road.facility.value in {"surface", "bridge"}
+            for road in network.roads
+        )
+        assert len(authority.ramp_incidence) == sum(
+            road.facility.value == "ramp" for road in network.roads
+        )
+        assert len(authority.blocks) == sum(face.role == "DEVELOPABLE" for face in authority.faces)
+        assert authority.euler_lhs == authority.euler_rhs and authority.fingerprint
