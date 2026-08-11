@@ -12,7 +12,10 @@ from metroflow.city.graph import (
     RoadLink,
     RoadNetworkCSR,
 )
-from metroflow.city.scalable_blocks import ScalableBlockAuthority
+from metroflow.city.scalable_blocks import (
+    ScalableBlockAuthority,
+    validate_scalable_block_authority,
+)
 from metroflow.city.scalable_topology import (
     FacilityKind,
     PhysicalNodeRecord,
@@ -371,11 +374,132 @@ def _lower_scalable_records(*, nodes, roads):
     )
 
 
+def _admit_scalable_sources(
+    network: ScalableStreetNetwork,
+    block_authority: ScalableBlockAuthority,
+) -> tuple[ScalableStreetNetwork, ScalableBlockAuthority]:
+    if type(network) is not ScalableStreetNetwork:
+        raise TypeError("network must be an exact ScalableStreetNetwork")
+    if type(block_authority) is not ScalableBlockAuthority:
+        raise TypeError("block_authority must be an exact ScalableBlockAuthority")
+    admitted_network = ScalableStreetNetwork(
+        scale_spec=network.scale_spec,
+        style_id=network.style_id,
+        seed=network.seed,
+        schema_version=network.schema_version,
+        scale_fingerprint=network.scale_fingerprint,
+        style_fingerprint=network.style_fingerprint,
+        extent_mm=network.extent_mm,
+        width_m=network.width_m,
+        height_m=network.height_m,
+        centers=network.centers,
+        gateway_node_ids=network.gateway_node_ids,
+        nodes=network.nodes,
+        roads=network.roads,
+        endpoint_incidence=network.endpoint_incidence,
+        terrain=network.terrain,
+        tile_coordinates=network.tile_coordinates,
+        seam_diagnostics=network.seam_diagnostics,
+        hidden_repair_count=network.hidden_repair_count,
+        fingerprint=network.fingerprint,
+    )
+    validate_scalable_block_authority(block_authority)
+    if block_authority.source_network_fingerprint != admitted_network.fingerprint:
+        raise ValueError("block authority source network fingerprint mismatch")
+    if block_authority.extent_mm != admitted_network.extent_mm:
+        raise ValueError("block authority extent mismatch")
+    if block_authority.tile_coordinates != admitted_network.tile_coordinates:
+        raise ValueError("block authority tile coordinates mismatch")
+
+    node_by_id = {node.node_id: node for node in admitted_network.nodes}
+    road_by_id = {road.road_id: road for road in admitted_network.roads}
+    expected_embedding_road_ids = {
+        road.road_id
+        for road in admitted_network.roads
+        if road.layer == 0
+        and road.layer_transition is None
+        and road.facility in {FacilityKind.SURFACE, FacilityKind.BRIDGE}
+    }
+    if {edge.source_road_id for edge in block_authority.embedding_edges} != (
+        expected_embedding_road_ids
+    ):
+        raise ValueError("embedding edge coverage differs from the source network")
+    for edge in block_authority.embedding_edges:
+        road = road_by_id[edge.source_road_id]
+        if edge.source_fingerprint != admitted_network.fingerprint:
+            raise ValueError("embedding edge source fingerprint mismatch")
+        if edge.facility != road.facility.value or edge.layer != road.layer:
+            raise ValueError("embedding edge facility or layer mismatch")
+        start = node_by_id[road.start_node_id]
+        end = node_by_id[road.end_node_id]
+        forward = (
+            road.start_node_id,
+            road.end_node_id,
+            start.semantic_id,
+            end.semantic_id,
+            road.points_mm,
+        )
+        reverse = (
+            road.end_node_id,
+            road.start_node_id,
+            end.semantic_id,
+            start.semantic_id,
+            tuple(reversed(road.points_mm)),
+        )
+        observed = (
+            edge.start_node_id,
+            edge.end_node_id,
+            edge.start_node_semantic_id,
+            edge.end_node_semantic_id,
+            edge.points_mm,
+        )
+        if observed not in {forward, reverse}:
+            raise ValueError("embedding edge geometry mismatch")
+
+    expected_ramp_road_ids = {
+        road.road_id
+        for road in admitted_network.roads
+        if road.facility is FacilityKind.RAMP
+    }
+    if {ramp.source_road_id for ramp in block_authority.ramp_incidence} != (
+        expected_ramp_road_ids
+    ):
+        raise ValueError("ramp incidence coverage differs from the source network")
+    for ramp in block_authority.ramp_incidence:
+        road = road_by_id[ramp.source_road_id]
+        if ramp.source_fingerprint != admitted_network.fingerprint:
+            raise ValueError("ramp incidence source fingerprint mismatch")
+        if (ramp.start_node_id, ramp.end_node_id) not in {
+            (road.start_node_id, road.end_node_id),
+            (road.end_node_id, road.start_node_id),
+        }:
+            raise ValueError("ramp incidence endpoint mismatch")
+
+    road_ids = set(road_by_id)
+    node_ids = set(node_by_id)
+    for block in block_authority.blocks:
+        if not set(block.frontage_road_ids) <= road_ids:
+            raise ValueError("block frontage references a foreign road")
+        if not set(block.access_node_ids) <= node_ids:
+            raise ValueError("block access references a foreign node")
+        if block.primary_access_node_id not in block.access_node_ids:
+            raise ValueError("block primary access is not in its access set")
+    return admitted_network, block_authority
+
+
 def compile_scalable_topology(
     network: ScalableStreetNetwork,
     *,
     block_authority: ScalableBlockAuthority,
 ) -> ScalableCompiledTopology:
+    admitted_network, _admitted_blocks = _admit_scalable_sources(
+        network,
+        block_authority,
+    )
+    _lower_scalable_records(
+        nodes=admitted_network.nodes,
+        roads=admitted_network.roads,
+    )
     raise NotImplementedError
 
 
