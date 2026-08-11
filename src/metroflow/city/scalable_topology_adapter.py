@@ -295,10 +295,17 @@ def _lower_scalable_records(*, nodes, roads):
     road_crosswalk: list[ScalableRoadCrosswalk] = []
     bridge_link_ids: dict[int, list[int]] = defaultdict(list)
     for road in source_roads:
+        resolved_profile_id = (
+            "v2:mainline"
+            if road.facility is FacilityKind.MAINLINE
+            else road.profile_id
+        )
         try:
-            profile = profile_by_id[road.profile_id]
+            profile = profile_by_id[resolved_profile_id]
         except KeyError as error:
-            raise ValueError(f"unsupported numeric profile {road.profile_id!r}") from error
+            raise ValueError(
+                f"unsupported numeric profile {resolved_profile_id!r}"
+            ) from error
         geometry_id = road.road_id
         source_ref = f"scalable:{road.semantic_id}"
         points_m = tuple(
@@ -371,7 +378,7 @@ def _lower_scalable_records(*, nodes, roads):
                 road_semantic_id=road.semantic_id,
                 hierarchy=road.hierarchy,
                 facility=road.facility,
-                profile_id=road.profile_id,
+                profile_id=resolved_profile_id,
                 layer=road.layer,
                 layer_transition=road.layer_transition,
                 access_directions=tuple(sorted(road.access_directions)),
