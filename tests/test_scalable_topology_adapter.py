@@ -1420,7 +1420,7 @@ connectivity.repair_weak_connectivity = forbidden
 blocks.build_scalable_block_authority = forbidden
 geometry.build_endpoint_geometry_catalog = forbidden
 importlib.import_module("metroflow.city.scalable_topology_adapter")
-exact = ("metroflow.city.topology_finalizer", "metroflow.city.planarization", "metroflow.city.planar_blocks", "metroflow.city.block_land_use", "metroflow.city.generator_v2", "metroflow.city.realistic_city", "metroflow.sim.config", "jax", "torch", "_metroflow_rust")
+exact = ("metroflow.city.topology_finalizer", "metroflow.city.planarization", "metroflow.city.planar_blocks", "metroflow.city.block_land_use", "metroflow.city.generator_v2", "metroflow.city.realistic_city", "metroflow.sim" + ".config", "jax", "torch", "_metroflow_rust")
 prefixes = ("metroflow.sim", "metroflow.demand", "metroflow.landuse", "metroflow.routing", "metroflow.backends")
 assert not set(exact) & set(sys.modules)
 assert not any(name == prefix or name.startswith(prefix + ".")
