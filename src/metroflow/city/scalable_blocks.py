@@ -73,7 +73,8 @@ def _exact_coordinate(value: object, name: str) -> ExactCoordinateMM:
 
 
 def _exact_point(value: object, name: str) -> ExactPointMM:
-    if type(value) is not tuple or len(value) != 2:
+    value = _plain_tuple(value, name)
+    if len(value) != 2:
         raise TypeError(f"{name} must be an exact point tuple")
     return (
         _exact_coordinate(value[0], f"{name}[0]"),
@@ -81,15 +82,17 @@ def _exact_point(value: object, name: str) -> ExactPointMM:
     )
 
 
-def _is_plain_snapshot(value: object) -> bool:
-    if value is None or type(value) in {bool, int, str, float, Fraction}:
-        return True
-    return type(value) is tuple and all(_is_plain_snapshot(item) for item in value)
+def _plain_tuple(value: object, name: str) -> tuple:
+    if type(value) is not tuple:
+        raise TypeError(f"{name} nested authority snapshot must use an exact tuple")
+    return value
 
 
-def _validate_nested_snapshot(value: object) -> None:
-    if not _is_plain_snapshot(value):
-        raise TypeError("nested authority snapshot must use exact immutable values")
+def _plain_point(value: object, name: str) -> PointMM:
+    value = _plain_tuple(value, name)
+    if len(value) != 2:
+        raise TypeError(f"{name} must be a two-coordinate plain-integer point")
+    return (_plain_int(value[0], f"{name}[0]"), _plain_int(value[1], f"{name}[1]"))
 
 
 @dataclass(frozen=True, slots=True)
@@ -107,8 +110,9 @@ class V2EmbeddingEdge:
     facility: str
     source_fingerprint: str
 
-    def __post_init__(self) -> None:
-        _validate_nested_snapshot(tuple(getattr(self, item.name) for item in fields(self)))
+    def _validate_types(self) -> None:
+        if type(self) is not V2EmbeddingEdge:
+            raise TypeError("embedding edge must be an exact V2EmbeddingEdge")
         for name in (
             "embedding_edge_id",
             "source_road_id",
@@ -124,14 +128,22 @@ class V2EmbeddingEdge:
             "end_node_semantic_id",
             "source_fingerprint",
         ):
-            _plain_digest(getattr(self, name), name)
+            _plain_str(getattr(self, name), name)
         _plain_str(self.facility, "facility")
-        if type(self.points_mm) is not tuple:
-            raise TypeError("nested authority snapshot must use exact immutable values")
+        _plain_tuple(self.points_mm, "points_mm")
         for index, point in enumerate(self.points_mm):
-            exact = _exact_point(point, f"points_mm[{index}]")
-            if any(type(coordinate) is not int for coordinate in exact):
-                raise TypeError("embedding points must use plain integers")
+            _plain_point(point, f"points_mm[{index}]")
+
+    def __post_init__(self) -> None:
+        self._validate_types()
+        for name in (
+            "semantic_id",
+            "source_road_semantic_id",
+            "start_node_semantic_id",
+            "end_node_semantic_id",
+            "source_fingerprint",
+        ):
+            _plain_digest(getattr(self, name), name)
 
 
 @dataclass(frozen=True, slots=True)
@@ -148,8 +160,9 @@ class V2HalfEdge:
     prev_id: int
     left_face_id: int
 
-    def __post_init__(self) -> None:
-        _validate_nested_snapshot(tuple(getattr(self, item.name) for item in fields(self)))
+    def _validate_types(self) -> None:
+        if type(self) is not V2HalfEdge:
+            raise TypeError("half edge must be an exact V2HalfEdge")
         for name in (
             "half_edge_id",
             "embedding_edge_id",
@@ -162,11 +175,14 @@ class V2HalfEdge:
             "left_face_id",
         ):
             _plain_int(getattr(self, name), name)
-        _plain_digest(self.semantic_id, "semantic_id")
-        if type(self.points_mm) is not tuple:
-            raise TypeError("nested authority snapshot must use exact immutable values")
+        _plain_str(self.semantic_id, "semantic_id")
+        _plain_tuple(self.points_mm, "points_mm")
         for index, point in enumerate(self.points_mm):
-            _exact_point(point, f"points_mm[{index}]")
+            _plain_point(point, f"points_mm[{index}]")
+
+    def __post_init__(self) -> None:
+        self._validate_types()
+        _plain_digest(self.semantic_id, "semantic_id")
 
 
 @dataclass(frozen=True, slots=True)
@@ -180,21 +196,24 @@ class V2FaceBoundary:
     role: str
     interior_witness_mm: ExactPointMM
 
-    def __post_init__(self) -> None:
-        _validate_nested_snapshot(tuple(getattr(self, item.name) for item in fields(self)))
+    def _validate_types(self) -> None:
+        if type(self) is not V2FaceBoundary:
+            raise TypeError("boundary must be an exact V2FaceBoundary")
         for name in ("boundary_id", "signed_twice_area_mm2", "component_id"):
             _plain_int(getattr(self, name), name)
-        _plain_digest(self.semantic_id, "semantic_id")
+        _plain_str(self.semantic_id, "semantic_id")
         _plain_str(self.role, "role")
-        if type(self.half_edge_ids) is not tuple or any(
-            type(value) is not int for value in self.half_edge_ids
-        ):
-            raise TypeError("half_edge_ids must be a tuple of plain integers")
-        if type(self.polygon_mm) is not tuple:
-            raise TypeError("polygon_mm must be an exact tuple")
+        _plain_tuple(self.half_edge_ids, "half_edge_ids")
+        for index, value in enumerate(self.half_edge_ids):
+            _plain_int(value, f"half_edge_ids[{index}]")
+        _plain_tuple(self.polygon_mm, "polygon_mm")
         for index, point in enumerate(self.polygon_mm):
-            _exact_point(point, f"polygon_mm[{index}]")
+            _plain_point(point, f"polygon_mm[{index}]")
         _exact_point(self.interior_witness_mm, "interior_witness_mm")
+
+    def __post_init__(self) -> None:
+        self._validate_types()
+        _plain_digest(self.semantic_id, "semantic_id")
 
 
 @dataclass(frozen=True, slots=True)
@@ -212,11 +231,12 @@ class V2Face:
     void_ramp_semantic_ids: tuple[str, ...]
     source_fingerprint: str
 
-    def __post_init__(self) -> None:
-        _validate_nested_snapshot(tuple(getattr(self, item.name) for item in fields(self)))
+    def _validate_types(self) -> None:
+        if type(self) is not V2Face:
+            raise TypeError("face must be an exact V2Face")
         _plain_int(self.face_id, "face_id")
-        _plain_digest(self.semantic_id, "semantic_id")
-        _plain_digest(self.source_fingerprint, "source_fingerprint")
+        _plain_str(self.semantic_id, "semantic_id")
+        _plain_str(self.source_fingerprint, "source_fingerprint")
         if type(self.is_unbounded) is not bool:
             raise TypeError("is_unbounded must be a plain bool")
         _plain_str(self.role, "role")
@@ -224,17 +244,25 @@ class V2Face:
             _plain_int(self.outer_boundary_id, "outer_boundary_id")
         for name in ("hole_boundary_ids", "unbounded_component_boundary_ids"):
             value = getattr(self, name)
-            if type(value) is not tuple or any(type(item) is not int for item in value):
-                raise TypeError(f"{name} must be a tuple of plain integers")
+            _plain_tuple(value, name)
+            for index, item in enumerate(value):
+                _plain_int(item, f"{name}[{index}]")
         if self.owner_tile is not None:
-            _exact_point(self.owner_tile, "owner_tile")
+            _plain_point(self.owner_tile, "owner_tile")
         if self.interior_witness_mm is not None:
             _exact_point(self.interior_witness_mm, "interior_witness_mm")
         for name in ("void_road_semantic_ids", "void_ramp_semantic_ids"):
             value = getattr(self, name)
-            if type(value) is not tuple:
-                raise TypeError("nested authority snapshot must use exact immutable values")
-            for semantic_id in value:
+            _plain_tuple(value, name)
+            for index, semantic_id in enumerate(value):
+                _plain_str(semantic_id, f"{name}[{index}]")
+
+    def __post_init__(self) -> None:
+        self._validate_types()
+        _plain_digest(self.semantic_id, "semantic_id")
+        _plain_digest(self.source_fingerprint, "source_fingerprint")
+        for name in ("void_road_semantic_ids", "void_ramp_semantic_ids"):
+            for semantic_id in getattr(self, name):
                 _plain_digest(semantic_id, name)
 
 
@@ -250,10 +278,22 @@ class V2RampIncidence:
     end_node_semantic_id: str
     source_fingerprint: str
 
-    def __post_init__(self) -> None:
-        _validate_nested_snapshot(tuple(getattr(self, item.name) for item in fields(self)))
+    def _validate_types(self) -> None:
+        if type(self) is not V2RampIncidence:
+            raise TypeError("ramp incidence must be an exact V2RampIncidence")
         for name in ("ramp_incidence_id", "source_road_id", "start_node_id", "end_node_id"):
             _plain_int(getattr(self, name), name)
+        for name in (
+            "semantic_id",
+            "source_road_semantic_id",
+            "start_node_semantic_id",
+            "end_node_semantic_id",
+            "source_fingerprint",
+        ):
+            _plain_str(getattr(self, name), name)
+
+    def __post_init__(self) -> None:
+        self._validate_types()
         for name in (
             "semantic_id",
             "source_road_semantic_id",
@@ -281,18 +321,39 @@ class V2Block:
     interior_witness_mm: ExactPointMM
     source_fingerprint: str
 
-    def __post_init__(self) -> None:
-        _validate_nested_snapshot(tuple(getattr(self, item.name) for item in fields(self)))
+    def _validate_types(self) -> None:
+        if type(self) is not V2Block:
+            raise TypeError("block must be an exact V2Block")
         for name in ("block_id", "parent_face_id", "primary_access_node_id"):
             _plain_int(getattr(self, name), name)
-        _plain_digest(self.semantic_id, "semantic_id")
-        _plain_digest(self.source_fingerprint, "source_fingerprint")
+        _plain_str(self.semantic_id, "semantic_id")
+        _plain_str(self.source_fingerprint, "source_fingerprint")
         _plain_str(self.subdivision_schema, "subdivision_schema")
+        _plain_tuple(self.outer_polygon_mm, "outer_polygon_mm")
+        for index, point in enumerate(self.outer_polygon_mm):
+            _plain_point(point, f"outer_polygon_mm[{index}]")
+        _plain_tuple(self.hole_polygons_mm, "hole_polygons_mm")
+        for ring_index, polygon in enumerate(self.hole_polygons_mm):
+            _plain_tuple(polygon, f"hole_polygons_mm[{ring_index}]")
+            for point_index, point in enumerate(polygon):
+                _plain_point(point, f"hole_polygons_mm[{ring_index}][{point_index}]")
         if type(self.net_area_mm2) is not Fraction:
             raise TypeError("net_area_mm2 must be an exact Fraction")
+        _plain_tuple(self.perimeter_squared_terms, "perimeter_squared_terms")
+        for index, value in enumerate(self.perimeter_squared_terms):
+            _plain_int(value, f"perimeter_squared_terms[{index}]")
         if type(self.perimeter_m) is not float:
             raise TypeError("perimeter_m must be a plain float")
+        for name in ("frontage_road_ids", "access_node_ids"):
+            values = _plain_tuple(getattr(self, name), name)
+            for index, value in enumerate(values):
+                _plain_int(value, f"{name}[{index}]")
         _exact_point(self.interior_witness_mm, "interior_witness_mm")
+
+    def __post_init__(self) -> None:
+        self._validate_types()
+        _plain_digest(self.semantic_id, "semantic_id")
+        _plain_digest(self.source_fingerprint, "source_fingerprint")
 
 
 @dataclass(frozen=True, slots=True)
@@ -304,9 +365,35 @@ class V2BlockAccessIndex:
     primary_access_by_block: tuple[tuple[int, int], ...]
     incidence_visit_count: int
 
-    def __post_init__(self) -> None:
-        _validate_nested_snapshot(tuple(getattr(self, item.name) for item in fields(self)))
+    def _validate_types(self) -> None:
+        if type(self) is not V2BlockAccessIndex:
+            raise TypeError("access_index must be an exact V2BlockAccessIndex")
+        for name in (
+            "block_to_road_ids",
+            "block_to_node_ids",
+            "road_to_block_ids",
+            "node_to_block_ids",
+        ):
+            rows = _plain_tuple(getattr(self, name), name)
+            for row_index, row in enumerate(rows):
+                row = _plain_tuple(row, f"{name}[{row_index}]")
+                if len(row) != 2:
+                    raise TypeError(f"{name}[{row_index}] must contain a key and values")
+                _plain_int(row[0], f"{name}[{row_index}][0]")
+                values = _plain_tuple(row[1], f"{name}[{row_index}][1]")
+                for value_index, value in enumerate(values):
+                    _plain_int(value, f"{name}[{row_index}][1][{value_index}]")
+        rows = _plain_tuple(self.primary_access_by_block, "primary_access_by_block")
+        for row_index, row in enumerate(rows):
+            row = _plain_tuple(row, f"primary_access_by_block[{row_index}]")
+            if len(row) != 2:
+                raise TypeError(f"primary_access_by_block[{row_index}] must contain two integers")
+            for value_index, value in enumerate(row):
+                _plain_int(value, f"primary_access_by_block[{row_index}][{value_index}]")
         _plain_int(self.incidence_visit_count, "incidence_visit_count")
+
+    def __post_init__(self) -> None:
+        self._validate_types()
 
 
 @dataclass(frozen=True, slots=True)
@@ -320,16 +407,26 @@ class V2FaceTileClip:
     diagnostic_twice_area_mm2: int
     is_owner: bool
 
-    def __post_init__(self) -> None:
-        _validate_nested_snapshot(tuple(getattr(self, item.name) for item in fields(self)))
+    def _validate_types(self) -> None:
+        if type(self) is not V2FaceTileClip:
+            raise TypeError("tile clip must be an exact V2FaceTileClip")
         for name in ("clip_id", "face_id", "diagnostic_twice_area_mm2"):
             _plain_int(getattr(self, name), name)
-        _plain_digest(self.face_semantic_id, "face_semantic_id")
-        _exact_point(self.tile_coordinate, "tile_coordinate")
+        _plain_str(self.face_semantic_id, "face_semantic_id")
+        _plain_point(self.tile_coordinate, "tile_coordinate")
+        _plain_tuple(self.diagnostic_polygons_mm, "diagnostic_polygons_mm")
+        for ring_index, polygon in enumerate(self.diagnostic_polygons_mm):
+            _plain_tuple(polygon, f"diagnostic_polygons_mm[{ring_index}]")
+            for point_index, point in enumerate(polygon):
+                _plain_point(point, f"diagnostic_polygons_mm[{ring_index}][{point_index}]")
         if type(self.exact_net_area_mm2) is not Fraction:
             raise TypeError("exact_net_area_mm2 must be an exact Fraction")
         if type(self.is_owner) is not bool:
             raise TypeError("is_owner must be a plain bool")
+
+    def __post_init__(self) -> None:
+        self._validate_types()
+        _plain_digest(self.face_semantic_id, "face_semantic_id")
 
 
 @dataclass(frozen=True, slots=True)
@@ -358,28 +455,56 @@ class ScalableBlockAuthority:
     boundary_half_edge_occurrence_count: int
     fingerprint: str = ""
 
-    def __post_init__(self) -> None:
-        _validate_nested_snapshot(
-            tuple(
-                getattr(self, item.name)
-                for item in fields(self)
-                if item.name
-                not in {
-                    "embedding_edges",
-                    "ramp_incidence",
-                    "half_edges",
-                    "boundaries",
-                    "faces",
-                    "blocks",
-                    "access_index",
-                    "tile_clips",
-                }
-            )
-        )
-        for name in ("schema_version", "embedding_policy", "tile_policy", "subdivision_schema"):
+    def _validate_types(self) -> None:
+        if type(self) is not ScalableBlockAuthority:
+            raise TypeError("authority must be an exact ScalableBlockAuthority")
+        for name in (
+            "schema_version",
+            "source_network_fingerprint",
+            "embedding_policy",
+            "tile_policy",
+            "subdivision_schema",
+            "fingerprint",
+        ):
             _plain_str(getattr(self, name), name)
-        _plain_digest(self.source_network_fingerprint, "source_network_fingerprint")
-        _plain_digest(self.fingerprint, "fingerprint", allow_empty=True)
+        extent = _plain_tuple(self.extent_mm, "extent_mm")
+        if len(extent) != 4:
+            raise TypeError("extent_mm must contain four plain integers")
+        for index, value in enumerate(extent):
+            _plain_int(value, f"extent_mm[{index}]")
+        _plain_tuple(self.tile_coordinates, "tile_coordinates")
+        for index, point in enumerate(self.tile_coordinates):
+            _plain_point(point, f"tile_coordinates[{index}]")
+        collections = (
+            ("embedding_edges", self.embedding_edges, V2EmbeddingEdge),
+            ("ramp_incidence", self.ramp_incidence, V2RampIncidence),
+            ("half_edges", self.half_edges, V2HalfEdge),
+            ("boundaries", self.boundaries, V2FaceBoundary),
+            ("faces", self.faces, V2Face),
+            ("blocks", self.blocks, V2Block),
+            ("tile_clips", self.tile_clips, V2FaceTileClip),
+        )
+        for name, values, expected_type in collections:
+            _plain_tuple(values, name)
+            for index, value in enumerate(values):
+                if type(value) is not expected_type:
+                    raise TypeError(f"{name}[{index}] contains a non-exact authority record")
+                value._validate_types()
+        if type(self.access_index) is not V2BlockAccessIndex:
+            raise TypeError("access_index contains a non-exact authority record")
+        self.access_index._validate_types()
+        for name in (
+            "vertex_count",
+            "edge_count",
+            "face_count",
+            "component_count",
+            "euler_lhs",
+            "euler_rhs",
+            "boundary_half_edge_occurrence_count",
+        ):
+            _plain_int(getattr(self, name), name)
+
+    def __post_init__(self) -> None:
         validate_scalable_block_authority(self)
 
 
@@ -806,6 +931,8 @@ def _trace_boundaries(
         half_edge_ids = tuple(cycle)
         polygon = _cycle_polygon(half_edge_ids, directed)
         area = _signed_area2(polygon)
+        if area == 0:
+            raise ValueError("zero-area boundary carrier")
         if area > 0 and (len(polygon) < 4 or len(set(polygon[:-1])) != len(polygon) - 1):
             raise ValueError("non-simple bounded face carrier")
         if area:
@@ -1119,6 +1246,7 @@ def _build_tile_clips(
         outer = boundary_by_id[face.outer_boundary_id].polygon_mm
         holes = tuple(boundary_by_id[index].polygon_mm for index in face.hole_boundary_ids)
         positive_tiles: list[tuple[int, int]] = []
+        covered_area = Fraction()
         for coordinate in tile_order:
             rectangle = _tile_rectangle(coordinate, extent)
             if rectangle is None:
@@ -1133,6 +1261,7 @@ def _build_tile_clips(
                 raise ValueError("hole clip area exceeds outer clip area")
             if net_area == 0:
                 continue
+            covered_area += net_area
             diagnostic_outer = tuple(_diagnostic_ring(part) for part in outer_parts)
             diagnostic_holes = tuple(
                 _diagnostic_ring(part) for parts in hole_parts for part in parts
@@ -1152,6 +1281,11 @@ def _build_tile_clips(
             positive_tiles.append(coordinate)
         if not positive_tiles:
             raise ValueError("bounded face has no positive-area canonical tile clip")
+        face_area = Fraction(
+            abs(_signed_area2(outer)) - sum(abs(_signed_area2(hole)) for hole in holes), 2
+        )
+        if covered_area != face_area:
+            raise ValueError("clip area conservation mismatch")
         owner_by_face[face.face_id] = min(positive_tiles)
     pending.sort(key=lambda item: (item[0].semantic_id, item[1], item[2]))
     return (
@@ -1375,6 +1509,12 @@ def _build_block_authority_from_records(
     }
     edges = _embedding_edges(nodes, roads, source_fingerprint)
     ramp_records = _ramp_incidence(nodes, roads, source_fingerprint)
+    if any(
+        not (extent[0] <= point[0] <= extent[1] and extent[2] <= point[1] <= extent[3])
+        for edge in edges
+        for point in edge.points_mm
+    ):
+        raise ValueError("embedding point outside authority extent")
     directed = _directed_embedding(edges)
     _reject_geometry_audit(
         tuple(node for node in nodes if node.node_id in selected_node_ids),
@@ -1643,8 +1783,9 @@ def _authority_fingerprint(authority: ScalableBlockAuthority) -> str:
 
 
 def _validate_authority_structure(authority: ScalableBlockAuthority) -> None:
-    if type(authority) is not ScalableBlockAuthority:
-        raise TypeError("authority must be an exact ScalableBlockAuthority")
+    authority._validate_types()
+    _plain_digest(authority.source_network_fingerprint, "source_network_fingerprint")
+    _plain_digest(authority.fingerprint, "fingerprint", allow_empty=True)
     if (
         authority.schema_version != SCHEMA_VERSION
         or authority.embedding_policy != EMBEDDING_POLICY
@@ -1666,17 +1807,10 @@ def _validate_authority_structure(authority: ScalableBlockAuthority) -> None:
         ("tile clip", authority.tile_clips, V2FaceTileClip, "clip_id"),
     )
     for label, values, expected_type, identifier in collections:
-        if type(values) is not tuple:
-            raise TypeError("nested authority snapshot must use exact immutable values")
         for dense_id, value in enumerate(values):
-            if type(value) is not expected_type:
-                raise TypeError(f"non-exact authority record in {label} collection")
-            _validate_nested_snapshot(tuple(getattr(value, item.name) for item in fields(value)))
             value.__post_init__()
             if getattr(value, identifier) != dense_id:
                 raise ValueError(f"{label} dense ID mismatch")
-    if type(authority.access_index) is not V2BlockAccessIndex:
-        raise TypeError("non-exact authority record for access index")
     authority.access_index.__post_init__()
 
     semantic_groups = (
@@ -1707,7 +1841,37 @@ def _validate_authority_structure(authority: ScalableBlockAuthority) -> None:
             raise ValueError("embedding edge violates layer/facility policy")
         if edge.source_fingerprint != authority.source_network_fingerprint:
             raise ValueError("embedding edge source fingerprint mismatch")
+    source_road_ids = {edge.source_road_id for edge in authority.embedding_edges}
+    source_road_semantics = {edge.source_road_semantic_id for edge in authority.embedding_edges}
+    node_semantic_by_id: dict[int, str] = {}
+    node_id_by_semantic: dict[str, int] = {}
+    for edge in authority.embedding_edges:
+        for node_id, semantic_id in (
+            (edge.start_node_id, edge.start_node_semantic_id),
+            (edge.end_node_id, edge.end_node_semantic_id),
+        ):
+            node_semantic_by_id.setdefault(node_id, semantic_id)
+            node_id_by_semantic.setdefault(semantic_id, node_id)
     for ramp in authority.ramp_incidence:
+        if (
+            ramp.start_node_id == ramp.end_node_id
+            or ramp.source_road_id in source_road_ids
+            or ramp.source_road_semantic_id in source_road_semantics
+        ):
+            raise ValueError("ramp incidence authority mismatch")
+        source_road_ids.add(ramp.source_road_id)
+        source_road_semantics.add(ramp.source_road_semantic_id)
+        for node_id, semantic_id in (
+            (ramp.start_node_id, ramp.start_node_semantic_id),
+            (ramp.end_node_id, ramp.end_node_semantic_id),
+        ):
+            if (
+                node_semantic_by_id.get(node_id, semantic_id) != semantic_id
+                or node_id_by_semantic.get(semantic_id, node_id) != node_id
+            ):
+                raise ValueError("ramp incidence authority mismatch")
+            node_semantic_by_id[node_id] = semantic_id
+            node_id_by_semantic[semantic_id] = node_id
         if ramp.source_road_id < 0 or ramp.start_node_id < 0 or ramp.end_node_id < 0:
             raise ValueError("ramp incidence reference out of range")
         if ramp.source_fingerprint != authority.source_network_fingerprint:
@@ -1862,58 +2026,45 @@ def _validate_record_semantics(authority: ScalableBlockAuthority) -> None:
 
 def _validate_canonical_face_partition(authority: ScalableBlockAuthority) -> None:
     components, _ = _embedding_components(authority.embedding_edges)
-    drafts: list[_BoundaryDraft] = []
-    seen_half_edges: list[int] = []
-    for boundary in authority.boundaries:
-        for left, right in zip(
+    drafts = _trace_boundaries(list(authority.half_edges), components)
+    positive, holes_by_outer, unbounded = _group_oriented_rings(drafts)
+    for index in positive:
+        drafts[index].role = "OUTER"
+        drafts[index].interior_witness_mm = _interior_witness(
+            drafts[index].polygon_mm,
+            tuple(drafts[value].polygon_mm for value in holes_by_outer.get(index, ())),
+        )
+    for values in holes_by_outer.values():
+        for index in values:
+            drafts[index].role = "HOLE"
+    for index in unbounded:
+        drafts[index].role = "UNBOUNDED_COMPONENT"
+    drafts.sort(key=lambda boundary: boundary.semantic_id)
+    expected_boundaries = tuple(
+        V2FaceBoundary(
+            boundary_id,
+            boundary.semantic_id,
             boundary.half_edge_ids,
-            (*boundary.half_edge_ids[1:], boundary.half_edge_ids[0]),
-        ):
-            if authority.half_edges[left].next_id != right:
-                raise ValueError("boundary is not the authoritative next cycle")
-        polygon = _cycle_polygon(boundary.half_edge_ids, list(authority.half_edges))
-        area = _signed_area2(polygon)
-        if area:
-            polygon = _canonical_polygon(polygon, clockwise=area < 0)
-            area = _signed_area2(polygon)
-        semantic_id = _digest(
-            "boundary",
-            tuple(authority.half_edges[index].semantic_id for index in boundary.half_edge_ids),
+            boundary.polygon_mm,
+            boundary.signed_twice_area_mm2,
+            boundary.component_id,
+            boundary.role,
+            boundary.interior_witness_mm,
         )
-        component_id = components[authority.half_edges[boundary.half_edge_ids[0]].origin_node_id]
-        if (
-            boundary.semantic_id != semantic_id
-            or boundary.polygon_mm != polygon
-            or boundary.signed_twice_area_mm2 != area
-            or boundary.component_id != component_id
+        for boundary_id, boundary in enumerate(drafts)
+    )
+    if len(authority.boundaries) != len(expected_boundaries):
+        raise ValueError("canonical boundary cycle reconstruction mismatch")
+    for actual, expected in zip(authority.boundaries, expected_boundaries):
+        names = tuple(item.name for item in fields(actual) if item.name != "interior_witness_mm")
+        if tuple(getattr(actual, name) for name in names) != tuple(
+            getattr(expected, name) for name in names
         ):
-            raise ValueError("canonical boundary reconstruction mismatch")
-        drafts.append(
-            _BoundaryDraft(
-                semantic_id,
-                boundary.half_edge_ids,
-                polygon,
-                area,
-                component_id,
-                boundary.role,
-                boundary.interior_witness_mm,
-            )
-        )
-        seen_half_edges.extend(boundary.half_edge_ids)
-    if sorted(seen_half_edges) != list(range(len(authority.half_edges))):
-        raise ValueError("canonical boundary half edge partition mismatch")
+            raise ValueError("canonical boundary cycle reconstruction mismatch")
+        if actual.interior_witness_mm != expected.interior_witness_mm:
+            raise ValueError("boundary witness reconstruction mismatch")
 
     positive, holes_by_outer, unbounded = _group_oriented_rings(drafts)
-    expected_boundary_roles = {
-        **{index: "OUTER" for index in positive},
-        **{index: "HOLE" for values in holes_by_outer.values() for index in values},
-        **{index: "UNBOUNDED_COMPONENT" for index in unbounded},
-    }
-    if any(
-        authority.boundaries[index].role != expected_boundary_roles[index]
-        for index in range(len(authority.boundaries))
-    ):
-        raise ValueError("canonical boundary role mismatch")
 
     face_specs = [
         (
@@ -2062,6 +2213,15 @@ def _validate_tile_clips_against_faces(authority: ScalableBlockAuthority) -> Non
         authority.tile_coordinates,
         authority.extent_mm,
     )
+    if any(
+        not (
+            authority.extent_mm[0] <= point[0] <= authority.extent_mm[1]
+            and authority.extent_mm[2] <= point[1] <= authority.extent_mm[3]
+        )
+        for edge in authority.embedding_edges
+        for point in edge.points_mm
+    ):
+        raise ValueError("embedding point outside authority extent")
     if authority.tile_clips != expected_clips:
         raise ValueError("canonical tile clip reconstruction mismatch")
     if any(face.owner_tile != owners.get(face.face_id) for face in authority.faces):
