@@ -308,6 +308,27 @@ def test_pure_lowering_preserves_curved_geometry_and_expands_directions() -> Non
     assert lowered.failure_group_crosswalk == ()
     assert lowered.bridge_crossings == ()
 
+    mainline_nodes = (
+        _node(0, 0, 0, layer=1),
+        _node(1, 2_000, 0, layer=1),
+    )
+    mainline_road = _road(
+        0,
+        0,
+        1,
+        ((0, 0), (2_000, 0)),
+        hierarchy="expressway",
+        facility="mainline",
+        layer=1,
+    )
+    mainline_lowered = adapter._lower_scalable_records(
+        nodes=mainline_nodes,
+        roads=(mainline_road,),
+    )
+    assert mainline_road.profile_id == "v2:mainline:expressway"
+    assert mainline_lowered.road_crosswalk[0].profile_id == "v2:mainline"
+    assert mainline_lowered.links[0].road_class is RoadClass.EXPRESSWAY
+
 
 def test_source_embedding_is_cross_bound_before_lowering(
     public_sources,
