@@ -343,6 +343,76 @@ def _semantic_id(parts: object) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def _node_semantic_id(
+    seed: int,
+    style_id: str,
+    role: str,
+    x_mm: int,
+    y_mm: int,
+    layer: int,
+) -> str:
+    return _semantic_id((SCHEMA_VERSION, "node", seed, style_id, role, (x_mm, y_mm, layer)))
+
+
+def _road_semantic_id(
+    seed: int,
+    style_id: str,
+    role: str,
+    start_semantic_id: str,
+    end_semantic_id: str,
+    points_mm: tuple[tuple[int, int], ...],
+    hierarchy: RoadHierarchy,
+    facility: FacilityKind,
+    layer: int,
+    directions: frozenset[str],
+    transition: tuple[int, int] | None,
+    structure_group: str | None,
+    failure_group: str | None,
+    profile_id: str,
+    provenance: str,
+    row_interval: RowIntervalAuthority | None = None,
+) -> str:
+    ordered_directions = tuple(sorted(directions))
+    reversed_directions = tuple(
+        sorted(
+            "reverse"
+            if direction == "forward"
+            else "forward"
+            if direction == "reverse"
+            else direction
+            for direction in ordered_directions
+        )
+    )
+    orientation = min(
+        (start_semantic_id, end_semantic_id, points_mm, ordered_directions),
+        (
+            end_semantic_id,
+            start_semantic_id,
+            tuple(reversed(points_mm)),
+            reversed_directions,
+        ),
+    )
+    return _semantic_id(
+        (
+            SCHEMA_VERSION,
+            "road",
+            seed,
+            style_id,
+            role,
+            orientation,
+            hierarchy.value,
+            facility.value,
+            layer,
+            transition,
+            structure_group,
+            failure_group,
+            profile_id,
+            provenance,
+            _row_interval_content(row_interval),
+        )
+    )
+
+
 def _terrain_fingerprint(
     width_m: float,
     height_m: float,
@@ -642,6 +712,7 @@ class ScalableStreetNetwork:
         if hidden_repair_count != 0:
             raise ValueError("hidden_repair_count must be zero")
         object.__setattr__(self, "hidden_repair_count", hidden_repair_count)
+        _validate_canonical_generated_authority(self, {node.node_id: node for node in self.nodes})
 
 
 def audit_physical_records(
@@ -1042,7 +1113,7 @@ def _canonical_generated_specs(
         if existing is not None:
             return existing
         spec = _NodeSpec(
-            _semantic_id((SCHEMA_VERSION, "node", seed, style_id, role, key)),
+            _node_semantic_id(seed, style_id, role, x_mm, y_mm, layer),
             x_mm,
             y_mm,
             layer,
@@ -1069,25 +1140,23 @@ def _canonical_generated_specs(
         directions = frozenset({"forward", "reverse"})
         profile = _profile_for(facility, hierarchy)
         provenance = "tmfcg_s2_construction"
-        semantic_id = _semantic_id(
-            (
-                SCHEMA_VERSION,
-                "road",
-                seed,
-                style_id,
-                role,
-                start.semantic_id,
-                end.semantic_id,
-                points,
-                hierarchy.value,
-                facility.value,
-                layer,
-                transition,
-                structure_group,
-                failure_group,
-                profile,
-                _row_interval_content(row_interval),
-            )
+        semantic_id = _road_semantic_id(
+            seed,
+            style_id,
+            role,
+            start.semantic_id,
+            end.semantic_id,
+            points,
+            hierarchy,
+            facility,
+            layer,
+            directions,
+            transition,
+            structure_group,
+            failure_group,
+            profile,
+            provenance,
+            row_interval,
         )
         road_specs.append(
             _RoadSpec(
@@ -1232,7 +1301,7 @@ def _canonical_generated_specs(
     upper_nodes = tuple(node_at(x_mm, y_mm, 1, "mainline-gateway") for x_mm, y_mm in gateway_points)
     for start, end in zip(upper_nodes, upper_nodes[1:] + upper_nodes[:1]):
         road_between(
-            "mainline-ring",
+            "perimeter-mainline",
             start,
             end,
             RoadHierarchy.EXPRESSWAY,
@@ -1308,7 +1377,7 @@ def _canonical_generated_specs(
             raise ValueError("surface access triangle must have nonzero area")
         access = node_at(anchor.x_mm + dx, anchor.y_mm + dy, 0, f"ramp-access-{index}")
         road_between(
-            "ramp-access",
+            "mainline-ramp",
             access,
             upper,
             RoadHierarchy.ARTERIAL,
@@ -1551,6 +1620,141 @@ def _network_fingerprint(
             hidden_repair_count,
         )
     )
+
+
+def _validate_canonical_generated_authority(
+    network: ScalableStreetNetwork,
+    by_id: dict[int, PhysicalNodeRecord],
+) -> None:
+    """Check each present generated record against deterministic construction."""
+    for node in network.nodes:
+        expected_semantic_id = _node_semantic_id(
+            network.seed,
+            network.style_id,
+            node.semantic_role,
+            node.x_mm,
+            node.y_mm,
+            node.layer,
+        )
+        if node.semantic_id != expected_semantic_id:
+            raise ValueError("node semantic identity does not match canonical content")
+
+    for road in network.roads:
+        start = by_id.get(road.start_node_id)
+        end = by_id.get(road.end_node_id)
+        if start is None or end is None:
+            raise ValueError("road endpoint does not name a canonical node")
+        expected_semantic_id = _road_semantic_id(
+            network.seed,
+            network.style_id,
+            road.semantic_role,
+            start.semantic_id,
+            end.semantic_id,
+            road.points_mm,
+            road.hierarchy,
+            road.facility,
+            road.layer,
+            road.access_directions,
+            road.layer_transition,
+            road.structure_group,
+            road.failure_group,
+            road.profile_id,
+            road.provenance,
+            road.row_interval,
+        )
+        if road.semantic_id != expected_semantic_id:
+            raise ValueError("road semantic identity does not match canonical content")
+
+    style_fingerprint = _style_fingerprint(
+        network.style_id,
+        network.seed,
+        network.centers,
+        network.nodes,
+        network.roads,
+    )
+    if network.style_fingerprint != style_fingerprint:
+        raise ValueError("style fingerprint does not match canonical record content")
+    network_fingerprint = _network_fingerprint(
+        network.scale_spec,
+        network.style_id,
+        network.seed,
+        network.extent_mm,
+        network.centers,
+        network.gateway_node_ids,
+        network.nodes,
+        network.roads,
+        network.endpoint_incidence,
+        network.terrain,
+        network.tile_coordinates,
+        network.seam_diagnostics,
+        network.hidden_repair_count,
+    )
+    if network.fingerprint != network_fingerprint:
+        raise ValueError("network fingerprint does not match canonical record content")
+
+    expected = _canonical_generated_specs(
+        network.scale_spec,
+        network.style_id,
+        network.seed,
+        network.terrain,
+        network.extent_mm,
+    )
+    expected_nodes = {node.semantic_id: node for node in expected.nodes}
+    for node in network.nodes:
+        spec = expected_nodes.get(node.semantic_id)
+        if spec is None or (
+            node.x_mm,
+            node.y_mm,
+            node.layer,
+            node.semantic_role,
+        ) != (spec.x_mm, spec.y_mm, spec.layer, spec.semantic_role):
+            raise ValueError("node role or geometry is not present canonical construction")
+
+    expected_roads = {road.semantic_id: road for road in expected.roads}
+    for road in network.roads:
+        spec = expected_roads.get(road.semantic_id)
+        if spec is None:
+            raise ValueError("road role or geometry is not present canonical construction")
+        actual = (
+            by_id[road.start_node_id].semantic_id,
+            by_id[road.end_node_id].semantic_id,
+            road.points_mm,
+            road.hierarchy,
+            road.facility,
+            road.layer,
+            road.access_directions,
+            road.layer_transition,
+            road.structure_group,
+            road.failure_group,
+            road.profile_id,
+            road.provenance,
+            road.semantic_role,
+            road.row_interval,
+        )
+        canonical = (
+            spec.start_semantic_id,
+            spec.end_semantic_id,
+            spec.points_mm,
+            spec.hierarchy,
+            spec.facility,
+            spec.layer,
+            spec.access_directions,
+            spec.layer_transition,
+            spec.structure_group,
+            spec.failure_group,
+            spec.profile_id,
+            spec.provenance,
+            spec.semantic_role,
+            spec.row_interval,
+        )
+        if actual != canonical:
+            raise ValueError("road fields do not match present canonical construction")
+
+    gateway_semantics = tuple(by_id[node_id].semantic_id for node_id in network.gateway_node_ids)
+    if gateway_semantics != expected.gateway_semantic_ids:
+        raise ValueError("gateway order does not match canonical construction")
+    if network.centers != expected.centers:
+        raise ValueError("centers do not match canonical construction")
 
 
 def build_scalable_street_network(
