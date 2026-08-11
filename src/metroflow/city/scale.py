@@ -23,5 +23,13 @@ class CityScaleSpec:
             raise ValueError("area must be finite") from error
         if not isfinite(area):
             raise ValueError("area must be finite")
-        object.__setattr__(self, "target_population", int(self.target_population))
+        population = int(self.target_population)
+        if not 100_000 <= population <= 1_000_000:
+            raise ValueError("population must be between 100000 and 1000000")
+        if not 0 < area <= 400:
+            raise ValueError("area must be in (0, 400]")
+        density = population / area
+        if not 2_500 <= density <= 6_667:
+            raise ValueError("density must be between 2500 and 6667")
+        object.__setattr__(self, "target_population", population)
         object.__setattr__(self, "urbanized_area_km2", area)
