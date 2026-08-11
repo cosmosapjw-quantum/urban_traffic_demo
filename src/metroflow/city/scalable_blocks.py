@@ -1783,7 +1783,9 @@ def _authority_fingerprint(authority: ScalableBlockAuthority) -> str:
 
 
 def _validate_authority_structure(authority: ScalableBlockAuthority) -> None:
-    authority._validate_types()
+    if type(authority) is not ScalableBlockAuthority:
+        raise TypeError("authority must be an exact ScalableBlockAuthority")
+    ScalableBlockAuthority._validate_types(authority)
     _plain_digest(authority.source_network_fingerprint, "source_network_fingerprint")
     _plain_digest(authority.fingerprint, "fingerprint", allow_empty=True)
     if (
