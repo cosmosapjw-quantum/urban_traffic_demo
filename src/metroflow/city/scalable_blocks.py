@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict, deque
-from dataclasses import dataclass, field, fields, replace
+from dataclasses import dataclass, field, fields, is_dataclass, replace
 from fractions import Fraction
 from functools import cmp_to_key
 import hashlib
@@ -380,8 +380,7 @@ class ScalableBlockAuthority:
             _plain_str(getattr(self, name), name)
         _plain_digest(self.source_network_fingerprint, "source_network_fingerprint")
         _plain_digest(self.fingerprint, "fingerprint", allow_empty=True)
-        _validate_embedding_geometry(self)
-        _validate_embedding_permutations(self)
+        validate_scalable_block_authority(self)
 
 
 @dataclass(slots=True)
@@ -504,7 +503,6 @@ def _ramp_incidence(
                 road.semantic_id,
                 start.semantic_id,
                 end.semantic_id,
-                road.layer_transition,
                 source_fingerprint,
             ),
         )
@@ -1607,5 +1605,483 @@ def build_scalable_block_authority(
     raise NotImplementedError("public scalable block builder is not implemented")
 
 
+def _record_payload(value: object) -> object:
+    if type(value) is Fraction:
+        return ("Fraction", value.numerator, value.denominator)
+    if type(value) is tuple:
+        return tuple(_record_payload(item) for item in value)
+    if is_dataclass(value) and not isinstance(value, type):
+        return (
+            type(value).__name__,
+            tuple(
+                (item.name, _record_payload(getattr(value, item.name)))
+                for item in fields(value)
+                if not (
+                    (type(value) is V2Block and item.name == "perimeter_m")
+                    or (type(value) is ScalableBlockAuthority and item.name == "fingerprint")
+                )
+            ),
+        )
+    if value is None or type(value) in {bool, int, str, float}:
+        return value
+    raise TypeError("authority fingerprint contains a non-canonical value")
+
+
+def _authority_fingerprint(authority: ScalableBlockAuthority) -> str:
+    return _digest("authority", _record_payload(authority))
+
+
+def _validate_authority_structure(authority: ScalableBlockAuthority) -> None:
+    if type(authority) is not ScalableBlockAuthority:
+        raise TypeError("authority must be an exact ScalableBlockAuthority")
+    if (
+        authority.schema_version != SCHEMA_VERSION
+        or authority.embedding_policy != EMBEDDING_POLICY
+        or authority.tile_policy != TILE_POLICY
+        or authority.subdivision_schema != SUBDIVISION_SCHEMA
+    ):
+        raise ValueError("authority policy or schema mismatch")
+    extent = _validate_extent(authority.extent_mm)
+    if authority.tile_coordinates != _canonical_tile_domain(extent):
+        raise ValueError("tile_coordinates must equal the canonical tile domain")
+
+    collections = (
+        ("embedding edge", authority.embedding_edges, V2EmbeddingEdge, "embedding_edge_id"),
+        ("ramp incidence", authority.ramp_incidence, V2RampIncidence, "ramp_incidence_id"),
+        ("half edge", authority.half_edges, V2HalfEdge, "half_edge_id"),
+        ("boundary", authority.boundaries, V2FaceBoundary, "boundary_id"),
+        ("face", authority.faces, V2Face, "face_id"),
+        ("block", authority.blocks, V2Block, "block_id"),
+        ("tile clip", authority.tile_clips, V2FaceTileClip, "clip_id"),
+    )
+    for label, values, expected_type, identifier in collections:
+        if type(values) is not tuple:
+            raise TypeError("nested authority snapshot must use exact immutable values")
+        for dense_id, value in enumerate(values):
+            if type(value) is not expected_type:
+                raise TypeError(f"non-exact authority record in {label} collection")
+            _validate_nested_snapshot(tuple(getattr(value, item.name) for item in fields(value)))
+            value.__post_init__()
+            if getattr(value, identifier) != dense_id:
+                raise ValueError(f"{label} dense ID mismatch")
+    if type(authority.access_index) is not V2BlockAccessIndex:
+        raise TypeError("non-exact authority record for access index")
+    authority.access_index.__post_init__()
+
+    semantic_groups = (
+        ("embedding edge", authority.embedding_edges),
+        ("ramp incidence", authority.ramp_incidence),
+        ("half edge", authority.half_edges),
+        ("boundary", authority.boundaries),
+        ("face", authority.faces),
+        ("block", authority.blocks),
+    )
+    for label, values in semantic_groups:
+        semantic_ids = tuple(value.semantic_id for value in values)
+        if len(semantic_ids) != len(set(semantic_ids)):
+            raise ValueError(f"semantic collision in {label} records")
+        if label != "face" and semantic_ids != tuple(sorted(semantic_ids)):
+            raise ValueError(f"{label} semantic order mismatch")
+
+    edge_count, half_edge_count = len(authority.embedding_edges), len(authority.half_edges)
+    boundary_count, face_count = len(authority.boundaries), len(authority.faces)
+    block_count = len(authority.blocks)
+    for edge in authority.embedding_edges:
+        if edge.source_road_id < 0 or edge.start_node_id < 0 or edge.end_node_id < 0:
+            raise ValueError("embedding edge reference out of range")
+        if edge.layer != 0 or edge.facility not in {
+            FacilityKind.SURFACE.value,
+            FacilityKind.BRIDGE.value,
+        }:
+            raise ValueError("embedding edge violates layer/facility policy")
+        if edge.source_fingerprint != authority.source_network_fingerprint:
+            raise ValueError("embedding edge source fingerprint mismatch")
+    for ramp in authority.ramp_incidence:
+        if ramp.source_road_id < 0 or ramp.start_node_id < 0 or ramp.end_node_id < 0:
+            raise ValueError("ramp incidence reference out of range")
+        if ramp.source_fingerprint != authority.source_network_fingerprint:
+            raise ValueError("ramp incidence source fingerprint mismatch")
+    for half_edge in authority.half_edges:
+        if not 0 <= half_edge.embedding_edge_id < edge_count:
+            raise ValueError("half edge embedding reference out of range")
+        if any(
+            not 0 <= value < half_edge_count
+            for value in (half_edge.twin_id, half_edge.next_id, half_edge.prev_id)
+        ):
+            raise ValueError("half edge permutation reference out of range")
+        if not 0 <= half_edge.left_face_id < face_count:
+            raise ValueError("half edge face reference out of range")
+        if (
+            min(half_edge.source_road_id, half_edge.origin_node_id, half_edge.destination_node_id)
+            < 0
+        ):
+            raise ValueError("half edge source reference out of range")
+    for boundary in authority.boundaries:
+        if not boundary.half_edge_ids or any(
+            not 0 <= value < half_edge_count for value in boundary.half_edge_ids
+        ):
+            raise ValueError("boundary half edge reference out of range")
+        if not 0 <= boundary.component_id < authority.component_count:
+            raise ValueError("boundary component reference out of range")
+        if boundary.role not in {"OUTER", "HOLE", "UNBOUNDED_COMPONENT"}:
+            raise ValueError("boundary role mismatch")
+    for face in authority.faces:
+        references = (
+            (() if face.outer_boundary_id is None else (face.outer_boundary_id,))
+            + face.hole_boundary_ids
+            + face.unbounded_component_boundary_ids
+        )
+        if any(not 0 <= value < boundary_count for value in references):
+            raise ValueError("face boundary reference out of range")
+        if face.owner_tile is not None and face.owner_tile not in authority.tile_coordinates:
+            raise ValueError("face owner tile reference out of range")
+        if face.role not in {"UNBOUNDED", "DEVELOPABLE", "BARRIER_VOID", "INTERCHANGE_VOID"}:
+            raise ValueError("face role mismatch")
+        if face.source_fingerprint != authority.source_network_fingerprint:
+            raise ValueError("face source fingerprint mismatch")
+    for block in authority.blocks:
+        if not 0 <= block.parent_face_id < face_count:
+            raise ValueError("block parent face reference out of range")
+        if (
+            min((*block.frontage_road_ids, *block.access_node_ids, block.primary_access_node_id))
+            < 0
+        ):
+            raise ValueError("block source reference out of range")
+        if block.subdivision_schema != SUBDIVISION_SCHEMA:
+            raise ValueError("block subdivision schema mismatch")
+        if block.source_fingerprint != authority.source_network_fingerprint:
+            raise ValueError("block source fingerprint mismatch")
+    for clip in authority.tile_clips:
+        if not 0 <= clip.face_id < face_count:
+            raise ValueError("tile clip face reference out of range")
+        if clip.tile_coordinate not in authority.tile_coordinates:
+            raise ValueError("tile clip tile reference out of range")
+
+    index = authority.access_index
+    for mapping_name in ("block_to_road_ids", "block_to_node_ids", "primary_access_by_block"):
+        mapping = getattr(index, mapping_name)
+        if tuple(item[0] for item in mapping) != tuple(range(block_count)):
+            raise ValueError("access index block reference out of range")
+    for mapping_name in ("road_to_block_ids", "node_to_block_ids"):
+        mapping = getattr(index, mapping_name)
+        if any(
+            key < 0 or any(not 0 <= value < block_count for value in values)
+            for key, values in mapping
+        ):
+            raise ValueError("access index reverse reference out of range")
+    if any(
+        any(value < 0 for value in values)
+        for mapping in (index.block_to_road_ids, index.block_to_node_ids)
+        for _, values in mapping
+    ) or any(value < 0 for _, value in index.primary_access_by_block):
+        raise ValueError("access index source reference out of range")
+
+    vertices = {
+        node_id
+        for edge in authority.embedding_edges
+        for node_id in (edge.start_node_id, edge.end_node_id)
+    }
+    component_count = _embedding_components(authority.embedding_edges)[1]
+    occurrences = sum(len(boundary.half_edge_ids) for boundary in authority.boundaries)
+    expected = (
+        len(vertices),
+        edge_count,
+        face_count,
+        component_count,
+        len(vertices) - edge_count + face_count,
+        1 + component_count,
+        occurrences,
+    )
+    actual = (
+        authority.vertex_count,
+        authority.edge_count,
+        authority.face_count,
+        authority.component_count,
+        authority.euler_lhs,
+        authority.euler_rhs,
+        authority.boundary_half_edge_occurrence_count,
+    )
+    if actual != expected or half_edge_count != 2 * edge_count or occurrences != half_edge_count:
+        raise ValueError("DCEL count or Euler authority mismatch")
+
+
+def _validate_record_semantics(authority: ScalableBlockAuthority) -> None:
+    for edge in authority.embedding_edges:
+        expected = _digest(
+            "embedding-edge",
+            (
+                edge.source_road_semantic_id,
+                edge.start_node_semantic_id,
+                edge.end_node_semantic_id,
+                edge.points_mm,
+                edge.layer,
+                edge.facility,
+                edge.source_fingerprint,
+            ),
+        )
+        if edge.semantic_id != expected:
+            raise ValueError("embedding edge semantic mismatch")
+    for ramp in authority.ramp_incidence:
+        expected = _digest(
+            "ramp-incidence",
+            (
+                ramp.source_road_semantic_id,
+                ramp.start_node_semantic_id,
+                ramp.end_node_semantic_id,
+                ramp.source_fingerprint,
+            ),
+        )
+        if ramp.semantic_id != expected:
+            raise ValueError("ramp incidence semantic mismatch")
+    for half_edge in authority.half_edges:
+        edge = authority.embedding_edges[half_edge.embedding_edge_id]
+        if half_edge.source_road_id != edge.source_road_id or (
+            half_edge.origin_node_id,
+            half_edge.destination_node_id,
+            half_edge.points_mm,
+        ) not in {
+            (edge.start_node_id, edge.end_node_id, edge.points_mm),
+            (edge.end_node_id, edge.start_node_id, tuple(reversed(edge.points_mm))),
+        }:
+            raise ValueError("half edge does not match embedding edge")
+        direction = "forward" if half_edge.points_mm == edge.points_mm else "reverse"
+        if half_edge.semantic_id != _digest("half-edge", (edge.semantic_id, direction)):
+            raise ValueError("half edge semantic mismatch")
+
+
+def _validate_canonical_face_partition(authority: ScalableBlockAuthority) -> None:
+    components, _ = _embedding_components(authority.embedding_edges)
+    drafts: list[_BoundaryDraft] = []
+    seen_half_edges: list[int] = []
+    for boundary in authority.boundaries:
+        for left, right in zip(
+            boundary.half_edge_ids,
+            (*boundary.half_edge_ids[1:], boundary.half_edge_ids[0]),
+        ):
+            if authority.half_edges[left].next_id != right:
+                raise ValueError("boundary is not the authoritative next cycle")
+        polygon = _cycle_polygon(boundary.half_edge_ids, list(authority.half_edges))
+        area = _signed_area2(polygon)
+        if area:
+            polygon = _canonical_polygon(polygon, clockwise=area < 0)
+            area = _signed_area2(polygon)
+        semantic_id = _digest(
+            "boundary",
+            tuple(authority.half_edges[index].semantic_id for index in boundary.half_edge_ids),
+        )
+        component_id = components[authority.half_edges[boundary.half_edge_ids[0]].origin_node_id]
+        if (
+            boundary.semantic_id != semantic_id
+            or boundary.polygon_mm != polygon
+            or boundary.signed_twice_area_mm2 != area
+            or boundary.component_id != component_id
+        ):
+            raise ValueError("canonical boundary reconstruction mismatch")
+        drafts.append(
+            _BoundaryDraft(
+                semantic_id,
+                boundary.half_edge_ids,
+                polygon,
+                area,
+                component_id,
+                boundary.role,
+                boundary.interior_witness_mm,
+            )
+        )
+        seen_half_edges.extend(boundary.half_edge_ids)
+    if sorted(seen_half_edges) != list(range(len(authority.half_edges))):
+        raise ValueError("canonical boundary half edge partition mismatch")
+
+    positive, holes_by_outer, unbounded = _group_oriented_rings(drafts)
+    expected_boundary_roles = {
+        **{index: "OUTER" for index in positive},
+        **{index: "HOLE" for values in holes_by_outer.values() for index in values},
+        **{index: "UNBOUNDED_COMPONENT" for index in unbounded},
+    }
+    if any(
+        authority.boundaries[index].role != expected_boundary_roles[index]
+        for index in range(len(authority.boundaries))
+    ):
+        raise ValueError("canonical boundary role mismatch")
+
+    face_specs = [
+        (
+            _digest(
+                "face",
+                ("unbounded", tuple(sorted(drafts[index].semantic_id for index in unbounded))),
+            ),
+            True,
+            "UNBOUNDED",
+            None,
+            (),
+            unbounded,
+            None,
+            (),
+            (),
+        )
+    ]
+    bridge_by_road = {
+        edge.source_road_id: edge.source_road_semantic_id
+        for edge in authority.embedding_edges
+        if edge.facility == FacilityKind.BRIDGE.value
+    }
+    for outer_index in positive:
+        hole_indices = holes_by_outer.get(outer_index, ())
+        boundary_indices = (outer_index, *hole_indices)
+        half_edge_ids = {
+            half_edge_id
+            for boundary_index in boundary_indices
+            for half_edge_id in drafts[boundary_index].half_edge_ids
+        }
+        road_ids = {authority.half_edges[index].source_road_id for index in half_edge_ids}
+        node_ids = {
+            node_id
+            for index in half_edge_ids
+            for node_id in (
+                authority.half_edges[index].origin_node_id,
+                authority.half_edges[index].destination_node_id,
+            )
+        }
+        void_roads = tuple(
+            sorted(semantic for road_id, semantic in bridge_by_road.items() if road_id in road_ids)
+        )
+        void_ramps = tuple(
+            sorted(
+                ramp.source_road_semantic_id
+                for ramp in authority.ramp_incidence
+                if ramp.start_node_id in node_ids or ramp.end_node_id in node_ids
+            )
+        )
+        if void_roads and void_ramps:
+            raise ValueError("bounded face has simultaneous bridge and ramp void reasons")
+        role = "BARRIER_VOID" if void_roads else "INTERCHANGE_VOID" if void_ramps else "DEVELOPABLE"
+        witness = _interior_witness(
+            drafts[outer_index].polygon_mm,
+            tuple(drafts[index].polygon_mm for index in hole_indices),
+        )
+        face_specs.append(
+            (
+                _digest(
+                    "face",
+                    (
+                        "bounded",
+                        drafts[outer_index].semantic_id,
+                        tuple(drafts[index].semantic_id for index in hole_indices),
+                        role,
+                        void_roads,
+                        void_ramps,
+                    ),
+                ),
+                False,
+                role,
+                outer_index,
+                hole_indices,
+                (),
+                witness,
+                void_roads,
+                void_ramps,
+            )
+        )
+    for actual in authority.faces:
+        matches = [
+            spec
+            for spec in face_specs
+            if (spec[1], spec[3]) == (actual.is_unbounded, actual.outer_boundary_id)
+        ]
+        if len(matches) != 1:
+            raise ValueError("canonical face and hole partition mismatch")
+        if actual.void_road_semantic_ids != matches[0][7]:
+            raise ValueError("void road reason mismatch")
+        if actual.void_ramp_semantic_ids != matches[0][8]:
+            raise ValueError("void ramp reason mismatch")
+
+    face_specs.sort(key=lambda item: item[0])
+    if len(face_specs) != len(authority.faces):
+        raise ValueError("canonical face partition mismatch")
+    boundary_face: dict[int, int] = {}
+    for face_id, (actual, spec) in enumerate(zip(authority.faces, face_specs)):
+        (
+            semantic_id,
+            is_unbounded,
+            role,
+            outer_boundary_id,
+            hole_boundary_ids,
+            unbounded_boundary_ids,
+            witness,
+            void_roads,
+            void_ramps,
+        ) = spec
+        if (
+            actual.semantic_id,
+            actual.is_unbounded,
+            actual.role,
+            actual.outer_boundary_id,
+            actual.hole_boundary_ids,
+            actual.unbounded_component_boundary_ids,
+            actual.interior_witness_mm,
+        ) != (
+            semantic_id,
+            is_unbounded,
+            role,
+            outer_boundary_id,
+            hole_boundary_ids,
+            unbounded_boundary_ids,
+            witness,
+        ):
+            raise ValueError("canonical face and hole partition mismatch")
+        for boundary_id in (
+            (() if outer_boundary_id is None else (outer_boundary_id,))
+            + hole_boundary_ids
+            + unbounded_boundary_ids
+        ):
+            boundary_face[boundary_id] = face_id
+    for boundary_id, boundary in enumerate(authority.boundaries):
+        if any(
+            authority.half_edges[index].left_face_id != boundary_face[boundary_id]
+            for index in boundary.half_edge_ids
+        ):
+            raise ValueError("half edge left face partition mismatch")
+
+
+def _validate_tile_clips_against_faces(authority: ScalableBlockAuthority) -> None:
+    expected_clips, owners = _build_tile_clips(
+        authority.faces,
+        authority.boundaries,
+        authority.tile_coordinates,
+        authority.tile_coordinates,
+        authority.extent_mm,
+    )
+    if authority.tile_clips != expected_clips:
+        raise ValueError("canonical tile clip reconstruction mismatch")
+    if any(face.owner_tile != owners.get(face.face_id) for face in authority.faces):
+        raise ValueError("canonical face owner tile mismatch")
+
+
+def _validate_blocks_against_faces(authority: ScalableBlockAuthority) -> None:
+    expected = _build_blocks(
+        authority.faces,
+        authority.boundaries,
+        authority.half_edges,
+        authority.embedding_edges,
+        authority.source_network_fingerprint,
+    )
+    if authority.blocks != expected:
+        raise ValueError("block does not match canonical parent face and holes")
+    if authority.access_index != _build_access_index(expected):
+        raise ValueError("canonical block access index mismatch")
+
+
 def validate_scalable_block_authority(authority: ScalableBlockAuthority) -> None:
-    raise NotImplementedError("standalone scalable block validation is not implemented")
+    _validate_authority_structure(authority)
+    _validate_embedding_geometry(authority)
+    _validate_embedding_permutations(authority)
+    _validate_record_semantics(authority)
+    _validate_canonical_face_partition(authority)
+    _validate_tile_clips_against_faces(authority)
+    _validate_blocks_against_faces(authority)
+    fingerprint = _authority_fingerprint(authority)
+    if authority.fingerprint:
+        if authority.fingerprint != fingerprint:
+            raise ValueError("authority fingerprint mismatch")
+    else:
+        object.__setattr__(authority, "fingerprint", fingerprint)
