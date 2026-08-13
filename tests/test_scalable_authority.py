@@ -901,3 +901,42 @@ def test_fingerprint_composer_derives_exact_branched_nodes_and_rejects_forgery()
         authority._compose_map_fingerprint_set_v3(
             **{**origins, "geometry": "not-a-digest"}
         )
+
+
+@pytest.mark.parametrize(
+    "source",
+    (
+        np.asarray([1, 2, 3], dtype=np.int32),
+        np.asarray([-0.0, 1.25], dtype=np.float32),
+        np.asarray([True, False], dtype=np.bool_),
+        np.asarray([], dtype=np.int32),
+    ),
+)
+def test_seal_c_array_is_bytes_backed_non_aliasing_and_irreversible(
+    source: np.ndarray,
+) -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    before = source.tobytes(order="C")
+    sealed = authority._seal_c_array(source)
+
+    assert type(sealed) is np.ndarray
+    assert sealed.dtype == source.dtype
+    assert sealed.shape == source.shape
+    assert sealed.flags.c_contiguous
+    assert sealed.flags.writeable is False
+    assert sealed.tobytes(order="C") == before
+    assert not np.shares_memory(source, sealed)
+    terminal: object = sealed
+    while type(terminal) is np.ndarray:
+        terminal = terminal.base
+    assert type(terminal) is bytes
+
+    if sealed.size:
+        with pytest.raises(ValueError):
+            sealed.flat[0] = sealed.flat[0]
+        with pytest.raises(ValueError):
+            sealed[:] = sealed
+    with pytest.raises(ValueError):
+        sealed.setflags(write=True)
+    with pytest.raises(ValueError):
+        authority._seal_c_array(np.asarray([[1, 2], [3, 4]], dtype=np.int32).T)
