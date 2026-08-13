@@ -12,7 +12,7 @@ import numpy as np
 from metroflow.city.graph import NodeKind, RoadClass, TurnType
 from metroflow.city.scale import CityScaleSpec
 from metroflow.city.scalable_blocks import ScalableBlockAuthority, V2BlockAccessIndex
-from metroflow.city.scalable_topology import ScalableStreetNetwork
+from metroflow.city.scalable_topology import ScalableStreetNetwork, ScalableTerrainField
 from metroflow.city.scalable_topology_adapter import (
     ScalableCompiledTopology,
     ScalableGroupCrosswalk,
@@ -211,6 +211,11 @@ class V2PoiCatalog:
     source_taz_fingerprint: str
     fingerprint: str = ""
 
+    def __post_init__(self) -> None:
+        raise NotImplementedError(
+            "S8B_OWNER_RED: nested POI catalog identity is not implemented"
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class MapFingerprintSetV3:
@@ -242,6 +247,11 @@ class RoutingStaticDependencyKey:
     closure_capability_policy_version: str
     source_csr_fingerprint: str
     fingerprint: str = ""
+
+    def __post_init__(self) -> None:
+        raise NotImplementedError(
+            "S8A_OWNER_RED: routing dependency identity is not implemented"
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -312,6 +322,11 @@ class ImmutableRoadNetworkCSR:
     topology_cache_key: tuple[object, ...]
     content_fingerprint: str = ""
 
+    def __post_init__(self) -> None:
+        raise NotImplementedError(
+            "S7_OWNER_RED: immutable CSR validation is not implemented"
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class ScalableStaticAuthority:
@@ -369,4 +384,207 @@ def _copy_task4_authorities(
 ) -> _CopiedTask4:
     raise NotImplementedError(
         "S11_COPY_OWNER_RED: Task4 immutable copy validation is not implemented"
+    )
+
+
+def _raw_capacity_ratios(
+    *,
+    exact_net_area_mm2: Fraction,
+    terrain_intensity: float,
+    land_use_type: V2LandUseType,
+) -> tuple[Fraction, Fraction, Fraction, Fraction]:
+    raise NotImplementedError("S2_OWNER_RED: exact capacity arithmetic is not implemented")
+
+
+def _require_implied_multiplier(
+    *,
+    target: int,
+    raw_total: Fraction | float,
+    enforce_authoritative_bounds: bool,
+) -> Fraction:
+    raise NotImplementedError("S2_OWNER_RED: exact capacity arithmetic is not implemented")
+
+
+def _apportion_exact_channel(
+    *,
+    target: int,
+    weighted_rows: tuple[tuple[str, Fraction], ...],
+) -> tuple[tuple[str, int], ...]:
+    raise NotImplementedError("S2_OWNER_RED: exact capacity arithmetic is not implemented")
+
+
+def _sample_terrain_at_exact_witness(
+    *,
+    terrain: ScalableTerrainField,
+    witness_mm: tuple[int | Fraction, int | Fraction],
+) -> tuple[tuple[int, int], float]:
+    raise NotImplementedError("S3_OWNER_RED: exact witness and Morton policy is not implemented")
+
+
+def _centrality_score_mm(
+    *,
+    witness_mm: tuple[int | Fraction, int | Fraction],
+    centers_mm: tuple[tuple[int, int], ...],
+    width_m: float,
+    height_m: float,
+) -> float:
+    raise NotImplementedError("S3_OWNER_RED: exact witness and Morton policy is not implemented")
+
+
+def _morton_witness_key(
+    *,
+    witness_mm: tuple[int | Fraction, int | Fraction],
+    extent_mm: tuple[int, int, int, int],
+) -> tuple[int, Fraction, Fraction]:
+    raise NotImplementedError("S3_OWNER_RED: exact witness and Morton policy is not implemented")
+
+
+def _partition_morton_rows(
+    *,
+    rows: tuple[tuple[int, str, tuple[int | Fraction, int | Fraction]], ...],
+    extent_mm: tuple[int, int, int, int],
+    taz_count: int,
+) -> tuple[tuple[int, tuple[int, ...]], ...]:
+    raise NotImplementedError("S3_OWNER_RED: exact witness and Morton policy is not implemented")
+
+
+def _taz_count_policy_unbounded(population: int) -> int:
+    raise NotImplementedError("S3_OWNER_RED: exact witness and Morton policy is not implemented")
+
+
+def _land_use_counts(block_count: int) -> tuple[int, int, int, int]:
+    raise NotImplementedError("S4A_OWNER_RED: land-use classification is not implemented")
+
+
+def _frontage_adjacency_from_index(
+    *,
+    developable_block_ids: tuple[int, ...],
+    road_to_block_ids: tuple[tuple[int, tuple[int, ...]], ...],
+) -> tuple[tuple[tuple[int, tuple[int, ...]], ...], int]:
+    raise NotImplementedError("S4A_OWNER_RED: land-use classification is not implemented")
+
+
+def _classify_land_use_rows(
+    *,
+    feature_rows: tuple[tuple[int, str, float, float, float], ...],
+    road_to_block_ids: tuple[tuple[int, tuple[int, ...]], ...],
+) -> tuple[tuple[int, V2LandUseType], ...]:
+    raise NotImplementedError("S4A_OWNER_RED: land-use classification is not implemented")
+
+
+def _node_taz_ownership_from_index(
+    *,
+    block_rows: tuple[tuple[str, int, tuple[int, ...]], ...],
+) -> tuple[
+    tuple[tuple[int, int], ...],
+    tuple[tuple[int, tuple[tuple[str, int], ...], int], ...],
+    int,
+]:
+    raise NotImplementedError("S4B_OWNER_RED: node TAZ ownership is not implemented")
+
+
+def _aggregate_poi_rows(
+    *,
+    block_rows: tuple[
+        tuple[
+            int,
+            str,
+            tuple[int | Fraction, int | Fraction],
+            int,
+            int,
+            int,
+            int,
+            int,
+        ],
+        ...,
+    ],
+    source_allocation_fingerprint: str,
+) -> tuple[V2Poi, ...]:
+    raise NotImplementedError("S5A_OWNER_RED: aggregate POI rows are not implemented")
+
+
+def _compose_map_fingerprint_set_v3(
+    *,
+    config: str,
+    geometry: str,
+    topology: str,
+    link_attributes: str,
+    turn_authority: str,
+    blocks_access: str,
+    land_use_zoning: str,
+) -> MapFingerprintSetV3:
+    raise NotImplementedError("S5B_OWNER_RED: v3 fingerprint composition is not implemented")
+
+
+def _seal_c_array(source: np.ndarray) -> np.ndarray:
+    raise NotImplementedError("S6_OWNER_RED: irreversible C-array sealing is not implemented")
+
+
+def _admit_scalable_sources(
+    scale_spec: CityScaleSpec,
+    style_id: str,
+    seed: int,
+    network: ScalableStreetNetwork,
+    blocks: ScalableBlockAuthority,
+    compiled: ScalableCompiledTopology,
+) -> CityScaleSpec:
+    raise NotImplementedError(
+        "S9_OWNER_RED: exact source admission types are not implemented"
+    )
+
+
+def _derive_scalable_static_authority(
+    *,
+    scale_spec: CityScaleSpec,
+    style_id: str,
+    seed: int,
+    network: ScalableStreetNetwork,
+    blocks: ScalableBlockAuthority,
+    compiled: ScalableCompiledTopology,
+) -> ScalableStaticAuthority:
+    raise NotImplementedError(
+        "S11_OWNER_RED: static authority derivation is not implemented"
+    )
+
+
+def build_scalable_static_authority(
+    scale_spec: CityScaleSpec,
+    style_id: str,
+    seed: int,
+    network: ScalableStreetNetwork,
+    blocks: ScalableBlockAuthority,
+    compiled: ScalableCompiledTopology,
+) -> ScalableStaticAuthority:
+    normalized_scale = _admit_scalable_sources(
+        scale_spec,
+        style_id,
+        seed,
+        network,
+        blocks,
+        compiled,
+    )
+    return _derive_scalable_static_authority(
+        scale_spec=normalized_scale,
+        style_id=style_id,
+        seed=seed,
+        network=network,
+        blocks=blocks,
+        compiled=compiled,
+    )
+
+
+def require_valid_scalable_static_authority(
+    authority: ScalableStaticAuthority,
+    *,
+    scale_spec: CityScaleSpec,
+    style_id: str,
+    seed: int,
+    network: ScalableStreetNetwork,
+    blocks: ScalableBlockAuthority,
+    compiled: ScalableCompiledTopology,
+) -> None:
+    if type(authority) is not ScalableStaticAuthority:
+        raise TypeError("authority must be an exact ScalableStaticAuthority")
+    raise NotImplementedError(
+        "S12_OWNER_RED: standalone static-authority validation is not implemented"
     )
