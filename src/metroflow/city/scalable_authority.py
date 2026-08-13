@@ -857,7 +857,36 @@ def _node_taz_ownership_from_index(
     tuple[tuple[int, tuple[tuple[str, int], ...], int], ...],
     int,
 ]:
-    raise NotImplementedError("S4B_OWNER_RED: node TAZ ownership is not implemented")
+    if type(block_rows) is not tuple:
+        raise TypeError("block_rows must be a built-in tuple")
+    candidates: dict[int, list[tuple[str, int]]] = {}
+    semantic_ids: set[str] = set()
+    visit_count = 0
+    for row in block_rows:
+        if type(row) is not tuple or len(row) != 3:
+            raise TypeError("each node-owner row must be a built-in three-item tuple")
+        semantic_id = _digest_text(row[0], "block_semantic_id")
+        if semantic_id in semantic_ids:
+            raise ValueError("node-owner rows require unique block semantic IDs")
+        semantic_ids.add(semantic_id)
+        taz_id = _plain_nonnegative_int(row[1], "taz_id")
+        if type(row[2]) is not tuple:
+            raise TypeError("access_node_ids must be a built-in tuple")
+        node_ids = tuple(_plain_nonnegative_int(node, "access node id") for node in row[2])
+        if not node_ids or len(set(node_ids)) != len(node_ids):
+            raise ValueError("access node IDs must be nonempty and unique per block")
+        for node_id in node_ids:
+            candidates.setdefault(node_id, []).append((semantic_id, taz_id))
+            visit_count += 1
+    owners: list[tuple[int, int]] = []
+    conflicts: list[tuple[int, tuple[tuple[str, int], ...], int]] = []
+    for node_id in sorted(candidates):
+        ordered = tuple(sorted(candidates[node_id]))
+        winner = ordered[0][1]
+        owners.append((node_id, winner))
+        if len(ordered) > 1:
+            conflicts.append((node_id, ordered, winner))
+    return tuple(owners), tuple(conflicts), visit_count
 
 
 def _aggregate_poi_rows(
