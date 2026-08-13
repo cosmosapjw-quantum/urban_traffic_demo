@@ -1415,15 +1415,6 @@ def test_bounded_capacity_preflight_is_aggregate_only() -> None:
             assert scale_calls == 0
             scale_calls += 1
             bounded_scale = callable_(*args, **kwargs)
-            phase_rows.append(
-                {
-                    "phase": "CityScaleSpec",
-                    "callable": callable_.__module__ + "." + callable_.__qualname__,
-                    "call_count": scale_calls,
-                    "population": population,
-                    "scale_fingerprint": bounded_scale.fingerprint,
-                }
-            )
             return bounded_scale
 
         def hostile(label, value):
@@ -1473,15 +1464,6 @@ def test_bounded_capacity_preflight_is_aggregate_only() -> None:
                 assert args[0] is network and kwargs["block_authority"] is blocks
             builder_order.append(phase)
             result = callable_(*args, **kwargs)
-            phase_rows.append(
-                {
-                    "phase": phase,
-                    "callable": callable_.__module__ + "." + callable_.__qualname__,
-                    "call_count": 1,
-                    "population": bounded_scale.target_population,
-                    "scale_fingerprint": bounded_scale.fingerprint,
-                }
-            )
             return result
 
         network = guard_builder(
@@ -1494,6 +1476,16 @@ def test_bounded_capacity_preflight_is_aggregate_only() -> None:
             network,
             block_authority=blocks,
         )
+        for phase, callable_ in (("CityScaleSpec", CityScaleSpec), *builders):
+            phase_rows.append(
+                {
+                    "phase": phase,
+                    "callable": callable_.__module__ + "." + callable_.__qualname__,
+                    "call_count": 1,
+                    "population": bounded_scale.target_population,
+                    "scale_fingerprint": network.scale_fingerprint,
+                }
+            )
         before_authority_import = frozenset(sys.modules)
         reject_forbidden(before_authority_import)
         authority = importlib.import_module("metroflow.city.scalable_authority")
