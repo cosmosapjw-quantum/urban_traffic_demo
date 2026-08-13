@@ -22,6 +22,7 @@ from metroflow.city.scalable_topology_adapter import (
     ScalableGroupCrosswalk,
     ScalableNumericProfile,
     ScalableRoadCrosswalk,
+    require_valid_scalable_compiled_topology,
 )
 
 __all__ = (
@@ -1657,21 +1658,48 @@ def _admit_scalable_sources(
     blocks: ScalableBlockAuthority,
     compiled: ScalableCompiledTopology,
 ) -> CityScaleSpec:
-    for value, expected, name in (
-        (scale_spec, CityScaleSpec, "scale_spec"),
-        (network, ScalableStreetNetwork, "network"),
-        (blocks, ScalableBlockAuthority, "blocks"),
-        (compiled, ScalableCompiledTopology, "compiled"),
-    ):
-        if type(value) is not expected:
-            raise TypeError(f"{name} must be an exact {expected.__name__}")
+    if type(scale_spec) is not CityScaleSpec:
+        raise TypeError("scale_spec must be an exact CityScaleSpec")
     if type(style_id) is not str:
         raise TypeError("style_id must be a built-in string")
     if type(seed) is not int:
         raise TypeError("seed must be a built-in integer")
-    raise NotImplementedError(
-        "S10_OWNER_RED: current Task4 source admission is not implemented"
+    if type(network) is not ScalableStreetNetwork:
+        raise TypeError("network must be an exact ScalableStreetNetwork")
+    if type(blocks) is not ScalableBlockAuthority:
+        raise TypeError("blocks must be an exact ScalableBlockAuthority")
+    if type(compiled) is not ScalableCompiledTopology:
+        raise TypeError("compiled must be an exact ScalableCompiledTopology")
+
+    normalized_scale = CityScaleSpec(
+        scale_spec.target_population,
+        scale_spec.urbanized_area_km2,
     )
+    require_valid_scalable_compiled_topology(
+        compiled,
+        network=network,
+        block_authority=blocks,
+    )
+    if (
+        network.scale_spec.target_population != normalized_scale.target_population
+        or network.scale_spec.urbanized_area_km2.hex()
+        != normalized_scale.urbanized_area_km2.hex()
+        or network.style_id != style_id
+        or network.seed != seed
+    ):
+        raise ValueError("scale/style/seed differs from the admitted network")
+    if blocks.extent_mm != network.extent_mm:
+        raise ValueError("block/network extent mismatch")
+    if (
+        blocks.source_network_fingerprint != network.fingerprint
+        or compiled.source_network_fingerprint != network.fingerprint
+        or compiled.source_block_authority_fingerprint != blocks.fingerprint
+        or compiled.terrain_fingerprint != network.terrain.fingerprint
+        or compiled.scale_fingerprint != network.scale_fingerprint
+        or compiled.style_fingerprint != network.style_fingerprint
+    ):
+        raise ValueError("Task 3/3B/4 source fingerprint chain mismatch")
+    return normalized_scale
 
 
 def _derive_scalable_static_authority(
