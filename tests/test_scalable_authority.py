@@ -817,3 +817,83 @@ def test_fingerprint_composer_derives_exact_branched_nodes_and_rejects_forgery()
         )
     direct = authority.MapFingerprintSetV3(**values)
     assert direct.routing_static == values["routing_static"]
+
+    origins = {
+        "config": "0" * 64,
+        "geometry": "1" * 64,
+        "topology": "2" * 64,
+        "link_attributes": "3" * 64,
+        "turn_authority": "4" * 64,
+        "blocks_access": "5" * 64,
+        "land_use_zoning": "6" * 64,
+    }
+    base = authority._compose_map_fingerprint_set_v3(**origins)
+    assert (
+        base.routing_static,
+        base.accessibility_static,
+        base.replay_static,
+        base.composite,
+    ) == (
+        "5e9b604f7117caca2315ffb79292a26d6f0a69685bb7b4fc5cb5be197e8940d0",
+        "91476e01c4b06f13a3f0a1341fbef17c1f98b32d8aa0690763a04f00925df31c",
+        "aa30b408815861f90678a1d0e0bc8cd08d413bf9e8bc13c637b6464383570e9f",
+        "079d0d53943c3416bc20cb4a7be58064cba31bbec0bc866fee3d5b5d31e0b4cb",
+    )
+
+    expected_changed = {
+        "config": {"config", "replay_static", "composite"},
+        "geometry": {
+            "geometry",
+            "routing_static",
+            "accessibility_static",
+            "replay_static",
+            "composite",
+        },
+        "topology": {
+            "topology",
+            "routing_static",
+            "accessibility_static",
+            "replay_static",
+            "composite",
+        },
+        "link_attributes": {
+            "link_attributes",
+            "routing_static",
+            "accessibility_static",
+            "replay_static",
+            "composite",
+        },
+        "turn_authority": {
+            "turn_authority",
+            "routing_static",
+            "accessibility_static",
+            "replay_static",
+            "composite",
+        },
+        "blocks_access": {"blocks_access", "replay_static", "composite"},
+        "land_use_zoning": {
+            "land_use_zoning",
+            "accessibility_static",
+            "replay_static",
+            "composite",
+        },
+    }
+    fingerprint_fields = tuple(
+        field.name for field in fields(authority.MapFingerprintSetV3)
+    )
+    for origin, wanted in expected_changed.items():
+        changed_origins = {**origins, origin: "a" * 64}
+        candidate = authority._compose_map_fingerprint_set_v3(**changed_origins)
+        actual = {
+            name
+            for name in fingerprint_fields
+            if getattr(candidate, name) != getattr(base, name)
+        }
+        assert actual == wanted
+
+    with pytest.raises(ValueError):
+        replace(base, routing_static="f" * 64)
+    with pytest.raises(ValueError):
+        authority._compose_map_fingerprint_set_v3(
+            **{**origins, "geometry": "not-a-digest"}
+        )
