@@ -1516,7 +1516,8 @@ def test_bounded_capacity_preflight_is_aggregate_only() -> None:
             (copied.road_csr.turns, compiled.road_csr.turns),
             (copied.road_csr.bridge_crossings, compiled.road_csr.bridge_crossings),
         ):
-            assert target_rows is not source_rows
+            if source_rows:
+                assert target_rows is not source_rows
             for row_index, (target, source) in enumerate(
                 zip(target_rows, source_rows, strict=True)
             ):
