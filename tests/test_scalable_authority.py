@@ -1160,3 +1160,105 @@ def test_routing_key_and_poi_catalog_recompute_nested_identity() -> None:
             source_allocation_fingerprint=allocation,
             source_taz_fingerprint="e" * 64,
         )
+
+
+def test_public_boundaries_reject_behavior_subclasses_before_read(
+    canonical_scalable_sources: tuple[object, object, object, object],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    scale, network, blocks, compiled = canonical_scalable_sources
+    upstream_calls = 0
+
+    def forbidden_upstream(*args: object, **kwargs: object) -> None:
+        nonlocal upstream_calls
+        upstream_calls += 1
+        raise AssertionError("upstream validator ran for a behavior-bearing input")
+
+    monkeypatch.setattr(
+        authority,
+        "require_valid_scalable_compiled_topology",
+        forbidden_upstream,
+        raising=False,
+    )
+
+    class EvilScale(CityScaleSpec):
+        def __getattribute__(self, name: str) -> object:
+            raise AssertionError(f"read EvilScale.{name}")
+
+    class EvilNetwork(type(network)):
+        def __getattribute__(self, name: str) -> object:
+            raise AssertionError(f"read EvilNetwork.{name}")
+
+    class EvilBlocks(type(blocks)):
+        def __getattribute__(self, name: str) -> object:
+            raise AssertionError(f"read EvilBlocks.{name}")
+
+    class EvilCompiled(type(compiled)):
+        def __getattribute__(self, name: str) -> object:
+            raise AssertionError(f"read EvilCompiled.{name}")
+
+    class EvilAuthority(authority.ScalableStaticAuthority):
+        def __getattribute__(self, name: str) -> object:
+            raise AssertionError(f"read EvilAuthority.{name}")
+
+    class EvilStr(str):
+        def __str__(self) -> str:
+            raise AssertionError("coerced EvilStr")
+
+    invalid_builds = (
+        (object.__new__(EvilScale), "grid_core", 17, network, blocks, compiled),
+        (scale, EvilStr("grid_core"), 17, network, blocks, compiled),
+        (scale, "grid_core", True, network, blocks, compiled),
+        (scale, "grid_core", 17, object.__new__(EvilNetwork), blocks, compiled),
+        (scale, "grid_core", 17, network, object.__new__(EvilBlocks), compiled),
+        (scale, "grid_core", 17, network, blocks, object.__new__(EvilCompiled)),
+    )
+    for arguments in invalid_builds:
+        with pytest.raises(TypeError):
+            authority.build_scalable_static_authority(*arguments)
+    with pytest.raises(TypeError):
+        authority.require_valid_scalable_static_authority(
+            object.__new__(EvilAuthority),
+            scale_spec=scale,
+            style_id="grid_core",
+            seed=17,
+            network=network,
+            blocks=blocks,
+            compiled=compiled,
+        )
+    assert upstream_calls == 0
+
+    class EvilPoi(authority.V2Poi):
+        def __getattribute__(self, name: str) -> object:
+            raise AssertionError(f"read EvilPoi.{name}")
+
+    class SwitchingTuple(tuple):
+        def __iter__(self):
+            raise AssertionError("iterated SwitchingTuple")
+
+    class EvilFraction(Fraction):
+        def as_integer_ratio(self) -> tuple[int, int]:
+            raise AssertionError("coerced EvilFraction")
+
+    with pytest.raises(TypeError):
+        authority.V2PoiCatalog(
+            schema_version=authority.POI_POLICY,
+            pois=(object.__new__(EvilPoi),),
+            home_capacity_total=0,
+            workplace_capacity_total=0,
+            leisure_capacity_total=0,
+            source_allocation_fingerprint="a" * 64,
+            source_taz_fingerprint="b" * 64,
+        )
+    with pytest.raises(TypeError):
+        authority._aggregate_poi_rows(
+            block_rows=SwitchingTuple(),
+            source_allocation_fingerprint="a" * 64,
+        )
+    with pytest.raises(TypeError):
+        authority._raw_capacity_ratios(
+            exact_net_area_mm2=EvilFraction(1),
+            terrain_intensity=0.5,
+            land_use_type=authority.V2LandUseType.RESIDENTIAL,
+        )
