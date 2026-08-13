@@ -793,3 +793,27 @@ def test_aggregate_poi_rows_are_positive_only_dense_and_permutation_invariant() 
 
 def replace_tuple_head(row: tuple[object, ...], value: object) -> tuple[object, ...]:
     return (value, *row[1:])
+
+
+def test_fingerprint_composer_derives_exact_branched_nodes_and_rejects_forgery() -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    values = {
+        "schema_version": authority.FINGERPRINT_SET_SCHEMA,
+        "config": "0" * 64,
+        "geometry": "1" * 64,
+        "topology": "2" * 64,
+        "link_attributes": "3" * 64,
+        "turn_authority": "4" * 64,
+        "blocks_access": "5" * 64,
+        "land_use_zoning": "6" * 64,
+        "routing_static": "5e9b604f7117caca2315ffb79292a26d6f0a69685bb7b4fc5cb5be197e8940d0",
+        "accessibility_static": "91476e01c4b06f13a3f0a1341fbef17c1f98b32d8aa0690763a04f00925df31c",
+        "replay_static": "aa30b408815861f90678a1d0e0bc8cd08d413bf9e8bc13c637b6464383570e9f",
+        "composite": "079d0d53943c3416bc20cb4a7be58064cba31bbec0bc866fee3d5b5d31e0b4cb",
+    }
+    with pytest.raises(ValueError, match="routing_static"):
+        authority.MapFingerprintSetV3(
+            **{**values, "routing_static": "f" + values["routing_static"][1:]}
+        )
+    direct = authority.MapFingerprintSetV3(**values)
+    assert direct.routing_static == values["routing_static"]
