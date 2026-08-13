@@ -706,3 +706,90 @@ def test_aggregate_poi_rows_are_positive_only_dense_and_permutation_invariant() 
     )
     assert valid.semantic_id == semantic_id
     assert len(valid.fingerprint) == 64
+
+    allocation = "d" * 64
+    rows = (
+        (7, "a" * 64, (Fraction(1, 3), Fraction(2, 5)), 9, 2, 5, 0, 3),
+        (2, "b" * 64, (-1, 0), 4, 1, 0, 7, 0),
+        (5, "c" * 64, (0, 0), 6, 0, 0, 0, 0),
+    )
+    pois = authority._aggregate_poi_rows(
+        block_rows=rows,
+        source_allocation_fingerprint=allocation,
+    )
+    assert authority._aggregate_poi_rows(
+        block_rows=tuple(reversed(rows)),
+        source_allocation_fingerprint=allocation,
+    ) == pois
+    assert tuple(
+        (
+            poi.poi_id,
+            poi.semantic_id,
+            poi.poi_kind,
+            poi.block_id,
+            poi.location_witness_mm,
+            poi.access_node_id,
+            poi.taz_id,
+            poi.capacity,
+            poi.source_allocation_fingerprint,
+        )
+        for poi in pois
+    ) == (
+        (
+            0,
+            "228b7e6bc20e596370c4bea495b7f29f8d998a9a798049813e8bcef9041ae636",
+            authority.V2PoiKind.WORKPLACE,
+            2,
+            (-1, 0),
+            4,
+            1,
+            7,
+            allocation,
+        ),
+        (
+            1,
+            "bb6edbdcc58ed582b3eb5ca5202117a61e621581c26e9e9129c450120e0e9bae",
+            authority.V2PoiKind.LEISURE,
+            7,
+            (Fraction(1, 3), Fraction(2, 5)),
+            9,
+            2,
+            3,
+            allocation,
+        ),
+        (
+            2,
+            "f34defc55844a111316184c9c245d6ce9cab0c22c44e0e4d43ef2aaf07727d3c",
+            authority.V2PoiKind.HOME,
+            7,
+            (Fraction(1, 3), Fraction(2, 5)),
+            9,
+            2,
+            5,
+            allocation,
+        ),
+    )
+    assert all(poi.fingerprint and len(poi.fingerprint) == 64 for poi in pois)
+    changed = authority._aggregate_poi_rows(
+        block_rows=(
+            (7, "a" * 64, (9, 9), 99, 8, 50, 0, 30),
+            rows[1],
+            rows[2],
+        ),
+        source_allocation_fingerprint="e" * 64,
+    )
+    assert {
+        (poi.block_semantic_id, poi.poi_kind): poi.semantic_id for poi in changed
+    } == {(poi.block_semantic_id, poi.poi_kind): poi.semantic_id for poi in pois}
+    assert tuple(poi.fingerprint for poi in changed) != tuple(
+        poi.fingerprint for poi in pois
+    )
+    with pytest.raises(ValueError):
+        authority._aggregate_poi_rows(
+            block_rows=(rows[0], replace_tuple_head(rows[1], 7)),
+            source_allocation_fingerprint=allocation,
+        )
+
+
+def replace_tuple_head(row: tuple[object, ...], value: object) -> tuple[object, ...]:
+    return (value, *row[1:])
