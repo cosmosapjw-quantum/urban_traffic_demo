@@ -126,6 +126,25 @@ def _exact_witness(
     )
 
 
+def _exact_extent(extent_mm: object) -> tuple[int, int, int, int]:
+    if type(extent_mm) is not tuple or len(extent_mm) != 4:
+        raise TypeError("extent_mm must be a built-in four-item tuple")
+    if any(type(value) is not int for value in extent_mm):
+        raise TypeError("extent_mm values must be built-in integers")
+    xmin, ymin, xmax, ymax = extent_mm
+    if xmax <= xmin or ymax <= ymin:
+        raise ValueError("extent_mm must have positive width and height")
+    return xmin, ymin, xmax, ymax
+
+
+def _morton_code(x: int, y: int) -> int:
+    result = 0
+    for bit in range(max(x.bit_length(), y.bit_length())):
+        result |= ((x >> bit) & 1) << (2 * bit)
+        result |= ((y >> bit) & 1) << (2 * bit + 1)
+    return result
+
+
 @dataclass(frozen=True, slots=True)
 class BlockLandUseV2:
     block_id: int
@@ -598,7 +617,13 @@ def _morton_witness_key(
     witness_mm: tuple[int | Fraction, int | Fraction],
     extent_mm: tuple[int, int, int, int],
 ) -> tuple[int, Fraction, Fraction]:
-    raise NotImplementedError("S3_OWNER_RED: exact witness and Morton policy is not implemented")
+    wx, wy = _exact_witness(witness_mm)
+    xmin, ymin, xmax, ymax = _exact_extent(extent_mm)
+    if not Fraction(xmin) <= wx <= Fraction(xmax) or not Fraction(ymin) <= wy <= Fraction(ymax):
+        raise ValueError("witness must lie inside the inclusive extent")
+    dx = wx - xmin
+    dy = wy - ymin
+    return _morton_code(math.floor(dx), math.floor(dy)), dx, dy
 
 
 def _partition_morton_rows(
@@ -607,7 +632,37 @@ def _partition_morton_rows(
     extent_mm: tuple[int, int, int, int],
     taz_count: int,
 ) -> tuple[tuple[int, tuple[int, ...]], ...]:
-    raise NotImplementedError("S3_OWNER_RED: exact witness and Morton policy is not implemented")
+    if type(rows) is not tuple:
+        raise TypeError("rows must be a built-in tuple")
+    taz_count = _plain_nonnegative_int(taz_count, "taz_count")
+    if taz_count < 1:
+        raise ValueError("taz_count must be positive")
+    _exact_extent(extent_mm)
+    parsed: list[tuple[int, Fraction, Fraction, str, int]] = []
+    block_ids: set[int] = set()
+    semantic_ids: set[str] = set()
+    for row in rows:
+        if type(row) is not tuple or len(row) != 3:
+            raise TypeError("each Morton row must be a built-in three-item tuple")
+        block_id = _plain_nonnegative_int(row[0], "block_id")
+        semantic_id = _digest_text(row[1], "block_semantic_id")
+        if block_id in block_ids or semantic_id in semantic_ids:
+            raise ValueError("Morton rows require unique block and semantic IDs")
+        block_ids.add(block_id)
+        semantic_ids.add(semantic_id)
+        morton, dx, dy = _morton_witness_key(witness_mm=row[2], extent_mm=extent_mm)
+        parsed.append((morton, dx, dy, semantic_id, block_id))
+    if len(parsed) < taz_count:
+        raise ValueError("TAZ count cannot exceed addressable block count")
+    parsed.sort()
+    q, r = divmod(len(parsed), taz_count)
+    result: list[tuple[int, tuple[int, ...]]] = []
+    start = 0
+    for taz_id in range(taz_count):
+        size = q + (1 if taz_id < r else 0)
+        result.append((taz_id, tuple(row[4] for row in parsed[start : start + size])))
+        start += size
+    return tuple(result)
 
 
 def _taz_count_policy_unbounded(population: int) -> int:
