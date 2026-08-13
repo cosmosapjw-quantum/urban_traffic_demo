@@ -1262,3 +1262,75 @@ def test_public_boundaries_reject_behavior_subclasses_before_read(
             terrain_intensity=0.5,
             land_use_type=authority.V2LandUseType.RESIDENTIAL,
         )
+
+
+def test_stale_task4_source_fails_before_any_task5_work(
+    canonical_scalable_sources: tuple[object, object, object, object],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    scale, network, blocks, compiled = canonical_scalable_sources
+    calls = {
+        "upstream": 0,
+        "seal": 0,
+        "sample": 0,
+        "classify": 0,
+        "raw": 0,
+        "apportion": 0,
+        "poi": 0,
+        "compose": 0,
+    }
+
+    def counted_upstream(*args: object, **kwargs: object) -> None:
+        calls["upstream"] += 1
+        require_valid_scalable_compiled_topology(*args, **kwargs)
+
+    def forbidden(name: str):
+        def fail(*args: object, **kwargs: object) -> object:
+            calls[name] += 1
+            raise AssertionError(f"Task 5 {name} ran before source admission")
+
+        return fail
+
+    monkeypatch.setattr(
+        authority,
+        "require_valid_scalable_compiled_topology",
+        counted_upstream,
+        raising=False,
+    )
+    for symbol, name in (
+        ("_seal_c_array", "seal"),
+        ("_sample_terrain_at_exact_witness", "sample"),
+        ("_classify_land_use_rows", "classify"),
+        ("_raw_capacity_ratios", "raw"),
+        ("_apportion_exact_channel", "apportion"),
+        ("_aggregate_poi_rows", "poi"),
+        ("_compose_map_fingerprint_set_v3", "compose"),
+    ):
+        monkeypatch.setattr(authority, symbol, forbidden(name))
+
+    original = int(compiled.road_csr.link_ids[0])
+    compiled.road_csr.link_ids[0] = original + 1
+    try:
+        with pytest.raises(ValueError):
+            authority.build_scalable_static_authority(
+                scale,
+                "grid_core",
+                17,
+                network,
+                blocks,
+                compiled,
+            )
+    finally:
+        compiled.road_csr.link_ids[0] = original
+
+    assert calls == {
+        "upstream": 1,
+        "seal": 0,
+        "sample": 0,
+        "classify": 0,
+        "raw": 0,
+        "apportion": 0,
+        "poi": 0,
+        "compose": 0,
+    }
