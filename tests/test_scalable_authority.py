@@ -469,6 +469,36 @@ def test_exact_raw_weights_multiplier_and_largest_remainder_are_order_independen
             target=1,
             weighted_rows=((keys[0], Fraction(1)), (keys[0], Fraction(2))),
         )
+
+
+def test_fraction_witness_terrain_centrality_and_morton_are_exact() -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    terrain = ScalableTerrainField(
+        width_m=100.0,
+        height_m=100.0,
+        cell_size_m=50.0,
+        tile_size_m=2_000.0,
+        seed=17,
+        style_id="grid_core",
+        barrier_seam_x_mm=None,
+        fingerprint="a" * 64,
+    )
+
+    negative = authority._sample_terrain_at_exact_witness(
+        terrain=terrain,
+        witness_mm=(Fraction(-1, 2), Fraction(49_999, 2)),
+    )
+    left = authority._sample_terrain_at_exact_witness(
+        terrain=terrain,
+        witness_mm=(49_999, 0),
+    )
+    right = authority._sample_terrain_at_exact_witness(
+        terrain=terrain,
+        witness_mm=(50_000, 0),
+    )
+    assert negative == ((-1, 0), terrain.intensity_at(-25.0, 25.0))
+    assert left == ((0, 0), terrain.intensity_at(25.0, 25.0))
+    assert right == ((1, 0), terrain.intensity_at(75.0, 25.0))
     with pytest.raises(ValueError):
         authority._require_implied_multiplier(
             target=3_000_001,
