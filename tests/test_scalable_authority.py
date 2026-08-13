@@ -1130,3 +1130,33 @@ def test_routing_key_and_poi_catalog_recompute_nested_identity() -> None:
     assert first.fingerprint != second.fingerprint
     with pytest.raises(ValueError):
         replace(second, fingerprint=first.fingerprint)
+
+    allocation = "d" * 64
+    pois = authority._aggregate_poi_rows(
+        block_rows=(
+            (7, "a" * 64, (Fraction(1, 3), Fraction(2, 5)), 9, 2, 5, 0, 3),
+            (2, "b" * 64, (-1, 0), 4, 1, 0, 7, 0),
+        ),
+        source_allocation_fingerprint=allocation,
+    )
+    catalog = authority.V2PoiCatalog(
+        schema_version=authority.POI_POLICY,
+        pois=pois,
+        home_capacity_total=5,
+        workplace_capacity_total=7,
+        leisure_capacity_total=3,
+        source_allocation_fingerprint=allocation,
+        source_taz_fingerprint="e" * 64,
+    )
+    assert len(catalog.fingerprint) == 64
+    object.__setattr__(pois[0], "fingerprint", "f" * 64)
+    with pytest.raises(ValueError):
+        authority.V2PoiCatalog(
+            schema_version=authority.POI_POLICY,
+            pois=pois,
+            home_capacity_total=5,
+            workplace_capacity_total=7,
+            leisure_capacity_total=3,
+            source_allocation_fingerprint=allocation,
+            source_taz_fingerprint="e" * 64,
+        )
