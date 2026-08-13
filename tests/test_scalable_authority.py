@@ -893,6 +893,10 @@ def test_fingerprint_composer_derives_exact_branched_nodes_and_rejects_forgery()
 
     with pytest.raises(ValueError):
         replace(base, routing_static="f" * 64)
+    with pytest.raises(TypeError):
+        authority._compose_map_fingerprint_set_v3(
+            **{**origins, "geometry": object()}
+        )
     with pytest.raises(ValueError):
         authority._compose_map_fingerprint_set_v3(
             **{**origins, "geometry": "not-a-digest"}
