@@ -926,8 +926,144 @@ def _copy_task4_authorities(
     blocks: ScalableBlockAuthority,
     compiled: ScalableCompiledTopology,
 ) -> _CopiedTask4:
-    raise NotImplementedError(
-        "S11_COPY_OWNER_RED: Task4 immutable copy validation is not implemented"
+    profiles = tuple(
+        ScalableNumericProfile(
+            profile_id=profile.profile_id,
+            lanes_per_direction=profile.lanes_per_direction,
+            free_flow_speed_mps=profile.free_flow_speed_mps,
+            capacity_veh_per_second=profile.capacity_veh_per_second,
+            operational_road_class=profile.operational_road_class,
+            section_roadside_profile=profile.section_roadside_profile,
+            median_when_bidirectional=profile.median_when_bidirectional,
+        )
+        for profile in compiled.numeric_profiles
+    )
+    roads = tuple(
+        ScalableRoadCrosswalk(
+            physical_road_id=road.physical_road_id,
+            road_semantic_id=road.road_semantic_id,
+            hierarchy=road.hierarchy,
+            facility=road.facility,
+            profile_id=road.profile_id,
+            layer=road.layer,
+            layer_transition=road.layer_transition,
+            access_directions=road.access_directions,
+            provenance=road.provenance,
+            geometry_id=road.geometry_id,
+            centerline_source_ref=road.centerline_source_ref,
+            forward_link_id=road.forward_link_id,
+            reverse_link_id=road.reverse_link_id,
+            structure_group=road.structure_group,
+            structure_group_id=road.structure_group_id,
+            failure_group=road.failure_group,
+            bridge_group_id=road.bridge_group_id,
+        )
+        for road in compiled.road_crosswalk
+    )
+
+    def copy_groups(
+        values: tuple[ScalableGroupCrosswalk, ...],
+    ) -> tuple[ScalableGroupCrosswalk, ...]:
+        return tuple(
+            ScalableGroupCrosswalk(
+                semantic_group=group.semantic_group,
+                dense_group_id=group.dense_group_id,
+                member_physical_road_ids=tuple(group.member_physical_road_ids),
+            )
+            for group in values
+        )
+
+    source_index = blocks.access_index
+    access_index = V2BlockAccessIndex(
+        block_to_road_ids=tuple(
+            (key, tuple(values)) for key, values in source_index.block_to_road_ids
+        ),
+        block_to_node_ids=tuple(
+            (key, tuple(values)) for key, values in source_index.block_to_node_ids
+        ),
+        road_to_block_ids=tuple(
+            (key, tuple(values)) for key, values in source_index.road_to_block_ids
+        ),
+        node_to_block_ids=tuple(
+            (key, tuple(values)) for key, values in source_index.node_to_block_ids
+        ),
+        primary_access_by_block=tuple(source_index.primary_access_by_block),
+        incidence_visit_count=source_index.incidence_visit_count,
+    )
+    source_csr = compiled.road_csr
+    immutable_csr = ImmutableRoadNetworkCSR(
+        schema_version=IMMUTABLE_CSR_SCHEMA,
+        nodes=tuple(
+            ImmutableNode(
+                node_id=node.node_id,
+                kind=node.kind,
+                x=node.x,
+                y=node.y,
+                zone_id=node.zone_id,
+                signal_group_id=node.signal_group_id,
+            )
+            for node in source_csr.nodes
+        ),
+        links=tuple(
+            ImmutableRoadLink(
+                link_id=link.link_id,
+                src_node_id=link.src_node_id,
+                dst_node_id=link.dst_node_id,
+                road_class=link.road_class,
+                length_m=link.length_m,
+                free_flow_speed_mps=link.free_flow_speed_mps,
+                capacity_veh_per_tick=link.capacity_veh_per_tick,
+                lanes=link.lanes,
+                bridge_group_id=link.bridge_group_id,
+                is_blockable=link.is_blockable,
+                physical_road_id=link.physical_road_id,
+            )
+            for link in source_csr.links
+        ),
+        turns=tuple(
+            ImmutableTurnMovement(
+                from_link_id=turn.from_link_id,
+                to_link_id=turn.to_link_id,
+                turn_type=turn.turn_type,
+                base_priority=turn.base_priority,
+                signal_phase_id=turn.signal_phase_id,
+            )
+            for turn in source_csr.turns
+        ),
+        bridge_crossings=tuple(
+            ImmutableBridgeCrossing(
+                bridge_group_id=bridge.bridge_group_id,
+                link_ids=tuple(bridge.link_ids),
+                barrier_id=bridge.barrier_id,
+                crossing_name=bridge.crossing_name,
+                bottleneck_rank_hint=bridge.bottleneck_rank_hint,
+            )
+            for bridge in source_csr.bridge_crossings
+        ),
+        node_id_to_index=source_csr.node_id_to_index,
+        link_id_to_index=source_csr.link_id_to_index,
+        turn_pair_to_index=source_csr.turn_pair_to_index,
+        node_ids=source_csr.node_ids,
+        link_ids=source_csr.link_ids,
+        link_src_node_index=source_csr.link_src_node_index,
+        link_dst_node_index=source_csr.link_dst_node_index,
+        outgoing_indptr=source_csr.outgoing_indptr,
+        outgoing_link_indices=source_csr.outgoing_link_indices,
+        incoming_indptr=source_csr.incoming_indptr,
+        incoming_link_indices=source_csr.incoming_link_indices,
+        turn_from_link_index=source_csr.turn_from_link_index,
+        turn_to_link_index=source_csr.turn_to_link_index,
+        turn_base_priority=source_csr.turn_base_priority,
+        turn_is_forbidden=source_csr.turn_is_forbidden,
+        topology_cache_key=source_csr.topology_cache_key,
+    )
+    return _CopiedTask4(
+        numeric_profiles=profiles,
+        road_crosswalk=roads,
+        structure_group_crosswalk=copy_groups(compiled.structure_group_crosswalk),
+        failure_group_crosswalk=copy_groups(compiled.failure_group_crosswalk),
+        block_access_index=access_index,
+        road_csr=immutable_csr,
     )
 
 
