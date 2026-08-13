@@ -652,3 +652,25 @@ def test_land_use_classifier_uses_exact_scores_and_frozen_indexed_adjacency() ->
             feature_rows=uniform[:4],
             road_to_block_ids=((99, (1, 3)),),
         )
+
+
+def test_node_taz_ownership_uses_semantic_candidate_order() -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    rows = (
+        ("b" * 64, 2, (9, 4)),
+        ("a" * 64, 1, (9, 3)),
+        ("c" * 64, 0, (9, 4)),
+    )
+    owners, conflicts, visits = authority._node_taz_ownership_from_index(block_rows=rows)
+    assert owners == ((3, 1), (4, 2), (9, 1))
+    assert conflicts == (
+        (4, (("b" * 64, 2), ("c" * 64, 0)), 2),
+        (9, (("a" * 64, 1), ("b" * 64, 2), ("c" * 64, 0)), 1),
+    )
+    assert visits == 6
+    assert authority._node_taz_ownership_from_index(
+        block_rows=tuple(
+            (semantic, taz, tuple(reversed(nodes)))
+            for semantic, taz, nodes in reversed(rows)
+        )
+    ) == (owners, conflicts, visits)
