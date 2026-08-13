@@ -499,6 +499,13 @@ def test_fraction_witness_terrain_centrality_and_morton_are_exact() -> None:
     assert negative == ((-1, 0), terrain.intensity_at(-25.0, 25.0))
     assert left == ((0, 0), terrain.intensity_at(25.0, 25.0))
     assert right == ((1, 0), terrain.intensity_at(75.0, 25.0))
+
+    assert authority._centrality_score_mm(
+        witness_mm=(1_000, 0),
+        centers_mm=((0, 0),),
+        width_m=100.0,
+        height_m=50.0,
+    ) == math.exp(-1.0 / 28.0)
     with pytest.raises(ValueError):
         authority._require_implied_multiplier(
             target=3_000_001,
