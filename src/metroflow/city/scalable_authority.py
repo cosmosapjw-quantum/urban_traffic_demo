@@ -1,5 +1,9 @@
 """Immutable capacity-only authority for scalable synthetic cities."""
 
+from __future__ import annotations
+
+from enum import Enum
+
 __all__ = (
     "BlockLandUseV2",
     "ImmutableBridgeCrossing",
@@ -46,3 +50,16 @@ CLOSURE_CAPABILITY_POLICY = "task4_blockable_failure_group_v1"
 STATIC_BUILDER_BACKEND = "python_numpy_baseline_static_v1"
 CAPACITY_REFERENCE_TICK_SECONDS = 1.0
 CAPACITY_SOURCE_UNIT = "vehicles_per_second"
+
+
+class V2LandUseType(str, Enum):
+    RESIDENTIAL = "residential"
+    COMMERCIAL = "commercial"
+    INDUSTRIAL = "industrial"
+    MIXED_USE = "mixed_use"
+
+
+class V2PoiKind(str, Enum):
+    HOME = "home"
+    WORKPLACE = "workplace"
+    LEISURE = "leisure"
