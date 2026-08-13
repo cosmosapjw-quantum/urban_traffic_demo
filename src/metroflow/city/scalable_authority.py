@@ -689,7 +689,45 @@ def _frontage_adjacency_from_index(
     developable_block_ids: tuple[int, ...],
     road_to_block_ids: tuple[tuple[int, tuple[int, ...]], ...],
 ) -> tuple[tuple[tuple[int, tuple[int, ...]], ...], int]:
-    raise NotImplementedError("S4A_OWNER_RED: land-use classification is not implemented")
+    if type(developable_block_ids) is not tuple:
+        raise TypeError("developable_block_ids must be a built-in tuple")
+    block_ids = tuple(
+        _plain_nonnegative_int(value, "developable block id")
+        for value in developable_block_ids
+    )
+    if len(set(block_ids)) != len(block_ids):
+        raise ValueError("developable block IDs must be unique")
+    block_id_set = set(block_ids)
+    if type(road_to_block_ids) is not tuple:
+        raise TypeError("road_to_block_ids must be a built-in tuple")
+    adjacency = {block_id: set() for block_id in block_ids}
+    road_ids: set[int] = set()
+    visit_count = 0
+    for row in road_to_block_ids:
+        if type(row) is not tuple or len(row) != 2:
+            raise TypeError("each road reverse-index row must be a built-in pair")
+        road_id = _plain_nonnegative_int(row[0], "road id")
+        if road_id in road_ids:
+            raise ValueError("road reverse-index IDs must be unique")
+        road_ids.add(road_id)
+        if type(row[1]) is not tuple:
+            raise TypeError("road reverse-index members must be a built-in tuple")
+        members = tuple(
+            _plain_nonnegative_int(value, "road member block id") for value in row[1]
+        )
+        if len(set(members)) != len(members):
+            raise ValueError("road reverse-index members must be unique")
+        if any(member not in block_id_set for member in members):
+            raise ValueError("road reverse index references a non-developable block")
+        visit_count += len(members)
+        for member in members:
+            adjacency[member].update(other for other in members if other != member)
+    return (
+        tuple(
+            (block_id, tuple(sorted(adjacency[block_id]))) for block_id in sorted(block_ids)
+        ),
+        visit_count,
+    )
 
 
 def _classify_land_use_rows(
