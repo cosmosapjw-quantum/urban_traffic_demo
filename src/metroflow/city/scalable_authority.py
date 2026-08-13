@@ -97,6 +97,14 @@ def _plain_nonnegative_int(value: object, name: str) -> int:
     return value
 
 
+def _digest_text(value: object, name: str) -> str:
+    if type(value) is not str or len(value) != 64:
+        raise TypeError(f"{name} must be a 64-character built-in string")
+    if any(character not in "0123456789abcdef" for character in value):
+        raise ValueError(f"{name} must be lowercase hexadecimal")
+    return value
+
+
 @dataclass(frozen=True, slots=True)
 class BlockLandUseV2:
     block_id: int
@@ -465,7 +473,40 @@ def _apportion_exact_channel(
     target: int,
     weighted_rows: tuple[tuple[str, Fraction], ...],
 ) -> tuple[tuple[str, int], ...]:
-    raise NotImplementedError("S2_OWNER_RED: exact capacity arithmetic is not implemented")
+    target = _plain_nonnegative_int(target, "target")
+    if type(weighted_rows) is not tuple:
+        raise TypeError("weighted_rows must be a built-in tuple")
+    parsed: list[tuple[str, Fraction]] = []
+    seen: set[str] = set()
+    for row in weighted_rows:
+        if type(row) is not tuple or len(row) != 2:
+            raise TypeError("each weighted row must be a two-item built-in tuple")
+        key = _digest_text(row[0], "weight key")
+        weight = row[1]
+        if type(weight) is not Fraction:
+            raise TypeError("weights must be exact Fractions")
+        if weight < 0:
+            raise ValueError("weights must be nonnegative")
+        if key in seen:
+            raise ValueError("weight keys must be unique")
+        seen.add(key)
+        parsed.append((key, weight))
+    parsed.sort(key=lambda item: item[0])
+    total = sum((weight for _, weight in parsed), Fraction(0))
+    if total == 0:
+        if target != 0:
+            raise ValueError("positive target requires a positive weighted pool")
+        return tuple((key, 0) for key, _ in parsed)
+    quotas = [(key, Fraction(target) * weight / total) for key, weight in parsed]
+    allocated = {key: quota.numerator // quota.denominator for key, quota in quotas}
+    remainder = target - sum(allocated.values())
+    ranked = sorted(
+        quotas,
+        key=lambda item: (-(item[1] - allocated[item[0]]), item[0]),
+    )
+    for key, _ in ranked[:remainder]:
+        allocated[key] += 1
+    return tuple((key, allocated[key]) for key, _ in parsed)
 
 
 def _sample_terrain_at_exact_witness(
