@@ -666,7 +666,11 @@ def _partition_morton_rows(
 
 
 def _taz_count_policy_unbounded(population: int) -> int:
-    raise NotImplementedError("S3_OWNER_RED: exact witness and Morton policy is not implemented")
+    if type(population) is not int:
+        raise TypeError("population must be a built-in integer")
+    if population <= 0:
+        raise ValueError("population must be positive")
+    return min(512, max(64, (population + 2_499) // 2_500))
 
 
 def _land_use_counts(block_count: int) -> tuple[int, int, int, int]:
