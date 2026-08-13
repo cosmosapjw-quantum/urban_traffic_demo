@@ -1657,8 +1657,20 @@ def _admit_scalable_sources(
     blocks: ScalableBlockAuthority,
     compiled: ScalableCompiledTopology,
 ) -> CityScaleSpec:
+    for value, expected, name in (
+        (scale_spec, CityScaleSpec, "scale_spec"),
+        (network, ScalableStreetNetwork, "network"),
+        (blocks, ScalableBlockAuthority, "blocks"),
+        (compiled, ScalableCompiledTopology, "compiled"),
+    ):
+        if type(value) is not expected:
+            raise TypeError(f"{name} must be an exact {expected.__name__}")
+    if type(style_id) is not str:
+        raise TypeError("style_id must be a built-in string")
+    if type(seed) is not int:
+        raise TypeError("seed must be a built-in integer")
     raise NotImplementedError(
-        "S9_OWNER_RED: exact source admission types are not implemented"
+        "S10_OWNER_RED: current Task4 source admission is not implemented"
     )
 
 
