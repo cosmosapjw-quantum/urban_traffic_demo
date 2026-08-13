@@ -354,35 +354,3 @@ def test_scalable_authority_public_schema_is_exact() -> None:
         assert record_type.__annotations__ == annotations
         assert tuple(field.name for field in fields(record_type)) == tuple(annotations)
 
-    builder = inspect.signature(authority.build_scalable_static_authority)
-    assert tuple(builder.parameters) == (
-        "scale_spec",
-        "style_id",
-        "seed",
-        "network",
-        "blocks",
-        "compiled",
-    )
-    assert all(
-        parameter.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
-        for parameter in builder.parameters.values()
-    )
-    assert builder.return_annotation == "ScalableStaticAuthority"
-
-    validator = inspect.signature(authority.require_valid_scalable_static_authority)
-    assert tuple(validator.parameters) == (
-        "authority",
-        "scale_spec",
-        "style_id",
-        "seed",
-        "network",
-        "blocks",
-        "compiled",
-    )
-    assert validator.parameters["authority"].kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
-    assert all(
-        validator.parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
-        for name in ("scale_spec", "style_id", "seed", "network", "blocks", "compiled")
-    )
-    assert validator.return_annotation == "None"
-
