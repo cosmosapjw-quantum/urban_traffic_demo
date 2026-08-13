@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from fractions import Fraction
+import math
 from typing import Mapping
 
 import numpy as np
@@ -103,6 +104,26 @@ def _digest_text(value: object, name: str) -> str:
     if any(character not in "0123456789abcdef" for character in value):
         raise ValueError(f"{name} must be lowercase hexadecimal")
     return value
+
+
+def _exact_fraction(value: object, name: str) -> Fraction:
+    if type(value) is int:
+        return Fraction(value)
+    if type(value) is Fraction:
+        return value
+    raise TypeError(f"{name} must be an exact integer or Fraction")
+
+
+def _exact_witness(
+    witness_mm: object,
+    name: str = "witness_mm",
+) -> tuple[Fraction, Fraction]:
+    if type(witness_mm) is not tuple or len(witness_mm) != 2:
+        raise TypeError(f"{name} must be a built-in two-item tuple")
+    return (
+        _exact_fraction(witness_mm[0], f"{name}[0]"),
+        _exact_fraction(witness_mm[1], f"{name}[1]"),
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -514,7 +535,24 @@ def _sample_terrain_at_exact_witness(
     terrain: ScalableTerrainField,
     witness_mm: tuple[int | Fraction, int | Fraction],
 ) -> tuple[tuple[int, int], float]:
-    raise NotImplementedError("S3_OWNER_RED: exact witness and Morton policy is not implemented")
+    if type(terrain) is not ScalableTerrainField:
+        raise TypeError("terrain must be an exact ScalableTerrainField")
+    wx, wy = _exact_witness(witness_mm)
+    cell_size_m = terrain.cell_size_m
+    if type(cell_size_m) is not float or not math.isfinite(cell_size_m) or cell_size_m <= 0:
+        raise ValueError("terrain cell size must be a positive built-in float")
+    numerator, denominator = cell_size_m.as_integer_ratio()
+    cell_size_mm = Fraction(numerator * 1_000, denominator)
+    cell_x = math.floor(wx / cell_size_mm)
+    cell_y = math.floor(wy / cell_size_mm)
+    center_x_m = float((Fraction(cell_x) + Fraction(1, 2)) * cell_size_mm / 1_000)
+    center_y_m = float((Fraction(cell_y) + Fraction(1, 2)) * cell_size_mm / 1_000)
+    intensity = terrain.intensity_at(center_x_m, center_y_m)
+    if terrain.cell_key_at(center_x_m, center_y_m) != (cell_x, cell_y):
+        raise ValueError("terrain cell center does not round-trip to its exact key")
+    if type(intensity) is not float or not math.isfinite(intensity) or not 0.0 <= intensity <= 1.0:
+        raise ValueError("terrain intensity must be a finite built-in float in [0, 1]")
+    return (cell_x, cell_y), intensity
 
 
 def _centrality_score_mm(
