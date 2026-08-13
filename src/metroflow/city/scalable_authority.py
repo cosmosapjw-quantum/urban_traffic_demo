@@ -1163,7 +1163,24 @@ def _compose_map_fingerprint_set_v3(
     blocks_access: str,
     land_use_zoning: str,
 ) -> MapFingerprintSetV3:
-    raise NotImplementedError("S5B_OWNER_RED: v3 fingerprint composition is not implemented")
+    origins = {
+        name: _digest_text(value, name)
+        for name, value in (
+            ("config", config),
+            ("geometry", geometry),
+            ("topology", topology),
+            ("link_attributes", link_attributes),
+            ("turn_authority", turn_authority),
+            ("blocks_access", blocks_access),
+            ("land_use_zoning", land_use_zoning),
+        )
+    }
+    derived = _derived_map_nodes(**origins)
+    return MapFingerprintSetV3(
+        schema_version=FINGERPRINT_SET_SCHEMA,
+        **origins,
+        **derived,
+    )
 
 
 def _seal_c_array(source: np.ndarray) -> np.ndarray:
