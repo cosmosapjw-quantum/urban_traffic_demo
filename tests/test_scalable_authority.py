@@ -586,3 +586,24 @@ def test_land_use_classifier_uses_exact_scores_and_frozen_indexed_adjacency() ->
     assert authority._land_use_counts(7) == (1, 1, 2, 3)
     assert authority._land_use_counts(12) == (1, 1, 3, 7)
     assert authority._land_use_counts(50) == (6, 6, 12, 26)
+
+    reverse_index = ((10, (1, 5)), (11, (1, 7)), (12, (5, 6)))
+    adjacency, visits = authority._frontage_adjacency_from_index(
+        developable_block_ids=tuple(range(12)),
+        road_to_block_ids=reverse_index,
+    )
+    assert visits == 6
+    assert dict(adjacency) == {
+        0: (),
+        1: (5, 7),
+        2: (),
+        3: (),
+        4: (),
+        5: (1, 6),
+        6: (5,),
+        7: (1,),
+        8: (),
+        9: (),
+        10: (),
+        11: (),
+    }
