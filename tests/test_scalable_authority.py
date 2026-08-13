@@ -1113,3 +1113,20 @@ def test_exact_math_hostile_float_collapse_and_binary_cell_oracles() -> None:
             extent_mm=extent,
             taz_count=2,
         )
+
+
+def test_routing_key_and_poi_catalog_recompute_nested_identity() -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    routing = "a" * 64
+    first = authority.RoutingStaticDependencyKey(
+        schema_version=authority.ROUTING_KEY_SCHEMA,
+        routing_static_fingerprint=routing,
+        routing_policy_version=authority.ROUTING_POLICY,
+        access_direction_policy_version=authority.ACCESS_DIRECTION_POLICY,
+        closure_capability_policy_version=authority.CLOSURE_CAPABILITY_POLICY,
+        source_csr_fingerprint="b" * 64,
+    )
+    second = replace(first, source_csr_fingerprint="c" * 64, fingerprint="")
+    assert first.fingerprint != second.fingerprint
+    with pytest.raises(ValueError):
+        replace(second, fingerprint=first.fingerprint)
