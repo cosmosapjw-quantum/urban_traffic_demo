@@ -89,6 +89,14 @@ _RAW_RATES = {
 }
 
 
+def _plain_nonnegative_int(value: object, name: str) -> int:
+    if type(value) is not int:
+        raise TypeError(f"{name} must be a built-in integer")
+    if value < 0:
+        raise ValueError(f"{name} must be nonnegative")
+    return value
+
+
 @dataclass(frozen=True, slots=True)
 class BlockLandUseV2:
     block_id: int
@@ -425,7 +433,31 @@ def _require_implied_multiplier(
     raw_total: Fraction | float,
     enforce_authoritative_bounds: bool,
 ) -> Fraction:
-    raise NotImplementedError("S2_OWNER_RED: exact capacity arithmetic is not implemented")
+    target = _plain_nonnegative_int(target, "target")
+    if type(enforce_authoritative_bounds) is not bool:
+        raise TypeError("enforce_authoritative_bounds must be a built-in bool")
+    if type(raw_total) is Fraction:
+        raw = raw_total
+    elif type(raw_total) is float:
+        if raw_total != raw_total or raw_total in (float("inf"), float("-inf")):
+            raise ValueError("raw_total must be finite")
+        raw = Fraction(*raw_total.as_integer_ratio())
+    else:
+        raise TypeError("raw_total must be an exact Fraction or built-in float")
+    if raw < 0:
+        raise ValueError("raw_total must be nonnegative")
+    if raw == 0:
+        if target == 0:
+            return Fraction(0)
+        raise ValueError("positive target requires a positive raw pool")
+    if target == 0:
+        if enforce_authoritative_bounds:
+            raise ValueError("zero authoritative target requires a zero raw pool")
+        return Fraction(0)
+    multiplier = Fraction(target, 1) / raw
+    if enforce_authoritative_bounds and not Fraction(1, 4) <= multiplier <= Fraction(3):
+        raise ValueError("implied multiplier must be in [1/4, 3]")
+    return multiplier
 
 
 def _apportion_exact_channel(
