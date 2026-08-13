@@ -940,3 +940,87 @@ def test_seal_c_array_is_bytes_backed_non_aliasing_and_irreversible(
         sealed.setflags(write=True)
     with pytest.raises(ValueError):
         authority._seal_c_array(np.asarray([[1, 2], [3, 4]], dtype=np.int32).T)
+
+
+def test_immutable_csr_copies_maps_arrays_and_validates_outgoing_contract() -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    nodes = (
+        authority.ImmutableNode(0, NodeKind.INTERSECTION, 0.0, -0.0, None, None),
+        authority.ImmutableNode(1, NodeKind.INTERSECTION, 1.0, 0.0, None, None),
+    )
+    links = (
+        authority.ImmutableRoadLink(
+            0,
+            0,
+            1,
+            RoadClass.LOCAL,
+            1.0,
+            10.0,
+            0.5,
+            1,
+            None,
+            True,
+            7,
+        ),
+    )
+    source_maps = ({0: 0, 1: 1}, {0: 0}, {})
+    source_arrays = {
+        "node_ids": np.asarray([0, 1], dtype=np.int32),
+        "link_ids": np.asarray([0], dtype=np.int32),
+        "link_src_node_index": np.asarray([0], dtype=np.int32),
+        "link_dst_node_index": np.asarray([1], dtype=np.int32),
+        "outgoing_indptr": np.asarray([0, 1, 1], dtype=np.int32),
+        "outgoing_link_indices": np.asarray([0], dtype=np.int32),
+        "incoming_indptr": np.asarray([0, 0, 1], dtype=np.int32),
+        "incoming_link_indices": np.asarray([0], dtype=np.int32),
+        "turn_from_link_index": np.asarray([], dtype=np.int32),
+        "turn_to_link_index": np.asarray([], dtype=np.int32),
+        "turn_base_priority": np.asarray([], dtype=np.float32),
+        "turn_is_forbidden": np.asarray([], dtype=np.bool_),
+    }
+    csr = authority.ImmutableRoadNetworkCSR(
+        schema_version=authority.IMMUTABLE_CSR_SCHEMA,
+        nodes=nodes,
+        links=links,
+        turns=(),
+        bridge_crossings=(),
+        node_id_to_index=source_maps[0],
+        link_id_to_index=source_maps[1],
+        turn_pair_to_index=source_maps[2],
+        **source_arrays,
+        topology_cache_key=("road-network-csr-v1", 1, -0.0, (True, None, "x")),
+    )
+
+    assert type(csr.node_id_to_index) is MappingProxyType
+    assert type(csr.link_id_to_index) is MappingProxyType
+    assert type(csr.turn_pair_to_index) is MappingProxyType
+    assert csr.node_count == 2
+    assert csr.link_count == 1
+    assert csr.turn_count == 0
+    assert csr.outgoing_links_for_node(0) == links
+    assert csr.outgoing_links_for_node(1) == ()
+    assert len(csr.content_fingerprint) == 64
+    for name, source in source_arrays.items():
+        sealed = getattr(csr, name)
+        assert type(sealed) is np.ndarray
+        assert not np.shares_memory(source, sealed)
+        assert sealed.flags.writeable is False
+        terminal: object = sealed
+        while type(terminal) is np.ndarray:
+            terminal = terminal.base
+        assert type(terminal) is bytes
+
+    source_maps[0][0] = 99
+    source_maps[1][0] = 99
+    source_maps[2][(0, 0)] = 99
+    source_arrays["node_ids"][0] = 99
+    assert dict(csr.node_id_to_index) == {0: 0, 1: 1}
+    assert dict(csr.link_id_to_index) == {0: 0}
+    assert dict(csr.turn_pair_to_index) == {}
+    assert csr.node_ids.tolist() == [0, 1]
+
+    for invalid in (True, np.int64(0), 99):
+        with pytest.raises((TypeError, KeyError)):
+            csr.outgoing_links_for_node(invalid)
+    with pytest.raises(ValueError):
+        replace(csr, content_fingerprint="f" * 64)
