@@ -674,14 +674,7 @@ def _taz_count_policy_unbounded(population: int) -> int:
 
 
 def _land_use_counts(block_count: int) -> tuple[int, int, int, int]:
-    block_count = _plain_nonnegative_int(block_count, "block_count")
-    commercial = max(1, round(Fraction(12 * block_count, 100)))
-    industrial = max(1, round(Fraction(12 * block_count, 100)))
-    mixed = max(1, round(Fraction(23 * block_count, 100)))
-    residential = block_count - commercial - industrial - mixed
-    if residential < 1:
-        raise ValueError("block count cannot retain all four land-use types")
-    return commercial, industrial, mixed, residential
+    raise NotImplementedError("S4A_OWNER_RED: land-use classification is not implemented")
 
 
 def _frontage_adjacency_from_index(
