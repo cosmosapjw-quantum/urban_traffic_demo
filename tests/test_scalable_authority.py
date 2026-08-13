@@ -1491,6 +1491,7 @@ def test_bounded_capacity_preflight_is_aggregate_only() -> None:
         before_authority_import = frozenset(sys.modules)
         reject_forbidden(before_authority_import)
         authority = importlib.import_module("metroflow.city.scalable_authority")
+        assert authority.__name__ == "metroflow.city.scalable_authority"
         after_authority_import = frozenset(sys.modules)
         reject_forbidden(after_authority_import)
         reject_forbidden(after_authority_import - before_authority_import)
