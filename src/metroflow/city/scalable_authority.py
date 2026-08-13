@@ -1188,7 +1188,17 @@ def _compose_map_fingerprint_set_v3(
 
 
 def _seal_c_array(source: np.ndarray) -> np.ndarray:
-    raise NotImplementedError("S6_OWNER_RED: irreversible C-array sealing is not implemented")
+    if type(source) is not np.ndarray:
+        raise TypeError("source must be an exact NumPy array")
+    if not source.flags.c_contiguous:
+        raise ValueError("source array must be C-contiguous")
+    if source.dtype.hasobject:
+        raise TypeError("object arrays cannot be sealed")
+    immutable_bytes = bytes(source.tobytes(order="C"))
+    sealed = np.frombuffer(immutable_bytes, dtype=source.dtype).reshape(source.shape)
+    if sealed.flags.writeable:
+        raise AssertionError("bytes-backed arrays must be read-only")
+    return sealed
 
 
 def _admit_scalable_sources(
