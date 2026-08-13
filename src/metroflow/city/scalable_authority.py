@@ -730,12 +730,123 @@ def _frontage_adjacency_from_index(
     )
 
 
+def _exact_score(
+    values: tuple[float, float, float],
+    coefficients: tuple[Fraction, Fraction, Fraction],
+) -> Fraction:
+    return sum(
+        (
+            coefficient * Fraction(*value.as_integer_ratio())
+            for value, coefficient in zip(values, coefficients, strict=True)
+        ),
+        Fraction(0),
+    )
+
+
 def _classify_land_use_rows(
     *,
     feature_rows: tuple[tuple[int, str, float, float, float], ...],
     road_to_block_ids: tuple[tuple[int, tuple[int, ...]], ...],
 ) -> tuple[tuple[int, V2LandUseType], ...]:
-    raise NotImplementedError("S4A_OWNER_RED: land-use classification is not implemented")
+    if type(feature_rows) is not tuple:
+        raise TypeError("feature_rows must be a built-in tuple")
+    parsed: list[tuple[int, str, float, float, float]] = []
+    block_ids: set[int] = set()
+    semantic_ids: set[str] = set()
+    for row in feature_rows:
+        if type(row) is not tuple or len(row) != 5:
+            raise TypeError("each feature row must be a built-in five-item tuple")
+        block_id = _plain_nonnegative_int(row[0], "block_id")
+        semantic_id = _digest_text(row[1], "block_semantic_id")
+        if block_id in block_ids or semantic_id in semantic_ids:
+            raise ValueError("feature rows require unique block and semantic IDs")
+        block_ids.add(block_id)
+        semantic_ids.add(semantic_id)
+        features: list[float] = []
+        for value in row[2:]:
+            if type(value) is not float:
+                raise TypeError("feature values must be built-in floats")
+            if not math.isfinite(value) or not 0.0 <= value <= 1.0:
+                raise ValueError("feature values must be finite and in [0, 1]")
+            features.append(value)
+        parsed.append((block_id, semantic_id, *features))
+
+    commercial_count, industrial_count, mixed_count, _ = _land_use_counts(len(parsed))
+    adjacency_rows, _ = _frontage_adjacency_from_index(
+        developable_block_ids=tuple(block_ids),
+        road_to_block_ids=road_to_block_ids,
+    )
+
+    by_id = {row[0]: row for row in parsed}
+
+    def ranked(
+        candidates: set[int],
+        coefficients: tuple[Fraction, Fraction, Fraction],
+        transform: str,
+    ) -> list[int]:
+        scored: list[tuple[Fraction, str, int]] = []
+        for block_id in candidates:
+            _, semantic_id, centrality, intensity, exposure = by_id[block_id]
+            if transform == "industrial":
+                centrality_ratio = Fraction(*centrality.as_integer_ratio())
+                intensity_ratio = Fraction(*intensity.as_integer_ratio())
+                exposure_ratio = Fraction(*exposure.as_integer_ratio())
+                score = (
+                    Fraction(50, 100) * exposure_ratio
+                    + Fraction(35, 100) * (1 - centrality_ratio)
+                    + Fraction(15, 100) * (1 - intensity_ratio)
+                )
+            else:
+                score = _exact_score((centrality, intensity, exposure), coefficients)
+            scored.append((score, semantic_id, block_id))
+        return [block_id for _, _, block_id in sorted(scored, key=lambda row: (-row[0], row[1]))]
+
+    available = set(block_ids)
+    commercial_ids = set(
+        ranked(
+            available,
+            (Fraction(55, 100), Fraction(30, 100), Fraction(15, 100)),
+            "standard",
+        )[:commercial_count]
+    )
+    available -= commercial_ids
+    industrial_ids = set(
+        ranked(
+            available,
+            (Fraction(50, 100), Fraction(35, 100), Fraction(15, 100)),
+            "industrial",
+        )[:industrial_count]
+    )
+    available -= industrial_ids
+    mixed_ids = set(
+        ranked(
+            available,
+            (Fraction(45, 100), Fraction(35, 100), Fraction(20, 100)),
+            "standard",
+        )[:mixed_count]
+    )
+    residential_ids = available - mixed_ids
+
+    frozen_adjacency = dict(adjacency_rows)
+    converted = {
+        block_id
+        for block_id in residential_ids
+        if any(neighbor in industrial_ids for neighbor in frozen_adjacency[block_id])
+    }
+    residential_ids -= converted
+    mixed_ids |= converted
+    if not all((commercial_ids, industrial_ids, mixed_ids, residential_ids)):
+        raise ValueError("adjacency conversion must retain all four land-use types")
+
+    assignments = {
+        **{block_id: V2LandUseType.COMMERCIAL for block_id in commercial_ids},
+        **{block_id: V2LandUseType.INDUSTRIAL for block_id in industrial_ids},
+        **{block_id: V2LandUseType.MIXED_USE for block_id in mixed_ids},
+        **{block_id: V2LandUseType.RESIDENTIAL for block_id in residential_ids},
+    }
+    return tuple((block_id, assignments[block_id]) for block_id in sorted(block_ids))
+
+
 
 
 def _node_taz_ownership_from_index(
