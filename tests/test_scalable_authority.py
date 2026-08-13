@@ -435,3 +435,37 @@ def test_exact_raw_weights_multiplier_and_largest_remainder_are_order_independen
             terrain_intensity=0.5,
             land_use_type=authority.V2LandUseType.RESIDENTIAL,
         )
+
+    assert authority._require_implied_multiplier(
+        target=1,
+        raw_total=Fraction(4),
+        enforce_authoritative_bounds=True,
+    ) == Fraction(1, 4)
+    assert authority._require_implied_multiplier(
+        target=3,
+        raw_total=Fraction(1),
+        enforce_authoritative_bounds=True,
+    ) == Fraction(3)
+    assert authority._require_implied_multiplier(
+        target=0,
+        raw_total=Fraction(0),
+        enforce_authoritative_bounds=True,
+    ) == Fraction(0)
+    with pytest.raises(ValueError):
+        authority._require_implied_multiplier(
+            target=1,
+            raw_total=Fraction(4_000_001, 1_000_000),
+            enforce_authoritative_bounds=True,
+        )
+    with pytest.raises(ValueError):
+        authority._require_implied_multiplier(
+            target=3_000_001,
+            raw_total=Fraction(1_000_000),
+            enforce_authoritative_bounds=True,
+        )
+    with pytest.raises(ValueError):
+        authority._require_implied_multiplier(
+            target=1,
+            raw_total=Fraction(0),
+            enforce_authoritative_bounds=True,
+        )
