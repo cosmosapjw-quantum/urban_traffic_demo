@@ -352,9 +352,84 @@ class V2PoiCatalog:
     fingerprint: str = ""
 
     def __post_init__(self) -> None:
-        raise NotImplementedError(
-            "S8B_OWNER_RED: nested POI catalog identity is not implemented"
+        if type(self) is not V2PoiCatalog:
+            raise TypeError("POI catalog must be an exact V2PoiCatalog")
+        if type(self.schema_version) is not str or self.schema_version != POI_POLICY:
+            raise ValueError("POI catalog schema mismatch")
+        if type(self.pois) is not tuple:
+            raise TypeError("pois must be a built-in tuple")
+        if any(type(poi) is not V2Poi for poi in self.pois):
+            raise TypeError("pois must contain exact V2Poi records")
+        source = _digest_text(
+            self.source_allocation_fingerprint,
+            "source_allocation_fingerprint",
         )
+        source_taz = _digest_text(self.source_taz_fingerprint, "source_taz_fingerprint")
+        if tuple(poi.poi_id for poi in self.pois) != tuple(range(len(self.pois))):
+            raise ValueError("POI IDs must be dense and ordered")
+        semantics: set[str] = set()
+        expanded: list[tuple[object, ...]] = []
+        totals = {kind: 0 for kind in V2PoiKind}
+        for poi in self.pois:
+            semantic = _digest_text(poi.semantic_id, "POI semantic_id")
+            if semantic in semantics:
+                raise ValueError("POI semantic IDs must be unique")
+            semantics.add(semantic)
+            if poi.source_allocation_fingerprint != source:
+                raise ValueError("POI source allocation fingerprint mismatch")
+            expected_semantic = _sha256_payload(
+                (POI_POLICY, poi.block_semantic_id, poi.poi_kind.value)
+            )
+            if semantic != expected_semantic:
+                raise ValueError("nested POI semantic ID mismatch")
+            payload = (
+                "V2Poi",
+                poi.poi_id,
+                poi.semantic_id,
+                poi.poi_kind,
+                poi.block_id,
+                poi.block_semantic_id,
+                poi.location_witness_mm,
+                poi.access_node_id,
+                poi.taz_id,
+                poi.capacity,
+                poi.source_allocation_fingerprint,
+            )
+            if _digest_text(poi.fingerprint, "POI fingerprint") != _sha256_payload(payload):
+                raise ValueError("nested POI fingerprint mismatch")
+            expanded.append(payload)
+            totals[poi.poi_kind] += poi.capacity
+        expected_totals = (
+            totals[V2PoiKind.HOME],
+            totals[V2PoiKind.WORKPLACE],
+            totals[V2PoiKind.LEISURE],
+        )
+        supplied_totals = tuple(
+            _plain_nonnegative_int(getattr(self, name), name)
+            for name in (
+                "home_capacity_total",
+                "workplace_capacity_total",
+                "leisure_capacity_total",
+            )
+        )
+        if supplied_totals != expected_totals:
+            raise ValueError("POI catalog totals do not match member capacities")
+        object.__setattr__(self, "source_allocation_fingerprint", source)
+        object.__setattr__(self, "source_taz_fingerprint", source_taz)
+        payload = (
+            "V2PoiCatalog",
+            self.schema_version,
+            tuple(expanded),
+            *supplied_totals,
+            source,
+            source_taz,
+        )
+        expected_fingerprint = _sha256_payload(payload)
+        if self.fingerprint:
+            if _digest_text(self.fingerprint, "fingerprint") != expected_fingerprint:
+                raise ValueError("POI catalog fingerprint mismatch")
+        else:
+            object.__setattr__(self, "fingerprint", expected_fingerprint)
 
 
 @dataclass(frozen=True, slots=True)
