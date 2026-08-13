@@ -8,6 +8,7 @@ from fractions import Fraction
 import hashlib
 import json
 import math
+from types import MappingProxyType
 from typing import Mapping
 
 import numpy as np
@@ -420,6 +421,25 @@ class ImmutableNode:
     zone_id: int | None
     signal_group_id: int | None
 
+    def __post_init__(self) -> None:
+        if type(self) is not ImmutableNode:
+            raise TypeError("node must be an exact ImmutableNode")
+        object.__setattr__(self, "node_id", _plain_nonnegative_int(self.node_id, "node_id"))
+        if type(self.kind) is not NodeKind:
+            raise TypeError("kind must be an exact NodeKind")
+        object.__setattr__(self, "x", _plain_float(self.x, "x"))
+        object.__setattr__(self, "y", _plain_float(self.y, "y"))
+        object.__setattr__(
+            self,
+            "zone_id",
+            _optional_nonnegative_int(self.zone_id, "zone_id"),
+        )
+        object.__setattr__(
+            self,
+            "signal_group_id",
+            _optional_nonnegative_int(self.signal_group_id, "signal_group_id"),
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class ImmutableRoadLink:
@@ -435,6 +455,45 @@ class ImmutableRoadLink:
     is_blockable: bool
     physical_road_id: int | None
 
+    def __post_init__(self) -> None:
+        if type(self) is not ImmutableRoadLink:
+            raise TypeError("link must be an exact ImmutableRoadLink")
+        for name in ("link_id", "src_node_id", "dst_node_id"):
+            object.__setattr__(
+                self,
+                name,
+                _plain_nonnegative_int(getattr(self, name), name),
+            )
+        if self.src_node_id == self.dst_node_id:
+            raise ValueError("link endpoints must differ")
+        if type(self.road_class) is not RoadClass:
+            raise TypeError("road_class must be an exact RoadClass")
+        for name in ("length_m", "free_flow_speed_mps"):
+            object.__setattr__(self, name, _plain_float(getattr(self, name), name, positive=True))
+        object.__setattr__(
+            self,
+            "capacity_veh_per_tick",
+            _plain_float(self.capacity_veh_per_tick, "capacity_veh_per_tick"),
+        )
+        if self.capacity_veh_per_tick < 0.0:
+            raise ValueError("capacity_veh_per_tick must be nonnegative")
+        lanes = _plain_nonnegative_int(self.lanes, "lanes")
+        if lanes < 1:
+            raise ValueError("lanes must be positive")
+        object.__setattr__(self, "lanes", lanes)
+        object.__setattr__(
+            self,
+            "bridge_group_id",
+            _optional_nonnegative_int(self.bridge_group_id, "bridge_group_id"),
+        )
+        if type(self.is_blockable) is not bool:
+            raise TypeError("is_blockable must be a built-in bool")
+        object.__setattr__(
+            self,
+            "physical_road_id",
+            _optional_nonnegative_int(self.physical_road_id, "physical_road_id"),
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class ImmutableTurnMovement:
@@ -444,6 +503,30 @@ class ImmutableTurnMovement:
     base_priority: float
     signal_phase_id: int | None
 
+    def __post_init__(self) -> None:
+        if type(self) is not ImmutableTurnMovement:
+            raise TypeError("turn must be an exact ImmutableTurnMovement")
+        for name in ("from_link_id", "to_link_id"):
+            object.__setattr__(
+                self,
+                name,
+                _plain_nonnegative_int(getattr(self, name), name),
+            )
+        if type(self.turn_type) is not TurnType:
+            raise TypeError("turn_type must be an exact TurnType")
+        object.__setattr__(
+            self,
+            "base_priority",
+            _plain_float(self.base_priority, "base_priority"),
+        )
+        if self.base_priority < 0.0:
+            raise ValueError("base_priority must be nonnegative")
+        object.__setattr__(
+            self,
+            "signal_phase_id",
+            _optional_nonnegative_int(self.signal_phase_id, "signal_phase_id"),
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class ImmutableBridgeCrossing:
@@ -452,6 +535,33 @@ class ImmutableBridgeCrossing:
     barrier_id: int
     crossing_name: str
     bottleneck_rank_hint: int | None
+
+    def __post_init__(self) -> None:
+        if type(self) is not ImmutableBridgeCrossing:
+            raise TypeError("bridge must be an exact ImmutableBridgeCrossing")
+        object.__setattr__(
+            self,
+            "bridge_group_id",
+            _plain_nonnegative_int(self.bridge_group_id, "bridge_group_id"),
+        )
+        if type(self.link_ids) is not tuple:
+            raise TypeError("link_ids must be a built-in tuple")
+        links = tuple(_plain_nonnegative_int(value, "bridge link id") for value in self.link_ids)
+        if not links or len(set(links)) != len(links):
+            raise ValueError("bridge link IDs must be nonempty and unique")
+        object.__setattr__(self, "link_ids", links)
+        object.__setattr__(
+            self,
+            "barrier_id",
+            _plain_nonnegative_int(self.barrier_id, "barrier_id"),
+        )
+        if type(self.crossing_name) is not str or not self.crossing_name:
+            raise TypeError("crossing_name must be a nonempty built-in string")
+        object.__setattr__(
+            self,
+            "bottleneck_rank_hint",
+            _optional_nonnegative_int(self.bottleneck_rank_hint, "bottleneck_rank_hint"),
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -480,8 +590,178 @@ class ImmutableRoadNetworkCSR:
     content_fingerprint: str = ""
 
     def __post_init__(self) -> None:
-        raise NotImplementedError(
-            "S7_OWNER_RED: immutable CSR validation is not implemented"
+        if type(self) is not ImmutableRoadNetworkCSR:
+            raise TypeError("road CSR must be an exact ImmutableRoadNetworkCSR")
+        if type(self.schema_version) is not str or self.schema_version != IMMUTABLE_CSR_SCHEMA:
+            raise ValueError("immutable CSR schema mismatch")
+        for name, expected_type in (
+            ("nodes", ImmutableNode),
+            ("links", ImmutableRoadLink),
+            ("turns", ImmutableTurnMovement),
+            ("bridge_crossings", ImmutableBridgeCrossing),
+        ):
+            rows = getattr(self, name)
+            if type(rows) is not tuple:
+                raise TypeError(f"{name} must be a built-in tuple")
+            if any(type(row) is not expected_type for row in rows):
+                raise TypeError(f"{name} must contain exact immutable rows")
+
+        node_index = {node.node_id: index for index, node in enumerate(self.nodes)}
+        link_index = {link.link_id: index for index, link in enumerate(self.links)}
+        if len(node_index) != len(self.nodes) or len(link_index) != len(self.links):
+            raise ValueError("node and link IDs must be unique")
+        for link in self.links:
+            if link.src_node_id not in node_index or link.dst_node_id not in node_index:
+                raise ValueError("link references an unknown node")
+        expected_pairs: dict[tuple[int, int], int] = {}
+        for turn_index, turn in enumerate(self.turns):
+            if turn.from_link_id not in link_index or turn.to_link_id not in link_index:
+                raise ValueError("turn references an unknown link")
+            pair = (turn.from_link_id, turn.to_link_id)
+            if turn.turn_type is not TurnType.U_TURN_FORBIDDEN:
+                if pair in expected_pairs:
+                    raise ValueError("legal turn pairs must be unique")
+                expected_pairs[pair] = turn_index
+
+        supplied_maps = (
+            ("node_id_to_index", self.node_id_to_index, node_index),
+            ("link_id_to_index", self.link_id_to_index, link_index),
+            ("turn_pair_to_index", self.turn_pair_to_index, expected_pairs),
+        )
+        for name, supplied, expected in supplied_maps:
+            if type(supplied) not in (dict, MappingProxyType):
+                raise TypeError(f"{name} must be a built-in dict or mapping proxy")
+            copied = dict(supplied)
+            if copied != expected:
+                raise ValueError(f"{name} differs from immutable rows")
+            object.__setattr__(self, name, MappingProxyType(dict(copied)))
+
+        src = tuple(node_index[link.src_node_id] for link in self.links)
+        dst = tuple(node_index[link.dst_node_id] for link in self.links)
+        outgoing_indptr, outgoing_indices = _link_csr_arrays(len(self.nodes), src)
+        incoming_indptr, incoming_indices = _link_csr_arrays(len(self.nodes), dst)
+        expected_arrays = {
+            "node_ids": np.asarray([node.node_id for node in self.nodes], dtype=np.int32),
+            "link_ids": np.asarray([link.link_id for link in self.links], dtype=np.int32),
+            "link_src_node_index": np.asarray(src, dtype=np.int32),
+            "link_dst_node_index": np.asarray(dst, dtype=np.int32),
+            "outgoing_indptr": outgoing_indptr,
+            "outgoing_link_indices": outgoing_indices,
+            "incoming_indptr": incoming_indptr,
+            "incoming_link_indices": incoming_indices,
+            "turn_from_link_index": np.asarray(
+                [link_index[turn.from_link_id] for turn in self.turns],
+                dtype=np.int32,
+            ),
+            "turn_to_link_index": np.asarray(
+                [link_index[turn.to_link_id] for turn in self.turns],
+                dtype=np.int32,
+            ),
+            "turn_base_priority": np.asarray(
+                [turn.base_priority for turn in self.turns],
+                dtype=np.float32,
+            ),
+            "turn_is_forbidden": np.asarray(
+                [turn.turn_type is TurnType.U_TURN_FORBIDDEN for turn in self.turns],
+                dtype=np.bool_,
+            ),
+        }
+        array_payloads: list[tuple[object, ...]] = []
+        for name, expected in expected_arrays.items():
+            supplied = getattr(self, name)
+            if type(supplied) is not np.ndarray:
+                raise TypeError(f"{name} must be an exact NumPy array")
+            if (
+                supplied.dtype != expected.dtype
+                or supplied.shape != expected.shape
+                or not supplied.flags.c_contiguous
+                or not np.array_equal(supplied, expected)
+            ):
+                raise ValueError(f"{name} differs from immutable rows")
+            sealed = _seal_c_array(supplied)
+            object.__setattr__(self, name, sealed)
+            array_payloads.append(_array_payload(name, sealed))
+
+        topology_key = _behavior_free_tuple(self.topology_cache_key, "topology_cache_key")
+        object.__setattr__(self, "topology_cache_key", topology_key)
+        payload = (
+            IMMUTABLE_CSR_SCHEMA,
+            tuple(
+                (node.node_id, node.kind, node.x, node.y, node.zone_id, node.signal_group_id)
+                for node in self.nodes
+            ),
+            tuple(
+                (
+                    link.link_id,
+                    link.src_node_id,
+                    link.dst_node_id,
+                    link.road_class,
+                    link.length_m,
+                    link.free_flow_speed_mps,
+                    link.capacity_veh_per_tick,
+                    link.lanes,
+                    link.bridge_group_id,
+                    link.is_blockable,
+                    link.physical_road_id,
+                )
+                for link in self.links
+            ),
+            tuple(
+                (
+                    turn.from_link_id,
+                    turn.to_link_id,
+                    turn.turn_type,
+                    turn.base_priority,
+                    turn.signal_phase_id,
+                )
+                for turn in self.turns
+            ),
+            tuple(
+                (
+                    bridge.bridge_group_id,
+                    bridge.link_ids,
+                    bridge.barrier_id,
+                    bridge.crossing_name,
+                    bridge.bottleneck_rank_hint,
+                )
+                for bridge in self.bridge_crossings
+            ),
+            tuple(sorted(node_index.items())),
+            tuple(sorted(link_index.items())),
+            tuple(sorted(expected_pairs.items())),
+            tuple(array_payloads),
+            topology_key,
+        )
+        expected_fingerprint = _sha256_payload(payload)
+        if self.content_fingerprint:
+            if (
+                _digest_text(self.content_fingerprint, "content_fingerprint")
+                != expected_fingerprint
+            ):
+                raise ValueError("immutable CSR content fingerprint mismatch")
+        else:
+            object.__setattr__(self, "content_fingerprint", expected_fingerprint)
+
+    @property
+    def node_count(self) -> int:
+        return len(self.nodes)
+
+    @property
+    def link_count(self) -> int:
+        return len(self.links)
+
+    @property
+    def turn_count(self) -> int:
+        return len(self.turns)
+
+    def outgoing_links_for_node(self, node_id: int) -> tuple[ImmutableRoadLink, ...]:
+        if type(node_id) is not int:
+            raise TypeError("node_id must be a built-in integer")
+        node_index = self.node_id_to_index[node_id]
+        start = int(self.outgoing_indptr[node_index])
+        end = int(self.outgoing_indptr[node_index + 1])
+        return tuple(
+            self.links[int(index)] for index in self.outgoing_link_indices[start:end]
         )
 
 
@@ -1199,6 +1479,68 @@ def _seal_c_array(source: np.ndarray) -> np.ndarray:
     if sealed.flags.writeable:
         raise AssertionError("bytes-backed arrays must be read-only")
     return sealed
+
+
+def _plain_float(value: object, name: str, *, positive: bool = False) -> float:
+    if type(value) is not float:
+        raise TypeError(f"{name} must be a built-in float")
+    if not math.isfinite(value):
+        raise ValueError(f"{name} must be finite")
+    if positive and value <= 0.0:
+        raise ValueError(f"{name} must be positive")
+    return value
+
+
+def _optional_nonnegative_int(value: object, name: str) -> int | None:
+    return None if value is None else _plain_nonnegative_int(value, name)
+
+
+def _behavior_free_tuple(value: object, name: str) -> tuple[object, ...]:
+    if type(value) is not tuple:
+        raise TypeError(f"{name} must be a built-in tuple")
+
+    def validate(item: object) -> object:
+        if item is None or type(item) in (bool, int, str):
+            return item
+        if type(item) is float:
+            if not math.isfinite(item):
+                raise ValueError(f"{name} floats must be finite")
+            return item
+        if type(item) is tuple:
+            return tuple(validate(child) for child in item)
+        raise TypeError(f"{name} contains behavior-bearing data")
+
+    return tuple(validate(item) for item in value)
+
+
+def _link_csr_arrays(
+    node_count: int,
+    node_indices: tuple[int, ...],
+) -> tuple[np.ndarray, np.ndarray]:
+    counts = [0] * node_count
+    for node_index in node_indices:
+        counts[node_index] += 1
+    indptr = [0] * (node_count + 1)
+    for index, count in enumerate(counts):
+        indptr[index + 1] = indptr[index] + count
+    write = indptr[:-1].copy()
+    indices = [0] * len(node_indices)
+    for link_index, node_index in enumerate(node_indices):
+        position = write[node_index]
+        indices[position] = link_index
+        write[node_index] += 1
+    return np.asarray(indptr, dtype=np.int32), np.asarray(indices, dtype=np.int32)
+
+
+def _array_payload(name: str, array: np.ndarray) -> tuple[object, ...]:
+    return (
+        name,
+        array.dtype.str,
+        array.shape,
+        "C",
+        array.nbytes,
+        hashlib.sha256(array.tobytes(order="C")).hexdigest(),
+    )
 
 
 def _admit_scalable_sources(
