@@ -101,10 +101,14 @@ def _plain_nonnegative_int(value: object, name: str) -> int:
 
 
 def _digest_text(value: object, name: str) -> str:
-    if type(value) is not str or len(value) != 64:
-        raise TypeError(f"{name} must be a 64-character built-in string")
-    if any(character not in "0123456789abcdef" for character in value):
-        raise ValueError(f"{name} must be lowercase hexadecimal")
+    if type(value) is not str:
+        raise TypeError(f"{name} must be a built-in string")
+    if len(value) != 64 or value != value.lower():
+        raise ValueError(f"{name} must be a lowercase SHA-256 digest")
+    try:
+        int(value, 16)
+    except ValueError as exc:
+        raise ValueError(f"{name} must be a lowercase SHA-256 digest") from exc
     return value
 
 
@@ -1163,7 +1167,24 @@ def _compose_map_fingerprint_set_v3(
     blocks_access: str,
     land_use_zoning: str,
 ) -> MapFingerprintSetV3:
-    raise NotImplementedError("S5B_OWNER_RED: v3 fingerprint composition is not implemented")
+    origins = {
+        name: _digest_text(value, name)
+        for name, value in (
+            ("config", config),
+            ("geometry", geometry),
+            ("topology", topology),
+            ("link_attributes", link_attributes),
+            ("turn_authority", turn_authority),
+            ("blocks_access", blocks_access),
+            ("land_use_zoning", land_use_zoning),
+        )
+    }
+    derived = _derived_map_nodes(**origins)
+    return MapFingerprintSetV3(
+        schema_version=FINGERPRINT_SET_SCHEMA,
+        **origins,
+        **derived,
+    )
 
 
 def _seal_c_array(source: np.ndarray) -> np.ndarray:
