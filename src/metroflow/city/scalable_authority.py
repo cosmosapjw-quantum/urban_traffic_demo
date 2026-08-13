@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, replace
 from enum import Enum
 from fractions import Fraction
 import hashlib
@@ -16,7 +16,12 @@ import numpy as np
 from metroflow.city.graph import NodeKind, RoadClass, TurnType
 from metroflow.city.scale import CityScaleSpec
 from metroflow.city.scalable_blocks import ScalableBlockAuthority, V2BlockAccessIndex
-from metroflow.city.scalable_topology import ScalableStreetNetwork, ScalableTerrainField
+from metroflow.city.scalable_topology import (
+    FacilityKind,
+    RoadHierarchy,
+    ScalableStreetNetwork,
+    ScalableTerrainField,
+)
 from metroflow.city.scalable_topology_adapter import (
     ScalableCompiledTopology,
     ScalableGroupCrosswalk,
@@ -102,6 +107,12 @@ def _plain_nonnegative_int(value: object, name: str) -> int:
     return value
 
 
+def _plain_int(value: object, name: str) -> int:
+    if type(value) is not int:
+        raise TypeError(f"{name} must be a built-in integer")
+    return value
+
+
 def _digest_text(value: object, name: str) -> str:
     if type(value) is not str:
         raise TypeError(f"{name} must be a built-in string")
@@ -172,6 +183,70 @@ def _sha256_payload(payload: object) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _record_payload(record: object) -> tuple[object, ...]:
+    values: list[object] = [type(record).__name__]
+    for field in fields(record):
+        if field.name in ("fingerprint", "content_fingerprint"):
+            break
+        values.append(getattr(record, field.name))
+    return tuple(values)
+
+
+def _install_record_fingerprint(record: object) -> None:
+    expected = _sha256_payload(_record_payload(record))
+    supplied = getattr(record, "fingerprint")
+    if supplied:
+        if _digest_text(supplied, "fingerprint") != expected:
+            raise ValueError(f"{type(record).__name__} fingerprint mismatch")
+    else:
+        object.__setattr__(record, "fingerprint", expected)
+
+
+def _ratio_pair(value: object, name: str, *, nonnegative: bool = True) -> tuple[int, int]:
+    if type(value) is not tuple or len(value) != 2:
+        raise TypeError(f"{name} must be a built-in numerator/denominator pair")
+    numerator = _plain_int(value[0], f"{name} numerator")
+    denominator = _plain_int(value[1], f"{name} denominator")
+    if denominator <= 0:
+        raise ValueError(f"{name} denominator must be positive")
+    fraction = Fraction(numerator, denominator)
+    if (fraction.numerator, fraction.denominator) != (numerator, denominator):
+        raise ValueError(f"{name} must be reduced")
+    if nonnegative and fraction < 0:
+        raise ValueError(f"{name} must be nonnegative")
+    return numerator, denominator
+
+
+def _plain_int_tuple(
+    value: object,
+    name: str,
+    *,
+    nonempty: bool = False,
+    sorted_unique: bool = False,
+) -> tuple[int, ...]:
+    if type(value) is not tuple:
+        raise TypeError(f"{name} must be a built-in tuple")
+    result = tuple(_plain_nonnegative_int(item, f"{name} item") for item in value)
+    if nonempty and not result:
+        raise ValueError(f"{name} must be nonempty")
+    if sorted_unique and result != tuple(sorted(set(result))):
+        raise ValueError(f"{name} must be sorted and unique")
+    return result
+
+
+def _polygon(value: object, name: str) -> tuple[tuple[int, int], ...]:
+    if type(value) is not tuple:
+        raise TypeError(f"{name} must be a built-in tuple")
+    points: list[tuple[int, int]] = []
+    for point in value:
+        if type(point) is not tuple or len(point) != 2:
+            raise TypeError(f"{name} points must be built-in pairs")
+        points.append((_plain_int(point[0], f"{name} x"), _plain_int(point[1], f"{name} y")))
+    if len(points) < 4 or points[0] != points[-1]:
+        raise ValueError(f"{name} must be a closed polygon")
+    return tuple(points)
+
+
 def _morton_code(x: int, y: int) -> int:
     result = 0
     for bit in range(max(x.bit_length(), y.bit_length())):
@@ -216,6 +291,117 @@ class BlockLandUseV2:
     policy_version: str
     fingerprint: str = ""
 
+    def __post_init__(self) -> None:
+        if type(self) is not BlockLandUseV2:
+            raise TypeError("block land use must be an exact BlockLandUseV2")
+        for name in (
+            "block_id",
+            "parent_face_id",
+            "primary_access_node_id",
+            "final_resident_capacity",
+            "final_home_capacity",
+            "final_job_capacity",
+            "final_leisure_capacity",
+            "taz_id",
+        ):
+            object.__setattr__(
+                self,
+                name,
+                _plain_nonnegative_int(getattr(self, name), name),
+            )
+        object.__setattr__(
+            self,
+            "block_semantic_id",
+            _digest_text(self.block_semantic_id, "block_semantic_id"),
+        )
+        if type(self.land_use_type) is not V2LandUseType:
+            raise TypeError("land_use_type must be an exact V2LandUseType")
+        object.__setattr__(
+            self,
+            "outer_polygon_mm",
+            _polygon(self.outer_polygon_mm, "outer_polygon_mm"),
+        )
+        if type(self.hole_polygons_mm) is not tuple:
+            raise TypeError("hole_polygons_mm must be a built-in tuple")
+        object.__setattr__(
+            self,
+            "hole_polygons_mm",
+            tuple(_polygon(hole, "hole_polygon_mm") for hole in self.hole_polygons_mm),
+        )
+        if type(self.exact_net_area_mm2) is not Fraction:
+            raise TypeError("exact_net_area_mm2 must be an exact Fraction")
+        if self.exact_net_area_mm2 <= 0:
+            raise ValueError("exact_net_area_mm2 must be positive")
+        object.__setattr__(
+            self,
+            "frontage_road_ids",
+            _plain_int_tuple(
+                self.frontage_road_ids,
+                "frontage_road_ids",
+                nonempty=True,
+                sorted_unique=True,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "access_node_ids",
+            _plain_int_tuple(
+                self.access_node_ids,
+                "access_node_ids",
+                nonempty=True,
+                sorted_unique=True,
+            ),
+        )
+        if self.primary_access_node_id not in self.access_node_ids:
+            raise ValueError("primary access node must belong to access_node_ids")
+        object.__setattr__(
+            self,
+            "interior_witness_mm",
+            _exact_witness(self.interior_witness_mm, "interior_witness_mm"),
+        )
+        if type(self.terrain_cell) is not tuple or len(self.terrain_cell) != 2:
+            raise TypeError("terrain_cell must be a built-in pair")
+        object.__setattr__(
+            self,
+            "terrain_cell",
+            (
+                _plain_int(self.terrain_cell[0], "terrain_cell x"),
+                _plain_int(self.terrain_cell[1], "terrain_cell y"),
+            ),
+        )
+        for name in ("terrain_intensity", "centrality_score", "exposure_score"):
+            value = _plain_float(getattr(self, name), name)
+            if not 0.0 <= value <= 1.0:
+                raise ValueError(f"{name} must be in [0, 1]")
+            object.__setattr__(self, name, value)
+        if type(self.terrain_intensity_hex) is not str:
+            raise TypeError("terrain_intensity_hex must be a built-in string")
+        if self.terrain_intensity_hex != self.terrain_intensity.hex():
+            raise ValueError("terrain_intensity_hex mismatch")
+        for float_name, ratio_name in (
+            ("raw_resident_weight", "raw_resident_ratio"),
+            ("raw_home_weight", "raw_home_ratio"),
+            ("raw_job_weight", "raw_job_ratio"),
+            ("raw_leisure_weight", "raw_leisure_ratio"),
+        ):
+            ratio = _ratio_pair(getattr(self, ratio_name), ratio_name)
+            raw = _plain_float(getattr(self, float_name), float_name)
+            if raw < 0.0 or raw != float(Fraction(*ratio)):
+                raise ValueError(f"{float_name} does not match {ratio_name}")
+            object.__setattr__(self, ratio_name, ratio)
+            object.__setattr__(self, float_name, raw)
+        if (
+            self.raw_resident_ratio != self.raw_home_ratio
+            or self.raw_resident_weight != self.raw_home_weight
+            or self.final_resident_capacity != self.final_home_capacity
+        ):
+            raise ValueError("resident/home channels must be identical")
+        for name in ("source_network_fingerprint", "source_blocks_fingerprint"):
+            object.__setattr__(self, name, _digest_text(getattr(self, name), name))
+        if type(self.policy_version) is not str or self.policy_version != LAND_USE_POLICY:
+            raise ValueError("land-use policy mismatch")
+        _install_record_fingerprint(self)
+
 
 @dataclass(frozen=True, slots=True)
 class PopulationCapacityCertificate:
@@ -249,6 +435,80 @@ class PopulationCapacityCertificate:
     allocation_policy_version: str
     fingerprint: str = ""
 
+    def __post_init__(self) -> None:
+        if type(self) is not PopulationCapacityCertificate:
+            raise TypeError("certificate must be an exact PopulationCapacityCertificate")
+        if type(self.schema_version) is not str or self.schema_version != ALLOCATION_POLICY:
+            raise ValueError("certificate schema mismatch")
+        for name in (
+            "target_population",
+            "job_target",
+            "worker_share_numerator",
+            "worker_share_denominator",
+            "resident_capacity_total",
+            "home_capacity_total",
+            "job_capacity_total",
+            "leisure_capacity_total",
+            "taz_count",
+            "allocated_block_count",
+            "silent_cap_count",
+            "dropped_capacity_count",
+        ):
+            object.__setattr__(
+                self,
+                name,
+                _plain_nonnegative_int(getattr(self, name), name),
+            )
+        if (self.worker_share_numerator, self.worker_share_denominator) != (31, 50):
+            raise ValueError("worker share must be 31/50")
+        if self.job_target != (31 * self.target_population + 49) // 50:
+            raise ValueError("job target must be ceil(31P/50)")
+        if (
+            self.resident_capacity_total != self.target_population
+            or self.home_capacity_total != self.target_population
+            or self.job_capacity_total != self.job_target
+        ):
+            raise ValueError("authoritative capacity totals mismatch")
+        if self.taz_count != _taz_count_policy_unbounded(self.target_population):
+            raise ValueError("certificate TAZ count mismatch")
+        if self.allocated_block_count < self.taz_count:
+            raise ValueError("allocated block count must cover every TAZ")
+        if type(self.capacity_cap_applied) is not bool:
+            raise TypeError("capacity_cap_applied must be a built-in bool")
+        if self.capacity_cap_applied or self.silent_cap_count or self.dropped_capacity_count:
+            raise ValueError("capacity cap/drop invariants must remain false/zero")
+        for name in (
+            "resident_raw_total_ratio",
+            "home_raw_total_ratio",
+            "job_raw_total_ratio",
+            "leisure_raw_total_ratio",
+            "resident_multiplier_ratio",
+            "home_multiplier_ratio",
+            "job_multiplier_ratio",
+            "leisure_multiplier_ratio",
+        ):
+            object.__setattr__(self, name, _ratio_pair(getattr(self, name), name))
+        if (
+            self.resident_raw_total_ratio != self.home_raw_total_ratio
+            or self.resident_multiplier_ratio != self.home_multiplier_ratio
+        ):
+            raise ValueError("certificate resident/home ratios must match")
+        for name in (
+            "allocation_fingerprint",
+            "source_network_fingerprint",
+            "source_blocks_fingerprint",
+            "source_compiled_fingerprint",
+        ):
+            object.__setattr__(self, name, _digest_text(getattr(self, name), name))
+        if (
+            type(self.land_use_policy_version) is not str
+            or self.land_use_policy_version != LAND_USE_POLICY
+            or type(self.allocation_policy_version) is not str
+            or self.allocation_policy_version != ALLOCATION_POLICY
+        ):
+            raise ValueError("certificate policy mismatch")
+        _install_record_fingerprint(self)
+
 
 @dataclass(frozen=True, slots=True)
 class V2Taz:
@@ -264,6 +524,57 @@ class V2Taz:
     leisure_capacity_total: int
     fingerprint: str = ""
 
+    def __post_init__(self) -> None:
+        if type(self) is not V2Taz:
+            raise TypeError("TAZ must be an exact V2Taz")
+        object.__setattr__(self, "taz_id", _plain_nonnegative_int(self.taz_id, "taz_id"))
+        semantic = _digest_text(self.semantic_id, "semantic_id")
+        object.__setattr__(self, "semantic_id", semantic)
+        block_ids = _plain_int_tuple(self.block_ids, "block_ids", nonempty=True)
+        if type(self.block_semantic_ids) is not tuple:
+            raise TypeError("block_semantic_ids must be a built-in tuple")
+        semantics = tuple(
+            _digest_text(value, "block_semantic_id") for value in self.block_semantic_ids
+        )
+        if len(block_ids) != len(semantics) or len(set(block_ids)) != len(block_ids):
+            raise ValueError("TAZ block IDs and semantics must be unique positional pairs")
+        if len(set(semantics)) != len(semantics):
+            raise ValueError("TAZ block semantic IDs must be unique")
+        if tuple(zip(semantics, block_ids, strict=True)) != tuple(
+            sorted(zip(semantics, block_ids, strict=True))
+        ):
+            raise ValueError("TAZ blocks must be ordered by semantic ID then block ID")
+        object.__setattr__(self, "block_ids", block_ids)
+        object.__setattr__(self, "block_semantic_ids", semantics)
+        for name in ("frontage_road_ids", "access_node_ids"):
+            object.__setattr__(
+                self,
+                name,
+                _plain_int_tuple(
+                    getattr(self, name),
+                    name,
+                    nonempty=True,
+                    sorted_unique=True,
+                ),
+            )
+        for name in (
+            "resident_capacity_total",
+            "home_capacity_total",
+            "job_capacity_total",
+            "leisure_capacity_total",
+        ):
+            object.__setattr__(
+                self,
+                name,
+                _plain_nonnegative_int(getattr(self, name), name),
+            )
+        if self.resident_capacity_total != self.home_capacity_total:
+            raise ValueError("TAZ resident/home capacities must match")
+        expected_semantic = _sha256_payload((TAZ_POLICY, self.taz_id, semantics))
+        if semantic != expected_semantic:
+            raise ValueError("TAZ semantic ID mismatch")
+        _install_record_fingerprint(self)
+
 
 @dataclass(frozen=True, slots=True)
 class V2TazCatalog:
@@ -277,6 +588,101 @@ class V2TazCatalog:
     source_allocation_fingerprint: str
     assignment_fingerprint: str
     fingerprint: str = ""
+
+    def __post_init__(self) -> None:
+        if type(self) is not V2TazCatalog:
+            raise TypeError("TAZ catalog must be an exact V2TazCatalog")
+        if type(self.schema_version) is not str or self.schema_version != TAZ_POLICY:
+            raise ValueError("TAZ catalog schema mismatch")
+        if type(self.tazs) is not tuple or any(type(taz) is not V2Taz for taz in self.tazs):
+            raise TypeError("tazs must contain exact V2Taz records")
+        target = _plain_nonnegative_int(self.target_taz_count, "target_taz_count")
+        if target != len(self.tazs) or tuple(taz.taz_id for taz in self.tazs) != tuple(
+            range(target)
+        ):
+            raise ValueError("TAZ IDs must be dense and cover the target count")
+        semantic_payload_by_digest: dict[str, tuple[object, ...]] = {}
+        content_payload_by_digest: dict[str, tuple[object, ...]] = {}
+        for taz in self.tazs:
+            semantic_payload = (TAZ_POLICY, taz.taz_id, taz.block_semantic_ids)
+            previous_semantic = semantic_payload_by_digest.get(taz.semantic_id)
+            if previous_semantic is not None and previous_semantic != semantic_payload:
+                raise ValueError("TAZ semantic digest collision")
+            semantic_payload_by_digest[taz.semantic_id] = semantic_payload
+            content_payload = _record_payload(taz)
+            previous_content = content_payload_by_digest.get(taz.fingerprint)
+            if previous_content is not None and previous_content != content_payload:
+                raise ValueError("TAZ content digest collision")
+            content_payload_by_digest[taz.fingerprint] = content_payload
+        expected_block_map = tuple(
+            sorted(
+                (block_id, taz.taz_id)
+                for taz in self.tazs
+                for block_id in taz.block_ids
+            )
+        )
+        if type(self.block_taz_by_id) is not tuple or self.block_taz_by_id != expected_block_map:
+            raise ValueError("block_taz_by_id mismatch")
+        if type(self.node_owner_by_id) is not tuple:
+            raise TypeError("node_owner_by_id must be a built-in tuple")
+        node_owners = tuple(
+            (
+                _plain_nonnegative_int(node, "owner node id"),
+                _plain_nonnegative_int(taz, "owner taz id"),
+            )
+            for node, taz in self.node_owner_by_id
+        )
+        if node_owners != tuple(sorted(node_owners)) or len({row[0] for row in node_owners}) != len(
+            node_owners
+        ):
+            raise ValueError("node owners must be unique and sorted")
+        if any(taz >= target for _, taz in node_owners):
+            raise ValueError("node owner references an unknown TAZ")
+        object.__setattr__(self, "node_owner_by_id", node_owners)
+        if type(self.node_conflicts) is not tuple:
+            raise TypeError("node_conflicts must be a built-in tuple")
+        previous_node = -1
+        for node, candidates, winner in self.node_conflicts:
+            node = _plain_nonnegative_int(node, "conflict node id")
+            if node <= previous_node or type(candidates) is not tuple or len(candidates) < 2:
+                raise ValueError("node conflicts must be sorted with multiple candidates")
+            previous_node = node
+            parsed = tuple(
+                (
+                    _digest_text(semantic, "conflict semantic ID"),
+                    _plain_nonnegative_int(taz, "conflict taz ID"),
+                )
+                for semantic, taz in candidates
+            )
+            if parsed != tuple(sorted(parsed)) or winner != parsed[0][1]:
+                raise ValueError("node conflict winner must use semantic candidate order")
+            if dict(node_owners).get(node) != winner:
+                raise ValueError("node conflict winner differs from node owner")
+        for name in (
+            "source_blocks_fingerprint",
+            "source_allocation_fingerprint",
+            "assignment_fingerprint",
+        ):
+            object.__setattr__(self, name, _digest_text(getattr(self, name), name))
+        expanded = tuple(_record_payload(taz) for taz in self.tazs)
+        payload = (
+            "V2TazCatalog",
+            self.schema_version,
+            expanded,
+            self.block_taz_by_id,
+            self.node_owner_by_id,
+            self.node_conflicts,
+            target,
+            self.source_blocks_fingerprint,
+            self.source_allocation_fingerprint,
+            self.assignment_fingerprint,
+        )
+        expected_fingerprint = _sha256_payload(payload)
+        if self.fingerprint:
+            if _digest_text(self.fingerprint, "fingerprint") != expected_fingerprint:
+                raise ValueError("TAZ catalog fingerprint mismatch")
+        else:
+            object.__setattr__(self, "fingerprint", expected_fingerprint)
 
 
 @dataclass(frozen=True, slots=True)
@@ -910,6 +1316,91 @@ class ScalableStaticAuthority:
     routing_dependency_key: RoutingStaticDependencyKey
     fingerprint: str = ""
 
+    def __post_init__(self) -> None:
+        if type(self) is not ScalableStaticAuthority:
+            raise TypeError("authority must be an exact ScalableStaticAuthority")
+        if type(self.schema_version) is not str or self.schema_version != STATIC_AUTHORITY_SCHEMA:
+            raise ValueError("static authority schema mismatch")
+        if type(self.scale_spec) is not CityScaleSpec:
+            raise TypeError("scale_spec must be an exact CityScaleSpec")
+        if type(self.style_id) is not str:
+            raise TypeError("style_id must be a built-in string")
+        object.__setattr__(self, "seed", _plain_int(self.seed, "seed"))
+        object.__setattr__(self, "extent_mm", _exact_extent(self.extent_mm))
+        object.__setattr__(self, "width_m", _plain_float(self.width_m, "width_m", positive=True))
+        object.__setattr__(
+            self,
+            "height_m",
+            _plain_float(self.height_m, "height_m", positive=True),
+        )
+        if type(self.centers_mm) is not tuple or not self.centers_mm:
+            raise TypeError("centers_mm must be a nonempty built-in tuple")
+        for center in self.centers_mm:
+            if (
+                type(center) is not tuple
+                or len(center) != 2
+                or type(center[0]) is not int
+                or type(center[1]) is not int
+            ):
+                raise TypeError("centers_mm must contain exact integer pairs")
+        for name in (
+            "source_network_schema_version",
+            "source_blocks_schema_version",
+            "source_compiled_schema_version",
+            "numeric_profile_policy_version",
+        ):
+            value = getattr(self, name)
+            if type(value) is not str or not value:
+                raise TypeError(f"{name} must be a nonempty built-in string")
+        for name in (
+            "source_network_fingerprint",
+            "source_blocks_fingerprint",
+            "source_compiled_fingerprint",
+            "source_terrain_fingerprint",
+            "source_scale_fingerprint",
+            "source_style_fingerprint",
+            "source_geometry_fingerprint",
+            "source_section_fingerprint",
+            "source_node_interface_fingerprint",
+            "source_turn_authority_fingerprint",
+        ):
+            object.__setattr__(self, name, _digest_text(getattr(self, name), name))
+        for name, expected_type in (
+            ("numeric_profiles", ScalableNumericProfile),
+            ("road_crosswalk", ScalableRoadCrosswalk),
+            ("structure_group_crosswalk", ScalableGroupCrosswalk),
+            ("failure_group_crosswalk", ScalableGroupCrosswalk),
+            ("block_land_use", BlockLandUseV2),
+        ):
+            rows = getattr(self, name)
+            if type(rows) is not tuple or any(type(row) is not expected_type for row in rows):
+                raise TypeError(f"{name} must contain exact records")
+        if type(self.block_access_index) is not V2BlockAccessIndex:
+            raise TypeError("block_access_index must be an exact V2BlockAccessIndex")
+        for name, expected_type in (
+            ("capacity_certificate", PopulationCapacityCertificate),
+            ("taz_catalog", V2TazCatalog),
+            ("poi_catalog", V2PoiCatalog),
+            ("fingerprints", MapFingerprintSetV3),
+            ("road_csr", ImmutableRoadNetworkCSR),
+            ("routing_dependency_key", RoutingStaticDependencyKey),
+        ):
+            if type(getattr(self, name)) is not expected_type:
+                raise TypeError(f"{name} must be an exact {expected_type.__name__}")
+        if tuple(block.block_id for block in self.block_land_use) != tuple(
+            range(len(self.block_land_use))
+        ):
+            raise ValueError("block land-use IDs must be dense and ordered")
+        expected = _sha256_payload(_static_authority_payload(self))
+        if self.fingerprint:
+            if _digest_text(self.fingerprint, "fingerprint") != expected:
+                raise ValueError("static authority fingerprint mismatch")
+        else:
+            object.__setattr__(self, "fingerprint", expected)
+
+
+@dataclass(frozen=True, slots=True)
+
 
 @dataclass(frozen=True, slots=True)
 class _CopiedTask4:
@@ -1506,6 +1997,98 @@ def _node_taz_ownership_from_index(
 
 
 def _aggregate_poi_rows(
+def _frontage_exposure(
+    frontage_road_ids: tuple[int, ...],
+    road_by_id: dict[int, ScalableRoadCrosswalk],
+) -> float:
+    values: list[Fraction] = []
+    surface = {
+        RoadHierarchy.LOCAL: Fraction(0),
+        RoadHierarchy.COLLECTOR: Fraction(35, 100),
+        RoadHierarchy.ARTERIAL: Fraction(80, 100),
+        RoadHierarchy.EXPRESSWAY: Fraction(1),
+    }
+    for road_id in frontage_road_ids:
+        road = road_by_id.get(road_id)
+        if road is None:
+            raise ValueError("block frontage references an unknown physical road")
+        if road.facility is FacilityKind.SURFACE:
+            values.append(surface[road.hierarchy])
+        elif road.facility is FacilityKind.BRIDGE:
+            values.append(Fraction(80, 100))
+        else:
+            raise ValueError("developable block frontage uses an ineligible facility")
+    if not values:
+        raise ValueError("developable block must have positive frontage")
+    return float(max(values))
+
+
+def _upstream_record_payload(record: object) -> tuple[object, ...]:
+    return tuple(getattr(record, field.name) for field in fields(record))
+
+
+def _block_source_payload(block: object) -> tuple[object, ...]:
+    return (
+        block.block_id,
+        block.semantic_id,
+        block.parent_face_id,
+        block.outer_polygon_mm,
+        block.hole_polygons_mm,
+        block.net_area_mm2,
+        block.frontage_road_ids,
+        block.access_node_ids,
+        block.primary_access_node_id,
+        block.interior_witness_mm,
+    )
+
+
+def _access_index_payload(index: V2BlockAccessIndex) -> tuple[object, ...]:
+    return tuple(getattr(index, field.name) for field in fields(index))
+
+
+def _static_authority_payload(authority: ScalableStaticAuthority) -> tuple[object, ...]:
+    return (
+        authority.schema_version,
+        (
+            authority.scale_spec.target_population,
+            authority.scale_spec.urbanized_area_km2.hex(),
+        ),
+        authority.style_id,
+        authority.seed,
+        authority.extent_mm,
+        authority.width_m,
+        authority.height_m,
+        authority.centers_mm,
+        authority.source_network_schema_version,
+        authority.source_blocks_schema_version,
+        authority.source_compiled_schema_version,
+        authority.numeric_profile_policy_version,
+        authority.source_network_fingerprint,
+        authority.source_blocks_fingerprint,
+        authority.source_compiled_fingerprint,
+        authority.source_terrain_fingerprint,
+        authority.source_scale_fingerprint,
+        authority.source_style_fingerprint,
+        authority.source_geometry_fingerprint,
+        authority.source_section_fingerprint,
+        authority.source_node_interface_fingerprint,
+        authority.source_turn_authority_fingerprint,
+        tuple(_upstream_record_payload(row) for row in authority.numeric_profiles),
+        tuple(_upstream_record_payload(row) for row in authority.road_crosswalk),
+        tuple(_upstream_record_payload(row) for row in authority.structure_group_crosswalk),
+        tuple(_upstream_record_payload(row) for row in authority.failure_group_crosswalk),
+        _access_index_payload(authority.block_access_index),
+        tuple(block.fingerprint for block in authority.block_land_use),
+        authority.capacity_certificate.fingerprint,
+        authority.taz_catalog.fingerprint,
+        authority.poi_catalog.fingerprint,
+        tuple(getattr(authority.fingerprints, field.name) for field in fields(MapFingerprintSetV3)),
+        authority.road_csr.content_fingerprint,
+        authority.routing_dependency_key.fingerprint,
+    )
+
+
+def _aggregate_poi_rows(
     *,
     block_rows: tuple[
         tuple[
@@ -1839,6 +2422,238 @@ def _admit_scalable_sources(
 
 
 def _derive_scalable_static_authority(
+
+def _fraction_pair(value: Fraction) -> tuple[int, int]:
+    if type(value) is not Fraction:
+        raise TypeError("value must be an exact Fraction")
+    return value.numerator, value.denominator
+
+
+def _canonical_network_extent(
+    network_extent_mm: tuple[int, int, int, int],
+) -> tuple[int, int, int, int]:
+    if type(network_extent_mm) is not tuple or len(network_extent_mm) != 4:
+        raise TypeError("network extent must be a built-in four-item tuple")
+    xmin, xmax, ymin, ymax = (
+        _plain_int(value, "network extent value") for value in network_extent_mm
+    )
+    return _exact_extent((xmin, ymin, xmax, ymax))
+
+
+def _allocation_fingerprint(
+    *,
+    population: int,
+    job_target: int,
+    leisure_target: int,
+    blocks: tuple[BlockLandUseV2, ...],
+    raw_totals: tuple[Fraction, Fraction, Fraction, Fraction],
+    multipliers: tuple[Fraction, Fraction, Fraction, Fraction],
+) -> str:
+    ordered_rows = tuple(
+        (
+            block.block_semantic_id,
+            block.raw_resident_ratio,
+            block.raw_home_ratio,
+            block.raw_job_ratio,
+            block.raw_leisure_ratio,
+            block.final_resident_capacity,
+            block.final_home_capacity,
+            block.final_job_capacity,
+            block.final_leisure_capacity,
+        )
+        for block in sorted(blocks, key=lambda item: item.block_semantic_id)
+    )
+    return _sha256_payload(
+        (
+            ALLOCATION_POLICY,
+            population,
+            job_target,
+            leisure_target,
+            ordered_rows,
+            *tuple(_fraction_pair(value) for value in raw_totals),
+            *tuple(_fraction_pair(value) for value in multipliers),
+            False,
+            0,
+            0,
+        )
+    )
+
+
+def _origin_fingerprints(
+    *,
+    scale_spec: CityScaleSpec,
+    style_id: str,
+    seed: int,
+    network: ScalableStreetNetwork,
+    blocks: ScalableBlockAuthority,
+    compiled: ScalableCompiledTopology,
+    copied: _CopiedTask4,
+    block_land_use: tuple[BlockLandUseV2, ...],
+    capacity_certificate: PopulationCapacityCertificate,
+    taz_catalog: V2TazCatalog,
+    poi_catalog: V2PoiCatalog,
+) -> MapFingerprintSetV3:
+    csr = copied.road_csr
+    config_payload = (
+        STATIC_CONFIG_NODE_SCHEMA,
+        scale_spec.target_population,
+        scale_spec.urbanized_area_km2.hex(),
+        style_id,
+        seed,
+        STATIC_AUTHORITY_SCHEMA,
+        LAND_USE_POLICY,
+        ALLOCATION_POLICY,
+        TAZ_POLICY,
+        POI_POLICY,
+        FINGERPRINT_SET_SCHEMA,
+        IMMUTABLE_CSR_SCHEMA,
+        ROUTING_KEY_SCHEMA,
+        STATIC_CONFIG_NODE_SCHEMA,
+        GEOMETRY_NODE_SCHEMA,
+        TOPOLOGY_NODE_SCHEMA,
+        LINK_ATTRIBUTES_NODE_SCHEMA,
+        TURN_AUTHORITY_NODE_SCHEMA,
+        BLOCKS_ACCESS_NODE_SCHEMA,
+        LAND_USE_ZONING_NODE_SCHEMA,
+        ROUTING_STATIC_NODE_SCHEMA,
+        ACCESSIBILITY_STATIC_NODE_SCHEMA,
+        REPLAY_STATIC_NODE_SCHEMA,
+        COMPOSITE_NODE_SCHEMA,
+        ROUTING_POLICY,
+        ACCESS_DIRECTION_POLICY,
+        CLOSURE_CAPABILITY_POLICY,
+        network.schema_version,
+        blocks.schema_version,
+        compiled.schema_version,
+        compiled.numeric_profile_policy_version,
+        STATIC_BUILDER_BACKEND,
+    )
+    config = _sha256_payload(config_payload)
+    geometry = _sha256_payload(
+        (
+            GEOMETRY_NODE_SCHEMA,
+            compiled.road_geometry_fingerprint,
+            tuple((node.node_id, node.x, node.y) for node in csr.nodes),
+        )
+    )
+    topology = _sha256_payload(
+        (
+            TOPOLOGY_NODE_SCHEMA,
+            tuple((node.node_id, node.kind) for node in csr.nodes),
+            tuple(
+                (
+                    link.link_id,
+                    link.src_node_id,
+                    link.dst_node_id,
+                    link.physical_road_id,
+                )
+                for link in csr.links
+            ),
+            _array_payload("node_ids", csr.node_ids),
+            _array_payload("link_ids", csr.link_ids),
+            _array_payload("link_src_node_index", csr.link_src_node_index),
+            _array_payload("link_dst_node_index", csr.link_dst_node_index),
+            _array_payload("outgoing_indptr", csr.outgoing_indptr),
+            _array_payload("outgoing_link_indices", csr.outgoing_link_indices),
+            _array_payload("incoming_indptr", csr.incoming_indptr),
+            _array_payload("incoming_link_indices", csr.incoming_link_indices),
+        )
+    )
+    link_attributes = _sha256_payload(
+        (
+            LINK_ATTRIBUTES_NODE_SCHEMA,
+            compiled.road_section_fingerprint,
+            tuple(
+                (
+                    link.link_id,
+                    link.src_node_id,
+                    link.dst_node_id,
+                    link.road_class,
+                    link.length_m,
+                    link.free_flow_speed_mps,
+                    link.capacity_veh_per_tick,
+                    link.lanes,
+                    link.bridge_group_id,
+                    link.is_blockable,
+                    link.physical_road_id,
+                )
+                for link in csr.links
+            ),
+            tuple(_upstream_record_payload(row) for row in copied.numeric_profiles),
+            tuple(_upstream_record_payload(row) for row in copied.road_crosswalk),
+            tuple(
+                _upstream_record_payload(row)
+                for row in copied.structure_group_crosswalk
+            ),
+            tuple(
+                _upstream_record_payload(row)
+                for row in copied.failure_group_crosswalk
+            ),
+            CAPACITY_REFERENCE_TICK_SECONDS,
+            CAPACITY_SOURCE_UNIT,
+            ACCESS_DIRECTION_POLICY,
+            CLOSURE_CAPABILITY_POLICY,
+        )
+    )
+    turn_authority = _sha256_payload(
+        (
+            TURN_AUTHORITY_NODE_SCHEMA,
+            compiled.node_interface_fingerprint,
+            compiled.turn_authority_fingerprint,
+            tuple(
+                (
+                    turn.from_link_id,
+                    turn.to_link_id,
+                    turn.turn_type,
+                    turn.base_priority,
+                    turn.signal_phase_id,
+                )
+                for turn in csr.turns
+            ),
+            _array_payload("turn_from_link_index", csr.turn_from_link_index),
+            _array_payload("turn_to_link_index", csr.turn_to_link_index),
+            _array_payload("turn_base_priority", csr.turn_base_priority),
+            _array_payload("turn_is_forbidden", csr.turn_is_forbidden),
+            tuple(sorted(csr.turn_pair_to_index.items())),
+        )
+    )
+    blocks_access = _sha256_payload(
+        (
+            BLOCKS_ACCESS_NODE_SCHEMA,
+            blocks.fingerprint,
+            tuple(_block_source_payload(block) for block in blocks.blocks),
+            _access_index_payload(copied.block_access_index),
+        )
+    )
+    land_use_zoning = _sha256_payload(
+        (
+            LAND_USE_ZONING_NODE_SCHEMA,
+            LAND_USE_POLICY,
+            ALLOCATION_POLICY,
+            TAZ_POLICY,
+            POI_POLICY,
+            scale_spec.target_population,
+            scale_spec.urbanized_area_km2.hex(),
+            style_id,
+            seed,
+            network.terrain.fingerprint,
+            network.centers,
+            blocks_access,
+            tuple(block.fingerprint for block in block_land_use),
+            capacity_certificate.fingerprint,
+            taz_catalog.fingerprint,
+            poi_catalog.fingerprint,
+        )
+    )
+    return _compose_map_fingerprint_set_v3(
+        config=config,
+        geometry=geometry,
+        topology=topology,
+        link_attributes=link_attributes,
+        turn_authority=turn_authority,
+        blocks_access=blocks_access,
+        land_use_zoning=land_use_zoning,
+    )
     *,
     scale_spec: CityScaleSpec,
     style_id: str,
@@ -1847,8 +2662,341 @@ def _derive_scalable_static_authority(
     blocks: ScalableBlockAuthority,
     compiled: ScalableCompiledTopology,
 ) -> ScalableStaticAuthority:
-    raise NotImplementedError(
-        "S11_OWNER_RED: static authority derivation is not implemented"
+    copied = _copy_task4_authorities(blocks=blocks, compiled=compiled)
+    source_blocks = tuple(sorted(blocks.blocks, key=lambda block: block.block_id))
+    if tuple(block.block_id for block in source_blocks) != tuple(range(len(source_blocks))):
+        raise ValueError("Task 3B block IDs must be dense and ordered")
+    extent_mm = _canonical_network_extent(network.extent_mm)
+    road_by_id = {road.physical_road_id: road for road in copied.road_crosswalk}
+    if len(road_by_id) != len(copied.road_crosswalk):
+        raise ValueError("road crosswalk IDs must be unique")
+
+    feature_by_id: dict[int, tuple[tuple[int, int], float, float, float]] = {}
+    feature_rows: list[tuple[int, str, float, float, float]] = []
+    for block in source_blocks:
+        if (
+            type(block.net_area_mm2) is not Fraction
+            or block.net_area_mm2 <= 0
+            or not block.frontage_road_ids
+            or not block.access_node_ids
+            or block.primary_access_node_id not in block.access_node_ids
+        ):
+            raise ValueError("Task 3B block is not addressable")
+        terrain_cell, intensity = _sample_terrain_at_exact_witness(
+            terrain=network.terrain,
+            witness_mm=block.interior_witness_mm,
+        )
+        centrality = _centrality_score_mm(
+            witness_mm=block.interior_witness_mm,
+            centers_mm=network.centers,
+            width_m=network.width_m,
+            height_m=network.height_m,
+        )
+        exposure = _frontage_exposure(block.frontage_road_ids, road_by_id)
+        feature_by_id[block.block_id] = (
+            terrain_cell,
+            intensity,
+            centrality,
+            exposure,
+        )
+        feature_rows.append(
+            (block.block_id, block.semantic_id, centrality, intensity, exposure)
+        )
+
+    classifications = dict(
+        _classify_land_use_rows(
+            feature_rows=tuple(feature_rows),
+            road_to_block_ids=copied.block_access_index.road_to_block_ids,
+        )
+    )
+    raw_by_id: dict[int, tuple[Fraction, Fraction, Fraction, Fraction]] = {}
+    for block in source_blocks:
+        raw_by_id[block.block_id] = _raw_capacity_ratios(
+            exact_net_area_mm2=block.net_area_mm2,
+            terrain_intensity=feature_by_id[block.block_id][1],
+            land_use_type=classifications[block.block_id],
+        )
+    raw_totals = tuple(
+        sum((raw_by_id[block.block_id][channel] for block in source_blocks), Fraction(0))
+        for channel in range(4)
+    )
+    population = scale_spec.target_population
+    job_target = (31 * population + 49) // 50
+    leisure_target = round(raw_totals[3])
+    targets = (population, population, job_target, leisure_target)
+    multipliers = tuple(
+        _require_implied_multiplier(
+            target=target,
+            raw_total=raw_total,
+            enforce_authoritative_bounds=channel < 3,
+        )
+        for channel, (target, raw_total) in enumerate(
+            zip(targets, raw_totals, strict=True)
+        )
+    )
+    apportioned = tuple(
+        dict(
+            _apportion_exact_channel(
+                target=target,
+                weighted_rows=tuple(
+                    (block.semantic_id, raw_by_id[block.block_id][channel])
+                    for block in source_blocks
+                ),
+            )
+        )
+        for channel, target in enumerate(targets)
+    )
+
+    taz_count = _taz_count_policy_unbounded(population)
+    partitions = _partition_morton_rows(
+        rows=tuple(
+            (block.block_id, block.semantic_id, block.interior_witness_mm)
+            for block in source_blocks
+        ),
+        extent_mm=extent_mm,
+        taz_count=taz_count,
+    )
+    taz_by_block = {
+        block_id: taz_id for taz_id, member_ids in partitions for block_id in member_ids
+    }
+    block_land_use = tuple(
+        BlockLandUseV2(
+            block_id=block.block_id,
+            block_semantic_id=block.semantic_id,
+            parent_face_id=block.parent_face_id,
+            land_use_type=classifications[block.block_id],
+            outer_polygon_mm=block.outer_polygon_mm,
+            hole_polygons_mm=block.hole_polygons_mm,
+            exact_net_area_mm2=block.net_area_mm2,
+            frontage_road_ids=block.frontage_road_ids,
+            access_node_ids=block.access_node_ids,
+            primary_access_node_id=block.primary_access_node_id,
+            interior_witness_mm=block.interior_witness_mm,
+            terrain_cell=feature_by_id[block.block_id][0],
+            terrain_intensity=feature_by_id[block.block_id][1],
+            terrain_intensity_hex=feature_by_id[block.block_id][1].hex(),
+            centrality_score=feature_by_id[block.block_id][2],
+            exposure_score=feature_by_id[block.block_id][3],
+            raw_resident_weight=float(raw_by_id[block.block_id][0]),
+            raw_home_weight=float(raw_by_id[block.block_id][1]),
+            raw_job_weight=float(raw_by_id[block.block_id][2]),
+            raw_leisure_weight=float(raw_by_id[block.block_id][3]),
+            raw_resident_ratio=_fraction_pair(raw_by_id[block.block_id][0]),
+            raw_home_ratio=_fraction_pair(raw_by_id[block.block_id][1]),
+            raw_job_ratio=_fraction_pair(raw_by_id[block.block_id][2]),
+            raw_leisure_ratio=_fraction_pair(raw_by_id[block.block_id][3]),
+            final_resident_capacity=apportioned[0][block.semantic_id],
+            final_home_capacity=apportioned[1][block.semantic_id],
+            final_job_capacity=apportioned[2][block.semantic_id],
+            final_leisure_capacity=apportioned[3][block.semantic_id],
+            taz_id=taz_by_block[block.block_id],
+            source_network_fingerprint=network.fingerprint,
+            source_blocks_fingerprint=blocks.fingerprint,
+            policy_version=LAND_USE_POLICY,
+        )
+        for block in source_blocks
+    )
+    allocation_fingerprint = _allocation_fingerprint(
+        population=population,
+        job_target=job_target,
+        leisure_target=leisure_target,
+        blocks=block_land_use,
+        raw_totals=raw_totals,
+        multipliers=multipliers,
+    )
+    certificate = PopulationCapacityCertificate(
+        schema_version=ALLOCATION_POLICY,
+        target_population=population,
+        job_target=job_target,
+        worker_share_numerator=31,
+        worker_share_denominator=50,
+        resident_raw_total_ratio=_fraction_pair(raw_totals[0]),
+        home_raw_total_ratio=_fraction_pair(raw_totals[1]),
+        job_raw_total_ratio=_fraction_pair(raw_totals[2]),
+        leisure_raw_total_ratio=_fraction_pair(raw_totals[3]),
+        resident_multiplier_ratio=_fraction_pair(multipliers[0]),
+        home_multiplier_ratio=_fraction_pair(multipliers[1]),
+        job_multiplier_ratio=_fraction_pair(multipliers[2]),
+        leisure_multiplier_ratio=_fraction_pair(multipliers[3]),
+        resident_capacity_total=sum(
+            block.final_resident_capacity for block in block_land_use
+        ),
+        home_capacity_total=sum(block.final_home_capacity for block in block_land_use),
+        job_capacity_total=sum(block.final_job_capacity for block in block_land_use),
+        leisure_capacity_total=sum(
+            block.final_leisure_capacity for block in block_land_use
+        ),
+        taz_count=taz_count,
+        allocated_block_count=len(block_land_use),
+        capacity_cap_applied=False,
+        silent_cap_count=0,
+        dropped_capacity_count=0,
+        allocation_fingerprint=allocation_fingerprint,
+        source_network_fingerprint=network.fingerprint,
+        source_blocks_fingerprint=blocks.fingerprint,
+        source_compiled_fingerprint=compiled.fingerprint,
+        land_use_policy_version=LAND_USE_POLICY,
+        allocation_policy_version=ALLOCATION_POLICY,
+    )
+
+    land_use_by_id = {block.block_id: block for block in block_land_use}
+    tazs: list[V2Taz] = []
+    for taz_id, member_ids in partitions:
+        members = tuple(
+            sorted(
+                (land_use_by_id[block_id] for block_id in member_ids),
+                key=lambda block: (block.block_semantic_id, block.block_id),
+            )
+        )
+        semantics = tuple(block.block_semantic_id for block in members)
+        tazs.append(
+            V2Taz(
+                taz_id=taz_id,
+                semantic_id=_sha256_payload((TAZ_POLICY, taz_id, semantics)),
+                block_ids=tuple(block.block_id for block in members),
+                block_semantic_ids=semantics,
+                frontage_road_ids=tuple(
+                    sorted(
+                        {
+                            road_id
+                            for block in members
+                            for road_id in block.frontage_road_ids
+                        }
+                    )
+                ),
+                access_node_ids=tuple(
+                    sorted(
+                        {
+                            node_id
+                            for block in members
+                            for node_id in block.access_node_ids
+                        }
+                    )
+                ),
+                resident_capacity_total=sum(
+                    block.final_resident_capacity for block in members
+                ),
+                home_capacity_total=sum(block.final_home_capacity for block in members),
+                job_capacity_total=sum(block.final_job_capacity for block in members),
+                leisure_capacity_total=sum(
+                    block.final_leisure_capacity for block in members
+                ),
+            )
+        )
+    taz_tuple = tuple(tazs)
+    block_taz_by_id = tuple(
+        sorted((block.block_id, block.taz_id) for block in block_land_use)
+    )
+    node_owner_by_id, node_conflicts, _ = _node_taz_ownership_from_index(
+        block_rows=tuple(
+            (block.block_semantic_id, block.taz_id, block.access_node_ids)
+            for block in block_land_use
+        )
+    )
+    assignment_fingerprint = _sha256_payload(
+        (
+            TAZ_POLICY,
+            taz_count,
+            blocks.fingerprint,
+            allocation_fingerprint,
+            tuple(_record_payload(taz) for taz in taz_tuple),
+            block_taz_by_id,
+            node_owner_by_id,
+            node_conflicts,
+        )
+    )
+    taz_catalog = V2TazCatalog(
+        schema_version=TAZ_POLICY,
+        tazs=taz_tuple,
+        block_taz_by_id=block_taz_by_id,
+        node_owner_by_id=node_owner_by_id,
+        node_conflicts=node_conflicts,
+        target_taz_count=taz_count,
+        source_blocks_fingerprint=blocks.fingerprint,
+        source_allocation_fingerprint=allocation_fingerprint,
+        assignment_fingerprint=assignment_fingerprint,
+    )
+    poi_rows = _aggregate_poi_rows(
+        block_rows=tuple(
+            (
+                block.block_id,
+                block.block_semantic_id,
+                block.interior_witness_mm,
+                block.primary_access_node_id,
+                block.taz_id,
+                block.final_home_capacity,
+                block.final_job_capacity,
+                block.final_leisure_capacity,
+            )
+            for block in block_land_use
+        ),
+        source_allocation_fingerprint=allocation_fingerprint,
+    )
+    poi_catalog = V2PoiCatalog(
+        schema_version=POI_POLICY,
+        pois=poi_rows,
+        home_capacity_total=certificate.home_capacity_total,
+        workplace_capacity_total=certificate.job_capacity_total,
+        leisure_capacity_total=certificate.leisure_capacity_total,
+        source_allocation_fingerprint=allocation_fingerprint,
+        source_taz_fingerprint=taz_catalog.fingerprint,
+    )
+    fingerprints = _origin_fingerprints(
+        scale_spec=scale_spec,
+        style_id=style_id,
+        seed=seed,
+        network=network,
+        blocks=blocks,
+        compiled=compiled,
+        copied=copied,
+        block_land_use=block_land_use,
+        capacity_certificate=certificate,
+        taz_catalog=taz_catalog,
+        poi_catalog=poi_catalog,
+    )
+    routing_key = RoutingStaticDependencyKey(
+        schema_version=ROUTING_KEY_SCHEMA,
+        routing_static_fingerprint=fingerprints.routing_static,
+        routing_policy_version=ROUTING_POLICY,
+        access_direction_policy_version=ACCESS_DIRECTION_POLICY,
+        closure_capability_policy_version=CLOSURE_CAPABILITY_POLICY,
+        source_csr_fingerprint=copied.road_csr.content_fingerprint,
+    )
+    return ScalableStaticAuthority(
+        schema_version=STATIC_AUTHORITY_SCHEMA,
+        scale_spec=scale_spec,
+        style_id=style_id,
+        seed=seed,
+        extent_mm=extent_mm,
+        width_m=network.width_m,
+        height_m=network.height_m,
+        centers_mm=network.centers,
+        source_network_schema_version=network.schema_version,
+        source_blocks_schema_version=blocks.schema_version,
+        source_compiled_schema_version=compiled.schema_version,
+        numeric_profile_policy_version=compiled.numeric_profile_policy_version,
+        source_network_fingerprint=network.fingerprint,
+        source_blocks_fingerprint=blocks.fingerprint,
+        source_compiled_fingerprint=compiled.fingerprint,
+        source_terrain_fingerprint=network.terrain.fingerprint,
+        source_scale_fingerprint=network.scale_fingerprint,
+        source_style_fingerprint=network.style_fingerprint,
+        source_geometry_fingerprint=compiled.road_geometry_fingerprint,
+        source_section_fingerprint=compiled.road_section_fingerprint,
+        source_node_interface_fingerprint=compiled.node_interface_fingerprint,
+        source_turn_authority_fingerprint=compiled.turn_authority_fingerprint,
+        numeric_profiles=copied.numeric_profiles,
+        road_crosswalk=copied.road_crosswalk,
+        structure_group_crosswalk=copied.structure_group_crosswalk,
+        failure_group_crosswalk=copied.failure_group_crosswalk,
+        block_access_index=copied.block_access_index,
+        block_land_use=block_land_use,
+        capacity_certificate=certificate,
+        taz_catalog=taz_catalog,
+        poi_catalog=poi_catalog,
+        fingerprints=fingerprints,
+        road_csr=copied.road_csr,
+        routing_dependency_key=routing_key,
     )
 
 
