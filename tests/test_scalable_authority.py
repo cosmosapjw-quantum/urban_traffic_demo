@@ -4,6 +4,7 @@ import importlib
 from dataclasses import MISSING, fields, is_dataclass, replace
 from fractions import Fraction
 import inspect
+import json
 import math
 import sys
 from types import MappingProxyType
@@ -526,6 +527,40 @@ def test_fraction_witness_terrain_centrality_and_morton_are_exact() -> None:
         extent_mm=(0, 0, 10, 10),
         taz_count=2,
     ) == expected
+
+    assert authority._taz_count_policy_unbounded(100_000) == 64
+    assert authority._taz_count_policy_unbounded(160_000) == 64
+    assert authority._taz_count_policy_unbounded(160_001) == 65
+    scalar_callable = authority._taz_count_policy_unbounded
+    scalar_call_count = 0
+
+    def invoke_scalar_policy(value: int) -> int:
+        nonlocal scalar_call_count
+        assert scalar_callable is authority._taz_count_policy_unbounded
+        assert type(value) is int and value == 1_000_000
+        scalar_call_count += 1
+        return scalar_callable(value)
+
+    scalar_result = invoke_scalar_policy(1_000_000)
+    assert scalar_result == 400
+    assert scalar_call_count == 1
+    assert authority._taz_count_policy_unbounded(1_280_001) == 512
+    print(
+        "PR88_SCALAR_POLICY_LEDGER="
+        + json.dumps(
+            {
+                "callable": (
+                    "metroflow.city.scalable_authority._taz_count_policy_unbounded"
+                ),
+                "owner": "test_fraction_witness_terrain_centrality_and_morton_are_exact",
+                "argument": 1_000_000,
+                "call_count": scalar_call_count,
+                "result": scalar_result,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+    )
     assert authority._partition_morton_rows(
         rows=tuple(reversed(rows)),
         extent_mm=(0, 0, 10, 10),
