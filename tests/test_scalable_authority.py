@@ -1517,10 +1517,10 @@ def test_bounded_capacity_preflight_is_aggregate_only() -> None:
             (copied.road_csr.bridge_crossings, compiled.road_csr.bridge_crossings),
         ):
             assert target_rows is not source_rows
-            assert all(
-                target is not source
-                for target, source in zip(target_rows, source_rows, strict=True)
-            )
+            for row_index, (target, source) in enumerate(
+                zip(target_rows, source_rows, strict=True)
+            ):
+                assert target is not source, (type(target_rows).__name__, row_index)
         assert copied.block_access_index is not blocks.access_index
         for name in (
             "node_id_to_index",
