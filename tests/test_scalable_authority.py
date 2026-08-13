@@ -561,6 +561,14 @@ def test_fraction_witness_terrain_centrality_and_morton_are_exact() -> None:
             separators=(",", ":"),
         )
     )
+
+
+def test_land_use_classifier_uses_exact_scores_and_frozen_indexed_adjacency() -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    assert authority._land_use_counts(4) == (1, 1, 1, 1)
+    assert authority._land_use_counts(7) == (1, 1, 2, 3)
+    assert authority._land_use_counts(12) == (1, 1, 3, 7)
+    assert authority._land_use_counts(50) == (6, 6, 12, 26)
     assert authority._partition_morton_rows(
         rows=tuple(reversed(rows)),
         extent_mm=(0, 0, 10, 10),
