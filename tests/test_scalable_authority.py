@@ -1350,6 +1350,8 @@ def test_bounded_capacity_preflight_is_aggregate_only() -> None:
         import json
         import sys
 
+        import numpy as np
+
         forbidden_prefixes = (
             "metroflow.sim",
             "metroflow.demand",
@@ -1494,6 +1496,55 @@ def test_bounded_capacity_preflight_is_aggregate_only() -> None:
         reject_forbidden(after_authority_import - before_authority_import)
         copied = authority._copy_task4_authorities(blocks=blocks, compiled=compiled)
         assert copied.road_csr.content_fingerprint
+        assert copied.numeric_profiles is not compiled.numeric_profiles
+        assert copied.road_crosswalk is not compiled.road_crosswalk
+        assert all(
+            target is not source
+            for target, source in zip(
+                copied.numeric_profiles, compiled.numeric_profiles, strict=True
+            )
+        )
+        assert all(
+            target is not source
+            for target, source in zip(
+                copied.road_crosswalk, compiled.road_crosswalk, strict=True
+            )
+        )
+        for target_rows, source_rows in (
+            (copied.road_csr.nodes, compiled.road_csr.nodes),
+            (copied.road_csr.links, compiled.road_csr.links),
+            (copied.road_csr.turns, compiled.road_csr.turns),
+            (copied.road_csr.bridge_crossings, compiled.road_csr.bridge_crossings),
+        ):
+            assert target_rows is not source_rows
+            assert all(
+                target is not source
+                for target, source in zip(target_rows, source_rows, strict=True)
+            )
+        assert copied.block_access_index is not blocks.access_index
+        for name in (
+            "node_id_to_index",
+            "link_id_to_index",
+            "turn_pair_to_index",
+        ):
+            assert getattr(copied.road_csr, name) is not getattr(compiled.road_csr, name)
+        for name in (
+            "node_ids",
+            "link_ids",
+            "link_src_node_index",
+            "link_dst_node_index",
+            "outgoing_indptr",
+            "outgoing_link_indices",
+            "incoming_indptr",
+            "incoming_link_indices",
+            "turn_from_link_index",
+            "turn_to_link_index",
+            "turn_base_priority",
+            "turn_is_forbidden",
+        ):
+            target = getattr(copied.road_csr, name)
+            source = getattr(compiled.road_csr, name)
+            assert not np.shares_memory(target, source)
         print(
             "PR88_SOURCE_CALL_LEDGER="
             + json.dumps(
