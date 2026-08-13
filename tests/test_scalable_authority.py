@@ -59,3 +59,15 @@ def test_scalable_authority_public_schema_is_exact() -> None:
         "CAPACITY_SOURCE_UNIT": "vehicles_per_second",
     }
     assert {name: getattr(authority, name) for name in expected_literals} == expected_literals
+
+    assert tuple((member.name, member.value) for member in authority.V2LandUseType) == (
+        ("RESIDENTIAL", "residential"),
+        ("COMMERCIAL", "commercial"),
+        ("INDUSTRIAL", "industrial"),
+        ("MIXED_USE", "mixed_use"),
+    )
+    assert tuple((member.name, member.value) for member in authority.V2PoiKind) == (
+        ("HOME", "home"),
+        ("WORKPLACE", "workplace"),
+        ("LEISURE", "leisure"),
+    )
