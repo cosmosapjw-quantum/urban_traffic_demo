@@ -506,6 +506,31 @@ def test_fraction_witness_terrain_centrality_and_morton_are_exact() -> None:
         width_m=100.0,
         height_m=50.0,
     ) == math.exp(-1.0 / 28.0)
+
+    extent = (-100, -100, 100, 100)
+    assert authority._morton_witness_key(
+        witness_mm=(Fraction(-199, 2), Fraction(-199, 2)),
+        extent_mm=extent,
+    ) == (0, Fraction(1, 2), Fraction(1, 2))
+    assert authority._morton_witness_key(
+        witness_mm=(Fraction(-197, 2), Fraction(-199, 2)),
+        extent_mm=extent,
+    ) == (1, Fraction(3, 2), Fraction(1, 2))
+    with pytest.raises(ValueError):
+        authority._morton_witness_key(witness_mm=(-101, 0), extent_mm=extent)
+
+    rows = tuple((index, str(index) * 64, (index & 1, index >> 1)) for index in range(5))
+    expected = ((0, (0, 1, 2)), (1, (3, 4)))
+    assert authority._partition_morton_rows(
+        rows=rows,
+        extent_mm=(0, 0, 10, 10),
+        taz_count=2,
+    ) == expected
+    assert authority._partition_morton_rows(
+        rows=tuple(reversed(rows)),
+        extent_mm=(0, 0, 10, 10),
+        taz_count=2,
+    ) == expected
     with pytest.raises(ValueError):
         authority._require_implied_multiplier(
             target=3_000_001,
