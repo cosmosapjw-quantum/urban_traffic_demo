@@ -1546,6 +1546,39 @@ def test_bounded_capacity_preflight_is_aggregate_only() -> None:
             target = getattr(copied.road_csr, name)
             source = getattr(compiled.road_csr, name)
             assert not np.shares_memory(target, source)
+        before_build = frozenset(sys.modules)
+        task5_calls = 0
+
+        def guard_task5(callable_, *args):
+            global task5_calls
+            assert callable_ is authority.build_scalable_static_authority
+            assert task5_calls == 0
+            assert args == (bounded_scale, "grid_core", 17, network, blocks, compiled)
+            task5_calls += 1
+            return callable_(*args)
+
+        result = guard_task5(
+            authority.build_scalable_static_authority,
+            bounded_scale,
+            "grid_core",
+            17,
+            network,
+            blocks,
+            compiled,
+        )
+        phase_rows.append(
+            {
+                "phase": "Task5",
+                "callable": (
+                    authority.build_scalable_static_authority.__module__
+                    + "."
+                    + authority.build_scalable_static_authority.__qualname__
+                ),
+                "call_count": task5_calls,
+                "population": bounded_scale.target_population,
+                "scale_fingerprint": network.scale_fingerprint,
+            }
+        )
         print(
             "PR88_SOURCE_CALL_LEDGER="
             + json.dumps(
