@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import importlib
-from dataclasses import fields, is_dataclass, replace
+from dataclasses import MISSING, fields, is_dataclass, replace
 from fractions import Fraction
 import inspect
 import math
@@ -353,3 +353,29 @@ def test_scalable_authority_public_schema_is_exact() -> None:
         assert "__slots__" in record_type.__dict__
         assert record_type.__annotations__ == annotations
         assert tuple(field.name for field in fields(record_type)) == tuple(annotations)
+
+    expected_defaults = {
+        "BlockLandUseV2": {"fingerprint": ""},
+        "PopulationCapacityCertificate": {"fingerprint": ""},
+        "V2Taz": {"fingerprint": ""},
+        "V2TazCatalog": {"fingerprint": ""},
+        "V2Poi": {"fingerprint": ""},
+        "V2PoiCatalog": {"fingerprint": ""},
+        "MapFingerprintSetV3": {},
+        "RoutingStaticDependencyKey": {"fingerprint": ""},
+        "ImmutableNode": {},
+        "ImmutableRoadLink": {},
+        "ImmutableTurnMovement": {},
+        "ImmutableBridgeCrossing": {},
+        "ImmutableRoadNetworkCSR": {"content_fingerprint": ""},
+        "ScalableStaticAuthority": {"fingerprint": ""},
+    }
+    for class_name, expected in expected_defaults.items():
+        record_fields = fields(getattr(authority, class_name))
+        observed = {
+            field.name: field.default
+            for field in record_fields
+            if field.default is not MISSING
+        }
+        assert observed == expected
+        assert all(field.default_factory is MISSING for field in record_fields)
