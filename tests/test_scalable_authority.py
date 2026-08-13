@@ -1024,3 +1024,92 @@ def test_immutable_csr_copies_maps_arrays_and_validates_outgoing_contract() -> N
             csr.outgoing_links_for_node(invalid)
     with pytest.raises(ValueError):
         replace(csr, content_fingerprint="f" * 64)
+
+
+def test_exact_math_hostile_float_collapse_and_binary_cell_oracles() -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    expected_raw = {
+        authority.V2LandUseType.RESIDENTIAL: (
+            Fraction(551, 8),
+            Fraction(551, 8),
+            Fraction(0),
+            Fraction(145, 8),
+        ),
+        authority.V2LandUseType.COMMERCIAL: (
+            Fraction(0),
+            Fraction(0),
+            Fraction(493, 4),
+            Fraction(203, 4),
+        ),
+        authority.V2LandUseType.INDUSTRIAL: (
+            Fraction(0),
+            Fraction(0),
+            Fraction(261, 4),
+            Fraction(0),
+        ),
+        authority.V2LandUseType.MIXED_USE: (
+            Fraction(435, 8),
+            Fraction(435, 8),
+            Fraction(551, 8),
+            Fraction(319, 8),
+        ),
+    }
+    for land_use, expected in expected_raw.items():
+        assert authority._raw_capacity_ratios(
+            exact_net_area_mm2=Fraction(10_000_000_000),
+            terrain_intensity=0.5,
+            land_use_type=land_use,
+        ) == expected
+
+    assert authority._require_implied_multiplier(
+        target=1,
+        raw_total=Fraction(100),
+        enforce_authoritative_bounds=False,
+    ) == Fraction(1, 100)
+    for invalid in (True, np.float64(1.0), float("nan"), float("inf"), -1.0):
+        with pytest.raises((TypeError, ValueError)):
+            authority._require_implied_multiplier(
+                target=1,
+                raw_total=invalid,
+                enforce_authoritative_bounds=True,
+            )
+
+    key_a, key_f = "0" * 64, "f" * 64
+    assert authority._apportion_exact_channel(
+        target=1,
+        weighted_rows=(
+            (key_f, Fraction(2**53 + 1)),
+            (key_a, Fraction(2**53)),
+        ),
+    ) == ((key_a, 0), (key_f, 1))
+
+    terrain = ScalableTerrainField(
+        width_m=1.0,
+        height_m=1.0,
+        cell_size_m=0.1,
+        tile_size_m=2_000.0,
+        seed=17,
+        style_id="grid_core",
+        barrier_seam_x_mm=None,
+        fingerprint="b" * 64,
+    )
+    exact_cell_mm = Fraction(*terrain.cell_size_m.as_integer_ratio()) * 1_000
+    epsilon = Fraction(1, 10**9)
+    assert authority._sample_terrain_at_exact_witness(
+        terrain=terrain,
+        witness_mm=(exact_cell_mm - epsilon, 0),
+    )[0] == (0, 0)
+    assert authority._sample_terrain_at_exact_witness(
+        terrain=terrain,
+        witness_mm=(exact_cell_mm, 0),
+    )[0] == (1, 0)
+
+    extent = (-2, -2, 3, 3)
+    assert authority._morton_witness_key(witness_mm=(-1, 0), extent_mm=extent)[0] == 9
+    assert authority._morton_witness_key(witness_mm=(0, -1), extent_mm=extent)[0] == 6
+    with pytest.raises(ValueError):
+        authority._partition_morton_rows(
+            rows=((0, "0" * 64, (0, 0)),),
+            extent_mm=extent,
+            taz_count=2,
+        )
