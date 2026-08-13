@@ -458,6 +458,18 @@ def test_exact_raw_weights_multiplier_and_largest_remainder_are_order_independen
             raw_total=Fraction(4_000_001, 1_000_000),
             enforce_authoritative_bounds=True,
         )
+    with pytest.raises(ValueError):
+        authority._require_implied_multiplier(
+            target=3_000_001,
+            raw_total=Fraction(1_000_000),
+            enforce_authoritative_bounds=True,
+        )
+    with pytest.raises(ValueError):
+        authority._require_implied_multiplier(
+            target=1,
+            raw_total=Fraction(0),
+            enforce_authoritative_bounds=True,
+        )
 
     keys = ("0" * 64, "1" * 64, "2" * 64)
     forward = tuple((key, Fraction(1)) for key in keys)
@@ -527,6 +539,11 @@ def test_fraction_witness_terrain_centrality_and_morton_are_exact() -> None:
         extent_mm=(0, 0, 10, 10),
         taz_count=2,
     ) == expected
+    assert authority._partition_morton_rows(
+        rows=tuple(reversed(rows)),
+        extent_mm=(0, 0, 10, 10),
+        taz_count=2,
+    ) == expected
 
     assert authority._taz_count_policy_unbounded(100_000) == 64
     assert authority._taz_count_policy_unbounded(160_000) == 64
@@ -569,20 +586,3 @@ def test_land_use_classifier_uses_exact_scores_and_frozen_indexed_adjacency() ->
     assert authority._land_use_counts(7) == (1, 1, 2, 3)
     assert authority._land_use_counts(12) == (1, 1, 3, 7)
     assert authority._land_use_counts(50) == (6, 6, 12, 26)
-    assert authority._partition_morton_rows(
-        rows=tuple(reversed(rows)),
-        extent_mm=(0, 0, 10, 10),
-        taz_count=2,
-    ) == expected
-    with pytest.raises(ValueError):
-        authority._require_implied_multiplier(
-            target=3_000_001,
-            raw_total=Fraction(1_000_000),
-            enforce_authoritative_bounds=True,
-        )
-    with pytest.raises(ValueError):
-        authority._require_implied_multiplier(
-            target=1,
-            raw_total=Fraction(0),
-            enforce_authoritative_bounds=True,
-        )
