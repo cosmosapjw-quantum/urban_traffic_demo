@@ -457,6 +457,18 @@ def test_exact_raw_weights_multiplier_and_largest_remainder_are_order_independen
             raw_total=Fraction(4_000_001, 1_000_000),
             enforce_authoritative_bounds=True,
         )
+
+    keys = ("0" * 64, "1" * 64, "2" * 64)
+    forward = tuple((key, Fraction(1)) for key in keys)
+    reverse = tuple(reversed(forward))
+    expected = ((keys[0], 2), (keys[1], 2), (keys[2], 1))
+    assert authority._apportion_exact_channel(target=5, weighted_rows=forward) == expected
+    assert authority._apportion_exact_channel(target=5, weighted_rows=reverse) == expected
+    with pytest.raises(ValueError):
+        authority._apportion_exact_channel(
+            target=1,
+            weighted_rows=((keys[0], Fraction(1)), (keys[0], Fraction(2))),
+        )
     with pytest.raises(ValueError):
         authority._require_implied_multiplier(
             target=3_000_001,
