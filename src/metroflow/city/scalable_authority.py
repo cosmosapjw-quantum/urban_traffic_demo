@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from fractions import Fraction
+import hashlib
+import json
 import math
 from typing import Mapping
 
@@ -137,6 +139,33 @@ def _exact_extent(extent_mm: object) -> tuple[int, int, int, int]:
     return xmin, ymin, xmax, ymax
 
 
+def _canonical_payload(value: object) -> object:
+    if isinstance(value, Enum):
+        return value.value
+    if type(value) is Fraction:
+        return ("fraction", value.numerator, value.denominator)
+    if type(value) is float:
+        if not math.isfinite(value):
+            raise ValueError("canonical floats must be finite")
+        return ("float_hex", value.hex())
+    if value is None or type(value) in (bool, int, str):
+        return value
+    if type(value) is tuple:
+        return tuple(_canonical_payload(item) for item in value)
+    raise TypeError(f"unsupported canonical payload type: {type(value).__name__}")
+
+
+def _sha256_payload(payload: object) -> str:
+    encoded = json.dumps(
+        _canonical_payload(payload),
+        ensure_ascii=True,
+        allow_nan=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def _morton_code(x: int, y: int) -> int:
     result = 0
     for bit in range(max(x.bit_length(), y.bit_length())):
@@ -259,9 +288,51 @@ class V2Poi:
     fingerprint: str = ""
 
     def __post_init__(self) -> None:
-        raise NotImplementedError(
-            "S5A_RECORD_OWNER_RED: V2Poi validation is not implemented"
+        if type(self) is not V2Poi:
+            raise TypeError("poi must be an exact V2Poi")
+        for name in ("poi_id", "block_id", "access_node_id", "taz_id", "capacity"):
+            object.__setattr__(
+                self,
+                name,
+                _plain_nonnegative_int(getattr(self, name), name),
+            )
+        semantic_id = _digest_text(self.semantic_id, "semantic_id")
+        block_semantic_id = _digest_text(self.block_semantic_id, "block_semantic_id")
+        if type(self.poi_kind) is not V2PoiKind:
+            raise TypeError("poi_kind must be an exact V2PoiKind")
+        witness = _exact_witness(self.location_witness_mm, "location_witness_mm")
+        source = _digest_text(
+            self.source_allocation_fingerprint,
+            "source_allocation_fingerprint",
         )
+        expected_semantic = _sha256_payload(
+            (POI_POLICY, block_semantic_id, self.poi_kind.value)
+        )
+        if semantic_id != expected_semantic:
+            raise ValueError("POI semantic ID does not match its stable payload")
+        object.__setattr__(self, "semantic_id", semantic_id)
+        object.__setattr__(self, "block_semantic_id", block_semantic_id)
+        object.__setattr__(self, "location_witness_mm", witness)
+        object.__setattr__(self, "source_allocation_fingerprint", source)
+        payload = (
+            "V2Poi",
+            self.poi_id,
+            self.semantic_id,
+            self.poi_kind,
+            self.block_id,
+            self.block_semantic_id,
+            self.location_witness_mm,
+            self.access_node_id,
+            self.taz_id,
+            self.capacity,
+            self.source_allocation_fingerprint,
+        )
+        expected_fingerprint = _sha256_payload(payload)
+        if self.fingerprint:
+            if _digest_text(self.fingerprint, "fingerprint") != expected_fingerprint:
+                raise ValueError("POI fingerprint does not match canonical content")
+        else:
+            object.__setattr__(self, "fingerprint", expected_fingerprint)
 
 
 @dataclass(frozen=True, slots=True)
