@@ -977,7 +977,88 @@ def _aggregate_poi_rows(
     ],
     source_allocation_fingerprint: str,
 ) -> tuple[V2Poi, ...]:
-    raise NotImplementedError("S5A_OWNER_RED: aggregate POI rows are not implemented")
+    if type(block_rows) is not tuple:
+        raise TypeError("block_rows must be a built-in tuple")
+    source = _digest_text(
+        source_allocation_fingerprint,
+        "source_allocation_fingerprint",
+    )
+    block_ids: set[int] = set()
+    semantic_ids: set[str] = set()
+    semantic_payload_by_digest: dict[str, tuple[object, ...]] = {}
+    pending: list[
+        tuple[
+            str,
+            V2PoiKind,
+            int,
+            str,
+            tuple[Fraction, Fraction],
+            int,
+            int,
+            int,
+        ]
+    ] = []
+    channels = (
+        (V2PoiKind.HOME, 5),
+        (V2PoiKind.WORKPLACE, 6),
+        (V2PoiKind.LEISURE, 7),
+    )
+    for row in block_rows:
+        if type(row) is not tuple or len(row) != 8:
+            raise TypeError("each aggregate POI row must be a built-in eight-item tuple")
+        block_id = _plain_nonnegative_int(row[0], "block_id")
+        block_semantic_id = _digest_text(row[1], "block_semantic_id")
+        if block_id in block_ids or block_semantic_id in semantic_ids:
+            raise ValueError("aggregate POI rows require unique block and semantic IDs")
+        block_ids.add(block_id)
+        semantic_ids.add(block_semantic_id)
+        witness = _exact_witness(row[2], "location_witness_mm")
+        access_node_id = _plain_nonnegative_int(row[3], "access_node_id")
+        taz_id = _plain_nonnegative_int(row[4], "taz_id")
+        capacities = tuple(
+            _plain_nonnegative_int(row[index], "POI channel capacity")
+            for index in range(5, 8)
+        )
+        for kind, index in channels:
+            capacity = capacities[index - 5]
+            if capacity == 0:
+                continue
+            semantic_payload = (POI_POLICY, block_semantic_id, kind.value)
+            semantic_id = _sha256_payload(semantic_payload)
+            previous = semantic_payload_by_digest.get(semantic_id)
+            if previous is not None and previous != semantic_payload:
+                raise ValueError("aggregate POI semantic digest collision")
+            semantic_payload_by_digest[semantic_id] = semantic_payload
+            pending.append(
+                (
+                    semantic_id,
+                    kind,
+                    block_id,
+                    block_semantic_id,
+                    witness,
+                    access_node_id,
+                    taz_id,
+                    capacity,
+                )
+            )
+    pending.sort(key=lambda row: row[0])
+    if len({row[0] for row in pending}) != len(pending):
+        raise ValueError("aggregate POI semantic IDs must be unique")
+    return tuple(
+        V2Poi(
+            poi_id=poi_id,
+            semantic_id=row[0],
+            poi_kind=row[1],
+            block_id=row[2],
+            block_semantic_id=row[3],
+            location_witness_mm=row[4],
+            access_node_id=row[5],
+            taz_id=row[6],
+            capacity=row[7],
+            source_allocation_fingerprint=source,
+        )
+        for poi_id, row in enumerate(pending)
+    )
 
 
 def _compose_map_fingerprint_set_v3(
