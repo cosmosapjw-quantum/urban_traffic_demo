@@ -1309,8 +1309,10 @@ def test_stale_task4_source_fails_before_any_task5_work(
     ):
         monkeypatch.setattr(authority, symbol, forbidden(name))
 
-    original = int(compiled.road_csr.link_ids[0])
-    compiled.road_csr.link_ids[0] = original + 1
+    original_link_ids = compiled.road_csr.link_ids
+    stale_link_ids = original_link_ids.copy()
+    stale_link_ids[0] = int(stale_link_ids[0]) + 1
+    object.__setattr__(compiled.road_csr, "link_ids", stale_link_ids)
     try:
         with pytest.raises(ValueError):
             authority.build_scalable_static_authority(
@@ -1322,7 +1324,7 @@ def test_stale_task4_source_fails_before_any_task5_work(
                 compiled,
             )
     finally:
-        compiled.road_csr.link_ids[0] = original
+        object.__setattr__(compiled.road_csr, "link_ids", original_link_ids)
 
     assert calls == {
         "upstream": 1,
