@@ -607,3 +607,48 @@ def test_land_use_classifier_uses_exact_scores_and_frozen_indexed_adjacency() ->
         10: (),
         11: (),
     }
+
+    exact_score_rows = (
+        (0, "0" * 64, 0.5, 0.5, 0.5),
+        (1, "f" * 64, 0.5, 0.5, math.nextafter(0.5, 1.0)),
+        (2, "2" * 64, 0.0, 0.0, 1.0),
+        (3, "3" * 64, 0.0, 1.0, 0.0),
+    )
+    assert authority._classify_land_use_rows(
+        feature_rows=exact_score_rows,
+        road_to_block_ids=(),
+    ) == (
+        (0, authority.V2LandUseType.MIXED_USE),
+        (1, authority.V2LandUseType.COMMERCIAL),
+        (2, authority.V2LandUseType.INDUSTRIAL),
+        (3, authority.V2LandUseType.RESIDENTIAL),
+    )
+
+    uniform = tuple((index, f"{index:x}" * 64, 0.5, 0.5, 0.5) for index in range(12))
+    expected = (
+        (0, authority.V2LandUseType.COMMERCIAL),
+        (1, authority.V2LandUseType.INDUSTRIAL),
+        (2, authority.V2LandUseType.MIXED_USE),
+        (3, authority.V2LandUseType.MIXED_USE),
+        (4, authority.V2LandUseType.MIXED_USE),
+        (5, authority.V2LandUseType.MIXED_USE),
+        (6, authority.V2LandUseType.RESIDENTIAL),
+        (7, authority.V2LandUseType.MIXED_USE),
+        (8, authority.V2LandUseType.RESIDENTIAL),
+        (9, authority.V2LandUseType.RESIDENTIAL),
+        (10, authority.V2LandUseType.RESIDENTIAL),
+        (11, authority.V2LandUseType.RESIDENTIAL),
+    )
+    assert authority._classify_land_use_rows(
+        feature_rows=uniform,
+        road_to_block_ids=reverse_index,
+    ) == expected
+    assert authority._classify_land_use_rows(
+        feature_rows=tuple(reversed(uniform)),
+        road_to_block_ids=tuple(reversed(reverse_index)),
+    ) == expected
+    with pytest.raises(ValueError):
+        authority._classify_land_use_rows(
+            feature_rows=uniform[:4],
+            road_to_block_ids=((99, (1, 3)),),
+        )
