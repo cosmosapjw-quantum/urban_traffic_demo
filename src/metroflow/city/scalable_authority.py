@@ -81,6 +81,14 @@ class V2PoiKind(str, Enum):
     LEISURE = "leisure"
 
 
+_RAW_RATES = {
+    V2LandUseType.RESIDENTIAL: (95, 95, 0, 25),
+    V2LandUseType.COMMERCIAL: (0, 0, 170, 70),
+    V2LandUseType.INDUSTRIAL: (0, 0, 90, 0),
+    V2LandUseType.MIXED_USE: (75, 75, 95, 55),
+}
+
+
 @dataclass(frozen=True, slots=True)
 class BlockLandUseV2:
     block_id: int
@@ -393,7 +401,22 @@ def _raw_capacity_ratios(
     terrain_intensity: float,
     land_use_type: V2LandUseType,
 ) -> tuple[Fraction, Fraction, Fraction, Fraction]:
-    raise NotImplementedError("S2_OWNER_RED: exact capacity arithmetic is not implemented")
+    if type(exact_net_area_mm2) is not Fraction:
+        raise TypeError("exact_net_area_mm2 must be an exact Fraction")
+    if exact_net_area_mm2 <= 0:
+        raise ValueError("exact_net_area_mm2 must be positive")
+    if type(terrain_intensity) is not float:
+        raise TypeError("terrain_intensity must be a built-in float")
+    if not 0.0 <= terrain_intensity <= 1.0:
+        raise ValueError("terrain_intensity must be finite and in [0, 1]")
+    if type(land_use_type) is not V2LandUseType:
+        raise TypeError("land_use_type must be an exact V2LandUseType")
+    intensity = Fraction(*terrain_intensity.as_integer_ratio())
+    intensity_scale = Fraction(45, 100) + Fraction(55, 100) * intensity
+    area_hectares = exact_net_area_mm2 / 10_000_000_000
+    return tuple(
+        area_hectares * rate * intensity_scale for rate in _RAW_RATES[land_use_type]
+    )  # type: ignore[return-value]
 
 
 def _require_implied_multiplier(
