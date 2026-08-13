@@ -419,3 +419,19 @@ def test_scalable_authority_public_schema_is_exact() -> None:
         for parameter in validator.parameters.values()
     )
     assert validator.return_annotation == "None"
+
+
+def test_exact_raw_weights_multiplier_and_largest_remainder_are_order_independent() -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+
+    assert authority._raw_capacity_ratios(
+        exact_net_area_mm2=Fraction(10_000_000_000),
+        terrain_intensity=0.5,
+        land_use_type=authority.V2LandUseType.RESIDENTIAL,
+    ) == (Fraction(551, 8), Fraction(551, 8), Fraction(0), Fraction(145, 8))
+    with pytest.raises(TypeError):
+        authority._raw_capacity_ratios(
+            exact_net_area_mm2=10_000_000_000,
+            terrain_intensity=0.5,
+            land_use_type=authority.V2LandUseType.RESIDENTIAL,
+        )
