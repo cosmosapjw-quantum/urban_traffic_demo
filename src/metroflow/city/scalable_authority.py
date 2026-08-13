@@ -562,7 +562,35 @@ def _centrality_score_mm(
     width_m: float,
     height_m: float,
 ) -> float:
-    raise NotImplementedError("S3_OWNER_RED: exact witness and Morton policy is not implemented")
+    wx, wy = _exact_witness(witness_mm)
+    if type(centers_mm) is not tuple or not centers_mm:
+        raise TypeError("centers_mm must be a nonempty built-in tuple")
+    centers: list[tuple[int, int]] = []
+    for center in centers_mm:
+        if (
+            type(center) is not tuple
+            or len(center) != 2
+            or type(center[0]) is not int
+            or type(center[1]) is not int
+        ):
+            raise TypeError("each center must be a built-in integer pair")
+        centers.append(center)
+    if type(width_m) is not float or type(height_m) is not float:
+        raise TypeError("width_m and height_m must be built-in floats")
+    if not all(math.isfinite(value) and value > 0.0 for value in (width_m, height_m)):
+        raise ValueError("width_m and height_m must be finite and positive")
+    scale_mm = float(
+        Fraction(28, 100)
+        * 1_000
+        * Fraction(*max(width_m, height_m).as_integer_ratio())
+    )
+    score = max(
+        math.exp(-math.hypot(float(wx - cx), float(wy - cy)) / scale_mm)
+        for cx, cy in centers
+    )
+    if not math.isfinite(score) or not 0.0 <= score <= 1.0:
+        raise ValueError("centrality score must be finite and in [0, 1]")
+    return score
 
 
 def _morton_witness_key(
