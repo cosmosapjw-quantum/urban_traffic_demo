@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import ast
 import importlib
 from dataclasses import MISSING, fields, is_dataclass, replace
 from fractions import Fraction
 import inspect
 import json
 import math
+import os
+import subprocess
 import sys
+import textwrap
 from types import MappingProxyType
 
 import numpy as np
@@ -1336,3 +1340,199 @@ def test_stale_task4_source_fails_before_any_task5_work(
         "poi": 0,
         "compose": 0,
     }
+
+
+def test_bounded_capacity_preflight_is_aggregate_only() -> None:
+    script = textwrap.dedent(
+        r"""
+        import importlib
+        import inspect
+        import json
+        import sys
+
+        forbidden_prefixes = (
+            "metroflow.sim",
+            "metroflow.demand",
+            "metroflow.traffic",
+            "metroflow.routing",
+            "metroflow.landuse",
+            "metroflow.backends",
+            "jax",
+            "torch",
+        )
+        forbidden_exact_modules = (
+            "_metroflow_rust",
+            "metroflow.city.growth_fabric",
+            "metroflow.city.growth_topology",
+            "metroflow.city.topology_finalizer",
+            "metroflow.city.planarization",
+            "metroflow.city.planar_blocks",
+            "metroflow.city.block_land_use",
+            "metroflow.city.zones",
+            "metroflow.city.generator_v2",
+            "metroflow.city.realistic_city",
+            "metroflow.city.scalable_validation_receipts",
+        )
+
+        def reject_forbidden(modules):
+            bad = sorted(
+                module
+                for module in modules
+                if module in forbidden_exact_modules
+                or any(
+                    module == prefix or module.startswith(prefix + ".")
+                    for prefix in forbidden_prefixes
+                )
+            )
+            assert not bad, bad
+
+        reject_forbidden(sys.modules)
+        from metroflow.city.scale import CityScaleSpec
+        from metroflow.city.scalable_blocks import build_scalable_block_authority
+        from metroflow.city.scalable_topology import build_scalable_street_network
+        from metroflow.city.scalable_topology_adapter import compile_scalable_topology
+
+        phase_rows = []
+        hostile_rows = []
+        bounded_scale = None
+        scale_calls = 0
+        builder_order = []
+        sentinel_invocations = 0
+
+        def guard_scale(*args, callable_=CityScaleSpec, **kwargs):
+            global bounded_scale, scale_calls
+            bound = inspect.signature(CityScaleSpec).bind(*args, **kwargs)
+            values = dict(bound.arguments)
+            population = values["target_population"]
+            area = values["urbanized_area_km2"]
+            if type(population) is not int or population > 100_000:
+                raise ValueError("bounded population exceeds 100000")
+            assert values == {
+                "target_population": 100_000,
+                "urbanized_area_km2": 15.0,
+            }
+            assert type(area) is float and callable_ is CityScaleSpec
+            assert scale_calls == 0
+            scale_calls += 1
+            bounded_scale = callable_(*args, **kwargs)
+            phase_rows.append(
+                {
+                    "phase": "CityScaleSpec",
+                    "callable": callable_.__module__ + "." + callable_.__qualname__,
+                    "call_count": scale_calls,
+                    "population": population,
+                    "scale_fingerprint": bounded_scale.fingerprint,
+                }
+            )
+            return bounded_scale
+
+        def hostile(label, value):
+            global sentinel_invocations
+            before = sentinel_invocations
+            try:
+                guard_scale(value, 15.0, callable_=lambda *args, **kwargs: None)
+            except ValueError as error:
+                assert str(error) == "bounded population exceeds 100000"
+            else:
+                raise AssertionError("hostile population reached sentinel")
+            assert sentinel_invocations == before == 0
+            hostile_rows.append(
+                {
+                    "label": label,
+                    "evaluated_value": value,
+                    "blocked_before_call": True,
+                    "sentinel_invocation_count": sentinel_invocations,
+                }
+            )
+
+        hostile_alias = 10**6
+        for hostile_label, hostile_value in (
+            ("direct", 1_000_000),
+            ("underscore_free", 1000000),
+            ("multiplication", 10 * 100_000),
+            ("exponentiation", 10**6),
+            ("alias", hostile_alias),
+        ):
+            hostile(hostile_label, hostile_value)
+
+        scale = guard_scale(100_000, 15.0)
+        builders = (
+            ("Task3", build_scalable_street_network),
+            ("Task3B", build_scalable_block_authority),
+            ("Task4", compile_scalable_topology),
+        )
+
+        def guard_builder(phase, callable_, *args, **kwargs):
+            expected_phase, expected_callable = builders[len(builder_order)]
+            assert phase == expected_phase and callable_ is expected_callable
+            if phase == "Task3":
+                assert args[0] is bounded_scale
+            elif phase == "Task3B":
+                assert args[0] is network
+            else:
+                assert args[0] is network and kwargs["block_authority"] is blocks
+            builder_order.append(phase)
+            result = callable_(*args, **kwargs)
+            phase_rows.append(
+                {
+                    "phase": phase,
+                    "callable": callable_.__module__ + "." + callable_.__qualname__,
+                    "call_count": 1,
+                    "population": bounded_scale.target_population,
+                    "scale_fingerprint": bounded_scale.fingerprint,
+                }
+            )
+            return result
+
+        network = guard_builder(
+            "Task3", build_scalable_street_network, scale, "grid_core", 17
+        )
+        blocks = guard_builder("Task3B", build_scalable_block_authority, network)
+        compiled = guard_builder(
+            "Task4",
+            compile_scalable_topology,
+            network,
+            block_authority=blocks,
+        )
+        before_authority_import = frozenset(sys.modules)
+        reject_forbidden(before_authority_import)
+        authority = importlib.import_module("metroflow.city.scalable_authority")
+        after_authority_import = frozenset(sys.modules)
+        reject_forbidden(after_authority_import)
+        reject_forbidden(after_authority_import - before_authority_import)
+        copied = authority._copy_task4_authorities(blocks=blocks, compiled=compiled)
+        assert copied.road_csr.content_fingerprint
+        print(
+            "PR88_SOURCE_CALL_LEDGER="
+            + json.dumps(
+                {"phases": phase_rows, "hostile_probes": hostile_rows},
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+        )
+        """
+    )
+    parsed_script = ast.parse(script)
+    parsed_module = ast.parse(open(__file__, encoding="utf-8").read())
+    assert parsed_script.body and parsed_module.body
+    for tree in (parsed_script, parsed_module):
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                if node.func.id == "CityScaleSpec" and node.args:
+                    population = ast.literal_eval(node.args[0])
+                    assert type(population) is int and population <= 100_000
+
+    worktree_root = os.path.dirname(os.path.dirname(__file__))
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=worktree_root,
+        env={
+            **os.environ,
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONHASHSEED": "0",
+        },
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, completed.stdout + completed.stderr
