@@ -407,9 +407,40 @@ class RoutingStaticDependencyKey:
     fingerprint: str = ""
 
     def __post_init__(self) -> None:
-        raise NotImplementedError(
-            "S8A_OWNER_RED: routing dependency identity is not implemented"
+        if type(self) is not RoutingStaticDependencyKey:
+            raise TypeError("routing key must be an exact RoutingStaticDependencyKey")
+        expected_literals = {
+            "schema_version": ROUTING_KEY_SCHEMA,
+            "routing_policy_version": ROUTING_POLICY,
+            "access_direction_policy_version": ACCESS_DIRECTION_POLICY,
+            "closure_capability_policy_version": CLOSURE_CAPABILITY_POLICY,
+        }
+        for name, expected in expected_literals.items():
+            value = getattr(self, name)
+            if type(value) is not str or value != expected:
+                raise ValueError(f"{name} mismatch")
+        routing = _digest_text(
+            self.routing_static_fingerprint,
+            "routing_static_fingerprint",
         )
+        source = _digest_text(self.source_csr_fingerprint, "source_csr_fingerprint")
+        object.__setattr__(self, "routing_static_fingerprint", routing)
+        object.__setattr__(self, "source_csr_fingerprint", source)
+        payload = (
+            "RoutingStaticDependencyKey",
+            self.schema_version,
+            routing,
+            self.routing_policy_version,
+            self.access_direction_policy_version,
+            self.closure_capability_policy_version,
+            source,
+        )
+        expected_fingerprint = _sha256_payload(payload)
+        if self.fingerprint:
+            if _digest_text(self.fingerprint, "fingerprint") != expected_fingerprint:
+                raise ValueError("routing dependency key fingerprint mismatch")
+        else:
+            object.__setattr__(self, "fingerprint", expected_fingerprint)
 
 
 @dataclass(frozen=True, slots=True)
