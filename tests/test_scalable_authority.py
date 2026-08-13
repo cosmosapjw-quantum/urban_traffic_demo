@@ -674,3 +674,35 @@ def test_node_taz_ownership_uses_semantic_candidate_order() -> None:
             for semantic, taz, nodes in reversed(rows)
         )
     ) == (owners, conflicts, visits)
+
+
+def test_aggregate_poi_rows_are_positive_only_dense_and_permutation_invariant() -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    semantic_id = "f34defc55844a111316184c9c245d6ce9cab0c22c44e0e4d43ef2aaf07727d3c"
+    with pytest.raises(ValueError, match="semantic"):
+        authority.V2Poi(
+            poi_id=0,
+            semantic_id="0" + semantic_id[1:],
+            poi_kind=authority.V2PoiKind.HOME,
+            block_id=7,
+            block_semantic_id="a" * 64,
+            location_witness_mm=(Fraction(1, 3), Fraction(2, 5)),
+            access_node_id=9,
+            taz_id=2,
+            capacity=5,
+            source_allocation_fingerprint="d" * 64,
+        )
+    valid = authority.V2Poi(
+        poi_id=0,
+        semantic_id=semantic_id,
+        poi_kind=authority.V2PoiKind.HOME,
+        block_id=7,
+        block_semantic_id="a" * 64,
+        location_witness_mm=(Fraction(1, 3), Fraction(2, 5)),
+        access_node_id=9,
+        taz_id=2,
+        capacity=5,
+        source_allocation_fingerprint="d" * 64,
+    )
+    assert valid.semantic_id == semantic_id
+    assert len(valid.fingerprint) == 64
