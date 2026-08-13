@@ -368,9 +368,27 @@ class MapFingerprintSetV3:
     composite: str
 
     def __post_init__(self) -> None:
-        raise NotImplementedError(
-            "S5B_RECORD_OWNER_RED: MapFingerprintSetV3 validation is not implemented"
-        )
+        if type(self) is not MapFingerprintSetV3:
+            raise TypeError("fingerprint set must be an exact MapFingerprintSetV3")
+        if type(self.schema_version) is not str or self.schema_version != FINGERPRINT_SET_SCHEMA:
+            raise ValueError("fingerprint-set schema mismatch")
+        origins = {
+            name: _digest_text(getattr(self, name), name)
+            for name in (
+                "config",
+                "geometry",
+                "topology",
+                "link_attributes",
+                "turn_authority",
+                "blocks_access",
+                "land_use_zoning",
+            )
+        }
+        expected = _derived_map_nodes(**origins)
+        for name, value in expected.items():
+            supplied = _digest_text(getattr(self, name), name)
+            if supplied != value:
+                raise ValueError(f"{name} does not match its origin-node payload")
 
 
 @dataclass(frozen=True, slots=True)
@@ -1059,6 +1077,80 @@ def _aggregate_poi_rows(
         )
         for poi_id, row in enumerate(pending)
     )
+
+
+def _derived_map_nodes(
+    *,
+    config: str,
+    geometry: str,
+    topology: str,
+    link_attributes: str,
+    turn_authority: str,
+    blocks_access: str,
+    land_use_zoning: str,
+) -> dict[str, str]:
+    payloads: list[tuple[str, tuple[object, ...]]] = []
+    routing_payload = (
+        ROUTING_STATIC_NODE_SCHEMA,
+        ROUTING_POLICY,
+        ACCESS_DIRECTION_POLICY,
+        CLOSURE_CAPABILITY_POLICY,
+        geometry,
+        topology,
+        link_attributes,
+        turn_authority,
+    )
+    routing_static = _sha256_payload(routing_payload)
+    payloads.append((routing_static, routing_payload))
+    accessibility_payload = (
+        ACCESSIBILITY_STATIC_NODE_SCHEMA,
+        routing_static,
+        land_use_zoning,
+    )
+    accessibility_static = _sha256_payload(accessibility_payload)
+    payloads.append((accessibility_static, accessibility_payload))
+    replay_payload = (
+        REPLAY_STATIC_NODE_SCHEMA,
+        config,
+        geometry,
+        topology,
+        link_attributes,
+        turn_authority,
+        blocks_access,
+        land_use_zoning,
+        routing_static,
+        accessibility_static,
+        STATIC_BUILDER_BACKEND,
+    )
+    replay_static = _sha256_payload(replay_payload)
+    payloads.append((replay_static, replay_payload))
+    composite_payload = (
+        COMPOSITE_NODE_SCHEMA,
+        config,
+        geometry,
+        topology,
+        link_attributes,
+        turn_authority,
+        blocks_access,
+        land_use_zoning,
+        routing_static,
+        accessibility_static,
+        replay_static,
+    )
+    composite = _sha256_payload(composite_payload)
+    payloads.append((composite, composite_payload))
+    seen: dict[str, tuple[object, ...]] = {}
+    for digest, payload in payloads:
+        previous = seen.get(digest)
+        if previous is not None and previous != payload:
+            raise ValueError("derived fingerprint digest collision")
+        seen[digest] = payload
+    return {
+        "routing_static": routing_static,
+        "accessibility_static": accessibility_static,
+        "replay_static": replay_static,
+        "composite": composite,
+    }
 
 
 def _compose_map_fingerprint_set_v3(
