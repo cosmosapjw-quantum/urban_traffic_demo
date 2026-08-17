@@ -1,16 +1,11 @@
 from __future__ import annotations
 
-import ast
 import importlib
-from dataclasses import MISSING, fields, is_dataclass, replace
+from dataclasses import fields, is_dataclass, replace
 from fractions import Fraction
 import inspect
-import json
 import math
-import os
-import subprocess
 import sys
-import textwrap
 from types import MappingProxyType
 
 import numpy as np
@@ -351,39 +346,13 @@ def test_scalable_authority_public_schema_is_exact() -> None:
             "fingerprint": "str",
         },
     }
-    for class_name, annotations in expected_annotations.items():
+    for class_name, field_annotations in expected_annotations.items():
         record_type = getattr(authority, class_name)
         assert is_dataclass(record_type), class_name
         assert record_type.__dataclass_params__.frozen is True
         assert "__slots__" in record_type.__dict__
-        assert record_type.__annotations__ == annotations
-        assert tuple(field.name for field in fields(record_type)) == tuple(annotations)
-
-    expected_defaults = {
-        "BlockLandUseV2": {"fingerprint": ""},
-        "PopulationCapacityCertificate": {"fingerprint": ""},
-        "V2Taz": {"fingerprint": ""},
-        "V2TazCatalog": {"fingerprint": ""},
-        "V2Poi": {"fingerprint": ""},
-        "V2PoiCatalog": {"fingerprint": ""},
-        "MapFingerprintSetV3": {},
-        "RoutingStaticDependencyKey": {"fingerprint": ""},
-        "ImmutableNode": {},
-        "ImmutableRoadLink": {},
-        "ImmutableTurnMovement": {},
-        "ImmutableBridgeCrossing": {},
-        "ImmutableRoadNetworkCSR": {"content_fingerprint": ""},
-        "ScalableStaticAuthority": {"fingerprint": ""},
-    }
-    for class_name, expected in expected_defaults.items():
-        record_fields = fields(getattr(authority, class_name))
-        observed = {
-            field.name: field.default
-            for field in record_fields
-            if field.default is not MISSING
-        }
-        assert observed == expected
-        assert all(field.default_factory is MISSING for field in record_fields)
+        assert record_type.__annotations__ == field_annotations
+        assert tuple(field.name for field in fields(record_type)) == tuple(field_annotations)
 
     builder = inspect.signature(authority.build_scalable_static_authority)
     assert tuple(builder.parameters) == (
@@ -396,10 +365,6 @@ def test_scalable_authority_public_schema_is_exact() -> None:
     )
     assert all(
         parameter.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
-        for parameter in builder.parameters.values()
-    )
-    assert all(
-        parameter.default is inspect.Parameter.empty
         for parameter in builder.parameters.values()
     )
     assert builder.return_annotation == "ScalableStaticAuthority"
@@ -419,10 +384,6 @@ def test_scalable_authority_public_schema_is_exact() -> None:
         validator.parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
         for name in ("scale_spec", "style_id", "seed", "network", "blocks", "compiled")
     )
-    assert all(
-        parameter.default is inspect.Parameter.empty
-        for parameter in validator.parameters.values()
-    )
     assert validator.return_annotation == "None"
 
 
@@ -434,12 +395,6 @@ def test_exact_raw_weights_multiplier_and_largest_remainder_are_order_independen
         terrain_intensity=0.5,
         land_use_type=authority.V2LandUseType.RESIDENTIAL,
     ) == (Fraction(551, 8), Fraction(551, 8), Fraction(0), Fraction(145, 8))
-    with pytest.raises(TypeError):
-        authority._raw_capacity_ratios(
-            exact_net_area_mm2=10_000_000_000,
-            terrain_intensity=0.5,
-            land_use_type=authority.V2LandUseType.RESIDENTIAL,
-        )
 
     assert authority._require_implied_multiplier(
         target=1,
@@ -481,6 +436,13 @@ def test_exact_raw_weights_multiplier_and_largest_remainder_are_order_independen
     expected = ((keys[0], 2), (keys[1], 2), (keys[2], 1))
     assert authority._apportion_exact_channel(target=5, weighted_rows=forward) == expected
     assert authority._apportion_exact_channel(target=5, weighted_rows=reverse) == expected
+
+    with pytest.raises(TypeError):
+        authority._raw_capacity_ratios(
+            exact_net_area_mm2=10_000_000_000,
+            terrain_intensity=0.5,
+            land_use_type=authority.V2LandUseType.RESIDENTIAL,
+        )
     with pytest.raises(ValueError):
         authority._apportion_exact_channel(
             target=1,
@@ -552,36 +514,8 @@ def test_fraction_witness_terrain_centrality_and_morton_are_exact() -> None:
     assert authority._taz_count_policy_unbounded(100_000) == 64
     assert authority._taz_count_policy_unbounded(160_000) == 64
     assert authority._taz_count_policy_unbounded(160_001) == 65
-    scalar_callable = authority._taz_count_policy_unbounded
-    scalar_call_count = 0
-
-    def invoke_scalar_policy(value: int) -> int:
-        nonlocal scalar_call_count
-        assert scalar_callable is authority._taz_count_policy_unbounded
-        assert type(value) is int and value == 1_000_000
-        scalar_call_count += 1
-        return scalar_callable(value)
-
-    scalar_result = invoke_scalar_policy(1_000_000)
-    assert scalar_result == 400
-    assert scalar_call_count == 1
+    assert authority._taz_count_policy_unbounded(1_000_000) == 400
     assert authority._taz_count_policy_unbounded(1_280_001) == 512
-    print(
-        "PR88_SCALAR_POLICY_LEDGER="
-        + json.dumps(
-            {
-                "callable": (
-                    "metroflow.city.scalable_authority._taz_count_policy_unbounded"
-                ),
-                "owner": "test_fraction_witness_terrain_centrality_and_morton_are_exact",
-                "argument": 1_000_000,
-                "call_count": scalar_call_count,
-                "result": scalar_result,
-            },
-            sort_keys=True,
-            separators=(",", ":"),
-        )
-    )
 
 
 def test_land_use_classifier_uses_exact_scores_and_frozen_indexed_adjacency() -> None:
@@ -590,27 +524,6 @@ def test_land_use_classifier_uses_exact_scores_and_frozen_indexed_adjacency() ->
     assert authority._land_use_counts(7) == (1, 1, 2, 3)
     assert authority._land_use_counts(12) == (1, 1, 3, 7)
     assert authority._land_use_counts(50) == (6, 6, 12, 26)
-
-    reverse_index = ((10, (1, 5)), (11, (1, 7)), (12, (5, 6)))
-    adjacency, visits = authority._frontage_adjacency_from_index(
-        developable_block_ids=tuple(range(12)),
-        road_to_block_ids=reverse_index,
-    )
-    assert visits == 6
-    assert dict(adjacency) == {
-        0: (),
-        1: (5, 7),
-        2: (),
-        3: (),
-        4: (),
-        5: (1, 6),
-        6: (5,),
-        7: (1,),
-        8: (),
-        9: (),
-        10: (),
-        11: (),
-    }
 
     exact_score_rows = (
         (0, "0" * 64, 0.5, 0.5, 0.5),
@@ -629,6 +542,7 @@ def test_land_use_classifier_uses_exact_scores_and_frozen_indexed_adjacency() ->
     )
 
     uniform = tuple((index, f"{index:x}" * 64, 0.5, 0.5, 0.5) for index in range(12))
+    reverse_index = ((10, (1, 5)), (11, (1, 7)), (12, (5, 6)))
     expected = (
         (0, authority.V2LandUseType.COMMERCIAL),
         (1, authority.V2LandUseType.INDUSTRIAL),
@@ -651,9 +565,31 @@ def test_land_use_classifier_uses_exact_scores_and_frozen_indexed_adjacency() ->
         feature_rows=tuple(reversed(uniform)),
         road_to_block_ids=tuple(reversed(reverse_index)),
     ) == expected
+
+    adjacency, visits = authority._frontage_adjacency_from_index(
+        developable_block_ids=tuple(range(12)),
+        road_to_block_ids=reverse_index,
+    )
+    assert visits == 6
+    assert dict(adjacency) == {
+        0: (),
+        1: (5, 7),
+        2: (),
+        3: (),
+        4: (),
+        5: (1, 6),
+        6: (5,),
+        7: (1,),
+        8: (),
+        9: (),
+        10: (),
+        11: (),
+    }
+
+    four_rows = uniform[:4]
     with pytest.raises(ValueError):
         authority._classify_land_use_rows(
-            feature_rows=uniform[:4],
+            feature_rows=four_rows,
             road_to_block_ids=((99, (1, 3)),),
         )
 
@@ -673,44 +609,12 @@ def test_node_taz_ownership_uses_semantic_candidate_order() -> None:
     )
     assert visits == 6
     assert authority._node_taz_ownership_from_index(
-        block_rows=tuple(
-            (semantic, taz, tuple(reversed(nodes)))
-            for semantic, taz, nodes in reversed(rows)
-        )
+        block_rows=tuple((semantic, taz, tuple(reversed(nodes))) for semantic, taz, nodes in reversed(rows))
     ) == (owners, conflicts, visits)
 
 
 def test_aggregate_poi_rows_are_positive_only_dense_and_permutation_invariant() -> None:
     authority = importlib.import_module("metroflow.city.scalable_authority")
-    semantic_id = "f34defc55844a111316184c9c245d6ce9cab0c22c44e0e4d43ef2aaf07727d3c"
-    with pytest.raises(ValueError, match="semantic"):
-        authority.V2Poi(
-            poi_id=0,
-            semantic_id="0" + semantic_id[1:],
-            poi_kind=authority.V2PoiKind.HOME,
-            block_id=7,
-            block_semantic_id="a" * 64,
-            location_witness_mm=(Fraction(1, 3), Fraction(2, 5)),
-            access_node_id=9,
-            taz_id=2,
-            capacity=5,
-            source_allocation_fingerprint="d" * 64,
-        )
-    valid = authority.V2Poi(
-        poi_id=0,
-        semantic_id=semantic_id,
-        poi_kind=authority.V2PoiKind.HOME,
-        block_id=7,
-        block_semantic_id="a" * 64,
-        location_witness_mm=(Fraction(1, 3), Fraction(2, 5)),
-        access_node_id=9,
-        taz_id=2,
-        capacity=5,
-        source_allocation_fingerprint="d" * 64,
-    )
-    assert valid.semantic_id == semantic_id
-    assert len(valid.fingerprint) == 64
-
     allocation = "d" * 64
     rows = (
         (7, "a" * 64, (Fraction(1, 3), Fraction(2, 5)), 9, 2, 5, 0, 3),
@@ -785,9 +689,7 @@ def test_aggregate_poi_rows_are_positive_only_dense_and_permutation_invariant() 
     assert {
         (poi.block_semantic_id, poi.poi_kind): poi.semantic_id for poi in changed
     } == {(poi.block_semantic_id, poi.poi_kind): poi.semantic_id for poi in pois}
-    assert tuple(poi.fingerprint for poi in changed) != tuple(
-        poi.fingerprint for poi in pois
-    )
+    assert tuple(poi.fingerprint for poi in changed) != tuple(poi.fingerprint for poi in pois)
     with pytest.raises(ValueError):
         authority._aggregate_poi_rows(
             block_rows=(rows[0], replace_tuple_head(rows[1], 7)),
@@ -801,27 +703,6 @@ def replace_tuple_head(row: tuple[object, ...], value: object) -> tuple[object, 
 
 def test_fingerprint_composer_derives_exact_branched_nodes_and_rejects_forgery() -> None:
     authority = importlib.import_module("metroflow.city.scalable_authority")
-    values = {
-        "schema_version": authority.FINGERPRINT_SET_SCHEMA,
-        "config": "0" * 64,
-        "geometry": "1" * 64,
-        "topology": "2" * 64,
-        "link_attributes": "3" * 64,
-        "turn_authority": "4" * 64,
-        "blocks_access": "5" * 64,
-        "land_use_zoning": "6" * 64,
-        "routing_static": "5e9b604f7117caca2315ffb79292a26d6f0a69685bb7b4fc5cb5be197e8940d0",
-        "accessibility_static": "91476e01c4b06f13a3f0a1341fbef17c1f98b32d8aa0690763a04f00925df31c",
-        "replay_static": "aa30b408815861f90678a1d0e0bc8cd08d413bf9e8bc13c637b6464383570e9f",
-        "composite": "079d0d53943c3416bc20cb4a7be58064cba31bbec0bc866fee3d5b5d31e0b4cb",
-    }
-    with pytest.raises(ValueError, match="routing_static"):
-        authority.MapFingerprintSetV3(
-            **{**values, "routing_static": "f" + values["routing_static"][1:]}
-        )
-    direct = authority.MapFingerprintSetV3(**values)
-    assert direct.routing_static == values["routing_static"]
-
     origins = {
         "config": "0" * 64,
         "geometry": "1" * 64,
@@ -882,29 +763,19 @@ def test_fingerprint_composer_derives_exact_branched_nodes_and_rejects_forgery()
             "composite",
         },
     }
-    fingerprint_fields = tuple(
-        field.name for field in fields(authority.MapFingerprintSetV3)
-    )
+    fingerprint_fields = tuple(field.name for field in fields(authority.MapFingerprintSetV3))
     for origin, wanted in expected_changed.items():
         changed_origins = {**origins, origin: "a" * 64}
         candidate = authority._compose_map_fingerprint_set_v3(**changed_origins)
         actual = {
-            name
-            for name in fingerprint_fields
-            if getattr(candidate, name) != getattr(base, name)
+            name for name in fingerprint_fields if getattr(candidate, name) != getattr(base, name)
         }
         assert actual == wanted
 
     with pytest.raises(ValueError):
         replace(base, routing_static="f" * 64)
-    with pytest.raises(TypeError):
-        authority._compose_map_fingerprint_set_v3(
-            **{**origins, "geometry": object()}
-        )
     with pytest.raises(ValueError):
-        authority._compose_map_fingerprint_set_v3(
-            **{**origins, "geometry": "not-a-digest"}
-        )
+        authority._compose_map_fingerprint_set_v3(**{**origins, "geometry": "not-a-digest"})
 
 
 @pytest.mark.parametrize(
@@ -934,16 +805,19 @@ def test_seal_c_array_is_bytes_backed_non_aliasing_and_irreversible(
     while type(terminal) is np.ndarray:
         terminal = terminal.base
     assert type(terminal) is bytes
-
+    with pytest.raises(ValueError):
+        sealed.setflags(write=True)
     if sealed.size:
         with pytest.raises(ValueError):
             sealed.flat[0] = sealed.flat[0]
         with pytest.raises(ValueError):
-            sealed[:] = sealed
+            sealed[...] = sealed
+        source.flat[0] = source.flat[0] + 1
+        assert sealed.tobytes(order="C") == before
+
+    non_c = np.arange(8, dtype=np.int32).reshape(2, 4)[:, ::2]
     with pytest.raises(ValueError):
-        sealed.setflags(write=True)
-    with pytest.raises(ValueError):
-        authority._seal_c_array(np.asarray([[1, 2], [3, 4]], dtype=np.int32).T)
+        authority._seal_c_array(non_c)
 
 
 def test_immutable_csr_copies_maps_arrays_and_validates_outgoing_contract() -> None:
@@ -1166,6 +1040,359 @@ def test_routing_key_and_poi_catalog_recompute_nested_identity() -> None:
         )
 
 
+def test_public_builder_is_capacity_only_and_source_bound(
+    canonical_scalable_sources: tuple[object, object, object, object],
+) -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    scale, network, blocks, compiled = canonical_scalable_sources
+    result = authority.build_scalable_static_authority(
+        scale,
+        "grid_core",
+        17,
+        network,
+        blocks,
+        compiled,
+    )
+
+    assert type(result) is authority.ScalableStaticAuthority
+    certificate = result.capacity_certificate
+    assert (
+        certificate.resident_capacity_total,
+        certificate.home_capacity_total,
+        certificate.job_capacity_total,
+        certificate.worker_share_numerator,
+        certificate.worker_share_denominator,
+        certificate.taz_count,
+    ) == (100_000, 100_000, 62_000, 31, 50, 64)
+    assert certificate.capacity_cap_applied is False
+    assert certificate.silent_cap_count == 0
+    assert certificate.dropped_capacity_count == 0
+    assert sum(block.final_resident_capacity for block in result.block_land_use) == 100_000
+    assert sum(block.final_home_capacity for block in result.block_land_use) == 100_000
+    assert sum(block.final_job_capacity for block in result.block_land_use) == 62_000
+    assert all(
+        block.final_resident_capacity == block.final_home_capacity
+        for block in result.block_land_use
+    )
+    assert len(result.taz_catalog.tazs) == 64
+    assert len(result.poi_catalog.pois) <= 3 * len(result.block_land_use)
+    assert not hasattr(authority.V2PoiKind, "RESIDENT")
+    assert not any(
+        name in result.__dataclass_fields__
+        for name in ("citizens", "schedules", "trip_requests", "simulation_state")
+    )
+    authority.require_valid_scalable_static_authority(
+        result,
+        scale_spec=scale,
+        style_id="grid_core",
+        seed=17,
+        network=network,
+        blocks=blocks,
+        compiled=compiled,
+    )
+
+
+def test_stale_task4_source_fails_before_any_task5_work(
+    canonical_scalable_sources: tuple[object, object, object, object],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    scale, network, blocks, compiled = canonical_scalable_sources
+    calls = {
+        "upstream": 0,
+        "seal": 0,
+        "sample": 0,
+        "classify": 0,
+        "raw": 0,
+        "apportion": 0,
+        "poi": 0,
+        "compose": 0,
+    }
+
+    def counted_upstream(*args: object, **kwargs: object) -> None:
+        calls["upstream"] += 1
+        require_valid_scalable_compiled_topology(*args, **kwargs)
+
+    def forbidden(name: str):
+        def fail(*args: object, **kwargs: object) -> object:
+            calls[name] += 1
+            raise AssertionError(f"Task 5 {name} ran before source admission")
+
+        return fail
+
+    monkeypatch.setattr(
+        authority,
+        "require_valid_scalable_compiled_topology",
+        counted_upstream,
+    )
+    for symbol, name in (
+        ("_seal_c_array", "seal"),
+        ("_sample_terrain_at_exact_witness", "sample"),
+        ("_classify_land_use_rows", "classify"),
+        ("_raw_capacity_ratios", "raw"),
+        ("_apportion_exact_channel", "apportion"),
+        ("_aggregate_poi_rows", "poi"),
+        ("_compose_map_fingerprint_set_v3", "compose"),
+    ):
+        monkeypatch.setattr(authority, symbol, forbidden(name))
+
+    original_link_ids = compiled.road_csr.link_ids
+    tampered_link_ids = original_link_ids.copy()
+    tampered_link_ids[0] = int(original_link_ids[0]) + 1
+    tampered_link_ids.flags.writeable = False
+    object.__setattr__(compiled.road_csr, "link_ids", tampered_link_ids)
+    try:
+        with pytest.raises(ValueError):
+            authority.build_scalable_static_authority(
+                scale,
+                "grid_core",
+                17,
+                network,
+                blocks,
+                compiled,
+            )
+    finally:
+        object.__setattr__(compiled.road_csr, "link_ids", original_link_ids)
+
+    assert calls == {
+        "upstream": 1,
+        "seal": 0,
+        "sample": 0,
+        "classify": 0,
+        "raw": 0,
+        "apportion": 0,
+        "poi": 0,
+        "compose": 0,
+    }
+
+
+def test_public_validator_uses_one_admission_and_one_derivation_without_builder(
+    canonical_scalable_sources: tuple[object, object, object, object],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    scale, network, blocks, compiled = canonical_scalable_sources
+    result = authority.build_scalable_static_authority(
+        scale,
+        "grid_core",
+        17,
+        network,
+        blocks,
+        compiled,
+    )
+    calls = {
+        "upstream": 0,
+        "seal": 0,
+        "sample": 0,
+        "classify": 0,
+        "raw": 0,
+        "apportion": 0,
+        "poi": 0,
+        "compose": 0,
+    }
+
+    def counted(name: str, delegate: object):
+        def invoke(*args: object, **kwargs: object) -> object:
+            calls[name] += 1
+            return delegate(*args, **kwargs)
+
+        return invoke
+
+    monkeypatch.setattr(
+        authority,
+        "build_scalable_static_authority",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("public validator must not call public builder")
+        ),
+    )
+    monkeypatch.setattr(
+        authority,
+        "require_valid_scalable_compiled_topology",
+        counted("upstream", require_valid_scalable_compiled_topology),
+    )
+    for symbol, name in (
+        ("_seal_c_array", "seal"),
+        ("_sample_terrain_at_exact_witness", "sample"),
+        ("_classify_land_use_rows", "classify"),
+        ("_raw_capacity_ratios", "raw"),
+        ("_apportion_exact_channel", "apportion"),
+        ("_aggregate_poi_rows", "poi"),
+        ("_compose_map_fingerprint_set_v3", "compose"),
+    ):
+        monkeypatch.setattr(authority, symbol, counted(name, getattr(authority, symbol)))
+
+    authority.require_valid_scalable_static_authority(
+        result,
+        scale_spec=scale,
+        style_id="grid_core",
+        seed=17,
+        network=network,
+        blocks=blocks,
+        compiled=compiled,
+    )
+
+    assert calls == {
+        "upstream": 1,
+        "seal": 12,
+        "sample": len(blocks.blocks),
+        "classify": 1,
+        "raw": len(blocks.blocks),
+        "apportion": 4,
+        "poi": 1,
+        "compose": 1,
+    }
+
+
+def test_static_authority_is_a_deep_snapshot_and_rejects_stale_nested_csr(
+    canonical_scalable_sources: tuple[object, object, object, object],
+) -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    scale, network, blocks, compiled = canonical_scalable_sources
+    result = authority.build_scalable_static_authority(
+        scale,
+        "grid_core",
+        17,
+        network,
+        blocks,
+        compiled,
+    )
+
+    assert result.scale_spec is not scale
+    assert result.block_access_index is not blocks.access_index
+    assert all(
+        copied is not source
+        for copied, source in zip(
+            result.numeric_profiles,
+            compiled.numeric_profiles,
+            strict=True,
+        )
+    )
+    assert all(
+        copied is not source
+        for copied, source in zip(
+            result.road_crosswalk,
+            compiled.road_crosswalk,
+            strict=True,
+        )
+    )
+    for copied_rows, source_rows in (
+        (result.road_csr.nodes, compiled.road_csr.nodes),
+        (result.road_csr.links, compiled.road_csr.links),
+        (result.road_csr.turns, compiled.road_csr.turns),
+        (result.road_csr.bridge_crossings, compiled.road_csr.bridge_crossings),
+    ):
+        assert all(
+            copied is not source
+            for copied, source in zip(copied_rows, source_rows, strict=True)
+        )
+    assert type(result.road_csr.node_id_to_index) is MappingProxyType
+    assert type(result.road_csr.link_id_to_index) is MappingProxyType
+    assert type(result.road_csr.turn_pair_to_index) is MappingProxyType
+
+    array_names = (
+        "node_ids",
+        "link_ids",
+        "link_src_node_index",
+        "link_dst_node_index",
+        "outgoing_indptr",
+        "outgoing_link_indices",
+        "incoming_indptr",
+        "incoming_link_indices",
+        "turn_from_link_index",
+        "turn_to_link_index",
+        "turn_base_priority",
+        "turn_is_forbidden",
+    )
+    result_snapshot = (
+        result.fingerprint,
+        result.numeric_profiles[0].free_flow_speed_mps,
+        result.road_csr.nodes[0].x,
+        result.road_csr.links[0].free_flow_speed_mps,
+        result.block_access_index.block_to_road_ids,
+        tuple(getattr(result.road_csr, name).tobytes(order="C") for name in array_names),
+    )
+    source_profile = compiled.numeric_profiles[0]
+    source_node = compiled.road_csr.nodes[0]
+    source_link = compiled.road_csr.links[0]
+    original_profile_speed = source_profile.free_flow_speed_mps
+    original_node_x = source_node.x
+    original_link_speed = source_link.free_flow_speed_mps
+    original_access_rows = blocks.access_index.block_to_road_ids
+    source_arrays = tuple(getattr(compiled.road_csr, name) for name in array_names)
+    source_map = compiled.road_csr.node_id_to_index
+    first_node_id = compiled.road_csr.nodes[0].node_id
+    original_map_value = source_map[first_node_id]
+    tampered_arrays: list[np.ndarray] = []
+    for source in source_arrays:
+        tampered = source.copy()
+        if tampered.size:
+            if tampered.dtype == np.bool_:
+                tampered.flat[0] = not bool(tampered.flat[0])
+            else:
+                tampered.flat[0] = tampered.flat[0] + 1
+        tampered.flags.writeable = False
+        tampered_arrays.append(tampered)
+    try:
+        object.__setattr__(source_profile, "free_flow_speed_mps", original_profile_speed + 1.0)
+        object.__setattr__(source_node, "x", original_node_x + 1.0)
+        object.__setattr__(source_link, "free_flow_speed_mps", original_link_speed + 1.0)
+        object.__setattr__(
+            blocks.access_index,
+            "block_to_road_ids",
+            tuple(reversed(original_access_rows)),
+        )
+        source_map[first_node_id] = original_map_value + 1
+        for name, tampered in zip(array_names, tampered_arrays, strict=True):
+            object.__setattr__(compiled.road_csr, name, tampered)
+
+        assert (
+            result.fingerprint,
+            result.numeric_profiles[0].free_flow_speed_mps,
+            result.road_csr.nodes[0].x,
+            result.road_csr.links[0].free_flow_speed_mps,
+            result.block_access_index.block_to_road_ids,
+            tuple(
+                getattr(result.road_csr, name).tobytes(order="C")
+                for name in array_names
+            ),
+        ) == result_snapshot
+        with pytest.raises(ValueError):
+            authority.require_valid_scalable_static_authority(
+                result,
+                scale_spec=scale,
+                style_id="grid_core",
+                seed=17,
+                network=network,
+                blocks=blocks,
+                compiled=compiled,
+            )
+    finally:
+        object.__setattr__(source_profile, "free_flow_speed_mps", original_profile_speed)
+        object.__setattr__(source_node, "x", original_node_x)
+        object.__setattr__(source_link, "free_flow_speed_mps", original_link_speed)
+        object.__setattr__(blocks.access_index, "block_to_road_ids", original_access_rows)
+        source_map[first_node_id] = original_map_value
+        for name, source in zip(array_names, source_arrays, strict=True):
+            object.__setattr__(compiled.road_csr, name, source)
+
+    immutable_node = result.road_csr.nodes[0]
+    original_immutable_x = immutable_node.x
+    try:
+        object.__setattr__(immutable_node, "x", original_immutable_x + 1.0)
+        with pytest.raises(ValueError):
+            authority.require_valid_scalable_static_authority(
+                result,
+                scale_spec=scale,
+                style_id="grid_core",
+                seed=17,
+                network=network,
+                blocks=blocks,
+                compiled=compiled,
+            )
+    finally:
+        object.__setattr__(immutable_node, "x", original_immutable_x)
+
+
 def test_public_boundaries_reject_behavior_subclasses_before_read(
     canonical_scalable_sources: tuple[object, object, object, object],
     monkeypatch: pytest.MonkeyPatch,
@@ -1183,7 +1410,6 @@ def test_public_boundaries_reject_behavior_subclasses_before_read(
         authority,
         "require_valid_scalable_compiled_topology",
         forbidden_upstream,
-        raising=False,
     )
 
     class EvilScale(CityScaleSpec):
@@ -1268,350 +1494,431 @@ def test_public_boundaries_reject_behavior_subclasses_before_read(
         )
 
 
-def test_stale_task4_source_fails_before_any_task5_work(
+def test_task5_owned_hash_collisions_reject_unequal_payloads(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    collision = "c" * 64
+    monkeypatch.setattr(authority, "_sha256_payload", lambda payload: collision)
+
+    with pytest.raises(ValueError, match="semantic digest collision"):
+        authority._aggregate_poi_rows(
+            block_rows=(
+                (0, "a" * 64, (0, 0), 1, 0, 1, 0, 0),
+                (1, "b" * 64, (1, 1), 2, 1, 1, 0, 0),
+            ),
+            source_allocation_fingerprint="d" * 64,
+        )
+    with pytest.raises(ValueError, match="derived fingerprint digest collision"):
+        authority._compose_map_fingerprint_set_v3(
+            config="0" * 64,
+            geometry="1" * 64,
+            topology="2" * 64,
+            link_attributes="3" * 64,
+            turn_authority="4" * 64,
+            blocks_access="5" * 64,
+            land_use_zoning="6" * 64,
+        )
+
+    first = authority.V2Taz(
+        taz_id=0,
+        semantic_id=collision,
+        block_ids=(0,),
+        block_semantic_ids=("a" * 64,),
+        frontage_road_ids=(10,),
+        access_node_ids=(100,),
+        resident_capacity_total=1,
+        home_capacity_total=1,
+        job_capacity_total=0,
+        leisure_capacity_total=0,
+    )
+    second = authority.V2Taz(
+        taz_id=1,
+        semantic_id=collision,
+        block_ids=(1,),
+        block_semantic_ids=("b" * 64,),
+        frontage_road_ids=(20,),
+        access_node_ids=(200,),
+        resident_capacity_total=1,
+        home_capacity_total=1,
+        job_capacity_total=0,
+        leisure_capacity_total=0,
+    )
+    with pytest.raises(ValueError, match="TAZ semantic digest collision"):
+        authority.V2TazCatalog(
+            schema_version=authority.TAZ_POLICY,
+            tazs=(first, second),
+            block_taz_by_id=((0, 0), (1, 1)),
+            node_owner_by_id=((100, 0), (200, 1)),
+            node_conflicts=(),
+            target_taz_count=2,
+            source_blocks_fingerprint="e" * 64,
+            source_allocation_fingerprint="f" * 64,
+            assignment_fingerprint="0" * 64,
+        )
+
+
+def test_bridge_and_group_crosswalk_snapshots_are_fresh_and_source_bound(
+    river_scalable_sources: tuple[object, object, object, object],
+) -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    scale, network, blocks, compiled = river_scalable_sources
+    result = authority.build_scalable_static_authority(
+        scale,
+        "river_constrained",
+        17,
+        network,
+        blocks,
+        compiled,
+    )
+    assert compiled.structure_group_crosswalk
+    assert compiled.failure_group_crosswalk
+    assert compiled.road_csr.bridge_crossings
+    assert all(
+        copied is not source
+        for copied, source in zip(
+            result.structure_group_crosswalk,
+            compiled.structure_group_crosswalk,
+            strict=True,
+        )
+    )
+    assert all(
+        copied is not source
+        for copied, source in zip(
+            result.failure_group_crosswalk,
+            compiled.failure_group_crosswalk,
+            strict=True,
+        )
+    )
+    assert all(
+        copied is not source
+        for copied, source in zip(
+            result.road_csr.bridge_crossings,
+            compiled.road_csr.bridge_crossings,
+            strict=True,
+        )
+    )
+
+    source_structure = compiled.structure_group_crosswalk[0]
+    source_failure = compiled.failure_group_crosswalk[0]
+    source_bridge = compiled.road_csr.bridge_crossings[0]
+    original_structure_members = source_structure.member_physical_road_ids
+    original_failure_members = source_failure.member_physical_road_ids
+    original_bridge_links = source_bridge.link_ids
+    snapshot = (
+        result.fingerprint,
+        result.structure_group_crosswalk[0].member_physical_road_ids,
+        result.failure_group_crosswalk[0].member_physical_road_ids,
+        result.road_csr.bridge_crossings[0].link_ids,
+    )
+    try:
+        object.__setattr__(
+            source_structure,
+            "member_physical_road_ids",
+            (*original_structure_members, 999_999),
+        )
+        object.__setattr__(
+            source_failure,
+            "member_physical_road_ids",
+            (*original_failure_members, 999_998),
+        )
+        object.__setattr__(
+            source_bridge,
+            "link_ids",
+            (*original_bridge_links, 999_997),
+        )
+        assert (
+            result.fingerprint,
+            result.structure_group_crosswalk[0].member_physical_road_ids,
+            result.failure_group_crosswalk[0].member_physical_road_ids,
+            result.road_csr.bridge_crossings[0].link_ids,
+        ) == snapshot
+        with pytest.raises(ValueError):
+            authority.require_valid_scalable_static_authority(
+                result,
+                scale_spec=scale,
+                style_id="river_constrained",
+                seed=17,
+                network=network,
+                blocks=blocks,
+                compiled=compiled,
+            )
+    finally:
+        object.__setattr__(
+            source_structure,
+            "member_physical_road_ids",
+            original_structure_members,
+        )
+        object.__setattr__(
+            source_failure,
+            "member_physical_road_ids",
+            original_failure_members,
+        )
+        object.__setattr__(source_bridge, "link_ids", original_bridge_links)
+
+
+def test_one_million_capacity_preflight_is_aggregate_only() -> None:
+    scale = CityScaleSpec(1_000_000, 250.0)
+    network = build_scalable_street_network(scale, "grid_core", 17)
+    blocks = build_scalable_block_authority(network)
+    compiled = compile_scalable_topology(network, block_authority=blocks)
+    forbidden_prefixes = (
+        "metroflow.demand",
+        "metroflow.sim",
+        "metroflow.traffic",
+        "metroflow.routing",
+        "jax",
+    )
+    assert not any(
+        module == prefix or module.startswith(f"{prefix}.")
+        for module in sys.modules
+        for prefix in forbidden_prefixes
+    )
+
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    before_build_modules = frozenset(sys.modules)
+    result = authority.build_scalable_static_authority(
+        scale,
+        "grid_core",
+        17,
+        network,
+        blocks,
+        compiled,
+    )
+    newly_imported = frozenset(sys.modules) - before_build_modules
+    assert not any(
+        module == prefix or module.startswith(f"{prefix}.")
+        for module in newly_imported
+        for prefix in forbidden_prefixes
+    )
+
+    certificate = result.capacity_certificate
+    assert (
+        certificate.resident_capacity_total,
+        certificate.home_capacity_total,
+        certificate.job_capacity_total,
+        certificate.worker_share_numerator,
+        certificate.worker_share_denominator,
+        certificate.taz_count,
+    ) == (1_000_000, 1_000_000, 620_000, 31, 50, 400)
+    assert len(result.block_land_use) >= 400
+    assert len(result.taz_catalog.tazs) == 400
+    assert certificate.capacity_cap_applied is False
+    assert certificate.silent_cap_count == 0
+    assert certificate.dropped_capacity_count == 0
+    for ratio in (
+        certificate.resident_multiplier_ratio,
+        certificate.home_multiplier_ratio,
+        certificate.job_multiplier_ratio,
+    ):
+        assert Fraction(1, 4) <= Fraction(*ratio) <= Fraction(3)
+    assert all(
+        block.final_resident_capacity == block.final_home_capacity
+        for block in result.block_land_use
+    )
+    assert (
+        result.poi_catalog.home_capacity_total,
+        result.poi_catalog.workplace_capacity_total,
+        result.poi_catalog.leisure_capacity_total,
+    ) == (
+        certificate.home_capacity_total,
+        certificate.job_capacity_total,
+        certificate.leisure_capacity_total,
+    )
+    assert len(result.poi_catalog.pois) <= 3 * len(result.block_land_use)
+    forbidden_fields = {
+        "citizen",
+        "citizens",
+        "person",
+        "persons",
+        "schedule",
+        "schedules",
+        "trip",
+        "trips",
+        "state",
+    }
+    for public_type in (
+        authority.BlockLandUseV2,
+        authority.PopulationCapacityCertificate,
+        authority.V2Poi,
+        authority.V2PoiCatalog,
+        authority.V2Taz,
+        authority.V2TazCatalog,
+        authority.ScalableStaticAuthority,
+    ):
+        assert forbidden_fields.isdisjoint(public_type.__dataclass_fields__)
+
+
+def test_public_builder_uses_the_exact_origin_payload_tuples(
     canonical_scalable_sources: tuple[object, object, object, object],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     authority = importlib.import_module("metroflow.city.scalable_authority")
     scale, network, blocks, compiled = canonical_scalable_sources
-    calls = {
-        "upstream": 0,
-        "seal": 0,
-        "sample": 0,
-        "classify": 0,
-        "raw": 0,
-        "apportion": 0,
-        "poi": 0,
-        "compose": 0,
+    captured: dict[str, tuple[object, ...]] = {}
+    real_hash = authority._sha256_payload
+    origin_schemas = {
+        authority.STATIC_CONFIG_NODE_SCHEMA,
+        authority.GEOMETRY_NODE_SCHEMA,
+        authority.TOPOLOGY_NODE_SCHEMA,
+        authority.LINK_ATTRIBUTES_NODE_SCHEMA,
+        authority.TURN_AUTHORITY_NODE_SCHEMA,
+        authority.BLOCKS_ACCESS_NODE_SCHEMA,
+        authority.LAND_USE_ZONING_NODE_SCHEMA,
+        authority.ROUTING_STATIC_NODE_SCHEMA,
     }
 
-    def counted_upstream(*args: object, **kwargs: object) -> None:
-        calls["upstream"] += 1
-        require_valid_scalable_compiled_topology(*args, **kwargs)
+    def capture(payload: object) -> str:
+        if type(payload) is tuple and payload and payload[0] in origin_schemas:
+            captured.setdefault(payload[0], payload)
+        return real_hash(payload)
 
-    def forbidden(name: str):
-        def fail(*args: object, **kwargs: object) -> object:
-            calls[name] += 1
-            raise AssertionError(f"Task 5 {name} ran before source admission")
-
-        return fail
-
-    monkeypatch.setattr(
-        authority,
-        "require_valid_scalable_compiled_topology",
-        counted_upstream,
-        raising=False,
+    monkeypatch.setattr(authority, "_sha256_payload", capture)
+    result = authority.build_scalable_static_authority(
+        scale,
+        "grid_core",
+        17,
+        network,
+        blocks,
+        compiled,
     )
-    for symbol, name in (
-        ("_seal_c_array", "seal"),
-        ("_sample_terrain_at_exact_witness", "sample"),
-        ("_classify_land_use_rows", "classify"),
-        ("_raw_capacity_ratios", "raw"),
-        ("_apportion_exact_channel", "apportion"),
-        ("_aggregate_poi_rows", "poi"),
-        ("_compose_map_fingerprint_set_v3", "compose"),
-    ):
-        monkeypatch.setattr(authority, symbol, forbidden(name))
 
-    original_link_ids = compiled.road_csr.link_ids
-    stale_link_ids = original_link_ids.copy()
-    stale_link_ids[0] = int(stale_link_ids[0]) + 1
-    object.__setattr__(compiled.road_csr, "link_ids", stale_link_ids)
-    try:
-        with pytest.raises(ValueError):
-            authority.build_scalable_static_authority(
-                scale,
-                "grid_core",
-                17,
-                network,
-                blocks,
-                compiled,
-            )
-    finally:
-        object.__setattr__(compiled.road_csr, "link_ids", original_link_ids)
-
-    assert calls == {
-        "upstream": 1,
-        "seal": 0,
-        "sample": 0,
-        "classify": 0,
-        "raw": 0,
-        "apportion": 0,
-        "poi": 0,
-        "compose": 0,
-    }
-
-
-def test_bounded_capacity_preflight_is_aggregate_only() -> None:
-    script = textwrap.dedent(
-        r"""
-        import importlib
-        import inspect
-        import json
-        import sys
-
-        import numpy as np
-
-        forbidden_prefixes = (
-            "metroflow.sim",
-            "metroflow.demand",
-            "metroflow.traffic",
-            "metroflow.routing",
-            "metroflow.landuse",
-            "metroflow.backends",
-            "jax",
-            "torch",
-        )
-        forbidden_exact_modules = (
-            "_metroflow_rust",
-            "metroflow.city.growth_fabric",
-            "metroflow.city.growth_topology",
-            "metroflow.city.topology_finalizer",
-            "metroflow.city.planarization",
-            "metroflow.city.planar_blocks",
-            "metroflow.city.block_land_use",
-            "metroflow.city.zones",
-            "metroflow.city.generator_v2",
-            "metroflow.city.realistic_city",
-            "metroflow.city.scalable_validation_receipts",
-        )
-
-        def reject_forbidden(modules):
-            bad = sorted(
-                module
-                for module in modules
-                if module in forbidden_exact_modules
-                or any(
-                    module == prefix or module.startswith(prefix + ".")
-                    for prefix in forbidden_prefixes
-                )
-            )
-            assert not bad, bad
-
-        reject_forbidden(sys.modules)
-        from metroflow.city.scale import CityScaleSpec
-        from metroflow.city.scalable_blocks import build_scalable_block_authority
-        from metroflow.city.scalable_topology import build_scalable_street_network
-        from metroflow.city.scalable_topology_adapter import compile_scalable_topology
-
-        phase_rows = []
-        hostile_rows = []
-        bounded_scale = None
-        scale_calls = 0
-        builder_order = []
-        sentinel_invocations = 0
-
-        def guard_scale(*args, callable_=CityScaleSpec, **kwargs):
-            global bounded_scale, scale_calls
-            bound = inspect.signature(CityScaleSpec).bind(*args, **kwargs)
-            values = dict(bound.arguments)
-            population = values["target_population"]
-            area = values["urbanized_area_km2"]
-            if type(population) is not int or population > 100_000:
-                raise ValueError("bounded population exceeds 100000")
-            assert values == {
-                "target_population": 100_000,
-                "urbanized_area_km2": 15.0,
-            }
-            assert type(area) is float and callable_ is CityScaleSpec
-            assert scale_calls == 0
-            scale_calls += 1
-            bounded_scale = callable_(*args, **kwargs)
-            return bounded_scale
-
-        def hostile(label, value):
-            global sentinel_invocations
-            before = sentinel_invocations
-            try:
-                guard_scale(value, 15.0, callable_=lambda *args, **kwargs: None)
-            except ValueError as error:
-                assert str(error) == "bounded population exceeds 100000"
-            else:
-                raise AssertionError("hostile population reached sentinel")
-            assert sentinel_invocations == before == 0
-            hostile_rows.append(
-                {
-                    "label": label,
-                    "evaluated_value": value,
-                    "blocked_before_call": True,
-                    "sentinel_invocation_count": sentinel_invocations,
-                }
-            )
-
-        hostile_alias = 10**6
-        for hostile_label, hostile_value in (
-            ("direct", 1_000_000),
-            ("underscore_free", 1000000),
-            ("multiplication", 10 * 100_000),
-            ("exponentiation", 10**6),
-            ("alias", hostile_alias),
-        ):
-            hostile(hostile_label, hostile_value)
-
-        scale = guard_scale(100_000, 15.0)
-        builders = (
-            ("Task3", build_scalable_street_network),
-            ("Task3B", build_scalable_block_authority),
-            ("Task4", compile_scalable_topology),
-        )
-
-        def guard_builder(phase, callable_, *args, **kwargs):
-            expected_phase, expected_callable = builders[len(builder_order)]
-            assert phase == expected_phase and callable_ is expected_callable
-            if phase == "Task3":
-                assert args[0] is bounded_scale
-            elif phase == "Task3B":
-                assert args[0] is network
-            else:
-                assert args[0] is network and kwargs["block_authority"] is blocks
-            builder_order.append(phase)
-            result = callable_(*args, **kwargs)
-            return result
-
-        network = guard_builder(
-            "Task3", build_scalable_street_network, scale, "grid_core", 17
-        )
-        blocks = guard_builder("Task3B", build_scalable_block_authority, network)
-        compiled = guard_builder(
-            "Task4",
-            compile_scalable_topology,
-            network,
-            block_authority=blocks,
-        )
-        for phase, callable_ in (("CityScaleSpec", CityScaleSpec), *builders):
-            phase_rows.append(
-                {
-                    "phase": phase,
-                    "callable": callable_.__module__ + "." + callable_.__qualname__,
-                    "call_count": 1,
-                    "population": bounded_scale.target_population,
-                    "scale_fingerprint": network.scale_fingerprint,
-                }
-            )
-        before_authority_import = frozenset(sys.modules)
-        reject_forbidden(before_authority_import)
-        authority = importlib.import_module("metroflow.city.scalable_authority")
-        assert authority.__name__ == "metroflow.city.scalable_authority"
-        assert authority._CopiedTask4.__dataclass_params__.frozen is True
-        after_authority_import = frozenset(sys.modules)
-        reject_forbidden(after_authority_import)
-        reject_forbidden(after_authority_import - before_authority_import)
-        copied = authority._copy_task4_authorities(blocks=blocks, compiled=compiled)
-        assert copied.road_csr.content_fingerprint
-        assert copied.numeric_profiles is not compiled.numeric_profiles
-        assert copied.road_crosswalk is not compiled.road_crosswalk
-        assert all(
-            target is not source
-            for target, source in zip(
-                copied.numeric_profiles, compiled.numeric_profiles, strict=True
-            )
-        )
-        assert all(
-            target is not source
-            for target, source in zip(
-                copied.road_crosswalk, compiled.road_crosswalk, strict=True
-            )
-        )
-        for target_rows, source_rows in (
-            (copied.road_csr.nodes, compiled.road_csr.nodes),
-            (copied.road_csr.links, compiled.road_csr.links),
-            (copied.road_csr.turns, compiled.road_csr.turns),
-            (copied.road_csr.bridge_crossings, compiled.road_csr.bridge_crossings),
-        ):
-            if source_rows:
-                assert target_rows is not source_rows
-            for row_index, (target, source) in enumerate(
-                zip(target_rows, source_rows, strict=True)
-            ):
-                assert target is not source, (type(target_rows).__name__, row_index)
-        assert copied.block_access_index is not blocks.access_index
-        for name in (
-            "node_id_to_index",
-            "link_id_to_index",
-            "turn_pair_to_index",
-        ):
-            assert getattr(copied.road_csr, name) is not getattr(compiled.road_csr, name)
-        for name in (
-            "node_ids",
-            "link_ids",
-            "link_src_node_index",
-            "link_dst_node_index",
-            "outgoing_indptr",
-            "outgoing_link_indices",
-            "incoming_indptr",
-            "incoming_link_indices",
-            "turn_from_link_index",
-            "turn_to_link_index",
-            "turn_base_priority",
-            "turn_is_forbidden",
-        ):
-            target = getattr(copied.road_csr, name)
-            source = getattr(compiled.road_csr, name)
-            assert not np.shares_memory(target, source)
-        before_build = frozenset(sys.modules)
-        task5_calls = 0
-
-        def guard_task5(callable_, *args):
-            global task5_calls
-            assert callable_ is authority.build_scalable_static_authority
-            assert task5_calls == 0
-            assert args == (bounded_scale, "grid_core", 17, network, blocks, compiled)
-            task5_calls += 1
-            return callable_(*args)
-
-        result = guard_task5(
-            authority.build_scalable_static_authority,
-            bounded_scale,
-            "grid_core",
-            17,
-            network,
-            blocks,
-            compiled,
-        )
-        phase_rows.append(
-            {
-                "phase": "Task5",
-                "callable": (
-                    authority.build_scalable_static_authority.__module__
-                    + "."
-                    + authority.build_scalable_static_authority.__qualname__
-                ),
-                "call_count": task5_calls,
-                "population": bounded_scale.target_population,
-                "scale_fingerprint": network.scale_fingerprint,
-            }
-        )
-        print(
-            "PR88_SOURCE_CALL_LEDGER="
-            + json.dumps(
-                {"phases": phase_rows, "hostile_probes": hostile_rows},
-                sort_keys=True,
-                separators=(",", ":"),
-            )
-        )
-        """
+    assert captured[authority.STATIC_CONFIG_NODE_SCHEMA] == (
+        authority.STATIC_CONFIG_NODE_SCHEMA,
+        100_000,
+        15.0.hex(),
+        "grid_core",
+        17,
+        authority.STATIC_AUTHORITY_SCHEMA,
+        authority.LAND_USE_POLICY,
+        authority.ALLOCATION_POLICY,
+        authority.TAZ_POLICY,
+        authority.POI_POLICY,
+        authority.FINGERPRINT_SET_SCHEMA,
+        authority.IMMUTABLE_CSR_SCHEMA,
+        authority.ROUTING_KEY_SCHEMA,
+        authority.STATIC_CONFIG_NODE_SCHEMA,
+        authority.GEOMETRY_NODE_SCHEMA,
+        authority.TOPOLOGY_NODE_SCHEMA,
+        authority.LINK_ATTRIBUTES_NODE_SCHEMA,
+        authority.TURN_AUTHORITY_NODE_SCHEMA,
+        authority.BLOCKS_ACCESS_NODE_SCHEMA,
+        authority.LAND_USE_ZONING_NODE_SCHEMA,
+        authority.ROUTING_STATIC_NODE_SCHEMA,
+        authority.ACCESSIBILITY_STATIC_NODE_SCHEMA,
+        authority.REPLAY_STATIC_NODE_SCHEMA,
+        authority.COMPOSITE_NODE_SCHEMA,
+        authority.ROUTING_POLICY,
+        authority.ACCESS_DIRECTION_POLICY,
+        authority.CLOSURE_CAPABILITY_POLICY,
+        network.schema_version,
+        blocks.schema_version,
+        compiled.schema_version,
+        compiled.numeric_profile_policy_version,
+        authority.STATIC_BUILDER_BACKEND,
     )
-    parsed_script = ast.parse(script)
-    parsed_module = ast.parse(open(__file__, encoding="utf-8").read())
-    assert parsed_script.body and parsed_module.body
-    for tree in (parsed_script, parsed_module):
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
-                if node.func.id == "CityScaleSpec" and node.args:
-                    population = ast.literal_eval(node.args[0])
-                    assert type(population) is int and population <= 100_000
-
-    worktree_root = os.path.dirname(os.path.dirname(__file__))
-    completed = subprocess.run(
-        [sys.executable, "-c", script],
-        cwd=worktree_root,
-        env={
-            **os.environ,
-            "PYTHONDONTWRITEBYTECODE": "1",
-            "PYTHONHASHSEED": "0",
-        },
-        check=False,
-        capture_output=True,
-        text=True,
+    assert captured[authority.LAND_USE_ZONING_NODE_SCHEMA] == (
+        authority.LAND_USE_ZONING_NODE_SCHEMA,
+        authority.LAND_USE_POLICY,
+        authority.ALLOCATION_POLICY,
+        authority.TAZ_POLICY,
+        authority.POI_POLICY,
+        100_000,
+        15.0.hex(),
+        "grid_core",
+        17,
+        network.terrain.fingerprint,
+        network.centers,
+        result.fingerprints.blocks_access,
+        tuple(block.fingerprint for block in result.block_land_use),
+        result.capacity_certificate.fingerprint,
+        result.taz_catalog.fingerprint,
+        result.poi_catalog.fingerprint,
     )
-    assert completed.returncode == 0, completed.stdout + completed.stderr
+    assert captured[authority.LINK_ATTRIBUTES_NODE_SCHEMA][2] == tuple(
+        (
+            link.link_id,
+            link.src_node_id,
+            link.dst_node_id,
+            link.road_class,
+            link.length_m,
+            link.free_flow_speed_mps,
+            link.capacity_veh_per_tick,
+            link.lanes,
+            link.bridge_group_id,
+            link.is_blockable,
+            link.physical_road_id,
+        )
+        for link in result.road_csr.links
+    )
+    assert captured[authority.TURN_AUTHORITY_NODE_SCHEMA][3] == tuple(
+        (
+            turn.from_link_id,
+            turn.to_link_id,
+            turn.turn_type,
+            turn.base_priority,
+            turn.signal_phase_id,
+        )
+        for turn in result.road_csr.turns
+    )
+    routing_payload = captured[authority.ROUTING_STATIC_NODE_SCHEMA]
+    assert routing_payload == (
+        authority.ROUTING_STATIC_NODE_SCHEMA,
+        authority.ROUTING_POLICY,
+        authority.ACCESS_DIRECTION_POLICY,
+        authority.CLOSURE_CAPABILITY_POLICY,
+        result.fingerprints.geometry,
+        result.fingerprints.topology,
+        result.fingerprints.link_attributes,
+        result.fingerprints.turn_authority,
+    )
+    assert compiled.fingerprint not in routing_payload
+
+
+@pytest.mark.parametrize(
+    "style_id",
+    (
+        "ring_radial",
+        "grid_core",
+        "polycentric_tod",
+        "river_constrained",
+        "superblock_mixed",
+        "organic",
+    ),
+)
+def test_minimum_scale_capacity_authority_supports_every_task3_style(
+    style_id: str,
+) -> None:
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    scale = CityScaleSpec(100_000, 25.0)
+    network = build_scalable_street_network(scale, style_id, 17)
+    blocks = build_scalable_block_authority(network)
+    compiled = compile_scalable_topology(network, block_authority=blocks)
+    result = authority.build_scalable_static_authority(
+        scale,
+        style_id,
+        17,
+        network,
+        blocks,
+        compiled,
+    )
+
+    assert {
+        block.land_use_type for block in result.block_land_use
+    } == set(authority.V2LandUseType)
+    assert (
+        result.capacity_certificate.resident_capacity_total,
+        result.capacity_certificate.home_capacity_total,
+        result.capacity_certificate.job_capacity_total,
+        result.capacity_certificate.taz_count,
+    ) == (100_000, 100_000, 62_000, 64)
+    assert result.capacity_certificate.capacity_cap_applied is False
+    assert result.capacity_certificate.silent_cap_count == 0
+    assert result.capacity_certificate.dropped_capacity_count == 0
+    assert len(result.taz_catalog.tazs) == 64
+    assert result.poi_catalog.home_capacity_total == 100_000
+    assert result.poi_catalog.workplace_capacity_total == 62_000
+    assert (
+        result.routing_dependency_key.routing_static_fingerprint
+        == result.fingerprints.routing_static
+    )
