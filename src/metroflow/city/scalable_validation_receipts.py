@@ -40,6 +40,45 @@ _COMPILED_RECEIPT_POLICY_VERSION = "scalable_compiled_receipt_policy_v1"
 _STATIC_RECEIPT_POLICY_VERSION = "scalable_static_receipt_policy_v1"
 _TASK5_SNAPSHOT_POLICY_VERSION = "scalable_task5_snapshot_policy_v1"
 
+_COMPILED_CONTENT_SEAL_SCHEMAS = tuple(
+    (name, _COMPILED_SEAL_SCHEMA)
+    for name in (
+        "compiled.csr_arrays",
+        "compiled.csr_entities",
+        "compiled.csr_mappings",
+        "compiled.geometry_catalog",
+        "compiled.header",
+        "compiled.metadata",
+        "compiled.node_interface_catalog",
+        "compiled.numeric_and_crosswalks",
+        "compiled.section_catalog",
+        "compiled.topology_entities",
+    )
+) + (
+    ("task5.blocks_projection", _TASK5_BLOCKS_PROJECTION_SCHEMA),
+    ("task5.compiled_projection", _TASK5_COMPILED_PROJECTION_SCHEMA),
+    ("task5.network_projection", _TASK5_NETWORK_PROJECTION_SCHEMA),
+)
+
+_STATIC_CONTENT_SEAL_SCHEMAS = tuple(
+    (name, _STATIC_SEAL_SCHEMA)
+    for name in (
+        "static.block_access_index",
+        "static.block_land_use",
+        "static.capacity_certificate",
+        "static.fingerprint_set",
+        "static.header",
+        "static.immutable_csr_arrays",
+        "static.immutable_csr_entities",
+        "static.immutable_csr_header",
+        "static.immutable_csr_mappings",
+        "static.numeric_and_crosswalks",
+        "static.poi_catalog",
+        "static.routing_dependency_key",
+        "static.taz_catalog",
+    )
+)
+
 
 # ---------------------------------------------------------------------------
 # Receipt record

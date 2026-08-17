@@ -1922,3 +1922,113 @@ def test_minimum_scale_capacity_authority_supports_every_task3_style(
         result.routing_dependency_key.routing_static_fingerprint
         == result.fingerprints.routing_static
     )
+
+
+def test_capture_verified_task5_source_snapshot_and_static_receipt() -> None:
+    from metroflow.city.scalable_authority import (
+        _capture_stable_static_validation_receipt,
+        _capture_verified_task5_source_snapshot_from_receipt,
+        build_scalable_static_authority,
+    )
+    from metroflow.city.scalable_blocks import build_scalable_block_authority
+    from metroflow.city.scalable_topology import build_scalable_street_network
+    from metroflow.city.scalable_topology_adapter import (
+        _TURN_POLICY,
+        compile_scalable_topology,
+    )
+    from metroflow.city.scalable_validation_receipts import (
+        _BLOCKS_RECEIPT_POLICY_VERSION,
+        _BLOCKS_SEAL_SCHEMA,
+        _COMPILED_CONTENT_SEAL_SCHEMAS,
+        _COMPILED_RECEIPT_POLICY_VERSION,
+        _NETWORK_RECEIPT_POLICY_VERSION,
+        _NETWORK_SEAL_SCHEMA,
+        _ValidationReceipt,
+        _VerifiedTask5SourceSnapshot,
+        _clear_validation_receipts_for_test,
+        _register_validation_receipt,
+    )
+
+    _clear_validation_receipts_for_test()
+    scale = CityScaleSpec(100_000, 25.0)
+    network = build_scalable_street_network(scale, "grid_core", 17)
+    blocks = build_scalable_block_authority(network)
+    compiled = compile_scalable_topology(network, block_authority=blocks)
+    authority = build_scalable_static_authority(
+        scale,
+        "grid_core",
+        17,
+        network,
+        blocks,
+        compiled,
+    )
+
+    _register_validation_receipt(
+        _ValidationReceipt(
+            stage_name="network",
+            schema_version=network.schema_version,
+            fingerprint=network.fingerprint,
+            policy_versions=(("receipt_policy", _NETWORK_RECEIPT_POLICY_VERSION),),
+            source_seal_schemas=(),
+            content_seal_schemas=(("network.current", _NETWORK_SEAL_SCHEMA),),
+        )
+    )
+    _register_validation_receipt(
+        _ValidationReceipt(
+            stage_name="blocks",
+            schema_version=blocks.schema_version,
+            fingerprint=blocks.fingerprint,
+            policy_versions=(
+                ("embedding_policy", blocks.embedding_policy),
+                ("receipt_policy", _BLOCKS_RECEIPT_POLICY_VERSION),
+                ("subdivision_schema", blocks.subdivision_schema),
+                ("tile_policy", blocks.tile_policy),
+            ),
+            source_seal_schemas=(),
+            content_seal_schemas=(("blocks.current", _BLOCKS_SEAL_SCHEMA),),
+        )
+    )
+    _register_validation_receipt(
+        _ValidationReceipt(
+            stage_name="compiled",
+            schema_version=compiled.schema_version,
+            fingerprint=compiled.fingerprint,
+            policy_versions=(
+                (
+                    "numeric_profile_policy",
+                    compiled.numeric_profile_policy_version,
+                ),
+                ("receipt_policy", _COMPILED_RECEIPT_POLICY_VERSION),
+                ("turn_policy", _TURN_POLICY),
+            ),
+            source_seal_schemas=(
+                ("blocks.current", _BLOCKS_SEAL_SCHEMA),
+                ("network.current", _NETWORK_SEAL_SCHEMA),
+            ),
+            content_seal_schemas=_COMPILED_CONTENT_SEAL_SCHEMAS,
+        )
+    )
+
+    snapshot, net_rcpt, blk_rcpt, cmp_rcpt = (
+        _capture_verified_task5_source_snapshot_from_receipt(
+            scale,
+            "grid_core",
+            17,
+            network,
+            blocks,
+            compiled,
+        )
+    )
+    assert isinstance(snapshot, _VerifiedTask5SourceSnapshot)
+    assert isinstance(net_rcpt, _ValidationReceipt)
+    assert isinstance(blk_rcpt, _ValidationReceipt)
+    assert isinstance(cmp_rcpt, _ValidationReceipt)
+
+    static_rcpt = _capture_stable_static_validation_receipt(
+        authority,
+        source_snapshot=snapshot,
+        compiled=compiled,
+    )
+    assert isinstance(static_rcpt, _ValidationReceipt)
+    assert static_rcpt.stage_name == "static"
+    _clear_validation_receipts_for_test()

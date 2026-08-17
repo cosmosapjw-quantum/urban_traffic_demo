@@ -3229,3 +3229,123 @@ def require_valid_scalable_static_authority(
     _require_current_static_authority_content(authority)
     if _static_authority_payload(authority) != _static_authority_payload(expected):
         raise ValueError("static authority differs from the admitted source derivation")
+
+
+def _capture_verified_task5_source_snapshot_from_receipt(
+    scale_spec: CityScaleSpec,
+    style_id: str,
+    seed: int,
+    network: ScalableStreetNetwork,
+    blocks: ScalableBlockAuthority,
+    compiled: ScalableCompiledTopology,
+    *,
+    registered_compiled_receipt: object | None = None,
+) -> tuple[object, object, object, object]:
+    from metroflow.city.scalable_topology_adapter import _TURN_POLICY
+    from metroflow.city.scalable_validation_receipts import (
+        _BLOCKS_RECEIPT_POLICY_VERSION,
+        _BLOCKS_SEAL_SCHEMA,
+        _COMPILED_CONTENT_SEAL_SCHEMAS,
+        _COMPILED_RECEIPT_POLICY_VERSION,
+        _NETWORK_RECEIPT_POLICY_VERSION,
+        _NETWORK_SEAL_SCHEMA,
+        _VerifiedTask5SourceSnapshot,
+        _lookup_validation_receipt,
+    )
+
+    net_rcpt = _lookup_validation_receipt(
+        "network",
+        network.schema_version,
+        network.fingerprint,
+        expected_policy_versions=(("receipt_policy", _NETWORK_RECEIPT_POLICY_VERSION),),
+        expected_source_seal_schemas=(),
+        expected_content_seal_schemas=(("network.current", _NETWORK_SEAL_SCHEMA),),
+    )
+    blk_rcpt = _lookup_validation_receipt(
+        "blocks",
+        blocks.schema_version,
+        blocks.fingerprint,
+        expected_policy_versions=(
+            ("embedding_policy", blocks.embedding_policy),
+            ("receipt_policy", _BLOCKS_RECEIPT_POLICY_VERSION),
+            ("subdivision_schema", blocks.subdivision_schema),
+            ("tile_policy", blocks.tile_policy),
+        ),
+        expected_source_seal_schemas=(),
+        expected_content_seal_schemas=(("blocks.current", _BLOCKS_SEAL_SCHEMA),),
+    )
+    cmp_rcpt = (
+        registered_compiled_receipt
+        if registered_compiled_receipt is not None
+        else _lookup_validation_receipt(
+            "compiled",
+            compiled.schema_version,
+            compiled.fingerprint,
+            expected_policy_versions=(
+                (
+                    "numeric_profile_policy",
+                    compiled.numeric_profile_policy_version,
+                ),
+                ("receipt_policy", _COMPILED_RECEIPT_POLICY_VERSION),
+                ("turn_policy", _TURN_POLICY),
+            ),
+            expected_source_seal_schemas=(
+                ("blocks.current", _BLOCKS_SEAL_SCHEMA),
+                ("network.current", _NETWORK_SEAL_SCHEMA),
+            ),
+            expected_content_seal_schemas=_COMPILED_CONTENT_SEAL_SCHEMAS,
+        )
+    )
+    snapshot = _VerifiedTask5SourceSnapshot(
+        network_fingerprint=network.fingerprint,
+        blocks_fingerprint=blocks.fingerprint,
+        compiled_fingerprint=compiled.fingerprint,
+        network_receipt=net_rcpt,  # type: ignore[arg-type]
+        blocks_receipt=blk_rcpt,  # type: ignore[arg-type]
+        compiled_receipt=cmp_rcpt,  # type: ignore[arg-type]
+    )
+    return snapshot, net_rcpt, blk_rcpt, cmp_rcpt
+
+
+def _capture_stable_static_validation_receipt(
+    authority: ScalableStaticAuthority,
+    *,
+    source_snapshot: object,
+    compiled: ScalableCompiledTopology,
+) -> object:
+    from metroflow.city.scalable_validation_receipts import (
+        _BLOCKS_SEAL_SCHEMA,
+        _COMPILED_AGGREGATE_SEAL_SCHEMA,
+        _NETWORK_SEAL_SCHEMA,
+        _STATIC_CONTENT_SEAL_SCHEMAS,
+        _STATIC_RECEIPT_POLICY_VERSION,
+        _TASK5_INVOCATION_SEAL_SCHEMA,
+        _TASK5_SNAPSHOT_POLICY_VERSION,
+        _ValidationReceipt,
+    )
+
+    return _ValidationReceipt(
+        stage_name="static",
+        schema_version=authority.schema_version,
+        fingerprint=authority.fingerprint,
+        policy_versions=(
+            ("access_direction_policy", ACCESS_DIRECTION_POLICY),
+            ("allocation_policy", ALLOCATION_POLICY),
+            ("closure_capability_policy", CLOSURE_CAPABILITY_POLICY),
+            ("fingerprint_set_schema", FINGERPRINT_SET_SCHEMA),
+            ("immutable_csr_schema", IMMUTABLE_CSR_SCHEMA),
+            ("land_use_policy", LAND_USE_POLICY),
+            ("poi_policy", POI_POLICY),
+            ("receipt_policy", _STATIC_RECEIPT_POLICY_VERSION),
+            ("routing_policy", ROUTING_POLICY),
+            ("snapshot_policy", _TASK5_SNAPSHOT_POLICY_VERSION),
+            ("taz_policy", TAZ_POLICY),
+        ),
+        source_seal_schemas=(
+            ("blocks.current", _BLOCKS_SEAL_SCHEMA),
+            ("compiled.aggregate", _COMPILED_AGGREGATE_SEAL_SCHEMA),
+            ("invocation.current", _TASK5_INVOCATION_SEAL_SCHEMA),
+            ("network.current", _NETWORK_SEAL_SCHEMA),
+        ),
+        content_seal_schemas=_STATIC_CONTENT_SEAL_SCHEMAS,
+    )

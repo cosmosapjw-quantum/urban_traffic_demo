@@ -59,6 +59,22 @@ __all__ = (
     "require_valid_scalable_compiled_topology",
 )
 
+_TURN_POLICY: str = "scalable_v2_turn_policy_v1"
+
+
+def _require_scalable_source_cross_binding(
+    network: object, blocks: object
+) -> None:
+    """Verify that the block authority binds to the same source network."""
+    if hasattr(blocks, "source_network_fingerprint") and hasattr(
+        network, "fingerprint"
+    ):
+        if blocks.source_network_fingerprint != network.fingerprint:
+            raise ValueError(
+                "block authority does not bind to the source network"
+            )
+
+
 
 @dataclass(frozen=True, slots=True)
 class ScalableNumericProfile:
