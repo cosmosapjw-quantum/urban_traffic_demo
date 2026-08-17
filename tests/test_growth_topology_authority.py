@@ -202,14 +202,8 @@ def test_two_streets_between_the_same_pair_of_junctions_both_survive() -> None:
 # --- geometry and topology must agree --------------------------------------
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "6909 -> 24 on grid_core/17, against 0 on all five real extracts. A swept test during growth catches 893, and a repair pass afterwards catches the rest -- geometry created AFTER a test cannot be covered by that test, and `extend_to_node` appends a segment nobody re-examines. The last 24 are the 0.25 m weld tolerance: splitting at a projection may snap to a nearby vertex, leaving a sliver crossing."
-    ),
-)
 def test_streets_that_cross_at_the_same_grade_meet_at_a_node() -> None:
-    """6909 unregistered crossings on grid_core/17, against 0 on every real extract."""
+    """Final live-geometry repair leaves zero same-grade crossings on grid_core/17."""
 
     from metroflow.city.growth_fabric import compile_grown_network
     from metroflow.map.road_geometry import count_interior_centerline_intersections

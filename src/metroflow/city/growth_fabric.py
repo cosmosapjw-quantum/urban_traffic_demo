@@ -34,7 +34,7 @@ import math
 
 import numpy as np
 
-from .growth_topology import StreetTopologyBuilder, iter_chains
+from .growth_topology import WELD_TOLERANCE_M, StreetTopologyBuilder, iter_chains
 from .district_profiles import assign_district_archetypes, profile_for
 from .generated_map import PreviewCityTopology
 from .graph import Node, RoadClass, RoadLink
@@ -238,8 +238,11 @@ class _Fabric:
         start: tuple[float, float],
         *,
         start_node_id: int | None = None,
+        layer: int = 0,
     ) -> int:
-        street_id = self.builder.open_street(points=(start,), start_node_id=start_node_id)
+        street_id = self.builder.open_street(
+            points=(start,), start_node_id=start_node_id, layer=layer
+        )
         self.street_class.append(road_class)
         node_id = self.builder.node_ids_of(street_id)[0]
         self.node_grid.add(start[0], start[1], node_id)
@@ -260,6 +263,16 @@ class _Fabric:
             # length. Either way the tip simply stops here.
             return False
         self._index_last_segment(street_id)
+        return True
+
+    def prepend_to_node(self, street_id: int, node_id: int, *, max_gap_m: float) -> bool:
+        """Finish the start of a street ON an existing junction. False if it cannot legally."""
+
+        try:
+            self.builder.prepend_street_to_node(street_id, node_id, max_gap_m=max_gap_m)
+        except ValueError:
+            return False
+        self._reindex_street(street_id)
         return True
 
     def split_at_arc_length(self, street_id: int, arc_length_m: float) -> int:
@@ -824,9 +837,7 @@ def grow_street_network(
 
     _register_remaining_crossings(fabric)
     _extend_dangling_tips(fabric, max_reach_m=cfg.local_step_m * 1.5)
-    # Extending creates new geometry, which can cross something. Re-run the
-    # crossing sweep so the invariant holds over the repaired network too.
-    _register_remaining_crossings(fabric)
+    _finalize_geometry_repairs(fabric)
 
     # The builder is the authority now, so the network carries it: junction and
     # dead-end counts are read off recorded incidence rather than guessed from
@@ -1087,6 +1098,7 @@ def _compile_from_incidence(builder, streets) -> PreviewCityTopology:
                     geometry_id=geometry_id,
                     points_m=tuple(part_points),
                     source=CenterlineSource.SYNTHETIC,
+                    layer=builder.street_layer(street_id),
                 )
             )
             forward_id = len(links)
@@ -1283,7 +1295,7 @@ def _segment_intersection(
     return (a1[0] + t * d1x, a1[1] + t * d1y)
 
 
-def _register_remaining_crossings(fabric: _Fabric, *, max_rounds: int = 6) -> int:
+def _register_remaining_crossings(fabric: _Fabric) -> int:
     """Split every same-grade crossing the growth loop did not catch.
 
     The loop tests each step before taking it, which cannot cover geometry
@@ -1300,10 +1312,12 @@ def _register_remaining_crossings(fabric: _Fabric, *, max_rounds: int = 6) -> in
     """
 
     registered = 0
-    for _round in range(max_rounds):
-        crossings = _find_crossings(fabric)
+    state = _crossing_state_signature(fabric)
+    while True:
+        crossings = state[1]
         if not crossings:
-            break
+            return registered
+        progressed = False
         for left_street, right_street, point in crossings:
             # Split ONE street, then make the other adopt that same node.
             # Splitting both independently mints two nodes at one point, which
@@ -1311,9 +1325,37 @@ def _register_remaining_crossings(fabric: _Fabric, *, max_rounds: int = 6) -> in
             junction = fabric.contact(left_street, point, 1.0)
             if junction is None:
                 continue
-            if fabric.bind_node_into_street(right_street, junction, tolerance_m=1.0):
+            fabric.bind_node_into_street(right_street, junction, tolerance_m=1.0)
+            next_state = _crossing_state_signature(fabric)
+            if next_state != state:
                 registered += 1
-    return registered
+                progressed = True
+                state = next_state
+                # Both streets have changed their segment indices. Re-measure
+                # live geometry before selecting the next crossing.
+                break
+        if not progressed:
+            raise RuntimeError(
+                "crossing repair made no progress with "
+                f"{len(_find_crossings(fabric))} crossings remaining"
+            )
+
+
+def _crossing_state_signature(
+    fabric: _Fabric,
+) -> tuple[
+    tuple[tuple[int, tuple[tuple[float, float], ...]], ...],
+    tuple[tuple[int, int, tuple[float, float]], ...],
+]:
+    """Canonical live geometry plus unresolved crossings for repair progress."""
+
+    return (
+        tuple(
+            (street_id, fabric.builder.points_of(street_id))
+            for street_id in fabric.builder.street_ids
+        ),
+        tuple(_find_crossings(fabric)),
+    )
 
 
 def _find_crossings(fabric: _Fabric) -> list[tuple[int, int, tuple[float, float]]]:
@@ -1325,35 +1367,205 @@ def _find_crossings(fabric: _Fabric) -> list[tuple[int, int, tuple[float, float]
         points = fabric.builder.points_of(street_id)
         for index in range(len(points) - 1):
             left, right = points[index], points[index + 1]
-            keys = {
-                (int(math.floor(p[0] / cell)), int(math.floor(p[1] / cell)))
-                for p in (left, right, ((left[0] + right[0]) / 2, (left[1] + right[1]) / 2))
-            }
-            for key in keys:
+            for key in _segment_supercover_cells(left, right, cell):
                 buckets.setdefault(key, []).append((street_id, index))
 
-    found: dict[tuple[int, int], tuple[int, int, tuple[float, float]]] = {}
+    candidates: set[tuple[tuple[int, int], tuple[int, int]]] = set()
     for entries in buckets.values():
         for i in range(len(entries)):
             for j in range(i + 1, len(entries)):
-                left_street, left_index = entries[i]
-                right_street, right_index = entries[j]
+                left_ref, right_ref = sorted((entries[i], entries[j]))
+                left_street, left_index = left_ref
+                right_street, right_index = right_ref
                 if left_street == right_street:
                     continue
-                left_points = fabric.builder.points_of(left_street)
-                right_points = fabric.builder.points_of(right_street)
-                if left_index + 1 >= len(left_points) or right_index + 1 >= len(right_points):
+                if (
+                    fabric.builder.street_layer(left_street)
+                    != fabric.builder.street_layer(right_street)
+                ):
                     continue
-                hit = _segment_intersection(
-                    left_points[left_index], left_points[left_index + 1],
-                    right_points[right_index], right_points[right_index + 1],
-                )
-                if hit is None:
+                candidates.add((left_ref, right_ref))
+
+    found: list[tuple[int, int, tuple[float, float]]] = []
+    for (left_street, left_index), (right_street, right_index) in sorted(candidates):
+        left_node_ids = fabric.builder.node_ids_of(left_street)
+        right_node_ids = fabric.builder.node_ids_of(right_street)
+        if left_index + 1 >= len(left_node_ids) or right_index + 1 >= len(right_node_ids):
+            continue
+        left_pair = {left_node_ids[left_index], left_node_ids[left_index + 1]}
+        right_pair = {right_node_ids[right_index], right_node_ids[right_index + 1]}
+        if left_pair & right_pair:
+            continue
+        left_points = fabric.builder.points_of(left_street)
+        right_points = fabric.builder.points_of(right_street)
+        hit = _segment_intersection(
+            left_points[left_index], left_points[left_index + 1],
+            right_points[right_index], right_points[right_index + 1],
+        )
+        if hit is not None:
+            found.append((left_street, right_street, hit))
+    return found
+
+
+def _segment_supercover_cells(
+    left: tuple[float, float],
+    right: tuple[float, float],
+    cell_m: float,
+) -> tuple[tuple[int, int], ...]:
+    """Cells a segment touches, in traversal order, without filling its bbox.
+
+    This is a deterministic 2-D grid traversal. At a corner tie it emits both
+    orthogonal neighbours before the diagonal cell, so a segment touching a
+    cell only at a corner cannot lose a crossing candidate. A segment lying on
+    a grid boundary carries cells on both sides of that boundary.
+    """
+
+    cell = float(cell_m)
+    if not math.isfinite(cell) or cell <= 0.0:
+        raise ValueError("cell_m must be finite and > 0")
+    x0, y0 = left
+    x1, y1 = right
+    dx, dy = x1 - x0, y1 - y0
+    x_cell = math.floor(x0 / cell)
+    y_cell = math.floor(y0 / cell)
+    x_step = 1 if dx > 0.0 else -1 if dx < 0.0 else 0
+    y_step = 1 if dy > 0.0 else -1 if dy < 0.0 else 0
+    if x_step < 0 and _is_grid_boundary(x0, cell):
+        x_cell -= 1
+    if y_step < 0 and _is_grid_boundary(y0, cell):
+        y_cell -= 1
+
+    x_on_boundary = x_step == 0 and _is_grid_boundary(x0, cell)
+    y_on_boundary = y_step == 0 and _is_grid_boundary(y0, cell)
+    cells: list[tuple[int, int]] = []
+    seen: set[tuple[int, int]] = set()
+
+    def add(cell_x: int, cell_y: int) -> None:
+        candidates = [(cell_x, cell_y)]
+        if x_on_boundary:
+            candidates.append((cell_x - 1, cell_y))
+        if y_on_boundary:
+            candidates.append((cell_x, cell_y - 1))
+        if x_on_boundary and y_on_boundary:
+            candidates.append((cell_x - 1, cell_y - 1))
+        for candidate in candidates:
+            if candidate not in seen:
+                seen.add(candidate)
+                cells.append(candidate)
+
+    add(x_cell, y_cell)
+    x_delta = cell / abs(dx) if x_step else float("inf")
+    y_delta = cell / abs(dy) if y_step else float("inf")
+    next_x = (x_cell + (1 if x_step > 0 else 0)) * cell
+    next_y = (y_cell + (1 if y_step > 0 else 0)) * cell
+    x_max = (next_x - x0) / dx if x_step else float("inf")
+    y_max = (next_y - y0) / dy if y_step else float("inf")
+
+    while min(x_max, y_max) <= 1.0 + 1e-12:
+        if x_max < y_max - 1e-12:
+            x_cell += x_step
+            add(x_cell, y_cell)
+            x_max += x_delta
+        elif y_max < x_max - 1e-12:
+            y_cell += y_step
+            add(x_cell, y_cell)
+            y_max += y_delta
+        else:
+            previous_x, previous_y = x_cell, y_cell
+            x_cell += x_step
+            y_cell += y_step
+            add(x_cell, previous_y)
+            add(previous_x, y_cell)
+            add(x_cell, y_cell)
+            x_max += x_delta
+            y_max += y_delta
+    return tuple(cells)
+
+
+def _is_grid_boundary(value: float, cell_m: float) -> bool:
+    scaled = value / cell_m
+    return math.isclose(scaled, round(scaled), abs_tol=1e-12)
+
+
+def _finalize_geometry_repairs(fabric: _Fabric) -> int:
+    """Repair endpoint contacts created by tip extension, then re-sweep crossings."""
+
+    repaired = _register_endpoint_touches(fabric)
+    _register_remaining_crossings(fabric)
+    return repaired
+
+
+def _register_endpoint_touches(fabric: _Fabric) -> int:
+    """Bind each same-layer endpoint that lies on a foreign segment interior.
+
+    The source node, rather than a fresh projection node, is inserted into the
+    target. That keeps the contact a single builder identity and confines any
+    sub-tolerance geometry movement to the topology module's declared weld
+    policy.
+    """
+
+    repaired = 0
+    while True:
+        candidates = _find_endpoint_touches(fabric)
+        if not candidates:
+            return repaired
+        for _distance, source, node_id, target in candidates:
+            if node_id in fabric.builder.node_ids_of(target):
+                continue
+            if fabric.bind_node_into_street(target, node_id, tolerance_m=WELD_TOLERANCE_M):
+                repaired += 1
+                break
+        else:
+            raise RuntimeError(
+                "endpoint-touch repair made no progress with "
+                f"{len(_find_endpoint_touches(fabric))} touches remaining"
+            )
+
+
+def _find_endpoint_touches(
+    fabric: _Fabric,
+) -> list[tuple[float, int, int, int]]:
+    """Return deterministic same-layer, non-parallel endpoint touch candidates."""
+
+    candidates: list[tuple[float, int, int, int]] = []
+    for source in fabric.builder.street_ids:
+        source_nodes = fabric.builder.node_ids_of(source)
+        if len(source_nodes) < 2:
+            continue
+        for position, node_id in ((0, source_nodes[0]), (-1, source_nodes[-1])):
+            if len(fabric.builder.incident_street_ids(node_id)) != 1:
+                continue
+            tip = fabric.builder.point_of(node_id)
+            inner = fabric.builder.point_of(source_nodes[1 if position == 0 else -2])
+            heading = math.atan2(tip[1] - inner[1], tip[0] - inner[0])
+            for target in fabric.builder.street_ids:
+                if (
+                    target == source
+                    or fabric.builder.street_layer(target)
+                    != fabric.builder.street_layer(source)
+                ):
                     continue
-                key = (min(left_street, right_street), max(left_street, right_street))
-                if key not in found:
-                    found[key] = (left_street, right_street, hit)
-    return [found[key] for key in sorted(found)]
+                target_points = fabric.builder.points_of(target)
+                for left, right in zip(target_points, target_points[1:]):
+                    dx, dy = right[0] - left[0], right[1] - left[1]
+                    span_sq = dx * dx + dy * dy
+                    if span_sq <= 0.0:
+                        continue
+                    ratio = ((tip[0] - left[0]) * dx + (tip[1] - left[1]) * dy) / span_sq
+                    if not 1e-9 < ratio < 1.0 - 1e-9:
+                        continue
+                    distance = _point_to_segment_distance(tip, left, right)
+                    if distance > WELD_TOLERANCE_M:
+                        continue
+                    target_heading = math.atan2(dy, dx)
+                    delta = abs(math.atan2(
+                        math.sin(heading - target_heading), math.cos(heading - target_heading)
+                    ))
+                    if min(delta, math.pi - delta) < math.radians(EXTEND_TO_CROSS_MIN_ANGLE_DEG):
+                        continue
+                    candidates.append((distance, source, node_id, target))
+                    break
+    return sorted(candidates)
 
 
 # A tip may only be extended by this much before the extension stops being a
@@ -1379,7 +1591,7 @@ def _extend_dangling_tips(fabric: _Fabric, *, max_reach_m: float) -> int:
     """
 
     builder = fabric.builder
-    candidates: list[tuple[float, int, int, tuple[float, float]]] = []
+    candidates: list[tuple[float, int, int, int, tuple[float, float]]] = []
 
     for street_id in builder.street_ids:
         node_ids = builder.node_ids_of(street_id)
@@ -1405,11 +1617,11 @@ def _extend_dangling_tips(fabric: _Fabric, *, max_reach_m: float) -> int:
             target_street, point = hit
             if not _meets_at_a_useful_angle(fabric, target_street, point, heading):
                 continue
-            candidates.append((math.dist(tip, point), street_id, tip_node, point))
+            candidates.append((math.dist(tip, point), street_id, tip_node, position, point))
 
     extended = 0
-    for _distance, street_id, tip_node, point in sorted(
-        candidates, key=lambda item: (item[0], item[1], item[2])
+    for _distance, street_id, tip_node, position, point in sorted(
+        candidates, key=lambda item: (item[0], item[1], item[2], item[3])
     ):
         if len(builder.incident_street_ids(tip_node)) != 1:
             continue  # an earlier extension already joined this tip
@@ -1419,8 +1631,12 @@ def _extend_dangling_tips(fabric: _Fabric, *, max_reach_m: float) -> int:
         junction = fabric.contact(target, point, 1.0)
         if junction is None:
             continue
-        if fabric.extend_to_node(street_id, junction, max_gap_m=max_reach_m * 1.2):
-            extended += 1
+        if position == 0:
+            if fabric.prepend_to_node(street_id, junction, max_gap_m=max_reach_m * 1.2):
+                extended += 1
+        else:
+            if fabric.extend_to_node(street_id, junction, max_gap_m=max_reach_m * 1.2):
+                extended += 1
     return extended
 
 

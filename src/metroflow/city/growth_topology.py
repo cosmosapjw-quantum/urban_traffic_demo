@@ -176,6 +176,33 @@ class StreetTopologyBuilder:
         self._incident[node_id].add(street_id)
         return node_id
 
+    def prepend_street_to_node(
+        self,
+        street_id: StreetId,
+        node_id: NodeId,
+        *,
+        max_gap_m: float,
+    ) -> NodeId:
+        """Terminate the start of a street ON an existing node."""
+        street = self._require_street(street_id)
+        self._require_node(node_id)
+        if street.node_ids[0] == node_id:
+            return node_id
+        if node_id in street.node_ids:
+            raise ValueError(
+                f"node {node_id} is already on street {street_id}; "
+                "prepending to it would fold the street back on itself"
+            )
+        gap = math.dist(self._points[street.node_ids[0]], self._points[node_id])
+        if gap > float(max_gap_m):
+            raise ValueError(
+                f"node {node_id} is {gap:.3f} m from the start of street {street_id}, "
+                f"beyond max_gap_m={max_gap_m}; welding it would invent that length"
+            )
+        street.node_ids.insert(0, node_id)
+        self._incident[node_id].add(street_id)
+        return node_id
+
     # --- splitting ---------------------------------------------------------
 
     def split_at_arc_length(self, street_id: StreetId, arc_length_m: float) -> NodeId:
@@ -345,6 +372,10 @@ class StreetTopologyBuilder:
 
     def metadata_of(self, street_id: StreetId) -> dict:
         return self._require_street(street_id).metadata
+
+    def street_layer(self, street_id: StreetId) -> int:
+        """Return a street's authoritative grade without exposing mutable state."""
+        return self._require_street(street_id).layer
 
     @property
     def street_ids(self) -> tuple[StreetId, ...]:
