@@ -244,21 +244,40 @@ def render_svg(
     return "\n".join(parts) + "\n"
 
 
+def verify_topology_record_integrity(
+    topology: Any,
+    record: dict[str, Any],
+    *,
+    arm: str,
+    case: str,
+) -> None:
+    """Verify that current generated topology matches the audited record identity."""
+    if len(topology.nodes) != record["node_count"]:
+        raise ValueError(
+            f"topology record identity mismatch for {arm} {case}: "
+            f"current topology node count ({len(topology.nodes)}) != recorded ({record['node_count']})"
+        )
+
+
 def render_case(case: RenderCase, scores: dict[tuple[str, str], dict[str, Any]]) -> str:
     from metroflow.benchmarks.morphology_control_table import (
         build_arm_topology,
         build_osm_topology,
     )
 
-    # Caption first: a case the table does not contain must fail before the
-    # expensive generation, not after it has produced a map to be tempted by.
-    caption = caption_for(scores, arm=case.arm, case=case.case)
+    if (case.arm, case.case) not in scores:
+        raise KeyError(f"no recorded scores for {case.arm} {case.case}")
+    record = scores[(case.arm, case.case)]
+
     if case.arm == "osm":
         topology = build_osm_topology(_REPO_ROOT / "artifacts" / "osm_control" / case.style_id)
         title = f"osm / {case.style_id} -- {case.note}"
     else:
         topology = build_arm_topology(arm=case.arm, style_id=case.style_id, seed=case.seed)
         title = f"{case.arm} / {case.style_id} / seed {case.seed} -- {case.note}"
+
+    verify_topology_record_integrity(topology, record, arm=case.arm, case=case.case)
+    caption = caption_for(scores, arm=case.arm, case=case.case)
     return render_svg(
         nodes=topology.nodes,
         links=topology.links,

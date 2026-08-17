@@ -194,5 +194,87 @@ def test_the_render_set_is_not_only_the_arm_under_review() -> None:
     assert len(arms) >= 3, f"the render set shows only {sorted(arms)}"
 
 
+def test_renderer_verifies_topology_record_integrity() -> None:
+    """Renderer must reject topology whose node count differs from the recorded score."""
+    module = _render_module()
+    nodes, links = _square()
+    record = {
+        "node_count": 999,  # does not match len(nodes) == 4
+        "metrics": {
+            "circuity": 1.0,
+            "dead_end_share": 0.0,
+            "four_way_share": 0.0,
+            "mean_node_degree": 2.0,
+            "median_segment_length_m": 100.0,
+            "orientation_entropy": 1.0,
+            "orientation_order": 0.5,
+        },
+        "passed": True,
+        "failed_metrics": [],
+        "physical_segment_count": 4,
+    }
+
+    class MockTopology:
+        def __init__(self, node_list, link_list):
+            self.nodes = node_list
+            self.links = link_list
+
+    with pytest.raises(ValueError, match="topology record identity mismatch"):
+        module.verify_topology_record_integrity(
+            MockTopology(nodes, links),
+            record,
+            arm="test_arm",
+            case="test_case",
+        )
+
+
+def test_control_table_check_mode(tmp_path: Path) -> None:
+    """Control table --check returns 0 when artifacts match and 1 on mismatch."""
+    from metroflow.benchmarks.morphology_control_table import check_artifacts, build_morphology_control_table, score_street_morphology, write_artifacts
+    from metroflow.city.generated_map import PreviewCityTopology
+    from metroflow.city.graph import Node, RoadClass, RoadLink
+    from metroflow.map.road_geometry import build_endpoint_geometry_catalog
+
+    nodes = tuple(
+        Node(index, x=x, y=y)
+        for index, (x, y) in enumerate(
+            ((0.0, 0.0), (100.0, 0.0), (100.0, 100.0), (0.0, 100.0), (0.0, -100.0))
+        )
+    )
+    pairs = ((0, 1), (1, 2), (2, 3), (3, 0), (0, 4))
+    links = tuple(
+        RoadLink(
+            link_id=index * 2 + direction,
+            src_node_id=pair[direction],
+            dst_node_id=pair[1 - direction],
+            road_class=RoadClass.LOCAL,
+            length_m=100.0,
+            free_flow_speed_mps=10.0,
+            capacity_veh_per_tick=4.0,
+            physical_road_id=index,
+        )
+        for index, pair in enumerate(pairs)
+        for direction in (0, 1)
+    )
+    geometry = build_endpoint_geometry_catalog(nodes=nodes, links=links)
+    topology = PreviewCityTopology(nodes=nodes, links=links, road_geometry=geometry)
+
+    score = score_street_morphology(topology, arm="test_arm", case="c1")
+    table = build_morphology_control_table([score])
+
+    prefix = tmp_path / "table_test"
+    write_artifacts(prefix, table=table, skipped=())
+
+    ok, mismatches = check_artifacts(prefix, table=table, skipped=())
+    assert ok is True
+    assert not mismatches
+
+    # Tamper markdown
+    (tmp_path / "table_test.md").write_text("corrupted", encoding="utf-8")
+    ok, mismatches = check_artifacts(prefix, table=table, skipped=())
+    assert ok is False
+    assert any("table_test.md: bytes changed" in m for m in mismatches)
+
+
 if __name__ == "__main__":  # pragma: no cover
     raise SystemExit(pytest.main([__file__]))

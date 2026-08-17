@@ -323,7 +323,43 @@ def write_artifacts(
         + "\n",
         encoding="utf-8",
     )
-    return written + (manifest_path,)
+def check_artifacts(
+    artifact_prefix: str | Path,
+    *,
+    table: MorphologyControlTable,
+    skipped: tuple[str, ...],
+) -> tuple[bool, tuple[str, ...]]:
+    prefix = Path(artifact_prefix)
+    payload = dict(table.as_dict())
+    payload["skipped_cases"] = list(skipped)
+
+    json_path = prefix.with_suffix(".json")
+    markdown_path = prefix.with_suffix(".md")
+    manifest_path = prefix.with_suffix(".manifest.json")
+
+    mismatches: list[str] = []
+    expected_json = (
+        json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    )
+    if not json_path.exists():
+        mismatches.append(f"{json_path.name}: missing")
+    elif json_path.read_text(encoding="utf-8") != expected_json:
+        mismatches.append(f"{json_path.name}: bytes changed")
+
+    expected_md = render_markdown(table, skipped)
+    if not markdown_path.exists():
+        mismatches.append(f"{markdown_path.name}: missing")
+    elif markdown_path.read_text(encoding="utf-8") != expected_md:
+        mismatches.append(f"{markdown_path.name}: bytes changed")
+
+    if not manifest_path.exists():
+        mismatches.append(f"{manifest_path.name}: missing")
+    else:
+        manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
+        if manifest_data.get("fingerprint") != table.fingerprint:
+            mismatches.append(f"{manifest_path.name}: fingerprint changed")
+
+    return len(mismatches) == 0, tuple(mismatches)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -337,6 +373,11 @@ def main(argv: list[str] | None = None) -> int:
         default=[],
         help="Path to an offline OSM XML extract to score as the positive control.",
     )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="verify existing artifacts reproduce byte-for-byte, writing nothing",
+    )
     args = parser.parse_args(argv)
 
     scores, skipped = collect_scores(
@@ -345,6 +386,15 @@ def main(argv: list[str] | None = None) -> int:
         osm_paths=tuple(Path(item) for item in args.osm_extract),
     )
     table = build_morphology_control_table(scores)
+    if args.check:
+        ok, mismatches = check_artifacts(args.artifact_prefix, table=table, skipped=skipped)
+        if not ok:
+            for mismatch in mismatches:
+                print(f"MISMATCH {mismatch}")
+            return 1
+        print(f"all artifacts for {args.artifact_prefix} reproduce byte-for-byte")
+        return 0
+
     for path in write_artifacts(args.artifact_prefix, table=table, skipped=skipped):
         print(path)
     print(render_markdown(table, skipped))
