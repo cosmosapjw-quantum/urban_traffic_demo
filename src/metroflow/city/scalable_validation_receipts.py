@@ -10,8 +10,13 @@ to later PRs.
 
 from __future__ import annotations
 
+import json
+import math
 import threading
 from dataclasses import dataclass
+from enum import Enum
+from fractions import Fraction
+from typing import Mapping
 
 # ---------------------------------------------------------------------------
 # Seal schema constants — must match tools/run_task45_validation_performance.py
@@ -162,3 +167,86 @@ def _clear_validation_receipts_for_test() -> None:
     """Clear all registered receipts.  For testing only."""
     with _registry_lock:
         _registry.clear()
+
+
+# ---------------------------------------------------------------------------
+# H-002-R1 Normalized-Value Ordering and Canonical Serialization
+# ---------------------------------------------------------------------------
+
+
+def _canonical_normalize(value: object) -> object:
+    """Recursively normalize a value into a canonical Python representation.
+
+    - None, bool, int, str: unchanged
+    - float: ('float_hex', value.hex()) if finite
+    - Fraction: ('fraction', numerator, denominator)
+    - Enum: string enum value
+    - tuple: tuple of recursively normalized items
+    - frozenset: ('frozenset', tuple(sorted(N(item))))
+    - dict/mapping: ('dict', tuple(sorted_by_key_and_value(N(k), N(v)))) with key collision check
+    """
+    if value is None or type(value) in (bool, int, str):
+        return value
+    if type(value) is float:
+        if not math.isfinite(value):
+            raise ValueError("canonical floats must be finite")
+        return ("float_hex", value.hex())
+    if isinstance(value, Fraction):
+        return ("fraction", value.numerator, value.denominator)
+    if isinstance(value, Enum):
+        enum_val = value.value
+        if type(enum_val) is not str:
+            raise TypeError("reviewed enum values must be exact strings")
+        return enum_val
+    if type(value) is tuple:
+        return tuple(_canonical_normalize(item) for item in value)
+    if type(value) is frozenset:
+        return (
+            "frozenset",
+            tuple(sorted(_canonical_normalize(item) for item in value)),  # type: ignore[type-var]
+        )
+    if isinstance(value, (dict, Mapping)):
+        pairs = [
+            (_canonical_normalize(k), _canonical_normalize(v))
+            for k, v in value.items()
+        ]
+        sorted_pairs = sorted(pairs)  # sorts by (N(k), N(v))
+        # Adjacent normalized-key collision check
+        for i in range(len(sorted_pairs) - 1):
+            if sorted_pairs[i][0] == sorted_pairs[i + 1][0]:
+                raise ValueError(
+                    f"normalized key collision in mapping: {sorted_pairs[i][0]!r}"
+                )
+        return ("dict", tuple(sorted_pairs))
+    raise TypeError(f"unsupported canonical value: {type(value).__name__}")
+
+
+def _virtual_eq(x: object, y: object) -> bool:
+    """Return True iff normalized values N(x) == N(y)."""
+    return _canonical_normalize(x) == _canonical_normalize(y)
+
+
+def _virtual_lt(x: object, y: object) -> bool:
+    """Return True iff normalized value N(x) < N(y)."""
+    return _canonical_normalize(x) < _canonical_normalize(y)  # type: ignore[operator]
+
+
+def _pair_lt(
+    p1: tuple[object, object], p2: tuple[object, object]
+) -> bool:
+    """Return True iff normalized pair (N(k1), N(v1)) < (N(k2), N(v2))."""
+    return (_canonical_normalize(p1[0]), _canonical_normalize(p1[1])) < (  # type: ignore[operator]
+        _canonical_normalize(p2[0]),
+        _canonical_normalize(p2[1]),
+    )
+
+
+def materialized_canonical_bytes(value: object) -> bytes:
+    """Return the reviewed, materialized canonical JSON representation."""
+    return json.dumps(
+        _canonical_normalize(value),
+        ensure_ascii=True,
+        allow_nan=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")

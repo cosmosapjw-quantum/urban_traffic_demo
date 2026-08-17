@@ -257,3 +257,65 @@ def test_task5_snapshot_is_deepcopyable() -> None:
     copied = copy.deepcopy(snap)
     assert copied == snap
     assert type(copied) is _VerifiedTask5SourceSnapshot
+
+
+# ---- 7. H-002-R1 Virtual Normalized-Value Ordering ----
+
+
+def test_canonical_normalize_scalars() -> None:
+    from fractions import Fraction
+    from metroflow.city.scalable_validation_receipts import _canonical_normalize
+
+    assert _canonical_normalize(None) is None
+    assert _canonical_normalize(True) is True
+    assert _canonical_normalize(42) == 42
+    assert _canonical_normalize("hello") == "hello"
+    assert _canonical_normalize(3.14) == ("float_hex", (3.14).hex())
+    assert _canonical_normalize(Fraction(3, 7)) == ("fraction", 3, 7)
+
+
+def test_canonical_normalize_rejects_non_finite_float() -> None:
+    from metroflow.city.scalable_validation_receipts import _canonical_normalize
+
+    with pytest.raises(ValueError, match="finite"):
+        _canonical_normalize(float("nan"))
+    with pytest.raises(ValueError, match="finite"):
+        _canonical_normalize(float("inf"))
+
+
+def test_canonical_normalize_frozenset_is_sorted() -> None:
+    from metroflow.city.scalable_validation_receipts import _canonical_normalize
+
+    res = _canonical_normalize(frozenset([10, 2]))
+    assert res == ("frozenset", (2, 10))
+
+
+def test_canonical_normalize_mapping_sorts_and_detects_collision() -> None:
+    from metroflow.city.scalable_validation_receipts import _canonical_normalize
+
+    res = _canonical_normalize({10: "ten", 2: "two"})
+    assert res == ("dict", ((2, "two"), (10, "ten")))
+
+
+def test_virtual_comparator_parity() -> None:
+    from metroflow.city.scalable_validation_receipts import (
+        _pair_lt,
+        _virtual_eq,
+        _virtual_lt,
+    )
+
+    assert _virtual_eq(42, 42)
+    assert not _virtual_eq(42, 43)
+    assert _virtual_lt(2, 10)
+    assert not _virtual_lt(10, 2)
+    assert _pair_lt((2, "b"), (2, "c"))
+    assert _pair_lt((2, "z"), (3, "a"))
+
+
+def test_materialized_canonical_bytes_deterministic() -> None:
+    from metroflow.city.scalable_validation_receipts import materialized_canonical_bytes
+
+    b1 = materialized_canonical_bytes({"b": 2, "a": 1})
+    b2 = materialized_canonical_bytes({"a": 1, "b": 2})
+    assert b1 == b2
+    assert b1 == b'["dict",[["a",1],["b",2]]]'
