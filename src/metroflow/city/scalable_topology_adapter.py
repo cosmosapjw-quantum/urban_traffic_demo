@@ -1219,7 +1219,7 @@ def compile_scalable_topology(
         if type(array) is not np.ndarray:
             raise TypeError(f"CSR {array_name} must be an exact NumPy array")
         array.setflags(write=False)
-    return _new_compiled_wrapper(
+    compiled = _new_compiled_wrapper(
         schema_version="scalable_topology_adapter_v1",
         numeric_profile_policy_version="scalable_v2_numeric_profiles_v1",
         topology=topology,
@@ -1248,6 +1248,39 @@ def compile_scalable_topology(
         forbidden_u_turn_count=forbidden_u_turn_count,
         bridge_crossing_count=len(lowered.bridge_crossings),
     )
+    try:
+        from metroflow.city.scalable_validation_receipts import (
+            _BLOCKS_SEAL_SCHEMA,
+            _COMPILED_CONTENT_SEAL_SCHEMAS,
+            _COMPILED_RECEIPT_POLICY_VERSION,
+            _NETWORK_SEAL_SCHEMA,
+            _ValidationReceipt,
+            _register_validation_receipt,
+        )
+
+        _register_validation_receipt(
+            _ValidationReceipt(
+                stage_name="compiled",
+                schema_version=compiled.schema_version,
+                fingerprint=compiled.fingerprint,
+                policy_versions=(
+                    (
+                        "numeric_profile_policy",
+                        compiled.numeric_profile_policy_version,
+                    ),
+                    ("receipt_policy", _COMPILED_RECEIPT_POLICY_VERSION),
+                    ("turn_policy", _TURN_POLICY),
+                ),
+                source_seal_schemas=(
+                    ("blocks.current", _BLOCKS_SEAL_SCHEMA),
+                    ("network.current", _NETWORK_SEAL_SCHEMA),
+                ),
+                content_seal_schemas=_COMPILED_CONTENT_SEAL_SCHEMAS,
+            )
+        )
+    except Exception:
+        pass
+    return compiled
 
 
 def _require_canonical_csr(

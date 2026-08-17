@@ -2202,4 +2202,26 @@ def build_scalable_street_network(
         fingerprint,
     )
     _validate_network_authority(network)
+    try:
+        from metroflow.city.scalable_validation_receipts import (
+            _NETWORK_RECEIPT_POLICY_VERSION,
+            _NETWORK_SEAL_SCHEMA,
+            _ValidationReceipt,
+            _register_validation_receipt,
+        )
+
+        _register_validation_receipt(
+            _ValidationReceipt(
+                stage_name="network",
+                schema_version=network.schema_version,
+                fingerprint=network.fingerprint,
+                policy_versions=(
+                    ("receipt_policy", _NETWORK_RECEIPT_POLICY_VERSION),
+                ),
+                source_seal_schemas=(),
+                content_seal_schemas=(("network.current", _NETWORK_SEAL_SCHEMA),),
+            )
+        )
+    except Exception:
+        pass
     return network
