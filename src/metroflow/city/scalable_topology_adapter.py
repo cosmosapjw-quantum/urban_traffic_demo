@@ -911,40 +911,34 @@ def _admit_scalable_sources(
     return admitted_network, block_authority
 
 
-def _compiled_fingerprint(compiled: ScalableCompiledTopology) -> str:
+def _compiled_fingerprint_payload(compiled: object) -> tuple[object, ...]:
     topology = compiled.topology
-    csr = compiled.road_csr
-
-    def csr_array(name: str) -> tuple[str, tuple[int, ...], tuple, bool]:
-        array = getattr(csr, name)
-        return (
-            array.dtype.str,
-            tuple(array.shape),
-            tuple(array.reshape(-1).tolist()),
-            bool(array.flags.writeable),
-        )
-
-    payload = {
-        "schema_version": compiled.schema_version,
-        "numeric_profile_policy_version": compiled.numeric_profile_policy_version,
-        "numeric_profiles": tuple(
+    return (
+        compiled.schema_version,
+        compiled.numeric_profile_policy_version,
+        compiled.source_network_fingerprint,
+        compiled.source_block_authority_fingerprint,
+        compiled.terrain_fingerprint,
+        compiled.scale_fingerprint,
+        compiled.style_fingerprint,
+        tuple(
             (
-                profile.profile_id,
-                profile.lanes_per_direction,
-                profile.free_flow_speed_mps,
-                profile.capacity_veh_per_second,
-                profile.operational_road_class.value,
-                profile.section_roadside_profile,
-                profile.median_when_bidirectional,
+                row.profile_id,
+                row.lanes_per_direction,
+                row.free_flow_speed_mps,
+                row.capacity_veh_per_second,
+                row.operational_road_class,
+                row.section_roadside_profile,
+                row.median_when_bidirectional,
             )
-            for profile in compiled.numeric_profiles
+            for row in compiled.numeric_profiles
         ),
-        "road_crosswalk": tuple(
+        tuple(
             (
                 row.physical_road_id,
                 row.road_semantic_id,
-                row.hierarchy.value,
-                row.facility.value,
+                row.hierarchy,
+                row.facility,
                 row.profile_id,
                 row.layer,
                 row.layer_transition,
@@ -961,7 +955,7 @@ def _compiled_fingerprint(compiled: ScalableCompiledTopology) -> str:
             )
             for row in compiled.road_crosswalk
         ),
-        "structure_group_crosswalk": tuple(
+        tuple(
             (
                 row.semantic_group,
                 row.dense_group_id,
@@ -969,7 +963,7 @@ def _compiled_fingerprint(compiled: ScalableCompiledTopology) -> str:
             )
             for row in compiled.structure_group_crosswalk
         ),
-        "failure_group_crosswalk": tuple(
+        tuple(
             (
                 row.semantic_group,
                 row.dense_group_id,
@@ -977,10 +971,10 @@ def _compiled_fingerprint(compiled: ScalableCompiledTopology) -> str:
             )
             for row in compiled.failure_group_crosswalk
         ),
-        "nodes": tuple(
+        tuple(
             (
                 node.node_id,
-                node.kind.value,
+                node.kind,
                 node.x,
                 node.y,
                 node.zone_id,
@@ -988,12 +982,12 @@ def _compiled_fingerprint(compiled: ScalableCompiledTopology) -> str:
             )
             for node in topology.nodes
         ),
-        "links": tuple(
+        tuple(
             (
                 link.link_id,
                 link.src_node_id,
                 link.dst_node_id,
-                link.road_class.value,
+                link.road_class,
                 link.length_m,
                 link.free_flow_speed_mps,
                 link.capacity_veh_per_tick,
@@ -1004,17 +998,7 @@ def _compiled_fingerprint(compiled: ScalableCompiledTopology) -> str:
             )
             for link in topology.links
         ),
-        "turns": tuple(
-            (
-                movement.from_link_id,
-                movement.to_link_id,
-                movement.turn_type.value,
-                movement.base_priority,
-                movement.signal_phase_id,
-            )
-            for movement in topology.turns
-        ),
-        "bridge_crossings": tuple(
+        tuple(
             (
                 crossing.bridge_group_id,
                 crossing.link_ids,
@@ -1024,48 +1008,11 @@ def _compiled_fingerprint(compiled: ScalableCompiledTopology) -> str:
             )
             for crossing in topology.bridge_crossings
         ),
-        "catalog_fingerprints": (
-            topology.road_geometry.fingerprint,
-            topology.road_sections.fingerprint,
-            topology.node_interfaces.fingerprint,
-            compiled.road_geometry_fingerprint,
-            compiled.road_section_fingerprint,
-            compiled.node_interface_fingerprint,
-            compiled.turn_authority_fingerprint,
-        ),
-        "csr": {
-            "node_id_to_index": tuple(sorted(csr.node_id_to_index.items())),
-            "link_id_to_index": tuple(sorted(csr.link_id_to_index.items())),
-            "arrays": tuple(
-                (name, csr_array(name))
-                for name in (
-                    "node_ids",
-                    "link_ids",
-                    "link_src_node_index",
-                    "link_dst_node_index",
-                    "outgoing_indptr",
-                    "outgoing_link_indices",
-                    "incoming_indptr",
-                    "incoming_link_indices",
-                    "turn_from_link_index",
-                    "turn_to_link_index",
-                    "turn_base_priority",
-                    "turn_is_forbidden",
-                )
-            ),
-            "turn_pair_to_index": tuple(sorted(csr.turn_pair_to_index.items())),
-            "topology_cache_key": csr.topology_cache_key,
-        },
-        "topology_metadata_items": tuple(topology.metadata.items()),
-        "metadata_items": compiled.metadata_items,
-        "source_identity": (
-            compiled.source_network_fingerprint,
-            compiled.source_block_authority_fingerprint,
-            compiled.terrain_fingerprint,
-            compiled.scale_fingerprint,
-            compiled.style_fingerprint,
-        ),
-        "counts": (
+        compiled.road_geometry_fingerprint,
+        compiled.road_section_fingerprint,
+        compiled.node_interface_fingerprint,
+        compiled.turn_authority_fingerprint,
+        (
             compiled.source_node_count,
             compiled.source_physical_road_count,
             compiled.source_block_count,
@@ -1075,8 +1022,15 @@ def _compiled_fingerprint(compiled: ScalableCompiledTopology) -> str:
             compiled.permitted_turn_count,
             compiled.forbidden_u_turn_count,
             compiled.bridge_crossing_count,
+            len(topology.road_geometry.assignments),
+            len(topology.node_interfaces.interfaces),
         ),
-    }
+        compiled.metadata_items,
+    )
+
+
+def _compiled_fingerprint(compiled: ScalableCompiledTopology) -> str:
+    payload = _compiled_fingerprint_payload(compiled)
     encoded = json.dumps(
         payload,
         sort_keys=True,
