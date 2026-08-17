@@ -13,10 +13,12 @@ from __future__ import annotations
 import json
 import math
 import threading
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass
 from enum import Enum
 from fractions import Fraction
 from typing import Mapping
+
+import numpy as np
 
 # ---------------------------------------------------------------------------
 # Seal schema constants — must match tools/run_task45_validation_performance.py
@@ -250,3 +252,61 @@ def materialized_canonical_bytes(value: object) -> bytes:
         sort_keys=True,
         separators=(",", ":"),
     ).encode("utf-8")
+
+
+# ---------------------------------------------------------------------------
+# Deep Immutable Projection P and CSR 12-Row Contracts
+# ---------------------------------------------------------------------------
+
+_CSR_ARRAY_NAMES: tuple[str, ...] = (
+    "node_ids",
+    "link_ids",
+    "link_src_node_index",
+    "link_dst_node_index",
+    "outgoing_indptr",
+    "outgoing_link_indices",
+    "incoming_indptr",
+    "incoming_link_indices",
+    "turn_from_link_index",
+    "turn_to_link_index",
+    "turn_base_priority",
+    "turn_is_forbidden",
+)
+
+
+def _deep_immutable_projection(value: object) -> object:
+    """Deep immutable projection P(x) such that P(P(x)) == P(x).
+
+    - Scalars (None, bool, int, float, str, bytes, Fraction, Enum): unchanged
+    - numpy.ndarray: read-only C-contiguous copy with writeable=False
+    - list, tuple: tuple of deep-projected items
+    - set, frozenset: frozenset of deep-projected items
+    - dict, Mapping: tuple of (P(k), P(v)) pairs
+    - dataclass: new instance with deep-projected fields
+    """
+    if value is None or type(value) in (bool, int, float, str, bytes, Fraction):
+        return value
+    if isinstance(value, Enum):
+        return value
+    if isinstance(value, np.ndarray):
+        if not value.flags.writeable and value.flags.c_contiguous:
+            return value
+        arr = np.ascontiguousarray(value).copy()
+        arr.flags.writeable = False
+        return arr
+    if isinstance(value, (list, tuple)):
+        return tuple(_deep_immutable_projection(item) for item in value)
+    if isinstance(value, (set, frozenset)):
+        return frozenset(_deep_immutable_projection(item) for item in value)
+    if isinstance(value, (dict, Mapping)):
+        return tuple(
+            (_deep_immutable_projection(k), _deep_immutable_projection(v))
+            for k, v in value.items()
+        )
+    if is_dataclass(value) and not isinstance(value, type):
+        field_values = {
+            f.name: _deep_immutable_projection(getattr(value, f.name))
+            for f in fields(value)
+        }
+        return type(value)(**field_values)
+    return value

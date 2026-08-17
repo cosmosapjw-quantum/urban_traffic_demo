@@ -319,3 +319,51 @@ def test_materialized_canonical_bytes_deterministic() -> None:
     b2 = materialized_canonical_bytes({"a": 1, "b": 2})
     assert b1 == b2
     assert b1 == b'["dict",[["a",1],["b",2]]]'
+
+
+# ---- 8. Deep Immutable Projection P ----
+
+
+def test_deep_immutable_projection_idempotence() -> None:
+    import numpy as np
+    from metroflow.city.scalable_validation_receipts import _deep_immutable_projection
+
+    data = {
+        "scalar": 42,
+        "arr": np.array([1, 2, 3], dtype=np.int32),
+        "nested": {"list": [4, 5, 6], "tuple": (7, 8)},
+        "set": {9, 10},
+    }
+    p1 = _deep_immutable_projection(data)
+    p2 = _deep_immutable_projection(p1)
+
+    # Check P(P(x)) == P(x)
+    assert p1 == p2
+    # Verify arrays are read-only
+    for k, v in p1:  # type: ignore[union-attr]
+        if k == "arr":
+            assert not v.flags.writeable
+
+
+def test_deep_immutable_projection_dataclass() -> None:
+    from metroflow.city.scalable_validation_receipts import (
+        _deep_immutable_projection,
+    )
+
+    receipt = _make_receipt()
+    p1 = _deep_immutable_projection(receipt)
+    p2 = _deep_immutable_projection(p1)
+    assert p1 == receipt
+    assert p2 == p1
+
+
+# ---- 9. CSR 12-Row Contract ----
+
+
+def test_csr_12_row_names() -> None:
+    from metroflow.city.scalable_validation_receipts import _CSR_ARRAY_NAMES
+
+    assert len(_CSR_ARRAY_NAMES) == 12
+    assert "node_ids" in _CSR_ARRAY_NAMES
+    assert "link_ids" in _CSR_ARRAY_NAMES
+    assert "turn_is_forbidden" in _CSR_ARRAY_NAMES
