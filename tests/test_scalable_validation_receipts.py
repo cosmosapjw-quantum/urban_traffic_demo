@@ -1,0 +1,259 @@
+"""Tests for scalable_validation_receipts — Task B base grammar.
+
+PR92 behavior clusters:
+  1. Receipt record is frozen/slotted/copyable
+  2. Registry register/lookup/clear lifecycle
+  3. Lookup verifies schema/fingerprint/policy/seal parity
+  4. Duplicate registration: same fingerprint is idempotent, different raises
+  5. Schema literal parity with tools/run_task45_validation_performance.py
+  6. VerifiedTask5SourceSnapshot is frozen/slotted
+"""
+
+from __future__ import annotations
+
+import copy
+import importlib
+
+import pytest
+
+from metroflow.city.scalable_validation_receipts import (
+    _ValidationReceipt,
+    _VerifiedTask5SourceSnapshot,
+    _clear_validation_receipts_for_test,
+    _lookup_validation_receipt,
+    _register_validation_receipt,
+)
+
+
+@pytest.fixture(autouse=True)
+def _clear_registry():
+    """Ensure a clean receipt registry for every test."""
+    _clear_validation_receipts_for_test()
+    yield
+    _clear_validation_receipts_for_test()
+
+
+def _make_receipt(
+    *,
+    stage: str = "network",
+    schema: str = "v1",
+    fp: str = "abc123",
+    policies: tuple[tuple[str, str], ...] = (),
+    source_seals: tuple[tuple[str, str], ...] = (),
+    content_seals: tuple[tuple[str, str], ...] = (),
+) -> _ValidationReceipt:
+    return _ValidationReceipt(
+        stage_name=stage,
+        schema_version=schema,
+        fingerprint=fp,
+        policy_versions=policies,
+        source_seal_schemas=source_seals,
+        content_seal_schemas=content_seals,
+    )
+
+
+# ---- 1. Receipt record is frozen/slotted/copyable ----
+
+
+def test_receipt_is_frozen_dataclass() -> None:
+    receipt = _make_receipt()
+    with pytest.raises(AttributeError):
+        receipt.stage_name = "other"  # type: ignore[misc]
+
+
+def test_receipt_has_slots() -> None:
+    receipt = _make_receipt()
+    assert hasattr(receipt, "__slots__")
+    assert not hasattr(receipt, "__dict__")
+
+
+def test_receipt_is_deepcopyable() -> None:
+    receipt = _make_receipt(
+        policies=(("receipt_policy", "v1"),),
+        content_seals=(("net.current", "schema_v1"),),
+    )
+    copied = copy.deepcopy(receipt)
+    assert copied == receipt
+    assert type(copied) is _ValidationReceipt
+
+
+# ---- 2. Registry register/lookup/clear lifecycle ----
+
+
+def test_register_then_lookup_returns_same_receipt() -> None:
+    receipt = _make_receipt()
+    _register_validation_receipt(receipt)
+    found = _lookup_validation_receipt(
+        "network",
+        "v1",
+        "abc123",
+    )
+    assert found is receipt
+
+
+def test_lookup_missing_stage_raises_key_error() -> None:
+    with pytest.raises(KeyError, match="no receipt registered"):
+        _lookup_validation_receipt("missing", "v1", "x")
+
+
+def test_clear_removes_all_registered_receipts() -> None:
+    _register_validation_receipt(_make_receipt(stage="a", fp="1"))
+    _register_validation_receipt(_make_receipt(stage="b", fp="2"))
+    _clear_validation_receipts_for_test()
+    with pytest.raises(KeyError):
+        _lookup_validation_receipt("a", "v1", "1")
+    with pytest.raises(KeyError):
+        _lookup_validation_receipt("b", "v1", "2")
+
+
+# ---- 3. Lookup verifies schema/fingerprint/policy/seal parity ----
+
+
+def test_lookup_rejects_schema_version_mismatch() -> None:
+    _register_validation_receipt(_make_receipt())
+    with pytest.raises(ValueError, match="schema version mismatch"):
+        _lookup_validation_receipt("network", "wrong_schema", "abc123")
+
+
+def test_lookup_rejects_fingerprint_mismatch() -> None:
+    _register_validation_receipt(_make_receipt())
+    with pytest.raises(ValueError, match="fingerprint mismatch"):
+        _lookup_validation_receipt("network", "v1", "wrong_fp")
+
+
+def test_lookup_rejects_policy_version_mismatch() -> None:
+    _register_validation_receipt(
+        _make_receipt(policies=(("receipt_policy", "v1"),))
+    )
+    with pytest.raises(ValueError, match="policy version mismatch"):
+        _lookup_validation_receipt(
+            "network",
+            "v1",
+            "abc123",
+            expected_policy_versions=(("receipt_policy", "v2"),),
+        )
+
+
+def test_lookup_rejects_source_seal_schema_mismatch() -> None:
+    _register_validation_receipt(
+        _make_receipt(source_seals=(("net.current", "schema_v1"),))
+    )
+    with pytest.raises(ValueError, match="source seal schema mismatch"):
+        _lookup_validation_receipt(
+            "network",
+            "v1",
+            "abc123",
+            expected_source_seal_schemas=(("net.current", "schema_v2"),),
+        )
+
+
+def test_lookup_rejects_content_seal_schema_mismatch() -> None:
+    _register_validation_receipt(
+        _make_receipt(content_seals=(("net.current", "schema_v1"),))
+    )
+    with pytest.raises(ValueError, match="content seal schema mismatch"):
+        _lookup_validation_receipt(
+            "network",
+            "v1",
+            "abc123",
+            expected_content_seal_schemas=(("net.current", "schema_v2"),),
+        )
+
+
+# ---- 4. Duplicate registration: idempotent vs different fingerprint ----
+
+
+def test_register_same_fingerprint_is_idempotent() -> None:
+    receipt = _make_receipt()
+    _register_validation_receipt(receipt)
+    _register_validation_receipt(receipt)  # No error
+    found = _lookup_validation_receipt("network", "v1", "abc123")
+    assert found is receipt
+
+
+def test_register_different_fingerprint_raises() -> None:
+    _register_validation_receipt(_make_receipt(fp="first"))
+    with pytest.raises(ValueError, match="already registered"):
+        _register_validation_receipt(_make_receipt(fp="second"))
+
+
+def test_register_rejects_non_receipt_type() -> None:
+    with pytest.raises(TypeError, match="expected _ValidationReceipt"):
+        _register_validation_receipt("not a receipt")  # type: ignore[arg-type]
+
+
+# ---- 5. Schema literal parity with validation performance tool ----
+
+
+def test_schema_literals_match_validation_performance_tool() -> None:
+    receipts = importlib.import_module(
+        "metroflow.city.scalable_validation_receipts"
+    )
+    controller = importlib.import_module("tools.run_task45_validation_performance")
+
+    expected_names = [
+        "_NETWORK_SEAL_SCHEMA",
+        "_BLOCKS_SEAL_SCHEMA",
+        "_COMPILED_SEAL_SCHEMA",
+        "_COMPILED_AGGREGATE_SEAL_SCHEMA",
+        "_STATIC_SEAL_SCHEMA",
+        "_TASK5_INVOCATION_SEAL_SCHEMA",
+        "_TASK5_NETWORK_PROJECTION_SCHEMA",
+        "_TASK5_BLOCKS_PROJECTION_SCHEMA",
+        "_TASK5_COMPILED_PROJECTION_SCHEMA",
+        "_NETWORK_RECEIPT_POLICY_VERSION",
+        "_BLOCKS_RECEIPT_POLICY_VERSION",
+        "_COMPILED_RECEIPT_POLICY_VERSION",
+        "_STATIC_RECEIPT_POLICY_VERSION",
+        "_TASK5_SNAPSHOT_POLICY_VERSION",
+    ]
+    for name in expected_names:
+        assert getattr(receipts, name) == getattr(controller, name), (
+            f"literal mismatch: {name}"
+        )
+
+
+# ---- 6. VerifiedTask5SourceSnapshot is frozen/slotted ----
+
+
+def test_task5_snapshot_is_frozen() -> None:
+    receipt = _make_receipt()
+    snap = _VerifiedTask5SourceSnapshot(
+        network_fingerprint="nfp",
+        blocks_fingerprint="bfp",
+        compiled_fingerprint="cfp",
+        network_receipt=receipt,
+        blocks_receipt=receipt,
+        compiled_receipt=receipt,
+    )
+    with pytest.raises(AttributeError):
+        snap.network_fingerprint = "other"  # type: ignore[misc]
+
+
+def test_task5_snapshot_has_slots() -> None:
+    receipt = _make_receipt()
+    snap = _VerifiedTask5SourceSnapshot(
+        network_fingerprint="nfp",
+        blocks_fingerprint="bfp",
+        compiled_fingerprint="cfp",
+        network_receipt=receipt,
+        blocks_receipt=receipt,
+        compiled_receipt=receipt,
+    )
+    assert hasattr(snap, "__slots__")
+    assert not hasattr(snap, "__dict__")
+
+
+def test_task5_snapshot_is_deepcopyable() -> None:
+    receipt = _make_receipt()
+    snap = _VerifiedTask5SourceSnapshot(
+        network_fingerprint="nfp",
+        blocks_fingerprint="bfp",
+        compiled_fingerprint="cfp",
+        network_receipt=receipt,
+        blocks_receipt=receipt,
+        compiled_receipt=receipt,
+    )
+    copied = copy.deepcopy(snap)
+    assert copied == snap
+    assert type(copied) is _VerifiedTask5SourceSnapshot
