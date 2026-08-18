@@ -24,7 +24,9 @@ from .snapshots import build_ui_snapshot_source as build_ui_snapshot_source
 from .static_map import StaticCityMapArtifact as StaticCityMapArtifact
 from .static_map import build_static_city_map_artifact as build_static_city_map_artifact
 from .static_map import render_static_city_map_html as render_static_city_map_html
+from .static_map import render_static_city_map_svg as render_static_city_map_svg
 from .static_map import write_static_city_map_html as write_static_city_map_html
+from .static_map import write_static_city_map_svg as write_static_city_map_svg
 from .stream_buffer import (
     UISnapshotBufferStats as UISnapshotBufferStats,
     UISnapshotEmission as UISnapshotEmission,
@@ -58,6 +60,8 @@ __all__ = [
     "normalize_ui_event_overlay_item",
     "parse_ui_control_command",
     "render_static_city_map_html",
+    "render_static_city_map_svg",
     "validate_ui_packet_envelope",
     "write_static_city_map_html",
+    "write_static_city_map_svg",
 ]

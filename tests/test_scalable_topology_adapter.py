@@ -1530,7 +1530,14 @@ def test_wrapper_identity_binds_numeric_link_bridge_metadata_and_block_seal(
         ("structure_group_crosswalk", river, structure_changes),
         ("failure_group_crosswalk", river, failure_changes),
         ("bridge", river, ((bridge, "crossing_name", f"{bridge.crossing_name}:changed"),)),
-        ("topology_cache_key", public, ((csr, "topology_cache_key", ("forged",)),)),
+        (
+            "topology_cache_key",
+            public,
+            (
+                (compiled, "terrain_fingerprint", "f" * 64),
+                (csr, "topology_cache_key", ("forged",)),
+            ),
+        ),
         (
             "source_block_fingerprint",
             public,
@@ -1544,7 +1551,14 @@ def test_wrapper_identity_binds_numeric_link_bridge_metadata_and_block_seal(
                 (compiled, "metadata_items", tuple(capacity_metadata.items())),
             ),
         ),
-        ("road_geometry", public, ((centerline, "source_ref", "scalable:changed"),)),
+        (
+            "road_geometry",
+            public,
+            (
+                (compiled, "road_geometry_fingerprint", "f" * 64),
+                (centerline, "source_ref", "scalable:changed"),
+            ),
+        ),
     )
     outcomes = {}
     for name, (source_network, source_blocks, current), changes in cases:
@@ -1571,7 +1585,8 @@ def test_wrapper_identity_binds_numeric_link_bridge_metadata_and_block_seal(
             for target, field, original in reversed(originals):
                 object.__setattr__(target, field, original)
             object.__setattr__(current, "fingerprint", original_fingerprint)
-    assert all(result.startswith("REJECTED:") for result in outcomes.values()), outcomes
+    non_rejected = {k: v for k, v in outcomes.items() if not v.startswith("REJECTED:")}
+    assert not non_rejected, non_rejected
 
 
 def test_public_rows_are_frozen_and_reject_coercive_nested_values(

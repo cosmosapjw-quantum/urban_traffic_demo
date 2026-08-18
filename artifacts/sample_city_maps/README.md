@@ -1,10 +1,10 @@
 # MetroFlow Urban Morphology Sample Maps Gallery
 
-> **PROVENANCE**: These artifacts are generated exclusively by the
-> `scalable_synthetic_v2` pipeline via `tools/render_morphology_gallery.py`.
-> The gallery manifest (`gallery_manifest.json`) records the exact
-> `topology_mode`, network/block/compiled/authority fingerprints, and
-> node/link counts for each rendered map.
+> **PROVENANCE & SSOT POLICY**:
+> - **SSOT (Single Source of Truth)**: Standalone, self-contained SVG vector maps (`map_{style_id}.svg`) and cryptographic manifest (`gallery_manifest.json`).
+> - **Visual Previews**: High-resolution PNGs (`map_{style_id}.png`).
+> - **Zero-HTML Architecture**: Rendered directly via `render_static_city_map_svg()` without intermediate HTML wrapper boilerplate or headless browser page dependencies.
+> - The gallery manifest records exact `topology_mode`, scale specification, schema versions, stage fingerprints (`network`, `blocks`, `compiled`, `static_authority`, `zoning_placement`, `city_map`), and `svg_sha256` for each morphology.
 
 > **NOTE**: An earlier version of this gallery incorrectly rendered maps
 > using the `realistic_synthetic_v1` (legacy) generator while labeling
@@ -25,14 +25,19 @@ Each map visualizes:
 
 ---
 
-## Reproduction
+## Reproduction & Verification
 
+Generate complete SVG + PNG gallery:
 ```bash
-PYTHONPATH=src .venv/bin/python tools/render_morphology_gallery.py --out artifacts/sample_city_maps
+PYTHONPATH=.:src .venv/bin/python tools/render_morphology_gallery.py --out artifacts/sample_city_maps
 ```
 
-HTML-only (no Chrome/Chromium screenshot):
-
+SVG-only (fast, zero browser dependency):
 ```bash
-PYTHONPATH=src .venv/bin/python tools/render_morphology_gallery.py --html-only
+PYTHONPATH=.:src .venv/bin/python tools/render_morphology_gallery.py --svg-only
+```
+
+Verify artifacts against manifest:
+```bash
+PYTHONPATH=.:src .venv/bin/python tools/render_morphology_gallery.py --check
 ```

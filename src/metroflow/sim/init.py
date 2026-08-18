@@ -29,6 +29,8 @@ from metroflow.sim.state import (
 from metroflow.traffic.spatial_queue import compute_link_storage_capacity
 from metroflow.ui.stream_buffer import UISnapshotStreamBuffer
 
+from metroflow.city.scalable_city import ScalableCityMap
+
 __all__ = [
     "SimulationInitBundle",
     "build_initial_simulation_state",
@@ -46,6 +48,7 @@ class SimulationInitBundle:
     population: PopulationGenerationResult
     trip_requests: TripRequestGenerationResult
     generated_city_map: GeneratedCityMap | None = None
+    scalable_city_map: ScalableCityMap | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -54,6 +57,8 @@ class _InitialCityAuthority:
     zoning: ZoningPlacementResult
     road_csr: Any
     generated_city_map: GeneratedCityMap | None
+    scalable_city_map: ScalableCityMap | None = None
+
 
 
 def build_initial_simulation_state(
@@ -71,6 +76,16 @@ def build_initial_simulation_state(
     rng_key = key_from_seed(scenario_seed)
     scenario_id = f"synthetic-{scenario_seed}"
 
+    if city_cfg.topology_mode == "scalable_synthetic_v2":
+        if city_cfg.scale_spec is None:
+            raise ValueError("mode/scale_spec relationship requires a scale_spec for v2")
+        if sim_config.population_target != city_cfg.scale_spec.target_population:
+            raise ValueError(
+                f"population authorities disagree: SimulationConfig.population_target "
+                f"({sim_config.population_target}) != CityGenerationConfig.scale_spec.target_population "
+                f"({city_cfg.scale_spec.target_population})"
+            )
+
     clock_state = SimulationClockState(
         tick_index=0,
         day_type=sim_config.day_type_set[0],
@@ -82,6 +97,7 @@ def build_initial_simulation_state(
         scenario_seed=scenario_seed,
     )
     generated_city_map = city_authority.generated_city_map
+    scalable_city_map = city_authority.scalable_city_map
     topology = city_authority.topology
     zoning = city_authority.zoning
     road_csr = city_authority.road_csr
@@ -130,6 +146,9 @@ def build_initial_simulation_state(
             "zone_poi_coupling_anchor_digest",
             "land_use_catalog_fingerprint",
             "city_blueprint_fingerprint",
+            "static_authority_fingerprint",
+            "taz_catalog_fingerprint",
+            "poi_catalog_fingerprint",
         )
     }
 
@@ -208,6 +227,7 @@ def build_initial_simulation_state(
         population=population,
         trip_requests=trip_requests,
         generated_city_map=generated_city_map,
+        scalable_city_map=scalable_city_map,
     )
 
 
@@ -244,6 +264,7 @@ def _build_initial_city_authority(
             zoning=scalable.zoning,
             road_csr=scalable.road_csr,
             generated_city_map=None,
+            scalable_city_map=scalable,
         )
 
     if city_config.topology_mode == "realistic_synthetic_v1":
@@ -257,6 +278,7 @@ def _build_initial_city_authority(
             zoning=generated.zoning,
             road_csr=generated.road_csr,
             generated_city_map=generated,
+            scalable_city_map=None,
         )
 
     topology = GeneratorV2().generate_preview_topology(city_context)
@@ -273,6 +295,7 @@ def _build_initial_city_authority(
         zoning=zoning,
         road_csr=road_csr,
         generated_city_map=None,
+        scalable_city_map=None,
     )
 
 

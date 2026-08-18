@@ -17,7 +17,7 @@ class CityScaleSpec:
       zoning placement, and trip demand allocation. It does not alter
       the static road network geometry.
     - Density constraint: ``target_population / urbanized_area_km2`` must
-      fall within realistic urban density bounds [2500, 6667] people/km².
+      fall within admitted model density bounds [2500, 6667] people/km².
     """
 
     target_population: int

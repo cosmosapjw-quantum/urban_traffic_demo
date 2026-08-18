@@ -27,7 +27,9 @@ __all__ = [
     "StaticCityMapArtifact",
     "build_static_city_map_artifact",
     "render_static_city_map_html",
+    "render_static_city_map_svg",
     "write_static_city_map_html",
+    "write_static_city_map_svg",
 ]
 
 
@@ -126,8 +128,13 @@ class StaticCityMapArtifact:
 
         return json.dumps(self.to_dict(), separators=(",", ":"), sort_keys=True)
 
+    def to_svg(self) -> str:
+        """Render a standalone self-contained SVG map directly."""
+
+        return render_static_city_map_svg(self)
+
     def to_html(self) -> str:
-        """Render a standalone static HTML/SVG review surface."""
+        """Render a static HTML review surface."""
 
         return render_static_city_map_html(self)
 
@@ -357,6 +364,24 @@ def render_static_city_map_html(artifact: StaticCityMapArtifact) -> str:
 </body>
 </html>
 """
+
+
+def render_static_city_map_svg(artifact: StaticCityMapArtifact) -> str:
+    """Render a standalone, self-contained static city map SVG."""
+
+    return _render_map_svg(artifact)
+
+
+def write_static_city_map_svg(
+    artifact: StaticCityMapArtifact,
+    output_path: str | Path,
+) -> Path:
+    """Write a standalone static city map SVG artifact to disk."""
+
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(render_static_city_map_svg(artifact), encoding="utf-8")
+    return path
 
 
 def write_static_city_map_html(
@@ -993,6 +1018,25 @@ def _require_matching_fingerprint(
         )
 
 
+_SVG_STYLE = """  <style>
+    .road-shoulder { fill: none; stroke: #727b84; stroke-linecap: round; stroke-linejoin: round; opacity: 0.58; }
+    .road-ribbon { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .road-ribbon.local { stroke: #b7bec6; }
+    .road-ribbon.collector { stroke: #5f9b84; }
+    .road-ribbon.arterial { stroke: #d99b49; }
+    .road-ribbon.expressway { stroke: #4778b5; }
+    .road-ribbon.ramp { stroke: #8671b1; }
+    .road-ribbon.bridge { stroke: #3b8791; }
+    .road-ribbon.unknown { stroke: #838b94; }
+    .road-median { fill: none; stroke: #f5f5f2; stroke-linecap: round; stroke-linejoin: round; opacity: 0.9; }
+    .road-repair { fill: none; stroke: #b85f4c; stroke-width: 1.8; stroke-dasharray: 7 4; opacity: 0.96; }
+    .zone-layer circle, .zone-layer polygon { fill-opacity: 0.18; stroke-width: 0.65; }
+    .poi-layer circle { stroke: #ffffff; stroke-width: 0.8; opacity: 0.72; }
+    .bridge-label text { font-size: 10px; fill: #1f4f59; paint-order: stroke; stroke: #ffffff; stroke-width: 3px; }
+    .legend text { font-size: 11px; fill: #354050; }
+  </style>"""
+
+
 def _render_map_svg(artifact: StaticCityMapArtifact) -> str:
     width = 1080
     height = 760
@@ -1013,7 +1057,8 @@ def _render_map_svg(artifact: StaticCityMapArtifact) -> str:
     )
     bridge_labels = _render_bridge_labels(artifact)
     legend = _render_svg_legend()
-    return f"""<svg role="img" aria-label="static generated city map" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="static generated city map" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+{_SVG_STYLE}
   <rect x="0" y="0" width="{width}" height="{height}" fill="#ffffff" />
   <g class="zone-layer">{zone_marks}</g>
   <g class="road-layer">{road_paths}</g>

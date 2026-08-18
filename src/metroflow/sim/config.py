@@ -278,6 +278,19 @@ class CityGenerationConfig:
                 raise ValueError("interchange_density_profile is not supported by scalable_synthetic_v2")
             if self.poi_density_profile != "baseline":
                 raise ValueError("poi_density_profile is not supported by scalable_synthetic_v2")
+            if self.road_hierarchy_profile != {
+                RoadHierarchyClass.LOCAL: 0.7,
+                RoadHierarchyClass.ARTERIAL: 0.2,
+                RoadHierarchyClass.EXPRESSWAY: 0.1,
+            }:
+                raise ValueError("road_hierarchy_profile is not supported by scalable_synthetic_v2")
+            if self.zone_mix_targets != {
+                ZoneType.RESIDENTIAL: 0.4,
+                ZoneType.CBD_COMMERCIAL: 0.2,
+                ZoneType.INDUSTRIAL: 0.2,
+                ZoneType.MIXED_USE: 0.2,
+            }:
+                raise ValueError("zone_mix_targets is not supported by scalable_synthetic_v2")
         if self.topology_mode != "scalable_synthetic_v2" and self.scale_spec is not None:
             raise ValueError("mode/scale_spec relationship permits scale_spec only for v2")
         if self.zone_poi_coupling_mode == "block_based_v1" and (

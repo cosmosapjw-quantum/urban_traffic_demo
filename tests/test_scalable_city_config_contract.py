@@ -229,6 +229,16 @@ def test_standard_default_remains_legacy_and_has_no_scale_spec() -> None:
         ({"bridge_count": 5}, 5, "bridge_count"),
         ({"interchange_density_profile": "high"}, "high", "interchange_density_profile"),
         ({"poi_density_profile": "dense"}, "dense", "poi_density_profile"),
+        (
+            {"road_hierarchy_profile": {}},
+            {},
+            "road_hierarchy_profile",
+        ),
+        (
+            {"zone_mix_targets": {}},
+            {},
+            "zone_mix_targets",
+        ),
     ],
 )
 def test_scalable_v2_rejects_unsupported_knobs(
