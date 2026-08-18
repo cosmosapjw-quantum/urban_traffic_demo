@@ -20,26 +20,30 @@ from metroflow.city.scalable_topology import (
 )
 
 
-def _compute_non_orthogonal_segment_ratio(roads: tuple) -> float:
-    """Compute the fraction of road segments whose heading deviates from orthogonal axes."""
-    non_orthogonal = 0
-    total = 0
+def _compute_orientation_entropy(roads: tuple, num_bins: int = 36) -> float:
+    """Compute directional entropy of street orientations (OSMnx / Boeing standard)."""
+    bin_counts = [0.0] * num_bins
+    total_len = 0.0
     for road in roads:
-        coords = road.centerline
+        coords = [(x / 1000.0, y / 1000.0) for x, y in road.points_mm]
         for (x1, y1), (x2, y2) in zip(coords, coords[1:], strict=False):
             dx = x2 - x1
             dy = y2 - y1
-            if dx == 0 and dy == 0:
+            seg_len = math.hypot(dx, dy)
+            if seg_len < 1e-3:
                 continue
-            total += 1
-            # Heading in degrees [0, 360)
+            total_len += seg_len
             angle_deg = math.degrees(math.atan2(dy, dx)) % 360.0
-            # Deviation from nearest 90-degree axis
-            nearest_90 = round(angle_deg / 90.0) * 90.0
-            diff = abs(angle_deg - nearest_90)
-            if diff > 3.0:
-                non_orthogonal += 1
-    return (non_orthogonal / total) if total > 0 else 0.0
+            bin_idx = int(angle_deg / (360.0 / num_bins)) % num_bins
+            bin_counts[bin_idx] += seg_len
+    if total_len == 0.0:
+        return 0.0
+    entropy = 0.0
+    for count in bin_counts:
+        p = count / total_len
+        if p > 0.0:
+            entropy -= p * math.log(p)
+    return entropy
 
 
 def test_river_constrained_has_bridge_structures() -> None:
@@ -55,24 +59,26 @@ def test_river_constrained_has_bridge_structures() -> None:
 @pytest.mark.xfail(
     reason="concentric ring geometry not yet differentiated in S2 generator",
     strict=True,
+    raises=AssertionError,
 )
 def test_ring_radial_has_concentric_ring_hierarchy() -> None:
     """ring_radial should have non-orthogonal curved/orbital segments forming concentric rings."""
     scale = CityScaleSpec(100_000, 25.0)
     radial_net = build_scalable_street_network(scale, "ring_radial", seed=17)
 
-    non_ortho_ratio = _compute_non_orthogonal_segment_ratio(radial_net.roads)
-    # A true ring-radial has circular rings with continuous angles (>20% non-orthogonal)
-    assert non_ortho_ratio > 0.20, f"ring_radial non-orthogonal ratio is only {non_ortho_ratio:.4f}"
+    entropy = _compute_orientation_entropy(radial_net.roads)
+    # A true ring-radial has circular rings with continuous angles (entropy > 2.80 vs ~2.16 on grid)
+    assert entropy > 2.80, f"ring_radial orientation entropy is only {entropy:.4f}"
 
 
 @pytest.mark.xfail(
     reason="polycentric centers currently share 1D y-coordinate (y=0)",
     strict=True,
+    raises=AssertionError,
 )
 def test_polycentric_centers_distributed_in_2d() -> None:
     """polycentric_tod must place centers across 2D space, not all on the same y coordinate."""
-    scale = CityScaleSpec(100_000, 50.0)
+    scale = CityScaleSpec(100_000, 25.0)
     net = build_scalable_street_network(scale, "polycentric_tod", seed=17)
     assert len(net.centers) >= 3
     y_coords = {c[1] for c in net.centers}
@@ -82,6 +88,7 @@ def test_polycentric_centers_distributed_in_2d() -> None:
 @pytest.mark.xfail(
     reason="superblock hierarchy differentiation required: interior local fabric currently crosses arterial boundaries freely",
     strict=True,
+    raises=AssertionError,
 )
 def test_superblock_has_hierarchical_block_area_variation() -> None:
     """superblock_mixed should have distinct superblock cells enclosed by continuous arterial boundaries."""
@@ -105,11 +112,12 @@ def test_superblock_has_hierarchical_block_area_variation() -> None:
 @pytest.mark.xfail(
     reason="organic morphology currently rectilinear lattice with minor jitter",
     strict=True,
+    raises=AssertionError,
 )
 def test_organic_has_non_orthogonal_orientation_entropy() -> None:
-    """organic morphology must feature non-orthogonal, organic road alignments (>20%)."""
+    """organic morphology must feature non-orthogonal, organic road alignments (entropy > 2.80)."""
     scale = CityScaleSpec(100_000, 25.0)
     net = build_scalable_street_network(scale, "organic", seed=17)
 
-    non_ortho_ratio = _compute_non_orthogonal_segment_ratio(net.roads)
-    assert non_ortho_ratio > 0.20, f"organic non-orthogonal ratio is only {non_ortho_ratio:.4f}"
+    entropy = _compute_orientation_entropy(net.roads)
+    assert entropy > 2.80, f"organic orientation entropy is only {entropy:.4f}"

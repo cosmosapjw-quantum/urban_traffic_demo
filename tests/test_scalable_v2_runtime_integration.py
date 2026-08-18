@@ -136,3 +136,68 @@ def test_population_authorities_must_match() -> None:
     )
     with pytest.raises(ValueError, match="population authorities disagree"):
         build_scalable_city_map(cfg, "test", 17, population_target=150_000)
+
+
+def test_scalable_v2_cross_process_hashseed_replay() -> None:
+    """PR112 audit: ScalableCityMap fingerprint must be byte-identical across PYTHONHASHSEED values."""
+    import os
+    import subprocess
+    import sys
+
+    hashseeds = ["0", "1", "42", "1337"]
+    fingerprints: list[str] = []
+
+    code = (
+        "from metroflow.city.scale import CityScaleSpec; "
+        "from metroflow.sim.config import CityGenerationConfig; "
+        "from metroflow.city.scalable_city import build_scalable_city_map; "
+        "cfg = CityGenerationConfig(topology_mode='scalable_synthetic_v2', "
+        "morphology_style_id='ring_radial', zone_poi_coupling_mode='block_based_v1', "
+        "scale_spec=CityScaleSpec(100_000, 25.0)); "
+        "city = build_scalable_city_map(cfg, 'test', 17); "
+        "print(city.fingerprint)"
+    )
+
+    for seed in hashseeds:
+        env = dict(os.environ)
+        env["PYTHONHASHSEED"] = seed
+        env["PYTHONPATH"] = ".:src"
+        result = subprocess.run(
+            [sys.executable, "-c", code],
+            env=env,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        fingerprints.append(result.stdout.strip())
+
+    assert len(set(fingerprints)) == 1, f"Fingerprints diverged across hashseeds: {fingerprints}"
+
+
+def test_scalable_city_map_rejects_tampered_zoning_metadata() -> None:
+    """PR112 audit: ScalableCityMap.__post_init__ must reject tampered zoning fingerprint."""
+    from metroflow.city.scalable_city import ScalableCityMap
+
+    cfg = CityGenerationConfig(
+        topology_mode="scalable_synthetic_v2",
+        morphology_style_id="grid_core",
+        zone_poi_coupling_mode="block_based_v1",
+        scale_spec=CityScaleSpec(100_000, 25.0),
+    )
+    city = build_scalable_city_map(cfg, "test", 17)
+
+    # Tamper with recorded zoning fingerprint
+    tampered_zoning = city.zoning
+    tampered_zoning.metadata["zoning_placement_fingerprint"] = "0" * 64
+
+    with pytest.raises(ValueError, match="zoning metadata fingerprint .* does not match actual"):
+        ScalableCityMap(
+            topology=city.topology,
+            zoning=tampered_zoning,
+            road_csr=city.road_csr,
+            network=city.network,
+            blocks=city.blocks,
+            compiled=city.compiled,
+            static_authority=city.static_authority,
+        )
+

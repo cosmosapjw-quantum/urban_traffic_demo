@@ -126,9 +126,11 @@ class ZoningPlacementResult:
         self,
         *,
         topology: SyntheticCityTopologyLike | None = None,
+        validation_profile: str | None = None,
     ) -> tuple[str, ...]:
         """Return validation issues (empty tuple means valid)."""
 
+        effective_profile = validation_profile or self.metadata.get("validation_profile")
         issues: list[str] = []
         zone_ids = [zone.zone_id for zone in self.zones]
         if len(set(zone_ids)) != len(zone_ids):
@@ -136,8 +138,13 @@ class ZoningPlacementResult:
         poi_ids = [poi.poi_id for poi in self.pois]
         if len(set(poi_ids)) != len(poi_ids):
             issues.append("duplicate poi_id values")
-        if set(zone.zone_type for zone in self.zones) != set(ZoneType):
-            issues.append("zones must include all four zone types")
+        if effective_profile != "scalable_block_authority_v1":
+            if set(zone.zone_type for zone in self.zones) != set(ZoneType):
+                issues.append("zones must include all four zone types")
+        else:
+            for zone in self.zones:
+                if not isinstance(zone.zone_type, ZoneType):
+                    issues.append(f"zone {zone.zone_id} has invalid zone_type {zone.zone_type}")
 
         zone_id_set = set(zone_ids)
         node_id_set = None

@@ -9,7 +9,7 @@ import hashlib
 import json
 import math
 from types import MappingProxyType
-from typing import Mapping
+from typing import Any, Mapping
 
 import numpy as np
 
@@ -658,6 +658,7 @@ def _classify_land_use_rows(
 def _node_taz_ownership_from_index(
     *,
     block_rows: tuple[tuple[str, int, tuple[int, ...]], ...],
+    topology_nodes: tuple[Any, ...] | None = None,
 ) -> tuple[
     tuple[tuple[int, int], ...],
     tuple[tuple[int, tuple[tuple[str, int], ...], int], ...],
@@ -686,12 +687,38 @@ def _node_taz_ownership_from_index(
             visit_count += 1
     owners: list[tuple[int, int]] = []
     conflicts: list[tuple[int, tuple[tuple[str, int], ...], int]] = []
+    owner_map: dict[int, int] = {}
     for node_id in sorted(candidates):
         ordered = tuple(sorted(candidates[node_id]))
         winner = ordered[0][1]
         owners.append((node_id, winner))
+        owner_map[node_id] = winner
         if len(ordered) > 1:
             conflicts.append((node_id, ordered, winner))
+
+    if topology_nodes is not None:
+        nodes_by_id = {node.node_id: node for node in topology_nodes}
+        unowned_nodes = [node for node in topology_nodes if node.node_id not in owner_map]
+        if unowned_nodes and owner_map:
+            owned_nodes = [
+                (nid, nodes_by_id[nid], owner_map[nid])
+                for nid in sorted(owner_map)
+                if nid in nodes_by_id
+            ]
+            for unowned in unowned_nodes:
+                best_taz = min(
+                    owned_nodes,
+                    key=lambda item: (
+                        (float(unowned.x) - float(item[1].x)) ** 2
+                        + (float(unowned.y) - float(item[1].y)) ** 2,
+                        item[0],
+                        item[2],
+                    ),
+                )[2]
+                owners.append((unowned.node_id, best_taz))
+                owner_map[unowned.node_id] = best_taz
+
+    owners.sort(key=lambda item: item[0])
     return tuple(owners), tuple(conflicts), visit_count
 
 
@@ -2893,7 +2920,8 @@ def _derive_scalable_static_authority(
         block_rows=tuple(
             (block.block_semantic_id, block.taz_id, block.access_node_ids)
             for block in block_land_use
-        )
+        ),
+        topology_nodes=compiled.topology.nodes,
     )
     assignment_fingerprint = _sha256_payload(
         (

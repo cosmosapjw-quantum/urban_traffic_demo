@@ -74,13 +74,29 @@ class ScalableCityMap:
     fingerprint: str = field(init=False)
 
     def __post_init__(self) -> None:
-        zoning_fp = self.zoning.metadata.get(
-            "zoning_placement_fingerprint",
-            zoning_placement_fingerprint(self.zoning),
-        )
+        # Cross-stage structural authority bindings
+        if self.compiled.topology is not self.topology and self.compiled.topology != self.topology:
+            raise ValueError("ScalableCityMap compiled.topology does not match topology")
+        if self.compiled.road_csr is not self.road_csr and self.compiled.road_csr != self.road_csr:
+            raise ValueError("ScalableCityMap compiled.road_csr does not match road_csr")
+        if self.static_authority.source_network_fingerprint != self.network.fingerprint:
+            raise ValueError("ScalableCityMap static_authority source_network_fingerprint mismatch")
+        if self.static_authority.source_blocks_fingerprint != self.blocks.fingerprint:
+            raise ValueError("ScalableCityMap static_authority source_blocks_fingerprint mismatch")
+        if self.static_authority.source_compiled_fingerprint != self.compiled.fingerprint:
+            raise ValueError("ScalableCityMap static_authority source_compiled_fingerprint mismatch")
+
+        # Cryptographic zoning placement verification
+        actual_zoning_fp = zoning_placement_fingerprint(self.zoning)
+        recorded_zoning_fp = self.zoning.metadata.get("zoning_placement_fingerprint")
+        if recorded_zoning_fp is not None and recorded_zoning_fp != actual_zoning_fp:
+            raise ValueError(
+                f"ScalableCityMap zoning metadata fingerprint ({recorded_zoning_fp}) does not match actual zoning fingerprint ({actual_zoning_fp})"
+            )
+
         payload = {
             "static_authority_fingerprint": self.static_authority.fingerprint,
-            "zoning_placement_fingerprint": zoning_fp,
+            "zoning_placement_fingerprint": actual_zoning_fp,
             "scale_fingerprint": self.static_authority.source_scale_fingerprint,
         }
         sealed_fp = hashlib.sha256(
@@ -95,13 +111,11 @@ def project_scalable_zoning_from_static_authority(
 ) -> ZoningPlacementResult:
     """Project authoritative zoning and POI containers directly from static authority.
 
-    Guarantees 1:1 parity with the static authority's TAZ, POI, and block land-use
-    catalogs without running separate legacy zoning generators.
+    Guarantees 1:1 lossless parity with the static authority's TAZ, POI, and block land-use
+    catalogs without running separate legacy zoning generators or mutating semantic types.
     """
     node_by_id = {node.node_id: node for node in topology.nodes}
-    block_type_map = {
-        b.block_id: b.land_use_type for b in static_authority.block_land_use
-    }
+    block_map = {b.block_id: b for b in static_authority.block_land_use}
 
     # Map each V2Taz to an authoritative Zone
     zones: list[Zone] = []
@@ -115,18 +129,33 @@ def project_scalable_zoning_from_static_authority(
         centroid_x = sum(c[0] for c in coords) / len(coords) if coords else 0.0
         centroid_y = sum(c[1] for c in coords) / len(coords) if coords else 0.0
 
-        # Dominant land use type from the TAZ's constituent blocks
-        taz_types = {
-            block_type_map[bid]
-            for bid in taz.block_ids
-            if bid in block_type_map
-        }
-        if taz_types == {V2LandUseType.COMMERCIAL}:
-            zone_type = ZoneType.CBD_COMMERCIAL
-        elif taz_types == {V2LandUseType.INDUSTRIAL}:
-            zone_type = ZoneType.INDUSTRIAL
-        elif taz_types == {V2LandUseType.RESIDENTIAL}:
-            zone_type = ZoneType.RESIDENTIAL
+        # Dominant land use type from area weighting of constituent blocks
+        area_by_type: dict[V2LandUseType, int] = {}
+        for bid in taz.block_ids:
+            if bid in block_map:
+                block = block_map[bid]
+                area_by_type[block.land_use_type] = (
+                    area_by_type.get(block.land_use_type, 0) + int(block.exact_net_area_mm2)
+                )
+        total_area = sum(area_by_type.values())
+        if total_area > 0:
+            # Deterministic dominant land use resolution (tie-broken by enum string value)
+            dominant_type = max(
+                sorted(area_by_type.keys(), key=lambda t: t.value),
+                key=lambda t: area_by_type[t],
+            )
+            # If dominant type covers >= 50% of the TAZ net area, assign it; otherwise MIXED_USE
+            if area_by_type[dominant_type] * 2 >= total_area:
+                if dominant_type == V2LandUseType.COMMERCIAL:
+                    zone_type = ZoneType.CBD_COMMERCIAL
+                elif dominant_type == V2LandUseType.INDUSTRIAL:
+                    zone_type = ZoneType.INDUSTRIAL
+                elif dominant_type == V2LandUseType.RESIDENTIAL:
+                    zone_type = ZoneType.RESIDENTIAL
+                else:
+                    zone_type = ZoneType.MIXED_USE
+            else:
+                zone_type = ZoneType.MIXED_USE
         else:
             zone_type = ZoneType.MIXED_USE
 
@@ -141,13 +170,6 @@ def project_scalable_zoning_from_static_authority(
                 leisure_capacity=taz.leisure_capacity_total,
             )
         )
-
-    # Ensure all four ZoneType categories are represented for schema validity
-    present_types = {z.zone_type for z in zones}
-    missing_types = list(set(ZoneType) - present_types)
-    if missing_types and len(zones) >= len(missing_types):
-        for i, missing in enumerate(missing_types):
-            zones[-(i + 1)].zone_type = missing
 
     # Map each V2Poi to an authoritative POI
     pois: list[POI] = []
@@ -169,11 +191,8 @@ def project_scalable_zoning_from_static_authority(
             )
         )
 
+    # Authoritative all-node TAZ ownership directly from static authority
     node_zone_by_id = dict(static_authority.taz_catalog.node_owner_by_id)
-    # Ensure every node in topology has a zone assignment
-    for node in topology.nodes:
-        if node.node_id not in node_zone_by_id and zones:
-            node_zone_by_id[node.node_id] = zones[0].zone_id
 
     zone_node_map: dict[int, list[int]] = {z.zone_id: [] for z in zones}
     for nid, zid in sorted(node_zone_by_id.items()):
@@ -188,6 +207,7 @@ def project_scalable_zoning_from_static_authority(
     metadata = {
         "zoning_policy": static_authority.schema_version,
         "poi_placement_policy": static_authority.schema_version,
+        "validation_profile": "scalable_block_authority_v1",
         "zone_poi_coupling_requested_mode": "block_based_v1",
         "zone_poi_coupling_resolved_mode": "block_based_v1",
         "static_authority_fingerprint": static_authority.fingerprint,
@@ -207,9 +227,11 @@ def project_scalable_zoning_from_static_authority(
     )
     result.metadata["zoning_placement_fingerprint"] = zoning_placement_fingerprint(result)
 
-    issues = result.validate(topology=topology)
+    issues = result.validate(topology=topology, validation_profile="scalable_block_authority_v1")
     if issues:
-        raise ValueError(f"projected zoning validation failed: {issues}")
+        raise ValueError(
+            f"Projected zoning failed validation: {'; '.join(issues)}"
+        )
 
     return result
 

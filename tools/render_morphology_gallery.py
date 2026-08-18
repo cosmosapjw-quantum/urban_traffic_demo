@@ -141,25 +141,63 @@ def check_gallery_artifacts(out_dir: Path) -> bool:
     entries = json.loads(manifest_path.read_text(encoding="utf-8"))
     entry_by_style = {e["style_id"]: e for e in entries}
 
-    for style_id, seed, _ in MORPHOLOGY_GALLERY_SET:
+    for style_id, seed, description in MORPHOLOGY_GALLERY_SET:
         if style_id not in entry_by_style:
             print(f"Missing manifest entry for {style_id}", file=sys.stderr)
             return False
-        entry = entry_by_style[style_id]
+        committed_entry = entry_by_style[style_id]
         svg_path = out_dir / f"map_{style_id}.svg"
         if not svg_path.exists():
             print(f"Missing SVG artifact: {svg_path}", file=sys.stderr)
             return False
-        actual_svg = svg_path.read_text(encoding="utf-8")
-        actual_sha = hashlib.sha256(actual_svg.encode("utf-8")).hexdigest()
-        if actual_sha != entry.get("svg_sha256"):
+
+        # Re-derive from source code
+        config = _GalleryConfig(morphology_style_id=style_id)
+        city_map = build_scalable_city_map(config, scenario_id=f"{style_id}_s{seed}", seed=seed)
+        static_refs = SimulationStaticRefs(
+            scenario_id=f"{style_id}_s{seed}",
+            city_topology=city_map.topology,
+            zones=city_map.zoning.zones,
+            pois=city_map.zoning.pois,
+            metadata={"label": description},
+        )
+        sim_state = SimulationState(static=static_refs)
+        artifact = build_static_city_map_artifact(sim_state)
+        rederived_svg = render_static_city_map_svg(artifact)
+        rederived_sha = hashlib.sha256(rederived_svg.encode("utf-8")).hexdigest()
+
+        committed_svg = svg_path.read_text(encoding="utf-8")
+        committed_sha = hashlib.sha256(committed_svg.encode("utf-8")).hexdigest()
+
+        if committed_sha != committed_entry.get("svg_sha256"):
             print(
-                f"SVG digest mismatch for {style_id}: {actual_sha} != {entry.get('svg_sha256')}",
+                f"Committed SVG digest mismatch for {style_id}: {committed_sha} != {committed_entry.get('svg_sha256')}",
                 file=sys.stderr,
             )
             return False
 
-    print("Gallery check passed: all SVG digests and manifest entries verified.")
+        if rederived_sha != committed_sha:
+            print(
+                f"Source drift detected for {style_id}: rederived SVG digest {rederived_sha} != committed digest {committed_sha}",
+                file=sys.stderr,
+            )
+            return False
+
+        if rederived_svg != committed_svg:
+            print(
+                f"Source drift detected for {style_id}: rederived SVG content does not match committed SVG bytes exactly",
+                file=sys.stderr,
+            )
+            return False
+
+        if city_map.fingerprint != committed_entry.get("city_map_fingerprint"):
+            print(
+                f"City map fingerprint drift for {style_id}: {city_map.fingerprint} != {committed_entry.get('city_map_fingerprint')}",
+                file=sys.stderr,
+            )
+            return False
+
+    print("Gallery check passed: all 6 morphology maps re-derived and verified byte-identical.")
     return True
 
 
