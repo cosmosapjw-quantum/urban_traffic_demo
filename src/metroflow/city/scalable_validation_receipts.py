@@ -122,31 +122,33 @@ class _VerifiedTask5SourceSnapshot:
 # Registry — module-level, thread-safe via one RLock
 # ---------------------------------------------------------------------------
 _registry_lock = threading.RLock()
-_registry: dict[str, _ValidationReceipt] = {}
+_registry: dict[tuple[str, str], _ValidationReceipt] = {}
+_latest_by_stage: dict[str, _ValidationReceipt] = {}
 
 
 def _register_validation_receipt(receipt: _ValidationReceipt) -> None:
-    """Register a validated receipt by its stage name.
+    """Register a validated receipt by (stage_name, fingerprint).
 
-    Raises ``ValueError`` if a receipt for the same stage is already
-    registered with a different fingerprint.
+    If the same (stage_name, fingerprint) is already registered with identical
+    content, this is an idempotent no-op. If conflicting content is registered
+    under the same key, raises ValueError.
     """
     if not isinstance(receipt, _ValidationReceipt):
         raise TypeError(
             f"expected _ValidationReceipt, got {type(receipt).__name__}"
         )
     with _registry_lock:
-        existing = _registry.get(receipt.stage_name)
+        key = (receipt.stage_name, receipt.fingerprint)
+        existing = _registry.get(key)
         if existing is not None:
-            if existing.fingerprint != receipt.fingerprint:
+            if existing != receipt:
                 raise ValueError(
-                    f"receipt for stage {receipt.stage_name!r} already "
-                    f"registered with fingerprint {existing.fingerprint!r}, "
-                    f"cannot replace with {receipt.fingerprint!r}"
+                    f"conflicting receipt content for stage {receipt.stage_name!r} "
+                    f"and fingerprint {receipt.fingerprint!r}"
                 )
-            # Same fingerprint — idempotent, no-op
             return
-        _registry[receipt.stage_name] = receipt
+        _registry[key] = receipt
+        _latest_by_stage[receipt.stage_name] = receipt
 
 
 def _lookup_validation_receipt(
@@ -165,9 +167,28 @@ def _lookup_validation_receipt(
     policy versions, or seal schemas.
     """
     with _registry_lock:
-        receipt = _registry.get(stage_name)
-    if receipt is None:
-        raise KeyError(f"no receipt registered for stage {stage_name!r}")
+        key = (stage_name, expected_fingerprint)
+        receipt = _registry.get(key)
+        if receipt is None:
+            latest = _latest_by_stage.get(stage_name)
+            if latest is None:
+                raise KeyError(f"no receipt registered for stage {stage_name!r}")
+            if latest.schema_version != expected_schema_version:
+                raise ValueError(
+                    f"receipt schema version mismatch for {stage_name!r}: "
+                    f"expected {expected_schema_version!r}, "
+                    f"got {latest.schema_version!r}"
+                )
+            if latest.fingerprint != expected_fingerprint:
+                raise ValueError(
+                    f"receipt fingerprint mismatch for {stage_name!r}: "
+                    f"expected {expected_fingerprint!r}, "
+                    f"got {latest.fingerprint!r}"
+                )
+            raise KeyError(
+                f"no receipt registered for stage {stage_name!r} with fingerprint {expected_fingerprint!r}"
+            )
+
     if receipt.schema_version != expected_schema_version:
         raise ValueError(
             f"receipt schema version mismatch for {stage_name!r}: "
@@ -208,6 +229,7 @@ def _clear_validation_receipts_for_test() -> None:
     """Clear all registered receipts.  For testing only."""
     with _registry_lock:
         _registry.clear()
+        _latest_by_stage.clear()
 
 
 # ---------------------------------------------------------------------------

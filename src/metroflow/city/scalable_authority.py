@@ -3196,48 +3196,54 @@ def build_scalable_static_authority(
         blocks=blocks,
         compiled=compiled,
     )
-    try:
-        from metroflow.city.scalable_validation_receipts import (
-            _BLOCKS_SEAL_SCHEMA,
-            _COMPILED_AGGREGATE_SEAL_SCHEMA,
-            _NETWORK_SEAL_SCHEMA,
-            _STATIC_CONTENT_SEAL_SCHEMAS,
-            _STATIC_RECEIPT_POLICY_VERSION,
-            _TASK5_INVOCATION_SEAL_SCHEMA,
-            _TASK5_SNAPSHOT_POLICY_VERSION,
-            _ValidationReceipt,
-            _register_validation_receipt,
-        )
+    from metroflow.city.scalable_validation_receipts import (
+        ACCESS_DIRECTION_POLICY,
+        ALLOCATION_POLICY,
+        CLOSURE_CAPABILITY_POLICY,
+        FINGERPRINT_SET_SCHEMA,
+        IMMUTABLE_CSR_SCHEMA,
+        LAND_USE_POLICY,
+        POI_POLICY,
+        ROUTING_POLICY,
+        TAZ_POLICY,
+        _BLOCKS_SEAL_SCHEMA,
+        _COMPILED_AGGREGATE_SEAL_SCHEMA,
+        _NETWORK_SEAL_SCHEMA,
+        _STATIC_CONTENT_SEAL_SCHEMAS,
+        _STATIC_RECEIPT_POLICY_VERSION,
+        _TASK5_INVOCATION_SEAL_SCHEMA,
+        _TASK5_SNAPSHOT_POLICY_VERSION,
+        _ValidationReceipt,
+        _register_validation_receipt,
+    )
 
-        _register_validation_receipt(
-            _ValidationReceipt(
-                stage_name="static",
-                schema_version=authority.schema_version,
-                fingerprint=authority.fingerprint,
-                policy_versions=(
-                    ("access_direction_policy", ACCESS_DIRECTION_POLICY),
-                    ("allocation_policy", ALLOCATION_POLICY),
-                    ("closure_capability_policy", CLOSURE_CAPABILITY_POLICY),
-                    ("fingerprint_set_schema", FINGERPRINT_SET_SCHEMA),
-                    ("immutable_csr_schema", IMMUTABLE_CSR_SCHEMA),
-                    ("land_use_policy", LAND_USE_POLICY),
-                    ("poi_policy", POI_POLICY),
-                    ("receipt_policy", _STATIC_RECEIPT_POLICY_VERSION),
-                    ("routing_policy", ROUTING_POLICY),
-                    ("snapshot_policy", _TASK5_SNAPSHOT_POLICY_VERSION),
-                    ("taz_policy", TAZ_POLICY),
-                ),
-                source_seal_schemas=(
-                    ("blocks.current", _BLOCKS_SEAL_SCHEMA),
-                    ("compiled.aggregate", _COMPILED_AGGREGATE_SEAL_SCHEMA),
-                    ("invocation.current", _TASK5_INVOCATION_SEAL_SCHEMA),
-                    ("network.current", _NETWORK_SEAL_SCHEMA),
-                ),
-                content_seal_schemas=_STATIC_CONTENT_SEAL_SCHEMAS,
-            )
+    _register_validation_receipt(
+        _ValidationReceipt(
+            stage_name="static",
+            schema_version=authority.schema_version,
+            fingerprint=authority.fingerprint,
+            policy_versions=(
+                ("access_direction_policy", ACCESS_DIRECTION_POLICY),
+                ("allocation_policy", ALLOCATION_POLICY),
+                ("closure_capability_policy", CLOSURE_CAPABILITY_POLICY),
+                ("fingerprint_set_schema", FINGERPRINT_SET_SCHEMA),
+                ("immutable_csr_schema", IMMUTABLE_CSR_SCHEMA),
+                ("land_use_policy", LAND_USE_POLICY),
+                ("poi_policy", POI_POLICY),
+                ("receipt_policy", _STATIC_RECEIPT_POLICY_VERSION),
+                ("routing_policy", ROUTING_POLICY),
+                ("snapshot_policy", _TASK5_SNAPSHOT_POLICY_VERSION),
+                ("taz_policy", TAZ_POLICY),
+            ),
+            source_seal_schemas=(
+                ("blocks.current", _BLOCKS_SEAL_SCHEMA),
+                ("compiled.aggregate", _COMPILED_AGGREGATE_SEAL_SCHEMA),
+                ("invocation.current", _TASK5_INVOCATION_SEAL_SCHEMA),
+                ("network.current", _NETWORK_SEAL_SCHEMA),
+            ),
+            content_seal_schemas=_STATIC_CONTENT_SEAL_SCHEMAS,
         )
-    except Exception:
-        pass
+    )
     return authority
 
 

@@ -171,10 +171,20 @@ def test_register_same_fingerprint_is_idempotent() -> None:
     assert found is receipt
 
 
-def test_register_different_fingerprint_raises() -> None:
-    _register_validation_receipt(_make_receipt(fp="first"))
-    with pytest.raises(ValueError, match="already registered"):
-        _register_validation_receipt(_make_receipt(fp="second"))
+def test_register_conflicting_content_for_same_fingerprint_raises() -> None:
+    _register_validation_receipt(_make_receipt(fp="first", schema="v1"))
+    with pytest.raises(ValueError, match="conflicting receipt"):
+        _register_validation_receipt(_make_receipt(fp="first", schema="v2"))
+
+
+def test_register_multiple_fingerprints_coexist() -> None:
+    r1 = _make_receipt(stage="network", fp="fp_alpha")
+    r2 = _make_receipt(stage="network", fp="fp_beta")
+    _register_validation_receipt(r1)
+    _register_validation_receipt(r2)
+    assert _lookup_validation_receipt("network", "v1", "fp_alpha") is r1
+    assert _lookup_validation_receipt("network", "v1", "fp_beta") is r2
+
 
 
 def test_register_rejects_non_receipt_type() -> None:

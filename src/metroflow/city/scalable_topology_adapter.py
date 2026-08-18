@@ -1248,38 +1248,36 @@ def compile_scalable_topology(
         forbidden_u_turn_count=forbidden_u_turn_count,
         bridge_crossing_count=len(lowered.bridge_crossings),
     )
-    try:
-        from metroflow.city.scalable_validation_receipts import (
-            _BLOCKS_SEAL_SCHEMA,
-            _COMPILED_CONTENT_SEAL_SCHEMAS,
-            _COMPILED_RECEIPT_POLICY_VERSION,
-            _NETWORK_SEAL_SCHEMA,
-            _ValidationReceipt,
-            _register_validation_receipt,
-        )
+    from metroflow.city.scalable_validation_receipts import (
+        _BLOCKS_SEAL_SCHEMA,
+        _COMPILED_CONTENT_SEAL_SCHEMAS,
+        _COMPILED_RECEIPT_POLICY_VERSION,
+        _NETWORK_SEAL_SCHEMA,
+        _TURN_POLICY,
+        _ValidationReceipt,
+        _register_validation_receipt,
+    )
 
-        _register_validation_receipt(
-            _ValidationReceipt(
-                stage_name="compiled",
-                schema_version=compiled.schema_version,
-                fingerprint=compiled.fingerprint,
-                policy_versions=(
-                    (
-                        "numeric_profile_policy",
-                        compiled.numeric_profile_policy_version,
-                    ),
-                    ("receipt_policy", _COMPILED_RECEIPT_POLICY_VERSION),
-                    ("turn_policy", _TURN_POLICY),
+    _register_validation_receipt(
+        _ValidationReceipt(
+            stage_name="compiled",
+            schema_version=compiled.schema_version,
+            fingerprint=compiled.fingerprint,
+            policy_versions=(
+                (
+                    "numeric_profile_policy",
+                    compiled.numeric_profile_policy_version,
                 ),
-                source_seal_schemas=(
-                    ("blocks.current", _BLOCKS_SEAL_SCHEMA),
-                    ("network.current", _NETWORK_SEAL_SCHEMA),
-                ),
-                content_seal_schemas=_COMPILED_CONTENT_SEAL_SCHEMAS,
-            )
+                ("receipt_policy", _COMPILED_RECEIPT_POLICY_VERSION),
+                ("turn_policy", _TURN_POLICY),
+            ),
+            source_seal_schemas=(
+                ("blocks.current", _BLOCKS_SEAL_SCHEMA),
+                ("network.current", _NETWORK_SEAL_SCHEMA),
+            ),
+            content_seal_schemas=_COMPILED_CONTENT_SEAL_SCHEMAS,
         )
-    except Exception:
-        pass
+    )
     return compiled
 
 

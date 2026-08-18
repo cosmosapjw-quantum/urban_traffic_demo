@@ -1754,31 +1754,28 @@ def build_scalable_block_authority(
         extent_mm=admitted.extent_mm,
         tile_coordinates=admitted.tile_coordinates,
     )
-    try:
-        from metroflow.city.scalable_validation_receipts import (
-            _BLOCKS_RECEIPT_POLICY_VERSION,
-            _BLOCKS_SEAL_SCHEMA,
-            _ValidationReceipt,
-            _register_validation_receipt,
-        )
+    from metroflow.city.scalable_validation_receipts import (
+        _BLOCKS_RECEIPT_POLICY_VERSION,
+        _BLOCKS_SEAL_SCHEMA,
+        _ValidationReceipt,
+        _register_validation_receipt,
+    )
 
-        _register_validation_receipt(
-            _ValidationReceipt(
-                stage_name="blocks",
-                schema_version=authority.schema_version,
-                fingerprint=authority.fingerprint,
-                policy_versions=(
-                    ("embedding_policy", authority.embedding_policy),
-                    ("receipt_policy", _BLOCKS_RECEIPT_POLICY_VERSION),
-                    ("subdivision_schema", authority.subdivision_schema),
-                    ("tile_policy", authority.tile_policy),
-                ),
-                source_seal_schemas=(),
-                content_seal_schemas=(("blocks.current", _BLOCKS_SEAL_SCHEMA),),
-            )
+    _register_validation_receipt(
+        _ValidationReceipt(
+            stage_name="blocks",
+            schema_version=authority.schema_version,
+            fingerprint=authority.fingerprint,
+            policy_versions=(
+                ("embedding_policy", authority.embedding_policy),
+                ("receipt_policy", _BLOCKS_RECEIPT_POLICY_VERSION),
+                ("subdivision_schema", authority.subdivision_schema),
+                ("tile_policy", authority.tile_policy),
+            ),
+            source_seal_schemas=(),
+            content_seal_schemas=(("blocks.current", _BLOCKS_SEAL_SCHEMA),),
         )
-    except Exception:
-        pass
+    )
     return authority
 
 
