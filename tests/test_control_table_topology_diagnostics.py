@@ -32,9 +32,8 @@ def test_a_score_reports_geometry_topology_consistency_counts() -> None:
     diagnostics = _score().topology_diagnostics()
 
     # 6909 and 6261 originally; 24 and 14 after PR-B; 6 and 5 after PR-C thinned
-    # the fabric. The residual has one named cause: the 0.25 m weld tolerance,
-    # where splitting at a projection may snap to a nearby vertex and leave a
-    # sliver crossing.
+    # the fabric; 0 and 1 since PR90 (commit 21275f7) after directional endpoint
+    # connection and sub-tolerance weld repairs.
     assert diagnostics["proper_crossing_count"] == 0
     assert diagnostics["unregistered_touch_count"] == 1
 

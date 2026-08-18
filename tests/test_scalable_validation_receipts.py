@@ -224,15 +224,28 @@ def test_schema_literals_match_validation_performance_tool() -> None:
 
 
 def test_task45_controller_static_policy_contract_matches_registered_receipt() -> None:
-    """Verify controller static expectation matches scalable authority receipt policy versions."""
-    authority_module = importlib.import_module("metroflow.city.scalable_authority")
-    policy_versions = authority_module.static_receipt_policy_versions()
-    assert isinstance(policy_versions, tuple)
-    assert len(policy_versions) >= 13
-    keys = [k for k, _ in policy_versions]
-    assert "node_taz_ownership_policy" in keys
-    assert "taz_partition_policy" in keys
-    assert keys == sorted(keys)
+    """Verify producer -> registry -> controller lookup path for static authority receipts."""
+    controller = importlib.import_module("tools.run_task45_validation_performance")
+    from metroflow.city.scale import CityScaleSpec
+    from metroflow.city.scalable_authority import build_scalable_static_authority
+    from metroflow.city.scalable_blocks import build_scalable_block_authority
+    from metroflow.city.scalable_topology import build_scalable_street_network
+    from metroflow.city.scalable_topology_adapter import compile_scalable_topology
+    from metroflow.city.scalable_validation_receipts import _ValidationReceipt
+
+    scale = CityScaleSpec(100_000, 15.0)
+    network = build_scalable_street_network(scale, "grid_core", 17)
+    blocks = build_scalable_block_authority(network)
+    compiled = compile_scalable_topology(network, block_authority=blocks)
+    authority = build_scalable_static_authority(scale, "grid_core", 17, network, blocks, compiled)
+
+    # Controller's measurement lookup helper must retrieve the producer's registered receipt without error
+    receipt = controller._lookup_static_receipt_for_measurement(authority)
+    assert isinstance(receipt, _ValidationReceipt)
+    assert receipt.stage_name == "static"
+    import metroflow.city.scalable_authority as authority_module
+
+    assert receipt.policy_versions == authority_module.static_receipt_policy_versions()
 
 
 # ---- 6. VerifiedTask5SourceSnapshot is frozen/slotted ----

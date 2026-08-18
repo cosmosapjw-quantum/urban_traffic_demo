@@ -32,9 +32,7 @@ Facts:
   PR05 (`987cdbc`), PR06 (`c2c052f`), and PR07 (`b636b2a`) are complete.
 - PR08 (`29daebe`) is complete.
 - PR09 (`52e7aec`) and PR10 (`04554ca`) are complete.
-- PR11 (`55af343`) and PR12 are complete. The acceleration roadmap state is
-  consolidated without authorizing C++/CUDA, libtorch, CMake, Rayon, zero-copy
-  NumPy FFI, or new runtime backend values.
+- PR11 (`55af343`) and PR12 are complete. Rayon 1.10 parallelism was admitted for Rust routing/edge acceleration without authorizing C++/CUDA, libtorch, CMake, zero-copy NumPy FFI, or unverified runtime backend values.
 
 ## Acceleration Evidence
 

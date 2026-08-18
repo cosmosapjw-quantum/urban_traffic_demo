@@ -24,7 +24,7 @@ import statistics
 import sys
 import time
 import traceback
-from typing import Sequence
+from typing import Any, Sequence
 
 
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -274,6 +274,32 @@ def _terminate_and_reap(process: object) -> int | None:
     return process.exitcode
 
 
+def _lookup_static_receipt_for_measurement(authority: Any) -> Any:
+    from metroflow.city import scalable_authority as authority_module
+    from metroflow.city.scalable_validation_receipts import (
+        _BLOCKS_SEAL_SCHEMA,
+        _COMPILED_AGGREGATE_SEAL_SCHEMA,
+        _NETWORK_SEAL_SCHEMA,
+        _STATIC_CONTENT_SEAL_SCHEMAS,
+        _TASK5_INVOCATION_SEAL_SCHEMA,
+        _lookup_validation_receipt,
+    )
+
+    return _lookup_validation_receipt(
+        "static",
+        authority.schema_version,
+        authority.fingerprint,
+        expected_policy_versions=authority_module.static_receipt_policy_versions(),
+        expected_source_seal_schemas=(
+            ("blocks.current", _BLOCKS_SEAL_SCHEMA),
+            ("compiled.aggregate", _COMPILED_AGGREGATE_SEAL_SCHEMA),
+            ("invocation.current", _TASK5_INVOCATION_SEAL_SCHEMA),
+            ("network.current", _NETWORK_SEAL_SCHEMA),
+        ),
+        expected_content_seal_schemas=_STATIC_CONTENT_SEAL_SCHEMAS,
+    )
+
+
 def _measurement_child(
     control_socket: socket.socket,
     nonce: str,
@@ -286,8 +312,6 @@ def _measurement_child(
     clear_receipts = None
     try:
         import numpy as np
-
-        from metroflow.city import scalable_authority as authority_module
         from metroflow.city import scalable_validation_receipts as receipt_module
         from metroflow.city.scale import CityScaleSpec
         from metroflow.city.scalable_authority import (
@@ -388,19 +412,7 @@ def _measurement_child(
             ),
             expected_content_seal_schemas=_COMPILED_CONTENT_SEAL_SCHEMAS,
         )
-        static_receipt = _lookup_validation_receipt(
-            "static",
-            authority.schema_version,
-            authority.fingerprint,
-            expected_policy_versions=authority_module.static_receipt_policy_versions(),
-            expected_source_seal_schemas=(
-                ("blocks.current", _BLOCKS_SEAL_SCHEMA),
-                ("compiled.aggregate", _COMPILED_AGGREGATE_SEAL_SCHEMA),
-                ("invocation.current", _TASK5_INVOCATION_SEAL_SCHEMA),
-                ("network.current", _NETWORK_SEAL_SCHEMA),
-            ),
-            expected_content_seal_schemas=_STATIC_CONTENT_SEAL_SCHEMAS,
-        )
+        static_receipt = _lookup_static_receipt_for_measurement(authority)
         setup_receipts = (
             network_receipt,
             blocks_receipt,

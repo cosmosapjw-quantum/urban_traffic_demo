@@ -9,7 +9,7 @@ import hashlib
 import json
 import math
 from types import MappingProxyType
-from typing import Any, Mapping
+from typing import Mapping
 
 import numpy as np
 
@@ -660,7 +660,6 @@ def _classify_land_use_rows(
 def _node_taz_ownership_from_index(
     *,
     block_rows: tuple[tuple[str, int, tuple[int, ...]], ...],
-    topology_nodes: tuple[Any, ...] | None = None,
     node_xy_mm_by_id: Mapping[int, tuple[int, int]] | None = None,
 ) -> tuple[
     tuple[tuple[int, int], ...],
@@ -720,45 +719,6 @@ def _node_taz_ownership_from_index(
                 )[2]
                 owners.append((unowned_id, best_taz))
                 owner_map[unowned_id] = best_taz
-    elif topology_nodes is not None:
-        nodes_by_id = {node.node_id: node for node in topology_nodes}
-        unowned_nodes = [node for node in topology_nodes if node.node_id not in owner_map]
-        if unowned_nodes and owner_map:
-            owned_nodes = [
-                (nid, nodes_by_id[nid], owner_map[nid])
-                for nid in sorted(owner_map)
-                if nid in nodes_by_id
-            ]
-            for unowned in unowned_nodes:
-                ux = getattr(unowned, "x_mm", int(round(float(unowned.x) * 1000.0)))
-                uy = getattr(unowned, "y_mm", int(round(float(unowned.y) * 1000.0)))
-                best_taz = min(
-                    owned_nodes,
-                    key=lambda item: (
-                        (
-                            ux
-                            - getattr(
-                                item[1],
-                                "x_mm",
-                                int(round(float(item[1].x) * 1000.0)),
-                            )
-                        )
-                        ** 2
-                        + (
-                            uy
-                            - getattr(
-                                item[1],
-                                "y_mm",
-                                int(round(float(item[1].y) * 1000.0)),
-                            )
-                        )
-                        ** 2,
-                        item[0],
-                        item[2],
-                    ),
-                )[2]
-                owners.append((unowned.node_id, best_taz))
-                owner_map[unowned.node_id] = best_taz
 
     owners.sort(key=lambda item: item[0])
     return tuple(owners), tuple(conflicts), visit_count
