@@ -230,6 +230,22 @@ def _build_initial_city_authority(
     if city_config.morphology_style_id != "auto":
         city_context["style_id"] = city_config.morphology_style_id
 
+    if city_config.topology_mode == "scalable_synthetic_v2":
+        from metroflow.city.scalable_city import build_scalable_city_map
+
+        scalable = build_scalable_city_map(
+            city_config,
+            scenario_id=scenario_id,
+            seed=scenario_seed,
+            population_target=sim_config.population_target,
+        )
+        return _InitialCityAuthority(
+            topology=scalable.topology,
+            zoning=scalable.zoning,
+            road_csr=scalable.road_csr,
+            generated_city_map=None,
+        )
+
     if city_config.topology_mode == "realistic_synthetic_v1":
         generated = generate_city_map(
             city_config,
@@ -258,6 +274,7 @@ def _build_initial_city_authority(
         road_csr=road_csr,
         generated_city_map=None,
     )
+
 
 
 def _build_initial_trip_requests(
