@@ -506,6 +506,12 @@ def _runtime_static_input_fingerprint(state: SimulationState) -> str:
         "land_use_catalog_fingerprint": str(
             metadata.get("land_use_catalog_fingerprint", "")
         ),
+        "capacity_certificate_fingerprint": str(
+            metadata.get("capacity_certificate_fingerprint", "")
+        ),
+        "static_authority_fingerprint": str(
+            metadata.get("static_authority_fingerprint", "")
+        ),
         "generated_city_map_fingerprint": str(
             getattr(topology, "metadata", {}).get(
                 "generated_city_map_fingerprint",

@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from metroflow.city.scale import CityScaleSpec
-from metroflow.city.scalable_city import build_scalable_city_map
+from metroflow.city.scalable_city import ScalableCityMap, build_scalable_city_map
 from metroflow.sim.config import CityGenerationConfig, SimulationConfig
 from metroflow.sim.init import build_initial_simulation_state
 
@@ -200,4 +200,51 @@ def test_scalable_city_map_rejects_tampered_zoning_metadata() -> None:
             compiled=city.compiled,
             static_authority=city.static_authority,
         )
+
+
+def test_scalable_v2_split_policy_metadata() -> None:
+    """Verify separate TAZ partition, node ownership, and projection policies are sealed in metadata."""
+    from metroflow.city.scalable_authority import (
+        NODE_TAZ_OWNERSHIP_POLICY,
+        TAZ_PARTITION_POLICY,
+    )
+
+    config = CityGenerationConfig(
+        topology_mode="scalable_synthetic_v2",
+        morphology_style_id="grid_core",
+        zone_poi_coupling_mode="block_based_v1",
+        scale_spec=CityScaleSpec(target_population=100_000, urbanized_area_km2=25.0),
+    )
+    city = build_scalable_city_map(config, scenario_id="policy_check_s17", seed=17)
+
+    assert city.zoning.metadata["taz_partition_policy"] == TAZ_PARTITION_POLICY
+    assert city.zoning.metadata["node_taz_ownership_policy"] == NODE_TAZ_OWNERSHIP_POLICY
+    assert city.zoning.metadata["zoning_projection_policy"] == "scalable_v2_zoning_projection_v1"
+    assert "capacity_certificate_fingerprint" in city.zoning.metadata
+
+
+def test_scalable_v2_identity_seal_rejection() -> None:
+    """Verify ScalableCityMap rejects non-identical road_csr / topology objects (fail-closed identity binding)."""
+    import dataclasses
+
+    config = CityGenerationConfig(
+        topology_mode="scalable_synthetic_v2",
+        morphology_style_id="grid_core",
+        zone_poi_coupling_mode="block_based_v1",
+        scale_spec=CityScaleSpec(target_population=100_000, urbanized_area_km2=25.0),
+    )
+    city = build_scalable_city_map(config, scenario_id="identity_check_s17", seed=17)
+
+    separate_csr = dataclasses.replace(city.road_csr)
+    with pytest.raises(ValueError, match="compiled.road_csr does not match road_csr"):
+        ScalableCityMap(
+            topology=city.topology,
+            zoning=city.zoning,
+            road_csr=separate_csr,
+            network=city.network,
+            blocks=city.blocks,
+            compiled=city.compiled,
+            static_authority=city.static_authority,
+        )
+
 

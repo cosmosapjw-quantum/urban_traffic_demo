@@ -944,13 +944,20 @@ def _artifact_metadata(
     landuse_keep_keys = (
         "zoning_placement_fingerprint",
         "zoning_policy",
+        "zoning_projection_policy",
+        "taz_partition_policy",
+        "node_taz_ownership_policy",
         "poi_placement_policy",
+        "poi_policy",
         "zone_poi_coupling_requested_mode",
         "zone_poi_coupling_resolved_mode",
         "zone_poi_coupling_fallback_reason",
         "zone_poi_coupling_gate_version",
         "zone_poi_coupling_gate_digest",
         "zone_poi_coupling_anchor_digest",
+        "capacity_certificate_fingerprint",
+        "static_authority_fingerprint",
+        "static_authority_schema_version",
     )
     return {
         "scenario_seed": state.metadata.get("scenario_seed"),

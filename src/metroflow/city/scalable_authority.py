@@ -56,7 +56,9 @@ __all__ = (
 STATIC_AUTHORITY_SCHEMA = "scalable_static_authority_v1"
 LAND_USE_POLICY = "scalable_v2_land_use_v1"
 ALLOCATION_POLICY = "scalable_v2_capacity_allocation_v1"
-TAZ_POLICY = "scalable_v2_taz_morton_v1"
+TAZ_PARTITION_POLICY = "scalable_v2_taz_morton_v1"
+NODE_TAZ_OWNERSHIP_POLICY = "scalable_v2_node_taz_nearest_owned_v1"
+TAZ_POLICY = TAZ_PARTITION_POLICY  # legacy alias for fingerprint compatibility
 POI_POLICY = "scalable_v2_aggregate_poi_v1"
 FINGERPRINT_SET_SCHEMA = "scalable_map_fingerprint_v3"
 IMMUTABLE_CSR_SCHEMA = "immutable_road_network_csr_v1"
@@ -709,8 +711,8 @@ def _node_taz_ownership_from_index(
                 best_taz = min(
                     owned_nodes,
                     key=lambda item: (
-                        (float(unowned.x) - float(item[1].x)) ** 2
-                        + (float(unowned.y) - float(item[1].y)) ** 2,
+                        (int(unowned.x) - int(item[1].x)) ** 2
+                        + (int(unowned.y) - int(item[1].y)) ** 2,
                         item[0],
                         item[2],
                     ),
@@ -2926,6 +2928,7 @@ def _derive_scalable_static_authority(
     assignment_fingerprint = _sha256_payload(
         (
             TAZ_POLICY,
+            NODE_TAZ_OWNERSHIP_POLICY,
             taz_count,
             blocks.fingerprint,
             allocation_fingerprint,
@@ -3248,10 +3251,12 @@ def build_scalable_static_authority(
                 ("fingerprint_set_schema", FINGERPRINT_SET_SCHEMA),
                 ("immutable_csr_schema", IMMUTABLE_CSR_SCHEMA),
                 ("land_use_policy", LAND_USE_POLICY),
+                ("node_taz_ownership_policy", NODE_TAZ_OWNERSHIP_POLICY),
                 ("poi_policy", POI_POLICY),
                 ("receipt_policy", _STATIC_RECEIPT_POLICY_VERSION),
                 ("routing_policy", ROUTING_POLICY),
                 ("snapshot_policy", _TASK5_SNAPSHOT_POLICY_VERSION),
+                ("taz_partition_policy", TAZ_PARTITION_POLICY),
                 ("taz_policy", TAZ_POLICY),
             ),
             source_seal_schemas=(
@@ -3412,10 +3417,12 @@ def _capture_stable_static_validation_receipt(
             ("fingerprint_set_schema", FINGERPRINT_SET_SCHEMA),
             ("immutable_csr_schema", IMMUTABLE_CSR_SCHEMA),
             ("land_use_policy", LAND_USE_POLICY),
+            ("node_taz_ownership_policy", NODE_TAZ_OWNERSHIP_POLICY),
             ("poi_policy", POI_POLICY),
             ("receipt_policy", _STATIC_RECEIPT_POLICY_VERSION),
             ("routing_policy", ROUTING_POLICY),
             ("snapshot_policy", _TASK5_SNAPSHOT_POLICY_VERSION),
+            ("taz_partition_policy", TAZ_PARTITION_POLICY),
             ("taz_policy", TAZ_POLICY),
         ),
         source_seal_schemas=(
