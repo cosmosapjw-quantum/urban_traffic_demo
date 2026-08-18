@@ -54,9 +54,11 @@ def rust_routing_backend_available() -> bool:
         return False
     return (
         hasattr(rust_extension, "compute_dynamic_potential_node_costs")
+        and hasattr(rust_extension, "compute_multi_destination_dynamic_potentials")
         and hasattr(rust_extension, "compute_greedy_route_candidate")
         and hasattr(rust_extension, "compute_next_link_action_costs")
         and hasattr(rust_extension, "compute_ranked_route_candidates")
+        and hasattr(rust_extension, "compute_ranked_route_candidates_batch")
         and hasattr(rust_extension, "compute_route_candidate_metadata")
         and hasattr(rust_extension, "select_route_candidate_index")
     )
@@ -270,6 +272,35 @@ def compute_dynamic_potential_node_costs_rust(
     return np.asarray(node_cost_to_go, dtype=np.float32)
 
 
+def compute_multi_destination_dynamic_potentials_rust(
+    *,
+    node_count: int,
+    incoming_indptr: Sequence[int],
+    incoming_link_indices: Sequence[int],
+    link_src_node_index: Sequence[int],
+    link_travel_time_cost: Sequence[float],
+    blocked_link_mask: Sequence[bool],
+    destination_node_indices: Sequence[int],
+) -> tuple[np.ndarray, ...]:
+    rust_extension = _load_rust_extension(RUST_ROUTING_BACKEND_UNAVAILABLE)
+    try:
+        potentials = rust_extension.compute_multi_destination_dynamic_potentials(
+            int(node_count),
+            _as_i32_routing_list(incoming_indptr, "incoming_indptr"),
+            _as_i32_routing_list(incoming_link_indices, "incoming_link_indices"),
+            _as_i32_routing_list(link_src_node_index, "link_src_node_index"),
+            _as_f32_routing_list(link_travel_time_cost, "link_travel_time_cost"),
+            _as_bool_routing_list(blocked_link_mask, "blocked_link_mask"),
+            [int(d) for d in destination_node_indices],
+        )
+    except AttributeError as exc:
+        raise RuntimeError(RUST_ROUTING_BACKEND_UNAVAILABLE) from exc
+    except ValueError as exc:
+        raise RuntimeError(f"Rust CPU routing backend failed: {exc}") from exc
+
+    return tuple(np.asarray(dist, dtype=np.float32) for dist in potentials)
+
+
 def compute_greedy_route_candidate_rust(
     *,
     node_count: int,
@@ -360,6 +391,56 @@ def compute_ranked_route_candidates_rust(
         raise RuntimeError(f"Rust CPU routing backend failed: {exc}") from exc
 
     return tuple(tuple(int(link_id) for link_id in path) for path in paths)
+
+
+def compute_ranked_route_candidates_batch_rust(
+    *,
+    node_count: int,
+    link_ids: Sequence[int],
+    link_dst_node_index: Sequence[int],
+    outgoing_indptr: Sequence[int],
+    outgoing_link_indices: Sequence[int],
+    turn_from_link_index: Sequence[int],
+    turn_to_link_index: Sequence[int],
+    turn_is_forbidden: Sequence[bool],
+    node_costs_to_go: Sequence[Sequence[float]],
+    link_travel_time_cost: Sequence[float],
+    blocked_link_mask: Sequence[bool],
+    origins: Sequence[int],
+    destinations: Sequence[int],
+    incomings: Sequence[int],
+    max_hops: int,
+    max_candidates: int,
+) -> tuple[tuple[tuple[int, ...], ...], ...]:
+    rust_extension = _load_rust_extension(RUST_ROUTING_BACKEND_UNAVAILABLE)
+    try:
+        paths_batch = rust_extension.compute_ranked_route_candidates_batch(
+            int(node_count),
+            _as_i32_routing_list(link_ids, "link_ids"),
+            _as_i32_routing_list(link_dst_node_index, "link_dst_node_index"),
+            _as_i32_routing_list(outgoing_indptr, "outgoing_indptr"),
+            _as_i32_routing_list(outgoing_link_indices, "outgoing_link_indices"),
+            _as_i32_routing_list(turn_from_link_index, "turn_from_link_index"),
+            _as_i32_routing_list(turn_to_link_index, "turn_to_link_index"),
+            _as_bool_routing_list(turn_is_forbidden, "turn_is_forbidden"),
+            [_as_f32_routing_list(c, "node_cost_to_go") for c in node_costs_to_go],
+            _as_f32_routing_list(link_travel_time_cost, "link_travel_time_cost"),
+            _as_bool_routing_list(blocked_link_mask, "blocked_link_mask"),
+            [int(o) for o in origins],
+            [int(d) for d in destinations],
+            [int(i) for i in incomings],
+            int(max_hops),
+            int(max_candidates),
+        )
+    except AttributeError as exc:
+        raise RuntimeError(RUST_ROUTING_BACKEND_UNAVAILABLE) from exc
+    except ValueError as exc:
+        raise RuntimeError(f"Rust CPU routing backend failed: {exc}") from exc
+
+    return tuple(
+        tuple(tuple(int(link_id) for link_id in path) for path in paths)
+        for paths in paths_batch
+    )
 
 
 def compute_route_candidate_metadata_rust(

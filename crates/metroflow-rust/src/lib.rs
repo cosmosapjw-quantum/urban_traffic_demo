@@ -16,7 +16,8 @@ use flow::compute_baseline_flow_arrays_batch_impl;
 use reroute::compute_reroute_decision_batch_impl;
 use routing::{
     compute_dynamic_potential_node_costs_impl, compute_greedy_route_candidate_impl,
-    compute_next_link_action_costs_impl, compute_ranked_route_candidates_impl,
+    compute_multi_destination_dynamic_potentials_impl, compute_next_link_action_costs_impl,
+    compute_ranked_route_candidates_batch_impl, compute_ranked_route_candidates_impl,
     compute_route_candidate_metadata_impl, select_route_candidate_index_impl,
 };
 
@@ -77,6 +78,28 @@ fn compute_dynamic_potential_node_costs(
         &link_travel_time_cost,
         &blocked_link_mask,
         destination_node_index,
+    )
+    .map_err(PyValueError::new_err)
+}
+
+#[pyfunction]
+fn compute_multi_destination_dynamic_potentials(
+    node_count: usize,
+    incoming_indptr: Vec<i32>,
+    incoming_link_indices: Vec<i32>,
+    link_src_node_index: Vec<i32>,
+    link_travel_time_cost: Vec<f32>,
+    blocked_link_mask: Vec<bool>,
+    destination_node_indices: Vec<usize>,
+) -> PyResult<Vec<Vec<f32>>> {
+    compute_multi_destination_dynamic_potentials_impl(
+        node_count,
+        &incoming_indptr,
+        &incoming_link_indices,
+        &link_src_node_index,
+        &link_travel_time_cost,
+        &blocked_link_mask,
+        &destination_node_indices,
     )
     .map_err(PyValueError::new_err)
 }
@@ -180,6 +203,47 @@ fn compute_ranked_route_candidates(
 }
 
 #[pyfunction]
+#[allow(clippy::too_many_arguments)]
+fn compute_ranked_route_candidates_batch(
+    node_count: usize,
+    link_ids: Vec<i32>,
+    link_dst_node_index: Vec<i32>,
+    outgoing_indptr: Vec<i32>,
+    outgoing_link_indices: Vec<i32>,
+    turn_from_link_index: Vec<i32>,
+    turn_to_link_index: Vec<i32>,
+    turn_is_forbidden: Vec<bool>,
+    node_costs_to_go: Vec<Vec<f32>>,
+    link_travel_time_cost: Vec<f32>,
+    blocked_link_mask: Vec<bool>,
+    origins: Vec<usize>,
+    destinations: Vec<usize>,
+    incomings: Vec<i32>,
+    max_hops: usize,
+    max_candidates: usize,
+) -> PyResult<Vec<Vec<Vec<i32>>>> {
+    compute_ranked_route_candidates_batch_impl(
+        node_count,
+        &link_ids,
+        &link_dst_node_index,
+        &outgoing_indptr,
+        &outgoing_link_indices,
+        &turn_from_link_index,
+        &turn_to_link_index,
+        &turn_is_forbidden,
+        &node_costs_to_go,
+        &link_travel_time_cost,
+        &blocked_link_mask,
+        &origins,
+        &destinations,
+        &incomings,
+        max_hops,
+        max_candidates,
+    )
+    .map_err(PyValueError::new_err)
+}
+
+#[pyfunction]
 fn compute_route_candidate_metadata(
     link_ids: Vec<i32>,
     link_length_m: Vec<f32>,
@@ -269,9 +333,11 @@ fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(evolve_edges_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_baseline_flow_arrays_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_dynamic_potential_node_costs, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_multi_destination_dynamic_potentials, m)?)?;
     m.add_function(wrap_pyfunction!(compute_next_link_action_costs, m)?)?;
     m.add_function(wrap_pyfunction!(compute_greedy_route_candidate, m)?)?;
     m.add_function(wrap_pyfunction!(compute_ranked_route_candidates, m)?)?;
+    m.add_function(wrap_pyfunction!(compute_ranked_route_candidates_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_route_candidate_metadata, m)?)?;
     m.add_function(wrap_pyfunction!(select_route_candidate_index, m)?)?;
     m.add_function(wrap_pyfunction!(compute_reroute_decision_batch, m)?)?;

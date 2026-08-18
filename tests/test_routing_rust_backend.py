@@ -936,3 +936,115 @@ def test_route_candidate_refresh_records_effective_routing_backend_metadata(
     assert candidate_set.metadata["routing_backend"] == "baseline"
     assert candidate_set.metadata["routing_backend_requested"] == "auto"
     assert candidate_set.metadata["routing_backend_fallback"] == "rust_cpu_unavailable"
+
+
+def test_rust_multi_destination_dynamic_potentials_parity() -> None:
+    from metroflow.backends.rust_cpu import (
+        compute_dynamic_potential_node_costs_rust,
+        compute_multi_destination_dynamic_potentials_rust,
+        rust_routing_backend_available,
+    )
+
+    if not rust_routing_backend_available():
+        pytest.skip("Rust CPU routing backend is not available")
+
+    road_csr, link_state = _make_routing_fixture()
+    destinations = [0, 1, 2, 3]
+
+    singles = [
+        compute_dynamic_potential_node_costs_rust(
+            node_count=road_csr.node_count,
+            incoming_indptr=road_csr.incoming_indptr,
+            incoming_link_indices=road_csr.incoming_link_indices,
+            link_src_node_index=road_csr.link_src_node_index,
+            link_travel_time_cost=link_state.travel_time_cost,
+            blocked_link_mask=(False, False, False, False),
+            destination_node_index=dst,
+        )
+        for dst in destinations
+    ]
+
+    batch = compute_multi_destination_dynamic_potentials_rust(
+        node_count=road_csr.node_count,
+        incoming_indptr=road_csr.incoming_indptr,
+        incoming_link_indices=road_csr.incoming_link_indices,
+        link_src_node_index=road_csr.link_src_node_index,
+        link_travel_time_cost=link_state.travel_time_cost,
+        blocked_link_mask=(False, False, False, False),
+        destination_node_indices=destinations,
+    )
+
+    assert len(batch) == len(destinations)
+    for single, batched in zip(singles, batch):
+        np.testing.assert_array_equal(single, batched)
+
+
+def test_rust_ranked_route_candidates_batch_parity() -> None:
+    from metroflow.backends.rust_cpu import (
+        compute_dynamic_potential_node_costs_rust,
+        compute_ranked_route_candidates_batch_rust,
+        compute_ranked_route_candidates_rust,
+        rust_routing_backend_available,
+    )
+
+    if not rust_routing_backend_available():
+        pytest.skip("Rust CPU routing backend is not available")
+
+    road_csr, link_state = _make_routing_fixture()
+    node_cost_4 = compute_dynamic_potential_node_costs_rust(
+        node_count=road_csr.node_count,
+        incoming_indptr=road_csr.incoming_indptr,
+        incoming_link_indices=road_csr.incoming_link_indices,
+        link_src_node_index=road_csr.link_src_node_index,
+        link_travel_time_cost=link_state.travel_time_cost,
+        blocked_link_mask=(False, False, False, False),
+        destination_node_index=3,
+    )
+
+    pairs = [(0, 3, -1), (1, 3, 0)]
+    node_costs = [node_cost_4, node_cost_4]
+
+    singles = [
+        compute_ranked_route_candidates_rust(
+            node_count=road_csr.node_count,
+            link_ids=road_csr.link_ids,
+            link_dst_node_index=road_csr.link_dst_node_index,
+            outgoing_indptr=road_csr.outgoing_indptr,
+            outgoing_link_indices=road_csr.outgoing_link_indices,
+            turn_from_link_index=road_csr.turn_from_link_index,
+            turn_to_link_index=road_csr.turn_to_link_index,
+            turn_is_forbidden=road_csr.turn_is_forbidden,
+            node_cost_to_go=cost,
+            link_travel_time_cost=link_state.travel_time_cost,
+            blocked_link_mask=(False, False, False, False),
+            origin_node_index=origin,
+            destination_node_index=dest,
+            incoming_link_index=inc,
+            max_hops=10,
+            max_candidates=3,
+        )
+        for (origin, dest, inc), cost in zip(pairs, node_costs)
+    ]
+
+    batch = compute_ranked_route_candidates_batch_rust(
+        node_count=road_csr.node_count,
+        link_ids=road_csr.link_ids,
+        link_dst_node_index=road_csr.link_dst_node_index,
+        outgoing_indptr=road_csr.outgoing_indptr,
+        outgoing_link_indices=road_csr.outgoing_link_indices,
+        turn_from_link_index=road_csr.turn_from_link_index,
+        turn_to_link_index=road_csr.turn_to_link_index,
+        turn_is_forbidden=road_csr.turn_is_forbidden,
+        node_costs_to_go=node_costs,
+        link_travel_time_cost=link_state.travel_time_cost,
+        blocked_link_mask=(False, False, False, False),
+        origins=[p[0] for p in pairs],
+        destinations=[p[1] for p in pairs],
+        incomings=[p[2] for p in pairs],
+        max_hops=10,
+        max_candidates=3,
+    )
+
+    assert len(batch) == len(pairs)
+    assert batch == tuple(singles)
+

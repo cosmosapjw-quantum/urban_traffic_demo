@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap, HashSet};
+use rayon::prelude::*;
 
 use crate::common::{validate_non_negative_f32, ROUTING_INF_COST};
 
@@ -907,3 +908,121 @@ pub(crate) fn select_route_candidate_index_impl(
 
     Ok((best_index as i32, best_utility))
 }
+
+pub(crate) fn compute_multi_destination_dynamic_potentials_impl(
+    node_count: usize,
+    incoming_indptr: &[i32],
+    incoming_link_indices: &[i32],
+    link_src_node_index: &[i32],
+    link_travel_time_cost: &[f32],
+    blocked_link_mask: &[bool],
+    destination_node_indices: &[usize],
+) -> Result<Vec<Vec<f32>>, String> {
+    for &dst in destination_node_indices {
+        validate_routing_inputs(
+            node_count,
+            incoming_indptr,
+            incoming_link_indices,
+            link_src_node_index,
+            link_travel_time_cost,
+            blocked_link_mask,
+            dst,
+        )?;
+    }
+
+    let results: Vec<Vec<f32>> = destination_node_indices
+        .par_iter()
+        .map(|&destination_node_index| {
+            let mut dist = vec![ROUTING_INF_COST; node_count];
+            let mut heap = BinaryHeap::new();
+            dist[destination_node_index] = 0.0;
+            heap.push(RoutingHeapState {
+                cost: 0.0,
+                node_index: destination_node_index,
+            });
+
+            while let Some(RoutingHeapState { cost, node_index }) = heap.pop() {
+                if cost > dist[node_index] {
+                    continue;
+                }
+                let start = incoming_indptr[node_index] as usize;
+                let end = incoming_indptr[node_index + 1] as usize;
+                for pos in start..end {
+                    let link_index = incoming_link_indices[pos] as usize;
+                    if blocked_link_mask[link_index] {
+                        continue;
+                    }
+                    let prev_node_index = link_src_node_index[link_index] as usize;
+                    let candidate = cost + link_travel_time_cost[link_index].max(1.0e-6_f32);
+                    if candidate < dist[prev_node_index] {
+                        dist[prev_node_index] = candidate;
+                        heap.push(RoutingHeapState {
+                            cost: candidate,
+                            node_index: prev_node_index,
+                        });
+                    }
+                }
+            }
+            dist
+        })
+        .collect();
+
+    Ok(results)
+}
+
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn compute_ranked_route_candidates_batch_impl(
+    node_count: usize,
+    link_ids: &[i32],
+    link_dst_node_index: &[i32],
+    outgoing_indptr: &[i32],
+    outgoing_link_indices: &[i32],
+    turn_from_link_index: &[i32],
+    turn_to_link_index: &[i32],
+    turn_is_forbidden: &[bool],
+    node_costs_to_go: &[Vec<f32>],
+    link_travel_time_cost: &[f32],
+    blocked_link_mask: &[bool],
+    origins: &[usize],
+    destinations: &[usize],
+    incomings: &[i32],
+    max_hops: usize,
+    max_candidates: usize,
+) -> Result<Vec<Vec<Vec<i32>>>, String> {
+    let pair_count = origins.len();
+    if destinations.len() != pair_count
+        || incomings.len() != pair_count
+        || node_costs_to_go.len() != pair_count
+    {
+        return Err(
+            "origins, destinations, incomings, and node_costs_to_go must have equal lengths"
+                .to_string(),
+        );
+    }
+
+    (0..pair_count)
+        .into_par_iter()
+        .map(|idx| {
+            compute_ranked_route_candidates_impl(
+                node_count,
+                link_ids,
+                link_dst_node_index,
+                outgoing_indptr,
+                outgoing_link_indices,
+                turn_from_link_index,
+                turn_to_link_index,
+                turn_is_forbidden,
+                &node_costs_to_go[idx],
+                link_travel_time_cost,
+                blocked_link_mask,
+                origins[idx],
+                destinations[idx],
+                incomings[idx],
+                max_hops,
+                max_candidates,
+            )
+        })
+        .collect()
+}
+
+

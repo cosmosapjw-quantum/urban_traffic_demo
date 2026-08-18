@@ -1,0 +1,5 @@
+# GitHub Linguist language statistics overrides
+artifacts/** linguist-generated=true
+docs/** linguist-documentation=true
+*.json linguist-generated=true
+*.svg linguist-generated=true
