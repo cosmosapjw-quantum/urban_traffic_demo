@@ -19,6 +19,8 @@ htmlcov/
 Thumbs.db
 *.tmp
 *.swp
+*.bundle
+*.zip
 
 # Generated standalone review payloads are reproducible but too large to track.
 artifacts/static_city_map_review_20260710/*.html

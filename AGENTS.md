@@ -9,6 +9,11 @@
 - multirate scheduler
 - cache invalidation rule 문서화
 - deterministic replay 필수
+- behavior-cluster TDD (공개 behavior RED/GREEN 유지, private helper 커밋 및 helper 단위 전체 suite 반복 금지)
+- 단일 직렬 구현자 + frozen candidate 이후 읽기 전용 subagent review (최대 3회)
+- 선행 PR 미완료 시 후속 PR 선행 보증/검토 차단 (PR(n+1) blocked until PR(n) merged/stopped)
+- 단일 메타인지 환원 (*_METHOD_PILOT=PASS|SPLIT) 및 META_RECURSION_BLOCKED
+- 보증 문서 크기는 대상 source+test 코드 크기 이하로 엄격 제한 (assurance inflation 방지)
 
 ## 지금 하지 말 것
 - lane-level microscopic default
@@ -16,6 +21,9 @@
 - ECS/plugin-first architecture
 - distributed multi-GPU
 - full generic frameworkization
+- private helper 단위 micro-commit 및 내부 루프 전체 test suite 반복 (gate inflation)
+- 부모 PR 미완료 상태에서 자식 PR 선행 보증 문서 작성 (assurance inflation)
+- 메타인지 판단 후 반복 재평가 루프 (meta recursion)
 
 ## 구현 순서
 1. core/state.py
@@ -35,6 +43,7 @@
 - cache invalidation 영향?
 - replay/regression 영향?
 - benchmark 영향?
+- process/gate/assurance inflation 영향? `docs/harness/PROCESS_INFLATION_GUARDRAILS.md` 확인
 - acceleration 작업 전 `docs/harness/RUNTIME_ACCELERATION_DECISION_GUARDRAILS.md`의 self-ask/step-back gate 확인
 
 ## Active Technologies

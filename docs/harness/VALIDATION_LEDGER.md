@@ -970,3 +970,109 @@ Result: canonical PR62 and PR63 fingerprints reload, both gates remain false,
 the default remains `standard`, and the machine decision records `BLOCKED`.
 No runtime or generator feature code is added. Final repository gate:
 `778 passed in 590.18s`; Ruff and diff checks pass.
+
+## 2026-08-09: G0 Map-Evidence Recovery
+
+Change class: integrity-boundary repair and deterministic evidence tooling;
+no city/runtime generator change
+
+Protected inputs were inspected read-only and were not repacked, resealed, or
+placed on `sys.path`:
+
+```bash
+sha256sum \
+  MetroFlow_map_generation_reaudit_2026-08-08.zip \
+  MetroFlow_CAPR_research_2026-08-08.zip \
+  MetroFlow_CAPR_research_2026-08-08.bundle
+unzip -t MetroFlow_map_generation_reaudit_2026-08-08.zip
+unzip -t MetroFlow_CAPR_research_2026-08-08.zip
+zipinfo -1 MetroFlow_map_generation_reaudit_2026-08-08.zip | wc -l
+zipinfo -1 MetroFlow_CAPR_research_2026-08-08.zip | wc -l
+git bundle verify MetroFlow_CAPR_research_2026-08-08.bundle
+```
+
+Input receipts:
+
+- map re-audit ZIP: 241,084 bytes, SHA-256
+  `9b566eed6a8ee077c1f6b77d87aaacd0c37b0d23d47534658c6bc681f87a9c4c`,
+  147 archive members, CRC clean;
+- CAPR ZIP: 590,250 bytes, SHA-256
+  `fc2559589a246d239bf19cdfc584cea18c513f5cd9ef37761d73e35770831393`,
+  169 archive members, CRC clean;
+- CAPR bundle: 349,682 bytes, SHA-256
+  `0adb0de9e66916722c6f170dab5a21da325397a041caa6baeb1ce889b4229626`,
+  bundle verification clean at producer HEAD
+  `bc879f8323d4bcf4bc76883641b570f464ae38c9`.
+
+The map ZIP contains 145 true non-integrity payloads. `SHA256SUMS.txt` has 146
+valid rows (145 payloads plus `FILE_MANIFEST.json`). `FILE_MANIFEST.json` also
+has 146 rows (145 payloads plus `SHA256SUMS.txt`), with exactly one disagreement:
+the checksum member is declared as 16,240 bytes / SHA-256
+`173e6922a87520cc33816c4b8e0055dc74423211586ccecfeca249e68c47ed72`
+but is actually 16,327 bytes / SHA-256
+`d14931aca032539f8809435d7bc3702053b1fa2ec688c0cbf0560c3cdffa0879`.
+Verdict: payload integrity holds; package integrity is `PARTIAL` because the
+wrappers are cyclic.
+
+The CAPR `CONTENT_MANIFEST.json` declares 167 payloads and excludes itself plus
+`PACKAGE_METADATA.json`. All 167 payload sizes and SHA-256 values match both the
+ZIP and bundle producer tree. Exact CAPR ZIP reconstruction remains open because
+the bundle lacks package metadata, the packaging command/contract, and an
+external ZIP digest.
+
+S0 row-derived diagnostic means are p=.20 degree `4.56823`, dead-end share
+`0.02930`; p=.35 degree `3.88152`, dead-end share `0.11234`. Its implementation
+status is `IMPLEMENTED_DIAGNOSTIC`; historical byte replay remains
+`NOT_REPRODUCIBLY_CLOSED`. Audited base
+`3c6a5c794ca5e06878ecb50eb935435208b8f2be` and producer/receipt
+`516a71293ef8ee9f9795a7c818500f47ddcaa426` are recorded separately.
+
+G0 tooling now has a payload-only manifest and an external detached digest. Its
+verifier applies the semantic claim firewall to archived payloads, excludes
+integrity-wrapper case/path variants, and publication is strict no-clobber for
+all existing targets plus the three protected historical basenames. A failed
+new publication removes both ZIP and sidecar. The null-control v2 runner binds
+the verified checkout/import origins and actual Python/NumPy versions, accepts
+only the exact typed 6 x 5 x 5 matrix, records the audited base as the historical
+commit, and repeats the repository/source check after collection.
+
+A bundle call's two serializations share one in-memory member set and therefore
+record only `IN_PROCESS_SERIALIZATION_MATCH_ONLY`. No cross-build status is
+embedded. Promotion is confined to a separate replay receipt that compares ZIP
+and sidecar bytes supplied from two independent clean checkout/process runs.
+No such canonical v2 bundle or replay receipt was emitted in this dirty,
+uncommitted session. The final G0 gate remains blocked until a clean immutable
+producer commit and canonical environment lock exist and the independent runs
+match.
+
+Focused implementation evidence:
+
+```bash
+.venv/bin/python -m pytest \
+  tests/test_map_evidence_bundle.py tests/test_null_operator_control.py -q
+.venv/bin/python -m pytest tests/test_external_audit_package.py -q
+.venv/bin/python -m ruff check \
+  tools/build_map_evidence_bundle.py \
+  tools/run_null_operator_control.py \
+  tests/test_map_evidence_bundle.py \
+  tests/test_null_operator_control.py
+```
+
+- bundle/null-control contracts plus live control:
+  `61 passed, 1 xfailed in 91.19s`;
+- existing external-audit package regression: `9 passed in 2.71s`;
+- focused Ruff gate: passed.
+
+Fix-round REDs were observed before the matching implementation: the fully
+resealed promoted payload was accepted; `SHA256SUMS.txt` case/path variants and
+existing/protected outputs were accepted or overwritten; the manifest claimed
+`CANONICAL_BYTES_VERIFIED`; arbitrary/coerced matrix identifiers and an extra
+fraction row were accepted; provenance from one repository could precede
+measurement imports from another; runtime-lock mismatch and post-collection
+drift did not stop publication. Each branch now has a direct production-symbol
+test. The overlapping exploratory timing run was discarded and is not evidence.
+
+A direct builder attempt against the current repository HEAD exited `1` with
+`RuntimeError: working tree must be clean before evidence snapshot`; its scratch
+directory contained only captured stdout/stderr and no ZIP or sidecar. This is
+the expected G0 blocker, not a failed artifact that may be resealed.

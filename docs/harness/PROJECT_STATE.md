@@ -1,6 +1,19 @@
 # Project State
 
-Last updated: 2026-07-13
+Last updated: 2026-08-17
+
+## Process Governance & Hybrid Methodology Baseline
+
+Facts:
+
+- Development and review methodology is governed by `docs/harness/PROCESS_INFLATION_GUARDRAILS.md`.
+- Watchdog state: Drift WATCH, Code inflation WATCH, Process accretion remediated, Claim accretion PASS, Gate inflation remediated, Assurance inflation remediated.
+- Active methodology is the Hybrid Contract: Short Spec Boundaries + Behavior-Cluster TDD + Single Serial Implementer + Frozen Candidate Read-Only Subagent Review.
+- Work is organized into four behavior clusters: S11, S12–13, S14–15, S16–17.
+- Private-helper-level micro-commits and helper-level full-suite test loops are banned; inner loops use targeted unit tests.
+- Full 30/80 gate, provenance, Ruff, CI, and maximum 3 read-only subagent reviews run exclusively on the frozen candidate.
+- Downstream PR prep (e.g., PR89) is strictly blocked until parent PR (e.g., PR88) is merged or structurally closed.
+- Metacognition is executed exactly once, reduced to `PR88_METHOD_PILOT=PASS|SPLIT`, with re-evaluation blocked (`META_RECURSION_BLOCKED`).
 
 ## Runtime Baseline
 

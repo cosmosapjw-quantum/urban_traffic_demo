@@ -1,5 +1,50 @@
 # Decision Log
 
+## 2026-08-17: Remediation of Process Inflation and Adoption of Hybrid Development Methodology
+
+Status: accepted
+
+### Context
+
+Audit of development campaign cycles (PR88 pilot) revealed severe process inflation:
+123 minutes of 171 minutes (72%) were spent on pre-implementation contracting and
+reviews; 48 minutes of implementation produced 79 commits with 5 implement/revert pairs
+accounting for 57.45% of commit churn. PR88 assurance documentation reached 5,614 lines
+(exceeding 4,323 lines of source+test), and PR89 prematurely generated 2,992 lines of
+upfront assurance prior to PR88 completion. Watchdog verdicts returned FAIL on Process
+accretion, Gate inflation, and Assurance inflation.
+
+### Compact CCoT
+
+Question: How should the repository harness be structured to eliminate process, gate,
+and assurance inflation without compromising correctness or deterministic reproducibility?
+
+Evidence: Excessive procedural subdivision, micro-commit churn on private helpers,
+redundant full-suite test loops during helper development, bloated assurance documentation,
+and premature downstream PR preparation created 72% pre-implementation overhead and 57.45%
+revert churn.
+
+Inference: Neither pure TDD (creates helper micro-commit churn), pure spec (creates upfront
+document bloat), nor unconstrained subagents (creates coordination write churn) solves the
+problem. A hybrid methodology is required: short boundary specs, behavior-cluster TDD
+(public RED/GREEN with no helper commits), single serial implementer, frozen candidate
+read-only subagent reviews, downstream PR blocking, and single-evaluation metacognition.
+
+Counterevidence checked: Relaxing gates altogether would risk regression and drift;
+retaining full 30/80 gate, provenance, Ruff, and CI on frozen candidates preserves
+empirical rigor while eliminating inner-loop gate inflation.
+
+Decision: Formalize `docs/harness/PROCESS_INFLATION_GUARDRAILS.md`. Group remaining
+tasks into four behavior clusters (S11, S12–13, S14–15, S16–17). Block PR89 upfront review
+until PR88 is merged or stopped. Restrict subagent reviews to maximum 3 read-only passes on
+frozen candidates. Reduce metacognitive evaluation strictly to `PR88_METHOD_PILOT=PASS|SPLIT`
+with `META_RECURSION_BLOCKED`.
+
+Falsifier: Pre-implementation process overhead exceeds 30% of cycle time, helper-level
+revert churn exceeds 10%, or assurance documentation exceeds source+test surface.
+
+Next action: Execute S11 under behavior-cluster TDD with single serial implementer.
+
 ## 2026-07-10: Acceleration Roadmap Closure Requires Fresh Evidence Before New Spec
 
 Status: accepted
