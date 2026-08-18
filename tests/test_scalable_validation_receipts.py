@@ -223,6 +223,18 @@ def test_schema_literals_match_validation_performance_tool() -> None:
         )
 
 
+def test_task45_controller_static_policy_contract_matches_registered_receipt() -> None:
+    """Verify controller static expectation matches scalable authority receipt policy versions."""
+    authority_module = importlib.import_module("metroflow.city.scalable_authority")
+    policy_versions = authority_module.static_receipt_policy_versions()
+    assert isinstance(policy_versions, tuple)
+    assert len(policy_versions) >= 13
+    keys = [k for k, _ in policy_versions]
+    assert "node_taz_ownership_policy" in keys
+    assert "taz_partition_policy" in keys
+    assert keys == sorted(keys)
+
+
 # ---- 6. VerifiedTask5SourceSnapshot is frozen/slotted ----
 
 

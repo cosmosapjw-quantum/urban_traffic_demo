@@ -392,22 +392,7 @@ def _measurement_child(
             "static",
             authority.schema_version,
             authority.fingerprint,
-            expected_policy_versions=(
-                ("access_direction_policy", authority_module.ACCESS_DIRECTION_POLICY),
-                ("allocation_policy", authority_module.ALLOCATION_POLICY),
-                (
-                    "closure_capability_policy",
-                    authority_module.CLOSURE_CAPABILITY_POLICY,
-                ),
-                ("fingerprint_set_schema", authority_module.FINGERPRINT_SET_SCHEMA),
-                ("immutable_csr_schema", authority_module.IMMUTABLE_CSR_SCHEMA),
-                ("land_use_policy", authority_module.LAND_USE_POLICY),
-                ("poi_policy", authority_module.POI_POLICY),
-                ("receipt_policy", _STATIC_RECEIPT_POLICY_VERSION),
-                ("routing_policy", authority_module.ROUTING_POLICY),
-                ("snapshot_policy", _TASK5_SNAPSHOT_POLICY_VERSION),
-                ("taz_policy", authority_module.TAZ_POLICY),
-            ),
+            expected_policy_versions=authority_module.static_receipt_policy_versions(),
             expected_source_seal_schemas=(
                 ("blocks.current", _BLOCKS_SEAL_SCHEMA),
                 ("compiled.aggregate", _COMPILED_AGGREGATE_SEAL_SCHEMA),

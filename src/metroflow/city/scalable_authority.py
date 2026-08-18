@@ -57,7 +57,7 @@ STATIC_AUTHORITY_SCHEMA = "scalable_static_authority_v1"
 LAND_USE_POLICY = "scalable_v2_land_use_v1"
 ALLOCATION_POLICY = "scalable_v2_capacity_allocation_v1"
 TAZ_PARTITION_POLICY = "scalable_v2_taz_morton_v1"
-NODE_TAZ_OWNERSHIP_POLICY = "scalable_v2_node_taz_nearest_owned_v1"
+NODE_TAZ_OWNERSHIP_POLICY = "scalable_v2_node_taz_nearest_owned_mm_v2"
 TAZ_POLICY = TAZ_PARTITION_POLICY  # legacy alias for fingerprint compatibility
 POI_POLICY = "scalable_v2_aggregate_poi_v1"
 FINGERPRINT_SET_SCHEMA = "scalable_map_fingerprint_v3"
@@ -661,6 +661,7 @@ def _node_taz_ownership_from_index(
     *,
     block_rows: tuple[tuple[str, int, tuple[int, ...]], ...],
     topology_nodes: tuple[Any, ...] | None = None,
+    node_xy_mm_by_id: Mapping[int, tuple[int, int]] | None = None,
 ) -> tuple[
     tuple[tuple[int, int], ...],
     tuple[tuple[int, tuple[tuple[str, int], ...], int], ...],
@@ -698,7 +699,28 @@ def _node_taz_ownership_from_index(
         if len(ordered) > 1:
             conflicts.append((node_id, ordered, winner))
 
-    if topology_nodes is not None:
+    if node_xy_mm_by_id is not None:
+        unowned_node_ids = [nid for nid in sorted(node_xy_mm_by_id) if nid not in owner_map]
+        if unowned_node_ids and owner_map:
+            owned_nodes = [
+                (nid, node_xy_mm_by_id[nid], owner_map[nid])
+                for nid in sorted(owner_map)
+                if nid in node_xy_mm_by_id
+            ]
+            for unowned_id in unowned_node_ids:
+                ux, uy = node_xy_mm_by_id[unowned_id]
+                best_taz = min(
+                    owned_nodes,
+                    key=lambda item: (
+                        (int(ux) - int(item[1][0])) ** 2
+                        + (int(uy) - int(item[1][1])) ** 2,
+                        item[0],
+                        item[2],
+                    ),
+                )[2]
+                owners.append((unowned_id, best_taz))
+                owner_map[unowned_id] = best_taz
+    elif topology_nodes is not None:
         nodes_by_id = {node.node_id: node for node in topology_nodes}
         unowned_nodes = [node for node in topology_nodes if node.node_id not in owner_map]
         if unowned_nodes and owner_map:
@@ -708,11 +730,29 @@ def _node_taz_ownership_from_index(
                 if nid in nodes_by_id
             ]
             for unowned in unowned_nodes:
+                ux = getattr(unowned, "x_mm", int(round(float(unowned.x) * 1000.0)))
+                uy = getattr(unowned, "y_mm", int(round(float(unowned.y) * 1000.0)))
                 best_taz = min(
                     owned_nodes,
                     key=lambda item: (
-                        (int(unowned.x) - int(item[1].x)) ** 2
-                        + (int(unowned.y) - int(item[1].y)) ** 2,
+                        (
+                            ux
+                            - getattr(
+                                item[1],
+                                "x_mm",
+                                int(round(float(item[1].x) * 1000.0)),
+                            )
+                        )
+                        ** 2
+                        + (
+                            uy
+                            - getattr(
+                                item[1],
+                                "y_mm",
+                                int(round(float(item[1].y) * 1000.0)),
+                            )
+                        )
+                        ** 2,
                         item[0],
                         item[2],
                     ),
@@ -2923,7 +2963,7 @@ def _derive_scalable_static_authority(
             (block.block_semantic_id, block.taz_id, block.access_node_ids)
             for block in block_land_use
         ),
-        topology_nodes=compiled.topology.nodes,
+        node_xy_mm_by_id={node.node_id: (node.x_mm, node.y_mm) for node in network.nodes},
     )
     assignment_fingerprint = _sha256_payload(
         (
@@ -3228,46 +3268,10 @@ def build_scalable_static_authority(
         compiled=compiled,
     )
     from metroflow.city.scalable_validation_receipts import (
-        _BLOCKS_SEAL_SCHEMA,
-        _COMPILED_AGGREGATE_SEAL_SCHEMA,
-        _NETWORK_SEAL_SCHEMA,
-        _STATIC_CONTENT_SEAL_SCHEMAS,
-        _STATIC_RECEIPT_POLICY_VERSION,
-        _TASK5_INVOCATION_SEAL_SCHEMA,
-        _TASK5_SNAPSHOT_POLICY_VERSION,
-        _ValidationReceipt,
         _register_validation_receipt,
     )
 
-    _register_validation_receipt(
-        _ValidationReceipt(
-            stage_name="static",
-            schema_version=authority.schema_version,
-            fingerprint=authority.fingerprint,
-            policy_versions=(
-                ("access_direction_policy", ACCESS_DIRECTION_POLICY),
-                ("allocation_policy", ALLOCATION_POLICY),
-                ("closure_capability_policy", CLOSURE_CAPABILITY_POLICY),
-                ("fingerprint_set_schema", FINGERPRINT_SET_SCHEMA),
-                ("immutable_csr_schema", IMMUTABLE_CSR_SCHEMA),
-                ("land_use_policy", LAND_USE_POLICY),
-                ("node_taz_ownership_policy", NODE_TAZ_OWNERSHIP_POLICY),
-                ("poi_policy", POI_POLICY),
-                ("receipt_policy", _STATIC_RECEIPT_POLICY_VERSION),
-                ("routing_policy", ROUTING_POLICY),
-                ("snapshot_policy", _TASK5_SNAPSHOT_POLICY_VERSION),
-                ("taz_partition_policy", TAZ_PARTITION_POLICY),
-                ("taz_policy", TAZ_POLICY),
-            ),
-            source_seal_schemas=(
-                ("blocks.current", _BLOCKS_SEAL_SCHEMA),
-                ("compiled.aggregate", _COMPILED_AGGREGATE_SEAL_SCHEMA),
-                ("invocation.current", _TASK5_INVOCATION_SEAL_SCHEMA),
-                ("network.current", _NETWORK_SEAL_SCHEMA),
-            ),
-            content_seal_schemas=_STATIC_CONTENT_SEAL_SCHEMAS,
-        )
-    )
+    _register_validation_receipt(_build_static_receipt(authority))
     return authority
 
 
@@ -3389,20 +3393,37 @@ def _capture_verified_task5_source_snapshot_from_receipt(
     return snapshot, net_rcpt, blk_rcpt, cmp_rcpt
 
 
-def _capture_stable_static_validation_receipt(
-    authority: ScalableStaticAuthority,
-    *,
-    source_snapshot: object,
-    compiled: ScalableCompiledTopology,
-) -> object:
+def static_receipt_policy_versions() -> tuple[tuple[str, str], ...]:
+    """Canonical policy version tuple for static authority validation receipts."""
+    from metroflow.city.scalable_validation_receipts import (
+        _STATIC_RECEIPT_POLICY_VERSION,
+        _TASK5_SNAPSHOT_POLICY_VERSION,
+    )
+
+    return (
+        ("access_direction_policy", ACCESS_DIRECTION_POLICY),
+        ("allocation_policy", ALLOCATION_POLICY),
+        ("closure_capability_policy", CLOSURE_CAPABILITY_POLICY),
+        ("fingerprint_set_schema", FINGERPRINT_SET_SCHEMA),
+        ("immutable_csr_schema", IMMUTABLE_CSR_SCHEMA),
+        ("land_use_policy", LAND_USE_POLICY),
+        ("node_taz_ownership_policy", NODE_TAZ_OWNERSHIP_POLICY),
+        ("poi_policy", POI_POLICY),
+        ("receipt_policy", _STATIC_RECEIPT_POLICY_VERSION),
+        ("routing_policy", ROUTING_POLICY),
+        ("snapshot_policy", _TASK5_SNAPSHOT_POLICY_VERSION),
+        ("taz_partition_policy", TAZ_PARTITION_POLICY),
+        ("taz_policy", TAZ_POLICY),
+    )
+
+
+def _build_static_receipt(authority: ScalableStaticAuthority) -> object:
     from metroflow.city.scalable_validation_receipts import (
         _BLOCKS_SEAL_SCHEMA,
         _COMPILED_AGGREGATE_SEAL_SCHEMA,
         _NETWORK_SEAL_SCHEMA,
         _STATIC_CONTENT_SEAL_SCHEMAS,
-        _STATIC_RECEIPT_POLICY_VERSION,
         _TASK5_INVOCATION_SEAL_SCHEMA,
-        _TASK5_SNAPSHOT_POLICY_VERSION,
         _ValidationReceipt,
     )
 
@@ -3410,21 +3431,7 @@ def _capture_stable_static_validation_receipt(
         stage_name="static",
         schema_version=authority.schema_version,
         fingerprint=authority.fingerprint,
-        policy_versions=(
-            ("access_direction_policy", ACCESS_DIRECTION_POLICY),
-            ("allocation_policy", ALLOCATION_POLICY),
-            ("closure_capability_policy", CLOSURE_CAPABILITY_POLICY),
-            ("fingerprint_set_schema", FINGERPRINT_SET_SCHEMA),
-            ("immutable_csr_schema", IMMUTABLE_CSR_SCHEMA),
-            ("land_use_policy", LAND_USE_POLICY),
-            ("node_taz_ownership_policy", NODE_TAZ_OWNERSHIP_POLICY),
-            ("poi_policy", POI_POLICY),
-            ("receipt_policy", _STATIC_RECEIPT_POLICY_VERSION),
-            ("routing_policy", ROUTING_POLICY),
-            ("snapshot_policy", _TASK5_SNAPSHOT_POLICY_VERSION),
-            ("taz_partition_policy", TAZ_PARTITION_POLICY),
-            ("taz_policy", TAZ_POLICY),
-        ),
+        policy_versions=static_receipt_policy_versions(),
         source_seal_schemas=(
             ("blocks.current", _BLOCKS_SEAL_SCHEMA),
             ("compiled.aggregate", _COMPILED_AGGREGATE_SEAL_SCHEMA),
@@ -3433,3 +3440,12 @@ def _capture_stable_static_validation_receipt(
         ),
         content_seal_schemas=_STATIC_CONTENT_SEAL_SCHEMAS,
     )
+
+
+def _capture_stable_static_validation_receipt(
+    authority: ScalableStaticAuthority,
+    *,
+    source_snapshot: object,
+    compiled: ScalableCompiledTopology,
+) -> object:
+    return _build_static_receipt(authority)

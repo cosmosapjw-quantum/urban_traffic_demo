@@ -613,6 +613,44 @@ def test_node_taz_ownership_uses_semantic_candidate_order() -> None:
     ) == (owners, conflicts, visits)
 
 
+def test_node_taz_ownership_exact_mm_submeter_resolution() -> None:
+    """Regression: verify sub-meter physical mm distance differentiation within same 1m bin.
+
+    Unowned node at (800 mm, 0 mm) = 0.8 m.
+    Candidate A (TAZ 1) at (100 mm, 0 mm) = 0.1 m -> distance = 700 mm.
+    Candidate B (TAZ 2) at (1100 mm, 0 mm) = 1.1 m -> distance = 300 mm.
+    If truncated to integer meters:
+        unowned (0), A (0), B (1) -> dist(A)=0, dist(B)=1 -> A (TAZ 1) chosen (BUG).
+    With physical mm integer arithmetic:
+        dist_sq(A) = 700^2 = 490,000 mm^2.
+        dist_sq(B) = 300^2 = 90,000 mm^2.
+        Candidate B (TAZ 2) must be chosen.
+    """
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+
+    block_rows = (
+        ("a" * 64, 1, (10,)),  # node 10 belongs to TAZ 1
+        ("b" * 64, 2, (20,)),  # node 20 belongs to TAZ 2
+    )
+    node_xy_mm = {
+        10: (100, 0),    # 0.1m, TAZ 1
+        20: (1100, 0),   # 1.1m, TAZ 2
+        99: (800, 0),    # 0.8m, unowned
+    }
+
+    owners, conflicts, visits = authority._node_taz_ownership_from_index(
+        block_rows=block_rows,
+        node_xy_mm_by_id=node_xy_mm,
+    )
+
+    owner_dict = dict(owners)
+    assert owner_dict[10] == 1
+    assert owner_dict[20] == 2
+    # Node 99 is closer to node 20 (300mm vs 700mm), so MUST be assigned TAZ 2
+    assert owner_dict[99] == 2, "Unowned node must resolve to physically closest node in mm, not truncated meters"
+
+
+
 def test_aggregate_poi_rows_are_positive_only_dense_and_permutation_invariant() -> None:
     authority = importlib.import_module("metroflow.city.scalable_authority")
     allocation = "d" * 64

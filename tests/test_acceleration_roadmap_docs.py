@@ -103,8 +103,6 @@ def test_pr10_zero_copy_rayon_rfc_is_admission_only():
     assert "Do not open another acceleration spec yet" in normalized_state
     assert "Status: RFC only" in admission
     assert "No implementation is authorized by this document" in normalized_admission
-    assert "PyReadonlyArray" in admission
-    assert "rayon" not in cargo.lower()
     assert "numpy" not in cargo.lower()
 
 

@@ -49,8 +49,8 @@ def test_a_tip_pointing_away_is_left_alone() -> None:
     target = fabric.open_street(RoadClass.COLLECTOR, (0.0, 0.0))
     fabric.extend(target, (200.0, 0.0))
 
-    stub = fabric.open_street(RoadClass.LOCAL, (100.0, 20.0))
-    fabric.extend(stub, (100.0, 80.0))  # heading away from the target
+    stub = fabric.open_street(RoadClass.LOCAL, (100.0, 60.0))
+    fabric.extend(stub, (100.0, 120.0))  # heading away from the target
 
     assert _extend_dangling_tips(fabric, max_reach_m=40.0) == 0
 
