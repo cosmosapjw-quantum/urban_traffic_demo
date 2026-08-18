@@ -1,0 +1,68 @@
+[
+  {
+    "style_id": "grid_core",
+    "seed": "17",
+    "topology_mode": "scalable_synthetic_v2",
+    "network_fingerprint": "bc8e0193d85bd1076880c3cdf22de79218b6bf1bcd673cce0243708373b6d1b9",
+    "blocks_fingerprint": "bafe7ee5db99ad67bb008bd05b68d1275885d99b52e8998e9738bcbb2f232e6d",
+    "compiled_fingerprint": "c9c724cbbdd61e32f22985abbeaae889ddbc617b3694077738973cf183409356",
+    "static_authority_fingerprint": "a467136689a28fbc08507e37b642d34b3dbf3720dec848c9c80236a4c23ab77b",
+    "node_count": "1705",
+    "link_count": "6612"
+  },
+  {
+    "style_id": "ring_radial",
+    "seed": "17",
+    "topology_mode": "scalable_synthetic_v2",
+    "network_fingerprint": "159ef724577f3e8d1af19d772523b36f5b09a88fd90af8528a40881e1ffcafc7",
+    "blocks_fingerprint": "bd4a079888779f3d9b17ac24e71219ec3290c3041e8161b65506edaf59affe2d",
+    "compiled_fingerprint": "43c304fec3a0513e2782c59a3449cac1251177912e6efb5704cbe76ed2643db4",
+    "static_authority_fingerprint": "ca909d57b30f087f1cbb1fe85fbfae1f97c88ef23052f9bb5974a2e3dc2ab02f",
+    "node_count": "1658",
+    "link_count": "6434"
+  },
+  {
+    "style_id": "river_constrained",
+    "seed": "17",
+    "topology_mode": "scalable_synthetic_v2",
+    "network_fingerprint": "6244f9a40dec5c35f76dcd70867e94ee158af9c8015bd51e7d7ad968364ddccc",
+    "blocks_fingerprint": "3c0b012eb8bd28e04518ee09df18017cfbbda531ac90e4ba861e328a0f845af6",
+    "compiled_fingerprint": "bf6cb912fe5fdf35bef0c46ff244880258f97b2e378bccb82e3ae5dbbe7a7b36",
+    "static_authority_fingerprint": "c57200b82ac2de5d91fdf06f8e1a88fb60ffb1108aa0c904f320b6d1c78ba33e",
+    "node_count": "1565",
+    "link_count": "5994"
+  },
+  {
+    "style_id": "polycentric_tod",
+    "seed": "17",
+    "topology_mode": "scalable_synthetic_v2",
+    "network_fingerprint": "ede107e01b5d30ae2d2ffa61df5d36c350c64b4cf9e43a3731cedd999d389e77",
+    "blocks_fingerprint": "f5f28946d6f13cdefc3fff1f8324e581405d214046d7e3ce4af82d247af54b17",
+    "compiled_fingerprint": "28af72ca5a0ec4d5854fa5e9dea4b1d35669cc87e18add7ee9ae1a1ba6fe10ee",
+    "static_authority_fingerprint": "598c05580702f3c9eb2fdd3d4bcc9c85c699a2b518e3959b15586b9dca1d54f3",
+    "node_count": "1609",
+    "link_count": "6242"
+  },
+  {
+    "style_id": "superblock_mixed",
+    "seed": "17",
+    "topology_mode": "scalable_synthetic_v2",
+    "network_fingerprint": "f45cdd36db010e5deee03e20acc56bda5c528a476b9969600cab6d2b10faa774",
+    "blocks_fingerprint": "b8fef19dfdb4f9753d2ebca013025d18f95c32ca642fe5aba7979e22d15e2da5",
+    "compiled_fingerprint": "379e7d2fd214900426dfabea424a0f8bb173341f32ef9c638dc9106da894353e",
+    "static_authority_fingerprint": "8efb1d5656e2d7f4ca00ec4b44523626a8b9efd303114b431e8a46da363f60bc",
+    "node_count": "1649",
+    "link_count": "6402"
+  },
+  {
+    "style_id": "organic",
+    "seed": "17",
+    "topology_mode": "scalable_synthetic_v2",
+    "network_fingerprint": "b52d9a82f882673a7d10fe6c94e372ed2507ee7e48787fd105c9c477647087fe",
+    "blocks_fingerprint": "fd7755525b7aec0f69b6ddaa6ba820a279f44a722a52f24fdf41766290ce8f83",
+    "compiled_fingerprint": "a5de90d7dc9d15314da90ca2340ff01392868bea67b7d14045348d71a1bb6aa1",
+    "static_authority_fingerprint": "b96c99fa6936faf7583c7bcc6db3d5290f29b9cf132a1c2f937d0a8d3edf34d0",
+    "node_count": "1663",
+    "link_count": "6444"
+  }
+]
