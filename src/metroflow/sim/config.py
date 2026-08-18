@@ -265,6 +265,19 @@ class CityGenerationConfig:
             self.zone_poi_coupling_mode != "block_based_v1"
         ):
             raise ValueError("mode/scale_spec relationship requires block_based_v1 for v2")
+        if self.topology_mode == "scalable_synthetic_v2":
+            if self.ring_road_count != 1:
+                raise ValueError("ring_road_count is not supported by scalable_synthetic_v2")
+            if self.radial_corridor_count != 4:
+                raise ValueError("radial_corridor_count is not supported by scalable_synthetic_v2")
+            if self.barrier_count != 1:
+                raise ValueError("barrier_count is not supported by scalable_synthetic_v2")
+            if self.bridge_count != 3:
+                raise ValueError("bridge_count is not supported by scalable_synthetic_v2")
+            if self.interchange_density_profile != "medium":
+                raise ValueError("interchange_density_profile is not supported by scalable_synthetic_v2")
+            if self.poi_density_profile != "baseline":
+                raise ValueError("poi_density_profile is not supported by scalable_synthetic_v2")
         if self.topology_mode != "scalable_synthetic_v2" and self.scale_spec is not None:
             raise ValueError("mode/scale_spec relationship permits scale_spec only for v2")
         if self.zone_poi_coupling_mode == "block_based_v1" and (

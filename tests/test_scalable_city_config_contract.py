@@ -218,3 +218,32 @@ def test_standard_default_remains_legacy_and_has_no_scale_spec() -> None:
     assert config.topology_mode == "standard"
     assert config.zone_poi_coupling_mode == "legacy"
     assert config.scale_spec is None
+
+
+@pytest.mark.parametrize(
+    ("kwarg", "value", "match_str"),
+    [
+        ({"ring_road_count": 5}, 5, "ring_road_count"),
+        ({"radial_corridor_count": 8}, 8, "radial_corridor_count"),
+        ({"barrier_count": 2}, 2, "barrier_count"),
+        ({"bridge_count": 5}, 5, "bridge_count"),
+        ({"interchange_density_profile": "high"}, "high", "interchange_density_profile"),
+        ({"poi_density_profile": "dense"}, "dense", "poi_density_profile"),
+    ],
+)
+def test_scalable_v2_rejects_unsupported_knobs(
+    kwarg: dict[str, object],
+    value: object,
+    match_str: str,
+) -> None:
+    """Catches unsupported configuration knobs being silently ignored in v2."""
+    base_kwargs = {
+        "topology_mode": "scalable_synthetic_v2",
+        "morphology_style_id": "grid_core",
+        "zone_poi_coupling_mode": "block_based_v1",
+        "scale_spec": CityScaleSpec(100_000, 40),
+    }
+    base_kwargs.update(kwarg)
+    with pytest.raises(ValueError, match=match_str):
+        CityGenerationConfig(**base_kwargs)
+
