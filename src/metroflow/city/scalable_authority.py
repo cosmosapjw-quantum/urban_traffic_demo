@@ -3197,15 +3197,6 @@ def build_scalable_static_authority(
         compiled=compiled,
     )
     from metroflow.city.scalable_validation_receipts import (
-        ACCESS_DIRECTION_POLICY,
-        ALLOCATION_POLICY,
-        CLOSURE_CAPABILITY_POLICY,
-        FINGERPRINT_SET_SCHEMA,
-        IMMUTABLE_CSR_SCHEMA,
-        LAND_USE_POLICY,
-        POI_POLICY,
-        ROUTING_POLICY,
-        TAZ_POLICY,
         _BLOCKS_SEAL_SCHEMA,
         _COMPILED_AGGREGATE_SEAL_SCHEMA,
         _NETWORK_SEAL_SCHEMA,

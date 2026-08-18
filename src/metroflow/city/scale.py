@@ -7,6 +7,19 @@ __all__ = ["CityScaleSpec"]
 
 @dataclass(frozen=True, slots=True)
 class CityScaleSpec:
+    """Scale specification for synthetic city generation.
+
+    Contract:
+    - ``urbanized_area_km2``: Governs the physical bounding box and
+      street network spatial extent (width_mm x height_mm). Street topology
+      generation depends on urbanized_area_km2 only.
+    - ``target_population``: Governs downstream demographic generation,
+      zoning placement, and trip demand allocation. It does not alter
+      the static road network geometry.
+    - Density constraint: ``target_population / urbanized_area_km2`` must
+      fall within realistic urban density bounds [2500, 6667] people/km².
+    """
+
     target_population: int
     urbanized_area_km2: float
 

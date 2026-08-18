@@ -1253,7 +1253,6 @@ def compile_scalable_topology(
         _COMPILED_CONTENT_SEAL_SCHEMAS,
         _COMPILED_RECEIPT_POLICY_VERSION,
         _NETWORK_SEAL_SCHEMA,
-        _TURN_POLICY,
         _ValidationReceipt,
         _register_validation_receipt,
     )

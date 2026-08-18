@@ -275,6 +275,13 @@ class PhysicalRoadRecord:
 
 @dataclass(frozen=True, slots=True)
 class ScalableTerrainField:
+    """Spatial domain and heterogeneity grid for scalable city generation.
+
+    Note: This field represents spatial coordinate bounds, tile divisions,
+    and pseudo-random heterogeneity patterns for cell layout. It is not
+    a physical elevation DEM model.
+    """
+
     width_m: float
     height_m: float
     cell_size_m: float
@@ -336,6 +343,10 @@ class ScalableTerrainField:
             self.barrier_seam_x_mm is not None
             and abs(float(x_m) * 1_000.0 - self.barrier_seam_x_mm) < 0.5
         )
+
+
+ScalableDevelopmentHeterogeneityField = ScalableTerrainField
+
 
 
 def _semantic_id(parts: object) -> str:
