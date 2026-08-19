@@ -61,7 +61,7 @@ graph TD
     B --> C[Behavior-Cluster TDD: Public RED -> Public GREEN]
     C --> D[Single Serial Implementer: Targeted Local Tests, No Helper Churn]
     D --> E[Candidate Freeze: Committed, Clean, Document-Bounded]
-    E --> F[Frozen Candidate Gate: 30/80 Gate, Provenance, Ruff, CI, Max 3 Subagent Reviews]
+    E --> F[Frozen Candidate Gate: Test Partition, Provenance, Ruff, Full CI, Max 3 Subagent Reviews]
     F --> G[Merge / Promote]
 ```
 
@@ -98,10 +98,12 @@ graph TD
 
 ### 3.5 Frozen Candidate Gate Protocol
 The complete formal gate suite is executed exclusively against the frozen candidate:
-1. **30/80 Gate**: Standard performance and regression envelope checks.
+1. **Test Partition Gate**: `python tools/ci_test_partition.py --verify` assigns
+   every discovered test file to exactly one non-empty CI shard or fails closed.
 2. **Provenance Verification**: Validating commits, SHA-256 digests, and manifests.
 3. **Ruff & Linter Checks**: Formatting and code quality verification.
-4. **Continuous Integration**: Full test suite pass (`pytest`).
+4. **Continuous Integration**: Every named test shard plus the oracle and gallery
+   jobs passes on the same frozen candidate SHA.
 5. **Review Budget**: A maximum of 3 read-only review iterations per frozen candidate.
 
 ---
@@ -137,4 +139,4 @@ The complete formal gate suite is executed exclusively against the frozen candid
 | **S11** | Scalable authority & topology adapter foundation | Public RED $\to$ GREEN on adapter & authority contracts | Targeted tests; no helper micro-commits |
 | **S12–13** | Structural kernel, grade separation & barrier solver | Public RED $\to$ GREEN on bridges, layers & DCEL faces | Targeted tests; no helper micro-commits |
 | **S14–15** | Traffic measurement & runtime simulation spine integration | Public RED $\to$ GREEN on tick traversal & token conservation | Targeted tests; no helper micro-commits |
-| **S16–17** | Parameter calibration, scale validation & promotion gate | Public RED $\to$ GREEN on scale benchmark & envelope survival | Final frozen candidate 30/80 gate & CI |
+| **S16–17** | Parameter calibration, scale validation & promotion gate | Public RED $\to$ GREEN on scale benchmark & envelope survival | Final frozen candidate test-partition gate & full CI |

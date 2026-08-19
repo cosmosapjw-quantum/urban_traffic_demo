@@ -31,8 +31,8 @@ problem. A hybrid methodology is required: short boundary specs, behavior-cluste
 read-only subagent reviews, downstream PR blocking, and single-evaluation metacognition.
 
 Counterevidence checked: Relaxing gates altogether would risk regression and drift;
-retaining full 30/80 gate, provenance, Ruff, and CI on frozen candidates preserves
-empirical rigor while eliminating inner-loop gate inflation.
+retaining the executable test-partition gate, provenance, Ruff, and full same-head CI
+on frozen candidates preserves empirical rigor while eliminating inner-loop gate inflation.
 
 Decision: Formalize `docs/harness/PROCESS_INFLATION_GUARDRAILS.md`. Group remaining
 tasks into four behavior clusters (S11, S12–13, S14–15, S16–17). Block PR89 upfront review
