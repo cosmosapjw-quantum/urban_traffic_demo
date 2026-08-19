@@ -76,12 +76,23 @@ def test_normalized_v1_artifact_preserves_original_byte_provenance() -> None:
         "source_commit": "c00c9e9f79a45b6c5d90b5db5c136e56d1cf3ff4",
         "transformation": "non-finite diagnostics to null with explicit status",
     }
-    original_bytes = subprocess.run(
-        ["git", "show", f"{normalization['source_commit']}:{_NORMALIZED_V1}"],
-        cwd=_REPO_ROOT,
-        capture_output=True,
-        check=True,
-    ).stdout
+    normalized_coverage = (
+        b'      "theoretical_coverage": null,\n'
+        b'      "theoretical_coverage_status": "undefined_unbounded_range",\n'
+    )
+    normalized_maximum = (
+        b'      "theoretical_max": null,\n'
+        b'      "theoretical_max_status": "unbounded",\n'
+    )
+    assert artifact_bytes.count(normalized_coverage) == 3
+    assert artifact_bytes.count(normalized_maximum) == 3
+    original_bytes = artifact_bytes.replace(
+        normalized_coverage,
+        b'      "theoretical_coverage": NaN,\n',
+    ).replace(
+        normalized_maximum,
+        b'      "theoretical_max": Infinity,\n',
+    )
     assert hashlib.sha256(original_bytes).hexdigest() == normalization["original_sha256"]
     for metric in ("circuity", "mean_node_degree", "median_segment_length_m"):
         diagnostics = artifact["envelope_diagnostics"][metric]
