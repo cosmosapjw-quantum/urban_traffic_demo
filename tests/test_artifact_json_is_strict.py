@@ -5,12 +5,14 @@ does `JSON.parse`. An artifact that only Python can read is not an artifact
 anyone else can audit — which matters exactly when an external reviewer is
 reading the tree.
 
-One file currently violates this and is marked as a known defect rather than
-quietly excluded. PR-A fixes the writer and removes the mark.
+The historical v1 control table was written before artifact writers rejected
+non-finite JSON. Its diagnostics are normalized with an original-byte receipt;
+no committed JSON file is exempt from this gate.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 from pathlib import Path
@@ -19,11 +21,7 @@ import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 
-# `envelope_diagnostics` emits math.inf / math.nan verbatim for the metrics with
-# an unbounded theoretical range. Serialized at
-# benchmarks/morphology_control_table.py, and deliberately outside the
-# fingerprint, so the values are not even hash-protected.
-_KNOWN_NON_STRICT = "artifacts/runtime_spine_review/morphology-control-table-20260807.json"
+_NORMALIZED_V1 = "artifacts/runtime_spine_review/morphology-control-table-20260807.json"
 
 
 def _tracked_json() -> list[str]:
@@ -37,26 +35,7 @@ def _tracked_json() -> list[str]:
     return sorted(result.stdout.split())
 
 
-def _params():
-    for path in _tracked_json():
-        if path == _KNOWN_NON_STRICT:
-            yield pytest.param(
-                path,
-                marks=pytest.mark.xfail(
-                    strict=True,
-                    reason=(
-                        "envelope_diagnostics writes bare NaN/Infinity for "
-                        "circuity, mean_node_degree and median_segment_length_m "
-                        "(theoretical_coverage and theoretical_max). PR-A "
-                        "serializes them as null with an explicit status field."
-                    ),
-                ),
-            )
-        else:
-            yield path
-
-
-@pytest.mark.parametrize("relative_path", list(_params()))
+@pytest.mark.parametrize("relative_path", _tracked_json())
 def test_tracked_artifact_parses_under_a_strict_json_reader(relative_path: str) -> None:
     raw = (_REPO_ROOT / relative_path).read_text(encoding="utf-8")
 
@@ -75,4 +54,38 @@ def test_the_scan_actually_covers_the_repository() -> None:
     tracked = _tracked_json()
 
     assert len(tracked) >= 40
-    assert _KNOWN_NON_STRICT in tracked
+    assert _NORMALIZED_V1 in tracked
+
+
+def test_normalized_v1_artifact_preserves_original_byte_provenance() -> None:
+    artifact_path = _REPO_ROOT / _NORMALIZED_V1
+    manifest_path = artifact_path.with_suffix(".manifest.json")
+    artifact_bytes = artifact_path.read_bytes()
+    artifact = json.loads(
+        artifact_bytes,
+        parse_constant=lambda token: pytest.fail(f"non-RFC-8259 literal {token!r}"),
+    )
+    manifest = json.loads(manifest_path.read_bytes())
+
+    assert manifest["files"][artifact_path.name] == hashlib.sha256(
+        artifact_bytes
+    ).hexdigest()
+    normalization = manifest["normalization"]
+    assert normalization == {
+        "original_sha256": "0e848a99d7af97220ae16335b84609f18c65feeb4a6ff80ed49a1c6d847fc550",
+        "source_commit": "c00c9e9f79a45b6c5d90b5db5c136e56d1cf3ff4",
+        "transformation": "non-finite diagnostics to null with explicit status",
+    }
+    original_bytes = subprocess.run(
+        ["git", "show", f"{normalization['source_commit']}:{_NORMALIZED_V1}"],
+        cwd=_REPO_ROOT,
+        capture_output=True,
+        check=True,
+    ).stdout
+    assert hashlib.sha256(original_bytes).hexdigest() == normalization["original_sha256"]
+    for metric in ("circuity", "mean_node_degree", "median_segment_length_m"):
+        diagnostics = artifact["envelope_diagnostics"][metric]
+        assert diagnostics["theoretical_coverage"] is None
+        assert diagnostics["theoretical_coverage_status"] == "undefined_unbounded_range"
+        assert diagnostics["theoretical_max"] is None
+        assert diagnostics["theoretical_max_status"] == "unbounded"
