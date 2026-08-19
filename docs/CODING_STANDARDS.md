@@ -98,7 +98,8 @@
 - 각 behavior cluster는 공개 behavior RED 및 GREEN을 유지하되, 내부 private helper 구현 중 micro-commit 및 전체 test suite 반복 실행(gate inflation)을 금지한다. 내부 루프는 fast targeted unit test만 사용한다
 - 구현은 단일 직렬 구현자(single serial implementer)가 전담하며, 동시 multi-agent write 또는 병렬 subagent 수정 루프를 금지한다
 - subagent review는 읽기 전용(read-only)으로 candidate가 freeze된 이후에만 수행하며 최대 3회로 제한한다
-- 후보 freeze 상태에서만 최종 30/80 gate, provenance 검증, Ruff, CI 전체 suite를 실행한다
+- 후보 freeze 상태에서만 executable test-partition gate, provenance 검증, Ruff,
+  same-head CI 전체 suite를 실행한다
 - 선행 PR(e.g., PR88)이 merge되거나 구조적으로 종료되기 전에는 후속 PR(e.g., PR89)에 대한 선행 검토 및 보증 문서 작성을 금지한다
 - 보증 및 제안 문서의 줄 수는 대상 source+test 코드의 줄 수를 초과하지 않도록 엄격히 제한한다 (assurance inflation 방지)
 - 메타인지 평가는 단 1회 수행하여 `*_METHOD_PILOT=PASS|SPLIT` 형태의 관측 가능한 결과로 환원하고, 평가 자체를 재평가하는 행위는 `META_RECURSION_BLOCKED`로 차단한다

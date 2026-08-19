@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -68,6 +69,50 @@ def test_cli_emits_selected_paths_as_repo_relative_nul_records(tmp_path: Path) -
 
     assert result.returncode == 0, result.stderr.decode()
     assert result.stdout == b"tests/test_scalable_topology.py\0"
+
+
+def test_cli_emits_complete_ci_matrix_from_verified_registry(tmp_path: Path) -> None:
+    _complete_partition(tmp_path)
+
+    result = subprocess.run(
+        [sys.executable, str(PARTITION_TOOL), "--root", str(tmp_path), "--matrix"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == {
+        "include": [
+            {"shard": "baseline-a-g-s-z", "lint": True},
+            {"shard": "baseline-h-r", "lint": False},
+            {"shard": "scalable-authority", "lint": False},
+            {"shard": "scalable-blocks-config", "lint": False},
+            {"shard": "scalable-topology-runtime", "lint": False},
+        ]
+    }
+
+
+def test_cli_rejects_unknown_shard_without_emitting_paths(tmp_path: Path) -> None:
+    _complete_partition(tmp_path)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(PARTITION_TOOL),
+            "--root",
+            str(tmp_path),
+            "--shard",
+            "unknown-shard",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 2
+    assert result.stdout == ""
+    assert "invalid choice: 'unknown-shard'" in result.stderr
 
 
 def test_cli_fails_closed_for_unassigned_test_file(tmp_path: Path) -> None:

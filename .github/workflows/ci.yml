@@ -28,24 +28,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test-partition:
+    name: test partition
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.partition.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify partition and emit matrix
+        id: partition
+        run: |
+          python tools/ci_test_partition.py --verify
+          echo "matrix=$(python tools/ci_test_partition.py --matrix)" >> "$GITHUB_OUTPUT"
+
   test:
     name: test (${{ matrix.shard }})
+    needs: test-partition
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - shard: baseline-a-g-s-z
-            lint: true
-          - shard: baseline-h-r
-            lint: false
-          - shard: scalable-authority
-            lint: false
-          - shard: scalable-blocks-config
-            lint: false
-          - shard: scalable-topology-runtime
-            lint: false
+      matrix: ${{ fromJSON(needs.test-partition.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
 
@@ -137,3 +146,29 @@ jobs:
 
       - name: Re-render the scalable morphology gallery and compare
         run: python tools/render_morphology_gallery.py --check
+
+  ci-gate:
+    name: ci gate
+    if: ${{ always() }}
+    needs: [test-partition, test, oracle-parity, audit-gallery]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require every CI surface to pass
+        env:
+          PARTITION_RESULT: ${{ needs.test-partition.result }}
+          TEST_RESULT: ${{ needs.test.result }}
+          ORACLE_RESULT: ${{ needs.oracle-parity.result }}
+          GALLERY_RESULT: ${{ needs.audit-gallery.result }}
+        run: |
+          for result in \
+            "$PARTITION_RESULT" \
+            "$TEST_RESULT" \
+            "$ORACLE_RESULT" \
+            "$GALLERY_RESULT"
+          do
+            if [[ "$result" != "success" ]]; then
+              echo "Required CI surface did not pass: $result" >&2
+              exit 1
+            fi
+          done

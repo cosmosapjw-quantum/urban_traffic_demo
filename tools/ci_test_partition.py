@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import json
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -86,6 +87,7 @@ def _parser() -> argparse.ArgumentParser:
     )
     action = parser.add_mutually_exclusive_group(required=True)
     action.add_argument("--verify", action="store_true", help="verify and summarize all shards")
+    action.add_argument("--matrix", action="store_true", help="emit the verified CI matrix as JSON")
     action.add_argument("--shard", choices=SHARD_NAMES, help="emit files for one verified shard")
     parser.add_argument(
         "--format",
@@ -109,6 +111,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{name}: {len(partition[name])}")
         total = sum(len(paths) for paths in partition.values())
         print(f"verified: {total} files across {len(SHARD_NAMES)} non-empty disjoint shards")
+        return 0
+
+    if args.matrix:
+        matrix = {
+            "include": [
+                {"shard": name, "lint": name == "baseline-a-g-s-z"}
+                for name in SHARD_NAMES
+            ]
+        }
+        print(json.dumps(matrix, separators=(",", ":")))
         return 0
 
     paths = partition[args.shard]
