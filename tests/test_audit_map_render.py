@@ -228,6 +228,57 @@ def test_renderer_verifies_topology_record_integrity() -> None:
         )
 
 
+def test_renderer_binds_metrics_to_exact_source_topology() -> None:
+    """A same-count geometry mutation must not inherit a historical caption."""
+    from metroflow.city.generated_map import PreviewCityTopology
+    from metroflow.city.graph import Node, RoadClass, RoadLink
+    from metroflow.city.morphology_control_table import score_street_morphology
+    from metroflow.map.road_geometry import build_endpoint_geometry_catalog
+
+    nodes = tuple(
+        Node(index, x=x, y=y)
+        for index, (x, y) in enumerate(
+            ((0.0, 0.0), (100.0, 0.0), (100.0, 100.0), (0.0, 100.0), (0.0, -100.0))
+        )
+    )
+    pairs = ((0, 1), (1, 2), (2, 3), (3, 0), (0, 4))
+    links = tuple(
+        RoadLink(
+            link_id=index * 2 + direction,
+            src_node_id=pair[direction],
+            dst_node_id=pair[1 - direction],
+            road_class=RoadClass.LOCAL,
+            length_m=100.0,
+            free_flow_speed_mps=10.0,
+            capacity_veh_per_tick=4.0,
+            physical_road_id=index,
+        )
+        for index, pair in enumerate(pairs)
+        for direction in (0, 1)
+    )
+    geometry = build_endpoint_geometry_catalog(nodes=nodes, links=links)
+    topology = PreviewCityTopology(nodes=nodes, links=links, road_geometry=geometry)
+    record = score_street_morphology(topology, arm="test_arm", case="c1").as_dict()
+
+    assert len(record["source_topology_fingerprint"]) == 64
+    module = _render_module()
+    module.verify_topology_record_integrity(topology, record, arm="test_arm", case="c1")
+
+    shifted_nodes = (Node(0, x=1.0, y=0.0),) + nodes[1:]
+    shifted = PreviewCityTopology(
+        nodes=shifted_nodes,
+        links=links,
+        road_geometry=geometry,
+    )
+    with pytest.raises(ValueError, match="topology record identity mismatch"):
+        module.verify_topology_record_integrity(
+            shifted,
+            record,
+            arm="test_arm",
+            case="c1",
+        )
+
+
 def test_control_table_check_mode(tmp_path: Path) -> None:
     """Control table --check returns 0 when artifacts match and 1 on mismatch."""
     from metroflow.benchmarks.morphology_control_table import check_artifacts, build_morphology_control_table, score_street_morphology, write_artifacts

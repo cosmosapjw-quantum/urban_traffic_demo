@@ -46,6 +46,7 @@ class _GalleryConfig:
 
 
 def render_all_sample_maps(out_dir: Path, generate_png: bool = True) -> None:
+    out_dir = out_dir.resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     manifest_entries: list[dict[str, str]] = []
 
@@ -104,8 +105,9 @@ def render_all_sample_maps(out_dir: Path, generate_png: bool = True) -> None:
         }
         manifest_entries.append(entry)
 
+        png_path = out_dir / f"map_{style_id}.png"
         if generate_png:
-            png_path = out_dir / f"map_{style_id}.png"
+            png_path.unlink(missing_ok=True)
             subprocess.run(
                 [
                     "google-chrome",
@@ -113,14 +115,21 @@ def render_all_sample_maps(out_dir: Path, generate_png: bool = True) -> None:
                     "--disable-gpu",
                     f"--screenshot={str(png_path)}",
                     "--window-size=1400,1050",
-                    f"file://{str(svg_path)}",
+                    svg_path.as_uri(),
                 ],
                 check=True,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
+            if not png_path.is_file() or png_path.stat().st_size == 0:
+                png_path.unlink(missing_ok=True)
+                raise RuntimeError(
+                    f"Chrome did not produce a fresh non-empty PNG: {png_path}"
+                )
+            entry["png_sha256"] = hashlib.sha256(png_path.read_bytes()).hexdigest()
             print(f"  -> Saved {svg_path.name} and {png_path.name}")
         else:
+            entry["png_provenance"] = "not_rendered_svg_only"
             print(f"  -> Saved {svg_path.name}")
 
     # Write provenance manifest
@@ -133,6 +142,7 @@ def render_all_sample_maps(out_dir: Path, generate_png: bool = True) -> None:
 
 
 def check_gallery_artifacts(out_dir: Path) -> bool:
+    out_dir = out_dir.resolve()
     manifest_path = out_dir / "gallery_manifest.json"
     if not manifest_path.exists():
         print(f"Manifest not found: {manifest_path}", file=sys.stderr)
@@ -196,6 +206,21 @@ def check_gallery_artifacts(out_dir: Path) -> bool:
                 file=sys.stderr,
             )
             return False
+
+        expected_png_sha = committed_entry.get("png_sha256")
+        if expected_png_sha is not None:
+            png_path = out_dir / f"map_{style_id}.png"
+            if not png_path.exists():
+                print(f"Missing PNG artifact: {png_path}", file=sys.stderr)
+                return False
+            actual_png_sha = hashlib.sha256(png_path.read_bytes()).hexdigest()
+            if actual_png_sha != expected_png_sha:
+                print(
+                    f"Committed PNG digest mismatch for {style_id}: "
+                    f"{actual_png_sha} != {expected_png_sha}",
+                    file=sys.stderr,
+                )
+                return False
 
     print("Gallery check passed: all 6 morphology maps re-derived and verified byte-identical.")
     return True

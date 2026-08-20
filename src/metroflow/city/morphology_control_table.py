@@ -39,6 +39,7 @@ __all__ = [
     "MorphologyControlTable",
     "score_street_morphology",
     "build_morphology_control_table",
+    "source_topology_fingerprint",
     "EMPIRICAL_MORPHOLOGY_METRICS",
 ]
 
@@ -57,7 +58,11 @@ EMPIRICAL_MORPHOLOGY_METRICS = (
 # rather than asserted, and `envelope_diagnostics` emits null with a status field
 # instead of bare NaN/Infinity. The measured values differ from v1 even where the
 # verdicts do not, so the version is bumped rather than the payload reinterpreted.
-CONTROL_TABLE_SCHEMA_VERSION = "morphology_control_table_v2"
+# v3: every new score carries the exact fingerprint of the topology inputs from
+# which its metrics were measured. Historical scores reconstructed without that
+# field retain their historical payload and fingerprint rather than being
+# silently reinterpreted under the stronger contract.
+CONTROL_TABLE_SCHEMA_VERSION = "morphology_control_table_v3"
 EVIDENCE_STATUS = "diagnostic_not_empirical_validation"
 
 
@@ -85,6 +90,7 @@ class MorphologyScore:
     proper_crossing_count: int | None = None
     unregistered_touch_count: int | None = None
     measurement_spec: str | None = None
+    source_topology_fingerprint: str | None = None
 
     def __post_init__(self) -> None:
         if not str(self.arm).strip():
@@ -92,6 +98,13 @@ class MorphologyScore:
         missing = set(EMPIRICAL_MORPHOLOGY_METRICS) - set(self.metrics)
         if missing:
             raise ValueError(f"score is missing metrics: {sorted(missing)}")
+        source_fingerprint = self.source_topology_fingerprint
+        if source_fingerprint is not None and (
+            type(source_fingerprint) is not str
+            or len(source_fingerprint) != 64
+            or any(character not in "0123456789abcdef" for character in source_fingerprint)
+        ):
+            raise ValueError("source_topology_fingerprint must be a lowercase SHA-256 digest")
         object.__setattr__(self, "metrics", MappingProxyType(dict(self.metrics)))
 
     @property
@@ -99,7 +112,7 @@ class MorphologyScore:
         return not self.failed_metrics
 
     def as_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "arm": self.arm,
             "case": self.case,
             "metrics": {key: float(self.metrics[key]) for key in EMPIRICAL_MORPHOLOGY_METRICS},
@@ -109,6 +122,9 @@ class MorphologyScore:
             "node_count": self.node_count,
             "physical_segment_count": self.physical_segment_count,
         }
+        if self.source_topology_fingerprint is not None:
+            payload["source_topology_fingerprint"] = self.source_topology_fingerprint
+        return payload
 
     def topology_diagnostics(self) -> dict[str, int | None]:
         """How far the drawn network is from the graph it compiles to.
@@ -246,7 +262,51 @@ def score_street_morphology(
         physical_segment_count=street.physical_segment_count,
         proper_crossing_count=count_interior_centerline_intersections(geometry),
         unregistered_touch_count=count_unregistered_centerline_touches(geometry),
+        source_topology_fingerprint=source_topology_fingerprint(topology),
     )
+
+
+def source_topology_fingerprint(topology: _TopologyLike) -> str:
+    """Bind every input used by the morphology measurement to one digest.
+
+    The measurement consumes node coordinates, directed-link incidence, and the
+    physical centerline catalog. Runtime-only speed/capacity fields are omitted:
+    changing them cannot change a street-morphology metric and should not make a
+    historical measurement look stale.
+    """
+
+    geometry = topology.road_geometry
+    if not isinstance(geometry, RoadGeometryCatalog):
+        raise ValueError("road_geometry is required for source topology fingerprinting")
+    nodes = tuple(
+        sorted(
+            (int(node.node_id), float(node.x), float(node.y))
+            for node in topology.nodes
+        )
+    )
+    links = tuple(
+        sorted(
+            (
+                int(link.link_id),
+                int(link.src_node_id),
+                int(link.dst_node_id),
+            )
+            for link in topology.links
+        )
+    )
+    payload = {
+        "schema_version": "morphology_source_topology_v1",
+        "nodes": nodes,
+        "links": links,
+        "road_geometry_fingerprint": geometry.fingerprint,
+    }
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("ascii")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def build_morphology_control_table(

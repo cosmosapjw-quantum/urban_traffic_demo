@@ -323,6 +323,9 @@ def write_artifacts(
         + "\n",
         encoding="utf-8",
     )
+    return (*written, manifest_path)
+
+
 def check_artifacts(
     artifact_prefix: str | Path,
     *,

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" width="1400" height="1000">
 <rect width="1400" height="1000" fill="#ffffff"/>
-<title>osm / barcelona.osm -- OSM control, 5/5</title>
+<title>osm / barcelona.osm -- OSM control</title>
 <g stroke-linecap="round">
 <line x1="756.82" y1="670.72" x2="749.25" y2="669.93" stroke="#9dc3d9" stroke-width="0.6"/>
 <line x1="965.07" y1="688.26" x2="901.48" y2="737.18" stroke="#9dc3d9" stroke-width="0.6"/>
@@ -1171,10 +1171,10 @@
 <line x1="986.77" y1="493.18" x2="984.05" y2="494.54" stroke="#4f9ac4" stroke-width="1.2"/>
 <line x1="374.84" y1="496.83" x2="371.67" y2="493.56" stroke="#9dc3d9" stroke-width="0.6"/>
 </g>
-<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">osm / barcelona.osm -- OSM control, 5/5</text>
+<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">osm / barcelona.osm -- OSM control</text>
 <text x="28" y="880" font-family="monospace" font-size="13" fill="#333333">osm  |  barcelona.osm  |  PASS 7/7</text>
 <text x="28" y="902" font-family="monospace" font-size="13" fill="#333333">nodes 819   segments 743   mean degree 3.2095   dead ends 0.1620</text>
 <text x="28" y="924" font-family="monospace" font-size="13" fill="#333333">circuity 1.0324   median segment 116.5 m   four-way 0.4860</text>
 <text x="28" y="946" font-family="monospace" font-size="13" fill="#333333">orientation entropy 2.8110   order 0.5796</text>
-<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v3-20260808.json; this image measures nothing</text>
+<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v4-20260820.json; this image measures nothing</text>
 </svg>

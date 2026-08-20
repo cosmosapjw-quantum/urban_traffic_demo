@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" width="1400" height="1000">
 <rect width="1400" height="1000" fill="#ffffff"/>
-<title>osm / chicago.osm -- OSM control, 5/5</title>
+<title>osm / chicago.osm -- OSM control</title>
 <g stroke-linecap="round">
 <line x1="585.71" y1="442.60" x2="645.18" y2="441.34" stroke="#4f9ac4" stroke-width="1.2"/>
 <line x1="976.75" y1="434.65" x2="1011.95" y2="434.15" stroke="#4f9ac4" stroke-width="1.2"/>
@@ -1341,10 +1341,10 @@
 <line x1="444.35" y1="490.08" x2="410.89" y2="490.85" stroke="#4f9ac4" stroke-width="1.2"/>
 <line x1="459.24" y1="489.74" x2="444.35" y2="490.08" stroke="#4f9ac4" stroke-width="1.2"/>
 </g>
-<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">osm / chicago.osm -- OSM control, 5/5</text>
+<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">osm / chicago.osm -- OSM control</text>
 <text x="28" y="880" font-family="monospace" font-size="13" fill="#333333">osm  |  chicago.osm  |  PASS 7/7</text>
 <text x="28" y="902" font-family="monospace" font-size="13" fill="#333333">nodes 816   segments 641   mean degree 3.0236   dead ends 0.2193</text>
 <text x="28" y="924" font-family="monospace" font-size="13" fill="#333333">circuity 1.0380   median segment 116.2 m   four-way 0.4009</text>
 <text x="28" y="946" font-family="monospace" font-size="13" fill="#333333">orientation entropy 1.9331   order 0.9381</text>
-<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v3-20260808.json; this image measures nothing</text>
+<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v4-20260820.json; this image measures nothing</text>
 </svg>

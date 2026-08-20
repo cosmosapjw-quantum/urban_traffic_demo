@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" width="1400" height="1000">
 <rect width="1400" height="1000" fill="#ffffff"/>
-<title>standard / polycentric_tod / seed 17 -- runtime default, 0/10</title>
+<title>standard / polycentric_tod / seed 17 -- runtime default</title>
 <g stroke-linecap="round">
 <line x1="489.61" y1="769.05" x2="605.92" y2="769.05" stroke="#1b3a5c" stroke-width="2.6"/>
 <line x1="605.92" y1="769.05" x2="489.61" y2="769.05" stroke="#1b3a5c" stroke-width="2.6"/>
@@ -4725,10 +4725,10 @@
 <line x1="921.89" y1="228.03" x2="796.25" y2="332.98" stroke="#9dc3d9" stroke-width="0.6"/>
 <line x1="796.25" y1="332.98" x2="921.89" y2="228.03" stroke="#9dc3d9" stroke-width="0.6"/>
 </g>
-<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">standard / polycentric_tod / seed 17 -- runtime default, 0/10</text>
+<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">standard / polycentric_tod / seed 17 -- runtime default</text>
 <text x="28" y="880" font-family="monospace" font-size="13" fill="#333333">standard  |  polycentric_tod/17  |  FAIL: mean_node_degree</text>
 <text x="28" y="902" font-family="monospace" font-size="13" fill="#333333">nodes 945   segments 2118   mean degree 6.0342   dead ends 0.0527</text>
 <text x="28" y="924" font-family="monospace" font-size="13" fill="#333333">circuity 1.0335   median segment 113.5 m   four-way 0.1339</text>
 <text x="28" y="946" font-family="monospace" font-size="13" fill="#333333">orientation entropy 3.3559   order 0.1964</text>
-<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v3-20260808.json; this image measures nothing</text>
+<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v4-20260820.json; this image measures nothing</text>
 </svg>

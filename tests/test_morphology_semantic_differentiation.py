@@ -10,8 +10,6 @@ from __future__ import annotations
 import math
 import statistics
 
-import pytest
-
 from metroflow.city.scale import CityScaleSpec
 from metroflow.city.scalable_blocks import build_scalable_block_authority
 from metroflow.city.scalable_topology import (
@@ -56,11 +54,6 @@ def test_river_constrained_has_bridge_structures() -> None:
     assert len(bridge_roads) >= 3, "must have at least 3 river crossing bridges"
 
 
-@pytest.mark.xfail(
-    reason="concentric ring geometry not yet differentiated in S2 generator",
-    strict=True,
-    raises=AssertionError,
-)
 def test_ring_radial_has_concentric_ring_hierarchy() -> None:
     """ring_radial should have non-orthogonal curved/orbital segments forming concentric rings."""
     scale = CityScaleSpec(100_000, 25.0)
@@ -71,11 +64,6 @@ def test_ring_radial_has_concentric_ring_hierarchy() -> None:
     assert entropy > 2.80, f"ring_radial orientation entropy is only {entropy:.4f}"
 
 
-@pytest.mark.xfail(
-    reason="polycentric centers currently share 1D y-coordinate (y=0)",
-    strict=True,
-    raises=AssertionError,
-)
 def test_polycentric_centers_distributed_in_2d() -> None:
     """polycentric_tod must place centers across 2D space, not all on the same y coordinate."""
     scale = CityScaleSpec(100_000, 25.0)
@@ -85,11 +73,6 @@ def test_polycentric_centers_distributed_in_2d() -> None:
     assert len(y_coords) > 1, f"centers {net.centers} are all on a 1D horizontal line"
 
 
-@pytest.mark.xfail(
-    reason="superblock hierarchy differentiation required: interior local fabric currently crosses arterial boundaries freely",
-    strict=True,
-    raises=AssertionError,
-)
 def test_superblock_has_hierarchical_block_area_variation() -> None:
     """superblock_mixed should have distinct superblock cells enclosed by continuous arterial boundaries."""
     scale = CityScaleSpec(100_000, 25.0)
@@ -109,11 +92,6 @@ def test_superblock_has_hierarchical_block_area_variation() -> None:
     assert sb_ratio > 2.0 * grid_ratio
 
 
-@pytest.mark.xfail(
-    reason="organic morphology currently rectilinear lattice with minor jitter",
-    strict=True,
-    raises=AssertionError,
-)
 def test_organic_has_non_orthogonal_orientation_entropy() -> None:
     """organic morphology must feature non-orthogonal, organic road alignments (entropy > 2.80)."""
     scale = CityScaleSpec(100_000, 25.0)

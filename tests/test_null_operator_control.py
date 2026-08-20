@@ -24,7 +24,127 @@ satisfied while the graph stays whole.
 
 from __future__ import annotations
 
+import hashlib
+import json
+from pathlib import Path
+import re
+import subprocess
+
 import pytest
+
+
+_REPO_ROOT = Path(__file__).parents[1]
+_HISTORICAL_SOURCE_PATHS = {
+    "src/metroflow/benchmarks/null_operator_control.py",
+    "src/metroflow/city/morphology_control_table.py",
+    "src/metroflow/city/morphology_metrics.py",
+}
+_HISTORICAL_BASE_COMMIT = "3c6a5c794ca5e06878ecb50eb935435208b8f2be"
+_SOURCE_INTRODUCTION_COMMIT = "e9e4dfda1898bd0af576511e04fa4b6e92e2cede"
+_ARTIFACT_INTRODUCTION_COMMIT = "5e1bb573695a2d58eb04e6689e59b6e2d98f36b7"
+_NULL_OPERATOR_SOURCE = "src/metroflow/benchmarks/null_operator_control.py"
+_NULL_OPERATOR_ARTIFACT = (
+    "artifacts/runtime_spine_review/morphology-null-operator-control-20260808.json"
+)
+_NULL_OPERATOR_MANIFEST = (
+    "artifacts/runtime_spine_review/"
+    "morphology-null-operator-control-20260808.manifest.json"
+)
+
+
+def _git_bytes(*arguments: str) -> bytes:
+    return subprocess.check_output(("git", *arguments), cwd=_REPO_ROOT)
+
+
+def _git_returncode(*arguments: str) -> int:
+    return subprocess.run(
+        ("git", *arguments),
+        cwd=_REPO_ROOT,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    ).returncode
+
+
+def _assert_historical_source_provenance(
+    artifact: dict[str, object],
+    manifest: dict[str, object],
+) -> None:
+    """Validate the historical source record used by the sealed control."""
+    provenance = artifact["provenance"]
+    assert isinstance(provenance, dict)
+    source_digests = provenance["sources"]
+    assert isinstance(source_digests, dict)
+    assert set(source_digests) == _HISTORICAL_SOURCE_PATHS
+    assert provenance["commit"] == _HISTORICAL_BASE_COMMIT
+    assert manifest["commit"] == _HISTORICAL_BASE_COMMIT
+    assert all(
+        isinstance(recorded_digest, str)
+        and re.fullmatch(r"[0-9a-f]{64}", recorded_digest)
+        for recorded_digest in source_digests.values()
+    )
+
+    for commit in (
+        _HISTORICAL_BASE_COMMIT,
+        _SOURCE_INTRODUCTION_COMMIT,
+        _ARTIFACT_INTRODUCTION_COMMIT,
+    ):
+        assert _git_bytes("cat-file", "-t", commit) == b"commit\n"
+        assert _git_returncode("merge-base", "--is-ancestor", commit, "HEAD") == 0
+
+    assert _git_returncode(
+        "cat-file", "-e", f"{_HISTORICAL_BASE_COMMIT}:{_NULL_OPERATOR_SOURCE}"
+    ) != 0, "the recorded commit is the experiment base, not a source snapshot"
+    assert _git_returncode(
+        "merge-base",
+        "--is-ancestor",
+        _SOURCE_INTRODUCTION_COMMIT,
+        _ARTIFACT_INTRODUCTION_COMMIT,
+    ) == 0
+
+    source_additions = set(
+        _git_bytes(
+            "diff-tree",
+            "--no-commit-id",
+            "--name-only",
+            "-r",
+            "--diff-filter=A",
+            _SOURCE_INTRODUCTION_COMMIT,
+        )
+        .decode("utf-8")
+        .splitlines()
+    )
+    assert _NULL_OPERATOR_SOURCE in source_additions
+    artifact_additions = set(
+        _git_bytes(
+            "diff-tree",
+            "--no-commit-id",
+            "--name-only",
+            "-r",
+            "--diff-filter=A",
+            _ARTIFACT_INTRODUCTION_COMMIT,
+        )
+        .decode("utf-8")
+        .splitlines()
+    )
+    assert {_NULL_OPERATOR_ARTIFACT, _NULL_OPERATOR_MANIFEST} <= artifact_additions
+
+    for source_path, recorded_digest in source_digests.items():
+        for source_commit in (
+            _SOURCE_INTRODUCTION_COMMIT,
+            _ARTIFACT_INTRODUCTION_COMMIT,
+        ):
+            historical_bytes = _git_bytes("show", f"{source_commit}:{source_path}")
+            assert hashlib.sha256(historical_bytes).hexdigest() == recorded_digest
+
+    artifact_path = _REPO_ROOT / _NULL_OPERATOR_ARTIFACT
+    manifest_path = _REPO_ROOT / _NULL_OPERATOR_MANIFEST
+    assert _git_bytes(
+        "show", f"{_ARTIFACT_INTRODUCTION_COMMIT}:{_NULL_OPERATOR_ARTIFACT}"
+    ) == artifact_path.read_bytes()
+    assert _git_bytes(
+        "show", f"{_ARTIFACT_INTRODUCTION_COMMIT}:{_NULL_OPERATOR_MANIFEST}"
+    ) == manifest_path.read_bytes()
 
 
 def _thinned(style_id: str = "grid_core", seed: int = 17, *, p: float):
@@ -94,12 +214,8 @@ def test_the_operator_reads_nothing_but_the_graph() -> None:
     )
 
 
-def test_the_historical_null_operator_artifact_binds_current_source_bytes() -> None:
-    """The imported evidence is structurally complete and names current sources."""
-
-    import hashlib
-    import json
-    from pathlib import Path
+def test_the_historical_null_operator_artifact_preserves_source_provenance() -> None:
+    """Historical evidence stays sealed without claiming to describe current code."""
 
     def assert_summary_matches_rows(rows: list[dict[str, object]], summary: object) -> None:
         fractions = sorted({float(row["requested_fraction"]) for row in rows})
@@ -120,8 +236,7 @@ def test_the_historical_null_operator_artifact_binds_current_source_bytes() -> N
         }
         assert derived == summary
 
-    root = Path(__file__).parents[1]
-    artifact_dir = root / "artifacts/runtime_spine_review"
+    artifact_dir = _REPO_ROOT / "artifacts/runtime_spine_review"
     artifact_path = artifact_dir / "morphology-null-operator-control-20260808.json"
     manifest_path = artifact_dir / "morphology-null-operator-control-20260808.manifest.json"
 
@@ -155,10 +270,28 @@ def test_the_historical_null_operator_artifact_binds_current_source_bytes() -> N
     with pytest.raises(AssertionError):
         assert_summary_matches_rows(rows, mutated_summary)
 
-    source_digests = artifact["provenance"]["sources"]
-    assert len(source_digests) == 3
-    for relative_path, recorded_digest in source_digests.items():
-        assert hashlib.sha256((root / relative_path).read_bytes()).hexdigest() == recorded_digest
+    _assert_historical_source_provenance(artifact, manifest)
+
+
+def test_historical_source_provenance_rejects_a_forged_digest() -> None:
+    """A well-shaped digest that names no historical blob must fail closed."""
+    artifact_dir = _REPO_ROOT / "artifacts/runtime_spine_review"
+    artifact = json.loads(
+        (artifact_dir / "morphology-null-operator-control-20260808.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    manifest = json.loads(
+        (artifact_dir / "morphology-null-operator-control-20260808.manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    artifact["provenance"]["sources"][
+        "src/metroflow/benchmarks/null_operator_control.py"
+    ] = "0" * 64
+
+    with pytest.raises(AssertionError):
+        _assert_historical_source_provenance(artifact, manifest)
 
 
 @pytest.mark.xfail(

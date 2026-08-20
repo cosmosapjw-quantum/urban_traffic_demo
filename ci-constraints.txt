@@ -1,0 +1,28 @@
+# CI-only resolver snapshot for Ubuntu 24.04 / CPython 3.12.14.
+# Runtime metadata in pyproject.toml intentionally remains range-compatible;
+# every required CI install consumes this exact, reviewable environment.
+certifi==2026.7.22
+charset-normalizer==3.4.9
+geopandas==1.1.4
+idna==3.18
+iniconfig==2.3.0
+maturin==1.14.1
+networkx==3.6.1
+numpy==2.5.1
+osmnx==2.1.1
+packaging==26.0
+pandas==3.0.5
+pip==26.1.2
+pluggy==1.6.0
+pygments==2.19.2
+pyogrio==0.13.0
+pyproj==3.7.2
+pytest==9.0.2
+python-dateutil==2.9.0.post0
+requests==2.34.2
+ruff==0.16.2
+scipy==1.18.0
+setuptools==83.0.0
+shapely==2.1.2
+six==1.17.0
+urllib3==2.7.0

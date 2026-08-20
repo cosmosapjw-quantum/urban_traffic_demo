@@ -1,6 +1,6 @@
 # Project State
 
-Last updated: 2026-08-17
+Last updated: 2026-08-20
 
 ## Process Governance & Hybrid Methodology Baseline
 
@@ -21,6 +21,9 @@ Facts:
 Facts:
 
 - Host baseline is Python 3.12 on Ubuntu 24.04.
+- Required CI jobs use Ubuntu 24.04, CPython 3.12.14, SHA-pinned GitHub
+  actions, and the complete resolver snapshot in `ci-constraints.txt`; project
+  runtime metadata remains range-compatible outside CI.
 - Default runtime authority is Python/NumPy deterministic baseline.
 - Rust CPU backend is optional and explicit/fail-closed.
 - JAX CUDA 13 remains optional for RTX 3080 Ti 12GB experiments.
@@ -178,6 +181,16 @@ Derived conclusions:
 
 - Typed physical centerlines, road sections, node interfaces, width-aware SVG
   ribbons, and offline no-network OSM XML import are implemented.
+- The v4 morphology control table records an exact source-topology fingerprint
+  for every score. The audit renderer rejects any current topology whose
+  fingerprint differs; historical v3 evidence remains immutable.
+- Scalable `ring_radial`, `polycentric_tod`, `superblock_mixed`, and `organic`
+  now have distinct observable spatial grammars: concentric orbitals and radial
+  arms, two-dimensional centers, explicit macrofaces, and bounded curvilinear
+  connectors respectively. These close the prior structural-differentiation
+  defects, not named-city calibration or empirical morphology validation.
+- Node-to-TAZ nearest-owner assignment requires a complete exact built-in
+  integer millimetre coordinate mapping and rejects coercible float inputs.
 - `sidecar_local_fabric_planar` is an explicit fail-closed review mode with
   endpoint, intersection, section, sampled-OD, and replay gates.
 - `standard` remains the runtime default. A planar default trial raised the full
@@ -228,10 +241,11 @@ but remains uncalibrated and cannot turn completed ticks into traffic-realism
 evidence. Port the legacy medium/slow accessibility and land-use cadences into
 `SimulationState` or explicitly retire that product claim.
 
-The immediate product decision is a new generator specification that replaces
-the triangular local fabric and fixes zone/home capacity so requested
-populations are realized. Only after PR62 and PR63 are rerun should acceleration
-be reconsidered. Preserve four visible
+The scalable topology styles now carry explicit differentiated grammars, but
+the PR62 triangular growth fabric and zone/home capacity defect remain open.
+The immediate product decision is therefore to transfer or redesign those
+spatial mechanisms in the realistic city path, then rerun PR62 and PR63 before
+acceleration is reconsidered. Preserve four visible
 lanes: Rust for branch-heavy graph/action planning, NumPy/SIMD for flow arrays,
 JAX/GPU for amortized dense chunks/scoring, and NN only for simulator-labelled
 surrogate experiments.

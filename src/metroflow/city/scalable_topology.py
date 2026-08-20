@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from enum import Enum
 from fractions import Fraction
 from math import isfinite
-from typing import Sequence
+from typing import Mapping, Sequence
 
 from metroflow.city.scale import CityScaleSpec
 
@@ -20,6 +20,7 @@ TERRAIN_CELL_SIZE_M = 50.0
 MAX_JUNCTIONS = 120_000
 MAX_PHYSICAL_ROADS = 300_000
 MAX_SURFACE_DEGREE = 4
+ORGANIC_MAX_AXIS_DISPLACEMENT_MM = 500_000
 STYLE_IDS = (
     "ring_radial",
     "grid_core",
@@ -1011,22 +1012,47 @@ class _CanonicalGeneratedSpecs:
 
 
 def _centers(
-    x_values: tuple[int, ...],
+    row_x_values: Mapping[int, tuple[int, ...]],
     y_values: tuple[int, ...],
     style_id: str,
     area_km2: float,
 ) -> tuple[tuple[int, int], ...]:
+    center_y = min(y_values, key=abs)
     if style_id in {"ring_radial", "grid_core", "organic"}:
-        count = 1
-    elif style_id in {"polycentric_tod", "superblock_mixed"}:
+        return ((min(row_x_values[center_y], key=abs), center_y),)
+    if style_id in {"polycentric_tod", "superblock_mixed"}:
         count = max(3, min(8, round(area_km2 / 50.0)))
     else:
         count = max(2, min(5, round(area_km2 / 80.0)))
-    center_y = min(y_values, key=abs)
-    if count == 1:
-        return ((min(x_values, key=abs), center_y),)
+        center_x_values = row_x_values[center_y]
+        return tuple(
+            (
+                center_x_values[
+                    round((index + 1) * (len(center_x_values) - 1) / (count + 1))
+                ],
+                center_y,
+            )
+            for index in range(count)
+        )
+
+    selected_y = tuple(
+        y_values[round((index + 1) * (len(y_values) - 1) / (count + 1))]
+        for index in range(count)
+    )
+    common_x = tuple(
+        sorted(set.intersection(*(set(row_x_values[y_mm]) for y_mm in selected_y)))
+    )
+    if len(common_x) < count:
+        raise ValueError("multi-center grammar lacks shared two-dimensional lattice anchors")
+    # A low-discrepancy permutation prevents the centers from forming either a
+    # horizontal row or a single diagonal while retaining exact lattice nodes.
+    x_slots = tuple(
+        round((index + 1) * (len(common_x) - 1) / (count + 1))
+        for index in range(count)
+    )
+    order = tuple(sorted(range(count), key=lambda index: ((index * 2 + 1) % count, index)))
     return tuple(
-        (x_values[round((index + 1) * (len(x_values) - 1) / (count + 1))], center_y)
+        (common_x[x_slots[order[index]]], selected_y[index])
         for index in range(count)
     )
 
@@ -1098,26 +1124,83 @@ def _surface_semantic_role(
     return base_role
 
 
+def _organic_axis_displacement_mm(
+    seed: int,
+    value: int,
+    minimum: int,
+    maximum: int,
+    amplitude_mm: int,
+    axis: str,
+) -> int:
+    """Interpolate one exact seeded shear field without floating-point drift."""
+
+    interval_count = 6
+    span = maximum - minimum
+    position = (value - minimum) * interval_count
+    left_index = min(interval_count - 1, max(0, position // span))
+    remainder = position - left_index * span
+
+    def knot(index: int) -> int:
+        payload = f"{seed}:organic-{axis}:{index}".encode()
+        raw = int.from_bytes(hashlib.sha256(payload).digest()[:8], "big")
+        return raw % (2 * amplitude_mm + 1) - amplitude_mm
+
+    left = knot(left_index)
+    right = knot(left_index + 1)
+    return (left * (span - remainder) + right * remainder) // span
+
+
+def _organic_warp_point(
+    seed: int,
+    point: tuple[int, int],
+    extent: tuple[int, int, int, int],
+) -> tuple[int, int]:
+    """Apply an invertible integer shear composition to one source point."""
+
+    x_mm, y_mm = point
+    min_x, max_x, min_y, max_y = extent
+    center_x = (min_x + max_x) // 2
+    center_y = (min_y + max_y) // 2
+    scaled_x = center_x + (x_mm - center_x) * 3 // 4
+    warped_x = scaled_x + _organic_axis_displacement_mm(
+        seed,
+        y_mm,
+        min_y,
+        max_y,
+        min((max_x - min_x) // 16, ORGANIC_MAX_AXIS_DISPLACEMENT_MM),
+        "x",
+    )
+    scaled_y = center_y + (y_mm - center_y) * 3 // 4
+    warped_y = scaled_y + _organic_axis_displacement_mm(
+        seed,
+        warped_x,
+        min_x,
+        max_x,
+        min((max_y - min_y) // 16, ORGANIC_MAX_AXIS_DISPLACEMENT_MM),
+        "y",
+    )
+    if not (min_x <= warped_x <= max_x and min_y <= warped_y <= max_y):
+        raise ValueError("organic warp cannot fit declared extent")
+    return warped_x, warped_y
+
+
 def _organic_connector_points(
     seed: int,
     start: tuple[int, int],
     end: tuple[int, int],
     extent: tuple[int, int, int, int],
 ) -> tuple[tuple[int, int], ...]:
-    payload = f"{seed}:{start[0]}:{start[1]}:{end[0]}:{end[1]}".encode()
-    raw = int.from_bytes(hashlib.sha256(payload).digest()[:4], "big")
-    displacement = 1 + raw % 5_000
-    if raw & 1:
-        displacement = -displacement
-    midpoint_x = (start[0] + end[0]) // 2
-    midpoint_y = (start[1] + end[1]) // 2
-    min_x, max_x, min_y, max_y = extent
-    if not min_x <= midpoint_x + displacement <= max_x:
-        displacement = -displacement
-    midpoint = (midpoint_x + displacement, midpoint_y)
-    if not (min_x <= midpoint[0] <= max_x and min_y <= midpoint[1] <= max_y):
-        raise ValueError("organic connector midpoint cannot fit declared extent")
-    return (start, midpoint, end)
+    return tuple(
+        _organic_warp_point(
+            seed,
+            (
+                start[0] + (end[0] - start[0]) * index // 4,
+                start[1] + (end[1] - start[1]) * index // 4,
+            ),
+            extent,
+        )
+        for index in range(5)
+    )
 
 
 def _canonical_generated_specs(
@@ -1138,8 +1221,9 @@ def _canonical_generated_specs(
         )
         for y_mm in y_values
     }
-    center_row = min(y_values, key=abs)
-    centers = _centers(row_x_values[center_row], y_values, style_id, scale_spec.urbanized_area_km2)
+    centers = _centers(row_x_values, y_values, style_id, scale_spec.urbanized_area_km2)
+    if style_id == "organic":
+        centers = tuple(_organic_warp_point(seed, center, extent) for center in centers)
     node_by_key: dict[tuple[int, int, int], _NodeSpec] = {}
     road_specs: list[_RoadSpec] = []
 
@@ -1214,8 +1298,213 @@ def _canonical_generated_specs(
             )
         )
 
+    if style_id == "ring_radial":
+        min_x, max_x, min_y, max_y = extent
+        center_x, center_y = centers[0]
+        nominal_spacing_mm = int(
+            round(terrain.spacing_at(center_x / 1_000.0, center_y / 1_000.0) * 1_000.0)
+        )
+        available_radius_mm = min(
+            center_x - min_x,
+            max_x - center_x,
+            center_y - min_y,
+            max_y - center_y,
+        )
+        outer_radius_mm = available_radius_mm * 3 // 4
+        inner_radius_mm = max(2 * nominal_spacing_mm, outer_radius_mm // 6)
+        ring_count = max(
+            8,
+            1 + (outer_radius_mm - inner_radius_mm) // nominal_spacing_mm,
+        )
+        estimated_spokes = max(
+            32,
+            round(math.tau * outer_radius_mm / nominal_spacing_mm),
+        )
+        spoke_count = max(32, ((estimated_spokes + 7) // 8) * 8)
+
+        rings: list[tuple[_NodeSpec, ...]] = []
+        for ring_index in range(ring_count):
+            radius_mm = inner_radius_mm + (
+                (outer_radius_mm - inner_radius_mm) * ring_index // (ring_count - 1)
+            )
+            ring_nodes = tuple(
+                node_at(
+                    center_x
+                    + round(radius_mm * math.cos(math.tau * spoke_index / spoke_count)),
+                    center_y
+                    + round(radius_mm * math.sin(math.tau * spoke_index / spoke_count)),
+                    0,
+                    "ring-surface",
+                )
+                for spoke_index in range(spoke_count)
+            )
+            rings.append(ring_nodes)
+            if ring_index in {ring_count // 2, ring_count - 1}:
+                hierarchy = RoadHierarchy.ARTERIAL
+            elif ring_index % 3 == 0:
+                hierarchy = RoadHierarchy.COLLECTOR
+            else:
+                hierarchy = RoadHierarchy.LOCAL
+            for spoke_index, start in enumerate(ring_nodes):
+                end = ring_nodes[(spoke_index + 1) % spoke_count]
+                middle_angle = math.tau * (spoke_index + 0.5) / spoke_count
+                midpoint = (
+                    center_x + round(radius_mm * math.cos(middle_angle)),
+                    center_y + round(radius_mm * math.sin(middle_angle)),
+                )
+                road_between(
+                    f"ring-orbital-{ring_index}",
+                    start,
+                    end,
+                    hierarchy,
+                    FacilityKind.SURFACE,
+                    0,
+                    points=(
+                        (start.x_mm, start.y_mm),
+                        midpoint,
+                        (end.x_mm, end.y_mm),
+                    ),
+                )
+
+        arterial_step = spoke_count // 4
+        collector_step = spoke_count // 8
+        center_node = node_at(center_x, center_y, 0, "ring-center")
+        for spoke_index in range(0, spoke_count, arterial_step):
+            road_between(
+                f"ring-center-spoke-{spoke_index}",
+                center_node,
+                rings[0][spoke_index],
+                RoadHierarchy.ARTERIAL,
+                FacilityKind.SURFACE,
+                0,
+            )
+        for ring_index, (inner_ring, outer_ring) in enumerate(
+            zip(rings, rings[1:])
+        ):
+            for spoke_index, (start, end) in enumerate(zip(inner_ring, outer_ring)):
+                if spoke_index % arterial_step == 0:
+                    hierarchy = RoadHierarchy.ARTERIAL
+                elif spoke_index % collector_step == 0:
+                    hierarchy = RoadHierarchy.COLLECTOR
+                else:
+                    hierarchy = RoadHierarchy.LOCAL
+                road_between(
+                    f"ring-spoke-{spoke_index}",
+                    start,
+                    end,
+                    hierarchy,
+                    FacilityKind.SURFACE,
+                    0,
+                )
+
+        gateway_points = (
+            (min_x, min_y),
+            (0, min_y),
+            (max_x, min_y),
+            (max_x, 0),
+            (max_x, max_y),
+            (0, max_y),
+            (min_x, max_y),
+            (min_x, 0),
+        )
+        upper_nodes = tuple(
+            node_at(x_mm, y_mm, 1, "mainline-gateway")
+            for x_mm, y_mm in gateway_points
+        )
+        for start, end in zip(upper_nodes, upper_nodes[1:] + upper_nodes[:1]):
+            road_between(
+                "perimeter-mainline",
+                start,
+                end,
+                RoadHierarchy.EXPRESSWAY,
+                FacilityKind.MAINLINE,
+                1,
+            )
+
+        frame_x = tuple(sorted({min_x, *_seam_coordinates(min_x, max_x), max_x}))
+        frame_y = tuple(sorted({min_y, *_seam_coordinates(min_y, max_y), max_y}))
+        frame_points = (
+            tuple((x_mm, min_y) for x_mm in frame_x)
+            + tuple((max_x, y_mm) for y_mm in frame_y[1:])
+            + tuple((x_mm, max_y) for x_mm in reversed(frame_x[:-1]))
+            + tuple((min_x, y_mm) for y_mm in reversed(frame_y[1:-1]))
+        )
+        frame_nodes = tuple(
+            node_at(x_mm, y_mm, 0, "ring-seam-frame")
+            for x_mm, y_mm in frame_points
+        )
+        for start, end in zip(frame_nodes, frame_nodes[1:] + frame_nodes[:1]):
+            road_between(
+                "ring-seam-frame",
+                start,
+                end,
+                RoadHierarchy.COLLECTOR,
+                FacilityKind.SURFACE,
+                0,
+            )
+        frame_by_point = dict(zip(frame_points, frame_nodes))
+        outer_ring = rings[-1]
+        for gateway_index, (gateway_point, upper) in enumerate(
+            zip(gateway_points, upper_nodes)
+        ):
+            angle = math.atan2(
+                gateway_point[1] - center_y,
+                gateway_point[0] - center_x,
+            ) % math.tau
+            spoke_index = round(angle * spoke_count / math.tau) % spoke_count
+            outer = outer_ring[spoke_index]
+            frame = frame_by_point[gateway_point]
+            access_point = (
+                frame.x_mm + (outer.x_mm - frame.x_mm) // 4,
+                frame.y_mm + (outer.y_mm - frame.y_mm) // 4,
+            )
+            access = node_at(
+                *access_point,
+                0,
+                f"ring-ramp-access-{gateway_index}",
+            )
+            road_between(
+                "ring-gateway-inner",
+                outer,
+                access,
+                RoadHierarchy.ARTERIAL,
+                FacilityKind.SURFACE,
+                0,
+            )
+            road_between(
+                "ring-gateway-outer",
+                access,
+                frame,
+                RoadHierarchy.ARTERIAL,
+                FacilityKind.SURFACE,
+                0,
+            )
+            road_between(
+                "mainline-ramp",
+                access,
+                upper,
+                RoadHierarchy.ARTERIAL,
+                FacilityKind.RAMP,
+                1,
+                transition=(0, 1),
+            )
+        return _CanonicalGeneratedSpecs(
+            tuple(sorted(node_by_key.values(), key=lambda item: item.semantic_id)),
+            tuple(sorted(road_specs, key=lambda item: item.semantic_id)),
+            tuple(gateway.semantic_id for gateway in upper_nodes),
+            centers,
+        )
+
     surface = {
-        (x_mm, y_mm): node_at(x_mm, y_mm, 0, "surface")
+        (x_mm, y_mm): node_at(
+            *(
+                _organic_warp_point(seed, (x_mm, y_mm), extent)
+                if style_id == "organic"
+                else (x_mm, y_mm)
+            ),
+            0,
+            "surface",
+        )
         for y_mm in y_values
         for x_mm in row_x_values[y_mm]
     }
@@ -1237,6 +1526,17 @@ def _canonical_generated_specs(
                 centers,
                 hierarchy,
             )
+            points = None
+            row_interval = _row_interval_authority(left, right, y_mm, terrain, extent)
+            if style_id == "organic":
+                role = "organic-connector"
+                points = _organic_connector_points(
+                    seed,
+                    (left, y_mm),
+                    (right, y_mm),
+                    extent,
+                )
+                row_interval = None
             road_between(
                 role,
                 surface[(left, y_mm)],
@@ -1244,7 +1544,8 @@ def _canonical_generated_specs(
                 hierarchy,
                 FacilityKind.SURFACE,
                 0,
-                row_interval=_row_interval_authority(left, right, y_mm, terrain, extent),
+                row_interval=row_interval,
+                points=points,
             )
     for row, (lower_y, upper_y) in enumerate(zip(y_values, y_values[1:])):
         lower, upper = row_x_values[lower_y], row_x_values[upper_y]
@@ -1264,6 +1565,17 @@ def _canonical_generated_specs(
             for column, (lower_index, upper_index) in enumerate(
                 _monotone_partial_match(lower_bank, upper_bank)
             ):
+                if (
+                    style_id == "superblock_mixed"
+                    and column % 9 != 0
+                    and (row // 9 + column // 9) % 3 != 0
+                ):
+                    # Fine local cells occupy one macrocell family; the other
+                    # two retain only their continuous arterial boundaries.
+                    # Horizontal streets keep every node connected while these
+                    # omitted cross streets form genuine large faces instead of
+                    # relabelling an otherwise uniform lattice.
+                    continue
                 lower_x, upper_x = lower_bank[lower_index], upper_bank[upper_index]
                 hierarchy = _surface_hierarchy(
                     row,
@@ -1301,6 +1613,45 @@ def _canonical_generated_specs(
                     0,
                     points=points,
                 )
+
+    if style_id == "organic":
+        min_x, max_x, min_y, max_y = extent
+        frame_x = tuple(sorted({min_x, *_seam_coordinates(min_x, max_x), max_x}))
+        frame_y = tuple(sorted({min_y, *_seam_coordinates(min_y, max_y), max_y}))
+        frame_points = (
+            tuple((x_mm, min_y) for x_mm in frame_x)
+            + tuple((max_x, y_mm) for y_mm in frame_y[1:])
+            + tuple((x_mm, max_y) for x_mm in reversed(frame_x[:-1]))
+            + tuple((min_x, y_mm) for y_mm in reversed(frame_y[1:-1]))
+        )
+        frame_nodes = tuple(
+            node_at(x_mm, y_mm, 0, "organic-seam-frame")
+            for x_mm, y_mm in frame_points
+        )
+        for start, end in zip(frame_nodes, frame_nodes[1:] + frame_nodes[:1]):
+            road_between(
+                "organic-seam-frame",
+                start,
+                end,
+                RoadHierarchy.COLLECTOR,
+                FacilityKind.SURFACE,
+                0,
+            )
+        frame_by_point = dict(zip(frame_points, frame_nodes))
+        for source_point in (
+            (0, min_y),
+            (max_x, 0),
+            (0, max_y),
+            (min_x, 0),
+        ):
+            road_between(
+                "organic-seam-connector",
+                frame_by_point[source_point],
+                surface[source_point],
+                RoadHierarchy.ARTERIAL,
+                FacilityKind.SURFACE,
+                0,
+            )
 
     if style_id == "river_constrained":
         bridge_rows = tuple(
@@ -1351,19 +1702,24 @@ def _canonical_generated_specs(
             surface_degree[road.start_semantic_id] += 1
             surface_degree[road.end_semantic_id] += 1
 
+    surface_key_by_semantic_id = {
+        node.semantic_id: source_point for source_point, node in surface.items()
+    }
+
     def horizontal_neighbour(anchor: _NodeSpec) -> _NodeSpec | None:
-        values = row_x_values[anchor.y_mm]
-        index = values.index(anchor.x_mm)
+        source_x, source_y = surface_key_by_semantic_id[anchor.semantic_id]
+        values = row_x_values[source_y]
+        index = values.index(source_x)
         if style_id == "river_constrained":
-            direction = -1 if anchor.x_mm < 0 else 1
-        elif anchor.x_mm == min_x or (anchor.x_mm not in {min_x, max_x} and anchor.x_mm <= 0):
+            direction = -1 if source_x < 0 else 1
+        elif source_x == min_x or (source_x not in {min_x, max_x} and source_x <= 0):
             direction = 1
         else:
             direction = -1
         neighbour_index = index + direction
         if not 0 <= neighbour_index < len(values):
             return None
-        return surface[(values[neighbour_index], anchor.y_mm)]
+        return surface[(values[neighbour_index], source_y)]
 
     reserved_anchors: set[str] = set()
     surface_segments = tuple(
@@ -1374,8 +1730,9 @@ def _canonical_generated_specs(
     )
     for index, upper in enumerate(upper_nodes):
         candidates = []
-        for anchor in surface.values():
-            if anchor.x_mm not in {min_x, max_x} and anchor.y_mm not in {min_y, max_y}:
+        for source_point, anchor in surface.items():
+            source_x, source_y = source_point
+            if source_x not in {min_x, max_x} and source_y not in {min_y, max_y}:
                 continue
             neighbour = horizontal_neighbour(anchor)
             if (
@@ -1387,7 +1744,9 @@ def _canonical_generated_specs(
             ):
                 continue
             distance = (anchor.x_mm - upper.x_mm) ** 2 + (anchor.y_mm - upper.y_mm) ** 2
-            candidates.append((distance, anchor.semantic_id, anchor, neighbour))
+            candidates.append(
+                (distance, anchor.semantic_id, source_point, anchor, neighbour)
+            )
         if not candidates:
             raise ValueError("mainline gateway lacks a bounded surface access triangle")
 
@@ -1413,26 +1772,35 @@ def _canonical_generated_specs(
             return True
 
         selection = None
-        for _, _, candidate_anchor, candidate_neighbour in sorted(
+        for _, _, candidate_source, candidate_anchor, candidate_neighbour in sorted(
             candidates,
             key=lambda item: (item[0], item[1]),
         ):
-            y_index = y_values.index(candidate_anchor.y_mm)
-            if candidate_anchor.y_mm == min_y:
-                dy = (y_values[y_index + 1] - candidate_anchor.y_mm) // 3
-            elif candidate_anchor.y_mm == max_y:
-                dy = (y_values[y_index - 1] - candidate_anchor.y_mm) // 3
-            elif candidate_anchor.y_mm <= 0:
-                dy = (y_values[y_index + 1] - candidate_anchor.y_mm) // 3
+            source_x, source_y = candidate_source
+            neighbour_source = surface_key_by_semantic_id[
+                candidate_neighbour.semantic_id
+            ]
+            y_index = y_values.index(source_y)
+            if source_y == min_y:
+                dy = (y_values[y_index + 1] - source_y) // 3
+            elif source_y == max_y:
+                dy = (y_values[y_index - 1] - source_y) // 3
+            elif source_y <= 0:
+                dy = (y_values[y_index + 1] - source_y) // 3
             else:
-                dy = (y_values[y_index - 1] - candidate_anchor.y_mm) // 3
+                dy = (y_values[y_index - 1] - source_y) // 3
             if dy == 0:
                 continue
             for numerator, denominator in ((1, 3), (1, 2), (2, 3)):
+                source_candidate_point = (
+                    source_x
+                    + (neighbour_source[0] - source_x) * numerator // denominator,
+                    source_y + dy,
+                )
                 candidate_point = (
-                    candidate_anchor.x_mm
-                    + (candidate_neighbour.x_mm - candidate_anchor.x_mm) * numerator // denominator,
-                    candidate_anchor.y_mm + dy,
+                    _organic_warp_point(seed, source_candidate_point, extent)
+                    if style_id == "organic"
+                    else source_candidate_point
                 )
                 if carrier_is_clear(
                     candidate_point,

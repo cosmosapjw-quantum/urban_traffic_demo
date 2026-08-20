@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" width="1400" height="1000">
 <rect width="1400" height="1000" fill="#ffffff"/>
-<title>sidecar_local_fabric / superblock_mixed / seed 17 -- passes 7/7 and is not a city</title>
+<title>sidecar_local_fabric / superblock_mixed / seed 17 -- metric counter-example</title>
 <g stroke-linecap="round">
 <line x1="642.60" y1="486.89" x2="711.19" y2="473.56" stroke="#2f6690" stroke-width="1.9"/>
 <line x1="711.19" y1="473.56" x2="642.60" y2="486.89" stroke="#2f6690" stroke-width="1.9"/>
@@ -1275,10 +1275,10 @@
 <line x1="469.71" y1="249.61" x2="424.17" y2="248.46" stroke="#4f9ac4" stroke-width="1.2"/>
 <line x1="424.17" y1="248.46" x2="469.71" y2="249.61" stroke="#4f9ac4" stroke-width="1.2"/>
 </g>
-<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">sidecar_local_fabric / superblock_mixed / seed 17 -- passes 7/7 and is not a city</text>
+<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">sidecar_local_fabric / superblock_mixed / seed 17 -- metric counter-example</text>
 <text x="28" y="880" font-family="monospace" font-size="13" fill="#333333">sidecar_local_fabric  |  superblock_mixed/17  |  PASS 7/7</text>
 <text x="28" y="902" font-family="monospace" font-size="13" fill="#333333">nodes 440   segments 535   mean degree 3.1563   dead ends 0.0678</text>
 <text x="28" y="924" font-family="monospace" font-size="13" fill="#333333">circuity 1.0808   median segment 61.6 m   four-way 0.1858</text>
 <text x="28" y="946" font-family="monospace" font-size="13" fill="#333333">orientation entropy 3.0397   order 0.4337</text>
-<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v3-20260808.json; this image measures nothing</text>
+<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v4-20260820.json; this image measures nothing</text>
 </svg>

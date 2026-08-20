@@ -5479,8 +5479,8 @@
 </g>
 <text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">growth_fabric_v1 / grid_core / seed 17 -- arm under review</text>
 <text x="28" y="880" font-family="monospace" font-size="13" fill="#333333">growth_fabric_v1  |  grid_core/17  |  PASS 7/7</text>
-<text x="28" y="902" font-family="monospace" font-size="13" fill="#333333">nodes 1841   segments 2703   mean degree 2.9573   dead ends 0.2046</text>
-<text x="28" y="924" font-family="monospace" font-size="13" fill="#333333">circuity 1.0032   median segment 99.4 m   four-way 0.3545</text>
-<text x="28" y="946" font-family="monospace" font-size="13" fill="#333333">orientation entropy 2.3043   order 0.8254</text>
-<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v3-20260808.json; this image measures nothing</text>
+<text x="28" y="902" font-family="monospace" font-size="13" fill="#333333">nodes 1843   segments 2724   mean degree 2.9770   dead ends 0.1951</text>
+<text x="28" y="924" font-family="monospace" font-size="13" fill="#333333">circuity 1.0032   median segment 98.6 m   four-way 0.3552</text>
+<text x="28" y="946" font-family="monospace" font-size="13" fill="#333333">orientation entropy 2.3048   order 0.8252</text>
+<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v4-20260820.json; this image measures nothing</text>
 </svg>

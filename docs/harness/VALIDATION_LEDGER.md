@@ -1,5 +1,12 @@
 # Validation Ledger
 
+> **2026-08-20 — exact gallery binding supersedes the initial replacement.**
+> `morphology-control-table-v4-20260820.json` records the measured source
+> topology fingerprint for every case. `tools/render_audit_maps.py` now requires
+> exact equality with the topology it renders; node-count tolerance is gone.
+> Historical v3 bytes remain untouched. The gallery remains diagnostic
+> navigation, not scientific validation.
+>
 > **2026-08-08 — the image artifacts named below are no longer tracked.** All 44
 > committed PNGs were deleted in preparation for the second external audit. Two
 > reasons, and neither is that they were wrong. They were rendered by code that
@@ -10,10 +17,10 @@
 > them (`.json`, `.md`, `.manifest.json`) are untouched, and every entry's
 > reproduction commands still regenerate its screenshots on demand.
 >
-> The replacement gallery is `artifacts/external_audit_2_maps/`, rendered by
+> The initial replacement gallery was `artifacts/external_audit_2_maps/`, rendered by
 > `tools/render_audit_maps.py` from the current tree, captioned out of
 > `morphology-control-table-v3-20260808.json`, and byte-reproducible via
-> `--check`. It illustrates; it still measures nothing.
+> `--check`. The 2026-08-20 v4 binding above supersedes that caption authority.
 
 ## 2026-07-13: Realistic City Plausibility Audit
 
