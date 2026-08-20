@@ -164,6 +164,21 @@ jobs:
       - name: Re-render the scalable morphology gallery and compare
         run: python tools/render_morphology_gallery.py --check
 
+      - name: Re-derive the full v4 morphology control table and compare
+        run: |
+          python -m metroflow.benchmarks.morphology_control_table \
+            --artifact-prefix artifacts/runtime_spine_review/morphology-control-table-v4-20260820 \
+            --styles ring_radial,grid_core,polycentric_tod,river_constrained,superblock_mixed,organic \
+            --seeds 17,29,41,44,53 \
+            --osm-extract artifacts/osm_control/barcelona.osm \
+            --osm-extract artifacts/osm_control/charlotte.osm \
+            --osm-extract artifacts/osm_control/chicago.osm \
+            --osm-extract artifacts/osm_control/paris.osm \
+            --osm-extract artifacts/osm_control/prague.osm \
+            --osm-extract artifacts/osm_control/seoul.osm \
+            --osm-extract artifacts/osm_control/tokyo.osm \
+            --check
+
   ci-gate:
     name: ci gate
     if: ${{ always() }}

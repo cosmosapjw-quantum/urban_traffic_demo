@@ -182,13 +182,19 @@ Derived conclusions:
 - Typed physical centerlines, road sections, node interfaces, width-aware SVG
   ribbons, and offline no-network OSM XML import are implemented.
 - The v4 morphology control table records an exact source-topology fingerprint
-  for every score. The audit renderer rejects any current topology whose
-  fingerprint differs; historical v3 evidence remains immutable.
+  and measurement specification for every score. CI re-derives all 135 cases
+  and exact-checks JSON, Markdown, schema, table fingerprint, and file hashes.
+  The audit renderer rejects any current topology whose fingerprint differs;
+  historical v3 evidence remains immutable. This table does not score
+  `scalable_synthetic_v2` and therefore cannot validate that path.
 - Scalable `ring_radial`, `polycentric_tod`, `superblock_mixed`, and `organic`
-  now have distinct observable spatial grammars: concentric orbitals and radial
-  arms, two-dimensional centers, explicit macrofaces, and bounded curvilinear
-  connectors respectively. These close the prior structural-differentiation
-  defects, not named-city calibration or empirical morphology validation.
+  now have distinct observable structural or embedding mechanisms: concentric
+  orbitals and radial arms, two-dimensional centers with a high-hierarchy
+  backbone, multiple two-dimensional macrofaces, and bounded curvilinear
+  warped-grid connectors respectively. `organic` remains a compatibility ID,
+  not an organic-topology claim. These close the prior structural-
+  differentiation defects, not named-city calibration or empirical morphology
+  validation.
 - Node-to-TAZ nearest-owner assignment requires a complete exact built-in
   integer millimetre coordinate mapping and rejects coercible float inputs.
 - `sidecar_local_fabric_planar` is an explicit fail-closed review mode with

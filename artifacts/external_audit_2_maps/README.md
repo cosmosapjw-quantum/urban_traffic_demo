@@ -13,6 +13,8 @@ topology that differs by even one fingerprinted node, link, or road-geometry
 field. The claim ledger
 forbids presenting image artifacts as scientific validation; this directory
 exists so a reviewer can *navigate* to the measurements, not stand in for them.
+That table covers legacy, sidecar, realistic-v1, growth-v1, and offline OSM
+arms; it does not score or validate `scalable_synthetic_v2`.
 
 The 44 PNGs previously committed were deleted in the same change. They were
 rendered by a generator that has since been substantially repaired, so opening

@@ -23,6 +23,7 @@ So three properties are locked here.
 from __future__ import annotations
 
 import importlib.util
+import json
 import re
 import sys
 from pathlib import Path
@@ -319,6 +320,25 @@ def test_control_table_check_mode(tmp_path: Path) -> None:
     ok, mismatches = check_artifacts(prefix, table=table, skipped=())
     assert ok is True
     assert not mismatches
+
+    manifest_path = tmp_path / "table_test.manifest.json"
+    original_manifest = manifest_path.read_bytes()
+    manifest = json.loads(original_manifest)
+    manifest["schema_version"] = "morphology_control_table_v0"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    ok, mismatches = check_artifacts(prefix, table=table, skipped=())
+    assert ok is False
+    assert "table_test.manifest.json: bytes changed" in mismatches
+
+    manifest_path.write_bytes(original_manifest)
+    manifest = json.loads(original_manifest)
+    manifest["files"]["table_test.json"] = "0" * 64
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    ok, mismatches = check_artifacts(prefix, table=table, skipped=())
+    assert ok is False
+    assert "table_test.manifest.json: bytes changed" in mismatches
+
+    manifest_path.write_bytes(original_manifest)
 
     # Tamper markdown
     (tmp_path / "table_test.md").write_text("corrupted", encoding="utf-8")

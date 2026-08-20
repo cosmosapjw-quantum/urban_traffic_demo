@@ -1,6 +1,6 @@
 # Morphology Control Table
 
-Fingerprint: `314e413509b8bf44d12d6a0c88ed4d0df158b89ce88ade9a9f588aa5926bef9f`
+Fingerprint: `183a36e5abb2960492d52e5c5aefe333196b4c96396465d91ecd7e462e3893ce`
 
 One pinned envelope applied to every arm, measured under
 `MeasurementSpec.BOEING_2019_HO`: one endpoint-chord bearing per
@@ -77,4 +77,4 @@ how the PR53 criteria were frozen before an algorithm existed.
 Diagnostic street-morphology comparison against a pinned reference
 corpus. Not empirical traffic, demand, route-choice, land-use or
 named-city validation. Passing this table authorizes no runtime default
-change on its own.
+change on its own. This table does not score scalable_synthetic_v2.

@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 from metroflow.city.scale import CityScaleSpec
-from metroflow.city.scalable_city import build_scalable_city_map
+from metroflow.city.scalable_city import ScalableCityMap, build_scalable_city_map
 from metroflow.ui.static_map import (
     build_static_city_map_artifact,
     render_static_city_map_svg,
@@ -30,8 +30,8 @@ MORPHOLOGY_GALLERY_SET: tuple[tuple[str, int, str], ...] = (
     ("ring_radial", 17, "Ring Radial (Concentric Rings & Radial Spines)"),
     ("river_constrained", 17, "River Constrained (Bifurcated Corridor & Bridges)"),
     ("polycentric_tod", 17, "Polycentric TOD (Multi-Hub Centers)"),
-    ("superblock_mixed", 17, "Superblock Mixed (Hierarchical Arterial Perimeter)"),
-    ("organic", 17, "Organic Fabric (Irregular Local Network)"),
+    ("superblock_mixed", 17, "Superblock Mixed (Hierarchical Macroblock Perimeters)"),
+    ("organic", 17, "Curvilinear Warped Grid (organic compatibility ID)"),
 )
 
 
@@ -43,6 +43,40 @@ class _GalleryConfig:
     morphology_style_id: str = "grid_core"
     zone_poi_coupling_mode: str = "block_based_v1"
     scale_spec: CityScaleSpec | None = _GALLERY_SCALE_SPEC
+
+
+def _manifest_entry(
+    *,
+    style_id: str,
+    seed: int,
+    label: str,
+    city: ScalableCityMap,
+    svg_sha256: str,
+) -> dict[str, str]:
+    """Return every re-derivable, non-preview identity asserted by the gallery."""
+    return {
+        "style_id": style_id,
+        "display_label": label,
+        "seed": str(seed),
+        "topology_mode": "scalable_synthetic_v2",
+        "target_population": str(_GALLERY_SCALE_SPEC.target_population),
+        "urbanized_area_km2": str(_GALLERY_SCALE_SPEC.urbanized_area_km2),
+        "network_schema_version": city.network.schema_version,
+        "network_fingerprint": city.network.fingerprint,
+        "blocks_schema_version": city.blocks.schema_version,
+        "blocks_fingerprint": city.blocks.fingerprint,
+        "compiled_schema_version": city.compiled.schema_version,
+        "compiled_fingerprint": city.compiled.fingerprint,
+        "static_authority_schema_version": city.static_authority.schema_version,
+        "static_authority_fingerprint": city.static_authority.fingerprint,
+        "zoning_placement_fingerprint": city.zoning.metadata.get(
+            "zoning_placement_fingerprint", ""
+        ),
+        "city_map_fingerprint": city.fingerprint,
+        "svg_sha256": svg_sha256,
+        "node_count": str(len(city.topology.nodes)),
+        "link_count": str(len(city.topology.links)),
+    }
 
 
 def render_all_sample_maps(out_dir: Path, generate_png: bool = True) -> None:
@@ -81,28 +115,13 @@ def render_all_sample_maps(out_dir: Path, generate_png: bool = True) -> None:
         svg_path = out_dir / f"map_{style_id}.svg"
         svg_path.write_text(svg, encoding="utf-8")
 
-        entry = {
-            "style_id": style_id,
-            "seed": str(seed),
-            "topology_mode": "scalable_synthetic_v2",
-            "target_population": str(_GALLERY_SCALE_SPEC.target_population),
-            "urbanized_area_km2": str(_GALLERY_SCALE_SPEC.urbanized_area_km2),
-            "network_schema_version": city.network.schema_version,
-            "network_fingerprint": city.network.fingerprint,
-            "blocks_schema_version": city.blocks.schema_version,
-            "blocks_fingerprint": city.blocks.fingerprint,
-            "compiled_schema_version": city.compiled.schema_version,
-            "compiled_fingerprint": city.compiled.fingerprint,
-            "static_authority_schema_version": city.static_authority.schema_version,
-            "static_authority_fingerprint": city.static_authority.fingerprint,
-            "zoning_placement_fingerprint": city.zoning.metadata.get(
-                "zoning_placement_fingerprint", ""
-            ),
-            "city_map_fingerprint": city.fingerprint,
-            "svg_sha256": svg_sha256,
-            "node_count": str(len(city.topology.nodes)),
-            "link_count": str(len(city.topology.links)),
-        }
+        entry = _manifest_entry(
+            style_id=style_id,
+            seed=seed,
+            label=label,
+            city=city,
+            svg_sha256=svg_sha256,
+        )
         manifest_entries.append(entry)
 
         png_path = out_dir / f"map_{style_id}.png"
@@ -149,7 +168,23 @@ def check_gallery_artifacts(out_dir: Path) -> bool:
         return False
 
     entries = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if not isinstance(entries, list) or any(not isinstance(entry, dict) for entry in entries):
+        print("Gallery manifest must be a list of objects", file=sys.stderr)
+        return False
+
+    expected_style_ids = tuple(item[0] for item in MORPHOLOGY_GALLERY_SET)
+    actual_style_ids = tuple(entry.get("style_id") for entry in entries)
+    if len(actual_style_ids) != len(expected_style_ids) or set(actual_style_ids) != set(
+        expected_style_ids
+    ):
+        print(
+            "Gallery manifest style membership mismatch: "
+            f"{actual_style_ids!r} != {expected_style_ids!r}",
+            file=sys.stderr,
+        )
+        return False
     entry_by_style = {e["style_id"]: e for e in entries}
+    verified_png_count = 0
 
     for style_id, seed, description in MORPHOLOGY_GALLERY_SET:
         if style_id not in entry_by_style:
@@ -179,6 +214,33 @@ def check_gallery_artifacts(out_dir: Path) -> bool:
         committed_svg = svg_path.read_text(encoding="utf-8")
         committed_sha = hashlib.sha256(committed_svg.encode("utf-8")).hexdigest()
 
+        expected_entry = _manifest_entry(
+            style_id=style_id,
+            seed=seed,
+            label=description,
+            city=city_map,
+            svg_sha256=rederived_sha,
+        )
+        committed_non_preview = {
+            key: value
+            for key, value in committed_entry.items()
+            if key not in {"png_sha256", "png_provenance"}
+        }
+        if committed_non_preview != expected_entry:
+            differing_fields = sorted(
+                key
+                for key in committed_non_preview.keys() | expected_entry.keys()
+                if committed_non_preview.get(key) != expected_entry.get(key)
+            )
+            field_name = differing_fields[0]
+            print(
+                f"Manifest provenance drift for {style_id}.{field_name}: "
+                f"{committed_non_preview.get(field_name)!r} != "
+                f"{expected_entry.get(field_name)!r}",
+                file=sys.stderr,
+            )
+            return False
+
         if committed_sha != committed_entry.get("svg_sha256"):
             print(
                 f"Committed SVG digest mismatch for {style_id}: {committed_sha} != {committed_entry.get('svg_sha256')}",
@@ -200,15 +262,14 @@ def check_gallery_artifacts(out_dir: Path) -> bool:
             )
             return False
 
-        if city_map.fingerprint != committed_entry.get("city_map_fingerprint"):
-            print(
-                f"City map fingerprint drift for {style_id}: {city_map.fingerprint} != {committed_entry.get('city_map_fingerprint')}",
-                file=sys.stderr,
-            )
-            return False
-
         expected_png_sha = committed_entry.get("png_sha256")
         if expected_png_sha is not None:
+            if "png_provenance" in committed_entry:
+                print(
+                    f"Conflicting PNG provenance fields for {style_id}",
+                    file=sys.stderr,
+                )
+                return False
             png_path = out_dir / f"map_{style_id}.png"
             if not png_path.exists():
                 print(f"Missing PNG artifact: {png_path}", file=sys.stderr)
@@ -221,8 +282,19 @@ def check_gallery_artifacts(out_dir: Path) -> bool:
                     file=sys.stderr,
                 )
                 return False
+            verified_png_count += 1
+        elif committed_entry.get("png_provenance") != "not_rendered_svg_only":
+            print(
+                f"Missing explicit PNG provenance for {style_id}",
+                file=sys.stderr,
+            )
+            return False
 
-    print("Gallery check passed: all 6 morphology maps re-derived and verified byte-identical.")
+    print(
+        f"Gallery check passed: all {len(MORPHOLOGY_GALLERY_SET)} SVG authorities "
+        f"re-derived byte-identically; {verified_png_count} committed PNG previews "
+        "matched recorded digests."
+    )
     return True
 
 

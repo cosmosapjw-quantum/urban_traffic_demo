@@ -62,7 +62,9 @@ EMPIRICAL_MORPHOLOGY_METRICS = (
 # which its metrics were measured. Historical scores reconstructed without that
 # field retain their historical payload and fingerprint rather than being
 # silently reinterpreted under the stronger contract.
-CONTROL_TABLE_SCHEMA_VERSION = "morphology_control_table_v3"
+# v4: the measurement specification joins the score payload and fingerprint,
+# and current-schema tables reject scores missing either identity field.
+CONTROL_TABLE_SCHEMA_VERSION = "morphology_control_table_v4"
 EVIDENCE_STATUS = "diagnostic_not_empirical_validation"
 
 
@@ -105,6 +107,10 @@ class MorphologyScore:
             or any(character not in "0123456789abcdef" for character in source_fingerprint)
         ):
             raise ValueError("source_topology_fingerprint must be a lowercase SHA-256 digest")
+        if self.measurement_spec is not None and self.measurement_spec not in {
+            item.value for item in MeasurementSpec
+        }:
+            raise ValueError("measurement_spec must name a supported MeasurementSpec")
         object.__setattr__(self, "metrics", MappingProxyType(dict(self.metrics)))
 
     @property
@@ -124,6 +130,8 @@ class MorphologyScore:
         }
         if self.source_topology_fingerprint is not None:
             payload["source_topology_fingerprint"] = self.source_topology_fingerprint
+        if self.measurement_spec is not None:
+            payload["measurement_spec"] = self.measurement_spec
         return payload
 
     def topology_diagnostics(self) -> dict[str, int | None]:
@@ -186,6 +194,13 @@ class MorphologyControlTable:
             raise ValueError("control table requires at least one score")
         if not self.envelopes:
             raise ValueError("control table requires the pinned envelopes")
+        if self.schema_version == CONTROL_TABLE_SCHEMA_VERSION:
+            if any(score.measurement_spec is None for score in self.scores):
+                raise ValueError("current control table requires measurement_spec")
+            if any(score.source_topology_fingerprint is None for score in self.scores):
+                raise ValueError(
+                    "current control table requires source_topology_fingerprint"
+                )
         object.__setattr__(self, "summaries", _summarize(self.scores))
         object.__setattr__(
             self,
@@ -218,7 +233,7 @@ class MorphologyControlTable:
             "claim_boundary": (
                 "Diagnostic street-morphology comparison against a pinned "
                 "reference corpus. Not empirical traffic, demand, route-choice "
-                "or named-city validation."
+                "or named-city validation; does not score scalable_synthetic_v2."
             ),
             "fingerprint": self.fingerprint,
         }
@@ -253,9 +268,8 @@ def score_street_morphology(
         case=str(case),
         metrics=metrics,
         failed_metrics=failed,
-        # Kept as a bool so the pinned v1 artifact payload stays byte-comparable;
-        # the spec name itself is reported in the diagnostics, outside the
-        # fingerprint.
+        # Kept as a bool so the pinned v1 artifact payload stays byte-comparable.
+        # Current-schema scores also bind the explicit spec name below.
         simplified=spec is MeasurementSpec.BOEING_2019_HO,
         measurement_spec=spec.value,
         node_count=len(topology.nodes),

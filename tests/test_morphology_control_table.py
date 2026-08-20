@@ -10,6 +10,10 @@ and road_geometry, all of which every `PreviewCityTopology` carries.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
+import pytest
+
 
 def _square_topology():
     """A closed square with one stub, so it survives contraction.
@@ -123,3 +127,64 @@ def test_control_table_records_which_metrics_cannot_discriminate() -> None:
 
     assert table.vacuous_metrics == ("orientation_order",)
     assert table.as_dict()["envelope_diagnostics"]["circuity"]["lower_bound_is_inert"] is True
+
+
+def test_control_table_declares_that_it_does_not_score_the_scalable_v2_arm() -> None:
+    """A valid legacy/control table cannot be read as scalable-v2 validation."""
+    from metroflow.city.morphology_control_table import (
+        build_morphology_control_table,
+        score_street_morphology,
+    )
+
+    table = build_morphology_control_table(
+        (score_street_morphology(_square_topology(), arm="alpha"),)
+    )
+
+    assert "does not score scalable_synthetic_v2" in table.as_dict()["claim_boundary"]
+
+
+@pytest.mark.parametrize(
+    ("field_name", "message"),
+    (
+        ("measurement_spec", "measurement_spec"),
+        ("source_topology_fingerprint", "source_topology_fingerprint"),
+    ),
+)
+def test_current_control_table_requires_score_measurement_identity(
+    field_name: str,
+    message: str,
+) -> None:
+    """A newly written table cannot contain an unbound measurement record."""
+    from metroflow.city.morphology_control_table import (
+        build_morphology_control_table,
+        score_street_morphology,
+    )
+
+    score = score_street_morphology(_square_topology(), arm="alpha")
+
+    with pytest.raises(ValueError, match=message):
+        build_morphology_control_table((replace(score, **{field_name: None}),))
+
+
+def test_measurement_spec_is_part_of_the_current_score_fingerprint_payload() -> None:
+    """Relabelling one metric definition must change the scientific identity."""
+    from metroflow.city.morphology_control_table import (
+        build_morphology_control_table,
+        score_street_morphology,
+    )
+    from metroflow.city.morphology_metrics import MeasurementSpec
+
+    score = score_street_morphology(_square_topology(), arm="alpha")
+    relabelled = replace(
+        score,
+        measurement_spec=MeasurementSpec.RUNTIME_COMPILED_DIAGNOSTIC.value,
+    )
+
+    payload = score.as_dict()
+    assert payload["measurement_spec"] == MeasurementSpec.BOEING_2019_HO.value
+    assert build_morphology_control_table((score,)).schema_version == (
+        "morphology_control_table_v4"
+    )
+    assert build_morphology_control_table((score,)).fingerprint != (
+        build_morphology_control_table((relabelled,)).fingerprint
+    )

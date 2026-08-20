@@ -1,5 +1,5 @@
 {
-  "claim_boundary": "Diagnostic street-morphology comparison against a pinned reference corpus. Not empirical traffic, demand, route-choice or named-city validation.",
+  "claim_boundary": "Diagnostic street-morphology comparison against a pinned reference corpus. Not empirical traffic, demand, route-choice or named-city validation; does not score scalable_synthetic_v2.",
   "envelope_diagnostics": {
     "circuity": {
       "is_vacuous": false,
@@ -215,8 +215,8 @@
     }
   ],
   "evidence_status": "diagnostic_not_empirical_validation",
-  "fingerprint": "314e413509b8bf44d12d6a0c88ed4d0df158b89ce88ade9a9f588aa5926bef9f",
-  "schema_version": "morphology_control_table_v3",
+  "fingerprint": "183a36e5abb2960492d52e5c5aefe333196b4c96396465d91ecd7e462e3893ce",
+  "schema_version": "morphology_control_table_v4",
   "scores": [
     {
       "arm": "standard",
@@ -224,6 +224,7 @@
       "failed_metrics": [
         "mean_node_degree"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0342080449187188,
         "dead_end_share": 0.07456140350877193,
@@ -245,6 +246,7 @@
       "failed_metrics": [
         "mean_node_degree"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0342080449187188,
         "dead_end_share": 0.07456140350877193,
@@ -266,6 +268,7 @@
       "failed_metrics": [
         "mean_node_degree"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0342080449187188,
         "dead_end_share": 0.07456140350877193,
@@ -287,6 +290,7 @@
       "failed_metrics": [
         "mean_node_degree"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0342080449187188,
         "dead_end_share": 0.07456140350877193,
@@ -308,6 +312,7 @@
       "failed_metrics": [
         "mean_node_degree"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0342080449187188,
         "dead_end_share": 0.07456140350877193,
@@ -329,6 +334,7 @@
       "failed_metrics": [
         "mean_node_degree"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0335180031459918,
         "dead_end_share": 0.05270655270655271,
@@ -350,6 +356,7 @@
       "failed_metrics": [
         "mean_node_degree"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0335180031459918,
         "dead_end_share": 0.05270655270655271,
@@ -371,6 +378,7 @@
       "failed_metrics": [
         "mean_node_degree"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0335180031459918,
         "dead_end_share": 0.05270655270655271,
@@ -392,6 +400,7 @@
       "failed_metrics": [
         "mean_node_degree"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0335180031459918,
         "dead_end_share": 0.05270655270655271,
@@ -413,6 +422,7 @@
       "failed_metrics": [
         "mean_node_degree"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0335180031459918,
         "dead_end_share": 0.05270655270655271,
@@ -435,6 +445,7 @@
         "median_segment_length_m",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1953655513932335,
         "dead_end_share": 0.41734860883797054,
@@ -457,6 +468,7 @@
         "median_segment_length_m",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1944910311887087,
         "dead_end_share": 0.41475409836065574,
@@ -479,6 +491,7 @@
         "median_segment_length_m",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1949134623280055,
         "dead_end_share": 0.41734860883797054,
@@ -501,6 +514,7 @@
         "median_segment_length_m",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1949504820670491,
         "dead_end_share": 0.41734860883797054,
@@ -523,6 +537,7 @@
         "median_segment_length_m",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1961981854422061,
         "dead_end_share": 0.4157119476268412,
@@ -542,6 +557,7 @@
       "arm": "sidecar_local_fabric",
       "case": "grid_core/17",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0302702679888252,
         "dead_end_share": 0.07606263982102908,
@@ -561,6 +577,7 @@
       "arm": "sidecar_local_fabric",
       "case": "grid_core/29",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0298274317173726,
         "dead_end_share": 0.07606263982102908,
@@ -580,6 +597,7 @@
       "arm": "sidecar_local_fabric",
       "case": "grid_core/41",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.029379303377651,
         "dead_end_share": 0.078125,
@@ -599,6 +617,7 @@
       "arm": "sidecar_local_fabric",
       "case": "grid_core/44",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0299206831086027,
         "dead_end_share": 0.07606263982102908,
@@ -618,6 +637,7 @@
       "arm": "sidecar_local_fabric",
       "case": "grid_core/53",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.030459958115908,
         "dead_end_share": 0.07399103139013453,
@@ -637,6 +657,7 @@
       "arm": "sidecar_local_fabric",
       "case": "polycentric_tod/17",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.2110069497549039,
         "dead_end_share": 0.059375,
@@ -656,6 +677,7 @@
       "arm": "sidecar_local_fabric",
       "case": "polycentric_tod/29",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.188710835680593,
         "dead_end_share": 0.059375,
@@ -675,6 +697,7 @@
       "arm": "sidecar_local_fabric",
       "case": "polycentric_tod/41",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1824175299034847,
         "dead_end_share": 0.06501547987616099,
@@ -694,6 +717,7 @@
       "arm": "sidecar_local_fabric",
       "case": "polycentric_tod/44",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.2105641256583437,
         "dead_end_share": 0.0625,
@@ -713,6 +737,7 @@
       "arm": "sidecar_local_fabric",
       "case": "polycentric_tod/53",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.2142853725845089,
         "dead_end_share": 0.06230529595015576,
@@ -734,6 +759,7 @@
       "failed_metrics": [
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.2413010893747676,
         "dead_end_share": 0.3125,
@@ -755,6 +781,7 @@
       "failed_metrics": [
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.2327378262217132,
         "dead_end_share": 0.31277533039647576,
@@ -776,6 +803,7 @@
       "failed_metrics": [
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.2438553437427768,
         "dead_end_share": 0.30493273542600896,
@@ -797,6 +825,7 @@
       "failed_metrics": [
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.2738054674548849,
         "dead_end_share": 0.2968036529680365,
@@ -818,6 +847,7 @@
       "failed_metrics": [
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.2201573690886027,
         "dead_end_share": 0.3141592920353982,
@@ -837,6 +867,7 @@
       "arm": "sidecar_local_fabric",
       "case": "superblock_mixed/17",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0807644423995113,
         "dead_end_share": 0.06784660766961652,
@@ -856,6 +887,7 @@
       "arm": "sidecar_local_fabric",
       "case": "superblock_mixed/29",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0782547134594502,
         "dead_end_share": 0.0728862973760933,
@@ -875,6 +907,7 @@
       "arm": "sidecar_local_fabric",
       "case": "superblock_mixed/41",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.078056042493643,
         "dead_end_share": 0.0728862973760933,
@@ -894,6 +927,7 @@
       "arm": "sidecar_local_fabric",
       "case": "superblock_mixed/44",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0804024671378605,
         "dead_end_share": 0.06764705882352941,
@@ -913,6 +947,7 @@
       "arm": "sidecar_local_fabric",
       "case": "superblock_mixed/53",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0786769037716801,
         "dead_end_share": 0.07017543859649122,
@@ -935,6 +970,7 @@
         "median_segment_length_m",
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1607146559953165,
         "dead_end_share": 0.20833333333333334,
@@ -957,6 +993,7 @@
         "median_segment_length_m",
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1181209669891217,
         "dead_end_share": 0.21559633027522937,
@@ -979,6 +1016,7 @@
         "median_segment_length_m",
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.125758028781861,
         "dead_end_share": 0.2,
@@ -1001,6 +1039,7 @@
         "median_segment_length_m",
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0964300503545055,
         "dead_end_share": 0.21363636363636362,
@@ -1023,6 +1062,7 @@
         "median_segment_length_m",
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.160460116735053,
         "dead_end_share": 0.2037037037037037,
@@ -1045,6 +1085,7 @@
         "median_segment_length_m",
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0558033391986683,
         "dead_end_share": 0.07902076231794236,
@@ -1067,6 +1108,7 @@
         "median_segment_length_m",
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0565105799368169,
         "dead_end_share": 0.07611311672683514,
@@ -1089,6 +1131,7 @@
         "median_segment_length_m",
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.055918726568569,
         "dead_end_share": 0.0804162724692526,
@@ -1111,6 +1154,7 @@
         "median_segment_length_m",
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0567205977061467,
         "dead_end_share": 0.08001255098839033,
@@ -1133,6 +1177,7 @@
         "median_segment_length_m",
         "four_way_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.058311255554488,
         "dead_end_share": 0.07736826073713067,
@@ -1154,6 +1199,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0194560867363243,
         "dead_end_share": 0.043256997455470736,
@@ -1175,6 +1221,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.01978032841856,
         "dead_end_share": 0.04292929292929293,
@@ -1196,6 +1243,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0197863561746794,
         "dead_end_share": 0.04504504504504504,
@@ -1217,6 +1265,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.02011795027625,
         "dead_end_share": 0.043256997455470736,
@@ -1238,6 +1287,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0202769012652129,
         "dead_end_share": 0.04203821656050955,
@@ -1259,6 +1309,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0426939902743428,
         "dead_end_share": 0.022538552787663108,
@@ -1280,6 +1331,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0430835179337825,
         "dead_end_share": 0.022274325908558032,
@@ -1301,6 +1353,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0429783318485373,
         "dead_end_share": 0.024277456647398842,
@@ -1322,6 +1375,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0442394066177798,
         "dead_end_share": 0.023557126030624265,
@@ -1343,6 +1397,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0467945364716686,
         "dead_end_share": 0.023952095808383235,
@@ -1364,6 +1419,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1191138962499696,
         "dead_end_share": 0.12658227848101267,
@@ -1385,6 +1441,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1196226986652342,
         "dead_end_share": 0.12956204379562045,
@@ -1406,6 +1463,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1206559818726736,
         "dead_end_share": 0.13026819923371646,
@@ -1427,6 +1485,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1180622498550383,
         "dead_end_share": 0.11926605504587157,
@@ -1448,6 +1507,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.1175668758634838,
         "dead_end_share": 0.1286231884057971,
@@ -1469,6 +1529,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0438682344603203,
         "dead_end_share": 0.030789825970548863,
@@ -1490,6 +1551,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.043363744987875,
         "dead_end_share": 0.034013605442176874,
@@ -1511,6 +1573,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.043822001607949,
         "dead_end_share": 0.033288948069241014,
@@ -1532,6 +1595,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.044699530799812,
         "dead_end_share": 0.030913978494623656,
@@ -1553,6 +1617,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0446295210770051,
         "dead_end_share": 0.03287671232876712,
@@ -1574,6 +1639,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0268935941639319,
         "dead_end_share": 0.07258064516129033,
@@ -1595,6 +1661,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0294178900122228,
         "dead_end_share": 0.07035928143712575,
@@ -1616,6 +1683,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0274010777081486,
         "dead_end_share": 0.06056338028169014,
@@ -1637,6 +1705,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0257790282594688,
         "dead_end_share": 0.07121212121212121,
@@ -1658,6 +1727,7 @@
       "failed_metrics": [
         "median_segment_length_m"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0293592739455448,
         "dead_end_share": 0.0704,
@@ -1680,6 +1750,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0022374872830977,
         "dead_end_share": 0.001759014951627089,
@@ -1702,6 +1773,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0018530962746048,
         "dead_end_share": 0.0017513134851138354,
@@ -1724,6 +1796,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.002378944402352,
         "dead_end_share": 0.001702127659574468,
@@ -1746,6 +1819,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0019311969512383,
         "dead_end_share": 0.0016992353440951572,
@@ -1768,6 +1842,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0017363932567795,
         "dead_end_share": 0.0016806722689075631,
@@ -1790,6 +1865,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0019310424117653,
         "dead_end_share": 0.00258732212160414,
@@ -1812,6 +1888,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0031236986201162,
         "dead_end_share": 0.0014184397163120568,
@@ -1834,6 +1911,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0036578291860596,
         "dead_end_share": 0.0014234875444839859,
@@ -1856,6 +1934,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0031024732140164,
         "dead_end_share": 0.001394700139470014,
@@ -1878,6 +1957,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0011736441640633,
         "dead_end_share": 0.0013698630136986301,
@@ -1900,6 +1980,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.000605976648998,
         "dead_end_share": 0.0,
@@ -1922,6 +2003,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0006053472112248,
         "dead_end_share": 0.0,
@@ -1944,6 +2026,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0030553308766679,
         "dead_end_share": 0.0005224660397074191,
@@ -1966,6 +2049,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0032276904266806,
         "dead_end_share": 0.000526592943654555,
@@ -1988,6 +2072,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.002813484859868,
         "dead_end_share": 0.0005277044854881266,
@@ -2010,6 +2095,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.003962103127242,
         "dead_end_share": 0.0,
@@ -2032,6 +2118,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0034740665657675,
         "dead_end_share": 0.0,
@@ -2054,6 +2141,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0024510118293322,
         "dead_end_share": 0.0,
@@ -2076,6 +2164,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0029599145154433,
         "dead_end_share": 0.0,
@@ -2098,6 +2187,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0023110455016662,
         "dead_end_share": 0.0007183908045977011,
@@ -2120,6 +2210,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0037565200972531,
         "dead_end_share": 0.0,
@@ -2142,6 +2233,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.003188514387475,
         "dead_end_share": 0.0010188487009679063,
@@ -2164,6 +2256,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0005933814451347,
         "dead_end_share": 0.0,
@@ -2186,6 +2279,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0006160283473229,
         "dead_end_share": 0.0,
@@ -2208,6 +2302,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0005076497145573,
         "dead_end_share": 0.0,
@@ -2230,6 +2325,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0008774133640665,
         "dead_end_share": 0.0012690355329949238,
@@ -2252,6 +2348,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0013584975355456,
         "dead_end_share": 0.001913265306122449,
@@ -2274,6 +2371,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.001068868613578,
         "dead_end_share": 0.0019292604501607716,
@@ -2296,6 +2394,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.001192277695413,
         "dead_end_share": 0.0013245033112582781,
@@ -2318,6 +2417,7 @@
         "mean_node_degree",
         "dead_end_share"
       ],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0012278363746503,
         "dead_end_share": 0.001397624039133473,
@@ -2337,6 +2437,7 @@
       "arm": "growth_fabric_v1",
       "case": "ring_radial/17",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0038062129460033,
         "dead_end_share": 0.1623064602242392,
@@ -2356,6 +2457,7 @@
       "arm": "growth_fabric_v1",
       "case": "ring_radial/29",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0042086979917078,
         "dead_end_share": 0.15921787709497207,
@@ -2375,6 +2477,7 @@
       "arm": "growth_fabric_v1",
       "case": "ring_radial/41",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0043490471056553,
         "dead_end_share": 0.1462701121404193,
@@ -2394,6 +2497,7 @@
       "arm": "growth_fabric_v1",
       "case": "ring_radial/44",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0050949478331652,
         "dead_end_share": 0.158943697060289,
@@ -2413,6 +2517,7 @@
       "arm": "growth_fabric_v1",
       "case": "ring_radial/53",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0051435117459495,
         "dead_end_share": 0.1434331797235023,
@@ -2432,6 +2537,7 @@
       "arm": "growth_fabric_v1",
       "case": "grid_core/17",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0032064027583305,
         "dead_end_share": 0.19508196721311474,
@@ -2451,6 +2557,7 @@
       "arm": "growth_fabric_v1",
       "case": "grid_core/29",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0061542952933882,
         "dead_end_share": 0.20011242270938728,
@@ -2470,6 +2577,7 @@
       "arm": "growth_fabric_v1",
       "case": "grid_core/41",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0044895981138662,
         "dead_end_share": 0.18872266973532797,
@@ -2489,6 +2597,7 @@
       "arm": "growth_fabric_v1",
       "case": "grid_core/44",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0046746548530874,
         "dead_end_share": 0.18993781797625778,
@@ -2508,6 +2617,7 @@
       "arm": "growth_fabric_v1",
       "case": "grid_core/53",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0055040178146046,
         "dead_end_share": 0.20347097546379414,
@@ -2527,6 +2637,7 @@
       "arm": "growth_fabric_v1",
       "case": "polycentric_tod/17",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.005702655600728,
         "dead_end_share": 0.1880893300248139,
@@ -2546,6 +2657,7 @@
       "arm": "growth_fabric_v1",
       "case": "polycentric_tod/29",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0051834185452377,
         "dead_end_share": 0.22884513038850451,
@@ -2565,6 +2677,7 @@
       "arm": "growth_fabric_v1",
       "case": "polycentric_tod/41",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.005593348101308,
         "dead_end_share": 0.22556788166930797,
@@ -2584,6 +2697,7 @@
       "arm": "growth_fabric_v1",
       "case": "polycentric_tod/44",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0060692869831638,
         "dead_end_share": 0.19486926492353232,
@@ -2603,6 +2717,7 @@
       "arm": "growth_fabric_v1",
       "case": "polycentric_tod/53",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0057642536901354,
         "dead_end_share": 0.19621870209504344,
@@ -2622,6 +2737,7 @@
       "arm": "growth_fabric_v1",
       "case": "river_constrained/17",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0048595644974232,
         "dead_end_share": 0.23944549464398235,
@@ -2641,6 +2757,7 @@
       "arm": "growth_fabric_v1",
       "case": "river_constrained/29",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0046148308594913,
         "dead_end_share": 0.2459546925566343,
@@ -2660,6 +2777,7 @@
       "arm": "growth_fabric_v1",
       "case": "river_constrained/41",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.006880118145882,
         "dead_end_share": 0.25,
@@ -2679,6 +2797,7 @@
       "arm": "growth_fabric_v1",
       "case": "river_constrained/44",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0052538780249607,
         "dead_end_share": 0.25426829268292683,
@@ -2698,6 +2817,7 @@
       "arm": "growth_fabric_v1",
       "case": "river_constrained/53",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0057370349021524,
         "dead_end_share": 0.2605588044184535,
@@ -2717,6 +2837,7 @@
       "arm": "growth_fabric_v1",
       "case": "superblock_mixed/17",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0065013317970275,
         "dead_end_share": 0.21772015126958402,
@@ -2736,6 +2857,7 @@
       "arm": "growth_fabric_v1",
       "case": "superblock_mixed/29",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.007156307492493,
         "dead_end_share": 0.21341785525620707,
@@ -2755,6 +2877,7 @@
       "arm": "growth_fabric_v1",
       "case": "superblock_mixed/41",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0057081853960024,
         "dead_end_share": 0.20142059868087264,
@@ -2774,6 +2897,7 @@
       "arm": "growth_fabric_v1",
       "case": "superblock_mixed/44",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.005608222115083,
         "dead_end_share": 0.20446473871131404,
@@ -2793,6 +2917,7 @@
       "arm": "growth_fabric_v1",
       "case": "superblock_mixed/53",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0040340736238125,
         "dead_end_share": 0.2073170731707317,
@@ -2812,6 +2937,7 @@
       "arm": "growth_fabric_v1",
       "case": "organic/17",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.005881139918882,
         "dead_end_share": 0.20515633571036754,
@@ -2831,6 +2957,7 @@
       "arm": "growth_fabric_v1",
       "case": "organic/29",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0047688757304967,
         "dead_end_share": 0.20019675356615838,
@@ -2850,6 +2977,7 @@
       "arm": "growth_fabric_v1",
       "case": "organic/41",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0047596793194646,
         "dead_end_share": 0.20481927710843373,
@@ -2869,6 +2997,7 @@
       "arm": "growth_fabric_v1",
       "case": "organic/44",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0046091298563948,
         "dead_end_share": 0.19566425792106726,
@@ -2888,6 +3017,7 @@
       "arm": "growth_fabric_v1",
       "case": "organic/53",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0049428764010502,
         "dead_end_share": 0.19969199178644764,
@@ -2907,6 +3037,7 @@
       "arm": "osm",
       "case": "barcelona.osm",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.03239482833452,
         "dead_end_share": 0.16198704103671707,
@@ -2926,6 +3057,7 @@
       "arm": "osm",
       "case": "charlotte.osm",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0449423589357738,
         "dead_end_share": 0.22968197879858657,
@@ -2945,6 +3077,7 @@
       "arm": "osm",
       "case": "chicago.osm",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0379519745101418,
         "dead_end_share": 0.21933962264150944,
@@ -2964,6 +3097,7 @@
       "arm": "osm",
       "case": "seoul.osm",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0274599545476377,
         "dead_end_share": 0.135678391959799,
@@ -2983,6 +3117,7 @@
       "arm": "osm",
       "case": "tokyo.osm",
       "failed_metrics": [],
+      "measurement_spec": "BOEING_2019_HO",
       "metrics": {
         "circuity": 1.0517441520496462,
         "dead_end_share": 0.11702127659574468,

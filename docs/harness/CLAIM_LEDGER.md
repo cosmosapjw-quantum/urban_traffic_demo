@@ -89,9 +89,11 @@ version with evidence and falsifiers is:
   artifact instead of being copied into prose.
 
   The v4 table additionally binds each score to the exact measured source
-  topology fingerprint. The audit renderer requires that fingerprint to equal
-  the current rendered topology; this is evidence identity, not a new
-  morphology-quality result.
+  topology fingerprint and measurement specification. The audit renderer
+  requires that fingerprint to equal the current rendered topology; this is
+  evidence identity, not a new morphology-quality result. Its registered arms
+  do not include `scalable_synthetic_v2`, so the table is not evidence for that
+  generator's empirical quality.
 
   **This entry previously recorded `29/30` and four ranges that reproduce
   nothing in the tree** (`3.11-3.39`, `0.056-0.122`, `1.009-1.013`,

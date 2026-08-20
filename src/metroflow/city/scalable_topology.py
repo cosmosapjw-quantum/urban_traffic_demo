@@ -1213,17 +1213,52 @@ def _canonical_generated_specs(
     if style_id not in STYLE_IDS:
         raise ValueError("style_id must be supported by the topology generator")
     y_values = _local_axis(extent[2], extent[3], terrain, "y")
-    row_x_values = {
-        y_mm: tuple(
-            x_mm
-            for x_mm in _local_axis(extent[0], extent[1], terrain, "x", fixed_mm=y_mm)
-            if style_id != "river_constrained" or x_mm != terrain.barrier_seam_x_mm
+    if style_id == "superblock_mixed":
+        shared_x_values = _local_axis(
+            extent[0], extent[1], terrain, "x", fixed_mm=0
         )
-        for y_mm in y_values
-    }
+        row_x_values = {y_mm: shared_x_values for y_mm in y_values}
+    else:
+        row_x_values = {
+            y_mm: tuple(
+                x_mm
+                for x_mm in _local_axis(
+                    extent[0], extent[1], terrain, "x", fixed_mm=y_mm
+                )
+                if style_id != "river_constrained"
+                or x_mm != terrain.barrier_seam_x_mm
+            )
+            for y_mm in y_values
+        }
     centers = _centers(row_x_values, y_values, style_id, scale_spec.urbanized_area_km2)
     if style_id == "organic":
         centers = tuple(_organic_warp_point(seed, center, extent) for center in centers)
+    superblock_center_cells: set[tuple[int, int]] = set()
+    if style_id == "superblock_mixed":
+        for center_x, center_y in centers:
+            row_index = y_values.index(center_y)
+            column_index = row_x_values[center_y].index(center_x)
+            adjacent_rows = {
+                max(0, row_index - 1) // 9,
+                min(row_index, len(y_values) - 2) // 9,
+            }
+            adjacent_columns = {
+                max(0, column_index - 1) // 9,
+                min(column_index, len(row_x_values[center_y]) - 2) // 9,
+            }
+            superblock_center_cells.update(
+                (macro_row, macro_column)
+                for macro_row in adjacent_rows
+                for macro_column in adjacent_columns
+            )
+
+    def is_coarse_superblock_cell(row: int, column: int) -> bool:
+        macrocell = (row // 9, column // 9)
+        return (
+            (macrocell[0] + macrocell[1]) % 3 != 0
+            and macrocell not in superblock_center_cells
+        )
+
     node_by_key: dict[tuple[int, int, int], _NodeSpec] = {}
     road_specs: list[_RoadSpec] = []
 
@@ -1513,9 +1548,22 @@ def _canonical_generated_specs(
         for column, (left, right) in enumerate(zip(values, values[1:])):
             if style_id == "river_constrained" and left < 0 < right:
                 continue
+            if (
+                style_id == "superblock_mixed"
+                and row not in {0, len(y_values) - 1}
+                and row % 9 != 0
+                and is_coarse_superblock_cell(row, column)
+            ):
+                continue
             hierarchy = _surface_hierarchy(
                 row, column, left, y_mm, right, y_mm, style_id, centers, True
             )
+            if (
+                style_id == "superblock_mixed"
+                and hierarchy is RoadHierarchy.LOCAL
+                and (row in {0, len(y_values) - 1} or row % 9 == 0)
+            ):
+                hierarchy = RoadHierarchy.ARTERIAL
             role = _surface_semantic_role(
                 "surface-horizontal",
                 left,
@@ -1562,19 +1610,17 @@ def _canonical_generated_specs(
                 ),
             )
         for lower_bank, upper_bank in row_pairs:
-            for column, (lower_index, upper_index) in enumerate(
-                _monotone_partial_match(lower_bank, upper_bank)
-            ):
+            matches = _monotone_partial_match(lower_bank, upper_bank)
+            for column, (lower_index, upper_index) in enumerate(matches):
                 if (
                     style_id == "superblock_mixed"
+                    and column not in {0, len(matches) - 1}
                     and column % 9 != 0
-                    and (row // 9 + column // 9) % 3 != 0
+                    and is_coarse_superblock_cell(row, column)
                 ):
-                    # Fine local cells occupy one macrocell family; the other
-                    # two retain only their continuous arterial boundaries.
-                    # Horizontal streets keep every node connected while these
-                    # omitted cross streets form genuine large faces instead of
-                    # relabelling an otherwise uniform lattice.
+                    # Fine streets occupy one macrocell family and every center
+                    # catchment. Coarse cells retain only their continuous
+                    # arterial/collector perimeter in both spatial directions.
                     continue
                 lower_x, upper_x = lower_bank[lower_index], upper_bank[upper_index]
                 hierarchy = _surface_hierarchy(
@@ -1588,6 +1634,12 @@ def _canonical_generated_specs(
                     centers,
                     False,
                 )
+                if (
+                    style_id == "superblock_mixed"
+                    and hierarchy is RoadHierarchy.LOCAL
+                    and (column in {0, len(matches) - 1} or column % 9 == 0)
+                ):
+                    hierarchy = RoadHierarchy.ARTERIAL
                 role = _surface_semantic_role(
                     "surface-vertical",
                     lower_x,
@@ -1705,6 +1757,11 @@ def _canonical_generated_specs(
     surface_key_by_semantic_id = {
         node.semantic_id: source_point for source_point, node in surface.items()
     }
+    surface_carrier_pairs = {
+        frozenset((road.start_semantic_id, road.end_semantic_id))
+        for road in road_specs
+        if road.facility in {FacilityKind.SURFACE, FacilityKind.BRIDGE}
+    }
 
     def horizontal_neighbour(anchor: _NodeSpec) -> _NodeSpec | None:
         source_x, source_y = surface_key_by_semantic_id[anchor.semantic_id]
@@ -1719,7 +1776,13 @@ def _canonical_generated_specs(
         neighbour_index = index + direction
         if not 0 <= neighbour_index < len(values):
             return None
-        return surface[(values[neighbour_index], source_y)]
+        neighbour = surface[(values[neighbour_index], source_y)]
+        if (
+            frozenset((anchor.semantic_id, neighbour.semantic_id))
+            not in surface_carrier_pairs
+        ):
+            return None
+        return neighbour
 
     reserved_anchors: set[str] = set()
     surface_segments = tuple(
@@ -1849,6 +1912,16 @@ def _canonical_generated_specs(
             (access_point, (anchor.x_mm, anchor.y_mm)),
             (access_point, (neighbour.x_mm, neighbour.y_mm)),
         )
+    if style_id == "superblock_mixed":
+        used_node_semantics = {
+            semantic_id
+            for road in road_specs
+            for semantic_id in (road.start_semantic_id, road.end_semantic_id)
+        }
+        for key, node in tuple(node_by_key.items()):
+            if node.semantic_id not in used_node_semantics:
+                del node_by_key[key]
+
     return _CanonicalGeneratedSpecs(
         tuple(sorted(node_by_key.values(), key=lambda item: item.semantic_id)),
         tuple(sorted(road_specs, key=lambda item: item.semantic_id)),

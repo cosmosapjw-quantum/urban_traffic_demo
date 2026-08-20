@@ -1,8 +1,8 @@
 {
   "files": {
-    "morphology-control-table-v4-20260820.json": "1de37e2c574fe1d79f79243de806a44a42b94879fcdc8d5128e4abe166f69dfc",
-    "morphology-control-table-v4-20260820.md": "c1b32c50abc5685b12664c49c8892ecdb24fbe9371bf2fc4f60874a3cc5c77ac"
+    "morphology-control-table-v4-20260820.json": "ff24c77e55270ae4ee30964e0d84e08b0df72fb1ccf24c2fa2cd082ed0fb0f5b",
+    "morphology-control-table-v4-20260820.md": "996327bbc79c2284b2a9f6fdeac899e98b6a82d9ba0ba800f4bec1f1e354ac13"
   },
-  "fingerprint": "314e413509b8bf44d12d6a0c88ed4d0df158b89ce88ade9a9f588aa5926bef9f",
-  "schema_version": "morphology_control_table_v3"
+  "fingerprint": "183a36e5abb2960492d52e5c5aefe333196b4c96396465d91ecd7e462e3893ce",
+  "schema_version": "morphology_control_table_v4"
 }

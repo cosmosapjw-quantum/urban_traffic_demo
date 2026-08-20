@@ -1,6 +1,7 @@
 [
   {
     "style_id": "grid_core",
+    "display_label": "Grid Core (Standard Uniform Lattice)",
     "seed": "17",
     "topology_mode": "scalable_synthetic_v2",
     "target_population": "100000",
@@ -22,6 +23,7 @@
   },
   {
     "style_id": "ring_radial",
+    "display_label": "Ring Radial (Concentric Rings & Radial Spines)",
     "seed": "17",
     "topology_mode": "scalable_synthetic_v2",
     "target_population": "100000",
@@ -43,6 +45,7 @@
   },
   {
     "style_id": "river_constrained",
+    "display_label": "River Constrained (Bifurcated Corridor & Bridges)",
     "seed": "17",
     "topology_mode": "scalable_synthetic_v2",
     "target_population": "100000",
@@ -64,6 +67,7 @@
   },
   {
     "style_id": "polycentric_tod",
+    "display_label": "Polycentric TOD (Multi-Hub Centers)",
     "seed": "17",
     "topology_mode": "scalable_synthetic_v2",
     "target_population": "100000",
@@ -85,27 +89,29 @@
   },
   {
     "style_id": "superblock_mixed",
+    "display_label": "Superblock Mixed (Hierarchical Macroblock Perimeters)",
     "seed": "17",
     "topology_mode": "scalable_synthetic_v2",
     "target_population": "100000",
     "urbanized_area_km2": "25.0",
     "network_schema_version": "tmfcg_s2_v1",
-    "network_fingerprint": "5442f538e1d0ca2795859415e88c9a23e5eeee9aeb383248c9cc546b4981854e",
+    "network_fingerprint": "0463a5950a9c7aa78844504291577845048ec0dbd1ade028a0447bad1d7b618f",
     "blocks_schema_version": "scalable_blocks_dcel_v1",
-    "blocks_fingerprint": "ecac33e3531ff2d02bea5d05a5da252de5017d92835e4f8cbda294b80f3b9a34",
+    "blocks_fingerprint": "2147701eb6c4a5bf0f8d294359b615b0b7622b0dd6f8200122040d26f949f943",
     "compiled_schema_version": "scalable_topology_adapter_v1",
-    "compiled_fingerprint": "62abf18c903af82b0600006ce67f2d785fc3158686fc90ca33d6541d8b5375e6",
+    "compiled_fingerprint": "59922dec8c04f3bf46735012d3650c340f1d82179af22766c2e9d72b1ef0eceb",
     "static_authority_schema_version": "scalable_static_authority_v1",
-    "static_authority_fingerprint": "1ac7573c21cd469df9770e3247bb5cd64c0fbbfd49f87369438c48fae2f263db",
-    "zoning_placement_fingerprint": "eb5242735476331819a7ce81cb44e5e79d8ec4c60fe43c91a78b3b5cdedc1277",
-    "city_map_fingerprint": "a28c626e8c345c650a31515c4c2cdf371643e2e1199aa277296888413d33881a",
-    "svg_sha256": "d98efc248cfeef553241d4966a1d077111d067851f3b53d3866349cb1619015d",
-    "node_count": "1649",
-    "link_count": "4594",
-    "png_sha256": "c24b5b93c9549b84cf890c07333aa80d9ac5090cf3f13d969824704ab1608738"
+    "static_authority_fingerprint": "16dfd89b6c003a3641b8e2ee37cc39f6f8e2afab84a60f27c5df3816339330ef",
+    "zoning_placement_fingerprint": "01f5269ff4d2dfea767d47d94f38fdb28473e7c6e731123438f6b7833ce5fd90",
+    "city_map_fingerprint": "80fd02905002021006064a6291c6b2469997c333cb0c9bcf86770b93d3ec0a65",
+    "svg_sha256": "73df65b06e859b5fca37a24e1c22e09ef90ff3fedc8e5f2c39c27ae690d16b86",
+    "node_count": "1043",
+    "link_count": "3702",
+    "png_sha256": "cd2105ac18cd705582d946fd3d31bcaef41e89ce5b55a5731d2a19683149d402"
   },
   {
     "style_id": "organic",
+    "display_label": "Curvilinear Warped Grid (organic compatibility ID)",
     "seed": "17",
     "topology_mode": "scalable_synthetic_v2",
     "target_population": "100000",

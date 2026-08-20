@@ -1,4 +1,4 @@
-"""Score every available generator arm on one calibrated instrument.
+"""Score the registered legacy, comparison, growth, and offline OSM arms.
 
 The PR62 audit generates its own maps with `topology_mode="realistic_synthetic_v1"`,
 so it can only score the generator under test. This runner applies the same
@@ -277,7 +277,7 @@ def render_markdown(table: MorphologyControlTable, skipped: tuple[str, ...]) -> 
         "Diagnostic street-morphology comparison against a pinned reference",
         "corpus. Not empirical traffic, demand, route-choice, land-use or",
         "named-city validation. Passing this table authorizes no runtime default",
-        "change on its own.",
+        "change on its own. This table does not score scalable_synthetic_v2.",
         "",
     ]
     return "\n".join(lines)
@@ -358,9 +358,28 @@ def check_artifacts(
     if not manifest_path.exists():
         mismatches.append(f"{manifest_path.name}: missing")
     else:
-        manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
-        if manifest_data.get("fingerprint") != table.fingerprint:
-            mismatches.append(f"{manifest_path.name}: fingerprint changed")
+        expected_manifest = (
+            json.dumps(
+                {
+                    "fingerprint": table.fingerprint,
+                    "schema_version": table.schema_version,
+                    "files": {
+                        json_path.name: hashlib.sha256(
+                            expected_json.encode("utf-8")
+                        ).hexdigest(),
+                        markdown_path.name: hashlib.sha256(
+                            expected_md.encode("utf-8")
+                        ).hexdigest(),
+                    },
+                },
+                indent=2,
+                sort_keys=True,
+                allow_nan=False,
+            )
+            + "\n"
+        )
+        if manifest_path.read_text(encoding="utf-8") != expected_manifest:
+            mismatches.append(f"{manifest_path.name}: bytes changed")
 
     return len(mismatches) == 0, tuple(mismatches)
 

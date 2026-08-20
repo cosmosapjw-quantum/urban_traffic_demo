@@ -15,12 +15,13 @@
 Each map visualizes:
 - **Road Hierarchy**: Expressways (blue), Arterials (orange), Collectors (teal), Local roads (gray), Ramps (purple), Bridge spans (cyan).
 - **Physical Road Structures**: Width-aware ribbon rendering.
-- **Topological Features**: Waterway boundaries and multi-span bridges (`river_constrained`), radial corridors (`ring_radial`), orthogonal grids (`grid_core`), transit centers (`polycentric_tod`), superblock perimeters (`superblock_mixed`), and organic networks (`organic`).
+- **Topological Features**: Waterway boundaries and multi-span bridges (`river_constrained`), radial corridors (`ring_radial`), orthogonal grids (`grid_core`), transit centers (`polycentric_tod`), superblock perimeters (`superblock_mixed`), and a curvilinear warped grid retained under the compatibility ID `organic`.
 
-> **CLAIM BOUNDARY**: The scalable styles now expose distinct structural
-> grammars: concentric ring/radial roads, two-dimensional polycentric anchors,
-> explicit superblock macrofaces, bounded curvilinear organic connectors, and
-> river bridge groups. The gallery is implementation and diagnostic evidence
+> **CLAIM BOUNDARY**: The scalable styles now expose distinct structural or
+> embedding mechanisms: concentric ring/radial roads, two-dimensional
+> polycentric anchors, explicit two-dimensional superblock macrofaces, bounded
+> curvilinear warped-grid connectors, and river bridge groups. The gallery is
+> implementation and diagnostic evidence
 > for those differences only. It is not named-city calibration, empirical
 > morphology validation, or traffic-realism evidence.
 
@@ -37,14 +38,16 @@ the six fixed seed-17 scalable morphology cases at 100,000 population and
 ## Script / data provenance
 
 `tools/render_morphology_gallery.py` builds every map through
-`scalable_synthetic_v2`. `gallery_manifest.json` binds the fixed input, every
-city-authority fingerprint, and both SVG and PNG SHA-256 digests.
+`scalable_synthetic_v2`. `gallery_manifest.json` binds the fixed input, display
+label, every city-authority fingerprint, and both SVG and PNG SHA-256 digests.
 
 ## Interpretation
 
 The gallery makes the implemented grammar differences inspectable: orbitals and
-radials, multiple spatial centers, superblock macrofaces, curvilinear organic
-connectors, and river bridge groups are visible rather than label-only changes.
+radials, multiple spatial centers, two-dimensional superblock macrofaces,
+curvilinear warped-grid connectors, and river bridge groups are visible rather
+than label-only changes. The `organic` style ID is compatibility vocabulary,
+not a claim of organic topological accretion.
 
 ## What this plot does not show
 
