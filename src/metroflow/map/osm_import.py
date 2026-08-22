@@ -30,6 +30,7 @@ from metroflow.map.section_compiler import RoadSectionCatalog, compile_road_sect
 __all__ = [
     "OSMImportConfig",
     "OSMImportResult",
+    "UnsupportedOSMTagError",
     "import_osm_xml_file",
     "import_osm_xml_text",
 ]
@@ -65,6 +66,14 @@ _DEFAULT_SPEED_MPS = {
     RoadClass.EXPRESSWAY: 100.0 / 3.6,
     RoadClass.RAMP: 60.0 / 3.6,
 }
+
+
+class UnsupportedOSMTagError(ValueError):
+    """A recognized OSM tag pattern that this importer cannot represent."""
+
+    def __init__(self, reason_code: str, message: str) -> None:
+        self.reason_code = reason_code
+        super().__init__(message)
 
 
 @dataclass(frozen=True, slots=True)
@@ -654,7 +663,10 @@ def _parse_oneway(tags: Mapping[str, str]) -> str:
         return "reverse"
     if normalized in {"no", "false", "0"}:
         return "both"
-    raise ValueError(f"unsupported oneway value {value!r}")
+    raise UnsupportedOSMTagError(
+        "UNSUPPORTED_ONEWAY_VALUE",
+        f"unsupported oneway value {value!r}",
+    )
 
 
 def _parse_directional_lanes(
@@ -718,12 +730,18 @@ def _parse_directional_lanes(
     if forward is not None:
         derived_backward = total - forward
         if derived_backward < 1:
-            raise ValueError("lanes:forward leaves no backward traffic lane")
+            raise UnsupportedOSMTagError(
+                "UNSUPPORTED_DIRECTIONAL_LANE_ALLOCATION",
+                "lanes:forward leaves no backward traffic lane",
+            )
         return forward, derived_backward
     if backward is not None:
         derived_forward = total - backward
         if derived_forward < 1:
-            raise ValueError("lanes:backward leaves no forward traffic lane")
+            raise UnsupportedOSMTagError(
+                "UNSUPPORTED_DIRECTIONAL_LANE_ALLOCATION",
+                "lanes:backward leaves no forward traffic lane",
+            )
         return derived_forward, backward
     return max(1, (total + 1) // 2), max(1, total // 2)
 

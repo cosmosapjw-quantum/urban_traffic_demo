@@ -882,13 +882,20 @@ def test_superblock_collectors_alternate_and_organic_connectors_are_bounded() ->
         ]
         assert connectors
         min_x, max_x, min_y, max_y = organic.extent_mm
+        bent_count = 0
         for road in connectors:
-            assert len(road.points_mm) == 3
-            start, midpoint, end = road.points_mm
-            displacement = midpoint[0] - (start[0] + end[0]) // 2
-            assert 0 < abs(displacement) <= 20_000
-            assert min_x <= midpoint[0] <= max_x
-            assert min_y <= midpoint[1] <= max_y
+            assert len(road.points_mm) == 5
+            start, *interior, end = road.points_mm
+            dx, dy = end[0] - start[0], end[1] - start[1]
+            bent_count += any(
+                dx * (point[1] - start[1]) != dy * (point[0] - start[0])
+                for point in interior
+            )
+            assert all(
+                min_x <= point[0] <= max_x and min_y <= point[1] <= max_y
+                for point in interior
+            )
+        assert bent_count / len(connectors) > 0.9
 
 
 def test_nonriver_center_formula_and_mainline_access_use_bounded_400k_scale() -> None:
@@ -1060,8 +1067,11 @@ def test_recomputed_authority_rejects_one_millimeter_organic_midpoint_forgery() 
 
     network = kernel.build_scalable_street_network(CityScaleSpec(100_000, 40.0), "organic", 17)
     road = next(road for road in network.roads if road.semantic_role == "organic-connector")
-    start, midpoint, end = road.points_mm
-    forged = (start, (midpoint[0] + 1, midpoint[1]), end)
+    forged_points = list(road.points_mm)
+    midpoint_index = len(forged_points) // 2
+    midpoint = forged_points[midpoint_index]
+    forged_points[midpoint_index] = (midpoint[0] + 1, midpoint[1])
+    forged = tuple(forged_points)
     with pytest.raises(ValueError, match="organic|canonical|geometry"):
         _rebuild_network_identity(network, road_changes={road.road_id: {"points_mm": forged}})
 

@@ -5491,8 +5491,8 @@
 </g>
 <text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">growth_fabric_v1 / superblock_mixed / seed 17 -- arm under review</text>
 <text x="28" y="880" font-family="monospace" font-size="13" fill="#333333">growth_fabric_v1  |  superblock_mixed/17  |  PASS 7/7</text>
-<text x="28" y="902" font-family="monospace" font-size="13" fill="#333333">nodes 1867   segments 2680   mean degree 2.9099   dead ends 0.2296</text>
-<text x="28" y="924" font-family="monospace" font-size="13" fill="#333333">circuity 1.0065   median segment 104.1 m   four-way 0.3648</text>
-<text x="28" y="946" font-family="monospace" font-size="13" fill="#333333">orientation entropy 3.2534   order 0.2779</text>
-<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v3-20260808.json; this image measures nothing</text>
+<text x="28" y="902" font-family="monospace" font-size="13" fill="#333333">nodes 1876   segments 2718   mean degree 2.9368   dead ends 0.2177</text>
+<text x="28" y="924" font-family="monospace" font-size="13" fill="#333333">circuity 1.0065   median segment 104.0 m   four-way 0.3679</text>
+<text x="28" y="946" font-family="monospace" font-size="13" fill="#333333">orientation entropy 3.2551   order 0.2766</text>
+<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v4-20260820.json; this image measures nothing</text>
 </svg>

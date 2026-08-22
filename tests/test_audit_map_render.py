@@ -23,6 +23,7 @@ So three properties are locked here.
 from __future__ import annotations
 
 import importlib.util
+import json
 import re
 import sys
 from pathlib import Path
@@ -169,6 +170,26 @@ def test_a_caption_is_read_from_the_committed_artifact_not_recomputed() -> None:
     assert isinstance(record["passed"], bool)
 
 
+def test_score_loader_rejects_duplicate_record_keys(tmp_path: Path) -> None:
+    """A duplicate record must not be silently replaced by dict indexing."""
+    module = _render_module()
+    artifact = tmp_path / "duplicate-scores.json"
+    artifact.write_text(
+        json.dumps(
+            {
+                "scores": [
+                    {"arm": "alpha", "case": "s17", "metrics": {}},
+                    {"arm": "alpha", "case": "s17", "metrics": {}},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate morphology score key"):
+        module.load_scores(artifact)
+
+
 def test_a_case_absent_from_the_artifact_raises_instead_of_rendering() -> None:
     """An unlabelled render is a picture with no provenance at all."""
 
@@ -228,6 +249,57 @@ def test_renderer_verifies_topology_record_integrity() -> None:
         )
 
 
+def test_renderer_binds_metrics_to_exact_source_topology() -> None:
+    """A same-count geometry mutation must not inherit a historical caption."""
+    from metroflow.city.generated_map import PreviewCityTopology
+    from metroflow.city.graph import Node, RoadClass, RoadLink
+    from metroflow.city.morphology_control_table import score_street_morphology
+    from metroflow.map.road_geometry import build_endpoint_geometry_catalog
+
+    nodes = tuple(
+        Node(index, x=x, y=y)
+        for index, (x, y) in enumerate(
+            ((0.0, 0.0), (100.0, 0.0), (100.0, 100.0), (0.0, 100.0), (0.0, -100.0))
+        )
+    )
+    pairs = ((0, 1), (1, 2), (2, 3), (3, 0), (0, 4))
+    links = tuple(
+        RoadLink(
+            link_id=index * 2 + direction,
+            src_node_id=pair[direction],
+            dst_node_id=pair[1 - direction],
+            road_class=RoadClass.LOCAL,
+            length_m=100.0,
+            free_flow_speed_mps=10.0,
+            capacity_veh_per_tick=4.0,
+            physical_road_id=index,
+        )
+        for index, pair in enumerate(pairs)
+        for direction in (0, 1)
+    )
+    geometry = build_endpoint_geometry_catalog(nodes=nodes, links=links)
+    topology = PreviewCityTopology(nodes=nodes, links=links, road_geometry=geometry)
+    record = score_street_morphology(topology, arm="test_arm", case="c1").as_dict()
+
+    assert len(record["source_topology_fingerprint"]) == 64
+    module = _render_module()
+    module.verify_topology_record_integrity(topology, record, arm="test_arm", case="c1")
+
+    shifted_nodes = (Node(0, x=1.0, y=0.0),) + nodes[1:]
+    shifted = PreviewCityTopology(
+        nodes=shifted_nodes,
+        links=links,
+        road_geometry=geometry,
+    )
+    with pytest.raises(ValueError, match="topology record identity mismatch"):
+        module.verify_topology_record_integrity(
+            shifted,
+            record,
+            arm="test_arm",
+            case="c1",
+        )
+
+
 def test_control_table_check_mode(tmp_path: Path) -> None:
     """Control table --check returns 0 when artifacts match and 1 on mismatch."""
     from metroflow.benchmarks.morphology_control_table import check_artifacts, build_morphology_control_table, score_street_morphology, write_artifacts
@@ -268,6 +340,25 @@ def test_control_table_check_mode(tmp_path: Path) -> None:
     ok, mismatches = check_artifacts(prefix, table=table, skipped=())
     assert ok is True
     assert not mismatches
+
+    manifest_path = tmp_path / "table_test.manifest.json"
+    original_manifest = manifest_path.read_bytes()
+    manifest = json.loads(original_manifest)
+    manifest["schema_version"] = "morphology_control_table_v0"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    ok, mismatches = check_artifacts(prefix, table=table, skipped=())
+    assert ok is False
+    assert "table_test.manifest.json: bytes changed" in mismatches
+
+    manifest_path.write_bytes(original_manifest)
+    manifest = json.loads(original_manifest)
+    manifest["files"]["table_test.json"] = "0" * 64
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    ok, mismatches = check_artifacts(prefix, table=table, skipped=())
+    assert ok is False
+    assert "table_test.manifest.json: bytes changed" in mismatches
+
+    manifest_path.write_bytes(original_manifest)
 
     # Tamper markdown
     (tmp_path / "table_test.md").write_text("corrupted", encoding="utf-8")

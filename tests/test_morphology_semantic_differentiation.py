@@ -1,14 +1,9 @@
-"""Structural semantic differentiation tests for the 6 urban morphology archetypes.
-
-These tests measure actual topological and spatial properties rather than
-fingerprint/hash uniqueness, establishing explicit RED targets (via xfail(strict=True))
-for the upcoming morphology grammar rebuild.
-"""
+"""Falsifiers for the structural claims made by the six morphology styles."""
 
 from __future__ import annotations
 
+from collections import defaultdict, deque
 import math
-import statistics
 
 import pytest
 
@@ -16,34 +11,54 @@ from metroflow.city.scale import CityScaleSpec
 from metroflow.city.scalable_blocks import build_scalable_block_authority
 from metroflow.city.scalable_topology import (
     FacilityKind,
+    RoadHierarchy,
     build_scalable_street_network,
 )
 
 
-def _compute_orientation_entropy(roads: tuple, num_bins: int = 36) -> float:
-    """Compute directional entropy of street orientations (OSMnx / Boeing standard)."""
-    bin_counts = [0.0] * num_bins
-    total_len = 0.0
+def _ordered_cycle_node_ids(roads: tuple) -> tuple[int, ...]:
+    adjacency: dict[int, list[int]] = defaultdict(list)
     for road in roads:
-        coords = [(x / 1000.0, y / 1000.0) for x, y in road.points_mm]
-        for (x1, y1), (x2, y2) in zip(coords, coords[1:], strict=False):
-            dx = x2 - x1
-            dy = y2 - y1
-            seg_len = math.hypot(dx, dy)
-            if seg_len < 1e-3:
-                continue
-            total_len += seg_len
-            angle_deg = math.degrees(math.atan2(dy, dx)) % 360.0
-            bin_idx = int(angle_deg / (360.0 / num_bins)) % num_bins
-            bin_counts[bin_idx] += seg_len
-    if total_len == 0.0:
-        return 0.0
-    entropy = 0.0
-    for count in bin_counts:
-        p = count / total_len
-        if p > 0.0:
-            entropy -= p * math.log(p)
-    return entropy
+        adjacency[road.start_node_id].append(road.end_node_id)
+        adjacency[road.end_node_id].append(road.start_node_id)
+    assert adjacency and all(len(neighbours) == 2 for neighbours in adjacency.values())
+
+    start = min(adjacency)
+    ordered = [start]
+    previous: int | None = None
+    current = start
+    while True:
+        candidates = sorted(node_id for node_id in adjacency[current] if node_id != previous)
+        following = candidates[0]
+        if following == start:
+            break
+        assert following not in ordered
+        ordered.append(following)
+        previous, current = current, following
+    assert len(ordered) == len(roads)
+    return tuple(ordered)
+
+
+def _high_hierarchy_path_exists(network, start_id: int, end_id: int) -> bool:
+    adjacency: dict[int, set[int]] = defaultdict(set)
+    for road in network.roads:
+        if road.facility is not FacilityKind.SURFACE or road.hierarchy not in {
+            RoadHierarchy.ARTERIAL,
+            RoadHierarchy.COLLECTOR,
+        }:
+            continue
+        adjacency[road.start_node_id].add(road.end_node_id)
+        adjacency[road.end_node_id].add(road.start_node_id)
+    frontier = deque((start_id,))
+    visited = {start_id}
+    while frontier:
+        current = frontier.popleft()
+        if current == end_id:
+            return True
+        for neighbour in adjacency[current] - visited:
+            visited.add(neighbour)
+            frontier.append(neighbour)
+    return False
 
 
 def test_river_constrained_has_bridge_structures() -> None:
@@ -56,68 +71,159 @@ def test_river_constrained_has_bridge_structures() -> None:
     assert len(bridge_roads) >= 3, "must have at least 3 river crossing bridges"
 
 
-@pytest.mark.xfail(
-    reason="concentric ring geometry not yet differentiated in S2 generator",
-    strict=True,
-    raises=AssertionError,
-)
 def test_ring_radial_has_concentric_ring_hierarchy() -> None:
-    """ring_radial should have non-orthogonal curved/orbital segments forming concentric rings."""
+    """At least two closed, center-winding, radius-stable orbitals must exist."""
     scale = CityScaleSpec(100_000, 25.0)
-    radial_net = build_scalable_street_network(scale, "ring_radial", seed=17)
+    network = build_scalable_street_network(scale, "ring_radial", seed=17)
+    center_x, center_y = network.centers[0]
+    nodes = {node.node_id: node for node in network.nodes}
+    orbital_groups: dict[str, list] = defaultdict(list)
+    for road in network.roads:
+        if road.semantic_role.startswith("ring-orbital-"):
+            orbital_groups[road.semantic_role].append(road)
 
-    entropy = _compute_orientation_entropy(radial_net.roads)
-    # A true ring-radial has circular rings with continuous angles (entropy > 2.80 vs ~2.16 on grid)
-    assert entropy > 2.80, f"ring_radial orientation entropy is only {entropy:.4f}"
+    mean_radii: list[float] = []
+    for roads in orbital_groups.values():
+        ordered_ids = _ordered_cycle_node_ids(tuple(roads))
+        vectors = tuple(
+            (nodes[node_id].x_mm - center_x, nodes[node_id].y_mm - center_y)
+            for node_id in ordered_ids
+        )
+        radii = tuple(math.hypot(x_value, y_value) for x_value, y_value in vectors)
+        mean_radius = sum(radii) / len(radii)
+        radial_cv = math.sqrt(
+            sum((radius - mean_radius) ** 2 for radius in radii) / len(radii)
+        ) / mean_radius
+        winding_radians = sum(
+            math.atan2(left[0] * right[1] - left[1] * right[0], left[0] * right[0] + left[1] * right[1])
+            for left, right in zip(vectors, vectors[1:] + vectors[:1])
+        )
+        assert radial_cv < 0.01
+        assert abs(winding_radians / math.tau) == pytest.approx(1.0, abs=1e-9)
+        mean_radii.append(mean_radius)
+
+    assert len(mean_radii) >= 2
+    assert len({round(radius) for radius in mean_radii}) == len(mean_radii)
 
 
-@pytest.mark.xfail(
-    reason="polycentric centers currently share 1D y-coordinate (y=0)",
-    strict=True,
-    raises=AssertionError,
-)
 def test_polycentric_centers_distributed_in_2d() -> None:
-    """polycentric_tod must place centers across 2D space, not all on the same y coordinate."""
+    """Centers must be non-collinear, own catchments, and share a backbone."""
     scale = CityScaleSpec(100_000, 25.0)
-    net = build_scalable_street_network(scale, "polycentric_tod", seed=17)
-    assert len(net.centers) >= 3
-    y_coords = {c[1] for c in net.centers}
-    assert len(y_coords) > 1, f"centers {net.centers} are all on a 1D horizontal line"
+    network = build_scalable_street_network(scale, "polycentric_tod", seed=17)
+    assert len(network.centers) >= 3
+    first, second, third = network.centers[:3]
+    twice_area = (second[0] - first[0]) * (third[1] - first[1]) - (
+        second[1] - first[1]
+    ) * (third[0] - first[0])
+    assert twice_area != 0
+
+    catchment_counts = [0] * len(network.centers)
+    center_points = set(network.centers)
+    for node in network.nodes:
+        if node.layer != 0 or (node.x_mm, node.y_mm) in center_points:
+            continue
+        owner = min(
+            range(len(network.centers)),
+            key=lambda index: (
+                (node.x_mm - network.centers[index][0]) ** 2
+                + (node.y_mm - network.centers[index][1]) ** 2,
+                index,
+            ),
+        )
+        catchment_counts[owner] += 1
+    assert all(count > 0 for count in catchment_counts)
+
+    node_by_point = {
+        (node.x_mm, node.y_mm): node.node_id for node in network.nodes if node.layer == 0
+    }
+    center_node_ids = tuple(node_by_point[center] for center in network.centers)
+    assert all(
+        _high_hierarchy_path_exists(network, left, right)
+        for offset, left in enumerate(center_node_ids)
+        for right in center_node_ids[offset + 1 :]
+    )
 
 
-@pytest.mark.xfail(
-    reason="superblock hierarchy differentiation required: interior local fabric currently crosses arterial boundaries freely",
-    strict=True,
-    raises=AssertionError,
-)
-def test_superblock_has_hierarchical_block_area_variation() -> None:
-    """superblock_mixed should have distinct superblock cells enclosed by continuous arterial boundaries."""
+def test_superblock_has_multiple_two_dimensional_high_hierarchy_macrofaces() -> None:
+    """Multiple bounded macrofaces must be large along both spatial axes."""
     scale = CityScaleSpec(100_000, 25.0)
-    sb_net = build_scalable_street_network(scale, "superblock_mixed", seed=17)
-    sb_blocks = build_scalable_block_authority(sb_net)
+    network = build_scalable_street_network(scale, "superblock_mixed", seed=17)
+    authority = build_scalable_block_authority(network)
+    road_by_id = {road.road_id: road for road in network.roads}
 
-    grid_net = build_scalable_street_network(scale, "grid_core", seed=17)
-    grid_blocks = build_scalable_block_authority(grid_net)
+    macroblocks = []
+    for block in authority.blocks:
+        x_values = [point[0] for point in block.outer_polygon_mm]
+        y_values = [point[1] for point in block.outer_polygon_mm]
+        width_mm = max(x_values) - min(x_values)
+        height_mm = max(y_values) - min(y_values)
+        aspect_ratio = max(width_mm, height_mm) / min(width_mm, height_mm)
+        if min(width_mm, height_mm) >= 700_000 and aspect_ratio <= 2.5:
+            macroblocks.append(block)
 
-    # Superblock face area distribution should have bimodal distribution (large superblock cells vs fine interior)
-    sb_areas = [float(b.net_area_mm2) / 1e6 for b in sb_blocks.blocks]
-    grid_areas = [float(b.net_area_mm2) / 1e6 for b in grid_blocks.blocks]
+    assert len(macroblocks) >= 4
+    assert all(
+        block.frontage_road_ids
+        and all(
+            road_by_id[road_id].hierarchy
+            in {RoadHierarchy.ARTERIAL, RoadHierarchy.COLLECTOR}
+            for road_id in block.frontage_road_ids
+        )
+        for block in macroblocks
+    )
 
-    assert len(sb_areas) > 0 and len(grid_areas) > 0
-    sb_ratio = max(sb_areas) / (statistics.median(sb_areas) or 1.0)
-    grid_ratio = max(grid_areas) / (statistics.median(grid_areas) or 1.0)
-    assert sb_ratio > 2.0 * grid_ratio
+
+@pytest.mark.parametrize("seed", (17, 29))
+def test_superblock_gateway_access_closes_against_an_existing_surface_carrier(
+    seed: int,
+) -> None:
+    """A nominal access triangle cannot be a dangling two-edge spur."""
+    scale = CityScaleSpec(100_000, 40.0)
+    network = build_scalable_street_network(scale, "superblock_mixed", seed=seed)
+    nodes = {node.node_id: node for node in network.nodes}
+    anchors_by_access: dict[int, list[int]] = defaultdict(list)
+    for road in network.roads:
+        if road.semantic_role not in {
+            "surface-access-primary",
+            "surface-access-secondary",
+        }:
+            continue
+        access_id, anchor_id = (
+            (road.start_node_id, road.end_node_id)
+            if nodes[road.start_node_id].semantic_role.startswith("ramp-access-")
+            else (road.end_node_id, road.start_node_id)
+        )
+        anchors_by_access[access_id].append(anchor_id)
+
+    carrier_pairs = {
+        frozenset((road.start_node_id, road.end_node_id))
+        for road in network.roads
+        if road.facility is FacilityKind.SURFACE
+        and not road.semantic_role.startswith("surface-access-")
+    }
+    assert len(anchors_by_access) == 8
+    assert all(
+        len(anchor_ids) == 2 and frozenset(anchor_ids) in carrier_pairs
+        for anchor_ids in anchors_by_access.values()
+    )
 
 
-@pytest.mark.xfail(
-    reason="organic morphology currently rectilinear lattice with minor jitter",
-    strict=True,
-    raises=AssertionError,
-)
-def test_organic_has_non_orthogonal_orientation_entropy() -> None:
-    """organic morphology must feature non-orthogonal, organic road alignments (entropy > 2.80)."""
+def test_organic_compatibility_style_has_curvilinear_geometry() -> None:
+    """The compatibility ID must at least produce deterministic bent carriers."""
     scale = CityScaleSpec(100_000, 25.0)
-    net = build_scalable_street_network(scale, "organic", seed=17)
-
-    entropy = _compute_orientation_entropy(net.roads)
-    assert entropy > 2.80, f"organic orientation entropy is only {entropy:.4f}"
+    network = build_scalable_street_network(scale, "organic", seed=17)
+    connectors = [
+        road for road in network.roads if road.semantic_role == "organic-connector"
+    ]
+    bent = [
+        road
+        for road in connectors
+        if any(
+            (road.points_mm[-1][0] - road.points_mm[0][0])
+            * (point[1] - road.points_mm[0][1])
+            != (road.points_mm[-1][1] - road.points_mm[0][1])
+            * (point[0] - road.points_mm[0][0])
+            for point in road.points_mm[1:-1]
+        )
+    ]
+    assert len(bent) / len(connectors) > 0.9

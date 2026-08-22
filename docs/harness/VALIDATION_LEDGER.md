@@ -1,5 +1,105 @@
 # Validation Ledger
 
+## 2026-08-20: Morphology Structural Differentiation and Evidence Closure
+
+Change class: morphology grammar, falsifiable public contracts, artifact
+provenance, and CI re-derivation
+
+Commands and gates:
+
+```bash
+.venv/bin/python tools/ci_test_partition.py --verify
+for shard in baseline-a-g-s-z baseline-h-r scalable-authority \
+  scalable-blocks-config scalable-topology-runtime; do
+  mapfile -d '' -t files < <(
+    .venv/bin/python tools/ci_test_partition.py --shard "$shard" --format nul
+  )
+  .venv/bin/python -m pytest -q "${files[@]}"
+done
+.venv/bin/python tools/regen_osmnx_oracle.py --check
+.venv/bin/python -m pytest tests/test_osmnx_oracle.py \
+  tests/test_morphology_oracle_parity.py -q
+.venv/bin/python tools/render_audit_maps.py --check
+.venv/bin/python tools/render_morphology_gallery.py --check
+.venv/bin/python -m metroflow.benchmarks.morphology_control_table \
+  --artifact-prefix artifacts/runtime_spine_review/morphology-control-table-v4-20260820 \
+  --styles ring_radial,grid_core,polycentric_tod,river_constrained,superblock_mixed,organic \
+  --seeds 17,29,41,44,53 \
+  --osm-extract artifacts/osm_control/barcelona.osm \
+  --osm-extract artifacts/osm_control/charlotte.osm \
+  --osm-extract artifacts/osm_control/chicago.osm \
+  --osm-extract artifacts/osm_control/paris.osm \
+  --osm-extract artifacts/osm_control/prague.osm \
+  --osm-extract artifacts/osm_control/seoul.osm \
+  --osm-extract artifacts/osm_control/tokyo.osm --check
+.venv/bin/python -m ruff check .
+git diff --check
+```
+
+Observed results:
+
+- five disjoint CI shards: `1,473 passed, 9 skipped, 3 xfailed`;
+- independent oracle: seven cities reproduced within `1e-9`, followed by
+  `46 passed` parity assertions;
+- audit gallery: all 17 SVG renders reproduced byte-for-byte;
+- scalable gallery: all six SVG authorities reproduced byte-for-byte, while
+  committed PNG previews matched their recorded digests;
+- scalable gallery manifest: all six unique style records and every
+  non-preview scale, stage-schema, stage-fingerprint, zoning, and topology-count
+  field are re-derived exactly; duplicate and undeclared records fail closed;
+- v4 control table: all 135 cases re-derived, schema
+  `morphology_control_table_v4`, fingerprint
+  `183a36e5abb2960492d52e5c5aefe333196b4c96396465d91ecd7e462e3893ce`;
+- all 135 source-topology fingerprints and measurement-spec labels are present;
+  manifest schema, table fingerprint, JSON SHA-256, and Markdown SHA-256 are
+  checked exactly;
+- the 135 pre-existing score records retain identical metrics and outcomes;
+  only the measurement-spec provenance contract, schema, and derived
+  fingerprints changed.
+
+Functional impact:
+
+- `ring_radial` exposes multiple closed, concentric winding-one cycles;
+- `polycentric_tod` exposes non-collinear centres, nonempty catchments, and
+  hierarchy-qualified inter-centre paths;
+- `superblock_mixed` removes internal motorized carriers on both axes inside
+  repeated coarse cells and preserves hierarchy-qualified macroblock
+  perimeters; real-carrier closure is checked for every mainline access triangle;
+- the compatibility ID `organic` is explicitly presented and tested as a
+  deterministic curvilinear warped grid, not an organic-topology claim.
+
+Reproducibility environment:
+
+- local validation: Python 3.12.3, x86_64, NumPy 2.5.1, Pytest 9.0.2,
+  SciPy 1.18.0;
+- CI contract: Ubuntu 24.04, Python 3.12.14, commit-pinned GitHub Actions,
+  and version-constrained dependencies;
+- styles, seeds, local OSM fixtures, exact-mm topology authority, and byte-level
+  artifact checks are explicit; no external-data learning is used.
+
+Claim boundary:
+
+- **LOCALLY VERIFIED:** structural differentiation, public semantic contracts,
+  exact source-to-score/SVG binding, and full v4 same-tree re-derivation.
+- **REMOTELY VERIFIED CANDIDATE:** exact head
+  `c9985cef76d8accf8209f7ac1f0077d557a1a5eb` passed all nine jobs, including
+  final `ci gate`, in push workflow run
+  [`32557625448`](https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/32557625448).
+  Its tested tree was `3799146bbcbe883ef735d57ce780e297a6cce91f`;
+  PR #17's synthetic merge commit at review time had the same tree. Later
+  review-fix commits require their own exact-head CI and do not inherit this
+  receipt.
+- **NOT VALIDATED:** `scalable_synthetic_v2` against held-out OSM controls,
+  named-city realism, empirical traffic/travel time, route-choice benefit,
+  resilience, or runtime-default promotion.
+
+> **2026-08-20 — exact gallery binding supersedes the initial replacement.**
+> `morphology-control-table-v4-20260820.json` records the measured source
+> topology fingerprint for every case. `tools/render_audit_maps.py` now requires
+> exact equality with the topology it renders; node-count tolerance is gone.
+> Historical v3 bytes remain untouched. The gallery remains diagnostic
+> navigation, not scientific validation.
+>
 > **2026-08-08 — the image artifacts named below are no longer tracked.** All 44
 > committed PNGs were deleted in preparation for the second external audit. Two
 > reasons, and neither is that they were wrong. They were rendered by code that
@@ -10,10 +110,10 @@
 > them (`.json`, `.md`, `.manifest.json`) are untouched, and every entry's
 > reproduction commands still regenerate its screenshots on demand.
 >
-> The replacement gallery is `artifacts/external_audit_2_maps/`, rendered by
+> The initial replacement gallery was `artifacts/external_audit_2_maps/`, rendered by
 > `tools/render_audit_maps.py` from the current tree, captioned out of
 > `morphology-control-table-v3-20260808.json`, and byte-reproducible via
-> `--check`. It illustrates; it still measures nothing.
+> `--check`. The 2026-08-20 v4 binding above supersedes that caption authority.
 
 ## 2026-07-13: Realistic City Plausibility Audit
 

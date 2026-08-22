@@ -36,7 +36,7 @@ _CONTROL_TABLE = (
     _REPO_ROOT
     / "artifacts"
     / "runtime_spine_review"
-    / "morphology-control-table-v3-20260808.json"
+    / "morphology-control-table-v4-20260820.json"
 )
 _DEFAULT_OUT = _REPO_ROOT / "artifacts" / "external_audit_2_maps"
 
@@ -94,23 +94,23 @@ RENDER_SET: tuple[RenderCase, ...] = (
     RenderCase("growth_fabric_v1", "superblock_mixed", 17, "arm under review"),
     RenderCase("growth_fabric_v1", "grid_core", 29, "seed spread"),
     RenderCase("growth_fabric_v1", "grid_core", 53, "seed spread"),
-    RenderCase("standard", "polycentric_tod", 17, "runtime default, 0/10"),
-    RenderCase("standard", "ring_radial", 17, "runtime default, 0/10"),
-    RenderCase("realistic_synthetic_v1", "grid_core", 17, "rejected arm, 0/30"),
-    RenderCase("realistic_synthetic_v1", "polycentric_tod", 17, "rejected arm, 0/30"),
-    RenderCase("sidecar_local_fabric", "grid_core", 17, "partial arm, 15/30"),
+    RenderCase("standard", "polycentric_tod", 17, "runtime default"),
+    RenderCase("standard", "ring_radial", 17, "runtime default"),
+    RenderCase("realistic_synthetic_v1", "grid_core", 17, "rejected arm"),
+    RenderCase("realistic_synthetic_v1", "polycentric_tod", 17, "rejected arm"),
+    RenderCase("sidecar_local_fabric", "grid_core", 17, "partial arm"),
     # Cited by docs/harness/EXTERNAL_AUDIT_PROMPT.md as the counter-example: an
     # arm that passes all seven metrics and is plainly not a city. Rendered here
     # so that argument stays reproducible after the old PNG was removed.
     RenderCase(
-        "sidecar_local_fabric", "superblock_mixed", 17, "passes 7/7 and is not a city"
+        "sidecar_local_fabric", "superblock_mixed", 17, "metric counter-example"
     ),
     # The positive control. Real cities through the same renderer and the same
     # caption format is the only way a reviewer can judge the generated maps
     # against something that is not us.
-    RenderCase("osm", "barcelona.osm", 0, "OSM control, 5/5"),
-    RenderCase("osm", "chicago.osm", 0, "OSM control, 5/5"),
-    RenderCase("osm", "charlotte.osm", 0, "OSM control, 5/5"),
+    RenderCase("osm", "barcelona.osm", 0, "OSM control"),
+    RenderCase("osm", "chicago.osm", 0, "OSM control"),
+    RenderCase("osm", "charlotte.osm", 0, "OSM control"),
 )
 
 
@@ -122,7 +122,11 @@ def load_scores(path: Path | None = None) -> dict[tuple[str, str], dict[str, Any
     """
 
     payload = json.loads((path or _CONTROL_TABLE).read_text(encoding="utf-8"))
-    return {(record["arm"], record["case"]): record for record in payload["scores"]}
+    records = payload["scores"]
+    keys = tuple((record["arm"], record["case"]) for record in records)
+    if len(keys) != len(set(keys)):
+        raise ValueError("duplicate morphology score key")
+    return {key: record for key, record in zip(keys, records, strict=True)}
 
 
 def caption_for(
@@ -155,7 +159,7 @@ def caption_for(
             f"orientation entropy {metrics['orientation_entropy']:.4f}   "
             f"order {metrics['orientation_order']:.4f}"
         ),
-        "measured values read from morphology-control-table-v3-20260808.json; "
+        "measured values read from morphology-control-table-v4-20260820.json; "
         "this image measures nothing",
     )
 
@@ -252,10 +256,25 @@ def verify_topology_record_integrity(
     case: str,
 ) -> None:
     """Verify that current generated topology matches the audited record identity."""
-    if abs(len(topology.nodes) - record["node_count"]) > 10:
+    from metroflow.city.morphology_control_table import source_topology_fingerprint
+
+    if len(topology.nodes) != record["node_count"]:
         raise ValueError(
             f"topology record identity mismatch for {arm} {case}: "
             f"current topology node count ({len(topology.nodes)}) != recorded ({record['node_count']})"
+        )
+    recorded_fingerprint = record.get("source_topology_fingerprint")
+    if not isinstance(recorded_fingerprint, str):
+        raise ValueError(
+            f"topology record identity mismatch for {arm} {case}: "
+            "record has no source_topology_fingerprint"
+        )
+    current_fingerprint = source_topology_fingerprint(topology)
+    if current_fingerprint != recorded_fingerprint:
+        raise ValueError(
+            f"topology record identity mismatch for {arm} {case}: "
+            f"current source topology fingerprint ({current_fingerprint}) != "
+            f"recorded ({recorded_fingerprint})"
         )
 
 

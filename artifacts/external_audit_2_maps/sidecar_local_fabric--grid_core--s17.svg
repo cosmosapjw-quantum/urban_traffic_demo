@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" width="1400" height="1000">
 <rect width="1400" height="1000" fill="#ffffff"/>
-<title>sidecar_local_fabric / grid_core / seed 17 -- partial arm, 15/30</title>
+<title>sidecar_local_fabric / grid_core / seed 17 -- partial arm</title>
 <g stroke-linecap="round">
 <line x1="572.53" y1="628.44" x2="700.00" y2="628.44" stroke="#1b3a5c" stroke-width="2.6"/>
 <line x1="700.00" y1="628.44" x2="572.53" y2="628.44" stroke="#1b3a5c" stroke-width="2.6"/>
@@ -1677,10 +1677,10 @@
 <line x1="954.93" y1="203.56" x2="956.08" y2="183.20" stroke="#4f9ac4" stroke-width="1.2"/>
 <line x1="956.08" y1="183.20" x2="954.93" y2="203.56" stroke="#4f9ac4" stroke-width="1.2"/>
 </g>
-<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">sidecar_local_fabric / grid_core / seed 17 -- partial arm, 15/30</text>
+<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">sidecar_local_fabric / grid_core / seed 17 -- partial arm</text>
 <text x="28" y="880" font-family="monospace" font-size="13" fill="#333333">sidecar_local_fabric  |  grid_core/17  |  PASS 7/7</text>
 <text x="28" y="902" font-family="monospace" font-size="13" fill="#333333">nodes 522   segments 762   mean degree 3.4094   dead ends 0.0761</text>
 <text x="28" y="924" font-family="monospace" font-size="13" fill="#333333">circuity 1.0303   median segment 75.7 m   four-way 0.4318</text>
 <text x="28" y="946" font-family="monospace" font-size="13" fill="#333333">orientation entropy 2.0230   order 0.9160</text>
-<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v3-20260808.json; this image measures nothing</text>
+<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v4-20260820.json; this image measures nothing</text>
 </svg>

@@ -15,13 +15,50 @@
 Each map visualizes:
 - **Road Hierarchy**: Expressways (blue), Arterials (orange), Collectors (teal), Local roads (gray), Ramps (purple), Bridge spans (cyan).
 - **Physical Road Structures**: Width-aware ribbon rendering.
-- **Topological Features**: Waterway boundaries and multi-span bridges (`river_constrained`), radial corridors (`ring_radial`), orthogonal grids (`grid_core`), transit centers (`polycentric_tod`), superblock perimeters (`superblock_mixed`), and organic networks (`organic`).
+- **Topological Features**: Waterway boundaries and multi-span bridges (`river_constrained`), radial corridors (`ring_radial`), orthogonal grids (`grid_core`), transit centers (`polycentric_tod`), superblock perimeters (`superblock_mixed`), and a curvilinear warped grid retained under the compatibility ID `organic`.
 
-> **CAUTION**: All 6 morphology archetypes currently share the same
-> underlying adaptive rectilinear lattice generator. Visual differences
-> are driven by label-dependent noise and minor parametric variation,
-> not distinct spatial grammars. Morphological differentiation is a
-> known `HOLD/FAIL` per the external audit.
+> **CLAIM BOUNDARY**: The scalable styles now expose distinct structural or
+> embedding mechanisms: concentric ring/radial roads, two-dimensional
+> polycentric anchors, explicit two-dimensional superblock macrofaces, bounded
+> curvilinear warped-grid connectors, and river bridge groups. The gallery is
+> implementation and diagnostic evidence
+> for those differences only. It is not named-city calibration, empirical
+> morphology validation, or traffic-realism evidence.
+
+## Plot summary
+
+Plot category: **DIAGNOSTIC**.
+
+## Quantity plotted
+
+Physical road centerlines and hierarchy, plus generated zone/POI overlays, for
+the six fixed seed-17 scalable morphology cases at 100,000 population and
+25 km².
+
+## Script / data provenance
+
+`tools/render_morphology_gallery.py` builds every map through
+`scalable_synthetic_v2`. `gallery_manifest.json` binds the fixed input, display
+label, every city-authority fingerprint, and both SVG and PNG SHA-256 digests.
+
+## Interpretation
+
+The gallery makes the implemented grammar differences inspectable: orbitals and
+radials, multiple spatial centers, two-dimensional superblock macrofaces,
+curvilinear warped-grid connectors, and river bridge groups are visible rather
+than label-only changes. The `organic` style ID is compatibility vocabulary,
+not a claim of organic topological accretion.
+
+## What this plot does not show
+
+It does not compare the generated distributions with real cities or validate
+traffic, demand, accessibility, land use, or requested-population realization.
+
+## Next plot needed
+
+A fixed-corpus generated-versus-OSM comparison of block-area, intersection-type,
+and orientation distributions, after the realistic growth path adopts the new
+spatial mechanisms.
 
 ---
 

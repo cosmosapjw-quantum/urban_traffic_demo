@@ -1,7 +1,7 @@
 # Claim Ledger
 
 Status: active source of truth
-Last updated: 2026-08-07
+Last updated: 2026-08-22
 
 Numeric claims in this file must be traceable to a committed artifact. Where a
 claim and an artifact disagreed, the artifact was the reproducible side and the
@@ -77,19 +77,23 @@ version with evidence and falsifiers is:
 - Optional JAX dense-flow parity is restored after aligning its point-queue
   receiving and additive-delay equations with NumPy/Rust; the measured
   4,096/16,384-link maximum drift is below `1.6e-5`.
-- `growth_fabric_v1` scores `30/30` on the seven empirical metrics over the
-  fixed 6-style x 5-seed matrix, against `15/30` for `sidecar_local_fabric`,
-  `0/30` for `realistic_synthetic_v1` and `0/10` for the runtime default.
-  Measured ranges, read directly from the current authority
-  `artifacts/runtime_spine_review/morphology-control-table-v3-20260808.json`:
-  mean node degree `2.8140-3.1143`, dead-end share `0.1506-0.2692`, circuity
-  `1.0032-1.0072`, orientation order `0.0061-0.9270`.
+- The sole current quantitative authority for morphology-arm pass counts,
+  ranges, and per-case topology sizes is
+  `artifacts/runtime_spine_review/morphology-control-table-v4-20260820.json`.
+  This ledger deliberately does not duplicate those regenerated values.
 
-  This entry has now been corrected three times, and the pattern is the point:
-  it quoted v1 figures after v2 superseded them, then v2 figures after v3. Each
-  correction was found by an adversarial review rather than by the author.
-  Numbers here must name the artifact they came from and be re-read when it is
-  regenerated.
+  This entry has repeatedly copied superseded v1-v3 values into prose and then
+  required adversarial correction. The pattern is the point: regenerated
+  measurements do not belong in a separately maintained narrative copy.
+  Regenerated quantitative values therefore stay in the machine-readable
+  artifact instead of being copied into prose.
+
+  The v4 table additionally binds each score to the exact measured source
+  topology fingerprint and measurement specification. The audit renderer
+  requires that fingerprint to equal the current rendered topology; this is
+  evidence identity, not a new morphology-quality result. Its registered arms
+  do not include `scalable_synthetic_v2`, so the table is not evidence for that
+  generator's empirical quality.
 
   **This entry previously recorded `29/30` and four ranges that reproduce
   nothing in the tree** (`3.11-3.39`, `0.056-0.122`, `1.009-1.013`,
@@ -97,7 +101,7 @@ version with evidence and falsifiers is:
   the unsimplified path `plausibility_audit` uses. The artifact was the
   reproducible side at the time: head then re-measured all 210 of its values to
   within `1e-9`. That reproduction no longer holds, and cannot: the instrument
-  has since been repaired, so v1 is a historical record and v2 is the authority.
+  has since been repaired, so v1-v3 are historical records and v4 is the authority.
   The prose was written after the generator was rewritten, without regenerating
   the artifact it claimed to summarize.
 
@@ -110,12 +114,10 @@ version with evidence and falsifiers is:
   connected to it. `GrownNetwork.dead_end_count` is always `0`, and
   `may_dead_end` is never read inside `grow()` -- its only effect is two fewer
   steps, with the polarity inverted relative to its name. Curvature is real.
-- The morphology instrument admits five offline OSM extracts on all seven
-  metrics (`orientation_order` `0.114-0.938` in the current v2 artifact --
-  `0.121-0.873` was the superseded v1 figure and was left here after the
-  re-scoring -- median segment length `52.3-122.0 m`), so the envelope is
-  falsifiable in the weak sense that real
-  data can be measured against it.
+- The morphology instrument records five admitted offline OSM extracts in the
+  current v4 authority, so the envelope is falsifiable in the weak sense that
+  real data can be measured against it. Current values remain in that artifact,
+  not duplicated here.
 
   **This is not the independent positive control it was presented as.**
   (a) The same five extracts were used to calibrate `GrowthConfig.spacing_scale`,

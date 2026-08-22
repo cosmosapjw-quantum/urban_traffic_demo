@@ -5,11 +5,16 @@ by `tools/render_audit_maps.py` from the current tree.
 
 **These are not evidence.** Nothing here measures anything. Every number printed
 on a map is read back out of
-`artifacts/runtime_spine_review/morphology-control-table-v3-20260808.json`, so a
+`artifacts/runtime_spine_review/morphology-control-table-v4-20260820.json`, so a
 render cannot disagree with the table it illustrates, and a case that table does
-not contain refuses to render rather than appear uncaptioned. The claim ledger
+not contain refuses to render rather than appear uncaptioned. Each record also
+stores the exact source-topology fingerprint, and the renderer refuses a current
+topology that differs by even one fingerprinted node, link, or road-geometry
+field. The claim ledger
 forbids presenting image artifacts as scientific validation; this directory
 exists so a reviewer can *navigate* to the measurements, not stand in for them.
+That table covers legacy, sidecar, realistic-v1, growth-v1, and offline OSM
+arms; it does not score or validate `scalable_synthetic_v2`.
 
 The 44 PNGs previously committed were deleted in the same change. They were
 rendered by a generator that has since been substantially repaired, so opening
@@ -27,42 +32,40 @@ diffable as text, and a rerun that changes nothing changes nothing.
 
 ## What is here
 
-| file | arm | case | envelope verdict | nodes | why it is here |
-|---|---|---|---|---|---|
-| `growth_fabric_v1--grid_core--s17.svg` | growth_fabric_v1 | grid_core/17 | PASS 7/7 | 1841 | arm under review |
-| `growth_fabric_v1--polycentric_tod--s17.svg` | growth_fabric_v1 | polycentric_tod/17 | PASS 7/7 | 2032 | arm under review |
-| `growth_fabric_v1--ring_radial--s17.svg` | growth_fabric_v1 | ring_radial/17 | PASS 7/7 | 1882 | arm under review |
-| `growth_fabric_v1--river_constrained--s17.svg` | growth_fabric_v1 | river_constrained/17 | PASS 7/7 | 1598 | arm under review |
-| `growth_fabric_v1--organic--s17.svg` | growth_fabric_v1 | organic/17 | PASS 7/7 | 1848 | arm under review |
-| `growth_fabric_v1--superblock_mixed--s17.svg` | growth_fabric_v1 | superblock_mixed/17 | PASS 7/7 | 1867 | arm under review |
-| `growth_fabric_v1--grid_core--s29.svg` | growth_fabric_v1 | grid_core/29 | PASS 7/7 | 1790 | seed spread |
-| `growth_fabric_v1--grid_core--s53.svg` | growth_fabric_v1 | grid_core/53 | PASS 7/7 | 1690 | seed spread |
-| `standard--polycentric_tod--s17.svg` | standard | polycentric_tod/17 | FAIL `mean_node_degree` | 945 | runtime default, 0/10 |
-| `standard--ring_radial--s17.svg` | standard | ring_radial/17 | FAIL `mean_node_degree` | 926 | runtime default, 0/10 |
-| `realistic_synthetic_v1--grid_core--s17.svg` | realistic_synthetic_v1 | grid_core/17 | FAIL `mean_node_degree`, `dead_end_share` | 799 | rejected arm, 0/30 |
-| `realistic_synthetic_v1--polycentric_tod--s17.svg` | realistic_synthetic_v1 | polycentric_tod/17 | FAIL `mean_node_degree`, `dead_end_share` | 1974 | rejected arm, 0/30 |
-| `sidecar_local_fabric--grid_core--s17.svg` | sidecar_local_fabric | grid_core/17 | PASS 7/7 | 522 | partial arm, 15/30 |
-| `sidecar_local_fabric--superblock_mixed--s17.svg` | sidecar_local_fabric | superblock_mixed/17 | **PASS 7/7** | 440 | **passes every metric and is not a city** |
-| `osm--barcelona.svg` | osm | barcelona.osm | PASS 7/7 | 819 | positive control, 5/5 |
-| `osm--chicago.svg` | osm | chicago.osm | PASS 7/7 | 816 | positive control, 5/5 |
-| `osm--charlotte.svg` | osm | charlotte.osm | PASS 7/7 | 370 | positive control, 5/5 |
+| file | arm | case | why it is here |
+|---|---|---|---|
+| `growth_fabric_v1--grid_core--s17.svg` | growth_fabric_v1 | grid_core/17 | arm under review |
+| `growth_fabric_v1--polycentric_tod--s17.svg` | growth_fabric_v1 | polycentric_tod/17 | arm under review |
+| `growth_fabric_v1--ring_radial--s17.svg` | growth_fabric_v1 | ring_radial/17 | arm under review |
+| `growth_fabric_v1--river_constrained--s17.svg` | growth_fabric_v1 | river_constrained/17 | arm under review |
+| `growth_fabric_v1--organic--s17.svg` | growth_fabric_v1 | organic/17 | arm under review |
+| `growth_fabric_v1--superblock_mixed--s17.svg` | growth_fabric_v1 | superblock_mixed/17 | arm under review |
+| `growth_fabric_v1--grid_core--s29.svg` | growth_fabric_v1 | grid_core/29 | seed spread |
+| `growth_fabric_v1--grid_core--s53.svg` | growth_fabric_v1 | grid_core/53 | seed spread |
+| `standard--polycentric_tod--s17.svg` | standard | polycentric_tod/17 | runtime default |
+| `standard--ring_radial--s17.svg` | standard | ring_radial/17 | runtime default |
+| `realistic_synthetic_v1--grid_core--s17.svg` | realistic_synthetic_v1 | grid_core/17 | rejected comparison arm |
+| `realistic_synthetic_v1--polycentric_tod--s17.svg` | realistic_synthetic_v1 | polycentric_tod/17 | rejected comparison arm |
+| `sidecar_local_fabric--grid_core--s17.svg` | sidecar_local_fabric | grid_core/17 | partial comparison arm |
+| `sidecar_local_fabric--superblock_mixed--s17.svg` | sidecar_local_fabric | superblock_mixed/17 | standing metric counter-example |
+| `osm--barcelona.svg` | osm | barcelona.osm | positive control |
+| `osm--chicago.svg` | osm | chicago.osm | positive control |
+| `osm--charlotte.svg` | osm | charlotte.osm | positive control |
 
 The gallery deliberately includes arms that fail and an arm that passes for the
 wrong reasons. A gallery of only the arm under review would be an argument.
 
 ## Start here
 
-**`sidecar_local_fabric--superblock_mixed--s17.svg`.** It passes all seven
-metrics with 440 nodes and is visibly not a city. That is the standing
-counter-example against the metric set itself, and it is the reason
-`growth_fabric_v1` scoring 30/30 on those same seven numbers is not by itself an
-argument for promotion. If the second audit overturns one thing, this is the
-most productive place to aim.
+**`sidecar_local_fabric--superblock_mixed--s17.svg`.** Its v4-derived caption
+passes every metric while the rendering is visibly not a city. That is the
+standing counter-example against treating the metric set as promotion
+authority. If the second audit overturns one thing, this is the most productive
+place to aim.
 
 Then compare `growth_fabric_v1--grid_core--s17.svg` against `osm--barcelona.svg`
-and `osm--charlotte.svg` at the same caption format. The generated fabric sits
-inside the measured density band but in its lower half, which is the open
-calibration question below.
+and `osm--charlotte.svg` at the same caption format. Use those v4-derived
+captions, rather than copied README values, for the open calibration comparison.
 
 ## What these renders cannot show you
 
@@ -80,7 +83,8 @@ calibration question below.
 ## Provenance
 
 - Renderer: `tools/render_audit_maps.py`, tested by `tests/test_audit_map_render.py`
-- Numbers: `artifacts/runtime_spine_review/morphology-control-table-v3-20260808.json`
+- Numbers and exact source identity:
+  `artifacts/runtime_spine_review/morphology-control-table-v4-20260820.json`
 - OSM fixtures: `artifacts/osm_control/`, © OpenStreetMap contributors, ODbL.
   Derived renders inherit that licence and attribution.
 - Standing claim boundaries: `docs/harness/CLAIM_LEDGER.md`

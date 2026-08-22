@@ -601,7 +601,11 @@ def test_node_taz_ownership_uses_semantic_candidate_order() -> None:
         ("a" * 64, 1, (9, 3)),
         ("c" * 64, 0, (9, 4)),
     )
-    owners, conflicts, visits = authority._node_taz_ownership_from_index(block_rows=rows)
+    node_xy_mm = {3: (0, 0), 4: (1, 0), 9: (2, 0)}
+    owners, conflicts, visits = authority._node_taz_ownership_from_index(
+        block_rows=rows,
+        node_xy_mm_by_id=node_xy_mm,
+    )
     assert owners == ((3, 1), (4, 2), (9, 1))
     assert conflicts == (
         (4, (("b" * 64, 2), ("c" * 64, 0)), 2),
@@ -609,7 +613,11 @@ def test_node_taz_ownership_uses_semantic_candidate_order() -> None:
     )
     assert visits == 6
     assert authority._node_taz_ownership_from_index(
-        block_rows=tuple((semantic, taz, tuple(reversed(nodes))) for semantic, taz, nodes in reversed(rows))
+        block_rows=tuple(
+            (semantic, taz, tuple(reversed(nodes)))
+            for semantic, taz, nodes in reversed(rows)
+        ),
+        node_xy_mm_by_id=node_xy_mm,
     ) == (owners, conflicts, visits)
 
 
@@ -648,6 +656,28 @@ def test_node_taz_ownership_exact_mm_submeter_resolution() -> None:
     assert owner_dict[20] == 2
     # Node 99 is closer to node 20 (300mm vs 700mm), so MUST be assigned TAZ 2
     assert owner_dict[99] == 2, "Unowned node must resolve to physically closest node in mm, not truncated meters"
+
+
+def test_node_taz_ownership_requires_exact_integer_mm_coordinates() -> None:
+    """A float coordinate must fail closed instead of being truncated by int()."""
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+    block_rows = (("a" * 64, 1, (10,)),)
+
+    with pytest.raises(TypeError, match="node_xy_mm_by_id.*built-in int"):
+        authority._node_taz_ownership_from_index(
+            block_rows=block_rows,
+            node_xy_mm_by_id={10: (100, 0), 99: (800.5, 0)},
+        )
+
+
+def test_node_taz_ownership_requires_coordinate_authority() -> None:
+    """The nearest-owned-mm policy must not expose a coordinate-free fallback."""
+    authority = importlib.import_module("metroflow.city.scalable_authority")
+
+    with pytest.raises(TypeError, match="node_xy_mm_by_id"):
+        authority._node_taz_ownership_from_index(
+            block_rows=(("a" * 64, 1, (10,)),),
+        )
 
 
 

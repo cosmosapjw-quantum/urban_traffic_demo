@@ -660,7 +660,7 @@ def _classify_land_use_rows(
 def _node_taz_ownership_from_index(
     *,
     block_rows: tuple[tuple[str, int, tuple[int, ...]], ...],
-    node_xy_mm_by_id: Mapping[int, tuple[int, int]] | None = None,
+    node_xy_mm_by_id: Mapping[int, tuple[int, int]],
 ) -> tuple[
     tuple[tuple[int, int], ...],
     tuple[tuple[int, tuple[tuple[str, int], ...], int], ...],
@@ -668,6 +668,17 @@ def _node_taz_ownership_from_index(
 ]:
     if type(block_rows) is not tuple:
         raise TypeError("block_rows must be a built-in tuple")
+    if not isinstance(node_xy_mm_by_id, Mapping):
+        raise TypeError("node_xy_mm_by_id must be a mapping")
+    coordinate_by_node_id: dict[int, tuple[int, int]] = {}
+    for raw_node_id, raw_coordinate in node_xy_mm_by_id.items():
+        node_id = _plain_nonnegative_int(raw_node_id, "node_xy_mm_by_id node ID")
+        if type(raw_coordinate) is not tuple or len(raw_coordinate) != 2:
+            raise TypeError("node_xy_mm_by_id values must be built-in two-item tuples")
+        coordinate_by_node_id[node_id] = (
+            _plain_int(raw_coordinate[0], "node_xy_mm_by_id x coordinate"),
+            _plain_int(raw_coordinate[1], "node_xy_mm_by_id y coordinate"),
+        )
     candidates: dict[int, list[tuple[str, int]]] = {}
     semantic_ids: set[str] = set()
     visit_count = 0
@@ -698,27 +709,35 @@ def _node_taz_ownership_from_index(
         if len(ordered) > 1:
             conflicts.append((node_id, ordered, winner))
 
-    if node_xy_mm_by_id is not None:
-        unowned_node_ids = [nid for nid in sorted(node_xy_mm_by_id) if nid not in owner_map]
-        if unowned_node_ids and owner_map:
-            owned_nodes = [
-                (nid, node_xy_mm_by_id[nid], owner_map[nid])
-                for nid in sorted(owner_map)
-                if nid in node_xy_mm_by_id
-            ]
-            for unowned_id in unowned_node_ids:
-                ux, uy = node_xy_mm_by_id[unowned_id]
-                best_taz = min(
-                    owned_nodes,
-                    key=lambda item: (
-                        (int(ux) - int(item[1][0])) ** 2
-                        + (int(uy) - int(item[1][1])) ** 2,
-                        item[0],
-                        item[2],
-                    ),
-                )[2]
-                owners.append((unowned_id, best_taz))
-                owner_map[unowned_id] = best_taz
+    missing_owned_coordinates = sorted(set(owner_map) - set(coordinate_by_node_id))
+    if missing_owned_coordinates:
+        raise ValueError(
+            "node_xy_mm_by_id is missing owned node IDs: "
+            f"{missing_owned_coordinates}"
+        )
+    unowned_node_ids = [
+        node_id
+        for node_id in sorted(coordinate_by_node_id)
+        if node_id not in owner_map
+    ]
+    if unowned_node_ids and not owner_map:
+        raise ValueError("nearest-owned-mm assignment requires at least one owned node")
+    owned_nodes = [
+        (node_id, coordinate_by_node_id[node_id], owner_map[node_id])
+        for node_id in sorted(owner_map)
+    ]
+    for unowned_id in unowned_node_ids:
+        ux, uy = coordinate_by_node_id[unowned_id]
+        best_taz = min(
+            owned_nodes,
+            key=lambda item: (
+                (ux - item[1][0]) ** 2 + (uy - item[1][1]) ** 2,
+                item[0],
+                item[2],
+            ),
+        )[2]
+        owners.append((unowned_id, best_taz))
+        owner_map[unowned_id] = best_taz
 
     owners.sort(key=lambda item: item[0])
     return tuple(owners), tuple(conflicts), visit_count

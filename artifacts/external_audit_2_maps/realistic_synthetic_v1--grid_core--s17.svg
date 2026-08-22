@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1000" width="1400" height="1000">
 <rect width="1400" height="1000" fill="#ffffff"/>
-<title>realistic_synthetic_v1 / grid_core / seed 17 -- rejected arm, 0/30</title>
+<title>realistic_synthetic_v1 / grid_core / seed 17 -- rejected arm</title>
 <g stroke-linecap="round">
 <line x1="945.33" y1="574.57" x2="952.05" y2="567.83" stroke="#1b3a5c" stroke-width="2.6"/>
 <line x1="952.05" y1="567.83" x2="958.77" y2="561.08" stroke="#1b3a5c" stroke-width="2.6"/>
@@ -4297,10 +4297,10 @@
 <line x1="501.72" y1="34.75" x2="528.61" y2="34.75" stroke="#9dc3d9" stroke-width="0.6"/>
 <line x1="528.61" y1="34.75" x2="501.72" y2="34.75" stroke="#9dc3d9" stroke-width="0.6"/>
 </g>
-<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">realistic_synthetic_v1 / grid_core / seed 17 -- rejected arm, 0/30</text>
+<text x="28" y="858" font-family="monospace" font-size="17" fill="#111111">realistic_synthetic_v1 / grid_core / seed 17 -- rejected arm</text>
 <text x="28" y="880" font-family="monospace" font-size="13" fill="#333333">realistic_synthetic_v1  |  grid_core/17  |  FAIL: mean_node_degree, dead_end_share</text>
 <text x="28" y="902" font-family="monospace" font-size="13" fill="#333333">nodes 799   segments 2121   mean degree 5.4877   dead ends 0.0026</text>
 <text x="28" y="924" font-family="monospace" font-size="13" fill="#333333">circuity 1.0019   median segment 139.1 m   four-way 0.2251</text>
 <text x="28" y="946" font-family="monospace" font-size="13" fill="#333333">orientation entropy 1.9674   order 0.9301</text>
-<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v3-20260808.json; this image measures nothing</text>
+<text x="28" y="968" font-family="monospace" font-size="13" fill="#333333">measured values read from morphology-control-table-v4-20260820.json; this image measures nothing</text>
 </svg>
