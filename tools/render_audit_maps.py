@@ -122,7 +122,11 @@ def load_scores(path: Path | None = None) -> dict[tuple[str, str], dict[str, Any
     """
 
     payload = json.loads((path or _CONTROL_TABLE).read_text(encoding="utf-8"))
-    return {(record["arm"], record["case"]): record for record in payload["scores"]}
+    records = payload["scores"]
+    keys = tuple((record["arm"], record["case"]) for record in records)
+    if len(keys) != len(set(keys)):
+        raise ValueError("duplicate morphology score key")
+    return {key: record for key, record in zip(keys, records, strict=True)}
 
 
 def caption_for(

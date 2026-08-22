@@ -1,7 +1,7 @@
 # Claim Ledger
 
 Status: active source of truth
-Last updated: 2026-08-07
+Last updated: 2026-08-22
 
 Numeric claims in this file must be traceable to a committed artifact. Where a
 claim and an artifact disagreed, the artifact was the reproducible side and the

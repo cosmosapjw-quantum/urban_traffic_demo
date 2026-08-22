@@ -49,28 +49,28 @@ how the PR53 criteria were frozen before an algorithm existed.
 
 ## Skipped cases
 
-- `standard:grid_core/17:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:grid_core/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:grid_core/41:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:grid_core/44:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:grid_core/53:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:river_constrained/17:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:river_constrained/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:river_constrained/41:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:river_constrained/44:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:river_constrained/53:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:superblock_mixed/17:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:superblock_mixed/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:superblock_mixed/41:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:superblock_mixed/44:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:superblock_mixed/53:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:organic/17:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:organic/29:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:organic/41:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:organic/44:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `standard:organic/53:ValueError:standard preview_mode supports only ring_radial or polycentric_tod; use a sidecar preview_mode for other morphology styles`
-- `osm:paris.osm:ValueError:lanes:forward leaves no backward traffic lane`
-- `osm:prague.osm:ValueError:unsupported oneway value 'alternating'`
+- `standard:grid_core/17:UNSUPPORTED_ARM_STYLE`
+- `standard:grid_core/29:UNSUPPORTED_ARM_STYLE`
+- `standard:grid_core/41:UNSUPPORTED_ARM_STYLE`
+- `standard:grid_core/44:UNSUPPORTED_ARM_STYLE`
+- `standard:grid_core/53:UNSUPPORTED_ARM_STYLE`
+- `standard:river_constrained/17:UNSUPPORTED_ARM_STYLE`
+- `standard:river_constrained/29:UNSUPPORTED_ARM_STYLE`
+- `standard:river_constrained/41:UNSUPPORTED_ARM_STYLE`
+- `standard:river_constrained/44:UNSUPPORTED_ARM_STYLE`
+- `standard:river_constrained/53:UNSUPPORTED_ARM_STYLE`
+- `standard:superblock_mixed/17:UNSUPPORTED_ARM_STYLE`
+- `standard:superblock_mixed/29:UNSUPPORTED_ARM_STYLE`
+- `standard:superblock_mixed/41:UNSUPPORTED_ARM_STYLE`
+- `standard:superblock_mixed/44:UNSUPPORTED_ARM_STYLE`
+- `standard:superblock_mixed/53:UNSUPPORTED_ARM_STYLE`
+- `standard:organic/17:UNSUPPORTED_ARM_STYLE`
+- `standard:organic/29:UNSUPPORTED_ARM_STYLE`
+- `standard:organic/41:UNSUPPORTED_ARM_STYLE`
+- `standard:organic/44:UNSUPPORTED_ARM_STYLE`
+- `standard:organic/53:UNSUPPORTED_ARM_STYLE`
+- `osm:paris.osm:UNSUPPORTED_DIRECTIONAL_LANE_ALLOCATION`
+- `osm:prague.osm:UNSUPPORTED_ONEWAY_VALUE`
 
 ## Claim boundary
 

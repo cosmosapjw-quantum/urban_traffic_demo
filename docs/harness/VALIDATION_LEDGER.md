@@ -81,8 +81,14 @@ Claim boundary:
 
 - **LOCALLY VERIFIED:** structural differentiation, public semantic contracts,
   exact source-to-score/SVG binding, and full v4 same-tree re-derivation.
-- **NOT REMOTELY VERIFIED FOR THIS FINAL TREE:** a push or PR has not been made,
-  so exact-head GitHub Actions evidence does not yet exist.
+- **REMOTELY VERIFIED CANDIDATE:** exact head
+  `c9985cef76d8accf8209f7ac1f0077d557a1a5eb` passed all nine jobs, including
+  final `ci gate`, in push workflow run
+  [`32557625448`](https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/32557625448).
+  Its tested tree was `3799146bbcbe883ef735d57ce780e297a6cce91f`;
+  PR #17's synthetic merge commit at review time had the same tree. Later
+  review-fix commits require their own exact-head CI and do not inherit this
+  receipt.
 - **NOT VALIDATED:** `scalable_synthetic_v2` against held-out OSM controls,
   named-city realism, empirical traffic/travel time, route-choice benefit,
   resilience, or runtime-default promotion.

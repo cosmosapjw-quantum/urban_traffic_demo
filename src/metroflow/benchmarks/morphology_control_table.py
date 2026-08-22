@@ -12,6 +12,7 @@ or named-city validation.
 from __future__ import annotations
 
 import argparse
+from dataclasses import dataclass
 import hashlib
 import json
 from pathlib import Path
@@ -24,12 +25,30 @@ from metroflow.city.morphology_control_table import (
     score_street_morphology,
 )
 from metroflow.city.morphology_reference import MORPHOLOGY_ARCHETYPES
+from metroflow.map.osm_import import UnsupportedOSMTagError
 
 CONTROL_TABLE_STYLES = tuple(MORPHOLOGY_ARCHETYPES)
 CONTROL_TABLE_SEEDS = (17, 29, 41, 44, 53)
 LEGACY_ARMS = ("standard", "sidecar_local_fabric", "sidecar_local_fabric_planar")
 REALISTIC_ARM = "realistic_synthetic_v1"
 GROWTH_ARM = "growth_fabric_v1"
+STANDARD_SUPPORTED_STYLES = frozenset({"ring_radial", "polycentric_tod"})
+
+
+@dataclass(frozen=True, slots=True)
+class SkippedCase:
+    """One explicitly classified attempt that produced no morphology score."""
+
+    arm: str
+    case: str
+    reason_code: str
+
+    def as_dict(self) -> dict[str, str]:
+        return {
+            "arm": self.arm,
+            "case": self.case,
+            "reason_code": self.reason_code,
+        }
 
 
 def collect_scores(
@@ -37,57 +56,93 @@ def collect_scores(
     styles: tuple[str, ...] = CONTROL_TABLE_STYLES,
     seeds: tuple[int, ...] = CONTROL_TABLE_SEEDS,
     osm_paths: tuple[Path, ...] = (),
-) -> tuple[tuple[MorphologyScore, ...], tuple[str, ...]]:
+) -> tuple[tuple[MorphologyScore, ...], tuple[SkippedCase, ...]]:
     """Score every arm that can produce a topology; report what was skipped."""
 
     scores: list[MorphologyScore] = []
-    skipped: list[str] = []
+    skipped: list[SkippedCase] = []
+    attempted_keys: list[tuple[str, str]] = []
 
     for arm in LEGACY_ARMS:
         for style_id in styles:
             for seed in seeds:
                 case = f"{style_id}/{seed}"
-                try:
-                    topology = build_arm_topology(arm=arm, style_id=style_id, seed=seed)
-                except Exception as exc:  # noqa: BLE001 - recorded, never silenced
-                    skipped.append(f"{arm}:{case}:{type(exc).__name__}:{exc}")
+                attempted_keys.append((arm, case))
+                if arm == "standard" and style_id not in STANDARD_SUPPORTED_STYLES:
+                    skipped.append(
+                        SkippedCase(
+                            arm=arm,
+                            case=case,
+                            reason_code="UNSUPPORTED_ARM_STYLE",
+                        )
+                    )
                     continue
+                topology = build_arm_topology(arm=arm, style_id=style_id, seed=seed)
                 scores.append(score_street_morphology(topology, arm=arm, case=case))
 
     for style_id in styles:
         for seed in seeds:
             case = f"{style_id}/{seed}"
-            try:
-                topology = build_arm_topology(
-                    arm=REALISTIC_ARM, style_id=style_id, seed=seed
-                )
-            except Exception as exc:  # noqa: BLE001 - recorded, never silenced
-                skipped.append(f"{REALISTIC_ARM}:{case}:{type(exc).__name__}:{exc}")
-                continue
+            attempted_keys.append((REALISTIC_ARM, case))
+            topology = build_arm_topology(
+                arm=REALISTIC_ARM, style_id=style_id, seed=seed
+            )
             scores.append(score_street_morphology(topology, arm=REALISTIC_ARM, case=case))
 
     for style_id in styles:
         for seed in seeds:
             case = f"{style_id}/{seed}"
-            try:
-                scores.append(
-                    score_street_morphology(
-                        build_arm_topology(arm=GROWTH_ARM, style_id=style_id, seed=seed),
-                        arm=GROWTH_ARM,
-                        case=case,
-                    )
+            attempted_keys.append((GROWTH_ARM, case))
+            scores.append(
+                score_street_morphology(
+                    build_arm_topology(arm=GROWTH_ARM, style_id=style_id, seed=seed),
+                    arm=GROWTH_ARM,
+                    case=case,
                 )
-            except Exception as exc:  # noqa: BLE001 - recorded, never silenced
-                skipped.append(f"{GROWTH_ARM}:{case}:{type(exc).__name__}:{exc}")
+            )
 
     for path in osm_paths:
         case = path.name
+        attempted_keys.append(("osm", case))
         try:
-            scores.append(score_street_morphology(build_osm_topology(path), arm="osm", case=case))
-        except Exception as exc:  # noqa: BLE001 - recorded, never silenced
-            skipped.append(f"osm:{case}:{type(exc).__name__}:{exc}")
+            topology = build_osm_topology(path)
+        except UnsupportedOSMTagError as exc:
+            skipped.append(
+                SkippedCase(arm="osm", case=case, reason_code=exc.reason_code)
+            )
+            continue
+        scores.append(score_street_morphology(topology, arm="osm", case=case))
+
+    _require_exact_attempt_partition(
+        attempted_keys=tuple(attempted_keys),
+        scores=tuple(scores),
+        skipped=tuple(skipped),
+    )
 
     return tuple(scores), tuple(skipped)
+
+
+def _require_exact_attempt_partition(
+    *,
+    attempted_keys: tuple[tuple[str, str], ...],
+    scores: tuple[MorphologyScore, ...],
+    skipped: tuple[SkippedCase, ...],
+) -> None:
+    score_keys = tuple((score.arm, score.case) for score in scores)
+    skip_keys = tuple((item.arm, item.case) for item in skipped)
+    expected = set(attempted_keys)
+    actual_scores = set(score_keys)
+    actual_skips = set(skip_keys)
+    if (
+        len(expected) != len(attempted_keys)
+        or len(actual_scores) != len(score_keys)
+        or len(actual_skips) != len(skip_keys)
+        or actual_scores & actual_skips
+        or actual_scores | actual_skips != expected
+    ):
+        raise RuntimeError(
+            "score/skip inventory must exactly partition unique attempted (arm, case) keys"
+        )
 
 
 CONTROL_TABLE_SCENARIO_ID = "morphology_control_table"
@@ -181,7 +236,10 @@ def build_osm_topology(path: Path):
     )
 
 
-def render_markdown(table: MorphologyControlTable, skipped: tuple[str, ...]) -> str:
+def render_markdown(
+    table: MorphologyControlTable,
+    skipped: tuple[SkippedCase, ...],
+) -> str:
     header = ["arm", "cases", "all-7 pass"] + list(EMPIRICAL_MORPHOLOGY_METRICS)
     lines = [
         "# Morphology Control Table",
@@ -268,7 +326,9 @@ def render_markdown(table: MorphologyControlTable, skipped: tuple[str, ...]) -> 
 
     if skipped:
         lines += ["", "## Skipped cases", ""]
-        lines += [f"- `{item}`" for item in skipped]
+        lines += [
+            f"- `{item.arm}:{item.case}:{item.reason_code}`" for item in skipped
+        ]
 
     lines += [
         "",
@@ -287,12 +347,12 @@ def write_artifacts(
     artifact_prefix: str | Path,
     *,
     table: MorphologyControlTable,
-    skipped: tuple[str, ...],
+    skipped: tuple[SkippedCase, ...],
 ) -> tuple[Path, ...]:
     prefix = Path(artifact_prefix)
     prefix.parent.mkdir(parents=True, exist_ok=True)
     payload = dict(table.as_dict())
-    payload["skipped_cases"] = list(skipped)
+    payload["skipped_cases"] = [item.as_dict() for item in skipped]
 
     json_path = prefix.with_suffix(".json")
     # allow_nan=False makes a non-finite value an error at write time rather
@@ -330,11 +390,11 @@ def check_artifacts(
     artifact_prefix: str | Path,
     *,
     table: MorphologyControlTable,
-    skipped: tuple[str, ...],
+    skipped: tuple[SkippedCase, ...],
 ) -> tuple[bool, tuple[str, ...]]:
     prefix = Path(artifact_prefix)
     payload = dict(table.as_dict())
-    payload["skipped_cases"] = list(skipped)
+    payload["skipped_cases"] = [item.as_dict() for item in skipped]
 
     json_path = prefix.with_suffix(".json")
     markdown_path = prefix.with_suffix(".md")

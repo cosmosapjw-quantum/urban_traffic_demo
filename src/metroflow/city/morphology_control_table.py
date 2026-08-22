@@ -194,6 +194,9 @@ class MorphologyControlTable:
             raise ValueError("control table requires at least one score")
         if not self.envelopes:
             raise ValueError("control table requires the pinned envelopes")
+        score_keys = tuple((score.arm, score.case) for score in self.scores)
+        if len(score_keys) != len(set(score_keys)):
+            raise ValueError("control table score keys must be unique by (arm, case)")
         if self.schema_version == CONTROL_TABLE_SCHEMA_VERSION:
             if any(score.measurement_spec is None for score in self.scores):
                 raise ValueError("current control table requires measurement_spec")

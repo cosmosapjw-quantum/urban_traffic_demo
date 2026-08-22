@@ -170,6 +170,26 @@ def test_a_caption_is_read_from_the_committed_artifact_not_recomputed() -> None:
     assert isinstance(record["passed"], bool)
 
 
+def test_score_loader_rejects_duplicate_record_keys(tmp_path: Path) -> None:
+    """A duplicate record must not be silently replaced by dict indexing."""
+    module = _render_module()
+    artifact = tmp_path / "duplicate-scores.json"
+    artifact.write_text(
+        json.dumps(
+            {
+                "scores": [
+                    {"arm": "alpha", "case": "s17", "metrics": {}},
+                    {"arm": "alpha", "case": "s17", "metrics": {}},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="duplicate morphology score key"):
+        module.load_scores(artifact)
+
+
 def test_a_case_absent_from_the_artifact_raises_instead_of_rendering() -> None:
     """An unlabelled render is a picture with no provenance at all."""
 
