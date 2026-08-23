@@ -1,0 +1,500 @@
+{
+  "attempt_inventory": {
+    "attempted": 18,
+    "expected": 18,
+    "scored": 18,
+    "skipped": 0
+  },
+  "cases": [
+    {
+      "checks": {
+        "axis_aligned_grid_core": false,
+        "deterministic_replay": true,
+        "nonempty_network": true,
+        "single_grid_center": true,
+        "style_identity": true,
+        "two_axis_grid_carriers": true
+      },
+      "network_fingerprint": "20c142d7bb2571be70dfa4bd67682d8969ad572d55b06f93285f7e0933ae0fe2",
+      "node_count": 1652,
+      "passed": false,
+      "road_count": 3199,
+      "seed": 503,
+      "style_id": "grid_core",
+      "witnesses": {
+        "axis_aligned_core_count": 1724,
+        "center_count": 1,
+        "core_carrier_count": 3167,
+        "horizontal_carrier_count": 1600,
+        "vertical_carrier_count": 1567
+      }
+    },
+    {
+      "checks": {
+        "axis_aligned_grid_core": false,
+        "deterministic_replay": true,
+        "nonempty_network": true,
+        "single_grid_center": true,
+        "style_identity": true,
+        "two_axis_grid_carriers": true
+      },
+      "network_fingerprint": "f0da16f0fbe8ec9e271bbe832df9308b217f2c6fc442524bb9a9efee29683391",
+      "node_count": 1656,
+      "passed": false,
+      "road_count": 3210,
+      "seed": 701,
+      "style_id": "grid_core",
+      "witnesses": {
+        "axis_aligned_core_count": 1740,
+        "center_count": 1,
+        "core_carrier_count": 3178,
+        "horizontal_carrier_count": 1604,
+        "vertical_carrier_count": 1574
+      }
+    },
+    {
+      "checks": {
+        "axis_aligned_grid_core": false,
+        "deterministic_replay": true,
+        "nonempty_network": true,
+        "single_grid_center": true,
+        "style_identity": true,
+        "two_axis_grid_carriers": true
+      },
+      "network_fingerprint": "10b56c638423fddbe9e3fd517163c1a1bd64bd9dd3011853279d88ad5731ce51",
+      "node_count": 1607,
+      "passed": false,
+      "road_count": 3113,
+      "seed": 907,
+      "style_id": "grid_core",
+      "witnesses": {
+        "axis_aligned_core_count": 1681,
+        "center_count": 1,
+        "core_carrier_count": 3081,
+        "horizontal_carrier_count": 1556,
+        "vertical_carrier_count": 1525
+      }
+    },
+    {
+      "checks": {
+        "closed_concentric_orbitals": true,
+        "deterministic_replay": true,
+        "distinct_orbital_radii": true,
+        "nonempty_network": true,
+        "style_identity": true
+      },
+      "network_fingerprint": "3ac962664b58de3e4b87314952fccbcc77b71a8ec6d07e82ac1d5ef3f2e4f38b",
+      "node_count": 609,
+      "passed": true,
+      "road_count": 1140,
+      "seed": 503,
+      "style_id": "ring_radial",
+      "witnesses": {
+        "concentric_orbital_count": 9,
+        "distinct_radius_count": 9,
+        "max_radial_cv": 9.607968621935161e-07,
+        "min_winding_magnitude": 1.0,
+        "orbital_group_count": 9
+      }
+    },
+    {
+      "checks": {
+        "closed_concentric_orbitals": true,
+        "deterministic_replay": true,
+        "distinct_orbital_radii": true,
+        "nonempty_network": true,
+        "style_identity": true
+      },
+      "network_fingerprint": "e6f1b0da6bc51c2c257d8f5ed702ebb6c2d8fc96b5f57d0123f63058bab078ac",
+      "node_count": 1089,
+      "passed": true,
+      "road_count": 2076,
+      "seed": 701,
+      "style_id": "ring_radial",
+      "witnesses": {
+        "concentric_orbital_count": 12,
+        "distinct_radius_count": 12,
+        "max_radial_cv": 1.0594867777651905e-06,
+        "min_winding_magnitude": 1.0,
+        "orbital_group_count": 12
+      }
+    },
+    {
+      "checks": {
+        "closed_concentric_orbitals": true,
+        "deterministic_replay": true,
+        "distinct_orbital_radii": true,
+        "nonempty_network": true,
+        "style_identity": true
+      },
+      "network_fingerprint": "9ccabaaa4d45c163dd1cf42aaebf5c5c49b20fdc738fa323b4dc29e400959828",
+      "node_count": 913,
+      "passed": true,
+      "road_count": 1732,
+      "seed": 907,
+      "style_id": "ring_radial",
+      "witnesses": {
+        "concentric_orbital_count": 11,
+        "distinct_radius_count": 11,
+        "max_radial_cv": 8.025648690786114e-07,
+        "min_winding_magnitude": 1.0,
+        "orbital_group_count": 11
+      }
+    },
+    {
+      "checks": {
+        "bridge_failure_groups_present": true,
+        "deterministic_replay": true,
+        "nonempty_network": true,
+        "style_identity": true,
+        "three_or_more_river_bridges": true,
+        "two_sided_centers": true
+      },
+      "network_fingerprint": "fdd0d6a0724bf28e63768c5a4312968dfd92648f95517fda6a5134e35bb04346",
+      "node_count": 1659,
+      "passed": true,
+      "road_count": 3175,
+      "seed": 503,
+      "style_id": "river_constrained",
+      "witnesses": {
+        "bridge_failure_group_count": 3,
+        "center_count": 2,
+        "river_bridge_count": 3
+      }
+    },
+    {
+      "checks": {
+        "bridge_failure_groups_present": true,
+        "deterministic_replay": true,
+        "nonempty_network": true,
+        "style_identity": true,
+        "three_or_more_river_bridges": true,
+        "two_sided_centers": true
+      },
+      "network_fingerprint": "c92e4915d36e649113de8c3ab661a1b6b9c92f0db7c3767329c5a0c11231701e",
+      "node_count": 1659,
+      "passed": true,
+      "road_count": 3172,
+      "seed": 701,
+      "style_id": "river_constrained",
+      "witnesses": {
+        "bridge_failure_group_count": 3,
+        "center_count": 2,
+        "river_bridge_count": 3
+      }
+    },
+    {
+      "checks": {
+        "bridge_failure_groups_present": true,
+        "deterministic_replay": true,
+        "nonempty_network": true,
+        "style_identity": true,
+        "three_or_more_river_bridges": true,
+        "two_sided_centers": true
+      },
+      "network_fingerprint": "f6302b02114cd8cddeda5c3806c44fab97f255b101fae9c8460c082942c9a871",
+      "node_count": 1621,
+      "passed": true,
+      "road_count": 3098,
+      "seed": 907,
+      "style_id": "river_constrained",
+      "witnesses": {
+        "bridge_failure_group_count": 3,
+        "center_count": 2,
+        "river_bridge_count": 3
+      }
+    },
+    {
+      "checks": {
+        "centers_noncollinear": true,
+        "deterministic_replay": true,
+        "hierarchy_backbone_connects_centers": true,
+        "nonempty_center_catchments": true,
+        "nonempty_network": true,
+        "style_identity": true,
+        "three_or_more_centers": true
+      },
+      "network_fingerprint": "b324889185336922b23dccf09ea6d62d6f15af010600a8e99a732c32bda333ea",
+      "node_count": 1747,
+      "passed": true,
+      "road_count": 3388,
+      "seed": 503,
+      "style_id": "polycentric_tod",
+      "witnesses": {
+        "backbone_pair_count": 3,
+        "center_count": 3,
+        "expected_backbone_pair_count": 3,
+        "nonempty_catchment_count": 3
+      }
+    },
+    {
+      "checks": {
+        "centers_noncollinear": true,
+        "deterministic_replay": true,
+        "hierarchy_backbone_connects_centers": true,
+        "nonempty_center_catchments": true,
+        "nonempty_network": true,
+        "style_identity": true,
+        "three_or_more_centers": true
+      },
+      "network_fingerprint": "c58d26706eaf5a1cc4f8bf4f36df50fc6fc8f8187ab0aac664ea85185f99033b",
+      "node_count": 1657,
+      "passed": true,
+      "road_count": 3210,
+      "seed": 701,
+      "style_id": "polycentric_tod",
+      "witnesses": {
+        "backbone_pair_count": 3,
+        "center_count": 3,
+        "expected_backbone_pair_count": 3,
+        "nonempty_catchment_count": 3
+      }
+    },
+    {
+      "checks": {
+        "centers_noncollinear": true,
+        "deterministic_replay": true,
+        "hierarchy_backbone_connects_centers": true,
+        "nonempty_center_catchments": true,
+        "nonempty_network": true,
+        "style_identity": true,
+        "three_or_more_centers": true
+      },
+      "network_fingerprint": "58a8fb1c75429bf549ac7938398972a12f93fd44679f2c62cecde907c62055e4",
+      "node_count": 1619,
+      "passed": true,
+      "road_count": 3139,
+      "seed": 907,
+      "style_id": "polycentric_tod",
+      "witnesses": {
+        "backbone_pair_count": 3,
+        "center_count": 3,
+        "expected_backbone_pair_count": 3,
+        "nonempty_catchment_count": 3
+      }
+    },
+    {
+      "checks": {
+        "deterministic_replay": true,
+        "hierarchy_qualified_perimeters": true,
+        "multiple_two_dimensional_macroblocks": true,
+        "nonempty_network": true,
+        "style_identity": true
+      },
+      "network_fingerprint": "adf2814f99f37a0881d1faa4dcd6e050102f967c795813f843c802efb3225bfc",
+      "node_count": 1078,
+      "passed": true,
+      "road_count": 1913,
+      "seed": 503,
+      "style_id": "superblock_mixed",
+      "witnesses": {
+        "bounded_block_count": 812,
+        "hierarchy_perimeter_macroblock_count": 6,
+        "largest_macroblock_aspect_ratio": 1.2595112805859083,
+        "macroblock_count": 6,
+        "smallest_macroblock_min_axis_mm": 995294
+      }
+    },
+    {
+      "checks": {
+        "deterministic_replay": true,
+        "hierarchy_qualified_perimeters": true,
+        "multiple_two_dimensional_macroblocks": true,
+        "nonempty_network": true,
+        "style_identity": true
+      },
+      "network_fingerprint": "b50a980e13c2047789d8caa8f69afc5a9da7d26bf52535fe9747a8f4cc8ca165",
+      "node_count": 1056,
+      "passed": true,
+      "road_count": 1873,
+      "seed": 701,
+      "style_id": "superblock_mixed",
+      "witnesses": {
+        "bounded_block_count": 794,
+        "hierarchy_perimeter_macroblock_count": 6,
+        "largest_macroblock_aspect_ratio": 1.245936571267389,
+        "macroblock_count": 6,
+        "smallest_macroblock_min_axis_mm": 978484
+      }
+    },
+    {
+      "checks": {
+        "deterministic_replay": true,
+        "hierarchy_qualified_perimeters": true,
+        "multiple_two_dimensional_macroblocks": true,
+        "nonempty_network": true,
+        "style_identity": true
+      },
+      "network_fingerprint": "4341056456f27448769f66053381d65d7486fd13ab2bb3fd343aac5d20a872fe",
+      "node_count": 1043,
+      "passed": true,
+      "road_count": 1851,
+      "seed": 907,
+      "style_id": "superblock_mixed",
+      "witnesses": {
+        "bounded_block_count": 785,
+        "hierarchy_perimeter_macroblock_count": 5,
+        "largest_macroblock_aspect_ratio": 1.1888633801711928,
+        "macroblock_count": 5,
+        "smallest_macroblock_min_axis_mm": 968732
+      }
+    },
+    {
+      "checks": {
+        "curvilinear_connector_majority": true,
+        "deterministic_replay": true,
+        "nonempty_network": true,
+        "style_identity": true
+      },
+      "network_fingerprint": "4b06513e5a8aa3d755c67d94a242a4f3104e1149440082167d1c2959f631d6f8",
+      "node_count": 1675,
+      "passed": true,
+      "road_count": 3232,
+      "seed": 503,
+      "style_id": "organic",
+      "witnesses": {
+        "bent_connector_count": 3117,
+        "bent_connector_share": 0.980188679245283,
+        "connector_count": 3180
+      }
+    },
+    {
+      "checks": {
+        "curvilinear_connector_majority": true,
+        "deterministic_replay": true,
+        "nonempty_network": true,
+        "style_identity": true
+      },
+      "network_fingerprint": "e752b85d945ec4717060876e0b64baa9fdd0cbd0f9d8fe974005597f7274c56e",
+      "node_count": 1676,
+      "passed": true,
+      "road_count": 3234,
+      "seed": 701,
+      "style_id": "organic",
+      "witnesses": {
+        "bent_connector_count": 3129,
+        "bent_connector_share": 0.9833438089252042,
+        "connector_count": 3182
+      }
+    },
+    {
+      "checks": {
+        "curvilinear_connector_majority": true,
+        "deterministic_replay": true,
+        "nonempty_network": true,
+        "style_identity": true
+      },
+      "network_fingerprint": "1d242b12219e892fd638f9dfa13c7de675347ea678af429adc6da97ddd2e2cc3",
+      "node_count": 1765,
+      "passed": true,
+      "road_count": 3418,
+      "seed": 907,
+      "style_id": "organic",
+      "witnesses": {
+        "bent_connector_count": 3281,
+        "bent_connector_share": 0.9747474747474747,
+        "connector_count": 3366
+      }
+    }
+  ],
+  "claim_level": "SEED_HELDOUT_STRUCTURAL_MORPHOLOGY_ONLY",
+  "empirical_city_validation": "NOT_EVALUATED_NO_FRESH_OSM_HOLDOUT",
+  "environment": {
+    "numpy": "2.5.1",
+    "python": "3.12.3"
+  },
+  "protocol": {
+    "attempt_count_expected": 18,
+    "claim_level": "STRUCTURAL_MORPHOLOGY_ONLY",
+    "development_seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      17,
+      29,
+      42,
+      101
+    ],
+    "fresh_osm_holdout_status": "NOT_EVALUATED",
+    "heldout_seeds": [
+      503,
+      701,
+      907
+    ],
+    "holdout_kind": "seed_heldout_structural_not_fresh_osm",
+    "sample_seed": 503,
+    "scale": {
+      "target_population": 100000,
+      "urbanized_area_km2": 25.0
+    },
+    "schema_version": "seed_heldout_structural_morphology_v1",
+    "style_ids": [
+      "grid_core",
+      "ring_radial",
+      "river_constrained",
+      "polycentric_tod",
+      "superblock_mixed",
+      "organic"
+    ],
+    "thresholds": {
+      "organic_min_bent_connector_share_exclusive": 0.9,
+      "polycentric_min_centers": 3,
+      "ring_min_orbitals": 2,
+      "ring_radial_cv_max_exclusive": 0.01,
+      "ring_winding_abs_tolerance": 1e-09,
+      "river_min_bridges": 3,
+      "river_min_failure_groups": 3,
+      "superblock_max_aspect_ratio": 2.5,
+      "superblock_min_axis_mm": 700000,
+      "superblock_min_count": 4
+    }
+  },
+  "repository": {
+    "commit": "e1979df281ac25a24a82fdea725422310f7c6807",
+    "tree": "622dbe37790c5414141cd5d5531a2158aa56f7e5"
+  },
+  "schema_version": "seed_heldout_structural_morphology_v1",
+  "scientific_fingerprint": "84b2f3657b21c9cedd9fe7723b4edf99ac3f7514cf7128aff6c994ff9da253f1",
+  "source_script_sha256": "713820af5a59fa6e9cd0b0d77bd42c216a72a0ab055b277e9f48da8bfaf9d7d1",
+  "style_summary": {
+    "grid_core": {
+      "attempted_case_count": 3,
+      "passed": false,
+      "passed_case_count": 0,
+      "unique_network_fingerprint_count": 3
+    },
+    "organic": {
+      "attempted_case_count": 3,
+      "passed": true,
+      "passed_case_count": 3,
+      "unique_network_fingerprint_count": 3
+    },
+    "polycentric_tod": {
+      "attempted_case_count": 3,
+      "passed": true,
+      "passed_case_count": 3,
+      "unique_network_fingerprint_count": 3
+    },
+    "ring_radial": {
+      "attempted_case_count": 3,
+      "passed": true,
+      "passed_case_count": 3,
+      "unique_network_fingerprint_count": 3
+    },
+    "river_constrained": {
+      "attempted_case_count": 3,
+      "passed": true,
+      "passed_case_count": 3,
+      "unique_network_fingerprint_count": 3
+    },
+    "superblock_mixed": {
+      "attempted_case_count": 3,
+      "passed": true,
+      "passed_case_count": 3,
+      "unique_network_fingerprint_count": 3
+    }
+  },
+  "verdict": "FAIL"
+}

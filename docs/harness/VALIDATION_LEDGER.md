@@ -1,5 +1,61 @@
 # Validation Ledger
 
+## 2026-08-23: Seed-Held-Out Morphology Adversarial Report Candidate
+
+Change class: report/evidence packaging only; no generator, traffic, threshold,
+seed, baseline, or runtime-default change
+
+Source identity:
+
+- map/measurement commit:
+  `e1979df281ac25a24a82fdea725422310f7c6807`;
+- source tree: `622dbe37790c5414141cd5d5531a2158aa56f7e5`;
+- scientific fingerprint:
+  `84b2f3657b21c9cedd9fe7723b4edf99ac3f7514cf7128aff6c994ff9da253f1`.
+
+Observed scientific result:
+
+- fixed matrix: six styles x held-out seeds `503,701,907`;
+- inventory: 18 expected, 18 attempted, 18 scored, zero skipped;
+- outcome: **15/18, FAIL**;
+- `grid_core`: `0/3`, failing only `axis_aligned_grid_core` while generic
+  nonempty, style-identity, two-axis-carrier, centre, and replay checks pass;
+- the five non-grid styles: `15/15` on their direct structural falsifiers;
+- claim level: seed-held-out structural morphology only, not fresh-OSM,
+  traffic-functional, algorithm-completeness, or runtime-promotion evidence.
+
+Report-candidate evidence:
+
+```bash
+/home/cosmosapjw/Dropbox/personal_projects/urban_traffic_demo/.venv/bin/python \
+  -m pytest tests/test_scalable_map_gallery.py \
+  tests/test_gallery_provenance.py -q
+/tmp/metroflow-report-pdf-venv-20260823/bin/python \
+  tools/build_heldout_morphology_adversarial_report.py --build
+/home/cosmosapjw/Dropbox/personal_projects/urban_traffic_demo/.venv/bin/python \
+  tools/build_heldout_morphology_adversarial_report.py \
+  --check --allow-review-missing
+/home/cosmosapjw/Dropbox/personal_projects/urban_traffic_demo/.venv/bin/python \
+  -m pytest tests/test_heldout_morphology_adversarial_report.py -q
+```
+
+- unchanged source-gallery baseline: `8 passed in 129.76s`;
+- behavior TDD RED before implementation: `4 failed` because the package did
+  not exist;
+- pre-review package checker: passed with the explicit
+  `--allow-review-missing` candidate boundary;
+- pre-review behavior contract: `3 passed, 1 failed`; the sole withheld
+  acceptance surface is the reviewer-authored `INDEPENDENT_REVIEW.md`;
+- ReportLab invariant rebuild produced identical PDF SHA-256
+  `196abe1677ff00675de22a58f9152e1d8416dca8c52ac4720bf6046ce4a276ed`;
+- all 20 PDF pages were rasterized and visually inspected; no clipping,
+  overlap, missing map, blank terminal page, or unreadable table was observed;
+- focused Ruff and `git diff --check`: passed.
+
+Candidate status: **FROZEN FOR READ-ONLY ADVERSARIAL REVIEW**. This entry does
+not claim final package acceptance. Final strict verification requires the
+independent review receipt and a post-review manifest/PDF rebuild.
+
 ## 2026-08-20: Morphology Structural Differentiation and Evidence Closure
 
 Change class: morphology grammar, falsifiable public contracts, artifact

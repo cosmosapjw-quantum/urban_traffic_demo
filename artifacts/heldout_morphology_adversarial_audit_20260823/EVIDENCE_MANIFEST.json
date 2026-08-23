@@ -1,0 +1,142 @@
+{
+  "claim_ceiling": "SEED_HELDOUT_STRUCTURAL_MORPHOLOGY_ONLY",
+  "files": [
+    {
+      "bytes": 2336,
+      "path": "AUDITOR_README.md",
+      "sha256": "de8e5e026e7a54d1af3df87661d004f114a6fa20cf8b4bfe85530261d285ac01"
+    },
+    {
+      "bytes": 2981,
+      "path": "CLAIM_EVIDENCE_LEDGER.md",
+      "sha256": "b1c34bb9d37a022014596786b8658abcfc6db3e5ea61ec0d72d2ef43f7053124"
+    },
+    {
+      "bytes": 29877,
+      "path": "FAILURE_INVENTORY.json",
+      "sha256": "3b20c964a337d80ad4dd3ce31f8924115977c9cf199da1625d3ba7cec9c1c954"
+    },
+    {
+      "bytes": 26942,
+      "path": "FAILURE_INVENTORY.md",
+      "sha256": "8296c598812f9164591ed5f6b7d15647ca3b09ecf666320ce1cdeeb31b722f26"
+    },
+    {
+      "bytes": 18589,
+      "path": "REPORT.md",
+      "sha256": "2a508cb79ee1b5a751e367676c35539e0adf861c41792c83a8f2d7ee65fe2540"
+    },
+    {
+      "bytes": 1791,
+      "path": "evidence/harness_receipt.json",
+      "sha256": "a5d7dfe6ee2b25ff59a1283c182fd33d9dc6365d3e278f4b76b571a16010670c"
+    },
+    {
+      "bytes": 14879,
+      "path": "evidence/heldout_morphology_results.json",
+      "sha256": "f4e6a36be3d700369cca8d2aaaecc2ef0a88bd6afa30e1927c1f47f00c9057fd"
+    },
+    {
+      "bytes": 30428,
+      "path": "evidence/heldout_morphology_validator.py",
+      "sha256": "713820af5a59fa6e9cd0b0d77bd42c216a72a0ab055b277e9f48da8bfaf9d7d1"
+    },
+    {
+      "bytes": 1643,
+      "path": "evidence/pr17_remote_receipt.json",
+      "sha256": "5048a380326751976a5747296dc16ba0a335ed01162424566d86e98cc19cc1a7"
+    },
+    {
+      "bytes": 8994,
+      "path": "evidence/sample_manifest.json",
+      "sha256": "998af7fa9539993a4e9f63df7802505ee1381e2a7b00c7ecd9dbaa58a686aec3"
+    },
+    {
+      "bytes": 1911,
+      "path": "evidence/source_receipt.json",
+      "sha256": "b611c4686a0bcd815908ccb73d3cccf87c05ff9e1f88be7c0447e2c68373bc59"
+    },
+    {
+      "bytes": 2921934,
+      "path": "maps/heldout_morphology_seed503_contact_sheet.png",
+      "sha256": "a921985cbd04a19c22b274587054da4535d1afac37ac03c34238f95b9ef9834d"
+    },
+    {
+      "bytes": 410057,
+      "path": "maps/map_grid_core_s503.png",
+      "sha256": "94aa74eea9146480637a6c2fe630ecadd6436bb6e119310b7dd049fbee5f1248"
+    },
+    {
+      "bytes": 1757565,
+      "path": "maps/map_grid_core_s503.svg",
+      "sha256": "d1c1d7e090c674bbc7bf512710dfcd4a442dd15a0e060f3816e82f483d4d611f"
+    },
+    {
+      "bytes": 424657,
+      "path": "maps/map_organic_s503.png",
+      "sha256": "6f7362ba173c70fa4ec86bb47ecd8d11683b68213c7fcb4226e40f63bc267d92"
+    },
+    {
+      "bytes": 1959758,
+      "path": "maps/map_organic_s503.svg",
+      "sha256": "aafe4c4b3c0c8cc89af0b8a42aa10928eecfd480f60286d3cfc23e9c75daa5cc"
+    },
+    {
+      "bytes": 452151,
+      "path": "maps/map_polycentric_tod_s503.png",
+      "sha256": "12c93775d2651d6a22d4fb278f392e18961f1da3a19efc4b40cd777d6d428a7c"
+    },
+    {
+      "bytes": 2162461,
+      "path": "maps/map_polycentric_tod_s503.svg",
+      "sha256": "60c037674bc15f5ac66c06a88310621217d2638e4c74fa704cb5f6c4060efe2e"
+    },
+    {
+      "bytes": 239837,
+      "path": "maps/map_ring_radial_s503.png",
+      "sha256": "7ffa108fda84a4701bb4f84c9640b77b74a8b536859de31d5e3dcaece1f59084"
+    },
+    {
+      "bytes": 617107,
+      "path": "maps/map_ring_radial_s503.svg",
+      "sha256": "b6d6e3924c8211dd5a347736cce3d77d4bde0117c3bf512bfb766237552afff2"
+    },
+    {
+      "bytes": 390207,
+      "path": "maps/map_river_constrained_s503.png",
+      "sha256": "4a3bba440c7c68c5eb8a9338e940d4eec1e27a9e2fcdb93fbe12e6e722cdd3bf"
+    },
+    {
+      "bytes": 1762100,
+      "path": "maps/map_river_constrained_s503.svg",
+      "sha256": "524add21f3abb68dfbccfbbd46852043bc29a3286db52a446bdec888fa801585"
+    },
+    {
+      "bytes": 145060,
+      "path": "maps/map_superblock_mixed_s503.png",
+      "sha256": "838f29b7eb880d0fb6de54140171fda65b7d5efd943c0536622c6cee5f6d8b8e"
+    },
+    {
+      "bytes": 1003044,
+      "path": "maps/map_superblock_mixed_s503.svg",
+      "sha256": "88993dc6570b0b8f34c7f084c3a699712405915cb7a7afef37639a517beefdc3"
+    },
+    {
+      "bytes": 3307626,
+      "path": "metroflow-heldout-morphology-adversarial-audit-20260823.pdf",
+      "sha256": "196abe1677ff00675de22a58f9152e1d8416dca8c52ac4720bf6046ce4a276ed"
+    }
+  ],
+  "generated_on": "2026-08-23",
+  "heldout_result": {
+    "attempted": 18,
+    "passed": 15,
+    "scientific_fingerprint": "84b2f3657b21c9cedd9fe7723b4edf99ac3f7514cf7128aff6c994ff9da253f1",
+    "verdict": "FAIL"
+  },
+  "schema_version": "metroflow_morphology_adversarial_audit_v1",
+  "source": {
+    "commit": "e1979df281ac25a24a82fdea725422310f7c6807",
+    "tree": "622dbe37790c5414141cd5d5531a2158aa56f7e5"
+  }
+}
