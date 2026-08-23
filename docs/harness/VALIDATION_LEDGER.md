@@ -92,9 +92,36 @@ classes (`10 failed, 1 passed` before repair). Current pre-closeout evidence:
 - repaired behavior contract: `11 passed, 1 failed`, with only the still-absent
   final reviewer receipt withheld.
 
-Candidate status: **FROZEN FOR SAME-REVIEWER REPAIR CLOSEOUT**. Final strict
-acceptance still requires the closeout receipt, post-receipt deterministic PDF
-rebuild, full rendered-page inspection, and all 12 behavior tests green.
+The same reviewer completed the single repair-closeout review of commit
+`844691e5fff1178f888b6bed82837f687c54f61d`, tree
+`0b5ea139911742af2f7d6dbbbf71572cc67e4842`, with `P0=0`, `P1=0`, `P2=2`,
+and `PASS`. The two P2 items are deliberately malformed review-text parsing and
+deliberately constructed underfilled-PNG hardening. Neither affects the committed
+receipt or seven fully decoded images; both are nonblocking under the controlling
+single-user/non-hostile threat-model boundary.
+
+Final post-receipt evidence:
+
+- strict package checker: passed without `--allow-review-missing`;
+- behavior contract: `12 passed in 0.70s`;
+- unchanged gallery/provenance regression: `8 passed in 112.49s`;
+- focused Ruff and `git diff --check`: passed;
+- portable protocol check: 6 styles, 3 seeds, 18 attempts;
+- portable result reproduction: `18/18` byte-identical, scientific verdict
+  `FAIL`, zero skips;
+- portable sample reproduction: `6/6` SVG authorities byte-identical; all six
+  PNG previews and the contact sheet matched recorded digests;
+- invariant PDF rebuild SHA-256 matched twice:
+  `d1fbd9079af111186343633666d7906b8fee3f9a9e8b2f65bcdeccd8ab8135dc`;
+- both PDF copies are byte-identical, 23-page A4 files;
+- all 23 pages were rasterized and visually inspected after the review receipt
+  was included; no clipping, overlap, missing map, unreadable table, or blank
+  terminal page was observed.
+
+Status: **LOCALLY VERIFIED / INDEPENDENT REVIEW PASS** for the report package.
+The report branch has not been pushed and has no remote-CI receipt. This status
+does not promote morphology empirically, complete traffic validation, or change
+the runtime default.
 
 ## 2026-08-20: Morphology Structural Differentiation and Evidence Closure
 

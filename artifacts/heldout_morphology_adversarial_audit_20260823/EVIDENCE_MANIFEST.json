@@ -2,9 +2,9 @@
   "claim_ceiling": "SEED_HELDOUT_STRUCTURAL_MORPHOLOGY_ONLY",
   "files": [
     {
-      "bytes": 3516,
+      "bytes": 3588,
       "path": "AUDITOR_README.md",
-      "sha256": "35c4df6ee1cb3e1cc3ba934adbb35cdb7db4a7a13272dc9261836291124ecda4"
+      "sha256": "0adb67c79da2088256d47e857214582cb8eb7691e58ccdbbc8498a11c285baca"
     },
     {
       "bytes": 3252,
@@ -22,9 +22,14 @@
       "sha256": "e5ab1634a42068a337ff5473e6efd85f02421d4797f15aad6f9bcb5ddbacf7ae"
     },
     {
-      "bytes": 20903,
+      "bytes": 4628,
+      "path": "INDEPENDENT_REVIEW.md",
+      "sha256": "1a159ff8e1e07522e1227619e930ca63c0d4da5ce63919a9405584f3a0e5dd40"
+    },
+    {
+      "bytes": 21165,
       "path": "REPORT.md",
-      "sha256": "f2b908a8db6af8dad2a6cdb589781da6e8201e3ef6cce6561869e8add9f7fc49"
+      "sha256": "5d1e3925ae53b0bf79e2586fe488bbb1a23d07c9ec82ab0c07f4664609546b8b"
     },
     {
       "bytes": 1791,
@@ -127,9 +132,9 @@
       "sha256": "88993dc6570b0b8f34c7f084c3a699712405915cb7a7afef37639a517beefdc3"
     },
     {
-      "bytes": 3312598,
+      "bytes": 3317851,
       "path": "metroflow-heldout-morphology-adversarial-audit-20260823.pdf",
-      "sha256": "52d5a5b1d65f33970aebbf2216f951243206c1b42c957ee189605eaa9b9dc9ff"
+      "sha256": "d1fbd9079af111186343633666d7906b8fee3f9a9e8b2f65bcdeccd8ab8135dc"
     }
   ],
   "generated_on": "2026-08-23",

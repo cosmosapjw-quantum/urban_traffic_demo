@@ -232,3 +232,7 @@ Every scoped failure appears below; `FAILURE_INVENTORY.md` supplies the full imp
 | MF-041 | NEGATIVE_RESULT | Legacy growth-fabric river-constrained maps were severed by the river | Legacy river connectivity claims are rejected even though the current scalable grammar passes its bounded bridge test. |
 | MF-042 | NEGATIVE_RESULT | Legacy growth-fabric bypass did not exist as a network function | No bypass-function or congestion-relief inference is permitted from the historical maps. |
 | MF-043 | NEGATIVE_RESULT | The morphology_quality gate rejected all five of its real controls | A generator pass or failure under morphology_quality cannot establish real-city quality until the gate admits its intended controls. |
+
+## Independent adversarial review
+
+A separate read-only reviewer examined the frozen report candidate. Its verbatim verdict, severity counts, tested surfaces, and residual limitations are preserved in `INDEPENDENT_REVIEW.md` and bound by the evidence manifest.

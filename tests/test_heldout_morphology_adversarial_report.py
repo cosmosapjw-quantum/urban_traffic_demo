@@ -270,7 +270,7 @@ def test_checker_rejects_duplicate_or_incomplete_case_matrix(tmp_path: Path) -> 
     _rebind_manifest(package)
 
     with pytest.raises(ValueError, match="result key"):
-        builder.check_package(allow_review_missing=True)
+        builder.check_package()
 
 
 def test_scientific_fingerprint_is_recomputed_from_payload() -> None:
@@ -291,7 +291,7 @@ def test_checker_rejects_rebound_non_scientific_result_bytes(tmp_path: Path) -> 
     _rebind_manifest(package)
 
     with pytest.raises(ValueError, match="expected result digest"):
-        builder.check_package(allow_review_missing=True)
+        builder.check_package()
 
 
 def test_checker_rejects_nested_extra_and_unfinished_prose(tmp_path: Path) -> None:
@@ -301,7 +301,7 @@ def test_checker_rejects_nested_extra_and_unfinished_prose(tmp_path: Path) -> No
     nested.write_text("extra", encoding="utf-8")
     _rebind_manifest(package)
     with pytest.raises(ValueError, match="recursive package membership"):
-        builder.check_package(allow_review_missing=True)
+        builder.check_package()
 
     nested.unlink()
     nested.parent.rmdir()
@@ -309,7 +309,7 @@ def test_checker_rejects_nested_extra_and_unfinished_prose(tmp_path: Path) -> No
     report.write_text(report.read_text(encoding="utf-8") + "\nTODO\n", encoding="utf-8")
     _rebind_manifest(package)
     with pytest.raises(ValueError, match="unfinished marker"):
-        builder.check_package(allow_review_missing=True)
+        builder.check_package()
 
 
 def test_checker_rejects_rebound_truncated_png(tmp_path: Path) -> None:
@@ -328,7 +328,7 @@ def test_checker_rejects_rebound_truncated_png(tmp_path: Path) -> None:
     _rebind_manifest(package)
 
     with pytest.raises(ValueError, match="PNG"):
-        builder.check_package(allow_review_missing=True)
+        builder.check_package()
 
 
 def test_review_gate_rejects_substrings_and_contradictory_verdict(tmp_path: Path) -> None:

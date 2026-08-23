@@ -60,6 +60,7 @@ a city, change a threshold, fetch OSM, or execute traffic.
 - `evidence/sample_manifest.json`: six map source/fingerprint/file bindings.
 - `FAILURE_INVENTORY.json`: exact MF-001..MF-043 machine inventory.
 - `CLAIM_EVIDENCE_LEDGER.md`: allowed and forbidden inferences.
+- `INDEPENDENT_REVIEW.md`: independent frozen-candidate review receipt.
 - `maps/*.svg`: vector authorities; `maps/*.png`: digest-bound previews.
 
 ## Non-negotiable interpretation
