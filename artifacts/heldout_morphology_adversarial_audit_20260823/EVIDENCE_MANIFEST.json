@@ -2,34 +2,39 @@
   "claim_ceiling": "SEED_HELDOUT_STRUCTURAL_MORPHOLOGY_ONLY",
   "files": [
     {
-      "bytes": 2336,
+      "bytes": 3516,
       "path": "AUDITOR_README.md",
-      "sha256": "de8e5e026e7a54d1af3df87661d004f114a6fa20cf8b4bfe85530261d285ac01"
+      "sha256": "35c4df6ee1cb3e1cc3ba934adbb35cdb7db4a7a13272dc9261836291124ecda4"
     },
     {
-      "bytes": 2981,
+      "bytes": 3252,
       "path": "CLAIM_EVIDENCE_LEDGER.md",
-      "sha256": "b1c34bb9d37a022014596786b8658abcfc6db3e5ea61ec0d72d2ef43f7053124"
+      "sha256": "4d1c1dbdd357eb3e063bdcea63bc3291f9316d012fa06f52a24ccc2d1a2ba68c"
     },
     {
-      "bytes": 29877,
+      "bytes": 36896,
       "path": "FAILURE_INVENTORY.json",
-      "sha256": "3b20c964a337d80ad4dd3ce31f8924115977c9cf199da1625d3ba7cec9c1c954"
+      "sha256": "5df38cb648b4c808efc10e6d364b1ee7e82f33db2c00b210a4bb0883465e7137"
     },
     {
-      "bytes": 26942,
+      "bytes": 33282,
       "path": "FAILURE_INVENTORY.md",
-      "sha256": "8296c598812f9164591ed5f6b7d15647ca3b09ecf666320ce1cdeeb31b722f26"
+      "sha256": "e5ab1634a42068a337ff5473e6efd85f02421d4797f15aad6f9bcb5ddbacf7ae"
     },
     {
-      "bytes": 18589,
+      "bytes": 20903,
       "path": "REPORT.md",
-      "sha256": "2a508cb79ee1b5a751e367676c35539e0adf861c41792c83a8f2d7ee65fe2540"
+      "sha256": "f2b908a8db6af8dad2a6cdb589781da6e8201e3ef6cce6561869e8add9f7fc49"
     },
     {
       "bytes": 1791,
       "path": "evidence/harness_receipt.json",
-      "sha256": "a5d7dfe6ee2b25ff59a1283c182fd33d9dc6365d3e278f4b76b571a16010670c"
+      "sha256": "ae50f12524259b7d5be71b103125834b7cba6e245814b3f4fafaf7e4c1a3bc7f"
+    },
+    {
+      "bytes": 6693,
+      "path": "evidence/heldout_morphology_reproducer.py",
+      "sha256": "c76e7a7892d8c091ca9250dd781537f0edbddc326a436a82187f87553b669201"
     },
     {
       "bytes": 14879,
@@ -52,9 +57,9 @@
       "sha256": "998af7fa9539993a4e9f63df7802505ee1381e2a7b00c7ecd9dbaa58a686aec3"
     },
     {
-      "bytes": 1911,
+      "bytes": 2013,
       "path": "evidence/source_receipt.json",
-      "sha256": "b611c4686a0bcd815908ccb73d3cccf87c05ff9e1f88be7c0447e2c68373bc59"
+      "sha256": "594fc54083ed89756c811b423b7375d934debcd1cf7715804d6f695ffb8d1649"
     },
     {
       "bytes": 2921934,
@@ -122,9 +127,9 @@
       "sha256": "88993dc6570b0b8f34c7f084c3a699712405915cb7a7afef37639a517beefdc3"
     },
     {
-      "bytes": 3307626,
+      "bytes": 3312598,
       "path": "metroflow-heldout-morphology-adversarial-audit-20260823.pdf",
-      "sha256": "196abe1677ff00675de22a58f9152e1d8416dca8c52ac4720bf6046ce4a276ed"
+      "sha256": "52d5a5b1d65f33970aebbf2216f951243206c1b42c957ee189605eaa9b9dc9ff"
     }
   ],
   "generated_on": "2026-08-23",

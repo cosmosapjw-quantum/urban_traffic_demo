@@ -1,5 +1,24 @@
 # Decision Log
 
+## 2026-08-23: Personal Research and Single-User Threat-Model Boundary
+
+Status: accepted
+
+Context: MetroFlow is personal research code used only by its sole developer.
+
+Decision: Security productization, multi-user authentication/authorization,
+malicious-operator defenses, anti-tamper/signing infrastructure, and related gates
+are outside the default scope. Source hashes and manifests remain permitted only
+when they provide compact scientific reproducibility or accidental-corruption
+receipts. An external adversarial audit means skeptical scientific/code review and
+does not introduce a hostile-actor threat model.
+
+Falsifier: The owner explicitly changes the deployment/user model or identifies a
+concrete security requirement.
+
+Next action: Keep validation focused on research functionality, numerical behavior,
+provenance, and claim boundaries; do not add product-security work by default.
+
 ## 2026-08-17: Remediation of Process Inflation and Adoption of Hybrid Development Methodology
 
 Status: accepted

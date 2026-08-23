@@ -5,6 +5,11 @@
 Change class: report/evidence packaging only; no generator, traffic, threshold,
 seed, baseline, or runtime-default change
 
+Threat-model boundary: this is single-developer personal research code.
+"Adversarial" denotes skeptical scientific/code review, not a hostile operator.
+Hashes and manifests are reproducibility and accidental-corruption receipts;
+security and tamper-resistance are not claimed or gated.
+
 Source identity:
 
 - map/measurement commit:
@@ -52,9 +57,44 @@ Report-candidate evidence:
   overlap, missing map, blank terminal page, or unreadable table was observed;
 - focused Ruff and `git diff --check`: passed.
 
-Candidate status: **FROZEN FOR READ-ONLY ADVERSARIAL REVIEW**. This entry does
-not claim final package acceptance. Final strict verification requires the
-independent review receipt and a post-review manifest/PDF rebuild.
+First independent review of commit
+`0c5648797e472d4fb68cd6ccb7c3f1876a40bae4`, tree
+`1da0422699ac197600e010f3bef2dcabcbc99f1e`, returned `P0=0, P1=4`:
+
+1. the checker did not enforce the exact Cartesian result partition, recompute
+   the scientific fingerprint, pin the raw result digest, or validate a whole
+   PNG;
+2. nested extras, ordinary unfinished markers, and contradictory substring
+   review verdicts could pass;
+3. the byte-frozen validator exposed only author-specific source/output paths
+   and treated its expected scientific FAIL as a reproduction-process failure;
+4. seven distinct morphology/control failures in the canonical claim ledger
+   were absent from the purported complete scoped inventory.
+
+The single permitted repair-closeout round added direct RED tests for all four
+classes (`10 failed, 1 passed` before repair). Current pre-closeout evidence:
+
+- exact matrix keys and recomputed scientific payload fingerprint are checked;
+- the expected raw result, sample-manifest, validator, and portable-runner
+  digests are code-pinned; PNG CRC/chunk/IEND/compressed-data structure is read;
+- the complete recursive package tree, broader unfinished markers, exact
+  generated prose/receipts/inventory/manifest, and an unambiguous terminal
+  review block are checked;
+- an explicit-path portable runner preserves the original validator bytes and
+  distinguishes reproduction success from the experimental FAIL;
+- portable result reproduction: `18/18 bytes re-derived; scientific
+  verdict=FAIL; skipped=0`;
+- portable sample reproduction: `6/6` SVG authorities byte-identical and all
+  PNG/contact-sheet digests matched;
+- MF-037 through MF-043 now preserve control leakage/population mismatch,
+  strict-import failure, representation dependence, historical non-replay,
+  severed river, nonexistent bypass, and five-of-five real-control rejection;
+- repaired behavior contract: `11 passed, 1 failed`, with only the still-absent
+  final reviewer receipt withheld.
+
+Candidate status: **FROZEN FOR SAME-REVIEWER REPAIR CLOSEOUT**. Final strict
+acceptance still requires the closeout receipt, post-receipt deterministic PDF
+rebuild, full rendered-page inspection, and all 12 behavior tests green.
 
 ## 2026-08-20: Morphology Structural Differentiation and Evidence Closure
 

@@ -11,10 +11,12 @@ import argparse
 import hashlib
 import html
 import json
+import re
 import shutil
 import struct
 import subprocess
 import sys
+import zlib
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -31,6 +33,12 @@ SOURCE_TREE = "622dbe37790c5414141cd5d5531a2158aa56f7e5"
 SCIENTIFIC_FINGERPRINT = (
     "84b2f3657b21c9cedd9fe7723b4edf99ac3f7514cf7128aff6c994ff9da253f1"
 )
+RESULTS_SHA256 = "f4e6a36be3d700369cca8d2aaaecc2ef0a88bd6afa30e1927c1f47f00c9057fd"
+SAMPLE_MANIFEST_SHA256 = (
+    "998af7fa9539993a4e9f63df7802505ee1381e2a7b00c7ecd9dbaa58a686aec3"
+)
+VALIDATOR_SHA256 = "713820af5a59fa6e9cd0b0d77bd42c216a72a0ab055b277e9f48da8bfaf9d7d1"
+REPRODUCER_SHA256 = "c76e7a7892d8c091ca9250dd781537f0edbddc326a436a82187f87553b669201"
 STYLE_ORDER = (
     "grid_core",
     "ring_radial",
@@ -60,6 +68,7 @@ ROOT_FILES = {
 EVIDENCE_FILES = {
     "harness_receipt.json",
     "heldout_morphology_results.json",
+    "heldout_morphology_reproducer.py",
     "heldout_morphology_validator.py",
     "pr17_remote_receipt.json",
     "sample_manifest.json",
@@ -566,6 +575,97 @@ def failure_inventory() -> list[dict[str, str]]:
             "Design a new versioned functional protocol with nonvacuity, cache invalidation, conservation, deterministic replay, and baseline comparison before execution.",
             "Traffic-functional validation was not completed; traffic algorithms remain research-incomplete and no completeness claim is permitted.",
         ),
+        _failure(
+            "MF-037",
+            "OSM controls are a leaked development set with a different sampled population",
+            "empirical-control validity",
+            "2026-08 canonical claim-ledger audit",
+            "P1 scientific",
+            "OPEN",
+            "The same extracts informed spacing_scale calibration, and 5-12 km2 core bounding boxes are not comparable to whole-municipality reference statistics.",
+            "docs/harness/CLAIM_LEDGER.md control-population audit; Charlotte, Seoul, and Chicago orientation-order comparisons.",
+            "The control arm is disclosed as development data rather than an independent positive control.",
+            "Freeze a leakage-free calibration/holdout split and compare equivalent geographic populations under one measurement specification.",
+            "Existing OSM-control agreement cannot support held-out empirical generalization.",
+        ),
+        _failure(
+            "MF-038",
+            "The default strict OSM importer rejects six of seven control extracts",
+            "external-data ingestion",
+            "2026-08 canonical claim-ledger audit",
+            "P1 scientific",
+            "OPEN",
+            "A reported five-of-five measurable control result depends on opt-in osm_wiki policy while the shipped strict default blocks most fixtures.",
+            "docs/harness/CLAIM_LEDGER.md records strict-policy failure on 6/7 extracts and osm_wiki coverage.",
+            "The policy dependency is now explicit; unsupported tags fail closed rather than becoming generic skips.",
+            "Define which import policy is scientific authority and validate it on a preregistered external corpus.",
+            "OSM-control coverage cannot be attributed to the default importer without qualification.",
+        ),
+        _failure(
+            "MF-039",
+            "Historical morphology metrics mixed measurement definitions and depended on representation",
+            "measurement validity",
+            "2026-08-07 external instrument audit",
+            "P1 scientific",
+            "PARTIALLY_CLOSED",
+            "Endpoint chords, member-edge bearings, polyline splitting, parallel edges, and simplify policy produced different values for equivalent-looking roads.",
+            "docs/harness/CLAIM_LEDGER.md measurement-definition audit and v4 OSMnx 2.1.1 parity receipt.",
+            "The current v4 names and fingerprints BOEING_2019_HO and is parity-tested; historical v1-v3 measurements remain definition-bound records.",
+            "Treat representation choice as part of every metric contract and never compare artifacts across specs without remeasurement.",
+            "Current v4 parity is supported, but morphology statistics are not representation-invariant or interchangeable with historical tables.",
+        ),
+        _failure(
+            "MF-040",
+            "A historical control-table artifact cannot reproduce at its introducing commit",
+            "historical reproducibility",
+            "2026-08 canonical claim-ledger audit",
+            "P1 evidence",
+            "OPEN",
+            "The artifact's introducing commit imports growth_fabric code that only appears in the following commit and lacks complete provenance.",
+            "docs/harness/CLAIM_LEDGER.md identifies morphology-control-table-20260807.json, commit c00c9e9, and later module commit dae8b66.",
+            "History was not rewritten; later v4 artifacts carry stronger same-head provenance and rederivation gates.",
+            "Keep the historical artifact labelled unreproducible and do not use it as replay authority.",
+            "The historical table is evidence of a recorded result, not same-commit reproducibility.",
+        ),
+        _failure(
+            "MF-041",
+            "Legacy growth-fabric river-constrained maps were severed by the river",
+            "negative morphology result",
+            "2026-08 canonical claim-ledger audit",
+            "P1 scientific",
+            "NEGATIVE_RESULT",
+            "The audited maps had zero cross-river links, 53 weak components, and a largest-component share near 0.52 despite bridge/ramp enum names.",
+            "docs/harness/CLAIM_LEDGER.md legacy growth_fabric river-constrained diagnostics.",
+            "The historical negative result is preserved; current scalable_synthetic_v2 has a separate three-bridge structural witness.",
+            "Do not transfer the current grammar's pass backward to the historical generator; remeasure any future river treatment by version.",
+            "Legacy river connectivity claims are rejected even though the current scalable grammar passes its bounded bridge test.",
+        ),
+        _failure(
+            "MF-042",
+            "Legacy growth-fabric bypass did not exist as a network function",
+            "negative morphology result",
+            "2026-08 canonical claim-ledger audit",
+            "P1 scientific",
+            "NEGATIVE_RESULT",
+            "Eight tangential expressways formed a forest with cyclomatic number zero; the test passed on a gateway radial rather than a bypass arc.",
+            "docs/harness/CLAIM_LEDGER.md bypass topology and angular-coverage diagnostics.",
+            "The false semantic test is retained as historical evidence and is not used to support the present six-style result.",
+            "A future bypass claim needs a closed or route-substituting peripheral path with direct topology and traffic witnesses.",
+            "No bypass-function or congestion-relief inference is permitted from the historical maps.",
+        ),
+        _failure(
+            "MF-043",
+            "The morphology_quality gate rejected all five of its real controls",
+            "negative gate-validation result",
+            "2026-08 canonical claim-ledger audit",
+            "P1 scientific",
+            "NEGATIVE_RESULT",
+            "Charlotte missed the density floor, all controls failed weak-component unity, four failed block continuity, and the gate had no density ceiling.",
+            "docs/harness/CLAIM_LEDGER.md five-control morphology_quality falsification.",
+            "The negative control result is preserved and the gate is not used as promotion authority.",
+            "Redesign the gate against independent real controls with attainable two-sided bounds and representation-compatible measurements.",
+            "A generator pass or failure under morphology_quality cannot establish real-city quality until the gate admits its intended controls.",
+        ),
     ]
 
 
@@ -591,9 +691,66 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
 
 def _png_dimensions(path: Path) -> tuple[int, int]:
     raw = path.read_bytes()
-    if raw[:8] != b"\x89PNG\r\n\x1a\n" or raw[12:16] != b"IHDR":
-        raise ValueError(f"not a PNG with IHDR: {path}")
-    return struct.unpack(">II", raw[16:24])
+    if raw[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError(f"invalid PNG signature: {path}")
+    offset = 8
+    dimensions: tuple[int, int] | None = None
+    idat_parts: list[bytes] = []
+    saw_iend = False
+    chunk_index = 0
+    while offset < len(raw):
+        if len(raw) - offset < 12:
+            raise ValueError(f"truncated PNG chunk header: {path}")
+        length = struct.unpack(">I", raw[offset : offset + 4])[0]
+        chunk_type = raw[offset + 4 : offset + 8]
+        data_start = offset + 8
+        data_end = data_start + length
+        crc_end = data_end + 4
+        if crc_end > len(raw):
+            raise ValueError(f"truncated PNG chunk data: {path}")
+        chunk_data = raw[data_start:data_end]
+        expected_crc = struct.unpack(">I", raw[data_end:crc_end])[0]
+        actual_crc = zlib.crc32(chunk_type + chunk_data) & 0xFFFFFFFF
+        if actual_crc != expected_crc:
+            raise ValueError(f"PNG chunk CRC mismatch: {path}")
+        if chunk_index == 0:
+            if chunk_type != b"IHDR" or length != 13:
+                raise ValueError(f"PNG first chunk is not a valid IHDR: {path}")
+            dimensions = struct.unpack(">II", chunk_data[:8])
+        elif chunk_type == b"IDAT":
+            idat_parts.append(chunk_data)
+        elif chunk_type == b"IEND":
+            if length != 0 or crc_end != len(raw):
+                raise ValueError(f"invalid PNG IEND: {path}")
+            saw_iend = True
+        offset = crc_end
+        chunk_index += 1
+    if dimensions is None or not idat_parts or not saw_iend:
+        raise ValueError(f"incomplete PNG structure: {path}")
+    try:
+        decompressed = zlib.decompress(b"".join(idat_parts))
+    except zlib.error as exc:
+        raise ValueError(f"invalid PNG image data: {path}") from exc
+    if not decompressed:
+        raise ValueError(f"empty PNG image data: {path}")
+    return dimensions
+
+
+def _scientific_fingerprint(results: dict[str, Any]) -> str:
+    scientific_payload = {
+        "protocol": results["protocol"],
+        "cases": results["cases"],
+        "style_summary": results["style_summary"],
+        "attempt_inventory": results["attempt_inventory"],
+    }
+    payload = json.dumps(
+        scientific_payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def _md_escape(value: object) -> str:
@@ -620,9 +777,10 @@ def _receipt_payloads() -> dict[str, dict[str, Any]]:
                 "report_branch": "audit/heldout-morphology-adversarial-report-20260823",
             },
             "heldout_evidence": {
-                "results_sha256": "f4e6a36be3d700369cca8d2aaaecc2ef0a88bd6afa30e1927c1f47f00c9057fd",
-                "sample_manifest_sha256": "998af7fa9539993a4e9f63df7802505ee1381e2a7b00c7ecd9dbaa58a686aec3",
-                "validator_sha256": "713820af5a59fa6e9cd0b0d77bd42c216a72a0ab055b277e9f48da8bfaf9d7d1",
+                "results_sha256": RESULTS_SHA256,
+                "sample_manifest_sha256": SAMPLE_MANIFEST_SHA256,
+                "validator_sha256": VALIDATOR_SHA256,
+                "portable_reproducer_sha256": REPRODUCER_SHA256,
                 "scientific_fingerprint": SCIENTIFIC_FINGERPRINT,
             },
             "prior_traffic_attempt": {
@@ -688,7 +846,7 @@ def _receipt_payloads() -> dict[str, dict[str, Any]]:
             ],
             "acceptance_boundary": {
                 "map_set": "six seed-503 held-out preview/authority pairs",
-                "analysis_set": "all 18 held-out cases plus MF-001 through MF-036",
+                "analysis_set": "all 18 held-out cases plus MF-001 through MF-043",
                 "algorithm_changes": 0,
                 "fresh_osm_downloads": 0,
                 "traffic_reruns": 0,
@@ -877,6 +1035,13 @@ def _claim_rows() -> list[tuple[str, str, str, str, str]]:
             "pr17_remote_receipt.json and two successful ci gate jobs",
             "Remote software evidence; not scientific promotion.",
         ),
+        (
+            "C-13",
+            "The package establishes security or tamper resistance.",
+            "FORBIDDEN",
+            "Single-developer personal-research scope boundary",
+            "Hashes identify reproducibility evidence and accidental corruption only.",
+        ),
     ]
 
 
@@ -902,7 +1067,8 @@ def _render_claim_ledger() -> str:
             "seed-held-out experiment is a 15/18 **NEGATIVE_RESULT** because grid_core "
             "failed all three seeds. Fresh empirical morphology, traffic-functional "
             "validity, traffic-algorithm completeness, and runtime-default promotion "
-            "are **FORBIDDEN** interpretations of this package.",
+            "are **FORBIDDEN** interpretations of this package. Security and tamper-"
+            "resistance are also explicitly outside scope.",
         ]
     )
     return "\n".join(lines)
@@ -1022,11 +1188,17 @@ def _render_report(
         "identity gates passed exact-head and synthetic-merge CI on the identical tree. "
         "The new failure narrows what can be said about grid_core under unseen seeds.",
         "",
+        "MetroFlow is **single-developer personal research code**. In this report, "
+        "adversarial audit means **skeptical scientific and code review**, not a hostile-"
+        "operator threat model. Hashes and manifests are compact reproducibility and "
+        "accidental-corruption receipts; this package makes **no security or tamper-"
+        "resistance claim**.",
+        "",
         "## Scope and frozen boundaries",
         "",
         "Included: the six seed-503 sample maps below, all 18 measurements from three "
         "held-out seeds, the validator and manifests, exact source/harness/remote-CI "
-        "receipts, and the complete scoped failure inventory MF-001 through MF-036.",
+        "receipts, and the complete scoped failure inventory MF-001 through MF-043.",
         "",
         "Excluded by design: morphology or traffic source changes, post-result threshold "
         "changes, alternate seeds, traffic repair/rerun, new OSM downloads, empirical "
@@ -1052,6 +1224,12 @@ def _render_report(
         "The results file has SHA-256 `f4e6a36b...c9057fd`; the sample manifest has "
         "`998af7fa...686aec3`; and the validator has `713820af...af9d7d1`. The package "
         "manifest binds complete hashes and byte sizes for every report file except itself.",
+        "",
+        "The original validator is retained byte-for-byte, including its historical "
+        "author paths, because its digest is part of the result. The adjacent portable "
+        "reproducer accepts explicit repository/package paths, verifies source commit/tree, "
+        "and treats byte-identical rederivation with scientific verdict FAIL as successful "
+        "reproduction rather than a process failure.",
         "",
         "## Protocol",
         "",
@@ -1115,11 +1293,12 @@ def _render_report(
             "",
             "## Failure history synthesis",
             "",
-            f"The mechanical inventory contains 36 unique records: {counts['CLOSED']} "
+            f"The mechanical inventory contains {len(records)} unique records: {counts['CLOSED']} "
             f"CLOSED, {counts['PARTIALLY_CLOSED']} PARTIALLY_CLOSED, {counts['OPEN']} OPEN, "
             f"{counts['NEGATIVE_RESULT']} NEGATIVE_RESULT, {counts['NOT_EVALUATED']} "
             f"NOT_EVALUATED, and {counts['CONTESTED']} CONTESTED. It begins with MF-001 "
-            "(legacy gallery provenance) and ends with MF-036 (incomplete traffic-functional probe).",
+            "(legacy gallery provenance), preserves MF-036 (the incomplete traffic-functional "
+            "probe), and ends with MF-043 (a gate rejecting all five real controls).",
             "",
             "Closed findings remain in the package because an external auditor must be "
             "able to reconstruct why later assurance exists. Open and negative findings "
@@ -1130,7 +1309,9 @@ def _render_report(
             "The most important retained blockers are MF-014 (no scalable_v2 arm in the "
             "v4 empirical table), MF-026/MF-032 (metric-envelope insufficiency), MF-033 "
             "and MF-034 (grid failure and unresolved cause), MF-035 (no fresh external "
-            "holdout), and MF-036 (traffic-functional validation not completed).",
+            "holdout), MF-036 (traffic-functional validation not completed), and "
+            "MF-037..MF-043 (canonical-ledger control, measurement, historical-replay, "
+            "river, bypass, and gate failures).",
             "",
             "## Traffic-functional negative result",
             "",
@@ -1237,6 +1418,11 @@ def _render_auditor_readme(has_review: bool) -> str:
 This directory is a self-contained report/evidence package for the 2026-08-23
 MetroFlow seed-held-out morphology audit. Start with `REPORT.md` or `{PDF_NAME}`.
 
+MetroFlow is **single-developer personal research code**. "Adversarial" means
+**skeptical scientific and code review**, not a hostile-operator threat model.
+Hashes and manifests are reproducibility and accidental-corruption receipts;
+this package makes **no security or tamper-resistance claim**.
+
 ## Fast verification
 
 From repository root:
@@ -1246,8 +1432,24 @@ From repository root:
 .venv/bin/python -m pytest tests/test_heldout_morphology_adversarial_report.py -q
 sha256sum artifacts/heldout_morphology_adversarial_audit_20260823/evidence/*
 pdfinfo artifacts/heldout_morphology_adversarial_audit_20260823/{PDF_NAME}
-pdftotext artifacts/heldout_morphology_adversarial_audit_20260823/{PDF_NAME} - | grep -E '15/18|MF-036|runtime-default'
+pdftotext artifacts/heldout_morphology_adversarial_audit_20260823/{PDF_NAME} - | grep -E '15/18|MF-043|runtime-default'
 ```
+
+To reproduce the negative scientific result and SVG authorities from an exact
+checkout without relying on the author's paths:
+
+```bash
+PACKAGE=$PWD/artifacts/heldout_morphology_adversarial_audit_20260823
+python "$PACKAGE/evidence/heldout_morphology_reproducer.py" \\
+  --repository /path/to/checkout-at-e1979df \\
+  --package-dir "$PACKAGE" --check-validation
+python "$PACKAGE/evidence/heldout_morphology_reproducer.py" \\
+  --repository /path/to/checkout-at-e1979df \\
+  --package-dir "$PACKAGE" --check-samples
+```
+
+A successful reproduction command reports `scientific verdict=FAIL` and exits
+zero. The FAIL is the frozen experimental outcome, not a reproduction error.
 
 PDF rebuilding requires the pinned report-only packages and does not touch the
 repository runtime environment:
@@ -1268,9 +1470,10 @@ a city, change a threshold, fetch OSM, or execute traffic.
 
 - `EVIDENCE_MANIFEST.json`: hashes and byte sizes for every package file except itself.
 - `evidence/heldout_morphology_results.json`: complete 18-case authority.
-- `evidence/heldout_morphology_validator.py`: frozen executable measurement definition.
+- `evidence/heldout_morphology_validator.py`: byte-frozen original measurement definition; its historical author paths are not the portable entry point.
+- `evidence/heldout_morphology_reproducer.py`: explicit-checkout/package, read-only portable entry point that preserves the frozen validator hash.
 - `evidence/sample_manifest.json`: six map source/fingerprint/file bindings.
-- `FAILURE_INVENTORY.json`: exact MF-001..MF-036 machine inventory.
+- `FAILURE_INVENTORY.json`: exact MF-001..MF-043 machine inventory.
 - `CLAIM_EVIDENCE_LEDGER.md`: allowed and forbidden inferences.
 {review_line}- `maps/*.svg`: vector authorities; `maps/*.png`: digest-bound previews.
 
@@ -1492,7 +1695,7 @@ def _build_pdf(
     story.append(
         _pdf_paragraph(
             "This report preserves the failed grid_core result, all six generated map "
-            "samples, the complete MF-001 through MF-036 history, and the distinction "
+            "samples, the complete MF-001 through MF-043 history, and the distinction "
             "between implementation evidence and scientific promotion.",
             styles["AuditBody"],
         )
@@ -1508,12 +1711,13 @@ def _build_pdf(
         "Five non-grid styles passed direct structural falsifiers plus nonempty output, exact style identity, and deterministic replay. Their success supports bounded structural differentiation only. It does not cancel the grid failure or establish empirical realism.",
         "This is NOT fresh-OSM empirical validation. Traffic-functional validation was not completed. Traffic algorithms remain research-incomplete, and runtime-default promotion remains blocked.",
         "PR #17 remains a valid structural implementation/evidence-identity milestone: exact-head push and synthetic-merge CI both passed on tree 622dbe3779. Those checks are software evidence, not a scientific promotion receipt.",
+        "MetroFlow is single-developer personal research code. Adversarial means skeptical scientific and code review, not a hostile-operator threat model. Hashes and manifests are reproducibility and accidental-corruption receipts; this package makes no security or tamper-resistance claim.",
     ):
         story.append(_pdf_paragraph(paragraph, styles["AuditBody"]))
 
     story.append(_pdf_paragraph("2. Frozen protocol and harness boundary", styles["AuditH1"]))
     for paragraph in (
-        "Included evidence is the six seed-503 map pairs, the complete 18-case result, frozen validator, source/sample/harness/remote receipts, claim ledger, and 36-record failure inventory.",
+        "Included evidence is the six seed-503 map pairs, the complete 18-case result, frozen validator, portable reproducer, source/sample/harness/remote receipts, claim ledger, and 43-record failure inventory.",
         "The supplied coding harness was applied to finite acceptance, reproduction, and independent verification. The supplied research harness was applied to evidence-before-narrative, claim audit, decision gating, and negative-result preservation. The archives were not installed and did not replace the user's request or repository instructions.",
         "No algorithm, threshold, seed split, baseline, or map was changed. No traffic experiment was rerun. No fresh OSM data was acquired. No push, PR, merge, or publication was performed by this report work unit.",
     ):
@@ -1698,9 +1902,10 @@ def _build_pdf(
     ):
         story.append(_pdf_paragraph(paragraph, styles["AuditBody"]))
 
-    story.append(_pdf_paragraph("9. Reproduction and adversarial attack surface", styles["AuditH1"]))
+    story.append(_pdf_paragraph("9. Reproduction and independent challenge surface", styles["AuditH1"]))
     for paragraph in (
-        "The evidence manifest binds every package file except itself. The checker enforces exact directory membership, source/tree/fingerprint identity, the 18-case partition, all 36 failure identifiers and fields, map digest/dimension contracts, PDF-copy identity, link presence, and claim-ceiling phrases.",
+        "The evidence manifest binds every package file except itself. The checker enforces exact recursive membership, source/tree/fingerprint identity, the 18-case Cartesian partition, all 43 failure identifiers and fields, complete PNG structure, PDF-copy identity, link presence, and claim-ceiling phrases.",
+        "The byte-frozen original validator retains its historical author paths because its SHA-256 is evidence. A separate portable reproducer accepts explicit checkout/package paths, verifies source commit and tree, and returns success when bytes reproduce even though the scientific verdict is FAIL.",
         "The most valuable independent attack is the grid classifier construct: reproduce the raw geometry without changing the held-out verdict, decompose semantic carrier labels from coordinate orientation, and predeclare an independent block/orientation witness on new seeds. Do not tune the frozen criterion after observing these cases.",
         "A second high-value attack is external morphology: add licensed, frozen, leakage-controlled OSM extracts and metrics that defeat the known null operator. The current v4 table does not score scalable_synthetic_v2 and cannot be borrowed as its empirical validation.",
     ):
@@ -1820,12 +2025,60 @@ def _expected_map_files() -> set[str]:
     return files
 
 
+def _expected_package_paths(*, allow_review_missing: bool) -> set[str]:
+    root_files = set(ROOT_FILES)
+    if allow_review_missing:
+        root_files.discard("INDEPENDENT_REVIEW.md")
+    paths = set(root_files)
+    paths.update({"evidence", "maps"})
+    paths.update(f"evidence/{name}" for name in EVIDENCE_FILES)
+    paths.update(f"maps/{name}" for name in _expected_map_files())
+    return paths
+
+
+def _parse_review_gate(review: str) -> tuple[dict[str, int], str]:
+    lines = [line.strip() for line in review.splitlines() if line.strip()]
+    severities: list[tuple[str, int]] = []
+    verdicts: list[str] = []
+    for line in lines:
+        severity_match = re.fullmatch(r"P([012]): ([0-9]+)", line)
+        if severity_match is not None:
+            severities.append((f"P{severity_match.group(1)}", int(severity_match.group(2))))
+        verdict_match = re.fullmatch(r"VERDICT: (PASS|FAIL)", line)
+        if verdict_match is not None:
+            verdicts.append(verdict_match.group(1))
+    if len(severities) != 3 or {key for key, _value in severities} != {"P0", "P1", "P2"}:
+        raise ValueError("review gate requires exactly one P0, P1, and P2 line")
+    if len(verdicts) != 1:
+        raise ValueError("review gate requires exactly one unambiguous verdict line")
+    terminal = lines[-4:]
+    expected_terminal_prefixes = ("P0: ", "P1: ", "P2: ", "VERDICT: ")
+    if len(terminal) != 4 or any(
+        not line.startswith(prefix)
+        for line, prefix in zip(terminal, expected_terminal_prefixes, strict=True)
+    ):
+        raise ValueError("review gate lines must be the terminal four nonempty lines")
+    severity_by_name = dict(severities)
+    return severity_by_name, verdicts[0]
+
+
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise ValueError(message)
 
 
 def check_package(*, allow_review_missing: bool = False) -> None:
+    actual_package_paths = {
+        path.relative_to(PACKAGE).as_posix() for path in PACKAGE.rglob("*")
+    }
+    expected_package_paths = _expected_package_paths(
+        allow_review_missing=allow_review_missing
+    )
+    _require(
+        actual_package_paths == expected_package_paths,
+        "recursive package membership mismatch: "
+        f"{actual_package_paths ^ expected_package_paths}",
+    )
     expected_root = set(ROOT_FILES)
     if allow_review_missing:
         expected_root.discard("INDEPENDENT_REVIEW.md")
@@ -1851,16 +2104,40 @@ def check_package(*, allow_review_missing: bool = False) -> None:
     )
     _require(results["scientific_fingerprint"] == SCIENTIFIC_FINGERPRINT, "scientific fingerprint drift")
     _require(len(results["cases"]) == 18, "expected 18 result cases")
+    result_keys = [(case["style_id"], case["seed"]) for case in results["cases"]]
+    expected_result_keys = [
+        (style_id, seed)
+        for style_id in STYLE_ORDER
+        for seed in (503, 701, 907)
+    ]
+    _require(len(result_keys) == len(set(result_keys)), "duplicate held-out result key")
+    _require(
+        set(result_keys) == set(expected_result_keys)
+        and len(result_keys) == len(expected_result_keys),
+        "held-out result key partition drift",
+    )
+    _require(
+        _scientific_fingerprint(results) == results["scientific_fingerprint"],
+        "scientific fingerprint does not match the measured payload",
+    )
     _require(sum(bool(case["passed"]) for case in results["cases"]) == 15, "expected 15 passing cases")
     failed = {(case["style_id"], case["seed"]) for case in results["cases"] if not case["passed"]}
     _require(failed == {("grid_core", 503), ("grid_core", 701), ("grid_core", 907)}, "failed-case set drift")
     _require(all(case["checks"]["deterministic_replay"] for case in results["cases"]), "replay check drift")
 
     source = _read_json(EVIDENCE / "source_receipt.json")
-    _require(source["commit"] == SOURCE_COMMIT and source["tree"] == SOURCE_TREE, "source receipt drift")
-    _require(_sha256(EVIDENCE / "heldout_morphology_results.json") == source["heldout_evidence"]["results_sha256"], "result hash drift")
-    _require(_sha256(EVIDENCE / "sample_manifest.json") == source["heldout_evidence"]["sample_manifest_sha256"], "sample-manifest hash drift")
-    _require(_sha256(EVIDENCE / "heldout_morphology_validator.py") == source["heldout_evidence"]["validator_sha256"], "validator hash drift")
+    result_digest = _sha256(EVIDENCE / "heldout_morphology_results.json")
+    _require(result_digest == RESULTS_SHA256, "expected result digest mismatch")
+    _require(result_digest == source["heldout_evidence"]["results_sha256"], "result hash drift")
+    validator_digest = _sha256(EVIDENCE / "heldout_morphology_validator.py")
+    _require(validator_digest == VALIDATOR_SHA256, "expected validator digest mismatch")
+    _require(validator_digest == source["heldout_evidence"]["validator_sha256"], "validator hash drift")
+    reproducer_digest = _sha256(EVIDENCE / "heldout_morphology_reproducer.py")
+    _require(reproducer_digest == REPRODUCER_SHA256, "expected reproducer digest mismatch")
+    _require(
+        reproducer_digest == source["heldout_evidence"]["portable_reproducer_sha256"],
+        "reproducer hash drift",
+    )
 
     sample = _read_json(EVIDENCE / "sample_manifest.json")
     _require(sample["repository_commit"] == SOURCE_COMMIT, "sample source commit drift")
@@ -1878,12 +2155,30 @@ def check_package(*, allow_review_missing: bool = False) -> None:
     contact = MAPS / sample["contact_sheet_file"]
     _require(_sha256(contact) == sample["contact_sheet_sha256"], "contact sheet digest drift")
     _require(_png_dimensions(contact) == (2172, 1098), "contact sheet dimension drift")
+    sample_digest = _sha256(EVIDENCE / "sample_manifest.json")
+    _require(sample_digest == SAMPLE_MANIFEST_SHA256, "expected sample-manifest digest mismatch")
+    _require(sample_digest == source["heldout_evidence"]["sample_manifest_sha256"], "sample-manifest hash drift")
+    _require(source["commit"] == SOURCE_COMMIT and source["tree"] == SOURCE_TREE, "source receipt drift")
+    _require(
+        source == _receipt_payloads()["source_receipt.json"],
+        "source receipt is not the exact frozen receipt",
+    )
+    _require(
+        _read_json(EVIDENCE / "harness_receipt.json")
+        == _receipt_payloads()["harness_receipt.json"],
+        "harness receipt is not the exact frozen receipt",
+    )
+    _require(
+        _read_json(EVIDENCE / "pr17_remote_receipt.json")
+        == _receipt_payloads()["pr17_remote_receipt.json"],
+        "PR17 receipt is not the exact frozen receipt",
+    )
 
     inventory = _read_json(PACKAGE / "FAILURE_INVENTORY.json")
     records = inventory["failures"]
     _require(inventory["schema_version"] == "metroflow_morphology_failure_inventory_v1", "failure schema drift")
-    _require({record["id"] for record in records} == {f"MF-{index:03d}" for index in range(1, 37)}, "failure IDs incomplete")
-    _require(len(records) == 36, "failure records not unique")
+    _require({record["id"] for record in records} == {f"MF-{index:03d}" for index in range(1, 44)}, "failure IDs incomplete")
+    _require(len(records) == 43, "failure records not unique")
     expected_fields = {
         "claim_effect",
         "current_state",
@@ -1898,8 +2193,10 @@ def check_package(*, allow_review_missing: bool = False) -> None:
         "title",
     }
     _require(all(set(record) == expected_fields for record in records), "failure field drift")
+    _require(records == failure_inventory(), "failure inventory content drift")
 
     report = (PACKAGE / "REPORT.md").read_text(encoding="utf-8")
+    has_review = (PACKAGE / "INDEPENDENT_REVIEW.md").is_file()
     for phrase in (
         "15/18",
         "seed-held-out structural morphology",
@@ -1908,16 +2205,43 @@ def check_package(*, allow_review_missing: bool = False) -> None:
         "traffic-functional validation was not completed",
         "MF-001",
         "MF-036",
+        "MF-043",
     ):
         _require(phrase in report, f"missing claim-boundary phrase: {phrase}")
     for style_id in STYLE_ORDER:
         _require(f"maps/map_{style_id}_s503.png" in report, f"missing map link: {style_id}")
+    unfinished_pattern = re.compile(
+        r"(?im)(?:^|\s)(?:TODO|FIXME|TBD|XXX)(?:\s|:|$)|"
+        r"lorem ipsum|\[insert(?:\s+[^]]*)?\]|replace me"
+    )
     for path in PACKAGE.rglob("*.md"):
         text = path.read_text(encoding="utf-8")
-        for marker in ("[TODO]", "TBD_CONTENT", "PLACEHOLDER_TEXT", "PENDING_REVIEW"):
-            _require(marker not in text, f"placeholder marker in {path.name}: {marker}")
+        _require(
+            unfinished_pattern.search(text) is None,
+            f"unfinished marker in {path.name}",
+        )
+    _require(
+        report.rstrip() == _render_report(results, records, has_review).rstrip(),
+        "report is not the exact derivation of frozen evidence",
+    )
+    _require(
+        (PACKAGE / "FAILURE_INVENTORY.md").read_text(encoding="utf-8").rstrip()
+        == _render_failure_markdown(records).rstrip(),
+        "failure inventory Markdown drift",
+    )
+    _require(
+        (PACKAGE / "CLAIM_EVIDENCE_LEDGER.md").read_text(encoding="utf-8").rstrip()
+        == _render_claim_ledger().rstrip(),
+        "claim-evidence ledger drift",
+    )
+    _require(
+        (PACKAGE / "AUDITOR_README.md").read_text(encoding="utf-8").rstrip()
+        == _render_auditor_readme(has_review).rstrip(),
+        "auditor README drift",
+    )
 
     manifest = _read_json(PACKAGE / "EVIDENCE_MANIFEST.json")
+    _require(manifest == _build_manifest(), "manifest is not the exact package derivation")
     _require(manifest["schema_version"] == "metroflow_morphology_adversarial_audit_v1", "manifest schema drift")
     _require(manifest["source"] == {"commit": SOURCE_COMMIT, "tree": SOURCE_TREE}, "manifest source drift")
     _require(manifest["heldout_result"]["scientific_fingerprint"] == SCIENTIFIC_FINGERPRINT, "manifest scientific fingerprint drift")
@@ -1943,12 +2267,16 @@ def check_package(*, allow_review_missing: bool = False) -> None:
         capture_output=True,
         text=True,
     ).stdout
-    for phrase in ("FAIL - 15/18", "MF-001", "MF-036", "Runtime-default promotion"):
+    for phrase in ("FAIL - 15/18", "MF-001", "MF-036", "MF-043", "Runtime-default promotion"):
         _require(phrase in extracted, f"PDF text missing: {phrase}")
     if not allow_review_missing:
         review = (PACKAGE / "INDEPENDENT_REVIEW.md").read_text(encoding="utf-8")
-        _require("P0: 0" in review and "P1: 0" in review, "review severity gate failed")
-        _require("VERDICT: PASS" in review, "independent review did not pass")
+        severity_by_name, verdict = _parse_review_gate(review)
+        _require(
+            severity_by_name["P0"] == 0 and severity_by_name["P1"] == 0,
+            "review gate has unresolved P0/P1 findings",
+        )
+        _require(verdict == "PASS", "review gate verdict is not PASS")
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:

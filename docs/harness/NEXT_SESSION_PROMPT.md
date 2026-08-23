@@ -19,6 +19,10 @@ Read these first:
 
 Current state:
 
+- This is single-developer personal research code. Do not add authentication,
+  authorization, hostile-operator, anti-tamper/signing, or product-security work
+  unless the owner explicitly changes scope. Treat hashes as reproducibility and
+  accidental-corruption receipts only.
 - Python 3.12 + NumPy remains authoritative. Rust CPU and JAX/GPU are optional,
   explicit, and fail-closed; no C++/CUDA backend is admitted.
 - PR53-PR60 implement the explicit `realistic_synthetic_v1` terrain-to-runtime

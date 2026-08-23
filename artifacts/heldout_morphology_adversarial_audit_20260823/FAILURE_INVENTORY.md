@@ -7,9 +7,9 @@ This is a failure-preservation ledger, not a statement that every item is still 
 | State | Count |
 | --- | ---: |
 | CLOSED | 15 |
-| PARTIALLY_CLOSED | 1 |
-| OPEN | 12 |
-| NEGATIVE_RESULT | 4 |
+| PARTIALLY_CLOSED | 2 |
+| OPEN | 15 |
+| NEGATIVE_RESULT | 7 |
 | NOT_EVALUATED | 3 |
 | CONTESTED | 1 |
 
@@ -446,3 +446,87 @@ This is a failure-preservation ledger, not a statement that every item is still 
 - Resolution/current handling: The attempt is preserved as a NEGATIVE_RESULT and was not rerun, repaired, or normalized in this report work unit.
 - Remaining gate: Design a new versioned functional protocol with nonvacuity, cache invalidation, conservation, deterministic replay, and baseline comparison before execution.
 - Claim effect: Traffic-functional validation was not completed; traffic algorithms remain research-incomplete and no completeness claim is permitted.
+
+### MF-037 - OSM controls are a leaked development set with a different sampled population
+
+- Domain: empirical-control validity
+- First observed: 2026-08 canonical claim-ledger audit
+- Original severity: P1 scientific
+- Current state: **OPEN**
+- Impact: The same extracts informed spacing_scale calibration, and 5-12 km2 core bounding boxes are not comparable to whole-municipality reference statistics.
+- Evidence: docs/harness/CLAIM_LEDGER.md control-population audit; Charlotte, Seoul, and Chicago orientation-order comparisons.
+- Resolution/current handling: The control arm is disclosed as development data rather than an independent positive control.
+- Remaining gate: Freeze a leakage-free calibration/holdout split and compare equivalent geographic populations under one measurement specification.
+- Claim effect: Existing OSM-control agreement cannot support held-out empirical generalization.
+
+### MF-038 - The default strict OSM importer rejects six of seven control extracts
+
+- Domain: external-data ingestion
+- First observed: 2026-08 canonical claim-ledger audit
+- Original severity: P1 scientific
+- Current state: **OPEN**
+- Impact: A reported five-of-five measurable control result depends on opt-in osm_wiki policy while the shipped strict default blocks most fixtures.
+- Evidence: docs/harness/CLAIM_LEDGER.md records strict-policy failure on 6/7 extracts and osm_wiki coverage.
+- Resolution/current handling: The policy dependency is now explicit; unsupported tags fail closed rather than becoming generic skips.
+- Remaining gate: Define which import policy is scientific authority and validate it on a preregistered external corpus.
+- Claim effect: OSM-control coverage cannot be attributed to the default importer without qualification.
+
+### MF-039 - Historical morphology metrics mixed measurement definitions and depended on representation
+
+- Domain: measurement validity
+- First observed: 2026-08-07 external instrument audit
+- Original severity: P1 scientific
+- Current state: **PARTIALLY_CLOSED**
+- Impact: Endpoint chords, member-edge bearings, polyline splitting, parallel edges, and simplify policy produced different values for equivalent-looking roads.
+- Evidence: docs/harness/CLAIM_LEDGER.md measurement-definition audit and v4 OSMnx 2.1.1 parity receipt.
+- Resolution/current handling: The current v4 names and fingerprints BOEING_2019_HO and is parity-tested; historical v1-v3 measurements remain definition-bound records.
+- Remaining gate: Treat representation choice as part of every metric contract and never compare artifacts across specs without remeasurement.
+- Claim effect: Current v4 parity is supported, but morphology statistics are not representation-invariant or interchangeable with historical tables.
+
+### MF-040 - A historical control-table artifact cannot reproduce at its introducing commit
+
+- Domain: historical reproducibility
+- First observed: 2026-08 canonical claim-ledger audit
+- Original severity: P1 evidence
+- Current state: **OPEN**
+- Impact: The artifact's introducing commit imports growth_fabric code that only appears in the following commit and lacks complete provenance.
+- Evidence: docs/harness/CLAIM_LEDGER.md identifies morphology-control-table-20260807.json, commit c00c9e9, and later module commit dae8b66.
+- Resolution/current handling: History was not rewritten; later v4 artifacts carry stronger same-head provenance and rederivation gates.
+- Remaining gate: Keep the historical artifact labelled unreproducible and do not use it as replay authority.
+- Claim effect: The historical table is evidence of a recorded result, not same-commit reproducibility.
+
+### MF-041 - Legacy growth-fabric river-constrained maps were severed by the river
+
+- Domain: negative morphology result
+- First observed: 2026-08 canonical claim-ledger audit
+- Original severity: P1 scientific
+- Current state: **NEGATIVE_RESULT**
+- Impact: The audited maps had zero cross-river links, 53 weak components, and a largest-component share near 0.52 despite bridge/ramp enum names.
+- Evidence: docs/harness/CLAIM_LEDGER.md legacy growth_fabric river-constrained diagnostics.
+- Resolution/current handling: The historical negative result is preserved; current scalable_synthetic_v2 has a separate three-bridge structural witness.
+- Remaining gate: Do not transfer the current grammar's pass backward to the historical generator; remeasure any future river treatment by version.
+- Claim effect: Legacy river connectivity claims are rejected even though the current scalable grammar passes its bounded bridge test.
+
+### MF-042 - Legacy growth-fabric bypass did not exist as a network function
+
+- Domain: negative morphology result
+- First observed: 2026-08 canonical claim-ledger audit
+- Original severity: P1 scientific
+- Current state: **NEGATIVE_RESULT**
+- Impact: Eight tangential expressways formed a forest with cyclomatic number zero; the test passed on a gateway radial rather than a bypass arc.
+- Evidence: docs/harness/CLAIM_LEDGER.md bypass topology and angular-coverage diagnostics.
+- Resolution/current handling: The false semantic test is retained as historical evidence and is not used to support the present six-style result.
+- Remaining gate: A future bypass claim needs a closed or route-substituting peripheral path with direct topology and traffic witnesses.
+- Claim effect: No bypass-function or congestion-relief inference is permitted from the historical maps.
+
+### MF-043 - The morphology_quality gate rejected all five of its real controls
+
+- Domain: negative gate-validation result
+- First observed: 2026-08 canonical claim-ledger audit
+- Original severity: P1 scientific
+- Current state: **NEGATIVE_RESULT**
+- Impact: Charlotte missed the density floor, all controls failed weak-component unity, four failed block continuity, and the gate had no density ceiling.
+- Evidence: docs/harness/CLAIM_LEDGER.md five-control morphology_quality falsification.
+- Resolution/current handling: The negative control result is preserved and the gate is not used as promotion authority.
+- Remaining gate: Redesign the gate against independent real controls with attainable two-sided bounds and representation-compatible measurements.
+- Claim effect: A generator pass or failure under morphology_quality cannot establish real-city quality until the gate admits its intended controls.

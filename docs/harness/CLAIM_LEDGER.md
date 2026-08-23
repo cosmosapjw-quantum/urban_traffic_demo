@@ -71,7 +71,7 @@ version with evidence and falsifiers is:
   results were not changed after observation. Authority:
   `artifacts/heldout_morphology_adversarial_audit_20260823/evidence/heldout_morphology_results.json`.
 - The same package preserves all six seed-503 SVG/PNG map pairs, exact source
-  and harness receipts, MF-001 through MF-036, a claim-evidence ledger, and a
+  and harness receipts, MF-001 through MF-043, a claim-evidence ledger, and a
   reproducible Markdown/PDF audit. PNGs are digest-bound previews; SVG/source
   fingerprints carry identity. This is a report/evidence claim, not a new
   generator or traffic implementation claim.

@@ -16,7 +16,8 @@ Statuses are intentionally asymmetric: VALIDATED is limited to the exact evidenc
 | C-10 | The traffic algorithms are complete or production-valid. | FORBIDDEN | User claim boundary and MF-009, MF-011, MF-030, MF-036 | Functionality is the next target; completeness is explicitly out of scope. |
 | C-11 | scalable_synthetic_v2 is ready to replace the runtime default. | FORBIDDEN | MF-014, MF-029, MF-030, MF-033, MF-035, MF-036 | runtime-default promotion remains blocked. |
 | C-12 | PR #17 exact-head and synthetic-merge implementation gates passed. | VALIDATED | pr17_remote_receipt.json and two successful ci gate jobs | Remote software evidence; not scientific promotion. |
+| C-13 | The package establishes security or tamper resistance. | FORBIDDEN | Single-developer personal-research scope boundary | Hashes identify reproducibility evidence and accidental corruption only. |
 
 ## Promotion decision
 
-The structural milestone in merged PR #17 remains valid. The new seed-held-out experiment is a 15/18 **NEGATIVE_RESULT** because grid_core failed all three seeds. Fresh empirical morphology, traffic-functional validity, traffic-algorithm completeness, and runtime-default promotion are **FORBIDDEN** interpretations of this package.
+The structural milestone in merged PR #17 remains valid. The new seed-held-out experiment is a 15/18 **NEGATIVE_RESULT** because grid_core failed all three seeds. Fresh empirical morphology, traffic-functional validity, traffic-algorithm completeness, and runtime-default promotion are **FORBIDDEN** interpretations of this package. Security and tamper-resistance are also explicitly outside scope.

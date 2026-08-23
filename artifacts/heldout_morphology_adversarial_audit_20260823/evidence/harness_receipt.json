@@ -1,7 +1,7 @@
 {
   "acceptance_boundary": {
     "algorithm_changes": 0,
-    "analysis_set": "all 18 held-out cases plus MF-001 through MF-036",
+    "analysis_set": "all 18 held-out cases plus MF-001 through MF-043",
     "fresh_osm_downloads": 0,
     "map_set": "six seed-503 held-out preview/authority pairs",
     "traffic_reruns": 0

@@ -2,6 +2,7 @@
   "captured_on": "2026-08-23",
   "commit": "e1979df281ac25a24a82fdea725422310f7c6807",
   "heldout_evidence": {
+    "portable_reproducer_sha256": "c76e7a7892d8c091ca9250dd781537f0edbddc326a436a82187f87553b669201",
     "results_sha256": "f4e6a36be3d700369cca8d2aaaecc2ef0a88bd6afa30e1927c1f47f00c9057fd",
     "sample_manifest_sha256": "998af7fa9539993a4e9f63df7802505ee1381e2a7b00c7ecd9dbaa58a686aec3",
     "scientific_fingerprint": "84b2f3657b21c9cedd9fe7723b4edf99ac3f7514cf7128aff6c994ff9da253f1",

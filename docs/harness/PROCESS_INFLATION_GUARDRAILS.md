@@ -1,7 +1,7 @@
 # Process Inflation Decision Guardrails
 
 Status: active
-Last updated: 2026-08-17
+Last updated: 2026-08-23
 
 This document controls development methodology, gate scoping, assurance document
 boundaries, and subagent review governance across the repository. It directly
@@ -45,6 +45,17 @@ All development cycles and PRs are monitored against six watchdog dimensions:
 | **Claim Accretion / Inflation** | Claim ledger firewall: no 1M, performance, or readiness promotion without proof | Unearned claim promotions or treating diagnostics as validation |
 | **Gate Inflation** | Fast targeted test feedback during inner loops; formal gates on frozen candidate | Full suite repetition per private helper; over-gated micro-steps |
 | **Assurance Inflation** | Compact, bounded assurance artifacts (< source+test surface); sequential PR prep | Oversized assurance documents; premature downstream PR reviews |
+
+### 2.1 Personal-research threat-model boundary
+
+MetroFlow is personal research code operated by its sole developer. Multi-user
+authentication or authorization, malicious-operator defenses, anti-tamper/signing
+infrastructure, secret-management frameworks, and product security hardening are
+out of scope unless the owner explicitly changes that scope. Checksums, manifests,
+and source identities may be retained only as lean reproducibility and accidental-
+corruption receipts; they do not establish a security or tamper-resistance claim.
+"Adversarial review" means skeptical scientific/code review, not a hostile-actor
+threat model. Do not add security gates merely because the project can be audited.
 
 ---
 

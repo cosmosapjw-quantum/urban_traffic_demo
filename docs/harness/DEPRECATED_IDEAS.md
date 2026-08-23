@@ -1,9 +1,26 @@
 # Deprecated Ideas
 
-Last updated: 2026-07-10
+Last updated: 2026-08-23
 
 Deprecated here means "do not pursue in the next slice unless new benchmark
 evidence falsifies the current decision." It does not mean permanently banned.
+
+## Multi-User Security and Anti-Tamper Product Hardening
+
+Status: out of scope
+
+Reason:
+
+- MetroFlow is personal research code operated only by its sole developer.
+- Authentication, authorization, hostile-operator defenses, signing infrastructure,
+  and anti-tamper gates would add process and maintenance cost without a current
+  research requirement.
+- Hashes and manifests serve only reproducibility and accidental-corruption checks.
+
+Reopen condition:
+
+- The owner explicitly changes the user/deployment model or names a concrete
+  security requirement.
 
 ## Immediate NN/JAX Active-Agent Route-Choice Scoring
 

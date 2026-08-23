@@ -16,9 +16,11 @@ The result is **NOT fresh-OSM empirical validation**. It does not test named cit
 
 Merged PR #17 is not invalidated: its structural implementation and evidence identity gates passed exact-head and synthetic-merge CI on the identical tree. The new failure narrows what can be said about grid_core under unseen seeds.
 
+MetroFlow is **single-developer personal research code**. In this report, adversarial audit means **skeptical scientific and code review**, not a hostile-operator threat model. Hashes and manifests are compact reproducibility and accidental-corruption receipts; this package makes **no security or tamper-resistance claim**.
+
 ## Scope and frozen boundaries
 
-Included: the six seed-503 sample maps below, all 18 measurements from three held-out seeds, the validator and manifests, exact source/harness/remote-CI receipts, and the complete scoped failure inventory MF-001 through MF-036.
+Included: the six seed-503 sample maps below, all 18 measurements from three held-out seeds, the validator and manifests, exact source/harness/remote-CI receipts, and the complete scoped failure inventory MF-001 through MF-043.
 
 Excluded by design: morphology or traffic source changes, post-result threshold changes, alternate seeds, traffic repair/rerun, new OSM downloads, empirical promotion, runtime-default changes, push, PR, merge, and external publication.
 
@@ -31,6 +33,8 @@ The two supplied v3.1.0 archives were read as methods, not as user requests. The
 The maps and results name commit `e1979df281ac25a24a82fdea725422310f7c6807` and tree `622dbe37790c5414141cd5d5531a2158aa56f7e5`. PR #17 head `6d6e05630b718b50cf311aa127dfb2eeb8d8530f` has the same tree. GitHub push run 32564391135 and pull-request run 32564393072 both ended in successful final `ci gate` jobs before merge. This package records those facts as implementation evidence, not as empirical validation.
 
 The results file has SHA-256 `f4e6a36b...c9057fd`; the sample manifest has `998af7fa...686aec3`; and the validator has `713820af...af9d7d1`. The package manifest binds complete hashes and byte sizes for every report file except itself.
+
+The original validator is retained byte-for-byte, including its historical author paths, because its digest is part of the result. The adjacent portable reproducer accepts explicit repository/package paths, verifies source commit/tree, and treats byte-identical rederivation with scientific verdict FAIL as successful reproduction rather than a process failure.
 
 ## Protocol
 
@@ -139,11 +143,11 @@ The visual atlas is for navigation and qualitative attack. Scientific acceptance
 
 ## Failure history synthesis
 
-The mechanical inventory contains 36 unique records: 15 CLOSED, 1 PARTIALLY_CLOSED, 12 OPEN, 4 NEGATIVE_RESULT, 3 NOT_EVALUATED, and 1 CONTESTED. It begins with MF-001 (legacy gallery provenance) and ends with MF-036 (incomplete traffic-functional probe).
+The mechanical inventory contains 43 unique records: 15 CLOSED, 2 PARTIALLY_CLOSED, 15 OPEN, 7 NEGATIVE_RESULT, 3 NOT_EVALUATED, and 1 CONTESTED. It begins with MF-001 (legacy gallery provenance), preserves MF-036 (the incomplete traffic-functional probe), and ends with MF-043 (a gate rejecting all five real controls).
 
 Closed findings remain in the package because an external auditor must be able to reconstruct why later assurance exists. Open and negative findings are not diluted by the number of closed items. See `FAILURE_INVENTORY.md` and machine-readable `FAILURE_INVENTORY.json` for every impact, evidence source, resolution, remaining gate, and claim effect.
 
-The most important retained blockers are MF-014 (no scalable_v2 arm in the v4 empirical table), MF-026/MF-032 (metric-envelope insufficiency), MF-033 and MF-034 (grid failure and unresolved cause), MF-035 (no fresh external holdout), and MF-036 (traffic-functional validation not completed).
+The most important retained blockers are MF-014 (no scalable_v2 arm in the v4 empirical table), MF-026/MF-032 (metric-envelope insufficiency), MF-033 and MF-034 (grid failure and unresolved cause), MF-035 (no fresh external holdout), MF-036 (traffic-functional validation not completed), and MF-037..MF-043 (canonical-ledger control, measurement, historical-replay, river, bypass, and gate failures).
 
 ## Traffic-functional negative result
 
@@ -221,3 +225,10 @@ Every scoped failure appears below; `FAILURE_INVENTORY.md` supplies the full imp
 | MF-034 | CONTESTED | Grid-core failure has unresolved construct-validity ambiguity | Cause is CONTESTED; neither generator defect nor invalid test is established by this result alone. |
 | MF-035 | NOT_EVALUATED | Held-out validation is seed-only, not fresh OSM or named-city validation | This is NOT fresh-OSM empirical validation. |
 | MF-036 | NEGATIVE_RESULT | Traffic-functional development probe did not reach a valid result | Traffic-functional validation was not completed; traffic algorithms remain research-incomplete and no completeness claim is permitted. |
+| MF-037 | OPEN | OSM controls are a leaked development set with a different sampled population | Existing OSM-control agreement cannot support held-out empirical generalization. |
+| MF-038 | OPEN | The default strict OSM importer rejects six of seven control extracts | OSM-control coverage cannot be attributed to the default importer without qualification. |
+| MF-039 | PARTIALLY_CLOSED | Historical morphology metrics mixed measurement definitions and depended on representation | Current v4 parity is supported, but morphology statistics are not representation-invariant or interchangeable with historical tables. |
+| MF-040 | OPEN | A historical control-table artifact cannot reproduce at its introducing commit | The historical table is evidence of a recorded result, not same-commit reproducibility. |
+| MF-041 | NEGATIVE_RESULT | Legacy growth-fabric river-constrained maps were severed by the river | Legacy river connectivity claims are rejected even though the current scalable grammar passes its bounded bridge test. |
+| MF-042 | NEGATIVE_RESULT | Legacy growth-fabric bypass did not exist as a network function | No bypass-function or congestion-relief inference is permitted from the historical maps. |
+| MF-043 | NEGATIVE_RESULT | The morphology_quality gate rejected all five of its real controls | A generator pass or failure under morphology_quality cannot establish real-city quality until the gate admits its intended controls. |
