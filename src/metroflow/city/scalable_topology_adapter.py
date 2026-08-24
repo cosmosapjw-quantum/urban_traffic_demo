@@ -28,6 +28,7 @@ from metroflow.city.scalable_topology import (
     FacilityKind,
     PhysicalNodeRecord,
     PhysicalRoadRecord,
+    RampPurpose,
     RoadHierarchy,
     ScalableStreetNetwork,
 )
@@ -590,14 +591,19 @@ def _lower_scalable_records(*, nodes, roads):
                     "mainline roads require expressway hierarchy and layer-1 endpoints"
                 )
         elif road.facility is FacilityKind.RAMP:
+            expected_endpoint_layers = (
+                (0, 1)
+                if road.ramp_purpose in {None, RampPurpose.ON_RAMP}
+                else (1, 0)
+            )
             if (
                 road.hierarchy is not RoadHierarchy.ARTERIAL
                 or road.layer != 1
                 or road.layer_transition != (0, 1)
-                or endpoint_layers != (0, 1)
+                or endpoint_layers != expected_endpoint_layers
             ):
                 raise ValueError(
-                    "ramp roads require arterial hierarchy and a layer-0-to-1 transition"
+                    "ramp roads require arterial hierarchy and their declared layer transition"
                 )
         elif road.facility is FacilityKind.BRIDGE:
             if road.layer != 0 or endpoint_layers != (0, 0):

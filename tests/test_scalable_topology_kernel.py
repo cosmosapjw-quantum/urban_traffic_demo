@@ -131,6 +131,11 @@ def _rebuild_network_identity(
                 candidate.profile_id,
                 candidate.provenance,
                 kernel._row_interval_content(candidate.row_interval),
+                (
+                    None
+                    if candidate.ramp_purpose is None
+                    else candidate.ramp_purpose.value
+                ),
             )
         )
         pending_roads.append(
@@ -223,6 +228,7 @@ def test_scalar_records_define_explicit_units_and_authority() -> None:
         FacilityKind,
         PhysicalNodeRecord,
         PhysicalRoadRecord,
+        RampPurpose,
         RowIntervalAuthority,
         ScalableScaleSnapshot,
     )
@@ -255,6 +261,7 @@ def test_scalar_records_define_explicit_units_and_authority() -> None:
         "bridge",
         "tunnel",
     )
+    assert tuple(member.value for member in RampPurpose) == ("on_ramp", "off_ramp")
 
     scale = ScalableScaleSnapshot(100_000, 40.0)
     node = PhysicalNodeRecord(0, _DIGEST, 1_000, 2_000, 0, "junction")
@@ -298,6 +305,7 @@ def test_scalar_records_define_explicit_units_and_authority() -> None:
         "provenance",
         "semantic_role",
         "row_interval",
+        "ramp_purpose",
     )
     assert not hasattr(road, "__dict__")
     with pytest.raises(FrozenInstanceError):
@@ -376,6 +384,93 @@ def test_ramp_records_require_explicit_two_layer_transition() -> None:
     ramp = PhysicalRoadRecord(layer_transition=(0, 1), **common)
     assert ramp.layer_transition == (0, 1)
     assert ramp.facility.value == "ramp"
+
+
+def test_generated_ramps_have_explicit_one_way_interchange_purposes() -> None:
+    """A bidirectional connector cannot stand in for a merge and diverge pair."""
+    from metroflow.city.scalable_topology import (
+        FacilityKind,
+        RampPurpose,
+        build_scalable_street_network,
+    )
+
+    network = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 17)
+    ramps = tuple(road for road in network.roads if road.facility is FacilityKind.RAMP)
+
+    assert len(ramps) == 16
+    assert {ramp.ramp_purpose for ramp in ramps} == {RampPurpose.ON_RAMP, RampPurpose.OFF_RAMP}
+    assert all(ramp.access_directions == frozenset({"forward"}) for ramp in ramps)
+    assert all(
+        network.nodes[ramp.start_node_id].layer == 0
+        and network.nodes[ramp.end_node_id].layer == 1
+        for ramp in ramps
+        if ramp.ramp_purpose is RampPurpose.ON_RAMP
+    )
+    assert all(
+        network.nodes[ramp.start_node_id].layer == 1
+        and network.nodes[ramp.end_node_id].layer == 0
+        for ramp in ramps
+        if ramp.ramp_purpose is RampPurpose.OFF_RAMP
+    )
+    assert all(
+        sum(
+            ramp.ramp_purpose is RampPurpose.ON_RAMP
+            for ramp in ramps
+            if gateway_id in {ramp.start_node_id, ramp.end_node_id}
+        )
+        == 1
+        and sum(
+            ramp.ramp_purpose is RampPurpose.OFF_RAMP
+            for ramp in ramps
+            if gateway_id in {ramp.start_node_id, ramp.end_node_id}
+        )
+        == 1
+        for gateway_id in network.gateway_node_ids
+    )
+
+
+def test_river_directional_ramps_remain_free_of_same_layer_crossings() -> None:
+    """Off-ramp curves must not cross the perimeter's other directed connectors."""
+    from metroflow.city.scalable_topology import (
+        audit_physical_records,
+        build_scalable_street_network,
+    )
+
+    network = build_scalable_street_network(
+        CityScaleSpec(100_000, 25.0), "river_constrained", 17
+    )
+    audit = audit_physical_records(network.nodes, network.roads)
+    assert (
+        audit.same_layer_proper_crossing_count,
+        audit.t_touch_count,
+        audit.collinear_overlap_count,
+    ) == (0, 0, 0)
+
+
+def test_mainline_record_rejects_at_grade_surface_layer() -> None:
+    from metroflow.city.scalable_topology import (
+        FacilityKind,
+        PhysicalRoadRecord,
+        RoadHierarchy,
+    )
+
+    with pytest.raises(ValueError, match="mainlines require layer 1"):
+        PhysicalRoadRecord(
+            road_id=0,
+            semantic_id=_DIGEST,
+            start_node_id=0,
+            end_node_id=1,
+            points_mm=((0, 0), (1, 0)),
+            hierarchy=RoadHierarchy.EXPRESSWAY,
+            facility=FacilityKind.MAINLINE,
+            layer=0,
+            access_directions=frozenset({"forward", "reverse"}),
+            layer_transition=None,
+            structure_group=None,
+            failure_group=None,
+            profile_id="v2:mainline:expressway",
+            provenance="test",
+        )
 
 
 def test_terrain_and_lattice_are_coordinate_keyed_and_seam_exact() -> None:
@@ -808,9 +903,10 @@ def test_non_grid_terrain_spacing_uses_correlated_development_intensity() -> Non
     assert terrain.intensity_at(1_225.0, -875.0) == field.intensity_at(1_225.0, -875.0)
 
 
-def test_grid_core_has_dense_semantic_order_eight_ramps_and_literal_rows() -> None:
+def test_grid_core_has_dense_semantic_order_directed_ramps_and_literal_rows() -> None:
     from metroflow.city.scalable_topology import (
         FacilityKind,
+        RampPurpose,
         audit_physical_records,
         build_scalable_street_network,
     )
@@ -827,8 +923,11 @@ def test_grid_core_has_dense_semantic_order_eight_ramps_and_literal_rows() -> No
     assert [road.semantic_id for road in network.roads] == sorted(
         road.semantic_id for road in network.roads
     )
-    assert len(ramps) == 8
+    assert len(ramps) == 16
+    assert sum(ramp.ramp_purpose is RampPurpose.ON_RAMP for ramp in ramps) == 8
+    assert sum(ramp.ramp_purpose is RampPurpose.OFF_RAMP for ramp in ramps) == 8
     assert all(ramp.layer_transition == (0, 1) for ramp in ramps)
+    assert all(ramp.access_directions == frozenset({"forward"}) for ramp in ramps)
     assert all(ramp.points_mm[0] != ramp.points_mm[-1] for ramp in ramps)
     assert row_roads
     assert all(
