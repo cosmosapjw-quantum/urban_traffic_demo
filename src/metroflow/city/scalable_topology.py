@@ -12,6 +12,7 @@ from fractions import Fraction
 from math import isfinite
 from typing import Mapping, Sequence
 
+from metroflow.city.development_field import DeterministicDevelopmentField
 from metroflow.city.morphology_capabilities import STYLE_IDS
 from metroflow.city.scale import CityScaleSpec
 
@@ -297,6 +298,7 @@ class ScalableTerrainField:
     style_id: str
     barrier_seam_x_mm: int | None
     fingerprint: str
+    development_field_fingerprint: str | None = None
 
     def __post_init__(self) -> None:
         values = (self.width_m, self.height_m, self.cell_size_m, self.tile_size_m)
@@ -321,6 +323,16 @@ class ScalableTerrainField:
                 raise ValueError("river terrain requires the explicit x=0 barrier seam")
         elif barrier is not None:
             raise ValueError("only river terrain may declare a barrier seam")
+        expected_development_field = (
+            None
+            if style_id == "grid_core"
+            else DeterministicDevelopmentField(seed=seed).fingerprint
+        )
+        development_field_fingerprint = self.development_field_fingerprint
+        if development_field_fingerprint is None:
+            development_field_fingerprint = expected_development_field
+        elif development_field_fingerprint != expected_development_field:
+            raise ValueError("development field fingerprint does not match terrain seed/style policy")
         object.__setattr__(self, "width_m", width_m)
         object.__setattr__(self, "height_m", height_m)
         object.__setattr__(self, "cell_size_m", cell_size_m)
@@ -328,6 +340,7 @@ class ScalableTerrainField:
         object.__setattr__(self, "seed", seed)
         object.__setattr__(self, "style_id", style_id)
         object.__setattr__(self, "barrier_seam_x_mm", barrier)
+        object.__setattr__(self, "development_field_fingerprint", development_field_fingerprint)
         object.__setattr__(self, "fingerprint", _require_digest("fingerprint", self.fingerprint))
 
     def cell_key_at(self, x_m: float, y_m: float) -> tuple[int, int]:
@@ -337,6 +350,8 @@ class ScalableTerrainField:
         )
 
     def intensity_at(self, x_m: float, y_m: float) -> float:
+        if self.style_id != "grid_core":
+            return DeterministicDevelopmentField(seed=self.seed).intensity_at(x_m, y_m)
         cell_x, cell_y = self.cell_key_at(x_m, y_m)
         payload = f"{self.seed}:{self.style_id}:{cell_x}:{cell_y}".encode()
         value = int.from_bytes(hashlib.sha256(payload).digest()[:4], "big")
@@ -440,19 +455,20 @@ def _terrain_fingerprint(
     cell_size_m: float = TERRAIN_CELL_SIZE_M,
     tile_size_m: float = TILE_SIZE_M,
 ) -> str:
-    return _semantic_id(
-        (
-            SCHEMA_VERSION,
-            "terrain",
-            width_m,
-            height_m,
-            cell_size_m,
-            tile_size_m,
-            seed,
-            style_id,
-            barrier_seam_x_mm,
-        )
+    payload = (
+        SCHEMA_VERSION,
+        "terrain",
+        width_m,
+        height_m,
+        cell_size_m,
+        tile_size_m,
+        seed,
+        style_id,
+        barrier_seam_x_mm,
     )
+    if style_id != "grid_core":
+        payload += (DeterministicDevelopmentField(seed=seed).fingerprint,)
+    return _semantic_id(payload)
 
 
 def _extent_mm(area_km2: float) -> tuple[int, int]:

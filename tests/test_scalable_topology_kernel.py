@@ -782,6 +782,32 @@ def test_grid_core_tile_order_is_a_permutation_not_generation_input() -> None:
         )
 
 
+def test_non_grid_terrain_spacing_uses_correlated_development_intensity() -> None:
+    """Break caught: non-grid spacing remains independent cellwise hash noise."""
+    from metroflow.city.development_field import (
+        DevelopmentFieldConfig,
+        DeterministicDevelopmentField,
+    )
+    from metroflow.city.scalable_topology import ScalableTerrainField, _terrain_fingerprint
+
+    terrain = ScalableTerrainField(
+        7_171.372,
+        5_577.734,
+        50.0,
+        2_000.0,
+        503,
+        "organic",
+        None,
+        _terrain_fingerprint(7_171.372, 5_577.734, 503, "organic", None),
+    )
+    field = DeterministicDevelopmentField(
+        seed=503,
+        config=DevelopmentFieldConfig(correlation_length_m=400.0, amplitude=0.28),
+    )
+
+    assert terrain.intensity_at(1_225.0, -875.0) == field.intensity_at(1_225.0, -875.0)
+
+
 def test_grid_core_has_dense_semantic_order_eight_ramps_and_literal_rows() -> None:
     from metroflow.city.scalable_topology import (
         FacilityKind,
