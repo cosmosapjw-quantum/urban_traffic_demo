@@ -684,6 +684,85 @@ def test_grid_core_replays_and_fingerprints_seed_and_scale() -> None:
     assert first.style_fingerprint != changed_seed.style_fingerprint
 
 
+def _grid_core_horizontal_axes(network: object) -> tuple[frozenset[int], ...]:
+    rows: dict[int, set[int]] = {}
+    for road in network.roads:
+        if road.semantic_role != "surface-horizontal":
+            continue
+        start, end = road.points_mm
+        assert start[1] == end[1]
+        rows.setdefault(start[1], set()).update((start[0], end[0]))
+    return tuple(frozenset(axis) for _, axis in sorted(rows.items()))
+
+
+@pytest.mark.parametrize("seed", (503, 701, 907))
+def test_grid_core_uses_one_shared_x_axis_and_exact_surface_verticals(seed: int) -> None:
+    """Row-local axes would turn semantic vertical roads into diagonals."""
+    import metroflow.city.scalable_topology as kernel
+
+    network = kernel.build_scalable_street_network(
+        CityScaleSpec(100_000, 40.0), "grid_core", seed
+    )
+    axes = _grid_core_horizontal_axes(network)
+    horizontals = [
+        road for road in network.roads if road.semantic_role == "surface-horizontal"
+    ]
+    verticals = [
+        road for road in network.roads if road.semantic_role == "surface-vertical"
+    ]
+
+    assert len(axes) > 1
+    assert len(set(axes)) == 1
+    assert horizontals
+    assert all(road.row_interval is not None for road in horizontals)
+    assert all(
+        road.row_interval.axis_mode == "grid_core_shared_x_axis_v1"
+        and road.row_interval.axis_sampling_y_mm == 0
+        for road in horizontals
+    )
+    assert all(
+        road.row_interval.seam_truncated
+        or road.row_interval.realized_spacing_mm == road.row_interval.nominal_spacing_mm
+        for road in horizontals
+    )
+    assert verticals
+    assert all(road.points_mm[0][0] == road.points_mm[-1][0] for road in verticals)
+
+    horizontal = horizontals[0]
+    kernel._validate_row_interval_authority(horizontal, network.terrain, network.extent_mm)
+    with pytest.raises(ValueError, match="row interval authority"):
+        kernel._validate_row_interval_authority(
+            replace(
+                horizontal,
+                row_interval=replace(
+                    horizontal.row_interval,
+                    axis_mode="row_local_v1",
+                    axis_sampling_y_mm=None,
+                ),
+            ),
+            network.terrain,
+            network.extent_mm,
+        )
+
+
+def test_grid_core_seed_changes_spacing_without_losing_orthogonality() -> None:
+    from metroflow.city.scalable_topology import build_scalable_street_network
+
+    first = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 503)
+    second = build_scalable_street_network(CityScaleSpec(100_000, 40.0), "grid_core", 701)
+
+    first_axis = _grid_core_horizontal_axes(first)[0]
+    second_axis = _grid_core_horizontal_axes(second)[0]
+    assert first_axis != second_axis
+    for network in (first, second):
+        assert len(set(_grid_core_horizontal_axes(network))) == 1
+        assert all(
+            road.points_mm[0][0] == road.points_mm[-1][0]
+            for road in network.roads
+            if road.semantic_role == "surface-vertical"
+        )
+
+
 def test_grid_core_tile_order_is_a_permutation_not_generation_input() -> None:
     from metroflow.city.scalable_topology import build_scalable_street_network
 
