@@ -12,6 +12,7 @@ from fractions import Fraction
 from math import isfinite
 from typing import Mapping, Sequence
 
+from metroflow.city.morphology_capabilities import STYLE_IDS
 from metroflow.city.scale import CityScaleSpec
 
 SCHEMA_VERSION = "tmfcg_s2_v1"
@@ -23,16 +24,6 @@ MAX_SURFACE_DEGREE = 4
 ORGANIC_MAX_AXIS_DISPLACEMENT_MM = 500_000
 ROW_LOCAL_AXIS_MODE = "row_local_v1"
 GRID_CORE_SHARED_X_AXIS_MODE = "grid_core_shared_x_axis_v1"
-STYLE_IDS = (
-    "ring_radial",
-    "grid_core",
-    "polycentric_tod",
-    "river_constrained",
-    "superblock_mixed",
-    "organic",
-)
-
-
 class RoadHierarchy(str, Enum):
     EXPRESSWAY = "expressway"
     ARTERIAL = "arterial"

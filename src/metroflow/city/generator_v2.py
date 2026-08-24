@@ -23,6 +23,7 @@ from .graph import (
     validate_road_network_topology,
 )
 from .local_fabric import build_local_fabric
+from .morphology_capabilities import style_ids_for_arm
 from .morphology_field import build_morphology_field
 from .quality_oracles import evaluate_hard_fail_oracle
 from .topology_finalizer import finalize_preview_topology as _finalize_preview_topology
@@ -47,6 +48,11 @@ class GenerationPipeline:
 
 class GeneratorV2:
     """Phase-2 orchestration skeleton for v2 city generation."""
+
+    @staticmethod
+    def supported_standard_styles() -> frozenset[str]:
+        """Return standard-preview capability from the shared style authority."""
+        return frozenset(style_ids_for_arm("standard"))
 
     def __init__(self, pipeline: GenerationPipeline | None = None) -> None:
         self.pipeline = pipeline or GenerationPipeline()
@@ -168,7 +174,7 @@ class GeneratorV2:
                 "sidecar_district_cells, sidecar_local_fabric, "
                 "sidecar_local_fabric_planar, realistic_synthetic_v1"
             )
-        if style_id not in {"ring_radial", "polycentric_tod"}:
+        if style_id not in self.supported_standard_styles():
             raise ValueError(
                 "standard preview_mode supports only ring_radial or polycentric_tod; "
                 "use a sidecar preview_mode for other morphology styles"

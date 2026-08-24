@@ -14,6 +14,7 @@ from pathlib import Path
 import subprocess
 import sys
 
+from metroflow.city.morphology_capabilities import get_style_capability
 from metroflow.city.scale import CityScaleSpec
 from metroflow.city.scalable_city import ScalableCityMap, build_scalable_city_map
 from metroflow.ui.static_map import (
@@ -25,13 +26,13 @@ from metroflow.sim.state import SimulationState, SimulationStaticRefs
 _DEFAULT_OUT = Path(__file__).resolve().parent.parent / "artifacts" / "sample_city_maps"
 _GALLERY_SCALE_SPEC = CityScaleSpec(target_population=100_000, urbanized_area_km2=25.0)
 
-MORPHOLOGY_GALLERY_SET: tuple[tuple[str, int, str], ...] = (
-    ("grid_core", 17, "Grid Core (Standard Uniform Lattice)"),
-    ("ring_radial", 17, "Ring Radial (Concentric Rings & Radial Spines)"),
-    ("river_constrained", 17, "River Constrained (Bifurcated Corridor & Bridges)"),
-    ("polycentric_tod", 17, "Polycentric TOD (Multi-Hub Centers)"),
-    ("superblock_mixed", 17, "Superblock Mixed (Hierarchical Macroblock Perimeters)"),
-    ("organic", 17, "Curvilinear Warped Grid (organic compatibility ID)"),
+MORPHOLOGY_GALLERY_SET: tuple[tuple[str, int], ...] = (
+    ("grid_core", 17),
+    ("ring_radial", 17),
+    ("river_constrained", 17),
+    ("polycentric_tod", 17),
+    ("superblock_mixed", 17),
+    ("organic", 17),
 )
 
 
@@ -43,6 +44,11 @@ class _GalleryConfig:
     morphology_style_id: str = "grid_core"
     zone_poi_coupling_mode: str = "block_based_v1"
     scale_spec: CityScaleSpec | None = _GALLERY_SCALE_SPEC
+
+
+def gallery_display_label(style_id: str) -> str:
+    """Return the public label from the sole typed style authority."""
+    return get_style_capability(style_id).public_label
 
 
 def _manifest_entry(
@@ -88,8 +94,9 @@ def render_all_sample_maps(out_dir: Path, generate_png: bool = True) -> None:
     for html_file in out_dir.glob("map_*.html"):
         html_file.unlink(missing_ok=True)
 
-    for style_id, seed, label in MORPHOLOGY_GALLERY_SET:
+    for style_id, seed in MORPHOLOGY_GALLERY_SET:
         print(f"Generating {style_id} (seed {seed})...")
+        label = gallery_display_label(style_id)
         cfg = _GalleryConfig(morphology_style_id=style_id)
 
         # Provenance gate: assert we are calling the scalable pipeline
@@ -186,11 +193,12 @@ def check_gallery_artifacts(out_dir: Path) -> bool:
     entry_by_style = {e["style_id"]: e for e in entries}
     verified_png_count = 0
 
-    for style_id, seed, description in MORPHOLOGY_GALLERY_SET:
+    for style_id, seed in MORPHOLOGY_GALLERY_SET:
         if style_id not in entry_by_style:
             print(f"Missing manifest entry for {style_id}", file=sys.stderr)
             return False
         committed_entry = entry_by_style[style_id]
+        description = gallery_display_label(style_id)
         svg_path = out_dir / f"map_{style_id}.svg"
         if not svg_path.exists():
             print(f"Missing SVG artifact: {svg_path}", file=sys.stderr)

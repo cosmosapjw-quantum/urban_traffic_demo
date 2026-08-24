@@ -8,8 +8,11 @@ from math import isfinite
 from numbers import Integral
 from typing import Iterable, Mapping
 
+from metroflow.city.morphology_capabilities import (
+    get_style_capability,
+    style_supports_arm,
+)
 from metroflow.city.scale import CityScaleSpec
-from metroflow.city.morphology_reference import get_morphology_archetype
 
 __all__ = [
     "DayType",
@@ -239,15 +242,11 @@ class CityGenerationConfig:
                 "scalable_synthetic_v2"
             )
         if self.morphology_style_id != "auto":
-            get_morphology_archetype(self.morphology_style_id)
-        if self.topology_mode == "scalable_synthetic_v2" and self.morphology_style_id not in {
-            "ring_radial",
-            "grid_core",
-            "polycentric_tod",
-            "river_constrained",
-            "superblock_mixed",
-            "organic",
-        }:
+            get_style_capability(self.morphology_style_id)
+        if self.topology_mode == "scalable_synthetic_v2" and not style_supports_arm(
+            self.morphology_style_id,
+            "scalable_synthetic_v2",
+        ):
             raise ValueError("scalable_synthetic_v2 requires an explicit supported style")
         if self.zone_poi_coupling_mode not in ZONE_POI_COUPLING_MODES:
             raise ValueError(
@@ -300,11 +299,10 @@ class CityGenerationConfig:
                 "block_based_v1 requires topology_mode=realistic_synthetic_v1 or "
                 "scalable_synthetic_v2"
             )
-        if self.topology_mode == "standard" and self.morphology_style_id not in {
-            "auto",
-            "ring_radial",
-            "polycentric_tod",
-        }:
+        if self.topology_mode == "standard" and self.morphology_style_id != "auto" and not style_supports_arm(
+            self.morphology_style_id,
+            "standard",
+        ):
             raise ValueError(
                 "explicit non-legacy morphology_style_id requires "
                 "sidecar_local_fabric or sidecar_local_fabric_planar"
