@@ -386,6 +386,39 @@ def test_ramp_records_require_explicit_two_layer_transition() -> None:
     assert ramp.facility.value == "ramp"
 
 
+def test_only_typed_interchange_ramps_require_layer_one() -> None:
+    from metroflow.city.scalable_topology import PhysicalRoadRecord, RampPurpose, RoadHierarchy
+
+    common = dict(
+        road_id=0,
+        semantic_id=_DIGEST,
+        start_node_id=0,
+        end_node_id=1,
+        points_mm=((0, 0), (1, 0)),
+        hierarchy=RoadHierarchy.ARTERIAL,
+        facility="ramp",
+        layer=0,
+        layer_transition=(0, 1),
+        structure_group=None,
+        failure_group=None,
+        profile_id="v2:ramp",
+        provenance="legacy-test",
+    )
+
+    legacy = PhysicalRoadRecord(
+        access_directions=frozenset({"forward", "reverse"}),
+        **common,
+    )
+    assert legacy.layer == 0
+    assert legacy.ramp_purpose is None
+    with pytest.raises(ValueError, match="typed ramps require layer 1"):
+        PhysicalRoadRecord(
+            access_directions=frozenset({"forward"}),
+            ramp_purpose=RampPurpose.ON_RAMP,
+            **common,
+        )
+
+
 def test_generated_ramps_have_explicit_one_way_interchange_purposes() -> None:
     """A bidirectional connector cannot stand in for a merge and diverge pair."""
     from metroflow.city.scalable_topology import (

@@ -238,8 +238,6 @@ class PhysicalRoadRecord:
         layer = _require_int("layer", self.layer)
         if facility is FacilityKind.MAINLINE and layer != 1:
             raise ValueError("mainlines require layer 1")
-        if facility is FacilityKind.RAMP and layer != 1:
-            raise ValueError("ramps require layer 1")
         object.__setattr__(self, "layer", layer)
 
         if not isinstance(self.access_directions, frozenset):
@@ -267,6 +265,8 @@ class PhysicalRoadRecord:
                 raise ValueError("ramp_purpose is invalid") from error
         if facility is not FacilityKind.RAMP and ramp_purpose is not None:
             raise ValueError("only ramps may define ramp_purpose")
+        if ramp_purpose is not None and layer != 1:
+            raise ValueError("typed ramps require layer 1")
         if ramp_purpose is not None and directions != frozenset({"forward"}):
             raise ValueError("typed ramps must be forward-only")
         object.__setattr__(self, "ramp_purpose", ramp_purpose)
