@@ -1,7 +1,7 @@
 # Claim Ledger
 
 Status: active source of truth
-Last updated: 2026-08-23
+Last updated: 2026-08-24
 
 Numeric claims in this file must be traceable to a committed artifact. Where a
 claim and an artifact disagreed, the artifact was the reproducible side and the
@@ -66,10 +66,21 @@ version with evidence and falsifiers is:
   axis-alignment check on all three seeds. The aggregate authority is therefore
   **FAIL, 15/18**, fingerprint
   `84b2f3657b21c9cedd9fe7723b4edf99ac3f7514cf7128aff6c994ff9da253f1`.
-  Cause is not established: warped geometry, semantic/geometric mismatch, and
-  classifier construct validity remain competing explanations. Thresholds and
-  results were not changed after observation. Authority:
+  This is immutable historical negative evidence for source tree
+  `622dbe3779`; thresholds and results were not changed after observation.
+  Authority:
   `artifacts/heldout_morphology_adversarial_audit_20260823/evidence/heldout_morphology_results.json`.
+- MAP-PR-001 isolates and repairs the historical `grid_core` cause: the former
+  generator made a terrain-dependent x-axis per row and joined row-local points
+  with monotone partial matching, so semantic `surface-vertical` roads could be
+  diagonal. The current source builds one shared exact-mm x-axis and joins
+  same-index coordinates. Its horizontal roads bind the versioned
+  `grid_core_shared_x_axis_v1` authority with sampling row `y=0`, so the shared
+  interval source is explicit rather than mislabelled as row-local terrain
+  spacing. Seeds `503,701,907` are now regression fixtures for exact
+  horizontal/vertical semantics; they are not re-consumed as fresh holdout data,
+  and this repair does not establish empirical morphology or traffic
+  functionality.
 - The same package preserves all six seed-503 SVG/PNG map pairs, exact source
   and harness receipts, MF-001 through MF-043, a claim-evidence ledger, and a
   reproducible Markdown/PDF audit. PNGs are digest-bound previews; SVG/source

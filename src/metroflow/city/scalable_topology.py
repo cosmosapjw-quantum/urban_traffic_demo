@@ -21,6 +21,8 @@ MAX_JUNCTIONS = 120_000
 MAX_PHYSICAL_ROADS = 300_000
 MAX_SURFACE_DEGREE = 4
 ORGANIC_MAX_AXIS_DISPLACEMENT_MM = 500_000
+ROW_LOCAL_AXIS_MODE = "row_local_v1"
+GRID_CORE_SHARED_X_AXIS_MODE = "grid_core_shared_x_axis_v1"
 STYLE_IDS = (
     "ring_radial",
     "grid_core",
@@ -153,6 +155,8 @@ class RowIntervalAuthority:
     nominal_spacing_mm: int
     realized_spacing_mm: int
     seam_truncated: bool
+    axis_mode: str = ROW_LOCAL_AXIS_MODE
+    axis_sampling_y_mm: int | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "row_y_mm", _require_int("row_y_mm", self.row_y_mm))
@@ -168,6 +172,17 @@ class RowIntervalAuthority:
         object.__setattr__(self, "realized_spacing_mm", realized)
         if type(self.seam_truncated) is not bool:
             raise TypeError("seam_truncated must be bool")
+        axis_mode = _snapshot_str("axis_mode", self.axis_mode)
+        if axis_mode not in {ROW_LOCAL_AXIS_MODE, GRID_CORE_SHARED_X_AXIS_MODE}:
+            raise ValueError("row interval axis_mode is not supported")
+        sampling_y_mm = self.axis_sampling_y_mm
+        if axis_mode == ROW_LOCAL_AXIS_MODE:
+            if sampling_y_mm is not None:
+                raise ValueError("row-local authority cannot override its sampling row")
+        else:
+            sampling_y_mm = _require_int("axis_sampling_y_mm", sampling_y_mm)
+        object.__setattr__(self, "axis_mode", axis_mode)
+        object.__setattr__(self, "axis_sampling_y_mm", sampling_y_mm)
 
 
 @dataclass(frozen=True, slots=True)
@@ -532,26 +547,44 @@ def _row_interval_authority(
     row_y_mm: int,
     terrain: ScalableTerrainField,
     extent: tuple[int, int, int, int],
+    *,
+    axis_mode: str = ROW_LOCAL_AXIS_MODE,
+    axis_sampling_y_mm: int | None = None,
 ) -> RowIntervalAuthority:
     left_x_mm = _require_int("left_x_mm", left_x_mm)
     right_x_mm = _require_int("right_x_mm", right_x_mm)
     row_y_mm = _require_int("row_y_mm", row_y_mm)
     if right_x_mm <= left_x_mm:
         raise ValueError("row interval must advance")
+    axis_mode = _snapshot_str("axis_mode", axis_mode)
+    if axis_mode not in {ROW_LOCAL_AXIS_MODE, GRID_CORE_SHARED_X_AXIS_MODE}:
+        raise ValueError("row interval axis_mode is not supported")
+    if axis_mode == ROW_LOCAL_AXIS_MODE:
+        if axis_sampling_y_mm is not None:
+            raise ValueError("row-local authority cannot override its sampling row")
+        sampling_y_mm = row_y_mm
+    else:
+        sampling_y_mm = _require_int("axis_sampling_y_mm", axis_sampling_y_mm)
+    if not extent[2] <= row_y_mm <= extent[3] or not extent[2] <= sampling_y_mm <= extent[3]:
+        raise ValueError("row interval rows must lie inside the extent")
     boundaries = tuple(sorted({extent[0], *_seam_coordinates(extent[0], extent[1]), extent[1]}))
     tile_left = max(value for value in boundaries if value <= left_x_mm)
     tile_right = min(value for value in boundaries if value > left_x_mm)
-    nominal = int(round(terrain.spacing_at(left_x_mm / 1_000.0, row_y_mm / 1_000.0) * 1_000.0))
+    nominal = int(
+        round(terrain.spacing_at(left_x_mm / 1_000.0, sampling_y_mm / 1_000.0) * 1_000.0)
+    )
     realized = right_x_mm - left_x_mm
     return RowIntervalAuthority(
         row_y_mm,
         left_x_mm,
         tile_left,
         tile_right,
-        terrain.cell_key_at(left_x_mm / 1_000.0, row_y_mm / 1_000.0),
+        terrain.cell_key_at(left_x_mm / 1_000.0, sampling_y_mm / 1_000.0),
         nominal,
         realized,
         right_x_mm == tile_right and realized < nominal,
+        axis_mode,
+        None if axis_mode == ROW_LOCAL_AXIS_MODE else sampling_y_mm,
     )
 
 
@@ -569,6 +602,8 @@ def _validate_row_interval_authority(
         authority.row_y_mm,
         terrain,
         extent,
+        axis_mode=authority.axis_mode,
+        axis_sampling_y_mm=authority.axis_sampling_y_mm,
     )
     if authority != expected:
         raise ValueError("row interval authority does not match terrain owner and seam rule")
@@ -578,6 +613,12 @@ def _validate_row_interval_authority(
     )
     if road.points_mm != expected_points:
         raise ValueError("horizontal road geometry does not match its row interval authority")
+    if (
+        authority.axis_mode == GRID_CORE_SHARED_X_AXIS_MODE
+        and not authority.seam_truncated
+        and authority.realized_spacing_mm != authority.nominal_spacing_mm
+    ):
+        raise ValueError("shared grid axis interval must match its nominal spacing")
 
 
 def _monotone_partial_match(
@@ -1213,7 +1254,7 @@ def _canonical_generated_specs(
     if style_id not in STYLE_IDS:
         raise ValueError("style_id must be supported by the topology generator")
     y_values = _local_axis(extent[2], extent[3], terrain, "y")
-    if style_id == "superblock_mixed":
+    if style_id in {"grid_core", "superblock_mixed"}:
         shared_x_values = _local_axis(
             extent[0], extent[1], terrain, "x", fixed_mm=0
         )
@@ -1575,7 +1616,19 @@ def _canonical_generated_specs(
                 hierarchy,
             )
             points = None
-            row_interval = _row_interval_authority(left, right, y_mm, terrain, extent)
+            row_interval = _row_interval_authority(
+                left,
+                right,
+                y_mm,
+                terrain,
+                extent,
+                axis_mode=(
+                    GRID_CORE_SHARED_X_AXIS_MODE
+                    if style_id == "grid_core"
+                    else ROW_LOCAL_AXIS_MODE
+                ),
+                axis_sampling_y_mm=0 if style_id == "grid_core" else None,
+            )
             if style_id == "organic":
                 role = "organic-connector"
                 points = _organic_connector_points(
@@ -1610,7 +1663,12 @@ def _canonical_generated_specs(
                 ),
             )
         for lower_bank, upper_bank in row_pairs:
-            matches = _monotone_partial_match(lower_bank, upper_bank)
+            if style_id == "grid_core":
+                if lower_bank != upper_bank:
+                    raise ValueError("grid core rows must share one x-coordinate authority")
+                matches = tuple((index, index) for index in range(len(lower_bank)))
+            else:
+                matches = _monotone_partial_match(lower_bank, upper_bank)
             for column, (lower_index, upper_index) in enumerate(matches):
                 if (
                     style_id == "superblock_mixed"
@@ -1933,7 +1991,7 @@ def _canonical_generated_specs(
 def _row_interval_content(authority: RowIntervalAuthority | None) -> tuple | None:
     if authority is None:
         return None
-    return (
+    content = (
         authority.row_y_mm,
         authority.left_x_mm,
         authority.tile_left_mm,
@@ -1943,6 +2001,9 @@ def _row_interval_content(authority: RowIntervalAuthority | None) -> tuple | Non
         authority.realized_spacing_mm,
         authority.seam_truncated,
     )
+    if authority.axis_mode != ROW_LOCAL_AXIS_MODE:
+        return (*content, authority.axis_mode, authority.axis_sampling_y_mm)
+    return content
 
 
 def _node_content(node: PhysicalNodeRecord) -> tuple:
