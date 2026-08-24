@@ -277,10 +277,11 @@ def test_pure_lowering_preserves_curved_geometry_and_expands_directions() -> Non
         "forward_link_id",
         "reverse_link_id",
         "structure_group",
-        "structure_group_id",
-        "failure_group",
-        "bridge_group_id",
-    )
+            "structure_group_id",
+            "failure_group",
+            "bridge_group_id",
+            "ramp_purpose",
+        )
     assert tuple(profile.profile_id for profile in lowered.numeric_profiles) == (
         "v2:bridge:arterial",
         "v2:bridge:collector",
@@ -857,9 +858,11 @@ def test_lowering_admits_a_typed_forward_only_off_ramp() -> None:
 
     lowered = _lower_scalable_records(nodes=nodes, roads=(off_ramp,))
 
+    assert lowered.road_crosswalk[0].ramp_purpose is RampPurpose.OFF_RAMP
     assert lowered.road_crosswalk[0].forward_link_id == 0
     assert lowered.road_crosswalk[0].reverse_link_id is None
     assert (lowered.links[0].src_node_id, lowered.links[0].dst_node_id) == (1, 0)
+    assert lowered.links[0].ramp_purpose == RampPurpose.OFF_RAMP.value
 
 
 @pytest.mark.parametrize(

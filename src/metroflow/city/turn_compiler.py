@@ -35,6 +35,7 @@ class _LinkLike(Protocol):
     src_node_id: int
     dst_node_id: int
     road_class: RoadClass | str
+    ramp_purpose: str | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -143,8 +144,10 @@ def compile_turn_authority(
     Classification uses the final centerline tangent into and out of the
     junction.  A deflection within ``through_angle_tolerance_deg`` is
     ``THROUGH``; positive/counter-clockwise deflection is ``LEFT`` and negative
-    deflection is ``RIGHT``.  Transitions into and out of ``RoadClass.RAMP``
-    take precedence as ``RAMP_ON`` and ``RAMP_OFF`` respectively.
+    deflection is ``RIGHT``. Typed ramp purpose takes precedence so both entry
+    and merge movements for an on-ramp are ``RAMP_ON``, while both diverge and
+    exit movements for an off-ramp are ``RAMP_OFF``. Legacy ramps without a
+    purpose retain the generic road-class fallback.
     """
 
     tolerance = _validated_tolerance(through_angle_tolerance_deg)
@@ -247,6 +250,12 @@ def _classify_turn(
 
     from_class = RoadClass(from_link.road_class)
     to_class = RoadClass(to_link.road_class)
+    from_purpose = getattr(from_link, "ramp_purpose", None)
+    to_purpose = getattr(to_link, "ramp_purpose", None)
+    if to_purpose == "on_ramp" or from_purpose == "on_ramp":
+        return TurnType.RAMP_ON
+    if to_purpose == "off_ramp" or from_purpose == "off_ramp":
+        return TurnType.RAMP_OFF
     if from_class is not RoadClass.RAMP and to_class is RoadClass.RAMP:
         return TurnType.RAMP_ON
     if from_class is RoadClass.RAMP and to_class is not RoadClass.RAMP:

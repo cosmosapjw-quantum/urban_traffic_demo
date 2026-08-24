@@ -67,7 +67,7 @@ def test_scalable_v2_deterministic_replay() -> None:
 
 def test_scalable_v2_gateway_interchanges_have_only_legal_on_and_off_movements() -> None:
     """Route authority must expose a one-way entry and exit at every gateway."""
-    from metroflow.city.graph import RoadClass
+    from metroflow.city.graph import RoadClass, TurnType
     from metroflow.city.scalable_topology import FacilityKind, RampPurpose
 
     cfg = CityGenerationConfig(
@@ -85,6 +85,10 @@ def test_scalable_v2_gateway_interchanges_have_only_legal_on_and_off_movements()
         if row.facility is FacilityKind.RAMP
     }
     permitted_turn_pairs = set(city.compiled.road_csr.turn_pair_to_index)
+    turn_type_by_pair = {
+        (turn.from_link_id, turn.to_link_id): turn.turn_type
+        for turn in city.compiled.topology.turns
+    }
 
     assert len(crosswalks) == 16
     for gateway_id in city.network.gateway_node_ids:
@@ -124,8 +128,20 @@ def test_scalable_v2_gateway_interchanges_have_only_legal_on_and_off_movements()
             for link in links.values()
             if link.src_node_id == gateway_id and link.road_class is RoadClass.EXPRESSWAY
         ]
-        assert any((entry_id, on_link_id) in permitted_turn_pairs for entry_id in surface_entries)
-        assert any((on_link_id, exit_id) in permitted_turn_pairs for exit_id in mainline_exits)
+        on_entry_pairs = {
+            (entry_id, on_link_id)
+            for entry_id in surface_entries
+            if (entry_id, on_link_id) in permitted_turn_pairs
+        }
+        on_merge_pairs = {
+            (on_link_id, exit_id)
+            for exit_id in mainline_exits
+            if (on_link_id, exit_id) in permitted_turn_pairs
+        }
+        assert on_entry_pairs
+        assert on_merge_pairs
+        assert {turn_type_by_pair[pair] for pair in on_entry_pairs} == {TurnType.RAMP_ON}
+        assert {turn_type_by_pair[pair] for pair in on_merge_pairs} == {TurnType.RAMP_ON}
 
         off_road, off_crosswalk = next(
             (road, crosswalk)
@@ -150,8 +166,20 @@ def test_scalable_v2_gateway_interchanges_have_only_legal_on_and_off_movements()
             for link in links.values()
             if link.src_node_id == off_link.dst_node_id and link.road_class is not RoadClass.RAMP
         ]
-        assert any((entry_id, off_link_id) in permitted_turn_pairs for entry_id in mainline_entries)
-        assert any((off_link_id, exit_id) in permitted_turn_pairs for exit_id in surface_exits)
+        off_diverge_pairs = {
+            (entry_id, off_link_id)
+            for entry_id in mainline_entries
+            if (entry_id, off_link_id) in permitted_turn_pairs
+        }
+        off_exit_pairs = {
+            (off_link_id, exit_id)
+            for exit_id in surface_exits
+            if (off_link_id, exit_id) in permitted_turn_pairs
+        }
+        assert off_diverge_pairs
+        assert off_exit_pairs
+        assert {turn_type_by_pair[pair] for pair in off_diverge_pairs} == {TurnType.RAMP_OFF}
+        assert {turn_type_by_pair[pair] for pair in off_exit_pairs} == {TurnType.RAMP_OFF}
 
 
 def test_scalable_v2_rejects_wrong_topology_mode() -> None:
@@ -335,4 +363,3 @@ def test_scalable_v2_identity_seal_rejection() -> None:
             compiled=city.compiled,
             static_authority=city.static_authority,
         )
-

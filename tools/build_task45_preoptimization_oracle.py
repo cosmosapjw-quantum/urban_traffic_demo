@@ -21,7 +21,7 @@ from typing import Sequence
 import numpy as np
 
 from metroflow.city.graph import NodeKind, RoadClass
-from metroflow.city.scalable_topology import FacilityKind, RoadHierarchy
+from metroflow.city.scalable_topology import FacilityKind, RampPurpose, RoadHierarchy
 
 
 _MANIFEST_SCHEMA = "scalable_task45_preoptimization_byte_oracle_v1"
@@ -48,7 +48,13 @@ _STYLES = (
 _TARGET_POPULATION = 100_000
 _URBANIZED_AREA_KM2 = 25.0
 _SEED = 17
-_REVIEWED_ENUM_TYPES = (RoadClass, NodeKind, FacilityKind, RoadHierarchy)
+_REVIEWED_ENUM_TYPES = (
+    RoadClass,
+    NodeKind,
+    FacilityKind,
+    RampPurpose,
+    RoadHierarchy,
+)
 _MUTABLE_PRODUCTION_PATHS = (
     "src/metroflow/city/scalable_authority.py",
     "src/metroflow/city/scalable_blocks.py",
@@ -188,6 +194,7 @@ def _task4_road(row: object) -> tuple[object, ...]:
         row.structure_group_id,
         row.failure_group,
         row.bridge_group_id,
+        None if row.ramp_purpose is None else row.ramp_purpose.value,
     )
 
 
@@ -223,6 +230,7 @@ def _task4_link(row: object) -> tuple[object, ...]:
         row.bridge_group_id,
         row.is_blockable,
         row.physical_road_id,
+        row.ramp_purpose,
     )
 
 
@@ -307,6 +315,7 @@ def _task5_road(row: object) -> tuple[object, ...]:
         row.structure_group_id,
         row.failure_group,
         row.bridge_group_id,
+        row.ramp_purpose,
     )
 
 
