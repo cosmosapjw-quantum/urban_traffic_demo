@@ -77,6 +77,7 @@ def test_gallery_display_label_stays_below_the_implemented_structure(
     module.render_all_sample_maps(tmp_path, generate_png=False)
 
     manifest = json.loads((tmp_path / "gallery_manifest.json").read_text(encoding="utf-8"))
+    assert module.gallery_display_label(style_id) == expected_label
     assert manifest[0]["display_label"] == expected_label
 
 

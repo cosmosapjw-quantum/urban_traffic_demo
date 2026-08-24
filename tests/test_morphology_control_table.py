@@ -122,6 +122,36 @@ def test_collect_scores_preclassifies_unsupported_standard_styles(
     assert ("standard", "grid_core", 17) not in build_calls
 
 
+def test_markdown_renders_stable_skip_reason_code_values() -> None:
+    """The typed in-memory reason must retain the artifact's stable text value."""
+    from metroflow.benchmarks.morphology_control_table import (
+        SkippedCase,
+        render_markdown,
+    )
+    from metroflow.city.morphology_capabilities import SkipReason
+    from metroflow.city.morphology_control_table import (
+        build_morphology_control_table,
+        score_street_morphology,
+    )
+
+    table = build_morphology_control_table(
+        (score_street_morphology(_square_topology(), arm="standard"),)
+    )
+    markdown = render_markdown(
+        table,
+        (
+            SkippedCase(
+                arm="standard",
+                case="grid_core/17",
+                reason_code=SkipReason.UNSUPPORTED_ARM_STYLE,
+            ),
+        ),
+    )
+
+    assert "`standard:grid_core/17:UNSUPPORTED_ARM_STYLE`" in markdown
+    assert "SkipReason." not in markdown
+
+
 def test_collect_scores_does_not_normalize_unexpected_generation_errors(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

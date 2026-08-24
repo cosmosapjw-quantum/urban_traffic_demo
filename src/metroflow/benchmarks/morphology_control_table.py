@@ -24,30 +24,35 @@ from metroflow.city.morphology_control_table import (
     build_morphology_control_table,
     score_street_morphology,
 )
-from metroflow.city.morphology_reference import MORPHOLOGY_ARCHETYPES
+from metroflow.city.morphology_capabilities import (
+    STYLE_IDS,
+    SkipReason,
+    style_supports_arm,
+)
 from metroflow.map.osm_import import UnsupportedOSMTagError
 
-CONTROL_TABLE_STYLES = tuple(MORPHOLOGY_ARCHETYPES)
+CONTROL_TABLE_STYLES = STYLE_IDS
 CONTROL_TABLE_SEEDS = (17, 29, 41, 44, 53)
 LEGACY_ARMS = ("standard", "sidecar_local_fabric", "sidecar_local_fabric_planar")
 REALISTIC_ARM = "realistic_synthetic_v1"
 GROWTH_ARM = "growth_fabric_v1"
-STANDARD_SUPPORTED_STYLES = frozenset({"ring_radial", "polycentric_tod"})
-
-
 @dataclass(frozen=True, slots=True)
 class SkippedCase:
     """One explicitly classified attempt that produced no morphology score."""
 
     arm: str
     case: str
-    reason_code: str
+    reason_code: SkipReason
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.reason_code, SkipReason):
+            raise TypeError("reason_code must be a SkipReason")
 
     def as_dict(self) -> dict[str, str]:
         return {
             "arm": self.arm,
             "case": self.case,
-            "reason_code": self.reason_code,
+            "reason_code": self.reason_code.value,
         }
 
 
@@ -68,12 +73,12 @@ def collect_scores(
             for seed in seeds:
                 case = f"{style_id}/{seed}"
                 attempted_keys.append((arm, case))
-                if arm == "standard" and style_id not in STANDARD_SUPPORTED_STYLES:
+                if not style_supports_arm(style_id, arm):
                     skipped.append(
                         SkippedCase(
                             arm=arm,
                             case=case,
-                            reason_code="UNSUPPORTED_ARM_STYLE",
+                            reason_code=SkipReason.UNSUPPORTED_ARM_STYLE,
                         )
                     )
                     continue
@@ -108,7 +113,7 @@ def collect_scores(
             topology = build_osm_topology(path)
         except UnsupportedOSMTagError as exc:
             skipped.append(
-                SkippedCase(arm="osm", case=case, reason_code=exc.reason_code)
+                SkippedCase(arm="osm", case=case, reason_code=SkipReason(exc.reason_code))
             )
             continue
         scores.append(score_street_morphology(topology, arm="osm", case=case))
@@ -327,7 +332,7 @@ def render_markdown(
     if skipped:
         lines += ["", "## Skipped cases", ""]
         lines += [
-            f"- `{item.arm}:{item.case}:{item.reason_code}`" for item in skipped
+            f"- `{item.arm}:{item.case}:{item.reason_code.value}`" for item in skipped
         ]
 
     lines += [

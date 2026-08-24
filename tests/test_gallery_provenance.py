@@ -82,7 +82,7 @@ def test_gallery_renderer_uses_absolute_svg_uri_and_binds_png(
     monkeypatch.setattr(
         module,
         "MORPHOLOGY_GALLERY_SET",
-        (("grid_core", 17, "Grid Core"),),
+        (("grid_core", 17),),
     )
     chrome_commands: list[list[str]] = []
 
@@ -111,7 +111,7 @@ def test_svg_only_render_does_not_rebind_a_stale_png(
     monkeypatch.setattr(
         module,
         "MORPHOLOGY_GALLERY_SET",
-        (("grid_core", 17, "Grid Core"),),
+        (("grid_core", 17),),
     )
     gallery = tmp_path / "gallery"
     gallery.mkdir()
@@ -133,7 +133,7 @@ def test_png_render_rejects_a_stale_file_when_chrome_writes_nothing(
     monkeypatch.setattr(
         module,
         "MORPHOLOGY_GALLERY_SET",
-        (("grid_core", 17, "Grid Core"),),
+        (("grid_core", 17),),
     )
     gallery = tmp_path / "gallery"
     gallery.mkdir()

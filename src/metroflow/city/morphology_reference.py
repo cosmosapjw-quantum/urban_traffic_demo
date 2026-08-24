@@ -6,6 +6,12 @@ from dataclasses import dataclass
 from types import MappingProxyType
 from typing import Mapping
 
+from metroflow.city.morphology_capabilities import (
+    STYLE_CAPABILITIES,
+    STYLE_IDS,
+    get_style_capability,
+)
+
 __all__ = [
     "EmpiricalStreetNetworkReference",
     "MorphologyArchetype",
@@ -77,52 +83,18 @@ _EMPIRICAL_REFERENCES = (
 
 _ARCHETYPES: Mapping[str, MorphologyArchetype] = MappingProxyType(
     {
-        "ring_radial": MorphologyArchetype(
-            "ring_radial",
-            "monocentric",
-            "radial_ring",
-            (),
-            "Legacy compatibility grammar; retained as a control, not a universal city model.",
-        ),
-        "grid_core": MorphologyArchetype(
-            "grid_core",
-            "distributed_grid",
-            "orthogonal_grid",
-            ("Chicago", "Buenos Aires"),
-            "Single-orientation grid with high four-way connectivity.",
-        ),
-        "polycentric_tod": MorphologyArchetype(
-            "polycentric_tod",
-            "polycentric",
-            "polycentric_mesh",
-            ("Boston",),
-            "Multiple comparable centers connected without mandatory downtown traversal.",
-        ),
-        "river_constrained": MorphologyArchetype(
-            "river_constrained",
-            "linear_banks",
-            "corridor_constrained",
-            ("Hong Kong",),
-            "Longitudinal corridors and limited transverse crossings model a barrier-constrained city.",
-        ),
-        "superblock_mixed": MorphologyArchetype(
-            "superblock_mixed",
-            "district_clusters",
-            "multi_grid",
-            ("Detroit", "Seattle"),
-            "Several locally ordered grids use different orientations and sparse connectors.",
-        ),
-        "organic": MorphologyArchetype(
-            "organic",
-            "accreted",
-            "organic_mesh",
-            ("Charlotte", "Seoul"),
-            "Irregular nearest-neighbor accretion with loops and cul-de-sacs.",
-        ),
+        capability.style_id: MorphologyArchetype(
+            capability.style_id,
+            capability.legacy_center_pattern,
+            capability.legacy_street_pattern,
+            capability.empirical_reference_cities,
+            capability.literature_basis,
+        )
+        for capability in STYLE_CAPABILITIES
     }
 )
 
-MORPHOLOGY_ARCHETYPES = tuple(_ARCHETYPES)
+MORPHOLOGY_ARCHETYPES = STYLE_IDS
 
 
 def empirical_street_network_references() -> tuple[EmpiricalStreetNetworkReference, ...]:
@@ -131,7 +103,7 @@ def empirical_street_network_references() -> tuple[EmpiricalStreetNetworkReferen
 
 def get_morphology_archetype(style_id: str) -> MorphologyArchetype:
     try:
-        return _ARCHETYPES[str(style_id)]
+        return _ARCHETYPES[get_style_capability(style_id).style_id]
     except KeyError as exc:
         allowed = ", ".join(MORPHOLOGY_ARCHETYPES)
         raise ValueError(f"morphology style_id must be one of: {allowed}") from exc
