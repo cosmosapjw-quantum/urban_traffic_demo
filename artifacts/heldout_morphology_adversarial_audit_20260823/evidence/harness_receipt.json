@@ -1,0 +1,48 @@
+{
+  "acceptance_boundary": {
+    "algorithm_changes": 0,
+    "analysis_set": "all 18 held-out cases plus MF-001 through MF-043",
+    "fresh_osm_downloads": 0,
+    "map_set": "six seed-503 held-out preview/authority pairs",
+    "traffic_reruns": 0
+  },
+  "archives": [
+    {
+      "applied_surfaces": [
+        "finite acceptance and reproduction contract",
+        "software validation",
+        "scientific and numerical claim separation",
+        "reproducibility checks",
+        "independent read-only review"
+      ],
+      "archive_safety": "CRC/path/duplicate/symlink inspection passed",
+      "basename": "physmath-coding-harness-gpt56.zip",
+      "bytes": 25533,
+      "entry_count": 46,
+      "role": "coding validation harness",
+      "sha256": "6e67e999a0c19f6ed9de7c339067cc11691d5cf5cb662a11756d8fc393c849b4",
+      "version": "3.1.0"
+    },
+    {
+      "applied_surfaces": [
+        "evidence-before-narrative ledger",
+        "claim audit",
+        "adversarial review",
+        "decision gate",
+        "negative-result preservation"
+      ],
+      "archive_safety": "CRC/path/duplicate/symlink inspection passed",
+      "basename": "physmath-research-harness-gpt56.zip",
+      "bytes": 32648,
+      "entry_count": 59,
+      "role": "research validation harness",
+      "sha256": "9adde688f8020e7feb2c1c0304b3204dbe70dd01e2d87e64a5c4eb357c019934",
+      "version": "3.1.0"
+    }
+  ],
+  "captured_on": "2026-08-23",
+  "installed": false,
+  "instruction_boundary": "Harness documents were applied as validation methods. They did not replace or expand the user's request, authorize algorithm changes, or authorize publication, push, merge, or fresh external data.",
+  "repository_agents_file_overwritten": false,
+  "schema_version": "physmath_harness_application_receipt_v1"
+}

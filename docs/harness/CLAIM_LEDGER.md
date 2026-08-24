@@ -1,7 +1,7 @@
 # Claim Ledger
 
 Status: active source of truth
-Last updated: 2026-08-22
+Last updated: 2026-08-23
 
 Numeric claims in this file must be traceable to a committed artifact. Where a
 claim and an artifact disagreed, the artifact was the reproducible side and the
@@ -58,6 +58,23 @@ version with evidence and falsifiers is:
 
 ## Internally Verified
 
+- The 2026-08-23 `scalable_synthetic_v2` seed-held-out structural protocol
+  freezes six styles, seeds `503,701,907`, target population `100,000`, and
+  urbanized area `25.0 km2`. It records exactly 18 expected/attempted/scored
+  cases and zero skips. All 18 are nonempty, style-bound, and deterministic.
+  Five non-grid styles pass all direct structural checks; `grid_core` fails its
+  axis-alignment check on all three seeds. The aggregate authority is therefore
+  **FAIL, 15/18**, fingerprint
+  `84b2f3657b21c9cedd9fe7723b4edf99ac3f7514cf7128aff6c994ff9da253f1`.
+  Cause is not established: warped geometry, semantic/geometric mismatch, and
+  classifier construct validity remain competing explanations. Thresholds and
+  results were not changed after observation. Authority:
+  `artifacts/heldout_morphology_adversarial_audit_20260823/evidence/heldout_morphology_results.json`.
+- The same package preserves all six seed-503 SVG/PNG map pairs, exact source
+  and harness receipts, MF-001 through MF-043, a claim-evidence ledger, and a
+  reproducible Markdown/PDF audit. PNGs are digest-bound previews; SVG/source
+  fingerprints carry identity. This is a report/evidence claim, not a new
+  generator or traffic implementation claim.
 - Deterministic regression and replay contracts covered by local tests.
 - Explicit optional backends fail closed; `auto` alone may fallback.
 - Synthetic connectivity/morphology/accessibility gates pass their recorded
@@ -310,6 +327,15 @@ version with evidence and falsifiers is:
 
 ## Not Validated
 
+- The 2026-08-23 held-out run is seed-held-out structural morphology, not a
+  fresh-OSM or named-city holdout. It does not establish empirical urban
+  realism, traffic performance, route-choice validity, resilience, functional
+  TOD/superblocks, organic topology, or runtime-default readiness.
+- The prior traffic-functional development attempt left one failed
+  nonvacuous/directional probe and no durable complete result artifact. It is a
+  preserved negative result, not a traffic-algorithm diagnosis. Functional
+  validation was not completed; the traffic algorithms require further change
+  and research, and no completeness claim is made.
 - Complete 100k-population integrated runtime behavior. A bounded seed-41 run
   reaches tick 128 in 226.09 s with 10,626 vehicles still active and therefore
   does not establish closure or operational throughput.

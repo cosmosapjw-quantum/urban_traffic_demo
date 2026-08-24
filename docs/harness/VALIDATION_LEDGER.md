@@ -1,5 +1,128 @@
 # Validation Ledger
 
+## 2026-08-23: Seed-Held-Out Morphology Adversarial Report Candidate
+
+Change class: report/evidence packaging only; no generator, traffic, threshold,
+seed, baseline, or runtime-default change
+
+Threat-model boundary: this is single-developer personal research code.
+"Adversarial" denotes skeptical scientific/code review, not a hostile operator.
+Hashes and manifests are reproducibility and accidental-corruption receipts;
+security and tamper-resistance are not claimed or gated.
+
+Source identity:
+
+- map/measurement commit:
+  `e1979df281ac25a24a82fdea725422310f7c6807`;
+- source tree: `622dbe37790c5414141cd5d5531a2158aa56f7e5`;
+- scientific fingerprint:
+  `84b2f3657b21c9cedd9fe7723b4edf99ac3f7514cf7128aff6c994ff9da253f1`.
+
+Observed scientific result:
+
+- fixed matrix: six styles x held-out seeds `503,701,907`;
+- inventory: 18 expected, 18 attempted, 18 scored, zero skipped;
+- outcome: **15/18, FAIL**;
+- `grid_core`: `0/3`, failing only `axis_aligned_grid_core` while generic
+  nonempty, style-identity, two-axis-carrier, centre, and replay checks pass;
+- the five non-grid styles: `15/15` on their direct structural falsifiers;
+- claim level: seed-held-out structural morphology only, not fresh-OSM,
+  traffic-functional, algorithm-completeness, or runtime-promotion evidence.
+
+Report-candidate evidence:
+
+```bash
+/home/cosmosapjw/Dropbox/personal_projects/urban_traffic_demo/.venv/bin/python \
+  -m pytest tests/test_scalable_map_gallery.py \
+  tests/test_gallery_provenance.py -q
+/tmp/metroflow-report-pdf-venv-20260823/bin/python \
+  tools/build_heldout_morphology_adversarial_report.py --build
+/home/cosmosapjw/Dropbox/personal_projects/urban_traffic_demo/.venv/bin/python \
+  tools/build_heldout_morphology_adversarial_report.py \
+  --check --allow-review-missing
+/home/cosmosapjw/Dropbox/personal_projects/urban_traffic_demo/.venv/bin/python \
+  -m pytest tests/test_heldout_morphology_adversarial_report.py -q
+```
+
+- unchanged source-gallery baseline: `8 passed in 129.76s`;
+- behavior TDD RED before implementation: `4 failed` because the package did
+  not exist;
+- pre-review package checker: passed with the explicit
+  `--allow-review-missing` candidate boundary;
+- pre-review behavior contract: `3 passed, 1 failed`; the sole withheld
+  acceptance surface is the reviewer-authored `INDEPENDENT_REVIEW.md`;
+- ReportLab invariant rebuild produced identical PDF SHA-256
+  `196abe1677ff00675de22a58f9152e1d8416dca8c52ac4720bf6046ce4a276ed`;
+- all 20 PDF pages were rasterized and visually inspected; no clipping,
+  overlap, missing map, blank terminal page, or unreadable table was observed;
+- focused Ruff and `git diff --check`: passed.
+
+First independent review of commit
+`0c5648797e472d4fb68cd6ccb7c3f1876a40bae4`, tree
+`1da0422699ac197600e010f3bef2dcabcbc99f1e`, returned `P0=0, P1=4`:
+
+1. the checker did not enforce the exact Cartesian result partition, recompute
+   the scientific fingerprint, pin the raw result digest, or validate a whole
+   PNG;
+2. nested extras, ordinary unfinished markers, and contradictory substring
+   review verdicts could pass;
+3. the byte-frozen validator exposed only author-specific source/output paths
+   and treated its expected scientific FAIL as a reproduction-process failure;
+4. seven distinct morphology/control failures in the canonical claim ledger
+   were absent from the purported complete scoped inventory.
+
+The single permitted repair-closeout round added direct RED tests for all four
+classes (`10 failed, 1 passed` before repair). Current pre-closeout evidence:
+
+- exact matrix keys and recomputed scientific payload fingerprint are checked;
+- the expected raw result, sample-manifest, validator, and portable-runner
+  digests are code-pinned; PNG CRC/chunk/IEND/compressed-data structure is read;
+- the complete recursive package tree, broader unfinished markers, exact
+  generated prose/receipts/inventory/manifest, and an unambiguous terminal
+  review block are checked;
+- an explicit-path portable runner preserves the original validator bytes and
+  distinguishes reproduction success from the experimental FAIL;
+- portable result reproduction: `18/18 bytes re-derived; scientific
+  verdict=FAIL; skipped=0`;
+- portable sample reproduction: `6/6` SVG authorities byte-identical and all
+  PNG/contact-sheet digests matched;
+- MF-037 through MF-043 now preserve control leakage/population mismatch,
+  strict-import failure, representation dependence, historical non-replay,
+  severed river, nonexistent bypass, and five-of-five real-control rejection;
+- repaired behavior contract: `11 passed, 1 failed`, with only the still-absent
+  final reviewer receipt withheld.
+
+The same reviewer completed the single repair-closeout review of commit
+`844691e5fff1178f888b6bed82837f687c54f61d`, tree
+`0b5ea139911742af2f7d6dbbbf71572cc67e4842`, with `P0=0`, `P1=0`, `P2=2`,
+and `PASS`. The two P2 items are deliberately malformed review-text parsing and
+deliberately constructed underfilled-PNG hardening. Neither affects the committed
+receipt or seven fully decoded images; both are nonblocking under the controlling
+single-user/non-hostile threat-model boundary.
+
+Final post-receipt evidence:
+
+- strict package checker: passed without `--allow-review-missing`;
+- behavior contract: `12 passed in 0.70s`;
+- unchanged gallery/provenance regression: `8 passed in 112.49s`;
+- focused Ruff and `git diff --check`: passed;
+- portable protocol check: 6 styles, 3 seeds, 18 attempts;
+- portable result reproduction: `18/18` byte-identical, scientific verdict
+  `FAIL`, zero skips;
+- portable sample reproduction: `6/6` SVG authorities byte-identical; all six
+  PNG previews and the contact sheet matched recorded digests;
+- invariant PDF rebuild SHA-256 matched twice:
+  `d1fbd9079af111186343633666d7906b8fee3f9a9e8b2f65bcdeccd8ab8135dc`;
+- both PDF copies are byte-identical, 23-page A4 files;
+- all 23 pages were rasterized and visually inspected after the review receipt
+  was included; no clipping, overlap, missing map, unreadable table, or blank
+  terminal page was observed.
+
+Status: **LOCALLY VERIFIED / INDEPENDENT REVIEW PASS** for the report package.
+The report branch has not been pushed and has no remote-CI receipt. This status
+does not promote morphology empirically, complete traffic validation, or change
+the runtime default.
+
 ## 2026-08-20: Morphology Structural Differentiation and Evidence Closure
 
 Change class: morphology grammar, falsifiable public contracts, artifact

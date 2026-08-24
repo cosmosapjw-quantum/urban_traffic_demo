@@ -1,0 +1,43 @@
+{
+  "claim_boundary": "This proves exact-tree implementation and artifact gates for PR #17. It does not prove empirical morphology, traffic validity, or this later report branch's remote CI state.",
+  "head_commit": "6d6e05630b718b50cf311aa127dfb2eeb8d8530f",
+  "head_tree": "622dbe37790c5414141cd5d5531a2158aa56f7e5",
+  "merge_commit": "e1979df281ac25a24a82fdea725422310f7c6807",
+  "merge_tree": "622dbe37790c5414141cd5d5531a2158aa56f7e5",
+  "merged_at": "2026-08-22T10:19:14Z",
+  "pull_request": 17,
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "retrieved_on": "2026-08-23",
+  "runs": [
+    {
+      "ci_gate_job": 97013052528,
+      "conclusion": "success",
+      "event": "push",
+      "head_sha": "6d6e05630b718b50cf311aa127dfb2eeb8d8530f",
+      "id": 32564391135,
+      "url": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/32564391135"
+    },
+    {
+      "ci_gate_job": 97012753138,
+      "conclusion": "success",
+      "event": "pull_request synthetic merge",
+      "head_sha": "6d6e05630b718b50cf311aa127dfb2eeb8d8530f",
+      "id": 32564393072,
+      "url": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/32564393072"
+    }
+  ],
+  "schema_version": "github_pr_remote_evidence_receipt_v1",
+  "state": "MERGED",
+  "successful_surfaces": [
+    "test partition",
+    "five disjoint test shards",
+    "Ruff",
+    "OSMnx oracle parity",
+    "17-case audit gallery",
+    "six-case scalable gallery",
+    "135-score plus 22-skip v4 control table",
+    "final ci gate"
+  ],
+  "tree_identity": "MATCH",
+  "url": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/pull/17"
+}

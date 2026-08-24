@@ -1,6 +1,7 @@
 # AGENTS.md
 
 ## 최상위 규칙
+- 개인 연구용 단일 사용자 코드: 보안·권한분리·악의적 위변조 방어는 기본 범위 밖이다. 해시/manifest는 우발적 손상 확인과 과학적 재현성 식별에만 사용하며 보안성을 주장하지 않는다.
 - S2 before S1
 - external-data learning 금지
 - baseline fallback 필수
@@ -16,6 +17,7 @@
 - 보증 문서 크기는 대상 source+test 코드 크기 이하로 엄격 제한 (assurance inflation 방지)
 
 ## 지금 하지 말 것
+- 다중 사용자 인증·인가, 공격자 위협 모델, anti-tamper/서명 인프라, 제품 보안 하드닝 (사용자가 연구 범위를 명시적으로 바꾸기 전까지)
 - lane-level microscopic default
 - RL/LLM-first route brain
 - ECS/plugin-first architecture

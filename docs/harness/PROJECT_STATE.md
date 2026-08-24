@@ -1,11 +1,15 @@
 # Project State
 
-Last updated: 2026-08-20
+Last updated: 2026-08-23
 
 ## Process Governance & Hybrid Methodology Baseline
 
 Facts:
 
+- MetroFlow is single-developer personal research code. Product security,
+  multi-user access control, and anti-tamper hardening are not active requirements.
+  Existing hashes/manifests are reproducibility and accidental-corruption receipts,
+  not security claims.
 - Development and review methodology is governed by `docs/harness/PROCESS_INFLATION_GUARDRAILS.md`.
 - Watchdog state: Drift WATCH, Code inflation WATCH, Process accretion remediated, Claim accretion PASS, Gate inflation remediated, Assurance inflation remediated.
 - Active methodology is the Hybrid Contract: Short Spec Boundaries + Behavior-Cluster TDD + Single Serial Implementer + Frozen Candidate Read-Only Subagent Review.
