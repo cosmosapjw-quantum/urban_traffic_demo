@@ -13,6 +13,10 @@ from math import isfinite
 from typing import Mapping, Sequence
 
 from metroflow.city.development_field import DeterministicDevelopmentField
+from metroflow.city.infrastructure_budget import (
+    InfrastructureBudget,
+    PERIMETER_GATEWAY_COUNT,
+)
 from metroflow.city.morphology_capabilities import STYLE_IDS
 from metroflow.city.scale import CityScaleSpec
 
@@ -1090,15 +1094,15 @@ def _centers(
     row_x_values: Mapping[int, tuple[int, ...]],
     y_values: tuple[int, ...],
     style_id: str,
-    area_km2: float,
+    center_count: int,
 ) -> tuple[tuple[int, int], ...]:
     center_y = min(y_values, key=abs)
     if style_id in {"ring_radial", "grid_core", "organic"}:
         return ((min(row_x_values[center_y], key=abs), center_y),)
     if style_id in {"polycentric_tod", "superblock_mixed"}:
-        count = max(3, min(8, round(area_km2 / 50.0)))
+        count = center_count
     else:
-        count = max(2, min(5, round(area_km2 / 80.0)))
+        count = center_count
         center_x_values = row_x_values[center_y]
         return tuple(
             (
@@ -1141,6 +1145,7 @@ def _surface_hierarchy(
     right_y: int,
     style_id: str,
     centers: tuple[tuple[int, int], ...],
+    budget: InfrastructureBudget,
     horizontal: bool,
 ) -> RoadHierarchy:
     if style_id == "ring_radial" and (
@@ -1161,15 +1166,26 @@ def _surface_hierarchy(
     if style_id == "superblock_mixed":
         midpoint_x = (left_x + right_x) // 2
         midpoint_y = (left_y + right_y) // 2
-        district = math.floor(midpoint_x / 2_000_000) + math.floor(midpoint_y / 2_000_000)
+        district = math.floor(
+            midpoint_x / budget.superblock_district_span_mm
+        ) + math.floor(midpoint_y / budget.superblock_district_span_mm)
         if (district % 2 == 0) == horizontal:
             return RoadHierarchy.COLLECTOR
-        if row % 9 == 0 or column % 9 == 0:
+        if (
+            row % budget.arterial_lattice_stride == 0
+            or column % budget.arterial_lattice_stride == 0
+        ):
             return RoadHierarchy.ARTERIAL
         return RoadHierarchy.LOCAL
-    if row % 9 == 0 or column % 9 == 0:
+    if (
+        row % budget.arterial_lattice_stride == 0
+        or column % budget.arterial_lattice_stride == 0
+    ):
         return RoadHierarchy.ARTERIAL
-    if row % 3 == 0 or column % 3 == 0:
+    if (
+        row % budget.collector_lattice_stride == 0
+        or column % budget.collector_lattice_stride == 0
+    ):
         return RoadHierarchy.COLLECTOR
     return RoadHierarchy.LOCAL
 
@@ -1285,8 +1301,18 @@ def _off_ramp_points(
 ) -> tuple[tuple[int, int], ...]:
     """Create a deterministic, non-overlapping diverge centerline in exact mm."""
 
-    start = (upper.x_mm, upper.y_mm)
-    end = (access.x_mm, access.y_mm)
+    return _off_ramp_points_from_coordinates(
+        (upper.x_mm, upper.y_mm), (access.x_mm, access.y_mm), extent
+    )
+
+
+def _off_ramp_points_from_coordinates(
+    start: tuple[int, int],
+    end: tuple[int, int],
+    extent: tuple[int, int, int, int],
+) -> tuple[tuple[int, int], ...]:
+    """Create one deterministic off-ramp polyline before materialising its node."""
+
     delta_x = end[0] - start[0]
     delta_y = end[1] - start[1]
     span = max(abs(delta_x), abs(delta_y))
@@ -1319,6 +1345,50 @@ def _off_ramp_points(
     raise ValueError("off-ramp diverge cannot fit immutable extent")
 
 
+def _ramp_polylines_are_clear(
+    proposed: Sequence[tuple[tuple[int, int], ...]],
+    existing_segments: Sequence[tuple[tuple[int, int], tuple[int, int]]],
+) -> bool:
+    """Reject a candidate interchange whose layer-1 ramps would self-intersect.
+
+    Surface geometry is deliberately excluded: typed ramp/mainline links are
+    grade-separated from the layer-0 carriers. The predicate mirrors the
+    structural audit's same-layer proper/touch/overlap conditions before a
+    candidate becomes part of the immutable record set.
+    """
+
+    candidate_segments = tuple(
+        (polyline_index, segment_index, left, right)
+        for polyline_index, points in enumerate(proposed)
+        for segment_index, (left, right) in enumerate(zip(points, points[1:]))
+    )
+    for _polyline_index, _segment_index, left, right in candidate_segments:
+        for existing_left, existing_right in existing_segments:
+            if (
+                _proper_intersection(left, right, existing_left, existing_right)
+                or _collinear_overlap(left, right, existing_left, existing_right)
+                or _point_in_open_segment(left, existing_left, existing_right)
+                or _point_in_open_segment(right, existing_left, existing_right)
+                or _point_in_open_segment(existing_left, left, right)
+                or _point_in_open_segment(existing_right, left, right)
+            ):
+                return False
+    for index, (left_polyline, left_segment, left_a, left_b) in enumerate(candidate_segments):
+        for right_polyline, right_segment, right_a, right_b in candidate_segments[index + 1 :]:
+            if left_polyline == right_polyline and abs(left_segment - right_segment) <= 1:
+                continue
+            if (
+                _proper_intersection(left_a, left_b, right_a, right_b)
+                or _collinear_overlap(left_a, left_b, right_a, right_b)
+                or _point_in_open_segment(left_a, right_a, right_b)
+                or _point_in_open_segment(left_b, right_a, right_b)
+                or _point_in_open_segment(right_a, left_a, left_b)
+                or _point_in_open_segment(right_b, left_a, left_b)
+            ):
+                return False
+    return True
+
+
 def _canonical_generated_specs(
     scale_spec: ScalableScaleSnapshot,
     style_id: str,
@@ -1328,6 +1398,7 @@ def _canonical_generated_specs(
 ) -> _CanonicalGeneratedSpecs:
     if style_id not in STYLE_IDS:
         raise ValueError("style_id must be supported by the topology generator")
+    budget = InfrastructureBudget.for_city(style_id, scale_spec.urbanized_area_km2)
     y_values = _local_axis(extent[2], extent[3], terrain, "y")
     if style_id in {"grid_core", "superblock_mixed"}:
         shared_x_values = _local_axis(
@@ -1346,7 +1417,7 @@ def _canonical_generated_specs(
             )
             for y_mm in y_values
         }
-    centers = _centers(row_x_values, y_values, style_id, scale_spec.urbanized_area_km2)
+    centers = _centers(row_x_values, y_values, style_id, budget.center_count)
     if style_id == "organic":
         centers = tuple(_organic_warp_point(seed, center, extent) for center in centers)
     superblock_center_cells: set[tuple[int, int]] = set()
@@ -1355,12 +1426,13 @@ def _canonical_generated_specs(
             row_index = y_values.index(center_y)
             column_index = row_x_values[center_y].index(center_x)
             adjacent_rows = {
-                max(0, row_index - 1) // 9,
-                min(row_index, len(y_values) - 2) // 9,
+                max(0, row_index - 1) // budget.macroblock_lattice_stride,
+                min(row_index, len(y_values) - 2) // budget.macroblock_lattice_stride,
             }
             adjacent_columns = {
-                max(0, column_index - 1) // 9,
-                min(column_index, len(row_x_values[center_y]) - 2) // 9,
+                max(0, column_index - 1) // budget.macroblock_lattice_stride,
+                min(column_index, len(row_x_values[center_y]) - 2)
+                // budget.macroblock_lattice_stride,
             }
             superblock_center_cells.update(
                 (macro_row, macro_column)
@@ -1369,9 +1441,12 @@ def _canonical_generated_specs(
             )
 
     def is_coarse_superblock_cell(row: int, column: int) -> bool:
-        macrocell = (row // 9, column // 9)
+        macrocell = (
+            row // budget.macroblock_lattice_stride,
+            column // budget.macroblock_lattice_stride,
+        )
         return (
-            (macrocell[0] + macrocell[1]) % 3 != 0
+            (macrocell[0] + macrocell[1]) % budget.macroblock_retained_period != 0
             and macrocell not in superblock_center_cells
         )
 
@@ -1467,15 +1542,9 @@ def _canonical_generated_specs(
         )
         outer_radius_mm = available_radius_mm * 3 // 4
         inner_radius_mm = max(2 * nominal_spacing_mm, outer_radius_mm // 6)
-        ring_count = max(
-            8,
-            1 + (outer_radius_mm - inner_radius_mm) // nominal_spacing_mm,
+        ring_count, spoke_count = budget.radial_ring_geometry(
+            available_radius_mm, nominal_spacing_mm
         )
-        estimated_spokes = max(
-            32,
-            round(math.tau * outer_radius_mm / nominal_spacing_mm),
-        )
-        spoke_count = max(32, ((estimated_spokes + 7) // 8) * 8)
 
         rings: list[tuple[_NodeSpec, ...]] = []
         for ring_index in range(ring_count):
@@ -1552,16 +1621,7 @@ def _canonical_generated_specs(
                     0,
                 )
 
-        gateway_points = (
-            (min_x, min_y),
-            (0, min_y),
-            (max_x, min_y),
-            (max_x, 0),
-            (max_x, max_y),
-            (0, max_y),
-            (min_x, max_y),
-            (min_x, 0),
-        )
+        gateway_points = budget.perimeter_gateway_points(extent)
         upper_nodes = tuple(
             node_at(x_mm, y_mm, 1, "mainline-gateway")
             for x_mm, y_mm in gateway_points
@@ -1685,17 +1745,20 @@ def _canonical_generated_specs(
             if (
                 style_id == "superblock_mixed"
                 and row not in {0, len(y_values) - 1}
-                and row % 9 != 0
+                and row % budget.macroblock_lattice_stride != 0
                 and is_coarse_superblock_cell(row, column)
             ):
                 continue
             hierarchy = _surface_hierarchy(
-                row, column, left, y_mm, right, y_mm, style_id, centers, True
+                row, column, left, y_mm, right, y_mm, style_id, centers, budget, True
             )
             if (
                 style_id == "superblock_mixed"
                 and hierarchy is RoadHierarchy.LOCAL
-                and (row in {0, len(y_values) - 1} or row % 9 == 0)
+                and (
+                    row in {0, len(y_values) - 1}
+                    or row % budget.arterial_lattice_stride == 0
+                )
             ):
                 hierarchy = RoadHierarchy.ARTERIAL
             role = _surface_semantic_role(
@@ -1766,7 +1829,7 @@ def _canonical_generated_specs(
                 if (
                     style_id == "superblock_mixed"
                     and column not in {0, len(matches) - 1}
-                    and column % 9 != 0
+                    and column % budget.macroblock_lattice_stride != 0
                     and is_coarse_superblock_cell(row, column)
                 ):
                     # Fine streets occupy one macrocell family and every center
@@ -1783,12 +1846,16 @@ def _canonical_generated_specs(
                     upper_y,
                     style_id,
                     centers,
+                    budget,
                     False,
                 )
                 if (
                     style_id == "superblock_mixed"
                     and hierarchy is RoadHierarchy.LOCAL
-                    and (column in {0, len(matches) - 1} or column % 9 == 0)
+                    and (
+                        column in {0, len(matches) - 1}
+                        or column % budget.arterial_lattice_stride == 0
+                    )
                 ):
                     hierarchy = RoadHierarchy.ARTERIAL
                 role = _surface_semantic_role(
@@ -1857,9 +1924,7 @@ def _canonical_generated_specs(
             )
 
     if style_id == "river_constrained":
-        bridge_rows = tuple(
-            sorted({len(y_values) // 4, len(y_values) // 2, 3 * len(y_values) // 4})
-        )
+        bridge_rows = budget.bridge_row_indices(len(y_values))
         for group_index, row_index in enumerate(bridge_rows):
             y_mm = y_values[row_index]
             row_values = row_x_values[y_mm]
@@ -1878,16 +1943,7 @@ def _canonical_generated_specs(
             )
 
     min_x, max_x, min_y, max_y = extent
-    gateway_points = (
-        (min_x, min_y),
-        (0, min_y),
-        (max_x, min_y),
-        (max_x, 0),
-        (max_x, max_y),
-        (0, max_y),
-        (min_x, max_y),
-        (min_x, 0),
-    )
+    gateway_points = budget.perimeter_gateway_points(extent)
     upper_nodes = tuple(node_at(x_mm, y_mm, 1, "mainline-gateway") for x_mm, y_mm in gateway_points)
     for start, end in zip(upper_nodes, upper_nodes[1:] + upper_nodes[:1]):
         road_between(
@@ -1936,6 +1992,7 @@ def _canonical_generated_specs(
         return neighbour
 
     reserved_anchors: set[str] = set()
+    ramp_segments: tuple[tuple[tuple[int, int], tuple[int, int]], ...] = ()
     surface_segments = tuple(
         (left, right)
         for road in road_specs
@@ -2016,24 +2073,30 @@ def _canonical_generated_specs(
                     if style_id == "organic"
                     else source_candidate_point
                 )
+                on_ramp_points = (candidate_point, (upper.x_mm, upper.y_mm))
+                off_ramp_points = _off_ramp_points_from_coordinates(
+                    (upper.x_mm, upper.y_mm), candidate_point, extent
+                )
                 if carrier_is_clear(
-                    candidate_point,
-                    candidate_anchor,
-                    candidate_neighbour,
+                    candidate_point, candidate_anchor, candidate_neighbour
+                ) and _ramp_polylines_are_clear(
+                    (on_ramp_points, off_ramp_points), ramp_segments
                 ):
                     selection = (
                         candidate_anchor,
                         candidate_neighbour,
                         candidate_point,
+                        off_ramp_points,
                     )
                     break
             if selection is not None:
                 break
         if selection is None:
             raise ValueError("surface access triangle cannot avoid existing surface geometry")
-        anchor, neighbour, access_point = selection
+        anchor, neighbour, access_point, off_ramp_points = selection
         reserved_anchors.update((anchor.semantic_id, neighbour.semantic_id))
         access = node_at(*access_point, 0, f"ramp-access-{index}")
+        on_ramp_points = (access_point, (upper.x_mm, upper.y_mm))
         road_between(
             "mainline-on-ramp",
             access,
@@ -2042,6 +2105,7 @@ def _canonical_generated_specs(
             FacilityKind.RAMP,
             1,
             transition=(0, 1),
+            points=on_ramp_points,
             access_directions=frozenset({"forward"}),
             ramp_purpose=RampPurpose.ON_RAMP,
         )
@@ -2053,7 +2117,7 @@ def _canonical_generated_specs(
             FacilityKind.RAMP,
             1,
             transition=(0, 1),
-            points=_off_ramp_points(upper, access, extent),
+            points=off_ramp_points,
             access_directions=frozenset({"forward"}),
             ramp_purpose=RampPurpose.OFF_RAMP,
         )
@@ -2076,6 +2140,9 @@ def _canonical_generated_specs(
         surface_segments += (
             (access_point, (anchor.x_mm, anchor.y_mm)),
             (access_point, (neighbour.x_mm, neighbour.y_mm)),
+        )
+        ramp_segments += tuple(zip(on_ramp_points, on_ramp_points[1:])) + tuple(
+            zip(off_ramp_points, off_ramp_points[1:])
         )
     if style_id == "superblock_mixed":
         used_node_semantics = {
@@ -2673,8 +2740,11 @@ def _validate_network_authority(network: ScalableStreetNetwork) -> None:
         raise ValueError("network exceeds junction budget")
     if len(network.roads) > MAX_PHYSICAL_ROADS:
         raise ValueError("network exceeds physical-road budget")
-    if len(network.gateway_node_ids) != 8 or len(set(network.gateway_node_ids)) != 8:
-        raise ValueError("network requires exactly eight distinct gateways")
+    if (
+        len(network.gateway_node_ids) != PERIMETER_GATEWAY_COUNT
+        or len(set(network.gateway_node_ids)) != PERIMETER_GATEWAY_COUNT
+    ):
+        raise ValueError("network requires the complete perimeter gateway budget")
     by_id = {node.node_id: node for node in network.nodes}
     if any(
         node_id not in by_id or by_id[node_id].layer != 1 for node_id in network.gateway_node_ids

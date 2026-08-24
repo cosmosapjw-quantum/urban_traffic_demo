@@ -462,7 +462,18 @@ def test_generated_ramps_have_explicit_one_way_interchange_purposes() -> None:
     )
 
 
-def test_river_directional_ramps_remain_free_of_same_layer_crossings() -> None:
+@pytest.mark.parametrize(
+    ("population", "area_km2"),
+    (
+        (100_000, 25.0),
+        (160_000, 40.0),
+        (400_000, 100.0),
+        (1_000_000, 250.0),
+    ),
+)
+def test_river_directional_ramps_remain_free_of_same_layer_crossings(
+    population: int, area_km2: float
+) -> None:
     """Off-ramp curves must not cross the perimeter's other directed connectors."""
     from metroflow.city.scalable_topology import (
         audit_physical_records,
@@ -470,7 +481,7 @@ def test_river_directional_ramps_remain_free_of_same_layer_crossings() -> None:
     )
 
     network = build_scalable_street_network(
-        CityScaleSpec(100_000, 25.0), "river_constrained", 17
+        CityScaleSpec(population, area_km2), "river_constrained", 17
     )
     audit = audit_physical_records(network.nodes, network.roads)
     assert (
@@ -478,6 +489,129 @@ def test_river_directional_ramps_remain_free_of_same_layer_crossings() -> None:
         audit.t_touch_count,
         audit.collinear_overlap_count,
     ) == (0, 0, 0)
+
+
+@pytest.mark.parametrize(
+    ("population", "area_km2"),
+    (
+        (100_000, 25.0),
+        (160_000, 40.0),
+        (400_000, 100.0),
+        (1_000_000, 250.0),
+    ),
+)
+def test_river_scales_replay_under_reversed_tile_order_and_keep_crossbank_paths(
+    population: int, area_km2: float
+) -> None:
+    """Area controls immutable topology; population must not hide a scale failure."""
+    from metroflow.city.scalable_topology import (
+        _river_bridge_groups,
+        _surface_cross_bank_connected,
+        build_scalable_street_network,
+    )
+
+    scale = CityScaleSpec(population, area_km2)
+    first = build_scalable_street_network(scale, "river_constrained", 17)
+    replay = build_scalable_street_network(
+        scale,
+        "river_constrained",
+        17,
+        tile_order=tuple(reversed(first.tile_coordinates)),
+    )
+
+    assert replay == first
+    groups = _river_bridge_groups(first)
+    assert len(groups) >= 3
+    assert all(_surface_cross_bank_connected(first, excluded_group=group) for group in groups)
+
+
+@pytest.mark.parametrize(
+    ("population", "area_km2"),
+    (
+        (100_000, 25.0),
+        (160_000, 40.0),
+        (400_000, 100.0),
+        (1_000_000, 250.0),
+    ),
+)
+@pytest.mark.parametrize(
+    "style_id",
+    (
+        "ring_radial",
+        "grid_core",
+        "polycentric_tod",
+        "river_constrained",
+        "superblock_mixed",
+        "organic",
+    ),
+)
+def test_every_style_has_connected_finite_scale_aware_surface_authority(
+    style_id: str, population: int, area_km2: float
+) -> None:
+    """The budget must govern a whole city, never leave a fixed motif in empty area."""
+    import math
+
+    from metroflow.city.scalable_topology import (
+        FacilityKind,
+        audit_structural_network,
+        build_scalable_street_network,
+    )
+    from metroflow.city.infrastructure_budget import InfrastructureBudget
+
+    network = build_scalable_street_network(
+        CityScaleSpec(population, area_km2), style_id, 17
+    )
+    budget = InfrastructureBudget.for_city(style_id, area_km2)
+    audit = audit_structural_network(network)
+    surface_length_m = sum(
+        math.dist(left, right) / 1_000.0
+        for road in network.roads
+        if road.facility in {FacilityKind.SURFACE, FacilityKind.BRIDGE}
+        for left, right in zip(road.points_mm, road.points_mm[1:])
+    )
+
+    assert audit.is_connected
+    assert audit.center_disjoint_gateway_path_count == len(network.centers)
+    assert len(network.gateway_node_ids) == budget.perimeter_gateway_count
+    assert len(network.centers) == budget.center_count
+    assert math.isfinite(surface_length_m / area_km2)
+    assert surface_length_m / area_km2 > 0.0
+    if style_id == "river_constrained":
+        assert sum(road.facility is FacilityKind.BRIDGE for road in network.roads) == (
+            budget.river_bridge_count
+        )
+    if style_id == "ring_radial":
+        center_x, center_y = network.centers[0]
+        radial_extent = max(
+            max(abs(node.x_mm - center_x), abs(node.y_mm - center_y))
+            for node in network.nodes
+            if node.semantic_role == "ring-surface"
+        )
+        min_x, max_x, min_y, max_y = network.extent_mm
+        available_radius = min(
+            center_x - min_x,
+            max_x - center_x,
+            center_y - min_y,
+            max_y - center_y,
+        )
+        assert radial_extent >= available_radius * 3 // 4 - 1
+
+
+def test_population_changes_demand_scale_identity_but_not_static_topology() -> None:
+    """No budget may accidentally make population a street-geometry input."""
+    from metroflow.city.scalable_topology import build_scalable_street_network
+
+    low_density = build_scalable_street_network(
+        CityScaleSpec(100_000, 40.0), "polycentric_tod", 17
+    )
+    high_density = build_scalable_street_network(
+        CityScaleSpec(160_000, 40.0), "polycentric_tod", 17
+    )
+
+    assert low_density.scale_fingerprint != high_density.scale_fingerprint
+    assert low_density.style_fingerprint == high_density.style_fingerprint
+    assert low_density.nodes == high_density.nodes
+    assert low_density.roads == high_density.roads
 
 
 def test_mainline_record_rejects_at_grade_surface_layer() -> None:
