@@ -30,13 +30,20 @@ from metroflow.city.scalable_blocks import (
 )
 from metroflow.city.scalable_topology import (
     FacilityKind,
+    RampPurpose,
     RoadHierarchy,
     build_scalable_street_network,
 )
 
 
 _SERIALIZER_SCHEMA = "scalable_task45_output_payload_v1"
-_REVIEWED_ENUM_TYPES = (RoadClass, NodeKind, FacilityKind, RoadHierarchy)
+_REVIEWED_ENUM_TYPES = (
+    RoadClass,
+    NodeKind,
+    FacilityKind,
+    RampPurpose,
+    RoadHierarchy,
+)
 _ARRAY_CONTRACTS = (
     ("node_ids", np.dtype(np.int32), "nodes"),
     ("link_ids", np.dtype(np.int32), "links"),

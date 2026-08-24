@@ -65,6 +65,123 @@ def test_scalable_v2_deterministic_replay() -> None:
     assert a.static_authority.fingerprint == b.static_authority.fingerprint
 
 
+def test_scalable_v2_gateway_interchanges_have_only_legal_on_and_off_movements() -> None:
+    """Route authority must expose a one-way entry and exit at every gateway."""
+    from metroflow.city.graph import RoadClass, TurnType
+    from metroflow.city.scalable_topology import FacilityKind, RampPurpose
+
+    cfg = CityGenerationConfig(
+        topology_mode="scalable_synthetic_v2",
+        morphology_style_id="grid_core",
+        zone_poi_coupling_mode="block_based_v1",
+        scale_spec=CityScaleSpec(100_000, 25.0),
+    )
+    city = build_scalable_city_map(cfg, scenario_id="directed_ramps", seed=17)
+    links = {link.link_id: link for link in city.compiled.topology.links}
+    roads = {road.road_id: road for road in city.network.roads}
+    crosswalks = {
+        row.physical_road_id: row
+        for row in city.compiled.road_crosswalk
+        if row.facility is FacilityKind.RAMP
+    }
+    permitted_turn_pairs = set(city.compiled.road_csr.turn_pair_to_index)
+    turn_type_by_pair = {
+        (turn.from_link_id, turn.to_link_id): turn.turn_type
+        for turn in city.compiled.topology.turns
+    }
+
+    assert len(crosswalks) == 16
+    for gateway_id in city.network.gateway_node_ids:
+        gateway_ramps = [
+            (roads[physical_road_id], crosswalk)
+            for physical_road_id, crosswalk in crosswalks.items()
+            if gateway_id in {
+                roads[physical_road_id].start_node_id,
+                roads[physical_road_id].end_node_id,
+            }
+        ]
+        assert {road.ramp_purpose for road, _ in gateway_ramps} == {
+            RampPurpose.ON_RAMP,
+            RampPurpose.OFF_RAMP,
+        }
+
+        on_road, on_crosswalk = next(
+            (road, crosswalk)
+            for road, crosswalk in gateway_ramps
+            if road.ramp_purpose is RampPurpose.ON_RAMP
+        )
+        assert on_crosswalk.forward_link_id is not None
+        assert on_crosswalk.reverse_link_id is None
+        on_link_id = on_crosswalk.forward_link_id
+        on_link = links[on_link_id]
+        assert (on_link.src_node_id, on_link.dst_node_id) == (
+            on_road.start_node_id,
+            on_road.end_node_id,
+        )
+        surface_entries = [
+            link.link_id
+            for link in links.values()
+            if link.dst_node_id == on_link.src_node_id and link.road_class is not RoadClass.RAMP
+        ]
+        mainline_exits = [
+            link.link_id
+            for link in links.values()
+            if link.src_node_id == gateway_id and link.road_class is RoadClass.EXPRESSWAY
+        ]
+        on_entry_pairs = {
+            (entry_id, on_link_id)
+            for entry_id in surface_entries
+            if (entry_id, on_link_id) in permitted_turn_pairs
+        }
+        on_merge_pairs = {
+            (on_link_id, exit_id)
+            for exit_id in mainline_exits
+            if (on_link_id, exit_id) in permitted_turn_pairs
+        }
+        assert on_entry_pairs
+        assert on_merge_pairs
+        assert {turn_type_by_pair[pair] for pair in on_entry_pairs} == {TurnType.RAMP_ON}
+        assert {turn_type_by_pair[pair] for pair in on_merge_pairs} == {TurnType.RAMP_ON}
+
+        off_road, off_crosswalk = next(
+            (road, crosswalk)
+            for road, crosswalk in gateway_ramps
+            if road.ramp_purpose is RampPurpose.OFF_RAMP
+        )
+        assert off_crosswalk.forward_link_id is not None
+        assert off_crosswalk.reverse_link_id is None
+        off_link_id = off_crosswalk.forward_link_id
+        off_link = links[off_link_id]
+        assert (off_link.src_node_id, off_link.dst_node_id) == (
+            off_road.start_node_id,
+            off_road.end_node_id,
+        )
+        mainline_entries = [
+            link.link_id
+            for link in links.values()
+            if link.dst_node_id == gateway_id and link.road_class is RoadClass.EXPRESSWAY
+        ]
+        surface_exits = [
+            link.link_id
+            for link in links.values()
+            if link.src_node_id == off_link.dst_node_id and link.road_class is not RoadClass.RAMP
+        ]
+        off_diverge_pairs = {
+            (entry_id, off_link_id)
+            for entry_id in mainline_entries
+            if (entry_id, off_link_id) in permitted_turn_pairs
+        }
+        off_exit_pairs = {
+            (off_link_id, exit_id)
+            for exit_id in surface_exits
+            if (off_link_id, exit_id) in permitted_turn_pairs
+        }
+        assert off_diverge_pairs
+        assert off_exit_pairs
+        assert {turn_type_by_pair[pair] for pair in off_diverge_pairs} == {TurnType.RAMP_OFF}
+        assert {turn_type_by_pair[pair] for pair in off_exit_pairs} == {TurnType.RAMP_OFF}
+
+
 def test_scalable_v2_rejects_wrong_topology_mode() -> None:
     """Orchestrator rejects non-v2 topology modes."""
     cfg = CityGenerationConfig(
@@ -246,5 +363,3 @@ def test_scalable_v2_identity_seal_rejection() -> None:
             compiled=city.compiled,
             static_authority=city.static_authority,
         )
-
-

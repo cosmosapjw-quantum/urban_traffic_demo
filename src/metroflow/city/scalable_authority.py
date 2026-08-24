@@ -1531,6 +1531,7 @@ class ImmutableRoadLink:
     bridge_group_id: int | None
     is_blockable: bool
     physical_road_id: int | None
+    ramp_purpose: str | None = None
 
     def __post_init__(self) -> None:
         if type(self) is not ImmutableRoadLink:
@@ -1570,6 +1571,12 @@ class ImmutableRoadLink:
             "physical_road_id",
             _optional_nonnegative_int(self.physical_road_id, "physical_road_id"),
         )
+        if self.ramp_purpose is not None and type(self.ramp_purpose) is not str:
+            raise TypeError("ramp_purpose must be an exact string when provided")
+        if self.ramp_purpose not in {None, "on_ramp", "off_ramp"}:
+            raise ValueError("ramp_purpose must be on_ramp or off_ramp when provided")
+        if self.ramp_purpose is not None and self.road_class is not RoadClass.RAMP:
+            raise ValueError("ramp_purpose requires RoadClass.RAMP")
 
 
 @dataclass(frozen=True, slots=True)
@@ -1780,6 +1787,7 @@ class ImmutableRoadNetworkCSR:
                     link.bridge_group_id,
                     link.is_blockable,
                     link.physical_road_id,
+                    link.ramp_purpose,
                 )
                 for link in self.links
             ),
@@ -2012,6 +2020,7 @@ def _copy_task4_authorities(
             structure_group_id=road.structure_group_id,
             failure_group=road.failure_group,
             bridge_group_id=road.bridge_group_id,
+            ramp_purpose=road.ramp_purpose,
         )
         for road in compiled.road_crosswalk
     )
@@ -2072,6 +2081,7 @@ def _copy_task4_authorities(
                 bridge_group_id=link.bridge_group_id,
                 is_blockable=link.is_blockable,
                 physical_road_id=link.physical_road_id,
+                ramp_purpose=link.ramp_purpose,
             )
             for link in source_csr.links
         ),
@@ -2623,6 +2633,7 @@ def _origin_fingerprints(
                     link.bridge_group_id,
                     link.is_blockable,
                     link.physical_road_id,
+                    link.ramp_purpose,
                 )
                 for link in csr.links
             ),
@@ -3168,6 +3179,7 @@ def _require_current_immutable_csr_content(csr: ImmutableRoadNetworkCSR) -> None
                 link.bridge_group_id,
                 link.is_blockable,
                 link.physical_road_id,
+                link.ramp_purpose,
             )
             for link in csr.links
         ),

@@ -28,6 +28,7 @@ from metroflow.city.scalable_topology import (
     FacilityKind,
     PhysicalNodeRecord,
     PhysicalRoadRecord,
+    RampPurpose,
     RoadHierarchy,
     ScalableStreetNetwork,
 )
@@ -154,6 +155,7 @@ class ScalableRoadCrosswalk:
     structure_group_id: int | None
     failure_group: str | None
     bridge_group_id: int | None
+    ramp_purpose: RampPurpose | None = None
 
     def __post_init__(self) -> None:
         exact_int_names = ("physical_road_id", "layer", "geometry_id")
@@ -165,6 +167,10 @@ class ScalableRoadCrosswalk:
             raise TypeError("road crosswalk hierarchy must be exact")
         if type(self.facility) is not FacilityKind:
             raise TypeError("road crosswalk facility must be exact")
+        if self.ramp_purpose is not None and type(self.ramp_purpose) is not RampPurpose:
+            raise TypeError("road crosswalk ramp_purpose must be exact when present")
+        if self.ramp_purpose is not None and self.facility is not FacilityKind.RAMP:
+            raise ValueError("only ramp crosswalk rows may define ramp_purpose")
         if self.layer_transition is not None and (
             type(self.layer_transition) is not tuple
             or len(self.layer_transition) != 2
@@ -590,14 +596,19 @@ def _lower_scalable_records(*, nodes, roads):
                     "mainline roads require expressway hierarchy and layer-1 endpoints"
                 )
         elif road.facility is FacilityKind.RAMP:
+            expected_endpoint_layers = (
+                (0, 1)
+                if road.ramp_purpose in {None, RampPurpose.ON_RAMP}
+                else (1, 0)
+            )
             if (
                 road.hierarchy is not RoadHierarchy.ARTERIAL
                 or road.layer != 1
                 or road.layer_transition != (0, 1)
-                or endpoint_layers != (0, 1)
+                or endpoint_layers != expected_endpoint_layers
             ):
                 raise ValueError(
-                    "ramp roads require arterial hierarchy and a layer-0-to-1 transition"
+                    "ramp roads require arterial hierarchy and their declared layer transition"
                 )
         elif road.facility is FacilityKind.BRIDGE:
             if road.layer != 0 or endpoint_layers != (0, 0):
@@ -708,6 +719,9 @@ def _lower_scalable_records(*, nodes, roads):
                     lanes=profile.lanes_per_direction,
                     bridge_group_id=bridge_group_id,
                     physical_road_id=road.road_id,
+                    ramp_purpose=(
+                        None if road.ramp_purpose is None else road.ramp_purpose.value
+                    ),
                 )
             )
             assignments.append(
@@ -748,6 +762,7 @@ def _lower_scalable_records(*, nodes, roads):
                 bridge_group_id=(
                     None if road.failure_group is None else failure_group_id[road.failure_group]
                 ),
+                ramp_purpose=road.ramp_purpose,
             )
         )
 
@@ -968,6 +983,7 @@ def _compiled_fingerprint_payload(compiled: object) -> tuple[object, ...]:
                 row.structure_group_id,
                 row.failure_group,
                 row.bridge_group_id,
+                row.ramp_purpose,
             )
             for row in compiled.road_crosswalk
         ),
@@ -1011,6 +1027,7 @@ def _compiled_fingerprint_payload(compiled: object) -> tuple[object, ...]:
                 link.bridge_group_id,
                 link.is_blockable,
                 link.physical_road_id,
+                link.ramp_purpose,
             )
             for link in topology.links
         ),

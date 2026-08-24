@@ -40,6 +40,13 @@ class FacilityKind(str, Enum):
     TUNNEL = "tunnel"
 
 
+class RampPurpose(str, Enum):
+    """Direction of travel authorised by a generated grade-separated ramp."""
+
+    ON_RAMP = "on_ramp"
+    OFF_RAMP = "off_ramp"
+
+
 def _require_int(name: str, value: object) -> int:
     if isinstance(value, bool) or not isinstance(value, int):
         raise TypeError(f"{name} must be an integer")
@@ -195,6 +202,7 @@ class PhysicalRoadRecord:
     provenance: str
     semantic_role: str = ""
     row_interval: RowIntervalAuthority | None = None
+    ramp_purpose: RampPurpose | None = None
 
     def __post_init__(self) -> None:
         road_id = _require_int("road_id", self.road_id)
@@ -227,7 +235,10 @@ class PhysicalRoadRecord:
             raise ValueError("facility is invalid") from error
         object.__setattr__(self, "hierarchy", hierarchy)
         object.__setattr__(self, "facility", facility)
-        object.__setattr__(self, "layer", _require_int("layer", self.layer))
+        layer = _require_int("layer", self.layer)
+        if facility is FacilityKind.MAINLINE and layer != 1:
+            raise ValueError("mainlines require layer 1")
+        object.__setattr__(self, "layer", layer)
 
         if not isinstance(self.access_directions, frozenset):
             raise TypeError("access_directions must be a frozenset")
@@ -246,6 +257,19 @@ class PhysicalRoadRecord:
         if facility is not FacilityKind.RAMP and transition is not None:
             raise ValueError("only ramps may define layer_transition")
         object.__setattr__(self, "layer_transition", transition)
+        ramp_purpose = self.ramp_purpose
+        if ramp_purpose is not None:
+            try:
+                ramp_purpose = RampPurpose(ramp_purpose)
+            except (TypeError, ValueError) as error:
+                raise ValueError("ramp_purpose is invalid") from error
+        if facility is not FacilityKind.RAMP and ramp_purpose is not None:
+            raise ValueError("only ramps may define ramp_purpose")
+        if ramp_purpose is not None and layer != 1:
+            raise ValueError("typed ramps require layer 1")
+        if ramp_purpose is not None and directions != frozenset({"forward"}):
+            raise ValueError("typed ramps must be forward-only")
+        object.__setattr__(self, "ramp_purpose", ramp_purpose)
         object.__setattr__(
             self,
             "structure_group",
@@ -404,6 +428,7 @@ def _road_semantic_id(
     profile_id: str,
     provenance: str,
     row_interval: RowIntervalAuthority | None = None,
+    ramp_purpose: RampPurpose | None = None,
 ) -> str:
     ordered_directions = tuple(sorted(directions))
     reversed_directions = tuple(
@@ -442,6 +467,7 @@ def _road_semantic_id(
             profile_id,
             provenance,
             _row_interval_content(row_interval),
+            None if ramp_purpose is None else RampPurpose(ramp_purpose).value,
         )
     )
 
@@ -1049,6 +1075,7 @@ class _RoadSpec:
     provenance: str
     semantic_role: str
     row_interval: RowIntervalAuthority | None
+    ramp_purpose: RampPurpose | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1251,6 +1278,47 @@ def _organic_connector_points(
     )
 
 
+def _off_ramp_points(
+    upper: _NodeSpec,
+    access: _NodeSpec,
+    extent: tuple[int, int, int, int],
+) -> tuple[tuple[int, int], ...]:
+    """Create a deterministic, non-overlapping diverge centerline in exact mm."""
+
+    start = (upper.x_mm, upper.y_mm)
+    end = (access.x_mm, access.y_mm)
+    delta_x = end[0] - start[0]
+    delta_y = end[1] - start[1]
+    span = max(abs(delta_x), abs(delta_y))
+    if span <= 0:
+        raise ValueError("off-ramp endpoints must be distinct")
+    min_x, max_x, min_y, max_y = extent
+    midpoint = ((start[0] + end[0]) // 2, (start[1] + end[1]) // 2)
+    for divisor in (16, 32, 64):
+        offset_mm = max(1, min(200_000, span // divisor))
+        offset_x = -delta_y * offset_mm // span
+        offset_y = delta_x * offset_mm // span
+        candidates = tuple(
+            sorted(
+                (
+                    (midpoint[0] + offset_x, midpoint[1] + offset_y),
+                    (midpoint[0] - offset_x, midpoint[1] - offset_y),
+                )
+            )
+        )
+        control = next(
+            (
+                point
+                for point in candidates
+                if min_x <= point[0] <= max_x and min_y <= point[1] <= max_y
+            ),
+            None,
+        )
+        if control is not None and control not in {start, end}:
+            return (start, control, end)
+    raise ValueError("off-ramp diverge cannot fit immutable extent")
+
+
 def _canonical_generated_specs(
     scale_spec: ScalableScaleSnapshot,
     style_id: str,
@@ -1338,9 +1406,11 @@ def _canonical_generated_specs(
         failure_group: str | None = None,
         row_interval: RowIntervalAuthority | None = None,
         points: tuple[tuple[int, int], ...] | None = None,
+        access_directions: frozenset[str] | None = None,
+        ramp_purpose: RampPurpose | None = None,
     ) -> None:
         points = points or ((start.x_mm, start.y_mm), (end.x_mm, end.y_mm))
-        directions = frozenset({"forward", "reverse"})
+        directions = access_directions or frozenset({"forward", "reverse"})
         profile = _profile_for(facility, hierarchy)
         provenance = "tmfcg_s2_construction"
         semantic_id = _road_semantic_id(
@@ -1360,6 +1430,7 @@ def _canonical_generated_specs(
             profile,
             provenance,
             row_interval,
+            ramp_purpose,
         )
         road_specs.append(
             _RoadSpec(
@@ -1378,6 +1449,7 @@ def _canonical_generated_specs(
                 provenance,
                 role,
                 row_interval,
+                ramp_purpose,
             )
         )
 
@@ -1563,13 +1635,27 @@ def _canonical_generated_specs(
                 0,
             )
             road_between(
-                "mainline-ramp",
+                "mainline-on-ramp",
                 access,
                 upper,
                 RoadHierarchy.ARTERIAL,
                 FacilityKind.RAMP,
                 1,
                 transition=(0, 1),
+                access_directions=frozenset({"forward"}),
+                ramp_purpose=RampPurpose.ON_RAMP,
+            )
+            road_between(
+                "mainline-off-ramp",
+                upper,
+                access,
+                RoadHierarchy.ARTERIAL,
+                FacilityKind.RAMP,
+                1,
+                transition=(0, 1),
+                points=_off_ramp_points(upper, access, extent),
+                access_directions=frozenset({"forward"}),
+                ramp_purpose=RampPurpose.OFF_RAMP,
             )
         return _CanonicalGeneratedSpecs(
             tuple(sorted(node_by_key.values(), key=lambda item: item.semantic_id)),
@@ -1949,13 +2035,27 @@ def _canonical_generated_specs(
         reserved_anchors.update((anchor.semantic_id, neighbour.semantic_id))
         access = node_at(*access_point, 0, f"ramp-access-{index}")
         road_between(
-            "mainline-ramp",
+            "mainline-on-ramp",
             access,
             upper,
             RoadHierarchy.ARTERIAL,
             FacilityKind.RAMP,
             1,
             transition=(0, 1),
+            access_directions=frozenset({"forward"}),
+            ramp_purpose=RampPurpose.ON_RAMP,
+        )
+        road_between(
+            "mainline-off-ramp",
+            upper,
+            access,
+            RoadHierarchy.ARTERIAL,
+            FacilityKind.RAMP,
+            1,
+            transition=(0, 1),
+            points=_off_ramp_points(upper, access, extent),
+            access_directions=frozenset({"forward"}),
+            ramp_purpose=RampPurpose.OFF_RAMP,
         )
         road_between(
             "surface-access-primary",
@@ -2035,6 +2135,7 @@ def _road_content(road: PhysicalRoadRecord) -> tuple:
         road.provenance,
         road.semantic_role,
         _row_interval_content(road.row_interval),
+        None if road.ramp_purpose is None else road.ramp_purpose.value,
     )
 
 
@@ -2410,6 +2511,7 @@ def _validate_exact_canonical_record_set(
                 road.provenance,
                 road.semantic_role,
                 road.row_interval,
+                road.ramp_purpose,
             )
             for road in network.roads
         )
@@ -2465,6 +2567,7 @@ def _validate_canonical_generated_authority(
             road.profile_id,
             road.provenance,
             road.row_interval,
+            road.ramp_purpose,
         )
         if road.semantic_id != expected_semantic_id:
             raise ValueError("road semantic identity does not match canonical content")
@@ -2534,6 +2637,7 @@ def _validate_canonical_generated_authority(
             road.provenance,
             road.semantic_role,
             road.row_interval,
+            road.ramp_purpose,
         )
         canonical = (
             spec.start_semantic_id,
@@ -2550,6 +2654,7 @@ def _validate_canonical_generated_authority(
             spec.provenance,
             spec.semantic_role,
             spec.row_interval,
+            spec.ramp_purpose,
         )
         if actual != canonical:
             raise ValueError("road fields do not match present canonical construction")
@@ -2575,6 +2680,20 @@ def _validate_network_authority(network: ScalableStreetNetwork) -> None:
         node_id not in by_id or by_id[node_id].layer != 1 for node_id in network.gateway_node_ids
     ):
         raise ValueError("gateway authority must name layer-1 mainline nodes")
+    for road in network.roads:
+        if road.facility is not FacilityKind.RAMP:
+            continue
+        if road.ramp_purpose is None:
+            raise ValueError("generated ramps require an explicit ramp_purpose")
+        start_layer = by_id[road.start_node_id].layer
+        end_layer = by_id[road.end_node_id].layer
+        expected_layers = (
+            (0, 1)
+            if road.ramp_purpose is RampPurpose.ON_RAMP
+            else (1, 0)
+        )
+        if (start_layer, end_layer) != expected_layers:
+            raise ValueError("ramp endpoints do not match the directed interchange purpose")
 
     _validate_terrain_network_authority(network)
     _validate_canonical_generated_authority(network, by_id)
@@ -2673,6 +2792,7 @@ def build_scalable_street_network(
             spec.provenance,
             spec.semantic_role,
             spec.row_interval,
+            spec.ramp_purpose,
         )
         for index, spec in enumerate(canonical.roads)
     )

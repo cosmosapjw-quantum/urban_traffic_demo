@@ -46,6 +46,7 @@ def _road(
     failure_group: str | None = None,
     provenance: str = "synthetic:test",
     semantic_role: str = "test_road",
+    ramp_purpose: object | None = None,
 ):
     from metroflow.city.scalable_topology import (
         FacilityKind,
@@ -77,6 +78,7 @@ def _road(
                 failure_group,
                 provenance,
                 semantic_role,
+                None if ramp_purpose is None else str(ramp_purpose),
             )
         ).encode()
     ).hexdigest()
@@ -96,6 +98,7 @@ def _road(
         profile_id=profile_id,
         provenance=provenance,
         semantic_role=semantic_role,
+        ramp_purpose=ramp_purpose,
     )
 
 
@@ -274,10 +277,11 @@ def test_pure_lowering_preserves_curved_geometry_and_expands_directions() -> Non
         "forward_link_id",
         "reverse_link_id",
         "structure_group",
-        "structure_group_id",
-        "failure_group",
-        "bridge_group_id",
-    )
+            "structure_group_id",
+            "failure_group",
+            "bridge_group_id",
+            "ramp_purpose",
+        )
     assert tuple(profile.profile_id for profile in lowered.numeric_profiles) == (
         "v2:bridge:arterial",
         "v2:bridge:collector",
@@ -829,6 +833,36 @@ def test_reverse_only_and_ramp_turns_remain_explicit() -> None:
         TurnType.RAMP_OFF,
         TurnType.U_TURN_FORBIDDEN,
     }
+
+
+def test_lowering_admits_a_typed_forward_only_off_ramp() -> None:
+    from metroflow.city.scalable_topology import RampPurpose
+    from metroflow.city.scalable_topology_adapter import _lower_scalable_records
+
+    nodes = (
+        _node(0, 0, 0),
+        _node(1, 1_000, 0, layer=1),
+    )
+    off_ramp = _road(
+        0,
+        1,
+        0,
+        (nodes[1].point_mm, nodes[0].point_mm),
+        hierarchy="arterial",
+        facility="ramp",
+        layer=1,
+        access_directions=frozenset({"forward"}),
+        layer_transition=(0, 1),
+        ramp_purpose=RampPurpose.OFF_RAMP,
+    )
+
+    lowered = _lower_scalable_records(nodes=nodes, roads=(off_ramp,))
+
+    assert lowered.road_crosswalk[0].ramp_purpose is RampPurpose.OFF_RAMP
+    assert lowered.road_crosswalk[0].forward_link_id == 0
+    assert lowered.road_crosswalk[0].reverse_link_id is None
+    assert (lowered.links[0].src_node_id, lowered.links[0].dst_node_id) == (1, 0)
+    assert lowered.links[0].ramp_purpose == RampPurpose.OFF_RAMP.value
 
 
 @pytest.mark.parametrize(

@@ -269,6 +269,7 @@ def test_scalable_authority_public_schema_is_exact() -> None:
             "bridge_group_id": "int | None",
             "is_blockable": "bool",
             "physical_road_id": "int | None",
+            "ramp_purpose": "str | None",
         },
         "ImmutableTurnMovement": {
             "from_link_id": "int",
@@ -1911,6 +1912,7 @@ def test_public_builder_uses_the_exact_origin_payload_tuples(
             link.bridge_group_id,
             link.is_blockable,
             link.physical_road_id,
+            link.ramp_purpose,
         )
         for link in result.road_csr.links
     )

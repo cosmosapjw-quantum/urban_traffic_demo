@@ -91,6 +91,7 @@ class RoadLink:
     bridge_group_id: int | None = None
     is_blockable: bool = True
     physical_road_id: int | None = None
+    ramp_purpose: str | None = None
 
     def __post_init__(self) -> None:
         self.link_id = int(self.link_id)
@@ -108,6 +109,8 @@ class RoadLink:
         self.physical_road_id = (
             None if self.physical_road_id is None else int(self.physical_road_id)
         )
+        if self.ramp_purpose is not None and type(self.ramp_purpose) is not str:
+            raise TypeError("RoadLink ramp_purpose must be an exact string when provided")
 
         if self.src_node_id == self.dst_node_id:
             raise ValueError("RoadLink src_node_id and dst_node_id must differ")
@@ -123,6 +126,10 @@ class RoadLink:
             raise ValueError("RoadLink bridge_group_id is required for bridge links")
         if self.physical_road_id is not None and self.physical_road_id < 0:
             raise ValueError("RoadLink physical_road_id must be >= 0 when provided")
+        if self.ramp_purpose not in {None, "on_ramp", "off_ramp"}:
+            raise ValueError("RoadLink ramp_purpose must be on_ramp or off_ramp when provided")
+        if self.ramp_purpose is not None and self.road_class is not RoadClass.RAMP:
+            raise ValueError("RoadLink ramp_purpose requires RoadClass.RAMP")
 
 
 @dataclass(frozen=True, slots=True)
