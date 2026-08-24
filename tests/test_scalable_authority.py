@@ -1912,6 +1912,7 @@ def test_public_builder_uses_the_exact_origin_payload_tuples(
             link.bridge_group_id,
             link.is_blockable,
             link.physical_road_id,
+            link.ramp_purpose,
         )
         for link in result.road_csr.links
     )
