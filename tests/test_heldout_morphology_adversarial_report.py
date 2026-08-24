@@ -331,7 +331,9 @@ def test_checker_rejects_rebound_truncated_png(tmp_path: Path) -> None:
         builder.check_package()
 
 
-def test_review_gate_rejects_substrings_and_contradictory_verdict(tmp_path: Path) -> None:
+def test_review_gate_rejects_substrings_and_contradictory_verdict(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     builder, package = _copy_package(tmp_path)
     (package / "INDEPENDENT_REVIEW.md").write_text(
         "# Contradictory review\n\nP0: 01\nP1: 00\nP2: 0\n"
@@ -350,6 +352,9 @@ def test_review_gate_rejects_substrings_and_contradictory_verdict(tmp_path: Path
     )
     _rebind_manifest(package)
 
+    # The malformed review itself is the contract under test.  It must be
+    # rejected before optional external PDF text extraction is attempted.
+    monkeypatch.setenv("PATH", str(tmp_path))
     with pytest.raises(ValueError, match="review gate"):
         builder.check_package()
 

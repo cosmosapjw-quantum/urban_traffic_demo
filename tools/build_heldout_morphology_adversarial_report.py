@@ -2258,6 +2258,15 @@ def check_package(*, allow_review_missing: bool = False) -> None:
         _require(record["bytes"] == path.stat().st_size, f"manifest size drift: {record['path']}")
         _require(record["sha256"] == _sha256(path), f"manifest digest drift: {record['path']}")
 
+    if not allow_review_missing:
+        review = (PACKAGE / "INDEPENDENT_REVIEW.md").read_text(encoding="utf-8")
+        severity_by_name, verdict = _parse_review_gate(review)
+        _require(
+            severity_by_name["P0"] == 0 and severity_by_name["P1"] == 0,
+            "review gate has unresolved P0/P1 findings",
+        )
+        _require(verdict == "PASS", "review gate verdict is not PASS")
+
     package_pdf = PACKAGE / PDF_NAME
     _require(package_pdf.read_bytes().startswith(b"%PDF-"), "invalid PDF header")
     _require(PDF_COPY.is_file() and PDF_COPY.read_bytes() == package_pdf.read_bytes(), "PDF copies differ")
@@ -2269,14 +2278,6 @@ def check_package(*, allow_review_missing: bool = False) -> None:
     ).stdout
     for phrase in ("FAIL - 15/18", "MF-001", "MF-036", "MF-043", "Runtime-default promotion"):
         _require(phrase in extracted, f"PDF text missing: {phrase}")
-    if not allow_review_missing:
-        review = (PACKAGE / "INDEPENDENT_REVIEW.md").read_text(encoding="utf-8")
-        severity_by_name, verdict = _parse_review_gate(review)
-        _require(
-            severity_by_name["P0"] == 0 and severity_by_name["P1"] == 0,
-            "review gate has unresolved P0/P1 findings",
-        )
-        _require(verdict == "PASS", "review gate verdict is not PASS")
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:
