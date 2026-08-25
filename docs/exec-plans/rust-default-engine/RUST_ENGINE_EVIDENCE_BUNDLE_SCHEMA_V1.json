@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "metroflow://rust-default-engine/evidence-bundle-v1",
+  "title": "MetroFlow Rust Engine PR Evidence Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pr_id",
+    "base_sha",
+    "final_sha",
+    "actual_changed_paths",
+    "commands",
+    "invariants",
+    "failure_modes",
+    "git",
+    "review",
+    "unresolved_blockers"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "metroflow_rust_engine_evidence_bundle_v1"
+    },
+    "pr_id": {
+      "type": "string",
+      "pattern": "^RUST-PR-[0-9]{3}$"
+    },
+    "base_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "final_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "actual_changed_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "commands": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "category",
+          "command",
+          "exit_code",
+          "stdout_sha256",
+          "stderr_sha256"
+        ],
+        "properties": {
+          "category": {
+            "enum": [
+              "precondition",
+              "targeted",
+              "negative",
+              "regression",
+              "full_relevant_suite",
+              "cargo",
+              "benchmark",
+              "diff_check"
+            ]
+          },
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "exit_code": {
+            "type": "integer"
+          },
+          "stdout_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "stderr_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "executed_at": {
+            "type": "string"
+          },
+          "reason_not_run": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^RINV-[0-9]{3}$"
+          },
+          "status": {
+            "enum": [
+              "PASS",
+              "FAIL",
+              "BLOCKED"
+            ]
+          },
+          "evidence": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "failure_modes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^RFM-[0-9]{3}$"
+          },
+          "status": {
+            "enum": [
+              "DETECTED_AND_BLOCKED",
+              "NOT_TRIGGERED",
+              "FAIL",
+              "BLOCKED"
+            ]
+          },
+          "evidence": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "git": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status_porcelain",
+        "diff_stat",
+        "diff_check_exit_code",
+        "base_is_ancestor"
+      ],
+      "properties": {
+        "status_porcelain": {
+          "type": "string"
+        },
+        "diff_stat": {
+          "type": "string"
+        },
+        "diff_check_exit_code": {
+          "type": "integer"
+        },
+        "base_is_ancestor": {
+          "type": "boolean"
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewer_context_id",
+        "implementer_context_id",
+        "audit_only_first_pass",
+        "base_sha",
+        "final_sha",
+        "P0",
+        "P1",
+        "P2",
+        "P3",
+        "unresolved",
+        "verdict"
+      ],
+      "properties": {
+        "reviewer_context_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "implementer_context_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "audit_only_first_pass": {
+          "type": "boolean"
+        },
+        "base_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "final_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "P0": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "P1": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "P2": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "P3": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unresolved": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verdict": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ]
+        }
+      }
+    },
+    "benchmark_receipt": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "unresolved_blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

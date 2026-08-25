@@ -1,0 +1,33 @@
+{
+  "schema_version": "metroflow_rust_engine_evidence_bundle_v1",
+  "pr_id": "RUST-PR-000",
+  "base_sha": "0000000000000000000000000000000000000000",
+  "final_sha": "0000000000000000000000000000000000000000",
+  "actual_changed_paths": [],
+  "commands": [],
+  "invariants": [],
+  "failure_modes": [],
+  "git": {
+    "status_porcelain": "",
+    "diff_stat": "",
+    "diff_check_exit_code": 1,
+    "base_is_ancestor": false
+  },
+  "review": {
+    "reviewer_context_id": "",
+    "implementer_context_id": "",
+    "audit_only_first_pass": true,
+    "base_sha": "0000000000000000000000000000000000000000",
+    "final_sha": "0000000000000000000000000000000000000000",
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0,
+    "unresolved": 1,
+    "verdict": "BLOCKED"
+  },
+  "benchmark_receipt": null,
+  "unresolved_blockers": [
+    "NOT_MATERIALIZED"
+  ]
+}

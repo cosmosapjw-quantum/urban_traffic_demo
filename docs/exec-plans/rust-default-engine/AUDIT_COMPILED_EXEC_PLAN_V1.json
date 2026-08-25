@@ -1,0 +1,3115 @@
+{
+  "schema_version": "metroflow_audit_compiled_exec_plan_rust_engine_v1",
+  "generated_on": "2026-08-24",
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "package_branch": "audit/rust-default-engine-compiled-plan-20260824",
+  "source_evidence": {
+    "main_sha": "01c80b432344f94209daaa198bb1eb007839fc7f",
+    "main_tree": "13ab0dd317d2581b83aba2d8b7763ef644dd30fb",
+    "current_rust_crate": "crates/metroflow-rust",
+    "existing_dag_path": "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+    "existing_acceleration_plan": "docs/harness/ACCELERATION_PR_LIST.md",
+    "hardware_fit_atlas": "artifacts/runtime_spine_review/hardware-fit-atlas.md"
+  },
+  "verdict": {
+    "current_runtime": "PYTHON_OWNED_WITH_OPTIONAL_KERNELS",
+    "target_runtime": "RUST_OWNED_ENGINE_PYTHON_FRONTEND",
+    "current_rust_default_readiness": "BLOCKED",
+    "whole_engine_migration": "APPROVED_AS_ARCHITECTURAL_GOAL",
+    "gpu": "OPTIONAL_SEPARATE_ADMISSION",
+    "measured_speedup_claim": "NONE"
+  },
+  "existing_dag_preservation": {
+    "authority": "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+    "nodes_in_order": [
+      "MAP-PR-001",
+      "MAP-PR-002",
+      "MAP-PR-003",
+      "MAP-PR-004",
+      "MAP-PR-005",
+      "MAP-PR-006",
+      "MAP-PR-007",
+      "MAP-PR-008",
+      "MAP-PR-009",
+      "MAP-PR-010",
+      "MAP-PR-011"
+    ],
+    "edges_in_order": [
+      {
+        "from": "MAP-PR-001",
+        "to": "MAP-PR-002"
+      },
+      {
+        "from": "MAP-PR-002",
+        "to": "MAP-PR-003"
+      },
+      {
+        "from": "MAP-PR-003",
+        "to": "MAP-PR-004"
+      },
+      {
+        "from": "MAP-PR-004",
+        "to": "MAP-PR-005"
+      },
+      {
+        "from": "MAP-PR-005",
+        "to": "MAP-PR-006"
+      },
+      {
+        "from": "MAP-PR-006",
+        "to": "MAP-PR-007"
+      },
+      {
+        "from": "MAP-PR-007",
+        "to": "MAP-PR-008"
+      },
+      {
+        "from": "MAP-PR-008",
+        "to": "MAP-PR-009"
+      },
+      {
+        "from": "MAP-PR-009",
+        "to": "MAP-PR-010"
+      },
+      {
+        "from": "MAP-PR-010",
+        "to": "MAP-PR-011"
+      }
+    ],
+    "observed_merged_at_source": [
+      "MAP-PR-001",
+      "MAP-PR-002",
+      "MAP-PR-003",
+      "MAP-PR-004",
+      "MAP-PR-005"
+    ],
+    "required_terminal_predecessor": "MAP-PR-011",
+    "rule": "No Rust implementation PR may start before MAP-PR-011 is merged and has a passing fresh-context receipt.",
+    "extension_edge": {
+      "from": "MAP-PR-011",
+      "to": "RUST-PR-001"
+    },
+    "mutation": "FORBIDDEN"
+  },
+  "execution_policy": {
+    "ordering": "strict_serial",
+    "implementation_start": "BLOCKED_BY_PREDECESSOR_DAG",
+    "risk_unit": "one externally observable invariant cluster per PR",
+    "tdd": "behavior_cluster_red_green_refactor",
+    "python_oracle": "preserve until final decision",
+    "backend_default_change": "RUST-PR-015 only after RUST-PR-014 PASS",
+    "security_and_antitamper": "out_of_scope",
+    "external_data_learning": "forbidden",
+    "no_user_questions": true,
+    "no_guessing_across_specification_boundary": true,
+    "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+    "test_or_tolerance_weakening": "forbidden",
+    "fresh_context_review": "required for every PR",
+    "large_benchmarks": "local evidence allowed; required CI must stay practical for one developer"
+  },
+  "architecture_ref": "docs/exec-plans/rust-default-engine/RUST_ENGINE_ARCHITECTURE_CONTRACT_V1.json",
+  "threat_catalogue_ref": "docs/exec-plans/rust-default-engine/RUST_ENGINE_P0_P1_THREAT_CATALOGUE_V1.json",
+  "invariant_matrix_ref": "docs/exec-plans/rust-default-engine/RUST_ENGINE_INVARIANT_TEST_MATRIX_V1.json",
+  "review_contract_ref": "docs/exec-plans/rust-default-engine/RUST_ENGINE_FRESH_CONTEXT_REVIEW_CONTRACT_V1.json",
+  "evidence_schema_ref": "docs/exec-plans/rust-default-engine/RUST_ENGINE_EVIDENCE_BUNDLE_SCHEMA_V1.json",
+  "handoff_ref": "docs/exec-plans/rust-default-engine/CODEX_HANDOFF_PROMPT.md",
+  "hard_invariant_ids": [
+    "RINV-001",
+    "RINV-002",
+    "RINV-003",
+    "RINV-004",
+    "RINV-005",
+    "RINV-006",
+    "RINV-007",
+    "RINV-008",
+    "RINV-009",
+    "RINV-010",
+    "RINV-011",
+    "RINV-012",
+    "RINV-013",
+    "RINV-014",
+    "RINV-015"
+  ],
+  "dependency_dag": [
+    {
+      "from": "MAP-PR-011",
+      "to": "RUST-PR-001"
+    },
+    {
+      "from": "RUST-PR-001",
+      "to": "RUST-PR-002"
+    },
+    {
+      "from": "RUST-PR-002",
+      "to": "RUST-PR-003"
+    },
+    {
+      "from": "RUST-PR-003",
+      "to": "RUST-PR-004"
+    },
+    {
+      "from": "RUST-PR-004",
+      "to": "RUST-PR-005"
+    },
+    {
+      "from": "RUST-PR-005",
+      "to": "RUST-PR-006"
+    },
+    {
+      "from": "RUST-PR-006",
+      "to": "RUST-PR-007"
+    },
+    {
+      "from": "RUST-PR-007",
+      "to": "RUST-PR-008"
+    },
+    {
+      "from": "RUST-PR-008",
+      "to": "RUST-PR-009"
+    },
+    {
+      "from": "RUST-PR-009",
+      "to": "RUST-PR-010"
+    },
+    {
+      "from": "RUST-PR-010",
+      "to": "RUST-PR-011"
+    },
+    {
+      "from": "RUST-PR-011",
+      "to": "RUST-PR-012"
+    },
+    {
+      "from": "RUST-PR-012",
+      "to": "RUST-PR-013"
+    },
+    {
+      "from": "RUST-PR-013",
+      "to": "RUST-PR-014"
+    },
+    {
+      "from": "RUST-PR-014",
+      "to": "RUST-PR-015"
+    },
+    {
+      "from": "RUST-PR-015",
+      "to": "RUST-PR-016"
+    }
+  ],
+  "pull_requests": [
+    {
+      "id": "RUST-PR-001",
+      "title": "Rust Engine Workspace, CI, and Frozen Oracle Baseline",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "MAP-PR-011"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "MAP-PR-011",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-001 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Create a pure-Rust engine workspace and required Rust CI without moving simulation semantics yet.",
+        "observable_success": "`metroflow-core` and `metroflow-python` build; Rust tests are required; frozen Python oracle scenarios, schemas and performance baseline are committed before porting."
+      },
+      "scope": {
+        "allowed_paths": [
+          "Cargo.toml",
+          "Cargo.lock",
+          "crates/metroflow-core/**",
+          "crates/metroflow-python/**",
+          "crates/metroflow-rust/**",
+          ".github/workflows/ci.yml",
+          "pyproject.toml",
+          "ci-constraints.txt",
+          "tests/test_rust_workspace_architecture.py",
+          "tests/test_rust_shadow_matrix.py",
+          "artifacts/rust_engine_baseline_v1/**",
+          "docs/harness/CLAIM_LEDGER.md"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not change simulation outputs, backend defaults, scientific tolerances, map generator behavior or Python oracle semantics.",
+          "Do not delete or rename the existing `_metroflow_rust` API."
+        ]
+      },
+      "inspect_paths": [
+        "Cargo.toml",
+        "crates/metroflow-rust/Cargo.toml",
+        "crates/metroflow-rust/src/lib.rs",
+        ".github/workflows/ci.yml",
+        "pyproject.toml",
+        "src/metroflow/sim/step.py",
+        "src/metroflow/backends/rust_cpu.py",
+        "docs/harness/ACCELERATION_PR_LIST.md"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-core/Cargo.toml",
+        "crates/metroflow-core/src/lib.rs",
+        "crates/metroflow-python/Cargo.toml",
+        "crates/metroflow-python/src/lib.rs",
+        "tests/test_rust_workspace_architecture.py",
+        "artifacts/rust_engine_baseline_v1/manifest.json"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-001-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-001-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-001",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-001-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-020",
+        "RINV-024",
+        "RINV-027",
+        "RINV-030"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-001-STEP-01",
+            "action": "Add RED tests requiring the two-crate layering and a Rust-required CI surface."
+          },
+          {
+            "id": "RUST-PR-001-STEP-02",
+            "action": "Split the workspace so `metroflow-core` has no PyO3/Python dependency and `metroflow-python` depends on core."
+          },
+          {
+            "id": "RUST-PR-001-STEP-03",
+            "action": "Keep `crates/metroflow-rust` as a compatibility facade."
+          },
+          {
+            "id": "RUST-PR-001-STEP-04",
+            "action": "Freeze representative Python oracle scenarios, public artifact schemas, runtime wall/RSS measurements and exact commands."
+          },
+          {
+            "id": "RUST-PR-001-STEP-05",
+            "action": "Add cargo fmt, clippy and cargo test to required CI; build the extension in parity jobs."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test --workspace",
+          "python -m pytest -q tests/test_rust_workspace_architecture.py tests/test_rust_shadow_matrix.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_workspace_architecture.py::test_ci_does_not_allow_rust_parity_skip"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_runtime_replay_closure.py tests/test_scalable_v2_runtime_integration.py"
+        ],
+        "full_relevant_suite": [
+          "python -m pytest -q",
+          "cargo test --workspace"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "the Rust migration workspace and frozen Python oracle baseline exist",
+        "not_allowed": "Rust is faster, complete, or default"
+      },
+      "stop_conditions": [
+        "Existing MAP-PR-011 is not merged with a passing independent receipt.",
+        "The workspace split changes Python-visible behavior.",
+        "Required CI cannot build the Rust extension reproducibly."
+      ],
+      "failure_mode_ids": [
+        "RFM-028",
+        "RFM-044"
+      ],
+      "branch": "arch/rust-engine-workspace-oracle"
+    },
+    {
+      "id": "RUST-PR-002",
+      "title": "Canonical Rust State, Units, IDs, RNG, and Checkpoint Schema",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-001"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-001",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-002 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Define the complete canonical engine state contract in pure Rust before moving domain algorithms.",
+        "observable_success": "Every static/dynamic field has a typed Rust representation, unit, dtype, bounds, stable ID/index rule, RNG stream and versioned checkpoint encoding."
+      },
+      "scope": {
+        "allowed_paths": [
+          "crates/metroflow-core/**",
+          "crates/metroflow-python/**",
+          "src/metroflow/core/**",
+          "src/metroflow/sim/state.py",
+          "src/metroflow/sim/rng.py",
+          "src/metroflow/sim/config.py",
+          "tests/test_rust_engine_state_contract.py",
+          "artifacts/rust_engine_state_contract_v1/**",
+          "docs/harness/CLAIM_LEDGER.md"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not move tick algorithms yet.",
+          "Do not collapse stable IDs into dense indices without a reversible map.",
+          "Do not change field precision merely to simplify Rust."
+        ]
+      },
+      "inspect_paths": [
+        "src/metroflow/sim/state.py",
+        "src/metroflow/core/state.py",
+        "src/metroflow/core/contracts.py",
+        "src/metroflow/core/units.py",
+        "src/metroflow/sim/rng.py",
+        "src/metroflow/flow/state.py",
+        "src/metroflow/sim/replay.py"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-core/src/state/**",
+        "crates/metroflow-core/src/units.rs",
+        "crates/metroflow-core/src/ids.rs",
+        "crates/metroflow-core/src/rng.rs",
+        "crates/metroflow-core/src/checkpoint.rs",
+        "tests/test_rust_engine_state_contract.py"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-002-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-002-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-002",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-002-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-006",
+        "RINV-007",
+        "RINV-009",
+        "RINV-018"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-002-STEP-01",
+            "action": "Inventory every field reachable from SimulationState and publish a field contract."
+          },
+          {
+            "id": "RUST-PR-002-STEP-02",
+            "action": "Implement stable ID newtypes, checked index conversion, units and field-specific f32/f64 policy."
+          },
+          {
+            "id": "RUST-PR-002-STEP-03",
+            "action": "Implement named deterministic RNG streams and a versioned checkpoint envelope."
+          },
+          {
+            "id": "RUST-PR-002-STEP-04",
+            "action": "Implement Python-to-Rust import and Rust-to-Python diagnostic export for state only."
+          },
+          {
+            "id": "RUST-PR-002-STEP-05",
+            "action": "Add empty, maximum-bound, overflow, malformed-offset and round-trip fixtures."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test -p metroflow-core state",
+          "python -m pytest -q tests/test_rust_engine_state_contract.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_engine_state_contract.py -k 'overflow or malformed or unknown_version'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_replay.py tests/test_sim_state.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace",
+          "python -m pytest -q tests/test_rust_engine_state_contract.py tests/test_runtime_replay_closure.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "the Rust state/checkpoint schema is complete and round-trippable",
+        "not_allowed": "the Rust engine implements simulation behavior"
+      },
+      "stop_conditions": [
+        "A Python state field lacks a Rust owner or unit.",
+        "An ID/index conversion can overflow silently.",
+        "Checkpoint round-trip cannot preserve RNG and schema identity."
+      ],
+      "failure_mode_ids": [
+        "RFM-001",
+        "RFM-009",
+        "RFM-035"
+      ],
+      "branch": "arch/rust-engine-state-contract"
+    },
+    {
+      "id": "RUST-PR-003",
+      "title": "Static City, Network, DCEL, and Static Authority Port",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-002"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-002",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-003 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Move all accepted static city-generation and graph-authority semantics into metroflow-core.",
+        "observable_success": "For the frozen matrix, Rust reproduces exact-mm topology, IDs, layers, turns, DCEL faces, zoning/static authority and fingerprints or emits an explicit versioned migration."
+      },
+      "scope": {
+        "allowed_paths": [
+          "crates/metroflow-core/**",
+          "crates/metroflow-python/**",
+          "src/metroflow/city/**",
+          "src/metroflow/map/**",
+          "tests/test_rust_static_city_parity.py",
+          "tests/test_scalable_topology_kernel.py",
+          "tests/test_scalable_blocks.py",
+          "tests/test_scalable_authority.py",
+          "artifacts/rust_static_city_parity_v1/**",
+          "docs/harness/CLAIM_LEDGER.md"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not re-tune morphology or alter MAP evidence.",
+          "Do not approximate exact-mm geometry with floating coordinates.",
+          "Do not weaken crossing, touch, DCEL or layer-transition tests."
+        ]
+      },
+      "inspect_paths": [
+        "src/metroflow/city/scalable_topology.py",
+        "src/metroflow/city/scalable_blocks.py",
+        "src/metroflow/city/scalable_authority.py",
+        "src/metroflow/city/scalable_topology_adapter.py",
+        "src/metroflow/map/road_geometry.py"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-core/src/city/**",
+        "crates/metroflow-core/src/graph/**",
+        "crates/metroflow-core/src/dcel/**",
+        "crates/metroflow-core/src/static_authority/**",
+        "tests/test_rust_static_city_parity.py",
+        "artifacts/rust_static_city_parity_v1/manifest.json"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-003-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-003-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-003",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-003-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-008",
+        "RINV-009",
+        "RINV-013"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-003-STEP-01",
+            "action": "Port canonical records and exact geometry predicates first."
+          },
+          {
+            "id": "RUST-PR-003-STEP-02",
+            "action": "Port style generation and infrastructure budgets without changing public semantics."
+          },
+          {
+            "id": "RUST-PR-003-STEP-03",
+            "action": "Port graph compilation, turn legality, DCEL, block/static authority and fingerprints."
+          },
+          {
+            "id": "RUST-PR-003-STEP-04",
+            "action": "Compare every field and fingerprint against Python on frozen seeds/scales/styles."
+          },
+          {
+            "id": "RUST-PR-003-STEP-05",
+            "action": "Keep Python builders as oracle wrappers until final promotion."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test -p metroflow-core city graph dcel",
+          "python -m pytest -q tests/test_rust_static_city_parity.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_static_city_parity.py -k 'crossing or touch or layer or overflow'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_scalable_topology_kernel.py tests/test_scalable_blocks.py tests/test_scalable_authority.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace",
+          "python -m pytest -q tests/test_rust_static_city_parity.py tests/test_scalable_v2_runtime_integration.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "Rust reproduces the accepted static-city authority on the frozen parity matrix",
+        "not_allowed": "Rust-generated maps are empirically realistic or traffic-valid"
+      },
+      "stop_conditions": [
+        "Exact geometry or DCEL parity requires tolerance weakening.",
+        "A public fingerprint changes without a versioned migration.",
+        "The port modifies frozen MAP evidence."
+      ],
+      "failure_mode_ids": [
+        "RFM-008",
+        "RFM-016"
+      ],
+      "branch": "arch/rust-engine-static-city"
+    },
+    {
+      "id": "RUST-PR-004",
+      "title": "Demand, Schedules, Controls, Events, and Multirate Scheduler Port",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-003"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-003",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-004 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Move deterministic temporal orchestration inputs and demand lifecycle into Rust.",
+        "observable_success": "Rust reproduces population/schedule/trip activation, controls, event ordering and multirate cadence across pause, injection, clear and boundary cases."
+      },
+      "scope": {
+        "allowed_paths": [
+          "crates/metroflow-core/**",
+          "src/metroflow/demand/**",
+          "src/metroflow/flow/events.py",
+          "src/metroflow/sim/control.py",
+          "src/metroflow/sim/scheduler.py",
+          "src/metroflow/sim/rng.py",
+          "tests/test_rust_demand_scheduler_parity.py",
+          "artifacts/rust_demand_scheduler_parity_v1/**"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not alter demand distributions, event precedence, tick numbering or random streams.",
+          "Do not make Python callbacks part of every tick."
+        ]
+      },
+      "inspect_paths": [
+        "src/metroflow/demand/population.py",
+        "src/metroflow/demand/schedules.py",
+        "src/metroflow/demand/trips.py",
+        "src/metroflow/flow/events.py",
+        "src/metroflow/sim/control.py",
+        "src/metroflow/sim/step.py"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-core/src/demand/**",
+        "crates/metroflow-core/src/scheduler.rs",
+        "crates/metroflow-core/src/control.rs",
+        "crates/metroflow-core/src/events.rs",
+        "tests/test_rust_demand_scheduler_parity.py"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-004-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-004-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-004",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-004-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-002",
+        "RINV-006",
+        "RINV-015"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-004-STEP-01",
+            "action": "Port population and schedule records with stable ordering."
+          },
+          {
+            "id": "RUST-PR-004-STEP-02",
+            "action": "Port trip generation/activation and named RNG consumption."
+          },
+          {
+            "id": "RUST-PR-004-STEP-03",
+            "action": "Port control/event queue and exact ordering for inject, activate, clear and pause."
+          },
+          {
+            "id": "RUST-PR-004-STEP-04",
+            "action": "Port multirate scheduler and cadence metadata."
+          },
+          {
+            "id": "RUST-PR-004-STEP-05",
+            "action": "Run long boundary fixtures around tick zero, interval edges and simultaneous events."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test -p metroflow-core demand scheduler events",
+          "python -m pytest -q tests/test_rust_demand_scheduler_parity.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_demand_scheduler_parity.py -k 'simultaneous or pause or boundary or malformed'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_trip_generation.py tests/test_events.py tests/test_scheduler.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace",
+          "python -m pytest -q tests/test_rust_demand_scheduler_parity.py tests/test_runtime_replay_closure.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "Rust reproduces the declared temporal and demand contract",
+        "not_allowed": "Rust changes demand realism or validates external demand"
+      },
+      "stop_conditions": [
+        "RNG consumption cannot be matched or explicitly versioned.",
+        "Simultaneous event order is ambiguous.",
+        "A required per-tick Python callback remains."
+      ],
+      "failure_mode_ids": [
+        "RFM-006",
+        "RFM-015",
+        "RFM-042"
+      ],
+      "branch": "arch/rust-engine-demand-scheduler-events"
+    },
+    {
+      "id": "RUST-PR-005",
+      "title": "Rust-Owned Routing, Candidate Cache, and Reroute Engine",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-004"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-004",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-005 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Move the complete legal routing state and cache lifecycle into metroflow-core.",
+        "observable_success": "Dynamic potentials, ranked candidates, path-size metadata, selection, reroute, incident refresh and cache generations match the Python oracle for all declared backends and closures."
+      },
+      "scope": {
+        "allowed_paths": [
+          "crates/metroflow-core/**",
+          "crates/metroflow-rust/**",
+          "src/metroflow/routing/**",
+          "src/metroflow/sim/routing_runtime.py",
+          "src/metroflow/core/cache.py",
+          "tests/test_rust_routing_engine_parity.py",
+          "artifacts/rust_routing_parity_v1/**"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not change candidate ranking/tie breaks, route legality, cache keys or reroute thresholds.",
+          "Do not replace exact routing with a neural surrogate."
+        ]
+      },
+      "inspect_paths": [
+        "crates/metroflow-rust/src/routing.rs",
+        "crates/metroflow-rust/src/reroute.rs",
+        "src/metroflow/routing/dynamic_potential.py",
+        "src/metroflow/routing/candidates.py",
+        "src/metroflow/routing/reroute_policy.py",
+        "src/metroflow/sim/routing_runtime.py"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-core/src/routing/**",
+        "crates/metroflow-core/src/cache.rs",
+        "tests/test_rust_routing_engine_parity.py",
+        "artifacts/rust_routing_parity_v1/manifest.json"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-005-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-005-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-005",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-005-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-004",
+        "RINV-005",
+        "RINV-011",
+        "RINV-018"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-005-STEP-01",
+            "action": "Port graph-search and candidate data structures into the persistent Engine graph."
+          },
+          {
+            "id": "RUST-PR-005-STEP-02",
+            "action": "Replace per-call Vec inputs with references to engine-owned CSR and state arrays."
+          },
+          {
+            "id": "RUST-PR-005-STEP-03",
+            "action": "Port cache keys/generations and all invalidation triggers."
+          },
+          {
+            "id": "RUST-PR-005-STEP-04",
+            "action": "Port ranked K, path-size, stable tie breaks and reroute policy."
+          },
+          {
+            "id": "RUST-PR-005-STEP-05",
+            "action": "Shadow Python and Rust across no-route, incident, clear, loop, equal-cost and large-K fixtures."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test -p metroflow-core routing",
+          "python -m pytest -q tests/test_rust_routing_engine_parity.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_routing_engine_parity.py -k 'illegal or stale or no_route or equal_cost'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_dynamic_potential.py tests/test_route_candidates.py tests/test_runtime_replay_closure.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace",
+          "python -m pytest -q tests/test_rust_routing_engine_parity.py tests/test_scalable_v2_runtime_integration.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "Rust owns and reproduces routing and reroute semantics",
+        "not_allowed": "routing quality or CAPR benefit is established"
+      },
+      "stop_conditions": [
+        "Route legality differs on any fixture.",
+        "Cache invalidation cannot be made exact.",
+        "Parallel graph search changes stable ordering."
+      ],
+      "failure_mode_ids": [
+        "RFM-004",
+        "RFM-005",
+        "RFM-017",
+        "RFM-046"
+      ],
+      "branch": "arch/rust-engine-routing-cache"
+    },
+    {
+      "id": "RUST-PR-006",
+      "title": "Point/Spatial Queue, Turn, Signal, and Event-Effect Flow Port",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-005"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-005",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-006 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Move the full flow authority, including discrete-agent token allocation and spatial queue, into Rust.",
+        "observable_success": "Rust matches link/node arrays, residual carries, sink/internal token allocation, storage receiving constraints, signals and incident effects tick by tick."
+      },
+      "scope": {
+        "allowed_paths": [
+          "crates/metroflow-core/**",
+          "crates/metroflow-rust/**",
+          "src/metroflow/flow/**",
+          "tests/test_rust_flow_event_parity.py",
+          "tests/test_spatial_queue_runtime.py",
+          "artifacts/rust_flow_parity_v1/**"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not retain the current restriction that spatial_queue_v1 must use Python.",
+          "Do not change token rounding, residual carry, queue capacity or signal timer semantics.",
+          "Do not enable fast-math."
+        ]
+      },
+      "inspect_paths": [
+        "src/metroflow/flow/engine.py",
+        "src/metroflow/flow/state.py",
+        "src/metroflow/flow/event_effects.py",
+        "crates/metroflow-rust/src/flow.rs",
+        "crates/metroflow-rust/src/edge.rs"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-core/src/flow/**",
+        "crates/metroflow-core/src/signal.rs",
+        "tests/test_rust_flow_event_parity.py",
+        "artifacts/rust_flow_parity_v1/manifest.json"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-006-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-006-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-006",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-006-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-003",
+        "RINV-009",
+        "RINV-012",
+        "RINV-014"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-006-STEP-01",
+            "action": "Port field arrays and point-queue continuous allocation."
+          },
+          {
+            "id": "RUST-PR-006-STEP-02",
+            "action": "Port discrete-agent service/receiving/sink token authority and residual carries."
+          },
+          {
+            "id": "RUST-PR-006-STEP-03",
+            "action": "Port spatial storage, spillback receiving constraints, signal timers and event multipliers."
+          },
+          {
+            "id": "RUST-PR-006-STEP-04",
+            "action": "Use checked segmented accumulations with deterministic order."
+          },
+          {
+            "id": "RUST-PR-006-STEP-05",
+            "action": "Run multi-tick parity, empty/zero-capacity, high-demand, spillback and simultaneous-turn fixtures."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test -p metroflow-core flow",
+          "python -m pytest -q tests/test_rust_flow_event_parity.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_flow_event_parity.py -k 'zero_capacity or overflow or spillback or forbidden'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_flow_engine.py tests/test_spatial_queue_runtime.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace",
+          "python -m pytest -q tests/test_rust_flow_event_parity.py tests/test_spatial_queue_runtime.py tests/test_runtime_replay_closure.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "Rust reproduces both declared traffic models and exact token authority",
+        "not_allowed": "the traffic model is empirically calibrated"
+      },
+      "stop_conditions": [
+        "Mass closes only within a tolerance instead of exactly where tokens are integral.",
+        "spatial_queue_v1 remains Python-only.",
+        "Parallel accumulation changes results."
+      ],
+      "failure_mode_ids": [
+        "RFM-003",
+        "RFM-014",
+        "RFM-018",
+        "RFM-047"
+      ],
+      "branch": "arch/rust-engine-flow-models"
+    },
+    {
+      "id": "RUST-PR-007",
+      "title": "Active-Agent Allocation, Movement, Completion, and Failure Port",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-006"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-006",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-007 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Move the full active-agent pool lifecycle and its queue transaction into Rust.",
+        "observable_success": "Allocation, movement, in-transit state, sink wait, completion/failure, cooldown and queue mutations match the Python oracle exactly."
+      },
+      "scope": {
+        "allowed_paths": [
+          "crates/metroflow-core/**",
+          "crates/metroflow-rust/**",
+          "src/metroflow/sim/active_agents.py",
+          "src/metroflow/sim/routing_runtime.py",
+          "tests/test_rust_agent_engine_parity.py",
+          "artifacts/rust_agent_parity_v1/**"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not split agent and queue authority across languages.",
+          "Do not change slot allocation order, capacity behavior, completion transaction or failure codes."
+        ]
+      },
+      "inspect_paths": [
+        "src/metroflow/sim/active_agents.py",
+        "src/metroflow/sim/routing_runtime.py",
+        "crates/metroflow-rust/src/agent.rs"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-core/src/agents/**",
+        "tests/test_rust_agent_engine_parity.py",
+        "artifacts/rust_agent_parity_v1/manifest.json"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-007-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-007-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-007",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-007-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-001",
+        "RINV-003",
+        "RINV-018"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-007-STEP-01",
+            "action": "Port the pool to SoA with stable slot/trip IDs and checked capacity."
+          },
+          {
+            "id": "RUST-PR-007-STEP-02",
+            "action": "Port route ragged storage as offsets plus flat link IDs."
+          },
+          {
+            "id": "RUST-PR-007-STEP-03",
+            "action": "Port allocation, movement budgets, progress, sink wait, completion and typed failure."
+          },
+          {
+            "id": "RUST-PR-007-STEP-04",
+            "action": "Commit queue movement and agent movement in one Rust transaction."
+          },
+          {
+            "id": "RUST-PR-007-STEP-05",
+            "action": "Shadow pool arrays and ledgers after every tick on boundary fixtures."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test -p metroflow-core agents",
+          "python -m pytest -q tests/test_rust_agent_engine_parity.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_agent_engine_parity.py -k 'capacity or no_route or sink_wait or rollback'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_active_agents.py tests/test_runtime_replay_closure.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace",
+          "python -m pytest -q tests/test_rust_agent_engine_parity.py tests/test_spatial_queue_runtime.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "Rust owns the exact active-agent and queue transaction",
+        "not_allowed": "agent behavior is more realistic or optimal"
+      },
+      "stop_conditions": [
+        "Python must mutate queues after Rust movement.",
+        "Slot order or completion codes differ.",
+        "Capacity overflow is silently dropped."
+      ],
+      "failure_mode_ids": [
+        "RFM-043"
+      ],
+      "branch": "arch/rust-engine-active-agents"
+    },
+    {
+      "id": "RUST-PR-008",
+      "title": "Land-Use, Accessibility, Policy Blend, and Learning-Memory Core Port",
+      "priority": "P1",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-007"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-007",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-008 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Move deterministic non-neural policy/runtime state and slow land-use/accessibility evolution into Rust while keeping model training orchestration optional in Python.",
+        "observable_success": "Enabled evolution cadence, accessibility values, blend bounds, bandit/plugin memory and baseline fallback semantics match the oracle; external learned models remain non-authoritative."
+      },
+      "scope": {
+        "allowed_paths": [
+          "crates/metroflow-core/**",
+          "src/metroflow/landuse/**",
+          "src/metroflow/demand/accessibility.py",
+          "src/metroflow/policy/**",
+          "src/metroflow/routing/policy_mixer.py",
+          "src/metroflow/learning/**",
+          "tests/test_rust_landuse_policy_parity.py"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not make a neural model the route/state authority.",
+          "Do not train on external data.",
+          "Do not change causal lag or same-tick information rules."
+        ]
+      },
+      "inspect_paths": [
+        "src/metroflow/landuse/evolution.py",
+        "src/metroflow/demand/accessibility.py",
+        "src/metroflow/routing/policy_mixer.py",
+        "src/metroflow/learning/"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-core/src/landuse/**",
+        "crates/metroflow-core/src/policy/**",
+        "tests/test_rust_landuse_policy_parity.py"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-008-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-008-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-008",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-008-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-010",
+        "RINV-015",
+        "RINV-026"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-008-STEP-01",
+            "action": "Port deterministic accessibility and land-use update rules with explicit cadence."
+          },
+          {
+            "id": "RUST-PR-008-STEP-02",
+            "action": "Port blend bounds, baseline fallback, bandit/plugin-memory updates and serialized state."
+          },
+          {
+            "id": "RUST-PR-008-STEP-03",
+            "action": "Define a narrow optional score-input interface for Python/JAX/Torch experiments without mutation authority."
+          },
+          {
+            "id": "RUST-PR-008-STEP-04",
+            "action": "Test causal delay, disabled-learning parity and malformed model output fallback."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test -p metroflow-core landuse policy",
+          "python -m pytest -q tests/test_rust_landuse_policy_parity.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_landuse_policy_parity.py -k 'same_tick or malformed or disabled or bounds'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_policy_mixer.py tests/test_learning_runtime.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace",
+          "python -m pytest -q tests/test_rust_landuse_policy_parity.py tests/test_runtime_replay_closure.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "deterministic slow evolution and policy state have Rust parity",
+        "not_allowed": "learned policies are validated or authoritative"
+      },
+      "stop_conditions": [
+        "A model output can mutate canonical state directly.",
+        "Same-tick feedback replaces the declared lag.",
+        "Disabled learning changes baseline output."
+      ],
+      "failure_mode_ids": [
+        "RFM-041"
+      ],
+      "branch": "arch/rust-engine-policy-landuse"
+    },
+    {
+      "id": "RUST-PR-009",
+      "title": "Complete Rust Tick Engine, Invariants, Replay, and Checkpoint",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-008"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-008",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-009 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Compose all Rust domain ports into a single transactional Engine tick/chunk.",
+        "observable_success": "One Rust call executes the declared phase order, validates invariants, updates replay digest and supports checkpoint/restore with tick-by-tick Python shadow parity."
+      },
+      "scope": {
+        "allowed_paths": [
+          "crates/metroflow-core/**",
+          "src/metroflow/sim/step.py",
+          "src/metroflow/sim/invariants.py",
+          "src/metroflow/sim/replay.py",
+          "src/metroflow/sim/orchestrator.py",
+          "tests/test_rust_engine_tick_parity.py",
+          "artifacts/rust_engine_tick_parity_v1/**"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not change phase order to improve speed.",
+          "Do not validate only at the Python boundary.",
+          "Do not update state partially after an error."
+        ]
+      },
+      "inspect_paths": [
+        "src/metroflow/sim/step.py",
+        "src/metroflow/sim/invariants.py",
+        "src/metroflow/sim/replay.py",
+        "src/metroflow/sim/orchestrator.py"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-core/src/engine.rs",
+        "crates/metroflow-core/src/invariants.rs",
+        "crates/metroflow-core/src/replay.rs",
+        "tests/test_rust_engine_tick_parity.py",
+        "artifacts/rust_engine_tick_parity_v1/manifest.json"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-009-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-009-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-009",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-009-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-001",
+        "RINV-002",
+        "RINV-007",
+        "RINV-013",
+        "RINV-015"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-009-STEP-01",
+            "action": "Implement Engine construction from accepted static and dynamic state."
+          },
+          {
+            "id": "RUST-PR-009-STEP-02",
+            "action": "Implement transactional phase sequencing and rollback-on-error."
+          },
+          {
+            "id": "RUST-PR-009-STEP-03",
+            "action": "Run invariants and digest inside Rust after each tick/chunk."
+          },
+          {
+            "id": "RUST-PR-009-STEP-04",
+            "action": "Implement checkpoint/restore including caches, RNG and cadence."
+          },
+          {
+            "id": "RUST-PR-009-STEP-05",
+            "action": "Shadow every tick across pause/events/closures/demand/spatial queue/learning-disabled scenarios."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test -p metroflow-core engine",
+          "python -m pytest -q tests/test_rust_engine_tick_parity.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_engine_tick_parity.py -k 'rollback or corrupt or checkpoint or phase_order'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_runtime_replay_closure.py tests/test_sim_step.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace",
+          "python -m pytest -q tests/test_rust_engine_tick_parity.py tests/test_runtime_replay_closure.py tests/test_scalable_v2_runtime_integration.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "the complete Rust tick engine reproduces the frozen Python oracle scenarios",
+        "not_allowed": "Rust is default or faster"
+      },
+      "stop_conditions": [
+        "Any phase still requires Python mutation.",
+        "Checkpoint omits a cache or RNG stream.",
+        "Error paths leave partial state."
+      ],
+      "failure_mode_ids": [
+        "RFM-002",
+        "RFM-007",
+        "RFM-019",
+        "RFM-048"
+      ],
+      "branch": "arch/rust-engine-full-tick"
+    },
+    {
+      "id": "RUST-PR-010",
+      "title": "Coarse PyO3 Engine API and NumPy Snapshot Boundary",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-009"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-009",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-010 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Replace per-kernel Vec/list FFI with a thin persistent PyEngine object and coarse step/snapshot calls.",
+        "observable_success": "The Rust shadow path performs no `.tolist()`, no per-entity FFI and no Python state mutation; public snapshots and telemetry remain compatible."
+      },
+      "scope": {
+        "allowed_paths": [
+          "crates/metroflow-python/**",
+          "crates/metroflow-rust/**",
+          "src/metroflow/backends/rust_cpu.py",
+          "src/metroflow/sim/**",
+          "pyproject.toml",
+          "tests/test_rust_python_engine_api.py"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not expose mutable NumPy aliases to canonical state.",
+          "Do not delete compatibility wrappers yet.",
+          "Do not turn snapshot export into a per-tick mandatory copy."
+        ]
+      },
+      "inspect_paths": [
+        "src/metroflow/backends/rust_cpu.py",
+        "crates/metroflow-rust/src/lib.rs",
+        "src/metroflow/sim/step.py",
+        "src/metroflow/ui/snapshots.py"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-python/src/engine.rs",
+        "crates/metroflow-python/src/snapshot.rs",
+        "src/metroflow/backends/rust_engine.py",
+        "tests/test_rust_python_engine_api.py"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-010-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-010-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-010",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-010-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-010",
+        "RINV-013",
+        "RINV-016",
+        "RINV-017",
+        "RINV-018",
+        "RINV-023",
+        "RINV-028"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-010-STEP-01",
+            "action": "Expose `PyEngine` create/apply/step/snapshot/checkpoint/restore/digest methods."
+          },
+          {
+            "id": "RUST-PR-010-STEP-02",
+            "action": "Release the GIL for step/chunk execution and convert Rust errors transactionally."
+          },
+          {
+            "id": "RUST-PR-010-STEP-03",
+            "action": "Use rust-numpy readonly arrays or explicit snapshot copies at observation boundaries."
+          },
+          {
+            "id": "RUST-PR-010-STEP-04",
+            "action": "Replace nested route vectors with offsets plus flat arrays."
+          },
+          {
+            "id": "RUST-PR-010-STEP-05",
+            "action": "Route old Rust kernel wrappers through compatibility code, not the default shadow engine."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test -p metroflow-python",
+          "python -m pytest -q tests/test_rust_python_engine_api.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_python_engine_api.py -k 'alias or missing_extension or panic or tolist'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_ui_snapshot.py tests/test_run_summary.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace",
+          "python -m pytest -q tests/test_rust_python_engine_api.py tests/test_rust_engine_tick_parity.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "Python controls a persistent Rust engine through a coarse compatible API",
+        "not_allowed": "the Rust engine is default or zero-copy in every export"
+      },
+      "stop_conditions": [
+        "A mutable snapshot can change engine state.",
+        "The shadow path still calls per-stage wrappers.",
+        "GIL release permits concurrent unsynchronized mutation."
+      ],
+      "failure_mode_ids": [
+        "RFM-013",
+        "RFM-025",
+        "RFM-026",
+        "RFM-027",
+        "RFM-039"
+      ],
+      "branch": "arch/rust-engine-pyo3-api"
+    },
+    {
+      "id": "RUST-PR-011",
+      "title": "Deterministic Rayon Parallelization and Thread-Budget Control",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-010"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-010",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-011 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Parallelize independent engine work with an explicit engine-owned Rayon pool while preserving thread-count-independent results.",
+        "observable_success": "At 1/2/4/8 threads every canonical digest is identical, parallel work uses declared disjoint/fixed-combine patterns, and oversubscription is bounded."
+      },
+      "scope": {
+        "allowed_paths": [
+          "crates/metroflow-core/**",
+          "crates/metroflow-python/**",
+          "Cargo.lock",
+          "tests/test_rust_parallel_simd_determinism.py",
+          "artifacts/rust_parallelism_v1/**"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not use unordered float reduce, float atomics, nondeterministic map iteration or the uncontrolled global Rayon pool.",
+          "Do not change algorithms solely to expose parallelism."
+        ]
+      },
+      "inspect_paths": [
+        "crates/metroflow-rust/src/routing.rs",
+        "crates/metroflow-rust/src/flow.rs",
+        "crates/metroflow-rust/src/agent.rs",
+        "crates/metroflow-rust/Cargo.toml"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-core/src/parallel.rs",
+        "tests/test_rust_parallel_simd_determinism.py",
+        "artifacts/rust_parallelism_v1/manifest.json"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-011-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-011-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-011",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-011-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-011",
+        "RINV-012",
+        "RINV-021",
+        "RINV-022"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-011-STEP-01",
+            "action": "Create an Engine-owned ThreadPool with explicit thread count and recorded policy."
+          },
+          {
+            "id": "RUST-PR-011-STEP-02",
+            "action": "Classify every parallel loop as disjoint write, indexed collect, integer reduction or fixed ordered float reduction."
+          },
+          {
+            "id": "RUST-PR-011-STEP-03",
+            "action": "Replace iteration-order-sensitive HashMap/HashSet outputs with sorted/indexed structures."
+          },
+          {
+            "id": "RUST-PR-011-STEP-04",
+            "action": "Test thread counts, repeated runs and nested-library thread budgets."
+          },
+          {
+            "id": "RUST-PR-011-STEP-05",
+            "action": "Measure scaling and overhead without changing correctness thresholds."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test -p metroflow-core --features parallel",
+          "python -m pytest -q tests/test_rust_parallel_simd_determinism.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_parallel_simd_determinism.py -k 'unordered or oversubscription or thread_count'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_rust_engine_tick_parity.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace --all-features",
+          "python -m pytest -q tests/test_rust_parallel_simd_determinism.py tests/test_rust_engine_tick_parity.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "the Rust engine uses deterministic bounded CPU parallelism",
+        "not_allowed": "all workloads scale linearly"
+      },
+      "stop_conditions": [
+        "Any digest changes with thread count.",
+        "A canonical float result depends on Rayon reduction order.",
+        "Thread-pool interaction cannot be bounded."
+      ],
+      "failure_mode_ids": [
+        "RFM-011",
+        "RFM-012",
+        "RFM-029",
+        "RFM-030"
+      ],
+      "branch": "perf/rust-engine-deterministic-rayon"
+    },
+    {
+      "id": "RUST-PR-012",
+      "title": "SoA, Allocation, and Stable SIMD Optimization Pass",
+      "priority": "P1",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-011"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-011",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-012 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Optimize the complete Rust engine data path with contiguous SoA, allocation reuse, compiler vectorization and admitted stable SIMD only.",
+        "observable_success": "Criterion/perf evidence shows improved declared kernels without output drift, nightly Rust, fast-math or architecture-specific crashes."
+      },
+      "scope": {
+        "allowed_paths": [
+          "crates/metroflow-core/**",
+          "crates/metroflow-python/**",
+          "benches/**",
+          "Cargo.lock",
+          "tests/test_rust_parallel_simd_determinism.py",
+          "artifacts/rust_simd_v1/**"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not use nightly `std::simd` as the default.",
+          "Do not enable fast-math.",
+          "Do not accept microbenchmark wins that regress full engine wall time or memory."
+        ]
+      },
+      "inspect_paths": [
+        "crates/metroflow-core/src/**",
+        "crates/metroflow-rust/src/**",
+        "artifacts/runtime_spine_review/hardware-fit-atlas.md"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-core/benches/**",
+        "crates/metroflow-core/src/simd/**",
+        "artifacts/rust_simd_v1/manifest.json"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-012-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-012-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-012",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-012-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-009",
+        "RINV-011",
+        "RINV-012",
+        "RINV-024",
+        "RINV-029"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-012-STEP-01",
+            "action": "Remove avoidable per-tick allocation and reuse engine-owned buffers."
+          },
+          {
+            "id": "RUST-PR-012-STEP-02",
+            "action": "Align hot SoA loops for stable auto-vectorization and inspect generated code."
+          },
+          {
+            "id": "RUST-PR-012-STEP-03",
+            "action": "Add runtime-detected std::arch kernels only where copy-inclusive benchmarks justify them."
+          },
+          {
+            "id": "RUST-PR-012-STEP-04",
+            "action": "Keep a scalar implementation and exact parity tests for every manual SIMD kernel."
+          },
+          {
+            "id": "RUST-PR-012-STEP-05",
+            "action": "Measure complete engine, peak RSS and CPU feature fallback."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "cargo test --workspace",
+          "cargo bench -p metroflow-core --no-run",
+          "python -m pytest -q tests/test_rust_parallel_simd_determinism.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_parallel_simd_determinism.py -k 'scalar_fallback or unsupported_cpu or drift'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_rust_engine_tick_parity.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace --all-features",
+          "python -m pytest -q tests/test_rust_engine_tick_parity.py tests/test_rust_parallel_simd_determinism.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "the full Rust engine has evidence-backed stable CPU data-layout/SIMD optimizations",
+        "not_allowed": "nightly portable SIMD or every function is manually vectorized"
+      },
+      "stop_conditions": [
+        "Only microbenchmarks improve while engine wall time regresses.",
+        "Manual SIMD changes a canonical result.",
+        "The implementation requires nightly Rust."
+      ],
+      "failure_mode_ids": [
+        "RFM-031",
+        "RFM-032"
+      ],
+      "branch": "perf/rust-engine-soa-simd"
+    },
+    {
+      "id": "RUST-PR-013",
+      "title": "Optional Persistent GPU Kernel Admission",
+      "priority": "P1",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-012"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-012",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-013 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Evaluate and optionally admit one coarse device-resident numeric chunk without splitting canonical state authority.",
+        "observable_success": "A candidate is either admitted with copy/compile/drift/residency evidence or recorded HOLD; Rust CPU correctness/default progress is unaffected."
+      },
+      "scope": {
+        "allowed_paths": [
+          "src/metroflow/backends/jax_flow.py",
+          "src/metroflow/backends/**",
+          "crates/metroflow-core/**",
+          "crates/metroflow-python/**",
+          "pyproject.toml",
+          "tests/test_rust_gpu_admission.py",
+          "artifacts/rust_gpu_admission_v1/**"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not move graph search, event control or branch-heavy agent authority to GPU by default.",
+          "Do not add eager GPU imports.",
+          "Do not hide host synchronization or compilation cost.",
+          "Do not admit a candidate solely on kernel-only speed."
+        ]
+      },
+      "inspect_paths": [
+        "src/metroflow/backends/jax_flow.py",
+        "docs/harness/ACCELERATION_PR_LIST.md",
+        "artifacts/runtime_spine_review/hardware-fit-atlas.md",
+        "pyproject.toml"
+      ],
+      "planned_new_paths": [
+        "crates/metroflow-python/src/gpu/**",
+        "src/metroflow/backends/rust_gpu.py",
+        "tests/test_rust_gpu_admission.py",
+        "artifacts/rust_gpu_admission_v1/manifest.json"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-013-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-013-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-013",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-013-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-025",
+        "RINV-026",
+        "RINV-003",
+        "RINV-010"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-013-STEP-01",
+            "action": "Freeze one or more tensor-shaped candidates from the complete Rust engine."
+          },
+          {
+            "id": "RUST-PR-013-STEP-02",
+            "action": "Try JAX primitives/Pallas before JAX FFI/custom CUDA; use PyTorch only for a real tensor/training need."
+          },
+          {
+            "id": "RUST-PR-013-STEP-03",
+            "action": "Design persistent device buffers and multi-tick chunking with explicit synchronization counters."
+          },
+          {
+            "id": "RUST-PR-013-STEP-04",
+            "action": "Measure compile, transfer, steady execution, VRAM, drift and failure behavior."
+          },
+          {
+            "id": "RUST-PR-013-STEP-05",
+            "action": "Admit, HOLD or reject each candidate without blocking Rust CPU promotion."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "python -m pytest -q tests/test_rust_gpu_admission.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_gpu_admission.py -k 'eager or sync or drift or missing_gpu'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_rust_engine_tick_parity.py"
+        ],
+        "full_relevant_suite": [
+          "python -m pytest -q tests/test_rust_gpu_admission.py tests/test_rust_engine_tick_parity.py"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "the exact GPU candidates have an explicit ADMIT/HOLD/REJECT result",
+        "not_allowed": "GPU is required, faster globally, or scientifically validated"
+      },
+      "stop_conditions": [
+        "GPU state requires per-tick host synchronization.",
+        "Drift exceeds preregistered field limits.",
+        "GPU absence changes Rust CPU behavior."
+      ],
+      "failure_mode_ids": [
+        "RFM-020",
+        "RFM-021",
+        "RFM-033",
+        "RFM-034"
+      ],
+      "branch": "perf/rust-engine-gpu-admission"
+    },
+    {
+      "id": "RUST-PR-014",
+      "title": "Full Shadow-Parity, Scale, Resource, and Performance Matrix",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-013"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-013",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-014 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Run a preregistered Python-oracle versus Rust-engine matrix over all supported models, styles, scales, incidents, controls and thread counts.",
+        "observable_success": "All hard parity gates pass; complete performance/resource evidence meets promotion targets or the decision is HOLD without threshold changes."
+      },
+      "scope": {
+        "allowed_paths": [
+          "tests/test_rust_shadow_matrix.py",
+          "artifacts/rust_engine_shadow_matrix_v1/**",
+          "tools/run_rust_engine_shadow_matrix.py",
+          "docs/harness/VALIDATION_LEDGER.md",
+          "docs/harness/CLAIM_LEDGER.md"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not change engine code, oracle code, scenarios, tolerances or targets in this PR.",
+          "Do not drop failed, slow, no-route or OOM cases.",
+          "Do not report mean speed alone."
+        ]
+      },
+      "inspect_paths": [
+        "artifacts/rust_engine_baseline_v1/**",
+        "tests/test_rust_engine_tick_parity.py",
+        "tests/test_rust_parallel_simd_determinism.py",
+        "tests/test_rust_gpu_admission.py"
+      ],
+      "planned_new_paths": [
+        "tools/run_rust_engine_shadow_matrix.py",
+        "tests/test_rust_shadow_matrix.py",
+        "artifacts/rust_engine_shadow_matrix_v1/manifest.json",
+        "artifacts/rust_engine_shadow_matrix_v1/results.json"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-014-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-014-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-014",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-014-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-003",
+        "RINV-004",
+        "RINV-005",
+        "RINV-006",
+        "RINV-007",
+        "RINV-008",
+        "RINV-011",
+        "RINV-014",
+        "RINV-015",
+        "RINV-024",
+        "RINV-027",
+        "RINV-029"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-014-STEP-01",
+            "action": "Preregister the exact matrix and field-level parity rules before execution."
+          },
+          {
+            "id": "RUST-PR-014-STEP-02",
+            "action": "Run Python oracle and Rust at declared scales, traffic models, incidents and thread counts."
+          },
+          {
+            "id": "RUST-PR-014-STEP-03",
+            "action": "Record wall, Python wall share, FFI calls, peak RSS, allocations, replay digests and all failures."
+          },
+          {
+            "id": "RUST-PR-014-STEP-04",
+            "action": "Compute promotion result without averaging away a hard parity failure."
+          },
+          {
+            "id": "RUST-PR-014-STEP-05",
+            "action": "Preserve all negative results and issue PASS or HOLD."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "python -m pytest -q tests/test_rust_shadow_matrix.py",
+          "python tools/run_rust_engine_shadow_matrix.py --check"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_shadow_matrix.py -k 'missing_case or stale or threshold or failed_case'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_rust_engine_tick_parity.py tests/test_rust_parallel_simd_determinism.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace --all-features",
+          "python -m pytest -q"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "the exact frozen shadow matrix result and engineering speed/resource result",
+        "not_allowed": "global scientific validity or a guaranteed speedup on other workloads"
+      },
+      "stop_conditions": [
+        "A matrix definition changes after results are seen.",
+        "Any hard parity case fails.",
+        "Performance targets are missed and someone proposes weakening them in the same PR."
+      ],
+      "failure_mode_ids": [
+        "RFM-022",
+        "RFM-037",
+        "RFM-038",
+        "RFM-040",
+        "RFM-049"
+      ],
+      "branch": "bench/rust-engine-shadow-performance"
+    },
+    {
+      "id": "RUST-PR-015",
+      "title": "Rust Default Backend and Python-Frontend-Only Cutover",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-014"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-014",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-015 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Make the accepted Rust Engine the default runtime while retaining Python as frontend and an explicit oracle/debug backend.",
+        "observable_success": "Default configuration constructs PyEngine, stepping has one coarse Rust call per chunk, missing Rust fails closed, public APIs remain compatible, and Python oracle is explicit only."
+      },
+      "scope": {
+        "allowed_paths": [
+          "src/metroflow/sim/**",
+          "src/metroflow/backends/**",
+          "src/metroflow/ui/**",
+          "src/metroflow/benchmarks/**",
+          "src/metroflow/demo.py",
+          "pyproject.toml",
+          "README.md",
+          "docs/harness/**",
+          "tests/test_rust_default_backend.py",
+          "artifacts/rust_default_cutover_v1/**"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not delete Python oracle tests.",
+          "Do not silently fall back.",
+          "Do not make GPU the default.",
+          "Do not change runtime default if RUST-PR-014 is HOLD."
+        ]
+      },
+      "inspect_paths": [
+        "src/metroflow/sim/config.py",
+        "src/metroflow/sim/step.py",
+        "src/metroflow/sim/init.py",
+        "src/metroflow/backends/rust_cpu.py",
+        "README.md",
+        "src/metroflow/backends/rust_engine.py"
+      ],
+      "planned_new_paths": [
+        "tests/test_rust_default_backend.py",
+        "artifacts/rust_default_cutover_v1/manifest.json"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-015-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-015-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-015",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-015-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-010",
+        "RINV-016",
+        "RINV-017",
+        "RINV-019",
+        "RINV-020",
+        "RINV-023",
+        "RINV-026",
+        "RINV-028"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-015-STEP-01",
+            "action": "Require the exact PASS receipt from RUST-PR-014."
+          },
+          {
+            "id": "RUST-PR-015-STEP-02",
+            "action": "Replace fragmented edge/flow/routing/agent default selectors with one engine backend policy while maintaining compatibility parsing."
+          },
+          {
+            "id": "RUST-PR-015-STEP-03",
+            "action": "Route init/step/rollout/checkpoint/snapshot through PyEngine."
+          },
+          {
+            "id": "RUST-PR-015-STEP-04",
+            "action": "Keep `backend=python_oracle` explicit for debug/tests and fail closed if Rust is unavailable."
+          },
+          {
+            "id": "RUST-PR-015-STEP-05",
+            "action": "Update docs and run all public API/CLI/UI/benchmark regressions."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "python -m pytest -q tests/test_rust_default_backend.py",
+          "python -m pytest -q tests/test_rust_python_engine_api.py"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_default_backend.py -k 'missing or silent or gpu or hold'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_demo.py tests/test_ui_snapshot.py tests/test_benchmark_cli.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace --all-features",
+          "python -m pytest -q"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "the supported default runtime is Rust-owned with a Python frontend",
+        "not_allowed": "Python is removed, GPU is default, or empirical traffic validity is established"
+      },
+      "stop_conditions": [
+        "RUST-PR-014 does not have a PASS receipt.",
+        "Any default path silently executes Python.",
+        "Public frontend behavior cannot be preserved."
+      ],
+      "failure_mode_ids": [
+        "RFM-010",
+        "RFM-023",
+        "RFM-036",
+        "RFM-050"
+      ],
+      "branch": "feat/rust-engine-default-cutover"
+    },
+    {
+      "id": "RUST-PR-016",
+      "title": "Fresh-Context Final Audit, Cleanup, and Migration Decision",
+      "priority": "P0",
+      "risk_class": "high",
+      "depends_on": [
+        "RUST-PR-015"
+      ],
+      "base_binding": {
+        "base_sha": null,
+        "state": "BLOCKED_UNTIL_PREDECESSOR_MERGED_AND_REVIEWED",
+        "predecessor": "RUST-PR-015",
+        "materialize_with": "python tools/materialize_rust_default_engine_pr.py --pr-id RUST-PR-016 --base-sha $(git rev-parse main)",
+        "unresolved_action": "BLOCKED_BY_UNRESOLVED_SPEC"
+      },
+      "objective": {
+        "statement": "Independently audit the complete migration, remove only proven-dead compatibility surfaces, and freeze the bounded final decision.",
+        "observable_success": "A fresh reviewer reports P0=0/P1=0, every evidence fingerprint is current, no default-path per-kernel bridge remains, and the final APPROVE/HOLD/REJECT package is reproducible."
+      },
+      "scope": {
+        "allowed_paths": [
+          "docs/audit/RUST_DEFAULT_ENGINE_FINAL_DECISION_V1.md",
+          "artifacts/rust_default_engine_final_decision_v1/**",
+          "tests/test_rust_engine_final_audit.py",
+          "src/metroflow/backends/**",
+          "crates/metroflow-rust/**",
+          "docs/harness/CLAIM_LEDGER.md",
+          "docs/harness/PROJECT_STATE.md"
+        ],
+        "forbidden_paths": [
+          "artifacts/heldout_morphology_adversarial_audit_20260823/**",
+          "artifacts/runtime_spine_review/morphology-control-table-v4-20260820.*",
+          "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json",
+          "docs/audit/codex_prs/**"
+        ],
+        "forbidden_changes": [
+          "Do not modify scientific algorithms, performance targets or benchmark definitions.",
+          "Do not delete compatibility code still used by the oracle or public API.",
+          "Reviewer must not fix code in first pass."
+        ]
+      },
+      "inspect_paths": [
+        "docs/exec-plans/rust-default-engine/**",
+        "artifacts/rust_engine_shadow_matrix_v1/**",
+        "artifacts/rust_default_cutover_v1/**",
+        "src/metroflow/backends/rust_cpu.py",
+        "crates/metroflow-rust/"
+      ],
+      "planned_new_paths": [
+        "docs/audit/RUST_DEFAULT_ENGINE_FINAL_DECISION_V1.md",
+        "artifacts/rust_default_engine_final_decision_v1/decision.json",
+        "tests/test_rust_engine_final_audit.py"
+      ],
+      "preconditions": [
+        {
+          "id": "RUST-PR-016-PRE-01",
+          "command": "python tools/validate_rust_default_engine_plan.py --check",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-016-PRE-02",
+          "command": "python tools/validate_rust_default_engine_plan.py --check-readiness RUST-PR-016",
+          "expect": "exit=0"
+        },
+        {
+          "id": "RUST-PR-016-PRE-03",
+          "command": "git status --porcelain=v1",
+          "expect": "empty"
+        }
+      ],
+      "invariant_ids": [
+        "RINV-030",
+        "RINV-020",
+        "RINV-024",
+        "RINV-027"
+      ],
+      "implementation": {
+        "ordered_steps": [
+          {
+            "id": "RUST-PR-016-STEP-01",
+            "action": "Start a fresh-context audit-only reviewer with base/final SHA, actual diff, contracts and raw logs."
+          },
+          {
+            "id": "RUST-PR-016-STEP-02",
+            "action": "Return P0/P1/P2/P3 findings with file:line, violated invariant and reproducer."
+          },
+          {
+            "id": "RUST-PR-016-STEP-03",
+            "action": "Send P0/P1 back to the implementer; repeat review after fixes."
+          },
+          {
+            "id": "RUST-PR-016-STEP-04",
+            "action": "Remove only compatibility wrappers proven unused by static and dynamic tests."
+          },
+          {
+            "id": "RUST-PR-016-STEP-05",
+            "action": "Build a final decision package that cites exact receipts and stops assurance expansion."
+          }
+        ]
+      },
+      "verification": {
+        "targeted": [
+          "python -m pytest -q tests/test_rust_engine_final_audit.py",
+          "python tools/verify_rust_default_engine_evidence.py --all"
+        ],
+        "negative": [
+          "python -m pytest -q tests/test_rust_engine_final_audit.py -k 'stale or same_reviewer or missing or p0 or p1'"
+        ],
+        "regression": [
+          "python -m pytest -q tests/test_rust_default_backend.py tests/test_rust_shadow_matrix.py"
+        ],
+        "full_relevant_suite": [
+          "cargo test --workspace --all-features",
+          "python -m pytest -q"
+        ]
+      },
+      "completion_evidence": {
+        "required": [
+          "base_sha",
+          "final_sha",
+          "git_status_porcelain",
+          "git_diff_name_status",
+          "git_diff_stat",
+          "git_diff_check",
+          "targeted_test_logs",
+          "negative_test_logs",
+          "regression_test_logs",
+          "full_relevant_suite_logs",
+          "cargo_test_logs",
+          "invariant_results",
+          "failure_mode_results",
+          "benchmark_receipt_if_required",
+          "fresh_context_review_receipt",
+          "unresolved_blockers"
+        ]
+      },
+      "agent_policy": {
+        "ask_user_questions": false,
+        "guessing_across_spec_boundary": "forbidden",
+        "unresolved_spec_action": "BLOCKED_BY_UNRESOLVED_SPEC",
+        "changing_tests_or_tolerances_to_fit_implementation": "forbidden",
+        "suppressing_or_reclassifying_failures": "forbidden",
+        "same_context_final_review": "forbidden"
+      },
+      "review_gate": {
+        "fresh_context_required": true,
+        "audit_only_first_pass": true,
+        "reviewer_input": [
+          "base_sha",
+          "final_sha",
+          "actual_git_diff",
+          "this_pr_contract",
+          "raw_verification_logs",
+          "unresolved_blockers"
+        ],
+        "pass_condition": {
+          "P0": 0,
+          "P1": 0,
+          "unresolved": 0
+        }
+      },
+      "claim": {
+        "allowed": "the exact final migration decision and bounded supported architecture",
+        "not_allowed": "future workloads are guaranteed faster or the research model is scientifically validated"
+      },
+      "stop_conditions": [
+        "Fresh reviewer is not independent.",
+        "Any evidence receipt is stale or missing.",
+        "Cleanup would delete an oracle/publicly used path."
+      ],
+      "failure_mode_ids": [
+        "RFM-024",
+        "RFM-045"
+      ],
+      "branch": "audit/rust-engine-final-independent-review"
+    }
+  ],
+  "receipt_policy": {
+    "directory": "artifacts/rust_engine_migration_receipts",
+    "terminal_predecessor_receipt": "MAP-PR-011.json",
+    "rust_receipt_pattern": "{pr_id}.json",
+    "required_status": "PASS",
+    "required_max_findings": {
+      "P0": 0,
+      "P1": 0,
+      "unresolved": 0
+    },
+    "reviewer_context_must_differ_from_implementer": true
+  },
+  "must_exist_at_audit_base": [
+    "Cargo.toml",
+    "Cargo.lock",
+    "crates/metroflow-rust/Cargo.toml",
+    "crates/metroflow-rust/src/lib.rs",
+    "crates/metroflow-rust/src/agent.rs",
+    "crates/metroflow-rust/src/common.rs",
+    "crates/metroflow-rust/src/edge.rs",
+    "crates/metroflow-rust/src/flow.rs",
+    "crates/metroflow-rust/src/reroute.rs",
+    "crates/metroflow-rust/src/routing.rs",
+    "src/metroflow/backends/rust_cpu.py",
+    "src/metroflow/backends/jax_flow.py",
+    "src/metroflow/sim/state.py",
+    "src/metroflow/sim/step.py",
+    "src/metroflow/sim/config.py",
+    "src/metroflow/sim/routing_runtime.py",
+    "src/metroflow/sim/invariants.py",
+    "src/metroflow/sim/replay.py",
+    "src/metroflow/flow/engine.py",
+    "src/metroflow/flow/state.py",
+    "src/metroflow/demand/population.py",
+    "src/metroflow/demand/trips.py",
+    "src/metroflow/landuse/evolution.py",
+    "src/metroflow/city/scalable_topology.py",
+    "src/metroflow/city/scalable_blocks.py",
+    "src/metroflow/city/scalable_authority.py",
+    "src/metroflow/city/scalable_topology_adapter.py",
+    ".github/workflows/ci.yml",
+    "pyproject.toml",
+    "docs/harness/ACCELERATION_PR_LIST.md",
+    "artifacts/runtime_spine_review/hardware-fit-atlas.md",
+    "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json"
+  ],
+  "source_audit_receipt_ref": "docs/exec-plans/rust-default-engine/SOURCE_AUDIT_RECEIPT_V1.json",
+  "tool_refs": {
+    "plan_validator": "tools/validate_rust_default_engine_plan.py",
+    "contract_materializer": "tools/materialize_rust_default_engine_pr.py",
+    "evidence_verifier": "tools/verify_rust_default_engine_evidence.py",
+    "package_tests": "tests/test_rust_default_engine_compiled_plan.py"
+  },
+  "package_manifest_ref": "docs/exec-plans/rust-default-engine/PACKAGE_MANIFEST_V1.json"
+}

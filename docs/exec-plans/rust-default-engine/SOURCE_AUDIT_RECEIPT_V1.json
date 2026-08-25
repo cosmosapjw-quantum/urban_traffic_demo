@@ -1,0 +1,62 @@
+{
+  "schema_version": "metroflow_rust_engine_audit_receipt_v1",
+  "generated_on": "2026-08-24",
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "source": {
+    "main_sha": "01c80b432344f94209daaa198bb1eb007839fc7f",
+    "main_tree": "13ab0dd317d2581b83aba2d8b7763ef644dd30fb",
+    "current_map_dag_state": {
+      "merged": [
+        "MAP-PR-001",
+        "MAP-PR-002",
+        "MAP-PR-003",
+        "MAP-PR-004",
+        "MAP-PR-005"
+      ],
+      "remaining": [
+        "MAP-PR-006",
+        "MAP-PR-007",
+        "MAP-PR-008",
+        "MAP-PR-009",
+        "MAP-PR-010",
+        "MAP-PR-011"
+      ]
+    }
+  },
+  "inspected_surfaces": [
+    "Cargo.toml",
+    "crates/metroflow-rust/Cargo.toml",
+    "crates/metroflow-rust/src/lib.rs",
+    "crates/metroflow-rust/src/routing.rs",
+    "src/metroflow/backends/rust_cpu.py",
+    "src/metroflow/sim/state.py",
+    "src/metroflow/sim/step.py",
+    "src/metroflow/sim/config.py",
+    "src/metroflow/flow/engine.py",
+    ".github/workflows/ci.yml",
+    "pyproject.toml",
+    "docs/harness/ACCELERATION_PR_LIST.md",
+    "artifacts/runtime_spine_review/hardware-fit-atlas.md",
+    "docs/audit/URBAN_MAP_GENERATION_CODEX_PR_LIST_20260824.json"
+  ],
+  "confirmed_findings": [
+    "Python owns the canonical tick transaction and state replacement.",
+    "Current Rust extension exposes fine-grained Vec-in/Vec-out kernels rather than a persistent Engine.",
+    "Python Rust adapters convert NumPy arrays through Python lists in the current optional-kernel path.",
+    "Rust required CI is absent; the required CI intentionally leaves Rust optional and skippable.",
+    "spatial_queue_v1 and discrete-agent token authority remain Python-only.",
+    "Existing MAP dependency DAG must remain unchanged and the Rust DAG appends only after MAP-PR-011."
+  ],
+  "limitations": [
+    "No measured end-to-end speedup is claimed.",
+    "The container could not clone GitHub because DNS resolution was unavailable; source inspection used the GitHub connector and package validators were exercised in a synthetic local repository.",
+    "No production implementation code was changed by this package.",
+    "Future PR base SHAs are intentionally unresolved until predecessor merge plus fresh-context review."
+  ],
+  "verdict": {
+    "whole_engine_rust_migration": "APPROVED_AS_TARGET",
+    "rust_default_now": "BLOCKED",
+    "first_implementation_readiness": "BLOCKED_BY_PREDECESSOR_DAG",
+    "gpu": "OPTIONAL_POST_PARITY_ADMISSION"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "metroflow_rust_engine_fresh_context_review_v1",
+  "purpose": "Independent audit-only review of one Rust migration PR.",
+  "fresh_context_required": true,
+  "reviewer_must_not_be_implementer": true,
+  "first_pass_mode": "AUDIT_ONLY_NO_FIXES",
+  "authoritative_inputs": [
+    "materialized PR contract with exact base_sha",
+    "final_sha",
+    "actual base_sha..final_sha diff",
+    "repository at final_sha",
+    "raw targeted/negative/regression/full-suite/cargo logs",
+    "invariant and failure-mode results",
+    "unresolved blocker inventory"
+  ],
+  "non_authoritative_inputs": [
+    "implementer chain of thought",
+    "implementer self-verdict",
+    "implementer-selected diff summary",
+    "performance claim without raw receipt"
+  ],
+  "finding_schema": {
+    "severity": "P0|P1|P2|P3",
+    "file": "repository path",
+    "line": "exact line or smallest range",
+    "violated_invariant": "RINV-* or contract field",
+    "mechanism": "how the defect manifests",
+    "reproducer": "command or minimal fixture",
+    "required_correction": "bounded correction, not implementation in first pass"
+  },
+  "pass_condition": {
+    "P0": 0,
+    "P1": 0,
+    "unresolved": 0,
+    "sha_match": true,
+    "audit_only_first_pass": true
+  },
+  "on_failure": "Return findings to implementation context; review again from a new clean context after fixes.",
+  "prohibited": [
+    "Reviewer fixes code in first pass",
+    "Reviewer trusts implementer explanation over diff/repo",
+    "Reviewer approves missing required logs"
+  ]
+}

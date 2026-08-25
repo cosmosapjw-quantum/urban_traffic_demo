@@ -1,0 +1,173 @@
+{
+  "schema_version": "metroflow_rust_default_engine_architecture_v1",
+  "generated_on": "2026-08-24",
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "source": {
+    "main_sha": "01c80b432344f94209daaa198bb1eb007839fc7f",
+    "main_tree": "13ab0dd317d2581b83aba2d8b7763ef644dd30fb"
+  },
+  "decision": {
+    "target": "rust_owned_engine_with_python_frontend",
+    "current": "python_owned_tick_orchestration_with_optional_rust_and_jax_kernels",
+    "reason": [
+      "The current Python tick owns sequencing, state replacement, metadata copying, invariant checks, routing, flow and agent lifecycle.",
+      "The current Rust extension exposes isolated Vec-in/Vec-out kernels and the Python adapter converts NumPy arrays through Python lists on each call.",
+      "A whole-engine ownership boundary removes recurrent allocation, Python object traversal and per-stage FFI crossings that hotspot-only migration cannot eliminate.",
+      "The existing Python implementation remains a frozen scientific oracle until the Rust engine passes full shadow parity."
+    ],
+    "not_a_claim": [
+      "This audit does not claim a measured speedup.",
+      "It does not authorize a Rust default before the terminal promotion PR.",
+      "It does not authorize GPU mutation of canonical state without a separate admission gate."
+    ]
+  },
+  "ownership": {
+    "python_frontend": [
+      "CLI and notebook entry points",
+      "configuration authoring and validation front-end",
+      "UI/websocket presentation",
+      "reporting, plotting and artifact rendering",
+      "benchmark orchestration",
+      "optional learning experiment orchestration",
+      "explicit python_oracle debug backend"
+    ],
+    "rust_engine": [
+      "canonical static city/network/DCEL/static-authority representation",
+      "canonical dynamic simulation state",
+      "clock and multirate scheduler",
+      "deterministic RNG streams",
+      "events and controls",
+      "demand, schedules and trip lifecycle",
+      "routing graph, dynamic potentials, candidate caches and reroute",
+      "point-queue and spatial-queue flow",
+      "active-agent allocation, movement, completion and failure",
+      "land-use/accessibility runtime evolution where enabled",
+      "invariant checks, replay digest, checkpoint and restore",
+      "runtime metrics required for scientific validation"
+    ],
+    "optional_device_kernels": [
+      "dense flow/turn arithmetic with persistent device state",
+      "large batched pure numeric scoring",
+      "no graph-search or branch-heavy event authority unless separately demonstrated"
+    ]
+  },
+  "workspace_target": {
+    "crates": [
+      {
+        "name": "metroflow-core",
+        "type": "rlib",
+        "role": "pure Rust engine; no Python dependency"
+      },
+      {
+        "name": "metroflow-python",
+        "type": "cdylib",
+        "role": "thin PyO3 facade and NumPy snapshot bridge"
+      }
+    ],
+    "compatibility": {
+      "current_crate": "crates/metroflow-rust",
+      "rule": "Keep as a compatibility facade until the coarse Engine API is accepted; do not delete the Python oracle before final promotion."
+    }
+  },
+  "ffi_contract": {
+    "coarse_calls": [
+      "Engine.create(static_input, config, seed)",
+      "Engine.apply_controls(control_batch)",
+      "Engine.apply_events(event_batch)",
+      "Engine.step(tick_count, snapshot_policy)",
+      "Engine.snapshot(snapshot_kind)",
+      "Engine.checkpoint()",
+      "Engine.restore(checkpoint)",
+      "Engine.digest()",
+      "Engine.metrics()"
+    ],
+    "forbidden_default_path": [
+      "per-link Python-to-Rust calls",
+      "per-agent Python-to-Rust calls",
+      "per-route Python-to-Rust calls",
+      "NumPy .tolist() conversion",
+      "Vec<Vec<T>> crossing the Python boundary for runtime batches",
+      "silent fallback from Rust to Python or GPU",
+      "Python and Rust both mutating canonical state in one tick"
+    ],
+    "gil": "Long-running step/chunk execution must release the GIL; snapshot construction may reacquire it.",
+    "snapshot_rule": "Copy or borrow only at declared observation/checkpoint boundaries, never as an implicit per-tick side effect."
+  },
+  "data_layout": {
+    "static_graph": "dense index space plus stable external IDs; CSR adjacency and turn tables",
+    "dynamic": "structure-of-arrays with fixed dtypes and explicit units",
+    "ragged": "offsets plus flat values; no nested vectors at FFI",
+    "masks": "byte/bit masks selected by measured cost; canonical serialization fixed",
+    "index_width": "u32/i32 only where bounded mechanically; otherwise u64/usize with checked conversion",
+    "float_policy": {
+      "authority": "preserve current field-specific f32/f64 semantics until an explicit parity PR changes them",
+      "reductions": "fixed partition and deterministic serial combine for floating reductions",
+      "no_fast_math": "forbidden before a dedicated drift contract"
+    }
+  },
+  "parallelism": {
+    "rayon": {
+      "pool": "engine-owned ThreadPool with explicit thread count; do not use an uncontrolled global pool",
+      "safe_units": [
+        "independent destinations/OD batches with indexed ordered collection",
+        "disjoint link/node partitions",
+        "read-only graph search batches",
+        "integer counters with deterministic combine"
+      ],
+      "forbidden": [
+        "unordered floating-point reduce",
+        "floating atomics as canonical authority",
+        "iteration-order-dependent HashMap/HashSet output",
+        "nested Rayon plus BLAS/JAX oversubscription"
+      ]
+    },
+    "simd": {
+      "default": "stable compiler auto-vectorization over contiguous SoA loops",
+      "manual": "runtime-detected std::arch kernels only after benchmark and parity",
+      "portable_simd": "not a stable default dependency; std::simd remains nightly-only",
+      "external_crate": "admit a stable SIMD crate only through a dedicated evidence-backed PR"
+    }
+  },
+  "gpu": {
+    "priority": [
+      "JAX primitives/Pallas",
+      "JAX typed FFI to custom CUDA",
+      "direct custom CUDA",
+      "PyTorch custom operator only when tensor/training ecosystem is required"
+    ],
+    "admission": [
+      "device-resident state across multiple ticks",
+      "copy-inclusive and compile-inclusive benchmark",
+      "field-level parity/drift gate",
+      "no hidden per-tick host synchronization",
+      "no canonical state mutation split between CPU and GPU",
+      "explicit VRAM and failure fallback behavior"
+    ],
+    "default": "optional after Rust CPU engine parity; GPU work must not block Rust-default promotion"
+  },
+  "backend_policy": {
+    "migration": "python_oracle and rust_shadow",
+    "promotion": "rust is default only after RUST-PR-014",
+    "after_promotion": "Python oracle remains explicit debug/test backend, not silent fallback",
+    "rust_unavailable": "fail closed with build/install instructions"
+  },
+  "performance_objectives": {
+    "architectural": [
+      "one coarse Python-to-Rust step call per requested chunk",
+      "zero .tolist() calls in the Rust-default step path",
+      "no Python loop over links, turns, routes or agents in the default path",
+      "Python wall share below 5 percent during a no-UI step chunk, measured explicitly"
+    ],
+    "promotion_targets": {
+      "medium_large_geomean_speedup_vs_python_oracle": 2.0,
+      "peak_rss_ratio_max": 1.25,
+      "required_thread_count_determinism": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "note": "Engineering targets, not scientific claims; failure yields HOLD rather than threshold changes."
+    }
+  }
+}
