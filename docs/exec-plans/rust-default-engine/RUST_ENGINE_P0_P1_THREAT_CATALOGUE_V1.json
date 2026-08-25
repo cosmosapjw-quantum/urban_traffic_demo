@@ -1,0 +1,730 @@
+{
+  "schema_version": "metroflow_rust_engine_p0_p1_threat_catalogue_v1",
+  "generated_on": "2026-08-24",
+  "source": {
+    "main_sha": "01c80b432344f94209daaa198bb1eb007839fc7f",
+    "main_tree": "13ab0dd317d2581b83aba2d8b7763ef644dd30fb"
+  },
+  "definitions": {
+    "P0": "Silent wrong science, conservation/legality/replay failure, canonical-state corruption, or false success evidence.",
+    "P1": "Major boundary/fallback/incomplete-port/required-test defect that can produce a misleading or non-maintainable migration."
+  },
+  "policy": "Every P0/P1 must have an executable test, mechanical assertion, or registered STOP gate. Prose alone is invalid.",
+  "failure_modes": [
+    {
+      "id": "RFM-001",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-002",
+      "title": "Python/Rust double state authority",
+      "trigger": "Both languages mutate canonical state within one logical tick.",
+      "violates": [
+        "RINV-001"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_engine_tick_parity.py::test_no_python_rust_double_state_authority"
+      }
+    },
+    {
+      "id": "RFM-002",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-009",
+      "title": "Phase-order drift",
+      "trigger": "Port reorders event, demand, routing, flow, agents, invariants or metrics.",
+      "violates": [
+        "RINV-002"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_engine_tick_parity.py::test_phase_order_matches_python_oracle"
+      }
+    },
+    {
+      "id": "RFM-003",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-006",
+      "title": "Vehicle mass drift",
+      "trigger": "Floating or parallel token allocation creates/destroys vehicles.",
+      "violates": [
+        "RINV-003"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_flow_event_parity.py::test_mass_ledger_closes_exactly"
+      }
+    },
+    {
+      "id": "RFM-004",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-005",
+      "title": "Illegal route/turn",
+      "trigger": "Dense-index remap, closure or ramp direction permits an illegal successor.",
+      "violates": [
+        "RINV-004"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_routing_engine_parity.py::test_routes_preserve_turn_legality"
+      }
+    },
+    {
+      "id": "RFM-005",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-005",
+      "title": "Stale routing cache",
+      "trigger": "Incident/topology/cost/policy mutation does not invalidate dependent cache.",
+      "violates": [
+        "RINV-005"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_routing_engine_parity.py::test_cache_invalidation_generation_matrix"
+      }
+    },
+    {
+      "id": "RFM-006",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-004",
+      "title": "RNG stream divergence",
+      "trigger": "Parallel execution or ported demand consumes random draws in a different order.",
+      "violates": [
+        "RINV-006"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_demand_scheduler_parity.py::test_rng_stream_consumption_is_replay_stable"
+      }
+    },
+    {
+      "id": "RFM-007",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-009",
+      "title": "Incomplete checkpoint",
+      "trigger": "Checkpoint omits RNG, cache, scheduler, residual carry or policy memory.",
+      "violates": [
+        "RINV-007"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_engine_tick_parity.py::test_checkpoint_restore_is_bit_replayable"
+      }
+    },
+    {
+      "id": "RFM-008",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-003",
+      "title": "Static topology corruption",
+      "trigger": "Port changes exact geometry, layers, turns, faces or area conservation.",
+      "violates": [
+        "RINV-008"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_static_city_parity.py::test_static_city_authority_matches_python_oracle"
+      }
+    },
+    {
+      "id": "RFM-009",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-002",
+      "title": "Unit/dtype mismatch",
+      "trigger": "Field is silently narrowed, reinterpreted, or loses its unit/bounds.",
+      "violates": [
+        "RINV-009"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_engine_state_contract.py::test_all_fields_have_dtype_unit_and_bound"
+      }
+    },
+    {
+      "id": "RFM-010",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-015",
+      "title": "Silent backend fallback",
+      "trigger": "Missing Rust or runtime error silently executes Python/JAX/Torch.",
+      "violates": [
+        "RINV-010"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_default_backend.py::test_rust_default_fails_closed_when_extension_missing"
+      }
+    },
+    {
+      "id": "RFM-011",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-011",
+      "title": "Thread-count nondeterminism",
+      "trigger": "Work stealing or reduction order changes canonical output.",
+      "violates": [
+        "RINV-011",
+        "RINV-012"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_parallel_simd_determinism.py::test_thread_count_does_not_change_digest"
+      }
+    },
+    {
+      "id": "RFM-012",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-011",
+      "title": "Unordered floating reduction",
+      "trigger": "Rayon reduce/sum or floating atomics define canonical values.",
+      "violates": [
+        "RINV-012"
+      ],
+      "required_detection": {
+        "type": "assertion",
+        "target": "cargo clippy plus tests/test_rust_parallel_simd_determinism.py::test_float_reductions_use_deterministic_combine"
+      }
+    },
+    {
+      "id": "RFM-013",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-010",
+      "title": "Rust panic crosses FFI",
+      "trigger": "Panic unwinds into Python or leaves partially mutated state.",
+      "violates": [
+        "RINV-013"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_python_engine_api.py::test_panic_and_error_paths_are_transactional"
+      }
+    },
+    {
+      "id": "RFM-014",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-006",
+      "title": "Spatial queue left Python-only",
+      "trigger": "Default switch occurs while spatial_queue_v1 still requires baseline Python.",
+      "violates": [
+        "RINV-014"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_flow_event_parity.py::test_point_and_spatial_queue_shadow_parity"
+      }
+    },
+    {
+      "id": "RFM-015",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-004",
+      "title": "Multirate cadence drift",
+      "trigger": "Slow/periodic processes run at different ticks after migration.",
+      "violates": [
+        "RINV-015"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_engine_tick_parity.py::test_multirate_cadence_matches_oracle"
+      }
+    },
+    {
+      "id": "RFM-016",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-003",
+      "title": "ID/index aliasing",
+      "trigger": "Stable IDs are confused with dense indices or overflow checked widths.",
+      "violates": [
+        "RINV-008",
+        "RINV-009"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_engine_state_contract.py::test_stable_ids_round_trip_and_indices_are_checked"
+      }
+    },
+    {
+      "id": "RFM-017",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-005",
+      "title": "Nondeterministic hash iteration",
+      "trigger": "HashMap/HashSet iteration affects route order, candidate identity or fingerprints.",
+      "violates": [
+        "RINV-011"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_routing_engine_parity.py::test_hash_iteration_cannot_change_candidate_order"
+      }
+    },
+    {
+      "id": "RFM-018",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-006",
+      "title": "f32/f64 policy drift",
+      "trigger": "Flow or routing precision changes as an optimization without a versioned contract.",
+      "violates": [
+        "RINV-009"
+      ],
+      "required_detection": {
+        "type": "stop",
+        "target": "STOP_FLOAT_POLICY_CHANGE"
+      },
+      "stop_gate": "Block unless a separate field-level drift contract and oracle rebind are approved."
+    },
+    {
+      "id": "RFM-019",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-009",
+      "title": "Transactional failure violation",
+      "trigger": "Error in a late phase leaves early-phase state committed.",
+      "violates": [
+        "RINV-013"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_engine_tick_parity.py::test_error_rolls_back_entire_tick"
+      }
+    },
+    {
+      "id": "RFM-020",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-013",
+      "title": "GPU split authority",
+      "trigger": "CPU Rust and GPU both mutate canonical arrays without a single transaction.",
+      "violates": [
+        "RINV-003",
+        "RINV-010",
+        "RINV-025"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_gpu_admission.py::test_gpu_candidate_has_single_state_owner"
+      }
+    },
+    {
+      "id": "RFM-021",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-013",
+      "title": "GPU drift normalized",
+      "trigger": "A failed field drift is hidden by changing tolerance or excluding a scale.",
+      "violates": [
+        "RINV-025"
+      ],
+      "required_detection": {
+        "type": "stop",
+        "target": "STOP_GPU_DRIFT"
+      },
+      "stop_gate": "Record HOLD; do not edit the threshold, candidate matrix, or oracle in the same PR."
+    },
+    {
+      "id": "RFM-022",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-014",
+      "title": "Failed shadow case omitted",
+      "trigger": "Slow, failed, no-route or OOM cases disappear from promotion matrix.",
+      "violates": [
+        "RINV-024"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_shadow_matrix.py::test_every_declared_case_has_result_or_typed_failure"
+      }
+    },
+    {
+      "id": "RFM-023",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-015",
+      "title": "Default cutover before PASS",
+      "trigger": "Rust becomes default without exact RUST-PR-014 PASS receipt.",
+      "violates": [
+        "RINV-010",
+        "RINV-020"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_default_backend.py::test_default_switch_requires_shadow_pass_receipt"
+      }
+    },
+    {
+      "id": "RFM-024",
+      "severity": "P0",
+      "owner_pr": "RUST-PR-016",
+      "title": "Same-context final review",
+      "trigger": "Implementer or context-contaminated reviewer issues final PASS.",
+      "violates": [
+        "RINV-030"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_engine_final_audit.py::test_reviewer_is_fresh_and_audit_only"
+      }
+    },
+    {
+      "id": "RFM-025",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-010",
+      "title": "Per-kernel FFI survives",
+      "trigger": "Default engine still calls Rust separately for flow/routing/agent stages.",
+      "violates": [
+        "RINV-016"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_python_engine_api.py::test_default_step_has_bounded_ffi_call_count"
+      }
+    },
+    {
+      "id": "RFM-026",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-010",
+      "title": "NumPy list staging survives",
+      "trigger": "Default path calls ndarray.tolist or builds Python numeric lists.",
+      "violates": [
+        "RINV-017"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_python_engine_api.py::test_no_tolist_in_rust_default_path"
+      }
+    },
+    {
+      "id": "RFM-027",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-010",
+      "title": "Mutable snapshot alias",
+      "trigger": "Python receives writable memory that aliases canonical Rust state.",
+      "violates": [
+        "RINV-023"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_python_engine_api.py::test_snapshot_is_read_only_and_noninterfering"
+      }
+    },
+    {
+      "id": "RFM-028",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-001",
+      "title": "Rust CI is optional",
+      "trigger": "Required CI skips Rust build/parity and still reports green.",
+      "violates": [
+        "RINV-020"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_workspace_architecture.py::test_ci_does_not_allow_rust_parity_skip"
+      }
+    },
+    {
+      "id": "RFM-029",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-011",
+      "title": "Global Rayon pool dependence",
+      "trigger": "Thread count and scheduling depend on process-global initialization.",
+      "violates": [
+        "RINV-021"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_parallel_simd_determinism.py::test_engine_owns_fixed_thread_pool"
+      }
+    },
+    {
+      "id": "RFM-030",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-011",
+      "title": "Thread oversubscription",
+      "trigger": "Rayon, BLAS, JAX or Torch worker pools nest without a budget.",
+      "violates": [
+        "RINV-022"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_parallel_simd_determinism.py::test_thread_budget_is_not_oversubscribed"
+      }
+    },
+    {
+      "id": "RFM-031",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-012",
+      "title": "Nightly SIMD dependency",
+      "trigger": "Default build relies on unstable std::simd or target-native-only binary.",
+      "violates": [
+        "RINV-024"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_parallel_simd_determinism.py::test_stable_scalar_and_cpu_feature_fallback"
+      }
+    },
+    {
+      "id": "RFM-032",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-012",
+      "title": "Microbenchmark overfit",
+      "trigger": "A kernel benchmark improves while full-engine wall/RSS regresses.",
+      "violates": [
+        "RINV-024",
+        "RINV-029"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_shadow_matrix.py::test_engine_gate_not_kernel_only"
+      }
+    },
+    {
+      "id": "RFM-033",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-013",
+      "title": "Eager GPU dependency",
+      "trigger": "Importing core frontend requires JAX/Torch/CUDA.",
+      "violates": [
+        "RINV-026"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_gpu_admission.py::test_gpu_dependencies_are_lazy_and_optional"
+      }
+    },
+    {
+      "id": "RFM-034",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-013",
+      "title": "Per-tick GPU synchronization",
+      "trigger": "Device kernel returns to host every tick, erasing gains.",
+      "violates": [
+        "RINV-025"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_gpu_admission.py::test_gpu_candidate_has_persistent_residency_receipt"
+      }
+    },
+    {
+      "id": "RFM-035",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-002",
+      "title": "Nested-vector FFI schema",
+      "trigger": "Routes or state use Vec<Vec<T>>/Python nested lists instead of offsets.",
+      "violates": [
+        "RINV-018"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_engine_state_contract.py::test_ragged_offsets_are_canonical"
+      }
+    },
+    {
+      "id": "RFM-036",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-015",
+      "title": "Python tick loop remains default",
+      "trigger": "Python still iterates links, routes, turns or agents after cutover.",
+      "violates": [
+        "RINV-019"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_default_backend.py::test_python_frontend_does_not_own_tick_loops"
+      }
+    },
+    {
+      "id": "RFM-037",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-014",
+      "title": "Performance receipt omits costs",
+      "trigger": "Claim excludes extension build, warmup, copies, compile, memory or Python wall.",
+      "violates": [
+        "RINV-024"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_shadow_matrix.py::test_performance_receipt_has_all_costs"
+      }
+    },
+    {
+      "id": "RFM-038",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-014",
+      "title": "Python oracle edited to fit Rust",
+      "trigger": "Oracle outputs, tests or tolerances are changed in migration PRs.",
+      "violates": [
+        "RINV-027"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_shadow_matrix.py::test_python_oracle_golden_outputs_unchanged"
+      }
+    },
+    {
+      "id": "RFM-039",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-010",
+      "title": "Public artifact schema drift",
+      "trigger": "Snapshots/telemetry/summaries change without version migration.",
+      "violates": [
+        "RINV-028"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_python_engine_api.py::test_public_artifact_schema_parity"
+      }
+    },
+    {
+      "id": "RFM-040",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-014",
+      "title": "Memory growth",
+      "trigger": "Persistent buffers, snapshots or FFI objects leak across chunks.",
+      "violates": [
+        "RINV-029"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_shadow_matrix.py::test_long_run_memory_is_bounded"
+      }
+    },
+    {
+      "id": "RFM-041",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-008",
+      "title": "Neural authority creep",
+      "trigger": "Python/JAX/Torch model mutates state or selects illegal path directly.",
+      "violates": [
+        "RINV-010",
+        "RINV-026"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_landuse_policy_parity.py::test_model_output_is_advisory_and_legality_bounded"
+      }
+    },
+    {
+      "id": "RFM-042",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-004",
+      "title": "Per-tick Python callback",
+      "trigger": "Rust scheduler calls Python for demand/events every tick.",
+      "violates": [
+        "RINV-019"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_demand_scheduler_parity.py::test_tick_has_no_python_callback"
+      }
+    },
+    {
+      "id": "RFM-043",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-007",
+      "title": "Partial agent port marked complete",
+      "trigger": "Rust plans actions but Python applies pool/queue mutations.",
+      "violates": [
+        "RINV-001",
+        "RINV-003"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_agent_engine_parity.py::test_agent_and_queue_commit_is_single_rust_transaction"
+      }
+    },
+    {
+      "id": "RFM-044",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-001",
+      "title": "Workspace facade shadows Python package",
+      "trigger": "Maturin/PyO3 install replaces or hides the root metroflow package.",
+      "violates": [
+        "RINV-020",
+        "RINV-028"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_workspace_architecture.py::test_extension_install_does_not_shadow_python_package"
+      }
+    },
+    {
+      "id": "RFM-045",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-016",
+      "title": "Stale evidence accepted",
+      "trigger": "Review or final decision cites a different base/final SHA or old logs.",
+      "violates": [
+        "RINV-030"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_engine_final_audit.py::test_all_evidence_sha_bindings_are_current"
+      }
+    },
+    {
+      "id": "RFM-046",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-005",
+      "title": "Tie-break drift",
+      "trigger": "Equal-cost routes differ due to float comparison or parallel order.",
+      "violates": [
+        "RINV-004",
+        "RINV-011"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_routing_engine_parity.py::test_equal_cost_tie_break_is_stable"
+      }
+    },
+    {
+      "id": "RFM-047",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-006",
+      "title": "Residual carry omitted",
+      "trigger": "Discrete fractional residual/carry state is reset or omitted.",
+      "violates": [
+        "RINV-003",
+        "RINV-007"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_flow_event_parity.py::test_residual_carry_survives_ticks_and_checkpoint"
+      }
+    },
+    {
+      "id": "RFM-048",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-009",
+      "title": "Invariant checks moved only to Python",
+      "trigger": "Rust mutates state and Python detects errors after commitment.",
+      "violates": [
+        "RINV-013"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_engine_tick_parity.py::test_rust_validates_before_commit"
+      }
+    },
+    {
+      "id": "RFM-049",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-014",
+      "title": "Small-case-only parity",
+      "trigger": "Tests pass only on tiny graphs and omit 25/40/100/250 km2 or high-demand cases.",
+      "violates": [
+        "RINV-024",
+        "RINV-029"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_shadow_matrix.py::test_matrix_contains_required_scales_and_demands"
+      }
+    },
+    {
+      "id": "RFM-050",
+      "severity": "P1",
+      "owner_pr": "RUST-PR-015",
+      "title": "Fragmented backend configuration remains authority",
+      "trigger": "Separate edge/flow/routing/agent selectors can create unsupported mixed ownership.",
+      "violates": [
+        "RINV-001",
+        "RINV-010"
+      ],
+      "required_detection": {
+        "type": "test",
+        "target": "tests/test_rust_default_backend.py::test_engine_backend_is_single_authority"
+      }
+    }
+  ]
+}

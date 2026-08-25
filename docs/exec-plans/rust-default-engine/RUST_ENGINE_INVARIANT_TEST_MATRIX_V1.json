@@ -1,0 +1,310 @@
+{
+  "schema_version": "metroflow_rust_engine_invariant_matrix_v1",
+  "generated_on": "2026-08-24",
+  "source": {
+    "main_sha": "01c80b432344f94209daaa198bb1eb007839fc7f",
+    "main_tree": "13ab0dd317d2581b83aba2d8b7763ef644dd30fb"
+  },
+  "invariants": [
+    {
+      "id": "RINV-001",
+      "severity_if_violated": "P0",
+      "name": "single canonical state owner",
+      "statement": "During a tick exactly one Engine instance owns and mutates canonical static/dynamic state.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_engine_tick_parity.py::test_no_python_rust_double_state_authority"
+      }
+    },
+    {
+      "id": "RINV-002",
+      "severity_if_violated": "P0",
+      "name": "exact tick ordering",
+      "statement": "Control, event, demand, routing, flow, agent, invariant and metrics phases preserve the declared baseline order.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_engine_tick_parity.py::test_phase_order_matches_python_oracle"
+      }
+    },
+    {
+      "id": "RINV-003",
+      "severity_if_violated": "P0",
+      "name": "exact agent and queue mass",
+      "statement": "Generated, queued, active, completed and failed vehicle tokens close exactly for every tick.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_flow_event_parity.py::test_mass_ledger_closes_exactly"
+      }
+    },
+    {
+      "id": "RINV-004",
+      "severity_if_violated": "P0",
+      "name": "route legality",
+      "statement": "Every emitted route and movement follows directed-link and turn legality including ramps and closures.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_routing_engine_parity.py::test_routes_preserve_turn_legality"
+      }
+    },
+    {
+      "id": "RINV-005",
+      "severity_if_violated": "P0",
+      "name": "cache invalidation",
+      "statement": "Topology, incident, cost and policy generations invalidate exactly the dependent routing caches.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_routing_engine_parity.py::test_cache_invalidation_generation_matrix"
+      }
+    },
+    {
+      "id": "RINV-006",
+      "severity_if_violated": "P0",
+      "name": "deterministic RNG",
+      "statement": "Rust consumes named RNG streams in the same order as the frozen oracle or an explicitly versioned replacement.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_demand_scheduler_parity.py::test_rng_stream_consumption_is_replay_stable"
+      }
+    },
+    {
+      "id": "RINV-007",
+      "severity_if_violated": "P0",
+      "name": "checkpoint identity",
+      "statement": "Checkpoint/restore reproduces state, RNG, caches, scheduler and replay digest exactly.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_engine_tick_parity.py::test_checkpoint_restore_is_bit_replayable"
+      }
+    },
+    {
+      "id": "RINV-008",
+      "severity_if_violated": "P0",
+      "name": "static topology parity",
+      "statement": "Stable IDs, exact-mm geometry, layers, legal transitions, DCEL faces and area conservation match the accepted static authority.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_static_city_parity.py::test_static_city_authority_matches_python_oracle"
+      }
+    },
+    {
+      "id": "RINV-009",
+      "severity_if_violated": "P0",
+      "name": "dtype and unit contract",
+      "statement": "Every state field has a fixed dtype, unit, bounds and overflow policy.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_engine_state_contract.py::test_all_fields_have_dtype_unit_and_bound"
+      }
+    },
+    {
+      "id": "RINV-010",
+      "severity_if_violated": "P0",
+      "name": "no silent fallback",
+      "statement": "An explicitly selected/default Rust engine never silently executes Python, JAX, Torch or CUDA.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_default_backend.py::test_rust_default_fails_closed_when_extension_missing"
+      }
+    },
+    {
+      "id": "RINV-011",
+      "severity_if_violated": "P0",
+      "name": "thread-count replay",
+      "statement": "Canonical outputs and digests are identical at 1, 2, 4 and 8 Rust threads.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_parallel_simd_determinism.py::test_thread_count_does_not_change_digest"
+      }
+    },
+    {
+      "id": "RINV-012",
+      "severity_if_violated": "P0",
+      "name": "deterministic reductions",
+      "statement": "Floating reductions use fixed partitions and stable combine order; unordered parallel reductions are absent from authority paths.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_parallel_simd_determinism.py::test_float_reductions_use_deterministic_combine"
+      }
+    },
+    {
+      "id": "RINV-013",
+      "severity_if_violated": "P0",
+      "name": "panic containment",
+      "statement": "Rust panics never unwind across FFI; invalid inputs return typed Python errors and leave state unchanged.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_python_engine_api.py::test_panic_and_error_paths_are_transactional"
+      }
+    },
+    {
+      "id": "RINV-014",
+      "severity_if_violated": "P0",
+      "name": "spatial queue parity",
+      "statement": "The Rust engine implements both point_queue_v1 and spatial_queue_v1 before default promotion.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_flow_event_parity.py::test_point_and_spatial_queue_shadow_parity"
+      }
+    },
+    {
+      "id": "RINV-015",
+      "severity_if_violated": "P0",
+      "name": "temporal cadence",
+      "statement": "Demand, event, routing refresh, land-use and policy updates preserve their declared tick/multirate cadence.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_engine_tick_parity.py::test_multirate_cadence_matches_oracle"
+      }
+    },
+    {
+      "id": "RINV-016",
+      "severity_if_violated": "P1",
+      "name": "coarse FFI",
+      "statement": "The default engine path exposes coarse Engine calls and performs no per-entity FFI.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_python_engine_api.py::test_default_step_has_bounded_ffi_call_count"
+      }
+    },
+    {
+      "id": "RINV-017",
+      "severity_if_violated": "P1",
+      "name": "no list bridge",
+      "statement": "The Rust-default path contains no ndarray.tolist or Python-list staging for numeric state.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_python_engine_api.py::test_no_tolist_in_rust_default_path"
+      }
+    },
+    {
+      "id": "RINV-018",
+      "severity_if_violated": "P1",
+      "name": "ordered ragged layout",
+      "statement": "Routes and variable-length records cross boundaries as offsets plus flat values with validated monotonic offsets.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_engine_state_contract.py::test_ragged_offsets_are_canonical"
+      }
+    },
+    {
+      "id": "RINV-019",
+      "severity_if_violated": "P1",
+      "name": "Python frontend boundary",
+      "statement": "Default stepping has no Python loops over links, turns, candidates or agents.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_default_backend.py::test_python_frontend_does_not_own_tick_loops"
+      }
+    },
+    {
+      "id": "RINV-020",
+      "severity_if_violated": "P1",
+      "name": "Rust required CI",
+      "statement": "Required CI builds Rust, runs cargo tests and executes Python/Rust parity without skip.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_workspace_architecture.py::test_ci_requires_rust_build_and_parity"
+      }
+    },
+    {
+      "id": "RINV-021",
+      "severity_if_violated": "P1",
+      "name": "explicit thread budget",
+      "statement": "The engine owns a fixed Rayon pool and records thread count; global pool dependence is forbidden.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_parallel_simd_determinism.py::test_engine_owns_fixed_thread_pool"
+      }
+    },
+    {
+      "id": "RINV-022",
+      "severity_if_violated": "P1",
+      "name": "no oversubscription",
+      "statement": "Rust, BLAS and GPU execution do not create uncontrolled nested worker pools.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_parallel_simd_determinism.py::test_thread_budget_is_not_oversubscribed"
+      }
+    },
+    {
+      "id": "RINV-023",
+      "severity_if_violated": "P1",
+      "name": "snapshot noninterference",
+      "statement": "Snapshot/UI/report export cannot mutate state or change subsequent replay.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_python_engine_api.py::test_snapshot_is_read_only_and_noninterfering"
+      }
+    },
+    {
+      "id": "RINV-024",
+      "severity_if_violated": "P1",
+      "name": "performance evidence completeness",
+      "statement": "Speed claims include build/warmup, copy, steady runtime, peak RSS, workload and Python wall share.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_shadow_matrix.py::test_performance_receipt_has_all_costs"
+      }
+    },
+    {
+      "id": "RINV-025",
+      "severity_if_violated": "P1",
+      "name": "GPU persistent residency",
+      "statement": "Any admitted GPU kernel keeps required arrays device-resident across a chunk and reports synchronization/copy counts.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_gpu_admission.py::test_gpu_candidate_has_persistent_residency_receipt"
+      }
+    },
+    {
+      "id": "RINV-026",
+      "severity_if_violated": "P1",
+      "name": "GPU optionality",
+      "statement": "GPU dependencies are lazy and absence does not impair Rust CPU engine correctness.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_gpu_admission.py::test_gpu_dependencies_are_lazy_and_optional"
+      }
+    },
+    {
+      "id": "RINV-027",
+      "severity_if_violated": "P1",
+      "name": "Python oracle preservation",
+      "statement": "The Python oracle remains runnable until final audit and is not edited to fit Rust output.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_shadow_matrix.py::test_python_oracle_golden_outputs_unchanged"
+      }
+    },
+    {
+      "id": "RINV-028",
+      "severity_if_violated": "P1",
+      "name": "artifact schema parity",
+      "statement": "Public snapshots, summaries, telemetry and benchmark artifacts preserve schema or use an explicit version migration.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_python_engine_api.py::test_public_artifact_schema_parity"
+      }
+    },
+    {
+      "id": "RINV-029",
+      "severity_if_violated": "P1",
+      "name": "memory boundedness",
+      "statement": "Repeated chunk execution and snapshot cycles do not produce unbounded Rust/Python/GPU memory growth.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_shadow_matrix.py::test_long_run_memory_is_bounded"
+      }
+    },
+    {
+      "id": "RINV-030",
+      "severity_if_violated": "P1",
+      "name": "fresh-context closure",
+      "statement": "Every implementation PR has an audit-only fresh-context receipt with P0=0, P1=0 and no unresolved specification.",
+      "mechanical_check": {
+        "type": "pytest",
+        "target": "tests/test_rust_engine_final_audit.py::test_all_pr_receipts_pass_fresh_context_gate"
+      }
+    }
+  ]
+}

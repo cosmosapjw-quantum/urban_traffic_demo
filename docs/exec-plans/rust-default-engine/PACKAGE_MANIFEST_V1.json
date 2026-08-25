@@ -1,0 +1,92 @@
+{
+  "schema_version": "metroflow_rust_engine_package_manifest_v1",
+  "generated_on": "2026-08-24",
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "target_branch": "audit/rust-default-engine-compiled-plan-20260824",
+  "source_main_sha": "01c80b432344f94209daaa198bb1eb007839fc7f",
+  "source_main_tree": "13ab0dd317d2581b83aba2d8b7763ef644dd30fb",
+  "file_count": 16,
+  "files": [
+    {
+      "path": "docs/audit/RUST_DEFAULT_ENGINE_ADVERSARIAL_AUDIT_20260824.md",
+      "size_bytes": 18250,
+      "sha256": "4ad788837f769e11eff779bf1e35e4f5eef1b82f7d91bed58744eb9ecccb2905"
+    },
+    {
+      "path": "docs/exec-plans/rust-default-engine/AUDIT_COMPILED_EXEC_PLAN_V1.json",
+      "size_bytes": 111573,
+      "sha256": "15570125729823bce1444abd05ff5b1637ebfd6a6bbac7fe0f7a2b3e79768a2c"
+    },
+    {
+      "path": "docs/exec-plans/rust-default-engine/CODEX_HANDOFF_PROMPT.md",
+      "size_bytes": 5040,
+      "sha256": "e40d64bb03e1d4b912a8de404c0200590c43b57b431fc5811d3b466b5713deb8"
+    },
+    {
+      "path": "docs/exec-plans/rust-default-engine/EVIDENCE_BUNDLE_TEMPLATE_V1.json",
+      "size_bytes": 849,
+      "sha256": "0ec15e734bf1c8a4ce3c8bb133ec5033bf6f8e38ad6eb93982c5fab75ec242b9"
+    },
+    {
+      "path": "docs/exec-plans/rust-default-engine/README.md",
+      "size_bytes": 1842,
+      "sha256": "d647a9371dcfe3ef6e1b32a5e1b9cea7f9de56d25e7387e45da4fc914a376f4e"
+    },
+    {
+      "path": "docs/exec-plans/rust-default-engine/RUST_ENGINE_ARCHITECTURE_CONTRACT_V1.json",
+      "size_bytes": 7608,
+      "sha256": "977d2464f4bec4d3c029907f602fb0918022de51bfe2d1105110628256003758"
+    },
+    {
+      "path": "docs/exec-plans/rust-default-engine/RUST_ENGINE_EVIDENCE_BUNDLE_SCHEMA_V1.json",
+      "size_bytes": 5459,
+      "sha256": "2ded0f71707f4528d83df477cf46d72f1e88f2aeca00ceb55f35a637fd2a8b2b"
+    },
+    {
+      "path": "docs/exec-plans/rust-default-engine/RUST_ENGINE_FRESH_CONTEXT_REVIEW_CONTRACT_V1.json",
+      "size_bytes": 1545,
+      "sha256": "f60eb0b7acb822063ed1ab98a752a90b4e57f90b356e4d72e0f1f44d106b5796"
+    },
+    {
+      "path": "docs/exec-plans/rust-default-engine/RUST_ENGINE_INVARIANT_TEST_MATRIX_V1.json",
+      "size_bytes": 12080,
+      "sha256": "de3f7c7f6c4e2ae996b8adc509ffd4b2c2e76abac4f8f4c112dcd9c0d217ff53"
+    },
+    {
+      "path": "docs/exec-plans/rust-default-engine/RUST_ENGINE_P0_P1_THREAT_CATALOGUE_V1.json",
+      "size_bytes": 22912,
+      "sha256": "e26800d0113a0a2032e755d51efe04c3f32bf0459c65fd15800c44c73d141506"
+    },
+    {
+      "path": "docs/exec-plans/rust-default-engine/SOURCE_AUDIT_RECEIPT_V1.json",
+      "size_bytes": 2479,
+      "sha256": "17fa1bd24fdc5f34241719ed9a047156b5174250591cafea9dbe091981da8877"
+    },
+    {
+      "path": "docs/quality/P0_P1_POLICY.md",
+      "size_bytes": 2381,
+      "sha256": "98fac7b115729dd9fd5a311d33f02c96fa5afe9c4a59902a256e6a8283860640"
+    },
+    {
+      "path": "tests/test_rust_default_engine_compiled_plan.py",
+      "size_bytes": 7683,
+      "sha256": "0d0530f5674ec2d0c57e0ea697f438f882787e0cf448a3333a1820fdd504b8a7"
+    },
+    {
+      "path": "tools/materialize_rust_default_engine_pr.py",
+      "size_bytes": 4151,
+      "sha256": "5b7e066966defe5db654ad02e3515d4582b1ee1e84092c5a519ae69b6ec1aa3c"
+    },
+    {
+      "path": "tools/validate_rust_default_engine_plan.py",
+      "size_bytes": 13642,
+      "sha256": "5be22ca86d0a906f54d80865de414d3aabcc96d692d4b81ec9d42a190653f540"
+    },
+    {
+      "path": "tools/verify_rust_default_engine_evidence.py",
+      "size_bytes": 7550,
+      "sha256": "1e7412ea564728742750f33489c4eb9e6c542c07bda60e27ef286f7e14342c43"
+    }
+  ],
+  "note": "Manifest excludes itself. Digests are reproducibility identifiers, not anti-tamper security claims."
+}
