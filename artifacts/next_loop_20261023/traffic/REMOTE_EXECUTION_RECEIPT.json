@@ -1,0 +1,63 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "src/metroflow/pure_traffic/ctm.py",
+        "src/metroflow/pure_traffic/fluid_reference.py",
+        "tests/test_ctm_service_consistency.py",
+        "tests/test_fluid_reference.py",
+        "tools/run_ctm_consistency_next.py",
+        "tools/validate_pure_python_ctm_research.py"
+      ],
+      "log": "compile.log",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_pure_python_ctm.py",
+        "tests/test_ctm_service_consistency.py",
+        "tests/test_fluid_reference.py"
+      ],
+      "log": "focused_tests.log",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python",
+        "tools/run_ctm_consistency_next.py",
+        "artifacts/next_loop_20261023/traffic"
+      ],
+      "log": "campaign.log",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python",
+        "tools/validate_pure_python_ctm_research.py",
+        "--output",
+        "artifacts/next_loop_20261023/traffic/validation_matrix.json"
+      ],
+      "log": "matrix.log",
+      "returncode": 0
+    }
+  ],
+  "full_repository_suite": "NOT_RUN",
+  "lane": "traffic",
+  "native_subagents": "NOT_RUN; unavailable",
+  "parent": "3ffc153f2f36ba15ff8400de13971bb0239ebcfd",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "python": "3.12.15",
+  "scope": "bounded research successor, not default promotion or empirical calibration",
+  "source_file_hashes_verified": true,
+  "status": "PASS",
+  "tested_transport_commit": "fd69ef7fb8e5f898ea6b7145f516064da5520213",
+  "workflow_run_id": "39979105227"
+}

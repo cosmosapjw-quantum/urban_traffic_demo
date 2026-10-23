@@ -1,0 +1,44 @@
+{
+  "branch": "research/ctm-service-consistency-next-20261023",
+  "files": {
+    "docs/research/CTM_CONSISTENCY_NEXT_20261023.md": {
+      "bytes": 9537,
+      "git_blob": "53978e23974762e11e8ea9679b2bb5b260ddd832",
+      "sha256": "1df242f93b52e22d993dc33ef2927c592bf5a590c9f70cc6ed240faeee37a787"
+    },
+    "src/metroflow/pure_traffic/ctm.py": {
+      "bytes": 58063,
+      "git_blob": "9b2324d784f4924c475a78b7fc8d26850b02e12d",
+      "sha256": "d74f1291daeee1cd0e486efa8dd855f84f958b356555d10273fd0ebdd3eaa3ac"
+    },
+    "src/metroflow/pure_traffic/fluid_reference.py": {
+      "bytes": 7441,
+      "git_blob": "22e1996ac7a2277f99d0d717f00f9132fb4dc22a",
+      "sha256": "441b88129156802cdc4156688e8399139120e536b5c8eb7cf7291eca439c1e7c"
+    },
+    "tests/test_ctm_service_consistency.py": {
+      "bytes": 4500,
+      "git_blob": "21cde52b200b39f223003458cd85fd754ac86da4",
+      "sha256": "c88a7f362bd2a53f0af97e21800e92fd1cd9fd30928b240adda74d8c240c16a1"
+    },
+    "tests/test_fluid_reference.py": {
+      "bytes": 2203,
+      "git_blob": "66f48e3b3fb109e65b3072cd268e5797014867be",
+      "sha256": "cc0ce046e7ee8f5a83fed1c38a6e7c9809690f8e9f87b2f2a20a6c597b7bbe44"
+    },
+    "tools/run_ctm_consistency_next.py": {
+      "bytes": 7564,
+      "git_blob": "9956384318223e63b77573a4d6257f0f3a0b1ca0",
+      "sha256": "0ab8176496809c3f2ec496bc102e951fc016eeadd9c192f05fc0395133ae7b6b"
+    },
+    "tools/validate_pure_python_ctm_research.py": {
+      "bytes": 6935,
+      "git_blob": "5296022214363eb0234d1ce6fc1f4ba32387771a",
+      "sha256": "df4bc95ad2e85cc82ac83398e6b16b38c086cbd46d97bee3b2886f5cd66df319"
+    }
+  },
+  "native_subagents": "NOT_RUN; unavailable; serial execution",
+  "parent": "3ffc153f2f36ba15ff8400de13971bb0239ebcfd",
+  "patch_sha256": "118fbd9df5655d562f18a093158cac65c7ea1b18626ac10eafba8f91177ce119",
+  "scientific_scope": "opt-in research, stdlib kernels; no main change or empirical realism claim"
+}

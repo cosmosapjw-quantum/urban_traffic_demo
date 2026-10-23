@@ -46,6 +46,7 @@ class CTMConfig:
     node_policy: NodePolicy = "weighted_fair"
     fifo_mode: FIFOMode = "movement"
     movement_age_priority: bool = True
+    node_token_mode: Literal["coupled_credit", "legacy"] = "coupled_credit"
     forced_cell_count_by_link: Mapping[str, int] = field(default_factory=dict)
     virtual_finish_cost_scale: int = 1_000
     waiting_cost_scale: int = 24
@@ -53,6 +54,8 @@ class CTMConfig:
     def __post_init__(self) -> None:
         if not math.isfinite(self.tick_seconds) or self.tick_seconds <= 0.0:
             raise ValueError("tick_seconds must be finite and positive")
+        if self.node_token_mode not in {"coupled_credit", "legacy"}:
+            raise ValueError("node_token_mode must be coupled_credit or legacy")
         if self.node_policy not in {"lexicographic", "weighted_fair"}:
             raise ValueError("node_policy must be lexicographic or weighted_fair")
         if self.fifo_mode not in {"strict", "movement"}:
@@ -325,18 +328,14 @@ def _derive_geometry(link: LinkSpec, config: CTMConfig) -> _LinkGeometry:
             f"CFL violation for link {link.link_id}: "
             f"v*dt/dx={free_cfl:.6g}, w*dt/dx={wave_cfl:.6g}"
         )
-    jam_storage = max(
-        1,
-        int(
-            math.floor(
-                link.jam_density_veh_per_km_lane
-                * link.lanes
-                * cell_length
-                / 1_000.0
-                + _EPS
-            )
-        ),
-    )
+    jam_storage = int(math.floor(
+        link.jam_density_veh_per_km_lane * link.lanes * cell_length / 1_000.0 + _EPS
+    ))
+    if jam_storage < 1:
+        raise ValueError(
+            f"link {link.link_id} cell storage is below one vehicle; "
+            "coarsen the mesh or use a continuous-density reference"
+        )
     capacity_tick = (
         link.capacity_veh_per_hour_lane * link.lanes * config.tick_seconds / 3_600.0
     )
@@ -476,6 +475,24 @@ def _quantize_capacity(
         max(next_residual, 0.0),
         math.nextafter(1.0, 0.0),
     )
+
+
+def _credit_offer(target: float, credit: float) -> int:
+    """Offer a bounded-memory service budget, never releasing through a closed gate."""
+    return max(0, int(math.floor(target + credit + _EPS))) if target > 0.0 else 0
+
+
+def _credit_settle(target: float, credit: float, served: int) -> float:
+    """Settle ACTUAL flow; discard unused service above one vehicle.
+
+    Unlike a fractional residual, a credit may equal one. This retained token
+    prevents anti-phase sending/receiving clocks from permanently deadlocking.
+    Red or zero-capacity gates offer zero even when a full token is retained.
+    """
+    remaining = target + credit - served
+    if remaining < -_EPS:
+        raise RuntimeError("node service exceeded accumulated credit")
+    return min(1.0, max(0.0, remaining))
 
 
 def _movement_for_vehicle(
@@ -889,6 +906,10 @@ def step(
     demand_buckets: dict[int, dict[int, list[int]]] = {}
     movement_demands: dict[int, int] = {}
     exit_sending_tokens: dict[int, int] = {}
+    exit_targets = [0.0] * len(network.links)
+    entry_targets = [0.0] * len(network.links)
+    movement_targets = [0.0] * len(network.movements)
+    coupled = config.node_token_mode == "coupled_credit"
     for link_id, link_cells in enumerate(pre_cells):
         exit_cell = link_cells[-1]
         if config.fifo_mode == "strict":
@@ -906,8 +927,12 @@ def step(
             effective_free_cfl[link_id] * len(exit_cell),
             effective_capacity[link_id],
         )
-        tokens, next_residual = _quantize_target(raw_sending, exit_residuals[link_id])
-        exit_residuals[link_id] = next_residual
+        exit_targets[link_id] = raw_sending
+        if coupled:
+            tokens = _credit_offer(raw_sending, exit_residuals[link_id])
+        else:
+            tokens, next_residual = _quantize_target(raw_sending, exit_residuals[link_id])
+            exit_residuals[link_id] = next_residual
         exit_sending_tokens[link_id] = min(tokens, len(exit_cell))
 
     incoming_demand_by_link = [0] * len(network.links)
@@ -922,7 +947,10 @@ def step(
             geometry.wave_cfl * (geometry.jam_storage_veh - len(link_cells[0])),
         )
         active = incoming_demand_by_link[link_id] > 0 or bool(pending[link_id])
-        if active:
+        entry_targets[link_id] = raw_receiving if active else 0.0
+        if active and coupled:
+            tokens = _credit_offer(raw_receiving, entry_residuals[link_id])
+        elif active:
             tokens, next_residual = _quantize_target(raw_receiving, entry_residuals[link_id])
             entry_residuals[link_id] = next_residual
         else:
@@ -935,22 +963,20 @@ def step(
     for movement_id, movement in enumerate(network.movements):
         source_link = link_index[movement.from_link]
         target_link = link_index[movement.to_link] if movement.to_link is not None else None
-        active = (
-            movement_demands.get(movement_id, 0) > 0
-            and exit_sending_tokens.get(source_link, 0) > 0
-            and movement.is_green(state.tick)
-            and (
-                target_link is None
-                or entry_receiving_tokens.get(target_link, 0) > 0
-            )
-        )
+        active = movement_demands.get(movement_id, 0) > 0 and movement.is_green(state.tick)
         raw_capacity = movement.capacity_veh_per_hour * config.tick_seconds / 3_600.0
-        tokens, next_residual = _quantize_capacity(
-            raw_capacity,
-            movement_residuals[movement_id],
-            active=active,
-        )
-        movement_residuals[movement_id] = next_residual
+        if coupled:
+            # Real demand and the signal clock, NOT already-rounded S/R tokens.
+            movement_targets[movement_id] = raw_capacity if active else 0.0
+            tokens = _credit_offer(movement_targets[movement_id], movement_residuals[movement_id])
+        else:
+            active = active and exit_sending_tokens.get(source_link, 0) > 0 and (
+                target_link is None or entry_receiving_tokens.get(target_link, 0) > 0
+            )
+            tokens, next_residual = _quantize_capacity(
+                raw_capacity, movement_residuals[movement_id], active=active,
+            )
+            movement_residuals[movement_id] = next_residual
         movement_caps[movement_id] = min(tokens, movement_demands.get(movement_id, 0))
 
     allocated_flow: dict[int, int] = {}
@@ -1011,6 +1037,24 @@ def step(
         if count:
             admitted_by_link[link_id] = list(queue[:count])
             del queue[:count]
+
+    if coupled:
+        used_sending = [0] * len(network.links)
+        for movement_id, flow in allocated_flow.items():
+            used_sending[link_index[network.movements[movement_id].from_link]] += flow
+        for link_id in range(len(network.links)):
+            exit_residuals[link_id] = _credit_settle(
+                exit_targets[link_id], exit_residuals[link_id], used_sending[link_id]
+            )
+            entry_residuals[link_id] = _credit_settle(
+                entry_targets[link_id], entry_residuals[link_id],
+                used_receiving[link_id] + len(admitted_by_link.get(link_id, ())),
+            )
+        for movement_id in range(len(network.movements)):
+            movement_residuals[movement_id] = _credit_settle(
+                movement_targets[movement_id], movement_residuals[movement_id],
+                allocated_flow.get(movement_id, 0),
+            )
 
     next_cells = [[list(cell) for cell in link_cells] for link_cells in pre_cells]
     # Remove all departures from their pre-step cells first.
@@ -1185,7 +1229,7 @@ def _validate_state(
         state.movement_residuals,
     ):
         if any(not -_EPS <= value < 1.0 + _EPS for value in residual_group):
-            raise ValueError("fractional residual escaped [0, 1)")
+            raise ValueError("node residual/credit escaped [0, 1]")
     for values in state.internal_residuals:
         if any(not -_EPS <= value < 1.0 + _EPS for value in values):
             raise ValueError("internal residual escaped [0, 1)")
@@ -1283,6 +1327,7 @@ def _canonical_result_payload(
             "node_policy": config.node_policy,
             "fifo_mode": config.fifo_mode,
             "movement_age_priority": config.movement_age_priority,
+            "node_token_mode": config.node_token_mode,
             "forced_cell_count_by_link": dict(config.forced_cell_count_by_link),
             "virtual_finish_cost_scale": config.virtual_finish_cost_scale,
             "waiting_cost_scale": config.waiting_cost_scale,

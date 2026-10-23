@@ -107,16 +107,12 @@ def _run_case(seed: int, vehicles: int, release_batch: int, ticks: int) -> dict[
         for ratios in snapshot.link_cell_occupancy_ratio.values()
         for ratio in ratios
     )
-    residuals = (
+    node_credits = (
         *result.final_state.entry_residuals,
         *result.final_state.exit_residuals,
         *result.final_state.movement_residuals,
-        *(
-            value
-            for values in result.final_state.internal_residuals
-            for value in values
-        ),
     )
+    internal_residuals = tuple(value for group in result.final_state.internal_residuals for value in group)
     passed = (
         result.final_state.mass_balance_error == 0
         and result.node_holding_events == 0
@@ -125,7 +121,8 @@ def _run_case(seed: int, vehicles: int, release_batch: int, ticks: int) -> dict[
         and result.final_state.active_count == 0
         and clear_tick is not None
         and max_cell_ratio <= 1.0 + 1.0e-12
-        and all(0.0 <= value < 1.0 for value in residuals)
+        and all(0.0 <= value <= 1.0 for value in node_credits)
+        and all(0.0 <= value < 1.0 for value in internal_residuals)
         and all(value > 0.0 for value in result.completed_travel_times_s)
     )
     return {
@@ -173,8 +170,8 @@ def main() -> int:
     replay_pass = first.fingerprint == second.fingerprint and first.snapshots == second.snapshots
     scan = _forbidden_scan()
     payload = {
-        "schema_version": "pure_python_ctm_validation_v1",
-        "base_commit": "01c80b432344f94209daaa198bb1eb007839fc7f",
+        "schema_version": "pure_python_ctm_credit_validation_v2",
+        "base_commit": "3ffc153f2f36ba15ff8400de13971bb0239ebcfd",
         "all_pass": all(case["status"] == "PASS" for case in cases)
         and replay_pass
         and scan["status"] == "PASS",

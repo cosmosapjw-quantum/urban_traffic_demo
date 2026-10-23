@@ -1,0 +1,21 @@
+{
+  "checks": {
+    "all_saturated_rates": true,
+    "green_pulses": true,
+    "opposed_clock_phases": true,
+    "matrix": true,
+    "profile_error_convergence": true,
+    "temporal_mean_error_convergence": true,
+    "fluid_boundary_mass": true,
+    "diamond_clears": true
+  },
+  "diamond": {
+    "fingerprint": "b39c40b3dcaaf544372b169f7533ce794513ff138d0dbb000a707c0d97893cc9",
+    "completed": 320,
+    "clear_tick": 174,
+    "mass_error": 0,
+    "holding_events": 0,
+    "mean_travel_time_s": 540.0,
+    "max_cell_occupancy": 0.8666666666666667
+  }
+}
