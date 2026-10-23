@@ -1,0 +1,68 @@
+{
+  "base_commit": "01c80b432344f94209daaa198bb1eb007839fc7f",
+  "branch": "research/pure-python-ctm-traffic-20261023",
+  "file_count": 15,
+  "files": {
+    "artifacts/pure_python_ctm_20261023/ADVERSARIAL_VISUAL_AUDIT.md": {
+      "bytes": 4842,
+      "sha256": "f56d36c558f679d6513cdeebe91b223a229f7ac0ba30388698620400d3105dae"
+    },
+    "artifacts/pure_python_ctm_20261023/VALIDATION_RECEIPT.json": {
+      "bytes": 4688,
+      "sha256": "9ffd4abbe18e910a4694225287829d6afce79fb22a9cae5782f5478be554a9b4"
+    },
+    "artifacts/pure_python_ctm_20261023/final_diamond_evolution.svg": {
+      "bytes": 41478,
+      "sha256": "46277dc7b2bfe9a065c71fbb6854602d2743f4d47fe8d92853a21c5ee7743c81"
+    },
+    "artifacts/pure_python_ctm_20261023/final_traffic_timeseries.svg": {
+      "bytes": 21531,
+      "sha256": "2103bc12d1547e91cbc9ac76aa44d1bd31d1e8dd6593b7daad2578e81849a1be"
+    },
+    "artifacts/pure_python_ctm_20261023/traffic_audit_rounds.svg": {
+      "bytes": 18965,
+      "sha256": "6fdf702486d3c61236c867ffb649d66dc734911ce145fcc15814de5243786b97"
+    },
+    "artifacts/pure_python_ctm_20261023/traffic_research_summary.json": {
+      "bytes": 2991,
+      "sha256": "93d7ef1d54f74d2f81bc236a7b93f6c3bfb88d39755b786519805f8f96f9b9f4"
+    },
+    "artifacts/pure_python_ctm_20261023/validation_matrix.json": {
+      "bytes": 4689,
+      "sha256": "40eba398edd00996f4288c449e8c46217931e7573af67efca8ee7bb3a02f66a4"
+    },
+    "docs/research/PURE_PYTHON_CTM_REFERENCES_20261023.bib": {
+      "bytes": 3233,
+      "sha256": "725c8d5890943a64b81e43b6a6a3e324d1b323f6243192f315e806b5732993f5"
+    },
+    "docs/research/PURE_PYTHON_CTM_TRAFFIC_DESIGN_20261023.md": {
+      "bytes": 16317,
+      "sha256": "9bd396b6a6c7775d78e2acf9d45d437770165b695892b9bc2ef08725ef10e5c0"
+    },
+    "src/metroflow/pure_traffic/__init__.py": {
+      "bytes": 705,
+      "sha256": "7f5853503abd17057be74ac985c44a0be2489a952863aaa32bfd34bcbc114d5f"
+    },
+    "src/metroflow/pure_traffic/ctm.py": {
+      "bytes": 55253,
+      "sha256": "edccd682a52939563b4970481640e5b24bda948068b4c70c53e4b4293f1bafdc"
+    },
+    "src/metroflow/pure_traffic/scenarios.py": {
+      "bytes": 8685,
+      "sha256": "92e7c892976dc2aa618b12804fd50a3ea4ed6aa9605981fab86142efabd33e52"
+    },
+    "tests/test_pure_python_ctm.py": {
+      "bytes": 11784,
+      "sha256": "9884894754c830fe3d9243474ae378351dcfe9fee76c70c582f8e5b28b4b8512"
+    },
+    "tools/run_pure_python_ctm_research.py": {
+      "bytes": 27011,
+      "sha256": "9d5d5cd7e0ed859b855173d697624c54334f2818b318edb8df2968da075ca817"
+    },
+    "tools/validate_pure_python_ctm_research.py": {
+      "bytes": 6881,
+      "sha256": "5b47dbc411cd9e43c4a8a73b176f214b012b005b3734e5c59ae925de084b98e2"
+    }
+  },
+  "schema_version": "pure_python_ctm_branch_manifest_v1"
+}

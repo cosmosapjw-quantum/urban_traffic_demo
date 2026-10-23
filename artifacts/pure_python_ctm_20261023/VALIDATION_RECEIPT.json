@@ -1,0 +1,137 @@
+{
+  "academic_writing_toolkit": {
+    "bibtex_entries": 10,
+    "bibtex_issue_count": 0,
+    "citation_parser_limitation": "numeric notes parser treated the pasted multi-source block as one note and reported count mismatch",
+    "citation_sequence_manual_check": "PASS [1]-[10]",
+    "paragraph_logic_issue_count": 0
+  },
+  "artifacts": {
+    "final_diamond_evolution.svg": {
+      "bytes": 41478,
+      "sha256": "46277dc7b2bfe9a065c71fbb6854602d2743f4d47fe8d92853a21c5ee7743c81"
+    },
+    "final_traffic_timeseries.svg": {
+      "bytes": 21531,
+      "sha256": "2103bc12d1547e91cbc9ac76aa44d1bd31d1e8dd6593b7daad2578e81849a1be"
+    },
+    "traffic_audit_rounds.svg": {
+      "bytes": 18965,
+      "sha256": "6fdf702486d3c61236c867ffb649d66dc734911ce145fcc15814de5243786b97"
+    },
+    "traffic_research_summary.json": {
+      "bytes": 2991,
+      "sha256": "93d7ef1d54f74d2f81bc236a7b93f6c3bfb88d39755b786519805f8f96f9b9f4"
+    },
+    "validation_matrix.json": {
+      "bytes": 4689,
+      "sha256": "40eba398edd00996f4288c449e8c46217931e7573af67efca8ee7bb3a02f66a4"
+    }
+  },
+  "base_commit": "01c80b432344f94209daaa198bb1eb007839fc7f",
+  "branch": "research/pure-python-ctm-traffic-20261023",
+  "claim_gate": {
+    "default_ready": false,
+    "empirical_realism_validated": false,
+    "full_repository_suite_run_locally": false,
+    "reason": "Focused implementation, controlled-network and visual gates pass; calibration, conflict-aware delay, perfect FIFO, production scaling and full repository integration remain unresolved.",
+    "research_ready": true
+  },
+  "date": "2026-10-23",
+  "environment": {
+    "execution_mode": "serial_fallback",
+    "implementation": "CPython",
+    "native_subagent": "NOT_RUN",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+    "python": "3.13.5",
+    "repository_target_python": "3.12.14 via GitHub CI"
+  },
+  "literature_primary_sources": [
+    {
+      "doi": "10.1016/0191-2615(94)90002-7",
+      "title": "The Cell Transmission Model: A Dynamic Representation of Highway Traffic Consistent with the Hydrodynamic Theory"
+    },
+    {
+      "doi": "10.1016/0191-2615(94)00022-R",
+      "title": "The Cell Transmission Model, Part II: Network Traffic"
+    },
+    {
+      "doi": "10.1016/j.trb.2010.06.004",
+      "title": "A Generic Class of First Order Node Models for Dynamic Macroscopic Simulation of Traffic Flows"
+    },
+    {
+      "doi": "10.1016/j.trb.2016.06.001",
+      "title": "Node Modeling for Congested Urban Road Networks"
+    },
+    {
+      "doi": "10.1016/j.trb.2014.04.001",
+      "title": "Implementing First-In-First-Out in the Cell Transmission Model for Networks"
+    },
+    {
+      "doi": "10.1016/j.trb.2022.04.002",
+      "title": "Constructing a Cell Transmission Model Solution Adhering Fully to First-In-First-Out Conditions"
+    },
+    {
+      "doi": "10.1016/j.simpat.2026.103297",
+      "title": "A Conflict-Aware Extension of the Cell Transmission Model for Consistent Intersection Delay Simulation"
+    }
+  ],
+  "research_run": {
+    "diverge_with_age": [
+      8,
+      7
+    ],
+    "diverge_without_age": [
+      15,
+      0
+    ],
+    "final_clear_tick": 174,
+    "final_fingerprint": "15d3917c30275aaeff72b69ca5c442660457d26b2e81220983e28d833855f8fd",
+    "final_holding_events": 0,
+    "final_mass_balance_error": 0,
+    "merge_lexicographic": [
+      30,
+      0
+    ],
+    "merge_weighted": [
+      20,
+      10
+    ],
+    "movement_fifo_completed_at_horizon": 320,
+    "strict_fifo_active_at_horizon": 77,
+    "strict_fifo_completed_at_horizon": 243
+  },
+  "schema_version": "pure_python_ctm_validation_receipt_v1",
+  "tdd": {
+    "final_focused_tests_expected": 12,
+    "green_1": "6 core tests passed after first implementation",
+    "green_2": "controlled preloaded state supported",
+    "green_3": "route-link identity invariant added",
+    "red_1": "ModuleNotFoundError before ctm module existed",
+    "red_2": "simulate rejected initial_state keyword",
+    "red_3": "wrong route-link placement was not rejected"
+  },
+  "validation_matrix": {
+    "accelerator_scan_status": "PASS",
+    "all_pass": true,
+    "case_count": 9,
+    "max_elapsed_s_observed": 0.1537226150001061,
+    "replay_status": "PASS"
+  },
+  "wolfram": {
+    "cfl_conditions": [
+      "dx >= v dt",
+      "dx >= w dt"
+    ],
+    "cumulative_quantization_error_bound": "strictly less than 1 vehicle",
+    "internal_flux_cancellation": "A_in - Z_out",
+    "residual_telescoping_identity": 0,
+    "triangular_fd_capacity": "q_max = v w k_j/(v+w)",
+    "triangular_fd_critical_density": "k_c = w k_j/(v+w)",
+    "two_by_two_integer_node_maximum": 10,
+    "weighted_virtual_finish_30_tokens": [
+      20,
+      10
+    ]
+  }
+}
