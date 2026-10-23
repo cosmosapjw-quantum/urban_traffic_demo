@@ -1,0 +1,13 @@
+{
+  "classification": "invalid acceptance criterion, not a conservation failure",
+  "original_stdout_retained": false,
+  "original_stdout_note": "The early single-time monotonicity stdout was overwritten during subsequent runs; API-red and norm-extension-red logs were retained. The same non-monotonic cell-average values are freshly reproduced below; they are not presented as the original log.",
+  "sizes": [100, 200, 400, 800],
+  "cell_average_l1": [0.001353672640149739, 0.03982398571467406, 0.0062393058616624225, 0.0003011442617220292],
+  "profile_l1": [1.5755922317800675, 0.3848459875003464, 0.30467947939624973, 0.2001505721308687],
+  "old_single_time_monotonic_criterion_passes": false,
+  "final_profile_criterion_passes": true,
+  "supersedes": "CTM_CONSISTENCY_NEXT_20261023.md phrase claiming all failed logs retained: the original single-time criterion stdout is not retained; numerical reproduction and other red logs are retained.",
+  "science_code_changed_by_this_note": false,
+  "verified_source_commit": "f5e36143cc50609ced49e0102f8c96bdc3cb5a31"
+}
