@@ -1,0 +1,86 @@
+name: Materialize and verify bounded research successors
+
+on:
+  push:
+    branches:
+      - research/map-causal-infill-next-20261023
+      - research/ctm-service-consistency-next-20261023
+
+permissions:
+  contents: write
+
+jobs:
+  verify-and-publish:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Verify patch identity, execute science, publish source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check pytest==9.0.2
+          python - <<'PY'
+          from pathlib import Path
+          import base64, hashlib, json, lzma, os, platform, shutil, subprocess, sys
+          manifest = json.loads(Path('.research_next/manifest.json').read_text())
+          branch = os.environ['GITHUB_REF_NAME']
+          assert branch == manifest['branch']
+          assert subprocess.check_output(['git','rev-parse','HEAD^'],text=True).strip() == manifest['parent']
+          patch = lzma.decompress(base64.b64decode(Path('.research_next/patch.xz.b64').read_bytes()))
+          assert hashlib.sha256(patch).hexdigest() == manifest['patch_sha256']
+          patch_path = Path('/tmp/research-next.patch')
+          patch_path.write_bytes(patch)
+          subprocess.run(['git','apply','--check',str(patch_path)],check=True)
+          subprocess.run(['git','apply',str(patch_path)],check=True)
+          for rel, meta in manifest['files'].items():
+              data = Path(rel).read_bytes()
+              assert len(data) == meta['bytes'], rel
+              assert hashlib.sha256(data).hexdigest() == meta['sha256'], rel
+              assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest() == meta['git_blob'], rel
+          lane = 'map' if '/map-' in branch else 'traffic'
+          out = Path('artifacts/next_loop_20261023')/lane
+          out.mkdir(parents=True,exist_ok=True)
+          env = dict(os.environ, PYTHONPATH='src')
+          commands = []
+          def run(args, name):
+              result = subprocess.run(args,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+              (out/(name+'.log')).write_text(result.stdout)
+              print(result.stdout)
+              commands.append({'command':args,'returncode':result.returncode,'log':name+'.log'})
+              if result.returncode:
+                  raise RuntimeError(f'{name} failed: {result.returncode}')
+          changed_python = [p for p in manifest['files'] if p.endswith('.py')]
+          run([sys.executable,'-m','compileall','-q',*changed_python],'compile')
+          if lane == 'map':
+              run([sys.executable,'-m','pytest','-q','tests/test_formative_growth.py','tests/test_formative_growth_causality.py'],'focused_tests')
+              run([sys.executable,'tools/run_causal_map_next.py',str(out)],'campaign')
+              result = json.loads((out/'MAP_RESULTS.json').read_text())
+              assert result['all_hard_checks_pass'] and len(result['cases']) == 9
+              assert result['final_fingerprint'] == 'cbfef4856d01ecd933efe10a6e5b9df9814f0650447d24415bff3b15f5d2c3b5'
+          else:
+              run([sys.executable,'-m','pytest','-q','tests/test_pure_python_ctm.py','tests/test_ctm_service_consistency.py','tests/test_fluid_reference.py'],'focused_tests')
+              run([sys.executable,'tools/run_ctm_consistency_next.py',str(out)],'campaign')
+              run([sys.executable,'tools/validate_pure_python_ctm_research.py','--output',str(out/'validation_matrix.json')],'matrix')
+              result = json.loads((out/'TRAFFIC_RESULTS.json').read_text())
+              assert all(result['checks'].values())
+              assert result['diamond']['fingerprint'] == 'b39c40b3dcaaf544372b169f7533ce794513ff138d0dbb000a707c0d97893cc9'
+              matrix = json.loads((out/'validation_matrix.json').read_text())
+              assert matrix['all_pass'] and len(matrix['cases']) == 9
+          (out/'SOURCE_MANIFEST.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
+          receipt = {'status':'PASS','lane':lane,'python':platform.python_version(),'platform':platform.platform(),'workflow_run_id':os.environ['GITHUB_RUN_ID'],'tested_transport_commit':os.environ['GITHUB_SHA'],'parent':manifest['parent'],'commands':commands,'source_file_hashes_verified':True,'full_repository_suite':'NOT_RUN','native_subagents':'NOT_RUN; unavailable','scope':'bounded research successor, not default promotion or empirical calibration'}
+          (out/'REMOTE_EXECUTION_RECEIPT.json').write_text(json.dumps(receipt,indent=2,sort_keys=True)+'\n')
+          subprocess.run(['git','config','user.name','github-actions[bot]'],check=True)
+          subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'],check=True)
+          subprocess.run(['git','rm','-r','.research_next','.github/workflows/materialize-research-next.yml'],check=True)
+          subprocess.run(['git','add','-f','--',*manifest['files'],str(out)],check=True)
+          subprocess.run(['git','commit','-m',f'feat(research): verify and publish {lane} successor source and evidence'],check=True)
+          subprocess.run(['git','push','origin',f'HEAD:{branch}'],check=True)
+          print('SOURCE_AND_EXPERIMENT_PUBLICATION_PASS')
+          PY
