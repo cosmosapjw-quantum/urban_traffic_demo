@@ -1,154 +1,23 @@
+"""City APIs resolved on first access, without eager optional dependencies.
+
+Public names and defining modules are retained. Importing an unrelated research
+submodule does not require NumPy/JAX or initialize production city generators.
+"""
 from importlib import import_module
 
-from .contracts import GateDecision as GateDecision
-from .contracts import GateThresholds as GateThresholds
-from .contracts import GateVersions as GateVersions
-from .connectivity import WeakConnectivityRepairResult as WeakConnectivityRepairResult
-from .connectivity import WeakConnectivityReport as WeakConnectivityReport
-from .connectivity import analyze_weak_connectivity as analyze_weak_connectivity
-from .connectivity import repair_weak_connectivity as repair_weak_connectivity
-from .generated_map import PreviewCityTopology as PreviewCityTopology
-from .graph import BridgeCrossing as BridgeCrossing
-from .graph import Node as Node
-from .graph import NodeKind as NodeKind
-from .graph import RoadClass as RoadClass
-from .graph import RoadLink as RoadLink
-from .graph import RoadNetworkCSR as RoadNetworkCSR
-from .graph import TopologyValidationIssue as TopologyValidationIssue
-from .graph import TopologyValidationReport as TopologyValidationReport
-from .graph import TurnMovement as TurnMovement
-from .graph import TurnType as TurnType
-from .graph import build_road_network_csr as build_road_network_csr
-from .graph import validate_road_network_topology as validate_road_network_topology
-from .hierarchical_streets import (
-    build_hierarchical_street_skeleton as build_hierarchical_street_skeleton,
-)
-from .morphology_metrics import StreetNetworkMorphometrics as StreetNetworkMorphometrics
-from .morphology_metrics import (
-    compute_street_network_morphometrics as compute_street_network_morphometrics,
-)
-from .morphology_quality import MorphologyQualityMetrics as MorphologyQualityMetrics
-from .morphology_quality import MorphologyQualityGate as MorphologyQualityGate
-from .morphology_quality import (
-    compute_morphology_quality_metrics as compute_morphology_quality_metrics,
-)
-from .morphology_quality import (
-    evaluate_morphology_quality_gate as evaluate_morphology_quality_gate,
-)
-from .morphology_reference import MORPHOLOGY_ARCHETYPES as MORPHOLOGY_ARCHETYPES
-from .morphology_reference import MorphologyArchetype as MorphologyArchetype
-from .morphology_reference import (
-    empirical_street_network_references as empirical_street_network_references,
-)
-from .morphology_reference import get_morphology_archetype as get_morphology_archetype
-from .realistic_local_fabric import RealisticStreetNetwork as RealisticStreetNetwork
-from .realistic_local_fabric import (
-    build_continuous_local_fabric as build_continuous_local_fabric,
-)
-from .street_plan import PhysicalStreet as PhysicalStreet
-from .street_plan import PhysicalStreetPlan as PhysicalStreetPlan
-from .terrain_field import TerrainField as TerrainField
-from .terrain_field import build_terrain_field as build_terrain_field
-from .turn_compiler import TurnAuthorityCatalog as TurnAuthorityCatalog
-from .turn_compiler import compile_turn_authority as compile_turn_authority
-from .urban_form import UrbanCenter as UrbanCenter
-from .urban_form import UrbanFormField as UrbanFormField
-from .urban_form import build_urban_form_field as build_urban_form_field
+_LAZY_EXPORT_MODULE = {'BlockLandUse': '.block_land_use', 'BlockLandUseType': '.block_land_use', 'BlockPOI': '.block_land_use', 'BlockPOIType': '.block_land_use', 'BridgeCrossing': '.graph', 'CityBlock': '.planar_blocks', 'CityBlockCatalog': '.planar_blocks', 'CityBlueprint': '.blueprint', 'GateDecision': '.contracts', 'GateThresholds': '.contracts', 'GateVersions': '.contracts', 'GeneratedCityMap': '.blueprint', 'GenerationPipeline': '.generator_v2', 'GeneratorV2': '.generator_v2', 'LandUseCatalog': '.block_land_use', 'MORPHOLOGY_ARCHETYPES': '.morphology_reference', 'MorphologyArchetype': '.morphology_reference', 'MorphologyQualityGate': '.morphology_quality', 'MorphologyQualityMetrics': '.morphology_quality', 'Node': '.graph', 'NodeKind': '.graph', 'PhysicalStreet': '.street_plan', 'PhysicalStreetPlan': '.street_plan', 'PreviewCityTopology': '.generated_map', 'RealisticCityQualityResult': '.blueprint', 'RealisticStreetNetwork': '.realistic_local_fabric', 'RoadClass': '.graph', 'RoadLink': '.graph', 'RoadNetworkCSR': '.graph', 'StreetNetworkMorphometrics': '.morphology_metrics', 'TerrainField': '.terrain_field', 'TopologyValidationIssue': '.graph', 'TopologyValidationReport': '.graph', 'TurnAuthorityCatalog': '.turn_compiler', 'TurnMovement': '.graph', 'TurnType': '.graph', 'UrbanCenter': '.urban_form', 'UrbanFormField': '.urban_form', 'WeakConnectivityRepairResult': '.connectivity', 'WeakConnectivityReport': '.connectivity', 'analyze_weak_connectivity': '.connectivity', 'build_block_land_use_catalog': '.block_land_use', 'build_continuous_local_fabric': '.realistic_local_fabric', 'build_hierarchical_street_skeleton': '.hierarchical_streets', 'build_road_network_csr': '.graph', 'build_terrain_field': '.terrain_field', 'build_urban_form_field': '.urban_form', 'compile_planar_city_blocks': '.planar_blocks', 'compile_turn_authority': '.turn_compiler', 'compute_morphology_quality_metrics': '.morphology_quality', 'compute_street_network_morphometrics': '.morphology_metrics', 'empirical_street_network_references': '.morphology_reference', 'evaluate_morphology_quality_gate': '.morphology_quality', 'generate_city_map': '.realistic_city', 'get_morphology_archetype': '.morphology_reference', 'repair_weak_connectivity': '.connectivity', 'validate_road_network_topology': '.graph'}
 
-_LAZY_EXPORT_MODULE = {
-    "BlockLandUse": ".block_land_use",
-    "BlockLandUseType": ".block_land_use",
-    "BlockPOI": ".block_land_use",
-    "BlockPOIType": ".block_land_use",
-    "LandUseCatalog": ".block_land_use",
-    "build_block_land_use_catalog": ".block_land_use",
-    "CityBlock": ".planar_blocks",
-    "CityBlockCatalog": ".planar_blocks",
-    "compile_planar_city_blocks": ".planar_blocks",
-    "GenerationPipeline": ".generator_v2",
-    "GeneratorV2": ".generator_v2",
-}
-
-
-__all__ = [
-    "BlockLandUse",
-    "BlockLandUseType",
-    "BlockPOI",
-    "BlockPOIType",
-    "BridgeCrossing",
-    "CityBlock",
-    "CityBlockCatalog",
-    "CityBlueprint",
-    "GateDecision",
-    "GateThresholds",
-    "GateVersions",
-    "GenerationPipeline",
-    "GeneratedCityMap",
-    "GeneratorV2",
-    "LandUseCatalog",
-    "MORPHOLOGY_ARCHETYPES",
-    "MorphologyArchetype",
-    "MorphologyQualityMetrics",
-    "MorphologyQualityGate",
-    "Node",
-    "NodeKind",
-    "PhysicalStreet",
-    "PhysicalStreetPlan",
-    "PreviewCityTopology",
-    "RoadClass",
-    "RoadLink",
-    "RoadNetworkCSR",
-    "RealisticStreetNetwork",
-    "RealisticCityQualityResult",
-    "StreetNetworkMorphometrics",
-    "TerrainField",
-    "TopologyValidationIssue",
-    "TopologyValidationReport",
-    "TurnAuthorityCatalog",
-    "TurnMovement",
-    "TurnType",
-    "UrbanCenter",
-    "UrbanFormField",
-    "WeakConnectivityRepairResult",
-    "WeakConnectivityReport",
-    "analyze_weak_connectivity",
-    "build_block_land_use_catalog",
-    "build_road_network_csr",
-    "build_hierarchical_street_skeleton",
-    "build_continuous_local_fabric",
-    "build_terrain_field",
-    "build_urban_form_field",
-    "compute_street_network_morphometrics",
-    "compute_morphology_quality_metrics",
-    "compile_turn_authority",
-    "compile_planar_city_blocks",
-    "empirical_street_network_references",
-    "evaluate_morphology_quality_gate",
-    "generate_city_map",
-    "get_morphology_archetype",
-    "repair_weak_connectivity",
-    "validate_road_network_topology",
-]
+__all__ = ['BlockLandUse', 'BlockLandUseType', 'BlockPOI', 'BlockPOIType', 'BridgeCrossing', 'CityBlock', 'CityBlockCatalog', 'CityBlueprint', 'GateDecision', 'GateThresholds', 'GateVersions', 'GenerationPipeline', 'GeneratedCityMap', 'GeneratorV2', 'LandUseCatalog', 'MORPHOLOGY_ARCHETYPES', 'MorphologyArchetype', 'MorphologyQualityMetrics', 'MorphologyQualityGate', 'Node', 'NodeKind', 'PhysicalStreet', 'PhysicalStreetPlan', 'PreviewCityTopology', 'RoadClass', 'RoadLink', 'RoadNetworkCSR', 'RealisticStreetNetwork', 'RealisticCityQualityResult', 'StreetNetworkMorphometrics', 'TerrainField', 'TopologyValidationIssue', 'TopologyValidationReport', 'TurnAuthorityCatalog', 'TurnMovement', 'TurnType', 'UrbanCenter', 'UrbanFormField', 'WeakConnectivityRepairResult', 'WeakConnectivityReport', 'analyze_weak_connectivity', 'build_block_land_use_catalog', 'build_road_network_csr', 'build_hierarchical_street_skeleton', 'build_continuous_local_fabric', 'build_terrain_field', 'build_urban_form_field', 'compute_street_network_morphometrics', 'compute_morphology_quality_metrics', 'compile_turn_authority', 'compile_planar_city_blocks', 'empirical_street_network_references', 'evaluate_morphology_quality_gate', 'generate_city_map', 'get_morphology_archetype', 'repair_weak_connectivity', 'validate_road_network_topology']
 
 
 def __getattr__(name: str):
-    if name in _LAZY_EXPORT_MODULE:
-        module_name = _LAZY_EXPORT_MODULE[name]
-        return getattr(import_module(module_name, __name__), name)
-    if name in {"CityBlueprint", "GeneratedCityMap", "RealisticCityQualityResult"}:
-        from .blueprint import (
-            CityBlueprint,
-            GeneratedCityMap,
-            RealisticCityQualityResult,
-        )
+    module_name = _LAZY_EXPORT_MODULE.get(name)
+    if module_name is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    value = getattr(import_module(module_name, __name__), name)
+    globals()[name] = value
+    return value
 
-        return {
-            "CityBlueprint": CityBlueprint,
-            "GeneratedCityMap": GeneratedCityMap,
-            "RealisticCityQualityResult": RealisticCityQualityResult,
-        }[name]
-    if name == "generate_city_map":
-        from .realistic_city import generate_city_map
 
-        return generate_city_map
-    raise AttributeError(name)
+def __dir__():
+    return sorted(set(globals()) | set(__all__))
