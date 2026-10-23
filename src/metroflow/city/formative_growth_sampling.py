@@ -67,24 +67,20 @@ def _generate_nodes(
     diagonal = math.hypot(width_m, height_m)
     max_radius = 0.53 * diagonal
 
-    # Seed each centre exactly once at its birth epoch.  Counts are decremented
-    # so the public node_count remains exact.
-    centre_birth_count = [0] * cfg.epochs
-    for centre in centres:
-        centre_birth_count[centre.birth_epoch] += 1
-        nodes.append(
-            FormationNode(
-                node_id=len(nodes),
-                x_m=centre.x_m,
-                y_m=centre.y_m,
-                birth_epoch=centre.birth_epoch,
-                centre_id=centre.centre_id,
-                mode="nucleus",
-            )
-        )
-
+    # Unborn nuclei must not reserve space in an earlier epoch.  This is a
+    # causal intervention contract, not just a timestamp attached after sampling.
     for epoch in range(cfg.epochs):
-        needed = counts[epoch] - centre_birth_count[epoch]
+        born = sorted((c for c in centres if c.birth_epoch == epoch), key=lambda c: c.centre_id)
+        inserted = 0
+        for centre in born:
+            if any(math.hypot(centre.x_m-n.x_m, centre.y_m-n.y_m) < 1e-8 for n in nodes):
+                # A new centre can occupy an existing junction; do not create
+                # a zero-length duplicate. Allocate its node budget below.
+                continue
+            nodes.append(FormationNode(len(nodes), centre.x_m, centre.y_m,
+                                       epoch, centre.centre_id, "nucleus"))
+            inserted += 1
+        needed = counts[epoch] - inserted
         if needed <= 0:
             continue
         progress = epoch / max(cfg.epochs - 1, 1)

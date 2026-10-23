@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import heapq
 import math
+from fractions import Fraction
 from typing import Sequence
 
 from metroflow.city.formative_growth_model import (
@@ -87,10 +88,11 @@ def _build_causal_growth_network(
     loop_count = 0
 
     for epoch in range(cfg.epochs):
+        active_centres = tuple(c for c in centres if c.birth_epoch <= epoch)
         newborn = [node.node_id for node in nodes if node.birth_epoch == epoch]
         if epoch == 0:
             active.extend(newborn)
-            initial = _planar_oriented_spanning_tree(cfg, nodes, centres, active)
+            initial = _planar_oriented_spanning_tree(cfg, nodes, active_centres, active)
             for edge in initial:
                 edges.append(edge)
                 existing.add(edge.key)
@@ -99,7 +101,7 @@ def _build_causal_growth_network(
         else:
             for node_id in newborn:
                 parent = _choose_growth_parent(
-                    cfg, nodes, centres, node_id, active, edges, degree
+                    cfg, nodes, active_centres, node_id, active, edges, degree
                 )
                 if parent is None:
                     raise RuntimeError(
@@ -125,7 +127,7 @@ def _build_causal_growth_network(
         added = _add_active_epoch_loops(
             cfg=cfg,
             nodes=nodes,
-            centres=centres,
+            centres=active_centres,
             active_ids=tuple(active),
             epoch=epoch,
             budget=epoch_budget,
@@ -390,17 +392,49 @@ def _segments_cross(
     c: FormationNode,
     d: FormationNode,
 ) -> bool:
-    if len({a.node_id, b.node_id, c.node_id, d.node_id}) < 4:
+    """True for an invalid straight-line embedding contact.
+
+    Registered common endpoints are legal; overlaps and unregistered T contacts
+    are not. Near cancellation, exact rationals of the *stored binary floats*
+    decide orientation. This is not a claim about unrounded real coordinates.
+    """
+    def xy(p: FormationNode) -> tuple[float, float]:
+        return p.x_m, p.y_m
+
+    def sign(p: FormationNode, q: FormationNode, r: FormationNode) -> int:
+        left = (q.x_m-p.x_m)*(r.y_m-p.y_m)
+        right = (q.y_m-p.y_m)*(r.x_m-p.x_m)
+        det = left-right
+        if abs(det) > 32.0*math.ulp(1.0)*(abs(left)+abs(right)):
+            return 1 if det > 0 else -1
+        px,py,qx,qy,rx,ry = map(Fraction, (p.x_m,p.y_m,q.x_m,q.y_m,r.x_m,r.y_m))
+        exact = (qx-px)*(ry-py)-(qy-py)*(rx-px)
+        return (exact > 0)-(exact < 0)
+
+    if xy(a) == xy(b) or xy(c) == xy(d):
+        return True
+    # Most candidate pairs are separated; avoid exact arithmetic for them.
+    if (max(a.x_m,b.x_m) < min(c.x_m,d.x_m)
+        or max(c.x_m,d.x_m) < min(a.x_m,b.x_m)
+        or max(a.y_m,b.y_m) < min(c.y_m,d.y_m)
+        or max(c.y_m,d.y_m) < min(a.y_m,b.y_m)):
         return False
+    o1,o2,o3,o4 = sign(a,b,c),sign(a,b,d),sign(c,d,a),sign(c,d,b)
+    if o1*o2 < 0 and o3*o4 < 0:
+        return True
+    if o1 == o2 == o3 == o4 == 0:
+        axis = 0 if abs(a.x_m-b.x_m) >= abs(a.y_m-b.y_m) else 1
+        lo = max(min(xy(a)[axis],xy(b)[axis]), min(xy(c)[axis],xy(d)[axis]))
+        hi = min(max(xy(a)[axis],xy(b)[axis]), max(xy(c)[axis],xy(d)[axis]))
+        if hi > lo:
+            return True
+    for p,q,r,o in ((a,b,c,o1),(a,b,d,o2),(c,d,a,o3),(c,d,b,o4)):
+        if o == 0 and min(p.x_m,q.x_m) <= r.x_m <= max(p.x_m,q.x_m) and min(p.y_m,q.y_m) <= r.y_m <= max(p.y_m,q.y_m):
+            registered = any(r.node_id == v.node_id and xy(r) == xy(v) for v in (p,q))
+            if not registered:
+                return True
+    return False
 
-    def orient(p: FormationNode, q: FormationNode, r: FormationNode) -> float:
-        return (q.x_m - p.x_m) * (r.y_m - p.y_m) - (q.y_m - p.y_m) * (r.x_m - p.x_m)
-
-    o1 = orient(a, b, c)
-    o2 = orient(a, b, d)
-    o3 = orient(c, d, a)
-    o4 = orient(c, d, b)
-    return (o1 * o2 < -1.0e-7) and (o3 * o4 < -1.0e-7)
 
 def _edge_crosses_existing(
     nodes: Sequence[FormationNode],
@@ -453,7 +487,7 @@ def _repair_local_connectivity(
         if _edge_crosses_existing(nodes, i, j, edges):
             continue
         edges.append(
-            _MutableEdge(i, j, max(nodes[i].birth_epoch, nodes[j].birth_epoch), "repair_loop", score)
+            _MutableEdge(i, j, cfg.epochs - 1, "repair_loop", score)
         )
         degree[i] += 1
         degree[j] += 1
@@ -517,7 +551,7 @@ def _close_dangling_stubs(
         if _edge_crosses_existing(nodes, leaf, other, edges):
             continue
         edge = _MutableEdge(
-            leaf, other, max(nodes[leaf].birth_epoch, nodes[other].birth_epoch),
+            leaf, other, cfg.epochs - 1,
             "culdesac_closure", score,
         )
         edges.append(edge)

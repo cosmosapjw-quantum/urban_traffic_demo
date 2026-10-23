@@ -43,8 +43,16 @@ class FormationConfig:
     old_core_fraction: float = 0.38
     exploration_start: float = 0.40
     exploration_end: float = 0.21
+    infill_budget: int = 0
+    infill_area_threshold_m2: float = 120_000.0
+    infill_min_child_area_m2: float = 18_000.0
 
     def __post_init__(self) -> None:
+        if not isinstance(self.infill_budget,int) or isinstance(self.infill_budget,bool) or self.infill_budget < 0:
+            raise ValueError("infill_budget must be a non-negative integer")
+        for name in ("infill_area_threshold_m2","infill_min_child_area_m2"):
+            if not math.isfinite(getattr(self,name)) or getattr(self,name) <= 0:
+                raise ValueError(f"{name} must be finite and positive")
         if not isinstance(self.seed, int) or isinstance(self.seed, bool):
             raise TypeError("seed must be an integer")
         if not math.isfinite(self.urbanized_area_km2) or self.urbanized_area_km2 <= 0.0:

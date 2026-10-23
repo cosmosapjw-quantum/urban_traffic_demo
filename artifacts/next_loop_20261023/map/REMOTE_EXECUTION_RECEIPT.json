@@ -1,0 +1,60 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python",
+        "-m",
+        "compileall",
+        "-q",
+        "src/metroflow/city/__init__.py",
+        "src/metroflow/city/formative_growth.py",
+        "src/metroflow/city/formative_growth_analysis.py",
+        "src/metroflow/city/formative_growth_infill.py",
+        "src/metroflow/city/formative_growth_model.py",
+        "src/metroflow/city/formative_growth_network.py",
+        "src/metroflow/city/formative_growth_sampling.py",
+        "tests/test_formative_growth_causality.py",
+        "tests/test_formative_import_isolation.py",
+        "tools/run_causal_map_next.py"
+      ],
+      "log": "compile.log",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_formative_growth.py",
+        "tests/test_formative_growth_causality.py",
+        "tests/test_formative_import_isolation.py"
+      ],
+      "log": "focused_tests.log",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python",
+        "tools/run_causal_map_next.py",
+        "artifacts/next_loop_20261023/map"
+      ],
+      "log": "campaign.log",
+      "returncode": 0
+    }
+  ],
+  "full_repository_suite": "NOT_RUN",
+  "integration_fix": "lazy public city exports; no optional dependency install",
+  "lane": "map",
+  "legacy_api_execution": "NOT_RUN; names and defining modules preserved",
+  "native_subagents": "NOT_RUN; unavailable",
+  "parent": "29d67b2e095ebe1151e9d5a14b80fb323c1e327c",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "prior_failed_run": 39979031213,
+  "python": "3.12.15",
+  "scope": "bounded research successor, not default promotion or empirical calibration",
+  "source_file_hashes_verified": true,
+  "status": "PASS",
+  "tested_transport_commit": "3e55e50eeab4b15bc9bd25fdfdbf6fff0573394c",
+  "workflow_run_id": "39979871231"
+}

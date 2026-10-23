@@ -48,16 +48,10 @@ def _polygon_centroid(points: Sequence[tuple[float, float]], signed_area: float)
 def _canonical_cycle(cycle: Sequence[int]) -> tuple[int, ...]:
     seq = tuple(cycle)
     rotations = [seq[i:] + seq[:i] for i in range(len(seq))]
-    reverse = tuple(reversed(seq))
-    rotations.extend(reverse[i:] + reverse[:i] for i in range(len(reverse)))
+    # Rotation preserves the directed face; reversal changes its side.
     return min(rotations)
 
-def extract_planar_blocks(
-    cfg: FormationConfig,
-    nodes: Sequence[FormationNode],
-    edges: Sequence[FormationEdge],
-    centres: Sequence[FormationCentre],
-) -> list[FormationBlock]:
+def _bounded_face_walks(nodes: Sequence[FormationNode], edges: Sequence[FormationEdge]) -> list[tuple[int, ...]]:
     neighbours: dict[int, list[int]] = {n.node_id: [] for n in nodes}
     for edge in edges:
         neighbours[edge.u].append(edge.v)
@@ -97,9 +91,20 @@ def extract_planar_blocks(
                         cycles[canonical] = tuple(cycle)
                     break
 
+    return [cycle for cycle in cycles.values()
+            if _polygon_area([(nodes[i].x_m, nodes[i].y_m) for i in cycle]) > 1e-9]
+
+
+def extract_planar_blocks(
+    cfg: FormationConfig,
+    nodes: Sequence[FormationNode],
+    edges: Sequence[FormationEdge],
+    centres: Sequence[FormationCentre],
+) -> list[FormationBlock]:
+    cycles = _bounded_face_walks(nodes, edges)
     max_area = cfg.urbanized_area_km2 * 1_000_000.0 * cfg.max_block_area_fraction
     raw: list[tuple[tuple[int, ...], float, float, float]] = []
-    for cycle in cycles.values():
+    for cycle in cycles:
         points = [(nodes[i].x_m, nodes[i].y_m) for i in cycle]
         signed = _polygon_area(points)
         # With the traversal convention, bounded faces are counter-clockwise.
@@ -198,7 +203,8 @@ def _crossing_count(nodes: Sequence[FormationNode], edges: Sequence[FormationEdg
 
 def _component_count(node_count: int, edges: Sequence[FormationEdge], *, hierarchy: str | None = None) -> int:
     selected = [e for e in edges if hierarchy is None or e.hierarchy == hierarchy]
-    active_nodes = {e.u for e in selected} | {e.v for e in selected}
+    active_nodes = (set(range(node_count)) if hierarchy is None
+                    else {e.u for e in selected} | {e.v for e in selected})
     if not active_nodes:
         return 0
     adj = {i: [] for i in active_nodes}
@@ -252,6 +258,17 @@ def compute_formation_metrics(
     fringe_lengths = [
         e.length_m for e in edges if min(nodes[e.u].birth_epoch, nodes[e.v].birth_epoch) >= cfg.epochs - 2
     ]
+    # Signed survey-frame order: uniform independent angles have mean zero.
+    # Unlike max-axis alignment, this statistic has no automatic ~0.90 baseline.
+    order_terms = []
+    for edge in edges:
+        a,b = nodes[edge.u],nodes[edge.v]
+        x,y = (a.x_m+b.x_m)/2, (a.y_m+b.y_m)/2
+        centre = min(centres, key=lambda c: (math.hypot(x-c.x_m,y-c.y_m), c.centre_id))
+        order_terms.append(math.cos(4*(math.atan2(b.y_m-a.y_m,b.x_m-a.x_m)-centre.local_grid_angle_rad)))
+    raw_faces = len(_bounded_face_walks(nodes, edges))
+    components = _component_count(len(nodes), edges)
+    cycle_rank = len(edges)-len(nodes)+components
     total_road_km = sum(edge_lengths) / 1_000.0
     area = width_m * height_m
     return {
@@ -260,7 +277,14 @@ def compute_formation_metrics(
         "mean_degree": (2.0 * len(edges) / len(nodes)) if nodes else 0.0,
         "dead_end_share": (sum(d == 1 for d in degree) / len(nodes)) if nodes else 0.0,
         "four_way_share": (sum(d == 4 for d in degree) / len(nodes)) if nodes else 0.0,
-        "cycle_rank": len(edges) - len(nodes) + 1,
+        "cycle_rank": cycle_rank,
+        "raw_bounded_face_count": raw_faces,
+        "infill_street_count": sum(e.role == "face_infill" for e in edges),
+        "filtered_bounded_face_count": raw_faces-len(blocks),
+        "euler_face_residual": raw_faces-cycle_rank,
+        "survey_fourfold_order": statistics.fmean(order_terms) if order_terms else 0.0,
+        "legacy_alignment_uniform_null": 2*math.sqrt(2)/math.pi,
+        "postgrowth_backdated_edge_count": sum(e.role in ("repair_loop","culdesac_closure") and e.birth_epoch != cfg.epochs-1 for e in edges),
         "block_count": len(blocks),
         "median_block_area_m2": statistics.median(block_areas) if block_areas else 0.0,
         "block_area_cv": (statistics.pstdev(block_areas) / statistics.fmean(block_areas)) if len(block_areas) > 1 else 0.0,
@@ -278,7 +302,7 @@ def compute_formation_metrics(
         "primary_components": _component_count(len(nodes), edges, hierarchy="primary"),
         "primary_edge_share": sum(e.hierarchy == "primary" for e in edges) / len(edges) if edges else 0.0,
         "secondary_edge_share": sum(e.hierarchy == "secondary" for e in edges) / len(edges) if edges else 0.0,
-        "formation_model": "causal_exploration_densification_planar_gabriel_v1",
+        "formation_model": "causal_exploration_densification_planar_gabriel_v2",
     }
 
 def audit_formation_map(
@@ -310,7 +334,11 @@ def audit_formation_map(
     add("loop_presence", int(metrics["cycle_rank"]) >= max(8, cfg.node_count // 8), metrics["cycle_rank"], f">= {max(8, cfg.node_count // 8)}")
     add("bounded_faces", int(metrics["block_count"]) >= max(6, cfg.node_count // 12), metrics["block_count"], f">= {max(6, cfg.node_count // 12)}")
     add("global_orientation_diversity", 0.55 <= float(metrics["orientation_entropy_normalized"]) <= 1.0, metrics["orientation_entropy_normalized"], "0.55 <= H/Hmax <= 1.0", "warning")
-    add("local_orientation_coherence", float(metrics["local_orientation_coherence"]) >= 0.72, metrics["local_orientation_coherence"], ">= 0.72", "warning")
+    # Orientation is a measured outcome, not a realism or acceptance gate.
+    add("euler_face_accounting", int(metrics["euler_face_residual"]) == 0,
+        metrics["euler_face_residual"], "raw bounded faces == E-V+C")
+    add("repair_chronology", int(metrics["postgrowth_backdated_edge_count"]) == 0,
+        metrics["postgrowth_backdated_edge_count"], "repair edges are dated at execution epoch")
     add("outward_age_gradient", float(metrics["age_radius_spearman"]) >= 0.22, metrics["age_radius_spearman"], ">= 0.22", "warning")
     add("road_density_band", 4.0 <= float(metrics["road_density_km_per_km2"]) <= 20.0, metrics["road_density_km_per_km2"], "4 <= km/km2 <= 20", "warning")
     add("hierarchy_present", float(metrics["primary_edge_share"]) >= 0.05 and float(metrics["secondary_edge_share"]) >= 0.12, {"primary": metrics["primary_edge_share"], "secondary": metrics["secondary_edge_share"]}, "primary >= 0.05 and secondary >= 0.12")

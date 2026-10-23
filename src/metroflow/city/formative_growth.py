@@ -17,6 +17,7 @@ from metroflow.city.formative_growth_analysis import (
     extract_planar_blocks,
 )
 from metroflow.city.formative_growth_hierarchy import classify_edges
+from metroflow.city.formative_growth_infill import insert_infill_chords
 from metroflow.city.formative_growth_model import (
     FormationBlock,
     FormationCentre,
@@ -40,6 +41,7 @@ __all__ = [
     "FormationBlock",
     "FormationCentre",
     "generate_formative_city",
+    "insert_infill_chords",
     "extract_planar_blocks",
     "compute_formation_metrics",
     "audit_formation_map",
@@ -50,16 +52,17 @@ def generate_formative_city(config: FormationConfig | None = None) -> FormationM
     """Generate a replay-stable city through exploration, densification and loops."""
 
     cfg = config or FormationConfig()
-    rng = random.Random(cfg.seed)
+    rng = random.Random(f"{cfg.seed}:settlements:v2")
     width_m = math.sqrt(cfg.urbanized_area_km2 * 1_000_000.0 * cfg.aspect_ratio)
     height_m = width_m / cfg.aspect_ratio
 
-    centres = build_centres(cfg, width_m, height_m, rng)
+    centres = build_centres(cfg, width_m, height_m, random.Random(f"{cfg.seed}:centres:v2"))
     nodes = generate_nodes(cfg, width_m, height_m, centres, rng)
     mutable_edges = build_causal_growth_network(cfg, nodes, centres)
     repair_local_connectivity(cfg, nodes, centres, mutable_edges)
     close_dangling_stubs(cfg, nodes, centres, mutable_edges)
     edges = classify_edges(nodes, centres, mutable_edges)
+    edges = insert_infill_chords(cfg, nodes, edges)
     blocks = extract_planar_blocks(cfg, nodes, edges, centres)
     metrics = compute_formation_metrics(cfg, width_m, height_m, centres, nodes, edges, blocks)
     audit = audit_formation_map(cfg, width_m, height_m, centres, nodes, edges, blocks, metrics)
