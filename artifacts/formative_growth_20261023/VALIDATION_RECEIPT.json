@@ -1,0 +1,109 @@
+{
+  "base_commit": "01c80b432344f94209daaa198bb1eb007839fc7f",
+  "claim_gate": {
+    "default_ready": false,
+    "empirical_realism_validated": false,
+    "reason": "Structural plausibility and replay are verified; external city calibration, terrain, pruning, parcel subdivision, grade separation and production-scale validation remain unresolved.",
+    "research_ready": true
+  },
+  "constraints": {
+    "external_training_data_used": false,
+    "forbidden_accelerator_reference_scan": "PASS",
+    "gpu_used": false,
+    "jax_used": false,
+    "pure_python_core": true
+  },
+  "date": "2026-10-23",
+  "environment": {
+    "execution_mode": "serial_fallback",
+    "native_subagent": "NOT_RUN",
+    "python": "3.13.5"
+  },
+  "schema_version": "formative_growth_validation_receipt_v1",
+  "verification": {
+    "academic_writing_toolkit": {
+      "bibtex_entries": 10,
+      "bibtex_issue_count": 0,
+      "citation_sequence_manual_check": "PASS [1]-[10]",
+      "numeric_notes_parser": "LIMITATION: tool counted multi-source reading-note block as one source",
+      "paragraph_logic_residual": "one short explanatory paragraph; retained for section separation",
+      "paragraph_logic_residual_issue_count": 1
+    },
+    "compileall": {
+      "command": "python -m compileall -q src tools tests",
+      "status": "PASS"
+    },
+    "focused_pytest": {
+      "command": "PYTHONPATH=src python -m pytest -q tests/test_formative_growth.py",
+      "status": "PASS",
+      "tests_failed": 0,
+      "tests_passed": 5
+    },
+    "module_split": {
+      "fingerprint_before_after": "9469afef2b40fcd3389bbc00499008747300116498ed55baf13772f5667c0ff3",
+      "reason": "Facade/model/sampling/network/hierarchy/analysis split preserves final semantic fingerprint and focused tests.",
+      "status": "PASS"
+    },
+    "multiseed_matrix": {
+      "all_crossing_free": true,
+      "all_primary_connected": true,
+      "case_count": 9,
+      "command": "PYTHONPATH=src python tools/validate_formative_growth_research.py --output artifacts/refactor_multiseed.json",
+      "max_elapsed_s": 4.485530337,
+      "ranges": {
+        "age_radius_spearman": [
+          0.4949508767003369,
+          0.5994163364876217
+        ],
+        "dead_end_share": [
+          0.05,
+          0.08181818181818182
+        ],
+        "local_orientation_coherence": [
+          0.9236308059300185,
+          0.9360148740268952
+        ],
+        "mean_degree": [
+          3.15,
+          3.23125
+        ],
+        "orientation_entropy_normalized": [
+          0.9798183719160443,
+          0.9962942259652638
+        ],
+        "road_density_km_per_km2": [
+          4.774952746570935,
+          5.892710265311595
+        ]
+      },
+      "status": "PASS"
+    },
+    "single_generation": {
+      "audit_status": "PASS",
+      "command": "PYTHONPATH=src python tools/run_formative_growth_research.py --output-dir artifacts/refactor_final --seed 20261023 --node-count 320 --area-km2 25",
+      "errors": 0,
+      "fingerprint": "9469afef2b40fcd3389bbc00499008747300116498ed55baf13772f5667c0ff3",
+      "json_sha256": "f47c14b91b3c36202e0add1421b6a07e750a05aa2ee951e7553a2acb02446aad",
+      "status": "PASS",
+      "warnings": 0
+    },
+    "strict_json": {
+      "allow_nan_false": true,
+      "status": "PASS"
+    },
+    "svg_xml_parse": {
+      "files": [
+        "formative_city_final.svg",
+        "formative_city_final_age.svg"
+      ],
+      "status": "PASS"
+    },
+    "wolfram_symbolic": {
+      "bounded_faces_equals_cycle_rank": true,
+      "cycle_rank_from_mean_degree": "1 + N(kbar-2)/2",
+      "exploration_increment": "(p1-p0)/(T-1) < 0 for T>1 and p1<p0",
+      "rotated_grid_toy_global_entropy": "Log[12] / Log[36] = 0.6934264036 while local order = 1",
+      "status": "PASS"
+    }
+  }
+}

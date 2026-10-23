@@ -1,0 +1,63 @@
+{
+  "base_commit": "01c80b432344f94209daaa198bb1eb007839fc7f",
+  "branch": "research/formative-urban-growth-pure-python-20261023",
+  "files": {
+    "artifacts/formative_growth_20261023/ADVERSARIAL_VISUAL_AUDIT.md": {
+      "bytes": 4114,
+      "sha256": "8e73d775c64fe7457089f166ff7737fe7b42444e02d9e590cafc00bba34b4d0b"
+    },
+    "artifacts/formative_growth_20261023/VALIDATION_RECEIPT.json": {
+      "bytes": 3766,
+      "sha256": "fbab47b6b99d1d09d9985864f7f19490a78d48e7693e10ae3fef12c9a466c612"
+    },
+    "artifacts/formative_growth_20261023/formative_city_final_compact.svg": {
+      "bytes": 13467,
+      "sha256": "8294e5c54709d75255739dbd35ec2c4a72b929b1c56dc81d084094ec5eddad14"
+    },
+    "docs/research/FORMATIVE_URBAN_GROWTH_DESIGN_20261023.md": {
+      "bytes": 7882,
+      "sha256": "cd6699ff4ffeef53648ccba569d0a72c80a2c5d0903805ce5a2db76952670c0c"
+    },
+    "docs/research/FORMATIVE_URBAN_GROWTH_REFERENCES_20261023.bib": {
+      "bytes": 2942,
+      "sha256": "01dee2eba5f365abebcc4f101db07d33e76f0c81800faaefc2c6b29bf91b8ffd"
+    },
+    "src/metroflow/city/formative_growth.py": {
+      "bytes": 2601,
+      "sha256": "2d0689cfc8895dcff93da24535ebcb6c1676ea4a2babdd10752ca25ed8359eae"
+    },
+    "src/metroflow/city/formative_growth_analysis.py": {
+      "bytes": 14557,
+      "sha256": "2a4a39889bcfd1878886ac44478ea50173bf7d641bc3fc7ffa088ba4c4670926"
+    },
+    "src/metroflow/city/formative_growth_hierarchy.py": {
+      "bytes": 8988,
+      "sha256": "b389b75f06f6afee2468223b35528db990e80731f7e5a518fe86344cbac92d15"
+    },
+    "src/metroflow/city/formative_growth_model.py": {
+      "bytes": 7018,
+      "sha256": "10b01a49df9aab5761831681856bd0eabc112a0faca6d6d417a9547fa6a31726"
+    },
+    "src/metroflow/city/formative_growth_network.py": {
+      "bytes": 19630,
+      "sha256": "d8ec6892d706480e868ae04625383e3e191d1704961cd278a8047c175256e919"
+    },
+    "src/metroflow/city/formative_growth_sampling.py": {
+      "bytes": 8911,
+      "sha256": "d94143239247d09a3f95f3f050119e6f537f9f9079b6a0bf8db7cb0e70330ea2"
+    },
+    "tests/test_formative_growth.py": {
+      "bytes": 2569,
+      "sha256": "54413b89570596d20bdb4705759f9d5e85fe7ea2bf0b323fb86d792c0dec9626"
+    },
+    "tools/run_formative_growth_research.py": {
+      "bytes": 6610,
+      "sha256": "8444395ca60409c1b516e83afd880c6958a6e97fbd12be0a37c00477241d5538"
+    },
+    "tools/validate_formative_growth_research.py": {
+      "bytes": 3399,
+      "sha256": "8bc59b8e69f34f1475eac3921dd05e7ee52603d31edf0c1b556421e56dde3fa6"
+    }
+  },
+  "schema_version": "formative_growth_branch_manifest_v1"
+}
