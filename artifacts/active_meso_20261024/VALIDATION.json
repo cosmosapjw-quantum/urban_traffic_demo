@@ -1,0 +1,19 @@
+{
+  "contract": "active_meso_two_speed_cohorts_v1",
+  "date_kst": "2026-10-24",
+  "parent": "9a81cc9291112c950abb8cf1dc517957da0fc289",
+  "python": "3.13.5",
+  "tests": {"aggregate_and_routing": 16, "unchanged_integer_reference": 23, "separate_map_branch": 18},
+  "service_oracles": {"cases": 32, "max_absolute_error_vehicles": 5.542233338928781e-13, "red_signal_discharge": 0},
+  "diamond": {"release_vehicle_equivalents": 390, "time_steps_s": [2, 1, 0.5], "mean_residence_s": [62.04069342866788, 61.476004202960944, 61.07616836280948], "max_mass_error_vehicles": 7.045031225061393e-12},
+  "workload": {"release_mass": [1000, 10000, 100000], "state_scalars": 311, "steps": 400, "median_seconds": [0.07843215200000486, 0.08163568899999518, 0.08840681299989228], "scope": "most overload remains outside network; not a 100000-active-car city benchmark"},
+  "generated_map": {"directed_links": 1056, "cohorts": 3, "release_mass": 60, "state_scalars": 933, "max_mass_error": 9.902698778173347e-14},
+  "braess_static": {"before_s": 150, "after_s": 199.00000008198637, "relative_gap": 4.078302495818671e-10},
+  "counterexamples_repaired": ["closure cost-memory poisoning", "proportional allocation 15 versus feasible 20"],
+  "full_repository_ci": "NOT_RUN",
+  "native_subagent": "NOT_RUN",
+  "python_3_12": "NOT_RUN",
+  "empirical_realism": "UNRESOLVED",
+  "dynamic_kinetic_Braess": "NOT_VALIDATED",
+  "production_default_changed": false
+}
