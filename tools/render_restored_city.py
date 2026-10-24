@@ -31,9 +31,10 @@ def draw(city,path,title=None):
             linestyles=line,label=fac))
         if fac=='ramp':
             for s in vals:
-                a,b=s.points[0],s.points[-1]
-                p=(a[0]+.45*(b[0]-a[0]),a[1]+.45*(b[1]-a[1]))
-                q=(a[0]+.65*(b[0]-a[0]),a[1]+.65*(b[1]-a[1]))
+                # Arrows follow authoritative curve samples, not an endpoint chord.
+                last=len(s.points)-1
+                p=s.points[round(.45*last)][:2]
+                q=s.points[round(.65*last)][:2]
                 ax.annotate('',xy=q,xytext=p,arrowprops=dict(arrowstyle='->',lw=1.))
     # Only actual endpoint incidence yields a dot. Projected flyovers do not.
     ax.scatter([n.xyz[0] for n in city.nodes if n.layer==0],
