@@ -99,6 +99,12 @@ def step(state,reports,leader_accels,dt,cap,B):
     try:
         for p,r,aL in zip(state.bins,reports,leader_accels):
             wlow=lower_speed(r,state.time_s,B)
+            # Validate the declared exact sensor contract outside the controller.
+            # With zero age, no acceleration uncertainty can change the report.
+            # Stale reports retain only the stated one-sided acceleration bound.
+            if (r is not None and r.stamp_s==state.time_s
+                    and not math.isclose(r.speed_mps,p.w,rel_tol=0.,abs_tol=1e-10)):
+                raise ValueError('current exact report contradicts physical leader speed')
             if p.w+1e-10<wlow:
                 raise ValueError('physical leader contradicts admitted report/braking bound')
             a=control(p,r,state.time_s,dt,cap,B)

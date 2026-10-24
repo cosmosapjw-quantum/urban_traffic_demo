@@ -120,7 +120,12 @@ def grow_access(city,sites,budget_m=800.,max_roads=4,max_length_m=400.,min_lengt
                     # A site within the declared access envelope is already fronting.
                     # It is not counted as a new road or a completed transport trip.
                     if not terrain_gate(current.terrain,(site.xy,projection[3]),2.,'surface'):
-                        already=True
+                        # Proximity does not certify a traversable connector.
+                        # Coincident xy needs no grade calculation; every other
+                        # short access obeys the same 0.12 grade limit as roads.
+                        if (projection[0]<=1e-8 or
+                            ground_profile(current.terrain,(site.xy,projection[3]))[2]<=.12):
+                            already=True
                 if projection and min_length_m<=projection[0]<=max_length_m:
                     # Do not leave tiny parent fragments around a pre-existing junction.
                     for endpoint,index,u in ((road.points[0],0,0.),(road.points[-1],len(road.points)-2,1.)):

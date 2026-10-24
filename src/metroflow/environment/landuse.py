@@ -82,9 +82,25 @@ def zone_city(terrain: Terrain, network: Network, population: int, jobs: int,
     eligible={v for v,c in comps.items() if c==main and degree[v]>0}
     centres=((.25*extent,.5*extent),(.75*extent,.42*extent))
     industry=Rect(.70*extent,0.,extent,.21*extent)
-    industrial_cells=tuple(Rect(x*t.spacing_m,y*t.spacing_m,(x+1)*t.spacing_m,(y+1)*t.spacing_m)
-        for y in range(t.n) for x in range(t.n)
-        if industry.xmin<=(x+.5)*t.spacing_m<=industry.xmax and
+    # Environmental/access feasibility precedes both industrial assignment and
+    # its buffer. A merely planned but excluded factory has no physical buffer.
+    base={}
+    for y in range(t.n):
+        for x in range(t.n):
+            rect=Rect(x*t.spacing_m,y*t.spacing_m,(x+1)*t.spacing_m,(y+1)*t.spacing_m)
+            slope=cell_slope(t,x,y)
+            access=sorted(node_id(i,j) for i,j in ((x,y),(x+1,y),(x,y+1),(x+1,y+1))
+                          if node_id(i,j) in eligible) if frontage_nodes is None else [
+                              v for v in frontage_nodes.get((x,y),()) if v in eligible]
+            if any(overlaps(rect,w) for w in t.water):reason='water'
+            elif any(overlaps(rect,p) for p in t.protected):reason='protected'
+            elif any(overlaps(rect,w,50.) for w in t.water):reason='floodplain'
+            elif slope>max_build_slope:reason='steep'
+            elif not access:reason='inaccessible'
+            else:reason=None
+            base[x,y]=(rect,slope,access,reason)
+    industrial_cells=tuple(rect for (x,y),(rect,_,_,reason) in base.items()
+        if reason is None and industry.xmin<=(x+.5)*t.spacing_m<=industry.xmax and
            industry.ymin<=(y+.5)*t.spacing_m<=industry.ymax)
     # persons, jobs, visitor places per net hectare. Not observed calibration.
     density={'residential':(230,15,15),'mixed':(340,250,75),
@@ -92,17 +108,10 @@ def zone_city(terrain: Terrain, network: Network, population: int, jobs: int,
     raw=[];weights=[]
     for y in range(t.n):
         for x in range(t.n):
-            r=Rect(x*t.spacing_m,y*t.spacing_m,(x+1)*t.spacing_m,(y+1)*t.spacing_m)
-            px=(x+.5)*t.spacing_m;py=(y+.5)*t.spacing_m;slope=cell_slope(t,x,y)
-            access=sorted(node_id(i,j) for i,j in ((x,y),(x+1,y),(x,y+1),(x+1,y+1))
-                          if node_id(i,j) in eligible) if frontage_nodes is None else [
-                              v for v in frontage_nodes.get((x,y),()) if v in eligible]
+            r,slope,access,reason=base[x,y]
+            px=(x+.5)*t.spacing_m;py=(y+.5)*t.spacing_m
             near=min(math.hypot(px-a,py-b) for a,b in centres)
-            if any(overlaps(r,w) for w in t.water):use='water'
-            elif any(overlaps(r,p) for p in t.protected):use='protected'
-            elif any(overlaps(r,w,50.) for w in t.water):use='floodplain'
-            elif slope>max_build_slope:use='steep'
-            elif not access:use='inaccessible'
+            if reason is not None:use=reason
             elif industry.xmin<=px<=industry.xmax and industry.ymin<=py<=industry.ymax:use='industrial'
             elif any(overlaps(r,p,150.) for p in industrial_cells):use='buffer'
             elif x==1 and y==t.n//2:use='civic'
