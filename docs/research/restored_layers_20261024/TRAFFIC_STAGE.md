@@ -1,0 +1,9 @@
+# S3: restored physical geometry to active-mesoscopic traffic
+
+Recovery base: 0da0d1a4b6c970f4cba7b1b8a4288ec1ddc04be2. Production defaults and active_suffix physics unchanged. New restored_traffic compiler preserves directional lanes, bridge failure groups, elevated/ground endpoint identity, legal ON/OFF movements, finite storage and aggregate merging. Geometry speed uses declared grade and three-point curvature priors, not calibration. Ground intersections use conservative mutually exclusive incoming-approach green slots. No individual-car movement or lane-changing state.
+
+Demand planning accepts the same legal incoming-link turn graph as transport. Default allowed_turns=None preserves the previous interface. The 120-second intrazonal planning prior is not simulated or completed local traffic.
+
+Actual focused verification: tests/test_restored_traffic.py 14 passed. Compiler baseline RED 4 failed/1 passed, then GREEN5; planning RED2 then GREEN2; added integration/scaling tests are regression checks, not all strict TDD. Saturated merge supplies 0.96 and 0.24 veh/s with 1.2 veh/s shared receiving limit. Bridge closure retains committed mass and both directions; the small diamond clears24 vehicle equivalents. Homogeneous lanes/storage/capacity/demand scaling by2 preserves activity and scales mass/vehicle-seconds by2. Four generated 100k-resident environments ran300 seconds; matched grid baseline/bridge closure ran600 seconds. This is not a full-day or full-demand clearance result.
+
+Known limitation preserved: in dilute single-link free flow, exact10seconds becomes20/14/12/11seconds for dt4/2/1/0.5seconds. This is the reused core's tick/arrival/discharge clock bias, not physical delay. Finer dt also raises arrival-record counts. Full FIFO, dynamic UE, empirical realism, all-history recovery, full repository CI and independent native-subagent review are not claimed. Full fresh evidence and handoff follow in the audit stage.

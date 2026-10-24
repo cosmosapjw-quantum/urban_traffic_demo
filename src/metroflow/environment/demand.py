@@ -108,13 +108,28 @@ def districts(city: City, divisions=4) -> tuple[District,...]:
     return tuple(result)
 
 
-def travel_skims(roads,areas):
-    """One Dijkstra per DISTINCT representative origin, frozen nonnegative cost.
+def travel_skims(roads,areas,allowed_turns=None):
+    """Frozen planning costs, with optional incoming-link turn authority.
 
-    This road compiler has no legal-turn restrictions except immediate U-turns;
-    positive-cost shortest paths never need a U-turn. Dynamic routing remains
-    the incoming-link solver in active_suffix.
+    None retains the original node-Dijkstra path. An explicit turn set (including
+    the empty set) uses exactly the legal link-state graph used by transport.
+    The 120 s diagonal is an intrazonal deterrence prior, NOT a completed trip.
     """
+    roads=tuple(roads)
+    if allowed_turns is not None:
+        from ..active_suffix.routing import Arc, destination_potential
+        arcs=tuple(Arc(r.id,r.tail,r.head) for r in roads)
+        costs={r.id:(r.length_m/r.free_speed_mps+
+            (r.signal.cycle_s-r.signal.green_s)**2/(2*r.signal.cycle_s) if r.signal else
+            r.length_m/r.free_speed_mps) for r in roads}
+        for r in roads:
+            if r.signal and r.signal.green_s==0:costs[r.id]=math.inf
+        tables={d:destination_potential(arcs,costs,d,allowed_turns)
+                for d in sorted({a.access_node for a in areas})}
+        outgoing={a.access_node:tuple(r.id for r in roads if r.tail==a.access_node) for a in areas}
+        return tuple(tuple(120. if i==j else 0. if a.access_node==b.access_node else
+            min((tables[b.access_node][key] for key in outgoing[a.access_node]),default=math.inf)
+            for j,b in enumerate(areas)) for i,a in enumerate(areas))
     adj={}
     for r in roads:
         red=(r.signal.cycle_s-r.signal.green_s)**2/(2*r.signal.cycle_s) if r.signal else 0.
@@ -148,7 +163,7 @@ class TripPlan:
 
 def plan_commute(city,roads,divisions=4,worker_fraction=.4,peak_fraction=.4,
                  car_person_share=.55,persons_per_car=1.25,profile=((0.,1800.,.5),(1800.,3600.,.5)),
-                 tau_s=900.,max_od_groups=256):
+                 tau_s=900.,max_od_groups=256,allowed_turns=None):
     """Person stocks -> one-way peak trips -> non-car/local/network ledgers.
 
     Profile weights integrate to one; no returns or service visits are invented.
@@ -163,7 +178,7 @@ def plan_commute(city,roads,divisions=4,worker_fraction=.4,peak_fraction=.4,
     if abs(math.fsum(w for _,_,w in profile)-1)>1e-12:raise ValueError('profile weights must sum to one')
     ordered=sorted(profile)
     if any(b>c for (a,b,w),(c,d,v) in zip(ordered,ordered[1:])):raise ValueError('overlapping departure bins')
-    areas=districts(city,divisions);costs=travel_skims(roads,areas)
+    areas=districts(city,divisions);costs=travel_skims(roads,areas,allowed_turns=allowed_turns)
     origins=tuple(d.residents*worker_fraction for d in areas);dest=tuple(float(d.jobs) for d in areas)
     result=balance_od(origins,dest,costs,tau_s=tau_s)
     factor=peak_fraction*car_person_share/persons_per_car;local=0.;od={}
