@@ -1,0 +1,1 @@
+{"scope":"synthetic bilinear landscapes with polygon water/protection","python":"3.13.5","red_failed":7,"green_passed":7,"core":"stdlib","base":"c462c3f20b5e5c0c81b821f3c41910fbc3143f4b","terrain_kinds":["flat","river","coast","valley","lake"],"limitations":["authored terrain, no hydrology or DEM validation","new polygon masks are authority, not legacy rectangle masks"]}
