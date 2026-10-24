@@ -1,0 +1,14 @@
+Fresh recovery verification, CPython 3.13.5, isolated delivered workspace.
+PYTHONPATH=src python -m pytest -q tests
+........................................................................ [ 58%]
+...................................................                      [100%]
+123 passed in 19.64s
+Exit code: 0.
+
+Includes 12 parent-reference tests in the bundle. Full repository checkout/conftest/CI NOT_RUN.
+New reporting-contract repair: 2 failed (before), 2 passed (after).
+Model/PackedModel default replay: 400 exact state-fingerprint matches against f0d5d228 parent.
+python -S tools/run_axiom_traffic.py --city-input <frozen-input> --horizon 300: exit0.
+python -S tools/run_sight_research.py: exit0, four cases.
+python -S -m compileall -q src tools tests: exit0.
+python -S import: site_imported=false, numpy/scipy/jax/torch/numba loaded=[].

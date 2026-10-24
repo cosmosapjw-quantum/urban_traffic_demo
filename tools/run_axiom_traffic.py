@@ -69,13 +69,18 @@ def city(out,input_path,horizon=120.):
     observers=tuple(nodes[d.origin] for d in demands)
     cfg=Config(dt_s=2.,route_refresh_s=30.,paths_per_od=2,adaptive_routes=True,max_routes_per_od=4,
                max_live_suffixes=12000,event_budget=24000)
+    if not math.isfinite(horizon) or horizon<=0:
+        raise ValueError('horizon must be positive and finite')
+    steps=round(horizon/cfg.dt_s)
+    if steps<1 or abs(steps*cfg.dt_s-horizon)>1e-9*max(1.,horizon):
+        raise ValueError('horizon must be an integer number of dt intervals')
     reports=[]
     for label,model in (
         ('global_cost',PackedModel(roads,demands,cfg,allowed_turns=turns)),
         ('causal_source',CausalPackedModel(roads,demands,observers,sensors,Information(1200.,60.,2.),cfg,
                          allowed_turns=turns,frame_budget=32))):
         t0=time.perf_counter();state=model.initial();max_mass=0.;max_occ=0.;frames=0;arrivals=0;trace=[]
-        for _ in range(round(horizon/cfg.dt_s)):
+        for _ in range(steps):
             state=model.step(state)
             s=state.physical if label=='causal_source' else state
             occupied,_=model.occupancy(state)
@@ -94,7 +99,7 @@ def city(out,input_path,horizon=120.):
         assert max_mass<1e-8 and max_occ<=1.+1e-10
         reports.append(row)
     result=dict(input_sha256=hashlib.sha256(raw).hexdigest(),directed_roads=len(roads),
-                demand_schedules=len(demands),resident_stock=100000,
+                demand_schedules=len(demands),resident_stock=dict(data['plan'].get('ledger',())).get('resident_stock'),
                 scope='short matched observation; legacy physical activity retained; not a speed/accuracy benchmark',cases=reports)
     write(out/'CITY_INFORMATION.json',result);return result
 
