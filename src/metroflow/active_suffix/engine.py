@@ -157,6 +157,14 @@ class Model:
     def _residence(self,state,occupied,released,completed,dt):
         return state.vehicle_seconds+dt*(math.fsum(occupied)+math.fsum(state.pending)+released)
 
+    def _information_costs(self,state,costs,t):
+        """Optional OD-conditioned cost views; None preserves legacy authority."""
+        return None
+
+    def _refresh_needed(self,state,t,factors):
+        return (state.last_choice_s<0 or
+                t-state.last_choice_s>=self.cfg.route_refresh_s-1e-10 or factors!=state.last_factors)
+
     def _step(self,state):
         cfg=self.cfg;dt=cfg.dt_s;t=state.tick*dt;end=t+dt;tick=state.tick+1
         table={s.id:s for s in state.suffixes};index={(s.road,s.next_id):s.id for s in state.suffixes}
@@ -182,23 +190,30 @@ class Model:
             rate=r.capacity_veh_s*factors[i]*duty
             red=(r.signal.cycle_s-r.signal.green_s)**2/(2*r.signal.cycle_s) if r.signal else 0.
             costs[r.id]=running[i]+waiting[i]/rate+red if rate>0 else math.inf
-        refresh=(state.last_choice_s<0 or t-state.last_choice_s>=cfg.route_refresh_s-1e-10 or factors!=state.last_factors)
+        views=self._information_costs(state,costs,t)
+        refresh=self._refresh_needed(state,t,factors)
         choice=state.choice;last_choice=state.last_choice_s;solves=state.route_solves
         regret=state.max_cached_route_regret_s;pre=state.max_pre_repair_route_regret_s
         repairs=state.routing_repairs;expansions=state.route_repair_expansions;evictions=state.cache_evictions
         if refresh:
-            potentials={d:destination_potential(self.arcs,costs,d,self.turns)
-                        for d in sorted({x.destination for x in self.demands})}
+            if views is None:
+                potentials={d:destination_potential(self.arcs,costs,d,self.turns)
+                            for d in sorted({x.destination for x in self.demands})}
+            else:
+                potentials={od:destination_potential(self.arcs,views[od],d.destination,self.turns)
+                            for od,d in enumerate(self.demands)}
             solves+=len(potentials);shares=[]
             for od,d in enumerate(self.demands):
+                known=costs if views is None else views[od]
+                potential=potentials[d.destination if views is None else od]
                 group=roots[od];prior=list(choice[od]);paths=[_path(table,sid) for sid in group]
-                c=tuple(math.fsum(costs[self.roads[i].id] for i in path) for path in paths)
-                best=min((potentials[d.destination][r.id] for r in self.roads if r.tail==d.origin),default=math.inf)
+                c=tuple(math.fsum(known[self.roads[i].id] for i in path) for path in paths)
+                best=min((potential[r.id] for r in self.roads if r.tail==d.origin),default=math.inf)
                 finite=any(math.isfinite(x) for x in c)
                 if math.isfinite(best) and finite:pre=max(pre,max(0.,min(c)-best))
                 need=math.isfinite(best) and (not finite or min(c)-best>cfg.route_regret_budget_s+1e-9)
                 if need and cfg.adaptive_routes:
-                    found=candidate_paths(self.arcs,costs,d.origin,d.destination,1,cfg.path_expansion_budget,self.turns)
+                    found=candidate_paths(self.arcs,known,d.origin,d.destination,1,cfg.path_expansion_budget,self.turns)
                     expansions+=found.expanded
                     if found.truncated or not found.paths:raise BudgetExceeded('shortest-route search bound')
                     path=tuple(self.index[e] for e in found.paths[0])
@@ -210,7 +225,7 @@ class Model:
                             k=max(range(len(group)),key=lambda k:(c[k],group[k]))
                             group[k]=sid;paths[k]=path;prior[k]=0.;evictions+=1
                         repairs+=1
-                        c=tuple(math.fsum(costs[self.roads[i].id] for i in p) for p in paths);finite=True
+                        c=tuple(math.fsum(known[self.roads[i].id] for i in p) for p in paths);finite=True
                     if min(c)-best>cfg.route_regret_budget_s+1e-8:raise BudgetExceeded('route regret bound')
                 if math.isfinite(best) and not finite:raise BudgetExceeded('detour outside fixed cache')
                 if math.isfinite(best):regret=max(regret,max(0.,min(c)-best))
