@@ -89,13 +89,15 @@ def _proposal(city,site,road,projection,serial):
     return (new,(site.id,site_id,join_id,length)),None
 
 
-def grow_access(city,sites,budget_m=800.,max_roads=4,max_length_m=400.,min_length_m=15.):
+def grow_access(city,sites,budget_m=800.,max_roads=4,max_length_m=400.,min_length_m=15.,admission_rule=None):
     """Greedy service-weight/length construction with exact budget accounting.
 
     Candidate set: nearest point on each eligible local/collector surface road.
     The search is not a global network/economic optimum. Accepted spurs create
     access, not a guaranteed decrease in traffic delay. Geometry never changes
     to evade a gate. Previous maps remain valid immutable snapshots.
+    admission_rule(city,site,road,projection) may return a rejection reason;
+    None preserves the previous generator. The rule must be deterministic.
     """
     sites=tuple(sites)
     if (not math.isfinite(budget_m) or budget_m<0 or not math.isfinite(max_length_m)
@@ -129,6 +131,10 @@ def grow_access(city,sites,budget_m=800.,max_roads=4,max_length_m=400.,min_lengt
             if not candidates:reasons[site.id]='no_eligible_frontage';continue
             for _,_,road,proj in sorted(candidates,key=lambda x:(x[0],x[1])):
                 if proj[0]>budget_m-used+1e-9:reasons[site.id]='budget';break
+                if admission_rule is not None:
+                    reason=admission_rule(current,site,road,proj)
+                    if reason:
+                        reasons[site.id]=reason;continue
                 proposal,reason=_proposal(current,site,road,proj,len(admitted))
                 if proposal is None:reasons[site.id]=reason;continue
                 length=proposal[1][3]
