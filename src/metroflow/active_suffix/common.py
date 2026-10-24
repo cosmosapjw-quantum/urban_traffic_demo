@@ -123,3 +123,4 @@ def _validate(roads,demands,cfg,horizon,windows,conflicts):
         if any(_signal_green(a,(x+y)/2) and _signal_green(b,(x+y)/2) for x,y in zip(cuts,cuts[1:])):
             raise ValueError('conflicting green intervals')
 
+
