@@ -1,0 +1,9 @@
+# 다음 지도 연구 인계
+
+repo cosmosapjw-quantum/urban_traffic_demo, branch research/terrain-city-atlas-20261025. 기준c462c3f20b5e5c0c81b821f3c41910fbc3143f4b, 구현8570436395034e488b71b6657cb4853c85c174ea. 최종HEAD는실제ref/PUBLICATION.json확인. AGENTS,SUMMARY_KO,FINAL_RECEIPT만먼저읽는다.
+
+이번요청은지도만.8km지도6개와4km20교차조합,최대3시각수정은끝났다. 새terrain_city는부모교통을변경하지않는다. 폴리곤수계/보호구역의권위는Atlas.landscape이고레거시Terrain rectangle masks는비어있다. old rectangle-only zoning을직접적용하지말라. RoadMap은기존compile_traffic로직접검사됐다. 개발face는법적필지가아니고phase는역사연도가아니다.
+
+198tests는177부모+21신규,격리번들범위. 전체repoCI/native subagent/실측/전일100k는NOT_RUN. 형상기반컴파일외교통계산은하지않았다. 그림과소스는같은고정seed17로다시생성했다. 20작은조합의3개인구부족은pending으로보존한다.
+
+다음은실제block경계를기존access_development의느린개발에연결하는작은adapter다. 고가/램프를도입할때지상face와전체routing graph를분리하고마스크호환을먼저잠근다. 기하학적가능성으로경험적도시현실성을주장하지말라. 새출력은기존trafficstate에hot-swap금지,cache는map identity로무효화. 각닫힌단계는expectedSHA로연구branch에게시,mainmerge금지.
