@@ -137,14 +137,31 @@ class Model:
             exc.checkpoint=state
             raise
 
-    def _step(self,state):
-        cfg=self.cfg;dt=cfg.dt_s;t=state.tick*dt;end=t+dt;tick=state.tick+1
-        table={s.id:s for s in state.suffixes};index={(s.road,s.next_id):s.id for s in state.suffixes}
-        next_id=state.next_suffix_id;roots=[list(g) for g in state.source_roots]
+    def _mature(self,state):
+        """Legacy point-calendar policy; subclasses may use bounded run records."""
         queues=dict(state.queues);future=[]
         for event in state.transit:
             if event.due_tick<=state.tick:queues[event.suffix]=queues.get(event.suffix,0.)+event.mass
             else:future.append(event)
+        return queues,future
+
+    def _arrival(self,tick,delay,suffix,mass):
+        return Arrival(tick+delay,suffix,mass)
+
+    def _pack(self,future):
+        merged={}
+        for event in future:
+            key=(event.due_tick,event.suffix);merged[key]=merged.get(key,0.)+event.mass
+        return tuple(Arrival(*key,mass) for key,mass in sorted(merged.items()) if mass>0)
+
+    def _residence(self,state,occupied,released,completed,dt):
+        return state.vehicle_seconds+dt*(math.fsum(occupied)+math.fsum(state.pending)+released)
+
+    def _step(self,state):
+        cfg=self.cfg;dt=cfg.dt_s;t=state.tick*dt;end=t+dt;tick=state.tick+1
+        table={s.id:s for s in state.suffixes};index={(s.road,s.next_id):s.id for s in state.suffixes}
+        next_id=state.next_suffix_id;roots=[list(g) for g in state.source_roots]
+        queues,future=self._mature(state)
         occupied,_=self.occupancy(state);waiting=[0.]*len(self.roads)
         for sid,mass in queues.items():waiting[table[sid].road]+=mass
         pending=list(state.pending);released=0.
@@ -226,7 +243,7 @@ class Model:
             if nxt==-1:completed+=mass
             else:
                 j=table[nxt].road;delay=max(1,math.ceil(running[j]/dt-1e-12))
-                future.append(Arrival(tick+delay,nxt,mass))
+                future.append(self._arrival(tick,delay,nxt,mass))
         admissions=[];totals={}
         for od,group in enumerate(roots):
             for sid,share in zip(group,choice[od]):
@@ -239,11 +256,8 @@ class Model:
             mass=desired*min(1.,space/totals[i])
             if mass<=0:continue
             pending[od]-=mass;admitted+=mass
-            delay=max(1,math.ceil(running[i]/dt-1e-12));future.append(Arrival(tick+delay,sid,mass))
-        merged={}
-        for event in future:
-            key=(event.due_tick,event.suffix);merged[key]=merged.get(key,0.)+event.mass
-        future=tuple(Arrival(*key,mass) for key,mass in sorted(merged.items()) if mass>0)
+            delay=max(1,math.ceil(running[i]/dt-1e-12));future.append(self._arrival(tick,delay,sid,mass))
+        future=self._pack(future)
         queues={s:m for s,m in queues.items() if m>0}
         retained=_collect(table,roots,queues,future)
         if len(future)>cfg.event_budget:raise BudgetExceeded('arrival-calendar bound')
@@ -251,7 +265,7 @@ class Model:
         nxt=State(tick,tuple(max(0.,x) for x in pending),tuple(sorted(queues.items())),future,activity,choice,
             tuple(tuple(g) for g in roots),tuple(retained.values()),next_id,last_choice,factors,
             state.released+released,admitted,completed,
-            state.vehicle_seconds+dt*(math.fsum(occupied)+math.fsum(state.pending)+released),
+            self._residence(state,occupied,released,completed,dt),
             tuple(a+b for a,b in zip(state.link_outflow,outgoing)),state.link_visits+len(self.roads),solves,
             state.cohort_slots_visited+len(state.transit),regret,pre,repairs,expansions,evictions,
             state.suffixes_collected+len(table)-len(retained))
