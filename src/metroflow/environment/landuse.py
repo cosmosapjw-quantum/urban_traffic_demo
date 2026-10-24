@@ -63,7 +63,7 @@ def apportion(total: int, capacities: tuple[int,...], weights: tuple[float,...])
 
 
 def zone_city(terrain: Terrain, network: Network, population: int, jobs: int,
-              max_build_slope=.10) -> City:
+              max_build_slope=.10, frontage_nodes=None) -> City:
     """Coarse land-use envelope, not parcels/real-estate equilibrium.
 
     Any overlap with excluded land removes the WHOLE raster cell, a conservative
@@ -95,7 +95,8 @@ def zone_city(terrain: Terrain, network: Network, population: int, jobs: int,
             r=Rect(x*t.spacing_m,y*t.spacing_m,(x+1)*t.spacing_m,(y+1)*t.spacing_m)
             px=(x+.5)*t.spacing_m;py=(y+.5)*t.spacing_m;slope=cell_slope(t,x,y)
             access=sorted(node_id(i,j) for i,j in ((x,y),(x+1,y),(x,y+1),(x+1,y+1))
-                          if node_id(i,j) in eligible)
+                          if node_id(i,j) in eligible) if frontage_nodes is None else [
+                              v for v in frontage_nodes.get((x,y),()) if v in eligible]
             near=min(math.hypot(px-a,py-b) for a,b in centres)
             if any(overlaps(r,w) for w in t.water):use='water'
             elif any(overlaps(r,p) for p in t.protected):use='protected'
