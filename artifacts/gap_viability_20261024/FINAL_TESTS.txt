@@ -1,0 +1,9 @@
+Fresh final execution: CPython3.13.5, isolated delivered workspace.
+Command: PYTHONPATH=src python -m pytest -q tests
+........................................................................ [ 50%]
+......................................................................   [100%]
+142 passed in 19.95s
+Exit code 0.
+
+Parent123 + new map5 + new traffic14. Parent-reference12 included.
+Whole-repository CI and native independent subagent review: NOT_RUN.
