@@ -366,11 +366,13 @@
       "I01"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "sandbox scoped tests; actual city one-route2veh integration",
-    "full_repository_ci": "IN_PROGRESS",
+    "scope": "I01 full checkout integration verified; bootstrap merge pending; not V1 complete",
+    "full_repository_ci": "PASS_AT_b7ff813504b4a4e1beb97cb51f7d43ce33deb338",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json"
+    "evidence": "artifacts/v1_i01_20261025/RECEIPT.json",
+    "ci_run": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/40182521270",
+    "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json"
   },
   "nodes": [
     {
@@ -566,7 +568,7 @@
         "M01",
         "T01"
       ],
-      "status": "IN_PROGRESS",
+      "status": "VERIFIED_SCOPED",
       "files": [
         "pyproject.toml",
         "src/metroflow/v1/__init__.py",
@@ -622,6 +624,13 @@
         "branch": "v1/foundation-access-journey-20261025",
         "base": "research/v1-integration-20261025",
         "opened_number": 25
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_i01_20261025/RECEIPT.json",
+        "sha256": "d6021d34772a146724a981001bf1250fccbd56b3266071b4ddf75daf57002e76",
+        "runtime_source_commit": "b7ff813504b4a4e1beb97cb51f7d43ce33deb338",
+        "ci_run": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/40182521270",
+        "merge_state": "AWAITING_BOOTSTRAP_MERGE"
       }
     },
     {

@@ -5,7 +5,7 @@ edge [arrowsize=0.6];
 P00 [label="P00\nPlan authority", style="rounded,bold"];
 M01 [label="M01\nArea access laws", style="rounded,bold"];
 T01 [label="T01\nWhole journey clock", style="rounded,bold"];
-I01 [label="I01\nRepository integration", style="rounded,dashed"];
+I01 [label="I01\nRepository integration", style="rounded,bold"];
 M02 [label="M02\nLayered city contract", style="rounded,dashed"];
 M03 [label="M03\nActivity and portals", style="rounded,dashed"];
 D01 [label="D01\nDaily cohort demand", style="rounded,dashed"];

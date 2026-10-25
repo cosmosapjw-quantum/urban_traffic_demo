@@ -263,7 +263,7 @@ flowchart TD
 |P00|단일 계획·DAG·요구사항 기준 확정|없음|VERIFIED_SCOPED|
 |M01|면적 활동측도를 출입구·접근시간 법칙으로 컴파일|P00|VERIFIED_SCOPED|
 |T01|원래 출발시각을 보존하는 전체 여정 연결|M01|VERIFIED_SCOPED|
-|I01|전체 저장소 통합 기준선과 V1 facade 확립|P00, M01, T01|IN_PROGRESS|
+|I01|전체 저장소 통합 기준선과 V1 facade 확립|P00, M01, T01|VERIFIED_SCOPED|
 |M02|지형·입체도로·회전·구조물의 단일 지도 계약|I01|PLANNED|
 |M03|활동가중 블록·복수 출입구·주거용량의 현실적 연결|M02, M01|PLANNED|
 |D01|10만 주민의 집단별 하루 활동·수요 장부|M03, I01|PLANNED|
@@ -559,7 +559,7 @@ I01 full-repository 수용 후 T04와 D01에 연결
 
 ### I01. 전체 저장소 통합 기준선과 V1 facade 확립
 
-의존: P00, M01, T01; 상태: **IN_PROGRESS**.
+의존: P00, M01, T01; 상태: **VERIFIED_SCOPED**.
 
 예정 PR: `V1-I01`, branch `v1/foundation-access-journey-20261025` → `research/v1-integration-20261025`.
 
@@ -2321,11 +2321,13 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "I01"
   ],
   "native_subagent": "NOT_RUN",
-  "scope": "sandbox scoped tests; actual city one-route2veh integration",
-  "full_repository_ci": "IN_PROGRESS",
+  "scope": "I01 full checkout integration verified; bootstrap merge pending; not V1 complete",
+  "full_repository_ci": "PASS_AT_b7ff813504b4a4e1beb97cb51f7d43ce33deb338",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json"
+  "evidence": "artifacts/v1_i01_20261025/RECEIPT.json",
+  "ci_run": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/40182521270",
+  "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json"
 }
 ```
 

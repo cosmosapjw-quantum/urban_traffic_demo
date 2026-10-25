@@ -1,0 +1,102 @@
+{
+  "status": "I01_VERIFIED_AWAITING_BOOTSTRAP_MERGE",
+  "date_kst": "2026-10-25T19:27:52.562205+09:00",
+  "runtime_source_commit": "b7ff813504b4a4e1beb97cb51f7d43ce33deb338",
+  "runtime_source_tree": "51efd9049af658907f1a5262ac685a8dc49a94e3",
+  "previous_head": "5caffbcfebe451637d21b0774b2a9ebc0b446c61",
+  "local_evidence_commit": "975c7d131d5b1a6e07ca772dc5e000cc22126d36",
+  "ci_run": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/40182521270",
+  "ci_gate": "success",
+  "ci_full_suite": {
+    "python": "3.12.14",
+    "passed": 1818,
+    "skipped": 41,
+    "xfailed": 3,
+    "summaries": [
+      {
+        "name": "test (scalable-blocks-config)",
+        "id": 121136452331,
+        "lines": [
+          "2026-10-25T10:09:08.4152568Z 100 passed in 886.90s (0:14:46)"
+        ]
+      },
+      {
+        "name": "test (baseline-h-r)",
+        "id": 121136452342,
+        "lines": [
+          "2026-10-25T10:01:43.5203990Z 743 passed, 30 skipped, 1 xfailed in 445.89s (0:07:25)"
+        ]
+      },
+      {
+        "name": "test (baseline-a-g-s-z)",
+        "id": 121136452378,
+        "lines": [
+          "2026-10-25T10:07:45.7117188Z 727 passed, 11 skipped, 2 xfailed in 803.76s (0:13:23)"
+        ]
+      },
+      {
+        "name": "test (scalable-authority)",
+        "id": 121136452380,
+        "lines": [
+          "2026-10-25T10:01:32.8440160Z 34 passed in 432.70s (0:07:12)"
+        ]
+      },
+      {
+        "name": "test (scalable-topology-runtime)",
+        "id": 121136452321,
+        "lines": [
+          "2026-10-25T10:25:53.2318255Z 214 passed in 1891.62s (0:31:31)"
+        ]
+      }
+    ]
+  },
+  "ci_v1_profile": {
+    "3.12.14": "45 passed",
+    "3.13.16": "45 passed"
+  },
+  "local_full_shards": {
+    "python": "3.12.14",
+    "passed": 1814,
+    "skipped": 41,
+    "xfailed": 3,
+    "failures": 0,
+    "note": "integration working-tree shards; source-bound CI is the final authority"
+  },
+  "acceptance": {
+    "full_checkout_collection_and_execution": "PASS; CI five disjoint shards, real conftest and pinned install",
+    "supported_python_v1_import": "PASS; installed wheel API/CLI and stdlib closure on both supported versions",
+    "initial_pr_integration_evidence": "PASS; complete ci gate including oracle and gallery",
+    "legacy_failure_classification": "inherited lint 2100 fixed; early shared-runtime import failure resolved by installing into isolated environments"
+  },
+  "changes": [
+    "public V1 API and installed CLI",
+    "preserved legacy root API and imported names",
+    "required two-Python installed-wheel CI job",
+    "AST-preserving initial format plus normalized scientific-body comparison",
+    "deterministic missing-input regeneration and city replay test",
+    "plan status and handoff only after successful source CI"
+  ],
+  "not_claimed": [
+    "bootstrap merged or ACCEPTED",
+    "main merge or release tag",
+    "100k residents / 24h simulator completion",
+    "optional Rust/JAX/GPU verification",
+    "independent subagent review"
+  ],
+  "source_after_ci": "src/tests/tools/pyproject.toml/.github are byte unchanged from the verified source commit; following commits contain documentation/evidence/plan metadata only",
+  "evidence_files": {
+    "EXPLORATORY_ENVIRONMENT_FAILURE.txt": "5c84d801aeb3b2d9dae85128647bfb234202dc7358735b25de6f4cebd9365879",
+    "LOCAL_ENVIRONMENT.json": "974fb26b5a243da01d76a3be3d0d0470353dd9465dfd00d807fcc1c0fda9c39c",
+    "REPLAY_COMPARISON.json": "9ea1de4c0f97d8425231e215a5c8ee2612bc0ae982fb3ab93af19bd1fe912e22",
+    "FORMAT_AST.json": "b7286f38dae57d63ae6e1099059d4662baf1bf7fa19ebfbdf300e818ad7f0f8e",
+    "SCIENTIFIC_BODY_COMPARISON.json": "d9fd532409fe474d4ffea9f6819074812182d79df92783a9ccb86ea73e0cc239",
+    "LOCAL_TESTS.json": "a6300db0c0927c9da71296169c0f16cc25101c2c85a3077cc5659cc5c9ddfeb8",
+    "baseline-a-g-s-z.txt": "b1e93b4bdd2e964342199f7d3e3759fc86dfeca1eb38fc240effb08fefaae27a",
+    "baseline-h-r.txt": "6a4c35a7561985534676a9b5e0bffffccb1011995c171ca84711cab549738701",
+    "CI_RESULTS.json": "2aa3d2ef3864adf387213880fa72b8b14c5160bd8eb74c5b14148333b5046474",
+    "EXPERIMENTS.json": "a806a8c7c30556156a3e882005a64f9392d84650e4caad469a4b488615676821",
+    "scalable-topology-runtime.txt": "bcfd0862319b8a93e2e88663dc12331c316eaf4be1ae6ac7fb37d348b5d52d3c",
+    "scalable-authority.txt": "d78ef6194a978301af6cd75168430e75e40d7b608eb800eb084e465018efb3ef",
+    "scalable-blocks-config.txt": "b107566bcb6c7514c0073bf7b51d191baa30ebf576d781b86b0726694091ae24"
+  }
+}

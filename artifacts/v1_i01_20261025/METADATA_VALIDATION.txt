@@ -1,0 +1,4 @@
+.....................                                                    [100%]
+21 passed in 8.15s
+
+PLAN_ERROR: release BLOCKED: all mandatory nodes must be ACCEPTED with evidence
