@@ -81,6 +81,7 @@ class State:
     exit_moment:float=0.
     source_wait_seconds:float=0.
     transfer_hold_seconds:float=0.
+    pre_entry_seconds:float=0.
 
     @property
     def system_vehicle_seconds(self):
@@ -137,7 +138,7 @@ class PacketNetwork:
         self.groups=parent.groups;self.routes=parent.route;self.index=parent.index
         self.dt=parent.dt;self.windows=parent.windows;self.record_budget=record_budget
         self.incoming=parent.incoming
-        self.identity=hashlib.sha256(('exchangeable_boundary_packet_v1:'+parent.identity).encode()).hexdigest()
+        self.identity=hashlib.sha256(('exchangeable_boundary_packet_v2_birth:'+parent.identity).encode()).hexdigest()
 
     def initial(self,start_s=0.):
         if not math.isfinite(start_s) or start_s<0 or abs(start_s/self.dt-round(start_s/self.dt))>1e-9:
@@ -158,7 +159,7 @@ class PacketNetwork:
     def check(self,s):
         if s.model_id!=self.identity or len(s.cells)!=len(self.groups) or len(s.pending)!=len(self.groups):
             raise ValueError('network/state identity mismatch')
-        values=(s.time_s,s.released,s.completed,s.birth_moment,s.exit_moment,s.source_wait_seconds,s.transfer_hold_seconds)
+        values=(s.time_s,s.released,s.completed,s.birth_moment,s.exit_moment,s.source_wait_seconds,s.transfer_hold_seconds,s.pre_entry_seconds)
         if any(not math.isfinite(v) or v<0 for v in values):raise ValueError('invalid cumulative ledger')
         for i,(g,c,waiting) in enumerate(zip(self.groups,s.cells,s.pending)):
             if not math.isfinite(c.progress_m) or not 0<=c.activity<=1:raise ValueError('invalid distance clock')
@@ -180,20 +181,35 @@ class PacketNetwork:
             if c.occupancy>g.physics.storage+1e-9*max(1.,g.physics.storage):raise ArithmeticError('cell storage')
         mass=math.fsum(c.occupancy for c in s.cells)+math.fsum(p.mass for q in s.pending for p in q)
         if abs(s.released-s.completed-mass)>1e-9*max(1.,s.released):raise ArithmeticError('network mass ledger')
-        residence=math.fsum(c.residence(s.time_s) for c in s.cells)+s.source_wait_seconds+s.transfer_hold_seconds
+        residence=math.fsum(c.residence(s.time_s) for c in s.cells)+s.source_wait_seconds+s.transfer_hold_seconds+s.pre_entry_seconds
         if abs(residence-s.system_vehicle_seconds)>1e-8*max(1.,residence):raise ArithmeticError('residence ledger')
 
     def step(self,state,offers=()):
+        """Road-source batches born now: backward-compatible physical behavior."""
+        return self.step_measures(state,tuple((tag,mass,mass*state.time_s) for tag,mass in offers))
+
+    def step_measures(self,state,offers=()):
+        """Accept (tag, mass [veh], original birth first moment [veh*s]).
+
+        Earlier journey age changes observations only, not road admission order.
+        pre_entry_seconds records already-accrued residence before this network
+        boundary. Road/source/transfer residence remains separately measurable.
+        Current homogeneity makes a first moment sufficient for mean duration,
+        not for age-dependent dynamics or travel-time quantiles.
+        """
         try:return self._step(state,tuple(offers))
         except BudgetExceeded as e:e.checkpoint=state;raise
 
     def _step(self,s,offers):
         self.check(s);t=s.time_s;dt=self.dt;end=t+dt
-        pending=[list(q) for q in s.pending];new=defaultdict(list);born=0.
-        for tag,mass in offers:
-            if tag not in self.routes or not math.isfinite(mass) or mass<0:raise ValueError('invalid source batch')
+        pending=[list(q) for q in s.pending];new=defaultdict(list);born=0.;birth1=0.;inherited=0.
+        for tag,mass,birth in offers:
+            if (tag not in self.routes or not all(map(math.isfinite,(mass,birth)))
+                or mass<0 or birth<0 or birth>mass*t or (mass==0 and birth!=0)):
+                raise ValueError('invalid source mass or original birth moment')
             if mass:
-                route=self.routes[tag];new[self.index[route[0]]].append(Part(tag,route,mass,mass*t));born+=mass
+                route=self.routes[tag];new[self.index[route[0]]].append(Part(tag,route,mass,birth))
+                born+=mass;birth1+=birth;inherited+=mass*t-birth
         for i,parts in new.items():pending[i].append(Pending(t,combine(parts)))
         source_wait=dt*math.fsum(p.mass for q in pending for p in q)
         factor=[_factor(g.id,t+dt/2,self.windows) for g in self.groups]
@@ -278,7 +294,8 @@ class PacketNetwork:
             c=cells[i];packet=Packet(c.progress_m+self.groups[i].physics.length_m,parts)
             cells[i]=replace(c,packets=c.packets+(packet,),admitted=c.admitted+mass,entry_moment=c.entry_moment+mass*end)
         out=State(self.identity,end,tuple(cells),tuple(tuple(q) for q in pending),s.released+born,s.completed+sink,
-                  s.birth_moment+born*t,s.exit_moment+exit1,s.source_wait_seconds+source_wait,s.transfer_hold_seconds+hold)
+                  s.birth_moment+birth1,s.exit_moment+exit1,s.source_wait_seconds+source_wait,s.transfer_hold_seconds+hold,
+                  s.pre_entry_seconds+inherited)
         if self.counts(out)['parts']>self.record_budget:raise BudgetExceeded('packet state budget')
         self.check(out)
         for i,(g,a,b) in enumerate(zip(self.groups,s.cells,out.cells)):
