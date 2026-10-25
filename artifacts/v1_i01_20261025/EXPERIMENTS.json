@@ -1,0 +1,671 @@
+{
+  "background_residents": 100000,
+  "base": "0a7c980d3934146a978280fe76045443ad12640e",
+  "cases": [
+    {
+      "case": "zero_access_control",
+      "completed": 2.0,
+      "destination_mean_s": 0.0,
+      "destination_records": 0,
+      "max_residence_residual": 1.1368683772161603e-13,
+      "mean_journey_s": 302.22222222222223,
+      "origin_mean_s": 0.0,
+      "origin_records": 0,
+      "peak_records": 7,
+      "per_car_records": 0,
+      "released": 2.0,
+      "remaining": 0.0,
+      "residence_vehicle_seconds": {
+        "destination_egress": 0.0,
+        "entry_grid_hold": 0.0,
+        "origin_access": 0.0,
+        "public_network": 604.4444444444445,
+        "total": 604.4444444444445
+      },
+      "road_source_wait_seconds": 5.500000000000001,
+      "road_transfer_hold_seconds": 6.0890195039825885,
+      "status": "CLEARED_SCOPED",
+      "time_s": 305.0,
+      "trace": [
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 1.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 31.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 61.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 91.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 121.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 151.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 181.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 211.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 241.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 271.0
+        },
+        {
+          "completed": 0.45000000000000007,
+          "mean_journey_s": null,
+          "road_completed": 0.45000000000000007,
+          "time_s": 301.0
+        }
+      ],
+      "traffic_records": {
+        "packets": 0,
+        "parts": 0
+      },
+      "wall_s": 0.11904936300015834
+    },
+    {
+      "case": "area_access",
+      "completed": 2.000000000000001,
+      "destination_mean_s": 31.188841782787758,
+      "destination_records": 0,
+      "max_residence_residual": 1.1368683772161603e-13,
+      "mean_journey_s": 333.41106400500934,
+      "origin_mean_s": 28.531182794915715,
+      "origin_records": 0,
+      "peak_records": 290,
+      "per_car_records": 0,
+      "released": 2.0,
+      "remaining": 0.0,
+      "residence_vehicle_seconds": {
+        "destination_egress": 62.37768356557456,
+        "entry_grid_hold": 0.9202691480396259,
+        "origin_access": 57.06236558983143,
+        "public_network": 546.4618097065734,
+        "total": 666.822128010019
+      },
+      "road_source_wait_seconds": 2.0,
+      "road_transfer_hold_seconds": 6.11476753107798,
+      "status": "CLEARED_SCOPED",
+      "time_s": 364.0,
+      "trace": [
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 1.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 31.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 61.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 91.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 121.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 151.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 181.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 211.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 241.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.0,
+          "time_s": 271.0
+        },
+        {
+          "completed": 0.0,
+          "mean_journey_s": null,
+          "road_completed": 0.45000000000000007,
+          "time_s": 301.0
+        },
+        {
+          "completed": 0.8009453487644667,
+          "mean_journey_s": null,
+          "road_completed": 2.0,
+          "time_s": 331.0
+        },
+        {
+          "completed": 1.9969418166137127,
+          "mean_journey_s": null,
+          "road_completed": 2.0,
+          "time_s": 361.0
+        }
+      ],
+      "traffic_records": {
+        "packets": 0,
+        "parts": 0
+      },
+      "wall_s": 0.17855990800126165
+    }
+  ],
+  "continuous_pair_physics": "NOT_INTEGRATED",
+  "empirical_calibration": "NOT_RUN",
+  "inputs": {
+    "artifacts/block_flux_20261025/map_polycentric_river.json": "674d92cf0ab44c53357eb192fd30ebc833f4668fe97b7fd647cfdcdc59dd9e2f",
+    "artifacts/block_flux_20261025/plan_polycentric_river_dt1.json": "ac2fb2cde367ce9c54309e09ccd25809db35a09ca49eb1e07d316149647a7e23",
+    "artifacts/terrain_atlas_20261025/final/polycentric_river.json": "684022a44ed0f3a50fa36799bde34d990552383caf2ecde27fb78d364bb8275b"
+  },
+  "map_kernels": {
+    "109": {
+      "atoms": [
+        {
+          "delay_s": 1.238317890618118,
+          "maximum_s": 1.238317890618118,
+          "minimum_s": 1.238317890618118,
+          "portal": "g15:22",
+          "weight": 0.001786507023077658
+        },
+        {
+          "delay_s": 3.255935547585523,
+          "maximum_s": 3.9935717051942454,
+          "minimum_s": 2.449896350702408,
+          "portal": "g15:22",
+          "weight": 0.01067059657803683
+        },
+        {
+          "delay_s": 5.156306453952982,
+          "maximum_s": 5.8816595519691806,
+          "minimum_s": 4.8997927014049845,
+          "portal": "g15:22",
+          "weight": 0.008125223944874483
+        },
+        {
+          "delay_s": 7.303043731057444,
+          "maximum_s": 7.987143410388491,
+          "minimum_s": 6.191589453090352,
+          "portal": "g15:22",
+          "weight": 0.017009313499833836
+        },
+        {
+          "delay_s": 8.99636811251241,
+          "maximum_s": 9.906543124944587,
+          "minimum_s": 8.240539664894383,
+          "portal": "g15:22",
+          "weight": 0.023348030421630257
+        },
+        {
+          "delay_s": 11.090826541609527,
+          "maximum_s": 11.880103100798554,
+          "minimum_s": 10.062197635753305,
+          "portal": "g15:22",
+          "weight": 0.01678898325735482
+        },
+        {
+          "delay_s": 12.785614709302363,
+          "maximum_s": 13.95702312322624,
+          "minimum_s": 12.19404528880678,
+          "portal": "g15:22",
+          "weight": 0.03680312285050923
+        },
+        {
+          "delay_s": 15.063881979403249,
+          "maximum_s": 15.940702190892969,
+          "minimum_s": 14.316471952914142,
+          "portal": "g15:22",
+          "weight": 0.030947575569628863
+        },
+        {
+          "delay_s": 16.99245967425796,
+          "maximum_s": 17.901348543024568,
+          "minimum_s": 16.179145554703304,
+          "portal": "g15:22",
+          "weight": 0.043375026585515467
+        },
+        {
+          "delay_s": 19.21874435775294,
+          "maximum_s": 19.998112839950625,
+          "minimum_s": 18.04199792285028,
+          "portal": "g15:22",
+          "weight": 0.046207967996784886
+        },
+        {
+          "delay_s": 20.96390276275741,
+          "maximum_s": 21.82123071726227,
+          "minimum_s": 20.03892635013454,
+          "portal": "g15:22",
+          "weight": 0.04640356885959509
+        },
+        {
+          "delay_s": 23.19794241251588,
+          "maximum_s": 23.919600580298493,
+          "minimum_s": 22.06645950400444,
+          "portal": "g15:22",
+          "weight": 0.05049758760267518
+        },
+        {
+          "delay_s": 25.054237181479277,
+          "maximum_s": 25.852720045608624,
+          "minimum_s": 24.067316460740678,
+          "portal": "g15:22",
+          "weight": 0.06471957436649434
+        },
+        {
+          "delay_s": 27.13957555280594,
+          "maximum_s": 27.914046246452386,
+          "minimum_s": 26.137903703201374,
+          "portal": "g15:22",
+          "weight": 0.05985248453043578
+        },
+        {
+          "delay_s": 29.122966759816432,
+          "maximum_s": 29.89455632521389,
+          "minimum_s": 28.039150461598098,
+          "portal": "g15:22",
+          "weight": 0.061010758930600886
+        },
+        {
+          "delay_s": 31.05390771046508,
+          "maximum_s": 31.96125082902305,
+          "minimum_s": 30.039050301079214,
+          "portal": "g15:22",
+          "weight": 0.0799781628606744
+        },
+        {
+          "delay_s": 32.97834427711176,
+          "maximum_s": 33.888828750481174,
+          "minimum_s": 32.02944487585398,
+          "portal": "g15:22",
+          "weight": 0.0649494986198192
+        },
+        {
+          "delay_s": 34.960357269190716,
+          "maximum_s": 35.91344215289852,
+          "minimum_s": 34.012666661386106,
+          "portal": "g15:22",
+          "weight": 0.07478200344602258
+        },
+        {
+          "delay_s": 36.907860703145445,
+          "maximum_s": 37.94392105448751,
+          "minimum_s": 36.01010255668872,
+          "portal": "g15:22",
+          "weight": 0.0592989393503926
+        },
+        {
+          "delay_s": 38.81407634831529,
+          "maximum_s": 39.9932863808708,
+          "minimum_s": 38.06472774181409,
+          "portal": "g15:22",
+          "weight": 0.05669192224160909
+        },
+        {
+          "delay_s": 40.97351274942849,
+          "maximum_s": 41.90483816934044,
+          "minimum_s": 40.15470711064057,
+          "portal": "g15:22",
+          "weight": 0.0401815590774485
+        },
+        {
+          "delay_s": 42.519657745920696,
+          "maximum_s": 43.0720439222608,
+          "minimum_s": 42.10071737881343,
+          "portal": "g15:22",
+          "weight": 0.027144242756408015
+        },
+        {
+          "delay_s": 44.855199705160416,
+          "maximum_s": 45.669646490473546,
+          "minimum_s": 44.267537225966535,
+          "portal": "g15:22",
+          "weight": 0.03336176483512159
+        },
+        {
+          "delay_s": 47.18077317976803,
+          "maximum_s": 47.83920116059685,
+          "minimum_s": 46.47958989132809,
+          "portal": "g15:22",
+          "weight": 0.014043531983822419
+        },
+        {
+          "delay_s": 48.948530586694076,
+          "maximum_s": 49.88200547190284,
+          "minimum_s": 48.013860644738386,
+          "portal": "g15:22",
+          "weight": 0.018559367241214177
+        },
+        {
+          "delay_s": 51.46162146500292,
+          "maximum_s": 51.89876394496325,
+          "minimum_s": 51.099244787724196,
+          "portal": "g15:22",
+          "weight": 0.008004029101791113
+        },
+        {
+          "delay_s": 52.71055303187094,
+          "maximum_s": 52.71055303187094,
+          "minimum_s": 52.71055303187094,
+          "portal": "g15:22",
+          "weight": 0.0027293282343141944
+        },
+        {
+          "delay_s": 55.06232636196435,
+          "maximum_s": 55.062326361964345,
+          "minimum_s": 55.062326361964345,
+          "portal": "g15:22",
+          "weight": 0.002729328234314141
+        }
+      ],
+      "bin_s": 2.0,
+      "block": "109",
+      "compressed_variance_s2": 119.61001224280696,
+      "input_samples": 384,
+      "max_pointwise_compression_s": 1.1792100325555097,
+      "mean_absolute_compression_s": 0.4643426846782177,
+      "mean_s": 28.531182794915704,
+      "measure": "uniform planar area; not resident microdata",
+      "old_point_length_m": 23.07473369528765,
+      "original_variance_s2": 119.91539888125244,
+      "portal": "g15:22",
+      "quadrature_mean_bound_s": 1.812318603681872,
+      "variance_loss_s2": 0.30538663844547564
+    },
+    "59": {
+      "atoms": [
+        {
+          "delay_s": 1.5180390979278482,
+          "maximum_s": 1.9409427796392038,
+          "minimum_s": 0.38301296537699836,
+          "portal": "g13:17",
+          "weight": 0.004298165390350334
+        },
+        {
+          "delay_s": 3.562889867896449,
+          "maximum_s": 3.8818855592782575,
+          "minimum_s": 2.681090757638779,
+          "portal": "g13:17",
+          "weight": 0.0037243236634571107
+        },
+        {
+          "delay_s": 5.219853245930364,
+          "maximum_s": 5.981715224410182,
+          "minimum_s": 4.213142619146668,
+          "portal": "g13:17",
+          "weight": 0.008888899205496709
+        },
+        {
+          "delay_s": 6.801297477464265,
+          "maximum_s": 7.763771118556693,
+          "minimum_s": 6.31887182651865,
+          "portal": "g13:17",
+          "weight": 0.01216140091265415
+        },
+        {
+          "delay_s": 9.15923176777214,
+          "maximum_s": 9.940296576624643,
+          "minimum_s": 8.331590215001668,
+          "portal": "g13:17",
+          "weight": 0.022745886660618667
+        },
+        {
+          "delay_s": 10.897466692629154,
+          "maximum_s": 11.993408693065307,
+          "minimum_s": 10.140505325554496,
+          "portal": "g13:17",
+          "weight": 0.015885724576111235
+        },
+        {
+          "delay_s": 13.05969667371671,
+          "maximum_s": 13.869277449978636,
+          "minimum_s": 12.221054681565551,
+          "portal": "g13:17",
+          "weight": 0.02974271203123289
+        },
+        {
+          "delay_s": 15.176512384400462,
+          "maximum_s": 15.992377775228922,
+          "minimum_s": 14.13726058246873,
+          "portal": "g13:17",
+          "weight": 0.022038730040433278
+        },
+        {
+          "delay_s": 17.106754737169812,
+          "maximum_s": 17.984012435156487,
+          "minimum_s": 16.005311236514675,
+          "portal": "g13:17",
+          "weight": 0.04561379309183031
+        },
+        {
+          "delay_s": 19.317389606943287,
+          "maximum_s": 19.89369189833816,
+          "minimum_s": 18.134778056007356,
+          "portal": "g13:17",
+          "weight": 0.032038078938806135
+        },
+        {
+          "delay_s": 21.170046156176102,
+          "maximum_s": 21.978126535536806,
+          "minimum_s": 20.084692580121594,
+          "portal": "g13:17",
+          "weight": 0.04474085552888461
+        },
+        {
+          "delay_s": 23.123887126576886,
+          "maximum_s": 23.986817386130557,
+          "minimum_s": 22.120057846393138,
+          "portal": "g13:17",
+          "weight": 0.024132580367513822
+        },
+        {
+          "delay_s": 24.908600213931983,
+          "maximum_s": 25.89040355881977,
+          "minimum_s": 24.037800585308897,
+          "portal": "g13:17",
+          "weight": 0.06456449007894961
+        },
+        {
+          "delay_s": 27.053171001566508,
+          "maximum_s": 27.89158363780034,
+          "minimum_s": 26.254477717691138,
+          "portal": "g13:17",
+          "weight": 0.04657696844587497
+        },
+        {
+          "delay_s": 28.98706321641878,
+          "maximum_s": 29.974314069052845,
+          "minimum_s": 28.07858849014317,
+          "portal": "g13:17",
+          "weight": 0.06300354551364729
+        },
+        {
+          "delay_s": 31.13705946056881,
+          "maximum_s": 31.97800058531245,
+          "minimum_s": 30.011309210946468,
+          "portal": "g13:17",
+          "weight": 0.05104067401546473
+        },
+        {
+          "delay_s": 33.047480153774764,
+          "maximum_s": 33.95122917480053,
+          "minimum_s": 32.01981296786191,
+          "portal": "g13:17",
+          "weight": 0.07448045326861631
+        },
+        {
+          "delay_s": 34.914201999648625,
+          "maximum_s": 35.63222978124762,
+          "minimum_s": 34.06501163101916,
+          "portal": "g13:17",
+          "weight": 0.0323883809393979
+        },
+        {
+          "delay_s": 36.869304902699504,
+          "maximum_s": 37.95128542701467,
+          "minimum_s": 36.02554147186523,
+          "portal": "g13:17",
+          "weight": 0.08451466537521414
+        },
+        {
+          "delay_s": 38.839355327240305,
+          "maximum_s": 39.847620055811,
+          "minimum_s": 38.02014892509154,
+          "portal": "g13:17",
+          "weight": 0.06338299736441173
+        },
+        {
+          "delay_s": 40.802525367181836,
+          "maximum_s": 41.800024924149106,
+          "minimum_s": 40.05310809751813,
+          "portal": "g13:17",
+          "weight": 0.05648776516660862
+        },
+        {
+          "delay_s": 43.17917841874867,
+          "maximum_s": 43.92007117978803,
+          "minimum_s": 42.30372231866811,
+          "portal": "g13:17",
+          "weight": 0.049164907271131285
+        },
+        {
+          "delay_s": 45.189016450289174,
+          "maximum_s": 45.97183938226594,
+          "minimum_s": 44.13435206470025,
+          "portal": "g13:17",
+          "weight": 0.05515225392089709
+        },
+        {
+          "delay_s": 46.93130724110475,
+          "maximum_s": 47.41321164403787,
+          "minimum_s": 46.162206228919935,
+          "portal": "g13:17",
+          "weight": 0.027688894874197796
+        },
+        {
+          "delay_s": 48.49435951775571,
+          "maximum_s": 48.985852904644716,
+          "minimum_s": 48.197848853719044,
+          "portal": "g13:17",
+          "weight": 0.02314080554530309
+        },
+        {
+          "delay_s": 50.707743426832984,
+          "maximum_s": 51.57856361664186,
+          "minimum_s": 50.097670367497,
+          "portal": "g13:17",
+          "weight": 0.021854466197099725
+        },
+        {
+          "delay_s": 52.81433888279651,
+          "maximum_s": 53.28759887804334,
+          "minimum_s": 52.146582108381814,
+          "portal": "g13:17",
+          "weight": 0.008806106406770235
+        },
+        {
+          "delay_s": 55.22426359109296,
+          "maximum_s": 55.78073072129318,
+          "minimum_s": 54.66779646089274,
+          "portal": "g13:17",
+          "weight": 0.005870737604513474
+        },
+        {
+          "delay_s": 56.356732767016375,
+          "maximum_s": 56.356732767016375,
+          "minimum_s": 56.356732767016375,
+          "portal": "g13:17",
+          "weight": 0.0029353688022567626
+        },
+        {
+          "delay_s": 58.87075461177487,
+          "maximum_s": 58.87075461177487,
+          "minimum_s": 58.87075461177487,
+          "portal": "g13:17",
+          "weight": 0.002935368802256763
+        }
+      ],
+      "bin_s": 2.0,
+      "block": "59",
+      "compressed_variance_s2": 140.10923699703855,
+      "input_samples": 384,
+      "max_pointwise_compression_s": 1.1826115509359312,
+      "mean_absolute_compression_s": 0.4919407904644238,
+      "mean_s": 31.18884178278778,
+      "measure": "uniform planar area; not resident microdata",
+      "old_point_length_m": 64.88640032702983,
+      "original_variance_s2": 140.4341517642359,
+      "portal": "g13:17",
+      "quadrature_mean_bound_s": 2.027149229435072,
+      "variance_loss_s2": 0.3249147671973797
+    }
+  },
+  "public_groups": 7,
+  "removed_private_links": [
+    "private:109:out",
+    "private:59:in"
+  ],
+  "route": "0:3:109>59",
+  "scope": "One inherited city route; frozen signal plans and fixed route; no full-city traffic or performance claim",
+  "simulated_vehicle_equivalents": 2.0
+}

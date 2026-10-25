@@ -37,17 +37,15 @@ def test_ci_constraints_pin_every_verdict_bearing_direct_dependency() -> None:
     assert {name: pins.get(name) for name in _REQUIRED_PINS} == _REQUIRED_PINS
 
 
-def test_every_ci_install_consumes_constraints_on_one_python_patch() -> None:
+def test_every_ci_install_consumes_constraints_on_supported_python_patches() -> None:
     """A job bypassing the constraints would make the final aggregate non-frozen."""
-    workflow = (_REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(
-        encoding="utf-8"
-    )
+    workflow = (_REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
 
     assert "ubuntu-latest" not in workflow
-    assert workflow.count("runs-on: ubuntu-24.04") == 5
+    assert workflow.count("runs-on: ubuntu-24.04") == 6
     assert workflow.count('python-version: "3.12.14"') == 4
     assert not re.search(r"uses: actions/(?:checkout|setup-python)@v\d", workflow)
-    assert len(re.findall(r"uses: actions/(?:checkout|setup-python)@[0-9a-f]{40}", workflow)) == 8
+    assert len(re.findall(r"uses: actions/(?:checkout|setup-python)@[0-9a-f]{40}", workflow)) == 10
     assert workflow.count("fetch-depth: 0") == 4, (
         "historical provenance tests require the reachable Git history in every checkout"
     )
@@ -59,3 +57,17 @@ def test_every_ci_install_consumes_constraints_on_one_python_patch() -> None:
     ]
     assert len(editable_installs) == 3
     assert all("-c ci-constraints.txt" in line for line in editable_installs)
+
+
+def test_v1_matrix_keeps_legacy_frozen_jobs_and_installed_package_probe() -> None:
+    workflow = (_REPO_ROOT / ".github/workflows/ci.yml").read_text()
+    assert 'python: ["3.12.14", "3.13.16"]' in workflow
+    assert "python-version: ${{ matrix.python }}" in workflow
+    assert "working-directory: ${{ runner.temp }}" in workflow
+    assert "V1_RESULT: ${{ needs.v1-integration.result }}" in workflow
+    assert '"$V1_RESULT"' in workflow
+    assert all(
+        "-c ci-constraints.txt" in line
+        for line in workflow.splitlines()
+        if "python -m pip install" in line or "python -m pip wheel" in line
+    )
