@@ -5,6 +5,8 @@
 - 공개 API: `metroflow.v1`의 접근법칙·여정·PacketNetwork.
 - 설치 진입점: `metroflow-v1 capabilities` 또는 `python -m metroflow.v1 capabilities`.
   이는 지원 API를 조회하며 아직 미구현인 하루 시뮬레이션 실행기로 오인시키지 않는다.
+- 검증 전 해당 venv에 `python -m pip install -e ".[dev]"`로 패키지를 설치한다.
+  pytest의 pythonpath 설정만으로는 자식 Python의 import 경로가 설정되지 않는다.
 - 전체 호환 프로필: `python -m pytest -q` (기존 공용 conftest 사용).
 - V1 프로필: `python -m pytest -q tests/v1 tests/test_v1_access.py tests/test_v1_birth_contract.py tests/test_v1_journey.py tests/test_v1_plan.py tests/test_packet_quotient.py tests/test_area_observables.py`.
 - 독립 import: `PYTHONPATH=src python -S -c "import metroflow.v1"`.

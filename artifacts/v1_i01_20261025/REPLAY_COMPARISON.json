@@ -1,0 +1,50 @@
+[
+  {
+    "case": "zero_access_control",
+    "keys": [
+      "case",
+      "completed",
+      "destination_mean_s",
+      "destination_records",
+      "max_residence_residual",
+      "mean_journey_s",
+      "origin_mean_s",
+      "origin_records",
+      "peak_records",
+      "per_car_records",
+      "released",
+      "remaining",
+      "residence_vehicle_seconds",
+      "road_source_wait_seconds",
+      "road_transfer_hold_seconds",
+      "status",
+      "time_s",
+      "traffic_records"
+    ],
+    "equal": true
+  },
+  {
+    "case": "area_access",
+    "keys": [
+      "case",
+      "completed",
+      "destination_mean_s",
+      "destination_records",
+      "max_residence_residual",
+      "mean_journey_s",
+      "origin_mean_s",
+      "origin_records",
+      "peak_records",
+      "per_car_records",
+      "released",
+      "remaining",
+      "residence_vehicle_seconds",
+      "road_source_wait_seconds",
+      "road_transfer_hold_seconds",
+      "status",
+      "time_s",
+      "traffic_records"
+    ],
+    "equal": true
+  }
+]
