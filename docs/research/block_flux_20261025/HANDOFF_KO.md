@@ -1,0 +1,13 @@
+# 다음 재개점
+
+repo cosmosapjw-quantum/urban_traffic_demo, branch research/atlas-block-flux-20261025. Base atlas1fff1b5666aaef20313686d8916e1e22dd223916. 지도bd743fefe0d6dece7894348f1fe2722a3a25c95d, 교통8d7182344c0b7184de026f4c5e5a335289a526c2. 최종감사HEAD는실제ref와PUBLICATION.json을읽는다.
+
+AGENTS와docs/research/block_flux_20261025/SUMMARY_KO.md,artifacts/block_flux_20261025/FINAL_RECEIPT.json을읽는다. 전수과거감사를반복하지말고현재물리의영향의존성만확인한다. 부모source88파일은바이트불변이다.
+
+이번연결은Atlas polygon안의private access와신규점유1500명의generic visit150veh를common-clock network로실행한것이다. 같은100k배경의다른주민은시뮬레이션하지않았다.40kjobs는attractor이지추가취업가능한일자리배정이아니다. 블록한점표현과짧은접근선선호가인구집중을만드는한계가있다. 새간선망생성/도시경제/전일교통완성이아니다.
+
+Ordered network는OLD공간예약과end-boundary이관을한다. 물리적source대기와수치적transferholding을분리하며I_system=sum I_road+I_source+I_transfer를항상검사한다. FIFO는선언된동종공유lane-group의batch순서이고,합류시연속서브질량전체의perfectnetworkFIFO는증명하지않았다. road내부shock와pairgapclosure는미통합. 경로는free-flow계획후고정;유한정보동적routebrain은기존코드에남아있으나새reference에는미통합이다.
+
+하천39groups/6routes150veh는1676s전량완료;계곡2400s요청은hosttimeout,별도120s관측(102groups/18routes)은완료2.73342,active70.9794,pending76.2872로저장됐다. 계곡을전량완료로계승하지않는다.215tests는150/44/21의분리exit0합이며전체repoCI아니다. Full singlecommand는hosttimeout으로제외했다.
+
+다음은실제도착구간의시간순서를더유지하는nodehandoff와clock의multirate화를비교하는한정단위다. 같은질량·공급·길이·체류장부와source입력을고정하고단순dt오차삭제로성공을선언하지말라. 지도는multipleactivityanchors/doors와block내부이동분포를추가할때공사효율점수편향을검사한다. 선언된과학질문마다작은반례→구현→실행→expectedSHA게시를진행한다. mainmerge/개별차량도시default/JAX/GPU/게임우월성선언은하지않는다.

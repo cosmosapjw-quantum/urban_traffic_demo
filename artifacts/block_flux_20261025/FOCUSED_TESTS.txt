@@ -1,0 +1,18 @@
+CPython 3.13.5; isolated delivered workspace; full repository CI NOT_RUN.
+
+TESTS_NUMERIC.txt; exit0
+........................................................................ [ 48%]
+........................................................................ [ 96%]
+......                                                                   [100%]
+150 passed in 10.24s
+
+TESTS_MAP_PARENT.txt; exit0
+............................................                             [100%]
+44 passed in 17.61s
+
+TESTS_ATLAS.txt; exit0
+.....................                                                    [100%]
+21 passed in 15.77s
+
+Unique total: 150+44+21=215; 198 parent+17 new; includes 12 parent reference tests.
+Single full-suite call reached host timeout and is not counted as a pass.
