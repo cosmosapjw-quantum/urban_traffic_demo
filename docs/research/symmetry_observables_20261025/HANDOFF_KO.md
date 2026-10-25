@@ -1,0 +1,13 @@
+# 다음 재개점
+
+repo cosmosapjw-quantum/urban_traffic_demo, branch research/symmetry-measure-packets-20261025. 부모1964acf5883baafdc7204d41c9575a1e9f7744d0, map1bfb3f589403e7ff187cf684e19b7f05d8db11e5, trafficbf2325d1d9b6146fe79290d9ddf9ca5069280c6c. 최종HEAD는실제ref와PUBLICATION.json을확인한다.
+
+AGENTS,docs/research/symmetry_observables_20261025/SUMMARY_KO.md,artifacts/symmetry_observables_20261025/FINAL_RECEIPT.json을읽는다. 독립subagent는NOT_RUN이며이번234시험은부모215+새19,standalone부모reference12포함이다. 전체repoCI/실측/전일100k는미수행. 부모97개Python파일은바이트불변이다.
+
+정초: 물리대칭은고정환경/관측조건에서만,passive좌표공변과구분한다. ID/경계표현/같은법칙의질량조각은표현동등관계다. 시간격자/면적분포/혼합closure변경은gauge가아니다. 보존량이같아도관측은다를수있다. 부모ID합류반례는평균4.46/7.74가이름교체로바뀌며총체류12.2는같다.
+
+새AreaAccess는uniform planar area와geodesic portal time을계산한다. 정확한모멘트와평균Lipschitz오차상한을분리한다. 하천block109의부모점접근23.07m와면적평균142.66±9.06m는서로다른측도이지실측오류교정이아니다. Portal2개제안은공사완료/고유최적해가아니다. 경계도로와블록은변경하지않았다.
+
+새PacketNetwork는동일수치경계의exchangeablemixing이라는명시적추가가정위에서fragmentquotient를한다. olderpacketFIFO와blockedmixedturn을보존하며tag는관측용이다. 동일route/law/target의mass,birth1차moment합침은정확하지만agequantile나age-dependentcontrol은닫히지않는다. 39group/6route300s도시대조는미완료;새완료1.79951veh,active56.24512,pending91.95537. 배경100k는수송하지않았다. map면적분포를아직citydemand에재주입하지않았다.
+
+다음작업은substep입장시간을얼마나보존할지와혼합packet기록증가를동일input에서비교하는한정질문이다. 후보조건마다QF=FbarQ가유지되는관측을명시하고,실제다른시각을합치는것은근사로평가한다. 지도는uniformarea를building/activity가중으로바꿀때새관측모형의증거와오차를분리하라. 비용에새내부시간을넣을때부모privateaccess를중복더하지말라. 단계별expectedSHA게시,mainmerge금지,순수Python/JAX없음/차량별도시default없음.

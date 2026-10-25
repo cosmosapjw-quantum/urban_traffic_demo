@@ -1,0 +1,10 @@
+CPython3.13.5; isolated delivered workspace; exact command/file lists in bundle FINAL_TESTS_*.json.
+Numeric: 150 passed in6.91s, exit0.
+Map: 63 passed in14.36s, exit0.
+Atlas: 21 passed in12.13s, exit0.
+Disjoint unique total234 = parent215 + new19. Includes12 parent reference tests, not whole repositoryCI.
+New focused run: tests/test_area_observables.py tests/test_packet_quotient.py ->19 passed in0.19s.
+Parent97 Python files SHA256 unchanged.
+python -S imports: site_imported=False; numpy/scipy/jax/torch/numba loaded=[] .
+python -S -m compileall -q src tools tests: exit0.
+Native independent subagent: NOT_RUN. Empirical calibration/full-day100k: NOT_RUN.
