@@ -1,0 +1,9 @@
+CPython 3.13.5; isolated delivered workspace, not full repository CI.
+Numeric 156 passed in 11.46s, exit0.
+Map 79 passed in 27.92s, exit0.
+Atlas 21 passed in 19.23s, exit0.
+Unique total 256 = parent234 + new22. Includes12 parent-reference tests.
+After final plan normalization, affected V1+packet tests:33 passed, exit0.
+Plan structural validation PASS; release validation EXPECTED BLOCKED exit2.
+Scientific replay matches excluding wall clock time. compileall/python-S imports/stdlib AST pass.
+103/104 original Python files unchanged. packet_network.py changes source birth accounting only.
