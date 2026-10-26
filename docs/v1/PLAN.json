@@ -880,7 +880,7 @@
         "title": "[V1 D01] 10만 주민의 집단별 하루 활동·수요 장부",
         "branch": "v1/d01-daily-demand-20261026",
         "base": "v1/m03-activity-access-20261026",
-        "opened_number": null
+        "opened_number": 28
       },
       "implementation_parent": {
         "node": "M03",
