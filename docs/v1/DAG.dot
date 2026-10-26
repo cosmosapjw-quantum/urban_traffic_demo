@@ -14,7 +14,7 @@ T03 [label="T03\nLane groups and nodes", style="rounded,bold"];
 T04 [label="T04\nTime and flux transport", style="rounded,bold"];
 R01 [label="R01\nCausal information", style="rounded,bold"];
 R02 [label="R02\nCommitted routing", style="rounded,bold"];
-B01 [label="B01\nBus and freight", style="rounded,dashed"];
+B01 [label="B01\nBus and freight", style="rounded,bold"];
 C01 [label="C01\nWorld and scheduler", style="rounded,dashed"];
 M04 [label="M04\nLagged development", style="rounded,dashed"];
 C02 [label="C02\nFull-day scenarios", style="rounded,dashed"];
