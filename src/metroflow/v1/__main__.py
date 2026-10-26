@@ -30,7 +30,7 @@ def main():
     physics.add_argument("--suite", choices=("kinetic", "junctions", "timing", "routing"), required=True)
     physics.add_argument("--out", type=Path)
     run = commands.add_parser("run")
-    run.add_argument("--scenario", choices=("toy_day",), required=True)
+    run.add_argument("--scenario", choices=("toy_day", "lagged_growth_control"), required=True)
     run.add_argument("--resume-check", action="store_true")
     run.add_argument("--checkpoint", type=Path)
     run.add_argument("--resume", type=Path)
@@ -46,7 +46,12 @@ def main():
         )
         return 0
     try:
-        if args.command == "run":
+        if args.command == "run" and args.scenario == "lagged_growth_control":
+            if args.resume or args.resume_check or args.checkpoint:
+                raise ValueError("growth control does not expose toy traffic resume options")
+            from .development import lagged_growth_control
+            rows = lagged_growth_control()
+        elif args.command == "run":
             from .runtime import toy_runtime
             from .checkpoint import save_checkpoint, load_checkpoint
             import tempfile

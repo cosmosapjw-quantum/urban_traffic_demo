@@ -1,0 +1,52 @@
+{
+  "status": "M04_VERIFIED_SCOPED_FINAL_REVIEW_DEFERRED",
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "focused_tests": 13,
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/v1/test_lagged_growth.py tests/v1/test_activity_access.py tests/v1/test_daily_demand.py",
+      "python": "3.12.14",
+      "result": "36 passed",
+      "exit_code": 0,
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "command": "python -m pytest -q tests/v1/test_lagged_growth.py tests/v1/test_activity_access.py tests/v1/test_daily_demand.py",
+      "python": "3.13.16",
+      "result": "36 passed",
+      "exit_code": 0,
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "ruff check owned source/tests",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    },
+    {
+      "command": "python call lagged_growth_control()",
+      "exit_code": 0,
+      "raw": "CONTROL.json"
+    }
+  ],
+  "verified": [
+    "strict previous completed epoch; stale city version and same tick rejected",
+    "canonical next city and actual D01 demand resident stock1000 to1010",
+    "original residents preserved absent explicit recorded CohortMove",
+    "explicit two-block move1900 total conserved",
+    "capacity/budget excess pending; no population deletion",
+    "negative/nonfinite forged entry cost and original state stock rejected",
+    "actual T04 baseline1000m vs synthetic100m bypass outlet observations drive delayed policy"
+  ],
+  "scope": [
+    "shortened-link bypass is synthetic, not bridge geometry certification",
+    "conditional completed sample means are development indicator, not whole-population ETA",
+    "registered existing blocks only; capacity expansion is declared policy not new polygon construction",
+    "full daily runtime demand/traffic application belongs toC02",
+    "no price equilibrium, endogenous migration or full CI/integration"
+  ],
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER",
+  "corrections": [
+    "valid movement fixture Block.xy field corrected from nonexistent centroid before final verification"
+  ]
+}

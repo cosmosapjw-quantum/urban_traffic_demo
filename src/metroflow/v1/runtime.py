@@ -41,6 +41,9 @@ class WorldState:
     decisions: tuple = ()
     city_snapshot_json: str | None = None
     trip_schedule: object = None
+    growth_state: object = None
+    growth_snapshot: object = None
+    growth_increment: int = 0
     next_medium_s: float = 5.0
     next_slow_s: float = 10.0
     observation_cursor_s: float = 0.0
@@ -49,7 +52,7 @@ class WorldState:
 class Runtime:
     def __init__(self, transport, information, routing, preference, *, city_identity,
                  demand_identity, origin, destination, medium_s=5.0, slow_s=10.0,
-                 record_budget=10000, city_snapshot=None, trip_schedule=None):
+                 record_budget=10000, city_snapshot=None, trip_schedule=None, growth_model=None):
         if (any(not math.isfinite(x) or x <= 0 for x in (medium_s, slow_s))
                 or not city_identity or not demand_identity or not origin or not destination
                 or isinstance(record_budget, bool) or not isinstance(record_budget, int)
@@ -61,6 +64,11 @@ class Runtime:
                 or trip_schedule.city_identity != city_identity):
             reject('TripSchedule identity differs', 'CONTRACT_ERROR')
         self.city_json = json.dumps(city_snapshot.to_dict(), sort_keys=True) if city_snapshot else None
+        if growth_model is not None and growth_model.city.identity != city_identity:
+            reject("growth city identity differs", "CONTRACT_ERROR")
+        if growth_model is not None and growth_model.slow_epoch_s != slow_s:
+            reject("growth and runtime slow clocks differ", "CONTRACT_ERROR")
+        self.growth_model = growth_model
         self.trip_schedule = trip_schedule
         self.transport, self.information, self.routing = transport, information, routing
         self.preference = preference
@@ -68,7 +76,7 @@ class Runtime:
         self.origin, self.destination = origin, destination
         self.medium_s, self.slow_s, self.record_budget = medium_s, slow_s, record_budget
         self.identity = hashlib.sha256(json.dumps(dict(
-            policy='C01_atomic_phases_v1', transport=transport.identity,
+            policy='C01_atomic_phases_v1', growth=growth_model.identity if growth_model else None, transport=transport.identity,
             information=information.identity, routing=routing.identity,
             preference=asdict(preference), city=city_identity, demand=demand_identity,
             origin=origin, destination=destination, medium=medium_s, slow=slow_s,
@@ -80,6 +88,7 @@ class Runtime:
         return WorldState(self.identity, self.city_identity, self.demand_identity,
                           self.transport.initial(), self.information.initial(), self.routing.initial(),
                           snapshot, snapshot, city_snapshot_json=self.city_json, trip_schedule=self.trip_schedule,
+                          growth_state=self.growth_model.initial() if self.growth_model else None,
                           next_medium_s=self.medium_s, next_slow_s=self.slow_s)
 
     def check(self, state):
@@ -88,6 +97,10 @@ class Runtime:
                 or state.routing.model_id != self.routing.identity
                 or state.city_snapshot_json != self.city_json or state.trip_schedule != self.trip_schedule):
             reject('world input/configuration identity mismatch', 'CONTRACT_ERROR')
+        if self.growth_model is not None:
+            self.growth_model.check(state.growth_state)
+        elif state.growth_state is not None or state.growth_snapshot is not None:
+            reject("growth state without configured owner", "CONTRACT_ERROR")
         self.transport.check(state.traffic)
         self.information.check(state.information)
         now = state.traffic.road.time_s
@@ -95,6 +108,17 @@ class Runtime:
                 or state.next_slow_s <= now or state.observation_cursor_s > now
                 or state.accessibility.stamp_s > now or state.slow_input.stamp_s > now):
             reject('invalid world phase checkpoint', 'CONTRACT_ERROR')
+
+    def publish_growth_input(self, state, snapshot, *, requested_increment=0):
+        self.check(state)
+        if (self.growth_model is None or snapshot.city_identity != self.growth_model.materialize_city(state.growth_state).identity
+                or snapshot.stamp_s > state.traffic.road.time_s
+                or isinstance(requested_increment, bool) or not isinstance(requested_increment, int)
+                or requested_increment < 0):
+            reject('invalid frozen spatial growth input', 'CONTRACT_ERROR')
+        if state.growth_increment:
+            reject('unconsumed growth request must be retained', 'CONTRACT_ERROR')
+        return replace(state, growth_snapshot=snapshot, growth_increment=requested_increment)
 
     def advance(self, state, until_s, *, reports=()):
         """Atomic per call: any failure attaches the complete input world checkpoint.
@@ -136,6 +160,12 @@ class Runtime:
                         next_medium_s=current.next_medium_s + self.medium_s,
                         journal=updated.journal + (PhaseEvent(tick, 'medium', previous.stamp_s),))
                 if tick == current.next_slow_s:
+                    if self.growth_model is not None:
+                        if current.growth_snapshot is None:
+                            reject("completed spatial growth input required", "CONTRACT_ERROR")
+                        growth = self.growth_model.advance(current.growth_state, current.growth_snapshot,
+                            tick, requested_increment=current.growth_increment)
+                        updated = replace(updated, growth_state=growth, growth_increment=0)
                     updated = replace(updated, slow_input=previous,
                         next_slow_s=current.next_slow_s + self.slow_s,
                         journal=updated.journal + (PhaseEvent(tick, 'slow', previous.stamp_s),))

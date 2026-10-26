@@ -1,0 +1,8 @@
+{
+  "files": {
+    "src/metroflow/v1/accessibility.py": "4da997f381e927a9868619be34b4a7d98e47e37f7330a2f69d16d1af128022ee",
+    "src/metroflow/v1/development.py": "3f5e95e52673a87a16f5ca5eed0ccf5b3d1044692267656c4b7b84a1d4fac772",
+    "tests/v1/test_lagged_growth.py": "6e3a633b55bb4add02eeea32f0e4eb1630d8206564ff96e10a2decaf3240bafe",
+    "docs/v1/m04/GROWTH_KO.md": "1b8068934565f9d23faea7b00877fafdd6d7c09074db666fbab7e6c68aead336"
+  }
+}

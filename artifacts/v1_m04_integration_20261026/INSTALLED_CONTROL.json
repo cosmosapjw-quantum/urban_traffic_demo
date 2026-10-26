@@ -1,0 +1,19 @@
+{
+  "cases": [
+    {
+      "case": "bridge_bypass_lag",
+      "construction_m": 14.142135623730951,
+      "first_pending": 10,
+      "new_residents": 1010,
+      "next_demand_city_identity": "fd4df0d4c0e96ace49a848e60c84563a61de8c51f6a6f9da03f59cd7fe232778",
+      "next_demand_identity": "ca88b674fb98f481e594d29e23730fa61cbe861afec6ceaaee391cc4209ac589",
+      "original_residents": 1000,
+      "realized_baseline_s": 100.10500000000002,
+      "realized_bypass_s": 10.105000000000473,
+      "second_pending": 0,
+      "status": "PASS"
+    }
+  ],
+  "python": "3.12.14",
+  "status": "PASS"
+}
