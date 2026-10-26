@@ -101,7 +101,15 @@ def validate(plan, release=False):
         if any(c not in plan["contracts"] for c in n["contracts"]):
             raise ValueError("unknown contract")
         if n["pr"]["base"] != plan["integration_branch"]:
-            raise ValueError("PR target drift")
+            parent = n.get("implementation_parent", {})
+            if (
+                plan["execution_policy"].get("implementation_mode") != "stacked_scoped_then_review"
+                or parent.get("node") not in by
+                or parent.get("branch") != n["pr"]["base"]
+                or by[parent["node"]]["pr"]["branch"] != parent["branch"]
+                or len(parent.get("sha", "")) != 40
+            ):
+                raise ValueError("PR target drift")
     visited = set()
     active = set()
     order = []
@@ -125,9 +133,31 @@ def validate(plan, release=False):
             raise ValueError("unmapped requirement or gate")
     if len({n["pr"]["key"] for n in nodes}) != len(nodes):
         raise ValueError("duplicate logical PR key")
+    if plan["execution_policy"].get("implementation_mode") == "stacked_scoped_then_review":
+        for n in nodes:
+            if n["status"] not in ("IN_PROGRESS", "VERIFIED_SCOPED"):
+                continue
+            for key in n["depends_on"]:
+                parent = by[key]
+                if parent["status"] == "ACCEPTED":
+                    continue
+                proof = parent.get("verification_receipt", {})
+                path = (ROOT / proof.get("path", "")).resolve()
+                if (
+                    parent["status"] != "VERIFIED_SCOPED"
+                    or not path.is_relative_to(ROOT)
+                    or not path.is_file()
+                    or hashlib.sha256(path.read_bytes()).hexdigest() != proof.get("sha256")
+                ):
+                    raise ValueError("implementation dependency lacks scoped evidence: " + key)
     next_id = plan.get("next_node")
     if next_id is None:
-        if any(n["status"] != "ACCEPTED" for n in nodes):
+        allowed = (
+            {"ACCEPTED", "VERIFIED_SCOPED"}
+            if plan["execution_policy"].get("implementation_mode") == "stacked_scoped_then_review"
+            else {"ACCEPTED"}
+        )
+        if any(n["status"] not in allowed for n in nodes):
             raise ValueError("unfinished plan needs a next node")
     elif next_id not in by or by[next_id]["status"] == "ACCEPTED":
         raise ValueError("invalid next node")
@@ -311,7 +341,7 @@ def render_prs(p):
     text = [
         "# V1 PR 작업표\n",
         "`PLAN.json`에서 생성. 논리 PR key는 GitHub PR 번호가 아니다. 미래 PR을 실제 생성했다고 표시하지 않는다.\n",
-        "초기 P00/M01/T01와 I01 수용은 하나의 bootstrap PR에 들어간다. 그 외는 의존 PR이 통합된 뒤 한 노드씩 실행한다.\n",
+        p["execution_policy"]["pr_process"] + "\n",
         "|키|제목|의존|branch|base|\n|---|---|---|---|---|",
     ]
     for n in p["nodes"]:
@@ -370,7 +400,8 @@ def main():
             print(
                 json.dumps(
                     dict(
-                        node=None, instruction="V1 계획 종료. 새 작업은 별도 승인 계획이 필요하다."
+                        node=None,
+                        instruction="DAG 구현 단계 종료. 미수용 노드가 있으면 별도 심사 후 전체 CI·통합을 진행한다. 새 작업은 별도 승인 계획이 필요하다.",
                     ),
                     ensure_ascii=False,
                 )
@@ -386,7 +417,7 @@ def main():
                     instruction=(
                         "같은 bootstrap PR에서 전체 저장소/3.12·3.13 수용을 실행한다. 병합 전 새 기능 PR을 선행하지 않는다."
                         if n["id"] in p["bootstrap_pr_scope"]
-                        else "선행 노드의 ACCEPTED 증거를 확인하고 이 노드의 계약·파일·시험만 실행한다."
+                        else p["execution_policy"]["dependency_rule"]
                     ),
                     tests=n["tests"],
                     acceptance=n["acceptance"],

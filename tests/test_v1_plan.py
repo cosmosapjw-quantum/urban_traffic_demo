@@ -79,3 +79,25 @@ def test_status_labels_alone_do_not_forge_a_release():
     p["next_node"] = None
     with pytest.raises(ValueError, match="missing receipt"):
         mod.validate(p, release=True)
+
+
+def test_stacked_implementation_is_not_integration_or_acceptance():
+    p = plan()
+    assert p["execution_policy"]["implementation_mode"] == "stacked_scoped_then_review"
+    m03 = next(n for n in p["nodes"] if n["id"] == "M03")
+    assert m03["status"] == "VERIFIED_SCOPED"
+    assert "integration_evidence" not in m03
+    child = next(n for n in p["nodes"] if n["id"] == "D01")
+    assert child["pr"]["base"] == m03["pr"]["branch"]
+    assert child["implementation_parent"]["sha"] == "410b6f280347eb20b5bf0255755ec4674e233582"
+    m03["status"] = "BLOCKED"
+    with pytest.raises(ValueError, match="dependency lacks scoped evidence"):
+        mod.validate(p)
+
+
+def test_full_ci_is_deferred_for_v1_stacks_but_available_for_final_review():
+    text = (ROOT / ".github/workflows/ci.yml").read_text()
+    assert 'branches-ignore: ["v1/**"]' in text
+    assert 'branches-ignore: ["v1/**", "research/v1-integration-20261025"]' in text
+    assert "workflow_dispatch:" in text
+    assert plan()["current_execution"]["full_repository_ci"] == "DEFERRED_BY_USER"

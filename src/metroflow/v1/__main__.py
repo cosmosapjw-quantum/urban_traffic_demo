@@ -22,6 +22,10 @@ def main():
     access = commands.add_parser("access-audit")
     access.add_argument("--matrix", action="store_true", required=True)
     access.add_argument("--out", type=Path)
+    demand = commands.add_parser("demand-audit")
+    demand.add_argument("--population", type=int, default=100000)
+    demand.add_argument("--day", choices=("weekday", "weekend"), default="weekday")
+    demand.add_argument("--out", type=Path)
     args = parser.parse_args()
     if args.command == "capabilities":
         print(
@@ -32,8 +36,13 @@ def main():
         )
         return 0
     try:
-        if args.command == "access-audit":
+        if args.command == "demand-audit":
+            from .demand_audit import audit_demand
+
+            rows = [audit_demand(args.population, args.day)]
+        elif args.command == "access-audit":
             from .access_audit import access_matrix
+
             rows = access_matrix()
         elif args.matrix:
             rows = []

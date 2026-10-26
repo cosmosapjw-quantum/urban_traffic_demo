@@ -8,6 +8,24 @@ from .activity import ActivityMeasure, ActivityPatch, compile_activity, intrazon
 from .access import activity_access
 from .development import EntryPortal, compile_entry, select_entries
 
+from .demand import (
+    Amounts,
+    ModeShare,
+    Cohort,
+    TripLeg,
+    TripSchedule,
+    DemandLedger,
+    compile_daily_demand,
+    initial_ledger,
+    advance_requests,
+    release_trip,
+    complete_trip,
+    demand_report,
+    DepartureBatch,
+    iter_departures,
+)
+from .schedules import DepartureWindow, DepartureProfile
+
 
 __all__ = [
     "AccessLaw",
@@ -34,3 +52,22 @@ __all__ += [
     "compile_entry",
     "select_entries",
 ]
+
+__all__ += [
+    "Amounts",
+    "ModeShare",
+    "Cohort",
+    "TripLeg",
+    "TripSchedule",
+    "DemandLedger",
+    "compile_daily_demand",
+    "initial_ledger",
+    "advance_requests",
+    "release_trip",
+    "complete_trip",
+    "demand_report",
+    "DepartureWindow",
+    "DepartureProfile",
+]
+
+__all__ += ["DepartureBatch", "iter_departures"]

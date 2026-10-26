@@ -14,10 +14,12 @@ name: ci
 # checked rather than asserted, and a job nobody triggers leaves that claim
 # exactly as unenforced as the assertion it replaced.
 
+# Defer automatic full CI for V1 implementation stacks until separate review.
 on:
   push:
-    branches: ["**"]
+    branches-ignore: ["v1/**"]
   pull_request:
+    branches-ignore: ["v1/**", "research/v1-integration-20261025"]
   workflow_dispatch:
 
 permissions:
