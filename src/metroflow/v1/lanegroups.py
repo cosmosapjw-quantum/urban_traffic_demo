@@ -125,6 +125,8 @@ def packet_model(
     record_budget=10000,
     event_budget=10000,
     standing_gap_m=0.0,
+    motion=None,
+    preserve_entry_intervals=False,
 ):
     """Routes explicitly choose group IDs; no turn reallocation or lane guessing."""
     validate_signal_conflicts(contract.groups, contract.conflicts, dt_s)
@@ -139,6 +141,8 @@ def packet_model(
         space_capacities_m=dict(contract.spaces_m),
         standing_gap_m=standing_gap_m,
         event_budget=event_budget,
+        motion=motion,
+        preserve_entry_intervals=preserve_entry_intervals,
     )
     model.identity = hashlib.sha256(
         json.dumps(

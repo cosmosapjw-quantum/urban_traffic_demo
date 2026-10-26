@@ -1,0 +1,85 @@
+{
+  "status": "T04_VERIFIED_SCOPED_FINAL_REVIEW_DEFERRED",
+  "parent": {
+    "node": "T03",
+    "pr": 30,
+    "head_sha": "8b22aaab2c422b22a4b774964e04b79f25b1a1df",
+    "merged": false
+  },
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/v1/test_transfer_time.py tests/v1/test_nodes.py tests/test_packet_quotient.py tests/test_v1_birth_contract.py tests/test_v1_journey.py tests/v1/test_kinetic_closure.py tests/v1/test_city_contract.py tests/test_v1_plan.py tests/v1/test_repository_entrypoints.py",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "result": "95 passed",
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "command": "same scoped selection",
+      "python": "3.13.16",
+      "exit_code": 0,
+      "result": "95 passed",
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "python -m ruff check src tests tools",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    },
+    {
+      "command": "python -m metroflow.v1 physics-oracles --suite timing",
+      "exit_code": 0,
+      "raw": "TIMING_ORACLES.json",
+      "resources": "CLI_RESOURCES.json"
+    },
+    {
+      "command": "uv build --wheel; fresh no-deps wheel reinstall; installed CLI timing oracles outside checkout",
+      "exit_code": 0,
+      "raw": "INSTALLED_TIMING.json"
+    }
+  ],
+  "focused_tests": 18,
+  "acceptance": {
+    "same_input_210m_point_source": {
+      "analytic_zero_queue_s": 21.0,
+      "legacy_dt10_s": 41.005,
+      "selected_dt02_s": 21.405,
+      "selected_dt01_s": 21.205
+    },
+    "uniform_source_refinement": {
+      "dt02_mean_s": 21.501,
+      "dt01_mean_s": 21.2505,
+      "criterion": "underloaded error <=max(1s,2%)"
+    },
+    "overloaded_refinement": {
+      "demand_veh": 20,
+      "horizon_s": 30,
+      "source_receiving_veh_s": 0.5,
+      "curve_error_fraction": 0.0075,
+      "source_unfinished_error_fraction": 0.0025,
+      "destination_unfinished_error_fraction": 0.0075,
+      "criterion": "each <=2% of total demand"
+    },
+    "entry_time_and_representation": "nonoverlapping intervals retain FIFO; overlaps split on common endpoints; matching intervals/marks add exactly",
+    "conservation": "class/total mass, exact source birth moments, vehicle-seconds and outlet first moment checked",
+    "checkpoint_and_budget": "pickle roundtrip replay, point-source resume cursor, record/substep failures retain last valid state; <=2M record hard limit",
+    "eta": "same finite-response characteristic; current closure cap applied; motion ETA excludes node service queue",
+    "observations": "conditional completed mean; whole scheduled mean only after all complete; p95 unsupported"
+  },
+  "verification_corrections": [
+    "Updated Part compression key and interval metadata together after initial implementation mismatch",
+    "Anchored time grid and retained zero-duration numerical exit records without dropping positive mass",
+    "Canonicalized numeric flux fields for exact equivalent-source identity",
+    "Applied the actual current closure cap to link ETA; regression now passes"
+  ],
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "merge": "NOT_PERFORMED",
+  "limits": [
+    "Next-boundary source/transfer holding remains an explicit dt-refined approximation",
+    "Admission velocity/latent moment projection is a common-speed closure, not a microscopic safety theorem",
+    "Control schedules retain T03 base-grid alignment requirement",
+    "Exact p95 requires unresolved joint birth-exit distribution",
+    "Synthetic local fixtures and subprocess RSS do not establish 100k/24h city performance or final V1 acceptance"
+  ]
+}

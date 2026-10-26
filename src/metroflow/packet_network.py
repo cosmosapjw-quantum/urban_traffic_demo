@@ -26,6 +26,8 @@ class Part:
     remaining: tuple[str, ...]
     mass: float
     birth_moment: float
+    entry_start_s: float | None = None
+    entry_end_s: float | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -58,6 +60,8 @@ class Cell:
     entry_moment: float = 0.0
     exit_moment: float = 0.0
     vehicle_metres: float = 0.0
+    speed_mps: float = 0.0
+    latent: tuple[tuple[str, float], ...] = ()
 
     @property
     def occupancy(self):
@@ -117,21 +121,74 @@ def combine(parts):
     groups = defaultdict(list)
     for p in parts:
         if p.mass > 0:
-            groups[p.tag, p.remaining].append(p)
+            groups[p.tag, p.remaining, p.entry_start_s, p.entry_end_s].append(p)
     return tuple(
         Part(
-            tag, path, math.fsum(p.mass for p in values), math.fsum(p.birth_moment for p in values)
+            tag,
+            path,
+            math.fsum(p.mass for p in values),
+            math.fsum(p.birth_moment for p in values),
+            entry_start,
+            entry_end,
         )
-        for (tag, path), values in sorted(groups.items())
+        for (tag, path, entry_start, entry_end), values in sorted(
+            groups.items(),
+            key=lambda x: (
+                x[0][0],
+                x[0][1],
+                -1.0 if x[0][2] is None else x[0][2],
+                -1.0 if x[0][3] is None else x[0][3],
+            ),
+        )
     )
 
 
 def _portion(parts, fraction):
     return tuple(
-        Part(p.tag, p.remaining, p.mass * fraction, p.birth_moment * fraction)
+        replace(p, mass=p.mass * fraction, birth_moment=p.birth_moment * fraction)
         for p in parts
         if p.mass * fraction > 0
     )
+
+
+def interval_packets(parts, target_m, record_budget):
+    """Keep nonoverlapping entry intervals in FIFO order; mix only common slices.
+
+    Incoming piecewise-constant fluxes are split at all their endpoints. Point
+    admissions remain atoms. Birth first moments split proportionally within an
+    input flux mark, as in the exchangeable parent observation contract.
+    """
+    parts = tuple(parts)
+    edges = sorted({x for p in parts for x in (p.entry_start_s, p.entry_end_s)})
+    packets = []
+    records = 0
+    for k, a in enumerate(edges):
+        point = combine(p for p in parts if p.entry_start_s == p.entry_end_s == a)
+        if point:
+            records += len(point)
+            if records > record_budget:
+                raise BudgetExceeded("entry interval record budget")
+            packets.append(Packet(target_m, point))
+        if k + 1 == len(edges):
+            break
+        b = edges[k + 1]
+        segment = combine(
+            replace(
+                p,
+                mass=p.mass * (b - a) / (p.entry_end_s - p.entry_start_s),
+                birth_moment=p.birth_moment * (b - a) / (p.entry_end_s - p.entry_start_s),
+                entry_start_s=a,
+                entry_end_s=b,
+            )
+            for p in parts
+            if p.entry_start_s <= a and p.entry_end_s >= b and p.entry_end_s > p.entry_start_s
+        )
+        if segment:
+            records += len(segment)
+            if records > record_budget:
+                raise BudgetExceeded("entry interval record budget")
+            packets.append(Packet(target_m, segment))
+    return tuple(packets)
 
 
 def _rates(heads, sending, receiving, priorities):
@@ -185,6 +242,8 @@ class PacketNetwork:
         space_capacities_m=None,
         standing_gap_m=0.0,
         event_budget=None,
+        motion=None,
+        preserve_entry_intervals=False,
     ):
         parent = ParentNetwork(groups, routes, dt_s, windows, record_budget, allowed_turns)
         self.groups = parent.groups
@@ -206,6 +265,10 @@ class PacketNetwork:
         ):
             raise ValueError("positive integer junction event budget required")
         self.event_budget = event_budget
+        if motion is not None and not isinstance(getattr(motion, "identity", None), str):
+            raise ValueError("motion policy requires a frozen identity")
+        self.motion = motion
+        self.preserve_entry_intervals = bool(preserve_entry_intervals)
         self.vehicle_classes = MappingProxyType(dict(vehicle_classes or {}))
         self.space_capacities_m = MappingProxyType(dict(space_capacities_m or {}))
         self.standing_gap_m = standing_gap_m
@@ -227,14 +290,26 @@ class PacketNetwork:
             self.class_names = tuple(sorted(by_name))
         else:
             self.class_names = ()
-        if self.physical_storage or event_budget is not None:
+        if motion is not None and not self.physical_storage:
+            raise ValueError("finite-response motion requires physical class storage")
+        if (
+            self.physical_storage
+            or event_budget is not None
+            or preserve_entry_intervals
+            or motion is not None
+        ):
             payload = dict(
                 parent=self.identity,
                 classes={k: asdict(v) for k, v in self.vehicle_classes.items()},
                 space=dict(self.space_capacities_m),
                 gap=standing_gap_m,
                 event_budget=event_budget,
+                motion=motion.identity if motion else None,
+                entry_intervals=self.preserve_entry_intervals,
             )
+            if motion is None and not preserve_entry_intervals:
+                payload.pop("motion")
+                payload.pop("entry_intervals")
             self.identity = hashlib.sha256(
                 json.dumps(payload, sort_keys=True, allow_nan=False).encode()
             ).hexdigest()
@@ -313,7 +388,13 @@ class PacketNetwork:
         if any(not math.isfinite(v) or v < 0 for v in values):
             raise ValueError("invalid cumulative ledger")
         for i, (g, c, waiting) in enumerate(zip(self.groups, s.cells, s.pending)):
-            if not math.isfinite(c.progress_m) or not 0 <= c.activity <= 1:
+            if (
+                not math.isfinite(c.progress_m)
+                or not 0 <= c.activity <= 1
+                or not math.isfinite(c.speed_mps)
+                or c.speed_mps < 0
+                or any(not math.isfinite(v) or not 0 <= v <= 1 for _, v in c.latent)
+            ):
                 raise ValueError("invalid distance clock")
             if any(
                 not math.isfinite(v) or v < 0
@@ -342,6 +423,14 @@ class PacketNetwork:
                         or not 0 <= p.birth_moment <= p.mass * s.time_s + 1e-8
                     ):
                         raise ValueError("invalid homogeneous part")
+                    if (p.entry_start_s is None) != (p.entry_end_s is None) or (
+                        p.entry_start_s is not None
+                        and (
+                            not all(map(math.isfinite, (p.entry_start_s, p.entry_end_s)))
+                            or not 0 <= p.entry_start_s <= p.entry_end_s <= s.time_s + 1e-9
+                        )
+                    ):
+                        raise ValueError("invalid retained boundary interval")
                     full = self.routes[p.tag]
                     if not any(full[k:] == p.remaining for k in range(len(full))):
                         raise ValueError("non-route suffix")
@@ -421,16 +510,47 @@ class PacketNetwork:
         Current homogeneity makes a first moment sufficient for mean duration,
         not for age-dependent dynamics or travel-time quantiles.
         """
+        if self.motion is not None:
+            return self.advance_interval(state, self.dt, offers)
         try:
             return self._step(state, tuple(offers))
         except (BudgetExceeded, ArithmeticError) as e:
             e.checkpoint = state
             raise
 
-    def _step(self, s, offers):
+    def advance_interval(self, state, dt_s, offers=()):
+        """Explicit variable interval; control boundaries may not be crossed.
+
+        Source offers may additionally retain (entry_start,entry_end), both
+        no later than the current clock. No global model dt is mutated.
+        """
+        if not math.isfinite(dt_s) or dt_s <= 0:
+            raise ValueError("positive finite interval required")
+        t, end = state.time_s, state.time_s + dt_s
+        for _, a, b, _ in self.windows:
+            if t + 1e-10 < a < end - 1e-10 or t + 1e-10 < b < end - 1e-10:
+                raise ValueError("interval crosses a closure boundary")
+        for g in self.groups:
+            sig = g.signal
+            if sig:
+                for phase in (0.0, sig.green_s):
+                    edge = (
+                        sig.offset_s
+                        + phase
+                        + (math.floor((t - sig.offset_s - phase) / sig.cycle_s) + 1) * sig.cycle_s
+                    )
+                    if t + 1e-10 < edge < end - 1e-10:
+                        raise ValueError("interval crosses a signal boundary")
+        try:
+            return self._step(state, tuple(offers), dt_s)
+        except (BudgetExceeded, ArithmeticError) as exc:
+            exc.checkpoint = state
+            raise
+
+    def _step(self, s, offers, interval_s=None):
         self.check(s)
         t = s.time_s
-        dt = self.dt
+        dt = self.dt if interval_s is None else interval_s
         end = t + dt
         ledger = {x.name: x for x in s.class_ledger}
 
@@ -444,7 +564,15 @@ class PacketNetwork:
         born = 0.0
         birth1 = 0.0
         inherited = 0.0
-        for tag, mass, birth in offers:
+        for offer in offers:
+            if len(offer) not in (3, 5):
+                raise ValueError("source offer needs mass/birth and optional interval")
+            tag, mass, birth = offer[:3]
+            a, b = offer[3:] if len(offer) == 5 else (None, None)
+            if a is not None and (
+                not all(map(math.isfinite, (a, b))) or not 0 <= a <= b <= t + 1e-9
+            ):
+                raise ValueError("source interval must precede current clock")
             if (
                 tag not in self.routes
                 or not all(map(math.isfinite, (mass, birth)))
@@ -456,7 +584,7 @@ class PacketNetwork:
                 raise ValueError("invalid source mass or original birth moment")
             if mass:
                 route = self.routes[tag]
-                new[self.index[route[0]]].append(Part(tag, route, mass, birth))
+                new[self.index[route[0]]].append(Part(tag, route, mass, birth, a, b))
                 born += mass
                 birth1 += birth
                 inherited += mass * t - birth
@@ -477,10 +605,17 @@ class PacketNetwork:
         ]
         cells = []
         queues = {}
+        motions = {}
         for i, (g, c) in enumerate(zip(self.groups, s.cells)):
             p = g.physics
-            nu = p.base_stop_rate + p.interaction_rate * (c.occupancy / p.storage) ** 2
-            dx, activity = distance_clock(dt, c.activity, p.speed_mps, p.restart_rate, nu)
+            if self.motion is not None:
+                motions[i] = self.motion.advance(self, g, c, t, dt, factor[i])
+                dx, speed, latent = motions[i].distance_m, motions[i].speed_mps, motions[i].latent
+                activity = c.activity
+            else:
+                nu = p.base_stop_rate + p.interaction_rate * (c.occupancy / p.storage) ** 2
+                dx, activity = distance_clock(dt, c.activity, p.speed_mps, p.restart_rate, nu)
+                speed, latent = c.speed_mps, c.latent
             moved = math.fsum(
                 x.mass * min(dx, max(0.0, x.target_m - c.progress_m)) for x in c.packets
             )
@@ -489,18 +624,24 @@ class PacketNetwork:
                     c,
                     progress_m=c.progress_m + dx,
                     activity=activity,
+                    speed_mps=speed,
+                    latent=latent,
                     vehicle_metres=c.vehicle_metres + moved,
                 )
             )
             queues[i] = [
                 [
                     packet,
-                    clock_time(
-                        max(0.0, packet.target_m - c.progress_m),
-                        c.activity,
-                        p.speed_mps,
-                        p.restart_rate,
-                        nu,
+                    (
+                        motions[i].passage(max(0.0, packet.target_m - c.progress_m))
+                        if self.motion is not None
+                        else clock_time(
+                            max(0.0, packet.target_m - c.progress_m),
+                            c.activity,
+                            p.speed_mps,
+                            p.restart_rate,
+                            nu,
+                        )
                     )
                     if packet.target_m - c.progress_m <= dx + 1e-10
                     else math.inf,
@@ -510,6 +651,7 @@ class PacketNetwork:
         position = [0] * len(cells)
         events = []
         incoming = defaultdict(list)
+        incoming_marks = defaultdict(list)
         sink = 0.0
         exit1 = 0.0
         hold = 0.0
@@ -636,7 +778,23 @@ class PacketNetwork:
                             free[j] = max(0.0, free[j] - p.mass)
                             free_space[j] = max(0.0, free_space[j] - p.mass * self.footprint(p.tag))
                             class_add(p.tag, "transfer_hold_seconds", p.mass * (end - mid))
-                            incoming[j].append(replace(p, remaining=p.remaining[1:]))
+                            incoming[j].append(
+                                replace(
+                                    p,
+                                    remaining=p.remaining[1:],
+                                    **(
+                                        dict(entry_start_s=t + cursor, entry_end_s=t + cursor + h)
+                                        if self.preserve_entry_intervals
+                                        else {}
+                                    ),
+                                )
+                            )
+                            if self.motion is not None:
+                                incoming_marks[j].append(
+                                    self.motion.transfer_mark(
+                                        self, p.tag, p.mass, motions[i], cursor + h / 2
+                                    )
+                                )
                             hold += p.mass * (end - mid)
                         else:
                             sink += p.mass
@@ -650,6 +808,17 @@ class PacketNetwork:
                 for part in packet.parts:
                     class_add(part.tag, "exit_queue_seconds", part.mass * max(0.0, dt - ready))
             cells[i] = replace(c, packets=tuple(p for p, _ in queues[i][position[i] :]))
+            if self.motion is not None:
+                active_classes = {
+                    self.vehicle_classes[p.tag].name
+                    for packet in cells[i].packets
+                    for p in packet.parts
+                }
+                cells[i] = replace(
+                    cells[i],
+                    speed_mps=cells[i].speed_mps if active_classes else 0.0,
+                    latent=tuple((k, v) for k, v in cells[i].latent if k in active_classes),
+                )
         # Independent source queues; within each exactly simultaneous source
         # packet use proportional admission, never the input list order.
         for i, queue in enumerate(pending):
@@ -669,7 +838,13 @@ class PacketNetwork:
                 free_space[i] = max(
                     0.0, free_space[i] - math.fsum(p.mass * self.footprint(p.tag) for p in parts)
                 )
+                if self.preserve_entry_intervals:
+                    parts = tuple(replace(p, entry_start_s=end, entry_end_s=end) for p in parts)
                 incoming[i].extend(parts)
+                if self.motion is not None:
+                    incoming_marks[i].extend(
+                        self.motion.source_mark(self, p.tag, p.mass) for p in parts
+                    )
                 if fraction < 1:
                     remain.append(replace(packet, parts=_portion(packet.parts, 1 - fraction)))
             pending[i] = remain
@@ -679,10 +854,17 @@ class PacketNetwork:
             if not mass:
                 continue
             c = cells[i]
-            packet = Packet(c.progress_m + self.groups[i].physics.length_m, parts)
+            if self.motion is not None:
+                c = self.motion.admit(self, c, parts, incoming_marks[i])
+            target = c.progress_m + self.groups[i].physics.length_m
+            packets = (
+                interval_packets(parts, target, self.record_budget)
+                if self.preserve_entry_intervals
+                else (Packet(target, parts),)
+            )
             cells[i] = replace(
                 c,
-                packets=c.packets + (packet,),
+                packets=c.packets + packets,
                 admitted=c.admitted + mass,
                 entry_moment=c.entry_moment + mass * end,
             )

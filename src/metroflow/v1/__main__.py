@@ -27,7 +27,7 @@ def main():
     demand.add_argument("--day", choices=("weekday", "weekend"), default="weekday")
     demand.add_argument("--out", type=Path)
     physics = commands.add_parser("physics-oracles")
-    physics.add_argument("--suite", choices=("kinetic", "junctions"), required=True)
+    physics.add_argument("--suite", choices=("kinetic", "junctions", "timing"), required=True)
     physics.add_argument("--out", type=Path)
     args = parser.parse_args()
     if args.command == "capabilities":
@@ -44,10 +44,14 @@ def main():
                 from .kinetic_oracles import kinetic_oracles
 
                 rows = kinetic_oracles()
-            else:
+            elif args.suite == "junctions":
                 from .junction_oracles import junction_oracles
 
                 rows = junction_oracles()
+            else:
+                from .timing_oracles import timing_oracles
+
+                rows = timing_oracles()
         elif args.command == "demand-audit":
             from .demand_audit import audit_demand
 

@@ -1,0 +1,11 @@
+{
+  "pr": 31,
+  "url": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/pull/31",
+  "source_commit": "91bc4f04a591eed75694e07b95585219b6399670",
+  "source_tree": "b2c84678191dda5ae61c25a49cc5a9342c790202",
+  "parent_sha": "8b22aaab2c422b22a4b774964e04b79f25b1a1df",
+  "base_branch": "v1/t03-lanegroups-nodes-20261026",
+  "status": "DRAFT_SCOPED_IMPLEMENTATION",
+  "full_ci": "DEFERRED_BY_USER",
+  "merged": false
+}
