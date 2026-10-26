@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "date": "2026-10-26",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -15,7 +15,7 @@
     "T01",
     "I01"
   ],
-  "next_node": "R02",
+  "next_node": "B01",
   "execution_policy": {
     "rule": "2026-10-26 사용자 변경: DAG 구현을 한정 검증된 누적 브랜치에서 진행한다. 전체 CI·통합·ACCEPTED 판정은 전체 DAG 구현 후 별도 심사에서 수행한다.",
     "no_automatic_scope_growth": true,
@@ -368,14 +368,14 @@
   ],
   "current_execution": {
     "node_ids": [
-      "R01"
+      "R02"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "R01 causal channels and completed-cost observations scoped verified; next R02 READY; full CI/integration deferred",
+    "scope": "R02 shared legal routing and finite-information suffix proposals scoped verified; next B01 READY; full CI/integration deferred",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_r01_20261026/RECEIPT.json",
+    "evidence": "artifacts/v1_r02_20261026/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -1215,7 +1215,7 @@
         "R01",
         "T03"
       ],
-      "status": "READY",
+      "status": "VERIFIED_SCOPED",
       "files": [
         "src/metroflow/v1/routing.py",
         "src/metroflow/active_suffix/routing.py",
@@ -1269,9 +1269,21 @@
       "pr": {
         "key": "V1-R02",
         "title": "[V1 R02] 공유 경로·유한정보 재탐색·Braess 보존",
-        "branch": "v1/r02",
-        "base": "research/v1-integration-20261025",
-        "opened_number": null
+        "branch": "v1/r02-shared-routing-20261026",
+        "base": "v1/r01-causal-information-20261026",
+        "opened_number": 33
+      },
+      "implementation_parent": {
+        "node": "R01",
+        "branch": "v1/r01-causal-information-20261026",
+        "sha": "69aa437abf1b292e5fe338f91b08dff1469097d9",
+        "pr": 32
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_r02_20261026/RECEIPT.json",
+        "sha256": "73573356cb92f103c54f52e4bac63405c9a27be9468bf16b68f0276071f1defe",
+        "source_manifest": "artifacts/v1_r02_20261026/SOURCE_MANIFEST.json",
+        "acceptance": "27 routing tests; 101 scoped checks per Python; legal finite-belief suffixes, path-size, cache, fallback and static Braess; final CI/integration deferred"
       }
     },
     {
@@ -1282,7 +1294,7 @@
         "T03",
         "R02"
       ],
-      "status": "PLANNED",
+      "status": "READY",
       "files": [
         "src/metroflow/v1/services.py",
         "tests/v1/test_bus_freight.py"

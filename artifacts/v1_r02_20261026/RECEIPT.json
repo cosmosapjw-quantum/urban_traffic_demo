@@ -1,0 +1,71 @@
+{
+  "status": "R02_VERIFIED_SCOPED_FINAL_REVIEW_DEFERRED",
+  "parent": {
+    "node": "R01",
+    "pr": 32,
+    "head_sha": "69aa437abf1b292e5fe338f91b08dff1469097d9",
+    "merged": false
+  },
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/v1/test_routing_commitment.py tests/v1/test_information.py tests/v1/test_transfer_time.py tests/test_v1_plan.py tests/v1/test_repository_entrypoints.py tests/test_causal_information.py tests/test_kinetic_routes.py tests/test_restored_traffic.py",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "result": "101 passed",
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "command": "python -m pytest -q tests/v1/test_routing_commitment.py tests/v1/test_information.py tests/v1/test_transfer_time.py tests/test_v1_plan.py tests/v1/test_repository_entrypoints.py tests/test_causal_information.py tests/test_kinetic_routes.py tests/test_restored_traffic.py",
+      "python": "3.13.16",
+      "exit_code": 0,
+      "result": "101 passed",
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "ruff check changed source/tests",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    },
+    {
+      "command": "python -m metroflow.v1 physics-oracles --suite routing",
+      "exit_code": 0,
+      "raw": "ROUTING_ORACLES.json"
+    },
+    {
+      "command": "uv build --wheel; fresh no-deps install; outside-checkout installed CLI routing oracles",
+      "exit_code": 0,
+      "raw": "INSTALLED_ROUTING.json"
+    }
+  ],
+  "focused_tests": 27,
+  "behavior_gap": {
+    "raw": "BASELINE_GAP.json",
+    "meaning": "legacy K=1 equal-cost alternatives cut by ID; new R02 preserves full tie within K or returns resource fallback",
+    "import_failure_is_behavior_red": false
+  },
+  "acceptance": {
+    "legal_candidates": "T03 adapter; incoming turns and prior visited nodes constrain loopless K<=3 candidates",
+    "causality": "R01 paired remote unobserved incident gives identical entire routing result; no physical truth argument",
+    "path_size": "equal costs with PS .75,.75,1 yield probabilities .3,.3,.4; relabelled paths preserve physical shares",
+    "commitment": "suffix proposal retains occupied oa and prefix at 10s boundary; conditional regret87s is belief based",
+    "class_purpose_preferences": "separate physical time, generalized seconds, money/time and distance/time weights; cache class/purpose/version invalidation",
+    "resource_resume": "expansion/frontier/tie overflow returns input RoutingState with valid baseline or external wait; cache eviction leaves commitments and T04 state unchanged; pickle replay matches",
+    "failure_classification": "graph disconnected vs no finite perceived route; finite cost overflow NUMERICAL_ERROR with input checkpoint",
+    "braess": "existing static reference retained: 65.00000000000009 to79.99999999999986 minutes; not dynamic T04 validation"
+  },
+  "corrections": [
+    "T03 adapter fixture uses explicit contract turn set instead of nonexistent PacketNetwork.allowed_turns",
+    "Group physics field corrected from lane to physics; integration regression passes"
+  ],
+  "limitations": [
+    "route proposals/probabilities only; actual dynamic redistribution belongs to C01",
+    "R01 route completion means are not decomposed into link costs; requires separately measured links or declared link priors",
+    "sum of conditional link means is a behavioral cost closure, not a joint trip distribution",
+    "K cost tie exceeding limit explicitly blocks; deterministic work budgets instead of wall-clock timeout",
+    "no dynamic Braess/full city/24h/performance acceptance claim"
+  ],
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER",
+  "main_modified": false
+}

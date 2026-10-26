@@ -1,0 +1,20 @@
+{
+  "parent_sha": "69aa437abf1b292e5fe338f91b08dff1469097d9",
+  "files": {
+    "src/metroflow/v1/routing.py": "d3f1b2b77e701969175f6b39200bda7dbca62ab202654e0e941611c90189b859",
+    "src/metroflow/v1/routing_oracles.py": "e2362f397526796a2bfa44edb4381cb17a8f40b56f505987db1abd7eb6109d89",
+    "src/metroflow/v1/__init__.py": "b1479dd254f30fb0b6faceb72bfa8fbd7301453726bc0320e4b0e10e312e5341",
+    "src/metroflow/v1/__main__.py": "29239b6b8627ce732fbb5083b199a0116aa9fc1891f1e31c75a9f870cbcee85a",
+    "tests/v1/test_routing_commitment.py": "71cb0191533c603fc47ad347f794ad837837b4e73ef73bf05706e42e7d521b8d",
+    "docs/v1/r02/ROUTING_KO.md": "8957a2bc20e7ceff594848aee6ca229ca66d1170934b4aeb01230f9fe65c6b78"
+  },
+  "reused_unchanged": {
+    "path": "src/metroflow/active_suffix/routing.py",
+    "git_blob": "08b92ded59a09d3adddec5188009708877e787ae",
+    "functions": [
+      "Arc",
+      "destination_potential",
+      "braess_reference"
+    ]
+  }
+}
