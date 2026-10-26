@@ -1,0 +1,13 @@
+{
+  "pr": 33,
+  "url": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/pull/33",
+  "draft": true,
+  "merged": false,
+  "branch": "v1/r02-shared-routing-20261026",
+  "base": "v1/r01-causal-information-20261026",
+  "parent_sha": "69aa437abf1b292e5fe338f91b08dff1469097d9",
+  "source_commit": "5adc299903f2fd385c0c185a3c681c0b5db15ac3",
+  "source_tree": "ebc843553d3a73316aff5d9049853f8988bc8f49",
+  "full_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER"
+}

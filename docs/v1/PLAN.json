@@ -1271,7 +1271,7 @@
         "title": "[V1 R02] 공유 경로·유한정보 재탐색·Braess 보존",
         "branch": "v1/r02-shared-routing-20261026",
         "base": "v1/r01-causal-information-20261026",
-        "opened_number": null
+        "opened_number": 33
       },
       "implementation_parent": {
         "node": "R01",
