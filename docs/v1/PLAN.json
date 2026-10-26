@@ -1587,7 +1587,7 @@
         "title": "[V1 C02] 하루 도시 실행·시나리오·관측 패키지",
         "branch": "v1/c02-parallel-20261027",
         "base": "v1/m04-lagged-growth-20261026",
-        "opened_number": null
+        "opened_number": 37
       },
       "implementation_parent": {
         "node": "M04",
