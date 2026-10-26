@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "date": "2026-10-26",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -15,7 +15,7 @@
     "T01",
     "I01"
   ],
-  "next_node": "T02",
+  "next_node": "T03",
   "execution_policy": {
     "rule": "2026-10-26 사용자 변경: DAG 구현을 한정 검증된 누적 브랜치에서 진행한다. 전체 CI·통합·ACCEPTED 판정은 전체 DAG 구현 후 별도 심사에서 수행한다.",
     "no_automatic_scope_growth": true,
@@ -368,14 +368,14 @@
   ],
   "current_execution": {
     "node_ids": [
-      "D01"
+      "T02"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "D01 scoped implementation complete on M03 stack; next T02 READY; final CI/review/integration deferred",
+    "scope": "T02 scoped finite-response closure complete on D01 stack; next T03 READY; full CI/integration deferred",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_d01_20261026/RECEIPT.json",
+    "evidence": "artifacts/v1_t02_20261026/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -901,7 +901,7 @@
       "depends_on": [
         "I01"
       ],
-      "status": "READY",
+      "status": "VERIFIED_SCOPED",
       "files": [
         "src/metroflow/v1/kinetics.py",
         "src/metroflow/foundation_kinetics.py",
@@ -957,9 +957,21 @@
       "pr": {
         "key": "V1-T02",
         "title": "[V1 T02] 연속속도 기초에서 유한응답 집계 closure 확정",
-        "branch": "v1/t02",
-        "base": "research/v1-integration-20261025",
-        "opened_number": null
+        "branch": "v1/t02-finite-response-20261026",
+        "base": "v1/d01-daily-demand-20261026",
+        "opened_number": 29
+      },
+      "implementation_parent": {
+        "node": "D01",
+        "branch": "v1/d01-daily-demand-20261026",
+        "sha": "7be20685e01c969814afb0f86b03c76144df36c5",
+        "pr": 28
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_t02_20261026/RECEIPT.json",
+        "sha256": "53043f5f70d13f666f7ab4aaef938c04d5b1c1b9c437b834dea43af9b6f9164c",
+        "source_manifest": "artifacts/v1_t02_20261026/SOURCE_MANIFEST.json",
+        "acceptance": "14 kinetic tests, 8 CLI oracles, 48 scoped tests per Python; final CI/integration deferred"
       }
     },
     {
@@ -969,7 +981,7 @@
         "T02",
         "M02"
       ],
-      "status": "PLANNED",
+      "status": "READY",
       "files": [
         "src/metroflow/v1/nodes.py",
         "src/metroflow/v1/lanegroups.py",

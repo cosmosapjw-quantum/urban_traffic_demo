@@ -1,0 +1,11 @@
+{
+  "pr": 29,
+  "url": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/pull/29",
+  "source_commit": "7d5e3886c1079e6eaef2f1dcae7657c085189870",
+  "source_tree": "d92525228970642e2042e0602f38929a996abe52",
+  "parent_sha": "7be20685e01c969814afb0f86b03c76144df36c5",
+  "base_branch": "v1/d01-daily-demand-20261026",
+  "status": "DRAFT_SCOPED_IMPLEMENTATION",
+  "full_ci": "DEFERRED_BY_USER",
+  "merged": false
+}

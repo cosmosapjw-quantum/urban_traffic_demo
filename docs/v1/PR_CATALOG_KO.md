@@ -13,7 +13,7 @@
 |V1-M02|[V1 M02] 지형·입체도로·회전·구조물의 단일 지도 계약|I01|v1/m02-layered-contract-20261026|research/v1-integration-20261025|
 |V1-M03|[V1 M03] 활동가중 블록·복수 출입구·주거용량의 현실적 연결|M02, M01|v1/m03-activity-access-20261026|research/v1-integration-20261025|
 |V1-D01|[V1 D01] 10만 주민의 집단별 하루 활동·수요 장부|M03, I01|v1/d01-daily-demand-20261026|v1/m03-activity-access-20261026|
-|V1-T02|[V1 T02] 연속속도 기초에서 유한응답 집계 closure 확정|I01|v1/t02|research/v1-integration-20261025|
+|V1-T02|[V1 T02] 연속속도 기초에서 유한응답 집계 closure 확정|I01|v1/t02-finite-response-20261026|v1/d01-daily-demand-20261026|
 |V1-T03|[V1 T03] 차로군·합류·회전·신호와 구조물 장애 모델 통합|T02, M02|v1/t03|research/v1-integration-20261025|
 |V1-T04|[V1 T04] 시간구간 이관·기록압축·통행관측의 수치 일관성|T03, T01|v1/t04|research/v1-integration-20261025|
 |V1-R01|[V1 R01] 인과적 정보 channel과 동일물리 비용 관측|T04, I01|v1/r01|research/v1-integration-20261025|

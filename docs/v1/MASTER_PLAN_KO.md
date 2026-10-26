@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.0**, 2026-10-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.1**, 2026-10-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -283,8 +283,8 @@ flowchart TD
 |M02|지형·입체도로·회전·구조물의 단일 지도 계약|I01|ACCEPTED|
 |M03|활동가중 블록·복수 출입구·주거용량의 현실적 연결|M02, M01|VERIFIED_SCOPED|
 |D01|10만 주민의 집단별 하루 활동·수요 장부|M03, I01|VERIFIED_SCOPED|
-|T02|연속속도 기초에서 유한응답 집계 closure 확정|I01|READY|
-|T03|차로군·합류·회전·신호와 구조물 장애 모델 통합|T02, M02|PLANNED|
+|T02|연속속도 기초에서 유한응답 집계 closure 확정|I01|VERIFIED_SCOPED|
+|T03|차로군·합류·회전·신호와 구조물 장애 모델 통합|T02, M02|READY|
 |T04|시간구간 이관·기록압축·통행관측의 수치 일관성|T03, T01|PLANNED|
 |R01|인과적 정보 channel과 동일물리 비용 관측|T04, I01|PLANNED|
 |R02|공유 경로·유한정보 재탐색·Braess 보존|R01, T03|PLANNED|
@@ -946,9 +946,9 @@ cohort/profile수에비례,차량/주민한명씩loop금지; 출발window<=15min
 
 ### T02. 연속속도 기초에서 유한응답 집계 closure 확정
 
-의존: I01; 상태: **READY**.
+의존: I01; 상태: **VERIFIED_SCOPED**.
 
-예정 PR: `V1-T02`, branch `v1/t02` → `research/v1-integration-20261025`.
+예정 PR: `V1-T02`, branch `v1/t02-finite-response-20261026` → `v1/d01-daily-demand-20261026`.
 
 **입력**
 
@@ -1041,11 +1041,9 @@ T03/T04의공통운동장으로연결; 기존p-only를명시baseline으로만보
 
 ### T03. 차로군·합류·회전·신호와 구조물 장애 모델 통합
 
-의존: T02, M02; 상태: **PLANNED**.
+의존: T02, M02; 상태: **READY**.
 
 예정 PR: `V1-T03`, branch `v1/t03` → `research/v1-integration-20261025`.
-
-아래 파일·명령은 목표 계약이다. 아직 존재하거나 통과했다고 주장하지 않는다.
 
 **입력**
 
@@ -2323,14 +2321,14 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
 ```json
 {
   "node_ids": [
-    "D01"
+    "T02"
   ],
   "native_subagent": "NOT_RUN",
-  "scope": "D01 scoped implementation complete on M03 stack; next T02 READY; final CI/review/integration deferred",
+  "scope": "T02 scoped finite-response closure complete on D01 stack; next T03 READY; full CI/integration deferred",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": "artifacts/v1_d01_20261026/RECEIPT.json",
+  "evidence": "artifacts/v1_t02_20261026/RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2347,5 +2345,5 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
 - `.specify/memory/constitution.md` @ `0a7c980d3934146a978280fe76045443ad12640e`: 채택한상위보존/단위/불변상태/지연/회귀원칙
 - `docs/TRAFFIC_SIMULATION_FINAL_MODEL_SPEC.md` @ `01c80b432344f94209daaa198bb1eb007839fc7f`: 목표설계문서이며현재구현완료증거아님
 
-다음 작업: **T02**. `python tools/v1_plan.py next`로 같은 결과를 조회한다.
+다음 작업: **T03**. `python tools/v1_plan.py next`로 같은 결과를 조회한다.
 

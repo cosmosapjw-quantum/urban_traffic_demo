@@ -26,6 +26,9 @@ def main():
     demand.add_argument("--population", type=int, default=100000)
     demand.add_argument("--day", choices=("weekday", "weekend"), default="weekday")
     demand.add_argument("--out", type=Path)
+    physics = commands.add_parser("physics-oracles")
+    physics.add_argument("--suite", choices=("kinetic",), required=True)
+    physics.add_argument("--out", type=Path)
     args = parser.parse_args()
     if args.command == "capabilities":
         print(
@@ -36,7 +39,11 @@ def main():
         )
         return 0
     try:
-        if args.command == "demand-audit":
+        if args.command == "physics-oracles":
+            from .kinetic_oracles import kinetic_oracles
+
+            rows = kinetic_oracles()
+        elif args.command == "demand-audit":
             from .demand_audit import audit_demand
 
             rows = [audit_demand(args.population, args.day)]
