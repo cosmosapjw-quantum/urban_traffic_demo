@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "date": "2026-10-26",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -15,9 +15,9 @@
     "T01",
     "I01"
   ],
-  "next_node": "M03",
+  "next_node": "T02",
   "execution_policy": {
-    "rule": "초기 PR에서 I01 전체저장소 검증을 먼저 끝내 병합한다. 이후 DAG prerequisite가 수용된 READY 노드만 실행한다.",
+    "rule": "2026-10-26 사용자 변경: DAG 구현을 한정 검증된 누적 브랜치에서 진행한다. 전체 CI·통합·ACCEPTED 판정은 전체 DAG 구현 후 별도 심사에서 수행한다.",
     "no_automatic_scope_growth": true,
     "maximum_work_in_progress": 1,
     "change_control": "노드/목표/수용문턱/physics contract 변경은 PLAN.json 버전을 먼저 변경하는 계획 PR로 제안한다. 범위/성능문턱 완화는 사용자 승인 전 적용 금지.",
@@ -36,7 +36,7 @@
       "BLOCKED": "정확한누락/환경/권한/물리원인과최소재개점보존"
     },
     "historical_docs": "과거 roadmap, AGENTS의구현순서, 연구인계의다음노드는근거/아카이브다. 새계획밖노드를자동활성화하지않는다. Constitution의보존/불변상태/명시단위/회귀/지연피드백은그대로채택한다.",
-    "pr_process": "한노드한PR원칙. 초기P00/M01/T01/I01은전환용하나의bootstrapPR. 그뒤의존PR미완료상태에서자식구현/보증패키지를선행하지않는다. read-only 독립이론검토만병렬가능.",
+    "pr_process": "한 노드 한 Draft PR. 직전 누적 구현 브랜치를 base로 고정한다. PR merge 없이 부모 HEAD 위에서 진행하고 main/release는 별도 승인한다.",
     "local_and_cloud": "sandbox:실행당45초아래작은검증과증거보존. local:fullrepo/24h/자원계측. 실제도구없는native subagent는NOT_RUN. 비동기작업약속없음.",
     "stop_rules": [
       "물리보존오류면즉시직전상태보존후중단",
@@ -44,10 +44,18 @@
       "목표를닫은후새연구cycle자동개시금지",
       "검증은주pass와위험에근거한1freshpass;자가감사재귀금지"
     ],
-    "dependency_rule": "필수 선행 노드는 ACCEPTED여야 한다. STOPPED는 의존성을 충족하지 않는다. 대안 노드로 교체하려면 PLAN.json을 먼저 개정해 대체 경로와 수용조건을 명시한다.",
-    "next_selection": "현 next_node를 우선한다. 완료 후 의존 노드가 모두 ACCEPTED인 후보 중 문서의 위상 순서를 따라 하나만 READY로 바꾸고 next_node를 갱신한다. 임의의 새 연구 노드를 시작하지 않는다.",
+    "dependency_rule": "구현 착수는 ACCEPTED 또는 영수증으로 고정된 VERIFIED_SCOPED 선행 노드를 허용한다. VERIFIED_SCOPED는 최종 수용·통합을 뜻하지 않는다. STOPPED/BLOCKED는 선행조건을 충족하지 않는다.",
+    "next_selection": "현 노드를 한정 검증한 뒤 의존 노드가 ACCEPTED/VERIFIED_SCOPED인 위상 순서의 한 노드를 선택한다. 최종 심사와 통합 전 ACCEPTED로 승격하지 않는다.",
     "parallelism": "실행 구현 WIP=1. 의존성이 없는 읽기 전용 검토는 가능하지만 사용자 승인 없이 작업 범위를 넓히지 않는다.",
-    "bootstrap_acceptance": "P00/M01/T01은 현재 VERIFIED_SCOPED다. I01의 전체 저장소 수용과 실제 bootstrap PR 병합 뒤 네 노드의 증거를 함께 확인해 ACCEPTED로 갱신한다. 그 전 M02/T02를 시작하지 않는다."
+    "bootstrap_acceptance": "P00/M01/T01/I01과 M02의 과거 실제 통합 기록은 유지한다. M03 이후는 현재 사용자 지시에 따라 최종 별도 심사 전 병합하지 않는다.",
+    "implementation_mode": "stacked_scoped_then_review",
+    "full_ci_and_integration": "DEFERRED_BY_USER_UNTIL_ALL_DAG_IMPLEMENTED_AND_SEPARATE_REVIEW",
+    "completion_phases": [
+      "DAG_IMPLEMENTATION_WITH_SCOPED_EVIDENCE",
+      "SEPARATE_REVIEW",
+      "FULL_CI_AND_INTEGRATION",
+      "FINAL_ACCEPTANCE_AND_USER_APPROVED_RELEASE"
+    ]
   },
   "product": {
     "name": "MetroFlow V1 research simulator",
@@ -360,14 +368,14 @@
   ],
   "current_execution": {
     "node_ids": [
-      "M03"
+      "D01"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "M03 declared activity and physical entry adapters verified in scoped fixtures; PR CI/integration pending",
-    "full_repository_ci": "NOT_RUN_FOR_M03",
+    "scope": "D01 scoped implementation complete on M03 stack; next T02 READY; final CI/review/integration deferred",
+    "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_m03_20261026/RECEIPT.json",
+    "evidence": "artifacts/v1_d01_20261026/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -816,7 +824,7 @@
         "M03",
         "I01"
       ],
-      "status": "PLANNED",
+      "status": "VERIFIED_SCOPED",
       "files": [
         "src/metroflow/v1/demand.py",
         "src/metroflow/v1/schedules.py",
@@ -870,9 +878,21 @@
       "pr": {
         "key": "V1-D01",
         "title": "[V1 D01] 10만 주민의 집단별 하루 활동·수요 장부",
-        "branch": "v1/d01",
-        "base": "research/v1-integration-20261025",
-        "opened_number": null
+        "branch": "v1/d01-daily-demand-20261026",
+        "base": "v1/m03-activity-access-20261026",
+        "opened_number": 28
+      },
+      "implementation_parent": {
+        "node": "M03",
+        "branch": "v1/m03-activity-access-20261026",
+        "sha": "410b6f280347eb20b5bf0255755ec4674e233582",
+        "pr": 27
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_d01_20261026/RECEIPT.json",
+        "sha256": "eaf684f7050a46309997d710c15fef29ebaa71675cf72ce2381ab608304f2c56",
+        "source_manifest": "artifacts/v1_d01_20261026/SOURCE_MANIFEST.json",
+        "acceptance": "14 demand tests; 36 scoped dependency tests per Python version; 100k weekday/weekend calendar; final review deferred"
       }
     },
     {
@@ -881,7 +901,7 @@
       "depends_on": [
         "I01"
       ],
-      "status": "PLANNED",
+      "status": "READY",
       "files": [
         "src/metroflow/v1/kinetics.py",
         "src/metroflow/foundation_kinetics.py",
@@ -1817,6 +1837,14 @@
       "rollback과 checkpoint",
       "계획 상태 및 완료조건 갱신"
     ],
-    "pr_merge_policy": "필수 선행 PR의 수용·통합 후 시작한다. STOPPED 선행은 계획에서 승인된 대체 경로가 없는 한 blocker다. P00/M01/T01/I01은 같은 bootstrap PR에서 수용한다."
-  }
+    "pr_merge_policy": "전체 DAG 구현 뒤 별도 심사와 전체 CI를 진행한다. 그 전 merge 금지. 한정 검증된 누적 부모 SHA를 고정해 구현한다."
+  },
+  "policy_changes": [
+    {
+      "date": "2026-10-26",
+      "authority": "current user instruction",
+      "change": "전체 CI와 통합은 모든 DAG 노드를 다 구현하고 별도 심사 후 진행",
+      "effect": "Only scoped verification during implementation; stacked Draft PRs; no automatic CI or merge; final acceptance criteria unchanged."
+    }
+  ]
 }

@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.0.3**, 2026-10-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.0**, 2026-10-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -45,7 +45,7 @@
 
 **rule**
 
-초기 PR에서 I01 전체저장소 검증을 먼저 끝내 병합한다. 이후 DAG prerequisite가 수용된 READY 노드만 실행한다.
+2026-10-26 사용자 변경: DAG 구현을 한정 검증된 누적 브랜치에서 진행한다. 전체 CI·통합·ACCEPTED 판정은 전체 DAG 구현 후 별도 심사에서 수행한다.
 
 **no_automatic_scope_growth**
 
@@ -79,7 +79,7 @@ True
 
 **pr_process**
 
-한노드한PR원칙. 초기P00/M01/T01/I01은전환용하나의bootstrapPR. 그뒤의존PR미완료상태에서자식구현/보증패키지를선행하지않는다. read-only 독립이론검토만병렬가능.
+한 노드 한 Draft PR. 직전 누적 구현 브랜치를 base로 고정한다. PR merge 없이 부모 HEAD 위에서 진행하고 main/release는 별도 승인한다.
 
 **local_and_cloud**
 
@@ -95,11 +95,11 @@ sandbox:실행당45초아래작은검증과증거보존. local:fullrepo/24h/자�
 
 **dependency_rule**
 
-필수 선행 노드는 ACCEPTED여야 한다. STOPPED는 의존성을 충족하지 않는다. 대안 노드로 교체하려면 PLAN.json을 먼저 개정해 대체 경로와 수용조건을 명시한다.
+구현 착수는 ACCEPTED 또는 영수증으로 고정된 VERIFIED_SCOPED 선행 노드를 허용한다. VERIFIED_SCOPED는 최종 수용·통합을 뜻하지 않는다. STOPPED/BLOCKED는 선행조건을 충족하지 않는다.
 
 **next_selection**
 
-현 next_node를 우선한다. 완료 후 의존 노드가 모두 ACCEPTED인 후보 중 문서의 위상 순서를 따라 하나만 READY로 바꾸고 next_node를 갱신한다. 임의의 새 연구 노드를 시작하지 않는다.
+현 노드를 한정 검증한 뒤 의존 노드가 ACCEPTED/VERIFIED_SCOPED인 위상 순서의 한 노드를 선택한다. 최종 심사와 통합 전 ACCEPTED로 승격하지 않는다.
 
 **parallelism**
 
@@ -107,7 +107,23 @@ sandbox:실행당45초아래작은검증과증거보존. local:fullrepo/24h/자�
 
 **bootstrap_acceptance**
 
-P00/M01/T01은 현재 VERIFIED_SCOPED다. I01의 전체 저장소 수용과 실제 bootstrap PR 병합 뒤 네 노드의 증거를 함께 확인해 ACCEPTED로 갱신한다. 그 전 M02/T02를 시작하지 않는다.
+P00/M01/T01/I01과 M02의 과거 실제 통합 기록은 유지한다. M03 이후는 현재 사용자 지시에 따라 최종 별도 심사 전 병합하지 않는다.
+
+**implementation_mode**
+
+stacked_scoped_then_review
+
+**full_ci_and_integration**
+
+DEFERRED_BY_USER_UNTIL_ALL_DAG_IMPLEMENTED_AND_SEPARATE_REVIEW
+
+**completion_phases**
+
+- DAG_IMPLEMENTATION_WITH_SCOPED_EVIDENCE
+- SEPARATE_REVIEW
+- FULL_CI_AND_INTEGRATION
+- FINAL_ACCEPTANCE_AND_USER_APPROVED_RELEASE
+
 
 현재 통합 대상: `research/v1-integration-20261025`; bootstrap: `v1/foundation-access-journey-20261025`.
 
@@ -266,8 +282,8 @@ flowchart TD
 |I01|전체 저장소 통합 기준선과 V1 facade 확립|P00, M01, T01|ACCEPTED|
 |M02|지형·입체도로·회전·구조물의 단일 지도 계약|I01|ACCEPTED|
 |M03|활동가중 블록·복수 출입구·주거용량의 현실적 연결|M02, M01|VERIFIED_SCOPED|
-|D01|10만 주민의 집단별 하루 활동·수요 장부|M03, I01|PLANNED|
-|T02|연속속도 기초에서 유한응답 집계 closure 확정|I01|PLANNED|
+|D01|10만 주민의 집단별 하루 활동·수요 장부|M03, I01|VERIFIED_SCOPED|
+|T02|연속속도 기초에서 유한응답 집계 closure 확정|I01|READY|
 |T03|차로군·합류·회전·신호와 구조물 장애 모델 통합|T02, M02|PLANNED|
 |T04|시간구간 이관·기록압축·통행관측의 수치 일관성|T03, T01|PLANNED|
 |R01|인과적 정보 channel과 동일물리 비용 관측|T04, I01|PLANNED|
@@ -837,11 +853,9 @@ D01일일활동수요와M04개발에동일가중측도공급
 
 ### D01. 10만 주민의 집단별 하루 활동·수요 장부
 
-의존: M03, I01; 상태: **PLANNED**.
+의존: M03, I01; 상태: **VERIFIED_SCOPED**.
 
-예정 PR: `V1-D01`, branch `v1/d01` → `research/v1-integration-20261025`.
-
-아래 파일·명령은 목표 계약이다. 아직 존재하거나 통과했다고 주장하지 않는다.
+예정 PR: `V1-D01`, branch `v1/d01-daily-demand-20261026` → `v1/m03-activity-access-20261026`.
 
 **입력**
 
@@ -932,11 +946,9 @@ cohort/profile수에비례,차량/주민한명씩loop금지; 출발window<=15min
 
 ### T02. 연속속도 기초에서 유한응답 집계 closure 확정
 
-의존: I01; 상태: **PLANNED**.
+의존: I01; 상태: **READY**.
 
 예정 PR: `V1-T02`, branch `v1/t02` → `research/v1-integration-20261025`.
-
-아래 파일·명령은 목표 계약이다. 아직 존재하거나 통과했다고 주장하지 않는다.
 
 **입력**
 
@@ -2311,14 +2323,14 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
 ```json
 {
   "node_ids": [
-    "M03"
+    "D01"
   ],
   "native_subagent": "NOT_RUN",
-  "scope": "M03 declared activity and physical entry adapters verified in scoped fixtures; PR CI/integration pending",
-  "full_repository_ci": "NOT_RUN_FOR_M03",
+  "scope": "D01 scoped implementation complete on M03 stack; next T02 READY; final CI/review/integration deferred",
+  "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": "artifacts/v1_m03_20261026/RECEIPT.json",
+  "evidence": "artifacts/v1_d01_20261026/RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2335,5 +2347,5 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
 - `.specify/memory/constitution.md` @ `0a7c980d3934146a978280fe76045443ad12640e`: 채택한상위보존/단위/불변상태/지연/회귀원칙
 - `docs/TRAFFIC_SIMULATION_FINAL_MODEL_SPEC.md` @ `01c80b432344f94209daaa198bb1eb007839fc7f`: 목표설계문서이며현재구현완료증거아님
 
-다음 작업: **M03**. `python tools/v1_plan.py next`로 같은 결과를 조회한다.
+다음 작업: **T02**. `python tools/v1_plan.py next`로 같은 결과를 조회한다.
 

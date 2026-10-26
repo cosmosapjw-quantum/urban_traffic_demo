@@ -2,7 +2,7 @@
 
 `PLAN.json`에서 생성. 논리 PR key는 GitHub PR 번호가 아니다. 미래 PR을 실제 생성했다고 표시하지 않는다.
 
-초기 P00/M01/T01와 I01 수용은 하나의 bootstrap PR에 들어간다. 그 외는 의존 PR이 통합된 뒤 한 노드씩 실행한다.
+한 노드 한 Draft PR. 직전 누적 구현 브랜치를 base로 고정한다. PR merge 없이 부모 HEAD 위에서 진행하고 main/release는 별도 승인한다.
 
 |키|제목|의존|branch|base|
 |---|---|---|---|---|
@@ -12,7 +12,7 @@
 |V1-I01|[V1 I01] 전체 저장소 통합 기준선과 V1 facade 확립|P00, M01, T01|v1/foundation-access-journey-20261025|research/v1-integration-20261025|
 |V1-M02|[V1 M02] 지형·입체도로·회전·구조물의 단일 지도 계약|I01|v1/m02-layered-contract-20261026|research/v1-integration-20261025|
 |V1-M03|[V1 M03] 활동가중 블록·복수 출입구·주거용량의 현실적 연결|M02, M01|v1/m03-activity-access-20261026|research/v1-integration-20261025|
-|V1-D01|[V1 D01] 10만 주민의 집단별 하루 활동·수요 장부|M03, I01|v1/d01|research/v1-integration-20261025|
+|V1-D01|[V1 D01] 10만 주민의 집단별 하루 활동·수요 장부|M03, I01|v1/d01-daily-demand-20261026|v1/m03-activity-access-20261026|
 |V1-T02|[V1 T02] 연속속도 기초에서 유한응답 집계 closure 확정|I01|v1/t02|research/v1-integration-20261025|
 |V1-T03|[V1 T03] 차로군·합류·회전·신호와 구조물 장애 모델 통합|T02, M02|v1/t03|research/v1-integration-20261025|
 |V1-T04|[V1 T04] 시간구간 이관·기록압축·통행관측의 수치 일관성|T03, T01|v1/t04|research/v1-integration-20261025|

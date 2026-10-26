@@ -1,0 +1,369 @@
+{
+  "cases": [
+    {
+      "allocated_workers": 50000.0,
+      "cohorts": 10,
+      "completion_semantics": "explicit receipts only; pending requests are intent, not extra resident stock",
+      "day": "weekday",
+      "default_departure_bin_s": 900.0,
+      "departure_integration": [
+        {
+          "amounts": {
+            "cargo_kg": 10000.0,
+            "persons": 140000.0,
+            "vehicles": 68610.0
+          },
+          "residuals": {
+            "cargo_kg": 0.0,
+            "persons": 0.0,
+            "vehicles": 0.0
+          },
+          "status": "PASS",
+          "step_s": 900
+        },
+        {
+          "amounts": {
+            "cargo_kg": 10000.0,
+            "persons": 140000.0,
+            "vehicles": 68610.0
+          },
+          "residuals": {
+            "cargo_kg": 0.0,
+            "persons": 0.0,
+            "vehicles": 0.0
+          },
+          "status": "PASS",
+          "step_s": 300
+        },
+        {
+          "amounts": {
+            "cargo_kg": 10000.0,
+            "persons": 140000.0,
+            "vehicles": 68610.0
+          },
+          "residuals": {
+            "cargo_kg": 0.0,
+            "persons": 0.0,
+            "vehicles": 0.0
+          },
+          "status": "PASS",
+          "step_s": 60
+        }
+      ],
+      "evening_persons": 50000.0,
+      "identity": "0d9b317a7684b39524ddb6585c599c4d720f7f17e5809eecb830a4ae6cb0145d",
+      "legs": 19,
+      "morning_persons": 55000.0,
+      "origin_destination": [
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c0:out",
+          "mode": "car",
+          "origin": "block",
+          "purpose": "work",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 30000.0,
+            "vehicles": 24000.0
+          },
+          "vehicle_class": "car"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c0:home",
+          "mode": "car",
+          "origin": "block",
+          "purpose": "return_home",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 30000.0,
+            "vehicles": 24000.0
+          },
+          "vehicle_class": "car"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c1:out",
+          "mode": "bus",
+          "origin": "block",
+          "purpose": "work",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 12500.0,
+            "vehicles": 500.0
+          },
+          "vehicle_class": "scheduled_bus"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c1:home",
+          "mode": "bus",
+          "origin": "block",
+          "purpose": "return_home",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 12500.0,
+            "vehicles": 500.0
+          },
+          "vehicle_class": "scheduled_bus"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c2:out",
+          "mode": "noncar",
+          "origin": "block",
+          "purpose": "work",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 7500.0,
+            "vehicles": 0.0
+          },
+          "vehicle_class": null
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c2:home",
+          "mode": "noncar",
+          "origin": "block",
+          "purpose": "return_home",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 7500.0,
+            "vehicles": 0.0
+          },
+          "vehicle_class": null
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c3:out",
+          "mode": "car",
+          "origin": "block",
+          "purpose": "school",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 3000.0,
+            "vehicles": 2400.0
+          },
+          "vehicle_class": "car"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c3:home",
+          "mode": "car",
+          "origin": "block",
+          "purpose": "return_home",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 3000.0,
+            "vehicles": 2400.0
+          },
+          "vehicle_class": "car"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c4:out",
+          "mode": "bus",
+          "origin": "block",
+          "purpose": "school",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 1250.0,
+            "vehicles": 50.0
+          },
+          "vehicle_class": "scheduled_bus"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c4:home",
+          "mode": "bus",
+          "origin": "block",
+          "purpose": "return_home",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 1250.0,
+            "vehicles": 50.0
+          },
+          "vehicle_class": "scheduled_bus"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c5:out",
+          "mode": "noncar",
+          "origin": "block",
+          "purpose": "school",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 750.0,
+            "vehicles": 0.0
+          },
+          "vehicle_class": null
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c5:home",
+          "mode": "noncar",
+          "origin": "block",
+          "purpose": "return_home",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 750.0,
+            "vehicles": 0.0
+          },
+          "vehicle_class": null
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c6:out",
+          "mode": "car",
+          "origin": "block",
+          "purpose": "service",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 9000.0,
+            "vehicles": 7200.0
+          },
+          "vehicle_class": "car"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c6:home",
+          "mode": "car",
+          "origin": "block",
+          "purpose": "return_home",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 9000.0,
+            "vehicles": 7200.0
+          },
+          "vehicle_class": "car"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c7:out",
+          "mode": "bus",
+          "origin": "block",
+          "purpose": "service",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 3750.0,
+            "vehicles": 150.0
+          },
+          "vehicle_class": "scheduled_bus"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c7:home",
+          "mode": "bus",
+          "origin": "block",
+          "purpose": "return_home",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 3750.0,
+            "vehicles": 150.0
+          },
+          "vehicle_class": "scheduled_bus"
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c8:out",
+          "mode": "noncar",
+          "origin": "block",
+          "purpose": "service",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 2250.0,
+            "vehicles": 0.0
+          },
+          "vehicle_class": null
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "intrazonal",
+          "leg": "c8:home",
+          "mode": "noncar",
+          "origin": "block",
+          "purpose": "return_home",
+          "requested": {
+            "cargo_kg": 0.0,
+            "persons": 2250.0,
+            "vehicles": 0.0
+          },
+          "vehicle_class": null
+        },
+        {
+          "destination": "block",
+          "endpoint_kind": "external",
+          "leg": "freight:block",
+          "mode": "freight",
+          "origin": "EXTERNAL",
+          "purpose": "delivery",
+          "requested": {
+            "cargo_kg": 10000.0,
+            "persons": 0.0,
+            "vehicles": 10.0
+          },
+          "vehicle_class": "freight"
+        }
+      ],
+      "prior": "declared synthetic cohort calendar; fractional vehicles from occupancy; bus fleet operations pending B01",
+      "resident_residual": 0.0,
+      "resident_stock": 100000.0,
+      "resident_stocks": {
+        "activity": 0.0,
+        "external_activity": 0.0,
+        "home": 100000.0,
+        "in_transit": 0.0
+      },
+      "scope": "24h calendar generated; no road/queue simulation; zero implicit completions",
+      "status": "PASS",
+      "time_s": 86400.0,
+      "trip_amounts": {
+        "active": {
+          "cargo_kg": 0.0,
+          "persons": 0.0,
+          "vehicles": 0.0
+        },
+        "completed": {
+          "cargo_kg": 0.0,
+          "persons": 0.0,
+          "vehicles": 0.0
+        },
+        "pending": {
+          "cargo_kg": 10000.0,
+          "persons": 140000.0,
+          "vehicles": 68610.0
+        },
+        "released": {
+          "cargo_kg": 0.0,
+          "persons": 0.0,
+          "vehicles": 0.0
+        },
+        "requested": {
+          "cargo_kg": 10000.0,
+          "persons": 140000.0,
+          "vehicles": 68610.0
+        }
+      },
+      "unassigned_service_persons": 0.0
+    }
+  ],
+  "python": "3.12.14",
+  "status": "PASS"
+}
