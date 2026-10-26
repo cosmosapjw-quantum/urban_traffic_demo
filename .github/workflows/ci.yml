@@ -124,6 +124,7 @@ jobs:
           PYTHONPATH=src python -S -c "import sys; import metroflow.v1; assert not ({'numpy','scipy','jax','torch'} & sys.modules.keys())"
           python -m pytest -q tests/v1 tests/test_v1_access.py tests/test_v1_birth_contract.py tests/test_v1_journey.py tests/test_v1_plan.py tests/test_packet_quotient.py tests/test_area_observables.py
           python tools/v1_plan.py validate
+          python -m metroflow.v1 validate-city --matrix --out "$RUNNER_TEMP/m02-city-matrix.json" > "$RUNNER_TEMP/m02-city-matrix.stdout.json"
 
   oracle-parity:
     # Runs on every push and pull request, not on request.

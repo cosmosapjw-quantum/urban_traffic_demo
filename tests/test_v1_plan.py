@@ -19,7 +19,7 @@ def test_plan_is_acyclic_and_every_required_deliverable_is_mapped():
     assert len(order) == 21
     rank = {key: i for i, key in enumerate(order)}
     assert all(rank[d] < rank[n["id"]] for n in p["nodes"] for d in n["depends_on"])
-    assert p["next_node"] == "I01"
+    assert p["next_node"] in {n["id"] for n in p["nodes"] if n["status"] != "ACCEPTED"}
 
 
 def test_generated_documents_are_one_view_of_one_authority():
@@ -47,7 +47,8 @@ def test_scoped_tests_are_not_a_release_claim():
     with pytest.raises(ValueError, match="BLOCKED"):
         mod.validate(plan(), release=True)
     assert all(
-        n["status"] == "VERIFIED_SCOPED"
+        n["status"] == "ACCEPTED"
+        and n["integration_evidence"]["merge_sha"] == "b687425b1daa6ce61f912240cafbd9f294b0578b"
         for n in plan()["nodes"]
         if n["id"] in ("P00", "M01", "T01")
     )

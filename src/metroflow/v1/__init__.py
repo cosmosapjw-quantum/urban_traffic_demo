@@ -14,3 +14,7 @@ __all__ = [
     "JourneyState",
     "PacketNetwork",
 ]
+
+from .city import CitySnapshot, CityContractError, PortalRef, compile_city, load_city
+
+__all__ += ["CitySnapshot", "CityContractError", "PortalRef", "compile_city", "load_city"]

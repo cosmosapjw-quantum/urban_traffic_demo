@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.0.1",
-  "date": "2026-10-25",
+  "version": "1.0.2",
+  "date": "2026-10-26",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
   "base_research_sha": "0a7c980d3934146a978280fe76045443ad12640e",
@@ -15,7 +15,7 @@
     "T01",
     "I01"
   ],
-  "next_node": "I01",
+  "next_node": "M02",
   "execution_policy": {
     "rule": "초기 PR에서 I01 전체저장소 검증을 먼저 끝내 병합한다. 이후 DAG prerequisite가 수용된 READY 노드만 실행한다.",
     "no_automatic_scope_growth": true,
@@ -148,8 +148,8 @@
       "3.12",
       "3.13"
     ],
-    "current_host_python": "3.13.5",
-    "current_python312_status": "NOT_RUN"
+    "current_host_python": "3.12.14",
+    "current_python312_status": "PASS_I01_FULL_CI_AND_M02_SCOPED"
   },
   "release_gates": [
     {
@@ -360,26 +360,28 @@
   ],
   "current_execution": {
     "node_ids": [
-      "P00",
-      "M01",
-      "T01",
-      "I01"
+      "M02"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "I01 full checkout integration verified; bootstrap merge pending; not V1 complete",
-    "full_repository_ci": "PASS_AT_b7ff813504b4a4e1beb97cb51f7d43ce33deb338",
+    "scope": "M02 physical city contract verified locally; PR integration pending; not V1 complete",
+    "full_repository_ci": "NOT_RUN_FOR_M02",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_i01_20261025/RECEIPT.json",
+    "evidence": "artifacts/v1_m02_20261026/RECEIPT.json",
     "ci_run": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/40182521270",
-    "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json"
+    "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
+    "previous_bootstrap_ci": {
+      "head": "e2c3b418f6149ec061667cd052f486cad163a756",
+      "run": 40184942213,
+      "status": "success"
+    }
   },
   "nodes": [
     {
       "id": "P00",
       "title": "단일 계획·DAG·요구사항 기준 확정",
       "depends_on": [],
-      "status": "VERIFIED_SCOPED",
+      "status": "ACCEPTED",
       "files": [
         "docs/v1/PLAN.json",
         "docs/v1/MASTER_PLAN_KO.md",
@@ -427,6 +429,12 @@
         "branch": "v1/foundation-access-journey-20261025",
         "base": "research/v1-integration-20261025",
         "opened_number": null
+      },
+      "integration_evidence": {
+        "pr": 25,
+        "merge_sha": "b687425b1daa6ce61f912240cafbd9f294b0578b",
+        "verified_head": "e2c3b418f6149ec061667cd052f486cad163a756",
+        "ci_run": 40184942213
       }
     },
     {
@@ -435,7 +443,7 @@
       "depends_on": [
         "P00"
       ],
-      "status": "VERIFIED_SCOPED",
+      "status": "ACCEPTED",
       "files": [
         "src/metroflow/v1/access.py",
         "tests/test_v1_access.py"
@@ -488,6 +496,12 @@
         "branch": "v1/foundation-access-journey-20261025",
         "base": "research/v1-integration-20261025",
         "opened_number": null
+      },
+      "integration_evidence": {
+        "pr": 25,
+        "merge_sha": "b687425b1daa6ce61f912240cafbd9f294b0578b",
+        "verified_head": "e2c3b418f6149ec061667cd052f486cad163a756",
+        "ci_run": 40184942213
       }
     },
     {
@@ -496,7 +510,7 @@
       "depends_on": [
         "M01"
       ],
-      "status": "VERIFIED_SCOPED",
+      "status": "ACCEPTED",
       "files": [
         "src/metroflow/packet_network.py",
         "src/metroflow/v1/journey.py",
@@ -558,6 +572,12 @@
         "branch": "v1/foundation-access-journey-20261025",
         "base": "research/v1-integration-20261025",
         "opened_number": null
+      },
+      "integration_evidence": {
+        "pr": 25,
+        "merge_sha": "b687425b1daa6ce61f912240cafbd9f294b0578b",
+        "verified_head": "e2c3b418f6149ec061667cd052f486cad163a756",
+        "ci_run": 40184942213
       }
     },
     {
@@ -568,7 +588,7 @@
         "M01",
         "T01"
       ],
-      "status": "VERIFIED_SCOPED",
+      "status": "ACCEPTED",
       "files": [
         "pyproject.toml",
         "src/metroflow/v1/__init__.py",
@@ -631,6 +651,12 @@
         "runtime_source_commit": "b7ff813504b4a4e1beb97cb51f7d43ce33deb338",
         "ci_run": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/40182521270",
         "merge_state": "AWAITING_BOOTSTRAP_MERGE"
+      },
+      "integration_evidence": {
+        "pr": 25,
+        "merge_sha": "b687425b1daa6ce61f912240cafbd9f294b0578b",
+        "verified_head": "e2c3b418f6149ec061667cd052f486cad163a756",
+        "ci_run": 40184942213
       }
     },
     {
@@ -639,7 +665,7 @@
       "depends_on": [
         "I01"
       ],
-      "status": "PLANNED",
+      "status": "VERIFIED_SCOPED",
       "files": [
         "src/metroflow/v1/city.py",
         "src/metroflow/terrain_city/",
@@ -692,9 +718,15 @@
       "pr": {
         "key": "V1-M02",
         "title": "[V1 M02] 지형·입체도로·회전·구조물의 단일 지도 계약",
-        "branch": "v1/m02",
+        "branch": "v1/m02-layered-contract-20261026",
         "base": "research/v1-integration-20261025",
         "opened_number": null
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_m02_20261026/RECEIPT.json",
+        "sha256": "e1f58343a71ef615d38a7f08d58f4fd0f23ec9b2c1ca2853d28c9bf7c1645c4e",
+        "source_manifest": "artifacts/v1_m02_20261026/SOURCE_MANIFEST.json",
+        "acceptance": "18 atlas JSON cases and 4 restored factories passed; PR integration pending"
       }
     },
     {
