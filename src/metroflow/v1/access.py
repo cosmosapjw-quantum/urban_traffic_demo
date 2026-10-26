@@ -116,3 +116,43 @@ def compile_access(profile, bin_s=2., max_atoms=256, *, external_costs=None):
     return AccessLaw(tuple(atoms), bin_s, mean, original_variance, compressed_variance,
                      math.fsum(variance_lost), math.fsum(deviations), maximum_error,
                      float(bound), len(samples), str(profile.get('measure', 'declared activity quadrature')))
+
+
+def activity_access(measure, portals, *, speed_mps=1.4, depth=2, bin_s=2., max_atoms_per_portal=256):
+    """Push activity to physical doors, with explicit per-conditional-door budget.
+
+    Only the mean has a quadrature certificate. Variance/p95 are estimates;
+    compare refinement levels for those observables. No driveway/road time is
+    included here, so a consumer must not add the same private connector again.
+    """
+    from ..terrain_city.area_access import AreaAccess
+    if isinstance(max_atoms_per_portal, bool) or not isinstance(max_atoms_per_portal, int) or not 1 <= max_atoms_per_portal <= 256:
+        raise ValueError("conditional portal atom budget must be 1..256")
+    portals = tuple(portals)
+    if any(p.external_s != 0 for p in portals):
+        raise ValueError('external generalized cost is not physical access time')
+    area = AreaAccess(measure.block_points)
+    samples, bounds = [], []
+    for point, weight, radius in measure.quadrature(depth):
+        cost, gates = area.portal_costs(point, portals, speed_mps)
+        samples.append(dict(xy=point, weight=weight, cost_s=cost, portals=gates))
+        bounds.append(weight * radius / speed_mps)
+    profile = dict(quadrature=samples, error_bound_s=math.fsum(bounds), measure='declared ' + measure.kind + ' activity; synthetic prior')
+    # compile_access preserves its original global-budget API. Compile with the
+    # largest possible total, then enforce each conditional law independently.
+    law = compile_access(profile, bin_s, max_atoms_per_portal * len(portals))
+    if any(sum(a.portal == gate for a in law.atoms) > max_atoms_per_portal for gate, _ in law.portal_weights()):
+        raise ValueError('conditional portal atom budget exceeded; no mass discarded')
+    ordered = sorted((s['cost_s'], s['weight']) for s in samples)
+    cumulative = 0.
+    p95 = ordered[-1][0]
+    for t, w in ordered:
+        cumulative += w
+        if cumulative >= .95 - 1e-12:
+            p95 = t
+            break
+    return law, dict(mean_s=law.mean_s, p95_quadrature_s=p95,
+                     variance_quadrature_s2=law.original_variance_s2,
+                     quadrature_mean_bound_s=law.quadrature_mean_bound_s,
+                     quantile_certificate='NOT_CERTIFIED',
+                     samples=samples, warnings=measure.warnings)
