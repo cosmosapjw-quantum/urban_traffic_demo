@@ -289,8 +289,8 @@ flowchart TD
 |R01|인과적 정보 channel과 동일물리 비용 관측|T04, I01|VERIFIED_SCOPED|
 |R02|공유 경로·유한정보 재탐색·Braess 보존|R01, T03|VERIFIED_SCOPED|
 |B01|버스·화물의 최소 운영과 승객/차량 분리|D01, T03, R02|VERIFIED_SCOPED|
-|C01|단일 WorldState·다중 시간척도·저장/재개 실행기|I01, D01, T04, R02|IN_PROGRESS|
-|M04|실현 접근성에서 느린 도시개발로의 지연 피드백|C01, M03|PLANNED|
+|C01|단일 WorldState·다중 시간척도·저장/재개 실행기|I01, D01, T04, R02|VERIFIED_SCOPED|
+|M04|실현 접근성에서 느린 도시개발로의 지연 피드백|C01, M03|READY|
 |C02|하루 도시 실행·시나리오·관측 패키지|C01, B01, M04, T01|PLANNED|
 |P01|관측동등 경량화와 자원 상한 확립|C02|PLANNED|
 |V01|통합 물리·관측·대칭 적대 검증|C02|PLANNED|
@@ -1504,9 +1504,9 @@ C02전체도시일일시나리오에포함
 
 ### C01. 단일 WorldState·다중 시간척도·저장/재개 실행기
 
-의존: I01, D01, T04, R02; 상태: **IN_PROGRESS**.
+의존: I01, D01, T04, R02; 상태: **VERIFIED_SCOPED**.
 
-예정 PR: `V1-C01`, branch `v1/c01-parallel-20261026` → `v1/r02-shared-routing-20261026`.
+예정 PR: `V1-C01`, branch `v1/c01-parallel-20261026` → `v1/b01-parallel-20261026`.
 
 **입력**
 
@@ -1598,11 +1598,9 @@ checkpoint최대간격simulation900s 및매불가역graph-edit전; outputstreami
 
 ### M04. 실현 접근성에서 느린 도시개발로의 지연 피드백
 
-의존: C01, M03; 상태: **PLANNED**.
+의존: C01, M03; 상태: **READY**.
 
 예정 PR: `V1-M04`, branch `v1/m04` → `research/v1-integration-20261025`.
-
-아래 파일·명령은 목표 계약이다. 아직 존재하거나 통과했다고 주장하지 않는다.
 
 **입력**
 
@@ -2315,11 +2313,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "C01"
   ],
   "native_subagent": "NOT_RUN",
-  "scope": "B01 and C01 independent parallel implementation; full CI/integration deferred",
+  "scope": "B01/C01 independent parallel scoped implementation verified; next M04; full CI/integration deferred",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": null,
+  "evidence": "artifacts/v1_parallel_20261026/RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2336,5 +2334,5 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
 - `.specify/memory/constitution.md` @ `0a7c980d3934146a978280fe76045443ad12640e`: 채택한상위보존/단위/불변상태/지연/회귀원칙
 - `docs/TRAFFIC_SIMULATION_FINAL_MODEL_SPEC.md` @ `01c80b432344f94209daaa198bb1eb007839fc7f`: 목표설계문서이며현재구현완료증거아님
 
-다음 작업: **C01**. `python tools/v1_plan.py next`로 같은 결과를 조회한다.
+다음 작업: **M04**. `python tools/v1_plan.py next`로 같은 결과를 조회한다.
 

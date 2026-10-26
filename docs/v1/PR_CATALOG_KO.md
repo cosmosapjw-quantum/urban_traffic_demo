@@ -19,7 +19,7 @@
 |V1-R01|[V1 R01] 인과적 정보 channel과 동일물리 비용 관측|T04, I01|v1/r01-causal-information-20261026|v1/t04-transfer-time-20261026|
 |V1-R02|[V1 R02] 공유 경로·유한정보 재탐색·Braess 보존|R01, T03|v1/r02-shared-routing-20261026|v1/r01-causal-information-20261026|
 |V1-B01|[V1 B01] 버스·화물의 최소 운영과 승객/차량 분리|D01, T03, R02|v1/b01-parallel-20261026|v1/r02-shared-routing-20261026|
-|V1-C01|[V1 C01] 단일 WorldState·다중 시간척도·저장/재개 실행기|I01, D01, T04, R02|v1/c01-parallel-20261026|v1/r02-shared-routing-20261026|
+|V1-C01|[V1 C01] 단일 WorldState·다중 시간척도·저장/재개 실행기|I01, D01, T04, R02|v1/c01-parallel-20261026|v1/b01-parallel-20261026|
 |V1-M04|[V1 M04] 실현 접근성에서 느린 도시개발로의 지연 피드백|C01, M03|v1/m04|research/v1-integration-20261025|
 |V1-C02|[V1 C02] 하루 도시 실행·시나리오·관측 패키지|C01, B01, M04, T01|v1/c02|research/v1-integration-20261025|
 |V1-P01|[V1 P01] 관측동등 경량화와 자원 상한 확립|C02|v1/p01|research/v1-integration-20261025|

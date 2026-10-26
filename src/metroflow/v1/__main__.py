@@ -29,6 +29,13 @@ def main():
     physics = commands.add_parser("physics-oracles")
     physics.add_argument("--suite", choices=("kinetic", "junctions", "timing", "routing"), required=True)
     physics.add_argument("--out", type=Path)
+    run = commands.add_parser("run")
+    run.add_argument("--scenario", choices=("toy_day",), required=True)
+    run.add_argument("--resume-check", action="store_true")
+    run.add_argument("--checkpoint", type=Path)
+    run.add_argument("--resume", type=Path)
+    run.add_argument("--until", type=float, default=60.0)
+    run.add_argument("--out", type=Path)
     args = parser.parse_args()
     if args.command == "capabilities":
         print(
@@ -39,7 +46,29 @@ def main():
         )
         return 0
     try:
-        if args.command == "physics-oracles":
+        if args.command == "run":
+            from .runtime import toy_runtime
+            from .checkpoint import save_checkpoint, load_checkpoint
+            import tempfile
+            model = toy_runtime()
+            initial = load_checkpoint(args.resume, model) if args.resume else model.initial()
+            with tempfile.TemporaryDirectory() as temp:
+                checkpoint = args.checkpoint or Path(temp) / 'world.json'
+                if args.resume_check:
+                    middle = (initial.traffic.road.time_s + args.until) / 2
+                    half = model.run(initial, middle, checkpoint)
+                    save_checkpoint(checkpoint, model, half)
+                    resumed = model.run(load_checkpoint(checkpoint, model), args.until, checkpoint)
+                    continuous = model.advance(initial, args.until)
+                    if resumed != continuous:
+                        raise ValueError('resume state differs from uninterrupted execution')
+                else:
+                    resumed = model.run(initial, args.until, checkpoint)
+            rows = [dict(case='toy_day', status='PASS', time_s=resumed.traffic.road.time_s,
+                         completed_veh=resumed.traffic.road.completed,
+                         phases=len(resumed.journal), resume_checked=args.resume_check,
+                         scope='synthetic fixed demand/graph; not 24h city runner')]
+        elif args.command == "physics-oracles":
             if args.suite == "kinetic":
                 from .kinetic_oracles import kinetic_oracles
 

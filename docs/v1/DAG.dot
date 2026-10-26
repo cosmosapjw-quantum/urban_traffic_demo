@@ -15,7 +15,7 @@ T04 [label="T04\nTime and flux transport", style="rounded,bold"];
 R01 [label="R01\nCausal information", style="rounded,bold"];
 R02 [label="R02\nCommitted routing", style="rounded,bold"];
 B01 [label="B01\nBus and freight", style="rounded,bold"];
-C01 [label="C01\nWorld and scheduler", style="rounded,dashed"];
+C01 [label="C01\nWorld and scheduler", style="rounded,bold"];
 M04 [label="M04\nLagged development", style="rounded,dashed"];
 C02 [label="C02\nFull-day scenarios", style="rounded,dashed"];
 P01 [label="P01\nMeasured optimization", style="rounded,dashed"];

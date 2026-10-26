@@ -15,7 +15,7 @@
     "T01",
     "I01"
   ],
-  "next_node": "C01",
+  "next_node": "M04",
   "execution_policy": {
     "rule": "2026-10-26 사용자 변경: DAG 구현을 한정 검증된 누적 브랜치에서 진행한다. 전체 CI·통합·ACCEPTED 판정은 전체 DAG 구현 후 별도 심사에서 수행한다.",
     "no_automatic_scope_growth": true,
@@ -372,11 +372,11 @@
       "C01"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "B01 and C01 independent parallel implementation; full CI/integration deferred",
+    "scope": "B01/C01 independent parallel scoped implementation verified; next M04; full CI/integration deferred",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": null,
+    "evidence": "artifacts/v1_parallel_20261026/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -1373,7 +1373,7 @@
         "T04",
         "R02"
       ],
-      "status": "IN_PROGRESS",
+      "status": "VERIFIED_SCOPED",
       "files": [
         "src/metroflow/v1/runtime.py",
         "src/metroflow/v1/checkpoint.py",
@@ -1429,14 +1429,20 @@
         "key": "V1-C01",
         "title": "[V1 C01] 단일 WorldState·다중 시간척도·저장/재개 실행기",
         "branch": "v1/c01-parallel-20261026",
-        "base": "v1/r02-shared-routing-20261026",
-        "opened_number": null
+        "base": "v1/b01-parallel-20261026",
+        "opened_number": 35
       },
       "implementation_parent": {
-        "node": "R02",
-        "branch": "v1/r02-shared-routing-20261026",
-        "sha": "73b64a505a473a8e6d0be3a89561bdba04276d5d",
-        "pr": 33
+        "node": "B01",
+        "branch": "v1/b01-parallel-20261026",
+        "sha": "0bc2f610ff65e1f628c086daa730ee40ff293902",
+        "pr": 34
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_c01_20261026/RECEIPT.json",
+        "sha256": "e845ea9d584e5eaf1c628d1044422d8289af0dea8929162dca82e84b95ef91b5",
+        "source_manifest": "artifacts/v1_c01_20261026/SOURCE_MANIFEST.json",
+        "acceptance": "10 focused /54 scoped per Python; real state JSON resume, phase lag, 900s saves, toy CLI; city composition deferred"
       }
     },
     {
@@ -1446,7 +1452,7 @@
         "C01",
         "M03"
       ],
-      "status": "PLANNED",
+      "status": "READY",
       "files": [
         "src/metroflow/v1/development.py",
         "src/metroflow/v1/accessibility.py",
@@ -1946,11 +1952,12 @@
       "T04",
       "R01",
       "R02",
-      "B01"
+      "B01",
+      "C01"
     ],
-    "completed_count": 13,
+    "completed_count": 14,
     "total_count": 21,
-    "percent": 61.9,
+    "percent": 66.67,
     "definition": "ACCEPTED or receipt-bound VERIFIED_SCOPED; not full CI/integration/final acceptance"
   }
 }
