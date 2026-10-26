@@ -1,0 +1,8 @@
+{
+  "src/metroflow/v1/city.py": "cb8acfbe697ba2d9f8f25a4438a2b7aa562305a0d510ff292cbe5bde91412125",
+  "src/metroflow/v1/__main__.py": "84de487fe713537e4a1273dde502edb06a0adf2e240d8b5347a7ab54b342dbb1",
+  "src/metroflow/v1/__init__.py": "fda767d7484ea3c4caa931cf5626ffdb2e26dcaaaa3e63a1d2891f39c513610b",
+  "tests/v1/test_city_contract.py": "da49cc7b2e18b3625f0101089b39422a68fe51e5773896c2e953623dd08c1259",
+  "tests/test_v1_plan.py": "b9a97fc9bf17b8054798a2f026f33387e4d6ee6b50d6b9e7fee4c79232d51419",
+  ".github/workflows/ci.yml": "ad49fb2c8a13a66556344447df58f363c0e22a374e3fd72e1875106edc6f16cc"
+}

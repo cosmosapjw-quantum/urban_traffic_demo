@@ -2,11 +2,11 @@ digraph V1 {
 graph [rankdir=TB, nodesep=0.28, ranksep=0.4, labelloc=t, label="MetroFlow V1 dependency DAG | bold: scoped verification, dashed: planned"];
 node [shape=box, fontname="DejaVu Sans", fontsize=11, margin="0.12,0.10"];
 edge [arrowsize=0.6];
-P00 [label="P00\nPlan authority", style="rounded,bold"];
-M01 [label="M01\nArea access laws", style="rounded,bold"];
-T01 [label="T01\nWhole journey clock", style="rounded,bold"];
-I01 [label="I01\nRepository integration", style="rounded,bold"];
-M02 [label="M02\nLayered city contract", style="rounded,dashed"];
+P00 [label="P00\nPlan authority", style="rounded,dashed"];
+M01 [label="M01\nArea access laws", style="rounded,dashed"];
+T01 [label="T01\nWhole journey clock", style="rounded,dashed"];
+I01 [label="I01\nRepository integration", style="rounded,dashed"];
+M02 [label="M02\nLayered city contract", style="rounded,bold"];
 M03 [label="M03\nActivity and portals", style="rounded,dashed"];
 D01 [label="D01\nDaily cohort demand", style="rounded,dashed"];
 T02 [label="T02\nFinite-response closure", style="rounded,dashed"];

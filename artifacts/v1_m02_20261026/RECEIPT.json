@@ -1,0 +1,73 @@
+{
+  "status": "M02_VERIFIED_SCOPED_AWAITING_PR_INTEGRATION",
+  "base_merge": "b687425b1daa6ce61f912240cafbd9f294b0578b",
+  "bootstrap_pr": 25,
+  "bootstrap_verified_head": "e2c3b418f6149ec061667cd052f486cad163a756",
+  "bootstrap_ci": {
+    "run": 40184942213,
+    "status": "success"
+  },
+  "branch": "v1/m02-layered-contract-20261026",
+  "source_identity": "SOURCE_MANIFEST.json binds actual executed geometry and final candidate; all upstream source pinned to base merge",
+  "matrix": {
+    "status": "PASS",
+    "cities": 6,
+    "seeds": [
+      7,
+      17,
+      41
+    ],
+    "cases": 18,
+    "size_m": 8000,
+    "resolution": 42,
+    "min_residents": 100000,
+    "max_directed_groups": 3726,
+    "atlas_json_and_snapshot_json_roundtrip": true
+  },
+  "restored_factory": {
+    "styles": 4,
+    "seed": 17,
+    "resolution": 12,
+    "status": "PASS",
+    "each_facilities": {
+      "bridge": 3,
+      "mainline": 10,
+      "ramp": 8
+    }
+  },
+  "tests": {
+    "python312": "109 passed",
+    "python313_v1_profile": "60 passed",
+    "new_city_contract": "15 passed",
+    "lint": "PASS ruff 0.16.2"
+  },
+  "full_repository_ci": "NOT_RUN_FOR_M02; inherited I01 full CI reused, new workflow includes mandatory matrix in both Python jobs",
+  "failure_reproductions": [
+    "legacy compiler accepts declared 400m for a 200m mainline; V1 rejects inconsistent length",
+    "overlapping elevated segments have midpoint separation over5m but minimum0; V1 rejects",
+    "self-intersecting centreline, buried bridge, false XY junction, polygon intrusion, invalid ramps and group budget are rejected"
+  ],
+  "execution_notes": [
+    "one initial pytest command named absent test files and exited4 before running any tests; corrected selection passed",
+    "obsolete development matrix runs were interrupted; only final MATRIX.json is acceptance evidence",
+    "matrix geometry source unchanged; subsequent CLI-only edit classifies missing input as ENVIRONMENT_BLOCKER and is separately tested"
+  ],
+  "not_claimed": [
+    "M02 merged or ACCEPTED",
+    "full product release",
+    "100k resident daily activity or traffic run",
+    "pavement envelope or empirical safety certification",
+    "dynamic structure-failure traffic response",
+    "independent subagent review"
+  ],
+  "artifacts": {
+    "PYTHON313.txt": "e33fb14d10b321a8da17a9227025db8927cb21c13f1da57ee0401cab6218f876",
+    "MATRIX_SOURCE_MANIFEST.json": "5fa46d709f22999195040847b0b03846204e6caa3da1ccfc977dc650147012b4",
+    "MATRIX.json": "fd04affe082e966eb25809256206e09adfaad4a620b99d477d7260689084ebfe",
+    "MATRIX_PROGRESS.txt": "a497f51e5717cadf6d16a1eb2c38501239be1374ccf202351e6c42f9c03eea59",
+    "SOURCE_MANIFEST.json": "08f580445550e06401ce8c9e962d1cee48f32c92b5f72ea1a2b105696c47fcca",
+    "REGRESSION.txt": "77c87a729e27678b450c2e13289f92b3b277f7a9ebab1f52aeab2182b992cd44",
+    "RESTORED_MATRIX.json": "b4353ffc9a186a8c74f5124b44224ec6e1e975792b52ff0d35bba28cad9d4977",
+    "REGRESSION.xml": "876eadaee2906e5fb4e029b6c0ceee64c2e68401e4ce962da4fea519b79247eb"
+  }
+}

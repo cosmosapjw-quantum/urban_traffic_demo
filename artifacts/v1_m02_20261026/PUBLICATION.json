@@ -1,0 +1,12 @@
+{
+  "branch": "v1/m02-layered-contract-20261026",
+  "pr": 26,
+  "url": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/pull/26",
+  "source_commit": "635469fe19b6b1db374587cc741dcfe1cdfaa8e4",
+  "source_tree": "28bc3f8fb85a70610eac925def311886a3c0e88c",
+  "target": "research/v1-integration-20261025",
+  "bootstrap_merge": "b687425b1daa6ce61f912240cafbd9f294b0578b",
+  "ref_update": "expected SHA, non-force success",
+  "ci": "PENDING_AT_PUBLICATION",
+  "status": "VERIFIED_SCOPED_NOT_MERGED"
+}

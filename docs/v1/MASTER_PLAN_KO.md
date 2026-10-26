@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.0.1**, 2026-10-25. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.0.2**, 2026-10-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -181,8 +181,8 @@ PLAN.json이 유일한 규범 원본이며 MASTER_PLAN_KO.md/DAG/PR_CATALOG는 �
     "3.12",
     "3.13"
   ],
-  "current_host_python": "3.13.5",
-  "current_python312_status": "NOT_RUN"
+  "current_host_python": "3.12.14",
+  "current_python312_status": "PASS_I01_FULL_CI_AND_M02_SCOPED"
 }
 ```
 
@@ -260,11 +260,11 @@ flowchart TD
 
 |노드|작업|의존|상태|
 |---|---|---|---|
-|P00|단일 계획·DAG·요구사항 기준 확정|없음|VERIFIED_SCOPED|
-|M01|면적 활동측도를 출입구·접근시간 법칙으로 컴파일|P00|VERIFIED_SCOPED|
-|T01|원래 출발시각을 보존하는 전체 여정 연결|M01|VERIFIED_SCOPED|
-|I01|전체 저장소 통합 기준선과 V1 facade 확립|P00, M01, T01|VERIFIED_SCOPED|
-|M02|지형·입체도로·회전·구조물의 단일 지도 계약|I01|PLANNED|
+|P00|단일 계획·DAG·요구사항 기준 확정|없음|ACCEPTED|
+|M01|면적 활동측도를 출입구·접근시간 법칙으로 컴파일|P00|ACCEPTED|
+|T01|원래 출발시각을 보존하는 전체 여정 연결|M01|ACCEPTED|
+|I01|전체 저장소 통합 기준선과 V1 facade 확립|P00, M01, T01|ACCEPTED|
+|M02|지형·입체도로·회전·구조물의 단일 지도 계약|I01|VERIFIED_SCOPED|
 |M03|활동가중 블록·복수 출입구·주거용량의 현실적 연결|M02, M01|PLANNED|
 |D01|10만 주민의 집단별 하루 활동·수요 장부|M03, I01|PLANNED|
 |T02|연속속도 기초에서 유한응답 집계 closure 확정|I01|PLANNED|
@@ -286,7 +286,7 @@ flowchart TD
 
 ### P00. 단일 계획·DAG·요구사항 기준 확정
 
-의존: 없음; 상태: **VERIFIED_SCOPED**.
+의존: 없음; 상태: **ACCEPTED**.
 
 예정 PR: `V1-P00`, branch `v1/foundation-access-journey-20261025` → `research/v1-integration-20261025`.
 
@@ -372,7 +372,7 @@ M01/T01 bootstrap의 실제 evidence를 연결하고 I01을 같은 PR의 다음 
 
 ### M01. 면적 활동측도를 출입구·접근시간 법칙으로 컴파일
 
-의존: P00; 상태: **VERIFIED_SCOPED**.
+의존: P00; 상태: **ACCEPTED**.
 
 예정 PR: `V1-M01`, branch `v1/foundation-access-journey-20261025` → `research/v1-integration-20261025`.
 
@@ -461,7 +461,7 @@ T01에서 gate-conditioned 수요에 연결하고 private connector 항을 교�
 
 ### T01. 원래 출발시각을 보존하는 전체 여정 연결
 
-의존: M01; 상태: **VERIFIED_SCOPED**.
+의존: M01; 상태: **ACCEPTED**.
 
 예정 PR: `V1-T01`, branch `v1/foundation-access-journey-20261025` → `research/v1-integration-20261025`.
 
@@ -559,7 +559,7 @@ I01 full-repository 수용 후 T04와 D01에 연결
 
 ### I01. 전체 저장소 통합 기준선과 V1 facade 확립
 
-의존: P00, M01, T01; 상태: **VERIFIED_SCOPED**.
+의존: P00, M01, T01; 상태: **ACCEPTED**.
 
 예정 PR: `V1-I01`, branch `v1/foundation-access-journey-20261025` → `research/v1-integration-20261025`.
 
@@ -651,11 +651,9 @@ sandbox는 좁은검사; 전체CI는 CI/로컬에서실행. 한번의 무변경�
 
 ### M02. 지형·입체도로·회전·구조물의 단일 지도 계약
 
-의존: I01; 상태: **PLANNED**.
+의존: I01; 상태: **VERIFIED_SCOPED**.
 
-예정 PR: `V1-M02`, branch `v1/m02` → `research/v1-integration-20261025`.
-
-아래 파일·명령은 목표 계약이다. 아직 존재하거나 통과했다고 주장하지 않는다.
+예정 PR: `V1-M02`, branch `v1/m02-layered-contract-20261026` → `research/v1-integration-20261025`.
 
 **입력**
 
@@ -2315,19 +2313,21 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
 ```json
 {
   "node_ids": [
-    "P00",
-    "M01",
-    "T01",
-    "I01"
+    "M02"
   ],
   "native_subagent": "NOT_RUN",
-  "scope": "I01 full checkout integration verified; bootstrap merge pending; not V1 complete",
-  "full_repository_ci": "PASS_AT_b7ff813504b4a4e1beb97cb51f7d43ce33deb338",
+  "scope": "M02 physical city contract verified locally; PR integration pending; not V1 complete",
+  "full_repository_ci": "NOT_RUN_FOR_M02",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": "artifacts/v1_i01_20261025/RECEIPT.json",
+  "evidence": "artifacts/v1_m02_20261026/RECEIPT.json",
   "ci_run": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/40182521270",
-  "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json"
+  "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
+  "previous_bootstrap_ci": {
+    "head": "e2c3b418f6149ec061667cd052f486cad163a756",
+    "run": 40184942213,
+    "status": "success"
+  }
 }
 ```
 
@@ -2337,5 +2337,5 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
 - `.specify/memory/constitution.md` @ `0a7c980d3934146a978280fe76045443ad12640e`: 채택한상위보존/단위/불변상태/지연/회귀원칙
 - `docs/TRAFFIC_SIMULATION_FINAL_MODEL_SPEC.md` @ `01c80b432344f94209daaa198bb1eb007839fc7f`: 목표설계문서이며현재구현완료증거아님
 
-다음 작업: **I01**. `python tools/v1_plan.py next`로 같은 결과를 조회한다.
+다음 작업: **M02**. `python tools/v1_plan.py next`로 같은 결과를 조회한다.
 

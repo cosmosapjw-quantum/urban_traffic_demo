@@ -1,0 +1,14 @@
+{
+  "src/metroflow/v1/city.py": "cb8acfbe697ba2d9f8f25a4438a2b7aa562305a0d510ff292cbe5bde91412125",
+  "src/metroflow/v1/__main__.py": "a46b2ed20d14b8a5f74d7824d09dbe48685250a62dae8c2aa07b0ec4759a2844",
+  "src/metroflow/v1/__init__.py": "fda767d7484ea3c4caa931cf5626ffdb2e26dcaaaa3e63a1d2891f39c513610b",
+  "tests/v1/test_city_contract.py": "23dcda80eb7f7ee0e2330aa6d08ab2c102d075a6383db310d6fb589f99e86292",
+  "tests/test_v1_plan.py": "b9a97fc9bf17b8054798a2f026f33387e4d6ee6b50d6b9e7fee4c79232d51419",
+  ".github/workflows/ci.yml": "ad49fb2c8a13a66556344447df58f363c0e22a374e3fd72e1875106edc6f16cc",
+  "src/metroflow/restored_city.py": "db10e7b4550eff4703ebeea1a310919d69d3f890e4c473fb59c8fa03433f2aeb",
+  "src/metroflow/restored_geometry.py": "4012e7ebab4c2b35a9addfbe2b910338790cd6e582c37104a9dbdc2a76a0ab59",
+  "src/metroflow/restored_traffic.py": "b2e4f73ab7b7db94ea50fec6d169a3de8cd35c440763cb853dff661905853174",
+  "src/metroflow/restored_grammar.py": "94c9aaf5c75eb705847bac90d282761cbb1db81ebeea3ce39a92a94a4a0e1b80",
+  "src/metroflow/terrain_city/network.py": "d130f7529c4604c4cfc6c9ce14ec9da2fafa5d9afaa4b19f4a09ed1a839e0855",
+  "src/metroflow/terrain_city/landscape.py": "7f5a92970e66c5ed9c0dcde66ec0e347be7535925b90b3ded4cc34052c88c880"
+}

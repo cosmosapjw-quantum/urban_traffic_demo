@@ -10,7 +10,7 @@
 |V1-M01|[V1 M01] 면적 활동측도를 출입구·접근시간 법칙으로 컴파일|P00|v1/foundation-access-journey-20261025|research/v1-integration-20261025|
 |V1-T01|[V1 T01] 원래 출발시각을 보존하는 전체 여정 연결|M01|v1/foundation-access-journey-20261025|research/v1-integration-20261025|
 |V1-I01|[V1 I01] 전체 저장소 통합 기준선과 V1 facade 확립|P00, M01, T01|v1/foundation-access-journey-20261025|research/v1-integration-20261025|
-|V1-M02|[V1 M02] 지형·입체도로·회전·구조물의 단일 지도 계약|I01|v1/m02|research/v1-integration-20261025|
+|V1-M02|[V1 M02] 지형·입체도로·회전·구조물의 단일 지도 계약|I01|v1/m02-layered-contract-20261026|research/v1-integration-20261025|
 |V1-M03|[V1 M03] 활동가중 블록·복수 출입구·주거용량의 현실적 연결|M02, M01|v1/m03|research/v1-integration-20261025|
 |V1-D01|[V1 D01] 10만 주민의 집단별 하루 활동·수요 장부|M03, I01|v1/d01|research/v1-integration-20261025|
 |V1-T02|[V1 T02] 연속속도 기초에서 유한응답 집계 closure 확정|I01|v1/t02|research/v1-integration-20261025|

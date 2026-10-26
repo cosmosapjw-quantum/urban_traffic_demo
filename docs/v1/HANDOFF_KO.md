@@ -1,25 +1,30 @@
-# V1 I01 검증 이후 인계
+# M02 이후 인계
 
 repo: cosmosapjw-quantum/urban_traffic_demo
 integration: research/v1-integration-20261025
-bootstrap: v1/foundation-access-journey-20261025
-plan: docs/v1/PLAN.json 1.0.1
-PR: https://github.com/cosmosapjw-quantum/urban_traffic_demo/pull/25
+branch: v1/m02-layered-contract-20261026
+plan: docs/v1/PLAN.json 1.0.2
+PR: https://github.com/cosmosapjw-quantum/urban_traffic_demo/pull/26
+구현 commit: 635469fe19b6b1db374587cc741dcfe1cdfaa8e4
 
-AGENTS.md, PLAN.json, I01_INTEGRATION_KO.md, artifacts/v1_i01_20261025/RECEIPT.json을 먼저 읽는다.
-실제 HEAD와 병렬 변경을 확인한다. `python tools/v1_plan.py validate`와 `next`를 실행한다.
+최신 AGENTS·실제 HEAD·병렬 작업과 PLAN.json을 먼저 확인한다.
+bootstrap PR #25는 b687425b1daa6ce61f912240cafbd9f294b0578b로 병합됐다.
+P00/M01/T01/I01은 그 actual merge와 최종 HEAD CI run40184942213을 근거로 ACCEPTED다.
 
-I01 구현 소스 b7ff813504b4a4e1beb97cb51f7d43ce33deb338은 CI run 40182521270의 최종 gate까지 통과했다.
-Python3.12 전체 CI 회귀: 1818 passed, 41 skipped, 3 xfailed. 두 Python V1 profile은 각각45 passed다.
-로컬 작업공간 회귀:1814 passed,41 skipped,3 xfailed. 이 수를 CI 수와 합산하지 않는다.
-후속 증거·계획 문서 커밋은 src/tests/tools/pyproject.toml/.github 바이트를 바꾸지 않는다.
-현재 bootstrap은 병합하지 않았으므로 P00/M01/T01/I01은 VERIFIED_SCOPED이며 next_node=I01이다.
-같은 소스에서 next가 I01이라는 이유만으로 전체 감사를 반복하지 않는다. 남은 작업은 실제 bootstrap 병합이다.
-현재 사용자는 push까지 요청했다. 이후 병합 작업이 승인되면 actual merge SHA와 evidence를 확인하고
-네 노드를 함께 ACCEPTED로 갱신한 뒤 PLAN 위상 순서의 후속 노드 하나를 선택한다. M02/T02를 선행하지 않는다.
-최종 main merge와 release tag는 별도 사용자 승인 전 실행하지 않는다.
+현재 M02는 VERIFIED_SCOPED, next_node=M02다. M02_CONTRACT_KO.md,
+artifacts/v1_m02_20261026/RECEIPT.json과 SOURCE_MANIFEST.json을 읽는다.
+6도시×3seed의18개8km/res42 atlas 및 snapshot JSON 왕복, 4복원문법,
+109개Python3.12 관련회귀, 60개Python3.13 V1 시험을 재사용한다.
+이것을 100k24h 활동·수송 또는 전체 제품 완료로 확대하지 않는다.
 
-과학 코어 진입점은 metroflow.v1이며 설치 CLI는 metroflow-v1 capabilities다. 하루 실행기는 아직 미구현이다.
-기존 도시 재현 입력은 `python -S tools/run_v1_foundation.py --prepare-inputs --out artifacts/v1_replay`로 재생성한다.
-그 결과는 과거2veh 사례의 관측과 일치하며 10만 배경 주민의 교통이나24h 실행이 아니다.
-물리적 모델·수치 근사·표현 중복을 구분하고 기존 PLAN의 수용문턱·WIP=1을 유지한다.
+새 PR의 HEAD와 CI(양쪽 Python의 validate-city --matrix 포함)를 확인해 통합하라.
+그 actual merge를 확인한 뒤 M02를 ACCEPTED로 갱신하고 PLAN 위상순서로 한 노드만 선택한다.
+소스가 바뀌지 않았다면 next_node가 M02라는 이유로 같은 전체 감사를 반복하지 않는다.
+신규 main merge/release tag, 계획 밖 기능이나 수용문턱 완화는 실행하지 않는다.
+
+공개 입력은 compile_city/load_city이며 face graph와 directional transport graph는 별개다.
+Atlas polygon은 권위다. 복원 문법도 같은 snapshot/compiler를 사용한다.
+M02는 compiler의 signals=False를 사용하며 신호제어는 T03의 소유권이다.
+PortalRef는 선언한 block↔ground node 대응만 담는다. M03은 이 snapshot을 소비해
+활동·복수 출입구를 진행하며, 접근시간/용량을 현재 PortalRef가 해결했다고 가정하지 않는다.
+폐쇄 도달성은 정적 legal-turn graph 검사다. active 차량을 삭제하거나 동적 정체를 해결했다고 하지 않는다.

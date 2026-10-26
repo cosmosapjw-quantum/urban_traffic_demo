@@ -1,0 +1,254 @@
+[
+  {
+    "style": "grid_core",
+    "status": "PASS",
+    "identity": "d54b6702b39af94aa0f230cbaf7f08e027a49e796052a093bd85fc42c138e8d3",
+    "nodes": 118,
+    "sections": 194,
+    "directed_groups": 370,
+    "legal_turns": 917,
+    "face_edges": 176,
+    "blocks": 0,
+    "block_area_m2": 0.0,
+    "max_grade": 0.11929664985858977,
+    "storage_veh": 23817.49438280809,
+    "residents": 0,
+    "requested_population": 0,
+    "unplaced_residents": 0,
+    "bridge_closures": [
+      {
+        "failure_group": "bridge:4",
+        "origin": "s5:4",
+        "affected_links": [
+          "bridge:4|0",
+          "bridge:4|1"
+        ],
+        "reachable_before": 116,
+        "reachable_after": 116,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      },
+      {
+        "failure_group": "bridge:6",
+        "origin": "s5:6",
+        "affected_links": [
+          "bridge:6|0",
+          "bridge:6|1"
+        ],
+        "reachable_before": 116,
+        "reachable_after": 116,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      },
+      {
+        "failure_group": "bridge:8",
+        "origin": "s5:8",
+        "affected_links": [
+          "bridge:8|0",
+          "bridge:8|1"
+        ],
+        "reachable_before": 116,
+        "reachable_after": 116,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      }
+    ],
+    "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+    "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+    "facilities": {
+      "surface": 173,
+      "bridge": 3,
+      "mainline": 10,
+      "ramp": 8
+    }
+  },
+  {
+    "style": "organic",
+    "status": "PASS",
+    "identity": "62ff978d0a8c525b6c7012e656b7de7abf9fbea94d100a01c8debe260b073136",
+    "nodes": 122,
+    "sections": 194,
+    "directed_groups": 370,
+    "legal_turns": 904,
+    "face_edges": 176,
+    "blocks": 0,
+    "block_area_m2": 0.0,
+    "max_grade": 0.11844050145814326,
+    "storage_veh": 23928.64245246092,
+    "residents": 0,
+    "requested_population": 0,
+    "unplaced_residents": 0,
+    "bridge_closures": [
+      {
+        "failure_group": "bridge:4",
+        "origin": "s5:4",
+        "affected_links": [
+          "bridge:4|0",
+          "bridge:4|1"
+        ],
+        "reachable_before": 117,
+        "reachable_after": 117,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      },
+      {
+        "failure_group": "bridge:6",
+        "origin": "s5:6",
+        "affected_links": [
+          "bridge:6|0",
+          "bridge:6|1"
+        ],
+        "reachable_before": 117,
+        "reachable_after": 117,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      },
+      {
+        "failure_group": "bridge:8",
+        "origin": "s5:8",
+        "affected_links": [
+          "bridge:8|0",
+          "bridge:8|1"
+        ],
+        "reachable_before": 117,
+        "reachable_after": 117,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      }
+    ],
+    "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+    "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+    "facilities": {
+      "surface": 173,
+      "bridge": 3,
+      "mainline": 10,
+      "ramp": 8
+    }
+  },
+  {
+    "style": "superblock_mixed",
+    "status": "PASS",
+    "identity": "b68e90d3df8aaac07541d8ae570f19e129719ecf78667dd19ae046a6017e0b45",
+    "nodes": 117,
+    "sections": 167,
+    "directed_groups": 316,
+    "legal_turns": 659,
+    "face_edges": 149,
+    "blocks": 0,
+    "block_area_m2": 0.0,
+    "max_grade": 0.11929664985858977,
+    "storage_veh": 20551.91677145252,
+    "residents": 0,
+    "requested_population": 0,
+    "unplaced_residents": 0,
+    "bridge_closures": [
+      {
+        "failure_group": "bridge:4",
+        "origin": "s5:4",
+        "affected_links": [
+          "bridge:4|0",
+          "bridge:4|1"
+        ],
+        "reachable_before": 115,
+        "reachable_after": 115,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      },
+      {
+        "failure_group": "bridge:6",
+        "origin": "s5:6",
+        "affected_links": [
+          "bridge:6|0",
+          "bridge:6|1"
+        ],
+        "reachable_before": 115,
+        "reachable_after": 115,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      },
+      {
+        "failure_group": "bridge:8",
+        "origin": "s5:8",
+        "affected_links": [
+          "bridge:8|0",
+          "bridge:8|1"
+        ],
+        "reachable_before": 115,
+        "reachable_after": 115,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      }
+    ],
+    "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+    "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+    "facilities": {
+      "surface": 146,
+      "bridge": 3,
+      "mainline": 10,
+      "ramp": 8
+    }
+  },
+  {
+    "style": "ring_radial",
+    "status": "PASS",
+    "identity": "b8919e7f3a5dfc48376a4c89a170c34defc4f455a3b3df7c0bd3044557f6ffb7",
+    "nodes": 137,
+    "sections": 209,
+    "directed_groups": 400,
+    "legal_turns": 915,
+    "face_edges": 191,
+    "blocks": 0,
+    "block_area_m2": 0.0,
+    "max_grade": 0.11708454447834035,
+    "storage_veh": 16902.370839314266,
+    "residents": 0,
+    "requested_population": 0,
+    "unplaced_residents": 0,
+    "bridge_closures": [
+      {
+        "failure_group": "bridge:0",
+        "origin": "r0:3:0",
+        "affected_links": [
+          "bridge:0|0",
+          "bridge:0|1"
+        ],
+        "reachable_before": 133,
+        "reachable_after": 133,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      },
+      {
+        "failure_group": "bridge:14",
+        "origin": "r0:3:14",
+        "affected_links": [
+          "bridge:14|0",
+          "bridge:14|1"
+        ],
+        "reachable_before": 133,
+        "reachable_after": 133,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      },
+      {
+        "failure_group": "bridge:2",
+        "origin": "r0:3:2",
+        "affected_links": [
+          "bridge:2|0",
+          "bridge:2|1"
+        ],
+        "reachable_before": 133,
+        "reachable_after": 133,
+        "lost_nodes": [],
+        "reachable_residents_after": 0
+      }
+    ],
+    "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+    "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+    "facilities": {
+      "surface": 188,
+      "bridge": 3,
+      "mainline": 10,
+      "ramp": 8
+    }
+  }
+]

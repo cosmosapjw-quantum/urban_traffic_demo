@@ -1,6 +1,6 @@
 # MetroFlow V1: 앞으로의 단일 작업계획
 
-규범 원본은 **PLAN.json 1.0.1**이다. 기존 독립 연구 인계의 다음 노드를 따로 실행하지 않는다. 공유 `node_defaults`는 모든 노드의 증거·rollback·PR 검토 계약이며, 생성 문서에는 각 노드에 펼쳐서 표시된다.
+규범 원본은 **PLAN.json 1.0.2**이다. 기존 독립 연구 인계의 다음 노드를 따로 실행하지 않는다. 공유 `node_defaults`는 모든 노드의 증거·rollback·PR 검토 계약이며, 생성 문서에는 각 노드에 펼쳐서 표시된다.
 
 ```bash
 python tools/v1_plan.py render
@@ -16,7 +16,7 @@ python tools/v1_plan.py next
 
 ## 현재와 다음
 
-P00·M01·T01·I01은 VERIFIED_SCOPED다. I01의 Python3.12 전체 회귀, Python3.12/3.13 V1 설치·import·CLI, oracle·지도 재생성 및 최종 ci gate가 구현 커밋 `b7ff813`에서 통과했다. 상세 증거는 `artifacts/v1_i01_20261025/RECEIPT.json`과 `I01_INTEGRATION_KO.md`다. **다음은 PR #25의 bootstrap 병합**이며, 병합 전 next_node는 I01로 유지한다. 병합 후 네 노드를 함께 ACCEPTED로 갱신하고 DAG 순서대로 후속 노드를 선택한다.
+P00·M01·T01·I01은 PR #25의 실제 병합 `b687425`와 기존 CI 근거로 ACCEPTED다. 현재 M02는 VERIFIED_SCOPED이며 18개 atlas JSON·4개 복원 문법·109개 관련 회귀·Python3.13 V1 profile60개를 검증했다. `M02_CONTRACT_KO.md` 및 `artifacts/v1_m02_20261026/RECEIPT.json`을 참조한다. next_node는 M02로 유지하며, 현재 PR의 CI·병합 증거를 확인한 뒤 계획 순서로 후속 노드를 선택한다.
 
 ## 의존 단계
 
