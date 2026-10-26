@@ -1,0 +1,46 @@
+{
+  "status": "B01_VERIFIED_SCOPED_FINAL_REVIEW_DEFERRED",
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/v1/test_bus_freight.py tests/v1/test_transfer_time.py tests/v1/test_nodes.py",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "result": "42 passed",
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "command": "python -m pytest -q tests/v1/test_bus_freight.py tests/v1/test_transfer_time.py tests/v1/test_nodes.py",
+      "python": "3.13.16",
+      "exit_code": 0,
+      "result": "42 passed",
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "ruff check services and B01 tests",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    }
+  ],
+  "focused_tests": 9,
+  "acceptance": {
+    "two_bus_lines_stops_and_freight": "10 persons arrive, two scheduled bus runs complete, 2 freight vehicles and100kg cargo complete; 6 actual road leg vehicles released/completed",
+    "capacity": "30-person request does not spawn fleet; capacity10, 22 persons remain waiting across cohorts, 13 arrive; persons35 conserved",
+    "coupled_physics": "optional aggregate car sources share the same T04 PacketNetwork with bus/freight,8 road leg vehicles released/completed; each class ledger conserved",
+    "dwell": "10s stop dwell delays continuation and stop cohort boarding compared to0s",
+    "checkpoint": "actual ServiceState road/person/freight state pickle resume equals uninterrupted branch; input unchanged"
+  },
+  "limits": [
+    "fixed aggregate run count, off-road stop bays",
+    "whole vehicle mass must finish a leg before stop transition; step-boundary rounding and holding explicit",
+    "no transit transfers/assignment/dispatch optimization",
+    "D01 persons must not also emit occupancy-derived fractional bus vehicles; C02 demand adapter pending",
+    "full city/24h performance NOT_RUN"
+  ],
+  "corrections": [
+    "canonical JSON service identity sorts frozenset restrictions for process-independent restart",
+    "optional car source added to exercise all3 physical classes"
+  ],
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER"
+}

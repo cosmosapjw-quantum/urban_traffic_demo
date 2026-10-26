@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "date": "2026-10-26",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -15,11 +15,11 @@
     "T01",
     "I01"
   ],
-  "next_node": "B01",
+  "next_node": "C01",
   "execution_policy": {
     "rule": "2026-10-26 사용자 변경: DAG 구현을 한정 검증된 누적 브랜치에서 진행한다. 전체 CI·통합·ACCEPTED 판정은 전체 DAG 구현 후 별도 심사에서 수행한다.",
     "no_automatic_scope_growth": true,
-    "maximum_work_in_progress": 1,
+    "maximum_work_in_progress": 2,
     "change_control": "노드/목표/수용문턱/physics contract 변경은 PLAN.json 버전을 먼저 변경하는 계획 PR로 제안한다. 범위/성능문턱 완화는 사용자 승인 전 적용 금지.",
     "status_order": [
       "PLANNED",
@@ -46,7 +46,7 @@
     ],
     "dependency_rule": "구현 착수는 ACCEPTED 또는 영수증으로 고정된 VERIFIED_SCOPED 선행 노드를 허용한다. VERIFIED_SCOPED는 최종 수용·통합을 뜻하지 않는다. STOPPED/BLOCKED는 선행조건을 충족하지 않는다.",
     "next_selection": "현 노드를 한정 검증한 뒤 의존 노드가 ACCEPTED/VERIFIED_SCOPED인 위상 순서의 한 노드를 선택한다. 최종 심사와 통합 전 ACCEPTED로 승격하지 않는다.",
-    "parallelism": "실행 구현 WIP=1. 의존성이 없는 읽기 전용 검토는 가능하지만 사용자 승인 없이 작업 범위를 넓히지 않는다.",
+    "parallelism": "2026-10-26 사용자 승인: 의존성이 없는 구현 노드는 독립 파일 소유권으로 병렬 실행한다. 게시와 공유 계획 변경은 직렬화한다.",
     "bootstrap_acceptance": "P00/M01/T01/I01과 M02의 과거 실제 통합 기록은 유지한다. M03 이후는 현재 사용자 지시에 따라 최종 별도 심사 전 병합하지 않는다.",
     "implementation_mode": "stacked_scoped_then_review",
     "full_ci_and_integration": "DEFERRED_BY_USER_UNTIL_ALL_DAG_IMPLEMENTED_AND_SEPARATE_REVIEW",
@@ -368,14 +368,15 @@
   ],
   "current_execution": {
     "node_ids": [
-      "R02"
+      "B01",
+      "C01"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "R02 shared legal routing and finite-information suffix proposals scoped verified; next B01 READY; full CI/integration deferred",
+    "scope": "B01 and C01 independent parallel implementation; full CI/integration deferred",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_r02_20261026/RECEIPT.json",
+    "evidence": null,
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -1294,7 +1295,7 @@
         "T03",
         "R02"
       ],
-      "status": "READY",
+      "status": "VERIFIED_SCOPED",
       "files": [
         "src/metroflow/v1/services.py",
         "tests/v1/test_bus_freight.py"
@@ -1346,9 +1347,21 @@
       "pr": {
         "key": "V1-B01",
         "title": "[V1 B01] 버스·화물의 최소 운영과 승객/차량 분리",
-        "branch": "v1/b01",
-        "base": "research/v1-integration-20261025",
-        "opened_number": null
+        "branch": "v1/b01-parallel-20261026",
+        "base": "v1/r02-shared-routing-20261026",
+        "opened_number": 34
+      },
+      "implementation_parent": {
+        "node": "R02",
+        "branch": "v1/r02-shared-routing-20261026",
+        "sha": "73b64a505a473a8e6d0be3a89561bdba04276d5d",
+        "pr": 33
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_b01_20261026/RECEIPT.json",
+        "sha256": "c863649521ec920af8146ac9694c65ec1fd4a1802c5480de550d407f8fca7778",
+        "source_manifest": "artifacts/v1_b01_20261026/SOURCE_MANIFEST.json",
+        "acceptance": "9 focused /42 scoped checks each Python; separate person/fleet/cargo and joint three-class roads"
       }
     },
     {
@@ -1360,7 +1373,7 @@
         "T04",
         "R02"
       ],
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "files": [
         "src/metroflow/v1/runtime.py",
         "src/metroflow/v1/checkpoint.py",
@@ -1415,9 +1428,15 @@
       "pr": {
         "key": "V1-C01",
         "title": "[V1 C01] 단일 WorldState·다중 시간척도·저장/재개 실행기",
-        "branch": "v1/c01",
-        "base": "research/v1-integration-20261025",
+        "branch": "v1/c01-parallel-20261026",
+        "base": "v1/r02-shared-routing-20261026",
         "opened_number": null
+      },
+      "implementation_parent": {
+        "node": "R02",
+        "branch": "v1/r02-shared-routing-20261026",
+        "sha": "73b64a505a473a8e6d0be3a89561bdba04276d5d",
+        "pr": 33
       }
     },
     {
@@ -1905,6 +1924,33 @@
       "authority": "current user instruction",
       "change": "전체 CI와 통합은 모든 DAG 노드를 다 구현하고 별도 심사 후 진행",
       "effect": "Only scoped verification during implementation; stacked Draft PRs; no automatic CI or merge; final acceptance criteria unchanged."
+    },
+    {
+      "date": "2026-10-26",
+      "authority": "current user instruction",
+      "change": "독립 노드 병렬 실행; 실행 완료 수/전체 DAG 및 비율을 매번 보고",
+      "effect": "B01/C01 independent writers; scoped implementation completion count excludes in-progress and blocked nodes; full CI/integration still deferred"
     }
-  ]
+  ],
+  "implementation_progress": {
+    "completed_nodes": [
+      "P00",
+      "M01",
+      "T01",
+      "I01",
+      "M02",
+      "M03",
+      "D01",
+      "T02",
+      "T03",
+      "T04",
+      "R01",
+      "R02",
+      "B01"
+    ],
+    "completed_count": 13,
+    "total_count": 21,
+    "percent": 61.9,
+    "definition": "ACCEPTED or receipt-bound VERIFIED_SCOPED; not full CI/integration/final acceptance"
+  }
 }

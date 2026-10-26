@@ -1,0 +1,7 @@
+{
+  "files": {
+    "src/metroflow/v1/services.py": "7fd32424c3266a065a241c9454760f024fb82298c67de142156ad3e559a045c2",
+    "tests/v1/test_bus_freight.py": "5b9d97b105d8e2983742b7460929cd4770b7a133b13f81a072bd1deb3baca080",
+    "docs/v1/b01/SERVICES_KO.md": "4c8d47878d75e40208b406ae25669441805674f3bdbfc9a19f75b99bb850686f"
+  }
+}
