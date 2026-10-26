@@ -1037,7 +1037,7 @@
         "title": "[V1 T03] 차로군·합류·회전·신호와 구조물 장애 모델 통합",
         "branch": "v1/t03-lanegroups-nodes-20261026",
         "base": "v1/t02-finite-response-20261026",
-        "opened_number": null
+        "opened_number": 30
       },
       "implementation_parent": {
         "node": "T02",
