@@ -40,6 +40,15 @@ from .kinetics import (
     latent_reference,
 )
 
+from .lanegroups import (
+    LanePartition,
+    LaneGroupContract,
+    compile_lanegroups,
+    packet_model,
+    lane_bulk_inputs,
+)
+from .nodes import allocate_node, validate_signal_conflicts
+
 
 __all__ = [
     "AccessLaw",
@@ -99,4 +108,14 @@ __all__ += [
     "predict_passage",
     "pair_compatibility",
     "latent_reference",
+]
+
+__all__ += [
+    "LanePartition",
+    "LaneGroupContract",
+    "compile_lanegroups",
+    "packet_model",
+    "lane_bulk_inputs",
+    "allocate_node",
+    "validate_signal_conflicts",
 ]

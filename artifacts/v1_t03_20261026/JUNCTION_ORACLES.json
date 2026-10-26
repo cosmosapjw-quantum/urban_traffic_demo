@@ -1,0 +1,51 @@
+{
+  "cases": [
+    {
+      "case": "merge3:1",
+      "rates_veh_s": {
+        "a": 3.0,
+        "b": 1.0
+      },
+      "status": "PASS",
+      "transferred_veh": {
+        "F": 2.7,
+        "G": 0.8999999999999999
+      }
+    },
+    {
+      "case": "blockedshared",
+      "completed": 0.0,
+      "released": 2.0,
+      "status": "PASS",
+      "unblocked_turn_completed_veh": 0.0
+    },
+    {
+      "case": "independentturn",
+      "completed": 1.0,
+      "released": 2.0,
+      "status": "PASS",
+      "unblocked_turn_completed_veh": 1.0
+    },
+    {
+      "case": "redboundary",
+      "events": 4,
+      "status": "PASS"
+    },
+    {
+      "case": "bridgepairedclosure",
+      "closed_groups": [
+        "bc|0",
+        "bc|1"
+      ],
+      "status": "PASS"
+    },
+    {
+      "admitted_veh": 2.0,
+      "case": "class_storage",
+      "occupied_m": 17.0,
+      "status": "PASS"
+    }
+  ],
+  "python": "3.12.14",
+  "status": "PASS"
+}

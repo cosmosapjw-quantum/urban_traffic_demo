@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "date": "2026-10-26",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -15,7 +15,7 @@
     "T01",
     "I01"
   ],
-  "next_node": "T03",
+  "next_node": "T04",
   "execution_policy": {
     "rule": "2026-10-26 사용자 변경: DAG 구현을 한정 검증된 누적 브랜치에서 진행한다. 전체 CI·통합·ACCEPTED 판정은 전체 DAG 구현 후 별도 심사에서 수행한다.",
     "no_automatic_scope_growth": true,
@@ -368,14 +368,14 @@
   ],
   "current_execution": {
     "node_ids": [
-      "T02"
+      "T03"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "T02 scoped finite-response closure complete on D01 stack; next T03 READY; full CI/integration deferred",
+    "scope": "T03 scoped lane/node integration complete on T02 stack; next T04 READY; full CI/integration deferred",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_t02_20261026/RECEIPT.json",
+    "evidence": "artifacts/v1_t03_20261026/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -981,7 +981,7 @@
         "T02",
         "M02"
       ],
-      "status": "READY",
+      "status": "VERIFIED_SCOPED",
       "files": [
         "src/metroflow/v1/nodes.py",
         "src/metroflow/v1/lanegroups.py",
@@ -1035,9 +1035,21 @@
       "pr": {
         "key": "V1-T03",
         "title": "[V1 T03] 차로군·합류·회전·신호와 구조물 장애 모델 통합",
-        "branch": "v1/t03",
-        "base": "research/v1-integration-20261025",
-        "opened_number": null
+        "branch": "v1/t03-lanegroups-nodes-20261026",
+        "base": "v1/t02-finite-response-20261026",
+        "opened_number": 30
+      },
+      "implementation_parent": {
+        "node": "T02",
+        "branch": "v1/t02-finite-response-20261026",
+        "sha": "effbcfdd1b397b2cb204a612cb4a068b1cfb0273",
+        "pr": 29
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_t03_20261026/RECEIPT.json",
+        "sha256": "5fe09fa0e93ed711b195966cdcf27b6badf964d12cf820f0ee213157a6315a04",
+        "source_manifest": "artifacts/v1_t03_20261026/SOURCE_MANIFEST.json",
+        "acceptance": "15 node tests, 6 junction oracles, 77 scoped tests per Python; final review/CI/integration deferred"
       }
     },
     {
@@ -1047,7 +1059,7 @@
         "T03",
         "T01"
       ],
-      "status": "PLANNED",
+      "status": "READY",
       "files": [
         "src/metroflow/v1/transport.py",
         "src/metroflow/packet_network.py",

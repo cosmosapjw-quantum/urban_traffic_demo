@@ -1,0 +1,63 @@
+{
+  "status": "T03_VERIFIED_SCOPED_FINAL_REVIEW_DEFERRED",
+  "parent": {
+    "node": "T02",
+    "pr": 29,
+    "head_sha": "effbcfdd1b397b2cb204a612cb4a068b1cfb0273",
+    "merged": false
+  },
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/v1/test_nodes.py tests/test_packet_quotient.py tests/test_v1_birth_contract.py tests/test_v1_journey.py tests/v1/test_kinetic_closure.py tests/v1/test_city_contract.py tests/test_v1_plan.py tests/v1/test_repository_entrypoints.py",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "result": "77 passed",
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "command": "same scoped selection",
+      "python": "3.13.16",
+      "exit_code": 0,
+      "result": "77 passed",
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "python -m ruff check src tests tools",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    },
+    {
+      "command": "python -m metroflow.v1 physics-oracles --suite junctions",
+      "exit_code": 0,
+      "raw": "JUNCTION_ORACLES.json"
+    },
+    {
+      "command": "uv build --wheel; fresh no-deps install; installed CLI junction oracles outside checkout",
+      "exit_code": 0,
+      "raw": "INSTALLED_JUNCTIONS.json"
+    }
+  ],
+  "focused_tests": 15,
+  "junction_oracles": 6,
+  "acceptance": {
+    "merge3_to_1": "3 and 1 veh/s; actual packet transfer 2.7 and .9 veh",
+    "shared_vs_independent": "same two actual lanes: blocked shared completes 0, independent unblocked turn completes 1 veh",
+    "redboundary": "half-open aligned green; no red-step departures",
+    "bridgepairedclosure": "both direction services close; in-flight and source mass retained, all 4veh later complete",
+    "ramp": "one-way on/main/off route and failure binding retained",
+    "class_storage": "5m car plus 12m truck footprints; 17m admits 1veh of each from 2veh offers each",
+    "joint_space": "internal transfers and local source use one receiving and metre budget",
+    "resource": "event cap raises BudgetExceeded with exact input checkpoint",
+    "class_observations": "released/completed/source wait/exit queue/numerical hold; per-class mass and source/hold sums checked"
+  },
+  "limits": [
+    "Current PacketNetwork p-only movement clock retained; actual T02 motion integration belongs to T04",
+    "Explicit conflict pairs only; no geometric conflict inference or collision certification",
+    "OLD occupancy space reservation and next-boundary transfer retained",
+    "Exit point-queue residence is not resolved full-road zero-speed time",
+    "No full CI, merge, full-day 100k traffic or final V1 acceptance claim"
+  ],
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "merge": "NOT_PERFORMED"
+}
