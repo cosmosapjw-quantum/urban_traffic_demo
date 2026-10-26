@@ -800,7 +800,7 @@
         "title": "[V1 M03] 활동가중 블록·복수 출입구·주거용량의 현실적 연결",
         "branch": "v1/m03-activity-access-20261026",
         "base": "research/v1-integration-20261025",
-        "opened_number": null
+        "opened_number": 27
       },
       "verification_receipt": {
         "path": "artifacts/v1_m03_20261026/RECEIPT.json",
