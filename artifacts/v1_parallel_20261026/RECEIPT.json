@@ -1,0 +1,18 @@
+{
+  "status": "PARALLEL_SCOPED_VERIFIED",
+  "nodes": [
+    "B01",
+    "C01"
+  ],
+  "completed": 14,
+  "total": 21,
+  "percent": 66.67,
+  "combined_tests_each_python": 109,
+  "raw": [
+    "COMBINED_PY312.txt",
+    "COMBINED_PY313.txt"
+  ],
+  "full_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER",
+  "review": "root inspected source, required class coupling and robust JSON/identity regressions; independently ran combined checks"
+}

@@ -1,0 +1,15 @@
+{
+  "cases": [
+    {
+      "case": "toy_day",
+      "completed_veh": 2.0000000000000004,
+      "phases": 18,
+      "resume_checked": true,
+      "scope": "synthetic fixed demand/graph; not 24h city runner",
+      "status": "PASS",
+      "time_s": 60.0
+    }
+  ],
+  "python": "3.13.16",
+  "status": "PASS"
+}

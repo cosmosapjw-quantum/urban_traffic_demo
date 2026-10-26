@@ -1,0 +1,53 @@
+{
+  "status": "C01_VERIFIED_SCOPED_NOT_FULL_CITY_INTEGRATION",
+  "focused_tests": 10,
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/v1/test_runtime_resume.py tests/v1/test_information.py tests/v1/test_routing_commitment.py",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "result": "54 passed",
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "command": "python -m pytest -q tests/v1/test_runtime_resume.py tests/v1/test_information.py tests/v1/test_routing_commitment.py",
+      "python": "3.13.16",
+      "exit_code": 0,
+      "result": "54 passed",
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "python -m metroflow.v1 run --scenario toy_day --resume-check",
+      "exit_code": 0,
+      "raw": [
+        "CLI_PY312.json",
+        "CLI_PY313.json"
+      ]
+    },
+    {
+      "command": "ruff check owned source/tests",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    }
+  ],
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "verified": [
+    "actual queued T04 state and event restoration equals uninterrupted execution",
+    "information/routing cache state retained",
+    "previous-tick snapshot consumed by simultaneous slow phase",
+    "atomic world budget failure checkpoint",
+    "occupied graph deletion requires drain; drained edit returns descriptor",
+    "901s run actually saves at900 and901s",
+    "unknown dataclass and malformed JSON rejected",
+    "optional actual city JSON and TripSchedule retained and identity bound"
+  ],
+  "limitations": [
+    "no automatic D01 calendar to city T04 source compilation",
+    "no dynamic application of R02 proposals to inflight packets",
+    "graph transaction descriptor does not itself rebuild a new CitySnapshot",
+    "toy60s is not full day/full city/performance validation",
+    "host kill experiment NOT_RUN"
+  ],
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER"
+}
