@@ -11,7 +11,7 @@ M03 [label="M03\nActivity and portals", style="rounded,bold"];
 D01 [label="D01\nDaily cohort demand", style="rounded,bold"];
 T02 [label="T02\nFinite-response closure", style="rounded,bold"];
 T03 [label="T03\nLane groups and nodes", style="rounded,bold"];
-T04 [label="T04\nTime and flux transport", style="rounded,dashed"];
+T04 [label="T04\nTime and flux transport", style="rounded,bold"];
 R01 [label="R01\nCausal information", style="rounded,dashed"];
 R02 [label="R02\nCommitted routing", style="rounded,dashed"];
 B01 [label="B01\nBus and freight", style="rounded,dashed"];

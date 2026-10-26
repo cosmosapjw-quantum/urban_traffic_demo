@@ -49,6 +49,8 @@ from .lanegroups import (
 )
 from .nodes import allocate_node, validate_signal_conflicts
 
+from .transport import BoundaryFlux, TransportState, TransportModel
+
 
 __all__ = [
     "AccessLaw",
@@ -119,3 +121,5 @@ __all__ += [
     "allocate_node",
     "validate_signal_conflicts",
 ]
+
+__all__ += ["BoundaryFlux", "TransportState", "TransportModel"]

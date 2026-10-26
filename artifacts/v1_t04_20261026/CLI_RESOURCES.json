@@ -1,0 +1,8 @@
+{
+  "command": "python -m metroflow.v1 physics-oracles --suite timing",
+  "exit_code": 0,
+  "wall_s": 1.0438596969979699,
+  "maxrss_kib": 16256,
+  "system": "Linux",
+  "scope": "single synthetic timing-oracle subprocess; not a city-scale performance claim"
+}

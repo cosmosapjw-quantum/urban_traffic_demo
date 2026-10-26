@@ -1,0 +1,284 @@
+{
+  "cases": [
+    {
+      "analytic_zero_queue_s": 21.0,
+      "case": "two_link_210m",
+      "legacy_dt10_mean_s": 41.005,
+      "refined": [
+        {
+          "active_veh": 0.0,
+          "birth_moment_veh_s": 0.5,
+          "completed_veh": 1.0,
+          "deferred_source_class_veh": {
+            "car": 0.0
+          },
+          "mass_residual_veh": 0.0,
+          "max_step_s": 0.2,
+          "mean_completed_s": 21.50099999999999,
+          "node_exit_queue_veh_s": 0.001999999999997726,
+          "not_yet_released_veh": 0.0,
+          "p95_s": null,
+          "p95_status": "UNSUPPORTED_JOINT_BIRTH_EXIT_DISTRIBUTION",
+          "peak_packets": 5,
+          "peak_parts": 5,
+          "peak_records": 15,
+          "physical_pre_entry_veh_s": 0.0,
+          "released_veh": 1.0,
+          "residence_residual_veh_s": 3.552713678800501e-15,
+          "road_class_ledger": [
+            {
+              "completed": 1.0,
+              "exit_queue_seconds": 0.001999999999997726,
+              "name": "car",
+              "released": 1.0,
+              "source_wait_seconds": 0.20000000000000004,
+              "transfer_hold_seconds": 0.19900000000000057
+            }
+          ],
+          "road_residence_veh_s": 21.001999999999985,
+          "scheduled_veh": 1.0,
+          "source_admission_quantization_veh_s": 0.20000000000000004,
+          "source_arrival_quantization_veh_s": 0.1,
+          "source_pending_veh": 0.0,
+          "source_quantization_veh_s": 0.30000000000000004,
+          "source_queue_veh_s": 0.0,
+          "status": "PASS",
+          "time_s": 35.0,
+          "transfer_quantization_veh_s": 0.19900000000000057,
+          "unfinished_fraction": 0.0,
+          "whole_population_mean_s": 21.50099999999999
+        },
+        {
+          "active_veh": 0.0,
+          "birth_moment_veh_s": 0.5,
+          "completed_veh": 1.0,
+          "deferred_source_class_veh": {
+            "car": 0.0
+          },
+          "mass_residual_veh": 0.0,
+          "max_step_s": 0.1,
+          "mean_completed_s": 21.250499999999356,
+          "node_exit_queue_veh_s": 0.0009999999999994675,
+          "not_yet_released_veh": 0.0,
+          "p95_s": null,
+          "p95_status": "UNSUPPORTED_JOINT_BIRTH_EXIT_DISTRIBUTION",
+          "peak_packets": 20,
+          "peak_parts": 20,
+          "peak_records": 50,
+          "physical_pre_entry_veh_s": -6.938893903907228e-18,
+          "released_veh": 1.0,
+          "residence_residual_veh_s": -3.552713678800501e-15,
+          "road_class_ledger": [
+            {
+              "completed": 1.0,
+              "exit_queue_seconds": 0.0009999999999994675,
+              "name": "car",
+              "released": 1.0,
+              "source_wait_seconds": 0.1,
+              "transfer_hold_seconds": 0.09949999999936711
+            }
+          ],
+          "road_residence_veh_s": 21.00099999999999,
+          "scheduled_veh": 1.0,
+          "source_admission_quantization_veh_s": 0.1,
+          "source_arrival_quantization_veh_s": 0.05,
+          "source_pending_veh": 0.0,
+          "source_quantization_veh_s": 0.15000000000000002,
+          "source_queue_veh_s": 0.0,
+          "status": "PASS",
+          "time_s": 35.0,
+          "transfer_quantization_veh_s": 0.09949999999936711,
+          "unfinished_fraction": 0.0,
+          "whole_population_mean_s": 21.250499999999356
+        }
+      ],
+      "same_input_point_refined": [
+        {
+          "active_veh": 0.0,
+          "birth_moment_veh_s": 0.0,
+          "completed_veh": 1.0,
+          "deferred_source_class_veh": {
+            "car": 0.0
+          },
+          "mass_residual_veh": 0.0,
+          "max_step_s": 0.2,
+          "mean_completed_s": 21.404999999999987,
+          "node_exit_queue_veh_s": 0.00999999999999858,
+          "not_yet_released_veh": 0.0,
+          "p95_s": null,
+          "p95_status": "UNSUPPORTED_JOINT_BIRTH_EXIT_DISTRIBUTION",
+          "peak_packets": 1,
+          "peak_parts": 1,
+          "peak_records": 3,
+          "physical_pre_entry_veh_s": 0.0,
+          "released_veh": 1.0,
+          "residence_residual_veh_s": 0.0,
+          "road_class_ledger": [
+            {
+              "completed": 1.0,
+              "exit_queue_seconds": 0.00999999999999858,
+              "name": "car",
+              "released": 1.0,
+              "source_wait_seconds": 0.2,
+              "transfer_hold_seconds": 0.1949999999999985
+            }
+          ],
+          "road_residence_veh_s": 21.00999999999999,
+          "scheduled_veh": 1.0,
+          "source_admission_quantization_veh_s": 0.2,
+          "source_arrival_quantization_veh_s": 0.0,
+          "source_pending_veh": 0.0,
+          "source_quantization_veh_s": 0.2,
+          "source_queue_veh_s": 0.0,
+          "status": "PASS",
+          "time_s": 35.0,
+          "transfer_quantization_veh_s": 0.1949999999999985,
+          "unfinished_fraction": 0.0,
+          "whole_population_mean_s": 21.404999999999987
+        },
+        {
+          "active_veh": 0.0,
+          "birth_moment_veh_s": 0.0,
+          "completed_veh": 1.0,
+          "deferred_source_class_veh": {
+            "car": 0.0
+          },
+          "mass_residual_veh": 0.0,
+          "max_step_s": 0.1,
+          "mean_completed_s": 21.20499999999993,
+          "node_exit_queue_veh_s": 0.00999999999999431,
+          "not_yet_released_veh": 0.0,
+          "p95_s": null,
+          "p95_status": "UNSUPPORTED_JOINT_BIRTH_EXIT_DISTRIBUTION",
+          "peak_packets": 2,
+          "peak_parts": 2,
+          "peak_records": 5,
+          "physical_pre_entry_veh_s": 0.0,
+          "released_veh": 1.0,
+          "residence_residual_veh_s": -3.552713678800501e-15,
+          "road_class_ledger": [
+            {
+              "completed": 1.0,
+              "exit_queue_seconds": 0.00999999999999431,
+              "name": "car",
+              "released": 1.0,
+              "source_wait_seconds": 0.1,
+              "transfer_hold_seconds": 0.09499999999994836
+            }
+          ],
+          "road_residence_veh_s": 21.009999999999984,
+          "scheduled_veh": 1.0,
+          "source_admission_quantization_veh_s": 0.1,
+          "source_arrival_quantization_veh_s": 0.0,
+          "source_pending_veh": 0.0,
+          "source_quantization_veh_s": 0.1,
+          "source_queue_veh_s": 0.0,
+          "status": "PASS",
+          "time_s": 35.0,
+          "transfer_quantization_veh_s": 0.09499999999994836,
+          "unfinished_fraction": 0.0,
+          "whole_population_mean_s": 21.20499999999993
+        }
+      ],
+      "source_contract": "legacy and same_input_point_refined use identical 1veh point source at t=0; primary refined uses uniform [0,1] source",
+      "status": "PASS"
+    },
+    {
+      "case": "overloaded_refinement",
+      "curve_error_fraction": 0.007500000000001084,
+      "refined": [
+        {
+          "active_veh": 10.69999999999997,
+          "birth_moment_veh_s": 100.0,
+          "completed_veh": 4.200000000000031,
+          "deferred_source_class_veh": {
+            "car": 0.0
+          },
+          "mass_residual_veh": -1.7763568394002505e-15,
+          "max_step_s": 0.2,
+          "mean_completed_s": 24.697619047619046,
+          "node_exit_queue_veh_s": 1.1900000000001851,
+          "not_yet_released_veh": 0.0,
+          "p95_s": null,
+          "p95_status": "UNSUPPORTED_JOINT_BIRTH_EXIT_DISTRIBUTION",
+          "peak_packets": 133,
+          "peak_parts": 133,
+          "peak_records": 328,
+          "physical_pre_entry_veh_s": -1.7763568394002505e-15,
+          "released_veh": 20.0,
+          "residence_residual_veh_s": -5.684341886080802e-14,
+          "road_class_ledger": [
+            {
+              "completed": 4.200000000000031,
+              "exit_queue_seconds": 1.1900000000001851,
+              "name": "car",
+              "released": 20.0,
+              "source_wait_seconds": 277.48000000001366,
+              "transfer_hold_seconds": 0.9800000000000009
+            }
+          ],
+          "road_residence_veh_s": 201.6899999999999,
+          "scheduled_veh": 20.0,
+          "source_admission_quantization_veh_s": 2.980000000000003,
+          "source_arrival_quantization_veh_s": 2.0000000000000004,
+          "source_pending_veh": 5.1,
+          "source_quantization_veh_s": 4.980000000000004,
+          "source_queue_veh_s": 274.5,
+          "status": "PASS",
+          "time_s": 30.0,
+          "transfer_quantization_veh_s": 0.9800000000000009,
+          "unfinished_fraction": 0.7899999999999985,
+          "whole_population_mean_s": null
+        },
+        {
+          "active_veh": 10.599999999999948,
+          "birth_moment_veh_s": 99.99999999999999,
+          "completed_veh": 4.350000000000052,
+          "deferred_source_class_veh": {
+            "car": 0.0
+          },
+          "mass_residual_veh": 0.0,
+          "max_step_s": 0.1,
+          "mean_completed_s": 24.53706896551725,
+          "node_exit_queue_veh_s": 0.6037500000004149,
+          "not_yet_released_veh": 0.0,
+          "p95_s": null,
+          "p95_status": "UNSUPPORTED_JOINT_BIRTH_EXIT_DISTRIBUTION",
+          "peak_packets": 347,
+          "peak_parts": 347,
+          "peak_records": 856,
+          "physical_pre_entry_veh_s": -6.661338147750939e-16,
+          "released_veh": 20.0,
+          "residence_residual_veh_s": -1.1368683772161603e-13,
+          "road_class_ledger": [
+            {
+              "completed": 4.350000000000053,
+              "exit_queue_seconds": 0.6037500000004149,
+              "name": "car",
+              "released": 20.0,
+              "source_wait_seconds": 276.2450000000375,
+              "transfer_hold_seconds": 0.4949999999999984
+            }
+          ],
+          "road_residence_veh_s": 203.22875,
+          "scheduled_veh": 20.0,
+          "source_admission_quantization_veh_s": 1.495000000000003,
+          "source_arrival_quantization_veh_s": 0.9999999999999999,
+          "source_pending_veh": 5.05,
+          "source_quantization_veh_s": 2.4950000000000028,
+          "source_queue_veh_s": 274.75,
+          "status": "PASS",
+          "time_s": 30.0,
+          "transfer_quantization_veh_s": 0.49499999999999644,
+          "unfinished_fraction": 0.7824999999999974,
+          "whole_population_mean_s": null
+        }
+      ],
+      "source_fraction_error": 0.002499999999999991,
+      "status": "PASS",
+      "unfinished_fraction_error": 0.007500000000001061
+    }
+  ],
+  "python": "3.12.14",
+  "status": "PASS"
+}
