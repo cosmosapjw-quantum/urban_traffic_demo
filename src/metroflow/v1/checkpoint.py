@@ -5,11 +5,11 @@ import math
 import os
 from pathlib import Path
 
-from . import runtime, information, observations, routing, transport, demand, schedules, activity, access, journey
+from . import runtime, information, observations, routing, transport, demand, schedules, activity, access, journey, accessibility, development
 from .. import packet_network
 from .city import reject
 
-_MODULES = (runtime, information, observations, routing, transport, packet_network, demand, schedules, activity, access, journey)
+_MODULES = (runtime, information, observations, routing, transport, packet_network, demand, schedules, activity, access, journey, accessibility, development)
 _TYPES = {cls.__module__ + '.' + cls.__name__: cls for module in _MODULES
           for cls in vars(module).values() if isinstance(cls, type) and is_dataclass(cls)
           and cls.__module__ == module.__name__}

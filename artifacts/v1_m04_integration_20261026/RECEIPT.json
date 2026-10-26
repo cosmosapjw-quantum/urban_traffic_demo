@@ -1,0 +1,47 @@
+{
+  "status": "M04_RUNTIME_SCOPED_VERIFIED",
+  "commands": [
+    {
+      "python": "3.12.14",
+      "command": "pytest growth_runtime runtime_resume lagged_growth activity_access city_contract v1_plan repository_entrypoints",
+      "exit_code": 0,
+      "passed": 63,
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "python": "3.13.16",
+      "command": "pytest growth_runtime runtime_resume lagged_growth activity_access city_contract v1_plan repository_entrypoints",
+      "exit_code": 0,
+      "passed": 63,
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "ruff changed modules/tests",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    },
+    {
+      "command": "uv build; fresh no-deps install; outside checkout run --scenario lagged_growth_control",
+      "exit_code": 0,
+      "raw": "INSTALLED_CONTROL.json"
+    }
+  ],
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "core_receipt": "../v1_m04_20261026/RECEIPT.json",
+  "verified": [
+    "nonempty growth state/snapshot/request JSON resume",
+    "fresh completed city-versioned input consumed at next slow tick",
+    "absent/stale input atomic checkpoint; pending increment preserved",
+    "requests consumed once; following landuse snapshots use materialized city identity"
+  ],
+  "corrections": [
+    "new movement fixture Block.xy corrected after one combined run failed; final63 each Python passed"
+  ],
+  "review": "Independent read-only findings on finite construction credit, city-version lag, and actual completed control inputs applied; reviewer capacity interruption prevented final reviewer pass; root inspected fixes and independently ran scoped regressions",
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER",
+  "limits": [
+    "synthetic shortened-link bypass, not actual bridge geometry validation",
+    "city demand/traffic application C02 pending"
+  ]
+}
