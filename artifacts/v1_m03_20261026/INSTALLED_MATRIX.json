@@ -1,0 +1,411 @@
+{
+  "cases": [
+    {
+      "activity_mass": 1000.0,
+      "city_identity": "d53b88e61017512314022af3776c946a8fff1de1dcddb6b68e0706acadc94f49",
+      "intrazonal_s": 262.6396615835748,
+      "mean_s": 30.304576336566328,
+      "nearest_single_door_mean_s": 82.45145547760755,
+      "portal_probability": {
+        "east": 0.8,
+        "north": 0.2
+      },
+      "scale": 1.0,
+      "selection": {
+        "alternatives": [
+          {
+            "activity_units": "persons",
+            "construction_length_m": 84.8528137423857,
+            "excess_vehicles": 0.0,
+            "feasible": true,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "east",
+                "probability": 0.8,
+                "vehicles": 80.0
+              },
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "north",
+                "probability": 0.2,
+                "vehicles": 20.0
+              }
+            ],
+            "mean_s": 30.304576336566328,
+            "objective_s": 146.35739007895205,
+            "p95_quadrature_s": 30.304576336566324,
+            "portals": [
+              "east",
+              "north"
+            ],
+            "unserved_activity_upper": 0.0
+          }
+        ],
+        "candidates": [
+          {
+            "activity_units": "persons",
+            "construction_length_m": 42.42640687119285,
+            "excess_vehicles": 0.0,
+            "feasible": false,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "east",
+                "probability": 1.0,
+                "vehicles": 100.0
+              }
+            ],
+            "mean_s": 82.45145547760755,
+            "objective_s": 184.87786234880042,
+            "p95_quadrature_s": 291.0389720417724,
+            "portals": [
+              "east"
+            ],
+            "unserved_activity_upper": 200.0
+          },
+          {
+            "activity_units": "persons",
+            "construction_length_m": 42.42640687119285,
+            "excess_vehicles": 0.0,
+            "feasible": false,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "north",
+                "probability": 1.0,
+                "vehicles": 100.0
+              }
+            ],
+            "mean_s": 238.89209290073123,
+            "objective_s": 341.31849977192405,
+            "p95_quadrature_s": 291.0389720417724,
+            "portals": [
+              "north"
+            ],
+            "unserved_activity_upper": 800.0
+          },
+          {
+            "activity_units": "persons",
+            "construction_length_m": 84.8528137423857,
+            "excess_vehicles": 0.0,
+            "feasible": true,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "east",
+                "probability": 0.8,
+                "vehicles": 80.0
+              },
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "north",
+                "probability": 0.2,
+                "vehicles": 20.0
+              }
+            ],
+            "mean_s": 30.304576336566328,
+            "objective_s": 146.35739007895205,
+            "p95_quadrature_s": 30.304576336566324,
+            "portals": [
+              "east",
+              "north"
+            ],
+            "unserved_activity_upper": 0.0
+          }
+        ],
+        "capacity_semantics": "horizon admission bound; joint road receiving NOT_IMPLEMENTED",
+        "status": "PASS",
+        "total_activity": 1000.0,
+        "units": "persons"
+      },
+      "split_mass": 1000.0,
+      "status": "PASS",
+      "uniform_refinement": {
+        "mean_bound_s": 35.48300284404955,
+        "mean_delta_s": 0.8692443948175708,
+        "p95_delta_s": 8.074644308856705,
+        "quantile_certificate": "NOT_CERTIFIED",
+        "variance_delta_s2": 249.82075535612285
+      }
+    },
+    {
+      "activity_mass": 1000.0,
+      "city_identity": "b5de1bcd4e6e5d397a2dc5d7cb453e68972e64fc18c27a4b564c632b50846e33",
+      "intrazonal_s": 525.2793231671496,
+      "mean_s": 60.609152673132655,
+      "nearest_single_door_mean_s": 164.9029109552151,
+      "portal_probability": {
+        "east": 0.8,
+        "north": 0.2
+      },
+      "scale": 2.0,
+      "selection": {
+        "alternatives": [
+          {
+            "activity_units": "persons",
+            "construction_length_m": 169.7056274847714,
+            "excess_vehicles": 0.0,
+            "feasible": true,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "east",
+                "probability": 0.8,
+                "vehicles": 80.0
+              },
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "north",
+                "probability": 0.2,
+                "vehicles": 20.0
+              }
+            ],
+            "mean_s": 60.609152673132655,
+            "objective_s": 261.51478015790406,
+            "p95_quadrature_s": 60.60915267313265,
+            "portals": [
+              "east",
+              "north"
+            ],
+            "unserved_activity_upper": 0.0
+          }
+        ],
+        "candidates": [
+          {
+            "activity_units": "persons",
+            "construction_length_m": 84.8528137423857,
+            "excess_vehicles": 0.0,
+            "feasible": false,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "east",
+                "probability": 1.0,
+                "vehicles": 100.0
+              }
+            ],
+            "mean_s": 164.9029109552151,
+            "objective_s": 309.75572469760084,
+            "p95_quadrature_s": 582.0779440835448,
+            "portals": [
+              "east"
+            ],
+            "unserved_activity_upper": 200.0
+          },
+          {
+            "activity_units": "persons",
+            "construction_length_m": 84.8528137423857,
+            "excess_vehicles": 0.0,
+            "feasible": false,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "north",
+                "probability": 1.0,
+                "vehicles": 100.0
+              }
+            ],
+            "mean_s": 477.78418580146246,
+            "objective_s": 622.6369995438481,
+            "p95_quadrature_s": 582.0779440835448,
+            "portals": [
+              "north"
+            ],
+            "unserved_activity_upper": 800.0
+          },
+          {
+            "activity_units": "persons",
+            "construction_length_m": 169.7056274847714,
+            "excess_vehicles": 0.0,
+            "feasible": true,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "east",
+                "probability": 0.8,
+                "vehicles": 80.0
+              },
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "north",
+                "probability": 0.2,
+                "vehicles": 20.0
+              }
+            ],
+            "mean_s": 60.609152673132655,
+            "objective_s": 261.51478015790406,
+            "p95_quadrature_s": 60.60915267313265,
+            "portals": [
+              "east",
+              "north"
+            ],
+            "unserved_activity_upper": 0.0
+          }
+        ],
+        "capacity_semantics": "horizon admission bound; joint road receiving NOT_IMPLEMENTED",
+        "status": "PASS",
+        "total_activity": 1000.0,
+        "units": "persons"
+      },
+      "split_mass": 1000.0,
+      "status": "PASS",
+      "uniform_refinement": {
+        "mean_bound_s": 70.9660056880991,
+        "mean_delta_s": 1.7384887896351415,
+        "p95_delta_s": 16.14928861771341,
+        "quantile_certificate": "NOT_CERTIFIED",
+        "variance_delta_s2": 999.2830214244914
+      }
+    },
+    {
+      "activity_mass": 1000.0,
+      "city_identity": "84186e6e240ae68acdd39a3e7c26d2a86e6c6132c89639a78bc27f537fd05146",
+      "intrazonal_s": 1050.5586463342993,
+      "mean_s": 121.21830534626531,
+      "nearest_single_door_mean_s": 329.8058219104302,
+      "portal_probability": {
+        "east": 0.8,
+        "north": 0.2
+      },
+      "scale": 4.0,
+      "selection": {
+        "alternatives": [
+          {
+            "activity_units": "persons",
+            "construction_length_m": 339.4112549695428,
+            "excess_vehicles": 0.0,
+            "feasible": true,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "east",
+                "probability": 0.8,
+                "vehicles": 80.0
+              },
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "north",
+                "probability": 0.2,
+                "vehicles": 20.0
+              }
+            ],
+            "mean_s": 121.21830534626531,
+            "objective_s": 491.8295603158081,
+            "p95_quadrature_s": 121.2183053462653,
+            "portals": [
+              "east",
+              "north"
+            ],
+            "unserved_activity_upper": 0.0
+          }
+        ],
+        "candidates": [
+          {
+            "activity_units": "persons",
+            "construction_length_m": 169.7056274847714,
+            "excess_vehicles": 0.0,
+            "feasible": false,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "east",
+                "probability": 1.0,
+                "vehicles": 100.0
+              }
+            ],
+            "mean_s": 329.8058219104302,
+            "objective_s": 559.5114493952017,
+            "p95_quadrature_s": 1164.1558881670896,
+            "portals": [
+              "east"
+            ],
+            "unserved_activity_upper": 200.0
+          },
+          {
+            "activity_units": "persons",
+            "construction_length_m": 169.7056274847714,
+            "excess_vehicles": 0.0,
+            "feasible": false,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "north",
+                "probability": 1.0,
+                "vehicles": 100.0
+              }
+            ],
+            "mean_s": 955.5683716029249,
+            "objective_s": 1185.2739990876962,
+            "p95_quadrature_s": 1164.1558881670896,
+            "portals": [
+              "north"
+            ],
+            "unserved_activity_upper": 800.0
+          },
+          {
+            "activity_units": "persons",
+            "construction_length_m": 339.4112549695428,
+            "excess_vehicles": 0.0,
+            "feasible": true,
+            "loads": [
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "east",
+                "probability": 0.8,
+                "vehicles": 80.0
+              },
+              {
+                "capacity_veh_s": 1.0,
+                "excess_vehicles": 0.0,
+                "portal": "north",
+                "probability": 0.2,
+                "vehicles": 20.0
+              }
+            ],
+            "mean_s": 121.21830534626531,
+            "objective_s": 491.8295603158081,
+            "p95_quadrature_s": 121.2183053462653,
+            "portals": [
+              "east",
+              "north"
+            ],
+            "unserved_activity_upper": 0.0
+          }
+        ],
+        "capacity_semantics": "horizon admission bound; joint road receiving NOT_IMPLEMENTED",
+        "status": "PASS",
+        "total_activity": 1000.0,
+        "units": "persons"
+      },
+      "split_mass": 1000.0,
+      "status": "PASS",
+      "uniform_refinement": {
+        "mean_bound_s": 141.9320113761982,
+        "mean_delta_s": 3.476977579270283,
+        "p95_delta_s": 32.29857723542682,
+        "quantile_certificate": "NOT_CERTIFIED",
+        "variance_delta_s2": 3997.1320856979655
+      }
+    }
+  ],
+  "python": "3.12.14",
+  "status": "PASS"
+}

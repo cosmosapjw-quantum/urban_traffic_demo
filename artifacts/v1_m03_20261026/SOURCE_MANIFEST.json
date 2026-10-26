@@ -1,0 +1,16 @@
+{
+  "base_merge": "954e644cb0882139bd4d33d19a2e51b04efdd850",
+  "files": {
+    "src/metroflow/terrain_city/area_access.py": "0d83f392b955a8bdf40fd432c3f18733ab87274072906979286aecb6b8bc3396",
+    "src/metroflow/v1/__init__.py": "a208985cf637475a6b29fa4c8844589110558b0520e2625c5ef308d7a47519c2",
+    "src/metroflow/v1/__main__.py": "73ea992c8ff4b3ab88b5d69f68d4669de34ce9b27e4239690ce43f4eb453b02b",
+    "src/metroflow/v1/access.py": "c537da1e6e9de526947b787ecac6bf7a03df50b1e1057e9fd2d1391316ddac6c",
+    "src/metroflow/v1/access_audit.py": "42c1a370c7e69ef283d0d74db5d425f99e9d04cf283cf095cffdf7069fc4b255",
+    "src/metroflow/v1/activity.py": "60e2c0788921c613bd6b50f62e67b27133fae8e6857ea254ff87f1c6605ea0ba",
+    "src/metroflow/v1/city.py": "cb8acfbe697ba2d9f8f25a4438a2b7aa562305a0d510ff292cbe5bde91412125",
+    "src/metroflow/v1/development.py": "d096d1f901ebdaef44656d006824291a482ae4e88408bf66e7c62d3bc276fb48",
+    "src/metroflow/v1/journey.py": "a910966fc6d264920a53d413ed89efe1b2405f0bebde71a8409b2c47f6fd9a38",
+    "tests/v1/test_activity_access.py": "9737378a8c28612c363fc6f7e14c5bc3f00febc1be58c6d3974982e49444bd5c",
+    ".github/workflows/ci.yml": "ecfd71a3113d0f9167c39483103163bb3e8939f402960b4c0330184fc13ce4a4"
+  }
+}

@@ -19,6 +19,9 @@ def main():
     source.add_argument("--matrix", action="store_true", help="six 8km cities x seeds 7/17/41")
     source.add_argument("--input", type=Path, help="atlas or V1 city JSON")
     city.add_argument("--out", type=Path, help="also save the JSON validation report")
+    access = commands.add_parser("access-audit")
+    access.add_argument("--matrix", action="store_true", required=True)
+    access.add_argument("--out", type=Path)
     args = parser.parse_args()
     if args.command == "capabilities":
         print(
@@ -29,7 +32,10 @@ def main():
         )
         return 0
     try:
-        if args.matrix:
+        if args.command == "access-audit":
+            from .access_audit import access_matrix
+            rows = access_matrix()
+        elif args.matrix:
             rows = []
             for row in iter_validation_matrix():
                 rows.append(row)

@@ -1,0 +1,26 @@
+{
+  "status": "M03_VERIFIED_SCOPED_AWAITING_PR_CI_AND_INTEGRATION",
+  "base_merge": "954e644cb0882139bd4d33d19a2e51b04efdd850",
+  "prerequisite_ci_run": 40284101897,
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "tests": {
+    "python312": "69 passed",
+    "python313": "69 passed",
+    "focused_final": "9 passed",
+    "ruff": "PASS"
+  },
+  "matrix": "ACCESS_MATRIX.json; 3 concave fixtures at spatial scales 1/2/4",
+  "limits": [
+    "Synthetic planar constant-speed priors",
+    "p95/variance refinement differences are not certified error bounds",
+    "Entry capacity is horizon admission bound; dynamic joint road receiving belongs to T03",
+    "Full repository CI for M03 pending",
+    "No 100k full day or release claim"
+  ],
+  "acceptance": {
+    "multiple_activity_points_and_doors": "PASS: 30.3046s weighted mean vs single door 82.4515s at scale 1",
+    "intrazonal": "PASS: 262.6397s geodesic at scale 1, not zero by block ID",
+    "mass_subdivision": "PASS: 1000 persons and gate probabilities unchanged under 4-way patch split"
+  },
+  "wheel_install": "PASS: fresh no-deps wheel environment, CLI access matrix outside checkout"
+}

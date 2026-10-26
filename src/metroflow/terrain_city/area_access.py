@@ -207,6 +207,36 @@ class AreaAccess:
     def cost_at(self, point, portals, speed_mps=1.4):
         return self._query(point, self._portals(portals, speed_mps), speed_mps)[0]
 
+    def route_distance(self, origin, destination):
+        """Shortest internal planar distance between two declared activity points."""
+        if not inside(origin, self.polygon) or not inside(destination, self.polygon):
+            raise ValueError("activity point outside block")
+        if segment_inside(origin, destination, self.polygon):
+            return math.dist(origin, destination)
+        left = [
+            (i, math.dist(origin, v))
+            for i, v in enumerate(self.points)
+            if segment_inside(origin, v, self.polygon)
+        ]
+        right = [
+            (i, math.dist(destination, v))
+            for i, v in enumerate(self.points)
+            if segment_inside(destination, v, self.polygon)
+        ]
+        return min(a + self.distances[i][j] + b for i, a in left for j, b in right)
+
+    def portal_costs(self, point, portals, speed_mps=1.4):
+        """Physical minimum time and tied portal IDs; no generalized utility."""
+        portals = tuple(portals)
+        cost, ties = self._query(point, self._portals(portals, speed_mps), speed_mps)
+        return cost, tuple(portals[i].id for i in ties)
+
+    def quadrature(self, depth=2, max_samples=20000):
+        """Normalized uniform-area (point, weight, RMS radius) quadrature."""
+        # Reuse the established rule and budget validation without duplicating geometry.
+        self.evaluate((Portal("quadrature", self.points[0]),), depth=depth, max_samples=max_samples)
+        return self._rules[depth]
+
     def evaluate(self, portals, speed_mps=1.4, depth=2, max_samples=20000, keep_samples=False):
         prepared = self._portals(portals, speed_mps)
         if isinstance(depth, bool) or not isinstance(depth, int) or depth < 0:

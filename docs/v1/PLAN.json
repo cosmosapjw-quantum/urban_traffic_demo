@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "date": "2026-10-26",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -15,7 +15,7 @@
     "T01",
     "I01"
   ],
-  "next_node": "M02",
+  "next_node": "M03",
   "execution_policy": {
     "rule": "초기 PR에서 I01 전체저장소 검증을 먼저 끝내 병합한다. 이후 DAG prerequisite가 수용된 READY 노드만 실행한다.",
     "no_automatic_scope_growth": true,
@@ -360,15 +360,15 @@
   ],
   "current_execution": {
     "node_ids": [
-      "M02"
+      "M03"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "M02 physical city contract verified locally; PR integration pending; not V1 complete",
-    "full_repository_ci": "NOT_RUN_FOR_M02",
+    "scope": "M03 declared activity and physical entry adapters verified in scoped fixtures; PR CI/integration pending",
+    "full_repository_ci": "NOT_RUN_FOR_M03",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_m02_20261026/RECEIPT.json",
-    "ci_run": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/40182521270",
+    "evidence": "artifacts/v1_m03_20261026/RECEIPT.json",
+    "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
       "head": "e2c3b418f6149ec061667cd052f486cad163a756",
@@ -665,7 +665,7 @@
       "depends_on": [
         "I01"
       ],
-      "status": "VERIFIED_SCOPED",
+      "status": "ACCEPTED",
       "files": [
         "src/metroflow/v1/city.py",
         "src/metroflow/terrain_city/",
@@ -727,6 +727,13 @@
         "sha256": "e1f58343a71ef615d38a7f08d58f4fd0f23ec9b2c1ca2853d28c9bf7c1645c4e",
         "source_manifest": "artifacts/v1_m02_20261026/SOURCE_MANIFEST.json",
         "acceptance": "18 atlas JSON cases and 4 restored factories passed; PR integration pending"
+      },
+      "integration_evidence": {
+        "pr": 26,
+        "head_sha": "2b91c13bbd35124b7940c06d08277ed0d961ecc0",
+        "merge_sha": "954e644cb0882139bd4d33d19a2e51b04efdd850",
+        "ci_run": 40284101897,
+        "conclusion": "success"
       }
     },
     {
@@ -736,7 +743,7 @@
         "M02",
         "M01"
       ],
-      "status": "PLANNED",
+      "status": "VERIFIED_SCOPED",
       "files": [
         "src/metroflow/v1/activity.py",
         "src/metroflow/v1/access.py",
@@ -791,9 +798,15 @@
       "pr": {
         "key": "V1-M03",
         "title": "[V1 M03] 활동가중 블록·복수 출입구·주거용량의 현실적 연결",
-        "branch": "v1/m03",
+        "branch": "v1/m03-activity-access-20261026",
         "base": "research/v1-integration-20261025",
         "opened_number": null
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_m03_20261026/RECEIPT.json",
+        "sha256": "d025d261f525a8d0c428b3358b4677eb6784887d7608312416790aaf616fc38f",
+        "source_manifest": "artifacts/v1_m03_20261026/SOURCE_MANIFEST.json",
+        "acceptance": "Three concave fixtures, 9 focused tests, Python 3.12/3.13 V1 profiles; CI/integration pending"
       }
     },
     {
