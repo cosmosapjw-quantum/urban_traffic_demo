@@ -1,0 +1,36 @@
+{"actual_day": "city10k_weekday", "wall_s": 11.538014619000023, "road_completed": 6724.999999999739}
+{"actual_day": "city10k_weekend", "wall_s": 11.567627484000013, "road_completed": 4805.000000000081}
+{"actual_day": "city1k_analytic", "wall_s": 11.665117797999983, "road_completed": 677.0000000000077}
+....F.
+=================================== FAILURES ===================================
+____ test_controlled_interventions_preserve_calendar_and_growth_is_explicit ____
+
+    def test_controlled_interventions_preserve_calendar_and_growth_is_explicit():
+        baseline = compile_scenario()
+        closed = compile_scenario("city10k_bridgeclosure")
+>       bypass = compile_scenario("city10k_bypass")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/v1/test_day_scenarios.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/metroflow/v1/scenarios.py:122: in compile_scenario
+    city = scenario_city(population, bypass=name == "city10k_bypass")
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/metroflow/v1/scenarios.py:106: in scenario_city
+    return compile_city(
+src/metroflow/v1/city.py:386: in compile_city
+    _crossings(roadmap)
+src/metroflow/v1/city.py:237: in _crossings
+    reject(f"illegal crossing {s.id}/{r.id}, clearance {gap:g} m")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+reason = 'illegal crossing bypass/5x, clearance 0 m', status = 'MODEL_ERROR'
+
+    def reject(reason, status="MODEL_ERROR"):
+>       raise CityContractError(status, reason)
+E       metroflow.v1.city.CityContractError: MODEL_ERROR: illegal crossing bypass/5x, clearance 0 m
+
+src/metroflow/v1/city.py:36: CityContractError
+=========================== short test summary info ============================
+FAILED tests/v1/test_day_scenarios.py::test_controlled_interventions_preserve_calendar_and_growth_is_explicit
+1 failed, 5 passed in 35.22s

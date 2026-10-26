@@ -17,7 +17,7 @@ R02 [label="R02\nCommitted routing", style="rounded,bold"];
 B01 [label="B01\nBus and freight", style="rounded,bold"];
 C01 [label="C01\nWorld and scheduler", style="rounded,bold"];
 M04 [label="M04\nLagged development", style="rounded,bold"];
-C02 [label="C02\nFull-day scenarios", style="rounded,dashed"];
+C02 [label="C02\nFull-day scenarios", style="rounded,bold"];
 P01 [label="P01\nMeasured optimization", style="rounded,dashed"];
 V01 [label="V01\nPhysics audit", style="rounded,dashed"];
 V02 [label="V02\nMap audit", style="rounded,dashed"];

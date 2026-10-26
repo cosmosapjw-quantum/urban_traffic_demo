@@ -33,7 +33,8 @@ def test_module_cli_reports_real_capabilities():
     payload = json.loads(result.stdout)
     assert payload["api"] == "metroflow.v1"
     assert "JourneyModel" in payload["exports"]
-    assert payload["full_day_runner"] == "NOT_IMPLEMENTED"
+    assert payload["full_day_runner"] == "SCOPED_SYNTHETIC_TWO_ZONE"
+    assert payload["full_city_100k_runner"] == "NOT_VERIFIED"
 
 
 def test_legacy_root_api_remains_available():

@@ -30,7 +30,10 @@ def main():
     physics.add_argument("--suite", choices=("kinetic", "junctions", "timing", "routing"), required=True)
     physics.add_argument("--out", type=Path)
     run = commands.add_parser("run")
-    run.add_argument("--scenario", choices=("toy_day", "lagged_growth_control"), required=True)
+    from .scenarios import SCENARIOS
+    run.add_argument("--scenario", choices=("toy_day", "lagged_growth_control") + SCENARIOS, required=True)
+    run.add_argument("--days", type=int, default=1)
+    run.add_argument("--artifacts", type=Path, help="day scenario JSON/CSV/SVG directory")
     run.add_argument("--resume-check", action="store_true")
     run.add_argument("--checkpoint", type=Path)
     run.add_argument("--resume", type=Path)
@@ -40,7 +43,7 @@ def main():
     if args.command == "capabilities":
         print(
             json.dumps(
-                {"api": "metroflow.v1", "exports": __all__, "full_day_runner": "NOT_IMPLEMENTED"},
+                {"api": "metroflow.v1", "exports": __all__, "full_day_runner": "SCOPED_SYNTHETIC_TWO_ZONE", "full_city_100k_runner": "NOT_VERIFIED"},
                 sort_keys=True,
             )
         )
@@ -51,6 +54,11 @@ def main():
                 raise ValueError("growth control does not expose toy traffic resume options")
             from .development import lagged_growth_control
             rows = lagged_growth_control()
+        elif args.command == "run" and args.scenario in SCENARIOS:
+            if args.resume or args.resume_check or args.checkpoint:
+                raise ValueError("day runner checkpoint resume is not supported; toy runtime has explicit resume interface")
+            from .scenarios import run_scenario
+            rows = [run_scenario(args.scenario, days=args.days, out=args.artifacts)]
         elif args.command == "run":
             from .runtime import toy_runtime
             from .checkpoint import save_checkpoint, load_checkpoint

@@ -1,0 +1,452 @@
+{
+  "access_pending_persons": 0.0,
+  "access_pending_records": 0,
+  "am_actual_road_vehicles": 335.99999999999875,
+  "analytic_scope": "calendar integral and finite scheduled boarding/fleet counts; not analytic travel time",
+  "approximations": [
+    "step-boundary source and arrival times",
+    "mean internal access/egress delay; not full joint law",
+    "fixed timetable capacity100 independent demand",
+    "road routing frozen legal baseline, not dynamic assignment"
+  ],
+  "bus_calendar_vehicle_equivalents_are_not_emitted": true,
+  "calendar_unreleased_person_trips": 49.999999999999986,
+  "city_identity": "ad81fc197d141b6fe56d9a20ee02de26427c3de3f4c2487098d8c03aea713ee4",
+  "class_recorded_birth_to_outlet_mean_s": {
+    "car": 177.0393090775642,
+    "freight": 22.1828301811438,
+    "scheduled_bus": 22.716163514476648
+  },
+  "clock_scope": {
+    "car": "calendar first moment through origin access and actual road outlet",
+    "freight": "actual run source offer to actual outlet",
+    "scheduled_bus": "actual scheduled run source offer to actual outlet"
+  },
+  "completed_outlet_events": 2166,
+  "completed_person_trips": 1350.0,
+  "day": "weekday",
+  "demand": {
+    "allocated_workers": 500.0,
+    "cohorts": 7,
+    "completion_semantics": "explicit receipts only; pending requests are intent, not extra resident stock",
+    "day": "weekday",
+    "default_departure_bin_s": 900.0,
+    "identity": "34b9ffbbf5727ff83657f40afac4d29de9a5a627411d60fc92c8e2778ad31c30",
+    "legs": 13,
+    "origin_destination": [
+      {
+        "destination": "work",
+        "endpoint_kind": "interzonal",
+        "leg": "c0:out",
+        "mode": "car",
+        "origin": "block",
+        "purpose": "work",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 300.0,
+          "vehicles": 240.0
+        },
+        "vehicle_class": "car"
+      },
+      {
+        "destination": "block",
+        "endpoint_kind": "interzonal",
+        "leg": "c0:home",
+        "mode": "car",
+        "origin": "work",
+        "purpose": "return_home",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 300.0,
+          "vehicles": 240.0
+        },
+        "vehicle_class": "car"
+      },
+      {
+        "destination": "work",
+        "endpoint_kind": "interzonal",
+        "leg": "c1:out",
+        "mode": "bus",
+        "origin": "block",
+        "purpose": "work",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 125.0,
+          "vehicles": 5.0
+        },
+        "vehicle_class": "scheduled_bus"
+      },
+      {
+        "destination": "block",
+        "endpoint_kind": "interzonal",
+        "leg": "c1:home",
+        "mode": "bus",
+        "origin": "work",
+        "purpose": "return_home",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 125.0,
+          "vehicles": 5.0
+        },
+        "vehicle_class": "scheduled_bus"
+      },
+      {
+        "destination": "work",
+        "endpoint_kind": "interzonal",
+        "leg": "c2:out",
+        "mode": "noncar",
+        "origin": "block",
+        "purpose": "work",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 75.0,
+          "vehicles": 0.0
+        },
+        "vehicle_class": null
+      },
+      {
+        "destination": "block",
+        "endpoint_kind": "interzonal",
+        "leg": "c2:home",
+        "mode": "noncar",
+        "origin": "work",
+        "purpose": "return_home",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 75.0,
+          "vehicles": 0.0
+        },
+        "vehicle_class": null
+      },
+      {
+        "destination": "work",
+        "endpoint_kind": "interzonal",
+        "leg": "c3:out",
+        "mode": "car",
+        "origin": "block",
+        "purpose": "service",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 120.0,
+          "vehicles": 96.0
+        },
+        "vehicle_class": "car"
+      },
+      {
+        "destination": "block",
+        "endpoint_kind": "interzonal",
+        "leg": "c3:home",
+        "mode": "car",
+        "origin": "work",
+        "purpose": "return_home",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 120.0,
+          "vehicles": 96.0
+        },
+        "vehicle_class": "car"
+      },
+      {
+        "destination": "work",
+        "endpoint_kind": "interzonal",
+        "leg": "c4:out",
+        "mode": "bus",
+        "origin": "block",
+        "purpose": "service",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 50.0,
+          "vehicles": 2.0
+        },
+        "vehicle_class": "scheduled_bus"
+      },
+      {
+        "destination": "block",
+        "endpoint_kind": "interzonal",
+        "leg": "c4:home",
+        "mode": "bus",
+        "origin": "work",
+        "purpose": "return_home",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 50.0,
+          "vehicles": 2.0
+        },
+        "vehicle_class": "scheduled_bus"
+      },
+      {
+        "destination": "work",
+        "endpoint_kind": "interzonal",
+        "leg": "c5:out",
+        "mode": "noncar",
+        "origin": "block",
+        "purpose": "service",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 30.0,
+          "vehicles": 0.0
+        },
+        "vehicle_class": null
+      },
+      {
+        "destination": "block",
+        "endpoint_kind": "interzonal",
+        "leg": "c5:home",
+        "mode": "noncar",
+        "origin": "work",
+        "purpose": "return_home",
+        "requested": {
+          "cargo_kg": 0.0,
+          "persons": 30.0,
+          "vehicles": 0.0
+        },
+        "vehicle_class": null
+      },
+      {
+        "destination": "work",
+        "endpoint_kind": "external",
+        "leg": "freight:work",
+        "mode": "freight",
+        "origin": "EXTERNAL",
+        "purpose": "delivery",
+        "requested": {
+          "cargo_kg": 1000.0,
+          "persons": 0.0,
+          "vehicles": 1.0
+        },
+        "vehicle_class": "freight"
+      }
+    ],
+    "prior": "declared synthetic cohort calendar; fractional vehicles from occupancy; bus fleet operations pending B01",
+    "resident_residual": 0.0,
+    "resident_stock": 1000.0,
+    "resident_stocks": {
+      "activity": 0.0,
+      "external_activity": 0.0,
+      "home": 1000.0,
+      "in_transit": 0.0
+    },
+    "status": "PASS",
+    "time_s": 86400.0,
+    "trip_amounts": {
+      "active": {
+        "cargo_kg": 0.0,
+        "persons": 0.0,
+        "vehicles": 0.0
+      },
+      "completed": {
+        "cargo_kg": 1000.0,
+        "persons": 1350.0,
+        "vehicles": 685.0
+      },
+      "pending": {
+        "cargo_kg": 0.0,
+        "persons": 49.999999999999986,
+        "vehicles": 1.9999999999999996
+      },
+      "released": {
+        "cargo_kg": 1000.0,
+        "persons": 1350.0,
+        "vehicles": 685.0
+      },
+      "requested": {
+        "cargo_kg": 1000.0,
+        "persons": 1400.0,
+        "vehicles": 687.0
+      }
+    },
+    "unassigned_service_persons": 0.0
+  },
+  "demand_control_identity": "74153e55c8fbb78b5ed1da99573362e30f219530c2fa9084d01374aed599419e",
+  "demand_identity": "34b9ffbbf5727ff83657f40afac4d29de9a5a627411d60fc92c8e2778ad31c30",
+  "egress_or_noncar_pending_persons": 0.0,
+  "egress_or_noncar_pending_records": 0,
+  "growth_evidence": null,
+  "hourly": [
+    {
+      "active_veh": 0.0,
+      "completed_veh": 0.0,
+      "released_veh": 0.0,
+      "time_s": 3600.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 0.0,
+      "released_veh": 0.0,
+      "time_s": 7200.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 0.0,
+      "released_veh": 0.0,
+      "time_s": 10800.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 0.0,
+      "released_veh": 0.0,
+      "time_s": 14400.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 0.0,
+      "released_veh": 0.0,
+      "time_s": 18000.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 0.0,
+      "released_veh": 0.0,
+      "time_s": 21600.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 0.0,
+      "released_veh": 0.0,
+      "time_s": 25200.0
+    },
+    {
+      "active_veh": 0.6666666666666572,
+      "completed_veh": 113.33333333333259,
+      "released_veh": 113.99999999999925,
+      "time_s": 28800.0
+    },
+    {
+      "active_veh": 0.6666666666666856,
+      "completed_veh": 233.33333333333582,
+      "released_veh": 234.0000000000025,
+      "time_s": 32400.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 241.0000000000027,
+      "released_veh": 241.0000000000027,
+      "time_s": 36000.0
+    },
+    {
+      "active_veh": 0.533333333333303,
+      "completed_veh": 332.2666666666656,
+      "released_veh": 332.79999999999893,
+      "time_s": 39600.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 338.59999999999866,
+      "released_veh": 338.59999999999866,
+      "time_s": 43200.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 338.59999999999866,
+      "released_veh": 338.59999999999866,
+      "time_s": 46800.0
+    },
+    {
+      "active_veh": 0.533333333333303,
+      "completed_veh": 430.3333333333268,
+      "released_veh": 430.8666666666601,
+      "time_s": 50400.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 435.5999999999932,
+      "released_veh": 435.5999999999932,
+      "time_s": 54000.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 435.5999999999932,
+      "released_veh": 435.5999999999932,
+      "time_s": 57600.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 435.9999999999932,
+      "released_veh": 435.9999999999932,
+      "time_s": 61200.0
+    },
+    {
+      "active_veh": 0.6666666666667425,
+      "completed_veh": 550.6666666666601,
+      "released_veh": 551.3333333333269,
+      "time_s": 64800.0
+    },
+    {
+      "active_veh": 0.6666666666667425,
+      "completed_veh": 670.6666666666738,
+      "released_veh": 671.3333333333405,
+      "time_s": 68400.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 677.0000000000077,
+      "released_veh": 677.0000000000077,
+      "time_s": 72000.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 677.0000000000077,
+      "released_veh": 677.0000000000077,
+      "time_s": 75600.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 677.0000000000077,
+      "released_veh": 677.0000000000077,
+      "time_s": 79200.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 677.0000000000077,
+      "released_veh": 677.0000000000077,
+      "time_s": 82800.0
+    },
+    {
+      "active_veh": 0.0,
+      "completed_veh": 677.0000000000077,
+      "released_veh": 677.0000000000077,
+      "time_s": 86400.0
+    }
+  ],
+  "intervention": "baseline",
+  "p95_s": null,
+  "p95_status": "UNSUPPORTED_JOINT_TRIP_DISTRIBUTION",
+  "peak_rss_kib": 19188,
+  "pm_actual_road_vehicles": 335.9999999999995,
+  "recorded_birth_to_outlet_mean_s": 175.89876393554223,
+  "resident_stock": 1000.0,
+  "road_active_density_veh_per_m": 0.0,
+  "road_active_vehicles": 0.0,
+  "road_source_pending_vehicles": 0.0,
+  "road_throughput_veh_s": 0.007835648148148237,
+  "routing_policy": "fixed legal free-time route; no present incident truth lookup",
+  "scenario": "city1k_analytic",
+  "scheduled_person_trips": 1400.0,
+  "service_passenger_measure": "planned person-trip bookings incl conditional returns; not extra resident stock physically at stops",
+  "services": {
+    "arrived_persons": 300.0,
+    "bus_road_vehicles": 0.0,
+    "bus_stop_or_finished_vehicles": 4.0,
+    "cargo_delivered_kg": 1000.0,
+    "cargo_unfinished_kg": 0.0,
+    "completed_bus_vehicles": 4,
+    "freight_completed_vehicles": 1.0,
+    "onboard_persons": 0.0,
+    "road_completed_veh": 677.0000000000077,
+    "road_released_veh": 677.0000000000077,
+    "scheduled_bus_vehicles": 4,
+    "time_s": 86400.0,
+    "wait_person_s": 1773500.0,
+    "waiting_persons": 50.0
+  },
+  "status": "PASS",
+  "step_s": 10.0,
+  "time_s": 86400.0,
+  "unfinished_person_trips": 50.0,
+  "unrun_metrics": {
+    "full_ci": null,
+    "full_city_100k_performance": null
+  },
+  "wall_s": 12.624148473999867,
+  "whole_person_trip_mean_s": null
+}
