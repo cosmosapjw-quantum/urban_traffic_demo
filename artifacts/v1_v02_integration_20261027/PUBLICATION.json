@@ -1,0 +1,8 @@
+{
+  "pr": 38,
+  "source_commit": "4384900e59c09cc23b48b2b3177829e84739fde6",
+  "source_tree": "0b499e3884e1e0da8d5560b889004ae815894d35",
+  "merged": false,
+  "full_ci": "DEFERRED_BY_USER",
+  "recovery": "tool host restart during tree assembly; rebuilt bounded batches from immutable staged bytes; same treeSHA verified; binary objects reused"
+}

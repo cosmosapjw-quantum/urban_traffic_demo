@@ -1,0 +1,11 @@
+37 corridor_lake PASS
+36 corridor_valley PASS
+35 corridor_coast PASS
+34 corridor_river PASS
+33 corridor_flat PASS
+32 radial_lake PASS
+31 radial_valley PASS
+30 radial_coast PASS
+29 radial_river PASS
+28 radial_flat PASS
+stop before approaching main frontier 27 26

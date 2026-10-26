@@ -1,0 +1,17 @@
+{
+  "status": "VISUALLY_CHECKED_WITH_LIMITS",
+  "image": "REPRESENTATIVE_SIX.png",
+  "sha256": "8294db32f309db66cc11397cb10aa9311650e5e8c7fc7c91d7d1376bf4e0bbd3",
+  "method": "tools.view_image inspected actual six-view contact sheet rendered from frozen JSON, seed7 for each authoredcase",
+  "findings": {
+    "planned_plain": "orthogonal fabric and protected void visible; western spur retained",
+    "polycentric_river": "river separatingbanks and red bridge crossings visible",
+    "radial_plain": "radial spokes/rings and protected void visible",
+    "coastal_port": "roads remain landward of coastal mask; case label does not certify real port operations",
+    "valley_city": "two curved valley bands and bridge links visible; fine layer clearance requires numerical authority",
+    "lake_city": "network wraps lake void; protected void retained"
+  },
+  "geometry_visual_consistency": "No contradiction seen at overview scale with canonical centreline/mask/layer flags. Not fine pavement or perintersectionvisualcertification.",
+  "unresolved": "all six captions expose registered portals0; visual appearance does not imply residentservice",
+  "correction_rounds": 0
+}
