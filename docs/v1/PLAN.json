@@ -1430,7 +1430,7 @@
         "title": "[V1 C01] 단일 WorldState·다중 시간척도·저장/재개 실행기",
         "branch": "v1/c01-parallel-20261026",
         "base": "v1/b01-parallel-20261026",
-        "opened_number": null
+        "opened_number": 35
       },
       "implementation_parent": {
         "node": "B01",
