@@ -1117,7 +1117,7 @@
         "title": "[V1 T04] 시간구간 이관·기록압축·통행관측의 수치 일관성",
         "branch": "v1/t04-transfer-time-20261026",
         "base": "v1/t03-lanegroups-nodes-20261026",
-        "opened_number": null
+        "opened_number": 31
       },
       "implementation_parent": {
         "node": "T03",
