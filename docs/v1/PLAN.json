@@ -959,7 +959,7 @@
         "title": "[V1 T02] 연속속도 기초에서 유한응답 집계 closure 확정",
         "branch": "v1/t02-finite-response-20261026",
         "base": "v1/d01-daily-demand-20261026",
-        "opened_number": null
+        "opened_number": 29
       },
       "implementation_parent": {
         "node": "D01",
