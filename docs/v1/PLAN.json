@@ -1790,7 +1790,7 @@
         "title": "[V1 V02] 도시형태·지형·접근의 적대적 시각 검수",
         "branch": "v1/v02-parallel-20261027",
         "base": "v1/c02-parallel-20261027",
-        "opened_number": null
+        "opened_number": 38
       },
       "implementation_parent": {
         "node": "C02",
