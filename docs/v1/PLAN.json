@@ -720,7 +720,7 @@
         "title": "[V1 M02] 지형·입체도로·회전·구조물의 단일 지도 계약",
         "branch": "v1/m02-layered-contract-20261026",
         "base": "research/v1-integration-20261025",
-        "opened_number": null
+        "opened_number": 26
       },
       "verification_receipt": {
         "path": "artifacts/v1_m02_20261026/RECEIPT.json",

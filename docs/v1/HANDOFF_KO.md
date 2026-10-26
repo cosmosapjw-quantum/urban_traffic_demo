@@ -4,6 +4,8 @@ repo: cosmosapjw-quantum/urban_traffic_demo
 integration: research/v1-integration-20261025
 branch: v1/m02-layered-contract-20261026
 plan: docs/v1/PLAN.json 1.0.2
+PR: https://github.com/cosmosapjw-quantum/urban_traffic_demo/pull/26
+구현 commit: 635469fe19b6b1db374587cc741dcfe1cdfaa8e4
 
 최신 AGENTS·실제 HEAD·병렬 작업과 PLAN.json을 먼저 확인한다.
 bootstrap PR #25는 b687425b1daa6ce61f912240cafbd9f294b0578b로 병합됐다.
