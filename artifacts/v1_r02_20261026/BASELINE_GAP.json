@@ -1,0 +1,10 @@
+{
+  "status": "BEHAVIOR_GAP_REPRODUCED",
+  "legacy_k1_equal_cost_paths": [
+    [
+      "a",
+      "ad"
+    ]
+  ],
+  "expected_R02": "no ID-biased cut through cost ties; retain whole tie within K<=3 or explicit BLOCKED_RESOURCE fallback"
+}

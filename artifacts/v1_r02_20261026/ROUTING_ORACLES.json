@@ -1,0 +1,69 @@
+{
+  "cases": [
+    {
+      "after": {
+        "demand": 4000.0,
+        "flow": {
+          "ab": 3999.9999999999964,
+          "ad": 0.0,
+          "bd": 3999.9999999999964,
+          "oa": 3999.9999999999964,
+          "ob": 0.0
+        },
+        "mean_cost_min": 79.99999999999986,
+        "relative_wardrop_gap": 0.0,
+        "shortcut": true,
+        "shortest_cost_min": 79.99999999999993
+      },
+      "before": {
+        "demand": 4000.0,
+        "flow": {
+          "ad": 2000.000000000003,
+          "bd": 2000.0000000000014,
+          "oa": 2000.000000000003,
+          "ob": 2000.0000000000014
+        },
+        "mean_cost_min": 65.00000000000009,
+        "relative_wardrop_gap": 1.1193780944897563e-15,
+        "shortcut": false,
+        "shortest_cost_min": 65.00000000000001
+      },
+      "case": "static_braess_minutes",
+      "scope": "classical static nonatomic oracle; not dynamic T04 validation",
+      "status": "PASS"
+    },
+    {
+      "cache_entries": 1,
+      "case": "finite_belief_exit_suffix",
+      "conditional_regret_s": 87.0,
+      "occupied_link_preserved": "oa",
+      "old_path": [
+        "oa",
+        "ad"
+      ],
+      "probabilities": [
+        0.9478464369215823,
+        0.05215356307841774
+      ],
+      "proposed_path": [
+        "oa",
+        "ab",
+        "bd"
+      ],
+      "status": "PASS",
+      "time_s": 10
+    },
+    {
+      "case": "budget_fallback",
+      "checkpoint_unchanged": true,
+      "outcome": "BLOCKED_RESOURCE",
+      "retained_path": [
+        "oa",
+        "ad"
+      ],
+      "status": "PASS"
+    }
+  ],
+  "python": "3.12.14",
+  "status": "PASS"
+}

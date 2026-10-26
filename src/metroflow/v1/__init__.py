@@ -57,6 +57,11 @@ from .information import (
     PriorCost, Channel, Report, InformationState, DeliveredCost, DecisionObservation, InformationModel,
 )
 
+from .routing import (
+    RoutingLink, Preference, DecisionBoundary, RouteCommitment, RouteGeometry,
+    RouteAlternative, RoutingState, RoutingDecision, RoutingModel, path_size_probabilities,
+)
+
 __all__ = [
     "AccessLaw",
     "DelayAtom",
@@ -135,4 +140,9 @@ __all__ += [
     'CostKey', 'CostObservation', 'completed_route_observations', 'conditional_eta_error',
     'PriorCost', 'Channel', 'Report', 'InformationState', 'DeliveredCost',
     'DecisionObservation', 'InformationModel',
+]
+
+__all__ += [
+    "RoutingLink", "Preference", "DecisionBoundary", "RouteCommitment", "RouteGeometry",
+    "RouteAlternative", "RoutingState", "RoutingDecision", "RoutingModel", "path_size_probabilities",
 ]
