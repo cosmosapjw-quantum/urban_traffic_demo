@@ -1,0 +1,3851 @@
+{
+  "status": "AUDIT_COMPLETE_WITH_FINDINGS",
+  "geometry_status": "PASS",
+  "population_feasibility_status": "PASS",
+  "correction_rounds": 0,
+  "frozen_seeds": [
+    7,
+    17,
+    41
+  ],
+  "primary_cases": 18,
+  "mixed_cases": 20,
+  "cases": [
+    {
+      "case": "planned_plain",
+      "style": "planned",
+      "terrain": "flat",
+      "seed": 7,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_planned_plain_s7.json.xz",
+      "source_sha256": "bcd12566d55f0984879b54d438ddeb6ef3e61ffe5067f49bfb62534c86587c01",
+      "status": "PASS",
+      "identity": "448cf4070ef243386bbd3652b18f9044eeee4009200a50bcb5dbdcfac4cf9d3c",
+      "nodes": 1012,
+      "sections": 1857,
+      "directed_groups": 3714,
+      "legal_turns": 10268,
+      "face_edges": 1857,
+      "blocks": 846,
+      "block_area_m2": 36399664.330853015,
+      "max_grade": 0.005143744222730677,
+      "storage_veh": 89254.38349807262,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.00046629196808158633
+        ],
+        [
+          60,
+          0.0331756989099516
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 61,
+        "3": 209,
+        "4": 741
+      },
+      "block_area_range_m2": [
+        34085.80799592566,
+        3264738.378467206
+      ],
+      "mean_block_compactness": 0.7777016345252125,
+      "mean_section_detour": 1.0000000034838228,
+      "svg": "primary_planned_plain_s7.svg.xz",
+      "svg_sha256": "17369babbe518aac3375a0b315eb90c735e37df51a83072f250aed7195847416",
+      "wall_s": 9.123995188000208,
+      "source_uncompressed_sha256": "aa76c789551afbb8613445dbf7f8cc755e57e89089610ae27f622b7c951c57bc",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "planned_plain",
+      "style": "planned",
+      "terrain": "flat",
+      "seed": 17,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_planned_plain_s17.json.xz",
+      "source_sha256": "b50842e74bb3e354ba3c4d7879c927e2a0ad58c9a25a3eed258098113d53a4af",
+      "status": "PASS",
+      "identity": "c9ae757497f68ccb76583ac93516e99016962c959af75a94d63ceba5fa653eb8",
+      "nodes": 1017,
+      "sections": 1861,
+      "directed_groups": 3722,
+      "legal_turns": 10274,
+      "face_edges": 1861,
+      "blocks": 845,
+      "block_area_m2": 36504342.23616608,
+      "max_grade": 0.005156560782592801,
+      "storage_veh": 89516.84734931155,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.000518937349956337
+        ],
+        [
+          60,
+          0.02976310458099869
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 70,
+        "3": 203,
+        "4": 743
+      },
+      "block_area_range_m2": [
+        34192.16887425259,
+        3339458.389893653
+      ],
+      "mean_block_compactness": 0.7775143349230031,
+      "mean_section_detour": 1.0000000034905234,
+      "svg": "primary_planned_plain_s17.svg.xz",
+      "svg_sha256": "efd684712980867cca25d79e6fe0f50990562f4294ca3ece13fa857408aba04a",
+      "wall_s": 9.293031438000071,
+      "source_uncompressed_sha256": "c8e17b6f9e17d9c0d72ff4fc9f364689891773eee8f477bb262d7ed239b0d94e",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "planned_plain",
+      "style": "planned",
+      "terrain": "flat",
+      "seed": 41,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_planned_plain_s41.json.xz",
+      "source_sha256": "86374f5ab1fd011d171cef16aa5e053dbc44bfa1b4f4b00902bd2493481e2e95",
+      "status": "PASS",
+      "identity": "c4b0bed48151d7ec899df0ab3da93d6d661422c0f2e7b00aa69a0de7ba7240ef",
+      "nodes": 1010,
+      "sections": 1846,
+      "directed_groups": 3692,
+      "legal_turns": 10170,
+      "face_edges": 1846,
+      "blocks": 837,
+      "block_area_m2": 36424169.98417558,
+      "max_grade": 0.005154354887345931,
+      "storage_veh": 88743.17163936052,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0006178914142753669
+        ],
+        [
+          60,
+          0.03429201530716419
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 66,
+        "3": 213,
+        "4": 730
+      },
+      "block_area_range_m2": [
+        34353.87183014699,
+        3340590.796950314
+      ],
+      "mean_block_compactness": 0.7765881686085532,
+      "mean_section_detour": 1.0000000034572163,
+      "svg": "primary_planned_plain_s41.svg.xz",
+      "svg_sha256": "e7566c78159ee5b5563bd81e949e1c731e99452bf96c30a2270e87a7a4c641e6",
+      "wall_s": 9.449441760999889,
+      "source_uncompressed_sha256": "44d43d0d8ddd1910d1040761e0e0f0abc1c82925252c581c44cd26ba84f08e0a",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "polycentric_river",
+      "style": "polycentric",
+      "terrain": "river",
+      "seed": 7,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_polycentric_river_s7.json.xz",
+      "source_sha256": "54bbb444036062aebc6f38b0453c13ddbf34097a37676b49ebd4b62011840190",
+      "status": "PASS",
+      "identity": "38e3626385e26bec53f3a5f13a7f6527162faabd02ab5013fe76f64df1da5d26",
+      "nodes": 990,
+      "sections": 1547,
+      "directed_groups": 3094,
+      "legal_turns": 7178,
+      "face_edges": 1547,
+      "blocks": 558,
+      "block_area_m2": 32487965.03067636,
+      "max_grade": 0.07517031971836607,
+      "storage_veh": 76980.82006674336,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:14",
+          "origin": "g22:15",
+          "affected_links": [
+            "b:g22:15>g24:15|0",
+            "b:g22:15>g24:15|1"
+          ],
+          "reachable_before": 990,
+          "reachable_after": 990,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:25",
+          "origin": "g15:29",
+          "affected_links": [
+            "b:g15:29>g17:29|0",
+            "b:g15:29>g17:29|1"
+          ],
+          "reachable_before": 990,
+          "reachable_after": 990,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.007908398688838036
+        ],
+        [
+          60,
+          0.2702887409526499
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 247,
+        "3": 372,
+        "4": 371
+      },
+      "block_area_range_m2": [
+        24554.41798126069,
+        1304816.428511531
+      ],
+      "mean_block_compactness": 0.7222314836985128,
+      "mean_section_detour": 1.000005189900989,
+      "svg": "primary_polycentric_river_s7.svg.xz",
+      "svg_sha256": "a11ffb373fd4c04d833c1522b493cb29ed893c92fd29caa9a0f576455b32a4cf",
+      "wall_s": 43.703093625000065,
+      "source_uncompressed_sha256": "7dfb4674f10329ce1fe8cbcc4eafd0ad31e491662ce5f8603205711d59fb981b",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "polycentric_river",
+      "style": "polycentric",
+      "terrain": "river",
+      "seed": 17,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_polycentric_river_s17.json.xz",
+      "source_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+      "status": "PASS",
+      "identity": "60ccd6c3da4d5a3e86c8e18ea54978bf13a7b80f7b2c621e7f168fb5ce14e6b0",
+      "nodes": 992,
+      "sections": 1579,
+      "directed_groups": 3158,
+      "legal_turns": 7442,
+      "face_edges": 1579,
+      "blocks": 588,
+      "block_area_m2": 32861710.562171094,
+      "max_grade": 0.07449432513619973,
+      "storage_veh": 78603.78295789359,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:16",
+          "origin": "g17:18",
+          "affected_links": [
+            "b:g17:18>g19:18|0",
+            "b:g17:18>g19:18|1"
+          ],
+          "reachable_before": 992,
+          "reachable_after": 992,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:25",
+          "origin": "g18:29",
+          "affected_links": [
+            "b:g18:29>g20:29|0",
+            "b:g18:29>g20:29|1"
+          ],
+          "reachable_before": 992,
+          "reachable_after": 992,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.011928611377418867
+        ],
+        [
+          60,
+          0.280063009735714
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 199,
+        "3": 412,
+        "4": 381
+      },
+      "block_area_range_m2": [
+        24077.68340496719,
+        1147960.4093330093
+      ],
+      "mean_block_compactness": 0.7289101103657754,
+      "mean_section_detour": 1.0000036564374075,
+      "svg": "primary_polycentric_river_s17.svg.xz",
+      "svg_sha256": "77a2a0e25294211a79103a2c5aff1626855ea2cc6fb547364c9c198477f4ba1f",
+      "wall_s": 37.12196665200008,
+      "source_uncompressed_sha256": "3ddc26e8ba7bd5fbec611b0dc2a43b558b8d3a99c42f00412b2286b222155521",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "polycentric_river",
+      "style": "polycentric",
+      "terrain": "river",
+      "seed": 41,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_polycentric_river_s41.json.xz",
+      "source_sha256": "31b87d5f25d04a2c3fadff2e8e42004a8e10824b241c79b2f87bcf996911da33",
+      "status": "PASS",
+      "identity": "55974a7c1a88bf29611a5c6a6c827c7818b6f3e23643869fd8bb9a3e3d409756",
+      "nodes": 965,
+      "sections": 1548,
+      "directed_groups": 3096,
+      "legal_turns": 7382,
+      "face_edges": 1548,
+      "blocks": 584,
+      "block_area_m2": 32283902.056737624,
+      "max_grade": 0.07476739618391896,
+      "storage_veh": 77519.99896572939,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:13",
+          "origin": "g21:15",
+          "affected_links": [
+            "b:g21:15>g23:15|0",
+            "b:g21:15>g23:15|1"
+          ],
+          "reachable_before": 965,
+          "reachable_after": 965,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:19",
+          "origin": "g18:21",
+          "affected_links": [
+            "b:g18:21>g20:21|0",
+            "b:g18:21>g20:21|1"
+          ],
+          "reachable_before": 965,
+          "reachable_after": 965,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:28",
+          "origin": "g18:30",
+          "affected_links": [
+            "b:g18:30>g20:30|0",
+            "b:g18:30>g20:30|1"
+          ],
+          "reachable_before": 965,
+          "reachable_after": 965,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0077346753218944025
+        ],
+        [
+          60,
+          0.24742991407210294
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 190,
+        "3": 381,
+        "4": 393
+      },
+      "block_area_range_m2": [
+        23514.32075266028,
+        700216.9714491554
+      ],
+      "mean_block_compactness": 0.7322177505663252,
+      "mean_section_detour": 1.0000071192290487,
+      "svg": "primary_polycentric_river_s41.svg.xz",
+      "svg_sha256": "fe4be07a10e01bff060fe63f03d5559aa08f37aa72a3826526d24cb6d3cdb694",
+      "wall_s": 36.45102756799997,
+      "source_uncompressed_sha256": "9ff2db0b6cafc4e312d117cd615ca79a45ad0573adcd320a6164f89903abeb1d",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "radial_plain",
+      "style": "radial",
+      "terrain": "flat",
+      "seed": 7,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_radial_plain_s7.json.xz",
+      "source_sha256": "a12ac6c3a757e0f6ccd989201127cecf786f4f92d96bc053b18687ce0e745dc4",
+      "status": "PASS",
+      "identity": "0160644a9c934111b0fc00a25eaf23ce4a8cbfd4d6f3558fcd9ccc36383a9726",
+      "nodes": 1043,
+      "sections": 1845,
+      "directed_groups": 3690,
+      "legal_turns": 9776,
+      "face_edges": 1845,
+      "blocks": 803,
+      "block_area_m2": 36417281.59643454,
+      "max_grade": 0.038928968331537035,
+      "storage_veh": 94491.903368815,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.003108410280147123
+        ],
+        [
+          60,
+          0.26297053244993074
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 73,
+        "3": 338,
+        "4": 631,
+        "6": 1
+      },
+      "block_area_range_m2": [
+        15709.766876184382,
+        154068.33145976998
+      ],
+      "mean_block_compactness": 0.7631347985398107,
+      "mean_section_detour": 1.0000000045787323,
+      "svg": "primary_radial_plain_s7.svg.xz",
+      "svg_sha256": "c8143db25ad84cb5cced88f7214cfec44cea4803d9fe3ef16737a0e1ff577d36",
+      "wall_s": 12.767469638999955,
+      "source_uncompressed_sha256": "886e490a8ecbf351d869c6c7f79b3718c06fabcf9f1f98165ca887773f1d5302",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "radial_plain",
+      "style": "radial",
+      "terrain": "flat",
+      "seed": 17,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_radial_plain_s17.json.xz",
+      "source_sha256": "6c14c19508bec830310d22d29fda25cb396936711b33cc4dfd4f928d1bd54373",
+      "status": "PASS",
+      "identity": "d37628e21f94d9bc22c4888721cdc1c0615e09d46facb41a036e5593a5ad66af",
+      "nodes": 1049,
+      "sections": 1853,
+      "directed_groups": 3706,
+      "legal_turns": 9836,
+      "face_edges": 1853,
+      "blocks": 805,
+      "block_area_m2": 36623849.8731971,
+      "max_grade": 0.038928968331537035,
+      "storage_veh": 94918.38946947308,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.005579307266483632
+        ],
+        [
+          60,
+          0.24965093423562656
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 91,
+        "3": 310,
+        "4": 647,
+        "6": 1
+      },
+      "block_area_range_m2": [
+        15709.766876184382,
+        292706.6093035145
+      ],
+      "mean_block_compactness": 0.7634276244917502,
+      "mean_section_detour": 1.0000000045441304,
+      "svg": "primary_radial_plain_s17.svg.xz",
+      "svg_sha256": "c9f38c67207d39a5d21230f35ef76764e527c5523626c756d95581cfe2d7adc6",
+      "wall_s": 18.888561492999997,
+      "source_uncompressed_sha256": "8fd281882b535a030ad14a0d64117432bd7c52999b3d16da8dc37572cbf98db0",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "radial_plain",
+      "style": "radial",
+      "terrain": "flat",
+      "seed": 41,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_radial_plain_s41.json.xz",
+      "source_sha256": "0b53d5ef0fd37fde125948acca83c5acd52892509e6f3af8b95ee485ccec0da6",
+      "status": "PASS",
+      "identity": "bebc8bb6c9de22f4faf64cce09d817977884a33a470de3a413a56a6330df2566",
+      "nodes": 1046,
+      "sections": 1863,
+      "directed_groups": 3726,
+      "legal_turns": 9958,
+      "face_edges": 1863,
+      "blocks": 818,
+      "block_area_m2": 36433392.18124617,
+      "max_grade": 0.038928968331537035,
+      "storage_veh": 95513.00389924689,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0029611544126795382
+        ],
+        [
+          60,
+          0.2512452605859629
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 74,
+        "3": 312,
+        "4": 659,
+        "6": 1
+      },
+      "block_area_range_m2": [
+        15709.766876184382,
+        129080.48671485763
+      ],
+      "mean_block_compactness": 0.7646338664991651,
+      "mean_section_detour": 1.0000000046008106,
+      "svg": "primary_radial_plain_s41.svg.xz",
+      "svg_sha256": "32f616132cf41339925186046408635c56f2bf22d86c2f1b5c9d1bf0564dce4d",
+      "wall_s": 22.24797281899987,
+      "source_uncompressed_sha256": "ec2aa775dedf47217e612786b2fae090cd55fee7500a1fa432e325a7524f70c1",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "coastal_port",
+      "style": "polycentric",
+      "terrain": "coast",
+      "seed": 7,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_coastal_port_s7.json.xz",
+      "source_sha256": "48741bfd108c1f744a92a5a1eae0cef73d28c9d198494a09c32d45127ae2a737",
+      "status": "PASS",
+      "identity": "ea8d6798958f6aa09d7e7a9099da6679cf37f7f2266e819a0ef0aa4939f99933",
+      "nodes": 802,
+      "sections": 1261,
+      "directed_groups": 2522,
+      "legal_turns": 5886,
+      "face_edges": 1261,
+      "blocks": 460,
+      "block_area_m2": 27561254.243045256,
+      "max_grade": 0.07775046381771016,
+      "storage_veh": 63572.60648072964,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0064432008083521375
+        ],
+        [
+          60,
+          0.24012237163559602
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 189,
+        "3": 308,
+        "4": 305
+      },
+      "block_area_range_m2": [
+        24554.41798126069,
+        594615.0025558639
+      ],
+      "mean_block_compactness": 0.7268307459528146,
+      "mean_section_detour": 1.0000009099235672,
+      "svg": "primary_coastal_port_s7.svg.xz",
+      "svg_sha256": "473a8440ef4c330749628063279ee1c4bb6bc60e132908f4bb06594490b02cae",
+      "wall_s": 14.597090320999996,
+      "source_uncompressed_sha256": "a95cebd2cd228cea321482516ed4ed85b2e61e52ed7d147ed460a247c5b7ace5",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "coastal_port",
+      "style": "polycentric",
+      "terrain": "coast",
+      "seed": 17,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_coastal_port_s17.json.xz",
+      "source_sha256": "166023bc3991a91a6aa98af64ebbe150fcd97b5fadf4bf1b9f7bea6833c5ae50",
+      "status": "PASS",
+      "identity": "35f34f8d031962e67f7a90fb5bc96100267691a5724f8a71b7229fd03a797c56",
+      "nodes": 890,
+      "sections": 1402,
+      "directed_groups": 2804,
+      "legal_turns": 6548,
+      "face_edges": 1402,
+      "blocks": 513,
+      "block_area_m2": 29806730.81503093,
+      "max_grade": 0.0792620193102005,
+      "storage_veh": 68378.34890030725,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.009494692924339496
+        ],
+        [
+          60,
+          0.2835345146772918
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 202,
+        "3": 352,
+        "4": 336
+      },
+      "block_area_range_m2": [
+        23360.487771663815,
+        1161937.2405157872
+      ],
+      "mean_block_compactness": 0.7235337068021792,
+      "mean_section_detour": 1.0000009720791323,
+      "svg": "primary_coastal_port_s17.svg.xz",
+      "svg_sha256": "072498f33cd7b10f5c366db725dc446813f02e64c43099634a9d20b5f8cbdf68",
+      "wall_s": 14.510427372000095,
+      "source_uncompressed_sha256": "f9b5566a9c7c4e26623176923720484998560a7b222c03619ca532f645fe53a8",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "coastal_port",
+      "style": "polycentric",
+      "terrain": "coast",
+      "seed": 41,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_coastal_port_s41.json.xz",
+      "source_sha256": "5c3107b147b7f71046f5958a8ad8d3f0212d0bcc5bbfcc27ebbebbd9d476756e",
+      "status": "PASS",
+      "identity": "4bd31be340a210c6d77a2e2e2ca60d4885d81aae43160597d10325bd93077d98",
+      "nodes": 849,
+      "sections": 1348,
+      "directed_groups": 2696,
+      "legal_turns": 6348,
+      "face_edges": 1348,
+      "blocks": 500,
+      "block_area_m2": 27912276.793325465,
+      "max_grade": 0.07954629513418515,
+      "storage_veh": 66485.98135947029,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.008908245678730196
+        ],
+        [
+          60,
+          0.2940354818562675
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 180,
+        "3": 340,
+        "4": 329
+      },
+      "block_area_range_m2": [
+        25795.092759239953,
+        528797.9056770075
+      ],
+      "mean_block_compactness": 0.7247172033814892,
+      "mean_section_detour": 1.0000009499857017,
+      "svg": "primary_coastal_port_s41.svg.xz",
+      "svg_sha256": "180eaf5a362b43c6b93ecc60cff4a93e0aafbbcb838e4f6abdb2d2ad41078fca",
+      "wall_s": 14.28137816200001,
+      "source_uncompressed_sha256": "05ea2f5b1c5e152a4293e94eb9dcf487e3c06a708f5161b355cec7ca41996045",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "valley_city",
+      "style": "corridor",
+      "terrain": "valley",
+      "seed": 7,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_valley_city_s7.json.xz",
+      "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+      "status": "PASS",
+      "identity": "da78089758004b309b8c02aef1f3252acc567206d69e7b0d6be01f396a9b9f46",
+      "nodes": 549,
+      "sections": 793,
+      "directed_groups": 1586,
+      "legal_turns": 3314,
+      "face_edges": 793,
+      "blocks": 245,
+      "block_area_m2": 13933286.004190618,
+      "max_grade": 0.07991166868835495,
+      "storage_veh": 40508.20087695576,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:33",
+          "origin": "g34:20",
+          "affected_links": [
+            "b:g34:20>g34:22|0",
+            "b:g34:20>g34:22|1"
+          ],
+          "reachable_before": 549,
+          "reachable_after": 549,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:9",
+          "origin": "g10:20",
+          "affected_links": [
+            "b:g10:20>g10:22|0",
+            "b:g10:20>g10:22|1"
+          ],
+          "reachable_before": 549,
+          "reachable_after": 549,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.012101650873799701
+        ],
+        [
+          60,
+          0.6415292331627344
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 190,
+        "3": 227,
+        "4": 131
+      },
+      "block_area_range_m2": [
+        23331.773544193245,
+        2092705.308800972
+      ],
+      "mean_block_compactness": 0.6438900199042471,
+      "mean_section_detour": 1.0000126040569979,
+      "svg": "primary_valley_city_s7.svg.xz",
+      "svg_sha256": "e5fcdc346225377093085fbe6b7e7e3a93ddb1ba064fb4feb359eb16b083090f",
+      "wall_s": 52.99879642299993,
+      "source_uncompressed_sha256": "b8560d7aec10d9b0668bc321a221be9dc1a04ec1bc7a43c15ba30e9239c5316e",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "valley_city",
+      "style": "corridor",
+      "terrain": "valley",
+      "seed": 17,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_valley_city_s17.json.xz",
+      "source_sha256": "ffec634ce8260adf984717962fb50845528383281bd09f294416f9cdb3f92929",
+      "status": "PASS",
+      "identity": "b39d6c92ba00bd1f59904d771c87f5f00792f5242a90a76284a045fd60ebd1fb",
+      "nodes": 533,
+      "sections": 758,
+      "directed_groups": 1516,
+      "legal_turns": 3086,
+      "face_edges": 758,
+      "blocks": 226,
+      "block_area_m2": 13439477.84099154,
+      "max_grade": 0.0799764385295664,
+      "storage_veh": 37859.2428087974,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:20",
+          "origin": "g21:20",
+          "affected_links": [
+            "b:g21:20>g21:22|0",
+            "b:g21:20>g21:22|1"
+          ],
+          "reachable_before": 533,
+          "reachable_after": 533,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:31",
+          "origin": "g32:20",
+          "affected_links": [
+            "b:g32:20>g32:22|0",
+            "b:g32:20>g32:22|1"
+          ],
+          "reachable_before": 533,
+          "reachable_after": 533,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:8",
+          "origin": "g9:20",
+          "affected_links": [
+            "b:g9:20>g9:22|0",
+            "b:g9:20>g9:22|1"
+          ],
+          "reachable_before": 533,
+          "reachable_after": 533,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.01299243973149076
+        ],
+        [
+          60,
+          0.6559075390776632
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 190,
+        "3": 233,
+        "4": 109
+      },
+      "block_area_range_m2": [
+        22993.622640529647,
+        1194934.4634227771
+      ],
+      "mean_block_compactness": 0.6256757395972946,
+      "mean_section_detour": 1.000019001673245,
+      "svg": "primary_valley_city_s17.svg.xz",
+      "svg_sha256": "0e1285bd2b5c61e44ca7153862d6ea907cc9755a525720df5d547f4d2462abaf",
+      "wall_s": 51.582528196999874,
+      "source_uncompressed_sha256": "621bbcd69f9bb8b5c80d543dc7b02703518a0265a3e85f789f778e56376352b9",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "valley_city",
+      "style": "corridor",
+      "terrain": "valley",
+      "seed": 41,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_valley_city_s41.json.xz",
+      "source_sha256": "4ac0c95e0f4199cf147700828af54e6d8eb1cb3040748398bd7e70bbe335a8c2",
+      "status": "PASS",
+      "identity": "2288dba4478eb92559245d431169ec3e011f96977b6903d252cd4d82b07e4bee",
+      "nodes": 526,
+      "sections": 766,
+      "directed_groups": 1532,
+      "legal_turns": 3234,
+      "face_edges": 766,
+      "blocks": 241,
+      "block_area_m2": 13213322.583748221,
+      "max_grade": 0.07949730420588046,
+      "storage_veh": 37875.874891381136,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:20",
+          "origin": "g21:20",
+          "affected_links": [
+            "b:g21:20>g21:22|0",
+            "b:g21:20>g21:22|1"
+          ],
+          "reachable_before": 526,
+          "reachable_after": 526,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:34",
+          "origin": "g35:20",
+          "affected_links": [
+            "b:g35:20>g35:22|0",
+            "b:g35:20>g35:22|1"
+          ],
+          "reachable_before": 526,
+          "reachable_after": 526,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:9",
+          "origin": "g10:20",
+          "affected_links": [
+            "b:g10:20>g10:22|0",
+            "b:g10:20>g10:22|1"
+          ],
+          "reachable_before": 526,
+          "reachable_after": 526,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.015887381660760463
+        ],
+        [
+          60,
+          0.6736285411902254
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 174,
+        "3": 221,
+        "4": 130
+      },
+      "block_area_range_m2": [
+        23397.930801121518,
+        1246889.4813272897
+      ],
+      "mean_block_compactness": 0.6422349388628458,
+      "mean_section_detour": 1.0000177988317962,
+      "svg": "primary_valley_city_s41.svg.xz",
+      "svg_sha256": "c08b43c193231c5b9d075ec0a031038a26267e93098229af44f083a54a6a6913",
+      "wall_s": 70.401287658,
+      "source_uncompressed_sha256": "d8bbd5e17a8a2840d3f16b68447eee492b0d2e8949b502c782318e62ee458b1d",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "lake_city",
+      "style": "polycentric",
+      "terrain": "lake",
+      "seed": 7,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_lake_city_s7.json.xz",
+      "source_sha256": "4a154cf66f13fc18705284d0bacecaaa0418322307b58c4c873832bdd38fb72c",
+      "status": "PASS",
+      "identity": "a441525e1d9e90c01d94c5af73d9fe41e9a6c0f060fbeb3dcba09bfa0fe440a8",
+      "nodes": 912,
+      "sections": 1399,
+      "directed_groups": 2798,
+      "legal_turns": 6368,
+      "face_edges": 1399,
+      "blocks": 488,
+      "block_area_m2": 35067954.936151706,
+      "max_grade": 0.07991542553130113,
+      "storage_veh": 70365.84683029508,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.00901844489726043
+        ],
+        [
+          60,
+          0.2811817654458229
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 262,
+        "3": 326,
+        "4": 324
+      },
+      "block_area_range_m2": [
+        24554.41798126069,
+        5398762.1680996725
+      ],
+      "mean_block_compactness": 0.7302208393752754,
+      "mean_section_detour": 1.0000012951458797,
+      "svg": "primary_lake_city_s7.svg.xz",
+      "svg_sha256": "7e0a708462a875a33acf0b0b9f3b17d1d4b12a1500a3cc4cc50bde3968f75254",
+      "wall_s": 8.19072111000014,
+      "source_uncompressed_sha256": "f75c4cf131f5f591f090fc52d5746ec33633c39d7901c5d8db3cdc42c6838a7e",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "lake_city",
+      "style": "polycentric",
+      "terrain": "lake",
+      "seed": 17,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_lake_city_s17.json.xz",
+      "source_sha256": "702f839e60d1b9ffaa7475ead461d0c497a6011be32f4cecaffa1dfd0b6c34e7",
+      "status": "PASS",
+      "identity": "d67b3cc358e1da3c1253b78dea18b1ef9b3a3034bed5fa70dee9ed1210ec6f57",
+      "nodes": 946,
+      "sections": 1466,
+      "directed_groups": 2932,
+      "legal_turns": 6736,
+      "face_edges": 1466,
+      "blocks": 521,
+      "block_area_m2": 34901714.597063504,
+      "max_grade": 0.07988771852501154,
+      "storage_veh": 72590.07396331697,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.010056406392106877
+        ],
+        [
+          60,
+          0.28344118903526605
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 248,
+        "3": 356,
+        "4": 342
+      },
+      "block_area_range_m2": [
+        25838.828529980034,
+        4208753.002698224
+      ],
+      "mean_block_compactness": 0.7233195104593828,
+      "mean_section_detour": 1.0000011768942125,
+      "svg": "primary_lake_city_s17.svg.xz",
+      "svg_sha256": "98a54ad100e51040925010f689e84586b6428e7c969e3bb97791df21a0a97f6d",
+      "wall_s": 8.453040159000011,
+      "source_uncompressed_sha256": "7109b1bf9579bd7026612861c0351b34023d58ec831ece3b29d8bc4bcc59cacf",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "lake_city",
+      "style": "polycentric",
+      "terrain": "lake",
+      "seed": 41,
+      "family": "primary",
+      "resolution": 42,
+      "source": "primary_lake_city_s41.json.xz",
+      "source_sha256": "b9d272345d13b68e2e71564878104ce827d454ff8ce71c0dda281d97bc72a407",
+      "status": "PASS",
+      "identity": "e7eed671896714b21d6ba45498ce5c94841ca241b20dcceed44c87414e41221f",
+      "nodes": 926,
+      "sections": 1448,
+      "directed_groups": 2896,
+      "legal_turns": 6740,
+      "face_edges": 1448,
+      "blocks": 523,
+      "block_area_m2": 35503205.87052301,
+      "max_grade": 0.07913666022614611,
+      "storage_veh": 72077.42220249919,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.01103420823484603
+        ],
+        [
+          60,
+          0.24838870499385918
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 235,
+        "3": 335,
+        "4": 355
+      },
+      "block_area_range_m2": [
+        25795.092759239953,
+        4272223.335847852
+      ],
+      "mean_block_compactness": 0.7274267088900707,
+      "mean_section_detour": 1.0000012947098862,
+      "svg": "primary_lake_city_s41.svg.xz",
+      "svg_sha256": "c5ef89cf15f659c2a56cd1200d7c52e3cfdf8610775449880a8622b9cab58c7f",
+      "wall_s": 8.218607204999898,
+      "source_uncompressed_sha256": "0258c68ad4f61bff01c5d523405f0cf6888999de8fe2a54191dc30d78ccdc7b9",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "planned_flat",
+      "style": "planned",
+      "terrain": "flat",
+      "seed": 7,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_planned_flat_s7.json.xz",
+      "source_sha256": "bcd12566d55f0984879b54d438ddeb6ef3e61ffe5067f49bfb62534c86587c01",
+      "status": "PASS",
+      "identity": "448cf4070ef243386bbd3652b18f9044eeee4009200a50bcb5dbdcfac4cf9d3c",
+      "nodes": 1012,
+      "sections": 1857,
+      "directed_groups": 3714,
+      "legal_turns": 10268,
+      "face_edges": 1857,
+      "blocks": 846,
+      "block_area_m2": 36399664.330853015,
+      "max_grade": 0.005143744222730677,
+      "storage_veh": 89254.38349807262,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.00046629196808158633
+        ],
+        [
+          60,
+          0.0331756989099516
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 61,
+        "3": 209,
+        "4": 741
+      },
+      "block_area_range_m2": [
+        34085.80799592566,
+        3264738.378467206
+      ],
+      "mean_block_compactness": 0.7777016345252125,
+      "mean_section_detour": 1.0000000034838228,
+      "svg": "mixed_planned_flat_s7.svg.xz",
+      "svg_sha256": "f6263e4f0570dac621cd3d18cd21b60bd5913256b987b28001581ade7b1de01a",
+      "wall_s": 11.52599227699966,
+      "source_uncompressed_sha256": "aa76c789551afbb8613445dbf7f8cc755e57e89089610ae27f622b7c951c57bc",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "planned_river",
+      "style": "planned",
+      "terrain": "river",
+      "seed": 17,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_planned_river_s17.json.xz",
+      "source_sha256": "b2f4276df739303c783c1a08f6a848eed9ce311021a3a41290db36f11647cebf",
+      "status": "PASS",
+      "identity": "1c17f422f689b77e780d3732b21aa35966bc689f81c0865c7cb65ba537e684a2",
+      "nodes": 983,
+      "sections": 1766,
+      "directed_groups": 3532,
+      "legal_turns": 9566,
+      "face_edges": 1766,
+      "blocks": 784,
+      "block_area_m2": 33959304.63902908,
+      "max_grade": 0.07477955003792312,
+      "storage_veh": 84956.39903016231,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:17",
+          "origin": "g18:19",
+          "affected_links": [
+            "b:g18:19>g20:19|0",
+            "b:g18:19>g20:19|1"
+          ],
+          "reachable_before": 983,
+          "reachable_after": 376,
+          "lost_nodes": [
+            "g18:23",
+            "g18:24",
+            "g18:25",
+            "g18:26",
+            "g19:21",
+            "g19:22",
+            "g19:23",
+            "g19:24",
+            "g19:25",
+            "g19:26",
+            "g19:27",
+            "g19:28",
+            "g19:29",
+            "g19:30",
+            "g19:31",
+            "g20:19",
+            "g20:20",
+            "g20:21",
+            "g20:22",
+            "g20:23",
+            "g20:24",
+            "g20:25",
+            "g20:26",
+            "g20:27",
+            "g20:28",
+            "g20:29",
+            "g20:30",
+            "g20:31",
+            "g20:32",
+            "g20:33",
+            "g20:34",
+            "g20:35",
+            "g20:36",
+            "g20:37",
+            "g20:38",
+            "g21:17",
+            "g21:18",
+            "g21:19",
+            "g21:20",
+            "g21:21",
+            "g21:22",
+            "g21:23",
+            "g21:24",
+            "g21:25",
+            "g21:26",
+            "g21:27",
+            "g21:28",
+            "g21:29",
+            "g21:30",
+            "g21:31",
+            "g21:32",
+            "g21:33",
+            "g21:34",
+            "g21:35",
+            "g21:36",
+            "g21:37",
+            "g21:38",
+            "g21:39",
+            "g21:40",
+            "g21:41",
+            "g22:16",
+            "g22:17",
+            "g22:18",
+            "g22:19",
+            "g22:20",
+            "g22:21",
+            "g22:22",
+            "g22:23",
+            "g22:24",
+            "g22:25",
+            "g22:26",
+            "g22:27",
+            "g22:28",
+            "g22:29",
+            "g22:30",
+            "g22:31",
+            "g22:32",
+            "g22:33",
+            "g22:34",
+            "g22:35",
+            "g22:36",
+            "g22:37",
+            "g22:38",
+            "g22:39",
+            "g22:40",
+            "g22:41",
+            "g23:14",
+            "g23:15",
+            "g23:16",
+            "g23:17",
+            "g23:18",
+            "g23:19",
+            "g23:20",
+            "g23:21",
+            "g23:22",
+            "g23:23",
+            "g23:24",
+            "g23:25",
+            "g23:26",
+            "g23:27",
+            "g23:28",
+            "g23:29",
+            "g23:30",
+            "g23:31",
+            "g23:32",
+            "g23:33",
+            "g23:34",
+            "g23:35",
+            "g23:36",
+            "g23:37",
+            "g23:38",
+            "g23:39",
+            "g23:40",
+            "g23:41",
+            "g24:12",
+            "g24:13",
+            "g24:14",
+            "g24:15",
+            "g24:16",
+            "g24:17",
+            "g24:18",
+            "g24:19",
+            "g24:20",
+            "g24:21",
+            "g24:22",
+            "g24:23",
+            "g24:24",
+            "g24:25",
+            "g24:26",
+            "g24:27",
+            "g24:28",
+            "g24:29",
+            "g24:30",
+            "g24:31",
+            "g24:32",
+            "g24:33",
+            "g24:34",
+            "g24:35",
+            "g24:36",
+            "g24:37",
+            "g24:38",
+            "g24:39",
+            "g24:4",
+            "g24:40",
+            "g24:41",
+            "g24:5",
+            "g24:6",
+            "g24:7",
+            "g25:10",
+            "g25:11",
+            "g25:12",
+            "g25:13",
+            "g25:14",
+            "g25:15",
+            "g25:16",
+            "g25:17",
+            "g25:18",
+            "g25:19",
+            "g25:20",
+            "g25:21",
+            "g25:22",
+            "g25:23",
+            "g25:24",
+            "g25:25",
+            "g25:26",
+            "g25:27",
+            "g25:28",
+            "g25:29",
+            "g25:30",
+            "g25:31",
+            "g25:32",
+            "g25:33",
+            "g25:34",
+            "g25:35",
+            "g25:36",
+            "g25:37",
+            "g25:38",
+            "g25:39",
+            "g25:4",
+            "g25:40",
+            "g25:41",
+            "g25:5",
+            "g25:6",
+            "g25:7",
+            "g25:8",
+            "g25:9",
+            "g26:10",
+            "g26:11",
+            "g26:12",
+            "g26:13",
+            "g26:14",
+            "g26:15",
+            "g26:16",
+            "g26:17",
+            "g26:18",
+            "g26:19",
+            "g26:20",
+            "g26:21",
+            "g26:22",
+            "g26:23",
+            "g26:24",
+            "g26:25",
+            "g26:26",
+            "g26:27",
+            "g26:28",
+            "g26:29",
+            "g26:30",
+            "g26:31",
+            "g26:32",
+            "g26:33",
+            "g26:34",
+            "g26:35",
+            "g26:36",
+            "g26:37",
+            "g26:38",
+            "g26:39",
+            "g26:40",
+            "g26:41",
+            "g26:5",
+            "g26:6",
+            "g26:7",
+            "g26:8",
+            "g26:9",
+            "g27:10",
+            "g27:11",
+            "g27:12",
+            "g27:13",
+            "g27:14",
+            "g27:15",
+            "g27:16",
+            "g27:17",
+            "g27:18",
+            "g27:19",
+            "g27:20",
+            "g27:21",
+            "g27:22",
+            "g27:23",
+            "g27:24",
+            "g27:25",
+            "g27:26",
+            "g27:27",
+            "g27:28",
+            "g27:29",
+            "g27:30",
+            "g27:31",
+            "g27:32",
+            "g27:33",
+            "g27:34",
+            "g27:35",
+            "g27:36",
+            "g27:37",
+            "g27:38",
+            "g27:39",
+            "g27:40",
+            "g27:41",
+            "g27:6",
+            "g27:7",
+            "g27:8",
+            "g27:9",
+            "g28:10",
+            "g28:11",
+            "g28:12",
+            "g28:13",
+            "g28:14",
+            "g28:15",
+            "g28:16",
+            "g28:17",
+            "g28:18",
+            "g28:19",
+            "g28:20",
+            "g28:21",
+            "g28:22",
+            "g28:23",
+            "g28:24",
+            "g28:25",
+            "g28:26",
+            "g28:27",
+            "g28:28",
+            "g28:29",
+            "g28:30",
+            "g28:31",
+            "g28:32",
+            "g28:33",
+            "g28:34",
+            "g28:35",
+            "g28:36",
+            "g28:37",
+            "g28:38",
+            "g28:39",
+            "g28:40",
+            "g28:41",
+            "g28:6",
+            "g28:7",
+            "g28:8",
+            "g28:9",
+            "g29:10",
+            "g29:11",
+            "g29:12",
+            "g29:13",
+            "g29:14",
+            "g29:15",
+            "g29:16",
+            "g29:17",
+            "g29:18",
+            "g29:19",
+            "g29:20",
+            "g29:21",
+            "g29:22",
+            "g29:23",
+            "g29:24",
+            "g29:25",
+            "g29:26",
+            "g29:27",
+            "g29:28",
+            "g29:29",
+            "g29:30",
+            "g29:31",
+            "g29:32",
+            "g29:33",
+            "g29:34",
+            "g29:35",
+            "g29:36",
+            "g29:37",
+            "g29:38",
+            "g29:39",
+            "g29:40",
+            "g29:41",
+            "g29:7",
+            "g29:8",
+            "g29:9",
+            "g30:10",
+            "g30:11",
+            "g30:12",
+            "g30:13",
+            "g30:14",
+            "g30:15",
+            "g30:16",
+            "g30:17",
+            "g30:18",
+            "g30:19",
+            "g30:20",
+            "g30:21",
+            "g30:22",
+            "g30:23",
+            "g30:24",
+            "g30:25",
+            "g30:26",
+            "g30:27",
+            "g30:28",
+            "g30:29",
+            "g30:30",
+            "g30:31",
+            "g30:32",
+            "g30:33",
+            "g30:34",
+            "g30:35",
+            "g30:36",
+            "g30:37",
+            "g30:38",
+            "g30:39",
+            "g30:40",
+            "g30:41",
+            "g30:8",
+            "g30:9",
+            "g31:10",
+            "g31:11",
+            "g31:12",
+            "g31:13",
+            "g31:14",
+            "g31:15",
+            "g31:16",
+            "g31:17",
+            "g31:18",
+            "g31:19",
+            "g31:20",
+            "g31:21",
+            "g31:22",
+            "g31:23",
+            "g31:24",
+            "g31:25",
+            "g31:26",
+            "g31:27",
+            "g31:28",
+            "g31:29",
+            "g31:30",
+            "g31:31",
+            "g31:32",
+            "g31:37",
+            "g31:38",
+            "g31:39",
+            "g31:40",
+            "g31:41",
+            "g31:8",
+            "g31:9",
+            "g32:10",
+            "g32:11",
+            "g32:12",
+            "g32:13",
+            "g32:14",
+            "g32:15",
+            "g32:16",
+            "g32:17",
+            "g32:18",
+            "g32:19",
+            "g32:20",
+            "g32:21",
+            "g32:22",
+            "g32:23",
+            "g32:24",
+            "g32:25",
+            "g32:26",
+            "g32:27",
+            "g32:28",
+            "g32:29",
+            "g32:30",
+            "g32:39",
+            "g32:40",
+            "g32:41",
+            "g33:11",
+            "g33:12",
+            "g33:13",
+            "g33:14",
+            "g33:15",
+            "g33:16",
+            "g33:17",
+            "g33:18",
+            "g33:19",
+            "g33:20",
+            "g33:21",
+            "g33:22",
+            "g33:23",
+            "g33:24",
+            "g33:25",
+            "g33:26",
+            "g33:27",
+            "g33:28",
+            "g33:29",
+            "g33:40",
+            "g33:41",
+            "g34:13",
+            "g34:14",
+            "g34:15",
+            "g34:16",
+            "g34:17",
+            "g34:18",
+            "g34:19",
+            "g34:20",
+            "g34:21",
+            "g34:22",
+            "g34:23",
+            "g34:24",
+            "g34:25",
+            "g34:26",
+            "g34:27",
+            "g34:28",
+            "g34:29",
+            "g34:40",
+            "g34:41",
+            "g35:13",
+            "g35:14",
+            "g35:15",
+            "g35:16",
+            "g35:17",
+            "g35:18",
+            "g35:19",
+            "g35:20",
+            "g35:21",
+            "g35:22",
+            "g35:23",
+            "g35:24",
+            "g35:25",
+            "g35:26",
+            "g35:27",
+            "g35:28",
+            "g35:40",
+            "g35:41",
+            "g36:14",
+            "g36:15",
+            "g36:16",
+            "g36:17",
+            "g36:18",
+            "g36:19",
+            "g36:20",
+            "g36:21",
+            "g36:22",
+            "g36:23",
+            "g36:24",
+            "g36:25",
+            "g36:26",
+            "g36:27",
+            "g36:28",
+            "g36:29",
+            "g36:39",
+            "g36:40",
+            "g36:41",
+            "g37:14",
+            "g37:15",
+            "g37:16",
+            "g37:17",
+            "g37:18",
+            "g37:19",
+            "g37:20",
+            "g37:21",
+            "g37:22",
+            "g37:23",
+            "g37:24",
+            "g37:25",
+            "g37:26",
+            "g37:27",
+            "g37:28",
+            "g37:29",
+            "g37:39",
+            "g37:40",
+            "g37:41",
+            "g38:15",
+            "g38:16",
+            "g38:17",
+            "g38:18",
+            "g38:19",
+            "g38:20",
+            "g38:21",
+            "g38:22",
+            "g38:23",
+            "g38:24",
+            "g38:25",
+            "g38:26",
+            "g38:27",
+            "g38:28",
+            "g38:29",
+            "g38:30",
+            "g38:38",
+            "g38:39",
+            "g38:40",
+            "g38:41",
+            "g39:15",
+            "g39:16",
+            "g39:17",
+            "g39:18",
+            "g39:19",
+            "g39:20",
+            "g39:21",
+            "g39:22",
+            "g39:23",
+            "g39:24",
+            "g39:25",
+            "g39:26",
+            "g39:27",
+            "g39:28",
+            "g39:29",
+            "g39:30",
+            "g39:31",
+            "g39:32",
+            "g39:36",
+            "g39:37",
+            "g39:38",
+            "g39:39",
+            "g39:40",
+            "g39:41",
+            "g40:16",
+            "g40:17",
+            "g40:18",
+            "g40:19",
+            "g40:20",
+            "g40:21",
+            "g40:22",
+            "g40:23",
+            "g40:24",
+            "g40:25",
+            "g40:26",
+            "g40:27",
+            "g40:28",
+            "g40:29",
+            "g40:30",
+            "g40:31",
+            "g40:32",
+            "g40:33",
+            "g40:34",
+            "g40:35",
+            "g40:36",
+            "g40:37",
+            "g40:38",
+            "g40:39",
+            "g40:40",
+            "g41:17",
+            "g41:18",
+            "g41:19",
+            "g41:20",
+            "g41:21",
+            "g41:22",
+            "g41:23",
+            "g41:24",
+            "g41:25",
+            "g41:26",
+            "g41:27",
+            "g41:28",
+            "g41:29",
+            "g41:30",
+            "g41:31",
+            "g41:32",
+            "g41:33",
+            "g41:34",
+            "g41:35",
+            "g41:36",
+            "g41:37",
+            "g41:38",
+            "g41:39",
+            "g41:40"
+          ],
+          "reachable_residents_after": 32822
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0005414371026402778
+        ],
+        [
+          60,
+          0.03014186079371839
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 82,
+        "3": 233,
+        "4": 667
+      },
+      "block_area_range_m2": [
+        34327.04374563694,
+        3339832.2691771463
+      ],
+      "mean_block_compactness": 0.7779421330886436,
+      "mean_section_detour": 1.0000016281731512,
+      "svg": "mixed_planned_river_s17.svg.xz",
+      "svg_sha256": "38e3fe745e217c9567e048aec5cba8dd9c202894487ce16cd640c4932b4a113a",
+      "wall_s": 61.556832116999885,
+      "source_uncompressed_sha256": "a6d723bdf0a8254d16dbdaaae3a6ba07b35dc01e01f0a2226b231b7265a8c640",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "planned_coast",
+      "style": "planned",
+      "terrain": "coast",
+      "seed": 41,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_planned_coast_s41.json.xz",
+      "source_sha256": "fd3c38fccbdab7ad4508fec35dc4b76257a48fddc3386281b0abf8ddd1bc9f1c",
+      "status": "PASS",
+      "identity": "747e99d43f1e4ba8ff66a879bf31e2463bead657ee3e37e235170d0552f6530c",
+      "nodes": 1027,
+      "sections": 1853,
+      "directed_groups": 3706,
+      "legal_turns": 10120,
+      "face_edges": 1853,
+      "blocks": 827,
+      "block_area_m2": 34427232.52933452,
+      "max_grade": 0.07972060252199631,
+      "storage_veh": 89455.72675069296,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0004650209102486134
+        ],
+        [
+          60,
+          0.021525424092865886
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 104,
+        "3": 194,
+        "4": 729
+      },
+      "block_area_range_m2": [
+        34043.452532870695,
+        615371.9721642043
+      ],
+      "mean_block_compactness": 0.7749769609953158,
+      "mean_section_detour": 1.0000008730721326,
+      "svg": "mixed_planned_coast_s41.svg.xz",
+      "svg_sha256": "507b86fe494f707751dd757a946f7fe8aedb36a1abeeb8dfae975a3ead226549",
+      "wall_s": 17.21176668599992,
+      "source_uncompressed_sha256": "3218e4a1d3f78a3fe5e39ab7bc53710b595b09b12857673dd5ccdbb44faa3037",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "planned_valley",
+      "style": "planned",
+      "terrain": "valley",
+      "seed": 7,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_planned_valley_s7.json.xz",
+      "source_sha256": "86e4f663d7a42ed8b68f94ecc42e45bae0f4fcb882b5cefd2f823a4e876a1879",
+      "status": "PASS",
+      "identity": "6c278b54f860a23dec87d97ce5c3d297844bd291073e0b5773d11204422891cd",
+      "nodes": 482,
+      "sections": 775,
+      "directed_groups": 1550,
+      "legal_turns": 3768,
+      "face_edges": 775,
+      "blocks": 294,
+      "block_area_m2": 14569090.131096192,
+      "max_grade": 0.07968423888895401,
+      "storage_veh": 39476.5703067098,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:11",
+          "origin": "g8:23",
+          "affected_links": [
+            "b:g10:23>g8:23|0",
+            "b:g10:23>g8:23|1"
+          ],
+          "reachable_before": 482,
+          "reachable_after": 482,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:31",
+          "origin": "g21:24",
+          "affected_links": [
+            "b:g21:24>g21:26|0",
+            "b:g21:24>g21:26|1"
+          ],
+          "reachable_before": 482,
+          "reachable_after": 482,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:4",
+          "origin": "g31:19",
+          "affected_links": [
+            "b:g31:19>g33:19|0",
+            "b:g31:19>g33:19|1"
+          ],
+          "reachable_before": 482,
+          "reachable_after": 482,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0002445271983408227
+        ],
+        [
+          60,
+          0.02231978269859176
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 123,
+        "3": 129,
+        "4": 229
+      },
+      "block_area_range_m2": [
+        34388.96408113791,
+        941045.35474311
+      ],
+      "mean_block_compactness": 0.769406405716265,
+      "mean_section_detour": 1.0000117668413269,
+      "svg": "mixed_planned_valley_s7.svg.xz",
+      "svg_sha256": "f7b7877ba8e7b7d1ee7afbc68714f4e95d866f852edbdd5a1c553187ca78879c",
+      "wall_s": 70.144129368,
+      "source_uncompressed_sha256": "24126254e57c370407cfac9b71f60236c1de71fdaea267c501f12366b95e2659",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "planned_lake",
+      "style": "planned",
+      "terrain": "lake",
+      "seed": 17,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_planned_lake_s17.json.xz",
+      "source_sha256": "6ebb6604730857a6fa5261f9f6892ab7ae4be47aca2ee3e52d1213fc267f0432",
+      "status": "PASS",
+      "identity": "23300b1b446978dbe582bb34538eb6b1c0e6deac097acbf4d305b1d81b88d818",
+      "nodes": 972,
+      "sections": 1616,
+      "directed_groups": 3232,
+      "legal_turns": 8162,
+      "face_edges": 1616,
+      "blocks": 645,
+      "block_area_m2": 38925992.093697116,
+      "max_grade": 0.07987214588544998,
+      "storage_veh": 78622.35438077073,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0006541301347214849
+        ],
+        [
+          60,
+          0.03966659161038462
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 217,
+        "3": 222,
+        "4": 533
+      },
+      "block_area_range_m2": [
+        34192.16887425259,
+        4394360.882653929
+      ],
+      "mean_block_compactness": 0.7628484854945744,
+      "mean_section_detour": 1.0000016213588856,
+      "svg": "mixed_planned_lake_s17.svg.xz",
+      "svg_sha256": "30258c18fc3b0a169fe922a934d6bba9603e245b56dc32b811035121df42f9f1",
+      "wall_s": 14.606275219000054,
+      "source_uncompressed_sha256": "a5d9f113cb3b712077ef2439e8bd982d506a9a4d9b8282880ad738c72e09a4bf",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "polycentric_flat",
+      "style": "polycentric",
+      "terrain": "flat",
+      "seed": 41,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_polycentric_flat_s41.json.xz",
+      "source_sha256": "65c59cdf302439ee0c6fb84ebf2bbe111a41939259b372d064748964ef00aa57",
+      "status": "PASS",
+      "identity": "c0ee46c6636d105c52b53a34984bc25f983165afd8f5246f4af607a6f7b9f892",
+      "nodes": 994,
+      "sections": 1646,
+      "directed_groups": 3292,
+      "legal_turns": 8144,
+      "face_edges": 1646,
+      "blocks": 653,
+      "block_area_m2": 33060441.028127708,
+      "max_grade": 0.0051990340083304274,
+      "storage_veh": 81173.52526736965,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0064750474228017834
+        ],
+        [
+          60,
+          0.2592313416247534
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 2,
+        "2": 154,
+        "3": 370,
+        "4": 468
+      },
+      "block_area_range_m2": [
+        25795.092759239953,
+        271187.63777571544
+      ],
+      "mean_block_compactness": 0.7361982367294672,
+      "mean_section_detour": 1.0000000040550954,
+      "svg": "mixed_polycentric_flat_s41.svg.xz",
+      "svg_sha256": "00e6682dc8998a0b3501c97abf215f3101f786c50058930f56325b6f178b3a2b",
+      "wall_s": 12.53945078300012,
+      "source_uncompressed_sha256": "dc020fe32be4f78dcc68e937e7c1c3479b369bca3a3ea5b0cd8c3af75b03321d",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "polycentric_river",
+      "style": "polycentric",
+      "terrain": "river",
+      "seed": 7,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_polycentric_river_s7.json.xz",
+      "source_sha256": "54bbb444036062aebc6f38b0453c13ddbf34097a37676b49ebd4b62011840190",
+      "status": "PASS",
+      "identity": "38e3626385e26bec53f3a5f13a7f6527162faabd02ab5013fe76f64df1da5d26",
+      "nodes": 990,
+      "sections": 1547,
+      "directed_groups": 3094,
+      "legal_turns": 7178,
+      "face_edges": 1547,
+      "blocks": 558,
+      "block_area_m2": 32487965.03067636,
+      "max_grade": 0.07517031971836607,
+      "storage_veh": 76980.82006674336,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:14",
+          "origin": "g22:15",
+          "affected_links": [
+            "b:g22:15>g24:15|0",
+            "b:g22:15>g24:15|1"
+          ],
+          "reachable_before": 990,
+          "reachable_after": 990,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:25",
+          "origin": "g15:29",
+          "affected_links": [
+            "b:g15:29>g17:29|0",
+            "b:g15:29>g17:29|1"
+          ],
+          "reachable_before": 990,
+          "reachable_after": 990,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.007908398688838036
+        ],
+        [
+          60,
+          0.2702887409526499
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 247,
+        "3": 372,
+        "4": 371
+      },
+      "block_area_range_m2": [
+        24554.41798126069,
+        1304816.428511531
+      ],
+      "mean_block_compactness": 0.7222314836985128,
+      "mean_section_detour": 1.000005189900989,
+      "svg": "mixed_polycentric_river_s7.svg.xz",
+      "svg_sha256": "90fde600d11267578666ea3cded073a63d68d0f567157c9b1cfcc27e1146811f",
+      "wall_s": 34.43020610300027,
+      "source_uncompressed_sha256": "7dfb4674f10329ce1fe8cbcc4eafd0ad31e491662ce5f8603205711d59fb981b",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "polycentric_coast",
+      "style": "polycentric",
+      "terrain": "coast",
+      "seed": 17,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_polycentric_coast_s17.json.xz",
+      "source_sha256": "166023bc3991a91a6aa98af64ebbe150fcd97b5fadf4bf1b9f7bea6833c5ae50",
+      "status": "PASS",
+      "identity": "35f34f8d031962e67f7a90fb5bc96100267691a5724f8a71b7229fd03a797c56",
+      "nodes": 890,
+      "sections": 1402,
+      "directed_groups": 2804,
+      "legal_turns": 6548,
+      "face_edges": 1402,
+      "blocks": 513,
+      "block_area_m2": 29806730.81503093,
+      "max_grade": 0.0792620193102005,
+      "storage_veh": 68378.34890030725,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.009494692924339496
+        ],
+        [
+          60,
+          0.2835345146772918
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 202,
+        "3": 352,
+        "4": 336
+      },
+      "block_area_range_m2": [
+        23360.487771663815,
+        1161937.2405157872
+      ],
+      "mean_block_compactness": 0.7235337068021792,
+      "mean_section_detour": 1.0000009720791323,
+      "svg": "mixed_polycentric_coast_s17.svg.xz",
+      "svg_sha256": "2078dddee27ecba9ece3ffb50866781bc50e883ca4ae23ba92fd67ed5442edb3",
+      "wall_s": 14.484066656000323,
+      "source_uncompressed_sha256": "f9b5566a9c7c4e26623176923720484998560a7b222c03619ca532f645fe53a8",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "polycentric_valley",
+      "style": "polycentric",
+      "terrain": "valley",
+      "seed": 41,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_polycentric_valley_s41.json.xz",
+      "source_sha256": "2945b20bdfccd0a6eb7bf9d67f535ec1970c8316a9e7f998c85ae29344c5bd3d",
+      "status": "PASS",
+      "identity": "bb3b421e17ffad626a8332f10fafc41491d69121d8c5e8c8c469ecb99217a9f2",
+      "nodes": 419,
+      "sections": 633,
+      "directed_groups": 1266,
+      "legal_turns": 2832,
+      "face_edges": 633,
+      "blocks": 215,
+      "block_area_m2": 12245911.006849444,
+      "max_grade": 0.07974439061065904,
+      "storage_veh": 34134.33110878586,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:26",
+          "origin": "g11:22",
+          "affected_links": [
+            "b:g11:22>g11:24|0",
+            "b:g11:22>g11:24|1"
+          ],
+          "reachable_before": 419,
+          "reachable_after": 419,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:32",
+          "origin": "g20:25",
+          "affected_links": [
+            "b:g20:25>g20:27|0",
+            "b:g20:25>g20:27|1"
+          ],
+          "reachable_before": 419,
+          "reachable_after": 419,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:39",
+          "origin": "g32:19",
+          "affected_links": [
+            "b:g32:19>g32:21|0",
+            "b:g32:19>g32:21|1"
+          ],
+          "reachable_before": 419,
+          "reachable_after": 419,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.007839234253811975
+        ],
+        [
+          60,
+          0.2448174369414431
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 129,
+        "3": 149,
+        "4": 140
+      },
+      "block_area_range_m2": [
+        27637.79837302072,
+        1294649.26403167
+      ],
+      "mean_block_compactness": 0.7452563658030462,
+      "mean_section_detour": 1.0000438739602562,
+      "svg": "mixed_polycentric_valley_s41.svg.xz",
+      "svg_sha256": "7116971e8ac63ceae5c5052cd4826bd5b264536048546625a31ce3b9a0c5c331",
+      "wall_s": 37.66999482700021,
+      "source_uncompressed_sha256": "b0a4cc8742efc890717eb6d715876912fcb97ea98a44425bd2aa819621d0f7a3",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "polycentric_lake",
+      "style": "polycentric",
+      "terrain": "lake",
+      "seed": 7,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_polycentric_lake_s7.json.xz",
+      "source_sha256": "4a154cf66f13fc18705284d0bacecaaa0418322307b58c4c873832bdd38fb72c",
+      "status": "PASS",
+      "identity": "a441525e1d9e90c01d94c5af73d9fe41e9a6c0f060fbeb3dcba09bfa0fe440a8",
+      "nodes": 912,
+      "sections": 1399,
+      "directed_groups": 2798,
+      "legal_turns": 6368,
+      "face_edges": 1399,
+      "blocks": 488,
+      "block_area_m2": 35067954.936151706,
+      "max_grade": 0.07991542553130113,
+      "storage_veh": 70365.84683029508,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.00901844489726043
+        ],
+        [
+          60,
+          0.2811817654458229
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 262,
+        "3": 326,
+        "4": 324
+      },
+      "block_area_range_m2": [
+        24554.41798126069,
+        5398762.1680996725
+      ],
+      "mean_block_compactness": 0.7302208393752754,
+      "mean_section_detour": 1.0000012951458797,
+      "svg": "mixed_polycentric_lake_s7.svg.xz",
+      "svg_sha256": "0c08f041c45441100bcab7966ce8e0d17a21696561f04abcb23c3a04379b3115",
+      "wall_s": 9.862959747999867,
+      "source_uncompressed_sha256": "f75c4cf131f5f591f090fc52d5746ec33633c39d7901c5d8db3cdc42c6838a7e",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "radial_flat",
+      "style": "radial",
+      "terrain": "flat",
+      "seed": 17,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_radial_flat_s17.json.xz",
+      "source_sha256": "6c14c19508bec830310d22d29fda25cb396936711b33cc4dfd4f928d1bd54373",
+      "status": "PASS",
+      "identity": "d37628e21f94d9bc22c4888721cdc1c0615e09d46facb41a036e5593a5ad66af",
+      "nodes": 1049,
+      "sections": 1853,
+      "directed_groups": 3706,
+      "legal_turns": 9836,
+      "face_edges": 1853,
+      "blocks": 805,
+      "block_area_m2": 36623849.8731971,
+      "max_grade": 0.038928968331537035,
+      "storage_veh": 94918.38946947308,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.005579307266483632
+        ],
+        [
+          60,
+          0.24965093423562656
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 91,
+        "3": 310,
+        "4": 647,
+        "6": 1
+      },
+      "block_area_range_m2": [
+        15709.766876184382,
+        292706.6093035145
+      ],
+      "mean_block_compactness": 0.7634276244917502,
+      "mean_section_detour": 1.0000000045441304,
+      "svg": "mixed_radial_flat_s17.svg.xz",
+      "svg_sha256": "262ac787d9e95c369fd2e8ad572a919e856e0a769e796047946955670f03cc0a",
+      "wall_s": 11.50667402299996,
+      "source_uncompressed_sha256": "8fd281882b535a030ad14a0d64117432bd7c52999b3d16da8dc37572cbf98db0",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "radial_river",
+      "style": "radial",
+      "terrain": "river",
+      "seed": 41,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_radial_river_s41.json.xz",
+      "source_sha256": "443b6028f978b2c094ce0008408ceed726eb00b659217c885b7b1089785179d4",
+      "status": "PASS",
+      "identity": "b56bd037c9974aa2fe0ecbc9d3625f2de6ab3e37e868670b80c4e67bc3738461",
+      "nodes": 1004,
+      "sections": 1757,
+      "directed_groups": 3514,
+      "legal_turns": 9236,
+      "face_edges": 1757,
+      "blocks": 754,
+      "block_area_m2": 34116094.881382324,
+      "max_grade": 0.07589744521648976,
+      "storage_veh": 90041.0846072116,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:7",
+          "origin": "r6:15",
+          "affected_links": [
+            "b:r6:15>r6:17|0",
+            "b:r6:15>r6:17|1"
+          ],
+          "reachable_before": 1004,
+          "reachable_after": 1004,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:8",
+          "origin": "r6:36",
+          "affected_links": [
+            "b:r6:36>r6:38|0",
+            "b:r6:36>r6:38|1"
+          ],
+          "reachable_before": 1004,
+          "reachable_after": 1004,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0032155611807194026
+        ],
+        [
+          60,
+          0.24231752255072464
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 94,
+        "3": 313,
+        "4": 595,
+        "6": 1
+      },
+      "block_area_range_m2": [
+        15709.766876184382,
+        1051437.3724756464
+      ],
+      "mean_block_compactness": 0.7634964842781793,
+      "mean_section_detour": 1.000005303361616,
+      "svg": "mixed_radial_river_s41.svg.xz",
+      "svg_sha256": "4247efbe22bc5502ec87c5beb928c4ccfdee678fcbbd4eb12877417e89fc6686",
+      "wall_s": 37.83501871699991,
+      "source_uncompressed_sha256": "9966b3f4c4a445c54fb41716900b6b59b6f5ebd8d53bd56b87b99266b864f310",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "radial_coast",
+      "style": "radial",
+      "terrain": "coast",
+      "seed": 7,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_radial_coast_s7.json.xz",
+      "source_sha256": "686a61ce3052c79b95363d5460dc8ba6acef7accf955e73d4fb573a78c8beb21",
+      "status": "PASS",
+      "identity": "ffb8ccfb9480ec9a12a70a6c4e2d1be61a15b3cf65837679ac251586ff244080",
+      "nodes": 787,
+      "sections": 1364,
+      "directed_groups": 2728,
+      "legal_turns": 7098,
+      "face_edges": 1364,
+      "blocks": 578,
+      "block_area_m2": 26814130.090021446,
+      "max_grade": 0.07646982712290432,
+      "storage_veh": 71298.52446184572,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.003626293706587287
+        ],
+        [
+          60,
+          0.28367630742220407
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "2": 84,
+        "3": 254,
+        "4": 448,
+        "6": 1
+      },
+      "block_area_range_m2": [
+        15709.766876184382,
+        288099.5039372854
+      ],
+      "mean_block_compactness": 0.7604265914843258,
+      "mean_section_detour": 1.0000007986280939,
+      "svg": "mixed_radial_coast_s7.svg.xz",
+      "svg_sha256": "64be32fa6ad9bba124a42161e9a6b6ef771dd5edd3b039331dbaad8a0a858f8e",
+      "wall_s": 18.09798967300003,
+      "source_uncompressed_sha256": "7bc323e186daf0ed8a6eb352a301348538b14a03a1050db6167f65d8cd37fc4f",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "radial_valley",
+      "style": "radial",
+      "terrain": "valley",
+      "seed": 17,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_radial_valley_s17.json.xz",
+      "source_sha256": "e2f7f698286a138842f1a8464e152730e33ae5ff53ca706fed6d8c118d7b4bc7",
+      "status": "PASS",
+      "identity": "b1029d8de00cba2d6b7a083ce6fe018baf40b44c0aa86ac2be5f8d8ab41f5106",
+      "nodes": 456,
+      "sections": 656,
+      "directed_groups": 1312,
+      "legal_turns": 2782,
+      "face_edges": 656,
+      "blocks": 201,
+      "block_area_m2": 13938141.155908056,
+      "max_grade": 0.07995093693259377,
+      "storage_veh": 37541.81433840358,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:10",
+          "origin": "r12:92",
+          "affected_links": [
+            "b:r12:92>r12:94|0",
+            "b:r12:92>r12:94|1"
+          ],
+          "reachable_before": 456,
+          "reachable_after": 456,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:3",
+          "origin": "r6:17",
+          "affected_links": [
+            "b:r6:17>r6:19|0",
+            "b:r6:17>r6:19|1"
+          ],
+          "reachable_before": 456,
+          "reachable_after": 456,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:9",
+          "origin": "r12:45",
+          "affected_links": [
+            "b:r12:45>r12:47|0",
+            "b:r12:45>r12:47|1"
+          ],
+          "reachable_before": 456,
+          "reachable_after": 456,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.005532284352094149
+        ],
+        [
+          60,
+          0.25327058735456454
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 3,
+        "2": 181,
+        "3": 142,
+        "4": 129,
+        "5": 1
+      },
+      "block_area_range_m2": [
+        15709.766876185313,
+        1483473.6374599356
+      ],
+      "mean_block_compactness": 0.7414254585189202,
+      "mean_section_detour": 1.0000202260195905,
+      "svg": "mixed_radial_valley_s17.svg.xz",
+      "svg_sha256": "4f33d857f92b02a1d4b7ea45984d37bd4cccb3b7ee5ec46d1e1f60da66eeda25",
+      "wall_s": 45.097648002999904,
+      "source_uncompressed_sha256": "ce33a87331827077bf67a38a96ebd85995d3b1419bd6570a833fc53d06394886",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "radial_lake",
+      "style": "radial",
+      "terrain": "lake",
+      "seed": 41,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_radial_lake_s41.json.xz",
+      "source_sha256": "e6cb88ed2f77a7b59dc9bfddcdcbe492ddf28bc55bb7640ea35622220189db24",
+      "status": "PASS",
+      "identity": "04e03dcc9502300990d8bbabc71c5f4760196c8deaa30c909ddad1eb45ae1e6b",
+      "nodes": 920,
+      "sections": 1586,
+      "directed_groups": 3172,
+      "legal_turns": 8214,
+      "face_edges": 1586,
+      "blocks": 667,
+      "block_area_m2": 35805899.189113975,
+      "max_grade": 0.07951961433592727,
+      "storage_veh": 83002.52465002889,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.00044156382220179397
+        ],
+        [
+          60,
+          0.21448457208989402
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 108,
+        "3": 289,
+        "4": 522
+      },
+      "block_area_range_m2": [
+        28608.15225410927,
+        4237638.482813827
+      ],
+      "mean_block_compactness": 0.7619820832008272,
+      "mean_section_detour": 1.0000006862147721,
+      "svg": "mixed_radial_lake_s41.svg.xz",
+      "svg_sha256": "48864b63c309d252599792342212b8a74a9b948cacd4b5225c72a987721d2d0b",
+      "wall_s": 9.52516337599991,
+      "source_uncompressed_sha256": "e93096b203fb3c0812aa27256b97d231be09cf4f8d6062f4cf5b1fa0097128c5",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "corridor_flat",
+      "style": "corridor",
+      "terrain": "flat",
+      "seed": 7,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_corridor_flat_s7.json.xz",
+      "source_sha256": "3fa841783c268183067affcd266d9b63677cb6e794706c01319c025db97a9822",
+      "status": "PASS",
+      "identity": "a5f5a18fd02d6d2fb5960a0d1c768b182f256193d2b4961644fb7c1bafc8ec4d",
+      "nodes": 834,
+      "sections": 1234,
+      "directed_groups": 2468,
+      "legal_turns": 5330,
+      "face_edges": 1234,
+      "blocks": 401,
+      "block_area_m2": 20379410.90538051,
+      "max_grade": 0.00517541389971524,
+      "storage_veh": 57187.0703572179,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0156288264018549
+        ],
+        [
+          60,
+          0.6816651362234348
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 2,
+        "2": 259,
+        "3": 344,
+        "4": 229
+      },
+      "block_area_range_m2": [
+        22668.350368618034,
+        308018.2214552164
+      ],
+      "mean_block_compactness": 0.6538879531865603,
+      "mean_section_detour": 1.000000003252226,
+      "svg": "mixed_corridor_flat_s7.svg.xz",
+      "svg_sha256": "718365ee21253493a9618371870e55165ad7026c80b77b257c7e8f36c60d7f6f",
+      "wall_s": 13.736527626000225,
+      "source_uncompressed_sha256": "592523b1608886ae8aa08ec3cbbca39346057284f5547792915995955ba52af2",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "corridor_river",
+      "style": "corridor",
+      "terrain": "river",
+      "seed": 17,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_corridor_river_s17.json.xz",
+      "source_sha256": "89706ad4f8f1055b7ddd40400cf30957a2d20cd198c167d14994d50506d9fc0a",
+      "status": "PASS",
+      "identity": "dcfd212c6ca27886a371178bb2fe44237aec7ebdbfa1457ff882f65db041b23a",
+      "nodes": 833,
+      "sections": 1190,
+      "directed_groups": 2380,
+      "legal_turns": 4914,
+      "face_edges": 1190,
+      "blocks": 358,
+      "block_area_m2": 22472718.4668583,
+      "max_grade": 0.07430897627939777,
+      "storage_veh": 56096.81338605877,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:16",
+          "origin": "g17:17",
+          "affected_links": [
+            "b:g17:17>g19:17|0",
+            "b:g17:17>g19:17|1"
+          ],
+          "reachable_before": 833,
+          "reachable_after": 833,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:19",
+          "origin": "g17:25",
+          "affected_links": [
+            "b:g17:25>g19:25|0",
+            "b:g17:25>g19:25|1"
+          ],
+          "reachable_before": 833,
+          "reachable_after": 833,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:26",
+          "origin": "g18:33",
+          "affected_links": [
+            "b:g18:33>g20:33|0",
+            "b:g18:33>g20:33|1"
+          ],
+          "reachable_before": 833,
+          "reachable_after": 833,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0198528786764001
+        ],
+        [
+          60,
+          0.6617016959222765
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 2,
+        "2": 309,
+        "3": 328,
+        "4": 194
+      },
+      "block_area_range_m2": [
+        22993.622640529647,
+        1904179.8973001018
+      ],
+      "mean_block_compactness": 0.6382207361541998,
+      "mean_section_detour": 1.0000058541569026,
+      "svg": "mixed_corridor_river_s17.svg.xz",
+      "svg_sha256": "6dde69f61233992adee64143f64f96751adbfd5e5a1e77027c984cec183165d9",
+      "wall_s": 46.689061821999985,
+      "source_uncompressed_sha256": "2ddb9b6db3b882cbd2af4868c413b94164e07047e90e83a33ae490609da0eeb3",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "corridor_coast",
+      "style": "corridor",
+      "terrain": "coast",
+      "seed": 41,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_corridor_coast_s41.json.xz",
+      "source_sha256": "f6298086dcef83211a43b1e1c373fa3b70f55b890e826d61a8c5a3f560380026",
+      "status": "PASS",
+      "identity": "368c4bba219d8f25e2664942e769d149beda4086f5791f8fc48abd62b10c9481",
+      "nodes": 812,
+      "sections": 1167,
+      "directed_groups": 2334,
+      "legal_turns": 4856,
+      "face_edges": 1167,
+      "blocks": 356,
+      "block_area_m2": 21823383.933487386,
+      "max_grade": 0.07985606565532045,
+      "storage_veh": 53178.74166834317,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.0180400860692217
+        ],
+        [
+          60,
+          0.6222204490885028
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 295,
+        "3": 321,
+        "4": 195
+      },
+      "block_area_range_m2": [
+        23168.9978739433,
+        1110551.8030657507
+      ],
+      "mean_block_compactness": 0.6520265345194642,
+      "mean_section_detour": 1.000000782161457,
+      "svg": "mixed_corridor_coast_s41.svg.xz",
+      "svg_sha256": "272787966c4b318e200cc7e6fcf9c71df3627bcf0033529028b3243d3e660abc",
+      "wall_s": 22.81211700499989,
+      "source_uncompressed_sha256": "3c7c3d12b999d3b1a301b00e7ae14ba1fa9e051888816f3827321b52f2bdf10c",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "corridor_valley",
+      "style": "corridor",
+      "terrain": "valley",
+      "seed": 7,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_corridor_valley_s7.json.xz",
+      "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+      "status": "PASS",
+      "identity": "da78089758004b309b8c02aef1f3252acc567206d69e7b0d6be01f396a9b9f46",
+      "nodes": 549,
+      "sections": 793,
+      "directed_groups": 1586,
+      "legal_turns": 3314,
+      "face_edges": 793,
+      "blocks": 245,
+      "block_area_m2": 13933286.004190618,
+      "max_grade": 0.07991166868835495,
+      "storage_veh": 40508.20087695576,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [
+        {
+          "failure_group": "bridge:33",
+          "origin": "g34:20",
+          "affected_links": [
+            "b:g34:20>g34:22|0",
+            "b:g34:20>g34:22|1"
+          ],
+          "reachable_before": 549,
+          "reachable_after": 549,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        },
+        {
+          "failure_group": "bridge:9",
+          "origin": "g10:20",
+          "affected_links": [
+            "b:g10:20>g10:22|0",
+            "b:g10:20>g10:22|1"
+          ],
+          "reachable_before": 549,
+          "reachable_after": 549,
+          "lost_nodes": [],
+          "reachable_residents_after": 100000
+        }
+      ],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.012101650873799701
+        ],
+        [
+          60,
+          0.6415292331627344
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 1,
+        "2": 190,
+        "3": 227,
+        "4": 131
+      },
+      "block_area_range_m2": [
+        23331.773544193245,
+        2092705.308800972
+      ],
+      "mean_block_compactness": 0.6438900199042471,
+      "mean_section_detour": 1.0000126040569979,
+      "svg": "mixed_corridor_valley_s7.svg.xz",
+      "svg_sha256": "8781aaedf555bebb6059795655582cc02a772dac23fae0321a7553c63c6766db",
+      "wall_s": 59.41956818300014,
+      "source_uncompressed_sha256": "b8560d7aec10d9b0668bc321a221be9dc1a04ec1bc7a43c15ba30e9239c5316e",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    },
+    {
+      "case": "corridor_lake",
+      "style": "corridor",
+      "terrain": "lake",
+      "seed": 17,
+      "family": "mixed",
+      "resolution": 42,
+      "source": "mixed_corridor_lake_s17.json.xz",
+      "source_sha256": "9def7ef8953674050e33bc19e4bf3600e6d7b31c14d6561031a881c850e6f216",
+      "status": "PASS",
+      "identity": "8c00790bf1c8970f48fa59e15f227ef394f4c5e7e8b71868dba5b3cee41993d4",
+      "nodes": 699,
+      "sections": 976,
+      "directed_groups": 1952,
+      "legal_turns": 3900,
+      "face_edges": 976,
+      "blocks": 278,
+      "block_area_m2": 19279200.598801877,
+      "max_grade": 0.07960237183970603,
+      "storage_veh": 48052.08431369517,
+      "residents": 100000,
+      "requested_population": 100000,
+      "unplaced_residents": 0,
+      "bridge_closures": [],
+      "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+      "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+      "geometry_flags": [],
+      "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+      "registered_portal_count": 0,
+      "registered_served_residents": 0,
+      "registered_unserved_residents": 100000,
+      "registered_access_cdf": null,
+      "declared_boundary_access_cdf": [
+        [
+          30,
+          0.014239108022544444
+        ],
+        [
+          60,
+          0.6774845887405789
+        ],
+        [
+          120,
+          1.0
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+      "declared_boundary_access_mass": 100000.0,
+      "degree_histogram": {
+        "1": 2,
+        "2": 282,
+        "3": 274,
+        "4": 141
+      },
+      "block_area_range_m2": [
+        22993.622640529647,
+        4529506.778207608
+      ],
+      "mean_block_compactness": 0.6328547445005613,
+      "mean_section_detour": 1.0000013235663796,
+      "svg": "mixed_corridor_lake_s17.svg.xz",
+      "svg_sha256": "c440f4f97ca8087bec2c335c166fe35efe21f2857efeffef8e825e9dc3e70162",
+      "wall_s": 7.254205639000247,
+      "source_uncompressed_sha256": "62f78b0be3c88f424c290fcdf14801048659327210826fa2eebb6ea86ad14fad",
+      "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+    }
+  ],
+  "unresolved": [
+    "generated snapshots have no registered portals; actual registered resident access CDF unsupported; all unserved population retained"
+  ],
+  "scope": "synthetic centreline/mask/layer validation plus numerical and visual morphology audit; not historical-city reconstruction or pavement certification"
+}

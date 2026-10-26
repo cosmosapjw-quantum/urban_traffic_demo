@@ -1,0 +1,98 @@
+{
+  "case": "polycentric_river",
+  "style": "polycentric",
+  "terrain": "river",
+  "seed": 17,
+  "family": "primary",
+  "resolution": 42,
+  "source": "primary_polycentric_river_s17.json.xz",
+  "source_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+  "status": "PASS",
+  "identity": "60ccd6c3da4d5a3e86c8e18ea54978bf13a7b80f7b2c621e7f168fb5ce14e6b0",
+  "nodes": 992,
+  "sections": 1579,
+  "directed_groups": 3158,
+  "legal_turns": 7442,
+  "face_edges": 1579,
+  "blocks": 588,
+  "block_area_m2": 32861710.562171094,
+  "max_grade": 0.07449432513619973,
+  "storage_veh": 78603.78295789359,
+  "residents": 100000,
+  "requested_population": 100000,
+  "unplaced_residents": 0,
+  "bridge_closures": [
+    {
+      "failure_group": "bridge:16",
+      "origin": "g17:18",
+      "affected_links": [
+        "b:g17:18>g19:18|0",
+        "b:g17:18>g19:18|1"
+      ],
+      "reachable_before": 992,
+      "reachable_after": 992,
+      "lost_nodes": [],
+      "reachable_residents_after": 100000
+    },
+    {
+      "failure_group": "bridge:25",
+      "origin": "g18:29",
+      "affected_links": [
+        "b:g18:29>g20:29|0",
+        "b:g18:29>g20:29|1"
+      ],
+      "reachable_before": 992,
+      "reachable_after": 992,
+      "lost_nodes": [],
+      "reachable_residents_after": 100000
+    }
+  ],
+  "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+  "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+  "geometry_flags": [],
+  "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+  "registered_portal_count": 0,
+  "registered_served_residents": 0,
+  "registered_unserved_residents": 100000,
+  "registered_access_cdf": null,
+  "declared_boundary_access_cdf": [
+    [
+      30,
+      0.011928611377418867
+    ],
+    [
+      60,
+      0.280063009735714
+    ],
+    [
+      120,
+      1.0
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+  "declared_boundary_access_mass": 100000.0,
+  "degree_histogram": {
+    "2": 199,
+    "3": 412,
+    "4": 381
+  },
+  "block_area_range_m2": [
+    24077.68340496719,
+    1147960.4093330093
+  ],
+  "mean_block_compactness": 0.7289101103657754,
+  "mean_section_detour": 1.0000036564374075,
+  "svg": "primary_polycentric_river_s17.svg.xz",
+  "svg_sha256": "77a2a0e25294211a79103a2c5aff1626855ea2cc6fb547364c9c198477f4ba1f",
+  "wall_s": 37.12196665200008,
+  "source_uncompressed_sha256": "3ddc26e8ba7bd5fbec611b0dc2a43b558b8d3a99c42f00412b2286b222155521",
+  "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+}

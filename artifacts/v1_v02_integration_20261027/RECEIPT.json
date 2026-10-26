@@ -1,0 +1,15 @@
+{
+  "status": "V02_AUDIT_EXECUTION_SCOPED_VERIFIED_WITH_FINDINGS",
+  "command": "python -m pytest -q tests/v1/test_map_release_matrix.py",
+  "exit_code": 0,
+  "passed": 5,
+  "raw": "ROOT_FROZEN_TESTS.txt",
+  "visual": "root viewed actual REPRESENTATIVE_SIX.png; six morphologies/water masks match declared cases at overview; no pavement/clearance certification",
+  "frozen_source_binding": "../v1_v02_20261027/SOURCE_MANIFEST.json",
+  "core_receipt": "../v1_v02_20261027/RECEIPT.json",
+  "publication": "lossless full float JSON/SVG xz and contact PNG blob hashes checked against exact git objects",
+  "finding": "all38 generated maps have no registered portals; actual registered access CDF unsupported,100000unserved residents retained per case",
+  "full_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER",
+  "release_acceptance": false
+}

@@ -1,0 +1,72 @@
+{
+  "status": "V02_EXECUTED_SCOPED_WITH_UNRESOLVED_SERVICE_FINDING",
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "focused_tests": 5,
+  "commands": [
+    {
+      "command": "PYTHONPATH=src python tools/audit_v1_maps.py --frozen-seeds 7,17,41 --png",
+      "python": "3.12.14 primary runtime with Pillow",
+      "exit_code": 0,
+      "raw": "AUDIT_STDOUT.json",
+      "progress": "AUDIT_PROGRESS.txt",
+      "parallel_progress": "PARALLEL_PROGRESS.txt",
+      "meaning": "all38 actual cases; mixed independent reverse worker, one serial matrix writer"
+    },
+    {
+      "command": "python tools/audit_v1_maps.py --frozen-seeds 7,17,41",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "raw": "AUDIT_REPLAY.json",
+      "meaning": "SHAchecked frozen-xz cache replay; not38 new executions"
+    },
+    {
+      "command": "python -m pytest -q tests/v1/test_map_release_matrix.py tests/v1/test_city_contract.py tests/v1/test_activity_access.py",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "passed": 29,
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "command": "python -m pytest -q tests/v1/test_map_release_matrix.py tests/v1/test_city_contract.py tests/v1/test_activity_access.py",
+      "python": "3.13.16",
+      "exit_code": 0,
+      "passed": 29,
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "ruff check tools/audit_v1_maps.py tests/v1/test_map_release_matrix.py",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    }
+  ],
+  "verified": {
+    "primary": "6 authored8km cases x seeds7/17/41,18 fullresolution42 snapshots",
+    "mixed": "4roadstyles x5terrain kinds,20 fullresolution42 cases; fixed seedcycling7/17/41",
+    "geometry": "38 compile_city source roundtrips PASS; centreline/mask/layer checks; no physicalpopulationinfeasible cases",
+    "stock": "100000requested/residents each; unplaced0; no removedisolated/unserved residents",
+    "visual": "actual six-view frozenJSONcontactsheet inspected with view_image by worker and root; imageSHAunchanged after losslessarchive conversion; overview limits recorded VISUAL_REVIEW.json",
+    "metrics": "degree, area/compactness, sectiondetour, bridgeclosure reachability, explicit boundary hypothetical CDF; sourceSHA andnumericaltableCSV",
+    "compression": "all originalgzipJSON decompressed bytes exactlyequal finalxzJSON before duplicate removal; no float rounding or projection substitute"
+  },
+  "finding": {
+    "registered_portals": 0,
+    "registered_unserved_residents_per_case": 100000,
+    "registered_access_cdf": null,
+    "classification": "UNRESOLVED_PRODUCT_SERVICE_REGISTRY_CONNECTION; not geometrybug orpopulationdeletion",
+    "hypothetical_CDF": "allboundarynodesdoors/area quadrature depth0 explicitly separate, not servedpopulation"
+  },
+  "scope": [
+    "V02 audit execution complete with findings, not release acceptance",
+    "synthetic morphological forms, not realcityhistoricalreconstruction",
+    "centreline/layerclearance not pavementenvelope",
+    "no traffic/full-day performance or whole-repositoryCI"
+  ],
+  "correction_rounds": 0,
+  "corrections": [
+    "optional Pillow absent in localvenv --png replay; core acceptance replay used no--png; actualPNG previously generated with primaryruntime Pillow and inspected",
+    "initial frozen gzip data converted losslessly to xz; final cache and sourceSHA updated; nogeometry change"
+  ],
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER",
+  "data_bytes": 31317829
+}

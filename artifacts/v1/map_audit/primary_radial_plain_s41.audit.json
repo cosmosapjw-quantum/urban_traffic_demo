@@ -1,0 +1,74 @@
+{
+  "case": "radial_plain",
+  "style": "radial",
+  "terrain": "flat",
+  "seed": 41,
+  "family": "primary",
+  "resolution": 42,
+  "source": "primary_radial_plain_s41.json.xz",
+  "source_sha256": "0b53d5ef0fd37fde125948acca83c5acd52892509e6f3af8b95ee485ccec0da6",
+  "status": "PASS",
+  "identity": "bebc8bb6c9de22f4faf64cce09d817977884a33a470de3a413a56a6330df2566",
+  "nodes": 1046,
+  "sections": 1863,
+  "directed_groups": 3726,
+  "legal_turns": 9958,
+  "face_edges": 1863,
+  "blocks": 818,
+  "block_area_m2": 36433392.18124617,
+  "max_grade": 0.038928968331537035,
+  "storage_veh": 95513.00389924689,
+  "residents": 100000,
+  "requested_population": 100000,
+  "unplaced_residents": 0,
+  "bridge_closures": [],
+  "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+  "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+  "geometry_flags": [],
+  "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+  "registered_portal_count": 0,
+  "registered_served_residents": 0,
+  "registered_unserved_residents": 100000,
+  "registered_access_cdf": null,
+  "declared_boundary_access_cdf": [
+    [
+      30,
+      0.0029611544126795382
+    ],
+    [
+      60,
+      0.2512452605859629
+    ],
+    [
+      120,
+      1.0
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+  "declared_boundary_access_mass": 100000.0,
+  "degree_histogram": {
+    "2": 74,
+    "3": 312,
+    "4": 659,
+    "6": 1
+  },
+  "block_area_range_m2": [
+    15709.766876184382,
+    129080.48671485763
+  ],
+  "mean_block_compactness": 0.7646338664991651,
+  "mean_section_detour": 1.0000000046008106,
+  "svg": "primary_radial_plain_s41.svg.xz",
+  "svg_sha256": "32f616132cf41339925186046408635c56f2bf22d86c2f1b5c9d1bf0564dce4d",
+  "wall_s": 22.24797281899987,
+  "source_uncompressed_sha256": "ec2aa775dedf47217e612786b2fae090cd55fee7500a1fa432e325a7524f70c1",
+  "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+}

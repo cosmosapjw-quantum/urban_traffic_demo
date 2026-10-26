@@ -1,0 +1,73 @@
+{
+  "case": "planned_lake",
+  "style": "planned",
+  "terrain": "lake",
+  "seed": 17,
+  "family": "mixed",
+  "resolution": 42,
+  "source": "mixed_planned_lake_s17.json.xz",
+  "source_sha256": "6ebb6604730857a6fa5261f9f6892ab7ae4be47aca2ee3e52d1213fc267f0432",
+  "status": "PASS",
+  "identity": "23300b1b446978dbe582bb34538eb6b1c0e6deac097acbf4d305b1d81b88d818",
+  "nodes": 972,
+  "sections": 1616,
+  "directed_groups": 3232,
+  "legal_turns": 8162,
+  "face_edges": 1616,
+  "blocks": 645,
+  "block_area_m2": 38925992.093697116,
+  "max_grade": 0.07987214588544998,
+  "storage_veh": 78622.35438077073,
+  "residents": 100000,
+  "requested_population": 100000,
+  "unplaced_residents": 0,
+  "bridge_closures": [],
+  "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+  "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+  "geometry_flags": [],
+  "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+  "registered_portal_count": 0,
+  "registered_served_residents": 0,
+  "registered_unserved_residents": 100000,
+  "registered_access_cdf": null,
+  "declared_boundary_access_cdf": [
+    [
+      30,
+      0.0006541301347214849
+    ],
+    [
+      60,
+      0.03966659161038462
+    ],
+    [
+      120,
+      1.0
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+  "declared_boundary_access_mass": 100000.0,
+  "degree_histogram": {
+    "2": 217,
+    "3": 222,
+    "4": 533
+  },
+  "block_area_range_m2": [
+    34192.16887425259,
+    4394360.882653929
+  ],
+  "mean_block_compactness": 0.7628484854945744,
+  "mean_section_detour": 1.0000016213588856,
+  "svg": "mixed_planned_lake_s17.svg.xz",
+  "svg_sha256": "30258c18fc3b0a169fe922a934d6bba9603e245b56dc32b811035121df42f9f1",
+  "wall_s": 14.606275219000054,
+  "source_uncompressed_sha256": "a5d9f113cb3b712077ef2439e8bd982d506a9a4d9b8282880ad738c72e09a4bf",
+  "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+}

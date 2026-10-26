@@ -1,0 +1,74 @@
+{
+  "case": "corridor_coast",
+  "style": "corridor",
+  "terrain": "coast",
+  "seed": 41,
+  "family": "mixed",
+  "resolution": 42,
+  "source": "mixed_corridor_coast_s41.json.xz",
+  "source_sha256": "f6298086dcef83211a43b1e1c373fa3b70f55b890e826d61a8c5a3f560380026",
+  "status": "PASS",
+  "identity": "368c4bba219d8f25e2664942e769d149beda4086f5791f8fc48abd62b10c9481",
+  "nodes": 812,
+  "sections": 1167,
+  "directed_groups": 2334,
+  "legal_turns": 4856,
+  "face_edges": 1167,
+  "blocks": 356,
+  "block_area_m2": 21823383.933487386,
+  "max_grade": 0.07985606565532045,
+  "storage_veh": 53178.74166834317,
+  "residents": 100000,
+  "requested_population": 100000,
+  "unplaced_residents": 0,
+  "bridge_closures": [],
+  "reachable_stock_definition": "block residents with at least one reachable boundary node; not a trip assignment",
+  "geometry_scope": "piecewise centreline intersections, 5m vertical separation; no pavement envelope certification",
+  "geometry_flags": [],
+  "geometry_flags_basis": "canonical compile_city centreline/mask/layer validation; no pavement certification",
+  "registered_portal_count": 0,
+  "registered_served_residents": 0,
+  "registered_unserved_residents": 100000,
+  "registered_access_cdf": null,
+  "declared_boundary_access_cdf": [
+    [
+      30,
+      0.0180400860692217
+    ],
+    [
+      60,
+      0.6222204490885028
+    ],
+    [
+      120,
+      1.0
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "declared_boundary_access_scope": "depth0 uniform-area quadrature; all boundary nodes as hypothetical doors; not registered service; no quantile certificate",
+  "declared_boundary_access_mass": 100000.0,
+  "degree_histogram": {
+    "1": 1,
+    "2": 295,
+    "3": 321,
+    "4": 195
+  },
+  "block_area_range_m2": [
+    23168.9978739433,
+    1110551.8030657507
+  ],
+  "mean_block_compactness": 0.6520265345194642,
+  "mean_section_detour": 1.000000782161457,
+  "svg": "mixed_corridor_coast_s41.svg.xz",
+  "svg_sha256": "272787966c4b318e200cc7e6fcf9c71df3627bcf0033529028b3243d3e660abc",
+  "wall_s": 22.81211700499989,
+  "source_uncompressed_sha256": "3c7c3d12b999d3b1a301b00e7ae14ba1fa9e051888816f3827321b52f2bdf10c",
+  "registered_access_status": "UNSUPPORTED_NO_REGISTERED_PORTALS"
+}
