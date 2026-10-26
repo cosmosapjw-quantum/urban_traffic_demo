@@ -13,8 +13,8 @@ from time import perf_counter
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from metroflow.pure_traffic.ctm import simulate
-from metroflow.pure_traffic.scenarios import build_diamond_bottleneck_scenario
+from metroflow.pure_traffic.ctm import simulate  # noqa: E402 - standalone script bootstraps src above
+from metroflow.pure_traffic.scenarios import build_diamond_bottleneck_scenario  # noqa: E402 - standalone script bootstraps src above
 
 
 CASES = tuple(
@@ -94,11 +94,7 @@ def _run_case(seed: int, vehicles: int, release_batch: int, ticks: int) -> dict[
     )
     elapsed = perf_counter() - started
     clear_tick = next(
-        (
-            snapshot.tick
-            for snapshot in result.snapshots
-            if snapshot.completed_count == vehicles
-        ),
+        (snapshot.tick for snapshot in result.snapshots if snapshot.completed_count == vehicles),
         None,
     )
     max_cell_ratio = max(
@@ -112,7 +108,9 @@ def _run_case(seed: int, vehicles: int, release_batch: int, ticks: int) -> dict[
         *result.final_state.exit_residuals,
         *result.final_state.movement_residuals,
     )
-    internal_residuals = tuple(value for group in result.final_state.internal_residuals for value in group)
+    internal_residuals = tuple(
+        value for group in result.final_state.internal_residuals for value in group
+    )
     passed = (
         result.final_state.mass_balance_error == 0
         and result.node_holding_events == 0

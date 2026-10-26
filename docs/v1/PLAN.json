@@ -1,0 +1,1777 @@
+{
+  "schema_version": 1,
+  "plan_id": "METROFLOW-V1",
+  "version": "1.0.1",
+  "date": "2026-10-25",
+  "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "base_research_sha": "0a7c980d3934146a978280fe76045443ad12640e",
+  "main_sha_at_planning": "01c80b432344f94209daaa198bb1eb007839fc7f",
+  "integration_branch": "research/v1-integration-20261025",
+  "bootstrap_branch": "v1/foundation-access-journey-20261025",
+  "bootstrap_pr_scope": [
+    "P00",
+    "M01",
+    "T01",
+    "I01"
+  ],
+  "next_node": "I01",
+  "execution_policy": {
+    "rule": "초기 PR에서 I01 전체저장소 검증을 먼저 끝내 병합한다. 이후 DAG prerequisite가 수용된 READY 노드만 실행한다.",
+    "no_automatic_scope_growth": true,
+    "maximum_work_in_progress": 1,
+    "change_control": "노드/목표/수용문턱/physics contract 변경은 PLAN.json 버전을 먼저 변경하는 계획 PR로 제안한다. 범위/성능문턱 완화는 사용자 승인 전 적용 금지.",
+    "status_order": [
+      "PLANNED",
+      "READY",
+      "IN_PROGRESS",
+      "VERIFIED_SCOPED",
+      "MERGED",
+      "ACCEPTED"
+    ],
+    "definitions": {
+      "VERIFIED_SCOPED": "명시한 sandbox/fixture 범위의 실제검증. 전체제품 완료아님.",
+      "MERGED": "실제통합branch에포함된commit확인",
+      "ACCEPTED": "nodeacceptance전체증거확인;releasegate와별도",
+      "BLOCKED": "정확한누락/환경/권한/물리원인과최소재개점보존"
+    },
+    "historical_docs": "과거 roadmap, AGENTS의구현순서, 연구인계의다음노드는근거/아카이브다. 새계획밖노드를자동활성화하지않는다. Constitution의보존/불변상태/명시단위/회귀/지연피드백은그대로채택한다.",
+    "pr_process": "한노드한PR원칙. 초기P00/M01/T01/I01은전환용하나의bootstrapPR. 그뒤의존PR미완료상태에서자식구현/보증패키지를선행하지않는다. read-only 독립이론검토만병렬가능.",
+    "local_and_cloud": "sandbox:실행당45초아래작은검증과증거보존. local:fullrepo/24h/자원계측. 실제도구없는native subagent는NOT_RUN. 비동기작업약속없음.",
+    "stop_rules": [
+      "물리보존오류면즉시직전상태보존후중단",
+      "동일실패blindretry최대1회",
+      "목표를닫은후새연구cycle자동개시금지",
+      "검증은주pass와위험에근거한1freshpass;자가감사재귀금지"
+    ],
+    "dependency_rule": "필수 선행 노드는 ACCEPTED여야 한다. STOPPED는 의존성을 충족하지 않는다. 대안 노드로 교체하려면 PLAN.json을 먼저 개정해 대체 경로와 수용조건을 명시한다.",
+    "next_selection": "현 next_node를 우선한다. 완료 후 의존 노드가 모두 ACCEPTED인 후보 중 문서의 위상 순서를 따라 하나만 READY로 바꾸고 next_node를 갱신한다. 임의의 새 연구 노드를 시작하지 않는다.",
+    "parallelism": "실행 구현 WIP=1. 의존성이 없는 읽기 전용 검토는 가능하지만 사용자 승인 없이 작업 범위를 넓히지 않는다.",
+    "bootstrap_acceptance": "P00/M01/T01은 현재 VERIFIED_SCOPED다. I01의 전체 저장소 수용과 실제 bootstrap PR 병합 뒤 네 노드의 증거를 함께 확인해 ACCEPTED로 갱신한다. 그 전 M02/T02를 시작하지 않는다."
+  },
+  "product": {
+    "name": "MetroFlow V1 research simulator",
+    "definition": "한도시의지도·지속cohort활동·집계수송·조건부경로선택·지연개발피드백을24h 실행하고저장/재개/관측/개입비교할수있는순수Python headless연구시뮬레이터",
+    "scale": {
+      "resident_stock": 100000,
+      "default_extent_m": [
+        8000,
+        8000
+      ],
+      "terrain_cases": [
+        "plain",
+        "river",
+        "coast",
+        "valley",
+        "lake"
+      ],
+      "road_forms": [
+        "planned_grid",
+        "warped_grid",
+        "polycentric",
+        "radial_ring",
+        "corridor"
+      ],
+      "vehicle_classes": [
+        "car",
+        "scheduled_bus",
+        "freight"
+      ],
+      "full_day_s": 86400
+    },
+    "mandatory": [
+      "다양한지형의지상도로·교량·고가·단방향램프",
+      "유한housing/jobs/service용량과물리적출입구",
+      "평일/주말·AM/PM·귀가·서비스·배송cohort일정",
+      "유한가감속에근거한명시적집계closure",
+      "차로군sending/receiving·저장량·신호·폐쇄·순서",
+      "finite-information목적지/선호별경로선택",
+      "지연접근성→입지→미래수요",
+      "실제statecheckpointresume·cacheinvalidation",
+      "one-commandCLI와JSON/CSV/2D진단"
+    ],
+    "exclusions": [
+      "도시내모든차량/시민의위치전수추적",
+      "3D게임/renderer/interactivecitybuilderUI",
+      "full public-transit assignment/환승최적화",
+      "parking micro/법적필지·구조공학인증",
+      "RL/LLM-first·외부데이터학습",
+      "GPU/JAX/Rust-primary rewrite·분산실행",
+      "완전한Boltzmann/pairhierarchy폐쇄의보편정리",
+      "실도시보정·CitiesSkylines대비우월성주장"
+    ],
+    "completion_label": "V1_ENGINEERING_COMPLETE_WITH_DECLARED_SYNTHETIC_PHYSICS",
+    "not_completion": [
+      "시험수가늘어남",
+      "100k주거stock만배치",
+      "짧은incrementaltraffic",
+      "해시만replay",
+      "도시그림만개선",
+      "별도연구모듈들이아직연결되지않음"
+    ]
+  },
+  "selected_architecture": {
+    "scientific_runtime": "src/metroflow/v1/의얇은통합표면. PacketNetwork를유일한V1수송계보로선택해노드T02–T04에서수정한다. 새별도cityengine증식금지.",
+    "map": "terrain_city.Atlas + typed restored structures + v1 access/activity adapters",
+    "state": "CitySnapshot, ActivityMeasure, TripSchedule, TrafficState, InformationState, AccessibilitySnapshot을immutableWorldState로소유",
+    "observations": "관측집단·측도·시각·완료정의·단위·버전을기록. physical vs numerical residence분리",
+    "runtime": "fast transport / medium information-routing / slow landuse, phase-separated frozen-input updates",
+    "legacy_disposition": {
+      "active_suffix.Model": "재현reference;V1default아님",
+      "PackedModel": "부모시간/압축대조;V1default아님",
+      "ordered_network.Network": "serialnode반례/reference",
+      "PacketNetwork": "선택한V1출발점;physics/시간/정보/class통합미완료",
+      "periodic_ring/gap/foundation_kinetics": "국소분석oracle와closure검증",
+      "legacyflow/NumPy/Rust": "main호환성보존;V1core에자동편입금지"
+    }
+  },
+  "contracts": {
+    "C_MAP": "SI m,방향/층/구조물ID명시. Polygonmask단일권위. 동일XY는접속증거아님. input IDs는관측식별용이며물리priority아님.",
+    "C_ACCESS": "ActivityMeasure→gate/time분포. 사람·차량수와확률분리. physicalaccess와generalizedcost분리. private connector와분포항중복금지. 지원외기하/예산은명시오류.",
+    "C_DEMAND": "persons,vehicles,cargo,opportunities,filledjobs별도장부. declaredtimeprofile적분을실제방출량과대조. intrazonal/noncar/unreachable를0초완료로세지않음.",
+    "C_FLOW": "stock veh또는class별길이로환산; rate veh/s; increment rate*dt. released=completed+allpending+allactive. nonnegative와공동supply/storage조건. 보존만으로안전/FIFO/shock를주장하지않음.",
+    "C_PHYSICS": "실제기초는연속(x,v)와차종/목적/정보. 계산모멘트의closure·유효범위·안정성·안전성별도. densitysquare/p두상태는일반firstprinciple이아닌조건부축약.",
+    "C_INFORMATION": "관측정보가같으면현재행동같음. direct/server/history채널의coverage/timestamp/latency명시. report범위밖은명시prior,truthfallback금지.",
+    "C_RUNTIME": "immutable transaction,명시적인fast/medium/slow단위와phase,laggedlanduse,실제checkpoint복원. partialprogress와정상완료구분.",
+    "C_IDENTITY": "graph/geometry/turn/landuse/demand/class/info/cost/version을cachekey에반영. Byte identity와physicalequivalence구별. topology변경시점유statehot-swap금지.",
+    "C_EQUIVALENCE": "물리대칭(고정환경),passive공변,표현quotient를분리. QF=FbarQ와O=ObarQ의범위명시. class/history/time를잃는병합은근사. tri/dt변화는오차로비교.",
+    "C_OBSERVATION": "출생·유출1차모멘트와source/road/interface/access/egress체류를분리. 전체평균은전체집단완료시에만;부분조건부평균은모집단명시. p95는원자료/추가moment가있을때만.",
+    "C_FAILURE": "MODEL_ERROR / NUMERICAL_ERROR / IMPLEMENTATION_ERROR / ENVIRONMENT_BLOCKER / BLOCKED_RESOURCE / PHYSICAL_INFEASIBLE / HORIZON_REACHED 구별. 예산실패에마지막validcheckpoint,질량삭제없음.",
+    "C_PLAN": "PLAN.json이 유일한 규범 원본이며 MASTER_PLAN_KO.md/DAG/PR_CATALOG는 생성 뷰다. 노드별 실행은 정의·유도·코드·검증·관측을 연결한다. 생성 뷰 불일치는 계획 오류로 거절한다. validate는 구조/추적성을 검사할 뿐 과학적 참이나 실행 이력의 진실을 대신하지 않는다. release 검사에는 모든 노드의 수용상태와 실제 영수증 경로·SHA256을 요구한다."
+  },
+  "numerical_policy": {
+    "mass_relative_tolerance": 1e-09,
+    "residence_relative_tolerance": 1e-08,
+    "report_absolute_floor": 1.0,
+    "interpretation": "tol=relative*max(1,해당누적량). 작은검산은분석해와절대오차도따로시험. 큰조건수/상쇄오차는관측특성에맞게사전정의,실패후완화금지.",
+    "supported_python": [
+      "3.12",
+      "3.13"
+    ],
+    "current_host_python": "3.13.5",
+    "current_python312_status": "NOT_RUN"
+  },
+  "release_gates": [
+    {
+      "id": "G-ALL",
+      "criterion": "모든필수노드ACCEPTED,미해결P0/P1=0,source/evidenceidentity일치",
+      "nodes": [
+        "RLS01"
+      ]
+    },
+    {
+      "id": "G-DAY",
+      "criterion": "100kresident의비영일일활동을3개24h시나리오에서실제로실행;누적장부와unfinished분리",
+      "nodes": [
+        "D01",
+        "C02",
+        "V03"
+      ]
+    },
+    {
+      "id": "G-PHYS",
+      "criterion": "해석기준·유한반응·class/노드/정보·대칭/표현·분해장부검증",
+      "nodes": [
+        "T02",
+        "T03",
+        "T04",
+        "R01",
+        "R02",
+        "V01"
+      ]
+    },
+    {
+      "id": "G-MAP",
+      "criterion": "6개대표도시×3seed의지형/층/접근/용량검사와시각감사",
+      "nodes": [
+        "M02",
+        "M03",
+        "V02"
+      ]
+    },
+    {
+      "id": "G-REPLAY",
+      "criterion": "실제checkpoint에서중단없는동일실행복원;캐시/slowlag/graphedit대조",
+      "nodes": [
+        "C01",
+        "M04"
+      ]
+    },
+    {
+      "id": "G-SCALE",
+      "criterion": "실측target:24hsim<=7200swall,peakRSS<=8GiB.3반복환경/분산기록.미측정은미통과.",
+      "nodes": [
+        "P01",
+        "V03"
+      ]
+    },
+    {
+      "id": "G-DELIVERY",
+      "criterion": "freshinstall·한명령run·사용자guide·mainPR·최종승인후release",
+      "nodes": [
+        "I01",
+        "RLS01"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "R-ORIGINAL",
+      "text": "약10만규모의설명가능한지도–교통–접근성–개발결합",
+      "nodes": [
+        "M02",
+        "D01",
+        "C01",
+        "M04",
+        "V03"
+      ]
+    },
+    {
+      "id": "R-PHASE",
+      "text": "연속위상공간기초와그에근거한유한응답집계",
+      "nodes": [
+        "T02",
+        "T04",
+        "V01"
+      ]
+    },
+    {
+      "id": "R-CLASS",
+      "text": "차종/목적/선호와시간최적화경향의구별",
+      "nodes": [
+        "D01",
+        "T02",
+        "R02",
+        "B01"
+      ]
+    },
+    {
+      "id": "R-INFO",
+      "text": "유한/지연/커버리지별비예견정보",
+      "nodes": [
+        "R01",
+        "R02"
+      ]
+    },
+    {
+      "id": "R-MEASURE",
+      "text": "분포/모멘트·측도와관측의정의",
+      "nodes": [
+        "M01",
+        "M03",
+        "T01",
+        "V01"
+      ]
+    },
+    {
+      "id": "R-INTERACTION",
+      "text": "차간거리/상대속도/차로상호작용과closure범위",
+      "nodes": [
+        "T02",
+        "T03",
+        "V01"
+      ]
+    },
+    {
+      "id": "R-ENVIRONMENT",
+      "text": "지형·지역비용·시간대·신호를단위별구분",
+      "nodes": [
+        "M02",
+        "D01",
+        "R01",
+        "R02"
+      ]
+    },
+    {
+      "id": "R-FEEDBACK",
+      "text": "상향동역학/하향정보·정책/느린개발의지연폐회로",
+      "nodes": [
+        "C01",
+        "M04"
+      ]
+    },
+    {
+      "id": "R-LIGHT",
+      "text": "per-car전수추적/GPU없이표현동등에근거한경량화",
+      "nodes": [
+        "P01",
+        "V03"
+      ]
+    },
+    {
+      "id": "R-BRAESS",
+      "text": "실제역설가능성보존,무조건bypass개선조건금지",
+      "nodes": [
+        "R02",
+        "V01"
+      ]
+    },
+    {
+      "id": "R-AUTHORITY",
+      "text": "앞으로모든작업은이계획만따름",
+      "nodes": [
+        "P00",
+        "I01",
+        "RLS01"
+      ]
+    }
+  ],
+  "original_scope_decisions": [
+    "원PRD의persistent citizens는V1에서지속cohort activity ledger로구현한다. 개별주민전수상태는요구하지않는다.",
+    "원PRD의UI와EMA/bandit은현재그래픽후순위·고유물리정초요청에따라1차release밖으로명시이관한다.",
+    "원001의fingerprint-only replay와proxy benchmark는이번제품완료요구에맞춰실제checkpointresume/실측100k로강화한다.",
+    "과거NumPy/Rust-primary 계획은역사적구현근거. 현재명시된purePython/noGPU가V1구현을지배한다.",
+    "실제전통모델과정밀성능비교는release조건이아니다. 자체원리·반례·수치·실행수용을우선한다."
+  ],
+  "source_pins": [
+    {
+      "kind": "current_research",
+      "sha": "0a7c980d3934146a978280fe76045443ad12640e",
+      "path": "docs/research/symmetry_observables_20261025/SUMMARY_KO.md",
+      "authority": "기존구현/경계근거"
+    },
+    {
+      "kind": "original_product",
+      "sha": "01c80b432344f94209daaa198bb1eb007839fc7f",
+      "path": "docs/PRD.md",
+      "blob": "831781d88d6a2d64b0e89d955145f87c844923c4",
+      "authority": "제품규모/동기;새범위결정은본계획"
+    },
+    {
+      "kind": "original_baseline",
+      "sha": "01c80b432344f94209daaa198bb1eb007839fc7f",
+      "path": "specs/001-metroflow/spec.md",
+      "blob": "452bdae4dc610c9de9b169bd29426a9e21b10736",
+      "authority": "원baseline범위와검증근거"
+    },
+    {
+      "kind": "constitution",
+      "sha": "0a7c980d3934146a978280fe76045443ad12640e",
+      "path": ".specify/memory/constitution.md",
+      "blob": "46443850720b310fdf689a646389516cdd8ef80b",
+      "authority": "채택한상위보존/단위/불변상태/지연/회귀원칙"
+    },
+    {
+      "kind": "historical_target",
+      "sha": "01c80b432344f94209daaa198bb1eb007839fc7f",
+      "path": "docs/TRAFFIC_SIMULATION_FINAL_MODEL_SPEC.md",
+      "authority": "목표설계문서이며현재구현완료증거아님"
+    }
+  ],
+  "current_execution": {
+    "node_ids": [
+      "P00",
+      "M01",
+      "T01",
+      "I01"
+    ],
+    "native_subagent": "NOT_RUN",
+    "scope": "I01 full checkout integration verified; bootstrap merge pending; not V1 complete",
+    "full_repository_ci": "PASS_AT_b7ff813504b4a4e1beb97cb51f7d43ce33deb338",
+    "full_day_100k": "NOT_RUN",
+    "main_modified": false,
+    "evidence": "artifacts/v1_i01_20261025/RECEIPT.json",
+    "ci_run": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/40182521270",
+    "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json"
+  },
+  "nodes": [
+    {
+      "id": "P00",
+      "title": "단일 계획·DAG·요구사항 기준 확정",
+      "depends_on": [],
+      "status": "VERIFIED_SCOPED",
+      "files": [
+        "docs/v1/PLAN.json",
+        "docs/v1/MASTER_PLAN_KO.md",
+        "tools/v1_plan.py",
+        "AGENTS.md"
+      ],
+      "inputs": [
+        "현재 사용자 요청",
+        "원래 specs/001-metroflow/spec.md, PRD, constitution",
+        "pinned 연구 HEAD와 인계"
+      ],
+      "outputs": [
+        "versioned PLAN.json 단일 규범원본",
+        "재생성 가능한 문서·DAG·PR 작업표",
+        "구현가능한 다음 노드 조회"
+      ],
+      "assumptions": [
+        "이 계획은 현재 사용자 요청에 의해 과거 작업목록의 실행 우선순위를 대체한다. 수학적 증거나 과거 raw evidence를 소급 변경하지 않는다."
+      ],
+      "invariants": [
+        "DAG acyclic",
+        "모든 요구사항이 최소 한 필수 노드와 release gate에 연결",
+        "generated 문서와 원본 일치"
+      ],
+      "observables": [
+        "상태별 노드 수; 의존성 critical path는 실행순서이며 일정예측이 아님"
+      ],
+      "tests": [
+        "python tools/v1_plan.py validate",
+        "python -m pytest -q tests/test_v1_plan.py"
+      ],
+      "acceptance": [
+        "미정 placeholder 없이 21개 노드와 계약·실행/중단 조건 명시",
+        "generated 문서 동일성 및 cycle/dangling dependency 검사를 통과"
+      ],
+      "failure_classification": [
+        "잘못된 참조는 IMPLEMENTATION_ERROR; 승인되지 않은 범위증가는 SCOPE_VIOLATION"
+      ],
+      "positive_next_action": "M01/T01 bootstrap의 실제 evidence를 연결하고 I01을 같은 PR의 다음 작업으로 지정",
+      "resource_budget": "계획검사는 표준라이브러리; 초당 또는 매 tick 문서검사 금지",
+      "contracts": [],
+      "pr": {
+        "key": "V1-P00",
+        "title": "[V1 P00] 단일 계획·DAG·요구사항 기준 확정",
+        "branch": "v1/foundation-access-journey-20261025",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "M01",
+      "title": "면적 활동측도를 출입구·접근시간 법칙으로 컴파일",
+      "depends_on": [
+        "P00"
+      ],
+      "status": "VERIFIED_SCOPED",
+      "files": [
+        "src/metroflow/v1/access.py",
+        "tests/test_v1_access.py"
+      ],
+      "inputs": [
+        "AreaAccess의 내부시간 quadrature",
+        "출입구별 확률",
+        "bin width [s], atom budget"
+      ],
+      "outputs": [
+        "AccessLaw: portal, probability, conditional delay, support bounds",
+        "적분오차·압축오차·분산손실의 분리"
+      ],
+      "assumptions": [
+        "이번 구현은 균일 평면 활동 prior와 정적 출입구를 조건화한다. external generalized cost는 physical delay가 아니다."
+      ],
+      "invariants": [
+        "확률합1",
+        "출입구별 질량과 시간1차모멘트 보존",
+        "같은측도 fragment/ID 순서의 관측동등"
+      ],
+      "observables": [
+        "평균 접근시간 [s]",
+        "압축 W1 상한 [s]",
+        "조건부 분산손실 [s²]",
+        "atom 수"
+      ],
+      "tests": [
+        "python -m pytest -q tests/test_v1_access.py tests/test_area_observables.py"
+      ],
+      "acceptance": [
+        "실제 블록의 384개 적분점이 제한된 atom으로 컴파일됨",
+        "평균 차이<=1e-10s 및 확률오차<=1e-12",
+        "지정 atom budget 초과 시 오류, 질량삭제 없음"
+      ],
+      "failure_classification": [
+        "표본/단위 불일치 CONTRACT_ERROR",
+        "해상도 변경은 APPROXIMATION_CHANGE"
+      ],
+      "positive_next_action": "T01에서 gate-conditioned 수요에 연결하고 private connector 항을 교체",
+      "resource_budget": "기본 256atoms/블록; 인구수 비례 loop 금지",
+      "contracts": [
+        "C_MAP",
+        "C_ACCESS",
+        "C_EQUIVALENCE"
+      ],
+      "pr": {
+        "key": "V1-M01",
+        "title": "[V1 M01] 면적 활동측도를 출입구·접근시간 법칙으로 컴파일",
+        "branch": "v1/foundation-access-journey-20261025",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "T01",
+      "title": "원래 출발시각을 보존하는 전체 여정 연결",
+      "depends_on": [
+        "M01"
+      ],
+      "status": "VERIFIED_SCOPED",
+      "files": [
+        "src/metroflow/packet_network.py",
+        "src/metroflow/v1/journey.py",
+        "tests/test_v1_birth_contract.py",
+        "tests/test_v1_journey.py",
+        "tools/run_v1_foundation.py"
+      ],
+      "inputs": [
+        "출입구에 조건화된 origin/destination DelayLaw",
+        "public-only PacketNetwork route",
+        "vehicle-equivalent 출발 batch"
+      ],
+      "outputs": [
+        "origin→public→destination 여정상태",
+        "원래 출생1차모멘트·완료1차모멘트",
+        "접근/경계대기/public/egress 체류분해"
+      ],
+      "assumptions": [
+        "origin과destination은 route-conditioned 독립 delay marginals; correlation은 미표현",
+        "현재 road physical closure는 부모 PacketNetwork 유지",
+        "전체 접근을 갈아끼우므로 같은 private link를 동시에 운송하지 않는다."
+      ],
+      "invariants": [
+        "trip released=완료+접근중+road/source대기+egress중",
+        "원래 birth moment 보존",
+        "I_total=I_origin+I_grid_hold+I_public+I_egress",
+        "실패 시 직전 immutable checkpoint"
+      ],
+      "observables": [
+        "완료된 전체집단의 평균 여정 [s]",
+        "미완료량과 stage별 veh·s",
+        "record 수; per-car records=0"
+      ],
+      "tests": [
+        "python -m pytest -q tests/test_v1_birth_contract.py tests/test_v1_journey.py tests/test_packet_quotient.py",
+        "python -S tools/run_v1_foundation.py"
+      ],
+      "acceptance": [
+        "기존의 road-entry birth reset 반례를 실패→수정→통과로 기록",
+        "10초 public + 분포 ingress/egress의 분석적 평균 대조",
+        "실제 도시 public route 하나에서 stage 장부를 닫음",
+        "egress 미완료를 완료로 세지 않음"
+      ],
+      "failure_classification": [
+        "장부 불일치 THEORETICAL_OR_IMPLEMENTATION_ERROR",
+        "현재 grid holding은 NUMERICAL_APPROXIMATION; 물리정체로 재명명 금지"
+      ],
+      "positive_next_action": "I01 full-repository 수용 후 T04와 D01에 연결",
+      "resource_budget": "기본20,000records; 초과 시 명시중단. 현재 원자료2veh 실험은 100k 실행이 아님",
+      "contracts": [
+        "C_FLOW",
+        "C_ACCESS",
+        "C_OBSERVATION",
+        "C_FAILURE"
+      ],
+      "pr": {
+        "key": "V1-T01",
+        "title": "[V1 T01] 원래 출발시각을 보존하는 전체 여정 연결",
+        "branch": "v1/foundation-access-journey-20261025",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "I01",
+      "title": "전체 저장소 통합 기준선과 V1 facade 확립",
+      "depends_on": [
+        "P00",
+        "M01",
+        "T01"
+      ],
+      "status": "VERIFIED_SCOPED",
+      "files": [
+        "pyproject.toml",
+        "src/metroflow/v1/__init__.py",
+        "tests/conftest.py",
+        "tests/v1/test_repository_entrypoints.py",
+        ".github/workflows/ci.yml"
+      ],
+      "inputs": [
+        "bootstrap PR와 실제 repository 전체 checkout",
+        "기존 main과연구 branch dependency manifest"
+      ],
+      "outputs": [
+        "하나의 import/CLI 진입점",
+        "legacy와v1 테스트 profile",
+        "CPython3.12/3.13 환경 계약"
+      ],
+      "assumptions": [
+        "독립 번들의 통과는 전체 repo CI와 다르다. 기존 NumPy/Rust 의존성과 테스트는 삭제하지 않는다."
+      ],
+      "invariants": [
+        "v1 scientific path에 NumPy/JAX/GPU import 없음",
+        "legacy defaults regression 보존",
+        "기준선 실패와 새 회귀 구별"
+      ],
+      "observables": [
+        "test collected/passed/skipped 목록",
+        "import dependency closure",
+        "실제 CI exit"
+      ],
+      "tests": [
+        "PYTHONPATH=src python -m pytest -q",
+        "PYTHONPATH=src python -S -c \"import metroflow.v1\"",
+        "python -m pytest -q tests/v1/test_repository_entrypoints.py"
+      ],
+      "acceptance": [
+        "전체repo 수집/실행을 실제 수행하고 legacy failure를 명시처리",
+        "v1 package import가 supported 두Python에서 통과",
+        "초기 PR을 통합 branch에 병합할 수 있는 evidence 확보",
+        "현재 연구 브랜치의 코드가 main의 공용 conftest·패키징·CI와 함께 동작하는지 확인한다. 실패 시 전체 원본을 읽고 이 노드에서만 통합 결함을 수정한다."
+      ],
+      "failure_classification": [
+        "dependency/runtime문제는 ENVIRONMENT_BLOCKER; 테스트삭제로 통과시키지 않음"
+      ],
+      "positive_next_action": "bootstrap PR 병합 뒤 M02와T02를 각각 독립노드로 수행",
+      "resource_budget": "sandbox는 좁은검사; 전체CI는 CI/로컬에서실행. 한번의 무변경재시도만 허용",
+      "contracts": [
+        "C_RUNTIME",
+        "C_FAILURE"
+      ],
+      "pr": {
+        "key": "V1-I01",
+        "title": "[V1 I01] 전체 저장소 통합 기준선과 V1 facade 확립",
+        "branch": "v1/foundation-access-journey-20261025",
+        "base": "research/v1-integration-20261025",
+        "opened_number": 25
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_i01_20261025/RECEIPT.json",
+        "sha256": "d6021d34772a146724a981001bf1250fccbd56b3266071b4ddf75daf57002e76",
+        "runtime_source_commit": "b7ff813504b4a4e1beb97cb51f7d43ce33deb338",
+        "ci_run": "https://github.com/cosmosapjw-quantum/urban_traffic_demo/actions/runs/40182521270",
+        "merge_state": "AWAITING_BOOTSTRAP_MERGE"
+      }
+    },
+    {
+      "id": "M02",
+      "title": "지형·입체도로·회전·구조물의 단일 지도 계약",
+      "depends_on": [
+        "I01"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/city.py",
+        "src/metroflow/terrain_city/",
+        "src/metroflow/restored_grammar.py",
+        "tests/v1/test_city_contract.py"
+      ],
+      "inputs": [
+        "terrain-city atlas",
+        "복원 road/bridge/mainline/ramp 문법",
+        "typed polygon masks와physical section registry"
+      ],
+      "outputs": [
+        "CitySnapshot: polygon, section, direction, layer, failure_group, portal",
+        "TransportGraph와face-graph의명시적분리"
+      ],
+      "assumptions": [
+        "기본 map 8×8km, local meter coordinates",
+        "수계/보호polygon이권위; 빈legacyrectangle로대체금지",
+        "터널은1차범위밖"
+      ],
+      "invariants": [
+        "불법동층교차0",
+        "허용방향·ON/OFF ramp만층교환",
+        "길이/차로/storage 계산일치",
+        "물리구조폐쇄는모든해당방향반영"
+      ],
+      "observables": [
+        "geometry counts, grade, block area, reachable stock",
+        "교량1개폐쇄 대조에서 연결성"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_city_contract.py",
+        "python -m metroflow.v1 validate-city --matrix"
+      ],
+      "acceptance": [
+        "6개도시×seed7/17/41 지도JSON 통과",
+        "교량·고가·램프가 atlas와같은계약으로compiler에진입",
+        "부적합도시/부족용량은명시반환"
+      ],
+      "failure_classification": [
+        "불가능지형은 PHYSICAL_INFEASIBLE; 무작위연결fallback금지"
+      ],
+      "positive_next_action": "M03의활동/출입구와T03노드컴파일에같은Snapshot전달",
+      "resource_budget": "64km²기준<=10,000방향group registry; 예산초과는입력규모거절",
+      "contracts": [
+        "C_MAP",
+        "C_IDENTITY",
+        "C_FAILURE"
+      ],
+      "pr": {
+        "key": "V1-M02",
+        "title": "[V1 M02] 지형·입체도로·회전·구조물의 단일 지도 계약",
+        "branch": "v1/m02",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "M03",
+      "title": "활동가중 블록·복수 출입구·주거용량의 현실적 연결",
+      "depends_on": [
+        "M02",
+        "M01"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/activity.py",
+        "src/metroflow/v1/access.py",
+        "src/metroflow/v1/development.py",
+        "tests/v1/test_activity_access.py"
+      ],
+      "inputs": [
+        "CitySnapshot",
+        "선언된 residential/job/service activity patches",
+        "existing portals와건설예산"
+      ],
+      "outputs": [
+        "면적/건물활동 prior를명시한 ActivityMeasure",
+        "출입구 접근법칙과물리적entry capacity",
+        "블록내수요도포함한route endpoints"
+      ],
+      "assumptions": [
+        "synthetic patch density는입력prior,실측아님",
+        "출입구선택은공사길이뿐아니라부하/보행·접근거리상한을목적함수에명시",
+        "uniform prior는검증fallback으로보존"
+      ],
+      "invariants": [
+        "patchmass와residentstock 일치",
+        "polygon/경사/접촉조건",
+        "한점에수백명집중시대표성경고",
+        "같은접근항중복계산금지"
+      ],
+      "observables": [
+        "활동가중평균/분위 접근시간",
+        "portal별부하와capacity",
+        "미서비스인구·기관수"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_activity_access.py",
+        "python -m metroflow.v1 access-audit --matrix"
+      ],
+      "acceptance": [
+        "큰오목block에서복수활동점/문을해상하고근접문편향대조",
+        "intrazonal을0초완료로세지않음",
+        "수요분할해상도별총량동일"
+      ],
+      "failure_classification": [
+        "지원하지않는hole/건물기하는 UNSUPPORTED_GEOMETRY; 단순polygon인척진행금지"
+      ],
+      "positive_next_action": "D01일일활동수요와M04개발에동일가중측도공급",
+      "resource_budget": "<=256delayatoms/조건부출입구; 분산/분위오차는별도측정",
+      "contracts": [
+        "C_ACCESS",
+        "C_MAP",
+        "C_EQUIVALENCE"
+      ],
+      "pr": {
+        "key": "V1-M03",
+        "title": "[V1 M03] 활동가중 블록·복수 출입구·주거용량의 현실적 연결",
+        "branch": "v1/m03",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "D01",
+      "title": "10만 주민의 집단별 하루 활동·수요 장부",
+      "depends_on": [
+        "M03",
+        "I01"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/demand.py",
+        "src/metroflow/v1/schedules.py",
+        "tests/v1/test_daily_demand.py"
+      ],
+      "inputs": [
+        "resident/job/service capacities",
+        "weekday/weekend schedules",
+        "car/bus/freight profiles와occupancy"
+      ],
+      "outputs": [
+        "24h TripSchedule: 출근·귀가·학교/서비스·배송",
+        "집단별거주/활동/이동 stock",
+        "외부·비자동차·미해상수요장부"
+      ],
+      "assumptions": [
+        "개별 시민 ID 대신 지속적인cohort activity-state를보존",
+        "취업자는일자리margin을초과하지않음",
+        "버스승객과차량,화물과차량단위별도"
+      ],
+      "invariants": [
+        "사람과차량단위혼합금지",
+        "AM/PM 및weekday/weekend 차이",
+        "귀가와activity중복예약방지",
+        "수요삭제/수용량임의확대금지"
+      ],
+      "observables": [
+        "persons by activity, vehicle departures, origin/destination totals",
+        "미배정·미출발·진행·완료"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_daily_demand.py",
+        "python -m metroflow.v1 demand-audit --population 100000 --day weekday"
+      ],
+      "acceptance": [
+        "100000resident ledger 유지,실제비영수요를24h 생성",
+        "불가능worker/job support거절",
+        "양쪽시간대 및주말 fixture 명시차이",
+        "정해진출발profile의적분정확"
+      ],
+      "failure_classification": [
+        "수요과부하는PHYSICAL_CONGESTION이지runtimefailure아님; 지원불가활동별도"
+      ],
+      "positive_next_action": "C01scheduler와B01차종운영에고정입력공급",
+      "resource_budget": "cohort/profile수에비례,차량/주민한명씩loop금지; 출발window<=15min기본해상도오차시험",
+      "contracts": [
+        "C_DEMAND",
+        "C_IDENTITY",
+        "C_OBSERVATION"
+      ],
+      "pr": {
+        "key": "V1-D01",
+        "title": "[V1 D01] 10만 주민의 집단별 하루 활동·수요 장부",
+        "branch": "v1/d01",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "T02",
+      "title": "연속속도 기초에서 유한응답 집계 closure 확정",
+      "depends_on": [
+        "I01"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/kinetics.py",
+        "src/metroflow/foundation_kinetics.py",
+        "src/metroflow/gap_transport.py",
+        "tests/v1/test_kinetic_closure.py"
+      ],
+      "inputs": [
+        "일곱관찰과기존유도",
+        "class별U,tau,a,b,vehicle length",
+        "lane-group density/mixture"
+      ],
+      "outputs": [
+        "하나의선택된V1 finite-response bulk speed law",
+        "동일법칙의distance increment와cost predictor",
+        "조건부정초와유효범위문서"
+      ],
+      "assumptions": [
+        "V1은lane-group별공통bulk speed와class-composition moment를사용하는명시적closure",
+        "실제개별속도가두값이라는가정은하지않음",
+        "공통speed의목표U=min class admissible speed; 가속목표는class latent p와response의가중합,실제가감속은가장보수적인class한계",
+        "mean spacing은(L_lane-sum n_c*ell_c)/N; gap hazard평균을균일간격으로닫는근사는독립gaporacle와대조"
+      ],
+      "invariants": [
+        "v>=0,finite acceleration,positiveclassmass",
+        "밀도제곱률을무조건firstprinciple로선언금지",
+        "routing과transport에동일velocity/시간정의사용",
+        "gaporacle의선두/뒤차marginal과길이일치필요조건"
+      ],
+      "observables": [
+        "mean speed, variance diagnostic, first passage",
+        "허용가속도와nominal 성장률"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_kinetic_closure.py",
+        "python -m metroflow.v1 physics-oracles --suite kinetic"
+      ],
+      "acceptance": [
+        "상수목표의정확characteristic과일치",
+        "latent-two-state와유한tau의mean/variance차이를재현",
+        "동종/혼합class 극한·급제동·비예견반례를통과",
+        "선택closure의유효범위를명시해미완성pairPDE를release앞의무한연구로만들지않음"
+      ],
+      "failure_classification": [
+        "닫힘실패는MODEL_ERROR; 같은노드에서조건/closure를수정하고학술완전성을빌미로scope무한증가금지"
+      ],
+      "positive_next_action": "T03/T04의공통운동장으로연결; 기존p-only를명시baseline으로만보존",
+      "resource_budget": "최대3차종부터; localoracle O(K)대표상태,도시per-car loop금지",
+      "contracts": [
+        "C_PHYSICS",
+        "C_EQUIVALENCE",
+        "C_FLOW"
+      ],
+      "pr": {
+        "key": "V1-T02",
+        "title": "[V1 T02] 연속속도 기초에서 유한응답 집계 closure 확정",
+        "branch": "v1/t02",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "T03",
+      "title": "차로군·합류·회전·신호와 구조물 장애 모델 통합",
+      "depends_on": [
+        "T02",
+        "M02"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/nodes.py",
+        "src/metroflow/v1/lanegroups.py",
+        "src/metroflow/packet_network.py",
+        "tests/v1/test_nodes.py"
+      ],
+      "inputs": [
+        "typeddirection/turngraph",
+        "class-awarestorage와공통velocity",
+        "signal/conflict/failure schedules"
+      ],
+      "outputs": [
+        "shared/independent lane-group compiler",
+        "보존적 receiving/sending와회전비율정책",
+        "bridge/ramp사고의일관적물리효과"
+      ],
+      "assumptions": [
+        "shared lane의FIFO와동시입장exchangeableclosure를구별",
+        "다차로가서로독립인지shared인지는mapcontract로선언",
+        "max-min정책은전역throughput최적화라고부르지않음"
+      ],
+      "invariants": [
+        "수요/공급/저장량공동예산",
+        "회전목적임의재분배없음",
+        "ID가priority를정하지않음",
+        "폐쇄중inflight질량보존"
+      ],
+      "observables": [
+        "movement flows, queues, spillback blocking",
+        "class별완료량·정지시간"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_nodes.py",
+        "python -m metroflow.v1 physics-oracles --suite junctions"
+      ],
+      "acceptance": [
+        "merge3:1,blockedshared,independentturn,redboundary,bridgepairedclosure통과",
+        "class 길이로storage를계산",
+        "fullFIFO아닌곳에서가짜전차로폐색금지"
+      ],
+      "failure_classification": [
+        "signalconflict는CONTRACT_ERROR; 저장량초과는IMPLEMENTATION_ERROR"
+      ],
+      "positive_next_action": "T04시간이관과R02실행경로에공급계약제공",
+      "resource_budget": "junction event/record cap을입력으로노출; cap중단은물리gridlock과구별",
+      "contracts": [
+        "C_FLOW",
+        "C_MAP",
+        "C_PHYSICS"
+      ],
+      "pr": {
+        "key": "V1-T03",
+        "title": "[V1 T03] 차로군·합류·회전·신호와 구조물 장애 모델 통합",
+        "branch": "v1/t03",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "T04",
+      "title": "시간구간 이관·기록압축·통행관측의 수치 일관성",
+      "depends_on": [
+        "T03",
+        "T01"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/transport.py",
+        "src/metroflow/packet_network.py",
+        "tests/v1/test_transfer_time.py"
+      ],
+      "inputs": [
+        "공통clock과nodeflux",
+        "tag/class/birthtime 관측요구",
+        "이벤트경계와error budgets"
+      ],
+      "outputs": [
+        "class/route/입장구간을보존하는선택된transportpolicy",
+        "split-error와memory budget",
+        "동일수송의ETA/완료관측"
+      ],
+      "assumptions": [
+        "실제다른입장시간의병합은approximation이며gauge아님",
+        "우선 piecewise-constant boundary flux의끝점/1차모멘트를보존; adaptive substep은필요event에만",
+        "다른법칙의class는같은part로병합하지않음"
+      ],
+      "invariants": [
+        "양성/질량/공급/veh·s",
+        "FIFO ondeclaredsharedgroups",
+        "E(t)관측과실제endpointpassage일치",
+        "source/transfer수치대기분리"
+      ],
+      "observables": [
+        "mean/p95지원범위",
+        "dtrefinement의완료curve와travelerror",
+        "peak packets/parts/RSS"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_transfer_time.py",
+        "python -m metroflow.v1 physics-oracles --suite timing"
+      ],
+      "acceptance": [
+        "현재two-link210m시간편향반례를고정하고정확또는선언오차내개선",
+        "route/sourcefragment 변경관측불변",
+        "reference dt/2대조에서underloaded mean오차<=max(1s,2%)",
+        "과부하에서는source/destination미완료비율과curve오차<=2%총수요"
+      ],
+      "failure_classification": [
+        "정확기준불일치는NUMERICAL_ERROR; 예산초과는BLOCKED_RESOURCE; tolerance늘려통과금지"
+      ],
+      "positive_next_action": "R01/R02비용관측과C01runtime에하나의transportengine제공",
+      "resource_budget": "현재2Mliveparts의V1상한을넘으면정확압축/지원범위거절. 질량삭제나OD축소금지",
+      "contracts": [
+        "C_FLOW",
+        "C_OBSERVATION",
+        "C_EQUIVALENCE",
+        "C_FAILURE"
+      ],
+      "pr": {
+        "key": "V1-T04",
+        "title": "[V1 T04] 시간구간 이관·기록압축·통행관측의 수치 일관성",
+        "branch": "v1/t04",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "R01",
+      "title": "인과적 정보 channel과 동일물리 비용 관측",
+      "depends_on": [
+        "T04",
+        "I01"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/information.py",
+        "src/metroflow/v1/observations.py",
+        "src/metroflow/active_suffix/causal.py",
+        "tests/v1/test_information.py"
+      ],
+      "inputs": [
+        "실현link/route통행시간",
+        "direct/V2V/server/역사prior channel",
+        "관측timestamp·range·latency"
+      ],
+      "outputs": [
+        "InformationState",
+        "origin/en-route decision별전달된CostObservation",
+        "정적baselinecost와지원범위"
+      ],
+      "assumptions": [
+        "direct센서는국소;서버는지리반경이무한일수있으나지연/커버리지가명시",
+        "예측과실제truth를구별",
+        "저장한history firstmoment만으로새정보상관을재구성하지않음"
+      ],
+      "invariants": [
+        "같은허용history면같은행동",
+        "사고refresh시계의정보누설없음",
+        "현재미완료관측을현재선택에사용금지"
+      ],
+      "observables": [
+        "정보age,coverage,conditional ETAerror",
+        "cost source·version·stamp"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_information.py"
+      ],
+      "acceptance": [
+        "pairedworld,범위밖사고,서버원격지연,directlocal대조통과",
+        "통행시간의중복신호/queue추가없음",
+        "belief가실제폐쇄/보존법칙을바꾸지않음"
+      ],
+      "failure_classification": [
+        "관측없음은DECLARED_PRIORfallback; 최신truth로몰래대체금지"
+      ],
+      "positive_next_action": "R02에합법경로비용과불확실성제공",
+      "resource_budget": "delay horizon만큼history; deterministic prune; 초과시명시budgetfailure",
+      "contracts": [
+        "C_INFORMATION",
+        "C_OBSERVATION",
+        "C_IDENTITY"
+      ],
+      "pr": {
+        "key": "V1-R01",
+        "title": "[V1 R01] 인과적 정보 channel과 동일물리 비용 관측",
+        "branch": "v1/r01",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "R02",
+      "title": "공유 경로·유한정보 재탐색·Braess 보존",
+      "depends_on": [
+        "R01",
+        "T03"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/routing.py",
+        "src/metroflow/active_suffix/routing.py",
+        "tests/v1/test_routing_commitment.py"
+      ],
+      "inputs": [
+        "legalincoming-linkgraph",
+        "CostObservation",
+        "목적/차종/선호class,기존committedroute"
+      ],
+      "outputs": [
+        "K<=3후보와path-size교정",
+        "원인/시간이명시된reroute",
+        "routegeometry와class별flowstate분리"
+      ],
+      "assumptions": [
+        "최소실제시간oracle가아니라조건부일반화비용",
+        "재탐색은결정경계에서만;이미점유한링크의순간변경없음",
+        "travelpreference/돈시간환산은명시parameter"
+      ],
+      "invariants": [
+        "합법성",
+        "경로cacheeviction이inflightmass를삭제하지않음",
+        "candidate ID순서의물리편향없음",
+        "새도로가항상이득이어야한다는조건없음"
+      ],
+      "observables": [
+        "cachehit/reroute/costregret",
+        "actualtriptime와predictedconditionaltime",
+        "nonanticipation"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_routing_commitment.py",
+        "python -m metroflow.v1 physics-oracles --suite routing"
+      ],
+      "acceptance": [
+        "정적Braess65→80 oracle 유지",
+        "같은입력의폐쇄·재개·우회·새간선 대조",
+        "timeout/budget시유효한기준경로또는외부대기,teleport없음"
+      ],
+      "failure_classification": [
+        "no legal path는PHYSICAL_UNREACHABLE; 계산한도와구별"
+      ],
+      "positive_next_action": "B01운영과C01runtime에연결",
+      "resource_budget": "destination/class/infoepoch별cache공유; fullODallpaths금지",
+      "contracts": [
+        "C_INFORMATION",
+        "C_FLOW",
+        "C_IDENTITY"
+      ],
+      "pr": {
+        "key": "V1-R02",
+        "title": "[V1 R02] 공유 경로·유한정보 재탐색·Braess 보존",
+        "branch": "v1/r02",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "B01",
+      "title": "버스·화물의 최소 운영과 승객/차량 분리",
+      "depends_on": [
+        "D01",
+        "T03",
+        "R02"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/services.py",
+        "tests/v1/test_bus_freight.py"
+      ],
+      "inputs": [
+        "fixedbusroute/timetable/stops",
+        "classcapacity/speed/length",
+        "freightwindows/allowedlinks",
+        "passengercohorts"
+      ],
+      "outputs": [
+        "집계busvehicle와승객대기/탑승/하차",
+        "freight차량/화물장부",
+        "car/bus/freight교통결합"
+      ],
+      "assumptions": [
+        "full public-transit assignment와환승최적화는v1밖",
+        "최소한정해진노선의capacity/dwell/차량스케줄은실행",
+        "마지막승객완료와버스차량완료는별도"
+      ],
+      "invariants": [
+        "persons/vehicles/cargo장부분리",
+        "정원초과승차금지",
+        "차종별금지회전/중량규칙"
+      ],
+      "observables": [
+        "승객대기·도착·승차율",
+        "버스delay/dwell",
+        "물류미완료"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_bus_freight.py"
+      ],
+      "acceptance": [
+        "2개고정bus노선/stop과freightdelivery fixture완료",
+        "bus수요늘릴때차량수증가아닌승객용량제약적용",
+        "도로질량/승객질량동시보존"
+      ],
+      "failure_classification": [
+        "지원불가환승계획은UNSUPPORTED_REQUEST; zero-time자동완료금지"
+      ],
+      "positive_next_action": "C02전체도시일일시나리오에포함",
+      "resource_budget": "집단/운행스케줄수에비례; 승객ID나차량위치전수추적없음",
+      "contracts": [
+        "C_DEMAND",
+        "C_FLOW",
+        "C_PHYSICS"
+      ],
+      "pr": {
+        "key": "V1-B01",
+        "title": "[V1 B01] 버스·화물의 최소 운영과 승객/차량 분리",
+        "branch": "v1/b01",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "C01",
+      "title": "단일 WorldState·다중 시간척도·저장/재개 실행기",
+      "depends_on": [
+        "I01",
+        "D01",
+        "T04",
+        "R02"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/runtime.py",
+        "src/metroflow/v1/checkpoint.py",
+        "src/metroflow/v1/__main__.py",
+        "tests/v1/test_runtime_resume.py"
+      ],
+      "inputs": [
+        "CitySnapshot,TripSchedule,TrafficState,InformationState",
+        "eventjournal",
+        "cacheversions"
+      ],
+      "outputs": [
+        "immutableWorldState",
+        "step/run CLI",
+        "실제state복원checkpoint와재실행결과"
+      ],
+      "assumptions": [
+        "fast:수송,medium:관측/경로,slow:입지",
+        "medium과slow는명시phase분리;slow는이전접근성snapshot만읽음",
+        "S2계약과버전이먼저"
+      ],
+      "invariants": [
+        "중단stepatomic",
+        "same-tickpositivefeedback없음",
+        "graph/statehot-swap금지",
+        "같은환경재생동일"
+      ],
+      "observables": [
+        "각phase실행시각",
+        "cachemiss/invalidation",
+        "checkpoint후재실행관측"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_runtime_resume.py",
+        "python -m metroflow.v1 run --scenario toy_day --resume-check"
+      ],
+      "acceptance": [
+        "hash기록뿐아니라상태/queue/event/info를복원해중단없는실행과일치",
+        "닫힌/점유link삭제요청은drain/transaction",
+        "core와진단render 분리"
+      ],
+      "failure_classification": [
+        "brokeninputID는CONTRACT_ERROR; host중단은RUNTIME_INTERRUPTION_RECOVERY"
+      ],
+      "positive_next_action": "M04지연피드백과C02하루통합시나리오로진행",
+      "resource_budget": "checkpoint최대간격simulation900s 및매불가역graph-edit전; outputstreaming",
+      "contracts": [
+        "C_RUNTIME",
+        "C_IDENTITY",
+        "C_FAILURE"
+      ],
+      "pr": {
+        "key": "V1-C01",
+        "title": "[V1 C01] 단일 WorldState·다중 시간척도·저장/재개 실행기",
+        "branch": "v1/c01",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "M04",
+      "title": "실현 접근성에서 느린 도시개발로의 지연 피드백",
+      "depends_on": [
+        "C01",
+        "M03"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/development.py",
+        "src/metroflow/v1/accessibility.py",
+        "tests/v1/test_lagged_growth.py"
+      ],
+      "inputs": [
+        "이전완료epoch CostObservation/accessibility",
+        "기존주민/수용량/예산",
+        "후보개발과도로개입"
+      ],
+      "outputs": [
+        "새landuseversion과다음epoch수요",
+        "증분점유·건설ledger",
+        "위치가바뀐경우의명시적cohort이동"
+      ],
+      "assumptions": [
+        "동일tick의혼잡이즉시주민을이동시키지않음",
+        "현재fixedjobattractor→다음느린고정inputpolicy로확장",
+        "실제부동산가격균형은범위밖"
+      ],
+      "invariants": [
+        "기존주민보존",
+        "계획예산/landmask/한계수용량",
+        "개발이전실제접근필요",
+        "비현실적매epoch전체재배치금지"
+      ],
+      "observables": [
+        "건설길이·점유·unserved",
+        "접근성lag와수요response"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_lagged_growth.py",
+        "python -m metroflow.v1 run --scenario lagged_growth_control"
+      ],
+      "acceptance": [
+        "same-tick반례거절",
+        "교량/우회변경후적어도다음slowepoch에서만입지반응",
+        "원래주민+증분+대기장부닫힘"
+      ],
+      "failure_classification": [
+        "capacityinfeasible는PENDING_DEVELOPMENT;인구삭제금지"
+      ],
+      "positive_next_action": "C02의다일관측중한slow-update대조추가",
+      "resource_budget": "slowepoch기본3600s,phase분리;인구별검색없음",
+      "contracts": [
+        "C_MAP",
+        "C_DEMAND",
+        "C_RUNTIME"
+      ],
+      "pr": {
+        "key": "V1-M04",
+        "title": "[V1 M04] 실현 접근성에서 느린 도시개발로의 지연 피드백",
+        "branch": "v1/m04",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "C02",
+      "title": "하루 도시 실행·시나리오·관측 패키지",
+      "depends_on": [
+        "C01",
+        "B01",
+        "M04",
+        "T01"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/scenarios.py",
+        "src/metroflow/v1/reporting.py",
+        "scenarios/v1/",
+        "tests/v1/test_day_scenarios.py"
+      ],
+      "inputs": [
+        "전체cohort demand/day",
+        "6종도시manifest",
+        "물리/정보/예산/개입"
+      ],
+      "outputs": [
+        "baseline·bridgeclosure·bypass·growthweekday/weekend 시나리오",
+        "JSON/CSV 관측·2D진단",
+        "완료/진행/대기/미출발 stage장부"
+      ],
+      "assumptions": [
+        "10만resident≠10만동시vehicle",
+        "24h실행성공≠모든과부하trip완료",
+        "실제citybuilderUI는후속범위"
+      ],
+      "invariants": [
+        "한명령으로map→demand→traffic→observations 실행",
+        "endpointtime이실제수송과동일",
+        "부분완료평균을전체평균으로표기금지"
+      ],
+      "observables": [
+        "throughput,networkdensity,meanduration with eligibility,p95 onlysupported",
+        "bus/freight/people ledgers",
+        "이벤트별변화·실행wall/RSS"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_day_scenarios.py",
+        "python -m metroflow.v1 run --scenario city10k_weekday --days 1"
+      ],
+      "acceptance": [
+        "10k full-day2개와1kanalytic통합 정상종료",
+        "baseline/개입의동일수요통제 및endogenousresponse분리",
+        "비영AM/PM흐름실제생성"
+      ],
+      "failure_classification": [
+        "unrunmetrics null; 미래추정runtime로완료판정금지"
+      ],
+      "positive_next_action": "P01실측프로파일과V01V02audit로진행",
+      "resource_budget": "간단한진단도표만,게임렌더러/interactive3D 제외",
+      "contracts": [
+        "C_OBSERVATION",
+        "C_RUNTIME",
+        "C_DEMAND"
+      ],
+      "pr": {
+        "key": "V1-C02",
+        "title": "[V1 C02] 하루 도시 실행·시나리오·관측 패키지",
+        "branch": "v1/c02",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "P01",
+      "title": "관측동등 경량화와 자원 상한 확립",
+      "depends_on": [
+        "C02"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "src/metroflow/v1/transport.py",
+        "src/metroflow/v1/routing.py",
+        "tools/profile_v1.py",
+        "tests/v1/test_exact_reductions.py"
+      ],
+      "inputs": [
+        "C02동일입력runtime profile",
+        "record/cost/kernel별관측",
+        "명시한관측동등관계"
+      ],
+      "outputs": [
+        "active-only/multiratecalendar·cache",
+        "동일law/suffix의정확집계",
+        "peakRSS와CPU회귀기록"
+      ],
+      "assumptions": [
+        "미래법칙/class/info가다르면병합금지",
+        "oldstate/knownserialorder삭제를gauge로부르지않음",
+        "GPU/JAX/Rust전환은이계획의경량화수단이아님"
+      ],
+      "invariants": [
+        "QF=FbarQ와관측대응이입증된축약만exact",
+        "근사는오차예산내명시",
+        "계산예산초과때마지막state보존"
+      ],
+      "observables": [
+        "wall,peakRSS,liveparts,route solves,cachehit",
+        "동일입력관측오차"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_exact_reductions.py",
+        "python tools/profile_v1.py --scenario city10k_weekday"
+      ],
+      "acceptance": [
+        "프로파일로식별한상위병목만수정",
+        "현재2veh에도290records가생기는arrivalfragment대조를예산/압축으로관리",
+        "성능향상을물리수요감소로만들지않음"
+      ],
+      "failure_classification": [
+        "time/memorybudget초과는BLOCKED_RESOURCE;성능수치는반복수/분산기록"
+      ],
+      "positive_next_action": "V03의실제100k성능계약시험",
+      "resource_budget": "V1목표24hsim<=7200swall,peakRSS<=8GiB;미달시같은노드에서수정하거나계획변경제안",
+      "contracts": [
+        "C_EQUIVALENCE",
+        "C_FAILURE",
+        "C_OBSERVATION"
+      ],
+      "pr": {
+        "key": "V1-P01",
+        "title": "[V1 P01] 관측동등 경량화와 자원 상한 확립",
+        "branch": "v1/p01",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "V01",
+      "title": "통합 물리·관측·대칭 적대 검증",
+      "depends_on": [
+        "C02"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "tests/v1/test_acceptance_physics.py",
+        "tools/audit_v1_physics.py"
+      ],
+      "inputs": [
+        "단일canonicalengine",
+        "분석해/국소continuousreference",
+        "고정입력대조"
+      ],
+      "outputs": [
+        "검증matrix와원시반례",
+        "실제physicsclaim범위",
+        "release용오류목록"
+      ],
+      "assumptions": [
+        "안전성/안정성/보존/비예견성/현실성은서로다름",
+        "비교모델성능경쟁보다자체해석적/구조적대조우선"
+      ],
+      "invariants": [
+        "출생/유출moments",
+        "법칙같은fragment/ID/order변환",
+        "physicalpriority변경은관측변경",
+        "Braess가능성보존"
+      ],
+      "observables": [
+        "freeflow/collision-reference/merge/turn/signal/closure/costerror",
+        "growthrate와불안정모드"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_acceptance_physics.py",
+        "python tools/audit_v1_physics.py"
+      ],
+      "acceptance": [
+        "P0/P1 미해결0",
+        "수치tolerance는사전정의식사용",
+        "모든7관찰에구현/근사/미지원표존재",
+        "좁은pass를fullFIFO/shock/실측증명으로확대금지"
+      ],
+      "failure_classification": [
+        "물리오류MODEL_ERROR,수치오류NUMERICAL_ERROR,권한/환경실패분리"
+      ],
+      "positive_next_action": "V03releasecase에검증된설정만허용",
+      "resource_budget": "주검증1회+실제위험에대한freshreview1회;중첩review루프없음",
+      "contracts": [
+        "C_PHYSICS",
+        "C_EQUIVALENCE",
+        "C_OBSERVATION"
+      ],
+      "pr": {
+        "key": "V1-V01",
+        "title": "[V1 V01] 통합 물리·관측·대칭 적대 검증",
+        "branch": "v1/v01",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "V02",
+      "title": "도시형태·지형·접근의 적대적 시각 검수",
+      "depends_on": [
+        "M02",
+        "M03",
+        "M04",
+        "C01"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "tools/audit_v1_maps.py",
+        "tests/v1/test_map_release_matrix.py",
+        "artifacts/v1/map_audit/"
+      ],
+      "inputs": [
+        "6유형×3seed의동결mapJSON",
+        "접근/점유/변경이력",
+        "수치지표와시각자료"
+      ],
+      "outputs": [
+        "최대3회수정회차별실제그림/반례",
+        "대형도시의geometry·접근·layer 검수"
+      ],
+      "assumptions": [
+        "좋은그림을위해seed교체금지",
+        "orientation entropy한수치로realism판정금지",
+        "synthetic도시를실제역사복원이라고부르지않음"
+      ],
+      "invariants": [
+        "diagram은실행JSON을렌더링",
+        "불법동층교차/마스크위반0",
+        "미서비스/고립인구삭제금지"
+      ],
+      "observables": [
+        "블록크기/형상/차수/우회율/교량연결성/portalcoverage",
+        "residentaccess CDF와budget"
+      ],
+      "tests": [
+        "python -m pytest -q tests/v1/test_map_release_matrix.py",
+        "python tools/audit_v1_maps.py --frozen-seeds 7,17,41"
+      ],
+      "acceptance": [
+        "대표6case전체보기+혼합지형20case수치대조",
+        "각수정시actualdefect재현;전체회차<=3",
+        "geometryflag와그림충돌없음"
+      ],
+      "failure_classification": [
+        "geometrybug수정과도시형성이론미완성을별도분류"
+      ],
+      "positive_next_action": "V03에서samecity traffic성능으로연결",
+      "resource_budget": "고해상도3D없음;PNG/SVG2D진단으로종료",
+      "contracts": [
+        "C_MAP",
+        "C_OBSERVATION"
+      ],
+      "pr": {
+        "key": "V1-V02",
+        "title": "[V1 V02] 도시형태·지형·접근의 적대적 시각 검수",
+        "branch": "v1/v02",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "V03",
+      "title": "로컬 10만 주민·24시간 실제 실행과 수치 수용시험",
+      "depends_on": [
+        "P01",
+        "V01",
+        "V02"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "tools/run_v1_acceptance.py",
+        "scenarios/v1/release_matrix.json",
+        "artifacts/v1/local_acceptance/"
+      ],
+      "inputs": [
+        "동결releasecandidate SHA",
+        "실제CPU/RAM/OS/Python측정",
+        "세city/day/seed입력과예산"
+      ],
+      "outputs": [
+        "세24h정상종료영수증",
+        "resource/error/ledger/replay대조",
+        "부족한경우releaseblocked판정"
+      ],
+      "assumptions": [
+        "reference target=사용자제공Ryzen9 5900X/64GB;실행시재확인",
+        "single-processCPUscientificcore,계측threadcount고정",
+        "이단계는로컬실행이필수이며sandbox외삽금지"
+      ],
+      "invariants": [
+        "100000residentstock;수요profile/차종/목적지보존",
+        "하루말완료+진행+대기+미출발총계",
+        "중단재개와연속실행동등"
+      ],
+      "observables": [
+        "24hwall<=7200s,peakRSS<=8GiB",
+        "tick p50/p95,p99 route latency,peakrecords",
+        "short matched refined_dt observables"
+      ],
+      "tests": [
+        "python tools/run_v1_acceptance.py --matrix scenarios/v1/release_matrix.json --repeat 3"
+      ],
+      "acceptance": [
+        "riverweekdayseed17,coastalweekendseed41,valleyweekdayseed7 각24h",
+        "세case각3회runtime/RSS계측,physics는deterministicreplay",
+        "동일입력해상도단기대조와24h장부통과",
+        "hardlimits미달시V1완성선언금지"
+      ],
+      "failure_classification": [
+        "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
+      ],
+      "positive_next_action": "RLS01릴리스패키지/최종main PR",
+      "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
+      "contracts": [
+        "C_RUNTIME",
+        "C_FAILURE",
+        "C_OBSERVATION"
+      ],
+      "pr": {
+        "key": "V1-V03",
+        "title": "[V1 V03] 로컬 10만 주민·24시간 실제 실행과 수치 수용시험",
+        "branch": "v1/v03",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    },
+    {
+      "id": "RLS01",
+      "title": "1차 완성 릴리스·설치·재현·문서 정리",
+      "depends_on": [
+        "V03",
+        "I01"
+      ],
+      "status": "PLANNED",
+      "files": [
+        "README.md",
+        "docs/v1/USER_GUIDE_KO.md",
+        "pyproject.toml",
+        "CHANGELOG.md",
+        "scenarios/v1/"
+      ],
+      "inputs": [
+        "모든필수노드의MERGED/ACCEPTED evidence",
+        "localrelease영수증",
+        "freshinstall 환경"
+      ],
+      "outputs": [
+        "v1.0.0 연구시뮬레이터tag",
+        "one-command설치/실행/저장/재개/비교",
+        "legacyreference목록과최종main PR"
+      ],
+      "assumptions": [
+        "그래픽게임이아닌headless연구시뮬레이터",
+        "실측보정/게임우월성은릴리스주장이아님",
+        "현재main과legacy경로는migration문서없이삭제하지않음"
+      ],
+      "invariants": [
+        "artifact에서재실행가능",
+        "본계획밖기능자동추가없음",
+        "최종사용자승인없이mainmerge/tag생성하지않음"
+      ],
+      "observables": [
+        "freshinstall smoke",
+        "모든releasegates 결과",
+        "알려진제약/재현명령"
+      ],
+      "tests": [
+        "python tools/v1_plan.py validate --release (수용상태 및 release 영수증 기록 후 실행)",
+        "python -m metroflow.v1 run --scenario city100k_weekday --days 1 --out run"
+      ],
+      "acceptance": [
+        "21개필수노드충족,releasegate전부증거존재",
+        "문서대로새환경실행·checkpointresume가능",
+        "사용자가최종merge/release명시승인",
+        "release_evidence에 각 G-* 영수증의 로컬 경로와 SHA256을 기록한다. 기계 검증은 파일 바인딩만 확인하며 과학적 검토는 해당 책임 노드에서 수행한다."
+      ],
+      "failure_classification": [
+        "증거없는gate는BLOCKED;전체test숫자만으로완료대체금지"
+      ],
+      "positive_next_action": "V1범위종료. 추가학술/그래픽/실측보정은새승인계획으로만",
+      "resource_budget": "새개발node자동개시금지",
+      "contracts": [
+        "C_RUNTIME",
+        "C_IDENTITY",
+        "C_FAILURE"
+      ],
+      "pr": {
+        "key": "V1-RLS01",
+        "title": "[V1 RLS01] 1차 완성 릴리스·설치·재현·문서 정리",
+        "branch": "v1/rls01",
+        "base": "research/v1-integration-20261025",
+        "opened_number": null
+      }
+    }
+  ],
+  "release_evidence": {},
+  "node_defaults": {
+    "evidence_required": [
+      "exact source commit/tree 또는 실행소스 manifest",
+      "명령·exit code·원시결과",
+      "입력 identity와 실행환경",
+      "인과/보존/표현 대조",
+      "미검증 범위"
+    ],
+    "rollback": "이 노드의 adapter/feature를 비활성화하고 직전 MERGED 버전으로 복귀한다. 이전 물리 상태를 다른 법칙에 hot-swap하지 않는다.",
+    "pr_review": [
+      "변경한 공개 계약과 단위",
+      "대칭/표현중복/보존/관측 구분",
+      "실패 반례와 회귀 evidence",
+      "같은 입력의 baseline 또는 명시적 물리 차이",
+      "rollback과 checkpoint",
+      "계획 상태 및 완료조건 갱신"
+    ],
+    "pr_merge_policy": "필수 선행 PR의 수용·통합 후 시작한다. STOPPED 선행은 계획에서 승인된 대체 경로가 없는 한 blocker다. P00/M01/T01/I01은 같은 bootstrap PR에서 수용한다."
+  }
+}

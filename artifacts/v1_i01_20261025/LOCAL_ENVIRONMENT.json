@@ -1,0 +1,29 @@
+{
+  "environments": [
+    {
+      "python": "3.12.14",
+      "packages": {
+        "metroflow": "0.0.2",
+        "numpy": "2.5.4",
+        "pytest": "9.1.1",
+        "ruff": "0.16.2"
+      }
+    },
+    {
+      "python": "3.13.16",
+      "packages": {
+        "metroflow": "0.0.2",
+        "numpy": "2.5.4",
+        "pytest": "9.1.1",
+        "ruff": "0.16.2"
+      }
+    }
+  ],
+  "runtime_source_commit": "b7ff813504b4a4e1beb97cb51f7d43ce33deb338",
+  "full_shards": "Python 3.12; checkout validation during integration; source-bound GitHub CI is authoritative",
+  "v1_profile": "45 passed independently on Python 3.13, including regenerated city replay",
+  "wheel_sha256": "c9024622bd7e15336349f9fedacba2e2ea56613f6f343c078b73d126ad68534f",
+  "wheel_installed_outside_checkout_both_versions": true,
+  "wheel_stdlib_only_import_both_versions": true,
+  "exploratory_shared_runtime": "checkout not installed; child Python import failure reproduced; interrupted exploratory suite is not acceptance evidence"
+}

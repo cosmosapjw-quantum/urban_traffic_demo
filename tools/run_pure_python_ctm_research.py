@@ -14,8 +14,8 @@ from typing import Mapping, Sequence
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from metroflow.pure_traffic.ctm import NetworkSpec, SimulationResult, SimulationSnapshot, simulate
-from metroflow.pure_traffic.scenarios import (
+from metroflow.pure_traffic.ctm import NetworkSpec, SimulationResult, SimulationSnapshot, simulate  # noqa: E402 - standalone script bootstraps src above
+from metroflow.pure_traffic.scenarios import (  # noqa: E402 - standalone script bootstraps src above
     CTMScenario,
     build_diamond_bottleneck_scenario,
     build_priority_diverge_scenario,
@@ -101,8 +101,7 @@ def _summary() -> tuple[dict[str, object], dict[str, tuple[CTMScenario, Simulati
         "schema_version": "pure_python_ctm_research_v1",
         "base_commit": "01c80b432344f94209daaa198bb1eb007839fc7f",
         "model": (
-            "multi_commodity_integer_cell_transmission_with_"
-            "holding_free_max_throughput_node_solver"
+            "multi_commodity_integer_cell_transmission_with_holding_free_max_throughput_node_solver"
         ),
         "rounds": {
             "round0_strict_fifo": {
@@ -158,8 +157,7 @@ def _summary() -> tuple[dict[str, object], dict[str, tuple[CTMScenario, Simulati
             },
             "max_occupancy": {
                 link.link_id: max(
-                    snapshot.link_occupancy_ratio[link.link_id]
-                    for snapshot in final_r.snapshots
+                    snapshot.link_occupancy_ratio[link.link_id] for snapshot in final_r.snapshots
                 )
                 for link in final_s.network.links
             },
@@ -398,10 +396,18 @@ def _line_chart(
         left = chart_x + chart_w * max(start - 1, 0) / max(max_len - 1, 1)
         right = chart_x + chart_w * min(end - 1, max_len - 1) / max(max_len - 1, 1)
         parts.append(
-            f'<rect x="{left:.1f}" y="{chart_y:.1f}" width="{max(0.0, right-left):.1f}" '
+            f'<rect x="{left:.1f}" y="{chart_y:.1f}" width="{max(0.0, right - left):.1f}" '
             f'height="{chart_h:.1f}" fill="{colour}" fill-opacity="0.16"/>'
         )
-        _text(parts, 0.5 * (left + right), chart_y + 15, label, size=10, anchor="middle", fill="#7a3b31")
+        _text(
+            parts,
+            0.5 * (left + right),
+            chart_y + 15,
+            label,
+            size=10,
+            anchor="middle",
+            fill="#7a3b31",
+        )
     for fraction in (0.0, 0.25, 0.5, 0.75, 1.0):
         yy = chart_y + chart_h * (1.0 - fraction)
         parts.append(
@@ -424,8 +430,24 @@ def _line_chart(
             f'<line x1="{xx:.1f}" y1="{chart_y + chart_h:.1f}" x2="{xx:.1f}" '
             f'y2="{chart_y + chart_h + 5:.1f}" stroke="#62717a" stroke-width="1"/>'
         )
-        _text(parts, xx, chart_y + chart_h + 20, str(tick_value), size=10, anchor="middle", fill="#65727a")
-    _text(parts, chart_x + chart_w / 2, chart_y + chart_h + 37, "simulation tick", size=11, anchor="middle", fill="#65727a")
+        _text(
+            parts,
+            xx,
+            chart_y + chart_h + 20,
+            str(tick_value),
+            size=10,
+            anchor="middle",
+            fill="#65727a",
+        )
+    _text(
+        parts,
+        chart_x + chart_w / 2,
+        chart_y + chart_h + 37,
+        "simulation tick",
+        size=11,
+        anchor="middle",
+        fill="#65727a",
+    )
     for name, values, colour in series:
         if not values:
             continue
@@ -448,7 +470,11 @@ def _line_chart(
         _text(parts, legend_x + 31, ly + 4, name, size=11)
 
 
-def _write_audit_svg(path: Path, payload: Mapping[str, object], runs: Mapping[str, tuple[CTMScenario, SimulationResult]]) -> None:
+def _write_audit_svg(
+    path: Path,
+    payload: Mapping[str, object],
+    runs: Mapping[str, tuple[CTMScenario, SimulationResult]],
+) -> None:
     width, height = 1600, 1120
     parts = [
         '<?xml version="1.0" encoding="UTF-8"?>',
@@ -535,15 +561,31 @@ def _write_audit_svg(path: Path, payload: Mapping[str, object], runs: Mapping[st
             (
                 "fixed priority",
                 (
-                    ("major", float(diverge_noage.cumulative_movement_flow[("approach", "major")]), "#345b8c"),
-                    ("minor", float(diverge_noage.cumulative_movement_flow[("approach", "minor")]), "#d06b42"),
+                    (
+                        "major",
+                        float(diverge_noage.cumulative_movement_flow[("approach", "major")]),
+                        "#345b8c",
+                    ),
+                    (
+                        "minor",
+                        float(diverge_noage.cumulative_movement_flow[("approach", "minor")]),
+                        "#d06b42",
+                    ),
                 ),
             ),
             (
                 "age priority",
                 (
-                    ("major", float(diverge_age.cumulative_movement_flow[("approach", "major")]), "#345b8c"),
-                    ("minor", float(diverge_age.cumulative_movement_flow[("approach", "minor")]), "#d06b42"),
+                    (
+                        "major",
+                        float(diverge_age.cumulative_movement_flow[("approach", "major")]),
+                        "#345b8c",
+                    ),
+                    (
+                        "minor",
+                        float(diverge_age.cumulative_movement_flow[("approach", "minor")]),
+                        "#d06b42",
+                    ),
                 ),
             ),
         ),
@@ -608,9 +650,7 @@ def _write_evolution_svg(path: Path, scenario: CTMScenario, result: SimulationRe
             network=scenario.network,
             snapshot=snapshot,
             title=f"tick {tick}",
-            subtitle=(
-                f"active {snapshot.active_count} · completed {snapshot.completed_count}"
-            ),
+            subtitle=(f"active {snapshot.active_count} · completed {snapshot.completed_count}"),
             incident_links=incident,
         )
     parts.append("</svg>")
