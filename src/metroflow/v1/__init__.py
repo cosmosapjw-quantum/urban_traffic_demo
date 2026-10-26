@@ -52,6 +52,11 @@ from .nodes import allocate_node, validate_signal_conflicts
 from .transport import BoundaryFlux, TransportState, TransportModel
 
 
+from .observations import CostKey, CostObservation, completed_route_observations, conditional_eta_error
+from .information import (
+    PriorCost, Channel, Report, InformationState, DeliveredCost, DecisionObservation, InformationModel,
+)
+
 __all__ = [
     "AccessLaw",
     "DelayAtom",
@@ -123,3 +128,11 @@ __all__ += [
 ]
 
 __all__ += ["BoundaryFlux", "TransportState", "TransportModel"]
+
+
+
+__all__ += [
+    'CostKey', 'CostObservation', 'completed_route_observations', 'conditional_eta_error',
+    'PriorCost', 'Channel', 'Report', 'InformationState', 'DeliveredCost',
+    'DecisionObservation', 'InformationModel',
+]

@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "server_before_delivery_s": 21,
+  "server_at_delivery_s": 90,
+  "delivered_at_s": 22.0,
+  "observed_completed_mean_s": 21.204999999999934,
+  "physical_mean_s": 21.20499999999993,
+  "cost_extra_queue_or_signal_s": 3.552713678800501e-15
+}

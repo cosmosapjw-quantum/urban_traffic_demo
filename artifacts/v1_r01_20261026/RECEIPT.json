@@ -1,0 +1,64 @@
+{
+  "status": "R01_VERIFIED_SCOPED_FINAL_REVIEW_DEFERRED",
+  "parent": {
+    "node": "T04",
+    "pr": 31,
+    "head_sha": "bf0e55933d4d10ae95c7d69916edda93a627b95a",
+    "merged": false
+  },
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/v1/test_information.py tests/v1/test_transfer_time.py tests/test_v1_plan.py tests/v1/test_repository_entrypoints.py",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "result": "48 passed",
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "command": "python -m pytest -q tests/v1/test_information.py tests/v1/test_transfer_time.py tests/test_v1_plan.py tests/v1/test_repository_entrypoints.py",
+      "python": "3.13.16",
+      "exit_code": 0,
+      "result": "48 passed",
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "ruff check changed source/tests/probe",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    },
+    {
+      "command": "python artifacts/v1_r01_20261026/causal_probe.py",
+      "exit_code": 0,
+      "raw": "CAUSAL_PROBE.json"
+    },
+    {
+      "command": "uv build --wheel; no-deps reinstall; outside-checkout installed probe",
+      "exit_code": 0,
+      "raw": "INSTALLED_PROBE.json"
+    }
+  ],
+  "focused_tests": 17,
+  "acceptance": {
+    "nonanticipation": "paired remote incident costs give identical decision observation outside direct range; no truth-driven refresh hook",
+    "channels": "direct local, V2V predecessor, remote server arrives at stamp10+latency2+distance1000/speed100=22; history explicit coverage/order",
+    "same_physics": "completed T04 route mean 21.205s; no added signal or queue; partial outlet observations excluded; physical state unchanged",
+    "history": "finite max_age deterministic pruning; budget preserves checkpoint, no averaging; pickle and split advance match",
+    "observables": "source/version/stamp/age/delivery/coverage plus matched sample conditional ETA error",
+    "errors": "future/unfinished reports, conflicting same timestamp, different class/coverage/estimand/population rejected"
+  },
+  "limitations": [
+    "automatic adapter exposes route completion samples only; no inferred link entry moments",
+    "no routing policy yet; R02 next",
+    "no V2V per-vehicle relay simulation or cross-population correlation reconstruction",
+    "no whole-population ETA from partial completion, p95, full city/full-day performance claim"
+  ],
+  "corrections": [
+    "facade imports moved before __all__ for E402",
+    "probe equality uses 1e-12 relative floating tolerance; raw difference 3.55e-15s"
+  ],
+  "behavior_red": "New feature checked through public behavior; no pre-implementation behavioral RED recorded. Import absence is not labelled behavioral RED.",
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER",
+  "main_modified": false
+}

@@ -1,0 +1,513 @@
+Building wheel...
+running egg_info
+writing src/metroflow.egg-info/PKG-INFO
+writing dependency_links to src/metroflow.egg-info/dependency_links.txt
+writing entry points to src/metroflow.egg-info/entry_points.txt
+writing requirements to src/metroflow.egg-info/requires.txt
+writing top-level names to src/metroflow.egg-info/top_level.txt
+reading manifest file 'src/metroflow.egg-info/SOURCES.txt'
+writing manifest file 'src/metroflow.egg-info/SOURCES.txt'
+running bdist_wheel
+running build
+running build_py
+copying src/metroflow/v1/__init__.py -> build/lib/metroflow/v1
+running egg_info
+writing src/metroflow.egg-info/PKG-INFO
+writing dependency_links to src/metroflow.egg-info/dependency_links.txt
+writing entry points to src/metroflow.egg-info/entry_points.txt
+writing requirements to src/metroflow.egg-info/requires.txt
+writing top-level names to src/metroflow.egg-info/top_level.txt
+reading manifest file 'src/metroflow.egg-info/SOURCES.txt'
+writing manifest file 'src/metroflow.egg-info/SOURCES.txt'
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+creating build/bdist.linux-x86_64/wheel/metroflow
+copying build/lib/metroflow/packet_network.py -> build/bdist.linux-x86_64/wheel/./metroflow
+creating build/bdist.linux-x86_64/wheel/metroflow/landuse
+copying build/lib/metroflow/landuse/evolution.py -> build/bdist.linux-x86_64/wheel/./metroflow/landuse
+copying build/lib/metroflow/landuse/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/landuse
+copying build/lib/metroflow/restored_traffic.py -> build/bdist.linux-x86_64/wheel/./metroflow
+creating build/bdist.linux-x86_64/wheel/metroflow/traffic
+copying build/lib/metroflow/traffic/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/traffic
+copying build/lib/metroflow/traffic/incidents.py -> build/bdist.linux-x86_64/wheel/./metroflow/traffic
+copying build/lib/metroflow/traffic/routing.py -> build/bdist.linux-x86_64/wheel/./metroflow/traffic
+copying build/lib/metroflow/traffic/meso.py -> build/bdist.linux-x86_64/wheel/./metroflow/traffic
+copying build/lib/metroflow/traffic/spatial_queue.py -> build/bdist.linux-x86_64/wheel/./metroflow/traffic
+copying build/lib/metroflow/audit_observables.py -> build/bdist.linux-x86_64/wheel/./metroflow
+copying build/lib/metroflow/demo.py -> build/bdist.linux-x86_64/wheel/./metroflow
+creating build/bdist.linux-x86_64/wheel/metroflow/map
+copying build/lib/metroflow/map/road_geometry.py -> build/bdist.linux-x86_64/wheel/./metroflow/map
+copying build/lib/metroflow/map/node_compiler.py -> build/bdist.linux-x86_64/wheel/./metroflow/map
+copying build/lib/metroflow/map/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/map
+copying build/lib/metroflow/map/osm_import.py -> build/bdist.linux-x86_64/wheel/./metroflow/map
+copying build/lib/metroflow/map/section_compiler.py -> build/bdist.linux-x86_64/wheel/./metroflow/map
+copying build/lib/metroflow/map/generator.py -> build/bdist.linux-x86_64/wheel/./metroflow/map
+copying build/lib/metroflow/map/lane_grammar.py -> build/bdist.linux-x86_64/wheel/./metroflow/map
+creating build/bdist.linux-x86_64/wheel/metroflow/flow
+copying build/lib/metroflow/flow/engine.py -> build/bdist.linux-x86_64/wheel/./metroflow/flow
+copying build/lib/metroflow/flow/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/flow
+copying build/lib/metroflow/flow/state.py -> build/bdist.linux-x86_64/wheel/./metroflow/flow
+copying build/lib/metroflow/flow/events.py -> build/bdist.linux-x86_64/wheel/./metroflow/flow
+copying build/lib/metroflow/flow/event_effects.py -> build/bdist.linux-x86_64/wheel/./metroflow/flow
+creating build/bdist.linux-x86_64/wheel/metroflow/routing
+copying build/lib/metroflow/routing/reroute_policy.py -> build/bdist.linux-x86_64/wheel/./metroflow/routing
+copying build/lib/metroflow/routing/candidates.py -> build/bdist.linux-x86_64/wheel/./metroflow/routing
+copying build/lib/metroflow/routing/dynamic_potential.py -> build/bdist.linux-x86_64/wheel/./metroflow/routing
+copying build/lib/metroflow/routing/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/routing
+copying build/lib/metroflow/routing/behavior_profiles.py -> build/bdist.linux-x86_64/wheel/./metroflow/routing
+copying build/lib/metroflow/routing/policy_mixer.py -> build/bdist.linux-x86_64/wheel/./metroflow/routing
+copying build/lib/metroflow/frontage_growth.py -> build/bdist.linux-x86_64/wheel/./metroflow
+copying build/lib/metroflow/ordered_lane.py -> build/bdist.linux-x86_64/wheel/./metroflow
+creating build/bdist.linux-x86_64/wheel/metroflow/viz
+copying build/lib/metroflow/viz/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/viz
+copying build/lib/metroflow/viz/model.py -> build/bdist.linux-x86_64/wheel/./metroflow/viz
+copying build/lib/metroflow/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow
+copying build/lib/metroflow/restored_zoning.py -> build/bdist.linux-x86_64/wheel/./metroflow
+copying build/lib/metroflow/stopping_envelope.py -> build/bdist.linux-x86_64/wheel/./metroflow
+copying build/lib/metroflow/periodic_gap.py -> build/bdist.linux-x86_64/wheel/./metroflow
+copying build/lib/metroflow/foundation_kinetics.py -> build/bdist.linux-x86_64/wheel/./metroflow
+copying build/lib/metroflow/restored_city.py -> build/bdist.linux-x86_64/wheel/./metroflow
+creating build/bdist.linux-x86_64/wheel/metroflow/policy
+copying build/lib/metroflow/policy/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/policy
+copying build/lib/metroflow/policy/ema.py -> build/bdist.linux-x86_64/wheel/./metroflow/policy
+copying build/lib/metroflow/policy/bandit.py -> build/bdist.linux-x86_64/wheel/./metroflow/policy
+copying build/lib/metroflow/policy/archetypes.py -> build/bdist.linux-x86_64/wheel/./metroflow/policy
+creating build/bdist.linux-x86_64/wheel/metroflow/sim
+copying build/lib/metroflow/sim/orchestrator.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/invariants.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/scheduler.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/run_summary.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/runtime_diagnostics.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/step.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/scenario_presets.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/control.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/routing_runtime.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/state.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/rng.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/init.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/config.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/active_agents.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+copying build/lib/metroflow/sim/replay.py -> build/bdist.linux-x86_64/wheel/./metroflow/sim
+creating build/bdist.linux-x86_64/wheel/metroflow/ui
+copying build/lib/metroflow/ui/stream_server.py -> build/bdist.linux-x86_64/wheel/./metroflow/ui
+copying build/lib/metroflow/ui/packets.py -> build/bdist.linux-x86_64/wheel/./metroflow/ui
+copying build/lib/metroflow/ui/static_map.py -> build/bdist.linux-x86_64/wheel/./metroflow/ui
+copying build/lib/metroflow/ui/morphology_atlas.py -> build/bdist.linux-x86_64/wheel/./metroflow/ui
+copying build/lib/metroflow/ui/snapshots.py -> build/bdist.linux-x86_64/wheel/./metroflow/ui
+copying build/lib/metroflow/ui/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/ui
+copying build/lib/metroflow/ui/scenario_controls.py -> build/bdist.linux-x86_64/wheel/./metroflow/ui
+copying build/lib/metroflow/ui/morphology_landuse_audit.py -> build/bdist.linux-x86_64/wheel/./metroflow/ui
+copying build/lib/metroflow/ui/control_adapter.py -> build/bdist.linux-x86_64/wheel/./metroflow/ui
+copying build/lib/metroflow/ui/stream_buffer.py -> build/bdist.linux-x86_64/wheel/./metroflow/ui
+copying build/lib/metroflow/ui/morphology_quality_report.py -> build/bdist.linux-x86_64/wheel/./metroflow/ui
+creating build/bdist.linux-x86_64/wheel/metroflow/environment
+copying build/lib/metroflow/environment/terrain.py -> build/bdist.linux-x86_64/wheel/./metroflow/environment
+copying build/lib/metroflow/environment/coupling.py -> build/bdist.linux-x86_64/wheel/./metroflow/environment
+copying build/lib/metroflow/environment/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/environment
+copying build/lib/metroflow/environment/landuse.py -> build/bdist.linux-x86_64/wheel/./metroflow/environment
+copying build/lib/metroflow/environment/demand.py -> build/bdist.linux-x86_64/wheel/./metroflow/environment
+creating build/bdist.linux-x86_64/wheel/metroflow/pure_traffic
+copying build/lib/metroflow/pure_traffic/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/pure_traffic
+copying build/lib/metroflow/pure_traffic/fluid_reference.py -> build/bdist.linux-x86_64/wheel/./metroflow/pure_traffic
+copying build/lib/metroflow/pure_traffic/ctm.py -> build/bdist.linux-x86_64/wheel/./metroflow/pure_traffic
+copying build/lib/metroflow/pure_traffic/scenarios.py -> build/bdist.linux-x86_64/wheel/./metroflow/pure_traffic
+copying build/lib/metroflow/restored_geometry.py -> build/bdist.linux-x86_64/wheel/./metroflow
+creating build/bdist.linux-x86_64/wheel/metroflow/terrain_city
+copying build/lib/metroflow/terrain_city/audit.py -> build/bdist.linux-x86_64/wheel/./metroflow/terrain_city
+copying build/lib/metroflow/terrain_city/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/terrain_city
+copying build/lib/metroflow/terrain_city/landscape.py -> build/bdist.linux-x86_64/wheel/./metroflow/terrain_city
+copying build/lib/metroflow/terrain_city/block_trips.py -> build/bdist.linux-x86_64/wheel/./metroflow/terrain_city
+copying build/lib/metroflow/terrain_city/block_access.py -> build/bdist.linux-x86_64/wheel/./metroflow/terrain_city
+copying build/lib/metroflow/terrain_city/area_access.py -> build/bdist.linux-x86_64/wheel/./metroflow/terrain_city
+copying build/lib/metroflow/terrain_city/network.py -> build/bdist.linux-x86_64/wheel/./metroflow/terrain_city
+copying build/lib/metroflow/gap_transport.py -> build/bdist.linux-x86_64/wheel/./metroflow
+creating build/bdist.linux-x86_64/wheel/metroflow/active_suffix
+copying build/lib/metroflow/active_suffix/engine.py -> build/bdist.linux-x86_64/wheel/./metroflow/active_suffix
+copying build/lib/metroflow/active_suffix/interval.py -> build/bdist.linux-x86_64/wheel/./metroflow/active_suffix
+copying build/lib/metroflow/active_suffix/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/active_suffix
+copying build/lib/metroflow/active_suffix/adapter.py -> build/bdist.linux-x86_64/wheel/./metroflow/active_suffix
+copying build/lib/metroflow/active_suffix/common.py -> build/bdist.linux-x86_64/wheel/./metroflow/active_suffix
+copying build/lib/metroflow/active_suffix/kinetic.py -> build/bdist.linux-x86_64/wheel/./metroflow/active_suffix
+copying build/lib/metroflow/active_suffix/packed.py -> build/bdist.linux-x86_64/wheel/./metroflow/active_suffix
+copying build/lib/metroflow/active_suffix/routing.py -> build/bdist.linux-x86_64/wheel/./metroflow/active_suffix
+copying build/lib/metroflow/active_suffix/node.py -> build/bdist.linux-x86_64/wheel/./metroflow/active_suffix
+copying build/lib/metroflow/active_suffix/causal.py -> build/bdist.linux-x86_64/wheel/./metroflow/active_suffix
+copying build/lib/metroflow/active_meso.py -> build/bdist.linux-x86_64/wheel/./metroflow
+copying build/lib/metroflow/ordered_network.py -> build/bdist.linux-x86_64/wheel/./metroflow
+creating build/bdist.linux-x86_64/wheel/metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/null_operator_control.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/realistic_city_scale_reporting.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/realistic_city_scale.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/dense_flow_workload.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/runtime_self_drive_probe.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/jax_graph_cost_to_go_bakeoff.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/reporting.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/run.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/gpu_flow_bakeoff.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/hardware_atlas.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/realistic_city_scale_worker.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/realistic_city_audit.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+copying build/lib/metroflow/benchmarks/morphology_control_table.py -> build/bdist.linux-x86_64/wheel/./metroflow/benchmarks
+creating build/bdist.linux-x86_64/wheel/metroflow/learning
+copying build/lib/metroflow/learning/active_potential.py -> build/bdist.linux-x86_64/wheel/./metroflow/learning
+copying build/lib/metroflow/learning/cost_to_go_graph_tensors.py -> build/bdist.linux-x86_64/wheel/./metroflow/learning
+copying build/lib/metroflow/learning/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/learning
+copying build/lib/metroflow/learning/surrogate.py -> build/bdist.linux-x86_64/wheel/./metroflow/learning
+copying build/lib/metroflow/learning/cost_to_go_audit.py -> build/bdist.linux-x86_64/wheel/./metroflow/learning
+copying build/lib/metroflow/learning/experience.py -> build/bdist.linux-x86_64/wheel/./metroflow/learning
+copying build/lib/metroflow/learning/cost_to_go_features.py -> build/bdist.linux-x86_64/wheel/./metroflow/learning
+copying build/lib/metroflow/learning/od_ucb.py -> build/bdist.linux-x86_64/wheel/./metroflow/learning
+copying build/lib/metroflow/learning/labels.py -> build/bdist.linux-x86_64/wheel/./metroflow/learning
+copying build/lib/metroflow/learning/policy_blend.py -> build/bdist.linux-x86_64/wheel/./metroflow/learning
+copying build/lib/metroflow/learning/plugins.py -> build/bdist.linux-x86_64/wheel/./metroflow/learning
+copying build/lib/metroflow/kinetic_routes.py -> build/bdist.linux-x86_64/wheel/./metroflow
+creating build/bdist.linux-x86_64/wheel/metroflow/metrics
+copying build/lib/metroflow/metrics/observables.py -> build/bdist.linux-x86_64/wheel/./metroflow/metrics
+copying build/lib/metroflow/metrics/benchmarks.py -> build/bdist.linux-x86_64/wheel/./metroflow/metrics
+copying build/lib/metroflow/metrics/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/metrics
+creating build/bdist.linux-x86_64/wheel/metroflow/v1
+copying build/lib/metroflow/v1/activity.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/journey.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/junction_oracles.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/access_audit.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/transport.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/city.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/nodes.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/kinetics.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/kinetic_oracles.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/lanegroups.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/information.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/access.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/demand_audit.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/schedules.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/timing_oracles.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/demand.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/__main__.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/observations.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+copying build/lib/metroflow/v1/development.py -> build/bdist.linux-x86_64/wheel/./metroflow/v1
+creating build/bdist.linux-x86_64/wheel/metroflow/city
+copying build/lib/metroflow/city/growth_topology.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/graph.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/contracts.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/continuous_fabric.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/turn_compiler.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/style_catalog.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/transit_builder.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/morphology_field.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/morphology_metrics.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/quality_oracles.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/infrastructure_budget.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/coupling_optimizer.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/distributional_batch_gate.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/scalable_topology.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/backbone.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/district_mesh.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/plausibility_audit.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/morphology_reference.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/connectivity.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/map_validation.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/street_plan.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/envelope_corpus.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/scalable_city.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/landuse_accessibility.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/intersection_control.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/hierarchical_streets.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/topology_finalizer.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/terrain_field.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/backbone_builder.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/generator_v2.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/realistic_city.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/local_fabric.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/scale.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/block_land_use.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/growth_fabric.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/adversarial_validator.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/scalable_validation_receipts.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/scalable_blocks.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/planar_blocks.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/seed_manifest.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/blueprint.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/zones.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/development_field.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/realism_contracts.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/district_profiles.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/morphology_capabilities.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/district_cells.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/scalable_authority.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/planarization.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/generated_map.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/realistic_local_fabric.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/morphology_control_table.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/morphology_quality.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/transit_schema.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/urban_form.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/gate_reporting.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/scalable_topology_adapter.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/city/plausibility_reporting.py -> build/bdist.linux-x86_64/wheel/./metroflow/city
+copying build/lib/metroflow/access_development.py -> build/bdist.linux-x86_64/wheel/./metroflow
+copying build/lib/metroflow/restored_grammar.py -> build/bdist.linux-x86_64/wheel/./metroflow
+creating build/bdist.linux-x86_64/wheel/metroflow/core
+copying build/lib/metroflow/core/contracts.py -> build/bdist.linux-x86_64/wheel/./metroflow/core
+copying build/lib/metroflow/core/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/core
+copying build/lib/metroflow/core/journal.py -> build/bdist.linux-x86_64/wheel/./metroflow/core
+copying build/lib/metroflow/core/cache.py -> build/bdist.linux-x86_64/wheel/./metroflow/core
+copying build/lib/metroflow/core/state.py -> build/bdist.linux-x86_64/wheel/./metroflow/core
+copying build/lib/metroflow/core/units.py -> build/bdist.linux-x86_64/wheel/./metroflow/core
+creating build/bdist.linux-x86_64/wheel/metroflow/backends
+copying build/lib/metroflow/backends/jax_flow.py -> build/bdist.linux-x86_64/wheel/./metroflow/backends
+copying build/lib/metroflow/backends/rust_cpu.py -> build/bdist.linux-x86_64/wheel/./metroflow/backends
+copying build/lib/metroflow/backends/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/backends
+creating build/bdist.linux-x86_64/wheel/metroflow/demand
+copying build/lib/metroflow/demand/__init__.py -> build/bdist.linux-x86_64/wheel/./metroflow/demand
+copying build/lib/metroflow/demand/population.py -> build/bdist.linux-x86_64/wheel/./metroflow/demand
+copying build/lib/metroflow/demand/accessibility.py -> build/bdist.linux-x86_64/wheel/./metroflow/demand
+copying build/lib/metroflow/demand/trips.py -> build/bdist.linux-x86_64/wheel/./metroflow/demand
+copying build/lib/metroflow/demand/schedules.py -> build/bdist.linux-x86_64/wheel/./metroflow/demand
+copying build/lib/metroflow/demand/citizens.py -> build/bdist.linux-x86_64/wheel/./metroflow/demand
+copying build/lib/metroflow/demand/trip_generation.py -> build/bdist.linux-x86_64/wheel/./metroflow/demand
+copying build/lib/metroflow/sight_frontage.py -> build/bdist.linux-x86_64/wheel/./metroflow
+running install_egg_info
+Copying src/metroflow.egg-info to build/bdist.linux-x86_64/wheel/./metroflow-0.0.2-py3.12.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/metroflow-0.0.2.dist-info/WHEEL
+creating '/tmp/r01-wheels/.tmp-26sof9ir/metroflow-0.0.2-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'metroflow/__init__.py'
+adding 'metroflow/access_development.py'
+adding 'metroflow/active_meso.py'
+adding 'metroflow/audit_observables.py'
+adding 'metroflow/demo.py'
+adding 'metroflow/foundation_kinetics.py'
+adding 'metroflow/frontage_growth.py'
+adding 'metroflow/gap_transport.py'
+adding 'metroflow/kinetic_routes.py'
+adding 'metroflow/ordered_lane.py'
+adding 'metroflow/ordered_network.py'
+adding 'metroflow/packet_network.py'
+adding 'metroflow/periodic_gap.py'
+adding 'metroflow/restored_city.py'
+adding 'metroflow/restored_geometry.py'
+adding 'metroflow/restored_grammar.py'
+adding 'metroflow/restored_traffic.py'
+adding 'metroflow/restored_zoning.py'
+adding 'metroflow/sight_frontage.py'
+adding 'metroflow/stopping_envelope.py'
+adding 'metroflow/active_suffix/__init__.py'
+adding 'metroflow/active_suffix/adapter.py'
+adding 'metroflow/active_suffix/causal.py'
+adding 'metroflow/active_suffix/common.py'
+adding 'metroflow/active_suffix/engine.py'
+adding 'metroflow/active_suffix/interval.py'
+adding 'metroflow/active_suffix/kinetic.py'
+adding 'metroflow/active_suffix/node.py'
+adding 'metroflow/active_suffix/packed.py'
+adding 'metroflow/active_suffix/routing.py'
+adding 'metroflow/backends/__init__.py'
+adding 'metroflow/backends/jax_flow.py'
+adding 'metroflow/backends/rust_cpu.py'
+adding 'metroflow/benchmarks/__init__.py'
+adding 'metroflow/benchmarks/dense_flow_workload.py'
+adding 'metroflow/benchmarks/gpu_flow_bakeoff.py'
+adding 'metroflow/benchmarks/hardware_atlas.py'
+adding 'metroflow/benchmarks/jax_graph_cost_to_go_bakeoff.py'
+adding 'metroflow/benchmarks/morphology_control_table.py'
+adding 'metroflow/benchmarks/null_operator_control.py'
+adding 'metroflow/benchmarks/realistic_city_audit.py'
+adding 'metroflow/benchmarks/realistic_city_scale.py'
+adding 'metroflow/benchmarks/realistic_city_scale_reporting.py'
+adding 'metroflow/benchmarks/realistic_city_scale_worker.py'
+adding 'metroflow/benchmarks/reporting.py'
+adding 'metroflow/benchmarks/run.py'
+adding 'metroflow/benchmarks/runtime_self_drive_probe.py'
+adding 'metroflow/city/__init__.py'
+adding 'metroflow/city/adversarial_validator.py'
+adding 'metroflow/city/backbone.py'
+adding 'metroflow/city/backbone_builder.py'
+adding 'metroflow/city/block_land_use.py'
+adding 'metroflow/city/blueprint.py'
+adding 'metroflow/city/connectivity.py'
+adding 'metroflow/city/continuous_fabric.py'
+adding 'metroflow/city/contracts.py'
+adding 'metroflow/city/coupling_optimizer.py'
+adding 'metroflow/city/development_field.py'
+adding 'metroflow/city/distributional_batch_gate.py'
+adding 'metroflow/city/district_cells.py'
+adding 'metroflow/city/district_mesh.py'
+adding 'metroflow/city/district_profiles.py'
+adding 'metroflow/city/envelope_corpus.py'
+adding 'metroflow/city/gate_reporting.py'
+adding 'metroflow/city/generated_map.py'
+adding 'metroflow/city/generator_v2.py'
+adding 'metroflow/city/graph.py'
+adding 'metroflow/city/growth_fabric.py'
+adding 'metroflow/city/growth_topology.py'
+adding 'metroflow/city/hierarchical_streets.py'
+adding 'metroflow/city/infrastructure_budget.py'
+adding 'metroflow/city/intersection_control.py'
+adding 'metroflow/city/landuse_accessibility.py'
+adding 'metroflow/city/local_fabric.py'
+adding 'metroflow/city/map_validation.py'
+adding 'metroflow/city/morphology_capabilities.py'
+adding 'metroflow/city/morphology_control_table.py'
+adding 'metroflow/city/morphology_field.py'
+adding 'metroflow/city/morphology_metrics.py'
+adding 'metroflow/city/morphology_quality.py'
+adding 'metroflow/city/morphology_reference.py'
+adding 'metroflow/city/planar_blocks.py'
+adding 'metroflow/city/planarization.py'
+adding 'metroflow/city/plausibility_audit.py'
+adding 'metroflow/city/plausibility_reporting.py'
+adding 'metroflow/city/quality_oracles.py'
+adding 'metroflow/city/realism_contracts.py'
+adding 'metroflow/city/realistic_city.py'
+adding 'metroflow/city/realistic_local_fabric.py'
+adding 'metroflow/city/scalable_authority.py'
+adding 'metroflow/city/scalable_blocks.py'
+adding 'metroflow/city/scalable_city.py'
+adding 'metroflow/city/scalable_topology.py'
+adding 'metroflow/city/scalable_topology_adapter.py'
+adding 'metroflow/city/scalable_validation_receipts.py'
+adding 'metroflow/city/scale.py'
+adding 'metroflow/city/seed_manifest.py'
+adding 'metroflow/city/street_plan.py'
+adding 'metroflow/city/style_catalog.py'
+adding 'metroflow/city/terrain_field.py'
+adding 'metroflow/city/topology_finalizer.py'
+adding 'metroflow/city/transit_builder.py'
+adding 'metroflow/city/transit_schema.py'
+adding 'metroflow/city/turn_compiler.py'
+adding 'metroflow/city/urban_form.py'
+adding 'metroflow/city/zones.py'
+adding 'metroflow/core/__init__.py'
+adding 'metroflow/core/cache.py'
+adding 'metroflow/core/contracts.py'
+adding 'metroflow/core/journal.py'
+adding 'metroflow/core/state.py'
+adding 'metroflow/core/units.py'
+adding 'metroflow/demand/__init__.py'
+adding 'metroflow/demand/accessibility.py'
+adding 'metroflow/demand/citizens.py'
+adding 'metroflow/demand/population.py'
+adding 'metroflow/demand/schedules.py'
+adding 'metroflow/demand/trip_generation.py'
+adding 'metroflow/demand/trips.py'
+adding 'metroflow/environment/__init__.py'
+adding 'metroflow/environment/coupling.py'
+adding 'metroflow/environment/demand.py'
+adding 'metroflow/environment/landuse.py'
+adding 'metroflow/environment/terrain.py'
+adding 'metroflow/flow/__init__.py'
+adding 'metroflow/flow/engine.py'
+adding 'metroflow/flow/event_effects.py'
+adding 'metroflow/flow/events.py'
+adding 'metroflow/flow/state.py'
+adding 'metroflow/landuse/__init__.py'
+adding 'metroflow/landuse/evolution.py'
+adding 'metroflow/learning/__init__.py'
+adding 'metroflow/learning/active_potential.py'
+adding 'metroflow/learning/cost_to_go_audit.py'
+adding 'metroflow/learning/cost_to_go_features.py'
+adding 'metroflow/learning/cost_to_go_graph_tensors.py'
+adding 'metroflow/learning/experience.py'
+adding 'metroflow/learning/labels.py'
+adding 'metroflow/learning/od_ucb.py'
+adding 'metroflow/learning/plugins.py'
+adding 'metroflow/learning/policy_blend.py'
+adding 'metroflow/learning/surrogate.py'
+adding 'metroflow/map/__init__.py'
+adding 'metroflow/map/generator.py'
+adding 'metroflow/map/lane_grammar.py'
+adding 'metroflow/map/node_compiler.py'
+adding 'metroflow/map/osm_import.py'
+adding 'metroflow/map/road_geometry.py'
+adding 'metroflow/map/section_compiler.py'
+adding 'metroflow/metrics/__init__.py'
+adding 'metroflow/metrics/benchmarks.py'
+adding 'metroflow/metrics/observables.py'
+adding 'metroflow/policy/__init__.py'
+adding 'metroflow/policy/archetypes.py'
+adding 'metroflow/policy/bandit.py'
+adding 'metroflow/policy/ema.py'
+adding 'metroflow/pure_traffic/__init__.py'
+adding 'metroflow/pure_traffic/ctm.py'
+adding 'metroflow/pure_traffic/fluid_reference.py'
+adding 'metroflow/pure_traffic/scenarios.py'
+adding 'metroflow/routing/__init__.py'
+adding 'metroflow/routing/behavior_profiles.py'
+adding 'metroflow/routing/candidates.py'
+adding 'metroflow/routing/dynamic_potential.py'
+adding 'metroflow/routing/policy_mixer.py'
+adding 'metroflow/routing/reroute_policy.py'
+adding 'metroflow/sim/__init__.py'
+adding 'metroflow/sim/active_agents.py'
+adding 'metroflow/sim/config.py'
+adding 'metroflow/sim/control.py'
+adding 'metroflow/sim/init.py'
+adding 'metroflow/sim/invariants.py'
+adding 'metroflow/sim/orchestrator.py'
+adding 'metroflow/sim/replay.py'
+adding 'metroflow/sim/rng.py'
+adding 'metroflow/sim/routing_runtime.py'
+adding 'metroflow/sim/run_summary.py'
+adding 'metroflow/sim/runtime_diagnostics.py'
+adding 'metroflow/sim/scenario_presets.py'
+adding 'metroflow/sim/scheduler.py'
+adding 'metroflow/sim/state.py'
+adding 'metroflow/sim/step.py'
+adding 'metroflow/terrain_city/__init__.py'
+adding 'metroflow/terrain_city/area_access.py'
+adding 'metroflow/terrain_city/audit.py'
+adding 'metroflow/terrain_city/block_access.py'
+adding 'metroflow/terrain_city/block_trips.py'
+adding 'metroflow/terrain_city/landscape.py'
+adding 'metroflow/terrain_city/network.py'
+adding 'metroflow/traffic/__init__.py'
+adding 'metroflow/traffic/incidents.py'
+adding 'metroflow/traffic/meso.py'
+adding 'metroflow/traffic/routing.py'
+adding 'metroflow/traffic/spatial_queue.py'
+adding 'metroflow/ui/__init__.py'
+adding 'metroflow/ui/control_adapter.py'
+adding 'metroflow/ui/morphology_atlas.py'
+adding 'metroflow/ui/morphology_landuse_audit.py'
+adding 'metroflow/ui/morphology_quality_report.py'
+adding 'metroflow/ui/packets.py'
+adding 'metroflow/ui/scenario_controls.py'
+adding 'metroflow/ui/snapshots.py'
+adding 'metroflow/ui/static_map.py'
+adding 'metroflow/ui/stream_buffer.py'
+adding 'metroflow/ui/stream_server.py'
+adding 'metroflow/v1/__init__.py'
+adding 'metroflow/v1/__main__.py'
+adding 'metroflow/v1/access.py'
+adding 'metroflow/v1/access_audit.py'
+adding 'metroflow/v1/activity.py'
+adding 'metroflow/v1/city.py'
+adding 'metroflow/v1/demand.py'
+adding 'metroflow/v1/demand_audit.py'
+adding 'metroflow/v1/development.py'
+adding 'metroflow/v1/information.py'
+adding 'metroflow/v1/journey.py'
+adding 'metroflow/v1/junction_oracles.py'
+adding 'metroflow/v1/kinetic_oracles.py'
+adding 'metroflow/v1/kinetics.py'
+adding 'metroflow/v1/lanegroups.py'
+adding 'metroflow/v1/nodes.py'
+adding 'metroflow/v1/observations.py'
+adding 'metroflow/v1/schedules.py'
+adding 'metroflow/v1/timing_oracles.py'
+adding 'metroflow/v1/transport.py'
+adding 'metroflow/viz/__init__.py'
+adding 'metroflow/viz/model.py'
+adding 'metroflow-0.0.2.dist-info/METADATA'
+adding 'metroflow-0.0.2.dist-info/WHEEL'
+adding 'metroflow-0.0.2.dist-info/entry_points.txt'
+adding 'metroflow-0.0.2.dist-info/top_level.txt'
+adding 'metroflow-0.0.2.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+Successfully built /tmp/r01-wheels/metroflow-0.0.2-py3-none-any.whl
