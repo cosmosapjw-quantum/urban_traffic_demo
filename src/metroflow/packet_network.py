@@ -8,8 +8,10 @@ laws are not. Retained route and birth moments support mass and mean-duration
 observables, NOT individual identities or arbitrary age quantiles.
 """
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, replace, asdict
 from collections import defaultdict
+from types import MappingProxyType
+from .foundation_kinetics import VehicleClass
 import hashlib
 import json as json
 import math
@@ -77,6 +79,16 @@ class Event:
 
 
 @dataclass(frozen=True, slots=True)
+class ClassLedger:
+    name: str
+    released: float = 0.0
+    completed: float = 0.0
+    source_wait_seconds: float = 0.0
+    exit_queue_seconds: float = 0.0
+    transfer_hold_seconds: float = 0.0
+
+
+@dataclass(frozen=True, slots=True)
 class State:
     model_id: str
     time_s: float
@@ -89,6 +101,7 @@ class State:
     source_wait_seconds: float = 0.0
     transfer_hold_seconds: float = 0.0
     pre_entry_seconds: float = 0.0
+    class_ledger: tuple[ClassLedger, ...] = ()
 
     @property
     def system_vehicle_seconds(self):
@@ -160,7 +173,18 @@ def _rates(heads, sending, receiving, priorities):
 
 class PacketNetwork:
     def __init__(
-        self, groups, routes, dt_s=1.0, windows=(), record_budget=10000, allowed_turns=None
+        self,
+        groups,
+        routes,
+        dt_s=1.0,
+        windows=(),
+        record_budget=10000,
+        allowed_turns=None,
+        *,
+        vehicle_classes=None,
+        space_capacities_m=None,
+        standing_gap_m=0.0,
+        event_budget=None,
     ):
         parent = ParentNetwork(groups, routes, dt_s, windows, record_budget, allowed_turns)
         self.groups = parent.groups
@@ -173,6 +197,62 @@ class PacketNetwork:
         self.identity = hashlib.sha256(
             ("exchangeable_boundary_packet_v2_birth:" + parent.identity).encode()
         ).hexdigest()
+        if (vehicle_classes is None) != (space_capacities_m is None):
+            raise ValueError("class-aware storage requires both tag classes and lane space")
+        if not math.isfinite(standing_gap_m) or standing_gap_m < 0:
+            raise ValueError("finite nonnegative standing gap required")
+        if event_budget is not None and (
+            isinstance(event_budget, bool) or not isinstance(event_budget, int) or event_budget < 1
+        ):
+            raise ValueError("positive integer junction event budget required")
+        self.event_budget = event_budget
+        self.vehicle_classes = MappingProxyType(dict(vehicle_classes or {}))
+        self.space_capacities_m = MappingProxyType(dict(space_capacities_m or {}))
+        self.standing_gap_m = standing_gap_m
+        self.physical_storage = vehicle_classes is not None
+        if self.physical_storage:
+            if set(self.vehicle_classes) != set(self.routes) or set(self.space_capacities_m) != set(
+                self.index
+            ):
+                raise ValueError("every route class and group space must be declared")
+            if any(not isinstance(c, VehicleClass) for c in self.vehicle_classes.values()) or any(
+                not math.isfinite(x) or x <= 0 for x in self.space_capacities_m.values()
+            ):
+                raise ValueError("valid physical classes and positive lane space required")
+            by_name = {}
+            for c in self.vehicle_classes.values():
+                if c.name in by_name and by_name[c.name] != c:
+                    raise ValueError("class name has incompatible physical parameters")
+                by_name[c.name] = c
+            self.class_names = tuple(sorted(by_name))
+        else:
+            self.class_names = ()
+        if self.physical_storage or event_budget is not None:
+            payload = dict(
+                parent=self.identity,
+                classes={k: asdict(v) for k, v in self.vehicle_classes.items()},
+                space=dict(self.space_capacities_m),
+                gap=standing_gap_m,
+                event_budget=event_budget,
+            )
+            self.identity = hashlib.sha256(
+                json.dumps(payload, sort_keys=True, allow_nan=False).encode()
+            ).hexdigest()
+
+    def footprint(self, tag):
+        return (
+            self.vehicle_classes[tag].length_m + self.standing_gap_m
+            if self.physical_storage
+            else 1.0
+        )
+
+    def occupied_space(self, cell):
+        return math.fsum(
+            p.mass * self.footprint(p.tag) for packet in cell.packets for p in packet.parts
+        )
+
+    def space_capacity(self, group):
+        return self.space_capacities_m[group.id] if self.physical_storage else group.physics.storage
 
     def initial(self, start_s=0.0):
         if (
@@ -186,6 +266,7 @@ class PacketNetwork:
             start_s,
             tuple(Cell() for _ in self.groups),
             tuple(() for _ in self.groups),
+            class_ledger=tuple(ClassLedger(name) for name in self.class_names),
         )
 
     def counts(self, state):
@@ -266,8 +347,51 @@ class PacketNetwork:
                         raise ValueError("non-route suffix")
             if abs(c.admitted - c.completed - c.occupancy) > 1e-9 * max(1.0, c.admitted):
                 raise ArithmeticError("cell mass ledger")
-            if c.occupancy > g.physics.storage + 1e-9 * max(1.0, g.physics.storage):
-                raise ArithmeticError("cell storage")
+            capacity = self.space_capacity(g)
+            if self.occupied_space(c) > capacity + 1e-9 * max(1.0, capacity):
+                raise ArithmeticError("IMPLEMENTATION_ERROR: cell storage")
+        if tuple(x.name for x in s.class_ledger) != self.class_names:
+            raise ValueError("class ledger registry mismatch")
+        if self.physical_storage and (
+            abs(math.fsum(x.released for x in s.class_ledger) - s.released)
+            > 1e-9 * max(1.0, s.released)
+            or abs(math.fsum(x.completed for x in s.class_ledger) - s.completed)
+            > 1e-9 * max(1.0, s.completed)
+        ):
+            raise ArithmeticError("IMPLEMENTATION_ERROR: class/global ledger mismatch")
+        if self.physical_storage:
+            for field in ("source_wait_seconds", "transfer_hold_seconds"):
+                observed = math.fsum(getattr(x, field) for x in s.class_ledger)
+                if abs(observed - getattr(s, field)) > 1e-8 * max(1.0, observed, getattr(s, field)):
+                    raise ArithmeticError("IMPLEMENTATION_ERROR: class/global residence mismatch")
+        for ledger in s.class_ledger:
+            if any(
+                not math.isfinite(x) or x < 0
+                for x in (
+                    ledger.released,
+                    ledger.completed,
+                    ledger.source_wait_seconds,
+                    ledger.exit_queue_seconds,
+                    ledger.transfer_hold_seconds,
+                )
+            ):
+                raise ValueError("invalid class cumulative ledger")
+            stored = math.fsum(
+                p.mass
+                for c in s.cells
+                for packet in c.packets
+                for p in packet.parts
+                if self.vehicle_classes[p.tag].name == ledger.name
+            )
+            stored += math.fsum(
+                p.mass
+                for q in s.pending
+                for packet in q
+                for p in packet.parts
+                if self.vehicle_classes[p.tag].name == ledger.name
+            )
+            if abs(ledger.released - ledger.completed - stored) > 1e-9 * max(1.0, ledger.released):
+                raise ArithmeticError("IMPLEMENTATION_ERROR: class mass ledger")
         mass = math.fsum(c.occupancy for c in s.cells) + math.fsum(
             p.mass for q in s.pending for p in q
         )
@@ -299,7 +423,7 @@ class PacketNetwork:
         """
         try:
             return self._step(state, tuple(offers))
-        except BudgetExceeded as e:
+        except (BudgetExceeded, ArithmeticError) as e:
             e.checkpoint = state
             raise
 
@@ -308,6 +432,13 @@ class PacketNetwork:
         t = s.time_s
         dt = self.dt
         end = t + dt
+        ledger = {x.name: x for x in s.class_ledger}
+
+        def class_add(tag, field, value):
+            if self.physical_storage:
+                key = self.vehicle_classes[tag].name
+                ledger[key] = replace(ledger[key], **{field: getattr(ledger[key], field) + value})
+
         pending = [list(q) for q in s.pending]
         new = defaultdict(list)
         born = 0.0
@@ -329,14 +460,20 @@ class PacketNetwork:
                 born += mass
                 birth1 += birth
                 inherited += mass * t - birth
+                class_add(tag, "released", mass)
         for i, parts in new.items():
             pending[i].append(Pending(t, combine(parts)))
         source_wait = dt * math.fsum(p.mass for q in pending for p in q)
+        for q in pending:
+            for packet in q:
+                for part in packet.parts:
+                    class_add(part.tag, "source_wait_seconds", dt * part.mass)
         factor = [_factor(g.id, t + dt / 2, self.windows) for g in self.groups]
         receive = [g.physics.entry_rate * f for g, f in zip(self.groups, factor)]
-        free = [
-            min(rate * dt, max(0.0, g.physics.storage - c.occupancy))
-            for rate, g, c in zip(receive, self.groups, s.cells)
+        free = [rate * dt for rate in receive]  # remaining vehicle admission increments
+        free_space = [
+            max(0.0, self.space_capacity(g) - self.occupied_space(c))
+            for g, c in zip(self.groups, s.cells)
         ]
         cells = []
         queues = {}
@@ -381,11 +518,16 @@ class PacketNetwork:
             iterations = 0
             while cursor < dt:
                 iterations += 1
-                if iterations > self.record_budget + 2 * len(inc):
+                if iterations > (
+                    self.record_budget + 2 * len(inc)
+                    if self.event_budget is None
+                    else self.event_budget
+                ):
                     raise BudgetExceeded("packet junction budget")
                 heads = {}
                 future = []
                 beta = {}
+                beta_space = {}
                 for i in inc:
                     k = position[i]
                     if k >= len(queues[i]):
@@ -401,6 +543,15 @@ class PacketNetwork:
                         j = self.index[p.remaining[1]] if len(p.remaining) > 1 else -1
                         dest[j].append(p.mass)
                     beta[i] = {j: math.fsum(v) / packet.mass for j, v in dest.items()}
+                    beta_space[i] = {
+                        j: math.fsum(
+                            p.mass * self.footprint(p.tag)
+                            for p in packet.parts
+                            if (self.index[p.remaining[1]] if len(p.remaining) > 1 else -1) == j
+                        )
+                        / packet.mass
+                        for j in dest
+                    }
                 sending = {
                     i: self.groups[i].physics.exit_rate
                     * factor[i]
@@ -408,7 +559,7 @@ class PacketNetwork:
                     for i in heads
                 }
                 receiving = {
-                    j: receive[j] if free[j] > 1e-13 else 0.0
+                    j: receive[j] if free[j] > 1e-13 and free_space[j] > 1e-13 else 0.0
                     for i in heads
                     for j in beta[i]
                     if j >= 0
@@ -428,15 +579,21 @@ class PacketNetwork:
                     j: math.fsum(beta[i].get(j, 0.0) * r for i, r in rates.items())
                     for j in receiving
                 }
+                space_rates = {
+                    j: math.fsum(beta_space[i].get(j, 0.0) * r for i, r in rates.items())
+                    for j in receiving
+                }
                 limits = [dt - cursor] + [x - cursor for x in future if x > cursor]
                 limits.extend(heads[i].mass / r for i, r in rates.items())
                 limits.extend(free[j] / r for j, r in dest_rates.items() if r > 0)
+                limits.extend(free_space[j] / r for j, r in space_rates.items() if r > 0)
                 h = min(limits)
                 if h <= 0 or cursor + h == cursor:
                     raise ArithmeticError("packet event resolution exhausted")
                 mid = t + cursor + h / 2
                 for i, rate in sorted(rates.items()):
                     packet = heads[i]
+                    ready = queues[i][position[i]][1]
                     fraction = min(1.0, rate * h / packet.mass)
                     if 1 - fraction < 1e-14:
                         fraction = 1.0
@@ -454,6 +611,15 @@ class PacketNetwork:
                         exit_moment=cells[i].exit_moment + mass * mid,
                     )
                     for p in served:
+                        class_add(
+                            p.tag,
+                            "exit_queue_seconds",
+                            p.mass
+                            * max(
+                                0.0,
+                                cursor + h / 2 - ready,
+                            ),
+                        )
                         j = self.index[p.remaining[1]] if len(p.remaining) > 1 else -1
                         events.append(
                             Event(
@@ -468,27 +634,41 @@ class PacketNetwork:
                         )
                         if j >= 0:
                             free[j] = max(0.0, free[j] - p.mass)
+                            free_space[j] = max(0.0, free_space[j] - p.mass * self.footprint(p.tag))
+                            class_add(p.tag, "transfer_hold_seconds", p.mass * (end - mid))
                             incoming[j].append(replace(p, remaining=p.remaining[1:]))
                             hold += p.mass * (end - mid)
                         else:
                             sink += p.mass
+                            class_add(p.tag, "completed", p.mass)
                             exit1 += p.mass * mid
                 cursor += h
                 if len(events) > self.record_budget:
                     raise BudgetExceeded("packet transfer budget")
         for i, c in enumerate(cells):
+            for packet, ready in queues[i][position[i] :]:
+                for part in packet.parts:
+                    class_add(part.tag, "exit_queue_seconds", part.mass * max(0.0, dt - ready))
             cells[i] = replace(c, packets=tuple(p for p, _ in queues[i][position[i] :]))
         # Independent source queues; within each exactly simultaneous source
         # packet use proportional admission, never the input list order.
         for i, queue in enumerate(pending):
             remain = []
             for packet in queue:
-                fraction = min(1.0, free[i] / packet.mass) if free[i] > 0 else 0.0
+                space = math.fsum(p.mass * self.footprint(p.tag) for p in packet.parts)
+                fraction = (
+                    min(1.0, free[i] / packet.mass, free_space[i] / space)
+                    if free[i] > 0 and free_space[i] > 0
+                    else 0.0
+                )
                 if 1 - fraction < 1e-14:
                     fraction = 1.0
                 parts = _portion(packet.parts, fraction)
                 mass = math.fsum(p.mass for p in parts)
                 free[i] = max(0.0, free[i] - mass)
+                free_space[i] = max(
+                    0.0, free_space[i] - math.fsum(p.mass * self.footprint(p.tag) for p in parts)
+                )
                 incoming[i].extend(parts)
                 if fraction < 1:
                     remain.append(replace(packet, parts=_portion(packet.parts, 1 - fraction)))
@@ -518,6 +698,7 @@ class PacketNetwork:
             s.source_wait_seconds + source_wait,
             s.transfer_hold_seconds + hold,
             s.pre_entry_seconds + inherited,
+            tuple(ledger[k] for k in self.class_names),
         )
         if self.counts(out)["parts"] > self.record_budget:
             raise BudgetExceeded("packet state budget")
