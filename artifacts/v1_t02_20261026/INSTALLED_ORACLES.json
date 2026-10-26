@@ -1,0 +1,82 @@
+{
+  "cases": [
+    {
+      "baseline_p_only_distance_m": 16.0,
+      "case": "constant_characteristic",
+      "distance_m": 6.109601381069178,
+      "speed_mps": 3.9780797237861645,
+      "status": "PASS"
+    },
+    {
+      "case": "same_law_first_passage",
+      "elapsed_s": 16.10017373770726,
+      "residual_m": 0.0,
+      "status": "PASS"
+    },
+    {
+      "binary_variance_m2_s2": 96.0,
+      "case": "latent_continuous_reference",
+      "latent_binary_mean_mps": 12.41455329405731,
+      "mean_mps": 17.653909697058694,
+      "p": 0.6207276647028654,
+      "stationary_variance_m2_s2": 38.4,
+      "status": "PASS"
+    },
+    {
+      "case": "temporal_refinement",
+      "dt_s": [
+        0.5,
+        0.25,
+        0.125
+      ],
+      "speed_error_mps": [
+        0.0030324736432945087,
+        0.0007580361556662751,
+        0.00018950389825533875
+      ],
+      "status": "PASS"
+    },
+    {
+      "case": "mixed_conservative_acceleration",
+      "response_s": 2.2857142857142856,
+      "speed_mps": 0.5,
+      "status": "PASS",
+      "target_mps": 10.62857142857143
+    },
+    {
+      "case": "gap_closure_counterexample",
+      "heterogeneous_mean_hazard_s_inv": 0.014911564625850339,
+      "kinetic_variance_m2_s2": 1.0,
+      "pair_ledger": {
+        "follower_class_mass": {
+          "car": 2.0
+        },
+        "gap_closure": "uniform mean gap is an approximation",
+        "joint_marginal_residual_veh": 0.0,
+        "lane_length_m": 110.0,
+        "leader_class_mass": {
+          "car": 2.0
+        },
+        "pair_mass_veh": 2.0,
+        "pair_mean_speed_mps": 10.0,
+        "safety": "NOT_CERTIFIED",
+        "speed_marginal_residual_veh": 0.0,
+        "status": "PASS_NECESSARY_ONLY"
+      },
+      "status": "PASS",
+      "uniform_hazard_s_inv": 0.009917355371900827
+    },
+    {
+      "case": "abrupt_braking",
+      "distance_m": 1.98,
+      "speed_mps": 19.6,
+      "status": "PASS"
+    },
+    {
+      "case": "future_observation",
+      "status": "PASS"
+    }
+  ],
+  "python": "3.12.14",
+  "status": "PASS"
+}

@@ -1,0 +1,65 @@
+{
+  "status": "T02_VERIFIED_SCOPED_FINAL_REVIEW_DEFERRED",
+  "implementation_parent": {
+    "node": "D01",
+    "pr": 28,
+    "sha": "7be20685e01c969814afb0f86b03c76144df36c5",
+    "merged": false
+  },
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/v1/test_kinetic_closure.py tests/test_foundation_kinetics.py tests/test_gap_viability.py tests/v1/test_repository_entrypoints.py tests/test_v1_plan.py",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "result": "48 passed",
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "command": "same scoped selection",
+      "python": "3.13.16",
+      "exit_code": 0,
+      "result": "48 passed",
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "python -m ruff check src tests tools",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    },
+    {
+      "command": "python -m metroflow.v1 physics-oracles --suite kinetic",
+      "exit_code": 0,
+      "raw": "KINETIC_ORACLES.json"
+    },
+    {
+      "command": "uv build --wheel; fresh no-deps install; installed CLI physics-oracles outside checkout",
+      "exit_code": 0,
+      "raw": "INSTALLED_ORACLES.json"
+    }
+  ],
+  "focused_tests": 14,
+  "oracles": 8,
+  "acceptance": {
+    "constant_characteristic": "analytic speed and displacement; cost root residual 0m in fixture",
+    "mixed_classes": "response-weighted target, minimum accel/brake limits, identical-class reduction and fragment/mass scaling",
+    "latent_reference": "mean 17.653909697 versus binary 12.414553294 m/s; stationary variance 38.4 versus 96 m2/s2",
+    "temporal_refinement": "speed errors .003032474/.000758036/.000189504 m/s at dt .5/.25/.125s",
+    "braking_and_nonanticipation": "bounded braking, future environment/report rejected, hidden leader truth not consumed by controller",
+    "gap_oracle": "joint leader/follower class-speed marginals and lane length necessary conditions; nonlinear hazard counterexample retained"
+  },
+  "verification_corrections": [
+    "Regenerated plan views before final verification after initial stale-view failure",
+    "Re-captured Python 3.12 verification log after earlier capture lacked completion summary"
+  ],
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "merge": "NOT_PERFORMED",
+  "packet_network_motion_replacement": "NOT_YET: T03/T04 consume new local motion seam",
+  "limits": [
+    "Synthetic local closure, not empirical traffic calibration",
+    "Uniform mean-gap hazard and shared bulk speed are explicit approximations",
+    "Continuous latent variance reference is unclipped, not a resolved bulk variance",
+    "Necessary pair marginals do not certify safety or close a pair PDE",
+    "No full network/shock/FIFO/100k traffic execution or final acceptance claim"
+  ]
+}

@@ -25,6 +25,20 @@ from .demand import (
     iter_departures,
 )
 from .schedules import DepartureWindow, DepartureProfile
+from .kinetics import (
+    VehicleClass,
+    ClassMass,
+    BulkState,
+    KineticEnvironment,
+    BulkStep,
+    PassagePrediction,
+    compile_bulk,
+    coefficients,
+    advance_bulk,
+    predict_passage,
+    pair_compatibility,
+    latent_reference,
+)
 
 
 __all__ = [
@@ -71,3 +85,18 @@ __all__ += [
 ]
 
 __all__ += ["DepartureBatch", "iter_departures"]
+
+__all__ += [
+    "VehicleClass",
+    "ClassMass",
+    "BulkState",
+    "KineticEnvironment",
+    "BulkStep",
+    "PassagePrediction",
+    "compile_bulk",
+    "coefficients",
+    "advance_bulk",
+    "predict_passage",
+    "pair_compatibility",
+    "latent_reference",
+]
