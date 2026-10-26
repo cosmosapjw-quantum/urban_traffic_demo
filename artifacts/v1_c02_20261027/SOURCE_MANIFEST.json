@@ -1,0 +1,14 @@
+{
+  "files": {
+    "src/metroflow/v1/scenarios.py": "da8e4cf4c2a37b028be905b6fb851a9be80baebb9e01ae2ef59ac5afb42baf90",
+    "src/metroflow/v1/reporting.py": "dedf65b3297c15b3a0f4cbf660c97317f7e23dfecb18a1950c32e784d6319d39",
+    "tests/v1/test_day_scenarios.py": "6b4de1285cffdbdede6edb93cc2cd665cb4381b39d2cead13d06330d10ad0aed",
+    "docs/v1/c02/DAY_SCENARIOS_KO.md": "ce95177577d6d5f98d3dd9d44f544b53c924e43be6292affecb643f89462fe23",
+    "scenarios/v1/city10k_bridgeclosure.json": "6a120e7b12bf5fb48305594c44674106b7b11652a7f921c81c4bf1c57b62b84d",
+    "scenarios/v1/city10k_bypass.json": "ba19550a0dd32b21d1cedf813d40689290cd44e9b4be522133da439bafad42f6",
+    "scenarios/v1/city10k_growth_weekday.json": "cde13a1ee883b198a1b239e7df22428ae09a5f4e66539007945c18660eabccd6",
+    "scenarios/v1/city10k_weekday.json": "af9e2939937dea60d3c4498b6affbb69830db7e4629e6d248d042f405fc000ef",
+    "scenarios/v1/city10k_weekend.json": "f97eee07b4fceca474bbacbeb0781d561c8e64e85007ffeb7966e5fa535c037e",
+    "scenarios/v1/city1k_analytic.json": "6cb1db8fc8625f988267de08f9a75f7cf62dcf0e18087897fcc6a79734b442cf"
+  }
+}

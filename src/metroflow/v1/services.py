@@ -135,6 +135,7 @@ class ServiceState:
     freight_released: tuple[bool, ...]
     freight_completed: tuple[float, ...]
     cars_released: tuple[bool, ...] = ()
+    last_events: tuple = ()
 
 
 class ServiceModel:
@@ -153,6 +154,8 @@ class ServiceModel:
         record_budget=100000,
         cars=(),
         car_class=None,
+        traffic_routes=(),
+        traffic_classes=None,
     ):
         self.buses, self.passengers, self.freight = tuple(buses), tuple(passengers), tuple(freight)
         self.cars = tuple(cars)
@@ -196,6 +199,14 @@ class ServiceModel:
             tag = "car:" + c.id
             routes.append(Route(tag, c.links))
             classes[tag] = car_class
+        traffic_routes = tuple(traffic_routes)
+        traffic_classes = dict(traffic_classes or {})
+        if (set(traffic_classes) != {r.tag for r in traffic_routes}
+                or set(traffic_classes).intersection(classes)):
+            reject("external traffic requires distinct registered route/class tags")
+        routes.extend(traffic_routes)
+        classes.update(traffic_classes)
+        self.traffic_tags = frozenset(traffic_classes)
         transport = TransportModel(
             contract,
             routes,
@@ -252,14 +263,14 @@ class ServiceModel:
             if load > b.capacity_persons + 1e-8:
                 reject("overcapacity boarding", "IMPLEMENTATION_ERROR")
 
-    def step(self, s):
+    def step(self, s, offers=(), eligible_passengers=None):
         try:
-            return self._step(s)
+            return self._step(s, offers, eligible_passengers)
         except Exception as exc:
             exc.checkpoint = s
             raise
 
-    def _step(self, s):
+    def _step(self, s, offers=(), eligible_passengers=None):
         self.check(s)
         t = s.road.time_s
         end = t + self.step_s
@@ -268,7 +279,13 @@ class ServiceModel:
         released = list(s.freight_released)
         cars_released = list(s.cars_released)
         completed = list(s.freight_completed)
-        offers = []
+        offers = list(offers)
+        if any(not offer or offer[0] not in self.traffic_tags for offer in offers):
+            reject("external offer tag must have dedicated traffic route")
+        if eligible_passengers is not None:
+            eligible_passengers = frozenset(eligible_passengers)
+            if not eligible_passengers <= {p.id for p in self.passengers}:
+                reject("unknown eligible passenger cohort")
         for i, (b, v) in enumerate(zip(self.buses, buses)):
             if v.phase != "STOP" or t + 1e-10 < max(v.ready_s, b.departures_s[v.leg]):
                 continue
@@ -279,6 +296,7 @@ class ServiceModel:
                 for k, (p, x) in enumerate(zip(self.passengers, people))
                 if p.run_id == b.id
                 and p.origin_stop == v.leg
+                and (eligible_passengers is None or p.id in eligible_passengers)
                 and p.available_s <= t + 1e-10
                 and x.waiting > 0
             ]
@@ -347,6 +365,7 @@ class ServiceModel:
             tuple(released),
             tuple(completed),
             tuple(cars_released),
+            last_events=tuple(events),
         )
         self.check(result)
         return result

@@ -1,0 +1,11 @@
+{
+  "parent_sha": "6987e4c1157061d9fc66585343f7dde4550d90e3",
+  "files": {
+    "src/metroflow/v1/services.py": "97e7439da0bdb31eca31c1e0f636e959de598174c8ca61fe21821bbb75816bd0",
+    "src/metroflow/v1/__main__.py": "84f7fc47a7e2fab300619abde63d8625fc42db86acae63d3912f4650acac75be",
+    "tests/v1/test_service_boundary_offers.py": "c8e15cd3d1aa6c56be66fe0b1024f4b5bc66de6d41eddedc3d6d1e1529c9f4d1",
+    "tests/v1/test_repository_entrypoints.py": "b315226af17c9dbeba4124535bfac4235ea9d36c779c4891a92e6f34b80d302e",
+    "src/metroflow/v1/scenarios.py": "da8e4cf4c2a37b028be905b6fb851a9be80baebb9e01ae2ef59ac5afb42baf90",
+    "src/metroflow/v1/reporting.py": "dedf65b3297c15b3a0f4cbf660c97317f7e23dfecb18a1950c32e784d6319d39"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "C02_synthetic_day_v1",
+  "scenario": "city10k_bypass",
+  "map": "executed_two_zone_city",
+  "days": 1,
+  "step_s": 10,
+  "population": 10000,
+  "day": "weekday",
+  "scope": "synthetic composition acceptance, not six-morphology validation or100k performance"
+}

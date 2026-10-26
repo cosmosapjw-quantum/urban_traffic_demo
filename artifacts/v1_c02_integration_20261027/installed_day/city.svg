@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 730.0 330.0">
+<rect width="100%" height="100%" fill="white"/>
+<polyline points="10.0,10.0 310.0,10.0" fill="none" stroke="#445577" stroke-width="3"><title>0</title></polyline>
+<polyline points="410.0,10.0 710.0,10.0" fill="none" stroke="#445577" stroke-width="3"><title>0x</title></polyline>
+<polyline points="310.0,10.0 310.0,110.0" fill="none" stroke="#445577" stroke-width="3"><title>1</title></polyline>
+<polyline points="710.0,10.0 710.0,110.0" fill="none" stroke="#445577" stroke-width="3"><title>1x</title></polyline>
+<polyline points="310.0,110.0 110.0,110.0" fill="none" stroke="#445577" stroke-width="3"><title>2</title></polyline>
+<polyline points="710.0,110.0 510.0,110.0" fill="none" stroke="#445577" stroke-width="3"><title>2x</title></polyline>
+<polyline points="110.0,110.0 110.0,310.0" fill="none" stroke="#445577" stroke-width="3"><title>3</title></polyline>
+<polyline points="510.0,110.0 510.0,310.0" fill="none" stroke="#445577" stroke-width="3"><title>3x</title></polyline>
+<polyline points="110.0,310.0 10.0,310.0" fill="none" stroke="#445577" stroke-width="3"><title>4</title></polyline>
+<polyline points="510.0,310.0 410.0,310.0" fill="none" stroke="#445577" stroke-width="3"><title>4x</title></polyline>
+<polyline points="10.0,310.0 10.0,10.0" fill="none" stroke="#445577" stroke-width="3"><title>5</title></polyline>
+<polyline points="410.0,310.0 410.0,10.0" fill="none" stroke="#445577" stroke-width="3"><title>5x</title></polyline>
+<polyline points="310.0,10.0 410.0,10.0" fill="none" stroke="#445577" stroke-width="3"><title>connector</title></polyline>
+<text x="120.0" y="120.0" font-size="14">block: 1000 residents</text>
+<text x="520.0" y="120.0" font-size="14">work: 0 residents</text>
+</svg>

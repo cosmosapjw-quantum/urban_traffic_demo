@@ -1,0 +1,8 @@
+{
+  "status": "BLOCKED_RESOURCE",
+  "scenario": "city10k_bridgeclosure",
+  "reason": "extra closure experiment exceeded bounded execution scope and was interrupted via session Ctrl-C; exit130; no final metrics or valid checkpoint were produced",
+  "completed": false,
+  "scope": "controlled calendar equality/physical legal windows verified by configuration tests; actual full-day closure contrast unverified",
+  "exit_code": 130
+}

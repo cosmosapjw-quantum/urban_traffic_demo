@@ -1,0 +1,44 @@
+{
+  "status": "C02_INTEGRATION_SCOPED_VERIFIED",
+  "commands": [
+    {
+      "python": "3.12.14",
+      "command": "pytest service_boundary_offers bus_freight v1_plan repository_entrypoints",
+      "exit_code": 0,
+      "passed": 24,
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "python": "3.13.16",
+      "command": "pytest service_boundary_offers bus_freight v1_plan repository_entrypoints",
+      "exit_code": 0,
+      "passed": 24,
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "ruff changed source/tests",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    },
+    {
+      "command": "fresh no-deps installed wheel outside checkout: run --scenario city1k_analytic --days 1",
+      "exit_code": 0,
+      "raw": "INSTALLED_DAY.json"
+    }
+  ],
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "core_receipt": "../v1_c02_20261027/RECEIPT.json",
+  "verified": [
+    "dedicated dynamic route offers reject scheduled bus tag injection",
+    "bus return boarding can be gated by explicit eligible cohort set",
+    "actual immutable per-step outlet events consumed by demand adapter",
+    "fresh full86400s1k CLI matches analytic677roadvehicles1350completedpersontrips50pending"
+  ],
+  "limits": [
+    "two-zone selected fixedroute synthetic composition",
+    "closure full-day extra execution stopped resource bound; no result claim",
+    "full day checkpoint/dynamic routing/100k performance not claimed"
+  ],
+  "full_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER"
+}

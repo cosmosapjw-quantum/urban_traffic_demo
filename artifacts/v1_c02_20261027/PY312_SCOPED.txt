@@ -1,0 +1,5 @@
+{"actual_day": "city10k_weekday", "wall_s": 19.097790457999963, "road_completed": 6724.999999999739}
+{"actual_day": "city10k_weekend", "wall_s": 14.534473760999845, "road_completed": 4805.000000000081}
+{"actual_day": "city1k_analytic", "wall_s": 11.783644166000158, "road_completed": 677.0000000000077}
+......
+6 passed in 46.26s

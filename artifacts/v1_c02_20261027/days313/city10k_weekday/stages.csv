@@ -1,0 +1,6 @@
+stage,persons,vehicles,cargo_kg
+requested,14000.0,6861.0,1000.0
+released,10900.0,6737.0,1000.0
+completed,10900.0,6737.0,1000.0
+pending,3100.0,124.0,0.0
+active,0.0,0.0,0.0

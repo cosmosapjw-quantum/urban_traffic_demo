@@ -1,0 +1,52 @@
+{
+  "status": "C02_VERIFIED_SCOPED_SYNTHETIC_TWO_ZONE",
+  "focused_tests": 6,
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "commands": [
+    {
+      "command": "pytest -q -s tests/v1/test_day_scenarios.py",
+      "python": "3.12.14",
+      "exit_code": 0,
+      "result": "6 passed",
+      "raw": "PY312_SCOPED.txt",
+      "actual_day_outputs": "days"
+    },
+    {
+      "command": "pytest -q -s tests/v1/test_day_scenarios.py",
+      "python": "3.13.16",
+      "exit_code": 0,
+      "result": "6 passed",
+      "raw": "PY313_SCOPED.txt",
+      "actual_day_outputs": "days313"
+    }
+  ],
+  "acceptance": {
+    "actual_10k_full_days": "weekday/weekend each86400s; real ServiceModel+T04 shared road with cars/fixedbuses/freight",
+    "actual_1k_analytic": "independent calendar integral672car+4bus+1freight=677vehicles completed;1350/1400persontrips completed,50capacitypending",
+    "am_pm": "positive actual car road offers at AM andPM, PM gated by outbound completion+dwell",
+    "conservation": "D01 resident stock and person-trip stages; actual road/class/fleet/person/cargo ledgers checked",
+    "controlled_interventions": "same OD/mode/amount/calendar hash for baseline/closure/bypass; legal actualmap new bypass",
+    "growth": "prior T04 complete cost→M04 strictslowepoch→materialize_city→nextD01calendar,10000to10100; separately labelled endogenous contrast",
+    "outputs": "actual executed city JSON/SVG, JSONsummary/hoursCSV/stagesCSV; null unsupported wholepersonmean,p95,unrun100k metrics"
+  },
+  "corrections": [
+    "first legalbypass proposal crossed undeclared second-blockboundary; city compiler rejected it, then endpoint corrected to registered0x andfinalconfigurationtests pass",
+    "additional report-only clock/stage scope labels clarified after firstfullruns; scientific day laws unchanged; root fresh installed1k validation covers final source"
+  ],
+  "limits": [
+    "synthetic two-zone executed city, not sixmorphology trafficvalidation",
+    "fixed legal free-time routes, no dynamic R02assignment or inflight reroute",
+    "10s boundary hold plus meanaccess/egress momentclosure; no convergence claim",
+    "buswaiting amounts are planned person-trip bookings incl conditionalreturns, not duplicated residents",
+    "bus/freight births actualrunoffers while cars retain calendarbirth; mixedrecordmean explicitly notwholetripmean",
+    "one frozen day; full citydaycheckpoint resume unsupported",
+    "100k performance andfullCI/integration notrun"
+  ],
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER",
+  "extra_intervention_execution": {
+    "status": "BLOCKED_RESOURCE",
+    "raw": "INTERVENTION_CHECK.txt",
+    "final_metrics": null
+  }
+}
