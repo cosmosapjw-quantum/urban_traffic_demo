@@ -1193,7 +1193,7 @@
         "title": "[V1 R01] 인과적 정보 channel과 동일물리 비용 관측",
         "branch": "v1/r01-causal-information-20261026",
         "base": "v1/t04-transfer-time-20261026",
-        "opened_number": null
+        "opened_number": 32
       },
       "implementation_parent": {
         "node": "T04",
