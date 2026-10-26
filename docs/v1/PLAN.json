@@ -1506,7 +1506,7 @@
         "title": "[V1 M04] 실현 접근성에서 느린 도시개발로의 지연 피드백",
         "branch": "v1/m04-lagged-growth-20261026",
         "base": "v1/c01-parallel-20261026",
-        "opened_number": null
+        "opened_number": 36
       },
       "implementation_parent": {
         "node": "C01",
