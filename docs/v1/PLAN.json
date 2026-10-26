@@ -1349,7 +1349,7 @@
         "title": "[V1 B01] 버스·화물의 최소 운영과 승객/차량 분리",
         "branch": "v1/b01-parallel-20261026",
         "base": "v1/r02-shared-routing-20261026",
-        "opened_number": null
+        "opened_number": 34
       },
       "implementation_parent": {
         "node": "R02",
