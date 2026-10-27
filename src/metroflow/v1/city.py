@@ -425,13 +425,16 @@ def compile_city(
                 reject("block stock exceeds capacity", "PHYSICAL_INFEASIBLE")
         portals = tuple(sorted(portals, key=lambda p: p.id))
         _unique(portals, "portal")
+        blocks_by_id = {b.id: b for b in blocks}
         for p in portals:
             if (
-                p.block_id not in {b.id for b in blocks}
+                p.block_id not in blocks_by_id
                 or p.node_id not in nodes
                 or nodes[p.node_id].layer != 0
             ):
                 reject("portal requires registered block and ground node")
+            if p.node_id not in blocks_by_id[p.block_id].boundary:
+                reject("portal requires a node on its registered block boundary")
         placed = sum(b.residents for b in blocks)
         requested_population = (
             placed + unplaced_residents if requested_population is None else requested_population

@@ -1,0 +1,22 @@
+{
+  "status": "BLOCKED",
+  "node": "V01",
+  "parent_commit": "e39325c72e5139eff50af0d4d13f4b709262ea63",
+  "source_sha256": {
+    "src/metroflow/v1/city.py": "7cd5612e6f2823b8b3668d38bc02bcb9c4644aa335dc9c954f7243410e19c123",
+    "tools/audit_v1_physics.py": "78e2b550e17c577a77afd0c7510cc212bd7b436a4b22075457749f95b9d2693a",
+    "tests/v1/test_city_contract.py": "92297c5a12c38764d99107ae4145ce3e0fdd17b80266a74109ca89c4424fa9b5",
+    "tests/v1/test_acceptance_physics.py": "cb3d3f57fbf9d3ec881ba5c4ae566d2c72bdccc8e4f79888c993b22e850176df",
+    "docs/v1/M02_CONTRACT_KO.md": "8e2aa497436c2683a152717cf15f2a513bf752c981078ed9ad5396787f2145c0"
+  },
+  "checks": {
+    "python_3.12_scoped": "43 passed",
+    "python_3.13_scoped": "43 passed",
+    "ruff": "PASS",
+    "plan_validate": "VALID_PLAN_NOT_RELEASE"
+  },
+  "test_selection": "tests/v1/test_city_contract.py tests/v1/test_activity_access.py tests/v1/test_growth_runtime.py tests/v1/test_lagged_growth.py tests/v1/test_acceptance_physics.py",
+  "finding": "38 frozen maps still lack registered portals; actual access and connectivity not verified; P1 provisional and open",
+  "scope": "PortalRef boundary contract and fail-closed audit guard; not evidence of constructed physical entrances",
+  "full_ci_and_integration": "DEFERRED_BY_USER"
+}

@@ -1,5 +1,8 @@
 """V01 checks explicit predeclared tolerances and never equates audit with release."""
-from tools.audit_v1_physics import audit
+import json
+
+import tools.audit_v1_physics as physics
+from tools.audit_v1_physics import audit, unsupported_registered_access
 
 
 def test_actual_observable_matrix_and_unresolved_release_blocker():
@@ -12,3 +15,25 @@ def test_actual_observable_matrix_and_unresolved_release_blocker():
     assert r['release_findings'][0]['count_maps'] == 38
     assert r['release_findings'][0]['severity'] == 'P1'
     assert 'microscopic safety' in r['claims_not_proved']
+
+
+def test_registered_portal_count_cannot_substitute_for_access_evidence():
+    assert unsupported_registered_access({'registered_portal_count': 1})
+    assert unsupported_registered_access({'registered_unserved_residents': 0,
+                                          'registered_access_status': 'NOT_RUN'})
+    verified = {'registered_unserved_residents': 0, 'registered_access_status': 'PASS',
+                'registered_entry_validation_status': 'PASS',
+                'registered_connectivity_status': 'PASS', 'registered_access_cdf': [[60, 1.0]]}
+    assert not unsupported_registered_access(verified)
+    for missing in verified:
+        assert unsupported_registered_access({k: v for k, v in verified.items() if k != missing})
+
+
+def test_incomplete_map_matrix_stays_blocked(tmp_path, monkeypatch):
+    matrix = tmp_path / 'artifacts/v1/map_audit/MATRIX.json'
+    matrix.parent.mkdir(parents=True)
+    matrix.write_text(json.dumps({'cases': []}))
+    monkeypatch.setattr(physics, 'ROOT', tmp_path)
+    result = audit()
+    assert result['status'] == 'BLOCKED_OPEN_P1'
+    assert result['release_findings'][0]['matrix_incomplete']

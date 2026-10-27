@@ -21,6 +21,20 @@ TOLERANCES = {'freeflow_s': 1.0, 'freeflow_refinement_s': 1.0,
               'braess_min': .05}
 
 
+def unsupported_registered_access(case):
+    """A portal count alone is not evidence of a usable physical connection."""
+    unserved = case.get('registered_unserved_residents')
+    return not (
+        isinstance(unserved, (int, float)) and not isinstance(unserved, bool)
+        and math.isfinite(unserved) and unserved == 0
+        and case.get('registered_access_status') == 'PASS'
+        and case.get('registered_entry_validation_status') == 'PASS'
+        and case.get('registered_connectivity_status') == 'PASS'
+        and isinstance(case.get('registered_access_cdf'), list)
+        and bool(case['registered_access_cdf'])
+    )
+
+
 def audit():
     kinetics = {r['case']: r for r in kinetic_oracles()}
     nodes = {r['case']: r for r in junction_oracles()}
@@ -38,7 +52,9 @@ def audit():
     residual = abs(2*z*z + z - (complex(math.cos(.1),math.sin(.1))-1))
     bridge = ROOT/'artifacts/v1/map_audit/MATRIX.json'
     data = json.loads(bridge.read_text())
-    unserved = [x for x in data['cases'] if x.get('registered_unserved_residents',0)>0]
+    cases = data.get('cases', [])
+    unserved = [x for x in cases if unsupported_registered_access(x)]
+    matrix_incomplete = len(cases) != 38 or len({x.get('identity') for x in cases}) != 38
     measured = [
         ('freeflow', timing['two_link_210m']['status']=='PASS', 'T04 numerical refinement; 210m analytical travel time'),
         ('collision_reference', kinetics['latent_continuous_reference']['status']=='PASS' and kinetics['gap_closure_counterexample']['status']=='PASS', 'T02 declared mean-gap closure and independent homogeneous latent reference'),
@@ -53,10 +69,11 @@ def audit():
             for k,ok,scope in measured]
     braess = routing['static_braess_minutes']
     findings = []
-    if unserved:
+    if unserved or matrix_incomplete:
         findings.append(dict(id='V01-P1-REGISTERED-PORTALS',severity='P1',severity_basis='provisional audit assessment, not formal review classification',status='OPEN',
                              scope='release product / V02 maps',count_maps=len(unserved),
-                             reason='registered portals absent; registered resident access unsupported',
+                             matrix_incomplete=matrix_incomplete,
+                             reason='registered resident access or physical connectivity not verified',
                              evidence='artifacts/v1/map_audit/MATRIX.json'))
     return dict(status='BLOCKED_OPEN_P1' if findings else 'SCOPED_AUDIT_COMPLETE',
                 fixture_status='PASS' if all(x['status']=='PASS' for x in matrix) else 'NOT_ACCEPTED',

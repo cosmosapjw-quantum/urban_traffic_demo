@@ -26,7 +26,7 @@ FaceGraph는 등록된 지상 끝점의 surface/bridge edge와 공급된 block b
 복원 문법의 공급되지 않은 block을 임의 생성하지도 않는다. bridge의 투영이 다른 도로와
 겹쳐도 실제 높이와 등록된 끝점만으로 접속을 판정한다. 비개발 open-space의 약한 단순
 boundary walk는 진단 면적으로 보존하며, 개발 가능한 면에는 단순 polygon과 exclusion 검사를 요구한다.
-PortalRef는 block ID와 등록 지상 node ID의 선언된 대응이다. 접근시간·용량·최적 출입구는 M03의 일이다.
+PortalRef는 block ID와 그 블록 경계의 등록 지상 node ID의 선언된 대응이다. 이 선언만으로 유효한 진입로, 용량, 유향 도로 연결 또는 주민 서비스가 증명되지는 않는다. 접근시간·용량·최적 출입구는 M03의 일이다.
 
 ## 검증 불변량
 

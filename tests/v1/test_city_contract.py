@@ -173,6 +173,11 @@ def test_atlas_json_retains_faces_stocks_and_declared_portals():
         compile_city(
             c.roadmap, c.landscape, c.face_graph.blocks, (PortalRef("gate", b.id, "missing"),)
         )
+    unrelated = next(n for n in c.roadmap.nodes if n.layer == 0 and n.id not in b.boundary)
+    with pytest.raises(CityContractError, match="portal.*boundary"):
+        compile_city(
+            c.roadmap, c.landscape, c.face_graph.blocks, (PortalRef("gate", b.id, unrelated.id),)
+        )
 
 
 def test_mutable_nested_inputs_are_rejected_before_snapshot_is_cached():
