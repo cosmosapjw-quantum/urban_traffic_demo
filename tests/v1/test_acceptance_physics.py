@@ -6,7 +6,7 @@ from tools.audit_v1_physics import audit, unsupported_registered_access
 
 
 def test_actual_observable_matrix_and_unresolved_release_blocker():
-    r = audit()
+    r = audit(map_matrix=physics.ROOT/'artifacts/v1/map_audit/MATRIX.json')
     assert len(r['matrix']) == 7
     assert r['fixture_status'] == 'PASS'
     assert r['stability_reference']['status'] == 'PASS'
@@ -34,6 +34,12 @@ def test_incomplete_map_matrix_stays_blocked(tmp_path, monkeypatch):
     matrix.parent.mkdir(parents=True)
     matrix.write_text(json.dumps({'cases': []}))
     monkeypatch.setattr(physics, 'ROOT', tmp_path)
-    result = audit()
+    result = audit(map_matrix=matrix)
     assert result['status'] == 'BLOCKED_OPEN_P1'
     assert result['release_findings'][0]['matrix_incomplete']
+
+
+def test_design_case_coverage_allows_repeated_physical_maps():
+    cases = [dict(case=str(i), family='primary', seed=7, identity='same') for i in range(38)]
+    assert not physics.incomplete_map_matrix(cases)
+    assert physics.incomplete_map_matrix(cases[:-1] + [cases[0]])

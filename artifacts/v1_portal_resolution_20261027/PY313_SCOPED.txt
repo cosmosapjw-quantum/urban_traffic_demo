@@ -1,0 +1,3 @@
+Fresh direct tool execution (exit 0):
+49 passed in 7.61s
+Selection: tests/v1/test_city_contract.py tests/v1/test_activity_access.py tests/v1/test_growth_runtime.py tests/v1/test_lagged_growth.py tests/v1/test_generated_entries.py tests/v1/test_acceptance_physics.py

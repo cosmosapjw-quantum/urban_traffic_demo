@@ -6,7 +6,7 @@ not pavement/vehicle clearance certification; tunnels are unsupported.
 """
 
 from collections import defaultdict
-from dataclasses import asdict, dataclass, fields, is_dataclass
+from dataclasses import asdict, dataclass, fields, is_dataclass, replace
 import hashlib
 import json
 import math
@@ -73,6 +73,26 @@ class CitySnapshot:
             unplaced_residents=self.unplaced_residents,
             identity=self.identity,
         )
+
+    def with_portals(self, portals):
+        """Replace only the portal registry of this compiled immutable snapshot.
+
+        Geometry, stocks and the legal-turn network are reused unchanged. The
+        source identity is checked and the same portal rules/canonical identity
+        as a full compile are applied. This does not validate entry corridors.
+        """
+        _immutable((self.roadmap, self.landscape, self.face_graph, self.portals))
+        if self.identity != _city_identity(
+            self.roadmap, self.landscape, self.face_graph.blocks, self.portals,
+            self.requested_population, self.unplaced_residents, self.transport_graph,
+        ):
+            reject("portal update requires an unmodified compiled snapshot")
+        portals = _validated_portals(portals, self.face_graph.blocks, self.roadmap.nodes)
+        identity = _city_identity(
+            self.roadmap, self.landscape, self.face_graph.blocks, portals,
+            self.requested_population, self.unplaced_residents, self.transport_graph,
+        )
+        return replace(self, portals=portals, identity=identity)
 
     def closure_links(self, failure_group):
         return tuple(
@@ -270,6 +290,33 @@ def _immutable(value):
         reject("physical snapshot inputs must be deeply immutable tuple registries")
 
 
+def _validated_portals(portals, blocks, registered_nodes):
+    portals = tuple(portals)
+    _immutable(portals)
+    portals = tuple(sorted(portals, key=lambda p: p.id))
+    _unique(portals, "portal")
+    blocks_by_id = {b.id: b for b in blocks}
+    nodes = {n.id: n for n in registered_nodes}
+    for p in portals:
+        if (p.block_id not in blocks_by_id or p.node_id not in nodes
+                or nodes[p.node_id].layer != 0):
+            reject("portal requires registered block and ground node")
+        if p.node_id not in blocks_by_id[p.block_id].boundary:
+            reject("portal requires a node on its registered block boundary")
+    return portals
+
+
+def _city_identity(roadmap, landscape, blocks, portals, requested_population,
+                   unplaced_residents, net):
+    payload = dict(
+        schema="metroflow_city_v1", roadmap=asdict(roadmap), landscape=asdict(landscape),
+        blocks=[asdict(b) for b in blocks], portals=[asdict(p) for p in portals],
+        requested_population=requested_population, unplaced_residents=unplaced_residents,
+        transport_fingerprint=net.map_fingerprint,
+    )
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, allow_nan=False).encode()).hexdigest()
+
+
 def compile_city(
     roadmap,
     landscape=None,
@@ -423,18 +470,7 @@ def compile_city(
                 reject("nonnegative integer block stocks required")
             if b.residents > b.housing_capacity or b.jobs > b.job_capacity:
                 reject("block stock exceeds capacity", "PHYSICAL_INFEASIBLE")
-        portals = tuple(sorted(portals, key=lambda p: p.id))
-        _unique(portals, "portal")
-        blocks_by_id = {b.id: b for b in blocks}
-        for p in portals:
-            if (
-                p.block_id not in blocks_by_id
-                or p.node_id not in nodes
-                or nodes[p.node_id].layer != 0
-            ):
-                reject("portal requires registered block and ground node")
-            if p.node_id not in blocks_by_id[p.block_id].boundary:
-                reject("portal requires a node on its registered block boundary")
+        portals = _validated_portals(portals, blocks, roadmap.nodes)
         placed = sum(b.residents for b in blocks)
         requested_population = (
             placed + unplaced_residents if requested_population is None else requested_population
@@ -464,19 +500,8 @@ def compile_city(
             tuple(sorted(landscape.water, key=lambda p: p.name)),
             tuple(sorted(landscape.protected, key=lambda p: p.name)),
         )
-        payload = dict(
-            schema="metroflow_city_v1",
-            roadmap=asdict(roadmap),
-            landscape=asdict(landscape),
-            blocks=[asdict(b) for b in blocks],
-            portals=[asdict(p) for p in portals],
-            requested_population=requested_population,
-            unplaced_residents=unplaced_residents,
-            transport_fingerprint=net.map_fingerprint,
-        )
-        identity = hashlib.sha256(
-            json.dumps(payload, sort_keys=True, allow_nan=False).encode()
-        ).hexdigest()
+        identity = _city_identity(roadmap, landscape, blocks, portals,
+                                  requested_population, unplaced_residents, net)
         return CitySnapshot(
             roadmap,
             landscape,

@@ -1,0 +1,94 @@
+{
+  "source_identity": "da78089758004b309b8c02aef1f3252acc567206d69e7b0d6be01f396a9b9f46",
+  "identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 234,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0021250701206832544
+    ],
+    [
+      60,
+      0.16575666187430538
+    ],
+    [
+      120,
+      0.5234648355562366
+    ],
+    [
+      300,
+      0.9199849036649536
+    ],
+    [
+      600,
+      0.9981170272025096
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.679694703579159
+    ],
+    [
+      600,
+      0.946280260797464
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.8171976674423644
+    ],
+    [
+      60,
+      0.8602563668285882
+    ],
+    [
+      120,
+      0.9510160519217747
+    ],
+    [
+      300,
+      0.9924172984501555
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 48.700485886262776,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 1552,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 36,
+  "case": "corridor_valley",
+  "seed": 7,
+  "family": "mixed",
+  "parent_identity": "da78089758004b309b8c02aef1f3252acc567206d69e7b0d6be01f396a9b9f46",
+  "source": "mixed_corridor_valley_s7.json.xz",
+  "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+  "patch": "36.patch.json.xz",
+  "patch_sha256": "780b9c6ea8ded66a16f22c42b497b9111689d17ab7bfcab3051f125a98dc8c0c",
+  "wall_s": 32.173740453999926
+}

@@ -1,0 +1,94 @@
+{
+  "source_identity": "dcfd212c6ca27886a371178bb2fe44237aec7ebdbfa1457ff882f65db041b23a",
+  "identity": "e0ea4164630d63305ed6deb315c3387ad489c8195b08da83ad466e68d12187f0",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 332,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.003077185752090043
+    ],
+    [
+      60,
+      0.16036498462596513
+    ],
+    [
+      120,
+      0.49903487615454584
+    ],
+    [
+      300,
+      0.9176319869617815
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.5971204260055821
+    ],
+    [
+      600,
+      0.9531537218393284
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.8097054769453731
+    ],
+    [
+      60,
+      0.8749077723575132
+    ],
+    [
+      120,
+      0.9649116780455104
+    ],
+    [
+      300,
+      0.9960875478009598
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 52.00253034467712,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 2360,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 34,
+  "case": "corridor_river",
+  "seed": 17,
+  "family": "mixed",
+  "parent_identity": "dcfd212c6ca27886a371178bb2fe44237aec7ebdbfa1457ff882f65db041b23a",
+  "source": "mixed_corridor_river_s17.json.xz",
+  "source_sha256": "89706ad4f8f1055b7ddd40400cf30957a2d20cd198c167d14994d50506d9fc0a",
+  "patch": "34.patch.json.xz",
+  "patch_sha256": "235c027829a88a5bc142b366399e409675919e3a0104068294422f25be4bd597",
+  "wall_s": 18.03995207600019
+}

@@ -1,0 +1,94 @@
+{
+  "source_identity": "bb3b421e17ffad626a8332f10fafc41491d69121d8c5e8c8c469ecb99217a9f2",
+  "identity": "9714b7274afe4772f166c8f2f163e596c0c4a2f19f1ba05f03a11d2e6db442be",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 209,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.002146109544925884
+    ],
+    [
+      60,
+      0.045309367304129586
+    ],
+    [
+      120,
+      0.45909889108972546
+    ],
+    [
+      300,
+      0.998545262152786
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.6338680057668233
+    ],
+    [
+      600,
+      0.9917907009168057
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.9234005505006933
+    ],
+    [
+      60,
+      0.9426065724429719
+    ],
+    [
+      120,
+      0.9886572403591365
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 49.815731361792324,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 1258,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 26,
+  "case": "polycentric_valley",
+  "seed": 41,
+  "family": "mixed",
+  "parent_identity": "bb3b421e17ffad626a8332f10fafc41491d69121d8c5e8c8c469ecb99217a9f2",
+  "source": "mixed_polycentric_valley_s41.json.xz",
+  "source_sha256": "2945b20bdfccd0a6eb7bf9d67f535ec1970c8316a9e7f998c85ae29344c5bd3d",
+  "patch": "26.patch.json.xz",
+  "patch_sha256": "eae00fd0655b60082fb4b97843c3d388d94af34d6498d587699be1fba17bd504",
+  "wall_s": 31.89627255599953
+}

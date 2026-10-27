@@ -1,0 +1,94 @@
+{
+  "source_identity": "448cf4070ef243386bbd3652b18f9044eeee4009200a50bcb5dbdcfac4cf9d3c",
+  "identity": "14487f8be6f7606d50e200d719fbdd447b6e1acf89b30f08010de495022b037e",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 829,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.00012578433180209615
+    ],
+    [
+      60,
+      0.00012578433180209615
+    ],
+    [
+      120,
+      0.4758277276631395
+    ],
+    [
+      300,
+      0.9977961566448817
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.9088440141708858
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.9644452435945081
+    ],
+    [
+      60,
+      0.9781177519685081
+    ],
+    [
+      120,
+      0.998389968024173
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 46.61190541830273,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 3710,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 0,
+  "case": "planned_plain",
+  "seed": 7,
+  "family": "primary",
+  "parent_identity": "448cf4070ef243386bbd3652b18f9044eeee4009200a50bcb5dbdcfac4cf9d3c",
+  "source": "primary_planned_plain_s7.json.xz",
+  "source_sha256": "bcd12566d55f0984879b54d438ddeb6ef3e61ffe5067f49bfb62534c86587c01",
+  "patch": "00.patch.json.xz",
+  "patch_sha256": "9bc5545ef5b2d02feaf6b91e6e95e50ded94b535d85789c798021d1335736a0d",
+  "wall_s": 10.831159953999304
+}

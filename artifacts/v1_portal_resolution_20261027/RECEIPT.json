@@ -1,0 +1,24 @@
+{
+  "node": "V01",
+  "status": "VERIFIED_SCOPED",
+  "parent_commit": "2e4b11547a7ff8bf2ce5ccf53c55ccc2a84d141c",
+  "source_manifest": "artifacts/v1_portal_resolution_20261027/SOURCE_MANIFEST.json",
+  "source_manifest_sha256": "6efbcc63c41ebe88cb8bed64ed8a3b1e8c6dac883e8a448008f71882fa9af871",
+  "maps": 38,
+  "total_synthetic_resident_stock_across_maps": 3800000,
+  "unserved_residents": 0,
+  "new_portals": 19993,
+  "physical_fixture_passes": 7,
+  "checks": {
+    "python312": "49 passed",
+    "python313": "49 passed",
+    "ruff": "PASS",
+    "patch_replay": "index0 PASS; source/patch hashes and new snapshot identity checked"
+  },
+  "closed_finding": "V01-P1-REGISTERED-PORTALS: new synthetic constructions, physical corridor validation, legal-turn SCC, actual registered access CDF and bounds on all38 inputs",
+  "scope": "finite synthetic city-entry construction and V01 physics fixtures; capacity1 veh/s declared prior; 100k/day performance and demand receiving/storage gate NOT_RUN",
+  "matrix_sha256": "7417bde47f772d2323d7f57d6ef0ef9d6b6771bf61a4c00ffb0503958a29573b",
+  "audit_sha256": "70df22a1e23784916a8d522c0d8852aa751e9c32979ff8e27932feed4a2dd0f3",
+  "independent_review": "portal_theory: directed-link SCC proof, area CDF bounds, source identity reuse, final entry revalidation; docs/v1/V01_PORTAL_RESOLUTION_KO.md",
+  "full_ci_and_integration": "DEFERRED_BY_USER"
+}

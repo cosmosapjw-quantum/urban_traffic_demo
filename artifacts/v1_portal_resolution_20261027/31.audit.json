@@ -1,0 +1,94 @@
+{
+  "source_identity": "b1029d8de00cba2d6b7a083ce6fe018baf40b44c0aa86ac2be5f8d8ab41f5106",
+  "identity": "6a8b44738381f45ac0b89e7eb671cac802a3eb86111dfda6a1134d63685ce618",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 192,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.07453174982316806
+    ],
+    [
+      120,
+      0.47141431187955285
+    ],
+    [
+      300,
+      0.9943073114571221
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.5853174111829411
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.8957379589858245
+    ],
+    [
+      60,
+      0.9703481702429422
+    ],
+    [
+      120,
+      0.9943073114571221
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 49.45146921934871,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 1250,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 31,
+  "case": "radial_valley",
+  "seed": 17,
+  "family": "mixed",
+  "parent_identity": "b1029d8de00cba2d6b7a083ce6fe018baf40b44c0aa86ac2be5f8d8ab41f5106",
+  "source": "mixed_radial_valley_s17.json.xz",
+  "source_sha256": "e2f7f698286a138842f1a8464e152730e33ae5ff53ca706fed6d8c118d7b4bc7",
+  "patch": "31.patch.json.xz",
+  "patch_sha256": "fc827be0ea0f866a8b4efa485321afa4eafbdf73a2867d8ee6d3226e79377289",
+  "wall_s": 21.427004062999913
+}

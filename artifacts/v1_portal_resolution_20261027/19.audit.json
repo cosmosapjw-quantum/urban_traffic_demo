@@ -1,0 +1,94 @@
+{
+  "source_identity": "1c17f422f689b77e780d3732b21aa35966bc689f81c0865c7cb65ba537e684a2",
+  "identity": "9ac907ef48d5b40753b0016557e3286f13db34a263054d4e9247b448f68612eb",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 767,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.00023674218465342766
+    ],
+    [
+      60,
+      0.00023674218465342766
+    ],
+    [
+      120,
+      0.482657297602784
+    ],
+    [
+      300,
+      0.997748703377989
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.9124044916870896
+    ],
+    [
+      600,
+      0.997748703377989
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.964881322963386
+    ],
+    [
+      60,
+      0.9792617322022513
+    ],
+    [
+      120,
+      0.9994528502140954
+    ],
+    [
+      300,
+      0.9994528502140954
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 46.5522415408577,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 3524,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 19,
+  "case": "planned_river",
+  "seed": 17,
+  "family": "mixed",
+  "parent_identity": "1c17f422f689b77e780d3732b21aa35966bc689f81c0865c7cb65ba537e684a2",
+  "source": "mixed_planned_river_s17.json.xz",
+  "source_sha256": "b2f4276df739303c783c1a08f6a848eed9ce311021a3a41290db36f11647cebf",
+  "patch": "19.patch.json.xz",
+  "patch_sha256": "27b7d05b33bdb09fd7243ccf2a50efd2704f2a178caaf4926c5f61f3b5cbb075",
+  "wall_s": 23.934426783000163
+}

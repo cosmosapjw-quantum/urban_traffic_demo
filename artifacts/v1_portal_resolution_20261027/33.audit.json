@@ -1,0 +1,94 @@
+{
+  "source_identity": "a5f5a18fd02d6d2fb5960a0d1c768b182f256193d2b4961644fb7c1bafc8ec4d",
+  "identity": "6cd978e46dbf9a5a45ee5ed7ce95c6cf78fa4ad3374e664dad5006f55c29840d",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 383,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0025812481962157155
+    ],
+    [
+      60,
+      0.16027258054335802
+    ],
+    [
+      120,
+      0.5091916834808314
+    ],
+    [
+      300,
+      0.936344223092233
+    ],
+    [
+      600,
+      0.9985893516900677
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.6143622528192489
+    ],
+    [
+      600,
+      0.9517361584744753
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.8448689329351706
+    ],
+    [
+      60,
+      0.9128579616599738
+    ],
+    [
+      120,
+      0.9614763178849053
+    ],
+    [
+      300,
+      0.9937099445254732
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 52.0832308024891,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 2414,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 33,
+  "case": "corridor_flat",
+  "seed": 7,
+  "family": "mixed",
+  "parent_identity": "a5f5a18fd02d6d2fb5960a0d1c768b182f256193d2b4961644fb7c1bafc8ec4d",
+  "source": "mixed_corridor_flat_s7.json.xz",
+  "source_sha256": "3fa841783c268183067affcd266d9b63677cb6e794706c01319c025db97a9822",
+  "patch": "33.patch.json.xz",
+  "patch_sha256": "84a24db83d6d5772f4d162777bb282f887088cbdf3d53bee721e7525dfb745a7",
+  "wall_s": 22.560200559000805
+}

@@ -1,0 +1,94 @@
+{
+  "source_identity": "747e99d43f1e4ba8ff66a879bf31e2463bead657ee3e37e235170d0552f6530c",
+  "identity": "58094d35da0866a247356097367039ec6b35f2c860ce0fd880f3ce2bddd993fe",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 794,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0002387696794103499
+    ],
+    [
+      60,
+      0.0002387696794103499
+    ],
+    [
+      120,
+      0.4856459288603936
+    ],
+    [
+      300,
+      0.9976128423419239
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.9224507928442811
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.9685559271816
+    ],
+    [
+      60,
+      0.9819927546224874
+    ],
+    [
+      120,
+      0.9986195700577528
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 46.46047624372636,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 3706,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 20,
+  "case": "planned_coast",
+  "seed": 41,
+  "family": "mixed",
+  "parent_identity": "747e99d43f1e4ba8ff66a879bf31e2463bead657ee3e37e235170d0552f6530c",
+  "source": "mixed_planned_coast_s41.json.xz",
+  "source_sha256": "fd3c38fccbdab7ad4508fec35dc4b76257a48fddc3386281b0abf8ddd1bc9f1c",
+  "patch": "20.patch.json.xz",
+  "patch_sha256": "b6093bd0893821e65046dd4916d915436f2860d365b4ee4406af72d6228c8a99",
+  "wall_s": 12.52803479800059
+}

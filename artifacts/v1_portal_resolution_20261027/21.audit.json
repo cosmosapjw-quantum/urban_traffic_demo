@@ -1,0 +1,94 @@
+{
+  "source_identity": "6c278b54f860a23dec87d97ce5c3d297844bd291073e0b5773d11204422891cd",
+  "identity": "d1d181bd0dda346408e69a774c71325130a7621bd1137321d49ce8a12d77b67b",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 287,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.4757825809426067
+    ],
+    [
+      300,
+      0.9987746998174106
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.9307858120898813
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.9646634919455226
+    ],
+    [
+      60,
+      0.978066579077067
+    ],
+    [
+      120,
+      0.9987746998174106
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 46.07986890184355,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 1534,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 21,
+  "case": "planned_valley",
+  "seed": 7,
+  "family": "mixed",
+  "parent_identity": "6c278b54f860a23dec87d97ce5c3d297844bd291073e0b5773d11204422891cd",
+  "source": "mixed_planned_valley_s7.json.xz",
+  "source_sha256": "86e4f663d7a42ed8b68f94ecc42e45bae0f4fcb882b5cefd2f823a4e876a1879",
+  "patch": "21.patch.json.xz",
+  "patch_sha256": "2868459e3f86c9c58426bda35d4edf2db1350859d0087de4829e7343521f0134",
+  "wall_s": 19.611590930000602
+}

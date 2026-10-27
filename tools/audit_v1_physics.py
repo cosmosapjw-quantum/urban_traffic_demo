@@ -3,6 +3,7 @@
 All tolerances below are fixed before running. Selected microcases exercise the
 actual V1 transport/node oracles. OVM eigenmodes are a separate local reference.
 """
+import argparse
 import json
 import math
 from pathlib import Path
@@ -35,7 +36,12 @@ def unsupported_registered_access(case):
     )
 
 
-def audit():
+def incomplete_map_matrix(cases):
+    # Primary and mixed design cases intentionally repeat some physical maps.
+    return len(cases) != 38 or len({(x.get('case'), x.get('family'), x.get('seed')) for x in cases}) != 38
+
+
+def audit(*, map_matrix=None):
     kinetics = {r['case']: r for r in kinetic_oracles()}
     nodes = {r['case']: r for r in junction_oracles()}
     timing = {r['case']: r for r in timing_oracles()}
@@ -50,11 +56,11 @@ def audit():
     mode = ovm_modes(1.,2.,.1)
     z = complex(*mode['modes_per_s'][0])
     residual = abs(2*z*z + z - (complex(math.cos(.1),math.sin(.1))-1))
-    bridge = ROOT/'artifacts/v1/map_audit/MATRIX.json'
+    bridge = Path(map_matrix) if map_matrix is not None else ROOT/'artifacts/v1_portal_resolution_20261027/MATRIX.json'
     data = json.loads(bridge.read_text())
     cases = data.get('cases', [])
     unserved = [x for x in cases if unsupported_registered_access(x)]
-    matrix_incomplete = len(cases) != 38 or len({x.get('identity') for x in cases}) != 38
+    matrix_incomplete = incomplete_map_matrix(cases)
     measured = [
         ('freeflow', timing['two_link_210m']['status']=='PASS', 'T04 numerical refinement; 210m analytical travel time'),
         ('collision_reference', kinetics['latent_continuous_reference']['status']=='PASS' and kinetics['gap_closure_counterexample']['status']=='PASS', 'T02 declared mean-gap closure and independent homogeneous latent reference'),
@@ -74,7 +80,7 @@ def audit():
                              scope='release product / V02 maps',count_maps=len(unserved),
                              matrix_incomplete=matrix_incomplete,
                              reason='registered resident access or physical connectivity not verified',
-                             evidence='artifacts/v1/map_audit/MATRIX.json'))
+                             evidence=str(bridge)))
     return dict(status='BLOCKED_OPEN_P1' if findings else 'SCOPED_AUDIT_COMPLETE',
                 fixture_status='PASS' if all(x['status']=='PASS' for x in matrix) else 'NOT_ACCEPTED',
                 tolerances=TOLERANCES, matrix=matrix,
@@ -91,7 +97,10 @@ def audit():
 
 
 if __name__ == '__main__':
-    result = audit()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--map-matrix', type=Path)
+    args = parser.parse_args()
+    result = audit(map_matrix=args.map_matrix)
     print(json.dumps(result,indent=2,allow_nan=False))
     # Non-zero when release acceptance remains blocked; audited fixture results stay visible.
     raise SystemExit(0 if result['status']=='SCOPED_AUDIT_COMPLETE' and result['fixture_status']=='PASS' else 2)
