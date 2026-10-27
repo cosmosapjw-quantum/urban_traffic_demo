@@ -293,7 +293,7 @@ flowchart TD
 |M04|실현 접근성에서 느린 도시개발로의 지연 피드백|C01, M03|VERIFIED_SCOPED|
 |C02|하루 도시 실행·시나리오·관측 패키지|C01, B01, M04, T01|VERIFIED_SCOPED|
 |P01|관측동등 경량화와 자원 상한 확립|C02|VERIFIED_SCOPED|
-|V01|통합 물리·관측·대칭 적대 검증|C02|IN_PROGRESS|
+|V01|통합 물리·관측·대칭 적대 검증|C02|BLOCKED|
 |V02|도시형태·지형·접근의 적대적 시각 검수|M02, M03, M04, C01|VERIFIED_SCOPED|
 |V03|로컬 10만 주민·24시간 실제 실행과 수치 수용시험|P01, V01, V02|PLANNED|
 |RLS01|1차 완성 릴리스·설치·재현·문서 정리|V03, I01|PLANNED|
@@ -1875,9 +1875,9 @@ V1목표24hsim<=7200swall,peakRSS<=8GiB;미달시같은노드에서수정하거�
 
 ### V01. 통합 물리·관측·대칭 적대 검증
 
-의존: C02; 상태: **IN_PROGRESS**.
+의존: C02; 상태: **BLOCKED**.
 
-예정 PR: `V1-V01`, branch `v1/v01-parallel-20261027` → `v1/v02-parallel-20261027`.
+예정 PR: `V1-V01`, branch `v1/v01-parallel-20261027` → `v1/p01-parallel-20261027`.
 
 **입력**
 
@@ -2305,11 +2305,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V01"
   ],
   "native_subagent": "NOT_RUN",
-  "scope": "P01 scoped verified, V01 audit ongoing with unresolved portal finding; full CI/integration deferred",
+  "scope": "P01 scoped verified; V01 audit blocked by provisional release portal finding; full CI/integration deferred",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": "artifacts/v1_p01_20261027/RECEIPT.json",
+  "evidence": "artifacts/v1_v01_20261027/RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
