@@ -29,3 +29,13 @@ python tools/run_v1_acceptance.py --matrix scenarios/v1/release_matrix.json --re
 `ReleasePlan`은 실제3개 도시의 정확한 calendar를 bounded페이지로 구성하고 미구성 수요를 정량 보존한다. `ReleaseRuntime`은 완료+dwell 귀가/내부 이동을, `ReleaseServicePlan`은 명시 fleet/depot와 미배정 장부를 제공한다. `JointReleaseRuntime`은 유한 경로집합의 모든 차종을 단 하나의 ServiceModel.step으로 갱신하며 접근/이탈/귀가 장부와 checkpoint를 검증한다. Python3.12/3.13 각각38개 관련검사와ruff통과. 근거: `artifacts/v1_v03_joint_20261027/RECEIPT.json`; 유도와독립검토: `V03_JOINT_RUNTIME_RESEARCH_KO.md`.
 
 남은 구현은 전체 calendarcursor를 점유중 joint도로상태와 하나의 트랜잭션/checkpoint로 활성화하는 driver 및 active record 예산 처리다. 도시 전체 fixedfleet/depot 입력도 명시해야 한다. 그 후 실제 로컬3case각3회24h 계측을 수행한다. 현재 페이지16개씩의 경로구성은 simulated0s이며 전체 실행을 대신하지 않는다. 완료율19/21유지.
+
+## 2026-10-27 전체 calendar driver·inventory
+
+`ReleaseDriver`가 전체 calendar의 정확한 사전 활성화와 단일 JointReleaseRuntime checkpoint를 제공한다. 점유중 동적 경로 삽입은 주장하지 않는다. `ReleaseInventory`와 matrix는 OD와 독립된 고정 ring24운행과 road-node depot을 명시한다. 실제3개 도시 inventory의 합법 경로 검증이 통과했다.
+
+실제 전체 입력을 준비하면 하천5093765, 해안2449750, 계곡918450leg가 선택한20000leg물질화 예산을 넘어 BLOCKED_RESOURCE가 된다. OD순회/도로상태 생성 전에 중단하며 cursor0와 전체 미처리량이 보존된다. 전체driver미구현이라는 이전 blocker는 이 범위에서 닫혔다. 이 예산 초과는 일반적인 실행 불가능성 증명이 아니다.
+
+준비 명령: `python tools/run_v1_local_acceptance.py --prepare-only --out artifacts/v1/local_prepare`. 실제 로컬 캠페인: `python tools/run_v1_local_acceptance.py --run-local --out artifacts/v1/local_acceptance`. CLI는 case별 새child프로세스,3회24h(2회차checkpointresume),추가dt절반prefix 대조를 제공한다. wall/RSS/tick/추적records와finalcheckpoint비교를 기록하며, route latency p99는아직NOT_MEASURED다. 실행 영수증은 MEASURED_REQUIRES_REVIEW이며 자동ACCEPTED아니다.
+
+다음 의무는 exact calendar의 준비/활성상태 자원 최적화, route latency계측, 실제 로컬 전캠페인이다. 관련46개 검사 두Python통과. 근거 `artifacts/v1_v03_driver_20261027/RECEIPT.json`, 독립검토 `V03_DRIVER_RESEARCH_KO.md`. 완료율19/21(90.5%)유지.

@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.13**, 2026-10-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.14**, 2026-10-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2103,7 +2103,7 @@ V03에서samecity traffic성능으로연결
 
 **실행·수용시험 명령**
 
-- python tools/run_v1_acceptance.py --matrix scenarios/v1/release_matrix.json --repeat 3
+- python tools/run_v1_local_acceptance.py --run-local --matrix scenarios/v1/release_matrix.json
 
 **완료조건**
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Connect global exact calendar activation/checkpoint to joint occupied road state, configure full release fleet/depot and execute measured local campaign
+Reduce exact calendar preactivation/active-state resource cost within unchanged observation contracts; then measure full local campaign and route latency p99
 
 **예산·종료조건**
 
@@ -2302,11 +2302,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN",
-  "scope": "V03 joint route planning, dependent returns/intrazonal ledgers and explicit bus/freight composition research; local campaign NOT_RUN",
+  "scope": "V03 driver and fixed inventory implemented; actual3cases preactivation BLOCKED_RESOURCE, full local measurements NOT_RUN",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": "artifacts/v1_v03_joint_20261027/RECEIPT.json",
+  "evidence": "artifacts/v1_v03_driver_20261027/RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2315,10 +2315,9 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [
-    "v03_full_runtime",
-    "v03_stream",
-    "v03_bus",
-    "v03_review_joint"
+    "v03_driver",
+    "v03_inventory",
+    "v03_driver_review"
   ]
 }
 ```

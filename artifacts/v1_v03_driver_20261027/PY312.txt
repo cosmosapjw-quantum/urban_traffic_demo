@@ -1,0 +1,4 @@
+Command: .venv/bin/python -m pytest -q tests/v1/test_daily_demand.py tests/v1/test_factorized_demand.py tests/v1/test_release_preflight.py tests/v1/test_release_runtime.py tests/v1/test_release_plan.py tests/v1/test_release_services.py tests/v1/test_joint_release_runtime.py tests/v1/test_release_driver.py tests/v1/test_release_inventory.py tests/v1/test_local_campaign_cli.py
+Exit: 0
+..............................................                           [100%]
+46 passed in 3.59s

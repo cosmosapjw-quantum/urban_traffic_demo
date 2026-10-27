@@ -35,5 +35,20 @@
   ],
   "demand_representation": "exact_factorized_independent_OD",
   "worker_shortfall": "unassigned_home",
-  "shortfall_definition": "requested_workers=allocated_workers+unassigned_workers; unmet workers stay home and are not counted as completed trips"
+  "shortfall_definition": "requested_workers=allocated_workers+unassigned_workers; unmet workers stay home and are not counted as completed trips",
+  "inventory_policy": {
+    "max_stops": 4,
+    "departures_s": [
+      21600,
+      32400,
+      43200,
+      54000,
+      64800,
+      75600
+    ],
+    "capacity_persons": 40,
+    "dwell_s": 20
+  },
+  "inventory_definition": "coordinate-ranked registered ground doors; directed ring; each departure is an independent one-way vehicle; first physical stop is explicit road-node freight depot; synthetic engineering prior independent of OD",
+  "route_materialization_budget": 20000
 }
