@@ -91,6 +91,9 @@ class HeldMotion:
 
 @dataclass(frozen=True, slots=True)
 class FiniteResponseMotion:
+    # Exact empty-link law: distance/speed/latent are identically zero.
+    empty_stationary = True
+
     templates: tuple[ClassMass, ...]
     entry_speeds: tuple[tuple[str, float], ...]
 

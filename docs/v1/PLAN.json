@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "date": "2026-10-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -15,7 +15,7 @@
     "T01",
     "I01"
   ],
-  "next_node": "P01",
+  "next_node": "V01",
   "execution_policy": {
     "rule": "2026-10-26 사용자 변경: DAG 구현을 한정 검증된 누적 브랜치에서 진행한다. 전체 CI·통합·ACCEPTED 판정은 전체 DAG 구현 후 별도 심사에서 수행한다.",
     "no_automatic_scope_growth": true,
@@ -368,15 +368,15 @@
   ],
   "current_execution": {
     "node_ids": [
-      "C02",
-      "V02"
+      "P01",
+      "V01"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "C02/V02 scoped execution complete; V02 portal service finding unresolved; next independent P01/V01; full CI/integration deferred",
+    "scope": "P01 scoped verified, V01 audit ongoing with unresolved portal finding; full CI/integration deferred",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_v02_integration_20261027/RECEIPT.json",
+    "evidence": "artifacts/v1_p01_20261027/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -1608,7 +1608,7 @@
       "depends_on": [
         "C02"
       ],
-      "status": "READY",
+      "status": "VERIFIED_SCOPED",
       "files": [
         "src/metroflow/v1/transport.py",
         "src/metroflow/v1/routing.py",
@@ -1661,9 +1661,21 @@
       "pr": {
         "key": "V1-P01",
         "title": "[V1 P01] 관측동등 경량화와 자원 상한 확립",
-        "branch": "v1/p01",
-        "base": "research/v1-integration-20261025",
+        "branch": "v1/p01-parallel-20261027",
+        "base": "v1/v02-parallel-20261027",
         "opened_number": null
+      },
+      "implementation_parent": {
+        "node": "V02",
+        "branch": "v1/v02-parallel-20261027",
+        "sha": "1c90ba9fc0203c827228309e6d6fea365eb1f66a",
+        "pr": 38
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_p01_20261027/RECEIPT.json",
+        "sha256": "68eb3ff886228192573e1bc9bc42386082bd18dbc2592566eca38884a16c2a47",
+        "source_manifest": "artifacts/v1_p01_20261027/SOURCE_MANIFEST.json",
+        "acceptance": "35 scoped each Python; 290 records unchanged with 289 budget checkpoint; 3 paired days no secure speedup"
       }
     },
     {
@@ -1672,7 +1684,7 @@
       "depends_on": [
         "C02"
       ],
-      "status": "READY",
+      "status": "IN_PROGRESS",
       "files": [
         "tests/v1/test_acceptance_physics.py",
         "tools/audit_v1_physics.py"
@@ -1724,9 +1736,15 @@
       "pr": {
         "key": "V1-V01",
         "title": "[V1 V01] 통합 물리·관측·대칭 적대 검증",
-        "branch": "v1/v01",
-        "base": "research/v1-integration-20261025",
+        "branch": "v1/v01-parallel-20261027",
+        "base": "v1/v02-parallel-20261027",
         "opened_number": null
+      },
+      "implementation_parent": {
+        "node": "V02",
+        "branch": "v1/v02-parallel-20261027",
+        "sha": "1c90ba9fc0203c827228309e6d6fea365eb1f66a",
+        "pr": 38
       }
     },
     {
@@ -1992,11 +2010,12 @@
       "C01",
       "M04",
       "C02",
+      "P01",
       "V02"
     ],
-    "completed_count": 17,
+    "completed_count": 18,
     "total_count": 21,
-    "percent": 80.95,
+    "percent": 85.71,
     "definition": "ACCEPTED or receipt-bound VERIFIED_SCOPED; not full CI/integration/final acceptance"
   }
 }

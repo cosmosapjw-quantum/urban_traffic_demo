@@ -1,0 +1,10 @@
+{
+  "status": "BLOCKED_RESOURCE",
+  "budget_records": 289,
+  "reason": "journey access/egress record budget",
+  "checkpoint_time_s": 304.0,
+  "released_veh": 2.0,
+  "completed_veh": 0.0055331181261087424,
+  "unchanged_live_mass_veh": 1.9944668818738913,
+  "checkpoint_type": "JourneyState"
+}

@@ -1,0 +1,67 @@
+{
+  "status": "PASS",
+  "scenario": "city10k_weekday",
+  "python": "3.12.14",
+  "identical_all_report_fields_except_resources": true,
+  "paired_samples": [
+    {
+      "run": 1,
+      "version": "baseline",
+      "wall_s": 11.603127520000271,
+      "inner_wall_s": 11.390233124000588,
+      "peak_rss_kib": 18688
+    },
+    {
+      "run": 1,
+      "version": "optimized",
+      "wall_s": 10.567260005000207,
+      "inner_wall_s": 10.335931027999322,
+      "peak_rss_kib": 17408
+    },
+    {
+      "run": 2,
+      "version": "optimized",
+      "wall_s": 9.844678118000957,
+      "inner_wall_s": 9.6429820379999,
+      "peak_rss_kib": 17408
+    },
+    {
+      "run": 2,
+      "version": "baseline",
+      "wall_s": 13.56968655899982,
+      "inner_wall_s": 13.332307906001006,
+      "peak_rss_kib": 17408
+    },
+    {
+      "run": 3,
+      "version": "baseline",
+      "wall_s": 12.084875870999895,
+      "inner_wall_s": 11.813120655000603,
+      "peak_rss_kib": 17280
+    },
+    {
+      "run": 3,
+      "version": "optimized",
+      "wall_s": 13.246582708999995,
+      "inner_wall_s": 12.996760221998557,
+      "peak_rss_kib": 17280
+    }
+  ],
+  "stats": {
+    "baseline": {
+      "mean_wall_s": 12.419229983333329,
+      "min_wall_s": 11.603127520000271,
+      "max_wall_s": 13.56968655899982,
+      "stdev_wall_s": 1.0250283497510768,
+      "max_rss_kib": 18688
+    },
+    "optimized": {
+      "mean_wall_s": 11.219506944000386,
+      "min_wall_s": 9.844678118000957,
+      "max_wall_s": 13.246582708999995,
+      "stdev_wall_s": 1.7922913445200281,
+      "max_rss_kib": 17408
+    }
+  },
+  "scope": "same synthetic 10k city and fixed calendar; no 100k performance claim"
+}

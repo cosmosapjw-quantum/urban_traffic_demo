@@ -1,0 +1,118 @@
+{
+  "birth_moment": 0.0,
+  "completed": 2.0,
+  "entering": [],
+  "exit_moment": 604.4444444444445,
+  "finished_entry_hold_seconds": 0.0,
+  "finished_origin_seconds": 0.0,
+  "finishing": [],
+  "model_id": "55b6469df5be533aecb9504864186920e0f66ef3082b15b36eabf144579002db",
+  "released": 2.0,
+  "traffic": {
+    "birth_moment": 0.0,
+    "cells": [
+      {
+        "activity": 0.9958124017093175,
+        "admitted": 2.0000000000000004,
+        "completed": 2.0,
+        "entry_moment": 451.5841181522745,
+        "exit_moment": 604.4444444444446,
+        "latent": [],
+        "packets": [],
+        "progress_m": 2532.2180964362847,
+        "speed_mps": 0.0,
+        "vehicle_metres": 385.2034540750063
+      },
+      {
+        "activity": 0.9999999990837372,
+        "admitted": 2.0,
+        "completed": 2.0,
+        "entry_moment": 428.89263240744907,
+        "exit_moment": 450.62142129594906,
+        "latent": [],
+        "packets": [],
+        "progress_m": 5070.149826738197,
+        "speed_mps": 0.0,
+        "vehicle_metres": 345.2086604102312
+      },
+      {
+        "activity": 0.9999999999401468,
+        "admitted": 2.0,
+        "completed": 2.0,
+        "entry_moment": 399.7749522905237,
+        "exit_moment": 427.8810639125551,
+        "latent": [],
+        "packets": [],
+        "progress_m": 5068.532782059164,
+        "speed_mps": 0.0,
+        "vehicle_metres": 453.27615272364085
+      },
+      {
+        "activity": 0.9999999999965684,
+        "admitted": 2.0,
+        "completed": 2.0,
+        "entry_moment": 365.50000000000006,
+        "exit_moment": 398.82686480442726,
+        "latent": [],
+        "packets": [],
+        "progress_m": 4230.789212256214,
+        "speed_mps": 0.0,
+        "vehicle_metres": 449.0155269666603
+      },
+      {
+        "activity": 0.9999999999998264,
+        "admitted": 2.0,
+        "completed": 2.0,
+        "entry_moment": 245.50000000000006,
+        "exit_moment": 364.4444444444445,
+        "latent": [],
+        "packets": [],
+        "progress_m": 2534.945030689843,
+        "speed_mps": 0.0,
+        "vehicle_metres": 367.4421089382228
+      },
+      {
+        "activity": 0.9999999999999998,
+        "admitted": 2.0,
+        "completed": 2.0,
+        "entry_moment": 125.50000000000003,
+        "exit_moment": 244.44444444444449,
+        "latent": [],
+        "packets": [],
+        "progress_m": 2535.0789164805274,
+        "speed_mps": 0.0,
+        "vehicle_metres": 402.92327460670487
+      },
+      {
+        "activity": 0.9999999999999998,
+        "admitted": 2.0,
+        "completed": 2.0,
+        "entry_moment": 5.500000000000001,
+        "exit_moment": 124.44444444444446,
+        "latent": [],
+        "packets": [],
+        "progress_m": 2534.539908102443,
+        "speed_mps": 0.0,
+        "vehicle_metres": 385.4349013726674
+      }
+    ],
+    "class_ledger": [],
+    "completed": 2.0,
+    "exit_moment": 604.4444444444445,
+    "model_id": "f21caed5f970af1f48a475fa3febbddcfa49d233ccacbdd08f836c6c13fc52ff",
+    "pending": [
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ],
+    "pre_entry_seconds": 0.0,
+    "released": 2.0,
+    "source_wait_seconds": 5.500000000000001,
+    "time_s": 305.0,
+    "transfer_hold_seconds": 6.0890195039825885
+  }
+}

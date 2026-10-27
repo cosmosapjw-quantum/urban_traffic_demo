@@ -1,0 +1,90 @@
+{
+  "style": "polycentric",
+  "terrain": "river",
+  "size_m": 8000.0,
+  "resolution": 42,
+  "seed": 17,
+  "nodes": 992,
+  "physical_links": 1579,
+  "components": 1,
+  "cycle_rank": 588,
+  "bounded_faces": 588,
+  "degree_histogram": {
+    "2": 199,
+    "3": 412,
+    "4": 381
+  },
+  "deadend_fraction": 0.0,
+  "max_degree": 4,
+  "total_length_km": 303.69512904017654,
+  "bridges": 2,
+  "candidate_bridge_count": 46,
+  "unserved_center_proposals": 0,
+  "unserved_orbital_edges": 0,
+  "orbital_components_joined": 0,
+  "rejected": {
+    "footprint": 3
+  },
+  "removed_unbacked_stubs": 31,
+  "gateways": [
+    "g3:21",
+    "g39:22",
+    "g21:3",
+    "g22:38"
+  ],
+  "housing_capacity": 341168,
+  "resident_stock": 100000,
+  "unplaced_residents": 0,
+  "job_stock": 40000,
+  "requested_population": 100000,
+  "unplaced_jobs": 0,
+  "illegal_surface_water": 0,
+  "illegal_protected": 0,
+  "max_grade": 0.07449432513619973,
+  "max_bridge_span_m": 371.4522003909022,
+  "case": "polycentric_river",
+  "stage": "final",
+  "python": "3.12.14",
+  "generation_s": 6.379766334999658,
+  "total_s": 6.890461054999832,
+  "content_sha256": "1509446f33db145b2fb4d9a9241476f193aaf33acd3d47953c14ef01ac249d81"
+}
+{
+  "case": "polycentric_river",
+  "input_sha256": "684022a44ed0f3a50fa36799bde34d990552383caf2ecde27fb78d364bb8275b",
+  "atlas_id": "21f47658b3c0fccfa556eaf1bfdd3d0d3abf4cd064d2f0b3cdc1c9df72fbbb19",
+  "blocks": 588,
+  "admitted_access": 557,
+  "rejected_access": [],
+  "incumbent_residents": 100000,
+  "inherited_unplaced": 0,
+  "new_offered": 1500,
+  "new_placed": 1500,
+  "pending": 0,
+  "growth_access_m": 50.43860854581922,
+  "attractors": [
+    "270",
+    "14",
+    "59"
+  ],
+  "seconds": 2.469513336000091,
+  "scope": "private access and incremental occupancy; fixed public streets, block footprints and job opportunities"
+}
+{
+  "base": "0a7c980d3934146a978280fe76045443ad12640e",
+  "background_residents": 100000,
+  "simulated_vehicle_equivalents": 2.0,
+  "route": "0:3:109>59",
+  "removed_private_links": [
+    "private:109:out",
+    "private:59:in"
+  ],
+  "public_groups": 7,
+  "scope": "One inherited city route; frozen signal plans and fixed route; no full-city traffic or performance claim",
+  "empirical_calibration": "NOT_RUN",
+  "continuous_pair_physics": "NOT_INTEGRATED"
+}
+109 samples 384 atoms 28 mean 28.531182794915704 compression_W1_bound 0.4643426846782177
+59 samples 384 atoms 30 mean 31.18884178278778 compression_W1_bound 0.4919407904644238
+{'time_s': 305.0, 'released': 2.0, 'completed': 2.0, 'remaining': 0.0, 'mean_journey_s': 302.22222222222223, 'residence_vehicle_seconds': {'origin_access': 0.0, 'entry_grid_hold': 0.0, 'public_network': 604.4444444444445, 'destination_egress': 0.0, 'total': 604.4444444444445}, 'road_source_wait_seconds': 5.500000000000001, 'road_transfer_hold_seconds': 6.0890195039825885, 'origin_records': 0, 'destination_records': 0, 'traffic_records': {'packets': 0, 'parts': 0}, 'per_car_records': 0, 'status': 'CLEARED_SCOPED', 'case': 'zero_access_control', 'peak_records': 7, 'max_residence_residual': 1.1368683772161603e-13, 'wall_s': 0.12352519500018388, 'origin_mean_s': 0.0, 'destination_mean_s': 0.0}
+{'time_s': 364.0, 'released': 2.0, 'completed': 2.000000000000001, 'remaining': 0.0, 'mean_journey_s': 333.41106400500934, 'residence_vehicle_seconds': {'origin_access': 57.06236558983143, 'entry_grid_hold': 0.9202691480396259, 'public_network': 546.4618097065734, 'destination_egress': 62.37768356557456, 'total': 666.822128010019}, 'road_source_wait_seconds': 2.0, 'road_transfer_hold_seconds': 6.11476753107798, 'origin_records': 0, 'destination_records': 0, 'traffic_records': {'packets': 0, 'parts': 0}, 'per_car_records': 0, 'status': 'CLEARED_SCOPED', 'case': 'area_access', 'peak_records': 290, 'max_residence_residual': 1.1368683772161603e-13, 'wall_s': 0.19740459599961468, 'origin_mean_s': 28.531182794915715, 'destination_mean_s': 31.188841782787758}

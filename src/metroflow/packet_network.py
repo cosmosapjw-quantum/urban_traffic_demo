@@ -609,8 +609,13 @@ class PacketNetwork:
         for i, (g, c) in enumerate(zip(self.groups, s.cells)):
             p = g.physics
             if self.motion is not None:
-                motions[i] = self.motion.advance(self, g, c, t, dt, factor[i])
-                dx, speed, latent = motions[i].distance_m, motions[i].speed_mps, motions[i].latent
+                if not c.packets and getattr(self.motion, "empty_stationary", False):
+                    # No packet can invoke passage here; the declared empty T02
+                    # law returns exactly these values, including latent reset.
+                    dx, speed, latent = 0.0, 0.0, ()
+                else:
+                    motions[i] = self.motion.advance(self, g, c, t, dt, factor[i])
+                    dx, speed, latent = motions[i].distance_m, motions[i].speed_mps, motions[i].latent
                 activity = c.activity
             else:
                 nu = p.base_stop_rate + p.interaction_rate * (c.occupancy / p.storage) ** 2

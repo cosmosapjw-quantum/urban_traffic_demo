@@ -1,0 +1,67 @@
+{
+  "status": "P01_VERIFIED_SCOPED",
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "commands": [
+    {
+      "command": "python -m pytest -q tests/v1/test_exact_reductions.py tests/v1/test_transfer_time.py tests/v1/test_nodes.py",
+      "python": "3.12.14",
+      "passed": 35,
+      "exit_code": 0,
+      "raw": "PY312_SCOPED.txt"
+    },
+    {
+      "command": "python -m pytest -q tests/v1/test_exact_reductions.py tests/v1/test_transfer_time.py tests/v1/test_nodes.py",
+      "python": "3.13.16",
+      "passed": 35,
+      "exit_code": 0,
+      "raw": "PY313_SCOPED.txt"
+    },
+    {
+      "command": "ruff check changed files",
+      "exit_code": 0,
+      "raw": "RUFF.txt"
+    },
+    {
+      "command": "python tools/profile_v1.py --scenario city10k_weekday --baseline-src /tmp/p01-baseline/src --runs 3",
+      "exit_code": 0,
+      "raw": "PAIRED.json"
+    },
+    {
+      "command": "cProfile actual city10k_weekday day, parent source",
+      "exit_code": 0,
+      "raw": "PROFILE_BASELINE.txt"
+    },
+    {
+      "command": "tools/run_v1_foundation.py frozen baseline vs optimized; rerun record budget289",
+      "exit_code": 0,
+      "raw": [
+        "FOUNDATION_COMPARISON.json",
+        "BUDGET_COUNTEREXAMPLE.json"
+      ]
+    }
+  ],
+  "verified": [
+    "T02 empty-link shortcut state and all reports match unoptimized path with point and uniform flux",
+    "3 paired 10k full days identical all fields except resource measurements",
+    "original2veh area-access fixture peak290 unchanged; budget289 BLOCKED_RESOURCE retains actual checkpoint"
+  ],
+  "profile_findings": {
+    "parent_cprofile_total_s": 50.21,
+    "packet_check_cumulative_s": 20.03,
+    "motion_advance_cumulative_s": 5.81,
+    "wall_baseline_mean_s": 12.41923,
+    "wall_optimized_mean_s": 11.21951,
+    "wall_baseline_stdev_s": 1.02503,
+    "wall_optimized_stdev_s": 1.79229,
+    "claims": "high variance/one pair reversed; no statistically secure performance improvement claimed"
+  },
+  "limits": [
+    "only empty T02 motion path optimized; validity checks remain intact",
+    "original legacy290-record case budgeted but not compressed",
+    "host contention during runs; performance not benchmark certification",
+    "100k 24h wall/RSS gate NOT_RUN; no extrapolatedPASS",
+    "fullCI/integration deferred"
+  ],
+  "full_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER"
+}
