@@ -1,5 +1,6 @@
 """Actual gate routing, conservative pending modes and checkpoint continuation."""
 from dataclasses import replace
+import math
 
 import pytest
 
@@ -78,3 +79,57 @@ def test_corrupt_checkpoint_cannot_diverge_from_physical_or_unsupported_ledgers(
     # Preserve the grand total while maliciously moving car release to a bus.
     with pytest.raises(CityContractError, match='unsupported leg'):
         model.check(replace(state, released=(0.0, state.released[0])))
+
+
+def test_delayed_return_retains_calendar_birth_and_enforces_outward_completion_and_dwell(tmp_path):
+    city, outward = fixture()
+    returning = replace(outward, id='return', origin=outward.destination,
+                        destination=outward.origin, purpose='return_home', depends_on='out',
+                        minimum_dwell_s=100,
+                        departures=DepartureProfile((DepartureWindow(0,2),)))
+    model = ReleaseRuntime(city,(outward,returning))
+    before = model.advance(model.initial(),20)
+    assert before.released[1] == 0
+    midway = model.advance(before,60)
+    assert midway.released[1] == 0
+    path = tmp_path/'return.json'
+    model.save(path,midway)
+    assert model.load(path) == midway
+    final = model.advance(midway,350)
+    assert final.completed == pytest.approx((1,1))
+    # Both intent windows have mean t=1, including the held return.
+    assert final.journey.birth_moment == pytest.approx(2)
+    assert final.road_intent_hold > 100
+    report = model.report(final)
+    r = report['journey']['residence_vehicle_seconds']
+    assert r['return_intent_hold'] == final.road_intent_hold
+    assert r['origin_access'] == pytest.approx(0,abs=1e-8)
+    assert math.fsum(v for k,v in r.items() if k != 'total') == pytest.approx(r['total'])
+
+
+def test_intrazonal_noncar_uses_actual_delay_and_conserves_persons(tmp_path):
+    from metroflow.v1.journey import DelayLaw
+    city, outward = fixture()
+    internal = replace(outward, id='internal', origin=outward.origin,destination=outward.origin,
+                       mode='noncar',vehicle_class=None,amounts=Amounts(persons=3),
+                       intrazonal=DelayLaw(((10,1),)))
+    model = ReleaseRuntime(city,(internal,))
+    early = model.advance(model.initial(),5)
+    assert early.completed == (0,)
+    assert model.report(early)['ledger']['persons']['active'] == 3
+    final = model.advance(early,20)
+    assert model.report(final)['ledger']['persons']['completed'] == 3
+    assert final.journey.released == 0
+    path=tmp_path/'internal.json'
+    model.save(path,early)
+    assert model.advance(model.load(path),20) == final
+
+
+def test_return_parent_contract_and_intent_hold_checkpoint_are_checked():
+    city, outward = fixture()
+    invalid = replace(outward,id='return',depends_on='out',amounts=Amounts(2.5,2))
+    with pytest.raises(CityContractError,match='cohort and amounts'):
+        ReleaseRuntime(city,(outward,invalid))
+    model = ReleaseRuntime(city,(outward,))
+    with pytest.raises(CityContractError,match='intent holding'):
+        model.check(replace(model.initial(),road_intent_hold=1))

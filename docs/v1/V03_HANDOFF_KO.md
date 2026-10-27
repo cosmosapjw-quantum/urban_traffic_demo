@@ -23,3 +23,9 @@ python tools/run_v1_acceptance.py --matrix scenarios/v1/release_matrix.json --re
 ## 2026-10-27 연구 루프 갱신
 
 `factorized_demand`가 원래 독립 OD를 정확한 지연 생성으로 표현한다. release matrix는 명시적 `unassigned_home` 정책을 사용하여 취업 희망/배정/미배정량을 보존한다. 세 실제 도시 모두 factorized COMPILED다. `ReleaseRuntime`은 제한된 자동차 출발 집합의 실제 공유 도로망·접근분포·checkpoint 실행을 제공한다. 전체 경로 활성화, 귀가 의존성, 버스·화물 결합은 남아 있다. 새 근거는 `artifacts/v1_v03_resolution_20261027/RESEARCH_RECEIPT.json`, 유도·독립검토는 `V03_RESOLUTION_RESEARCH_KO.md`를 따른다. 완료율19/21 유지.
+
+## 2026-10-27 공동 실행 후속 연구
+
+`ReleasePlan`은 실제3개 도시의 정확한 calendar를 bounded페이지로 구성하고 미구성 수요를 정량 보존한다. `ReleaseRuntime`은 완료+dwell 귀가/내부 이동을, `ReleaseServicePlan`은 명시 fleet/depot와 미배정 장부를 제공한다. `JointReleaseRuntime`은 유한 경로집합의 모든 차종을 단 하나의 ServiceModel.step으로 갱신하며 접근/이탈/귀가 장부와 checkpoint를 검증한다. Python3.12/3.13 각각38개 관련검사와ruff통과. 근거: `artifacts/v1_v03_joint_20261027/RECEIPT.json`; 유도와독립검토: `V03_JOINT_RUNTIME_RESEARCH_KO.md`.
+
+남은 구현은 전체 calendarcursor를 점유중 joint도로상태와 하나의 트랜잭션/checkpoint로 활성화하는 driver 및 active record 예산 처리다. 도시 전체 fixedfleet/depot 입력도 명시해야 한다. 그 후 실제 로컬3case각3회24h 계측을 수행한다. 현재 페이지16개씩의 경로구성은 simulated0s이며 전체 실행을 대신하지 않는다. 완료율19/21유지.

@@ -1,0 +1,14 @@
+{
+  "recovery": "fresh clone of published2776fae after workspace maintenance; no previous scratch bytes assumed",
+  "joint_checkpoint_red": {
+    "test": "test_single_shared_step_whole_car_journey_services_and_blocked_busreturn",
+    "failure": "ServiceState checkpoint decode: CONTRACT_ERROR unknown checkpoint type/schema",
+    "execution": "1failed1passed; observed by root before final fixes"
+  },
+  "independent_findings": [
+    "plan cursor mass prefix validation",
+    "quantify unassigned service requests from retained source legs",
+    "bind jointservice source legs and physical/per-leg totals",
+    "bind released birth moments to actual releases"
+  ]
+}

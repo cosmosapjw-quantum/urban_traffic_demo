@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.12",
+  "version": "1.1.13",
   "date": "2026-10-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "V03 exact lazy OD representation, explicit work shortfall ledger and map-bound transport research; local campaign NOT_RUN",
+    "scope": "V03 joint route planning, dependent returns/intrazonal ledgers and explicit bus/freight composition research; local campaign NOT_RUN",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_v03_resolution_20261027/RESEARCH_RECEIPT.json",
+    "evidence": "artifacts/v1_v03_joint_20261027/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,8 +384,10 @@
       "status": "success"
     },
     "parallel_agents": [
-      "portal_impl",
-      "portal_theory"
+      "v03_full_runtime",
+      "v03_stream",
+      "v03_bus",
+      "v03_review_joint"
     ]
   },
   "nodes": [
@@ -1887,7 +1889,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Complete global shared-congestion streaming routes, dependent returns and bus/freight coupling, then execute local measured campaign",
+      "positive_next_action": "Connect global exact calendar activation/checkpoint to joint occupied road state, configure full release fleet/depot and execute measured local campaign",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1907,8 +1909,8 @@
         "sha": "97b09576f5fe96f8e08d07a4bed80a841ffb2679"
       },
       "blocked_evidence": {
-        "path": "artifacts/v1_v03_resolution_20261027/RESEARCH_RECEIPT.json",
-        "sha256": "2387c5a745d08a1ff230b8f708f3f91154d1f0770dfa3125eac6384af572f1eb"
+        "path": "artifacts/v1_v03_joint_20261027/RECEIPT.json",
+        "sha256": "1d6672e284824547e959c89ba7a2a32358b83386792f2f09f4e76695653b7ade"
       }
     },
     {
@@ -2022,6 +2024,11 @@
       "date": "2026-10-27",
       "reason": "사용자 V03 차단 해소 연구 루프",
       "change": "원래 strict demand 실패 보존; 명시적 requested=assigned+unassigned worker ledger를 선택하고 exact factorized OD를 사용한다. 수요/인구/용량 삭제 및 수용문턱 완화 금지. 실제 수송 probe와 전체 캠페인을 구별한다."
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "사용자 V03 후속 차단 해소 연구 루프",
+      "change": "공유 도로망에서 전체 route 계획/자원 제한, completion+dwell 귀가 및 명시 fleet/depot 결합을 구현·검증. 독립 청크 실행 합산을 전체 혼잡으로 인정하지 않는다. 기존 수용문턱 유지."
     }
   ],
   "implementation_progress": {

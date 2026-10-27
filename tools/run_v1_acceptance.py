@@ -76,9 +76,9 @@ def preflight(case, root=ROOT):
     except CityContractError as exc:
         result.update(factorized_status=exc.status, factorized_reason=exc.reason)
     result.update(status='BLOCKED_IMPLEMENTATION_DEPENDENCY',
-                  blocker='full joint map runtime including dependent returns, scheduled bus, freight and all OD congestion requires completion',
+                  blocker='whole-calendar activation/checkpoint driver and release-wide fixed fleet/depot inputs remain; bounded joint runtime is available',
                   local_campaign='BLOCKED_LOCAL_EXECUTION',
-                  next_action='Implement bounded conservative OD representation and map-bound transport composition, then execute local three-repeat campaign')
+                  next_action='Connect ReleasePlan cursor to one JointReleaseRuntime and explicit fleet/depot inventory; then execute local three-repeat campaign')
     return result
 
 
