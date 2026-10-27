@@ -1,0 +1,35 @@
+Tue Oct 27 10:28:50 2026    /tmp/p01-before.prof
+
+         81182972 function calls (80219564 primitive calls) in 47.006 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1192 to 25 due to restriction <25>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    785/1    0.090    0.000   50.584   50.584 {built-in method builtins.exec}
+        1    0.000    0.000   50.584   50.584 <frozen runpy>:201(run_module)
+        1    0.000    0.000   50.270   50.270 <frozen runpy>:65(_run_code)
+        1    0.000    0.000   50.270   50.270 __main__.py:1(<module>)
+        1    0.002    0.002   50.259   50.259 __main__.py:13(main)
+        1    0.738    0.738   50.210   50.210 scenarios.py:300(run_scenario)
+     8640    0.027    0.000   40.465    0.005 services.py:266(step)
+     8640    0.233    0.000   40.438    0.005 services.py:273(_step)
+     8640    0.185    0.000   29.397    0.003 packet_network.py:521(advance_interval)
+     8640    3.005    0.000   29.211    0.003 packet_network.py:550(_step)
+    34561    6.475    0.000   20.030    0.001 packet_network.py:371(check)
+    17281    0.264    0.000   10.734    0.001 services.py:246(check)
+4319418/3376867    4.509    0.000    9.879    0.000 {built-in method math.fsum}
+   950685    4.814    0.000    9.027    0.000 dataclasses.py:1540(replace)
+  4464441    3.530    0.000    7.888    0.000 {built-in method builtins.any}
+   224640    0.593    0.000    5.808    0.000 transport.py:123(advance)
+    17280    0.154    0.000    3.479    0.000 demand.py:359(advance_requests)
+   241920    0.312    0.000    3.280    0.000 demand.py:367(<genexpr>)
+   224640    0.753    0.000    3.145    0.000 transport.py:107(bulk)
+  5391516    1.775    0.000    2.387    0.000 packet_network.py:399(<genexpr>)
+  1799390    1.004    0.000    2.167    0.000 packet_network.py:66(occupancy)
+   336960    0.435    0.000    2.119    0.000 schedules.py:36(fraction)
+   224640    0.396    0.000    2.115    0.000 kinetics.py:111(compile_bulk)
+ 11000368    1.638    0.000    1.638    0.000 scenarios.py:362(<genexpr>)
+  1123226    0.727    0.000    1.495    0.000 packet_network.py:324(occupied_space)
+
+

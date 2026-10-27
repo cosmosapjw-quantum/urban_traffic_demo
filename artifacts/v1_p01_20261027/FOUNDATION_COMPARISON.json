@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "equivalence": "all case results and traces except wall_s",
+  "parent_area_peak_records": 290,
+  "optimized_area_peak_records": 290,
+  "scope": "legacy JourneyModel; no compression claimed"
+}
