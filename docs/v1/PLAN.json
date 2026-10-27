@@ -1738,7 +1738,7 @@
         "title": "[V1 V01] 통합 물리·관측·대칭 적대 검증",
         "branch": "v1/v01-parallel-20261027",
         "base": "v1/p01-parallel-20261027",
-        "opened_number": null
+        "opened_number": 40
       },
       "implementation_parent": {
         "node": "P01",
