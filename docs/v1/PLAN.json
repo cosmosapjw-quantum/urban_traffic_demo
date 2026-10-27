@@ -1663,7 +1663,7 @@
         "title": "[V1 P01] 관측동등 경량화와 자원 상한 확립",
         "branch": "v1/p01-parallel-20261027",
         "base": "v1/v02-parallel-20261027",
-        "opened_number": null
+        "opened_number": 39
       },
       "implementation_parent": {
         "node": "V02",
