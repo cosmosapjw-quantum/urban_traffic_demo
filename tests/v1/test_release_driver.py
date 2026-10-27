@@ -88,3 +88,27 @@ def test_runtime_resource_failure_preserves_driver_binding_and_last_valid_state(
     assert isinstance(caught.value.checkpoint,DriverState)
     with pytest.raises(CityContractError,match='binding'):
         driver.check(replace(valid,cursor=replace(valid.cursor,materialized_vehicles=0)))
+
+
+def test_preparation_traverses_once_and_skips_discarded_physical_resolution(monkeypatch):
+    plan = fixture()
+    legacy_cursor, legacy_page = plan.take(plan.cursor(),1)
+    legacy_cursor, second = plan.take(legacy_cursor,1)
+    legacy_legs = tuple(p.leg for p in legacy_page+second)
+    from metroflow.v1.joint_release_runtime import JointReleaseRuntime
+    legacy_runtime = JointReleaseRuntime(plan.city,legacy_legs,
+        services(plan.city,legacy_legs,step_s=3600),step_s=3600,max_legs=2)
+    original = type(plan.schedule).iter_legs
+    traversals = []
+    def counted(schedule):
+        traversals.append(1)
+        yield from original(schedule)
+    def forbidden(*args):
+        raise AssertionError('driver discarded physical route/access preparation')
+    monkeypatch.setattr(type(plan.schedule),'iter_legs',counted)
+    monkeypatch.setattr(plan,'resolve',forbidden)
+    driver = ReleaseDriver(plan,services,max_legs=2,page_size=1,step_s=3600)
+    assert len(traversals)==1
+    assert driver.cursor==legacy_cursor
+    assert driver.runtime.identity==legacy_runtime.identity
+    assert driver.runtime.advance(driver.runtime.initial(),86400)==legacy_runtime.advance(legacy_runtime.initial(),86400)

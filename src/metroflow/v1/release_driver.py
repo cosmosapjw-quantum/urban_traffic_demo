@@ -8,6 +8,8 @@ It does not claim dynamic route insertion into an occupied network.
 from dataclasses import asdict, dataclass
 import hashlib
 import json
+import itertools
+import math
 from pathlib import Path
 import tempfile
 
@@ -63,14 +65,25 @@ class ReleaseDriver:
             exc.status = 'BLOCKED_RESOURCE'
             exc.checkpoint = PreparationCheckpoint(plan.city.identity, start, tuple(totals.items()))
             raise exc
+        # Only the joint runtime consumes physical routes/access laws. Calling
+        # plan.take here resolved them once only to discard that work, and each
+        # page replayed the preceding calendar prefix. Traverse exactly once.
+        iterator = iter(plan.schedule.iter_legs())
         cursor, legs = start, []
-        while cursor.offset < totals['legs']:
-            cursor, page = plan.take(cursor, min(page_size, totals['legs']-cursor.offset))
+        units = ('persons', 'vehicles', 'cargo_kg')
+        amounts = [0.0, 0.0, 0.0]
+        while len(legs) < totals['legs']:
+            page = tuple(itertools.islice(iterator, min(page_size, totals['legs']-len(legs))))
             if not page:
                 reject('calendar ended before declared exact leg total', 'IMPLEMENTATION_ERROR')
-            legs.extend(item.leg for item in page)
-        if len(legs) != totals['legs']:
-            reject('whole calendar activation coverage differs', 'IMPLEMENTATION_ERROR')
+            legs.extend(page)
+            # Preserve the existing page-wise summation/cursor representation.
+            for i, unit in enumerate(units):
+                amounts[i] += math.fsum(getattr(leg.amounts, unit) for leg in page)
+        if next(iterator, None) is not None:
+            reject('calendar exceeds declared exact leg total', 'IMPLEMENTATION_ERROR')
+        cursor = PlanCursor(plan.schedule.identity, len(legs), *amounts)
+        plan.summary(cursor)
         self.plan, self.cursor = plan, cursor
         services = service_factory(plan.city, tuple(legs), step_s=step_s)
         self.runtime = JointReleaseRuntime(plan.city, tuple(legs), services,

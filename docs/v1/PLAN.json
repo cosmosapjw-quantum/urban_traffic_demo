@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.14",
+  "version": "1.1.15",
   "date": "2026-10-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,7 +371,7 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "V03 driver and fixed inventory implemented; actual3cases preactivation BLOCKED_RESOURCE, full local measurements NOT_RUN",
+    "scope": "V03 exact single-pass calendar preparation optimization; full actual calendar resource and local gates remain blocked",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
@@ -2033,6 +2033,11 @@
       "date": "2026-10-27",
       "reason": "다음 노드 재개: V03 driver 및 실제 운행 입력 완성",
       "change": "고정 route registry의 정확한 full-calendar preactivation을 구현한다. 점유중 동적삽입으로 재명명하지 않는다. 실제 전체calendar가 예산을 넘으면 cursor0/전체미구성 수요와 자원실패 영수증을 보존한다. 독립 synthetic fixedfleet/depot prior를 matrix에 명시한다."
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "V03 다음 실행: 준비 비용 개선",
+      "change": "driver가 버리던 route/access 페이지 준비와 cursor prefix 재순회를 제거한다. 동일 calendar/물리 모델/예산을 유지하며 별도 성능·행동 검증한다."
     }
   ],
   "implementation_progress": {
