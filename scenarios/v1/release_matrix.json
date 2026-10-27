@@ -3,10 +3,37 @@
   "population": 100000,
   "horizon_s": 86400,
   "repeat": 3,
-  "limits": {"wall_s": 7200, "peak_rss_bytes": 8589934592},
+  "limits": {
+    "wall_s": 7200,
+    "peak_rss_bytes": 8589934592
+  },
   "cases": [
-    {"id": "river_weekday_s17", "map_index": 4, "map_case": "polycentric_river", "seed": 17, "day": "weekday", "max_cohorts": 20000},
-    {"id": "coastal_weekend_s41", "map_index": 11, "map_case": "coastal_port", "seed": 41, "day": "weekend", "max_cohorts": 20000},
-    {"id": "valley_weekday_s7", "map_index": 12, "map_case": "valley_city", "seed": 7, "day": "weekday", "max_cohorts": 20000}
-  ]
+    {
+      "id": "river_weekday_s17",
+      "map_index": 4,
+      "map_case": "polycentric_river",
+      "seed": 17,
+      "day": "weekday",
+      "max_cohorts": 20000
+    },
+    {
+      "id": "coastal_weekend_s41",
+      "map_index": 11,
+      "map_case": "coastal_port",
+      "seed": 41,
+      "day": "weekend",
+      "max_cohorts": 20000
+    },
+    {
+      "id": "valley_weekday_s7",
+      "map_index": 12,
+      "map_case": "valley_city",
+      "seed": 7,
+      "day": "weekday",
+      "max_cohorts": 20000
+    }
+  ],
+  "demand_representation": "exact_factorized_independent_OD",
+  "worker_shortfall": "unassigned_home",
+  "shortfall_definition": "requested_workers=allocated_workers+unassigned_workers; unmet workers stay home and are not counted as completed trips"
 }

@@ -19,3 +19,7 @@ python tools/run_v1_acceptance.py --matrix scenarios/v1/release_matrix.json --re
 ```
 
 단위검증은 `tests/v1/test_release_preflight.py`의 실제 patch 재구성/변조 거절, demand 실패 보존과 허위 실행 receipt 방지를 대상으로 한다. Python3.12/3.13 각각2개 통과, ruff 통과를 실행했다. 원본 동결 지도를 변경하지 않았다.
+
+## 2026-10-27 연구 루프 갱신
+
+`factorized_demand`가 원래 독립 OD를 정확한 지연 생성으로 표현한다. release matrix는 명시적 `unassigned_home` 정책을 사용하여 취업 희망/배정/미배정량을 보존한다. 세 실제 도시 모두 factorized COMPILED다. `ReleaseRuntime`은 제한된 자동차 출발 집합의 실제 공유 도로망·접근분포·checkpoint 실행을 제공한다. 전체 경로 활성화, 귀가 의존성, 버스·화물 결합은 남아 있다. 새 근거는 `artifacts/v1_v03_resolution_20261027/RESEARCH_RECEIPT.json`, 유도·독립검토는 `V03_RESOLUTION_RESEARCH_KO.md`를 따른다. 완료율19/21 유지.

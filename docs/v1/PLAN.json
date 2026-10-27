@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "date": "2026-10-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "V03 actual-map acceptance compiler and local execution preparation; full campaign not run",
+    "scope": "V03 exact lazy OD representation, explicit work shortfall ledger and map-bound transport research; local campaign NOT_RUN",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_portal_resolution_20261027/RECEIPT.json",
+    "evidence": "artifacts/v1_v03_resolution_20261027/RESEARCH_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -1887,7 +1887,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Resolve actual job support and bounded OD representation without dropping demand; implement general map transport adapter; then run local acceptance",
+      "positive_next_action": "Complete global shared-congestion streaming routes, dependent returns and bus/freight coupling, then execute local measured campaign",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1899,7 +1899,7 @@
         "title": "[V1 V03] 로컬 10만 주민·24시간 실제 실행과 수치 수용시험",
         "branch": "v1/v03-acceptance-20261027",
         "base": "v1/v01-parallel-20261027",
-        "opened_number": null
+        "opened_number": 41
       },
       "implementation_parent": {
         "node": "V01",
@@ -1907,8 +1907,8 @@
         "sha": "97b09576f5fe96f8e08d07a4bed80a841ffb2679"
       },
       "blocked_evidence": {
-        "path": "artifacts/v1_v03_20261027/RECEIPT.json",
-        "sha256": "9a9e704fd542bb9db7d6c30d9b693ff4422f15de48f61c5c835e71324fa66d93"
+        "path": "artifacts/v1_v03_resolution_20261027/RESEARCH_RECEIPT.json",
+        "sha256": "2387c5a745d08a1ff230b8f708f3f91154d1f0770dfa3125eac6384af572f1eb"
       }
     },
     {
@@ -2017,6 +2017,11 @@
       "date": "2026-10-27",
       "reason": "사용자 V01 차단 해소 연구 루프: 원본 38개 동결 도시를 보존하고 합성 출입구 construction으로 새 snapshot과 물리 접근 증거 생성",
       "change": "기존 M03 compile_entry 및 면적측도 재사용. corridor/mask/grade, legal-turn SCC 연결, 실제 포털 CDF 검증; unserved 유지. P1와 수용문턱은 결과 전 유지."
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "사용자 V03 차단 해소 연구 루프",
+      "change": "원래 strict demand 실패 보존; 명시적 requested=assigned+unassigned worker ledger를 선택하고 exact factorized OD를 사용한다. 수요/인구/용량 삭제 및 수용문턱 완화 금지. 실제 수송 probe와 전체 캠페인을 구별한다."
     }
   ],
   "implementation_progress": {

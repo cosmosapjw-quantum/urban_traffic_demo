@@ -1,0 +1,9 @@
+{
+  "src/metroflow/v1/factorized_demand.py": "c8341c139174a36d89a4538373b85ed0630988694acf73d82ed6f44571c6b622",
+  "src/metroflow/v1/release_runtime.py": "80bb6f8860ab3c3e29d6df90c324c45633c357a10fc513c82ab524be6c5c1012",
+  "tools/run_v1_acceptance.py": "4694a033060edaa3dc57da7052f3a08a2c0b9247ba3e4b3a326549b7f27f9346",
+  "scenarios/v1/release_matrix.json": "6116187d0cddff73a0d0bf8368f5d5b5c7b7a0a6326c7b4996bbf9897b84d49c",
+  "tests/v1/test_factorized_demand.py": "9fa8eac4c8a5b75342ab6f650df5689a8eb76dcb0deb74932afb5a8c6255db2a",
+  "tests/v1/test_release_runtime.py": "6ff3b5732a6d7e84acce3e0b4296856136053c185902bb636b50a9424e8583c0",
+  "docs/v1/V03_RESOLUTION_RESEARCH_KO.md": "4375320f37d5e1fdbee09382cefc3a61ae49ce5872702594921702171d651d7c"
+}

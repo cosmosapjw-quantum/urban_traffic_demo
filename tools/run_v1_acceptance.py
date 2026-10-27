@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from metroflow.v1.city import load_city, CityContractError  # noqa: E402
 from metroflow.v1.activity import compile_activity  # noqa: E402
+from metroflow.v1.factorized_demand import compile_factorized_demand  # noqa: E402
 from metroflow.v1.demand import compile_daily_demand  # noqa: E402
 
 
@@ -62,8 +63,20 @@ def preflight(case, root=ROOT):
                       cohorts=len(schedule.cohorts), legs=len(schedule.legs))
     except CityContractError as exc:
         result.update(demand_status=exc.status, demand_reason=exc.reason)
+    try:
+        lazy = compile_factorized_demand(homes, jobs, services, day=case['day'], freight_kg=1000,
+                    worker_shortfall=case.get('worker_shortfall', 'reject'),
+                    max_factors=case['max_cohorts'])
+        result.update(factorized_status='COMPILED', factorized_identity=lazy.identity,
+                      requested_workers=lazy.requested_workers, allocated_workers=lazy.allocated_workers,
+                      unassigned_workers=lazy.unassigned_workers,
+                      marginal_factors=len(homes)+len(jobs)+len(services)+len(lazy.modes),
+                      worker_policy=lazy.worker_shortfall,
+                      representation='exact independent OD; lazy generation; no dense Cartesian materialization')
+    except CityContractError as exc:
+        result.update(factorized_status=exc.status, factorized_reason=exc.reason)
     result.update(status='BLOCKED_IMPLEMENTATION_DEPENDENCY',
-                  blocker='C02 transport composition hardcodes two-zone gate/freight endpoints; general release-city adapter not implemented',
+                  blocker='full joint map runtime including dependent returns, scheduled bus, freight and all OD congestion requires completion',
                   local_campaign='BLOCKED_LOCAL_EXECUTION',
                   next_action='Implement bounded conservative OD representation and map-bound transport composition, then execute local three-repeat campaign')
     return result
@@ -80,7 +93,7 @@ def main():
     if args.repeat != 3:
         p.error('release campaign requires exactly three measured repeats')
     matrix = json.loads(args.matrix.read_text())
-    cases = [c for c in matrix['cases'] if args.case is None or c['id'] == args.case]
+    cases = [dict(c, worker_shortfall=matrix.get('worker_shortfall', 'reject')) for c in matrix['cases'] if args.case is None or c['id'] == args.case]
     if not cases:
         p.error('unknown release case')
     args.out.mkdir(parents=True, exist_ok=True)
