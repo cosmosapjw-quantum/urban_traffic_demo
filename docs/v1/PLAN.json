@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "date": "2026-10-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -368,10 +368,10 @@
   ],
   "current_execution": {
     "node_ids": [
-      "V01"
+      "V03"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "V01 registered portal finding resolved by new synthetic physical entries on all38 original maps; VERIFIED_SCOPED",
+    "scope": "V03 actual-map acceptance compiler and local execution preparation; full campaign not run",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
@@ -1756,7 +1756,7 @@
       },
       "verification_receipt": {
         "path": "artifacts/v1_portal_resolution_20261027/RECEIPT.json",
-        "sha256": "72685d10edf35b363220ca2f0bdaa52b84d26e2b91ffb3e7cbe13176fa62c0c5",
+        "sha256": "8306aaf01f7436fbf82d83bc68478a3f75dacc843ac9c429368c56f98d287412",
         "acceptance": "38 original map constructions and 7 bounded physics fixtures pass; scoped only; full CI/integration deferred"
       }
     },
@@ -1844,7 +1844,7 @@
         "V01",
         "V02"
       ],
-      "status": "PLANNED",
+      "status": "BLOCKED",
       "files": [
         "tools/run_v1_acceptance.py",
         "scenarios/v1/release_matrix.json",
@@ -1887,7 +1887,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "RLS01릴리스패키지/최종main PR",
+      "positive_next_action": "Resolve actual job support and bounded OD representation without dropping demand; implement general map transport adapter; then run local acceptance",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1897,9 +1897,18 @@
       "pr": {
         "key": "V1-V03",
         "title": "[V1 V03] 로컬 10만 주민·24시간 실제 실행과 수치 수용시험",
-        "branch": "v1/v03",
-        "base": "research/v1-integration-20261025",
+        "branch": "v1/v03-acceptance-20261027",
+        "base": "v1/v01-parallel-20261027",
         "opened_number": null
+      },
+      "implementation_parent": {
+        "node": "V01",
+        "branch": "v1/v01-parallel-20261027",
+        "sha": "97b09576f5fe96f8e08d07a4bed80a841ffb2679"
+      },
+      "blocked_evidence": {
+        "path": "artifacts/v1_v03_20261027/RECEIPT.json",
+        "sha256": "9a9e704fd542bb9db7d6c30d9b693ff4422f15de48f61c5c835e71324fa66d93"
       }
     },
     {
