@@ -1,0 +1,94 @@
+{
+  "source_identity": "c9ae757497f68ccb76583ac93516e99016962c959af75a94d63ceba5fa653eb8",
+  "identity": "cc2a551049cb65d6d27b4bdbde6561f60b498a4f68f86fce62321073c2f09512",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 827,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0002338151347639045
+    ],
+    [
+      60,
+      0.0002338151347639045
+    ],
+    [
+      120,
+      0.47753076370993675
+    ],
+    [
+      300,
+      0.9976324575255007
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.9028818735992971
+    ],
+    [
+      600,
+      0.9979748380833249
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.9545989915520307
+    ],
+    [
+      60,
+      0.9733004998831257
+    ],
+    [
+      120,
+      0.9991654288981588
+    ],
+    [
+      300,
+      0.999507809455983
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 46.60193208686229,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 3714,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 1,
+  "case": "planned_plain",
+  "seed": 17,
+  "family": "primary",
+  "parent_identity": "c9ae757497f68ccb76583ac93516e99016962c959af75a94d63ceba5fa653eb8",
+  "source": "primary_planned_plain_s17.json.xz",
+  "source_sha256": "b50842e74bb3e354ba3c4d7879c927e2a0ad58c9a25a3eed258098113d53a4af",
+  "patch": "01.patch.json.xz",
+  "patch_sha256": "4411a7cb94bb1dbbbcc4939ee758f6fdd9ff4533fa9a51ddae5dceadb7d6168f",
+  "wall_s": 9.539798275000066
+}

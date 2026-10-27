@@ -1,0 +1,94 @@
+{
+  "source_identity": "b39d6c92ba00bd1f59904d771c87f5f00792f5242a90a76284a045fd60ebd1fb",
+  "identity": "9acde97223275996ed78b09836fbec75201fbe0ba9bd8cfd9188160d688fa1af",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 215,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0010963969291265272
+    ],
+    [
+      60,
+      0.17157459916028892
+    ],
+    [
+      120,
+      0.49348885420341043
+    ],
+    [
+      300,
+      0.8943310587331279
+    ],
+    [
+      600,
+      0.9976905263841291
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.6321465313475771
+    ],
+    [
+      600,
+      0.9344600123051808
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.7591157304872308
+    ],
+    [
+      60,
+      0.849364040881177
+    ],
+    [
+      120,
+      0.9577897600222749
+    ],
+    [
+      300,
+      0.994372285746361
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 51.733089724658186,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 1496,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 13,
+  "case": "valley_city",
+  "seed": 17,
+  "family": "primary",
+  "parent_identity": "b39d6c92ba00bd1f59904d771c87f5f00792f5242a90a76284a045fd60ebd1fb",
+  "source": "primary_valley_city_s17.json.xz",
+  "source_sha256": "ffec634ce8260adf984717962fb50845528383281bd09f294416f9cdb3f92929",
+  "patch": "13.patch.json.xz",
+  "patch_sha256": "d3f6cee882cd58a75ba2e413ab51d05c119944fe1df42d79d61d54e03a8d82bb",
+  "wall_s": 22.967101004998767
+}

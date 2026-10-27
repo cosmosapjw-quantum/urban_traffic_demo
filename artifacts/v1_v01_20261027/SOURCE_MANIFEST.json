@@ -1,0 +1,15 @@
+{
+  "snapshot": "P01 frozen working tree; core before/after SHA256 identical across fresh runs",
+  "files": {
+    "tools/audit_v1_physics.py": "5320b21687065a4acc4a0e2f211c6c248a8129e81f9a95bd8ad1c203cd6d727a",
+    "tests/v1/test_acceptance_physics.py": "34172805a4a1b4a61a987000e13fcec791ab3c51487e046e25aab46dcf70fdf6",
+    "docs/v1/v01/PHYSICS_AUDIT_KO.md": "53b99fcd361ef6c15f53604658eda3905cac25ffb9b7d8848b1cff0e23ecd172",
+    "src/metroflow/packet_network.py": "49d76fec1b99cf2cf18c264617a76b8f4deedcb18d4132070a573206988fa0c8",
+    "src/metroflow/v1/transport.py": "6a2e4c76def3e199b6e11c223cfdc786eab55eed4fb5a94fa8d4c8e85ca8c538",
+    "src/metroflow/v1/kinetics.py": "183251bbb6a492be856f4f05e0fd046a45d754810ae234631f5a5a84138cdc37",
+    "src/metroflow/v1/junction_oracles.py": "eabd55bf85777b72f3712996958e949e666c8ced3524c3554ec98328f9d56a02",
+    "src/metroflow/v1/timing_oracles.py": "f7365f88538ee5494187f251ddfb1bd785a9285f84da9575b3b9c2f0980b6b21",
+    "src/metroflow/v1/routing_oracles.py": "e2362f397526796a2bfa44edb4381cb17a8f40b56f505987db1abd7eb6109d89",
+    "artifacts/v1/map_audit/MATRIX.json": "057f6adab483a1c36f3ef46bf2aec4ada78db300785615d670d48c82262cdb26"
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "source_identity": "d67b3cc358e1da3c1253b78dea18b1ef9b3a3034bed5fa70dee9ed1210ec6f57",
+  "identity": "20a3a46484fa23e03a6cbbd495d7d728c0c9618ea090db4d338f067d9780a45b",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 483,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0021342727344893326
+    ],
+    [
+      60,
+      0.035522596289916906
+    ],
+    [
+      120,
+      0.4072166161318317
+    ],
+    [
+      300,
+      0.9401684486937486
+    ],
+    [
+      600,
+      0.9996192281422961
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.5465588908832144
+    ],
+    [
+      600,
+      0.9586983273878653
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.8438937173495148
+    ],
+    [
+      60,
+      0.8969039297058053
+    ],
+    [
+      120,
+      0.9835216909235723
+    ],
+    [
+      300,
+      0.9975188755584393
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 53.08282653277997,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 2932,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 16,
+  "case": "lake_city",
+  "seed": 17,
+  "family": "primary",
+  "parent_identity": "d67b3cc358e1da3c1253b78dea18b1ef9b3a3034bed5fa70dee9ed1210ec6f57",
+  "source": "primary_lake_city_s17.json.xz",
+  "source_sha256": "702f839e60d1b9ffaa7475ead461d0c497a6011be32f4cecaffa1dfd0b6c34e7",
+  "patch": "16.patch.json.xz",
+  "patch_sha256": "c57da89034a96249b1266ec04f72422a23fe04559ab3613018a335ed85ec4122",
+  "wall_s": 9.632112804998542
+}

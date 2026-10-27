@@ -1,0 +1,42 @@
+{
+  "initial_campaign": {
+    "source": "pre with_portals implementation",
+    "resource_limit_s_per_case": 45,
+    "timeouts": [
+      3,
+      4,
+      5,
+      12,
+      13
+    ],
+    "physical_candidate_errors": {
+      "cases": [
+        6,
+        7,
+        8
+      ],
+      "reason": "ground_profile ValueError: degenerate centreline"
+    },
+    "pass_cases": [
+      0,
+      1,
+      2,
+      9,
+      10,
+      11
+    ],
+    "remaining": "paused after new diagnoses"
+  },
+  "corrections": [
+    "reuse invariant validated geometry/network, share portal validation and canonical identity with full compile",
+    "retain degenerate corridor failure and inspect remaining boundary candidates"
+  ],
+  "rerun": "all38 using corrected source; CAMPAIGN.json contains actual results",
+  "corrected_campaign_retry": {
+    "index": 34,
+    "cause": "parallel wall budget exceeded",
+    "change": "remaining work ended; retry alone with same45s budget",
+    "result": "PASS,18.04s"
+  },
+  "audit_identity_correction": "38 design cases contain32 distinct physical map identities because primary/mixed intentionally repeat6 maps. Coverage uses unique(case,family,seed), not unique physical hash. Original evidence retains duplicates."
+}

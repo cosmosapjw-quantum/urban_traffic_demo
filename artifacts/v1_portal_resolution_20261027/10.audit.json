@@ -1,0 +1,94 @@
+{
+  "source_identity": "35f34f8d031962e67f7a90fb5bc96100267691a5724f8a71b7229fd03a797c56",
+  "identity": "7479be16407f09d74bb3365d04c0e404fcb92ad84af4b2a8d55229b5f71d394c",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 488,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.002563199802046451
+    ],
+    [
+      60,
+      0.04129039042975021
+    ],
+    [
+      120,
+      0.41951669489766186
+    ],
+    [
+      300,
+      0.9322820627937967
+    ],
+    [
+      600,
+      0.998976984031442
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.5772223554778733
+    ],
+    [
+      600,
+      0.9517782026177584
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.8070853153501196
+    ],
+    [
+      60,
+      0.8803873656502106
+    ],
+    [
+      120,
+      0.9763017828253956
+    ],
+    [
+      300,
+      0.993955812058097
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 51.135769454224345,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 2804,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 10,
+  "case": "coastal_port",
+  "seed": 17,
+  "family": "primary",
+  "parent_identity": "35f34f8d031962e67f7a90fb5bc96100267691a5724f8a71b7229fd03a797c56",
+  "source": "primary_coastal_port_s17.json.xz",
+  "source_sha256": "166023bc3991a91a6aa98af64ebbe150fcd97b5fadf4bf1b9f7bea6833c5ae50",
+  "patch": "10.patch.json.xz",
+  "patch_sha256": "dfbab8997764a96b05066493a46b4163c7a90ed6597e90aa7288f57e0337f4c2",
+  "wall_s": 14.786404046000825
+}

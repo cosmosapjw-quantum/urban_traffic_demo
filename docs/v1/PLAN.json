@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "date": "2026-10-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -15,7 +15,7 @@
     "T01",
     "I01"
   ],
-  "next_node": "V01",
+  "next_node": "V03",
   "execution_policy": {
     "rule": "2026-10-26 사용자 변경: DAG 구현을 한정 검증된 누적 브랜치에서 진행한다. 전체 CI·통합·ACCEPTED 판정은 전체 DAG 구현 후 별도 심사에서 수행한다.",
     "no_automatic_scope_growth": true,
@@ -368,22 +368,25 @@
   ],
   "current_execution": {
     "node_ids": [
-      "P01",
       "V01"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "P01 scoped verified, V01 audit ongoing with unresolved portal finding; full CI/integration deferred",
+    "scope": "V01 registered portal finding resolved by new synthetic physical entries on all38 original maps; VERIFIED_SCOPED",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_p01_20261027/RECEIPT.json",
+    "evidence": "artifacts/v1_portal_resolution_20261027/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
       "head": "e2c3b418f6149ec061667cd052f486cad163a756",
       "run": 40184942213,
       "status": "success"
-    }
+    },
+    "parallel_agents": [
+      "portal_impl",
+      "portal_theory"
+    ]
   },
   "nodes": [
     {
@@ -1684,7 +1687,7 @@
       "depends_on": [
         "C02"
       ],
-      "status": "IN_PROGRESS",
+      "status": "VERIFIED_SCOPED",
       "files": [
         "tests/v1/test_acceptance_physics.py",
         "tools/audit_v1_physics.py"
@@ -1726,7 +1729,7 @@
       "failure_classification": [
         "물리오류MODEL_ERROR,수치오류NUMERICAL_ERROR,권한/환경실패분리"
       ],
-      "positive_next_action": "V03releasecase에검증된설정만허용",
+      "positive_next_action": "V03: actual 100k full-day scenarios and measured scale gate, with physical registered entries",
       "resource_budget": "주검증1회+실제위험에대한freshreview1회;중첩review루프없음",
       "contracts": [
         "C_PHYSICS",
@@ -1737,14 +1740,24 @@
         "key": "V1-V01",
         "title": "[V1 V01] 통합 물리·관측·대칭 적대 검증",
         "branch": "v1/v01-parallel-20261027",
-        "base": "v1/v02-parallel-20261027",
-        "opened_number": null
+        "base": "v1/p01-parallel-20261027",
+        "opened_number": 40
       },
       "implementation_parent": {
-        "node": "V02",
-        "branch": "v1/v02-parallel-20261027",
-        "sha": "1c90ba9fc0203c827228309e6d6fea365eb1f66a",
-        "pr": 38
+        "node": "P01",
+        "branch": "v1/p01-parallel-20261027",
+        "sha": "546120037bba3c597a4b6edfd97f9c260949d3ac",
+        "pr": 39
+      },
+      "historical_blocked_evidence": {
+        "path": "artifacts/v1_v01_20261027/RECEIPT.json",
+        "sha256": "82cfd67cccc861d193bbb50a214f82559526da8163220a59c98abdb38de7c2d7",
+        "reason": "V02 generated maps have zero registered portals; release-level P1 provisional; P0/P1 zero not established"
+      },
+      "verification_receipt": {
+        "path": "artifacts/v1_portal_resolution_20261027/RECEIPT.json",
+        "sha256": "72685d10edf35b363220ca2f0bdaa52b84d26e2b91ffb3e7cbe13176fa62c0c5",
+        "acceptance": "38 original map constructions and 7 bounded physics fixtures pass; scoped only; full CI/integration deferred"
       }
     },
     {
@@ -1990,6 +2003,11 @@
       "authority": "current user instruction",
       "change": "독립 노드 병렬 실행; 실행 완료 수/전체 DAG 및 비율을 매번 보고",
       "effect": "B01/C01 independent writers; scoped implementation completion count excludes in-progress and blocked nodes; full CI/integration still deferred"
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "사용자 V01 차단 해소 연구 루프: 원본 38개 동결 도시를 보존하고 합성 출입구 construction으로 새 snapshot과 물리 접근 증거 생성",
+      "change": "기존 M03 compile_entry 및 면적측도 재사용. corridor/mask/grade, legal-turn SCC 연결, 실제 포털 CDF 검증; unserved 유지. P1와 수용문턱은 결과 전 유지."
     }
   ],
   "implementation_progress": {
@@ -2011,11 +2029,12 @@
       "M04",
       "C02",
       "P01",
-      "V02"
+      "V02",
+      "V01"
     ],
-    "completed_count": 18,
+    "completed_count": 19,
     "total_count": 21,
-    "percent": 85.71,
+    "percent": 90.48,
     "definition": "ACCEPTED or receipt-bound VERIFIED_SCOPED; not full CI/integration/final acceptance"
   }
 }

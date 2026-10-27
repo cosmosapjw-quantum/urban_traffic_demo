@@ -1,0 +1,94 @@
+{
+  "source_identity": "ffb8ccfb9480ec9a12a70a6c4e2d1be61a15b3cf65837679ac251586ff244080",
+  "identity": "15e34a5118c666ac119a96aee8d8cc9aed2180d58313cbc46e6e8361a3144a53",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 555,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.08249304286853326
+    ],
+    [
+      120,
+      0.4841976187438667
+    ],
+    [
+      300,
+      0.9861883702013735
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.5974050188104724
+    ],
+    [
+      600,
+      0.9956663706156038
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.9151903986454927
+    ],
+    [
+      60,
+      0.9561129803433522
+    ],
+    [
+      120,
+      0.9960020048749441
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 50.453281460613006,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 2728,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 30,
+  "case": "radial_coast",
+  "seed": 7,
+  "family": "mixed",
+  "parent_identity": "ffb8ccfb9480ec9a12a70a6c4e2d1be61a15b3cf65837679ac251586ff244080",
+  "source": "mixed_radial_coast_s7.json.xz",
+  "source_sha256": "686a61ce3052c79b95363d5460dc8ba6acef7accf955e73d4fb573a78c8beb21",
+  "patch": "30.patch.json.xz",
+  "patch_sha256": "15d2b3314cd1ef0e3d3924f9555217c00a6081c5b55ec1aa31df13627f4805cc",
+  "wall_s": 27.94147356099893
+}

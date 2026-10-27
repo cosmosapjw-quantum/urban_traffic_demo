@@ -23,7 +23,7 @@
 |V1-M04|[V1 M04] 실현 접근성에서 느린 도시개발로의 지연 피드백|C01, M03|v1/m04-lagged-growth-20261026|v1/c01-parallel-20261026|
 |V1-C02|[V1 C02] 하루 도시 실행·시나리오·관측 패키지|C01, B01, M04, T01|v1/c02-parallel-20261027|v1/m04-lagged-growth-20261026|
 |V1-P01|[V1 P01] 관측동등 경량화와 자원 상한 확립|C02|v1/p01-parallel-20261027|v1/v02-parallel-20261027|
-|V1-V01|[V1 V01] 통합 물리·관측·대칭 적대 검증|C02|v1/v01-parallel-20261027|v1/v02-parallel-20261027|
+|V1-V01|[V1 V01] 통합 물리·관측·대칭 적대 검증|C02|v1/v01-parallel-20261027|v1/p01-parallel-20261027|
 |V1-V02|[V1 V02] 도시형태·지형·접근의 적대적 시각 검수|M02, M03, M04, C01|v1/v02-parallel-20261027|v1/c02-parallel-20261027|
 |V1-V03|[V1 V03] 로컬 10만 주민·24시간 실제 실행과 수치 수용시험|P01, V01, V02|v1/v03|research/v1-integration-20261025|
 |V1-RLS01|[V1 RLS01] 1차 완성 릴리스·설치·재현·문서 정리|V03, I01|v1/rls01|research/v1-integration-20261025|

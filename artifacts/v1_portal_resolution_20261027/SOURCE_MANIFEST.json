@@ -1,0 +1,9 @@
+{
+  "src/metroflow/v1/city.py": "f9b928f27eb7d44bd820d38ab5e95ad33603cb0b5577cf78859de3ac678c1bf8",
+  "src/metroflow/v1/generated_entries.py": "c5ff5ce22499cb40f5f011f5e3d15b0b83e459f2d501069e8d8added4b8ff866",
+  "tools/resolve_v1_portals.py": "9f018827c5afb1232ca188648e8593f9f7e0013ef35cae880cbf4891c42ae50f",
+  "tools/audit_v1_physics.py": "58081546ce66615b4c0f9ee7413216d286c5a9174f25b757ab037388cd0d65f7",
+  "tests/v1/test_generated_entries.py": "075b43d5250c475fd33f85a0fcbc6073703ce1419387c4fd5a3c001ab66f5d68",
+  "tests/v1/test_acceptance_physics.py": "6740db335de9e9cb3a6f52ef16d8ebc8179e900ceda864510cd6ebe86cf87c9f",
+  "docs/v1/V01_PORTAL_RESOLUTION_KO.md": "cec26530c32ee257ed764edb0f060b37c855a68c748a627848e35a58b71b0551"
+}

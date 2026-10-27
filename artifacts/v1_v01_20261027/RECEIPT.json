@@ -1,0 +1,37 @@
+{
+  "status": "BLOCKED_OPEN_PROVISIONAL_RELEASE_P1",
+  "source_manifest": "SOURCE_MANIFEST.json",
+  "fixture_status": "7/7 PASS",
+  "initial_scoped_tests": [
+    "90 passed Python3.12",
+    "90 passed Python3.13"
+  ],
+  "source_identity_qualification": "P01-frozen core before and after fresh runs matched; SOURCE_MANIFEST.json records current sources",
+  "final_focused": "1 passed Python3.12 after lint/unit-label fix",
+  "audit_exit_code": 2,
+  "audit_output": "AUDIT.json",
+  "ruff": "RUFF.txt",
+  "blocker": "V02 38 frozen maps have no registered portal; severity P1 is provisional audit judgment, formal independent review pending",
+  "release_criteria": "P0/P1 zero NOT established",
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "integration": "DEFERRED_BY_USER",
+  "frozen_scoped_tests": [
+    {
+      "python": "3.12.14",
+      "passed": 90,
+      "raw": "PY312_FROZEN.txt",
+      "exit_code": 0
+    },
+    {
+      "python": "3.13.16",
+      "passed": 90,
+      "raw": "PY313_FROZEN.txt",
+      "exit_code": 0
+    }
+  ],
+  "frozen_audit": {
+    "exit_code": 2,
+    "raw": "AUDIT_FROZEN.json",
+    "meaning": "provisional release P1 remains open; seven bounded physics fixtures PASS"
+  }
+}

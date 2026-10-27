@@ -1,0 +1,94 @@
+{
+  "source_identity": "c0ee46c6636d105c52b53a34984bc25f983165afd8f5246f4af607a6f7b9f892",
+  "identity": "2d39708216c3b33cc04561623bf27d5aa1dcd825d8eb80510df43728017ddb8f",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 624,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.001989336472011303
+    ],
+    [
+      60,
+      0.036056029807493846
+    ],
+    [
+      120,
+      0.4277625561291844
+    ],
+    [
+      300,
+      0.9672185365071391
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.6023057430924157
+    ],
+    [
+      600,
+      0.9851674186669311
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.8938034568057847
+    ],
+    [
+      60,
+      0.9249911543751461
+    ],
+    [
+      120,
+      0.9863994563939884
+    ],
+    [
+      300,
+      0.9994635222430548
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 51.00639670093162,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 3288,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 23,
+  "case": "polycentric_flat",
+  "seed": 41,
+  "family": "mixed",
+  "parent_identity": "c0ee46c6636d105c52b53a34984bc25f983165afd8f5246f4af607a6f7b9f892",
+  "source": "mixed_polycentric_flat_s41.json.xz",
+  "source_sha256": "65c59cdf302439ee0c6fb84ebf2bbe111a41939259b372d064748964ef00aa57",
+  "patch": "23.patch.json.xz",
+  "patch_sha256": "a3e00d5bee3e19c7bbfec77db729bce0267b02d729ef30325aee16df461c1cef",
+  "wall_s": 11.07425922999937
+}

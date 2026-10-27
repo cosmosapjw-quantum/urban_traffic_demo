@@ -1,0 +1,94 @@
+{
+  "source_identity": "8c00790bf1c8970f48fa59e15f227ef394f4c5e7e8b71868dba5b3cee41993d4",
+  "identity": "cd2354fa3ed025e1f740f9b387b6f48f8ce73dc0c16374bb135a82d481c7cb44",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 261,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0016614110935220703
+    ],
+    [
+      60,
+      0.16103227709514442
+    ],
+    [
+      120,
+      0.49614824121359213
+    ],
+    [
+      300,
+      0.907406248624837
+    ],
+    [
+      600,
+      0.9976613023737013
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.6156143760515436
+    ],
+    [
+      600,
+      0.931867336065228
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.7791757281324059
+    ],
+    [
+      60,
+      0.8405976450784262
+    ],
+    [
+      120,
+      0.9581007050851759
+    ],
+    [
+      300,
+      0.9933717546926192
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 51.0786350197356,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 1862,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 37,
+  "case": "corridor_lake",
+  "seed": 17,
+  "family": "mixed",
+  "parent_identity": "8c00790bf1c8970f48fa59e15f227ef394f4c5e7e8b71868dba5b3cee41993d4",
+  "source": "mixed_corridor_lake_s17.json.xz",
+  "source_sha256": "9def7ef8953674050e33bc19e4bf3600e6d7b31c14d6561031a881c850e6f216",
+  "patch": "37.patch.json.xz",
+  "patch_sha256": "8f9b10abb1eb78394b90c9978ae10f136a263796fb92c00b1dfe332badcae2af",
+  "wall_s": 10.937170450999474
+}

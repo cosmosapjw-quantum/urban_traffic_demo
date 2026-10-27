@@ -1,0 +1,94 @@
+{
+  "source_identity": "b56bd037c9974aa2fe0ecbc9d3625f2de6ab3e37e868670b80c4e67bc3738461",
+  "identity": "7570b5da4b5eb572d2462d0ef3461080ab5dfc81dadc5acc2befc128fe2769d1",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 730,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      2.255170533703918e-05
+    ],
+    [
+      60,
+      0.07256436357982504
+    ],
+    [
+      120,
+      0.5003977442391008
+    ],
+    [
+      300,
+      0.9879091404493965
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.6033054285474574
+    ],
+    [
+      600,
+      0.9907918983779593
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.9283930206655308
+    ],
+    [
+      60,
+      0.9611029871377134
+    ],
+    [
+      120,
+      0.9967653761974709
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 50.36357254695909,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 3512,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 29,
+  "case": "radial_river",
+  "seed": 41,
+  "family": "mixed",
+  "parent_identity": "b56bd037c9974aa2fe0ecbc9d3625f2de6ab3e37e868670b80c4e67bc3738461",
+  "source": "mixed_radial_river_s41.json.xz",
+  "source_sha256": "443b6028f978b2c094ce0008408ceed726eb00b659217c885b7b1089785179d4",
+  "patch": "29.patch.json.xz",
+  "patch_sha256": "eb4d11bd28e2f92d2555a0601f0deec7313444c5c4cc28c3aba4358723356196",
+  "wall_s": 43.81313298799978
+}

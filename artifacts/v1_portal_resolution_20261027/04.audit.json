@@ -1,0 +1,94 @@
+{
+  "source_identity": "60ccd6c3da4d5a3e86c8e18ea54978bf13a7b80f7b2c621e7f168fb5ce14e6b0",
+  "identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 557,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.002920559354750565
+    ],
+    [
+      60,
+      0.03811463440715881
+    ],
+    [
+      120,
+      0.4075297334673122
+    ],
+    [
+      300,
+      0.9488707750129808
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.5393251633013652
+    ],
+    [
+      600,
+      0.9688999244899769
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.8428337282500414
+    ],
+    [
+      60,
+      0.9006935150818699
+    ],
+    [
+      120,
+      0.9729594447458749
+    ],
+    [
+      300,
+      0.9966389968109582
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 52.51223593044306,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 3158,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 4,
+  "case": "polycentric_river",
+  "seed": 17,
+  "family": "primary",
+  "parent_identity": "60ccd6c3da4d5a3e86c8e18ea54978bf13a7b80f7b2c621e7f168fb5ce14e6b0",
+  "source": "primary_polycentric_river_s17.json.xz",
+  "source_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+  "patch": "04.patch.json.xz",
+  "patch_sha256": "8040bf2037bdece32504b8079342abb025d3e8a62a4742a0cc5cb0213b691c27",
+  "wall_s": 30.12284997899951
+}

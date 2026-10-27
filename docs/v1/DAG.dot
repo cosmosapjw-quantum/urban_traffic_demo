@@ -19,7 +19,7 @@ C01 [label="C01\nWorld and scheduler", style="rounded,bold"];
 M04 [label="M04\nLagged development", style="rounded,bold"];
 C02 [label="C02\nFull-day scenarios", style="rounded,bold"];
 P01 [label="P01\nMeasured optimization", style="rounded,bold"];
-V01 [label="V01\nPhysics audit", style="rounded,dashed"];
+V01 [label="V01\nPhysics audit", style="rounded,bold"];
 V02 [label="V02\nMap audit", style="rounded,bold"];
 V03 [label="V03\nLocal 100k day", style="rounded,dashed"];
 RLS01 [label="RLS01\nRelease", style="rounded,dashed"];

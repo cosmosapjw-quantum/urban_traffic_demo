@@ -1,0 +1,8 @@
+{
+  "pr": 40,
+  "source_commit": "03727e5ba6e975134ae3f54f42f90aa7af0be43f",
+  "source_tree": "4605281197cacf009d8e4a644178eea6bd730ca7",
+  "status": "BLOCKED",
+  "merged": false,
+  "full_ci": "DEFERRED_BY_USER"
+}

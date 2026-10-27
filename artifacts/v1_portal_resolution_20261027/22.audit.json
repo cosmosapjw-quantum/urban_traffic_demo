@@ -1,0 +1,94 @@
+{
+  "source_identity": "23300b1b446978dbe582bb34538eb6b1c0e6deac097acbf4d305b1d81b88d818",
+  "identity": "a8582642546c3406b03a3c74408d1966991ef5999969ae668b72747e9f3bb578",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 610,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0004620688315098987
+    ],
+    [
+      60,
+      0.0004620688315098987
+    ],
+    [
+      120,
+      0.4740651492876471
+    ],
+    [
+      300,
+      0.9995377141266106
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.8661835754318857
+    ],
+    [
+      600,
+      0.9952048150602335
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.9563070759907458
+    ],
+    [
+      60,
+      0.9748358237430332
+    ],
+    [
+      120,
+      0.9995377141266106
+    ],
+    [
+      300,
+      1.0
+    ],
+    [
+      600,
+      1.0
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 47.704177100081296,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 3232,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 22,
+  "case": "planned_lake",
+  "seed": 17,
+  "family": "mixed",
+  "parent_identity": "23300b1b446978dbe582bb34538eb6b1c0e6deac097acbf4d305b1d81b88d818",
+  "source": "mixed_planned_lake_s17.json.xz",
+  "source_sha256": "6ebb6604730857a6fa5261f9f6892ab7ae4be47aca2ee3e52d1213fc267f0432",
+  "patch": "22.patch.json.xz",
+  "patch_sha256": "3c6017d36ab7a165d8254175acc8cc0c62e51e44a85e53ac60a179025de28689",
+  "wall_s": 7.0277440099998785
+}

@@ -1,0 +1,94 @@
+{
+  "source_identity": "368c4bba219d8f25e2664942e769d149beda4086f5791f8fc48abd62b10c9481",
+  "identity": "108a1320726e6216aacc29a2843a5b3f7eadd61c2708c1e20dc8de191036fb7c",
+  "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+  "existing": false,
+  "registered_portal_count": 335,
+  "registered_served_residents": 100000,
+  "registered_unserved_residents": 0,
+  "registered_access_status": "PASS",
+  "registered_entry_validation_status": "PASS",
+  "registered_connectivity_status": "PASS",
+  "registered_access_cdf": [
+    [
+      30,
+      0.0033324920042685064
+    ],
+    [
+      60,
+      0.1311737274753591
+    ],
+    [
+      120,
+      0.5086523270084093
+    ],
+    [
+      300,
+      0.925047874098969
+    ],
+    [
+      600,
+      0.9986852818372703
+    ]
+  ],
+  "registered_access_cdf_lower": [
+    [
+      30,
+      0.0
+    ],
+    [
+      60,
+      0.0
+    ],
+    [
+      120,
+      0.0
+    ],
+    [
+      300,
+      0.5943876011956101
+    ],
+    [
+      600,
+      0.9289625424909904
+    ]
+  ],
+  "registered_access_cdf_upper": [
+    [
+      30,
+      0.8498405571133953
+    ],
+    [
+      60,
+      0.9066982364046313
+    ],
+    [
+      120,
+      0.9677571802917705
+    ],
+    [
+      300,
+      0.9970780250671141
+    ],
+    [
+      600,
+      0.9986852818372703
+    ]
+  ],
+  "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+  "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+  "quadrature_mean_bound_s": 54.16341267681161,
+  "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+  "backbone_links": 2332,
+  "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+  "index": 35,
+  "case": "corridor_coast",
+  "seed": 41,
+  "family": "mixed",
+  "parent_identity": "368c4bba219d8f25e2664942e769d149beda4086f5791f8fc48abd62b10c9481",
+  "source": "mixed_corridor_coast_s41.json.xz",
+  "source_sha256": "f6298086dcef83211a43b1e1c373fa3b70f55b890e826d61a8c5a3f560380026",
+  "patch": "35.patch.json.xz",
+  "patch_sha256": "c5fabc9e93065491ba8637ddf5e43173bfbd1573c6283de73423c2a272a39e86",
+  "wall_s": 26.520419189999302
+}

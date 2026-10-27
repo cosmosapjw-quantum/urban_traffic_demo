@@ -1,0 +1,3579 @@
+{
+  "status": "PASS",
+  "cases": [
+    {
+      "source_identity": "448cf4070ef243386bbd3652b18f9044eeee4009200a50bcb5dbdcfac4cf9d3c",
+      "identity": "14487f8be6f7606d50e200d719fbdd447b6e1acf89b30f08010de495022b037e",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 829,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.00012578433180209615
+        ],
+        [
+          60,
+          0.00012578433180209615
+        ],
+        [
+          120,
+          0.4758277276631395
+        ],
+        [
+          300,
+          0.9977961566448817
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.9088440141708858
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9644452435945081
+        ],
+        [
+          60,
+          0.9781177519685081
+        ],
+        [
+          120,
+          0.998389968024173
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 46.61190541830273,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3710,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 0,
+      "case": "planned_plain",
+      "seed": 7,
+      "family": "primary",
+      "parent_identity": "448cf4070ef243386bbd3652b18f9044eeee4009200a50bcb5dbdcfac4cf9d3c",
+      "source": "primary_planned_plain_s7.json.xz",
+      "source_sha256": "bcd12566d55f0984879b54d438ddeb6ef3e61ffe5067f49bfb62534c86587c01",
+      "patch": "00.patch.json.xz",
+      "patch_sha256": "9bc5545ef5b2d02feaf6b91e6e95e50ded94b535d85789c798021d1335736a0d",
+      "wall_s": 10.831159953999304
+    },
+    {
+      "source_identity": "c9ae757497f68ccb76583ac93516e99016962c959af75a94d63ceba5fa653eb8",
+      "identity": "cc2a551049cb65d6d27b4bdbde6561f60b498a4f68f86fce62321073c2f09512",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 827,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0002338151347639045
+        ],
+        [
+          60,
+          0.0002338151347639045
+        ],
+        [
+          120,
+          0.47753076370993675
+        ],
+        [
+          300,
+          0.9976324575255007
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.9028818735992971
+        ],
+        [
+          600,
+          0.9979748380833249
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9545989915520307
+        ],
+        [
+          60,
+          0.9733004998831257
+        ],
+        [
+          120,
+          0.9991654288981588
+        ],
+        [
+          300,
+          0.999507809455983
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 46.60193208686229,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3714,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 1,
+      "case": "planned_plain",
+      "seed": 17,
+      "family": "primary",
+      "parent_identity": "c9ae757497f68ccb76583ac93516e99016962c959af75a94d63ceba5fa653eb8",
+      "source": "primary_planned_plain_s17.json.xz",
+      "source_sha256": "b50842e74bb3e354ba3c4d7879c927e2a0ad58c9a25a3eed258098113d53a4af",
+      "patch": "01.patch.json.xz",
+      "patch_sha256": "4411a7cb94bb1dbbbcc4939ee758f6fdd9ff4533fa9a51ddae5dceadb7d6168f",
+      "wall_s": 9.539798275000066
+    },
+    {
+      "source_identity": "c4b0bed48151d7ec899df0ab3da93d6d661422c0f2e7b00aa69a0de7ba7240ef",
+      "identity": "b37b77c7c5d3ca5b5a4d597c4bfa15d2144256de48dce9426b1d8dbd0891d9d7",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 820,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.00038564894474627475
+        ],
+        [
+          60,
+          0.00038564894474627475
+        ],
+        [
+          120,
+          0.4818831101591451
+        ],
+        [
+          300,
+          0.9962723208255059
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.9060338919575399
+        ],
+        [
+          600,
+          0.9964112158575397
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9652813601466211
+        ],
+        [
+          60,
+          0.9780374999411268
+        ],
+        [
+          120,
+          0.9962723208255059
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 46.91815956313811,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3688,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 2,
+      "case": "planned_plain",
+      "seed": 41,
+      "family": "primary",
+      "parent_identity": "c4b0bed48151d7ec899df0ab3da93d6d661422c0f2e7b00aa69a0de7ba7240ef",
+      "source": "primary_planned_plain_s41.json.xz",
+      "source_sha256": "86374f5ab1fd011d171cef16aa5e053dbc44bfa1b4f4b00902bd2493481e2e95",
+      "patch": "02.patch.json.xz",
+      "patch_sha256": "ae34bbd1b32d824e25fc1dde8a3aff25610f7ba95a16800a64a7752d880aef5a",
+      "wall_s": 9.491835763999916
+    },
+    {
+      "source_identity": "38e3626385e26bec53f3a5f13a7f6527162faabd02ab5013fe76f64df1da5d26",
+      "identity": "0ea6d6ae25093e1c28d8773aaa131ebf6942ba2400cb223fad9aec2dccb1a2cd",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 537,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0026173242192367757
+        ],
+        [
+          60,
+          0.031017501780217116
+        ],
+        [
+          120,
+          0.4193746759012215
+        ],
+        [
+          300,
+          0.9311464986386606
+        ],
+        [
+          600,
+          0.9990353067447753
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5498942638721265
+        ],
+        [
+          600,
+          0.9375503638475944
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8443513218805804
+        ],
+        [
+          60,
+          0.8923620133771357
+        ],
+        [
+          120,
+          0.9695575082819313
+        ],
+        [
+          300,
+          0.9910810472554024
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 52.58543022489194,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3094,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 3,
+      "case": "polycentric_river",
+      "seed": 7,
+      "family": "primary",
+      "parent_identity": "38e3626385e26bec53f3a5f13a7f6527162faabd02ab5013fe76f64df1da5d26",
+      "source": "primary_polycentric_river_s7.json.xz",
+      "source_sha256": "54bbb444036062aebc6f38b0453c13ddbf34097a37676b49ebd4b62011840190",
+      "patch": "03.patch.json.xz",
+      "patch_sha256": "5af7c1507e0d39cd53cebbd4a225980dcfd2b7096d87b32c77a1e29e780c91b0",
+      "wall_s": 19.78836823399979
+    },
+    {
+      "source_identity": "60ccd6c3da4d5a3e86c8e18ea54978bf13a7b80f7b2c621e7f168fb5ce14e6b0",
+      "identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 557,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.002920559354750565
+        ],
+        [
+          60,
+          0.03811463440715881
+        ],
+        [
+          120,
+          0.4075297334673122
+        ],
+        [
+          300,
+          0.9488707750129808
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5393251633013652
+        ],
+        [
+          600,
+          0.9688999244899769
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8428337282500414
+        ],
+        [
+          60,
+          0.9006935150818699
+        ],
+        [
+          120,
+          0.9729594447458749
+        ],
+        [
+          300,
+          0.9966389968109582
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 52.51223593044306,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3158,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 4,
+      "case": "polycentric_river",
+      "seed": 17,
+      "family": "primary",
+      "parent_identity": "60ccd6c3da4d5a3e86c8e18ea54978bf13a7b80f7b2c621e7f168fb5ce14e6b0",
+      "source": "primary_polycentric_river_s17.json.xz",
+      "source_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+      "patch": "04.patch.json.xz",
+      "patch_sha256": "8040bf2037bdece32504b8079342abb025d3e8a62a4742a0cc5cb0213b691c27",
+      "wall_s": 30.12284997899951
+    },
+    {
+      "source_identity": "55974a7c1a88bf29611a5c6a6c827c7818b6f3e23643869fd8bb9a3e3d409756",
+      "identity": "5eef23867c0600c53434d2aadd30dcda18741e7fbccf2ce92fe16cdfa30df522",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 550,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0017489359422981883
+        ],
+        [
+          60,
+          0.02877345540251389
+        ],
+        [
+          120,
+          0.4028661454804223
+        ],
+        [
+          300,
+          0.9641021172873822
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5606046710828662
+        ],
+        [
+          600,
+          0.979801558251099
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8747058259474925
+        ],
+        [
+          60,
+          0.9121744145324713
+        ],
+        [
+          120,
+          0.9787650552937255
+        ],
+        [
+          300,
+          0.9980846205431777
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 51.91272921974414,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3090,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 5,
+      "case": "polycentric_river",
+      "seed": 41,
+      "family": "primary",
+      "parent_identity": "55974a7c1a88bf29611a5c6a6c827c7818b6f3e23643869fd8bb9a3e3d409756",
+      "source": "primary_polycentric_river_s41.json.xz",
+      "source_sha256": "31b87d5f25d04a2c3fadff2e8e42004a8e10824b241c79b2f87bcf996911da33",
+      "patch": "05.patch.json.xz",
+      "patch_sha256": "83ab6f408d2130e9f2a49f2a7289097c938937e54e106e1a6c66a940aa24a77a",
+      "wall_s": 37.967756391000876
+    },
+    {
+      "source_identity": "0160644a9c934111b0fc00a25eaf23ce4a8cbfd4d6f3558fcd9ccc36383a9726",
+      "identity": "6c4e490f172f0f2a8181af1f367f6790d68033ad7c6d346f262407d270122a86",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 780,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          8.369350119746163e-05
+        ],
+        [
+          60,
+          0.07429878593305356
+        ],
+        [
+          120,
+          0.48481347904722794
+        ],
+        [
+          300,
+          0.9914161560143396
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.6056322305022467
+        ],
+        [
+          600,
+          0.9953016601314858
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9227742329587112
+        ],
+        [
+          60,
+          0.9644506337483632
+        ],
+        [
+          120,
+          0.9954187272452474
+        ],
+        [
+          300,
+          0.9994590955024172
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 50.155371974257854,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3690,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 6,
+      "case": "radial_plain",
+      "seed": 7,
+      "family": "primary",
+      "parent_identity": "0160644a9c934111b0fc00a25eaf23ce4a8cbfd4d6f3558fcd9ccc36383a9726",
+      "source": "primary_radial_plain_s7.json.xz",
+      "source_sha256": "a12ac6c3a757e0f6ccd989201127cecf786f4f92d96bc053b18687ce0e745dc4",
+      "patch": "06.patch.json.xz",
+      "patch_sha256": "5c19bbb9e7102a967cfd881bec7032a2f8649d3987502055f6372038732b5f20",
+      "wall_s": 13.899139819000993
+    },
+    {
+      "source_identity": "d37628e21f94d9bc22c4888721cdc1c0615e09d46facb41a036e5593a5ad66af",
+      "identity": "15dec8bc89514c2a93f509625eefdd998a421a6e9c669896f6d284b3ea3e8e4d",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 775,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          8.041823096432244e-05
+        ],
+        [
+          60,
+          0.06698921008594229
+        ],
+        [
+          120,
+          0.4857270958155686
+        ],
+        [
+          300,
+          0.9873510847261621
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.597328644747111
+        ],
+        [
+          600,
+          0.9896033282904566
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9206326659806169
+        ],
+        [
+          60,
+          0.9544352138904176
+        ],
+        [
+          120,
+          0.9888758846396771
+        ],
+        [
+          300,
+          0.9983483037233377
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 50.65093156859929,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3706,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 7,
+      "case": "radial_plain",
+      "seed": 17,
+      "family": "primary",
+      "parent_identity": "d37628e21f94d9bc22c4888721cdc1c0615e09d46facb41a036e5593a5ad66af",
+      "source": "primary_radial_plain_s17.json.xz",
+      "source_sha256": "6c14c19508bec830310d22d29fda25cb396936711b33cc4dfd4f928d1bd54373",
+      "patch": "07.patch.json.xz",
+      "patch_sha256": "682cd7638e2c49f01022d5f6d038ecca7b3941d01c9e2d5e4ac678404c284495",
+      "wall_s": 32.85948850599925
+    },
+    {
+      "source_identity": "bebc8bb6c9de22f4faf64cce09d817977884a33a470de3a413a56a6330df2566",
+      "identity": "adbcb49b52220aebd6f360b9f8e57000b99f6006c53827cf6db3bb077674b0ef",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 793,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          7.765914744694896e-05
+        ],
+        [
+          60,
+          0.07224673913728795
+        ],
+        [
+          120,
+          0.48685424569201435
+        ],
+        [
+          300,
+          0.9911312248198247
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.6075856062684805
+        ],
+        [
+          600,
+          0.9952067513353414
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9242990187358915
+        ],
+        [
+          60,
+          0.9580769264497855
+        ],
+        [
+          120,
+          0.9929626539061244
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 50.2372140397475,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3726,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 8,
+      "case": "radial_plain",
+      "seed": 41,
+      "family": "primary",
+      "parent_identity": "bebc8bb6c9de22f4faf64cce09d817977884a33a470de3a413a56a6330df2566",
+      "source": "primary_radial_plain_s41.json.xz",
+      "source_sha256": "0b53d5ef0fd37fde125948acca83c5acd52892509e6f3af8b95ee485ccec0da6",
+      "patch": "08.patch.json.xz",
+      "patch_sha256": "cafec5136ef5e91e44f73608e183d64d02b842f2cc82ca6ff62ca8150db3298f",
+      "wall_s": 28.208116410000002
+    },
+    {
+      "source_identity": "ea8d6798958f6aa09d7e7a9099da6679cf37f7f2266e819a0ef0aa4939f99933",
+      "identity": "ff123ac691848a952eb7a61d73cd43a8636043218e59836036943d1769c801fd",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 430,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.001620946079693762
+        ],
+        [
+          60,
+          0.029376877266916845
+        ],
+        [
+          120,
+          0.4160272668933078
+        ],
+        [
+          300,
+          0.9575484045507332
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5481185699452934
+        ],
+        [
+          600,
+          0.9832571113041194
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8474630701130368
+        ],
+        [
+          60,
+          0.890753329882898
+        ],
+        [
+          120,
+          0.9810221080580197
+        ],
+        [
+          300,
+          0.9967168437157053
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 51.02347892754054,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2522,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 9,
+      "case": "coastal_port",
+      "seed": 7,
+      "family": "primary",
+      "parent_identity": "ea8d6798958f6aa09d7e7a9099da6679cf37f7f2266e819a0ef0aa4939f99933",
+      "source": "primary_coastal_port_s7.json.xz",
+      "source_sha256": "48741bfd108c1f744a92a5a1eae0cef73d28c9d198494a09c32d45127ae2a737",
+      "patch": "09.patch.json.xz",
+      "patch_sha256": "360a7cc6a40afef4dfea6174b7e25a31cc348d0b110446019de0f43b0732a01d",
+      "wall_s": 14.631937807998838
+    },
+    {
+      "source_identity": "35f34f8d031962e67f7a90fb5bc96100267691a5724f8a71b7229fd03a797c56",
+      "identity": "7479be16407f09d74bb3365d04c0e404fcb92ad84af4b2a8d55229b5f71d394c",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 488,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.002563199802046451
+        ],
+        [
+          60,
+          0.04129039042975021
+        ],
+        [
+          120,
+          0.41951669489766186
+        ],
+        [
+          300,
+          0.9322820627937967
+        ],
+        [
+          600,
+          0.998976984031442
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5772223554778733
+        ],
+        [
+          600,
+          0.9517782026177584
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8070853153501196
+        ],
+        [
+          60,
+          0.8803873656502106
+        ],
+        [
+          120,
+          0.9763017828253956
+        ],
+        [
+          300,
+          0.993955812058097
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 51.135769454224345,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2804,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 10,
+      "case": "coastal_port",
+      "seed": 17,
+      "family": "primary",
+      "parent_identity": "35f34f8d031962e67f7a90fb5bc96100267691a5724f8a71b7229fd03a797c56",
+      "source": "primary_coastal_port_s17.json.xz",
+      "source_sha256": "166023bc3991a91a6aa98af64ebbe150fcd97b5fadf4bf1b9f7bea6833c5ae50",
+      "patch": "10.patch.json.xz",
+      "patch_sha256": "dfbab8997764a96b05066493a46b4163c7a90ed6597e90aa7288f57e0337f4c2",
+      "wall_s": 14.786404046000825
+    },
+    {
+      "source_identity": "4bd31be340a210c6d77a2e2e2ca60d4885d81aae43160597d10325bd93077d98",
+      "identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 478,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.00235446210763282
+        ],
+        [
+          60,
+          0.04125418980792569
+        ],
+        [
+          120,
+          0.4065408108352449
+        ],
+        [
+          300,
+          0.9574594909387611
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5657159069291239
+        ],
+        [
+          600,
+          0.9779057323417544
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8716977219190832
+        ],
+        [
+          60,
+          0.9021328572878529
+        ],
+        [
+          120,
+          0.9755977198678158
+        ],
+        [
+          300,
+          0.9982927823931598
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 51.68995252987935,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2696,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 11,
+      "case": "coastal_port",
+      "seed": 41,
+      "family": "primary",
+      "parent_identity": "4bd31be340a210c6d77a2e2e2ca60d4885d81aae43160597d10325bd93077d98",
+      "source": "primary_coastal_port_s41.json.xz",
+      "source_sha256": "5c3107b147b7f71046f5958a8ad8d3f0212d0bcc5bbfcc27ebbebbd9d476756e",
+      "patch": "11.patch.json.xz",
+      "patch_sha256": "f22743e502442405732db7c09e5745a8f41471c9d949358d56c04b685ad419cf",
+      "wall_s": 10.713896363000458
+    },
+    {
+      "source_identity": "da78089758004b309b8c02aef1f3252acc567206d69e7b0d6be01f396a9b9f46",
+      "identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 234,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0021250701206832544
+        ],
+        [
+          60,
+          0.16575666187430538
+        ],
+        [
+          120,
+          0.5234648355562366
+        ],
+        [
+          300,
+          0.9199849036649536
+        ],
+        [
+          600,
+          0.9981170272025096
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.679694703579159
+        ],
+        [
+          600,
+          0.946280260797464
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8171976674423644
+        ],
+        [
+          60,
+          0.8602563668285882
+        ],
+        [
+          120,
+          0.9510160519217747
+        ],
+        [
+          300,
+          0.9924172984501555
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 48.700485886262776,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 1552,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 12,
+      "case": "valley_city",
+      "seed": 7,
+      "family": "primary",
+      "parent_identity": "da78089758004b309b8c02aef1f3252acc567206d69e7b0d6be01f396a9b9f46",
+      "source": "primary_valley_city_s7.json.xz",
+      "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+      "patch": "12.patch.json.xz",
+      "patch_sha256": "da5fa61d26316b17d09a96ae467d4fb0accc2781f17a96572607ddf423946ac7",
+      "wall_s": 20.097070052999698
+    },
+    {
+      "source_identity": "b39d6c92ba00bd1f59904d771c87f5f00792f5242a90a76284a045fd60ebd1fb",
+      "identity": "9acde97223275996ed78b09836fbec75201fbe0ba9bd8cfd9188160d688fa1af",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 215,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0010963969291265272
+        ],
+        [
+          60,
+          0.17157459916028892
+        ],
+        [
+          120,
+          0.49348885420341043
+        ],
+        [
+          300,
+          0.8943310587331279
+        ],
+        [
+          600,
+          0.9976905263841291
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.6321465313475771
+        ],
+        [
+          600,
+          0.9344600123051808
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.7591157304872308
+        ],
+        [
+          60,
+          0.849364040881177
+        ],
+        [
+          120,
+          0.9577897600222749
+        ],
+        [
+          300,
+          0.994372285746361
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 51.733089724658186,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 1496,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 13,
+      "case": "valley_city",
+      "seed": 17,
+      "family": "primary",
+      "parent_identity": "b39d6c92ba00bd1f59904d771c87f5f00792f5242a90a76284a045fd60ebd1fb",
+      "source": "primary_valley_city_s17.json.xz",
+      "source_sha256": "ffec634ce8260adf984717962fb50845528383281bd09f294416f9cdb3f92929",
+      "patch": "13.patch.json.xz",
+      "patch_sha256": "d3f6cee882cd58a75ba2e413ab51d05c119944fe1df42d79d61d54e03a8d82bb",
+      "wall_s": 22.967101004998767
+    },
+    {
+      "source_identity": "2288dba4478eb92559245d431169ec3e011f96977b6903d252cd4d82b07e4bee",
+      "identity": "fa34002cb1e9065786bfac60eb7b346ec0022b10a2dcdbc3665d33e43de9e4b9",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 229,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.002477672961823044
+        ],
+        [
+          60,
+          0.19103923463288902
+        ],
+        [
+          120,
+          0.5619000480293801
+        ],
+        [
+          300,
+          0.9376219731833243
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.681955489316732
+        ],
+        [
+          600,
+          0.9183721973395498
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8514664260029351
+        ],
+        [
+          60,
+          0.8926569441290205
+        ],
+        [
+          120,
+          0.9679433515322853
+        ],
+        [
+          300,
+          0.9966902294285689
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 52.36839223104781,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 1520,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 14,
+      "case": "valley_city",
+      "seed": 41,
+      "family": "primary",
+      "parent_identity": "2288dba4478eb92559245d431169ec3e011f96977b6903d252cd4d82b07e4bee",
+      "source": "primary_valley_city_s41.json.xz",
+      "source_sha256": "4ac0c95e0f4199cf147700828af54e6d8eb1cb3040748398bd7e70bbe335a8c2",
+      "patch": "14.patch.json.xz",
+      "patch_sha256": "fdbab1f73c43111621e43c23ac47e2a19392cbcbe27ffd7e307c9e7cc85c4095",
+      "wall_s": 32.9148487399998
+    },
+    {
+      "source_identity": "a441525e1d9e90c01d94c5af73d9fe41e9a6c0f060fbeb3dcba09bfa0fe440a8",
+      "identity": "b4eaf98d7dc33480150ded349abbe8977731fe420729c39ee1b15000b9ed241d",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 453,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0032929425157564606
+        ],
+        [
+          60,
+          0.049596435863473044
+        ],
+        [
+          120,
+          0.4532138520201828
+        ],
+        [
+          300,
+          0.9690368179579414
+        ],
+        [
+          600,
+          0.999621349188682
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5961052471224728
+        ],
+        [
+          600,
+          0.9678413136102422
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8840408878423339
+        ],
+        [
+          60,
+          0.9119016386577471
+        ],
+        [
+          120,
+          0.9814829944727005
+        ],
+        [
+          300,
+          0.9965473187244653
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 51.63034258179117,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2798,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 15,
+      "case": "lake_city",
+      "seed": 7,
+      "family": "primary",
+      "parent_identity": "a441525e1d9e90c01d94c5af73d9fe41e9a6c0f060fbeb3dcba09bfa0fe440a8",
+      "source": "primary_lake_city_s7.json.xz",
+      "source_sha256": "4a154cf66f13fc18705284d0bacecaaa0418322307b58c4c873832bdd38fb72c",
+      "patch": "15.patch.json.xz",
+      "patch_sha256": "79b6f322dacc47fb4d419bf373cd00c30c55205d09e401ce466bd988c32d3acd",
+      "wall_s": 17.327898176999952
+    },
+    {
+      "source_identity": "d67b3cc358e1da3c1253b78dea18b1ef9b3a3034bed5fa70dee9ed1210ec6f57",
+      "identity": "20a3a46484fa23e03a6cbbd495d7d728c0c9618ea090db4d338f067d9780a45b",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 483,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0021342727344893326
+        ],
+        [
+          60,
+          0.035522596289916906
+        ],
+        [
+          120,
+          0.4072166161318317
+        ],
+        [
+          300,
+          0.9401684486937486
+        ],
+        [
+          600,
+          0.9996192281422961
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5465588908832144
+        ],
+        [
+          600,
+          0.9586983273878653
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8438937173495148
+        ],
+        [
+          60,
+          0.8969039297058053
+        ],
+        [
+          120,
+          0.9835216909235723
+        ],
+        [
+          300,
+          0.9975188755584393
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 53.08282653277997,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2932,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 16,
+      "case": "lake_city",
+      "seed": 17,
+      "family": "primary",
+      "parent_identity": "d67b3cc358e1da3c1253b78dea18b1ef9b3a3034bed5fa70dee9ed1210ec6f57",
+      "source": "primary_lake_city_s17.json.xz",
+      "source_sha256": "702f839e60d1b9ffaa7475ead461d0c497a6011be32f4cecaffa1dfd0b6c34e7",
+      "patch": "16.patch.json.xz",
+      "patch_sha256": "c57da89034a96249b1266ec04f72422a23fe04559ab3613018a335ed85ec4122",
+      "wall_s": 9.632112804998542
+    },
+    {
+      "source_identity": "e7eed671896714b21d6ba45498ce5c94841ca241b20dcceed44c87414e41221f",
+      "identity": "ea61e5296a9537747e7b9d033be70e644c43e45367c890ff95268cad315cdaff",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 489,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0030810981541937793
+        ],
+        [
+          60,
+          0.032835947586482034
+        ],
+        [
+          120,
+          0.41717549150095756
+        ],
+        [
+          300,
+          0.9615965838561366
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5796822499983981
+        ],
+        [
+          600,
+          0.9715696817852174
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8789646498828408
+        ],
+        [
+          60,
+          0.9194864092505917
+        ],
+        [
+          120,
+          0.9843745537725183
+        ],
+        [
+          300,
+          0.9966028465852061
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 51.235332628989966,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2894,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 17,
+      "case": "lake_city",
+      "seed": 41,
+      "family": "primary",
+      "parent_identity": "e7eed671896714b21d6ba45498ce5c94841ca241b20dcceed44c87414e41221f",
+      "source": "primary_lake_city_s41.json.xz",
+      "source_sha256": "b9d272345d13b68e2e71564878104ce827d454ff8ce71c0dda281d97bc72a407",
+      "patch": "17.patch.json.xz",
+      "patch_sha256": "c8a8aeee9195d95bf78570927d92092e49e8f71d5b60fe4aadd114eea969c99e",
+      "wall_s": 7.381503560998681
+    },
+    {
+      "source_identity": "448cf4070ef243386bbd3652b18f9044eeee4009200a50bcb5dbdcfac4cf9d3c",
+      "identity": "14487f8be6f7606d50e200d719fbdd447b6e1acf89b30f08010de495022b037e",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 829,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.00012578433180209615
+        ],
+        [
+          60,
+          0.00012578433180209615
+        ],
+        [
+          120,
+          0.4758277276631395
+        ],
+        [
+          300,
+          0.9977961566448817
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.9088440141708858
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9644452435945081
+        ],
+        [
+          60,
+          0.9781177519685081
+        ],
+        [
+          120,
+          0.998389968024173
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 46.61190541830273,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3710,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 18,
+      "case": "planned_flat",
+      "seed": 7,
+      "family": "mixed",
+      "parent_identity": "448cf4070ef243386bbd3652b18f9044eeee4009200a50bcb5dbdcfac4cf9d3c",
+      "source": "mixed_planned_flat_s7.json.xz",
+      "source_sha256": "bcd12566d55f0984879b54d438ddeb6ef3e61ffe5067f49bfb62534c86587c01",
+      "patch": "18.patch.json.xz",
+      "patch_sha256": "f1d5d190795ee7ab5ee0624974f5154ab0a559411966f5d68424bf9d6a254453",
+      "wall_s": 10.221353552999062
+    },
+    {
+      "source_identity": "1c17f422f689b77e780d3732b21aa35966bc689f81c0865c7cb65ba537e684a2",
+      "identity": "9ac907ef48d5b40753b0016557e3286f13db34a263054d4e9247b448f68612eb",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 767,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.00023674218465342766
+        ],
+        [
+          60,
+          0.00023674218465342766
+        ],
+        [
+          120,
+          0.482657297602784
+        ],
+        [
+          300,
+          0.997748703377989
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.9124044916870896
+        ],
+        [
+          600,
+          0.997748703377989
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.964881322963386
+        ],
+        [
+          60,
+          0.9792617322022513
+        ],
+        [
+          120,
+          0.9994528502140954
+        ],
+        [
+          300,
+          0.9994528502140954
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 46.5522415408577,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3524,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 19,
+      "case": "planned_river",
+      "seed": 17,
+      "family": "mixed",
+      "parent_identity": "1c17f422f689b77e780d3732b21aa35966bc689f81c0865c7cb65ba537e684a2",
+      "source": "mixed_planned_river_s17.json.xz",
+      "source_sha256": "b2f4276df739303c783c1a08f6a848eed9ce311021a3a41290db36f11647cebf",
+      "patch": "19.patch.json.xz",
+      "patch_sha256": "27b7d05b33bdb09fd7243ccf2a50efd2704f2a178caaf4926c5f61f3b5cbb075",
+      "wall_s": 23.934426783000163
+    },
+    {
+      "source_identity": "747e99d43f1e4ba8ff66a879bf31e2463bead657ee3e37e235170d0552f6530c",
+      "identity": "58094d35da0866a247356097367039ec6b35f2c860ce0fd880f3ce2bddd993fe",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 794,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0002387696794103499
+        ],
+        [
+          60,
+          0.0002387696794103499
+        ],
+        [
+          120,
+          0.4856459288603936
+        ],
+        [
+          300,
+          0.9976128423419239
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.9224507928442811
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9685559271816
+        ],
+        [
+          60,
+          0.9819927546224874
+        ],
+        [
+          120,
+          0.9986195700577528
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 46.46047624372636,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3706,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 20,
+      "case": "planned_coast",
+      "seed": 41,
+      "family": "mixed",
+      "parent_identity": "747e99d43f1e4ba8ff66a879bf31e2463bead657ee3e37e235170d0552f6530c",
+      "source": "mixed_planned_coast_s41.json.xz",
+      "source_sha256": "fd3c38fccbdab7ad4508fec35dc4b76257a48fddc3386281b0abf8ddd1bc9f1c",
+      "patch": "20.patch.json.xz",
+      "patch_sha256": "b6093bd0893821e65046dd4916d915436f2860d365b4ee4406af72d6228c8a99",
+      "wall_s": 12.52803479800059
+    },
+    {
+      "source_identity": "6c278b54f860a23dec87d97ce5c3d297844bd291073e0b5773d11204422891cd",
+      "identity": "d1d181bd0dda346408e69a774c71325130a7621bd1137321d49ce8a12d77b67b",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 287,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.4757825809426067
+        ],
+        [
+          300,
+          0.9987746998174106
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.9307858120898813
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9646634919455226
+        ],
+        [
+          60,
+          0.978066579077067
+        ],
+        [
+          120,
+          0.9987746998174106
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 46.07986890184355,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 1534,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 21,
+      "case": "planned_valley",
+      "seed": 7,
+      "family": "mixed",
+      "parent_identity": "6c278b54f860a23dec87d97ce5c3d297844bd291073e0b5773d11204422891cd",
+      "source": "mixed_planned_valley_s7.json.xz",
+      "source_sha256": "86e4f663d7a42ed8b68f94ecc42e45bae0f4fcb882b5cefd2f823a4e876a1879",
+      "patch": "21.patch.json.xz",
+      "patch_sha256": "2868459e3f86c9c58426bda35d4edf2db1350859d0087de4829e7343521f0134",
+      "wall_s": 19.611590930000602
+    },
+    {
+      "source_identity": "23300b1b446978dbe582bb34538eb6b1c0e6deac097acbf4d305b1d81b88d818",
+      "identity": "a8582642546c3406b03a3c74408d1966991ef5999969ae668b72747e9f3bb578",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 610,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0004620688315098987
+        ],
+        [
+          60,
+          0.0004620688315098987
+        ],
+        [
+          120,
+          0.4740651492876471
+        ],
+        [
+          300,
+          0.9995377141266106
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.8661835754318857
+        ],
+        [
+          600,
+          0.9952048150602335
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9563070759907458
+        ],
+        [
+          60,
+          0.9748358237430332
+        ],
+        [
+          120,
+          0.9995377141266106
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 47.704177100081296,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3232,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 22,
+      "case": "planned_lake",
+      "seed": 17,
+      "family": "mixed",
+      "parent_identity": "23300b1b446978dbe582bb34538eb6b1c0e6deac097acbf4d305b1d81b88d818",
+      "source": "mixed_planned_lake_s17.json.xz",
+      "source_sha256": "6ebb6604730857a6fa5261f9f6892ab7ae4be47aca2ee3e52d1213fc267f0432",
+      "patch": "22.patch.json.xz",
+      "patch_sha256": "3c6017d36ab7a165d8254175acc8cc0c62e51e44a85e53ac60a179025de28689",
+      "wall_s": 7.0277440099998785
+    },
+    {
+      "source_identity": "c0ee46c6636d105c52b53a34984bc25f983165afd8f5246f4af607a6f7b9f892",
+      "identity": "2d39708216c3b33cc04561623bf27d5aa1dcd825d8eb80510df43728017ddb8f",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 624,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.001989336472011303
+        ],
+        [
+          60,
+          0.036056029807493846
+        ],
+        [
+          120,
+          0.4277625561291844
+        ],
+        [
+          300,
+          0.9672185365071391
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.6023057430924157
+        ],
+        [
+          600,
+          0.9851674186669311
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8938034568057847
+        ],
+        [
+          60,
+          0.9249911543751461
+        ],
+        [
+          120,
+          0.9863994563939884
+        ],
+        [
+          300,
+          0.9994635222430548
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 51.00639670093162,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3288,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 23,
+      "case": "polycentric_flat",
+      "seed": 41,
+      "family": "mixed",
+      "parent_identity": "c0ee46c6636d105c52b53a34984bc25f983165afd8f5246f4af607a6f7b9f892",
+      "source": "mixed_polycentric_flat_s41.json.xz",
+      "source_sha256": "65c59cdf302439ee0c6fb84ebf2bbe111a41939259b372d064748964ef00aa57",
+      "patch": "23.patch.json.xz",
+      "patch_sha256": "a3e00d5bee3e19c7bbfec77db729bce0267b02d729ef30325aee16df461c1cef",
+      "wall_s": 11.07425922999937
+    },
+    {
+      "source_identity": "38e3626385e26bec53f3a5f13a7f6527162faabd02ab5013fe76f64df1da5d26",
+      "identity": "0ea6d6ae25093e1c28d8773aaa131ebf6942ba2400cb223fad9aec2dccb1a2cd",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 537,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0026173242192367757
+        ],
+        [
+          60,
+          0.031017501780217116
+        ],
+        [
+          120,
+          0.4193746759012215
+        ],
+        [
+          300,
+          0.9311464986386606
+        ],
+        [
+          600,
+          0.9990353067447753
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5498942638721265
+        ],
+        [
+          600,
+          0.9375503638475944
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8443513218805804
+        ],
+        [
+          60,
+          0.8923620133771357
+        ],
+        [
+          120,
+          0.9695575082819313
+        ],
+        [
+          300,
+          0.9910810472554024
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 52.58543022489194,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3094,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 24,
+      "case": "polycentric_river",
+      "seed": 7,
+      "family": "mixed",
+      "parent_identity": "38e3626385e26bec53f3a5f13a7f6527162faabd02ab5013fe76f64df1da5d26",
+      "source": "mixed_polycentric_river_s7.json.xz",
+      "source_sha256": "54bbb444036062aebc6f38b0453c13ddbf34097a37676b49ebd4b62011840190",
+      "patch": "24.patch.json.xz",
+      "patch_sha256": "ea8fbd18195317e42a09eb86aa391abf884ed379b755104eb0df209d1c91f1bd",
+      "wall_s": 24.60769192800035
+    },
+    {
+      "source_identity": "35f34f8d031962e67f7a90fb5bc96100267691a5724f8a71b7229fd03a797c56",
+      "identity": "7479be16407f09d74bb3365d04c0e404fcb92ad84af4b2a8d55229b5f71d394c",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 488,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.002563199802046451
+        ],
+        [
+          60,
+          0.04129039042975021
+        ],
+        [
+          120,
+          0.41951669489766186
+        ],
+        [
+          300,
+          0.9322820627937967
+        ],
+        [
+          600,
+          0.998976984031442
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5772223554778733
+        ],
+        [
+          600,
+          0.9517782026177584
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8070853153501196
+        ],
+        [
+          60,
+          0.8803873656502106
+        ],
+        [
+          120,
+          0.9763017828253956
+        ],
+        [
+          300,
+          0.993955812058097
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 51.135769454224345,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2804,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 25,
+      "case": "polycentric_coast",
+      "seed": 17,
+      "family": "mixed",
+      "parent_identity": "35f34f8d031962e67f7a90fb5bc96100267691a5724f8a71b7229fd03a797c56",
+      "source": "mixed_polycentric_coast_s17.json.xz",
+      "source_sha256": "166023bc3991a91a6aa98af64ebbe150fcd97b5fadf4bf1b9f7bea6833c5ae50",
+      "patch": "25.patch.json.xz",
+      "patch_sha256": "d95bfca45182dd7a2a252b950a1fedd67d3bd2eab7ab502f5963dd9759c9b645",
+      "wall_s": 16.428248258000167
+    },
+    {
+      "source_identity": "bb3b421e17ffad626a8332f10fafc41491d69121d8c5e8c8c469ecb99217a9f2",
+      "identity": "9714b7274afe4772f166c8f2f163e596c0c4a2f19f1ba05f03a11d2e6db442be",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 209,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.002146109544925884
+        ],
+        [
+          60,
+          0.045309367304129586
+        ],
+        [
+          120,
+          0.45909889108972546
+        ],
+        [
+          300,
+          0.998545262152786
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.6338680057668233
+        ],
+        [
+          600,
+          0.9917907009168057
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9234005505006933
+        ],
+        [
+          60,
+          0.9426065724429719
+        ],
+        [
+          120,
+          0.9886572403591365
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 49.815731361792324,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 1258,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 26,
+      "case": "polycentric_valley",
+      "seed": 41,
+      "family": "mixed",
+      "parent_identity": "bb3b421e17ffad626a8332f10fafc41491d69121d8c5e8c8c469ecb99217a9f2",
+      "source": "mixed_polycentric_valley_s41.json.xz",
+      "source_sha256": "2945b20bdfccd0a6eb7bf9d67f535ec1970c8316a9e7f998c85ae29344c5bd3d",
+      "patch": "26.patch.json.xz",
+      "patch_sha256": "eae00fd0655b60082fb4b97843c3d388d94af34d6498d587699be1fba17bd504",
+      "wall_s": 31.89627255599953
+    },
+    {
+      "source_identity": "a441525e1d9e90c01d94c5af73d9fe41e9a6c0f060fbeb3dcba09bfa0fe440a8",
+      "identity": "b4eaf98d7dc33480150ded349abbe8977731fe420729c39ee1b15000b9ed241d",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 453,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0032929425157564606
+        ],
+        [
+          60,
+          0.049596435863473044
+        ],
+        [
+          120,
+          0.4532138520201828
+        ],
+        [
+          300,
+          0.9690368179579414
+        ],
+        [
+          600,
+          0.999621349188682
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5961052471224728
+        ],
+        [
+          600,
+          0.9678413136102422
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8840408878423339
+        ],
+        [
+          60,
+          0.9119016386577471
+        ],
+        [
+          120,
+          0.9814829944727005
+        ],
+        [
+          300,
+          0.9965473187244653
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 51.63034258179117,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2798,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 27,
+      "case": "polycentric_lake",
+      "seed": 7,
+      "family": "mixed",
+      "parent_identity": "a441525e1d9e90c01d94c5af73d9fe41e9a6c0f060fbeb3dcba09bfa0fe440a8",
+      "source": "mixed_polycentric_lake_s7.json.xz",
+      "source_sha256": "4a154cf66f13fc18705284d0bacecaaa0418322307b58c4c873832bdd38fb72c",
+      "patch": "27.patch.json.xz",
+      "patch_sha256": "bcb95a3e10c0cd1d0d5ad7a3fce2d2aec2708caa14a8fb3a8d02118e3c864a6b",
+      "wall_s": 20.633112350000374
+    },
+    {
+      "source_identity": "d37628e21f94d9bc22c4888721cdc1c0615e09d46facb41a036e5593a5ad66af",
+      "identity": "15dec8bc89514c2a93f509625eefdd998a421a6e9c669896f6d284b3ea3e8e4d",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 775,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          8.041823096432244e-05
+        ],
+        [
+          60,
+          0.06698921008594229
+        ],
+        [
+          120,
+          0.4857270958155686
+        ],
+        [
+          300,
+          0.9873510847261621
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.597328644747111
+        ],
+        [
+          600,
+          0.9896033282904566
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9206326659806169
+        ],
+        [
+          60,
+          0.9544352138904176
+        ],
+        [
+          120,
+          0.9888758846396771
+        ],
+        [
+          300,
+          0.9983483037233377
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 50.65093156859929,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3706,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 28,
+      "case": "radial_flat",
+      "seed": 17,
+      "family": "mixed",
+      "parent_identity": "d37628e21f94d9bc22c4888721cdc1c0615e09d46facb41a036e5593a5ad66af",
+      "source": "mixed_radial_flat_s17.json.xz",
+      "source_sha256": "6c14c19508bec830310d22d29fda25cb396936711b33cc4dfd4f928d1bd54373",
+      "patch": "28.patch.json.xz",
+      "patch_sha256": "dca6273c90b2007aa479ad02d5900f937741ce8db90845bcb6e5c5019f5df04e",
+      "wall_s": 12.16447874700134
+    },
+    {
+      "source_identity": "b56bd037c9974aa2fe0ecbc9d3625f2de6ab3e37e868670b80c4e67bc3738461",
+      "identity": "7570b5da4b5eb572d2462d0ef3461080ab5dfc81dadc5acc2befc128fe2769d1",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 730,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          2.255170533703918e-05
+        ],
+        [
+          60,
+          0.07256436357982504
+        ],
+        [
+          120,
+          0.5003977442391008
+        ],
+        [
+          300,
+          0.9879091404493965
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.6033054285474574
+        ],
+        [
+          600,
+          0.9907918983779593
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9283930206655308
+        ],
+        [
+          60,
+          0.9611029871377134
+        ],
+        [
+          120,
+          0.9967653761974709
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 50.36357254695909,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3512,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 29,
+      "case": "radial_river",
+      "seed": 41,
+      "family": "mixed",
+      "parent_identity": "b56bd037c9974aa2fe0ecbc9d3625f2de6ab3e37e868670b80c4e67bc3738461",
+      "source": "mixed_radial_river_s41.json.xz",
+      "source_sha256": "443b6028f978b2c094ce0008408ceed726eb00b659217c885b7b1089785179d4",
+      "patch": "29.patch.json.xz",
+      "patch_sha256": "eb4d11bd28e2f92d2555a0601f0deec7313444c5c4cc28c3aba4358723356196",
+      "wall_s": 43.81313298799978
+    },
+    {
+      "source_identity": "ffb8ccfb9480ec9a12a70a6c4e2d1be61a15b3cf65837679ac251586ff244080",
+      "identity": "15e34a5118c666ac119a96aee8d8cc9aed2180d58313cbc46e6e8361a3144a53",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 555,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.08249304286853326
+        ],
+        [
+          120,
+          0.4841976187438667
+        ],
+        [
+          300,
+          0.9861883702013735
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5974050188104724
+        ],
+        [
+          600,
+          0.9956663706156038
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9151903986454927
+        ],
+        [
+          60,
+          0.9561129803433522
+        ],
+        [
+          120,
+          0.9960020048749441
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 50.453281460613006,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2728,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 30,
+      "case": "radial_coast",
+      "seed": 7,
+      "family": "mixed",
+      "parent_identity": "ffb8ccfb9480ec9a12a70a6c4e2d1be61a15b3cf65837679ac251586ff244080",
+      "source": "mixed_radial_coast_s7.json.xz",
+      "source_sha256": "686a61ce3052c79b95363d5460dc8ba6acef7accf955e73d4fb573a78c8beb21",
+      "patch": "30.patch.json.xz",
+      "patch_sha256": "15d2b3314cd1ef0e3d3924f9555217c00a6081c5b55ec1aa31df13627f4805cc",
+      "wall_s": 27.94147356099893
+    },
+    {
+      "source_identity": "b1029d8de00cba2d6b7a083ce6fe018baf40b44c0aa86ac2be5f8d8ab41f5106",
+      "identity": "6a8b44738381f45ac0b89e7eb671cac802a3eb86111dfda6a1134d63685ce618",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 192,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.07453174982316806
+        ],
+        [
+          120,
+          0.47141431187955285
+        ],
+        [
+          300,
+          0.9943073114571221
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5853174111829411
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8957379589858245
+        ],
+        [
+          60,
+          0.9703481702429422
+        ],
+        [
+          120,
+          0.9943073114571221
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 49.45146921934871,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 1250,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 31,
+      "case": "radial_valley",
+      "seed": 17,
+      "family": "mixed",
+      "parent_identity": "b1029d8de00cba2d6b7a083ce6fe018baf40b44c0aa86ac2be5f8d8ab41f5106",
+      "source": "mixed_radial_valley_s17.json.xz",
+      "source_sha256": "e2f7f698286a138842f1a8464e152730e33ae5ff53ca706fed6d8c118d7b4bc7",
+      "patch": "31.patch.json.xz",
+      "patch_sha256": "fc827be0ea0f866a8b4efa485321afa4eafbdf73a2867d8ee6d3226e79377289",
+      "wall_s": 21.427004062999913
+    },
+    {
+      "source_identity": "04e03dcc9502300990d8bbabc71c5f4760196c8deaa30c909ddad1eb45ae1e6b",
+      "identity": "1c770a1f4d098bd6658a8590d19891f13f6c71190d041ceb8ddc7eb13e79dc50",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 631,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          2.5567340353038607e-05
+        ],
+        [
+          60,
+          0.05532045235136132
+        ],
+        [
+          120,
+          0.4821667221361735
+        ],
+        [
+          300,
+          0.9942840029807024
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.6098920612461789
+        ],
+        [
+          600,
+          0.995913307083515
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.9335538762207095
+        ],
+        [
+          60,
+          0.9709015997889733
+        ],
+        [
+          120,
+          0.9984320190732463
+        ],
+        [
+          300,
+          1.0
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 50.182964882045745,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 3170,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 32,
+      "case": "radial_lake",
+      "seed": 41,
+      "family": "mixed",
+      "parent_identity": "04e03dcc9502300990d8bbabc71c5f4760196c8deaa30c909ddad1eb45ae1e6b",
+      "source": "mixed_radial_lake_s41.json.xz",
+      "source_sha256": "e6cb88ed2f77a7b59dc9bfddcdcbe492ddf28bc55bb7640ea35622220189db24",
+      "patch": "32.patch.json.xz",
+      "patch_sha256": "bbbbc109a8037b7074d75603e04c4fff664cf38e4a7bb705e1df6dd3356d3fe3",
+      "wall_s": 13.917587060999722
+    },
+    {
+      "source_identity": "a5f5a18fd02d6d2fb5960a0d1c768b182f256193d2b4961644fb7c1bafc8ec4d",
+      "identity": "6cd978e46dbf9a5a45ee5ed7ce95c6cf78fa4ad3374e664dad5006f55c29840d",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 383,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0025812481962157155
+        ],
+        [
+          60,
+          0.16027258054335802
+        ],
+        [
+          120,
+          0.5091916834808314
+        ],
+        [
+          300,
+          0.936344223092233
+        ],
+        [
+          600,
+          0.9985893516900677
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.6143622528192489
+        ],
+        [
+          600,
+          0.9517361584744753
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8448689329351706
+        ],
+        [
+          60,
+          0.9128579616599738
+        ],
+        [
+          120,
+          0.9614763178849053
+        ],
+        [
+          300,
+          0.9937099445254732
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 52.0832308024891,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2414,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 33,
+      "case": "corridor_flat",
+      "seed": 7,
+      "family": "mixed",
+      "parent_identity": "a5f5a18fd02d6d2fb5960a0d1c768b182f256193d2b4961644fb7c1bafc8ec4d",
+      "source": "mixed_corridor_flat_s7.json.xz",
+      "source_sha256": "3fa841783c268183067affcd266d9b63677cb6e794706c01319c025db97a9822",
+      "patch": "33.patch.json.xz",
+      "patch_sha256": "84a24db83d6d5772f4d162777bb282f887088cbdf3d53bee721e7525dfb745a7",
+      "wall_s": 22.560200559000805
+    },
+    {
+      "source_identity": "dcfd212c6ca27886a371178bb2fe44237aec7ebdbfa1457ff882f65db041b23a",
+      "identity": "e0ea4164630d63305ed6deb315c3387ad489c8195b08da83ad466e68d12187f0",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 332,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.003077185752090043
+        ],
+        [
+          60,
+          0.16036498462596513
+        ],
+        [
+          120,
+          0.49903487615454584
+        ],
+        [
+          300,
+          0.9176319869617815
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5971204260055821
+        ],
+        [
+          600,
+          0.9531537218393284
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8097054769453731
+        ],
+        [
+          60,
+          0.8749077723575132
+        ],
+        [
+          120,
+          0.9649116780455104
+        ],
+        [
+          300,
+          0.9960875478009598
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 52.00253034467712,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2360,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 34,
+      "case": "corridor_river",
+      "seed": 17,
+      "family": "mixed",
+      "parent_identity": "dcfd212c6ca27886a371178bb2fe44237aec7ebdbfa1457ff882f65db041b23a",
+      "source": "mixed_corridor_river_s17.json.xz",
+      "source_sha256": "89706ad4f8f1055b7ddd40400cf30957a2d20cd198c167d14994d50506d9fc0a",
+      "patch": "34.patch.json.xz",
+      "patch_sha256": "235c027829a88a5bc142b366399e409675919e3a0104068294422f25be4bd597",
+      "wall_s": 18.03995207600019
+    },
+    {
+      "source_identity": "368c4bba219d8f25e2664942e769d149beda4086f5791f8fc48abd62b10c9481",
+      "identity": "108a1320726e6216aacc29a2843a5b3f7eadd61c2708c1e20dc8de191036fb7c",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 335,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0033324920042685064
+        ],
+        [
+          60,
+          0.1311737274753591
+        ],
+        [
+          120,
+          0.5086523270084093
+        ],
+        [
+          300,
+          0.925047874098969
+        ],
+        [
+          600,
+          0.9986852818372703
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.5943876011956101
+        ],
+        [
+          600,
+          0.9289625424909904
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8498405571133953
+        ],
+        [
+          60,
+          0.9066982364046313
+        ],
+        [
+          120,
+          0.9677571802917705
+        ],
+        [
+          300,
+          0.9970780250671141
+        ],
+        [
+          600,
+          0.9986852818372703
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 54.16341267681161,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 2332,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 35,
+      "case": "corridor_coast",
+      "seed": 41,
+      "family": "mixed",
+      "parent_identity": "368c4bba219d8f25e2664942e769d149beda4086f5791f8fc48abd62b10c9481",
+      "source": "mixed_corridor_coast_s41.json.xz",
+      "source_sha256": "f6298086dcef83211a43b1e1c373fa3b70f55b890e826d61a8c5a3f560380026",
+      "patch": "35.patch.json.xz",
+      "patch_sha256": "c5fabc9e93065491ba8637ddf5e43173bfbd1573c6283de73423c2a272a39e86",
+      "wall_s": 26.520419189999302
+    },
+    {
+      "source_identity": "da78089758004b309b8c02aef1f3252acc567206d69e7b0d6be01f396a9b9f46",
+      "identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 234,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0021250701206832544
+        ],
+        [
+          60,
+          0.16575666187430538
+        ],
+        [
+          120,
+          0.5234648355562366
+        ],
+        [
+          300,
+          0.9199849036649536
+        ],
+        [
+          600,
+          0.9981170272025096
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.679694703579159
+        ],
+        [
+          600,
+          0.946280260797464
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.8171976674423644
+        ],
+        [
+          60,
+          0.8602563668285882
+        ],
+        [
+          120,
+          0.9510160519217747
+        ],
+        [
+          300,
+          0.9924172984501555
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 48.700485886262776,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 1552,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 36,
+      "case": "corridor_valley",
+      "seed": 7,
+      "family": "mixed",
+      "parent_identity": "da78089758004b309b8c02aef1f3252acc567206d69e7b0d6be01f396a9b9f46",
+      "source": "mixed_corridor_valley_s7.json.xz",
+      "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+      "patch": "36.patch.json.xz",
+      "patch_sha256": "780b9c6ea8ded66a16f22c42b497b9111689d17ab7bfcab3051f125a98dc8c0c",
+      "wall_s": 32.173740453999926
+    },
+    {
+      "source_identity": "8c00790bf1c8970f48fa59e15f227ef394f4c5e7e8b71868dba5b3cee41993d4",
+      "identity": "cd2354fa3ed025e1f740f9b387b6f48f8ce73dc0c16374bb135a82d481c7cb44",
+      "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+      "existing": false,
+      "registered_portal_count": 261,
+      "registered_served_residents": 100000,
+      "registered_unserved_residents": 0,
+      "registered_access_status": "PASS",
+      "registered_entry_validation_status": "PASS",
+      "registered_connectivity_status": "PASS",
+      "registered_access_cdf": [
+        [
+          30,
+          0.0016614110935220703
+        ],
+        [
+          60,
+          0.16103227709514442
+        ],
+        [
+          120,
+          0.49614824121359213
+        ],
+        [
+          300,
+          0.907406248624837
+        ],
+        [
+          600,
+          0.9976613023737013
+        ]
+      ],
+      "registered_access_cdf_lower": [
+        [
+          30,
+          0.0
+        ],
+        [
+          60,
+          0.0
+        ],
+        [
+          120,
+          0.0
+        ],
+        [
+          300,
+          0.6156143760515436
+        ],
+        [
+          600,
+          0.931867336065228
+        ]
+      ],
+      "registered_access_cdf_upper": [
+        [
+          30,
+          0.7791757281324059
+        ],
+        [
+          60,
+          0.8405976450784262
+        ],
+        [
+          120,
+          0.9581007050851759
+        ],
+        [
+          300,
+          0.9933717546926192
+        ],
+        [
+          600,
+          1.0
+        ]
+      ],
+      "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+      "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+      "quadrature_mean_bound_s": 51.0786350197356,
+      "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+      "backbone_links": 1862,
+      "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+      "index": 37,
+      "case": "corridor_lake",
+      "seed": 17,
+      "family": "mixed",
+      "parent_identity": "8c00790bf1c8970f48fa59e15f227ef394f4c5e7e8b71868dba5b3cee41993d4",
+      "source": "mixed_corridor_lake_s17.json.xz",
+      "source_sha256": "9def7ef8953674050e33bc19e4bf3600e6d7b31c14d6561031a881c850e6f216",
+      "patch": "37.patch.json.xz",
+      "patch_sha256": "8f9b10abb1eb78394b90c9978ae10f136a263796fb92c00b1dfe332badcae2af",
+      "wall_s": 10.937170450999474
+    }
+  ],
+  "original_matrix_sha256": "057f6adab483a1c36f3ef46bf2aec4ada78db300785615d670d48c82262cdb26",
+  "scope": "synthetic new entries on original frozen roads and population; legal-turn connectivity and registered area access"
+}

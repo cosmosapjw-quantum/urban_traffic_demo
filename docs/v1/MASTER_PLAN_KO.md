@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.9**, 2026-10-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.10**, 2026-10-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -293,7 +293,7 @@ flowchart TD
 |M04|실현 접근성에서 느린 도시개발로의 지연 피드백|C01, M03|VERIFIED_SCOPED|
 |C02|하루 도시 실행·시나리오·관측 패키지|C01, B01, M04, T01|VERIFIED_SCOPED|
 |P01|관측동등 경량화와 자원 상한 확립|C02|VERIFIED_SCOPED|
-|V01|통합 물리·관측·대칭 적대 검증|C02|IN_PROGRESS|
+|V01|통합 물리·관측·대칭 적대 검증|C02|VERIFIED_SCOPED|
 |V02|도시형태·지형·접근의 적대적 시각 검수|M02, M03, M04, C01|VERIFIED_SCOPED|
 |V03|로컬 10만 주민·24시간 실제 실행과 수치 수용시험|P01, V01, V02|PLANNED|
 |RLS01|1차 완성 릴리스·설치·재현·문서 정리|V03, I01|PLANNED|
@@ -1875,9 +1875,9 @@ V1목표24hsim<=7200swall,peakRSS<=8GiB;미달시같은노드에서수정하거�
 
 ### V01. 통합 물리·관측·대칭 적대 검증
 
-의존: C02; 상태: **IN_PROGRESS**.
+의존: C02; 상태: **VERIFIED_SCOPED**.
 
-예정 PR: `V1-V01`, branch `v1/v01-parallel-20261027` → `v1/v02-parallel-20261027`.
+예정 PR: `V1-V01`, branch `v1/v01-parallel-20261027` → `v1/p01-parallel-20261027`.
 
 **입력**
 
@@ -1937,7 +1937,7 @@ V1목표24hsim<=7200swall,peakRSS<=8GiB;미달시같은노드에서수정하거�
 
 **통과 후 다음 행동**
 
-V03releasecase에검증된설정만허용
+V03: actual 100k full-day scenarios and measured scale gate, with physical registered entries
 
 **예산·종료조건**
 
@@ -2301,22 +2301,25 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
 ```json
 {
   "node_ids": [
-    "P01",
     "V01"
   ],
   "native_subagent": "NOT_RUN",
-  "scope": "P01 scoped verified, V01 audit ongoing with unresolved portal finding; full CI/integration deferred",
+  "scope": "V01 registered portal finding resolved by new synthetic physical entries on all38 original maps; VERIFIED_SCOPED",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": "artifacts/v1_p01_20261027/RECEIPT.json",
+  "evidence": "artifacts/v1_portal_resolution_20261027/RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
     "head": "e2c3b418f6149ec061667cd052f486cad163a756",
     "run": 40184942213,
     "status": "success"
-  }
+  },
+  "parallel_agents": [
+    "portal_impl",
+    "portal_theory"
+  ]
 }
 ```
 
@@ -2326,5 +2329,5 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
 - `.specify/memory/constitution.md` @ `0a7c980d3934146a978280fe76045443ad12640e`: 채택한상위보존/단위/불변상태/지연/회귀원칙
 - `docs/TRAFFIC_SIMULATION_FINAL_MODEL_SPEC.md` @ `01c80b432344f94209daaa198bb1eb007839fc7f`: 목표설계문서이며현재구현완료증거아님
 
-다음 작업: **V01**. `python tools/v1_plan.py next`로 같은 결과를 조회한다.
+다음 작업: **V03**. `python tools/v1_plan.py next`로 같은 결과를 조회한다.
 
