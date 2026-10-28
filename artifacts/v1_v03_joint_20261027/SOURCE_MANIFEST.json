@@ -1,0 +1,13 @@
+{
+  "src/metroflow/v1/release_runtime.py": "ba716efbd36547a7a5fa203e08c9fad03feab377e26cb45c47031fb00e77e984",
+  "src/metroflow/v1/release_plan.py": "a08d0a28222186b598e885239a458ae0b5feb66e4e571ea6bd19fc4cc2672234",
+  "src/metroflow/v1/release_services.py": "28589aacc3c28ae001e3736a44b6574895aca3f7725e90bd8484f59b131ccf91",
+  "src/metroflow/v1/joint_release_runtime.py": "ef1a2618ed763e33b3efa37d18d9fbcdf16db84dac5fcc7c4d8a1bc759d9d71e",
+  "tools/run_v1_acceptance.py": "a58d01ab17fa6601cb9c3e0877e0420554513fb872c43b63fa6f4702bc5d25ad",
+  "tools/plan_v1_release.py": "5ea9539ab8c73bae80f140c4abff0352b61e15ed0bf2368bb6bc79f32c473079",
+  "tests/v1/test_release_runtime.py": "a1afd3e72871bcf7afd33767f8dae9f365146ac5bf13d779b9315cf79b24a2bc",
+  "tests/v1/test_release_plan.py": "cdb873744f3123a798d8cc47840ba5a6d731dd74fc605da90ae047e2a0628c03",
+  "tests/v1/test_release_services.py": "f611bc27be56cd01d7529d0d9e30f85b20f90a03dc2a343944c3aca067eeaf32",
+  "tests/v1/test_joint_release_runtime.py": "0d8887b6f879f1b859fefe1d3ee30a0ed2d5bea0468b8d808970308da770e039",
+  "docs/v1/V03_JOINT_RUNTIME_RESEARCH_KO.md": "e7437f77985e5274d9ec7d96aa89bc7fb2620464d59596323463a8a0d9c46b88"
+}

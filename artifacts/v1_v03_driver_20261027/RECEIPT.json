@@ -1,0 +1,138 @@
+{
+  "node": "V03",
+  "status": "BLOCKED_RESOURCE_AND_LOCAL_EXECUTION",
+  "parent_commit": "dc0efbade8cc6d536dcecd072680f41a5d5672fc",
+  "implementation": "exact full-calendar preactivation in one JointReleaseRuntime; atomic calendar/runtime checkpoint; no occupied-state dynamic insertion claim",
+  "leg_materialization_budget": 20000,
+  "cases": {
+    "valley_weekday_s7": {
+      "status": "BLOCKED_RESOURCE",
+      "simulated_s": 0,
+      "last_valid": {
+        "status": "BLOCKED_RESOURCE",
+        "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+        "cursor": {
+          "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+          "offset": 0,
+          "materialized_persons": 0.0,
+          "materialized_vehicles": 0.0,
+          "materialized_cargo_kg": 0.0
+        },
+        "calendar": {
+          "legs": 918450,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 50000.0,
+          "allocated_workers": 40000.0,
+          "unassigned_workers": 10000.0
+        },
+        "remaining_legs": 918450,
+        "remaining_amounts": {
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000
+        },
+        "units": "calendar amounts count outward and return legs separately",
+        "simulated_s": 0,
+        "scope": "no calendar leg enumerated and no road state created"
+      },
+      "receipt_sha256": "5d764ca05dd2232f27c0c5390f3eef79c779c7c0d8e0a6967afe2b0d087eab3b"
+    },
+    "river_weekday_s17": {
+      "status": "BLOCKED_RESOURCE",
+      "simulated_s": 0,
+      "last_valid": {
+        "status": "BLOCKED_RESOURCE",
+        "city_identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+        "cursor": {
+          "schedule_identity": "de8ad37147c083cbf30dba5550515fc6547609be6f9e23750379cea66f0bfc4e",
+          "offset": 0,
+          "materialized_persons": 0.0,
+          "materialized_vehicles": 0.0,
+          "materialized_cargo_kg": 0.0
+        },
+        "calendar": {
+          "legs": 5093765,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 50000.0,
+          "allocated_workers": 40000.0,
+          "unassigned_workers": 10000.0
+        },
+        "remaining_legs": 5093765,
+        "remaining_amounts": {
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000
+        },
+        "units": "calendar amounts count outward and return legs separately",
+        "simulated_s": 0,
+        "scope": "no calendar leg enumerated and no road state created"
+      },
+      "receipt_sha256": "3f18c0feda94b3ce07685b1c444f4385163341f920a0ea5aaeb9166376206d0f"
+    },
+    "coastal_weekend_s41": {
+      "status": "BLOCKED_RESOURCE",
+      "simulated_s": 0,
+      "last_valid": {
+        "status": "BLOCKED_RESOURCE",
+        "city_identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+        "cursor": {
+          "schedule_identity": "f2d23e4cd90a16d1d62dbaf26124dd159aa766d413e860c34d218cdd7d9ae870",
+          "offset": 0,
+          "materialized_persons": 0.0,
+          "materialized_vehicles": 0.0,
+          "materialized_cargo_kg": 0.0
+        },
+        "calendar": {
+          "legs": 2449750,
+          "persons": 100000.0,
+          "vehicles": 49001.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 10000.0,
+          "allocated_workers": 10000.0,
+          "unassigned_workers": 0.0
+        },
+        "remaining_legs": 2449750,
+        "remaining_amounts": {
+          "persons": 100000.0,
+          "vehicles": 49001.0,
+          "cargo_kg": 1000
+        },
+        "units": "calendar amounts count outward and return legs separately",
+        "simulated_s": 0,
+        "scope": "no calendar leg enumerated and no road state created"
+      },
+      "receipt_sha256": "f6eaefd157f3ac759e2b3b625bb7481490353690aee1f1e825a18d1d61075342"
+    }
+  },
+  "inventory_evidence_sha256": "93b6d5753d058f2c95deaeaf2b3cba75320c49159b61e6330b502e65f4609ca3",
+  "source_manifest_sha256": "6e37fb1734c7e802a286385bfdaa09049f1b8bb7c76a9af951278ebbf7a20f85",
+  "checks": {
+    "python312": "46 passed",
+    "python313": "46 passed",
+    "ruff": "PASS",
+    "independent_review": "driver/inventory6+CLI2 tests perPython, finite scope closed"
+  },
+  "preparation_environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "observed_memory_bytes": 10451435520,
+    "logical_cpus": 9,
+    "scientific_threads": 1
+  },
+  "execution_context": "cloud sandbox preparation, not reference local performance",
+  "local_full_campaign": "NOT_RUN",
+  "remaining": [
+    "exact all-calendar resource engineering: calendars exceed selected materialization budget; this is not a general impossibility theorem",
+    "actual local3case x3repeat24h wall/RSS/tick/records/checkpoint comparison and refinement evidence",
+    "route latency p99 instrumentation still explicitly NOT_MEASURED in local runner"
+  ],
+  "full_ci_and_integration": "DEFERRED_BY_USER"
+}

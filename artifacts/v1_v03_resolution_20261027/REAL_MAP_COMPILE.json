@@ -1,0 +1,14 @@
+{
+  "status": "REAL_MAP_ROUTE_COMPILED",
+  "case": "coastal_weekend_s41",
+  "city_identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+  "leg_id": "c3:out",
+  "route_links": {
+    "c3:out": [
+      "s:g10:13>g10:14|0"
+    ]
+  },
+  "unsupported": {},
+  "simulated_s": 0,
+  "full_campaign": "NOT_RUN"
+}

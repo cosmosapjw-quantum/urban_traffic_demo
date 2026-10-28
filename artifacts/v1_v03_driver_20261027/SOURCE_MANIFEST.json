@@ -1,0 +1,10 @@
+{
+  "src/metroflow/v1/release_driver.py": "7dd906cce656b543d141ba87843ca1e2b7d85ea7eaa8df29ae6bc6b32d54a014",
+  "src/metroflow/v1/release_inventory.py": "28c627190edeeb4d8e0f7c375c9ef55f5a7865a93b9ab267ab2ff71f3f850af8",
+  "tools/run_v1_local_acceptance.py": "48cb523330bd8a69ff1619b517a907df48e6a1bd805d1b9452a1e21ee4827a56",
+  "tests/v1/test_release_driver.py": "e84bcba9c28b3b02057a18a01b7af392a86e2031bfb267b0bbe1425aebdcde7c",
+  "tests/v1/test_release_inventory.py": "a0c4e44739b0c8092817ecddf95c1560347a792337d6ec96c83947c4a60a6efa",
+  "tests/v1/test_local_campaign_cli.py": "204395c002be7fede600a3d0085c460ecb638a81f81ce5440e08dbd693174cde",
+  "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "docs/v1/V03_DRIVER_RESEARCH_KO.md": "7d6292e978596d1d5fda5aa71c7f3c077082ec5d0cdfb55db98e413a194addbe"
+}

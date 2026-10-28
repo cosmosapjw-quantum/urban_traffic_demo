@@ -1,0 +1,55 @@
+{
+  "scope": "paired actual two-zone/two-leg fixture; preparation end-to-end only; 3600s numeric step is fixture configuration, not release resolution",
+  "repeats": 12,
+  "order": "alternating paired order; independently built input plans outside timed region",
+  "python": "3.12.14",
+  "timings_s": {
+    "legacy": {
+      "samples": [
+        0.04061644100147532,
+        0.027996740998787573,
+        0.03285773500101641,
+        0.02607915199769195,
+        0.02434977200027788,
+        0.07870070599892642,
+        0.02369826100039063,
+        0.029111155999999028,
+        0.02602318900244427,
+        0.04194299200025853,
+        0.02766443400105345,
+        0.03657993399974657
+      ],
+      "mean": 0.03463504275017234,
+      "stdev": 0.015177268864172271,
+      "min": 0.02369826100039063,
+      "max": 0.07870070599892642
+    },
+    "single_pass": {
+      "samples": [
+        0.024339763000170933,
+        0.013921105997724226,
+        0.026314001999708125,
+        0.018875963000027696,
+        0.013281188999826554,
+        0.013110914998833323,
+        0.018727425998804392,
+        0.022072199997637654,
+        0.019535097002517432,
+        0.01494372999877669,
+        0.03188256900102715,
+        0.022036587000911823
+      ],
+      "mean": 0.019920045582997165,
+      "stdev": 0.005772035781873247,
+      "min": 0.013110914998833323,
+      "max": 0.03188256900102715
+    }
+  },
+  "equivalence": "all runtime identities and final calendar cursors identical across both implementations",
+  "behavior_regression": "4 tests pass on Python3.12/3.13; includes same24h finite fixture state and checkpoint coverage",
+  "resource_gate": "unchanged max_legs; actual 0.918m--5.094m release calendars still exceed20000 and are NOT_RUN",
+  "sources": {
+    "src/metroflow/v1/release_driver.py": "fa4dc869e87e6d37915f5f9f64be220bee4acb69746143d0eae2c3939e5a6ee3",
+    "tests/v1/test_release_driver.py": "8be90928f004291290f8e198444130ac7dbc6a2f256ca93a175db643d46d3f23"
+  }
+}

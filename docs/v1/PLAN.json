@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.10",
+  "version": "1.1.16",
   "date": "2026-10-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -368,14 +368,14 @@
   ],
   "current_execution": {
     "node_ids": [
-      "V01"
+      "V03"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "V01 registered portal finding resolved by new synthetic physical entries on all38 original maps; VERIFIED_SCOPED",
+    "scope": "V03 immutable profile sharing to reduce exact calendar materialization memory; resource/local gate still blocked",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_portal_resolution_20261027/RECEIPT.json",
+    "evidence": "artifacts/v1_v03_memory_20261029/RESULT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,8 +384,9 @@
       "status": "success"
     },
     "parallel_agents": [
-      "portal_impl",
-      "portal_theory"
+      "v03_driver",
+      "v03_inventory",
+      "v03_driver_review"
     ]
   },
   "nodes": [
@@ -1756,7 +1757,7 @@
       },
       "verification_receipt": {
         "path": "artifacts/v1_portal_resolution_20261027/RECEIPT.json",
-        "sha256": "72685d10edf35b363220ca2f0bdaa52b84d26e2b91ffb3e7cbe13176fa62c0c5",
+        "sha256": "8306aaf01f7436fbf82d83bc68478a3f75dacc843ac9c429368c56f98d287412",
         "acceptance": "38 original map constructions and 7 bounded physics fixtures pass; scoped only; full CI/integration deferred"
       }
     },
@@ -1844,7 +1845,7 @@
         "V01",
         "V02"
       ],
-      "status": "PLANNED",
+      "status": "BLOCKED",
       "files": [
         "tools/run_v1_acceptance.py",
         "scenarios/v1/release_matrix.json",
@@ -1876,7 +1877,7 @@
         "short matched refined_dt observables"
       ],
       "tests": [
-        "python tools/run_v1_acceptance.py --matrix scenarios/v1/release_matrix.json --repeat 3"
+        "python tools/run_v1_local_acceptance.py --run-local --matrix scenarios/v1/release_matrix.json"
       ],
       "acceptance": [
         "riverweekdayseed17,coastalweekendseed41,valleyweekdayseed7 각24h",
@@ -1887,7 +1888,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "RLS01릴리스패키지/최종main PR",
+      "positive_next_action": "Reduce exact calendar preactivation/active-state resource cost within unchanged observation contracts; then measure full local campaign and route latency p99",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1897,10 +1898,26 @@
       "pr": {
         "key": "V1-V03",
         "title": "[V1 V03] 로컬 10만 주민·24시간 실제 실행과 수치 수용시험",
-        "branch": "v1/v03",
-        "base": "research/v1-integration-20261025",
-        "opened_number": null
-      }
+        "branch": "v1/v03-acceptance-20261027",
+        "base": "v1/v01-parallel-20261027",
+        "opened_number": 41
+      },
+      "implementation_parent": {
+        "node": "V01",
+        "branch": "v1/v01-parallel-20261027",
+        "sha": "97b09576f5fe96f8e08d07a4bed80a841ffb2679"
+      },
+      "blocked_evidence": {
+        "path": "artifacts/v1_v03_driver_20261027/RECEIPT.json",
+        "sha256": "b2bae28bd70f578efbe1b51b7850566fe8b112381ea4805d840b963b92a0be3a"
+      },
+      "resource_optimization_evidence": [
+        {
+          "path": "artifacts/v1_v03_memory_20261029/RESULT.json",
+          "sha256": "f3ef8fc046c1530d6ea80ebbe7c26e96e8728281fd8d862988a0936dc02bb123",
+          "scope": "exact15000leg retained traced allocation -42.71%; not actualcityRSS/24h"
+        }
+      ]
     },
     {
       "id": "RLS01",
@@ -2008,6 +2025,31 @@
       "date": "2026-10-27",
       "reason": "사용자 V01 차단 해소 연구 루프: 원본 38개 동결 도시를 보존하고 합성 출입구 construction으로 새 snapshot과 물리 접근 증거 생성",
       "change": "기존 M03 compile_entry 및 면적측도 재사용. corridor/mask/grade, legal-turn SCC 연결, 실제 포털 CDF 검증; unserved 유지. P1와 수용문턱은 결과 전 유지."
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "사용자 V03 차단 해소 연구 루프",
+      "change": "원래 strict demand 실패 보존; 명시적 requested=assigned+unassigned worker ledger를 선택하고 exact factorized OD를 사용한다. 수요/인구/용량 삭제 및 수용문턱 완화 금지. 실제 수송 probe와 전체 캠페인을 구별한다."
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "사용자 V03 후속 차단 해소 연구 루프",
+      "change": "공유 도로망에서 전체 route 계획/자원 제한, completion+dwell 귀가 및 명시 fleet/depot 결합을 구현·검증. 독립 청크 실행 합산을 전체 혼잡으로 인정하지 않는다. 기존 수용문턱 유지."
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "다음 노드 재개: V03 driver 및 실제 운행 입력 완성",
+      "change": "고정 route registry의 정확한 full-calendar preactivation을 구현한다. 점유중 동적삽입으로 재명명하지 않는다. 실제 전체calendar가 예산을 넘으면 cursor0/전체미구성 수요와 자원실패 영수증을 보존한다. 독립 synthetic fixedfleet/depot prior를 matrix에 명시한다."
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "V03 다음 실행: 준비 비용 개선",
+      "change": "driver가 버리던 route/access 페이지 준비와 cursor prefix 재순회를 제거한다. 동일 calendar/물리 모델/예산을 유지하며 별도 성능·행동 검증한다."
+    },
+    {
+      "date": "2026-10-29",
+      "reason": "다음 V03 실행: 실제 retained calendar 메모리 비용",
+      "change": "동일 immutable 출발 profile 재사용을 구현하고 기존 calendar/asdict/identity/상태 관측과 메모리 측정을 대조한다. 수요/한도/수용문턱 유지."
     }
   ],
   "implementation_progress": {

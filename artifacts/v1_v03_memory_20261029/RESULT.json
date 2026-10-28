@@ -1,0 +1,117 @@
+{
+  "scope": "50home x50job x3modes;15000 exact outward/return legs; uniform declared synthetic fixture; marginal schedule built outside tracing",
+  "reference": "original schedules.daily_profiles called per cohort vs bounded immutable profile-pair sharing",
+  "repetitions": 5,
+  "order": "alternating paired; full tuple equality checked every pair",
+  "python": "3.12.14",
+  "parent_commit": "5a1492443012347965c75e33afb10d7a0803af41",
+  "schedule_identity": "c956d4651ae2e78fb8320aee1c86b175a4b0a1df4747c5bd52fc4ce5390c1ebc",
+  "legs": 15000,
+  "runs": [
+    {
+      "baseline": {
+        "retained_bytes": 6741076,
+        "peak_bytes": 6746748,
+        "wall_s": 0.6319314890133683,
+        "distinct_profiles": 15000
+      },
+      "shared": {
+        "retained_bytes": 3862092,
+        "peak_bytes": 3867668,
+        "wall_s": 0.46958467400691006,
+        "distinct_profiles": 2
+      },
+      "all_legs_equal": true
+    },
+    {
+      "baseline": {
+        "retained_bytes": 6741268,
+        "peak_bytes": 6746940,
+        "wall_s": 0.6681368860008661,
+        "distinct_profiles": 15000
+      },
+      "shared": {
+        "retained_bytes": 3861788,
+        "peak_bytes": 3867364,
+        "wall_s": 0.42976715600525495,
+        "distinct_profiles": 2
+      },
+      "all_legs_equal": true
+    },
+    {
+      "baseline": {
+        "retained_bytes": 6741380,
+        "peak_bytes": 6747052,
+        "wall_s": 0.8343280219996814,
+        "distinct_profiles": 15000
+      },
+      "shared": {
+        "retained_bytes": 3862092,
+        "peak_bytes": 3867668,
+        "wall_s": 0.5612042209977517,
+        "distinct_profiles": 2
+      },
+      "all_legs_equal": true
+    },
+    {
+      "baseline": {
+        "retained_bytes": 6741268,
+        "peak_bytes": 6746940,
+        "wall_s": 0.6815179289988009,
+        "distinct_profiles": 15000
+      },
+      "shared": {
+        "retained_bytes": 3861788,
+        "peak_bytes": 3867364,
+        "wall_s": 0.5162237670010654,
+        "distinct_profiles": 2
+      },
+      "all_legs_equal": true
+    },
+    {
+      "baseline": {
+        "retained_bytes": 6741380,
+        "peak_bytes": 6747052,
+        "wall_s": 0.6981013290060218,
+        "distinct_profiles": 15000
+      },
+      "shared": {
+        "retained_bytes": 3862092,
+        "peak_bytes": 3867668,
+        "wall_s": 0.45037089100515004,
+        "distinct_profiles": 2
+      },
+      "all_legs_equal": true
+    }
+  ],
+  "means": {
+    "baseline": {
+      "retained_bytes": 6741274.4,
+      "peak_bytes": 6746946.4,
+      "wall_s": 0.7028031310037477,
+      "distinct_profiles": 15000
+    },
+    "shared": {
+      "retained_bytes": 3861970.4,
+      "peak_bytes": 3867546.4,
+      "wall_s": 0.4854301418032264,
+      "distinct_profiles": 2
+    }
+  },
+  "retained_reduction_fraction": 0.4271156800856527,
+  "source_sha256": {
+    "src/metroflow/v1/demand.py": "dec4b12db8361d81423abfa58c307110c06f373abd9b17f77d10af2a5e540258",
+    "src/metroflow/v1/factorized_demand.py": "06d0f5ae367ee70b160368401077845b226789b0e63e003b084e671820c6eb73",
+    "tests/v1/test_calendar_memory.py": "4d28572c22cd198a3730fdbf9947ede4f022838ae3fb4359036e81c6ee560bda"
+  },
+  "source_cap": "maxsize8 profile pairs only; no calendar limit increase; OD records and progress remain distinct",
+  "full_release_city_campaign": "NOT_RUN",
+  "benchmark_worker_fraction": 0.1,
+  "diagnostic": "Initial microbenchmark used default weekday worker fraction.5 with fixture job/person ratio.2 and correctly raised PHYSICAL_INFEASIBLE before measurement. Set microbenchmark explicit fraction.1 for both compared representations; no product/release input changed.",
+  "verification": {
+    "python312": "19 passed (calendar memory2 + daily demand14 + factorized3)",
+    "python313": "19 passed (same selection)",
+    "ruff": "PASS",
+    "baseline_vs_shared": "all15000 TripLeg values equal in each of5pairs; dense identity/asdict and checkpoint equality covered by tests"
+  }
+}

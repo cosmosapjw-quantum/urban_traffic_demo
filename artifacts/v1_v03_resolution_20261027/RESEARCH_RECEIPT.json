@@ -1,0 +1,26 @@
+{
+  "node": "V03",
+  "status": "BLOCKED_IMPLEMENTATION_DEPENDENCY",
+  "parent_commit": "7de7d0fd28c514ec6b029e49f41a815e2b284f61",
+  "resolved": [
+    "exact independent OD stored as marginal factors and lazy cohorts",
+    "explicit work shortfall at home, preserving requested=assigned+unassigned",
+    "bounded map-bound shared-road outbound car execution and real checkpoints"
+  ],
+  "checks": {
+    "python312": "9 passed",
+    "python313": "9 passed",
+    "ruff": "PASS",
+    "real_map_route_compile": "coastal weekend c3:out PASS; simulation0s",
+    "three_actual_city_factorized_preflights": "COMPILED"
+  },
+  "remaining": [
+    "global streaming routes sharing congestion",
+    "dependent returns and dwell",
+    "bus fleet/passengers and freight endpoints",
+    "local3cases x3repeats x86400s and resource/refinement/replay measurements"
+  ],
+  "full_ci_and_integration": "DEFERRED_BY_USER",
+  "source_manifest_sha256": "23cd1cd2a69f6ea97953f862e9e8fb03b62e4d10a0619eb8264cec3efc0d582e",
+  "independent_review": "v03_policy: factorized semantic correspondence, worker ledger derivation, checkpoint ledger tampering rejection"
+}
