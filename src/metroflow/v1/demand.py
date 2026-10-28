@@ -9,11 +9,22 @@ from dataclasses import dataclass, asdict, replace
 import hashlib
 import json
 import math
+from functools import lru_cache
 
 from .activity import ActivityMeasure, intrazonal_law
 from .city import reject
 from .journey import DelayLaw
 from .schedules import DepartureProfile, DAY_S, daily_profiles
+
+
+@lru_cache(maxsize=8)
+def calendar_profiles(day, purpose):
+    """Share the eight immutable day/purpose profile pairs without approximation.
+
+    Only departure-measure objects are shared. Cohort amounts, identities,
+    purposes, dependencies and progress remain distinct.
+    """
+    return daily_profiles(day, purpose)
 
 
 @dataclass(frozen=True, slots=True)
@@ -232,7 +243,7 @@ def compile_daily_demand(
         key = f"c{len(cohorts)}"
         outward, back = key + ":out", key + ":home"
         cohorts.append(Cohort(key, home, dest, mass, purpose, mode.mode, outward, back))
-        profile, return_profile = daily_profiles(day, purpose)
+        profile, return_profile = calendar_profiles(day, purpose)
         amounts = Amounts(mass, 0.0 if mode.mode == "noncar" else mass / mode.occupancy_persons_veh)
         internal = None
         if dest is not None and home.block_id == dest.block_id:
@@ -307,7 +318,7 @@ def compile_daily_demand(
                     Cohort(f"c{len(cohorts)}", home, None, mass, purpose, "none", None, None)
                 )
     if freight_kg:
-        profile, _ = daily_profiles(day, "delivery")
+        profile, _ = calendar_profiles(day, "delivery")
         for dest in services:
             cargo = freight_kg * dest.mass / service_support
             legs.append(

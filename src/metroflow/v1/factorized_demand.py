@@ -12,8 +12,7 @@ import math
 from .activity import ActivityPatch, intrazonal_law
 from .city import reject
 from .demand import (Amounts, Cohort, DEFAULT_MODES, TripLeg, _measures,
-                     compile_daily_demand)
-from .schedules import daily_profiles
+                     compile_daily_demand, calendar_profiles)
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,7 +68,7 @@ class FactorizedSchedule:
                         index += 1
                         outward, back = key+':out', key+':home'
                         cohort = Cohort(key, home, dest, mass, purpose, mode.mode, outward, back)
-                        profile, return_profile = daily_profiles(self.day, purpose)
+                        profile, return_profile = calendar_profiles(self.day, purpose)
                         amounts = Amounts(mass, 0.0 if mode.mode == 'noncar' else mass/mode.occupancy_persons_veh)
                         internal = None
                         if dest is not None and home.block_id == dest.block_id:
@@ -106,7 +105,7 @@ class FactorizedSchedule:
     def iter_freight_legs(self):
         if self.freight_kg:
             support = math.fsum(m.mass for m in self.services)
-            profile, _ = daily_profiles(self.day, 'delivery')
+            profile, _ = calendar_profiles(self.day, 'delivery')
             for dest in self.services:
                 cargo = self.freight_kg*dest.mass/support
                 yield TripLeg(f'freight:{dest.block_id}',None,None,dest,'delivery','freight','freight',

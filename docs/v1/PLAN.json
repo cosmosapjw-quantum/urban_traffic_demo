@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.15",
+  "version": "1.1.16",
   "date": "2026-10-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN",
-    "scope": "V03 exact single-pass calendar preparation optimization; full actual calendar resource and local gates remain blocked",
+    "scope": "V03 immutable profile sharing to reduce exact calendar materialization memory; resource/local gate still blocked",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_v03_driver_20261027/RECEIPT.json",
+    "evidence": "artifacts/v1_v03_memory_20261029/RESULT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -1910,7 +1910,14 @@
       "blocked_evidence": {
         "path": "artifacts/v1_v03_driver_20261027/RECEIPT.json",
         "sha256": "b2bae28bd70f578efbe1b51b7850566fe8b112381ea4805d840b963b92a0be3a"
-      }
+      },
+      "resource_optimization_evidence": [
+        {
+          "path": "artifacts/v1_v03_memory_20261029/RESULT.json",
+          "sha256": "f3ef8fc046c1530d6ea80ebbe7c26e96e8728281fd8d862988a0936dc02bb123",
+          "scope": "exact15000leg retained traced allocation -42.71%; not actualcityRSS/24h"
+        }
+      ]
     },
     {
       "id": "RLS01",
@@ -2038,6 +2045,11 @@
       "date": "2026-10-27",
       "reason": "V03 다음 실행: 준비 비용 개선",
       "change": "driver가 버리던 route/access 페이지 준비와 cursor prefix 재순회를 제거한다. 동일 calendar/물리 모델/예산을 유지하며 별도 성능·행동 검증한다."
+    },
+    {
+      "date": "2026-10-29",
+      "reason": "다음 V03 실행: 실제 retained calendar 메모리 비용",
+      "change": "동일 immutable 출발 profile 재사용을 구현하고 기존 calendar/asdict/identity/상태 관측과 메모리 측정을 대조한다. 수요/한도/수용문턱 유지."
     }
   ],
   "implementation_progress": {
