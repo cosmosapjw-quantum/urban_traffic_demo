@@ -21,6 +21,7 @@ from metroflow.v1.release_driver import ReleaseDriver  # noqa: E402
 from metroflow.v1.release_inventory import InventoryPolicy, build_inventory  # noqa: E402
 from metroflow.v1.release_services import compile_service_plan  # noqa: E402
 from metroflow.active_suffix.common import BudgetExceeded  # noqa: E402
+from metroflow.route_metrics import RouteLatencyMeasurements  # noqa: E402
 
 
 def observed_environment():
@@ -56,6 +57,11 @@ def prepare(case,matrix,step_s):
 
 
 def worker(args,matrix,case):
+    with RouteLatencyMeasurements() as route_latency:
+        return _worker(args,matrix,case,route_latency)
+
+
+def _worker(args,matrix,case,route_latency):
     started=time.perf_counter()
     result=dict(case=case['id'],status='PREPARING',simulated_s=0,
                 environment=observed_environment(),step_s=args.step_s,horizon_s=args.horizon_s,
@@ -101,7 +107,6 @@ def worker(args,matrix,case):
             result['tick_p50_s']=times[int((len(times)-1)*.5)] if times else None
             result['tick_p95_s']=times[int((len(times)-1)*.95)] if times else None
             result['peak_tracked_records']=peak_records
-            result['route_latency_p99']='NOT_MEASURED; total preparation wall included'
             result.update(status='EXECUTED_FOR_REVIEW',simulated_s=state.time_s,
                           report=driver.report(state),final_checkpoint_sha256=hashlib.sha256(final.read_bytes()).hexdigest())
     except BudgetExceeded as exc:
@@ -118,6 +123,7 @@ def worker(args,matrix,case):
     except (ValueError,MemoryError) as exc:
         result.update(status='BLOCKED',reason=type(exc).__name__+': '+str(exc))
     result.update(wall_s=time.perf_counter()-started,
+                  route_latency=route_latency.report(),
                   peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*(1 if sys.platform=='darwin' else 1024))
     if result['peak_rss_bytes']>matrix['limits']['peak_rss_bytes']:
         result.update(status='BLOCKED_RESOURCE',reason='measured peak RSS exceeds release limit')

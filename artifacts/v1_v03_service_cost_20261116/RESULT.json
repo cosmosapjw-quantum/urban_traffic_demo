@@ -1,0 +1,81 @@
+{
+  "scope": "two-block synthetic fixture; exact service preparation only, not full city or RSS",
+  "baseline_commit": "b41f807c490dda12e036bcb40d9c13370f04223e",
+  "baseline_source_sha256": "28589aacc3c28ae001e3736a44b6574895aca3f7725e90bd8484f59b131ccf91",
+  "candidate_source_sha256": "b1c306b722f471312dc6dd462550edd1f79649fcfc2f7ab898640e6533e2efd0",
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "legs": 1000,
+  "distinct_endpoint_measures": 2,
+  "access_cache_maxsize": 256,
+  "pairs": [
+    {
+      "pair": 0,
+      "order": [
+        "baseline",
+        "cached"
+      ],
+      "wall_s": {
+        "baseline": 4.522541685999386,
+        "cached": 0.013408783999693696
+      },
+      "full_plan_equal": true
+    },
+    {
+      "pair": 1,
+      "order": [
+        "cached",
+        "baseline"
+      ],
+      "wall_s": {
+        "cached": 0.012039211998853716,
+        "baseline": 4.758832156001517
+      },
+      "full_plan_equal": true
+    },
+    {
+      "pair": 2,
+      "order": [
+        "baseline",
+        "cached"
+      ],
+      "wall_s": {
+        "baseline": 4.5493930660013575,
+        "cached": 0.014077513000302133
+      },
+      "full_plan_equal": true
+    },
+    {
+      "pair": 3,
+      "order": [
+        "cached",
+        "baseline"
+      ],
+      "wall_s": {
+        "cached": 0.012395349998769234,
+        "baseline": 4.909069559000272
+      },
+      "full_plan_equal": true
+    },
+    {
+      "pair": 4,
+      "order": [
+        "baseline",
+        "cached"
+      ],
+      "wall_s": {
+        "baseline": 4.635512378001295,
+        "cached": 0.013971844000479905
+      },
+      "full_plan_equal": true
+    }
+  ],
+  "mean_wall_s": {
+    "baseline": 4.675069769000766,
+    "cached": 0.013178540599619737
+  },
+  "speedup": 354.74867142236246,
+  "all_full_plans_equal": true
+}

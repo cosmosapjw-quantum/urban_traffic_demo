@@ -79,6 +79,15 @@ class JointReleaseRuntime:
         self.freight_meta = {m['leg_id']+':'+str(m['window']):m for m in service_plan.metadata if 'cargo_kg' in m}
         self.bus_leg = [self.indices[self.bus_meta[p.id]['leg_id']] for p in self.service.passengers]
         self.freight_leg = [self.indices[self.freight_meta[f.id]['leg_id']] for f in self.service.freight]
+        # Stable inverse indices preserve each service's original order while
+        # avoiding a complete service scan for every calendar leg per check.
+        self.bus_keys_by_leg, self.freight_keys_by_leg = {}, {}
+        for mapping, values in ((self.bus_keys_by_leg, self.bus_leg),
+                                (self.freight_keys_by_leg, self.freight_leg)):
+            for key, index in enumerate(values):
+                mapping.setdefault(index, []).append(key)
+            for index, keys in mapping.items():
+                mapping[index] = tuple(keys)
         assigned = {self.legs[i].id for i in self.bus_leg+self.freight_leg}
         self.unsupported = {leg.id:'no supported joint assignment' for leg in self.legs
                             if leg.id not in self.routes and leg.id not in self.internal_laws and leg.id not in assigned}
@@ -111,6 +120,15 @@ class JointReleaseRuntime:
         parts += [p for queue in state.service.road.pending for q in queue for p in q.parts]
         for p in parts:
             active[p.tag] = active.get(p.tag,0.0)+p.mass
+        # Keep the same per-tag sequence fed to fsum, including the original
+        # entering -> egress -> internal ordering. Grouping changes traversal
+        # cost, not summation, state, route identity or conservation checks.
+        stages_by_tag, egress_by_tag = {}, {}
+        for events in (state.entering, state.egress, state.internal):
+            for event in events:
+                stages_by_tag.setdefault(event.tag, []).append(event.mass)
+        for event in state.egress:
+            egress_by_tag.setdefault(event.tag, []).append(event.mass)
         for i,leg in enumerate(self.legs):
             carrier = ReleaseRuntime.carrier(leg)
             r,c = state.released[i],state.completed[i]
@@ -127,13 +145,13 @@ class JointReleaseRuntime:
                 reject('joint completion receipt differs','IMPLEMENTATION_ERROR')
             if leg.depends_on and r>carrier*self.eligible(state,leg)+tol:
                 reject('joint return precedes completed outward and dwell','IMPLEMENTATION_ERROR')
-            egress = math.fsum(e.mass for e in state.egress if e.tag==leg.id)
+            egress = math.fsum(egress_by_tag.get(leg.id, ()))
             expected_birth = 0.0
             if leg.id in self.routes or leg.id in self.internal_laws:
                 if r:
                     expected_birth = r*ReleaseRuntime.birth_between(leg.departures,0,r/carrier)
-            bus_keys = [k for k,j in enumerate(self.bus_leg) if j==i]
-            freight_keys = [k for k,j in enumerate(self.freight_leg) if j==i]
+            bus_keys = self.bus_keys_by_leg.get(i, ())
+            freight_keys = self.freight_keys_by_leg.get(i, ())
             if bus_keys:
                 boarded=arrived=0.0
                 for k in bus_keys:
@@ -157,7 +175,7 @@ class JointReleaseRuntime:
                     reject('joint freight stage and physical service ledger differ','IMPLEMENTATION_ERROR')
             if abs(state.birth_carrier_s[i]-expected_birth)>1e-9*max(1,abs(expected_birth)):
                 reject('joint original birth moment differs','IMPLEMENTATION_ERROR')
-            stages = math.fsum(e.mass for e in state.entering+state.egress+state.internal if e.tag==leg.id)
+            stages = math.fsum(stages_by_tag.get(leg.id, ()))
             if leg.id in self.routes:
                 stages += active.get(leg.id,0.0)
                 if abs(r-c-stages)>tol:

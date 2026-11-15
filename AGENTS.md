@@ -9,6 +9,7 @@
 - bootstrap은 `v1/foundation-access-journey-20261025` → `research/v1-integration-20261025`의 하나의 PR이다. I01 수용 전 후속 기능 PR을 진행하지 않는다. main merge와 release tag는 최종 사용자 승인 전 실행하지 않는다.
 - 2026-10-26 사용자 변경: 한정 검증 영수증을 가진 VERIFIED_SCOPED 또는 ACCEPTED 선행 위에서 누적 구현 브랜치를 쌓는다. 전체 CI·통합·별도 수용 심사는 모든 DAG 구현 후 수행한다. 현재는 PR merge/전체 CI를 실행하지 않는다. STOPPED/BLOCKED는 선행조건이 아니다. 2026-10-26 최신 사용자 승인에 따라 독립 노드는 파일 소유권을 나누어 병렬 구현한다. 공유 계획·게시는 직렬화한다.
 - 계획 변경은 PLAN.json 버전과 근거를 먼저 갱신한다. 범위·수용문턱을 통과 목적으로 완화하지 않는다. 사용자 승인 없는 scope 증가는 금지한다.
+- 2026-11-16 V03 후속: 실제 로컬 5900X/관측 RAM 31.25GiB에서 세 도시의 예산 사전 거절, 전체 하천 달력 5,093,765 legs 보관(peak RSS 1.42GiB), 각 도시 256-leg 공유 runtime 준비와 한정 회귀를 수행했다. 생성자·장부 검사 중복 계산과 route p99 구간 계측을 개선했다. `artifacts/v1_v03_scaling_20261116/RECEIPT.json`을 따른다. 전체 calendar의 경로/물리 상태 활성화 및 3case×3회24h는 남았으며 19/21과 V03 BLOCKED를 유지한다.
 
 ## 유지하는 과학·구현 계약
 - 순수 Python CPU 과학 코어. JAX/GPU·차량 위치 전수추적·RL-first·외부데이터 학습은 V1 범위 밖이다.

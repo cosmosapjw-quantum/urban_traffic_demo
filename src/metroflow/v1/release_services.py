@@ -6,12 +6,14 @@ Passenger arrival and freight arrival below are road-stop arrivals; access
 metadata remains available to a whole-journey consumer.
 """
 from dataclasses import dataclass
+from functools import lru_cache
 import hashlib
 import json
 import math
 
 from ..active_suffix.routing import Arc, candidate_paths
 from ..foundation_kinetics import VehicleClass
+from ..route_metrics import measure_route_latency
 from ..terrain_city.area_access import Portal
 from .access import activity_access
 from .city import reject
@@ -138,6 +140,7 @@ def compile_service_plan(city, legs, corridors=(), *, depot_block_id=None,
     allowed = frozenset(costs)
     cache = {}
 
+    @measure_route_latency('release_services.path')
     def path(a, b):
         if a not in doors or b not in doors or a == b:
             return ()
@@ -148,6 +151,10 @@ def compile_service_plan(city, legs, corridors=(), *, depot_block_id=None,
             cache[key] = found[0] if found else ()
         return cache[key]
 
+    # The complete immutable activity measure is the key: two priors sharing
+    # a block ID can have different physical access laws. Cache lifetime is one
+    # compilation, so a new city/portal registry cannot reuse stale geometry.
+    @lru_cache(maxsize=256)
     def access(measure):
         door = doors.get(measure.block_id)
         if door is None:

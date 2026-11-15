@@ -5,6 +5,7 @@ not be summed into a city congestion run. Fixed bus fleet, freight endpoint assi
 activation remain explicit pending obligations; they are never zero-time completions.
 """
 from dataclasses import dataclass, replace
+from functools import lru_cache
 import hashlib
 import json
 import math
@@ -21,6 +22,7 @@ from .city import reject
 from .journey import JourneyModel, JourneyBoundary, AccessEntry, DelayLaw
 from .kinetics import ClassMass
 from .lanegroups import compile_lanegroups
+from ..route_metrics import measure_route_latency
 from .transport import TransportModel
 
 
@@ -48,21 +50,26 @@ class ReleaseRuntime:
     following grid boundary using its centroid birth: this preserves its first
     moment but approximates its age distribution, with <=dt source grid hold.
     """
-    def __init__(self, city, legs, *, step_s=1.0, max_legs=256, record_budget=20000):
+    def __init__(self, city, legs, *, step_s=1.0, max_legs=256, record_budget=20000,
+                 max_route_pairs=1024, max_access_laws=128):
         if (not math.isfinite(step_s) or step_s <= 0 or isinstance(max_legs, bool)
                 or not isinstance(max_legs, int) or max_legs < 1):
             reject('positive step and finite leg budget required')
+        if any(isinstance(n, bool) or not isinstance(n, int) or n < 0
+               for n in (max_route_pairs, max_access_laws)):
+            reject('nonnegative finite route/access cache budgets required')
         bounded = []
         for leg in legs:
             if len(bounded) == max_legs:
                 reject('global route set exceeds bound; no demand omitted', 'BLOCKED_RESOURCE')
             bounded.append(leg)
         self.legs = tuple(bounded)
-        if len({leg.id for leg in self.legs}) != len(self.legs):
+        self.indices = {leg.id: i for i, leg in enumerate(self.legs)}
+        if len(self.indices) != len(self.legs):
             reject('unique release leg IDs required')
         for leg in self.legs:
-            if leg.depends_on in {x.id for x in self.legs}:
-                parent = next(x for x in self.legs if x.id == leg.depends_on)
+            if leg.depends_on in self.indices:
+                parent = self.legs[self.indices[leg.depends_on]]
                 if (parent.id == leg.id or parent.depends_on is not None
                         or parent.cohort_id != leg.cohort_id or parent.amounts != leg.amounts):
                     reject('dependent return must match one outward cohort and amounts')
@@ -74,11 +81,29 @@ class ReleaseRuntime:
             gates.setdefault(p.block_id, []).append(p)
         arcs = tuple(Arc(g.id, g.tail, g.head) for g in contract.groups)
         costs = {g.id: g.physics.length_m / g.physics.speed_mps for g in contract.groups}
+
+        @measure_route_latency('release_runtime.path')
+        @lru_cache(maxsize=max_route_pairs)
+        def path(origin_node, destination_node):
+            # Keep the original loopless search, expansion bound and tie order.
+            # The cache only shares an immutable answer for identical endpoints
+            # under this constructor's fixed city/contract/cost snapshot.
+            found = candidate_paths(arcs, costs, origin_node, destination_node, 1,
+                                    allowed_turns=contract.allowed_turns).paths
+            return found[0] if found else ()
+
+        @lru_cache(maxsize=max_access_laws)
+        def endpoint_law(measure, gate):
+            # ActivityMeasure is immutable. Its full geometry/weights/kind, not
+            # just block ID, belong to this key; no two priors are identified.
+            law, _ = activity_access(measure,
+                (Portal(gate.id, nodes[gate.node_id].xyz[:2]),), depth=0)
+            return DelayLaw(law.condition(gate.id)[1])
+
         routes, boundaries, self.unsupported = [], [], {}
         self.internal_laws = {}
         self.record_budget = record_budget
         self.route_links = {}
-        self.indices = {leg.id: i for i, leg in enumerate(self.legs)}
         for leg in self.legs:
             if any(m is not None and m.city_identity != city.identity
                    for m in (leg.origin, leg.destination)):
@@ -100,31 +125,24 @@ class ReleaseRuntime:
                 continue
             origin, dest = (gates[m.block_id][0] for m in (leg.origin, leg.destination))
             if origin.node_id == dest.node_id:
-                endpoint_laws = []
-                for measure, gate in ((leg.origin,origin),(leg.destination,dest)):
-                    law,_ = activity_access(measure,(Portal(gate.id,nodes[gate.node_id].xyz[:2]),),depth=0)
-                    endpoint_laws.append(law.condition(gate.id)[1])
+                endpoint_laws = (endpoint_law(leg.origin, origin),
+                                 endpoint_law(leg.destination, dest))
                 atoms = {}
-                for a,wa in endpoint_laws[0]:
-                    for b,wb in endpoint_laws[1]:
+                for a,wa in endpoint_laws[0].atoms:
+                    for b,wb in endpoint_laws[1].atoms:
                         atoms[a+b] = atoms.get(a+b,0.0)+wa*wb
                 if len(atoms) > record_budget:
                     reject('co-located access law exceeds budget','BLOCKED_RESOURCE')
                 self.internal_laws[leg.id] = DelayLaw(tuple(sorted(atoms.items())))
                 continue
-            found = candidate_paths(arcs, costs, origin.node_id, dest.node_id, 1,
-                                    allowed_turns=contract.allowed_turns).paths
-            if not found or not found[0]:
+            links = path(origin.node_id, dest.node_id)
+            if not links:
                 self.unsupported[leg.id] = 'no nonempty legal road route'
                 continue
-            links = found[0]
             self.route_links[leg.id] = links
-            laws = []
-            for measure, gate in ((leg.origin, origin), (leg.destination, dest)):
-                law, _ = activity_access(measure, (Portal(gate.id, nodes[gate.node_id].xyz[:2]),), depth=0)
-                laws.append(DelayLaw(law.condition(gate.id)[1]))
             routes.append(Route(leg.id, links))
-            boundaries.append(JourneyBoundary(leg.id, *laws))
+            boundaries.append(JourneyBoundary(leg.id, endpoint_law(leg.origin, origin),
+                                               endpoint_law(leg.destination, dest)))
         if not routes and not self.internal_laws:
             reject('no supported route or internal delay in bounded set', 'BLOCKED_IMPLEMENTATION_DEPENDENCY')
         # PacketNetwork requires a registered route even for an internal-only

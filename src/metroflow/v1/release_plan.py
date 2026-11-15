@@ -12,6 +12,7 @@ import math
 from types import MappingProxyType
 
 from ..active_suffix.routing import Arc
+from ..route_metrics import measure_route_latency
 from ..terrain_city.area_access import Portal
 from .access import activity_access
 from .city import reject
@@ -97,6 +98,7 @@ class LegalRouteCache:
             self._trees.popitem(last=False)
         return tree
 
+    @measure_route_latency('legal_route_cache.resolve')
     def resolve(self, origin, destination):
         if origin not in self.nodes or destination not in self.nodes:
             reject('unknown route endpoint')

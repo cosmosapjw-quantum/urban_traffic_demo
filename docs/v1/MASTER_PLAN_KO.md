@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.16**, 2026-10-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.17**, 2026-10-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Reduce exact calendar preactivation/active-state resource cost within unchanged observation contracts; then measure full local campaign and route latency p99
+Measure and engineer whole-calendar shared-runtime activation and active-state cost using actual local evidence; full calendar storage alone fits 8GiB, 20k runtime cap remains; then run unchanged 3-case full-day campaign
 
 **예산·종료조건**
 
@@ -2301,12 +2301,12 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
   "node_ids": [
     "V03"
   ],
-  "native_subagent": "NOT_RUN",
-  "scope": "V03 immutable profile sharing to reduce exact calendar materialization memory; resource/local gate still blocked",
+  "native_subagent": "COMPLETED_SCOPED",
+  "scope": "V03 exact runtime preparation/check indexing, bounded route latency measurement, and actual local resource diagnosis; full campaign remains blocked",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": "artifacts/v1_v03_memory_20261029/RESULT.json",
+  "evidence": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2315,9 +2315,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [
-    "v03_driver",
-    "v03_inventory",
-    "v03_driver_review"
+    "v03_scale_next",
+    "v03_route_metrics",
+    "v03_joint_cost",
+    "v03_service_cost",
+    "v03_research_next"
   ]
 }
 ```

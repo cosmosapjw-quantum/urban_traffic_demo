@@ -133,3 +133,77 @@ def test_return_parent_contract_and_intent_hold_checkpoint_are_checked():
     model = ReleaseRuntime(city,(outward,))
     with pytest.raises(CityContractError,match='intent holding'):
         model.check(replace(model.initial(),road_intent_hold=1))
+
+
+def test_parent_validation_reads_calendar_ids_linearly():
+    """Count actual input ID reads; rebuilding all IDs per leg is quadratic."""
+    from metroflow.v1.journey import DelayLaw
+
+    class CountedLeg:
+        reads = 0
+
+        def __init__(self, value):
+            self.value = value
+
+        @property
+        def id(self):
+            type(self).reads += 1
+            return self.value.id
+
+        def __getattr__(self, key):
+            return getattr(self.value, key)
+
+    city, outward = fixture()
+    legs = []
+    for i in range(50):
+        leg = replace(outward, id=f'out:{i}', cohort_id=f'c:{i}',
+                      origin=outward.origin, destination=outward.origin,
+                      mode='noncar', vehicle_class=None, amounts=Amounts(persons=3),
+                      intrazonal=DelayLaw(((10, 1),)))
+        legs.extend((CountedLeg(leg), CountedLeg(replace(leg, id=f'back:{i}',
+                     depends_on=leg.id, purpose='return_home'))))
+    model = ReleaseRuntime(city, legs)
+    assert len(model.internal_laws) == len(legs)
+    assert CountedLeg.reads <= 20 * len(legs)
+
+
+def test_shared_endpoint_compilation_reuses_exact_search_and_access(monkeypatch):
+    import metroflow.v1.release_runtime as module
+
+    city, leg = fixture()
+    original_search, original_access = module.candidate_paths, module.activity_access
+    calls = {'search': 0, 'access': 0}
+
+    def search(*args, **kwargs):
+        calls['search'] += 1
+        return original_search(*args, **kwargs)
+
+    def access(*args, **kwargs):
+        calls['access'] += 1
+        return original_access(*args, **kwargs)
+
+    monkeypatch.setattr(module, 'candidate_paths', search)
+    monkeypatch.setattr(module, 'activity_access', access)
+    legs = tuple(replace(leg, id=f'leg:{i}', purpose='work' if i % 2 else 'school')
+                 for i in range(20))
+    model = ReleaseRuntime(city, legs)
+    assert calls == {'search': 1, 'access': 2}
+    assert len(model.route_links) == len(legs)
+    state = model.advance(model.initial(), 120)
+    assert state.completed == pytest.approx((1.0,) * len(legs))
+
+
+def test_endpoint_cache_keeps_different_measures_and_eviction_exact():
+    city, leg = fixture()
+    # Same block and door, different actual point activity: never cache by block alone.
+    shifted = compile_activity(city, 'block', 'residential',
+                              patches=(ActivityPatch(1000, ((300.0, 20.0),)),))
+    other = replace(leg, id='shifted', origin=shifted)
+    legs = (leg, other, replace(leg, id='again'))
+    cached = ReleaseRuntime(city, legs, max_route_pairs=1, max_access_laws=1)
+    uncached = ReleaseRuntime(city, legs, max_route_pairs=0, max_access_laws=0)
+    assert cached.identity == uncached.identity
+    assert cached.route_links == uncached.route_links
+    assert cached.model.boundaries == uncached.model.boundaries
+    assert cached.model.boundaries[leg.id].origin != cached.model.boundaries[other.id].origin
+    assert cached.advance(cached.initial(), 120) == uncached.advance(uncached.initial(), 120)

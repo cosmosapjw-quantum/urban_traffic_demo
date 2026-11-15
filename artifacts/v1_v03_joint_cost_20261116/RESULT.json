@@ -1,0 +1,36 @@
+{
+  "scope": "finite internal-journey checkpoint cost; no full-city/RSS/24h claim",
+  "python": "3.12.14",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "base_commit": "b41f807c490dda12e036bcb40d9c13370f04223e",
+  "original_source_sha256": "ef1a2618ed763e33b3efa37d18d9fbcdf16db84dac5fcc7c4d8a1bc759d9d71e",
+  "new_source_sha256": "80b99cf1a792c07880210221c5e7b62a007faa3b1e2ffc2bf03a3a457b7fb8bf",
+  "legs": 1500,
+  "active_stage_records": 1500,
+  "repetitions": 5,
+  "old_check_s": [
+    0.0534635129988601,
+    0.05035081099958916,
+    0.05193382700053917,
+    0.059242958999675466,
+    0.07325165899965214
+  ],
+  "new_check_s": [
+    0.00629051400028402,
+    0.006111740000051213,
+    0.005698770000890363,
+    0.009744692000822397,
+    0.00958501700006309
+  ],
+  "old_mean_s": 0.0576485537996632,
+  "new_mean_s": 0.007486146600422216,
+  "exact_four_tick_state_equality": true,
+  "checkpoint_bytes_equal": true,
+  "resumed_state_equal": true,
+  "mass_preserving_corruption_rejected": [
+    "IMPLEMENTATION_ERROR: joint internal stage ledger differs",
+    "IMPLEMENTATION_ERROR: joint internal stage ledger differs"
+  ],
+  "progress": "19/21 (90.5%)",
+  "full_city": "NOT_RUN"
+}

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.16",
+  "version": "1.1.17",
   "date": "2026-10-27",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -370,12 +370,12 @@
     "node_ids": [
       "V03"
     ],
-    "native_subagent": "NOT_RUN",
-    "scope": "V03 immutable profile sharing to reduce exact calendar materialization memory; resource/local gate still blocked",
+    "native_subagent": "COMPLETED_SCOPED",
+    "scope": "V03 exact runtime preparation/check indexing, bounded route latency measurement, and actual local resource diagnosis; full campaign remains blocked",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_v03_memory_20261029/RESULT.json",
+    "evidence": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,9 +384,11 @@
       "status": "success"
     },
     "parallel_agents": [
-      "v03_driver",
-      "v03_inventory",
-      "v03_driver_review"
+      "v03_scale_next",
+      "v03_route_metrics",
+      "v03_joint_cost",
+      "v03_service_cost",
+      "v03_research_next"
     ]
   },
   "nodes": [
@@ -1888,7 +1890,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Reduce exact calendar preactivation/active-state resource cost within unchanged observation contracts; then measure full local campaign and route latency p99",
+      "positive_next_action": "Measure and engineer whole-calendar shared-runtime activation and active-state cost using actual local evidence; full calendar storage alone fits 8GiB, 20k runtime cap remains; then run unchanged 3-case full-day campaign",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1908,14 +1910,19 @@
         "sha": "97b09576f5fe96f8e08d07a4bed80a841ffb2679"
       },
       "blocked_evidence": {
-        "path": "artifacts/v1_v03_driver_20261027/RECEIPT.json",
-        "sha256": "b2bae28bd70f578efbe1b51b7850566fe8b112381ea4805d840b963b92a0be3a"
+        "path": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
+        "sha256": "4f3806899ee03b03e0c112c918fab9b25d737e37e35c87f98fee72840cd0699b"
       },
       "resource_optimization_evidence": [
         {
           "path": "artifacts/v1_v03_memory_20261029/RESULT.json",
           "sha256": "f3ef8fc046c1530d6ea80ebbe7c26e96e8728281fd8d862988a0936dc02bb123",
           "scope": "exact15000leg retained traced allocation -42.71%; not actualcityRSS/24h"
+        },
+        {
+          "path": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
+          "sha256": "4f3806899ee03b03e0c112c918fab9b25d737e37e35c87f98fee72840cd0699b",
+          "scope": "linear parent/stage indexing, bounded exact access/path caching, bounded route p99 intervals; actual local whole calendar retention 1.42GiB, not full traffic execution"
         }
       ]
     },

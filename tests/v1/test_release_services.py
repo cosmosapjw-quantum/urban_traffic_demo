@@ -97,3 +97,83 @@ def test_dependent_bus_candidates_require_external_completion_eligibility():
     report = model.report(state)
     assert report['waiting_persons'] == pytest.approx(25)
     assert report['arrived_persons'] == 0
+
+
+def test_repeated_service_measures_compile_access_once_without_merging_demand(monkeypatch):
+    """Removing access reuse must expose 200 geometric computations, not 2."""
+    import metroflow.v1.release_services as services
+
+    city, bus, _ = fixture()
+    original = services.activity_access
+    calls = []
+
+    def counted(measure, *args, **kwargs):
+        calls.append(measure)
+        return original(measure, *args, **kwargs)
+
+    monkeypatch.setattr(services, 'activity_access', counted)
+    legs = tuple(replace(bus, id=f'bus:{i}', cohort_id=f'cohort:{i}') for i in range(100))
+    plan = compile_service_plan(city, legs, (BusCorridor('fleet', 'block', 'work', 3, 10),))
+    assert len(calls) == 2
+    assert len(plan.passengers) == 100
+    assert plan.source_legs == legs
+    assert sum(p.persons for p in plan.passengers) == 2500
+    assert sum(m['birth_person_s'] for m in plan.metadata) == 2500
+
+
+def test_service_cache_keys_full_measure_not_block_and_does_not_hide_waiting():
+    city, bus, _ = fixture()
+    slower = compile_activity(city, 'block', patches=(ActivityPatch(1000, ((296, 10),)),))
+    late = replace(bus, id='late', cohort_id='late', origin=slower)
+    plan = compile_service_plan(city, (bus, late),
+                                (BusCorridor('fleet', 'block', 'work', 3, 100),))
+    # Fourteen metres at 1.4 m/s misses the t=3 s bus after a [0,2] window.
+    assert [(p.id, p.persons) for p in plan.passengers] == [('out:0:fleet', 25)]
+    assert [(p.leg_id, p.amounts.persons) for p in plan.pending] == [('late', 25)]
+    assert plan.assignment_report()['units']['persons'] == dict(
+        requested=50, assigned=25, unassigned=25)
+
+
+def test_service_access_cache_evicts_and_recomputes_exactly(monkeypatch):
+    import metroflow.v1.release_services as services
+
+    city, bus, _ = fixture()
+    original = services.activity_access
+    calls = []
+
+    def counted(measure, *args, **kwargs):
+        calls.append(measure)
+        return original(measure, *args, **kwargs)
+
+    monkeypatch.setattr(services, 'activity_access', counted)
+    origins = tuple(compile_activity(city, 'block', patches=(
+        ActivityPatch(1000, ((310 - i, 10),)),)) for i in range(257))
+    legs = tuple(replace(bus, id=f'bus:{i}', cohort_id=f'cohort:{i}', origin=origin)
+                 for i, origin in enumerate((*origins, origins[0])))
+    plan = compile_service_plan(city, legs,
+                                (BusCorridor('fleet', 'block', 'work', 3, 100),), max_legs=300)
+    # Destination remains hot; 257 origins exceed the bounded 256-law cache.
+    assert len(calls) == 259
+    assert calls.count(origins[0]) == 2
+    assert plan.metadata[0]['origin_access'] == plan.metadata[-1]['origin_access']
+    assert len(plan.source_legs) == 258
+    units = plan.assignment_report()['units']['persons']
+    assert units['requested'] == units['assigned'] + units['unassigned'] == 6450
+
+
+def test_service_cache_preserves_whole_plan_and_physical_state(monkeypatch):
+    import metroflow.v1.release_services as services
+
+    city, bus, freight = fixture()
+    legs = (bus, replace(bus, id='other', cohort_id='other'), freight)
+    fleet = (BusCorridor('fleet', 'block', 'work', 3, 10),)
+    cached = compile_service_plan(city, legs, fleet, depot_block_id='block')
+    # Disable only memoization; execute the real access geometry and assignments.
+    monkeypatch.setattr(services, 'lru_cache', lambda **_kwargs: lambda fn: fn)
+    uncached = compile_service_plan(city, legs, fleet, depot_block_id='block')
+    assert cached == uncached
+    a, b = cached.model(), uncached.model()
+    assert a.identity == b.identity
+    sa, sb = a.advance(a.initial(), 180), b.advance(b.initial(), 180)
+    assert sa == sb
+    assert a.report(sa) == b.report(sb)

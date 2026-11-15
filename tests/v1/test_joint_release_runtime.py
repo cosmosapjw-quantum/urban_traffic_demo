@@ -129,3 +129,64 @@ def test_internal_only_calendar_uses_inert_clock_without_physical_releases():
     assert state.completed==(1.0,)
     assert state.service.road.released==0
     assert state.service.road.completed==0
+
+
+def test_checkpoint_stage_matching_visits_each_record_linearly():
+    from metroflow.v1.journey import DelayLaw
+
+    class CountedTag(str):
+        comparisons = 0
+        __hash__ = str.__hash__
+
+        def __eq__(self, other):
+            type(self).comparisons += 1
+            return super().__eq__(other)
+
+    city, legs, _ = fixture()
+    calendar = tuple(replace(legs[0], id=f'internal-{i}', cohort_id=f'c-{i}',
+                             destination=legs[0].origin,
+                             intrazonal=DelayLaw(((100., 1.),))) for i in range(64))
+    plan = compile_service_plan(city, calendar)
+    model = JointReleaseRuntime(city, calendar, plan)
+    state = model.advance(model.initial(), 2)
+    assert len(state.internal) == len(calendar)
+    counted = replace(state, internal=tuple(replace(e, tag=CountedTag(e.tag))
+                                            for e in state.internal))
+    model.check(counted)
+    assert CountedTag.comparisons <= 10 * len(calendar)
+
+
+def test_per_leg_stage_conservation_rejects_mass_preserving_tag_swap():
+    from metroflow.v1.journey import DelayLaw
+
+    city, legs, _ = fixture()
+    one = replace(legs[0], destination=legs[0].origin,
+                  intrazonal=DelayLaw(((100., 1.),)))
+    two = replace(one, id='two', cohort_id='two', amounts=Amounts(2.5, 2))
+    plan = compile_service_plan(city, (one, two))
+    model = JointReleaseRuntime(city, (one, two), plan)
+    state = model.advance(model.initial(), 2)
+    a, b = state.internal
+    swapped = replace(state, internal=(replace(a, tag=b.tag), replace(b, tag=a.tag)))
+    assert sum(e.mass for e in swapped.internal) == sum(e.mass for e in state.internal)
+    with pytest.raises(CityContractError, match='internal stage ledger'):
+        model.check(swapped)
+
+
+def test_checkpoint_keeps_all_service_records_for_each_calendar_leg():
+    city, legs, _ = fixture()
+    profile = DepartureProfile((DepartureWindow(0, 1, .25),
+                                DepartureWindow(1, 2, .75)))
+    bus = replace(legs[2], departures=profile)
+    freight = replace(legs[4], departures=profile)
+    plan = compile_service_plan(city, (bus, freight),
+                               (BusCorridor('a', 'block', 'work', 3, 20),
+                                BusCorridor('b', 'block', 'work', 3, 20)),
+                               depot_block_id='block')
+    assert len(plan.passengers) == 4
+    assert len(plan.freight) == 2
+    model = JointReleaseRuntime(city, (bus, freight), plan)
+    state = model.advance(model.initial(), 120)
+    assert state.completed == pytest.approx((1., 1.))
+    assert state.birth_carrier_s == pytest.approx((1.25, 1.25))
+    assert model.report(state)['ledger']['cargo_kg']['completed'] == pytest.approx(100.)
