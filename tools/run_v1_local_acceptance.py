@@ -48,6 +48,28 @@ def file_sha256(path):
     return digest.hexdigest()
 
 
+def resource_limit_kind(message, storage=None):
+    """Distinguish accounting admissions from observed process exhaustion."""
+    message=message.lower()
+    if 'checkpointability' in message or 'capture/validation' in message:
+        return 'checkpoint_working_budget_guard'
+    if 'shared storage' in message or 'retained storage and concurrent dense' in message:
+        return 'shared_accounting_guard'
+    if 'native preflight' in message or 'static accounting' in message:
+        return 'static_accounting_guard'
+    if storage and storage.get('resource_binding')=='retained_capacity_v2' and 'budget' in message:
+        if any(word in message for word in ('journey','road','phase','observation','decode','service event')):
+            return 'phase_working_budget_guard'
+    if ('storage' in message and 'budget' in message) or (
+            'byte budget' in message and ('journey' in message or 'road' in message)):
+        return 'owner_quota_guard'
+    if 'preflight' in message or 'accounting' in message:
+        return 'static_accounting_guard'
+    if 'record budget' in message:
+        return 'logical_record_guard'
+    return 'allocation_or_other_budget'
+
+
 def candidate_provenance():
     """Commit plus current relevant source contents, including uncommitted work."""
     paths=set((ROOT/'src').rglob('native*.py'))
@@ -393,12 +415,7 @@ def _worker(args,matrix,case,route_latency):
         result.update(status=status,reason=type(exc).__name__+': '+str(exc),last_valid=evidence,
                       failure_classification=getattr(exc,'status',status))
         if status=='BLOCKED_RESOURCE':
-            message=str(exc).lower()
-            result['resource_limit_kind']=(
-                'owner_quota_guard' if ('storage' in message and 'budget' in message)
-                    or ('byte budget' in message and ('journey' in message or 'road' in message)) else
-                'static_accounting_guard' if 'preflight' in message or 'accounting' in message else
-                'logical_record_guard' if 'record budget' in message else 'allocation_or_other_budget')
+            result['resource_limit_kind']=resource_limit_kind(str(exc),result.get('native_storage'))
     result.update(wall_s=time.perf_counter()-started,
                   route_latency=route_latency.report(),
                   peak_rss_bytes=peak_rss_bytes())

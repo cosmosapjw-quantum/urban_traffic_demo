@@ -93,6 +93,8 @@ struct Block {
     sum: Expansion,
     block_sum: Expansion,
     storage_bytes: usize,
+    decoded_storage_upper: usize,
+    decoded_working_upper: usize,
 }
 
 impl Clone for Block {
@@ -112,6 +114,8 @@ impl Clone for Block {
             sum: self.sum.clone(),
             block_sum: self.block_sum.clone(),
             storage_bytes: 0,
+            decoded_storage_upper: 0,
+            decoded_working_upper: self.decoded_working_upper,
         };
         block.refresh_storage_bytes();
         block
@@ -131,6 +135,21 @@ impl Block {
             .as_ref()
             .map_or(0, |b| b.storage_bytes)
             .saturating_add(self.own_storage_bytes());
+        // Prefix sum is cloned/updated before every push, so its final
+        // capacity is determined by the raw row sequence, independent of COW.
+        // A fresh decoder can retain more block_sum slack than COW clones;
+        // at most one expansion component is appended per block row.
+        let block_capacity_upper = self.rows.len().max(4).next_power_of_two();
+        let decoded_own = self
+            .own_storage_bytes()
+            .saturating_sub(self.block_sum.0.capacity() * std::mem::size_of::<f64>())
+            .saturating_add(block_capacity_upper * std::mem::size_of::<f64>());
+        self.decoded_storage_upper = self
+            .previous
+            .as_ref()
+            .map_or(0, |b| b.decoded_storage_upper)
+            .saturating_add(decoded_own);
+        self.decoded_working_upper = self.decoded_working_upper.max(self.decoded_storage_upper);
     }
 }
 
@@ -161,6 +180,12 @@ impl ReceiptHistory {
     pub(crate) fn storage_bytes(&self) -> usize {
         self.0.as_ref().map_or(0, |b| b.storage_bytes)
     }
+    pub(crate) fn decoded_storage_upper_bytes(&self) -> usize {
+        self.0.as_ref().map_or(0, |b| b.decoded_working_upper)
+    }
+    pub(crate) fn decoded_final_storage_upper_bytes(&self) -> usize {
+        self.0.as_ref().map_or(0, |b| b.decoded_storage_upper)
+    }
     pub(crate) fn append_upper_bytes(&self) -> usize {
         let (sum_capacity, block_capacity) = self
             .0
@@ -188,6 +213,23 @@ impl ReceiptHistory {
         if !sum.total().is_finite() {
             return Err("native receipt sum overflow");
         }
+        let (decoded_before, decoded_peak, sum_capacity, block_capacity) =
+            self.0.as_ref().map_or((0, 0, 0, 0), |b| {
+                (
+                    b.decoded_storage_upper,
+                    b.decoded_working_upper,
+                    b.sum.0.capacity(),
+                    b.rows.len().max(4).next_power_of_two(),
+                )
+            });
+        let append_upper = std::mem::size_of::<Block>()
+            + 2 * std::mem::size_of::<usize>()
+            + 128
+            + BLOCK_ROWS * std::mem::size_of::<Receipt>()
+            + (sum_capacity.saturating_mul(2).saturating_add(4)
+                + block_capacity.saturating_mul(2).saturating_add(4))
+                * std::mem::size_of::<f64>();
+        let decoded_working_upper = decoded_peak.max(decoded_before.saturating_add(append_upper));
         match &mut self.0 {
             Some(head) if head.rows.len() < BLOCK_ROWS => {
                 let block = Arc::make_mut(head);
@@ -199,6 +241,7 @@ impl ReceiptHistory {
                 block.block_min_time = block.block_min_time.min(row.0);
                 block.block_max_time = block.block_max_time.max(row.0);
                 block.sum = sum;
+                block.decoded_working_upper = decoded_working_upper;
                 block.refresh_storage_bytes();
             }
             _ => {
@@ -219,6 +262,8 @@ impl ReceiptHistory {
                     sum,
                     block_sum: Expansion(vec![row.1]),
                     storage_bytes: 0,
+                    decoded_storage_upper: 0,
+                    decoded_working_upper,
                 };
                 block.refresh_storage_bytes();
                 self.0 = Some(Arc::new(block));
@@ -384,6 +429,12 @@ impl NativeReceiptHistory {
 
     fn storage_bytes(&self) -> usize {
         self.history.storage_bytes()
+    }
+    fn decoded_storage_upper_bytes(&self) -> usize {
+        self.history.decoded_storage_upper_bytes()
+    }
+    fn decoded_final_storage_upper_bytes(&self) -> usize {
+        self.history.decoded_final_storage_upper_bytes()
     }
     fn append_upper_bytes(&self) -> usize {
         self.history.append_upper_bytes()

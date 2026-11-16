@@ -2,7 +2,8 @@
 //! Static declarations and all dynamic road/service/journey state stay in Rust.
 use crate::v1_calendar::NativeCalendar;
 use crate::v1_journey::{
-    advance_owned_joint, fsum, journey_debug, journey_storage_bytes, Journey, NativeJourneyCore,
+    advance_owned_joint, fsum, journey_debug, journey_dense_storage_bytes, journey_storage_bytes,
+    service_dense_storage_bytes, service_event_storage_bytes, Journey, NativeJourneyCore,
     NativeServiceCore, ServiceCheckpoint, SharedBusMeta, SharedFreightMeta, SharedJourneyLeg,
     SharedLaw,
 };
@@ -12,13 +13,58 @@ use crate::v1_routing::V1RoutingGraph;
 use pyo3::exceptions::{PyIOError, PyIndexError, PyMemoryError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::sync::Arc;
 use std::time::Instant;
 
 const ROUTE_OVERFLOW_BIN: usize = 256 + 56 * 128;
+const OBSERVATION_RESERVE: usize = 64 * 1024 * 1024;
+fn buffer_bytes<T>(values: &Vec<T>) -> usize {
+    values
+        .capacity()
+        .saturating_mul(std::mem::size_of::<T>())
+        .saturating_add(if values.capacity() == 0 { 0 } else { 128 })
+}
+fn string_bytes(value: &String) -> usize {
+    value
+        .capacity()
+        .saturating_add(if value.capacity() == 0 { 0 } else { 128 })
+}
+/// Explicit conservative bucket/control and growth allowance, not an allocator
+/// or RSS theorem. Vec/String payload capacities are counted separately.
+fn map_workspace<K, V>(entries: usize) -> usize {
+    if entries == 0 {
+        return 0;
+    }
+    entries
+        .saturating_mul(4)
+        .saturating_mul(std::mem::size_of::<(K, V)>().saturating_add(1))
+        .saturating_add(256)
+}
+#[derive(Default)]
+struct RuntimeStorage {
+    owned_static: usize,
+    initial_road: usize,
+    journey_dense: usize,
+    service_dense: usize,
+    call_binding: usize,
+    worker_scratch: usize,
+    service_prepare_scratch: usize,
+    fixed_charge: usize,
+}
+impl RuntimeStorage {
+    fn base(&self) -> usize {
+        self.owned_static
+            .saturating_add(self.initial_road)
+            .saturating_add(self.journey_dense.saturating_mul(4))
+            .saturating_add(self.service_dense.saturating_mul(6))
+            .saturating_add(OBSERVATION_RESERVE)
+            .saturating_add(self.worker_scratch)
+            .saturating_add(self.service_prepare_scratch)
+    }
+}
 struct NativeRouteMetrics {
     counts: Vec<usize>,
     calls: usize,
@@ -359,6 +405,7 @@ pub struct NativeWholeEngine {
     storage_policy: String,
     road_storage_bytes: Option<usize>,
     journey_storage_bytes: Option<usize>,
+    runtime_storage: Option<RuntimeStorage>,
     identity: String,
     city: String,
     schedule: String,
@@ -781,23 +828,7 @@ impl NativeWholeEngine {
         }
         let unique_paths = router.paths.len();
         let estimated_bytes = router.estimated + (people.len() + freight.len()) * 512;
-        let (road_storage_bytes, journey_storage_bytes) = if storage_policy == "bounded_bytes_v1" {
-            let available = byte_budget.checked_sub(estimated_bytes).ok_or_else(|| {
-                PyMemoryError::new_err("native static accounting leaves no dynamic storage budget")
-            })?;
-            // Both owners retain explicit finite working-space quotas. An
-            // equal split avoids reserving three quarters for journey while
-            // road transfer/split work dominates the observed peak. The sum
-            // remains the same accounting budget; this is not an RSS bound.
-            let road_bytes = available / 2;
-            (Some(road_bytes), Some(available - road_bytes))
-        } else {
-            (None, None)
-        };
         let mut identity = format!("native-whole-v1:{}:{}", s.identity, byte_budget);
-        if let (Some(road), Some(journey)) = (road_storage_bytes, journey_storage_bytes) {
-            identity.push_str(&format!(":bounded_bytes_v1:{road}:{journey}"));
-        }
         let group_count = s.groups.len();
         let mut road = V1Road::new_shared_routes(
             identity.clone(),
@@ -815,8 +846,89 @@ impl NativeWholeEngine {
         )?;
         let service = NativeServiceCore::new(buses, people, freight, Vec::new())?;
         let mut journey = NativeJourneyCore::new_shared(legs, bus_meta, freight_meta, s.budget)?;
+        let runtime_storage = if storage_policy == "bounded_bytes_v1" {
+            let strings = |values: &Vec<String>| {
+                values.iter().fold(buffer_bytes(values), |bytes, value| {
+                    bytes.saturating_add(string_bytes(value))
+                })
+            };
+            // Journey accounts shared laws/profiles reachable from its legs.
+            // The engine also retains unused interned calendar profiles.
+            let mut unused: HashSet<usize> =
+                profiles.iter().map(|p| Arc::as_ptr(p) as usize).collect();
+            for leg in journey.legs() {
+                unused.remove(&(Arc::as_ptr(&leg.4) as usize));
+            }
+            let unused_profiles = profiles
+                .iter()
+                .filter(|p| unused.contains(&(Arc::as_ptr(p) as usize)))
+                .fold(0usize, |bytes, p| {
+                    bytes.saturating_add(buffer_bytes(p)).saturating_add(
+                        std::mem::size_of::<Vec<(f64, f64, f64)>>()
+                            + 2 * std::mem::size_of::<usize>()
+                            + 128,
+                    )
+                });
+            let owned_static = std::mem::size_of::<Self>()
+                .saturating_add(
+                    std::mem::size_of::<Bundle>() + 2 * std::mem::size_of::<usize>() + 128,
+                )
+                .saturating_add(road.static_storage_bytes())
+                .saturating_add(journey.static_storage_bytes())
+                .saturating_add(service.static_storage_bytes())
+                .saturating_add(strings(&tags))
+                .saturating_add(strings(&s.names))
+                .saturating_add(buffer_bytes(&amounts))
+                .saturating_add(buffer_bytes(&profile_ids))
+                .saturating_add(buffer_bytes(&profiles))
+                .saturating_add(unused_profiles)
+                .saturating_add(buffer_bytes(&car_tag_legs))
+                .saturating_add(buffer_bytes(&passenger_available))
+                .saturating_add(buffer_bytes(&freight_cargo))
+                .saturating_add(buffer_bytes(&freight_vehicles))
+                .saturating_add(buffer_bytes(&router.metrics.counts))
+                .saturating_add(string_bytes(&s.city))
+                .saturating_add(string_bytes(&s.schedule))
+                .saturating_add(string_bytes(&storage_policy))
+                // Final policy suffix and known snapshot identity strings can
+                // grow after the empty owners have been constructed.
+                .saturating_add(identity.len().saturating_mul(8).saturating_add(1024));
+            let call_binding = tags
+                .iter()
+                .fold(map_workspace::<String, usize>(tags.len()), |bytes, tag| {
+                    bytes.saturating_add(tag.capacity()).saturating_add(128)
+                });
+            let mut accounting = RuntimeStorage {
+                owned_static,
+                initial_road: road.owned_storage_bytes(),
+                journey_dense: journey_dense_storage_bytes(journey.state()),
+                service_dense: service_dense_storage_bytes(service.state()),
+                call_binding,
+                worker_scratch: journey
+                    .per_worker_scratch_bytes()
+                    .saturating_mul(parallel.threads()),
+                service_prepare_scratch: service.prepare_scratch_bytes(),
+                fixed_charge: 0,
+            };
+            accounting.fixed_charge = accounting.base().saturating_add(call_binding);
+            Some(accounting)
+        } else {
+            None
+        };
+        let (road_storage_bytes, journey_storage_bytes) = if let Some(accounting) = &runtime_storage
+        {
+            let available = byte_budget.checked_sub(accounting.fixed_charge).ok_or_else(||
+                PyMemoryError::new_err("native retained storage and concurrent dense reserve exceed accounting budget"))?;
+            // These are ceilings on a shared pool, never additive reservations.
+            // advance_owned_joint subtracts the other owners at each phase.
+            (Some(available), Some(available))
+        } else {
+            (None, None)
+        };
         if let (Some(road_bytes), Some(journey_bytes)) = (road_storage_bytes, journey_storage_bytes)
         {
+            identity.push_str(":bounded_bytes_v1:retained_capacity_v2");
+            road.bind_storage_identity(identity.clone())?;
             road.configure_storage_budget(road_bytes)?;
             journey.configure_storage_budget(journey_bytes)?;
         }
@@ -832,6 +944,7 @@ impl NativeWholeEngine {
             storage_policy,
             road_storage_bytes,
             journey_storage_bytes,
+            runtime_storage,
             identity,
             city: s.city,
             schedule: s.schedule,
@@ -859,6 +972,61 @@ impl NativeWholeEngine {
             group_count,
             car_tag_legs,
         })
+    }
+    fn reset_phase_ceilings(&mut self) -> PyResult<()> {
+        if let Some(pool) = self.road_storage_bytes {
+            self.road.set_phase_storage_budget(pool)?;
+            self.journey.set_phase_storage_budget(pool)?;
+            self.road.clear_call_storage_accounting();
+            self.journey.clear_call_storage_accounting();
+        }
+        Ok(())
+    }
+    fn pool_after(&self, reserved: usize, phase: &str) -> PyResult<usize> {
+        let pool = self.road_storage_bytes.unwrap_or(usize::MAX);
+        pool.checked_sub(reserved).filter(|n| *n > 0).ok_or_else(||
+            PyMemoryError::new_err(format!("native shared storage budget exhausted before {phase}: reserved_bytes={reserved}, pool_bytes={pool}")))
+    }
+    fn validation_scratch(&self, j: &Journey, road_rows: usize) -> usize {
+        self.journey
+            .whole_validation_scratch_bytes(j, road_rows, self.tags.len())
+    }
+    fn storage_admission(
+        &self,
+        j: &Journey,
+        road_bytes: usize,
+        road_rows: usize,
+        event_bytes: usize,
+        input: Option<&Bundle>,
+        validate: bool,
+    ) -> PyResult<()> {
+        let Some(accounting) = &self.runtime_storage else {
+            return Ok(());
+        };
+        let mut r = road_bytes.max(self.road.owned_storage_bytes());
+        let mut d = journey_storage_bytes(j).max(journey_storage_bytes(self.journey.state()));
+        let mut e = event_bytes.max(self.service.event_storage_bytes());
+        if let Some(input) = input {
+            r = r.max(input.road.retained_storage_bytes());
+            d = d.max(journey_storage_bytes(&input.journey));
+            e = e.max(service_event_storage_bytes(&input.service));
+        }
+        let scratch = if validate {
+            self.validation_scratch(j, road_rows)
+        } else {
+            0
+        };
+        let required = accounting
+            .base()
+            .saturating_add(accounting.call_binding.max(scratch))
+            .saturating_add(r.saturating_mul(3))
+            .saturating_add(d.saturating_mul(3))
+            .saturating_add(e.saturating_mul(3));
+        if required > self.byte_budget {
+            return Err(PyMemoryError::new_err(format!(
+                "native capture/validation storage budget exceeded: required_bytes={required}, budget_bytes={}",self.byte_budget)));
+        }
+        Ok(())
     }
     fn validate_bundle(&self, b: &Bundle) -> PyResult<()> {
         if b.road.time() != b.journey.0 {
@@ -970,6 +1138,15 @@ impl NativeWholeEngine {
     }
     fn restore(&mut self, state: &NativeWholeState) -> PyResult<()> {
         self.checked(state)?;
+        self.reset_phase_ceilings()?;
+        self.storage_admission(
+            &state.value.journey,
+            state.value.road.retained_storage_bytes(),
+            0,
+            service_event_storage_bytes(&state.value.service),
+            None,
+            false,
+        )?;
         self.road.rollback(state.value.road.clone());
         self.service.rollback(state.value.service.clone());
         self.journey.rollback(state.value.journey.clone());
@@ -1036,7 +1213,26 @@ impl NativeWholeEngine {
         out.set_item("policy", &self.storage_policy)?;
         out.set_item("total_accounting_budget_bytes", self.byte_budget)?;
         out.set_item("conservative_static_accounting_bytes", self.estimated_bytes)?;
-        out.set_item("static_accounting_scope", "pre-existing conservative construction/snapshot estimate, including dense state; subtracting dynamic working quotas can double-count snapshot allowances")?;
+        out.set_item("static_accounting_scope", "unchanged constructor preflight estimate; retained_capacity_v2 does not subtract it from runtime storage")?;
+        if let Some(accounting) = &self.runtime_storage {
+            out.set_item("resource_binding", "retained_capacity_v2")?;
+            out.set_item("retained_static_payload_bytes", accounting.owned_static)?;
+            out.set_item("initial_road_reserve_bytes", accounting.initial_road)?;
+            out.set_item("journey_dense_one_copy_bytes", accounting.journey_dense)?;
+            out.set_item("journey_dense_copies", 4)?;
+            out.set_item("service_dense_one_copy_bytes", accounting.service_dense)?;
+            out.set_item("service_dense_copies", 6)?;
+            out.set_item("call_binding_reserve_bytes", accounting.call_binding)?;
+            out.set_item("per_worker_scratch_total_bytes", accounting.worker_scratch)?;
+            out.set_item(
+                "service_prepare_scratch_bytes",
+                accounting.service_prepare_scratch,
+            )?;
+            out.set_item("observation_reserve_bytes", OBSERVATION_RESERVE)?;
+            out.set_item("runtime_fixed_reserve_bytes", accounting.fixed_charge)?;
+            out.set_item("dynamic_shared_pool_bytes", self.road_storage_bytes)?;
+            out.set_item("footprint_scope", "owned Vec/String capacities, unique shared law/profile allocations and explicit allocator/map allowances; includes known dense clones, per-call binding, worker/profile and service-offer scratch; excludes Python frontend, opaque Rayon/allocator internals and unrelated caller-retained snapshots, which require the process limit")?;
+        }
         out.set_item("road_dynamic_allowance_bytes", self.road_storage_bytes)?;
         out.set_item(
             "journey_dynamic_allowance_bytes",
@@ -1044,7 +1240,7 @@ impl NativeWholeEngine {
         )?;
         out.set_item("service_event_record_ceiling", self.event_limit)?;
         out.set_item("allocation_rationale", if self.road_storage_bytes.is_some() {
-            "equal road/journey split of budget minus unchanged conservative construction/snapshot estimate; journey receives an odd remainder byte; finite owner quotas do not borrow unused capacity; split values are checkpoint-identity bound"
+            "road/journey values are non-additive ceilings on one shared dynamic pool; each phase subtracts other known live owners before allocation; capture/decode/validation have separate global admission; policy and total are checkpoint-bound, ephemeral quotas and worker counts are not"
         } else {
             "legacy record limits; no dynamic byte-quota split"
         })?;
@@ -1093,20 +1289,49 @@ impl NativeWholeEngine {
         if !count.is_finite() || count < 0.0 || (count - count.round()).abs() > 1e-8 {
             return Err(bad("joint horizon must align with fixed step"));
         }
+        if self.runtime_storage.is_some()
+            && (count as usize).saturating_mul(2 * std::mem::size_of::<f64>()) > OBSERVATION_RESERVE
+        {
+            return Err(PyMemoryError::new_err("native call observation storage budget exceeded; split the requested horizon into bounded calls"));
+        }
         self.restore(state)?;
+        let dynamic_budget = self.road_storage_bytes;
+        let call_binding_reserve = self.runtime_storage.as_ref().map_or(0, |a| a.call_binding);
         let parallel = &self.parallel;
         let road = &mut self.road;
         let service = &mut self.service;
         let journey = &mut self.journey;
         let tags = &self.tags;
         let step = self.step;
-        py.allow_threads(|| {
+        let outcome = py.allow_threads(|| {
             parallel.run(|| {
-                advance_owned_joint(road, service, journey, tags, count.round() as usize, step)
+                advance_owned_joint(
+                    road,
+                    service,
+                    journey,
+                    tags,
+                    count.round() as usize,
+                    step,
+                    dynamic_budget,
+                    call_binding_reserve,
+                )
             })
-        })?;
+        });
+        self.reset_phase_ceilings()?;
+        outcome?;
+        self.storage_admission(
+            self.journey.state(),
+            self.road.owned_storage_bytes(),
+            self.road.owned_record_count(),
+            self.service.event_storage_bytes(),
+            Some(&state.value),
+            true,
+        )?;
         let result = self.capture();
         if let Err(error) = self.validate_bundle(&result.value) {
+            // A failed result must not coexist with the restore clone as a
+            // fifth dense journey copy.
+            drop(result);
             self.restore(state)?;
             return Err(error);
         }
@@ -1410,24 +1635,82 @@ impl NativeWholeEngine {
         if binding != self.identity.as_bytes() {
             return Err(bad("native whole checkpoint binding differs"));
         }
-        let road = self.road.read_state(&mut f)?;
-        let service = self.service.read_state(&mut f, self.event_limit)?;
-        let journey = self.journey.read_state(&mut f)?;
-        let mut tail = [0u8; 1];
-        if f.read(&mut tail).map_err(io)? != 0 {
-            return Err(bad("trailing native checkpoint bytes"));
+        self.reset_phase_ceilings()?;
+        let result = (|| {
+            let old_journey = journey_storage_bytes(self.journey.state());
+            let old_events = self.service.event_storage_bytes();
+            if self.runtime_storage.is_some() {
+                let road_limit = self.pool_after(
+                    old_journey.saturating_add(old_events).saturating_mul(3),
+                    "road decode",
+                )?;
+                self.road.set_phase_storage_budget(road_limit)?;
+            }
+            let road = self.road.read_state(&mut f)?;
+            let road_bytes = road
+                .retained_storage_bytes()
+                .max(self.road.owned_storage_bytes());
+            let event_limit = if self.runtime_storage.is_some() {
+                let remaining = self.pool_after(
+                    road_bytes.saturating_add(old_journey).saturating_mul(3),
+                    "service decode",
+                )?;
+                if old_events.saturating_mul(3) > remaining {
+                    return Err(PyMemoryError::new_err(
+                        "native retained service event storage budget exceeded before decode",
+                    ));
+                }
+                self.event_limit.min(
+                    (remaining / 3).saturating_sub(128)
+                        / std::mem::size_of::<crate::v1_road::EventRow>(),
+                )
+            } else {
+                self.event_limit
+            };
+            let service = self.service.read_state(&mut f, event_limit)?;
+            let events = service_event_storage_bytes(&service).max(old_events);
+            if self.runtime_storage.is_some() {
+                let journey_limit = self.pool_after(
+                    road_bytes.saturating_add(events).saturating_mul(3),
+                    "journey decode",
+                )?;
+                self.journey.set_phase_storage_budget(journey_limit)?;
+            }
+            let journey = self.journey.read_state(&mut f)?;
+            let mut tail = [0u8; 1];
+            if f.read(&mut tail).map_err(io)? != 0 {
+                return Err(bad("trailing native checkpoint bytes"));
+            }
+            let stats = road.debug_stats();
+            self.storage_admission(
+                &journey,
+                road_bytes,
+                stats.cell_parts.saturating_add(stats.pending_parts),
+                events,
+                None,
+                true,
+            )?;
+            let state = NativeWholeState {
+                identity: self.identity.clone(),
+                value: Arc::new(Bundle {
+                    road,
+                    service,
+                    journey,
+                }),
+            };
+            // Nothing is installed until all sequential reserve guards and
+            // cross-owner physical validation have succeeded.
+            self.validate_bundle(&state.value)?;
+            self.restore(&state)?;
+            Ok(state)
+        })();
+        let reset = self.reset_phase_ceilings();
+        match result {
+            Err(error) => Err(error),
+            Ok(state) => {
+                reset?;
+                Ok(state)
+            }
         }
-        let state = NativeWholeState {
-            identity: self.identity.clone(),
-            value: Arc::new(Bundle {
-                road,
-                service,
-                journey,
-            }),
-        };
-        // The three decoded owners are installed only after the whole file validates.
-        self.validate_bundle(&state.value)?;
-        self.restore(&state)?;
-        Ok(state)
     }
 }

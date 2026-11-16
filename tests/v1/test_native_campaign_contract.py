@@ -56,6 +56,18 @@ def test_checkpoint_digest_streams_without_whole_file_read(tmp_path,monkeypatch)
     assert cli.file_sha256(checkpoint)==hashlib.sha256(content).hexdigest()
 
 
+@pytest.mark.parametrize('message,kind',[
+    ('native shared storage budget exhausted','shared_accounting_guard'),
+    ('native capture/validation storage budget exceeded','checkpoint_working_budget_guard'),
+    ('native checkpointability storage budget exceeded','checkpoint_working_budget_guard'),
+    ('native road storage budget exceeded: phase=entry interval split','phase_working_budget_guard'),
+    ('native journey stored/working byte budget','phase_working_budget_guard'),
+    ('whole-calendar native preflight needs more accounting bytes','static_accounting_guard'),
+    ('allocation unavailable','allocation_or_other_budget')])
+def test_shared_resource_failures_are_not_reported_as_rss_or_fixed_partition(message,kind):
+    assert cli.resource_limit_kind(message,{'resource_binding':'retained_capacity_v2'})==kind
+
+
 @pytest.mark.parametrize('damage', ['replay','missing_refined','missing_repeat','resume',
                                   'ledger','missing_native_latency','rss','clock','refined_binding'])
 def test_campaign_rejects_incomplete_or_inconsistent_evidence(damage):
@@ -93,21 +105,22 @@ def test_native_router_observations_include_cache_hits_and_are_nonphysical(tmp_p
     assert before.read_bytes()==after.read_bytes()
 
 
-def test_equal_owner_quotas_preserve_total_and_reject_previous_split(tmp_path):
+def test_shared_owner_pool_preserves_total_and_rejects_previous_split(tmp_path):
     from _metroflow_rust import NativeWholeEngine
     city,legs,corridors=small_fixture()
     legacy,calendar,payload=make_native(city,legs,corridors)
     total=256*1024**2
     native=NativeWholeEngine(calendar,payload,total,storage_policy='bounded_bytes_v1')
     config=native.storage_config()
-    available=total-config['conservative_static_accounting_bytes']
+    available=total-config['runtime_fixed_reserve_bytes']
     road=config['road_dynamic_allowance_bytes']
     journey=config['journey_dynamic_allowance_bytes']
-    assert road+journey==available and road==available//2 and journey-road in (0,1)
+    assert road==journey==available==config['dynamic_shared_pool_bytes']
     assert config['total_accounting_budget_bytes']==total
-    assert native.identity==legacy.identity+f':bounded_bytes_v1:{road}:{journey}'
-    old_road=available//4
-    old_identity=legacy.identity+f':bounded_bytes_v1:{old_road}:{available-old_road}'
+    assert native.identity==legacy.identity+':bounded_bytes_v1:retained_capacity_v2'
+    old_available=total-config['conservative_static_accounting_bytes']
+    old_road=old_available//2
+    old_identity=legacy.identity+f':bounded_bytes_v1:{old_road}:{old_available-old_road}'
     assert native.identity!=old_identity
     # Restore the previous quota binding in a small checkpoint header. The
     # physical payload cannot authorize bypassing a changed resource policy.
@@ -120,6 +133,36 @@ def test_equal_owner_quotas_preserve_total_and_reject_previous_split(tmp_path):
     with pytest.raises(ValueError,match='binding'):
         native.load(str(checkpoint))
     assert native.snapshot().time_s==0
+
+
+def test_shared_budget_failure_resets_phase_quotas_for_load_and_replay(tmp_path):
+    from dataclasses import replace
+    from _metroflow_rust import NativeWholeEngine
+    from metroflow.v1.journey import DelayLaw
+    from metroflow.v1.schedules import DepartureProfile,DepartureWindow
+    city,legs,_=small_fixture()
+    internal=replace(legs[0],destination=legs[0].origin,
+        intrazonal=DelayLaw(tuple((10000.+i,1/2000) for i in range(2000))),
+        departures=DepartureProfile((DepartureWindow(0,200,1.),)))
+    _,calendar,payload=make_native(city,(internal,))
+    total=70*1024**2
+    native=NativeWholeEngine(calendar,payload,total,storage_policy='bounded_bytes_v1')
+    initial=tmp_path/'initial.bin'
+    native.save(str(initial),native.initial())
+    with pytest.raises(MemoryError,match='budget'):
+        native.advance(native.initial(),200)
+    valid=native.snapshot()
+    assert 0<valid.time_s<200
+    last=tmp_path/'last.bin'
+    native.save(str(last),valid)
+    expected=last.read_bytes()
+    fresh=NativeWholeEngine(calendar,payload,total,storage_policy='bounded_bytes_v1')
+    restored=fresh.load(str(last))
+    assert fresh.report(restored)==native.report(valid)
+    # A previous narrow phase quota must not leak into a new branch/decode.
+    replay=native.advance(native.load(str(initial)),valid.time_s)
+    native.save(str(last),replay)
+    assert last.read_bytes()==expected
 
 
 def test_binary_provenance_ignores_wrapper_and_rejects_ambiguity(tmp_path,monkeypatch):

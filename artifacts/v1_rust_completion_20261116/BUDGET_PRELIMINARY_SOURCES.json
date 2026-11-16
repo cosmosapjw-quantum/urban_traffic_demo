@@ -1,0 +1,9 @@
+{
+  "crates/metroflow-rust/src/v1_engine.rs": "5ce82a7e7d17415b8d41b26269d641813386600a2cbfe6b8818212444fd55c55",
+  "crates/metroflow-rust/src/v1_journey.rs": "5bfc16a2e414c0536bb1c8dd7321b1af5b59c990148d2c23d98940d97c46e5e5",
+  "crates/metroflow-rust/src/v1_road.rs": "54c728f5f2f8110fc9d11fca81d52c52cb9dec287060774f41e0bc2b998e6d56",
+  "docs/v1/MASTER_PLAN_KO.md": "636ac18b55ee48d14975b41474ef6d9dba85df300dad36ec71ff3f802acbd536",
+  "docs/v1/PLAN.json": "df3561300ddd7251154061885e6d874f2c0572dd4938f0d249b62890f35bbb4d",
+  "tests/v1/test_native_campaign_contract.py": "9dee58f0dd91e74cd8ee8794e3268556ed9533b5c1f1c8b56e61213312f9ce43",
+  "tests/v1/test_native_retained_accounting.py": "c5bc05848b8d6409ce1a87ce4881af49f90ddf27505c9f580a705c1269e74a41"
+}

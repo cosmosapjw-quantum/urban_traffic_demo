@@ -53,6 +53,73 @@ pub(crate) type Journey = (
     Vec<ReceiptHistory>,
     Vec<f64>,
 );
+
+// Structural retained-allocation estimates, separate from constructor peak
+// admission. Inline core/Vec headers belong to the enclosing owner; these
+// helpers charge heap capacity and conservative allocator/control padding.
+const RETAINED_ALLOCATION_PADDING: usize = 128;
+fn capacity_storage_bytes<T>(capacity: usize) -> usize {
+    if capacity == 0 {
+        0
+    } else {
+        capacity
+            .saturating_mul(std::mem::size_of::<T>())
+            .saturating_add(RETAINED_ALLOCATION_PADDING)
+    }
+}
+fn vec_storage_bytes<T>(values: &Vec<T>) -> usize {
+    capacity_storage_bytes::<T>(values.capacity())
+}
+fn string_storage_bytes(value: &String) -> usize {
+    capacity_storage_bytes::<u8>(value.capacity())
+}
+fn hash_capacity_storage_bytes<K, V>(capacity: usize) -> usize {
+    if capacity == 0 {
+        0
+    } else {
+        // Public HashMap::capacity excludes control bytes and is less than
+        // its bucket count. Two buckets per usable entry bounds the current
+        // standard table layout, with fixed padding for group/control tails.
+        capacity
+            .saturating_mul(2)
+            .saturating_mul(std::mem::size_of::<(K, V)>().saturating_add(1))
+            .saturating_add(RETAINED_ALLOCATION_PADDING)
+    }
+}
+fn hash_entries_upper_bytes<K, V>(entries: usize) -> usize {
+    // A growing table can retain capacity above its live entry count. Four
+    // buckets per requested entry also covers the small-table minimum.
+    hash_capacity_storage_bytes::<K, V>(entries.saturating_mul(2))
+}
+fn shared_vec_storage_bytes<T>(values: &Arc<Vec<T>>) -> usize {
+    std::mem::size_of::<Vec<T>>()
+        .saturating_add(2 * std::mem::size_of::<usize>())
+        .saturating_add(RETAINED_ALLOCATION_PADDING)
+        .saturating_add(vec_storage_bytes(values.as_ref()))
+}
+
+/// One journey state's dense heap buffers, excluding shared stage/history
+/// payloads (charged separately by journey_storage_bytes).
+pub(crate) fn journey_dense_storage_bytes(state: &Journey) -> usize {
+    vec_storage_bytes(&state.4)
+        .saturating_add(vec_storage_bytes(&state.5))
+        .saturating_add(vec_storage_bytes(&state.6))
+        .saturating_add(vec_storage_bytes(&state.7))
+}
+
+/// One service state's dense heap buffers, excluding retained road events.
+pub(crate) fn service_dense_storage_bytes(state: &Service) -> usize {
+    vec_storage_bytes(&state.0)
+        .saturating_add(vec_storage_bytes(&state.1))
+        .saturating_add(vec_storage_bytes(&state.2))
+        .saturating_add(vec_storage_bytes(&state.3))
+        .saturating_add(vec_storage_bytes(&state.4))
+}
+
+pub(crate) fn service_event_storage_bytes(state: &ServiceCheckpoint) -> usize {
+    vec_storage_bytes(&state.1)
+}
+
 /// Debug counters are observational metadata, never serialized physical state.
 #[derive(Clone, Debug, Default)]
 pub(crate) struct JourneyDebug {
@@ -136,6 +203,29 @@ pub(crate) fn journey_storage_bytes(s: &Journey) -> usize {
         .saturating_add(s.3.storage_bytes())
         .saturating_add(s.6.iter().map(ReceiptHistory::storage_bytes).sum::<usize>())
 }
+pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    let (final_bytes, extra) =
+        s.6.iter()
+            .fold((0usize, 0usize), |(total, extra), history| {
+                let final_bytes = history.decoded_final_storage_upper_bytes();
+                (
+                    total.saturating_add(final_bytes),
+                    extra.max(
+                        history
+                            .decoded_storage_upper_bytes()
+                            .saturating_sub(final_bytes),
+                    ),
+                )
+            });
+    stage_decoded_storage_upper_bytes(s)
+        .saturating_add(final_bytes)
+        .saturating_add(extra)
+}
+fn stage_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    s.1.decoded_storage_upper_bytes()
+        .saturating_add(s.2.decoded_storage_upper_bytes())
+        .saturating_add(s.3.decoded_storage_upper_bytes())
+}
 const WORKING_COPIES: usize = 3;
 const STORAGE_SCRATCH_RESERVE: usize = 64 * 1024;
 fn stage_storage_bytes(s: &Journey) -> usize {
@@ -162,6 +252,14 @@ fn check_storage_limit(
         ));
     }
     Ok(())
+}
+
+fn phase_storage_allowance(total: usize, other_live: usize, phase: &str) -> PyResult<usize> {
+    total.checked_sub(other_live).filter(|bytes| *bytes > 0).ok_or_else(|| {
+        PyMemoryError::new_err(format!(
+            "native coupled storage budget exceeded before {phase}: other_live_bytes={other_live}, budget_bytes={total}"
+        ))
+    })
 }
 
 type JourneyRow = (
@@ -243,6 +341,64 @@ pub struct NativeServiceCore {
     pending: Option<(f64, Service)>,
 }
 impl NativeServiceCore {
+    /// Owned immutable heap allocations only. Dense states, event buffers and
+    /// the inline NativeServiceCore object are accounted by their own owners.
+    pub(crate) fn static_storage_bytes(&self) -> usize {
+        let mut bytes = vec_storage_bytes(&self.buses)
+            .saturating_add(vec_storage_bytes(&self.people))
+            .saturating_add(vec_storage_bytes(&self.freight))
+            .saturating_add(vec_storage_bytes(&self.cars))
+            .saturating_add(vec_storage_bytes(&self.people_by_run));
+        for bus in &self.buses {
+            bytes = bytes
+                .saturating_add(string_storage_bytes(&bus.0))
+                .saturating_add(vec_storage_bytes(&bus.1));
+        }
+        for source in self.freight.iter().chain(&self.cars) {
+            bytes = bytes.saturating_add(string_storage_bytes(&source.0));
+        }
+        for indices in &self.people_by_run {
+            bytes = bytes.saturating_add(vec_storage_bytes(indices));
+        }
+        bytes
+    }
+    pub(crate) fn event_storage_bytes(&self) -> usize {
+        vec_storage_bytes(&self.last_events)
+    }
+    /// Fixed-count source preparation workspace: one offer per bus/source,
+    /// generated labels, geometric offer-buffer growth/physical conversion,
+    /// eligibility flags and one run's boarding keys/fsum workspace.
+    pub(crate) fn prepare_scratch_bytes(&self) -> usize {
+        let count = self
+            .buses
+            .len()
+            .saturating_add(self.freight.len())
+            .saturating_add(self.cars.len());
+        let buffer_per_offer =
+            4 * std::mem::size_of::<Offer>() + std::mem::size_of::<crate::v1_road::Offer>();
+        let mut bytes = count
+            .saturating_mul(buffer_per_offer)
+            .saturating_add(self.people.len())
+            .saturating_add(4 * RETAINED_ALLOCATION_PADDING);
+        for id in self
+            .buses
+            .iter()
+            .map(|row| &row.0)
+            .chain(self.freight.iter().map(|row| &row.0))
+            .chain(self.cars.iter().map(|row| &row.0))
+        {
+            // Prefix/separators and at most 20 decimal digits for a stop
+            // index; formatting growth can reserve twice the final length.
+            bytes = bytes
+                .saturating_add(id.len().saturating_add(28).saturating_mul(2))
+                .saturating_add(RETAINED_ALLOCATION_PADDING);
+        }
+        let boarding = self.people_by_run.iter().map(Vec::len).max().unwrap_or(0);
+        bytes.saturating_add(
+            boarding
+                .saturating_mul(2 * (std::mem::size_of::<usize>() + std::mem::size_of::<f64>())),
+        )
+    }
     pub(crate) fn state(&self) -> &Service {
         &self.state
     }
@@ -488,6 +644,14 @@ impl NativeServiceCore {
     fn snapshot(&self) -> Service {
         self.state.clone()
     }
+    /// Inspection only: immutable static heap, one dense state, event buffer.
+    fn storage_accounting(&self) -> (usize, usize, usize) {
+        (
+            self.static_storage_bytes(),
+            service_dense_storage_bytes(&self.state),
+            self.event_storage_bytes(),
+        )
+    }
     fn road_events(&self) -> Vec<EventRow> {
         self.last_events.clone()
     }
@@ -662,17 +826,179 @@ pub struct NativeJourneyCore {
     budget: usize,
     state: Journey,
     pending: Option<Journey>,
+    defer_finish_commit: bool,
+    deferred_previous: Option<(Journey, usize, usize, usize, usize)>,
     tick_times_s: Vec<f64>,
     peak_records: usize,
     history_rows: usize,
     history_bytes: usize,
+    history_decoded_final: usize,
+    history_decode_extra_max: usize,
     storage_budget: Option<usize>,
     retained_input_bytes: usize,
     max_tag_bytes: usize,
+    max_profile_rows: usize,
     last_attempt: Option<JourneyAttempt>,
     phase_metrics: JourneyPhaseMetrics,
 }
 impl NativeJourneyCore {
+    /// Owned immutable heap allocations only. Arc<Vec> allocations are counted
+    /// once by object identity across legs and bus/freight metadata, including
+    /// empty Arc allocations. Engine profile pointer registries count only
+    /// their own buffers, since this owner charges the shared profile payloads.
+    pub(crate) fn static_storage_bytes(&self) -> usize {
+        let mut bytes = vec_storage_bytes(&self.legs)
+            .saturating_add(vec_storage_bytes(&self.bus))
+            .saturating_add(vec_storage_bytes(&self.freight))
+            .saturating_add(hash_capacity_storage_bytes::<String, usize>(
+                self.route_indices.capacity(),
+            ));
+        let mut profiles = HashSet::new();
+        let mut laws = HashSet::new();
+        for leg in &self.legs {
+            bytes = bytes.saturating_add(string_storage_bytes(&leg.0));
+            if profiles.insert(Arc::as_ptr(&leg.4) as usize) {
+                bytes = bytes.saturating_add(shared_vec_storage_bytes(&leg.4));
+            }
+            for law in [&leg.6, &leg.7] {
+                if laws.insert(Arc::as_ptr(law) as usize) {
+                    bytes = bytes.saturating_add(shared_vec_storage_bytes(law));
+                }
+            }
+        }
+        for law in self
+            .bus
+            .iter()
+            .map(|row| &row.5)
+            .chain(self.freight.iter().map(|row| &row.3))
+        {
+            if laws.insert(Arc::as_ptr(law) as usize) {
+                bytes = bytes.saturating_add(shared_vec_storage_bytes(law));
+            }
+        }
+        for tag in self.route_indices.keys() {
+            bytes = bytes.saturating_add(string_storage_bytes(tag));
+        }
+        bytes
+    }
+
+    /// Parallel proposal/validation workers may each clone and sort one full
+    /// departure profile. Scalar and non-overlapping expansion scratch has a
+    /// separate reserve; the caller multiplies this by the actual worker count.
+    pub(crate) fn per_worker_scratch_bytes(&self) -> usize {
+        let profile_rows = self.max_profile_rows;
+        (64usize * 1024)
+            .saturating_add(profile_rows.saturating_mul(2 * std::mem::size_of::<(f64, f64, f64)>()))
+            .saturating_add(4 * RETAINED_ALLOCATION_PADDING)
+    }
+
+    /// Scratch bound for cross-owner service binding: egress grouping, its
+    /// per-leg Vec capacities, bus/freight maps, one profile clone/sort and one
+    /// fsum expansion. Parallel validation's per-worker control reserve and
+    /// dense snapshot copies are accounted by the enclosing engine.
+    pub(crate) fn validation_scratch_bytes(&self, state: &Journey) -> usize {
+        let rows = state.2.len();
+        let groups = rows.min(self.legs.len());
+        let egress_vectors = rows
+            .saturating_mul(2)
+            .saturating_add(groups.saturating_mul(4))
+            .saturating_mul(std::mem::size_of::<f64>())
+            .saturating_add(groups.saturating_mul(RETAINED_ALLOCATION_PADDING));
+        let profile_rows = self.max_profile_rows;
+        hash_entries_upper_bytes::<usize, Vec<f64>>(groups)
+            .saturating_add(egress_vectors)
+            .saturating_add(hash_entries_upper_bytes::<usize, [f64; 3]>(
+                self.bus.len().min(self.legs.len()),
+            ))
+            .saturating_add(hash_entries_upper_bytes::<usize, [f64; 3]>(
+                self.freight.len().min(self.legs.len()),
+            ))
+            .saturating_add(profile_rows.saturating_mul(2 * std::mem::size_of::<(f64, f64, f64)>()))
+            .saturating_add(rows.saturating_mul(2 * std::mem::size_of::<f64>()))
+            .saturating_add(4 * RETAINED_ALLOCATION_PADDING)
+    }
+
+    /// Canonical cross-owner validation envelope shared by engine admission
+    /// and the precommit check. Engine's Sum value contains one Vec<f64>.
+    pub(crate) fn whole_validation_scratch_bytes(
+        &self,
+        state: &Journey,
+        road_rows: usize,
+        route_tags: usize,
+    ) -> usize {
+        fn map_bytes<K, V>(entries: usize) -> usize {
+            if entries == 0 {
+                return 0;
+            }
+            entries
+                .saturating_mul(4)
+                .saturating_mul(std::mem::size_of::<(K, V)>().saturating_add(1))
+                .saturating_add(256)
+        }
+        let rows = state
+            .1
+            .len()
+            .saturating_add(state.2.len())
+            .saturating_add(state.3.len());
+        let keys = rows.min(self.legs.len());
+        let partials = rows
+            .saturating_mul(3)
+            .saturating_add(keys.saturating_mul(4))
+            .saturating_mul(std::mem::size_of::<f64>())
+            .saturating_add(keys.saturating_mul(128));
+        let scalar = map_bytes::<usize, f64>(keys);
+        let stage_maps = map_bytes::<usize, Vec<f64>>(keys)
+            .saturating_add(scalar)
+            .saturating_add(partials);
+        let active_keys = road_rows.min(route_tags);
+        let active_maps = scalar
+            .saturating_add(map_bytes::<usize, f64>(active_keys).saturating_mul(2))
+            .saturating_add(
+                rows.max(self.legs.len())
+                    .saturating_mul(3 * std::mem::size_of::<f64>()),
+            )
+            .saturating_add(128);
+        self.validation_scratch_bytes(state)
+            .max(stage_maps)
+            .max(active_maps)
+    }
+
+    fn begin_deferred_finish(&mut self) -> PyResult<()> {
+        if self.defer_finish_commit || self.deferred_previous.is_some() {
+            return Err(bad("native journey deferred transition already active"));
+        }
+        self.defer_finish_commit = true;
+        Ok(())
+    }
+    fn finalize_deferred_finish(&mut self) {
+        self.deferred_previous = None;
+        self.defer_finish_commit = false;
+        if let Some(attempt) = &mut self.last_attempt {
+            attempt.committed = true;
+            attempt.phase = "committed";
+        }
+    }
+    fn rollback_deferred_finish(&mut self) {
+        if let Some((
+            state,
+            history_rows,
+            history_bytes,
+            history_decoded_final,
+            history_decode_extra_max,
+        )) = self.deferred_previous.take()
+        {
+            self.state = state;
+            self.history_rows = history_rows;
+            self.history_bytes = history_bytes;
+            self.history_decoded_final = history_decoded_final;
+            self.history_decode_extra_max = history_decode_extra_max;
+        }
+        self.defer_finish_commit = false;
+        if let Some(attempt) = &mut self.last_attempt {
+            attempt.committed = false;
+        }
+    }
+
     /// Reproduce the joint oracle's cross-owner service and original-intent
     /// moment checks, including valid-looking finite checkpoint corruption.
     pub(crate) fn check_service_binding(&self, s: &Journey, service: &Service) -> PyResult<()> {
@@ -762,11 +1088,31 @@ impl NativeJourneyCore {
         self.state.clone()
     }
     pub(crate) fn rollback(&mut self, state: Journey) {
-        self.history_rows = state.6.iter().map(ReceiptHistory::len).sum();
-        self.history_bytes = state.6.iter().map(ReceiptHistory::storage_bytes).sum();
+        let (rows, bytes, decoded, extra) = state.6.iter().fold(
+            (0usize, 0usize, 0usize, 0usize),
+            |(rows, bytes, decoded, extra), history| {
+                let final_bytes = history.decoded_final_storage_upper_bytes();
+                (
+                    rows.saturating_add(history.len()),
+                    bytes.saturating_add(history.storage_bytes()),
+                    decoded.saturating_add(final_bytes),
+                    extra.max(
+                        history
+                            .decoded_storage_upper_bytes()
+                            .saturating_sub(final_bytes),
+                    ),
+                )
+            },
+        );
+        self.history_rows = rows;
+        self.history_bytes = bytes;
+        self.history_decoded_final = decoded;
+        self.history_decode_extra_max = extra;
         self.retained_input_bytes = 0;
         self.state = state;
         self.pending = None;
+        self.defer_finish_commit = false;
+        self.deferred_previous = None;
         self.last_attempt = None;
     }
     /// Opt-in whole-engine byte accounting. Legacy direct cores retain their
@@ -786,6 +1132,20 @@ impl NativeJourneyCore {
     }
     pub(crate) fn storage_budget(&self) -> Option<usize> {
         self.storage_budget
+    }
+    /// The enclosing owner has already subtracted other live allocations.
+    /// Updating this nonphysical allowance must not clone or validate state.
+    pub(crate) fn set_phase_storage_budget(&mut self, bytes: usize) -> PyResult<()> {
+        if bytes == 0 {
+            return Err(PyMemoryError::new_err(
+                "native journey storage budget is empty",
+            ));
+        }
+        self.storage_budget = Some(bytes);
+        Ok(())
+    }
+    pub(crate) fn clear_call_storage_accounting(&mut self) {
+        self.retained_input_bytes = 0;
     }
     pub(crate) fn last_attempt(&self) -> Option<&JourneyAttempt> {
         self.last_attempt.as_ref()
@@ -807,7 +1167,7 @@ impl NativeJourneyCore {
         self.rollback(state);
     }
     pub(crate) fn write_state<W: Write>(&self, w: &mut W) -> PyResult<()> {
-        if self.pending.is_some() {
+        if self.pending.is_some() || self.defer_finish_commit {
             return Err(bad("cannot checkpoint pending native journey transition"));
         }
         let s = &self.state;
@@ -985,7 +1345,9 @@ pub fn advance_native_joint(
     let road = &mut *road;
     let service = &mut *service;
     let journey = &mut *journey;
-    py.allow_threads(move || advance_owned_joint(road, service, journey, &tags, count, step_s))
+    py.allow_threads(move || {
+        advance_owned_joint(road, service, journey, &tags, count, step_s, None, 0)
+    })
 }
 
 pub(crate) fn advance_owned_joint(
@@ -995,12 +1357,31 @@ pub(crate) fn advance_owned_joint(
     tags: &[String],
     count: usize,
     step_s: f64,
+    dynamic_budget: Option<usize>,
+    call_binding_reserve: usize,
 ) -> PyResult<usize> {
     journey.phase_metrics = JourneyPhaseMetrics::default();
     // The Python input snapshot remains live throughout this call, even when
     // later ticks drain its queues. Charge that known retained owner as well.
     journey.retained_input_bytes = journey_storage_bytes(&journey.state);
     road.begin_call_storage_accounting();
+    road.configure_service_event_accounting(
+        service
+            .last_events
+            .capacity()
+            .saturating_mul(std::mem::size_of::<EventRow>()),
+        tags.iter().map(String::capacity).max().unwrap_or(0),
+    );
+    let input_road_bytes = if dynamic_budget.is_some() {
+        road.owned_storage_bytes()
+    } else {
+        0
+    };
+    let input_event_bytes = if dynamic_budget.is_some() {
+        service.event_storage_bytes()
+    } else {
+        0
+    };
     if !step_s.is_finite()
         || step_s <= 0.0
         || service.pending.is_some()
@@ -1029,8 +1410,31 @@ pub(crate) fn advance_owned_joint(
         let started = Instant::now();
         let phases_before = journey.phase_metrics.phase_sum();
         let service_before = service.state.clone();
+        let current_road_bytes = if dynamic_budget.is_some() {
+            road.owned_storage_bytes()
+        } else {
+            0
+        };
+        let current_event_bytes = if dynamic_budget.is_some() {
+            service.event_storage_bytes()
+        } else {
+            0
+        };
         let result = (|| -> PyResult<()> {
             let t = road.owned_time();
+            if let Some(total) = dynamic_budget {
+                // Before road prediction only the known input and committed
+                // road/event owners coexist with the journey candidate.
+                let other_live = input_road_bytes
+                    .max(current_road_bytes)
+                    .saturating_mul(2)
+                    .saturating_add(input_event_bytes.max(current_event_bytes).saturating_mul(2));
+                journey.set_phase_storage_budget(phase_storage_allowance(
+                    total,
+                    other_live,
+                    "journey prepare",
+                )?)?;
+            }
             let phase_started = Instant::now();
             let result = journey.prepare();
             journey.phase_metrics.prepare_s += phase_started.elapsed().as_secs_f64();
@@ -1051,9 +1455,42 @@ pub(crate) fn advance_owned_joint(
             // The road candidate is computed from the old owner without
             // installing it. It commits only after both other owners validate.
             let phase_started = Instant::now();
+            road.set_service_event_current_bytes(
+                service
+                    .last_events
+                    .capacity()
+                    .saturating_mul(std::mem::size_of::<EventRow>()),
+            );
+            if let Some(total) = dynamic_budget {
+                let current_journey =
+                    stage_storage_bytes(&journey.state).saturating_add(journey.history_bytes);
+                let pending_journey = journey.pending.as_ref().map_or(0, |state| {
+                    stage_storage_bytes(state).saturating_add(journey.history_bytes)
+                });
+                let other_live = journey
+                    .retained_input_bytes
+                    .max(current_journey)
+                    .max(pending_journey)
+                    .saturating_mul(WORKING_COPIES);
+                road.set_phase_storage_budget(phase_storage_allowance(
+                    total,
+                    other_live,
+                    "road step",
+                )?)?;
+            }
             let result = road.propose_owned_step(step_s, physical);
             journey.phase_metrics.road_step_s += phase_started.elapsed().as_secs_f64();
             let (road_candidate, events) = result?;
+            let candidate_road_bytes = if dynamic_budget.is_some() {
+                road_candidate.retained_storage_bytes()
+            } else {
+                0
+            };
+            let candidate_event_bytes = if dynamic_budget.is_some() {
+                vec_storage_bytes(&events)
+            } else {
+                0
+            };
             let mut sinks = Vec::new();
             for e in &events {
                 if e.2.is_none() {
@@ -1069,6 +1506,31 @@ pub(crate) fn advance_owned_joint(
             let result = service.finish(end, sinks.clone());
             journey.phase_metrics.service_finish_s += phase_started.elapsed().as_secs_f64();
             result?;
+            if let Some(total) = dynamic_budget {
+                // Road workspaces and the service sink-map clone have been
+                // dropped. The candidate, original events and original sinks
+                // remain live until the complete joint transition commits.
+                let sink_bytes = sinks.iter().fold(vec_storage_bytes(&sinks), |bytes, row| {
+                    bytes.saturating_add(string_storage_bytes(&row.0))
+                });
+                let other_live = input_road_bytes
+                    .max(current_road_bytes)
+                    .max(candidate_road_bytes)
+                    .saturating_mul(3)
+                    .saturating_add(
+                        input_event_bytes
+                            .max(current_event_bytes)
+                            .max(candidate_event_bytes)
+                            .saturating_mul(3),
+                    )
+                    .saturating_add(sink_bytes);
+                journey.set_phase_storage_budget(phase_storage_allowance(
+                    total,
+                    other_live,
+                    "journey finish",
+                )?)?;
+                journey.begin_deferred_finish()?;
+            }
             let phase_started = Instant::now();
             let result = journey.finish(
                 end,
@@ -1082,16 +1544,72 @@ pub(crate) fn advance_owned_joint(
             );
             journey.phase_metrics.journey_finish_s += phase_started.elapsed().as_secs_f64();
             result?;
+            if let Some(total) = dynamic_budget {
+                journey.phase("whole_storage_validation");
+                let road_counts = road_candidate.debug_stats();
+                let road_rows = road_counts
+                    .cell_parts
+                    .saturating_add(road_counts.pending_parts);
+                let scratch =
+                    journey.whole_validation_scratch_bytes(&journey.state, road_rows, tags.len());
+                let old_journey_bytes = journey
+                    .deferred_previous
+                    .as_ref()
+                    .map_or(0, |(state, _, history, _, _)| {
+                        stage_storage_bytes(state).saturating_add(*history)
+                    });
+                let new_journey_bytes =
+                    stage_storage_bytes(&journey.state).saturating_add(journey.history_bytes);
+                let decoded_journey = stage_decoded_storage_upper_bytes(&journey.state)
+                    .saturating_add(journey.history_decoded_final)
+                    .saturating_add(journey.history_decode_extra_max);
+                let (decoded_road, road_decode_scratch) =
+                    road_candidate.checkpoint_decode_envelope();
+                let required = input_road_bytes
+                    .max(current_road_bytes)
+                    .max(candidate_road_bytes)
+                    .max(decoded_road)
+                    .saturating_mul(3)
+                    .saturating_add(
+                        journey
+                            .retained_input_bytes
+                            .max(old_journey_bytes)
+                            .max(new_journey_bytes)
+                            .max(decoded_journey)
+                            .saturating_mul(3),
+                    )
+                    .saturating_add(
+                        input_event_bytes
+                            .max(current_event_bytes)
+                            .max(candidate_event_bytes)
+                            .saturating_mul(3),
+                    )
+                    .saturating_add(
+                        scratch
+                            .saturating_sub(call_binding_reserve)
+                            .max(road_decode_scratch)
+                            .max(STORAGE_SCRATCH_RESERVE),
+                    );
+                if required > total {
+                    return Err(PyMemoryError::new_err(format!(
+                        "native whole checkpointability storage budget exceeded: required_bytes={required}, budget_bytes={total}"
+                    )));
+                }
+            }
             road.rollback(road_candidate);
             service.last_events = events;
+            if dynamic_budget.is_some() {
+                journey.finalize_deferred_finish();
+            }
             Ok(())
         })();
         if let Err(error) = result {
             service.state = service_before;
             service.pending = None;
-            // Journey commits only in finish, the final fallible operation.
-            // Thus an error leaves its original committed state in place;
-            // aborting the candidate needs no extra whole-state clone.
+            // A whole-owner finish keeps the previous journey by move until
+            // its checkpointability margin passes. Roll back that stash on
+            // failure; no additional dense snapshot is cloned.
+            journey.rollback_deferred_finish();
             journey.pending = None;
             journey.phase_metrics.failed_ticks += 1;
             let phases = journey.phase_metrics.phase_sum() - phases_before;
@@ -1168,6 +1686,19 @@ impl NativeJourneyCore {
             s.7.clone(),
         )
     }
+    /// Inspection only: immutable static heap, one dense state, stage/history.
+    fn storage_accounting(&self) -> (usize, usize, usize) {
+        (
+            self.static_storage_bytes(),
+            journey_dense_storage_bytes(&self.state),
+            journey_storage_bytes(&self.state),
+        )
+    }
+    fn decoded_storage_upper_bytes(&self) -> usize {
+        stage_decoded_storage_upper_bytes(&self.state)
+            .saturating_add(self.history_decoded_final)
+            .saturating_add(self.history_decode_extra_max)
+    }
     fn advance_metrics(&self) -> (Vec<f64>, usize) {
         (self.tick_times_s.clone(), self.peak_records)
     }
@@ -1201,6 +1732,7 @@ impl NativeJourneyCore {
         Ok(())
     }
     fn abort(&mut self) {
+        self.rollback_deferred_finish();
         self.pending = None;
         self.phase("aborted");
     }
@@ -1278,8 +1810,12 @@ impl NativeJourneyCore {
             })
             .sum();
         let offer_count = s.1.due_count(t + 1e-10).saturating_add(due_new);
-        let scratch =
-            proposal_scratch.saturating_add(offer_count.saturating_mul(128 + self.max_tag_bytes));
+        let offer_bytes = 4 * std::mem::size_of::<Offer>()
+            + std::mem::size_of::<crate::v1_road::Offer>()
+            + RETAINED_ALLOCATION_PADDING;
+        let scratch = proposal_scratch.saturating_add(
+            offer_count.saturating_mul(offer_bytes.saturating_add(self.max_tag_bytes)),
+        );
         check_storage_limit(
             self.storage_budget,
             self.retained_input_bytes,
@@ -1434,6 +1970,8 @@ impl NativeJourneyCore {
         let mut retired = [0usize; 2];
         let before_retirement_bytes = stage_storage_bytes(&s);
         let mut history_bytes = self.history_bytes;
+        let mut history_decoded_final = self.history_decoded_final;
+        let mut history_decode_extra_max = self.history_decode_extra_max;
         for (kind, stage) in [&mut s.2, &mut s.3].into_iter().enumerate() {
             let mut receipt_error = None;
             retired[kind] = stage.retire_due(end + 1e-10, |a| {
@@ -1442,6 +1980,7 @@ impl NativeJourneyCore {
                 }
                 let history = &mut s.6[a.0];
                 let previous_bytes = history.storage_bytes();
+                let previous_decoded = history.decoded_final_storage_upper_bytes();
                 let projected = before_retirement_bytes
                     .saturating_add(history_bytes - previous_bytes)
                     .saturating_add(history.append_upper_bytes());
@@ -1460,6 +1999,16 @@ impl NativeJourneyCore {
                     return;
                 }
                 history_bytes = history_bytes - previous_bytes + history.storage_bytes();
+                history_decoded_final = history_decoded_final - previous_decoded
+                    + history.decoded_final_storage_upper_bytes();
+                // Only one history is decoded at a time. Keep a conservative
+                // ever-max transient delta within this call; restore/install
+                // recomputes the current maximum in the existing history pass.
+                history_decode_extra_max = history_decode_extra_max.max(
+                    history
+                        .decoded_storage_upper_bytes()
+                        .saturating_sub(history.decoded_final_storage_upper_bytes()),
+                );
             });
             if let Some(error) = receipt_error {
                 return Err(error);
@@ -1479,12 +2028,29 @@ impl NativeJourneyCore {
         for stage in [&mut s.1, &mut s.2, &mut s.3] {
             release_unused_stage_capacity(stage);
         }
-        self.state = s;
+        if self.defer_finish_commit {
+            let previous = std::mem::replace(&mut self.state, s);
+            self.deferred_previous = Some((
+                previous,
+                self.history_rows,
+                self.history_bytes,
+                self.history_decoded_final,
+                self.history_decode_extra_max,
+            ));
+        } else {
+            self.state = s;
+        }
         self.history_rows += added;
         self.history_bytes = history_bytes;
+        self.history_decoded_final = history_decoded_final;
+        self.history_decode_extra_max = history_decode_extra_max;
         if let Some(attempt) = &mut self.last_attempt {
-            attempt.committed = true;
-            attempt.phase = "committed";
+            attempt.committed = !self.defer_finish_commit;
+            attempt.phase = if self.defer_finish_commit {
+                "whole_storage_validation"
+            } else {
+                "committed"
+            };
         }
         Ok(())
     }
@@ -1540,6 +2106,7 @@ impl NativeJourneyCore {
         }
         let n = legs.len();
         let max_tag_bytes = legs.iter().map(|l| l.0.len()).max().unwrap_or(0);
+        let max_profile_rows = legs.iter().map(|leg| leg.4.len()).max().unwrap_or(0);
         let route_indices = legs
             .iter()
             .enumerate()
@@ -1563,13 +2130,18 @@ impl NativeJourneyCore {
                 vec![0.0; n],
             ),
             pending: None,
+            defer_finish_commit: false,
+            deferred_previous: None,
             tick_times_s: Vec::new(),
             peak_records: 0,
             history_rows: 0,
             history_bytes: 0,
+            history_decoded_final: 0,
+            history_decode_extra_max: 0,
             storage_budget: None,
             retained_input_bytes: 0,
             max_tag_bytes,
+            max_profile_rows,
             last_attempt: None,
             phase_metrics: JourneyPhaseMetrics::default(),
         })

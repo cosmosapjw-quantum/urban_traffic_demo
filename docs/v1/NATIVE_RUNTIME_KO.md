@@ -74,12 +74,39 @@ checkpoint 재개와 짧은 refined-dt 대조를 수행하고 결과를 영수�
 정책 identity가 다르면 checkpoint를 무검증 재해석하지 않는다. 세부 정책과 예산은
 실제 결과의 `native_storage` 및 source-bound 영수증에서 확인한다.
 
-현재 후보는 CLI의 6GiB accounting 예산에서 기존 보수적 construction/snapshot
-추정량을 뺀 나머지를 road와 journey에 각각 1/2씩 배분한다. 홀수 나머지 1바이트는
-journey에 배정하며 owner 사이에 사용하지 않은 quota를 자동 대여하지 않는다.
-이것은 process의 8GiB 주소공간 제한이나 측정 peak RSS와 별개의 보호 장치다.
-이전 1/4:3/4 배분 파일과 새 1/2:1/2 배분은 checkpoint identity가 다르므로,
-이전 파일의 바인딩을 바꾸어 재개하지 않고 새 정책으로 처음부터 실행한다.
+CLI의 정책 이름은 `bounded_bytes_v1`을 유지하지만 현재 accounting revision은
+`native_storage.resource_binding = retained_capacity_v2`로 구분한다. 생성 단계의
+기존 보수적 preflight와 물리 보고서의 `construction.estimated_bytes`는 유지한다.
+이 생성 추정량에는 생성 뒤 해제되는 임시 자료와 snapshot allowance가 포함되므로,
+실행 중 계속 보유하는 메모리로 간주하여 다시 차감하지 않는다.
+
+실행 예산은 native가 소유하는 Vec/String capacity, 공유 Arc allocation의 identity,
+알려진 동시 복사본과 작업공간으로 계상한다. 고정 reserve에는 initial road,
+journey dense arrays 4개분, service dense arrays 6개분, 호출용 tag map,
+worker/profile·service 준비 scratch와 제한된 관측 버퍼가 포함된다. 전체 CLI
+accounting 예산 6GiB에서 이 reserve를 뺀 값이 하나의 shared dynamic pool이다.
+
+road와 journey에 공개되는 `*_dynamic_allowance_bytes`는 이 pool의 **서로 더할 수
+없는 상한**이다. 두 값을 합하여 사용 가능한 메모리로 읽지 않는다. prepare,
+road proposal, journey finish마다 다른 owner의 알려진 input/current/candidate와
+service event·sink 버퍼가 함께 차지하는 비용을 차감한 뒤 해당 단계의 할당을
+허용한다. 고정 1/4:3/4 또는 1/2:1/2 분배를 사용하지 않는다.
+
+snapshot capture, 전체 장부 검증, road→service→journey 순서의 checkpoint decode도
+각 단계에서 이미 살아 있는 owner와 검증 작업공간을 포함하여 할당 전에 검사한다.
+단계별 임시 상한은 공개 호출·load/restore 경계에서 정리한다. 검증 계약에는
+commit 후보의 장부 검사와 같은 budget에서 다시 decode할 때 필요한 capacity
+여유까지 포함한다. 예산 초과 뒤 반환한 마지막 유효 상태는 fresh runtime의
+load/replay로 확인해야 한다. 이 checkpointability guard의 구현·검토 상태는 아래
+accounting 검토 기록과 해당 후보의 실행 영수증을 함께 확인한다.
+
+이 수치는 native 구조와 명시적 보수 allowance의 계상값이다. Python frontend,
+opaque Rayon/allocator 내부 비용, 임의로 추가 보관한 snapshot까지 포함하는 OS RSS
+상한 정리가 아니다. 별도로 적용하는 8GiB 프로세스 주소공간 제한과 측정 peak RSS
+수용조건은 유지한다. resource identity는 `retained_capacity_v2`와 전체 예산에
+바인딩하며 worker 수나 단계별 임시 quota에는 바인딩하지 않는다. 이전 고정분배
+checkpoint는 새 바인딩과 다르므로 바인딩을 변경하여 재사용하지 않고 새 후보로
+처음부터 실행한다.
 
 과학 계산 thread 수는 명시적으로 기록한다. Rayon worker 수를 늘려도 모든 경로가
 빨라지는 것은 아니므로 기본은 1이며, FIFO·합산·receipt 순서와 재개 결과를 유지한다.
@@ -119,6 +146,9 @@ near-one fraction snapping과 threshold 민감성은 별도 검증 대상이다.
 수치 근거와 한계는 [EVENT_RESOLUTION_ANALYSIS.md](../../artifacts/v1_rust_completion_20261116/EVENT_RESOLUTION_ANALYSIS.md),
 저장 표현의 계약은 [IMPLEMENTATION_CONTRACT.md](../../artifacts/v1_rust_completion_20261116/IMPLEMENTATION_CONTRACT.md),
 자원 정책의 권위 추적은 [RESOURCE_POLICY_REVIEW.md](../../artifacts/v1_rust_completion_20261116/RESOURCE_POLICY_REVIEW.md)를 참조한다.
+Retained accounting의 구체 포함 범위는 [ROAD_STATIC_ACCOUNTING.md](../../artifacts/v1_rust_completion_20261116/ROAD_STATIC_ACCOUNTING.md)와
+[JOURNEY_STATIC_ACCOUNTING.md](../../artifacts/v1_rust_completion_20261116/JOURNEY_STATIC_ACCOUNTING.md),
+동시 수명·decode·재로드 검증의 현재 상태는 [RUNTIME_BUDGET_REVIEW.md](../../artifacts/v1_rust_completion_20261116/RUNTIME_BUDGET_REVIEW.md)에 기록한다.
 
 ## 실제 진단을 읽는 위치
 
@@ -130,12 +160,28 @@ near-one fraction snapping과 threshold 민감성은 별도 검증 대상이다.
 | `*.progress.json`: `status`, `simulated_s`, `last_valid_checkpoint` | 현재 관측한 진행과 저장된 마지막 유효 상태 |
 | 개별 결과: `candidate.source_sha256`, `candidate.git_commit`, `candidate.source_dirty` | 실제 실행 후보 소스와 기준 commit의 관계 |
 | 개별 결과: `native_binary.sha256`, `native_binary.path` | 실제 로드한 extension 파일의 fingerprint와 위치 |
-| 개별 결과: `native_storage` | 총 accounting, 보수적 static 추정량과 owner별 quota |
+| 개별 결과: `native_storage.resource_binding` | 실제 accounting revision; 현재 후보는 `retained_capacity_v2` |
+| `native_storage.conservative_static_accounting_bytes` | 호환 필드에 남긴 기존 생성 preflight 추정량; runtime retained bytes가 아님 |
+| `native_storage.retained_static_payload_bytes`, `runtime_fixed_reserve_bytes` | 계속 보유하는 native 구조의 계상량과 동시 dense 복사·호출 scratch 등을 포함한 고정 reserve |
+| `native_storage.dynamic_shared_pool_bytes`, `road_dynamic_allowance_bytes`, `journey_dynamic_allowance_bytes` | 하나의 dynamic pool과 그 비가산 상한; 두 owner 상한을 더하지 않음 |
+| `native_storage.footprint_scope`, `allocation_rationale` | 포함·제외한 allocation과 단계별 admission의 적용 범위 |
 | 개별 결과: `native_route_latency` / `route_latency` | Rust 전체 달력 OD 조회 / Python frontend 고정 운행 조회의 별도 측정 |
 | 실패 결과: `failure_diagnostics.journey` / `.road` | 펼친 행 수, stage block, 저장량 추정 등 마지막 상태의 진단 |
 | 실패 결과: `last_native_metrics.phase_metrics.road_event_resolution` | \(E\), \(R\), sub-ULP 사건 수와 진단의 적용 범위 |
-| 실패 결과: `resource_limit_kind`, `reason`, `last_valid` | owner quota, logical guard, 측정 RSS 등 실패 원인과 실제 진행 시각 |
+| 실패 결과: `resource_limit_kind`, `reason`, `last_valid` | 생성·shared/phase·checkpoint 작업 예산, logical guard, 측정 RSS 등 원인과 실제 진행 시각 |
 | `CAMPAIGN.json` | 반복·재개·refinement의 실행 여부와 별도 심사 요구 |
+
+`retained_capacity_v2` 결과의 자원 분류는 다음과 같이 읽는다. 이전 고정분배
+영수증의 `owner_quota_guard`는 그 당시 정책의 역사적 분류로 보존한다.
+
+| `resource_limit_kind` | 검사 범위 |
+|---|---|
+| `shared_accounting_guard` | 전역/shared pool의 사용 가능한 계상 예산 |
+| `phase_working_budget_guard` | road·journey·service 단계의 공존 상태와 작업공간 |
+| `checkpoint_working_budget_guard` | capture·전체 검증·commit 후보의 재로드 작업공간 |
+| `static_accounting_guard` | 기존 constructor preflight |
+| `allocation_or_other_budget` | 실제 allocation 실패 또는 위 분류에 속하지 않는 예산 오류 |
+| `measured_peak_rss`, `wall_deadline` | 실제 측정 RSS 또는 벽시계 수용 한도 |
 
 직접 Python frontend를 사용하는 경우에는 `driver.runtime.storage_config()`,
 `driver.runtime.event_resolution_diagnostics()`, `driver.debug_state(state)`로 같은
@@ -151,9 +197,29 @@ near-one fraction snapping과 threshold 민감성은 별도 검증 대상이다.
 25,490→25,520초까지 진행한 뒤 road의 entry-interval split owner quota로 중단됐다.
 이는 24시간 정상 종료나 측정 RSS 한도 도달을 뜻하지 않는다.
 
-공통 interval 저장과 새 1/2:1/2 quota 후보는 그 이후의 변경이다. 앞선 213개 테스트와
-재개 결과를 새 후보의 최종 build·full-day 증거로 재사용하지 않는다. 새 결과는 그
-후보의 소스·binary·정책 identity에 연결된 실행 영수증으로 판정한다.
+이후 공통 interval 저장과 고정 1/2:1/2 quota 후보 `27e426f`는
+[TESTS_FINAL.log](../../artifacts/v1_rust_completion_20261116/TESTS_FINAL.log)의 236개
+scoped 검사를 통과했다. 해당 소스·binary는
+[SOURCE_MANIFEST_FINAL.json](../../artifacts/v1_rust_completion_20261116/SOURCE_MANIFEST_FINAL.json)에
+고정돼 있다. 이 후보의 실제 세 도시 첫 실행 결과는 다음과 같으며,
+[CAMPAIGN.json](../../artifacts/v1_rust_completion_20261116/final_campaign/CAMPAIGN.json)에
+후속 반복·refinement 미실행과 함께 보존한다.
+
+| 입력 | 마지막 유효 모의 시각 (s) | 벽시계 (s) | peak RSS (GiB) | 분류 |
+|---|---:|---:|---:|---|
+| River weekday seed17 | 25,210 | 573.184 | 2.023 | 고정 journey owner quota |
+| Coastal weekend seed41 | 32,650 | 279.530 | 2.256 | 고정 road owner quota |
+| Valley weekday seed7 | 25,600 | 131.853 | 1.924 | 고정 road owner quota |
+
+세 결과는 모두 `BLOCKED_RESOURCE`다. 측정 RSS의 8GiB 초과나 물리적 교통 불능으로
+분류하지 않는다. 생성용 임시 자료의 수명과 unused owner quota를 조사한 근거이며,
+24시간 정상 종료 영수증은 아니다.
+
+`retained_capacity_v2`는 그 다음 accounting 후보다. 앞선 213·236개 검사와
+도시 실행을 새 후보의 최종 검증으로 재사용하지 않는다. 새 후보의 scoped 검사,
+실패 후 fresh-load/replay와 전체 도시 실행은 같은 소스·binary·resource identity에
+연결된 별도 영수증으로 판정한다. 문서에 새로운 예산식이 있다는 이유로 V03이나
+전체 24시간 수용을 완료 처리하지 않는다.
 
 ## 결과 해석과 남은 배포 범위
 

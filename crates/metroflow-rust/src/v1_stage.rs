@@ -91,6 +91,39 @@ impl StageQueue {
                 0
             }
     }
+    /// Fresh row-wise checkpoint decoding can have different registry/tail
+    /// capacities than a filtered queue. Include the largest append preflight,
+    /// not merely its final allocation, without scanning logical rows.
+    pub(crate) fn decoded_storage_upper_bytes(&self) -> usize {
+        if self.len == 0 {
+            return 0;
+        }
+        let blocks = self.len.div_ceil(BLOCK_ROWS);
+        let tail = self.len % BLOCK_ROWS;
+        let full = self.len / BLOCK_ROWS;
+        let row_capacity = full
+            .saturating_mul(BLOCK_ROWS)
+            .saturating_add(if tail == 0 {
+                0
+            } else {
+                tail.max(4).next_power_of_two()
+            });
+        let header =
+            std::mem::size_of::<Block>() + 2 * std::mem::size_of::<usize>() + ALLOCATION_PADDING;
+        let full_block = header + BLOCK_ROWS * std::mem::size_of::<Access>();
+        blocks
+            .saturating_mul(header)
+            .saturating_add(row_capacity.saturating_mul(std::mem::size_of::<Access>()))
+            .saturating_add(2 * full_block)
+            .saturating_add(
+                blocks
+                    .saturating_add(2)
+                    .saturating_mul(2)
+                    .max(4)
+                    .saturating_mul(std::mem::size_of::<Arc<Block>>()),
+            )
+            .saturating_add(ALLOCATION_PADDING)
+    }
     /// Upper bound after appending, including a possible full tail copy and
     /// geometric pointer-registry growth. Caller charges live snapshot copies.
     pub(crate) fn append_upper_bytes(&self, additional: usize) -> usize {
@@ -322,6 +355,9 @@ impl NativeStageQueue {
     }
     fn append_upper_bytes(&self, additional: usize) -> usize {
         self.queue.append_upper_bytes(additional)
+    }
+    fn decoded_storage_upper_bytes(&self) -> usize {
+        self.queue.decoded_storage_upper_bytes()
     }
     fn storage_shape(&self) -> (usize, usize, usize, usize) {
         (

@@ -303,6 +303,50 @@ struct RoadWorkBudget {
     events: usize,
     incoming: usize,
     interval_rows: usize,
+    service_events: Option<ServiceEventAccounting>,
+}
+#[derive(Clone, Copy)]
+struct ServiceEventAccounting {
+    input_bytes: usize,
+    current_bytes: usize,
+    max_tag_bytes: usize,
+}
+impl ServiceEventAccounting {
+    fn working_bytes(self, generated_rows: usize) -> usize {
+        // Vec growth in these push-built event/sink buffers has a minimum of
+        // four rows. Retained capacities are observed directly; the proposed
+        // buffer gets the conservative two-times-row growth allowance.
+        let proposed_capacity = if generated_rows == 0 {
+            0
+        } else {
+            generated_rows.saturating_mul(2).max(4)
+        };
+        let event_bytes = self
+            .input_bytes
+            .max(self.current_bytes)
+            .max(proposed_capacity.saturating_mul(std::mem::size_of::<EventRow>()))
+            .saturating_mul(3)
+            .saturating_add(3 * 32);
+        let sink_rows = proposed_capacity
+            .saturating_add(generated_rows)
+            .saturating_mul(std::mem::size_of::<(String, f64, f64)>());
+        let sink_strings = generated_rows
+            .saturating_mul(2)
+            .saturating_mul(self.max_tag_bytes.saturating_add(32));
+        // service.finish's HashMap<&str, Vec<f64>> can have one key per sink,
+        // including minimum Vec capacities. This allowance also covers fsum
+        // partials and a temporary formatted service tag. It is structural
+        // accounting rather than an allocator/RSS theorem.
+        let sink_map = generated_rows
+            .saturating_mul(256)
+            .saturating_add(64)
+            .saturating_add(self.max_tag_bytes)
+            .saturating_add(32);
+        event_bytes
+            .saturating_add(sink_rows)
+            .saturating_add(sink_strings)
+            .saturating_add(sink_map)
+    }
 }
 /// Decode guards run before each reserve, while the old owner and any known
 /// call-input snapshot remain live. Validation scratch is charged as rows arrive.
@@ -447,12 +491,18 @@ impl RoadWorkBudget {
         })
     }
     fn require(&self, extra: usize, phase: &str) -> PyResult<()> {
+        // In a coupled transition the service envelope owns the event buffer
+        // charge. Do not also add the standalone road's two-copy event term.
+        let event_bytes = self.service_events.map_or_else(
+            || {
+                self.events
+                    .saturating_mul(2 * std::mem::size_of::<EventRow>())
+            },
+            |service| service.working_bytes(self.events),
+        );
         let required =
             self.base
-                .saturating_add(
-                    self.events
-                        .saturating_mul(2 * std::mem::size_of::<EventRow>()),
-                )
+                .saturating_add(event_bytes)
                 .saturating_add(self.incoming.saturating_mul(
                     2 * (std::mem::size_of::<Part>() + std::mem::size_of::<Mark>()),
                 ))
@@ -566,6 +616,41 @@ impl RoadState {
             )
             .saturating_add(buffers.saturating_mul(32))
     }
+    /// Nonallocating envelope for decoding this state's unchanged wire rows.
+    /// Fresh vector capacities are no larger than the retained capacities.
+    /// RoadDecodeBudget temporarily charges raw Part rows plus new CorePart
+    /// rows before releasing the raw buffer for a Uniform packet. Relative to
+    /// the final decoded owner, the largest such overlap is one raw packet;
+    /// all preceding packet/tree/outer-vector charges remain retained below.
+    pub(crate) fn checkpoint_decode_envelope(&self) -> (usize, usize) {
+        let stats = self.debug_stats();
+        let largest_packet = self
+            .cells
+            .iter()
+            .map(|cell| &cell.packets)
+            .chain(self.pending.iter())
+            .flat_map(|queue| queue.iter())
+            .map(|packet| packet.parts.len())
+            .max()
+            .unwrap_or(0);
+        let retained_and_decode = self
+            .retained_storage_bytes()
+            .saturating_add(largest_packet.saturating_mul(std::mem::size_of::<Part>()));
+        // These terms mirror RoadDecodeBudget::reserve's validation increments:
+        // 16 per homogeneous part, 32 per packet, and 32 per cell.
+        let validation = stats
+            .cell_parts
+            .saturating_add(stats.pending_parts)
+            .saturating_mul(16)
+            .saturating_add(
+                stats
+                    .cell_packets
+                    .saturating_add(stats.pending_packets)
+                    .saturating_add(self.cells.len())
+                    .saturating_mul(32),
+            );
+        (retained_and_decode, validation)
+    }
 }
 #[derive(Clone)]
 struct Motion {
@@ -594,6 +679,7 @@ pub struct V1Road {
     record_budget: usize,
     storage_budget: Option<usize>,
     retained_input_bytes: usize,
+    service_event_accounting: Option<ServiceEventAccounting>,
     event_resolution: Mutex<EventResolutionStats>,
     event_budget: Option<usize>,
     intervals: bool,
@@ -800,6 +886,50 @@ impl Motion {
     }
 }
 impl V1Road {
+    /// Retained immutable registry storage owned by this road, excluding its
+    /// physical RoadState. Counts actual String/Vec capacities, including nested
+    /// buffers and unused reserved slots; this is structural accounting, not
+    /// process RSS or a bound on allocator/Python-wrapper overhead. Constructor
+    /// lookup maps, per-tick scratch and the engine's private pool are not owned
+    /// by these registry fields and must be charged in their respective scopes.
+    pub(crate) fn static_storage_bytes(&self) -> usize {
+        fn vector_bytes<T>(values: &Vec<T>) -> usize {
+            values.capacity().saturating_mul(std::mem::size_of::<T>())
+        }
+        fn nested_bytes<T>(rows: &Vec<Vec<T>>) -> usize {
+            rows.iter().fold(vector_bytes(rows), |total, row| {
+                total.saturating_add(vector_bytes(row))
+            })
+        }
+        std::mem::size_of::<Self>()
+            .saturating_sub(std::mem::size_of::<RoadState>())
+            .saturating_add(self.identity.capacity())
+            .saturating_add(nested_bytes(&self.groups))
+            .saturating_add(vector_bytes(&self.signals))
+            .saturating_add(nested_bytes(&self.paths))
+            .saturating_add(vector_bytes(&self.routes))
+            .saturating_add(nested_bytes(&self.classes))
+            .saturating_add(nested_bytes(&self.incoming))
+            .saturating_add(vector_bytes(&self.windows))
+    }
+    pub(crate) fn owned_storage_bytes(&self) -> usize {
+        self.state.retained_storage_bytes()
+    }
+    /// Constructor-only identity finalization after retained accounting. The
+    /// engine remeasures this String's capacity after binding its final policy.
+    pub(crate) fn bind_storage_identity(&mut self, identity: String) -> PyResult<()> {
+        if identity.is_empty()
+            || self.state.t != 0.
+            || self.owned_record_count() != 0
+            || self.state.totals.iter().any(|&v| v != 0.)
+        {
+            return Err(val(
+                "road storage identity can only bind an empty initial owner",
+            ));
+        }
+        self.identity = identity;
+        Ok(())
+    }
     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
         (&self.state.totals, &self.state.ledger)
     }
@@ -1004,6 +1134,7 @@ impl V1Road {
     pub(crate) fn install_state(&mut self, state: RoadState) {
         self.rollback(state);
         self.retained_input_bytes = 0;
+        self.service_event_accounting = None;
     }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.t
@@ -1014,12 +1145,48 @@ impl V1Road {
     pub(crate) fn rollback(&mut self, state: RoadState) {
         self.state = state;
     }
+    /// Internal phase allowance from the engine's combined byte policy. This
+    /// changes accounting metadata only; the phase's existing preflight checks
+    /// validate before allocation, without another whole-state scan here.
+    pub(crate) fn set_phase_storage_budget(&mut self, bytes: usize) -> PyResult<()> {
+        let minimum = std::mem::size_of::<Part>().max(std::mem::size_of::<EventRow>());
+        if bytes < minimum {
+            return Err(budget(&format!(
+                "native road storage budget exceeded: phase=allowance assignment, required_bytes={minimum}, budget_bytes={bytes}")));
+        }
+        self.storage_budget = Some(bytes);
+        self.record_budget = bytes / std::mem::size_of::<Part>();
+        Ok(())
+    }
+    /// Known call-input metadata must not leak into later load/branch checks.
+    /// The engine separately accounts for the input bundle during final capture.
+    pub(crate) fn clear_call_storage_accounting(&mut self) {
+        self.retained_input_bytes = 0;
+        self.service_event_accounting = None;
+    }
     pub(crate) fn begin_call_storage_accounting(&mut self) {
+        self.service_event_accounting = None;
         self.retained_input_bytes = if self.storage_budget.is_some() {
             self.state.retained_storage_bytes()
         } else {
             0
         };
+    }
+    pub(crate) fn configure_service_event_accounting(
+        &mut self,
+        input_bytes: usize,
+        max_tag_bytes: usize,
+    ) {
+        self.service_event_accounting = self.storage_budget.map(|_| ServiceEventAccounting {
+            input_bytes,
+            current_bytes: input_bytes,
+            max_tag_bytes,
+        });
+    }
+    pub(crate) fn set_service_event_current_bytes(&mut self, current_bytes: usize) {
+        if let Some(accounting) = &mut self.service_event_accounting {
+            accounting.current_bytes = current_bytes;
+        }
     }
     pub(crate) fn owned_record_count(&self) -> usize {
         self.state
@@ -1061,6 +1228,7 @@ impl V1Road {
                 events: 0,
                 incoming: 0,
                 interval_rows: 0,
+                service_events: None,
             });
         }
         let stats = state.debug_stats();
@@ -1088,6 +1256,7 @@ impl V1Road {
             events: 0,
             incoming: 0,
             interval_rows: 0,
+            service_events: self.service_event_accounting,
         };
         work.require(0, "tick preflight")?;
         Ok(work)
@@ -2410,6 +2579,7 @@ impl V1Road {
         let s = self.from_row(row)?;
         self.state = s;
         self.retained_input_bytes = 0;
+        self.service_event_accounting = None;
         Ok(())
     }
     fn reset(&mut self, t: f64) -> PyResult<()> {
@@ -2418,6 +2588,7 @@ impl V1Road {
         }
         self.state = self.blank(t);
         self.retained_input_bytes = 0;
+        self.service_event_accounting = None;
         Ok(())
     }
     fn step(&mut self, py: Python<'_>, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
@@ -2538,6 +2709,7 @@ impl V1Road {
             record_budget,
             storage_budget: None,
             retained_input_bytes: 0,
+            service_event_accounting: None,
             event_resolution: Mutex::new(EventResolutionStats::default()),
             event_budget,
             intervals,

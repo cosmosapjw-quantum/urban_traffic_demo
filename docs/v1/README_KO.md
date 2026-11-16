@@ -20,7 +20,7 @@ python tools/v1_plan.py next
 
 V03의 전체 도시 계산은 Rust의 `NativeWholeEngine`과 Python frontend로 이행 중이다. 빌드·설치와 실제 로컬 모의실험 명령은 [NATIVE_RUNTIME_KO.md](NATIVE_RUNTIME_KO.md)에 정리한다. 기존 Python 수치 경로는 명시적 비교 oracle로 보존한다. 각 실행의 성공·차단 여부는 계획에 연결된 영수증으로 확인한다.
 
-현재 작업은 [정확한 저장 표현과 실행 계약](../../artifacts/v1_rust_completion_20261116/IMPLEMENTATION_CONTRACT.md), [자원 정책 검토](../../artifacts/v1_rust_completion_20261116/RESOURCE_POLICY_REVIEW.md), [sub-ULP event 수치 분석](../../artifacts/v1_rust_completion_20261116/EVENT_RESOLUTION_ANALYSIS.md)에 연결된다. 공유 stage·공통 packet interval 저장과, 이전 stall 구간에서만 활성화되는 보상 시계의 수치 확장을 구분한다. 새 owner quota는 checkpoint identity에 포함되므로 이전 quota의 checkpoint를 무검증 재사용하지 않는다. 한 후보의 테스트·진행 기록을 이후 후보의 전체 24시간 수용 증거로 확대하지 않는다.
+현재 작업은 [정확한 저장 표현과 실행 계약](../../artifacts/v1_rust_completion_20261116/IMPLEMENTATION_CONTRACT.md), [자원 정책 검토](../../artifacts/v1_rust_completion_20261116/RESOURCE_POLICY_REVIEW.md), [sub-ULP event 수치 분석](../../artifacts/v1_rust_completion_20261116/EVENT_RESOLUTION_ANALYSIS.md)에 연결된다. 공유 stage·공통 packet interval 저장과, 이전 stall 구간에서만 활성화되는 보상 시계의 수치 확장을 구분한다. 현재 `retained_capacity_v2` accounting은 생성 preflight와 retained runtime 자료의 수명을 분리하고, 하나의 shared dynamic 예산을 단계별 공존 allocation에 따라 사용한다. 공개 road/journey 상한은 더할 수 있는 별도 quota가 아니다. 총예산·resource policy를 checkpoint identity에 바인딩하므로 이전 고정분배 checkpoint를 무검증 재사용하지 않는다. 구체적인 수명·capture/decode·재로드 검증 상태는 [RUNTIME_BUDGET_REVIEW.md](../../artifacts/v1_rust_completion_20261116/RUNTIME_BUDGET_REVIEW.md)를 따른다. 한 후보의 테스트·진행 기록을 이후 후보의 전체 24시간 수용 증거로 확대하지 않는다.
 
 ## 의존 단계
 

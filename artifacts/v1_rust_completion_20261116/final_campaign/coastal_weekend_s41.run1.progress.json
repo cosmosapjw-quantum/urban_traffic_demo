@@ -1,0 +1,15 @@
+{
+  "case": "coastal_weekend_s41",
+  "run_label": "coastal_weekend_s41.run1",
+  "status": "BLOCKED_RESOURCE",
+  "simulated_s": 32650.0,
+  "wall_s": 279.52988723698945,
+  "peak_rss_bytes": 2422263808,
+  "peak_tracked_records": 40,
+  "completed_tick_samples": 3240,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "candidate_source_sha256": "59d6c7154d7b0e2113b9755de96aa611bf8a56843309cd985a08184f2c7b01be",
+  "git_commit": "27e426fc64452ae2492828653f94f2506b8881fc",
+  "native_binary_sha256": "0cd2e490e9b1323b88c1dff4247dffbcf75b5a667738df7d1e29736f2a0be466",
+  "driver_identity": "d5600a8673473dfad59b3ff99e45a58b6a434b2b60bd14435e101fc50040837a"
+}

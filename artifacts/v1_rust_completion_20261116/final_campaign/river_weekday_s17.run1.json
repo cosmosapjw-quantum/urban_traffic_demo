@@ -1,0 +1,394 @@
+{
+  "case": "river_weekday_s17",
+  "status": "BLOCKED_RESOURCE",
+  "simulated_s": 25210.0,
+  "run_label": "river_weekday_s17.run1",
+  "resume_requested": false,
+  "routing_backend": "rust",
+  "engine_backend": "rust_whole",
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "step_s": 10.0,
+  "horizon_s": 86400.0,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "candidate": {
+    "status": "MEASURED",
+    "source_sha256": "59d6c7154d7b0e2113b9755de96aa611bf8a56843309cd985a08184f2c7b01be",
+    "source_files": [
+      "Cargo.lock",
+      "crates/metroflow-rust/Cargo.toml",
+      "crates/metroflow-rust/src/lib.rs",
+      "crates/metroflow-rust/src/v1_calendar.rs",
+      "crates/metroflow-rust/src/v1_engine.rs",
+      "crates/metroflow-rust/src/v1_history.rs",
+      "crates/metroflow-rust/src/v1_journey.rs",
+      "crates/metroflow-rust/src/v1_parallel.rs",
+      "crates/metroflow-rust/src/v1_road.rs",
+      "crates/metroflow-rust/src/v1_routing.rs",
+      "crates/metroflow-rust/src/v1_stage.rs",
+      "src/metroflow/v1/native_calendar.py",
+      "src/metroflow/v1/native_engine.py",
+      "src/metroflow/v1/native_journey.py",
+      "src/metroflow/v1/native_release_driver.py",
+      "src/metroflow/v1/native_road.py",
+      "src/metroflow/v1/native_routing.py",
+      "src/metroflow/v1/native_static.py",
+      "tools/run_v1_local_acceptance.py"
+    ],
+    "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+    "git_commit": "27e426fc64452ae2492828653f94f2506b8881fc",
+    "source_dirty": false
+  },
+  "candidate_source_sha256": "59d6c7154d7b0e2113b9755de96aa611bf8a56843309cd985a08184f2c7b01be",
+  "native_binary": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/lib/python3.12/site-packages/_metroflow_rust/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+    "size_bytes": 2793552,
+    "sha256": "0cd2e490e9b1323b88c1dff4247dffbcf75b5a667738df7d1e29736f2a0be466"
+  },
+  "native_binary_sha256": "0cd2e490e9b1323b88c1dff4247dffbcf75b5a667738df7d1e29736f2a0be466",
+  "address_space_limit_bytes": 8589934592,
+  "native_execution": {
+    "native_threads": 1,
+    "scheduler": "serial",
+    "float_reductions": "original serial order",
+    "thread_count_in_scientific_identity": false,
+    "parallel_scope": "independent indexed work above per-kernel size thresholds"
+  },
+  "native_storage": {
+    "policy": "bounded_bytes_v1",
+    "total_accounting_budget_bytes": 6442450944,
+    "conservative_static_accounting_bytes": 5674574036,
+    "static_accounting_scope": "pre-existing conservative construction/snapshot estimate, including dense state; subtracting dynamic working quotas can double-count snapshot allowances",
+    "road_dynamic_allowance_bytes": 383938454,
+    "journey_dynamic_allowance_bytes": 383938454,
+    "service_event_record_ceiling": 5999038,
+    "allocation_rationale": "equal road/journey split of budget minus unchanged conservative construction/snapshot estimate; journey receives an odd remainder byte; finite owner quotas do not borrow unused capacity; split values are checkpoint-identity bound",
+    "scope": "owner storage guards; total process address-space/RSS limit must cover caller-retained immutable snapshots and allocation overhead"
+  },
+  "native_route_latency": {
+    "status": "MEASURED_INTERVAL",
+    "observed_calls": 1694578,
+    "failed_calls": 0,
+    "pair_cache_hits": 1451530,
+    "search_calls": 243048,
+    "min_ns": 50,
+    "max_ns": 87389526,
+    "p99_ns": {
+      "lower": 278528,
+      "upper": 280575
+    },
+    "histogram_bins": 7425,
+    "overflow_samples": 0,
+    "nonsaturated_relative_bin_width_bound": 0.0078125,
+    "quantile": "nearest rank ceil(0.99 * observed_calls), including failed requests",
+    "clock": "Rust std::time::Instant nanoseconds; timer overhead not subtracted",
+    "source": "native_whole_router.route",
+    "scope": "native OD route API requests during successful whole-engine construction, including pair-cache hits; excludes frontend fixed-fleet routing and declared corridor paths"
+  },
+  "routing_backend_scope": "routing_backend selects frontend fleet lookup; whole-calendar OD routing is Rust",
+  "source_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+  "patch_sha256": "8040bf2037bdece32504b8079342abb025d3e8a62a4742a0cc5cb0213b691c27",
+  "driver_identity": "508ca725ac1d7ebeaa58f9b6e035a7deefb59dd0aa34fe3f4abcf17cebc3a068",
+  "failure_diagnostics": {
+    "time_s": 25210.0,
+    "journey": {
+      "entering": 0,
+      "egress": 0,
+      "internal": 0,
+      "receipts": 0,
+      "total_records": 0,
+      "stage_capacity": {
+        "entering": 0,
+        "egress": 0,
+        "internal": 0
+      },
+      "dense_capacity_bytes": 163000480,
+      "dynamic_storage_bytes": 0,
+      "stage_blocks": {
+        "entering": 0,
+        "egress": 0,
+        "internal": 0
+      },
+      "stage_carrier_sum": {
+        "entering": 0.0,
+        "egress": 0.0,
+        "internal": 0.0
+      },
+      "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+      "ready_now": {
+        "entering": 0,
+        "egress": 0,
+        "internal": 0
+      },
+      "nonempty_histories": 0,
+      "capacity_scope": "dense_capacity_bytes excludes stage/history blocks; dynamic_storage_bytes counts persistent stage/history allocation estimates with shared prefixes counted per owner, not process RSS"
+    },
+    "road": {
+      "cell_packets": 0,
+      "pending_packets": 0,
+      "cell_parts": 0,
+      "pending_parts": 0,
+      "uniform_packets": 0,
+      "mixed_packets": 0,
+      "uniform_parts": 0,
+      "mixed_parts": 0,
+      "packet_capacity": 0,
+      "part_capacity": 0,
+      "vector_capacity_bytes": 429744,
+      "latent_entries": 0,
+      "max_cell_parts": 0,
+      "max_pending_parts": 0,
+      "total_records": 0,
+      "event_resolution": {
+        "subulp_events": 0,
+        "processed_subulp_time_upper_s": 0.0,
+        "clock_roundoff_upper_s": 0.0,
+        "nominal_subulp_service_mass_upper": 0.0,
+        "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+        "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+        "checkpointed": false
+      },
+      "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+    },
+    "service_last_events": 0,
+    "execution": {
+      "native_threads": 1,
+      "scheduler": "serial",
+      "float_reductions": "original serial order",
+      "thread_count_in_scientific_identity": false,
+      "parallel_scope": "independent indexed work above per-kernel size thresholds"
+    },
+    "storage": {
+      "policy": "bounded_bytes_v1",
+      "total_accounting_budget_bytes": 6442450944,
+      "conservative_static_accounting_bytes": 5674574036,
+      "static_accounting_scope": "pre-existing conservative construction/snapshot estimate, including dense state; subtracting dynamic working quotas can double-count snapshot allowances",
+      "road_dynamic_allowance_bytes": 383938454,
+      "journey_dynamic_allowance_bytes": 383938454,
+      "service_event_record_ceiling": 5999038,
+      "allocation_rationale": "equal road/journey split of budget minus unchanged conservative construction/snapshot estimate; journey receives an odd remainder byte; finite owner quotas do not borrow unused capacity; split values are checkpoint-identity bound",
+      "scope": "owner storage guards; total process address-space/RSS limit must cover caller-retained immutable snapshots and allocation overhead"
+    },
+    "last_attempt": {
+      "start_s": 25210.0,
+      "end_s": 25210.0,
+      "phase": "journey_prepare",
+      "committed": false,
+      "before": {
+        "entering": 0,
+        "egress": 0,
+        "internal": 0,
+        "receipts": 0,
+        "total_records": 0
+      },
+      "after_prepare": {
+        "entering": 0,
+        "egress": 0,
+        "internal": 0,
+        "receipts": 0,
+        "total_records": 0
+      },
+      "candidate": {
+        "entering": 0,
+        "egress": 0,
+        "internal": 0,
+        "receipts": 0,
+        "total_records": 0
+      },
+      "generated": {
+        "entering": 574738,
+        "egress": 0,
+        "internal": 7912
+      },
+      "retired": {
+        "entering": 0,
+        "egress": 0,
+        "internal": 0
+      },
+      "receipts_added": 0,
+      "emitted_offers": 0
+    },
+    "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+  },
+  "last_native_metrics": {
+    "tick_times_s": [
+      0.212052806
+    ],
+    "peak_records": 0,
+    "native_threads": 1,
+    "phase_metrics": {
+      "phase_wall_s": {
+        "journey_prepare": 0.265182655,
+        "service_prepare": 1.0459e-05,
+        "road_step": 0.00097833,
+        "service_finish": 6.6705e-05,
+        "journey_finish": 0.104750668,
+        "other_tick": 6.277999999998451e-05
+      },
+      "binding_s": 0.306809652,
+      "successful_ticks": 1,
+      "failed_ticks": 1,
+      "native_threads": 1,
+      "scope": "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation",
+      "road_event_resolution": {
+        "subulp_events": 0,
+        "processed_subulp_time_upper_s": 0.0,
+        "clock_roundoff_upper_s": 0.0,
+        "nominal_subulp_service_mass_upper": 0.0,
+        "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+        "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+        "checkpointed": false
+      }
+    },
+    "scope": "native complete tick including rollback copying; no Python leg snapshots"
+  },
+  "last_valid_report": {
+    "status": "WHOLE_CALENDAR_ACTIVATED",
+    "activation": "complete native preactivation; one shared occupied road",
+    "calendar": {
+      "calendar": {
+        "legs": 5093765,
+        "persons": 120000.0,
+        "vehicles": 58801.0,
+        "cargo_kg": 1000,
+        "resident_stock": 100000.0,
+        "requested_workers": 50000.0,
+        "allocated_workers": 40000.0,
+        "unassigned_workers": 10000.0
+      },
+      "materialized_legs": 5093765,
+      "remaining_legs": 0,
+      "remaining_amounts": {
+        "persons": 0.0,
+        "vehicles": 0.0,
+        "cargo_kg": 0
+      },
+      "execution": "NOT_RUN",
+      "scope": "exact compilation coverage; pages must enter one shared live runtime"
+    },
+    "execution": {
+      "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+      "time_s": 25210.0,
+      "ledger": {
+        "persons": {
+          "requested": 55.555555555583545,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 55.555555555583545,
+          "active": 0.0
+        },
+        "vehicles": {
+          "requested": 27.22222222222139,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 27.22222222222139,
+          "active": 0.0
+        },
+        "cargo_kg": {
+          "requested": 0.0,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "active": 0.0
+        }
+      },
+      "released_intent_first_moments": {
+        "persons": 0.0,
+        "vehicles": 0.0,
+        "cargo_kg": 0.0
+      },
+      "service": {
+        "time_s": 25210.0,
+        "scheduled_bus_vehicles": 24,
+        "bus_road_vehicles": 1.7763568394002505e-15,
+        "bus_stop_or_finished_vehicles": 24.0,
+        "completed_bus_vehicles": 4,
+        "waiting_persons": 0.39183749999999995,
+        "onboard_persons": 0.0,
+        "arrived_persons": 0.0,
+        "wait_person_s": 0.0,
+        "freight_completed_vehicles": 0.0,
+        "cargo_delivered_kg": 0.0,
+        "cargo_unfinished_kg": 999.85,
+        "road_released_veh": 4.0,
+        "road_completed_veh": 4.0
+      },
+      "assignment": {
+        "units": {
+          "persons": {
+            "requested": 120000.0,
+            "assigned": 0.39183750000665896,
+            "unassigned": 119999.6081625
+          },
+          "vehicles": {
+            "requested": 58801.0,
+            "assigned": 1.0155234999983804,
+            "unassigned": 58799.9844765
+          },
+          "cargo_kg": {
+            "requested": 1000.0,
+            "assigned": 999.85,
+            "unassigned": 0.15
+          }
+        },
+        "fixed_fleet_vehicles": 24,
+        "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+      },
+      "construction": {
+        "legs": 5093765,
+        "physical_routes": 1695158,
+        "unique_paths": 243048,
+        "unsupported_legs": 3392401,
+        "road_legs": 1694022,
+        "internal_legs": 6762,
+        "estimated_bytes": 5674574036,
+        "byte_budget": 6442450944,
+        "python_calendar_leg_objects": 0,
+        "road_owners": 1
+      },
+      "city_identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+      "schedule_identity": "de8ad37147c083cbf30dba5550515fc6547609be6f9e23750379cea66f0bfc4e",
+      "full_release_campaign": "NOT_RUN"
+    },
+    "full_local_acceptance": "NOT_RUN"
+  },
+  "reason": "BudgetExceeded: native journey stored/working byte budget",
+  "last_valid": {
+    "path": "river_weekday_s17.run1.last_valid.bin",
+    "time_s": 25210.0
+  },
+  "failure_classification": "BLOCKED_RESOURCE",
+  "resource_limit_kind": "owner_quota_guard",
+  "wall_s": 573.1838600850024,
+  "route_latency": {
+    "status": "MEASURED_INTERVAL",
+    "observed_calls": 48,
+    "failed_calls": 0,
+    "calls_by_api": {
+      "candidate_paths": 0,
+      "legal_route_cache.resolve": 0,
+      "release_runtime.path": 0,
+      "release_services.path": 48
+    },
+    "p99_ns": {
+      "lower": 311296,
+      "upper": 311574
+    },
+    "quantile": "nearest rank ceil(0.99 * observed_calls), including failed requests",
+    "min_ns": 240,
+    "max_ns": 311574,
+    "histogram_bins": 7425,
+    "overflow_samples": 0,
+    "nonsaturated_relative_bin_width_bound": 0.0078125,
+    "clock": "perf_counter_ns; timer overhead not subtracted",
+    "scope": "outermost route API calls in this worker, including preparation and invoked cache hits; excludes access-law compilation and physical travel time"
+  },
+  "peak_rss_bytes": 2172362752
+}

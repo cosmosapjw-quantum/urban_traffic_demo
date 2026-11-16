@@ -1,0 +1,3 @@
+{"case": "river_weekday_s17", "status": "BLOCKED_RESOURCE", "simulated_s": 25210.0}
+{"case": "coastal_weekend_s41", "status": "BLOCKED_RESOURCE", "simulated_s": 32650.0}
+{"case": "valley_weekday_s7", "status": "BLOCKED_RESOURCE", "simulated_s": 25600.0}

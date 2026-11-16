@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.22",
+  "version": "1.1.23",
   "date": "2026-11-16",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -2095,6 +2095,12 @@
       "reason": "Numeric continuation passes the prior event stall but reaches a representation-dependent road owner quota at25520s, with peakRSS1.586GB and unused journey allowance. Streaming checkpoint inspection finds all45715 road packets share an interval internally, without duplicate full parts.",
       "change": "Keep the total6GiB conservative accounting and8GiB process gate. Rebalance fixed dynamic owner quotas from1/4:3/4 to1/2:1/2 with distinct checkpoint binding and a fresh campaign. Store finite interval bits compactly and factor common packet intervals while preserving every FIFO boundary, ordered part, f64 operation and existing wire schema; mixed packets retain an explicit fallback. No row merging, mass pruning, physical tolerance increase or old-policy checkpoint bypass.",
       "evidence": "artifacts/v1_rust_completion_20261116/numeric_resume_t1.json"
+    },
+    {
+      "date": "2026-11-16",
+      "reason": "Frozen candidate27e426f exposes a distinction between constructor peak allowance and retained runtime footprint. River constructor estimate5674574036B leaves383938454B per dynamic owner although measured initialization peakRSS2172362752B; fixed journey proposal scratch is326120360B. The constructor estimate includes freed router/calendar temporaries and duplicated snapshot allowances.",
+      "change": "Retain the constructor preflight and all physical release gates. Derive runtime static reservation from native owned capacities, shared immutable allocation identity, explicit concurrent dense copies, service-event workspaces and validation scratch. Separate construction, retained and dynamic admission diagnostics; preserve6GiB total accounting and8GiB process limits with a new resource binding/fresh campaign. Do not present structural estimates as a theorem about allocator overhead or RSS.",
+      "evidence": "artifacts/v1_rust_completion_20261116/SOURCE_MANIFEST_FINAL.json"
     }
   ],
   "implementation_progress": {
@@ -2157,6 +2163,6 @@
       "scope": "queue/history debug and opt-in deterministic Rayon",
       "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json"
     },
-    "active_work": "Compensated event extension passes213 scoped checks and actual old-failure continuation; exact packed/common packet storage and equal owner quotas are under verification before a fresh unchanged full-target campaign."
+    "active_work": "Frozen27e426f full-target campaign is preserved while isolated runtime accounting separates freed constructor temporaries from retained native allocations. New resource accounting requires independent lifetime review and a fresh bound campaign."
   }
 }
