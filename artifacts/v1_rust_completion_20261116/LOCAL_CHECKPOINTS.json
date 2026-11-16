@@ -1,0 +1,20 @@
+{
+  "storage": "Preserved on authorized local device; raw binary checkpoints excluded from Git artifacts",
+  "checkpoints": [
+    {
+      "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/coastal_weekend_s41.run1.last_valid.bin",
+      "bytes": 859506202,
+      "sha256": "f92cc99f87e30fe6fafc37674eb58ad4855fe83a61e32f659596d9cfcaa1aa1e"
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/river_weekday_s17.run1.last_valid.bin",
+      "bytes": 634951290,
+      "sha256": "e179f3b9b5b9081a8adb121e51761514654743a8e8bbe4166691dd04cc46425e"
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/valley_weekday_s7.run1.last_valid.bin",
+      "bytes": 866763962,
+      "sha256": "3713d03c65f465dfdd0e5f3a3b3a6eb436f55a02dbd09c38d9999bbf2f0d747a"
+    }
+  ]
+}

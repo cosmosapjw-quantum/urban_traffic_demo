@@ -1,0 +1,50 @@
+{
+  "status": "IMPLEMENTATION_VERIFIED_SCOPED",
+  "candidate_commit": "27e426fc64452ae2492828653f94f2506b8881fc",
+  "candidate_tree": "2f95e953563e8e15f126b46b6eb6f85358af8e78",
+  "native_binary_sha256": "0cd2e490e9b1323b88c1dff4247dffbcf75b5a667738df7d1e29736f2a0be466",
+  "input_checkpoint_sha256": "3bbe3b1b8ecbeb534b946fa31884c922cf5a6e97cdbe6212c0ba763c351df86d",
+  "output_checkpoint_sha256": "ef4719a822ac85763679061a5ebd1d431e0edd9cec4e105a15ad1a5f7d4d884f",
+  "interval_s": [
+    25240,
+    25340
+  ],
+  "repetitions": 3,
+  "all_reports_and_checkpoint_bytes_match": true,
+  "before": {
+    "commit": "7b5e518f6c098ed831551da4e66d980addf80dd8",
+    "median_advance_s": 1.792937117992551,
+    "process_peak_rss_bytes": 676192256
+  },
+  "after": {
+    "median_advance_s": 1.3001641419978114,
+    "process_peak_rss_bytes": 549531648,
+    "samples_s": [
+      1.3472189800086198,
+      1.3001641419978114,
+      1.2902590439916821
+    ]
+  },
+  "advance_time_reduction_percent": 27.48411927276453,
+  "process_peak_rss_reduction_percent": 18.731449062912663,
+  "measurement_scope": "Same occupied checkpoint/100s simulation interval, real shared host, consecutive triples. These are scoped observations, not isolated causal benchmarks or24h extrapolations.",
+  "numerical_extension": {
+    "candidate_commit": "1d3de56b675b6a09636c407febd5daf312c895da",
+    "source_manifest": "SOURCE_MANIFEST_NUMERIC.json",
+    "start_s": 25490,
+    "last_valid_s": 25520.0,
+    "workers_1_and_4_identical_checkpoint": true,
+    "workers_1_and_4_identical_report": true,
+    "event_diagnostics": {
+      "subulp_events": 14,
+      "processed_subulp_time_upper_s": 6.080222403902695e-15,
+      "clock_roundoff_upper_s": 5.978086547377985e-31,
+      "nominal_subulp_service_mass_upper": 2.781590111968294e-15,
+      "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+      "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+      "checkpointed": false
+    }
+  },
+  "full_day_acceptance": "BLOCKED_UNDER_27e_CONSTRUCTOR_BASED_OWNER_QUOTAS",
+  "campaign": "final_campaign/CAMPAIGN.json"
+}

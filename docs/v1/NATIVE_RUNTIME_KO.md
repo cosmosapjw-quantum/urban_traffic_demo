@@ -221,6 +221,15 @@ scoped 검사를 통과했다. 해당 소스·binary는
 연결된 별도 영수증으로 판정한다. 문서에 새로운 예산식이 있다는 이유로 V03이나
 전체 24시간 수용을 완료 처리하지 않는다.
 
+최종 retained-capacity 후보 `532effe`는 실제 release 빌드와
+[251개 scoped 검사](../../artifacts/v1_rust_completion_20261116/TESTS_BUDGET_SEQ_FINAL.log)를 통과했다.
+[고정 후보 기록](../../artifacts/v1_rust_completion_20261116/RUNTIME_BUDGET_FROZEN.json)의
+45개 소스 파일을 실제 host와 commit에 대조한 뒤 새 캠페인을 실행했다.
+결과는 [최종 보고서](../../artifacts/v1_rust_completion_20261116/REPORT_KO.md)와
+[새 CAMPAIGN.json](../../artifacts/v1_rust_completion_20261116/runtime_budget_campaign/CAMPAIGN.json)에 보존한다.
+River 25,350s, Coastal 32,660s, Valley 25,600s에서 shared working guard로 중단됐으며,
+24시간 완료는 0/9회다. peak RSS는 각각 2.596/2.365/1.969GiB로, RSS 초과로 분류하지 않는다.
+
 ## 결과 해석과 남은 배포 범위
 
 - `EXECUTED_FOR_REVIEW`는 요청한 구간 실행이며, 최종 수용 판정과 다르다.

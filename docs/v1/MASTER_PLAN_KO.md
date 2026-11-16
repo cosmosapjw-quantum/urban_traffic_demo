@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Bounded queue debugging complete: delayed entering stages dominate the unchanged cap, no missing retirement observed; lifecycle/copy fixes and deterministic opt-in Rayon verified. Remaining work is exact stage representation/capacity before unchanged3-case x3 full-day campaign/refinement and separate review. Full CI/integration remain deferred.
+Reduce exact stage/road fragmentation and simultaneous validation/decode/interval workspace while preserving ordered physical rows, checkpoint meaning and6GiB/8GiB gates; then rerun a frozen3-case x3 full-day campaign with replay/refinement. Current532effe first attempts stop at25350/32660/25600s; actual Riverfresh-load/report/byte roundtrip verified. FullCI/integration remain deferred.
 
 **예산·종료조건**
 

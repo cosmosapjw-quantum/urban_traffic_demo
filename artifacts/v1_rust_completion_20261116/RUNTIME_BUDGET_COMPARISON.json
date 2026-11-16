@@ -1,0 +1,34 @@
+{
+  "status": "IMPLEMENTATION_VERIFIED_SCOPED",
+  "candidate_commit": "532effe32f90c20cf3cbc1de350d0e7267f52584",
+  "candidate_tree": "ffa7017a70733acf68dd24c506cb6c104cf5a99f",
+  "native_binary_sha256": "3e06969385dffdb9834c56d2cf0831e67e07e618df4f1f2169cff974aa9a3972",
+  "input_checkpoint_sha256": "3bbe3b1b8ecbeb534b946fa31884c922cf5a6e97cdbe6212c0ba763c351df86d",
+  "output_checkpoint_sha256": "ef4719a822ac85763679061a5ebd1d431e0edd9cec4e105a15ad1a5f7d4d884f",
+  "interval_s": [
+    25240,
+    25340
+  ],
+  "repetitions": 3,
+  "all_reports_and_checkpoint_bytes_match": true,
+  "before": {
+    "commit": "7b5e518f6c098ed831551da4e66d980addf80dd8",
+    "median_advance_s": 1.792937117992551,
+    "process_peak_rss_bytes": 676192256
+  },
+  "after": {
+    "median_advance_s": 1.3948817459895508,
+    "process_peak_rss_bytes": 556859392,
+    "samples_s": [
+      1.401109551996342,
+      1.3780830039904686,
+      1.3948817459895508
+    ]
+  },
+  "advance_time_reduction_percent": 22.20130131773277,
+  "process_peak_rss_reduction_percent": 17.647771464569985,
+  "measurement_scope": "Same occupied checkpoint/100s simulation interval, real shared host, consecutive triples. These are scoped observations, not isolated causal benchmarks or24h extrapolations.",
+  "comparison_to_27e": "Additional retained accounting and checkpointability checks are included. Comparison is against original7b for scope continuity; final median is slower than27e; no claim that accounting itself accelerates physics.",
+  "full_day_acceptance": "BLOCKED_SHARED_WORKING_BUDGET_ALL_THREE_CASES",
+  "campaign": "runtime_budget_campaign/CAMPAIGN.json"
+}

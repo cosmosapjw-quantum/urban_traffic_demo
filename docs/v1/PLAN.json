@@ -1890,7 +1890,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Bounded queue debugging complete: delayed entering stages dominate the unchanged cap, no missing retirement observed; lifecycle/copy fixes and deterministic opt-in Rayon verified. Remaining work is exact stage representation/capacity before unchanged3-case x3 full-day campaign/refinement and separate review. Full CI/integration remain deferred.",
+      "positive_next_action": "Reduce exact stage/road fragmentation and simultaneous validation/decode/interval workspace while preserving ordered physical rows, checkpoint meaning and6GiB/8GiB gates; then rerun a frozen3-case x3 full-day campaign with replay/refinement. Current532effe first attempts stop at25350/32660/25600s; actual Riverfresh-load/report/byte roundtrip verified. FullCI/integration remain deferred.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1910,8 +1910,8 @@
         "sha": "97b09576f5fe96f8e08d07a4bed80a841ffb2679"
       },
       "blocked_evidence": {
-        "path": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
-        "sha256": "4f3806899ee03b03e0c112c918fab9b25d737e37e35c87f98fee72840cd0699b"
+        "path": "artifacts/v1_rust_completion_20261116/RECEIPT.json",
+        "sha256": "3a264a89c91348f16f6ad4f900d29b9667a5a6e2439cbee9f1be8e6d6beec9ac"
       },
       "resource_optimization_evidence": [
         {
@@ -1943,6 +1943,17 @@
           "path": "artifacts/v1_queue_debug_20261116/RECEIPT.json",
           "sha256": "53997ac293cd822e1ccda49695c9cef8d7160fa87384320db1b9030963b0b515",
           "scope": "Actual local bounded queue diagnosis and atomic lifecycle/copy fixes; final serial replay time26.24% and process RSS21.40% lower;1/2/4/8 worker checkpoint/report bytes match old kernel; parallel speedup not robust; logical record limit andV03 block unchanged"
+        },
+        {
+          "path": "artifacts/v1_rust_completion_20261116/RECEIPT.json",
+          "sha256": "3a264a89c91348f16f6ad4f900d29b9667a5a6e2439cbee9f1be8e6d6beec9ac",
+          "scope": "251 scoped tests; Rust persistent stages, packed intervals, compensated event clocks and shared retained-capacity budgets. Actual3city campaign remains resource-blocked; allprefixRSS<8GiB, no24h completion; real Rivercheckpoint fresh-load bytes verified."
+        }
+      ],
+      "historical_blocked_evidence": [
+        {
+          "path": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
+          "sha256": "4f3806899ee03b03e0c112c918fab9b25d737e37e35c87f98fee72840cd0699b"
         }
       ]
     },
@@ -2134,7 +2145,7 @@
     "authorized_on": "2026-11-16",
     "supersedes": "pure Python core restriction in PLAN v1.1.17 and AGENTS.md",
     "target": "Rust-owned state, clock, routing, physical/service/journey ledgers; Python configuration, CLI, diagnostics only",
-    "mode": "Explicit METROFLOW_V1_ENGINE_BACKEND=rust_whole for native full static/dynamic ownership; rust remains legacy static frontend/native core; python_oracle is the explicit reference default",
+    "mode": "Whole-city acceptance CLI defaults to rust_whole/oneworker/bounded_bytes_v1; direct legacy library constructors retain compatibility defaults. Python production frontend; explicit Python scientific oracle preserved.",
     "current_scope": [
       "Persistent f64 legal-turn routing in V1 preparation",
       "Direct factorized Rust calendar construction without Python per-leg objects",
@@ -2148,21 +2159,25 @@
       "Lossless persistent receipt blocks with exact fsum/eligibility indexing",
       "Actual full three-city initialization/10s/checkpoint measurements; whole Valley activation to logical record cap",
       "Bounded queue lifecycle counts and failed-candidate diagnostics; reduced whole-tick copies and empty/sparse stage allocation",
-      "Deterministic private Rayon pool for independent cell and leg chunks; opt-in workers1..256, default1; serial scientific reductions"
+      "Deterministic private Rayon pool for independent cell and leg chunks; opt-in workers1..256, default1; serial scientific reductions",
+      "Persistent256-row stage blocks, byte-accounted history and packet-local common intervals with exact legacy row/checkpoint expansion",
+      "Limited compensated positive-event clock only after a sub-ULP nonprogress event; original ordinary arithmetic and ledger tolerances retained",
+      "Retained_capacity_v2 shared phase budgets and canonical checkpoint decode headroom; atomic failure and actual fresh-runtime checkpoint roundtrip",
+      "Frozen532effe actual three-city full-target attempts and distinct resource failure receipts; no full-day acceptance"
     ],
     "remaining": [
-      "Exact delayed-entering stage record capacity within unchanged8GiB target; bounded Valley trace is92.72% entering and2.78% receipts, with no missing retirement observed; default20k and diagnostic2m caps remain",
-      "Reduce dense all-leg work and delayed stage fragmentation without altering source measures or receipt clocks; parallel speedup is not robust in shared-host measurements",
-      "Frozen candidate 3 cases x 3 full-day campaign, refinement and replay",
-      "Separate acceptance review; full repository CI/integration still deferred by user"
+      "Exact stage/road fragmentation and simultaneous validation/decode/interval workspace within unchanged6GiB native accounting and8GiB process target; actual failures25350/32660/25600s",
+      "Reduce dense all-leg work and conservative workspace overhead with justified lifetime bounds; parallel speedup is not robust in shared-host measurements",
+      "Frozen candidate3cases x3 full-day completion, matched refinement and full-day checkpoint replay; current completion0/9",
+      "Separate final review, RLS01 packaging/fresh-install acceptance and full repository CI/integration deferred by user"
     ],
     "dag_policy": "V03 internal migration work; no new DAG nodes, 19/21 unchanged until acceptance",
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
       "date": "2026-11-16",
-      "scope": "queue/history debug and opt-in deterministic Rayon",
-      "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json"
+      "scope": "Rust native storage, numerical progress and shared accounting implementation verified in scoped tests; actual full-target campaign and recovery diagnostics completed with explicit resource blockers",
+      "evidence": "artifacts/v1_rust_completion_20261116/RECEIPT.json"
     },
-    "active_work": "Frozen27e426f full-target campaign is preserved while isolated runtime accounting separates freed constructor temporaries from retained native allocations. New resource accounting requires independent lifetime review and a fresh bound campaign."
+    "active_work": "No experiment remains running. Frozen532effe campaign is BLOCKED: actual three-city resource receipts preserved; Riverfresh-load and byte roundtrip verified. V03 and RLS01 remain incomplete."
   }
 }
