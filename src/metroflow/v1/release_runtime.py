@@ -12,7 +12,8 @@ import math
 from pathlib import Path
 
 from ..active_suffix.common import BudgetExceeded
-from ..active_suffix.routing import Arc, candidate_paths
+from ..active_suffix.routing import Arc
+from .routing_backend import routing_search
 from ..foundation_kinetics import VehicleClass
 from ..ordered_network import Route
 from ..terrain_city.area_access import Portal
@@ -81,6 +82,7 @@ class ReleaseRuntime:
             gates.setdefault(p.block_id, []).append(p)
         arcs = tuple(Arc(g.id, g.tail, g.head) for g in contract.groups)
         costs = {g.id: g.physics.length_m / g.physics.speed_mps for g in contract.groups}
+        search = routing_search(arcs, costs, contract.allowed_turns)
 
         @measure_route_latency('release_runtime.path')
         @lru_cache(maxsize=max_route_pairs)
@@ -88,8 +90,7 @@ class ReleaseRuntime:
             # Keep the original loopless search, expansion bound and tie order.
             # The cache only shares an immutable answer for identical endpoints
             # under this constructor's fixed city/contract/cost snapshot.
-            found = candidate_paths(arcs, costs, origin_node, destination_node, 1,
-                                    allowed_turns=contract.allowed_turns).paths
+            found = search(origin_node, destination_node, 1).paths
             return found[0] if found else ()
 
         @lru_cache(maxsize=max_access_laws)

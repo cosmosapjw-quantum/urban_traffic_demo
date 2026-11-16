@@ -11,7 +11,8 @@ import hashlib
 import json
 import math
 
-from ..active_suffix.routing import Arc, candidate_paths
+from ..active_suffix.routing import Arc
+from .routing_backend import routing_search
 from ..foundation_kinetics import VehicleClass
 from ..route_metrics import measure_route_latency
 from ..terrain_city.area_access import Portal
@@ -137,6 +138,7 @@ def compile_service_plan(city, legs, corridors=(), *, depot_block_id=None,
     doors = {b: min(ps, key=lambda p: nodes[p.node_id].xyz) for b, ps in gates.items()}
     arcs = tuple(Arc(g.id, g.tail, g.head) for g in contract.groups)
     costs = {g.id: g.physics.length_m/g.physics.speed_mps for g in contract.groups}
+    search = routing_search(arcs, costs, contract.allowed_turns)
     allowed = frozenset(costs)
     cache = {}
 
@@ -146,8 +148,7 @@ def compile_service_plan(city, legs, corridors=(), *, depot_block_id=None,
             return ()
         key = (a, b)
         if key not in cache:
-            found = candidate_paths(arcs, costs, doors[a].node_id, doors[b].node_id,
-                                    1, allowed_turns=contract.allowed_turns).paths
+            found = search(doors[a].node_id, doors[b].node_id, 1).paths
             cache[key] = found[0] if found else ()
         return cache[key]
 

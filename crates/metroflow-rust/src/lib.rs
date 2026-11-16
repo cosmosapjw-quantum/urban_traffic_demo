@@ -6,6 +6,8 @@ mod edge;
 mod flow;
 mod reroute;
 mod routing;
+mod v1_routing;
+mod v1_calendar;
 
 use agent::advance_active_agents_batch_impl;
 #[cfg(test)]
@@ -330,6 +332,8 @@ fn advance_active_agents_batch(
 
 #[pymodule]
 fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<v1_routing::V1RoutingGraph>()?;
+    m.add_class::<v1_calendar::NativeCalendar>()?;
     m.add_function(wrap_pyfunction!(evolve_edges_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_baseline_flow_arrays_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_dynamic_potential_node_costs, m)?)?;

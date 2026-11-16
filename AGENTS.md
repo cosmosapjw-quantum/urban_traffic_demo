@@ -12,7 +12,7 @@
 - 2026-11-16 V03 후속: 실제 로컬 5900X/관측 RAM 31.25GiB에서 세 도시의 예산 사전 거절, 전체 하천 달력 5,093,765 legs 보관(peak RSS 1.42GiB), 각 도시 256-leg 공유 runtime 준비와 한정 회귀를 수행했다. 생성자·장부 검사 중복 계산과 route p99 구간 계측을 개선했다. `artifacts/v1_v03_scaling_20261116/RECEIPT.json`을 따른다. 전체 calendar의 경로/물리 상태 활성화 및 3case×3회24h는 남았으며 19/21과 V03 BLOCKED를 유지한다.
 
 ## 유지하는 과학·구현 계약
-- 순수 Python CPU 과학 코어. JAX/GPU·차량 위치 전수추적·RL-first·외부데이터 학습은 V1 범위 밖이다.
+- 2026-11-16 사용자 승인: Rust CPU 계산코어·Python frontend로 전환한다. 기존 Python 코어는 이행 중 명시적 scientific oracle로 보존한다. JAX/GPU·차량 위치 전수추적·RL-first·외부데이터 학습은 V1 범위 밖이다.
 - 연속 위치·속도 기초, 목적·차종·정보를 보존한다. 계산 closure의 가정과 유효범위를 명시한다.
 - immutable WorldState, SI 단위, rate와 increment 구별, 차량량·사람·화물·체류량 장부, 다중 시간척도와 지연 피드백, 버전별 캐시 invalidation, 실제 checkpoint 재개를 유지한다.
 - 물리 대칭, 수동 좌표공변, 표현 quotient, 수치 근사를 구분한다. ID·해시·기록 수를 물리 관측과 혼동하지 않는다.

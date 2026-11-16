@@ -169,9 +169,11 @@ def test_parent_validation_reads_calendar_ids_linearly():
 
 def test_shared_endpoint_compilation_reuses_exact_search_and_access(monkeypatch):
     import metroflow.v1.release_runtime as module
+    import metroflow.v1.routing_backend as routing_backend
 
     city, leg = fixture()
-    original_search, original_access = module.candidate_paths, module.activity_access
+    monkeypatch.setenv('METROFLOW_V1_ROUTING_BACKEND', 'python_oracle')
+    original_search, original_access = routing_backend.candidate_paths, module.activity_access
     calls = {'search': 0, 'access': 0}
 
     def search(*args, **kwargs):
@@ -182,7 +184,7 @@ def test_shared_endpoint_compilation_reuses_exact_search_and_access(monkeypatch)
         calls['access'] += 1
         return original_access(*args, **kwargs)
 
-    monkeypatch.setattr(module, 'candidate_paths', search)
+    monkeypatch.setattr(routing_backend, 'candidate_paths', search)
     monkeypatch.setattr(module, 'activity_access', access)
     legs = tuple(replace(leg, id=f'leg:{i}', purpose='work' if i % 2 else 'school')
                  for i in range(20))

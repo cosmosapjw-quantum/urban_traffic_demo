@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.17",
-  "date": "2026-10-27",
+  "version": "1.1.18",
+  "date": "2026-11-16",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
   "base_research_sha": "0a7c980d3934146a978280fe76045443ad12640e",
@@ -59,7 +59,7 @@
   },
   "product": {
     "name": "MetroFlow V1 research simulator",
-    "definition": "한도시의지도·지속cohort활동·집계수송·조건부경로선택·지연개발피드백을24h 실행하고저장/재개/관측/개입비교할수있는순수Python headless연구시뮬레이터",
+    "definition": "한도시의지도·지속cohort활동·집계수송·조건부경로선택·지연개발피드백을24h 실행하고저장/재개/관측/개입비교할수있는Rust 계산코어·Python frontend를 목표로 하는 headless연구시뮬레이터",
     "scale": {
       "resident_stock": 100000,
       "default_extent_m": [
@@ -104,7 +104,7 @@
       "full public-transit assignment/환승최적화",
       "parking micro/법적필지·구조공학인증",
       "RL/LLM-first·외부데이터학습",
-      "GPU/JAX/Rust-primary rewrite·분산실행",
+      "GPU/JAX·분산실행",
       "완전한Boltzmann/pairhierarchy폐쇄의보편정리",
       "실도시보정·CitiesSkylines대비우월성주장"
     ],
@@ -328,7 +328,7 @@
     "원PRD의persistent citizens는V1에서지속cohort activity ledger로구현한다. 개별주민전수상태는요구하지않는다.",
     "원PRD의UI와EMA/bandit은현재그래픽후순위·고유물리정초요청에따라1차release밖으로명시이관한다.",
     "원001의fingerprint-only replay와proxy benchmark는이번제품완료요구에맞춰실제checkpointresume/실측100k로강화한다.",
-    "과거NumPy/Rust-primary 계획은역사적구현근거. 현재명시된purePython/noGPU가V1구현을지배한다.",
+    "2026-11-16 사용자 승인: Rust 계산코어와 Python frontend로 전환한다. 기존 Python은 이행 중 scientific oracle로 보존한다. GPU는 범위 밖이며 물리·수용 기준은 유지한다.",
     "실제전통모델과정밀성능비교는release조건이아니다. 자체원리·반례·수치·실행수용을우선한다."
   ],
   "source_pins": [
@@ -1890,7 +1890,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Measure and engineer whole-calendar shared-runtime activation and active-state cost using actual local evidence; full calendar storage alone fits 8GiB, 20k runtime cap remains; then run unchanged 3-case full-day campaign",
+      "positive_next_action": "Port factorized generation and shared road/packet/service/journey ownership to Rust; measure unchanged whole-calendar activation before lifting 20k caps; then frozen-candidate 3-case x 3 full-day acceptance. Native calendar/routing alone are scoped evidence.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1923,6 +1923,11 @@
           "path": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
           "sha256": "4f3806899ee03b03e0c112c918fab9b25d737e37e35c87f98fee72840cd0699b",
           "scope": "linear parent/stage indexing, bounded exact access/path caching, bounded route p99 intervals; actual local whole calendar retention 1.42GiB, not full traffic execution"
+        },
+        {
+          "path": "artifacts/v1_rust_migration_20261116/RECEIPT.json",
+          "sha256": "cd533ff8037aa34d524370d4b7b0525502f41042ff233556979468f3ae05ac2f",
+          "scope": "Actual local native f64 routing and full 5,093,765-leg calendar retention; 33.74x routing batch speedup, 52.59% lower retention RSS, 1.48x slower registration; full shared physics remains Python and V03 blocked"
         }
       ]
     },
@@ -2085,5 +2090,25 @@
     "total_count": 21,
     "percent": 90.48,
     "definition": "ACCEPTED or receipt-bound VERIFIED_SCOPED; not full CI/integration/final acceptance"
+  },
+  "rust_migration": {
+    "authorized_on": "2026-11-16",
+    "supersedes": "pure Python core restriction in PLAN v1.1.17 and AGENTS.md",
+    "target": "Rust-owned state, clock, routing, physical/service/journey ledgers; Python configuration, CLI, diagnostics only",
+    "mode": "Explicit METROFLOW_V1_ROUTING_BACKEND=rust; python_oracle remains default during migration until field/checkpoint parity of the complete engine",
+    "current_scope": [
+      "persistent f64 legal-turn routing integrated into V1 preparation",
+      "bounded native full-calendar registry and native initial ledgers",
+      "actual local matching-input measurements"
+    ],
+    "remaining": [
+      "Native factorized schedule generation without per-leg Python objects",
+      "Rust physical transport and service owner",
+      "native journey access and return eligibility, receipts and checkpoint",
+      "native whole-calendar activation with one shared road runtime",
+      "unchanged V03 three-case x three full-day, refinement and replay"
+    ],
+    "dag_policy": "V03 internal migration work; no new DAG nodes, 19/21 unchanged until acceptance",
+    "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326"
   }
 }

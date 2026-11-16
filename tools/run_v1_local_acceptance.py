@@ -64,6 +64,7 @@ def worker(args,matrix,case):
 def _worker(args,matrix,case,route_latency):
     started=time.perf_counter()
     result=dict(case=case['id'],status='PREPARING',simulated_s=0,
+                routing_backend=os.environ.get('METROFLOW_V1_ROUTING_BACKEND','python_oracle'),
                 environment=observed_environment(),step_s=args.step_s,horizon_s=args.horizon_s,
                 matrix_sha256=hashlib.sha256(args.matrix.read_bytes()).hexdigest())
     try:

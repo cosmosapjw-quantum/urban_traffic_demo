@@ -1,0 +1,34 @@
+{
+  "mode": "routing",
+  "case": "river_weekday_s17",
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "simulated_s": 0,
+  "full_campaign": "NOT_RUN",
+  "rss_limit_bytes": 8589934592,
+  "city_identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+  "source_archive_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+  "native_construction_s": 0.004771898995386437,
+  "python_queries_s": 2.101618430999224,
+  "native_queries_s": 0.06229566600813996,
+  "query_count": 256,
+  "exact_results_equal": true,
+  "speedup_including_native_construction": 31.335839177830916,
+  "scope": "same 256 actual-city OD queries; persistent native graph, exact paths/expansion/truncation; not whole runtime speed",
+  "status": "PASS_SCOPED",
+  "wall_s": 13.757386449011392,
+  "peak_rss_bytes": 57970688,
+  "source_sha256": {
+    "crates/metroflow-rust/src/v1_calendar.rs": "cb53030134691fdb37435b62173b0587d6c2c57043f0a9cccadfc7267c87d39f",
+    "crates/metroflow-rust/src/v1_routing.rs": "062c6b56f9a7bf7cc7e1e42f65e13a313c59c6bcd2480181ccfc67d9a7397af2",
+    "tools/measure_v1_native.py": "b214157c3df94f45dc5b25ac7f8cd92c4462295f74c8c7b2de0f323cbda0fc56",
+    "src/metroflow/v1/native_calendar.py": "dfb0954c3dcb1c09716bd9efd3977b75a3f9b56856743106d1488964d117e4d1",
+    "src/metroflow/v1/native_routing.py": "056e9c7004b76c3c1bb057a15d0a8503403f6f24045700d1bf65b0058611adf4"
+  }
+}

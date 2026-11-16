@@ -1,12 +1,12 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.17**, 2026-10-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.18**, 2026-11-16. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
 ## 1. 1차 완성의 의미
 
-한도시의지도·지속cohort활동·집계수송·조건부경로선택·지연개발피드백을24h 실행하고저장/재개/관측/개입비교할수있는순수Python headless연구시뮬레이터
+한도시의지도·지속cohort활동·집계수송·조건부경로선택·지연개발피드백을24h 실행하고저장/재개/관측/개입비교할수있는Rust 계산코어·Python frontend를 목표로 하는 headless연구시뮬레이터
 
 **완성 판정:** `V1_ENGINEERING_COMPLETE_WITH_DECLARED_SYNTHETIC_PHYSICS`. 실측 보정·게임 대비 우월성은 포함하지 않는다.
 
@@ -29,7 +29,7 @@
 - full public-transit assignment/환승최적화
 - parking micro/법적필지·구조공학인증
 - RL/LLM-first·외부데이터학습
-- GPU/JAX/Rust-primary rewrite·분산실행
+- GPU/JAX·분산실행
 - 완전한Boltzmann/pairhierarchy폐쇄의보편정리
 - 실도시보정·CitiesSkylines대비우월성주장
 
@@ -133,7 +133,7 @@ DEFERRED_BY_USER_UNTIL_ALL_DAG_IMPLEMENTED_AND_SEPARATE_REVIEW
 - 원PRD의persistent citizens는V1에서지속cohort activity ledger로구현한다. 개별주민전수상태는요구하지않는다.
 - 원PRD의UI와EMA/bandit은현재그래픽후순위·고유물리정초요청에따라1차release밖으로명시이관한다.
 - 원001의fingerprint-only replay와proxy benchmark는이번제품완료요구에맞춰실제checkpointresume/실측100k로강화한다.
-- 과거NumPy/Rust-primary 계획은역사적구현근거. 현재명시된purePython/noGPU가V1구현을지배한다.
+- 2026-11-16 사용자 승인: Rust 계산코어와 Python frontend로 전환한다. 기존 Python은 이행 중 scientific oracle로 보존한다. GPU는 범위 밖이며 물리·수용 기준은 유지한다.
 - 실제전통모델과정밀성능비교는release조건이아니다. 자체원리·반례·수치·실행수용을우선한다.
 
 ## 4. 선택한 아키텍처와 계약
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Measure and engineer whole-calendar shared-runtime activation and active-state cost using actual local evidence; full calendar storage alone fits 8GiB, 20k runtime cap remains; then run unchanged 3-case full-day campaign
+Port factorized generation and shared road/packet/service/journey ownership to Rust; measure unchanged whole-calendar activation before lifting 20k caps; then frozen-candidate 3-case x 3 full-day acceptance. Native calendar/routing alone are scoped evidence.
 
 **예산·종료조건**
 
