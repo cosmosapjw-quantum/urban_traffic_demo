@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.20**, 2026-11-16. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.21**, 2026-11-16. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Whole native construction verified for all3 full calendars. Resolve exact active-stage/history capacity: Valley default20k cap at25210s and diagnostic2m cap at25380s, both below8GiB; retain scientific ledgers/checkpoints. Then unchanged3-case x3 full-day campaign/refinement and separate review. Full CI/integration remain deferred.
+Bounded queue debugging complete: delayed entering stages dominate the unchanged cap, no missing retirement observed; lifecycle/copy fixes and deterministic opt-in Rayon verified. Remaining work is exact stage representation/capacity before unchanged3-case x3 full-day campaign/refinement and separate review. Full CI/integration remain deferred.
 
 **예산·종료조건**
 
@@ -2302,11 +2302,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "COMPLETED_SCOPED",
-  "scope": "V03 exact runtime preparation/check indexing, bounded route latency measurement, and actual local resource diagnosis; full campaign remains blocked",
+  "scope": "Bounded actual-local queue/history diagnosis, transactional lifecycle/copy fixes, deterministic opt-in Rayon workers; no new DAG node or acceptance campaign",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
+  "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2315,11 +2315,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [
-    "v03_scale_next",
-    "v03_route_metrics",
-    "v03_joint_cost",
-    "v03_service_cost",
-    "v03_research_next"
+    "journey_debug",
+    "parallel_road",
+    "engine_diagnostics",
+    "queue_review",
+    "parallel_references"
   ]
 }
 ```

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.20",
+  "version": "1.1.21",
   "date": "2026-11-16",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "COMPLETED_SCOPED",
-    "scope": "V03 exact runtime preparation/check indexing, bounded route latency measurement, and actual local resource diagnosis; full campaign remains blocked",
+    "scope": "Bounded actual-local queue/history diagnosis, transactional lifecycle/copy fixes, deterministic opt-in Rayon workers; no new DAG node or acceptance campaign",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
+    "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,11 +384,11 @@
       "status": "success"
     },
     "parallel_agents": [
-      "v03_scale_next",
-      "v03_route_metrics",
-      "v03_joint_cost",
-      "v03_service_cost",
-      "v03_research_next"
+      "journey_debug",
+      "parallel_road",
+      "engine_diagnostics",
+      "queue_review",
+      "parallel_references"
     ]
   },
   "nodes": [
@@ -1890,7 +1890,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Whole native construction verified for all3 full calendars. Resolve exact active-stage/history capacity: Valley default20k cap at25210s and diagnostic2m cap at25380s, both below8GiB; retain scientific ledgers/checkpoints. Then unchanged3-case x3 full-day campaign/refinement and separate review. Full CI/integration remain deferred.",
+      "positive_next_action": "Bounded queue debugging complete: delayed entering stages dominate the unchanged cap, no missing retirement observed; lifecycle/copy fixes and deterministic opt-in Rayon verified. Remaining work is exact stage representation/capacity before unchanged3-case x3 full-day campaign/refinement and separate review. Full CI/integration remain deferred.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1938,6 +1938,11 @@
           "path": "artifacts/v1_rust_whole_20261116/RECEIPT.json",
           "sha256": "81f63749c4b6290c8396c119e909b1305f101c82f33ff03e0df9c2f275c37bf3",
           "scope": "Whole native constructor and immutable binary checkpoints; all3 actual full calendars initialized with0 omittedlegs; Valley default20k cap at25210s and diagnostic2m cap at25380s with exact fresh-runtime rollback; no24h acceptance"
+        },
+        {
+          "path": "artifacts/v1_queue_debug_20261116/RECEIPT.json",
+          "sha256": "53997ac293cd822e1ccda49695c9cef8d7160fa87384320db1b9030963b0b515",
+          "scope": "Actual local bounded queue diagnosis and atomic lifecycle/copy fixes; final serial replay time26.24% and process RSS21.40% lower;1/2/4/8 worker checkpoint/report bytes match old kernel; parallel speedup not robust; logical record limit andV03 block unchanged"
         }
       ]
     },
@@ -2117,15 +2122,22 @@
       "Whole native calendar-to-route/service/journey constructor with marginal-only Python frontend and one road owner",
       "Opaque immutable native snapshots, exact binary checkpoints and cross-owner scientific binding validation",
       "Lossless persistent receipt blocks with exact fsum/eligibility indexing",
-      "Actual full three-city initialization/10s/checkpoint measurements; whole Valley activation to logical record cap"
+      "Actual full three-city initialization/10s/checkpoint measurements; whole Valley activation to logical record cap",
+      "Bounded queue lifecycle counts and failed-candidate diagnostics; reduced whole-tick copies and empty/sparse stage allocation",
+      "Deterministic private Rayon pool for independent cell and leg chunks; opt-in workers1..256, default1; serial scientific reductions"
     ],
     "remaining": [
-      "Measured full-day active-stage/history storage within unchanged 8GiB target; default20k and diagnostic2m logical record limits both reached before8h",
-      "Reduce O(number_of_calendar_legs) dense per-tick work and exact active-stage/history fragmentation without changing source measures or receipt clocks",
+      "Exact delayed-entering stage record capacity within unchanged8GiB target; bounded Valley trace is92.72% entering and2.78% receipts, with no missing retirement observed; default20k and diagnostic2m caps remain",
+      "Reduce dense all-leg work and delayed stage fragmentation without altering source measures or receipt clocks; parallel speedup is not robust in shared-host measurements",
       "Frozen candidate 3 cases x 3 full-day campaign, refinement and replay",
       "Separate acceptance review; full repository CI/integration still deferred by user"
     ],
     "dag_policy": "V03 internal migration work; no new DAG nodes, 19/21 unchanged until acceptance",
-    "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326"
+    "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
+    "last_completed_work": {
+      "date": "2026-11-16",
+      "scope": "queue/history debug and opt-in deterministic Rayon",
+      "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json"
+    }
   }
 }

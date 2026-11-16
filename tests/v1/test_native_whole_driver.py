@@ -133,11 +133,13 @@ def test_runtime_resource_checkpoint_is_rewrapped_with_driver_binding(monkeypatc
     driver.check(saved)
 
 
-def test_cli_prepare_selects_whole_native_before_legacy_leg_budget(monkeypatch):
+@pytest.mark.parametrize('workers', [1, 4])
+def test_cli_prepare_selects_whole_native_before_legacy_leg_budget(monkeypatch, workers):
     import tools.run_v1_local_acceptance as cli
 
     city, _, inventory = marginal_fixture()
     monkeypatch.setenv("METROFLOW_V1_ENGINE_BACKEND", "rust_whole")
+    monkeypatch.setenv("METROFLOW_V1_NATIVE_THREADS", str(workers))
     row = dict(source_sha256="fixture", patch_sha256="fixture")
     monkeypatch.setattr(cli, "load_release_city", lambda case: (city, row))
 
@@ -150,6 +152,7 @@ def test_cli_prepare_selects_whole_native_before_legacy_leg_budget(monkeypatch):
                   limits={"peak_rss_bytes": 8*1024**3})
     driver, returned_row = cli.prepare(dict(id="fixture", day="weekday"), matrix, 600)
     assert isinstance(driver, NativeReleaseDriver)
+    assert driver.runtime.native.native_threads == workers
     assert driver.cursor.offset > matrix["route_materialization_budget"]
     assert returned_row == row
 

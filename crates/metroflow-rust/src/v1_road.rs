@@ -1,5 +1,6 @@
 //! Rust owner of the V1 T02/T04 finite-response FIFO packet state.
 //! Registry paths are interned; tags retain independent observable ledgers.
+use crate::v1_parallel::ordered_map;
 use pyo3::exceptions::{PyArithmeticError, PyIOError, PyMemoryError, PyValueError};
 use pyo3::prelude::*;
 use std::collections::{BTreeMap, HashMap};
@@ -88,6 +89,19 @@ pub(crate) struct RoadState {
     totals: [f64; 7],
     ledger: Vec<[f64; 5]>,
 }
+#[derive(Default)]
+pub(crate) struct RoadDebugStats {
+    pub(crate) cell_packets: usize,
+    pub(crate) pending_packets: usize,
+    pub(crate) cell_parts: usize,
+    pub(crate) pending_parts: usize,
+    pub(crate) packet_capacity: usize,
+    pub(crate) part_capacity: usize,
+    pub(crate) vector_capacity_bytes: usize,
+    pub(crate) latent_entries: usize,
+    pub(crate) max_cell_parts: usize,
+    pub(crate) max_pending_parts: usize,
+}
 impl RoadState {
     pub(crate) fn time(&self) -> f64 {
         self.t
@@ -106,6 +120,42 @@ impl RoadState {
         {
             *out.entry(p.tag).or_insert(0.0) += p.mass;
         }
+        out
+    }
+    /// Owned vector capacity only: BTreeMap nodes, allocator overhead and the
+    /// immutable model registry are deliberately excluded from this diagnostic.
+    pub(crate) fn debug_stats(&self) -> RoadDebugStats {
+        let mut out = RoadDebugStats::default();
+        out.vector_capacity_bytes = std::mem::size_of::<Self>()
+            + self.cells.capacity() * std::mem::size_of::<Cell>()
+            + self.pending.capacity() * std::mem::size_of::<Vec<Packet>>()
+            + self.ledger.capacity() * std::mem::size_of::<[f64; 5]>();
+        for cell in &self.cells {
+            out.cell_packets += cell.packets.len();
+            let parts = cell.packets.iter().map(|packet| packet.parts.len()).sum();
+            out.cell_parts += parts;
+            out.max_cell_parts = out.max_cell_parts.max(parts);
+            out.latent_entries += cell.latent.len();
+        }
+        for queue in &self.pending {
+            out.pending_packets += queue.len();
+            let parts = queue.iter().map(|packet| packet.parts.len()).sum();
+            out.pending_parts += parts;
+            out.max_pending_parts = out.max_pending_parts.max(parts);
+        }
+        for queue in self
+            .cells
+            .iter()
+            .map(|cell| &cell.packets)
+            .chain(&self.pending)
+        {
+            out.packet_capacity += queue.capacity();
+            for packet in queue {
+                out.part_capacity += packet.parts.capacity();
+            }
+        }
+        out.vector_capacity_bytes += out.packet_capacity * std::mem::size_of::<Packet>()
+            + out.part_capacity * std::mem::size_of::<Part>();
         out
     }
 }
@@ -493,6 +543,16 @@ impl V1Road {
         self.state = s;
         Ok(e)
     }
+    /// Build a candidate against the current immutable owner. The coupled
+    /// service/journey transaction installs it only after its other owners
+    /// validate, avoiding a second full road clone solely for rollback.
+    pub(crate) fn propose_owned_step(
+        &self,
+        dt: f64,
+        offers: Vec<Offer>,
+    ) -> PyResult<(RoadState, Vec<EventRow>)> {
+        self.step_state(&self.state, dt, offers)
+    }
     fn class(&self, p: &Part) -> usize {
         self.routes[p.tag].1
     }
@@ -873,8 +933,24 @@ impl V1Road {
                 }
             }
         }
-        let mut out = s.clone();
-        out.t = end;
+        // Cell queues are copied exactly once into the independent motion
+        // workspaces below. Cloning them here as well only retained a second,
+        // unused copy until each cell's survivors replaced it near commit.
+        let mut out = RoadState {
+            t: end,
+            cells: s
+                .cells
+                .iter()
+                .map(|cell| Cell {
+                    v: cell.v,
+                    packets: Vec::new(),
+                    latent: BTreeMap::new(),
+                })
+                .collect(),
+            pending: s.pending.clone(),
+            totals: s.totals,
+            ledger: s.ledger.clone(),
+        };
         let mut new: BTreeMap<usize, Vec<Part>> = BTreeMap::new();
         let (mut born, mut birth1, mut inherited) = (0., 0., 0.);
         for (tag, m, b, a, z) in offers {
@@ -929,19 +1005,18 @@ impl V1Road {
         let mut space: Vec<f64> = (0..n)
             .map(|i| (self.groups[i][4] - self.occupied(&s.cells[i])).max(0.))
             .collect();
-        let mut motions = Vec::new();
-        let mut queues: Vec<Vec<(Packet, f64)>> = vec![];
-        for i in 0..n {
+        // Every prediction reads the same immutable old state. Keep each
+        // cell's arithmetic and packet order unchanged; collect by index and
+        // inspect results serially so even multiple failures choose the same
+        // error as the serial oracle. Node allocation below is not parallel.
+        let predictions = ordered_map(n, 32, |i| -> PyResult<_> {
             let c = &s.cells[i];
             let m = self.motion(i, c, dt, factor[i])?;
-            out.cells[i].v[0] += m.dx;
-            out.cells[i].v[7] = m.speed;
-            out.cells[i].latent = m.latent.clone();
-            out.cells[i].v[6] += sum(c
+            let distance = sum(c
                 .packets
                 .iter()
                 .map(|p| mass(p) * m.dx.min((p.target - c.v[0]).max(0.))));
-            let mut q = vec![];
+            let mut q = Vec::with_capacity(c.packets.len());
             for p in &c.packets {
                 let d = p.target - c.v[0];
                 let ready = if d <= m.dx + 1e-10 {
@@ -951,6 +1026,16 @@ impl V1Road {
                 };
                 q.push((p.clone(), ready));
             }
+            Ok((m, q, distance))
+        });
+        let mut motions = Vec::with_capacity(n);
+        let mut queues = Vec::with_capacity(n);
+        for (i, prediction) in predictions.into_iter().enumerate() {
+            let (m, q, distance) = prediction?;
+            out.cells[i].v[0] += m.dx;
+            out.cells[i].v[7] = m.speed;
+            out.cells[i].latent = m.latent.clone();
+            out.cells[i].v[6] += distance;
             queues.push(q);
             motions.push(m);
         }
@@ -971,7 +1056,10 @@ impl V1Road {
                 {
                     return Err(budget("packet junction budget"));
                 }
-                let mut heads: BTreeMap<usize, Packet> = BTreeMap::new();
+                // Heads identify owned queue rows. Cloning a potentially huge
+                // mixed packet just to inspect its mass/routes retained a full
+                // extra Part vector for every junction event.
+                let mut heads: BTreeMap<usize, ()> = BTreeMap::new();
                 let mut future = vec![];
                 let mut beta: BTreeMap<usize, BTreeMap<usize, f64>> = BTreeMap::new();
                 let mut beta_space: BTreeMap<usize, BTreeMap<usize, f64>> = BTreeMap::new();
@@ -986,7 +1074,7 @@ impl V1Road {
                         }
                         continue;
                     }
-                    heads.insert(i, packet.clone());
+                    heads.insert(i, ());
                     let mut dest: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
                     let mut ds: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
                     for p in &packet.parts {
@@ -1067,7 +1155,7 @@ impl V1Road {
                     }
                 }
                 for (&i, &r) in &rates {
-                    h = h.min(mass(&heads[&i]) / r);
+                    h = h.min(mass(&queues[i][position[i]].0) / r);
                 }
                 for (&j, &r) in &dr {
                     if r > 0. {
@@ -1084,18 +1172,23 @@ impl V1Road {
                 }
                 let mid = t + cursor + h / 2.;
                 for (&i, &rate) in &rates {
-                    let packet = &heads[&i];
+                    let packet = &queues[i][position[i]].0;
                     let ready = queues[i][position[i]].1;
                     let mut fraction = (rate * h / mass(packet)).min(1.);
                     if 1. - fraction < 1e-14 {
                         fraction = 1.;
                     }
                     let served = portion(&packet.parts, fraction);
-                    let sm = sum(served.iter().map(|p| p.mass));
-                    if fraction == 1. {
-                        position[i] += 1;
+                    let remainder = if fraction == 1. {
+                        None
                     } else {
-                        queues[i][position[i]].0.parts = portion(&packet.parts, 1. - fraction);
+                        Some(portion(&packet.parts, 1. - fraction))
+                    };
+                    let sm = sum(served.iter().map(|p| p.mass));
+                    if let Some(parts) = remainder {
+                        queues[i][position[i]].0.parts = parts;
+                    } else {
+                        position[i] += 1;
                     }
                     out.cells[i].v[3] += sm;
                     out.cells[i].v[5] += sm * mid;
@@ -1144,9 +1237,12 @@ impl V1Road {
                     out.ledger[self.class(part)][3] += part.mass * (dt - ready).max(0.);
                 }
             }
-            out.cells[i].packets = queues[i][position[i]..]
-                .iter()
-                .map(|(p, _)| p.clone())
+            // The transition owns these queue packets; moving survivors avoids
+            // copying all remaining Part rows a second time at commit.
+            out.cells[i].packets = std::mem::take(&mut queues[i])
+                .into_iter()
+                .skip(position[i])
+                .map(|(p, _)| p)
                 .collect();
             let mut active = vec![false; self.classes.len()];
             for p in &out.cells[i].packets {

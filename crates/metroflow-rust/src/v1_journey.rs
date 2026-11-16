@@ -2,6 +2,7 @@
 //! Road evolution is supplied by the sole road owner between prepare/finish.
 //! Each transition is transactional: errors leave the last committed state intact.
 use crate::v1_history::ReceiptHistory;
+use crate::v1_parallel::ordered_map;
 use crate::v1_road::{
     checkpoint_vec, read_exact_len, read_f64, read_len, read_u64, write_f64, write_len, write_u64,
     EventRow, V1Road,
@@ -52,6 +53,89 @@ pub(crate) type Journey = (
     Vec<ReceiptHistory>,
     Vec<f64>,
 );
+/// Debug counters are observational metadata, never serialized physical state.
+#[derive(Clone, Debug, Default)]
+pub(crate) struct JourneyDebug {
+    pub counts: [usize; 4],
+    pub stage_capacity: [usize; 3],
+    pub dense_capacity_bytes: usize,
+    pub stage_mass: [f64; 3],
+    pub ready_now: [usize; 3],
+    pub nonempty_histories: usize,
+}
+
+pub(crate) fn journey_debug(s: &Journey) -> JourneyDebug {
+    let stages = [&s.1, &s.2, &s.3];
+    JourneyDebug {
+        counts: [
+            s.1.len(),
+            s.2.len(),
+            s.3.len(),
+            s.6.iter().map(ReceiptHistory::len).sum(),
+        ],
+        stage_capacity: stages.map(|rows| rows.capacity()),
+        dense_capacity_bytes: (s.4.capacity() + s.5.capacity() + s.7.capacity())
+            * std::mem::size_of::<f64>()
+            + s.6.capacity() * std::mem::size_of::<ReceiptHistory>(),
+        stage_mass: stages.map(|rows| fsum(rows.iter().map(|a| a.1))),
+        ready_now: stages.map(|rows| rows.iter().filter(|a| a.2 + a.3 <= s.0 + 1e-10).count()),
+        nonempty_histories: s.6.iter().filter(|rows| rows.len() != 0).count(),
+    }
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct JourneyAttempt {
+    pub start_s: f64,
+    pub end_s: f64,
+    pub before: [usize; 4],
+    pub after_prepare: [usize; 4],
+    pub candidate: [usize; 4],
+    pub generated: [usize; 3],
+    pub retired: [usize; 3],
+    pub receipts_added: usize,
+    pub emitted_offers: usize,
+    pub committed: bool,
+    pub phase: &'static str,
+}
+
+/// Aggregate wall time within one coupled advance call. Timings are diagnostic
+/// only: they do not enter snapshots, model identity or any numerical branch.
+#[derive(Clone, Copy, Debug, Default)]
+pub(crate) struct JourneyPhaseMetrics {
+    pub prepare_s: f64,
+    pub service_prepare_s: f64,
+    pub road_step_s: f64,
+    pub service_finish_s: f64,
+    pub journey_finish_s: f64,
+    pub other_tick_s: f64,
+    pub binding_s: f64,
+    pub successful_ticks: usize,
+    pub failed_ticks: usize,
+}
+impl JourneyPhaseMetrics {
+    fn phase_sum(&self) -> f64 {
+        self.prepare_s
+            + self.service_prepare_s
+            + self.road_step_s
+            + self.service_finish_s
+            + self.journey_finish_s
+    }
+}
+
+const LEG_CHUNK: usize = 1024;
+
+fn release_unused_stage_capacity(stage: &mut Vec<Access>) {
+    if stage.is_empty() {
+        // A drained queue owns no physical information. Do not retain its
+        // former allocation in a long-lived immutable checkpoint.
+        *stage = Vec::new();
+    } else if stage.capacity() > 4096 && stage.capacity() / 4 > stage.len() {
+        // Avoid allocating on every fractional drain while bounding retained
+        // spare storage after a large wave has left the stage.
+        stage.shrink_to_fit();
+    }
+}
+
 type JourneyRow = (
     f64,
     Vec<Access>,
@@ -449,9 +533,11 @@ impl NativeServiceCore {
         Ok(offers)
     }
     fn finish(&mut self, end: f64, events: Vec<Sink>) -> PyResult<()> {
+        // Finish consumes its uncommitted candidate. On any failure the
+        // committed state remains intact and the transaction is aborted.
         let (t, mut s) = self
             .pending
-            .clone()
+            .take()
             .ok_or_else(|| bad("native service finish without prepare"))?;
         if !end.is_finite()
             || end <= t
@@ -550,6 +636,9 @@ pub struct NativeJourneyCore {
     pending: Option<Journey>,
     tick_times_s: Vec<f64>,
     peak_records: usize,
+    history_rows: usize,
+    last_attempt: Option<JourneyAttempt>,
+    phase_metrics: JourneyPhaseMetrics,
 }
 impl NativeJourneyCore {
     /// Reproduce the joint oracle's cross-owner service and original-intent
@@ -634,12 +723,33 @@ impl NativeJourneyCore {
     pub(crate) fn owned_metrics(&self) -> (&[f64], usize) {
         (&self.tick_times_s, self.peak_records)
     }
+    pub(crate) fn owned_phase_metrics(&self) -> &JourneyPhaseMetrics {
+        &self.phase_metrics
+    }
     pub(crate) fn checkpoint(&self) -> Journey {
         self.state.clone()
     }
     pub(crate) fn rollback(&mut self, state: Journey) {
+        self.history_rows = state.6.iter().map(ReceiptHistory::len).sum();
         self.state = state;
         self.pending = None;
+        self.last_attempt = None;
+    }
+    pub(crate) fn last_attempt(&self) -> Option<&JourneyAttempt> {
+        self.last_attempt.as_ref()
+    }
+    pub(crate) fn record_counts(&self) -> [usize; 4] {
+        [
+            self.state.1.len(),
+            self.state.2.len(),
+            self.state.3.len(),
+            self.history_rows,
+        ]
+    }
+    fn phase(&mut self, phase: &'static str) {
+        if let Some(attempt) = &mut self.last_attempt {
+            attempt.phase = phase;
+        }
     }
     pub(crate) fn install_state(&mut self, state: Journey) {
         self.rollback(state);
@@ -739,20 +849,26 @@ impl NativeJourneyCore {
         {
             return Err(bad("native journey snapshot shape/clock differs"));
         }
-        for i in 0..n {
-            let l = &self.legs[i];
-            let tol = 1e-9 * l.1.max(1.0);
-            if !nonnegative([s.4[i], s.5[i], s.7[i]])
-                || s.5[i] > s.4[i] + tol
-                || s.4[i] > l.1 * fraction(&l.4, s.0) + tol
-                || !s.6[i].valid_at(s.0)
-                || (s.6[i].total() * l.1 - s.5[i]).abs() > tol
-                || s.4[i] > l.1 * eligible(&self.legs, s, i) + tol
-            {
-                return Err(bad(
-                    "native journey conservation/receipt/eligibility failure",
-                ));
-            }
+        // Read-only checks are independent across leg indices. No floating
+        // point reduction is parallelized and error selection stays stable.
+        let valid = ordered_map(n.div_ceil(LEG_CHUNK), 2, |chunk| {
+            let start = chunk * LEG_CHUNK;
+            let end = (start + LEG_CHUNK).min(n);
+            (start..end).all(|i| {
+                let l = &self.legs[i];
+                let tol = 1e-9 * l.1.max(1.0);
+                nonnegative([s.4[i], s.5[i], s.7[i]])
+                    && s.5[i] <= s.4[i] + tol
+                    && s.4[i] <= l.1 * fraction(&l.4, s.0) + tol
+                    && s.6[i].valid_at(s.0)
+                    && (s.6[i].total() * l.1 - s.5[i]).abs() <= tol
+                    && s.4[i] <= l.1 * eligible(&self.legs, s, i) + tol
+            })
+        });
+        if valid.into_iter().any(|valid| !valid) {
+            return Err(bad(
+                "native journey conservation/receipt/eligibility failure",
+            ));
         }
         for stage in [&s.1, &s.2, &s.3] {
             if stage.iter().any(|a| {
@@ -797,6 +913,7 @@ pub(crate) fn advance_owned_joint(
     count: usize,
     step_s: f64,
 ) -> PyResult<usize> {
+    journey.phase_metrics = JourneyPhaseMetrics::default();
     if !step_s.is_finite()
         || step_s <= 0.0
         || service.pending.is_some()
@@ -804,11 +921,13 @@ pub(crate) fn advance_owned_joint(
     {
         return Err(bad("invalid native coupled step or pending transition"));
     }
+    let binding_started = Instant::now();
     let tag_indices: HashMap<String, usize> = tags
         .iter()
         .enumerate()
         .map(|(i, t)| (t.clone(), i))
         .collect();
+    journey.phase_metrics.binding_s = binding_started.elapsed().as_secs_f64();
     if tag_indices.len() != tags.len() || road.owned_time() != journey.state.0 {
         return Err(bad("native coupled route labels or clocks differ"));
     }
@@ -821,13 +940,19 @@ pub(crate) fn advance_owned_joint(
     })?;
     for _ in 0..count {
         let started = Instant::now();
-        let road_before = road.checkpoint();
+        let phases_before = journey.phase_metrics.phase_sum();
         let service_before = service.state.clone();
-        let journey_before = journey.state.clone();
         let result = (|| -> PyResult<()> {
             let t = road.owned_time();
-            let (mut offers, eligible) = journey.prepare()?;
-            offers.extend(service.prepare(t, eligible)?);
+            let phase_started = Instant::now();
+            let result = journey.prepare();
+            journey.phase_metrics.prepare_s += phase_started.elapsed().as_secs_f64();
+            let (mut offers, eligible) = result?;
+            journey.phase("service_prepare");
+            let phase_started = Instant::now();
+            let result = service.prepare(t, eligible);
+            journey.phase_metrics.service_prepare_s += phase_started.elapsed().as_secs_f64();
+            offers.extend(result?);
             let mut physical = Vec::with_capacity(offers.len());
             for (tag, mass, birth) in offers {
                 let index = *tag_indices
@@ -835,7 +960,13 @@ pub(crate) fn advance_owned_joint(
                     .ok_or_else(|| bad("native joint offer has no physical route"))?;
                 physical.push((index, mass, birth, None, None));
             }
-            let events = road.owned_step(step_s, physical)?;
+            journey.phase("road_step");
+            // The road candidate is computed from the old owner without
+            // installing it. It commits only after both other owners validate.
+            let phase_started = Instant::now();
+            let result = road.propose_owned_step(step_s, physical);
+            journey.phase_metrics.road_step_s += phase_started.elapsed().as_secs_f64();
+            let (road_candidate, events) = result?;
             let mut sinks = Vec::new();
             for e in &events {
                 if e.2.is_none() {
@@ -845,9 +976,14 @@ pub(crate) fn advance_owned_joint(
                     sinks.push((tag.clone(), e.3, e.5));
                 }
             }
-            let end = road.owned_time();
-            service.finish(end, sinks.clone())?;
-            journey.finish(
+            let end = road_candidate.time();
+            journey.phase("service_finish");
+            let phase_started = Instant::now();
+            let result = service.finish(end, sinks.clone());
+            journey.phase_metrics.service_finish_s += phase_started.elapsed().as_secs_f64();
+            result?;
+            let phase_started = Instant::now();
+            let result = journey.finish(
                 end,
                 sinks,
                 service_before.1.clone(),
@@ -856,26 +992,34 @@ pub(crate) fn advance_owned_joint(
                 service.state.2.clone(),
                 service_before.3.clone(),
                 service.state.3.clone(),
-            )?;
+            );
+            journey.phase_metrics.journey_finish_s += phase_started.elapsed().as_secs_f64();
+            result?;
+            road.rollback(road_candidate);
             service.last_events = events;
             Ok(())
         })();
         if let Err(error) = result {
-            road.rollback(road_before);
             service.state = service_before;
             service.pending = None;
-            journey.state = journey_before;
+            // Journey commits only in finish, the final fallible operation.
+            // Thus an error leaves its original committed state in place;
+            // aborting the candidate needs no extra whole-state clone.
             journey.pending = None;
+            journey.phase_metrics.failed_ticks += 1;
+            let phases = journey.phase_metrics.phase_sum() - phases_before;
+            journey.phase_metrics.other_tick_s +=
+                (started.elapsed().as_secs_f64() - phases).max(0.0);
             return Err(error);
         }
-        let s = &journey.state;
-        let records = road.owned_record_count()
-            + s.1.len()
-            + s.2.len()
-            + s.3.len()
-            + s.6.iter().map(ReceiptHistory::len).sum::<usize>();
+        let records =
+            road.owned_record_count() + journey.record_counts().into_iter().sum::<usize>();
         journey.peak_records = journey.peak_records.max(records);
-        journey.tick_times_s.push(started.elapsed().as_secs_f64());
+        let elapsed = started.elapsed().as_secs_f64();
+        let phases = journey.phase_metrics.phase_sum() - phases_before;
+        journey.phase_metrics.other_tick_s += (elapsed - phases).max(0.0);
+        journey.phase_metrics.successful_ticks += 1;
+        journey.tick_times_s.push(elapsed);
     }
     Ok(count)
 }
@@ -940,6 +1084,16 @@ impl NativeJourneyCore {
     fn advance_metrics(&self) -> (Vec<f64>, usize) {
         (self.tick_times_s.clone(), self.peak_records)
     }
+    fn queue_storage(&self) -> ([usize; 4], [usize; 3]) {
+        (
+            self.record_counts(),
+            [
+                self.state.1.capacity(),
+                self.state.2.capacity(),
+                self.state.3.capacity(),
+            ],
+        )
+    }
     fn restore(&mut self, row: JourneyRow) -> PyResult<()> {
         let state = (
             row.0,
@@ -956,34 +1110,66 @@ impl NativeJourneyCore {
             row.7,
         );
         self.validate(&state)?;
-        self.state = state;
-        self.pending = None;
+        self.rollback(state);
         Ok(())
     }
     fn abort(&mut self) {
         self.pending = None;
+        self.phase("aborted");
     }
     fn prepare(&mut self) -> PyResult<(Vec<Offer>, Vec<bool>)> {
         if self.pending.is_some() {
             return Err(bad("native journey already prepared"));
         }
         let t = self.state.0;
+        let before = self.record_counts();
+        self.last_attempt = Some(JourneyAttempt {
+            start_s: t,
+            end_s: t,
+            before,
+            after_prepare: before,
+            candidate: before,
+            generated: [0; 3],
+            retired: [0; 3],
+            receipts_added: 0,
+            emitted_offers: 0,
+            committed: false,
+            phase: "journey_prepare",
+        });
         let mut s = self.state.clone();
-        for (i, l) in self.legs.iter().enumerate() {
-            if l.5 == 0 || l.1 == 0.0 {
-                continue;
+        // Every proposal reads the same immutable pre-tick state. Indexed
+        // chunks return in source order, and all additions/queue insertion
+        // remain serial in exactly the original leg/law order.
+        let chunks = self.legs.len().div_ceil(LEG_CHUNK);
+        let proposals = ordered_map(chunks, 2, |chunk| {
+            let start = chunk * LEG_CHUNK;
+            let end = (start + LEG_CHUNK).min(self.legs.len());
+            let mut releases = Vec::new();
+            for i in start..end {
+                let l = &self.legs[i];
+                if l.5 == 0 || l.1 == 0.0 {
+                    continue;
+                }
+                let lo = self.state.4[i] / l.1;
+                let hi = fraction(&l.4, t).min(eligible(&self.legs, &self.state, i));
+                if hi <= lo {
+                    continue;
+                }
+                let mass = l.1 * (hi - lo);
+                let born = birth_between(&l.4, lo, hi);
+                let hold = if l.2.is_some() { t - born } else { 0.0 };
+                releases.push((i, mass, born, hold));
             }
-            let lo = s.4[i] / l.1;
-            let hi = fraction(&l.4, t).min(eligible(&self.legs, &self.state, i));
-            if hi <= lo {
-                continue;
-            }
-            let mass = l.1 * (hi - lo);
-            let born = birth_between(&l.4, lo, hi);
+            releases
+        });
+        let attempt = self.last_attempt.as_mut().unwrap();
+        for (i, mass, born, hold) in proposals.into_iter().flatten() {
+            let l = &self.legs[i];
             s.4[i] += mass;
             s.7[i] += mass * born;
-            let hold = if l.2.is_some() { t - born } else { 0.0 };
-            let target = if l.5 == 2 { &mut s.3 } else { &mut s.1 };
+            let stage = if l.5 == 2 { 2 } else { 0 };
+            let target = if stage == 2 { &mut s.3 } else { &mut s.1 };
+            attempt.generated[stage] += l.6.len();
             target.extend(l.6.iter().map(|w| (i, mass * w.1, born, w.0 + hold)));
         }
         let mut offers = Vec::new();
@@ -995,6 +1181,10 @@ impl NativeJourneyCore {
                 true
             }
         });
+        attempt.retired[0] = offers.len();
+        attempt.emitted_offers = offers.len();
+        attempt.after_prepare = [s.1.len(), s.2.len(), s.3.len(), self.history_rows];
+        attempt.candidate = attempt.after_prepare;
         let allow = self
             .bus
             .iter()
@@ -1016,10 +1206,17 @@ impl NativeJourneyCore {
         before_completed: Vec<f64>,
         after_completed: Vec<f64>,
     ) -> PyResult<()> {
+        // The committed state remains available throughout finish. Consume
+        // the candidate instead of duplicating all active queues a third time.
         let mut s = self
             .pending
-            .clone()
+            .take()
             .ok_or_else(|| bad("native journey finish without prepare"))?;
+        if let Some(attempt) = &mut self.last_attempt {
+            attempt.phase = "journey_finish";
+            attempt.end_s = end;
+        }
+        let mut generated_egress = 0usize;
         let t = s.0;
         if !end.is_finite()
             || end <= t
@@ -1037,6 +1234,7 @@ impl NativeJourneyCore {
                 return Err(bad("invalid native journey road sink"));
             }
             if let Some(&i) = self.route_indices.get(&e.0) {
+                generated_egress += self.legs[i].7.len();
                 s.2.extend(self.legs[i].7.iter().map(|w| (i, e.1 * w.1, e.2, w.0)));
             }
         }
@@ -1055,6 +1253,7 @@ impl NativeJourneyCore {
             s.4[b.0] += boarded * factor;
             s.7[b.0] += boarded * factor * b.3 / b.2;
             if arrived != 0.0 {
+                generated_egress += b.5.len();
                 s.2.extend(b.5.iter().map(|w| (b.0, arrived * factor * w.1, end, w.0)));
             }
         }
@@ -1071,10 +1270,13 @@ impl NativeJourneyCore {
                 return Err(bad("native freight arrival decreased"));
             }
             if arrival != 0.0 {
+                generated_egress += f.3.len();
                 s.2.extend(f.3.iter().map(|w| (f.0, arrival * w.1, end, w.0)));
             }
         }
-        for stage in [&mut s.2, &mut s.3] {
+        let mut retired = [0usize; 2];
+        for (kind, stage) in [&mut s.2, &mut s.3].into_iter().enumerate() {
+            let before = stage.len();
             let mut receipt_error = None;
             stage.retain(|a| {
                 if a.2 + a.3 <= end + 1e-10 {
@@ -1087,14 +1289,31 @@ impl NativeJourneyCore {
                     true
                 }
             });
+            retired[kind] = before - stage.len();
             if let Some(error) = receipt_error {
                 return Err(bad(error));
             }
         }
+        let added = retired[0] + retired[1];
         s.0 = end;
+        if let Some(attempt) = &mut self.last_attempt {
+            attempt.generated[1] = generated_egress;
+            attempt.retired[1] = retired[0];
+            attempt.retired[2] = retired[1];
+            attempt.receipts_added = added;
+            attempt.candidate = [s.1.len(), s.2.len(), s.3.len(), self.history_rows + added];
+            attempt.phase = "journey_validation";
+        }
         self.validate(&s)?;
+        for stage in [&mut s.1, &mut s.2, &mut s.3] {
+            release_unused_stage_capacity(stage);
+        }
         self.state = s;
-        self.pending = None;
+        self.history_rows += added;
+        if let Some(attempt) = &mut self.last_attempt {
+            attempt.committed = true;
+            attempt.phase = "committed";
+        }
         Ok(())
     }
 }
@@ -1173,6 +1392,9 @@ impl NativeJourneyCore {
             pending: None,
             tick_times_s: Vec::new(),
             peak_records: 0,
+            history_rows: 0,
+            last_attempt: None,
+            phase_metrics: JourneyPhaseMetrics::default(),
         })
     }
 }

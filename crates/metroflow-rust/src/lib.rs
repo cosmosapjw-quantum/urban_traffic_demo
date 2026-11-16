@@ -12,6 +12,7 @@ mod v1_road;
 mod v1_journey;
 mod v1_history;
 mod v1_engine;
+mod v1_parallel;
 
 use agent::advance_active_agents_batch_impl;
 #[cfg(test)]

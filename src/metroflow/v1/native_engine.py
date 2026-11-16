@@ -15,23 +15,30 @@ from .native_static import prepare_native_static
 
 class NativeWholeRuntime:
     def __init__(self, city, schedule, inventory, *, step_s=10.0,
-                 byte_budget=2 * 1024**3, record_budget=20000, event_budget=20000):
+                 byte_budget=2 * 1024**3, record_budget=20000, event_budget=20000,
+                 native_threads=1):
         from _metroflow_rust import NativeWholeEngine
 
         if isinstance(byte_budget, bool) or not isinstance(byte_budget, int) or byte_budget <= 0:
             raise ValueError("positive integer native byte budget required")
+        if (isinstance(native_threads, bool) or not isinstance(native_threads, int)
+                or not 1 <= native_threads <= 256):
+            raise ValueError("native_threads must be an integer in 1..256")
         payload = prepare_native_static(city, schedule, inventory, step_s=step_s,
                                         record_budget=record_budget, event_budget=event_budget)
         try:
             calendar = compile_native_factorized_calendar(schedule, byte_budget=byte_budget)
-            self.native = NativeWholeEngine(calendar, payload, byte_budget)
+            self.native = NativeWholeEngine(calendar, payload, byte_budget, native_threads)
         except MemoryError as cause:
             exc = BudgetExceeded(str(cause))
             exc.status = "BLOCKED_RESOURCE"
             raise exc from cause
         self.identity = self.native.identity
         self.step_s = step_s
+        self.native_threads = self.native.native_threads
         self.last_advance_metrics = dict(tick_times_s=[], peak_records=0,
+            native_threads=self.native_threads,
+            phase_metrics=self.native.phase_metrics(),
             scope="native complete tick including rollback copying; no Python leg snapshots")
 
     def initial(self):
@@ -57,10 +64,23 @@ class NativeWholeRuntime:
         finally:
             times, peak = self.native.advance_metrics()
             self.last_advance_metrics = dict(tick_times_s=times, peak_records=peak,
+                native_threads=self.native_threads,
+                phase_metrics=self.native.phase_metrics(),
                 scope="native complete tick including rollback copying; no Python leg snapshots")
 
     def report(self, state):
         return self.native.report(state)
+
+    def execution_config(self):
+        return self.native.execution_config()
+
+    def phase_metrics(self):
+        """Wall-time attribution for the latest native call, including failure."""
+        return self.native.phase_metrics()
+
+    def debug_state(self, state):
+        """Bounded stage/queue counters; diagnostics do not enter physical state."""
+        return self.native.debug_state(state)
 
     def sample_legs(self, state, indices):
         """Bounded diagnostics only; never converts the full calendar to Python."""

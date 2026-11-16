@@ -52,7 +52,8 @@ def prepare(case,matrix,step_s):
     if os.environ.get('METROFLOW_V1_ENGINE_BACKEND') == 'rust_whole':
         from metroflow.v1.native_release_driver import NativeReleaseDriver
         return NativeReleaseDriver(plan,inventory,step_s=step_s,
-            byte_budget=min(6*1024**3,matrix['limits']['peak_rss_bytes'])),row
+            byte_budget=min(6*1024**3,matrix['limits']['peak_rss_bytes']),
+            native_threads=int(os.environ.get('METROFLOW_V1_NATIVE_THREADS','1'))),row
     def factory(city,legs,*,step_s):
         return compile_service_plan(city,legs,inventory.corridors,
                      depot_block_id=inventory.depot_block_id,step_s=step_s,
@@ -86,6 +87,9 @@ def _worker(args,matrix,case,route_latency):
             resource.setrlimit(resource.RLIMIT_AS,(limit,old_hard))
             result['address_space_limit_bytes']=limit
         driver,row=prepare(case,matrix,args.step_s)
+        if result['engine_backend']=='rust_whole':
+            result['native_execution']=driver.runtime.native.execution_config()
+            result['environment']['scientific_threads']=driver.runtime.native.native_threads
         result.update(source_sha256=row['source_sha256'],patch_sha256=row['patch_sha256'],
                       driver_identity=driver.identity)
         if args.prepare_only:

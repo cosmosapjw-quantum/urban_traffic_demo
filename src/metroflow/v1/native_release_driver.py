@@ -19,12 +19,13 @@ class NativeReleaseDriver:
     engine_backend = 'rust_whole'
 
     def __init__(self, plan, inventory, *, step_s=10.0,
-                 byte_budget=2 * 1024**3, record_budget=20000, event_budget=20000):
+                 byte_budget=2 * 1024**3, record_budget=20000, event_budget=20000,
+                 native_threads=1):
         totals = plan.totals()
         self.plan = plan
         self.runtime = NativeWholeRuntime(plan.city, plan.schedule, inventory,
             step_s=step_s, byte_budget=byte_budget, record_budget=record_budget,
-            event_budget=event_budget)
+            event_budget=event_budget, native_threads=native_threads)
         self.cursor = PlanCursor(plan.schedule.identity, totals['legs'],
             totals['persons'], totals['vehicles'], totals['cargo_kg'])
         plan.summary(self.cursor)
@@ -59,6 +60,10 @@ class NativeReleaseDriver:
             calendar=self.plan.summary(state.cursor),
             execution=self.runtime.report(state.runtime_state),
             full_local_acceptance='NOT_RUN')
+
+    def debug_state(self, state):
+        self.check(state)
+        return self.runtime.debug_state(state.runtime_state)
 
     def save(self, path, state):
         self.check(state)

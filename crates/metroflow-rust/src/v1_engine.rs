@@ -2,9 +2,10 @@
 //! Static declarations and all dynamic road/service/journey state stay in Rust.
 use crate::v1_calendar::NativeCalendar;
 use crate::v1_journey::{
-    advance_owned_joint, fsum, Journey, NativeJourneyCore, NativeServiceCore, ServiceCheckpoint,
-    SharedBusMeta, SharedFreightMeta, SharedJourneyLeg, SharedLaw,
+    advance_owned_joint, fsum, journey_debug, Journey, NativeJourneyCore, NativeServiceCore,
+    ServiceCheckpoint, SharedBusMeta, SharedFreightMeta, SharedJourneyLeg, SharedLaw,
 };
+use crate::v1_parallel::ParallelPolicy;
 use crate::v1_road::{RoadState, V1Road};
 use crate::v1_routing::V1RoutingGraph;
 use pyo3::exceptions::{PyIOError, PyIndexError, PyMemoryError, PyValueError};
@@ -67,6 +68,28 @@ fn field<'py, T: FromPyObject<'py>>(p: &Bound<'py, PyDict>, key: &str) -> PyResu
     p.get_item(key)?
         .ok_or_else(|| bad(format!("missing static field {key}")))?
         .extract()
+}
+fn stage_counts<'py>(py: Python<'py>, counts: &[usize; 4]) -> PyResult<Bound<'py, PyDict>> {
+    let out = PyDict::new(py);
+    for (name, value) in ["entering", "egress", "internal", "receipts"]
+        .into_iter()
+        .zip(counts)
+    {
+        out.set_item(name, *value)?;
+    }
+    out.set_item("total_records", counts.iter().sum::<usize>())?;
+    Ok(out)
+}
+fn stage_values<'py, T>(py: Python<'py>, values: [T; 3]) -> PyResult<Bound<'py, PyDict>>
+where
+    T: IntoPyObject<'py>,
+    PyErr: From<T::Error>,
+{
+    let out = PyDict::new(py);
+    for (name, value) in ["entering", "egress", "internal"].into_iter().zip(values) {
+        out.set_item(name, value)?;
+    }
+    Ok(out)
 }
 #[derive(Clone)]
 struct Activity {
@@ -222,6 +245,7 @@ impl NativeWholeState {
 }
 #[pyclass]
 pub struct NativeWholeEngine {
+    parallel: ParallelPolicy,
     identity: String,
     city: String,
     schedule: String,
@@ -268,7 +292,12 @@ fn moment(profile: &[(f64, f64, f64)], start: f64, end: f64) -> f64 {
     }))
 }
 impl NativeWholeEngine {
-    fn build(calendar: &NativeCalendar, s: Static, byte_budget: usize) -> PyResult<Self> {
+    fn build(
+        calendar: &NativeCalendar,
+        s: Static,
+        byte_budget: usize,
+        parallel: ParallelPolicy,
+    ) -> PyResult<Self> {
         let (city, schedule) = calendar.owned_binding();
         if city != s.city
             || schedule != s.schedule
@@ -661,6 +690,7 @@ impl NativeWholeEngine {
             journey: journey.checkpoint(),
         });
         Ok(Self {
+            parallel,
             identity,
             city: s.city,
             schedule: s.schedule,
@@ -818,19 +848,45 @@ impl NativeWholeEngine {
 #[pymethods]
 impl NativeWholeEngine {
     #[new]
+    #[pyo3(signature = (calendar, payload, byte_budget, native_threads=1))]
     fn new(
         py: Python<'_>,
         calendar: PyRef<'_, NativeCalendar>,
         payload: &Bound<'_, PyDict>,
         byte_budget: usize,
+        native_threads: usize,
     ) -> PyResult<Self> {
         let s = Static::read(payload)?;
+        let parallel = ParallelPolicy::new(native_threads).map_err(bad)?;
         let source: &NativeCalendar = &calendar;
-        py.allow_threads(|| Self::build(source, s, byte_budget))
+        py.allow_threads(|| Self::build(source, s, byte_budget, parallel))
     }
     #[getter]
     fn identity(&self) -> String {
         self.identity.clone()
+    }
+    #[getter]
+    fn native_threads(&self) -> usize {
+        self.parallel.threads()
+    }
+    fn execution_config(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
+        let out = PyDict::new(py);
+        out.set_item("native_threads", self.parallel.threads())?;
+        out.set_item(
+            "scheduler",
+            if self.parallel.threads() == 1 {
+                "serial"
+            } else {
+                "private_rayon_pool"
+            },
+        )?;
+        out.set_item("float_reductions", "original serial order")?;
+        out.set_item("thread_count_in_scientific_identity", false)?;
+        out.set_item(
+            "parallel_scope",
+            "independent indexed work above per-kernel size thresholds",
+        )?;
+        Ok(out.unbind())
     }
     fn initial(&self) -> NativeWholeState {
         NativeWholeState {
@@ -856,15 +912,16 @@ impl NativeWholeEngine {
             return Err(bad("joint horizon must align with fixed step"));
         }
         self.restore(state)?;
+        let parallel = &self.parallel;
+        let road = &mut self.road;
+        let service = &mut self.service;
+        let journey = &mut self.journey;
+        let tags = &self.tags;
+        let step = self.step;
         py.allow_threads(|| {
-            advance_owned_joint(
-                &mut self.road,
-                &mut self.service,
-                &mut self.journey,
-                &self.tags,
-                count.round() as usize,
-                self.step,
-            )
+            parallel.run(|| {
+                advance_owned_joint(road, service, journey, tags, count.round() as usize, step)
+            })
         })?;
         let result = self.capture();
         if let Err(error) = self.validate_bundle(&result.value) {
@@ -876,6 +933,92 @@ impl NativeWholeEngine {
     fn advance_metrics(&self) -> (Vec<f64>, usize) {
         let (t, n) = self.journey.owned_metrics();
         (t.to_vec(), n)
+    }
+    fn phase_metrics(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
+        let m = self.journey.owned_phase_metrics();
+        let phases = PyDict::new(py);
+        for (name, seconds) in [
+            ("journey_prepare", m.prepare_s),
+            ("service_prepare", m.service_prepare_s),
+            ("road_step", m.road_step_s),
+            ("service_finish", m.service_finish_s),
+            ("journey_finish", m.journey_finish_s),
+            ("other_tick", m.other_tick_s),
+        ] {
+            phases.set_item(name, seconds)?;
+        }
+        let out = PyDict::new(py);
+        out.set_item("phase_wall_s", phases)?;
+        out.set_item("binding_s", m.binding_s)?;
+        out.set_item("successful_ticks", m.successful_ticks)?;
+        out.set_item("failed_ticks", m.failed_ticks)?;
+        out.set_item("native_threads", self.parallel.threads())?;
+        out.set_item("scope", "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation")?;
+        Ok(out.unbind())
+    }
+    fn debug_state(&self, py: Python<'_>, state: &NativeWholeState) -> PyResult<Py<PyDict>> {
+        self.checked(state)?;
+        let j = journey_debug(&state.value.journey);
+        let journey = stage_counts(py, &j.counts)?;
+        journey.set_item("stage_capacity", stage_values(py, j.stage_capacity)?)?;
+        journey.set_item("dense_capacity_bytes", j.dense_capacity_bytes)?;
+        journey.set_item("stage_carrier_sum", stage_values(py, j.stage_mass)?)?;
+        journey.set_item(
+            "carrier_sum_units",
+            "heterogeneous per-leg carrier units; not a physical total",
+        )?;
+        journey.set_item("ready_now", stage_values(py, j.ready_now)?)?;
+        journey.set_item("nonempty_histories", j.nonempty_histories)?;
+        journey.set_item(
+            "capacity_scope",
+            "Vec reserved storage; excludes receipt blocks, allocator and shared static state",
+        )?;
+        let r = state.value.road.debug_stats();
+        let road = PyDict::new(py);
+        for (name, value) in [
+            ("cell_packets", r.cell_packets),
+            ("pending_packets", r.pending_packets),
+            ("cell_parts", r.cell_parts),
+            ("pending_parts", r.pending_parts),
+            ("packet_capacity", r.packet_capacity),
+            ("part_capacity", r.part_capacity),
+            ("vector_capacity_bytes", r.vector_capacity_bytes),
+            ("latent_entries", r.latent_entries),
+            ("max_cell_parts", r.max_cell_parts),
+            ("max_pending_parts", r.max_pending_parts),
+        ] {
+            road.set_item(name, value)?;
+        }
+        road.set_item("total_records", r.cell_parts + r.pending_parts)?;
+        road.set_item("capacity_scope", "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state")?;
+        let out = PyDict::new(py);
+        out.set_item("time_s", state.time_s())?;
+        out.set_item("journey", journey)?;
+        out.set_item("road", road)?;
+        out.set_item("service_last_events", state.value.service.1.len())?;
+        out.set_item("execution", self.execution_config(py)?)?;
+        if let Some(a) = self.journey.last_attempt() {
+            let attempt = PyDict::new(py);
+            attempt.set_item("start_s", a.start_s)?;
+            attempt.set_item("end_s", a.end_s)?;
+            attempt.set_item("phase", a.phase)?;
+            attempt.set_item("committed", a.committed)?;
+            attempt.set_item("before", stage_counts(py, &a.before)?)?;
+            attempt.set_item("after_prepare", stage_counts(py, &a.after_prepare)?)?;
+            attempt.set_item("candidate", stage_counts(py, &a.candidate)?)?;
+            attempt.set_item("generated", stage_values(py, a.generated)?)?;
+            attempt.set_item("retired", stage_values(py, a.retired)?)?;
+            attempt.set_item("receipts_added", a.receipts_added)?;
+            attempt.set_item("emitted_offers", a.emitted_offers)?;
+            out.set_item("last_attempt", attempt)?;
+        } else {
+            out.set_item("last_attempt", py.None())?;
+        }
+        out.set_item(
+            "last_attempt_scope",
+            "latest native call diagnostic, separate from supplied immutable snapshot",
+        )?;
+        Ok(out.unbind())
     }
     fn sample_legs(
         &self,

@@ -1,0 +1,267 @@
+{
+  "date": "2026-11-16",
+  "timezone": "UTC",
+  "node": "V03",
+  "status": "VERIFIED_SCOPED_QUEUE_DEBUG_PARALLEL_V03_STILL_BLOCKED",
+  "baseline_commit": "92d13be4df91c15962898f3e6d4b881002998296",
+  "scope": "Bounded actual-local queue/history diagnosis, transactional lifecycle/copy fixes, deterministic opt-in Rayon workers; no new DAG node or acceptance campaign",
+  "dag_progress": {
+    "completed": 19,
+    "total": 21,
+    "percent": 90.5,
+    "accepted": 5
+  },
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+  "rayon": "1.12.0",
+  "rayon_core": "1.13.0",
+  "faer_added": false,
+  "native_binary_sha256": "fa08d7494dce290b2bcf48433abcd34741ebd1a5878acd485262e39cabcb8c80",
+  "source_manifest": {
+    "path": "artifacts/v1_queue_debug_20261116/SOURCE_MANIFEST.json",
+    "sha256": "2b8471dd42f6131dc541a4b72a9bda2fd003567bf1bb3345020ab313acdb40f3",
+    "matched_sources": 33
+  },
+  "verification": {
+    "release_build": "PASS",
+    "scoped_tests": 68,
+    "scoped_test_log": "SCOPED_TESTS.log",
+    "final_plan_test_log": "PLAN_TESTS.log",
+    "mixed_parallel_split_rewind_restart": "PASS",
+    "failed_tick_atomicity_and_retry": "PASS",
+    "stage_retirement_receipt_clock_and_empty_capacity": "PASS",
+    "actual_replay_workers": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "actual_repeats_per_worker": 3,
+    "reports_and_checkpoints_match_baseline": true,
+    "traced_stage_balances": 15,
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "integration_merge": "DEFERRED_BY_USER",
+    "full_3x3_24h_campaign": "NOT_RUN"
+  },
+  "diagnosis": {
+    "last_valid_s": 25380.0,
+    "last_valid_counts": {
+      "entering": 1833556,
+      "egress": 33033,
+      "internal": 55921,
+      "receipts": 55053,
+      "total_records": 1977563
+    },
+    "entering_percent": 92.71795639380389,
+    "receipt_percent": 2.7838809686467636,
+    "failed_attempt": {
+      "start_s": 25380.0,
+      "end_s": 25390.0,
+      "phase": "journey_validation",
+      "committed": false,
+      "before": {
+        "entering": 1833556,
+        "egress": 33033,
+        "internal": 55921,
+        "receipts": 55053,
+        "total_records": 1977563
+      },
+      "after_prepare": {
+        "entering": 1876592,
+        "egress": 33033,
+        "internal": 62345,
+        "receipts": 55053,
+        "total_records": 2027023
+      },
+      "candidate": {
+        "entering": 1876592,
+        "egress": 43279,
+        "internal": 57407,
+        "receipts": 60960,
+        "total_records": 2038238
+      },
+      "generated": {
+        "entering": 158000,
+        "egress": 11215,
+        "internal": 6424
+      },
+      "retired": {
+        "entering": 114964,
+        "egress": 969,
+        "internal": 4938
+      },
+      "receipts_added": 5907,
+      "emitted_offers": 114964
+    },
+    "verified_stage_balances": 15,
+    "failure_checkpoint_matches_baseline": true,
+    "failure_checkpoint_sha256": "0886dc78f39ecd404fcea8b11a87de651e1d20447af2f7132ef954911eed2cd8"
+  },
+  "record_definition": "entering + egress + internal stage rows + raw historical completion receipts; independent road record cap; counts are not people or vehicles",
+  "conclusion": "Delayed entering stage population dominates the observed resource limit. No missing retirement or duplicate completion found in the bounded trace. Raw counts and logical cap remain unchanged.",
+  "parallel_contract": {
+    "default_native_threads": 1,
+    "supported_native_threads": [
+      1,
+      256
+    ],
+    "scope": [
+      "independent cell motion/readiness",
+      "indexed 1024-leg release/validation chunks"
+    ],
+    "preserved_serial_order": [
+      "FIFO",
+      "junction allocation",
+      "floating-point sums",
+      "ledger accumulation",
+      "receipt insertion",
+      "error inspection"
+    ],
+    "scientific_identity_excludes_threads": true,
+    "opt_in_environment": "METROFLOW_V1_NATIVE_THREADS",
+    "faer_reason": "No matrix factorization or linear solve in the observed hot path"
+  },
+  "matched_replay": {
+    "interval_s": [
+      25240.0,
+      25340.0
+    ],
+    "comparison_path": "artifacts/v1_queue_debug_20261116/COMPARISON.json",
+    "comparison_sha256": "81f9e90f664a09df6dfc3f24e86dc5117532f2e303e13a04f9be6d4482113985",
+    "baseline": {
+      "median_advance_s": 2.430731566011673,
+      "samples_s": [
+        2.47287744100322,
+        2.333718879992375,
+        2.430731566011673
+      ],
+      "process_peak_rss_bytes": 860340224
+    },
+    "final_worker_results": [
+      {
+        "workers": 1,
+        "median_advance_s": 1.792937117992551,
+        "samples_s": [
+          1.792937117992551,
+          1.8002944579930045,
+          1.7698350029968424
+        ],
+        "process_peak_rss_bytes": 676192256,
+        "same_checkpoint_as_baseline": true,
+        "same_report_as_baseline": true,
+        "phase_medians_s": {
+          "journey_prepare": 0.36523531099999995,
+          "service_prepare": 7.701300000000002e-05,
+          "road_step": 0.7552833790000001,
+          "service_finish": 0.001109846,
+          "journey_finish": 0.243373676,
+          "other_tick": 0.0937867700000001
+        }
+      },
+      {
+        "workers": 2,
+        "median_advance_s": 2.8771363989944803,
+        "samples_s": [
+          1.9093488799990155,
+          2.8771363989944803,
+          3.037026979000075
+        ],
+        "process_peak_rss_bytes": 820449280,
+        "same_checkpoint_as_baseline": true,
+        "same_report_as_baseline": true,
+        "phase_medians_s": {
+          "journey_prepare": 0.494104964,
+          "service_prepare": 8.1411e-05,
+          "road_step": 1.176524398,
+          "service_finish": 0.0015811240000000002,
+          "journey_finish": 0.312052404,
+          "other_tick": 0.10444683100000018
+        }
+      },
+      {
+        "workers": 4,
+        "median_advance_s": 1.7312152369995601,
+        "samples_s": [
+          1.8557519539899658,
+          1.7011676949914545,
+          1.7312152369995601
+        ],
+        "process_peak_rss_bytes": 822259712,
+        "same_checkpoint_as_baseline": true,
+        "same_report_as_baseline": true,
+        "phase_medians_s": {
+          "journey_prepare": 0.404233155,
+          "service_prepare": 7.9277e-05,
+          "road_step": 0.749183912,
+          "service_finish": 0.0011216800000000001,
+          "journey_finish": 0.159473614,
+          "other_tick": 0.07686966700000003
+        }
+      },
+      {
+        "workers": 8,
+        "median_advance_s": 1.7491257340006996,
+        "samples_s": [
+          1.7491257340006996,
+          1.6343980489909882,
+          3.783730879993527
+        ],
+        "process_peak_rss_bytes": 779333632,
+        "same_checkpoint_as_baseline": true,
+        "same_report_as_baseline": true,
+        "phase_medians_s": {
+          "journey_prepare": 0.39999816000000005,
+          "service_prepare": 8.9846e-05,
+          "road_step": 0.7415873660000001,
+          "service_finish": 0.00107631,
+          "journey_finish": 0.15413553200000002,
+          "other_tick": 0.08201667899999987
+        }
+      }
+    ],
+    "serial_elapsed_reduction_percent": 26.238785760519434,
+    "serial_process_peak_rss_reduction_percent": 21.40408676277351,
+    "limits": "3 repeats on shared host, not isolated benchmark. Timing excludes debug/report/checkpoint save/hash. RSS includes process construction/load/replay/checkpoint validation. No robust general parallel speedup claim; default remains serial."
+  },
+  "independent_review": {
+    "decision": "ACCEPT_SCOPED_KEEP_V03_BLOCKED",
+    "withdrawn_finding": "parent == len(legs) is intentional pending orphan sentinel; protected by regression test",
+    "claim_limits": [
+      "bounded interval only, not all possible queue bugs",
+      "debug capacity describes supplied immutable snapshot, not full owner allocation or RSS",
+      "initial and final benchmark batches show variable parallel scaling"
+    ]
+  },
+  "remaining": [
+    "Exact delayed-entering stage representation and logical record capacity; 2m cap still fails after25380s",
+    "Profile serial FIFO/junction work and prepare overhead before claiming parallel scaling",
+    "Unchanged full acceptance campaign and separate review; RLS01 waits"
+  ],
+  "evidence": {
+    "BASELINE_REPLAY_TOOL.py": "f681b51d27f9bd666e949f10654656a68b3152ec9718e4a252c061aaa51c8b0b",
+    "BUILD.log": "77ff3e6a34f0f505690a6f959256073a73beb8bc5ef568a45b1e8cc06cf875da",
+    "COMPARISON.json": "81f9e90f664a09df6dfc3f24e86dc5117532f2e303e13a04f9be6d4482113985",
+    "REPORT_KO.md": "f8ce7fa6dc80a1e4d54b828020d28847df96fd349c4f377cef2bac11a851b39d",
+    "SCOPED_TESTS.log": "9d569034a2ed9d5af131c65e524ccd519020e012ee26d2ff24f6b1df382fb5d0",
+    "SOURCE_MANIFEST.json": "2b8471dd42f6131dc541a4b72a9bda2fd003567bf1bb3345020ab313acdb40f3",
+    "baseline_replay.json": "979eaf1b40ed43d028c32b57e4fef9f1071ce5c58a96df4734088c5c998ed91d",
+    "baseline_seed25240.json": "1aac3f126a5b1a9fa44338a7553802d69147472b1a224727d632cb213f2a79bf",
+    "growth_trace_final_t4.json": "0d6eb85f2a48d0e6fea2ef48f5607be94271e8340fdae0e9b62563830973f8a9",
+    "growth_trace_initial.json": "ff741c1f3bfc430497ed3e092a3d27cd3deed0cde05ca6f405e66e0a489163e2",
+    "profile_t1.json": "16814e6768c42f8d84043b450efa9d0ba887cccc41ddccb2eb4b7da5f9fef3f5",
+    "profile_t2.json": "e43d863102131e11e8b298fccd2cdda7defd92ac022eaa23fb4609dbc41451aa",
+    "profile_t4.json": "0f463fa510dc3283f131b12058fe97129c4b99ae9d831f26b9b1751744f55a9c",
+    "profile_t8.json": "7fc046d1fc02c4f6813d549a3594e890b89b09978c909861d1440a463b317437",
+    "replay_t1.json": "35c20fe7726cf6ef40ca1b3b841e8003ac2f8b785a9392ef9ab8d1b6036b37d6",
+    "replay_t2.json": "0cf4da64a80dccdf41f1f67488b610e26ad182354c1616894603f1be3d113f90",
+    "replay_t4.json": "77c45e046699080809ca47407c3cd5bad3b0a0bd4ecdc22c1427fb7eec13dd9e"
+  }
+}
