@@ -1,0 +1,1083 @@
+//! Whole-calendar activation from native records and marginal frontend inputs.
+//! Static declarations and all dynamic road/service/journey state stay in Rust.
+use crate::v1_calendar::NativeCalendar;
+use crate::v1_journey::{
+    advance_owned_joint, fsum, Journey, NativeJourneyCore, NativeServiceCore, ServiceCheckpoint,
+    SharedBusMeta, SharedFreightMeta, SharedJourneyLeg, SharedLaw,
+};
+use crate::v1_road::{RoadState, V1Road};
+use crate::v1_routing::V1RoutingGraph;
+use pyo3::exceptions::{PyIOError, PyIndexError, PyMemoryError, PyValueError};
+use pyo3::prelude::*;
+use pyo3::types::PyDict;
+use std::collections::HashMap;
+use std::fs::File;
+use std::io::{BufReader, BufWriter, Read, Write};
+use std::sync::Arc;
+
+// Streaming expansion summation: retain exact low-order components until the
+// final fsum rounding, without a vector per pending calendar record.
+#[derive(Default)]
+struct Sum {
+    partials: Vec<f64>,
+}
+impl Sum {
+    fn add(&mut self, mut x: f64) {
+        let mut i = 0;
+        for j in 0..self.partials.len() {
+            let mut y = self.partials[j];
+            if x.abs() < y.abs() {
+                std::mem::swap(&mut x, &mut y);
+            }
+            let hi = x + y;
+            let lo = y - (hi - x);
+            if lo != 0.0 {
+                self.partials[i] = lo;
+                i += 1;
+            }
+            x = hi;
+        }
+        self.partials.truncate(i);
+        if x != 0.0 {
+            self.partials.push(x);
+        }
+    }
+    fn finish(self) -> f64 {
+        fsum(self.partials)
+    }
+}
+
+type ActivityRow = (
+    String,
+    String,
+    Option<String>,
+    Option<String>,
+    Vec<(f64, f64)>,
+    Vec<(f64, f64)>,
+    f64,
+);
+type Corridor = (String, String, String, f64, f64, f64);
+fn bad(s: impl Into<String>) -> PyErr {
+    PyValueError::new_err(s.into())
+}
+fn io(e: std::io::Error) -> PyErr {
+    PyIOError::new_err(e.to_string())
+}
+fn field<'py, T: FromPyObject<'py>>(p: &Bound<'py, PyDict>, key: &str) -> PyResult<T> {
+    p.get_item(key)?
+        .ok_or_else(|| bad(format!("missing static field {key}")))?
+        .extract()
+}
+#[derive(Clone)]
+struct Activity {
+    block: String,
+    car: Option<String>,
+    service: Option<String>,
+    car_law: SharedLaw,
+    service_law: SharedLaw,
+    maximum: f64,
+}
+struct Static {
+    identity: String,
+    city: String,
+    schedule: String,
+    step: f64,
+    budget: usize,
+    max_service_runs: usize,
+    event_budget: Option<usize>,
+    intervals: bool,
+    activities: Vec<ActivityRow>,
+    laws: Vec<(String, Vec<(f64, f64)>)>,
+    groups: Vec<Vec<f64>>,
+    signals: Vec<Option<(f64, f64, f64)>>,
+    classes: Vec<Vec<f64>>,
+    names: Vec<String>,
+    incoming: Vec<Vec<usize>>,
+    windows: Vec<(usize, f64, f64, f64)>,
+    links: Vec<String>,
+    arcs: Vec<(String, String, String)>,
+    costs: Vec<(String, f64)>,
+    turns: Vec<(String, String)>,
+    corridors: Vec<Corridor>,
+    corridor_routes: Vec<(String, Vec<String>)>,
+    depot: Option<String>,
+    depot_node: Option<String>,
+}
+impl Static {
+    fn read(p: &Bound<'_, PyDict>) -> PyResult<Self> {
+        if field::<String>(p, "schema")? != "native_calendar_static_v1" {
+            return Err(bad("static schema differs"));
+        }
+        Ok(Self {
+            identity: field(p, "identity")?,
+            city: field(p, "city_identity")?,
+            schedule: field(p, "schedule_identity")?,
+            step: field(p, "step_s")?,
+            budget: field(p, "record_budget")?,
+            max_service_runs: field(p, "max_service_runs")?,
+            event_budget: field(p, "event_budget")?,
+            intervals: field(p, "preserve_entry_intervals")?,
+            activities: field(p, "activities")?,
+            laws: field(p, "intrazonal_laws")?,
+            groups: field(p, "groups")?,
+            signals: field(p, "signals")?,
+            classes: field(p, "classes")?,
+            names: field(p, "class_names")?,
+            incoming: field(p, "incoming")?,
+            windows: field(p, "windows")?,
+            links: field(p, "link_ids")?,
+            arcs: field(p, "route_arcs")?,
+            costs: field(p, "route_costs")?,
+            turns: field(p, "allowed_turns")?,
+            corridors: field(p, "corridors")?,
+            corridor_routes: field(p, "corridor_routes")?,
+            depot: field(p, "depot_block_id")?,
+            depot_node: field(p, "depot_node_or_None")?,
+        })
+    }
+}
+struct Router {
+    graph: V1RoutingGraph,
+    link_indices: HashMap<String, usize>,
+    pairs: HashMap<(String, String), Option<usize>>,
+    paths: Vec<Vec<usize>>,
+    path_indices: HashMap<Vec<usize>, usize>,
+    estimated: usize,
+    budget: usize,
+}
+impl Router {
+    fn intern(&mut self, path: Vec<usize>) -> PyResult<usize> {
+        if let Some(&i) = self.path_indices.get(&path) {
+            return Ok(i);
+        }
+        self.estimated = self.estimated.saturating_add(path.len() * 16 + 256);
+        if self.estimated > self.budget {
+            return Err(PyMemoryError::new_err(
+                "whole-calendar route storage budget exceeded; no demand omitted",
+            ));
+        }
+        let i = self.paths.len();
+        self.path_indices.insert(path.clone(), i);
+        self.paths.push(path);
+        Ok(i)
+    }
+    fn declared(&mut self, links: &[String]) -> PyResult<usize> {
+        let path = links
+            .iter()
+            .map(|x| {
+                self.link_indices
+                    .get(x)
+                    .copied()
+                    .ok_or_else(|| bad("unknown route link"))
+            })
+            .collect::<PyResult<Vec<_>>>()?;
+        if path.is_empty() {
+            return Err(bad("empty registered route"));
+        }
+        self.intern(path)
+    }
+    fn route(&mut self, a: &str, b: &str) -> PyResult<Option<usize>> {
+        let key = (a.to_owned(), b.to_owned());
+        if let Some(v) = self.pairs.get(&key) {
+            return Ok(*v);
+        }
+        let (found, _, _) = self.graph.search_inner(a, b, 1, 2000).map_err(bad)?;
+        let value = if let Some(path) = found.first().filter(|p| !p.is_empty()) {
+            Some(self.declared(path)?)
+        } else {
+            None
+        };
+        self.estimated = self.estimated.saturating_add(a.len() + b.len() + 128);
+        if self.estimated > self.budget {
+            return Err(PyMemoryError::new_err(
+                "whole-calendar route cache budget exceeded; no demand omitted",
+            ));
+        }
+        self.pairs.insert(key, value);
+        Ok(value)
+    }
+}
+#[derive(Clone)]
+struct Bundle {
+    road: RoadState,
+    service: ServiceCheckpoint,
+    journey: Journey,
+}
+#[pyclass(frozen)]
+#[derive(Clone)]
+pub struct NativeWholeState {
+    identity: String,
+    value: Arc<Bundle>,
+}
+#[pymethods]
+impl NativeWholeState {
+    #[getter]
+    fn time_s(&self) -> f64 {
+        self.value.journey.0
+    }
+    #[getter]
+    fn model_identity(&self) -> String {
+        self.identity.clone()
+    }
+}
+#[pyclass]
+pub struct NativeWholeEngine {
+    identity: String,
+    city: String,
+    schedule: String,
+    step: f64,
+    road: V1Road,
+    service: NativeServiceCore,
+    journey: NativeJourneyCore,
+    tags: Vec<String>,
+    amounts: Vec<[f64; 3]>,
+    profile_ids: Vec<usize>,
+    profiles: Vec<Arc<Vec<(f64, f64, f64)>>>,
+    totals: [f64; 3],
+    unassigned: [f64; 3],
+    unsupported: usize,
+    supported: [usize; 3],
+    passenger_available: Vec<f64>,
+    freight_cargo: Vec<f64>,
+    freight_vehicles: Vec<f64>,
+    class_names: Vec<String>,
+    initial_state: Arc<Bundle>,
+    estimated_bytes: usize,
+    byte_budget: usize,
+    unique_paths: usize,
+    event_limit: usize,
+    group_count: usize,
+    car_tag_legs: Vec<Option<usize>>,
+}
+fn fraction(profile: &[(f64, f64, f64)], end: f64) -> f64 {
+    fsum(
+        profile
+            .iter()
+            .map(|&(a, b, p)| p * (end.min(b) - a.max(0.0)).max(0.0) / (b - a)),
+    )
+}
+fn moment(profile: &[(f64, f64, f64)], start: f64, end: f64) -> f64 {
+    fsum(profile.iter().map(|&(a, b, p)| {
+        let lo = a.max(start);
+        let hi = b.min(end);
+        if hi > lo {
+            p * (hi - lo) * (lo + hi) / (2.0 * (b - a))
+        } else {
+            0.0
+        }
+    }))
+}
+impl NativeWholeEngine {
+    fn build(calendar: &NativeCalendar, s: Static, byte_budget: usize) -> PyResult<Self> {
+        let (city, schedule) = calendar.owned_binding();
+        if city != s.city
+            || schedule != s.schedule
+            || !s.step.is_finite()
+            || s.step <= 0.0
+            || s.budget == 0
+            || s.max_service_runs == 0
+        {
+            return Err(bad("whole-calendar binding or step differs"));
+        }
+        let n = calendar.owned_legs().len();
+        // Conservative persistent+construction/snapshot allowance, not an RSS cap.
+        // The runner must additionally enforce a process address-space bound.
+        let estimate = n
+            .saturating_mul(896)
+            .saturating_add(calendar.owned_bytes())
+            .saturating_add(64 * 1024 * 1024);
+        if estimate > byte_budget {
+            return Err(PyMemoryError::new_err(format!(
+            "whole-calendar native preflight needs at least {estimate} accounting bytes, budget {byte_budget}; no demand omitted")));
+        }
+        let labels: HashMap<&str, usize> = calendar
+            .owned_labels()
+            .iter()
+            .enumerate()
+            .map(|(i, x)| (x.as_str(), i))
+            .collect();
+        let empty = Arc::new(Vec::new());
+        let zero = Arc::new(vec![(0.0, 1.0)]);
+        let mut activities: HashMap<usize, Activity> = HashMap::new();
+        for (label, block, car, service, car_law, service_law, maximum) in s.activities {
+            if let Some(&id) = labels.get(label.as_str()) {
+                activities.insert(
+                    id,
+                    Activity {
+                        block,
+                        car,
+                        service,
+                        car_law: Arc::new(car_law),
+                        service_law: Arc::new(service_law),
+                        maximum,
+                    },
+                );
+            }
+        }
+        let mut laws: HashMap<usize, SharedLaw> = HashMap::new();
+        for (label, law) in s.laws {
+            if let Some(&id) = labels.get(label.as_str()) {
+                laws.insert(id, Arc::new(law));
+            }
+        }
+        let profiles: Vec<_> = calendar
+            .owned_profiles()
+            .iter()
+            .cloned()
+            .map(Arc::new)
+            .collect();
+        let indices: HashMap<_, _> = s
+            .links
+            .iter()
+            .enumerate()
+            .map(|(i, x)| (x.clone(), i))
+            .collect();
+        let costs: HashMap<_, _> = s.costs.into_iter().collect();
+        let ordered_costs = s
+            .arcs
+            .iter()
+            .map(|a| {
+                costs
+                    .get(&a.0)
+                    .copied()
+                    .ok_or_else(|| bad("route cost missing"))
+            })
+            .collect::<PyResult<Vec<_>>>()?;
+        let mut router = Router {
+            graph: V1RoutingGraph::new(s.arcs, ordered_costs, Some(s.turns), 8)?,
+            link_indices: indices,
+            pairs: HashMap::new(),
+            paths: Vec::new(),
+            path_indices: HashMap::new(),
+            estimated: estimate,
+            budget: byte_budget,
+        };
+        let class_index: HashMap<_, _> = s
+            .names
+            .iter()
+            .enumerate()
+            .map(|(i, x)| (x.as_str(), i))
+            .collect();
+        let car_class = *class_index
+            .get("car")
+            .ok_or_else(|| bad("car class missing"))?;
+        let bus_class = *class_index
+            .get("scheduled_bus")
+            .ok_or_else(|| bad("bus class missing"))?;
+        let freight_class = *class_index
+            .get("freight")
+            .ok_or_else(|| bad("freight class missing"))?;
+        let corridor_paths: HashMap<_, _> = s.corridor_routes.into_iter().collect();
+        let mut routes: Vec<(String, usize, usize, Option<usize>)> = Vec::new();
+        let mut buses = Vec::new();
+        let mut corridors_by_blocks: HashMap<(String, String), Vec<usize>> = HashMap::new();
+        if s.corridors.len() > s.max_service_runs {
+            return Err(PyMemoryError::new_err(
+                "fixed fleet run budget exceeded; no demand omitted",
+            ));
+        }
+        for (k, b) in s.corridors.iter().enumerate() {
+            let path = router.declared(
+                corridor_paths
+                    .get(&b.0)
+                    .ok_or_else(|| bad("corridor route missing"))?,
+            )?;
+            routes.push((format!("bus:{}:0", b.0), path, bus_class, None));
+            buses.push((b.0.clone(), vec![b.3], b.4, b.5));
+            corridors_by_blocks
+                .entry((b.1.clone(), b.2.clone()))
+                .or_default()
+                .push(k);
+        }
+        let mut legs: Vec<SharedJourneyLeg> = Vec::with_capacity(n);
+        let mut bus_meta: Vec<SharedBusMeta> = Vec::new();
+        let mut freight_meta: Vec<SharedFreightMeta> = Vec::new();
+        let mut people = Vec::new();
+        let mut freight = Vec::new();
+        let mut freight_cargo = Vec::new();
+        let mut freight_vehicles = Vec::new();
+        let mut passenger_available = Vec::new();
+        let mut amounts = Vec::with_capacity(n);
+        let mut profile_ids = Vec::with_capacity(n);
+        let mut totals = [0.0; 3];
+        let mut unassigned = [0.0; 3];
+        let mut unsupported = 0;
+        let mut supported = [0usize; 3];
+        let mut convolution: HashMap<(usize, usize), SharedLaw> = HashMap::new();
+        let mut helper_required = false;
+        let mut pending_sums = [Sum::default(), Sum::default(), Sum::default()];
+        for (i, leg) in calendar.owned_legs().iter().enumerate() {
+            let id = calendar
+                .text(leg.id)
+                .ok_or_else(|| bad("calendar leg ID absent"))?;
+            if id == "__joint_clock__" {
+                return Err(bad("reserved joint clock route label"));
+            }
+            let m = leg.metadata;
+            let mode = calendar.owned_labels()[m[3] as usize].as_str();
+            let endpoint = calendar.owned_labels()[m[7] as usize].as_str();
+            helper_required |=
+                mode == "\"car\"" || (mode == "\"noncar\"" && endpoint == "\"intrazonal\"");
+            let origin = activities.get(&(m[0] as usize));
+            let destination = activities.get(&(m[1] as usize));
+            if (origin.is_none() && calendar.owned_labels()[m[0] as usize] != "null")
+                || (destination.is_none() && calendar.owned_labels()[m[1] as usize] != "null")
+            {
+                return Err(bad(
+                    "calendar activity missing from marginal payload; no demand omitted",
+                ));
+            }
+            let profile = profiles
+                .get(m[5] as usize)
+                .ok_or_else(|| bad("calendar profile missing"))?;
+            let mut kind = 0;
+            let mut origin_law = empty.clone();
+            let mut destination_law = empty.clone();
+            if endpoint == "\"intrazonal\"" && (mode == "\"car\"" || mode == "\"noncar\"") {
+                kind = 2;
+                origin_law = laws
+                    .get(&(m[6] as usize))
+                    .ok_or_else(|| bad("intrazonal law missing from marginal payload"))?
+                    .clone();
+                destination_law = zero.clone();
+            } else if mode == "\"car\"" && endpoint == "\"interzonal\"" {
+                if let (Some(a), Some(b)) = (origin, destination) {
+                    if let (Some(an), Some(bn)) = (&a.car, &b.car) {
+                        if an == bn {
+                            let key = (m[0] as usize, m[1] as usize);
+                            if let Some(law) = convolution.get(&key) {
+                                origin_law = law.clone();
+                            } else {
+                                let mut atoms: Vec<(f64, f64)> = Vec::new();
+                                for &(x, wx) in a.car_law.iter() {
+                                    for &(y, wy) in b.car_law.iter() {
+                                        if let Some(v) = atoms.iter_mut().find(|v| v.0 == x + y) {
+                                            v.1 += wx * wy;
+                                        } else {
+                                            atoms.push((x + y, wx * wy));
+                                        }
+                                    }
+                                }
+                                atoms.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+                                if atoms.len() > s.budget {
+                                    return Err(PyMemoryError::new_err(
+                                        "co-located access law exceeds budget",
+                                    ));
+                                }
+                                origin_law = Arc::new(atoms);
+                                convolution.insert(key, origin_law.clone());
+                            }
+                            kind = 2;
+                            destination_law = zero.clone();
+                        } else if let Some(path) = router.route(an, bn)? {
+                            kind = 1;
+                            origin_law = a.car_law.clone();
+                            destination_law = b.car_law.clone();
+                            routes.push((id.clone(), path, car_class, Some(i)));
+                        }
+                    }
+                }
+            }
+            let mut assigned = false;
+            let mut pending_fractions = Vec::new();
+            if leg.parent.is_some() && mode != "\"bus\"" {
+                pending_fractions.push(1.0);
+            } else if mode == "\"bus\"" && origin.is_some() && destination.is_some() {
+                let a = origin.unwrap();
+                let b = destination.unwrap();
+                if a.service.is_none() || b.service.is_none() {
+                    pending_fractions.push(1.0);
+                } else {
+                    let candidates = corridors_by_blocks.get(&(a.block.clone(), b.block.clone()));
+                    for &(start, end, p) in profile.iter() {
+                        let ready = end + a.maximum;
+                        let earliest = candidates
+                            .into_iter()
+                            .flatten()
+                            .filter(|&&k| s.corridors[k].3 >= ready)
+                            .map(|&k| s.corridors[k].3)
+                            .fold(f64::INFINITY, f64::min);
+                        let tied: Vec<usize> = candidates
+                            .into_iter()
+                            .flatten()
+                            .copied()
+                            .filter(|&k| s.corridors[k].3 == earliest)
+                            .collect();
+                        if tied.is_empty() {
+                            pending_fractions.push(p);
+                            continue;
+                        }
+                        let persons = leg.amounts[0] * p / tied.len() as f64;
+                        for k in tied.iter().copied() {
+                            if people.len() + freight.len() + buses.len() >= s.max_service_runs {
+                                return Err(PyMemoryError::new_err(
+                                    "service record budget exceeded; no demand omitted",
+                                ));
+                            }
+                            people.push((k, 0, 1, ready, persons));
+                            passenger_available.push(ready);
+                            bus_meta.push((
+                                i,
+                                leg.amounts[0],
+                                persons,
+                                leg.amounts[0] * moment(profile, start, end) / tied.len() as f64,
+                                fraction(profile, end),
+                                b.service_law.clone(),
+                            ));
+                            assigned = true;
+                        }
+                    }
+                }
+            } else if mode == "\"freight\"" && destination.is_some() {
+                let b = destination.unwrap();
+                let path = match (&s.depot, &s.depot_node, &b.service) {
+                    (Some(block), Some(a), Some(node)) if block != &b.block => {
+                        router.route(a, node)?
+                    }
+                    _ => None,
+                };
+                if let Some(path) = path {
+                    for (window, &(start, end, p)) in profile.iter().enumerate() {
+                        let vehicles = leg.amounts[1] * p;
+                        let cargo = leg.amounts[2] * p;
+                        if vehicles == 0.0 {
+                            if cargo != 0.0 {
+                                return Err(bad("cargo requires positive freight vehicle amount"));
+                            }
+                            continue;
+                        }
+                        if cargo > 2000.0 * vehicles {
+                            return Err(bad("freight payload capacity exceeded"));
+                        }
+                        if people.len() + freight.len() + buses.len() >= s.max_service_runs {
+                            return Err(PyMemoryError::new_err(
+                                "service record budget exceeded; no demand omitted",
+                            ));
+                        }
+                        let name = format!("{id}:{window}");
+                        routes.push((format!("freight:{name}"), path, freight_class, None));
+                        freight.push((name, end, vehicles));
+                        freight_cargo.push(cargo);
+                        freight_vehicles.push(vehicles);
+                        freight_meta.push((
+                            i,
+                            vehicles,
+                            leg.amounts[1] * moment(profile, start, end),
+                            b.service_law.clone(),
+                        ));
+                        assigned = true;
+                    }
+                } else {
+                    pending_fractions.push(1.0);
+                }
+            } else {
+                pending_fractions.push(1.0);
+            }
+            for p in pending_fractions {
+                for j in 0..3 {
+                    pending_sums[j].add(leg.amounts[j] * p);
+                }
+            }
+            if kind == 0 && !assigned {
+                unsupported += 1;
+            }
+            supported[kind as usize] += 1;
+            let carrier = if leg.amounts[1] != 0.0 {
+                leg.amounts[1]
+            } else {
+                leg.amounts[0]
+            };
+            legs.push((
+                id,
+                carrier,
+                leg.parent.map(|p| p as usize),
+                leg.dwell,
+                profile.clone(),
+                kind,
+                origin_law,
+                destination_law,
+            ));
+            amounts.push(leg.amounts);
+            profile_ids.push(m[5] as usize);
+            // Both declared service-record and native byte budgets apply.
+            if (people.len() + freight.len())
+                .saturating_mul(512)
+                .saturating_add(router.estimated)
+                > byte_budget
+            {
+                return Err(PyMemoryError::new_err(
+                    "whole-calendar service allocation budget exceeded; no demand omitted",
+                ));
+            }
+        }
+        if helper_required && supported[1] + supported[2] == 0 {
+            return Err(bad("no supported route or internal delay in bounded set; BLOCKED_IMPLEMENTATION_DEPENDENCY"));
+        }
+        for j in 0..3 {
+            totals[j] = fsum(amounts.iter().map(|a| a[j]));
+        }
+        for (j, sum) in pending_sums.into_iter().enumerate() {
+            unassigned[j] = sum.finish();
+        }
+        if routes.is_empty() {
+            let path = router.intern(vec![0])?;
+            routes.push(("__joint_clock__".to_owned(), path, car_class, None));
+        }
+        routes.sort_by(|a, b| a.0.cmp(&b.0));
+        if routes.windows(2).any(|r| r[0].0 == r[1].0) {
+            return Err(bad("duplicate native physical route tag"));
+        }
+        let mut tags = Vec::with_capacity(routes.len());
+        let mut road_routes = Vec::with_capacity(routes.len());
+        let mut car_tag_legs = Vec::with_capacity(routes.len());
+        for (tag, path, class, leg) in routes {
+            tags.push(tag);
+            road_routes.push((path, class));
+            car_tag_legs.push(leg);
+        }
+        let unique_paths = router.paths.len();
+        let estimated_bytes = router.estimated + (people.len() + freight.len()) * 512;
+        let identity = format!("native-whole-v1:{}:{}", s.identity, byte_budget);
+        let group_count = s.groups.len();
+        let road = V1Road::new_shared_routes(
+            identity.clone(),
+            s.step,
+            s.groups,
+            s.signals,
+            router.paths,
+            road_routes,
+            s.classes,
+            s.incoming,
+            s.windows,
+            s.budget,
+            s.event_budget,
+            s.intervals,
+        )?;
+        let service = NativeServiceCore::new(buses, people, freight, Vec::new())?;
+        let journey = NativeJourneyCore::new_shared(legs, bus_meta, freight_meta, s.budget)?;
+        let initial_state = Arc::new(Bundle {
+            road: road.checkpoint(),
+            service: service.checkpoint(),
+            journey: journey.checkpoint(),
+        });
+        Ok(Self {
+            identity,
+            city: s.city,
+            schedule: s.schedule,
+            step: s.step,
+            road,
+            service,
+            journey,
+            tags,
+            amounts,
+            profile_ids,
+            profiles,
+            totals,
+            unassigned,
+            unsupported,
+            supported,
+            passenger_available,
+            freight_cargo,
+            freight_vehicles,
+            class_names: s.names,
+            initial_state,
+            estimated_bytes,
+            byte_budget,
+            unique_paths,
+            event_limit: s.budget,
+            group_count,
+            car_tag_legs,
+        })
+    }
+    fn validate_bundle(&self, b: &Bundle) -> PyResult<()> {
+        if b.road.time() != b.journey.0 {
+            return Err(bad("checkpoint owner clocks differ"));
+        }
+        self.journey
+            .check_service_binding(&b.journey, &b.service.0)?;
+        let time = b.journey.0;
+        for e in &b.service.1 {
+            if e.0 >= self.tags.len()
+                || e.1 >= self.group_count
+                || e.2.is_some_and(|i| i >= self.group_count)
+                || e.3 <= 0.0
+                || e.4 > e.5
+                || e.5 > time + 1e-8
+            {
+                return Err(bad("native checkpoint road event binding differs"));
+            }
+        }
+        let j = &b.journey;
+        let service = &b.service.0;
+        let mut stages: HashMap<usize, Sum> = HashMap::new();
+        for rows in [&j.1, &j.2, &j.3] {
+            for a in rows {
+                stages.entry(a.0).or_default().add(a.1);
+            }
+        }
+        let stages: HashMap<usize, f64> =
+            stages.into_iter().map(|(i, v)| (i, v.finish())).collect();
+        let mut active: HashMap<usize, f64> = HashMap::new();
+        for (tag, mass) in b.road.active_by_tag() {
+            if let Some(i) = self.car_tag_legs[tag] {
+                active.insert(i, mass);
+            }
+        }
+        for (i, leg) in self.journey.legs().iter().enumerate() {
+            if leg.5 == 1 || leg.5 == 2 {
+                let mass =
+                    stages.get(&i).copied().unwrap_or(0.0) + active.get(&i).copied().unwrap_or(0.0);
+                if (j.4[i] - j.5[i] - mass).abs() > 1e-9 * leg.1.max(1.0) {
+                    return Err(bad("joint calendar stage and physical ledger differ"));
+                }
+            }
+        }
+        let (_, classes) = b.road.summary();
+        let check_class = |name: &str, admitted: f64, outlet: f64| -> PyResult<()> {
+            let k = self
+                .class_names
+                .iter()
+                .position(|n| n == name)
+                .ok_or_else(|| bad("native physical class missing"))?;
+            if (admitted - classes[k][0]).abs() > 1e-9 * classes[k][0].max(1.0)
+                || (outlet - classes[k][1]).abs() > 1e-9 * classes[k][1].max(1.0)
+            {
+                return Err(bad(format!(
+                    "joint {name} calendar and physical class ledger differ"
+                )));
+            }
+            Ok(())
+        };
+        let legs = self.journey.legs();
+        let car_released = fsum(
+            legs.iter()
+                .enumerate()
+                .filter(|(_, l)| l.5 == 1)
+                .map(|(i, _)| j.4[i]),
+        ) - fsum(j.1.iter().map(|a| a.1));
+        let car_completed = fsum(
+            legs.iter()
+                .enumerate()
+                .filter(|(_, l)| l.5 == 1)
+                .map(|(i, _)| j.5[i]),
+        ) + fsum(j.2.iter().filter(|a| legs[a.0].5 == 1).map(|a| a.1));
+        check_class("car", car_released, car_completed)?;
+        check_class(
+            "freight",
+            fsum(
+                self.freight_vehicles
+                    .iter()
+                    .zip(&service.2)
+                    .filter(|(_, released)| **released)
+                    .map(|(v, _)| *v),
+            ),
+            fsum(service.3.iter().copied()),
+        )?;
+        check_class(
+            "scheduled_bus",
+            fsum(
+                service
+                    .0
+                    .iter()
+                    .map(|r| r.0 as f64 + if r.1 == 1 { 1.0 } else { 0.0 }),
+            ),
+            fsum(
+                service
+                    .0
+                    .iter()
+                    .map(|r| r.0 as f64 + if r.1 == 1 { r.3 } else { 0.0 }),
+            ),
+        )?;
+        Ok(())
+    }
+    fn checked(&self, state: &NativeWholeState) -> PyResult<()> {
+        if state.identity != self.identity {
+            Err(bad("native whole checkpoint model binding differs"))
+        } else {
+            Ok(())
+        }
+    }
+    fn restore(&mut self, state: &NativeWholeState) -> PyResult<()> {
+        self.checked(state)?;
+        self.road.rollback(state.value.road.clone());
+        self.service.rollback(state.value.service.clone());
+        self.journey.rollback(state.value.journey.clone());
+        Ok(())
+    }
+    fn capture(&self) -> NativeWholeState {
+        NativeWholeState {
+            identity: self.identity.clone(),
+            value: Arc::new(Bundle {
+                road: self.road.checkpoint(),
+                service: self.service.checkpoint(),
+                journey: self.journey.checkpoint(),
+            }),
+        }
+    }
+}
+#[pymethods]
+impl NativeWholeEngine {
+    #[new]
+    fn new(
+        py: Python<'_>,
+        calendar: PyRef<'_, NativeCalendar>,
+        payload: &Bound<'_, PyDict>,
+        byte_budget: usize,
+    ) -> PyResult<Self> {
+        let s = Static::read(payload)?;
+        let source: &NativeCalendar = &calendar;
+        py.allow_threads(|| Self::build(source, s, byte_budget))
+    }
+    #[getter]
+    fn identity(&self) -> String {
+        self.identity.clone()
+    }
+    fn initial(&self) -> NativeWholeState {
+        NativeWholeState {
+            identity: self.identity.clone(),
+            value: self.initial_state.clone(),
+        }
+    }
+    fn snapshot(&self) -> NativeWholeState {
+        self.capture()
+    }
+    fn check(&self, state: &NativeWholeState) -> PyResult<()> {
+        self.checked(state)
+    }
+    fn advance(
+        &mut self,
+        py: Python<'_>,
+        state: &NativeWholeState,
+        end_s: f64,
+    ) -> PyResult<NativeWholeState> {
+        self.checked(state)?;
+        let count = (end_s - state.time_s()) / self.step;
+        if !count.is_finite() || count < 0.0 || (count - count.round()).abs() > 1e-8 {
+            return Err(bad("joint horizon must align with fixed step"));
+        }
+        self.restore(state)?;
+        py.allow_threads(|| {
+            advance_owned_joint(
+                &mut self.road,
+                &mut self.service,
+                &mut self.journey,
+                &self.tags,
+                count.round() as usize,
+                self.step,
+            )
+        })?;
+        let result = self.capture();
+        if let Err(error) = self.validate_bundle(&result.value) {
+            self.restore(state)?;
+            return Err(error);
+        }
+        Ok(result)
+    }
+    fn advance_metrics(&self) -> (Vec<f64>, usize) {
+        let (t, n) = self.journey.owned_metrics();
+        (t.to_vec(), n)
+    }
+    fn sample_legs(
+        &self,
+        state: &NativeWholeState,
+        indices: Vec<usize>,
+    ) -> PyResult<Vec<(String, f64, f64, f64)>> {
+        self.checked(state)?;
+        if indices.len() > 1024 {
+            return Err(bad("at most 1024 diagnostic legs per call"));
+        }
+        indices
+            .into_iter()
+            .map(|i| {
+                let leg = self
+                    .journey
+                    .legs()
+                    .get(i)
+                    .ok_or_else(|| PyIndexError::new_err("leg index"))?;
+                Ok((
+                    leg.0.clone(),
+                    state.value.journey.4[i],
+                    state.value.journey.5[i],
+                    state.value.journey.7[i],
+                ))
+            })
+            .collect()
+    }
+    fn report(&mut self, py: Python<'_>, state: &NativeWholeState) -> PyResult<Py<PyDict>> {
+        self.checked(state)?;
+        let t = state.time_s();
+        let journey = &state.value.journey;
+        let service = &state.value.service.0;
+        let profiles: Vec<_> = self.profiles.iter().map(|p| fraction(p, t)).collect();
+        let mut values = [[0.0; 4]; 3];
+        for (i, a) in self.amounts.iter().enumerate() {
+            let carrier = self.journey.legs()[i].1;
+            for j in 0..3 {
+                let ratio = if carrier != 0.0 { a[j] / carrier } else { 0.0 };
+                values[j][0] += a[j] * profiles[self.profile_ids[i]];
+                values[j][1] += ratio * journey.4[i];
+                values[j][2] += ratio * journey.5[i];
+                values[j][3] += ratio * journey.7[i];
+            }
+        }
+        let out = PyDict::new(py);
+        let ledger = PyDict::new(py);
+        let moments = PyDict::new(py);
+        let assignment = PyDict::new(py);
+        let units = PyDict::new(py);
+        for (j, name) in ["persons", "vehicles", "cargo_kg"].iter().enumerate() {
+            let v = values[j];
+            let row = PyDict::new(py);
+            for (k, x) in [
+                ("requested", v[0]),
+                ("released", v[1]),
+                ("completed", v[2]),
+                ("pending", v[0] - v[1]),
+                ("active", v[1] - v[2]),
+            ] {
+                row.set_item(k, x)?;
+            }
+            ledger.set_item(name, row)?;
+            moments.set_item(name, v[3])?;
+            let row = PyDict::new(py);
+            row.set_item("requested", self.totals[j])?;
+            row.set_item("assigned", self.totals[j] - self.unassigned[j])?;
+            row.set_item("unassigned", self.unassigned[j])?;
+            units.set_item(name, row)?;
+        }
+        assignment.set_item("units", units)?;
+        assignment.set_item("fixed_fleet_vehicles", service.0.len())?;
+        assignment.set_item(
+            "scope",
+            "assignment, not trip completion; bus demand vehicles are occupancy equivalents",
+        )?;
+        let physical = PyDict::new(py);
+        let (totals, classes) = state.value.road.summary();
+        let bus_class = self
+            .class_names
+            .iter()
+            .position(|n| n == "scheduled_bus")
+            .unwrap();
+        let bus_road = classes[bus_class][0] - classes[bus_class][1];
+        let bus_stops = fsum(service.0.iter().map(|r| if r.1 != 1 { 1.0 } else { r.3 }));
+        physical.set_item("time_s", t)?;
+        physical.set_item("scheduled_bus_vehicles", service.0.len())?;
+        physical.set_item("bus_road_vehicles", bus_road)?;
+        physical.set_item("bus_stop_or_finished_vehicles", bus_stops)?;
+        physical.set_item(
+            "completed_bus_vehicles",
+            service.0.iter().filter(|r| r.1 == 2).count(),
+        )?;
+        physical.set_item("waiting_persons", fsum(service.1.iter().map(|p| p.0)))?;
+        physical.set_item("onboard_persons", fsum(service.1.iter().map(|p| p.1)))?;
+        physical.set_item("arrived_persons", fsum(service.1.iter().map(|p| p.2)))?;
+        physical.set_item(
+            "wait_person_s",
+            fsum(
+                service
+                    .1
+                    .iter()
+                    .enumerate()
+                    .map(|(i, p)| p.3 + p.0 * (t - self.passenger_available[i]).max(0.0)),
+            ),
+        )?;
+        physical.set_item(
+            "freight_completed_vehicles",
+            fsum(service.3.iter().copied()),
+        )?;
+        physical.set_item(
+            "cargo_delivered_kg",
+            fsum(
+                service
+                    .3
+                    .iter()
+                    .enumerate()
+                    .map(|(i, v)| self.freight_cargo[i] * v / self.freight_vehicles[i]),
+            ),
+        )?;
+        physical.set_item(
+            "cargo_unfinished_kg",
+            fsum(
+                service
+                    .3
+                    .iter()
+                    .enumerate()
+                    .map(|(i, v)| self.freight_cargo[i] * (1.0 - v / self.freight_vehicles[i])),
+            ),
+        )?;
+        physical.set_item("road_released_veh", totals[0])?;
+        physical.set_item("road_completed_veh", totals[1])?;
+        let construction = PyDict::new(py);
+        construction.set_item("legs", self.amounts.len())?;
+        construction.set_item("physical_routes", self.tags.len())?;
+        construction.set_item("unique_paths", self.unique_paths)?;
+        construction.set_item("unsupported_legs", self.unsupported)?;
+        construction.set_item("road_legs", self.supported[1])?;
+        construction.set_item("internal_legs", self.supported[2])?;
+        construction.set_item("estimated_bytes", self.estimated_bytes)?;
+        construction.set_item("byte_budget", self.byte_budget)?;
+        construction.set_item("python_calendar_leg_objects", 0)?;
+        construction.set_item("road_owners", 1)?;
+        out.set_item("status", "WHOLE_CALENDAR_NATIVE_EXECUTION")?;
+        out.set_item("time_s", t)?;
+        out.set_item("ledger", ledger)?;
+        out.set_item("released_intent_first_moments", moments)?;
+        out.set_item("service", physical)?;
+        out.set_item("assignment", assignment)?;
+        out.set_item("construction", construction)?;
+        out.set_item("city_identity", &self.city)?;
+        out.set_item("schedule_identity", &self.schedule)?;
+        out.set_item("full_release_campaign", "NOT_RUN")?;
+        Ok(out.unbind())
+    }
+    fn save(&mut self, path: String, state: &NativeWholeState) -> PyResult<()> {
+        self.restore(state)?;
+        let mut f = BufWriter::new(File::create(path).map_err(io)?);
+        f.write_all(b"MFWHOLE1").map_err(io)?;
+        f.write_all(&(self.identity.len() as u64).to_le_bytes())
+            .map_err(io)?;
+        f.write_all(self.identity.as_bytes()).map_err(io)?;
+        self.road.write_state(&mut f)?;
+        self.service.write_state(&mut f)?;
+        self.journey.write_state(&mut f)?;
+        f.flush().map_err(io)
+    }
+    fn load(&mut self, path: String) -> PyResult<NativeWholeState> {
+        let mut f = BufReader::new(File::open(path).map_err(io)?);
+        let mut magic = [0u8; 8];
+        f.read_exact(&mut magic).map_err(io)?;
+        if &magic != b"MFWHOLE1" {
+            return Err(bad("native whole checkpoint schema differs"));
+        }
+        let mut raw = [0u8; 8];
+        f.read_exact(&mut raw).map_err(io)?;
+        let n = u64::from_le_bytes(raw);
+        if n != self.identity.len() as u64 {
+            return Err(bad("native whole checkpoint binding differs"));
+        }
+        let mut binding = vec![0u8; n as usize];
+        f.read_exact(&mut binding).map_err(io)?;
+        if binding != self.identity.as_bytes() {
+            return Err(bad("native whole checkpoint binding differs"));
+        }
+        let road = self.road.read_state(&mut f)?;
+        let service = self.service.read_state(&mut f, self.event_limit)?;
+        let journey = self.journey.read_state(&mut f)?;
+        let mut tail = [0u8; 1];
+        if f.read(&mut tail).map_err(io)? != 0 {
+            return Err(bad("trailing native checkpoint bytes"));
+        }
+        let state = NativeWholeState {
+            identity: self.identity.clone(),
+            value: Arc::new(Bundle {
+                road,
+                service,
+                journey,
+            }),
+        };
+        // The three decoded owners are installed only after the whole file validates.
+        self.validate_bundle(&state.value)?;
+        self.restore(&state)?;
+        Ok(state)
+    }
+}

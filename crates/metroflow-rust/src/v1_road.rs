@@ -1,8 +1,50 @@
 //! Rust owner of the V1 T02/T04 finite-response FIFO packet state.
 //! Registry paths are interned; tags retain independent observable ledgers.
-use pyo3::exceptions::{PyArithmeticError, PyMemoryError, PyValueError};
+use pyo3::exceptions::{PyArithmeticError, PyIOError, PyMemoryError, PyValueError};
 use pyo3::prelude::*;
 use std::collections::{BTreeMap, HashMap};
+use std::io::{Read, Write};
+
+// Versioned by the enclosing engine header. Integers and IEEE-754 bit patterns
+// have a fixed little-endian representation independent of Python objects.
+pub(crate) fn write_u64<W: Write>(w: &mut W, v: u64) -> PyResult<()> {
+    w.write_all(&v.to_le_bytes())
+        .map_err(|e| PyIOError::new_err(e.to_string()))
+}
+pub(crate) fn read_u64<R: Read>(r: &mut R) -> PyResult<u64> {
+    let mut b = [0; 8];
+    r.read_exact(&mut b)
+        .map_err(|e| PyIOError::new_err(e.to_string()))?;
+    Ok(u64::from_le_bytes(b))
+}
+pub(crate) fn write_f64<W: Write>(w: &mut W, v: f64) -> PyResult<()> {
+    write_u64(w, v.to_bits())
+}
+pub(crate) fn read_f64<R: Read>(r: &mut R) -> PyResult<f64> {
+    Ok(f64::from_bits(read_u64(r)?))
+}
+pub(crate) fn write_len<W: Write>(w: &mut W, v: usize) -> PyResult<()> {
+    write_u64(w, v as u64)
+}
+pub(crate) fn read_len<R: Read>(r: &mut R, max: usize) -> PyResult<usize> {
+    let v = usize::try_from(read_u64(r)?).map_err(|_| val("native checkpoint length overflow"))?;
+    if v > max {
+        return Err(val("native checkpoint length exceeds configuration/budget"));
+    }
+    Ok(v)
+}
+pub(crate) fn read_exact_len<R: Read>(r: &mut R, n: usize) -> PyResult<()> {
+    if read_len(r, n)? != n {
+        return Err(val("native checkpoint shape differs"));
+    }
+    Ok(())
+}
+pub(crate) fn checkpoint_vec<T>(n: usize) -> PyResult<Vec<T>> {
+    let mut v = Vec::new();
+    v.try_reserve_exact(n)
+        .map_err(|_| budget("native checkpoint allocation exceeds available memory"))?;
+    Ok(v)
+}
 
 type PartRow = (usize, usize, f64, f64, Option<f64>, Option<f64>);
 type PacketRow = (f64, Vec<PartRow>);
@@ -45,6 +87,27 @@ pub(crate) struct RoadState {
     pending: Vec<Vec<Packet>>,
     totals: [f64; 7],
     ledger: Vec<[f64; 5]>,
+}
+impl RoadState {
+    pub(crate) fn time(&self) -> f64 {
+        self.t
+    }
+    pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+        (&self.totals, &self.ledger)
+    }
+    pub(crate) fn active_by_tag(&self) -> HashMap<usize, f64> {
+        let mut out = HashMap::new();
+        for p in self
+            .cells
+            .iter()
+            .flat_map(|c| &c.packets)
+            .chain(self.pending.iter().flatten())
+            .flat_map(|q| &q.parts)
+        {
+            *out.entry(p.tag).or_insert(0.0) += p.mass;
+        }
+        out
+    }
 }
 #[derive(Clone)]
 struct Motion {
@@ -245,6 +308,162 @@ impl Motion {
     }
 }
 impl V1Road {
+    pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+        (&self.state.totals, &self.state.ledger)
+    }
+    pub(crate) fn write_state<W: Write>(&self, w: &mut W) -> PyResult<()> {
+        write_len(w, self.identity.len())?;
+        w.write_all(self.identity.as_bytes())
+            .map_err(|e| PyIOError::new_err(e.to_string()))?;
+        let s = &self.state;
+        write_f64(w, s.t)?;
+        write_len(w, s.cells.len())?;
+        for c in &s.cells {
+            for &v in &c.v {
+                write_f64(w, v)?;
+            }
+            self.write_packets(w, &c.packets)?;
+            write_len(w, c.latent.len())?;
+            for (&k, &v) in &c.latent {
+                write_len(w, k)?;
+                write_f64(w, v)?;
+            }
+        }
+        write_len(w, s.pending.len())?;
+        for q in &s.pending {
+            self.write_packets(w, q)?;
+        }
+        for &v in &s.totals {
+            write_f64(w, v)?;
+        }
+        write_len(w, s.ledger.len())?;
+        for row in &s.ledger {
+            for &v in row {
+                write_f64(w, v)?;
+            }
+        }
+        Ok(())
+    }
+    fn write_packets<W: Write>(&self, w: &mut W, q: &[Packet]) -> PyResult<()> {
+        write_len(w, q.len())?;
+        for p in q {
+            write_f64(w, p.target)?;
+            write_len(w, p.parts.len())?;
+            for p in &p.parts {
+                write_len(w, p.tag)?;
+                write_len(w, p.offset)?;
+                write_f64(w, p.mass)?;
+                write_f64(w, p.birth)?;
+                for v in [p.a, p.b] {
+                    write_u64(w, u64::from(v.is_some()))?;
+                    if let Some(v) = v {
+                        write_f64(w, v)?;
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+    fn read_packets<R: Read>(&self, r: &mut R, remaining: &mut usize) -> PyResult<Vec<Packet>> {
+        let n = read_len(r, *remaining)?;
+        let mut q = checkpoint_vec(n)?;
+        for _ in 0..n {
+            let target = read_f64(r)?;
+            let m = read_len(r, *remaining)?;
+            if m == 0 {
+                return Err(val("empty native checkpoint packet"));
+            }
+            *remaining -= m;
+            let mut parts = checkpoint_vec(m)?;
+            for _ in 0..m {
+                let tag = read_len(r, self.routes.len())?;
+                let Some(&(path, _)) = self.routes.get(tag) else {
+                    return Err(val("native checkpoint route index differs"));
+                };
+                let offset = read_len(r, self.paths[path].len())?;
+                let mass = read_f64(r)?;
+                let birth = read_f64(r)?;
+                let mut interval = [None, None];
+                for v in &mut interval {
+                    *v = match read_u64(r)? {
+                        0 => None,
+                        1 => Some(read_f64(r)?),
+                        _ => return Err(val("native checkpoint option tag differs")),
+                    };
+                }
+                parts.push(Part {
+                    tag,
+                    offset,
+                    mass,
+                    birth,
+                    a: interval[0],
+                    b: interval[1],
+                });
+            }
+            q.push(Packet { target, parts });
+        }
+        Ok(q)
+    }
+    pub(crate) fn read_state<R: Read>(&self, r: &mut R) -> PyResult<RoadState> {
+        read_exact_len(r, self.identity.len())?;
+        let mut identity = vec![0; self.identity.len()];
+        r.read_exact(&mut identity)
+            .map_err(|e| PyIOError::new_err(e.to_string()))?;
+        if identity != self.identity.as_bytes() {
+            return Err(val("native road checkpoint binding differs"));
+        }
+        let t = read_f64(r)?;
+        read_exact_len(r, self.groups.len())?;
+        let mut remaining = self.record_budget;
+        let mut cells = checkpoint_vec(self.groups.len())?;
+        for _ in &self.groups {
+            let mut v = [0.; 8];
+            for x in &mut v {
+                *x = read_f64(r)?;
+            }
+            let packets = self.read_packets(r, &mut remaining)?;
+            let n = read_len(r, self.classes.len())?;
+            let mut latent = BTreeMap::new();
+            for _ in 0..n {
+                let k = read_len(r, self.classes.len())?;
+                let v = read_f64(r)?;
+                if latent.insert(k, v).is_some() {
+                    return Err(val("duplicate native checkpoint latent class"));
+                }
+            }
+            cells.push(Cell { v, packets, latent });
+        }
+        read_exact_len(r, self.groups.len())?;
+        let mut pending = checkpoint_vec(self.groups.len())?;
+        for _ in &self.groups {
+            pending.push(self.read_packets(r, &mut remaining)?);
+        }
+        let mut totals = [0.; 7];
+        for v in &mut totals {
+            *v = read_f64(r)?;
+        }
+        read_exact_len(r, self.classes.len())?;
+        let mut ledger = checkpoint_vec(self.classes.len())?;
+        for _ in &self.classes {
+            let mut row = [0.; 5];
+            for v in &mut row {
+                *v = read_f64(r)?;
+            }
+            ledger.push(row);
+        }
+        let state = RoadState {
+            t,
+            cells,
+            pending,
+            totals,
+            ledger,
+        };
+        self.check_state(&state)?;
+        Ok(state)
+    }
+    pub(crate) fn install_state(&mut self, state: RoadState) {
+        self.rollback(state);
+    }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.t
     }
@@ -1113,12 +1332,96 @@ impl V1Road {
     #[new]
     #[allow(clippy::too_many_arguments)]
     #[pyo3(signature = (identity, dt, groups, signals, routes, classes, incoming, windows, record_budget, event_budget, intervals))]
-    fn new(
+    pub(crate) fn new(
         identity: String,
         dt: f64,
         groups: Vec<Vec<f64>>,
         signals: Vec<Option<(f64, f64, f64)>>,
         routes: Vec<(Vec<usize>, usize)>,
+        classes: Vec<Vec<f64>>,
+        incoming: Vec<Vec<usize>>,
+        windows: Vec<(usize, f64, f64, f64)>,
+        record_budget: usize,
+        event_budget: Option<usize>,
+        intervals: bool,
+    ) -> PyResult<Self> {
+        let mut paths = Vec::new();
+        let mut lookup: HashMap<Vec<usize>, usize> = HashMap::new();
+        let mut tags = Vec::with_capacity(routes.len());
+        for (path, k) in routes {
+            let id = if let Some(&id) = lookup.get(&path) {
+                id
+            } else {
+                let id = paths.len();
+                lookup.insert(path.clone(), id);
+                paths.push(path);
+                id
+            };
+            tags.push((id, k));
+        }
+        Self::new_shared_routes(
+            identity,
+            dt,
+            groups,
+            signals,
+            paths,
+            tags,
+            classes,
+            incoming,
+            windows,
+            record_budget,
+            event_budget,
+            intervals,
+        )
+    }
+    fn snapshot(&self) -> StateRow {
+        self.row()
+    }
+    fn restore(&mut self, row: StateRow) -> PyResult<()> {
+        let s = self.from_row(row)?;
+        self.state = s;
+        Ok(())
+    }
+    fn reset(&mut self, t: f64) -> PyResult<()> {
+        if !finite_nonnegative(t) || (t / self.dt - (t / self.dt).round()).abs() > 1e-9 {
+            return Err(val("nonnegative grid-aligned time origin"));
+        }
+        self.state = self.blank(t);
+        Ok(())
+    }
+    fn step(&mut self, py: Python<'_>, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
+        let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+        self.state = s;
+        Ok(e)
+    }
+    fn advance_batch(
+        &mut self,
+        py: Python<'_>,
+        steps: Vec<(f64, Vec<Offer>)>,
+    ) -> PyResult<Vec<Vec<EventRow>>> {
+        // Each successful interval commits; failures retain the last valid interval.
+        let mut events = vec![];
+        for (dt, offers) in steps {
+            let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+            self.state = s;
+            events.push(e);
+        }
+        Ok(events)
+    }
+    fn registry_sizes(&self) -> (usize, usize, usize) {
+        (self.routes.len(), self.paths.len(), self.groups.len())
+    }
+}
+
+impl V1Road {
+    #[allow(clippy::too_many_arguments)]
+    pub(crate) fn new_shared_routes(
+        identity: String,
+        dt: f64,
+        groups: Vec<Vec<f64>>,
+        signals: Vec<Option<(f64, f64, f64)>>,
+        paths: Vec<Vec<usize>>,
+        routes: Vec<(usize, usize)>,
         classes: Vec<Vec<f64>>,
         incoming: Vec<Vec<usize>>,
         windows: Vec<(usize, f64, f64, f64)>,
@@ -1180,22 +1483,14 @@ impl V1Road {
         if seen.iter().any(|&n| n != 1) {
             return Err(val("incoming partition"));
         }
-        let mut paths = vec![];
-        let mut lookup: HashMap<Vec<usize>, usize> = HashMap::new();
-        let mut tags = vec![];
-        for (path, k) in routes {
-            if path.is_empty() || path.iter().any(|&i| i >= n) || k >= classes.len() {
-                return Err(val("invalid native route"));
-            }
-            let id = if let Some(&id) = lookup.get(&path) {
-                id
-            } else {
-                let id = paths.len();
-                lookup.insert(path.clone(), id);
-                paths.push(path);
-                id
-            };
-            tags.push((id, k));
+        if paths
+            .iter()
+            .any(|p| p.is_empty() || p.iter().any(|&i| i >= n))
+            || routes
+                .iter()
+                .any(|&(p, k)| p >= paths.len() || k >= classes.len())
+        {
+            return Err(val("invalid native route"));
         }
         let mut r = Self {
             identity,
@@ -1203,7 +1498,7 @@ impl V1Road {
             groups,
             signals,
             paths,
-            routes: tags,
+            routes,
             classes,
             incoming,
             windows,
@@ -1220,42 +1515,5 @@ impl V1Road {
         };
         r.state = r.blank(0.);
         Ok(r)
-    }
-    fn snapshot(&self) -> StateRow {
-        self.row()
-    }
-    fn restore(&mut self, row: StateRow) -> PyResult<()> {
-        let s = self.from_row(row)?;
-        self.state = s;
-        Ok(())
-    }
-    fn reset(&mut self, t: f64) -> PyResult<()> {
-        if !finite_nonnegative(t) || (t / self.dt - (t / self.dt).round()).abs() > 1e-9 {
-            return Err(val("nonnegative grid-aligned time origin"));
-        }
-        self.state = self.blank(t);
-        Ok(())
-    }
-    fn step(&mut self, py: Python<'_>, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
-        let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
-        self.state = s;
-        Ok(e)
-    }
-    fn advance_batch(
-        &mut self,
-        py: Python<'_>,
-        steps: Vec<(f64, Vec<Offer>)>,
-    ) -> PyResult<Vec<Vec<EventRow>>> {
-        // Each successful interval commits; failures retain the last valid interval.
-        let mut events = vec![];
-        for (dt, offers) in steps {
-            let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
-            self.state = s;
-            events.push(e);
-        }
-        Ok(events)
-    }
-    fn registry_sizes(&self) -> (usize, usize, usize) {
-        (self.routes.len(), self.paths.len(), self.groups.len())
     }
 }

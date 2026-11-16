@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-16",
+  "timezone": "UTC",
+  "node": "V03",
+  "status": "VERIFIED_SCOPED_WHOLE_NATIVE_V03_STILL_BLOCKED",
+  "baseline_commit": "83197dcdc5c3a32a13d3a940da9976f68a542e78",
+  "scope": "Whole native static and dynamic ownership, immutable native checkpoints and lossless receipt history; full actual-city initialization and early active resource diagnosis",
+  "dag_progress": {
+    "completed": 19,
+    "total": 21,
+    "percent": 90.5,
+    "accepted": 5
+  },
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+  "native_binary_sha256": "aadb3938fe9f01748508fdbce04c2be5670e5f439a563cdf6e7388984076c6b7",
+  "source_manifest": {
+    "path": "artifacts/v1_rust_whole_20261116/SOURCE_MANIFEST.json",
+    "sha256": "8ede799976165f780c21297dcc40dc7ff3e86903788f60d96fb8770d068feb46",
+    "matched_sources": 37
+  },
+  "verification": {
+    "release_build": "PASS",
+    "scoped_tests": 105,
+    "scoped_test_log": "SCOPED_TESTS.log",
+    "final_plan_test_log": "PLAN_TESTS.log",
+    "small_mixed_oracle_parity": "PASS",
+    "exact_history_and_eligibility": "PASS",
+    "immutable_branch_restart": "PASS",
+    "invalid_checkpoint_atomic_rejection": "PASS",
+    "full_city_default_and_2m_restart_and_failed_tick_byte_identity": "PASS",
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "integration_merge": "DEFERRED_BY_USER",
+    "full_3x3_24h_campaign": "NOT_RUN"
+  },
+  "whole_initialization": [
+    {
+      "case": "river_weekday_s17",
+      "activated_legs": 5093765,
+      "unactivated_legs": 0,
+      "native_construction_s": 48.97155129900784,
+      "evolution_s": 1.42156686000817,
+      "peak_rss_bytes": 2171146240,
+      "checkpoint_bytes": 163298622,
+      "checkpoint_sha256": "2fdaee61d91124f324ed8fa71e9cd9662cbdb60420587719cc6100f154682f0a",
+      "checkpoint_report_equal": true
+    },
+    {
+      "case": "coastal_weekend_s41",
+      "activated_legs": 2449750,
+      "unactivated_legs": 0,
+      "native_construction_s": 31.39075865499035,
+      "evolution_s": 0.6297124489938142,
+      "peak_rss_bytes": 1161740288,
+      "checkpoint_bytes": 78646478,
+      "checkpoint_sha256": "9f1b292d5e3fec84d82761f655c0501615efeeb26f99e7af2d3935dc70e556dc",
+      "checkpoint_report_equal": true
+    },
+    {
+      "case": "valley_weekday_s7",
+      "activated_legs": 918450,
+      "unactivated_legs": 0,
+      "native_construction_s": 8.731240667009843,
+      "evolution_s": 0.20932349699432962,
+      "peak_rss_bytes": 475160576,
+      "checkpoint_bytes": 29539598,
+      "checkpoint_sha256": "74f6efbfab6109394fe65815f995977339b75b1d9133aab38758b38bd6b50bbe",
+      "checkpoint_report_equal": true
+    }
+  ],
+  "active_resource_failures": [
+    {
+      "case": "valley_weekday_s7",
+      "logical_record_budget": 20000,
+      "simulated_s": 25210.0,
+      "reason": "BudgetExceeded: joint journey record budget",
+      "wall_s": 100.24558818200603,
+      "peak_rss_bytes": 453529600,
+      "checkpoint_sha256": "08180d62a0ee2df16343c52590dd2bf8cf04974066d5e5f507130e60e20da180",
+      "checkpoint_bytes": 29539598,
+      "checkpoint_report_equal": true
+    },
+    {
+      "case": "valley_weekday_s7",
+      "logical_record_budget": 2000000,
+      "simulated_s": 25380.0,
+      "reason": "BudgetExceeded: joint journey record budget",
+      "wall_s": 153.4194049630023,
+      "peak_rss_bytes": 1013796864,
+      "checkpoint_sha256": "0886dc78f39ecd404fcea8b11a87de651e1d20447af2f7132ef954911eed2cd8",
+      "checkpoint_bytes": 149770790,
+      "checkpoint_report_equal": true
+    }
+  ],
+  "record_definition": "entering + egress + internal stage rows + raw historical completion receipts; not population or vehicles",
+  "history_complexity": {
+    "snapshot_history": "O(L+H) -> O(L) headers",
+    "raw_rows_preserved": true,
+    "append_prior_rows_copied_max": 64,
+    "empty_header_bytes": 8,
+    "eligibility_worst_case": "O(H) for arbitrary time ordering",
+    "dense_per_tick_leg_work_remains": true
+  },
+  "independent_review": {
+    "decision": "ACCEPT_SCOPED_KEEP_V03_BLOCKED",
+    "fixed_finding": "finite birth corruption must fail cross-owner scientific validation before restore",
+    "claim_limits": [
+      "10s cases are pre-source vacuum; no occupied-state performance claim",
+      "unsupported demand remains pending; activation does not mean every OD supported",
+      "actual full-day replay/refinement and 3 repeats per city remain unverified"
+    ]
+  },
+  "remaining": [
+    "exact active-stage/history capacity and byte accounting; default20k and diagnostic2m logical limits reached before8h",
+    "reduce dense all-calendar work per tick",
+    "unchanged full acceptance campaign and separate review; RLS01 waits"
+  ],
+  "evidence": {
+    "BUILD.log": "1ad95cff3dc54c50be554d739d24548841eba69e894cc22aeecc1bb5d4bf8505",
+    "REPORT_KO.md": "1b25246395fba76f173e45ebae8cd6f53d24ade8e13bcfa6e4f1424d09c709e5",
+    "RESTART.log": "d2d3b7a642f975ab7c92bf499ac5f50e5d06da203571085bcd276c0426c711dc",
+    "SCOPED_TESTS.log": "b7c30317b0d7d99d98cf9a3075a1e7c331a8134e66fc4dfd6a18f7fcf01c59b2",
+    "SOURCE_MANIFEST.json": "8ede799976165f780c21297dcc40dc7ff3e86903788f60d96fb8770d068feb46",
+    "coastal_whole_10s.json": "afdc097b6582fa6412c446977e9c92bd97e63e1e09d028b2f2ee84a802e13b3c",
+    "river_whole_10s.json": "d0255ab2295c9b503b78b7dfeda0258900f12add736d3f1486d3d6aa6ca12484",
+    "valley_2m_restart.json": "2ffa0dbae8b6b283e5c392a0ad3a2df9f801e539b83b9587890a0fc1d70387c8",
+    "valley_default_restart.json": "600a3d397134fd8d3e0968744091f9c54d85f4e93ed97048bf7f2a1962169c0c",
+    "valley_whole_10s.json": "b5599edba33af717c73c62c688165fb59faf45465993d303b2c9f686eeccc15c",
+    "valley_whole_to_8h.json": "560dcd6548345deba785e4024bf7f0282e9e7953b73b77e6fbbac32a2af88361",
+    "valley_whole_to_8h_records2m.json": "d69d68053f727d24e2952c61a6cacd1b0f9b696a075e07a61cb01a4dbc69f179"
+  }
+}

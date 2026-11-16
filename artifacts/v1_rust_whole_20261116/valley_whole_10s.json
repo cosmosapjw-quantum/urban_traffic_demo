@@ -1,0 +1,299 @@
+{
+  "case": "valley_weekday_s7",
+  "backend": "rust_whole",
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "full_campaign": "NOT_RUN",
+  "diagnostic_prefix": false,
+  "simulated_s": 10.0,
+  "step_s": 10,
+  "horizon_s": 10.0,
+  "native_accounting_budget_bytes": 6442450944,
+  "logical_record_budget": 20000,
+  "address_space_limit_bytes": 8589934592,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "baseline_commit": "83197dcdc5c3a32a13d3a940da9976f68a542e78",
+  "source_hashes": {
+    "crates/metroflow-rust/src/agent.rs": "c661e3a060257654aa166db1a0f9b6532ec6852e9baf51ced090aa529cf4387f",
+    "crates/metroflow-rust/src/common.rs": "811fc298f61a932a85f1a4ddb27eb6329b2ee8bc2cb5dc75538ba25062901aff",
+    "crates/metroflow-rust/src/edge.rs": "2bc3f1d6434877ef34390a7f108caf834d5745bab30ab4de680241694514acad",
+    "crates/metroflow-rust/src/flow.rs": "aa8ec2b0bef876184a9039f98d50ed54ec1472d82053f8e96c6868174c217fa9",
+    "crates/metroflow-rust/src/lib.rs": "6621185c7f3833f62a50fba6158ee21eacd7e322ec921e425d5f108982ba9b19",
+    "crates/metroflow-rust/src/reroute.rs": "89dc885b69c796dec9121e5a2991a06497a5505b1d8aa7c4a36bed7b0fba2a3d",
+    "crates/metroflow-rust/src/routing.rs": "c165c642ffc33071dd62abf5845d845aa0aed27cbe093af92451a4cf8aba364a",
+    "crates/metroflow-rust/src/v1_calendar.rs": "b3d7402c9155205853f5380d76855e14d6f7996550356404639caaac801830c7",
+    "crates/metroflow-rust/src/v1_engine.rs": "1ccb01a248a8c4d97436fe79e0ba4d40015d0936de2e17e9f15f465c91d55272",
+    "crates/metroflow-rust/src/v1_history.rs": "be7c8861021cfd48c069128ae78d177df2f4c068ba808782dd8fe43863f31178",
+    "crates/metroflow-rust/src/v1_journey.rs": "be0ae9b09ed459692e69bd17759c35d051f469d2c81b5a4fb78ba5daa0c7e3ff",
+    "crates/metroflow-rust/src/v1_road.rs": "df700da2a660c42c6195d0ec9e3dc576c2901884ed1ec5d1cfe16357df16d244",
+    "crates/metroflow-rust/src/v1_routing.rs": "7ba1902f87ab534082cfd978cb0cf6f0b94ae70ac4908dc93c80cb8534cb35fe",
+    "src/metroflow/v1/native_calendar.py": "efb3cab28d3ccc99607234ea909077ce67a00c5b38d1984e0e15fe3fec1c65cf",
+    "src/metroflow/v1/native_engine.py": "9e7a80c75423222aae3e40ce72154b03eb1daaf67a8ad98f08bc4d1667d119c9",
+    "src/metroflow/v1/native_journey.py": "85d84a9300de6e5094062fefc6cdddb7b867725201339f88ae02abc81082877c",
+    "src/metroflow/v1/native_release_driver.py": "2dbcb074367f26e0fff7d4640b92cb6fbaadbba78edb0ec670ece12a92e82c7f",
+    "src/metroflow/v1/native_road.py": "d21c83567e650b0b82fa157e893e56456dd401a8680ef67cc0a789ee74ff90c0",
+    "src/metroflow/v1/native_routing.py": "056e9c7004b76c3c1bb057a15d0a8503403f6f24045700d1bf65b0058611adf4",
+    "src/metroflow/v1/native_static.py": "e5122aed76a15da7ec90b5aae95f67b5e15778d49053c06cf3f7d6ac804f73ad"
+  },
+  "native_binary_sha256": "aadb3938fe9f01748508fdbce04c2be5670e5f439a563cdf6e7388984076c6b7",
+  "status": "PASS_SCOPED",
+  "phase": "finished",
+  "wall_s": 22.346906334001687,
+  "peak_rss_bytes": 475160576,
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+  "source_archive_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+  "full_calendar_totals": {
+    "legs": 918450,
+    "persons": 120000.0,
+    "vehicles": 58801.0,
+    "cargo_kg": 1000,
+    "resident_stock": 100000.0,
+    "requested_workers": 50000.0,
+    "allocated_workers": 40000.0,
+    "unassigned_workers": 10000.0
+  },
+  "inventory_identity": "75158d67c9ed5628f0af30c7489661dbc77634174e8e0d2be73c0f7e5eedb9bf",
+  "native_construction_s": 8.731240667009843,
+  "initial_report": {
+    "status": "WHOLE_CALENDAR_ACTIVATED",
+    "activation": "complete native preactivation; one shared occupied road",
+    "calendar": {
+      "calendar": {
+        "legs": 918450,
+        "persons": 120000.0,
+        "vehicles": 58801.0,
+        "cargo_kg": 1000,
+        "resident_stock": 100000.0,
+        "requested_workers": 50000.0,
+        "allocated_workers": 40000.0,
+        "unassigned_workers": 10000.0
+      },
+      "materialized_legs": 918450,
+      "remaining_legs": 0,
+      "remaining_amounts": {
+        "persons": 0.0,
+        "vehicles": 0.0,
+        "cargo_kg": 0
+      },
+      "execution": "NOT_RUN",
+      "scope": "exact compilation coverage; pages must enter one shared live runtime"
+    },
+    "execution": {
+      "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+      "time_s": 0.0,
+      "ledger": {
+        "persons": {
+          "requested": 0.0,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "active": 0.0
+        },
+        "vehicles": {
+          "requested": 0.0,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "active": 0.0
+        },
+        "cargo_kg": {
+          "requested": 0.0,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "active": 0.0
+        }
+      },
+      "released_intent_first_moments": {
+        "persons": 0.0,
+        "vehicles": 0.0,
+        "cargo_kg": 0.0
+      },
+      "service": {
+        "time_s": 0.0,
+        "scheduled_bus_vehicles": 24,
+        "bus_road_vehicles": 0.0,
+        "bus_stop_or_finished_vehicles": 24.0,
+        "completed_bus_vehicles": 0,
+        "waiting_persons": 1.6769625,
+        "onboard_persons": 0.0,
+        "arrived_persons": 0.0,
+        "wait_person_s": 0.0,
+        "freight_completed_vehicles": 0.0,
+        "cargo_delivered_kg": 0.0,
+        "cargo_unfinished_kg": 998.825,
+        "road_released_veh": 0.0,
+        "road_completed_veh": 0.0
+      },
+      "assignment": {
+        "units": {
+          "persons": {
+            "requested": 120000.0,
+            "assigned": 1.6769625000015367,
+            "unassigned": 119998.3230375
+          },
+          "vehicles": {
+            "requested": 58801.0,
+            "assigned": 1.0659034999989672,
+            "unassigned": 58799.9340965
+          },
+          "cargo_kg": {
+            "requested": 1000.0,
+            "assigned": 998.825,
+            "unassigned": 1.175
+          }
+        },
+        "fixed_fleet_vehicles": 24,
+        "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+      },
+      "construction": {
+        "legs": 918450,
+        "physical_routes": 304856,
+        "unique_paths": 38916,
+        "unsupported_legs": 610820,
+        "road_legs": 304368,
+        "internal_legs": 3012,
+        "estimated_bytes": 1073526202,
+        "byte_budget": 6442450944,
+        "python_calendar_leg_objects": 0,
+        "road_owners": 1
+      },
+      "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+      "full_release_campaign": "NOT_RUN"
+    },
+    "full_local_acceptance": "NOT_RUN"
+  },
+  "activated_legs": 918450,
+  "unactivated_legs": 0,
+  "evolution_s": 0.20932349699432962,
+  "report": {
+    "status": "WHOLE_CALENDAR_ACTIVATED",
+    "activation": "complete native preactivation; one shared occupied road",
+    "calendar": {
+      "calendar": {
+        "legs": 918450,
+        "persons": 120000.0,
+        "vehicles": 58801.0,
+        "cargo_kg": 1000,
+        "resident_stock": 100000.0,
+        "requested_workers": 50000.0,
+        "allocated_workers": 40000.0,
+        "unassigned_workers": 10000.0
+      },
+      "materialized_legs": 918450,
+      "remaining_legs": 0,
+      "remaining_amounts": {
+        "persons": 0.0,
+        "vehicles": 0.0,
+        "cargo_kg": 0
+      },
+      "execution": "NOT_RUN",
+      "scope": "exact compilation coverage; pages must enter one shared live runtime"
+    },
+    "execution": {
+      "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+      "time_s": 10.0,
+      "ledger": {
+        "persons": {
+          "requested": 0.0,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "active": 0.0
+        },
+        "vehicles": {
+          "requested": 0.0,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "active": 0.0
+        },
+        "cargo_kg": {
+          "requested": 0.0,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "active": 0.0
+        }
+      },
+      "released_intent_first_moments": {
+        "persons": 0.0,
+        "vehicles": 0.0,
+        "cargo_kg": 0.0
+      },
+      "service": {
+        "time_s": 10.0,
+        "scheduled_bus_vehicles": 24,
+        "bus_road_vehicles": 0.0,
+        "bus_stop_or_finished_vehicles": 24.0,
+        "completed_bus_vehicles": 0,
+        "waiting_persons": 1.6769625,
+        "onboard_persons": 0.0,
+        "arrived_persons": 0.0,
+        "wait_person_s": 0.0,
+        "freight_completed_vehicles": 0.0,
+        "cargo_delivered_kg": 0.0,
+        "cargo_unfinished_kg": 998.825,
+        "road_released_veh": 0.0,
+        "road_completed_veh": 0.0
+      },
+      "assignment": {
+        "units": {
+          "persons": {
+            "requested": 120000.0,
+            "assigned": 1.6769625000015367,
+            "unassigned": 119998.3230375
+          },
+          "vehicles": {
+            "requested": 58801.0,
+            "assigned": 1.0659034999989672,
+            "unassigned": 58799.9340965
+          },
+          "cargo_kg": {
+            "requested": 1000.0,
+            "assigned": 998.825,
+            "unassigned": 1.175
+          }
+        },
+        "fixed_fleet_vehicles": 24,
+        "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+      },
+      "construction": {
+        "legs": 918450,
+        "physical_routes": 304856,
+        "unique_paths": 38916,
+        "unsupported_legs": 610820,
+        "road_legs": 304368,
+        "internal_legs": 3012,
+        "estimated_bytes": 1073526202,
+        "byte_budget": 6442450944,
+        "python_calendar_leg_objects": 0,
+        "road_owners": 1
+      },
+      "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+      "full_release_campaign": "NOT_RUN"
+    },
+    "full_local_acceptance": "NOT_RUN"
+  },
+  "advance_metrics": {
+    "tick_times_s": [
+      0.058783616
+    ],
+    "peak_records": 0,
+    "scope": "native complete tick including rollback copying; no Python leg snapshots"
+  },
+  "checkpoint_sha256": "74f6efbfab6109394fe65815f995977339b75b1d9133aab38758b38bd6b50bbe",
+  "checkpoint_bytes": 29539598,
+  "checkpoint_roundtrip_s": 0.18115373799810186,
+  "checkpoint_report_equal": true,
+  "supervisor_wall_s": 22.645859622003627
+}

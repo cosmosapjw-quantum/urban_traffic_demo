@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.19",
+  "version": "1.1.20",
   "date": "2026-11-16",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -1890,7 +1890,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Connect the native full calendar directly to native static road/service/journey registries without Python all-leg tuples and duplicate helper graphs; measure complete activation/history costs, then unchanged 3-case x 3 full-day acceptance. Native core and bounded prefixes are scoped evidence.",
+      "positive_next_action": "Whole native construction verified for all3 full calendars. Resolve exact active-stage/history capacity: Valley default20k cap at25210s and diagnostic2m cap at25380s, both below8GiB; retain scientific ledgers/checkpoints. Then unchanged3-case x3 full-day campaign/refinement and separate review. Full CI/integration remain deferred.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1933,6 +1933,11 @@
           "path": "artifacts/v1_rust_runtime_20261116/RECEIPT.json",
           "sha256": "da8ba6ecfc6daa5a8b1ebe61d2cf3e019555903e9ece2da61b23451fd2403fc1",
           "scope": "Native direct factorized calendar and coupled physical/service/journey core; full three-city calendar counts and bounded 256-leg active-window checkpoint parity; Python static full-calendar constructor and history capacity remain"
+        },
+        {
+          "path": "artifacts/v1_rust_whole_20261116/RECEIPT.json",
+          "sha256": "81f63749c4b6290c8396c119e909b1305f101c82f33ff03e0df9c2f275c37bf3",
+          "scope": "Whole native constructor and immutable binary checkpoints; all3 actual full calendars initialized with0 omittedlegs; Valley default20k cap at25210s and diagnostic2m cap at25380s with exact fresh-runtime rollback; no24h acceptance"
         }
       ]
     },
@@ -2100,7 +2105,7 @@
     "authorized_on": "2026-11-16",
     "supersedes": "pure Python core restriction in PLAN v1.1.17 and AGENTS.md",
     "target": "Rust-owned state, clock, routing, physical/service/journey ledgers; Python configuration, CLI, diagnostics only",
-    "mode": "Explicit METROFLOW_V1_ENGINE_BACKEND=rust and METROFLOW_V1_ROUTING_BACKEND=rust; python_oracle remains explicit migration default",
+    "mode": "Explicit METROFLOW_V1_ENGINE_BACKEND=rust_whole for native full static/dynamic ownership; rust remains legacy static frontend/native core; python_oracle is the explicit reference default",
     "current_scope": [
       "Persistent f64 legal-turn routing in V1 preparation",
       "Direct factorized Rust calendar construction without Python per-leg objects",
@@ -2108,11 +2113,15 @@
       "Rust service/journey scheduling, ledgers, access/egress and return eligibility",
       "GIL-released coupled native time loop with whole-tick rollback and Python-compatible checkpoints",
       "Native per-tick resource/timing diagnostics and hourly campaign checkpoint batches",
-      "Actual local full-calendar construction and matched bounded city-prefix runtime measurements"
+      "Actual local full-calendar construction and matched bounded city-prefix runtime measurements",
+      "Whole native calendar-to-route/service/journey constructor with marginal-only Python frontend and one road owner",
+      "Opaque immutable native snapshots, exact binary checkpoints and cross-owner scientific binding validation",
+      "Lossless persistent receipt blocks with exact fsum/eligibility indexing",
+      "Actual full three-city initialization/10s/checkpoint measurements; whole Valley activation to logical record cap"
     ],
     "remaining": [
-      "Native whole-calendar static constructor: currently NativeJointReleaseRuntime still constructs and retains Python leg/service/route graph",
-      "Measured whole-calendar active-state/history storage within unchanged 8GiB target; 20k default materialization/record guards remain",
+      "Measured full-day active-stage/history storage within unchanged 8GiB target; default20k and diagnostic2m logical record limits both reached before8h",
+      "Reduce O(number_of_calendar_legs) dense per-tick work and exact active-stage/history fragmentation without changing source measures or receipt clocks",
       "Frozen candidate 3 cases x 3 full-day campaign, refinement and replay",
       "Separate acceptance review; full repository CI/integration still deferred by user"
     ],

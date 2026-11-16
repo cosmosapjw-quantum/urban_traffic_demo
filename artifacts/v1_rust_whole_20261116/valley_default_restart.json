@@ -1,0 +1,124 @@
+{
+  "case": "valley_weekday_s7",
+  "receipt_sha256": "560dcd6548345deba785e4024bf7f0282e9e7953b73b77e6fbbac32a2af88361",
+  "checkpoint_sha256": "08180d62a0ee2df16343c52590dd2bf8cf04974066d5e5f507130e60e20da180",
+  "restored_time_s": 25210.0,
+  "restored_report": {
+    "status": "WHOLE_CALENDAR_ACTIVATED",
+    "activation": "complete native preactivation; one shared occupied road",
+    "calendar": {
+      "calendar": {
+        "legs": 918450,
+        "persons": 120000.0,
+        "vehicles": 58801.0,
+        "cargo_kg": 1000,
+        "resident_stock": 100000.0,
+        "requested_workers": 50000.0,
+        "allocated_workers": 40000.0,
+        "unassigned_workers": 10000.0
+      },
+      "materialized_legs": 918450,
+      "remaining_legs": 0,
+      "remaining_amounts": {
+        "persons": 0.0,
+        "vehicles": 0.0,
+        "cargo_kg": 0
+      },
+      "execution": "NOT_RUN",
+      "scope": "exact compilation coverage; pages must enter one shared live runtime"
+    },
+    "execution": {
+      "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+      "time_s": 25210.0,
+      "ledger": {
+        "persons": {
+          "requested": 55.555555555554896,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 55.555555555554896,
+          "active": 0.0
+        },
+        "vehicles": {
+          "requested": 27.222222222222033,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 27.222222222222033,
+          "active": 0.0
+        },
+        "cargo_kg": {
+          "requested": 0.0,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "active": 0.0
+        }
+      },
+      "released_intent_first_moments": {
+        "persons": 0.0,
+        "vehicles": 0.0,
+        "cargo_kg": 0.0
+      },
+      "service": {
+        "time_s": 25210.0,
+        "scheduled_bus_vehicles": 24,
+        "bus_road_vehicles": 0.0,
+        "bus_stop_or_finished_vehicles": 24.0,
+        "completed_bus_vehicles": 4,
+        "waiting_persons": 1.6769625,
+        "onboard_persons": 0.0,
+        "arrived_persons": 0.0,
+        "wait_person_s": 0.0,
+        "freight_completed_vehicles": 0.0,
+        "cargo_delivered_kg": 0.0,
+        "cargo_unfinished_kg": 998.825,
+        "road_released_veh": 4.0,
+        "road_completed_veh": 4.0
+      },
+      "assignment": {
+        "units": {
+          "persons": {
+            "requested": 120000.0,
+            "assigned": 1.6769625000015367,
+            "unassigned": 119998.3230375
+          },
+          "vehicles": {
+            "requested": 58801.0,
+            "assigned": 1.0659034999989672,
+            "unassigned": 58799.9340965
+          },
+          "cargo_kg": {
+            "requested": 1000.0,
+            "assigned": 998.825,
+            "unassigned": 1.175
+          }
+        },
+        "fixed_fleet_vehicles": 24,
+        "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+      },
+      "construction": {
+        "legs": 918450,
+        "physical_routes": 304856,
+        "unique_paths": 38916,
+        "unsupported_legs": 610820,
+        "road_legs": 304368,
+        "internal_legs": 3012,
+        "estimated_bytes": 1073526202,
+        "byte_budget": 6442450944,
+        "python_calendar_leg_objects": 0,
+        "road_owners": 1
+      },
+      "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+      "full_release_campaign": "NOT_RUN"
+    },
+    "full_local_acceptance": "NOT_RUN"
+  },
+  "full_campaign": "NOT_RUN",
+  "status": "PASS_SCOPED",
+  "restored_checkpoint_byte_identical": true,
+  "continuation": "BLOCKED_RESOURCE",
+  "continuation_reason": "joint journey record budget",
+  "continuation_time_s": 25210.0,
+  "rollback_checkpoint_byte_identical": true,
+  "snapshot_unchanged_after_continuation": true
+}

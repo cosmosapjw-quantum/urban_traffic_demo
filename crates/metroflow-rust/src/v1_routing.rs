@@ -116,7 +116,7 @@ impl V1RoutingGraph {
 }
 
 impl V1RoutingGraph {
-    fn search_inner(
+    pub(crate) fn search_inner(
         &mut self,
         origin: &str,
         destination: &str,
@@ -173,7 +173,7 @@ impl V1RoutingGraph {
 impl V1RoutingGraph {
     #[new]
     #[pyo3(signature = (arcs, costs, allowed_turns=None, max_destinations=8))]
-    fn new(
+    pub(crate) fn new(
         arcs: Vec<(String, String, String)>,
         costs: Vec<f64>,
         allowed_turns: Option<Vec<(String, String)>>,

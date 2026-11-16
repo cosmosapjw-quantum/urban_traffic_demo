@@ -145,15 +145,15 @@ fn visit_factorized(
     Ok(())
 }
 #[derive(Clone)]
-struct Leg {
-    id: u64,
-    cohort: u64,
-    parent: Option<u32>,
-    metadata: [u32; 8], // origin,destination,purpose,mode,class,profile,law,endpoint kind
-    amounts: [f64; 3],
-    dwell: f64,
-    released: f64,
-    completed: f64,
+pub(crate) struct Leg {
+    pub(crate) id: u64,
+    pub(crate) cohort: u64,
+    pub(crate) parent: Option<u32>,
+    pub(crate) metadata: [u32; 8], // origin,destination,purpose,mode,class,profile,law,endpoint kind
+    pub(crate) amounts: [f64; 3],
+    pub(crate) dwell: f64,
+    pub(crate) released: f64,
+    pub(crate) completed: f64,
 }
 
 fn sum(values: impl Iterator<Item = f64>) -> f64 {
@@ -191,6 +191,21 @@ pub struct NativeCalendar {
 }
 
 impl NativeCalendar {
+    pub(crate) fn owned_legs(&self) -> &[Leg] {
+        &self.legs
+    }
+    pub(crate) fn owned_labels(&self) -> &[String] {
+        &self.labels
+    }
+    pub(crate) fn owned_profiles(&self) -> &[Vec<(f64, f64, f64)>] {
+        &self.profiles
+    }
+    pub(crate) fn owned_binding(&self) -> (&str, &str) {
+        (&self.city_identity, &self.schedule_identity)
+    }
+    pub(crate) fn owned_bytes(&self) -> usize {
+        self.estimate(self.legs.len(), 0)
+    }
     fn key_existing(&self, text: &str) -> Option<u64> {
         if let Some(s) = text.strip_prefix('c') {
             let (digits, tag) = if let Some(x) = s.strip_suffix(":out") {
@@ -217,7 +232,7 @@ impl NativeCalendar {
         self.text_indices.insert(text.to_owned(), i);
         (3 << 62) | i
     }
-    fn text(&self, k: u64) -> Option<String> {
+    pub(crate) fn text(&self, k: u64) -> Option<String> {
         if k == NONE {
             return None;
         }

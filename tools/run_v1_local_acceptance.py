@@ -46,10 +46,14 @@ def prepare(case,matrix,step_s):
     schedule=compile_factorized_demand(homes,jobs,services,day=case['day'],freight_kg=1000,
                                       worker_shortfall=matrix['worker_shortfall'])
     plan=ReleasePlan(city,schedule,step_s=step_s)
+    policy=dict(matrix['inventory_policy'])
+    policy['departures_s']=tuple(policy['departures_s'])
+    inventory=build_inventory(city,InventoryPolicy(**policy))
+    if os.environ.get('METROFLOW_V1_ENGINE_BACKEND') == 'rust_whole':
+        from metroflow.v1.native_release_driver import NativeReleaseDriver
+        return NativeReleaseDriver(plan,inventory,step_s=step_s,
+            byte_budget=min(6*1024**3,matrix['limits']['peak_rss_bytes'])),row
     def factory(city,legs,*,step_s):
-        policy=dict(matrix['inventory_policy'])
-        policy['departures_s']=tuple(policy['departures_s'])
-        inventory=build_inventory(city,InventoryPolicy(**policy))
         return compile_service_plan(city,legs,inventory.corridors,
                      depot_block_id=inventory.depot_block_id,step_s=step_s,
                      max_legs=matrix['route_materialization_budget'])
@@ -70,6 +74,17 @@ def _worker(args,matrix,case,route_latency):
                 environment=observed_environment(),step_s=args.step_s,horizon_s=args.horizon_s,
                 matrix_sha256=hashlib.sha256(args.matrix.read_bytes()).hexdigest())
     try:
+        if result['engine_backend']=='rust_whole':
+            # Bound transient construction/state/checkpoint allocations as well
+            # as retained native accounting. This does not relax the RSS target.
+            old_soft,old_hard=resource.getrlimit(resource.RLIMIT_AS)
+            limit=matrix['limits']['peak_rss_bytes']
+            if old_soft!=resource.RLIM_INFINITY:
+                limit=min(limit,old_soft)
+            if old_hard!=resource.RLIM_INFINITY:
+                limit=min(limit,old_hard)
+            resource.setrlimit(resource.RLIMIT_AS,(limit,old_hard))
+            result['address_space_limit_bytes']=limit
         driver,row=prepare(case,matrix,args.step_s)
         result.update(source_sha256=row['source_sha256'],patch_sha256=row['patch_sha256'],
                       driver_identity=driver.identity)
@@ -77,7 +92,8 @@ def _worker(args,matrix,case,route_latency):
             result.update(status='WHOLE_CALENDAR_PREPARED',calendar=driver.plan.totals())
         else:
             state=driver.initial()
-            driver.save(args.out/(args.label+'.last_valid.json'),state)
+            checkpoint_suffix='.bin' if driver.engine_backend=='rust_whole' else '.json'
+            driver.save(args.out/(args.label+'.last_valid'+checkpoint_suffix),state)
             tick_times=[]
             peak_records=0
             native_frontend_s=0.0
@@ -85,7 +101,7 @@ def _worker(args,matrix,case,route_latency):
                 nonlocal peak_records, native_frontend_s
                 while state.time_s<end:
                     started_tick=time.perf_counter()
-                    if getattr(driver, 'engine_backend', 'python_oracle') == 'rust':
+                    if getattr(driver, 'engine_backend', 'python_oracle') in ('rust','rust_whole'):
                         # Keep hourly durable checkpoints; native code records
                         # each physical tick without Python state roundtrips.
                         target=min(end,(math.floor(state.time_s/3600)+1)*3600)
@@ -101,7 +117,7 @@ def _worker(args,matrix,case,route_latency):
                         peak_records=max(peak_records,metrics['peak_records'])
                         native_frontend_s+=max(0.0,elapsed-sum(samples))
                         if abs(state.time_s/3600-round(state.time_s/3600))<1e-8:
-                            driver.save(args.out/(args.label+'.last_valid.json'),state)
+                            driver.save(args.out/(args.label+'.last_valid'+checkpoint_suffix),state)
                         continue
                     state=driver.advance(state,min(end,state.time_s+args.step_s))
                     tick_times.append(time.perf_counter()-started_tick)
@@ -112,25 +128,25 @@ def _worker(args,matrix,case,route_latency):
                     records+=len(joint.entering)+len(joint.egress)+len(joint.internal)+sum(map(len,joint.receipts))
                     peak_records=max(peak_records,records)
                     if abs(state.time_s/3600-round(state.time_s/3600))<1e-8:
-                        driver.save(args.out/(args.label+'.last_valid.json'),state)
+                        driver.save(args.out/(args.label+'.last_valid'+checkpoint_suffix),state)
                 return state
             if args.horizon_s>=28800:
                 state=advance_measured(state,28800)
                 result['refinement_prefix']=driver.report(state)
             if args.resume and args.horizon_s>=43200:
                 state=advance_measured(state,43200)
-                middle=args.out/(args.label+'.middle.json')
+                middle=args.out/(args.label+'.middle'+checkpoint_suffix)
                 driver.save(middle,state)
                 state=driver.load(middle)
             state=advance_measured(state,args.horizon_s)
-            final=args.out/(args.label+'.final.json')
+            final=args.out/(args.label+'.final'+checkpoint_suffix)
             driver.save(final,state)
             times=sorted(tick_times)
             result['tick_p50_s']=times[int((len(times)-1)*.5)] if times else None
             result['tick_p95_s']=times[int((len(times)-1)*.95)] if times else None
             result['peak_tracked_records']=peak_records
             result['tick_measurement_scope']=('native complete tick; frontend boundary cost separate'
-                if getattr(driver,'engine_backend','python_oracle')=='rust' else 'Python driver.advance wall time')
+                if getattr(driver,'engine_backend','python_oracle') in ('rust','rust_whole') else 'Python driver.advance wall time')
             result['native_frontend_boundary_s']=native_frontend_s
             result.update(status='EXECUTED_FOR_REVIEW',simulated_s=state.time_s,
                           report=driver.report(state),final_checkpoint_sha256=hashlib.sha256(final.read_bytes()).hexdigest())
@@ -139,7 +155,8 @@ def _worker(args,matrix,case,route_latency):
         if hasattr(checkpoint,'report'):
             evidence=checkpoint.report()
         elif checkpoint is not None:
-            path=args.out/(args.label+'.last_valid.json')
+            suffix='.bin' if driver.engine_backend=='rust_whole' else '.json'
+            path=args.out/(args.label+'.last_valid'+suffix)
             driver.save(path,checkpoint)
             evidence=dict(path=path.name,time_s=checkpoint.time_s)
         else:
@@ -203,7 +220,8 @@ def main():
                     receipt=dict(status='ENVIRONMENT_BLOCKER',reason='child exit or receipt binding differs',label=label)
             except subprocess.TimeoutExpired:
                 receipt=dict(status='BLOCKED_RESOURCE',reason='wall deadline exceeded',label=label)
-                checkpoint=args.out/(label+'.last_valid.json')
+                suffix='.bin' if env.get('METROFLOW_V1_ENGINE_BACKEND')=='rust_whole' else '.json'
+                checkpoint=args.out/(label+'.last_valid'+suffix)
                 if checkpoint.exists() and checkpoint.stat().st_mtime>=launch_wall:
                     receipt['last_valid_checkpoint']=checkpoint.name
             receipts.append(receipt)
