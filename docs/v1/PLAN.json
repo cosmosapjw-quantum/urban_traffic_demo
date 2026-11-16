@@ -2089,6 +2089,12 @@
       "reason": "Actual full-target Valley continuation reaches25490s then valid positive FIFO head requires h=6.538054381607992e-16 atcursor8.221431926605018; f64 addition cannot advance cursor. Pythonoracle has same failure.",
       "change": "Extend only the previously unsupported sub-ULP event path with explicit finite-progress/time-debt accounting and numerical bounds after independent counterexample review. Keep ordinary arithmetic path, positive masses, horizon capacity, existing ledger tolerances and fixed physical model. New path requires analytic regressions, checkpoint continuation and actual rerun before adoption.",
       "evidence": "artifacts/v1_rust_completion_20261116/event_probe.json"
+    },
+    {
+      "date": "2026-11-16",
+      "reason": "Numeric continuation passes the prior event stall but reaches a representation-dependent road owner quota at25520s, with peakRSS1.586GB and unused journey allowance. Streaming checkpoint inspection finds all45715 road packets share an interval internally, without duplicate full parts.",
+      "change": "Keep the total6GiB conservative accounting and8GiB process gate. Rebalance fixed dynamic owner quotas from1/4:3/4 to1/2:1/2 with distinct checkpoint binding and a fresh campaign. Store finite interval bits compactly and factor common packet intervals while preserving every FIFO boundary, ordered part, f64 operation and existing wire schema; mixed packets retain an explicit fallback. No row merging, mass pruning, physical tolerance increase or old-policy checkpoint bypass.",
+      "evidence": "artifacts/v1_rust_completion_20261116/numeric_resume_t1.json"
     }
   ],
   "implementation_progress": {
@@ -2151,6 +2157,6 @@
       "scope": "queue/history debug and opt-in deterministic Rayon",
       "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json"
     },
-    "active_work": "Rust persistent storage passed163 scoped tests and old occupied-checkpoint parity; actual full-target Valley exposed sub-ULP FIFO event-time failure at25490s. Derive/implement bounded compensated-clock continuation, preserve positive mass and fixed release gates."
+    "active_work": "Compensated event extension passes213 scoped checks and actual old-failure continuation; exact packed/common packet storage and equal owner quotas are under verification before a fresh unchanged full-target campaign."
   }
 }

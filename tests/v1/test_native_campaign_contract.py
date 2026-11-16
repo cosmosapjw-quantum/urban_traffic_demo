@@ -93,6 +93,35 @@ def test_native_router_observations_include_cache_hits_and_are_nonphysical(tmp_p
     assert before.read_bytes()==after.read_bytes()
 
 
+def test_equal_owner_quotas_preserve_total_and_reject_previous_split(tmp_path):
+    from _metroflow_rust import NativeWholeEngine
+    city,legs,corridors=small_fixture()
+    legacy,calendar,payload=make_native(city,legs,corridors)
+    total=256*1024**2
+    native=NativeWholeEngine(calendar,payload,total,storage_policy='bounded_bytes_v1')
+    config=native.storage_config()
+    available=total-config['conservative_static_accounting_bytes']
+    road=config['road_dynamic_allowance_bytes']
+    journey=config['journey_dynamic_allowance_bytes']
+    assert road+journey==available and road==available//2 and journey-road in (0,1)
+    assert config['total_accounting_budget_bytes']==total
+    assert native.identity==legacy.identity+f':bounded_bytes_v1:{road}:{journey}'
+    old_road=available//4
+    old_identity=legacy.identity+f':bounded_bytes_v1:{old_road}:{available-old_road}'
+    assert native.identity!=old_identity
+    # Restore the previous quota binding in a small checkpoint header. The
+    # physical payload cannot authorize bypassing a changed resource policy.
+    checkpoint=tmp_path/'bound.bin'
+    native.save(str(checkpoint),native.initial())
+    wire=checkpoint.read_bytes()
+    size=int.from_bytes(wire[8:16],'little')
+    old_binding=old_identity.encode()
+    checkpoint.write_bytes(wire[:8]+len(old_binding).to_bytes(8,'little')+old_binding+wire[16+size:])
+    with pytest.raises(ValueError,match='binding'):
+        native.load(str(checkpoint))
+    assert native.snapshot().time_s==0
+
+
 def test_binary_provenance_ignores_wrapper_and_rejects_ambiguity(tmp_path,monkeypatch):
     import hashlib
     import importlib.machinery

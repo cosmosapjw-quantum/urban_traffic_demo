@@ -785,7 +785,11 @@ impl NativeWholeEngine {
             let available = byte_budget.checked_sub(estimated_bytes).ok_or_else(|| {
                 PyMemoryError::new_err("native static accounting leaves no dynamic storage budget")
             })?;
-            let road_bytes = available / 4;
+            // Both owners retain explicit finite working-space quotas. An
+            // equal split avoids reserving three quarters for journey while
+            // road transfer/split work dominates the observed peak. The sum
+            // remains the same accounting budget; this is not an RSS bound.
+            let road_bytes = available / 2;
             (Some(road_bytes), Some(available - road_bytes))
         } else {
             (None, None)
@@ -1039,6 +1043,11 @@ impl NativeWholeEngine {
             self.journey_storage_bytes,
         )?;
         out.set_item("service_event_record_ceiling", self.event_limit)?;
+        out.set_item("allocation_rationale", if self.road_storage_bytes.is_some() {
+            "equal road/journey split of budget minus unchanged conservative construction/snapshot estimate; journey receives an odd remainder byte; finite owner quotas do not borrow unused capacity; split values are checkpoint-identity bound"
+        } else {
+            "legacy record limits; no dynamic byte-quota split"
+        })?;
         out.set_item("scope", "owner storage guards; total process address-space/RSS limit must cover caller-retained immutable snapshots and allocation overhead")?;
         Ok(out.unbind())
     }
@@ -1172,6 +1181,10 @@ impl NativeWholeEngine {
             ("pending_packets", r.pending_packets),
             ("cell_parts", r.cell_parts),
             ("pending_parts", r.pending_parts),
+            ("uniform_packets", r.uniform_packets),
+            ("mixed_packets", r.mixed_packets),
+            ("uniform_parts", r.uniform_parts),
+            ("mixed_parts", r.mixed_parts),
             ("packet_capacity", r.packet_capacity),
             ("part_capacity", r.part_capacity),
             ("vector_capacity_bytes", r.vector_capacity_bytes),

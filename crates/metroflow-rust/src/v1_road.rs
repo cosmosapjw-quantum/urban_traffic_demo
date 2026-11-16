@@ -62,19 +62,204 @@ pub(crate) type StateRow = (
 pub(crate) type Offer = (usize, f64, f64, Option<f64>, Option<f64>);
 pub(crate) type EventRow = (usize, usize, Option<usize>, f64, f64, f64, f64);
 type Mark = (usize, f64, f64, f64);
-#[derive(Clone)]
+/// Every admitted interval endpoint is finite. A reserved nonfinite bit pattern
+/// therefore represents None without doubling each endpoint's storage. Present
+/// values retain their exact IEEE payload, including the sign of zero; the
+/// public row and checkpoint wire format still use the original Option<f64>.
+#[derive(Clone, Copy)]
+#[repr(transparent)]
+struct PackedTime(u64);
+impl PackedTime {
+    const NONE: u64 = u64::MAX;
+    fn new(value: Option<f64>) -> PyResult<Self> {
+        match value {
+            None => Ok(Self(Self::NONE)),
+            Some(value) if value.is_finite() => Ok(Self(value.to_bits())),
+            Some(_) => Err(val("nonfinite retained boundary interval")),
+        }
+    }
+    fn option(self) -> Option<f64> {
+        (self.0 != Self::NONE).then(|| f64::from_bits(self.0))
+    }
+    fn is_some(self) -> bool {
+        self.0 != Self::NONE
+    }
+    fn unwrap(self) -> f64 {
+        self.option().unwrap()
+    }
+    fn unwrap_or(self, default: f64) -> f64 {
+        self.option().unwrap_or(default)
+    }
+    fn map_or<T>(self, default: T, f: impl FnOnce(f64) -> T) -> T {
+        self.option().map_or(default, f)
+    }
+    fn is_some_and(self, f: impl FnOnce(f64) -> bool) -> bool {
+        self.option().is_some_and(f)
+    }
+}
+impl PartialEq for PackedTime {
+    fn eq(&self, other: &Self) -> bool {
+        self.option() == other.option()
+    }
+}
+impl PartialEq<Option<f64>> for PackedTime {
+    fn eq(&self, other: &Option<f64>) -> bool {
+        self.option() == *other
+    }
+}
+impl PartialOrd for PackedTime {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.option().partial_cmp(&other.option())
+    }
+}
+#[derive(Clone, Copy)]
 struct Part {
     tag: usize,
     offset: usize,
     mass: f64,
     birth: f64,
-    a: Option<f64>,
-    b: Option<f64>,
+    a: PackedTime,
+    b: PackedTime,
+}
+#[derive(Clone, Copy)]
+struct CorePart {
+    tag: usize,
+    offset: usize,
+    mass: f64,
+    birth: f64,
+}
+#[derive(Clone)]
+enum PacketParts {
+    Uniform {
+        a: PackedTime,
+        b: PackedTime,
+        rows: Vec<CorePart>,
+    },
+    Mixed(Vec<Part>),
+}
+impl PacketParts {
+    fn pack(
+        parts: Vec<Part>,
+        before_allocate: impl FnOnce(usize) -> PyResult<()>,
+    ) -> PyResult<Self> {
+        let shared = parts
+            .first()
+            .map(|p| (p.a, p.b))
+            .filter(|&(a, b)| parts.iter().all(|p| p.a.0 == a.0 && p.b.0 == b.0));
+        if let Some((a, b)) = shared {
+            // Both buffers coexist until conversion completes. The caller
+            // charges the new CorePart allocation before it is attempted.
+            before_allocate(parts.len().saturating_mul(std::mem::size_of::<CorePart>()))?;
+            let mut rows = checkpoint_vec(parts.len())?;
+            rows.extend(parts.into_iter().map(|p| CorePart {
+                tag: p.tag,
+                offset: p.offset,
+                mass: p.mass,
+                birth: p.birth,
+            }));
+            Ok(Self::Uniform { a, b, rows })
+        } else {
+            Ok(Self::Mixed(parts))
+        }
+    }
+    fn clone_checked(&self) -> PyResult<Self> {
+        match self {
+            Self::Uniform { a, b, rows } => {
+                let mut copied = checkpoint_vec(rows.len())?;
+                copied.extend_from_slice(rows);
+                Ok(Self::Uniform {
+                    a: *a,
+                    b: *b,
+                    rows: copied,
+                })
+            }
+            Self::Mixed(rows) => {
+                let mut copied = checkpoint_vec(rows.len())?;
+                copied.extend_from_slice(rows);
+                Ok(Self::Mixed(copied))
+            }
+        }
+    }
+    fn len(&self) -> usize {
+        match self {
+            Self::Uniform { rows, .. } => rows.len(),
+            Self::Mixed(rows) => rows.len(),
+        }
+    }
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+    fn capacity(&self) -> usize {
+        match self {
+            Self::Uniform { rows, .. } => rows.capacity(),
+            Self::Mixed(rows) => rows.capacity(),
+        }
+    }
+    fn is_uniform(&self) -> bool {
+        matches!(self, Self::Uniform { .. })
+    }
+    fn allocated_bytes(&self) -> usize {
+        match self {
+            Self::Uniform { rows, .. } => rows
+                .capacity()
+                .saturating_mul(std::mem::size_of::<CorePart>()),
+            Self::Mixed(rows) => rows.capacity().saturating_mul(std::mem::size_of::<Part>()),
+        }
+    }
+    fn iter(&self) -> PartIter<'_> {
+        match self {
+            Self::Uniform { a, b, rows } => PartIter::Uniform {
+                a: *a,
+                b: *b,
+                rows: rows.iter(),
+            },
+            Self::Mixed(rows) => PartIter::Mixed(rows.iter()),
+        }
+    }
+}
+enum PartIter<'a> {
+    Uniform {
+        a: PackedTime,
+        b: PackedTime,
+        rows: std::slice::Iter<'a, CorePart>,
+    },
+    Mixed(std::slice::Iter<'a, Part>),
+}
+impl Iterator for PartIter<'_> {
+    type Item = Part;
+    fn next(&mut self) -> Option<Part> {
+        match self {
+            Self::Uniform { a, b, rows } => rows.next().map(|p| Part {
+                tag: p.tag,
+                offset: p.offset,
+                mass: p.mass,
+                birth: p.birth,
+                a: *a,
+                b: *b,
+            }),
+            Self::Mixed(rows) => rows.next().copied(),
+        }
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let n = match self {
+            Self::Uniform { rows, .. } => rows.len(),
+            Self::Mixed(rows) => rows.len(),
+        };
+        (n, Some(n))
+    }
+}
+impl ExactSizeIterator for PartIter<'_> {}
+impl<'a> IntoIterator for &'a PacketParts {
+    type Item = Part;
+    type IntoIter = PartIter<'a>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
 }
 #[derive(Clone)]
 struct Packet {
     target: f64,
-    parts: Vec<Part>,
+    parts: PacketParts,
 }
 #[derive(Clone)]
 struct Cell {
@@ -102,6 +287,10 @@ pub(crate) struct RoadDebugStats {
     pub(crate) latent_entries: usize,
     pub(crate) max_cell_parts: usize,
     pub(crate) max_pending_parts: usize,
+    pub(crate) uniform_packets: usize,
+    pub(crate) mixed_packets: usize,
+    pub(crate) uniform_parts: usize,
+    pub(crate) mixed_parts: usize,
 }
 
 /// Conservative structural working allowance, not an allocator/RSS theorem.
@@ -232,6 +421,14 @@ impl EventClock {
     }
 }
 impl RoadDecodeBudget {
+    fn pack_parts(&mut self, parts: Vec<Part>) -> PyResult<PacketParts> {
+        let raw_bytes = parts.capacity().saturating_mul(std::mem::size_of::<Part>());
+        let packed = PacketParts::pack(parts, |bytes| self.reserve(bytes, 0))?;
+        if packed.is_uniform() {
+            self.decoded = self.decoded.saturating_sub(raw_bytes);
+        }
+        Ok(packed)
+    }
     fn reserve(&mut self, bytes: usize, validation: usize) -> PyResult<()> {
         self.decoded = self.decoded.saturating_add(bytes);
         self.validation = self.validation.saturating_add(validation);
@@ -244,6 +441,11 @@ impl RoadDecodeBudget {
     }
 }
 impl RoadWorkBudget {
+    fn pack_parts(&self, parts: Vec<Part>) -> PyResult<PacketParts> {
+        PacketParts::pack(parts, |bytes| {
+            self.require(bytes, "packet interval packing")
+        })
+    }
     fn require(&self, extra: usize, phase: &str) -> PyResult<()> {
         let required =
             self.base
@@ -330,10 +532,17 @@ impl RoadState {
             out.packet_capacity += queue.capacity();
             for packet in queue {
                 out.part_capacity += packet.parts.capacity();
+                out.vector_capacity_bytes += packet.parts.allocated_bytes();
+                if packet.parts.is_uniform() {
+                    out.uniform_packets += 1;
+                    out.uniform_parts += packet.parts.len();
+                } else {
+                    out.mixed_packets += 1;
+                    out.mixed_parts += packet.parts.len();
+                }
             }
         }
-        out.vector_capacity_bytes += out.packet_capacity * std::mem::size_of::<Packet>()
-            + out.part_capacity * std::mem::size_of::<Part>();
+        out.vector_capacity_bytes += out.packet_capacity * std::mem::size_of::<Packet>();
         out
     }
     pub(crate) fn retained_storage_bytes(&self) -> usize {
@@ -461,11 +670,9 @@ fn push_checked<T>(rows: &mut Vec<T>, row: T) -> PyResult<()> {
     Ok(())
 }
 fn clone_packet(packet: &Packet) -> PyResult<Packet> {
-    let mut parts = checkpoint_vec(packet.parts.len())?;
-    parts.extend_from_slice(&packet.parts);
     Ok(Packet {
         target: packet.target,
-        parts,
+        parts: packet.parts.clone_checked()?,
     })
 }
 fn clone_packets(packets: &[Packet]) -> PyResult<Vec<Packet>> {
@@ -475,7 +682,7 @@ fn clone_packets(packets: &[Packet]) -> PyResult<Vec<Packet>> {
     }
     Ok(result)
 }
-fn portion(parts: &[Part], f: f64) -> PyResult<Vec<Part>> {
+fn portion(parts: &PacketParts, f: f64) -> PyResult<Vec<Part>> {
     let mut result = checkpoint_vec(if f == 0.0 { 0 } else { parts.len() })?;
     for p in parts {
         let m = p.mass * f;
@@ -639,7 +846,7 @@ impl V1Road {
                 write_len(w, p.offset)?;
                 write_f64(w, p.mass)?;
                 write_f64(w, p.birth)?;
-                for v in [p.a, p.b] {
+                for v in [p.a.option(), p.b.option()] {
                     write_u64(w, u64::from(v.is_some()))?;
                     if let Some(v) = v {
                         write_f64(w, v)?;
@@ -694,11 +901,14 @@ impl V1Road {
                     offset,
                     mass,
                     birth,
-                    a: interval[0],
-                    b: interval[1],
+                    a: PackedTime::new(interval[0])?,
+                    b: PackedTime::new(interval[1])?,
                 });
             }
-            q.push(Packet { target, parts });
+            q.push(Packet {
+                target,
+                parts: work.pack_parts(parts)?,
+            });
         }
         Ok(q)
     }
@@ -947,7 +1157,7 @@ impl V1Road {
         let mut counts: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
         for packet in &c.packets {
             for p in &packet.parts {
-                push_checked(counts.entry(self.class(p)).or_default(), p.mass)?;
+                push_checked(counts.entry(self.class(&p)).or_default(), p.mass)?;
             }
         }
         let counts: BTreeMap<usize, f64> = counts.into_iter().map(|(k, v)| (k, sum(v))).collect();
@@ -1068,7 +1278,7 @@ impl V1Road {
                     &mut out,
                     Packet {
                         target,
-                        parts: point,
+                        parts: work.pack_parts(point)?,
                     },
                 )?;
             }
@@ -1080,23 +1290,27 @@ impl V1Road {
                     .count();
                 work.interval(count)?;
                 let mut split = checkpoint_vec(count)?;
-                split.extend(parts.iter().filter_map(|p| {
+                for p in &parts {
                     let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
                     if pa <= a && pb >= b && pb > pa {
                         let mut q = p.clone();
                         q.mass = q.mass * (b - a) / (pb - pa);
                         q.birth = q.birth * (b - a) / (pb - pa);
-                        q.a = Some(a);
-                        q.b = Some(b);
-                        Some(q)
-                    } else {
-                        None
+                        q.a = PackedTime::new(Some(a))?;
+                        q.b = PackedTime::new(Some(b))?;
+                        split.push(q);
                     }
-                }));
+                }
                 let ps = combine(split)?;
                 if !ps.is_empty() {
                     records += ps.len();
-                    push_checked(&mut out, Packet { target, parts: ps })?;
+                    push_checked(
+                        &mut out,
+                        Packet {
+                            target,
+                            parts: work.pack_parts(ps)?,
+                        },
+                    )?;
                 }
             }
             if records > self.record_budget {
@@ -1245,7 +1459,7 @@ impl V1Road {
                         {
                             return Err(val("invalid native entry interval"));
                         }
-                        push_checked(&mut stored[self.class(p)], p.mass)?;
+                        push_checked(&mut stored[self.class(&p)], p.mass)?;
                     }
                     if pending {
                         push_checked(&mut all, mass(packet))?;
@@ -1359,8 +1573,8 @@ impl V1Road {
                         offset: 0,
                         mass: m,
                         birth: b,
-                        a,
-                        b: z,
+                        a: PackedTime::new(a)?,
+                        b: PackedTime::new(z)?,
                     },
                 )?;
                 born += m;
@@ -1374,7 +1588,7 @@ impl V1Road {
                 &mut out.pending[i],
                 Packet {
                     target: t,
-                    parts: combine(p)?,
+                    parts: work.pack_parts(combine(p)?)?,
                 },
             )?;
         }
@@ -1382,7 +1596,7 @@ impl V1Road {
         for q in &out.pending {
             for packet in q {
                 for p in &packet.parts {
-                    out.ledger[self.class(p)][2] += dt * p.mass;
+                    out.ledger[self.class(&p)][2] += dt * p.mass;
                 }
             }
         }
@@ -1468,7 +1682,7 @@ impl V1Road {
                     let mut dest: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
                     let mut ds: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
                     for p in &packet.parts {
-                        let j = self.dest(p).unwrap_or(n);
+                        let j = self.dest(&p).unwrap_or(n);
                         push_checked(dest.entry(j).or_default(), p.mass)?;
                         push_checked(ds.entry(j).or_default(), p.mass * self.footprint(p.tag))?;
                     }
@@ -1693,7 +1907,7 @@ impl V1Road {
                     };
                     let sm = sum(served.iter().map(|p| p.mass));
                     if let Some(parts) = remainder {
-                        queues[i][position[i]].0.parts = parts;
+                        queues[i][position[i]].0.parts = work.pack_parts(parts)?;
                     } else {
                         position[i] += 1;
                         retired_heads += 1;
@@ -1728,8 +1942,8 @@ impl V1Road {
                             )?;
                             p.offset += 1;
                             if self.intervals {
-                                p.a = Some(start_time);
-                                p.b = Some(end_time);
+                                p.a = PackedTime::new(Some(start_time))?;
+                                p.b = PackedTime::new(Some(end_time))?;
                             }
                             push_checked(&mut incoming[j], p)?;
                         } else {
@@ -1761,7 +1975,7 @@ impl V1Road {
         for i in 0..n {
             for (p, ready) in &queues[i][position[i]..] {
                 for part in &p.parts {
-                    out.ledger[self.class(part)][3] += part.mass * (dt - ready).max(0.);
+                    out.ledger[self.class(&part)][3] += part.mass * (dt - ready).max(0.);
                 }
             }
             // The transition owns these queue packets; moving survivors avoids
@@ -1778,7 +1992,7 @@ impl V1Road {
             let mut active = vec![false; self.classes.len()];
             for p in &out.cells[i].packets {
                 for x in &p.parts {
-                    active[self.class(x)] = true;
+                    active[self.class(&x)] = true;
                 }
             }
             out.cells[i].latent.retain(|k, _| active[*k]);
@@ -1807,10 +2021,10 @@ impl V1Road {
                 space[i] =
                     (space[i] - sum(parts.iter().map(|p| p.mass * self.footprint(p.tag)))).max(0.);
                 for part in &mut parts {
-                    let k = self.class(part);
+                    let k = self.class(&part);
                     if self.intervals {
-                        part.a = Some(end);
-                        part.b = Some(end);
+                        part.a = PackedTime::new(Some(end))?;
+                        part.b = PackedTime::new(Some(end))?;
                     }
                     push_checked(
                         &mut marks[i],
@@ -1826,7 +2040,7 @@ impl V1Road {
                         &mut remain,
                         Packet {
                             target: p.target,
-                            parts: portion(&p.parts, 1. - f)?,
+                            parts: work.pack_parts(portion(&p.parts, 1. - f)?)?,
                         },
                     )?;
                 }
@@ -1845,7 +2059,7 @@ impl V1Road {
             let mut byclass: BTreeMap<usize, Vec<(f64, f64)>> = BTreeMap::new();
             for packet in &out.cells[i].packets {
                 for p in &packet.parts {
-                    let k = self.class(p);
+                    let k = self.class(&p);
                     push_checked(
                         byclass.entry(k).or_default(),
                         (p.mass, out.cells[i].latent[&k]),
@@ -1869,7 +2083,10 @@ impl V1Road {
             let packets = if self.intervals {
                 self.interval_packets(parts, target, &mut work)?
             } else {
-                vec![Packet { target, parts }]
+                vec![Packet {
+                    target,
+                    parts: work.pack_parts(parts)?,
+                }]
             };
             out.cells[i]
                 .packets
@@ -1915,7 +2132,7 @@ impl V1Road {
     }
     fn row(&self) -> StateRow {
         let s = &self.state;
-        let part = |p: &Part| (p.tag, p.offset, p.mass, p.birth, p.a, p.b);
+        let part = |p: Part| (p.tag, p.offset, p.mass, p.birth, p.a.option(), p.b.option());
         let packet = |p: &Packet| (p.target, p.parts.iter().map(part).collect());
         (
             self.identity.clone(),
@@ -1938,48 +2155,156 @@ impl V1Road {
             s.ledger.iter().map(|v| v.to_vec()).collect(),
         )
     }
+    fn row_packets(
+        &self,
+        rows: Vec<PacketRow>,
+        work: &mut RoadDecodeBudget,
+    ) -> PyResult<Vec<Packet>> {
+        work.reserve(
+            rows.len()
+                .saturating_mul(std::mem::size_of::<Packet>() + 32),
+            rows.len().saturating_mul(32),
+        )?;
+        let mut result = checkpoint_vec(rows.len())?;
+        for (target, rows) in rows {
+            work.reserve(
+                rows.len().saturating_mul(std::mem::size_of::<Part>()),
+                rows.len().saturating_mul(16),
+            )?;
+            let mut parts = checkpoint_vec(rows.len())?;
+            for (tag, offset, mass, birth, a, b) in rows {
+                parts.push(Part {
+                    tag,
+                    offset,
+                    mass,
+                    birth,
+                    a: PackedTime::new(a)?,
+                    b: PackedTime::new(b)?,
+                });
+            }
+            result.push(Packet {
+                target,
+                parts: work.pack_parts(parts)?,
+            });
+        }
+        Ok(result)
+    }
     fn from_row(&self, row: StateRow) -> PyResult<RoadState> {
         let (identity, t, cells, pending, totals, ledger) = row;
         if identity != self.identity {
             return Err(val("native road checkpoint binding differs"));
         }
-        let part = |(tag, offset, mass, birth, a, b)| Part {
-            tag,
-            offset,
-            mass,
-            birth,
-            a,
-            b,
+        // The typed frontend rows already exist on entry. Charge their large
+        // buffers as well as the new owner before allocating either expanded
+        // Part rows or their common-interval CorePart representation.
+        let input_bytes = if self.storage_budget.is_some() {
+            let queues = cells.iter().map(|c| &c.1).chain(pending.iter());
+            let packet_bytes = queues
+                .map(|q| {
+                    q.capacity()
+                        .saturating_mul(std::mem::size_of::<PacketRow>())
+                        .saturating_add(
+                            q.iter()
+                                .map(|p| {
+                                    p.1.capacity()
+                                        .saturating_mul(std::mem::size_of::<PartRow>())
+                                })
+                                .sum::<usize>(),
+                        )
+                })
+                .sum::<usize>();
+            packet_bytes
+                .saturating_add(
+                    cells
+                        .capacity()
+                        .saturating_mul(std::mem::size_of::<CellRow>()),
+                )
+                .saturating_add(
+                    pending
+                        .capacity()
+                        .saturating_mul(std::mem::size_of::<Vec<PacketRow>>()),
+                )
+                .saturating_add(
+                    cells
+                        .iter()
+                        .map(|c| {
+                            c.0.capacity()
+                                .saturating_mul(8)
+                                .saturating_add(c.2.capacity().saturating_mul(16))
+                        })
+                        .sum::<usize>(),
+                )
+                .saturating_add(totals.capacity().saturating_mul(8))
+                .saturating_add(
+                    ledger
+                        .capacity()
+                        .saturating_mul(std::mem::size_of::<Vec<f64>>()),
+                )
+                .saturating_add(
+                    ledger
+                        .iter()
+                        .map(|l| l.capacity().saturating_mul(8))
+                        .sum::<usize>(),
+                )
+        } else {
+            0
         };
-        let packet = |(target, parts): PacketRow| Packet {
-            target,
-            parts: parts.into_iter().map(part).collect(),
+        let mut work = RoadDecodeBudget {
+            limit: self.storage_budget,
+            retained_input: if self.storage_budget.is_some() {
+                self.retained_input_bytes
+                    .max(self.state.retained_storage_bytes())
+            } else {
+                0
+            },
+            decoded: std::mem::size_of::<RoadState>()
+                .saturating_add(3 * 32)
+                .saturating_add(input_bytes),
+            validation: 0,
         };
-        let mut cs = vec![];
+        work.reserve(
+            cells
+                .len()
+                .saturating_mul(std::mem::size_of::<Cell>() + 256 + 2 * 32),
+            cells.len().saturating_mul(32),
+        )?;
+        let mut cs = checkpoint_vec(cells.len())?;
         for (v, p, l) in cells {
             let v: [f64; 8] = v.try_into().map_err(|_| val("cell row length"))?;
+            work.reserve(l.len().saturating_mul(256), 0)?;
             let latent: BTreeMap<usize, f64> = l.iter().copied().collect();
             if latent.len() != l.len() {
                 return Err(val("duplicate latent class"));
             }
             cs.push(Cell {
                 v,
-                packets: p.into_iter().map(packet).collect(),
+                packets: self.row_packets(p, &mut work)?,
                 latent,
             });
         }
         let totals: [f64; 7] = totals.try_into().map_err(|_| val("totals row length"))?;
-        let mut ls = vec![];
+        work.reserve(
+            ledger.len().saturating_mul(std::mem::size_of::<[f64; 5]>()),
+            0,
+        )?;
+        let mut ls = checkpoint_vec(ledger.len())?;
         for l in ledger {
             ls.push(l.try_into().map_err(|_| val("ledger row length"))?);
+        }
+        work.reserve(
+            pending
+                .len()
+                .saturating_mul(std::mem::size_of::<Vec<Packet>>()),
+            0,
+        )?;
+        let mut sources = checkpoint_vec(pending.len())?;
+        for q in pending {
+            sources.push(self.row_packets(q, &mut work)?);
         }
         let s = RoadState {
             t,
             cells: cs,
-            pending: pending
-                .into_iter()
-                .map(|q| q.into_iter().map(packet).collect())
-                .collect(),
+            pending: sources,
             totals,
             ledger: ls,
         };
@@ -2015,6 +2340,23 @@ impl V1Road {
     }
     fn event_resolution_diagnostics(&self) -> (u64, f64, f64, f64) {
         self.event_resolution_stats()
+    }
+    fn storage_layout_bytes(&self) -> (usize, usize, usize, usize) {
+        (
+            std::mem::size_of::<CorePart>(),
+            std::mem::size_of::<Part>(),
+            std::mem::size_of::<Packet>(),
+            std::mem::size_of::<EventRow>(),
+        )
+    }
+    fn packet_storage_counts(&self) -> (usize, usize, usize, usize) {
+        let stats = self.state.debug_stats();
+        (
+            stats.uniform_packets,
+            stats.mixed_packets,
+            stats.uniform_parts,
+            stats.mixed_parts,
+        )
     }
     #[new]
     #[allow(clippy::too_many_arguments)]
