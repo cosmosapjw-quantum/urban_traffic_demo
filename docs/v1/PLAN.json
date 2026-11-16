@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.18",
+  "version": "1.1.19",
   "date": "2026-11-16",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -1890,7 +1890,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Port factorized generation and shared road/packet/service/journey ownership to Rust; measure unchanged whole-calendar activation before lifting 20k caps; then frozen-candidate 3-case x 3 full-day acceptance. Native calendar/routing alone are scoped evidence.",
+      "positive_next_action": "Connect the native full calendar directly to native static road/service/journey registries without Python all-leg tuples and duplicate helper graphs; measure complete activation/history costs, then unchanged 3-case x 3 full-day acceptance. Native core and bounded prefixes are scoped evidence.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1928,6 +1928,11 @@
           "path": "artifacts/v1_rust_migration_20261116/RECEIPT.json",
           "sha256": "cd533ff8037aa34d524370d4b7b0525502f41042ff233556979468f3ae05ac2f",
           "scope": "Actual local native f64 routing and full 5,093,765-leg calendar retention; 33.74x routing batch speedup, 52.59% lower retention RSS, 1.48x slower registration; full shared physics remains Python and V03 blocked"
+        },
+        {
+          "path": "artifacts/v1_rust_runtime_20261116/RECEIPT.json",
+          "sha256": "da8ba6ecfc6daa5a8b1ebe61d2cf3e019555903e9ece2da61b23451fd2403fc1",
+          "scope": "Native direct factorized calendar and coupled physical/service/journey core; full three-city calendar counts and bounded 256-leg active-window checkpoint parity; Python static full-calendar constructor and history capacity remain"
         }
       ]
     },
@@ -2095,18 +2100,21 @@
     "authorized_on": "2026-11-16",
     "supersedes": "pure Python core restriction in PLAN v1.1.17 and AGENTS.md",
     "target": "Rust-owned state, clock, routing, physical/service/journey ledgers; Python configuration, CLI, diagnostics only",
-    "mode": "Explicit METROFLOW_V1_ROUTING_BACKEND=rust; python_oracle remains default during migration until field/checkpoint parity of the complete engine",
+    "mode": "Explicit METROFLOW_V1_ENGINE_BACKEND=rust and METROFLOW_V1_ROUTING_BACKEND=rust; python_oracle remains explicit migration default",
     "current_scope": [
-      "persistent f64 legal-turn routing integrated into V1 preparation",
-      "bounded native full-calendar registry and native initial ledgers",
-      "actual local matching-input measurements"
+      "Persistent f64 legal-turn routing in V1 preparation",
+      "Direct factorized Rust calendar construction without Python per-leg objects",
+      "Rust-owned finite-response packet/kinetic road state and interned route paths",
+      "Rust service/journey scheduling, ledgers, access/egress and return eligibility",
+      "GIL-released coupled native time loop with whole-tick rollback and Python-compatible checkpoints",
+      "Native per-tick resource/timing diagnostics and hourly campaign checkpoint batches",
+      "Actual local full-calendar construction and matched bounded city-prefix runtime measurements"
     ],
     "remaining": [
-      "Native factorized schedule generation without per-leg Python objects",
-      "Rust physical transport and service owner",
-      "native journey access and return eligibility, receipts and checkpoint",
-      "native whole-calendar activation with one shared road runtime",
-      "unchanged V03 three-case x three full-day, refinement and replay"
+      "Native whole-calendar static constructor: currently NativeJointReleaseRuntime still constructs and retains Python leg/service/route graph",
+      "Measured whole-calendar active-state/history storage within unchanged 8GiB target; 20k default materialization/record guards remain",
+      "Frozen candidate 3 cases x 3 full-day campaign, refinement and replay",
+      "Separate acceptance review; full repository CI/integration still deferred by user"
     ],
     "dag_policy": "V03 internal migration work; no new DAG nodes, 19/21 unchanged until acceptance",
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326"

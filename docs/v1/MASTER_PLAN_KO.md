@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.18**, 2026-11-16. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.19**, 2026-11-16. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Port factorized generation and shared road/packet/service/journey ownership to Rust; measure unchanged whole-calendar activation before lifting 20k caps; then frozen-candidate 3-case x 3 full-day acceptance. Native calendar/routing alone are scoped evidence.
+Connect the native full calendar directly to native static road/service/journey registries without Python all-leg tuples and duplicate helper graphs; measure complete activation/history costs, then unchanged 3-case x 3 full-day acceptance. Native core and bounded prefixes are scoped evidence.
 
 **예산·종료조건**
 

@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -65,6 +66,7 @@ def _worker(args,matrix,case,route_latency):
     started=time.perf_counter()
     result=dict(case=case['id'],status='PREPARING',simulated_s=0,
                 routing_backend=os.environ.get('METROFLOW_V1_ROUTING_BACKEND','python_oracle'),
+                engine_backend=os.environ.get('METROFLOW_V1_ENGINE_BACKEND','python_oracle'),
                 environment=observed_environment(),step_s=args.step_s,horizon_s=args.horizon_s,
                 matrix_sha256=hashlib.sha256(args.matrix.read_bytes()).hexdigest())
     try:
@@ -78,10 +80,29 @@ def _worker(args,matrix,case,route_latency):
             driver.save(args.out/(args.label+'.last_valid.json'),state)
             tick_times=[]
             peak_records=0
+            native_frontend_s=0.0
             def advance_measured(state,end):
-                nonlocal peak_records
+                nonlocal peak_records, native_frontend_s
                 while state.time_s<end:
                     started_tick=time.perf_counter()
+                    if getattr(driver, 'engine_backend', 'python_oracle') == 'rust':
+                        # Keep hourly durable checkpoints; native code records
+                        # each physical tick without Python state roundtrips.
+                        target=min(end,(math.floor(state.time_s/3600)+1)*3600)
+                        expected_ticks=round((target-state.time_s)/args.step_s)
+                        state=driver.advance(state,target)
+                        elapsed=time.perf_counter()-started_tick
+                        metrics=driver.runtime.last_advance_metrics
+                        samples=metrics['tick_times_s']
+                        if (len(samples)!=expected_ticks or
+                                any(not math.isfinite(x) or x<0 for x in samples)):
+                            raise ValueError('native tick timing samples differ from completed intervals')
+                        tick_times.extend(samples)
+                        peak_records=max(peak_records,metrics['peak_records'])
+                        native_frontend_s+=max(0.0,elapsed-sum(samples))
+                        if abs(state.time_s/3600-round(state.time_s/3600))<1e-8:
+                            driver.save(args.out/(args.label+'.last_valid.json'),state)
+                        continue
                     state=driver.advance(state,min(end,state.time_s+args.step_s))
                     tick_times.append(time.perf_counter()-started_tick)
                     joint=state.runtime_state
@@ -108,6 +129,9 @@ def _worker(args,matrix,case,route_latency):
             result['tick_p50_s']=times[int((len(times)-1)*.5)] if times else None
             result['tick_p95_s']=times[int((len(times)-1)*.95)] if times else None
             result['peak_tracked_records']=peak_records
+            result['tick_measurement_scope']=('native complete tick; frontend boundary cost separate'
+                if getattr(driver,'engine_backend','python_oracle')=='rust' else 'Python driver.advance wall time')
+            result['native_frontend_boundary_s']=native_frontend_s
             result.update(status='EXECUTED_FOR_REVIEW',simulated_s=state.time_s,
                           report=driver.report(state),final_checkpoint_sha256=hashlib.sha256(final.read_bytes()).hexdigest())
     except BudgetExceeded as exc:

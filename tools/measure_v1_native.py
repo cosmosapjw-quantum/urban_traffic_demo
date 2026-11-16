@@ -20,7 +20,7 @@ from metroflow.v1.release_plan import ReleasePlan
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--mode',choices=('calendar-python','calendar-rust','routing'),required=True)
+    parser.add_argument('--mode',choices=('calendar-python','calendar-rust','calendar-native-factors','routing'),required=True)
     parser.add_argument('--case',default='river_weekday_s17')
     parser.add_argument('--out',type=Path,required=True)
     args=parser.parse_args()
@@ -30,7 +30,7 @@ def main():
     matrix=json.loads((ROOT/'scenarios/v1/release_matrix.json').read_text())
     case=next(c for c in matrix['cases'] if c['id']==args.case)
     result=dict(mode=args.mode,case=args.case,environment=observed_environment(),
-                simulated_s=0,full_campaign='NOT_RUN',rss_limit_bytes=8*1024**3)
+                simulated_s=0,full_campaign='NOT_RUN',address_space_limit_bytes=8*1024**3)
     try:
         city,row=load_release_city(case)
         result.update(city_identity=city.identity,source_archive_sha256=row['source_sha256'])
@@ -66,8 +66,10 @@ def main():
                 result['registration_s']=time.perf_counter()-t
                 totals=tuple(math.fsum(getattr(l.amounts,k) for l in retained) for k in ('persons','vehicles','cargo_kg'))
             else:
-                from metroflow.v1.native_calendar import compile_native_calendar
-                retained=compile_native_calendar(schedule,byte_budget=2*1024**3)
+                from metroflow.v1.native_calendar import compile_native_calendar, compile_native_factorized_calendar
+                compiler=(compile_native_factorized_calendar if args.mode=='calendar-native-factors'
+                          else compile_native_calendar)
+                retained=compiler(schedule,byte_budget=2*1024**3)
                 result['registration_s']=time.perf_counter()-t
                 count=len(retained);totals=retained.totals()
                 result['native_storage_report']=retained.storage_report()

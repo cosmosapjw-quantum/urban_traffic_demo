@@ -1,0 +1,10 @@
+{
+  "status": "BLOCKED_RESOURCE",
+  "reason": "external timeout 180s; no completed receipt",
+  "case": "river_weekday_s17",
+  "backend": "python_oracle",
+  "start_s": 0,
+  "horizon_s": 28800,
+  "record_budget": 200000,
+  "full_campaign": "NOT_RUN"
+}

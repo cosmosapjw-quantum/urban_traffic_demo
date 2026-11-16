@@ -10,6 +10,7 @@ import hashlib
 import json
 import itertools
 import math
+import os
 from pathlib import Path
 import tempfile
 
@@ -54,7 +55,12 @@ class ReleaseDriver:
     the joint runtime; complete activation is not complete trip service.
     """
     def __init__(self, plan, service_factory, *, max_legs=20000, page_size=256,
-                 step_s=1.0, record_budget=20000):
+                 step_s=1.0, record_budget=20000, engine_backend=None):
+        backend = (os.environ.get('METROFLOW_V1_ENGINE_BACKEND', 'python_oracle')
+                   if engine_backend is None else engine_backend)
+        if backend not in ('python_oracle', 'rust'):
+            reject('engine backend must be python_oracle or rust')
+        self.engine_backend = backend
         for value in (max_legs, page_size):
             if isinstance(value, bool) or not isinstance(value, int) or value < 1:
                 reject('positive calendar materialization/page budget required')
@@ -86,7 +92,11 @@ class ReleaseDriver:
         plan.summary(cursor)
         self.plan, self.cursor = plan, cursor
         services = service_factory(plan.city, tuple(legs), step_s=step_s)
-        self.runtime = JointReleaseRuntime(plan.city, tuple(legs), services,
+        runtime_type = JointReleaseRuntime
+        if backend == 'rust':
+            from .native_journey import NativeJointReleaseRuntime
+            runtime_type = NativeJointReleaseRuntime
+        self.runtime = runtime_type(plan.city, tuple(legs), services,
                         step_s=step_s, max_legs=max_legs, record_budget=record_budget)
         self.identity = hashlib.sha256(json.dumps((plan.city.identity, plan.schedule.identity,
                     self.runtime.identity, asdict(cursor)), sort_keys=True).encode()).hexdigest()

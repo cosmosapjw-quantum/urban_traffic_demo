@@ -1,0 +1,15 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________ test_unknown_native_engine_rejected_before_enumeration ____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x757ac331cef0>
+
+    def test_unknown_native_engine_rejected_before_enumeration(monkeypatch):
+        monkeypatch.setenv('METROFLOW_V1_ENGINE_BACKEND', 'typo')
+>       with pytest.raises(ValueError, match='engine backend'):
+E       Failed: DID NOT RAISE ValueError
+
+tests/v1/test_native_driver.py:32: Failed
+=========================== short test summary info ============================
+FAILED tests/v1/test_native_driver.py::test_unknown_native_engine_rejected_before_enumeration
+1 failed, 2 deselected in 0.26s

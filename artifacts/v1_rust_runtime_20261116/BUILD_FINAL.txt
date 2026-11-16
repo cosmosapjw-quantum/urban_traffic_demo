@@ -1,0 +1,2 @@
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_rust_20261116/crates/metroflow-rust)
+    Finished `release` profile [optimized] target(s) in 6.33s

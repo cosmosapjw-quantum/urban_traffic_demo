@@ -1,0 +1,248 @@
+{
+  "date": "2026-11-16",
+  "timezone": "Asia/Seoul",
+  "node": "V03",
+  "status": "VERIFIED_SCOPED_NATIVE_CORE_V03_STILL_BLOCKED",
+  "baseline_commit": "b13c7d31bf20f4f6ef275e87dc5ce578474beced",
+  "scope": "Direct native factorized calendar construction; native physical/service/journey numerical loop and hourly CLI batching; actual local complete calendar and diagnostic city-prefix validation",
+  "progress": {
+    "completed": 19,
+    "total": 21,
+    "percent": 90.5,
+    "final_accepted": 5
+  },
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "native_binary_sha256": "c6607c89637ae724de27ed04629dc6372f1ef2d12da2141a54be3430d7e31e4b",
+  "source_sha256": {
+    "Cargo.lock": "f3c87d6fb6955f8c971c4e4e1d1efe10001cf1afe54e12db09ac38cb67caa97c",
+    "crates/metroflow-rust/Cargo.toml": "52915332dc07371ebb9832967a544b471fbb09ba91dfbb1a2dc9f89144603296",
+    "crates/metroflow-rust/src/lib.rs": "01caa5e8c3dd9bfb516a06d106815fb385f1caac22d614d267e516842df816f4",
+    "crates/metroflow-rust/src/v1_calendar.rs": "e3bab30131831d2afaff337cd7b8ece3efb8df7927b9fb7dbd77aac0d912c9c8",
+    "crates/metroflow-rust/src/v1_journey.rs": "09db5ccd331e785c2b4bde0031beb6e449cc64f4d1e7ad028df3001fe9c0a213",
+    "crates/metroflow-rust/src/v1_road.rs": "bb4b11bae6e90cbccf45478a42f1813b277ff9d736eb2d75319854d5c8e84d40",
+    "src/metroflow/v1/native_calendar.py": "efb3cab28d3ccc99607234ea909077ce67a00c5b38d1984e0e15fe3fec1c65cf",
+    "src/metroflow/v1/native_journey.py": "85d84a9300de6e5094062fefc6cdddb7b867725201339f88ae02abc81082877c",
+    "src/metroflow/v1/native_road.py": "d21c83567e650b0b82fa157e893e56456dd401a8680ef67cc0a789ee74ff90c0",
+    "src/metroflow/v1/release_driver.py": "27602a8bc21173c9911fb498ba499d578c15cb4b7525229153b54753d7e73b0f",
+    "tests/v1/test_native_driver.py": "5a65eeaa9e4076b738a760c8b87a86566f8cdd80e6cbdca2df2dbb467cc793c7",
+    "tests/v1/test_native_factorized_calendar.py": "7ec17e9094bb8c67febb2a2985aade7e7ce3e4f681783238359798afe5e57ada",
+    "tests/v1/test_native_journey.py": "fac0f8b13e1fa0ba7e535fcaa9adfc43a54913be17fd8e6a72024b323575ee18",
+    "tests/v1/test_native_road.py": "b32c6e7c75cd32e1122e65bfcc2f713a5d2f32ab4c93a25312c6947f971955e5",
+    "tools/compare_v1_native_measurements.py": "370063cf01284eb172f5fae89c61282cf7ae145e7a705f43b592a5e5759a4cd8",
+    "tools/measure_v1_native.py": "a504539f9bfacfab68981dfe48361f7741751613ea51059a98163c2d8c72a84e",
+    "tools/measure_v1_native_runtime.py": "51523e23bc190c6ad4d17c32059ce88f1fa422ff34a126e6b16a6aa306ab957e",
+    "tools/run_v1_local_acceptance.py": "c4711b7c209614468df06833e59ac9d24f55ef5b770c55a517d49697b0614465"
+  },
+  "measurement_source_identity": "All final calendar and matched-prefix source hashes verified against published source files; earlier measurements preserved with their original hashes",
+  "metrics": {
+    "calendar_registration_python_s": 21.16852151499188,
+    "calendar_registration_streaming_rust_s": 31.120429478003643,
+    "calendar_registration_direct_rust_s": 4.080385863999254,
+    "calendar_speedup_vs_python": 5.187872475924191,
+    "calendar_speedup_vs_previous_streaming": 7.626834940434284,
+    "calendar_rss_reduction_vs_python_percent": 51.99960326927562,
+    "matched_active_window_speedup": 67.50415948890027,
+    "native_zero_to_8h_prefix_evolution_s": 2.7345388230023673
+  },
+  "verification": {
+    "release_build": "PASS",
+    "scoped_regression_tests": 111,
+    "plan_tests": 9,
+    "numeric_checkpoint_leaves_compared": 128748,
+    "non_numeric_checkpoint_leaves_compared": 36512,
+    "max_absolute_delta": 7.275957614183426e-12,
+    "max_relative_delta_scaled_by_max_1": 1.2275032851509205e-15,
+    "physical_field_tolerance": {
+      "relative": 2e-11,
+      "absolute": 2e-10
+    },
+    "matched_checkpoint_tolerance": {
+      "relative": 2e-10,
+      "absolute": 2e-09
+    },
+    "native_warm_vs_zero_start_checkpoint_byte_identical": true,
+    "full_ci": "DEFERRED_BY_USER",
+    "integration": "DEFERRED_BY_USER",
+    "V03_full_city_campaign": "NOT_RUN"
+  },
+  "calendar_cases": [
+    {
+      "case": "river_weekday_s17",
+      "retained_legs": 5093765,
+      "totals": [
+        120000.0,
+        58801.0,
+        1000.0
+      ],
+      "registration_s": 4.080385863999254,
+      "peak_rss_bytes": 733450240,
+      "status": "PASS_SCOPED"
+    },
+    {
+      "case": "coastal_weekend_s41",
+      "retained_legs": 2449750,
+      "totals": [
+        100000.0,
+        49001.0,
+        1000.0
+      ],
+      "registration_s": 2.1589800879883114,
+      "peak_rss_bytes": 383123456,
+      "status": "PASS_SCOPED"
+    },
+    {
+      "case": "valley_weekday_s7",
+      "retained_legs": 918450,
+      "totals": [
+        120000.0,
+        58801.0,
+        1000.0
+      ],
+      "registration_s": 1.975158896006178,
+      "peak_rss_bytes": 176246784,
+      "status": "PASS_SCOPED"
+    }
+  ],
+  "runtime_measurement": {
+    "case": "river_weekday_s17",
+    "activated_legs": 256,
+    "unactivated_legs": 5093509,
+    "zero_start_native_horizon_s": 28800,
+    "matched_window_s": [
+      21600,
+      28800
+    ],
+    "initialization": "Derived invariant vacuum before every source; guards verified, native final checkpoint byte-identical to native zero-start run",
+    "diagnostic_record_budget": 200000,
+    "default_record_budget_unchanged": 20000,
+    "full_city_resource_target_bytes_unchanged": 8589934592,
+    "final_records": {
+      "road": 1802,
+      "journey": 44628
+    },
+    "peak_rss_bytes": 84787200,
+    "sample_runs": 1,
+    "performance_generalization": "No whole-city/full-campaign speedup claim"
+  },
+  "failure_history": [
+    {
+      "class": "implementation",
+      "evidence": "ENGINE_SELECTION_RED.txt",
+      "description": "Unknown engine backend ignored before change; explicit validation and regression now pass"
+    },
+    {
+      "class": "implementation/build",
+      "evidence": "BUILD_INITIAL.txt",
+      "description": "PyO3 required arguments after optional argument needed explicit signature annotation; fixed and release build passed; not behavioral RED"
+    },
+    {
+      "class": "numerical/implementation",
+      "description": "Finite large passenger quantities overflow sum; transactional rejection added. Small signed wait moment at availability tolerance preserved as oracle defines it."
+    },
+    {
+      "class": "resource/representation",
+      "evidence": "prefix-rust-initial.json",
+      "description": "256-leg actual-city prefix stops at last valid 27040s under default 20000 journey record cap; low RSS does not promote full calendar"
+    },
+    {
+      "class": "resource/execution",
+      "evidence": "final-prefix-python_oracle.json",
+      "description": "Zero-to-8h Python prefix exceeded external 180s deadline; no completed receipt; separately matched validated pre-source vacuum 06:00 to08:00 completed on both backends"
+    },
+    {
+      "class": "environment",
+      "description": "One remote evidence-read command timed out at transport; device remained online; read/reproduction retry succeeded"
+    }
+  ],
+  "loop": [
+    {
+      "step": "C1 목표·baseline",
+      "result": "Read exact b13c7d3 branch, AGENTS/PLAN and remaining interfaces; reused previous calendar/routing evidence"
+    },
+    {
+      "step": "C2 식–데이터–코드",
+      "result": "Mapped FactorizedSchedule, T02/T04 road solver, service and whole-journey ledgers to native owners"
+    },
+    {
+      "step": "C3 수치 설계",
+      "result": "Same f64 operation ordering/closures, exact source profiles, all-state checkpoint boundaries; no new physical approximation"
+    },
+    {
+      "step": "C4 실행 DAG·자원",
+      "result": "Parallel calendar/road/service implementations with independent review; actual local guarded builds and measurements"
+    },
+    {
+      "step": "C5 구현",
+      "result": "Three native owners, coupled Rust loop, explicit driver selection, native latency/record diagnostics and hourly frontend snapshots"
+    },
+    {
+      "step": "C6 구현 검증",
+      "result": "111 scoped regression tests plus9 plan tests; invalid selector, rollback, native callback ban, snapshots and resource failures"
+    },
+    {
+      "step": "C7 과학 검증",
+      "result": "Preserved FIFO, multi-class space, interval source/transfer marks, service capacity, return dwell and cross-bound ledgers"
+    },
+    {
+      "step": "C8 수치·재현성",
+      "result": "Full three-city calendar totals and complete matched actual-prefix report/checkpoint comparison; compiler/binary/source hashes and bounded resource measurements"
+    },
+    {
+      "step": "C9 독립 검토",
+      "result": "Separate code reviewer found no new material mismatch for scoped port; tolerance/ownership/history limitations retained"
+    },
+    {
+      "step": "C10 판정·인계",
+      "result": "Native core accepted as scoped implementation; full native static activation still required; V03 BLOCKED and19/21 unchanged"
+    }
+  ],
+  "remote_worktree": "/home/cosmosapjw/urban_traffic_rust_20261116",
+  "original_user_checkout_modified": false,
+  "checkpoint_storage": {
+    "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/",
+    "oracle_sha256": "b4149d316e08d935b152801d6d1893ba6530cbc16c4c102abdd22c34db70c8d4",
+    "native_sha256": "51e6964e5f1f98da48235c0fd1347f4a4bb1eb9f2720c0167365c0bf2212e7b9",
+    "published_comparison": "MATCHED_PARITY.json",
+    "reproduction": "python tools/compare_v1_native_measurements.py artifacts/v1_rust_runtime_20261116"
+  },
+  "remaining": [
+    "Native static constructor consuming full NativeCalendar directly, no Python full leg tuple or helper graph duplication",
+    "Whole-calendar active/history resource measurement before replacing conservative guards",
+    "Frozen-candidate original three cases x three24h runs, dt refinement, replay and separate review"
+  ],
+  "evidence_sha256": {
+    "artifacts/v1_rust_runtime_20261116/BUILD_COUPLED.txt": "0d4d6b1c67966132e6c2b194ec56bfa7bb35a0574f5b1868508e832b890ef8f5",
+    "artifacts/v1_rust_runtime_20261116/BUILD_FINAL.txt": "2443871e1372bb0b9d62aabc03381bcbddaa7a784951f937fe8d51c159ab01e6",
+    "artifacts/v1_rust_runtime_20261116/BUILD_INITIAL.txt": "645de7fe6d2fc7aecfcc9e58ca594376ccc97bb0d25481128a78bc13e2ea8924",
+    "artifacts/v1_rust_runtime_20261116/BUILD_SECOND.txt": "13cade20e8142a454020dae8adf0f97c5d2741612c3cf4cf1b16328c1c007847",
+    "artifacts/v1_rust_runtime_20261116/BUILD_TEST.txt": "8e0cf9f335c74d2cd7cfc4528b782ac7edabcdbb863e0ab3244dcf5cc34061ff",
+    "artifacts/v1_rust_runtime_20261116/ENGINE_SELECTION_RED.txt": "dabdf66c5432b2fe8f283baf61632818e65a408442e1fb9cd611b76f918fa413",
+    "artifacts/v1_rust_runtime_20261116/MATCHED_PARITY.json": "629570ec6be84adee0a50af2a7a1da2ea7838ce64941cdba79320c72a9cb892e",
+    "artifacts/v1_rust_runtime_20261116/PLAN_TESTS.txt": "5e57a2b2595d85d09977593cf77dfe39775b2732484bc91bd38d1223f0243d6d",
+    "artifacts/v1_rust_runtime_20261116/TESTS_COUPLED.txt": "ed59043dc9776f7c1aa15b6ec432efbd6035601b6deed9ea1cc796d467162f1e",
+    "artifacts/v1_rust_runtime_20261116/TESTS_FINAL.txt": "b32bc2ca0df58d38c54253d9af4a140d36db15c003c8882f078753ca05d54153",
+    "artifacts/v1_rust_runtime_20261116/TESTS_INITIAL.txt": "2f1ca2659811d34fcaa802ac02c3dc64a6a0ceaeed4289c26f211b69f0edabb1",
+    "artifacts/v1_rust_runtime_20261116/calendar-coastal_weekend_s41.json": "718b8f76cf66e6e45bebafd529592082181999842c242594a40f474553c80d5e",
+    "artifacts/v1_rust_runtime_20261116/calendar-river_weekday_s17.json": "c1e7d2966d54f5a164362174aafc69a512dcea7803f97348a425bca447fee919",
+    "artifacts/v1_rust_runtime_20261116/calendar-valley_weekday_s7.json": "a18a819ce994fd95669548e8068b0b974beb9f2a47743ba07801d031fac30bb3",
+    "artifacts/v1_rust_runtime_20261116/final-calendar-coastal_weekend_s41.json": "4bb51639314f276b92bfcdfaa99c62153595e4051109d7b84dddbf13f4acf828",
+    "artifacts/v1_rust_runtime_20261116/final-calendar-native-factors.json": "5ab8611c84293bf8f63d440bcc3316390a33f5ae2f9e907fd60b377d96a32108",
+    "artifacts/v1_rust_runtime_20261116/final-calendar-python.json": "e6b9eb8aef1b832254ed54972dd4ff471dd7a684efff7f36a66176bef4a4f59b",
+    "artifacts/v1_rust_runtime_20261116/final-calendar-rust.json": "bd156e5728dd6016929050f8f9330988fbd2028e9ed3a82b7073e6c0601b38ed",
+    "artifacts/v1_rust_runtime_20261116/final-calendar-valley_weekday_s7.json": "12eef4e0b6db6e9f457d3f5e5804c5decc755da92091c2947c04c20f6c1a7d24",
+    "artifacts/v1_rust_runtime_20261116/final-prefix-python_oracle.json": "6ac2d3e6e24345096224dcf5689057be33e92299418b854597949bc6141188a3",
+    "artifacts/v1_rust_runtime_20261116/final-prefix-rust.json": "1ab4503882f9a0da17f755f253311fd04cb80ff851f8635f5261f9a636ecff90",
+    "artifacts/v1_rust_runtime_20261116/matched-prefix-python_oracle.json": "22ad0c5689226c4c2de423869dd96f88d8dfceaa7be00143a22ef6c08c85c37d",
+    "artifacts/v1_rust_runtime_20261116/matched-prefix-rust.json": "21593db23f04145effb59fb07d2fb0876867d5bf9299d38d53702b0bbe60db86",
+    "artifacts/v1_rust_runtime_20261116/prefix-rust-initial.json": "7d77ce46116466634da57a4b887ce993fa2b5ee4643cbcd09df6f6914a3c565c",
+    "artifacts/v1_rust_runtime_20261116/RESEARCH_KO.md": "4934b5d80ee7c14ccc710da67d53f80cc3abb652d438d299c678a10a03647ffe"
+  }
+}

@@ -13,6 +13,137 @@ type Row = (
     (f64, f64, f64),
     f64,
 );
+// All inputs scale with marginal support. Cartesian OD pairs are generated here.
+type HomeFactor = (u32, f64, u32); // activity label, mass, stationary cohort ID gaps
+type TargetFactor = (u32, u32, u32, f64, f64, bool, Vec<(u32, f64)>);
+// purpose, outward/return profiles, total, support, external, destinations
+type ModeFactor = (u32, u32, f64, f64, bool); // mode/class labels, share, occupancy, noncar
+type FreightFactor = (String, u32, f64); // exact ID, destination label, cargo kg
+
+fn visit_factorized(
+    homes: &[HomeFactor],
+    targets: &[TargetFactor],
+    modes: &[ModeFactor],
+    laws: &HashMap<(u32, u32, u32), u32>,
+    freight: &[FreightFactor],
+    config: (f64, f64, f64, f64, f64),
+    labels: &[u32],
+    freight_profile: u32,
+    mut emit: impl FnMut(Leg) -> PyResult<()>,
+) -> PyResult<()> {
+    let (population, service_fraction, external_fraction, dwell, freight_payload) = config;
+    let mut cohort = 0_u64;
+    let mut row = 0_u32;
+    for &(home, home_mass, stationary) in homes {
+        let ratio = home_mass / population;
+        for (purpose, outward_profile, return_profile, total, support, external, destinations) in
+            targets
+        {
+            if *total == 0.0 {
+                continue;
+            }
+            for &(destination, destination_mass) in destinations {
+                for &(mode, class, share, occupancy, noncar) in modes {
+                    // Keep Python's explicit left-to-right operation order; no fast math.
+                    let mass = if *external {
+                        home_mass * service_fraction * external_fraction * share
+                    } else {
+                        total * ratio * destination_mass / support * share
+                    };
+                    if mass <= 0.0 {
+                        continue;
+                    }
+                    if cohort > MASK || row > u32::MAX - 2 {
+                        return Err(PyValueError::new_err("factorized calendar index overflow"));
+                    }
+                    let amounts = [mass, if noncar { 0.0 } else { mass / occupancy }, 0.0];
+                    let law = laws
+                        .get(&(home, destination, *purpose))
+                        .copied()
+                        .unwrap_or(labels[0]);
+                    let endpoint = if *external {
+                        labels[4]
+                    } else if law != labels[0] {
+                        labels[3]
+                    } else {
+                        labels[2]
+                    };
+                    let outward = Leg {
+                        id: (1 << 62) | cohort,
+                        cohort,
+                        parent: None,
+                        metadata: [
+                            home,
+                            destination,
+                            *purpose,
+                            mode,
+                            class,
+                            *outward_profile,
+                            law,
+                            endpoint,
+                        ],
+                        amounts,
+                        dwell: 0.0,
+                        released: 0.0,
+                        completed: 0.0,
+                    };
+                    let back = Leg {
+                        id: (2 << 62) | cohort,
+                        cohort,
+                        parent: Some(row),
+                        metadata: [
+                            destination,
+                            home,
+                            labels[1],
+                            mode,
+                            class,
+                            *return_profile,
+                            law,
+                            endpoint,
+                        ],
+                        amounts,
+                        dwell,
+                        released: 0.0,
+                        completed: 0.0,
+                    };
+                    emit(outward)?;
+                    emit(back)?;
+                    row += 2;
+                    cohort += 1;
+                }
+            }
+        }
+        cohort = cohort
+            .checked_add(stationary as u64)
+            .ok_or_else(|| PyValueError::new_err("factorized cohort index overflow"))?;
+    }
+    for (i, (_, destination, cargo)) in freight.iter().enumerate() {
+        if row == u32::MAX {
+            return Err(PyValueError::new_err("factorized calendar index overflow"));
+        }
+        emit(Leg {
+            id: (3 << 62) | i as u64,
+            cohort: NONE,
+            parent: None,
+            metadata: [
+                labels[0],
+                *destination,
+                labels[5],
+                labels[6],
+                labels[7],
+                freight_profile,
+                labels[0],
+                labels[4],
+            ],
+            amounts: [0.0, cargo / freight_payload, *cargo],
+            dwell: 0.0,
+            released: 0.0,
+            completed: 0.0,
+        })?;
+        row += 1;
+    }
+    Ok(())
+}
 #[derive(Clone)]
 struct Leg {
     id: u64,
@@ -322,6 +453,190 @@ impl NativeCalendar {
         self.amount_sums = sums;
         self.amount_corrections = corrections;
         Ok(self.legs.len())
+    }
+    /// Generate the exact Cartesian calendar without per-leg Python objects.
+    /// Only an empty registry is accepted. Preflight visits the same scalar
+    /// expressions and checks all totals/budgets before committing any leg.
+    fn build_factorized(
+        &mut self,
+        py: Python<'_>,
+        homes: Vec<HomeFactor>,
+        targets: Vec<TargetFactor>,
+        modes: Vec<ModeFactor>,
+        laws: Vec<(u32, u32, u32, u32)>,
+        freight: Vec<FreightFactor>,
+        config: (f64, f64, f64, f64, f64),
+        labels: Vec<u32>,
+        freight_profile: u32,
+    ) -> PyResult<usize> {
+        py.allow_threads(|| {
+            if !self.legs.is_empty() || !self.texts.is_empty() {
+                return Err(PyValueError::new_err(
+                    "direct generation requires an empty calendar",
+                ));
+            }
+            let label_ok = |i: u32| (i as usize) < self.labels.len();
+            let profile_ok = |i: u32| (i as usize) < self.profiles.len();
+            let positive = |x: f64| x.is_finite() && x > 0.0;
+            let nonnegative = |x: f64| x.is_finite() && x >= 0.0;
+            if labels.len() != 8
+                || labels.iter().any(|&i| !label_ok(i))
+                || !profile_ok(freight_profile)
+                || !positive(config.0)
+                || !positive(config.4)
+                || !nonnegative(config.1)
+                || config.1 > 1.0
+                || !nonnegative(config.2)
+                || config.2 > 1.0
+                || !nonnegative(config.3)
+                || homes.is_empty()
+                || modes.is_empty()
+                || homes.iter().any(|&(label, mass, stationary)| {
+                    !label_ok(label) || !nonnegative(mass) || stationary > 3
+                })
+                || modes
+                    .iter()
+                    .any(|&(mode, class, share, occupancy, noncar)| {
+                        !label_ok(mode)
+                            || !label_ok(class)
+                            || !positive(share)
+                            || !positive(occupancy)
+                            || (!noncar && occupancy < 1.0)
+                    })
+            {
+                return Err(PyValueError::new_err("invalid registered factorized input"));
+            }
+            for (purpose, outward, back, total, support, external, destinations) in &targets {
+                if !label_ok(*purpose)
+                    || !profile_ok(*outward)
+                    || !profile_ok(*back)
+                    || !nonnegative(*total)
+                    || !nonnegative(*support)
+                    || (*total > 0.0 && !positive(*support))
+                    || (*external && (destinations.len() != 1 || destinations[0].0 != labels[0]))
+                    || destinations
+                        .iter()
+                        .any(|&(label, mass)| !label_ok(label) || !nonnegative(mass))
+                {
+                    return Err(PyValueError::new_err(
+                        "invalid factorized destination/profile",
+                    ));
+                }
+            }
+            let mut law_map = HashMap::new();
+            for &(home, destination, purpose, law) in &laws {
+                if [home, destination, purpose, law]
+                    .iter()
+                    .any(|&i| !label_ok(i))
+                    || law_map.insert((home, destination, purpose), law).is_some()
+                {
+                    return Err(PyValueError::new_err(
+                        "invalid or duplicate factorized intrazonal law",
+                    ));
+                }
+            }
+            let mut freight_ids = HashSet::new();
+            for (id, destination, cargo) in &freight {
+                if !id.starts_with("freight:")
+                    || !freight_ids.insert(id)
+                    || !label_ok(*destination)
+                    || !nonnegative(*cargo)
+                {
+                    return Err(PyValueError::new_err(
+                        "invalid or duplicate factorized freight",
+                    ));
+                }
+            }
+            let extra = freight.iter().try_fold(0_usize, |n, (id, _, _)| {
+                n.checked_add(id.len().saturating_mul(2).saturating_add(128))
+                    .ok_or_else(|| PyMemoryError::new_err("factorized storage overflow"))
+            })?;
+            let base_bytes = self.estimate(0, extra);
+            let per_leg = std::mem::size_of::<Leg>() + 64;
+            let mut count = 0_usize;
+            let mut sums = [0.0_f64; 3];
+            let mut corrections = [0.0_f64; 3];
+            visit_factorized(
+                &homes,
+                &targets,
+                &modes,
+                &law_map,
+                &freight,
+                config,
+                &labels,
+                freight_profile,
+                |leg| {
+                    count = count
+                        .checked_add(1)
+                        .ok_or_else(|| PyMemoryError::new_err("factorized storage overflow"))?;
+                    if count >= u32::MAX as usize
+                        || base_bytes.saturating_add(count.saturating_mul(per_leg))
+                            > self.byte_budget
+                    {
+                        return Err(PyMemoryError::new_err(
+                            "native calendar byte budget exceeded; no generated leg committed",
+                        ));
+                    }
+                    for (i, x) in leg.amounts.into_iter().enumerate() {
+                        let next = sums[i] + x;
+                        if !nonnegative(x) || !next.is_finite() {
+                            return Err(PyValueError::new_err(
+                                "factorized calendar amount overflow",
+                            ));
+                        }
+                        corrections[i] += if sums[i].abs() >= x.abs() {
+                            (sums[i] - next) + x
+                        } else {
+                            (x - next) + sums[i]
+                        };
+                        sums[i] = next;
+                        if !(sums[i] + corrections[i]).is_finite() {
+                            return Err(PyValueError::new_err(
+                                "factorized calendar amount overflow",
+                            ));
+                        }
+                    }
+                    Ok(())
+                },
+            )?;
+            self.budget(count, extra)?;
+            self.legs
+                .try_reserve_exact(count)
+                .map_err(|_| PyMemoryError::new_err("calendar allocation failed"))?;
+            self.indices
+                .try_reserve(count)
+                .map_err(|_| PyMemoryError::new_err("calendar index allocation failed"))?;
+            self.texts
+                .try_reserve_exact(freight.len())
+                .map_err(|_| PyMemoryError::new_err("calendar text allocation failed"))?;
+            self.text_indices
+                .try_reserve(freight.len())
+                .map_err(|_| PyMemoryError::new_err("calendar text index allocation failed"))?;
+            // The first traversal checked every operation used below. This
+            // traversal allocates no per-leg strings or temporary row arrays.
+            visit_factorized(
+                &homes,
+                &targets,
+                &modes,
+                &law_map,
+                &freight,
+                config,
+                &labels,
+                freight_profile,
+                |leg| {
+                    self.indices.insert(leg.id, self.legs.len() as u32);
+                    self.legs.push(leg);
+                    Ok(())
+                },
+            )?;
+            for (i, (id, _, _)) in freight.into_iter().enumerate() {
+                self.texts.push(id.clone());
+                self.text_indices.insert(id, i as u64);
+            }
+            self.amount_sums = sums;
+            self.amount_corrections = corrections;
+            Ok(count)
+        })
     }
     fn __len__(&self) -> usize {
         self.legs.len()

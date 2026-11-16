@@ -1,0 +1,70 @@
+{
+  "mode": "calendar-native-factors",
+  "case": "coastal_weekend_s41",
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "simulated_s": 0,
+  "full_campaign": "NOT_RUN",
+  "address_space_limit_bytes": 8589934592,
+  "city_identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+  "source_archive_sha256": "5c3107b147b7f71046f5958a8ad8d3f0212d0bcc5bbfcc27ebbebbd9d476756e",
+  "schedule_identity": "f2d23e4cd90a16d1d62dbaf26124dd159aa766d413e860c34d218cdd7d9ae870",
+  "expected": {
+    "legs": 2449750,
+    "persons": 100000.0,
+    "vehicles": 49001.0,
+    "cargo_kg": 1000,
+    "resident_stock": 100000.0,
+    "requested_workers": 10000.0,
+    "allocated_workers": 10000.0,
+    "unassigned_workers": 0.0
+  },
+  "preparation_s": 5.331501359003596,
+  "registration_s": 2.1589800879883114,
+  "native_storage_report": [
+    2449750,
+    5,
+    1823,
+    414052780,
+    2147483648
+  ],
+  "initial_ledger_totals": [
+    0.0,
+    0.0
+  ],
+  "requested_24h": [
+    100000.0,
+    49001.0,
+    1000.0
+  ],
+  "retained_legs": 2449750,
+  "totals": [
+    100000.0,
+    49001.0,
+    1000.0
+  ],
+  "count_and_amounts_match": true,
+  "scope": "entire unchanged calendar retained; Rust additionally owns zero progress arrays; routes/service/physical tick not activated",
+  "status": "PASS_SCOPED",
+  "wall_s": 7.545275492011569,
+  "peak_rss_bytes": 383123456,
+  "native_binary_sha256": "c6607c89637ae724de27ed04629dc6372f1ef2d12da2141a54be3430d7e31e4b",
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "source_sha256": {
+    "crates/metroflow-rust/src/v1_calendar.rs": "e3bab30131831d2afaff337cd7b8ece3efb8df7927b9fb7dbd77aac0d912c9c8",
+    "crates/metroflow-rust/src/v1_road.rs": "bb4b11bae6e90cbccf45478a42f1813b277ff9d736eb2d75319854d5c8e84d40",
+    "crates/metroflow-rust/src/v1_routing.rs": "f7bb7dcf95d26866891ad3b12492300b0021b08b8d2a803fbaeb8583bf398cd1",
+    "crates/metroflow-rust/src/v1_journey.rs": "09db5ccd331e785c2b4bde0031beb6e449cc64f4d1e7ad028df3001fe9c0a213",
+    "tools/measure_v1_native.py": "a504539f9bfacfab68981dfe48361f7741751613ea51059a98163c2d8c72a84e",
+    "src/metroflow/v1/native_road.py": "d21c83567e650b0b82fa157e893e56456dd401a8680ef67cc0a789ee74ff90c0",
+    "src/metroflow/v1/native_journey.py": "85d84a9300de6e5094062fefc6cdddb7b867725201339f88ae02abc81082877c",
+    "src/metroflow/v1/native_calendar.py": "efb3cab28d3ccc99607234ea909077ce67a00c5b38d1984e0e15fe3fec1c65cf",
+    "src/metroflow/v1/native_routing.py": "056e9c7004b76c3c1bb057a15d0a8503403f6f24045700d1bf65b0058611adf4"
+  }
+}

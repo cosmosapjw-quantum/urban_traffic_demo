@@ -1,0 +1,16 @@
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_rust_20261116/crates/metroflow-rust)
+warning: methods `owned_snapshot` and `owned_restore` are never used
+  --> crates/metroflow-rust/src/v1_road.rs:72:16
+   |
+68 | impl V1Road {
+   | ----------- methods in this implementation
+...
+72 |  pub(crate) fn owned_snapshot(&self)->StateRow{self.row()}
+   |                ^^^^^^^^^^^^^^
+73 |  pub(crate) fn owned_restore(&mut self,row:StateRow)->PyResult<()>{self....
+   |                ^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `metroflow-rust` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 6.89s
