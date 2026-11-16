@@ -1,0 +1,71 @@
+🐍 Found CPython 3.12 at /home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python
+🔗 Found pyo3 bindings
+📡 Using build options bindings from pyproject.toml
+   Compiling pyo3-build-config v0.23.5
+   Compiling pyo3-ffi v0.23.5
+   Compiling pyo3-macros-backend v0.23.5
+   Compiling pyo3 v0.23.5
+   Compiling pyo3-macros v0.23.5
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_rust_20261116/crates/metroflow-rust)
+warning: methods `summary`, `install_state`, and `owned_step` are never used
+   --> crates/metroflow-rust/src/v1_road.rs:453:19
+    |
+452 | impl V1Road {
+    | ----------- methods in this implementation
+453 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+    |                   ^^^^^^^
+...
+606 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+    |                   ^^^^^^^^^^^^^
+...
+676 |     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) ->...
+    |                   ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `state`, `sources`, and `install_state` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:240:19
+    |
+239 | impl NativeServiceCore {
+    | ---------------------- methods in this implementation
+240 |     pub(crate) fn state(&self) -> &Service {
+    |                   ^^^^^
+...
+243 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+...
+254 |     pub(crate) fn install_state(&mut self, state: ServiceCheckpoint) {
+    |                   ^^^^^^^^^^^^^
+
+warning: methods `state`, `owned_time`, `storage_budget`, and `install_state` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:739:19
+    |
+668 | impl NativeJourneyCore {
+    | ---------------------- methods in this implementation
+...
+739 |     pub(crate) fn state(&self) -> &Journey {
+    |                   ^^^^^
+...
+745 |     pub(crate) fn owned_time(&self) -> f64 {
+    |                   ^^^^^^^^^^
+...
+774 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+    |                   ^^^^^^^^^^^^^^
+...
+793 |     pub(crate) fn install_state(&mut self, state: Journey) {
+    |                   ^^^^^^^^^^^^^
+
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:76:19
+   |
+69 | impl StageQueue {
+   | --------------- method in this implementation
+...
+76 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+
+warning: `metroflow-rust` (lib) generated 4 warnings
+    Finished `release` profile [optimized] target(s) in 14.73s
+📦 Built wheel for CPython 3.12 to /tmp/.tmpN3yZ2Q/metroflow_rust-0.1.0-cp312-cp312-linux_x86_64.whl
+✏️ Setting installed package as editable
+🛠 Installed metroflow-rust-0.1.0

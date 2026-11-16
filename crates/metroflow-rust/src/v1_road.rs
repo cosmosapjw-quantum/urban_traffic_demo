@@ -5,6 +5,7 @@ use pyo3::exceptions::{PyArithmeticError, PyIOError, PyMemoryError, PyValueError
 use pyo3::prelude::*;
 use std::collections::{BTreeMap, HashMap};
 use std::io::{Read, Write};
+use std::sync::Mutex;
 
 // Versioned by the enclosing engine header. Integers and IEEE-754 bit patterns
 // have a fixed little-endian representation independent of Python objects.
@@ -102,6 +103,183 @@ pub(crate) struct RoadDebugStats {
     pub(crate) max_cell_parts: usize,
     pub(crate) max_pending_parts: usize,
 }
+
+/// Conservative structural working allowance, not an allocator/RSS theorem.
+/// Captures one supplied immutable snapshot, the committed owner, a candidate,
+/// and the large source/transfer/splitting workspaces. Unrelated user-retained
+/// snapshots and allocator metadata remain covered by the process limit.
+struct RoadWorkBudget {
+    limit: Option<usize>,
+    base: usize,
+    events: usize,
+    incoming: usize,
+    interval_rows: usize,
+}
+/// Decode guards run before each reserve, while the old owner and any known
+/// call-input snapshot remain live. Validation scratch is charged as rows arrive.
+struct RoadDecodeBudget {
+    limit: Option<usize>,
+    retained_input: usize,
+    decoded: usize,
+    validation: usize,
+}
+const EVENT_CLOCK_TOLERANCE_S: f64 = 1e-10;
+
+/// Error-free binary64 addition under the native round-to-nearest mode.
+/// Unlike FastTwoSum, this has no magnitude-ordering precondition.
+fn two_sum(a: f64, b: f64) -> (f64, f64) {
+    let s = a + b;
+    let v = s - a;
+    (s, (a - (s - v)) + (b - v))
+}
+fn upper_add(a: f64, b: f64) -> f64 {
+    if b == 0. {
+        return a;
+    }
+    let s = a + b;
+    if s.is_finite() {
+        f64::from_bits(s.to_bits() + 1)
+    } else {
+        s
+    }
+}
+#[derive(Default, Clone, Copy)]
+struct EventResolutionStats {
+    count: u64,
+    processed_time_bound: f64,
+    clock_roundoff_bound: f64,
+    rate_weighted_mass_bound: f64,
+}
+impl EventResolutionStats {
+    fn merge(&mut self, other: Self) {
+        self.count = self.count.saturating_add(other.count);
+        self.processed_time_bound =
+            upper_add(self.processed_time_bound, other.processed_time_bound);
+        self.clock_roundoff_bound =
+            upper_add(self.clock_roundoff_bound, other.clock_roundoff_bound);
+        self.rate_weighted_mass_bound = upper_add(
+            self.rate_weighted_mass_bound,
+            other.rate_weighted_mass_bound,
+        );
+    }
+}
+/// The legacy single-word clock stays untouched until a positive duration
+/// cannot advance it. The two-word extension retains that duration; it does
+/// not enlarge h, remove a positive mass or claim exact mass-split arithmetic.
+#[derive(Default)]
+struct EventClock {
+    hi: f64,
+    lo: f64,
+    active: bool,
+    stats: EventResolutionStats,
+}
+impl EventClock {
+    fn remaining(&self, boundary: f64) -> f64 {
+        if self.active {
+            (boundary - self.hi) - self.lo
+        } else {
+            boundary - self.hi
+        }
+    }
+    fn after_ready(&self, ready: f64) -> bool {
+        if self.active {
+            self.remaining(ready) > EVENT_CLOCK_TOLERANCE_S
+        } else {
+            ready > self.hi + EVENT_CLOCK_TOLERANCE_S
+        }
+    }
+    fn offset(&self, h: f64) -> f64 {
+        if self.active {
+            let (s, e) = two_sum(self.hi, h);
+            s + (e + self.lo)
+        } else {
+            self.hi + h
+        }
+    }
+    fn jump(&mut self, boundary: f64) {
+        self.hi = boundary;
+        self.lo = 0.;
+    }
+    fn check_bound(&self) -> PyResult<()> {
+        if self.stats.processed_time_bound + self.stats.clock_roundoff_bound
+            > EVENT_CLOCK_TOLERANCE_S
+        {
+            return Err(arithmetic(&format!(
+                "packet compensated clock roundoff budget exceeded: processed_subulp_s={:?}, clock_roundoff_s={:?}, tolerance_s={EVENT_CLOCK_TOLERANCE_S:?}",
+                self.stats.processed_time_bound, self.stats.clock_roundoff_bound)));
+        }
+        Ok(())
+    }
+    fn advance(&mut self, h: f64, boundary: Option<f64>) -> PyResult<bool> {
+        if !self.active {
+            self.hi += h;
+            return Ok(true);
+        }
+        // Charge selected horizon/future subtraction rounding separately from
+        // the discarded third word of compensated addition.
+        if let Some(boundary) = boundary {
+            let error = sum([self.hi, self.lo, h, -boundary]).abs();
+            self.stats.clock_roundoff_bound = upper_add(self.stats.clock_roundoff_bound, error);
+        }
+        let old = (self.hi, self.lo);
+        let (s, e) = two_sum(self.hi, h);
+        let (v, discarded) = two_sum(self.lo, e);
+        (self.hi, self.lo) = two_sum(s, v);
+        self.stats.clock_roundoff_bound =
+            upper_add(self.stats.clock_roundoff_bound, discarded.abs());
+        self.check_bound()?;
+        Ok(self.hi > old.0 || (self.hi == old.0 && self.lo > old.1))
+    }
+}
+impl RoadDecodeBudget {
+    fn reserve(&mut self, bytes: usize, validation: usize) -> PyResult<()> {
+        self.decoded = self.decoded.saturating_add(bytes);
+        self.validation = self.validation.saturating_add(validation);
+        let required = self
+            .decoded
+            .max(self.retained_input)
+            .saturating_mul(3)
+            .saturating_add(self.validation);
+        check_storage_limit(self.limit, required, "checkpoint decode preflight")
+    }
+}
+impl RoadWorkBudget {
+    fn require(&self, extra: usize, phase: &str) -> PyResult<()> {
+        let required =
+            self.base
+                .saturating_add(
+                    self.events
+                        .saturating_mul(2 * std::mem::size_of::<EventRow>()),
+                )
+                .saturating_add(self.incoming.saturating_mul(
+                    2 * (std::mem::size_of::<Part>() + std::mem::size_of::<Mark>()),
+                ))
+                .saturating_add(
+                    self.interval_rows
+                        .saturating_mul(3 * std::mem::size_of::<Part>()),
+                )
+                .saturating_add(extra);
+        check_storage_limit(self.limit, required, phase)
+    }
+    fn transfer(&mut self, events: usize, incoming: usize) -> PyResult<()> {
+        self.events = self.events.saturating_add(events);
+        self.incoming = self.incoming.saturating_add(incoming);
+        self.require(0, "transfer candidates")
+    }
+    fn interval(&mut self, rows: usize) -> PyResult<()> {
+        self.interval_rows = self.interval_rows.saturating_add(rows);
+        self.require(0, "entry interval split")
+    }
+}
+fn check_storage_limit(limit: Option<usize>, required: usize, phase: &str) -> PyResult<()> {
+    if let Some(limit) = limit {
+        if required > limit {
+            return Err(budget(&format!(
+                "native road storage budget exceeded: phase={phase}, required_bytes={required}, budget_bytes={limit}")));
+        }
+    }
+    Ok(())
+}
 impl RoadState {
     pub(crate) fn time(&self) -> f64 {
         self.t
@@ -158,6 +336,27 @@ impl RoadState {
             + out.part_capacity * std::mem::size_of::<Part>();
         out
     }
+    pub(crate) fn retained_storage_bytes(&self) -> usize {
+        let stats = self.debug_stats();
+        // Current native std BTreeMap entries are tiny (<=3 classes/cell).
+        // Reserve 256 bytes per live entry and an empty root per cell. Add a
+        // small per-buffer allocation allowance; this remains structural
+        // accounting, not an exact allocator/RSS measurement.
+        let buffers = stats
+            .cell_packets
+            .saturating_add(stats.pending_packets)
+            .saturating_add(self.cells.len().saturating_mul(2))
+            .saturating_add(3);
+        stats
+            .vector_capacity_bytes
+            .saturating_add(
+                stats
+                    .latent_entries
+                    .saturating_add(self.cells.len())
+                    .saturating_mul(256),
+            )
+            .saturating_add(buffers.saturating_mul(32))
+    }
 }
 #[derive(Clone)]
 struct Motion {
@@ -184,6 +383,9 @@ pub struct V1Road {
     incoming: Vec<Vec<usize>>,
     windows: Vec<(usize, f64, f64, f64)>,
     record_budget: usize,
+    storage_budget: Option<usize>,
+    retained_input_bytes: usize,
+    event_resolution: Mutex<EventResolutionStats>,
     event_budget: Option<usize>,
     intervals: bool,
     state: RoadState,
@@ -250,54 +452,87 @@ fn finite_nonnegative(x: f64) -> bool {
 fn mass(p: &Packet) -> f64 {
     sum(p.parts.iter().map(|p| p.mass))
 }
-fn portion(parts: &[Part], f: f64) -> Vec<Part> {
-    parts
-        .iter()
-        .filter_map(|p| {
-            let m = p.mass * f;
-            if m > 0.0 {
-                let mut q = p.clone();
-                q.mass = m;
-                q.birth *= f;
-                Some(q)
-            } else {
-                None
-            }
-        })
-        .collect()
+fn push_checked<T>(rows: &mut Vec<T>, row: T) -> PyResult<()> {
+    if rows.len() == rows.capacity() {
+        rows.try_reserve(1)
+            .map_err(|_| budget("native road allocation unavailable"))?;
+    }
+    rows.push(row);
+    Ok(())
 }
-fn combine(parts: Vec<Part>) -> Vec<Part> {
-    let mut groups: BTreeMap<(usize, usize, u64, u64), Vec<Part>> = BTreeMap::new();
+fn clone_packet(packet: &Packet) -> PyResult<Packet> {
+    let mut parts = checkpoint_vec(packet.parts.len())?;
+    parts.extend_from_slice(&packet.parts);
+    Ok(Packet {
+        target: packet.target,
+        parts,
+    })
+}
+fn clone_packets(packets: &[Packet]) -> PyResult<Vec<Packet>> {
+    let mut result = checkpoint_vec(packets.len())?;
+    for packet in packets {
+        result.push(clone_packet(packet)?);
+    }
+    Ok(result)
+}
+fn portion(parts: &[Part], f: f64) -> PyResult<Vec<Part>> {
+    let mut result = checkpoint_vec(if f == 0.0 { 0 } else { parts.len() })?;
     for p in parts {
-        if p.mass > 0.0 {
-            groups
-                .entry((
-                    p.tag,
-                    p.offset,
-                    p.a.map_or(u64::MAX, |x| x.to_bits()),
-                    p.b.map_or(u64::MAX, |x| x.to_bits()),
-                ))
-                .or_default()
-                .push(p);
+        let m = p.mass * f;
+        if m > 0.0 {
+            let mut q = p.clone();
+            q.mass = m;
+            q.birth *= f;
+            result.push(q);
         }
     }
-    let mut out: Vec<Part> = groups
-        .into_values()
-        .map(|ps| {
-            let mut p = ps[0].clone();
-            p.mass = sum(ps.iter().map(|x| x.mass));
-            p.birth = sum(ps.iter().map(|x| x.birth));
-            p
-        })
-        .collect();
-    out.sort_by(|a, b| {
+    Ok(result)
+}
+fn combine(parts: Vec<Part>) -> PyResult<Vec<Part>> {
+    let key = |p: &Part| {
+        (
+            p.tag,
+            p.offset,
+            p.a.map_or(u64::MAX, f64::to_bits),
+            p.b.map_or(u64::MAX, f64::to_bits),
+        )
+    };
+    let mut indices = checkpoint_vec(parts.len())?;
+    indices.extend((0..parts.len()).filter(|&i| parts[i].mass > 0.0));
+    // Group order is the old BTreeMap key order; original index is the tie
+    // breaker, preserving the exact sequence fed to fsum within every group.
+    // An index sort needs no per-key Vec<Part> or BTreeMap node allocations.
+    indices.sort_unstable_by(|&a, &b| key(&parts[a]).cmp(&key(&parts[b])).then(a.cmp(&b)));
+    // Reserve only the resulting groups. Reserving the input count would keep
+    // a huge sparse allocation when many source rows share one exact key.
+    let groups = usize::from(!indices.is_empty())
+        + indices
+            .windows(2)
+            .filter(|pair| key(&parts[pair[0]]) != key(&parts[pair[1]]))
+            .count();
+    let mut out = checkpoint_vec(groups)?;
+    let mut start = 0;
+    while start < indices.len() {
+        let mut end = start + 1;
+        while end < indices.len() && key(&parts[indices[start]]) == key(&parts[indices[end]]) {
+            end += 1;
+        }
+        let mut part = parts[indices[start]].clone();
+        part.mass = sum(indices[start..end].iter().map(|&i| parts[i].mass));
+        part.birth = sum(indices[start..end].iter().map(|&i| parts[i].birth));
+        out.push(part);
+        start = end;
+    }
+    // Every valid output key is unique, so an allocation-free unstable sort
+    // has the same canonical order as the previous stable sort.
+    out.sort_unstable_by(|a, b| {
         a.tag
             .cmp(&b.tag)
             .then(a.offset.cmp(&b.offset))
             .then(a.a.unwrap_or(-1.0).total_cmp(&b.a.unwrap_or(-1.0)))
             .then(a.b.unwrap_or(-1.0).total_cmp(&b.b.unwrap_or(-1.0)))
     });
-    out
+    Ok(out)
 }
 fn characteristic(v0: f64, target: f64, dt: f64, tau: f64, acc: f64, brake: f64) -> (f64, f64) {
     let difference = target - v0;
@@ -414,8 +649,17 @@ impl V1Road {
         }
         Ok(())
     }
-    fn read_packets<R: Read>(&self, r: &mut R, remaining: &mut usize) -> PyResult<Vec<Packet>> {
+    fn read_packets<R: Read>(
+        &self,
+        r: &mut R,
+        remaining: &mut usize,
+        work: &mut RoadDecodeBudget,
+    ) -> PyResult<Vec<Packet>> {
         let n = read_len(r, *remaining)?;
+        work.reserve(
+            n.saturating_mul(std::mem::size_of::<Packet>() + 32),
+            n.saturating_mul(32),
+        )?;
         let mut q = checkpoint_vec(n)?;
         for _ in 0..n {
             let target = read_f64(r)?;
@@ -424,6 +668,10 @@ impl V1Road {
                 return Err(val("empty native checkpoint packet"));
             }
             *remaining -= m;
+            work.reserve(
+                m.saturating_mul(std::mem::size_of::<Part>()),
+                m.saturating_mul(16),
+            )?;
             let mut parts = checkpoint_vec(m)?;
             for _ in 0..m {
                 let tag = read_len(r, self.routes.len())?;
@@ -465,14 +713,34 @@ impl V1Road {
         let t = read_f64(r)?;
         read_exact_len(r, self.groups.len())?;
         let mut remaining = self.record_budget;
+        let mut work = RoadDecodeBudget {
+            limit: self.storage_budget,
+            retained_input: if self.storage_budget.is_some() {
+                self.retained_input_bytes
+                    .max(self.state.retained_storage_bytes())
+            } else {
+                0
+            },
+            decoded: std::mem::size_of::<RoadState>().saturating_add(3 * 32),
+            validation: 0,
+        };
+        // Include empty tree roots and both packet-queue buffer allowances for
+        // every cell, before constructing the first outer vector.
+        work.reserve(
+            self.groups
+                .len()
+                .saturating_mul(std::mem::size_of::<Cell>() + 256 + 2 * 32),
+            self.groups.len().saturating_mul(32),
+        )?;
         let mut cells = checkpoint_vec(self.groups.len())?;
         for _ in &self.groups {
             let mut v = [0.; 8];
             for x in &mut v {
                 *x = read_f64(r)?;
             }
-            let packets = self.read_packets(r, &mut remaining)?;
+            let packets = self.read_packets(r, &mut remaining, &mut work)?;
             let n = read_len(r, self.classes.len())?;
+            work.reserve(n.saturating_mul(256), 0)?;
             let mut latent = BTreeMap::new();
             for _ in 0..n {
                 let k = read_len(r, self.classes.len())?;
@@ -484,15 +752,27 @@ impl V1Road {
             cells.push(Cell { v, packets, latent });
         }
         read_exact_len(r, self.groups.len())?;
+        work.reserve(
+            self.groups
+                .len()
+                .saturating_mul(std::mem::size_of::<Vec<Packet>>()),
+            0,
+        )?;
         let mut pending = checkpoint_vec(self.groups.len())?;
         for _ in &self.groups {
-            pending.push(self.read_packets(r, &mut remaining)?);
+            pending.push(self.read_packets(r, &mut remaining, &mut work)?);
         }
         let mut totals = [0.; 7];
         for v in &mut totals {
             *v = read_f64(r)?;
         }
         read_exact_len(r, self.classes.len())?;
+        work.reserve(
+            self.classes
+                .len()
+                .saturating_mul(std::mem::size_of::<[f64; 5]>()),
+            0,
+        )?;
         let mut ledger = checkpoint_vec(self.classes.len())?;
         for _ in &self.classes {
             let mut row = [0.; 5];
@@ -513,6 +793,7 @@ impl V1Road {
     }
     pub(crate) fn install_state(&mut self, state: RoadState) {
         self.rollback(state);
+        self.retained_input_bytes = 0;
     }
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.t
@@ -522,6 +803,13 @@ impl V1Road {
     }
     pub(crate) fn rollback(&mut self, state: RoadState) {
         self.state = state;
+    }
+    pub(crate) fn begin_call_storage_accounting(&mut self) {
+        self.retained_input_bytes = if self.storage_budget.is_some() {
+            self.state.retained_storage_bytes()
+        } else {
+            0
+        };
     }
     pub(crate) fn owned_record_count(&self) -> usize {
         self.state
@@ -538,7 +826,64 @@ impl V1Road {
                 .map(|p| p.parts.len())
                 .sum::<usize>()
     }
+    pub(crate) fn checkpoint_event_limit(&self) -> usize {
+        self.storage_budget.map_or(self.record_budget, |bytes| {
+            bytes / std::mem::size_of::<EventRow>()
+        })
+    }
+    pub(crate) fn event_resolution_stats(&self) -> (u64, f64, f64, f64) {
+        let stats = self
+            .event_resolution
+            .lock()
+            .unwrap_or_else(|e| e.into_inner());
+        (
+            stats.count,
+            stats.processed_time_bound,
+            stats.clock_roundoff_bound,
+            stats.rate_weighted_mass_bound,
+        )
+    }
+    fn work_budget(&self, state: &RoadState, offers: &[Offer]) -> PyResult<RoadWorkBudget> {
+        if self.storage_budget.is_none() {
+            return Ok(RoadWorkBudget {
+                limit: None,
+                base: 0,
+                events: 0,
+                incoming: 0,
+                interval_rows: 0,
+            });
+        }
+        let stats = state.debug_stats();
+        let rows = stats.cell_parts.saturating_add(stats.pending_parts);
+        let groups = self.groups.len();
+        let base = state
+            .retained_storage_bytes()
+            .max(self.retained_input_bytes)
+            .saturating_mul(3)
+            .saturating_add(rows.saturating_mul(4 * std::mem::size_of::<f64>()))
+            .saturating_add(
+                offers
+                    .len()
+                    .saturating_mul(4 * std::mem::size_of::<Part>() + std::mem::size_of::<Offer>()),
+            )
+            .saturating_add(
+                stats
+                    .max_cell_parts
+                    .saturating_mul(2 * std::mem::size_of::<Part>()),
+            )
+            .saturating_add(groups.saturating_mul(1024 + self.classes.len() * 1024));
+        let work = RoadWorkBudget {
+            limit: self.storage_budget,
+            base,
+            events: 0,
+            incoming: 0,
+            interval_rows: 0,
+        };
+        work.require(0, "tick preflight")?;
+        Ok(work)
+    }
     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
+        self.begin_call_storage_accounting();
         let (s, e) = self.step_state(&self.state, dt, offers)?;
         self.state = s;
         Ok(e)
@@ -602,7 +947,7 @@ impl V1Road {
         let mut counts: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
         for packet in &c.packets {
             for p in &packet.parts {
-                counts.entry(self.class(p)).or_default().push(p.mass);
+                push_checked(counts.entry(self.class(p)).or_default(), p.mass)?;
             }
         }
         let counts: BTreeMap<usize, f64> = counts.into_iter().map(|(k, v)| (k, sum(v))).collect();
@@ -687,53 +1032,71 @@ impl V1Road {
             hazards,
         })
     }
-    fn interval_packets(&self, parts: Vec<Part>, target: f64) -> PyResult<Vec<Packet>> {
-        let mut edges: Vec<f64> = parts
-            .iter()
-            .flat_map(|p| [p.a.unwrap(), p.b.unwrap()])
-            .collect();
-        edges.sort_by(f64::total_cmp);
+    fn interval_packets(
+        &self,
+        parts: Vec<Part>,
+        target: f64,
+        work: &mut RoadWorkBudget,
+    ) -> PyResult<Vec<Packet>> {
+        work.require(
+            parts.len().saturating_mul(2 * std::mem::size_of::<f64>()),
+            "interval edges",
+        )?;
+        let mut edges = checkpoint_vec(parts.len().saturating_mul(2))?;
+        edges.extend(parts.iter().flat_map(|p| [p.a.unwrap(), p.b.unwrap()]));
+        edges.sort_unstable_by(f64::total_cmp);
         edges.dedup();
         let mut out = vec![];
         let mut records = 0;
         for (k, &a) in edges.iter().enumerate() {
-            let point = combine(
+            let count = parts
+                .iter()
+                .filter(|p| p.a == Some(a) && p.b == Some(a))
+                .count();
+            work.interval(count)?;
+            let mut point = checkpoint_vec(count)?;
+            point.extend(
                 parts
                     .iter()
                     .filter(|p| p.a == Some(a) && p.b == Some(a))
-                    .cloned()
-                    .collect(),
+                    .cloned(),
             );
+            let point = combine(point)?;
             if !point.is_empty() {
                 records += point.len();
-                out.push(Packet {
-                    target,
-                    parts: point,
-                });
+                push_checked(
+                    &mut out,
+                    Packet {
+                        target,
+                        parts: point,
+                    },
+                )?;
             }
             if k + 1 < edges.len() {
                 let b = edges[k + 1];
-                let ps = combine(
-                    parts
-                        .iter()
-                        .filter_map(|p| {
-                            let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
-                            if pa <= a && pb >= b && pb > pa {
-                                let mut q = p.clone();
-                                q.mass = q.mass * (b - a) / (pb - pa);
-                                q.birth = q.birth * (b - a) / (pb - pa);
-                                q.a = Some(a);
-                                q.b = Some(b);
-                                Some(q)
-                            } else {
-                                None
-                            }
-                        })
-                        .collect(),
-                );
+                let count = parts
+                    .iter()
+                    .filter(|p| p.a.unwrap() <= a && p.b.unwrap() >= b && p.b > p.a)
+                    .count();
+                work.interval(count)?;
+                let mut split = checkpoint_vec(count)?;
+                split.extend(parts.iter().filter_map(|p| {
+                    let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
+                    if pa <= a && pb >= b && pb > pa {
+                        let mut q = p.clone();
+                        q.mass = q.mass * (b - a) / (pb - pa);
+                        q.birth = q.birth * (b - a) / (pb - pa);
+                        q.a = Some(a);
+                        q.b = Some(b);
+                        Some(q)
+                    } else {
+                        None
+                    }
+                }));
+                let ps = combine(split)?;
                 if !ps.is_empty() {
                     records += ps.len();
-                    out.push(Packet { target, parts: ps });
+                    push_checked(&mut out, Packet { target, parts: ps })?;
                 }
             }
             if records > self.record_budget {
@@ -807,6 +1170,18 @@ impl V1Road {
         {
             return Err(val("invalid native road state schema/ledger"));
         }
+        if self.storage_budget.is_some() {
+            let stats = s.debug_stats();
+            let rows = stats.cell_parts.saturating_add(stats.pending_parts);
+            let packets = stats.cell_packets.saturating_add(stats.pending_packets);
+            let bytes = s
+                .retained_storage_bytes()
+                .max(self.retained_input_bytes)
+                .saturating_mul(3)
+                .saturating_add(rows.saturating_mul(16))
+                .saturating_add(packets.saturating_add(s.cells.len()).saturating_mul(32));
+            check_storage_limit(self.storage_budget, bytes, "state validation workspace")?;
+        }
         let mut stored = vec![vec![]; self.classes.len()];
         let mut all = vec![];
         let mut residence = vec![];
@@ -836,8 +1211,8 @@ impl V1Road {
             if self.occupied(c) > self.groups[i][4] + 1e-9 * self.groups[i][4].max(1.) {
                 return Err(arithmetic("cell storage"));
             }
-            residence.push((c.v[2] - c.v[3]) * s.t - c.v[4] + c.v[5]);
-            all.push(occ);
+            push_checked(&mut residence, (c.v[2] - c.v[3]) * s.t - c.v[4] + c.v[5])?;
+            push_checked(&mut all, occ)?;
             for (pending, packets) in [(false, &c.packets), (true, &s.pending[i])] {
                 for packet in packets {
                     if packet.parts.is_empty()
@@ -870,10 +1245,10 @@ impl V1Road {
                         {
                             return Err(val("invalid native entry interval"));
                         }
-                        stored[self.class(p)].push(p.mass);
+                        push_checked(&mut stored[self.class(p)], p.mass)?;
                     }
                     if pending {
-                        all.push(mass(packet));
+                        push_checked(&mut all, mass(packet))?;
                     }
                 }
             }
@@ -920,6 +1295,9 @@ impl V1Road {
         if !end.is_finite() {
             return Err(arithmetic("road clock overflow"));
         }
+        // Reserve the working allowance before copying large state/source
+        // vectors. Large Vec allocations below use fallible reservations.
+        let mut work = self.work_budget(s, &offers)?;
         for &(_, a, b, _) in &self.windows {
             if (t + 1e-10 < a && a < end - 1e-10) || (t + 1e-10 < b && b < end - 1e-10) {
                 return Err(val("interval crosses a closure boundary"));
@@ -947,7 +1325,11 @@ impl V1Road {
                     latent: BTreeMap::new(),
                 })
                 .collect(),
-            pending: s.pending.clone(),
+            pending: s
+                .pending
+                .iter()
+                .map(|queue| clone_packets(queue))
+                .collect::<PyResult<_>>()?,
             totals: s.totals,
             ledger: s.ledger.clone(),
         };
@@ -970,14 +1352,17 @@ impl V1Road {
                 return Err(val("invalid source mass/birth/interval"));
             }
             if m > 0. {
-                new.entry(self.path(tag)[0]).or_default().push(Part {
-                    tag,
-                    offset: 0,
-                    mass: m,
-                    birth: b,
-                    a,
-                    b: z,
-                });
+                push_checked(
+                    new.entry(self.path(tag)[0]).or_default(),
+                    Part {
+                        tag,
+                        offset: 0,
+                        mass: m,
+                        birth: b,
+                        a,
+                        b: z,
+                    },
+                )?;
                 born += m;
                 birth1 += b;
                 inherited += m * t - b;
@@ -985,10 +1370,13 @@ impl V1Road {
             }
         }
         for (i, p) in new {
-            out.pending[i].push(Packet {
-                target: t,
-                parts: combine(p),
-            });
+            push_checked(
+                &mut out.pending[i],
+                Packet {
+                    target: t,
+                    parts: combine(p)?,
+                },
+            )?;
         }
         let source_wait = dt * sum(out.pending.iter().flat_map(|q| q.iter().map(mass)));
         for q in &out.pending {
@@ -1016,7 +1404,7 @@ impl V1Road {
                 .packets
                 .iter()
                 .map(|p| mass(p) * m.dx.min((p.target - c.v[0]).max(0.))));
-            let mut q = Vec::with_capacity(c.packets.len());
+            let mut q = checkpoint_vec(c.packets.len())?;
             for p in &c.packets {
                 let d = p.target - c.v[0];
                 let ready = if d <= m.dx + 1e-10 {
@@ -1024,7 +1412,7 @@ impl V1Road {
                 } else {
                     f64::INFINITY
                 };
-                q.push((p.clone(), ready));
+                q.push((clone_packet(p)?, ready));
             }
             Ok((m, q, distance))
         });
@@ -1044,10 +1432,12 @@ impl V1Road {
         let mut incoming: Vec<Vec<Part>> = vec![vec![]; n];
         let mut marks: Vec<Vec<Mark>> = vec![vec![]; n];
         let (mut sink, mut exit1, mut hold) = (0., 0., 0.);
+        let mut resolution = EventResolutionStats::default();
         for inc in &self.incoming {
-            let mut cursor = 0.;
+            let mut clock = EventClock::default();
             let mut iterations = 0;
-            while cursor < dt {
+            while clock.remaining(dt) > 0. {
+                let cursor = clock.hi;
                 iterations += 1;
                 if iterations
                     > self
@@ -1068,7 +1458,7 @@ impl V1Road {
                         continue;
                     }
                     let (packet, ready) = &queues[i][position[i]];
-                    if *ready > cursor + 1e-10 {
+                    if clock.after_ready(*ready) {
                         if *ready < dt {
                             future.push(*ready);
                         }
@@ -1079,10 +1469,8 @@ impl V1Road {
                     let mut ds: BTreeMap<usize, Vec<f64>> = BTreeMap::new();
                     for p in &packet.parts {
                         let j = self.dest(p).unwrap_or(n);
-                        dest.entry(j).or_default().push(p.mass);
-                        ds.entry(j)
-                            .or_default()
-                            .push(p.mass * self.footprint(p.tag));
+                        push_checked(dest.entry(j).or_default(), p.mass)?;
+                        push_checked(ds.entry(j).or_default(), p.mass * self.footprint(p.tag))?;
                     }
                     let pm = mass(packet);
                     beta.insert(i, dest.into_iter().map(|(j, v)| (j, sum(v) / pm)).collect());
@@ -1123,7 +1511,7 @@ impl V1Road {
                     if future.is_empty() {
                         break;
                     }
-                    cursor = future.into_iter().fold(f64::INFINITY, f64::min);
+                    clock.jump(future.into_iter().fold(f64::INFINITY, f64::min));
                     continue;
                 }
                 let dr: BTreeMap<usize, f64> = rec
@@ -1148,29 +1536,136 @@ impl V1Road {
                         )
                     })
                     .collect();
-                let mut h = dt - cursor;
+                let mut h = clock.remaining(dt);
+                let mut time_boundary = Some(dt);
                 for &x in &future {
-                    if x > cursor {
-                        h = h.min(x - cursor);
+                    let remaining = clock.remaining(x);
+                    if remaining > 0. && remaining < h {
+                        h = remaining;
+                        time_boundary = Some(x);
                     }
                 }
                 for (&i, &r) in &rates {
-                    h = h.min(mass(&queues[i][position[i]].0) / r);
+                    let limit = mass(&queues[i][position[i]].0) / r;
+                    if limit < h {
+                        h = limit;
+                        time_boundary = None;
+                    }
                 }
                 for (&j, &r) in &dr {
                     if r > 0. {
-                        h = h.min(free[j] / r)
+                        let limit = free[j] / r;
+                        if limit < h {
+                            h = limit;
+                            time_boundary = None;
+                        }
                     }
                 }
                 for (&j, &r) in &sr {
                     if r > 0. {
-                        h = h.min(space[j] / r)
+                        let limit = space[j] / r;
+                        if limit < h {
+                            h = limit;
+                            time_boundary = None;
+                        }
                     }
                 }
-                if h <= 0. || cursor + h == cursor {
-                    return Err(arithmetic("packet event resolution exhausted"));
+                let subulp = h > 0. && cursor + h == cursor;
+                let retires_head = subulp
+                    && rates.iter().any(|(&i, &rate)| {
+                        let fraction = (rate * h / mass(&queues[i][position[i]].0)).min(1.);
+                        fraction == 1. || 1. - fraction < 1e-14
+                    });
+                if h <= 0. || (subulp && !clock.active && !retires_head) {
+                    // Construct diagnostics only on failure. Keep the event
+                    // candidates, reduction order and rejection rule unchanged.
+                    let head_context: Vec<_> = rates
+                        .iter()
+                        .map(|(&i, &rate)| {
+                            let (packet, ready) = &queues[i][position[i]];
+                            let head_mass = mass(packet);
+                            (
+                                i,
+                                position[i],
+                                *ready,
+                                packet.parts.len(),
+                                head_mass,
+                                rate,
+                                head_mass / rate,
+                            )
+                        })
+                        .collect();
+                    let destination_context: Vec<_> = rec
+                        .keys()
+                        .map(|&j| {
+                            let demand = dr[&j];
+                            let occupied_rate = sr[&j];
+                            (
+                                j,
+                                free[j],
+                                space[j],
+                                receive[j],
+                                demand,
+                                occupied_rate,
+                                if demand > 0. {
+                                    free[j] / demand
+                                } else {
+                                    f64::INFINITY
+                                },
+                                if occupied_rate > 0. {
+                                    space[j] / occupied_rate
+                                } else {
+                                    f64::INFINITY
+                                },
+                            )
+                        })
+                        .collect();
+                    let reason = if h <= 0. {
+                        "nonpositive_duration"
+                    } else {
+                        "unrepresentable_cursor_increment_without_head_progress"
+                    };
+                    return Err(arithmetic(&format!(
+                        "packet event resolution exhausted: reason={reason}, t={t:?}, cursor={cursor:?}, h={h:?}, dt={dt:?}, cursor_bits={:#018x}, h_bits={:#018x}, cursor_plus_h={:?}, absolute_start={:?}, absolute_end={:?}, incoming={inc:?}, iteration={iterations}, events={}, future={future:?}, supply_floor=1e-13, head_fields=(index,position,ready,parts,mass,rate,mass_over_rate), heads={head_context:?}, destination_fields=(index,free,space,receive,dr,sr,free_over_dr,space_over_sr), destinations={destination_context:?}",
+                        cursor.to_bits(), h.to_bits(), cursor + h, t + cursor, t + cursor + h, events.len()
+                    )));
                 }
-                let mid = t + cursor + h / 2.;
+                if subulp {
+                    clock.active = true;
+                    clock.stats.count = clock.stats.count.saturating_add(1);
+                    clock.stats.processed_time_bound =
+                        upper_add(clock.stats.processed_time_bound, h);
+                    for &rate in rates.values() {
+                        // Diagnostic bound for ordinary rounded mass splitting;
+                        // these positive masses are still served and retained.
+                        let product = rate * h;
+                        let product_bound = if product.is_finite() {
+                            f64::from_bits(product.to_bits() + 1)
+                        } else {
+                            product
+                        };
+                        clock.stats.rate_weighted_mass_bound =
+                            upper_add(clock.stats.rate_weighted_mass_bound, product_bound);
+                    }
+                    clock.check_bound()?;
+                }
+                let local_mid = clock.offset(h / 2.);
+                let start_time = if clock.active {
+                    t + clock.offset(0.)
+                } else {
+                    t + cursor
+                };
+                let end_time = if clock.active {
+                    t + clock.offset(h)
+                } else {
+                    t + cursor + h
+                };
+                let mid = if clock.active {
+                    t + local_mid
+                } else {
+                    t + cursor + h / 2.
+                };
+                let mut retired_heads = 0usize;
                 for (&i, &rate) in &rates {
                     let packet = &queues[i][position[i]].0;
                     let ready = queues[i][position[i]].1;
@@ -1178,25 +1673,41 @@ impl V1Road {
                     if 1. - fraction < 1e-14 {
                         fraction = 1.;
                     }
-                    let served = portion(&packet.parts, fraction);
+                    let incoming_count = packet
+                        .parts
+                        .iter()
+                        .filter(|part| self.dest(part).is_some())
+                        .count();
+                    work.transfer(packet.parts.len(), incoming_count)?;
+                    if self.storage_budget.is_some()
+                        && events.len().saturating_add(packet.parts.len())
+                            > self.checkpoint_event_limit()
+                    {
+                        return Err(budget("packet transfer budget"));
+                    }
+                    let served = portion(&packet.parts, fraction)?;
                     let remainder = if fraction == 1. {
                         None
                     } else {
-                        Some(portion(&packet.parts, 1. - fraction))
+                        Some(portion(&packet.parts, 1. - fraction)?)
                     };
                     let sm = sum(served.iter().map(|p| p.mass));
                     if let Some(parts) = remainder {
                         queues[i][position[i]].0.parts = parts;
                     } else {
                         position[i] += 1;
+                        retired_heads += 1;
                     }
                     out.cells[i].v[3] += sm;
                     out.cells[i].v[5] += sm * mid;
                     for mut p in served {
                         let k = self.class(&p);
-                        out.ledger[k][3] += p.mass * (cursor + h / 2. - ready).max(0.);
+                        out.ledger[k][3] += p.mass * (local_mid - ready).max(0.);
                         let j = self.dest(&p);
-                        events.push((p.tag, i, j, p.mass, t + cursor, t + cursor + h, p.birth));
+                        push_checked(
+                            &mut events,
+                            (p.tag, i, j, p.mass, start_time, end_time, p.birth),
+                        )?;
                         if let Some(j) = j {
                             free[j] = (free[j] - p.mass).max(0.);
                             space[j] = (space[j] - p.mass * self.footprint(p.tag)).max(0.);
@@ -1209,15 +1720,18 @@ impl V1Road {
                                 p0
                             } else {
                                 p0 + (self.classes[k][8] / rate - p0)
-                                    * (-(-rate * (cursor + h / 2.)).exp_m1())
+                                    * (-(-rate * local_mid).exp_m1())
                             };
-                            marks[j].push((k, p.mass, m.sample(cursor + h / 2.).1, latent));
+                            push_checked(
+                                &mut marks[j],
+                                (k, p.mass, m.sample(local_mid).1, latent),
+                            )?;
                             p.offset += 1;
                             if self.intervals {
-                                p.a = Some(t + cursor);
-                                p.b = Some(t + cursor + h);
+                                p.a = Some(start_time);
+                                p.b = Some(end_time);
                             }
-                            incoming[j].push(p);
+                            push_checked(&mut incoming[j], p)?;
                         } else {
                             sink += p.mass;
                             out.ledger[k][1] += p.mass;
@@ -1225,11 +1739,24 @@ impl V1Road {
                         }
                     }
                 }
-                cursor += h;
-                if events.len() > self.record_budget {
+                if !clock.advance(h, time_boundary)? && retired_heads == 0 {
+                    return Err(arithmetic(
+                        "packet compensated clock made no finite progress",
+                    ));
+                }
+                if events.len() > self.checkpoint_event_limit() {
                     return Err(budget("packet transfer budget"));
                 }
             }
+            // A rounded boundary subtraction can put the represented pair a
+            // fraction of an ULP beyond dt. Keep that explicit and bounded.
+            let overshoot = (-clock.remaining(dt)).max(0.);
+            if clock.active && overshoot > 0. {
+                clock.stats.clock_roundoff_bound =
+                    upper_add(clock.stats.clock_roundoff_bound, overshoot);
+                clock.check_bound()?;
+            }
+            resolution.merge(clock.stats);
         }
         for i in 0..n {
             for (p, ready) in &queues[i][position[i]..] {
@@ -1239,11 +1766,15 @@ impl V1Road {
             }
             // The transition owns these queue packets; moving survivors avoids
             // copying all remaining Part rows a second time at commit.
-            out.cells[i].packets = std::mem::take(&mut queues[i])
-                .into_iter()
-                .skip(position[i])
-                .map(|(p, _)| p)
-                .collect();
+            let queue = std::mem::take(&mut queues[i]);
+            let mut survivors = checkpoint_vec(queue.len() - position[i])?;
+            survivors.extend(
+                queue
+                    .into_iter()
+                    .skip(position[i])
+                    .map(|(packet, _)| packet),
+            );
+            out.cells[i].packets = survivors;
             let mut active = vec![false; self.classes.len()];
             for p in &out.cells[i].packets {
                 for x in &p.parts {
@@ -1267,7 +1798,10 @@ impl V1Road {
                 if 1. - f < 1e-14 {
                     f = 1.;
                 }
-                let mut parts = portion(&p.parts, f);
+                if f > 0.0 {
+                    work.transfer(0, p.parts.len())?;
+                }
+                let mut parts = portion(&p.parts, f)?;
                 let m = sum(parts.iter().map(|p| p.mass));
                 free[i] = (free[i] - m).max(0.);
                 space[i] =
@@ -1278,20 +1812,29 @@ impl V1Road {
                         part.a = Some(end);
                         part.b = Some(end);
                     }
-                    marks[i].push((k, part.mass, self.classes[k][11], self.classes[k][7]));
+                    push_checked(
+                        &mut marks[i],
+                        (k, part.mass, self.classes[k][11], self.classes[k][7]),
+                    )?;
                 }
+                incoming[i]
+                    .try_reserve(parts.len())
+                    .map_err(|_| budget("native road incoming allocation unavailable"))?;
                 incoming[i].extend(parts);
                 if f < 1. {
-                    remain.push(Packet {
-                        target: p.target,
-                        parts: portion(&p.parts, 1. - f),
-                    });
+                    push_checked(
+                        &mut remain,
+                        Packet {
+                            target: p.target,
+                            parts: portion(&p.parts, 1. - f)?,
+                        },
+                    )?;
                 }
             }
             out.pending[i] = remain;
         }
         for i in 0..n {
-            let parts = combine(std::mem::take(&mut incoming[i]));
+            let parts = combine(std::mem::take(&mut incoming[i]))?;
             let added = sum(parts.iter().map(|p| p.mass));
             if added == 0. {
                 continue;
@@ -1303,14 +1846,14 @@ impl V1Road {
             for packet in &out.cells[i].packets {
                 for p in &packet.parts {
                     let k = self.class(p);
-                    byclass
-                        .entry(k)
-                        .or_default()
-                        .push((p.mass, out.cells[i].latent[&k]));
+                    push_checked(
+                        byclass.entry(k).or_default(),
+                        (p.mass, out.cells[i].latent[&k]),
+                    )?;
                 }
             }
             for &(k, m, _, p) in &marks[i] {
-                byclass.entry(k).or_default().push((m, p));
+                push_checked(byclass.entry(k).or_default(), (m, p))?;
             }
             out.cells[i].v[7] = speed;
             out.cells[i].latent = byclass
@@ -1324,10 +1867,14 @@ impl V1Road {
                 .collect();
             let target = out.cells[i].v[0] + self.groups[i][0];
             let packets = if self.intervals {
-                self.interval_packets(parts, target)?
+                self.interval_packets(parts, target, &mut work)?
             } else {
                 vec![Packet { target, parts }]
             };
+            out.cells[i]
+                .packets
+                .try_reserve(packets.len())
+                .map_err(|_| budget("native road packet allocation unavailable"))?;
             out.cells[i].packets.extend(packets);
             out.cells[i].v[2] += added;
             out.cells[i].v[4] += added * end;
@@ -1339,6 +1886,17 @@ impl V1Road {
             out.totals[j] += v;
         }
         self.check_state(&out)?;
+        if self.storage_budget.is_some() {
+            let retained = s
+                .retained_storage_bytes()
+                .max(out.retained_storage_bytes())
+                .max(self.retained_input_bytes);
+            check_storage_limit(
+                self.storage_budget,
+                retained.saturating_mul(3),
+                "candidate and immutable snapshot",
+            )?;
+        }
         for i in 0..n {
             let tol = 1e-9 * out.totals[0].max(1.);
             if out.cells[i].v[2] - s.cells[i].v[2] > receive[i] * dt + tol
@@ -1346,6 +1904,12 @@ impl V1Road {
             {
                 return Err(arithmetic("link rate budget"));
             }
+        }
+        if resolution.count > 0 {
+            self.event_resolution
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .merge(resolution);
         }
         Ok((out, events))
     }
@@ -1425,6 +1989,33 @@ impl V1Road {
 }
 #[pymethods]
 impl V1Road {
+    /// Explicit byte-budget mode; legacy constructor record guards remain the
+    /// default. Configuration is atomic and never mutates physical state.
+    pub(crate) fn configure_storage_budget(&mut self, bytes: usize) -> PyResult<()> {
+        if bytes < std::mem::size_of::<Part>().max(std::mem::size_of::<EventRow>()) {
+            return Err(val("positive native road storage budget required"));
+        }
+        let before = (self.storage_budget, self.record_budget);
+        self.storage_budget = Some(bytes);
+        self.record_budget = bytes / std::mem::size_of::<Part>();
+        if let Err(error) = self.check_state(&self.state) {
+            self.storage_budget = before.0;
+            self.record_budget = before.1;
+            return Err(error);
+        }
+        Ok(())
+    }
+    fn storage_limits(&self) -> (Option<usize>, usize, usize, Option<usize>) {
+        (
+            self.storage_budget,
+            self.record_budget,
+            self.checkpoint_event_limit(),
+            self.event_budget,
+        )
+    }
+    fn event_resolution_diagnostics(&self) -> (u64, f64, f64, f64) {
+        self.event_resolution_stats()
+    }
     #[new]
     #[allow(clippy::too_many_arguments)]
     #[pyo3(signature = (identity, dt, groups, signals, routes, classes, incoming, windows, record_budget, event_budget, intervals))]
@@ -1476,6 +2067,7 @@ impl V1Road {
     fn restore(&mut self, row: StateRow) -> PyResult<()> {
         let s = self.from_row(row)?;
         self.state = s;
+        self.retained_input_bytes = 0;
         Ok(())
     }
     fn reset(&mut self, t: f64) -> PyResult<()> {
@@ -1483,9 +2075,11 @@ impl V1Road {
             return Err(val("nonnegative grid-aligned time origin"));
         }
         self.state = self.blank(t);
+        self.retained_input_bytes = 0;
         Ok(())
     }
     fn step(&mut self, py: Python<'_>, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
+        self.begin_call_storage_accounting();
         let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
         self.state = s;
         Ok(e)
@@ -1496,6 +2090,7 @@ impl V1Road {
         steps: Vec<(f64, Vec<Offer>)>,
     ) -> PyResult<Vec<Vec<EventRow>>> {
         // Each successful interval commits; failures retain the last valid interval.
+        self.begin_call_storage_accounting();
         let mut events = vec![];
         for (dt, offers) in steps {
             let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
@@ -1599,6 +2194,9 @@ impl V1Road {
             incoming,
             windows,
             record_budget,
+            storage_budget: None,
+            retained_input_bytes: 0,
+            event_resolution: Mutex::new(EventResolutionStats::default()),
             event_budget,
             intervals,
             state: RoadState {

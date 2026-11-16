@@ -1,0 +1,12 @@
+{
+  "baseline_commit": "7b5e518f6c098ed831551da4e66d980addf80dd8",
+  "binary_sha256": "fa08d7494dce290b2bcf48433abcd34741ebd1a5878acd485262e39cabcb8c80",
+  "python": "3.12.3",
+  "meminfo": [
+    "MemTotal:       32763448 kB",
+    "MemFree:          296604 kB",
+    "MemAvailable:    9812572 kB",
+    "Buffers:         3530956 kB"
+  ],
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)"
+}

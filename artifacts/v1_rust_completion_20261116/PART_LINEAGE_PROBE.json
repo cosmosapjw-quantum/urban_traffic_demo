@@ -1,0 +1,1196 @@
+{
+  "status": "MEASURED_READ_ONLY",
+  "checkpoint": "artifacts/v1_rust_completion_20261116/event_probe.checkpoint.bin",
+  "checkpoint_sha256": "d5d584ed47a9af4e2a77cedacf04c0b45a6899f9e534e2a76579ecc2e16bae6b",
+  "checkpoint_bytes": 312081652,
+  "whole_identity": "native-whole-v1:2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235:6442450944:bounded_bytes_v1:1342231185:4026693557",
+  "road_identity": "native-whole-v1:2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235:6442450944:bounded_bytes_v1:1342231185:4026693557",
+  "time_s": 25490.0,
+  "cells": 1586,
+  "road_cell_totals": {
+    "packets": 45715,
+    "parts": 2313316,
+    "uniform_interval_packets": 45715,
+    "uniform_interval_parts": 2313316,
+    "mixed_interval_packets": 0,
+    "none_interval_parts": 0,
+    "point_interval_parts": 222642,
+    "positive_width_interval_parts": 2090674,
+    "adjacent_equal_target_packets": 42863,
+    "exact_fullpart_duplicate_rows_lower_bound": 0,
+    "exact_combine_key_duplicate_rows_lower_bound": 0,
+    "packet_key_sets_complete": true,
+    "packet_common_interval_saving_bytes_x86_64": 72928952,
+    "unique_route_offsets_lower_bound": 413104,
+    "recurrent_route_offset_rows_lower_bound": 1900212,
+    "cell_route_offset_keys_complete": true,
+    "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+    "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+    "cell_fullpart_key_sets_complete": true
+  },
+  "road_pending_totals": {
+    "packets": 0,
+    "parts": 0,
+    "uniform_interval_packets": 0,
+    "uniform_interval_parts": 0,
+    "mixed_interval_packets": 0,
+    "none_interval_parts": 0,
+    "point_interval_parts": 0,
+    "positive_width_interval_parts": 0,
+    "adjacent_equal_target_packets": 0,
+    "exact_fullpart_duplicate_rows_lower_bound": 0,
+    "exact_combine_key_duplicate_rows_lower_bound": 0,
+    "packet_key_sets_complete": true,
+    "packet_common_interval_saving_bytes_x86_64": 0,
+    "unique_route_offsets_lower_bound": 0,
+    "recurrent_route_offset_rows_lower_bound": 0,
+    "cell_route_offset_keys_complete": true,
+    "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+    "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+    "cell_fullpart_key_sets_complete": true
+  },
+  "largest_queues": [
+    {
+      "kind": "cell",
+      "cell_index": 33,
+      "packets": 345,
+      "parts": 47333,
+      "uniform_interval_packets": 345,
+      "uniform_interval_parts": 47333,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 5047,
+      "positive_width_interval_parts": 42286,
+      "adjacent_equal_target_packets": 342,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 1506376,
+      "unique_route_offsets_lower_bound": 2549,
+      "recurrent_route_offset_rows_lower_bound": 44784,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 104,
+      "packets": 410,
+      "parts": 43074,
+      "uniform_interval_packets": 410,
+      "uniform_interval_parts": 43074,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 5397,
+      "positive_width_interval_parts": 37677,
+      "adjacent_equal_target_packets": 407,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 1368528,
+      "unique_route_offsets_lower_bound": 2838,
+      "recurrent_route_offset_rows_lower_bound": 40236,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 879,
+      "packets": 207,
+      "parts": 34966,
+      "uniform_interval_packets": 207,
+      "uniform_interval_parts": 34966,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 401,
+      "positive_width_interval_parts": 34565,
+      "adjacent_equal_target_packets": 204,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 1113944,
+      "unique_route_offsets_lower_bound": 2346,
+      "recurrent_route_offset_rows_lower_bound": 32620,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 29,
+      "packets": 143,
+      "parts": 31290,
+      "uniform_interval_packets": 143,
+      "uniform_interval_parts": 31290,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 1278,
+      "positive_width_interval_parts": 30012,
+      "adjacent_equal_target_packets": 140,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 997848,
+      "unique_route_offsets_lower_bound": 1703,
+      "recurrent_route_offset_rows_lower_bound": 29587,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 142,
+      "packets": 252,
+      "parts": 28332,
+      "uniform_interval_packets": 252,
+      "uniform_interval_parts": 28332,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 3236,
+      "positive_width_interval_parts": 25096,
+      "adjacent_equal_target_packets": 249,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 900576,
+      "unique_route_offsets_lower_bound": 2261,
+      "recurrent_route_offset_rows_lower_bound": 26071,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 1037,
+      "packets": 183,
+      "parts": 26669,
+      "uniform_interval_packets": 183,
+      "uniform_interval_parts": 26669,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 3319,
+      "positive_width_interval_parts": 23350,
+      "adjacent_equal_target_packets": 180,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 849016,
+      "unique_route_offsets_lower_bound": 2917,
+      "recurrent_route_offset_rows_lower_bound": 23752,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 0,
+      "packets": 161,
+      "parts": 25649,
+      "uniform_interval_packets": 161,
+      "uniform_interval_parts": 25649,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 3582,
+      "positive_width_interval_parts": 22067,
+      "adjacent_equal_target_packets": 157,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 816904,
+      "unique_route_offsets_lower_bound": 3383,
+      "recurrent_route_offset_rows_lower_bound": 22266,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 1125,
+      "packets": 126,
+      "parts": 25083,
+      "uniform_interval_packets": 126,
+      "uniform_interval_parts": 25083,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 3366,
+      "positive_width_interval_parts": 21717,
+      "adjacent_equal_target_packets": 123,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 799632,
+      "unique_route_offsets_lower_bound": 1799,
+      "recurrent_route_offset_rows_lower_bound": 23284,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 30,
+      "packets": 198,
+      "parts": 24983,
+      "uniform_interval_packets": 198,
+      "uniform_interval_parts": 24983,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 1034,
+      "positive_width_interval_parts": 23949,
+      "adjacent_equal_target_packets": 196,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 794704,
+      "unique_route_offsets_lower_bound": 3613,
+      "recurrent_route_offset_rows_lower_bound": 21370,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 801,
+      "packets": 164,
+      "parts": 24697,
+      "uniform_interval_packets": 164,
+      "uniform_interval_parts": 24697,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 1033,
+      "positive_width_interval_parts": 23664,
+      "adjacent_equal_target_packets": 161,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 786368,
+      "unique_route_offsets_lower_bound": 2116,
+      "recurrent_route_offset_rows_lower_bound": 22581,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 991,
+      "packets": 165,
+      "parts": 24465,
+      "uniform_interval_packets": 165,
+      "uniform_interval_parts": 24465,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 1654,
+      "positive_width_interval_parts": 22811,
+      "adjacent_equal_target_packets": 162,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 778920,
+      "unique_route_offsets_lower_bound": 3021,
+      "recurrent_route_offset_rows_lower_bound": 21444,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 32,
+      "packets": 213,
+      "parts": 22196,
+      "uniform_interval_packets": 213,
+      "uniform_interval_parts": 22196,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 1005,
+      "positive_width_interval_parts": 21191,
+      "adjacent_equal_target_packets": 210,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 705160,
+      "unique_route_offsets_lower_bound": 3006,
+      "recurrent_route_offset_rows_lower_bound": 19190,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 843,
+      "packets": 159,
+      "parts": 22167,
+      "uniform_interval_packets": 159,
+      "uniform_interval_parts": 22167,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 394,
+      "positive_width_interval_parts": 21773,
+      "adjacent_equal_target_packets": 156,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 705528,
+      "unique_route_offsets_lower_bound": 2346,
+      "recurrent_route_offset_rows_lower_bound": 19821,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 174,
+      "packets": 166,
+      "parts": 21906,
+      "uniform_interval_packets": 166,
+      "uniform_interval_parts": 21906,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 558,
+      "positive_width_interval_parts": 21348,
+      "adjacent_equal_target_packets": 163,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 697008,
+      "unique_route_offsets_lower_bound": 1952,
+      "recurrent_route_offset_rows_lower_bound": 19954,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 105,
+      "packets": 138,
+      "parts": 21047,
+      "uniform_interval_packets": 138,
+      "uniform_interval_parts": 21047,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 1168,
+      "positive_width_interval_parts": 19879,
+      "adjacent_equal_target_packets": 135,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 670192,
+      "unique_route_offsets_lower_bound": 2332,
+      "recurrent_route_offset_rows_lower_bound": 18715,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 1432,
+      "packets": 95,
+      "parts": 20957,
+      "uniform_interval_packets": 95,
+      "uniform_interval_parts": 20957,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 1497,
+      "positive_width_interval_parts": 19460,
+      "adjacent_equal_target_packets": 92,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 668344,
+      "unique_route_offsets_lower_bound": 2423,
+      "recurrent_route_offset_rows_lower_bound": 18534,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 36,
+      "packets": 148,
+      "parts": 20792,
+      "uniform_interval_packets": 148,
+      "uniform_interval_parts": 20792,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 3673,
+      "positive_width_interval_parts": 17119,
+      "adjacent_equal_target_packets": 146,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 661792,
+      "unique_route_offsets_lower_bound": 3483,
+      "recurrent_route_offset_rows_lower_bound": 17309,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 24,
+      "packets": 86,
+      "parts": 19432,
+      "uniform_interval_packets": 86,
+      "uniform_interval_parts": 19432,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 1270,
+      "positive_width_interval_parts": 18162,
+      "adjacent_equal_target_packets": 84,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 619760,
+      "unique_route_offsets_lower_bound": 2536,
+      "recurrent_route_offset_rows_lower_bound": 16896,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 959,
+      "packets": 104,
+      "parts": 17965,
+      "uniform_interval_packets": 104,
+      "uniform_interval_parts": 17965,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 799,
+      "positive_width_interval_parts": 17166,
+      "adjacent_equal_target_packets": 101,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 572384,
+      "unique_route_offsets_lower_bound": 2614,
+      "recurrent_route_offset_rows_lower_bound": 15351,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    },
+    {
+      "kind": "cell",
+      "cell_index": 958,
+      "packets": 139,
+      "parts": 17786,
+      "uniform_interval_packets": 139,
+      "uniform_interval_parts": 17786,
+      "mixed_interval_packets": 0,
+      "none_interval_parts": 0,
+      "point_interval_parts": 148,
+      "positive_width_interval_parts": 17638,
+      "adjacent_equal_target_packets": 136,
+      "exact_fullpart_duplicate_rows_lower_bound": 0,
+      "exact_combine_key_duplicate_rows_lower_bound": 0,
+      "packet_key_sets_complete": true,
+      "packet_common_interval_saving_bytes_x86_64": 565816,
+      "unique_route_offsets_lower_bound": 1765,
+      "recurrent_route_offset_rows_lower_bound": 16021,
+      "cell_route_offset_keys_complete": true,
+      "exact_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "exact_target_fullpart_duplicates_across_cell_packets_lower_bound": 0,
+      "cell_fullpart_key_sets_complete": true
+    }
+  ],
+  "road_mass_histogram": [
+    {
+      "lower_inclusive": 0.0,
+      "upper_exclusive": 1e-24,
+      "rows": 0,
+      "mass_fsum": 0.0
+    },
+    {
+      "lower_inclusive": 1e-24,
+      "upper_exclusive": 1e-20,
+      "rows": 0,
+      "mass_fsum": 0.0
+    },
+    {
+      "lower_inclusive": 1e-20,
+      "upper_exclusive": 1e-16,
+      "rows": 7619,
+      "mass_fsum": 3.935452952545192e-13
+    },
+    {
+      "lower_inclusive": 1e-16,
+      "upper_exclusive": 1e-12,
+      "rows": 853643,
+      "mass_fsum": 2.6762944179191638e-08
+    },
+    {
+      "lower_inclusive": 1e-12,
+      "upper_exclusive": 1e-08,
+      "rows": 13941,
+      "mass_fsum": 6.321939243821862e-05
+    },
+    {
+      "lower_inclusive": 1e-08,
+      "upper_exclusive": 0.0001,
+      "rows": 919136,
+      "mass_fsum": 21.78060881914248
+    },
+    {
+      "lower_inclusive": 0.0001,
+      "upper_exclusive": 1.0,
+      "rows": 518977,
+      "mass_fsum": 340.83496956802446
+    },
+    {
+      "lower_inclusive": 1.0,
+      "upper_exclusive": 10000.0,
+      "rows": 0,
+      "mass_fsum": 0.0
+    },
+    {
+      "lower_inclusive": 10000.0,
+      "upper_exclusive": null,
+      "rows": 0,
+      "mass_fsum": 0.0
+    }
+  ],
+  "road_source_released_mass": 389.3637767870763,
+  "road_sink_mass": 26.74813515376229,
+  "road_active_mass": 362.615641633314,
+  "service_last_events": 795851,
+  "stages": {
+    "entering": {
+      "rows": 2165555,
+      "contiguous_leg_birth_groups": 810024,
+      "duplicate_full_rows_within_group_lower_bound": 0,
+      "group_key_sets_complete": true,
+      "ready_now": 140314,
+      "ready_in_future": 2025241,
+      "rows_per_contiguous_leg_birth_group": [
+        [
+          1,
+          244565
+        ],
+        [
+          2,
+          275991
+        ],
+        [
+          3,
+          101714
+        ],
+        [
+          4,
+          84010
+        ],
+        [
+          5,
+          27215
+        ],
+        [
+          6,
+          28615
+        ],
+        [
+          7,
+          11162
+        ],
+        [
+          8,
+          13725
+        ],
+        [
+          9,
+          8142
+        ],
+        [
+          10,
+          8374
+        ],
+        [
+          11,
+          3023
+        ],
+        [
+          12,
+          3488
+        ]
+      ],
+      "mass_histogram": [
+        {
+          "lower_inclusive": 0.0,
+          "upper_exclusive": 1e-24,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 1e-24,
+          "upper_exclusive": 1e-20,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 1e-20,
+          "upper_exclusive": 1e-16,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 1e-16,
+          "upper_exclusive": 1e-12,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 1e-12,
+          "upper_exclusive": 1e-08,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 1e-08,
+          "upper_exclusive": 0.0001,
+          "rows": 1294134,
+          "mass_fsum": 24.132890199285967
+        },
+        {
+          "lower_inclusive": 0.0001,
+          "upper_exclusive": 1.0,
+          "rows": 871421,
+          "mass_fsum": 330.63589280029566
+        },
+        {
+          "lower_inclusive": 1.0,
+          "upper_exclusive": 10000.0,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 10000.0,
+          "upper_exclusive": null,
+          "rows": 0,
+          "mass_fsum": 0.0
+        }
+      ],
+      "group_scope": "original contiguous rows sharing leg and bit-identical birth; not a globally coalesced or proven source-emission ID"
+    },
+    "egress": {
+      "rows": 275061,
+      "contiguous_leg_birth_groups": 102367,
+      "duplicate_full_rows_within_group_lower_bound": 24,
+      "group_key_sets_complete": true,
+      "ready_now": 0,
+      "ready_in_future": 275061,
+      "rows_per_contiguous_leg_birth_group": [
+        [
+          1,
+          19133
+        ],
+        [
+          2,
+          49573
+        ],
+        [
+          3,
+          9318
+        ],
+        [
+          4,
+          13519
+        ],
+        [
+          5,
+          2443
+        ],
+        [
+          6,
+          4338
+        ],
+        [
+          7,
+          695
+        ],
+        [
+          8,
+          1544
+        ],
+        [
+          9,
+          282
+        ],
+        [
+          10,
+          751
+        ],
+        [
+          11,
+          188
+        ],
+        [
+          12,
+          552
+        ],
+        [
+          14,
+          6
+        ],
+        [
+          16,
+          13
+        ],
+        [
+          18,
+          2
+        ],
+        [
+          20,
+          4
+        ],
+        [
+          24,
+          6
+        ]
+      ],
+      "mass_histogram": [
+        {
+          "lower_inclusive": 0.0,
+          "upper_exclusive": 1e-24,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 1e-24,
+          "upper_exclusive": 1e-20,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 1e-20,
+          "upper_exclusive": 1e-16,
+          "rows": 824,
+          "mass_fsum": 4.743821898558608e-14
+        },
+        {
+          "lower_inclusive": 1e-16,
+          "upper_exclusive": 1e-12,
+          "rows": 86238,
+          "mass_fsum": 5.190910305516122e-09
+        },
+        {
+          "lower_inclusive": 1e-12,
+          "upper_exclusive": 1e-08,
+          "rows": 803,
+          "mass_fsum": 2.3695961260828223e-06
+        },
+        {
+          "lower_inclusive": 1e-08,
+          "upper_exclusive": 0.0001,
+          "rows": 132599,
+          "mass_fsum": 2.111248040791616
+        },
+        {
+          "lower_inclusive": 0.0001,
+          "upper_exclusive": 1.0,
+          "rows": 54597,
+          "mass_fsum": 16.398051986095748
+        },
+        {
+          "lower_inclusive": 1.0,
+          "upper_exclusive": 10000.0,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 10000.0,
+          "upper_exclusive": null,
+          "rows": 0,
+          "mass_fsum": 0.0
+        }
+      ],
+      "group_scope": "original contiguous rows sharing leg and bit-identical birth; not a globally coalesced or proven source-emission ID"
+    },
+    "internal": {
+      "rows": 66692,
+      "contiguous_leg_birth_groups": 6037,
+      "duplicate_full_rows_within_group_lower_bound": 21807,
+      "group_key_sets_complete": true,
+      "ready_now": 0,
+      "ready_in_future": 66692,
+      "rows_per_contiguous_leg_birth_group": [
+        [
+          1,
+          175
+        ],
+        [
+          2,
+          1904
+        ],
+        [
+          3,
+          198
+        ],
+        [
+          4,
+          699
+        ],
+        [
+          5,
+          21
+        ],
+        [
+          6,
+          433
+        ],
+        [
+          7,
+          63
+        ],
+        [
+          8,
+          272
+        ],
+        [
+          9,
+          42
+        ],
+        [
+          10,
+          328
+        ],
+        [
+          11,
+          45
+        ],
+        [
+          12,
+          558
+        ],
+        [
+          13,
+          36
+        ],
+        [
+          14,
+          73
+        ],
+        [
+          15,
+          47
+        ],
+        [
+          16,
+          235
+        ],
+        [
+          17,
+          2
+        ],
+        [
+          18,
+          54
+        ],
+        [
+          19,
+          16
+        ],
+        [
+          20,
+          64
+        ],
+        [
+          21,
+          18
+        ],
+        [
+          22,
+          48
+        ],
+        [
+          23,
+          22
+        ],
+        [
+          24,
+          88
+        ],
+        [
+          26,
+          44
+        ],
+        [
+          28,
+          52
+        ],
+        [
+          30,
+          120
+        ],
+        [
+          32,
+          42
+        ],
+        [
+          34,
+          12
+        ],
+        [
+          36,
+          6
+        ],
+        [
+          38,
+          14
+        ],
+        [
+          40,
+          14
+        ],
+        [
+          42,
+          8
+        ],
+        [
+          44,
+          4
+        ],
+        [
+          46,
+          6
+        ],
+        [
+          48,
+          8
+        ],
+        [
+          50,
+          10
+        ],
+        [
+          52,
+          30
+        ],
+        [
+          54,
+          14
+        ],
+        [
+          56,
+          30
+        ],
+        [
+          58,
+          10
+        ],
+        [
+          60,
+          6
+        ],
+        [
+          62,
+          6
+        ],
+        [
+          63,
+          1
+        ],
+        [
+          64,
+          3
+        ],
+        [
+          65,
+          2
+        ],
+        [
+          66,
+          5
+        ],
+        [
+          68,
+          4
+        ],
+        [
+          69,
+          4
+        ],
+        [
+          70,
+          10
+        ],
+        [
+          71,
+          6
+        ],
+        [
+          72,
+          15
+        ],
+        [
+          74,
+          4
+        ],
+        [
+          76,
+          2
+        ],
+        [
+          78,
+          6
+        ],
+        [
+          80,
+          4
+        ],
+        [
+          82,
+          2
+        ],
+        [
+          84,
+          12
+        ],
+        [
+          86,
+          4
+        ],
+        [
+          90,
+          28
+        ],
+        [
+          92,
+          2
+        ],
+        [
+          94,
+          4
+        ],
+        [
+          96,
+          2
+        ],
+        [
+          98,
+          2
+        ],
+        [
+          100,
+          4
+        ],
+        [
+          102,
+          2
+        ],
+        [
+          110,
+          2
+        ],
+        [
+          116,
+          4
+        ],
+        [
+          118,
+          4
+        ],
+        [
+          126,
+          4
+        ],
+        [
+          128,
+          2
+        ],
+        [
+          130,
+          4
+        ],
+        [
+          132,
+          12
+        ]
+      ],
+      "mass_histogram": [
+        {
+          "lower_inclusive": 0.0,
+          "upper_exclusive": 1e-24,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 1e-24,
+          "upper_exclusive": 1e-20,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 1e-20,
+          "upper_exclusive": 1e-16,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 1e-16,
+          "upper_exclusive": 1e-12,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 1e-12,
+          "upper_exclusive": 1e-08,
+          "rows": 396,
+          "mass_fsum": 1.8733466519144359e-06
+        },
+        {
+          "lower_inclusive": 1e-08,
+          "upper_exclusive": 0.0001,
+          "rows": 55529,
+          "mass_fsum": 0.5753666753081408
+        },
+        {
+          "lower_inclusive": 0.0001,
+          "upper_exclusive": 1.0,
+          "rows": 10767,
+          "mass_fsum": 2.388154497897342
+        },
+        {
+          "lower_inclusive": 1.0,
+          "upper_exclusive": 10000.0,
+          "rows": 0,
+          "mass_fsum": 0.0
+        },
+        {
+          "lower_inclusive": 10000.0,
+          "upper_exclusive": null,
+          "rows": 0,
+          "mass_fsum": 0.0
+        }
+      ],
+      "group_scope": "original contiguous rows sharing leg and bit-identical birth; not a globally coalesced or proven source-emission ID"
+    }
+  },
+  "receipts": 168819,
+  "nonempty_histories": 5233,
+  "packed_finite_option_saving_bytes_x86_64": 37013056,
+  "memory_scope": {
+    "max_keys_per_set": 100000,
+    "simultaneously_live_capped_sets": 5,
+    "largest_queue_records_retained": "only counters; per-packet and per-cell key sets are capped",
+    "when_capped": "duplicate counts and unique-key counts are lower bounds; completeness flags become false"
+  },
+  "semantic_scope": "Repeated tag/offset across packets is NOT an equality or permission to merge; target, entry interval, FIFO position, mass and first moment remain distinct. No simulation or checkpoint mutation.",
+  "wall_s": 11.924911705005798
+}

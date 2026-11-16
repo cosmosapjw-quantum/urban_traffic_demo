@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.21",
+  "version": "1.1.22",
   "date": "2026-11-16",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,7 +371,7 @@
       "V03"
     ],
     "native_subagent": "COMPLETED_SCOPED",
-    "scope": "Bounded actual-local queue/history diagnosis, transactional lifecycle/copy fixes, deterministic opt-in Rayon workers; no new DAG node or acceptance campaign",
+    "scope": "Complete Rust whole-owner resource representation and measured simulation continuation; scientific G-SCALE/G-DAY gates unchanged; no full CI or integration",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
@@ -2077,6 +2077,18 @@
       "date": "2026-10-29",
       "reason": "다음 V03 실행: 실제 retained calendar 메모리 비용",
       "change": "동일 immutable 출발 profile 재사용을 구현하고 기존 calendar/asdict/identity/상태 관측과 메모리 측정을 대조한다. 수요/한도/수용문턱 유지."
+    },
+    {
+      "date": "2026-11-16",
+      "reason": "User explicitly requests Rust conversion and simulation completion. Bounded trace identifies representation-dependent raw-row guard, not a physical conservation failure;19/21 unchanged.",
+      "change": "Investigate and implement exact persistent storage with an explicitly named whole-native byte-accounted policy; legacy20k row guards remain available. Preserve source measures, birth/receipt clocks, ordered numerical operations,100k population,3cases×3full-day requirements,7200s/8GiB thresholds. Publish old/new guard semantics and actual evidence before acceptance; never silently treat virtual rows as physical population.",
+      "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json"
+    },
+    {
+      "date": "2026-11-16",
+      "reason": "Actual full-target Valley continuation reaches25490s then valid positive FIFO head requires h=6.538054381607992e-16 atcursor8.221431926605018; f64 addition cannot advance cursor. Pythonoracle has same failure.",
+      "change": "Extend only the previously unsupported sub-ULP event path with explicit finite-progress/time-debt accounting and numerical bounds after independent counterexample review. Keep ordinary arithmetic path, positive masses, horizon capacity, existing ledger tolerances and fixed physical model. New path requires analytic regressions, checkpoint continuation and actual rerun before adoption.",
+      "evidence": "artifacts/v1_rust_completion_20261116/event_probe.json"
     }
   ],
   "implementation_progress": {
@@ -2138,6 +2150,7 @@
       "date": "2026-11-16",
       "scope": "queue/history debug and opt-in deterministic Rayon",
       "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json"
-    }
+    },
+    "active_work": "Rust persistent storage passed163 scoped tests and old occupied-checkpoint parity; actual full-target Valley exposed sub-ULP FIFO event-time failure at25490s. Derive/implement bounded compensated-clock continuation, preserve positive mass and fixed release gates."
   }
 }

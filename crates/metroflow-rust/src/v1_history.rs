@@ -92,6 +92,7 @@ struct Block {
     block_max_time: f64,
     sum: Expansion,
     block_sum: Expansion,
+    storage_bytes: usize,
 }
 
 impl Clone for Block {
@@ -100,7 +101,7 @@ impl Clone for Block {
         // the many calendar legs that currently have only one completion.
         let mut rows = Vec::with_capacity(self.rows.len().max(4).next_power_of_two());
         rows.extend_from_slice(&self.rows);
-        Self {
+        let mut block = Self {
             previous: self.previous.clone(),
             rows,
             count: self.count,
@@ -110,7 +111,26 @@ impl Clone for Block {
             block_max_time: self.block_max_time,
             sum: self.sum.clone(),
             block_sum: self.block_sum.clone(),
-        }
+            storage_bytes: 0,
+        };
+        block.refresh_storage_bytes();
+        block
+    }
+}
+impl Block {
+    fn own_storage_bytes(&self) -> usize {
+        std::mem::size_of::<Self>()
+            + 2 * std::mem::size_of::<usize>()
+            + 128
+            + self.rows.capacity() * std::mem::size_of::<Receipt>()
+            + (self.sum.0.capacity() + self.block_sum.0.capacity()) * std::mem::size_of::<f64>()
+    }
+    fn refresh_storage_bytes(&mut self) {
+        self.storage_bytes = self
+            .previous
+            .as_ref()
+            .map_or(0, |b| b.storage_bytes)
+            .saturating_add(self.own_storage_bytes());
     }
 }
 
@@ -136,6 +156,26 @@ impl ReceiptHistory {
         self.0.as_ref().map_or(0, |b| b.count)
     }
 
+    /// Conservatively charged allocator capacity, cached over the persistent
+    /// prefix. Shared blocks are counted once per logical history snapshot.
+    pub(crate) fn storage_bytes(&self) -> usize {
+        self.0.as_ref().map_or(0, |b| b.storage_bytes)
+    }
+    pub(crate) fn append_upper_bytes(&self) -> usize {
+        let (sum_capacity, block_capacity) = self
+            .0
+            .as_ref()
+            .map_or((0, 0), |b| (b.sum.0.capacity(), b.block_sum.0.capacity()));
+        let own = std::mem::size_of::<Block>()
+            + 2 * std::mem::size_of::<usize>()
+            + 128
+            + BLOCK_ROWS * std::mem::size_of::<Receipt>()
+            + (sum_capacity.saturating_mul(2).saturating_add(4)
+                + block_capacity.saturating_mul(2).saturating_add(4))
+                * std::mem::size_of::<f64>();
+        self.storage_bytes().saturating_add(own)
+    }
+
     pub(crate) fn push(&mut self, row: Receipt) -> Result<(), &'static str> {
         if !row.0.is_finite() || row.0 < 0.0 || !row.1.is_finite() || row.1 <= 0.0 {
             return Err("invalid native completion receipt");
@@ -159,6 +199,7 @@ impl ReceiptHistory {
                 block.block_min_time = block.block_min_time.min(row.0);
                 block.block_max_time = block.block_max_time.max(row.0);
                 block.sum = sum;
+                block.refresh_storage_bytes();
             }
             _ => {
                 let previous = self.0.take();
@@ -167,7 +208,7 @@ impl ReceiptHistory {
                 let max_time = previous.as_ref().map_or(row.0, |b| b.max_time.max(row.0));
                 let mut rows = Vec::with_capacity(4);
                 rows.push(row);
-                self.0 = Some(Arc::new(Block {
+                let mut block = Block {
                     previous,
                     rows,
                     count,
@@ -177,7 +218,10 @@ impl ReceiptHistory {
                     block_max_time: row.0,
                     sum,
                     block_sum: Expansion(vec![row.1]),
-                }));
+                    storage_bytes: 0,
+                };
+                block.refresh_storage_bytes();
+                self.0 = Some(Arc::new(block));
             }
         }
         Ok(())
@@ -336,5 +380,12 @@ impl NativeReceiptHistory {
 
     fn shared_prefix_rows(&self, other: &Self) -> usize {
         self.history.shared_prefix_rows(&other.history)
+    }
+
+    fn storage_bytes(&self) -> usize {
+        self.history.storage_bytes()
+    }
+    fn append_upper_bytes(&self) -> usize {
+        self.history.append_upper_bytes()
     }
 }

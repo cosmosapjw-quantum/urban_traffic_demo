@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.21**, 2026-11-16. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.22**, 2026-11-16. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2302,7 +2302,7 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "COMPLETED_SCOPED",
-  "scope": "Bounded actual-local queue/history diagnosis, transactional lifecycle/copy fixes, deterministic opt-in Rayon workers; no new DAG node or acceptance campaign",
+  "scope": "Complete Rust whole-owner resource representation and measured simulation continuation; scientific G-SCALE/G-DAY gates unchanged; no full CI or integration",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,

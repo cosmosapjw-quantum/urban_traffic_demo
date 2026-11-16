@@ -2,8 +2,9 @@
 //! Static declarations and all dynamic road/service/journey state stay in Rust.
 use crate::v1_calendar::NativeCalendar;
 use crate::v1_journey::{
-    advance_owned_joint, fsum, journey_debug, Journey, NativeJourneyCore, NativeServiceCore,
-    ServiceCheckpoint, SharedBusMeta, SharedFreightMeta, SharedJourneyLeg, SharedLaw,
+    advance_owned_joint, fsum, journey_debug, journey_storage_bytes, Journey, NativeJourneyCore,
+    NativeServiceCore, ServiceCheckpoint, SharedBusMeta, SharedFreightMeta, SharedJourneyLeg,
+    SharedLaw,
 };
 use crate::v1_parallel::ParallelPolicy;
 use crate::v1_road::{RoadState, V1Road};
@@ -15,6 +16,105 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::sync::Arc;
+use std::time::Instant;
+
+const ROUTE_OVERFLOW_BIN: usize = 256 + 56 * 128;
+struct NativeRouteMetrics {
+    counts: Vec<usize>,
+    calls: usize,
+    failed: usize,
+    cache_hits: usize,
+    minimum_ns: Option<u128>,
+    maximum_ns: Option<u128>,
+}
+impl NativeRouteMetrics {
+    fn new() -> Self {
+        Self {
+            counts: vec![0; ROUTE_OVERFLOW_BIN + 1],
+            calls: 0,
+            failed: 0,
+            cache_hits: 0,
+            minimum_ns: None,
+            maximum_ns: None,
+        }
+    }
+    fn record(&mut self, ns: u128, failed: bool) {
+        let index = if ns < 256 {
+            ns as usize
+        } else if ns >= 1u128 << 64 {
+            ROUTE_OVERFLOW_BIN
+        } else {
+            let shift = (128 - ns.leading_zeros()) as usize - 8;
+            256 + (shift - 1) * 128 + (ns >> shift) as usize - 128
+        };
+        self.counts[index] += 1;
+        self.calls += 1;
+        self.failed += usize::from(failed);
+        self.minimum_ns = Some(self.minimum_ns.map_or(ns, |old| old.min(ns)));
+        self.maximum_ns = Some(self.maximum_ns.map_or(ns, |old| old.max(ns)));
+    }
+    fn report(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
+        let out = PyDict::new(py);
+        out.set_item(
+            "status",
+            if self.calls == 0 {
+                "NOT_MEASURED"
+            } else {
+                "MEASURED_INTERVAL"
+            },
+        )?;
+        out.set_item("observed_calls", self.calls)?;
+        out.set_item("failed_calls", self.failed)?;
+        out.set_item("pair_cache_hits", self.cache_hits)?;
+        out.set_item("search_calls", self.calls - self.cache_hits)?;
+        out.set_item("min_ns", self.minimum_ns)?;
+        out.set_item("max_ns", self.maximum_ns)?;
+        if self.calls > 0 {
+            let rank = (99u128 * self.calls as u128 + 99) / 100;
+            let mut cumulative = 0u128;
+            let index = self
+                .counts
+                .iter()
+                .position(|&count| {
+                    cumulative += count as u128;
+                    cumulative >= rank
+                })
+                .expect("nonempty route histogram");
+            let (lower, upper) = if index < 256 {
+                (index as u128, index as u128)
+            } else if index == ROUTE_OVERFLOW_BIN {
+                (1u128 << 64, self.maximum_ns.unwrap())
+            } else {
+                let shift = (index - 256) / 128 + 1;
+                let offset = (index - 256) % 128;
+                (
+                    ((128 + offset) as u128) << shift,
+                    (((129 + offset) as u128) << shift) - 1,
+                )
+            };
+            let interval = PyDict::new(py);
+            interval.set_item("lower", lower.max(self.minimum_ns.unwrap()))?;
+            interval.set_item("upper", upper.min(self.maximum_ns.unwrap()))?;
+            out.set_item("p99_ns", interval)?;
+        } else {
+            out.set_item("p99_ns", py.None())?;
+        }
+        out.set_item("histogram_bins", self.counts.len())?;
+        out.set_item("overflow_samples", self.counts[ROUTE_OVERFLOW_BIN])?;
+        out.set_item("nonsaturated_relative_bin_width_bound", 1.0 / 128.0)?;
+        out.set_item(
+            "quantile",
+            "nearest rank ceil(0.99 * observed_calls), including failed requests",
+        )?;
+        out.set_item(
+            "clock",
+            "Rust std::time::Instant nanoseconds; timer overhead not subtracted",
+        )?;
+        out.set_item("source", "native_whole_router.route")?;
+        out.set_item("scope", "native OD route API requests during successful whole-engine construction, including pair-cache hits; excludes frontend fixed-fleet routing and declared corridor paths")?;
+        Ok(out.unbind())
+    }
+}
 
 // Streaming expansion summation: retain exact low-order components until the
 // final fsum rounding, without a vector per pending calendar record.
@@ -160,6 +260,7 @@ impl Static {
     }
 }
 struct Router {
+    metrics: NativeRouteMetrics,
     graph: V1RoutingGraph,
     link_indices: HashMap<String, usize>,
     pairs: HashMap<(String, String), Option<usize>>,
@@ -200,8 +301,16 @@ impl Router {
         self.intern(path)
     }
     fn route(&mut self, a: &str, b: &str) -> PyResult<Option<usize>> {
+        let started = Instant::now();
+        let result = self.route_inner(a, b);
+        self.metrics
+            .record(started.elapsed().as_nanos(), result.is_err());
+        result
+    }
+    fn route_inner(&mut self, a: &str, b: &str) -> PyResult<Option<usize>> {
         let key = (a.to_owned(), b.to_owned());
         if let Some(v) = self.pairs.get(&key) {
+            self.metrics.cache_hits += 1;
             return Ok(*v);
         }
         let (found, _, _) = self.graph.search_inner(a, b, 1, 2000).map_err(bad)?;
@@ -246,6 +355,10 @@ impl NativeWholeState {
 #[pyclass]
 pub struct NativeWholeEngine {
     parallel: ParallelPolicy,
+    route_metrics: NativeRouteMetrics,
+    storage_policy: String,
+    road_storage_bytes: Option<usize>,
+    journey_storage_bytes: Option<usize>,
     identity: String,
     city: String,
     schedule: String,
@@ -297,6 +410,7 @@ impl NativeWholeEngine {
         s: Static,
         byte_budget: usize,
         parallel: ParallelPolicy,
+        storage_policy: String,
     ) -> PyResult<Self> {
         let (city, schedule) = calendar.owned_binding();
         if city != s.city
@@ -373,6 +487,7 @@ impl NativeWholeEngine {
             })
             .collect::<PyResult<Vec<_>>>()?;
         let mut router = Router {
+            metrics: NativeRouteMetrics::new(),
             graph: V1RoutingGraph::new(s.arcs, ordered_costs, Some(s.turns), 8)?,
             link_indices: indices,
             pairs: HashMap::new(),
@@ -666,9 +781,21 @@ impl NativeWholeEngine {
         }
         let unique_paths = router.paths.len();
         let estimated_bytes = router.estimated + (people.len() + freight.len()) * 512;
-        let identity = format!("native-whole-v1:{}:{}", s.identity, byte_budget);
+        let (road_storage_bytes, journey_storage_bytes) = if storage_policy == "bounded_bytes_v1" {
+            let available = byte_budget.checked_sub(estimated_bytes).ok_or_else(|| {
+                PyMemoryError::new_err("native static accounting leaves no dynamic storage budget")
+            })?;
+            let road_bytes = available / 4;
+            (Some(road_bytes), Some(available - road_bytes))
+        } else {
+            (None, None)
+        };
+        let mut identity = format!("native-whole-v1:{}:{}", s.identity, byte_budget);
+        if let (Some(road), Some(journey)) = (road_storage_bytes, journey_storage_bytes) {
+            identity.push_str(&format!(":bounded_bytes_v1:{road}:{journey}"));
+        }
         let group_count = s.groups.len();
-        let road = V1Road::new_shared_routes(
+        let mut road = V1Road::new_shared_routes(
             identity.clone(),
             s.step,
             s.groups,
@@ -683,7 +810,13 @@ impl NativeWholeEngine {
             s.intervals,
         )?;
         let service = NativeServiceCore::new(buses, people, freight, Vec::new())?;
-        let journey = NativeJourneyCore::new_shared(legs, bus_meta, freight_meta, s.budget)?;
+        let mut journey = NativeJourneyCore::new_shared(legs, bus_meta, freight_meta, s.budget)?;
+        if let (Some(road_bytes), Some(journey_bytes)) = (road_storage_bytes, journey_storage_bytes)
+        {
+            road.configure_storage_budget(road_bytes)?;
+            journey.configure_storage_budget(journey_bytes)?;
+        }
+        let event_limit = road.checkpoint_event_limit();
         let initial_state = Arc::new(Bundle {
             road: road.checkpoint(),
             service: service.checkpoint(),
@@ -691,6 +824,10 @@ impl NativeWholeEngine {
         });
         Ok(Self {
             parallel,
+            route_metrics: router.metrics,
+            storage_policy,
+            road_storage_bytes,
+            journey_storage_bytes,
             identity,
             city: s.city,
             schedule: s.schedule,
@@ -714,7 +851,7 @@ impl NativeWholeEngine {
             estimated_bytes,
             byte_budget,
             unique_paths,
-            event_limit: s.budget,
+            event_limit,
             group_count,
             car_tag_legs,
         })
@@ -848,18 +985,24 @@ impl NativeWholeEngine {
 #[pymethods]
 impl NativeWholeEngine {
     #[new]
-    #[pyo3(signature = (calendar, payload, byte_budget, native_threads=1))]
+    #[pyo3(signature = (calendar, payload, byte_budget, native_threads=1, storage_policy="legacy_records"))]
     fn new(
         py: Python<'_>,
         calendar: PyRef<'_, NativeCalendar>,
         payload: &Bound<'_, PyDict>,
         byte_budget: usize,
         native_threads: usize,
+        storage_policy: &str,
     ) -> PyResult<Self> {
+        if !["legacy_records", "bounded_bytes_v1"].contains(&storage_policy) {
+            return Err(bad("unknown native storage_policy"));
+        }
         let s = Static::read(payload)?;
         let parallel = ParallelPolicy::new(native_threads).map_err(bad)?;
         let source: &NativeCalendar = &calendar;
-        py.allow_threads(|| Self::build(source, s, byte_budget, parallel))
+        py.allow_threads(|| {
+            Self::build(source, s, byte_budget, parallel, storage_policy.to_owned())
+        })
     }
     #[getter]
     fn identity(&self) -> String {
@@ -868,6 +1011,36 @@ impl NativeWholeEngine {
     #[getter]
     fn native_threads(&self) -> usize {
         self.parallel.threads()
+    }
+    fn routing_metrics(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
+        self.route_metrics.report(py)
+    }
+    fn event_resolution_diagnostics(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
+        let (count, processed_time, roundoff, mass) = self.road.event_resolution_stats();
+        let out = PyDict::new(py);
+        out.set_item("subulp_events", count)?;
+        out.set_item("processed_subulp_time_upper_s", processed_time)?;
+        out.set_item("clock_roundoff_upper_s", roundoff)?;
+        out.set_item("nominal_subulp_service_mass_upper", mass)?;
+        out.set_item("mass_bound_scope", "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding")?;
+        out.set_item("scope", "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata")?;
+        out.set_item("checkpointed", false)?;
+        Ok(out.unbind())
+    }
+    fn storage_config(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
+        let out = PyDict::new(py);
+        out.set_item("policy", &self.storage_policy)?;
+        out.set_item("total_accounting_budget_bytes", self.byte_budget)?;
+        out.set_item("conservative_static_accounting_bytes", self.estimated_bytes)?;
+        out.set_item("static_accounting_scope", "pre-existing conservative construction/snapshot estimate, including dense state; subtracting dynamic working quotas can double-count snapshot allowances")?;
+        out.set_item("road_dynamic_allowance_bytes", self.road_storage_bytes)?;
+        out.set_item(
+            "journey_dynamic_allowance_bytes",
+            self.journey_storage_bytes,
+        )?;
+        out.set_item("service_event_record_ceiling", self.event_limit)?;
+        out.set_item("scope", "owner storage guards; total process address-space/RSS limit must cover caller-retained immutable snapshots and allocation overhead")?;
+        Ok(out.unbind())
     }
     fn execution_config(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let out = PyDict::new(py);
@@ -954,6 +1127,10 @@ impl NativeWholeEngine {
         out.set_item("failed_ticks", m.failed_ticks)?;
         out.set_item("native_threads", self.parallel.threads())?;
         out.set_item("scope", "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation")?;
+        out.set_item(
+            "road_event_resolution",
+            self.event_resolution_diagnostics(py)?,
+        )?;
         Ok(out.unbind())
     }
     fn debug_state(&self, py: Python<'_>, state: &NativeWholeState) -> PyResult<Py<PyDict>> {
@@ -962,6 +1139,21 @@ impl NativeWholeEngine {
         let journey = stage_counts(py, &j.counts)?;
         journey.set_item("stage_capacity", stage_values(py, j.stage_capacity)?)?;
         journey.set_item("dense_capacity_bytes", j.dense_capacity_bytes)?;
+        journey.set_item(
+            "dynamic_storage_bytes",
+            journey_storage_bytes(&state.value.journey),
+        )?;
+        journey.set_item(
+            "stage_blocks",
+            stage_values(
+                py,
+                [
+                    state.value.journey.1.block_count(),
+                    state.value.journey.2.block_count(),
+                    state.value.journey.3.block_count(),
+                ],
+            )?,
+        )?;
         journey.set_item("stage_carrier_sum", stage_values(py, j.stage_mass)?)?;
         journey.set_item(
             "carrier_sum_units",
@@ -971,7 +1163,7 @@ impl NativeWholeEngine {
         journey.set_item("nonempty_histories", j.nonempty_histories)?;
         journey.set_item(
             "capacity_scope",
-            "Vec reserved storage; excludes receipt blocks, allocator and shared static state",
+            "dense_capacity_bytes excludes stage/history blocks; dynamic_storage_bytes counts persistent stage/history allocation estimates with shared prefixes counted per owner, not process RSS",
         )?;
         let r = state.value.road.debug_stats();
         let road = PyDict::new(py);
@@ -990,6 +1182,7 @@ impl NativeWholeEngine {
             road.set_item(name, value)?;
         }
         road.set_item("total_records", r.cell_parts + r.pending_parts)?;
+        road.set_item("event_resolution", self.event_resolution_diagnostics(py)?)?;
         road.set_item("capacity_scope", "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state")?;
         let out = PyDict::new(py);
         out.set_item("time_s", state.time_s())?;
@@ -997,6 +1190,7 @@ impl NativeWholeEngine {
         out.set_item("road", road)?;
         out.set_item("service_last_events", state.value.service.1.len())?;
         out.set_item("execution", self.execution_config(py)?)?;
+        out.set_item("storage", self.storage_config(py)?)?;
         if let Some(a) = self.journey.last_attempt() {
             let attempt = PyDict::new(py);
             attempt.set_item("start_s", a.start_s)?;

@@ -79,8 +79,11 @@ def main():
     for folder, pattern in [('crates/metroflow-rust/src', '*.rs'), ('src/metroflow/v1', 'native*.py')]:
         for source in sorted((ROOT/folder).glob(pattern)):
             result['source_hashes'][str(source.relative_to(ROOT))] = hashlib.sha256(source.read_bytes()).hexdigest()
-    import _metroflow_rust
-    result['native_binary_sha256'] = hashlib.sha256(Path(_metroflow_rust.__file__).read_bytes()).hexdigest()
+    from metroflow.v1.native_engine import native_binary_provenance
+    result["native_binary"] = native_binary_provenance()
+    if result["native_binary"]["status"] != "MEASURED":
+        raise RuntimeError(result["native_binary"]["reason"])
+    result['native_binary_sha256'] = result["native_binary"]["sha256"]
     model = state = None
 
     def progress(phase):

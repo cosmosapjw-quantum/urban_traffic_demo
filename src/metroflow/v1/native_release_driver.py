@@ -8,7 +8,6 @@ from dataclasses import asdict
 import hashlib
 import json
 
-from ..active_suffix.common import BudgetExceeded
 from .city import reject
 from .native_engine import NativeWholeRuntime
 from .release_driver import DriverState
@@ -20,12 +19,13 @@ class NativeReleaseDriver:
 
     def __init__(self, plan, inventory, *, step_s=10.0,
                  byte_budget=2 * 1024**3, record_budget=20000, event_budget=20000,
-                 native_threads=1):
+                 native_threads=1, storage_policy="legacy_records"):
         totals = plan.totals()
         self.plan = plan
         self.runtime = NativeWholeRuntime(plan.city, plan.schedule, inventory,
             step_s=step_s, byte_budget=byte_budget, record_budget=record_budget,
-            event_budget=event_budget, native_threads=native_threads)
+            event_budget=event_budget, native_threads=native_threads,
+            storage_policy=storage_policy)
         self.cursor = PlanCursor(plan.schedule.identity, totals['legs'],
             totals['persons'], totals['vehicles'], totals['cargo_kg'])
         plan.summary(self.cursor)
@@ -46,8 +46,12 @@ class NativeReleaseDriver:
         self.check(state)
         try:
             updated = self.runtime.advance(state.runtime_state, end_s)
-        except BudgetExceeded as exc:
-            valid = getattr(exc, 'checkpoint', state.runtime_state)
+        except Exception as exc:
+            # Native failures may occur after valid complete ticks, including
+            # non-resource failures. Keep the public driver-state boundary.
+            valid = getattr(exc, 'checkpoint', None)
+            if valid is None:
+                raise
             self.runtime.check(valid)
             exc.checkpoint = DriverState(self.identity, self.cursor, valid)
             raise

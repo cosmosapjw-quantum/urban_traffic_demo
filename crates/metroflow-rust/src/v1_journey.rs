@@ -7,6 +7,7 @@ use crate::v1_road::{
     checkpoint_vec, read_exact_len, read_f64, read_len, read_u64, write_f64, write_len, write_u64,
     EventRow, V1Road,
 };
+use crate::v1_stage::{Access, StageQueue};
 use pyo3::exceptions::{PyMemoryError, PyValueError};
 use pyo3::prelude::*;
 use std::collections::{HashMap, HashSet};
@@ -42,12 +43,11 @@ pub(crate) type SharedJourneyLeg = (
 );
 pub(crate) type SharedBusMeta = (usize, f64, f64, f64, f64, SharedLaw);
 pub(crate) type SharedFreightMeta = (usize, f64, f64, SharedLaw);
-type Access = (usize, f64, f64, f64); // leg, mass, born, delay
 pub(crate) type Journey = (
     f64,
-    Vec<Access>,
-    Vec<Access>,
-    Vec<Access>,
+    StageQueue,
+    StageQueue,
+    StageQueue,
     Vec<f64>,
     Vec<f64>,
     Vec<ReceiptHistory>,
@@ -124,16 +124,44 @@ impl JourneyPhaseMetrics {
 
 const LEG_CHUNK: usize = 1024;
 
-fn release_unused_stage_capacity(stage: &mut Vec<Access>) {
-    if stage.is_empty() {
-        // A drained queue owns no physical information. Do not retain its
-        // former allocation in a long-lived immutable checkpoint.
-        *stage = Vec::new();
-    } else if stage.capacity() > 4096 && stage.capacity() / 4 > stage.len() {
-        // Avoid allocating on every fractional drain while bounding retained
-        // spare storage after a large wave has left the stage.
-        stage.shrink_to_fit();
+fn release_unused_stage_capacity(stage: &mut StageQueue) {
+    stage.compact_registry();
+}
+
+/// Dynamic allocations only; dense per-leg arrays are part of the static
+/// constructor accounting. Each live history is charged with its shared prefix.
+pub(crate) fn journey_storage_bytes(s: &Journey) -> usize {
+    s.1.storage_bytes()
+        .saturating_add(s.2.storage_bytes())
+        .saturating_add(s.3.storage_bytes())
+        .saturating_add(s.6.iter().map(ReceiptHistory::storage_bytes).sum::<usize>())
+}
+const WORKING_COPIES: usize = 3;
+const STORAGE_SCRATCH_RESERVE: usize = 64 * 1024;
+fn stage_storage_bytes(s: &Journey) -> usize {
+    s.1.storage_bytes()
+        .saturating_add(s.2.storage_bytes())
+        .saturating_add(s.3.storage_bytes())
+}
+fn check_storage_limit(
+    limit: Option<usize>,
+    retained: usize,
+    dynamic: usize,
+    scratch: usize,
+) -> PyResult<()> {
+    if limit.is_some_and(|cap| {
+        dynamic
+            .max(retained)
+            .saturating_mul(WORKING_COPIES)
+            .saturating_add(scratch)
+            .saturating_add(STORAGE_SCRATCH_RESERVE)
+            > cap
+    }) {
+        return Err(PyMemoryError::new_err(
+            "native journey stored/working byte budget",
+        ));
     }
+    Ok(())
 }
 
 type JourneyRow = (
@@ -637,6 +665,10 @@ pub struct NativeJourneyCore {
     tick_times_s: Vec<f64>,
     peak_records: usize,
     history_rows: usize,
+    history_bytes: usize,
+    storage_budget: Option<usize>,
+    retained_input_bytes: usize,
+    max_tag_bytes: usize,
     last_attempt: Option<JourneyAttempt>,
     phase_metrics: JourneyPhaseMetrics,
 }
@@ -731,9 +763,29 @@ impl NativeJourneyCore {
     }
     pub(crate) fn rollback(&mut self, state: Journey) {
         self.history_rows = state.6.iter().map(ReceiptHistory::len).sum();
+        self.history_bytes = state.6.iter().map(ReceiptHistory::storage_bytes).sum();
+        self.retained_input_bytes = 0;
         self.state = state;
         self.pending = None;
         self.last_attempt = None;
+    }
+    /// Opt-in whole-engine byte accounting. Legacy direct cores retain their
+    /// raw-record guard. The enclosing engine binds this policy in identity.
+    pub(crate) fn configure_storage_budget(&mut self, bytes: usize) -> PyResult<()> {
+        if bytes == 0 {
+            return Err(bad("positive native journey storage budget required"));
+        }
+        check_storage_limit(
+            Some(bytes),
+            self.retained_input_bytes,
+            journey_storage_bytes(&self.state),
+            0,
+        )?;
+        self.storage_budget = Some(bytes);
+        Ok(())
+    }
+    pub(crate) fn storage_budget(&self) -> Option<usize> {
+        self.storage_budget
     }
     pub(crate) fn last_attempt(&self) -> Option<&JourneyAttempt> {
         self.last_attempt.as_ref()
@@ -792,15 +844,30 @@ impl NativeJourneyCore {
     pub(crate) fn read_state<R: Read>(&self, r: &mut R) -> PyResult<Journey> {
         let t = read_f64(r)?;
         let n = self.legs.len();
-        let mut remaining = self.budget;
+        let retained = self
+            .retained_input_bytes
+            .max(journey_storage_bytes(&self.state));
+        let mut remaining = if self.storage_budget.is_some() {
+            usize::MAX
+        } else {
+            self.budget
+        };
+        let mut stage_bytes = 0usize;
         let mut stages = Vec::with_capacity(3);
         for _ in 0..3 {
             let m = read_len(r, remaining)?;
             remaining -= m;
-            let mut stage = checkpoint_vec(m)?;
+            let mut stage = StageQueue::new();
             for _ in 0..m {
+                check_storage_limit(
+                    self.storage_budget,
+                    retained,
+                    stage_bytes.saturating_add(stage.append_upper_bytes(1)),
+                    0,
+                )?;
                 stage.push((read_len(r, n)?, read_f64(r)?, read_f64(r)?, read_f64(r)?));
             }
+            stage_bytes = stage_bytes.saturating_add(stage.storage_bytes());
             stages.push(stage);
         }
         let mut values = Vec::with_capacity(2);
@@ -814,13 +881,23 @@ impl NativeJourneyCore {
         }
         read_exact_len(r, n)?;
         let mut histories = checkpoint_vec(n)?;
+        let mut history_bytes = 0usize;
         for _ in 0..n {
             let m = read_len(r, remaining)?;
             remaining -= m;
             let mut history = ReceiptHistory::default();
             for _ in 0..m {
+                check_storage_limit(
+                    self.storage_budget,
+                    retained,
+                    stage_bytes
+                        .saturating_add(history_bytes)
+                        .saturating_add(history.append_upper_bytes()),
+                    0,
+                )?;
                 history.push((read_f64(r)?, read_f64(r)?)).map_err(bad)?;
             }
+            history_bytes = history_bytes.saturating_add(history.storage_bytes());
             histories.push(history);
         }
         read_exact_len(r, n)?;
@@ -871,16 +948,22 @@ impl NativeJourneyCore {
             ));
         }
         for stage in [&s.1, &s.2, &s.3] {
-            if stage.iter().any(|a| {
-                a.0 >= n || !nonnegative([a.1, a.2, a.3]) || a.1 <= 0.0 || a.2 > s.0 + 1e-8
-            }) {
+            if !stage.valid_at(n, s.0) {
                 return Err(bad("invalid native access stage"));
             }
         }
         let records =
             s.1.len() + s.2.len() + s.3.len() + s.6.iter().map(ReceiptHistory::len).sum::<usize>();
-        if records > self.budget {
+        if self.storage_budget.is_none() && records > self.budget {
             return Err(PyMemoryError::new_err("joint journey record budget"));
+        }
+        if self.storage_budget.is_some() {
+            check_storage_limit(
+                self.storage_budget,
+                self.retained_input_bytes,
+                journey_storage_bytes(s),
+                0,
+            )?;
         }
         Ok(())
     }
@@ -914,6 +997,10 @@ pub(crate) fn advance_owned_joint(
     step_s: f64,
 ) -> PyResult<usize> {
     journey.phase_metrics = JourneyPhaseMetrics::default();
+    // The Python input snapshot remains live throughout this call, even when
+    // later ticks drain its queues. Charge that known retained owner as well.
+    journey.retained_input_bytes = journey_storage_bytes(&journey.state);
+    road.begin_call_storage_accounting();
     if !step_s.is_finite()
         || step_s <= 0.0
         || service.pending.is_some()
@@ -1072,9 +1159,9 @@ impl NativeJourneyCore {
         let s = &self.state;
         (
             s.0,
-            s.1.clone(),
-            s.2.clone(),
-            s.3.clone(),
+            s.1.to_vec(),
+            s.2.to_vec(),
+            s.3.to_vec(),
             s.4.clone(),
             s.5.clone(),
             s.6.iter().map(ReceiptHistory::to_vec).collect(),
@@ -1097,9 +1184,9 @@ impl NativeJourneyCore {
     fn restore(&mut self, row: JourneyRow) -> PyResult<()> {
         let state = (
             row.0,
-            row.1,
-            row.2,
-            row.3,
+            row.1.into(),
+            row.2.into(),
+            row.3.into(),
             row.4,
             row.5,
             row.6
@@ -1136,6 +1223,20 @@ impl NativeJourneyCore {
             committed: false,
             phase: "journey_prepare",
         });
+        let proposal_scratch = self
+            .legs
+            .len()
+            .saturating_mul(2 * std::mem::size_of::<(usize, f64, f64, f64)>())
+            .saturating_add(
+                self.legs.len().div_ceil(LEG_CHUNK)
+                    * std::mem::size_of::<Vec<(usize, f64, f64, f64)>>(),
+            );
+        check_storage_limit(
+            self.storage_budget,
+            self.retained_input_bytes,
+            stage_storage_bytes(&self.state).saturating_add(self.history_bytes),
+            proposal_scratch,
+        )?;
         let mut s = self.state.clone();
         // Every proposal reads the same immutable pre-tick state. Indexed
         // chunks return in source order, and all additions/queue insertion
@@ -1162,24 +1263,53 @@ impl NativeJourneyCore {
             }
             releases
         });
+        // Reserve for exactly the entries due this tick, not every delayed
+        // logical atom. Offers and their physical conversion can coexist.
+        let due_new: usize = proposals
+            .iter()
+            .flatten()
+            .filter(|p| self.legs[p.0].5 == 1)
+            .map(|p| {
+                self.legs[p.0]
+                    .6
+                    .iter()
+                    .filter(|w| p.2 + (w.0 + p.3) <= t + 1e-10)
+                    .count()
+            })
+            .sum();
+        let offer_count = s.1.due_count(t + 1e-10).saturating_add(due_new);
+        let scratch =
+            proposal_scratch.saturating_add(offer_count.saturating_mul(128 + self.max_tag_bytes));
+        check_storage_limit(
+            self.storage_budget,
+            self.retained_input_bytes,
+            stage_storage_bytes(&s).saturating_add(self.history_bytes),
+            scratch,
+        )?;
         let attempt = self.last_attempt.as_mut().unwrap();
         for (i, mass, born, hold) in proposals.into_iter().flatten() {
             let l = &self.legs[i];
             s.4[i] += mass;
             s.7[i] += mass * born;
             let stage = if l.5 == 2 { 2 } else { 0 };
+            let all_stages = stage_storage_bytes(&s);
             let target = if stage == 2 { &mut s.3 } else { &mut s.1 };
+            let projected = self
+                .history_bytes
+                .saturating_add(all_stages - target.storage_bytes())
+                .saturating_add(target.append_upper_bytes(l.6.len()));
+            check_storage_limit(
+                self.storage_budget,
+                self.retained_input_bytes,
+                projected,
+                scratch,
+            )?;
             attempt.generated[stage] += l.6.len();
             target.extend(l.6.iter().map(|w| (i, mass * w.1, born, w.0 + hold)));
         }
         let mut offers = Vec::new();
-        s.1.retain(|a| {
-            if a.2 + a.3 <= t + 1e-10 {
-                offers.push((self.legs[a.0].0.clone(), a.1, a.1 * a.2));
-                false
-            } else {
-                true
-            }
+        s.1.retire_due(t + 1e-10, |a| {
+            offers.push((self.legs[a.0].0.clone(), a.1, a.1 * a.2));
         });
         attempt.retired[0] = offers.len();
         attempt.emitted_offers = offers.len();
@@ -1234,6 +1364,15 @@ impl NativeJourneyCore {
                 return Err(bad("invalid native journey road sink"));
             }
             if let Some(&i) = self.route_indices.get(&e.0) {
+                check_storage_limit(
+                    self.storage_budget,
+                    self.retained_input_bytes,
+                    self.history_bytes
+                        .saturating_add(s.1.storage_bytes())
+                        .saturating_add(s.3.storage_bytes())
+                        .saturating_add(s.2.append_upper_bytes(self.legs[i].7.len())),
+                    0,
+                )?;
                 generated_egress += self.legs[i].7.len();
                 s.2.extend(self.legs[i].7.iter().map(|w| (i, e.1 * w.1, e.2, w.0)));
             }
@@ -1253,6 +1392,15 @@ impl NativeJourneyCore {
             s.4[b.0] += boarded * factor;
             s.7[b.0] += boarded * factor * b.3 / b.2;
             if arrived != 0.0 {
+                check_storage_limit(
+                    self.storage_budget,
+                    self.retained_input_bytes,
+                    self.history_bytes
+                        .saturating_add(s.1.storage_bytes())
+                        .saturating_add(s.3.storage_bytes())
+                        .saturating_add(s.2.append_upper_bytes(b.5.len())),
+                    0,
+                )?;
                 generated_egress += b.5.len();
                 s.2.extend(b.5.iter().map(|w| (b.0, arrived * factor * w.1, end, w.0)));
             }
@@ -1270,28 +1418,51 @@ impl NativeJourneyCore {
                 return Err(bad("native freight arrival decreased"));
             }
             if arrival != 0.0 {
+                check_storage_limit(
+                    self.storage_budget,
+                    self.retained_input_bytes,
+                    self.history_bytes
+                        .saturating_add(s.1.storage_bytes())
+                        .saturating_add(s.3.storage_bytes())
+                        .saturating_add(s.2.append_upper_bytes(f.3.len())),
+                    0,
+                )?;
                 generated_egress += f.3.len();
                 s.2.extend(f.3.iter().map(|w| (f.0, arrival * w.1, end, w.0)));
             }
         }
         let mut retired = [0usize; 2];
+        let before_retirement_bytes = stage_storage_bytes(&s);
+        let mut history_bytes = self.history_bytes;
         for (kind, stage) in [&mut s.2, &mut s.3].into_iter().enumerate() {
-            let before = stage.len();
             let mut receipt_error = None;
-            stage.retain(|a| {
-                if a.2 + a.3 <= end + 1e-10 {
-                    s.5[a.0] += a.1;
-                    if let Err(error) = s.6[a.0].push((t.max(a.2 + a.3), a.1 / self.legs[a.0].1)) {
-                        receipt_error = Some(error);
-                    }
-                    false
-                } else {
-                    true
+            retired[kind] = stage.retire_due(end + 1e-10, |a| {
+                if receipt_error.is_some() {
+                    return;
                 }
+                let history = &mut s.6[a.0];
+                let previous_bytes = history.storage_bytes();
+                let projected = before_retirement_bytes
+                    .saturating_add(history_bytes - previous_bytes)
+                    .saturating_add(history.append_upper_bytes());
+                if let Err(error) = check_storage_limit(
+                    self.storage_budget,
+                    self.retained_input_bytes,
+                    projected,
+                    0,
+                ) {
+                    receipt_error = Some(error);
+                    return;
+                }
+                s.5[a.0] += a.1;
+                if let Err(error) = history.push((t.max(a.2 + a.3), a.1 / self.legs[a.0].1)) {
+                    receipt_error = Some(bad(error));
+                    return;
+                }
+                history_bytes = history_bytes - previous_bytes + history.storage_bytes();
             });
-            retired[kind] = before - stage.len();
             if let Some(error) = receipt_error {
-                return Err(bad(error));
+                return Err(error);
             }
         }
         let added = retired[0] + retired[1];
@@ -1310,6 +1481,7 @@ impl NativeJourneyCore {
         }
         self.state = s;
         self.history_rows += added;
+        self.history_bytes = history_bytes;
         if let Some(attempt) = &mut self.last_attempt {
             attempt.committed = true;
             attempt.phase = "committed";
@@ -1367,6 +1539,7 @@ impl NativeJourneyCore {
             }
         }
         let n = legs.len();
+        let max_tag_bytes = legs.iter().map(|l| l.0.len()).max().unwrap_or(0);
         let route_indices = legs
             .iter()
             .enumerate()
@@ -1381,9 +1554,9 @@ impl NativeJourneyCore {
             budget: record_budget,
             state: (
                 0.0,
-                vec![],
-                vec![],
-                vec![],
+                StageQueue::new(),
+                StageQueue::new(),
+                StageQueue::new(),
                 vec![0.0; n],
                 vec![0.0; n],
                 vec![ReceiptHistory::default(); n],
@@ -1393,6 +1566,10 @@ impl NativeJourneyCore {
             tick_times_s: Vec::new(),
             peak_records: 0,
             history_rows: 0,
+            history_bytes: 0,
+            storage_budget: None,
+            retained_input_bytes: 0,
+            max_tag_bytes,
             last_attempt: None,
             phase_metrics: JourneyPhaseMetrics::default(),
         })

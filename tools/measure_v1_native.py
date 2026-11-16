@@ -84,8 +84,11 @@ def main():
     except Exception as exc:
         result.update(status='FAILED',error=type(exc).__name__+': '+str(exc))
     result.update(wall_s=time.perf_counter()-started,peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024)
-    import _metroflow_rust
-    result['native_binary_sha256']=hashlib.sha256(Path(_metroflow_rust.__file__).read_bytes()).hexdigest()
+    from metroflow.v1.native_engine import native_binary_provenance
+    result["native_binary"] = native_binary_provenance()
+    if result["native_binary"]["status"] != "MEASURED":
+        raise RuntimeError(result["native_binary"]["reason"])
+    result['native_binary_sha256']=result["native_binary"]["sha256"]
     result['rustc']=subprocess.check_output(['rustc','--version'],text=True).strip()
     paths=list((ROOT/'crates/metroflow-rust/src').glob('v1_*.rs'))+[Path(__file__)]+list((ROOT/'src/metroflow/v1').glob('native_*.py'))
     result['source_sha256']={str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}

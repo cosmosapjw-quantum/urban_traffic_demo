@@ -1,0 +1,59 @@
+{
+  "status": "BLOCKED",
+  "receipts": [
+    {
+      "status": "ENVIRONMENT_BLOCKER",
+      "label": "valley_weekday_s7.run1",
+      "exit_code": 1
+    },
+    {
+      "case": "valley_weekday_s7",
+      "run_label": "valley_weekday_s7.run2_resume",
+      "step_s": 10,
+      "horizon_s": 86400,
+      "resume_requested": true,
+      "status": "NOT_RUN_DEPENDENCY_BLOCKED",
+      "blocked_by": "valley_weekday_s7.run1",
+      "reason": "same frozen candidate already failed; dependent repetitions add no new evidence"
+    },
+    {
+      "case": "valley_weekday_s7",
+      "run_label": "valley_weekday_s7.run3",
+      "step_s": 10,
+      "horizon_s": 86400,
+      "resume_requested": false,
+      "status": "NOT_RUN_DEPENDENCY_BLOCKED",
+      "blocked_by": "valley_weekday_s7.run1",
+      "reason": "same frozen candidate already failed; dependent repetitions add no new evidence"
+    },
+    {
+      "case": "valley_weekday_s7",
+      "run_label": "valley_weekday_s7.refined",
+      "step_s": 5,
+      "horizon_s": 28800,
+      "resume_requested": false,
+      "status": "NOT_RUN_DEPENDENCY_BLOCKED",
+      "blocked_by": "valley_weekday_s7.run1",
+      "reason": "same frozen candidate already failed; dependent repetitions add no new evidence"
+    }
+  ],
+  "selected_cases": [
+    "valley_weekday_s7"
+  ],
+  "required_matrix_cases": [
+    "river_weekday_s17",
+    "coastal_weekend_s41",
+    "valley_weekday_s7"
+  ],
+  "full_ci_and_integration": "DEFERRED_BY_USER",
+  "issues": [
+    "one or more runs failed or were not executed",
+    "valley_weekday_s7: exactly three complete full-day runs required",
+    "valley_weekday_s7: coarse/refined matched 8h reports are missing"
+  ],
+  "refinement_assessment": {
+    "valley_weekday_s7": {
+      "status": "BLOCKED_MISSING_EVIDENCE"
+    }
+  }
+}

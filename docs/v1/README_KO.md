@@ -1,6 +1,6 @@
 # MetroFlow V1: 앞으로의 단일 작업계획
 
-규범 원본은 **PLAN.json 1.0.2**이다. 기존 독립 연구 인계의 다음 노드를 따로 실행하지 않는다. 공유 `node_defaults`는 모든 노드의 증거·rollback·PR 검토 계약이며, 생성 문서에는 각 노드에 펼쳐서 표시된다.
+규범 원본은 [PLAN.json](PLAN.json)의 현재 버전이다. 기존 독립 연구 인계의 다음 노드를 따로 실행하지 않는다. 공유 `node_defaults`는 모든 노드의 증거·rollback·PR 검토 계약이며, 생성 문서에는 각 노드에 펼쳐서 표시된다.
 
 ```bash
 python tools/v1_plan.py render
@@ -16,7 +16,9 @@ python tools/v1_plan.py next
 
 ## 현재와 다음
 
-P00·M01·T01·I01은 PR #25의 실제 병합 `b687425`와 기존 CI 근거로 ACCEPTED다. 현재 M02는 VERIFIED_SCOPED이며 18개 atlas JSON·4개 복원 문법·109개 관련 회귀·Python3.13 V1 profile60개를 검증했다. `M02_CONTRACT_KO.md` 및 `artifacts/v1_m02_20261026/RECEIPT.json`을 참조한다. next_node는 M02로 유지하며, 현재 PR의 CI·병합 증거를 확인한 뒤 계획 순서로 후속 노드를 선택한다.
+현재 진척과 다음 노드는 `PLAN.json`의 `implementation_progress`, `nodes`, `next_node`를 따른다. 완료 구현·한정 실행과 최종 수용은 서로 다른 상태다. 전체 CI·통합·최종 릴리스는 별도 심사 후 진행한다.
+
+V03의 전체 도시 계산은 Rust의 `NativeWholeEngine`과 Python frontend로 이행 중이다. 빌드·설치와 실제 로컬 모의실험 명령은 [NATIVE_RUNTIME_KO.md](NATIVE_RUNTIME_KO.md)에 정리한다. 기존 Python 수치 경로는 명시적 비교 oracle로 보존한다. 각 실행의 성공·차단 여부는 계획에 연결된 영수증으로 확인한다.
 
 ## 의존 단계
 
@@ -37,6 +39,6 @@ P00·M01·T01·I01은 PR #25의 실제 병합 `b687425`와 기존 CI 근거로 A
 
 `validate --release`는 현재 반드시 거절한다. 모든 필수 노드의 ACCEPTED 상태와 G-* 영수증 경로·SHA256이 갖춰져야 파일 바인딩을 검증한다. 이것은 과학적 주장 검토의 대체물이 아니다.
 
-## 오늘의 실행 경계
+## 기반 실험의 이력
 
-하천도시의 기존 경로 하나에서 두 private link를 접근/이탈 분포로 **교체**하고 공공도로7개를 통해2veh 상당량을 운송했다. 배경100k는 이번에 수송하지 않았다. 보고서 `FOUNDATION_REPORT_KO.md`와 `artifacts/v1_foundation_20261025/FINAL_RECEIPT.json`을 참조한다.
+초기 기반 실험에서는 하천도시의 기존 경로 하나에서 두 private link를 접근/이탈 분포로 **교체**하고 공공도로7개를 통해2veh 상당량을 운송했다. 이 실험은 배경100k 수송을 포함하지 않았다. 당시 보고서 `FOUNDATION_REPORT_KO.md`와 `artifacts/v1_foundation_20261025/FINAL_RECEIPT.json`을 참조한다. 이 역사적 범위를 현재 전체 도시 실행 결과로 읽지 않는다.

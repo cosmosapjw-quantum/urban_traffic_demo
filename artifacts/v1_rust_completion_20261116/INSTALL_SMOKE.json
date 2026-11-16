@@ -1,0 +1,13 @@
+{
+  "metroflow": "/home/cosmosapjw/urban_traffic_rust_20261116/src/metroflow/__init__.py",
+  "rust_wrapper": "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/lib/python3.12/site-packages/_metroflow_rust/__init__.py",
+  "native_binary": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/lib/python3.12/site-packages/_metroflow_rust/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+    "size_bytes": 2705440,
+    "sha256": "d7a2de5500ced235d0dd9cdd9065c9fe8ca7cd525d723db25d647dfb46cb9768"
+  },
+  "NativeWholeEngine": true,
+  "NativeStageQueue": true,
+  "method": "maturin develop --release --locked + editable root frontend install; no manual shared-library copy"
+}

@@ -1,0 +1,283 @@
+{
+  "schema": "metroflow.narrow_reference_study.v1",
+  "created_utc": "2026-11-16",
+  "base_commit": "7b5e518f6c098ed831551da4e66d980addf80dd8",
+  "scope": "Exact delayed-fluid-source representation; no implementation edits, no new simulation validation claim.",
+  "inspected_files": [
+    "crates/metroflow-rust/src/v1_journey.rs",
+    "AGENTS.md"
+  ],
+  "context_measurements": {
+    "status": "provided by parent; not independently rerun",
+    "record_limit": 2000000,
+    "clock_s": 25380,
+    "entering_share_approx": 0.927,
+    "ready_leak": "not identified by prior debugging"
+  },
+  "sources": [
+    {
+      "id": "R1",
+      "title": "Hashed and hierarchical timing wheels: data structures for the efficient implementation of a timer facility",
+      "authors": [
+        "George Varghese",
+        "Tony Lauck"
+      ],
+      "year": 1987,
+      "url": "https://dl.acm.org/doi/10.1145/41457.37504",
+      "read_url": "https://www.cs.columbia.edu/~nahum/w6998/papers/sosp87-timing-wheels.pdf",
+      "evidence_status": "literature-supported",
+      "supports": "Timer indexing complexity and explicit distinction between space and latency; not source-cohort compression or kernel equivalence."
+    },
+    {
+      "id": "R2",
+      "title": "Carousel: Scalable Traffic Shaping at End Hosts",
+      "year": 2017,
+      "url": "https://saeed.github.io/files/carousel-sigcomm17.pdf",
+      "evidence_status": "literature-supported",
+      "supports": "Section 5.1.2 separates exact calendar-queue ordering from a timing wheel's weaker within-slot requirement; outstanding references still consume storage."
+    },
+    {
+      "id": "R3",
+      "title": "Arc in std::sync - Rust",
+      "url": "https://doc.rust-lang.org/std/sync/struct.Arc.html",
+      "evidence_status": "literature-supported",
+      "supports": "Shared allocation ownership; clone-on-write with Arc::make_mut; content thread safety is separate."
+    },
+    {
+      "id": "R4",
+      "title": "Calendar queues: a fast O(1) priority queue implementation for the simulation event set problem",
+      "authors": [
+        "R. Brown"
+      ],
+      "year": 1988,
+      "url": "https://dl.acm.org/doi/10.1145/63039.63045",
+      "evidence_status": "literature-supported",
+      "supports": "Reported experimental O(1) behavior for specified distributions; future-event scheduling, not removal of logical events."
+    },
+    {
+      "id": "D1",
+      "title": "Representation requirements for perfect first-in-first-out verification in continuous flow dynamic models",
+      "authors": [
+        "Hillel Bar-Gera",
+        "Malachy Carey"
+      ],
+      "year": 2017,
+      "url": "https://doi.org/10.1016/j.trb.2017.02.002",
+      "discovery_url": "https://scispace.com/papers/representation-requirements-for-perfect-first-in-first-out-4zrcgrs1c8?utm_source=chatgpt&utm_medium=tool",
+      "evidence_status": "metadata-verified; theorem unresolved",
+      "supports": "Discovery only: no specific FIFO sufficiency theorem asserted."
+    }
+  ],
+  "searches": [
+    {
+      "tool": "mcp__codex_apps__exa_web_search_exa",
+      "query": "category:research paper original paper hashed hierarchical timing wheels Varghese Lauck timer facilities exact expiration time finite precision event queues",
+      "numResults": 5
+    },
+    {
+      "tool": "mcp__codex_apps__scispace_search",
+      "query": "Which discrete-event fluid simulation methods represent piecewise constant delayed flows or grouped fluid cohorts without materializing every packet, while preserving exact event timing and FIFO ordering? limit:8 sort:relevance",
+      "results": [
+        {
+          "title": "On fluid modeling of networks and queues",
+          "url": "https://scispace.com/papers/on-fluid-modeling-of-networks-and-queues-mlvrf0m47r?utm_source=chatgpt&utm_medium=tool"
+        },
+        {
+          "title": "Hybrid simulation of a FIFO queuing system with trace-driven background traffic",
+          "url": "https://scispace.com/papers/hybrid-simulation-of-a-fifo-queuing-system-with-trace-driven-5d3laguaxs?utm_source=chatgpt&utm_medium=tool"
+        },
+        {
+          "title": "Representation requirements for perfect first-in-first-out verification in continuous flow dynamic models",
+          "url": "https://scispace.com/papers/representation-requirements-for-perfect-first-in-first-out-4zrcgrs1c8?utm_source=chatgpt&utm_medium=tool"
+        },
+        {
+          "title": "On the accelerated simulation of VBR virtual channel multiplexing in a single-server FIFO buffer",
+          "url": "https://scispace.com/papers/on-the-accelerated-simulation-of-vbr-virtual-channel-21zk5e7goc?utm_source=chatgpt&utm_medium=tool"
+        },
+        {
+          "title": "Packet network simulation: speedup and accuracy versus timing granularity",
+          "url": "https://scispace.com/papers/packet-network-simulation-speedup-and-accuracy-versus-timing-3b7t9j7kcx?utm_source=chatgpt&utm_medium=tool"
+        },
+        {
+          "title": "Performance and fluid simulations of a novel shared buffer management system",
+          "url": "https://scispace.com/papers/performance-and-fluid-simulations-of-a-novel-shared-buffer-xc90uryqiv?utm_source=chatgpt&utm_medium=tool"
+        },
+        {
+          "title": "Discrete event fluid modeling of background TCP traffic",
+          "url": "https://scispace.com/papers/discrete-event-fluid-modeling-of-background-tcp-traffic-1d4k4ivgtl?utm_source=chatgpt&utm_medium=tool"
+        },
+        {
+          "title": "Stochastic Fluid Models for Communication Networks",
+          "url": "https://scispace.com/papers/stochastic-fluid-models-for-communication-networks-1thlkt9r?utm_source=chatgpt&utm_medium=tool"
+        }
+      ]
+    },
+    {
+      "tool": "mcp__codex_apps__parallel_web_search",
+      "search_queries": [
+        "discrete event fluid simulation event aggregation",
+        "calendar queues Brown 1988 paper",
+        "Rust Arc immutable shared data"
+      ],
+      "search_id": "search_b91718402c30f8f117d5a248bb962b94",
+      "session_id": "session_b91718402c30f8f117d5a248bb962b94",
+      "results": [
+        {
+          "title": "Proceedings of the 2025 Winter Simulation Conference E. Azar, A. Djanatliev, A. Harper, C. Kogler, V. Ramamohan, A. Anagnostou, and",
+          "url": "https://www.informs-sim.org/wsc25papers/con269.pdf"
+        },
+        {
+          "title": "Arc in std::sync - Rust",
+          "url": "https://doc.rust-lang.org/std/sync/struct.Arc.html"
+        },
+        {
+          "title": "Smart priority queue algorithms for self-optimizing event storage - ScienceDirect",
+          "url": "https://www.sciencedirect.com/science/article/abs/pii/S1569190X04000036"
+        },
+        {
+          "title": "Calendar queues: a fast 0(1) priority queue implementation for the simulation event set problem | Communications of the ACM",
+          "url": "https://dl.acm.org/doi/10.1145/63039.63045"
+        },
+        {
+          "title": "https://ieeexplore.ieee.org/document/899756",
+          "url": "https://ieeexplore.ieee.org/document/899756"
+        },
+        {
+          "title": "Carousel: Scalable Traffic Shaping at End Hosts",
+          "url": "https://saeed.github.io/files/carousel-sigcomm17.pdf"
+        },
+        {
+          "title": "Programmable Calendar Queues for High-speed Packet Scheduling",
+          "url": "https://www.usenix.org/system/files/nsdi20-paper-sharma.pdf"
+        },
+        {
+          "title": "Hashed and hierarchical timing wheels: data structures for the efficient implementation of a timer facility | Proceedings of the eleventh ACM Symposium on Operating systems principles",
+          "url": "https://dl.acm.org/doi/10.1145/41457.37504"
+        },
+        {
+          "title": "A comparative study of parallel and sequential priority queue algorithms | ACM Transactions on Modeling and Computer Simulation",
+          "url": "https://dl.acm.org/doi/10.1145/249204.249205"
+        },
+        {
+          "title": "A Comparative Study of Parallel and Sequential Priority Queue Algorithms",
+          "url": "https://www.cs.auckland.ac.nz/~mcw/Teaching/320/refs/priority-queue/pq-comparative-study.pdf"
+        }
+      ]
+    },
+    {
+      "tool": "mcp__codex_apps__exa_web_search_exa",
+      "query": "\"Representation requirements for perfect first-in-first-out verification in continuous flow dynamic models\" Carey Bar-Gera 2017",
+      "numResults": 3
+    }
+  ],
+  "fetches": [
+    {
+      "tool": "mcp__codex_apps__parallel_web_fetch",
+      "urls": [
+        "https://saeed.github.io/files/carousel-sigcomm17.pdf",
+        "https://doc.rust-lang.org/std/sync/struct.Arc.html"
+      ],
+      "extract_id": "extract_b71e184710bfa64d6e198f904521f12d",
+      "errors": []
+    },
+    {
+      "tool": "mcp__codex_apps__exa_web_fetch_exa",
+      "urls": [
+        "https://doi.org/10.1016/j.trb.2017.02.002",
+        "https://www.cs.columbia.edu/~nahum/w6998/papers/sosp87-timing-wheels.pdf"
+      ],
+      "maxCharacters": 9000,
+      "doi_content_limit": "Bibliography/metadata returned, no theorem text."
+    },
+    {
+      "tool": "mcp__codex_apps__parallel_web_fetch",
+      "urls": [
+        "https://www.sciencedirect.com/science/article/abs/pii/S0191261516305497",
+        "https://dl.acm.org/doi/10.1145/63039.63045"
+      ],
+      "extract_id": "extract_4ef3569c1d05649fbd59186909642891",
+      "errors": [
+        {
+          "url": "https://www.sciencedirect.com/science/article/abs/pii/S0191261516305497",
+          "http_status_code": 404,
+          "note": "Guessed publisher path was incorrect. Excluded as an evidence source. No product feedback sent."
+        }
+      ]
+    }
+  ],
+  "exa_sources_reviewed": 8,
+  "candidates": [
+    {
+      "id": "A",
+      "name": "Lazy exact delay-law batches",
+      "status": "derived; not implementation-verified",
+      "priority": "first",
+      "representation": "one batch per current release; Arc original law plus shared delay-sorted original-index permutation; cursor per batch",
+      "critical_conditions": [
+        "Preserve accepted unsorted law input.",
+        "Select due atoms by original f64 predicate; emit newly due indices in original atom order and batches in original append order.",
+        "Preserve f64 association, parent pre-tick eligibility, completion clock and egress-before-internal order.",
+        "Version checkpoint representation; preserve last committed rollback state.",
+        "Report logical atoms separately from physical batches/bytes."
+      ]
+    },
+    {
+      "id": "B",
+      "name": "Immutable release chunks with an exact due index",
+      "status": "derived; optional after measurement",
+      "priority": "second",
+      "critical_conditions": [
+        "Wheel only indexes candidate batches; no rounding or clamping timestamps.",
+        "Restore original batch/atom order before physical updates.",
+        "Handle long-delay overflow and partial consumption.",
+        "Scheduling acceleration is not logical event compression."
+      ]
+    }
+  ],
+  "counterexamples": [
+    {
+      "claim_rejected": "Stop a cursor at the first not-yet-due atom in the original law.",
+      "law": [
+        [
+          10,
+          0.5
+        ],
+        [
+          0,
+          0.5
+        ]
+      ],
+      "born": 0,
+      "hold": 0,
+      "clock": 0,
+      "expected_due_original_indices": [
+        1
+      ]
+    },
+    {
+      "claim_rejected": "Total mass and first birth moment suffice to preserve delayed arrivals.",
+      "cohorts_A": [
+        [
+          0,
+          0.5
+        ],
+        [
+          2,
+          0.5
+        ]
+      ],
+      "cohorts_B": [
+        [
+          1,
+          1
+        ]
+      ],
+      "common_delay": 1,
+      "clock": 1.5,
+      "released_A": 0.5,
+      "released_B": 0
+    }
+  ],
+  "tests_run": [],
+  "overall_status": "Reference study complete; implementation and simulation acceptance delegated to parent."
+}

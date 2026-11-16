@@ -56,7 +56,10 @@ def main():
     args.out.parent.mkdir(parents=True, exist_ok=True)
     resource.setrlimit(resource.RLIMIT_AS, (8*1024**3, 8*1024**3))
     os.environ['METROFLOW_V1_ROUTING_BACKEND'] = 'rust'
-    import _metroflow_rust
+    from metroflow.v1.native_engine import native_binary_provenance
+    native_binary = native_binary_provenance()
+    if native_binary["status"] != "MEASURED":
+        raise RuntimeError(native_binary["reason"])
     matrix_path = ROOT/'scenarios/v1/release_matrix.json'
     if digest(matrix_path) != source['matrix_sha256']:
         raise ValueError('source matrix binding differs')
@@ -68,7 +71,7 @@ def main():
         baseline_api=args.baseline_api, full_campaign='NOT_RUN', dag_progress='19/21',
         environment=observed_environment(), source_receipt_sha256=digest(args.receipt),
         source_checkpoint_sha256=source['checkpoint_sha256'],
-        native_binary_sha256=digest(_metroflow_rust.__file__),
+        native_binary_sha256=native_binary["sha256"], native_binary=native_binary,
         baseline_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         record_budget=source['logical_record_budget'], source_hashes={})
     result['environment']['scientific_threads'] = args.threads

@@ -1,0 +1,13 @@
+Obtaining file:///home/cosmosapjw/urban_traffic_rust_20261116
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: metroflow
+  Building editable for metroflow (pyproject.toml): started
+  Building editable for metroflow (pyproject.toml): finished with status 'done'
+  Created wheel for metroflow: filename=metroflow-0.0.2-0.editable-py3-none-any.whl size=10472 sha256=7ffe46052fbdf9e11898214f5a76ef9b587b1e7f85be440797098f151605f65d
+  Stored in directory: /tmp/pip-ephem-wheel-cache-pv9u7gqa/wheels/c4/98/5e/f450331820c37fcbcb961bac80af5ac4546e0d79bb3abd0eb2
+Successfully built metroflow
+Installing collected packages: metroflow
+Successfully installed metroflow-0.0.2

@@ -11,6 +11,7 @@ mod v1_calendar;
 mod v1_road;
 mod v1_journey;
 mod v1_history;
+mod v1_stage;
 mod v1_engine;
 mod v1_parallel;
 
@@ -343,6 +344,7 @@ fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<v1_journey::NativeServiceCore>()?;
     m.add_class::<v1_journey::NativeJourneyCore>()?;
     m.add_class::<v1_history::NativeReceiptHistory>()?;
+    m.add_class::<v1_stage::NativeStageQueue>()?;
     m.add_class::<v1_engine::NativeWholeEngine>()?;
     m.add_class::<v1_engine::NativeWholeState>()?;
     m.add_function(wrap_pyfunction!(v1_journey::advance_native_joint, m)?)?;
