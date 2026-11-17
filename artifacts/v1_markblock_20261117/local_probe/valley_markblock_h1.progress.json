@@ -1,0 +1,15 @@
+{
+  "case": "valley_weekday_s7",
+  "run_label": "valley_markblock_h1",
+  "status": "BLOCKED_RESOURCE",
+  "simulated_s": 26080.0,
+  "wall_s": 449.09322865499416,
+  "peak_rss_bytes": 2599641088,
+  "peak_tracked_records": 13,
+  "completed_tick_samples": 2520,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "candidate_source_sha256": "28fa29738caf520bfcb01db216c9bf5485e0d5872f9e3debf1c556985985c1e3",
+  "git_commit": "0c0206e30222d7c2d2449914ff020d73dfb47296",
+  "native_binary_sha256": "5145e7c314bb1951a3f30cd299c0b156c43a634d87ccc84ccfe3aca44e19b5cb",
+  "driver_identity": "787d396cf8afb513e4e159ccb4c25dc198edc83248b9e260d80714f2a8cbe1fe"
+}

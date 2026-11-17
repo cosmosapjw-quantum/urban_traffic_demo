@@ -1,0 +1,6 @@
+{"case": "valley_weekday_s7", "status": "BLOCKED_RESOURCE", "simulated_s": 26080.0}
+
+real	7m29.733s
+user	7m17.433s
+sys	0m6.836s
+exit=2

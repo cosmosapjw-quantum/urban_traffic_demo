@@ -1,0 +1,62 @@
+{
+ "source": "artifacts/v1_markblock_20261117/valley_h1_25900_markblock.last_valid.bin",
+ "source_sha256": "386e78b4d8462dd0e7101033f854736022a7d175f6922721dc9560e5543105b4",
+ "resaved_sha256": "386e78b4d8462dd0e7101033f854736022a7d175f6922721dc9560e5543105b4",
+ "byte_identical_resave": true,
+ "time_s": 25900.0,
+ "next_step": {
+  "status": "ADVANCED",
+  "time_s": 25910.0,
+  "ledger": {
+   "persons": {
+    "requested": 3944.4444444444434,
+    "released": 2337.0732504583307,
+    "completed": 305.95682005089293,
+    "pending": 1607.3711939861128,
+    "active": 2031.1164304074377
+   },
+   "vehicles": {
+    "requested": 1932.7777777778435,
+    "released": 1866.666666666672,
+    "completed": 242.06983462443603,
+    "pending": 66.11111111117157,
+    "active": 1624.596832042236
+   },
+   "cargo_kg": {
+    "requested": 0.0,
+    "released": 0.0,
+    "completed": 0.0,
+    "pending": 0.0,
+    "active": 0.0
+   }
+  }
+ },
+ "construct_s": 26.240122297022026,
+ "load_s": 3.592906123987632,
+ "save_s": 0.6855916730128229,
+ "advance_s": 7.007013903988991,
+ "peak_rss_bytes": 1406009344,
+ "report_at_load": {
+  "persons": {
+   "requested": 3888.888888888912,
+   "released": 2303.686489737489,
+   "completed": 292.26380913279627,
+   "pending": 1585.202399151423,
+   "active": 2011.4226806046927
+  },
+  "vehicles": {
+   "requested": 1905.5555555555322,
+   "released": 1840.0000000000568,
+   "completed": 231.15816779995558,
+   "pending": 65.5555555554754,
+   "active": 1608.8418322001012
+  },
+  "cargo_kg": {
+   "requested": 0.0,
+   "released": 0.0,
+   "completed": 0.0,
+   "pending": 0.0,
+   "active": 0.0
+  }
+ }
+}

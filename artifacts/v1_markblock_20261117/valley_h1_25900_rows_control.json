@@ -1,0 +1,1569 @@
+{
+  "status": "REACHED_HORIZON",
+  "scope": "DIAGNOSTIC_PREFIX_NOT_CAMPAIGN",
+  "case": "valley_weekday_s7",
+  "horizon_s": 25900.0,
+  "entry_projection_width_s": 1.0,
+  "candidate": {
+    "status": "MEASURED",
+    "source_sha256": "28fa29738caf520bfcb01db216c9bf5485e0d5872f9e3debf1c556985985c1e3",
+    "source_files": [
+      "Cargo.lock",
+      "crates/metroflow-rust/Cargo.toml",
+      "crates/metroflow-rust/src/lib.rs",
+      "crates/metroflow-rust/src/v1_calendar.rs",
+      "crates/metroflow-rust/src/v1_engine.rs",
+      "crates/metroflow-rust/src/v1_history.rs",
+      "crates/metroflow-rust/src/v1_journey.rs",
+      "crates/metroflow-rust/src/v1_parallel.rs",
+      "crates/metroflow-rust/src/v1_road.rs",
+      "crates/metroflow-rust/src/v1_routing.rs",
+      "crates/metroflow-rust/src/v1_stage.rs",
+      "crates/metroflow-rust/src/v1_trace.rs",
+      "src/metroflow/v1/native_calendar.py",
+      "src/metroflow/v1/native_engine.py",
+      "src/metroflow/v1/native_journey.py",
+      "src/metroflow/v1/native_release_driver.py",
+      "src/metroflow/v1/native_road.py",
+      "src/metroflow/v1/native_routing.py",
+      "src/metroflow/v1/native_static.py",
+      "tools/run_v1_local_acceptance.py"
+    ],
+    "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+    "git_commit": "0c0206e30222d7c2d2449914ff020d73dfb47296",
+    "source_dirty": false
+  },
+  "native_binary": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/native_binding/_metroflow_rust.so",
+    "size_bytes": 3199792,
+    "sha256": "5145e7c314bb1951a3f30cd299c0b156c43a634d87ccc84ccfe3aca44e19b5cb"
+  },
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "calls": [
+    {
+      "end_s": 3600.0,
+      "wall_s": 10.986283342004754,
+      "peak_rss_bytes": 444567552,
+      "sites": {
+        "engine_admission:capture": {
+          "ratio": 0.1017090476428469,
+          "required": 655255550,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 0,
+            "road": 723616,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "engine_admission:capture/validation": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 29390656,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "journey_commit:checkpointability": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "input_road": 723616,
+            "current_road": 723616,
+            "candidate_road": 734704,
+            "decoded_road": 734704,
+            "journey_retained_input": 0,
+            "old_journey": 0,
+            "new_journey": 0,
+            "decoded_journey": 0,
+            "input_event": 0,
+            "current_event": 0,
+            "candidate_event": 0,
+            "validation_scratch": 29390656,
+            "call_binding_reserve": 82704900,
+            "road_decode_scratch": 50752
+          }
+        },
+        "road_actual:transfer buffers": {
+          "ratio": 0.0,
+          "required": 0,
+          "limit": 5789366242,
+          "terms": {
+            "events_len": 0,
+            "event_headers": 0,
+            "incoming_len": 0,
+            "incoming_cap": 0,
+            "marks_cap": 0,
+            "charged_events": 0,
+            "charged_incoming": 0
+          }
+        },
+        "road_work:tick preflight": {
+          "ratio": 0.001502835308100033,
+          "required": 8700464,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8700368,
+            "event_bytes": 96,
+            "event_headers": 0,
+            "incoming_rows": 0,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "extra": 0
+          }
+        },
+        "service_sinks:service finish": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "journey_live": 0,
+            "road_live": 2204112,
+            "event_live": 0,
+            "exit_rows": 0,
+            "sink_envelope": 0
+          }
+        }
+      },
+      "counters": {
+        "tick.cell_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.cell_parts": [
+          360,
+          0,
+          0
+        ],
+        "tick.offers": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_parts": [
+          360,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "end_s": 7200.0,
+      "wall_s": 10.387758808996296,
+      "peak_rss_bytes": 444567552,
+      "sites": {
+        "engine_admission:capture": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 0,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "engine_admission:capture/validation": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 29390656,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "journey_commit:checkpointability": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "input_road": 723616,
+            "current_road": 723616,
+            "candidate_road": 734704,
+            "decoded_road": 734704,
+            "journey_retained_input": 0,
+            "old_journey": 0,
+            "new_journey": 0,
+            "decoded_journey": 0,
+            "input_event": 0,
+            "current_event": 0,
+            "candidate_event": 0,
+            "validation_scratch": 29390656,
+            "call_binding_reserve": 82704900,
+            "road_decode_scratch": 50752
+          }
+        },
+        "road_actual:transfer buffers": {
+          "ratio": 0.0,
+          "required": 0,
+          "limit": 5789366242,
+          "terms": {
+            "events_len": 0,
+            "event_headers": 0,
+            "incoming_len": 0,
+            "incoming_cap": 0,
+            "marks_cap": 0,
+            "charged_events": 0,
+            "charged_incoming": 0
+          }
+        },
+        "road_work:tick preflight": {
+          "ratio": 0.001502835308100033,
+          "required": 8700464,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8700368,
+            "event_bytes": 96,
+            "event_headers": 0,
+            "incoming_rows": 0,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "extra": 0
+          }
+        },
+        "service_sinks:service finish": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "journey_live": 0,
+            "road_live": 2204112,
+            "event_live": 0,
+            "exit_rows": 0,
+            "sink_envelope": 0
+          }
+        }
+      },
+      "counters": {
+        "tick.cell_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.cell_parts": [
+          360,
+          0,
+          0
+        ],
+        "tick.offers": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_parts": [
+          360,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "end_s": 10800.0,
+      "wall_s": 12.49352855500183,
+      "peak_rss_bytes": 444567552,
+      "sites": {
+        "engine_admission:capture": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 0,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "engine_admission:capture/validation": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 29390656,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "journey_commit:checkpointability": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "input_road": 723616,
+            "current_road": 723616,
+            "candidate_road": 734704,
+            "decoded_road": 734704,
+            "journey_retained_input": 0,
+            "old_journey": 0,
+            "new_journey": 0,
+            "decoded_journey": 0,
+            "input_event": 0,
+            "current_event": 0,
+            "candidate_event": 0,
+            "validation_scratch": 29390656,
+            "call_binding_reserve": 82704900,
+            "road_decode_scratch": 50752
+          }
+        },
+        "road_actual:transfer buffers": {
+          "ratio": 0.0,
+          "required": 0,
+          "limit": 5789366242,
+          "terms": {
+            "events_len": 0,
+            "event_headers": 0,
+            "incoming_len": 0,
+            "incoming_cap": 0,
+            "marks_cap": 0,
+            "charged_events": 0,
+            "charged_incoming": 0
+          }
+        },
+        "road_work:tick preflight": {
+          "ratio": 0.001502835308100033,
+          "required": 8700464,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8700368,
+            "event_bytes": 96,
+            "event_headers": 0,
+            "incoming_rows": 0,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "extra": 0
+          }
+        },
+        "service_sinks:service finish": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "journey_live": 0,
+            "road_live": 2204112,
+            "event_live": 0,
+            "exit_rows": 0,
+            "sink_envelope": 0
+          }
+        }
+      },
+      "counters": {
+        "tick.cell_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.cell_parts": [
+          360,
+          0,
+          0
+        ],
+        "tick.offers": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_parts": [
+          360,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "end_s": 14400.0,
+      "wall_s": 9.389507557993056,
+      "peak_rss_bytes": 444567552,
+      "sites": {
+        "engine_admission:capture": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 0,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "engine_admission:capture/validation": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 29390656,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "journey_commit:checkpointability": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "input_road": 723616,
+            "current_road": 723616,
+            "candidate_road": 734704,
+            "decoded_road": 734704,
+            "journey_retained_input": 0,
+            "old_journey": 0,
+            "new_journey": 0,
+            "decoded_journey": 0,
+            "input_event": 0,
+            "current_event": 0,
+            "candidate_event": 0,
+            "validation_scratch": 29390656,
+            "call_binding_reserve": 82704900,
+            "road_decode_scratch": 50752
+          }
+        },
+        "road_actual:transfer buffers": {
+          "ratio": 0.0,
+          "required": 0,
+          "limit": 5789366242,
+          "terms": {
+            "events_len": 0,
+            "event_headers": 0,
+            "incoming_len": 0,
+            "incoming_cap": 0,
+            "marks_cap": 0,
+            "charged_events": 0,
+            "charged_incoming": 0
+          }
+        },
+        "road_work:tick preflight": {
+          "ratio": 0.001502835308100033,
+          "required": 8700464,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8700368,
+            "event_bytes": 96,
+            "event_headers": 0,
+            "incoming_rows": 0,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "extra": 0
+          }
+        },
+        "service_sinks:service finish": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "journey_live": 0,
+            "road_live": 2204112,
+            "event_live": 0,
+            "exit_rows": 0,
+            "sink_envelope": 0
+          }
+        }
+      },
+      "counters": {
+        "tick.cell_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.cell_parts": [
+          360,
+          0,
+          0
+        ],
+        "tick.offers": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_parts": [
+          360,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "end_s": 18000.0,
+      "wall_s": 9.63103248999687,
+      "peak_rss_bytes": 444567552,
+      "sites": {
+        "engine_admission:capture": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 0,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "engine_admission:capture/validation": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 29390656,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "journey_commit:checkpointability": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "input_road": 723616,
+            "current_road": 723616,
+            "candidate_road": 734704,
+            "decoded_road": 734704,
+            "journey_retained_input": 0,
+            "old_journey": 0,
+            "new_journey": 0,
+            "decoded_journey": 0,
+            "input_event": 0,
+            "current_event": 0,
+            "candidate_event": 0,
+            "validation_scratch": 29390656,
+            "call_binding_reserve": 82704900,
+            "road_decode_scratch": 50752
+          }
+        },
+        "road_actual:transfer buffers": {
+          "ratio": 0.0,
+          "required": 0,
+          "limit": 5789366242,
+          "terms": {
+            "events_len": 0,
+            "event_headers": 0,
+            "incoming_len": 0,
+            "incoming_cap": 0,
+            "marks_cap": 0,
+            "charged_events": 0,
+            "charged_incoming": 0
+          }
+        },
+        "road_work:tick preflight": {
+          "ratio": 0.001502835308100033,
+          "required": 8700464,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8700368,
+            "event_bytes": 96,
+            "event_headers": 0,
+            "incoming_rows": 0,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "extra": 0
+          }
+        },
+        "service_sinks:service finish": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "journey_live": 0,
+            "road_live": 2204112,
+            "event_live": 0,
+            "exit_rows": 0,
+            "sink_envelope": 0
+          }
+        }
+      },
+      "counters": {
+        "tick.cell_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.cell_parts": [
+          360,
+          0,
+          0
+        ],
+        "tick.offers": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_parts": [
+          360,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "end_s": 21600.0,
+      "wall_s": 12.651259700010996,
+      "peak_rss_bytes": 444567552,
+      "sites": {
+        "engine_admission:capture": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 0,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "engine_admission:capture/validation": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 29390656,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "journey_commit:checkpointability": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "input_road": 723616,
+            "current_road": 723616,
+            "candidate_road": 734704,
+            "decoded_road": 734704,
+            "journey_retained_input": 0,
+            "old_journey": 0,
+            "new_journey": 0,
+            "decoded_journey": 0,
+            "input_event": 0,
+            "current_event": 0,
+            "candidate_event": 0,
+            "validation_scratch": 29390656,
+            "call_binding_reserve": 82704900,
+            "road_decode_scratch": 50752
+          }
+        },
+        "road_actual:transfer buffers": {
+          "ratio": 0.0,
+          "required": 0,
+          "limit": 5789366242,
+          "terms": {
+            "events_len": 0,
+            "event_headers": 0,
+            "incoming_len": 0,
+            "incoming_cap": 0,
+            "marks_cap": 0,
+            "charged_events": 0,
+            "charged_incoming": 0
+          }
+        },
+        "road_work:tick preflight": {
+          "ratio": 0.001502835308100033,
+          "required": 8700464,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8700368,
+            "event_bytes": 96,
+            "event_headers": 0,
+            "incoming_rows": 0,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "extra": 0
+          }
+        },
+        "service_sinks:service finish": {
+          "ratio": 0.00039203738459909994,
+          "required": 2269648,
+          "limit": 5789366242,
+          "terms": {
+            "journey_live": 0,
+            "road_live": 2204112,
+            "event_live": 0,
+            "exit_rows": 0,
+            "sink_envelope": 0
+          }
+        }
+      },
+      "counters": {
+        "tick.cell_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.cell_parts": [
+          360,
+          0,
+          0
+        ],
+        "tick.offers": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_parts": [
+          360,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "end_s": 25200.0,
+      "wall_s": 13.73602839501109,
+      "peak_rss_bytes": 444567552,
+      "sites": {
+        "engine_admission:capture": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 0,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "engine_admission:capture/validation": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 29390656,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "journey_commit:checkpointability": {
+          "ratio": 0.0015486323761930002,
+          "required": 8965600,
+          "limit": 5789366242,
+          "terms": {
+            "input_road": 723616,
+            "current_road": 737552,
+            "candidate_road": 738224,
+            "decoded_road": 738272,
+            "journey_retained_input": 0,
+            "old_journey": 0,
+            "new_journey": 0,
+            "decoded_journey": 0,
+            "input_event": 0,
+            "current_event": 2228416,
+            "candidate_event": 2228416,
+            "validation_scratch": 29392800,
+            "call_binding_reserve": 82704900,
+            "road_decode_scratch": 51328
+          }
+        },
+        "road_actual:transfer buffers": {
+          "ratio": 0.00038513645653029665,
+          "required": 2229696,
+          "limit": 5789366242,
+          "terms": {
+            "events_len": 4,
+            "event_headers": 4,
+            "incoming_len": 4,
+            "incoming_cap": 16,
+            "marks_cap": 16,
+            "charged_events": 4,
+            "charged_incoming": 4
+          }
+        },
+        "road_work:cell packet reservation": {
+          "ratio": 0.002275048329892825,
+          "required": 13171088,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8711056,
+            "event_bytes": 4457312,
+            "event_headers": 9,
+            "incoming_rows": 9,
+            "interval_retained": 848,
+            "interval_transient": 0,
+            "extra": 432
+          }
+        },
+        "road_work:entry interval split": {
+          "ratio": 0.0022775135392790373,
+          "required": 13185360,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8711056,
+            "event_bytes": 4457312,
+            "event_headers": 9,
+            "incoming_rows": 9,
+            "interval_retained": 848,
+            "interval_transient": 14704,
+            "extra": 0
+          }
+        },
+        "road_work:entry projection cohort reservation": {
+          "ratio": 0.0022775992135962713,
+          "required": 13185856,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8711056,
+            "event_bytes": 4457312,
+            "event_headers": 9,
+            "incoming_rows": 9,
+            "interval_retained": 768,
+            "interval_transient": 14704,
+            "extra": 576
+          }
+        },
+        "road_work:packet interval packing": {
+          "ratio": 0.002277505248216079,
+          "required": 13185312,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8711056,
+            "event_bytes": 4457312,
+            "event_headers": 9,
+            "incoming_rows": 9,
+            "interval_retained": 768,
+            "interval_transient": 14704,
+            "extra": 32
+          }
+        },
+        "road_work:tick preflight": {
+          "ratio": 0.0018896907783503118,
+          "required": 10940112,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8711600,
+            "event_bytes": 2228512,
+            "event_headers": 0,
+            "incoming_rows": 0,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "extra": 0
+          }
+        },
+        "road_work:transfer candidates": {
+          "ratio": 0.0022748382896312196,
+          "required": 13169872,
+          "limit": 5789366242,
+          "terms": {
+            "base": 8711600,
+            "event_bytes": 4457312,
+            "event_headers": 6,
+            "incoming_rows": 6,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "extra": 0
+          }
+        },
+        "service_sinks:service finish": {
+          "ratio": 0.0015486075030041258,
+          "required": 8965456,
+          "limit": 5789366242,
+          "terms": {
+            "journey_live": 0,
+            "road_live": 2214672,
+            "event_live": 6685248,
+            "exit_rows": 0,
+            "sink_envelope": 0
+          }
+        }
+      },
+      "counters": {
+        "entry.combined_rows": [
+          234,
+          318,
+          4
+        ],
+        "entry.raw_rows": [
+          234,
+          318,
+          4
+        ],
+        "exact.intervals": [
+          234,
+          314,
+          4
+        ],
+        "exact.point_rows": [
+          234,
+          4,
+          1
+        ],
+        "exact.runs": [
+          234,
+          314,
+          4
+        ],
+        "pending.rows": [
+          4,
+          4,
+          1
+        ],
+        "tick.cell_packets": [
+          360,
+          881,
+          13
+        ],
+        "tick.cell_parts": [
+          360,
+          881,
+          13
+        ],
+        "tick.offers": [
+          360,
+          4,
+          4
+        ],
+        "tick.pending_packets": [
+          360,
+          0,
+          0
+        ],
+        "tick.pending_parts": [
+          360,
+          0,
+          0
+        ],
+        "xfer.head_rows": [
+          334,
+          334,
+          1
+        ],
+        "xfer.new_head_rows": [
+          334,
+          334,
+          1
+        ],
+        "xfer.partial_rows": [
+          14,
+          14,
+          1
+        ],
+        "xfer.partial_serve": [
+          334,
+          14,
+          1
+        ],
+        "xfer.serve_incoming_rows": [
+          334,
+          314,
+          1
+        ],
+        "xfer.serve_rows": [
+          334,
+          334,
+          1
+        ],
+        "xfer.sink_rows": [
+          334,
+          20,
+          1
+        ],
+        "xfer.substep_heads": [
+          334,
+          334,
+          1
+        ]
+      }
+    },
+    {
+      "end_s": 25900.0,
+      "wall_s": 133.6150975410128,
+      "peak_rss_bytes": 2146484224,
+      "sites": {
+        "engine_admission:capture": {
+          "ratio": 0.10171421089520057,
+          "required": 655288814,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 0,
+            "road": 734704,
+            "journey": 0,
+            "events": 0
+          }
+        },
+        "engine_admission:capture/validation": {
+          "ratio": 0.4665232192104061,
+          "required": 3005552954,
+          "limit": 6442450944,
+          "terms": {
+            "fixed_base": 570379802,
+            "call_binding": 82704900,
+            "validation_scratch": 354855984,
+            "road": 287075024,
+            "journey": 286562592,
+            "events": 119801440
+          }
+        },
+        "journey_commit:checkpointability": {
+          "ratio": 0.40649210597998303,
+          "required": 2353331676,
+          "limit": 5789366242,
+          "terms": {
+            "input_road": 723616,
+            "current_road": 277817376,
+            "candidate_road": 287075024,
+            "decoded_road": 287362832,
+            "journey_retained_input": 0,
+            "old_journey": 278501536,
+            "new_journey": 286562592,
+            "decoded_journey": 276837536,
+            "input_event": 0,
+            "current_event": 111412832,
+            "candidate_event": 119801440,
+            "validation_scratch": 354855984,
+            "call_binding_reserve": 82704900,
+            "road_decode_scratch": 105938736
+          }
+        },
+        "road_actual:transfer buffers": {
+          "ratio": 0.10887023944490058,
+          "required": 539286560,
+          "limit": 4953480058,
+          "terms": {
+            "events_len": 3676670,
+            "event_headers": 4447,
+            "incoming_len": 3579839,
+            "incoming_cap": 5243564,
+            "marks_cap": 5243564,
+            "charged_events": 3676670,
+            "charged_incoming": 3579839
+          }
+        },
+        "road_work:cell packet reservation": {
+          "ratio": 0.40619685563292524,
+          "required": 2012088024,
+          "limit": 4953480058,
+          "terms": {
+            "base": 1092728512,
+            "event_bytes": 231217128,
+            "event_headers": 4447,
+            "incoming_rows": 3630567,
+            "interval_retained": 107251184,
+            "interval_transient": 0,
+            "extra": 480
+          }
+        },
+        "road_work:entry interval split": {
+          "ratio": 0.4127075333024385,
+          "required": 2044338536,
+          "limit": 4953480058,
+          "terms": {
+            "base": 1092728512,
+            "event_bytes": 231217128,
+            "event_headers": 4447,
+            "incoming_rows": 3630567,
+            "interval_retained": 99323344,
+            "interval_transient": 40178832,
+            "extra": 0
+          }
+        },
+        "road_work:entry projection cohort reservation": {
+          "ratio": 0.4127081728528077,
+          "required": 2044341704,
+          "limit": 4953480058,
+          "terms": {
+            "base": 1092728512,
+            "event_bytes": 231217128,
+            "event_headers": 4447,
+            "incoming_rows": 3630567,
+            "interval_retained": 99323344,
+            "interval_transient": 40178832,
+            "extra": 3168
+          }
+        },
+        "road_work:packet interval packing": {
+          "ratio": 0.4127083472756357,
+          "required": 2044342568,
+          "limit": 4953480058,
+          "terms": {
+            "base": 1092728512,
+            "event_bytes": 231217128,
+            "event_headers": 4447,
+            "incoming_rows": 3630567,
+            "interval_retained": 99323344,
+            "interval_transient": 40178832,
+            "extra": 4032
+          }
+        },
+        "road_work:tick preflight": {
+          "ratio": 0.2430899944888806,
+          "required": 1204141440,
+          "limit": 4953480058,
+          "terms": {
+            "base": 1092728512,
+            "event_bytes": 111412928,
+            "event_headers": 0,
+            "incoming_rows": 0,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "extra": 0
+          }
+        },
+        "road_work:transfer candidates": {
+          "ratio": 0.38454507491629836,
+          "required": 1904836360,
+          "limit": 4953480058,
+          "terms": {
+            "base": 1092728512,
+            "event_bytes": 231217128,
+            "event_headers": 4447,
+            "incoming_rows": 3630567,
+            "interval_retained": 0,
+            "interval_transient": 0,
+            "extra": 0
+          }
+        },
+        "service_sinks:service finish": {
+          "ratio": 0.3643330229651068,
+          "required": 2109257304,
+          "limit": 5789366242,
+          "terms": {
+            "journey_live": 835886184,
+            "road_live": 861225072,
+            "event_live": 359404320,
+            "exit_rows": 96831,
+            "sink_envelope": 52676192
+          }
+        }
+      },
+      "counters": {
+        "entry.combined_rows": [
+          66314,
+          85519136,
+          90064
+        ],
+        "entry.raw_rows": [
+          66314,
+          85519136,
+          90064
+        ],
+        "exact.intervals": [
+          66314,
+          257278,
+          34
+        ],
+        "exact.point_rows": [
+          66314,
+          4014597,
+          30345
+        ],
+        "exact.runs": [
+          66314,
+          243956,
+          30
+        ],
+        "pending.rows": [
+          32610,
+          3199371,
+          464
+        ],
+        "tick.cell_packets": [
+          70,
+          481532,
+          10117
+        ],
+        "tick.cell_parts": [
+          70,
+          159484125,
+          6350643
+        ],
+        "tick.offers": [
+          70,
+          8572003,
+          157768
+        ],
+        "tick.pending_packets": [
+          70,
+          0,
+          0
+        ],
+        "tick.pending_parts": [
+          70,
+          0,
+          0
+        ],
+        "xfer.head_rows": [
+          199234,
+          84282359,
+          5945
+        ],
+        "xfer.new_head_rows": [
+          184124,
+          58728788,
+          5945
+        ],
+        "xfer.partial_rows": [
+          16767,
+          27809553,
+          5945
+        ],
+        "xfer.partial_serve": [
+          199234,
+          16767,
+          1
+        ],
+        "xfer.rate_change_contiguous_rows": [
+          919,
+          1216907,
+          4906
+        ],
+        "xfer.same_head_gap_rows": [
+          3546,
+          5948908,
+          5886
+        ],
+        "xfer.same_rate_contiguous_rows": [
+          10645,
+          18387756,
+          5945
+        ],
+        "xfer.serve_incoming_rows": [
+          199234,
+          82319765,
+          5945
+        ],
+        "xfer.serve_rows": [
+          199234,
+          84282359,
+          5945
+        ],
+        "xfer.sink_rows": [
+          199234,
+          1962594,
+          294
+        ],
+        "xfer.substep_heads": [
+          186776,
+          199234,
+          3
+        ]
+      }
+    }
+  ],
+  "driver_identity": "4dd2d07d51f419b35c5a8c429f6409bfbc7e63e23d563bfb2b118bc9f9a0c01d",
+  "native_storage": {
+    "policy": "bounded_bytes_v1",
+    "total_accounting_budget_bytes": 6442450944,
+    "conservative_static_accounting_bytes": 1073526202,
+    "static_accounting_scope": "unchanged constructor preflight estimate; retained_capacity_v4 does not subtract it from runtime storage",
+    "resource_binding": "retained_capacity_v4",
+    "retained_static_payload_bytes": 384671172,
+    "initial_road_reserve_bytes": 723616,
+    "journey_dense_one_copy_bytes": 29390912,
+    "journey_dense_copies": 4,
+    "service_dense_one_copy_bytes": 6368,
+    "service_dense_copies": 6,
+    "call_binding_reserve_bytes": 82704900,
+    "per_worker_scratch_total_bytes": 66144,
+    "service_prepare_scratch_bytes": 208150,
+    "observation_reserve_bytes": 67108864,
+    "runtime_fixed_reserve_bytes": 653084702,
+    "dynamic_shared_pool_bytes": 5789366242,
+    "footprint_scope": "owned Vec/String capacities, unique shared law/profile allocations and explicit allocator/map allowances; includes known dense clones, per-call binding, worker/profile and service-offer scratch; excludes Python frontend, opaque Rayon/allocator internals and unrelated caller-retained snapshots, which require the process limit",
+    "road_dynamic_allowance_bytes": 5789366242,
+    "journey_dynamic_allowance_bytes": 5789366242,
+    "service_event_record_ceiling": 90458847,
+    "allocation_rationale": "road/journey values are non-additive ceilings on one shared dynamic pool; each phase subtracts other known live owners before allocation; capture/decode/validation have separate global admission; policy and total are checkpoint-bound, ephemeral quotas and worker counts are not",
+    "scope": "owner storage guards; total process address-space/RSS limit must cover caller-retained immutable snapshots and allocation overhead"
+  },
+  "construct_wall_s": 34.68682008900214,
+  "simulated_s": 25900.0,
+  "wall_s": 248.59992989699822,
+  "peak_rss_bytes": 2146484224,
+  "report": {
+    "status": "WHOLE_CALENDAR_ACTIVATED",
+    "activation": "complete native preactivation; one shared occupied road",
+    "calendar": {
+      "calendar": {
+        "legs": 918450,
+        "persons": 120000.0,
+        "vehicles": 58801.0,
+        "cargo_kg": 1000,
+        "resident_stock": 100000.0,
+        "requested_workers": 50000.0,
+        "allocated_workers": 40000.0,
+        "unassigned_workers": 10000.0
+      },
+      "materialized_legs": 918450,
+      "remaining_legs": 0,
+      "remaining_amounts": {
+        "persons": 0.0,
+        "vehicles": 0.0,
+        "cargo_kg": 0
+      },
+      "execution": "NOT_RUN",
+      "scope": "exact compilation coverage; pages must enter one shared live runtime"
+    },
+    "execution": {
+      "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+      "time_s": 25900.0,
+      "ledger": {
+        "persons": {
+          "requested": 3888.888888888912,
+          "released": 2303.686489737489,
+          "completed": 292.26080497874847,
+          "pending": 1585.202399151423,
+          "active": 2011.4256847587405
+        },
+        "vehicles": {
+          "requested": 1905.5555555555322,
+          "released": 1840.0000000000568,
+          "completed": 231.1557644767189,
+          "pending": 65.5555555554754,
+          "active": 1608.8442355233378
+        },
+        "cargo_kg": {
+          "requested": 0.0,
+          "released": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "active": 0.0
+        }
+      },
+      "released_intent_first_moments": {
+        "persons": 58847671.380346105,
+        "vehicles": 47002799.999999836,
+        "cargo_kg": 0.0
+      },
+      "service": {
+        "time_s": 25900.0,
+        "scheduled_bus_vehicles": 24,
+        "bus_road_vehicles": 4.440892098500626e-16,
+        "bus_stop_or_finished_vehicles": 24.0,
+        "completed_bus_vehicles": 4,
+        "waiting_persons": 1.6769625,
+        "onboard_persons": 0.0,
+        "arrived_persons": 0.0,
+        "wait_person_s": 0.0,
+        "freight_completed_vehicles": 0.0,
+        "cargo_delivered_kg": 0.0,
+        "cargo_unfinished_kg": 998.825,
+        "road_released_veh": 1449.1624618904361,
+        "road_completed_veh": 370.33891943665583
+      },
+      "assignment": {
+        "units": {
+          "persons": {
+            "requested": 120000.0,
+            "assigned": 1.6769625000015367,
+            "unassigned": 119998.3230375
+          },
+          "vehicles": {
+            "requested": 58801.0,
+            "assigned": 1.0659034999989672,
+            "unassigned": 58799.9340965
+          },
+          "cargo_kg": {
+            "requested": 1000.0,
+            "assigned": 998.825,
+            "unassigned": 1.175
+          }
+        },
+        "fixed_fleet_vehicles": 24,
+        "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+      },
+      "construction": {
+        "legs": 918450,
+        "physical_routes": 304856,
+        "unique_paths": 38916,
+        "unsupported_legs": 610820,
+        "road_legs": 304368,
+        "internal_legs": 3012,
+        "estimated_bytes": 1073526202,
+        "byte_budget": 6442450944,
+        "python_calendar_leg_objects": 0,
+        "road_owners": 1
+      },
+      "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+      "full_release_campaign": "NOT_RUN"
+    },
+    "full_local_acceptance": "NOT_RUN"
+  },
+  "debug": {
+    "time_s": 25900.0,
+    "journey": {
+      "entering": 2329997,
+      "egress": 2706374,
+      "internal": 73045,
+      "receipts": 3322680,
+      "total_records": 8432096,
+      "stage_capacity": {
+        "entering": 2893236,
+        "egress": 3189795,
+        "internal": 83802
+      },
+      "dense_capacity_bytes": 29390400,
+      "dynamic_storage_bytes": 286553512,
+      "stage_blocks": {
+        "entering": 14698,
+        "egress": 15310,
+        "internal": 1081
+      },
+      "stage_carrier_sum": {
+        "entering": 378.7356318695344,
+        "egress": 148.31578064116772,
+        "internal": 3.3396709134200036
+      },
+      "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+      "ready_now": {
+        "entering": 156370,
+        "egress": 0,
+        "internal": 0
+      },
+      "nonempty_histories": 30085,
+      "capacity_scope": "dense_capacity_bytes excludes stage/history blocks; dynamic_storage_bytes counts persistent stage/history allocation estimates with shared prefixes counted per owner, not process RSS"
+    },
+    "road": {
+      "cell_packets": 10327,
+      "pending_packets": 0,
+      "cell_parts": 6597345,
+      "pending_parts": 0,
+      "uniform_packets": 5750,
+      "mixed_packets": 4577,
+      "uniform_parts": 1972830,
+      "mixed_parts": 4624515,
+      "packet_capacity": 10327,
+      "part_capacity": 6597345,
+      "vector_capacity_bytes": 285818976,
+      "latent_entries": 1085,
+      "max_cell_parts": 120992,
+      "max_pending_parts": 0,
+      "shared_packets": 0,
+      "shared_logical_parts": 0,
+      "shared_terms": 0,
+      "shared_blocks": 0,
+      "shared_block_rows": 0,
+      "shared_block_bytes": 0,
+      "shared_max_block_rows": 0,
+      "retained_storage_bytes": 286934816,
+      "total_records": 6597345,
+      "event_resolution": {
+        "subulp_events": 747,
+        "processed_subulp_time_upper_s": 7.728187380165289e-15,
+        "clock_roundoff_upper_s": 1.9918661162567268e-16,
+        "nominal_subulp_service_mass_upper": 4.945085028328188e-15,
+        "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+        "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+        "checkpointed": false
+      },
+      "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+    },
+    "service_last_events": 3676670,
+    "execution": {
+      "entry_projection_width_s": 1.0,
+      "entry_projection_policy": "entry_projection_support_v1",
+      "road_representation": "rows",
+      "native_threads": 1,
+      "scheduler": "serial",
+      "float_reductions": "original serial order",
+      "thread_count_in_scientific_identity": false,
+      "parallel_scope": "independent indexed work above per-kernel size thresholds"
+    },
+    "storage": {
+      "policy": "bounded_bytes_v1",
+      "total_accounting_budget_bytes": 6442450944,
+      "conservative_static_accounting_bytes": 1073526202,
+      "static_accounting_scope": "unchanged constructor preflight estimate; retained_capacity_v4 does not subtract it from runtime storage",
+      "resource_binding": "retained_capacity_v4",
+      "retained_static_payload_bytes": 384671172,
+      "initial_road_reserve_bytes": 723616,
+      "journey_dense_one_copy_bytes": 29390912,
+      "journey_dense_copies": 4,
+      "service_dense_one_copy_bytes": 6368,
+      "service_dense_copies": 6,
+      "call_binding_reserve_bytes": 82704900,
+      "per_worker_scratch_total_bytes": 66144,
+      "service_prepare_scratch_bytes": 208150,
+      "observation_reserve_bytes": 67108864,
+      "runtime_fixed_reserve_bytes": 653084702,
+      "dynamic_shared_pool_bytes": 5789366242,
+      "footprint_scope": "owned Vec/String capacities, unique shared law/profile allocations and explicit allocator/map allowances; includes known dense clones, per-call binding, worker/profile and service-offer scratch; excludes Python frontend, opaque Rayon/allocator internals and unrelated caller-retained snapshots, which require the process limit",
+      "road_dynamic_allowance_bytes": 5789366242,
+      "journey_dynamic_allowance_bytes": 5789366242,
+      "service_event_record_ceiling": 90458847,
+      "allocation_rationale": "road/journey values are non-additive ceilings on one shared dynamic pool; each phase subtracts other known live owners before allocation; capture/decode/validation have separate global admission; policy and total are checkpoint-bound, ephemeral quotas and worker counts are not",
+      "scope": "owner storage guards; total process address-space/RSS limit must cover caller-retained immutable snapshots and allocation overhead"
+    },
+    "last_attempt": null,
+    "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+  },
+  "checkpoint": {
+    "path": "artifacts/v1_markblock_20261117/valley_h1_25900_rows_control.last_valid.bin",
+    "bytes": 903148860,
+    "sha256": "ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff"
+  },
+  "script_sha256": "316b50f1bfab1cca01d0b88543ddb2ade0fd618e93d9b4c275a89552b848b541"
+}
