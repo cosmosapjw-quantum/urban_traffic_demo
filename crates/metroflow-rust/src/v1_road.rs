@@ -1105,9 +1105,13 @@ impl RoadState {
             .saturating_add(largest_packet.saturating_mul(std::mem::size_of::<Part>()));
         // These terms mirror RoadDecodeBudget::reserve's validation increments:
         // 16 per homogeneous part, 32 per packet, and 32 per cell.
+        // mark_block_scaled_v1: the decode pool map holds one node per block
+        // and each block row is validated once (0 for the row representation).
         let validation = stats
             .cell_parts
             .saturating_add(stats.pending_parts)
+            .saturating_add(stats.census.block_rows)
+            .saturating_add(stats.census.blocks.saturating_mul(8))
             .saturating_mul(16)
             .saturating_add(
                 stats
