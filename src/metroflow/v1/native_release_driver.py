@@ -19,13 +19,15 @@ class NativeReleaseDriver:
 
     def __init__(self, plan, inventory, *, step_s=10.0,
                  byte_budget=2 * 1024**3, record_budget=20000, event_budget=20000,
-                 native_threads=1, storage_policy="legacy_records", entry_projection_width_s=0.0):
+                 native_threads=1, storage_policy="legacy_records", entry_projection_width_s=0.0,
+                 road_representation="rows"):
         totals = plan.totals()
         self.plan = plan
         self.runtime = NativeWholeRuntime(plan.city, plan.schedule, inventory,
             step_s=step_s, byte_budget=byte_budget, record_budget=record_budget,
             event_budget=event_budget, native_threads=native_threads,
-            storage_policy=storage_policy, entry_projection_width_s=entry_projection_width_s)
+            storage_policy=storage_policy, entry_projection_width_s=entry_projection_width_s,
+            road_representation=road_representation)
         self.cursor = PlanCursor(plan.schedule.identity, totals['legs'],
             totals['persons'], totals['vehicles'], totals['cargo_kg'])
         plan.summary(self.cursor)

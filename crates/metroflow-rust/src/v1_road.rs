@@ -4246,6 +4246,17 @@ impl V1Road {
         out.set_item("cohorts", stats.cohorts)?;
         out.set_item("protected_support_boundaries", stats.protected_support_boundaries)?;
         out.set_item("local_w1_bound_veh_s", stats.local_w1_bound)?;
+        out.set_item("road_representation", self.road_representation())?;
+        if self.mark_blocks {
+            let census = self.state.census;
+            out.set_item("input_contributions", stats.input_contributions)?;
+            out.set_item("output_terms", stats.output_terms)?;
+            out.set_item("new_block_rows", stats.new_block_rows)?;
+            out.set_item("state_blocks", census.blocks)?;
+            out.set_item("state_block_rows", census.block_rows)?;
+            out.set_item("state_block_bytes", census.block_bytes)?;
+            out.set_item("state_terms", census.terms)?;
+        }
         out.set_item("scope", "latest validated proposed road transition in this runtime; may precede coupled rollback or describe a branch/replay; local time-measure projection cost, not network trajectory error; unchanged by failed road proposals and checkpoint restore")?;
         out.set_item("checkpointed", false)?;
         Ok(out.unbind())
@@ -4577,7 +4588,7 @@ mod entry_projection_tests {
             vec![None; 4], vec![vec![0, 1, 2], vec![0, 1, 3], vec![0, 3]],
             vec![(0, 0), (1, 0), (2, 0)],
             vec![vec![20., 1., 2., 3., 2., 1., 4., 0.5, 0.2, 0.3, 4., 10., 6.]],
-            vec![vec![0], vec![1], vec![2], vec![3]], vec![], 10_000, None, true, h,
+            vec![vec![0], vec![1], vec![2], vec![3]], vec![], 10_000, None, true, h, false,
         ).unwrap()
     }
     fn part(tag: usize, mass: f64, birth: f64, a: f64, b: f64) -> Part {
@@ -4756,5 +4767,309 @@ mod event_store_tests {
         let n = EventStore::max_rows_within(budget);
         assert!(EventStore::upper_bytes(n, n) <= budget);
         assert_eq!(EventStore::upper_bytes(0, 0), 0);
+    }
+}
+
+#[cfg(test)]
+mod mark_block_tests {
+    use super::*;
+
+    const CAR: [f64; 13] = [20., 1., 2., 3., 2., 1., 4., 0.5, 0.2, 0.3, 4., 10., 6.];
+    const TRUCK: [f64; 13] = [12., 0.8, 1., 2., 3., 1.5, 9., 0.6, 0.1, 0.2, 5., 8., 12.];
+
+    /// Paths: 0 -> 1 -> 3 -> 4 and 0 -> 2 -> 3 -> 4 diverge at 0 and
+    /// reconverge at 3; tag 4 leaves at 3. Cell 0 is a slow bottleneck so
+    /// heads are partially served many times.
+    fn road(mark: bool, h: f64) -> V1Road {
+        let mut groups = vec![vec![100., 20., 10., 10., 1000., 1.]; 5];
+        groups[0] = vec![60., 20., 10., 0.35, 1000., 1.];
+        groups[3] = vec![60., 20., 10., 0.6, 1000., 1.];
+        V1Road::new_shared_routes(
+            "mark-block-test".into(), 1., groups, vec![None; 5],
+            vec![vec![0, 1, 3, 4], vec![0, 2, 3, 4], vec![0, 1, 3]],
+            vec![(0, 0), (1, 0), (0, 1), (1, 1), (2, 0)],
+            vec![CAR.to_vec(), TRUCK.to_vec()],
+            vec![vec![0], vec![1, 2], vec![3], vec![4]], vec![], 1_000_000, None, true, h, mark,
+        ).unwrap()
+    }
+    fn offers(step: usize) -> Vec<Offer> {
+        if step >= 12 {
+            return vec![];
+        }
+        let s = step as f64;
+        // Distinct birth marks; tag 4 is tiny but positive.
+        vec![
+            (0, 0.30 + 0.01 * s, 0.30 * s * 0.5, None, None),
+            (1, 0.20, 0.20 * s * 0.25, None, None),
+            (2, 0.07, 0., None, None),
+            (3, 0.05 + 0.002 * s, 0.05 * s * 0.1, None, None),
+            (4, 1e-9, 0., None, None),
+        ]
+    }
+    fn advance(r: &mut V1Road, step: usize) -> EventStore {
+        let (s, e) = r.propose_owned_step(1., offers(step)).unwrap();
+        r.rollback(s);
+        e
+    }
+    fn by_tag(s: &RoadState) -> BTreeMap<usize, (f64, f64)> {
+        let mut out: BTreeMap<usize, (Vec<f64>, Vec<f64>)> = BTreeMap::new();
+        for p in s.cells.iter().flat_map(|c| &c.packets).chain(s.pending.iter().flatten()) {
+            for x in &p.parts {
+                let e = out.entry(x.tag).or_default();
+                e.0.push(x.mass);
+                e.1.push(x.birth);
+            }
+        }
+        out.into_iter().map(|(k, (m, b))| (k, (sum(m), sum(b)))).collect()
+    }
+    fn close(a: f64, b: f64, rel: f64) -> bool {
+        (a - b).abs() <= rel * a.abs().max(b.abs()).max(1.)
+    }
+    fn wire(r: &V1Road) -> Vec<u8> {
+        let mut w = Vec::new();
+        r.write_state(&mut w).unwrap();
+        w
+    }
+
+    #[test]
+    fn shared_path_matches_rows_through_divergence_reconvergence_and_classes() {
+        let (mut rows, mut mark) = (road(false, 0.25), road(true, 0.25));
+        let mut saw_shared_partial = false;
+        let mut saw_reconverged_views = false;
+        let mut cohort_mismatch_steps = vec![];
+        for step in 0..120 {
+            let (ea, eb) = (advance(&mut rows, step), advance(&mut mark, step));
+            // Events are linear in mass: per (tag, dest) totals agree.
+            let agg = |e: &EventStore| {
+                let mut m: BTreeMap<(usize, Option<usize>), Vec<f64>> = BTreeMap::new();
+                for x in e.iter() {
+                    m.entry((x.0, x.2)).or_default().push(x.3);
+                }
+                m.into_iter().map(|(k, v)| (k, sum(v))).collect::<BTreeMap<_, _>>()
+            };
+            let (ga, gb) = (agg(&ea), agg(&eb));
+            assert_eq!(ga.keys().collect::<Vec<_>>(), gb.keys().collect::<Vec<_>>());
+            for (k, v) in &ga {
+                assert!(close(*v, gb[k], 1e-12), "event {k:?} {v} {}", gb[k]);
+            }
+            let (sa, sb) = (&rows.state, &mark.state);
+            for j in 0..7 {
+                assert!(close(sa.totals[j], sb.totals[j], 1e-12), "total {j}");
+            }
+            let worst = (0..2).flat_map(|k| (0..5).map(move |j| (k, j)))
+                .map(|(k, j)| (sa.ledger[k][j] - sb.ledger[k][j]).abs() / sa.ledger[k][j].abs().max(1.))
+                .fold(0., f64::max);
+            if step < 34 {
+                // Before the extra row-path cohort is served, all class
+                // ledgers including queue wait agree to rounding.
+                assert!(worst < 1e-14, "step {step}: {worst:e}");
+            }
+            for k in 0..2 {
+                for j in 0..5 {
+                    if j == 3 { continue; }
+                    assert!(close(sa.ledger[k][j], sb.ledger[k][j], 1e-12), "step {step} class {k} ledger {j}: {} {} rel {:e}", sa.ledger[k][j], sb.ledger[k][j], (sa.ledger[k][j]-sb.ledger[k][j]).abs()/sa.ledger[k][j]);
+                }
+            }
+            let (ta, tb) = (by_tag(sa), by_tag(sb));
+            assert_eq!(ta.keys().collect::<Vec<_>>(), tb.keys().collect::<Vec<_>>());
+            for (tag, (m, b)) in &ta {
+                assert!(close(*m, tb[tag].0, 1e-12) && close(*b, tb[tag].1, 1e-12), "tag {tag}");
+            }
+            // Per-cell mass, birth and entry first moments agree. Cohort
+            // counts may differ: an ulp-level difference of a junction event
+            // end time toggles a protected support boundary (known defect
+            // (b)/(c) of the V03 counterexample suite), see
+            // `ulp_event_boundary_changes_cohort_count_not_observables`.
+            for (ca, cb) in sa.cells.iter().zip(&sb.cells) {
+                let m = |c: &Cell| sum(c.packets.iter().flat_map(|p| p.parts.iter().map(|x| x.mass)));
+                let b = |c: &Cell| sum(c.packets.iter().flat_map(|p| p.parts.iter().map(|x| x.birth)));
+                let e = |c: &Cell| sum(c.packets.iter().flat_map(|p| p.parts.iter().map(|x| x.mass * x.a.unwrap())));
+                assert!(close(m(ca), m(cb), 1e-12) && close(b(ca), b(cb), 1e-12) && close(e(ca), e(cb), 1e-12));
+                if ca.packets.len() != cb.packets.len() {
+                    cohort_mismatch_steps.push(step);
+                }
+            }
+            for p in &sb.cells[0].packets {
+                saw_shared_partial |= p.parts.shared_terms().is_some_and(|t| t.iter().any(|t| t.lambda < 1.));
+            }
+            for p in &sb.cells[3].packets {
+                if let Some(terms) = p.parts.shared_terms() {
+                    let blocks: Vec<_> = terms.iter().map(|t| t.block.id).collect();
+                    saw_reconverged_views |= terms.len() > 1
+                        && blocks.windows(2).any(|w| w[0] == w[1]);
+                }
+            }
+        }
+        assert!(saw_shared_partial, "partial head service of a shared cohort was exercised");
+        assert!(saw_reconverged_views, "one block reached cell 3 by two prefixes as distinct views");
+        assert!(close(rows.state.totals[1], mark.state.totals[1], 1e-12));
+        assert!(mark.state.totals[1] > 0.);
+        // Observed on this fixture: only the ulp-boundary steps differ.
+        assert_eq!(cohort_mismatch_steps, (25..34).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn ulp_event_boundary_changes_cohort_count_not_observables() {
+        // Step 25 of the shared fixture: the row path's consecutive serves of
+        // cell 3 end at 25.698747293149196 and restart at 25.6987472931492
+        // (one ulp gap), which the support scan reads as an empty-support
+        // run and protects as a cohort boundary. The mark-block path's head
+        // masses round differently, its event times are contiguous, and it
+        // keeps one cohort. Both preserve the cell's measures (checked in the
+        // test above); this records the cohort-count difference.
+        let (mut rows, mut mark) = (road(false, 0.25), road(true, 0.25));
+        for step in 0..26 {
+            advance(&mut rows, step);
+            advance(&mut mark, step);
+        }
+        assert_eq!(rows.state.cells[4].packets.len(), 4);
+        assert_eq!(mark.state.cells[4].packets.len(), 3);
+        // Counterexample kept (strict): serving that extra cohort changes the
+        // event partition and hence the midpoint queue-wait quadrature
+        // (class ledger [3]) by ~9e-8 relative, above the PLAN residence
+        // tolerance 1e-8, while vehicle mass, birth and entry moments agree
+        // to ~1e-16. Cause: the row path's ulp-boundary sensitivity, not mass
+        // sharing. If defects (b)/(c) are fixed this assertion must be
+        // revisited (it is expected to fail then).
+        for step in 26..60 {
+            advance(&mut rows, step);
+            advance(&mut mark, step);
+        }
+        let rel = (rows.state.ledger[0][3] - mark.state.ledger[0][3]).abs() / rows.state.ledger[0][3];
+        assert!(rel > 1e-8 && rel < 1e-6, "{rel:e}");
+        for j in [0, 1, 2, 4] {
+            let a = rows.state.ledger[0][j];
+            assert!((a - mark.state.ledger[0][j]).abs() <= 1e-14 * a.max(1.));
+        }
+    }
+
+    #[test]
+    fn repeated_partial_service_scales_without_row_growth() {
+        let r = road(true, 0.25);
+        let rows: Vec<Part> = (0..5)
+            .map(|tag| Part { tag, offset: 0, mass: 0.1 + tag as f64, birth: tag as f64,
+                a: PackedTime::new(Some(0.)).unwrap(), b: PackedTime::new(Some(0.)).unwrap() })
+            .collect();
+        let mut next = 0;
+        let w = RoadWorkBudget { limit: None, base: 0, events: 0, event_headers: 0, incoming: 0,
+            interval_retained: 0, interval_transient: 0, service_events: None };
+        let block = r.new_block(rows.clone(), 0, &mut next, &w).unwrap();
+        let mut head = PacketParts::Shared {
+            terms: vec![Term { block: block.clone(), lo: 0, hi: 5, shift: 0, lambda: 1., entry: 0.25 }],
+            rows: 5,
+        };
+        let (m0, b0) = (sum(head.iter().map(|p| p.mass)), sum(head.iter().map(|p| p.birth)));
+        let (mut served_m, mut served_b, mut served_e) = (vec![], vec![], vec![]);
+        for k in 0..10_000 {
+            let f = 1e-4 * (1. + (k % 7) as f64);
+            let (served, contributions) = r.shared_serve(head.shared_terms().unwrap(), head.len(), f, &w).unwrap();
+            assert_eq!(served.len(), 5);
+            // Two next movements (cells 1 and 2) per term, no copy of rows.
+            assert_eq!(contributions.len(), 2);
+            assert!(contributions.iter().all(|(_, t)| Arc::ptr_eq(&t.block, &block)));
+            served_m.extend(served.iter().map(|p| p.mass));
+            served_b.extend(served.iter().map(|p| p.birth));
+            served_e.extend(served.iter().map(|p| p.mass * 0.25));
+            head.scale_shared(1. - f).unwrap();
+            assert_eq!(head.shared_terms().unwrap().len(), 1);
+        }
+        // One block allocation shared by the head and nothing else retained.
+        assert_eq!(Arc::strong_count(&block), 2);
+        assert_eq!(head.allocated_bytes(), std::mem::size_of::<Term>());
+        let rem_m = sum(head.iter().map(|p| p.mass));
+        let rem_b = sum(head.iter().map(|p| p.birth));
+        let rem_e = sum(head.iter().map(|p| p.mass * p.a.unwrap()));
+        // Mass, birth and entry first moments are conserved to rounding of
+        // 10^4 sequential scalings (each <= 1 ulp relative).
+        assert!(close(sum(served_m.iter().copied().chain([rem_m])), m0, 1e-11));
+        assert!(close(sum(served_b.iter().copied().chain([rem_b])), b0, 1e-11));
+        assert!(close(sum(served_e.iter().copied().chain([rem_e])), m0 * 0.25, 1e-11));
+    }
+
+    #[test]
+    fn tiny_coefficient_underflow_fails_explicitly() {
+        let r = road(true, 0.25);
+        let w = RoadWorkBudget { limit: None, base: 0, events: 0, event_headers: 0, incoming: 0,
+            interval_retained: 0, interval_transient: 0, service_events: None };
+        let mut next = 0;
+        let tiny = vec![Part { tag: 0, offset: 0, mass: 1e-300, birth: 0.,
+            a: PackedTime::new(Some(0.)).unwrap(), b: PackedTime::new(Some(0.)).unwrap() }];
+        let block = r.new_block(tiny, 0, &mut next, &w).unwrap();
+        let term = Term { block, lo: 0, hi: 1, shift: 0, lambda: 1., entry: f64::NAN };
+        let mut head = PacketParts::Shared { terms: vec![term.clone()], rows: 1 };
+        // lambda * 1e-300 below the smallest normal: the positive mass would
+        // become subnormal/zero; this is refused rather than dropped.
+        assert!(r.shared_serve(head.shared_terms().unwrap(), 1, 1e-10, &w).is_err());
+        assert!(head.scale_shared(1e-10).is_err());
+        // A representable coefficient still serves the positive mass.
+        let (served, _) = r.shared_serve(&[term], 1, 0.5, &w).unwrap();
+        assert!(served[0].mass > 0.);
+        assert!(check_coefficient(0., &head.shared_terms().unwrap()[0].block).is_err());
+        assert!(check_coefficient(f64::NAN, &head.shared_terms().unwrap()[0].block).is_err());
+    }
+
+    #[test]
+    fn checkpoint_roundtrip_resumes_bit_identically_and_rejects_bad_references() {
+        let mut a = road(true, 0.25);
+        for step in 0..9 {
+            advance(&mut a, step);
+        }
+        assert!(a.state.census.blocks > 0 && a.state.census.terms > 0);
+        let saved = wire(&a);
+        let mut b = road(true, 0.25);
+        let decoded = b.read_state(&mut saved.as_slice()).unwrap();
+        b.install_state(decoded);
+        assert_eq!(wire(&b), saved);
+        assert_eq!(b.state.census.block_bytes, a.state.census.block_bytes);
+        for step in 9..60 {
+            advance(&mut a, step);
+            advance(&mut b, step);
+            assert_eq!(wire(&a), wire(&b));
+        }
+        // The row representation cannot read the shared wire (binding).
+        let rows = road(false, 0.25);
+        assert!(rows.read_state(&mut saved.as_slice()).is_err());
+        // Corrupt the first term's block reference: rejected, not repaired.
+        let mut a = road(true, 0.25);
+        for step in 0..9 {
+            advance(&mut a, step);
+        }
+        let saved = wire(&a);
+        let fresh = road(true, 0.25);
+        let mut corrupt = saved.clone();
+        // Overwrite the block counter with 0: every pooled id is then invalid.
+        let at = 8 + a.identity.len() + 8;
+        corrupt[at..at + 8].copy_from_slice(&0u64.to_le_bytes());
+        assert!(fresh.read_state(&mut corrupt.as_slice()).is_err());
+        assert!(fresh.read_state(&mut &saved[..saved.len() - 1]).is_err());
+    }
+
+    #[test]
+    fn allocation_failure_rolls_back_without_state_change() {
+        let mut r = road(true, 0.25);
+        for step in 0..6 {
+            advance(&mut r, step);
+        }
+        let before = wire(&r);
+        // A budget that admits the committed state but not the next step.
+        let retained = r.state.retained_storage_bytes();
+        r.storage_budget = Some(retained.saturating_mul(3) + 1024);
+        r.record_budget = 1_000_000;
+        assert!(r.propose_owned_step(1., offers(6)).is_err());
+        assert_eq!(wire(&r), before);
+        // The same step succeeds once the budget admits it.
+        r.storage_budget = Some(usize::MAX / 4);
+        assert!(r.propose_owned_step(1., offers(6)).is_ok());
+    }
+
+    #[test]
+    fn rows_default_is_unchanged_and_policy_requires_projection() {
+        assert!(V1Road::new_shared_routes(
+            "x".into(), 1., vec![vec![1., 1., 1., 1., 1., 1.]], vec![None], vec![vec![0]], vec![(0, 0)],
+            vec![CAR.to_vec()], vec![vec![0]], vec![], 10, None, true, 0., true).is_err());
+        let r = road(false, 0.25);
+        assert_eq!(r.identity, projection_identity("mark-block-test", 0.25));
+        let m = road(true, 0.25);
+        assert_eq!(m.identity, format!("{}:{MARK_BLOCK_POLICY}", r.identity));
     }
 }
