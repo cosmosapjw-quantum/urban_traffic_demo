@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.25",
+  "version": "1.1.26",
   "date": "2026-11-17",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -1890,7 +1890,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Option (a) attributed the V03 blocker: each partial head serve copies all packet rows into a new time-interval packet downstream; packets grow ~2x per 50 simulated s at morning onset and bit-identical merging recovers only a few percent. Next requires a user/physics-contract decision: a proportional-composition representation (exact in real arithmetic, not bit-identical) with new numerical-equivalence evidence, or a scope review. No demand/mass/time-binning/tolerance/budget relaxation; full CI/integration deferred.",
+      "positive_next_action": "Options (a) and 1 measured: partial head serves create ~80% of new rows; bit-identical merges recover ~2%, real-arithmetic-exact proportional merges <=8%, composition sharing only a constant factor while packets double every ~50 simulated s. V03 completion therefore needs a user decision on an approximate road-interval aggregation (currently forbidden as time binning) or on scope/model contract. No demand/mass/tolerance/budget relaxation; full CI/integration deferred.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1911,7 +1911,7 @@
       },
       "blocked_evidence": {
         "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
-        "sha256": "c518ca6d31ca424b68abc9baec0292fd7652275058fe35fa5979b27d5b1183a5"
+        "sha256": "6d5b2788c00bab7c992305f2c97f779a1ad9b2236801253a808283b20b52734d"
       },
       "resource_optimization_evidence": [
         {
@@ -1951,7 +1951,7 @@
         },
         {
           "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
-          "sha256": "c518ca6d31ca424b68abc9baec0292fd7652275058fe35fa5979b27d5b1183a5",
+          "sha256": "6d5b2788c00bab7c992305f2c97f779a1ad9b2236801253a808283b20b52734d",
           "scope": "Measured blocked-checkpoint workspaces (counted heap 2.4-3.2GB vs >6GiB guards); retained_capacity_v3 lifetime accounting (sink envelope after road step, interval workspace, sort-based stage validation); 260 scoped tests, legacy replay bytes identical. Gates adde1a3 stop at25650/32730/25420s; guard-bypassed diagnostics show road parts doubling per50-100s (Valley real allocation failure at8GiB AS). Attribution (option a): partial head serves create ~80% of new rows; bit-identical merging bounded at a few percent."
         }
       ],

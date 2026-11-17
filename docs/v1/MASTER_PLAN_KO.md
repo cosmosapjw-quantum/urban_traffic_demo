@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.25**, 2026-11-17. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.26**, 2026-11-17. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Option (a) attributed the V03 blocker: each partial head serve copies all packet rows into a new time-interval packet downstream; packets grow ~2x per 50 simulated s at morning onset and bit-identical merging recovers only a few percent. Next requires a user/physics-contract decision: a proportional-composition representation (exact in real arithmetic, not bit-identical) with new numerical-equivalence evidence, or a scope review. No demand/mass/time-binning/tolerance/budget relaxation; full CI/integration deferred.
+Options (a) and 1 measured: partial head serves create ~80% of new rows; bit-identical merges recover ~2%, real-arithmetic-exact proportional merges <=8%, composition sharing only a constant factor while packets double every ~50 simulated s. V03 completion therefore needs a user decision on an approximate road-interval aggregation (currently forbidden as time binning) or on scope/model contract. No demand/mass/tolerance/budget relaxation; full CI/integration deferred.
 
 **예산·종료조건**
 

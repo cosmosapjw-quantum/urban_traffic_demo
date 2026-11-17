@@ -869,6 +869,41 @@ fn interval_merge_census(out: &[Packet]) {
         prev = Some((a, b, here));
     }
 }
+/// Diagnostic: group one cell's incoming rows by non-point interval (a,b) and
+/// count maximal runs of time-contiguous intervals whose contributing source
+/// set {(cell, head position, rate bits)} is identical. Such runs have
+/// proportional route mixtures and equal ready time, so they are exactly
+/// mergeable in real arithmetic. Counting only.
+fn exact_merge_census(parts: &[Part], src: &[(usize, usize, u64)]) {
+    use std::collections::BTreeSet;
+    let mut by: BTreeMap<(u64, u64), BTreeSet<(usize, usize, u64)>> = BTreeMap::new();
+    let mut points = 0u64;
+    for (p, s) in parts.iter().zip(src) {
+        let (a, b) = (p.a.unwrap_or(f64::NAN), p.b.unwrap_or(f64::NAN));
+        if !(b > a) {
+            points += 1;
+            continue;
+        }
+        by.entry((a.to_bits(), b.to_bits())).or_default().insert(*s);
+    }
+    let mut runs = 0u64;
+    let mut prev: Option<(f64, &BTreeSet<(usize, usize, u64)>)> = None;
+    let mut ordered: Vec<(f64, f64, &BTreeSet<(usize, usize, u64)>)> = by
+        .iter()
+        .map(|((a, b), set)| (f64::from_bits(*a), f64::from_bits(*b), set))
+        .collect();
+    ordered.sort_by(|x, y| x.0.total_cmp(&y.0).then(x.1.total_cmp(&y.1)));
+    for (a, b, set) in &ordered {
+        let continues = matches!(prev, Some((pb, ps)) if pb == *a && ps == *set);
+        if !continues {
+            runs += 1;
+        }
+        prev = Some((*b, set));
+    }
+    crate::v1_trace::add("exact.intervals", ordered.len() as u64);
+    crate::v1_trace::add("exact.runs", runs);
+    crate::v1_trace::add("exact.point_rows", points);
+}
 fn combine(parts: Vec<Part>) -> PyResult<Vec<Part>> {
     let key = |p: &Part| {
         (
@@ -1950,8 +1985,20 @@ impl V1Road {
             motions.push(m);
         }
         let mut position = vec![0; n];
+        // Diagnostic only: previous serve per cell (head position, rate bits, end time).
+        let mut last_serve: Vec<Option<(usize, u64, f64)>> = if crate::v1_trace::enabled() {
+            vec![None; n]
+        } else {
+            Vec::new()
+        };
         let mut events = vec![];
         let mut incoming: Vec<Vec<Part>> = vec![vec![]; n];
+        // Diagnostic only: source (cell, head position, rate bits) per incoming row.
+        let mut incoming_src: Vec<Vec<(usize, usize, u64)>> = if crate::v1_trace::enabled() {
+            vec![vec![]; n]
+        } else {
+            Vec::new()
+        };
         let mut marks: Vec<Vec<Mark>> = vec![vec![]; n];
         let (mut sink, mut exit1, mut hold) = (0., 0., 0.);
         let mut resolution = EventResolutionStats::default();
@@ -2209,6 +2256,23 @@ impl V1Road {
                     }
                     let served = portion(&packet.parts, fraction)?;
                     if crate::v1_trace::enabled() {
+                        let key = (position[i], rate.to_bits());
+                        let class = match last_serve[i] {
+                            Some((pos, bits, prev_end))
+                                if (pos, bits) == key && prev_end == start_time =>
+                            {
+                                "xfer.same_rate_contiguous_rows"
+                            }
+                            Some((pos, _, prev_end))
+                                if pos == position[i] && prev_end == start_time =>
+                            {
+                                "xfer.rate_change_contiguous_rows"
+                            }
+                            Some((pos, _, _)) if pos == position[i] => "xfer.same_head_gap_rows",
+                            _ => "xfer.new_head_rows",
+                        };
+                        crate::v1_trace::add(class, served.len() as u64);
+                        last_serve[i] = Some((position[i], rate.to_bits(), end_time));
                         crate::v1_trace::add("xfer.serve_rows", served.len() as u64);
                         crate::v1_trace::add("xfer.partial_serve", u64::from(fraction < 1.));
                         crate::v1_trace::add("xfer.serve_incoming_rows", incoming_count as u64);
@@ -2267,6 +2331,9 @@ impl V1Road {
                                 p.b = PackedTime::new(Some(end_time))?;
                             }
                             push_checked(&mut incoming[j], p)?;
+                            if !incoming_src.is_empty() {
+                                incoming_src[j].push((i, position[i], rate.to_bits()));
+                            }
                         } else {
                             sink += p.mass;
                             out.ledger[k][1] += p.mass;
@@ -2388,6 +2455,10 @@ impl V1Road {
                 incoming[i]
                     .try_reserve(parts.len())
                     .map_err(|_| budget("native road incoming allocation unavailable"))?;
+                if !incoming_src.is_empty() {
+                    let k = incoming_src[i].len();
+                    incoming_src[i].extend((0..parts.len()).map(|_| (usize::MAX, k, 0)));
+                }
                 incoming[i].extend(parts);
                 if f < 1. {
                     push_checked(
@@ -2402,6 +2473,9 @@ impl V1Road {
             out.pending[i] = remain;
         }
         for i in 0..n {
+            if !incoming_src.is_empty() && !incoming[i].is_empty() {
+                exact_merge_census(&incoming[i], &incoming_src[i]);
+            }
             let raw_rows = incoming[i].len();
             let parts = combine(std::mem::take(&mut incoming[i]))?;
             if crate::v1_trace::enabled() && raw_rows > 0 {

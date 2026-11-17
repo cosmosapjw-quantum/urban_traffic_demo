@@ -141,7 +141,7 @@
     "resume_run": 0,
     "reason": "all three short gates blocked; guard-bypassed diagnostics show the same physical road-row growth cause in every case"
   },
-  "remaining_blocker": "Partial-service copies of exact time-interval packets grow packets/rows ~2x per 50 simulated s at morning onset; bit-identical merging recovers only a few percent; a proportional-composition (real-arithmetic exact) representation or scope change needs a user/physics-contract decision",
+  "remaining_blocker": "Exact event-resolved FIFO interval packets multiply ~2x per 50 simulated s under morning congestion; bit-identical merges ~2%, real-arithmetic-exact merges <=8%, composition sharing only a constant factor. Completion needs an approximation (currently forbidden as time binning) or a scope/model-contract decision.",
   "dag_progress": {
     "completed": 19,
     "total": 21,
@@ -166,8 +166,10 @@
   },
   "evidence_sha256": {
     "ATTRIB2_valley.log": "c505c7e963f4f67e81091d31833ae36041e890827844d8915a74270b22d40664",
+    "ATTRIB3_valley.log": "7c927b38b0018e904f696746e6e92b60400876c9bfb48ffacca7e9bcb8c06bef",
+    "ATTRIB4_valley.log": "1f9b675bf6ab27f7449f6dad3f5b78e02898a1f89b6e39925bce2712bbb19391",
     "ATTRIBUTION.json": "1c5acb5b4a587cbbcc0a2314bd83dae864677a08ea1c7cb787e37602e29eac10",
-    "ATTRIBUTION_KO.md": "86b4a2a434d2fdbb097c9b9d55257f566ad63d27ad1d09e429126b5176a009c6",
+    "ATTRIBUTION_KO.md": "709de02df5eb7251dfe838d7d4c2f55aba68efef65f13af635605e279dcab705",
     "ATTRIB_valley.log": "bae9cb9d07a90205455bf622b941503261afe7b6de23b02bbbef1b39111ebf67",
     "DIAG_OBSERVE_coastal.log": "29cdc50f4eaa091cd3b816a462d1a71a69c6f1499523e5441cdd07d9affa4326",
     "DIAG_OBSERVE_river.log": "b114da2461f4eca5f8d02bb101f4ed3d22266fa08786d6f2263bce58a18d4b04",
@@ -184,6 +186,8 @@
     "WORKSPACE_PROBE.md": "c08208a6091330b41d28860995a5153d8f88985f86cea97e95ddb3f4bc29ada4",
     "WORKSPACE_PROBE_SUMMARY.json": "4004ccacc96ece6aa7ac52fa533929b20e80d62b944857fac60da58d28eecdda",
     "attrib2_valley.json": "0d611f600c3dfb958e02f6ee902360a495f69a77a93c8244c6742e80ceb5f2ab",
+    "attrib3_valley.json": "aa950f9c7bf37f621565248467b82a8930285acc3de74f234f996b821beb97e1",
+    "attrib4_valley.json": "05e7fe6bc77c795b421f53cbbdd878a71576f76c13322bfd8108f8a1b7e44f93",
     "attrib_valley.json": "a29ba8c9d917745fe1e5cb374d6c9b51752d1d6a092e1c8f46d8d25384b20f97",
     "diag_observe_coastal.json": "eeaaec365526b720915674a040d5910fa2561971500a5e00187f320048054284",
     "diag_observe_river.json": "6fc86da7f122a39625d7200b0d333eddb73543ada9364b79682db0755dea9bf6",
@@ -195,6 +199,7 @@
     "gate_river_weekday_s17.json": "0a07c611c6afa0d15817d89bd9e55875a52c179d5af777dcd50f1c586480bc11",
     "gate_valley_weekday_s7.json": "edeb2d9c7453899a187b10d54287f8385c68a70c2e2adf78ddf05b78ec8ee8fd",
     "legacy_replay_attrib.json": "0b956094290a305dbc79f5d346add32acbcf2a923a340bd8a86a5ff7b84780fe",
+    "legacy_replay_option1.json": "43196ea43e81d1612cbc061bb2d588a6d0b2485241522332015642f4d7738e14",
     "legacy_replay_v3.json": "617cd43e8f0d49aa4a559f5149c6250a185221dd9f1ecc1f59f6b99e42632f1f",
     "probe_coastal.json": "bcfc991b8496a61e39394d6fcade5d56634ec076c49d480d52acc8859df7faf1",
     "probe_river.json": "23d0ab4e20698b5086367485e3f8587949110734e0241f3e8fc646a1e555199b",
@@ -218,5 +223,20 @@
     },
     "installed_commit_note": "diagnostic counters are no-ops unless METROFLOW_BUDGET_TRACE is set; legacy replay ef4719a8 x3 identical",
     "report": "ATTRIBUTION_KO.md"
+  },
+  "option1_feasibility": {
+    "result": "INSUFFICIENT_NOT_IMPLEMENTED",
+    "exact_merge_condition": "same target (same tick/cell) and identical contributing source set {(cell, head position, rate bits)}: proportional mixtures, exact in real arithmetic",
+    "same_rate_contiguous_share_of_partial_rows": 0.77,
+    "packet_collapse_factor": [
+      1.01,
+      1.08
+    ],
+    "composition_sharing_gain": "constant ~50-160x rows per packet; packet count still ~2x per 50 simulated s",
+    "evidence": [
+      "attrib3_valley.json",
+      "attrib4_valley.json",
+      "legacy_replay_option1.json"
+    ]
   }
 }
