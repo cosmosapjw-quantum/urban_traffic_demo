@@ -10,9 +10,14 @@ Two modes.
       destination label. Also stores sha256 of the ordered leg-ID sequence so a
       run can verify that native leg index i is calendar leg i.
 
-  run CASE HORIZON_S WIDTH_S STEP_S OUT_PREFIX LEGS_NPZ
+  run CASE HORIZON_S WIDTH_S STEP_S OUT_PREFIX LEGS_NPZ [RELEASE_TIMING]
       Same driver/limits as probe_v1_event_store.py, but with an explicit step
-      and a 300 s report curve after SAMPLE_FROM_S (hourly native calls before).
+      and a 300 s report curve after SAMPLE_FROM_S (hourly native calls before),
+      refined to every FINE_EVERY_S from FINE_FROM_S (pre-registered 60 s from
+      25,200 s in artifacts/v1_release_timing_20261117/LAUNCH.json).
+      RELEASE_TIMING is 'legacy' (default) or 'release_interval_v1'. Each call
+      also records process CPU seconds and native phase seconds; each sample
+      records the native road ledger/moment diagnostic.
       Per sample: driver.report(state) (ledger, first moments, service), the
       class/destination decomposition of the journey released/completed
       carrier state read through the existing sample_legs diagnostic and
@@ -30,7 +35,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_FROM_S = float(os.environ.get('METROFLOW_REFINE_SMOKE_SAMPLE_FROM_S', '21600'))  # override only for smoke tests
 SAMPLE_EVERY_S = 300.0
+FINE_FROM_S = float(os.environ.get('METROFLOW_REFINE_FINE_FROM_S', '25200'))  # override only for smoke tests
+FINE_EVERY_S = float(os.environ.get('METROFLOW_REFINE_FINE_EVERY_S', '60'))
 CHUNK = 1024
+
+
+def cpu_seconds():
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    return usage.ru_utime + usage.ru_stime
 
 
 def current_rss_bytes():
@@ -88,10 +100,13 @@ def legs_mode(case_id, out):
                           distinct={k: len(v) for k, v in tables.items()})))
 
 
-def run_mode(case_id, horizon, width, step, prefix, legs_npz):
+def run_mode(case_id, horizon, width, step, prefix, legs_npz, release_timing='legacy'):
+    if release_timing not in ('legacy', 'release_interval_v1'):
+        raise SystemExit('unknown release timing')
     os.environ.update(METROFLOW_V1_ENGINE_BACKEND='rust_whole', METROFLOW_V1_ROUTING_BACKEND='rust',
         METROFLOW_V1_NATIVE_THREADS='1', METROFLOW_V1_STORAGE_POLICY='bounded_bytes_v1',
-        METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S=width, METROFLOW_BUDGET_TRACE='record')
+        METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S=width, METROFLOW_BUDGET_TRACE='record',
+        METROFLOW_V1_RELEASE_TIMING=release_timing)
     sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
     import numpy as np
     from tools.run_v1_local_acceptance import (atomic_json, candidate_provenance, file_sha256,
@@ -121,7 +136,9 @@ def run_mode(case_id, horizon, width, step, prefix, legs_npz):
     t0 = time.perf_counter()
     result = dict(status='RUNNING', scope='DIAGNOSTIC_REFINEMENT_PREFIX_NOT_CAMPAIGN', case=case_id,
         horizon_s=horizon, entry_projection_width_s=float(width), step_s=step_s,
-        sample_from_s=SAMPLE_FROM_S, sample_every_s=SAMPLE_EVERY_S, legs_npz=str(legs_npz),
+        release_timing=release_timing,
+        sample_from_s=SAMPLE_FROM_S, sample_every_s=SAMPLE_EVERY_S,
+        fine_from_s=FINE_FROM_S, fine_every_s=FINE_EVERY_S, legs_npz=str(legs_npz),
         legs_npz_sha256=file_sha256(Path(legs_npz)), leg_id_sha256=want_ids,
         class_key='mode x purpose (calendar labels)', class_names=[[m, p] for m in names['mode'] for p in names['purpose']],
         destination_names=[(lambda d: f"{d.get('block_id')}:{d.get('kind')}" if isinstance(d, dict) else str(d))(json.loads(x))
@@ -182,6 +199,7 @@ def run_mode(case_id, horizon, width, step, prefix, legs_npz):
         road = dbg['road']
         return dict(time_s=st.time_s, ledger=ex['ledger'], released_intent_first_moments=ex['released_intent_first_moments'],
             service=ex['service'], assignment_units=ex['assignment']['units'],
+            road_ledger=rt.road_ledger(st.runtime_state),
             journey_counts={k: v for k, v in dbg['journey'].items() if k not in ('capacity_scope', 'carrier_sum_units')},
             road_records={k: road[k] for k in ('total_records', 'cell_packets', 'pending_packets', 'cell_parts', 'pending_parts',
                                                'uniform_parts', 'mixed_parts', 'max_cell_parts', 'max_pending_parts',
@@ -191,20 +209,27 @@ def run_mode(case_id, horizon, width, step, prefix, legs_npz):
             sample_wall_s=time.perf_counter() - s0, preceding_call_wall_s=call_wall)
 
     advance_wall = 0.0
+    advance_cpu = 0.0
     try:
         while state.time_s < horizon:
             if state.time_s < SAMPLE_FROM_S:
                 target = min(horizon, SAMPLE_FROM_S, (math.floor(state.time_s / 3600) + 1) * 3600)
+            elif state.time_s < FINE_FROM_S:
+                target = min(horizon, FINE_FROM_S, state.time_s + SAMPLE_EVERY_S)
             else:
-                target = min(horizon, state.time_s + SAMPLE_EVERY_S)
+                target = min(horizon, state.time_s + FINE_EVERY_S)
             c0 = time.perf_counter()
+            u0 = cpu_seconds()
             state = driver.advance(state, target)
+            cu = cpu_seconds() - u0
             cw = time.perf_counter() - c0
             advance_wall += cw
+            advance_cpu += cu
             m = rt.last_advance_metrics
             ticks = sorted(m['tick_times_s'])
             tr = keep(native.budget_trace_snapshot(True))
-            result['calls'].append(dict(end_s=state.time_s, wall_s=cw, ticks=len(ticks),
+            result['calls'].append(dict(end_s=state.time_s, wall_s=cw, cpu_s=cu, ticks=len(ticks),
+                phase_metrics=rt.phase_metrics(),
                 tick_sum_s=math.fsum(ticks), tick_p50_s=ticks[len(ticks) // 2] if ticks else None,
                 tick_p95_s=ticks[min(len(ticks) - 1, int(0.95 * len(ticks)))] if ticks else None,
                 tick_max_s=ticks[-1] if ticks else None, peak_records=m['peak_records'],
@@ -222,7 +247,8 @@ def run_mode(case_id, horizon, width, step, prefix, legs_npz):
                       phase_metrics=rt.phase_metrics(), failing_call=keep(native.budget_trace_snapshot(True)))
     checkpoint = Path(str(prefix) + '.last_valid.bin')  # not with_suffix: labels may contain '.'
     driver.save(checkpoint, state)
-    result.update(simulated_s=state.time_s, advance_wall_s=advance_wall, wall_s=time.perf_counter() - t0,
+    result.update(simulated_s=state.time_s, advance_wall_s=advance_wall, advance_cpu_s=advance_cpu,
+                  wall_s=time.perf_counter() - t0,
                   peak_rss_bytes=peak_rss_bytes(), peak_records=max((c['peak_records'] for c in result['calls']), default=0),
                   report=driver.report(state), debug=driver.debug_state(state),
                   checkpoint=dict(path=str(checkpoint), bytes=checkpoint.stat().st_size, sha256=file_sha256(checkpoint)),
@@ -235,6 +261,6 @@ if __name__ == '__main__':
     if sys.argv[1] == 'legs':
         legs_mode(sys.argv[2], sys.argv[3])
     elif sys.argv[1] == 'run':
-        run_mode(*sys.argv[2:8])
+        run_mode(*sys.argv[2:9])
     else:
         raise SystemExit(__doc__)
