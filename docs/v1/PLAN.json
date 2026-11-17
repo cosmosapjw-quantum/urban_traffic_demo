@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.27",
+  "version": "1.1.28",
   "date": "2026-11-17",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -1999,6 +1999,11 @@
           "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
           "sha256": "e88229512fefcbebde7a457c97f86b4ebe1f6d3f416670f5e80a4b4923dfb2f0",
           "scope": "Measured blocked-checkpoint workspaces (counted heap 2.4-3.2GB vs >6GiB guards); retained_capacity_v3 lifetime accounting (sink envelope after road step, interval workspace, sort-based stage validation); 260 scoped tests, legacy replay bytes identical. Gates adde1a3 stop at25650/32730/25420s; guard-bypassed diagnostics show road parts doubling per50-100s (Valley real allocation failure at8GiB AS). Attribution (option a): partial head serves create ~80% of new rows; bit-identical merging bounded at a few percent."
+        },
+        {
+          "path": "artifacts/v1_entry_projection_followup/eventbatch/RECEIPT.json",
+          "sha256": "b2fc4324f3872f43e17d2f77ae87ea7f7186c1ca36847e4c35fef9987e4c9aa5",
+          "scope": "EventStore common-header event storage (retained_capacity_v4): bit-identical Valley h=1 prefix to 25,900 s; transfer event term -76%, peak RSS -15.5%; handoff pilot BLOCKED_RESOURCE at 26,050 s (entry interval split), was 26,010 s. Demand-support census in artifacts/v1_entry_projection_followup/support_census."
         }
       ],
       "historical_blocked_evidence": [

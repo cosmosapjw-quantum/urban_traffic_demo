@@ -1076,7 +1076,7 @@ impl NativeWholeEngine {
         };
         if let (Some(road_bytes), Some(journey_bytes)) = (road_storage_bytes, journey_storage_bytes)
         {
-            identity.push_str(":bounded_bytes_v1:retained_capacity_v3");
+            identity.push_str(":bounded_bytes_v1:retained_capacity_v4");
             road.bind_storage_identity(crate::v1_road::projection_identity(&identity, entry_projection_width_s))?;
             road.configure_storage_budget(road_bytes)?;
             journey.configure_storage_budget(journey_bytes)?;
@@ -1204,7 +1204,7 @@ impl NativeWholeEngine {
         self.journey
             .check_service_binding(&b.journey, &b.service.0)?;
         let time = b.journey.0;
-        for e in &b.service.1 {
+        for e in b.service.1.iter() {
             if e.0 >= self.tags.len()
                 || e.1 >= self.group_count
                 || e.2.is_some_and(|i| i >= self.group_count)
@@ -1412,9 +1412,9 @@ impl NativeWholeEngine {
         out.set_item("policy", &self.storage_policy)?;
         out.set_item("total_accounting_budget_bytes", self.byte_budget)?;
         out.set_item("conservative_static_accounting_bytes", self.estimated_bytes)?;
-        out.set_item("static_accounting_scope", "unchanged constructor preflight estimate; retained_capacity_v3 does not subtract it from runtime storage")?;
+        out.set_item("static_accounting_scope", "unchanged constructor preflight estimate; retained_capacity_v4 does not subtract it from runtime storage")?;
         if let Some(accounting) = &self.runtime_storage {
-            out.set_item("resource_binding", "retained_capacity_v3")?;
+            out.set_item("resource_binding", "retained_capacity_v4")?;
             out.set_item("retained_static_payload_bytes", accounting.owned_static)?;
             out.set_item("initial_road_reserve_bytes", accounting.initial_road)?;
             out.set_item("journey_dense_one_copy_bytes", accounting.journey_dense)?;
@@ -1863,10 +1863,9 @@ impl NativeWholeEngine {
                         "native retained service event storage budget exceeded before decode",
                     ));
                 }
-                self.event_limit.min(
-                    (remaining / 3).saturating_sub(128)
-                        / std::mem::size_of::<crate::v1_road::EventRow>(),
-                )
+                self.event_limit.min(crate::v1_road::EventStore::max_rows_within(
+                    (remaining / 3).saturating_sub(128),
+                ))
             } else {
                 self.event_limit
             };

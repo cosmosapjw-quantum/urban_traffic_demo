@@ -62,6 +62,184 @@ pub(crate) type StateRow = (
 );
 pub(crate) type Offer = (usize, f64, f64, Option<f64>, Option<f64>);
 pub(crate) type EventRow = (usize, usize, Option<usize>, f64, f64, f64, f64);
+
+/// Rows per fixed-capacity event chunk and headers per header chunk. Chunks
+/// are reserved exactly once and never grow, so the event stream is never
+/// copied into a doubled allocation while it is being filled.
+pub(crate) const EVENT_ROW_CHUNK: usize = 1 << 16;
+pub(crate) const EVENT_HEADER_CHUNK: usize = 1 << 12;
+const NO_DESTINATION: usize = usize::MAX;
+/// Fields shared by consecutive rows of one service batch.
+#[derive(Clone, Copy)]
+struct EventHeader {
+    source: usize,
+    start: f64,
+    end: f64,
+    first: usize,
+}
+/// Per-row fields; `dest == NO_DESTINATION` encodes a sink (None).
+#[derive(Clone, Copy)]
+struct EventCore {
+    tag: usize,
+    dest: usize,
+    mass: f64,
+    birth: f64,
+}
+/// Ordered road event stream with common batch headers. Consecutive rows with
+/// equal `source` and bit-equal `start`/`end` share one header. Every stored
+/// field keeps its original bits and `iter()` yields exactly the original
+/// `EventRow` sequence, so wire order and values are unchanged.
+#[derive(Clone, Default)]
+pub(crate) struct EventStore {
+    headers: Vec<Vec<EventHeader>>,
+    rows: Vec<Vec<EventCore>>,
+    len: usize,
+    header_len: usize,
+}
+impl EventStore {
+    pub(crate) fn len(&self) -> usize {
+        self.len
+    }
+    pub(crate) fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+    pub(crate) fn header_count(&self) -> usize {
+        self.header_len
+    }
+    fn header(&self, k: usize) -> &EventHeader {
+        &self.headers[k / EVENT_HEADER_CHUNK][k % EVENT_HEADER_CHUNK]
+    }
+    fn core(&self, r: usize) -> &EventCore {
+        &self.rows[r / EVENT_ROW_CHUNK][r % EVENT_ROW_CHUNK]
+    }
+    pub(crate) fn push(&mut self, e: EventRow) -> PyResult<()> {
+        let (tag, source, dest, mass, start, end, birth) = e;
+        let dest = match dest {
+            None => NO_DESTINATION,
+            Some(NO_DESTINATION) => return Err(val("event destination collides with sink sentinel")),
+            Some(j) => j,
+        };
+        let same = self.header_len > 0 && {
+            let h = self.header(self.header_len - 1);
+            h.source == source
+                && h.start.to_bits() == start.to_bits()
+                && h.end.to_bits() == end.to_bits()
+        };
+        if !same {
+            if self.header_len % EVENT_HEADER_CHUNK == 0 {
+                let mut chunk = Vec::new();
+                chunk
+                    .try_reserve_exact(EVENT_HEADER_CHUNK)
+                    .map_err(|_| budget("native road event header allocation unavailable"))?;
+                push_checked(&mut self.headers, chunk)?;
+            }
+            let first = self.len;
+            self.headers
+                .last_mut()
+                .expect("header chunk")
+                .push(EventHeader { source, start, end, first });
+            self.header_len += 1;
+        }
+        if self.len % EVENT_ROW_CHUNK == 0 {
+            let mut chunk = Vec::new();
+            chunk
+                .try_reserve_exact(EVENT_ROW_CHUNK)
+                .map_err(|_| budget("native road event allocation unavailable"))?;
+            push_checked(&mut self.rows, chunk)?;
+        }
+        self.rows
+            .last_mut()
+            .expect("row chunk")
+            .push(EventCore { tag, dest, mass, birth });
+        self.len += 1;
+        Ok(())
+    }
+    pub(crate) fn iter(&self) -> EventIter<'_> {
+        EventIter {
+            store: self,
+            row: 0,
+            header: 0,
+        }
+    }
+    pub(crate) fn to_rows(&self) -> PyResult<Vec<EventRow>> {
+        let mut out = checkpoint_vec(self.len)?;
+        out.extend(self.iter());
+        Ok(out)
+    }
+    pub(crate) fn from_rows(rows: impl IntoIterator<Item = EventRow>) -> PyResult<Self> {
+        let mut out = Self::default();
+        for e in rows {
+            out.push(e)?;
+        }
+        Ok(out)
+    }
+    /// Owned allocation: chunk capacities and the two chunk-pointer vectors.
+    pub(crate) fn allocated_bytes(&self) -> usize {
+        let rows: usize = self.rows.iter().map(Vec::capacity).sum();
+        let headers: usize = self.headers.iter().map(Vec::capacity).sum();
+        rows.saturating_mul(std::mem::size_of::<EventCore>())
+            .saturating_add(headers.saturating_mul(std::mem::size_of::<EventHeader>()))
+            .saturating_add(
+                self.rows
+                    .capacity()
+                    .saturating_add(self.headers.capacity())
+                    .saturating_mul(std::mem::size_of::<Vec<EventCore>>()),
+            )
+    }
+    /// Upper bound of the live allocation while a store with `rows` rows and at
+    /// most `headers` headers is being filled: whole chunks (reserved exactly)
+    /// plus each chunk-pointer vector during a doubling (old and new coexist).
+    pub(crate) fn upper_bytes(rows: usize, headers: usize) -> usize {
+        if rows == 0 {
+            return 0;
+        }
+        let row_chunks = rows.div_ceil(EVENT_ROW_CHUNK);
+        let header_chunks = headers.clamp(1, rows).div_ceil(EVENT_HEADER_CHUNK);
+        let pointer = std::mem::size_of::<Vec<EventCore>>();
+        row_chunks
+            .saturating_mul(EVENT_ROW_CHUNK * std::mem::size_of::<EventCore>())
+            .saturating_add(
+                header_chunks.saturating_mul(EVENT_HEADER_CHUNK * std::mem::size_of::<EventHeader>()),
+            )
+            .saturating_add(row_chunks.max(4).saturating_mul(3 * pointer))
+            .saturating_add(header_chunks.max(4).saturating_mul(3 * pointer))
+    }
+    /// Largest row count whose worst-case store (one header per row) fits.
+    pub(crate) fn max_rows_within(bytes: usize) -> usize {
+        let per_row = std::mem::size_of::<EventCore>() + std::mem::size_of::<EventHeader>();
+        let slack = EVENT_ROW_CHUNK * std::mem::size_of::<EventCore>()
+            + EVENT_HEADER_CHUNK * std::mem::size_of::<EventHeader>()
+            + 24 * std::mem::size_of::<Vec<EventCore>>();
+        // One extra byte per row covers the chunk-pointer vectors (< 1 B/row).
+        bytes.saturating_sub(slack) / (per_row + 1)
+    }
+}
+pub(crate) struct EventIter<'a> {
+    store: &'a EventStore,
+    row: usize,
+    header: usize,
+}
+impl Iterator for EventIter<'_> {
+    type Item = EventRow;
+    fn next(&mut self) -> Option<EventRow> {
+        let s = self.store;
+        if self.row >= s.len {
+            return None;
+        }
+        while self.header + 1 < s.header_len && s.header(self.header + 1).first <= self.row {
+            self.header += 1;
+        }
+        let h = s.header(self.header);
+        let c = s.core(self.row);
+        self.row += 1;
+        let dest = if c.dest == NO_DESTINATION { None } else { Some(c.dest) };
+        Some((c.tag, h.source, dest, c.mass, h.start, h.end, c.birth))
+    }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let n = self.store.len - self.row;
+        (n, Some(n))
+    }
+}
 type Mark = (usize, f64, f64, f64);
 /// Every admitted interval endpoint is finite. A reserved nonfinite bit pattern
 /// therefore represents None without doubling each endpoint's storage. Present
@@ -302,6 +480,8 @@ struct RoadWorkBudget {
     limit: Option<usize>,
     base: usize,
     events: usize,
+    /// Upper bound on batch headers (one per service call with rows).
+    event_headers: usize,
     incoming: usize,
     /// Packed entering-interval rows already moved into the candidate.
     interval_retained: usize,
@@ -321,15 +501,12 @@ impl ServiceEventAccounting {
     /// committed buffers (charged separately, never assumed shared) and the
     /// push-built candidate, whose doubling reallocation briefly holds the old
     /// and the new allocation (< 3 rows' worth; minimum four rows).
-    fn road_step_bytes(self, generated_rows: usize) -> usize {
-        let candidate = if generated_rows == 0 {
-            0
-        } else {
-            generated_rows.max(4).saturating_mul(3)
-        };
+    fn road_step_bytes(self, generated_rows: usize, headers: usize) -> usize {
+        // Candidate stream: fixed exact-capacity chunks, so no doubled copy
+        // of the rows; only the small chunk-pointer vectors grow.
         self.input_bytes
             .saturating_add(self.current_bytes)
-            .saturating_add(candidate.saturating_mul(std::mem::size_of::<EventRow>()))
+            .saturating_add(EventStore::upper_bytes(generated_rows, headers))
             .saturating_add(3 * 32)
     }
 }
@@ -540,11 +717,8 @@ impl RoadWorkBudget {
         // In a coupled transition the road-step event buffers are charged by
         // lifetime; the sink envelope is charged after the step returns.
         let event_bytes = self.service_events.map_or_else(
-            || {
-                self.events
-                    .saturating_mul(2 * std::mem::size_of::<EventRow>())
-            },
-            |service| service.road_step_bytes(self.events),
+            || EventStore::upper_bytes(self.events, self.event_headers).saturating_mul(2),
+            |service| service.road_step_bytes(self.events, self.event_headers),
         );
         let required =
             self.base
@@ -564,6 +738,7 @@ impl RoadWorkBudget {
                 &[
                     ("base", self.base),
                     ("event_bytes", event_bytes),
+                    ("event_headers", self.event_headers),
                     ("incoming_rows", self.incoming),
                     ("interval_retained", self.interval_retained),
                     ("interval_transient", self.interval_transient),
@@ -577,6 +752,9 @@ impl RoadWorkBudget {
     }
     fn transfer(&mut self, events: usize, incoming: usize) -> PyResult<()> {
         self.events = self.events.saturating_add(events);
+        if events > 0 {
+            self.event_headers = self.event_headers.saturating_add(1);
+        }
         self.incoming = self.incoming.saturating_add(incoming);
         self.require(0, "transfer candidates")
     }
@@ -1373,6 +1551,7 @@ impl V1Road {
                 limit: None,
                 base: 0,
                 events: 0,
+                event_headers: 0,
                 incoming: 0,
                 interval_retained: 0,
                 interval_transient: 0,
@@ -1419,6 +1598,7 @@ impl V1Road {
             limit: self.storage_budget,
             base,
             events: 0,
+            event_headers: 0,
             incoming: 0,
             interval_retained: 0,
             interval_transient: 0,
@@ -1427,7 +1607,7 @@ impl V1Road {
         work.require(0, "tick preflight")?;
         Ok(work)
     }
-    pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
+    pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -> PyResult<EventStore> {
         self.begin_call_storage_accounting();
         let (s, e) = self.step_state(&self.state, dt, offers)?;
         self.state = s;
@@ -1440,7 +1620,7 @@ impl V1Road {
         &self,
         dt: f64,
         offers: Vec<Offer>,
-    ) -> PyResult<(RoadState, Vec<EventRow>)> {
+    ) -> PyResult<(RoadState, EventStore)> {
         self.step_state(&self.state, dt, offers)
     }
     fn class(&self, p: &Part) -> usize {
@@ -2081,7 +2261,7 @@ impl V1Road {
         s: &RoadState,
         dt: f64,
         offers: Vec<Offer>,
-    ) -> PyResult<(RoadState, Vec<EventRow>)> {
+    ) -> PyResult<(RoadState, EventStore)> {
         self.check_state(s)?;
         if !dt.is_finite() || dt <= 0. {
             return Err(val("positive finite interval required"));
@@ -2239,7 +2419,7 @@ impl V1Road {
         } else {
             Vec::new()
         };
-        let mut events = vec![];
+        let mut events = EventStore::default();
         let mut incoming: Vec<Vec<Part>> = vec![vec![]; n];
         // Diagnostic only: source (cell, head position, rate bits) per incoming row.
         let mut incoming_src: Vec<Vec<(usize, usize, u64)>> = if crate::v1_trace::enabled() {
@@ -2551,10 +2731,7 @@ impl V1Road {
                         let k = self.class(&p);
                         out.ledger[k][3] += p.mass * (local_mid - ready).max(0.);
                         let j = self.dest(&p);
-                        push_checked(
-                            &mut events,
-                            (p.tag, i, j, p.mass, start_time, end_time, p.birth),
-                        )?;
+                        events.push((p.tag, i, j, p.mass, start_time, end_time, p.birth))?;
                         if let Some(j) = j {
                             free[j] = (free[j] - p.mass).max(0.);
                             space[j] = (space[j] - p.mass * self.footprint(p.tag)).max(0.);
@@ -2619,14 +2796,13 @@ impl V1Road {
                 "road_actual",
                 "transfer buffers",
                 events
-                    .capacity()
-                    .saturating_mul(std::mem::size_of::<EventRow>())
+                    .allocated_bytes()
                     .saturating_add(incoming_cap.saturating_mul(std::mem::size_of::<Part>()))
                     .saturating_add(marks_cap.saturating_mul(std::mem::size_of::<Mark>())),
                 work.limit.unwrap_or(usize::MAX),
                 &[
                     ("events_len", events.len()),
-                    ("events_cap", events.capacity()),
+                    ("event_headers", events.header_count()),
                     ("incoming_len", incoming_len),
                     ("incoming_cap", incoming_cap),
                     ("marks_cap", marks_cap),
@@ -3171,7 +3347,8 @@ impl V1Road {
         self.begin_call_storage_accounting();
         let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
         self.state = s;
-        Ok(e)
+        // Explicit row-API boundary: materialize the ordered rows here only.
+        e.to_rows()
     }
     fn advance_batch(
         &mut self,
@@ -3184,7 +3361,7 @@ impl V1Road {
         for (dt, offers) in steps {
             let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
             self.state = s;
-            events.push(e);
+            events.push(e.to_rows()?);
         }
         Ok(events)
     }
@@ -3324,6 +3501,7 @@ mod workspace_accounting_tests {
             limit: Some(limit),
             base: 0,
             events: 0,
+            event_headers: 0,
             incoming: 0,
             interval_retained: 0,
             interval_transient: 0,
@@ -3357,10 +3535,10 @@ mod workspace_accounting_tests {
         };
         let rows = 10_000;
         assert_eq!(
-            a.road_step_bytes(rows),
-            3_000 + 3 * rows * std::mem::size_of::<EventRow>() + 96
+            a.road_step_bytes(rows, 100),
+            3_000 + EventStore::upper_bytes(rows, 100) + 96
         );
-        assert_eq!(a.road_step_bytes(0), 3_096);
+        assert_eq!(a.road_step_bytes(0, 0), 3_096);
     }
 
     #[test]
@@ -3392,7 +3570,7 @@ mod entry_projection_tests {
             a: PackedTime::new(Some(a)).unwrap(), b: PackedTime::new(Some(b)).unwrap() }
     }
     fn work(limit: usize) -> RoadWorkBudget {
-        RoadWorkBudget { limit: Some(limit), base: 0, events: 0, incoming: 0,
+        RoadWorkBudget { limit: Some(limit), base: 0, events: 0, event_headers: 0, incoming: 0,
             interval_retained: 0, interval_transient: 0, service_events: None }
     }
     fn project(r: &V1Road, parts: Vec<Part>) -> (Vec<Packet>, ProjectionStats) {
@@ -3476,5 +3654,92 @@ mod entry_projection_tests {
         assert!(r.projected_packets(vec![part(0, 1., 0., 0., 1.)], 100., &mut work(10_000), &mut ProjectionStats::default()).is_err());
         assert_eq!(r.state.t, 0.);
         assert!(r.state.cells.iter().all(|c| c.packets.is_empty()));
+    }
+}
+
+#[cfg(test)]
+mod event_store_tests {
+    use super::*;
+
+    fn rows(n: usize, batch: usize) -> Vec<EventRow> {
+        let mut out = Vec::with_capacity(n);
+        for r in 0..n {
+            let b = r / batch;
+            let dest = if r % 5 == 0 { None } else { Some(r % 97) };
+            // Distinct bit patterns, including signed zero and subnormal mass.
+            let mass = match r % 7 {
+                0 => -0.0_f64.abs(),
+                1 => f64::from_bits(1),
+                _ => (r as f64).sqrt() * 1e-3,
+            };
+            out.push((r % 1013, b % 31, dest, mass, b as f64 * 0.1, b as f64 * 0.1 + 0.05, r as f64 * 1.5e-7));
+        }
+        out
+    }
+
+    fn same_bits(a: &EventRow, b: &EventRow) -> bool {
+        a.0 == b.0
+            && a.1 == b.1
+            && a.2 == b.2
+            && a.3.to_bits() == b.3.to_bits()
+            && a.4.to_bits() == b.4.to_bits()
+            && a.5.to_bits() == b.5.to_bits()
+            && a.6.to_bits() == b.6.to_bits()
+    }
+
+    #[test]
+    fn order_and_bits_survive_across_chunk_boundaries() {
+        // Crosses both the row chunk and the header chunk boundaries.
+        for (n, batch) in [(0, 1), (1, 1), (5, 2), (EVENT_ROW_CHUNK + 3, 61), (3 * EVENT_HEADER_CHUNK + 7, 1)] {
+            let input = rows(n, batch);
+            let store = EventStore::from_rows(input.iter().copied()).unwrap();
+            assert_eq!(store.len(), n);
+            let out: Vec<EventRow> = store.iter().collect();
+            assert_eq!(out.len(), n);
+            assert!(input.iter().zip(&out).all(|(a, b)| same_bits(a, b)));
+            assert!(store.to_rows().unwrap().iter().zip(&input).all(|(a, b)| same_bits(a, b)));
+        }
+    }
+
+    #[test]
+    fn headers_only_merge_consecutive_equal_source_and_interval_bits() {
+        let a = (1, 7, Some(2), 1.0, 0.5, 1.0, 0.0);
+        let b = (2, 7, None, 2.0, 0.5, 1.0, 0.0);
+        let c = (3, 8, Some(2), 3.0, 0.5, 1.0, 0.0); // other source
+        let d = (4, 7, Some(2), 4.0, 0.5, 1.0, 0.0); // same key, not consecutive
+        let z = (5, 7, Some(2), 5.0, -0.0, 1.0, 0.0); // -0.0 differs in bits from 0.0
+        let y = (6, 7, Some(2), 6.0, 0.0, 1.0, 0.0);
+        let s = EventStore::from_rows([a, b, c, d, z, y]).unwrap();
+        assert_eq!(s.header_count(), 5);
+        let out: Vec<EventRow> = s.iter().collect();
+        for (x, y) in [a, b, c, d, z, y].iter().zip(&out) {
+            assert!(same_bits(x, y));
+        }
+    }
+
+    #[test]
+    fn sink_sentinel_collision_is_rejected_without_partial_row() {
+        let mut s = EventStore::default();
+        s.push((1, 1, None, 1.0, 0.0, 1.0, 0.0)).unwrap();
+        assert!(s.push((1, 1, Some(usize::MAX), 1.0, 0.0, 1.0, 0.0)).is_err());
+        assert_eq!(s.len(), 1);
+        assert_eq!(s.iter().count(), 1);
+    }
+
+    #[test]
+    fn upper_bound_covers_actual_allocation_while_filling() {
+        let input = rows(2 * EVENT_ROW_CHUNK + 11, 3);
+        let mut s = EventStore::default();
+        for (k, e) in input.iter().enumerate() {
+            s.push(*e).unwrap();
+            if k % 4093 == 0 || k + 1 == input.len() {
+                assert!(s.allocated_bytes() <= EventStore::upper_bytes(s.len(), s.header_count()));
+            }
+        }
+        // Worst case (one header per row) stays within the decode row limit.
+        let budget = 10 * EVENT_ROW_CHUNK * 64;
+        let n = EventStore::max_rows_within(budget);
+        assert!(EventStore::upper_bytes(n, n) <= budget);
+        assert_eq!(EventStore::upper_bytes(0, 0), 0);
     }
 }

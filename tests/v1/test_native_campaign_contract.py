@@ -65,7 +65,7 @@ def test_checkpoint_digest_streams_without_whole_file_read(tmp_path,monkeypatch)
     ('native service event sink storage budget exceeded: phase=service finish','phase_working_budget_guard'),
     ('whole-calendar native preflight needs more accounting bytes','static_accounting_guard'),
     ('allocation unavailable','allocation_or_other_budget')])
-@pytest.mark.parametrize('binding',['retained_capacity_v2','retained_capacity_v3'])
+@pytest.mark.parametrize('binding',['retained_capacity_v2','retained_capacity_v3','retained_capacity_v4'])
 def test_shared_resource_failures_are_not_reported_as_rss_or_fixed_partition(message,kind,binding):
     assert cli.resource_limit_kind(message,{'resource_binding':binding})==kind
 
@@ -119,7 +119,7 @@ def test_shared_owner_pool_preserves_total_and_rejects_previous_split(tmp_path):
     journey=config['journey_dynamic_allowance_bytes']
     assert road==journey==available==config['dynamic_shared_pool_bytes']
     assert config['total_accounting_budget_bytes']==total
-    assert native.identity==legacy.identity+':bounded_bytes_v1:retained_capacity_v3'
+    assert native.identity==legacy.identity+':bounded_bytes_v1:retained_capacity_v4'
     old_available=total-config['conservative_static_accounting_bytes']
     old_road=old_available//2
     old_identity=legacy.identity+f':bounded_bytes_v1:{old_road}:{old_available-old_road}'

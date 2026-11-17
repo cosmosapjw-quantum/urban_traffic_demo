@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-17",
+  "status": "EVENT_STORE_EXACT_PILOT_BLOCKED",
+  "base_commit": "11775f72d35fe76c67a90df458ee743372008606",
+  "published_candidate_binary": "b34832c7803e5ca2be5e7c1a1f83c2d2a83faf29ca7d7956e4943a01f1ce57a3",
+  "new_binary_sha256": "a0077a0707c398615508e2687f3bf6cb032904be31fa8c779068a6af7d05498b",
+  "resource_binding": "retained_capacity_v4",
+  "sources": {
+    "crates/metroflow-rust/src/v1_road.rs": "1b0112a9dbec97135f846430209b5e139c159ff8238535391c59dee10ead6b1d",
+    "crates/metroflow-rust/src/v1_journey.rs": "1d37ab531e0bfd3c55a16aebc59457afdf918246d1f40f538e7c94fe3058d4bf",
+    "crates/metroflow-rust/src/v1_engine.rs": "df76e68e4b65e4fe7f70912802c2de38cc590b080cdd6775adabb5fb379caa91",
+    "tools/probe_v1_event_store.py": "ded8d2f984df8695734cc6e59ff4d76f0c1e31a6fa801ecf019188582f873ce6"
+  },
+  "environment": {
+    "python": "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python 3.12.3",
+    "cargo": "cargo --release --offline",
+    "import_path": "PYTHONPATH=native_binding:src",
+    "threads": 1
+  },
+  "tests": {
+    "rust": {
+      "passed": 69,
+      "failed": 0
+    },
+    "python": {
+      "selected": 302,
+      "passed": 297,
+      "failed": 5,
+      "preexisting_on_published_binary": true,
+      "failures": [
+        "test_native_driver::test_native_driver_executes_and_resumes_same_complete_calendar",
+        "test_native_driver::test_campaign_uses_native_hourly_chunks_with_internal_tick_measurements",
+        "test_native_journey::test_native_journey_over_budget_preserves_valid_checkpoint[rust]",
+        "test_native_journey::test_coupled_native_loop_never_calls_python_tick_methods",
+        "test_native_journey::test_coupled_native_metrics_count_and_peak_match_observed_complete_ticks"
+      ]
+    }
+  },
+  "bit_identity": {
+    "case": "valley_weekday_s7",
+    "width_s": 1,
+    "horizon_s": 25900,
+    "reports_equal": true,
+    "normalized_checkpoint_sha256": "ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff",
+    "normalization": "replace equal-length binding retained_capacity_v3 -> v4"
+  },
+  "prefix_measurement": {
+    "event_term_bytes": [
+      974356192,
+      231217128
+    ],
+    "transfer_required_bytes": [
+      2647975280,
+      1904836216
+    ],
+    "actual_transfer_buffers": [
+      687920576,
+      539286560
+    ],
+    "events": 3676670,
+    "headers": 4447,
+    "peak_rss_bytes": [
+      2539683840,
+      2145710080
+    ]
+  },
+  "pilot": {
+    "command": "tools/run_v1_local_acceptance.py --worker --run-local --case valley_weekday_s7 --engine-backend rust_whole --native-threads 1 --storage-policy bounded_bytes_v1 --entry-projection-width-s 1 --step-s 10 --horizon-s 26100 --label valley_eventstore_h1",
+    "exit_code": 2,
+    "status": "BLOCKED_RESOURCE",
+    "simulated_s": 26050.0,
+    "wall_s": 336.80883028300013,
+    "peak_rss_bytes": 3543003136,
+    "reason": "BudgetExceeded: native road storage budget exceeded: phase=entry interval split, required_bytes=4307007920, budget_bytes=4282459002",
+    "previous_candidate_last_valid_s": 26010.0,
+    "road_parts": 14287428,
+    "road_packets": 18372,
+    "journey_records": 15605033,
+    "service_events": 7206642
+  },
+  "local_checkpoints": [
+    {
+      "path": "artifacts/v1_entry_projection_followup/local_probe/valley_eventstore_h1.last_valid.bin",
+      "bytes": 1788414564,
+      "sha256": "92bbdc09fe536533decad88b6d7d9a9235f730a8e1dfb5d3b7262a7ab4695972"
+    },
+    {
+      "path": "artifacts/v1_entry_projection_followup/eventbatch/valley_h1_25900_eventstore.last_valid.bin",
+      "bytes": 903148860,
+      "sha256": "ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff"
+    },
+    {
+      "path": "artifacts/v1_entry_projection_followup/eventbatch/valley_h1_25900_published.last_valid.bin",
+      "bytes": 903148860,
+      "sha256": "d8bba10d2fa0799a6cc014be5b6e0de0016a00881bbd6843d7ff2d63cfca6cb9"
+    }
+  ],
+  "dag_progress": {
+    "scoped_implementation": "19/21",
+    "accepted": "5/21",
+    "full_day": "0/9",
+    "V03": "BLOCKED"
+  },
+  "next_unit": "immutable mark-block sharing in road cohorts (category vectors ~778 rows/packet dominate)"
+}

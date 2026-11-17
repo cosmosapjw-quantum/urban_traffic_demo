@@ -5,7 +5,7 @@ use crate::v1_history::ReceiptHistory;
 use crate::v1_parallel::ordered_map;
 use crate::v1_road::{
     checkpoint_vec, read_exact_len, read_f64, read_len, read_u64, write_f64, write_len, write_u64,
-    EventRow, V1Road,
+    EventRow, EventStore, V1Road,
 };
 use crate::v1_stage::{Access, StageQueue};
 use pyo3::exceptions::{PyMemoryError, PyValueError};
@@ -23,7 +23,7 @@ pub(crate) type Source = (String, f64, f64);
 type Run = (usize, u8, f64, f64, f64); // stop index, STOP/ROAD/DONE, ready, partial sink, delay
 type People = (f64, f64, f64, f64, f64);
 pub(crate) type Service = (Vec<Run>, Vec<People>, Vec<bool>, Vec<f64>, Vec<bool>);
-pub(crate) type ServiceCheckpoint = (Service, Vec<EventRow>);
+pub(crate) type ServiceCheckpoint = (Service, EventStore);
 type Profile = Vec<(f64, f64, f64)>;
 type Law = Vec<(f64, f64)>;
 pub(crate) type JourneyLeg = (String, f64, Option<usize>, f64, Profile, u8, Law, Law);
@@ -117,7 +117,7 @@ pub(crate) fn service_dense_storage_bytes(state: &Service) -> usize {
 }
 
 pub(crate) fn service_event_storage_bytes(state: &ServiceCheckpoint) -> usize {
-    vec_storage_bytes(&state.1)
+    state.1.allocated_bytes()
 }
 
 /// Debug counters are observational metadata, never serialized physical state.
@@ -353,7 +353,7 @@ pub struct NativeServiceCore {
     freight: Vec<Source>,
     cars: Vec<Source>,
     people_by_run: Vec<Vec<usize>>,
-    last_events: Vec<EventRow>,
+    last_events: EventStore,
     state: Service,
     pending: Option<(f64, Service)>,
 }
@@ -380,7 +380,7 @@ impl NativeServiceCore {
         bytes
     }
     pub(crate) fn event_storage_bytes(&self) -> usize {
-        vec_storage_bytes(&self.last_events)
+        self.last_events.allocated_bytes()
     }
     /// Fixed-count source preparation workspace: one offer per bus/source,
     /// generated labels, geometric offer-buffer growth/physical conversion,
@@ -465,7 +465,7 @@ impl NativeServiceCore {
             write_u64(w, u64::from(v))?;
         }
         write_len(w, self.last_events.len())?;
-        for e in &self.last_events {
+        for e in self.last_events.iter() {
             write_len(w, e.0)?;
             write_len(w, e.1)?;
             write_u64(w, u64::from(e.2.is_some()))?;
@@ -528,7 +528,8 @@ impl NativeServiceCore {
             cars.push(flag(r)?);
         }
         let n = read_len(r, event_limit)?;
-        let mut events = checkpoint_vec(n)?;
+        // Same wire rows; consecutive equal (source, start, end) share a header.
+        let mut events = EventStore::default();
         for _ in 0..n {
             let tag = read_len(r, usize::MAX)?;
             let origin = read_len(r, usize::MAX)?;
@@ -549,7 +550,7 @@ impl NativeServiceCore {
             if !nonnegative([e.3, e.4, e.5, e.6]) {
                 return Err(bad("invalid checkpoint road event"));
             }
-            events.push(e);
+            events.push(e)?;
         }
         let state = (runs, people, released, completed, cars);
         self.validate(&state)?;
@@ -653,7 +654,7 @@ impl NativeServiceCore {
             freight,
             cars,
             people_by_run,
-            last_events: Vec::new(),
+            last_events: EventStore::default(),
             state,
             pending: None,
         })
@@ -669,14 +670,15 @@ impl NativeServiceCore {
             self.event_storage_bytes(),
         )
     }
-    fn road_events(&self) -> Vec<EventRow> {
-        self.last_events.clone()
+    fn road_events(&self) -> PyResult<Vec<EventRow>> {
+        // Explicit row-API boundary: materialize the ordered rows here only.
+        self.last_events.to_rows()
     }
     fn restore(&mut self, state: Service) -> PyResult<()> {
         self.validate(&state)?;
         self.state = state;
         self.pending = None;
-        self.last_events.clear();
+        self.last_events = EventStore::default();
         Ok(())
     }
     fn abort(&mut self) {
@@ -1388,8 +1390,7 @@ pub(crate) fn advance_owned_joint(
     road.configure_service_event_accounting(
         service
             .last_events
-            .capacity()
-            .saturating_mul(std::mem::size_of::<EventRow>()),
+            .allocated_bytes(),
         tags.iter().map(String::capacity).max().unwrap_or(0),
     );
     let input_road_bytes = if dynamic_budget.is_some() {
@@ -1478,8 +1479,7 @@ pub(crate) fn advance_owned_joint(
             road.set_service_event_current_bytes(
                 service
                     .last_events
-                    .capacity()
-                    .saturating_mul(std::mem::size_of::<EventRow>()),
+                    .allocated_bytes(),
             );
             if let Some(total) = dynamic_budget {
                 let current_journey =
@@ -1507,7 +1507,7 @@ pub(crate) fn advance_owned_joint(
                 0
             };
             let candidate_event_bytes = if dynamic_budget.is_some() {
-                vec_storage_bytes(&events)
+                events.allocated_bytes()
             } else {
                 0
             };
@@ -1563,7 +1563,7 @@ pub(crate) fn advance_owned_joint(
                 }
             }
             let mut sinks = Vec::new();
-            for e in &events {
+            for e in events.iter() {
                 if e.2.is_none() {
                     let tag = tags
                         .get(e.0)
