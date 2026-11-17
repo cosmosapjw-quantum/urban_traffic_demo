@@ -1,0 +1,155 @@
+{
+  "status": "CENSUS_COMPLETE",
+  "scope": "constructor support branch; read-only",
+  "candidate": {
+    "status": "MEASURED",
+    "source_sha256": "18e0eba7c4d20050fc39a368e18ab8052f3869cd1b7ccc07863369a65268108f",
+    "source_files": [
+      "Cargo.lock",
+      "crates/metroflow-rust/Cargo.toml",
+      "crates/metroflow-rust/src/lib.rs",
+      "crates/metroflow-rust/src/v1_calendar.rs",
+      "crates/metroflow-rust/src/v1_engine.rs",
+      "crates/metroflow-rust/src/v1_history.rs",
+      "crates/metroflow-rust/src/v1_journey.rs",
+      "crates/metroflow-rust/src/v1_parallel.rs",
+      "crates/metroflow-rust/src/v1_road.rs",
+      "crates/metroflow-rust/src/v1_routing.rs",
+      "crates/metroflow-rust/src/v1_stage.rs",
+      "crates/metroflow-rust/src/v1_trace.rs",
+      "src/metroflow/v1/native_calendar.py",
+      "src/metroflow/v1/native_engine.py",
+      "src/metroflow/v1/native_journey.py",
+      "src/metroflow/v1/native_release_driver.py",
+      "src/metroflow/v1/native_road.py",
+      "src/metroflow/v1/native_routing.py",
+      "src/metroflow/v1/native_static.py",
+      "tools/run_v1_local_acceptance.py"
+    ],
+    "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+    "git_commit": "632bbc72d24ad039978053b7f35ba98782d35f19",
+    "source_dirty": true
+  },
+  "native_binary": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/urban_traffic_followup_20261117/native_binding/_metroflow_rust.so",
+    "size_bytes": 3001344,
+    "sha256": "68d867ca89f3fcec19b4d49785fe98100386f1cbd10fc8308d6df613c07ef84e"
+  },
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "peak_rss_bytes": 2170015744,
+  "cases": {
+    "river_weekday_s17": {
+      "group_totals": {
+        "UNSUPPORTED": {
+          "records": 3392401,
+          "persons": 47932.9104315,
+          "vehicles": 1199.9844765,
+          "cargo_kg": 0.15
+        },
+        "ALL": {
+          "records": 5093765,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000.0
+        },
+        "SUPPORTED_SERVICE": {
+          "records": 580,
+          "persons": 0.39183749999999995,
+          "vehicles": 1.0155235,
+          "cargo_kg": 999.85
+        },
+        "SUPPORTED_INTERNAL": {
+          "records": 6762,
+          "persons": 391.77738899999997,
+          "vehicles": 260.0637264,
+          "cargo_kg": 0.0
+        },
+        "SUPPORTED_ROAD": {
+          "records": 1694022,
+          "persons": 71674.920342,
+          "vehicles": 57339.9362736,
+          "cargo_kg": 0.0
+        }
+      },
+      "wall_s": 80.86950433498714
+    },
+    "coastal_weekend_s41": {
+      "group_totals": {
+        "UNSUPPORTED": {
+          "records": 1631129,
+          "persons": 39947.51263125,
+          "vehicles": 999.9964480000001,
+          "cargo_kg": 0.4
+        },
+        "ALL": {
+          "records": 2449750,
+          "persons": 100000.00000000001,
+          "vehicles": 49001.0,
+          "cargo_kg": 1000.0
+        },
+        "SUPPORTED_SERVICE": {
+          "records": 489,
+          "persons": 0.0988,
+          "vehicles": 1.003552,
+          "cargo_kg": 999.6
+        },
+        "SUPPORTED_INTERNAL": {
+          "records": 3816,
+          "persons": 285.51523875,
+          "vehicles": 186.50133599999998,
+          "cargo_kg": 0.0
+        },
+        "SUPPORTED_ROAD": {
+          "records": 814316,
+          "persons": 59766.873329999995,
+          "vehicles": 47813.498664,
+          "cargo_kg": 0.0
+        }
+      },
+      "wall_s": 45.13985930502531
+    },
+    "valley_weekday_s7": {
+      "group_totals": {
+        "UNSUPPORTED": {
+          "records": 610820,
+          "persons": 47882.919880500005,
+          "vehicles": 1199.9340965000001,
+          "cargo_kg": 1.175
+        },
+        "ALL": {
+          "records": 918450,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000.0
+        },
+        "SUPPORTED_SERVICE": {
+          "records": 250,
+          "persons": 1.6769625,
+          "vehicles": 1.0659035,
+          "cargo_kg": 998.825
+        },
+        "SUPPORTED_INTERNAL": {
+          "records": 3012,
+          "persons": 745.4777489999999,
+          "vehicles": 504.0596736,
+          "cargo_kg": 0.0
+        },
+        "SUPPORTED_ROAD": {
+          "records": 304368,
+          "persons": 71369.925408,
+          "vehicles": 57095.9403264,
+          "cargo_kg": 0.0
+        }
+      },
+      "wall_s": 25.73560225998517
+    }
+  }
+}

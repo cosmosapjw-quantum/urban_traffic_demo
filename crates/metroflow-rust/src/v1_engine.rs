@@ -12,8 +12,8 @@ use crate::v1_road::{RoadState, V1Road};
 use crate::v1_routing::V1RoutingGraph;
 use pyo3::exceptions::{PyIOError, PyIndexError, PyMemoryError, PyValueError};
 use pyo3::prelude::*;
-use pyo3::types::PyDict;
-use std::collections::{HashMap, HashSet};
+use pyo3::types::{PyDict, PyList};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::sync::Arc;
@@ -207,6 +207,50 @@ fn stage_sums(j: &Journey, legs: usize) -> PyResult<Vec<f64>> {
     Ok(mass)
 }
 
+/// Diagnostic decomposition of calendar legs by the constructor's own support
+/// branch. Keys: (reason, kind, service-assigned, mode label, endpoint label,
+/// chained). Amounts are exact sums of persons, vehicles and cargo; the pending
+/// columns weight each leg by the constructor's service-pending fractions.
+#[derive(Default)]
+struct SupportCensus {
+    rows: BTreeMap<(&'static str, u8, bool, usize, usize, bool), (usize, [Sum; 3], [Sum; 3])>,
+    labels: HashMap<usize, String>,
+}
+impl SupportCensus {
+    #[allow(clippy::too_many_arguments)]
+    fn add(
+        &mut self,
+        reason: &'static str,
+        kind: u8,
+        assigned: bool,
+        mode: usize,
+        endpoint: usize,
+        chained: bool,
+        amounts: &[f64; 3],
+        pending: &[f64],
+        mode_label: &str,
+        endpoint_label: &str,
+    ) {
+        self.labels
+            .entry(mode)
+            .or_insert_with(|| mode_label.to_owned());
+        self.labels
+            .entry(endpoint)
+            .or_insert_with(|| endpoint_label.to_owned());
+        let e = self
+            .rows
+            .entry((reason, kind, assigned, mode, endpoint, chained))
+            .or_default();
+        e.0 += 1;
+        for j in 0..3 {
+            e.1[j].add(amounts[j]);
+            for p in pending {
+                e.2[j].add(amounts[j] * p);
+            }
+        }
+    }
+}
+
 // Streaming expansion summation: retain exact low-order components until the
 // final fsum rounding, without a vector per pending calendar record.
 #[derive(Default)]
@@ -236,6 +280,9 @@ impl Sum {
     }
     fn finish(self) -> f64 {
         fsum(self.partials)
+    }
+    fn clone_finish(&self) -> f64 {
+        fsum(self.partials.iter().copied())
     }
 }
 
@@ -466,6 +513,7 @@ pub struct NativeWholeEngine {
     unassigned: [f64; 3],
     unsupported: usize,
     supported: [usize; 3],
+    support_census: SupportCensus,
     passenger_available: Vec<f64>,
     freight_cargo: Vec<f64>,
     freight_vehicles: Vec<f64>,
@@ -640,6 +688,7 @@ impl NativeWholeEngine {
         let mut unassigned = [0.0; 3];
         let mut unsupported = 0;
         let mut supported = [0usize; 3];
+        let mut support_census = SupportCensus::default();
         let mut convolution: HashMap<(usize, usize), SharedLaw> = HashMap::new();
         let mut helper_required = false;
         let mut pending_sums = [Sum::default(), Sum::default(), Sum::default()];
@@ -668,9 +717,13 @@ impl NativeWholeEngine {
                 .get(m[5] as usize)
                 .ok_or_else(|| bad("calendar profile missing"))?;
             let mut kind = 0;
+            // Diagnostic reason for the support class below; mirrors the
+            // branches exactly and never influences them.
+            let mut reason: &'static str = "other_mode_or_endpoint";
             let mut origin_law = empty.clone();
             let mut destination_law = empty.clone();
             if endpoint == "\"intrazonal\"" && (mode == "\"car\"" || mode == "\"noncar\"") {
+                reason = "internal_intrazonal_delay";
                 kind = 2;
                 origin_law = laws
                     .get(&(m[6] as usize))
@@ -678,9 +731,17 @@ impl NativeWholeEngine {
                     .clone();
                 destination_law = zero.clone();
             } else if mode == "\"car\"" && endpoint == "\"interzonal\"" {
+                reason = "car_endpoint_activity_null";
                 if let (Some(a), Some(b)) = (origin, destination) {
+                    reason = match (&a.car, &b.car) {
+                        (None, None) => "car_no_road_access_both",
+                        (None, _) => "car_no_road_access_origin",
+                        (_, None) => "car_no_road_access_destination",
+                        _ => "car_no_road_route",
+                    };
                     if let (Some(an), Some(bn)) = (&a.car, &b.car) {
                         if an == bn {
+                            reason = "internal_colocated_car";
                             let key = (m[0] as usize, m[1] as usize);
                             if let Some(law) = convolution.get(&key) {
                                 origin_law = law.clone();
@@ -707,6 +768,7 @@ impl NativeWholeEngine {
                             kind = 2;
                             destination_law = zero.clone();
                         } else if let Some(path) = router.route(an, bn)? {
+                            reason = "road_car_routed";
                             kind = 1;
                             origin_law = a.car_law.clone();
                             destination_law = b.car_law.clone();
@@ -717,15 +779,35 @@ impl NativeWholeEngine {
             }
             let mut assigned = false;
             let mut pending_fractions = Vec::new();
+            if mode == "\"noncar\"" && endpoint != "\"intrazonal\"" {
+                reason = "noncar_interzonal_no_transport_model";
+            } else if mode == "\"bus\"" {
+                reason = "bus_endpoint_activity_null";
+            } else if mode == "\"freight\"" {
+                reason = "freight_destination_activity_null";
+            }
             if leg.parent.is_some() && mode != "\"bus\"" {
+                if kind == 0 && mode == "\"freight\"" {
+                    reason = "freight_chained_leg_not_service_assigned";
+                }
                 pending_fractions.push(1.0);
             } else if mode == "\"bus\"" && origin.is_some() && destination.is_some() {
                 let a = origin.unwrap();
                 let b = destination.unwrap();
                 if a.service.is_none() || b.service.is_none() {
+                    reason = match (&a.service, &b.service) {
+                        (None, None) => "bus_no_service_access_both",
+                        (None, _) => "bus_no_service_access_origin",
+                        _ => "bus_no_service_access_destination",
+                    };
                     pending_fractions.push(1.0);
                 } else {
                     let candidates = corridors_by_blocks.get(&(a.block.clone(), b.block.clone()));
+                    reason = if candidates.is_none() {
+                        "bus_no_corridor_between_blocks"
+                    } else {
+                        "bus_no_departure_after_ready"
+                    };
                     for &(start, end, p) in profile.iter() {
                         let ready = end + a.maximum;
                         let earliest = candidates
@@ -751,6 +833,7 @@ impl NativeWholeEngine {
                                     "service record budget exceeded; no demand omitted",
                                 ));
                             }
+                            reason = "bus_service_assigned";
                             people.push((k, 0, 1, ready, persons));
                             passenger_available.push(ready);
                             bus_meta.push((
@@ -767,6 +850,12 @@ impl NativeWholeEngine {
                 }
             } else if mode == "\"freight\"" && destination.is_some() {
                 let b = destination.unwrap();
+                reason = match (&s.depot, &s.depot_node, &b.service) {
+                    (None, _, _) | (_, None, _) => "freight_no_depot",
+                    (_, _, None) => "freight_no_service_access_destination",
+                    (Some(block), _, _) if block == &b.block => "freight_same_block_as_depot",
+                    _ => "freight_no_road_route",
+                };
                 let path = match (&s.depot, &s.depot_node, &b.service) {
                     (Some(block), Some(a), Some(node)) if block != &b.block => {
                         router.route(a, node)?
@@ -793,6 +882,7 @@ impl NativeWholeEngine {
                         }
                         let name = format!("{id}:{window}");
                         routes.push((format!("freight:{name}"), path, freight_class, None));
+                        reason = "freight_service_assigned";
                         freight.push((name, end, vehicles));
                         freight_cargo.push(cargo);
                         freight_vehicles.push(vehicles);
@@ -810,7 +900,7 @@ impl NativeWholeEngine {
             } else {
                 pending_fractions.push(1.0);
             }
-            for p in pending_fractions {
+            for &p in &pending_fractions {
                 for j in 0..3 {
                     pending_sums[j].add(leg.amounts[j] * p);
                 }
@@ -818,6 +908,18 @@ impl NativeWholeEngine {
             if kind == 0 && !assigned {
                 unsupported += 1;
             }
+            support_census.add(
+                reason,
+                kind,
+                assigned,
+                m[3] as usize,
+                m[7] as usize,
+                leg.parent.is_some(),
+                &leg.amounts,
+                &pending_fractions,
+                mode,
+                endpoint,
+            );
             supported[kind as usize] += 1;
             let carrier = if leg.amounts[1] != 0.0 {
                 leg.amounts[1]
@@ -1008,6 +1110,7 @@ impl NativeWholeEngine {
             unassigned,
             unsupported,
             supported,
+            support_census,
             passenger_available,
             freight_cargo,
             freight_vehicles,
@@ -1275,6 +1378,33 @@ impl NativeWholeEngine {
         out.set_item("mass_bound_scope", "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding")?;
         out.set_item("scope", "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata")?;
         out.set_item("checkpointed", false)?;
+        Ok(out.unbind())
+    }
+    /// Read-only constructor census of calendar legs by support reason. Not
+    /// part of the physical report or checkpoint identity.
+    fn support_census(&self, py: Python<'_>) -> PyResult<Py<PyList>> {
+        let out = PyList::empty(py);
+        for ((reason, kind, assigned, mode, endpoint, chained), (n, amounts, pending)) in
+            &self.support_census.rows
+        {
+            let row = PyDict::new(py);
+            row.set_item("reason", *reason)?;
+            row.set_item("kind", *kind)?;
+            row.set_item("service_assigned", *assigned)?;
+            row.set_item("mode", self.support_census.labels.get(mode).cloned().unwrap_or_default())?;
+            row.set_item("endpoint", self.support_census.labels.get(endpoint).cloned().unwrap_or_default())?;
+            row.set_item("chained", *chained)?;
+            row.set_item("records", *n)?;
+            let total: Vec<f64> = amounts.iter().map(|x| x.clone_finish()).collect();
+            let pend: Vec<f64> = pending.iter().map(|x| x.clone_finish()).collect();
+            row.set_item("persons", total[0])?;
+            row.set_item("vehicles", total[1])?;
+            row.set_item("cargo_kg", total[2])?;
+            row.set_item("pending_persons", pend[0])?;
+            row.set_item("pending_vehicles", pend[1])?;
+            row.set_item("pending_cargo_kg", pend[2])?;
+            out.append(row)?;
+        }
         Ok(out.unbind())
     }
     fn storage_config(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
