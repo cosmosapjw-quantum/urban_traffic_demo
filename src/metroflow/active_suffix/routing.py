@@ -8,6 +8,8 @@ from dataclasses import dataclass
 import heapq
 import math
 
+from ..route_metrics import measure_route_latency
+
 
 @dataclass(frozen=True, slots=True)
 class Arc:
@@ -74,6 +76,7 @@ def destination_potential(arcs, costs, destination, allowed_turns=None):
     return V
 
 
+@measure_route_latency('candidate_paths')
 def candidate_paths(
     arcs, costs, origin, destination, k=3, expansion_budget=2000, allowed_turns=None
 ):

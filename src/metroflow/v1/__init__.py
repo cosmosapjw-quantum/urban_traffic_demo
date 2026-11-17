@@ -1,4 +1,9 @@
-"""Public V1 facade. The scientific path uses only the Python standard library."""
+"""Public V1 facade and Python reference models.
+
+The whole-city native runtime owns numerical evolution in Rust; Python supplies
+configuration, command-line interfaces and diagnostics. Reference models remain
+available for explicit scientific comparisons.
+"""
 
 from .access import AccessLaw, DelayAtom, compile_access
 from .journey import DelayLaw, JourneyBoundary, JourneyModel, JourneyState

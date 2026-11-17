@@ -1,0 +1,15 @@
+{
+  "checkpoint_sha256": "d5d584ed47a9af4e2a77cedacf04c0b45a6899f9e534e2a76579ecc2e16bae6b",
+  "all_key_sets_complete": true,
+  "common_interval_packet_fraction": 1.0,
+  "road_exact_duplicate_rows": 0,
+  "road_route_offset_recurrence_fraction": 0.8214234458240898,
+  "mass_lt_1e_12_rows": 861262,
+  "mass_lt_1e_12_fsum": 2.676333772448689e-08,
+  "merge_midpoint_counterexample": {
+    "two_event_weighted_latent": 0.5851695900694684,
+    "merged_event_latent": 0.6321205588285577,
+    "difference": 0.04695096875908922,
+    "scope": "derived evaluation of existing nonlinear mark-sampling formula; not a full road simulation"
+  }
+}

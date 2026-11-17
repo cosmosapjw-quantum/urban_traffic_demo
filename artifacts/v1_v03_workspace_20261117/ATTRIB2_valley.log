@@ -1,0 +1,17 @@
+{"t": 3600.0, "wall": 41.7, "rss": 445263872, "heap_peak": 285873804, "worst": "engine_admission:capture/validation", "ratio": 0.1017}
+{"t": 7200.0, "wall": 50.5, "rss": 445263872, "heap_peak": 315486420, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 10800.0, "wall": 61.5, "rss": 445263872, "heap_peak": 315486420, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 14400.0, "wall": 72.8, "rss": 445263872, "heap_peak": 315486420, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 18000.0, "wall": 81.2, "rss": 445263872, "heap_peak": 315486420, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 21600.0, "wall": 89.8, "rss": 445263872, "heap_peak": 315486420, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 25200.0, "wall": 100.4, "rss": 445263872, "heap_peak": 315500240, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 25250.0, "wall": 101.0, "rss": 445263872, "heap_peak": 338584176, "worst": "engine_admission:capture/validation", "ratio": 0.1122}
+{"t": 25300.0, "wall": 101.9, "rss": 494702592, "heap_peak": 399870083, "worst": "engine_admission:capture/validation", "ratio": 0.1276}
+{"t": 25350.0, "wall": 104.2, "rss": 600870912, "heap_peak": 498078504, "worst": "engine_admission:capture/validation", "ratio": 0.15}
+{"t": 25400.0, "wall": 107.6, "rss": 739479552, "heap_peak": 614035360, "worst": "engine_admission:capture/validation", "ratio": 0.172}
+{"t": 25450.0, "wall": 112.7, "rss": 868503552, "heap_peak": 775447024, "worst": "engine_admission:capture/validation", "ratio": 0.2047}
+{"t": 25500.0, "wall": 121.9, "rss": 1098575872, "heap_peak": 979325768, "worst": "engine_admission:capture/validation", "ratio": 0.228}
+{"t": 25550.0, "wall": 135.5, "rss": 1470898176, "heap_peak": 1385984216, "worst": "engine_admission:capture/validation", "ratio": 0.3093}
+{"t": 25600.0, "wall": 161.2, "rss": 2185867264, "heap_peak": 2182095024, "worst": "road_work:packet interval packing", "ratio": 0.4862}
+{"t": 25650.0, "wall": 252.5, "rss": 3787374592, "heap_peak": 3878730152, "worst": "road_work:packet interval packing", "ratio": 1.0245}
+{"status": "GATE_REACHED_HORIZON", "case": "valley_weekday_s7", "simulated_s": 25650.0, "wall_s": 252.51351330598118, "peak_rss_bytes": 3787374592}

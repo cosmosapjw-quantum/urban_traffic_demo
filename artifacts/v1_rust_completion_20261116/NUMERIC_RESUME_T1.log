@@ -1,0 +1,1 @@
+{"status": "BLOCKED_RESOURCE", "simulated_s": 25520.0, "reason": "native road storage budget exceeded: phase=entry interval split, required_bytes=1342245688, budget_bytes=1342231185", "advance_wall_s": 6.0244517989922315, "peak_rss_bytes": 1585893376}

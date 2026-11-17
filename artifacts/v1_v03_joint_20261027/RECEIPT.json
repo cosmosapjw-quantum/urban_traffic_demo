@@ -1,0 +1,91 @@
+{
+  "node": "V03",
+  "status": "BLOCKED_IMPLEMENTATION_AND_LOCAL_EXECUTION",
+  "parent_commit": "2776faea4eb2c72883c4aadcfdb5898523dbe538",
+  "source_manifest_sha256": "0cc4ca71fbba415943c34033c3ce2fc0789e184606cdc622ab99af4a68763720",
+  "checks": {
+    "python312": "38 passed",
+    "python313": "38 passed",
+    "ruff": "PASS",
+    "independent_review": "boundedC9 closed; numerical sharedsupply counterexample0.9vs1.8veh; all identified bugs fixed",
+    "joint_final_physical_ledger_checks": "4 tests pass per supported Python after final strengthening"
+  },
+  "implemented": [
+    "bounded exact route/access plan with cursor and quantitative untouched calendar",
+    "completion+dwell gated returns, intent-hold residence, intrazonal and colocated access",
+    "explicit fixedfleet/depot plans with quantified unassigned demand",
+    "joint car/bus/freight wholejourney wrapper with sole ServiceModel.step, shared physical supply, stage/birth/receipt checks and checkpoint restore"
+  ],
+  "real_case_compilation": {
+    "coastal_weekend_s41.plan": {
+      "calendar": {
+        "legs": 2449750,
+        "persons": 100000.0,
+        "vehicles": 49001.0,
+        "cargo_kg": 1000,
+        "resident_stock": 100000.0,
+        "requested_workers": 10000.0,
+        "allocated_workers": 10000.0,
+        "unassigned_workers": 0.0
+      },
+      "materialized_legs": 16,
+      "remaining_legs": 2449734,
+      "remaining_amounts": {
+        "persons": 99999.97753,
+        "vehicles": 49000.988681,
+        "cargo_kg": 1000.0
+      },
+      "execution": "NOT_RUN",
+      "scope": "exact compilation coverage; pages must enter one shared live runtime"
+    },
+    "river_weekday_s17.plan": {
+      "calendar": {
+        "legs": 5093765,
+        "persons": 120000.0,
+        "vehicles": 58801.0,
+        "cargo_kg": 1000,
+        "resident_stock": 100000.0,
+        "requested_workers": 50000.0,
+        "allocated_workers": 40000.0,
+        "unassigned_workers": 10000.0
+      },
+      "materialized_legs": 16,
+      "remaining_legs": 5093749,
+      "remaining_amounts": {
+        "persons": 119999.075456,
+        "vehicles": 58800.4726032,
+        "cargo_kg": 1000.0
+      },
+      "execution": "NOT_RUN",
+      "scope": "exact compilation coverage; pages must enter one shared live runtime"
+    },
+    "valley_weekday_s7.plan": {
+      "calendar": {
+        "legs": 918450,
+        "persons": 120000.0,
+        "vehicles": 58801.0,
+        "cargo_kg": 1000,
+        "resident_stock": 100000.0,
+        "requested_workers": 50000.0,
+        "allocated_workers": 40000.0,
+        "unassigned_workers": 10000.0
+      },
+      "materialized_legs": 16,
+      "remaining_legs": 918434,
+      "remaining_amounts": {
+        "persons": 119997.330848,
+        "vehicles": 58799.6836836,
+        "cargo_kg": 1000.0
+      },
+      "execution": "NOT_RUN",
+      "scope": "exact compilation coverage; pages must enter one shared live runtime"
+    }
+  },
+  "whole_city_simulation": "NOT_RUN",
+  "remaining": [
+    "connect full ReleasePlan cursor activation transaction to occupied JointReleaseRuntime and checkpoint within active-record budget",
+    "configure release-wide fixed bus inventory and physical freight depot inputs",
+    "execute3cases x3repeats of86400s on verifiedlocalhost and measure wall/RSS/refinement/replay"
+  ],
+  "full_ci_and_integration": "DEFERRED_BY_USER"
+}

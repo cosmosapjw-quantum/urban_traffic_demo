@@ -1,0 +1,45 @@
+{
+  "case": "valley_weekday_s7",
+  "status": "BLOCKED_RESOURCE",
+  "simulated_s": 0,
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+    "cpu": "x86_64",
+    "threads": 1
+  },
+  "step_s": 10.0,
+  "reason": "whole calendar exceeds preactivation leg budget; no demand omitted",
+  "last_valid": {
+    "status": "BLOCKED_RESOURCE",
+    "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+    "cursor": {
+      "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+      "offset": 0,
+      "materialized_persons": 0.0,
+      "materialized_vehicles": 0.0,
+      "materialized_cargo_kg": 0.0
+    },
+    "calendar": {
+      "legs": 918450,
+      "persons": 120000.0,
+      "vehicles": 58801.0,
+      "cargo_kg": 1000,
+      "resident_stock": 100000.0,
+      "requested_workers": 50000.0,
+      "allocated_workers": 40000.0,
+      "unassigned_workers": 10000.0
+    },
+    "remaining_legs": 918450,
+    "remaining_amounts": {
+      "persons": 120000.0,
+      "vehicles": 58801.0,
+      "cargo_kg": 1000
+    },
+    "units": "calendar amounts count outward and return legs separately",
+    "simulated_s": 0,
+    "scope": "no calendar leg enumerated and no road state created"
+  },
+  "wall_s": 17.24186452899812,
+  "peak_rss_bytes": 38535168
+}

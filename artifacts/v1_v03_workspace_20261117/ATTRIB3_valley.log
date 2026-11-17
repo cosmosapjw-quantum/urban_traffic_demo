@@ -1,0 +1,9 @@
+{"t": 3600.0, "wall": 36.2, "rss": 444252160, "heap_peak": 285873804, "worst": "engine_admission:capture/validation", "ratio": 0.1017}
+{"t": 7200.0, "wall": 48.5, "rss": 444252160, "heap_peak": 315486420, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 10800.0, "wall": 60.1, "rss": 444252160, "heap_peak": 315486420, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 14400.0, "wall": 69.1, "rss": 444252160, "heap_peak": 315486420, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 18000.0, "wall": 78.1, "rss": 444252160, "heap_peak": 315486420, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 21600.0, "wall": 87.2, "rss": 444252160, "heap_peak": 315486420, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 25200.0, "wall": 99.5, "rss": 444252160, "heap_peak": 315500240, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 25650.0, "wall": 240.7, "rss": 3231969280, "heap_peak": 3311726920, "worst": "road_work:packet interval packing", "ratio": 0.986}
+{"status": "GATE_REACHED_HORIZON", "case": "valley_weekday_s7", "simulated_s": 25650.0, "wall_s": 240.651861721999, "peak_rss_bytes": 3231969280}

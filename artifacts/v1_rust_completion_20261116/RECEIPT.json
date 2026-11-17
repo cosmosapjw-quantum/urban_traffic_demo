@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-16",
+  "status": "IMPLEMENTATION_VERIFIED_SCOPED_CAMPAIGN_BLOCKED",
+  "scope": "Rust-owned V1 production runtime, exact storage, event-resolution continuation, shared retained accounting and actual full-target attempts; not full release acceptance",
+  "baseline_commit": "7b5e518f6c098ed831551da4e66d980addf80dd8",
+  "frozen_candidate": {
+    "commit": "532effe32f90c20cf3cbc1de350d0e7267f52584",
+    "tree": "ffa7017a70733acf68dd24c506cb6c104cf5a99f",
+    "candidate": {
+      "status": "MEASURED",
+      "source_sha256": "65bd00608c6546a2895d2b7e12aa1aab4ee71587205fe98c398be887b5e48179",
+      "source_files": [
+        "Cargo.lock",
+        "crates/metroflow-rust/Cargo.toml",
+        "crates/metroflow-rust/src/lib.rs",
+        "crates/metroflow-rust/src/v1_calendar.rs",
+        "crates/metroflow-rust/src/v1_engine.rs",
+        "crates/metroflow-rust/src/v1_history.rs",
+        "crates/metroflow-rust/src/v1_journey.rs",
+        "crates/metroflow-rust/src/v1_parallel.rs",
+        "crates/metroflow-rust/src/v1_road.rs",
+        "crates/metroflow-rust/src/v1_routing.rs",
+        "crates/metroflow-rust/src/v1_stage.rs",
+        "src/metroflow/v1/native_calendar.py",
+        "src/metroflow/v1/native_engine.py",
+        "src/metroflow/v1/native_journey.py",
+        "src/metroflow/v1/native_release_driver.py",
+        "src/metroflow/v1/native_road.py",
+        "src/metroflow/v1/native_routing.py",
+        "src/metroflow/v1/native_static.py",
+        "tools/run_v1_local_acceptance.py"
+      ],
+      "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+      "git_commit": "532effe32f90c20cf3cbc1de350d0e7267f52584",
+      "source_dirty": false
+    },
+    "native_binary": {
+      "status": "MEASURED",
+      "path": "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/lib/python3.12/site-packages/_metroflow_rust/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+      "size_bytes": 2843240,
+      "sha256": "3e06969385dffdb9834c56d2cf0831e67e07e618df4f1f2169cff974aa9a3972"
+    },
+    "verified_manifest_files": 45
+  },
+  "scientific_contract": {
+    "residents": 100000,
+    "full_demand": true,
+    "case_count": 3,
+    "full_day_repeats_per_case": 3,
+    "horizon_s": 86400,
+    "wall_limit_s": 7200,
+    "peak_rss_limit_bytes": 8589934592,
+    "native_accounting_budget_bytes": 6442450944,
+    "unchanged_tolerances": true,
+    "no_mass_pruning_or_time_binning": true
+  },
+  "verification": {
+    "native_release_build": "PASSED",
+    "build_s": 10.21,
+    "scoped_pytest_passed": 251,
+    "scoped_pytest_s": 9.53,
+    "command": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=src python -m pytest -q tests/v1/test_native*.py tests/test_packet_quotient.py tests/v1/test_transfer_time.py tests/test_v1_journey.py tests/test_v1_birth_contract.py tests/test_v1_plan.py",
+    "source_manifest_file_count": 45,
+    "compiled_source_matches_commit": true,
+    "legacy_occupied_replays": 3,
+    "legacy_reports_and_checkpoint_bytes_identical": true,
+    "actual_recovery": {
+      "status": "FRESH_LOAD_AND_ROUNDTRIP_VERIFIED",
+      "loaded_report_identical": true,
+      "input_checkpoint_sha256": "e179f3b9b5b9081a8adb121e51761514654743a8e8bbe4166691dd04cc46425e",
+      "roundtrip_checkpoint_sha256": "e179f3b9b5b9081a8adb121e51761514654743a8e8bbe4166691dd04cc46425e",
+      "continuation_status": "ADVANCED_ONE_TICK",
+      "simulated_s": 25360.0,
+      "scope": "Separate fresh process; physical bytes identical at25350s, decoded capacities may differ; one extra tick is not full-day campaign completion"
+    }
+  },
+  "campaign": {
+    "status": "BLOCKED",
+    "full_day_completed": 0,
+    "full_day_required": 9,
+    "first_full_target_attempts": 3,
+    "dependent_repeats_not_run": 6,
+    "refinement_not_run": 3,
+    "receipt_status_counts": {
+      "BLOCKED_RESOURCE": 3,
+      "NOT_RUN_DEPENDENCY_BLOCKED": 9
+    },
+    "cases": [
+      {
+        "case": "river_weekday_s17",
+        "status": "BLOCKED_RESOURCE",
+        "simulated_s": 25350.0,
+        "wall_s": 590.6807437230018,
+        "peak_rss_bytes": 2787835904,
+        "resource_limit_kind": "checkpoint_working_budget_guard",
+        "reason": "BudgetExceeded: native whole checkpointability storage budget exceeded: required_bytes=3187741149, budget_bytes=3135452254",
+        "receipt": "artifacts/v1_rust_completion_20261116/runtime_budget_campaign/river_weekday_s17.run1.json",
+        "sha256": "bd8312daa99d145dfb238730828f7a8822a2ba80a0ace066ff5c1903daba6108",
+        "last_valid": {
+          "path": "river_weekday_s17.run1.last_valid.bin",
+          "time_s": 25350.0
+        }
+      },
+      {
+        "case": "coastal_weekend_s41",
+        "status": "BLOCKED_RESOURCE",
+        "simulated_s": 32660.0,
+        "wall_s": 273.30382769899734,
+        "peak_rss_bytes": 2539757568,
+        "resource_limit_kind": "phase_working_budget_guard",
+        "reason": "BudgetExceeded: native road storage budget exceeded: phase=entry interval split, required_bytes=3803788656, budget_bytes=3803738862",
+        "receipt": "artifacts/v1_rust_completion_20261116/runtime_budget_campaign/coastal_weekend_s41.run1.json",
+        "sha256": "2b7be6e647f6232c8f836b7a8e32f8a8076f56ec96375bbe4ad136c52c2610b0",
+        "last_valid": {
+          "path": "coastal_weekend_s41.run1.last_valid.bin",
+          "time_s": 32660.0
+        }
+      },
+      {
+        "case": "valley_weekday_s7",
+        "status": "BLOCKED_RESOURCE",
+        "simulated_s": 25600.0,
+        "wall_s": 131.6895550699992,
+        "peak_rss_bytes": 2114449408,
+        "resource_limit_kind": "phase_working_budget_guard",
+        "reason": "BudgetExceeded: native road storage budget exceeded: phase=packet interval packing, required_bytes=5333479128, budget_bytes=5333475127",
+        "receipt": "artifacts/v1_rust_completion_20261116/runtime_budget_campaign/valley_weekday_s7.run1.json",
+        "sha256": "b70036f8b12f629bf750a43259b036b413f2e5a0feac040eb1bfb8a148e01716",
+        "last_valid": {
+          "path": "valley_weekday_s7.run1.last_valid.bin",
+          "time_s": 25600.0
+        }
+      }
+    ]
+  },
+  "remaining_blocker": "Exact stage/road fragmentation and conservative simultaneous validation/decode/interval workspaces exceed current shared native admission; not measured8GiB RSS exhaustion or a physical no-go result",
+  "runtime_roles": {
+    "production_core": "Rust",
+    "python": "configuration/frontend/process supervision/artifact I/O/diagnostics; legacy numerical path is explicit oracle",
+    "parallelism": "private indexed Rayon pool, stable serial reductions, default1worker; faer not added because no dense linear-algebra kernel is implicated"
+  },
+  "dag_progress": {
+    "completed": 19,
+    "total": 21,
+    "percent": 90.47619047619048,
+    "accepted": 5,
+    "V03": "BLOCKED",
+    "RLS01": "PLANNED"
+  },
+  "deferred": [
+    "full repository CI",
+    "integration",
+    "merge",
+    "release",
+    "final acceptance review"
+  ],
+  "publication": {
+    "branch": "v1/v03-acceptance-20261027",
+    "expected_original_head": "7b5e518f6c098ed831551da4e66d980addf80dd8",
+    "method": "fast-forward compare-and-swap; skip ci",
+    "authority": "remote branch ref verified after the evidence commit; source identity is frozen_candidate"
+  },
+  "evidence_sha256": {
+    "REPORT_KO.md": "2ab1e0a99419fe7bfa29cbcdea885e9cd50dcc7fe8f899dc23f896cb9620b121",
+    "ACTUAL_BLOCKER_ANALYSIS.md": "a091a914002216a7ad83d25e696706df1a4ec052441149b231140e38fdc3be0d",
+    "SOURCE_MANIFEST_BUDGET_FINAL.json": "77a04508025d64e491de27a4a7ba9635735eb15c5cd29f17e3e855748a99f789",
+    "RUNTIME_BUDGET_FROZEN.json": "b9ecd0740ab3d26d7fedd9a2d910b0ffbc50feea9a10530856ae579daf1bf280",
+    "BUILD_BUDGET_SEQ_FINAL.log": "3588cae9fc8af1583dbe1ec24b0f11bde7618dc4229bb43e0643f27938331a78",
+    "TESTS_BUDGET_SEQ_FINAL.log": "7774eca691e72964d80ceb58f0ad91fafdc10edd9ec67eae569667d492e687d1",
+    "legacy_replay_budget.json": "f9b2470029454935610f0328505e0d25474096d50ebb4f103bd324ddcbfe5363",
+    "RUNTIME_BUDGET_COMPARISON.json": "b09e9556c06b056b37944f11ab37fbd496225921aedc074960bf6f9c3aacd5b1",
+    "RUNTIME_BUDGET_REVIEW.md": "1dcd00422b39d889648cdad0662f512e0f9c8743449a3bdd64e6f1255e55d5d7",
+    "JOURNEY_STATIC_ACCOUNTING.md": "e9468ddc1c64602cd2d20bfd23371d7761d254d0b59f85b34091c05200bb49af",
+    "ROAD_STATIC_ACCOUNTING.md": "c7f60a11aab7ae46c37c83cba6d00f09f422438ceda703c497cce8628a5ef9d6",
+    "runtime_budget_campaign/CAMPAIGN.json": "f0ec6a92e64794bad4b20345a552eb074f1e6805d8a0e9fff47106c2349f83cc",
+    "RUNTIME_BUDGET_CAMPAIGN.log": "600e96a0035b7a664229ba20b733a9e041f3f3792647a81a646e13ccbc9988b7",
+    "river_fresh_recovery.json": "84ce4e2b93f92324e83637f0e8a178a5d1b2b7c50ef035de2ec62acc6896ea4c",
+    "RIVER_FRESH_RECOVERY.log": "e02557a967b61228d6bf081b111087c2bde6bf732f353cada5859621bd011b5d",
+    "VERIFY_RECOVERY.py": "b3f2239ccaa9297349770e3445cbfdf22de26388d05b469f568ddaec756a9661",
+    "LOCAL_CHECKPOINTS.json": "adad1d7896e2de298583c7a0322b0138e42996613739d293edddd054b0ec78d9",
+    "CANDIDATES.json": "2444f9f8af4fa7c2d53cc8ae6f0402260c386d256193d80b14dca243aadfb628",
+    "EVENT_RESOLUTION_ANALYSIS.md": "2c6d00bf7308086f742aa4a47a330fd04edb334a82f8a32efdf9c42f725a50be",
+    "EVENT_RESOLUTION_REVIEW.md": "7f2a18dddbe96dedbce046992571af85b2b9aec6f01d7517871bec66cb961363",
+    "PACKET_STORAGE_REVIEW.md": "64db3752095f55f134ae4cf886a78b40663c7d2b32939c0608d32da27ac4c899",
+    "RESOURCE_POLICY_REVIEW.md": "3e1b954ee13d5394fe78e6d0dd801c401f4ff8895414bb8342028ebace62dd4a",
+    "REFERENCES.md": "e9355ed513977e948251cae3c9e639dd02b7241ebfddde85406a6224201e3284",
+    "REFERENCES.json": "92a8e7112ba19040b4415e8a6bc10b6c5e94f32cd67d4312c5881d8aa7c16cd0",
+    "DELAY_IDENTITIES.wl": "a2dcf0f61ebf654a77f3cf919ff83b3104f32aa6f24fef028b41c76a67ed6c23",
+    "DELAY_IDENTITIES.json": "8d2c5bac5ebd3af78efc7549f6126571e075e5555ec42c28b006df858dd69348"
+  }
+}

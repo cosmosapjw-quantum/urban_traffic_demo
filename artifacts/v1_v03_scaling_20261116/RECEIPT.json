@@ -1,0 +1,102 @@
+{
+  "date": "2026-11-16",
+  "timezone": "Asia/Seoul",
+  "node": "V03",
+  "status": "BLOCKED_RESOURCE",
+  "baseline_commit": "b41f807c490dda12e036bcb40d9c13370f04223e",
+  "scope": "Exact static computation sharing and linear checkpoint indexing; actual local preparation diagnosis and scoped verification",
+  "source_sha256": {
+    "src/metroflow/route_metrics.py": "b2f33c50e3376432b048261deac3a17474790877c33eae16acdb35921c4a3fc0",
+    "src/metroflow/active_suffix/routing.py": "b9dc5c7de328fc772b1ad6ec453e0a036254be12d3fdaf651be3f908b04268f1",
+    "src/metroflow/v1/release_runtime.py": "3a1e1053503c7d7270e040eae2a21af4b4a6faeb5af753ea37ad1ad19ba1a234",
+    "src/metroflow/v1/release_services.py": "b1c306b722f471312dc6dd462550edd1f79649fcfc2f7ab898640e6533e2efd0",
+    "src/metroflow/v1/joint_release_runtime.py": "80b99cf1a792c07880210221c5e7b62a007faa3b1e2ffc2bf03a3a457b7fb8bf",
+    "src/metroflow/v1/release_plan.py": "a27ead742cfd3fa0faa5d5fd3d02682904d81cbe69ac0a2d6c81dd4d2403acad",
+    "tools/run_v1_local_acceptance.py": "591ddb17d671352770c3e14d7f12f4806418ed925a13354d9489f699be950078",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "src/metroflow/v1/release_driver.py": "fa4dc869e87e6d37915f5f9f64be220bee4acb69746143d0eae2c3939e5a6ee3"
+  },
+  "progress": {
+    "completed": 19,
+    "total": 21,
+    "percent": 90.5,
+    "final_accepted": 5
+  },
+  "validation": {
+    "python312": {
+      "tests": 101,
+      "passed": 101,
+      "commands": [
+        "pytest scoped release suite: 48",
+        "pytest routing_commitment + routing: 44"
+      ],
+      "components": {
+        "release_runtime_scope": 48,
+        "affected_routing": 44,
+        "plan": 9
+      }
+    },
+    "python313": {
+      "tests": 101,
+      "passed": 101,
+      "components": {
+        "release_runtime_scope": 48,
+        "affected_routing": 44,
+        "plan": 9
+      }
+    },
+    "actual_local_python312": {
+      "tests": 92,
+      "passed": 92,
+      "log": "artifacts/v1_v03_local_20261116/TESTS.txt"
+    },
+    "full_repository_ci": "DEFERRED_BY_USER",
+    "ruff": "PASS on changed source/tests and all new benchmark scripts",
+    "plan": "VALID_PLAN_NOT_RELEASE; next V03; 5 ACCEPTED + 14 VERIFIED_SCOPED + 1 BLOCKED + 1 PLANNED"
+  },
+  "local_environment": {
+    "python": "3.12.13",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "remote_worktree": "/home/cosmosapjw/urban_traffic_v03_20261116",
+  "original_user_checkout_modified": false,
+  "local_execution_dependency": "CONNECTED_AND_SCOPED_RUNS_VERIFIED",
+  "full_day_100k": "NOT_RUN",
+  "global_resource_gate": "20,000-leg runtime preactivation budget unchanged; full 5,093,765-leg calendar alone retained at 1,526,939,648-byte peak RSS, runtime activation unmeasured",
+  "acceptance": "No V03 promotion; actual 3 cases x 3 full-day, refinement, replay and release review remain",
+  "known_failures_preserved": [
+    "Original strict worker shortfall and dense OD failure receipts unchanged",
+    "Actual local baseline preparation BLOCKED_RESOURCE for all 3 cases, cursor 0",
+    "Initial remote PowerShell command unavailable on Linux; no command executed; Linux diagnostics then succeeded"
+  ],
+  "next_action": "Use actual local full-calendar storage evidence to engineer and measure whole-calendar shared-runtime activation and active-state cost, then unchanged full campaign",
+  "evidence_sha256": {
+    "artifacts/v1_v03_local_20261116/JOINT_CHECK.json": "e52c7cd8141b98b61f96fa4bc50cc85aa5011e05de45eddd73e033050f84d629",
+    "artifacts/v1_v03_local_20261116/RIVER_CALENDAR.json": "e06813f42f362775609db256375a291e14380c9e4385378e6376f5b292b4c9b7",
+    "artifacts/v1_v03_local_20261116/TESTS.txt": "7ffe3bd10ed8268a3e75b7d77a0d167b9330b23f68e688746600c46edeb3aef9",
+    "artifacts/v1_v03_local_20261116/SERVICES.json": "5e16a57455d8bac17c2af0f8e9fd571a84ce68ce84f421137bb3ba1061a2cec6",
+    "artifacts/v1_v03_local_20261116/CONSTRUCTOR.json": "5de416a5319f98fdf095c47484cb968e4f3bcaf24f7f1e21b8a240a787ed90ec",
+    "artifacts/v1_v03_local_20261116/BASELINE_PREPARATION.json": "00920fb996d3052359c10a45cef31a6daf85587c9cd36315b665f7337a638384",
+    "artifacts/v1_v03_scaling_20261116/RESEARCH.json": "40e65dfac0000448a1136bfb1e14dc9043eabd78fbaeb83231d731479a94c86e",
+    "artifacts/v1_v03_constructor_20261116/RESULT.json": "4e3e3ea49acf1cc27a9e4f0fa488305994db9498b359f82680674cda09c331fa",
+    "artifacts/v1_v03_joint_cost_20261116/RESULT.json": "84c5942de43c181e9e5df77cd89f9b0bd813d5e40bf937be625856cee744bfce",
+    "artifacts/v1_v03_service_cost_20261116/RESULT.json": "109761f9bc70ade8b992b412a5c8408291801d9395225a52e898288c410adba8",
+    "artifacts/v1_v03_local_20261116/coastal_weekend_s41.prefix.json": "dac5b9b4fc943b4405701f179ffbe4a41efe7fb0a75d4a71f0ec01c4d0aa420d",
+    "artifacts/v1_v03_local_20261116/valley_weekday_s7.prefix.json": "09900a7f9988c434f503a2cc06eb3982251b211e02f79d3c6108cb30d53b06b6",
+    "artifacts/v1_v03_local_20261116/river_weekday_s17.prefix.json": "db5426b0e90513b740325ca1c743843b9b0f0b258e8535034cf19ecd914b2050"
+  },
+  "remote_artifact_copy_verification": "All nine copied baseline/calendar/benchmark/test/prefix files matched direct remote SHA256 byte-for-byte",
+  "actual_city_prefix_preparation": {
+    "cases": 3,
+    "legs_each": 256,
+    "status": "BOUNDED_PREFIX_PREPARED",
+    "route_requests_each": 132,
+    "simulated_s": 0,
+    "remaining_demand": "exact untouched full calendar amounts preserved",
+    "imported_source_sha256": "all imported sources in all three receipts match published candidate files"
+  }
+}

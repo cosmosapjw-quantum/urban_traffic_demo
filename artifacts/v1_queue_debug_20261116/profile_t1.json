@@ -1,0 +1,868 @@
+{
+  "status": "PASS_SCOPED",
+  "case": "valley_weekday_s7",
+  "start_s": 25240.0,
+  "end_s": 25340.0,
+  "native_threads": 1,
+  "repeat": 3,
+  "trace": false,
+  "baseline_api": false,
+  "full_campaign": "NOT_RUN",
+  "dag_progress": "19/21",
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "source_receipt_sha256": "1aac3f126a5b1a9fa44338a7553802d69147472b1a224727d632cb213f2a79bf",
+  "source_checkpoint_sha256": "3bbe3b1b8ecbeb534b946fa31884c922cf5a6e97cdbe6212c0ba763c351df86d",
+  "native_binary_sha256": "fa08d7494dce290b2bcf48433abcd34741ebd1a5878acd485262e39cabcb8c80",
+  "baseline_commit": "92d13be4df91c15962898f3e6d4b881002998296",
+  "record_budget": 2000000,
+  "source_hashes": {
+    "Cargo.lock": "f3c87d6fb6955f8c971c4e4e1d1efe10001cf1afe54e12db09ac38cb67caa97c",
+    "crates/metroflow-rust/Cargo.toml": "52915332dc07371ebb9832967a544b471fbb09ba91dfbb1a2dc9f89144603296",
+    "tools/debug_v1_native_queues.py": "b1e18510fdca3dce8b761bfd1363f561565111fd36fde0a714380a2de76474de",
+    "crates/metroflow-rust/src/v1_calendar.rs": "b3d7402c9155205853f5380d76855e14d6f7996550356404639caaac801830c7",
+    "crates/metroflow-rust/src/v1_engine.rs": "e6d2ac9bc3b1bc37b40559ba1faeed215f9ea4ee857ee402f2dd87120935964d",
+    "crates/metroflow-rust/src/v1_history.rs": "be7c8861021cfd48c069128ae78d177df2f4c068ba808782dd8fe43863f31178",
+    "crates/metroflow-rust/src/v1_journey.rs": "1fe60ff9a7016ee65d7afe8aa8807477e4beae69d115f84e3caae95fba3ea4aa",
+    "crates/metroflow-rust/src/v1_parallel.rs": "b3dc15fc57dceef74436dba1ce0a5909fd8e05194dd32f9564d89a3953aca21d",
+    "crates/metroflow-rust/src/v1_road.rs": "aabd07470f547b424e72509eb7eca95f45932c81b48b9d3a33ca543072fa8a0d",
+    "crates/metroflow-rust/src/v1_routing.rs": "7ba1902f87ab534082cfd978cb0cf6f0b94ae70ac4908dc93c80cb8534cb35fe",
+    "src/metroflow/v1/native_calendar.py": "efb3cab28d3ccc99607234ea909077ce67a00c5b38d1984e0e15fe3fec1c65cf",
+    "src/metroflow/v1/native_engine.py": "43dce101bde635ff2e2285d2e07f8fbcc15789a94626d7d85bac62fa8c3b3ded",
+    "src/metroflow/v1/native_journey.py": "85d84a9300de6e5094062fefc6cdddb7b867725201339f88ae02abc81082877c",
+    "src/metroflow/v1/native_release_driver.py": "3a354fb113725cc4bb6ebe11ef385646e38dec72b08d2c06056d209f72bfa777",
+    "src/metroflow/v1/native_road.py": "d21c83567e650b0b82fa157e893e56456dd401a8680ef67cc0a789ee74ff90c0",
+    "src/metroflow/v1/native_routing.py": "056e9c7004b76c3c1bb057a15d0a8503403f6f24045700d1bf65b0058611adf4",
+    "src/metroflow/v1/native_static.py": "e5122aed76a15da7ec90b5aae95f67b5e15778d49053c06cf3f7d6ac804f73ad"
+  },
+  "runs": [
+    {
+      "iteration": 0,
+      "status": "PASS_SCOPED",
+      "advance_wall_s": 1.792937117992551,
+      "ticks": [
+        0.055708002,
+        0.06159238,
+        0.078426614,
+        0.093498966,
+        0.117096034,
+        0.160220694,
+        0.174317554,
+        0.213697438,
+        0.241814436,
+        0.279535573
+      ],
+      "simulated_s": 25340.0,
+      "report": {
+        "status": "WHOLE_CALENDAR_ACTIVATED",
+        "activation": "complete native preactivation; one shared occupied road",
+        "calendar": {
+          "calendar": {
+            "legs": 918450,
+            "persons": 120000.0,
+            "vehicles": 58801.0,
+            "cargo_kg": 1000,
+            "resident_stock": 100000.0,
+            "requested_workers": 50000.0,
+            "allocated_workers": 40000.0,
+            "unassigned_workers": 10000.0
+          },
+          "materialized_legs": 918450,
+          "remaining_legs": 0,
+          "remaining_amounts": {
+            "persons": 0.0,
+            "vehicles": 0.0,
+            "cargo_kg": 0
+          },
+          "execution": "NOT_RUN",
+          "scope": "exact compilation coverage; pages must enter one shared live runtime"
+        },
+        "execution": {
+          "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+          "time_s": 25340.0,
+          "ledger": {
+            "persons": {
+              "requested": 777.7777777777877,
+              "released": 434.02788937083443,
+              "completed": 1.9526770073524335,
+              "pending": 343.7498884069533,
+              "active": 432.075212363482
+            },
+            "vehicles": {
+              "requested": 381.1111111110977,
+              "released": 346.66666666667174,
+              "completed": 1.252845883918602,
+              "pending": 34.44444444442598,
+              "active": 345.41382078275313
+            },
+            "cargo_kg": {
+              "requested": 0.0,
+              "released": 0.0,
+              "completed": 0.0,
+              "pending": 0.0,
+              "active": 0.0
+            }
+          },
+          "released_intent_first_moments": {
+            "persons": 10965714.624953963,
+            "vehicles": 8758533.33333307,
+            "cargo_kg": 0.0
+          },
+          "service": {
+            "time_s": 25340.0,
+            "scheduled_bus_vehicles": 24,
+            "bus_road_vehicles": 0.0,
+            "bus_stop_or_finished_vehicles": 24.0,
+            "completed_bus_vehicles": 4,
+            "waiting_persons": 1.6769625,
+            "onboard_persons": 0.0,
+            "arrived_persons": 0.0,
+            "wait_person_s": 0.0,
+            "freight_completed_vehicles": 0.0,
+            "cargo_delivered_kg": 0.0,
+            "cargo_unfinished_kg": 998.825,
+            "road_released_veh": 80.40032465439036,
+            "road_completed_veh": 4.623017163198211
+          },
+          "assignment": {
+            "units": {
+              "persons": {
+                "requested": 120000.0,
+                "assigned": 1.6769625000015367,
+                "unassigned": 119998.3230375
+              },
+              "vehicles": {
+                "requested": 58801.0,
+                "assigned": 1.0659034999989672,
+                "unassigned": 58799.9340965
+              },
+              "cargo_kg": {
+                "requested": 1000.0,
+                "assigned": 998.825,
+                "unassigned": 1.175
+              }
+            },
+            "fixed_fleet_vehicles": 24,
+            "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+          },
+          "construction": {
+            "legs": 918450,
+            "physical_routes": 304856,
+            "unique_paths": 38916,
+            "unsupported_legs": 610820,
+            "road_legs": 304368,
+            "internal_legs": 3012,
+            "estimated_bytes": 1073526202,
+            "byte_budget": 6442450944,
+            "python_calendar_leg_objects": 0,
+            "road_owners": 1
+          },
+          "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+          "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+          "full_release_campaign": "NOT_RUN"
+        },
+        "full_local_acceptance": "NOT_RUN"
+      },
+      "last_advance_metrics": {
+        "tick_times_s": [
+          0.055708002,
+          0.06159238,
+          0.078426614,
+          0.093498966,
+          0.117096034,
+          0.160220694,
+          0.174317554,
+          0.213697438,
+          0.241814436,
+          0.279535573
+        ],
+        "peak_records": 2078086,
+        "native_threads": 1,
+        "phase_metrics": {
+          "phase_wall_s": {
+            "journey_prepare": 0.381735142,
+            "service_prepare": 7.701300000000002e-05,
+            "road_step": 0.7552833790000001,
+            "service_finish": 0.001109846,
+            "journey_finish": 0.240230066,
+            "other_tick": 0.09747224499999965
+          },
+          "binding_s": 0.046907405,
+          "successful_ticks": 10,
+          "failed_ticks": 0,
+          "native_threads": 1,
+          "scope": "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation"
+        },
+        "scope": "native complete tick including rollback copying; no Python leg snapshots"
+      },
+      "debug": {
+        "time_s": 25340.0,
+        "journey": {
+          "entering": 1600658,
+          "egress": 8729,
+          "internal": 48716,
+          "receipts": 34999,
+          "total_records": 1693102,
+          "stage_capacity": {
+            "entering": 1600658,
+            "egress": 8729,
+            "internal": 48716
+          },
+          "dense_capacity_bytes": 29390400,
+          "stage_carrier_sum": {
+            "entering": 267.2326495322761,
+            "egress": 0.6193086164833257,
+            "internal": 2.092491527842102
+          },
+          "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+          "ready_now": {
+            "entering": 84472,
+            "egress": 0,
+            "internal": 0
+          },
+          "nonempty_histories": 591,
+          "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+        },
+        "road": {
+          "cell_packets": 6043,
+          "pending_packets": 0,
+          "cell_parts": 384984,
+          "pending_parts": 0,
+          "packet_capacity": 6043,
+          "part_capacity": 384984,
+          "vector_capacity_bytes": 25048304,
+          "latent_entries": 1000,
+          "max_cell_parts": 5264,
+          "max_pending_parts": 0,
+          "total_records": 384984,
+          "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+        },
+        "service_last_events": 109878,
+        "execution": {
+          "native_threads": 1,
+          "scheduler": "serial",
+          "float_reductions": "original serial order",
+          "thread_count_in_scientific_identity": false,
+          "parallel_scope": "independent indexed work above per-kernel size thresholds"
+        },
+        "last_attempt": {
+          "start_s": 25330.0,
+          "end_s": 25340.0,
+          "phase": "committed",
+          "committed": true,
+          "before": {
+            "entering": 1524106,
+            "egress": 5700,
+            "internal": 46458,
+            "receipts": 30740,
+            "total_records": 1607004
+          },
+          "after_prepare": {
+            "entering": 1600658,
+            "egress": 5700,
+            "internal": 52882,
+            "receipts": 30740,
+            "total_records": 1689980
+          },
+          "candidate": {
+            "entering": 1600658,
+            "egress": 8729,
+            "internal": 48716,
+            "receipts": 34999,
+            "total_records": 1693102
+          },
+          "generated": {
+            "entering": 158000,
+            "egress": 3122,
+            "internal": 6424
+          },
+          "retired": {
+            "entering": 81448,
+            "egress": 93,
+            "internal": 4166
+          },
+          "receipts_added": 4259,
+          "emitted_offers": 81448
+        },
+        "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+      },
+      "checkpoint_sha256": "ef4719a822ac85763679061a5ebd1d431e0edd9cec4e105a15ad1a5f7d4d884f",
+      "seed_byte_unchanged": true
+    },
+    {
+      "iteration": 1,
+      "status": "PASS_SCOPED",
+      "advance_wall_s": 1.8002944579930045,
+      "ticks": [
+        0.039811369,
+        0.05939146,
+        0.064510371,
+        0.110909801,
+        0.119386178,
+        0.147349088,
+        0.174423875,
+        0.221400868,
+        0.245045337,
+        0.275129474
+      ],
+      "simulated_s": 25340.0,
+      "report": {
+        "status": "WHOLE_CALENDAR_ACTIVATED",
+        "activation": "complete native preactivation; one shared occupied road",
+        "calendar": {
+          "calendar": {
+            "legs": 918450,
+            "persons": 120000.0,
+            "vehicles": 58801.0,
+            "cargo_kg": 1000,
+            "resident_stock": 100000.0,
+            "requested_workers": 50000.0,
+            "allocated_workers": 40000.0,
+            "unassigned_workers": 10000.0
+          },
+          "materialized_legs": 918450,
+          "remaining_legs": 0,
+          "remaining_amounts": {
+            "persons": 0.0,
+            "vehicles": 0.0,
+            "cargo_kg": 0
+          },
+          "execution": "NOT_RUN",
+          "scope": "exact compilation coverage; pages must enter one shared live runtime"
+        },
+        "execution": {
+          "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+          "time_s": 25340.0,
+          "ledger": {
+            "persons": {
+              "requested": 777.7777777777877,
+              "released": 434.02788937083443,
+              "completed": 1.9526770073524335,
+              "pending": 343.7498884069533,
+              "active": 432.075212363482
+            },
+            "vehicles": {
+              "requested": 381.1111111110977,
+              "released": 346.66666666667174,
+              "completed": 1.252845883918602,
+              "pending": 34.44444444442598,
+              "active": 345.41382078275313
+            },
+            "cargo_kg": {
+              "requested": 0.0,
+              "released": 0.0,
+              "completed": 0.0,
+              "pending": 0.0,
+              "active": 0.0
+            }
+          },
+          "released_intent_first_moments": {
+            "persons": 10965714.624953963,
+            "vehicles": 8758533.33333307,
+            "cargo_kg": 0.0
+          },
+          "service": {
+            "time_s": 25340.0,
+            "scheduled_bus_vehicles": 24,
+            "bus_road_vehicles": 0.0,
+            "bus_stop_or_finished_vehicles": 24.0,
+            "completed_bus_vehicles": 4,
+            "waiting_persons": 1.6769625,
+            "onboard_persons": 0.0,
+            "arrived_persons": 0.0,
+            "wait_person_s": 0.0,
+            "freight_completed_vehicles": 0.0,
+            "cargo_delivered_kg": 0.0,
+            "cargo_unfinished_kg": 998.825,
+            "road_released_veh": 80.40032465439036,
+            "road_completed_veh": 4.623017163198211
+          },
+          "assignment": {
+            "units": {
+              "persons": {
+                "requested": 120000.0,
+                "assigned": 1.6769625000015367,
+                "unassigned": 119998.3230375
+              },
+              "vehicles": {
+                "requested": 58801.0,
+                "assigned": 1.0659034999989672,
+                "unassigned": 58799.9340965
+              },
+              "cargo_kg": {
+                "requested": 1000.0,
+                "assigned": 998.825,
+                "unassigned": 1.175
+              }
+            },
+            "fixed_fleet_vehicles": 24,
+            "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+          },
+          "construction": {
+            "legs": 918450,
+            "physical_routes": 304856,
+            "unique_paths": 38916,
+            "unsupported_legs": 610820,
+            "road_legs": 304368,
+            "internal_legs": 3012,
+            "estimated_bytes": 1073526202,
+            "byte_budget": 6442450944,
+            "python_calendar_leg_objects": 0,
+            "road_owners": 1
+          },
+          "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+          "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+          "full_release_campaign": "NOT_RUN"
+        },
+        "full_local_acceptance": "NOT_RUN"
+      },
+      "last_advance_metrics": {
+        "tick_times_s": [
+          0.039811369,
+          0.05939146,
+          0.064510371,
+          0.110909801,
+          0.119386178,
+          0.147349088,
+          0.174423875,
+          0.221400868,
+          0.245045337,
+          0.275129474
+        ],
+        "peak_records": 2078086,
+        "native_threads": 1,
+        "phase_metrics": {
+          "phase_wall_s": {
+            "journey_prepare": 0.36523531099999995,
+            "service_prepare": 7.9257e-05,
+            "road_step": 0.753712419,
+            "service_finish": 0.0011703879999999999,
+            "journey_finish": 0.243373676,
+            "other_tick": 0.0937867700000001
+          },
+          "binding_s": 0.045531132,
+          "successful_ticks": 10,
+          "failed_ticks": 0,
+          "native_threads": 1,
+          "scope": "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation"
+        },
+        "scope": "native complete tick including rollback copying; no Python leg snapshots"
+      },
+      "debug": {
+        "time_s": 25340.0,
+        "journey": {
+          "entering": 1600658,
+          "egress": 8729,
+          "internal": 48716,
+          "receipts": 34999,
+          "total_records": 1693102,
+          "stage_capacity": {
+            "entering": 1600658,
+            "egress": 8729,
+            "internal": 48716
+          },
+          "dense_capacity_bytes": 29390400,
+          "stage_carrier_sum": {
+            "entering": 267.2326495322761,
+            "egress": 0.6193086164833257,
+            "internal": 2.092491527842102
+          },
+          "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+          "ready_now": {
+            "entering": 84472,
+            "egress": 0,
+            "internal": 0
+          },
+          "nonempty_histories": 591,
+          "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+        },
+        "road": {
+          "cell_packets": 6043,
+          "pending_packets": 0,
+          "cell_parts": 384984,
+          "pending_parts": 0,
+          "packet_capacity": 6043,
+          "part_capacity": 384984,
+          "vector_capacity_bytes": 25048304,
+          "latent_entries": 1000,
+          "max_cell_parts": 5264,
+          "max_pending_parts": 0,
+          "total_records": 384984,
+          "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+        },
+        "service_last_events": 109878,
+        "execution": {
+          "native_threads": 1,
+          "scheduler": "serial",
+          "float_reductions": "original serial order",
+          "thread_count_in_scientific_identity": false,
+          "parallel_scope": "independent indexed work above per-kernel size thresholds"
+        },
+        "last_attempt": {
+          "start_s": 25330.0,
+          "end_s": 25340.0,
+          "phase": "committed",
+          "committed": true,
+          "before": {
+            "entering": 1524106,
+            "egress": 5700,
+            "internal": 46458,
+            "receipts": 30740,
+            "total_records": 1607004
+          },
+          "after_prepare": {
+            "entering": 1600658,
+            "egress": 5700,
+            "internal": 52882,
+            "receipts": 30740,
+            "total_records": 1689980
+          },
+          "candidate": {
+            "entering": 1600658,
+            "egress": 8729,
+            "internal": 48716,
+            "receipts": 34999,
+            "total_records": 1693102
+          },
+          "generated": {
+            "entering": 158000,
+            "egress": 3122,
+            "internal": 6424
+          },
+          "retired": {
+            "entering": 81448,
+            "egress": 93,
+            "internal": 4166
+          },
+          "receipts_added": 4259,
+          "emitted_offers": 81448
+        },
+        "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+      },
+      "checkpoint_sha256": "ef4719a822ac85763679061a5ebd1d431e0edd9cec4e105a15ad1a5f7d4d884f",
+      "seed_byte_unchanged": true
+    },
+    {
+      "iteration": 2,
+      "status": "PASS_SCOPED",
+      "advance_wall_s": 1.7698350029968424,
+      "ticks": [
+        0.038526955,
+        0.062452617,
+        0.065139192,
+        0.10794876,
+        0.121337132,
+        0.15156111,
+        0.179547445,
+        0.210490977,
+        0.245492955,
+        0.272248411
+      ],
+      "simulated_s": 25340.0,
+      "report": {
+        "status": "WHOLE_CALENDAR_ACTIVATED",
+        "activation": "complete native preactivation; one shared occupied road",
+        "calendar": {
+          "calendar": {
+            "legs": 918450,
+            "persons": 120000.0,
+            "vehicles": 58801.0,
+            "cargo_kg": 1000,
+            "resident_stock": 100000.0,
+            "requested_workers": 50000.0,
+            "allocated_workers": 40000.0,
+            "unassigned_workers": 10000.0
+          },
+          "materialized_legs": 918450,
+          "remaining_legs": 0,
+          "remaining_amounts": {
+            "persons": 0.0,
+            "vehicles": 0.0,
+            "cargo_kg": 0
+          },
+          "execution": "NOT_RUN",
+          "scope": "exact compilation coverage; pages must enter one shared live runtime"
+        },
+        "execution": {
+          "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+          "time_s": 25340.0,
+          "ledger": {
+            "persons": {
+              "requested": 777.7777777777877,
+              "released": 434.02788937083443,
+              "completed": 1.9526770073524335,
+              "pending": 343.7498884069533,
+              "active": 432.075212363482
+            },
+            "vehicles": {
+              "requested": 381.1111111110977,
+              "released": 346.66666666667174,
+              "completed": 1.252845883918602,
+              "pending": 34.44444444442598,
+              "active": 345.41382078275313
+            },
+            "cargo_kg": {
+              "requested": 0.0,
+              "released": 0.0,
+              "completed": 0.0,
+              "pending": 0.0,
+              "active": 0.0
+            }
+          },
+          "released_intent_first_moments": {
+            "persons": 10965714.624953963,
+            "vehicles": 8758533.33333307,
+            "cargo_kg": 0.0
+          },
+          "service": {
+            "time_s": 25340.0,
+            "scheduled_bus_vehicles": 24,
+            "bus_road_vehicles": 0.0,
+            "bus_stop_or_finished_vehicles": 24.0,
+            "completed_bus_vehicles": 4,
+            "waiting_persons": 1.6769625,
+            "onboard_persons": 0.0,
+            "arrived_persons": 0.0,
+            "wait_person_s": 0.0,
+            "freight_completed_vehicles": 0.0,
+            "cargo_delivered_kg": 0.0,
+            "cargo_unfinished_kg": 998.825,
+            "road_released_veh": 80.40032465439036,
+            "road_completed_veh": 4.623017163198211
+          },
+          "assignment": {
+            "units": {
+              "persons": {
+                "requested": 120000.0,
+                "assigned": 1.6769625000015367,
+                "unassigned": 119998.3230375
+              },
+              "vehicles": {
+                "requested": 58801.0,
+                "assigned": 1.0659034999989672,
+                "unassigned": 58799.9340965
+              },
+              "cargo_kg": {
+                "requested": 1000.0,
+                "assigned": 998.825,
+                "unassigned": 1.175
+              }
+            },
+            "fixed_fleet_vehicles": 24,
+            "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+          },
+          "construction": {
+            "legs": 918450,
+            "physical_routes": 304856,
+            "unique_paths": 38916,
+            "unsupported_legs": 610820,
+            "road_legs": 304368,
+            "internal_legs": 3012,
+            "estimated_bytes": 1073526202,
+            "byte_budget": 6442450944,
+            "python_calendar_leg_objects": 0,
+            "road_owners": 1
+          },
+          "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+          "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+          "full_release_campaign": "NOT_RUN"
+        },
+        "full_local_acceptance": "NOT_RUN"
+      },
+      "last_advance_metrics": {
+        "tick_times_s": [
+          0.038526955,
+          0.062452617,
+          0.065139192,
+          0.10794876,
+          0.121337132,
+          0.15156111,
+          0.179547445,
+          0.210490977,
+          0.245492955,
+          0.272248411
+        ],
+        "peak_records": 2078086,
+        "native_threads": 1,
+        "phase_metrics": {
+          "phase_wall_s": {
+            "journey_prepare": 0.36126711599999994,
+            "service_prepare": 7.099299999999999e-05,
+            "road_step": 0.756074254,
+            "service_finish": 0.001098865,
+            "journey_finish": 0.244455319,
+            "other_tick": 0.09177900700000018
+          },
+          "binding_s": 0.043792508,
+          "successful_ticks": 10,
+          "failed_ticks": 0,
+          "native_threads": 1,
+          "scope": "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation"
+        },
+        "scope": "native complete tick including rollback copying; no Python leg snapshots"
+      },
+      "debug": {
+        "time_s": 25340.0,
+        "journey": {
+          "entering": 1600658,
+          "egress": 8729,
+          "internal": 48716,
+          "receipts": 34999,
+          "total_records": 1693102,
+          "stage_capacity": {
+            "entering": 1600658,
+            "egress": 8729,
+            "internal": 48716
+          },
+          "dense_capacity_bytes": 29390400,
+          "stage_carrier_sum": {
+            "entering": 267.2326495322761,
+            "egress": 0.6193086164833257,
+            "internal": 2.092491527842102
+          },
+          "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+          "ready_now": {
+            "entering": 84472,
+            "egress": 0,
+            "internal": 0
+          },
+          "nonempty_histories": 591,
+          "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+        },
+        "road": {
+          "cell_packets": 6043,
+          "pending_packets": 0,
+          "cell_parts": 384984,
+          "pending_parts": 0,
+          "packet_capacity": 6043,
+          "part_capacity": 384984,
+          "vector_capacity_bytes": 25048304,
+          "latent_entries": 1000,
+          "max_cell_parts": 5264,
+          "max_pending_parts": 0,
+          "total_records": 384984,
+          "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+        },
+        "service_last_events": 109878,
+        "execution": {
+          "native_threads": 1,
+          "scheduler": "serial",
+          "float_reductions": "original serial order",
+          "thread_count_in_scientific_identity": false,
+          "parallel_scope": "independent indexed work above per-kernel size thresholds"
+        },
+        "last_attempt": {
+          "start_s": 25330.0,
+          "end_s": 25340.0,
+          "phase": "committed",
+          "committed": true,
+          "before": {
+            "entering": 1524106,
+            "egress": 5700,
+            "internal": 46458,
+            "receipts": 30740,
+            "total_records": 1607004
+          },
+          "after_prepare": {
+            "entering": 1600658,
+            "egress": 5700,
+            "internal": 52882,
+            "receipts": 30740,
+            "total_records": 1689980
+          },
+          "candidate": {
+            "entering": 1600658,
+            "egress": 8729,
+            "internal": 48716,
+            "receipts": 34999,
+            "total_records": 1693102
+          },
+          "generated": {
+            "entering": 158000,
+            "egress": 3122,
+            "internal": 6424
+          },
+          "retired": {
+            "entering": 81448,
+            "egress": 93,
+            "internal": 4166
+          },
+          "receipts_added": 4259,
+          "emitted_offers": 81448
+        },
+        "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+      },
+      "checkpoint_sha256": "ef4719a822ac85763679061a5ebd1d431e0edd9cec4e105a15ad1a5f7d4d884f",
+      "seed_byte_unchanged": true
+    }
+  ],
+  "execution_config": {
+    "native_threads": 1,
+    "scheduler": "serial",
+    "float_reductions": "original serial order",
+    "thread_count_in_scientific_identity": false,
+    "parallel_scope": "independent indexed work above per-kernel size thresholds"
+  },
+  "seed_debug": {
+    "time_s": 25240.0,
+    "journey": {
+      "entering": 465612,
+      "egress": 2,
+      "internal": 15164,
+      "receipts": 4108,
+      "total_records": 484886,
+      "stage_capacity": {
+        "entering": 465612,
+        "egress": 2,
+        "internal": 15164
+      },
+      "dense_capacity_bytes": 29390400,
+      "stage_carrier_sum": {
+        "entering": 79.17473800982047,
+        "egress": 4.896429294303008e-07,
+        "internal": 0.6491779001123005
+      },
+      "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+      "ready_now": {
+        "entering": 2097,
+        "egress": 0,
+        "internal": 0
+      },
+      "nonempty_histories": 436,
+      "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+    },
+    "road": {
+      "cell_packets": 84,
+      "pending_packets": 0,
+      "cell_parts": 8387,
+      "pending_parts": 0,
+      "packet_capacity": 84,
+      "part_capacity": 8387,
+      "vector_capacity_bytes": 755408,
+      "latent_entries": 45,
+      "max_cell_parts": 606,
+      "max_pending_parts": 0,
+      "total_records": 8387,
+      "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+    },
+    "service_last_events": 1005,
+    "execution": {
+      "native_threads": 1,
+      "scheduler": "serial",
+      "float_reductions": "original serial order",
+      "thread_count_in_scientific_identity": false,
+      "parallel_scope": "independent indexed work above per-kernel size thresholds"
+    },
+    "last_attempt": null,
+    "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+  },
+  "repeated_byte_identity": true,
+  "median_advance_wall_s": 1.792937117992551,
+  "peak_rss_bytes": 676192256
+}

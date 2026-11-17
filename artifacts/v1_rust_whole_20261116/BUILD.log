@@ -1,0 +1,45 @@
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_rust_20261116/crates/metroflow-rust)
+warning: methods `summary` and `install_state` are never used
+   --> crates/metroflow-rust/src/v1_road.rs:311:19
+    |
+310 | impl V1Road {
+    | ----------- methods in this implementation
+311 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+    |                   ^^^^^^^
+...
+464 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+    |                   ^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `state`, `sources`, and `install_state` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:134:19
+    |
+133 | impl NativeServiceCore {
+    | ---------------------- methods in this implementation
+134 |     pub(crate) fn state(&self) -> &Service {
+    |                   ^^^^^
+...
+137 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+...
+148 |     pub(crate) fn install_state(&mut self, state: ServiceCheckpoint) {
+    |                   ^^^^^^^^^^^^^
+
+warning: methods `state`, `owned_time`, and `install_state` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:625:19
+    |
+554 | impl NativeJourneyCore {
+    | ---------------------- methods in this implementation
+...
+625 |     pub(crate) fn state(&self) -> &Journey {
+    |                   ^^^^^
+...
+631 |     pub(crate) fn owned_time(&self) -> f64 {
+    |                   ^^^^^^^^^^
+...
+644 |     pub(crate) fn install_state(&mut self, state: Journey) {
+    |                   ^^^^^^^^^^^^^
+
+warning: `metroflow-rust` (lib) generated 3 warnings
+    Finished `release` profile [optimized] target(s) in 7.50s

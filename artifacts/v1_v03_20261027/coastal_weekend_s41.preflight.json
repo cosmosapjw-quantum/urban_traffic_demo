@@ -1,0 +1,19 @@
+{
+  "case": "coastal_weekend_s41",
+  "city_identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+  "residents": 100000,
+  "source_sha256": "5c3107b147b7f71046f5958a8ad8d3f0212d0bcc5bbfcc27ebbebbd9d476756e",
+  "patch_sha256": "f22743e502442405732db7c09e5745a8f41471c9d949358d56c04b685ad419cf",
+  "homes": 427,
+  "job_zones": 478,
+  "service_zones": 478,
+  "service_prior": "service opportunities equal declared job stock; separate measure",
+  "executed_simulated_s": 0,
+  "runtime_rss_measurement": "NOT_RUN",
+  "demand_status": "BLOCKED_RESOURCE",
+  "demand_reason": "cohort/OD budget exceeded; no demand omitted",
+  "status": "BLOCKED_IMPLEMENTATION_DEPENDENCY",
+  "blocker": "C02 transport composition hardcodes two-zone gate/freight endpoints; general release-city adapter not implemented",
+  "local_campaign": "BLOCKED_LOCAL_EXECUTION",
+  "next_action": "Implement bounded conservative OD representation and map-bound transport composition, then execute local three-repeat campaign"
+}

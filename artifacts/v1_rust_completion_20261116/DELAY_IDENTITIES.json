@@ -1,0 +1,10 @@
+{
+  "tool": "Wolfram Language evaluator",
+  "result": [
+    "0",
+    "0",
+    "True"
+  ],
+  "status": "SYMBOLIC_REAL_ARITHMETIC_CHECKED",
+  "limits": "Real identities do not authorize floating-point reassociation. Rust must preserve original (born + delay) <= t + tolerance, original mass products and serial order."
+}

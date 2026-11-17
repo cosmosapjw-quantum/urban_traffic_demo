@@ -6,6 +6,15 @@ mod edge;
 mod flow;
 mod reroute;
 mod routing;
+mod v1_routing;
+mod v1_calendar;
+mod v1_road;
+mod v1_journey;
+mod v1_history;
+mod v1_stage;
+mod v1_engine;
+mod v1_parallel;
+mod v1_trace;
 
 use agent::advance_active_agents_batch_impl;
 #[cfg(test)]
@@ -330,6 +339,17 @@ fn advance_active_agents_batch(
 
 #[pymodule]
 fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<v1_routing::V1RoutingGraph>()?;
+    m.add_class::<v1_calendar::NativeCalendar>()?;
+    m.add_class::<v1_road::V1Road>()?;
+    m.add_class::<v1_journey::NativeServiceCore>()?;
+    m.add_class::<v1_journey::NativeJourneyCore>()?;
+    m.add_class::<v1_history::NativeReceiptHistory>()?;
+    m.add_class::<v1_stage::NativeStageQueue>()?;
+    m.add_class::<v1_engine::NativeWholeEngine>()?;
+    m.add_class::<v1_engine::NativeWholeState>()?;
+    m.add_function(wrap_pyfunction!(v1_journey::advance_native_joint, m)?)?;
+    m.add_function(wrap_pyfunction!(v1_trace::budget_trace_snapshot, m)?)?;
     m.add_function(wrap_pyfunction!(evolve_edges_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_baseline_flow_arrays_batch, m)?)?;
     m.add_function(wrap_pyfunction!(compute_dynamic_potential_node_costs, m)?)?;

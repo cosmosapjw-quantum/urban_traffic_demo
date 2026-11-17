@@ -1,0 +1,438 @@
+{
+  "status": "PASS_SCOPED",
+  "case": "valley_weekday_s7",
+  "start_s": 25240.0,
+  "end_s": 25340.0,
+  "native_threads": 1,
+  "repeat": 3,
+  "trace": false,
+  "baseline_api": true,
+  "full_campaign": "NOT_RUN",
+  "dag_progress": "19/21",
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 1
+  },
+  "source_receipt_sha256": "1aac3f126a5b1a9fa44338a7553802d69147472b1a224727d632cb213f2a79bf",
+  "source_checkpoint_sha256": "3bbe3b1b8ecbeb534b946fa31884c922cf5a6e97cdbe6212c0ba763c351df86d",
+  "native_binary_sha256": "aadb3938fe9f01748508fdbce04c2be5670e5f439a563cdf6e7388984076c6b7",
+  "baseline_commit": "92d13be4df91c15962898f3e6d4b881002998296",
+  "record_budget": 2000000,
+  "source_hashes": {
+    "Cargo.lock": "f3c87d6fb6955f8c971c4e4e1d1efe10001cf1afe54e12db09ac38cb67caa97c",
+    "crates/metroflow-rust/Cargo.toml": "52915332dc07371ebb9832967a544b471fbb09ba91dfbb1a2dc9f89144603296",
+    "tools/debug_v1_native_queues.py": "f681b51d27f9bd666e949f10654656a68b3152ec9718e4a252c061aaa51c8b0b",
+    "crates/metroflow-rust/src/v1_calendar.rs": "b3d7402c9155205853f5380d76855e14d6f7996550356404639caaac801830c7",
+    "crates/metroflow-rust/src/v1_engine.rs": "1ccb01a248a8c4d97436fe79e0ba4d40015d0936de2e17e9f15f465c91d55272",
+    "crates/metroflow-rust/src/v1_history.rs": "be7c8861021cfd48c069128ae78d177df2f4c068ba808782dd8fe43863f31178",
+    "crates/metroflow-rust/src/v1_journey.rs": "be0ae9b09ed459692e69bd17759c35d051f469d2c81b5a4fb78ba5daa0c7e3ff",
+    "crates/metroflow-rust/src/v1_road.rs": "df700da2a660c42c6195d0ec9e3dc576c2901884ed1ec5d1cfe16357df16d244",
+    "crates/metroflow-rust/src/v1_routing.rs": "7ba1902f87ab534082cfd978cb0cf6f0b94ae70ac4908dc93c80cb8534cb35fe",
+    "src/metroflow/v1/native_calendar.py": "efb3cab28d3ccc99607234ea909077ce67a00c5b38d1984e0e15fe3fec1c65cf",
+    "src/metroflow/v1/native_engine.py": "9e7a80c75423222aae3e40ce72154b03eb1daaf67a8ad98f08bc4d1667d119c9",
+    "src/metroflow/v1/native_journey.py": "85d84a9300de6e5094062fefc6cdddb7b867725201339f88ae02abc81082877c",
+    "src/metroflow/v1/native_release_driver.py": "2dbcb074367f26e0fff7d4640b92cb6fbaadbba78edb0ec670ece12a92e82c7f",
+    "src/metroflow/v1/native_road.py": "d21c83567e650b0b82fa157e893e56456dd401a8680ef67cc0a789ee74ff90c0",
+    "src/metroflow/v1/native_routing.py": "056e9c7004b76c3c1bb057a15d0a8503403f6f24045700d1bf65b0058611adf4",
+    "src/metroflow/v1/native_static.py": "e5122aed76a15da7ec90b5aae95f67b5e15778d49053c06cf3f7d6ac804f73ad"
+  },
+  "runs": [
+    {
+      "iteration": 0,
+      "status": "PASS_SCOPED",
+      "advance_wall_s": 2.47287744100322,
+      "ticks": [
+        0.110506772,
+        0.091292023,
+        0.120690183,
+        0.135220319,
+        0.183266846,
+        0.212944193,
+        0.232603339,
+        0.293011261,
+        0.320889841,
+        0.361866185
+      ],
+      "simulated_s": 25340.0,
+      "report": {
+        "status": "WHOLE_CALENDAR_ACTIVATED",
+        "activation": "complete native preactivation; one shared occupied road",
+        "calendar": {
+          "calendar": {
+            "legs": 918450,
+            "persons": 120000.0,
+            "vehicles": 58801.0,
+            "cargo_kg": 1000,
+            "resident_stock": 100000.0,
+            "requested_workers": 50000.0,
+            "allocated_workers": 40000.0,
+            "unassigned_workers": 10000.0
+          },
+          "materialized_legs": 918450,
+          "remaining_legs": 0,
+          "remaining_amounts": {
+            "persons": 0.0,
+            "vehicles": 0.0,
+            "cargo_kg": 0
+          },
+          "execution": "NOT_RUN",
+          "scope": "exact compilation coverage; pages must enter one shared live runtime"
+        },
+        "execution": {
+          "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+          "time_s": 25340.0,
+          "ledger": {
+            "persons": {
+              "requested": 777.7777777777877,
+              "released": 434.02788937083443,
+              "completed": 1.9526770073524335,
+              "pending": 343.7498884069533,
+              "active": 432.075212363482
+            },
+            "vehicles": {
+              "requested": 381.1111111110977,
+              "released": 346.66666666667174,
+              "completed": 1.252845883918602,
+              "pending": 34.44444444442598,
+              "active": 345.41382078275313
+            },
+            "cargo_kg": {
+              "requested": 0.0,
+              "released": 0.0,
+              "completed": 0.0,
+              "pending": 0.0,
+              "active": 0.0
+            }
+          },
+          "released_intent_first_moments": {
+            "persons": 10965714.624953963,
+            "vehicles": 8758533.33333307,
+            "cargo_kg": 0.0
+          },
+          "service": {
+            "time_s": 25340.0,
+            "scheduled_bus_vehicles": 24,
+            "bus_road_vehicles": 0.0,
+            "bus_stop_or_finished_vehicles": 24.0,
+            "completed_bus_vehicles": 4,
+            "waiting_persons": 1.6769625,
+            "onboard_persons": 0.0,
+            "arrived_persons": 0.0,
+            "wait_person_s": 0.0,
+            "freight_completed_vehicles": 0.0,
+            "cargo_delivered_kg": 0.0,
+            "cargo_unfinished_kg": 998.825,
+            "road_released_veh": 80.40032465439036,
+            "road_completed_veh": 4.623017163198211
+          },
+          "assignment": {
+            "units": {
+              "persons": {
+                "requested": 120000.0,
+                "assigned": 1.6769625000015367,
+                "unassigned": 119998.3230375
+              },
+              "vehicles": {
+                "requested": 58801.0,
+                "assigned": 1.0659034999989672,
+                "unassigned": 58799.9340965
+              },
+              "cargo_kg": {
+                "requested": 1000.0,
+                "assigned": 998.825,
+                "unassigned": 1.175
+              }
+            },
+            "fixed_fleet_vehicles": 24,
+            "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+          },
+          "construction": {
+            "legs": 918450,
+            "physical_routes": 304856,
+            "unique_paths": 38916,
+            "unsupported_legs": 610820,
+            "road_legs": 304368,
+            "internal_legs": 3012,
+            "estimated_bytes": 1073526202,
+            "byte_budget": 6442450944,
+            "python_calendar_leg_objects": 0,
+            "road_owners": 1
+          },
+          "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+          "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+          "full_release_campaign": "NOT_RUN"
+        },
+        "full_local_acceptance": "NOT_RUN"
+      },
+      "checkpoint_sha256": "ef4719a822ac85763679061a5ebd1d431e0edd9cec4e105a15ad1a5f7d4d884f",
+      "seed_byte_unchanged": true
+    },
+    {
+      "iteration": 1,
+      "status": "PASS_SCOPED",
+      "advance_wall_s": 2.333718879992375,
+      "ticks": [
+        0.064045746,
+        0.076191964,
+        0.1173924,
+        0.150801771,
+        0.178860072,
+        0.21151578,
+        0.215159728,
+        0.28615399,
+        0.307769562,
+        0.34603006
+      ],
+      "simulated_s": 25340.0,
+      "report": {
+        "status": "WHOLE_CALENDAR_ACTIVATED",
+        "activation": "complete native preactivation; one shared occupied road",
+        "calendar": {
+          "calendar": {
+            "legs": 918450,
+            "persons": 120000.0,
+            "vehicles": 58801.0,
+            "cargo_kg": 1000,
+            "resident_stock": 100000.0,
+            "requested_workers": 50000.0,
+            "allocated_workers": 40000.0,
+            "unassigned_workers": 10000.0
+          },
+          "materialized_legs": 918450,
+          "remaining_legs": 0,
+          "remaining_amounts": {
+            "persons": 0.0,
+            "vehicles": 0.0,
+            "cargo_kg": 0
+          },
+          "execution": "NOT_RUN",
+          "scope": "exact compilation coverage; pages must enter one shared live runtime"
+        },
+        "execution": {
+          "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+          "time_s": 25340.0,
+          "ledger": {
+            "persons": {
+              "requested": 777.7777777777877,
+              "released": 434.02788937083443,
+              "completed": 1.9526770073524335,
+              "pending": 343.7498884069533,
+              "active": 432.075212363482
+            },
+            "vehicles": {
+              "requested": 381.1111111110977,
+              "released": 346.66666666667174,
+              "completed": 1.252845883918602,
+              "pending": 34.44444444442598,
+              "active": 345.41382078275313
+            },
+            "cargo_kg": {
+              "requested": 0.0,
+              "released": 0.0,
+              "completed": 0.0,
+              "pending": 0.0,
+              "active": 0.0
+            }
+          },
+          "released_intent_first_moments": {
+            "persons": 10965714.624953963,
+            "vehicles": 8758533.33333307,
+            "cargo_kg": 0.0
+          },
+          "service": {
+            "time_s": 25340.0,
+            "scheduled_bus_vehicles": 24,
+            "bus_road_vehicles": 0.0,
+            "bus_stop_or_finished_vehicles": 24.0,
+            "completed_bus_vehicles": 4,
+            "waiting_persons": 1.6769625,
+            "onboard_persons": 0.0,
+            "arrived_persons": 0.0,
+            "wait_person_s": 0.0,
+            "freight_completed_vehicles": 0.0,
+            "cargo_delivered_kg": 0.0,
+            "cargo_unfinished_kg": 998.825,
+            "road_released_veh": 80.40032465439036,
+            "road_completed_veh": 4.623017163198211
+          },
+          "assignment": {
+            "units": {
+              "persons": {
+                "requested": 120000.0,
+                "assigned": 1.6769625000015367,
+                "unassigned": 119998.3230375
+              },
+              "vehicles": {
+                "requested": 58801.0,
+                "assigned": 1.0659034999989672,
+                "unassigned": 58799.9340965
+              },
+              "cargo_kg": {
+                "requested": 1000.0,
+                "assigned": 998.825,
+                "unassigned": 1.175
+              }
+            },
+            "fixed_fleet_vehicles": 24,
+            "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+          },
+          "construction": {
+            "legs": 918450,
+            "physical_routes": 304856,
+            "unique_paths": 38916,
+            "unsupported_legs": 610820,
+            "road_legs": 304368,
+            "internal_legs": 3012,
+            "estimated_bytes": 1073526202,
+            "byte_budget": 6442450944,
+            "python_calendar_leg_objects": 0,
+            "road_owners": 1
+          },
+          "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+          "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+          "full_release_campaign": "NOT_RUN"
+        },
+        "full_local_acceptance": "NOT_RUN"
+      },
+      "checkpoint_sha256": "ef4719a822ac85763679061a5ebd1d431e0edd9cec4e105a15ad1a5f7d4d884f",
+      "seed_byte_unchanged": true
+    },
+    {
+      "iteration": 2,
+      "status": "PASS_SCOPED",
+      "advance_wall_s": 2.430731566011673,
+      "ticks": [
+        0.069775393,
+        0.077135496,
+        0.106972234,
+        0.116912196,
+        0.190707386,
+        0.214267276,
+        0.249762465,
+        0.293302798,
+        0.346559484,
+        0.361174801
+      ],
+      "simulated_s": 25340.0,
+      "report": {
+        "status": "WHOLE_CALENDAR_ACTIVATED",
+        "activation": "complete native preactivation; one shared occupied road",
+        "calendar": {
+          "calendar": {
+            "legs": 918450,
+            "persons": 120000.0,
+            "vehicles": 58801.0,
+            "cargo_kg": 1000,
+            "resident_stock": 100000.0,
+            "requested_workers": 50000.0,
+            "allocated_workers": 40000.0,
+            "unassigned_workers": 10000.0
+          },
+          "materialized_legs": 918450,
+          "remaining_legs": 0,
+          "remaining_amounts": {
+            "persons": 0.0,
+            "vehicles": 0.0,
+            "cargo_kg": 0
+          },
+          "execution": "NOT_RUN",
+          "scope": "exact compilation coverage; pages must enter one shared live runtime"
+        },
+        "execution": {
+          "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+          "time_s": 25340.0,
+          "ledger": {
+            "persons": {
+              "requested": 777.7777777777877,
+              "released": 434.02788937083443,
+              "completed": 1.9526770073524335,
+              "pending": 343.7498884069533,
+              "active": 432.075212363482
+            },
+            "vehicles": {
+              "requested": 381.1111111110977,
+              "released": 346.66666666667174,
+              "completed": 1.252845883918602,
+              "pending": 34.44444444442598,
+              "active": 345.41382078275313
+            },
+            "cargo_kg": {
+              "requested": 0.0,
+              "released": 0.0,
+              "completed": 0.0,
+              "pending": 0.0,
+              "active": 0.0
+            }
+          },
+          "released_intent_first_moments": {
+            "persons": 10965714.624953963,
+            "vehicles": 8758533.33333307,
+            "cargo_kg": 0.0
+          },
+          "service": {
+            "time_s": 25340.0,
+            "scheduled_bus_vehicles": 24,
+            "bus_road_vehicles": 0.0,
+            "bus_stop_or_finished_vehicles": 24.0,
+            "completed_bus_vehicles": 4,
+            "waiting_persons": 1.6769625,
+            "onboard_persons": 0.0,
+            "arrived_persons": 0.0,
+            "wait_person_s": 0.0,
+            "freight_completed_vehicles": 0.0,
+            "cargo_delivered_kg": 0.0,
+            "cargo_unfinished_kg": 998.825,
+            "road_released_veh": 80.40032465439036,
+            "road_completed_veh": 4.623017163198211
+          },
+          "assignment": {
+            "units": {
+              "persons": {
+                "requested": 120000.0,
+                "assigned": 1.6769625000015367,
+                "unassigned": 119998.3230375
+              },
+              "vehicles": {
+                "requested": 58801.0,
+                "assigned": 1.0659034999989672,
+                "unassigned": 58799.9340965
+              },
+              "cargo_kg": {
+                "requested": 1000.0,
+                "assigned": 998.825,
+                "unassigned": 1.175
+              }
+            },
+            "fixed_fleet_vehicles": 24,
+            "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+          },
+          "construction": {
+            "legs": 918450,
+            "physical_routes": 304856,
+            "unique_paths": 38916,
+            "unsupported_legs": 610820,
+            "road_legs": 304368,
+            "internal_legs": 3012,
+            "estimated_bytes": 1073526202,
+            "byte_budget": 6442450944,
+            "python_calendar_leg_objects": 0,
+            "road_owners": 1
+          },
+          "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+          "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+          "full_release_campaign": "NOT_RUN"
+        },
+        "full_local_acceptance": "NOT_RUN"
+      },
+      "checkpoint_sha256": "ef4719a822ac85763679061a5ebd1d431e0edd9cec4e105a15ad1a5f7d4d884f",
+      "seed_byte_unchanged": true
+    }
+  ],
+  "repeated_byte_identity": true,
+  "median_advance_wall_s": 2.430731566011673,
+  "peak_rss_bytes": 860340224
+}

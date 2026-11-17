@@ -1,0 +1,292 @@
+{
+  "case": "coastal_weekend_s41",
+  "city_identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+  "schedule_identity": "f2d23e4cd90a16d1d62dbaf26124dd159aa766d413e860c34d218cdd7d9ae870",
+  "source_sha256": "5c3107b147b7f71046f5958a8ad8d3f0212d0bcc5bbfcc27ebbebbd9d476756e",
+  "patch_sha256": "f22743e502442405732db7c09e5745a8f41471c9d949358d56c04b685ad419cf",
+  "requested_workers": 10000.0,
+  "allocated_workers": 10000.0,
+  "unassigned_workers": 0.0,
+  "residents": 100000.0,
+  "cursor": {
+    "schedule_identity": "f2d23e4cd90a16d1d62dbaf26124dd159aa766d413e860c34d218cdd7d9ae870",
+    "offset": 16,
+    "materialized_persons": 0.02247,
+    "materialized_vehicles": 0.011319,
+    "materialized_cargo_kg": 0.0
+  },
+  "calendar_summary": {
+    "calendar": {
+      "legs": 2449750,
+      "persons": 100000.0,
+      "vehicles": 49001.0,
+      "cargo_kg": 1000,
+      "resident_stock": 100000.0,
+      "requested_workers": 10000.0,
+      "allocated_workers": 10000.0,
+      "unassigned_workers": 0.0
+    },
+    "materialized_legs": 16,
+    "remaining_legs": 2449734,
+    "remaining_amounts": {
+      "persons": 99999.97753,
+      "vehicles": 49000.988681,
+      "cargo_kg": 1000.0
+    },
+    "execution": "NOT_RUN",
+    "scope": "exact compilation coverage; pages must enter one shared live runtime"
+  },
+  "page": [
+    {
+      "id": "c0:out",
+      "status": "INTRAZONAL",
+      "links": [],
+      "amounts": {
+        "persons": 0.00378,
+        "vehicles": 0.0030239999999999998,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c0:home",
+      "status": "INTRAZONAL",
+      "links": [],
+      "amounts": {
+        "persons": 0.00378,
+        "vehicles": 0.0030239999999999998,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c1:out",
+      "status": "INTRAZONAL",
+      "links": [],
+      "amounts": {
+        "persons": 0.001575,
+        "vehicles": 6.3e-05,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c1:home",
+      "status": "INTRAZONAL",
+      "links": [],
+      "amounts": {
+        "persons": 0.001575,
+        "vehicles": 6.3e-05,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c2:out",
+      "status": "INTRAZONAL",
+      "links": [],
+      "amounts": {
+        "persons": 0.000945,
+        "vehicles": 0.0,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c2:home",
+      "status": "INTRAZONAL",
+      "links": [],
+      "amounts": {
+        "persons": 0.000945,
+        "vehicles": 0.0,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c3:out",
+      "status": "ROUTED",
+      "links": [
+        "s:g10:13>g10:14|0"
+      ],
+      "amounts": {
+        "persons": 0.00189,
+        "vehicles": 0.0015119999999999999,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c3:home",
+      "status": "ROUTED",
+      "links": [
+        "s:g10:13>g10:14|1"
+      ],
+      "amounts": {
+        "persons": 0.00189,
+        "vehicles": 0.0015119999999999999,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c4:out",
+      "status": "ROUTED",
+      "links": [
+        "s:g10:13>g10:14|0"
+      ],
+      "amounts": {
+        "persons": 0.0007875,
+        "vehicles": 3.15e-05,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c4:home",
+      "status": "ROUTED",
+      "links": [
+        "s:g10:13>g10:14|1"
+      ],
+      "amounts": {
+        "persons": 0.0007875,
+        "vehicles": 3.15e-05,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c5:out",
+      "status": "ROUTED",
+      "links": [
+        "s:g10:13>g10:14|0"
+      ],
+      "amounts": {
+        "persons": 0.0004725,
+        "vehicles": 0.0,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c5:home",
+      "status": "ROUTED",
+      "links": [
+        "s:g10:13>g10:14|1"
+      ],
+      "amounts": {
+        "persons": 0.0004725,
+        "vehicles": 0.0,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c6:out",
+      "status": "ROUTED",
+      "links": [
+        "s:g10:13>g10:14|0",
+        "s:g10:14>g10:15|0",
+        "s:g10:15>g10:16|0",
+        "s:g10:16>g11:16|0",
+        "s:g11:16>g11:17|0",
+        "s:g11:17>g11:18|0",
+        "s:g11:18>g11:19|0",
+        "s:g11:19>g11:20|0",
+        "s:g11:20>g11:21|0",
+        "s:g11:21>g11:22|0",
+        "s:g10:22>g11:22|1",
+        "s:g10:22>g9:22|0",
+        "s:g9:22>g9:23|0",
+        "s:g9:23>g9:24|0",
+        "s:g9:24>g9:25|0",
+        "s:g9:25>g9:26|0"
+      ],
+      "amounts": {
+        "persons": 0.0012599999999999998,
+        "vehicles": 0.0010079999999999998,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c6:home",
+      "status": "ROUTED",
+      "links": [
+        "s:g9:25>g9:26|1",
+        "s:g9:24>g9:25|1",
+        "s:g9:23>g9:24|1",
+        "s:g9:22>g9:23|1",
+        "s:g10:22>g9:22|1",
+        "s:g10:22>g11:22|0",
+        "s:g11:21>g11:22|1",
+        "s:g11:20>g11:21|1",
+        "s:g11:19>g11:20|1",
+        "s:g11:18>g11:19|1",
+        "s:g11:17>g11:18|1",
+        "s:g11:16>g11:17|1",
+        "s:g10:16>g11:16|1",
+        "s:g10:15>g10:16|1",
+        "s:g10:14>g10:15|1",
+        "s:g10:13>g10:14|1"
+      ],
+      "amounts": {
+        "persons": 0.0012599999999999998,
+        "vehicles": 0.0010079999999999998,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c7:out",
+      "status": "ROUTED",
+      "links": [
+        "s:g10:13>g10:14|0",
+        "s:g10:14>g10:15|0",
+        "s:g10:15>g10:16|0",
+        "s:g10:16>g11:16|0",
+        "s:g11:16>g11:17|0",
+        "s:g11:17>g11:18|0",
+        "s:g11:18>g11:19|0",
+        "s:g11:19>g11:20|0",
+        "s:g11:20>g11:21|0",
+        "s:g11:21>g11:22|0",
+        "s:g10:22>g11:22|1",
+        "s:g10:22>g9:22|0",
+        "s:g9:22>g9:23|0",
+        "s:g9:23>g9:24|0",
+        "s:g9:24>g9:25|0",
+        "s:g9:25>g9:26|0"
+      ],
+      "amounts": {
+        "persons": 0.000525,
+        "vehicles": 2.1e-05,
+        "cargo_kg": 0.0
+      }
+    },
+    {
+      "id": "c7:home",
+      "status": "ROUTED",
+      "links": [
+        "s:g9:25>g9:26|1",
+        "s:g9:24>g9:25|1",
+        "s:g9:23>g9:24|1",
+        "s:g9:22>g9:23|1",
+        "s:g10:22>g9:22|1",
+        "s:g10:22>g11:22|0",
+        "s:g11:21>g11:22|1",
+        "s:g11:20>g11:21|1",
+        "s:g11:19>g11:20|1",
+        "s:g11:18>g11:19|1",
+        "s:g11:17>g11:18|1",
+        "s:g11:16>g11:17|1",
+        "s:g10:16>g11:16|1",
+        "s:g10:15>g10:16|1",
+        "s:g10:14>g10:15|1",
+        "s:g10:13>g10:14|1"
+      ],
+      "amounts": {
+        "persons": 0.000525,
+        "vehicles": 2.1e-05,
+        "cargo_kg": 0.0
+      }
+    }
+  ],
+  "compiled_legs": 16,
+  "route_trees": 3,
+  "simulated_s": 0,
+  "full_campaign": "NOT_RUN",
+  "scope": "bounded exact calendar/route page, one shared runtime required for all activated routes",
+  "units": {
+    "persons": "person-leg amounts, outward and return counted separately",
+    "vehicles": "vehicle-leg amounts",
+    "cargo_kg": "kg",
+    "resident_stock": "persons"
+  }
+}

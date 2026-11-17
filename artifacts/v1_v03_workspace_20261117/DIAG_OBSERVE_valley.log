@@ -1,0 +1,8 @@
+{"t": 3600.0, "wall": 44.1, "rss": 444706816, "heap_peak": 285873348, "worst": "engine_admission:capture/validation", "ratio": 0.1017}
+{"t": 7200.0, "wall": 58.6, "rss": 444706816, "heap_peak": 315485964, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 10800.0, "wall": 67.9, "rss": 444706816, "heap_peak": 315485964, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 14400.0, "wall": 76.8, "rss": 444706816, "heap_peak": 315485964, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 18000.0, "wall": 87.2, "rss": 444706816, "heap_peak": 315485964, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 21600.0, "wall": 97.5, "rss": 444706816, "heap_peak": 315485964, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"t": 25200.0, "wall": 109.5, "rss": 444706816, "heap_peak": 315498320, "worst": "engine_admission:capture", "ratio": 0.1017}
+{"status": "GATE_BLOCKED", "case": "valley_weekday_s7", "simulated_s": 25700.0, "wall_s": 996.1910203230218, "peak_rss_bytes": 6660411392}

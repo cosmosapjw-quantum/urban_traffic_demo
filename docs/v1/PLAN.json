@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.10",
-  "date": "2026-10-27",
+  "version": "1.1.26",
+  "date": "2026-11-17",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
   "base_research_sha": "0a7c980d3934146a978280fe76045443ad12640e",
@@ -59,7 +59,7 @@
   },
   "product": {
     "name": "MetroFlow V1 research simulator",
-    "definition": "한도시의지도·지속cohort활동·집계수송·조건부경로선택·지연개발피드백을24h 실행하고저장/재개/관측/개입비교할수있는순수Python headless연구시뮬레이터",
+    "definition": "한도시의지도·지속cohort활동·집계수송·조건부경로선택·지연개발피드백을24h 실행하고저장/재개/관측/개입비교할수있는Rust 계산코어·Python frontend를 목표로 하는 headless연구시뮬레이터",
     "scale": {
       "resident_stock": 100000,
       "default_extent_m": [
@@ -104,7 +104,7 @@
       "full public-transit assignment/환승최적화",
       "parking micro/법적필지·구조공학인증",
       "RL/LLM-first·외부데이터학습",
-      "GPU/JAX/Rust-primary rewrite·분산실행",
+      "GPU/JAX·분산실행",
       "완전한Boltzmann/pairhierarchy폐쇄의보편정리",
       "실도시보정·CitiesSkylines대비우월성주장"
     ],
@@ -328,7 +328,7 @@
     "원PRD의persistent citizens는V1에서지속cohort activity ledger로구현한다. 개별주민전수상태는요구하지않는다.",
     "원PRD의UI와EMA/bandit은현재그래픽후순위·고유물리정초요청에따라1차release밖으로명시이관한다.",
     "원001의fingerprint-only replay와proxy benchmark는이번제품완료요구에맞춰실제checkpointresume/실측100k로강화한다.",
-    "과거NumPy/Rust-primary 계획은역사적구현근거. 현재명시된purePython/noGPU가V1구현을지배한다.",
+    "2026-11-16 사용자 승인: Rust 계산코어와 Python frontend로 전환한다. 기존 Python은 이행 중 scientific oracle로 보존한다. GPU는 범위 밖이며 물리·수용 기준은 유지한다.",
     "실제전통모델과정밀성능비교는release조건이아니다. 자체원리·반례·수치·실행수용을우선한다."
   ],
   "source_pins": [
@@ -368,14 +368,14 @@
   ],
   "current_execution": {
     "node_ids": [
-      "V01"
+      "V03"
     ],
-    "native_subagent": "NOT_RUN",
-    "scope": "V01 registered portal finding resolved by new synthetic physical entries on all38 original maps; VERIFIED_SCOPED",
+    "native_subagent": "COMPLETED_SCOPED",
+    "scope": "Complete Rust whole-owner resource representation and measured simulation continuation; scientific G-SCALE/G-DAY gates unchanged; no full CI or integration",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_portal_resolution_20261027/RECEIPT.json",
+    "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,8 +384,11 @@
       "status": "success"
     },
     "parallel_agents": [
-      "portal_impl",
-      "portal_theory"
+      "journey_debug",
+      "parallel_road",
+      "engine_diagnostics",
+      "queue_review",
+      "parallel_references"
     ]
   },
   "nodes": [
@@ -1756,7 +1759,7 @@
       },
       "verification_receipt": {
         "path": "artifacts/v1_portal_resolution_20261027/RECEIPT.json",
-        "sha256": "72685d10edf35b363220ca2f0bdaa52b84d26e2b91ffb3e7cbe13176fa62c0c5",
+        "sha256": "8306aaf01f7436fbf82d83bc68478a3f75dacc843ac9c429368c56f98d287412",
         "acceptance": "38 original map constructions and 7 bounded physics fixtures pass; scoped only; full CI/integration deferred"
       }
     },
@@ -1844,7 +1847,7 @@
         "V01",
         "V02"
       ],
-      "status": "PLANNED",
+      "status": "BLOCKED",
       "files": [
         "tools/run_v1_acceptance.py",
         "scenarios/v1/release_matrix.json",
@@ -1876,7 +1879,7 @@
         "short matched refined_dt observables"
       ],
       "tests": [
-        "python tools/run_v1_acceptance.py --matrix scenarios/v1/release_matrix.json --repeat 3"
+        "python tools/run_v1_local_acceptance.py --run-local --matrix scenarios/v1/release_matrix.json"
       ],
       "acceptance": [
         "riverweekdayseed17,coastalweekendseed41,valleyweekdayseed7 각24h",
@@ -1887,7 +1890,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "RLS01릴리스패키지/최종main PR",
+      "positive_next_action": "Options (a) and 1 measured: partial head serves create ~80% of new rows; bit-identical merges recover ~2%, real-arithmetic-exact proportional merges <=8%, composition sharing only a constant factor while packets double every ~50 simulated s. V03 completion therefore needs a user decision on an approximate road-interval aggregation (currently forbidden as time binning) or on scope/model contract. No demand/mass/tolerance/budget relaxation; full CI/integration deferred.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1897,10 +1900,71 @@
       "pr": {
         "key": "V1-V03",
         "title": "[V1 V03] 로컬 10만 주민·24시간 실제 실행과 수치 수용시험",
-        "branch": "v1/v03",
-        "base": "research/v1-integration-20261025",
-        "opened_number": null
-      }
+        "branch": "v1/v03-acceptance-20261027",
+        "base": "v1/v01-parallel-20261027",
+        "opened_number": 41
+      },
+      "implementation_parent": {
+        "node": "V01",
+        "branch": "v1/v01-parallel-20261027",
+        "sha": "97b09576f5fe96f8e08d07a4bed80a841ffb2679"
+      },
+      "blocked_evidence": {
+        "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
+        "sha256": "e88229512fefcbebde7a457c97f86b4ebe1f6d3f416670f5e80a4b4923dfb2f0"
+      },
+      "resource_optimization_evidence": [
+        {
+          "path": "artifacts/v1_v03_memory_20261029/RESULT.json",
+          "sha256": "f3ef8fc046c1530d6ea80ebbe7c26e96e8728281fd8d862988a0936dc02bb123",
+          "scope": "exact15000leg retained traced allocation -42.71%; not actualcityRSS/24h"
+        },
+        {
+          "path": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
+          "sha256": "4f3806899ee03b03e0c112c918fab9b25d737e37e35c87f98fee72840cd0699b",
+          "scope": "linear parent/stage indexing, bounded exact access/path caching, bounded route p99 intervals; actual local whole calendar retention 1.42GiB, not full traffic execution"
+        },
+        {
+          "path": "artifacts/v1_rust_migration_20261116/RECEIPT.json",
+          "sha256": "cd533ff8037aa34d524370d4b7b0525502f41042ff233556979468f3ae05ac2f",
+          "scope": "Actual local native f64 routing and full 5,093,765-leg calendar retention; 33.74x routing batch speedup, 52.59% lower retention RSS, 1.48x slower registration; full shared physics remains Python and V03 blocked"
+        },
+        {
+          "path": "artifacts/v1_rust_runtime_20261116/RECEIPT.json",
+          "sha256": "da8ba6ecfc6daa5a8b1ebe61d2cf3e019555903e9ece2da61b23451fd2403fc1",
+          "scope": "Native direct factorized calendar and coupled physical/service/journey core; full three-city calendar counts and bounded 256-leg active-window checkpoint parity; Python static full-calendar constructor and history capacity remain"
+        },
+        {
+          "path": "artifacts/v1_rust_whole_20261116/RECEIPT.json",
+          "sha256": "81f63749c4b6290c8396c119e909b1305f101c82f33ff03e0df9c2f275c37bf3",
+          "scope": "Whole native constructor and immutable binary checkpoints; all3 actual full calendars initialized with0 omittedlegs; Valley default20k cap at25210s and diagnostic2m cap at25380s with exact fresh-runtime rollback; no24h acceptance"
+        },
+        {
+          "path": "artifacts/v1_queue_debug_20261116/RECEIPT.json",
+          "sha256": "53997ac293cd822e1ccda49695c9cef8d7160fa87384320db1b9030963b0b515",
+          "scope": "Actual local bounded queue diagnosis and atomic lifecycle/copy fixes; final serial replay time26.24% and process RSS21.40% lower;1/2/4/8 worker checkpoint/report bytes match old kernel; parallel speedup not robust; logical record limit andV03 block unchanged"
+        },
+        {
+          "path": "artifacts/v1_rust_completion_20261116/RECEIPT.json",
+          "sha256": "3a264a89c91348f16f6ad4f900d29b9667a5a6e2439cbee9f1be8e6d6beec9ac",
+          "scope": "251 scoped tests; Rust persistent stages, packed intervals, compensated event clocks and shared retained-capacity budgets. Actual3city campaign remains resource-blocked; allprefixRSS<8GiB, no24h completion; real Rivercheckpoint fresh-load bytes verified."
+        },
+        {
+          "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
+          "sha256": "e88229512fefcbebde7a457c97f86b4ebe1f6d3f416670f5e80a4b4923dfb2f0",
+          "scope": "Measured blocked-checkpoint workspaces (counted heap 2.4-3.2GB vs >6GiB guards); retained_capacity_v3 lifetime accounting (sink envelope after road step, interval workspace, sort-based stage validation); 260 scoped tests, legacy replay bytes identical. Gates adde1a3 stop at25650/32730/25420s; guard-bypassed diagnostics show road parts doubling per50-100s (Valley real allocation failure at8GiB AS). Attribution (option a): partial head serves create ~80% of new rows; bit-identical merging bounded at a few percent."
+        }
+      ],
+      "historical_blocked_evidence": [
+        {
+          "path": "artifacts/v1_rust_completion_20261116/RECEIPT.json",
+          "sha256": "3a264a89c91348f16f6ad4f900d29b9667a5a6e2439cbee9f1be8e6d6beec9ac"
+        },
+        {
+          "path": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
+          "sha256": "4f3806899ee03b03e0c112c918fab9b25d737e37e35c87f98fee72840cd0699b"
+        }
+      ]
     },
     {
       "id": "RLS01",
@@ -2008,6 +2072,55 @@
       "date": "2026-10-27",
       "reason": "사용자 V01 차단 해소 연구 루프: 원본 38개 동결 도시를 보존하고 합성 출입구 construction으로 새 snapshot과 물리 접근 증거 생성",
       "change": "기존 M03 compile_entry 및 면적측도 재사용. corridor/mask/grade, legal-turn SCC 연결, 실제 포털 CDF 검증; unserved 유지. P1와 수용문턱은 결과 전 유지."
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "사용자 V03 차단 해소 연구 루프",
+      "change": "원래 strict demand 실패 보존; 명시적 requested=assigned+unassigned worker ledger를 선택하고 exact factorized OD를 사용한다. 수요/인구/용량 삭제 및 수용문턱 완화 금지. 실제 수송 probe와 전체 캠페인을 구별한다."
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "사용자 V03 후속 차단 해소 연구 루프",
+      "change": "공유 도로망에서 전체 route 계획/자원 제한, completion+dwell 귀가 및 명시 fleet/depot 결합을 구현·검증. 독립 청크 실행 합산을 전체 혼잡으로 인정하지 않는다. 기존 수용문턱 유지."
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "다음 노드 재개: V03 driver 및 실제 운행 입력 완성",
+      "change": "고정 route registry의 정확한 full-calendar preactivation을 구현한다. 점유중 동적삽입으로 재명명하지 않는다. 실제 전체calendar가 예산을 넘으면 cursor0/전체미구성 수요와 자원실패 영수증을 보존한다. 독립 synthetic fixedfleet/depot prior를 matrix에 명시한다."
+    },
+    {
+      "date": "2026-10-27",
+      "reason": "V03 다음 실행: 준비 비용 개선",
+      "change": "driver가 버리던 route/access 페이지 준비와 cursor prefix 재순회를 제거한다. 동일 calendar/물리 모델/예산을 유지하며 별도 성능·행동 검증한다."
+    },
+    {
+      "date": "2026-10-29",
+      "reason": "다음 V03 실행: 실제 retained calendar 메모리 비용",
+      "change": "동일 immutable 출발 profile 재사용을 구현하고 기존 calendar/asdict/identity/상태 관측과 메모리 측정을 대조한다. 수요/한도/수용문턱 유지."
+    },
+    {
+      "date": "2026-11-16",
+      "reason": "User explicitly requests Rust conversion and simulation completion. Bounded trace identifies representation-dependent raw-row guard, not a physical conservation failure;19/21 unchanged.",
+      "change": "Investigate and implement exact persistent storage with an explicitly named whole-native byte-accounted policy; legacy20k row guards remain available. Preserve source measures, birth/receipt clocks, ordered numerical operations,100k population,3cases×3full-day requirements,7200s/8GiB thresholds. Publish old/new guard semantics and actual evidence before acceptance; never silently treat virtual rows as physical population.",
+      "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json"
+    },
+    {
+      "date": "2026-11-16",
+      "reason": "Actual full-target Valley continuation reaches25490s then valid positive FIFO head requires h=6.538054381607992e-16 atcursor8.221431926605018; f64 addition cannot advance cursor. Pythonoracle has same failure.",
+      "change": "Extend only the previously unsupported sub-ULP event path with explicit finite-progress/time-debt accounting and numerical bounds after independent counterexample review. Keep ordinary arithmetic path, positive masses, horizon capacity, existing ledger tolerances and fixed physical model. New path requires analytic regressions, checkpoint continuation and actual rerun before adoption.",
+      "evidence": "artifacts/v1_rust_completion_20261116/event_probe.json"
+    },
+    {
+      "date": "2026-11-16",
+      "reason": "Numeric continuation passes the prior event stall but reaches a representation-dependent road owner quota at25520s, with peakRSS1.586GB and unused journey allowance. Streaming checkpoint inspection finds all45715 road packets share an interval internally, without duplicate full parts.",
+      "change": "Keep the total6GiB conservative accounting and8GiB process gate. Rebalance fixed dynamic owner quotas from1/4:3/4 to1/2:1/2 with distinct checkpoint binding and a fresh campaign. Store finite interval bits compactly and factor common packet intervals while preserving every FIFO boundary, ordered part, f64 operation and existing wire schema; mixed packets retain an explicit fallback. No row merging, mass pruning, physical tolerance increase or old-policy checkpoint bypass.",
+      "evidence": "artifacts/v1_rust_completion_20261116/numeric_resume_t1.json"
+    },
+    {
+      "date": "2026-11-16",
+      "reason": "Frozen candidate27e426f exposes a distinction between constructor peak allowance and retained runtime footprint. River constructor estimate5674574036B leaves383938454B per dynamic owner although measured initialization peakRSS2172362752B; fixed journey proposal scratch is326120360B. The constructor estimate includes freed router/calendar temporaries and duplicated snapshot allowances.",
+      "change": "Retain the constructor preflight and all physical release gates. Derive runtime static reservation from native owned capacities, shared immutable allocation identity, explicit concurrent dense copies, service-event workspaces and validation scratch. Separate construction, retained and dynamic admission diagnostics; preserve6GiB total accounting and8GiB process limits with a new resource binding/fresh campaign. Do not present structural estimates as a theorem about allocator overhead or RSS.",
+      "evidence": "artifacts/v1_rust_completion_20261116/SOURCE_MANIFEST_FINAL.json"
     }
   ],
   "implementation_progress": {
@@ -2036,5 +2149,45 @@
     "total_count": 21,
     "percent": 90.48,
     "definition": "ACCEPTED or receipt-bound VERIFIED_SCOPED; not full CI/integration/final acceptance"
+  },
+  "rust_migration": {
+    "authorized_on": "2026-11-16",
+    "supersedes": "pure Python core restriction in PLAN v1.1.17 and AGENTS.md",
+    "target": "Rust-owned state, clock, routing, physical/service/journey ledgers; Python configuration, CLI, diagnostics only",
+    "mode": "Whole-city acceptance CLI defaults to rust_whole/oneworker/bounded_bytes_v1; direct legacy library constructors retain compatibility defaults. Python production frontend; explicit Python scientific oracle preserved.",
+    "current_scope": [
+      "Persistent f64 legal-turn routing in V1 preparation",
+      "Direct factorized Rust calendar construction without Python per-leg objects",
+      "Rust-owned finite-response packet/kinetic road state and interned route paths",
+      "Rust service/journey scheduling, ledgers, access/egress and return eligibility",
+      "GIL-released coupled native time loop with whole-tick rollback and Python-compatible checkpoints",
+      "Native per-tick resource/timing diagnostics and hourly campaign checkpoint batches",
+      "Actual local full-calendar construction and matched bounded city-prefix runtime measurements",
+      "Whole native calendar-to-route/service/journey constructor with marginal-only Python frontend and one road owner",
+      "Opaque immutable native snapshots, exact binary checkpoints and cross-owner scientific binding validation",
+      "Lossless persistent receipt blocks with exact fsum/eligibility indexing",
+      "Actual full three-city initialization/10s/checkpoint measurements; whole Valley activation to logical record cap",
+      "Bounded queue lifecycle counts and failed-candidate diagnostics; reduced whole-tick copies and empty/sparse stage allocation",
+      "Deterministic private Rayon pool for independent cell and leg chunks; opt-in workers1..256, default1; serial scientific reductions",
+      "Persistent256-row stage blocks, byte-accounted history and packet-local common intervals with exact legacy row/checkpoint expansion",
+      "Limited compensated positive-event clock only after a sub-ULP nonprogress event; original ordinary arithmetic and ledger tolerances retained",
+      "Retained_capacity_v2 shared phase budgets and canonical checkpoint decode headroom; atomic failure and actual fresh-runtime checkpoint roundtrip",
+      "Frozen532effe actual three-city full-target attempts and distinct resource failure receipts; no full-day acceptance",
+      "Retained_capacity_v3 lifetime accounting: post-road sink envelope by exit count, interval workspace/slot retention, sort-based exact stage validation; env-gated guard-margin recorder and diagnostic-only budget_trace build"
+    ],
+    "remaining": [
+      "Road interval packet row growth at morning onset exceeds the unchanged 8GiB process target even with guards bypassed (Valley 25,700s); requires attributed representation work within the physics contract; v3 gates stop at 25650/32730/25420s",
+      "Reduce dense all-leg work and conservative workspace overhead with justified lifetime bounds; parallel speedup is not robust in shared-host measurements",
+      "Frozen candidate3cases x3 full-day completion, matched refinement and full-day checkpoint replay; current completion0/9",
+      "Separate final review, RLS01 packaging/fresh-install acceptance and full repository CI/integration deferred by user"
+    ],
+    "dag_policy": "V03 internal migration work; no new DAG nodes, 19/21 unchanged until acceptance",
+    "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
+    "last_completed_work": {
+      "date": "2026-11-16",
+      "scope": "Rust native storage, numerical progress and shared accounting implementation verified in scoped tests; actual full-target campaign and recovery diagnostics completed with explicit resource blockers",
+      "evidence": "artifacts/v1_rust_completion_20261116/RECEIPT.json"
+    },
+    "active_work": "No experiment remains running. Frozen532effe campaign is BLOCKED: actual three-city resource receipts preserved; Riverfresh-load and byte roundtrip verified. V03 and RLS01 remain incomplete."
   }
 }

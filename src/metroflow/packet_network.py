@@ -20,6 +20,68 @@ from .ordered_lane import distance_clock, clock_time
 from .active_suffix.common import BudgetExceeded, _factor, _signal_green
 
 
+_EVENT_CLOCK_TOLERANCE_S = 1e-10
+
+
+def _two_sum(a, b):
+    total = a + b
+    v = total - a
+    return total, (a - (total - v)) + (b - v)
+
+
+def _upper_add(a, b):
+    return a if b == 0 else math.nextafter(a + b, math.inf)
+
+
+class _EventClock:
+    """Single-word legacy arithmetic until a positive sub-ULP head event.
+
+    Then retain elapsed time in two words. The processed small durations and
+    discarded arithmetic residuals have distinct conservative diagnostics;
+    neither makes ordinary mass splitting exact.
+    """
+    def __init__(self):
+        self.hi = self.lo = 0.0
+        self.active = False
+        self.count = 0
+        self.processed_time_bound = self.clock_roundoff_bound = 0.0
+
+    def remaining(self, boundary):
+        return (boundary - self.hi) - self.lo if self.active else boundary - self.hi
+
+    def after_ready(self, ready):
+        return (self.remaining(ready) > _EVENT_CLOCK_TOLERANCE_S if self.active
+                else ready > self.hi + _EVENT_CLOCK_TOLERANCE_S)
+
+    def offset(self, duration):
+        if not self.active:
+            return self.hi + duration
+        total, error = _two_sum(self.hi, duration)
+        return total + (error + self.lo)
+
+    def jump(self, boundary):
+        self.hi, self.lo = boundary, 0.0
+
+    def check_bound(self):
+        if self.processed_time_bound + self.clock_roundoff_bound > _EVENT_CLOCK_TOLERANCE_S:
+            raise ArithmeticError("packet compensated clock roundoff budget exceeded")
+
+    def advance(self, duration, boundary):
+        if not self.active:
+            self.hi += duration
+            return True
+        if boundary is not None:
+            error = abs(math.fsum((self.hi, self.lo, duration, -boundary)))
+            self.clock_roundoff_bound = _upper_add(self.clock_roundoff_bound, error)
+        old = self.hi, self.lo
+        total, error = _two_sum(self.hi, duration)
+        low, discarded = _two_sum(self.lo, error)
+        self.hi, self.lo = _two_sum(total, low)
+        self.clock_roundoff_bound = _upper_add(self.clock_roundoff_bound, abs(discarded))
+        self.check_bound()
+        return (self.hi, self.lo) > old
+
+
 @dataclass(frozen=True, slots=True)
 class Part:
     tag: str
@@ -661,9 +723,10 @@ class PacketNetwork:
         exit1 = 0.0
         hold = 0.0
         for _, inc in sorted(self.incoming.items()):
-            cursor = 0.0
+            clock = _EventClock()
             iterations = 0
-            while cursor < dt:
+            while clock.remaining(dt) > 0:
+                cursor = clock.hi
                 iterations += 1
                 if iterations > (
                     self.record_budget + 2 * len(inc)
@@ -680,7 +743,7 @@ class PacketNetwork:
                     if k >= len(queues[i]):
                         continue
                     packet, ready = queues[i][k]
-                    if ready > cursor + 1e-10:
+                    if clock.after_ready(ready):
                         if ready < dt:
                             future.append(ready)
                         continue
@@ -719,7 +782,7 @@ class PacketNetwork:
                 rates = {i: r for i, r in rates.items() if r > 0}
                 if not rates:
                     if future:
-                        cursor = min(future)
+                        clock.jump(min(future))
                         continue
                     break
                 dest_rates = {
@@ -730,14 +793,32 @@ class PacketNetwork:
                     j: math.fsum(beta_space[i].get(j, 0.0) * r for i, r in rates.items())
                     for j in receiving
                 }
-                limits = [dt - cursor] + [x - cursor for x in future if x > cursor]
+                boundaries = [(clock.remaining(dt), dt)] + [
+                    (clock.remaining(x), x) for x in future if clock.remaining(x) > 0]
+                time_limit, time_boundary = min(boundaries, key=lambda item: item[0])
+                limits = [time_limit]
                 limits.extend(heads[i].mass / r for i, r in rates.items())
                 limits.extend(free[j] / r for j, r in dest_rates.items() if r > 0)
                 limits.extend(free_space[j] / r for j, r in space_rates.items() if r > 0)
                 h = min(limits)
-                if h <= 0 or cursor + h == cursor:
+                if h < time_limit:
+                    time_boundary = None
+                subulp = h > 0 and cursor + h == cursor
+                retires_head = subulp and any(
+                    1 - min(1.0, rate * h / heads[i].mass) < 1e-14
+                    for i, rate in rates.items())
+                if h <= 0 or (subulp and not clock.active and not retires_head):
                     raise ArithmeticError("packet event resolution exhausted")
-                mid = t + cursor + h / 2
+                if subulp:
+                    clock.active = True
+                    clock.count += 1
+                    clock.processed_time_bound = _upper_add(clock.processed_time_bound, h)
+                    clock.check_bound()
+                local_mid = clock.offset(h / 2)
+                start_time = t + clock.offset(0) if clock.active else t + cursor
+                end_time = t + clock.offset(h) if clock.active else t + cursor + h
+                mid = t + local_mid if clock.active else t + cursor + h / 2
+                retired_heads = 0
                 for i, rate in sorted(rates.items()):
                     packet = heads[i]
                     ready = queues[i][position[i]][1]
@@ -748,6 +829,7 @@ class PacketNetwork:
                     mass = math.fsum(p.mass for p in served)
                     if fraction == 1:
                         position[i] += 1
+                        retired_heads += 1
                     else:
                         queues[i][position[i]][0] = replace(
                             packet, parts=_portion(packet.parts, 1 - fraction)
@@ -764,7 +846,7 @@ class PacketNetwork:
                             p.mass
                             * max(
                                 0.0,
-                                cursor + h / 2 - ready,
+                                local_mid - ready,
                             ),
                         )
                         j = self.index[p.remaining[1]] if len(p.remaining) > 1 else -1
@@ -774,8 +856,8 @@ class PacketNetwork:
                                 self.groups[i].id,
                                 self.groups[j].id if j >= 0 else None,
                                 p.mass,
-                                t + cursor,
-                                t + cursor + h,
+                                start_time,
+                                end_time,
                                 p.birth_moment,
                             )
                         )
@@ -788,7 +870,7 @@ class PacketNetwork:
                                     p,
                                     remaining=p.remaining[1:],
                                     **(
-                                        dict(entry_start_s=t + cursor, entry_end_s=t + cursor + h)
+                                        dict(entry_start_s=start_time, entry_end_s=end_time)
                                         if self.preserve_entry_intervals
                                         else {}
                                     ),
@@ -797,7 +879,7 @@ class PacketNetwork:
                             if self.motion is not None:
                                 incoming_marks[j].append(
                                     self.motion.transfer_mark(
-                                        self, p.tag, p.mass, motions[i], cursor + h / 2
+                                        self, p.tag, p.mass, motions[i], local_mid
                                     )
                                 )
                             hold += p.mass * (end - mid)
@@ -805,9 +887,14 @@ class PacketNetwork:
                             sink += p.mass
                             class_add(p.tag, "completed", p.mass)
                             exit1 += p.mass * mid
-                cursor += h
+                if not clock.advance(h, time_boundary) and not retired_heads:
+                    raise ArithmeticError("packet compensated clock made no finite progress")
                 if len(events) > self.record_budget:
                     raise BudgetExceeded("packet transfer budget")
+            overshoot = max(0.0, -clock.remaining(dt))
+            if clock.active and overshoot:
+                clock.clock_roundoff_bound = _upper_add(clock.clock_roundoff_bound, overshoot)
+                clock.check_bound()
         for i, c in enumerate(cells):
             for packet, ready in queues[i][position[i] :]:
                 for part in packet.parts:

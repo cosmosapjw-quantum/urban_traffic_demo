@@ -1,0 +1,21 @@
+{
+  "status": "PASS_SCOPED",
+  "scope": "same actual-city 256-leg prefix, 06:00 invariant pre-source vacuum ->08:00; full report and every serialized checkpoint field",
+  "counts": {
+    "numeric_leaves": 128748,
+    "exact_other_leaves": 36512,
+    "max_absolute_delta": 7.275957614183426e-12,
+    "max_relative_delta": 1.2275032851509205e-15
+  },
+  "failures": [],
+  "relative_tolerance": 2e-10,
+  "absolute_tolerance": 2e-09,
+  "python_evolution_s": 78.47771504000411,
+  "rust_evolution_s": 1.1625611759955063,
+  "speedup": 67.50415948890027,
+  "oracle_checkpoint_sha256": "b4149d316e08d935b152801d6d1893ba6530cbc16c4c102abdd22c34db70c8d4",
+  "native_checkpoint_sha256": "51e6964e5f1f98da48235c0fd1347f4a4bb1eb9f2720c0167365c0bf2212e7b9",
+  "native_zero_start_checkpoint_sha256": "51e6964e5f1f98da48235c0fd1347f4a4bb1eb9f2720c0167365c0bf2212e7b9",
+  "native_vacuum_warm_start_byte_identical": true,
+  "full_campaign": "NOT_RUN"
+}

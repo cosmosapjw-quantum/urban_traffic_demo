@@ -1,12 +1,12 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.10**, 2026-10-27. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.26**, 2026-11-17. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
 ## 1. 1차 완성의 의미
 
-한도시의지도·지속cohort활동·집계수송·조건부경로선택·지연개발피드백을24h 실행하고저장/재개/관측/개입비교할수있는순수Python headless연구시뮬레이터
+한도시의지도·지속cohort활동·집계수송·조건부경로선택·지연개발피드백을24h 실행하고저장/재개/관측/개입비교할수있는Rust 계산코어·Python frontend를 목표로 하는 headless연구시뮬레이터
 
 **완성 판정:** `V1_ENGINEERING_COMPLETE_WITH_DECLARED_SYNTHETIC_PHYSICS`. 실측 보정·게임 대비 우월성은 포함하지 않는다.
 
@@ -29,7 +29,7 @@
 - full public-transit assignment/환승최적화
 - parking micro/법적필지·구조공학인증
 - RL/LLM-first·외부데이터학습
-- GPU/JAX/Rust-primary rewrite·분산실행
+- GPU/JAX·분산실행
 - 완전한Boltzmann/pairhierarchy폐쇄의보편정리
 - 실도시보정·CitiesSkylines대비우월성주장
 
@@ -133,7 +133,7 @@ DEFERRED_BY_USER_UNTIL_ALL_DAG_IMPLEMENTED_AND_SEPARATE_REVIEW
 - 원PRD의persistent citizens는V1에서지속cohort activity ledger로구현한다. 개별주민전수상태는요구하지않는다.
 - 원PRD의UI와EMA/bandit은현재그래픽후순위·고유물리정초요청에따라1차release밖으로명시이관한다.
 - 원001의fingerprint-only replay와proxy benchmark는이번제품완료요구에맞춰실제checkpointresume/실측100k로강화한다.
-- 과거NumPy/Rust-primary 계획은역사적구현근거. 현재명시된purePython/noGPU가V1구현을지배한다.
+- 2026-11-16 사용자 승인: Rust 계산코어와 Python frontend로 전환한다. 기존 Python은 이행 중 scientific oracle로 보존한다. GPU는 범위 밖이며 물리·수용 기준은 유지한다.
 - 실제전통모델과정밀성능비교는release조건이아니다. 자체원리·반례·수치·실행수용을우선한다.
 
 ## 4. 선택한 아키텍처와 계약
@@ -295,7 +295,7 @@ flowchart TD
 |P01|관측동등 경량화와 자원 상한 확립|C02|VERIFIED_SCOPED|
 |V01|통합 물리·관측·대칭 적대 검증|C02|VERIFIED_SCOPED|
 |V02|도시형태·지형·접근의 적대적 시각 검수|M02, M03, M04, C01|VERIFIED_SCOPED|
-|V03|로컬 10만 주민·24시간 실제 실행과 수치 수용시험|P01, V01, V02|PLANNED|
+|V03|로컬 10만 주민·24시간 실제 실행과 수치 수용시험|P01, V01, V02|BLOCKED|
 |RLS01|1차 완성 릴리스·설치·재현·문서 정리|V03, I01|PLANNED|
 
 ## 6. 노드별 상세 작업 패키지
@@ -2055,11 +2055,9 @@ V03에서samecity traffic성능으로연결
 
 ### V03. 로컬 10만 주민·24시간 실제 실행과 수치 수용시험
 
-의존: P01, V01, V02; 상태: **PLANNED**.
+의존: P01, V01, V02; 상태: **BLOCKED**.
 
-예정 PR: `V1-V03`, branch `v1/v03` → `research/v1-integration-20261025`.
-
-아래 파일·명령은 목표 계약이다. 아직 존재하거나 통과했다고 주장하지 않는다.
+예정 PR: `V1-V03`, branch `v1/v03-acceptance-20261027` → `v1/v01-parallel-20261027`.
 
 **입력**
 
@@ -2105,7 +2103,7 @@ V03에서samecity traffic성능으로연결
 
 **실행·수용시험 명령**
 
-- python tools/run_v1_acceptance.py --matrix scenarios/v1/release_matrix.json --repeat 3
+- python tools/run_v1_local_acceptance.py --run-local --matrix scenarios/v1/release_matrix.json
 
 **완료조건**
 
@@ -2120,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-RLS01릴리스패키지/최종main PR
+Options (a) and 1 measured: partial head serves create ~80% of new rows; bit-identical merges recover ~2%, real-arithmetic-exact proportional merges <=8%, composition sharing only a constant factor while packets double every ~50 simulated s. V03 completion therefore needs a user decision on an approximate road-interval aggregation (currently forbidden as time binning) or on scope/model contract. No demand/mass/tolerance/budget relaxation; full CI/integration deferred.
 
 **예산·종료조건**
 
@@ -2301,14 +2299,14 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
 ```json
 {
   "node_ids": [
-    "V01"
+    "V03"
   ],
-  "native_subagent": "NOT_RUN",
-  "scope": "V01 registered portal finding resolved by new synthetic physical entries on all38 original maps; VERIFIED_SCOPED",
+  "native_subagent": "COMPLETED_SCOPED",
+  "scope": "Complete Rust whole-owner resource representation and measured simulation continuation; scientific G-SCALE/G-DAY gates unchanged; no full CI or integration",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": "artifacts/v1_portal_resolution_20261027/RECEIPT.json",
+  "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2317,8 +2315,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [
-    "portal_impl",
-    "portal_theory"
+    "journey_debug",
+    "parallel_road",
+    "engine_diagnostics",
+    "queue_review",
+    "parallel_references"
   ]
 }
 ```

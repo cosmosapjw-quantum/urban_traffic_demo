@@ -1,0 +1,140 @@
+{
+  "status": "PASS_SCOPED_INVENTORY_CONSTRUCTION",
+  "scope": "three fixed physical inventories; no trip simulation or demand service claim",
+  "source_sha256": "28c627190edeeb4d8e0f7c375c9ef55f5a7865a93b9ab267ab2ff71f3f850af8",
+  "execution": "load_release_city(case); build_inventory(city)",
+  "cases": [
+    {
+      "case": "river_weekday_s17",
+      "map_index": 4,
+      "parent_city_identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+      "source_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+      "patch_sha256": "8040bf2037bdece32504b8079342abb025d3e8a62a4742a0cc5cb0213b691c27",
+      "inventory_identity": "2f88b4aa97544755f5bb2f6ba6c8d92c76beb6f72b1ded258655bb4b199746da",
+      "stops": [
+        [
+          "427",
+          "g2:23"
+        ],
+        [
+          "105",
+          "g14:17"
+        ],
+        [
+          "295",
+          "g24:23"
+        ],
+        [
+          "530",
+          "g38:18"
+        ]
+      ],
+      "depot_block_id": "427",
+      "physical_run_vehicles": 24,
+      "policy": {
+        "max_stops": 4,
+        "departures_s": [
+          21600.0,
+          32400.0,
+          43200.0,
+          54000.0,
+          64800.0,
+          75600.0
+        ],
+        "capacity_persons": 40.0,
+        "dwell_s": 20.0,
+        "max_runs": 20000
+      },
+      "wall_s_load_and_build": 16.909620766000444,
+      "status": "PHYSICAL_ROUTES_VALIDATED"
+    },
+    {
+      "case": "coastal_weekend_s41",
+      "map_index": 11,
+      "parent_city_identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+      "source_sha256": "5c3107b147b7f71046f5958a8ad8d3f0212d0bcc5bbfcc27ebbebbd9d476756e",
+      "patch_sha256": "f22743e502442405732db7c09e5745a8f41471c9d949358d56c04b685ad419cf",
+      "inventory_identity": "559e1cc820389db787dc5ddf56895a7779851867f4f42828ecf5daa42ab127cc",
+      "stops": [
+        [
+          "6",
+          "g9:24"
+        ],
+        [
+          "139",
+          "g16:12"
+        ],
+        [
+          "331",
+          "g24:16"
+        ],
+        [
+          "496",
+          "g39:13"
+        ]
+      ],
+      "depot_block_id": "6",
+      "physical_run_vehicles": 24,
+      "policy": {
+        "max_stops": 4,
+        "departures_s": [
+          21600.0,
+          32400.0,
+          43200.0,
+          54000.0,
+          64800.0,
+          75600.0
+        ],
+        "capacity_persons": 40.0,
+        "dwell_s": 20.0,
+        "max_runs": 20000
+      },
+      "wall_s_load_and_build": 8.242932815999666,
+      "status": "PHYSICAL_ROUTES_VALIDATED"
+    },
+    {
+      "case": "valley_weekday_s7",
+      "map_index": 12,
+      "parent_city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+      "patch_sha256": "da5fa61d26316b17d09a96ae467d4fb0accc2781f17a96572607ddf423946ac7",
+      "inventory_identity": "d18efe86ece04cacbc7018b7e3267cf9720b81a3b3f3bfb718e656785c3e0255",
+      "stops": [
+        [
+          "79",
+          "g1:23"
+        ],
+        [
+          "45",
+          "g15:19"
+        ],
+        [
+          "134",
+          "g27:24"
+        ],
+        [
+          "221",
+          "g40:23"
+        ]
+      ],
+      "depot_block_id": "79",
+      "physical_run_vehicles": 24,
+      "policy": {
+        "max_stops": 4,
+        "departures_s": [
+          21600.0,
+          32400.0,
+          43200.0,
+          54000.0,
+          64800.0,
+          75600.0
+        ],
+        "capacity_persons": 40.0,
+        "dwell_s": 20.0,
+        "max_runs": 20000
+      },
+      "wall_s_load_and_build": 23.057028924002225,
+      "status": "PHYSICAL_ROUTES_VALIDATED"
+    }
+  ]
+}

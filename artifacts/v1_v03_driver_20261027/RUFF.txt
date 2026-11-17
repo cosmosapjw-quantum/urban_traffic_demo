@@ -1,0 +1,3 @@
+Command: .venv/bin/ruff check src/metroflow/v1/release_driver.py src/metroflow/v1/release_inventory.py tools/run_v1_local_acceptance.py tests/v1/test_release_driver.py tests/v1/test_release_inventory.py tests/v1/test_local_campaign_cli.py
+Exit: 0
+All checks passed!

@@ -1,0 +1,111 @@
+{
+  "schema": "metroflow.event_resolution_analysis.v1",
+  "date_utc": "2026-11-16",
+  "base_commit": "7b5e518f6c098ed831551da4e66d980addf80dd8",
+  "files": [
+    {
+      "path": "src/metroflow/packet_network.py",
+      "sha256": "49d76fec1b99cf2cf18c264617a76b8f4deedcb18d4132070a573206988fa0c8"
+    },
+    {
+      "path": "crates/metroflow-rust/src/v1_road.rs",
+      "sha256": "76499780ce7eb730d954295d3a75a47800024214604339d052d5f2f7632b7066"
+    }
+  ],
+  "conclusion_status": "derived and numerically checked counterexamples; implementation NOT_RUN",
+  "conclusion": "Discrete state progress plus a conservative omitted-time budget permits finite processing of sub-ULP positive events, but is not exact mass/rate/time preservation.",
+  "finite_progress": {
+    "potential": "initial incoming packets remaining + receiver mass/space gates above threshold",
+    "decrement_per_stalled_step_min": 1,
+    "max_stalled_steps": "N_initial_packets + 2*N_receiver_resources",
+    "conditions": [
+      "finite h>0",
+      "actual FIFO position increase or gate transition from enabled to disabled",
+      "no queue insertion into the scanned queues during this pass",
+      "receiver resources nonincreasing",
+      "transactional budget rejection"
+    ]
+  },
+  "bounds": {
+    "omitted_time": "E=sum(stalled positive h) <= N_stall*ulp(dt)/2",
+    "rate_budget": "extra nominal service opportunity <= S_i*E, receiver <= R_j*E, plus arithmetic allocation errors",
+    "fixed_trace_moment": "<= M*(E+D+U_abs); add timestamp_scale*DeltaM if masses differ",
+    "trajectory_limitation": "No general full-trajectory bound follows near discontinuous readiness or parent CDF thresholds.",
+    "accumulator": "Use conservative upward bound or certified expansion; naive += can undercount."
+  },
+  "examples": {
+    "two_head": {
+      "cursor": 1,
+      "h": 5.551115123125783e-17,
+      "rate_A": 1,
+      "mass_A": 5.551115123125783e-17,
+      "rate_B": 1,
+      "mass_B": 1,
+      "cursor_after": 1,
+      "served_B": 5.551115123125783e-17,
+      "remainder_B": 1,
+      "N": 1048576,
+      "total_extra_B_exact": "2^-34",
+      "total_extra_B": 5.820766091346741e-11,
+      "total_B_after_full_drain": 1.0000000000582077,
+      "status": "numerically checked"
+    },
+    "receiver": {
+      "initial_space": 1,
+      "small_arrival": 5.551115123125783e-17,
+      "space_after_small": 1,
+      "N": 1048576,
+      "admitted_after_later_full_fill": 1.0000000000582077,
+      "status": "numerically checked"
+    },
+    "product_underflow": {
+      "rate": 1e-200,
+      "h": 1e-200,
+      "product": 0,
+      "status": "numerically checked"
+    },
+    "absolute_time": {
+      "t": 86400,
+      "cursor": 0.125,
+      "h": 1e-20,
+      "absolute_start": 86400.125,
+      "absolute_end": 86400.125,
+      "ulp_absolute": 1.4551915228366852e-11,
+      "status": "numerically checked"
+    }
+  },
+  "alternative": {
+    "name": "local compensated clock or duration debt",
+    "benefit": "Debits omitted duration from actual horizon/future boundaries.",
+    "limit": "Does not solve unchanged large remainder or receiver subtraction; those retain independent rounding residuals."
+  },
+  "tests_run": [
+    "Standalone Python binary64 and Fraction arithmetic for listed counterexamples; no runtime implementation tests."
+  ],
+  "independent_review": "/root/queue_review confirmed two-head finite repetition and lack of horizon-rate guarantee.",
+  "owned_artifacts": [
+    "EVENT_RESOLUTION_ANALYSIS.md",
+    "EVENT_RESOLUTION_ANALYSIS.json"
+  ],
+  "implementation_changes": [],
+  "selected_refinement": {
+    "strategy": "Activate normalized hi/lo local clock only after first positive unrepresentable h with actual head retirement; legacy path unchanged otherwise.",
+    "update": "(s,e)=TwoSum(hi,h); (v,f)=TwoSum(lo,e); (hi_new,lo_new)=TwoSum(s,v)",
+    "invariant": "new_hi+new_lo=old_hi+old_lo+h-f exactly; R=sum(abs(f)) bounds discarded clock representation residual.",
+    "diagnostic_distinction": "Sum(collapsed h) is processed duration, not omitted clock error once debt is debited.",
+    "termination": "Use compensated remaining>0; hi==dt and lo<0 still has positive remaining time.",
+    "actual_value_check": {
+      "cursor": 8.221431926605018,
+      "h": 6.538054381607992e-16,
+      "dt": 10.0,
+      "first_pair": [8.221431926605018, 6.538054381607992e-16],
+      "rounded_remaining": 1.7785680733949818,
+      "pair_after_rounded_remaining": [10.0, -1.2328376614294725e-17],
+      "remaining_final_positive": 1.2328376614294725e-17,
+      "discarded_f_both_updates": 0.0,
+      "status": "numerically checked with exact Fraction identities"
+    },
+    "pair_stall_counterexample": {"hi": 1.0, "lo_exact": "2^-54", "h_exact": "2^-108", "new_pair_unchanged": true, "discarded_f_exact": "2^-108", "status": "numerically checked with exact Fraction identity"},
+    "limits": ["Time compensation does not eliminate mass-split or receiver subtraction rounding.", "h boundary differences have separate rounding error.", "Matching Python and Rust does not prove exact real-arithmetic evolution."]
+  }
+}

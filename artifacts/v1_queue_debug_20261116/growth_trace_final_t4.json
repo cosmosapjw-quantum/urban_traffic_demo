@@ -1,0 +1,1776 @@
+{
+  "status": "BLOCKED_RESOURCE",
+  "case": "valley_weekday_s7",
+  "start_s": 25240.0,
+  "end_s": 25390.0,
+  "native_threads": 4,
+  "repeat": 1,
+  "trace": true,
+  "baseline_api": false,
+  "full_campaign": "NOT_RUN",
+  "dag_progress": "19/21",
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+    "cpu": "AMD Ryzen 9 5900X 12-Core Processor",
+    "observed_memory_bytes": 33549770752,
+    "logical_cpus": 24,
+    "scientific_threads": 4
+  },
+  "source_receipt_sha256": "1aac3f126a5b1a9fa44338a7553802d69147472b1a224727d632cb213f2a79bf",
+  "source_checkpoint_sha256": "3bbe3b1b8ecbeb534b946fa31884c922cf5a6e97cdbe6212c0ba763c351df86d",
+  "native_binary_sha256": "fa08d7494dce290b2bcf48433abcd34741ebd1a5878acd485262e39cabcb8c80",
+  "baseline_commit": "92d13be4df91c15962898f3e6d4b881002998296",
+  "record_budget": 2000000,
+  "source_hashes": {
+    "Cargo.lock": "f3c87d6fb6955f8c971c4e4e1d1efe10001cf1afe54e12db09ac38cb67caa97c",
+    "crates/metroflow-rust/Cargo.toml": "52915332dc07371ebb9832967a544b471fbb09ba91dfbb1a2dc9f89144603296",
+    "tools/debug_v1_native_queues.py": "b1e18510fdca3dce8b761bfd1363f561565111fd36fde0a714380a2de76474de",
+    "crates/metroflow-rust/src/v1_calendar.rs": "b3d7402c9155205853f5380d76855e14d6f7996550356404639caaac801830c7",
+    "crates/metroflow-rust/src/v1_engine.rs": "e6d2ac9bc3b1bc37b40559ba1faeed215f9ea4ee857ee402f2dd87120935964d",
+    "crates/metroflow-rust/src/v1_history.rs": "be7c8861021cfd48c069128ae78d177df2f4c068ba808782dd8fe43863f31178",
+    "crates/metroflow-rust/src/v1_journey.rs": "1fe60ff9a7016ee65d7afe8aa8807477e4beae69d115f84e3caae95fba3ea4aa",
+    "crates/metroflow-rust/src/v1_parallel.rs": "b3dc15fc57dceef74436dba1ce0a5909fd8e05194dd32f9564d89a3953aca21d",
+    "crates/metroflow-rust/src/v1_road.rs": "aabd07470f547b424e72509eb7eca95f45932c81b48b9d3a33ca543072fa8a0d",
+    "crates/metroflow-rust/src/v1_routing.rs": "7ba1902f87ab534082cfd978cb0cf6f0b94ae70ac4908dc93c80cb8534cb35fe",
+    "src/metroflow/v1/native_calendar.py": "efb3cab28d3ccc99607234ea909077ce67a00c5b38d1984e0e15fe3fec1c65cf",
+    "src/metroflow/v1/native_engine.py": "43dce101bde635ff2e2285d2e07f8fbcc15789a94626d7d85bac62fa8c3b3ded",
+    "src/metroflow/v1/native_journey.py": "85d84a9300de6e5094062fefc6cdddb7b867725201339f88ae02abc81082877c",
+    "src/metroflow/v1/native_release_driver.py": "3a354fb113725cc4bb6ebe11ef385646e38dec72b08d2c06056d209f72bfa777",
+    "src/metroflow/v1/native_road.py": "d21c83567e650b0b82fa157e893e56456dd401a8680ef67cc0a789ee74ff90c0",
+    "src/metroflow/v1/native_routing.py": "056e9c7004b76c3c1bb057a15d0a8503403f6f24045700d1bf65b0058611adf4",
+    "src/metroflow/v1/native_static.py": "e5122aed76a15da7ec90b5aae95f67b5e15778d49053c06cf3f7d6ac804f73ad"
+  },
+  "runs": [
+    {
+      "iteration": 0,
+      "status": "BLOCKED_RESOURCE",
+      "advance_wall_s": 9.954134798026644,
+      "ticks": [
+        0.208703554,
+        0.167571372,
+        0.12730214,
+        0.088881149,
+        0.110015524,
+        0.163150339,
+        0.217127743,
+        0.216809555,
+        0.257012875,
+        0.256432354,
+        0.292973156,
+        0.331307576,
+        0.380756574,
+        0.44078626
+      ],
+      "reason": "joint journey record budget",
+      "simulated_s": 25380.0,
+      "report": {
+        "status": "WHOLE_CALENDAR_ACTIVATED",
+        "activation": "complete native preactivation; one shared occupied road",
+        "calendar": {
+          "calendar": {
+            "legs": 918450,
+            "persons": 120000.0,
+            "vehicles": 58801.0,
+            "cargo_kg": 1000,
+            "resident_stock": 100000.0,
+            "requested_workers": 50000.0,
+            "allocated_workers": 40000.0,
+            "unassigned_workers": 10000.0
+          },
+          "materialized_legs": 918450,
+          "remaining_legs": 0,
+          "remaining_amounts": {
+            "persons": 0.0,
+            "vehicles": 0.0,
+            "cargo_kg": 0
+          },
+          "execution": "NOT_RUN",
+          "scope": "exact compilation coverage; pages must enter one shared live runtime"
+        },
+        "execution": {
+          "status": "WHOLE_CALENDAR_NATIVE_EXECUTION",
+          "time_s": 25380.0,
+          "ledger": {
+            "persons": {
+              "requested": 999.9999999999875,
+              "released": 567.5749322541698,
+              "completed": 3.0251403258486773,
+              "pending": 432.4250677458177,
+              "active": 564.549791928321
+            },
+            "vehicles": {
+              "requested": 489.99999999998715,
+              "released": 453.3333333333384,
+              "completed": 1.9626610514658291,
+              "pending": 36.66666666664878,
+              "active": 451.37067228187254
+            },
+            "cargo_kg": {
+              "requested": 0.0,
+              "released": 0.0,
+              "completed": 0.0,
+              "pending": 0.0,
+              "active": 0.0
+            }
+          },
+          "released_intent_first_moments": {
+            "persons": 14351132.1620469,
+            "vehicles": 11462533.333333112,
+            "cargo_kg": 0.0
+          },
+          "service": {
+            "time_s": 25380.0,
+            "scheduled_bus_vehicles": 24,
+            "bus_road_vehicles": 0.0,
+            "bus_stop_or_finished_vehicles": 24.0,
+            "completed_bus_vehicles": 4,
+            "waiting_persons": 1.6769625,
+            "onboard_persons": 0.0,
+            "arrived_persons": 0.0,
+            "wait_person_s": 0.0,
+            "freight_completed_vehicles": 0.0,
+            "cargo_delivered_kg": 0.0,
+            "cargo_unfinished_kg": 998.825,
+            "road_released_veh": 149.1430668951155,
+            "road_completed_veh": 6.652926837567507
+          },
+          "assignment": {
+            "units": {
+              "persons": {
+                "requested": 120000.0,
+                "assigned": 1.6769625000015367,
+                "unassigned": 119998.3230375
+              },
+              "vehicles": {
+                "requested": 58801.0,
+                "assigned": 1.0659034999989672,
+                "unassigned": 58799.9340965
+              },
+              "cargo_kg": {
+                "requested": 1000.0,
+                "assigned": 998.825,
+                "unassigned": 1.175
+              }
+            },
+            "fixed_fleet_vehicles": 24,
+            "scope": "assignment, not trip completion; bus demand vehicles are occupancy equivalents"
+          },
+          "construction": {
+            "legs": 918450,
+            "physical_routes": 304856,
+            "unique_paths": 38916,
+            "unsupported_legs": 610820,
+            "road_legs": 304368,
+            "internal_legs": 3012,
+            "estimated_bytes": 1073526202,
+            "byte_budget": 6442450944,
+            "python_calendar_leg_objects": 0,
+            "road_owners": 1
+          },
+          "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+          "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+          "full_release_campaign": "NOT_RUN"
+        },
+        "full_local_acceptance": "NOT_RUN"
+      },
+      "last_advance_metrics": {
+        "tick_times_s": [],
+        "peak_records": 0,
+        "native_threads": 4,
+        "phase_metrics": {
+          "phase_wall_s": {
+            "journey_prepare": 0.060758318,
+            "service_prepare": 7.424e-06,
+            "road_step": 0.369695166,
+            "service_finish": 0.000534486,
+            "journey_finish": 0.024938975,
+            "other_tick": 0.017781517999999996
+          },
+          "binding_s": 0.045897075,
+          "successful_ticks": 0,
+          "failed_ticks": 1,
+          "native_threads": 4,
+          "scope": "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation"
+        },
+        "scope": "native complete tick including rollback copying; no Python leg snapshots"
+      },
+      "debug": {
+        "time_s": 25380.0,
+        "journey": {
+          "entering": 1833556,
+          "egress": 33033,
+          "internal": 55921,
+          "receipts": 55053,
+          "total_records": 1977563,
+          "stage_capacity": {
+            "entering": 1833556,
+            "egress": 33033,
+            "internal": 55921
+          },
+          "dense_capacity_bytes": 29390400,
+          "stage_carrier_sum": {
+            "entering": 304.22313011821683,
+            "egress": 2.5666174161748874,
+            "internal": 2.4272362659103917
+          },
+          "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+          "ready_now": {
+            "entering": 113566,
+            "egress": 0,
+            "internal": 0
+          },
+          "nonempty_histories": 1065,
+          "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+        },
+        "road": {
+          "cell_packets": 12200,
+          "pending_packets": 0,
+          "cell_parts": 685555,
+          "pending_parts": 0,
+          "packet_capacity": 12200,
+          "part_capacity": 685555,
+          "vector_capacity_bytes": 44481872,
+          "latent_entries": 1056,
+          "max_cell_parts": 8082,
+          "max_pending_parts": 0,
+          "total_records": 685555,
+          "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+        },
+        "service_last_events": 215106,
+        "execution": {
+          "native_threads": 4,
+          "scheduler": "private_rayon_pool",
+          "float_reductions": "original serial order",
+          "thread_count_in_scientific_identity": false,
+          "parallel_scope": "independent indexed work above per-kernel size thresholds"
+        },
+        "last_attempt": {
+          "start_s": 25380.0,
+          "end_s": 25390.0,
+          "phase": "journey_validation",
+          "committed": false,
+          "before": {
+            "entering": 1833556,
+            "egress": 33033,
+            "internal": 55921,
+            "receipts": 55053,
+            "total_records": 1977563
+          },
+          "after_prepare": {
+            "entering": 1876592,
+            "egress": 33033,
+            "internal": 62345,
+            "receipts": 55053,
+            "total_records": 2027023
+          },
+          "candidate": {
+            "entering": 1876592,
+            "egress": 43279,
+            "internal": 57407,
+            "receipts": 60960,
+            "total_records": 2038238
+          },
+          "generated": {
+            "entering": 158000,
+            "egress": 11215,
+            "internal": 6424
+          },
+          "retired": {
+            "entering": 114964,
+            "egress": 969,
+            "internal": 4938
+          },
+          "receipts_added": 5907,
+          "emitted_offers": 114964
+        },
+        "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+      },
+      "trace": [
+        {
+          "time_s": 25240.0,
+          "journey": {
+            "entering": 465612,
+            "egress": 2,
+            "internal": 15164,
+            "receipts": 4108,
+            "total_records": 484886,
+            "stage_capacity": {
+              "entering": 465612,
+              "egress": 2,
+              "internal": 15164
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 79.17473800982047,
+              "egress": 4.896429294303008e-07,
+              "internal": 0.6491779001123005
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 2097,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 436,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 84,
+            "pending_packets": 0,
+            "cell_parts": 8387,
+            "pending_parts": 0,
+            "packet_capacity": 84,
+            "part_capacity": 8387,
+            "vector_capacity_bytes": 755408,
+            "latent_entries": 45,
+            "max_cell_parts": 606,
+            "max_pending_parts": 0,
+            "total_records": 8387,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 1005,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": null,
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25250.0,
+          "journey": {
+            "entering": 620117,
+            "egress": 20,
+            "internal": 20088,
+            "receipts": 5608,
+            "total_records": 645833,
+            "stage_capacity": {
+              "entering": 620117,
+              "egress": 20,
+              "internal": 20088
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 105.55175617358145,
+              "egress": 8.356456183057297e-05,
+              "internal": 0.8596886213988693
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 2795,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 436,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 129,
+            "pending_packets": 0,
+            "cell_parts": 11877,
+            "pending_parts": 0,
+            "packet_capacity": 129,
+            "part_capacity": 11877,
+            "vector_capacity_bytes": 980208,
+            "latent_entries": 60,
+            "max_cell_parts": 696,
+            "max_pending_parts": 0,
+            "total_records": 11877,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 2070,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25240.0,
+            "end_s": 25250.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 465612,
+              "egress": 2,
+              "internal": 15164,
+              "receipts": 4108,
+              "total_records": 484886
+            },
+            "after_prepare": {
+              "entering": 620117,
+              "egress": 2,
+              "internal": 21588,
+              "receipts": 4108,
+              "total_records": 645815
+            },
+            "candidate": {
+              "entering": 620117,
+              "egress": 20,
+              "internal": 20088,
+              "receipts": 5608,
+              "total_records": 645833
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 18,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 3495,
+              "egress": 0,
+              "internal": 1500
+            },
+            "receipts_added": 1500,
+            "emitted_offers": 3495
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25260.0,
+          "journey": {
+            "entering": 773924,
+            "egress": 70,
+            "internal": 24540,
+            "receipts": 7580,
+            "total_records": 806114,
+            "stage_capacity": {
+              "entering": 773924,
+              "egress": 70,
+              "internal": 24540
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 131.7808710604155,
+              "egress": 0.00033444799836807894,
+              "internal": 1.0462136906475537
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 20476,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 436,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 198,
+            "pending_packets": 0,
+            "cell_parts": 16057,
+            "pending_parts": 0,
+            "packet_capacity": 198,
+            "part_capacity": 16057,
+            "vector_capacity_bytes": 1249936,
+            "latent_entries": 102,
+            "max_cell_parts": 681,
+            "max_pending_parts": 0,
+            "total_records": 16057,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 4254,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25250.0,
+            "end_s": 25260.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 620117,
+              "egress": 20,
+              "internal": 20088,
+              "receipts": 5608,
+              "total_records": 645833
+            },
+            "after_prepare": {
+              "entering": 773924,
+              "egress": 20,
+              "internal": 26512,
+              "receipts": 5608,
+              "total_records": 806064
+            },
+            "candidate": {
+              "entering": 773924,
+              "egress": 70,
+              "internal": 24540,
+              "receipts": 7580,
+              "total_records": 806114
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 50,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 4193,
+              "egress": 0,
+              "internal": 1972
+            },
+            "receipts_added": 1972,
+            "emitted_offers": 4193
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25270.0,
+          "journey": {
+            "entering": 910050,
+            "egress": 140,
+            "internal": 28764,
+            "receipts": 9780,
+            "total_records": 948734,
+            "stage_capacity": {
+              "entering": 910050,
+              "egress": 140,
+              "internal": 28764
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 154.60572331562628,
+              "egress": 0.0008024275682365507,
+              "internal": 1.2260029214646655
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 28154,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 436,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 469,
+            "pending_packets": 0,
+            "cell_parts": 36976,
+            "pending_parts": 0,
+            "packet_capacity": 469,
+            "part_capacity": 36976,
+            "vector_capacity_bytes": 2597424,
+            "latent_entries": 310,
+            "max_cell_parts": 681,
+            "max_pending_parts": 0,
+            "total_records": 36976,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 4645,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25260.0,
+            "end_s": 25270.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 773924,
+              "egress": 70,
+              "internal": 24540,
+              "receipts": 7580,
+              "total_records": 806114
+            },
+            "after_prepare": {
+              "entering": 910050,
+              "egress": 70,
+              "internal": 30964,
+              "receipts": 7580,
+              "total_records": 948664
+            },
+            "candidate": {
+              "entering": 910050,
+              "egress": 140,
+              "internal": 28764,
+              "receipts": 9780,
+              "total_records": 948734
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 70,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 21874,
+              "egress": 0,
+              "internal": 2200
+            },
+            "receipts_added": 2200,
+            "emitted_offers": 21874
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25280.0,
+          "journey": {
+            "entering": 1038498,
+            "egress": 260,
+            "internal": 32316,
+            "receipts": 12652,
+            "total_records": 1083726,
+            "stage_capacity": {
+              "entering": 1038498,
+              "egress": 260,
+              "internal": 32316
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 176.0966222870217,
+              "egress": 0.0016844014302225573,
+              "internal": 1.373239340771687
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 41422,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 436,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 814,
+            "pending_packets": 0,
+            "cell_parts": 64623,
+            "pending_parts": 0,
+            "packet_capacity": 814,
+            "part_capacity": 64623,
+            "vector_capacity_bytes": 4377872,
+            "latent_entries": 390,
+            "max_cell_parts": 896,
+            "max_pending_parts": 0,
+            "total_records": 64623,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 6579,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25270.0,
+            "end_s": 25280.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 910050,
+              "egress": 140,
+              "internal": 28764,
+              "receipts": 9780,
+              "total_records": 948734
+            },
+            "after_prepare": {
+              "entering": 1038498,
+              "egress": 140,
+              "internal": 35188,
+              "receipts": 9780,
+              "total_records": 1083606
+            },
+            "candidate": {
+              "entering": 1038498,
+              "egress": 260,
+              "internal": 32316,
+              "receipts": 12652,
+              "total_records": 1083726
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 120,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 29552,
+              "egress": 0,
+              "internal": 2872
+            },
+            "receipts_added": 2872,
+            "emitted_offers": 29552
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25290.0,
+          "journey": {
+            "entering": 1153678,
+            "egress": 529,
+            "internal": 35664,
+            "receipts": 15729,
+            "total_records": 1205600,
+            "stage_capacity": {
+              "entering": 1153678,
+              "egress": 529,
+              "internal": 35664
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 195.06484388902373,
+              "egress": 0.011074756035468737,
+              "internal": 1.5119433362486032
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 52825,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 437,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 1327,
+            "pending_packets": 0,
+            "cell_parts": 104787,
+            "pending_parts": 0,
+            "packet_capacity": 1327,
+            "part_capacity": 104787,
+            "vector_capacity_bytes": 6964784,
+            "latent_entries": 571,
+            "max_cell_parts": 940,
+            "max_pending_parts": 0,
+            "total_records": 104787,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 14276,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25280.0,
+            "end_s": 25290.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 1038498,
+              "egress": 260,
+              "internal": 32316,
+              "receipts": 12652,
+              "total_records": 1083726
+            },
+            "after_prepare": {
+              "entering": 1153678,
+              "egress": 260,
+              "internal": 38740,
+              "receipts": 12652,
+              "total_records": 1205330
+            },
+            "candidate": {
+              "entering": 1153678,
+              "egress": 529,
+              "internal": 35664,
+              "receipts": 15729,
+              "total_records": 1205600
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 270,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 42820,
+              "egress": 1,
+              "internal": 3076
+            },
+            "receipts_added": 3077,
+            "emitted_offers": 42820
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25300.0,
+          "journey": {
+            "entering": 1257455,
+            "egress": 1016,
+            "internal": 38760,
+            "receipts": 19064,
+            "total_records": 1316295,
+            "stage_capacity": {
+              "entering": 1257455,
+              "egress": 1016,
+              "internal": 38760
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 211.9181591844656,
+              "egress": 0.03647800844948978,
+              "internal": 1.6471783049863156
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 56319,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 443,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 2027,
+            "pending_packets": 0,
+            "cell_parts": 155485,
+            "pending_parts": 0,
+            "packet_capacity": 2027,
+            "part_capacity": 155485,
+            "vector_capacity_bytes": 10231856,
+            "latent_entries": 770,
+            "max_cell_parts": 1308,
+            "max_pending_parts": 0,
+            "total_records": 155485,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 27949,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25290.0,
+            "end_s": 25300.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 1153678,
+              "egress": 529,
+              "internal": 35664,
+              "receipts": 15729,
+              "total_records": 1205600
+            },
+            "after_prepare": {
+              "entering": 1257455,
+              "egress": 529,
+              "internal": 42088,
+              "receipts": 15729,
+              "total_records": 1315801
+            },
+            "candidate": {
+              "entering": 1257455,
+              "egress": 1016,
+              "internal": 38760,
+              "receipts": 19064,
+              "total_records": 1316295
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 494,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 54223,
+              "egress": 7,
+              "internal": 3328
+            },
+            "receipts_added": 3335,
+            "emitted_offers": 54223
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25310.0,
+          "journey": {
+            "entering": 1357738,
+            "egress": 1903,
+            "internal": 41504,
+            "receipts": 22760,
+            "total_records": 1423905,
+            "stage_capacity": {
+              "entering": 1357738,
+              "egress": 1903,
+              "internal": 41504
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 228.19865605698664,
+              "egress": 0.09214325584930777,
+              "internal": 1.7701288904874628
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 70508,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 451,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 2853,
+            "pending_packets": 0,
+            "cell_parts": 208740,
+            "pending_parts": 0,
+            "packet_capacity": 2853,
+            "part_capacity": 208740,
+            "vector_capacity_bytes": 13666608,
+            "latent_entries": 830,
+            "max_cell_parts": 1589,
+            "max_pending_parts": 0,
+            "total_records": 208740,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 44755,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25300.0,
+            "end_s": 25310.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 1257455,
+              "egress": 1016,
+              "internal": 38760,
+              "receipts": 19064,
+              "total_records": 1316295
+            },
+            "after_prepare": {
+              "entering": 1357738,
+              "egress": 1016,
+              "internal": 45184,
+              "receipts": 19064,
+              "total_records": 1423002
+            },
+            "candidate": {
+              "entering": 1357738,
+              "egress": 1903,
+              "internal": 41504,
+              "receipts": 22760,
+              "total_records": 1423905
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 903,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 57717,
+              "egress": 16,
+              "internal": 3680
+            },
+            "receipts_added": 3696,
+            "emitted_offers": 57717
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25320.0,
+          "journey": {
+            "entering": 1443832,
+            "egress": 3459,
+            "internal": 44037,
+            "receipts": 26681,
+            "total_records": 1518009,
+            "stage_capacity": {
+              "entering": 1443832,
+              "egress": 3459,
+              "internal": 44037
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 241.9711070312422,
+              "egress": 0.20414596336026142,
+              "internal": 1.8861708775532793
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 76328,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 466,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 3778,
+            "pending_packets": 0,
+            "cell_parts": 262130,
+            "pending_parts": 0,
+            "packet_capacity": 3778,
+            "part_capacity": 262130,
+            "vector_capacity_bytes": 17113168,
+            "latent_entries": 909,
+            "max_cell_parts": 2270,
+            "max_pending_parts": 0,
+            "total_records": 262130,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 64729,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25310.0,
+            "end_s": 25320.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 1357738,
+              "egress": 1903,
+              "internal": 41504,
+              "receipts": 22760,
+              "total_records": 1423905
+            },
+            "after_prepare": {
+              "entering": 1443832,
+              "egress": 1903,
+              "internal": 47928,
+              "receipts": 22760,
+              "total_records": 1516423
+            },
+            "candidate": {
+              "entering": 1443832,
+              "egress": 3459,
+              "internal": 44037,
+              "receipts": 26681,
+              "total_records": 1518009
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 1586,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 71906,
+              "egress": 30,
+              "internal": 3891
+            },
+            "receipts_added": 3921,
+            "emitted_offers": 71906
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25330.0,
+          "journey": {
+            "entering": 1524106,
+            "egress": 5700,
+            "internal": 46458,
+            "receipts": 30740,
+            "total_records": 1607004,
+            "stage_capacity": {
+              "entering": 1524106,
+              "egress": 5700,
+              "internal": 46458
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 254.90141558479374,
+              "egress": 0.3723023034118924,
+              "internal": 1.9927568958150277
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 80050,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 522,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 4850,
+            "pending_packets": 0,
+            "cell_parts": 319519,
+            "pending_parts": 0,
+            "packet_capacity": 4850,
+            "part_capacity": 319519,
+            "vector_capacity_bytes": 20820368,
+            "latent_entries": 967,
+            "max_cell_parts": 3498,
+            "max_pending_parts": 0,
+            "total_records": 319519,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 88125,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25320.0,
+            "end_s": 25330.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 1443832,
+              "egress": 3459,
+              "internal": 44037,
+              "receipts": 26681,
+              "total_records": 1518009
+            },
+            "after_prepare": {
+              "entering": 1524106,
+              "egress": 3459,
+              "internal": 50461,
+              "receipts": 26681,
+              "total_records": 1604707
+            },
+            "candidate": {
+              "entering": 1524106,
+              "egress": 5700,
+              "internal": 46458,
+              "receipts": 30740,
+              "total_records": 1607004
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 2297,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 77726,
+              "egress": 56,
+              "internal": 4003
+            },
+            "receipts_added": 4059,
+            "emitted_offers": 77726
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25340.0,
+          "journey": {
+            "entering": 1600658,
+            "egress": 8729,
+            "internal": 48716,
+            "receipts": 34999,
+            "total_records": 1693102,
+            "stage_capacity": {
+              "entering": 1600658,
+              "egress": 8729,
+              "internal": 48716
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 267.2326495322761,
+              "egress": 0.6193086164833257,
+              "internal": 2.092491527842102
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 84472,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 591,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 6043,
+            "pending_packets": 0,
+            "cell_parts": 384984,
+            "pending_parts": 0,
+            "packet_capacity": 6043,
+            "part_capacity": 384984,
+            "vector_capacity_bytes": 25048304,
+            "latent_entries": 1000,
+            "max_cell_parts": 5264,
+            "max_pending_parts": 0,
+            "total_records": 384984,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 109878,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25330.0,
+            "end_s": 25340.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 1524106,
+              "egress": 5700,
+              "internal": 46458,
+              "receipts": 30740,
+              "total_records": 1607004
+            },
+            "after_prepare": {
+              "entering": 1600658,
+              "egress": 5700,
+              "internal": 52882,
+              "receipts": 30740,
+              "total_records": 1689980
+            },
+            "candidate": {
+              "entering": 1600658,
+              "egress": 8729,
+              "internal": 48716,
+              "receipts": 34999,
+              "total_records": 1693102
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 3122,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 81448,
+              "egress": 93,
+              "internal": 4166
+            },
+            "receipts_added": 4259,
+            "emitted_offers": 81448
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25350.0,
+          "journey": {
+            "entering": 1672788,
+            "egress": 12887,
+            "internal": 50674,
+            "receipts": 39637,
+            "total_records": 1775986,
+            "stage_capacity": {
+              "entering": 1672788,
+              "egress": 12887,
+              "internal": 50674
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 278.80933927202983,
+              "egress": 0.9484871524346918,
+              "internal": 2.183420046108766
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 94015,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 653,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 7358,
+            "pending_packets": 0,
+            "cell_parts": 454192,
+            "pending_parts": 0,
+            "packet_capacity": 7358,
+            "part_capacity": 454192,
+            "vector_capacity_bytes": 29519696,
+            "latent_entries": 1023,
+            "max_cell_parts": 5939,
+            "max_pending_parts": 0,
+            "total_records": 454192,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 133053,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25340.0,
+            "end_s": 25350.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 1600658,
+              "egress": 8729,
+              "internal": 48716,
+              "receipts": 34999,
+              "total_records": 1693102
+            },
+            "after_prepare": {
+              "entering": 1672788,
+              "egress": 8729,
+              "internal": 55140,
+              "receipts": 34999,
+              "total_records": 1771656
+            },
+            "candidate": {
+              "entering": 1672788,
+              "egress": 12887,
+              "internal": 50674,
+              "receipts": 39637,
+              "total_records": 1775986
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 4330,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 85870,
+              "egress": 172,
+              "internal": 4466
+            },
+            "receipts_added": 4638,
+            "emitted_offers": 85870
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25360.0,
+          "journey": {
+            "entering": 1735375,
+            "egress": 18164,
+            "internal": 52520,
+            "receipts": 44479,
+            "total_records": 1850538,
+            "stage_capacity": {
+              "entering": 1735375,
+              "egress": 18164,
+              "internal": 52520
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 288.72473516284896,
+              "egress": 1.3796942310592757,
+              "internal": 2.2709408334239254
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 104020,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 735,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 8860,
+            "pending_packets": 0,
+            "cell_parts": 524628,
+            "pending_parts": 0,
+            "packet_capacity": 8860,
+            "part_capacity": 524628,
+            "vector_capacity_bytes": 34075664,
+            "latent_entries": 1040,
+            "max_cell_parts": 5489,
+            "max_pending_parts": 0,
+            "total_records": 524628,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 161749,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25350.0,
+            "end_s": 25360.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 1672788,
+              "egress": 12887,
+              "internal": 50674,
+              "receipts": 39637,
+              "total_records": 1775986
+            },
+            "after_prepare": {
+              "entering": 1735375,
+              "egress": 12887,
+              "internal": 57098,
+              "receipts": 39637,
+              "total_records": 1844997
+            },
+            "candidate": {
+              "entering": 1735375,
+              "egress": 18164,
+              "internal": 52520,
+              "receipts": 44479,
+              "total_records": 1850538
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 5541,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 95413,
+              "egress": 264,
+              "internal": 4578
+            },
+            "receipts_added": 4842,
+            "emitted_offers": 95413
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25370.0,
+          "journey": {
+            "entering": 1787957,
+            "egress": 24761,
+            "internal": 54288,
+            "receipts": 49597,
+            "total_records": 1916603,
+            "stage_capacity": {
+              "entering": 1787957,
+              "egress": 24761,
+              "internal": 54288
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 296.96587616018365,
+              "egress": 1.9202351672243967,
+              "internal": 2.3548224623178156
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 111003,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 897,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 10484,
+            "pending_packets": 0,
+            "cell_parts": 601452,
+            "pending_parts": 0,
+            "packet_capacity": 10484,
+            "part_capacity": 601452,
+            "vector_capacity_bytes": 39044368,
+            "latent_entries": 1049,
+            "max_cell_parts": 7005,
+            "max_pending_parts": 0,
+            "total_records": 601452,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 186155,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25360.0,
+            "end_s": 25370.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 1735375,
+              "egress": 18164,
+              "internal": 52520,
+              "receipts": 44479,
+              "total_records": 1850538
+            },
+            "after_prepare": {
+              "entering": 1787957,
+              "egress": 18164,
+              "internal": 58944,
+              "receipts": 44479,
+              "total_records": 1909544
+            },
+            "candidate": {
+              "entering": 1787957,
+              "egress": 24761,
+              "internal": 54288,
+              "receipts": 49597,
+              "total_records": 1916603
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 7059,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 105418,
+              "egress": 462,
+              "internal": 4656
+            },
+            "receipts_added": 5118,
+            "emitted_offers": 105418
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25380.0,
+          "journey": {
+            "entering": 1833556,
+            "egress": 33033,
+            "internal": 55921,
+            "receipts": 55053,
+            "total_records": 1977563,
+            "stage_capacity": {
+              "entering": 1833556,
+              "egress": 33033,
+              "internal": 55921
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 304.22313011821683,
+              "egress": 2.5666174161748874,
+              "internal": 2.4272362659103917
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 113566,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 1065,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 12200,
+            "pending_packets": 0,
+            "cell_parts": 685555,
+            "pending_parts": 0,
+            "packet_capacity": 12200,
+            "part_capacity": 685555,
+            "vector_capacity_bytes": 44481872,
+            "latent_entries": 1056,
+            "max_cell_parts": 8082,
+            "max_pending_parts": 0,
+            "total_records": 685555,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 215106,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25370.0,
+            "end_s": 25380.0,
+            "phase": "committed",
+            "committed": true,
+            "before": {
+              "entering": 1787957,
+              "egress": 24761,
+              "internal": 54288,
+              "receipts": 49597,
+              "total_records": 1916603
+            },
+            "after_prepare": {
+              "entering": 1833556,
+              "egress": 24761,
+              "internal": 60712,
+              "receipts": 49597,
+              "total_records": 1968626
+            },
+            "candidate": {
+              "entering": 1833556,
+              "egress": 33033,
+              "internal": 55921,
+              "receipts": 55053,
+              "total_records": 1977563
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 8937,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 112401,
+              "egress": 665,
+              "internal": 4791
+            },
+            "receipts_added": 5456,
+            "emitted_offers": 112401
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        },
+        {
+          "time_s": 25380.0,
+          "journey": {
+            "entering": 1833556,
+            "egress": 33033,
+            "internal": 55921,
+            "receipts": 55053,
+            "total_records": 1977563,
+            "stage_capacity": {
+              "entering": 1833556,
+              "egress": 33033,
+              "internal": 55921
+            },
+            "dense_capacity_bytes": 29390400,
+            "stage_carrier_sum": {
+              "entering": 304.22313011821683,
+              "egress": 2.5666174161748874,
+              "internal": 2.4272362659103917
+            },
+            "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+            "ready_now": {
+              "entering": 113566,
+              "egress": 0,
+              "internal": 0
+            },
+            "nonempty_histories": 1065,
+            "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+          },
+          "road": {
+            "cell_packets": 12200,
+            "pending_packets": 0,
+            "cell_parts": 685555,
+            "pending_parts": 0,
+            "packet_capacity": 12200,
+            "part_capacity": 685555,
+            "vector_capacity_bytes": 44481872,
+            "latent_entries": 1056,
+            "max_cell_parts": 8082,
+            "max_pending_parts": 0,
+            "total_records": 685555,
+            "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+          },
+          "service_last_events": 215106,
+          "execution": {
+            "native_threads": 4,
+            "scheduler": "private_rayon_pool",
+            "float_reductions": "original serial order",
+            "thread_count_in_scientific_identity": false,
+            "parallel_scope": "independent indexed work above per-kernel size thresholds"
+          },
+          "last_attempt": {
+            "start_s": 25380.0,
+            "end_s": 25390.0,
+            "phase": "journey_validation",
+            "committed": false,
+            "before": {
+              "entering": 1833556,
+              "egress": 33033,
+              "internal": 55921,
+              "receipts": 55053,
+              "total_records": 1977563
+            },
+            "after_prepare": {
+              "entering": 1876592,
+              "egress": 33033,
+              "internal": 62345,
+              "receipts": 55053,
+              "total_records": 2027023
+            },
+            "candidate": {
+              "entering": 1876592,
+              "egress": 43279,
+              "internal": 57407,
+              "receipts": 60960,
+              "total_records": 2038238
+            },
+            "generated": {
+              "entering": 158000,
+              "egress": 11215,
+              "internal": 6424
+            },
+            "retired": {
+              "entering": 114964,
+              "egress": 969,
+              "internal": 4938
+            },
+            "receipts_added": 5907,
+            "emitted_offers": 114964
+          },
+          "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+        }
+      ],
+      "checkpoint_sha256": "0886dc78f39ecd404fcea8b11a87de651e1d20447af2f7132ef954911eed2cd8",
+      "seed_byte_unchanged": true
+    }
+  ],
+  "execution_config": {
+    "native_threads": 4,
+    "scheduler": "private_rayon_pool",
+    "float_reductions": "original serial order",
+    "thread_count_in_scientific_identity": false,
+    "parallel_scope": "independent indexed work above per-kernel size thresholds"
+  },
+  "seed_debug": {
+    "time_s": 25240.0,
+    "journey": {
+      "entering": 465612,
+      "egress": 2,
+      "internal": 15164,
+      "receipts": 4108,
+      "total_records": 484886,
+      "stage_capacity": {
+        "entering": 465612,
+        "egress": 2,
+        "internal": 15164
+      },
+      "dense_capacity_bytes": 29390400,
+      "stage_carrier_sum": {
+        "entering": 79.17473800982047,
+        "egress": 4.896429294303008e-07,
+        "internal": 0.6491779001123005
+      },
+      "carrier_sum_units": "heterogeneous per-leg carrier units; not a physical total",
+      "ready_now": {
+        "entering": 2097,
+        "egress": 0,
+        "internal": 0
+      },
+      "nonempty_histories": 436,
+      "capacity_scope": "Vec reserved storage; excludes receipt blocks, allocator and shared static state"
+    },
+    "road": {
+      "cell_packets": 84,
+      "pending_packets": 0,
+      "cell_parts": 8387,
+      "pending_parts": 0,
+      "packet_capacity": 84,
+      "part_capacity": 8387,
+      "vector_capacity_bytes": 755408,
+      "latent_entries": 45,
+      "max_cell_parts": 606,
+      "max_pending_parts": 0,
+      "total_records": 8387,
+      "capacity_scope": "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state"
+    },
+    "service_last_events": 1005,
+    "execution": {
+      "native_threads": 4,
+      "scheduler": "private_rayon_pool",
+      "float_reductions": "original serial order",
+      "thread_count_in_scientific_identity": false,
+      "parallel_scope": "independent indexed work above per-kernel size thresholds"
+    },
+    "last_attempt": null,
+    "last_attempt_scope": "latest native call diagnostic, separate from supplied immutable snapshot"
+  },
+  "repeated_byte_identity": true,
+  "median_advance_wall_s": 9.954134798026644,
+  "peak_rss_bytes": 1075281920
+}

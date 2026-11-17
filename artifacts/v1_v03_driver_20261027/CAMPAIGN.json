@@ -1,0 +1,141 @@
+{
+  "status": "BLOCKED",
+  "receipts": [
+    {
+      "case": "river_weekday_s17",
+      "status": "BLOCKED_RESOURCE",
+      "simulated_s": 0,
+      "environment": {
+        "python": "3.12.14",
+        "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+        "cpu": "x86_64",
+        "threads": 1
+      },
+      "step_s": 10.0,
+      "reason": "whole calendar exceeds preactivation leg budget; no demand omitted",
+      "last_valid": {
+        "status": "BLOCKED_RESOURCE",
+        "city_identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+        "cursor": {
+          "schedule_identity": "de8ad37147c083cbf30dba5550515fc6547609be6f9e23750379cea66f0bfc4e",
+          "offset": 0,
+          "materialized_persons": 0.0,
+          "materialized_vehicles": 0.0,
+          "materialized_cargo_kg": 0.0
+        },
+        "calendar": {
+          "legs": 5093765,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 50000.0,
+          "allocated_workers": 40000.0,
+          "unassigned_workers": 10000.0
+        },
+        "remaining_legs": 5093765,
+        "remaining_amounts": {
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000
+        },
+        "units": "calendar amounts count outward and return legs separately",
+        "simulated_s": 0,
+        "scope": "no calendar leg enumerated and no road state created"
+      },
+      "wall_s": 18.68212756200228,
+      "peak_rss_bytes": 56459264
+    },
+    {
+      "case": "coastal_weekend_s41",
+      "status": "BLOCKED_RESOURCE",
+      "simulated_s": 0,
+      "environment": {
+        "python": "3.12.14",
+        "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+        "cpu": "x86_64",
+        "threads": 1
+      },
+      "step_s": 10.0,
+      "reason": "whole calendar exceeds preactivation leg budget; no demand omitted",
+      "last_valid": {
+        "status": "BLOCKED_RESOURCE",
+        "city_identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+        "cursor": {
+          "schedule_identity": "f2d23e4cd90a16d1d62dbaf26124dd159aa766d413e860c34d218cdd7d9ae870",
+          "offset": 0,
+          "materialized_persons": 0.0,
+          "materialized_vehicles": 0.0,
+          "materialized_cargo_kg": 0.0
+        },
+        "calendar": {
+          "legs": 2449750,
+          "persons": 100000.0,
+          "vehicles": 49001.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 10000.0,
+          "allocated_workers": 10000.0,
+          "unassigned_workers": 0.0
+        },
+        "remaining_legs": 2449750,
+        "remaining_amounts": {
+          "persons": 100000.0,
+          "vehicles": 49001.0,
+          "cargo_kg": 1000
+        },
+        "units": "calendar amounts count outward and return legs separately",
+        "simulated_s": 0,
+        "scope": "no calendar leg enumerated and no road state created"
+      },
+      "wall_s": 10.978451341001346,
+      "peak_rss_bytes": 52252672
+    },
+    {
+      "case": "valley_weekday_s7",
+      "status": "BLOCKED_RESOURCE",
+      "simulated_s": 0,
+      "environment": {
+        "python": "3.12.14",
+        "platform": "Linux-6.18.55-x86_64-with-glibc2.39",
+        "cpu": "x86_64",
+        "threads": 1
+      },
+      "step_s": 10.0,
+      "reason": "whole calendar exceeds preactivation leg budget; no demand omitted",
+      "last_valid": {
+        "status": "BLOCKED_RESOURCE",
+        "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+        "cursor": {
+          "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+          "offset": 0,
+          "materialized_persons": 0.0,
+          "materialized_vehicles": 0.0,
+          "materialized_cargo_kg": 0.0
+        },
+        "calendar": {
+          "legs": 918450,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 50000.0,
+          "allocated_workers": 40000.0,
+          "unassigned_workers": 10000.0
+        },
+        "remaining_legs": 918450,
+        "remaining_amounts": {
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000
+        },
+        "units": "calendar amounts count outward and return legs separately",
+        "simulated_s": 0,
+        "scope": "no calendar leg enumerated and no road state created"
+      },
+      "wall_s": 17.24186452899812,
+      "peak_rss_bytes": 38535168
+    }
+  ],
+  "full_ci_and_integration": "DEFERRED_BY_USER"
+}

@@ -1,0 +1,41 @@
+{
+  "branch": "v1/v03-acceptance-20261027",
+  "original_branch_head": "7b5e518f6c098ed831551da4e66d980addf80dd8",
+  "candidates": [
+    {
+      "commit": "1d3de56b675b6a09636c407febd5daf312c895da",
+      "tree": "d00279cab9a641ae07855dc1d13cf4482851451f",
+      "source_manifest": "SOURCE_MANIFEST_NUMERIC.json",
+      "native_binary_sha256": "b8a133526c1bbef038e9a20b3f4394f2091f9f892eb0fe46122068d413a6a9a2",
+      "scoped_tests": 213,
+      "local_outcome": "Prior numeric stall resolved; owner quota at25520s",
+      "purpose": "Preserve the exact tested pre-compaction/quarter-quota candidate and checkpoint interpretation."
+    },
+    {
+      "commit": "27e426fc64452ae2492828653f94f2506b8881fc",
+      "tree": "2f95e953563e8e15f126b46b6eb6f85358af8e78",
+      "source_manifest": "SOURCE_MANIFEST_FINAL.json",
+      "native_binary_sha256": "0cd2e490e9b1323b88c1dff4247dffbcf75b5a667738df7d1e29736f2a0be466",
+      "scoped_tests": 236,
+      "local_outcome": "BLOCKED_OWNER_QUOTA_ALL_THREE_CASES",
+      "purpose": "Common packet intervals, packed finite endpoints, equal owner quotas; frozen source files verified against exact commit before local execution.",
+      "campaign": "final_campaign/CAMPAIGN.json",
+      "full_day_runs_completed": 0
+    },
+    {
+      "commit": "532effe32f90c20cf3cbc1de350d0e7267f52584",
+      "tree": "ffa7017a70733acf68dd24c506cb6c104cf5a99f",
+      "source_manifest": "SOURCE_MANIFEST_BUDGET_FINAL.json",
+      "native_binary_sha256": "3e06969385dffdb9834c56d2cf0831e67e07e618df4f1f2169cff974aa9a3972",
+      "scoped_tests": 251,
+      "local_outcome": "BLOCKED_SHARED_WORKING_BUDGET_ALL_THREE_CASES",
+      "campaign": "runtime_budget_campaign/CAMPAIGN.json",
+      "full_day_runs_completed": 0,
+      "purpose": "Retained capacities and shared phase budgets; commit admission includes canonical checkpoint decode headroom. Physical thresholds unchanged."
+    }
+  ],
+  "full_ci_integration": "DEFERRED_BY_USER",
+  "dag_completed": 19,
+  "dag_total": 21,
+  "publication_contract": "Source candidates are immutable evidence identities. Publication is verified against the remote branch ref after the final evidence commit."
+}

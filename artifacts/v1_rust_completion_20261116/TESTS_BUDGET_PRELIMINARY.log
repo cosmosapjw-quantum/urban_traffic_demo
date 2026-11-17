@@ -1,0 +1,60 @@
+.............................F.......................................... [ 29%]
+.......................................................................F [ 59%]
+........................................................................ [ 89%]
+.........................                                                [100%]
+=================================== FAILURES ===================================
+______ test_shared_budget_failure_resets_phase_quotas_for_load_and_replay ______
+
+tmp_path = PosixPath('/tmp/pytest-of-cosmosapjw/pytest-324/test_shared_budget_failure_res0')
+
+    def test_shared_budget_failure_resets_phase_quotas_for_load_and_replay(tmp_path):
+        from dataclasses import replace
+        from _metroflow_rust import NativeWholeEngine
+        from metroflow.v1.journey import DelayLaw
+        from metroflow.v1.schedules import DepartureProfile,DepartureWindow
+        city,legs,_=small_fixture()
+        internal=replace(legs[0],destination=legs[0].origin,
+            intrazonal=DelayLaw(tuple((10000.+i,1/2000) for i in range(2000))),
+            departures=DepartureProfile((DepartureWindow(0,200,1.),)))
+        _,calendar,payload=make_native(city,(internal,))
+        total=70*1024**2
+        native=NativeWholeEngine(calendar,payload,total,storage_policy='bounded_bytes_v1')
+        initial=tmp_path/'initial.bin'
+        native.save(str(initial),native.initial())
+        with pytest.raises(MemoryError,match='budget'):
+            native.advance(native.initial(),200)
+        valid=native.snapshot()
+        assert 0<valid.time_s<200
+        last=tmp_path/'last.bin'
+        native.save(str(last),valid)
+        expected=last.read_bytes()
+        fresh=NativeWholeEngine(calendar,payload,total,storage_policy='bounded_bytes_v1')
+>       restored=fresh.load(str(last))
+                 ^^^^^^^^^^^^^^^^^^^^^
+E       MemoryError: native capture/validation storage budget exceeded: required_bytes=74687434, budget_bytes=73400320
+
+tests/v1/test_native_campaign_contract.py:148: MemoryError
+____ test_static_dense_and_dynamic_journey_storage_have_separate_lifetimes _____
+
+    def test_static_dense_and_dynamic_journey_storage_have_separate_lifetimes():
+        core = journey(law_rows=4)
+        static, dense, dynamic = core.storage_accounting()
+        assert static > 0 and dense > 0 and dynamic == 0
+        initial = core.snapshot()
+        for end in (1., 2.):
+            core.prepare()
+            core.finish(end, [], [], [], [], [], [], [])
+        later = core.storage_accounting()
+        assert later[:2] == (static, dense) and later[2] > 0
+        core.restore(initial)
+>       assert core.storage_accounting() == (static, dense, 0)
+E       assert (1330, 608, 0) == (1330, 576, 0)
+E         
+E         At index 1 diff: 608 != 576
+E         Use -v to get more diff
+
+tests/v1/test_native_retained_accounting.py:50: AssertionError
+=========================== short test summary info ============================
+FAILED tests/v1/test_native_campaign_contract.py::test_shared_budget_failure_resets_phase_quotas_for_load_and_replay
+FAILED tests/v1/test_native_retained_accounting.py::test_static_dense_and_dynamic_journey_storage_have_separate_lifetimes
+2 failed, 239 passed in 9.63s

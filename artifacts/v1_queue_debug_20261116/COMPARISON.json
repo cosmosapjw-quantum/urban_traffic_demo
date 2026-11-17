@@ -1,0 +1,157 @@
+{
+  "baseline_commit": "92d13be4df91c15962898f3e6d4b881002998296",
+  "input_checkpoint_sha256": "3bbe3b1b8ecbeb534b946fa31884c922cf5a6e97cdbe6212c0ba763c351df86d",
+  "output_checkpoint_sha256": "ef4719a822ac85763679061a5ebd1d431e0edd9cec4e105a15ad1a5f7d4d884f",
+  "replay_interval_s": [
+    25240.0,
+    25340.0
+  ],
+  "baseline": {
+    "median_advance_s": 2.430731566011673,
+    "samples_s": [
+      2.47287744100322,
+      2.333718879992375,
+      2.430731566011673
+    ],
+    "process_peak_rss_bytes": 860340224
+  },
+  "final_worker_results": [
+    {
+      "workers": 1,
+      "median_advance_s": 1.792937117992551,
+      "samples_s": [
+        1.792937117992551,
+        1.8002944579930045,
+        1.7698350029968424
+      ],
+      "process_peak_rss_bytes": 676192256,
+      "same_checkpoint_as_baseline": true,
+      "same_report_as_baseline": true,
+      "phase_medians_s": {
+        "journey_prepare": 0.36523531099999995,
+        "service_prepare": 7.701300000000002e-05,
+        "road_step": 0.7552833790000001,
+        "service_finish": 0.001109846,
+        "journey_finish": 0.243373676,
+        "other_tick": 0.0937867700000001
+      }
+    },
+    {
+      "workers": 2,
+      "median_advance_s": 2.8771363989944803,
+      "samples_s": [
+        1.9093488799990155,
+        2.8771363989944803,
+        3.037026979000075
+      ],
+      "process_peak_rss_bytes": 820449280,
+      "same_checkpoint_as_baseline": true,
+      "same_report_as_baseline": true,
+      "phase_medians_s": {
+        "journey_prepare": 0.494104964,
+        "service_prepare": 8.1411e-05,
+        "road_step": 1.176524398,
+        "service_finish": 0.0015811240000000002,
+        "journey_finish": 0.312052404,
+        "other_tick": 0.10444683100000018
+      }
+    },
+    {
+      "workers": 4,
+      "median_advance_s": 1.7312152369995601,
+      "samples_s": [
+        1.8557519539899658,
+        1.7011676949914545,
+        1.7312152369995601
+      ],
+      "process_peak_rss_bytes": 822259712,
+      "same_checkpoint_as_baseline": true,
+      "same_report_as_baseline": true,
+      "phase_medians_s": {
+        "journey_prepare": 0.404233155,
+        "service_prepare": 7.9277e-05,
+        "road_step": 0.749183912,
+        "service_finish": 0.0011216800000000001,
+        "journey_finish": 0.159473614,
+        "other_tick": 0.07686966700000003
+      }
+    },
+    {
+      "workers": 8,
+      "median_advance_s": 1.7491257340006996,
+      "samples_s": [
+        1.7491257340006996,
+        1.6343980489909882,
+        3.783730879993527
+      ],
+      "process_peak_rss_bytes": 779333632,
+      "same_checkpoint_as_baseline": true,
+      "same_report_as_baseline": true,
+      "phase_medians_s": {
+        "journey_prepare": 0.39999816000000005,
+        "service_prepare": 8.9846e-05,
+        "road_step": 0.7415873660000001,
+        "service_finish": 0.00107631,
+        "journey_finish": 0.15413553200000002,
+        "other_tick": 0.08201667899999987
+      }
+    }
+  ],
+  "serial_elapsed_reduction_percent": 26.238785760519434,
+  "serial_process_peak_rss_reduction_percent": 21.40408676277351,
+  "debug": {
+    "last_valid_s": 25380.0,
+    "last_valid_counts": {
+      "entering": 1833556,
+      "egress": 33033,
+      "internal": 55921,
+      "receipts": 55053,
+      "total_records": 1977563
+    },
+    "entering_percent": 92.71795639380389,
+    "receipt_percent": 2.7838809686467636,
+    "failed_attempt": {
+      "start_s": 25380.0,
+      "end_s": 25390.0,
+      "phase": "journey_validation",
+      "committed": false,
+      "before": {
+        "entering": 1833556,
+        "egress": 33033,
+        "internal": 55921,
+        "receipts": 55053,
+        "total_records": 1977563
+      },
+      "after_prepare": {
+        "entering": 1876592,
+        "egress": 33033,
+        "internal": 62345,
+        "receipts": 55053,
+        "total_records": 2027023
+      },
+      "candidate": {
+        "entering": 1876592,
+        "egress": 43279,
+        "internal": 57407,
+        "receipts": 60960,
+        "total_records": 2038238
+      },
+      "generated": {
+        "entering": 158000,
+        "egress": 11215,
+        "internal": 6424
+      },
+      "retired": {
+        "entering": 114964,
+        "egress": 969,
+        "internal": 4938
+      },
+      "receipts_added": 5907,
+      "emitted_offers": 114964
+    },
+    "verified_stage_balances": 15,
+    "failure_checkpoint_matches_baseline": true,
+    "failure_checkpoint_sha256": "0886dc78f39ecd404fcea8b11a87de651e1d20447af2f7132ef954911eed2cd8"
+  },
+  "interpretation": "Delayed entering-stage population dominates the bounded observed failure; no missing retirement found in traced interval. Copy/capacity fixes preserve every raw record. Parallel output is deterministic; speedup is not robust or proportional to workers. Shared-host timings are scoped observations."
+}

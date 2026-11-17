@@ -1,0 +1,15 @@
+{
+  "case": "river_weekday_s17",
+  "run_label": "river_weekday_s17.run1",
+  "status": "BLOCKED_RESOURCE",
+  "simulated_s": 25210.0,
+  "wall_s": 573.1839366289933,
+  "peak_rss_bytes": 2172362752,
+  "peak_tracked_records": 25,
+  "completed_tick_samples": 2520,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "candidate_source_sha256": "59d6c7154d7b0e2113b9755de96aa611bf8a56843309cd985a08184f2c7b01be",
+  "git_commit": "27e426fc64452ae2492828653f94f2506b8881fc",
+  "native_binary_sha256": "0cd2e490e9b1323b88c1dff4247dffbcf75b5a667738df7d1e29736f2a0be466",
+  "driver_identity": "508ca725ac1d7ebeaa58f9b6e035a7deefb59dd0aa34fe3f4abcf17cebc3a068"
+}

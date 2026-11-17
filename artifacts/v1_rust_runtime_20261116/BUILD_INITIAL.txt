@@ -1,0 +1,9 @@
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_rust_20261116/crates/metroflow-rust)
+error: required arguments after an `Option<_>` argument are ambiguous
+       = help: add a `#[pyo3(signature)]` annotation on this function to unambiguously specify the default values for all optional parameters
+   --> crates/metroflow-rust/src/v1_road.rs:214:240
+    |
+214 | ..._budget:Option<usize>,intervals:bool)->PyResult<Self>{
+    |                                    ^^^^
+
+error: could not compile `metroflow-rust` (lib) due to 1 previous error
