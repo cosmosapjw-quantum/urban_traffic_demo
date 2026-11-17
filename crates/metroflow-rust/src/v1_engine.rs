@@ -162,6 +162,51 @@ impl NativeRouteMetrics {
     }
 }
 
+/// Per-leg stage mass, fed to `Sum` in the original row order (j.1, j.2, j.3).
+/// Sorting the key (leg << 32 | global row index) in place groups rows by leg
+/// while keeping their original order within each leg, so every leg receives
+/// exactly the same `Sum::add` sequence as the former per-key HashMap entry.
+/// Workspace: 16 bytes per stage row plus one dense f64 per leg; no map growth.
+pub(crate) const STAGE_SUM_ROW_BYTES: usize = std::mem::size_of::<(u64, f64)>();
+fn stage_sums(j: &Journey, legs: usize) -> PyResult<Vec<f64>> {
+    let rows = j.1.len() + j.2.len() + j.3.len();
+    if legs > u32::MAX as usize || rows > u32::MAX as usize {
+        return Err(bad("native stage validation index exceeds u32"));
+    }
+    let mut keyed: Vec<(u64, f64)> = Vec::new();
+    keyed
+        .try_reserve_exact(rows)
+        .map_err(|_| PyMemoryError::new_err("native stage validation allocation failed"))?;
+    let mut mass: Vec<f64> = Vec::new();
+    mass.try_reserve_exact(legs)
+        .map_err(|_| PyMemoryError::new_err("native stage validation allocation failed"))?;
+    mass.resize(legs, 0.0);
+    let mut row = 0u64;
+    for part in [&j.1, &j.2, &j.3] {
+        for a in part {
+            if a.0 >= legs {
+                return Err(bad("native stage row leg index differs"));
+            }
+            keyed.push((((a.0 as u64) << 32) | row, a.1));
+            row += 1;
+        }
+    }
+    keyed.sort_unstable_by_key(|e| e.0);
+    let mut start = 0;
+    while start < keyed.len() {
+        let leg = (keyed[start].0 >> 32) as usize;
+        let mut sum = Sum::default();
+        let mut end = start;
+        while end < keyed.len() && (keyed[end].0 >> 32) as usize == leg {
+            sum.add(keyed[end].1);
+            end += 1;
+        }
+        mass[leg] = sum.finish();
+        start = end;
+    }
+    Ok(mass)
+}
+
 // Streaming expansion summation: retain exact low-order components until the
 // final fsum rounding, without a vector per pending calendar record.
 #[derive(Default)]
@@ -927,7 +972,7 @@ impl NativeWholeEngine {
         };
         if let (Some(road_bytes), Some(journey_bytes)) = (road_storage_bytes, journey_storage_bytes)
         {
-            identity.push_str(":bounded_bytes_v1:retained_capacity_v2");
+            identity.push_str(":bounded_bytes_v1:retained_capacity_v3");
             road.bind_storage_identity(identity.clone())?;
             road.configure_storage_budget(road_bytes)?;
             journey.configure_storage_budget(journey_bytes)?;
@@ -1022,7 +1067,21 @@ impl NativeWholeEngine {
             .saturating_add(r.saturating_mul(3))
             .saturating_add(d.saturating_mul(3))
             .saturating_add(e.saturating_mul(3));
-        if required > self.byte_budget {
+        let observed = crate::v1_trace::guard(
+            "engine_admission",
+            if validate { "capture/validation" } else { "capture" },
+            required,
+            self.byte_budget,
+            &[
+                ("fixed_base", accounting.base()),
+                ("call_binding", accounting.call_binding),
+                ("validation_scratch", scratch),
+                ("road", r),
+                ("journey", d),
+                ("events", e),
+            ],
+        );
+        if required > self.byte_budget && !observed {
             return Err(PyMemoryError::new_err(format!(
                 "native capture/validation storage budget exceeded: required_bytes={required}, budget_bytes={}",self.byte_budget)));
         }
@@ -1048,14 +1107,7 @@ impl NativeWholeEngine {
         }
         let j = &b.journey;
         let service = &b.service.0;
-        let mut stages: HashMap<usize, Sum> = HashMap::new();
-        for rows in [&j.1, &j.2, &j.3] {
-            for a in rows {
-                stages.entry(a.0).or_default().add(a.1);
-            }
-        }
-        let stages: HashMap<usize, f64> =
-            stages.into_iter().map(|(i, v)| (i, v.finish())).collect();
+        let stages = stage_sums(j, self.journey.legs().len())?;
         let mut active: HashMap<usize, f64> = HashMap::new();
         for (tag, mass) in b.road.active_by_tag() {
             if let Some(i) = self.car_tag_legs[tag] {
@@ -1064,8 +1116,7 @@ impl NativeWholeEngine {
         }
         for (i, leg) in self.journey.legs().iter().enumerate() {
             if leg.5 == 1 || leg.5 == 2 {
-                let mass =
-                    stages.get(&i).copied().unwrap_or(0.0) + active.get(&i).copied().unwrap_or(0.0);
+                let mass = stages[i] + active.get(&i).copied().unwrap_or(0.0);
                 if (j.4[i] - j.5[i] - mass).abs() > 1e-9 * leg.1.max(1.0) {
                     return Err(bad("joint calendar stage and physical ledger differ"));
                 }
@@ -1213,9 +1264,9 @@ impl NativeWholeEngine {
         out.set_item("policy", &self.storage_policy)?;
         out.set_item("total_accounting_budget_bytes", self.byte_budget)?;
         out.set_item("conservative_static_accounting_bytes", self.estimated_bytes)?;
-        out.set_item("static_accounting_scope", "unchanged constructor preflight estimate; retained_capacity_v2 does not subtract it from runtime storage")?;
+        out.set_item("static_accounting_scope", "unchanged constructor preflight estimate; retained_capacity_v3 does not subtract it from runtime storage")?;
         if let Some(accounting) = &self.runtime_storage {
-            out.set_item("resource_binding", "retained_capacity_v2")?;
+            out.set_item("resource_binding", "retained_capacity_v3")?;
             out.set_item("retained_static_payload_bytes", accounting.owned_static)?;
             out.set_item("initial_road_reserve_bytes", accounting.initial_road)?;
             out.set_item("journey_dense_one_copy_bytes", accounting.journey_dense)?;
@@ -1712,5 +1763,69 @@ impl NativeWholeEngine {
                 Ok(state)
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod stage_sum_tests {
+    use super::*;
+    use crate::v1_stage::StageQueue;
+
+    fn lcg(state: &mut u64) -> u64 {
+        *state = state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        *state >> 11
+    }
+
+    /// The former validation map: one `Sum` per key, rows in (j.1, j.2, j.3) order.
+    fn reference(j: &Journey, legs: usize) -> Vec<f64> {
+        let mut stages: HashMap<usize, Sum> = HashMap::new();
+        for rows in [&j.1, &j.2, &j.3] {
+            for a in rows {
+                stages.entry(a.0).or_default().add(a.1);
+            }
+        }
+        let stages: HashMap<usize, f64> =
+            stages.into_iter().map(|(i, v)| (i, v.finish())).collect();
+        (0..legs).map(|i| stages.get(&i).copied().unwrap_or(0.0)).collect()
+    }
+
+    #[test]
+    fn stage_sums_match_former_per_key_sum_bits() {
+        let legs = 97;
+        let mut seed = 17u64;
+        let mut queues = [StageQueue::new(), StageQueue::new(), StageQueue::new()];
+        for (q, n) in queues.iter_mut().zip([1500usize, 777, 2049]) {
+            for _ in 0..n {
+                let leg = (lcg(&mut seed) % 61) as usize; // legs 61..97 stay absent
+                let exp = (lcg(&mut seed) % 40) as i32 - 20;
+                let sign = if lcg(&mut seed) % 7 == 0 { -1.0 } else { 1.0 };
+                let mass = sign * (1.0 + (lcg(&mut seed) % 1000) as f64 / 7.0) * 10f64.powi(exp);
+                q.push((leg, mass, 1.0, 2.0));
+            }
+        }
+        let [a, b, c] = queues;
+        let j: Journey = (0.0, a, b, c, vec![], vec![], vec![], vec![]);
+        let got = stage_sums(&j, legs).unwrap();
+        let want = reference(&j, legs);
+        assert_eq!(got.len(), want.len());
+        for (g, w) in got.iter().zip(&want) {
+            assert_eq!(g.to_bits(), w.to_bits());
+        }
+        assert!(got[61..].iter().all(|x| x.to_bits() == 0f64.to_bits()));
+    }
+
+    #[test]
+    fn stage_sums_empty_journey_is_all_zero() {
+        let j: Journey = (
+            0.0,
+            StageQueue::new(),
+            StageQueue::new(),
+            StageQueue::new(),
+            vec![],
+            vec![],
+            vec![],
+            vec![],
+        );
+        assert_eq!(stage_sums(&j, 5).unwrap(), vec![0.0; 5]);
     }
 }

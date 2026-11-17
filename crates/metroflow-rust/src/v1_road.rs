@@ -302,7 +302,11 @@ struct RoadWorkBudget {
     base: usize,
     events: usize,
     incoming: usize,
-    interval_rows: usize,
+    /// Packed entering-interval rows already moved into the candidate.
+    interval_retained: usize,
+    /// Workspace of the interval being built: edges, the selected rows,
+    /// combine's index/output buffers and the output packet list.
+    interval_transient: usize,
     service_events: Option<ServiceEventAccounting>,
 }
 #[derive(Clone, Copy)]
@@ -312,41 +316,49 @@ struct ServiceEventAccounting {
     max_tag_bytes: usize,
 }
 impl ServiceEventAccounting {
-    fn working_bytes(self, generated_rows: usize) -> usize {
-        // Vec growth in these push-built event/sink buffers has a minimum of
-        // four rows. Retained capacities are observed directly; the proposed
-        // buffer gets the conservative two-times-row growth allowance.
-        let proposed_capacity = if generated_rows == 0 {
+    /// Event buffers live during the road step: the call-input and current
+    /// committed buffers (charged separately, never assumed shared) and the
+    /// push-built candidate, whose doubling reallocation briefly holds the old
+    /// and the new allocation (< 3 rows' worth; minimum four rows).
+    fn road_step_bytes(self, generated_rows: usize) -> usize {
+        let candidate = if generated_rows == 0 {
             0
         } else {
-            generated_rows.saturating_mul(2).max(4)
+            generated_rows.max(4).saturating_mul(3)
         };
-        let event_bytes = self
-            .input_bytes
-            .max(self.current_bytes)
-            .max(proposed_capacity.saturating_mul(std::mem::size_of::<EventRow>()))
-            .saturating_mul(3)
-            .saturating_add(3 * 32);
-        let sink_rows = proposed_capacity
-            .saturating_add(generated_rows)
-            .saturating_mul(std::mem::size_of::<(String, f64, f64)>());
-        let sink_strings = generated_rows
-            .saturating_mul(2)
-            .saturating_mul(self.max_tag_bytes.saturating_add(32));
-        // service.finish's HashMap<&str, Vec<f64>> can have one key per sink,
-        // including minimum Vec capacities. This allowance also covers fsum
-        // partials and a temporary formatted service tag. It is structural
-        // accounting rather than an allocator/RSS theorem.
-        let sink_map = generated_rows
-            .saturating_mul(256)
-            .saturating_add(64)
-            .saturating_add(self.max_tag_bytes)
-            .saturating_add(32);
-        event_bytes
-            .saturating_add(sink_rows)
-            .saturating_add(sink_strings)
-            .saturating_add(sink_map)
+        self.input_bytes
+            .saturating_add(self.current_bytes)
+            .saturating_add(candidate.saturating_mul(std::mem::size_of::<EventRow>()))
+            .saturating_add(3 * 32)
     }
+}
+/// Service-finish sink workspace for `sink_rows` exiting events. The sinks
+/// are built only after the road step has returned and its workspaces have
+/// been dropped, so this envelope is charged then, against the exact count.
+pub(crate) fn sink_envelope_bytes(sink_rows: usize, max_tag_bytes: usize) -> usize {
+    if sink_rows == 0 {
+        return 0;
+    }
+    // Push-built sink Vec (doubling: < 3 rows during reallocation) and the
+    // `sinks.clone()` handed to service.finish.
+    let rows = sink_rows
+        .max(4)
+        .saturating_mul(3)
+        .saturating_add(sink_rows)
+        .saturating_mul(std::mem::size_of::<(String, f64, f64)>());
+    // One tag String in the original sinks and one in the clone.
+    let strings = sink_rows
+        .saturating_mul(2)
+        .saturating_mul(max_tag_bytes.saturating_add(32));
+    // service.finish's HashMap<&str, Vec<f64>> can have one key per sink,
+    // including minimum Vec capacities; also covers fsum partials and a
+    // temporary formatted service tag. Structural, not an allocator theorem.
+    let map = sink_rows
+        .saturating_mul(256)
+        .saturating_add(64)
+        .saturating_add(max_tag_bytes)
+        .saturating_add(32);
+    rows.saturating_add(strings).saturating_add(map)
 }
 /// Decode guards run before each reserve, while the old owner and any known
 /// call-input snapshot remain live. Validation scratch is charged as rows arrive.
@@ -481,6 +493,21 @@ impl RoadDecodeBudget {
             .max(self.retained_input)
             .saturating_mul(3)
             .saturating_add(self.validation);
+        if let Some(limit) = self.limit {
+            if crate::v1_trace::guard(
+                "road_decode",
+                "checkpoint decode preflight",
+                required,
+                limit,
+                &[
+                    ("decoded", self.decoded),
+                    ("retained_input", self.retained_input),
+                    ("validation", self.validation),
+                ],
+            ) {
+                return Ok(());
+            }
+        }
         check_storage_limit(self.limit, required, "checkpoint decode preflight")
     }
 }
@@ -491,14 +518,14 @@ impl RoadWorkBudget {
         })
     }
     fn require(&self, extra: usize, phase: &str) -> PyResult<()> {
-        // In a coupled transition the service envelope owns the event buffer
-        // charge. Do not also add the standalone road's two-copy event term.
+        // In a coupled transition the road-step event buffers are charged by
+        // lifetime; the sink envelope is charged after the step returns.
         let event_bytes = self.service_events.map_or_else(
             || {
                 self.events
                     .saturating_mul(2 * std::mem::size_of::<EventRow>())
             },
-            |service| service.working_bytes(self.events),
+            |service| service.road_step_bytes(self.events),
         );
         let required =
             self.base
@@ -506,11 +533,27 @@ impl RoadWorkBudget {
                 .saturating_add(self.incoming.saturating_mul(
                     2 * (std::mem::size_of::<Part>() + std::mem::size_of::<Mark>()),
                 ))
-                .saturating_add(
-                    self.interval_rows
-                        .saturating_mul(3 * std::mem::size_of::<Part>()),
-                )
+                .saturating_add(self.interval_retained)
+                .saturating_add(self.interval_transient)
                 .saturating_add(extra);
+        if let Some(limit) = self.limit {
+            if crate::v1_trace::guard(
+                "road_work",
+                phase,
+                required,
+                limit,
+                &[
+                    ("base", self.base),
+                    ("event_bytes", event_bytes),
+                    ("incoming_rows", self.incoming),
+                    ("interval_retained", self.interval_retained),
+                    ("interval_transient", self.interval_transient),
+                    ("extra", extra),
+                ],
+            ) {
+                return Ok(());
+            }
+        }
         check_storage_limit(self.limit, required, phase)
     }
     fn transfer(&mut self, events: usize, incoming: usize) -> PyResult<()> {
@@ -518,9 +561,15 @@ impl RoadWorkBudget {
         self.incoming = self.incoming.saturating_add(incoming);
         self.require(0, "transfer candidates")
     }
-    fn interval(&mut self, rows: usize) -> PyResult<()> {
-        self.interval_rows = self.interval_rows.saturating_add(rows);
+    fn interval(&mut self, transient: usize) -> PyResult<()> {
+        self.interval_transient = transient;
         self.require(0, "entry interval split")
+    }
+    fn retain_interval(&mut self, bytes: usize) {
+        self.interval_retained = self.interval_retained.saturating_add(bytes);
+    }
+    fn end_interval(&mut self) {
+        self.interval_transient = 0;
     }
 }
 fn check_storage_limit(limit: Option<usize>, required: usize, phase: &str) -> PyResult<()> {
@@ -1183,6 +1232,9 @@ impl V1Road {
             max_tag_bytes,
         });
     }
+    pub(crate) fn service_sink_tag_bytes(&self) -> Option<usize> {
+        self.service_event_accounting.map(|a| a.max_tag_bytes)
+    }
     pub(crate) fn set_service_event_current_bytes(&mut self, current_bytes: usize) {
         if let Some(accounting) = &mut self.service_event_accounting {
             accounting.current_bytes = current_bytes;
@@ -1227,7 +1279,8 @@ impl V1Road {
                 base: 0,
                 events: 0,
                 incoming: 0,
-                interval_rows: 0,
+                interval_retained: 0,
+                interval_transient: 0,
                 service_events: None,
             });
         }
@@ -1255,7 +1308,8 @@ impl V1Road {
             base,
             events: 0,
             incoming: 0,
-            interval_rows: 0,
+            interval_retained: 0,
+            interval_transient: 0,
             service_events: self.service_event_accounting,
         };
         work.require(0, "tick preflight")?;
@@ -1417,10 +1471,24 @@ impl V1Road {
         target: f64,
         work: &mut RoadWorkBudget,
     ) -> PyResult<Vec<Packet>> {
-        work.require(
-            parts.len().saturating_mul(2 * std::mem::size_of::<f64>()),
-            "interval edges",
-        )?;
+        // Live for the whole call; each interval adds its own rows (the
+        // selected-row Vec, combine's index and output) and the packet list
+        // with room for its doubling reallocation. Only packed rows that are
+        // pushed to the output outlive their interval.
+        let edge_bytes = parts.len().saturating_mul(2 * std::mem::size_of::<f64>());
+        const ROW_BYTES: usize =
+            2 * std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
+        let transient = |count: usize, packets: usize| {
+            edge_bytes
+                .saturating_add(count.saturating_mul(ROW_BYTES))
+                .saturating_add(
+                    packets
+                        .saturating_add(1)
+                        .max(4)
+                        .saturating_mul(3 * std::mem::size_of::<Packet>()),
+                )
+        };
+        work.require(edge_bytes, "interval edges")?;
         let mut edges = checkpoint_vec(parts.len().saturating_mul(2))?;
         edges.extend(parts.iter().flat_map(|p| [p.a.unwrap(), p.b.unwrap()]));
         edges.sort_unstable_by(f64::total_cmp);
@@ -1432,7 +1500,7 @@ impl V1Road {
                 .iter()
                 .filter(|p| p.a == Some(a) && p.b == Some(a))
                 .count();
-            work.interval(count)?;
+            work.interval(transient(count, out.len()))?;
             let mut point = checkpoint_vec(count)?;
             point.extend(
                 parts
@@ -1443,13 +1511,9 @@ impl V1Road {
             let point = combine(point)?;
             if !point.is_empty() {
                 records += point.len();
-                push_checked(
-                    &mut out,
-                    Packet {
-                        target,
-                        parts: work.pack_parts(point)?,
-                    },
-                )?;
+                let parts = work.pack_parts(point)?;
+                work.retain_interval(parts.allocated_bytes());
+                push_checked(&mut out, Packet { target, parts })?;
             }
             if k + 1 < edges.len() {
                 let b = edges[k + 1];
@@ -1457,7 +1521,7 @@ impl V1Road {
                     .iter()
                     .filter(|p| p.a.unwrap() <= a && p.b.unwrap() >= b && p.b > p.a)
                     .count();
-                work.interval(count)?;
+                work.interval(transient(count, out.len()))?;
                 let mut split = checkpoint_vec(count)?;
                 for p in &parts {
                     let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
@@ -1473,19 +1537,16 @@ impl V1Road {
                 let ps = combine(split)?;
                 if !ps.is_empty() {
                     records += ps.len();
-                    push_checked(
-                        &mut out,
-                        Packet {
-                            target,
-                            parts: work.pack_parts(ps)?,
-                        },
-                    )?;
+                    let parts = work.pack_parts(ps)?;
+                    work.retain_interval(parts.allocated_bytes());
+                    push_checked(&mut out, Packet { target, parts })?;
                 }
             }
             if records > self.record_budget {
                 return Err(budget("entry interval record budget"));
             }
         }
+        work.end_interval();
         Ok(out)
     }
     fn rates(
@@ -2277,6 +2338,15 @@ impl V1Road {
                 .retained_storage_bytes()
                 .max(out.retained_storage_bytes())
                 .max(self.retained_input_bytes);
+            if let Some(limit) = self.storage_budget {
+                crate::v1_trace::guard(
+                    "road_candidate",
+                    "candidate and immutable snapshot",
+                    retained.saturating_mul(3),
+                    limit,
+                    &[("retained", retained)],
+                );
+            }
             check_storage_limit(
                 self.storage_budget,
                 retained.saturating_mul(3),
@@ -2723,5 +2793,64 @@ impl V1Road {
         };
         r.state = r.blank(0.);
         Ok(r)
+    }
+}
+
+#[cfg(test)]
+mod workspace_accounting_tests {
+    use super::*;
+
+    fn budget(limit: usize) -> RoadWorkBudget {
+        RoadWorkBudget {
+            limit: Some(limit),
+            base: 0,
+            events: 0,
+            incoming: 0,
+            interval_retained: 0,
+            interval_transient: 0,
+            service_events: None,
+        }
+    }
+
+    #[test]
+    fn interval_transient_is_released_and_only_packed_rows_are_retained() {
+        let mut w = budget(10_000);
+        w.interval(9_000).unwrap();
+        w.retain_interval(400);
+        w.end_interval();
+        // A second large interval fits once the first one's workspace died.
+        w.interval(9_000).unwrap();
+        w.retain_interval(400);
+        w.end_interval();
+        assert_eq!(w.interval_retained, 800);
+        assert_eq!(w.interval_transient, 0);
+        // Retained packed rows stay charged in later phases.
+        assert!(w.require(10_000 - 800, "later").is_ok());
+        assert!(w.require(10_000 - 799, "later").is_err());
+    }
+
+    #[test]
+    fn road_step_event_charge_has_no_sink_terms() {
+        let a = ServiceEventAccounting {
+            input_bytes: 1_000,
+            current_bytes: 2_000,
+            max_tag_bytes: 64,
+        };
+        let rows = 10_000;
+        assert_eq!(
+            a.road_step_bytes(rows),
+            3_000 + 3 * rows * std::mem::size_of::<EventRow>() + 96
+        );
+        assert_eq!(a.road_step_bytes(0), 3_096);
+    }
+
+    #[test]
+    fn sink_envelope_counts_only_exiting_rows() {
+        assert_eq!(sink_envelope_bytes(0, 64), 0);
+        let one = sink_envelope_bytes(1, 64);
+        let many = sink_envelope_bytes(1_000, 64);
+        assert!(one > 0 && many > 900 * (256 + 2 * 96));
+        // Monotone in the exiting-row count.
+        assert!(sink_envelope_bytes(1_001, 64) > many);
     }
 }

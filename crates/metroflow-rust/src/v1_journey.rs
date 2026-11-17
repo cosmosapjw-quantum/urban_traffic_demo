@@ -239,14 +239,23 @@ fn check_storage_limit(
     dynamic: usize,
     scratch: usize,
 ) -> PyResult<()> {
-    if limit.is_some_and(|cap| {
-        dynamic
-            .max(retained)
-            .saturating_mul(WORKING_COPIES)
-            .saturating_add(scratch)
-            .saturating_add(STORAGE_SCRATCH_RESERVE)
-            > cap
-    }) {
+    let required = dynamic
+        .max(retained)
+        .saturating_mul(WORKING_COPIES)
+        .saturating_add(scratch)
+        .saturating_add(STORAGE_SCRATCH_RESERVE);
+    if let Some(cap) = limit {
+        if crate::v1_trace::guard(
+            "journey_store",
+            "stored/working",
+            required,
+            cap,
+            &[("retained", retained), ("dynamic", dynamic), ("scratch", scratch)],
+        ) {
+            return Ok(());
+        }
+    }
+    if limit.is_some_and(|cap| required > cap) {
         return Err(PyMemoryError::new_err(
             "native journey stored/working byte budget",
         ));
@@ -255,6 +264,7 @@ fn check_storage_limit(
 }
 
 fn phase_storage_allowance(total: usize, other_live: usize, phase: &str) -> PyResult<usize> {
+    crate::v1_trace::guard("phase_allowance", phase, other_live, total, &[]);
     total.checked_sub(other_live).filter(|bytes| *bytes > 0).ok_or_else(|| {
         PyMemoryError::new_err(format!(
             "native coupled storage budget exceeded before {phase}: other_live_bytes={other_live}, budget_bytes={total}"
@@ -940,18 +950,21 @@ impl NativeJourneyCore {
             .len()
             .saturating_add(state.2.len())
             .saturating_add(state.3.len());
-        let keys = rows.min(self.legs.len());
-        let partials = rows
-            .saturating_mul(3)
-            .saturating_add(keys.saturating_mul(4))
+        // Engine `stage_sums`: one exact (key, mass) row per stage row, a
+        // dense per-leg result, and one leg's `Sum` partials at a time
+        // (bounded by binary64 exponent span; 2 KiB covers it with padding).
+        let dense = self
+            .legs
+            .len()
             .saturating_mul(std::mem::size_of::<f64>())
-            .saturating_add(keys.saturating_mul(128));
-        let scalar = map_bytes::<usize, f64>(keys);
-        let stage_maps = map_bytes::<usize, Vec<f64>>(keys)
-            .saturating_add(scalar)
-            .saturating_add(partials);
+            .saturating_add(RETAINED_ALLOCATION_PADDING);
+        let stage_maps = rows
+            .saturating_mul(crate::v1_engine::STAGE_SUM_ROW_BYTES)
+            .saturating_add(RETAINED_ALLOCATION_PADDING)
+            .saturating_add(dense)
+            .saturating_add(2048);
         let active_keys = road_rows.min(route_tags);
-        let active_maps = scalar
+        let active_maps = dense
             .saturating_add(map_bytes::<usize, f64>(active_keys).saturating_mul(2))
             .saturating_add(
                 rows.max(self.legs.len())
@@ -1491,6 +1504,57 @@ pub(crate) fn advance_owned_joint(
             } else {
                 0
             };
+            if let Some(total) = dynamic_budget {
+                // The road workspaces are dropped; its candidate and events
+                // stay live with the journey owners while the sinks of the
+                // exiting events are built and finished by the service.
+                let exits = events.iter().filter(|e| e.2.is_none()).count();
+                let tag_bytes = road
+                    .service_sink_tag_bytes()
+                    .unwrap_or_else(|| tags.iter().map(String::capacity).max().unwrap_or(0));
+                let sink_bytes = crate::v1_road::sink_envelope_bytes(exits, tag_bytes);
+                let current_journey =
+                    stage_storage_bytes(&journey.state).saturating_add(journey.history_bytes);
+                let pending_journey = journey.pending.as_ref().map_or(0, |state| {
+                    stage_storage_bytes(state).saturating_add(journey.history_bytes)
+                });
+                let journey_live = journey
+                    .retained_input_bytes
+                    .max(current_journey)
+                    .max(pending_journey)
+                    .saturating_mul(WORKING_COPIES);
+                let road_live = input_road_bytes
+                    .max(current_road_bytes)
+                    .max(candidate_road_bytes)
+                    .saturating_mul(3);
+                let event_live = input_event_bytes
+                    .max(current_event_bytes)
+                    .max(candidate_event_bytes)
+                    .saturating_mul(3);
+                let required = journey_live
+                    .saturating_add(road_live)
+                    .saturating_add(event_live)
+                    .saturating_add(sink_bytes)
+                    .saturating_add(STORAGE_SCRATCH_RESERVE);
+                let observed = crate::v1_trace::guard(
+                    "service_sinks",
+                    "service finish",
+                    required,
+                    total,
+                    &[
+                        ("journey_live", journey_live),
+                        ("road_live", road_live),
+                        ("event_live", event_live),
+                        ("exit_rows", exits),
+                        ("sink_envelope", sink_bytes),
+                    ],
+                );
+                if required > total && !observed {
+                    return Err(PyMemoryError::new_err(format!(
+                        "native service event sink storage budget exceeded: phase=service finish, required_bytes={required}, budget_bytes={total}"
+                    )));
+                }
+            }
             let mut sinks = Vec::new();
             for e in &events {
                 if e.2.is_none() {
@@ -1590,7 +1654,29 @@ pub(crate) fn advance_owned_joint(
                             .max(road_decode_scratch)
                             .max(STORAGE_SCRATCH_RESERVE),
                     );
-                if required > total {
+                let observed = crate::v1_trace::guard(
+                    "journey_commit",
+                    "checkpointability",
+                    required,
+                    total,
+                    &[
+                        ("input_road", input_road_bytes),
+                        ("current_road", current_road_bytes),
+                        ("candidate_road", candidate_road_bytes),
+                        ("decoded_road", decoded_road),
+                        ("journey_retained_input", journey.retained_input_bytes),
+                        ("old_journey", old_journey_bytes),
+                        ("new_journey", new_journey_bytes),
+                        ("decoded_journey", decoded_journey),
+                        ("input_event", input_event_bytes),
+                        ("current_event", current_event_bytes),
+                        ("candidate_event", candidate_event_bytes),
+                        ("validation_scratch", scratch),
+                        ("call_binding_reserve", call_binding_reserve),
+                        ("road_decode_scratch", road_decode_scratch),
+                    ],
+                );
+                if required > total && !observed {
                     return Err(PyMemoryError::new_err(format!(
                         "native whole checkpointability storage budget exceeded: required_bytes={required}, budget_bytes={total}"
                     )));

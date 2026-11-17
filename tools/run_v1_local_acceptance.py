@@ -57,7 +57,7 @@ def resource_limit_kind(message, storage=None):
         return 'shared_accounting_guard'
     if 'native preflight' in message or 'static accounting' in message:
         return 'static_accounting_guard'
-    if storage and storage.get('resource_binding')=='retained_capacity_v2' and 'budget' in message:
+    if storage and storage.get('resource_binding') in ('retained_capacity_v2','retained_capacity_v3') and 'budget' in message:
         if any(word in message for word in ('journey','road','phase','observation','decode','service event')):
             return 'phase_working_budget_guard'
     if ('storage' in message and 'budget' in message) or (

@@ -10,3 +10,7 @@ crate-type = ["cdylib"]
 [dependencies]
 pyo3 = { version = "0.23", features = ["extension-module"] }
 rayon = "1.10"
+
+[features]
+# Diagnostic instrument only: counting allocator and observe-mode guards.
+budget_trace = []
