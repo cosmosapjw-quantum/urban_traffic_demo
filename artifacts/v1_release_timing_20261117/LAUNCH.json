@@ -1,0 +1,127 @@
+{
+  "schema": "metroflow.v1.release_timing.launch/1",
+  "written_utc": "2026-11-17T12:40:00Z",
+  "written_before": "any implementation of the policy and any city comparison run of this unit",
+  "branch": "research/release-timing-20261117",
+  "base_commit": "274a4ffa347e85b1203a57f4a500b61eec7ca4b3",
+  "user_decision_verbatim_intent": "Adopt a release-timing change ONLY if it improves performance.",
+  "coordinator_interpretation": "adopt only if it (a) reduces the dt=10 vs dt=5 discrepancy (accuracy) AND (b) does not worsen computational cost (peak records, peak RSS, per-step cost) beyond measurement noise",
+  "measured_problem": {
+    "source": "artifacts/v1_refinement_20261117/COMPARISON.json and REPORT_KO.md (base commit)",
+    "observation": "Valley full demand, entry projection h=1 s, 25,500 s: dt=10 released 1.6949% fewer persons than dt=5 (290/295-1), journey completed vehicles -15.9%, road completed vehicles -20%",
+    "mechanism_in_code": [
+      "crates/metroflow-rust/src/v1_journey.rs NativeJourneyCore::prepare evaluates the cumulative departure fraction F at the tick START t; births in (t, t+dt] are staged only at the next tick, so the state at grid time T holds released = A*F(T-dt)",
+      "entering rows retire into road offers only when born + access_delay + hold <= t (tick start); offers join the road source queue at t and the source queue admits only at the tick END t+dt (v1_road.rs step_state, pending admission after transfers, entry stamp [end,end])",
+      "Offer = (tag, mass, birth_moment, Option<entry_start>, Option<entry_end>): the interval must precede the current clock (z <= t + 1e-9) and the birth moment must satisfy B <= m*t, so the existing interval fields cannot express mass that arrives inside the current tick; they are copied into the pending part and overwritten by [end,end] at admission in interval mode"
+    ],
+    "legacy_lag_derivation": "top-level road leg, uniform births, access delay atom d with x=d mod dt uniform on [0,dt): cell admission of an individual born at tau occurs at ceil_grid(mean_birth_of_batch + d) + dt; mean (admission - individual ready time) = 1.5*dt"
+  },
+  "policy": {
+    "name": "release_interval_v1",
+    "selector": "release_timing='release_interval_v1' (default 'legacy'); env METROFLOW_V1_RELEASE_TIMING; CLI --release-timing",
+    "identity": "appends ':release_interval_v1' to the whole-engine identity after the existing representation suffixes (entry_projection_support_v1/mark_block_scaled_v1); legacy identity and checkpoint bytes unchanged",
+    "semantics": [
+      "top-level legs (no parent) of road and internal kind: the journey release front at the end of tick [t,t+dt) is F(t+dt), so released(T) = A*F(T) at every grid time T (each individual is released at its own birth time inside the tick)",
+      "access staging is atom-aligned: for access atom (d_k, w_k) with x_k = fmod(d_k, dt), tick [t,t+dt) stages exactly the births in (t-x_k, t+dt-x_k]; their individual ready times tau+d_k lie in one tick (t+j*dt, t+dt+j*dt], j=floor(d_k/dt), so each row is due in exactly the tick containing every one of its individual ready times; one row per atom per tick as in legacy",
+      "births in (T-x_k, T] that are released but not yet staged (the 'unstaged access mass') are active access mass; their amount A*sum_k w_k*(F(T)-F(T-x_k)) is a deterministic function of the state clock, dt, profile and law and is included in every stage/physical ledger check",
+      "entering rows are retired at the tick END deadline (t+dt+1e-10, legacy tolerance) instead of the tick start; each offer carries its in-tick arrival time tau = clamp(mean_birth + delay, t, t+dt) (mean ready time of the row); the road source queue receives it inside the tick and keeps the legacy end-of-tick admission rule, so cell entry happens at the end of the tick containing the individual ready time and never before it",
+      "road residence split for in-tick arrivals: pre-entry (inherited) += m*tau - B, source wait += m*(t+dt) - m*tau; their sum m*(t+dt)-B equals the legacy increment for the same mass; pending parts carry no interval stamp (as legacy journey offers)",
+      "child legs (with parent/eligibility): legacy release (F and eligibility at tick start, access clock from the release time); only the due deadline/arrival changes to the tick end",
+      "bus boarding and freight dispatch services are unchanged (tick-start offers, legacy accounting)"
+    ],
+    "never": [
+      "release or stage mass before its birth",
+      "offer or admit mass before every individual ready time of the row (top-level legs); child-leg rows are released at a grid time and all individuals share that ready time",
+      "delete, cut off, rebin beyond the named policy, or reduce demand"
+    ],
+    "preserved": [
+      "category mass per tag and unit (persons/vehicles/cargo through the unchanged carrier ratios)",
+      "released birth first moment (contiguous FIFO release in the fraction domain; s.7 invariant unchanged)",
+      "each row's birth first moment (exact slice mean via birth_between) and in-tick arrival first moment (B + m*delay)",
+      "road FIFO by source tick and by cell entry; movement-support boundaries and entry projection untouched (admission still a point atom at the tick end)",
+      "requested = released + pending and released = completed + active (active includes unstaged access mass)",
+      "transactional rollback, checkpoint format (only identity suffix differs), resume exactness"
+    ],
+    "expected_error_order": "first order in dt for both policies, but with a smaller coefficient: mean admission lag after individual readiness 0.5*dt (policy) versus 1.5*dt (legacy) for top-level legs; the released ledger at grid times becomes exact (zero discretization error) for top-level legs; the dt-gap of completion curves should shrink by the release component only, because the road's own end-of-tick admission/motion discretization is unchanged",
+    "oracle": "the Python JointReleaseRuntime/PacketNetwork receives the same policy (same arithmetic) so that Python/Rust parity can be tested on the small fixture"
+  },
+  "city_comparison": {
+    "case": "valley_weekday_s7",
+    "fixed": {
+      "entry_projection_width_s": 1.0,
+      "road_representation": "rows",
+      "storage_policy": "bounded_bytes_v1",
+      "native_threads": 1,
+      "byte_budget": "min(6 GiB, matrix peak_rss_bytes)",
+      "address_space_limit": "RLIMIT_AS 8 GiB (matrix peak_rss_bytes)",
+      "demand": "full calendar, no reduction",
+      "tool": "tools/probe_v1_refinement.py (extended: release timing selector, 60 s sampling from 25,200 s, per-call CPU seconds and native phase metrics, road ledger/moment diagnostics); legs npz from the same tool"
+    },
+    "runs": [
+      {"label": "legacy_dt10", "release_timing": "legacy", "step_s": 10},
+      {"label": "legacy_dt5", "release_timing": "legacy", "step_s": 5},
+      {"label": "interval_dt10", "release_timing": "release_interval_v1", "step_s": 10},
+      {"label": "interval_dt5", "release_timing": "release_interval_v1", "step_s": 5}
+    ],
+    "run_horizon_s": 26000,
+    "sampling": "hourly calls before 21,600 s; every 300 s from 21,600 to 25,200 s; every 60 s from 25,200 s to the horizon (all multiples of 10 s)",
+    "primary_time_s": 25500,
+    "secondary_time_s": 26000,
+    "secondary_condition": "evaluated only if all four runs reach 26,000 s; otherwise NOT_RUN and not used",
+    "reuse_of_prior_runs": "not reused: the native binary differs from a0077a07; legacy runs are re-executed with the new binary; their checkpoints at 25,500 s are compared with the prior run checkpoints as an extra legacy identity observation only",
+    "execution_rules": [
+      "one city run at a time; before each run require MemAvailable >= 6 GiB (wait otherwise, record the wait)",
+      "never kill other processes; an environment/resource failure is rerun once and both attempts are recorded",
+      "run order: legacy_dt10, interval_dt10, legacy_dt5, interval_dt5"
+    ]
+  },
+  "metrics": {
+    "gap_definition": "gap(X) = X(dt=10) - X(dt=5) at the same simulated time, for one release timing; improvement ratio r(X) = |gap_policy(X)| / |gap_legacy(X)|",
+    "accuracy_primary": {
+      "A1_released_persons": "report ledger persons.released",
+      "A2_journey_completed_vehicles": "report ledger vehicles.completed",
+      "A3_road_completed_vehicles": "report service road_completed_veh",
+      "A4_destination_completed_vehicles_L1": "sum over destinations |completed_vehicles_dest(dt=10) - completed_vehicles_dest(dt=5)| from the sample_legs decomposition (gap is this L1 distance itself)"
+    },
+    "accuracy_secondary_reported_only": [
+      "released vehicles, journey completed persons, road released, road occupancy (released - completed)",
+      "released intent birth first moment (persons, vehicles)",
+      "road birth moment, road source-arrival moment (birth + pre-entry), road source-admission moment (birth + pre-entry + source wait - pending*T), summed cell entry moment",
+      "class (mode x purpose) completed vehicles L1",
+      "the time series of all gaps at every 60 s sample"
+    ],
+    "conservation_gate": {
+      "rule": "every sample of every run: journey per-unit decomposition sums equal the report ledger within 1e-9 relative; road network mass residual <= 1e-9 relative and residence residual <= 1e-8 relative (recomputed from the exposed road ledger exactly as check_state); nonnegative and monotone released/completed; requested - released - pending and released - completed - active identically zero",
+      "source": "docs/v1/PLAN.json tolerances (mass 1e-9, residence 1e-8); not loosened"
+    },
+    "cost": {
+      "C1_peak_records": "max native peak_records over calls ending at or before the comparison time",
+      "C2_peak_rss_bytes": "process ru_maxrss after the call ending at the comparison time",
+      "C3_cpu_s_per_tick": "process CPU seconds (user+system, getrusage) spent inside advance calls up to the comparison time divided by the number of ticks",
+      "reported_only": "wall seconds per tick (all ticks and active window 25,200-T), native tick p50/p95, native phase seconds (journey prepare, road step, finishes), construct wall"
+    }
+  },
+  "adoption_rule": {
+    "ADOPT_iff_all": [
+      "G1 legacy bit identity: probe_v1_event_store.py valley_weekday_s7 25900 1 with the final binary gives checkpoint SHA-256 ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff",
+      "G2 no new failures in the specified Rust and Python regression suites (baseline 356 passed, 5 xfailed)",
+      "G3 conservation gate passes in all four runs at every sample",
+      "G4 all four runs reach 25,500 s",
+      "(a) accuracy at 25,500 s: r(A1) <= 0.9 and r(A2) <= 0.9 and r(A3) <= 0.9 and r(A4) <= 0.9",
+      "(a') if the secondary time is evaluated: r(A1..A4) <= 1.0 at 26,000 s",
+      "(b) cost, separately for the dt=10 pair and the dt=5 pair (policy / legacy at the same step), at 25,500 s and, where both runs of the pair reach it, at 26,000 s: C1 <= 1.05, C2 <= 1.05, C3 <= 1.10"
+    ],
+    "otherwise": "NOT_ADOPT; record the failed clauses and keep legacy as the only recommended timing",
+    "threshold_rationale": {
+      "accuracy_0.9": "a priori materiality: at least a 10% reduction of each primary dt-gap; accuracy metrics are deterministic, so the threshold expresses materiality, not noise",
+      "records_rss_1.05": "the policy admits each tick of demand one step earlier; 300 s after the 25,200 s onset that is at most dt/300 = 3.3% more released demand at the same clock (1.25% at 26,000 s), a deterministic physical shift rather than representation growth; 5% covers this shift plus allocator variation",
+      "cpu_1.10": "shared host; earlier identical-configuration h runs differed by up to 8% in advance wall (92.6-100.6 s); CPU seconds are used instead of wall to reduce contention noise"
+    },
+    "meaning_of_ADOPT": "recommend release_interval_v1 as an explicit opt-in flag for subsequent V03 runs; the default stays legacy in this unit; V03 BLOCKED, 19/21 and 5/21 are unchanged either way"
+  },
+  "prediction_before_runs": {
+    "A1": "gap_policy approximately 0 at grid times for this morning window (all released mass is top-level); r(A1) close to 0",
+    "A2_A3": "reduced but nonzero (road discretization unchanged); magnitude unknown",
+    "cost": "records and RSS +1 to +4% from the earlier admission; CPU per tick within a few percent"
+  }
+}
