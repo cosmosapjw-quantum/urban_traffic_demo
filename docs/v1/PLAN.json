@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.28",
+  "version": "1.1.29",
   "date": "2026-11-17",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -2178,6 +2178,12 @@
       "reason": "Current user delegates report option selection and code implementation. Exact interval partial-service descendants cause measured representation growth; no theorem excludes all exact alternatives. Original mesoscopic model already uses declared moment and time closures.",
       "change": "Choose A as opt-in support-protected conservative entry-time projection; keep zero-width exact oracle, original point atoms, categorical mass/birth/entry moments and movement-support barriers. Record policy/width in checkpoint identity. Do not lower population, horizon, resource limits or scientific acceptance thresholds.",
       "evidence": "docs/v1/CONSERVATIVE_ENTRY_PROJECTION_DESIGN_KO.md"
+    },
+    {
+      "date": "2026-11-17",
+      "authority": "current user instruction",
+      "change": "(1) Approve named numerical policy shared_event_boundary_v1 (consecutive junction events share one rounded boundary, end = t+(cursor+h)) as the V03 campaign policy; library default stays legacy for bit-identical replay. (2) Release-timing change only if it improves performance: a named causal release policy is adopted only if it reduces the dt=10 vs dt=5 discrepancy and does not worsen computational cost (records, RSS, per-step wall) beyond noise, under a rule pre-registered before the comparison. (3) A positive mass must never vanish by rounding: portion() raises an explicit arithmetic error instead of silently dropping a subnormal part.",
+      "effect": "Campaign identity gains :shared_event_boundary_v1; legacy checkpoints are not reinterpreted. Release timing unchanged unless the pre-registered rule passes. Silent subnormal loss becomes a classified numerical failure that preserves the last valid state. Acceptance thresholds, limits, demand and tolerances unchanged."
     }
   ],
   "implementation_progress": {
