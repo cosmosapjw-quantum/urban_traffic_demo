@@ -161,3 +161,31 @@ def test_batch_failure_exposes_last_valid_native_interval():
     assert checkpoint.released == 1
     assert native.snapshot() == checkpoint
     native.check(checkpoint)
+
+
+def test_native_binding_follows_rebound_public_identity():
+    """Regression: owners (lanegroups.packet_model) rebind identity after
+    construction; native snapshots must carry that public binding (f47bf6a
+    had bound the pre-rebinding internal hash, rejecting every snapshot)."""
+    from metroflow.entry_projection import projection_identity
+
+    ref = road(windows=False, signals=False)
+    ref.identity = 'rebound-' + ref.identity
+    native = NativeRoadNetwork(ref)
+    state = native.initial()
+    assert state.model_id == ref.identity
+    state, _ = native.advance_interval(state, 1, [('z', 1., 0.)])
+    oracle, _ = ref.advance_interval(ref.initial(), 1, [('z', 1., 0.)])
+    close(asdict(state), asdict(oracle))
+
+    base = road(windows=False, signals=False)
+    projected = PacketNetwork(base.groups, [Route(k, v) for k, v in base.routes.items()],
+                              dt_s=1, vehicle_classes=base.vehicle_classes,
+                              space_capacities_m=base.space_capacities_m,
+                              standing_gap_m=base.standing_gap_m, motion=base.motion,
+                              preserve_entry_intervals=True, entry_projection_width_s=.5)
+    projected.identity = projection_identity('rebound', .5)
+    assert NativeRoadNetwork(projected).initial().model_id == projected.identity
+    projected.identity = 'rebound-without-projection-suffix'
+    with pytest.raises(ValueError, match='projection binding'):
+        NativeRoadNetwork(projected)
