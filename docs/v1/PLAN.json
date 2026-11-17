@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.23",
-  "date": "2026-11-16",
+  "version": "1.1.24",
+  "date": "2026-11-17",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
   "base_research_sha": "0a7c980d3934146a978280fe76045443ad12640e",
@@ -1890,7 +1890,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Reduce exact stage/road fragmentation and simultaneous validation/decode/interval workspace while preserving ordered physical rows, checkpoint meaning and6GiB/8GiB gates; then rerun a frozen3-case x3 full-day campaign with replay/refinement. Current532effe first attempts stop at25350/32660/25600s; actual Riverfresh-load/report/byte roundtrip verified. FullCI/integration remain deferred.",
+      "positive_next_action": "Accounting is no longer the primary limit: exact interval FIFO road packets grow ~2x per 50-100 simulated s at morning onset (Valley 34.6M parts, real allocation failure at 8GiB with guards bypassed). Next: attribute split fragments, then a user decision on a lossless or contract-reviewed road interval representation; rerun the frozen 3-case x3 campaign only after short gates pass. No demand/mass/time-binning/tolerance/budget relaxation. Full CI/integration remain deferred.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1910,8 +1910,8 @@
         "sha": "97b09576f5fe96f8e08d07a4bed80a841ffb2679"
       },
       "blocked_evidence": {
-        "path": "artifacts/v1_rust_completion_20261116/RECEIPT.json",
-        "sha256": "3a264a89c91348f16f6ad4f900d29b9667a5a6e2439cbee9f1be8e6d6beec9ac"
+        "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
+        "sha256": "dc1e8c9e83c4162b48ccb0569cb78338b90034f7beab5e24637b8717954bc4f9"
       },
       "resource_optimization_evidence": [
         {
@@ -1948,9 +1948,18 @@
           "path": "artifacts/v1_rust_completion_20261116/RECEIPT.json",
           "sha256": "3a264a89c91348f16f6ad4f900d29b9667a5a6e2439cbee9f1be8e6d6beec9ac",
           "scope": "251 scoped tests; Rust persistent stages, packed intervals, compensated event clocks and shared retained-capacity budgets. Actual3city campaign remains resource-blocked; allprefixRSS<8GiB, no24h completion; real Rivercheckpoint fresh-load bytes verified."
+        },
+        {
+          "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
+          "sha256": "dc1e8c9e83c4162b48ccb0569cb78338b90034f7beab5e24637b8717954bc4f9",
+          "scope": "Measured blocked-checkpoint workspaces (counted heap 2.4-3.2GB vs >6GiB guards); retained_capacity_v3 lifetime accounting (sink envelope after road step, interval workspace, sort-based stage validation); 260 scoped tests, legacy replay bytes identical. Gates adde1a3 stop at25650/32730/25420s; guard-bypassed diagnostics show road parts doubling per50-100s (Valley real allocation failure at8GiB AS)."
         }
       ],
       "historical_blocked_evidence": [
+        {
+          "path": "artifacts/v1_rust_completion_20261116/RECEIPT.json",
+          "sha256": "3a264a89c91348f16f6ad4f900d29b9667a5a6e2439cbee9f1be8e6d6beec9ac"
+        },
         {
           "path": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
           "sha256": "4f3806899ee03b03e0c112c918fab9b25d737e37e35c87f98fee72840cd0699b"
@@ -2163,10 +2172,11 @@
       "Persistent256-row stage blocks, byte-accounted history and packet-local common intervals with exact legacy row/checkpoint expansion",
       "Limited compensated positive-event clock only after a sub-ULP nonprogress event; original ordinary arithmetic and ledger tolerances retained",
       "Retained_capacity_v2 shared phase budgets and canonical checkpoint decode headroom; atomic failure and actual fresh-runtime checkpoint roundtrip",
-      "Frozen532effe actual three-city full-target attempts and distinct resource failure receipts; no full-day acceptance"
+      "Frozen532effe actual three-city full-target attempts and distinct resource failure receipts; no full-day acceptance",
+      "Retained_capacity_v3 lifetime accounting: post-road sink envelope by exit count, interval workspace/slot retention, sort-based exact stage validation; env-gated guard-margin recorder and diagnostic-only budget_trace build"
     ],
     "remaining": [
-      "Exact stage/road fragmentation and simultaneous validation/decode/interval workspace within unchanged6GiB native accounting and8GiB process target; actual failures25350/32660/25600s",
+      "Road interval packet row growth at morning onset exceeds the unchanged 8GiB process target even with guards bypassed (Valley 25,700s); requires attributed representation work within the physics contract; v3 gates stop at 25650/32730/25420s",
       "Reduce dense all-leg work and conservative workspace overhead with justified lifetime bounds; parallel speedup is not robust in shared-host measurements",
       "Frozen candidate3cases x3 full-day completion, matched refinement and full-day checkpoint replay; current completion0/9",
       "Separate final review, RLS01 packaging/fresh-install acceptance and full repository CI/integration deferred by user"

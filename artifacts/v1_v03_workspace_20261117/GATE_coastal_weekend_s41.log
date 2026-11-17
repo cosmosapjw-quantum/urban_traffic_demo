@@ -1,0 +1,10 @@
+{"t": 3600.0, "wall": 83.2, "rss": 1114177536, "worst": "engine_admission:capture/validation", "ratio": 0.2545}
+{"t": 7200.0, "wall": 116.1, "rss": 1114177536, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 10800.0, "wall": 143.4, "rss": 1123241984, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 14400.0, "wall": 178.1, "rss": 1162186752, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 18000.0, "wall": 204.1, "rss": 1162186752, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 21600.0, "wall": 244.3, "rss": 1162186752, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 25200.0, "wall": 276.3, "rss": 1162186752, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 28800.0, "wall": 303.7, "rss": 1162186752, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 32400.0, "wall": 350.5, "rss": 1162186752, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"status": "GATE_BLOCKED", "case": "coastal_weekend_s41", "simulated_s": 32730.0, "wall_s": 455.46045656799106, "peak_rss_bytes": 3261423616}

@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.23**, 2026-11-16. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.24**, 2026-11-17. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Reduce exact stage/road fragmentation and simultaneous validation/decode/interval workspace while preserving ordered physical rows, checkpoint meaning and6GiB/8GiB gates; then rerun a frozen3-case x3 full-day campaign with replay/refinement. Current532effe first attempts stop at25350/32660/25600s; actual Riverfresh-load/report/byte roundtrip verified. FullCI/integration remain deferred.
+Accounting is no longer the primary limit: exact interval FIFO road packets grow ~2x per 50-100 simulated s at morning onset (Valley 34.6M parts, real allocation failure at 8GiB with guards bypassed). Next: attribute split fragments, then a user decision on a lossless or contract-reviewed road interval representation; rerun the frozen 3-case x3 campaign only after short gates pass. No demand/mass/time-binning/tolerance/budget relaxation. Full CI/integration remain deferred.
 
 **예산·종료조건**
 

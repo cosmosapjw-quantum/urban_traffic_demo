@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-17",
+  "status": "ACCOUNTING_CORRECTED_PHYSICAL_GROWTH_BLOCKED",
+  "scope": "V03 native workspace accounting by lifetime and short reproduction gates; not full-day acceptance",
+  "base_commit": "0d1886f763cfaa6851ea304cdcb1db73a749e7ae",
+  "frozen_candidate": {
+    "commit": "adde1a3696b869a852c30d4271a5227631513bad",
+    "candidate": {
+      "status": "MEASURED",
+      "source_sha256": "a467ca5491cdf05e7b49c83c828ac8a7432821c2b3fcfa90a88b6282cf0d7028",
+      "source_files": [
+        "Cargo.lock",
+        "crates/metroflow-rust/Cargo.toml",
+        "crates/metroflow-rust/src/lib.rs",
+        "crates/metroflow-rust/src/v1_calendar.rs",
+        "crates/metroflow-rust/src/v1_engine.rs",
+        "crates/metroflow-rust/src/v1_history.rs",
+        "crates/metroflow-rust/src/v1_journey.rs",
+        "crates/metroflow-rust/src/v1_parallel.rs",
+        "crates/metroflow-rust/src/v1_road.rs",
+        "crates/metroflow-rust/src/v1_routing.rs",
+        "crates/metroflow-rust/src/v1_stage.rs",
+        "crates/metroflow-rust/src/v1_trace.rs",
+        "src/metroflow/v1/native_calendar.py",
+        "src/metroflow/v1/native_engine.py",
+        "src/metroflow/v1/native_journey.py",
+        "src/metroflow/v1/native_release_driver.py",
+        "src/metroflow/v1/native_road.py",
+        "src/metroflow/v1/native_routing.py",
+        "src/metroflow/v1/native_static.py",
+        "tools/run_v1_local_acceptance.py"
+      ],
+      "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+      "git_commit": "adde1a3696b869a852c30d4271a5227631513bad",
+      "source_dirty": false
+    },
+    "native_binary": {
+      "status": "MEASURED",
+      "path": "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/lib/python3.12/site-packages/_metroflow_rust/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+      "size_bytes": 2858960,
+      "sha256": "4e6ba9e1e718b7d9de43e33ee3faf444c952e2f603a7e0b4dca9f2d76b689916"
+    },
+    "resource_binding": "retained_capacity_v3",
+    "driver_identity_valley": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4"
+  },
+  "earlier_candidate": {
+    "commit": "7e3748aa6883bc97d3ba2a451d3df52e3107baa4",
+    "gates": "gate_*.json (Valley 25650/Coastal 32730/River 25420 s)"
+  },
+  "diagnostic_binaries": {
+    "v2_probe": "742624d152245f4d6cd0a4c84285a1e852d657cc478b67858ddebaf75be7ff74",
+    "v3_observe": "2d52036cd76ec7aa778e65ee54267fc86f83287a926612c4e8f7984f5f617812",
+    "scope": "budget_trace feature builds; never campaign candidates"
+  },
+  "scientific_contract": {
+    "residents": 100000,
+    "full_demand": true,
+    "horizon_s": 86400,
+    "wall_limit_s": 7200,
+    "peak_rss_limit_bytes": 8589934592,
+    "native_accounting_budget_bytes": 6442450944,
+    "unchanged_tolerances": true,
+    "no_mass_pruning_or_time_binning": true
+  },
+  "verification": {
+    "scoped_pytest_passed": 260,
+    "rust_unit_tests_passed": 5,
+    "command": "OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONPATH=src python -m pytest -q tests/v1/test_native*.py tests/test_packet_quotient.py tests/v1/test_transfer_time.py tests/test_v1_journey.py tests/test_v1_birth_contract.py tests/test_v1_plan.py",
+    "legacy_occupied_replay": {
+      "repeats": 3,
+      "checkpoint_sha256": "ef4719a822ac85763679061a5ebd1d431e0edd9cec4e105a15ad1a5f7d4d884f",
+      "identical": true,
+      "candidate": "7e3748a physics paths; adde1a3 changes accounting only"
+    },
+    "independent_review": {
+      "findings_major": 1,
+      "resolved_in": "adde1a3",
+      "confirmed": [
+        "stage_sums bit-identical order",
+        "no guard decision change in campaign build",
+        "post-road guard rollback atomic"
+      ]
+    }
+  },
+  "short_gates": {
+    "river_weekday_s17": {
+      "status": "GATE_BLOCKED",
+      "simulated_s": 25420.0,
+      "wall_s": 1209.4828411009803,
+      "peak_rss_bytes": 2861166592,
+      "resource_limit_kind": "phase_working_budget_guard",
+      "reason": "native road storage budget exceeded: phase=transfer candidates, required_bytes=1789385704, budget_bytes=1789303342",
+      "road_parts_at_block": 5715608,
+      "diagnostic_observe": {
+        "simulated_s": 25500.0,
+        "peak_rss_bytes": 4209315840,
+        "reason": "native road storage budget exceeded: phase=state validation workspace, required_bytes=1613882512, budget_bytes=1602860974",
+        "road_parts": 12620177,
+        "max_cell_parts": 211223
+      }
+    },
+    "coastal_weekend_s41": {
+      "status": "GATE_BLOCKED",
+      "simulated_s": 32730.0,
+      "wall_s": 504.49742084299214,
+      "peak_rss_bytes": 3041366016,
+      "resource_limit_kind": "phase_working_budget_guard",
+      "reason": "native road storage budget exceeded: phase=transfer candidates, required_bytes=3654631352, budget_bytes=3654629598",
+      "road_parts_at_block": 11421320,
+      "diagnostic_observe": {
+        "simulated_s": 32830.0,
+        "peak_rss_bytes": 5483278336,
+        "reason": "native road storage budget exceeded: phase=state validation workspace, required_bytes=3434031680, budget_bytes=3223700526",
+        "road_parts": 26348811,
+        "max_cell_parts": 753115
+      }
+    },
+    "valley_weekday_s7": {
+      "status": "GATE_BLOCKED",
+      "simulated_s": 25650.0,
+      "wall_s": 268.73559707202367,
+      "peak_rss_bytes": 3190759424,
+      "resource_limit_kind": "phase_working_budget_guard",
+      "reason": "native road storage budget exceeded: phase=transfer candidates, required_bytes=5197395752, budget_bytes=5197316575",
+      "road_parts_at_block": 16528850,
+      "diagnostic_observe": {
+        "simulated_s": 25700.0,
+        "peak_rss_bytes": 6660411392,
+        "reason": "native road allocation unavailable",
+        "road_parts": 34610422,
+        "max_cell_parts": 1410562
+      }
+    }
+  },
+  "campaign": {
+    "status": "NOT_RUN_DEPENDENCY_BLOCKED",
+    "full_day_completed": 0,
+    "full_day_required": 9,
+    "refinement_run": 0,
+    "resume_run": 0,
+    "reason": "all three short gates blocked; guard-bypassed diagnostics show the same physical road-row growth cause in every case"
+  },
+  "remaining_blocker": "Exact interval FIFO road packets grow ~2x per 50-100 simulated s at morning onset (Valley 34.6M parts, real allocation failure at 8GiB address space with guards bypassed); accounting no longer the primary limit; representation/model decision required",
+  "dag_progress": {
+    "completed": 19,
+    "total": 21,
+    "percent": 90.47619047619048,
+    "accepted": 5,
+    "V03": "BLOCKED",
+    "RLS01": "PLANNED"
+  },
+  "deferred": [
+    "full repository CI",
+    "integration",
+    "merge",
+    "release",
+    "final acceptance review",
+    "RLS01"
+  ],
+  "host_note": "shared host: another session used ~9 GB RSS and heavy swap; wall times are not official performance",
+  "local_only": {
+    "frozen_v2_binary": "artifacts/v1_rust_completion_20261116/budget_final_binary/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+    "frozen_v2_binary_sha256": "3e06969385dffdb9834c56d2cf0831e67e07e618df4f1f2169cff974aa9a3972",
+    "last_valid_checkpoints": "artifacts/v1_rust_completion_20261116/LOCAL_CHECKPOINTS.json"
+  },
+  "evidence_sha256": {
+    "DIAG_OBSERVE_coastal.log": "29cdc50f4eaa091cd3b816a462d1a71a69c6f1499523e5441cdd07d9affa4326",
+    "DIAG_OBSERVE_river.log": "b114da2461f4eca5f8d02bb101f4ed3d22266fa08786d6f2263bce58a18d4b04",
+    "DIAG_OBSERVE_valley.log": "d0e4ae9e13808d054dbd6740925fc8b9093a7f8ff8a112cbaff02de45573df37",
+    "GATE_FINAL_coastal_weekend_s41.log": "6a23d9caf0856b3e26ac873ece6b1cb5d386fa5b2f8195ee534d5f99381d2361",
+    "GATE_FINAL_river_weekday_s17.log": "dfce27b7c8a63efd9167ac0d664f234ca54c077dea6469ca110744d0935c2410",
+    "GATE_FINAL_valley_weekday_s7.log": "bacfe6bf58123731ca37ffb4dc9aa11f789a658d2ba1fe62eaba3e897a845535",
+    "GATE_SHORT.py": "3e3f78ff8275eeb0d35b1e826fbb8a9f5df0033a738cdec024bd7fb29d2e23e7",
+    "GATE_coastal_weekend_s41.log": "1885a2ffe68e95e13594870cdd8504e862d21be7fe0f2dc42254b2ed4e5ed661",
+    "GATE_river_weekday_s17.log": "fad8b19382c613e133f39da529170b65ef8d436b8aff125de024bd1f4925a78a",
+    "GATE_valley_weekday_s7.log": "471db0bc00039cee5960eb3c1ded7afe0606d2edb64c94decd241166b6a2b53a",
+    "PROBE_WORKSPACE.py": "98ee57e6c5fd86f4832dc7e7b2c4229c2c2b6a4f719b9c5ca7172807ee8de53c",
+    "REPORT_KO.md": "151d0e97a149441a90fdccd1dd1a89b5d5850c434f69c2c59072d77dd86a51b6",
+    "WORKSPACE_PROBE.md": "c08208a6091330b41d28860995a5153d8f88985f86cea97e95ddb3f4bc29ada4",
+    "WORKSPACE_PROBE_SUMMARY.json": "4004ccacc96ece6aa7ac52fa533929b20e80d62b944857fac60da58d28eecdda",
+    "diag_observe_coastal.json": "eeaaec365526b720915674a040d5910fa2561971500a5e00187f320048054284",
+    "diag_observe_river.json": "6fc86da7f122a39625d7200b0d333eddb73543ada9364b79682db0755dea9bf6",
+    "diag_observe_valley.json": "9171ebb79989aae2907c305f124c4eaabf30fa45a584569f49eac204a593ff36",
+    "gate_coastal_weekend_s41.json": "e26bda8b4c465c45cd75349804eecc45e03f37c220514b14068fc078294b35ad",
+    "gate_final_coastal_weekend_s41.json": "266f7a8cd0938e0938ff42f6dc00adbdf5f1507def495099b243dbe90d950ed5",
+    "gate_final_river_weekday_s17.json": "dc2f3c90c0940912bf64ae92e7cf2fd22f9f2654f820d6e2f24ee750a60cd05f",
+    "gate_final_valley_weekday_s7.json": "c7eaff72c4c28b9537a6fa1c01a56a902cb3e2a3132f72f5e71f814a4c1785ab",
+    "gate_river_weekday_s17.json": "0a07c611c6afa0d15817d89bd9e55875a52c179d5af777dcd50f1c586480bc11",
+    "gate_valley_weekday_s7.json": "edeb2d9c7453899a187b10d54287f8385c68a70c2e2adf78ddf05b78ec8ee8fd",
+    "legacy_replay_v3.json": "617cd43e8f0d49aa4a559f5149c6250a185221dd9f1ecc1f59f6b99e42632f1f",
+    "probe_coastal.json": "bcfc991b8496a61e39394d6fcade5d56634ec076c49d480d52acc8859df7faf1",
+    "probe_river.json": "23d0ab4e20698b5086367485e3f8587949110734e0241f3e8fc646a1e555199b",
+    "probe_valley.json": "ed25a79e58048f57a245ebe913dd8a9f319d612cb93059a0a601591cdd5b2b12"
+  }
+}

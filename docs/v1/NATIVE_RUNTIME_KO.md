@@ -241,3 +241,12 @@ River 25,350s, Coastal 32,660s, Valley 25,600s에서 shared working guard로 중
 설치된 `metroflow-v1 run`의 기존 synthetic/toy 경로는 별도로 보존된다. 저장소의
 전체 도시 입력·실행기를 배포 패키지의 한 명령에 묶는 작업, fresh-install 최종
 수용, 전체 CI·통합·릴리스는 RLS01 및 별도 심사 범위다.
+
+## 2026-11-17 수명 기반 계상(`retained_capacity_v3`)과 실제 표현 증가
+
+`7e3748a`·`adde1a3`는 road step의 sink envelope를 step 이후 실제 출구 수로 옮기고, entry interval은 현재 구간
+workspace와 candidate로 이동한 packed 행·slot만 계상하며, 전체 검증의 stage 합을 정렬 기반 정확식으로 바꾼다.
+물리 경로·checkpoint 의미는 그대로이고 binding만 v3로 바뀐다(v2 checkpoint는 재해석하지 않는다).
+짧은 게이트는 25,650/32,730/25,420s에서 멈췄고, guard를 우회한 진단에서 road part 행이 아침 진입 구간에
+수십 초마다 배가하여 Valley는 8 GiB 주소공간에서 실제 할당이 실패했다. 따라서 남은 V03 blocker는 계상이
+아니라 interval packet 표현의 증가율이다. 근거: `artifacts/v1_v03_workspace_20261117/REPORT_KO.md`.

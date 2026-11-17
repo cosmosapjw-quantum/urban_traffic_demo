@@ -1,0 +1,10 @@
+{"t": 3600.0, "wall": 117.7, "rss": 1113051136, "heap_peak": 764536235, "worst": "engine_admission:capture/validation", "ratio": 0.2545}
+{"t": 7200.0, "wall": 167.2, "rss": 1113051136, "heap_peak": 843305581, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 10800.0, "wall": 206.1, "rss": 1113051136, "heap_peak": 843305581, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 14400.0, "wall": 243.7, "rss": 1113051136, "heap_peak": 843305581, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 18000.0, "wall": 274.7, "rss": 1113051136, "heap_peak": 843305581, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 21600.0, "wall": 321.3, "rss": 1113051136, "heap_peak": 843305581, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 25200.0, "wall": 352.2, "rss": 1113051136, "heap_peak": 843324481, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 28800.0, "wall": 404.4, "rss": 1113051136, "heap_peak": 843305581, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"t": 32400.0, "wall": 458.4, "rss": 1113051136, "heap_peak": 843305581, "worst": "engine_admission:capture", "ratio": 0.2545}
+{"status": "GATE_BLOCKED", "case": "coastal_weekend_s41", "simulated_s": 32830.0, "wall_s": 941.1966368080175, "peak_rss_bytes": 5483278336}

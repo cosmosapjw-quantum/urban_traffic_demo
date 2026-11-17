@@ -1,0 +1,245 @@
+{
+ "river": {
+  "case": "river_weekday_s17",
+  "start_s": 25350.0,
+  "loaded_report_identical": true,
+  "input_checkpoint_sha256": "e179f3b9b5b9081a8adb121e51761514654743a8e8bbe4166691dd04cc46425e",
+  "diagnostic_binary_sha256": "742624d152245f4d6cd0a4c84285a1e852d657cc478b67858ddebaf75be7ff74",
+  "frozen_binary_sha256": "3e06969385dffdb9834c56d2cf0831e67e07e618df4f1f2169cff974aa9a3972",
+  "source_blocker": "BudgetExceeded: native whole checkpointability storage budget exceeded: required_bytes=3187741149, budget_bytes=3135452254",
+  "ticks": [
+   {
+    "end_s": 25360.0,
+    "status": "ADVANCED",
+    "counted_rust_heap_peak_bytes": 2550237215,
+    "process_peak_rss_bytes": 2791870464,
+    "worst_guard": "engine_admission:capture/validation",
+    "worst_ratio": 0.9835985822913548,
+    "worst_required": 6336785615,
+    "worst_limit": 6442450944,
+    "worst_terms": {
+     "fixed_base": 2845784823,
+     "call_binding": 461213867,
+     "validation_scratch": 2058634424,
+     "road": 86689456,
+     "journey": 323657008,
+     "events": 67108992
+    },
+    "exceeded_sites": []
+   },
+   {
+    "end_s": 25370.0,
+    "status": "ADVANCED",
+    "counted_rust_heap_peak_bytes": 2645060239,
+    "process_peak_rss_bytes": 2904338432,
+    "worst_guard": "journey_commit:checkpointability",
+    "worst_ratio": 1.003266521755174,
+    "worst_required": 3145694277,
+    "worst_limit": 3135452254,
+    "worst_terms": {
+     "input_road": 86444752,
+     "current_road": 86444752,
+     "candidate_road": 101031072,
+     "decoded_road": 101108112,
+     "journey_retained_input": 323654136,
+     "old_journey": 323654136,
+     "new_journey": 345758072,
+     "decoded_journey": 320037912,
+     "input_event": 47126144,
+     "current_event": 47126144,
+     "candidate_event": 67108992,
+     "validation_scratch": 2064982616,
+     "call_binding_reserve": 461213867,
+     "road_decode_scratch": 49204400
+    },
+    "exceeded_sites": [
+     "engine_admission:capture/validation",
+     "journey_commit:checkpointability"
+    ]
+   },
+   {
+    "end_s": 25380.0,
+    "status": "ADVANCED",
+    "counted_rust_heap_peak_bytes": 2817447871,
+    "process_peak_rss_bytes": 3021332480,
+    "worst_guard": "journey_commit:checkpointability",
+    "worst_ratio": 1.1034552991793063,
+    "worst_required": 3459831405,
+    "worst_limit": 3135452254,
+    "worst_terms": {
+     "input_road": 100745088,
+     "current_road": 100745088,
+     "candidate_road": 116212064,
+     "decoded_road": 116289104,
+     "journey_retained_input": 345753576,
+     "old_journey": 345753576,
+     "new_journey": 366303952,
+     "decoded_journey": 328114272,
+     "input_event": 57836544,
+     "current_event": 57836544,
+     "candidate_event": 134217856,
+     "validation_scratch": 2070612536,
+     "call_binding_reserve": 461213867,
+     "road_decode_scratch": 56720560
+    },
+    "exceeded_sites": [
+     "engine_admission:capture/validation",
+     "journey_commit:checkpointability"
+    ]
+   }
+  ]
+ },
+ "coastal": {
+  "case": "coastal_weekend_s41",
+  "start_s": 32660.0,
+  "loaded_report_identical": true,
+  "input_checkpoint_sha256": "f92cc99f87e30fe6fafc37674eb58ad4855fe83a61e32f659596d9cfcaa1aa1e",
+  "diagnostic_binary_sha256": "742624d152245f4d6cd0a4c84285a1e852d657cc478b67858ddebaf75be7ff74",
+  "frozen_binary_sha256": "3e06969385dffdb9834c56d2cf0831e67e07e618df4f1f2169cff974aa9a3972",
+  "source_blocker": "BudgetExceeded: native road storage budget exceeded: phase=entry interval split, required_bytes=3803788656, budget_bytes=3803738862",
+  "ticks": [
+   {
+    "end_s": 32670.0,
+    "status": "ADVANCED",
+    "counted_rust_heap_peak_bytes": 2579308555,
+    "process_peak_rss_bytes": 2639323136,
+    "worst_guard": "road_work:packet interval packing",
+    "worst_ratio": 0.9787587179299212,
+    "worst_required": 3873341056,
+    "worst_limit": 3957401334,
+    "worst_terms": {
+     "base": 950955360,
+     "event_bytes": 2095802768,
+     "incoming_rows": 2526772,
+     "interval_rows": 2932617,
+     "extra": 2560
+    },
+    "exceeded_sites": []
+   },
+   {
+    "end_s": 32680.0,
+    "status": "ADVANCED",
+    "counted_rust_heap_peak_bytes": 2712874515,
+    "process_peak_rss_bytes": 2820358144,
+    "worst_guard": "road_work:packet interval packing",
+    "worst_ratio": 1.0989322728601987,
+    "worst_required": 4292862136,
+    "worst_limit": 3906393726,
+    "worst_terms": {
+     "base": 1030748120,
+     "event_bytes": 2346264944,
+     "incoming_rows": 2803826,
+     "interval_rows": 3244683,
+     "extra": 2560
+    },
+    "exceeded_sites": [
+     "road_work:entry interval split",
+     "road_work:interval edges",
+     "road_work:packet interval packing"
+    ]
+   },
+   {
+    "end_s": 32690.0,
+    "status": "ADVANCED",
+    "counted_rust_heap_peak_bytes": 2869491507,
+    "process_peak_rss_bytes": 2999930880,
+    "worst_guard": "road_work:packet interval packing",
+    "worst_ratio": 1.2334579137024344,
+    "worst_required": 4761872048,
+    "worst_limit": 3860587374,
+    "worst_terms": {
+     "base": 1118752912,
+     "event_bytes": 2625130688,
+     "incoming_rows": 3111430,
+     "interval_rows": 3612202,
+     "extra": 2560
+    },
+    "exceeded_sites": [
+     "road_work:entry interval split",
+     "road_work:interval edges",
+     "road_work:packet interval packing",
+     "road_work:transfer candidates"
+    ]
+   }
+  ]
+ },
+ "valley": {
+  "case": "valley_weekday_s7",
+  "start_s": 25600.0,
+  "loaded_report_identical": true,
+  "input_checkpoint_sha256": "3713d03c65f465dfdd0e5f3a3b3a6eb436f55a02dbd09c38d9999bbf2f0d747a",
+  "diagnostic_binary_sha256": "742624d152245f4d6cd0a4c84285a1e852d657cc478b67858ddebaf75be7ff74",
+  "frozen_binary_sha256": "3e06969385dffdb9834c56d2cf0831e67e07e618df4f1f2169cff974aa9a3972",
+  "source_blocker": "BudgetExceeded: native road storage budget exceeded: phase=packet interval packing, required_bytes=5333479128, budget_bytes=5333475127",
+  "ticks": [
+   {
+    "end_s": 25610.0,
+    "status": "ADVANCED",
+    "counted_rust_heap_peak_bytes": 2358935106,
+    "process_peak_rss_bytes": 2642833408,
+    "worst_guard": "road_work:packet interval packing",
+    "worst_ratio": 1.0459840089025592,
+    "worst_required": 5635455784,
+    "worst_limit": 5387707399,
+    "worst_terms": {
+     "base": 1136782528,
+     "event_bytes": 3296367224,
+     "incoming_rows": 3694693,
+     "interval_rows": 4244107,
+     "extra": 3744
+    },
+    "exceeded_sites": [
+     "road_work:entry interval split",
+     "road_work:interval edges",
+     "road_work:packet interval packing"
+    ]
+   },
+   {
+    "end_s": 25620.0,
+    "status": "ADVANCED",
+    "counted_rust_heap_peak_bytes": 2910511762,
+    "process_peak_rss_bytes": 2833641472,
+    "worst_guard": "road_work:packet interval packing",
+    "worst_ratio": 1.236894041236037,
+    "worst_required": 6619383464,
+    "worst_limit": 5351617231,
+    "worst_terms": {
+     "base": 1302225552,
+     "event_bytes": 3899386712,
+     "incoming_rows": 4361646,
+     "interval_rows": 4999334,
+     "extra": 3744
+    },
+    "exceeded_sites": [
+     "road_work:entry interval split",
+     "road_work:interval edges",
+     "road_work:packet interval packing",
+     "road_work:transfer candidates"
+    ]
+   },
+   {
+    "end_s": 25630.0,
+    "status": "ADVANCED",
+    "counted_rust_heap_peak_bytes": 3213778578,
+    "process_peak_rss_bytes": 3159695360,
+    "worst_guard": "road_work:packet interval packing",
+    "worst_ratio": 1.409280379693686,
+    "worst_required": 7492264984,
+    "worst_limit": 5316376423,
+    "worst_terms": {
+     "base": 1506448704,
+     "event_bytes": 4396693352,
+     "incoming_rows": 4910435,
+     "interval_rows": 5579511,
+     "extra": 3744
+    },
+    "exceeded_sites": [
+     "road_work:entry interval split",
+     "road_work:interval edges",
+     "road_work:packet interval packing",
+     "road_work:transfer candidates"
+    ]
+   }
+  ]
+ }
+}
