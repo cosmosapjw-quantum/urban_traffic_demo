@@ -171,6 +171,7 @@
     "ATTRIBUTION.json": "1c5acb5b4a587cbbcc0a2314bd83dae864677a08ea1c7cb787e37602e29eac10",
     "ATTRIBUTION_KO.md": "709de02df5eb7251dfe838d7d4c2f55aba68efef65f13af635605e279dcab705",
     "ATTRIB_valley.log": "bae9cb9d07a90205455bf622b941503261afe7b6de23b02bbbef1b39111ebf67",
+    "AUDIT_BRIEF_KO.md": "c57f64d40429d9c4aad16a0dc44aa410ab8cfd3039e01300af6d84f85a843d15",
     "DIAG_OBSERVE_coastal.log": "29cdc50f4eaa091cd3b816a462d1a71a69c6f1499523e5441cdd07d9affa4326",
     "DIAG_OBSERVE_river.log": "b114da2461f4eca5f8d02bb101f4ed3d22266fa08786d6f2263bce58a18d4b04",
     "DIAG_OBSERVE_valley.log": "d0e4ae9e13808d054dbd6740925fc8b9093a7f8ff8a112cbaff02de45573df37",
@@ -238,5 +239,6 @@
       "attrib4_valley.json",
       "legacy_replay_option1.json"
     ]
-  }
+  },
+  "audit_brief": "AUDIT_BRIEF_KO.md"
 }

@@ -1911,7 +1911,7 @@
       },
       "blocked_evidence": {
         "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
-        "sha256": "6d5b2788c00bab7c992305f2c97f779a1ad9b2236801253a808283b20b52734d"
+        "sha256": "e88229512fefcbebde7a457c97f86b4ebe1f6d3f416670f5e80a4b4923dfb2f0"
       },
       "resource_optimization_evidence": [
         {
@@ -1951,7 +1951,7 @@
         },
         {
           "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
-          "sha256": "6d5b2788c00bab7c992305f2c97f779a1ad9b2236801253a808283b20b52734d",
+          "sha256": "e88229512fefcbebde7a457c97f86b4ebe1f6d3f416670f5e80a4b4923dfb2f0",
           "scope": "Measured blocked-checkpoint workspaces (counted heap 2.4-3.2GB vs >6GiB guards); retained_capacity_v3 lifetime accounting (sink envelope after road step, interval workspace, sort-based stage validation); 260 scoped tests, legacy replay bytes identical. Gates adde1a3 stop at25650/32730/25420s; guard-bypassed diagnostics show road parts doubling per50-100s (Valley real allocation failure at8GiB AS). Attribution (option a): partial head serves create ~80% of new rows; bit-identical merging bounded at a few percent."
         }
       ],
