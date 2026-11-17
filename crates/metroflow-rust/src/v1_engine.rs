@@ -1069,7 +1069,11 @@ impl NativeWholeEngine {
             .saturating_add(e.saturating_mul(3));
         let observed = crate::v1_trace::guard(
             "engine_admission",
-            if validate { "capture/validation" } else { "capture" },
+            if validate {
+                "capture/validation"
+            } else {
+                "capture"
+            },
             required,
             self.byte_budget,
             &[
@@ -1772,7 +1776,9 @@ mod stage_sum_tests {
     use crate::v1_stage::StageQueue;
 
     fn lcg(state: &mut u64) -> u64 {
-        *state = state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        *state = state
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
         *state >> 11
     }
 
@@ -1786,7 +1792,9 @@ mod stage_sum_tests {
         }
         let stages: HashMap<usize, f64> =
             stages.into_iter().map(|(i, v)| (i, v.finish())).collect();
-        (0..legs).map(|i| stages.get(&i).copied().unwrap_or(0.0)).collect()
+        (0..legs)
+            .map(|i| stages.get(&i).copied().unwrap_or(0.0))
+            .collect()
     }
 
     #[test]

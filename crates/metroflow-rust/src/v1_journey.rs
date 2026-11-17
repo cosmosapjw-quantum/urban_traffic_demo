@@ -250,7 +250,11 @@ fn check_storage_limit(
             "stored/working",
             required,
             cap,
-            &[("retained", retained), ("dynamic", dynamic), ("scratch", scratch)],
+            &[
+                ("retained", retained),
+                ("dynamic", dynamic),
+                ("scratch", scratch),
+            ],
         ) {
             return Ok(());
         }
@@ -264,7 +268,10 @@ fn check_storage_limit(
 }
 
 fn phase_storage_allowance(total: usize, other_live: usize, phase: &str) -> PyResult<usize> {
-    crate::v1_trace::guard("phase_allowance", phase, other_live, total, &[]);
+    if crate::v1_trace::guard("phase_allowance", phase, other_live, total, &[]) {
+        // Diagnostic observe build only: continue with a nominal allowance.
+        return Ok(total.max(1));
+    }
     total.checked_sub(other_live).filter(|bytes| *bytes > 0).ok_or_else(|| {
         PyMemoryError::new_err(format!(
             "native coupled storage budget exceeded before {phase}: other_live_bytes={other_live}, budget_bytes={total}"

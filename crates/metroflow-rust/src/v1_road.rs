@@ -1303,6 +1303,23 @@ impl V1Road {
                     .saturating_mul(2 * std::mem::size_of::<Part>()),
             )
             .saturating_add(groups.saturating_mul(1024 + self.classes.len() * 1024));
+        if let Some(limit) = self.storage_budget {
+            crate::v1_trace::guard(
+                "road_base",
+                "components",
+                base,
+                limit,
+                &[
+                    ("state_retained", state.retained_storage_bytes()),
+                    ("input_retained", self.retained_input_bytes),
+                    ("rows", rows),
+                    ("offers", offers.len()),
+                    ("max_cell_parts", stats.max_cell_parts),
+                    ("groups", groups),
+                    ("classes", self.classes.len()),
+                ],
+            );
+        }
         let work = RoadWorkBudget {
             limit: self.storage_budget,
             base,
@@ -1476,8 +1493,7 @@ impl V1Road {
         // with room for its doubling reallocation. Only packed rows that are
         // pushed to the output outlive their interval.
         let edge_bytes = parts.len().saturating_mul(2 * std::mem::size_of::<f64>());
-        const ROW_BYTES: usize =
-            2 * std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
+        const ROW_BYTES: usize = 2 * std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
         let transient = |count: usize, packets: usize| {
             edge_bytes
                 .saturating_add(count.saturating_mul(ROW_BYTES))
@@ -1512,7 +1528,11 @@ impl V1Road {
             if !point.is_empty() {
                 records += point.len();
                 let parts = work.pack_parts(point)?;
-                work.retain_interval(parts.allocated_bytes());
+                work.retain_interval(
+                    parts
+                        .allocated_bytes()
+                        .saturating_add(std::mem::size_of::<Packet>()),
+                );
                 push_checked(&mut out, Packet { target, parts })?;
             }
             if k + 1 < edges.len() {
@@ -1538,7 +1558,11 @@ impl V1Road {
                 if !ps.is_empty() {
                     records += ps.len();
                     let parts = work.pack_parts(ps)?;
-                    work.retain_interval(parts.allocated_bytes());
+                    work.retain_interval(
+                        parts
+                            .allocated_bytes()
+                            .saturating_add(std::mem::size_of::<Packet>()),
+                    );
                     push_checked(&mut out, Packet { target, parts })?;
                 }
             }
@@ -2202,6 +2226,30 @@ impl V1Road {
             }
             resolution.merge(clock.stats);
         }
+        if work.limit.is_some() && crate::v1_trace::enabled() {
+            let incoming_cap: usize = incoming.iter().map(Vec::capacity).sum();
+            let marks_cap: usize = marks.iter().map(Vec::capacity).sum();
+            let incoming_len: usize = incoming.iter().map(Vec::len).sum();
+            crate::v1_trace::guard(
+                "road_actual",
+                "transfer buffers",
+                events
+                    .capacity()
+                    .saturating_mul(std::mem::size_of::<EventRow>())
+                    .saturating_add(incoming_cap.saturating_mul(std::mem::size_of::<Part>()))
+                    .saturating_add(marks_cap.saturating_mul(std::mem::size_of::<Mark>())),
+                work.limit.unwrap_or(usize::MAX),
+                &[
+                    ("events_len", events.len()),
+                    ("events_cap", events.capacity()),
+                    ("incoming_len", incoming_len),
+                    ("incoming_cap", incoming_cap),
+                    ("marks_cap", marks_cap),
+                    ("charged_events", work.events),
+                    ("charged_incoming", work.incoming),
+                ],
+            );
+        }
         for i in 0..n {
             for (p, ready) in &queues[i][position[i]..] {
                 for part in &p.parts {
@@ -2318,10 +2366,38 @@ impl V1Road {
                     parts: work.pack_parts(parts)?,
                 }]
             };
+            // The returned list, the cell's old slot buffer and its grown
+            // replacement coexist during the reservation. Slots of interval
+            // packets are already retained; charge any extra slack retained.
+            let slot = std::mem::size_of::<Packet>();
+            let old_capacity = out.cells[i].packets.capacity();
+            let needed = out.cells[i].packets.len().saturating_add(packets.len());
+            let grown = if needed > old_capacity {
+                needed.max(old_capacity.saturating_mul(2)).max(4)
+            } else {
+                0
+            };
+            work.require(
+                packets
+                    .capacity()
+                    .saturating_add(old_capacity)
+                    .saturating_add(grown)
+                    .saturating_mul(slot),
+                "cell packet reservation",
+            )?;
             out.cells[i]
                 .packets
                 .try_reserve(packets.len())
                 .map_err(|_| budget("native road packet allocation unavailable"))?;
+            let charged = if self.intervals { packets.len() } else { 0 };
+            work.retain_interval(
+                out.cells[i]
+                    .packets
+                    .capacity()
+                    .saturating_sub(old_capacity)
+                    .saturating_sub(charged)
+                    .saturating_mul(slot),
+            );
             out.cells[i].packets.extend(packets);
             out.cells[i].v[2] += added;
             out.cells[i].v[4] += added * end;
@@ -2338,20 +2414,22 @@ impl V1Road {
                 .retained_storage_bytes()
                 .max(out.retained_storage_bytes())
                 .max(self.retained_input_bytes);
-            if let Some(limit) = self.storage_budget {
+            let observed = self.storage_budget.is_some_and(|limit| {
                 crate::v1_trace::guard(
                     "road_candidate",
                     "candidate and immutable snapshot",
                     retained.saturating_mul(3),
                     limit,
                     &[("retained", retained)],
-                );
+                )
+            });
+            if !observed {
+                check_storage_limit(
+                    self.storage_budget,
+                    retained.saturating_mul(3),
+                    "candidate and immutable snapshot",
+                )?;
             }
-            check_storage_limit(
-                self.storage_budget,
-                retained.saturating_mul(3),
-                "candidate and immutable snapshot",
-            )?;
         }
         for i in 0..n {
             let tol = 1e-9 * out.totals[0].max(1.);

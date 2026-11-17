@@ -98,6 +98,10 @@ fn mode() -> u8 {
     m
 }
 
+pub(crate) fn enabled() -> bool {
+    mode() >= 2
+}
+
 /// Record one guard evaluation. Returns true only when a diagnostic
 /// `budget_trace` build runs in observe mode and the guard was exceeded, in
 /// which case the caller continues instead of raising.
