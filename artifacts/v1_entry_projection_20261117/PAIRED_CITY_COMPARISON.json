@@ -1,0 +1,71 @@
+{
+  "scope": "same Valley full-calendar initial conditions, dt=10 s, endpoint 25500 s; endpoint aggregates only, not a complete time-series or acceptance certificate",
+  "status": "PAIRED_PREFIX_EXECUTED",
+  "horizon_s": 25500,
+  "reference_width_s": 0,
+  "candidate_width_s": 1,
+  "source_sha256": "6a9bfa6b6be8f2c025aa71b07cc50ebf79c34b0f79f93a8a55ab07f06ef66b0f",
+  "native_binary_sha256": "b34832c7803e5ca2be5e7c1a1f83c2d2a83faf29ca7d7956e4943a01f1ce57a3",
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "peak_tracked_records": {
+    "reference": 5304240,
+    "candidate": 4039278,
+    "candidate_over_reference": 0.7615187095606534,
+    "fraction_reduction": 0.23848129043934663
+  },
+  "peak_rss_bytes": {
+    "reference": 973053952,
+    "candidate": 860958720,
+    "candidate_over_reference": 0.8848005994224666,
+    "fraction_reduction": 0.11519940057753342
+  },
+  "wall_s": {
+    "reference": 107.7789141809917,
+    "candidate": 110.30737393800518,
+    "candidate_over_reference": 1.0234596885320952,
+    "fraction_reduction": -0.023459688532095235
+  },
+  "ledger_differences": {
+    "persons": {
+      "requested": 0.0,
+      "released": 0.0,
+      "completed": -0.0012953110168485438,
+      "pending": 0.0,
+      "active": 0.0012953110168609783
+    },
+    "vehicles": {
+      "requested": 0.0,
+      "released": 0.0,
+      "completed": -0.0010362488134898484,
+      "pending": 0.0,
+      "active": 0.0010362488135342574
+    },
+    "cargo_kg": {
+      "requested": 0.0,
+      "released": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "active": 0.0
+    }
+  },
+  "max_abs_ledger_residual": {
+    "reference": {
+      "persons": 0.0,
+      "vehicles": 0.0,
+      "cargo_kg": 0.0
+    },
+    "candidate": {
+      "persons": 0.0,
+      "vehicles": 0.0,
+      "cargo_kg": 0.0
+    }
+  },
+  "released_intent_first_moment_differences": {
+    "persons": 0.0,
+    "vehicles": 0.0,
+    "cargo_kg": 0.0
+  },
+  "road_completed_veh_difference": -0.0005869497134831647,
+  "full_day_acceptance": "NOT_RUN",
+  "interpretation": "measured resource reduction and nonzero endpoint numerical change on one prefix; no universal error or speedup claim"
+}

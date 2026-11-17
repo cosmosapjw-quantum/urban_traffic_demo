@@ -1,0 +1,5466 @@
+{
+  "scenario": "synthetic_finite_response_merge_diverge_signal_closure_v1",
+  "scope": "bounded numerical comparison; full-city calibration/acceptance not established",
+  "python": "3.12.14",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "base_commit": "0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+  "source_sha256": {
+    "src/metroflow/packet_network.py": "858b5603361a71a971ca4287fb9b916b82283cbc2154c391099ded2c3d99a6d7",
+    "src/metroflow/entry_projection.py": "eb51625b68c1d36a0c1230c6a1fccbc130af1b05aae18d4891d13abf27b169b8",
+    "src/metroflow/v1/transport.py": "6a2e4c76def3e199b6e11c223cfdc786eab55eed4fb5a94fa8d4c8e85ca8c538",
+    "crates/metroflow-rust/src/v1_road.rs": "439a37861dee3d57dd9440928c2e95145e5c9b75db281ba9a2a734f2eae962ec"
+  },
+  "runs": [
+    {
+      "status": "EXECUTED",
+      "reason": null,
+      "backend": "python",
+      "dt_s": 1.0,
+      "width_s": 0.0,
+      "identity": "9d67b79db64856a782b701806eee38548ca678b9ca20fba997945f4b73930093",
+      "simulated_s": 40.0,
+      "released_veh": 4.480000000000001,
+      "completed_veh": 3.583054538210508,
+      "completed_by_tag": {
+        "car-a": 2.033054538210507,
+        "car-b": 1.3500000000000003,
+        "bus": 0.20000000000000004
+      },
+      "system_vehicle_seconds": 96.56186609214943,
+      "exit_moment_veh_s": 90.73904762056969,
+      "peak_parts": 57,
+      "peak_packets": 37,
+      "max_mass_residual_veh": 1.7763568394002505e-15,
+      "summed_local_projection_cost_veh_s": 0.0,
+      "projection_cost_scope": "sum of local proposal costs, not network error bound; replay excluded",
+      "replay_equal": true,
+      "wall_s": 0.06285041199953412,
+      "curve": [
+        {
+          "time_s": 1.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 0,
+          "packets": 0
+        },
+        {
+          "time_s": 2.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 1,
+          "packets": 1
+        },
+        {
+          "time_s": 3.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.15,
+            0.19,
+            0.0,
+            0.0
+          ],
+          "parts": 3,
+          "packets": 3
+        },
+        {
+          "time_s": 4.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.2066344536470237,
+            0.47064776726016666,
+            0.027717779092809616,
+            0.0
+          ],
+          "parts": 10,
+          "packets": 8
+        },
+        {
+          "time_s": 5.0,
+          "completed_veh": 0.027717779092809616,
+          "occupancy_veh": [
+            0.19,
+            0.28063851508846627,
+            0.5663069467010265,
+            0.19533675911769763,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 6.0,
+          "completed_veh": 0.22305453821050725,
+          "occupancy_veh": [
+            0.19,
+            0.2921901892930656,
+            0.6797552724964272,
+            0.15694546178949279,
+            0.08305453821050719
+          ],
+          "parts": 19,
+          "packets": 14
+        },
+        {
+          "time_s": 7.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2935243121873098,
+            1.043421149602183,
+            0.0,
+            0.0
+          ],
+          "parts": 20,
+          "packets": 13
+        },
+        {
+          "time_s": 8.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2933057176005955,
+            1.4086397441888974,
+            0.0,
+            0.0
+          ],
+          "parts": 25,
+          "packets": 16
+        },
+        {
+          "time_s": 9.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2930735957418471,
+            1.7738718660476456,
+            0.0,
+            0.0
+          ],
+          "parts": 30,
+          "packets": 19
+        },
+        {
+          "time_s": 10.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.29296538023919066,
+            2.138980081550302,
+            0.0,
+            0.0
+          ],
+          "parts": 35,
+          "packets": 22
+        },
+        {
+          "time_s": 11.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.29292597698367406,
+            2.5040194848058186,
+            0.0,
+            0.0
+          ],
+          "parts": 40,
+          "packets": 25
+        },
+        {
+          "time_s": 12.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2929136283843228,
+            2.86903183340517,
+            0.0,
+            0.0
+          ],
+          "parts": 45,
+          "packets": 28
+        },
+        {
+          "time_s": 13.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2929102205303098,
+            3.234035241259183,
+            0.0,
+            0.0
+          ],
+          "parts": 50,
+          "packets": 31
+        },
+        {
+          "time_s": 14.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.0,
+            0.267909404187832,
+            3.5990360576016607,
+            0.0,
+            0.0
+          ],
+          "parts": 53,
+          "packets": 33
+        },
+        {
+          "time_s": 15.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.0,
+            0.23232656843503355,
+            3.7846188933544593,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 16.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.0,
+            0.03412321813491777,
+            3.742822243654575,
+            0.17305453821050718,
+            0.06694546178949282
+          ],
+          "parts": 57,
+          "packets": 37
+        },
+        {
+          "time_s": 17.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 18.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 19.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 20.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 21.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.5369454617894927,
+            0.09,
+            0.15
+          ],
+          "parts": 55,
+          "packets": 37
+        },
+        {
+          "time_s": 22.0,
+          "completed_veh": 0.9430545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.296945461789493,
+            0.15595325296242243,
+            0.08404674703757756
+          ],
+          "parts": 51,
+          "packets": 34
+        },
+        {
+          "time_s": 23.0,
+          "completed_veh": 1.183054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.0569454617894927,
+            0.17404674703757758,
+            0.06595325296242244
+          ],
+          "parts": 47,
+          "packets": 31
+        },
+        {
+          "time_s": 24.0,
+          "completed_veh": 1.423054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.816945461789493,
+            0.08999999999999998,
+            0.15
+          ],
+          "parts": 45,
+          "packets": 31
+        },
+        {
+          "time_s": 25.0,
+          "completed_veh": 1.663054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.5769454617894927,
+            0.164524681533851,
+            0.07547531846614898
+          ],
+          "parts": 41,
+          "packets": 28
+        },
+        {
+          "time_s": 26.0,
+          "completed_veh": 1.903054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.165475318466149,
+            0.074524681533851
+          ],
+          "parts": 37,
+          "packets": 25
+        },
+        {
+          "time_s": 27.0,
+          "completed_veh": 2.143054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 28.0,
+          "completed_veh": 2.143054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 29.0,
+          "completed_veh": 2.143054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 30.0,
+          "completed_veh": 2.143054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 31.0,
+          "completed_veh": 2.143054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.0969454617894927,
+            0.08999999999999998,
+            0.15
+          ],
+          "parts": 35,
+          "packets": 25
+        },
+        {
+          "time_s": 32.0,
+          "completed_veh": 2.383054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.856945461789493,
+            0.17309611010527962,
+            0.06690388989472039
+          ],
+          "parts": 33,
+          "packets": 24
+        },
+        {
+          "time_s": 33.0,
+          "completed_veh": 2.623054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.616945461789493,
+            0.15690388989472037,
+            0.08309611010527963
+          ],
+          "parts": 27,
+          "packets": 19
+        },
+        {
+          "time_s": 34.0,
+          "completed_veh": 2.8630545382105073,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.376945461789493,
+            0.09000000000000001,
+            0.15
+          ],
+          "parts": 25,
+          "packets": 19
+        },
+        {
+          "time_s": 35.0,
+          "completed_veh": 3.1030545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.136945461789493,
+            0.1816675386767082,
+            0.058332461323291784
+          ],
+          "parts": 21,
+          "packets": 16
+        },
+        {
+          "time_s": 36.0,
+          "completed_veh": 3.3430545382105077,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.8969454617894929,
+            0.14833246132329178,
+            0.0916675386767082
+          ],
+          "parts": 17,
+          "packets": 13
+        },
+        {
+          "time_s": 37.0,
+          "completed_veh": 3.583054538210508,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.8969454617894929,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        },
+        {
+          "time_s": 38.0,
+          "completed_veh": 3.583054538210508,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.8969454617894929,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        },
+        {
+          "time_s": 39.0,
+          "completed_veh": 3.583054538210508,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.8969454617894929,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        },
+        {
+          "time_s": 40.0,
+          "completed_veh": 3.583054538210508,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.8969454617894929,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        }
+      ]
+    },
+    {
+      "status": "EXECUTED",
+      "reason": null,
+      "backend": "python",
+      "dt_s": 1.0,
+      "width_s": 1.0,
+      "identity": "9d67b79db64856a782b701806eee38548ca678b9ca20fba997945f4b73930093:entry_projection_support_v1:3ff0000000000000",
+      "simulated_s": 40.0,
+      "released_veh": 4.480000000000001,
+      "completed_veh": 3.583054538210508,
+      "completed_by_tag": {
+        "car-a": 2.0330545382105067,
+        "car-b": 1.35,
+        "bus": 0.19999999999999998
+      },
+      "system_vehicle_seconds": 96.56186609214943,
+      "exit_moment_veh_s": 90.73904762056969,
+      "peak_parts": 56,
+      "peak_packets": 36,
+      "max_mass_residual_veh": 1.7763568394002505e-15,
+      "summed_local_projection_cost_veh_s": 1.4676872437409094,
+      "projection_cost_scope": "sum of local proposal costs, not network error bound; replay excluded",
+      "replay_equal": true,
+      "wall_s": 0.05426123199868016,
+      "curve": [
+        {
+          "time_s": 1.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 0,
+          "packets": 0
+        },
+        {
+          "time_s": 2.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 1,
+          "packets": 1
+        },
+        {
+          "time_s": 3.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.15,
+            0.19,
+            0.0,
+            0.0
+          ],
+          "parts": 3,
+          "packets": 3
+        },
+        {
+          "time_s": 4.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.2066344536470237,
+            0.47064776726016666,
+            0.027717779092809616,
+            0.0
+          ],
+          "parts": 10,
+          "packets": 8
+        },
+        {
+          "time_s": 5.0,
+          "completed_veh": 0.027717779092809616,
+          "occupancy_veh": [
+            0.19,
+            0.28063851508846627,
+            0.5663069467010265,
+            0.19533675911769763,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 6.0,
+          "completed_veh": 0.22305453821050725,
+          "occupancy_veh": [
+            0.19,
+            0.2921901892930656,
+            0.6797552724964272,
+            0.15694546178949279,
+            0.08305453821050719
+          ],
+          "parts": 17,
+          "packets": 12
+        },
+        {
+          "time_s": 7.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2935243121873098,
+            1.043421149602183,
+            0.0,
+            0.0
+          ],
+          "parts": 20,
+          "packets": 13
+        },
+        {
+          "time_s": 8.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2933057176005955,
+            1.4086397441888974,
+            0.0,
+            0.0
+          ],
+          "parts": 25,
+          "packets": 16
+        },
+        {
+          "time_s": 9.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2930735957418471,
+            1.7738718660476456,
+            0.0,
+            0.0
+          ],
+          "parts": 30,
+          "packets": 19
+        },
+        {
+          "time_s": 10.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.29296538023919066,
+            2.138980081550302,
+            0.0,
+            0.0
+          ],
+          "parts": 35,
+          "packets": 22
+        },
+        {
+          "time_s": 11.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.29292597698367406,
+            2.5040194848058186,
+            0.0,
+            0.0
+          ],
+          "parts": 40,
+          "packets": 25
+        },
+        {
+          "time_s": 12.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2929136283843228,
+            2.86903183340517,
+            0.0,
+            0.0
+          ],
+          "parts": 45,
+          "packets": 28
+        },
+        {
+          "time_s": 13.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2929102205303098,
+            3.234035241259183,
+            0.0,
+            0.0
+          ],
+          "parts": 50,
+          "packets": 31
+        },
+        {
+          "time_s": 14.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.0,
+            0.267909404187832,
+            3.5990360576016607,
+            0.0,
+            0.0
+          ],
+          "parts": 53,
+          "packets": 33
+        },
+        {
+          "time_s": 15.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.0,
+            0.23232656843503355,
+            3.7846188933544593,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 16.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.0,
+            0.03412321813491777,
+            3.742822243654575,
+            0.17305453821050718,
+            0.06694546178949282
+          ],
+          "parts": 56,
+          "packets": 36
+        },
+        {
+          "time_s": 17.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 18.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 19.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 20.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 21.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.5369454617894927,
+            0.09,
+            0.15
+          ],
+          "parts": 52,
+          "packets": 33
+        },
+        {
+          "time_s": 22.0,
+          "completed_veh": 0.9430545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.296945461789493,
+            0.15595325296242243,
+            0.08404674703757758
+          ],
+          "parts": 49,
+          "packets": 31
+        },
+        {
+          "time_s": 23.0,
+          "completed_veh": 1.1830545382105073,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.0569454617894927,
+            0.1740467470375776,
+            0.06595325296242241
+          ],
+          "parts": 47,
+          "packets": 30
+        },
+        {
+          "time_s": 24.0,
+          "completed_veh": 1.4230545382105073,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.816945461789493,
+            0.09,
+            0.15
+          ],
+          "parts": 42,
+          "packets": 27
+        },
+        {
+          "time_s": 25.0,
+          "completed_veh": 1.6630545382105073,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.5769454617894927,
+            0.164524681533851,
+            0.075475318466149
+          ],
+          "parts": 39,
+          "packets": 25
+        },
+        {
+          "time_s": 26.0,
+          "completed_veh": 1.9030545382105073,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.165475318466149,
+            0.074524681533851
+          ],
+          "parts": 37,
+          "packets": 24
+        },
+        {
+          "time_s": 27.0,
+          "completed_veh": 2.1430545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 28.0,
+          "completed_veh": 2.1430545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 29.0,
+          "completed_veh": 2.1430545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 30.0,
+          "completed_veh": 2.1430545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 31.0,
+          "completed_veh": 2.1430545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.0969454617894927,
+            0.08999999999999997,
+            0.15
+          ],
+          "parts": 35,
+          "packets": 23
+        },
+        {
+          "time_s": 32.0,
+          "completed_veh": 2.3830545382105077,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.856945461789493,
+            0.1730961101052796,
+            0.06690388989472038
+          ],
+          "parts": 29,
+          "packets": 19
+        },
+        {
+          "time_s": 33.0,
+          "completed_veh": 2.6230545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.616945461789493,
+            0.15690388989472037,
+            0.08309611010527963
+          ],
+          "parts": 27,
+          "packets": 18
+        },
+        {
+          "time_s": 34.0,
+          "completed_veh": 2.8630545382105073,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.376945461789493,
+            0.09,
+            0.15
+          ],
+          "parts": 22,
+          "packets": 15
+        },
+        {
+          "time_s": 35.0,
+          "completed_veh": 3.1030545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.136945461789493,
+            0.1816675386767082,
+            0.058332461323291784
+          ],
+          "parts": 19,
+          "packets": 13
+        },
+        {
+          "time_s": 36.0,
+          "completed_veh": 3.3430545382105077,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.14833246132329178,
+            0.09166753867670821
+          ],
+          "parts": 17,
+          "packets": 12
+        },
+        {
+          "time_s": 37.0,
+          "completed_veh": 3.583054538210508,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        },
+        {
+          "time_s": 38.0,
+          "completed_veh": 3.583054538210508,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        },
+        {
+          "time_s": 39.0,
+          "completed_veh": 3.583054538210508,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        },
+        {
+          "time_s": 40.0,
+          "completed_veh": 3.583054538210508,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        }
+      ]
+    },
+    {
+      "status": "EXECUTED",
+      "reason": null,
+      "backend": "python",
+      "dt_s": 1.0,
+      "width_s": 0.5,
+      "identity": "9d67b79db64856a782b701806eee38548ca678b9ca20fba997945f4b73930093:entry_projection_support_v1:3fe0000000000000",
+      "simulated_s": 40.0,
+      "released_veh": 4.480000000000001,
+      "completed_veh": 3.583054538210507,
+      "completed_by_tag": {
+        "car-a": 2.033054538210507,
+        "car-b": 1.3499999999999999,
+        "bus": 0.20000000000000004
+      },
+      "system_vehicle_seconds": 96.56186609214947,
+      "exit_moment_veh_s": 90.73904762056969,
+      "peak_parts": 57,
+      "peak_packets": 37,
+      "max_mass_residual_veh": 1.9984014443252818e-15,
+      "summed_local_projection_cost_veh_s": 1.0842493251054504,
+      "projection_cost_scope": "sum of local proposal costs, not network error bound; replay excluded",
+      "replay_equal": true,
+      "wall_s": 0.06011848100024508,
+      "curve": [
+        {
+          "time_s": 1.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 0,
+          "packets": 0
+        },
+        {
+          "time_s": 2.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 1,
+          "packets": 1
+        },
+        {
+          "time_s": 3.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.15,
+            0.19,
+            0.0,
+            0.0
+          ],
+          "parts": 3,
+          "packets": 3
+        },
+        {
+          "time_s": 4.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.2066344536470237,
+            0.47064776726016666,
+            0.027717779092809616,
+            0.0
+          ],
+          "parts": 10,
+          "packets": 8
+        },
+        {
+          "time_s": 5.0,
+          "completed_veh": 0.027717779092809616,
+          "occupancy_veh": [
+            0.19,
+            0.28063851508846627,
+            0.5663069467010265,
+            0.19533675911769763,
+            0.0
+          ],
+          "parts": 16,
+          "packets": 12
+        },
+        {
+          "time_s": 6.0,
+          "completed_veh": 0.22305453821050725,
+          "occupancy_veh": [
+            0.19,
+            0.2921901892930656,
+            0.6797552724964272,
+            0.15694546178949276,
+            0.08305453821050719
+          ],
+          "parts": 18,
+          "packets": 13
+        },
+        {
+          "time_s": 7.0,
+          "completed_veh": 0.4630545382105072,
+          "occupancy_veh": [
+            0.19,
+            0.2935243121873098,
+            1.043421149602183,
+            0.0,
+            0.0
+          ],
+          "parts": 20,
+          "packets": 13
+        },
+        {
+          "time_s": 8.0,
+          "completed_veh": 0.4630545382105072,
+          "occupancy_veh": [
+            0.19,
+            0.2933057176005955,
+            1.4086397441888974,
+            0.0,
+            0.0
+          ],
+          "parts": 25,
+          "packets": 16
+        },
+        {
+          "time_s": 9.0,
+          "completed_veh": 0.4630545382105072,
+          "occupancy_veh": [
+            0.19,
+            0.2930735957418471,
+            1.7738718660476456,
+            0.0,
+            0.0
+          ],
+          "parts": 30,
+          "packets": 19
+        },
+        {
+          "time_s": 10.0,
+          "completed_veh": 0.4630545382105072,
+          "occupancy_veh": [
+            0.19,
+            0.29296538023919066,
+            2.138980081550302,
+            0.0,
+            0.0
+          ],
+          "parts": 35,
+          "packets": 22
+        },
+        {
+          "time_s": 11.0,
+          "completed_veh": 0.4630545382105072,
+          "occupancy_veh": [
+            0.19,
+            0.29292597698367406,
+            2.5040194848058186,
+            0.0,
+            0.0
+          ],
+          "parts": 40,
+          "packets": 25
+        },
+        {
+          "time_s": 12.0,
+          "completed_veh": 0.4630545382105072,
+          "occupancy_veh": [
+            0.19,
+            0.2929136283843228,
+            2.86903183340517,
+            0.0,
+            0.0
+          ],
+          "parts": 45,
+          "packets": 28
+        },
+        {
+          "time_s": 13.0,
+          "completed_veh": 0.4630545382105072,
+          "occupancy_veh": [
+            0.19,
+            0.2929102205303098,
+            3.234035241259183,
+            0.0,
+            0.0
+          ],
+          "parts": 50,
+          "packets": 31
+        },
+        {
+          "time_s": 14.0,
+          "completed_veh": 0.4630545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.267909404187832,
+            3.5990360576016607,
+            0.0,
+            0.0
+          ],
+          "parts": 53,
+          "packets": 33
+        },
+        {
+          "time_s": 15.0,
+          "completed_veh": 0.4630545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.23232656843503355,
+            3.7846188933544593,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 16.0,
+          "completed_veh": 0.4630545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.03412321813491777,
+            3.742822243654575,
+            0.17305453821050715,
+            0.06694546178949282
+          ],
+          "parts": 57,
+          "packets": 37
+        },
+        {
+          "time_s": 17.0,
+          "completed_veh": 0.7030545382105071,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 18.0,
+          "completed_veh": 0.7030545382105071,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 19.0,
+          "completed_veh": 0.7030545382105071,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 20.0,
+          "completed_veh": 0.7030545382105071,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 54,
+          "packets": 34
+        },
+        {
+          "time_s": 21.0,
+          "completed_veh": 0.7030545382105071,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.5369454617894927,
+            0.09,
+            0.15
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 22.0,
+          "completed_veh": 0.9430545382105071,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.296945461789493,
+            0.1559532529624224,
+            0.08404674703757758
+          ],
+          "parts": 50,
+          "packets": 32
+        },
+        {
+          "time_s": 23.0,
+          "completed_veh": 1.183054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.0569454617894927,
+            0.1740467470375776,
+            0.06595325296242241
+          ],
+          "parts": 48,
+          "packets": 31
+        },
+        {
+          "time_s": 24.0,
+          "completed_veh": 1.423054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.816945461789493,
+            0.09,
+            0.15
+          ],
+          "parts": 45,
+          "packets": 29
+        },
+        {
+          "time_s": 25.0,
+          "completed_veh": 1.663054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.5769454617894927,
+            0.16452468153385097,
+            0.075475318466149
+          ],
+          "parts": 40,
+          "packets": 26
+        },
+        {
+          "time_s": 26.0,
+          "completed_veh": 1.903054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.165475318466149,
+            0.074524681533851
+          ],
+          "parts": 38,
+          "packets": 25
+        },
+        {
+          "time_s": 27.0,
+          "completed_veh": 2.143054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 28.0,
+          "completed_veh": 2.143054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 29.0,
+          "completed_veh": 2.143054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 30.0,
+          "completed_veh": 2.143054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 34,
+          "packets": 22
+        },
+        {
+          "time_s": 31.0,
+          "completed_veh": 2.143054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.0969454617894927,
+            0.08999999999999997,
+            0.15
+          ],
+          "parts": 37,
+          "packets": 25
+        },
+        {
+          "time_s": 32.0,
+          "completed_veh": 2.383054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.856945461789493,
+            0.1730961101052796,
+            0.06690388989472038
+          ],
+          "parts": 30,
+          "packets": 20
+        },
+        {
+          "time_s": 33.0,
+          "completed_veh": 2.6230545382105066,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.616945461789493,
+            0.15690388989472034,
+            0.08309611010527963
+          ],
+          "parts": 28,
+          "packets": 19
+        },
+        {
+          "time_s": 34.0,
+          "completed_veh": 2.8630545382105064,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.376945461789493,
+            0.09000000000000001,
+            0.15
+          ],
+          "parts": 25,
+          "packets": 17
+        },
+        {
+          "time_s": 35.0,
+          "completed_veh": 3.1030545382105066,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.136945461789493,
+            0.1816675386767082,
+            0.058332461323291784
+          ],
+          "parts": 20,
+          "packets": 14
+        },
+        {
+          "time_s": 36.0,
+          "completed_veh": 3.343054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.14833246132329178,
+            0.09166753867670821
+          ],
+          "parts": 18,
+          "packets": 13
+        },
+        {
+          "time_s": 37.0,
+          "completed_veh": 3.583054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        },
+        {
+          "time_s": 38.0,
+          "completed_veh": 3.583054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        },
+        {
+          "time_s": 39.0,
+          "completed_veh": 3.583054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        },
+        {
+          "time_s": 40.0,
+          "completed_veh": 3.583054538210507,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 10
+        }
+      ]
+    },
+    {
+      "status": "EXECUTED",
+      "reason": null,
+      "backend": "python",
+      "dt_s": 1.0,
+      "width_s": 0.25,
+      "identity": "9d67b79db64856a782b701806eee38548ca678b9ca20fba997945f4b73930093:entry_projection_support_v1:3fd0000000000000",
+      "simulated_s": 40.0,
+      "released_veh": 4.480000000000001,
+      "completed_veh": 3.5830545382105083,
+      "completed_by_tag": {
+        "car-a": 2.033054538210507,
+        "car-b": 1.3500000000000003,
+        "bus": 0.2000000000000001
+      },
+      "system_vehicle_seconds": 96.56189418814256,
+      "exit_moment_veh_s": 90.73907571656284,
+      "peak_parts": 68,
+      "peak_packets": 48,
+      "max_mass_residual_veh": 1.7763568394002505e-15,
+      "summed_local_projection_cost_veh_s": 0.6779111797169171,
+      "projection_cost_scope": "sum of local proposal costs, not network error bound; replay excluded",
+      "replay_equal": true,
+      "wall_s": 0.07869335199939087,
+      "curve": [
+        {
+          "time_s": 1.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 0,
+          "packets": 0
+        },
+        {
+          "time_s": 2.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 1,
+          "packets": 1
+        },
+        {
+          "time_s": 3.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.15,
+            0.19,
+            0.0,
+            0.0
+          ],
+          "parts": 4,
+          "packets": 4
+        },
+        {
+          "time_s": 4.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.2066344536470237,
+            0.47064776726016666,
+            0.027717779092809616,
+            0.0
+          ],
+          "parts": 12,
+          "packets": 10
+        },
+        {
+          "time_s": 5.0,
+          "completed_veh": 0.027717779092809616,
+          "occupancy_veh": [
+            0.19,
+            0.28063851508846627,
+            0.5663069467010265,
+            0.1953367591176976,
+            0.0
+          ],
+          "parts": 19,
+          "packets": 15
+        },
+        {
+          "time_s": 6.0,
+          "completed_veh": 0.22305453821050722,
+          "occupancy_veh": [
+            0.19,
+            0.2921901892930656,
+            0.6797552724964272,
+            0.15694546178949279,
+            0.08305453821050723
+          ],
+          "parts": 22,
+          "packets": 17
+        },
+        {
+          "time_s": 7.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2935243121873098,
+            1.043421149602183,
+            0.0,
+            0.0
+          ],
+          "parts": 23,
+          "packets": 16
+        },
+        {
+          "time_s": 8.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2933057176005955,
+            1.4086397441888971,
+            0.0,
+            0.0
+          ],
+          "parts": 29,
+          "packets": 20
+        },
+        {
+          "time_s": 9.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2930735957418471,
+            1.7738718660476456,
+            0.0,
+            0.0
+          ],
+          "parts": 35,
+          "packets": 24
+        },
+        {
+          "time_s": 10.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.29296538023919066,
+            2.138980081550302,
+            0.0,
+            0.0
+          ],
+          "parts": 41,
+          "packets": 28
+        },
+        {
+          "time_s": 11.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.29292597698367406,
+            2.5040194848058186,
+            0.0,
+            0.0
+          ],
+          "parts": 47,
+          "packets": 32
+        },
+        {
+          "time_s": 12.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2929136283843228,
+            2.86903183340517,
+            0.0,
+            0.0
+          ],
+          "parts": 53,
+          "packets": 36
+        },
+        {
+          "time_s": 13.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.19,
+            0.2929102205303098,
+            3.234035241259183,
+            0.0,
+            0.0
+          ],
+          "parts": 59,
+          "packets": 40
+        },
+        {
+          "time_s": 14.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.0,
+            0.267909404187832,
+            3.5990360576016607,
+            0.0,
+            0.0
+          ],
+          "parts": 63,
+          "packets": 43
+        },
+        {
+          "time_s": 15.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.0,
+            0.23232656843503355,
+            3.7846188933544593,
+            0.0,
+            0.0
+          ],
+          "parts": 65,
+          "packets": 45
+        },
+        {
+          "time_s": 16.0,
+          "completed_veh": 0.46305453821050724,
+          "occupancy_veh": [
+            0.0,
+            0.03412321813491777,
+            3.742822243654575,
+            0.17305453821050723,
+            0.06694546178949279
+          ],
+          "parts": 68,
+          "packets": 48
+        },
+        {
+          "time_s": 17.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 63,
+          "packets": 43
+        },
+        {
+          "time_s": 18.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 63,
+          "packets": 43
+        },
+        {
+          "time_s": 19.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 63,
+          "packets": 43
+        },
+        {
+          "time_s": 20.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.776945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 63,
+          "packets": 43
+        },
+        {
+          "time_s": 21.0,
+          "completed_veh": 0.7030545382105072,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.5369454617894927,
+            0.09000000000000002,
+            0.15
+          ],
+          "parts": 68,
+          "packets": 48
+        },
+        {
+          "time_s": 22.0,
+          "completed_veh": 0.9430545382105073,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.296945461789493,
+            0.15595325296242238,
+            0.08404674703757761
+          ],
+          "parts": 61,
+          "packets": 43
+        },
+        {
+          "time_s": 23.0,
+          "completed_veh": 1.1830545382105073,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.0569454617894927,
+            0.1740467470375776,
+            0.06595325296242237
+          ],
+          "parts": 58,
+          "packets": 41
+        },
+        {
+          "time_s": 24.0,
+          "completed_veh": 1.4230545382105073,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.816945461789493,
+            0.09,
+            0.15
+          ],
+          "parts": 56,
+          "packets": 40
+        },
+        {
+          "time_s": 25.0,
+          "completed_veh": 1.6630545382105073,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.5769454617894927,
+            0.16452468153385097,
+            0.07547531846614902
+          ],
+          "parts": 49,
+          "packets": 35
+        },
+        {
+          "time_s": 26.0,
+          "completed_veh": 1.9030545382105073,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.16547531846614902,
+            0.07452468153385097
+          ],
+          "parts": 46,
+          "packets": 33
+        },
+        {
+          "time_s": 27.0,
+          "completed_veh": 2.1430545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 39,
+          "packets": 27
+        },
+        {
+          "time_s": 28.0,
+          "completed_veh": 2.1430545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 39,
+          "packets": 27
+        },
+        {
+          "time_s": 29.0,
+          "completed_veh": 2.1430545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 39,
+          "packets": 27
+        },
+        {
+          "time_s": 30.0,
+          "completed_veh": 2.1430545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.336945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 39,
+          "packets": 27
+        },
+        {
+          "time_s": 31.0,
+          "completed_veh": 2.1430545382105075,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.096945461789493,
+            0.08999999999999997,
+            0.15
+          ],
+          "parts": 46,
+          "packets": 34
+        },
+        {
+          "time_s": 32.0,
+          "completed_veh": 2.3830545382105077,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.856945461789493,
+            0.17309611010527962,
+            0.06690388989472039
+          ],
+          "parts": 37,
+          "packets": 28
+        },
+        {
+          "time_s": 33.0,
+          "completed_veh": 2.623054538210508,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.616945461789493,
+            0.15690388989472037,
+            0.08309611010527963
+          ],
+          "parts": 34,
+          "packets": 25
+        },
+        {
+          "time_s": 34.0,
+          "completed_veh": 2.863054538210508,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.376945461789493,
+            0.09000000000000002,
+            0.15
+          ],
+          "parts": 32,
+          "packets": 24
+        },
+        {
+          "time_s": 35.0,
+          "completed_veh": 3.1030545382105084,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.136945461789493,
+            0.18166753867670818,
+            0.05833246132329179
+          ],
+          "parts": 25,
+          "packets": 19
+        },
+        {
+          "time_s": 36.0,
+          "completed_veh": 3.343054538210508,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.14833246132329178,
+            0.09166753867670821
+          ],
+          "parts": 22,
+          "packets": 17
+        },
+        {
+          "time_s": 37.0,
+          "completed_veh": 3.5830545382105083,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 38.0,
+          "completed_veh": 3.5830545382105083,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 39.0,
+          "completed_veh": 3.5830545382105083,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 40.0,
+          "completed_veh": 3.5830545382105083,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.896945461789493,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        }
+      ]
+    },
+    {
+      "status": "EXECUTED",
+      "reason": null,
+      "backend": "python",
+      "dt_s": 0.5,
+      "width_s": 0.0,
+      "identity": "41126312762de18e9c9b8fb5ef3e38e7bef3846e2c8bcbd330d10357c3180847",
+      "simulated_s": 40.0,
+      "released_veh": 4.480000000000002,
+      "completed_veh": 3.8163009742979708,
+      "completed_by_tag": {
+        "car-a": 2.09130097429797,
+        "car-b": 1.5000000000000002,
+        "bus": 0.22500000000000003
+      },
+      "system_vehicle_seconds": 87.2073148127223,
+      "exit_moment_veh_s": 90.71435378464105,
+      "peak_parts": 107,
+      "peak_packets": 71,
+      "max_mass_residual_veh": 2.6645352591003757e-15,
+      "summed_local_projection_cost_veh_s": 0.0,
+      "projection_cost_scope": "sum of local proposal costs, not network error bound; replay excluded",
+      "replay_equal": true,
+      "wall_s": 0.15127355999720749,
+      "curve": [
+        {
+          "time_s": 0.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 0,
+          "packets": 0
+        },
+        {
+          "time_s": 1.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.095,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 1,
+          "packets": 1
+        },
+        {
+          "time_s": 1.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 2,
+          "packets": 2
+        },
+        {
+          "time_s": 2.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.075,
+            0.095,
+            0.0,
+            0.0
+          ],
+          "parts": 4,
+          "packets": 4
+        },
+        {
+          "time_s": 2.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.15,
+            0.19,
+            0.0,
+            0.0
+          ],
+          "parts": 6,
+          "packets": 6
+        },
+        {
+          "time_s": 3.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.16249999999999998,
+            0.3401234948848266,
+            0.019876505115173363,
+            0.0
+          ],
+          "parts": 10,
+          "packets": 9
+        },
+        {
+          "time_s": 3.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.175,
+            0.4105713103005932,
+            0.11942868969940684,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 12
+        },
+        {
+          "time_s": 4.0,
+          "completed_veh": 0.019876505115173363,
+          "occupancy_veh": [
+            0.19,
+            0.18021882797497682,
+            0.4909801977270529,
+            0.19642446918279688,
+            0.0
+          ],
+          "parts": 19,
+          "packets": 15
+        },
+        {
+          "time_s": 4.5,
+          "completed_veh": 0.11942868969940684,
+          "occupancy_veh": [
+            0.19,
+            0.1970657979458872,
+            0.5366332277561425,
+            0.16557131030059316,
+            0.051300974297970224
+          ],
+          "parts": 23,
+          "packets": 17
+        },
+        {
+          "time_s": 5.0,
+          "completed_veh": 0.21630097429797024,
+          "occupancy_veh": [
+            0.19,
+            0.20326463333961617,
+            0.5929343923624136,
+            0.16369902570202977,
+            0.07630097429797021
+          ],
+          "parts": 27,
+          "packets": 19
+        },
+        {
+          "time_s": 5.5,
+          "completed_veh": 0.33630097429797023,
+          "occupancy_veh": [
+            0.19,
+            0.20557702912136713,
+            0.6531219965806626,
+            0.14130097429797023,
+            0.09869902570202978
+          ],
+          "parts": 31,
+          "packets": 21
+        },
+        {
+          "time_s": 6.0,
+          "completed_veh": 0.45630097429797023,
+          "occupancy_veh": [
+            0.19,
+            0.20637233986002507,
+            0.7148266858420047,
+            0.1051858534711386,
+            0.1348141465288614
+          ],
+          "parts": 35,
+          "packets": 23
+        },
+        {
+          "time_s": 6.5,
+          "completed_veh": 0.5763009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20657948913793941,
+            0.8971195365640904,
+            0.05888487917316839,
+            0.06111512082683161
+          ],
+          "parts": 38,
+          "packets": 24
+        },
+        {
+          "time_s": 7.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2065831517719542,
+            1.0796158739300756,
+            0.0,
+            0.0
+          ],
+          "parts": 40,
+          "packets": 24
+        },
+        {
+          "time_s": 7.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20653441333533934,
+            1.2621646123666905,
+            0.0,
+            0.0
+          ],
+          "parts": 45,
+          "packets": 27
+        },
+        {
+          "time_s": 8.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20648558632950625,
+            1.4447134393725236,
+            0.0,
+            0.0
+          ],
+          "parts": 50,
+          "packets": 30
+        },
+        {
+          "time_s": 8.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064499472391736,
+            1.6272490784628562,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 33
+        },
+        {
+          "time_s": 9.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064272934525009,
+            1.8097717322495288,
+            0.0,
+            0.0
+          ],
+          "parts": 60,
+          "packets": 36
+        },
+        {
+          "time_s": 9.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20641405941859542,
+            1.9922849662834343,
+            0.0,
+            0.0
+          ],
+          "parts": 65,
+          "packets": 39
+        },
+        {
+          "time_s": 10.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.206406792291576,
+            2.1747922334104537,
+            0.0,
+            0.0
+          ],
+          "parts": 70,
+          "packets": 42
+        },
+        {
+          "time_s": 10.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064030025735612,
+            2.3572960231284688,
+            0.0,
+            0.0
+          ],
+          "parts": 75,
+          "packets": 45
+        },
+        {
+          "time_s": 11.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20640111873382783,
+            2.539797906968202,
+            0.0,
+            0.0
+          ],
+          "parts": 80,
+          "packets": 48
+        },
+        {
+          "time_s": 11.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064002271043684,
+            2.722298798597661,
+            0.0,
+            0.0
+          ],
+          "parts": 85,
+          "packets": 51
+        },
+        {
+          "time_s": 12.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2063998278811023,
+            2.9047991978209273,
+            0.0,
+            0.0
+          ],
+          "parts": 90,
+          "packets": 54
+        },
+        {
+          "time_s": 12.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2063996613027152,
+            3.0872993643993145,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 57
+        },
+        {
+          "time_s": 13.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.095,
+            0.19389959866973994,
+            3.26979942703229,
+            0.0,
+            0.0
+          ],
+          "parts": 98,
+          "packets": 59
+        },
+        {
+          "time_s": 13.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.17772272620050256,
+            3.4559762995015273,
+            0.0,
+            0.0
+          ],
+          "parts": 101,
+          "packets": 61
+        },
+        {
+          "time_s": 14.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.15881242304532003,
+            3.5498866026567097,
+            0.0,
+            0.0
+          ],
+          "parts": 103,
+          "packets": 63
+        },
+        {
+          "time_s": 14.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.15,
+            3.63369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 104,
+          "packets": 64
+        },
+        {
+          "time_s": 15.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.075,
+            3.7086990257020296,
+            0.0,
+            0.0
+          ],
+          "parts": 104,
+          "packets": 64
+        },
+        {
+          "time_s": 15.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.6636990257020297,
+            0.09857142857142857,
+            0.021428571428571415
+          ],
+          "parts": 106,
+          "packets": 68
+        },
+        {
+          "time_s": 16.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.1511151208268316,
+            0.0888848791731684
+          ],
+          "parts": 107,
+          "packets": 71
+        },
+        {
+          "time_s": 16.5,
+          "completed_veh": 0.8163009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.052543692255403014,
+            0.06745630774459697
+          ],
+          "parts": 100,
+          "packets": 64
+        },
+        {
+          "time_s": 17.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 17.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 18.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 18.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 19.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 19.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 20.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 20.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.42369902570203,
+            0.06317059345888269,
+            0.056829406541117296
+          ],
+          "parts": 99,
+          "packets": 64
+        },
+        {
+          "time_s": 21.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.30369902570203,
+            0.16174202203031127,
+            0.07825797796968872
+          ],
+          "parts": 101,
+          "packets": 67
+        },
+        {
+          "time_s": 21.5,
+          "completed_veh": 1.05630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.1836990257020297,
+            0.14682940654111729,
+            0.09317059345888269
+          ],
+          "parts": 95,
+          "packets": 63
+        },
+        {
+          "time_s": 22.0,
+          "completed_veh": 1.17630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.06369902570203,
+            0.11571428571428571,
+            0.12428571428571425
+          ],
+          "parts": 92,
+          "packets": 61
+        },
+        {
+          "time_s": 22.5,
+          "completed_veh": 1.2963009742979699,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.94369902570203,
+            0.16499999999999998,
+            0.075
+          ],
+          "parts": 88,
+          "packets": 58
+        },
+        {
+          "time_s": 23.0,
+          "completed_veh": 1.41630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.82369902570203,
+            0.14254369225540298,
+            0.09745630774459701
+          ],
+          "parts": 86,
+          "packets": 58
+        },
+        {
+          "time_s": 23.5,
+          "completed_veh": 1.53630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.7036990257020297,
+            0.11674202203031131,
+            0.12325797796968868
+          ],
+          "parts": 85,
+          "packets": 58
+        },
+        {
+          "time_s": 24.0,
+          "completed_veh": 1.65630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.58369902570203,
+            0.165,
+            0.075
+          ],
+          "parts": 78,
+          "packets": 52
+        },
+        {
+          "time_s": 24.5,
+          "completed_veh": 1.7763009742979698,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.46369902570203,
+            0.13825797796968867,
+            0.10174202203031132
+          ],
+          "parts": 76,
+          "packets": 51
+        },
+        {
+          "time_s": 25.0,
+          "completed_veh": 1.89630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.34369902570203,
+            0.1210277363160256,
+            0.1189722636839744
+          ],
+          "parts": 75,
+          "packets": 50
+        },
+        {
+          "time_s": 25.5,
+          "completed_veh": 2.01630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.2236990257020297,
+            0.165,
+            0.075
+          ],
+          "parts": 68,
+          "packets": 46
+        },
+        {
+          "time_s": 26.0,
+          "completed_veh": 2.13630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.1339722636839744,
+            0.1060277363160256
+          ],
+          "parts": 66,
+          "packets": 46
+        },
+        {
+          "time_s": 26.5,
+          "completed_veh": 2.2563009742979703,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.04500000000000001,
+            0.075
+          ],
+          "parts": 61,
+          "packets": 41
+        },
+        {
+          "time_s": 27.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 27.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 28.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 28.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 29.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 29.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 30.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 30.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.98369902570203,
+            0.08031345060173989,
+            0.039686549398260114
+          ],
+          "parts": 57,
+          "packets": 37
+        },
+        {
+          "time_s": 31.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.8636990257020298,
+            0.165,
+            0.075
+          ],
+          "parts": 58,
+          "packets": 40
+        },
+        {
+          "time_s": 31.5,
+          "completed_veh": 2.4963009742979705,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.74369902570203,
+            0.1296865493982601,
+            0.11031345060173989
+          ],
+          "parts": 58,
+          "packets": 42
+        },
+        {
+          "time_s": 32.0,
+          "completed_veh": 2.6163009742979706,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.6236990257020298,
+            0.12959916488745418,
+            0.1104008351125458
+          ],
+          "parts": 55,
+          "packets": 39
+        },
+        {
+          "time_s": 32.5,
+          "completed_veh": 2.7374125417252957,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.50369902570203,
+            0.16499999999999998,
+            0.0738884325726747
+          ],
+          "parts": 48,
+          "packets": 34
+        },
+        {
+          "time_s": 33.0,
+          "completed_veh": 2.8563009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.3836990257020299,
+            0.12540083511254577,
+            0.1145991648874542
+          ],
+          "parts": 46,
+          "packets": 34
+        },
+        {
+          "time_s": 33.5,
+          "completed_veh": 2.9763009742979705,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.26369902570203,
+            0.13388487917316852,
+            0.10611512082683146
+          ],
+          "parts": 43,
+          "packets": 31
+        },
+        {
+          "time_s": 34.0,
+          "completed_veh": 3.100183463796803,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.1436990257020299,
+            0.16499999999999998,
+            0.0711175105011673
+          ],
+          "parts": 38,
+          "packets": 28
+        },
+        {
+          "time_s": 34.5,
+          "completed_veh": 3.2163009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.02369902570203,
+            0.12111512082683146,
+            0.11888487917316853
+          ],
+          "parts": 36,
+          "packets": 28
+        },
+        {
+          "time_s": 35.0,
+          "completed_veh": 3.3363009742979703,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.90369902570203,
+            0.13817059345888283,
+            0.10182940654111718
+          ],
+          "parts": 33,
+          "packets": 25
+        },
+        {
+          "time_s": 35.5,
+          "completed_veh": 3.4618227366556926,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.78369902570203,
+            0.165,
+            0.06947823764227792
+          ],
+          "parts": 28,
+          "packets": 22
+        },
+        {
+          "time_s": 36.0,
+          "completed_veh": 3.5763009742979706,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.11682940654111715,
+            0.12317059345888283
+          ],
+          "parts": 26,
+          "packets": 22
+        },
+        {
+          "time_s": 36.5,
+          "completed_veh": 3.6963009742979707,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.04499999999999998,
+            0.07500000000000001
+          ],
+          "parts": 21,
+          "packets": 17
+        },
+        {
+          "time_s": 37.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 37.5,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 38.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 38.5,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 39.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 39.5,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 40.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        }
+      ]
+    },
+    {
+      "status": "EXECUTED",
+      "reason": null,
+      "backend": "python",
+      "dt_s": 0.5,
+      "width_s": 0.5,
+      "identity": "41126312762de18e9c9b8fb5ef3e38e7bef3846e2c8bcbd330d10357c3180847:entry_projection_support_v1:3fe0000000000000",
+      "simulated_s": 40.0,
+      "released_veh": 4.480000000000002,
+      "completed_veh": 3.8163009742979708,
+      "completed_by_tag": {
+        "car-a": 2.0913009742979702,
+        "car-b": 1.4999999999999996,
+        "bus": 0.22500000000000003
+      },
+      "system_vehicle_seconds": 87.2073148127223,
+      "exit_moment_veh_s": 90.71435378464105,
+      "peak_parts": 104,
+      "peak_packets": 64,
+      "max_mass_residual_veh": 2.6645352591003757e-15,
+      "summed_local_projection_cost_veh_s": 0.774289489396926,
+      "projection_cost_scope": "sum of local proposal costs, not network error bound; replay excluded",
+      "replay_equal": true,
+      "wall_s": 0.13323211300303228,
+      "curve": [
+        {
+          "time_s": 0.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 0,
+          "packets": 0
+        },
+        {
+          "time_s": 1.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.095,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 1,
+          "packets": 1
+        },
+        {
+          "time_s": 1.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 2,
+          "packets": 2
+        },
+        {
+          "time_s": 2.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.075,
+            0.095,
+            0.0,
+            0.0
+          ],
+          "parts": 4,
+          "packets": 4
+        },
+        {
+          "time_s": 2.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.15,
+            0.19,
+            0.0,
+            0.0
+          ],
+          "parts": 6,
+          "packets": 6
+        },
+        {
+          "time_s": 3.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.16249999999999998,
+            0.3401234948848266,
+            0.019876505115173363,
+            0.0
+          ],
+          "parts": 10,
+          "packets": 9
+        },
+        {
+          "time_s": 3.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.175,
+            0.4105713103005932,
+            0.11942868969940684,
+            0.0
+          ],
+          "parts": 14,
+          "packets": 12
+        },
+        {
+          "time_s": 4.0,
+          "completed_veh": 0.019876505115173363,
+          "occupancy_veh": [
+            0.19,
+            0.18021882797497682,
+            0.4909801977270529,
+            0.19642446918279688,
+            0.0
+          ],
+          "parts": 19,
+          "packets": 15
+        },
+        {
+          "time_s": 4.5,
+          "completed_veh": 0.11942868969940684,
+          "occupancy_veh": [
+            0.19,
+            0.1970657979458872,
+            0.5366332277561425,
+            0.16557131030059316,
+            0.051300974297970224
+          ],
+          "parts": 23,
+          "packets": 17
+        },
+        {
+          "time_s": 5.0,
+          "completed_veh": 0.21630097429797024,
+          "occupancy_veh": [
+            0.19,
+            0.20326463333961617,
+            0.5929343923624136,
+            0.16369902570202977,
+            0.07630097429797021
+          ],
+          "parts": 27,
+          "packets": 19
+        },
+        {
+          "time_s": 5.5,
+          "completed_veh": 0.33630097429797023,
+          "occupancy_veh": [
+            0.19,
+            0.20557702912136713,
+            0.6531219965806626,
+            0.14130097429797023,
+            0.09869902570202978
+          ],
+          "parts": 31,
+          "packets": 21
+        },
+        {
+          "time_s": 6.0,
+          "completed_veh": 0.45630097429797023,
+          "occupancy_veh": [
+            0.19,
+            0.20637233986002507,
+            0.7148266858420047,
+            0.1051858534711386,
+            0.1348141465288614
+          ],
+          "parts": 35,
+          "packets": 22
+        },
+        {
+          "time_s": 6.5,
+          "completed_veh": 0.5763009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20657948913793941,
+            0.8971195365640904,
+            0.05888487917316839,
+            0.06111512082683161
+          ],
+          "parts": 38,
+          "packets": 23
+        },
+        {
+          "time_s": 7.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2065831517719542,
+            1.0796158739300756,
+            0.0,
+            0.0
+          ],
+          "parts": 40,
+          "packets": 24
+        },
+        {
+          "time_s": 7.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20653441333533934,
+            1.2621646123666905,
+            0.0,
+            0.0
+          ],
+          "parts": 45,
+          "packets": 27
+        },
+        {
+          "time_s": 8.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20648558632950625,
+            1.4447134393725236,
+            0.0,
+            0.0
+          ],
+          "parts": 50,
+          "packets": 30
+        },
+        {
+          "time_s": 8.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064499472391736,
+            1.6272490784628562,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 33
+        },
+        {
+          "time_s": 9.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064272934525009,
+            1.8097717322495288,
+            0.0,
+            0.0
+          ],
+          "parts": 60,
+          "packets": 36
+        },
+        {
+          "time_s": 9.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20641405941859542,
+            1.9922849662834343,
+            0.0,
+            0.0
+          ],
+          "parts": 65,
+          "packets": 39
+        },
+        {
+          "time_s": 10.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.206406792291576,
+            2.1747922334104537,
+            0.0,
+            0.0
+          ],
+          "parts": 70,
+          "packets": 42
+        },
+        {
+          "time_s": 10.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064030025735612,
+            2.3572960231284688,
+            0.0,
+            0.0
+          ],
+          "parts": 75,
+          "packets": 45
+        },
+        {
+          "time_s": 11.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20640111873382783,
+            2.539797906968202,
+            0.0,
+            0.0
+          ],
+          "parts": 80,
+          "packets": 48
+        },
+        {
+          "time_s": 11.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064002271043684,
+            2.722298798597661,
+            0.0,
+            0.0
+          ],
+          "parts": 85,
+          "packets": 51
+        },
+        {
+          "time_s": 12.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2063998278811023,
+            2.9047991978209273,
+            0.0,
+            0.0
+          ],
+          "parts": 90,
+          "packets": 54
+        },
+        {
+          "time_s": 12.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2063996613027152,
+            3.0872993643993145,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 57
+        },
+        {
+          "time_s": 13.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.095,
+            0.19389959866973994,
+            3.26979942703229,
+            0.0,
+            0.0
+          ],
+          "parts": 98,
+          "packets": 59
+        },
+        {
+          "time_s": 13.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.17772272620050256,
+            3.4559762995015273,
+            0.0,
+            0.0
+          ],
+          "parts": 101,
+          "packets": 61
+        },
+        {
+          "time_s": 14.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.15881242304532003,
+            3.5498866026567097,
+            0.0,
+            0.0
+          ],
+          "parts": 103,
+          "packets": 63
+        },
+        {
+          "time_s": 14.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.15,
+            3.63369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 104,
+          "packets": 64
+        },
+        {
+          "time_s": 15.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.075,
+            3.7086990257020296,
+            0.0,
+            0.0
+          ],
+          "parts": 104,
+          "packets": 64
+        },
+        {
+          "time_s": 15.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.6636990257020297,
+            0.09857142857142857,
+            0.021428571428571415
+          ],
+          "parts": 103,
+          "packets": 64
+        },
+        {
+          "time_s": 16.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.1511151208268316,
+            0.0888848791731684
+          ],
+          "parts": 102,
+          "packets": 64
+        },
+        {
+          "time_s": 16.5,
+          "completed_veh": 0.8163009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.05254369225540302,
+            0.06745630774459697
+          ],
+          "parts": 98,
+          "packets": 61
+        },
+        {
+          "time_s": 17.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 17.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 18.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 18.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 19.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 19.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 20.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 20.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.42369902570203,
+            0.06317059345888269,
+            0.0568294065411173
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 21.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.30369902570203,
+            0.16174202203031127,
+            0.07825797796968872
+          ],
+          "parts": 96,
+          "packets": 60
+        },
+        {
+          "time_s": 21.5,
+          "completed_veh": 1.05630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.1836990257020297,
+            0.14682940654111729,
+            0.09317059345888269
+          ],
+          "parts": 92,
+          "packets": 58
+        },
+        {
+          "time_s": 22.0,
+          "completed_veh": 1.1763009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.06369902570203,
+            0.11571428571428571,
+            0.12428571428571425
+          ],
+          "parts": 88,
+          "packets": 55
+        },
+        {
+          "time_s": 22.5,
+          "completed_veh": 1.29630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.94369902570203,
+            0.16499999999999998,
+            0.07499999999999998
+          ],
+          "parts": 86,
+          "packets": 54
+        },
+        {
+          "time_s": 23.0,
+          "completed_veh": 1.41630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.82369902570203,
+            0.14254369225540298,
+            0.09745630774459701
+          ],
+          "parts": 81,
+          "packets": 51
+        },
+        {
+          "time_s": 23.5,
+          "completed_veh": 1.53630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.7036990257020297,
+            0.11674202203031131,
+            0.12325797796968868
+          ],
+          "parts": 78,
+          "packets": 49
+        },
+        {
+          "time_s": 24.0,
+          "completed_veh": 1.65630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.58369902570203,
+            0.165,
+            0.075
+          ],
+          "parts": 76,
+          "packets": 48
+        },
+        {
+          "time_s": 24.5,
+          "completed_veh": 1.7763009742979698,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.46369902570203,
+            0.1382579779696887,
+            0.10174202203031132
+          ],
+          "parts": 74,
+          "packets": 47
+        },
+        {
+          "time_s": 25.0,
+          "completed_veh": 1.89630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.34369902570203,
+            0.1210277363160256,
+            0.1189722636839744
+          ],
+          "parts": 73,
+          "packets": 46
+        },
+        {
+          "time_s": 25.5,
+          "completed_veh": 2.01630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.2236990257020297,
+            0.165,
+            0.075
+          ],
+          "parts": 66,
+          "packets": 42
+        },
+        {
+          "time_s": 26.0,
+          "completed_veh": 2.13630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.1339722636839744,
+            0.1060277363160256
+          ],
+          "parts": 64,
+          "packets": 41
+        },
+        {
+          "time_s": 26.5,
+          "completed_veh": 2.2563009742979703,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.04500000000000001,
+            0.075
+          ],
+          "parts": 61,
+          "packets": 39
+        },
+        {
+          "time_s": 27.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 27.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 28.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 28.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 29.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 29.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 30.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 30.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.98369902570203,
+            0.08031345060173989,
+            0.039686549398260114
+          ],
+          "parts": 57,
+          "packets": 36
+        },
+        {
+          "time_s": 31.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.8636990257020298,
+            0.16499999999999998,
+            0.075
+          ],
+          "parts": 56,
+          "packets": 36
+        },
+        {
+          "time_s": 31.5,
+          "completed_veh": 2.4963009742979705,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.74369902570203,
+            0.12968654939826008,
+            0.11031345060173989
+          ],
+          "parts": 51,
+          "packets": 33
+        },
+        {
+          "time_s": 32.0,
+          "completed_veh": 2.6163009742979706,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.6236990257020298,
+            0.12959916488745418,
+            0.1104008351125458
+          ],
+          "parts": 50,
+          "packets": 32
+        },
+        {
+          "time_s": 32.5,
+          "completed_veh": 2.7374125417252957,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.50369902570203,
+            0.16499999999999998,
+            0.0738884325726747
+          ],
+          "parts": 46,
+          "packets": 30
+        },
+        {
+          "time_s": 33.0,
+          "completed_veh": 2.8563009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.3836990257020299,
+            0.1254008351125458,
+            0.1145991648874542
+          ],
+          "parts": 41,
+          "packets": 27
+        },
+        {
+          "time_s": 33.5,
+          "completed_veh": 2.9763009742979705,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.26369902570203,
+            0.13388487917316852,
+            0.10611512082683147
+          ],
+          "parts": 40,
+          "packets": 26
+        },
+        {
+          "time_s": 34.0,
+          "completed_veh": 3.100183463796803,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.1436990257020299,
+            0.16499999999999998,
+            0.07111751050116731
+          ],
+          "parts": 36,
+          "packets": 25
+        },
+        {
+          "time_s": 34.5,
+          "completed_veh": 3.2163009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.02369902570203,
+            0.12111512082683146,
+            0.11888487917316853
+          ],
+          "parts": 31,
+          "packets": 22
+        },
+        {
+          "time_s": 35.0,
+          "completed_veh": 3.3363009742979703,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.90369902570203,
+            0.13817059345888283,
+            0.10182940654111718
+          ],
+          "parts": 30,
+          "packets": 20
+        },
+        {
+          "time_s": 35.5,
+          "completed_veh": 3.4618227366556926,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.78369902570203,
+            0.16499999999999998,
+            0.06947823764227792
+          ],
+          "parts": 26,
+          "packets": 18
+        },
+        {
+          "time_s": 36.0,
+          "completed_veh": 3.5763009742979706,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.11682940654111715,
+            0.12317059345888282
+          ],
+          "parts": 21,
+          "packets": 15
+        },
+        {
+          "time_s": 36.5,
+          "completed_veh": 3.6963009742979707,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.044999999999999984,
+            0.075
+          ],
+          "parts": 18,
+          "packets": 13
+        },
+        {
+          "time_s": 37.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 37.5,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 38.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 38.5,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 39.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 39.5,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 40.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        }
+      ]
+    },
+    {
+      "status": "EXECUTED",
+      "reason": null,
+      "backend": "python",
+      "dt_s": 0.5,
+      "width_s": 0.25,
+      "identity": "41126312762de18e9c9b8fb5ef3e38e7bef3846e2c8bcbd330d10357c3180847:entry_projection_support_v1:3fd0000000000000",
+      "simulated_s": 40.0,
+      "released_veh": 4.480000000000002,
+      "completed_veh": 3.8163009742979708,
+      "completed_by_tag": {
+        "car-a": 2.09130097429797,
+        "car-b": 1.4999999999999996,
+        "bus": 0.225
+      },
+      "system_vehicle_seconds": 87.2073148127223,
+      "exit_moment_veh_s": 90.71435378464105,
+      "peak_parts": 106,
+      "peak_packets": 67,
+      "max_mass_residual_veh": 2.6645352591003757e-15,
+      "summed_local_projection_cost_veh_s": 0.5887058203685438,
+      "projection_cost_scope": "sum of local proposal costs, not network error bound; replay excluded",
+      "replay_equal": true,
+      "wall_s": 0.1533196560012584,
+      "curve": [
+        {
+          "time_s": 0.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 0,
+          "packets": 0
+        },
+        {
+          "time_s": 1.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.095,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 1,
+          "packets": 1
+        },
+        {
+          "time_s": 1.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "parts": 2,
+          "packets": 2
+        },
+        {
+          "time_s": 2.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.075,
+            0.095,
+            0.0,
+            0.0
+          ],
+          "parts": 4,
+          "packets": 4
+        },
+        {
+          "time_s": 2.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.15,
+            0.19,
+            0.0,
+            0.0
+          ],
+          "parts": 6,
+          "packets": 6
+        },
+        {
+          "time_s": 3.0,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.16249999999999998,
+            0.3401234948848266,
+            0.019876505115173363,
+            0.0
+          ],
+          "parts": 10,
+          "packets": 9
+        },
+        {
+          "time_s": 3.5,
+          "completed_veh": 0.0,
+          "occupancy_veh": [
+            0.19,
+            0.175,
+            0.4105713103005932,
+            0.11942868969940684,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 13
+        },
+        {
+          "time_s": 4.0,
+          "completed_veh": 0.019876505115173363,
+          "occupancy_veh": [
+            0.19,
+            0.18021882797497682,
+            0.4909801977270529,
+            0.19642446918279688,
+            0.0
+          ],
+          "parts": 21,
+          "packets": 17
+        },
+        {
+          "time_s": 4.5,
+          "completed_veh": 0.11942868969940684,
+          "occupancy_veh": [
+            0.19,
+            0.1970657979458872,
+            0.5366332277561425,
+            0.16557131030059316,
+            0.051300974297970224
+          ],
+          "parts": 25,
+          "packets": 19
+        },
+        {
+          "time_s": 5.0,
+          "completed_veh": 0.21630097429797024,
+          "occupancy_veh": [
+            0.19,
+            0.20326463333961617,
+            0.5929343923624136,
+            0.1636990257020298,
+            0.07630097429797021
+          ],
+          "parts": 29,
+          "packets": 21
+        },
+        {
+          "time_s": 5.5,
+          "completed_veh": 0.33630097429797023,
+          "occupancy_veh": [
+            0.19,
+            0.20557702912136713,
+            0.6531219965806626,
+            0.14130097429797023,
+            0.09869902570202978
+          ],
+          "parts": 33,
+          "packets": 23
+        },
+        {
+          "time_s": 6.0,
+          "completed_veh": 0.45630097429797023,
+          "occupancy_veh": [
+            0.19,
+            0.20637233986002507,
+            0.7148266858420047,
+            0.10518585347113861,
+            0.1348141465288614
+          ],
+          "parts": 38,
+          "packets": 25
+        },
+        {
+          "time_s": 6.5,
+          "completed_veh": 0.5763009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20657948913793941,
+            0.8971195365640904,
+            0.0588848791731684,
+            0.06111512082683161
+          ],
+          "parts": 40,
+          "packets": 25
+        },
+        {
+          "time_s": 7.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2065831517719542,
+            1.0796158739300756,
+            0.0,
+            0.0
+          ],
+          "parts": 40,
+          "packets": 24
+        },
+        {
+          "time_s": 7.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20653441333533934,
+            1.2621646123666905,
+            0.0,
+            0.0
+          ],
+          "parts": 45,
+          "packets": 27
+        },
+        {
+          "time_s": 8.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20648558632950625,
+            1.4447134393725236,
+            0.0,
+            0.0
+          ],
+          "parts": 50,
+          "packets": 30
+        },
+        {
+          "time_s": 8.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064499472391736,
+            1.6272490784628562,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 33
+        },
+        {
+          "time_s": 9.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064272934525009,
+            1.8097717322495288,
+            0.0,
+            0.0
+          ],
+          "parts": 60,
+          "packets": 36
+        },
+        {
+          "time_s": 9.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20641405941859542,
+            1.9922849662834343,
+            0.0,
+            0.0
+          ],
+          "parts": 65,
+          "packets": 39
+        },
+        {
+          "time_s": 10.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.206406792291576,
+            2.1747922334104537,
+            0.0,
+            0.0
+          ],
+          "parts": 70,
+          "packets": 42
+        },
+        {
+          "time_s": 10.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064030025735612,
+            2.3572960231284688,
+            0.0,
+            0.0
+          ],
+          "parts": 75,
+          "packets": 45
+        },
+        {
+          "time_s": 11.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.20640111873382783,
+            2.539797906968202,
+            0.0,
+            0.0
+          ],
+          "parts": 80,
+          "packets": 48
+        },
+        {
+          "time_s": 11.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2064002271043684,
+            2.722298798597661,
+            0.0,
+            0.0
+          ],
+          "parts": 85,
+          "packets": 51
+        },
+        {
+          "time_s": 12.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2063998278811023,
+            2.9047991978209273,
+            0.0,
+            0.0
+          ],
+          "parts": 90,
+          "packets": 54
+        },
+        {
+          "time_s": 12.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.19,
+            0.2063996613027152,
+            3.0872993643993145,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 57
+        },
+        {
+          "time_s": 13.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.095,
+            0.19389959866973994,
+            3.26979942703229,
+            0.0,
+            0.0
+          ],
+          "parts": 98,
+          "packets": 59
+        },
+        {
+          "time_s": 13.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.17772272620050256,
+            3.4559762995015273,
+            0.0,
+            0.0
+          ],
+          "parts": 101,
+          "packets": 61
+        },
+        {
+          "time_s": 14.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.15881242304532003,
+            3.5498866026567097,
+            0.0,
+            0.0
+          ],
+          "parts": 103,
+          "packets": 63
+        },
+        {
+          "time_s": 14.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.15,
+            3.63369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 104,
+          "packets": 64
+        },
+        {
+          "time_s": 15.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.075,
+            3.7086990257020296,
+            0.0,
+            0.0
+          ],
+          "parts": 104,
+          "packets": 64
+        },
+        {
+          "time_s": 15.5,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.6636990257020297,
+            0.09857142857142857,
+            0.021428571428571415
+          ],
+          "parts": 105,
+          "packets": 65
+        },
+        {
+          "time_s": 16.0,
+          "completed_veh": 0.6963009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.1511151208268316,
+            0.0888848791731684
+          ],
+          "parts": 106,
+          "packets": 67
+        },
+        {
+          "time_s": 16.5,
+          "completed_veh": 0.8163009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.052543692255403014,
+            0.06745630774459697
+          ],
+          "parts": 100,
+          "packets": 63
+        },
+        {
+          "time_s": 17.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 17.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 18.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 18.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 19.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 19.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 20.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.54369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 95,
+          "packets": 59
+        },
+        {
+          "time_s": 20.5,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.42369902570203,
+            0.06317059345888269,
+            0.056829406541117296
+          ],
+          "parts": 97,
+          "packets": 61
+        },
+        {
+          "time_s": 21.0,
+          "completed_veh": 0.9363009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.30369902570203,
+            0.16174202203031127,
+            0.07825797796968872
+          ],
+          "parts": 100,
+          "packets": 63
+        },
+        {
+          "time_s": 21.5,
+          "completed_veh": 1.05630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.1836990257020297,
+            0.1468294065411173,
+            0.0931705934588827
+          ],
+          "parts": 96,
+          "packets": 61
+        },
+        {
+          "time_s": 22.0,
+          "completed_veh": 1.1763009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            3.06369902570203,
+            0.11571428571428573,
+            0.12428571428571426
+          ],
+          "parts": 92,
+          "packets": 59
+        },
+        {
+          "time_s": 22.5,
+          "completed_veh": 1.29630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.94369902570203,
+            0.16499999999999998,
+            0.075
+          ],
+          "parts": 89,
+          "packets": 57
+        },
+        {
+          "time_s": 23.0,
+          "completed_veh": 1.41630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.82369902570203,
+            0.14254369225540298,
+            0.09745630774459701
+          ],
+          "parts": 85,
+          "packets": 54
+        },
+        {
+          "time_s": 23.5,
+          "completed_veh": 1.53630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.7036990257020297,
+            0.11674202203031131,
+            0.12325797796968868
+          ],
+          "parts": 82,
+          "packets": 52
+        },
+        {
+          "time_s": 24.0,
+          "completed_veh": 1.65630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.58369902570203,
+            0.16499999999999998,
+            0.075
+          ],
+          "parts": 78,
+          "packets": 50
+        },
+        {
+          "time_s": 24.5,
+          "completed_veh": 1.7763009742979698,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.46369902570203,
+            0.13825797796968867,
+            0.10174202203031131
+          ],
+          "parts": 77,
+          "packets": 50
+        },
+        {
+          "time_s": 25.0,
+          "completed_veh": 1.89630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.34369902570203,
+            0.12102773631602562,
+            0.11897226368397439
+          ],
+          "parts": 76,
+          "packets": 49
+        },
+        {
+          "time_s": 25.5,
+          "completed_veh": 2.01630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.2236990257020297,
+            0.16500000000000004,
+            0.075
+          ],
+          "parts": 68,
+          "packets": 44
+        },
+        {
+          "time_s": 26.0,
+          "completed_veh": 2.13630097429797,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.1339722636839744,
+            0.1060277363160256
+          ],
+          "parts": 67,
+          "packets": 44
+        },
+        {
+          "time_s": 26.5,
+          "completed_veh": 2.2563009742979703,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.04500000000000001,
+            0.075
+          ],
+          "parts": 63,
+          "packets": 41
+        },
+        {
+          "time_s": 27.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 27.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 28.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 28.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 29.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 29.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 30.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            2.10369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 55,
+          "packets": 35
+        },
+        {
+          "time_s": 30.5,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.98369902570203,
+            0.08031345060173989,
+            0.039686549398260114
+          ],
+          "parts": 58,
+          "packets": 37
+        },
+        {
+          "time_s": 31.0,
+          "completed_veh": 2.3763009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.8636990257020298,
+            0.165,
+            0.075
+          ],
+          "parts": 58,
+          "packets": 38
+        },
+        {
+          "time_s": 31.5,
+          "completed_veh": 2.4963009742979705,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.74369902570203,
+            0.1296865493982601,
+            0.11031345060173989
+          ],
+          "parts": 55,
+          "packets": 36
+        },
+        {
+          "time_s": 32.0,
+          "completed_veh": 2.6163009742979706,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.6236990257020298,
+            0.12959916488745418,
+            0.11040083511254581
+          ],
+          "parts": 54,
+          "packets": 35
+        },
+        {
+          "time_s": 32.5,
+          "completed_veh": 2.7374125417252957,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.50369902570203,
+            0.16499999999999998,
+            0.0738884325726747
+          ],
+          "parts": 48,
+          "packets": 32
+        },
+        {
+          "time_s": 33.0,
+          "completed_veh": 2.8563009742979704,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.3836990257020299,
+            0.1254008351125458,
+            0.1145991648874542
+          ],
+          "parts": 45,
+          "packets": 30
+        },
+        {
+          "time_s": 33.5,
+          "completed_veh": 2.9763009742979705,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.26369902570203,
+            0.13388487917316852,
+            0.10611512082683146
+          ],
+          "parts": 44,
+          "packets": 29
+        },
+        {
+          "time_s": 34.0,
+          "completed_veh": 3.100183463796803,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.1436990257020299,
+            0.16499999999999998,
+            0.07111751050116721
+          ],
+          "parts": 38,
+          "packets": 27
+        },
+        {
+          "time_s": 34.5,
+          "completed_veh": 3.2163009742979702,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            1.02369902570203,
+            0.12111512082683146,
+            0.11888487917316853
+          ],
+          "parts": 35,
+          "packets": 25
+        },
+        {
+          "time_s": 35.0,
+          "completed_veh": 3.3363009742979703,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.90369902570203,
+            0.13817059345888283,
+            0.10182940654111718
+          ],
+          "parts": 34,
+          "packets": 23
+        },
+        {
+          "time_s": 35.5,
+          "completed_veh": 3.4618227366556926,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.78369902570203,
+            0.165,
+            0.06947823764227792
+          ],
+          "parts": 28,
+          "packets": 20
+        },
+        {
+          "time_s": 36.0,
+          "completed_veh": 3.5763009742979706,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.11682940654111715,
+            0.12317059345888283
+          ],
+          "parts": 25,
+          "packets": 18
+        },
+        {
+          "time_s": 36.5,
+          "completed_veh": 3.6963009742979707,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.044999999999999984,
+            0.075
+          ],
+          "parts": 21,
+          "packets": 15
+        },
+        {
+          "time_s": 37.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 37.5,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 38.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 38.5,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 39.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 39.5,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        },
+        {
+          "time_s": 40.0,
+          "completed_veh": 3.8163009742979708,
+          "occupancy_veh": [
+            0.0,
+            0.0,
+            0.66369902570203,
+            0.0,
+            0.0
+          ],
+          "parts": 15,
+          "packets": 11
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "reference_dt_s": 1.0,
+      "reference_width_s": 0.0,
+      "candidate_dt_s": 1.0,
+      "candidate_width_s": 1.0,
+      "sampled_common_times": 40,
+      "max_completed_curve_difference_veh": 8.881784197001252e-16,
+      "max_cell_occupancy_difference_veh": 1.1102230246251565e-16,
+      "final_exit_moment_difference_veh_s": 0.0
+    },
+    {
+      "reference_dt_s": 1.0,
+      "reference_width_s": 0.0,
+      "candidate_dt_s": 1.0,
+      "candidate_width_s": 0.5,
+      "sampled_common_times": 40,
+      "max_completed_curve_difference_veh": 8.881784197001252e-16,
+      "max_cell_occupancy_difference_veh": 1.1102230246251565e-16,
+      "final_exit_moment_difference_veh_s": 0.0
+    },
+    {
+      "reference_dt_s": 1.0,
+      "reference_width_s": 0.0,
+      "candidate_dt_s": 1.0,
+      "candidate_width_s": 0.25,
+      "sampled_common_times": 40,
+      "max_completed_curve_difference_veh": 8.881784197001252e-16,
+      "max_cell_occupancy_difference_veh": 4.440892098500626e-16,
+      "final_exit_moment_difference_veh_s": 2.8095993144461318e-05
+    },
+    {
+      "reference_dt_s": 0.5,
+      "reference_width_s": 0.0,
+      "candidate_dt_s": 0.5,
+      "candidate_width_s": 0.5,
+      "sampled_common_times": 80,
+      "max_completed_curve_difference_veh": 2.220446049250313e-16,
+      "max_cell_occupancy_difference_veh": 2.7755575615628914e-17,
+      "final_exit_moment_difference_veh_s": 0.0
+    },
+    {
+      "reference_dt_s": 0.5,
+      "reference_width_s": 0.0,
+      "candidate_dt_s": 0.5,
+      "candidate_width_s": 0.25,
+      "sampled_common_times": 80,
+      "max_completed_curve_difference_veh": 2.220446049250313e-16,
+      "max_cell_occupancy_difference_veh": 8.326672684688674e-17,
+      "final_exit_moment_difference_veh_s": 0.0
+    },
+    {
+      "reference_dt_s": 0.5,
+      "reference_width_s": 0.0,
+      "candidate_dt_s": 1.0,
+      "candidate_width_s": 0.0,
+      "sampled_common_times": 40,
+      "max_completed_curve_difference_veh": 0.23712892558629584,
+      "max_cell_occupancy_difference_veh": 0.2332464360874631,
+      "final_exit_moment_difference_veh_s": 0.024693835928644603
+    }
+  ]
+}

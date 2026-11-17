@@ -104,3 +104,14 @@ class/route·시간창 보존, 조건부 ETA와 endpoint root, source 분할, �
 질량/veh·s, red boundary, finite braking, budget 중단을 함께 검증한다. 다음 R01/R02와
 C01은 이 한 transport interface의 관측과 실제 완료 영수증을 소비한다. 전체 CI·통합·
 최종 수용은 모든 DAG 구현 후 별도 심사로 보류한다.
+
+## 2026-11-17 선택적 시간측도 정책
+
+현재 사용자 요청으로 `entry_projection_support_v1`을 추가했다. 폭 0은 위의
+기존 정확 interval 경로이며, 양의 폭은 한 admission cohort 안에서 category별
+질량·birth/entry 1차 모멘트를 보존하는 명시적 근사다. 서로 다른 시각의 원래
+atom과 즉시 movement support 변화는 보호한다. 정책·폭은 model/checkpoint
+identity에 포함된다. [설계](../CONSERVATIVE_ENTRY_PROJECTION_DESIGN_KO.md)와
+[유도·유효범위](../CONSERVATIVE_ENTRY_PROJECTION_THEORY_KO.md)를 따른다.
+이 국소 투영의 W1 상한은 전체 네트워크 통행시간 오차의 상한이 아니다.
+기존 T04 수용 결과를 새 정책의 자동 수용으로 이전하지 않는다.

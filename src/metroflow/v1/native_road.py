@@ -30,7 +30,7 @@ class NativeRoadNetwork:
                             c.latent, c.restart_s_inv, c.hazard_s_inv,
                             c.gap_scale_m, speeds[name], v.length_m + reference.standing_gap_m])
         self.native = V1Road(
-            reference.identity, reference.dt,
+            reference._unprojected_identity, reference.dt,
             [[g.physics.length_m, g.physics.speed_mps, g.physics.entry_rate,
               g.physics.exit_rate, reference.space_capacities_m[g.id], g.priority]
              for g in reference.groups],
@@ -42,11 +42,16 @@ class NativeRoadNetwork:
             [list(inc) for _, inc in sorted(reference.incoming.items())],
             [(reference.index[g], a, b, factor) for g, a, b, factor in reference.windows],
             reference.record_budget, reference.event_budget, reference.preserve_entry_intervals,
+            reference.entry_projection_width_s,
         )
         self._last = None
 
     def __getattr__(self, name):
         return getattr(self.reference, name)
+
+    def projection_diagnostics(self):
+        """Latest valid native proposal, not a checkpointed physical bound."""
+        return self.native.projection_diagnostics()
 
     def _encode(self, state):
         def part(p):

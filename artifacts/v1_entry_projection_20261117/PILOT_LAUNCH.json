@@ -1,0 +1,36 @@
+{
+  "command": [
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/run_v1_local_acceptance.py",
+    "--worker",
+    "--run-local",
+    "--case",
+    "valley_weekday_s7",
+    "--step-s",
+    "10",
+    "--horizon-s",
+    "26100",
+    "--entry-projection-width-s",
+    "1",
+    "--engine-backend",
+    "rust_whole",
+    "--native-threads",
+    "1",
+    "--storage-policy",
+    "bounded_bytes_v1",
+    "--label",
+    "valley_projection_h1_gate",
+    "--out",
+    "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/local_pilot"
+  ],
+  "started_utc": "2026-11-17T08:25:56.423860+00:00",
+  "pilot_wall_limit_s": 600,
+  "status": "FINISHED",
+  "scope": "one bounded full-calendar prefix; not 24h acceptance; shared host",
+  "source_sha256": {
+    "crates/metroflow-rust/src/v1_road.rs": "47179f9973ed66f909159377e069cd65d8f822f8f956154ccfc75b73a19846aa",
+    "tools/run_v1_local_acceptance.py": "1a22a2219a42c9d461b45dcba8b572a75e353f1af196158db5e3ffdfd69bf9ac"
+  },
+  "exit_code": 2,
+  "wall_s": 286.6739972530049
+}

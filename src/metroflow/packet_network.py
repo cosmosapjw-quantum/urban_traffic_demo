@@ -18,6 +18,8 @@ import math
 from .ordered_network import Network as ParentNetwork
 from .ordered_lane import distance_clock, clock_time
 from .active_suffix.common import BudgetExceeded, _factor, _signal_green
+from .entry_projection import (project_entry_packets, projection_identity,
+                               projection_diagnostics, validate_projection_width)
 
 
 _EVENT_CLOCK_TOLERANCE_S = 1e-10
@@ -306,6 +308,7 @@ class PacketNetwork:
         event_budget=None,
         motion=None,
         preserve_entry_intervals=False,
+        entry_projection_width_s=0.0,
     ):
         parent = ParentNetwork(groups, routes, dt_s, windows, record_budget, allowed_turns)
         self.groups = parent.groups
@@ -331,6 +334,10 @@ class PacketNetwork:
             raise ValueError("motion policy requires a frozen identity")
         self.motion = motion
         self.preserve_entry_intervals = bool(preserve_entry_intervals)
+        self.entry_projection_width_s = validate_projection_width(entry_projection_width_s)
+        if self.entry_projection_width_s and not self.preserve_entry_intervals:
+            raise ValueError("entry projection requires preserved entry intervals")
+        self._projection_diagnostics = projection_diagnostics(self.entry_projection_width_s)
         self.vehicle_classes = MappingProxyType(dict(vehicle_classes or {}))
         self.space_capacities_m = MappingProxyType(dict(space_capacities_m or {}))
         self.standing_gap_m = standing_gap_m
@@ -375,6 +382,12 @@ class PacketNetwork:
             self.identity = hashlib.sha256(
                 json.dumps(payload, sort_keys=True, allow_nan=False).encode()
             ).hexdigest()
+        self._unprojected_identity = self.identity
+        self.identity = projection_identity(self.identity, self.entry_projection_width_s)
+
+    def projection_diagnostics(self):
+        """Latest valid road proposal only; not a checkpointed error budget."""
+        return dict(self._projection_diagnostics)
 
     def footprint(self, tag):
         return (
@@ -611,6 +624,7 @@ class PacketNetwork:
 
     def _step(self, s, offers, interval_s=None):
         self.check(s)
+        projection = projection_diagnostics(self.entry_projection_width_s)
         t = s.time_s
         dt = self.dt if interval_s is None else interval_s
         end = t + dt
@@ -949,11 +963,16 @@ class PacketNetwork:
             if self.motion is not None:
                 c = self.motion.admit(self, c, parts, incoming_marks[i])
             target = c.progress_m + self.groups[i].physics.length_m
-            packets = (
-                interval_packets(parts, target, self.record_budget)
-                if self.preserve_entry_intervals
-                else (Packet(target, parts),)
-            )
+            if self.entry_projection_width_s:
+                packets, diagnostics = project_entry_packets(
+                    parts, target, self.record_budget, self.entry_projection_width_s)
+                for key in ("input_parts", "output_parts", "cohorts",
+                            "protected_support_boundaries", "local_w1_bound_veh_s"):
+                    projection[key] += diagnostics[key]
+            else:
+                packets = (
+                    interval_packets(parts, target, self.record_budget)
+                    if self.preserve_entry_intervals else (Packet(target, parts),))
             cells[i] = replace(
                 c,
                 packets=c.packets + packets,
@@ -984,4 +1003,5 @@ class PacketNetwork:
                 or b.completed - a.completed > g.physics.exit_rate * factor[i] * dt + tol
             ):
                 raise ArithmeticError("link rate budget")
+        self._projection_diagnostics = projection
         return out, tuple(events)

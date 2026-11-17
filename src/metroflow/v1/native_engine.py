@@ -14,6 +14,7 @@ import tempfile
 from ..active_suffix.common import BudgetExceeded
 from .native_calendar import compile_native_factorized_calendar
 from .native_static import prepare_native_static
+from ..entry_projection import validate_projection_width
 
 
 def native_binary_provenance():
@@ -45,7 +46,7 @@ def native_binary_provenance():
 class NativeWholeRuntime:
     def __init__(self, city, schedule, inventory, *, step_s=10.0,
                  byte_budget=2 * 1024**3, record_budget=20000, event_budget=20000,
-                 native_threads=1, storage_policy="legacy_records"):
+                 native_threads=1, storage_policy="legacy_records", entry_projection_width_s=0.0):
         from _metroflow_rust import NativeWholeEngine
 
         if isinstance(byte_budget, bool) or not isinstance(byte_budget, int) or byte_budget <= 0:
@@ -55,18 +56,20 @@ class NativeWholeRuntime:
             raise ValueError("native_threads must be an integer in 1..256")
         if storage_policy not in ("legacy_records", "bounded_bytes_v1"):
             raise ValueError("unknown native storage_policy")
+        entry_projection_width_s = validate_projection_width(entry_projection_width_s)
         payload = prepare_native_static(city, schedule, inventory, step_s=step_s,
                                         record_budget=record_budget, event_budget=event_budget)
         try:
             calendar = compile_native_factorized_calendar(schedule, byte_budget=byte_budget)
             self.native = NativeWholeEngine(calendar, payload, byte_budget, native_threads,
-                                            storage_policy)
+                                            storage_policy, entry_projection_width_s)
         except MemoryError as cause:
             exc = BudgetExceeded(str(cause))
             exc.status = "BLOCKED_RESOURCE"
             raise exc from cause
         self.identity = self.native.identity
         self.step_s = step_s
+        self.entry_projection_width_s = entry_projection_width_s
         self.native_threads = self.native.native_threads
         self.last_advance_metrics = dict(tick_times_s=[], peak_records=0,
             native_threads=self.native_threads,
@@ -120,6 +123,10 @@ class NativeWholeRuntime:
 
     def storage_config(self):
         return self.native.storage_config()
+
+    def projection_diagnostics(self):
+        """Local transport cost for latest proposed road transition only."""
+        return self.native.projection_diagnostics()
 
     def debug_state(self, state):
         """Bounded stage/queue counters; diagnostics do not enter physical state."""

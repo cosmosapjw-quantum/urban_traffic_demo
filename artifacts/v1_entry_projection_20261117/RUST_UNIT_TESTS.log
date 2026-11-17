@@ -1,0 +1,99 @@
+   Compiling target-lexicon v0.12.16
+   Compiling once_cell v1.21.4
+   Compiling proc-macro2 v1.0.106
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.46
+   Compiling crossbeam-utils v0.8.22
+   Compiling crossbeam-epoch v0.9.20
+   Compiling libc v0.2.186
+   Compiling crossbeam-deque v0.8.7
+   Compiling autocfg v1.5.1
+   Compiling heck v0.5.0
+   Compiling rayon-core v1.13.0
+   Compiling unindent v0.2.4
+   Compiling either v1.17.0
+   Compiling indoc v2.0.7
+   Compiling cfg-if v1.0.4
+   Compiling memoffset v0.9.1
+   Compiling pyo3-build-config v0.23.5
+   Compiling syn v2.0.118
+   Compiling rayon v1.12.0
+   Compiling pyo3-ffi v0.23.5
+   Compiling pyo3-macros-backend v0.23.5
+   Compiling pyo3 v0.23.5
+   Compiling pyo3-macros v0.23.5
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_projection_20261117/crates/metroflow-rust)
+warning: methods `summary`, `install_state`, and `owned_step` are never used
+    --> crates/metroflow-rust/src/v1_road.rs:1077:19
+     |
+1032 | impl V1Road {
+     | ----------- methods in this implementation
+...
+1077 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+1278 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+1430 |     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -...
+     |                   ^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `journey_decoded_storage_upper_bytes` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:206:15
+    |
+206 | pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `sources` and `install_state` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:422:19
+    |
+360 | impl NativeServiceCore {
+    | ---------------------- methods in this implementation
+...
+422 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+...
+433 |     pub(crate) fn install_state(&mut self, state: ServiceCheckpoint) {
+    |                   ^^^^^^^^^^^^^
+
+warning: methods `owned_time`, `storage_budget`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1098:19
+     |
+ 861 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1098 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1153 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1186 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:76:19
+   |
+69 | impl StageQueue {
+   | --------------- method in this implementation
+...
+76 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+
+warning: `metroflow-rust` (lib test) generated 5 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 12.64s
+     Running unittests src/lib.rs (target-tests/debug/deps/_metroflow_rust-ffddc2c3d4933447)
+
+running 7 tests
+test v1_road::entry_projection_tests::atoms_keep_bits_order_and_precede_right_segment ... ok
+test v1_road::entry_projection_tests::category_moments_and_later_route_divergence_are_retained ... ok
+test v1_road::entry_projection_tests::empty_time_gaps_do_not_allocate_mesh ... ok
+test v1_road::entry_projection_tests::heterogeneous_support_and_tiny_suffix_create_barriers ... ok
+test v1_road::entry_projection_tests::irregular_split_preserves_tag_mass_birth_and_entry_moment ... ok
+test v1_road::entry_projection_tests::projection_byte_budget_rejects_before_boundary_allocation ... ok
+test v1_road::entry_projection_tests::underresolved_clock_and_positive_piece_underflow_fail ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 58 filtered out; finished in 0.00s
+

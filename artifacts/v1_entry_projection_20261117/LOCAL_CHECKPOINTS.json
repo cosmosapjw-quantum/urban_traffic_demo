@@ -1,0 +1,20 @@
+{
+  "scope": "checkpoint bytes retained on authorized local device; not copied into Git/package",
+  "files": [
+    {
+      "path": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/local_pilot/valley_projection_h1_gate.last_valid.bin",
+      "size_bytes": 1351458180,
+      "sha256": "dd6480558e371b386fe9378238f2c677abf08ab3b2ca751d5b6b4f4cfe68b519"
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h0.final.bin",
+      "size_bytes": 337775682,
+      "sha256": "21ceceb3a16e20bc2b1c2b6538ab4afef9e6b85548901c98e8c3e59c886d9091"
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h1.final.bin",
+      "size_bytes": 238038692,
+      "sha256": "c4f83fedb8bf1f567db2bfe915495030347ff90d2912ccbf386391627de6c4fd"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "status": "COMPARISON_EXECUTED",
+  "scope": "seven 40-second synthetic finite-response cases; numerical equality on observed outputs, not bit identity of all hidden states",
+  "runs": [
+    {
+      "dt_s": 1.0,
+      "width_s": 0.0,
+      "scalar_abs_differences": {
+        "completed_veh": 0.0,
+        "system_vehicle_seconds": 0.0,
+        "exit_moment_veh_s": 0.0,
+        "peak_parts": 0,
+        "peak_packets": 0,
+        "max_mass_residual_veh": 0.0
+      },
+      "max_completed_curve_difference_veh": 0.0,
+      "max_cell_occupancy_difference_veh": 0.0,
+      "reference_replay_equal": true,
+      "native_replay_equal": true
+    },
+    {
+      "dt_s": 1.0,
+      "width_s": 1.0,
+      "scalar_abs_differences": {
+        "completed_veh": 0.0,
+        "system_vehicle_seconds": 0.0,
+        "exit_moment_veh_s": 0.0,
+        "peak_parts": 0,
+        "peak_packets": 0,
+        "max_mass_residual_veh": 0.0
+      },
+      "max_completed_curve_difference_veh": 0.0,
+      "max_cell_occupancy_difference_veh": 0.0,
+      "reference_replay_equal": true,
+      "native_replay_equal": true
+    },
+    {
+      "dt_s": 1.0,
+      "width_s": 0.5,
+      "scalar_abs_differences": {
+        "completed_veh": 0.0,
+        "system_vehicle_seconds": 0.0,
+        "exit_moment_veh_s": 0.0,
+        "peak_parts": 0,
+        "peak_packets": 0,
+        "max_mass_residual_veh": 0.0
+      },
+      "max_completed_curve_difference_veh": 0.0,
+      "max_cell_occupancy_difference_veh": 0.0,
+      "reference_replay_equal": true,
+      "native_replay_equal": true
+    },
+    {
+      "dt_s": 1.0,
+      "width_s": 0.25,
+      "scalar_abs_differences": {
+        "completed_veh": 0.0,
+        "system_vehicle_seconds": 0.0,
+        "exit_moment_veh_s": 0.0,
+        "peak_parts": 0,
+        "peak_packets": 0,
+        "max_mass_residual_veh": 0.0
+      },
+      "max_completed_curve_difference_veh": 0.0,
+      "max_cell_occupancy_difference_veh": 0.0,
+      "reference_replay_equal": true,
+      "native_replay_equal": true
+    },
+    {
+      "dt_s": 0.5,
+      "width_s": 0.0,
+      "scalar_abs_differences": {
+        "completed_veh": 0.0,
+        "system_vehicle_seconds": 0.0,
+        "exit_moment_veh_s": 0.0,
+        "peak_parts": 0,
+        "peak_packets": 0,
+        "max_mass_residual_veh": 0.0
+      },
+      "max_completed_curve_difference_veh": 0.0,
+      "max_cell_occupancy_difference_veh": 0.0,
+      "reference_replay_equal": true,
+      "native_replay_equal": true
+    },
+    {
+      "dt_s": 0.5,
+      "width_s": 0.5,
+      "scalar_abs_differences": {
+        "completed_veh": 0.0,
+        "system_vehicle_seconds": 0.0,
+        "exit_moment_veh_s": 0.0,
+        "peak_parts": 0,
+        "peak_packets": 0,
+        "max_mass_residual_veh": 0.0
+      },
+      "max_completed_curve_difference_veh": 0.0,
+      "max_cell_occupancy_difference_veh": 4.163336342344337e-17,
+      "reference_replay_equal": true,
+      "native_replay_equal": true
+    },
+    {
+      "dt_s": 0.5,
+      "width_s": 0.25,
+      "scalar_abs_differences": {
+        "completed_veh": 0.0,
+        "system_vehicle_seconds": 0.0,
+        "exit_moment_veh_s": 0.0,
+        "peak_parts": 0,
+        "peak_packets": 0,
+        "max_mass_residual_veh": 0.0
+      },
+      "max_completed_curve_difference_veh": 0.0,
+      "max_cell_occupancy_difference_veh": 0.0,
+      "reference_replay_equal": true,
+      "native_replay_equal": true
+    }
+  ]
+}

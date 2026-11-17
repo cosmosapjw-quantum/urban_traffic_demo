@@ -13,8 +13,10 @@
 - 2026-11-17 V03 후속: 차단 checkpoint 실측으로 계상 수명 불일치를 교정했다(`retained_capacity_v3`, `adde1a3`; 260 scoped, legacy replay bytes 동일). 짧은 게이트는 25,650/32,730/25,420s에서 멈췄고, guard 우회 진단에서 road interval part 행이 아침 진입 구간에 수십 초마다 배가해 Valley는 8 GiB에서 실제 할당 실패했다. `artifacts/v1_v03_workspace_20261117/RECEIPT.json`을 따른다. 24h 0/9, 19/21, V03 BLOCKED 유지; 표현 변경은 사용자 결정 대상이다.
 - 2026-11-17 선택 (a): 부분 head 서비스가 새 행의 약 80%를 만들고(서비스마다 모든 행의 새 구간 packet 생성), bit 동일 병합 상한은 수 %다(`ATTRIBUTION_KO.md`). 비례 조성 표현(실수 산술 동치) 또는 범위 재검토는 사용자·물리 계약 결정 대상이다.
 - 2026-11-17 선택 1 사전측정: 실수 산술 정확 병합은 packet 수를 1.01–1.08배만 줄이고 조성 공유는 상수배 이득이라 24h 불가로 판단, 재작성 미착수. 남은 경로는 근사 집계(현 금지) 또는 범위·모델 계약 결정이다.
+- 2026-11-17 현재 사용자 후속 결정: 최신 보고서 선택지의 선정과 구현을 위임받아 A를 선택했다. `entry_projection_support_v1`은 한 receiving cell/admission step의 진입시간 측도를 category별 질량·birth/entry 1차 모멘트 보존으로 근사한다. movement support 변화와 원래 point 시각을 보호하며 폭 0은 기존 정확 경로다. 이 명시적 선택 정책에 한해 과거의 무조건 시간 집계 금지를 대체한다. 인구·수요·24h 목표·자원/보존 문턱은 그대로다. 과거의 1.01–1.08배 측정은 특정 exact merge 기준의 결과이며 모든 정확 알고리즘의 불가능성 정리로 해석하지 않는다. 새 근거는 `artifacts/v1_entry_projection_20261117/RECEIPT.json`, 이론과 유효범위는 `docs/v1/CONSERVATIVE_ENTRY_PROJECTION_THEORY_KO.md`를 따른다. V03 BLOCKED, 19/21 및 최종 수용 5/21은 그대로다.
 
 ## 유지하는 과학·구현 계약
+- 2026-11-17 투영 실측: Python 88, selected native 164, Rust projection unit 7의 한정 검증을 실행했다(중첩 suite). 같은 Valley 25,500s prefix에서 h=1은 h=0보다 peak records 23.85%, RSS 11.52% 감소했으나 완료 차량량 endpoint 차이가 -0.00103625veh였다. 26,100s 목표 pilot는 26,010s의 transfer-candidate 예산에서 다시 차단됐다. 시간 투영만으로 하루 실행을 해결했다고 주장하지 않는다. 전체 calendar 918,450개 중 unsupported 610,820개는 삭제가 아니라 수요 발생 후 pending이며, 이 레코드 비율은 주민·질량 비율이 아니다. `LOCAL_AGENT_HANDOFF_KO.md`의 지원 원인 분해와 event/mark 공유 표현이 다음 구체 작업이다.
 - 2026-11-16 사용자 승인: Rust CPU 계산코어·Python frontend로 전환한다. 기존 Python 코어는 이행 중 명시적 scientific oracle로 보존한다. JAX/GPU·차량 위치 전수추적·RL-first·외부데이터 학습은 V1 범위 밖이다.
 - 연속 위치·속도 기초, 목적·차종·정보를 보존한다. 계산 closure의 가정과 유효범위를 명시한다.
 - immutable WorldState, SI 단위, rate와 increment 구별, 차량량·사람·화물·체류량 장부, 다중 시간척도와 지연 피드백, 버전별 캐시 invalidation, 실제 checkpoint 재개를 유지한다.

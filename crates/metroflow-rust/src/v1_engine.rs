@@ -503,6 +503,7 @@ impl NativeWholeEngine {
         byte_budget: usize,
         parallel: ParallelPolicy,
         storage_policy: String,
+        entry_projection_width_s: f64,
     ) -> PyResult<Self> {
         let (city, schedule) = calendar.owned_binding();
         if city != s.city
@@ -888,6 +889,7 @@ impl NativeWholeEngine {
             s.budget,
             s.event_budget,
             s.intervals,
+            entry_projection_width_s,
         )?;
         let service = NativeServiceCore::new(buses, people, freight, Vec::new())?;
         let mut journey = NativeJourneyCore::new_shared(legs, bus_meta, freight_meta, s.budget)?;
@@ -973,10 +975,11 @@ impl NativeWholeEngine {
         if let (Some(road_bytes), Some(journey_bytes)) = (road_storage_bytes, journey_storage_bytes)
         {
             identity.push_str(":bounded_bytes_v1:retained_capacity_v3");
-            road.bind_storage_identity(identity.clone())?;
+            road.bind_storage_identity(crate::v1_road::projection_identity(&identity, entry_projection_width_s))?;
             road.configure_storage_budget(road_bytes)?;
             journey.configure_storage_budget(journey_bytes)?;
         }
+        identity = crate::v1_road::projection_identity(&identity, entry_projection_width_s);
         let event_limit = road.checkpoint_event_limit();
         let initial_state = Arc::new(Bundle {
             road: road.checkpoint(),
@@ -1221,7 +1224,7 @@ impl NativeWholeEngine {
 #[pymethods]
 impl NativeWholeEngine {
     #[new]
-    #[pyo3(signature = (calendar, payload, byte_budget, native_threads=1, storage_policy="legacy_records"))]
+    #[pyo3(signature = (calendar, payload, byte_budget, native_threads=1, storage_policy="legacy_records", entry_projection_width_s=0.0))]
     fn new(
         py: Python<'_>,
         calendar: PyRef<'_, NativeCalendar>,
@@ -1229,15 +1232,19 @@ impl NativeWholeEngine {
         byte_budget: usize,
         native_threads: usize,
         storage_policy: &str,
+        entry_projection_width_s: f64,
     ) -> PyResult<Self> {
         if !["legacy_records", "bounded_bytes_v1"].contains(&storage_policy) {
             return Err(bad("unknown native storage_policy"));
+        }
+        if !entry_projection_width_s.is_finite() || entry_projection_width_s < 0. {
+            return Err(bad("entry_projection_width_s must be finite and nonnegative"));
         }
         let s = Static::read(payload)?;
         let parallel = ParallelPolicy::new(native_threads).map_err(bad)?;
         let source: &NativeCalendar = &calendar;
         py.allow_threads(|| {
-            Self::build(source, s, byte_budget, parallel, storage_policy.to_owned())
+            Self::build(source, s, byte_budget, parallel, storage_policy.to_owned(), entry_projection_width_s)
         })
     }
     #[getter]
@@ -1250,6 +1257,13 @@ impl NativeWholeEngine {
     }
     fn routing_metrics(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         self.route_metrics.report(py)
+    }
+    fn projection_diagnostics(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
+        self.road.projection_diagnostics(py)
+    }
+    #[getter]
+    fn entry_projection_width_s(&self) -> f64 {
+        self.road.entry_projection_width_s()
     }
     fn event_resolution_diagnostics(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let (count, processed_time, roundoff, mass) = self.road.event_resolution_stats();
@@ -1304,6 +1318,8 @@ impl NativeWholeEngine {
     }
     fn execution_config(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let out = PyDict::new(py);
+        out.set_item("entry_projection_width_s", self.road.entry_projection_width_s())?;
+        out.set_item("entry_projection_policy", if self.road.entry_projection_width_s() > 0. { "entry_projection_support_v1" } else { "exact" })?;
         out.set_item("native_threads", self.parallel.threads())?;
         out.set_item(
             "scheduler",
@@ -1414,6 +1430,8 @@ impl NativeWholeEngine {
         out.set_item("binding_s", m.binding_s)?;
         out.set_item("successful_ticks", m.successful_ticks)?;
         out.set_item("failed_ticks", m.failed_ticks)?;
+        out.set_item("entry_projection_width_s", self.road.entry_projection_width_s())?;
+        out.set_item("entry_projection_policy", if self.road.entry_projection_width_s() > 0. { "entry_projection_support_v1" } else { "exact" })?;
         out.set_item("native_threads", self.parallel.threads())?;
         out.set_item("scope", "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation")?;
         out.set_item(

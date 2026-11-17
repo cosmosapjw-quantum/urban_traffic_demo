@@ -1,0 +1,287 @@
+{
+  "schema": "entry_projection_audit_receipt_v1",
+  "date_kst": "2026-11-17",
+  "created_utc": "2026-11-17T08:46:25.134273+00:00",
+  "repository": "https://github.com/cosmosapjw-quantum/urban_traffic_demo",
+  "baseline_branch": "v1/v03-acceptance-20261027",
+  "baseline_commit": "0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+  "work_branch": "research/conservative-kinetic-closure-20261117",
+  "local_device_branch": "research/entry-projection-local-20261117",
+  "local_device_worktree": "/home/cosmosapjw/urban_traffic_projection_20261117",
+  "selection": "A: explicit conservative entry-time projection preserving categorical support and moments",
+  "policy": "entry_projection_support_v1",
+  "default_width_s": 0,
+  "candidate_width_s": 1,
+  "authority": "Current user delegates report-option selection, theory/coding improvement and feasible changes plus local handoff",
+  "status": "IMPLEMENTED_SCOPED_WITH_MEASURED_IMPROVEMENT_AND_REMAINING_RESOURCE_BLOCKER",
+  "claim_states": {
+    "local_projection_mass_birth_entry_moments": "derived; numerically checked",
+    "local_W1_bound": "derived in real arithmetic; local entry measure only",
+    "python_rust_implementation": "implementation-verified on scoped tests and paired experiments",
+    "whole_city_accuracy": "unresolved; one paired endpoint comparison only",
+    "global_network_error_bound": "unresolved; not inferred from local W1",
+    "full_day_scalability": "blocked; actual Valley resource failure at26010s",
+    "complete_physical_transport_coverage": "not established; unsupported legs retained as pending"
+  },
+  "source_sha256": {
+    "Cargo.lock": "f3c87d6fb6955f8c971c4e4e1d1efe10001cf1afe54e12db09ac38cb67caa97c",
+    "crates/metroflow-rust/Cargo.toml": "0267c23ae70682ee925de20f3770b8565a260f7b6d37f40115d77532de6290da",
+    "crates/metroflow-rust/src/lib.rs": "7377538bae9a88c364aa3ed9512457dc54063adb4743f732c9a56b0f12a22972",
+    "crates/metroflow-rust/src/v1_calendar.rs": "b3d7402c9155205853f5380d76855e14d6f7996550356404639caaac801830c7",
+    "crates/metroflow-rust/src/v1_engine.rs": "583c3541cc163a8261dd0ae5a2dbb2d0e4383533a758f5f157d968b4681b40a8",
+    "crates/metroflow-rust/src/v1_history.rs": "11bf0c8013f410c06851cbc3894501d4203b9c1ac4bc8bf6e60526f24a581296",
+    "crates/metroflow-rust/src/v1_journey.rs": "6ce5eca46b1c9d9eabeaf118d7bb19567d1c13eaa575037a5a93fe582a5da656",
+    "crates/metroflow-rust/src/v1_parallel.rs": "b3dc15fc57dceef74436dba1ce0a5909fd8e05194dd32f9564d89a3953aca21d",
+    "crates/metroflow-rust/src/v1_road.rs": "47179f9973ed66f909159377e069cd65d8f822f8f956154ccfc75b73a19846aa",
+    "crates/metroflow-rust/src/v1_routing.rs": "7ba1902f87ab534082cfd978cb0cf6f0b94ae70ac4908dc93c80cb8534cb35fe",
+    "crates/metroflow-rust/src/v1_stage.rs": "630448235bfa84fc804b110783878bec3b3b273b7e292d0804ffc7e5d2e5fc7c",
+    "crates/metroflow-rust/src/v1_trace.rs": "50bf7cd01c87469996f894c52029fe3c16ec6136bf664d0014bc2a0e1e7b100a",
+    "src/metroflow/entry_projection.py": "eb51625b68c1d36a0c1230c6a1fccbc130af1b05aae18d4891d13abf27b169b8",
+    "src/metroflow/packet_network.py": "858b5603361a71a971ca4287fb9b916b82283cbc2154c391099ded2c3d99a6d7",
+    "src/metroflow/v1/kinetics.py": "183251bbb6a492be856f4f05e0fd046a45d754810ae234631f5a5a84138cdc37",
+    "src/metroflow/v1/native_calendar.py": "efb3cab28d3ccc99607234ea909077ce67a00c5b38d1984e0e15fe3fec1c65cf",
+    "src/metroflow/v1/native_engine.py": "7f12f6c815de2cf98f44fec5469e9dfbfea3fec9f3f3ba3563886938d93844a3",
+    "src/metroflow/v1/native_journey.py": "85d84a9300de6e5094062fefc6cdddb7b867725201339f88ae02abc81082877c",
+    "src/metroflow/v1/native_release_driver.py": "1090d7e17ceee8484e49b8d6e27c3f44898331aaaf43247d6cf9e0128040a5d1",
+    "src/metroflow/v1/native_road.py": "fc51d6f2cea55489ef29916047cbea84fd403b876d490bd721ff25dcca8b7e68",
+    "src/metroflow/v1/native_routing.py": "056e9c7004b76c3c1bb057a15d0a8503403f6f24045700d1bf65b0058611adf4",
+    "src/metroflow/v1/native_static.py": "e5122aed76a15da7ec90b5aae95f67b5e15778d49053c06cf3f7d6ac804f73ad",
+    "src/metroflow/v1/transport.py": "6a2e4c76def3e199b6e11c223cfdc786eab55eed4fb5a94fa8d4c8e85ca8c538",
+    "tests/test_entry_projection.py": "b83704f237361859617eb7fba15eb8f9d19125397842026d5e212f48784284d5",
+    "tests/v1/test_entry_projection_native.py": "143c5e81fc6337a08f70a4b4cabcd42109006a7601e6978926855b26de801241",
+    "tests/v1/test_local_campaign_cli.py": "164be5b70e3aed9dc0ff99505169c117153e49aca76affbe147fb765c192d0b0",
+    "tools/probe_v1_entry_projection.py": "657cda55bba3dd871fc9862209982f807952eeca035606eb6b6dca041b883d22",
+    "tools/run_v1_local_acceptance.py": "1a22a2219a42c9d461b45dcba8b572a75e353f1af196158db5e3ffdfd69bf9ac"
+  },
+  "native_binary": {
+    "path": "/home/cosmosapjw/urban_traffic_projection_20261117/native_binding/_metroflow_rust.so",
+    "sha256": "b34832c7803e5ca2be5e7c1a1f83c2d2a83faf29ca7d7956e4943a01f1ce57a3",
+    "size_bytes": 2953824
+  },
+  "environment": {
+    "python_oracle": "3.12.14",
+    "native": {
+      "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+      "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+      "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "worktree": "/home/cosmosapjw/urban_traffic_projection_20261117",
+      "native_binary_path": "/home/cosmosapjw/urban_traffic_projection_20261117/native_binding/_metroflow_rust.so",
+      "native_binary_sha256": "b34832c7803e5ca2be5e7c1a1f83c2d2a83faf29ca7d7956e4943a01f1ce57a3",
+      "evidence_sha256": {
+        "NATIVE_COMPARISON.json": "5d9db6dc714f1d313103bdec1ce0b3b84c68e09d5b1e87f3f822f897801162ac",
+        "NATIVE_TESTS_FINAL.log": "22feb1d99a059486048a5296e5f71a2ca06b197e0f02e01850f4b4aee2525d35",
+        "ALLOCATION_FIX_TESTS.log": "a83f965f8eb8111a47c7585211339bbe7c73762f36b9654e18024f8ea0ed01f5",
+        "RUST_UNIT_TESTS.log": "616cc0780212fde4a4d743198d7a99dce669b530f7187bec53de190cd6347824",
+        "BUILD_FINAL.log": "652fa72bf471d13a98dea5f32c2b10da19e71df6da15a82b8790e6a00cbf0b6b"
+      }
+    },
+    "shared_host": true,
+    "scientific_threads": 1
+  },
+  "build": {
+    "status": "PASS",
+    "command": "PYO3_PYTHON=/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python /home/cosmosapjw/.cargo/bin/cargo build --release --offline",
+    "evidence": "BUILD_FINAL.log",
+    "warnings": "five existing dead-code warnings; no claim of full repository CI"
+  },
+  "tests": [
+    {
+      "name": "python_changed_dependencies_final",
+      "status": "PASS",
+      "passed": 88,
+      "wall_s": 3.97,
+      "command": "PYTHONPATH=src PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/test_entry_projection.py tests/test_packet_quotient.py tests/test_state_contracts.py tests/test_v1_birth_contract.py tests/v1/test_kinetic_closure.py tests/v1/test_transfer_time.py tests/test_v1_plan.py tests/v1/test_local_campaign_cli.py",
+      "evidence": "PYTHON_TESTS_FINAL.log"
+    },
+    {
+      "name": "native_selected_regressions_final",
+      "status": "PASS",
+      "passed": 164,
+      "wall_s": 1.92,
+      "command": "PYTHONPATH=native_binding:src:tests/v1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python -m pytest -q tests/test_entry_projection.py tests/v1/test_entry_projection_native.py tests/v1/test_native_road.py tests/v1/test_native_engine.py tests/v1/test_native_whole_driver.py tests/v1/test_native_owner_storage.py tests/v1/test_native_byte_budget.py tests/v1/test_native_event_resolution.py tests/v1/test_native_packed_intervals.py tests/v1/test_native_retained_accounting.py tests/v1/test_native_campaign_contract.py tests/v1/test_local_campaign_cli.py tests/test_v1_plan.py",
+      "evidence": "NATIVE_TESTS_FINAL.log"
+    },
+    {
+      "name": "rust_projection_private_units",
+      "status": "PASS",
+      "passed": 7,
+      "command": "CARGO_TARGET_DIR=target-tests PYO3_PYTHON=/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python RUSTFLAGS='-C link-arg=-lpython3.12' /home/cosmosapjw/.cargo/bin/cargo test --offline --lib entry_projection_tests -- --test-threads=1",
+      "evidence": "RUST_UNIT_TESTS.log"
+    },
+    {
+      "name": "allocation_fix_dependencies",
+      "status": "PASS",
+      "passed": 30,
+      "evidence": "ALLOCATION_FIX_TESTS.log",
+      "note": "subset; superseded by final 164-test run on same native binary"
+    },
+    {
+      "name": "plan_after_final_status_edit",
+      "status": "PASS",
+      "passed": 9,
+      "command": "PYTHONPATH=src PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/test_v1_plan.py",
+      "evidence": "PLAN_TESTS_FINAL.log"
+    },
+    {
+      "name": "plan_validation",
+      "status": "VALID_PLAN_NOT_RELEASE",
+      "command": "python tools/v1_plan.py validate",
+      "evidence": "PLAN_VALIDATION.json"
+    },
+    {
+      "name": "ruff_changed_python",
+      "status": "PASS",
+      "command": "python -m ruff check src/metroflow/entry_projection.py src/metroflow/packet_network.py src/metroflow/v1/native_road.py src/metroflow/v1/native_engine.py src/metroflow/v1/native_release_driver.py tests/test_entry_projection.py tests/v1/test_entry_projection_native.py tests/v1/test_local_campaign_cli.py tools/probe_v1_entry_projection.py tools/run_v1_local_acceptance.py",
+      "observed_stdout": "All checks passed!"
+    },
+    {
+      "name": "git_diff_whitespace",
+      "status": "PASS",
+      "command": "git diff --cached --check -- . ':(exclude)artifacts/v1_entry_projection_20261117/RUST_UNIT_TESTS.log'",
+      "observed_stdout": "",
+      "scope": "all staged source, tests and documents; raw byte-identical Rust execution log retains its original final blank line"
+    }
+  ],
+  "test_count_note": "Suites overlap; do not sum passed counts as independent tests",
+  "behavioral_red": {
+    "test": "test_repeated_descendants_do_not_create_one_packet_per_endpoint",
+    "observed_old_behavior": "79 exact packets, expected projected cohort count1; actual assertion failure before implementation",
+    "import_failure_counted_as_behavioral_red": false
+  },
+  "independent_review": {
+    "scope": "one source/code/scientific review, then concrete P2 regression fix",
+    "p0_or_p1_found": false,
+    "p2": "failure receipts kept initial projection diagnostics; fixed with a behavioral failing test and verified on actual blocked pilot",
+    "nonblocking": "Rust O(PK) integration, point-cohort wording clarified",
+    "evidence": "INDEPENDENT_REVIEW.md"
+  },
+  "experiments": {
+    "synthetic": {
+      "backend_runs": 14,
+      "conditions_per_backend": 7,
+      "horizon_s": 40,
+      "evidence": [
+        "PYTHON_COMPARISON.json",
+        "NATIVE_COMPARISON.json",
+        "PYTHON_RUST_COMPARISON.json"
+      ],
+      "max_conservation_residual_veh": 2.6645352591003757e-15,
+      "maximum_python_rust_cell_occupancy_difference_veh": 4.163336342344337e-17,
+      "dt_1_vs_point5_completed_curve_difference_veh": 0.23712892558629584,
+      "state_replay_equal_all": true,
+      "scope": "immutable state replay on synthetic road; binary whole-engine replay is covered by native tests"
+    },
+    "paired_city": {
+      "evidence": "PAIRED_CITY_COMPARISON.json",
+      "status": "PAIRED_PREFIX_EXECUTED",
+      "horizon_s": 25500,
+      "widths_s": [
+        0,
+        1
+      ],
+      "peak_records_reduction_fraction": 0.23848129043934663,
+      "peak_rss_reduction_fraction": 0.11519940057753342,
+      "completed_vehicle_endpoint_difference": -0.0010362488134898484,
+      "scope": "same Valley full-calendar initial conditions, dt=10 s, endpoint 25500 s; endpoint aggregates only, not a complete time-series or acceptance certificate"
+    },
+    "valley_pilot": {
+      "evidence": "VALLEY_PILOT.json",
+      "requested_horizon_s": 26100,
+      "last_valid_s": 26010,
+      "status": "BLOCKED_RESOURCE",
+      "exit_code": 2,
+      "reason": "BudgetExceeded: native road storage budget exceeded: phase=transfer candidates, required_bytes=4538183888, budget_bytes=4538183714",
+      "peak_rss_bytes": 3176062976,
+      "wall_s": 285.71292582299793,
+      "last_valid_road_parts": 10530239,
+      "last_valid_road_packets": 14103,
+      "relative_to_old_guard_simulated_seconds": 360,
+      "comparison_scope": "historical exact guard25650; diagnostic actual allocation failure25700 is a separate experiment",
+      "checkpoint_evidence": "LOCAL_CHECKPOINTS.json"
+    }
+  },
+  "transport_coverage": {
+    "calendar_records": 918450,
+    "road_leg_records": 304368,
+    "internal_leg_records": 3012,
+    "service_assigned_kind0_records": 250,
+    "unsupported_leg_records": 610820,
+    "unsupported_record_fraction": 0.6650552561380587,
+    "meaning": "all calendar records retained; kind0 without service assignment has no release path and remains requested-minus-released pending after demand occurs; record fraction is not population/mass fraction",
+    "cause_breakdown": "NOT_MEASURED",
+    "source_functions": [
+      "NativeWholeEngine construction kind==0 && !assigned",
+      "NativeJourney.prepare kind0 skip",
+      "NativeWholeEngine report requested/released/pending"
+    ]
+  },
+  "unchanged_gates": {
+    "resident_stock": 100000,
+    "whole_calendar_demand_omitted": 0,
+    "full_day_horizon_s": 86400,
+    "full_day_required_runs": 9,
+    "full_day_completed_runs": 0,
+    "mass_relative_tolerance": 1e-09,
+    "residence_relative_tolerance": 1e-08,
+    "native_total_bytes": 6442450944,
+    "process_limit_bytes": 8589934592,
+    "campaign_wall_limit_s": 7200
+  },
+  "plan": {
+    "version": "1.1.27",
+    "implemented_or_scoped": 19,
+    "nodes": 21,
+    "accepted": 5,
+    "V03": "BLOCKED",
+    "RLS01": "PLANNED",
+    "full_repository_ci": "DEFERRED_BY_USER",
+    "merge": "NOT_RUN",
+    "release": "NOT_RUN"
+  },
+  "not_implemented": [
+    "EventBatch common-header/streaming storage",
+    "immutable mark-block/coefficient representation",
+    "unsupported transport cause breakdown and missing service model fixes",
+    "full 3city x3 24h acceptance"
+  ],
+  "handoff": "LOCAL_AGENT_HANDOFF_KO.md",
+  "theory": [
+    "docs/v1/CONSERVATIVE_ENTRY_PROJECTION_THEORY_KO.md",
+    "docs/v1/CONSERVATIVE_MARK_BLOCK_NEXT_KO.md",
+    "docs/v1/ENTRY_PROJECTION_RESOURCE_FOLLOWUP_KO.md"
+  ],
+  "evidence_sha256": {
+    "AGENTS.md": "665bc712486df01626b2cb10b4f6ddc40c502698782cb9402372f13ead037ae0",
+    "artifacts/v1_entry_projection_20261117/ALLOCATION_FIX_TESTS.log": "a83f965f8eb8111a47c7585211339bbe7c73762f36b9654e18024f8ea0ed01f5",
+    "artifacts/v1_entry_projection_20261117/AUDIT_REPORT_KO.md": "ef14838bb84cf3b13209fb968507df5650922e21f547a5b7a26f3e66b7107df6",
+    "artifacts/v1_entry_projection_20261117/BUILD_FINAL.log": "652fa72bf471d13a98dea5f32c2b10da19e71df6da15a82b8790e6a00cbf0b6b",
+    "artifacts/v1_entry_projection_20261117/INDEPENDENT_REVIEW.md": "b217f54c01c226252d1c2ac2be082c7d59c8460597b6390b8048c409979d4b96",
+    "artifacts/v1_entry_projection_20261117/LOCAL_AGENT_HANDOFF_KO.md": "dacd8379412bfb960dd4361f4858a29b9c2595fa96fdcee886c361004d460560",
+    "artifacts/v1_entry_projection_20261117/LOCAL_CHECKPOINTS.json": "191d03b93359dd2faf955cd3ac44d9561c931295f470580d4080421229bf2fc0",
+    "artifacts/v1_entry_projection_20261117/NATIVE_COMPARISON.json": "5d9db6dc714f1d313103bdec1ce0b3b84c68e09d5b1e87f3f822f897801162ac",
+    "artifacts/v1_entry_projection_20261117/NATIVE_ENVIRONMENT.json": "c40f85b6ff02f3e6b97ea541119d8970cb751111d8829194a6d2ee9fd4c55553",
+    "artifacts/v1_entry_projection_20261117/NATIVE_TESTS_FINAL.log": "22feb1d99a059486048a5296e5f71a2ca06b197e0f02e01850f4b4aee2525d35",
+    "artifacts/v1_entry_projection_20261117/PAIRED_CITY_COMPARISON.json": "134e955071eb4ceb1ff94d60c9a7c62e3f8129e533a83329e43f1b163b416779",
+    "artifacts/v1_entry_projection_20261117/PILOT_LAUNCH.json": "b6169c59054f3f7f9316c78873ffa8d638664a1eac04ed5ad3f79482797c4396",
+    "artifacts/v1_entry_projection_20261117/PLAN_TESTS_FINAL.log": "1af40c49f25815cc43199390723eca0ea305a38da96d85981d7ae68d66a97f6f",
+    "artifacts/v1_entry_projection_20261117/PLAN_VALIDATION.json": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca",
+    "artifacts/v1_entry_projection_20261117/PYTHON_COMPARISON.json": "7ce2957bcc5e8718778fc9bb96cf2090edf717550c6c3ad7002c5a07157e29dd",
+    "artifacts/v1_entry_projection_20261117/PYTHON_RUST_COMPARISON.json": "070f8451a6be5a18b90409361728183684725844db09d46d61325e1dc93bc6d4",
+    "artifacts/v1_entry_projection_20261117/PYTHON_TESTS.log": "06358a45f01ce6dc834ba1826bfd9f90e97c891284929c396ebda41fd21d5bba",
+    "artifacts/v1_entry_projection_20261117/PYTHON_TESTS_FINAL.log": "4a003d537b111efa70d288df56b78496cd7d5266d2974ce9b986bc23f49e5239",
+    "artifacts/v1_entry_projection_20261117/RUST_UNIT_TESTS.log": "616cc0780212fde4a4d743198d7a99dce669b530f7187bec53de190cd6347824",
+    "artifacts/v1_entry_projection_20261117/VALLEY_PILOT.json": "f8c25f78da4c17e5d525a4c4a6c9ea59048366791809d4309652e86de155582d",
+    "artifacts/v1_entry_projection_20261117/paired_city_prefix/PAIRED_LAUNCH.json": "e76f6c81ef5e3e5b7bc93d19a121c7cdfc18794bc3bb5a73787e0a00a964c456",
+    "artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h0.json": "92844df0de832cc94b840e3f915cc8b6c8ce671e0975f1bba9e2f2aad5f5eaef",
+    "artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h1.json": "10c2daa0d0702abe953d0a29134317975bc8f3744459419a10d68717935a7521",
+    "docs/superpowers/plans/2026-11-17-entry-projection.md": "34c81fa16dadd24107a10f7e3f7fe0a6acc33683e2ffba42582f53ddb299cbac",
+    "docs/v1/CONSERVATIVE_ENTRY_PROJECTION_DESIGN_KO.md": "d92bbb1981d34af2e4a027a02ab44da012946bc3a58fd652468c7cb81c36b38c",
+    "docs/v1/CONSERVATIVE_ENTRY_PROJECTION_THEORY_KO.md": "ab7ffd4f955016ffd66904479bd48659fbb9bbc7935d07945f0745898ea478de",
+    "docs/v1/CONSERVATIVE_MARK_BLOCK_NEXT_KO.md": "65b7c6f67d1fc8bad6271fcd0ef729602e6886c544381dccc709c5508d88d628",
+    "docs/v1/ENTRY_PROJECTION_RESOURCE_FOLLOWUP_KO.md": "1252e54d23df43e5a9ff8b639a5dea68bf55500a2da97bf98549246628013b63",
+    "docs/v1/MASTER_PLAN_KO.md": "0d78a747a5c63e7801d824aa7949438b1e56bc17976143f7042214d51ecf4f6e",
+    "docs/v1/PLAN.json": "f693f12f5637d17cf405b928ef0645237cb0e5db9880d90512f1228f98913b74",
+    "docs/v1/t04/TRANSPORT_KO.md": "c4d1254ff1963f66388f046a9410dfec054ca3bc2f760b3af12b3d46b66b5054"
+  }
+}

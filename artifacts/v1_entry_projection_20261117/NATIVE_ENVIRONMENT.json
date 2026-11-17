@@ -1,0 +1,16 @@
+{
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+  "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)",
+  "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+  "worktree": "/home/cosmosapjw/urban_traffic_projection_20261117",
+  "native_binary_path": "/home/cosmosapjw/urban_traffic_projection_20261117/native_binding/_metroflow_rust.so",
+  "native_binary_sha256": "b34832c7803e5ca2be5e7c1a1f83c2d2a83faf29ca7d7956e4943a01f1ce57a3",
+  "evidence_sha256": {
+    "NATIVE_COMPARISON.json": "5d9db6dc714f1d313103bdec1ce0b3b84c68e09d5b1e87f3f822f897801162ac",
+    "NATIVE_TESTS_FINAL.log": "22feb1d99a059486048a5296e5f71a2ca06b197e0f02e01850f4b4aee2525d35",
+    "ALLOCATION_FIX_TESTS.log": "a83f965f8eb8111a47c7585211339bbe7c73762f36b9654e18024f8ea0ed01f5",
+    "RUST_UNIT_TESTS.log": "616cc0780212fde4a4d743198d7a99dce669b530f7187bec53de190cd6347824",
+    "BUILD_FINAL.log": "652fa72bf471d13a98dea5f32c2b10da19e71df6da15a82b8790e6a00cbf0b6b"
+  }
+}

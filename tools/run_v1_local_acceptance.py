@@ -244,7 +244,8 @@ def prepare(case,matrix,step_s):
         return NativeReleaseDriver(plan,inventory,step_s=step_s,
             byte_budget=min(6*1024**3,matrix['limits']['peak_rss_bytes']),
             native_threads=int(os.environ.get('METROFLOW_V1_NATIVE_THREADS','1')),
-            storage_policy=os.environ.get('METROFLOW_V1_STORAGE_POLICY','bounded_bytes_v1')),row
+            storage_policy=os.environ.get('METROFLOW_V1_STORAGE_POLICY','bounded_bytes_v1'),
+            entry_projection_width_s=float(os.environ.get('METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S','0'))),row
     def factory(city,legs,*,step_s):
         return compile_service_plan(city,legs,inventory.corridors,
                      depot_block_id=inventory.depot_block_id,step_s=step_s,
@@ -259,7 +260,8 @@ def worker(args,matrix,case):
     overrides={key:str(getattr(args,attr)) for attr,key in (
         ('engine_backend','METROFLOW_V1_ENGINE_BACKEND'),
         ('native_threads','METROFLOW_V1_NATIVE_THREADS'),
-        ('storage_policy','METROFLOW_V1_STORAGE_POLICY')) if hasattr(args,attr)}
+        ('storage_policy','METROFLOW_V1_STORAGE_POLICY'),
+        ('entry_projection_width_s','METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S')) if hasattr(args,attr)}
     previous={key:os.environ.get(key) for key in overrides}
     os.environ.update(overrides)
     try:
@@ -416,6 +418,10 @@ def _worker(args,matrix,case,route_latency):
                       failure_classification=getattr(exc,'status',status))
         if status=='BLOCKED_RESOURCE':
             result['resource_limit_kind']=resource_limit_kind(str(exc),result.get('native_storage'))
+    if driver is not None and result['engine_backend']=='rust_whole':
+        # This is the latest validated road proposal even after a failed
+        # coupled call; retain its explicit non-checkpointed scope.
+        result['entry_projection']=driver.runtime.projection_diagnostics()
     result.update(wall_s=time.perf_counter()-started,
                   route_latency=route_latency.report(),
                   peak_rss_bytes=peak_rss_bytes())
@@ -455,6 +461,9 @@ def main():
     parser.add_argument('--storage-policy',choices=('bounded_bytes_v1','legacy_records'),
         default=os.environ.get('METROFLOW_V1_STORAGE_POLICY','bounded_bytes_v1'),
         help='whole-native storage guard (default: bounded_bytes_v1; changes checkpoint identity)')
+    parser.add_argument('--entry-projection-width-s',type=float,
+        default=os.environ.get('METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S','0'),
+        help='opt-in support-protected entry-time projection width; 0 is exact (changes checkpoint identity)')
     args=parser.parse_args()
     if args.engine_backend not in ('rust_whole','python_oracle','rust'):
         parser.error('invalid METROFLOW_V1_ENGINE_BACKEND')
@@ -462,6 +471,10 @@ def main():
         parser.error('invalid METROFLOW_V1_STORAGE_POLICY')
     if not 1<=args.native_threads<=256:
         parser.error('--native-threads must be in 1..256')
+    if not math.isfinite(args.entry_projection_width_s) or args.entry_projection_width_s < 0:
+        parser.error('--entry-projection-width-s must be finite and nonnegative')
+    if args.entry_projection_width_s and args.engine_backend!='rust_whole':
+        parser.error('--entry-projection-width-s currently requires rust_whole campaign backend')
     matrix=json.loads(args.matrix.read_text())
     cases=[c for c in matrix['cases'] if args.case is None or c['id']==args.case]
     if not cases or (not args.prepare_only and not args.run_local):
@@ -479,7 +492,8 @@ def main():
                  '--matrix',str(args.matrix),'--out',str(args.out),'--label',label,
                  '--step-s',str(step),'--horizon-s',str(horizon),
                  '--engine-backend',args.engine_backend,'--native-threads',str(args.native_threads),
-                 '--storage-policy',args.storage_policy]
+                 '--storage-policy',args.storage_policy,
+                 '--entry-projection-width-s',str(args.entry_projection_width_s)]
             cmd+=['--prepare-only'] if args.prepare_only else ['--run-local']
             if resume:
                 cmd+=['--resume']

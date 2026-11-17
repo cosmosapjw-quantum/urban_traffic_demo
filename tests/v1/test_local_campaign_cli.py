@@ -46,6 +46,44 @@ def test_crashed_child_cannot_reuse_stale_success(tmp_path,monkeypatch):
     assert receipt['receipts'][0]['status']=='ENVIRONMENT_BLOCKER'
 
 
+def test_failed_native_worker_receipt_keeps_latest_projection_diagnostics(tmp_path,monkeypatch):
+    from metroflow.v1 import native_engine
+
+    diagnostics=dict(input_parts=0,output_parts=0,cohorts=0,local_w1_bound_veh_s=0.,
+                     checkpointed=False,scope='latest validated proposed road transition')
+    runtime=SimpleNamespace(
+        native=SimpleNamespace(execution_config=lambda:{},native_threads=1),
+        storage_config=lambda:{},routing_metrics=lambda:{},
+        projection_diagnostics=lambda:dict(diagnostics),last_advance_metrics={})
+    checkpoint=SimpleNamespace(time_s=10.)
+    def fail_after_projection(state,end):
+        diagnostics.update(input_parts=7,output_parts=2,cohorts=1,local_w1_bound_veh_s=.125)
+        error=BudgetExceeded('entry projection record budget')
+        error.checkpoint=checkpoint
+        raise error
+    driver=SimpleNamespace(
+        identity='projected-fixture',engine_backend='rust_whole',runtime=runtime,
+        initial=lambda:SimpleNamespace(time_s=0.),advance=fail_after_projection,
+        save=lambda path,state:path.write_text(str(state.time_s)),
+        report=lambda state:dict(time_s=state.time_s),debug_state=lambda state:{})
+    monkeypatch.setattr(cli,'prepare',lambda *args:(driver,dict(source_sha256='fixture',patch_sha256='fixture')))
+    monkeypatch.setattr(native_engine,'native_binary_provenance',lambda:dict(status='TEST_DOUBLE'))
+    monkeypatch.setattr(cli.resource,'setrlimit',lambda *args:None)
+    matrix=tmp_path/'matrix.json'
+    matrix.write_text('{}')
+    args=SimpleNamespace(step_s=10,horizon_s=20,matrix=matrix,out=tmp_path,
+                         label='projected.failure',prepare_only=False,resume=False,
+                         engine_backend='rust_whole')
+
+    assert cli.worker(args,{'limits':{'peak_rss_bytes':2**40}},dict(id='case'))==2
+    result=json.loads((tmp_path/'projected.failure.json').read_text())
+    assert result['status']=='BLOCKED_RESOURCE'
+    assert result['simulated_s']==10.
+    assert result['last_valid']['time_s']==10.
+    assert result['entry_projection']==diagnostics
+    assert (tmp_path/result['last_valid']['path']).read_text()=='10.0'
+
+
 def test_small_preparation_receipt_includes_measured_route_bounds(tmp_path,monkeypatch):
     city=scenario_city(1000)
     monkeypatch.setattr(cli,'load_release_city',lambda case:(city,dict(source_sha256='fixture',patch_sha256='fixture')))

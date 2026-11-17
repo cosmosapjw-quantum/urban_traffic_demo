@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.26",
+  "version": "1.1.27",
   "date": "2026-11-17",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -157,7 +157,28 @@
       "3.13"
     ],
     "current_host_python": "3.12.14",
-    "current_python312_status": "PASS_I01_FULL_CI_AND_M02_SCOPED"
+    "current_python312_status": "PASS_I01_FULL_CI_AND_M02_SCOPED",
+    "entry_projection": {
+      "policy": "entry_projection_support_v1",
+      "default_width_s": 0.0,
+      "candidate_widths_s": [
+        1.0,
+        0.5,
+        0.25
+      ],
+      "authority": "2026-11-17 현재 사용자: 원래 모델의 동기를 살리는 보고서 선택지를 선택하고 구현까지 수행",
+      "preserves": [
+        "tag/route/class mass",
+        "birth first moment",
+        "entry first moment",
+        "immediate movement support boundaries",
+        "original point atoms",
+        "fixed target/admission cohort boundaries"
+      ],
+      "local_error": "category-wise W1 <= mass * support_width / 2 [veh*s], real-arithmetic local projection bound; not network travel-time bound",
+      "acceptance": "existing G-DAY/G-SCALE and conservation tolerances unchanged; compare exact h=0 with h, h/2 and independently refined dt before promotion",
+      "spec": "docs/v1/CONSERVATIVE_ENTRY_PROJECTION_DESIGN_KO.md"
+    }
   },
   "release_gates": [
     {
@@ -370,12 +391,12 @@
     "node_ids": [
       "V03"
     ],
-    "native_subagent": "COMPLETED_SCOPED",
-    "scope": "Complete Rust whole-owner resource representation and measured simulation continuation; scientific G-SCALE/G-DAY gates unchanged; no full CI or integration",
+    "native_subagent": "COMPLETED_SCOPED_NATIVE_COMPILED_AND_EXECUTED",
+    "scope": "Audit latest evidence, derive and implement support-protected conservative entry measure projection in Python/Rust, perform scoped comparisons and prepare local full-scale handoff; existing V03 acceptance remains incomplete",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json",
+    "evidence": "artifacts/v1_entry_projection_20261117/RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,12 +405,37 @@
       "status": "success"
     },
     "parallel_agents": [
-      "journey_debug",
-      "parallel_road",
-      "engine_diagnostics",
-      "queue_review",
-      "parallel_references"
-    ]
+      "intent_audit",
+      "theory_literature",
+      "rust_projection",
+      "projection_review"
+    ],
+    "scoped_test_results": {
+      "python_final": 88,
+      "native_final": 164,
+      "rust_projection_unit": 7,
+      "scope": "overlapping suites; counts must not be summed as distinct tests"
+    },
+    "bounded_city_pilot": {
+      "case": "valley_weekday_s7",
+      "target_s": 26100,
+      "last_valid_s": 26010,
+      "width_s": 1,
+      "step_s": 10,
+      "status": "BLOCKED_RESOURCE",
+      "reason": "transfer candidates workspace; observed category replication remains",
+      "evidence": "artifacts/v1_entry_projection_20261117/VALLEY_PILOT.json"
+    },
+    "paired_city_prefix": {
+      "horizon_s": 25500,
+      "widths_s": [
+        0,
+        1
+      ],
+      "status": "EXECUTED_FOR_REVIEW",
+      "evidence": "artifacts/v1_entry_projection_20261117/PAIRED_CITY_COMPARISON.json"
+    },
+    "transport_coverage_caveat": "All 918450 Valley calendar records are retained; 610820 kind0 unassigned leg records lack a supported transport path/service and become pending after demand occurs. Record fraction is not population or mass fraction. Full-calendar retention is not full physical mobility coverage."
   },
   "nodes": [
     {
@@ -1890,7 +1936,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Options (a) and 1 measured: partial head serves create ~80% of new rows; bit-identical merges recover ~2%, real-arithmetic-exact proportional merges <=8%, composition sharing only a constant factor while packets double every ~50 simulated s. V03 completion therefore needs a user decision on an approximate road-interval aggregation (currently forbidden as time binning) or on scope/model contract. No demand/mass/tolerance/budget relaxation; full CI/integration deferred.",
+      "positive_next_action": "A is implemented and scoped-verified. Actual h1 Valley pilot reached26010s then transfer-candidate resource rejection; paired25500s prefix reduced records/RSS with nonzero endpoint differences. Follow LOCAL_AGENT_HANDOFF_KO.md: classify unsupported transport records; implement measured EventBatch/common-header sharing then typed mark-block representation if needed, retaining all labels/moments/support. Distinguish real-arithmetic equivalence from f64 identity. Keep h0 oracle, all demand, existing 3case x3 24h/resource/conservation gates. Global accuracy/full-day acceptance remain incomplete; no full CI/integration/merge.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -2121,6 +2167,12 @@
       "reason": "Frozen candidate27e426f exposes a distinction between constructor peak allowance and retained runtime footprint. River constructor estimate5674574036B leaves383938454B per dynamic owner although measured initialization peakRSS2172362752B; fixed journey proposal scratch is326120360B. The constructor estimate includes freed router/calendar temporaries and duplicated snapshot allowances.",
       "change": "Retain the constructor preflight and all physical release gates. Derive runtime static reservation from native owned capacities, shared immutable allocation identity, explicit concurrent dense copies, service-event workspaces and validation scratch. Separate construction, retained and dynamic admission diagnostics; preserve6GiB total accounting and8GiB process limits with a new resource binding/fresh campaign. Do not present structural estimates as a theorem about allocator overhead or RSS.",
       "evidence": "artifacts/v1_rust_completion_20261116/SOURCE_MANIFEST_FINAL.json"
+    },
+    {
+      "date": "2026-11-17",
+      "reason": "Current user delegates report option selection and code implementation. Exact interval partial-service descendants cause measured representation growth; no theorem excludes all exact alternatives. Original mesoscopic model already uses declared moment and time closures.",
+      "change": "Choose A as opt-in support-protected conservative entry-time projection; keep zero-width exact oracle, original point atoms, categorical mass/birth/entry moments and movement-support barriers. Record policy/width in checkpoint identity. Do not lower population, horizon, resource limits or scientific acceptance thresholds.",
+      "evidence": "docs/v1/CONSERVATIVE_ENTRY_PROJECTION_DESIGN_KO.md"
     }
   ],
   "implementation_progress": {

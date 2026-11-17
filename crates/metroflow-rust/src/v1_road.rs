@@ -3,6 +3,7 @@
 use crate::v1_parallel::ordered_map;
 use pyo3::exceptions::{PyArithmeticError, PyIOError, PyMemoryError, PyValueError};
 use pyo3::prelude::*;
+use pyo3::types::PyDict;
 use std::collections::{BTreeMap, HashMap};
 use std::io::{Read, Write};
 use std::sync::Mutex;
@@ -408,6 +409,24 @@ impl EventResolutionStats {
         );
     }
 }
+/// Diagnostics describe only the latest validated proposed road transition.
+/// They are not checkpoint state or a network trajectory-error estimate.
+#[derive(Default, Clone, Copy)]
+struct ProjectionStats {
+    input_parts: usize,
+    output_parts: usize,
+    cohorts: usize,
+    protected_support_boundaries: usize,
+    local_w1_bound: f64,
+}
+pub(crate) fn projection_identity(identity: &str, width: f64) -> String {
+    if width > 0. {
+        format!("{identity}:entry_projection_support_v1:{:016x}", width.to_bits())
+    } else {
+        identity.to_owned()
+    }
+}
+
 /// The legacy single-word clock stays untouched until a positive duration
 /// cannot advance it. The two-word extension retains that duration; it does
 /// not enlarge h, remove a positive mass or claim exact mass-split arithmetic.
@@ -730,6 +749,8 @@ pub struct V1Road {
     retained_input_bytes: usize,
     service_event_accounting: Option<ServiceEventAccounting>,
     event_resolution: Mutex<EventResolutionStats>,
+    entry_projection_width_s: f64,
+    projection_stats: Mutex<ProjectionStats>,
     event_budget: Option<usize>,
     intervals: bool,
     state: RoadState,
@@ -1556,6 +1577,232 @@ impl V1Road {
             hazards,
         })
     }
+    /// Project one admission target. Endpoint events select only movement-support
+    /// changes; integrating into fixed bins never re-splits centroid cohorts.
+    fn projected_packets(
+        &self,
+        parts: Vec<Part>,
+        target: f64,
+        work: &mut RoadWorkBudget,
+        stats: &mut ProjectionStats,
+    ) -> PyResult<Vec<Packet>> {
+        let n = parts.len();
+        if n == 0 {
+            return Ok(Vec::new());
+        }
+        let h = self.entry_projection_width_s;
+        let mut lo = f64::INFINITY;
+        let mut hi = f64::NEG_INFINITY;
+        for p in &parts {
+            let (a, b) = (p.a.unwrap(), p.b.unwrap());
+            if !p.mass.is_finite() || p.mass <= 0. || !p.birth.is_finite() || b < a {
+                return Err(arithmetic("invalid positive entry projection measure"));
+            }
+            lo = lo.min(a);
+            hi = hi.max(b);
+            if b > a {
+                if a + h <= a || b - h >= b {
+                    return Err(arithmetic("entry projection width is unrepresentable at entry clock"));
+                }
+            }
+        }
+        let edge_count = n.checked_mul(3).and_then(|v| v.checked_add(2))
+            .ok_or_else(|| budget("entry projection boundary capacity overflow"))?;
+        let base_bytes = n.saturating_mul(2 * std::mem::size_of::<(f64, usize, bool)>())
+            .saturating_add(n.saturating_mul(2 * std::mem::size_of::<(f64, f64)>()))
+            .saturating_add(self.groups.len().saturating_add(1).saturating_mul(std::mem::size_of::<usize>()))
+            .saturating_add(parts.capacity().saturating_mul(std::mem::size_of::<Part>()));
+        let mut fixed_bytes = base_bytes.saturating_add(edge_count.saturating_mul(std::mem::size_of::<f64>()));
+        work.interval(fixed_bytes)?;
+        let mut events = checkpoint_vec(n.saturating_mul(2))?;
+        let mut edges = checkpoint_vec(edge_count)?;
+        edges.extend([lo, hi]);
+        for p in &parts {
+            let (a, b) = (p.a.unwrap(), p.b.unwrap());
+            if a == b {
+                edges.push(a);
+            } else {
+                let movement = self.paths[self.routes[p.tag].0].get(p.offset + 1)
+                    .copied().unwrap_or(self.groups.len());
+                events.push((a, movement, true));
+                events.push((b, movement, false));
+            }
+        }
+        events.sort_unstable_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
+        let mut counts = checkpoint_vec(self.groups.len() + 1)?;
+        counts.resize(self.groups.len() + 1, 0usize);
+        let mut runs = checkpoint_vec(n.saturating_mul(2))?;
+        let mut run_start = None;
+        let mut active_movements = 0usize;
+        let event_first = events.first().map(|e| e.0).unwrap_or(lo);
+        let event_last = events.last().map(|e| e.0).unwrap_or(hi);
+        let mut i = 0;
+        let mut protected = 0usize;
+        while i < events.len() {
+            let t = events[i].0;
+            let mut changed = false;
+            while i < events.len() && events[i].0 == t {
+                let movement = events[i].1;
+                let mut starts = 0usize;
+                let mut ends = 0usize;
+                while i < events.len() && events[i].0 == t && events[i].1 == movement {
+                    if events[i].2 { starts += 1; } else { ends += 1; }
+                    i += 1;
+                }
+                let before = counts[movement];
+                let after = before.checked_add(starts).and_then(|v| v.checked_sub(ends))
+                    .ok_or_else(|| arithmetic("entry projection support count overflow"))?;
+                changed |= (before > 0) != (after > 0);
+                if before == 0 && after > 0 { active_movements += 1; }
+                if before > 0 && after == 0 { active_movements -= 1; }
+                counts[movement] = after;
+            }
+            if changed {
+                edges.push(t);
+                if t > event_first && t < event_last { protected += 1; }
+                if let Some(start) = run_start { runs.push((start, t)); }
+                run_start = if active_movements > 0 { Some(t) } else { None };
+            }
+        }
+        // Generate mesh boundaries only on nonempty support runs. Empty time
+        // gaps do not consume memory or cause a false record-budget refusal.
+        for (left, right) in runs {
+            let mut first = (left / h).floor() + 1.;
+            let last = (right / h).ceil();
+            if !first.is_finite() || !last.is_finite() || first + 1. == first || last + 1. == last {
+                return Err(arithmetic("entry projection grid index is unrepresentable"));
+            }
+            if first * h <= left { first += 1.; }
+            let count = (last - first).max(0.);
+            if count >= usize::MAX as f64 {
+                return Err(budget("entry projection grid exceeds addressable capacity"));
+            }
+            let count = count as usize;
+            // Each interior boundary in a nonempty run requires at least one
+            // positive output row; refuse before allocation when impossible.
+            if count > self.record_budget {
+                return Err(budget("entry projection grid record budget"));
+            }
+            let needed = edges.len().checked_add(count)
+                .ok_or_else(|| budget("entry projection grid capacity overflow"))?;
+            if needed > edges.capacity() {
+                let required = needed.saturating_mul(std::mem::size_of::<f64>());
+                work.interval(fixed_bytes.saturating_add(required))?;
+                edges.try_reserve_exact(count)
+                    .map_err(|_| budget("entry projection grid allocation unavailable"))?;
+                fixed_bytes = base_bytes.saturating_add(edges.capacity().saturating_mul(std::mem::size_of::<f64>()));
+                work.interval(fixed_bytes)?;
+            }
+            let mut previous = left;
+            for j in 0..count {
+                let edge = (first + j as f64) * h;
+                if !edge.is_finite() || edge <= previous {
+                    return Err(arithmetic("entry projection grid boundary does not advance"));
+                }
+                if edge < right { edges.push(edge); }
+                previous = edge;
+            }
+        }
+        edges.sort_unstable_by(f64::total_cmp);
+        edges.dedup();
+        // Per-segment pieces, output rows and summation scratch. Packet vectors
+        // grow fallibly under a conservative old+new capacity envelope.
+        let segment_bytes = n.saturating_mul(320);
+        let mut out: Vec<Packet> = Vec::new();
+        let mut records = 0usize;
+        let mut local_bound = 0.;
+        for (edge_index, &a) in edges.iter().enumerate() {
+            work.interval(fixed_bytes.saturating_add(segment_bytes).saturating_add(
+                out.len().saturating_add(1).max(4).saturating_mul(3 * std::mem::size_of::<Packet>())
+            ))?;
+            // Preserve the exact point law: equal-time rows form the same
+            // exchangeable packet as interval_packets, ahead of [a,b].
+            let count = parts.iter().filter(|p| p.a == Some(a) && p.b == Some(a)).count();
+            if count > 0 {
+                let mut points = checkpoint_vec(count)?;
+                points.extend(parts.iter().filter(|p| p.a == Some(a) && p.b == Some(a)).copied());
+                let rows = combine(points)?;
+                self.push_projected_packet(&mut out, rows, target, work, &mut records)?;
+            }
+            let Some(&b) = edges.get(edge_index + 1) else { continue; };
+            let mut pieces: Vec<(usize, usize, f64, f64, f64, f64, f64)> = checkpoint_vec(n)?;
+            for p in &parts {
+                let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
+                let (x, y) = (a.max(pa), b.min(pb));
+                if y <= x || pb <= pa { continue; }
+                let fraction = (y - x) / (pb - pa);
+                let mass = p.mass * fraction;
+                let birth = p.birth * fraction;
+                let relative_entry = mass * ((x - a) + (y - x) / 2.);
+                if mass <= 0. || !mass.is_finite() || !birth.is_finite() || !relative_entry.is_finite() {
+                    return Err(arithmetic("entry projection positive piece underflow or nonfinite moment"));
+                }
+                pieces.push((p.tag, p.offset, mass, birth, relative_entry, x, y));
+            }
+            if pieces.is_empty() { continue; }
+            pieces.sort_unstable_by_key(|p| (p.0, p.1));
+            // Mixed cohorts keep this buffer, so reserve categories rather
+            // than input pieces; otherwise duplicate pieces retain excess
+            // capacity even though their moments have been aggregated.
+            let category_count = 1 + pieces.windows(2)
+                .filter(|pair| (pair[0].0, pair[0].1) != (pair[1].0, pair[1].1)).count();
+            let mut rows = checkpoint_vec(category_count)?;
+            let mut cursor = 0;
+            while cursor < pieces.len() {
+                let start = cursor;
+                let key = (pieces[start].0, pieces[start].1);
+                while cursor < pieces.len() && (pieces[cursor].0, pieces[cursor].1) == key {
+                    cursor += 1;
+                }
+                let selected = &pieces[start..cursor];
+                let mass = sum(selected.iter().map(|p| p.2));
+                let birth = sum(selected.iter().map(|p| p.3));
+                let relative_entry = sum(selected.iter().map(|p| p.4));
+                let min_time = selected.iter().map(|p| p.5).fold(f64::INFINITY, f64::min);
+                let max_time = selected.iter().map(|p| p.6).fold(f64::NEG_INFINITY, f64::max);
+                let centroid = a + relative_entry / mass;
+                if !mass.is_finite() || !birth.is_finite() || !centroid.is_finite()
+                    || centroid < min_time || centroid > max_time {
+                    return Err(arithmetic("entry projection aggregate moment is unrepresentable"));
+                }
+                // A local real-arithmetic W1 upper bound, not a propagated
+                // traffic error. Outward summation avoids rounding it downward.
+                let bound = mass * ((max_time - min_time) / 2.);
+                if !bound.is_finite() {
+                    return Err(arithmetic("entry projection local transport bound overflow"));
+                }
+                local_bound = upper_add(local_bound, bound);
+                let time = PackedTime::new(Some(centroid))?;
+                rows.push(Part { tag: key.0, offset: key.1, mass, birth, a: time, b: time });
+            }
+            self.push_projected_packet(&mut out, rows, target, work, &mut records)?;
+        }
+        stats.input_parts = stats.input_parts.saturating_add(n);
+        stats.output_parts = stats.output_parts.saturating_add(records);
+        stats.cohorts = stats.cohorts.saturating_add(out.len());
+        stats.protected_support_boundaries = stats.protected_support_boundaries.saturating_add(protected);
+        stats.local_w1_bound = upper_add(stats.local_w1_bound, local_bound);
+        work.end_interval();
+        Ok(out)
+    }
+    fn push_projected_packet(
+        &self,
+        out: &mut Vec<Packet>,
+        rows: Vec<Part>,
+        target: f64,
+        work: &mut RoadWorkBudget,
+        records: &mut usize,
+    ) -> PyResult<()> {
+        *records = records.saturating_add(rows.len());
+        if *records > self.record_budget {
+            return Err(budget("entry projection record budget"));
+        }
+        work.require(out.len().saturating_add(1).max(4).saturating_mul(
+            3 * std::mem::size_of::<Packet>()), "entry projection cohort reservation")?;
+        let parts = work.pack_parts(rows)?;
+        work.retain_interval(parts.allocated_bytes().saturating_add(std::mem::size_of::<Packet>()));
+        push_checked(out, Packet { target, parts })
+    }
     fn interval_packets(
         &self,
         parts: Vec<Part>,
@@ -1847,6 +2094,7 @@ impl V1Road {
         // Reserve the working allowance before copying large state/source
         // vectors. Large Vec allocations below use fallible reservations.
         let mut work = self.work_budget(s, &offers)?;
+        let mut projection = ProjectionStats::default();
         if crate::v1_trace::enabled() {
             let stats = s.debug_stats();
             crate::v1_trace::add("tick.offers", offers.len() as u64);
@@ -2513,7 +2761,9 @@ impl V1Road {
                 })
                 .collect();
             let target = out.cells[i].v[0] + self.groups[i][0];
-            let packets = if self.intervals {
+            let packets = if self.entry_projection_width_s > 0. {
+                self.projected_packets(parts, target, &mut work, &mut projection)?
+            } else if self.intervals {
                 self.interval_packets(parts, target, &mut work)?
             } else {
                 vec![Packet {
@@ -2599,6 +2849,9 @@ impl V1Road {
                 .lock()
                 .unwrap_or_else(|e| e.into_inner())
                 .merge(resolution);
+        }
+        if self.entry_projection_width_s > 0. {
+            *self.projection_stats.lock().unwrap_or_else(|e| e.into_inner()) = projection;
         }
         Ok((out, events))
     }
@@ -2810,6 +3063,24 @@ impl V1Road {
             self.event_budget,
         )
     }
+    pub(crate) fn projection_diagnostics(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
+        let stats = *self.projection_stats.lock().unwrap_or_else(|e| e.into_inner());
+        let out = PyDict::new(py);
+        out.set_item("policy", if self.entry_projection_width_s > 0. { "entry_projection_support_v1" } else { "exact_intervals" })?;
+        out.set_item("width_s", self.entry_projection_width_s)?;
+        out.set_item("input_parts", stats.input_parts)?;
+        out.set_item("output_parts", stats.output_parts)?;
+        out.set_item("cohorts", stats.cohorts)?;
+        out.set_item("protected_support_boundaries", stats.protected_support_boundaries)?;
+        out.set_item("local_w1_bound_veh_s", stats.local_w1_bound)?;
+        out.set_item("scope", "latest validated proposed road transition in this runtime; may precede coupled rollback or describe a branch/replay; local time-measure projection cost, not network trajectory error; unchanged by failed road proposals and checkpoint restore")?;
+        out.set_item("checkpointed", false)?;
+        Ok(out.unbind())
+    }
+    #[getter]
+    pub(crate) fn entry_projection_width_s(&self) -> f64 {
+        self.entry_projection_width_s
+    }
     fn event_resolution_diagnostics(&self) -> (u64, f64, f64, f64) {
         self.event_resolution_stats()
     }
@@ -2832,7 +3103,7 @@ impl V1Road {
     }
     #[new]
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (identity, dt, groups, signals, routes, classes, incoming, windows, record_budget, event_budget, intervals))]
+    #[pyo3(signature = (identity, dt, groups, signals, routes, classes, incoming, windows, record_budget, event_budget, intervals, entry_projection_width_s=0.0))]
     pub(crate) fn new(
         identity: String,
         dt: f64,
@@ -2845,6 +3116,7 @@ impl V1Road {
         record_budget: usize,
         event_budget: Option<usize>,
         intervals: bool,
+        entry_projection_width_s: f64,
     ) -> PyResult<Self> {
         let mut paths = Vec::new();
         let mut lookup: HashMap<Vec<usize>, usize> = HashMap::new();
@@ -2873,6 +3145,7 @@ impl V1Road {
             record_budget,
             event_budget,
             intervals,
+            entry_projection_width_s,
         )
     }
     fn snapshot(&self) -> StateRow {
@@ -2935,7 +3208,18 @@ impl V1Road {
         record_budget: usize,
         event_budget: Option<usize>,
         intervals: bool,
+        entry_projection_width_s: f64,
     ) -> PyResult<Self> {
+        if !entry_projection_width_s.is_finite() || entry_projection_width_s < 0. {
+            return Err(val("entry_projection_width_s must be finite and nonnegative"));
+        }
+        if entry_projection_width_s > 0. && !intervals {
+            return Err(val("entry projection requires preserved entry intervals"));
+        }
+        if identity.is_empty() {
+            return Err(val("invalid native road configuration"));
+        }
+        let identity = projection_identity(&identity, entry_projection_width_s);
         let n = groups.len();
         if identity.is_empty()
             || n == 0
@@ -3014,6 +3298,8 @@ impl V1Road {
             retained_input_bytes: 0,
             service_event_accounting: None,
             event_resolution: Mutex::new(EventResolutionStats::default()),
+            entry_projection_width_s,
+            projection_stats: Mutex::new(ProjectionStats::default()),
             event_budget,
             intervals,
             state: RoadState {
@@ -3085,5 +3371,110 @@ mod workspace_accounting_tests {
         assert!(one > 0 && many > 900 * (256 + 2 * 96));
         // Monotone in the exiting-row count.
         assert!(sink_envelope_bytes(1_001, 64) > many);
+    }
+}
+
+#[cfg(test)]
+mod entry_projection_tests {
+    use super::*;
+
+    fn road(h: f64) -> V1Road {
+        V1Road::new_shared_routes(
+            "projection-test".into(), 1., vec![vec![100., 20., 100., 100., 1000., 1.]; 4],
+            vec![None; 4], vec![vec![0, 1, 2], vec![0, 1, 3], vec![0, 3]],
+            vec![(0, 0), (1, 0), (2, 0)],
+            vec![vec![20., 1., 2., 3., 2., 1., 4., 0.5, 0.2, 0.3, 4., 10., 6.]],
+            vec![vec![0], vec![1], vec![2], vec![3]], vec![], 10_000, None, true, h,
+        ).unwrap()
+    }
+    fn part(tag: usize, mass: f64, birth: f64, a: f64, b: f64) -> Part {
+        Part { tag, offset: 0, mass, birth,
+            a: PackedTime::new(Some(a)).unwrap(), b: PackedTime::new(Some(b)).unwrap() }
+    }
+    fn work(limit: usize) -> RoadWorkBudget {
+        RoadWorkBudget { limit: Some(limit), base: 0, events: 0, incoming: 0,
+            interval_retained: 0, interval_transient: 0, service_events: None }
+    }
+    fn project(r: &V1Road, parts: Vec<Part>) -> (Vec<Packet>, ProjectionStats) {
+        let mut stats = ProjectionStats::default();
+        let out = r.projected_packets(parts, 100., &mut work(64 * 1024 * 1024), &mut stats).unwrap();
+        (out, stats)
+    }
+    #[test]
+    fn category_moments_and_later_route_divergence_are_retained() {
+        let r = road(1.);
+        // Different future routes share their immediate movement; changes of
+        // multiplicity at .2 and .8 do not introduce support boundaries.
+        let (out, stats) = project(&r, vec![part(0, 1., 2., 0., 1.), part(1, 2., 6., 0.2, 0.8)]);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].parts.len(), 2);
+        let rows: Vec<_> = out[0].parts.iter().collect();
+        assert_eq!((rows[0].tag, rows[1].tag), (0, 1));
+        assert_eq!((rows[0].mass, rows[1].mass), (1., 2.));
+        assert_eq!((rows[0].birth, rows[1].birth), (2., 6.));
+        assert!((rows[0].a.unwrap() - 0.5).abs() < 1e-15);
+        assert!((rows[1].a.unwrap() - 0.5).abs() < 1e-15);
+        assert_eq!(stats.protected_support_boundaries, 0);
+        assert!((stats.local_w1_bound - 1.1).abs() < 1e-14);
+    }
+    #[test]
+    fn heterogeneous_support_and_tiny_suffix_create_barriers() {
+        let r = road(10.);
+        let tiny = 1e-100;
+        let (out, stats) = project(&r, vec![part(0, 3., 0., 0., 3.), part(2, tiny, 0., 1., 2.)]);
+        assert_eq!(out.len(), 3);
+        assert_eq!(out.iter().map(|p| p.parts.len()).collect::<Vec<_>>(), vec![1, 2, 1]);
+        assert_eq!(stats.protected_support_boundaries, 2);
+        assert_eq!(out[1].parts.iter().find(|p| p.tag == 2).unwrap().mass, tiny);
+        assert_eq!(out[0].parts.iter().next().unwrap().a.unwrap(), 0.5);
+    }
+    #[test]
+    fn atoms_keep_bits_order_and_precede_right_segment() {
+        let r = road(10.);
+        let atom = part(0, 0.125, 0.0625, 0.5, 0.5);
+        let (out, _) = project(&r, vec![part(0, 1., 0., 0., 1.), atom, part(1, 0.25, 0., 0.5, 0.5)]);
+        assert_eq!(out.len(), 3);
+        let saved = out[1].parts.iter().next().unwrap();
+        assert_eq!(saved.mass.to_bits(), atom.mass.to_bits());
+        assert_eq!(saved.birth.to_bits(), atom.birth.to_bits());
+        assert_eq!(saved.a.0, atom.a.0);
+        assert_eq!(out[1].parts.iter().nth(1).unwrap().tag, 1);
+        assert_eq!(out[2].parts.iter().next().unwrap().a.unwrap(), 0.75);
+    }
+    #[test]
+    fn irregular_split_preserves_tag_mass_birth_and_entry_moment() {
+        let r = road(0.4);
+        let input = vec![part(0, 3., 12., 0.1, 1.3), part(0, 2., 6., 0.2, 0.7), part(1, 0.7, 1.4, 0.1, 1.3)];
+        let (out, _) = project(&r, input.clone());
+        for tag in 0..2 {
+            let expected: Vec<_> = input.iter().filter(|p| p.tag == tag).collect();
+            let actual: Vec<_> = out.iter().flat_map(|p| p.parts.iter()).filter(|p| p.tag == tag).collect();
+            for (a, b) in [
+                (sum(actual.iter().map(|p| p.mass)), sum(expected.iter().map(|p| p.mass))),
+                (sum(actual.iter().map(|p| p.birth)), sum(expected.iter().map(|p| p.birth))),
+                (sum(actual.iter().map(|p| p.mass * p.a.unwrap())), sum(expected.iter().map(|p| p.mass * (p.a.unwrap() + (p.b.unwrap()-p.a.unwrap())/2.)))),
+            ] { assert!((a-b).abs() < 1e-13); }
+        }
+    }
+    #[test]
+    fn underresolved_clock_and_positive_piece_underflow_fail() {
+        let r = road(0.25);
+        assert!(r.projected_packets(vec![part(0, 1., 0., 1e16, 1e16+2.)], 100., &mut work(1_000_000), &mut ProjectionStats::default()).is_err());
+        let r = road(0.5);
+        assert!(r.projected_packets(vec![part(0, f64::from_bits(1), 0., 0., 1.)], 100., &mut work(1_000_000), &mut ProjectionStats::default()).is_err());
+    }
+    #[test]
+    fn empty_time_gaps_do_not_allocate_mesh() {
+        let r = road(0.25);
+        let (out, _) = project(&r, vec![part(0, 1., 0., 0., 1.), part(0, 1., 0., 1e12, 1e12+1.)]);
+        assert_eq!(out.len(), 8);
+    }
+    #[test]
+    fn projection_byte_budget_rejects_before_boundary_allocation() {
+        let mut r = road(1e-6);
+        r.record_budget = usize::MAX;
+        assert!(r.projected_packets(vec![part(0, 1., 0., 0., 1.)], 100., &mut work(10_000), &mut ProjectionStats::default()).is_err());
+        assert_eq!(r.state.t, 0.);
+        assert!(r.state.cells.iter().all(|c| c.packets.is_empty()));
     }
 }
