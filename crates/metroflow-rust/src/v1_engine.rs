@@ -544,6 +544,15 @@ fn moment(profile: &[(f64, f64, f64)], start: f64, end: f64) -> f64 {
         }
     }))
 }
+/// Resource binding of the bounded storage policy. `retained_capacity_v5`
+/// differs from v4 only by counting shared mark-block payloads once per state.
+fn resource_binding(mark_blocks: bool) -> &'static str {
+    if mark_blocks {
+        "retained_capacity_v5"
+    } else {
+        "retained_capacity_v4"
+    }
+}
 impl NativeWholeEngine {
     fn build(
         calendar: &NativeCalendar,
@@ -552,6 +561,7 @@ impl NativeWholeEngine {
         parallel: ParallelPolicy,
         storage_policy: String,
         entry_projection_width_s: f64,
+        mark_blocks: bool,
     ) -> PyResult<Self> {
         let (city, schedule) = calendar.owned_binding();
         if city != s.city
@@ -992,6 +1002,7 @@ impl NativeWholeEngine {
             s.event_budget,
             s.intervals,
             entry_projection_width_s,
+            mark_blocks,
         )?;
         let service = NativeServiceCore::new(buses, people, freight, Vec::new())?;
         let mut journey = NativeJourneyCore::new_shared(legs, bus_meta, freight_meta, s.budget)?;
@@ -1076,12 +1087,15 @@ impl NativeWholeEngine {
         };
         if let (Some(road_bytes), Some(journey_bytes)) = (road_storage_bytes, journey_storage_bytes)
         {
-            identity.push_str(":bounded_bytes_v1:retained_capacity_v4");
-            road.bind_storage_identity(crate::v1_road::projection_identity(&identity, entry_projection_width_s))?;
+            // The row representation keeps its unchanged v4 accounting; shared
+            // mark blocks are counted once per state under the v5 binding.
+            identity.push_str(":bounded_bytes_v1:");
+            identity.push_str(resource_binding(mark_blocks));
+            road.bind_storage_identity(crate::v1_road::representation_identity(&identity, entry_projection_width_s, mark_blocks))?;
             road.configure_storage_budget(road_bytes)?;
             journey.configure_storage_budget(journey_bytes)?;
         }
-        identity = crate::v1_road::projection_identity(&identity, entry_projection_width_s);
+        identity = crate::v1_road::representation_identity(&identity, entry_projection_width_s, mark_blocks);
         let event_limit = road.checkpoint_event_limit();
         let initial_state = Arc::new(Bundle {
             road: road.checkpoint(),
@@ -1327,7 +1341,7 @@ impl NativeWholeEngine {
 #[pymethods]
 impl NativeWholeEngine {
     #[new]
-    #[pyo3(signature = (calendar, payload, byte_budget, native_threads=1, storage_policy="legacy_records", entry_projection_width_s=0.0))]
+    #[pyo3(signature = (calendar, payload, byte_budget, native_threads=1, storage_policy="legacy_records", entry_projection_width_s=0.0, road_representation="rows"))]
     fn new(
         py: Python<'_>,
         calendar: PyRef<'_, NativeCalendar>,
@@ -1336,7 +1350,9 @@ impl NativeWholeEngine {
         native_threads: usize,
         storage_policy: &str,
         entry_projection_width_s: f64,
+        road_representation: &str,
     ) -> PyResult<Self> {
+        let mark_blocks = crate::v1_road::parse_representation(road_representation)?;
         if !["legacy_records", "bounded_bytes_v1"].contains(&storage_policy) {
             return Err(bad("unknown native storage_policy"));
         }
@@ -1347,7 +1363,7 @@ impl NativeWholeEngine {
         let parallel = ParallelPolicy::new(native_threads).map_err(bad)?;
         let source: &NativeCalendar = &calendar;
         py.allow_threads(|| {
-            Self::build(source, s, byte_budget, parallel, storage_policy.to_owned(), entry_projection_width_s)
+            Self::build(source, s, byte_budget, parallel, storage_policy.to_owned(), entry_projection_width_s, mark_blocks)
         })
     }
     #[getter]
@@ -1412,9 +1428,10 @@ impl NativeWholeEngine {
         out.set_item("policy", &self.storage_policy)?;
         out.set_item("total_accounting_budget_bytes", self.byte_budget)?;
         out.set_item("conservative_static_accounting_bytes", self.estimated_bytes)?;
-        out.set_item("static_accounting_scope", "unchanged constructor preflight estimate; retained_capacity_v4 does not subtract it from runtime storage")?;
+        let binding = resource_binding(self.road.road_representation() != "rows");
+        out.set_item("static_accounting_scope", format!("unchanged constructor preflight estimate; {binding} does not subtract it from runtime storage"))?;
         if let Some(accounting) = &self.runtime_storage {
-            out.set_item("resource_binding", "retained_capacity_v4")?;
+            out.set_item("resource_binding", binding)?;
             out.set_item("retained_static_payload_bytes", accounting.owned_static)?;
             out.set_item("initial_road_reserve_bytes", accounting.initial_road)?;
             out.set_item("journey_dense_one_copy_bytes", accounting.journey_dense)?;
@@ -1450,6 +1467,7 @@ impl NativeWholeEngine {
         let out = PyDict::new(py);
         out.set_item("entry_projection_width_s", self.road.entry_projection_width_s())?;
         out.set_item("entry_projection_policy", if self.road.entry_projection_width_s() > 0. { "entry_projection_support_v1" } else { "exact" })?;
+        out.set_item("road_representation", self.road.road_representation())?;
         out.set_item("native_threads", self.parallel.threads())?;
         out.set_item(
             "scheduler",
@@ -1562,6 +1580,7 @@ impl NativeWholeEngine {
         out.set_item("failed_ticks", m.failed_ticks)?;
         out.set_item("entry_projection_width_s", self.road.entry_projection_width_s())?;
         out.set_item("entry_projection_policy", if self.road.entry_projection_width_s() > 0. { "entry_projection_support_v1" } else { "exact" })?;
+        out.set_item("road_representation", self.road.road_representation())?;
         out.set_item("native_threads", self.parallel.threads())?;
         out.set_item("scope", "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation")?;
         out.set_item(
@@ -1619,6 +1638,14 @@ impl NativeWholeEngine {
             ("latent_entries", r.latent_entries),
             ("max_cell_parts", r.max_cell_parts),
             ("max_pending_parts", r.max_pending_parts),
+            ("shared_packets", r.shared_packets),
+            ("shared_logical_parts", r.shared_parts),
+            ("shared_terms", r.census.terms),
+            ("shared_blocks", r.census.blocks),
+            ("shared_block_rows", r.census.block_rows),
+            ("shared_block_bytes", r.census.block_bytes),
+            ("shared_max_block_rows", r.census.max_block_rows),
+            ("retained_storage_bytes", state.value.road.retained_storage_bytes()),
         ] {
             road.set_item(name, value)?;
         }

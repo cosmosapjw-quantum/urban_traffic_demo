@@ -46,7 +46,8 @@ def native_binary_provenance():
 class NativeWholeRuntime:
     def __init__(self, city, schedule, inventory, *, step_s=10.0,
                  byte_budget=2 * 1024**3, record_budget=20000, event_budget=20000,
-                 native_threads=1, storage_policy="legacy_records", entry_projection_width_s=0.0):
+                 native_threads=1, storage_policy="legacy_records", entry_projection_width_s=0.0,
+                 road_representation="rows"):
         from _metroflow_rust import NativeWholeEngine
 
         if isinstance(byte_budget, bool) or not isinstance(byte_budget, int) or byte_budget <= 0:
@@ -57,12 +58,17 @@ class NativeWholeRuntime:
         if storage_policy not in ("legacy_records", "bounded_bytes_v1"):
             raise ValueError("unknown native storage_policy")
         entry_projection_width_s = validate_projection_width(entry_projection_width_s)
+        if road_representation not in ("rows", "mark_block_scaled_v1"):
+            raise ValueError("unknown road_representation")
+        if road_representation != "rows" and not entry_projection_width_s:
+            raise ValueError("mark_block_scaled_v1 requires a positive entry projection width")
         payload = prepare_native_static(city, schedule, inventory, step_s=step_s,
                                         record_budget=record_budget, event_budget=event_budget)
         try:
             calendar = compile_native_factorized_calendar(schedule, byte_budget=byte_budget)
             self.native = NativeWholeEngine(calendar, payload, byte_budget, native_threads,
-                                            storage_policy, entry_projection_width_s)
+                                            storage_policy, entry_projection_width_s,
+                                            road_representation)
         except MemoryError as cause:
             exc = BudgetExceeded(str(cause))
             exc.status = "BLOCKED_RESOURCE"
@@ -70,6 +76,7 @@ class NativeWholeRuntime:
         self.identity = self.native.identity
         self.step_s = step_s
         self.entry_projection_width_s = entry_projection_width_s
+        self.road_representation = road_representation
         self.native_threads = self.native.native_threads
         self.last_advance_metrics = dict(tick_times_s=[], peak_records=0,
             native_threads=self.native_threads,

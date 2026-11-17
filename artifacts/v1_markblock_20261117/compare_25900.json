@@ -1,0 +1,105 @@
+{
+ "baseline": {
+  "checkpoint": {
+   "bytes": 903148860,
+   "path": "artifacts/v1_entry_projection_followup/eventbatch/valley_h1_25900_eventstore.last_valid.bin",
+   "sha256": "ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff"
+  },
+  "peak_rss_bytes": 2145710080,
+  "road": {
+   "cell_packets": 10327,
+   "cell_parts": 6597345,
+   "latent_entries": 1085,
+   "max_cell_parts": 120992,
+   "max_pending_parts": 0,
+   "mixed_packets": 4577,
+   "mixed_parts": 4624515,
+   "packet_capacity": 10327,
+   "part_capacity": 6597345,
+   "pending_packets": 0,
+   "pending_parts": 0,
+   "total_records": 6597345,
+   "uniform_packets": 5750,
+   "uniform_parts": 1972830,
+   "vector_capacity_bytes": 285818928
+  },
+  "simulated_s": 25900.0,
+  "status": "REACHED_HORIZON",
+  "wall_s": 223.6788528659963
+ },
+ "candidate": {
+  "checkpoint": {
+   "bytes": 627919030,
+   "path": "artifacts/v1_markblock_20261117/valley_h1_25900_markblock.last_valid.bin",
+   "sha256": "386e78b4d8462dd0e7101033f854736022a7d175f6922721dc9560e5543105b4"
+  },
+  "peak_rss_bytes": 1364283392,
+  "road": {
+   "cell_packets": 10355,
+   "cell_parts": 8694737,
+   "latent_entries": 1085,
+   "max_cell_parts": 132161,
+   "max_pending_parts": 0,
+   "mixed_packets": 0,
+   "mixed_parts": 0,
+   "packet_capacity": 10355,
+   "part_capacity": 339147,
+   "pending_packets": 0,
+   "pending_parts": 0,
+   "retained_storage_bytes": 118656136,
+   "shared_block_bytes": 102582656,
+   "shared_block_rows": 3149008,
+   "shared_blocks": 21182,
+   "shared_logical_parts": 8694737,
+   "shared_max_block_rows": 464,
+   "shared_packets": 10355,
+   "shared_terms": 339147,
+   "total_records": 8694737,
+   "uniform_packets": 0,
+   "uniform_parts": 0,
+   "vector_capacity_bytes": 14278920
+  },
+  "simulated_s": 25900.0,
+  "status": "REACHED_HORIZON",
+  "wall_s": 270.5578280159971
+ },
+ "execution_differences": [
+  {
+   "baseline": 2011.4256847587405,
+   "candidate": 2011.4226806046927,
+   "diff": -0.00300415404785781,
+   "path": "ledger.persons.active",
+   "rel": 1.4935446388207685e-06
+  },
+  {
+   "baseline": 292.26080497874847,
+   "candidate": 292.26380913279627,
+   "diff": 0.0030041540478009665,
+   "path": "ledger.persons.completed",
+   "rel": 1.0278912249569585e-05
+  },
+  {
+   "baseline": 1608.8442355233378,
+   "candidate": 1608.8418322001012,
+   "diff": -0.0024033232366491575,
+   "path": "ledger.vehicles.active",
+   "rel": 1.493819714540224e-06
+  },
+  {
+   "baseline": 231.1557644767189,
+   "candidate": 231.15816779995558,
+   "diff": 0.002403323236677579,
+   "path": "ledger.vehicles.completed",
+   "rel": 1.039687785878895e-05
+  },
+  {
+   "baseline": 370.33891943665583,
+   "candidate": 370.33982733749264,
+   "diff": 0.0009079008368075847,
+   "path": "service.road_completed_veh",
+   "rel": 2.451534428081401e-06
+  }
+ ],
+ "max_rel_numeric": 1.039687785878895e-05,
+ "scope": "same input Valley h=1 prefix; physical report execution section compared exactly"
+}

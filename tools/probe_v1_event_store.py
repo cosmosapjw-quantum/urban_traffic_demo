@@ -13,7 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 case_id, horizon, width, prefix = sys.argv[1], float(sys.argv[2]), sys.argv[3], Path(sys.argv[4])
 os.environ.update(METROFLOW_V1_ENGINE_BACKEND='rust_whole', METROFLOW_V1_ROUTING_BACKEND='rust',
     METROFLOW_V1_NATIVE_THREADS='1', METROFLOW_V1_STORAGE_POLICY='bounded_bytes_v1',
-    METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S=width, METROFLOW_BUDGET_TRACE='record')
+    METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S=width, METROFLOW_BUDGET_TRACE='record',
+    METROFLOW_V1_ROAD_REPRESENTATION=os.environ.get('METROFLOW_V1_ROAD_REPRESENTATION', 'rows'))
 sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
 from tools.run_v1_local_acceptance import (atomic_json, candidate_provenance, file_sha256,
     observed_environment, peak_rss_bytes, prepare, resource_limit_kind)

@@ -1,0 +1,301 @@
+{
+ "unit": "mark_block_scaled_v1 immutable category block sharing (bounded unit 3)",
+ "date": "2026-11-17",
+ "branch": "research/markblock-20261117",
+ "base_commit": "82cfc7a",
+ "cherry_picked": {
+  "bccbc5a": "127276d",
+  "952b34e": "c2f6dd7"
+ },
+ "implementation_commits": [
+  "5789ac9 (WIP)",
+  "f825a64",
+  "0c0206e"
+ ],
+ "policy": {
+  "name": "mark_block_scaled_v1",
+  "identity_suffix": ":mark_block_scaled_v1",
+  "requires": "entry_projection_width_s>0",
+  "resource_binding": "retained_capacity_v5 (rows keeps retained_capacity_v4)",
+  "numerical_equivalence": "real-arithmetic re-representation; not bit-identical to rows; bit-identical save/load/resume within the policy",
+  "underflow": "explicit ArithmeticError when lambda*min_mass < f64::MIN_POSITIVE"
+ },
+ "sources": {
+  "crates/metroflow-rust/src/v1_road.rs": "739cc0d01bdac916e36cd30dfe141ff0a754395817fc90f5ff9cfd3b18726ea3",
+  "crates/metroflow-rust/src/v1_engine.rs": "5aa140662d3a19deb31a04ccfc33eadd06237ae8fc9e36683e45563729a71135",
+  "src/metroflow/v1/native_engine.py": "1cdeae353089765be55d82e44981235b86afd51649e9ca2122557396de2f404d",
+  "src/metroflow/v1/native_release_driver.py": "980bdb8b46ea2e95c2d6689ea9aadce7fe38f98e20cbdd583fd762c351792c65",
+  "tools/run_v1_local_acceptance.py": "e7825bbc286ed937b697fcc1f589db065ad81191bf8d64656a19fcad2133d9f1",
+  "tools/probe_v1_event_store.py": "316b50f1bfab1cca01d0b88543ddb2ade0fd618e93d9b4c275a89552b848b541",
+  "tests/v1/test_mark_block_native.py": "2b3d618859648872b2c201f45a7be0ffae8dfe058a9c1dc7da2e1755eba3d80a",
+  "tests/v1/test_native_campaign_contract.py": "d85a06d8f3a8c635dd3ab44ad4976687bd1b50534452d364bf0f041393fabeca",
+  "artifacts/v1_markblock_20261117/compare_prefix.py": "b6687b4f70acb5b8ea5f04d000d89c79ae833668302e00a47b25c57a11e94892",
+  "artifacts/v1_markblock_20261117/roundtrip_checkpoint.py": "87459efca4b46bfcd6d0f3fb69b5b1d359154f13660fd9f0c5971097e1101d31"
+ },
+ "binaries": {
+  "baseline": {
+   "path": "/home/cosmosapjw/urban_traffic_followup_20261117/native_binding/_metroflow_rust.so",
+   "sha256": "a0077a0707c398615508e2687f3bf6cb032904be31fa8c779068a6af7d05498b"
+  },
+  "markblock_prefix": {
+   "commit": "f825a64",
+   "sha256": "67c720bad871365285a6d91b3fad80b88b509fedf15dd25b294f7058f285cd4f"
+  },
+  "final": {
+   "commit": "0c0206e",
+   "sha256": "5145e7c314bb1951a3f30cd299c0b156c43a634d87ccc84ccfe3aca44e19b5cb",
+   "used_for": [
+    "rows control prefix",
+    "pilot",
+    "checkpoint roundtrips"
+   ]
+  }
+ },
+ "tests": {
+  "rust": {
+   "command": "cd crates/metroflow-rust && LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu RUSTFLAGS=\"-L /usr/lib/x86_64-linux-gnu -l python3.12\" PYO3_PYTHON=$TASK_PY CARGO_TARGET_DIR=<worktree>/target_test cargo test --release --offline",
+   "exit_code": 0,
+   "result": "76 passed (7 new mark_block_tests)"
+  },
+  "python": {
+   "command": "PYTHONPATH=native_binding:src:tests/v1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMP_NUM_THREADS=1 $TASK_PY -m pytest -q -p no:randomly tests/test_entry_projection.py tests/v1/test_entry_projection_native.py tests/v1/test_native*.py tests/test_packet_quotient.py tests/v1/test_transfer_time.py tests/test_v1_journey.py tests/test_v1_birth_contract.py tests/v1/test_local_campaign_cli.py tests/test_v1_plan.py tests/v1/test_mark_block_native.py tests/v1/test_v03_counterexamples.py",
+   "exit_code": 0,
+   "result": "356 passed, 5 xfailed (the counterexample suite strict xfails, unchanged)",
+   "note": "Python suite run on binary built at f825a64; final 0c0206e changes only the mark-block decode envelope charge; Rust suite rerun after it (76 passed)"
+  }
+ },
+ "runs": {
+  "rows_control_prefix": {
+   "command": "PYTHONPATH=native_binding:src OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 $TASK_PY tools/probe_v1_event_store.py valley_weekday_s7 25900 1 artifacts/v1_markblock_20261117/valley_h1_25900_rows_control",
+   "exit_code": 0,
+   "status": "REACHED_HORIZON",
+   "wall_s": 248.59992989699822,
+   "peak_rss_bytes": 2146484224,
+   "checkpoint": {
+    "path": "artifacts/v1_markblock_20261117/valley_h1_25900_rows_control.last_valid.bin",
+    "bytes": 903148860,
+    "sha256": "ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff"
+   },
+   "equal_to_baseline": {
+    "report": true,
+    "checkpoint_sha256": true
+   }
+  },
+  "markblock_prefix": {
+   "command": "METROFLOW_V1_ROAD_REPRESENTATION=mark_block_scaled_v1 PYTHONPATH=native_binding:src OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 $TASK_PY tools/probe_v1_event_store.py valley_weekday_s7 25900 1 artifacts/v1_markblock_20261117/valley_h1_25900_markblock",
+   "exit_code": 0,
+   "status": "REACHED_HORIZON",
+   "wall_s": 270.5578280159971,
+   "peak_rss_bytes": 1364283392,
+   "checkpoint": {
+    "path": "artifacts/v1_markblock_20261117/valley_h1_25900_markblock.last_valid.bin",
+    "bytes": 627919030,
+    "sha256": "386e78b4d8462dd0e7101033f854736022a7d175f6922721dc9560e5543105b4"
+   },
+   "road": {
+    "cell_packets": 10355,
+    "cell_parts": 8694737,
+    "latent_entries": 1085,
+    "max_cell_parts": 132161,
+    "max_pending_parts": 0,
+    "mixed_packets": 0,
+    "mixed_parts": 0,
+    "packet_capacity": 10355,
+    "part_capacity": 339147,
+    "pending_packets": 0,
+    "pending_parts": 0,
+    "retained_storage_bytes": 118656136,
+    "shared_block_bytes": 102582656,
+    "shared_block_rows": 3149008,
+    "shared_blocks": 21182,
+    "shared_logical_parts": 8694737,
+    "shared_max_block_rows": 464,
+    "shared_packets": 10355,
+    "shared_terms": 339147,
+    "total_records": 8694737,
+    "uniform_packets": 0,
+    "uniform_parts": 0,
+    "vector_capacity_bytes": 14278920
+   },
+   "report_differences": [
+    {
+     "baseline": 2011.4256847587405,
+     "candidate": 2011.4226806046927,
+     "diff": -0.00300415404785781,
+     "path": "ledger.persons.active",
+     "rel": 1.4935446388207685e-06
+    },
+    {
+     "baseline": 292.26080497874847,
+     "candidate": 292.26380913279627,
+     "diff": 0.0030041540478009665,
+     "path": "ledger.persons.completed",
+     "rel": 1.0278912249569585e-05
+    },
+    {
+     "baseline": 1608.8442355233378,
+     "candidate": 1608.8418322001012,
+     "diff": -0.0024033232366491575,
+     "path": "ledger.vehicles.active",
+     "rel": 1.493819714540224e-06
+    },
+    {
+     "baseline": 231.1557644767189,
+     "candidate": 231.15816779995558,
+     "diff": 0.002403323236677579,
+     "path": "ledger.vehicles.completed",
+     "rel": 1.039687785878895e-05
+    },
+    {
+     "baseline": 370.33891943665583,
+     "candidate": 370.33982733749264,
+     "diff": 0.0009079008368075847,
+     "path": "service.road_completed_veh",
+     "rel": 2.451534428081401e-06
+    }
+   ]
+  },
+  "pilot": {
+   "command": "PYTHONPATH=native_binding:src METROFLOW_V1_ROUTING_BACKEND=rust OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 $TASK_PY tools/run_v1_local_acceptance.py --worker --run-local --case valley_weekday_s7 --engine-backend rust_whole --native-threads 1 --storage-policy bounded_bytes_v1 --entry-projection-width-s 1 --road-representation mark_block_scaled_v1 --step-s 10 --horizon-s 28800 --label valley_markblock_h1 --out artifacts/v1_markblock_20261117/local_probe",
+   "exit_code": 2,
+   "status": "BLOCKED_RESOURCE",
+   "simulated_s": 26080.0,
+   "reason": "BudgetExceeded: native road storage budget exceeded: phase=transfer candidates, required_bytes=4027672896, budget_bytes=4027620138",
+   "resource_limit_kind": "phase_working_budget_guard",
+   "wall_s": 449.09315391400014,
+   "peak_rss_bytes": 2599641088,
+   "road": {
+    "cell_packets": 24808,
+    "pending_packets": 0,
+    "cell_parts": 28379216,
+    "pending_parts": 0,
+    "uniform_packets": 0,
+    "mixed_packets": 0,
+    "uniform_parts": 0,
+    "mixed_parts": 0,
+    "packet_capacity": 24808,
+    "part_capacity": 1530046,
+    "vector_capacity_bytes": 62608624,
+    "latent_entries": 1085,
+    "max_cell_parts": 3704195,
+    "max_pending_parts": 0,
+    "shared_packets": 24808,
+    "shared_logical_parts": 28379216,
+    "shared_terms": 1530046,
+    "shared_blocks": 26007,
+    "shared_block_rows": 4030894,
+    "shared_block_bytes": 131111808,
+    "shared_max_block_rows": 464,
+    "retained_storage_bytes": 196131888,
+    "total_records": 28379216
+   },
+   "service_last_events": 11126414,
+   "journey_total_records": 18333623,
+   "entry_projection": {
+    "policy": "entry_projection_support_v1",
+    "width_s": 1.0,
+    "input_parts": 965932,
+    "output_parts": 854353,
+    "cohorts": 11618,
+    "protected_support_boundaries": 2572,
+    "local_w1_bound_veh_s": 110.99891930577078,
+    "road_representation": "mark_block_scaled_v1",
+    "input_contributions": 915204,
+    "output_terms": 803625,
+    "new_block_rows": 50728,
+    "state_blocks": 26007,
+    "state_block_rows": 4030894,
+    "state_block_bytes": 131111808,
+    "state_terms": 1530046,
+    "scope": "latest validated proposed road transition in this runtime; may precede coupled rollback or describe a branch/replay; local time-measure projection cost, not network trajectory error; unchanged by failed road proposals and checkpoint restore",
+    "checkpointed": false
+   }
+  },
+  "checkpoint_roundtrips": [
+   {
+    "source": "artifacts/v1_markblock_20261117/valley_h1_25900_markblock.last_valid.bin",
+    "source_sha256": "386e78b4d8462dd0e7101033f854736022a7d175f6922721dc9560e5543105b4",
+    "resaved_sha256": "386e78b4d8462dd0e7101033f854736022a7d175f6922721dc9560e5543105b4",
+    "byte_identical_resave": true,
+    "time_s": 25900.0,
+    "next_step": {
+     "status": "ADVANCED",
+     "time_s": 25910.0,
+     "ledger": {
+      "persons": {
+       "requested": 3944.4444444444434,
+       "released": 2337.0732504583307,
+       "completed": 305.95682005089293,
+       "pending": 1607.3711939861128,
+       "active": 2031.1164304074377
+      },
+      "vehicles": {
+       "requested": 1932.7777777778435,
+       "released": 1866.666666666672,
+       "completed": 242.06983462443603,
+       "pending": 66.11111111117157,
+       "active": 1624.596832042236
+      },
+      "cargo_kg": {
+       "requested": 0.0,
+       "released": 0.0,
+       "completed": 0.0,
+       "pending": 0.0,
+       "active": 0.0
+      }
+     }
+    },
+    "construct_s": 26.240122297022026,
+    "load_s": 3.592906123987632,
+    "save_s": 0.6855916730128229,
+    "advance_s": 7.007013903988991,
+    "peak_rss_bytes": 1406009344
+   },
+   {
+    "source": "artifacts/v1_markblock_20261117/local_probe/valley_markblock_h1.last_valid.bin",
+    "source_sha256": "13e0f9fedfe69c56905f0c5b1a02f73401182e4a26c84c55b3712de86432fc8b",
+    "resaved_sha256": "13e0f9fedfe69c56905f0c5b1a02f73401182e4a26c84c55b3712de86432fc8b",
+    "byte_identical_resave": true,
+    "time_s": 26080.0,
+    "next_step": {
+     "status": "REFUSED",
+     "error": "BudgetExceeded: native road storage budget exceeded: phase=mark block service materialization, required_bytes=4194190000, budget_bytes=4194118554"
+    },
+    "construct_s": 25.502483941003447,
+    "load_s": 10.755095407017507,
+    "save_s": 3.064282834995538,
+    "advance_s": 15.098718222987372,
+    "peak_rss_bytes": 2614472704
+   }
+  ]
+ },
+ "local_checkpoints": {
+  "artifacts/v1_markblock_20261117/valley_h1_25900_markblock.last_valid.bin": {
+   "bytes": 627919030,
+   "sha256": "386e78b4d8462dd0e7101033f854736022a7d175f6922721dc9560e5543105b4"
+  },
+  "artifacts/v1_markblock_20261117/valley_h1_25900_rows_control.last_valid.bin": {
+   "bytes": 903148860,
+   "sha256": "ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff"
+  },
+  "artifacts/v1_markblock_20261117/local_probe/valley_markblock_h1.last_valid.bin": {
+   "bytes": 1428197230,
+   "sha256": "13e0f9fedfe69c56905f0c5b1a02f73401182e4a26c84c55b3712de86432fc8b"
+  }
+ },
+ "not_run": [
+  "python oracle mark representation",
+  "event blocks",
+  "per-term scratch conversion and re-derived per-row/incoming accounting",
+  "block compaction/GC",
+  "cohort compaction rule",
+  "city-scale attribution of 1e-5 completion timing difference",
+  "traced guard decomposition at block",
+  "dynamic routing",
+  "other cities/cases",
+  "3x3 24h campaign",
+  "native threads>1",
+  "Valley-scale resume vs continuous equality"
+ ],
+ "status": "PARTIAL: representation implemented and verified; Valley pilot still BLOCKED_RESOURCE at 26,080 s (rows 26,050 s)"
+}

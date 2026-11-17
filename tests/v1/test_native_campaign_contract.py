@@ -65,7 +65,7 @@ def test_checkpoint_digest_streams_without_whole_file_read(tmp_path,monkeypatch)
     ('native service event sink storage budget exceeded: phase=service finish','phase_working_budget_guard'),
     ('whole-calendar native preflight needs more accounting bytes','static_accounting_guard'),
     ('allocation unavailable','allocation_or_other_budget')])
-@pytest.mark.parametrize('binding',['retained_capacity_v2','retained_capacity_v3','retained_capacity_v4'])
+@pytest.mark.parametrize('binding',['retained_capacity_v2','retained_capacity_v3','retained_capacity_v4','retained_capacity_v5'])
 def test_shared_resource_failures_are_not_reported_as_rss_or_fixed_partition(message,kind,binding):
     assert cli.resource_limit_kind(message,{'resource_binding':binding})==kind
 

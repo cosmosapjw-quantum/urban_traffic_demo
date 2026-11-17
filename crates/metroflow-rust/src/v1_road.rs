@@ -6,7 +6,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use std::collections::{BTreeMap, HashMap};
 use std::io::{Read, Write};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 // Versioned by the enclosing engine header. Integers and IEEE-754 bit patterns
 // have a fixed little-endian representation independent of Python objects.
@@ -307,6 +307,88 @@ struct CorePart {
     mass: f64,
     birth: f64,
 }
+/// Name of the opt-in road category representation. It is appended to the
+/// road identity after the entry-projection policy and changes checkpoint
+/// wire meaning, accounting binding and floating-point operation order.
+pub(crate) const MARK_BLOCK_POLICY: &str = "mark_block_scaled_v1";
+/// One immutable category row of a mark block. `entry` is the row's own
+/// entry-time centroid (s); it is used only when a term carries no common
+/// entry time of its own.
+#[derive(Clone, Copy)]
+struct BlockRow {
+    tag: u32,
+    offset: u32,
+    mass: f64,
+    birth: f64,
+    entry: f64,
+}
+/// Immutable category block (`mark_block_scaled_v1`). Rows are strictly
+/// sorted by their remaining route suffix `path[offset..]` and then tag, so
+/// every route-prefix view of the block is one contiguous row range and the
+/// rows of a view are ordered by their next movement. Shared by `Arc`; the
+/// deterministic `id` (not the address) orders terms and keys checkpoints.
+pub(crate) struct MarkBlock {
+    id: u64,
+    cell: usize,
+    min_mass: f64,
+    rows: Vec<BlockRow>,
+}
+impl MarkBlock {
+    /// Unique allocation of one block: header, Arc counters and row buffer.
+    fn allocated_bytes(&self) -> usize {
+        std::mem::size_of::<Self>()
+            .saturating_add(2 * std::mem::size_of::<usize>())
+            .saturating_add(self.rows.capacity().saturating_mul(std::mem::size_of::<BlockRow>()))
+    }
+}
+/// A positive scalar multiple of one route-prefix view of a block. Logical
+/// rows are `(tag, offset + shift, lambda*mass, lambda*birth, entry)`, where
+/// entry is the term's common entry time, or the row's own when NaN.
+#[derive(Clone)]
+struct Term {
+    block: Arc<MarkBlock>,
+    lo: u32,
+    hi: u32,
+    shift: u32,
+    lambda: f64,
+    entry: f64,
+}
+impl Term {
+    fn rows(&self) -> &[BlockRow] {
+        &self.block.rows[self.lo as usize..self.hi as usize]
+    }
+    fn key(&self) -> (u64, u32, u32, u32) {
+        (self.block.id, self.lo, self.hi, self.shift)
+    }
+    fn logical(&self, r: &BlockRow) -> Part {
+        let entry = if self.entry.is_nan() { r.entry } else { self.entry };
+        Part {
+            tag: r.tag as usize,
+            offset: r.offset as usize + self.shift as usize,
+            mass: self.lambda * r.mass,
+            birth: self.lambda * r.birth,
+            a: PackedTime(entry.to_bits()),
+            b: PackedTime(entry.to_bits()),
+        }
+    }
+}
+/// A positive coefficient must keep every logical row mass a normal positive
+/// number. Underflow is an explicit failure, never a silent mass deletion.
+fn check_coefficient(lambda: f64, block: &MarkBlock) -> PyResult<()> {
+    if !lambda.is_finite() || lambda <= 0. || !(lambda * block.min_mass >= f64::MIN_POSITIVE) {
+        return Err(arithmetic(&format!(
+            "mark block coefficient underflow or nonfinite: lambda={lambda:?}, min_mass={:?}; positive category mass is not representable",
+            block.min_mass)));
+    }
+    Ok(())
+}
+/// A served term arriving at a receiving cell during [a, b].
+#[derive(Clone)]
+struct Contribution {
+    term: Term,
+    a: f64,
+    b: f64,
+}
 #[derive(Clone)]
 enum PacketParts {
     Uniform {
@@ -315,6 +397,9 @@ enum PacketParts {
         rows: Vec<CorePart>,
     },
     Mixed(Vec<Part>),
+    /// `mark_block_scaled_v1`: terms sorted by key; `rows` caches the number
+    /// of logical rows (sum of view lengths).
+    Shared { terms: Vec<Term>, rows: usize },
 }
 impl PacketParts {
     fn pack(
@@ -357,12 +442,40 @@ impl PacketParts {
                 copied.extend_from_slice(rows);
                 Ok(Self::Mixed(copied))
             }
+            Self::Shared { terms, rows } => {
+                let mut copied = checkpoint_vec(terms.len())?;
+                copied.extend(terms.iter().cloned());
+                Ok(Self::Shared { terms: copied, rows: *rows })
+            }
         }
+    }
+    fn shared_terms(&self) -> Option<&[Term]> {
+        match self {
+            Self::Shared { terms, .. } => Some(terms),
+            _ => None,
+        }
+    }
+    fn is_shared(&self) -> bool {
+        matches!(self, Self::Shared { .. })
+    }
+    /// Remainder of a partial service: every coefficient is multiplied by
+    /// `g` in place. The caller owns this workspace copy; a failure aborts
+    /// the whole proposed transition.
+    fn scale_shared(&mut self, g: f64) -> PyResult<()> {
+        if let Self::Shared { terms, .. } = self {
+            for t in terms.iter_mut() {
+                let lambda = t.lambda * g;
+                check_coefficient(lambda, &t.block)?;
+                t.lambda = lambda;
+            }
+        }
+        Ok(())
     }
     fn len(&self) -> usize {
         match self {
             Self::Uniform { rows, .. } => rows.len(),
             Self::Mixed(rows) => rows.len(),
+            Self::Shared { rows, .. } => *rows,
         }
     }
     fn is_empty(&self) -> bool {
@@ -372,6 +485,7 @@ impl PacketParts {
         match self {
             Self::Uniform { rows, .. } => rows.capacity(),
             Self::Mixed(rows) => rows.capacity(),
+            Self::Shared { terms, .. } => terms.capacity(),
         }
     }
     fn is_uniform(&self) -> bool {
@@ -383,6 +497,8 @@ impl PacketParts {
                 .capacity()
                 .saturating_mul(std::mem::size_of::<CorePart>()),
             Self::Mixed(rows) => rows.capacity().saturating_mul(std::mem::size_of::<Part>()),
+            // Shared block payloads are counted once per state census.
+            Self::Shared { terms, .. } => terms.capacity().saturating_mul(std::mem::size_of::<Term>()),
         }
     }
     fn iter(&self) -> PartIter<'_> {
@@ -393,6 +509,12 @@ impl PacketParts {
                 rows: rows.iter(),
             },
             Self::Mixed(rows) => PartIter::Mixed(rows.iter()),
+            Self::Shared { terms, rows } => PartIter::Shared {
+                terms,
+                term: 0,
+                row: 0,
+                left: *rows,
+            },
         }
     }
 }
@@ -403,6 +525,13 @@ enum PartIter<'a> {
         rows: std::slice::Iter<'a, CorePart>,
     },
     Mixed(std::slice::Iter<'a, Part>),
+    /// Lazily materialized logical rows, term by term.
+    Shared {
+        terms: &'a [Term],
+        term: usize,
+        row: usize,
+        left: usize,
+    },
 }
 impl Iterator for PartIter<'_> {
     type Item = Part;
@@ -417,12 +546,23 @@ impl Iterator for PartIter<'_> {
                 b: *b,
             }),
             Self::Mixed(rows) => rows.next().copied(),
+            Self::Shared { terms, term, row, left } => loop {
+                let t = terms.get(*term)?;
+                if let Some(r) = t.rows().get(*row) {
+                    *row += 1;
+                    *left -= 1;
+                    break Some(t.logical(r));
+                }
+                *term += 1;
+                *row = 0;
+            },
         }
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         let n = match self {
             Self::Uniform { rows, .. } => rows.len(),
             Self::Mixed(rows) => rows.len(),
+            Self::Shared { left, .. } => *left,
         };
         (n, Some(n))
     }
@@ -453,6 +593,23 @@ pub(crate) struct RoadState {
     pending: Vec<Vec<Packet>>,
     totals: [f64; 7],
     ledger: Vec<[f64; 5]>,
+    /// Next deterministic mark-block id (`mark_block_scaled_v1` only; 0 and
+    /// unused by the row representation).
+    next_block: u64,
+    /// Unique shared block payload reachable from this immutable state,
+    /// computed once when the state is built or decoded.
+    census: SharedCensus,
+}
+/// Reachable mark-block payload of one state. Blocks shared by several terms
+/// (or several packets) are counted once; blocks also reachable from another
+/// state are still counted in each state, which is conservative.
+#[derive(Clone, Copy, Default)]
+pub(crate) struct SharedCensus {
+    pub(crate) blocks: usize,
+    pub(crate) block_rows: usize,
+    pub(crate) block_bytes: usize,
+    pub(crate) terms: usize,
+    pub(crate) max_block_rows: usize,
 }
 #[derive(Default)]
 pub(crate) struct RoadDebugStats {
@@ -470,6 +627,10 @@ pub(crate) struct RoadDebugStats {
     pub(crate) mixed_packets: usize,
     pub(crate) uniform_parts: usize,
     pub(crate) mixed_parts: usize,
+    /// Packets in the shared representation and their logical rows.
+    pub(crate) shared_packets: usize,
+    pub(crate) shared_parts: usize,
+    pub(crate) census: SharedCensus,
 }
 
 /// Conservative structural working allowance, not an allocator/RSS theorem.
@@ -595,12 +756,35 @@ struct ProjectionStats {
     cohorts: usize,
     protected_support_boundaries: usize,
     local_w1_bound: f64,
+    /// mark_block_scaled_v1 only: served term contributions, output terms
+    /// and rows of the new immutable blocks created by this transition.
+    input_contributions: usize,
+    output_terms: usize,
+    new_block_rows: usize,
 }
 pub(crate) fn projection_identity(identity: &str, width: f64) -> String {
     if width > 0. {
         format!("{identity}:entry_projection_support_v1:{:016x}", width.to_bits())
     } else {
         identity.to_owned()
+    }
+}
+/// Projection identity plus the optional road representation policy. The row
+/// representation keeps the unchanged projection identity.
+pub(crate) fn representation_identity(identity: &str, width: f64, mark_blocks: bool) -> String {
+    let base = projection_identity(identity, width);
+    if mark_blocks {
+        format!("{base}:{MARK_BLOCK_POLICY}")
+    } else {
+        base
+    }
+}
+/// Parse the public representation selector.
+pub(crate) fn parse_representation(name: &str) -> PyResult<bool> {
+    match name {
+        "rows" => Ok(false),
+        MARK_BLOCK_POLICY => Ok(true),
+        _ => Err(val("unknown road_representation; expected 'rows' or 'mark_block_scaled_v1'")),
     }
 }
 
@@ -829,7 +1013,10 @@ impl RoadState {
             for packet in queue {
                 out.part_capacity += packet.parts.capacity();
                 out.vector_capacity_bytes += packet.parts.allocated_bytes();
-                if packet.parts.is_uniform() {
+                if packet.parts.is_shared() {
+                    out.shared_packets += 1;
+                    out.shared_parts += packet.parts.len();
+                } else if packet.parts.is_uniform() {
                     out.uniform_packets += 1;
                     out.uniform_parts += packet.parts.len();
                 } else {
@@ -839,7 +1026,39 @@ impl RoadState {
             }
         }
         out.vector_capacity_bytes += out.packet_capacity * std::mem::size_of::<Packet>();
+        out.census = self.census;
         out
+    }
+    /// Recompute the unique shared payload. Called once per built or decoded
+    /// state (never on the row representation's hot path: no shared packets
+    /// means no work beyond the packet scan).
+    pub(crate) fn refresh_census(&mut self) -> PyResult<()> {
+        let mut seen: std::collections::HashSet<u64> = std::collections::HashSet::new();
+        let mut census = SharedCensus::default();
+        for packet in self
+            .cells
+            .iter()
+            .flat_map(|c| &c.packets)
+            .chain(self.pending.iter().flatten())
+        {
+            if let Some(terms) = packet.parts.shared_terms() {
+                census.terms += terms.len();
+                for t in terms {
+                    if seen.insert(t.block.id) {
+                        census.blocks += 1;
+                        census.block_rows += t.block.rows.len();
+                        census.max_block_rows = census.max_block_rows.max(t.block.rows.len());
+                        census.block_bytes = census.block_bytes.saturating_add(t.block.allocated_bytes());
+                    }
+                }
+            }
+        }
+        // The id set is transient scratch; charge it with the payload.
+        census.block_bytes = census
+            .block_bytes
+            .saturating_add(seen.capacity().saturating_mul(2 * std::mem::size_of::<u64>()));
+        self.census = census;
+        Ok(())
     }
     pub(crate) fn retained_storage_bytes(&self) -> usize {
         let stats = self.debug_stats();
@@ -851,9 +1070,11 @@ impl RoadState {
             .cell_packets
             .saturating_add(stats.pending_packets)
             .saturating_add(self.cells.len().saturating_mul(2))
-            .saturating_add(3);
+            .saturating_add(3)
+            .saturating_add(stats.census.blocks);
         stats
             .vector_capacity_bytes
+            .saturating_add(stats.census.block_bytes)
             .saturating_add(
                 stats
                     .latent_entries
@@ -884,9 +1105,13 @@ impl RoadState {
             .saturating_add(largest_packet.saturating_mul(std::mem::size_of::<Part>()));
         // These terms mirror RoadDecodeBudget::reserve's validation increments:
         // 16 per homogeneous part, 32 per packet, and 32 per cell.
+        // mark_block_scaled_v1: the decode pool map holds one node per block
+        // and each block row is validated once (0 for the row representation).
         let validation = stats
             .cell_parts
             .saturating_add(stats.pending_parts)
+            .saturating_add(stats.census.block_rows)
+            .saturating_add(stats.census.blocks.saturating_mul(8))
             .saturating_mul(16)
             .saturating_add(
                 stats
@@ -931,6 +1156,9 @@ pub struct V1Road {
     projection_stats: Mutex<ProjectionStats>,
     event_budget: Option<usize>,
     intervals: bool,
+    /// `mark_block_scaled_v1`: entry-projected cohorts share immutable
+    /// category blocks with scalar coefficients (named numerical policy).
+    mark_blocks: bool,
     state: RoadState,
 }
 fn val(s: &str) -> PyErr {
@@ -1261,6 +1489,31 @@ impl V1Road {
             .map_err(|e| PyIOError::new_err(e.to_string()))?;
         let s = &self.state;
         write_f64(w, s.t)?;
+        if self.mark_blocks {
+            // mark_block_scaled_v1 wire section: the block counter and every
+            // reachable immutable block once, by increasing id; packets then
+            // refer to blocks by id. The row representation's wire is unchanged.
+            write_u64(w, s.next_block)?;
+            let mut pool: BTreeMap<u64, &MarkBlock> = BTreeMap::new();
+            for packet in s.cells.iter().flat_map(|c| &c.packets).chain(s.pending.iter().flatten()) {
+                for t in packet.parts.shared_terms().unwrap_or(&[]) {
+                    pool.insert(t.block.id, &t.block);
+                }
+            }
+            write_len(w, pool.len())?;
+            for (id, block) in pool {
+                write_u64(w, id)?;
+                write_len(w, block.cell)?;
+                write_len(w, block.rows.len())?;
+                for r in &block.rows {
+                    write_len(w, r.tag as usize)?;
+                    write_len(w, r.offset as usize)?;
+                    write_f64(w, r.mass)?;
+                    write_f64(w, r.birth)?;
+                    write_f64(w, r.entry)?;
+                }
+            }
+        }
         write_len(w, s.cells.len())?;
         for c in &s.cells {
             for &v in &c.v {
@@ -1292,6 +1545,22 @@ impl V1Road {
         write_len(w, q.len())?;
         for p in q {
             write_f64(w, p.target)?;
+            if self.mark_blocks {
+                if let Some(terms) = p.parts.shared_terms() {
+                    write_u64(w, 1)?;
+                    write_len(w, terms.len())?;
+                    for t in terms {
+                        write_u64(w, t.block.id)?;
+                        write_len(w, t.lo as usize)?;
+                        write_len(w, t.hi as usize)?;
+                        write_len(w, t.shift as usize)?;
+                        write_f64(w, t.lambda)?;
+                        write_f64(w, t.entry)?;
+                    }
+                    continue;
+                }
+                write_u64(w, 0)?;
+            }
             write_len(w, p.parts.len())?;
             for p in &p.parts {
                 write_len(w, p.tag)?;
@@ -1313,6 +1582,8 @@ impl V1Road {
         r: &mut R,
         remaining: &mut usize,
         work: &mut RoadDecodeBudget,
+        pool: &mut BTreeMap<u64, (Arc<MarkBlock>, bool)>,
+        cell: usize,
     ) -> PyResult<Vec<Packet>> {
         let n = read_len(r, *remaining)?;
         work.reserve(
@@ -1322,6 +1593,17 @@ impl V1Road {
         let mut q = checkpoint_vec(n)?;
         for _ in 0..n {
             let target = read_f64(r)?;
+            if self.mark_blocks {
+                match read_u64(r)? {
+                    0 => {}
+                    1 => {
+                        let parts = self.read_shared_parts(r, remaining, work, pool, cell)?;
+                        q.push(Packet { target, parts });
+                        continue;
+                    }
+                    _ => return Err(val("native checkpoint packet representation differs")),
+                }
+            }
             let m = read_len(r, *remaining)?;
             if m == 0 {
                 return Err(val("empty native checkpoint packet"));
@@ -1364,6 +1646,120 @@ impl V1Road {
         }
         Ok(q)
     }
+    /// Decode one block pool (mark_block_scaled_v1) with full validation:
+    /// ids strictly increasing below the counter, rows positive and finite,
+    /// at their block's cell, and strictly sorted by (route suffix, tag).
+    fn read_block_pool<R: Read>(
+        &self,
+        r: &mut R,
+        next_block: u64,
+        remaining: &mut usize,
+        work: &mut RoadDecodeBudget,
+    ) -> PyResult<BTreeMap<u64, (Arc<MarkBlock>, bool)>> {
+        let count = read_len(r, *remaining)?;
+        let mut pool = BTreeMap::new();
+        let mut previous: Option<u64> = None;
+        for _ in 0..count {
+            let id = read_u64(r)?;
+            if id >= next_block || previous.is_some_and(|p| id <= p) {
+                return Err(val("native checkpoint mark block id differs"));
+            }
+            previous = Some(id);
+            let cell = read_len(r, self.groups.len().saturating_sub(1))?;
+            let n = read_len(r, (*remaining).min(u32::MAX as usize))?;
+            if n == 0 {
+                return Err(val("empty native checkpoint mark block"));
+            }
+            *remaining -= n;
+            work.reserve(
+                n.saturating_mul(std::mem::size_of::<BlockRow>())
+                    .saturating_add(std::mem::size_of::<MarkBlock>() + 2 * std::mem::size_of::<usize>() + 64),
+                n.saturating_mul(16),
+            )?;
+            let mut rows: Vec<BlockRow> = checkpoint_vec(n)?;
+            let mut min_mass = f64::INFINITY;
+            for _ in 0..n {
+                let tag = read_len(r, self.routes.len().saturating_sub(1))?;
+                let path = self.path(tag);
+                let offset = read_len(r, path.len().saturating_sub(1))?;
+                let (mass, birth, entry) = (read_f64(r)?, read_f64(r)?, read_f64(r)?);
+                if path[offset] != cell
+                    || !mass.is_finite()
+                    || mass <= 0.
+                    || !finite_nonnegative(birth)
+                    || !finite_nonnegative(entry)
+                {
+                    return Err(val("invalid native checkpoint mark block row"));
+                }
+                min_mass = min_mass.min(mass);
+                rows.push(BlockRow { tag: tag as u32, offset: offset as u32, mass, birth, entry });
+            }
+            if rows.windows(2).any(|w| {
+                self.suffix(&w[0]).cmp(self.suffix(&w[1])).then(w[0].tag.cmp(&w[1].tag))
+                    != std::cmp::Ordering::Less
+            }) {
+                return Err(val("native checkpoint mark block order differs"));
+            }
+            pool.insert(id, (Arc::new(MarkBlock { id, cell, min_mass, rows }), false));
+        }
+        Ok(pool)
+    }
+    /// Decode one shared packet. Every term must reference a pooled block by
+    /// id, select a nonempty range whose rows share their route prefix up to
+    /// this cell, and keep positive representable logical masses.
+    fn read_shared_parts<R: Read>(
+        &self,
+        r: &mut R,
+        remaining: &mut usize,
+        work: &mut RoadDecodeBudget,
+        pool: &mut BTreeMap<u64, (Arc<MarkBlock>, bool)>,
+        cell: usize,
+    ) -> PyResult<PacketParts> {
+        let m = read_len(r, *remaining)?;
+        if m == 0 {
+            return Err(val("empty native checkpoint packet"));
+        }
+        work.reserve(m.saturating_mul(std::mem::size_of::<Term>()), m.saturating_mul(16))?;
+        let mut terms: Vec<Term> = checkpoint_vec(m)?;
+        let mut logical = 0usize;
+        for _ in 0..m {
+            let id = read_u64(r)?;
+            let Some((block, used)) = pool.get_mut(&id) else {
+                return Err(val("native checkpoint mark block reference differs"));
+            };
+            *used = true;
+            let block = block.clone();
+            let lo = read_len(r, block.rows.len())?;
+            let hi = read_len(r, block.rows.len())?;
+            let shift = read_len(r, u32::MAX as usize)?;
+            let (lambda, entry) = (read_f64(r)?, read_f64(r)?);
+            if lo >= hi || !(entry.is_nan() || finite_nonnegative(entry)) {
+                return Err(val("invalid native checkpoint mark block term"));
+            }
+            check_coefficient(lambda, &block).map_err(|_| val("invalid native checkpoint mark block coefficient"))?;
+            let first = &block.rows[lo];
+            let prefix = self.suffix(first);
+            if shift >= prefix.len() || prefix[shift] != cell {
+                return Err(val("native checkpoint mark block view differs"));
+            }
+            for row in &block.rows[lo..hi] {
+                let suffix = self.suffix(row);
+                if suffix.len() <= shift || suffix[..=shift] != prefix[..=shift] {
+                    return Err(val("native checkpoint mark block view differs"));
+                }
+            }
+            if hi - lo > *remaining {
+                return Err(budget("packet state budget"));
+            }
+            *remaining -= hi - lo;
+            logical += hi - lo;
+            terms.push(Term { block, lo: lo as u32, hi: hi as u32, shift: shift as u32, lambda, entry });
+        }
+        if terms.windows(2).any(|w| w[0].key() >= w[1].key()) {
+            return Err(val("native checkpoint mark block term order differs"));
+        }
+        Ok(PacketParts::Shared { terms, rows: logical })
+    }
     pub(crate) fn read_state<R: Read>(&self, r: &mut R) -> PyResult<RoadState> {
         read_exact_len(r, self.identity.len())?;
         let mut identity = vec![0; self.identity.len()];
@@ -1373,7 +1769,7 @@ impl V1Road {
             return Err(val("native road checkpoint binding differs"));
         }
         let t = read_f64(r)?;
-        read_exact_len(r, self.groups.len())?;
+        let next_block = if self.mark_blocks { read_u64(r)? } else { 0 };
         let mut remaining = self.record_budget;
         let mut work = RoadDecodeBudget {
             limit: self.storage_budget,
@@ -1386,6 +1782,12 @@ impl V1Road {
             decoded: std::mem::size_of::<RoadState>().saturating_add(3 * 32),
             validation: 0,
         };
+        let mut pool = if self.mark_blocks {
+            self.read_block_pool(r, next_block, &mut remaining, &mut work)?
+        } else {
+            BTreeMap::new()
+        };
+        read_exact_len(r, self.groups.len())?;
         // Include empty tree roots and both packet-queue buffer allowances for
         // every cell, before constructing the first outer vector.
         work.reserve(
@@ -1395,12 +1797,12 @@ impl V1Road {
             self.groups.len().saturating_mul(32),
         )?;
         let mut cells = checkpoint_vec(self.groups.len())?;
-        for _ in &self.groups {
+        for cell in 0..self.groups.len() {
             let mut v = [0.; 8];
             for x in &mut v {
                 *x = read_f64(r)?;
             }
-            let packets = self.read_packets(r, &mut remaining, &mut work)?;
+            let packets = self.read_packets(r, &mut remaining, &mut work, &mut pool, cell)?;
             let n = read_len(r, self.classes.len())?;
             work.reserve(n.saturating_mul(256), 0)?;
             let mut latent = BTreeMap::new();
@@ -1421,9 +1823,13 @@ impl V1Road {
             0,
         )?;
         let mut pending = checkpoint_vec(self.groups.len())?;
-        for _ in &self.groups {
-            pending.push(self.read_packets(r, &mut remaining, &mut work)?);
+        for cell in 0..self.groups.len() {
+            pending.push(self.read_packets(r, &mut remaining, &mut work, &mut pool, cell)?);
         }
+        if pool.values().any(|(_, used)| !used) {
+            return Err(val("native checkpoint mark block is unreferenced"));
+        }
+        drop(pool);
         let mut totals = [0.; 7];
         for v in &mut totals {
             *v = read_f64(r)?;
@@ -1449,7 +1855,13 @@ impl V1Road {
             pending,
             totals,
             ledger,
+            next_block,
+            census: SharedCensus::default(),
         };
+        let mut state = state;
+        if self.mark_blocks {
+            state.refresh_census()?;
+        }
         self.check_state(&state)?;
         Ok(state)
     }
@@ -1632,6 +2044,114 @@ impl V1Road {
     fn dest(&self, p: &Part) -> Option<usize> {
         self.path(p.tag).get(p.offset + 1).copied()
     }
+    /// Next cell of a block row viewed at `shift`; None leaves the network.
+    fn next_cell(&self, r: &BlockRow, shift: u32) -> Option<usize> {
+        self.path(r.tag as usize)
+            .get(r.offset as usize + shift as usize + 1)
+            .copied()
+    }
+    fn suffix(&self, r: &BlockRow) -> &[usize] {
+        &self.path(r.tag as usize)[r.offset as usize..]
+    }
+    /// Contiguous next-movement groups `(start, end, next)` of one view.
+    /// Rows of a view share their route prefix, so the sorted suffix order
+    /// makes every next movement one run.
+    fn view_groups<'a>(&'a self, t: &'a Term) -> impl Iterator<Item = (usize, usize, Option<usize>)> + 'a {
+        let rows = t.rows();
+        let mut start = 0;
+        std::iter::from_fn(move || {
+            if start >= rows.len() {
+                return None;
+            }
+            let next = self.next_cell(&rows[start], t.shift);
+            let len = rows[start..].partition_point(|r| self.next_cell(r, t.shift) == next);
+            let group = (start, start + len, next);
+            start += len;
+            Some(group)
+        })
+    }
+    /// One partial service of a shared head (`mark_block_scaled_v1`).
+    /// Returns the served logical rows merged by (tag, offset) for the event
+    /// and ledger stream, and one contribution per (term, next movement) for
+    /// the receiving cells. Each served coefficient is `lambda * fraction`;
+    /// event masses use exactly the coefficient carried by the contribution.
+    fn shared_serve(
+        &self,
+        terms: &[Term],
+        logical: usize,
+        fraction: f64,
+        work: &RoadWorkBudget,
+    ) -> PyResult<(Vec<Part>, Vec<(usize, Term)>)> {
+        // Raw logical rows, their sort and the merged output coexist.
+        work.require(
+            logical
+                .saturating_mul(2 * std::mem::size_of::<Part>())
+                .saturating_add(terms.len().saturating_mul(4 * std::mem::size_of::<(usize, Term)>())),
+            "mark block service materialization",
+        )?;
+        let mut raw: Vec<Part> = checkpoint_vec(logical)?;
+        let mut contributions: Vec<(usize, Term)> = Vec::new();
+        for t in terms {
+            let served = t.lambda * fraction;
+            check_coefficient(served, &t.block)?;
+            for r in t.rows() {
+                raw.push(Part {
+                    tag: r.tag as usize,
+                    offset: r.offset as usize + t.shift as usize,
+                    mass: served * r.mass,
+                    birth: served * r.birth,
+                    a: PackedTime(PackedTime::NONE),
+                    b: PackedTime(PackedTime::NONE),
+                });
+            }
+            for (start, end, next) in self.view_groups(t) {
+                if let Some(j) = next {
+                    let shift = t
+                        .shift
+                        .checked_add(1)
+                        .ok_or_else(|| val("mark block route offset overflow"))?;
+                    push_checked(
+                        &mut contributions,
+                        (
+                            j,
+                            Term {
+                                block: t.block.clone(),
+                                lo: t.lo + start as u32,
+                                hi: t.lo + end as u32,
+                                shift,
+                                lambda: served,
+                                entry: f64::NAN,
+                            },
+                        ),
+                    )?;
+                }
+            }
+        }
+        // fsum is correctly rounded, so equal-key group sums do not depend on
+        // the unstable sort's tie order.
+        raw.sort_unstable_by(|a, b| (a.tag, a.offset).cmp(&(b.tag, b.offset)));
+        let groups = usize::from(!raw.is_empty())
+            + raw
+                .windows(2)
+                .filter(|w| (w[0].tag, w[0].offset) != (w[1].tag, w[1].offset))
+                .count();
+        let mut out = checkpoint_vec(groups)?;
+        let mut start = 0;
+        while start < raw.len() {
+            let mut end = start + 1;
+            while end < raw.len() && (raw[end].tag, raw[end].offset) == (raw[start].tag, raw[start].offset) {
+                end += 1;
+            }
+            let mut part = raw[start];
+            if end - start > 1 {
+                part.mass = sum(raw[start..end].iter().map(|p| p.mass));
+                part.birth = sum(raw[start..end].iter().map(|p| p.birth));
+            }
+            out.push(part);
+            start = end;
+        }
+        Ok((out, contributions))
+    }
     fn footprint(&self, tag: usize) -> f64 {
         self.classes[self.routes[tag].1][12]
     }
@@ -1666,6 +2186,8 @@ impl V1Road {
             pending: vec![vec![]; self.groups.len()],
             totals: [0.; 7],
             ledger: vec![[0.; 5]; self.classes.len()],
+            next_block: 0,
+            census: SharedCensus::default(),
         }
     }
     fn motion(&self, i: usize, c: &Cell, dt: f64, factor: f64) -> PyResult<Motion> {
@@ -1964,6 +2486,429 @@ impl V1Road {
         stats.local_w1_bound = upper_add(stats.local_w1_bound, local_bound);
         work.end_interval();
         Ok(out)
+    }
+    /// Build one immutable block from combined rows (unique (tag, offset)),
+    /// charging its payload before allocation. Rows keep their own entry
+    /// centroids; the caller wraps the block in a unit-coefficient term.
+    fn new_block(
+        &self,
+        rows: Vec<Part>,
+        cell: usize,
+        next_block: &mut u64,
+        work: &RoadWorkBudget,
+    ) -> PyResult<Arc<MarkBlock>> {
+        if rows.is_empty() || rows.len() > u32::MAX as usize {
+            return Err(budget("mark block row count is not representable"));
+        }
+        work.require(
+            rows.len()
+                .saturating_mul(std::mem::size_of::<BlockRow>())
+                .saturating_add(std::mem::size_of::<MarkBlock>() + 64),
+            "mark block allocation",
+        )?;
+        let mut block_rows: Vec<BlockRow> = checkpoint_vec(rows.len())?;
+        let mut min_mass = f64::INFINITY;
+        for p in rows {
+            let (Ok(tag), Ok(offset)) = (u32::try_from(p.tag), u32::try_from(p.offset)) else {
+                return Err(val("mark block tag or route offset is not representable"));
+            };
+            let entry = p.a.unwrap();
+            if !(p.mass > 0.) || !p.mass.is_finite() || !p.birth.is_finite() || !entry.is_finite() {
+                return Err(arithmetic("invalid mark block row"));
+            }
+            min_mass = min_mass.min(p.mass);
+            block_rows.push(BlockRow { tag, offset, mass: p.mass, birth: p.birth, entry });
+        }
+        block_rows.sort_unstable_by(|x, y| self.suffix(x).cmp(self.suffix(y)).then(x.tag.cmp(&y.tag)));
+        let id = *next_block;
+        *next_block = next_block
+            .checked_add(1)
+            .ok_or_else(|| val("mark block id overflow"))?;
+        Ok(Arc::new(MarkBlock { id, cell, min_mass, rows: block_rows }))
+    }
+    /// Distinct next movements of a view; `groups.len()` encodes leaving.
+    fn view_movements<'a>(&'a self, t: &'a Term) -> impl Iterator<Item = usize> + 'a {
+        let n = self.groups.len();
+        self.view_groups(t).map(move |(_, _, next)| next.unwrap_or(n))
+    }
+    /// `mark_block_scaled_v1` form of `projected_packets`. The time edges,
+    /// support barriers, atoms and grid are the same as for rows: a view's
+    /// distinct next movements change support exactly when its rows would.
+    /// Within one segment, contributions of the same view sum their clipped
+    /// coefficients `gamma*lambda` and entry moments; different views stay
+    /// separate terms (no hidden low-rank fit). Legacy row inputs (source
+    /// admissions, or row packets served under this policy) are combined as
+    /// before and become one new immutable block per output cohort.
+    #[allow(clippy::too_many_arguments)]
+    fn projected_shared(
+        &self,
+        parts: Vec<Part>,
+        contributions: Vec<Contribution>,
+        target: f64,
+        cell: usize,
+        work: &mut RoadWorkBudget,
+        stats: &mut ProjectionStats,
+        next_block: &mut u64,
+    ) -> PyResult<Vec<Packet>> {
+        let n = parts.len();
+        let m = contributions.len();
+        if n == 0 && m == 0 {
+            return Ok(Vec::new());
+        }
+        let h = self.entry_projection_width_s;
+        let mut lo = f64::INFINITY;
+        let mut hi = f64::NEG_INFINITY;
+        for p in &parts {
+            let (a, b) = (p.a.unwrap(), p.b.unwrap());
+            if !p.mass.is_finite() || p.mass <= 0. || !p.birth.is_finite() || b < a {
+                return Err(arithmetic("invalid positive entry projection measure"));
+            }
+            lo = lo.min(a);
+            hi = hi.max(b);
+            if b > a && (a + h <= a || b - h >= b) {
+                return Err(arithmetic("entry projection width is unrepresentable at entry clock"));
+            }
+        }
+        let mut movement_events = 0usize;
+        for c in &contributions {
+            let (a, b) = (c.a, c.b);
+            if !a.is_finite() || !b.is_finite() || b < a {
+                return Err(arithmetic("invalid positive entry projection measure"));
+            }
+            check_coefficient(c.term.lambda, &c.term.block)?;
+            lo = lo.min(a);
+            hi = hi.max(b);
+            if b > a {
+                if a + h <= a || b - h >= b {
+                    return Err(arithmetic("entry projection width is unrepresentable at entry clock"));
+                }
+                movement_events = movement_events.saturating_add(2 * self.view_movements(&c.term).count());
+            }
+        }
+        let inputs = n + m;
+        let event_count = n.saturating_mul(2).saturating_add(movement_events);
+        let edge_count = inputs
+            .checked_add(event_count)
+            .and_then(|v| v.checked_add(2))
+            .ok_or_else(|| budget("entry projection boundary capacity overflow"))?;
+        let base_bytes = event_count
+            .saturating_mul(std::mem::size_of::<(f64, usize, bool)>())
+            .saturating_add(n.saturating_mul(2 * std::mem::size_of::<(f64, f64)>()))
+            .saturating_add(self.groups.len().saturating_add(1).saturating_mul(std::mem::size_of::<usize>()))
+            .saturating_add(parts.capacity().saturating_mul(std::mem::size_of::<Part>()))
+            .saturating_add(contributions.capacity().saturating_mul(std::mem::size_of::<Contribution>()));
+        let mut fixed_bytes = base_bytes.saturating_add(edge_count.saturating_mul(std::mem::size_of::<f64>()));
+        work.interval(fixed_bytes)?;
+        let mut events = checkpoint_vec(event_count)?;
+        let mut edges = checkpoint_vec(edge_count)?;
+        edges.extend([lo, hi]);
+        for p in &parts {
+            let (a, b) = (p.a.unwrap(), p.b.unwrap());
+            if a == b {
+                edges.push(a);
+            } else {
+                let movement = self.paths[self.routes[p.tag].0]
+                    .get(p.offset + 1)
+                    .copied()
+                    .unwrap_or(self.groups.len());
+                events.push((a, movement, true));
+                events.push((b, movement, false));
+            }
+        }
+        for c in &contributions {
+            if c.a == c.b {
+                edges.push(c.a);
+            } else {
+                for movement in self.view_movements(&c.term) {
+                    events.push((c.a, movement, true));
+                    events.push((c.b, movement, false));
+                }
+            }
+        }
+        events.sort_unstable_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
+        let mut counts = checkpoint_vec(self.groups.len() + 1)?;
+        counts.resize(self.groups.len() + 1, 0usize);
+        let mut runs = checkpoint_vec(event_count)?;
+        let mut run_start = None;
+        let mut active_movements = 0usize;
+        let event_first = events.first().map(|e| e.0).unwrap_or(lo);
+        let event_last = events.last().map(|e| e.0).unwrap_or(hi);
+        let mut i = 0;
+        let mut protected = 0usize;
+        while i < events.len() {
+            let t = events[i].0;
+            let mut changed = false;
+            while i < events.len() && events[i].0 == t {
+                let movement = events[i].1;
+                let mut starts = 0usize;
+                let mut ends = 0usize;
+                while i < events.len() && events[i].0 == t && events[i].1 == movement {
+                    if events[i].2 { starts += 1; } else { ends += 1; }
+                    i += 1;
+                }
+                let before = counts[movement];
+                let after = before.checked_add(starts).and_then(|v| v.checked_sub(ends))
+                    .ok_or_else(|| arithmetic("entry projection support count overflow"))?;
+                changed |= (before > 0) != (after > 0);
+                if before == 0 && after > 0 { active_movements += 1; }
+                if before > 0 && after == 0 { active_movements -= 1; }
+                counts[movement] = after;
+            }
+            if changed {
+                edges.push(t);
+                if t > event_first && t < event_last { protected += 1; }
+                if let Some(start) = run_start { runs.push((start, t)); }
+                run_start = if active_movements > 0 { Some(t) } else { None };
+            }
+        }
+        drop(events);
+        for (left, right) in runs {
+            let mut first = (left / h).floor() + 1.;
+            let last = (right / h).ceil();
+            if !first.is_finite() || !last.is_finite() || first + 1. == first || last + 1. == last {
+                return Err(arithmetic("entry projection grid index is unrepresentable"));
+            }
+            if first * h <= left { first += 1.; }
+            let count = (last - first).max(0.);
+            if count >= usize::MAX as f64 {
+                return Err(budget("entry projection grid exceeds addressable capacity"));
+            }
+            let count = count as usize;
+            if count > self.record_budget {
+                return Err(budget("entry projection grid record budget"));
+            }
+            let needed = edges.len().checked_add(count)
+                .ok_or_else(|| budget("entry projection grid capacity overflow"))?;
+            if needed > edges.capacity() {
+                let required = needed.saturating_mul(std::mem::size_of::<f64>());
+                work.interval(fixed_bytes.saturating_add(required))?;
+                edges.try_reserve_exact(count)
+                    .map_err(|_| budget("entry projection grid allocation unavailable"))?;
+                fixed_bytes = base_bytes.saturating_add(edges.capacity().saturating_mul(std::mem::size_of::<f64>()));
+                work.interval(fixed_bytes)?;
+            }
+            let mut previous = left;
+            for j in 0..count {
+                let edge = (first + j as f64) * h;
+                if !edge.is_finite() || edge <= previous {
+                    return Err(arithmetic("entry projection grid boundary does not advance"));
+                }
+                if edge < right { edges.push(edge); }
+                previous = edge;
+            }
+        }
+        edges.sort_unstable_by(f64::total_cmp);
+        edges.dedup();
+        // Per-segment row pieces (as for rows) and term pieces, their key
+        // sort and the packed output: a conservative per-input envelope.
+        let segment_bytes = n.saturating_mul(320).saturating_add(m.saturating_mul(
+            2 * std::mem::size_of::<(usize, f64, f64, f64, f64)>() + 2 * std::mem::size_of::<Term>()));
+        let mut out: Vec<Packet> = Vec::new();
+        let mut records = 0usize;
+        let mut local_bound = 0.;
+        let mut terms_out = 0usize;
+        let mut new_block_rows = 0usize;
+        for (edge_index, &a) in edges.iter().enumerate() {
+            work.interval(fixed_bytes.saturating_add(segment_bytes).saturating_add(
+                out.len().saturating_add(1).max(4).saturating_mul(3 * std::mem::size_of::<Packet>())
+            ))?;
+            // Atoms at this edge: one exchangeable packet ahead of [a, b].
+            let count = parts.iter().filter(|p| p.a == Some(a) && p.b == Some(a)).count();
+            let point_terms = contributions.iter().filter(|c| c.a == a && c.b == a).count();
+            if count > 0 || point_terms > 0 {
+                let mut terms: Vec<Term> = Vec::new();
+                if count > 0 {
+                    let mut points = checkpoint_vec(count)?;
+                    points.extend(parts.iter().filter(|p| p.a == Some(a) && p.b == Some(a)).copied());
+                    let rows = combine(points)?;
+                    new_block_rows += rows.len();
+                    let block = self.new_block(rows, cell, next_block, work)?;
+                    let hi = block.rows.len() as u32;
+                    push_checked(&mut terms, Term { block, lo: 0, hi, shift: 0, lambda: 1., entry: f64::NAN })?;
+                }
+                if point_terms > 0 {
+                    let mut pieces: Vec<(usize, f64)> = checkpoint_vec(point_terms)?;
+                    pieces.extend(contributions.iter().enumerate()
+                        .filter(|(_, c)| c.a == a && c.b == a)
+                        .map(|(k, c)| (k, c.term.lambda)));
+                    self.merge_term_pieces(&contributions, pieces.into_iter().map(|(k, l)| (k, l, 0., a, a)).collect(), a, &mut terms, &mut local_bound)?;
+                }
+                terms_out += terms.len();
+                self.push_shared_packet(&mut out, terms, target, work, &mut records)?;
+            }
+            let Some(&b) = edges.get(edge_index + 1) else { continue; };
+            let mut terms: Vec<Term> = Vec::new();
+            // Row pieces: the unchanged row projection arithmetic.
+            let mut pieces: Vec<(usize, usize, f64, f64, f64, f64, f64)> = checkpoint_vec(n)?;
+            for p in &parts {
+                let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
+                let (x, y) = (a.max(pa), b.min(pb));
+                if y <= x || pb <= pa { continue; }
+                let fraction = (y - x) / (pb - pa);
+                let mass = p.mass * fraction;
+                let birth = p.birth * fraction;
+                let relative_entry = mass * ((x - a) + (y - x) / 2.);
+                if mass <= 0. || !mass.is_finite() || !birth.is_finite() || !relative_entry.is_finite() {
+                    return Err(arithmetic("entry projection positive piece underflow or nonfinite moment"));
+                }
+                pieces.push((p.tag, p.offset, mass, birth, relative_entry, x, y));
+            }
+            if !pieces.is_empty() {
+                pieces.sort_unstable_by_key(|p| (p.0, p.1));
+                let category_count = 1 + pieces.windows(2)
+                    .filter(|pair| (pair[0].0, pair[0].1) != (pair[1].0, pair[1].1)).count();
+                let mut rows = checkpoint_vec(category_count)?;
+                let mut cursor = 0;
+                while cursor < pieces.len() {
+                    let start = cursor;
+                    let key = (pieces[start].0, pieces[start].1);
+                    while cursor < pieces.len() && (pieces[cursor].0, pieces[cursor].1) == key {
+                        cursor += 1;
+                    }
+                    let selected = &pieces[start..cursor];
+                    let mass = sum(selected.iter().map(|p| p.2));
+                    let birth = sum(selected.iter().map(|p| p.3));
+                    let relative_entry = sum(selected.iter().map(|p| p.4));
+                    let min_time = selected.iter().map(|p| p.5).fold(f64::INFINITY, f64::min);
+                    let max_time = selected.iter().map(|p| p.6).fold(f64::NEG_INFINITY, f64::max);
+                    let centroid = a + relative_entry / mass;
+                    if !mass.is_finite() || !birth.is_finite() || !centroid.is_finite()
+                        || centroid < min_time || centroid > max_time {
+                        return Err(arithmetic("entry projection aggregate moment is unrepresentable"));
+                    }
+                    let bound = mass * ((max_time - min_time) / 2.);
+                    if !bound.is_finite() {
+                        return Err(arithmetic("entry projection local transport bound overflow"));
+                    }
+                    local_bound = upper_add(local_bound, bound);
+                    let time = PackedTime::new(Some(centroid))?;
+                    rows.push(Part { tag: key.0, offset: key.1, mass, birth, a: time, b: time });
+                }
+                drop(pieces);
+                new_block_rows += rows.len();
+                let block = self.new_block(rows, cell, next_block, work)?;
+                let hi = block.rows.len() as u32;
+                push_checked(&mut terms, Term { block, lo: 0, hi, shift: 0, lambda: 1., entry: f64::NAN })?;
+            }
+            // Term pieces: clipped coefficient gamma*lambda, entry moment
+            // relative to the segment start (the row arithmetic per term).
+            let mut term_pieces: Vec<(usize, f64, f64, f64, f64)> = Vec::new();
+            for (k, c) in contributions.iter().enumerate() {
+                let (pa, pb) = (c.a, c.b);
+                let (x, y) = (a.max(pa), b.min(pb));
+                if y <= x || pb <= pa { continue; }
+                let fraction = (y - x) / (pb - pa);
+                let lambda = c.term.lambda * fraction;
+                check_coefficient(lambda, &c.term.block)?;
+                let relative_entry = lambda * ((x - a) + (y - x) / 2.);
+                if !relative_entry.is_finite() {
+                    return Err(arithmetic("entry projection positive piece underflow or nonfinite moment"));
+                }
+                push_checked(&mut term_pieces, (k, lambda, relative_entry, x, y))?;
+            }
+            if !term_pieces.is_empty() {
+                self.merge_term_pieces(&contributions, term_pieces, a, &mut terms, &mut local_bound)?;
+            }
+            if terms.is_empty() { continue; }
+            terms_out += terms.len();
+            self.push_shared_packet(&mut out, terms, target, work, &mut records)?;
+        }
+        stats.input_parts = stats.input_parts.saturating_add(inputs);
+        stats.output_parts = stats.output_parts.saturating_add(records);
+        stats.cohorts = stats.cohorts.saturating_add(out.len());
+        stats.protected_support_boundaries = stats.protected_support_boundaries.saturating_add(protected);
+        stats.local_w1_bound = upper_add(stats.local_w1_bound, local_bound);
+        stats.input_contributions = stats.input_contributions.saturating_add(m);
+        stats.output_terms = stats.output_terms.saturating_add(terms_out);
+        stats.new_block_rows = stats.new_block_rows.saturating_add(new_block_rows);
+        work.end_interval();
+        Ok(out)
+    }
+    /// Group term pieces `(contribution, lambda, relative_entry, x, y)` by
+    /// view key, summing coefficients and entry moments with fsum, and append
+    /// one term per view with its common entry centroid `a + R/Lambda`.
+    fn merge_term_pieces(
+        &self,
+        contributions: &[Contribution],
+        mut pieces: Vec<(usize, f64, f64, f64, f64)>,
+        a: f64,
+        terms: &mut Vec<Term>,
+        local_bound: &mut f64,
+    ) -> PyResult<()> {
+        pieces.sort_unstable_by(|x, y| contributions[x.0].term.key().cmp(&contributions[y.0].term.key()).then(x.0.cmp(&y.0)));
+        let mut cursor = 0;
+        while cursor < pieces.len() {
+            let start = cursor;
+            let key = contributions[pieces[start].0].term.key();
+            while cursor < pieces.len() && contributions[pieces[cursor].0].term.key() == key {
+                cursor += 1;
+            }
+            let selected = &pieces[start..cursor];
+            let base = &contributions[selected[0].0].term;
+            let lambda = sum(selected.iter().map(|p| p.1));
+            let relative_entry = sum(selected.iter().map(|p| p.2));
+            let min_time = selected.iter().map(|p| p.3).fold(f64::INFINITY, f64::min);
+            let max_time = selected.iter().map(|p| p.4).fold(f64::NEG_INFINITY, f64::max);
+            check_coefficient(lambda, &base.block)?;
+            let centroid = a + relative_entry / lambda;
+            if !centroid.is_finite() || centroid < min_time || centroid > max_time {
+                return Err(arithmetic("entry projection aggregate moment is unrepresentable"));
+            }
+            if max_time > min_time {
+                let view_mass = sum(base.rows().iter().map(|r| r.mass));
+                let bound = lambda * view_mass * ((max_time - min_time) / 2.);
+                if !bound.is_finite() {
+                    return Err(arithmetic("entry projection local transport bound overflow"));
+                }
+                *local_bound = upper_add(*local_bound, bound);
+            }
+            push_checked(terms, Term {
+                block: base.block.clone(),
+                lo: base.lo,
+                hi: base.hi,
+                shift: base.shift,
+                lambda,
+                entry: centroid,
+            })?;
+        }
+        Ok(())
+    }
+    fn push_shared_packet(
+        &self,
+        out: &mut Vec<Packet>,
+        mut terms: Vec<Term>,
+        target: f64,
+        work: &mut RoadWorkBudget,
+        records: &mut usize,
+    ) -> PyResult<()> {
+        terms.sort_unstable_by(|x, y| x.key().cmp(&y.key()));
+        let new_rows: usize = terms
+            .iter()
+            .filter(|t| t.entry.is_nan())
+            .map(|t| t.block.rows.len())
+            .sum();
+        *records = records.saturating_add(terms.len()).saturating_add(new_rows);
+        if *records > self.record_budget {
+            return Err(budget("entry projection record budget"));
+        }
+        work.require(out.len().saturating_add(1).max(4).saturating_mul(
+            3 * std::mem::size_of::<Packet>()), "entry projection cohort reservation")?;
+        let logical = terms.iter().map(|t| (t.hi - t.lo) as usize).sum();
+        let mut packed = checkpoint_vec(terms.len())?;
+        packed.extend(terms);
+        let new_block_bytes: usize = packed
+            .iter()
+            .filter(|t| t.entry.is_nan())
+            .map(|t| t.block.allocated_bytes())
+            .sum();
+        let parts = PacketParts::Shared { terms: packed, rows: logical };
+        work.retain_interval(
+            parts
+                .allocated_bytes()
+                .saturating_add(new_block_bytes)
+                .saturating_add(std::mem::size_of::<Packet>()),
+        );
+        push_checked(out, Packet { target, parts })
     }
     fn push_projected_packet(
         &self,
@@ -2317,6 +3262,8 @@ impl V1Road {
                 .collect::<PyResult<_>>()?,
             totals: s.totals,
             ledger: s.ledger.clone(),
+            next_block: s.next_block,
+            census: SharedCensus::default(),
         };
         let mut new: BTreeMap<usize, Vec<Part>> = BTreeMap::new();
         let (mut born, mut birth1, mut inherited) = (0., 0., 0.);
@@ -2421,6 +3368,8 @@ impl V1Road {
         };
         let mut events = EventStore::default();
         let mut incoming: Vec<Vec<Part>> = vec![vec![]; n];
+        // mark_block_scaled_v1: served terms per receiving cell.
+        let mut incoming_terms: Vec<Vec<Contribution>> = vec![vec![]; n];
         // Diagnostic only: source (cell, head position, rate bits) per incoming row.
         let mut incoming_src: Vec<Vec<(usize, usize, u64)>> = if crate::v1_trace::enabled() {
             vec![vec![]; n]
@@ -2670,19 +3619,36 @@ impl V1Road {
                     if 1. - fraction < 1e-14 {
                         fraction = 1.;
                     }
-                    let incoming_count = packet
-                        .parts
-                        .iter()
-                        .filter(|part| self.dest(part).is_some())
-                        .count();
-                    work.transfer(packet.parts.len(), incoming_count)?;
-                    if self.storage_budget.is_some()
-                        && events.len().saturating_add(packet.parts.len())
-                            > self.checkpoint_event_limit()
-                    {
-                        return Err(budget("packet transfer budget"));
-                    }
-                    let served = portion(&packet.parts, fraction)?;
+                    let shared_head = self.mark_blocks && packet.parts.is_shared();
+                    let (incoming_count, served, contributions) = if shared_head {
+                        let terms = packet.parts.shared_terms().unwrap_or(&[]);
+                        let (served, contributions) =
+                            self.shared_serve(terms, packet.parts.len(), fraction, &work)?;
+                        let incoming_count =
+                            served.iter().filter(|part| self.dest(part).is_some()).count();
+                        work.transfer(served.len(), incoming_count)?;
+                        if self.storage_budget.is_some()
+                            && events.len().saturating_add(served.len())
+                                > self.checkpoint_event_limit()
+                        {
+                            return Err(budget("packet transfer budget"));
+                        }
+                        (incoming_count, served, contributions)
+                    } else {
+                        let incoming_count = packet
+                            .parts
+                            .iter()
+                            .filter(|part| self.dest(part).is_some())
+                            .count();
+                        work.transfer(packet.parts.len(), incoming_count)?;
+                        if self.storage_budget.is_some()
+                            && events.len().saturating_add(packet.parts.len())
+                                > self.checkpoint_event_limit()
+                        {
+                            return Err(budget("packet transfer budget"));
+                        }
+                        (incoming_count, portion(&packet.parts, fraction)?, Vec::new())
+                    };
                     if crate::v1_trace::enabled() {
                         let key = (position[i], rate.to_bits());
                         let class = match last_serve[i] {
@@ -2713,13 +3679,17 @@ impl V1Road {
                         }
                         crate::v1_trace::add("xfer.head_rows", packet.parts.len() as u64);
                     }
-                    let remainder = if fraction == 1. {
+                    let remainder = if shared_head || fraction == 1. {
                         None
                     } else {
                         Some(portion(&packet.parts, 1. - fraction)?)
                     };
                     let sm = sum(served.iter().map(|p| p.mass));
-                    if let Some(parts) = remainder {
+                    if shared_head && fraction < 1. {
+                        // The remainder is the same terms with scaled
+                        // coefficients; no category row is copied.
+                        queues[i][position[i]].0.parts.scale_shared(1. - fraction)?;
+                    } else if let Some(parts) = remainder {
                         queues[i][position[i]].0.parts = work.pack_parts(parts)?;
                     } else {
                         position[i] += 1;
@@ -2750,20 +3720,32 @@ impl V1Road {
                                 &mut marks[j],
                                 (k, p.mass, m.sample(local_mid).1, latent),
                             )?;
-                            p.offset += 1;
-                            if self.intervals {
-                                p.a = PackedTime::new(Some(start_time))?;
-                                p.b = PackedTime::new(Some(end_time))?;
-                            }
-                            push_checked(&mut incoming[j], p)?;
-                            if !incoming_src.is_empty() {
-                                incoming_src[j].push((i, position[i], rate.to_bits()));
+                            if !shared_head {
+                                p.offset += 1;
+                                if self.intervals {
+                                    p.a = PackedTime::new(Some(start_time))?;
+                                    p.b = PackedTime::new(Some(end_time))?;
+                                }
+                                push_checked(&mut incoming[j], p)?;
+                                if !incoming_src.is_empty() {
+                                    incoming_src[j].push((i, position[i], rate.to_bits()));
+                                }
                             }
                         } else {
                             sink += p.mass;
                             out.ledger[k][1] += p.mass;
                             exit1 += p.mass * mid;
                         }
+                    }
+                    for (j, term) in contributions {
+                        push_checked(
+                            &mut incoming_terms[j],
+                            Contribution {
+                                term,
+                                a: start_time,
+                                b: end_time,
+                            },
+                        )?;
                     }
                 }
                 if crate::v1_trace::enabled() {
@@ -2906,7 +3888,11 @@ impl V1Road {
                 crate::v1_trace::add("entry.raw_rows", raw_rows as u64);
                 crate::v1_trace::add("entry.combined_rows", parts.len() as u64);
             }
-            let added = sum(parts.iter().map(|p| p.mass));
+            let contributions = std::mem::take(&mut incoming_terms[i]);
+            let added = sum(parts.iter().map(|p| p.mass).chain(contributions.iter().flat_map(|c| {
+                let lambda = c.term.lambda;
+                c.term.rows().iter().map(move |r| lambda * r.mass)
+            })));
             if added == 0. {
                 continue;
             }
@@ -2937,7 +3923,17 @@ impl V1Road {
                 })
                 .collect();
             let target = out.cells[i].v[0] + self.groups[i][0];
-            let packets = if self.entry_projection_width_s > 0. {
+            let packets = if self.mark_blocks {
+                self.projected_shared(
+                    parts,
+                    contributions,
+                    target,
+                    i,
+                    &mut work,
+                    &mut projection,
+                    &mut out.next_block,
+                )?
+            } else if self.entry_projection_width_s > 0. {
                 self.projected_packets(parts, target, &mut work, &mut projection)?
             } else if self.intervals {
                 self.interval_packets(parts, target, &mut work)?
@@ -2988,6 +3984,9 @@ impl V1Road {
             .enumerate()
         {
             out.totals[j] += v;
+        }
+        if self.mark_blocks {
+            out.refresh_census()?;
         }
         self.check_state(&out)?;
         if self.storage_budget.is_some() {
@@ -3208,6 +4207,8 @@ impl V1Road {
             pending: sources,
             totals,
             ledger: ls,
+            next_block: 0,
+            census: SharedCensus::default(),
         };
         self.check_state(&s)?;
         Ok(s)
@@ -3249,6 +4250,17 @@ impl V1Road {
         out.set_item("cohorts", stats.cohorts)?;
         out.set_item("protected_support_boundaries", stats.protected_support_boundaries)?;
         out.set_item("local_w1_bound_veh_s", stats.local_w1_bound)?;
+        out.set_item("road_representation", self.road_representation())?;
+        if self.mark_blocks {
+            let census = self.state.census;
+            out.set_item("input_contributions", stats.input_contributions)?;
+            out.set_item("output_terms", stats.output_terms)?;
+            out.set_item("new_block_rows", stats.new_block_rows)?;
+            out.set_item("state_blocks", census.blocks)?;
+            out.set_item("state_block_rows", census.block_rows)?;
+            out.set_item("state_block_bytes", census.block_bytes)?;
+            out.set_item("state_terms", census.terms)?;
+        }
         out.set_item("scope", "latest validated proposed road transition in this runtime; may precede coupled rollback or describe a branch/replay; local time-measure projection cost, not network trajectory error; unchanged by failed road proposals and checkpoint restore")?;
         out.set_item("checkpointed", false)?;
         Ok(out.unbind())
@@ -3256,6 +4268,14 @@ impl V1Road {
     #[getter]
     pub(crate) fn entry_projection_width_s(&self) -> f64 {
         self.entry_projection_width_s
+    }
+    #[getter]
+    pub(crate) fn road_representation(&self) -> &'static str {
+        if self.mark_blocks {
+            MARK_BLOCK_POLICY
+        } else {
+            "rows"
+        }
     }
     fn event_resolution_diagnostics(&self) -> (u64, f64, f64, f64) {
         self.event_resolution_stats()
@@ -3279,7 +4299,7 @@ impl V1Road {
     }
     #[new]
     #[allow(clippy::too_many_arguments)]
-    #[pyo3(signature = (identity, dt, groups, signals, routes, classes, incoming, windows, record_budget, event_budget, intervals, entry_projection_width_s=0.0))]
+    #[pyo3(signature = (identity, dt, groups, signals, routes, classes, incoming, windows, record_budget, event_budget, intervals, entry_projection_width_s=0.0, road_representation="rows"))]
     pub(crate) fn new(
         identity: String,
         dt: f64,
@@ -3293,7 +4313,9 @@ impl V1Road {
         event_budget: Option<usize>,
         intervals: bool,
         entry_projection_width_s: f64,
+        road_representation: &str,
     ) -> PyResult<Self> {
+        let mark_blocks = parse_representation(road_representation)?;
         let mut paths = Vec::new();
         let mut lookup: HashMap<Vec<usize>, usize> = HashMap::new();
         let mut tags = Vec::with_capacity(routes.len());
@@ -3322,6 +4344,7 @@ impl V1Road {
             event_budget,
             intervals,
             entry_projection_width_s,
+            mark_blocks,
         )
     }
     fn snapshot(&self) -> StateRow {
@@ -3386,6 +4409,7 @@ impl V1Road {
         event_budget: Option<usize>,
         intervals: bool,
         entry_projection_width_s: f64,
+        mark_blocks: bool,
     ) -> PyResult<Self> {
         if !entry_projection_width_s.is_finite() || entry_projection_width_s < 0. {
             return Err(val("entry_projection_width_s must be finite and nonnegative"));
@@ -3393,10 +4417,13 @@ impl V1Road {
         if entry_projection_width_s > 0. && !intervals {
             return Err(val("entry projection requires preserved entry intervals"));
         }
+        if mark_blocks && entry_projection_width_s <= 0. {
+            return Err(val("mark_block_scaled_v1 requires a positive entry projection width"));
+        }
         if identity.is_empty() {
             return Err(val("invalid native road configuration"));
         }
-        let identity = projection_identity(&identity, entry_projection_width_s);
+        let identity = representation_identity(&identity, entry_projection_width_s, mark_blocks);
         let n = groups.len();
         if identity.is_empty()
             || n == 0
@@ -3479,12 +4506,15 @@ impl V1Road {
             projection_stats: Mutex::new(ProjectionStats::default()),
             event_budget,
             intervals,
+            mark_blocks,
             state: RoadState {
                 t: 0.,
                 cells: vec![],
                 pending: vec![],
                 totals: [0.; 7],
                 ledger: vec![],
+                next_block: 0,
+                census: SharedCensus::default(),
             },
         };
         r.state = r.blank(0.);
@@ -3562,7 +4592,7 @@ mod entry_projection_tests {
             vec![None; 4], vec![vec![0, 1, 2], vec![0, 1, 3], vec![0, 3]],
             vec![(0, 0), (1, 0), (2, 0)],
             vec![vec![20., 1., 2., 3., 2., 1., 4., 0.5, 0.2, 0.3, 4., 10., 6.]],
-            vec![vec![0], vec![1], vec![2], vec![3]], vec![], 10_000, None, true, h,
+            vec![vec![0], vec![1], vec![2], vec![3]], vec![], 10_000, None, true, h, false,
         ).unwrap()
     }
     fn part(tag: usize, mass: f64, birth: f64, a: f64, b: f64) -> Part {
@@ -3741,5 +4771,309 @@ mod event_store_tests {
         let n = EventStore::max_rows_within(budget);
         assert!(EventStore::upper_bytes(n, n) <= budget);
         assert_eq!(EventStore::upper_bytes(0, 0), 0);
+    }
+}
+
+#[cfg(test)]
+mod mark_block_tests {
+    use super::*;
+
+    const CAR: [f64; 13] = [20., 1., 2., 3., 2., 1., 4., 0.5, 0.2, 0.3, 4., 10., 6.];
+    const TRUCK: [f64; 13] = [12., 0.8, 1., 2., 3., 1.5, 9., 0.6, 0.1, 0.2, 5., 8., 12.];
+
+    /// Paths: 0 -> 1 -> 3 -> 4 and 0 -> 2 -> 3 -> 4 diverge at 0 and
+    /// reconverge at 3; tag 4 leaves at 3. Cell 0 is a slow bottleneck so
+    /// heads are partially served many times.
+    fn road(mark: bool, h: f64) -> V1Road {
+        let mut groups = vec![vec![100., 20., 10., 10., 1000., 1.]; 5];
+        groups[0] = vec![60., 20., 10., 0.35, 1000., 1.];
+        groups[3] = vec![60., 20., 10., 0.6, 1000., 1.];
+        V1Road::new_shared_routes(
+            "mark-block-test".into(), 1., groups, vec![None; 5],
+            vec![vec![0, 1, 3, 4], vec![0, 2, 3, 4], vec![0, 1, 3]],
+            vec![(0, 0), (1, 0), (0, 1), (1, 1), (2, 0)],
+            vec![CAR.to_vec(), TRUCK.to_vec()],
+            vec![vec![0], vec![1, 2], vec![3], vec![4]], vec![], 1_000_000, None, true, h, mark,
+        ).unwrap()
+    }
+    fn offers(step: usize) -> Vec<Offer> {
+        if step >= 12 {
+            return vec![];
+        }
+        let s = step as f64;
+        // Distinct birth marks; tag 4 is tiny but positive.
+        vec![
+            (0, 0.30 + 0.01 * s, 0.30 * s * 0.5, None, None),
+            (1, 0.20, 0.20 * s * 0.25, None, None),
+            (2, 0.07, 0., None, None),
+            (3, 0.05 + 0.002 * s, 0.05 * s * 0.1, None, None),
+            (4, 1e-9, 0., None, None),
+        ]
+    }
+    fn advance(r: &mut V1Road, step: usize) -> EventStore {
+        let (s, e) = r.propose_owned_step(1., offers(step)).unwrap();
+        r.rollback(s);
+        e
+    }
+    fn by_tag(s: &RoadState) -> BTreeMap<usize, (f64, f64)> {
+        let mut out: BTreeMap<usize, (Vec<f64>, Vec<f64>)> = BTreeMap::new();
+        for p in s.cells.iter().flat_map(|c| &c.packets).chain(s.pending.iter().flatten()) {
+            for x in &p.parts {
+                let e = out.entry(x.tag).or_default();
+                e.0.push(x.mass);
+                e.1.push(x.birth);
+            }
+        }
+        out.into_iter().map(|(k, (m, b))| (k, (sum(m), sum(b)))).collect()
+    }
+    fn close(a: f64, b: f64, rel: f64) -> bool {
+        (a - b).abs() <= rel * a.abs().max(b.abs()).max(1.)
+    }
+    fn wire(r: &V1Road) -> Vec<u8> {
+        let mut w = Vec::new();
+        r.write_state(&mut w).unwrap();
+        w
+    }
+
+    #[test]
+    fn shared_path_matches_rows_through_divergence_reconvergence_and_classes() {
+        let (mut rows, mut mark) = (road(false, 0.25), road(true, 0.25));
+        let mut saw_shared_partial = false;
+        let mut saw_reconverged_views = false;
+        let mut cohort_mismatch_steps = vec![];
+        for step in 0..120 {
+            let (ea, eb) = (advance(&mut rows, step), advance(&mut mark, step));
+            // Events are linear in mass: per (tag, dest) totals agree.
+            let agg = |e: &EventStore| {
+                let mut m: BTreeMap<(usize, Option<usize>), Vec<f64>> = BTreeMap::new();
+                for x in e.iter() {
+                    m.entry((x.0, x.2)).or_default().push(x.3);
+                }
+                m.into_iter().map(|(k, v)| (k, sum(v))).collect::<BTreeMap<_, _>>()
+            };
+            let (ga, gb) = (agg(&ea), agg(&eb));
+            assert_eq!(ga.keys().collect::<Vec<_>>(), gb.keys().collect::<Vec<_>>());
+            for (k, v) in &ga {
+                assert!(close(*v, gb[k], 1e-12), "event {k:?} {v} {}", gb[k]);
+            }
+            let (sa, sb) = (&rows.state, &mark.state);
+            for j in 0..7 {
+                assert!(close(sa.totals[j], sb.totals[j], 1e-12), "total {j}");
+            }
+            let worst = (0..2).flat_map(|k| (0..5).map(move |j| (k, j)))
+                .map(|(k, j)| (sa.ledger[k][j] - sb.ledger[k][j]).abs() / sa.ledger[k][j].abs().max(1.))
+                .fold(0., f64::max);
+            if step < 34 {
+                // Before the extra row-path cohort is served, all class
+                // ledgers including queue wait agree to rounding.
+                assert!(worst < 1e-14, "step {step}: {worst:e}");
+            }
+            for k in 0..2 {
+                for j in 0..5 {
+                    if j == 3 { continue; }
+                    assert!(close(sa.ledger[k][j], sb.ledger[k][j], 1e-12), "step {step} class {k} ledger {j}: {} {} rel {:e}", sa.ledger[k][j], sb.ledger[k][j], (sa.ledger[k][j]-sb.ledger[k][j]).abs()/sa.ledger[k][j]);
+                }
+            }
+            let (ta, tb) = (by_tag(sa), by_tag(sb));
+            assert_eq!(ta.keys().collect::<Vec<_>>(), tb.keys().collect::<Vec<_>>());
+            for (tag, (m, b)) in &ta {
+                assert!(close(*m, tb[tag].0, 1e-12) && close(*b, tb[tag].1, 1e-12), "tag {tag}");
+            }
+            // Per-cell mass, birth and entry first moments agree. Cohort
+            // counts may differ: an ulp-level difference of a junction event
+            // end time toggles a protected support boundary (known defect
+            // (b)/(c) of the V03 counterexample suite), see
+            // `ulp_event_boundary_changes_cohort_count_not_observables`.
+            for (ca, cb) in sa.cells.iter().zip(&sb.cells) {
+                let m = |c: &Cell| sum(c.packets.iter().flat_map(|p| p.parts.iter().map(|x| x.mass)));
+                let b = |c: &Cell| sum(c.packets.iter().flat_map(|p| p.parts.iter().map(|x| x.birth)));
+                let e = |c: &Cell| sum(c.packets.iter().flat_map(|p| p.parts.iter().map(|x| x.mass * x.a.unwrap())));
+                assert!(close(m(ca), m(cb), 1e-12) && close(b(ca), b(cb), 1e-12) && close(e(ca), e(cb), 1e-12));
+                if ca.packets.len() != cb.packets.len() {
+                    cohort_mismatch_steps.push(step);
+                }
+            }
+            for p in &sb.cells[0].packets {
+                saw_shared_partial |= p.parts.shared_terms().is_some_and(|t| t.iter().any(|t| t.lambda < 1.));
+            }
+            for p in &sb.cells[3].packets {
+                if let Some(terms) = p.parts.shared_terms() {
+                    let blocks: Vec<_> = terms.iter().map(|t| t.block.id).collect();
+                    saw_reconverged_views |= terms.len() > 1
+                        && blocks.windows(2).any(|w| w[0] == w[1]);
+                }
+            }
+        }
+        assert!(saw_shared_partial, "partial head service of a shared cohort was exercised");
+        assert!(saw_reconverged_views, "one block reached cell 3 by two prefixes as distinct views");
+        assert!(close(rows.state.totals[1], mark.state.totals[1], 1e-12));
+        assert!(mark.state.totals[1] > 0.);
+        // Observed on this fixture: only the ulp-boundary steps differ.
+        assert_eq!(cohort_mismatch_steps, (25..34).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn ulp_event_boundary_changes_cohort_count_not_observables() {
+        // Step 25 of the shared fixture: the row path's consecutive serves of
+        // cell 3 end at 25.698747293149196 and restart at 25.6987472931492
+        // (one ulp gap), which the support scan reads as an empty-support
+        // run and protects as a cohort boundary. The mark-block path's head
+        // masses round differently, its event times are contiguous, and it
+        // keeps one cohort. Both preserve the cell's measures (checked in the
+        // test above); this records the cohort-count difference.
+        let (mut rows, mut mark) = (road(false, 0.25), road(true, 0.25));
+        for step in 0..26 {
+            advance(&mut rows, step);
+            advance(&mut mark, step);
+        }
+        assert_eq!(rows.state.cells[4].packets.len(), 4);
+        assert_eq!(mark.state.cells[4].packets.len(), 3);
+        // Counterexample kept (strict): serving that extra cohort changes the
+        // event partition and hence the midpoint queue-wait quadrature
+        // (class ledger [3]) by ~9e-8 relative, above the PLAN residence
+        // tolerance 1e-8, while vehicle mass, birth and entry moments agree
+        // to ~1e-16. Cause: the row path's ulp-boundary sensitivity, not mass
+        // sharing. If defects (b)/(c) are fixed this assertion must be
+        // revisited (it is expected to fail then).
+        for step in 26..60 {
+            advance(&mut rows, step);
+            advance(&mut mark, step);
+        }
+        let rel = (rows.state.ledger[0][3] - mark.state.ledger[0][3]).abs() / rows.state.ledger[0][3];
+        assert!(rel > 1e-8 && rel < 1e-6, "{rel:e}");
+        for j in [0, 1, 2, 4] {
+            let a = rows.state.ledger[0][j];
+            assert!((a - mark.state.ledger[0][j]).abs() <= 1e-14 * a.max(1.));
+        }
+    }
+
+    #[test]
+    fn repeated_partial_service_scales_without_row_growth() {
+        let r = road(true, 0.25);
+        let rows: Vec<Part> = (0..5)
+            .map(|tag| Part { tag, offset: 0, mass: 0.1 + tag as f64, birth: tag as f64,
+                a: PackedTime::new(Some(0.)).unwrap(), b: PackedTime::new(Some(0.)).unwrap() })
+            .collect();
+        let mut next = 0;
+        let w = RoadWorkBudget { limit: None, base: 0, events: 0, event_headers: 0, incoming: 0,
+            interval_retained: 0, interval_transient: 0, service_events: None };
+        let block = r.new_block(rows.clone(), 0, &mut next, &w).unwrap();
+        let mut head = PacketParts::Shared {
+            terms: vec![Term { block: block.clone(), lo: 0, hi: 5, shift: 0, lambda: 1., entry: 0.25 }],
+            rows: 5,
+        };
+        let (m0, b0) = (sum(head.iter().map(|p| p.mass)), sum(head.iter().map(|p| p.birth)));
+        let (mut served_m, mut served_b, mut served_e) = (vec![], vec![], vec![]);
+        for k in 0..10_000 {
+            let f = 1e-4 * (1. + (k % 7) as f64);
+            let (served, contributions) = r.shared_serve(head.shared_terms().unwrap(), head.len(), f, &w).unwrap();
+            assert_eq!(served.len(), 5);
+            // Two next movements (cells 1 and 2) per term, no copy of rows.
+            assert_eq!(contributions.len(), 2);
+            assert!(contributions.iter().all(|(_, t)| Arc::ptr_eq(&t.block, &block)));
+            served_m.extend(served.iter().map(|p| p.mass));
+            served_b.extend(served.iter().map(|p| p.birth));
+            served_e.extend(served.iter().map(|p| p.mass * 0.25));
+            head.scale_shared(1. - f).unwrap();
+            assert_eq!(head.shared_terms().unwrap().len(), 1);
+        }
+        // One block allocation shared by the head and nothing else retained.
+        assert_eq!(Arc::strong_count(&block), 2);
+        assert_eq!(head.allocated_bytes(), std::mem::size_of::<Term>());
+        let rem_m = sum(head.iter().map(|p| p.mass));
+        let rem_b = sum(head.iter().map(|p| p.birth));
+        let rem_e = sum(head.iter().map(|p| p.mass * p.a.unwrap()));
+        // Mass, birth and entry first moments are conserved to rounding of
+        // 10^4 sequential scalings (each <= 1 ulp relative).
+        assert!(close(sum(served_m.iter().copied().chain([rem_m])), m0, 1e-11));
+        assert!(close(sum(served_b.iter().copied().chain([rem_b])), b0, 1e-11));
+        assert!(close(sum(served_e.iter().copied().chain([rem_e])), m0 * 0.25, 1e-11));
+    }
+
+    #[test]
+    fn tiny_coefficient_underflow_fails_explicitly() {
+        let r = road(true, 0.25);
+        let w = RoadWorkBudget { limit: None, base: 0, events: 0, event_headers: 0, incoming: 0,
+            interval_retained: 0, interval_transient: 0, service_events: None };
+        let mut next = 0;
+        let tiny = vec![Part { tag: 0, offset: 0, mass: 1e-300, birth: 0.,
+            a: PackedTime::new(Some(0.)).unwrap(), b: PackedTime::new(Some(0.)).unwrap() }];
+        let block = r.new_block(tiny, 0, &mut next, &w).unwrap();
+        let term = Term { block, lo: 0, hi: 1, shift: 0, lambda: 1., entry: f64::NAN };
+        let mut head = PacketParts::Shared { terms: vec![term.clone()], rows: 1 };
+        // lambda * 1e-300 below the smallest normal: the positive mass would
+        // become subnormal/zero; this is refused rather than dropped.
+        assert!(r.shared_serve(head.shared_terms().unwrap(), 1, 1e-10, &w).is_err());
+        assert!(head.scale_shared(1e-10).is_err());
+        // A representable coefficient still serves the positive mass.
+        let (served, _) = r.shared_serve(&[term], 1, 0.5, &w).unwrap();
+        assert!(served[0].mass > 0.);
+        assert!(check_coefficient(0., &head.shared_terms().unwrap()[0].block).is_err());
+        assert!(check_coefficient(f64::NAN, &head.shared_terms().unwrap()[0].block).is_err());
+    }
+
+    #[test]
+    fn checkpoint_roundtrip_resumes_bit_identically_and_rejects_bad_references() {
+        let mut a = road(true, 0.25);
+        for step in 0..9 {
+            advance(&mut a, step);
+        }
+        assert!(a.state.census.blocks > 0 && a.state.census.terms > 0);
+        let saved = wire(&a);
+        let mut b = road(true, 0.25);
+        let decoded = b.read_state(&mut saved.as_slice()).unwrap();
+        b.install_state(decoded);
+        assert_eq!(wire(&b), saved);
+        assert_eq!(b.state.census.block_bytes, a.state.census.block_bytes);
+        for step in 9..60 {
+            advance(&mut a, step);
+            advance(&mut b, step);
+            assert_eq!(wire(&a), wire(&b));
+        }
+        // The row representation cannot read the shared wire (binding).
+        let rows = road(false, 0.25);
+        assert!(rows.read_state(&mut saved.as_slice()).is_err());
+        // Corrupt the first term's block reference: rejected, not repaired.
+        let mut a = road(true, 0.25);
+        for step in 0..9 {
+            advance(&mut a, step);
+        }
+        let saved = wire(&a);
+        let fresh = road(true, 0.25);
+        let mut corrupt = saved.clone();
+        // Overwrite the block counter with 0: every pooled id is then invalid.
+        let at = 8 + a.identity.len() + 8;
+        corrupt[at..at + 8].copy_from_slice(&0u64.to_le_bytes());
+        assert!(fresh.read_state(&mut corrupt.as_slice()).is_err());
+        assert!(fresh.read_state(&mut &saved[..saved.len() - 1]).is_err());
+    }
+
+    #[test]
+    fn allocation_failure_rolls_back_without_state_change() {
+        let mut r = road(true, 0.25);
+        for step in 0..6 {
+            advance(&mut r, step);
+        }
+        let before = wire(&r);
+        // A budget that admits the committed state but not the next step.
+        let retained = r.state.retained_storage_bytes();
+        r.storage_budget = Some(retained.saturating_mul(3) + 1024);
+        r.record_budget = 1_000_000;
+        assert!(r.propose_owned_step(1., offers(6)).is_err());
+        assert_eq!(wire(&r), before);
+        // The same step succeeds once the budget admits it.
+        r.storage_budget = Some(usize::MAX / 4);
+        assert!(r.propose_owned_step(1., offers(6)).is_ok());
+    }
+
+    #[test]
+    fn rows_default_is_unchanged_and_policy_requires_projection() {
+        assert!(V1Road::new_shared_routes(
+            "x".into(), 1., vec![vec![1., 1., 1., 1., 1., 1.]], vec![None], vec![vec![0]], vec![(0, 0)],
+            vec![CAR.to_vec()], vec![vec![0]], vec![], 10, None, true, 0., true).is_err());
+        let r = road(false, 0.25);
+        assert_eq!(r.identity, projection_identity("mark-block-test", 0.25));
+        let m = road(true, 0.25);
+        assert_eq!(m.identity, format!("{}:{MARK_BLOCK_POLICY}", r.identity));
     }
 }

@@ -57,7 +57,7 @@ def resource_limit_kind(message, storage=None):
         return 'shared_accounting_guard'
     if 'native preflight' in message or 'static accounting' in message:
         return 'static_accounting_guard'
-    if storage and storage.get('resource_binding') in ('retained_capacity_v2','retained_capacity_v3','retained_capacity_v4') and 'budget' in message:
+    if storage and storage.get('resource_binding') in ('retained_capacity_v2','retained_capacity_v3','retained_capacity_v4','retained_capacity_v5') and 'budget' in message:
         if any(word in message for word in ('journey','road','phase','observation','decode','service event')):
             return 'phase_working_budget_guard'
     if ('storage' in message and 'budget' in message) or (
@@ -245,7 +245,8 @@ def prepare(case,matrix,step_s):
             byte_budget=min(6*1024**3,matrix['limits']['peak_rss_bytes']),
             native_threads=int(os.environ.get('METROFLOW_V1_NATIVE_THREADS','1')),
             storage_policy=os.environ.get('METROFLOW_V1_STORAGE_POLICY','bounded_bytes_v1'),
-            entry_projection_width_s=float(os.environ.get('METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S','0'))),row
+            entry_projection_width_s=float(os.environ.get('METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S','0')),
+            road_representation=os.environ.get('METROFLOW_V1_ROAD_REPRESENTATION','rows')),row
     def factory(city,legs,*,step_s):
         return compile_service_plan(city,legs,inventory.corridors,
                      depot_block_id=inventory.depot_block_id,step_s=step_s,
@@ -261,7 +262,8 @@ def worker(args,matrix,case):
         ('engine_backend','METROFLOW_V1_ENGINE_BACKEND'),
         ('native_threads','METROFLOW_V1_NATIVE_THREADS'),
         ('storage_policy','METROFLOW_V1_STORAGE_POLICY'),
-        ('entry_projection_width_s','METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S')) if hasattr(args,attr)}
+        ('entry_projection_width_s','METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S'),
+        ('road_representation','METROFLOW_V1_ROAD_REPRESENTATION')) if hasattr(args,attr)}
     previous={key:os.environ.get(key) for key in overrides}
     os.environ.update(overrides)
     try:
@@ -464,6 +466,9 @@ def main():
     parser.add_argument('--entry-projection-width-s',type=float,
         default=os.environ.get('METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S','0'),
         help='opt-in support-protected entry-time projection width; 0 is exact (changes checkpoint identity)')
+    parser.add_argument('--road-representation',choices=('rows','mark_block_scaled_v1'),
+        default=os.environ.get('METROFLOW_V1_ROAD_REPRESENTATION','rows'),
+        help='road category storage; mark_block_scaled_v1 shares immutable category blocks with scalar coefficients (named numerical policy; requires a positive projection width; changes checkpoint identity)')
     args=parser.parse_args()
     if args.engine_backend not in ('rust_whole','python_oracle','rust'):
         parser.error('invalid METROFLOW_V1_ENGINE_BACKEND')
@@ -473,6 +478,8 @@ def main():
         parser.error('--native-threads must be in 1..256')
     if not math.isfinite(args.entry_projection_width_s) or args.entry_projection_width_s < 0:
         parser.error('--entry-projection-width-s must be finite and nonnegative')
+    if args.road_representation!='rows' and not args.entry_projection_width_s:
+        parser.error('--road-representation mark_block_scaled_v1 requires a positive --entry-projection-width-s')
     if args.entry_projection_width_s and args.engine_backend!='rust_whole':
         parser.error('--entry-projection-width-s currently requires rust_whole campaign backend')
     matrix=json.loads(args.matrix.read_text())
@@ -493,7 +500,8 @@ def main():
                  '--step-s',str(step),'--horizon-s',str(horizon),
                  '--engine-backend',args.engine_backend,'--native-threads',str(args.native_threads),
                  '--storage-policy',args.storage_policy,
-                 '--entry-projection-width-s',str(args.entry_projection_width_s)]
+                 '--entry-projection-width-s',str(args.entry_projection_width_s),
+                 '--road-representation',args.road_representation]
             cmd+=['--prepare-only'] if args.prepare_only else ['--run-local']
             if resume:
                 cmd+=['--resume']

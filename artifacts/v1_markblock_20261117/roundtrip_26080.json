@@ -1,0 +1,39 @@
+{
+ "source": "artifacts/v1_markblock_20261117/local_probe/valley_markblock_h1.last_valid.bin",
+ "source_sha256": "13e0f9fedfe69c56905f0c5b1a02f73401182e4a26c84c55b3712de86432fc8b",
+ "resaved_sha256": "13e0f9fedfe69c56905f0c5b1a02f73401182e4a26c84c55b3712de86432fc8b",
+ "byte_identical_resave": true,
+ "time_s": 26080.0,
+ "next_step": {
+  "status": "REFUSED",
+  "error": "BudgetExceeded: native road storage budget exceeded: phase=mark block service materialization, required_bytes=4194190000, budget_bytes=4194118554"
+ },
+ "construct_s": 25.502483941003447,
+ "load_s": 10.755095407017507,
+ "save_s": 3.064282834995538,
+ "advance_s": 15.098718222987372,
+ "peak_rss_bytes": 2614472704,
+ "report_at_load": {
+  "persons": {
+   "requested": 4888.888888888856,
+   "released": 2904.648182712495,
+   "completed": 598.7795901223253,
+   "pending": 1984.240706176361,
+   "active": 2305.8685925901696
+  },
+  "vehicles": {
+   "requested": 2395.555555555446,
+   "released": 2320.0000000000114,
+   "completed": 475.6014382115805,
+   "pending": 75.5555555554347,
+   "active": 1844.398561788431
+  },
+  "cargo_kg": {
+   "requested": 0.0,
+   "released": 0.0,
+   "completed": 0.0,
+   "pending": 0.0,
+   "active": 0.0
+  }
+ }
+}
