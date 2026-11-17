@@ -3,9 +3,36 @@
 아래 지시문 전체를 local agent에게 전달한다. 실제 구현·검증된 후보를 이어받는
 작업이며, 전체 시뮬레이터를 새로 설계하거나 일반적인 감사만 반복하는 작업이 아니다.
 
-## 복사해서 전달할 지시문
+## 복사해서 전달할 지시문 (GitHub 게시본)
 
 저장소 `cosmosapjw-quantum/urban_traffic_demo`의 V03 후속 작업을 수행하라.
+**원격 인수 위치는 `origin/research/conservative-kinetic-closure-20261117`이다.**
+기존 Git 작업물 또는 체크포인트를 덮어쓰지 말고 아래 방법으로 코드를 수령하라.
+
+```bash
+# 아직 clone이 없다면 독립 경로에 새로 받는다.
+git clone --branch research/conservative-kinetic-closure-20261117 --single-branch \
+  https://github.com/cosmosapjw-quantum/urban_traffic_demo.git urban_traffic_handoff_20261117
+cd urban_traffic_handoff_20261117
+
+# 기존 clone을 사용하는 경우에는 대신 다음을 실행한다.
+# git status --short                    # 로컬 변경이 있으면 보존 후 분리
+# git fetch origin refs/heads/research/conservative-kinetic-closure-20261117
+# git switch -c research/entry-projection-agent-20261117 FETCH_HEAD
+
+# 실제 인수 후보가 기준 구현 commit을 포함하는지 검증한다.
+git merge-base --is-ancestor f47bf6a3e3a9e7b078bfa4111cb7a5510c68c12c HEAD
+printf 'HEAD=%s\n' "$(git rev-parse HEAD)"
+test -f artifacts/v1_entry_projection_20261117/RECEIPT.json
+test -f docs/v1/CONSERVATIVE_MARK_BLOCK_NEXT_KO.md
+```
+
+원격 브랜치가 생성된 이후에는 이를 기준으로 fetch/pull하며, 다른 작업자의
+임의 최신 `main`으로 전환하지 않는다. 로컬 분기점이 생긴 경우 `git pull`
+자동 merge를 하지 말고 `git fetch` 후 차이를 검사한다. 실행된 원형 candidate는
+`f47bf6a3e3a9e7b078bfa4111cb7a5510c68c12c`; 이 인계문 수정은 별도
+후속 commit이다. 최신 `HEAD`·tree와 `RECEIPT.json`의 측정 source SHA를 구분하라.
+GitHub 원격에 없는 로컬 `.bin` 체크포인트를 원격에서 받은 것으로 주장하지 말라.
 현재 사용자는 최신 보고서의 선택지를 원래 모델 동기에 맞게 선택하고, 이론 개선을
 코드에 이식하는 일을 승인했다. 선택지는 A이며, `entry_projection_support_v1`이
 이미 Python/Rust 실제 경로에 구현돼 있다. 원래 전체 수요·주민 100,000·3도시 각
@@ -15,15 +42,20 @@ ACCEPTED 심사는 아직 별도 단계다. 해당 작업을 자동 실행하지
 
 ### 1. 인수 위치와 먼저 읽을 근거
 
-- 사용자 PC 작업 디렉터리: `/home/cosmosapjw/urban_traffic_projection_20261117`.
-- 로컬 브랜치: `research/entry-projection-local-20261117`.
-- 감사 기준 commit: `0b9caa8cc60a3ba087722e0360b997c5dfb61d62`.
-- 전달 candidate commit과 tree는 패키지 `DELIVERY.json` 및 이 작업 디렉터리의
-  `git log -1`로 확인한다. 실행 당시 영수증은 위 baseline 위의 dirty source를
-  측정한 것이므로, 실제 검증 identity는 영수증의 source SHA-256 목록이다.
+- 원격 추적 기준: `origin/research/conservative-kinetic-closure-20261117`.
+- 원격에서 받은 후 독립 agent 작업 브랜치를 생성하여 변경한다. 다른 로컬
+  브랜치에 미커밋 변경이 있으면 보존한다.
+- 원본 기준 commit: `0b9caa8cc60a3ba087722e0360b997c5dfb61d62`.
+- 실제 구현·실측 후보 commit: `f47bf6a3e3a9e7b078bfa4111cb7a5510c68c12c`.
+- 다운로드한 `HEAD`와 tree는 `git rev-parse`, 실제 실행 identity는
+  `artifacts/v1_entry_projection_20261117/RECEIPT.json`의 source SHA-256으로 확인한다.
+  인계 갱신 자체가 원형 후보의 실행 검증을 대체하지 않는다.
+- 이전 PC의 `/home/cosmosapjw/urban_traffic_projection_20261117`는 전달 검증에
+  사용한 로컬 복사본이며, 다른 agent 장치에 존재한다고 가정하지 말라.
 - 기존 `/home/cosmosapjw/urban_traffic_rust_20261116` 및
-  `/home/cosmosapjw/urban_traffic_v03_20261116`의 소스·가상환경·체크포인트는
-  보존한다. 새 바이너리를 그 가상환경에 설치하지 않는다.
+  `/home/cosmosapjw/urban_traffic_v03_20261116`의 소스·가상환경·체크포인트가
+  동일 호스트에 있다면 보존하고, 새 바이너리를 기존 venv에 설치하지 않는다.
+  다른 호스트라면 Python/Rust 의존성을 별도로 설정하고 환경을 영수증에 남긴다.
 
 다음 파일을 읽고 이어서 실제 construction/실행을 시작하라.
 
@@ -108,7 +140,9 @@ category/support 다양성까지 일정 메모리라는 보장을 만들어내�
 읽기 전용으로 재사용하고, Rust 산출물과 import 경로는 현재 worktree에 둔다.
 
 ```bash
-cd /home/cosmosapjw/urban_traffic_projection_20261117
+# clone/fetch 후 확인한 새 작업 디렉터리에서 실행한다.
+cd "$(git rev-parse --show-toplevel)"
+# 동일 PC의 기존 venv가 있다면 재사용할 수 있다. 없다면 새 venv를 구성한다.
 TASK_PY=/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python
 TASK_CARGO=/home/cosmosapjw/.cargo/bin/cargo
 PYO3_PYTHON="$TASK_PY" "$TASK_CARGO" build --release --offline
