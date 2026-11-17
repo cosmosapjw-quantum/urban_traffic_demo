@@ -830,6 +830,45 @@ fn portion(parts: &PacketParts, f: f64) -> PyResult<Vec<Part>> {
     }
     Ok(result)
 }
+/// Diagnostic census of adjacent non-point interval packets [a,b],[b,c] in one
+/// cell's entry output: rows whose (tag, offset) recur in the next packet, and
+/// those whose time density mass/(b-a) is bit-equal (a necessary condition for
+/// any exact time-merge). Counting only; never changes packets.
+fn interval_merge_census(out: &[Packet]) {
+    let span = |p: &Packet| {
+        p.parts
+            .iter()
+            .next()
+            .and_then(|x| Some((x.a.unwrap(), x.b.unwrap())))
+    };
+    let mut prev: Option<(f64, f64, BTreeMap<(usize, usize), u64>)> = None;
+    for packet in out {
+        let Some((a, b)) = span(packet) else { continue };
+        if !(b > a) {
+            continue;
+        }
+        let mut here = BTreeMap::new();
+        for x in packet.parts.iter() {
+            here.insert((x.tag, x.offset), (x.mass / (b - a)).to_bits());
+        }
+        if let Some((pa, pb, ref before)) = prev {
+            if pb == a && pb > pa {
+                let mut same_key = 0u64;
+                let mut same_density = 0u64;
+                for (k, d) in &here {
+                    if let Some(d0) = before.get(k) {
+                        same_key += 1;
+                        same_density += u64::from(d0 == d);
+                    }
+                }
+                crate::v1_trace::add("merge.adjacent_rows", here.len() as u64);
+                crate::v1_trace::add("merge.same_key_rows", same_key);
+                crate::v1_trace::add("merge.equal_density_rows", same_density);
+            }
+        }
+        prev = Some((a, b, here));
+    }
+}
 fn combine(parts: Vec<Part>) -> PyResult<Vec<Part>> {
     let key = |p: &Part| {
         (
@@ -1571,6 +1610,13 @@ impl V1Road {
             }
         }
         work.end_interval();
+        if crate::v1_trace::enabled() {
+            crate::v1_trace::add("split.in_rows", parts.len() as u64);
+            crate::v1_trace::add("split.edges", edges.len() as u64);
+            crate::v1_trace::add("split.out_rows", records as u64);
+            crate::v1_trace::add("split.out_packets", out.len() as u64);
+            interval_merge_census(&out);
+        }
         Ok(out)
     }
     fn rates(
@@ -1766,6 +1812,14 @@ impl V1Road {
         // Reserve the working allowance before copying large state/source
         // vectors. Large Vec allocations below use fallible reservations.
         let mut work = self.work_budget(s, &offers)?;
+        if crate::v1_trace::enabled() {
+            let stats = s.debug_stats();
+            crate::v1_trace::add("tick.offers", offers.len() as u64);
+            crate::v1_trace::add("tick.cell_parts", stats.cell_parts as u64);
+            crate::v1_trace::add("tick.pending_parts", stats.pending_parts as u64);
+            crate::v1_trace::add("tick.cell_packets", stats.cell_packets as u64);
+            crate::v1_trace::add("tick.pending_packets", stats.pending_packets as u64);
+        }
         for &(_, a, b, _) in &self.windows {
             if (t + 1e-10 < a && a < end - 1e-10) || (t + 1e-10 < b && b < end - 1e-10) {
                 return Err(val("interval crosses a closure boundary"));
@@ -2154,6 +2208,19 @@ impl V1Road {
                         return Err(budget("packet transfer budget"));
                     }
                     let served = portion(&packet.parts, fraction)?;
+                    if crate::v1_trace::enabled() {
+                        crate::v1_trace::add("xfer.serve_rows", served.len() as u64);
+                        crate::v1_trace::add("xfer.partial_serve", u64::from(fraction < 1.));
+                        crate::v1_trace::add("xfer.serve_incoming_rows", incoming_count as u64);
+                        crate::v1_trace::add(
+                            "xfer.sink_rows",
+                            served.len().saturating_sub(incoming_count) as u64,
+                        );
+                        if fraction < 1. {
+                            crate::v1_trace::add("xfer.partial_rows", served.len() as u64);
+                        }
+                        crate::v1_trace::add("xfer.head_rows", packet.parts.len() as u64);
+                    }
                     let remainder = if fraction == 1. {
                         None
                     } else {
@@ -2206,6 +2273,9 @@ impl V1Road {
                             exit1 += p.mass * mid;
                         }
                     }
+                }
+                if crate::v1_trace::enabled() {
+                    crate::v1_trace::add("xfer.substep_heads", rates.len() as u64);
                 }
                 if !clock.advance(h, time_boundary)? && retired_heads == 0 {
                     return Err(arithmetic(
@@ -2293,6 +2363,12 @@ impl V1Road {
                 if f > 0.0 {
                     work.transfer(0, p.parts.len())?;
                 }
+                if crate::v1_trace::enabled() {
+                    crate::v1_trace::add("pending.rows", p.parts.len() as u64);
+                    if f > 0. && f < 1. {
+                        crate::v1_trace::add("pending.partial_rows", p.parts.len() as u64);
+                    }
+                }
                 let mut parts = portion(&p.parts, f)?;
                 let m = sum(parts.iter().map(|p| p.mass));
                 free[i] = (free[i] - m).max(0.);
@@ -2326,7 +2402,12 @@ impl V1Road {
             out.pending[i] = remain;
         }
         for i in 0..n {
+            let raw_rows = incoming[i].len();
             let parts = combine(std::mem::take(&mut incoming[i]))?;
+            if crate::v1_trace::enabled() && raw_rows > 0 {
+                crate::v1_trace::add("entry.raw_rows", raw_rows as u64);
+                crate::v1_trace::add("entry.combined_rows", parts.len() as u64);
+            }
             let added = sum(parts.iter().map(|p| p.mass));
             if added == 0. {
                 continue;

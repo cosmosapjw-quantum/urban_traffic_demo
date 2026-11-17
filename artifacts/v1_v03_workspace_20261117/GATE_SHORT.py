@@ -22,6 +22,8 @@ from metroflow.active_suffix.common import BudgetExceeded
 import _metroflow_rust as native
 
 case_id, horizon, out = sys.argv[1], float(sys.argv[2]), Path(sys.argv[3])
+FINE_FROM = float(os.environ.get('GATE_FINE_FROM', 'inf'))
+FINE_STEP = float(os.environ.get('GATE_FINE_STEP', '3600'))
 matrix_path = ROOT / 'scenarios/v1/release_matrix.json'
 matrix = json.loads(matrix_path.read_text())
 case = next(c for c in matrix['cases'] if c['id'] == case_id)
@@ -44,6 +46,8 @@ def summary(tr):
 try:
     while state.time_s < horizon:
         target = min(horizon, (math.floor(state.time_s / 3600) + 1) * 3600)
+        if state.time_s >= FINE_FROM:
+            target = min(horizon, state.time_s + FINE_STEP)
         t0 = time.perf_counter()
         state = driver.advance(state, target)
         raw = native.budget_trace_snapshot(True)
@@ -51,7 +55,7 @@ try:
         worst = max(tr.items(), key=lambda kv: kv[1]['ratio'])
         result['calls'].append(dict(end_s=state.time_s, wall_s=time.perf_counter() - t0,
             peak_rss_bytes=peak_rss_bytes(), counted_heap_live=raw.get('live_bytes'),
-            counted_heap_peak=raw.get('peak_bytes'), worst_site=worst[0], worst_ratio=worst[1]['ratio'], sites=tr))
+            counted_heap_peak=raw.get('peak_bytes'), counters=raw.get('counters'), worst_site=worst[0], worst_ratio=worst[1]['ratio'], sites=tr))
         print(json.dumps(dict(t=state.time_s, wall=round(time.perf_counter()-started, 1),
             rss=peak_rss_bytes(), heap_peak=raw.get('peak_bytes'), worst=worst[0], ratio=round(worst[1]['ratio'], 4))), flush=True)
     result['status'] = 'GATE_REACHED_HORIZON'
@@ -61,7 +65,8 @@ except (BudgetExceeded, ArithmeticError, ValueError, RuntimeError, MemoryError) 
         state = cp
     result.update(status='GATE_BLOCKED', reason=str(e)[:600], error_type=type(e).__name__,
         resource_limit_kind=resource_limit_kind(str(e), result['native_storage']),
-        failing_call_trace=summary(native.budget_trace_snapshot(True)))
+        failing_call_trace=summary(last := native.budget_trace_snapshot(True)),
+        failing_call_counters=last.get('counters'))
 result.update(simulated_s=state.time_s, wall_s=time.perf_counter() - started,
     peak_rss_bytes=peak_rss_bytes(), report=driver.report(state),
     script_sha256=file_sha256(Path(__file__)))

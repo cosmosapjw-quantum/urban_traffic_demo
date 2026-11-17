@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-11-17",
-  "status": "ACCOUNTING_CORRECTED_PHYSICAL_GROWTH_BLOCKED",
+  "status": "ACCOUNTING_CORRECTED_PHYSICAL_GROWTH_ATTRIBUTED",
   "scope": "V03 native workspace accounting by lifetime and short reproduction gates; not full-day acceptance",
   "base_commit": "0d1886f763cfaa6851ea304cdcb1db73a749e7ae",
   "frozen_candidate": {
@@ -141,7 +141,7 @@
     "resume_run": 0,
     "reason": "all three short gates blocked; guard-bypassed diagnostics show the same physical road-row growth cause in every case"
   },
-  "remaining_blocker": "Exact interval FIFO road packets grow ~2x per 50-100 simulated s at morning onset (Valley 34.6M parts, real allocation failure at 8GiB address space with guards bypassed); accounting no longer the primary limit; representation/model decision required",
+  "remaining_blocker": "Partial-service copies of exact time-interval packets grow packets/rows ~2x per 50 simulated s at morning onset; bit-identical merging recovers only a few percent; a proportional-composition (real-arithmetic exact) representation or scope change needs a user/physics-contract decision",
   "dag_progress": {
     "completed": 19,
     "total": 21,
@@ -165,13 +165,17 @@
     "last_valid_checkpoints": "artifacts/v1_rust_completion_20261116/LOCAL_CHECKPOINTS.json"
   },
   "evidence_sha256": {
+    "ATTRIB2_valley.log": "c505c7e963f4f67e81091d31833ae36041e890827844d8915a74270b22d40664",
+    "ATTRIBUTION.json": "1c5acb5b4a587cbbcc0a2314bd83dae864677a08ea1c7cb787e37602e29eac10",
+    "ATTRIBUTION_KO.md": "86b4a2a434d2fdbb097c9b9d55257f566ad63d27ad1d09e429126b5176a009c6",
+    "ATTRIB_valley.log": "bae9cb9d07a90205455bf622b941503261afe7b6de23b02bbbef1b39111ebf67",
     "DIAG_OBSERVE_coastal.log": "29cdc50f4eaa091cd3b816a462d1a71a69c6f1499523e5441cdd07d9affa4326",
     "DIAG_OBSERVE_river.log": "b114da2461f4eca5f8d02bb101f4ed3d22266fa08786d6f2263bce58a18d4b04",
     "DIAG_OBSERVE_valley.log": "d0e4ae9e13808d054dbd6740925fc8b9093a7f8ff8a112cbaff02de45573df37",
     "GATE_FINAL_coastal_weekend_s41.log": "6a23d9caf0856b3e26ac873ece6b1cb5d386fa5b2f8195ee534d5f99381d2361",
     "GATE_FINAL_river_weekday_s17.log": "dfce27b7c8a63efd9167ac0d664f234ca54c077dea6469ca110744d0935c2410",
     "GATE_FINAL_valley_weekday_s7.log": "bacfe6bf58123731ca37ffb4dc9aa11f789a658d2ba1fe62eaba3e897a845535",
-    "GATE_SHORT.py": "3e3f78ff8275eeb0d35b1e826fbb8a9f5df0033a738cdec024bd7fb29d2e23e7",
+    "GATE_SHORT.py": "936b08f3791daf2171a5460685832ae1266fb7d8439571650b4f7149be9bfcfc",
     "GATE_coastal_weekend_s41.log": "1885a2ffe68e95e13594870cdd8504e862d21be7fe0f2dc42254b2ed4e5ed661",
     "GATE_river_weekday_s17.log": "fad8b19382c613e133f39da529170b65ef8d436b8aff125de024bd1f4925a78a",
     "GATE_valley_weekday_s7.log": "471db0bc00039cee5960eb3c1ded7afe0606d2edb64c94decd241166b6a2b53a",
@@ -179,6 +183,8 @@
     "REPORT_KO.md": "151d0e97a149441a90fdccd1dd1a89b5d5850c434f69c2c59072d77dd86a51b6",
     "WORKSPACE_PROBE.md": "c08208a6091330b41d28860995a5153d8f88985f86cea97e95ddb3f4bc29ada4",
     "WORKSPACE_PROBE_SUMMARY.json": "4004ccacc96ece6aa7ac52fa533929b20e80d62b944857fac60da58d28eecdda",
+    "attrib2_valley.json": "0d611f600c3dfb958e02f6ee902360a495f69a77a93c8244c6742e80ceb5f2ab",
+    "attrib_valley.json": "a29ba8c9d917745fe1e5cb374d6c9b51752d1d6a092e1c8f46d8d25384b20f97",
     "diag_observe_coastal.json": "eeaaec365526b720915674a040d5910fa2561971500a5e00187f320048054284",
     "diag_observe_river.json": "6fc86da7f122a39625d7200b0d333eddb73543ada9364b79682db0755dea9bf6",
     "diag_observe_valley.json": "9171ebb79989aae2907c305f124c4eaabf30fa45a584569f49eac204a593ff36",
@@ -188,9 +194,29 @@
     "gate_final_valley_weekday_s7.json": "c7eaff72c4c28b9537a6fa1c01a56a902cb3e2a3132f72f5e71f814a4c1785ab",
     "gate_river_weekday_s17.json": "0a07c611c6afa0d15817d89bd9e55875a52c179d5af777dcd50f1c586480bc11",
     "gate_valley_weekday_s7.json": "edeb2d9c7453899a187b10d54287f8385c68a70c2e2adf78ddf05b78ec8ee8fd",
+    "legacy_replay_attrib.json": "0b956094290a305dbc79f5d346add32acbcf2a923a340bd8a86a5ff7b84780fe",
     "legacy_replay_v3.json": "617cd43e8f0d49aa4a559f5149c6250a185221dd9f1ecc1f59f6b99e42632f1f",
     "probe_coastal.json": "bcfc991b8496a61e39394d6fcade5d56634ec076c49d480d52acc8859df7faf1",
     "probe_river.json": "23d0ab4e20698b5086367485e3f8587949110734e0241f3e8fc646a1e555199b",
     "probe_valley.json": "ed25a79e58048f57a245ebe913dd8a9f319d612cb93059a0a601591cdd5b2b12"
+  },
+  "attribution": {
+    "option": "a",
+    "result": "NEGATIVE_NO_BIT_IDENTICAL_FIX",
+    "mechanism": "each partial head serve keeps the head and emits a downstream copy packet of all its rows with a new time interval; copies are split and partially served again; packets/rows/partial serves grow ~2-2.6x per 50 simulated s",
+    "valley_25600_25650": {
+      "row_growth_approx": 7200000.0,
+      "partial_serve_rows": 7209432,
+      "split_extra": 2067347,
+      "offers": 768376,
+      "combine_merged": -587901,
+      "sinks": -462551
+    },
+    "bit_identical_bound": {
+      "combine_already": 0.023,
+      "adjacent_equal_density": 0.0193
+    },
+    "installed_commit_note": "diagnostic counters are no-ops unless METROFLOW_BUDGET_TRACE is set; legacy replay ef4719a8 x3 identical",
+    "report": "ATTRIBUTION_KO.md"
   }
 }

@@ -11,6 +11,7 @@
 - 계획 변경은 PLAN.json 버전과 근거를 먼저 갱신한다. 범위·수용문턱을 통과 목적으로 완화하지 않는다. 사용자 승인 없는 scope 증가는 금지한다.
 - 2026-11-16 V03 후속: 실제 로컬 5900X/관측 RAM 31.25GiB에서 세 도시의 예산 사전 거절, 전체 하천 달력 5,093,765 legs 보관(peak RSS 1.42GiB), 각 도시 256-leg 공유 runtime 준비와 한정 회귀를 수행했다. 생성자·장부 검사 중복 계산과 route p99 구간 계측을 개선했다. `artifacts/v1_v03_scaling_20261116/RECEIPT.json`을 따른다. 전체 calendar의 경로/물리 상태 활성화 및 3case×3회24h는 남았으며 19/21과 V03 BLOCKED를 유지한다.
 - 2026-11-17 V03 후속: 차단 checkpoint 실측으로 계상 수명 불일치를 교정했다(`retained_capacity_v3`, `adde1a3`; 260 scoped, legacy replay bytes 동일). 짧은 게이트는 25,650/32,730/25,420s에서 멈췄고, guard 우회 진단에서 road interval part 행이 아침 진입 구간에 수십 초마다 배가해 Valley는 8 GiB에서 실제 할당 실패했다. `artifacts/v1_v03_workspace_20261117/RECEIPT.json`을 따른다. 24h 0/9, 19/21, V03 BLOCKED 유지; 표현 변경은 사용자 결정 대상이다.
+- 2026-11-17 선택 (a): 부분 head 서비스가 새 행의 약 80%를 만들고(서비스마다 모든 행의 새 구간 packet 생성), bit 동일 병합 상한은 수 %다(`ATTRIBUTION_KO.md`). 비례 조성 표현(실수 산술 동치) 또는 범위 재검토는 사용자·물리 계약 결정 대상이다.
 
 ## 유지하는 과학·구현 계약
 - 2026-11-16 사용자 승인: Rust CPU 계산코어·Python frontend로 전환한다. 기존 Python 코어는 이행 중 명시적 scientific oracle로 보존한다. JAX/GPU·차량 위치 전수추적·RL-first·외부데이터 학습은 V1 범위 밖이다.

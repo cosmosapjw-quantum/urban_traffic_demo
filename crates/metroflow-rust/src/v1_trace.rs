@@ -82,6 +82,20 @@ struct Record {
 // 0 = unread, 1 = off, 2 = record, 3 = observe
 static MODE: AtomicU8 = AtomicU8::new(0);
 static RECORDS: Mutex<BTreeMap<String, Record>> = Mutex::new(BTreeMap::new());
+/// (calls, sum, max) per diagnostic counter; only touched when tracing is on.
+static COUNTERS: Mutex<BTreeMap<&'static str, (u64, u64, u64)>> = Mutex::new(BTreeMap::new());
+
+/// Accumulate a diagnostic counter. No effect (one atomic load) when tracing is off.
+pub(crate) fn add(name: &'static str, value: u64) {
+    if mode() < 2 {
+        return;
+    }
+    let mut c = COUNTERS.lock().unwrap_or_else(|e| e.into_inner());
+    let e = c.entry(name).or_insert((0, 0, 0));
+    e.0 += 1;
+    e.1 = e.1.saturating_add(value);
+    e.2 = e.2.max(value);
+}
 
 fn mode() -> u8 {
     let m = MODE.load(Ordering::Relaxed);
@@ -179,5 +193,14 @@ pub(crate) fn budget_trace_snapshot(py: Python<'_>, reset: bool) -> PyResult<PyO
         records.clear();
     }
     out.set_item("sites", sites)?;
+    let counters = PyDict::new(py);
+    let mut c = COUNTERS.lock().unwrap_or_else(|e| e.into_inner());
+    for (k, (calls, sum, max)) in c.iter() {
+        counters.set_item(*k, (*calls, *sum, *max))?;
+    }
+    if reset {
+        c.clear();
+    }
+    out.set_item("counters", counters)?;
     Ok(out.into())
 }
