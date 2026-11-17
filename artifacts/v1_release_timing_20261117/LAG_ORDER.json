@@ -1,0 +1,135 @@
+{
+ "scope": "journey-owner synthetic check; uncongested end-of-step admission assumed; not a city result",
+ "delays": [
+  [
+   37.3,
+   0.2
+  ],
+  [
+   81.9,
+   0.25
+  ],
+  [
+   123.4,
+   0.15
+  ],
+  [
+   160.2,
+   0.3
+  ],
+  [
+   211.7,
+   0.1
+  ]
+ ],
+ "rows": [
+  {
+   "step_s": 20.0,
+   "legacy": {
+    "mean_lag_s": 30.325000000000017,
+    "lag_over_dt": 1.5162500000000008,
+    "max_admitted_before_ready": 0.0,
+    "admitted_fraction": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "release_interval_v1": {
+    "mean_lag_s": 9.999999999999966,
+    "lag_over_dt": 0.49999999999999833,
+    "max_admitted_before_ready": 0.0,
+    "admitted_fraction": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  {
+   "step_s": 10.0,
+   "legacy": {
+    "mean_lag_s": 14.325000000000006,
+    "lag_over_dt": 1.4325000000000006,
+    "max_admitted_before_ready": 0.0,
+    "admitted_fraction": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "release_interval_v1": {
+    "mean_lag_s": 4.999999999999972,
+    "lag_over_dt": 0.49999999999999717,
+    "max_admitted_before_ready": 0.0,
+    "admitted_fraction": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  {
+   "step_s": 5.0,
+   "legacy": {
+    "mean_lag_s": 6.574999999999778,
+    "lag_over_dt": 1.3149999999999555,
+    "max_admitted_before_ready": 0.0,
+    "admitted_fraction": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "release_interval_v1": {
+    "mean_lag_s": 2.499999999999909,
+    "lag_over_dt": 0.4999999999999818,
+    "max_admitted_before_ready": 0.0,
+    "admitted_fraction": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  },
+  {
+   "step_s": 2.5,
+   "legacy": {
+    "mean_lag_s": 3.8250000000000455,
+    "lag_over_dt": 1.5300000000000182,
+    "max_admitted_before_ready": 0.0,
+    "admitted_fraction": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   },
+   "release_interval_v1": {
+    "mean_lag_s": 1.2499999999998863,
+    "lag_over_dt": 0.49999999999995454,
+    "max_admitted_before_ready": 0.0,
+    "admitted_fraction": [
+     1.0,
+     1.0,
+     1.0,
+     1.0,
+     1.0
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,1007 @@
+{
+ "schema": "metroflow.v1.release_timing.comparison/1",
+ "launch_sha_note": "rule from LAUNCH.json (commit 4669f72)",
+ "runs": {
+  "legacy_dt10": {
+   "status": "REACHED_HORIZON",
+   "simulated_s": 26000.0,
+   "reason": null,
+   "release_timing": "legacy",
+   "step_s": 10.0,
+   "driver_identity": "4dd2d07d51f419b35c5a8c429f6409bfbc7e63e23d563bfb2b118bc9f9a0c01d",
+   "checkpoint": {
+    "path": "artifacts/v1_release_timing_20261117/runs/legacy_dt10.last_valid.bin",
+    "bytes": 1335724492,
+    "sha256": "2bd64aa7c9826fa31696d9977aa5d883a6b15f0ee29ec4047beec30f35235439"
+   }
+  },
+  "legacy_dt5": {
+   "status": "REACHED_HORIZON",
+   "simulated_s": 26000.0,
+   "reason": null,
+   "release_timing": "legacy",
+   "step_s": 5.0,
+   "driver_identity": "c56c8c0e99f7274bf0ec07b9092936bcfea007faf45e685ab75040f6795055d4",
+   "checkpoint": {
+    "path": "artifacts/v1_release_timing_20261117/runs/legacy_dt5.last_valid.bin",
+    "bytes": 1656541172,
+    "sha256": "193c2ef6331abc3d06a8e1e9e6bff7ac6e946dfd7b61de741f870436eb433b63"
+   }
+  },
+  "interval_dt10": {
+   "status": "REACHED_HORIZON",
+   "simulated_s": 26000.0,
+   "reason": null,
+   "release_timing": "release_interval_v1",
+   "step_s": 10.0,
+   "driver_identity": "be2858cdf39ca783ac88d61b05bde03488b5c1b8a0ba388327479805099625c3",
+   "checkpoint": {
+    "path": "artifacts/v1_release_timing_20261117/runs/interval_dt10.last_valid.bin",
+    "bytes": 1019696940,
+    "sha256": "673169ffc19663647e6b67a02571cd66d59ae75bae8b2bde2fe7793938cbfa1d"
+   }
+  },
+  "interval_dt5": {
+   "status": "REACHED_HORIZON",
+   "simulated_s": 26000.0,
+   "reason": null,
+   "release_timing": "release_interval_v1",
+   "step_s": 5.0,
+   "driver_identity": "26522e42de7f2b8a635a7e44d5068b5dcba828bfcf2fc21e27b2f204909a36f4",
+   "checkpoint": {
+    "path": "artifacts/v1_release_timing_20261117/runs/interval_dt5.last_valid.bin",
+    "bytes": 1534200684,
+    "sha256": "b1ec5cb322dc419b441f66d71db41faf7dfbbf5ddbdbc48e24dffd766de094ae"
+   }
+  }
+ },
+ "verdict": {
+  "decision": "NOT_ADOPT",
+  "reasons": [
+   "(b) cost dt10@25500: C3_cpu_s_per_tick=1.1132>1.1",
+   "(b) cost dt5@25500: C2_peak_rss_bytes=1.0791>1.05"
+  ],
+  "G1_bit_identity": {
+   "observed": "ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff",
+   "expected": "ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff",
+   "passed": true,
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25900.0
+  },
+  "G3_conservation": {
+   "legacy_dt10": true,
+   "legacy_dt5": true,
+   "interval_dt10": true,
+   "interval_dt5": true
+  },
+  "G4_reached_s": {
+   "legacy_dt10": 26000.0,
+   "legacy_dt5": 26000.0,
+   "interval_dt10": 26000.0,
+   "interval_dt5": 26000.0
+  },
+  "clause_a_25500": {
+   "A1_released_persons": true,
+   "A2_journey_completed_vehicles": true,
+   "A3_road_completed_vehicles": true,
+   "A4_destination_completed_vehicles_L1": true
+  },
+  "clause_a_26000": {
+   "A1_released_persons": true,
+   "A2_journey_completed_vehicles": true,
+   "A3_road_completed_vehicles": true,
+   "A4_destination_completed_vehicles_L1": true
+  },
+  "clause_b": {
+   "dt10@25500": {
+    "C1_peak_records": true,
+    "C2_peak_rss_bytes": true,
+    "C3_cpu_s_per_tick": false
+   },
+   "dt10@26000": {
+    "C1_peak_records": true,
+    "C2_peak_rss_bytes": true,
+    "C3_cpu_s_per_tick": true
+   },
+   "dt5@25500": {
+    "C1_peak_records": true,
+    "C2_peak_rss_bytes": false,
+    "C3_cpu_s_per_tick": true
+   },
+   "dt5@26000": {
+    "C1_peak_records": true,
+    "C2_peak_rss_bytes": true,
+    "C3_cpu_s_per_tick": true
+   }
+  },
+  "G2_regressions": "see RECEIPT.json"
+ },
+ "primary_25500": {
+  "legacy": {
+   "dt10": {
+    "A1_released_persons": 968.2160609041655,
+    "A2_journey_completed_vehicles": 9.355833900920848,
+    "A3_road_completed_vehicles": 29.87153984124234,
+    "released_vehicles": 773.3333333333038,
+    "journey_completed_persons": 12.877868558499287,
+    "road_released_vehicles": 413.4345340317021,
+    "road_occupancy_vehicles": 383.5629941904598,
+    "released_birth_moment_persons": 24539436.063616086,
+    "released_birth_moment_vehicles": 19600133.333333883,
+    "road_birth_moment_veh_s": 10443645.734934898,
+    "road_source_arrival_moment_veh_s": 10485437.967802664,
+    "road_source_admission_moment_veh_s": 10489572.313142981,
+    "road_cell_entry_moment_veh_s": 44612410.49795871,
+    "road_pre_entry_veh_s": 41792.23286776529,
+    "road_source_wait_veh_s": 4134.345340317114
+   },
+   "dt5": {
+    "A1_released_persons": 984.9094412645778,
+    "A2_journey_completed_vehicles": 11.122251259784358,
+    "A3_road_completed_vehicles": 37.45669873485354,
+    "released_vehicles": 786.6666666666757,
+    "journey_completed_persons": 15.093473469180951,
+    "road_released_vehicles": 425.45313489835587,
+    "road_occupancy_vehicles": 387.9964361635023,
+    "released_birth_moment_persons": 24964992.062454045,
+    "released_birth_moment_vehicles": 19940033.333333623,
+    "road_birth_moment_veh_s": 10748555.69389244,
+    "road_source_arrival_moment_veh_s": 10790864.612617468,
+    "road_source_admission_moment_veh_s": 10792991.87829196,
+    "road_cell_entry_moment_veh_s": 51802585.559707165,
+    "road_pre_entry_veh_s": 42308.918725028096,
+    "road_source_wait_veh_s": 2127.265674491829
+   },
+   "gap": {
+    "A1_released_persons": -16.693380360412334,
+    "A2_journey_completed_vehicles": -1.7664173588635101,
+    "A3_road_completed_vehicles": -7.585158893611201,
+    "released_vehicles": -13.333333333371911,
+    "journey_completed_persons": -2.215604910681664,
+    "road_released_vehicles": -12.018600866653742,
+    "road_occupancy_vehicles": -4.433441973042534,
+    "released_birth_moment_persons": -425555.998837959,
+    "released_birth_moment_vehicles": -339899.99999973923,
+    "road_birth_moment_veh_s": -304909.95895754173,
+    "road_source_arrival_moment_veh_s": -305426.6448148042,
+    "road_source_admission_moment_veh_s": -303419.5651489794,
+    "road_cell_entry_moment_veh_s": -7190175.0617484525,
+    "road_pre_entry_veh_s": -516.6858572628043,
+    "road_source_wait_veh_s": 2007.0796658252852,
+    "A4_destination_completed_vehicles_L1": 1.7664173588634522,
+    "class_completed_vehicles_L1": 1.7664173588635101
+   },
+   "relative_gap": {
+    "A1_released_persons": -0.016949152542368576,
+    "A2_journey_completed_vehicles": -0.15881832891606137,
+    "A3_road_completed_vehicles": -0.2025047361302344,
+    "released_vehicles": -0.016949152542421724,
+    "journey_completed_persons": -0.14679224866334856,
+    "road_released_vehicles": -0.02824894184767279,
+    "road_occupancy_vehicles": -0.01142650179182129,
+    "released_birth_moment_persons": -0.017046109919577,
+    "released_birth_moment_vehicles": -0.0170461099195622,
+    "road_birth_moment_veh_s": -0.028367528404844022,
+    "road_source_arrival_moment_veh_s": -0.028304186529935424,
+    "road_source_admission_moment_veh_s": -0.02811264648120878,
+    "road_cell_entry_moment_veh_s": -0.13879954029439565,
+    "road_pre_entry_veh_s": -0.01221222079961017,
+    "road_source_wait_veh_s": 0.9435021163046527,
+    "A4_destination_completed_vehicles_L1": null,
+    "class_completed_vehicles_L1": null
+   }
+  },
+  "interval": {
+   "dt10": {
+    "A1_released_persons": 1001.6028216249979,
+    "A2_journey_completed_vehicles": 10.489657793676496,
+    "A3_road_completed_vehicles": 33.15149793811499,
+    "released_vehicles": 800.0000000000106,
+    "journey_completed_persons": 14.311368250040578,
+    "road_released_vehicles": 437.50693634281356,
+    "road_occupancy_vehicles": 404.3554384046986,
+    "released_birth_moment_persons": 25390631.52819409,
+    "released_birth_moment_vehicles": 20279999.999999553,
+    "road_birth_moment_veh_s": 11054405.89476251,
+    "road_source_arrival_moment_veh_s": 11097195.777818609,
+    "road_source_admission_moment_veh_s": 11099383.889075866,
+    "road_cell_entry_moment_veh_s": 48649230.40349667,
+    "road_pre_entry_veh_s": 42789.88305609829,
+    "road_source_wait_veh_s": 2188.1112572576335
+   },
+   "dt5": {
+    "A1_released_persons": 1001.602821624998,
+    "A2_journey_completed_vehicles": 11.824446721087552,
+    "A3_road_completed_vehicles": 39.46376397726423,
+    "released_vehicles": 800.0000000000107,
+    "journey_completed_persons": 15.979854409304421,
+    "road_released_vehicles": 437.50693634281237,
+    "road_occupancy_vehicles": 398.0431723655481,
+    "released_birth_moment_persons": 25390631.52819409,
+    "released_birth_moment_vehicles": 20279999.999999553,
+    "road_birth_moment_veh_s": 11054405.894762555,
+    "road_source_arrival_moment_veh_s": 11097195.777818654,
+    "road_source_admission_moment_veh_s": 11098294.66462875,
+    "road_cell_entry_moment_veh_s": 54094632.25780749,
+    "road_pre_entry_veh_s": 42789.88305609822,
+    "road_source_wait_veh_s": 1098.8868100968707
+   },
+   "gap": {
+    "A1_released_persons": -1.1368683772161603e-13,
+    "A2_journey_completed_vehicles": -1.334788927411056,
+    "A3_road_completed_vehicles": -6.312266039149236,
+    "released_vehicles": -1.1368683772161603e-13,
+    "journey_completed_persons": -1.6684861592638427,
+    "road_released_vehicles": 1.1937117960769683e-12,
+    "road_occupancy_vehicles": 6.312266039150472,
+    "released_birth_moment_persons": 0.0,
+    "released_birth_moment_vehicles": 0.0,
+    "road_birth_moment_veh_s": -4.470348358154297e-08,
+    "road_source_arrival_moment_veh_s": -4.470348358154297e-08,
+    "road_source_admission_moment_veh_s": 1089.2244471162558,
+    "road_cell_entry_moment_veh_s": -5445401.8543108255,
+    "road_pre_entry_veh_s": 7.275957614183426e-11,
+    "road_source_wait_veh_s": 1089.2244471607628,
+    "A4_destination_completed_vehicles_L1": 1.3347889274110631,
+    "class_completed_vehicles_L1": 1.334788927411056
+   },
+   "relative_gap": {
+    "A1_released_persons": -1.1350490959796897e-16,
+    "A2_journey_completed_vehicles": -0.11288383794149219,
+    "A3_road_completed_vehicles": -0.15995093734053964,
+    "released_vehicles": -1.4210854715201814e-16,
+    "journey_completed_persons": -0.10441184985342238,
+    "road_released_vehicles": 2.7284408472592192e-15,
+    "road_occupancy_vehicles": 0.01585824472666377,
+    "released_birth_moment_persons": 0.0,
+    "released_birth_moment_vehicles": 0.0,
+    "road_birth_moment_veh_s": -4.043951706416257e-15,
+    "road_source_arrival_moment_veh_s": -4.028358558014934e-15,
+    "road_source_admission_moment_veh_s": 9.814340671524164e-05,
+    "road_cell_entry_moment_veh_s": -0.1006643658904787,
+    "road_pre_entry_veh_s": 1.7003920306686815e-15,
+    "road_source_wait_veh_s": 0.9912071353961778,
+    "A4_destination_completed_vehicles_L1": null,
+    "class_completed_vehicles_L1": null
+   }
+  },
+  "improvement_ratio_r": {
+   "A1_released_persons": 6.810294575879892e-15,
+   "A2_journey_completed_vehicles": 0.7556475374935411,
+   "A3_road_completed_vehicles": 0.8321863955237521,
+   "released_vehicles": 8.526512829096533e-15,
+   "journey_completed_persons": 0.7530612300143836,
+   "road_released_vehicles": 9.932202669189108e-14,
+   "road_occupancy_vehicles": 1.4237845172062915,
+   "released_birth_moment_persons": 0.0,
+   "released_birth_moment_vehicles": 0.0,
+   "road_birth_moment_veh_s": 1.4661208093818891e-13,
+   "road_source_arrival_moment_veh_s": 1.4636405939190072e-13,
+   "road_source_admission_moment_veh_s": 0.0035898293064306683,
+   "road_cell_entry_moment_veh_s": 0.7573392591343463,
+   "road_pre_entry_veh_s": 1.4081975560021225e-13,
+   "road_source_wait_veh_s": 0.5426911874536319,
+   "A4_destination_completed_vehicles_L1": 0.7556475374935698,
+   "class_completed_vehicles_L1": 0.7556475374935411
+  }
+ },
+ "secondary_26000": {
+  "legacy": {
+   "dt10": {
+    "A1_released_persons": 2637.554096945731,
+    "A2_journey_completed_vehicles": 354.33068063767377,
+    "A3_road_completed_vehicles": 531.4783381858443,
+    "released_vehicles": 2106.6666666666747,
+    "journey_completed_persons": 446.7637240549369,
+    "road_released_vehicles": 1713.4261524865324,
+    "road_occupancy_vehicles": 1181.9478143006882,
+    "released_birth_moment_persons": 67508197.11132786,
+    "released_birth_moment_vehicles": 53920133.3333366,
+    "road_birth_moment_veh_s": 43729491.51212632,
+    "road_source_arrival_moment_veh_s": 43957380.36442352,
+    "road_source_admission_moment_veh_s": 43974514.625948384,
+    "road_cell_entry_moment_veh_s": 452420278.3398983,
+    "road_pre_entry_veh_s": 227888.852297205,
+    "road_source_wait_veh_s": 17134.26152486567
+   },
+   "dt5": {
+    "A1_released_persons": 2654.247477306324,
+    "A2_journey_completed_vehicles": 432.3208095933497,
+    "A3_road_completed_vehicles": 650.2445043956428,
+    "released_vehicles": 2120.0,
+    "journey_completed_persons": 544.2586970703451,
+    "road_released_vehicles": 1726.452645058952,
+    "road_occupancy_vehicles": 1076.2081406633092,
+    "released_birth_moment_persons": 67942099.80034608,
+    "released_birth_moment_vehicles": 54266700.000000566,
+    "road_birth_moment_veh_s": 44066204.63824716,
+    "road_source_arrival_moment_veh_s": 44291864.65716015,
+    "road_source_admission_moment_veh_s": 44300496.92038544,
+    "road_cell_entry_moment_veh_s": 501489952.0317782,
+    "road_pre_entry_veh_s": 225660.01891298263,
+    "road_source_wait_veh_s": 8632.263225294935
+   },
+   "gap": {
+    "A1_released_persons": -16.693380360592982,
+    "A2_journey_completed_vehicles": -77.99012895567591,
+    "A3_road_completed_vehicles": -118.76616620979848,
+    "released_vehicles": -13.3333333333253,
+    "journey_completed_persons": -97.49497301540816,
+    "road_released_vehicles": -13.026492572419556,
+    "road_occupancy_vehicles": 105.73967363737893,
+    "released_birth_moment_persons": -433902.6890182197,
+    "released_birth_moment_vehicles": -346566.6666639671,
+    "road_birth_moment_veh_s": -336713.126120843,
+    "road_source_arrival_moment_veh_s": -334484.29273662716,
+    "road_source_admission_moment_veh_s": -325982.29443705827,
+    "road_cell_entry_moment_veh_s": -49069673.69187993,
+    "road_pre_entry_veh_s": 2228.83338422238,
+    "road_source_wait_veh_s": 8501.998299570734,
+    "A4_destination_completed_vehicles_L1": 77.99012895567742,
+    "class_completed_vehicles_L1": 77.99012895567591
+   },
+   "relative_gap": {
+    "A1_released_persons": -0.006289308176166881,
+    "A2_journey_completed_vehicles": -0.18039873914243248,
+    "A3_road_completed_vehicles": -0.1826484736232925,
+    "released_vehicles": -0.00628930817609684,
+    "journey_completed_persons": -0.17913351415458778,
+    "road_released_vehicles": -0.007545235955182976,
+    "road_occupancy_vehicles": 0.09825206634490558,
+    "released_birth_moment_persons": -0.006386359713539638,
+    "released_birth_moment_vehicles": -0.006386359713488446,
+    "road_birth_moment_veh_s": -0.0076410738997157385,
+    "road_source_arrival_moment_veh_s": -0.007551822334094372,
+    "road_source_admission_moment_veh_s": -0.007358434263680986,
+    "road_cell_entry_moment_veh_s": -0.09784777041508999,
+    "road_pre_entry_veh_s": 0.009876952926614113,
+    "road_source_wait_veh_s": 0.9849095280896337,
+    "A4_destination_completed_vehicles_L1": null,
+    "class_completed_vehicles_L1": null
+   }
+  },
+  "interval": {
+   "dt10": {
+    "A1_released_persons": 2670.940857666686,
+    "A2_journey_completed_vehicles": 368.02408708572483,
+    "A3_road_completed_vehicles": 549.0982682045815,
+    "released_vehicles": 2133.3333333332967,
+    "journey_completed_persons": 463.8964803950145,
+    "road_released_vehicles": 1739.6203879193904,
+    "road_occupancy_vehicles": 1190.522119714809,
+    "released_birth_moment_persons": 68376085.9562647,
+    "released_birth_moment_vehicles": 54613333.33333368,
+    "road_birth_moment_veh_s": 44406607.154059,
+    "road_source_arrival_moment_veh_s": 44629956.707415394,
+    "road_source_admission_moment_veh_s": 44638653.41371901,
+    "road_cell_entry_moment_veh_s": 463412090.3416218,
+    "road_pre_entry_veh_s": 223349.55335639205,
+    "road_source_wait_veh_s": 8696.706303618088
+   },
+   "dt5": {
+    "A1_released_persons": 2670.940857666686,
+    "A2_journey_completed_vehicles": 440.58929927564566,
+    "A3_road_completed_vehicles": 660.7142376389725,
+    "released_vehicles": 2133.3333333332967,
+    "journey_completed_persons": 554.6029956324028,
+    "road_released_vehicles": 1739.620387919382,
+    "road_occupancy_vehicles": 1078.9061502804095,
+    "released_birth_moment_persons": 68376085.95626476,
+    "released_birth_moment_vehicles": 54613333.333333686,
+    "road_birth_moment_veh_s": 44406607.15405884,
+    "road_source_arrival_moment_veh_s": 44629956.70741523,
+    "road_source_admission_moment_veh_s": 44634310.48690126,
+    "road_cell_entry_moment_veh_s": 507324254.2173386,
+    "road_pre_entry_veh_s": 223349.55335639216,
+    "road_source_wait_veh_s": 4353.779486030655
+   },
+   "gap": {
+    "A1_released_persons": 0.0,
+    "A2_journey_completed_vehicles": -72.56521218992083,
+    "A3_road_completed_vehicles": -111.61596943439099,
+    "released_vehicles": 0.0,
+    "journey_completed_persons": -90.70651523738826,
+    "road_released_vehicles": 8.412825991399586e-12,
+    "road_occupancy_vehicles": 111.6159694343994,
+    "released_birth_moment_persons": -5.960464477539063e-08,
+    "released_birth_moment_vehicles": -7.450580596923828e-09,
+    "road_birth_moment_veh_s": 1.6391277313232422e-07,
+    "road_source_arrival_moment_veh_s": 1.6391277313232422e-07,
+    "road_source_admission_moment_veh_s": 4342.926817752421,
+    "road_cell_entry_moment_veh_s": -43912163.875716805,
+    "road_pre_entry_veh_s": -1.1641532182693481e-10,
+    "road_source_wait_veh_s": 4342.926817587433,
+    "A4_destination_completed_vehicles_L1": 72.56521218991365,
+    "class_completed_vehicles_L1": 72.56521218992083
+   },
+   "relative_gap": {
+    "A1_released_persons": 0.0,
+    "A2_journey_completed_vehicles": -0.16470035089191282,
+    "A3_road_completed_vehicles": -0.16893229035482082,
+    "released_vehicles": 0.0,
+    "journey_completed_persons": -0.16355215523846464,
+    "road_released_vehicles": 4.836012528837674e-15,
+    "road_occupancy_vehicles": 0.1034528994068578,
+    "released_birth_moment_persons": -8.717177057124241e-16,
+    "released_birth_moment_vehicles": -1.3642420526593836e-16,
+    "road_birth_moment_veh_s": 3.6911798409562195e-15,
+    "road_source_arrival_moment_veh_s": 3.6727074195232244e-15,
+    "road_source_admission_moment_veh_s": 9.730018836130405e-05,
+    "road_cell_entry_moment_veh_s": -0.08655640551516931,
+    "road_pre_entry_veh_s": -5.212247800700743e-16,
+    "road_source_wait_veh_s": 0.9975072994674987,
+    "A4_destination_completed_vehicles_L1": null,
+    "class_completed_vehicles_L1": null
+   }
+  },
+  "improvement_ratio_r": {
+   "A1_released_persons": 0.0,
+   "A2_journey_completed_vehicles": 0.9304409822320178,
+   "A3_road_completed_vehicles": 0.9397960125884943,
+   "released_vehicles": 0.0,
+   "journey_completed_persons": 0.9303712020419037,
+   "road_released_vehicles": 6.458243417888026e-13,
+   "road_occupancy_vehicles": 1.0555732356161085,
+   "released_birth_moment_persons": 1.3736869183792453e-13,
+   "released_birth_moment_vehicles": 2.1498260835765695e-14,
+   "road_birth_moment_veh_s": 4.868024452171121e-13,
+   "road_source_arrival_moment_veh_s": 4.90046249380652e-13,
+   "road_source_admission_moment_veh_s": 0.013322584974292116,
+   "road_cell_entry_moment_veh_s": 0.8948941489085837,
+   "road_pre_entry_veh_s": 5.2231504898941146e-14,
+   "road_source_wait_veh_s": 0.5108124777920395,
+   "A4_destination_completed_vehicles_L1": 0.9304409822319077,
+   "class_completed_vehicles_L1": 0.9304409822320178
+  }
+ },
+ "cost": {
+  "legacy_dt10": {
+   "25500.0": {
+    "C1_peak_records": 4039278,
+    "C2_peak_rss_bytes": 1012498432,
+    "C3_cpu_s_per_tick": 0.04539956980392161,
+    "ticks": 2550,
+    "cpu_s": 115.76890300000011,
+    "wall_s_per_tick": 0.05011490058155009,
+    "active_window_ticks": 30,
+    "active_cpu_s_per_tick": 0.5128024333333353,
+    "active_wall_s_per_tick": 0.5357006802010195,
+    "active_native_tick_s_per_tick": 0.43992902153333335,
+    "active_call_tick_p50_median_s": 0.393110812,
+    "native_phase_wall_s": {
+     "journey_prepare": 43.23650586400001,
+     "service_prepare": 0.030701051000000007,
+     "road_step": 12.558711102,
+     "service_finish": 0.210101238,
+     "journey_finish": 55.226968629000005,
+     "other_tick": 8.516410190999995
+    },
+    "construct_wall_s": 33.73374618100934
+   },
+   "26000.0": {
+    "C1_peak_records": 22308398,
+    "C2_peak_rss_bytes": 3607543808,
+    "C3_cpu_s_per_tick": 0.13028781038461543,
+    "ticks": 2600,
+    "cpu_s": 338.7483070000001,
+    "wall_s_per_tick": 0.14583056920306542,
+    "active_window_ticks": 80,
+    "active_cpu_s_per_tick": 2.9795434625000006,
+    "active_wall_s_per_tick": 3.3429687981380996,
+    "active_native_tick_s_per_tick": 3.1351058277875,
+    "active_call_tick_p50_median_s": 2.924857132,
+    "native_phase_wall_s": {
+     "journey_prepare": 47.32227518500002,
+     "service_prepare": 0.031325095000000004,
+     "road_step": 229.39878546,
+     "service_finish": 1.2750663690000001,
+     "journey_finish": 63.98513023000001,
+     "other_tick": 15.377411312999984
+    },
+    "construct_wall_s": 33.73374618100934
+   }
+  },
+  "legacy_dt5": {
+   "25500.0": {
+    "C1_peak_records": 8132062,
+    "C2_peak_rss_bytes": 1356034048,
+    "C3_cpu_s_per_tick": 0.05301397235294119,
+    "ticks": 5100,
+    "cpu_s": 270.37125900000007,
+    "wall_s_per_tick": 0.061009850582745905,
+    "active_window_ticks": 60,
+    "active_cpu_s_per_tick": 0.7937267333333333,
+    "active_wall_s_per_tick": 0.9026939876828692,
+    "active_native_tick_s_per_tick": 0.8448898892666666,
+    "active_call_tick_p50_median_s": 0.733825787,
+    "native_phase_wall_s": {
+     "journey_prepare": 108.11404848,
+     "service_prepare": 0.07881139699999996,
+     "road_step": 46.676783348,
+     "service_finish": 0.5081077779999997,
+     "journey_finish": 125.08745685500003,
+     "other_tick": 19.093963165999973
+    },
+    "construct_wall_s": 40.43547616302385
+   },
+   "26000.0": {
+    "C1_peak_records": 37149001,
+    "C2_peak_rss_bytes": 4285231104,
+    "C3_cpu_s_per_tick": 0.15547280326923082,
+    "ticks": 5200,
+    "cpu_s": 808.4585770000002,
+    "wall_s_per_tick": 0.17379182737634646,
+    "active_window_ticks": 160,
+    "active_cpu_s_per_tick": 3.6606932625000006,
+    "active_wall_s_per_tick": 4.04205564778731,
+    "active_native_tick_s_per_tick": 3.8745212945,
+    "active_call_tick_p50_median_s": 4.304562705,
+    "native_phase_wall_s": {
+     "journey_prepare": 117.45926805200001,
+     "service_prepare": 0.08009761499999997,
+     "road_step": 566.9922986350001,
+     "service_finish": 3.251278229,
+     "journey_finish": 147.091165513,
+     "other_tick": 33.91507674399995
+    },
+    "construct_wall_s": 40.43547616302385
+   }
+  },
+  "interval_dt10": {
+   "25500.0": {
+    "C1_peak_records": 4151524,
+    "C2_peak_rss_bytes": 1049665536,
+    "C3_cpu_s_per_tick": 0.050540343137254876,
+    "ticks": 2550,
+    "cpu_s": 128.87787499999993,
+    "wall_s_per_tick": 0.05748368327368927,
+    "active_window_ticks": 30,
+    "active_cpu_s_per_tick": 0.6470522666666673,
+    "active_wall_s_per_tick": 0.6966767637321027,
+    "active_native_tick_s_per_tick": 0.5929573408666666,
+    "active_call_tick_p50_median_s": 0.458643624,
+    "native_phase_wall_s": {
+     "journey_prepare": 51.463431125999996,
+     "service_prepare": 0.03155924800000001,
+     "road_step": 16.286828463000003,
+     "service_finish": 0.2215768420000001,
+     "journey_finish": 60.526771694,
+     "other_tick": 9.137106569999993
+    },
+    "construct_wall_s": 36.91827244198066
+   },
+   "26000.0": {
+    "C1_peak_records": 18720265,
+    "C2_peak_rss_bytes": 2988765184,
+    "C3_cpu_s_per_tick": 0.13421379076923073,
+    "ticks": 2600,
+    "cpu_s": 348.9558559999999,
+    "wall_s_per_tick": 0.15133063304614133,
+    "active_window_ticks": 80,
+    "active_cpu_s_per_tick": 2.9936193625000005,
+    "active_wall_s_per_tick": 3.347206956050286,
+    "active_native_tick_s_per_tick": 3.1219957205375,
+    "active_call_tick_p50_median_s": 3.598006592,
+    "native_phase_wall_s": {
+     "journey_prepare": 56.69131812399999,
+     "service_prepare": 0.03228696200000002,
+     "road_step": 226.46662392300001,
+     "service_finish": 1.2221325060000001,
+     "journey_finish": 69.14987527500001,
+     "other_tick": 16.075974569999982
+    },
+    "construct_wall_s": 36.91827244198066
+   }
+  },
+  "interval_dt5": {
+   "25500.0": {
+    "C1_peak_records": 8231739,
+    "C2_peak_rss_bytes": 1463230464,
+    "C3_cpu_s_per_tick": 0.047992339607843125,
+    "ticks": 5100,
+    "cpu_s": 244.76093199999994,
+    "wall_s_per_tick": 0.04837250580097544,
+    "active_window_ticks": 60,
+    "active_cpu_s_per_tick": 0.730405283333334,
+    "active_wall_s_per_tick": 0.7337349537663006,
+    "active_native_tick_s_per_tick": 0.6764662767166667,
+    "active_call_tick_p50_median_s": 0.603406805,
+    "native_phase_wall_s": {
+     "journey_prepare": 93.38023193500001,
+     "service_prepare": 0.060964731,
+     "road_step": 37.507422361,
+     "service_finish": 0.41501371100000006,
+     "journey_finish": 92.09481781300002,
+     "other_tick": 14.612053005999993
+    },
+    "construct_wall_s": 27.45094368001446
+   },
+   "26000.0": {
+    "C1_peak_records": 35759490,
+    "C2_peak_rss_bytes": 4184121344,
+    "C3_cpu_s_per_tick": 0.13818387115384617,
+    "ticks": 5200,
+    "cpu_s": 718.55613,
+    "wall_s_per_tick": 0.13887707872403554,
+    "active_window_ticks": 160,
+    "active_cpu_s_per_tick": 3.2351219687500015,
+    "active_wall_s_per_tick": 3.2467820437874253,
+    "active_native_tick_s_per_tick": 3.11152896055,
+    "active_call_tick_p50_median_s": 3.4813460210000002,
+    "native_phase_wall_s": {
+     "journey_prepare": 102.39414906400002,
+     "service_prepare": 0.062162482,
+     "road_step": 456.06181188700003,
+     "service_finish": 2.475911665,
+     "journey_finish": 107.83732015700001,
+     "other_tick": 26.49580538700002
+    },
+    "construct_wall_s": 27.45094368001446
+   }
+  }
+ },
+ "cost_ratio_policy_over_legacy": {
+  "dt10@25500": {
+   "C1_peak_records": 1.027788629552113,
+   "C2_peak_rss_bytes": 1.0367083077122237,
+   "C3_cpu_s_per_tick": 1.113233965774037,
+   "wall_s_per_tick": 1.1470377593615744,
+   "active_cpu_s_per_tick": 1.2617964046322416,
+   "active_wall_s_per_tick": 1.3004963209504936,
+   "active_native_tick_s_per_tick": 1.347847747802513
+  },
+  "dt10@26000": {
+   "C1_peak_records": 0.8391577467821759,
+   "C2_peak_rss_bytes": 0.8284764768128908,
+   "C3_cpu_s_per_tick": 1.0301331365768267,
+   "wall_s_per_tick": 1.0377154383551586,
+   "active_cpu_s_per_tick": 1.0047241801226117,
+   "active_wall_s_per_tick": 1.0012677826710639,
+   "active_native_tick_s_per_tick": 0.9958182887691379
+  },
+  "dt5@25500": {
+   "C1_peak_records": 1.0122572848067317,
+   "C2_peak_rss_bytes": 1.0790514192162821,
+   "C3_cpu_s_per_tick": 0.9052771840663725,
+   "wall_s_per_tick": 0.7928638627850629,
+   "active_cpu_s_per_tick": 0.9202226064201281,
+   "active_wall_s_per_tick": 0.8128280057007241,
+   "active_native_tick_s_per_tick": 0.8006561391139555
+  },
+  "dt5@26000": {
+   "C1_peak_records": 0.9625962754691573,
+   "C2_peak_rss_bytes": 0.9764050625167869,
+   "C3_cpu_s_per_tick": 0.8887977076900996,
+   "wall_s_per_tick": 0.7991001695568631,
+   "active_cpu_s_per_tick": 0.8837457106528058,
+   "active_wall_s_per_tick": 0.8032502089783867,
+   "active_native_tick_s_per_tick": 0.8030744249533249
+  }
+ },
+ "conservation": {
+  "legacy_dt10": {
+   "passed": true,
+   "worst_relative": {
+    "decomposition": 6.066017793074255e-14,
+    "road_mass": 2.2410990160781368e-14,
+    "road_residence": 2.4913440400789865e-12,
+    "identity": 0.0
+   },
+   "failures": [],
+   "samples": 27,
+   "tolerances": {
+    "mass": 1e-09,
+    "residence": 1e-08
+   }
+  },
+  "legacy_dt5": {
+   "passed": true,
+   "worst_relative": {
+    "decomposition": 4.48161320477121e-14,
+    "road_mass": 2.2980364327071647e-14,
+    "road_residence": 3.570201046281402e-12,
+    "identity": 0.0
+   },
+   "failures": [],
+   "samples": 27,
+   "tolerances": {
+    "mass": 1e-09,
+    "residence": 1e-08
+   }
+  },
+  "interval_dt10": {
+   "passed": true,
+   "worst_relative": {
+    "decomposition": 4.214958523446498e-14,
+    "road_mass": 2.245305889902429e-14,
+    "road_residence": 4.154289681790694e-12,
+    "identity": 0.0
+   },
+   "failures": [],
+   "samples": 27,
+   "tolerances": {
+    "mass": 1e-09,
+    "residence": 1e-08
+   }
+  },
+  "interval_dt5": {
+   "passed": true,
+   "worst_relative": {
+    "decomposition": 4.20186859014387e-14,
+    "road_mass": 2.507567064385854e-14,
+    "road_residence": 4.254349395772066e-12,
+    "identity": 0.0
+   },
+   "failures": [],
+   "samples": 27,
+   "tolerances": {
+    "mass": 1e-09,
+    "residence": 1e-08
+   }
+  }
+ },
+ "gap_series_60s": [
+  {
+   "time_s": 25260.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.693380360410714,
+    "A2_journey_completed_vehicles": -0.026531328944868315,
+    "A3_road_completed_vehicles": -0.0004019601169922282,
+    "A4_destination_completed_vehicles_L1": 0.026531328944868173,
+    "road_occupancy_vehicles": -1.5418858759999727
+   },
+   "interval_gap": {
+    "A1_released_persons": 0.0,
+    "A2_journey_completed_vehicles": -5.551115123125783e-17,
+    "A3_road_completed_vehicles": -0.00029790185671441094,
+    "A4_destination_completed_vehicles_L1": 5.409152401165962e-17,
+    "road_occupancy_vehicles": 0.00029790185671441094
+   }
+  },
+  {
+   "time_s": 25320.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.693380360432798,
+    "A2_journey_completed_vehicles": -0.026980797912311005,
+    "A3_road_completed_vehicles": -0.15140965529013073,
+    "A4_destination_completed_vehicles_L1": 0.026992867511636973,
+    "road_occupancy_vehicles": -6.425233926834167
+   },
+   "interval_gap": {
+    "A1_released_persons": 0.0,
+    "A2_journey_completed_vehicles": -0.0005868276088498714,
+    "A3_road_completed_vehicles": -0.09576137117719608,
+    "A4_destination_completed_vehicles_L1": 0.0005868276088503344,
+    "road_occupancy_vehicles": 0.09576137117714012
+   }
+  },
+  {
+   "time_s": 25380.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.693380360412903,
+    "A2_journey_completed_vehicles": -0.08258718306098922,
+    "A3_road_completed_vehicles": -1.1599619225086428,
+    "A4_destination_completed_vehicles_L1": 0.08456107018292389,
+    "road_occupancy_vehicles": -8.476441127428359
+   },
+   "interval_gap": {
+    "A1_released_persons": -1.1368683772161603e-13,
+    "A2_journey_completed_vehicles": -0.042664112836015455,
+    "A3_road_completed_vehicles": -0.8607166137392941,
+    "A4_destination_completed_vehicles_L1": 0.04266778380194368,
+    "road_occupancy_vehicles": 0.8607166137393563
+   }
+  },
+  {
+   "time_s": 25440.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.693380360387323,
+    "A2_journey_completed_vehicles": -0.5075308599346746,
+    "A3_road_completed_vehicles": -3.6047538831376205,
+    "A4_destination_completed_vehicles_L1": 0.507530859934683,
+    "road_occupancy_vehicles": -7.16301875436011
+   },
+   "interval_gap": {
+    "A1_released_persons": 0.0,
+    "A2_journey_completed_vehicles": -0.3452360002763326,
+    "A3_road_completed_vehicles": -2.8589622542083326,
+    "A4_destination_completed_vehicles_L1": 0.3452360002763338,
+    "road_occupancy_vehicles": 2.858962254208791
+   }
+  },
+  {
+   "time_s": 25500.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.693380360412334,
+    "A2_journey_completed_vehicles": -1.7664173588635101,
+    "A3_road_completed_vehicles": -7.585158893611201,
+    "A4_destination_completed_vehicles_L1": 1.7664173588634522,
+    "road_occupancy_vehicles": -4.433441973042534
+   },
+   "interval_gap": {
+    "A1_released_persons": -1.1368683772161603e-13,
+    "A2_journey_completed_vehicles": -1.334788927411056,
+    "A3_road_completed_vehicles": -6.312266039149236,
+    "A4_destination_completed_vehicles_L1": 1.3347889274110631,
+    "road_occupancy_vehicles": 6.312266039150472
+   }
+  },
+  {
+   "time_s": 25560.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.69338036040176,
+    "A2_journey_completed_vehicles": -4.258792904751566,
+    "A3_road_completed_vehicles": -13.071836999064445,
+    "A4_destination_completed_vehicles_L1": 4.258792904751634,
+    "road_occupancy_vehicles": 0.6751689778759555
+   },
+   "interval_gap": {
+    "A1_released_persons": 0.0,
+    "A2_journey_completed_vehicles": -3.4277831813226385,
+    "A3_road_completed_vehicles": -11.2142720091664,
+    "A4_destination_completed_vehicles_L1": 3.4277831813225745,
+    "road_occupancy_vehicles": 11.21427200916753
+   }
+  },
+  {
+   "time_s": 25620.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.69338036043223,
+    "A2_journey_completed_vehicles": -8.090773002056046,
+    "A3_road_completed_vehicles": -20.356965022194572,
+    "A4_destination_completed_vehicles_L1": 8.090773002056002,
+    "road_occupancy_vehicles": 7.627760792782169
+   },
+   "interval_gap": {
+    "A1_released_persons": 4.547473508864641e-13,
+    "A2_journey_completed_vehicles": -6.763804890866389,
+    "A3_road_completed_vehicles": -17.9020504222095,
+    "A4_destination_completed_vehicles_L1": 6.763804890866392,
+    "road_occupancy_vehicles": 17.90205042221112
+   }
+  },
+  {
+   "time_s": 25680.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.693380360426772,
+    "A2_journey_completed_vehicles": -13.484788119115706,
+    "A3_road_completed_vehicles": -29.88784982737323,
+    "A4_destination_completed_vehicles_L1": 13.484788119115752,
+    "road_occupancy_vehicles": 17.0319752984243
+   },
+   "interval_gap": {
+    "A1_released_persons": 2.2737367544323206e-13,
+    "A2_journey_completed_vehicles": -11.630582325642223,
+    "A3_road_completed_vehicles": -26.860684723622654,
+    "A4_destination_completed_vehicles_L1": 11.630582325642122,
+    "road_occupancy_vehicles": 26.860684723625354
+   }
+  },
+  {
+   "time_s": 25740.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.693380360429728,
+    "A2_journey_completed_vehicles": -20.730264046289236,
+    "A3_road_completed_vehicles": -41.929379360251744,
+    "A4_destination_completed_vehicles_L1": 20.7302640462895,
+    "road_occupancy_vehicles": 29.002377082283488
+   },
+   "interval_gap": {
+    "A1_released_persons": 0.0,
+    "A2_journey_completed_vehicles": -18.269001191959063,
+    "A3_road_completed_vehicles": -38.17961775622001,
+    "A4_destination_completed_vehicles_L1": 18.269001191958807,
+    "road_occupancy_vehicles": 38.179617756223706
+   }
+  },
+  {
+   "time_s": 25800.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.693380360429956,
+    "A2_journey_completed_vehicles": -30.03076672813239,
+    "A3_road_completed_vehicles": -56.30391638676738,
+    "A4_destination_completed_vehicles_L1": 30.030766728132132,
+    "road_occupancy_vehicles": 43.300545971203064
+   },
+   "interval_gap": {
+    "A1_released_persons": 0.0,
+    "A2_journey_completed_vehicles": -26.99152771932131,
+    "A3_road_completed_vehicles": -51.87337616859668,
+    "A4_destination_completed_vehicles_L1": 26.991527719320683,
+    "road_occupancy_vehicles": 51.87337616860145
+   }
+  },
+  {
+   "time_s": 25860.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.693380360474748,
+    "A2_journey_completed_vehicles": -41.62207666175897,
+    "A3_road_completed_vehicles": -73.22089130385586,
+    "A4_destination_completed_vehicles_L1": 41.622076661757966,
+    "road_occupancy_vehicles": 60.217520888291006
+   },
+   "interval_gap": {
+    "A1_released_persons": 0.0,
+    "A2_journey_completed_vehicles": -37.94777417138229,
+    "A3_road_completed_vehicles": -68.06240923654599,
+    "A4_destination_completed_vehicles_L1": 37.94777417138234,
+    "road_occupancy_vehicles": 68.06240923655241
+   }
+  },
+  {
+   "time_s": 25920.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.693380360429273,
+    "A2_journey_completed_vehicles": -55.78970716402674,
+    "A3_road_completed_vehicles": -91.95738273109998,
+    "A4_destination_completed_vehicles_L1": 55.78970716402451,
+    "road_occupancy_vehicles": 78.95401231553501
+   },
+   "interval_gap": {
+    "A1_released_persons": 4.547473508864641e-13,
+    "A2_journey_completed_vehicles": -51.45128638642558,
+    "A3_road_completed_vehicles": -85.97722971490043,
+    "A4_destination_completed_vehicles_L1": 51.45128638642682,
+    "road_occupancy_vehicles": 85.97722971490884
+   }
+  },
+  {
+   "time_s": 25980.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.69338036055524,
+    "A2_journey_completed_vehicles": -72.18397042599469,
+    "A3_road_completed_vehicles": -111.99863124234605,
+    "A4_destination_completed_vehicles_L1": 72.18397042599445,
+    "road_occupancy_vehicles": 98.97213866992638
+   },
+   "interval_gap": {
+    "A1_released_persons": 0.0,
+    "A2_journey_completed_vehicles": -67.04010004640844,
+    "A3_road_completed_vehicles": -105.15551043040307,
+    "A4_destination_completed_vehicles_L1": 67.04010004640219,
+    "road_occupancy_vehicles": 105.1555104304116
+   }
+  },
+  {
+   "time_s": 26000.0,
+   "legacy_gap": {
+    "A1_released_persons": -16.693380360592982,
+    "A2_journey_completed_vehicles": -77.99012895567591,
+    "A3_road_completed_vehicles": -118.76616620979848,
+    "A4_destination_completed_vehicles_L1": 77.99012895567742,
+    "road_occupancy_vehicles": 105.73967363737893
+   },
+   "interval_gap": {
+    "A1_released_persons": 0.0,
+    "A2_journey_completed_vehicles": -72.56521218992083,
+    "A3_road_completed_vehicles": -111.61596943439099,
+    "A4_destination_completed_vehicles_L1": 72.56521218991365,
+    "road_occupancy_vehicles": 111.6159694343994
+   }
+  }
+ ],
+ "prior_legacy_observation": {
+  "legacy_dt10": {
+   "bitwise_equal": {
+    "ledger": true,
+    "released_intent_first_moments": true,
+    "service": true,
+    "decomposition": true,
+    "road_records": false,
+    "journey_counts": true
+   },
+   "prior_binary": "a0077a0707c398615508e2687f3bf6cb032904be31fa8c779068a6af7d05498b"
+  },
+  "legacy_dt5": {
+   "bitwise_equal": {
+    "ledger": true,
+    "released_intent_first_moments": true,
+    "service": true,
+    "decomposition": true,
+    "road_records": false,
+    "journey_counts": true
+   },
+   "prior_binary": "a0077a0707c398615508e2687f3bf6cb032904be31fa8c779068a6af7d05498b"
+  }
+ }
+}

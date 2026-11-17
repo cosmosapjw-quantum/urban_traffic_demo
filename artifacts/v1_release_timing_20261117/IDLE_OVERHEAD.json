@@ -1,0 +1,379 @@
+{
+ "scope": "POST HOC; idle 0-3600 s Valley, dt=10, h=1; identical empty physical states; not used by the pre-registered rule",
+ "order": [
+  "legacy",
+  "release_interval_v1",
+  "release_interval_v1",
+  "legacy",
+  "legacy",
+  "release_interval_v1",
+  "release_interval_v1",
+  "legacy"
+ ],
+ "rows": [
+  {
+   "timing": "legacy",
+   "cpu_s": 12.591882000000005,
+   "wall_s": 12.610170126019511,
+   "phase": {
+    "journey_prepare": 5.503265315000001,
+    "service_prepare": 0.0037185129999999975,
+    "road_step": 0.2521926079999998,
+    "service_finish": 0.02090644299999999,
+    "journey_finish": 5.751454585000001,
+    "other_tick": 0.8261793419999962
+   },
+   "ledger": {
+    "persons": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "vehicles": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "cargo_kg": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    }
+   },
+   "loadavg_before": [
+    10.6201171875,
+    12.91015625,
+    18.33154296875
+   ]
+  },
+  {
+   "timing": "release_interval_v1",
+   "cpu_s": 9.901800999999999,
+   "wall_s": 9.903343343001325,
+   "phase": {
+    "journey_prepare": 3.747052748,
+    "service_prepare": 0.0031569930000000016,
+    "road_step": 0.21975734100000005,
+    "service_finish": 0.01758924799999998,
+    "journey_finish": 4.925635676999997,
+    "other_tick": 0.7671533660000018
+   },
+   "ledger": {
+    "persons": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "vehicles": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "cargo_kg": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    }
+   },
+   "loadavg_before": [
+    12.20703125,
+    12.94287109375,
+    18.10791015625
+   ]
+  },
+  {
+   "timing": "release_interval_v1",
+   "cpu_s": 10.988554999999998,
+   "wall_s": 11.010449585999595,
+   "phase": {
+    "journey_prepare": 4.267022121999997,
+    "service_prepare": 0.0033931470000000004,
+    "road_step": 0.23349940400000008,
+    "service_finish": 0.018500425000000008,
+    "journey_finish": 5.452104063999997,
+    "other_tick": 0.8216019230000076
+   },
+   "ledger": {
+    "persons": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "vehicles": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "cargo_kg": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    }
+   },
+   "loadavg_before": [
+    11.95068359375,
+    12.8046875,
+    17.8701171875
+   ]
+  },
+  {
+   "timing": "legacy",
+   "cpu_s": 10.214532000000002,
+   "wall_s": 10.221660326002166,
+   "phase": {
+    "journey_prepare": 3.87415144,
+    "service_prepare": 0.0031793760000000003,
+    "road_step": 0.22177794,
+    "service_finish": 0.01770205299999999,
+    "journey_finish": 5.117316036000004,
+    "other_tick": 0.7827795619999977
+   },
+   "ledger": {
+    "persons": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "vehicles": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "cargo_kg": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    }
+   },
+   "loadavg_before": [
+    13.84228515625,
+    13.1513671875,
+    17.79638671875
+   ]
+  },
+  {
+   "timing": "legacy",
+   "cpu_s": 10.055127000000002,
+   "wall_s": 10.058123928989517,
+   "phase": {
+    "journey_prepare": 3.787731847999999,
+    "service_prepare": 0.002950297999999998,
+    "road_step": 0.21950338200000005,
+    "service_finish": 0.018462482999999988,
+    "journey_finish": 5.039850298000001,
+    "other_tick": 0.7771162469999993
+   },
+   "ledger": {
+    "persons": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "vehicles": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "cargo_kg": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    }
+   },
+   "loadavg_before": [
+    13.62451171875,
+    13.115234375,
+    17.6083984375
+   ]
+  },
+  {
+   "timing": "release_interval_v1",
+   "cpu_s": 9.841524,
+   "wall_s": 9.844914676999906,
+   "phase": {
+    "journey_prepare": 3.659518699999999,
+    "service_prepare": 0.002810892,
+    "road_step": 0.21531679999999997,
+    "service_finish": 0.017143216000000013,
+    "journey_finish": 4.963553029000002,
+    "other_tick": 0.7677985460000004
+   },
+   "ledger": {
+    "persons": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "vehicles": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "cargo_kg": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    }
+   },
+   "loadavg_before": [
+    10.99072265625,
+    12.5029296875,
+    17.2353515625
+   ]
+  },
+  {
+   "timing": "release_interval_v1",
+   "cpu_s": 11.430024,
+   "wall_s": 11.473652048996883,
+   "phase": {
+    "journey_prepare": 4.570135139000001,
+    "service_prepare": 0.0034830079999999975,
+    "road_step": 0.23957972900000002,
+    "service_finish": 0.01955935199999999,
+    "journey_finish": 5.526900933999999,
+    "other_tick": 0.8240205860000015
+   },
+   "ledger": {
+    "persons": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "vehicles": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "cargo_kg": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    }
+   },
+   "loadavg_before": [
+    10.228515625,
+    12.169921875,
+    16.9501953125
+   ]
+  },
+  {
+   "timing": "legacy",
+   "cpu_s": 11.233524,
+   "wall_s": 11.253433103003772,
+   "phase": {
+    "journey_prepare": 4.514005876999997,
+    "service_prepare": 0.0034066120000000007,
+    "road_step": 0.23079415300000003,
+    "service_finish": 0.01863571000000002,
+    "journey_finish": 5.426090982999997,
+    "other_tick": 0.8098791910000062
+   },
+   "ledger": {
+    "persons": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "vehicles": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    },
+    "cargo_kg": {
+     "requested": 0.0,
+     "released": 0.0,
+     "completed": 0.0,
+     "pending": 0.0,
+     "active": 0.0
+    }
+   },
+   "loadavg_before": [
+    9.91064453125,
+    11.8359375,
+    16.634765625
+   ]
+  }
+ ],
+ "summary": {
+  "legacy": {
+   "cpu_s": [
+    12.591882000000005,
+    10.214532000000002,
+    10.055127000000002,
+    11.233524
+   ],
+   "journey_prepare_s": [
+    5.503265315000001,
+    3.87415144,
+    3.787731847999999,
+    4.514005876999997
+   ],
+   "mean_cpu_s": 11.023766250000001,
+   "mean_journey_prepare_s": 4.419788619999999
+  },
+  "release_interval_v1": {
+   "cpu_s": [
+    9.901800999999999,
+    10.988554999999998,
+    9.841524,
+    11.430024
+   ],
+   "journey_prepare_s": [
+    3.747052748,
+    4.267022121999997,
+    3.659518699999999,
+    4.570135139000001
+   ],
+   "mean_cpu_s": 10.540475999999998,
+   "mean_journey_prepare_s": 4.060932177249999
+  },
+  "ratio_mean_cpu": 0.9561592436704649,
+  "ratio_mean_journey_prepare": 0.9188068766170993
+ }
+}

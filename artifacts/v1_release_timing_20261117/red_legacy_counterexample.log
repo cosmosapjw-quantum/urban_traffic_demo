@@ -1,0 +1,22 @@
+# Behavioral counterexample (RED): the policy assertions of tests/v1/test_release_timing.py applied to the legacy timing.
+# Derived file: sed 's/release_timing=POLICY if interval else "legacy"/release_timing="legacy"/' tests/v1/test_release_timing.py > $SP/red/test_red_legacy_counterexample.py
+# Command: PYTHONPATH=native_binding:src:tests/v1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMP_NUM_THREADS=1 $TASK_PY -m pytest -q -p no:randomly $SP/red/test_red_legacy_counterexample.py -k 'legacy_release_lags or exactly_the_mass or closes_released'
+E           assert 0.0 == 0.1 ± 1.0e-12
+E             
+E             comparison failed
+E             Obtained: 0.0
+E             Expected: 0.1 ± 1.0e-12
+E               assert 0.0 == 0.1 ± 1.0e-12
+E                 
+E                 comparison failed
+E                 Obtained: 0.0
+E                 Expected: 0.1 ± 1.0e-12
+E               assert 0.0 == 0.09 ± 1.0e-12
+E                 
+E                 comparison failed
+E                 Obtained: 0.0
+E                 Expected: 0.09 ± 1.0e-12
+FAILED ../../../tmp/claude-1000/-home-cosmosapjw-urban-traffic-rust-20261116/85083ad7-5185-487d-b188-cdc5f299b518/scratchpad/red/test_red_legacy_counterexample.py::test_legacy_release_lags_one_step_and_policy_is_exact_at_grid_times
+FAILED ../../../tmp/claude-1000/-home-cosmosapjw-urban-traffic-rust-20261116/85083ad7-5185-487d-b188-cdc5f299b518/scratchpad/red/test_red_legacy_counterexample.py::test_policy_offers_exactly_the_mass_ready_by_each_step_end_and_never_earlier
+FAILED ../../../tmp/claude-1000/-home-cosmosapjw-urban-traffic-rust-20261116/85083ad7-5185-487d-b188-cdc5f299b518/scratchpad/red/test_red_legacy_counterexample.py::test_unstaged_access_closes_released_offered_and_staged_ledger
+3 failed, 15 deselected in 0.16s

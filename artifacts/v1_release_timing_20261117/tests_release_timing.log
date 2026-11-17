@@ -1,0 +1,27 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/cosmosapjw/urban_traffic_release_20261117
+configfile: pyproject.toml
+collecting ... collected 18 items
+
+tests/v1/test_release_timing.py::test_legacy_release_lags_one_step_and_policy_is_exact_at_grid_times PASSED [  5%]
+tests/v1/test_release_timing.py::test_policy_offers_exactly_the_mass_ready_by_each_step_end_and_never_earlier PASSED [ 11%]
+tests/v1/test_release_timing.py::test_unstaged_access_closes_released_offered_and_staged_ledger PASSED [ 16%]
+tests/v1/test_release_timing.py::test_unknown_release_timing_and_wrong_entry_point_are_rejected PASSED [ 22%]
+tests/v1/test_release_timing.py::test_policy_native_journey_matches_python_oracle[fixture-python_oracle] PASSED [ 27%]
+tests/v1/test_release_timing.py::test_policy_native_journey_matches_python_oracle[fixture-rust] PASSED [ 33%]
+tests/v1/test_release_timing.py::test_policy_native_journey_matches_python_oracle[delayed-python_oracle] PASSED [ 38%]
+tests/v1/test_release_timing.py::test_policy_native_journey_matches_python_oracle[delayed-rust] PASSED [ 44%]
+tests/v1/test_release_timing.py::test_policy_releases_top_level_births_exactly_at_grid_times PASSED [ 50%]
+tests/v1/test_release_timing.py::test_policy_checkpoint_save_load_resume_and_binding PASSED [ 55%]
+tests/v1/test_release_timing.py::test_policy_budget_failure_keeps_last_valid_checkpoint[python_oracle] PASSED [ 61%]
+tests/v1/test_release_timing.py::test_policy_budget_failure_keeps_last_valid_checkpoint[rust] PASSED [ 66%]
+tests/v1/test_release_timing.py::test_python_road_accepts_in_step_arrivals_and_rejects_causality_violations PASSED [ 72%]
+tests/v1/test_release_timing.py::test_python_and_native_road_agree_on_in_step_arrivals PASSED [ 77%]
+tests/v1/test_release_timing.py::test_whole_engine_policy_matches_oracle_and_binds_identity[fixture] PASSED [ 83%]
+tests/v1/test_release_timing.py::test_whole_engine_policy_matches_oracle_and_binds_identity[delayed] PASSED [ 88%]
+tests/v1/test_release_timing.py::test_whole_engine_policy_budget_failure_rolls_back_to_valid_state PASSED [ 94%]
+tests/v1/test_release_timing.py::test_campaign_cli_forwards_release_timing PASSED [100%]
+
+============================== 18 passed in 3.56s ==============================

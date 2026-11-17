@@ -1,0 +1,501 @@
+{
+ "schema": "metroflow.v1.release_timing.receipt/1",
+ "branch": "research/release-timing-20261117",
+ "head_commit_at_receipt": "0b8a52b6466b67cdf4eb126f54ca0ca2707a2669",
+ "base_commit": "274a4ffa347e85b1203a57f4a500b61eec7ca4b3",
+ "launch_commit": "4669f72",
+ "source_files": {
+  "crates/metroflow-rust/src/v1_journey.rs": "a95e5db4a817aac5e2368482f370391659ef15e3711b4fd97ca83784aa46d6f7",
+  "crates/metroflow-rust/src/v1_road.rs": "e786ff5df17f25c905a0ee9b458c26e1cd992f6941ad786ae86be9c13446c5e8",
+  "crates/metroflow-rust/src/v1_engine.rs": "3a60543da8af0b1fa0363ecc0c2ebeb6ca82f45aad39c859f99d566ee4e294e5",
+  "src/metroflow/packet_network.py": "ceaff62df912c562ddf98d5a63d937eb9e4c75e5128c887e14dfa95cb9a9ee54",
+  "src/metroflow/v1/joint_release_runtime.py": "095511253c054224ec51558b639290db5828eee63db081ba5ef1d8d7752d8507",
+  "src/metroflow/v1/native_journey.py": "05898e837b99764f94b46651eb88716bb8289e3671335fbfea28c52418db3bab",
+  "src/metroflow/v1/native_road.py": "df08151fbb33fe83a7d40b23109e56f4916de4caa1a7b16c8f3c587afb59a2c8",
+  "src/metroflow/v1/native_engine.py": "e23a075b3e1a78cd9472d3f4155e2eb9fee8e846ae9b855e41b9c3986f9e6ebe",
+  "src/metroflow/v1/native_release_driver.py": "3ac391a0251a3a51f5a50438c5e2c7cf8b34c67863c597626d2af23b75e25d0e",
+  "tools/run_v1_local_acceptance.py": "5802d0e7e48e56e198a35272b5f9111880e906fb498ebafc61bea2f191ab4600",
+  "tools/probe_v1_refinement.py": "d509d39dc3eb8ce04aa1c95d0f5108a3f40aed1969c96bb7ed1721a331bb4b85",
+  "tools/probe_v1_event_store.py": "316b50f1bfab1cca01d0b88543ddb2ade0fd618e93d9b4c275a89552b848b541",
+  "tests/v1/test_release_timing.py": "57083da527f6458ba441b734c663e099813fdca2873d1de1193a1c390fd91aea"
+ },
+ "native_binary": {
+  "path": "native_binding/_metroflow_rust.so (local only, not committed)",
+  "sha256": "40c741dbee9b9c4f9e3791e39399f556fee3f4d0ada8d0b184eb50648ddf3ad7",
+  "size_bytes": 3247488,
+  "build": "PYO3_PYTHON=$TASK_PY cargo build --release --offline; cp target/release/lib_metroflow_rust.so native_binding/_metroflow_rust.so"
+ },
+ "legs_npz": {
+  "path": "artifacts/v1_release_timing_20261117/valley_legs.npz (local only)",
+  "sha256": "ad70081e9502dfcb29871eafbd69634e77442db1b88a133be300d30d45fffa17",
+  "note": "identical sha256 to the npz of artifacts/v1_refinement_20261117 runs"
+ },
+ "runs": {
+  "legs": {
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_refinement.py",
+    "legs",
+    "valley_weekday_s7",
+    "artifacts/v1_release_timing_20261117/valley_legs.npz"
+   ],
+   "exit_code": 0,
+   "wall_s": 26.711083330999827,
+   "started_utc": "2026-11-17T12:53:08.714354+00:00",
+   "finished_utc": "2026-11-17T12:53:35.425750+00:00",
+   "mem_available_at_start_bytes": 6953308160,
+   "waited_for_memory_s": 0.0
+  },
+  "bitid": {
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_event_store.py",
+    "valley_weekday_s7",
+    "25900",
+    "1",
+    "artifacts/v1_release_timing_20261117/bitid/legacy_h1_25900"
+   ],
+   "exit_code": 0,
+   "wall_s": 293.25179231801303,
+   "started_utc": "2026-11-17T12:54:58.275376+00:00",
+   "finished_utc": "2026-11-17T12:59:51.527731+00:00",
+   "mem_available_at_start_bytes": 7370305536,
+   "waited_for_memory_s": 0.0,
+   "json_path": "artifacts/v1_release_timing_20261117/bitid/legacy_h1_25900.json",
+   "json_sha256": "6f5165f7e8fb41d32b7399f35bb6c95d43a29f13a1512c270c4b497f8d76c0d2",
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25900.0,
+   "peak_rss_bytes": 2077757440,
+   "checkpoint_local_only": {
+    "path": "artifacts/v1_release_timing_20261117/bitid/legacy_h1_25900.last_valid.bin",
+    "bytes": 903148860,
+    "sha256": "ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff"
+   },
+   "native_binary": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/urban_traffic_release_20261117/native_binding/_metroflow_rust.so",
+    "size_bytes": 3247488,
+    "sha256": "40c741dbee9b9c4f9e3791e39399f556fee3f4d0ada8d0b184eb50648ddf3ad7"
+   },
+   "candidate_source_sha256": "9d82259ab871e9a9b3dadad74a06f3c8a21b52f243288e4c0dddfa6455271512",
+   "driver_identity": "4dd2d07d51f419b35c5a8c429f6409bfbc7e63e23d563bfb2b118bc9f9a0c01d"
+  },
+  "legacy_dt10": {
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_refinement.py",
+    "run",
+    "valley_weekday_s7",
+    "26000",
+    "1",
+    "10",
+    "artifacts/v1_release_timing_20261117/runs/legacy_dt10",
+    "artifacts/v1_release_timing_20261117/valley_legs.npz",
+    "legacy"
+   ],
+   "exit_code": 0,
+   "wall_s": 455.22267429399653,
+   "started_utc": "2026-11-17T12:59:51.541947+00:00",
+   "finished_utc": "2026-11-17T13:07:26.768891+00:00",
+   "mem_available_at_start_bytes": 11377848320,
+   "waited_for_memory_s": 0.0,
+   "json_path": "artifacts/v1_release_timing_20261117/runs/legacy_dt10.json",
+   "json_sha256": "e5ab821bcaaa11b4830a552dfef89f46b1d584588b503ae51ccd7524c3b70ecc",
+   "status": "REACHED_HORIZON",
+   "simulated_s": 26000.0,
+   "peak_rss_bytes": 3607543808,
+   "checkpoint_local_only": {
+    "path": "artifacts/v1_release_timing_20261117/runs/legacy_dt10.last_valid.bin",
+    "bytes": 1335724492,
+    "sha256": "2bd64aa7c9826fa31696d9977aa5d883a6b15f0ee29ec4047beec30f35235439"
+   },
+   "native_binary": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/urban_traffic_release_20261117/native_binding/_metroflow_rust.so",
+    "size_bytes": 3247488,
+    "sha256": "40c741dbee9b9c4f9e3791e39399f556fee3f4d0ada8d0b184eb50648ddf3ad7"
+   },
+   "candidate_source_sha256": "9d82259ab871e9a9b3dadad74a06f3c8a21b52f243288e4c0dddfa6455271512",
+   "driver_identity": "4dd2d07d51f419b35c5a8c429f6409bfbc7e63e23d563bfb2b118bc9f9a0c01d"
+  },
+  "interval_dt10": {
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_refinement.py",
+    "run",
+    "valley_weekday_s7",
+    "26000",
+    "1",
+    "10",
+    "artifacts/v1_release_timing_20261117/runs/interval_dt10",
+    "artifacts/v1_release_timing_20261117/valley_legs.npz",
+    "release_interval_v1"
+   ],
+   "exit_code": 0,
+   "wall_s": 475.45230633800384,
+   "started_utc": "2026-11-17T13:07:26.770713+00:00",
+   "finished_utc": "2026-11-17T13:15:22.223995+00:00",
+   "mem_available_at_start_bytes": 7378804736,
+   "waited_for_memory_s": 0.0,
+   "json_path": "artifacts/v1_release_timing_20261117/runs/interval_dt10.json",
+   "json_sha256": "81bf7a91c72af28a82024ae1f23d66d1d2c1bc7a7786280bf506212949bdb7e8",
+   "status": "REACHED_HORIZON",
+   "simulated_s": 26000.0,
+   "peak_rss_bytes": 2988765184,
+   "checkpoint_local_only": {
+    "path": "artifacts/v1_release_timing_20261117/runs/interval_dt10.last_valid.bin",
+    "bytes": 1019696940,
+    "sha256": "673169ffc19663647e6b67a02571cd66d59ae75bae8b2bde2fe7793938cbfa1d"
+   },
+   "native_binary": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/urban_traffic_release_20261117/native_binding/_metroflow_rust.so",
+    "size_bytes": 3247488,
+    "sha256": "40c741dbee9b9c4f9e3791e39399f556fee3f4d0ada8d0b184eb50648ddf3ad7"
+   },
+   "candidate_source_sha256": "9d82259ab871e9a9b3dadad74a06f3c8a21b52f243288e4c0dddfa6455271512",
+   "driver_identity": "be2858cdf39ca783ac88d61b05bde03488b5c1b8a0ba388327479805099625c3"
+  },
+  "legacy_dt5": {
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_refinement.py",
+    "run",
+    "valley_weekday_s7",
+    "26000",
+    "1",
+    "5",
+    "artifacts/v1_release_timing_20261117/runs/legacy_dt5",
+    "artifacts/v1_release_timing_20261117/valley_legs.npz",
+    "legacy"
+   ],
+   "exit_code": 0,
+   "wall_s": 994.5446020060044,
+   "started_utc": "2026-11-17T13:15:22.240931+00:00",
+   "finished_utc": "2026-11-17T13:31:56.792109+00:00",
+   "mem_available_at_start_bytes": 9843892224,
+   "waited_for_memory_s": 0.0,
+   "json_path": "artifacts/v1_release_timing_20261117/runs/legacy_dt5.json",
+   "json_sha256": "78b1bb5070a28b9de189d1f0eb60ab7abdf1301092476e677aa411301be204a0",
+   "status": "REACHED_HORIZON",
+   "simulated_s": 26000.0,
+   "peak_rss_bytes": 4285231104,
+   "checkpoint_local_only": {
+    "path": "artifacts/v1_release_timing_20261117/runs/legacy_dt5.last_valid.bin",
+    "bytes": 1656541172,
+    "sha256": "193c2ef6331abc3d06a8e1e9e6bff7ac6e946dfd7b61de741f870436eb433b63"
+   },
+   "native_binary": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/urban_traffic_release_20261117/native_binding/_metroflow_rust.so",
+    "size_bytes": 3247488,
+    "sha256": "40c741dbee9b9c4f9e3791e39399f556fee3f4d0ada8d0b184eb50648ddf3ad7"
+   },
+   "candidate_source_sha256": "9d82259ab871e9a9b3dadad74a06f3c8a21b52f243288e4c0dddfa6455271512",
+   "driver_identity": "c56c8c0e99f7274bf0ec07b9092936bcfea007faf45e685ab75040f6795055d4"
+  },
+  "interval_dt5": {
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_refinement.py",
+    "run",
+    "valley_weekday_s7",
+    "26000",
+    "1",
+    "5",
+    "artifacts/v1_release_timing_20261117/runs/interval_dt5",
+    "artifacts/v1_release_timing_20261117/valley_legs.npz",
+    "release_interval_v1"
+   ],
+   "exit_code": 0,
+   "wall_s": 785.3393640760041,
+   "started_utc": "2026-11-17T13:31:56.807474+00:00",
+   "finished_utc": "2026-11-17T13:45:02.150986+00:00",
+   "mem_available_at_start_bytes": 12799991808,
+   "waited_for_memory_s": 0.0,
+   "json_path": "artifacts/v1_release_timing_20261117/runs/interval_dt5.json",
+   "json_sha256": "03d6dbb3390e60903a5c38f9d86a3b8832b3f9615da8cfb583dafa30aa97e666",
+   "status": "REACHED_HORIZON",
+   "simulated_s": 26000.0,
+   "peak_rss_bytes": 4184121344,
+   "checkpoint_local_only": {
+    "path": "artifacts/v1_release_timing_20261117/runs/interval_dt5.last_valid.bin",
+    "bytes": 1534200684,
+    "sha256": "b1ec5cb322dc419b441f66d71db41faf7dfbbf5ddbdbc48e24dffd766de094ae"
+   },
+   "native_binary": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/urban_traffic_release_20261117/native_binding/_metroflow_rust.so",
+    "size_bytes": 3247488,
+    "sha256": "40c741dbee9b9c4f9e3791e39399f556fee3f4d0ada8d0b184eb50648ddf3ad7"
+   },
+   "candidate_source_sha256": "9d82259ab871e9a9b3dadad74a06f3c8a21b52f243288e4c0dddfa6455271512",
+   "driver_identity": "26522e42de7f2b8a635a7e44d5068b5dcba828bfcf2fc21e27b2f204909a36f4"
+  }
+ },
+ "tests": {
+  "tests_rust.log": {
+   "sha256": "ed67d0b2581fc4d9db60deef331a26036bf22271015b794c0c15ce782f251337",
+   "summary": [
+    "test result: ok. 84 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s"
+   ]
+  },
+  "tests_python_regression.log": {
+   "sha256": "3c8fe0a109a06b639f95d138f1e84a73166b33802b251d2ef943570403968274",
+   "summary": [
+    "356 passed, 5 xfailed in 16.34s"
+   ]
+  },
+  "tests_release_timing.log": {
+   "sha256": "d8ffcedabd8ff72c1642c637c6bc0dbc3b608a76afa6900e818570e927d755af",
+   "summary": [
+    "============================== 18 passed in 3.56s =============================="
+   ]
+  },
+  "tests_related.log": {
+   "sha256": "1e40c18111773e6f67534071f58e2ba4b599d480b96c58ed3553f3b7741fcdf7",
+   "summary": [
+    "42 passed in 4.41s"
+   ]
+  },
+  "red_legacy_counterexample.log": {
+   "sha256": "d73f8f2b954ebefbe2fe6033e31087cbc5a1e4b81d0bb83789538297e42580d8",
+   "summary": [
+    "E             comparison failed",
+    "E                 comparison failed",
+    "E                 comparison failed",
+    "3 failed, 15 deselected in 0.16s"
+   ]
+  }
+ },
+ "test_commands": {
+  "rust": "cd crates/metroflow-rust && LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu RUSTFLAGS=\"-L /usr/lib/x86_64-linux-gnu -l python3.12\" PYO3_PYTHON=$TASK_PY CARGO_TARGET_DIR=$PWD/../../target_test cargo test --release --offline",
+  "python_regression": "PYTHONPATH=native_binding:src:tests/v1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMP_NUM_THREADS=1 $TASK_PY -m pytest -q -p no:randomly tests/test_entry_projection.py tests/v1/test_entry_projection_native.py tests/v1/test_native*.py tests/test_packet_quotient.py tests/v1/test_transfer_time.py tests/test_v1_journey.py tests/test_v1_birth_contract.py tests/v1/test_local_campaign_cli.py tests/test_v1_plan.py tests/v1/test_v03_counterexamples.py tests/v1/test_mark_block_native.py",
+  "release_timing": "PYTHONPATH=native_binding:src:tests/v1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMP_NUM_THREADS=1 $TASK_PY -m pytest -v -p no:randomly tests/v1/test_release_timing.py",
+  "related": "PYTHONPATH=native_binding:src:tests/v1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMP_NUM_THREADS=1 $TASK_PY -m pytest -q -p no:randomly tests/v1/test_joint_release_runtime.py tests/v1/test_service_boundary_offers.py tests/v1/test_bus_freight.py tests/v1/test_release_runtime.py tests/v1/test_runtime_resume.py tests/v1/test_release_driver.py",
+  "baseline": "python_regression baseline at 274a4ff: 356 passed, 5 xfailed (coordinator); Rust baseline 76 tests (84 - 8 new)",
+  "tdd_note": "the Rust policy was drafted before its tests; the behavioral counterexample is recorded in red_legacy_counterexample.log (policy assertions applied to legacy timing fail with the one-step lag)"
+ },
+ "post_hoc_not_decisional": {
+  "lag_order": [
+   {
+    "step_s": 20.0,
+    "legacy": {
+     "mean_lag_s": 30.325000000000017,
+     "lag_over_dt": 1.5162500000000008,
+     "max_admitted_before_ready": 0.0,
+     "admitted_fraction": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "release_interval_v1": {
+     "mean_lag_s": 9.999999999999966,
+     "lag_over_dt": 0.49999999999999833,
+     "max_admitted_before_ready": 0.0,
+     "admitted_fraction": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    }
+   },
+   {
+    "step_s": 10.0,
+    "legacy": {
+     "mean_lag_s": 14.325000000000006,
+     "lag_over_dt": 1.4325000000000006,
+     "max_admitted_before_ready": 0.0,
+     "admitted_fraction": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "release_interval_v1": {
+     "mean_lag_s": 4.999999999999972,
+     "lag_over_dt": 0.49999999999999717,
+     "max_admitted_before_ready": 0.0,
+     "admitted_fraction": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    }
+   },
+   {
+    "step_s": 5.0,
+    "legacy": {
+     "mean_lag_s": 6.574999999999778,
+     "lag_over_dt": 1.3149999999999555,
+     "max_admitted_before_ready": 0.0,
+     "admitted_fraction": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "release_interval_v1": {
+     "mean_lag_s": 2.499999999999909,
+     "lag_over_dt": 0.4999999999999818,
+     "max_admitted_before_ready": 0.0,
+     "admitted_fraction": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    }
+   },
+   {
+    "step_s": 2.5,
+    "legacy": {
+     "mean_lag_s": 3.8250000000000455,
+     "lag_over_dt": 1.5300000000000182,
+     "max_admitted_before_ready": 0.0,
+     "admitted_fraction": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    },
+    "release_interval_v1": {
+     "mean_lag_s": 1.2499999999998863,
+     "lag_over_dt": 0.49999999999995454,
+     "max_admitted_before_ready": 0.0,
+     "admitted_fraction": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+     ]
+    }
+   }
+  ],
+  "idle_overhead": {
+   "legacy": {
+    "cpu_s": [
+     12.591882000000005,
+     10.214532000000002,
+     10.055127000000002,
+     11.233524
+    ],
+    "journey_prepare_s": [
+     5.503265315000001,
+     3.87415144,
+     3.787731847999999,
+     4.514005876999997
+    ],
+    "mean_cpu_s": 11.023766250000001,
+    "mean_journey_prepare_s": 4.419788619999999
+   },
+   "release_interval_v1": {
+    "cpu_s": [
+     9.901800999999999,
+     10.988554999999998,
+     9.841524,
+     11.430024
+    ],
+    "journey_prepare_s": [
+     3.747052748,
+     4.267022121999997,
+     3.659518699999999,
+     4.570135139000001
+    ],
+    "mean_cpu_s": 10.540475999999998,
+    "mean_journey_prepare_s": 4.060932177249999
+   },
+   "ratio_mean_cpu": 0.9561592436704649,
+   "ratio_mean_journey_prepare": 0.9188068766170993
+  }
+ },
+ "verdict": {
+  "decision": "NOT_ADOPT",
+  "reasons": [
+   "(b) cost dt10@25500: C3_cpu_s_per_tick=1.1132>1.1",
+   "(b) cost dt5@25500: C2_peak_rss_bytes=1.0791>1.05"
+  ],
+  "G1_bit_identity": {
+   "observed": "ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff",
+   "expected": "ab73c40f1166c92788aef865bd4f4b644359bf985a66f49182830dccf776d7ff",
+   "passed": true,
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25900.0
+  },
+  "G3_conservation": {
+   "legacy_dt10": true,
+   "legacy_dt5": true,
+   "interval_dt10": true,
+   "interval_dt5": true
+  },
+  "G4_reached_s": {
+   "legacy_dt10": 26000.0,
+   "legacy_dt5": 26000.0,
+   "interval_dt10": 26000.0,
+   "interval_dt5": 26000.0
+  },
+  "clause_a_25500": {
+   "A1_released_persons": true,
+   "A2_journey_completed_vehicles": true,
+   "A3_road_completed_vehicles": true,
+   "A4_destination_completed_vehicles_L1": true
+  },
+  "clause_a_26000": {
+   "A1_released_persons": true,
+   "A2_journey_completed_vehicles": true,
+   "A3_road_completed_vehicles": true,
+   "A4_destination_completed_vehicles_L1": true
+  },
+  "clause_b": {
+   "dt10@25500": {
+    "C1_peak_records": true,
+    "C2_peak_rss_bytes": true,
+    "C3_cpu_s_per_tick": false
+   },
+   "dt10@26000": {
+    "C1_peak_records": true,
+    "C2_peak_rss_bytes": true,
+    "C3_cpu_s_per_tick": true
+   },
+   "dt5@25500": {
+    "C1_peak_records": true,
+    "C2_peak_rss_bytes": false,
+    "C3_cpu_s_per_tick": true
+   },
+   "dt5@26000": {
+    "C1_peak_records": true,
+    "C2_peak_rss_bytes": true,
+    "C3_cpu_s_per_tick": true
+   }
+  },
+  "G2_regressions": "see RECEIPT.json"
+ },
+ "not_run": [
+  "ReleaseRuntime / ReleaseDriver (python_oracle and legacy rust campaign backends): policy not implemented; the CLI rejects it there",
+  "mark_block_scaled_v1 together with release_interval_v1 (plumbed, not exercised in the city comparison)",
+  "River and Coastal cases, horizons beyond 26,000 s, 24 h campaign, repeated runs, dt < 5 s, h != 1 s",
+  "road class-resolved birth/exit moments (not exposed by the native API)"
+ ],
+ "scope": "diagnostic research unit; V03 BLOCKED, 19/21 and 5/21 unchanged; no PR, merge or push"
+}

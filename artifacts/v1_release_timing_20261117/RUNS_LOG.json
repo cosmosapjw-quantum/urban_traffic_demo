@@ -1,0 +1,125 @@
+[
+ {
+  "label": "legs",
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_refinement.py",
+   "legs",
+   "valley_weekday_s7",
+   "artifacts/v1_release_timing_20261117/valley_legs.npz"
+  ],
+  "mem_available_at_start_bytes": 6953308160,
+  "waited_for_memory_s": 0.0,
+  "started_utc": "2026-11-17T12:53:08.714354+00:00",
+  "exit_code": 0,
+  "wall_s": 26.711083330999827,
+  "finished_utc": "2026-11-17T12:53:35.425750+00:00"
+ },
+ {
+  "label": "bitid",
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_event_store.py",
+   "valley_weekday_s7",
+   "25900",
+   "1",
+   "artifacts/v1_release_timing_20261117/bitid/legacy_h1_25900"
+  ],
+  "mem_available_at_start_bytes": 7370305536,
+  "waited_for_memory_s": 0.0,
+  "started_utc": "2026-11-17T12:54:58.275376+00:00",
+  "exit_code": 0,
+  "wall_s": 293.25179231801303,
+  "finished_utc": "2026-11-17T12:59:51.527731+00:00"
+ },
+ {
+  "label": "legacy_dt10",
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_refinement.py",
+   "run",
+   "valley_weekday_s7",
+   "26000",
+   "1",
+   "10",
+   "artifacts/v1_release_timing_20261117/runs/legacy_dt10",
+   "artifacts/v1_release_timing_20261117/valley_legs.npz",
+   "legacy"
+  ],
+  "mem_available_at_start_bytes": 11377848320,
+  "waited_for_memory_s": 0.0,
+  "started_utc": "2026-11-17T12:59:51.541947+00:00",
+  "exit_code": 0,
+  "wall_s": 455.22267429399653,
+  "finished_utc": "2026-11-17T13:07:26.768891+00:00"
+ },
+ {
+  "label": "interval_dt10",
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_refinement.py",
+   "run",
+   "valley_weekday_s7",
+   "26000",
+   "1",
+   "10",
+   "artifacts/v1_release_timing_20261117/runs/interval_dt10",
+   "artifacts/v1_release_timing_20261117/valley_legs.npz",
+   "release_interval_v1"
+  ],
+  "mem_available_at_start_bytes": 7378804736,
+  "waited_for_memory_s": 0.0,
+  "started_utc": "2026-11-17T13:07:26.770713+00:00",
+  "exit_code": 0,
+  "wall_s": 475.45230633800384,
+  "finished_utc": "2026-11-17T13:15:22.223995+00:00"
+ },
+ {
+  "label": "legacy_dt5",
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_refinement.py",
+   "run",
+   "valley_weekday_s7",
+   "26000",
+   "1",
+   "5",
+   "artifacts/v1_release_timing_20261117/runs/legacy_dt5",
+   "artifacts/v1_release_timing_20261117/valley_legs.npz",
+   "legacy"
+  ],
+  "mem_available_at_start_bytes": 9843892224,
+  "waited_for_memory_s": 0.0,
+  "started_utc": "2026-11-17T13:15:22.240931+00:00",
+  "exit_code": 0,
+  "wall_s": 994.5446020060044,
+  "finished_utc": "2026-11-17T13:31:56.792109+00:00"
+ },
+ {
+  "label": "interval_dt5",
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_refinement.py",
+   "run",
+   "valley_weekday_s7",
+   "26000",
+   "1",
+   "5",
+   "artifacts/v1_release_timing_20261117/runs/interval_dt5",
+   "artifacts/v1_release_timing_20261117/valley_legs.npz",
+   "release_interval_v1"
+  ],
+  "mem_available_at_start_bytes": 12799991808,
+  "waited_for_memory_s": 0.0,
+  "started_utc": "2026-11-17T13:31:56.807474+00:00",
+  "exit_code": 0,
+  "wall_s": 785.3393640760041,
+  "finished_utc": "2026-11-17T13:45:02.150986+00:00"
+ }
+]
