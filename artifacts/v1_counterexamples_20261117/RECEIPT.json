@@ -1,0 +1,70 @@
+{
+  "unit": "V03 physics counterexample suite and diagnosis of 5 pre-existing native driver/journey failures",
+  "date": "2026-11-17",
+  "scope": "bounded verification; V03 BLOCKED, 19/21 and final acceptance 5/21 unchanged",
+  "base_commit": "82cfc7a",
+  "branch": "research/counterex-20261117",
+  "commits": {
+    "identity_binding_fix": "bccbc5a",
+    "counterexample_suite": "952b34e"
+  },
+  "binary": {
+    "path": "native_binding/_metroflow_rust.so (not committed)",
+    "source": "copied from urban_traffic_followup_20261117, built from 82cfc7a sources",
+    "sha256": "a0077a0707c398615508e2687f3bf6cb032904be31fa8c779068a6af7d05498b",
+    "rebuilt": false
+  },
+  "tolerances": {"mass_relative": 1e-9, "residence_relative": 1e-8, "scale": "max(1, accumulated)",
+                  "bit_equality": ["h=0 retained interval endpoints vs transfer event times", "checkpoint roundtrip", "resumed trajectory", "budget-failure rollback and retry"]},
+  "python": "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python (3.12)",
+  "runs": [
+    {
+      "command": "PYTHONPATH=native_binding:src:tests/v1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMP_NUM_THREADS=1 $TASK_PY -m pytest -q -p no:randomly tests/v1/test_v03_counterexamples.py",
+      "result": {"passed": 39, "failed": 0, "xfailed_strict": 5}
+    },
+    {
+      "command": "PYTHONPATH=native_binding:src:tests/v1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 OMP_NUM_THREADS=1 $TASK_PY -m pytest -q -p no:randomly tests/test_entry_projection.py tests/test_packet_quotient.py tests/v1/test_entry_projection_native.py tests/v1/test_native_*.py tests/test_v1_plan.py tests/v1/test_local_campaign_cli.py tests/v1/test_v03_counterexamples.py",
+      "result": {"passed": 315, "failed": 0, "xfailed_strict": 5}
+    },
+    {
+      "command": "same python env; pytest tests/v1/test_native_driver.py tests/v1/test_native_journey.py (after bccbc5a)",
+      "result": {"passed": 18, "failed": 0},
+      "before_fix": "the 5 named tests fail with 'native snapshot model binding differs'"
+    },
+    {
+      "command": "test_native_road.py -k rebound with src/metroflow/v1/native_road.py reverted to 82cfc7a",
+      "result": {"failed": 1},
+      "meaning": "regression test is RED without the fix"
+    },
+    {
+      "command": "cargo test (Rust unit tests)",
+      "result": "NOT_RUN",
+      "reason": "no Rust source changed"
+    }
+  ],
+  "xfail_defects": [
+    {
+      "test": "test_subnormal_part_in_partially_served_packet_does_not_silently_vanish[py|rs]",
+      "class": "numerical/implementation, oracle and native",
+      "summary": "_portion / v1_road.rs portion() keep a part only if mass*f > 0; a 1-ulp part sharing a packet with 2 veh at f=0.5 vanishes from both portions without error"
+    },
+    {
+      "test": "test_transfer_intervals_into_one_destination_are_contiguous_not_overlapping[py|rs]",
+      "class": "numerical representation, oracle and native",
+      "summary": "event end (t+cursor)+h vs next start t+(cursor+h) differ by 1-2 ulp; overlapping intervals create ulp-wide sliver packets on the exact path; backends round differently"
+    },
+    {
+      "test": "test_divergence_reconvergence_preserves_tags_and_route_offsets[0.25]",
+      "class": "consequence of the ulp boundary defect under entry_projection_support_v1",
+      "summary": "a 1-ulp gap becomes a protected support boundary in the oracle but not native; different cohorts give a 1.1e-3 relative bus latent difference at t=9 s"
+    }
+  ],
+  "pre_existing_failures": {
+    "count": 5,
+    "root_cause": "f47bf6a passed PacketNetwork._unprojected_identity to V1Road; lanegroups.packet_model (bea8453) rebinds identity after construction, so native snapshots of lane-group roads carried a different binding",
+    "classification": "real implementation defect (Python bridge), not stale test, not environment",
+    "action": "fixed in bccbc5a with regression test; no physics/numerics change"
+  },
+  "not_run": ["Rust unit tests", "city-scale runs", "quantitative link between ulp sliver packets and V03 road row growth"],
+  "report": "artifacts/v1_counterexamples_20261117/REPORT_KO.md"
+}
