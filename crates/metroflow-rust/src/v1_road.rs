@@ -3604,7 +3604,7 @@ impl V1Road {
                 let end_time = if clock.active {
                     t + clock.offset(h)
                 } else {
-                    t + cursor + h
+                    t + (cursor + h) // DIAGNOSTIC: shared boundary with next start
                 };
                 let mid = if clock.active {
                     t + local_mid
