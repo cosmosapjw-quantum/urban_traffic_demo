@@ -6,7 +6,22 @@ The reference object supplies the immutable contract and remains an oracle.
 """
 from ..packet_network import State, Cell, Packet, Pending, Part, ClassLedger, Event
 from ..active_suffix.common import BudgetExceeded
+from ..entry_projection import projection_identity
 from .transport import FiniteResponseMotion
+
+
+def native_base_identity(reference):
+    """Unprojected binding derived from the reference's public identity.
+
+    Owners such as ``lanegroups.packet_model`` rebind ``identity`` after
+    construction; the native owner must reproduce that public binding, so the
+    base is the public identity with only the projection suffix removed.
+    """
+    width = reference.entry_projection_width_s
+    suffix = projection_identity("", width)
+    if not reference.identity.endswith(suffix):
+        raise ValueError("projected road identity lacks its projection binding")
+    return reference.identity[:len(reference.identity) - len(suffix)]
 
 
 class NativeRoadNetwork:
@@ -30,7 +45,7 @@ class NativeRoadNetwork:
                             c.latent, c.restart_s_inv, c.hazard_s_inv,
                             c.gap_scale_m, speeds[name], v.length_m + reference.standing_gap_m])
         self.native = V1Road(
-            reference._unprojected_identity, reference.dt,
+            native_base_identity(reference), reference.dt,
             [[g.physics.length_m, g.physics.speed_mps, g.physics.entry_rate,
               g.physics.exit_rate, reference.space_capacities_m[g.id], g.priority]
              for g in reference.groups],
