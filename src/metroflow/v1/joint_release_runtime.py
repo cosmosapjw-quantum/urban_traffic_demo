@@ -38,8 +38,21 @@ class JointReleaseState:
         return self.service.road.time_s
 
 
+RELEASE_TIMINGS = ('legacy', 'release_interval_v1')
+
+
+def _fraction(profile, time_s):
+    """Cumulative departure fraction; times before the day origin have none."""
+    return profile.fraction(0, max(0.0, time_s))
+
+
 class JointReleaseRuntime:
-    def __init__(self, city, legs, service_plan, *, step_s=1.0, max_legs=256, record_budget=20000):
+    def __init__(self, city, legs, service_plan, *, step_s=1.0, max_legs=256, record_budget=20000,
+                 release_timing='legacy'):
+        if release_timing not in RELEASE_TIMINGS:
+            raise ValueError("unknown release_timing; expected 'legacy' or 'release_interval_v1'")
+        self.release_timing = release_timing
+        self.release_interval = release_timing == 'release_interval_v1'
         values = []
         for leg in legs:
             if len(values) >= max_legs:
@@ -91,11 +104,39 @@ class JointReleaseRuntime:
         assigned = {self.legs[i].id for i in self.bus_leg+self.freight_leg}
         self.unsupported = {leg.id:'no supported joint assignment' for leg in self.legs
                             if leg.id not in self.routes and leg.id not in self.internal_laws and leg.id not in assigned}
-        self.identity = hashlib.sha256(json.dumps((self.service.identity,
+        binding = (self.service.identity,
             self.helper.identity if self.helper else None,
             [(leg.id,leg.depends_on,leg.minimum_dwell_s,leg.amounts.persons,leg.amounts.vehicles,leg.amounts.cargo_kg,
-              [(w.start_s,w.end_s,w.probability) for w in leg.departures.windows]) for leg in self.legs]),
-            sort_keys=True).encode()).hexdigest()
+              [(w.start_s,w.end_s,w.probability) for w in leg.departures.windows]) for leg in self.legs])
+        if self.release_interval:
+            # Legacy binding is unchanged; the opt-in policy is a new model.
+            binding += (release_timing,)
+        self.identity = hashlib.sha256(json.dumps(binding, sort_keys=True).encode()).hexdigest()
+
+    def _access_law(self, leg):
+        return (self.internal_laws[leg.id] if leg.id in self.internal_laws
+                else self.helper.model.boundaries[leg.id].origin)
+
+    def unstaged_access(self, leg, time_s):
+        """release_interval_v1: released but not yet staged access mass.
+
+        Births in (T-x_k, T], x_k = fmod(delay_k, step), of a top-level road or
+        internal leg are released (front F(T)) while their atom-aligned access
+        rows are created in the next step. Zero for legacy and child legs.
+        """
+        if (not self.release_interval or leg.depends_on
+                or (leg.id not in self.routes and leg.id not in self.internal_laws)):
+            return 0.0
+        carrier = ReleaseRuntime.carrier(leg)
+        if not carrier:
+            return 0.0
+        windows = leg.departures.windows
+        if (min(w.start_s for w in windows) >= time_s
+                or max(w.end_s for w in windows) <= time_s-self.step_s):
+            return 0.0
+        released = _fraction(leg.departures, time_s)
+        return math.fsum(carrier*(released-_fraction(leg.departures, time_s-math.fmod(delay, self.step_s)))*w
+                         for delay, w in self._access_law(leg).atoms)
 
     def initial(self):
         zero = (0.0,)*len(self.legs)
@@ -176,6 +217,8 @@ class JointReleaseRuntime:
             if abs(state.birth_carrier_s[i]-expected_birth)>1e-9*max(1,abs(expected_birth)):
                 reject('joint original birth moment differs','IMPLEMENTATION_ERROR')
             stages = math.fsum(stages_by_tag.get(leg.id, ()))
+            if self.release_interval:
+                stages += self.unstaged_access(leg, state.time_s)
             if leg.id in self.routes:
                 stages += active.get(leg.id,0.0)
                 if abs(r-c-stages)>tol:
@@ -187,7 +230,13 @@ class JointReleaseRuntime:
         class_ledger = {c.name:c for c in state.service.road.class_ledger}
         if self.routes:
             physical = class_ledger['car']
-            admitted = math.fsum(state.released[self.indices[k]] for k in self.routes)-math.fsum(e.mass for e in state.entering)
+            if self.release_interval:
+                admitted = (math.fsum(state.released[self.indices[k]] for k in self.routes)
+                            -math.fsum([e.mass for e in state.entering]
+                                       +[self.unstaged_access(self.legs[self.indices[k]], state.time_s)
+                                         for k in self.routes]))
+            else:
+                admitted = math.fsum(state.released[self.indices[k]] for k in self.routes)-math.fsum(e.mass for e in state.entering)
             outlet = math.fsum(state.completed[self.indices[k]] for k in self.routes)+math.fsum(e.mass for e in state.egress if e.tag in self.routes)
             if (abs(admitted-physical.released)>1e-9*max(1,physical.released)
                     or abs(outlet-physical.completed)>1e-9*max(1,physical.completed)):
@@ -216,7 +265,10 @@ class JointReleaseRuntime:
             released,completed,birth=list(state.released),list(state.completed),list(state.birth_carrier_s)
             receipts=[list(x) for x in state.receipts]
             entering,egress,internal=list(state.entering),list(state.egress),list(state.internal)
-            for i,leg in enumerate(self.legs):
+            if self.release_interval:
+                offers,pending=self._release_interval(state,t,released,birth,entering,internal)
+            else:
+              for i,leg in enumerate(self.legs):
                 if leg.id not in self.routes and leg.id not in self.internal_laws:
                     continue
                 carrier=ReleaseRuntime.carrier(leg)
@@ -235,9 +287,9 @@ class JointReleaseRuntime:
                      else self.helper.model.boundaries[leg.id].origin)
                 target=internal if leg.id in self.internal_laws else entering
                 target.extend(AccessEntry(leg.id,mass*w,born,delay+hold) for delay,w in law.atoms)
-            offers=[]
-            pending=[]
-            for e in entering:
+              offers=[]
+              pending=[]
+              for e in entering:
                 if e.ready_s<=t+1e-10:
                     offers.append((e.tag,e.mass,e.mass*e.born_s))
                 else:
@@ -301,6 +353,61 @@ class JointReleaseRuntime:
                                     tuple(released),tuple(completed),tuple(tuple(x) for x in receipts),tuple(birth))
             self.check(state)
         return state
+
+    def _release_interval(self,state,t,released,birth,entering,internal):
+        """release_interval_v1 release, atom-aligned staging and in-step offers.
+
+        Mutates released/birth/entering/internal like the legacy loop and
+        returns (offers, entering rows that are not yet due). Offers are
+        (tag, mass, birth moment, arrival_s) with t <= arrival_s <= t+step.
+        """
+        step=self.step_s
+        end=t+step
+        for i,leg in enumerate(self.legs):
+            if leg.id not in self.routes and leg.id not in self.internal_laws:
+                continue
+            carrier=ReleaseRuntime.carrier(leg)
+            if not carrier:
+                continue
+            law=self._access_law(leg)
+            target=internal if leg.id in self.internal_laws else entering
+            lo=released[i]/carrier
+            if leg.depends_on:
+                # Child leg: legacy release front, eligibility and access clock.
+                hi=min(leg.departures.fraction(0,t),self.eligible(state,leg))
+                if hi<=lo:
+                    continue
+                mass=carrier*(hi-lo)
+                born=ReleaseRuntime.birth_between(leg.departures,lo,hi)
+                released[i]+=mass
+                birth[i]+=mass*born
+                hold=t-born
+                target.extend(AccessEntry(leg.id,mass*w,born,delay+hold) for delay,w in law.atoms)
+                continue
+            hi=leg.departures.fraction(0,end)
+            if hi>lo:
+                mass=carrier*(hi-lo)
+                released[i]+=mass
+                birth[i]+=mass*ReleaseRuntime.birth_between(leg.departures,lo,hi)
+            first=min(w.start_s for w in leg.departures.windows)
+            last=max(w.end_s for w in leg.departures.windows)
+            if first>=end or last<=t-step:
+                continue
+            for delay,w in law.atoms:
+                x=math.fmod(delay,step)
+                fa=_fraction(leg.departures,t-x)
+                fb=_fraction(leg.departures,end-x)
+                if fb>fa:
+                    target.append(AccessEntry(leg.id,carrier*(fb-fa)*w,
+                        ReleaseRuntime.birth_between(leg.departures,fa,fb),delay))
+        offers=[]
+        pending=[]
+        for e in entering:
+            if e.ready_s<=end+1e-10:
+                offers.append((e.tag,e.mass,e.mass*e.born_s,max(t,min(end,e.born_s+e.delay_s))))
+            else:
+                pending.append(e)
+        return offers,pending
 
     def report(self,state):
         self.check(state)

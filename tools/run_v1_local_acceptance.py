@@ -246,7 +246,8 @@ def prepare(case,matrix,step_s):
             native_threads=int(os.environ.get('METROFLOW_V1_NATIVE_THREADS','1')),
             storage_policy=os.environ.get('METROFLOW_V1_STORAGE_POLICY','bounded_bytes_v1'),
             entry_projection_width_s=float(os.environ.get('METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S','0')),
-            road_representation=os.environ.get('METROFLOW_V1_ROAD_REPRESENTATION','rows')),row
+            road_representation=os.environ.get('METROFLOW_V1_ROAD_REPRESENTATION','rows'),
+            release_timing=os.environ.get('METROFLOW_V1_RELEASE_TIMING','legacy')),row
     def factory(city,legs,*,step_s):
         return compile_service_plan(city,legs,inventory.corridors,
                      depot_block_id=inventory.depot_block_id,step_s=step_s,
@@ -263,7 +264,8 @@ def worker(args,matrix,case):
         ('native_threads','METROFLOW_V1_NATIVE_THREADS'),
         ('storage_policy','METROFLOW_V1_STORAGE_POLICY'),
         ('entry_projection_width_s','METROFLOW_V1_ENTRY_PROJECTION_WIDTH_S'),
-        ('road_representation','METROFLOW_V1_ROAD_REPRESENTATION')) if hasattr(args,attr)}
+        ('road_representation','METROFLOW_V1_ROAD_REPRESENTATION'),
+        ('release_timing','METROFLOW_V1_RELEASE_TIMING')) if hasattr(args,attr)}
     previous={key:os.environ.get(key) for key in overrides}
     os.environ.update(overrides)
     try:
@@ -469,6 +471,9 @@ def main():
     parser.add_argument('--road-representation',choices=('rows','mark_block_scaled_v1'),
         default=os.environ.get('METROFLOW_V1_ROAD_REPRESENTATION','rows'),
         help='road category storage; mark_block_scaled_v1 shares immutable category blocks with scalar coefficients (named numerical policy; requires a positive projection width; changes checkpoint identity)')
+    parser.add_argument('--release-timing',choices=('legacy','release_interval_v1'),
+        default=os.environ.get('METROFLOW_V1_RELEASE_TIMING','legacy'),
+        help='journey release timing; release_interval_v1 releases each birth inside its step, stages access rows atom-aligned and offers in-step road arrivals (opt-in named policy; changes checkpoint identity)')
     args=parser.parse_args()
     if args.engine_backend not in ('rust_whole','python_oracle','rust'):
         parser.error('invalid METROFLOW_V1_ENGINE_BACKEND')
@@ -478,6 +483,10 @@ def main():
         parser.error('--native-threads must be in 1..256')
     if not math.isfinite(args.entry_projection_width_s) or args.entry_projection_width_s < 0:
         parser.error('--entry-projection-width-s must be finite and nonnegative')
+    if args.release_timing not in ('legacy','release_interval_v1'):
+        parser.error('invalid METROFLOW_V1_RELEASE_TIMING')
+    if args.release_timing!='legacy' and args.engine_backend!='rust_whole':
+        parser.error('--release-timing release_interval_v1 currently requires rust_whole campaign backend')
     if args.road_representation!='rows' and not args.entry_projection_width_s:
         parser.error('--road-representation mark_block_scaled_v1 requires a positive --entry-projection-width-s')
     if args.entry_projection_width_s and args.engine_backend!='rust_whole':
@@ -501,7 +510,8 @@ def main():
                  '--engine-backend',args.engine_backend,'--native-threads',str(args.native_threads),
                  '--storage-policy',args.storage_policy,
                  '--entry-projection-width-s',str(args.entry_projection_width_s),
-                 '--road-representation',args.road_representation]
+                 '--road-representation',args.road_representation,
+                 '--release-timing',args.release_timing]
             cmd+=['--prepare-only'] if args.prepare_only else ['--run-local']
             if resume:
                 cmd+=['--resume']

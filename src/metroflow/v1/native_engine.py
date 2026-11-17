@@ -16,6 +16,9 @@ from .native_calendar import compile_native_factorized_calendar
 from .native_static import prepare_native_static
 from ..entry_projection import validate_projection_width
 
+# Opt-in release timing policies; the native owner binds the choice in identity.
+RELEASE_TIMINGS = ("legacy", "release_interval_v1")
+
 
 def native_binary_provenance():
     """Hash exactly one loaded extension, never its package __init__.py."""
@@ -47,7 +50,7 @@ class NativeWholeRuntime:
     def __init__(self, city, schedule, inventory, *, step_s=10.0,
                  byte_budget=2 * 1024**3, record_budget=20000, event_budget=20000,
                  native_threads=1, storage_policy="legacy_records", entry_projection_width_s=0.0,
-                 road_representation="rows"):
+                 road_representation="rows", release_timing="legacy"):
         from _metroflow_rust import NativeWholeEngine
 
         if isinstance(byte_budget, bool) or not isinstance(byte_budget, int) or byte_budget <= 0:
@@ -62,13 +65,15 @@ class NativeWholeRuntime:
             raise ValueError("unknown road_representation")
         if road_representation != "rows" and not entry_projection_width_s:
             raise ValueError("mark_block_scaled_v1 requires a positive entry projection width")
+        if release_timing not in RELEASE_TIMINGS:
+            raise ValueError("unknown release_timing; expected 'legacy' or 'release_interval_v1'")
         payload = prepare_native_static(city, schedule, inventory, step_s=step_s,
                                         record_budget=record_budget, event_budget=event_budget)
         try:
             calendar = compile_native_factorized_calendar(schedule, byte_budget=byte_budget)
             self.native = NativeWholeEngine(calendar, payload, byte_budget, native_threads,
                                             storage_policy, entry_projection_width_s,
-                                            road_representation)
+                                            road_representation, release_timing)
         except MemoryError as cause:
             exc = BudgetExceeded(str(cause))
             exc.status = "BLOCKED_RESOURCE"
@@ -77,6 +82,7 @@ class NativeWholeRuntime:
         self.step_s = step_s
         self.entry_projection_width_s = entry_projection_width_s
         self.road_representation = road_representation
+        self.release_timing = release_timing
         self.native_threads = self.native.native_threads
         self.last_advance_metrics = dict(tick_times_s=[], peak_records=0,
             native_threads=self.native_threads,
@@ -134,6 +140,10 @@ class NativeWholeRuntime:
     def projection_diagnostics(self):
         """Local transport cost for latest proposed road transition only."""
         return self.native.projection_diagnostics()
+
+    def road_ledger(self, state):
+        """Road ledger/moment sums and check residuals; diagnostics only."""
+        return self.native.road_ledger(state)
 
     def debug_state(self, state):
         """Bounded stage/queue counters; diagnostics do not enter physical state."""

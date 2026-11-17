@@ -140,6 +140,25 @@ class NativeRoadNetwork:
             result.append((self.tag_index[tag], mass, birth, a, b))
         return result
 
+    def _sources(self, offers):
+        """Split release_interval_v1 (tag, mass, birth, arrival_s) sources.
+
+        Returns legacy-shaped native offers and, only when at least one
+        in-step arrival is present, the aligned optional arrival times.
+        """
+        offers = list(offers)
+        if not any(len(offer) == 4 for offer in offers):
+            return self._offers(offers), None
+        native, arrivals = [], []
+        for offer in offers:
+            if len(offer) == 4:
+                native.extend(self._offers([offer[:3]]))
+                arrivals.append(offer[3])
+            else:
+                native.extend(self._offers([offer]))
+                arrivals.append(None)
+        return native, arrivals
+
     def _events(self, rows):
         return tuple(Event(self.tags[tag], self.groups[source].id,
                            self.groups[dest].id if dest is not None else None,
@@ -150,7 +169,9 @@ class NativeRoadNetwork:
         if state is not self._last:
             self.restore(state)
         try:
-            events = self.native.step(dt_s, self._offers(offers))
+            native, arrivals = self._sources(offers)
+            events = (self.native.step(dt_s, native) if arrivals is None
+                      else self.native.step(dt_s, native, arrivals))
         except MemoryError as cause:
             exc = BudgetExceeded(str(cause))
             exc.checkpoint = state

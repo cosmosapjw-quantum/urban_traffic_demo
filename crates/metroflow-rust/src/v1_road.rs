@@ -969,6 +969,42 @@ impl RoadState {
     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
         (&self.totals, &self.ledger)
     }
+    /// Diagnostic sums of the state ledgers and the same mass/residence
+    /// residuals that the owner's state check enforces (relative values).
+    pub(crate) fn ledger_diagnostics(&self) -> Vec<(&'static str, f64)> {
+        let occupancy: Vec<f64> = self.cells.iter().map(|c| sum(c.packets.iter().map(mass))).collect();
+        let pending = sum(self.pending.iter().flat_map(|q| q.iter().map(mass)));
+        let cell = |k: usize| sum(self.cells.iter().map(|c| c.v[k]));
+        let residence = sum(self
+            .cells
+            .iter()
+            .map(|c| (c.v[2] - c.v[3]) * self.t - c.v[4] + c.v[5]));
+        let tot = &self.totals;
+        let stored = sum(occupancy.iter().copied().chain(std::iter::once(pending)));
+        let mass_residual = (tot[0] - tot[1] - stored).abs() / tot[0].max(1.);
+        let total_residence = residence + tot[4] + tot[5] + tot[6];
+        let system = (tot[0] - tot[1]) * self.t - tot[2] + tot[3];
+        let residence_residual = (total_residence - system).abs() / total_residence.max(1.);
+        vec![
+            ("time_s", self.t),
+            ("released_veh", tot[0]),
+            ("completed_veh", tot[1]),
+            ("birth_moment_veh_s", tot[2]),
+            ("exit_moment_veh_s", tot[3]),
+            ("source_wait_veh_s", tot[4]),
+            ("transfer_hold_veh_s", tot[5]),
+            ("pre_entry_veh_s", tot[6]),
+            ("cell_admitted_veh", cell(2)),
+            ("cell_completed_veh", cell(3)),
+            ("cell_entry_moment_veh_s", cell(4)),
+            ("cell_exit_moment_veh_s", cell(5)),
+            ("cell_occupancy_veh", sum(occupancy.iter().copied())),
+            ("pending_veh", pending),
+            ("cell_residence_veh_s", residence),
+            ("mass_residual_rel", mass_residual),
+            ("residence_residual_rel", residence_residual),
+        ]
+    }
     pub(crate) fn active_by_tag(&self) -> HashMap<usize, f64> {
         let mut out = HashMap::new();
         for p in self
@@ -1467,6 +1503,9 @@ impl V1Road {
     }
     /// Constructor-only identity finalization after retained accounting. The
     /// engine remeasures this String's capacity after binding its final policy.
+    pub(crate) fn storage_identity(&self) -> &str {
+        &self.identity
+    }
     pub(crate) fn bind_storage_identity(&mut self, identity: String) -> PyResult<()> {
         if identity.is_empty()
             || self.state.t != 0.
@@ -2021,7 +2060,7 @@ impl V1Road {
     }
     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -> PyResult<EventStore> {
         self.begin_call_storage_accounting();
-        let (s, e) = self.step_state(&self.state, dt, offers)?;
+        let (s, e) = self.step_state(&self.state, dt, offers, None)?;
         self.state = s;
         Ok(e)
     }
@@ -2033,7 +2072,17 @@ impl V1Road {
         dt: f64,
         offers: Vec<Offer>,
     ) -> PyResult<(RoadState, EventStore)> {
-        self.step_state(&self.state, dt, offers)
+        self.step_state(&self.state, dt, offers, None)
+    }
+    /// `release_interval_v1` proposal: `arrivals[k]` is the in-interval
+    /// source arrival time of `offers[k]` (`None`: legacy tick-start source).
+    pub(crate) fn propose_owned_step_arrivals(
+        &self,
+        dt: f64,
+        offers: Vec<Offer>,
+        arrivals: Vec<Option<f64>>,
+    ) -> PyResult<(RoadState, EventStore)> {
+        self.step_state(&self.state, dt, offers, Some(arrivals))
     }
     fn class(&self, p: &Part) -> usize {
         self.routes[p.tag].1
@@ -3201,11 +3250,20 @@ impl V1Road {
         }
         Ok(())
     }
+    /// `arrivals` (release_interval_v1 sources only): one entry per offer.
+    /// `Some(tau)` declares that the offer reaches the source queue at time
+    /// `tau` inside this interval, `t <= tau <= t+dt`, with its birth moment
+    /// at most `mass*tau`. It waits `mass*(t+dt) - mass*tau` in the source
+    /// queue during this interval and `mass*tau - birth` is pre-entry time;
+    /// admission keeps the legacy end-of-interval rule, so no mass enters a
+    /// cell before it arrives. `None` (and the whole argument `None`) is the
+    /// legacy tick-start source, executed by the unchanged legacy code path.
     fn step_state(
         &self,
         s: &RoadState,
         dt: f64,
         offers: Vec<Offer>,
+        arrivals: Option<Vec<Option<f64>>>,
     ) -> PyResult<(RoadState, EventStore)> {
         self.check_state(s)?;
         if !dt.is_finite() || dt <= 0. {
@@ -3215,6 +3273,9 @@ impl V1Road {
         let end = t + dt;
         if !end.is_finite() {
             return Err(arithmetic("road clock overflow"));
+        }
+        if arrivals.as_ref().is_some_and(|v| v.len() != offers.len()) {
+            return Err(val("source arrival count differs from offers"));
         }
         // Reserve the working allowance before copying large state/source
         // vectors. Large Vec allocations below use fallible reservations.
@@ -3267,11 +3328,23 @@ impl V1Road {
         };
         let mut new: BTreeMap<usize, Vec<Part>> = BTreeMap::new();
         let (mut born, mut birth1, mut inherited) = (0., 0., 0.);
-        for (tag, m, b, a, z) in offers {
+        // release_interval_v1 only: (class, own source wait) of each new offer.
+        // An interval without any in-step arrival is the legacy computation.
+        let interval_sources = arrivals.as_ref().is_some_and(|v| v.iter().any(Option::is_some));
+        let arrivals = arrivals.unwrap_or_default();
+        let mut new_waits: Vec<(usize, f64)> = Vec::new();
+        for (k, (tag, m, b, a, z)) in offers.into_iter().enumerate() {
+            let tau = arrivals.get(k).copied().flatten();
+            let late = match tau {
+                None => b > m * t,
+                Some(tau) => {
+                    !tau.is_finite() || tau < t || tau > end || a.is_some() || b > m * tau
+                }
+            };
             if tag >= self.routes.len()
                 || !finite_nonnegative(m)
                 || !finite_nonnegative(b)
-                || b > m * t
+                || late
                 || (m == 0. && b != 0.)
                 || a.is_some() != z.is_some()
                 || a.is_some_and(|a| {
@@ -3297,27 +3370,67 @@ impl V1Road {
                 )?;
                 born += m;
                 birth1 += b;
-                inherited += m * t - b;
-                out.ledger[self.routes[tag].1][0] += m;
+                let class = self.routes[tag].1;
+                match tau {
+                    None => {
+                        inherited += m * t - b;
+                        if interval_sources {
+                            push_checked(&mut new_waits, (class, dt * m))?;
+                        }
+                    }
+                    Some(tau) => {
+                        let arrival = m * tau;
+                        inherited += arrival - b;
+                        push_checked(&mut new_waits, (class, m * end - arrival))?;
+                    }
+                }
+                out.ledger[class][0] += m;
             }
         }
-        for (i, p) in new {
-            push_checked(
-                &mut out.pending[i],
-                Packet {
-                    target: t,
-                    parts: work.pack_parts(combine(p)?)?,
-                },
-            )?;
-        }
-        let source_wait = dt * sum(out.pending.iter().flat_map(|q| q.iter().map(mass)));
-        for q in &out.pending {
-            for packet in q {
-                for p in &packet.parts {
-                    out.ledger[self.class(&p)][2] += dt * p.mass;
+        let source_wait = if interval_sources {
+            // Pending packets that existed before this interval wait all of
+            // it; each new offer waits from its own arrival to the end.
+            let waiting = dt * sum(out.pending.iter().flat_map(|q| q.iter().map(mass)));
+            for q in &out.pending {
+                for packet in q {
+                    for p in &packet.parts {
+                        out.ledger[self.class(&p)][2] += dt * p.mass;
+                    }
                 }
             }
-        }
+            for &(class, wait) in &new_waits {
+                out.ledger[class][2] += wait;
+            }
+            for (i, p) in new {
+                push_checked(
+                    &mut out.pending[i],
+                    Packet {
+                        target: t,
+                        parts: work.pack_parts(combine(p)?)?,
+                    },
+                )?;
+            }
+            sum(std::iter::once(waiting).chain(new_waits.iter().map(|w| w.1)))
+        } else {
+            for (i, p) in new {
+                push_checked(
+                    &mut out.pending[i],
+                    Packet {
+                        target: t,
+                        parts: work.pack_parts(combine(p)?)?,
+                    },
+                )?;
+            }
+            let source_wait = dt * sum(out.pending.iter().flat_map(|q| q.iter().map(mass)));
+            for q in &out.pending {
+                for packet in q {
+                    for p in &packet.parts {
+                        out.ledger[self.class(&p)][2] += dt * p.mass;
+                    }
+                }
+            }
+            source_wait
+        };
         let n = self.groups.len();
         let factor: Vec<f64> = (0..n).map(|i| self.factor(i, t + dt / 2.)).collect();
         let receive: Vec<f64> = (0..n).map(|i| self.groups[i][2] * factor[i]).collect();
@@ -4366,9 +4479,18 @@ impl V1Road {
         self.service_event_accounting = None;
         Ok(())
     }
-    fn step(&mut self, py: Python<'_>, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
+    /// `arrivals` is the explicit release_interval_v1 source form (one
+    /// optional in-interval arrival time per offer); omitted is legacy.
+    #[pyo3(signature = (dt, offers, arrivals=None))]
+    fn step(
+        &mut self,
+        py: Python<'_>,
+        dt: f64,
+        offers: Vec<Offer>,
+        arrivals: Option<Vec<Option<f64>>>,
+    ) -> PyResult<Vec<EventRow>> {
         self.begin_call_storage_accounting();
-        let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+        let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers, arrivals))?;
         self.state = s;
         // Explicit row-API boundary: materialize the ordered rows here only.
         e.to_rows()
@@ -4382,7 +4504,7 @@ impl V1Road {
         self.begin_call_storage_accounting();
         let mut events = vec![];
         for (dt, offers) in steps {
-            let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+            let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers, None))?;
             self.state = s;
             events.push(e.to_rows()?);
         }
@@ -5075,5 +5197,72 @@ mod mark_block_tests {
         assert_eq!(r.identity, projection_identity("mark-block-test", 0.25));
         let m = road(true, 0.25);
         assert_eq!(m.identity, format!("{}:{MARK_BLOCK_POLICY}", r.identity));
+    }
+}
+
+#[cfg(test)]
+mod release_arrival_tests {
+    use super::*;
+
+    fn road() -> V1Road {
+        V1Road::new_shared_routes(
+            "arrival-test".into(), 10., vec![vec![100., 20., 100., 100., 1000., 1.]; 2],
+            vec![None; 2], vec![vec![0, 1]], vec![(0, 0)],
+            vec![vec![20., 1., 2., 3., 2., 1., 4., 0.5, 0.2, 0.3, 4., 10., 6.]],
+            vec![vec![0], vec![1]], vec![], 10_000, None, true, 0., false,
+        ).unwrap()
+    }
+    fn offer(mass: f64, birth: f64) -> Offer {
+        (0, mass, birth, None, None)
+    }
+
+    #[test]
+    fn in_step_arrival_splits_pre_entry_and_source_wait_and_admits_at_step_end() {
+        let r = road();
+        // Born at 4 s (moment 8), arriving at 6 s inside [0, 10].
+        let (out, _) = r
+            .step_state(&r.state, 10., vec![offer(2., 8.)], Some(vec![Some(6.)]))
+            .unwrap();
+        assert_eq!(out.totals[0], 2.);
+        assert_eq!(out.totals[2], 8.);
+        assert_eq!(out.totals[6], 2. * 6. - 8.); // pre-entry: arrival - birth
+        assert_eq!(out.totals[4], 2. * 10. - 2. * 6.); // source wait: end - arrival
+        assert_eq!(out.ledger[0][2], out.totals[4]);
+        // Admission keeps the legacy end-of-step rule and point stamp.
+        assert_eq!(out.cells[0].v[2], 2.);
+        assert_eq!(out.cells[0].v[4], 2. * 10.);
+        let part = out.cells[0].packets[0].parts.iter().next().unwrap();
+        assert_eq!((part.a.unwrap(), part.b.unwrap()), (10., 10.));
+        r.check_state(&out).unwrap();
+    }
+
+    #[test]
+    fn legacy_source_cannot_carry_mass_born_inside_the_step() {
+        let r = road();
+        assert!(r.step_state(&r.state, 10., vec![offer(2., 8.)], None).is_err());
+        assert!(r.step_state(&r.state, 10., vec![offer(2., 8.)], Some(vec![None])).is_err());
+    }
+
+    #[test]
+    fn arrivals_outside_the_step_before_birth_or_with_stamps_are_rejected() {
+        let r = road();
+        let bad = |o: Offer, a: Option<f64>| r.step_state(&r.state, 10., vec![o], Some(vec![a])).is_err();
+        assert!(bad(offer(2., 8.), Some(10.5))); // after the step end
+        assert!(bad(offer(2., 8.), Some(3.))); // before the mean birth
+        assert!(bad(offer(2., 8.), Some(f64::NAN)));
+        assert!(bad((0, 2., 8., Some(0.), Some(0.)), Some(6.))); // stamped interval
+        assert!(r.step_state(&r.state, 10., vec![offer(2., 8.)], Some(vec![])).is_err());
+    }
+
+    #[test]
+    fn mixed_sources_keep_legacy_wait_for_tick_start_offers() {
+        let r = road();
+        // A tick-start (legacy) source at t=0 and an in-step arrival at 10 s.
+        let (out, _) = r
+            .step_state(&r.state, 10., vec![offer(1., 0.), offer(3., 15.)], Some(vec![None, Some(10.)]))
+            .unwrap();
+        assert_eq!(out.totals[4], 10. * 1. + (3. * 10. - 3. * 10.));
+        assert_eq!(out.totals[6], 0. + (3. * 10. - 15.));
+        r.check_state(&out).unwrap();
     }
 }

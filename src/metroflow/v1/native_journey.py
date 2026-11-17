@@ -128,11 +128,11 @@ class NativeJointReleaseRuntime(JointReleaseRuntime):
     Once constructed, a coarse advance keeps all three numerical owners in Rust.
     """
     def __init__(self, city, legs, service_plan, *, step_s=1.0, max_legs=256,
-                 record_budget=20000, road_backend="rust"):
+                 record_budget=20000, road_backend="rust", release_timing="legacy"):
         from _metroflow_rust import NativeJourneyCore
 
         super().__init__(city, legs, service_plan, step_s=step_s, max_legs=max_legs,
-                         record_budget=record_budget)
+                         record_budget=record_budget, release_timing=release_timing)
         self.service = NativeServiceModel(self.service, road_backend=road_backend)
         records = []
         for leg in self.legs:
@@ -160,7 +160,8 @@ class NativeJointReleaseRuntime(JointReleaseRuntime):
         freight = [(self.freight_leg[k], f.vehicles, self.freight_meta[f.id]["birth_vehicle_s"],
                     list(self.freight_meta[f.id]["destination_access"]))
                    for k, f in enumerate(self.service.freight)]
-        self.native_journey = NativeJourneyCore(records, bus, freight, record_budget)
+        self.native_journey = NativeJourneyCore(records, bus, freight, record_budget,
+                                                release_timing=release_timing)
         self.last_advance_metrics = dict(tick_times_s=[], peak_records=0, scope=NATIVE_TIMING_SCOPE)
 
     def _restore_journey(self, state):
@@ -194,7 +195,11 @@ class NativeJointReleaseRuntime(JointReleaseRuntime):
         for _ in range(round(count)):
             previous = service
             try:
-                offers, allow = self.native_journey.prepare()
+                if self.release_interval:
+                    offers, allow, arrivals = self.native_journey.prepare_interval(self.step_s)
+                    offers = [offer + (arrival,) for offer, arrival in zip(offers, arrivals)]
+                else:
+                    offers, allow = self.native_journey.prepare()
                 eligible = [p.id for p, permitted in zip(self.service.passengers, allow) if permitted]
                 service = self.service.step(previous, offers, eligible_passengers=eligible)
                 self.native_journey.finish(service.road.time_s, _sinks(service.last_events),

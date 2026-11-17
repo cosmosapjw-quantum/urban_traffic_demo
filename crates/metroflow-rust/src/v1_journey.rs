@@ -824,6 +824,45 @@ fn birth_between(profile: &Profile, lo: f64, hi: f64) -> f64 {
     }
     moment / (hi - lo)
 }
+/// Opt-in release timing policy name; appended to the enclosing model identity.
+pub(crate) const RELEASE_INTERVAL_POLICY: &str = "release_interval_v1";
+/// Parse the public release timing selector: `legacy` (default) or the policy.
+pub(crate) fn parse_release_timing(name: &str) -> PyResult<bool> {
+    match name {
+        "legacy" => Ok(false),
+        RELEASE_INTERVAL_POLICY => Ok(true),
+        _ => Err(bad(
+            "unknown release_timing; expected 'legacy' or 'release_interval_v1'",
+        )),
+    }
+}
+pub(crate) fn release_timing_name(interval: bool) -> &'static str {
+    if interval {
+        RELEASE_INTERVAL_POLICY
+    } else {
+        "legacy"
+    }
+}
+/// Model identity with the release timing binding. Legacy is unchanged.
+pub(crate) fn release_identity(identity: &str, interval: bool) -> String {
+    if interval {
+        format!("{identity}:{RELEASE_INTERVAL_POLICY}")
+    } else {
+        identity.to_owned()
+    }
+}
+/// Earliest window start and latest window end of a departure profile.
+fn support(profile: &Profile) -> (f64, f64) {
+    profile
+        .iter()
+        .fold((f64::INFINITY, f64::NEG_INFINITY), |b, w| (b.0.min(w.0), b.1.max(w.1)))
+}
+/// Access delay offset of one atom inside a fixed step: `fmod(delay, step)`
+/// (exact in IEEE arithmetic). Births in `(t-x, t+step-x]` have ready times
+/// in one step interval `(t+j*step, t+(j+1)*step]`, `j = floor(delay/step)`.
+fn atom_offset(delay: f64, step: f64) -> f64 {
+    delay % step
+}
 fn eligible(legs: &[SharedJourneyLeg], s: &Journey, i: usize) -> f64 {
     match legs[i].2 {
         None => 1.0,
@@ -859,6 +898,9 @@ pub struct NativeJourneyCore {
     max_profile_rows: usize,
     last_attempt: Option<JourneyAttempt>,
     phase_metrics: JourneyPhaseMetrics,
+    /// `release_interval_v1`: in-interval release, atom-aligned access rows
+    /// and in-interval road arrivals. Bound in the enclosing model identity.
+    release_interval: bool,
 }
 impl NativeJourneyCore {
     /// Owned immutable heap allocations only. Arc<Vec> allocations are counted
@@ -1093,6 +1135,35 @@ impl NativeJourneyCore {
     }
     pub(crate) fn state(&self) -> &Journey {
         &self.state
+    }
+    /// Select the release timing of an empty, unprepared owner.
+    pub(crate) fn configure_release_timing(&mut self, interval: bool) {
+        self.release_interval = interval;
+    }
+    pub(crate) fn release_interval(&self) -> bool {
+        self.release_interval
+    }
+    /// release_interval_v1: births in `(T-x_k, T]` of a top-level road or
+    /// internal leg are released (the release front is `F(T)`) but their
+    /// atom-aligned access rows are created in the next step. This is a
+    /// deterministic function of the committed clock, step, profile and law.
+    /// Legacy owners, child legs and service/unsupported legs have none.
+    pub(crate) fn unstaged_access_mass(&self, i: usize, time: f64, step: f64) -> f64 {
+        let l = &self.legs[i];
+        if !self.release_interval || l.2.is_some() || l.5 == 0 || l.1 == 0.0 {
+            return 0.0;
+        }
+        // Every unstaged birth lies in (time-step, time]; without a departure
+        // window there both fractions are bitwise equal and the mass is zero.
+        let (first, last) = support(&l.4);
+        if first >= time || last <= time - step {
+            return 0.0;
+        }
+        let released = fraction(&l.4, time);
+        fsum(l.6.iter().map(|w| {
+            let staged = fraction(&l.4, time - atom_offset(w.0, step));
+            l.1 * (released - staged) * w.1
+        }))
     }
     pub(crate) fn legs(&self) -> &[SharedJourneyLeg] {
         &self.legs
@@ -1457,14 +1528,28 @@ pub(crate) fn advance_owned_joint(
                 )?)?;
             }
             let phase_started = Instant::now();
-            let result = journey.prepare();
+            let interval = journey.release_interval;
+            let result = if interval {
+                journey
+                    .prepare_interval_inner(step_s)
+                    .map(|(offers, eligible, arrivals)| (offers, eligible, Some(arrivals)))
+            } else {
+                journey.prepare().map(|(offers, eligible)| (offers, eligible, None))
+            };
             journey.phase_metrics.prepare_s += phase_started.elapsed().as_secs_f64();
-            let (mut offers, eligible) = result?;
+            let (mut offers, eligible, journey_arrivals) = result?;
             journey.phase("service_prepare");
             let phase_started = Instant::now();
             let result = service.prepare(t, eligible);
             journey.phase_metrics.service_prepare_s += phase_started.elapsed().as_secs_f64();
             offers.extend(result?);
+            // release_interval_v1: journey offers arrive inside the step;
+            // service (bus/freight) offers keep the legacy tick-start source.
+            let arrivals: Option<Vec<Option<f64>>> = journey_arrivals.map(|values| {
+                let mut all: Vec<Option<f64>> = values.into_iter().map(Some).collect();
+                all.resize(offers.len(), None);
+                all
+            });
             let mut physical = Vec::with_capacity(offers.len());
             for (tag, mass, birth) in offers {
                 let index = *tag_indices
@@ -1498,7 +1583,10 @@ pub(crate) fn advance_owned_joint(
                     "road step",
                 )?)?;
             }
-            let result = road.propose_owned_step(step_s, physical);
+            let result = match arrivals {
+                Some(arrivals) => road.propose_owned_step_arrivals(step_s, physical, arrivals),
+                None => road.propose_owned_step(step_s, physical),
+            };
             journey.phase_metrics.road_step_s += phase_started.elapsed().as_secs_f64();
             let (road_candidate, events) = result?;
             let candidate_road_bytes = if dynamic_budget.is_some() {
@@ -1724,12 +1812,15 @@ pub(crate) fn advance_owned_joint(
 #[pymethods]
 impl NativeJourneyCore {
     #[new]
+    #[pyo3(signature = (legs, bus, freight, record_budget, release_timing="legacy"))]
     fn new(
         legs: Vec<JourneyLeg>,
         bus: Vec<BusMeta>,
         freight: Vec<FreightMeta>,
         record_budget: usize,
+        release_timing: &str,
     ) -> PyResult<Self> {
+        let interval = parse_release_timing(release_timing)?;
         let mut profiles: HashMap<Vec<[u64; 3]>, SharedProfile> = HashMap::new();
         let mut laws: HashMap<Vec<[u64; 2]>, SharedLaw> = HashMap::new();
         fn law(v: Law, cache: &mut HashMap<Vec<[u64; 2]>, SharedLaw>) -> SharedLaw {
@@ -1764,7 +1855,23 @@ impl NativeJourneyCore {
             .into_iter()
             .map(|f| (f.0, f.1, f.2, law(f.3, &mut laws)))
             .collect();
-        Self::new_shared(legs, bus, freight, record_budget)
+        let mut core = Self::new_shared(legs, bus, freight, record_budget)?;
+        core.configure_release_timing(interval);
+        Ok(core)
+    }
+    #[getter]
+    fn release_timing(&self) -> &'static str {
+        release_timing_name(self.release_interval)
+    }
+    /// Unstaged access mass of each leg at the committed clock for `step_s`
+    /// (release_interval_v1; zero for legacy, child, service and unsupported legs).
+    fn unstaged_access(&self, step_s: f64) -> PyResult<Vec<f64>> {
+        if !step_s.is_finite() || step_s <= 0.0 {
+            return Err(bad("positive finite release step required"));
+        }
+        Ok((0..self.legs.len())
+            .map(|i| self.unstaged_access_mass(i, self.state.0, step_s))
+            .collect())
     }
     fn snapshot(&self) -> JourneyRow {
         let s = &self.state;
@@ -1832,6 +1939,11 @@ impl NativeJourneyCore {
     fn prepare(&mut self) -> PyResult<(Vec<Offer>, Vec<bool>)> {
         if self.pending.is_some() {
             return Err(bad("native journey already prepared"));
+        }
+        if self.release_interval {
+            return Err(bad(
+                "release_interval_v1 journey requires prepare_interval(step_s)",
+            ));
         }
         let t = self.state.0;
         let before = self.record_counts();
@@ -1953,6 +2065,12 @@ impl NativeJourneyCore {
             .collect();
         self.pending = Some(s);
         Ok((offers, allow))
+    }
+    /// release_interval_v1 prepare for the interval `[t, t+step_s)`.
+    /// Returns legacy-shaped offers, bus eligibility, and one in-interval
+    /// road arrival time per offer (`t <= arrival <= t+step_s`).
+    fn prepare_interval(&mut self, step_s: f64) -> PyResult<(Vec<Offer>, Vec<bool>, Vec<f64>)> {
+        self.prepare_interval_inner(step_s)
     }
     fn finish(
         &mut self,
@@ -2150,6 +2268,190 @@ impl NativeJourneyCore {
 }
 
 impl NativeJourneyCore {
+    /// release_interval_v1 transition preparation for `[t, t+step)`.
+    ///
+    /// Top-level road/internal legs: the release front is `F(t+step)`; each
+    /// individual is released at its own birth inside the step. Access atom
+    /// `(d, w)` stages exactly the births in `(t-x, t+step-x]`, `x = d mod
+    /// step`, whose ready times fill one step `(t+j*step, t+(j+1)*step]`; the
+    /// row is due at that step end and never before any individual ready time.
+    /// Child legs keep the legacy release (front and eligibility at `t`, access
+    /// clock from `t`). Entering rows retire at the step end; each offer is
+    /// stamped with its mean ready time clamped to `[t, t+step]`.
+    pub(crate) fn prepare_interval_inner(
+        &mut self,
+        step: f64,
+    ) -> PyResult<(Vec<Offer>, Vec<bool>, Vec<f64>)> {
+        if self.pending.is_some() {
+            return Err(bad("native journey already prepared"));
+        }
+        if !self.release_interval {
+            return Err(bad(
+                "prepare_interval requires release_timing='release_interval_v1'",
+            ));
+        }
+        let t = self.state.0;
+        let end = t + step;
+        if !step.is_finite() || step <= 0.0 || !end.is_finite() || end <= t {
+            return Err(bad("positive finite release step required"));
+        }
+        let before = self.record_counts();
+        self.last_attempt = Some(JourneyAttempt {
+            start_s: t,
+            end_s: t,
+            before,
+            after_prepare: before,
+            candidate: before,
+            generated: [0; 3],
+            retired: [0; 3],
+            receipts_added: 0,
+            emitted_offers: 0,
+            committed: false,
+            phase: "journey_prepare",
+        });
+        type Row = (usize, f64, f64, f64);
+        let release_bytes = std::mem::size_of::<(usize, f64, f64)>();
+        let row_bytes = std::mem::size_of::<Row>();
+        // Same leg-count envelope as legacy before the proposal is computed;
+        // the measured proposal is charged again before it is applied.
+        let proposal_scratch = self
+            .legs
+            .len()
+            .saturating_mul(2 * std::mem::size_of::<(usize, f64, f64, f64)>())
+            .saturating_add(
+                self.legs.len().div_ceil(LEG_CHUNK)
+                    * 2
+                    * std::mem::size_of::<Vec<(usize, f64, f64, f64)>>(),
+            );
+        check_storage_limit(
+            self.storage_budget,
+            self.retained_input_bytes,
+            stage_storage_bytes(&self.state).saturating_add(self.history_bytes),
+            proposal_scratch,
+        )?;
+        let mut s = self.state.clone();
+        let chunks = self.legs.len().div_ceil(LEG_CHUNK);
+        // Read-only proposals over the pre-step state, returned in leg order.
+        let proposals = ordered_map(chunks, 2, |chunk| {
+            let start = chunk * LEG_CHUNK;
+            let stop = (start + LEG_CHUNK).min(self.legs.len());
+            let mut releases: Vec<(usize, f64, f64)> = Vec::new();
+            let mut rows: Vec<Row> = Vec::new();
+            for i in start..stop {
+                let l = &self.legs[i];
+                if l.5 == 0 || l.1 == 0.0 {
+                    continue;
+                }
+                let lo = self.state.4[i] / l.1;
+                if l.2.is_some() {
+                    // Child leg: legacy release and access clock.
+                    let hi = fraction(&l.4, t).min(eligible(&self.legs, &self.state, i));
+                    if hi <= lo {
+                        continue;
+                    }
+                    let mass = l.1 * (hi - lo);
+                    let born = birth_between(&l.4, lo, hi);
+                    let hold = t - born;
+                    releases.push((i, mass, born));
+                    rows.extend(l.6.iter().map(|w| (i, mass * w.1, born, w.0 + hold)));
+                    continue;
+                }
+                let hi = fraction(&l.4, end);
+                if hi > lo {
+                    releases.push((i, l.1 * (hi - lo), birth_between(&l.4, lo, hi)));
+                }
+                // Atom slices lie in (t-step, end]; skip legs without births there.
+                let (first, last) = support(&l.4);
+                if first >= end || last <= t - step {
+                    continue;
+                }
+                for w in l.6.iter() {
+                    let x = atom_offset(w.0, step);
+                    let fa = fraction(&l.4, t - x);
+                    let fb = fraction(&l.4, end - x);
+                    if fb > fa {
+                        rows.push((i, l.1 * (fb - fa) * w.1, birth_between(&l.4, fa, fb), w.0));
+                    }
+                }
+            }
+            (releases, rows)
+        });
+        let measured = proposals.iter().fold(proposal_scratch, |bytes, (releases, rows)| {
+            bytes
+                .saturating_add(releases.capacity().saturating_mul(release_bytes))
+                .saturating_add(rows.capacity().saturating_mul(row_bytes))
+        });
+        let deadline = end + 1e-10;
+        let due_new: usize = proposals
+            .iter()
+            .flat_map(|p| p.1.iter())
+            .filter(|r| self.legs[r.0].5 == 1 && r.2 + r.3 <= deadline)
+            .count();
+        let offer_count = s.1.due_count(deadline).saturating_add(due_new);
+        let offer_bytes = 4 * std::mem::size_of::<Offer>()
+            + std::mem::size_of::<crate::v1_road::Offer>()
+            + 2 * std::mem::size_of::<Option<f64>>()
+            + RETAINED_ALLOCATION_PADDING;
+        let scratch = measured.saturating_add(
+            offer_count.saturating_mul(offer_bytes.saturating_add(self.max_tag_bytes)),
+        );
+        check_storage_limit(
+            self.storage_budget,
+            self.retained_input_bytes,
+            stage_storage_bytes(&s).saturating_add(self.history_bytes),
+            scratch,
+        )?;
+        let attempt = self.last_attempt.as_mut().unwrap();
+        for (releases, rows) in proposals {
+            for (i, mass, born) in releases {
+                s.4[i] += mass;
+                s.7[i] += mass * born;
+            }
+            let mut k = 0;
+            while k < rows.len() {
+                let i = rows[k].0;
+                let mut stop = k;
+                while stop < rows.len() && rows[stop].0 == i {
+                    stop += 1;
+                }
+                let stage = if self.legs[i].5 == 2 { 2 } else { 0 };
+                let all_stages = stage_storage_bytes(&s);
+                let target = if stage == 2 { &mut s.3 } else { &mut s.1 };
+                let projected = self
+                    .history_bytes
+                    .saturating_add(all_stages - target.storage_bytes())
+                    .saturating_add(target.append_upper_bytes(stop - k));
+                check_storage_limit(
+                    self.storage_budget,
+                    self.retained_input_bytes,
+                    projected,
+                    scratch,
+                )?;
+                attempt.generated[stage] += stop - k;
+                target.extend(rows[k..stop].iter().copied());
+                k = stop;
+            }
+        }
+        let mut offers = Vec::new();
+        let mut arrivals = Vec::new();
+        s.1.retire_due(deadline, |a| {
+            offers.push((self.legs[a.0].0.clone(), a.1, a.1 * a.2));
+            arrivals.push((a.2 + a.3).min(end).max(t));
+        });
+        attempt.retired[0] = offers.len();
+        attempt.emitted_offers = offers.len();
+        attempt.after_prepare = [s.1.len(), s.2.len(), s.3.len(), self.history_rows];
+        attempt.candidate = attempt.after_prepare;
+        let allow = self
+            .bus
+            .iter()
+            .map(|b| {
+                self.legs[b.0].2.is_none() || eligible(&self.legs, &self.state, b.0) + 1e-10 >= b.4
+            })
+            .collect();
+        self.pending = Some(s);
+        Ok((offers, allow, arrivals))
+    }
     pub(crate) fn new_shared(
         legs: Vec<SharedJourneyLeg>,
         bus: Vec<SharedBusMeta>,
@@ -2237,6 +2539,177 @@ impl NativeJourneyCore {
             max_profile_rows,
             last_attempt: None,
             phase_metrics: JourneyPhaseMetrics::default(),
+            release_interval: false,
         })
+    }
+}
+
+#[cfg(test)]
+mod release_interval_tests {
+    use super::*;
+
+    const STEP: f64 = 10.0;
+
+    /// One top-level road leg per access delay atom (single-atom law), with
+    /// carrier `amount` and one uniform departure window [0, 100].
+    fn core(delays: &[f64], amount: f64, interval: bool) -> NativeJourneyCore {
+        let profile: SharedProfile = Arc::new(vec![(0.0, 100.0, 1.0)]);
+        let egress: SharedLaw = Arc::new(vec![(0.0, 1.0)]);
+        let legs = delays
+            .iter()
+            .enumerate()
+            .map(|(k, &d)| {
+                (
+                    format!("leg{k}"),
+                    amount,
+                    None,
+                    0.0,
+                    profile.clone(),
+                    1u8,
+                    Arc::new(vec![(d, 1.0)]),
+                    egress.clone(),
+                )
+            })
+            .collect();
+        let mut core = NativeJourneyCore::new_shared(legs, vec![], vec![], 1_000_000).unwrap();
+        core.configure_release_timing(interval);
+        core
+    }
+    fn uniform(t: f64) -> f64 {
+        (t / 100.0).clamp(0.0, 1.0)
+    }
+    fn finish(core: &mut NativeJourneyCore, end: f64) {
+        core.finish(end, vec![], vec![], vec![], vec![], vec![], vec![], vec![])
+            .unwrap();
+    }
+    /// Advance `ticks` steps; per tick return (leg -> offered mass, offered birth
+    /// moment, arrival moment) and the committed released carrier per leg.
+    fn run(core: &mut NativeJourneyCore, ticks: usize) -> Vec<(Vec<[f64; 3]>, Vec<f64>)> {
+        let n = core.legs.len();
+        let mut out = vec![];
+        for _ in 0..ticks {
+            let t = core.state.0;
+            let (offers, arrivals) = if core.release_interval {
+                let (o, _, a) = core.prepare_interval_inner(STEP).unwrap();
+                (o, a)
+            } else {
+                let (o, _) = core.prepare().unwrap();
+                let a = vec![t; o.len()];
+                (o, a)
+            };
+            let mut per_leg = vec![[0.0; 3]; n];
+            for ((tag, mass, birth), arrival) in offers.iter().zip(&arrivals) {
+                assert!(*arrival >= t && *arrival <= t + STEP, "arrival outside step");
+                assert!(*birth <= mass * arrival, "offer arrives before its birth moment");
+                let i = core.route_indices[tag];
+                per_leg[i][0] += mass;
+                per_leg[i][1] += birth;
+                per_leg[i][2] += mass * arrival;
+            }
+            finish(core, t + STEP);
+            out.push((per_leg, core.state.4.clone()));
+        }
+        out
+    }
+
+    #[test]
+    fn legacy_release_lags_one_step_and_interval_release_is_exact_at_grid_times() {
+        let mut legacy = core(&[0.0], 2.0, false);
+        let mut interval = core(&[0.0], 2.0, true);
+        let a = run(&mut legacy, 5);
+        let b = run(&mut interval, 5);
+        for k in 0..5 {
+            let grid = STEP * (k as f64 + 1.0);
+            // Legacy: the state at grid time T holds released = A*F(T - dt).
+            assert!((a[k].1[0] - 2.0 * uniform(grid - STEP)).abs() < 1e-12);
+            // release_interval_v1: released = A*F(T) at every grid time.
+            assert!((b[k].1[0] - 2.0 * uniform(grid)).abs() < 1e-12);
+            // Zero access delay: the step's births arrive inside the step at
+            // their own times; birth and arrival moments coincide.
+            let [mass, birth, arrival] = b[k].0[0];
+            assert!((mass - 0.2).abs() < 1e-12);
+            assert!((birth - 0.2 * (grid - 5.0)).abs() < 1e-9);
+            assert!((arrival - birth).abs() < 1e-9);
+        }
+        // Legacy offers the previous step's births at the step start.
+        assert_eq!(a[0].0[0][0], 0.0);
+        assert!((a[1].0[0][0] - 0.2).abs() < 1e-12);
+    }
+
+    #[test]
+    fn atom_aligned_rows_offer_exactly_the_mass_ready_by_each_step_end() {
+        // Non-grid delays: x = 3 (j = 0) and x = 4 (j = 1).
+        let delays = [3.0, 14.0];
+        let mut interval = core(&delays, 1.0, true);
+        let mut legacy = core(&delays, 1.0, false);
+        let b = run(&mut interval, 12);
+        let a = run(&mut legacy, 12);
+        let mut offered = [0.0; 2];
+        let mut legacy_offered = [0.0; 2];
+        let mut lag_at_50 = [0.0; 2];
+        for k in 0..12 {
+            let end = STEP * (k as f64 + 1.0);
+            for i in 0..2 {
+                offered[i] += b[k].0[i][0];
+                legacy_offered[i] += a[k].0[i][0];
+                // Exactly the mass whose individual ready time is <= step end.
+                let ready = uniform(end - delays[i]);
+                assert!((offered[i] - ready).abs() < 1e-12, "{k} {i} {} {}", offered[i], ready);
+                // Legacy offers less (it lags) but never more.
+                assert!(legacy_offered[i] <= ready + 1e-12);
+                if b[k].0[i][0] > 0.0 {
+                    // Mean arrival = mean birth + delay, inside the step.
+                    let [m, birth, arrival] = b[k].0[i];
+                    assert!((arrival - (birth + m * delays[i])).abs() < 1e-9);
+                }
+                if k == 4 {
+                    lag_at_50[i] = offered[i] - legacy_offered[i];
+                }
+            }
+        }
+        // During the ramp legacy has offered 1-2 steps of ready mass less.
+        assert!(lag_at_50.iter().all(|lag| *lag > 0.05), "{lag_at_50:?}");
+        assert!((offered[0] - legacy_offered[0]).abs() < 1e-12);
+    }
+
+    #[test]
+    fn unstaged_access_mass_closes_released_stage_and_offered_ledger() {
+        let delays = [0.0, 3.0, 14.0, 20.0, 27.5];
+        let mut c = core(&delays, 3.0, true);
+        let mut offered = vec![0.0; delays.len()];
+        for _ in 0..13 {
+            let ticks = run(&mut c, 1);
+            for i in 0..delays.len() {
+                offered[i] += ticks[0].0[i][0];
+            }
+            let t = c.state.0;
+            for i in 0..delays.len() {
+                let staged = fsum(c.state.1.iter().filter(|a| a.0 == i).map(|a| a.1));
+                let unstaged = c.unstaged_access_mass(i, t, STEP);
+                let x = delays[i] % STEP;
+                assert!((unstaged - 3.0 * (uniform(t) - uniform(t - x))).abs() < 1e-12);
+                assert!((c.state.4[i] - offered[i] - staged - unstaged).abs() < 1e-12);
+                // Every staged row is due strictly after the committed clock.
+                assert!(c.state.1.iter().filter(|a| a.0 == i).all(|a| a.2 + a.3 > t));
+            }
+        }
+        // The legacy owner never reports unstaged access mass.
+        let legacy = core(&delays, 3.0, false);
+        assert_eq!(legacy.unstaged_access_mass(1, 50.0, STEP), 0.0);
+    }
+
+    #[test]
+    fn interval_and_legacy_prepare_entry_points_are_exclusive() {
+        let mut legacy = core(&[0.0], 1.0, false);
+        assert!(legacy.prepare_interval_inner(STEP).is_err());
+        let mut interval = core(&[0.0], 1.0, true);
+        assert!(interval.prepare().is_err());
+        assert!(interval.prepare_interval_inner(0.0).is_err());
+        assert!(interval.prepare_interval_inner(f64::NAN).is_err());
+        assert!(!parse_release_timing("legacy").unwrap());
+        assert!(parse_release_timing("release_interval_v1").unwrap());
+        assert!(parse_release_timing("release_interval").is_err());
+        assert_eq!(release_identity("x", false), "x");
+        assert_eq!(release_identity("x", true), "x:release_interval_v1");
     }
 }

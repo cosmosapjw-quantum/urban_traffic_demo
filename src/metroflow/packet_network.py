@@ -640,21 +640,30 @@ class PacketNetwork:
         born = 0.0
         birth1 = 0.0
         inherited = 0.0
+        # release_interval_v1 sources are (tag, mass, birth, arrival_s): they
+        # reach the source queue at arrival_s inside [t, t+dt] and wait from
+        # there; an interval without such a source is the legacy computation.
+        interval_sources = any(len(offer) == 4 for offer in offers)
+        new_waits = []
         for offer in offers:
-            if len(offer) not in (3, 5):
+            if len(offer) not in (3, 4, 5):
                 raise ValueError("source offer needs mass/birth and optional interval")
             tag, mass, birth = offer[:3]
+            arrival = offer[3] if len(offer) == 4 else None
             a, b = offer[3:] if len(offer) == 5 else (None, None)
             if a is not None and (
                 not all(map(math.isfinite, (a, b))) or not 0 <= a <= b <= t + 1e-9
             ):
                 raise ValueError("source interval must precede current clock")
+            late = (birth > mass * t if arrival is None else
+                    not math.isfinite(arrival) or arrival < t or arrival > end
+                    or birth > mass * arrival)
             if (
                 tag not in self.routes
                 or not all(map(math.isfinite, (mass, birth)))
                 or mass < 0
                 or birth < 0
-                or birth > mass * t
+                or late
                 or (mass == 0 and birth != 0)
             ):
                 raise ValueError("invalid source mass or original birth moment")
@@ -663,15 +672,36 @@ class PacketNetwork:
                 new[self.index[route[0]]].append(Part(tag, route, mass, birth, a, b))
                 born += mass
                 birth1 += birth
-                inherited += mass * t - birth
+                if arrival is None:
+                    inherited += mass * t - birth
+                    if interval_sources:
+                        new_waits.append((tag, dt * mass))
+                else:
+                    moment = mass * arrival
+                    inherited += moment - birth
+                    new_waits.append((tag, mass * end - moment))
                 class_add(tag, "released", mass)
-        for i, parts in new.items():
-            pending[i].append(Pending(t, combine(parts)))
-        source_wait = dt * math.fsum(p.mass for q in pending for p in q)
-        for q in pending:
-            for packet in q:
-                for part in packet.parts:
-                    class_add(part.tag, "source_wait_seconds", dt * part.mass)
+        if interval_sources:
+            # Earlier pending packets wait the whole interval; each new source
+            # waits from its own arrival to the end of the interval.
+            waiting = dt * math.fsum(p.mass for q in pending for p in q)
+            for q in pending:
+                for packet in q:
+                    for part in packet.parts:
+                        class_add(part.tag, "source_wait_seconds", dt * part.mass)
+            for tag, wait in new_waits:
+                class_add(tag, "source_wait_seconds", wait)
+            for i, parts in new.items():
+                pending[i].append(Pending(t, combine(parts)))
+            source_wait = math.fsum([waiting] + [wait for _, wait in new_waits])
+        else:
+            for i, parts in new.items():
+                pending[i].append(Pending(t, combine(parts)))
+            source_wait = dt * math.fsum(p.mass for q in pending for p in q)
+            for q in pending:
+                for packet in q:
+                    for part in packet.parts:
+                        class_add(part.tag, "source_wait_seconds", dt * part.mass)
         factor = [_factor(g.id, t + dt / 2, self.windows) for g in self.groups]
         receive = [g.physics.entry_rate * f for g, f in zip(self.groups, factor)]
         free = [rate * dt for rate in receive]  # remaining vehicle admission increments

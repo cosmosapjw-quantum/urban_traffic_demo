@@ -562,6 +562,7 @@ impl NativeWholeEngine {
         storage_policy: String,
         entry_projection_width_s: f64,
         mark_blocks: bool,
+        release_interval: bool,
     ) -> PyResult<Self> {
         let (city, schedule) = calendar.owned_binding();
         if city != s.city
@@ -1006,6 +1007,7 @@ impl NativeWholeEngine {
         )?;
         let service = NativeServiceCore::new(buses, people, freight, Vec::new())?;
         let mut journey = NativeJourneyCore::new_shared(legs, bus_meta, freight_meta, s.budget)?;
+        journey.configure_release_timing(release_interval);
         let runtime_storage = if storage_policy == "bounded_bytes_v1" {
             let strings = |values: &Vec<String>| {
                 values.iter().fold(buffer_bytes(values), |bytes, value| {
@@ -1096,6 +1098,14 @@ impl NativeWholeEngine {
             journey.configure_storage_budget(journey_bytes)?;
         }
         identity = crate::v1_road::representation_identity(&identity, entry_projection_width_s, mark_blocks);
+        if release_interval {
+            // Bind the release timing in both the engine header and the road
+            // owner's own checkpoint identity; legacy bindings are unchanged.
+            identity = crate::v1_journey::release_identity(&identity, true);
+            let road_identity =
+                crate::v1_journey::release_identity(road.storage_identity(), true);
+            road.bind_storage_identity(road_identity)?;
+        }
         let event_limit = road.checkpoint_event_limit();
         let initial_state = Arc::new(Bundle {
             road: road.checkpoint(),
@@ -1238,9 +1248,21 @@ impl NativeWholeEngine {
                 active.insert(i, mass);
             }
         }
+        let interval = self.journey.release_interval();
+        let unstaged: Vec<f64> = if interval {
+            (0..self.journey.legs().len())
+                .map(|i| self.journey.unstaged_access_mass(i, time, self.step))
+                .collect()
+        } else {
+            Vec::new()
+        };
         for (i, leg) in self.journey.legs().iter().enumerate() {
             if leg.5 == 1 || leg.5 == 2 {
-                let mass = stages[i] + active.get(&i).copied().unwrap_or(0.0);
+                let mut mass = stages[i] + active.get(&i).copied().unwrap_or(0.0);
+                if interval {
+                    // release_interval_v1: released but not yet staged access mass.
+                    mass += unstaged[i];
+                }
                 if (j.4[i] - j.5[i] - mass).abs() > 1e-9 * leg.1.max(1.0) {
                     return Err(bad("joint calendar stage and physical ledger differ"));
                 }
@@ -1263,12 +1285,28 @@ impl NativeWholeEngine {
             Ok(())
         };
         let legs = self.journey.legs();
-        let car_released = fsum(
-            legs.iter()
-                .enumerate()
-                .filter(|(_, l)| l.5 == 1)
-                .map(|(i, _)| j.4[i]),
-        ) - fsum(j.1.iter().map(|a| a.1));
+        let car_released = if interval {
+            fsum(
+                legs.iter()
+                    .enumerate()
+                    .filter(|(_, l)| l.5 == 1)
+                    .map(|(i, _)| j.4[i]),
+            ) - fsum(
+                j.1.iter().map(|a| a.1).chain(
+                    legs.iter()
+                        .enumerate()
+                        .filter(|(_, l)| l.5 == 1)
+                        .map(|(i, _)| unstaged[i]),
+                ),
+            )
+        } else {
+            fsum(
+                legs.iter()
+                    .enumerate()
+                    .filter(|(_, l)| l.5 == 1)
+                    .map(|(i, _)| j.4[i]),
+            ) - fsum(j.1.iter().map(|a| a.1))
+        };
         let car_completed = fsum(
             legs.iter()
                 .enumerate()
@@ -1341,7 +1379,7 @@ impl NativeWholeEngine {
 #[pymethods]
 impl NativeWholeEngine {
     #[new]
-    #[pyo3(signature = (calendar, payload, byte_budget, native_threads=1, storage_policy="legacy_records", entry_projection_width_s=0.0, road_representation="rows"))]
+    #[pyo3(signature = (calendar, payload, byte_budget, native_threads=1, storage_policy="legacy_records", entry_projection_width_s=0.0, road_representation="rows", release_timing="legacy"))]
     fn new(
         py: Python<'_>,
         calendar: PyRef<'_, NativeCalendar>,
@@ -1351,8 +1389,10 @@ impl NativeWholeEngine {
         storage_policy: &str,
         entry_projection_width_s: f64,
         road_representation: &str,
+        release_timing: &str,
     ) -> PyResult<Self> {
         let mark_blocks = crate::v1_road::parse_representation(road_representation)?;
+        let release_interval = crate::v1_journey::parse_release_timing(release_timing)?;
         if !["legacy_records", "bounded_bytes_v1"].contains(&storage_policy) {
             return Err(bad("unknown native storage_policy"));
         }
@@ -1363,7 +1403,7 @@ impl NativeWholeEngine {
         let parallel = ParallelPolicy::new(native_threads).map_err(bad)?;
         let source: &NativeCalendar = &calendar;
         py.allow_threads(|| {
-            Self::build(source, s, byte_budget, parallel, storage_policy.to_owned(), entry_projection_width_s, mark_blocks)
+            Self::build(source, s, byte_budget, parallel, storage_policy.to_owned(), entry_projection_width_s, mark_blocks, release_interval)
         })
     }
     #[getter]
@@ -1383,6 +1423,27 @@ impl NativeWholeEngine {
     #[getter]
     fn entry_projection_width_s(&self) -> f64 {
         self.road.entry_projection_width_s()
+    }
+    #[getter]
+    fn release_timing(&self) -> &'static str {
+        crate::v1_journey::release_timing_name(self.journey.release_interval())
+    }
+    /// Read-only road ledger and moment diagnostic of a snapshot. Mirrors the
+    /// road owner's own mass/residence ledger checks; not physical state.
+    fn road_ledger(&self, py: Python<'_>, state: &NativeWholeState) -> PyResult<Py<PyDict>> {
+        self.checked(state)?;
+        let out = PyDict::new(py);
+        for (key, value) in state.value.road.ledger_diagnostics() {
+            out.set_item(key, value)?;
+        }
+        let j = &state.value.journey;
+        let unstaged = fsum(
+            (0..self.journey.legs().len())
+                .map(|i| self.journey.unstaged_access_mass(i, j.0, self.step)),
+        );
+        out.set_item("journey_unstaged_access_carrier", unstaged)?;
+        out.set_item("scope", "diagnostic; road totals (born, sink, birth moment, exit moment, source wait, transfer hold, pre-entry), summed cell admitted/completed/entry/exit moments, occupancy, pending, and relative residuals computed as in the road state check")?;
+        Ok(out.unbind())
     }
     fn event_resolution_diagnostics(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let (count, processed_time, roundoff, mass) = self.road.event_resolution_stats();
@@ -1465,6 +1526,10 @@ impl NativeWholeEngine {
     }
     fn execution_config(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let out = PyDict::new(py);
+        out.set_item(
+            "release_timing",
+            crate::v1_journey::release_timing_name(self.journey.release_interval()),
+        )?;
         out.set_item("entry_projection_width_s", self.road.entry_projection_width_s())?;
         out.set_item("entry_projection_policy", if self.road.entry_projection_width_s() > 0. { "entry_projection_support_v1" } else { "exact" })?;
         out.set_item("road_representation", self.road.road_representation())?;
