@@ -1,0 +1,318 @@
+{
+ "scope": "bounded numerical refinement, Valley valley_weekday_s7, full calendar, common prefix 0..25500 s; DIAGNOSTIC, not acceptance; V03 BLOCKED, 19/21, final acceptance 5/21 unchanged",
+ "base_commit": "82cfc7a",
+ "branch": "research/refine-20261117",
+ "candidate_provenance_from_run": {
+  "status": "MEASURED",
+  "source_sha256": "9a5cf21c4c1115bd3f86258b58855f6134b7112ac749d8256f5f6c7c0610f3ff",
+  "source_files": 20,
+  "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+  "git_commit": "82cfc7aabdae1de2d67482d9ae2b4516d6c1b8bc",
+  "source_dirty": false
+ },
+ "native_binary": {
+  "path": "native_binding/_metroflow_rust.so",
+  "sha256": "a0077a0707c398615508e2687f3bf6cb032904be31fa8c779068a6af7d05498b",
+  "copied_from": "/home/cosmosapjw/urban_traffic_followup_20261117/native_binding/_metroflow_rust.so",
+  "rebuilt": false,
+  "committed": false,
+  "budget_trace_alloc_counting": false
+ },
+ "python": "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+ "plan_sha256": "ad067acd638304d4d2b9e3897406b4ba961f7a9abb9a7e7c1a86c7ba770fd146",
+ "release_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+ "settings": {
+  "native_threads": 1,
+  "storage_policy": "bounded_bytes_v1",
+  "routing": "rust",
+  "engine": "rust_whole",
+  "METROFLOW_BUDGET_TRACE": "record",
+  "address_space_limit_bytes": 8589934592,
+  "native_calls": "hourly until 21600 s, then every 300 s; report sampled at each call end >= 21600 s"
+ },
+ "design_fixed_before_runs": {
+  "A": "dt=10 s, h in {0,1,0.5,0.25} s",
+  "B": "h=1 s, dt in {10,5} s",
+  "T_s": 25500
+ },
+ "leg_table": {
+  "path": "artifacts/v1_refinement_20261117/valley_legs.npz",
+  "sha256": "ad70081e9502dfcb29871eafbd69634e77442db1b88a133be300d30d45fffa17",
+  "committed": false,
+  "leg_id_sha256": "1e6e4c4f9b0e94e65cf8560537dd93d98d7190c443d15b91908f17a481b89dc3",
+  "legs": 918450,
+  "command": "PYTHONPATH=native_binding:src $PY tools/probe_v1_refinement.py legs valley_weekday_s7 artifacts/v1_refinement_20261117/valley_legs.npz",
+  "exit_code": 0,
+  "wall_s": 26.9,
+  "peak_rss_kib": 507228
+ },
+ "smoke": {
+  "command": "METROFLOW_REFINE_SMOKE_SAMPLE_FROM_S=0 PYTHONPATH=native_binding:src $PY tools/probe_v1_refinement.py run valley_weekday_s7 600 1 10 <scratch>/smoke/valley_smoke artifacts/v1_refinement_20261117/valley_legs.npz",
+  "exit_code": 0,
+  "note": "tool smoke to 600 s only (zero demand); output in session scratch, not kept"
+ },
+ "launcher": "artifacts/v1_refinement_20261117/run_sequence.py (sequential, waits for MemAvailable >= 6 GiB)",
+ "launches": [
+  {
+   "label": "h0_dt10",
+   "width_s": 0.0,
+   "step_s": 10.0,
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_refinement.py",
+    "run",
+    "valley_weekday_s7",
+    "25500",
+    "0",
+    "10",
+    "artifacts/v1_refinement_20261117/runs/valley_h0_dt10",
+    "artifacts/v1_refinement_20261117/valley_legs.npz"
+   ],
+   "mem_available_at_start_bytes": 7013326848,
+   "waited_for_memory_s": 0.0,
+   "started_utc": "2026-11-17T10:42:15.904703+00:00",
+   "exit_code": 0,
+   "wall_s": 140.67267298899242,
+   "finished_utc": "2026-11-17T10:44:36.577391+00:00"
+  },
+  {
+   "label": "h1_dt10",
+   "width_s": 1.0,
+   "step_s": 10.0,
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_refinement.py",
+    "run",
+    "valley_weekday_s7",
+    "25500",
+    "1",
+    "10",
+    "artifacts/v1_refinement_20261117/runs/valley_h1_dt10",
+    "artifacts/v1_refinement_20261117/valley_legs.npz"
+   ],
+   "mem_available_at_start_bytes": 7872598016,
+   "waited_for_memory_s": 0.0,
+   "started_utc": "2026-11-17T10:44:36.577899+00:00",
+   "exit_code": 0,
+   "wall_s": 143.9022016370145,
+   "finished_utc": "2026-11-17T10:47:00.480113+00:00"
+  },
+  {
+   "label": "h0.5_dt10_OUTPUT_LOST",
+   "width_s": 0.5,
+   "step_s": 10.0,
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_refinement.py",
+    "run",
+    "valley_weekday_s7",
+    "25500",
+    "0.5",
+    "10",
+    "artifacts/v1_refinement_20261117/runs/valley_h0.5_dt10",
+    "artifacts/v1_refinement_20261117/valley_legs.npz"
+   ],
+   "mem_available_at_start_bytes": 7706865664,
+   "waited_for_memory_s": 60.0,
+   "started_utc": "2026-11-17T10:48:00.481439+00:00",
+   "exit_code": 0,
+   "wall_s": 138.62968810100574,
+   "finished_utc": "2026-11-17T10:50:19.111146+00:00",
+   "note": "exit 0 but JSON/checkpoint were overwritten by the h=0.25 run (tool used Path.with_suffix on a label containing \".\", both wrote valley_h0.*). Re-run as h0p5_dt10 after fixing the naming."
+  },
+  {
+   "label": "h0p25_dt10",
+   "width_s": 0.25,
+   "step_s": 10.0,
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_refinement.py",
+    "run",
+    "valley_weekday_s7",
+    "25500",
+    "0.25",
+    "10",
+    "artifacts/v1_refinement_20261117/runs/valley_h0.25_dt10",
+    "artifacts/v1_refinement_20261117/valley_legs.npz"
+   ],
+   "mem_available_at_start_bytes": 8739061760,
+   "waited_for_memory_s": 0.0,
+   "started_utc": "2026-11-17T10:50:19.112207+00:00",
+   "exit_code": 0,
+   "wall_s": 127.61055289398064,
+   "finished_utc": "2026-11-17T10:52:26.722849+00:00",
+   "note": "original outputs valley_h0.json/.last_valid.bin renamed to valley_h0p25_dt10.*; identity verified by entry_projection_width_s=0.25, step_s=10 inside the JSON. The JSON checkpoint.path field still names the pre-rename path."
+  },
+  {
+   "label": "h1_dt5",
+   "width_s": 1.0,
+   "step_s": 5.0,
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_refinement.py",
+    "run",
+    "valley_weekday_s7",
+    "25500",
+    "1",
+    "5",
+    "artifacts/v1_refinement_20261117/runs/valley_h1_dt5",
+    "artifacts/v1_refinement_20261117/valley_legs.npz"
+   ],
+   "mem_available_at_start_bytes": 10250166272,
+   "waited_for_memory_s": 0.0,
+   "started_utc": "2026-11-17T10:52:26.723626+00:00",
+   "exit_code": 0,
+   "wall_s": 240.13061697798548,
+   "finished_utc": "2026-11-17T10:56:26.854254+00:00"
+  },
+  {
+   "label": "h0p5_dt10",
+   "width_s": 0.5,
+   "step_s": 10.0,
+   "command": [
+    "PYTHONPATH=native_binding:src",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+    "tools/probe_v1_refinement.py",
+    "run",
+    "valley_weekday_s7",
+    "25500",
+    "0.5",
+    "10",
+    "artifacts/v1_refinement_20261117/runs/valley_h0p5_dt10",
+    "artifacts/v1_refinement_20261117/valley_legs.npz"
+   ],
+   "mem_available_at_start_bytes": 9380990976,
+   "waited_for_memory_s": 0.0,
+   "started_utc": "2026-11-17T10:57:04.216404+00:00",
+   "exit_code": 0,
+   "wall_s": 147.57052590700914,
+   "finished_utc": "2026-11-17T10:59:31.786955+00:00"
+  }
+ ],
+ "runs": {
+  "h0_dt10": {
+   "json": "artifacts/v1_refinement_20261117/runs/valley_h0_dt10.json",
+   "json_sha256": "392714efecc00dffefa0376636e86b352ba844ac69740ca6623b2ab0e65d8f24",
+   "width_s": 0.0,
+   "step_s": 10.0,
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25500.0,
+   "wall_s": 139.62991392600816,
+   "advance_wall_s": 99.65048077702522,
+   "construct_wall_s": 27.550175943993963,
+   "peak_rss_bytes": 1009790976,
+   "peak_tracked_records": 5304240,
+   "script_sha256": "f292151e34055dd63e1363afc78f46478877683ceb2c93790613154601b7348a",
+   "checkpoint": {
+    "path": "artifacts/v1_refinement_20261117/runs/valley_h0_dt10.last_valid.bin",
+    "bytes": 337775682,
+    "sha256": "24ae7056712aab223294f5bdeaf1e552931db62c3239ebe55df894bf239fafb1",
+    "committed": false,
+    "recorded_path_in_json": "artifacts/v1_refinement_20261117/runs/valley_h0_dt10.last_valid.bin"
+   }
+  },
+  "h1_dt10": {
+   "json": "artifacts/v1_refinement_20261117/runs/valley_h1_dt10.json",
+   "json_sha256": "217f48d113d2bbeae8c4a1bfadcc2c275d917760ac933b0c9b0fb7df5f7a29b2",
+   "width_s": 1.0,
+   "step_s": 10.0,
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25500.0,
+   "wall_s": 143.1403332700138,
+   "advance_wall_s": 100.5633851509483,
+   "construct_wall_s": 26.664009269996313,
+   "peak_rss_bytes": 889974784,
+   "peak_tracked_records": 4039278,
+   "script_sha256": "f292151e34055dd63e1363afc78f46478877683ceb2c93790613154601b7348a",
+   "checkpoint": {
+    "path": "artifacts/v1_refinement_20261117/runs/valley_h1_dt10.last_valid.bin",
+    "bytes": 238038692,
+    "sha256": "f4e4c78398f78c5ba99d49070bc95cf29daea510e2c81441b5cecc6cc4d45440",
+    "committed": false,
+    "recorded_path_in_json": "artifacts/v1_refinement_20261117/runs/valley_h1_dt10.last_valid.bin"
+   }
+  },
+  "h0p5_dt10": {
+   "json": "artifacts/v1_refinement_20261117/runs/valley_h0p5_dt10.json",
+   "json_sha256": "5cfd4726cc357a271fc0287b5b560406583f6af69d95c1df51dc718db7bcfa8b",
+   "width_s": 0.5,
+   "step_s": 10.0,
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25500.0,
+   "wall_s": 146.51890075099072,
+   "advance_wall_s": 99.05700681396411,
+   "construct_wall_s": 33.378947392018745,
+   "peak_rss_bytes": 931659776,
+   "peak_tracked_records": 4325519,
+   "script_sha256": "4cc5dfe79ea6caedcae162bf7b6d70dfcace908dabe8fa1a5c49a1758b537156",
+   "checkpoint": {
+    "path": "artifacts/v1_refinement_20261117/runs/valley_h0p5_dt10.last_valid.bin",
+    "bytes": 261924364,
+    "sha256": "4f124109193b6df339e98100752bbb69d81155d60231da3614f53af0c72b6f9d",
+    "committed": false,
+    "recorded_path_in_json": "artifacts/v1_refinement_20261117/runs/valley_h0p5_dt10.last_valid.bin"
+   }
+  },
+  "h0p25_dt10": {
+   "json": "artifacts/v1_refinement_20261117/runs/valley_h0p25_dt10.json",
+   "json_sha256": "428809acb2fe6446c33c7b8683056cd0f24d05b43c843373d1400c9ff1b512ff",
+   "width_s": 0.25,
+   "step_s": 10.0,
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25500.0,
+   "wall_s": 126.73532883400912,
+   "advance_wall_s": 92.622006642021,
+   "construct_wall_s": 22.918926806014497,
+   "peak_rss_bytes": 992837632,
+   "peak_tracked_records": 4728298,
+   "script_sha256": "f292151e34055dd63e1363afc78f46478877683ceb2c93790613154601b7348a",
+   "checkpoint": {
+    "path": "artifacts/v1_refinement_20261117/runs/valley_h0p25_dt10.last_valid.bin",
+    "bytes": 293817852,
+    "sha256": "be648cf3c1febf979f473235faa2494f2fc1a0c489779ee82c33c9e8d0e17e36",
+    "committed": false,
+    "recorded_path_in_json": "artifacts/v1_refinement_20261117/runs/valley_h0.last_valid.bin"
+   }
+  },
+  "h1_dt5": {
+   "json": "artifacts/v1_refinement_20261117/runs/valley_h1_dt5.json",
+   "json_sha256": "07e61ca70a82f085ef8db9df23e74710f8f8e59dc17994046d8203588f72653e",
+   "width_s": 1.0,
+   "step_s": 5.0,
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25500.0,
+   "wall_s": 238.99627402899205,
+   "advance_wall_s": 194.69411527595366,
+   "construct_wall_s": 30.203471202985384,
+   "peak_rss_bytes": 1190383616,
+   "peak_tracked_records": 8132062,
+   "script_sha256": "f292151e34055dd63e1363afc78f46478877683ceb2c93790613154601b7348a",
+   "checkpoint": {
+    "path": "artifacts/v1_refinement_20261117/runs/valley_h1_dt5.last_valid.bin",
+    "bytes": 414759996,
+    "sha256": "9d83f098e978cd3262814650fe121f6212255b6b0be1ca82e2998a4c3110b936",
+    "committed": false,
+    "recorded_path_in_json": "artifacts/v1_refinement_20261117/runs/valley_h1_dt5.last_valid.bin"
+   }
+  }
+ },
+ "script_versions": {
+  "f292151e34055dd63e1363afc78f46478877683ceb2c93790613154601b7348a": "used by h0_dt10, h1_dt10, lost h0.5 run, h0p25_dt10, h1_dt5; wrote outputs with Path.with_suffix",
+  "4cc5dfe79ea6caedcae162bf7b6d70dfcace908dabe8fa1a5c49a1758b537156": "committed version; used by h0p5_dt10 rerun; only change: output paths built as str(prefix)+suffix (no effect on computation)"
+ },
+ "incident": "First h=0.5 run (exit 0) wrote valley_h0.json/.bin, which the h=0.25 run then overwrote (Path.with_suffix treated \".5_dt10\"/\".25_dt10\" as suffixes). The surviving file was verified as h=0.25 (width 0.25, step 10) and renamed to valley_h0p25_dt10.*; h=0.5 was re-run under label h0p5_dt10 with the fixed tool. Its log is runs/valley_h0.5_dt10.overwritten_run.log.",
+ "comparison": "artifacts/v1_refinement_20261117/COMPARISON.json (built by compare.py)",
+ "report": "REPORT_KO.md NOT_WRITTEN in this unit: the subagent harness refuses report .md files; the Korean report text was returned to the caller for placement at artifacts/v1_refinement_20261117/REPORT_KO.md",
+ "not_run": [
+  "road-internal class ledger, road residence seconds (veh*s), road birth/exit first moments: not exposed by NativeWholeEngine Python API",
+  "actual allocator bytes: binary built without budget_trace feature (alloc_counting=False)",
+  "repeat runs / run-to-run timing variance",
+  "h<0.25, dt<5, dt variation at h=0",
+  "other cities, horizons beyond 25500 s, 24 h"
+ ]
+}

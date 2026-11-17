@@ -1,0 +1,5521 @@
+{
+ "scope": "Valley valley_weekday_s7 full calendar, common prefix 0..25500 s, 1 thread, bounded_bytes_v1; diagnostic, not acceptance",
+ "plan_numerical_policy": {
+  "mass_relative_tolerance": 1e-09,
+  "residence_relative_tolerance": 1e-08,
+  "report_absolute_floor": 1.0,
+  "interpretation": "tol=relative*max(1,\ud574\ub2f9\ub204\uc801\ub7c9). \uc791\uc740\uac80\uc0b0\uc740\ubd84\uc11d\ud574\uc640\uc808\ub300\uc624\ucc28\ub3c4\ub530\ub85c\uc2dc\ud5d8. \ud070\uc870\uac74\uc218/\uc0c1\uc1c4\uc624\ucc28\ub294\uad00\uce21\ud2b9\uc131\uc5d0\ub9de\uac8c\uc0ac\uc804\uc815\uc758,\uc2e4\ud328\ud6c4\uc644\ud654\uae08\uc9c0.",
+  "supported_python": [
+   "3.12",
+   "3.13"
+  ],
+  "current_host_python": "3.12.14",
+  "current_python312_status": "PASS_I01_FULL_CI_AND_M02_SCOPED",
+  "entry_projection": {
+   "policy": "entry_projection_support_v1",
+   "default_width_s": 0.0,
+   "candidate_widths_s": [
+    1.0,
+    0.5,
+    0.25
+   ],
+   "authority": "2026-11-17 \ud604\uc7ac \uc0ac\uc6a9\uc790: \uc6d0\ub798 \ubaa8\ub378\uc758 \ub3d9\uae30\ub97c \uc0b4\ub9ac\ub294 \ubcf4\uace0\uc11c \uc120\ud0dd\uc9c0\ub97c \uc120\ud0dd\ud558\uace0 \uad6c\ud604\uae4c\uc9c0 \uc218\ud589",
+   "preserves": [
+    "tag/route/class mass",
+    "birth first moment",
+    "entry first moment",
+    "immediate movement support boundaries",
+    "original point atoms",
+    "fixed target/admission cohort boundaries"
+   ],
+   "local_error": "category-wise W1 <= mass * support_width / 2 [veh*s], real-arithmetic local projection bound; not network travel-time bound",
+   "acceptance": "existing G-DAY/G-SCALE and conservation tolerances unchanged; compare exact h=0 with h, h/2 and independently refined dt before promotion",
+   "spec": "docs/v1/CONSERVATIVE_ENTRY_PROJECTION_DESIGN_KO.md"
+  }
+ },
+ "design": {
+  "A": "dt=10 s, h in {0,1,0.5,0.25} s, reference h=0",
+  "B": "h=1 s, dt in {10,5} s, reference dt=5"
+ },
+ "runs": {
+  "h0_dt10": {
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25500.0,
+   "wall_s": 139.62991392600816,
+   "advance_wall_s": 99.65048077702522,
+   "construct_wall_s": 27.550175943993963,
+   "peak_rss_bytes": 1009790976,
+   "peak_tracked_records": 5304240,
+   "ticks": 2550,
+   "mean_tick_s": 0.03742867119843137,
+   "max_tick_s": 1.609422328,
+   "alloc_counting": false,
+   "sample_overhead_wall_s": 11.984957116015721,
+   "reason": null,
+   "resource_limit_kind": null,
+   "endpoint_projection": {
+    "policy": "exact_intervals",
+    "width_s": 0.0,
+    "input_parts": 0,
+    "output_parts": 0,
+    "cohorts": 0,
+    "protected_support_boundaries": 0,
+    "local_w1_bound_veh_s": 0.0,
+    "scope": "latest validated proposed road transition in this runtime; may precede coupled rollback or describe a branch/replay; local time-measure projection cost, not network trajectory error; unchanged by failed road proposals and checkpoint restore",
+    "checkpointed": false
+   },
+   "endpoint_event_resolution": {
+    "subulp_events": 4,
+    "processed_subulp_time_upper_s": 2.2537019212357518e-15,
+    "clock_roundoff_upper_s": 1.9721522630525313e-31,
+    "nominal_subulp_service_mass_upper": 1.0141658645560887e-15,
+    "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+    "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+    "checkpointed": false
+   }
+  },
+  "h1_dt10": {
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25500.0,
+   "wall_s": 143.1403332700138,
+   "advance_wall_s": 100.5633851509483,
+   "construct_wall_s": 26.664009269996313,
+   "peak_rss_bytes": 889974784,
+   "peak_tracked_records": 4039278,
+   "ticks": 2550,
+   "mean_tick_s": 0.03741426289137255,
+   "max_tick_s": 1.18797293,
+   "alloc_counting": false,
+   "sample_overhead_wall_s": 15.607535110990284,
+   "reason": null,
+   "resource_limit_kind": null,
+   "endpoint_projection": {
+    "policy": "entry_projection_support_v1",
+    "width_s": 1.0,
+    "input_parts": 618235,
+    "output_parts": 551485,
+    "cohorts": 3061,
+    "protected_support_boundaries": 2410,
+    "local_w1_bound_veh_s": 16.490377003414142,
+    "scope": "latest validated proposed road transition in this runtime; may precede coupled rollback or describe a branch/replay; local time-measure projection cost, not network trajectory error; unchanged by failed road proposals and checkpoint restore",
+    "checkpointed": false
+   },
+   "endpoint_event_resolution": {
+    "subulp_events": 0,
+    "processed_subulp_time_upper_s": 0.0,
+    "clock_roundoff_upper_s": 0.0,
+    "nominal_subulp_service_mass_upper": 0.0,
+    "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+    "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+    "checkpointed": false
+   }
+  },
+  "h0p5_dt10": {
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25500.0,
+   "wall_s": 146.51890075099072,
+   "advance_wall_s": 99.05700681396411,
+   "construct_wall_s": 33.378947392018745,
+   "peak_rss_bytes": 931659776,
+   "peak_tracked_records": 4325519,
+   "ticks": 2550,
+   "mean_tick_s": 0.03699089580352941,
+   "max_tick_s": 1.33727419,
+   "alloc_counting": false,
+   "sample_overhead_wall_s": 13.674361053010216,
+   "reason": null,
+   "resource_limit_kind": null,
+   "endpoint_projection": {
+    "policy": "entry_projection_support_v1",
+    "width_s": 0.5,
+    "input_parts": 712910,
+    "output_parts": 676897,
+    "cohorts": 3440,
+    "protected_support_boundaries": 2502,
+    "local_w1_bound_veh_s": 12.99422796508845,
+    "scope": "latest validated proposed road transition in this runtime; may precede coupled rollback or describe a branch/replay; local time-measure projection cost, not network trajectory error; unchanged by failed road proposals and checkpoint restore",
+    "checkpointed": false
+   },
+   "endpoint_event_resolution": {
+    "subulp_events": 0,
+    "processed_subulp_time_upper_s": 0.0,
+    "clock_roundoff_upper_s": 0.0,
+    "nominal_subulp_service_mass_upper": 0.0,
+    "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+    "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+    "checkpointed": false
+   }
+  },
+  "h0p25_dt10": {
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25500.0,
+   "wall_s": 126.73532883400912,
+   "advance_wall_s": 92.622006642021,
+   "construct_wall_s": 22.918926806014497,
+   "peak_rss_bytes": 992837632,
+   "peak_tracked_records": 4728298,
+   "ticks": 2550,
+   "mean_tick_s": 0.03488675825372549,
+   "max_tick_s": 1.6620955240000002,
+   "alloc_counting": false,
+   "sample_overhead_wall_s": 10.580661062995205,
+   "reason": null,
+   "resource_limit_kind": null,
+   "endpoint_projection": {
+    "policy": "entry_projection_support_v1",
+    "width_s": 0.25,
+    "input_parts": 825179,
+    "output_parts": 826937,
+    "cohorts": 4247,
+    "protected_support_boundaries": 2825,
+    "local_w1_bound_veh_s": 8.73329010056227,
+    "scope": "latest validated proposed road transition in this runtime; may precede coupled rollback or describe a branch/replay; local time-measure projection cost, not network trajectory error; unchanged by failed road proposals and checkpoint restore",
+    "checkpointed": false
+   },
+   "endpoint_event_resolution": {
+    "subulp_events": 0,
+    "processed_subulp_time_upper_s": 0.0,
+    "clock_roundoff_upper_s": 0.0,
+    "nominal_subulp_service_mass_upper": 0.0,
+    "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+    "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+    "checkpointed": false
+   }
+  },
+  "h1_dt5": {
+   "status": "REACHED_HORIZON",
+   "simulated_s": 25500.0,
+   "wall_s": 238.99627402899205,
+   "advance_wall_s": 194.69411527595366,
+   "construct_wall_s": 30.203471202985384,
+   "peak_rss_bytes": 1190383616,
+   "peak_tracked_records": 8132062,
+   "ticks": 5100,
+   "mean_tick_s": 0.0372577229309804,
+   "max_tick_s": 1.736601246,
+   "alloc_counting": false,
+   "sample_overhead_wall_s": 13.465152928984025,
+   "reason": null,
+   "resource_limit_kind": null,
+   "endpoint_projection": {
+    "policy": "entry_projection_support_v1",
+    "width_s": 1.0,
+    "input_parts": 733654,
+    "output_parts": 621036,
+    "cohorts": 2947,
+    "protected_support_boundaries": 2459,
+    "local_w1_bound_veh_s": 6.98519871518794,
+    "scope": "latest validated proposed road transition in this runtime; may precede coupled rollback or describe a branch/replay; local time-measure projection cost, not network trajectory error; unchanged by failed road proposals and checkpoint restore",
+    "checkpointed": false
+   },
+   "endpoint_event_resolution": {
+    "subulp_events": 0,
+    "processed_subulp_time_upper_s": 0.0,
+    "clock_roundoff_upper_s": 0.0,
+    "nominal_subulp_service_mass_upper": 0.0,
+    "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+    "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+    "checkpointed": false
+   }
+  }
+ },
+ "conservation": {
+  "h0_dt10": {
+   "persons: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over classes - report released": {
+    "max_relative": 6.82121026329687e-17,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over classes - report completed": {
+    "max_relative": 9.592326932761224e-18,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over destinations - report completed": {
+    "max_relative": 5.32907051820068e-18,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over destinations - report released": {
+    "max_relative": 6.82121026329687e-16,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decomposed first moment - report": {
+    "max_relative": 7.590415461880346e-16,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over classes - report released": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over classes - report completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over destinations - report completed": {
+    "max_relative": 1.0875654118776972e-17,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over destinations - report released": {
+    "max_relative": 3.619417690728976e-14,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decomposed first moment - report": {
+    "max_relative": 2.8129551712523102e-14,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: sum over classes - report released": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: sum over classes - report completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decomposed first moment - report": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "road: negative occupancy (released-completed)": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo: delivered+unfinished - assigned": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   }
+  },
+  "h1_dt10": {
+   "persons: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over classes - report released": {
+    "max_relative": 6.82121026329687e-17,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over classes - report completed": {
+    "max_relative": 5.32907051820068e-18,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over destinations - report completed": {
+    "max_relative": 9.592326932761224e-18,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over destinations - report released": {
+    "max_relative": 6.82121026329687e-16,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decomposed first moment - report": {
+    "max_relative": 7.590415461880346e-16,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over classes - report released": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over classes - report completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over destinations - report completed": {
+    "max_relative": 1.7401046590043155e-17,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over destinations - report released": {
+    "max_relative": 3.619417690728976e-14,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decomposed first moment - report": {
+    "max_relative": 2.8129551712523102e-14,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: sum over classes - report released": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: sum over classes - report completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decomposed first moment - report": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "road: negative occupancy (released-completed)": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo: delivered+unfinished - assigned": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   }
+  },
+  "h0p5_dt10": {
+   "persons: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over classes - report released": {
+    "max_relative": 6.82121026329687e-17,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over classes - report completed": {
+    "max_relative": 5.32907051820068e-18,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over destinations - report completed": {
+    "max_relative": 1.065814103640136e-17,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over destinations - report released": {
+    "max_relative": 6.82121026329687e-16,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decomposed first moment - report": {
+    "max_relative": 7.590415461880346e-16,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over classes - report released": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over classes - report completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over destinations - report completed": {
+    "max_relative": 1.0875654118776972e-17,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over destinations - report released": {
+    "max_relative": 3.619417690728976e-14,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decomposed first moment - report": {
+    "max_relative": 2.8129551712523102e-14,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: sum over classes - report released": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: sum over classes - report completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decomposed first moment - report": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "road: negative occupancy (released-completed)": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo: delivered+unfinished - assigned": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   }
+  },
+  "h0p25_dt10": {
+   "persons: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over classes - report released": {
+    "max_relative": 6.82121026329687e-17,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over classes - report completed": {
+    "max_relative": 6.394884621840816e-18,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over destinations - report completed": {
+    "max_relative": 1.2789769243681632e-17,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over destinations - report released": {
+    "max_relative": 6.82121026329687e-16,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decomposed first moment - report": {
+    "max_relative": 7.590415461880346e-16,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over classes - report released": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over classes - report completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over destinations - report completed": {
+    "max_relative": 8.700523295021577e-18,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over destinations - report released": {
+    "max_relative": 3.619417690728976e-14,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decomposed first moment - report": {
+    "max_relative": 2.8129551712523102e-14,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: sum over classes - report released": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: sum over classes - report completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decomposed first moment - report": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "road: negative occupancy (released-completed)": {
+    "max_relative": 2.220446049250313e-16,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo: delivered+unfinished - assigned": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   }
+  },
+  "h1_dt5": {
+   "persons: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over classes - report released": {
+    "max_relative": 1.364242052659374e-16,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over classes - report completed": {
+    "max_relative": 2.131628207280272e-18,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over destinations - report completed": {
+    "max_relative": 2.5579538487363264e-17,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: sum over destinations - report released": {
+    "max_relative": 3.3423930290154666e-15,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decomposed first moment - report": {
+    "max_relative": 7.461028405581876e-16,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over classes - report released": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over classes - report completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over destinations - report completed": {
+    "max_relative": 5.220313977012946e-17,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: sum over destinations - report released": {
+    "max_relative": 1.113666981762762e-14,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decomposed first moment - report": {
+    "max_relative": 1.457232485134721e-14,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: requested-released-pending": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: released-completed-active": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: negative part of active/pending/completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: sum over classes - report released": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: sum over classes - report completed": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decomposed first moment - report": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "road: negative occupancy (released-completed)": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo: delivered+unfinished - assigned": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "persons: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "vehicles: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decrease of completed in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   },
+   "cargo_kg: decrease of released in time": {
+    "max_relative": 0.0,
+    "tolerance": 1e-09,
+    "kind": "mass",
+    "pass": true
+   }
+  }
+ },
+ "A": {
+  "h1_dt10_minus_h0_dt10": {
+   "common_times_s": [
+    21600.0,
+    21900.0,
+    22200.0,
+    22500.0,
+    22800.0,
+    23100.0,
+    23400.0,
+    23700.0,
+    24000.0,
+    24300.0,
+    24600.0,
+    24900.0,
+    25200.0,
+    25500.0
+   ],
+   "scalars": {
+    "ledger.persons.requested": {
+     "endpoint_reference": 1666.666666666689,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.persons.released": {
+     "endpoint_reference": 968.2160609041655,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.persons.completed": {
+     "endpoint_reference": 12.879163869516136,
+     "endpoint_difference": -0.0012953110168485438,
+     "endpoint_relative": -0.00010057415450038901,
+     "max_abs_difference": 0.0012953110168485438,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.0012953110168485438
+     ]
+    },
+    "ledger.persons.pending": {
+     "endpoint_reference": 698.4506057625235,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.persons.active": {
+     "endpoint_reference": 955.3368970346494,
+     "endpoint_difference": 0.0012953110168609783,
+     "endpoint_relative": 1.3558683024612607e-06,
+     "max_abs_difference": 0.0012953110168609783,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0012953110168609783
+     ]
+    },
+    "first_moment.persons": {
+     "endpoint_reference": 24539436.063616086,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.requested": {
+     "endpoint_reference": 816.6666666666721,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.released": {
+     "endpoint_reference": 773.3333333333038,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.completed": {
+     "endpoint_reference": 9.356870149734338,
+     "endpoint_difference": -0.0010362488134898484,
+     "endpoint_relative": -0.00011074737566164364,
+     "max_abs_difference": 0.0010362488134898484,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.0010362488134898484
+     ]
+    },
+    "ledger.vehicles.pending": {
+     "endpoint_reference": 43.33333333336827,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.active": {
+     "endpoint_reference": 763.9764631835694,
+     "endpoint_difference": 0.0010362488135342574,
+     "endpoint_relative": 1.35638840130768e-06,
+     "max_abs_difference": 0.0010362488135342574,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0010362488135342574
+     ]
+    },
+    "first_moment.vehicles": {
+     "endpoint_reference": 19600133.333333883,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.requested": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.released": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.completed": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.pending": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.active": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "first_moment.cargo_kg": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.road_released_veh": {
+     "endpoint_reference": 413.4345340317021,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.road_completed_veh": {
+     "endpoint_reference": 29.87212679095582,
+     "endpoint_difference": -0.0005869497134831647,
+     "endpoint_relative": -1.964874203938072e-05,
+     "max_abs_difference": 0.0005869497134831647,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.0005869497134831647
+     ]
+    },
+    "service.bus_road_vehicles": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 4.440892098500626e-16,
+     "endpoint_relative": 4.440892098500626e-16,
+     "max_abs_difference": 8.881784197001252e-16,
+     "at_time_s": 22500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      8.881784197001252e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16
+     ]
+    },
+    "service.completed_bus_vehicles": {
+     "endpoint_reference": 4,
+     "endpoint_difference": 0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "service.waiting_persons": {
+     "endpoint_reference": 1.6769625,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.onboard_persons": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.arrived_persons": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.wait_person_s": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.freight_completed_vehicles": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.cargo_delivered_kg": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.cargo_unfinished_kg": {
+     "endpoint_reference": 998.825,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.road_occupancy_veh": {
+     "endpoint_reference": 383.5624072407463,
+     "endpoint_difference": 0.0005869497134654011,
+     "endpoint_relative": 1.5302587072799264e-06,
+     "max_abs_difference": 0.0005869497134654011,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      -4.440892098500626e-16,
+      -4.440892098500626e-16,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0005869497134654011
+     ]
+    },
+    "records.road_total": {
+     "endpoint_reference": 2550859,
+     "endpoint_difference": -1146798,
+     "endpoint_relative": -0.44957326139939524,
+     "max_abs_difference": 1146798,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0,
+      6,
+      -4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -1146798
+     ]
+    },
+    "records.journey_total": {
+     "endpoint_reference": 2753381,
+     "endpoint_difference": -118164,
+     "endpoint_relative": -0.042915964045658776,
+     "max_abs_difference": 118164,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -118164
+     ]
+    }
+   },
+   "vectors": {
+    "persons.class_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 968.2160609041656,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "persons.class_completed": {
+     "endpoint_l1": 0.0012953110168556492,
+     "endpoint_max_abs": 0.0012953110168556492,
+     "endpoint_reference_l1": 12.879163869516152,
+     "max_l1_over_time": 0.0012953110168556492,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0012953110168556492
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 0,
+       "difference": -0.0012953110168556492,
+       "reference": 11.696087687167958
+      }
+     ]
+    },
+    "persons.dest_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 968.2160609041666,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "persons.dest_completed": {
+     "endpoint_l1": 0.0013743852034176815,
+     "endpoint_max_abs": 0.0009410471519930297,
+     "endpoint_reference_l1": 12.879163869516127,
+     "max_l1_over_time": 0.0013743852034176815,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0013743852034176815
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 228,
+       "difference": -0.0009410471519930297,
+       "reference": 0.17217328710946014
+      },
+      {
+       "index": 81,
+       "difference": -0.0003206531060845341,
+       "reference": 0.15956878285506196
+      },
+      {
+       "index": 206,
+       "difference": -1.8640684833049967e-05,
+       "reference": 0.003496935495771354
+      },
+      {
+       "index": 208,
+       "difference": -1.218180423517845e-05,
+       "reference": 0.26713898288031324
+      },
+      {
+       "index": 219,
+       "difference": -9.95252489885412e-06,
+       "reference": 0.193298344893516
+      }
+     ]
+    },
+    "vehicles.class_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 773.3333333333038,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "vehicles.class_completed": {
+     "endpoint_l1": 0.0010362488134898484,
+     "endpoint_max_abs": 0.0010362488134898484,
+     "endpoint_reference_l1": 9.356870149734338,
+     "max_l1_over_time": 0.0010362488134898484,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0010362488134898484
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 0,
+       "difference": -0.0010362488134898484,
+       "reference": 9.356870149734338
+      }
+     ]
+    },
+    "vehicles.dest_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 773.3333333333334,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "vehicles.dest_completed": {
+     "endpoint_l1": 0.0010995081627342925,
+     "endpoint_max_abs": 0.0007528377215944293,
+     "endpoint_reference_l1": 9.356870149734346,
+     "max_l1_over_time": 0.0010995081627342925,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0010995081627342925
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 228,
+       "difference": -0.0007528377215944293,
+       "reference": 0.1299621516650353
+      },
+      {
+       "index": 81,
+       "difference": -0.00025652248486765505,
+       "reference": 0.12068195898617323
+      },
+      {
+       "index": 206,
+       "difference": -1.491254786644032e-05,
+       "reference": 0.00266719977099937
+      },
+      {
+       "index": 208,
+       "difference": -9.74544338813721e-06,
+       "reference": 0.19337261063549238
+      },
+      {
+       "index": 219,
+       "difference": -7.962019919094399e-06,
+       "reference": 0.13426728830907472
+      }
+     ]
+    },
+    "cargo_kg.class_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 0.0,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "cargo_kg.class_completed": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 0.0,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    }
+   }
+  },
+  "h0p5_dt10_minus_h0_dt10": {
+   "common_times_s": [
+    21600.0,
+    21900.0,
+    22200.0,
+    22500.0,
+    22800.0,
+    23100.0,
+    23400.0,
+    23700.0,
+    24000.0,
+    24300.0,
+    24600.0,
+    24900.0,
+    25200.0,
+    25500.0
+   ],
+   "scalars": {
+    "ledger.persons.requested": {
+     "endpoint_reference": 1666.666666666689,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.persons.released": {
+     "endpoint_reference": 968.2160609041655,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.persons.completed": {
+     "endpoint_reference": 12.879163869516136,
+     "endpoint_difference": -0.0012951511949363947,
+     "endpoint_relative": -0.00010056174516126046,
+     "max_abs_difference": 0.0012951511949363947,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.0012951511949363947
+     ]
+    },
+    "ledger.persons.pending": {
+     "endpoint_reference": 698.4506057625235,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.persons.active": {
+     "endpoint_reference": 955.3368970346494,
+     "endpoint_difference": 0.0012951511948813277,
+     "endpoint_relative": 1.3557010086195316e-06,
+     "max_abs_difference": 0.0012951511948813277,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0012951511948813277
+     ]
+    },
+    "first_moment.persons": {
+     "endpoint_reference": 24539436.063616086,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.requested": {
+     "endpoint_reference": 816.6666666666721,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.released": {
+     "endpoint_reference": 773.3333333333038,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.completed": {
+     "endpoint_reference": 9.356870149734338,
+     "endpoint_difference": -0.0010361209559555107,
+     "endpoint_relative": -0.00011073371109942446,
+     "max_abs_difference": 0.0010361209559555107,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.0010361209559555107
+     ]
+    },
+    "ledger.vehicles.pending": {
+     "endpoint_reference": 43.33333333336827,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.active": {
+     "endpoint_reference": 763.9764631835694,
+     "endpoint_difference": 0.0010361209559732742,
+     "endpoint_relative": 1.3562210433233119e-06,
+     "max_abs_difference": 0.0010361209559732742,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0010361209559732742
+     ]
+    },
+    "first_moment.vehicles": {
+     "endpoint_reference": 19600133.333333883,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.requested": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.released": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.completed": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.pending": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.active": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "first_moment.cargo_kg": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.road_released_veh": {
+     "endpoint_reference": 413.4345340317021,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.road_completed_veh": {
+     "endpoint_reference": 29.87212679095582,
+     "endpoint_difference": -0.0003900625424506643,
+     "endpoint_relative": -1.3057742596645675e-05,
+     "max_abs_difference": 0.0003900625424506643,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      4.440892098500626e-16,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.0003900625424506643
+     ]
+    },
+    "service.bus_road_vehicles": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 4.440892098500626e-16,
+     "at_time_s": 22200.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      -4.440892098500626e-16,
+      -4.440892098500626e-16,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.completed_bus_vehicles": {
+     "endpoint_reference": 4,
+     "endpoint_difference": 0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "service.waiting_persons": {
+     "endpoint_reference": 1.6769625,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.onboard_persons": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.arrived_persons": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.wait_person_s": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.freight_completed_vehicles": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.cargo_delivered_kg": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.cargo_unfinished_kg": {
+     "endpoint_reference": 998.825,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.road_occupancy_veh": {
+     "endpoint_reference": 383.5624072407463,
+     "endpoint_difference": 0.00039006254240803173,
+     "endpoint_relative": 1.0169467472426345e-06,
+     "max_abs_difference": 0.00039006254240803173,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      -4.440892098500626e-16,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.00039006254240803173
+     ]
+    },
+    "records.road_total": {
+     "endpoint_reference": 2550859,
+     "endpoint_difference": -877607,
+     "endpoint_relative": -0.3440437123337668,
+     "max_abs_difference": 877607,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0,
+      10,
+      -4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -877607
+     ]
+    },
+    "records.journey_total": {
+     "endpoint_reference": 2753381,
+     "endpoint_difference": -101114,
+     "endpoint_relative": -0.0367235773036859,
+     "max_abs_difference": 101114,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -101114
+     ]
+    }
+   },
+   "vectors": {
+    "persons.class_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 968.2160609041656,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "persons.class_completed": {
+     "endpoint_l1": 0.0012951511949435002,
+     "endpoint_max_abs": 0.0012951511949435002,
+     "endpoint_reference_l1": 12.879163869516152,
+     "max_l1_over_time": 0.0012951511949435002,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0012951511949435002
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 0,
+       "difference": -0.0012951511949435002,
+       "reference": 11.696087687167958
+      }
+     ]
+    },
+    "persons.dest_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 968.2160609041666,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "persons.dest_completed": {
+     "endpoint_l1": 0.0013782981665351266,
+     "endpoint_max_abs": 0.0009410478773457798,
+     "endpoint_reference_l1": 12.879163869516127,
+     "max_l1_over_time": 0.0013782981665351266,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0013782981665351266
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 228,
+       "difference": -0.0009410478773457798,
+       "reference": 0.17217328710946014
+      },
+      {
+       "index": 81,
+       "difference": -0.0003206531060845341,
+       "reference": 0.15956878285506196
+      },
+      {
+       "index": 206,
+       "difference": -1.8640684833153183e-05,
+       "reference": 0.003496935495771354
+      },
+      {
+       "index": 208,
+       "difference": -1.4037068871319835e-05,
+       "reference": 0.26713898288031324
+      },
+      {
+       "index": 219,
+       "difference": -9.953178534138907e-06,
+       "reference": 0.193298344893516
+      }
+     ]
+    },
+    "vehicles.class_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 773.3333333333038,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "vehicles.class_completed": {
+     "endpoint_l1": 0.0010361209559555107,
+     "endpoint_max_abs": 0.0010361209559555107,
+     "endpoint_reference_l1": 9.356870149734338,
+     "max_l1_over_time": 0.0010361209559555107,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0010361209559555107
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 0,
+       "difference": -0.0010361209559555107,
+       "reference": 9.356870149734338
+      }
+     ]
+    },
+    "vehicles.dest_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 773.3333333333334,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "vehicles.dest_completed": {
+     "endpoint_l1": 0.0011026385332281836,
+     "endpoint_max_abs": 0.0007528383018766405,
+     "endpoint_reference_l1": 9.356870149734346,
+     "max_l1_over_time": 0.0011026385332281836,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0011026385332281836
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 228,
+       "difference": -0.0007528383018766405,
+       "reference": 0.1299621516650353
+      },
+      {
+       "index": 81,
+       "difference": -0.00025652248486765505,
+       "reference": 0.12068195898617323
+      },
+      {
+       "index": 206,
+       "difference": -1.491254786652272e-05,
+       "reference": 0.00266719977099937
+      },
+      {
+       "index": 208,
+       "difference": -1.122965509706142e-05,
+       "reference": 0.19337261063549238
+      },
+      {
+       "index": 219,
+       "difference": -7.962542827311125e-06,
+       "reference": 0.13426728830907472
+      }
+     ]
+    },
+    "cargo_kg.class_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 0.0,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "cargo_kg.class_completed": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 0.0,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    }
+   }
+  },
+  "h0p25_dt10_minus_h0_dt10": {
+   "common_times_s": [
+    21600.0,
+    21900.0,
+    22200.0,
+    22500.0,
+    22800.0,
+    23100.0,
+    23400.0,
+    23700.0,
+    24000.0,
+    24300.0,
+    24600.0,
+    24900.0,
+    25200.0,
+    25500.0
+   ],
+   "scalars": {
+    "ledger.persons.requested": {
+     "endpoint_reference": 1666.666666666689,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.persons.released": {
+     "endpoint_reference": 968.2160609041655,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.persons.completed": {
+     "endpoint_reference": 12.879163869516136,
+     "endpoint_difference": -0.0006425015856681426,
+     "endpoint_relative": -4.988690198972374e-05,
+     "max_abs_difference": 0.0006425015856681426,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.0006425015856681426
+     ]
+    },
+    "ledger.persons.pending": {
+     "endpoint_reference": 698.4506057625235,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.persons.active": {
+     "endpoint_reference": 955.3368970346494,
+     "endpoint_difference": 0.0006425015856166283,
+     "endpoint_relative": 6.725392765745184e-07,
+     "max_abs_difference": 0.0006425015856166283,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0006425015856166283
+     ]
+    },
+    "first_moment.persons": {
+     "endpoint_reference": 24539436.063616086,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.requested": {
+     "endpoint_reference": 816.6666666666721,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.released": {
+     "endpoint_reference": 773.3333333333038,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.completed": {
+     "endpoint_reference": 9.356870149734338,
+     "endpoint_difference": -0.0005140012685416195,
+     "endpoint_relative": -5.4933034264263374e-05,
+     "max_abs_difference": 0.0005140012685416195,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -0.0005140012685416195
+     ]
+    },
+    "ledger.vehicles.pending": {
+     "endpoint_reference": 43.33333333336827,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.active": {
+     "endpoint_reference": 763.9764631835694,
+     "endpoint_difference": 0.0005140012685842521,
+     "endpoint_relative": 6.72797256662012e-07,
+     "max_abs_difference": 0.0005140012685842521,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0005140012685842521
+     ]
+    },
+    "first_moment.vehicles": {
+     "endpoint_reference": 19600133.333333883,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.requested": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.released": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.completed": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.pending": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.active": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "first_moment.cargo_kg": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.road_released_veh": {
+     "endpoint_reference": 413.4345340317021,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.road_completed_veh": {
+     "endpoint_reference": 29.87212679095582,
+     "endpoint_difference": -0.0002831394448286062,
+     "endpoint_relative": -9.478382533992538e-06,
+     "max_abs_difference": 0.0002831394448286062,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      8.881784197001252e-16,
+      8.881784197001252e-16,
+      8.881784197001252e-16,
+      8.881784197001252e-16,
+      8.881784197001252e-16,
+      8.881784197001252e-16,
+      8.881784197001252e-16,
+      8.881784197001252e-16,
+      8.881784197001252e-16,
+      -0.0002831394448286062
+     ]
+    },
+    "service.bus_road_vehicles": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 4.440892098500626e-16,
+     "endpoint_relative": 4.440892098500626e-16,
+     "max_abs_difference": 4.440892098500626e-16,
+     "at_time_s": 22200.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      -4.440892098500626e-16,
+      -4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16,
+      4.440892098500626e-16
+     ]
+    },
+    "service.completed_bus_vehicles": {
+     "endpoint_reference": 4,
+     "endpoint_difference": 0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "service.waiting_persons": {
+     "endpoint_reference": 1.6769625,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.onboard_persons": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.arrived_persons": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.wait_person_s": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.freight_completed_vehicles": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.cargo_delivered_kg": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.cargo_unfinished_kg": {
+     "endpoint_reference": 998.825,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.road_occupancy_veh": {
+     "endpoint_reference": 383.5624072407463,
+     "endpoint_difference": 0.0002831394448321589,
+     "endpoint_relative": 7.381835119583134e-07,
+     "max_abs_difference": 0.0002831394448321589,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      -4.440892098500626e-16,
+      -4.440892098500626e-16,
+      -8.881784197001252e-16,
+      -8.881784197001252e-16,
+      -8.881784197001252e-16,
+      -8.881784197001252e-16,
+      -8.881784197001252e-16,
+      -8.881784197001252e-16,
+      -8.881784197001252e-16,
+      -8.881784197001252e-16,
+      -8.881784197001252e-16,
+      0.0002831394448321589
+     ]
+    },
+    "records.road_total": {
+     "endpoint_reference": 2550859,
+     "endpoint_difference": -509711,
+     "endpoint_relative": -0.19981935497022768,
+     "max_abs_difference": 509711,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0,
+      21,
+      0,
+      4,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -509711
+     ]
+    },
+    "records.journey_total": {
+     "endpoint_reference": 2753381,
+     "endpoint_difference": -66231,
+     "endpoint_relative": -0.024054426176399125,
+     "max_abs_difference": 66231,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -66231
+     ]
+    }
+   },
+   "vectors": {
+    "persons.class_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 968.2160609041656,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "persons.class_completed": {
+     "endpoint_l1": 0.0006425015856734717,
+     "endpoint_max_abs": 0.0006425015856734717,
+     "endpoint_reference_l1": 12.879163869516152,
+     "max_l1_over_time": 0.0006425015856734717,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0006425015856734717
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 0,
+       "difference": -0.0006425015856734717,
+       "reference": 11.696087687167958
+      }
+     ]
+    },
+    "persons.dest_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 968.2160609041666,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "persons.dest_completed": {
+     "endpoint_l1": 0.0007033982503453437,
+     "endpoint_max_abs": 0.0003471883799635589,
+     "endpoint_reference_l1": 12.879163869516127,
+     "max_l1_over_time": 0.0007033982503453437,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0007033982503453437
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 228,
+       "difference": -0.0003471883799635589,
+       "reference": 0.17217328710946014
+      },
+      {
+       "index": 81,
+       "difference": -0.0002845545595976662,
+       "reference": 0.15956878285506196
+      },
+      {
+       "index": 206,
+       "difference": -1.8640712014792067e-05,
+       "reference": 0.003496935495771354
+      },
+      {
+       "index": 233,
+       "difference": 7.322421388303302e-06,
+       "reference": 0.10093103530869672
+      },
+      {
+       "index": 14,
+       "difference": 6.839702805988557e-06,
+       "reference": 0.14301000643226178
+      }
+     ]
+    },
+    "vehicles.class_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 773.3333333333038,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "vehicles.class_completed": {
+     "endpoint_l1": 0.0005140012685416195,
+     "endpoint_max_abs": 0.0005140012685416195,
+     "endpoint_reference_l1": 9.356870149734338,
+     "max_l1_over_time": 0.0005140012685416195,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0005140012685416195
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 0,
+       "difference": -0.0005140012685416195,
+       "reference": 9.356870149734338
+      }
+     ]
+    },
+    "vehicles.dest_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 773.3333333333334,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "vehicles.dest_completed": {
+     "endpoint_l1": 0.000562718600276225,
+     "endpoint_max_abs": 0.0002777507039708471,
+     "endpoint_reference_l1": 9.356870149734346,
+     "max_l1_over_time": 0.000562718600276225,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.000562718600276225
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 228,
+       "difference": -0.0002777507039708471,
+       "reference": 0.1299621516650353
+      },
+      {
+       "index": 81,
+       "difference": -0.00022764364767814682,
+       "reference": 0.12068195898617323
+      },
+      {
+       "index": 206,
+       "difference": -1.4912569611833567e-05,
+       "reference": 0.00266719977099937
+      },
+      {
+       "index": 233,
+       "difference": 5.857937110650968e-06,
+       "reference": 0.0743069290790689
+      },
+      {
+       "index": 14,
+       "difference": 5.471762244843581e-06,
+       "reference": 0.10832470186350347
+      }
+     ]
+    },
+    "cargo_kg.class_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 0.0,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "cargo_kg.class_completed": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 0.0,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    }
+   }
+  }
+ },
+ "B": {
+  "h1_dt10_minus_h1_dt5": {
+   "common_times_s": [
+    21600.0,
+    21900.0,
+    22200.0,
+    22500.0,
+    22800.0,
+    23100.0,
+    23400.0,
+    23700.0,
+    24000.0,
+    24300.0,
+    24600.0,
+    24900.0,
+    25200.0,
+    25500.0
+   ],
+   "scalars": {
+    "ledger.persons.requested": {
+     "endpoint_reference": 1666.666666666689,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.persons.released": {
+     "endpoint_reference": 984.9094412645778,
+     "endpoint_difference": -16.693380360412334,
+     "endpoint_relative": -0.016949152542368576,
+     "max_abs_difference": 16.693380360412334,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -16.693380360412334
+     ]
+    },
+    "ledger.persons.completed": {
+     "endpoint_reference": 15.093473469180951,
+     "endpoint_difference": -2.215604910681664,
+     "endpoint_relative": -0.14679224866334856,
+     "max_abs_difference": 2.215604910681664,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -2.215604910681664
+     ]
+    },
+    "ledger.persons.pending": {
+     "endpoint_reference": 681.7572254021112,
+     "endpoint_difference": 16.693380360412334,
+     "endpoint_relative": 0.024485813627521606,
+     "max_abs_difference": 16.693380360412334,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      16.693380360412334
+     ]
+    },
+    "ledger.persons.active": {
+     "endpoint_reference": 969.8159677953969,
+     "endpoint_difference": -14.477775449730643,
+     "endpoint_relative": -0.01492837397041604,
+     "max_abs_difference": 14.477775449730643,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -14.477775449730643
+     ]
+    },
+    "first_moment.persons": {
+     "endpoint_reference": 24964992.062454045,
+     "endpoint_difference": -425555.998837959,
+     "endpoint_relative": -0.017046109919577,
+     "max_abs_difference": 425555.998837959,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -425555.998837959
+     ]
+    },
+    "ledger.vehicles.requested": {
+     "endpoint_reference": 816.6666666666721,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.vehicles.released": {
+     "endpoint_reference": 786.6666666666757,
+     "endpoint_difference": -13.333333333371911,
+     "endpoint_relative": -0.016949152542421724,
+     "max_abs_difference": 13.333333333371911,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -13.333333333371911
+     ]
+    },
+    "ledger.vehicles.completed": {
+     "endpoint_reference": 11.122251259784358,
+     "endpoint_difference": -1.7664173588635101,
+     "endpoint_relative": -0.15881832891606137,
+     "max_abs_difference": 1.7664173588635101,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -1.7664173588635101
+     ]
+    },
+    "ledger.vehicles.pending": {
+     "endpoint_reference": 29.999999999996362,
+     "endpoint_difference": 13.333333333371911,
+     "endpoint_relative": 0.4444444444457843,
+     "max_abs_difference": 13.333333333371911,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      13.333333333371911
+     ]
+    },
+    "ledger.vehicles.active": {
+     "endpoint_reference": 775.5444154068914,
+     "endpoint_difference": -11.566915974508447,
+     "endpoint_relative": -0.014914575806003109,
+     "max_abs_difference": 11.566915974508447,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -11.566915974508447
+     ]
+    },
+    "first_moment.vehicles": {
+     "endpoint_reference": 19940033.333333623,
+     "endpoint_difference": -339899.99999973923,
+     "endpoint_relative": -0.0170461099195622,
+     "max_abs_difference": 339899.99999973923,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -339899.99999973923
+     ]
+    },
+    "ledger.cargo_kg.requested": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.released": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.completed": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.pending": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "ledger.cargo_kg.active": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "first_moment.cargo_kg": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.road_released_veh": {
+     "endpoint_reference": 425.45313489835587,
+     "endpoint_difference": -12.018600866653742,
+     "endpoint_relative": -0.02824894184767279,
+     "max_abs_difference": 12.018600866653742,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -12.018600866653742
+     ]
+    },
+    "service.road_completed_veh": {
+     "endpoint_reference": 37.45669873485354,
+     "endpoint_difference": -7.585158893611201,
+     "endpoint_relative": -0.2025047361302344,
+     "max_abs_difference": 7.585158893611201,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      4.440892098500626e-16,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -7.585158893611201
+     ]
+    },
+    "service.bus_road_vehicles": {
+     "endpoint_reference": 4.440892098500626e-16,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 8.881784197001252e-16,
+     "at_time_s": 22500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      8.881784197001252e-16,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.completed_bus_vehicles": {
+     "endpoint_reference": 4,
+     "endpoint_difference": 0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "service.waiting_persons": {
+     "endpoint_reference": 1.6769625,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.onboard_persons": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.arrived_persons": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.wait_person_s": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.freight_completed_vehicles": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.cargo_delivered_kg": {
+     "endpoint_reference": 0.0,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.cargo_unfinished_kg": {
+     "endpoint_reference": 998.825,
+     "endpoint_difference": 0.0,
+     "endpoint_relative": 0.0,
+     "max_abs_difference": 0.0,
+     "at_time_s": 21600.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ]
+    },
+    "service.road_occupancy_veh": {
+     "endpoint_reference": 387.9964361635023,
+     "endpoint_difference": -4.433441973042534,
+     "endpoint_relative": -0.01142650179182129,
+     "max_abs_difference": 4.433441973042534,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0.0,
+      0.0,
+      -4.440892098500626e-16,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -4.433441973042534
+     ]
+    },
+    "records.road_total": {
+     "endpoint_reference": 2700295,
+     "endpoint_difference": -1296234,
+     "endpoint_relative": -0.48003421848353606,
+     "max_abs_difference": 1296234,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0,
+      -2,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -1296234
+     ]
+    },
+    "records.journey_total": {
+     "endpoint_reference": 5431767,
+     "endpoint_difference": -2796550,
+     "endpoint_relative": -0.514850876335454,
+     "max_abs_difference": 2796550,
+     "at_time_s": 25500.0,
+     "curve_difference": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      -2796550
+     ]
+    }
+   },
+   "vectors": {
+    "persons.class_released": {
+     "endpoint_l1": 16.693380360412423,
+     "endpoint_max_abs": 16.666666666662422,
+     "endpoint_reference_l1": 984.909441264578,
+     "max_l1_over_time": 16.693380360412423,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      16.693380360412423
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 0,
+       "difference": -16.666666666662422,
+       "reference": 983.333333333328
+      },
+      {
+       "index": 10,
+       "difference": -0.02671369375000099,
+       "reference": 1.5761079312500006
+      }
+     ]
+    },
+    "persons.class_completed": {
+     "endpoint_l1": 2.215604910681651,
+     "endpoint_max_abs": 2.208021698579328,
+     "endpoint_reference_l1": 15.093473469180948,
+     "max_l1_over_time": 2.215604910681651,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      2.215604910681651
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 0,
+       "difference": -2.208021698579328,
+       "reference": 13.902814074730431
+      },
+      {
+       "index": 10,
+       "difference": -0.00758321210232249,
+       "reference": 1.1906593944505162
+      }
+     ]
+    },
+    "persons.dest_released": {
+     "endpoint_l1": 16.693380360416754,
+     "endpoint_max_abs": 0.6624999999999943,
+     "endpoint_reference_l1": 984.9094412645834,
+     "max_l1_over_time": 16.693380360416754,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      16.693380360416754
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 143,
+       "difference": -0.6624999999999943,
+       "reference": 39.087499999999984
+      },
+      {
+       "index": 34,
+       "difference": -0.5138395875000157,
+       "reference": 30.316535662500016
+      },
+      {
+       "index": 198,
+       "difference": -0.4150000000000169,
+       "reference": 24.485000000000003
+      },
+      {
+       "index": 6,
+       "difference": -0.3396536791666662,
+       "reference": 20.039567070833332
+      },
+      {
+       "index": 220,
+       "difference": -0.33083574999999854,
+       "reference": 19.519309250000003
+      }
+     ]
+    },
+    "persons.dest_completed": {
+     "endpoint_l1": 2.215604910681637,
+     "endpoint_max_abs": 0.06574580932344032,
+     "endpoint_reference_l1": 15.093473469180909,
+     "max_l1_over_time": 2.215604910681637,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      2.215604910681637
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 170,
+       "difference": -0.06574580932344032,
+       "reference": 0.37243293284632023
+      },
+      {
+       "index": 208,
+       "difference": -0.054259338984725125,
+       "reference": 0.3213861400608032
+      },
+      {
+       "index": 214,
+       "difference": -0.05139778668538891,
+       "reference": 0.22894584933429038
+      },
+      {
+       "index": 6,
+       "difference": -0.04220059635831047,
+       "reference": 0.45292488976601347
+      },
+      {
+       "index": 148,
+       "difference": -0.041278350466769614,
+       "reference": 0.215021231221622
+      }
+     ]
+    },
+    "vehicles.class_released": {
+     "endpoint_l1": 13.333333333371911,
+     "endpoint_max_abs": 13.333333333371911,
+     "endpoint_reference_l1": 786.6666666666757,
+     "max_l1_over_time": 13.333333333371911,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      13.333333333371911
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 0,
+       "difference": -13.333333333371911,
+       "reference": 786.6666666666757
+      }
+     ]
+    },
+    "vehicles.class_completed": {
+     "endpoint_l1": 1.7664173588635101,
+     "endpoint_max_abs": 1.7664173588635101,
+     "endpoint_reference_l1": 11.122251259784358,
+     "max_l1_over_time": 1.7664173588635101,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.7664173588635101
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 0,
+       "difference": -1.7664173588635101,
+       "reference": 11.122251259784358
+      }
+     ]
+    },
+    "vehicles.dest_released": {
+     "endpoint_l1": 13.333333333333334,
+     "endpoint_max_abs": 0.5300000000000047,
+     "endpoint_reference_l1": 786.6666666666666,
+     "max_l1_over_time": 13.333333333333334,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      13.333333333333334
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 143,
+       "difference": -0.5300000000000047,
+       "reference": 31.27
+      },
+      {
+       "index": 34,
+       "difference": -0.4086666666666865,
+       "reference": 24.111333333333345
+      },
+      {
+       "index": 198,
+       "difference": -0.3319999999999901,
+       "reference": 19.587999999999997
+      },
+      {
+       "index": 6,
+       "difference": -0.27066666666666883,
+       "reference": 15.969333333333338
+      },
+      {
+       "index": 220,
+       "difference": -0.26366666666666916,
+       "reference": 15.556333333333331
+      }
+     ]
+    },
+    "vehicles.dest_completed": {
+     "endpoint_l1": 1.7664173588634522,
+     "endpoint_max_abs": 0.05239192890370098,
+     "endpoint_reference_l1": 11.122251259784315,
+     "max_l1_over_time": 1.7664173588634522,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.7664173588634522
+     ],
+     "endpoint_top_components": [
+      {
+       "index": 170,
+       "difference": -0.05239192890370098,
+       "reference": 0.27796493541522455
+      },
+      {
+       "index": 208,
+       "difference": -0.04340613904593263,
+       "reference": 0.23676900423803687
+      },
+      {
+       "index": 214,
+       "difference": -0.0410484939644058,
+       "reference": 0.17555968601228386
+      },
+      {
+       "index": 6,
+       "difference": -0.03359561541111,
+       "reference": 0.32080564708489573
+      },
+      {
+       "index": 148,
+       "difference": -0.0329647934356056,
+       "reference": 0.1657125025370072
+      }
+     ]
+    },
+    "cargo_kg.class_released": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 0.0,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    },
+    "cargo_kg.class_completed": {
+     "endpoint_l1": 0.0,
+     "endpoint_max_abs": 0.0,
+     "endpoint_reference_l1": 0.0,
+     "max_l1_over_time": 0.0,
+     "curve_l1": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+     ],
+     "endpoint_top_components": []
+    }
+   }
+  }
+ },
+ "h_trend": {
+  "ledger.persons.completed": {
+   "e_0p25": -0.0006425015856681426,
+   "e_0p5": -0.0012951511949363947,
+   "e_1": -0.0012953110168485438,
+   "ratio_0p5_over_0p25": 2.015794550280458,
+   "order_0p5_over_0p25": 1.011348606895554,
+   "ratio_1_over_0p5": 1.000123400196652,
+   "order_1_over_0p5": 0.00017801786826034683
+  },
+  "ledger.persons.active": {
+   "e_0p25": 0.0006425015856166283,
+   "e_0p5": 0.0012951511948813277,
+   "e_1": 0.0012953110168609783,
+   "ratio_0p5_over_0p25": 2.0157945503563726,
+   "order_0p5_over_0p25": 1.0113486069498856,
+   "ratio_1_over_0p5": 1.0001234002487758,
+   "order_1_over_0p5": 0.00017801794344990388
+  },
+  "ledger.vehicles.completed": {
+   "e_0p25": -0.0005140012685416195,
+   "e_0p5": -0.0010361209559555107,
+   "e_1": -0.0010362488134898484,
+   "ratio_0p5_over_0p25": 2.0157945502650336,
+   "order_0p5_over_0p25": 1.0113486068845148,
+   "ratio_1_over_0p5": 1.0001234002011086,
+   "order_1_over_0p5": 0.00017801787468915085
+  },
+  "ledger.vehicles.active": {
+   "e_0p25": 0.0005140012685842521,
+   "e_0p5": 0.0010361209559732742,
+   "e_1": 0.0010362488135342574,
+   "ratio_0p5_over_0p25": 2.015794550132398,
+   "order_0p5_over_0p25": 1.011348606789588,
+   "ratio_1_over_0p5": 1.000123400226823,
+   "order_1_over_0p5": 0.00017801791178249482
+  },
+  "service.road_completed_veh": {
+   "e_0p25": -0.0002831394448286062,
+   "e_0p5": -0.0003900625424506643,
+   "e_1": -0.0005869497134831647,
+   "ratio_0p5_over_0p25": 1.37763405832339,
+   "order_0p5_over_0p25": 0.46219271507073606,
+   "ratio_1_over_0p5": 1.504757954443685,
+   "order_1_over_0p5": 0.5895314431264326
+  },
+  "service.bus_road_vehicles": {
+   "e_0p25": 4.440892098500626e-16,
+   "e_0p5": 0.0,
+   "e_1": 4.440892098500626e-16,
+   "ratio_0p5_over_0p25": 0.0,
+   "order_0p5_over_0p25": null,
+   "ratio_1_over_0p5": null,
+   "order_1_over_0p5": null
+  },
+  "service.road_occupancy_veh": {
+   "e_0p25": 0.0002831394448321589,
+   "e_0p5": 0.00039006254240803173,
+   "e_1": 0.0005869497134654011,
+   "ratio_0p5_over_0p25": 1.3776340581555329,
+   "order_0p5_over_0p25": 0.4621927148949517,
+   "ratio_1_over_0p5": 1.50475795456261,
+   "order_1_over_0p5": 0.5895314432404524
+  },
+  "persons.class_completed.l1": {
+   "e_0p25": 0.0006425015856734717,
+   "e_0p5": 0.0012951511949435002,
+   "e_1": 0.0012953110168556492,
+   "ratio_0p5_over_0p25": 2.0157945502747974,
+   "order_0p5_over_0p25": 1.0113486068915025,
+   "ratio_1_over_0p5": 1.0001234001966512,
+   "order_1_over_0p5": 0.0001780178682593859
+  },
+  "persons.dest_completed.l1": {
+   "e_0p25": 0.0007033982503453437,
+   "e_0p5": 0.0013782981665351266,
+   "e_1": 0.0013743852034176815,
+   "ratio_0p5_over_0p25": 1.959484781001987,
+   "order_0p5_over_0p25": 0.9704743678070651,
+   "ratio_1_over_0p5": 0.9971610184120887,
+   "order_1_over_0p5": -0.0041016096139112985
+  },
+  "vehicles.class_completed.l1": {
+   "e_0p25": 0.0005140012685416195,
+   "e_0p5": 0.0010361209559555107,
+   "e_1": 0.0010362488134898484,
+   "ratio_0p5_over_0p25": 2.0157945502650336,
+   "order_0p5_over_0p25": 1.0113486068845148,
+   "ratio_1_over_0p5": 1.0001234002011086,
+   "order_1_over_0p5": 0.00017801787468915085
+  },
+  "vehicles.dest_completed.l1": {
+   "e_0p25": 0.000562718600276225,
+   "e_0p5": 0.0011026385332281836,
+   "e_1": 0.0010995081627342925,
+   "ratio_0p5_over_0p25": 1.959484781002307,
+   "order_0p5_over_0p25": 0.9704743678073007,
+   "ratio_1_over_0p5": 0.9971610184121479,
+   "order_1_over_0p5": -0.004101609613825685
+  }
+ }
+}

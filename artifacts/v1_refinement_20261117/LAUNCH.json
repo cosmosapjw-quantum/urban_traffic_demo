@@ -1,0 +1,142 @@
+[
+ {
+  "label": "h0_dt10",
+  "width_s": 0.0,
+  "step_s": 10.0,
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_refinement.py",
+   "run",
+   "valley_weekday_s7",
+   "25500",
+   "0",
+   "10",
+   "artifacts/v1_refinement_20261117/runs/valley_h0_dt10",
+   "artifacts/v1_refinement_20261117/valley_legs.npz"
+  ],
+  "mem_available_at_start_bytes": 7013326848,
+  "waited_for_memory_s": 0.0,
+  "started_utc": "2026-11-17T10:42:15.904703+00:00",
+  "exit_code": 0,
+  "wall_s": 140.67267298899242,
+  "finished_utc": "2026-11-17T10:44:36.577391+00:00"
+ },
+ {
+  "label": "h1_dt10",
+  "width_s": 1.0,
+  "step_s": 10.0,
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_refinement.py",
+   "run",
+   "valley_weekday_s7",
+   "25500",
+   "1",
+   "10",
+   "artifacts/v1_refinement_20261117/runs/valley_h1_dt10",
+   "artifacts/v1_refinement_20261117/valley_legs.npz"
+  ],
+  "mem_available_at_start_bytes": 7872598016,
+  "waited_for_memory_s": 0.0,
+  "started_utc": "2026-11-17T10:44:36.577899+00:00",
+  "exit_code": 0,
+  "wall_s": 143.9022016370145,
+  "finished_utc": "2026-11-17T10:47:00.480113+00:00"
+ },
+ {
+  "label": "h0.5_dt10_OUTPUT_LOST",
+  "width_s": 0.5,
+  "step_s": 10.0,
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_refinement.py",
+   "run",
+   "valley_weekday_s7",
+   "25500",
+   "0.5",
+   "10",
+   "artifacts/v1_refinement_20261117/runs/valley_h0.5_dt10",
+   "artifacts/v1_refinement_20261117/valley_legs.npz"
+  ],
+  "mem_available_at_start_bytes": 7706865664,
+  "waited_for_memory_s": 60.0,
+  "started_utc": "2026-11-17T10:48:00.481439+00:00",
+  "exit_code": 0,
+  "wall_s": 138.62968810100574,
+  "finished_utc": "2026-11-17T10:50:19.111146+00:00",
+  "note": "exit 0 but JSON/checkpoint were overwritten by the h=0.25 run (tool used Path.with_suffix on a label containing \".\", both wrote valley_h0.*). Re-run as h0p5_dt10 after fixing the naming."
+ },
+ {
+  "label": "h0p25_dt10",
+  "width_s": 0.25,
+  "step_s": 10.0,
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_refinement.py",
+   "run",
+   "valley_weekday_s7",
+   "25500",
+   "0.25",
+   "10",
+   "artifacts/v1_refinement_20261117/runs/valley_h0.25_dt10",
+   "artifacts/v1_refinement_20261117/valley_legs.npz"
+  ],
+  "mem_available_at_start_bytes": 8739061760,
+  "waited_for_memory_s": 0.0,
+  "started_utc": "2026-11-17T10:50:19.112207+00:00",
+  "exit_code": 0,
+  "wall_s": 127.61055289398064,
+  "finished_utc": "2026-11-17T10:52:26.722849+00:00",
+  "note": "original outputs valley_h0.json/.last_valid.bin renamed to valley_h0p25_dt10.*; identity verified by entry_projection_width_s=0.25, step_s=10 inside the JSON. The JSON checkpoint.path field still names the pre-rename path."
+ },
+ {
+  "label": "h1_dt5",
+  "width_s": 1.0,
+  "step_s": 5.0,
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_refinement.py",
+   "run",
+   "valley_weekday_s7",
+   "25500",
+   "1",
+   "5",
+   "artifacts/v1_refinement_20261117/runs/valley_h1_dt5",
+   "artifacts/v1_refinement_20261117/valley_legs.npz"
+  ],
+  "mem_available_at_start_bytes": 10250166272,
+  "waited_for_memory_s": 0.0,
+  "started_utc": "2026-11-17T10:52:26.723626+00:00",
+  "exit_code": 0,
+  "wall_s": 240.13061697798548,
+  "finished_utc": "2026-11-17T10:56:26.854254+00:00"
+ },
+ {
+  "label": "h0p5_dt10",
+  "width_s": 0.5,
+  "step_s": 10.0,
+  "command": [
+   "PYTHONPATH=native_binding:src",
+   "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/bin/python",
+   "tools/probe_v1_refinement.py",
+   "run",
+   "valley_weekday_s7",
+   "25500",
+   "0.5",
+   "10",
+   "artifacts/v1_refinement_20261117/runs/valley_h0p5_dt10",
+   "artifacts/v1_refinement_20261117/valley_legs.npz"
+  ],
+  "mem_available_at_start_bytes": 9380990976,
+  "waited_for_memory_s": 0.0,
+  "started_utc": "2026-11-17T10:57:04.216404+00:00",
+  "exit_code": 0,
+  "wall_s": 147.57052590700914,
+  "finished_utc": "2026-11-17T10:59:31.786955+00:00"
+ }
+]
