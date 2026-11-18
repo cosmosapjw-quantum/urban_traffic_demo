@@ -1,0 +1,203 @@
+{
+  "artifact_sha256": {
+    "artifacts/kcmb_coding_20261118/CARGO_CHECK.log": {
+      "bytes": 2276,
+      "sha256": "86a8de3fd2a0a9a1ce78d4cea75a48b93483b9e5dbfe56384781fe478b1ea607"
+    },
+    "artifacts/kcmb_coding_20261118/CARGO_TEST.log": {
+      "bytes": 6283,
+      "sha256": "02c8b14903249dfec718f73e55685324e17e30aa2012d1535cdd8f5409c3ad8b"
+    },
+    "artifacts/kcmb_coding_20261118/PERFORMANCE_REPEATED.json": {
+      "bytes": 825,
+      "sha256": "6829395b89dcbe3191e08f372b4b44fe1c9a6d04a6ef3abe917ea18480b4ce33"
+    },
+    "artifacts/kcmb_coding_20261118/SCOPED_PYTEST.txt": {
+      "bytes": 260,
+      "sha256": "32b8e6551c1d701d1e1a0d5e5c777e02313b64b8c9d78962af8554ba4c602d51"
+    },
+    "artifacts/kcmb_coding_20261118/ab_repeats/round1_python.json": {
+      "bytes": 1515,
+      "sha256": "48c06b7f7c5c13e7d8e56de5ac9abcfaff13ad624738915877c849d416c1d4fc"
+    },
+    "artifacts/kcmb_coding_20261118/ab_repeats/round1_rust.json": {
+      "bytes": 1506,
+      "sha256": "ec68c6210180ec4415580e4cbad796e1a4b2a56e74599dfec225b7ec56797bca"
+    },
+    "artifacts/kcmb_coding_20261118/ab_repeats/round2_python.json": {
+      "bytes": 1516,
+      "sha256": "bd075b709a25a2fac6f8601f37c71491391359eea950eecc5ac222e92190e683"
+    },
+    "artifacts/kcmb_coding_20261118/ab_repeats/round2_rust.json": {
+      "bytes": 1506,
+      "sha256": "cf7d8046473ed1b77ada244d28595c1dd565c9522826a51da8d7da3533806c82"
+    },
+    "artifacts/kcmb_coding_20261118/ab_repeats/round3_python.json": {
+      "bytes": 1516,
+      "sha256": "856458422801c626bf24cc5a295c44f193d117f1d8575049a43929fd8f5bf77c"
+    },
+    "artifacts/kcmb_coding_20261118/ab_repeats/round3_rust.json": {
+      "bytes": 1507,
+      "sha256": "76949b201adc42fef7948bda33b16c7a09407b5c3f7baf118d66fa9c1aef872d"
+    },
+    "artifacts/kcmb_coding_20261118/ab_repeats/round4_python.json": {
+      "bytes": 1514,
+      "sha256": "718f3364fdc1ccc97ed7cb984d4b175bfcb4dd3e42bf910a563ef4a85551b969"
+    },
+    "artifacts/kcmb_coding_20261118/ab_repeats/round4_rust.json": {
+      "bytes": 1507,
+      "sha256": "2c5266f65c2aefae1c035be400ced5fb0a6d0e14314a8e27ce01666a62292857"
+    },
+    "artifacts/kcmb_coding_20261118/bench_python_256cells_300steps_scale1.json": {
+      "bytes": 1525,
+      "sha256": "b7ef4233718e85c712fd506f9380e874d8a209fdd681f1c4eb1e3b7e2cc8aa37"
+    },
+    "artifacts/kcmb_coding_20261118/bench_python_64cells_500steps_scale1.json": {
+      "bytes": 1515,
+      "sha256": "3806b19eead3f2afffae4ac48fafdffc7bbd3581c001f855beff8629f4ba2830"
+    },
+    "artifacts/kcmb_coding_20261118/bench_python_64cells_500steps_scale100000.json": {
+      "bytes": 1503,
+      "sha256": "630e9fea8bd5576b3d4927f5ad9942afc8152ecf3bb603082a4cf4dcbe4a3e77"
+    },
+    "artifacts/kcmb_coding_20261118/bench_rust_256cells_300steps_scale1.json": {
+      "bytes": 1524,
+      "sha256": "67e58eaa87712ee196d2618a97a96ffe581c266f5edc4ca5a5eee51534d3e9ba"
+    },
+    "artifacts/kcmb_coding_20261118/bench_rust_64cells_500steps_scale1.json": {
+      "bytes": 1511,
+      "sha256": "7cbabe8d0e2e4fc66996771ec4940a93e35ca46976ec8306d4960ea8ce918ce0"
+    },
+    "artifacts/kcmb_coding_20261118/bench_rust_64cells_500steps_scale100000.json": {
+      "bytes": 1499,
+      "sha256": "4f7e5f4864e19598c3940f3e2f1781759b3f9a4858d862bbb7f5fb3a5e40eb2f"
+    },
+    "crates/metroflow-rust/src/lib.rs": {
+      "bytes": 36001,
+      "sha256": "f7abdb13ef85713b5659ab4583df91e5ff7bdead754892939f52e42debae02f0"
+    },
+    "crates/metroflow-rust/src/v1_kcmb.rs": {
+      "bytes": 12410,
+      "sha256": "62e58a9538daa7df1386ba0c37691576203574de189304158ddf4042b15abbc0"
+    },
+    "docs/research/KCMB_CODING_C1_C10_20261119_KO.md": {
+      "bytes": 15242,
+      "sha256": "2e761e0c1080fe99c13cbab1c96c0744fe70711f5a5aa723646d11efde412b08"
+    },
+    "src/metroflow/v1/kcmb.py": {
+      "bytes": 19571,
+      "sha256": "9afd9a809fbea373a89a4bdf84d75bf2bbf4ef826c12e91f6bdc46e9c42224c9"
+    },
+    "tests/research/test_kcmb_adversarial_20261118.py": {
+      "bytes": 4006,
+      "sha256": "23cc8e9d96f1df7a12ffe09287c976bf4ad5100be55b6af16e13277251481bfc"
+    },
+    "tests/research/test_kcmb_engine_20261118.py": {
+      "bytes": 7885,
+      "sha256": "715e4908e099a2615bf4c3c3a6091988ce6ebb159f6e1433ac041553240f24ee"
+    },
+    "tests/research/test_kcmb_field_metrics_20261118.py": {
+      "bytes": 3632,
+      "sha256": "855410e932be9439fecd01dd37a9119a788c2ba5583cd80fadb775c6b99fb6e8"
+    },
+    "tests/research/test_kcmb_generator_20261118.py": {
+      "bytes": 5349,
+      "sha256": "bc3377a47a4e884c88f7096b06ab14ddd028cd1a09acc805eb216b4b40031df1"
+    },
+    "tools/research/bench_kcmb_engine.py": {
+      "bytes": 4306,
+      "sha256": "c8bd6003efe6be982aeaa09a6ddaaa78c377ef8a064e40e8653bc7f8ba65e18b"
+    },
+    "tools/research/kcmb_field_metrics.py": {
+      "bytes": 4625,
+      "sha256": "5adcad0d8ab099a3b0fa56ac3e4118bb74c5114958db582933a9eb2a9bbce048"
+    }
+  },
+  "created_kst": "2026-11-19T00:50:14+09:00",
+  "host_environment": {
+    "kernel": "native CPython3.12 Linux via maturin; system maturin1.3.2 emitted version mismatch warning",
+    "python": "3.12.3"
+  },
+  "original_upstream": {
+    "draft_head_sha": "0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+    "pr_number": 41,
+    "protected_file_sha256": {
+      "crates/metroflow-rust/src/v1_road.rs": "ee0a3df0f078a79955e9e4dd8ec8b5b2561db0fc042f34b7def808c87b565d19",
+      "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+      "src/metroflow/packet_network.py": "b04352ba72df7bfcf1651a2af52be59ad8d2131d349eb8c2e3bff7e081e072de"
+    },
+    "theory_base_sha": "23b200d636ca9465942baacb2287ccb2830047bf"
+  },
+  "performance": {
+    "matched_max_abs_diff_remaining_active_veh": 3.552713678800501e-15,
+    "median_ratio_python_over_rust": 2.8492226494080737,
+    "not_equivalent_to_original_V1": "PHYSICAL_MODEL_CHANGED",
+    "python_total_s": [
+      0.674202223,
+      0.678153237,
+      0.696340156,
+      0.673768622
+    ],
+    "rss_kib_python": [
+      24216,
+      23376,
+      23776,
+      23528
+    ],
+    "rss_kib_rust": [
+      25408,
+      25260,
+      24792,
+      25520
+    ],
+    "rust_total_s": [
+      0.237719582,
+      0.236920566,
+      0.237745051,
+      0.235079004
+    ],
+    "workload": "64 cells 2 classes 600 steps; alternating separate backend processes"
+  },
+  "project": "cosmosapjw-quantum/urban_traffic_demo",
+  "receipt_type": "KCMB_C1_C10_SCOPED_CODING",
+  "scientific_admission": {
+    "V03_acceptance": "BLOCKED_UNCHANGED",
+    "corridor_conservation_storage": "NUMERICALLY_CHECKED_AND_CONDITIONAL_THEORY",
+    "future_exact_full_kinetic_limit": "UNRESOLVED",
+    "general_junctions": "NOT_IMPLEMENTED",
+    "individual_vehicle_FIFO": "NOT_IMPLEMENTED",
+    "local_micro_Markov_6moment": "NUMERICALLY_CHECKED_48_RK4_30000_MICRO_MC",
+    "real_world_accuracy": "NOT_MEASURED"
+  },
+  "verification": {
+    "actual_field_observation_comparison": "NOT_MEASURED",
+    "cargo_check_workspace_tests": "EXIT_0",
+    "full_repository_CI": "NOT_RUN",
+    "python_compile": "EXIT_0",
+    "rust_lib_tests_passed": 59,
+    "rustfmt_new_file": "EXIT_0",
+    "scoped_pytest_passed": 155,
+    "v03_3city_3repeat_24hour": "NOT_RUN_DEPENDENCY_BLOCKED"
+  },
+  "work": {
+    "branch": "research/kcmb-coding-c1-c10-20261118",
+    "model_type": "OPTIONAL_PHYSICALLY_DISTINCT_6_MOMENT_CORRIDOR",
+    "native_subagent": "NOT_RUN_TOOL_NOT_PRESENT",
+    "production_default_changed": false,
+    "release_CI": "NOT_RUN",
+    "remote_push": "NOT_RUN",
+    "stages": {
+      "C1": "EXECUTED_SCOPED",
+      "C10": "EXECUTED_SCOPED",
+      "C2": "EXECUTED_SCOPED",
+      "C3": "EXECUTED_SCOPED",
+      "C4": "EXECUTED_SCOPED",
+      "C5": "EXECUTED_SCOPED",
+      "C6": "EXECUTED_SCOPED",
+      "C7": "EXECUTED_SCOPED",
+      "C8": "EXECUTED_SCOPED",
+      "C9": "EXECUTED_SCOPED"
+    },
+    "worktree": "/home/cosmosapjw/worktrees/urban-traffic-kcmb-coding-20261118"
+  }
+}

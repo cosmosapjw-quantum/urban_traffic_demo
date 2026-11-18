@@ -1,0 +1,125 @@
+warning: methods `summary`, `install_state`, and `owned_step` are never used
+    --> crates/metroflow-rust/src/v1_road.rs:1056:19
+     |
+1011 | impl V1Road {
+     | ----------- methods in this implementation
+...
+1056 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+1257 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+1409 |     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -...
+     |                   ^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `journey_decoded_storage_upper_bytes` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:206:15
+    |
+206 | pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `sources` and `install_state` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:422:19
+    |
+360 | impl NativeServiceCore {
+    | ---------------------- methods in this implementation
+...
+422 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+...
+433 |     pub(crate) fn install_state(&mut self, state: ServiceCheckpoint) {
+    |                   ^^^^^^^^^^^^^
+
+warning: methods `owned_time`, `storage_budget`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1098:19
+     |
+ 861 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1098 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1153 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1186 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:76:19
+   |
+69 | impl StageQueue {
+   | --------------- method in this implementation
+...
+76 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+
+warning: `metroflow-rust` (lib test) generated 5 warnings
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/debug/deps/_metroflow_rust-ffddc2c3d4933447)
+
+running 59 tests
+test tests::active_agent_completes_when_sink_budget_is_available ... ok
+test tests::active_agent_empty_route_releases_slot ... ok
+test tests::active_agent_shared_link_budget_uses_slot_order ... ok
+test tests::active_agent_skip_slot_does_not_move ... ok
+test tests::active_agent_waits_at_sink_when_completion_budget_is_zero ... ok
+test tests::advances_active_agent_with_movement_budget ... ok
+test tests::agent_module_preserves_action_planner_contract ... ok
+test tests::computes_flow_normal_update ... ok
+test tests::computes_flow_with_forbidden_and_priority_weighting ... ok
+test tests::computes_flow_zero_links ... ok
+test tests::computes_flow_zero_turns ... ok
+test tests::computes_greedy_route_candidate_empty_when_unreachable ... ok
+test tests::computes_greedy_route_candidate_normal_path ... ok
+test tests::computes_greedy_route_candidate_with_forbidden_turn ... ok
+test tests::computes_next_link_action_costs_normal_batch ... ok
+test tests::computes_next_link_action_costs_with_blocked_and_unreachable_links ... ok
+test tests::computes_ranked_route_candidates_normal_paths ... ok
+test tests::computes_ranked_route_candidates_with_forbidden_turn ... ok
+test tests::computes_reroute_decision_batch ... ok
+test tests::computes_route_candidate_metadata_costs_and_path_size ... ok
+test tests::computes_route_candidate_metadata_empty_path ... ok
+test tests::computes_routing_potential_for_zero_links ... ok
+test tests::computes_routing_potential_normal_path ... ok
+test tests::computes_routing_potential_with_blocked_link ... ok
+test tests::edge_module_preserves_batch_evolution_contract ... ok
+test tests::evolves_normal_batch ... ok
+test tests::evolves_zero_capacity_with_eps_travel_time ... ok
+test tests::flow_module_preserves_baseline_array_contract ... ok
+test tests::flow_point_queue_uses_rate_supply_and_additive_waiting_ticks ... ok
+test tests::rejects_active_agent_length_mismatch ... ok
+test tests::rejects_active_agent_route_offset_mismatch ... ok
+test tests::rejects_flow_invalid_turn_index ... ok
+test tests::rejects_flow_length_mismatch ... ok
+test tests::rejects_flow_negative_numeric_input ... ok
+test tests::rejects_greedy_route_invalid_outgoing_index ... ok
+test tests::rejects_greedy_route_length_mismatch ... ok
+test tests::rejects_length_mismatch ... ok
+test tests::rejects_negative_input ... ok
+test tests::rejects_next_link_action_cost_invalid_candidate_index ... ok
+test tests::rejects_next_link_action_cost_length_mismatch ... ok
+test tests::rejects_queue_above_stock ... ok
+test tests::rejects_reroute_decision_length_mismatch ... ok
+test tests::rejects_route_candidate_metadata_length_mismatch ... ok
+test tests::rejects_route_candidate_metadata_unknown_link_id ... ok
+test tests::rejects_route_candidate_selection_negative_link_id ... ok
+test tests::rejects_routing_invalid_index ... ok
+test tests::rejects_routing_length_mismatch ... ok
+test tests::reroute_module_preserves_decision_contract ... ok
+test tests::routing_module_preserves_dynamic_potential_contract ... ok
+test tests::selects_route_candidate_empty_when_no_viable_path ... ok
+test tests::selects_route_candidate_first_viable_when_costs_are_missing ... ok
+test tests::selects_route_candidate_tie_by_candidate_id_then_path ... ok
+test tests::selects_route_candidate_with_path_size_utility ... ok
+test v1_engine::stage_sum_tests::stage_sums_empty_journey_is_all_zero ... ok
+test v1_kcmb::tests::shape_and_storage_guards_and_zero_step ... ok
+test v1_road::workspace_accounting_tests::interval_transient_is_released_and_only_packed_rows_are_retained ... ok
+test v1_road::workspace_accounting_tests::road_step_event_charge_has_no_sink_terms ... ok
+test v1_road::workspace_accounting_tests::sink_envelope_counts_only_exiting_rows ... ok
+test v1_engine::stage_sum_tests::stage_sums_match_former_per_key_sum_bits ... ok
+
+test result: ok. 59 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s

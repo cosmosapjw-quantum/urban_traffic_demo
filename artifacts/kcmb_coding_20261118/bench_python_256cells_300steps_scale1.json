@@ -1,0 +1,52 @@
+{
+  "backend": "python",
+  "cells": 256,
+  "checkpoint_bytes": 66873,
+  "checkpoint_sha256": "064803933960d5270164cc11b9351a5e902a9d9b161b02b65e5d931ded8b67ac",
+  "classes": 2,
+  "completed_veh_by_class": [
+    2.265603225706561e-131,
+    6.011853921270695e-114
+  ],
+  "demand_scale": 1.0,
+  "experiment": "KCMB 6 conditional moments fixed spatial cells; not original packet V03",
+  "first_12_moments": [
+    0.3282391243464257,
+    0.6142734078536343,
+    0.07991164988872505,
+    0.24507686160288025,
+    0.03477655172548414,
+    0.16756845626777353,
+    0.2145035250576195,
+    0.25644916968038023,
+    0.04799633301993288,
+    0.15497329805867913,
+    0.01605837555101264,
+    0.10766333413907597
+  ],
+  "host": "cosmosapjw",
+  "max_mass_residual_veh": 1.5631940186722204e-12,
+  "max_sampled_occupied_lane_metres": 11.071484449447581,
+  "median_step_us": 4523.8895,
+  "model_id": "kcmb_6moment_corridor_v1:948b947a2430e10f8a3346df48048b238df15a13a879005adf4f33b1374c039d",
+  "p95_step_us": 4700.489,
+  "peak_rss_kib_including_python": 23372,
+  "pending_veh_by_class": [
+    88.31415114758457,
+    36.71988906525579
+  ],
+  "physical_range": "1D multi-class; no strict FIFO, actual field calibration or V03 equality",
+  "python": "3.12.3",
+  "remaining_active_veh_by_class": [
+    63.185848852414246,
+    26.19011093474452
+  ],
+  "simulated_seconds": 300.0,
+  "source_veh_by_class": [
+    151.50000000000037,
+    62.90999999999997
+  ],
+  "state_scalar_capacity": 3078,
+  "steps": 300,
+  "timed_step_total_s": 1.366480455
+}

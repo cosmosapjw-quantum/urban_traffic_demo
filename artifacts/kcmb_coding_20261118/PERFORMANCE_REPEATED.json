@@ -1,0 +1,34 @@
+{
+  "matched_max_abs_diff_remaining_active_veh": 3.552713678800501e-15,
+  "median_python_s": 0.67617773,
+  "median_ratio_python_over_rust": 2.8492226494080737,
+  "median_rust_s": 0.237320074,
+  "not_comparable_to": "Original packet V1 traffic model, full city V03 runtime, field observations",
+  "python_rss_kib": [
+    24216,
+    23376,
+    23776,
+    23528
+  ],
+  "python_total_s": [
+    0.674202223,
+    0.678153237,
+    0.696340156,
+    0.673768622
+  ],
+  "rust_rss_kib": [
+    25408,
+    25260,
+    24792,
+    25520
+  ],
+  "rust_total_s": [
+    0.237719582,
+    0.236920566,
+    0.237745051,
+    0.235079004
+  ],
+  "source": "four isolated sequential repetitions, alternating Python/Rust process order",
+  "state_scalars": 774,
+  "workload": "identical two-class KCMB; 64 cells; 600 steps; 1s step; varying red green"
+}
