@@ -1,0 +1,133 @@
+{
+  "hash_manifest": {
+    "artifacts/kcmb_network_20261119/CARGO_CHECK.log": {
+      "bytes": 2398,
+      "sha256": "b6d840c6a1f69bb1e1c6cb1cc854437a5a9f113a70d93031a8b9d765dcb13904"
+    },
+    "artifacts/kcmb_network_20261119/CARGO_TEST.log": {
+      "bytes": 6561,
+      "sha256": "84baa7a6bd81f9bccb85cf48d9dd2a04dec57fa0aba2a9f60a246e3c1124c245"
+    },
+    "artifacts/kcmb_network_20261119/SCOPED_PYTEST.txt": {
+      "bytes": 260,
+      "sha256": "7758d261c475105c0c838489fac6784745fb65eff1a2454792059d0c4aa5e81e"
+    },
+    "artifacts/kcmb_network_20261119/network_python_1600_12.json": {
+      "bytes": 428,
+      "sha256": "ae9ba32861d0c1c32a28cdae5690da30c2ad553ebd5173950ecc20748fe22d12"
+    },
+    "artifacts/kcmb_network_20261119/network_python_400_40.json": {
+      "bytes": 426,
+      "sha256": "7736d567c91e026224f3f14a94db035fae4326dc1e16040785fd874519953866"
+    },
+    "artifacts/kcmb_network_20261119/network_python_80_100.json": {
+      "bytes": 426,
+      "sha256": "3d17ee5fc841a51b227b30938b02e8f2ae9f2906a3d3cf3bee79414122f66647"
+    },
+    "artifacts/kcmb_network_20261119/network_rust_1600_12.json": {
+      "bytes": 425,
+      "sha256": "02b4645992b0b5534929cae84b4a27b42eb591869bc7b005e44bbba041c945eb"
+    },
+    "artifacts/kcmb_network_20261119/network_rust_400_40.json": {
+      "bytes": 425,
+      "sha256": "c8a447629d08e7c38d7ab227d247169912e71b9e9028ca1682862039b77e09be"
+    },
+    "artifacts/kcmb_network_20261119/network_rust_80_100.json": {
+      "bytes": 424,
+      "sha256": "a2c9527c4031aa387b0054d95592487c825c8c519c8c34ddd8b1bc336aedbff1"
+    },
+    "artifacts/kcmb_network_20261119/node_compare_400.json": {
+      "bytes": 1071,
+      "sha256": "68fc4d363467dcb9200c5d98695d86812ddbb8b25454ab8d48cc97addb937cbc"
+    },
+    "crates/metroflow-rust/src/lib.rs": {
+      "bytes": 36097,
+      "sha256": "529d9113e5ce8167da1291fcd5767d7434c27cfd5640d896dee6f4868c10b639"
+    },
+    "crates/metroflow-rust/src/v1_kcmb_node.rs": {
+      "bytes": 5784,
+      "sha256": "2e04ce553689ef39fdc2cfc4a03b9c85644923047e124b4245de6df70d2f90f9"
+    },
+    "docs/research/KCMB_NETWORK_THEORY_CODING_20261119_KO.md": {
+      "bytes": 13748,
+      "sha256": "47de6355f73229e6d673a22b56598687d5e6a19c89b67c0a35d5a92d8875f098"
+    },
+    "src/metroflow/v1/kcmb_network.py": {
+      "bytes": 24467,
+      "sha256": "a1ebb16dc2da527138363bca5fc9bbad35de4de514a5140aa10cdea9a3bceeb7"
+    },
+    "tests/research/test_kcmb_network_20261119.py": {
+      "bytes": 14440,
+      "sha256": "b8c816943abec5a47017b222aef2f43d2493a77274acedad90cb3b8ac8d6c146"
+    },
+    "tools/research/bench_kcmb_network.py": {
+      "bytes": 5108,
+      "sha256": "bb180f84c0bc4e7efb999ed7fae721a7ec3cb58dd5316893c03a0b33eafc5611"
+    }
+  },
+  "performance": {
+    "backend_network": {
+      "1600": {
+        "fixed_state_scalars": 9603,
+        "max_mass_output_difference_veh": 0.0,
+        "python_total_s": 0.37337081390433013,
+        "rust_node_total_s": 0.2824423247948289,
+        "speed_ratio": 1.321936484468301,
+        "steps": 12
+      },
+      "400": {
+        "fixed_state_scalars": 2403,
+        "max_mass_output_difference_veh": 0.0,
+        "python_total_s": 0.3070511790574528,
+        "rust_node_total_s": 0.23111066786805168,
+        "speed_ratio": 1.3285893805333036,
+        "steps": 40
+      },
+      "80": {
+        "fixed_state_scalars": 483,
+        "max_mass_output_difference_veh": 0.0,
+        "python_total_s": 0.15704408747842535,
+        "rust_node_total_s": 0.11415876814862713,
+        "speed_ratio": 1.3756638235090657,
+        "steps": 100
+      }
+    },
+    "node_n400_python_global_over_local": 24.931268083309842,
+    "node_n400_rust_global_over_local": 1.8078101215559954,
+    "scope": "one-route synthetic network; no previous V1 packet whole-city comparison"
+  },
+  "record_created_kst": "2026-11-19T01:29:30+09:00",
+  "science": {
+    "V03": "BLOCKED_UNCHANGED",
+    "conservation_and_lane_storage": "DERIVED_NUMERICALLY_CHECKED_CONDITIONAL",
+    "empirical_observation_data": "NOT_MEASURED",
+    "full_V03_3cities_3runs_24h": "NOT_RUN_DEPENDENCY_BLOCKED",
+    "full_time_ordered_fifo": "NOT_IMPLEMENTED",
+    "independent_turn": "ASSUMED_SEPARATE_TURN_POCKETS",
+    "invariant_entropy_node": "UNRESOLVED",
+    "merge": "NOT_RUN",
+    "production_V1_modified": false,
+    "remote_push": "NOT_RUN",
+    "routing_identity": "FIXED_COMMODITY_PATH",
+    "shared_head": "EXCHANGEABLE_MIXTURE_PARTIAL_FIFO_ONLY"
+  },
+  "source": {
+    "V03_upstream_draft_PR41_HEAD": "0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+    "branch": "research/kcmb-network-theory-coding-20261119",
+    "repository": "cosmosapjw-quantum/urban_traffic_demo",
+    "theory_and_coding_parent_sha": "55e50ae787f85525f62e96e728bf699413354681",
+    "worktree": "/home/cosmosapjw/worktrees/urban-traffic-kcmb-network-20261119"
+  },
+  "tested": {
+    "cargo_check_workspace_offline": true,
+    "dense_global_resource_failure": "BEHAVIOR_RED_GREEN",
+    "local_node_global_equivalence": "DERIVED_AND_NUMERICALLY_CHECKED",
+    "native_subagent": "NOT_RUN_TOOL_UNAVAILABLE",
+    "network_behavior_tests": 19,
+    "rust_lib_passed": 61,
+    "rustfmt_new_file": true,
+    "scoped_python_passed": 174,
+    "source_oversubscription_parity": "BEHAVIOR_RED_GREEN"
+  },
+  "type": "KCMB_NETWORK_THEORY_CODING_SCOPED"
+}

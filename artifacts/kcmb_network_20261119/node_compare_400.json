@@ -1,0 +1,43 @@
+{
+  "groups": 400,
+  "interpretation": "independent-junction resource matrix; no full traffic model in this sub-benchmark",
+  "outcome": "all allocation outputs are identical",
+  "output_total_veh": 100.0,
+  "python": "3.12.3",
+  "receiver_resources": 400,
+  "repeats": 3,
+  "timings": {
+    "python_global": {
+      "median_seconds": 0.055959528021048754,
+      "seconds": [
+        0.06153708999045193,
+        0.05537391098914668,
+        0.055959528021048754
+      ]
+    },
+    "python_node_local": {
+      "median_seconds": 0.002244552015326917,
+      "seconds": [
+        0.002378125034738332,
+        0.002244552015326917,
+        0.0022404250339604914
+      ]
+    },
+    "rust_global": {
+      "median_seconds": 0.0008978469995781779,
+      "seconds": [
+        0.001421677996404469,
+        0.0008978469995781779,
+        0.0008955830126069486
+      ]
+    },
+    "rust_node_local": {
+      "median_seconds": 0.0004966489505022764,
+      "seconds": [
+        0.0004806090146303177,
+        0.0005257339798845351,
+        0.0004966489505022764
+      ]
+    }
+  }
+}

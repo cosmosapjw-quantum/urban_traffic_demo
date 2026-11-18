@@ -10,6 +10,7 @@ mod v1_routing;
 mod v1_calendar;
 mod v1_road;
 mod v1_kcmb;
+mod v1_kcmb_node;
 mod v1_journey;
 mod v1_history;
 mod v1_stage;
@@ -344,6 +345,7 @@ fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<v1_calendar::NativeCalendar>()?;
     m.add_class::<v1_road::V1Road>()?;
     m.add_class::<v1_kcmb::NativeKCMBCorridor>()?;
+    m.add_function(wrap_pyfunction!(v1_kcmb_node::allocate_kcmb_nodes, m)?)?;
     m.add_class::<v1_journey::NativeServiceCore>()?;
     m.add_class::<v1_journey::NativeJourneyCore>()?;
     m.add_class::<v1_history::NativeReceiptHistory>()?;

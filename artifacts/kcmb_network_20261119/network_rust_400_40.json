@@ -1,0 +1,15 @@
+{
+  "active_veh": 49.150500588510205,
+  "backend": "rust",
+  "completed_veh": 0.4494994114896869,
+  "links": 400,
+  "median_step_seconds": 0.005694262508768588,
+  "peak_rss_kib": 26928,
+  "pending_veh": 0.0,
+  "python": "3.12.3",
+  "released_veh": 49.60000000000021,
+  "scope": "opt-in one-route synthetic chain, not city/campaign",
+  "state_scalars": 2403,
+  "steps": 40,
+  "timed_step_total_seconds": 0.23111066786805168
+}
