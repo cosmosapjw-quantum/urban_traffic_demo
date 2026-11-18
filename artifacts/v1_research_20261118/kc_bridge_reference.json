@@ -1,0 +1,26 @@
+{
+  "model": "research-only kinetic Markov + conservative Godunov bridge",
+  "scope": "1D one-class, frozen parameters; no full FIFO, mixed bus freight, full city or empirical validation",
+  "shock": {
+    "conservation_only_shift_residual_m": 5.684341886080802e-14,
+    "crossing_error_m": 5.684341886080802e-14,
+    "density_half_height_crossing_m": -62.5,
+    "dt_s": 0.25,
+    "dx_m": 5.0,
+    "ncells": 800,
+    "predicted_shift_m": -62.50000000000006,
+    "reconstructed_shift_m": -62.5,
+    "spatial_L1_error_veh": 0.20015866693007905
+  },
+  "signal_spillback": {
+    "active_veh": 10.00000000000001,
+    "cells": 20,
+    "completed_veh": 75.30651041666667,
+    "conservative": true,
+    "fixed_state_scalars": 60,
+    "jam_capacity_veh": 1.5,
+    "max_occupancy_veh": 1.4999999999999996,
+    "pending_veh": 154.69348958333535,
+    "released_veh": 240.00000000000233
+  }
+}

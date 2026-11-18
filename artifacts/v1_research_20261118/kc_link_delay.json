@@ -1,0 +1,86 @@
+{
+  "admitted": 96.0,
+  "completed": 90.0,
+  "lagged_state_scalars": 10,
+  "pending": 24.0,
+  "samples": [
+    [
+      0,
+      {
+        "completed": 0.0,
+        "enter": 1.0,
+        "leave": 0.0,
+        "occupancy": 1.0,
+        "pending": 2.0,
+        "ready_queue": 0.0,
+        "retained_cumulative_scalars": 10,
+        "vacancy": 12.0
+      }
+    ],
+    [
+      4,
+      {
+        "completed": 0.0,
+        "enter": 1.0,
+        "leave": 0.0,
+        "occupancy": 5.0,
+        "pending": 10.0,
+        "ready_queue": 1.0,
+        "retained_cumulative_scalars": 10,
+        "vacancy": 8.0
+      }
+    ],
+    [
+      39,
+      {
+        "completed": 0.0,
+        "enter": 0.0,
+        "leave": 0.0,
+        "occupancy": 12.0,
+        "pending": 108.0,
+        "ready_queue": 12.0,
+        "retained_cumulative_scalars": 10,
+        "vacancy": 0.0
+      }
+    ],
+    [
+      59,
+      {
+        "completed": 0.0,
+        "enter": 0.0,
+        "leave": 0.0,
+        "occupancy": 12.0,
+        "pending": 108.0,
+        "ready_queue": 12.0,
+        "retained_cumulative_scalars": 10,
+        "vacancy": 0.0
+      }
+    ],
+    [
+      69,
+      {
+        "completed": 10.0,
+        "enter": 1.0,
+        "leave": 1.0,
+        "occupancy": 6.0,
+        "pending": 104.0,
+        "ready_queue": 3.0,
+        "retained_cumulative_scalars": 10,
+        "vacancy": 1.0
+      }
+    ],
+    [
+      149,
+      {
+        "completed": 90.0,
+        "enter": 1.0,
+        "leave": 1.0,
+        "occupancy": 6.0,
+        "pending": 24.0,
+        "ready_queue": 3.0,
+        "retained_cumulative_scalars": 10,
+        "vacancy": 1.0
+      }
+    ]
+  ]
+}

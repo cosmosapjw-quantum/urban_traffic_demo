@@ -1,0 +1,104 @@
+{
+  "boundary": {
+    "empirical_superiority": "UNRESOLVED",
+    "field_observation_evaluation": "NOT_MEASURED",
+    "loop": "THEORY_R1_R10",
+    "main_merge": "NOT_RUN",
+    "native_subagent": "NOT_RUN",
+    "production_code_mutations": 0,
+    "push": "NOT_RUN",
+    "release_gate": "BLOCKED_UNCHANGED",
+    "required_24h_completions": 9,
+    "v03_24h_completions": 0
+  },
+  "evidence_sha256": {
+    "artifacts/v1_research_20261118/kc_bridge_reference.json": {
+      "bytes": 880,
+      "sha256": "a71bb1d607c3478c750a6a6aa84d7d0bea07fa81d302a96d8102a56aeca39ccd"
+    },
+    "artifacts/v1_research_20261118/kc_link_delay.json": {
+      "bytes": 1644,
+      "sha256": "c5c2464838f80dc3d9cf1d39e58603ddb0e533f52837c67c6fd3f9a4e7a0940c"
+    },
+    "docs/research/KCMB_MICRO_KINETIC_MACRO_THEORY_R1_R10_20261118_KO.md": {
+      "bytes": 34492,
+      "sha256": "8bdf1906e62a31b522f301970ba83b3fa83f89b709fc4187d2953b06763d5ba7"
+    },
+    "tests/research/test_kc_bridge_20261118.py": {
+      "bytes": 4485,
+      "sha256": "5d94691e444f4fbdc3c4cb7fa37838a91a6ecce5225f1afc1dcaed171256b350"
+    },
+    "tools/research/kc_bridge_reference.py": {
+      "bytes": 9182,
+      "sha256": "230b95606b61e62af617bc8274423f85f06a8f26e520ed3f060167175d1f84ea"
+    },
+    "tools/research/kc_link_delay_oracle.py": {
+      "bytes": 3055,
+      "sha256": "320050f0233161fc21cffde179ee1f1a072dff22dbefdc56f2f228c8230c0004"
+    }
+  },
+  "numerics": {
+    "lagged_count_case": {
+      "admitted_veh": 96.0,
+      "completed_veh": 90.0,
+      "pending_veh": 24.0,
+      "retained_scalars": 10
+    },
+    "selected_python_pytest": {
+      "exit": 0,
+      "passed": 117
+    },
+    "shock_spatial_L1_veh_at_dx_m": {
+      "10": 0.3047533643847824,
+      "2.5": 0.01582243379902811,
+      "20": 0.38504891756701914,
+      "5": 0.20015866693007905
+    },
+    "shock_speed_m_per_s": -0.625,
+    "traffic_case": {
+      "active_veh": 10.00000000000001,
+      "cells": 20,
+      "completed_veh": 75.30651041666667,
+      "conservative": true,
+      "fixed_state_scalars": 60,
+      "jam_capacity_veh": 1.5,
+      "max_occupancy_veh": 1.4999999999999996,
+      "pending_veh": 154.69348958333535,
+      "released_veh": 240.00000000000233
+    },
+    "unmodified_prod_sources": true
+  },
+  "physical_claims": {
+    "OVM_linear_growth_threshold": "DERIVED_CAS_CHECKED",
+    "field_realism": "NOT_MEASURED",
+    "finite_volume_conservation_positivity_storage": "DERIVED",
+    "fixed_state_complexity": "DERIVED",
+    "full_24h_V03_performance": "NOT_RUN",
+    "general_multiclass_network_fifo": "UNRESOLVED",
+    "local_markov_moments": "DERIVED",
+    "one_link_delayed_counts_invariants": "DERIVED_AND_NUMERICALLY_CHECKED",
+    "uniform_equilibrium_LWR_reduction": "DERIVED_AND_STANDARD_LITERATURE"
+  },
+  "record_created": "2026-11-18T21:21:08+09:00",
+  "source": {
+    "branch": "audit/urban-traffic-v1-theory-lightweight-20261118",
+    "repository": "cosmosapjw-quantum/urban_traffic_demo",
+    "research_parent_commit": "96e9c69087a04bceb3878dd0da1baf68752b2c63",
+    "upstream_head_sha": "0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+    "upstream_pr": 41,
+    "worktree": "/home/cosmosapjw/worktrees/urban-traffic-v1-audit-20261118"
+  },
+  "stages": {
+    "R1": "SCOPE_DEFINED",
+    "R10": "DURABLE_REPORT_AND_RESUME",
+    "R2": "HISTORICAL_CODE_AND_LITERATURE_AUDITED",
+    "R3": "ASSUMPTIONS_CLAIMS_ALIGNED",
+    "R4": "DIVERGENT_7_CANDIDATES",
+    "R5": "FIVE_CONDITIONAL_THEOREMS_WITH_PROOFS",
+    "R6": "EXPLICIT_SCOPE_AND_COUNTEREXAMPLES",
+    "R7": "LOCAL_NUMERIC_CHECKS_COMPLETE_FIELD_NOT_RUN",
+    "R8": "KCMB_SELECTED_CONDITIONALLY",
+    "R9": "CODING_CONTRACT_AND_EMPIRICAL_VALIDATION_PLAN"
+  },
+  "title": "KCMB micro kinetic macro R1-R10 research loop"
+}
