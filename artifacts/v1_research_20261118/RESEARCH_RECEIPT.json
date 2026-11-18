@@ -1,0 +1,135 @@
+{
+  "artifacts": {
+    "artifacts/v1_research_20261118/SPLIT_PORTIONS_REJECTED.patch": {
+      "bytes": 2093,
+      "sha256": "cb7265e578bafa570962972e3e28be4c76898427eb9f3d6ad44e7cc943804a59"
+    },
+    "artifacts/v1_research_20261118/a_baseline.json": {
+      "bytes": 1339,
+      "sha256": "3e6b1ccf7a0e43b96ca522506a07e62112a229ad92fa38c59f3a6718c3db5464"
+    },
+    "artifacts/v1_research_20261118/after.json": {
+      "bytes": 1212,
+      "sha256": "bcda68e1ac113af58d3dc491ab09822a0f39c093706bb130356cc1b1d5dd0e12"
+    },
+    "artifacts/v1_research_20261118/b_optimized.json": {
+      "bytes": 1321,
+      "sha256": "a5949bc207a44ec0105b62f7501ff3d129fc6666229f077ea1dd9d0a38a229ca"
+    },
+    "artifacts/v1_research_20261118/before.json": {
+      "bytes": 1214,
+      "sha256": "5c0d0cdc370f5a7c784a2d7556da8fc0fa46d3e248dd619318dfd79d1c001012"
+    },
+    "artifacts/v1_research_20261118/c_baseline.json": {
+      "bytes": 1332,
+      "sha256": "0680fc6526f8a6736340187dcff8591dae1e9105e2b4a33da3690041505f041c"
+    },
+    "artifacts/v1_research_20261118/d_optimized.json": {
+      "bytes": 1340,
+      "sha256": "9d3a2cb009ec8037684d6892743b4a0e05401799605a6a4c94f1a283ff4cf3b1"
+    },
+    "artifacts/v1_research_20261118/frozen_relaxation.json": {
+      "bytes": 895,
+      "sha256": "5291ec2ff5e30b68d2fca68286ac9c3e6c9fe534c8de3997fbc699e9892150a3"
+    },
+    "artifacts/v1_research_20261118/reverted.json": {
+      "bytes": 1207,
+      "sha256": "885894b892ff645e5835b003b78c48c353214218fb90b1331373811c9c990625"
+    },
+    "docs/research/URBAN_V1_AUDIT_THEORY_LIGHTWEIGHT_20261118_KO.md": {
+      "bytes": 19224,
+      "sha256": "0657d634eebcb85b906e303e02216600bf0aba20599423b6df0403a7f666ba93"
+    },
+    "tests/research/test_urban_v1_model_20261118.py": {
+      "bytes": 2482,
+      "sha256": "169d40973c1974ca8cbc17b146e3b481e480ece0d3502066701dd25bdc29cb65"
+    },
+    "tools/research/bench_v1_packet_split.py": {
+      "bytes": 3656,
+      "sha256": "ee1cf119a72fc95db0e0730a5727df31fc2675ff5de0b8ecabb1ff6b27a5fd99"
+    },
+    "tools/research/frozen_relaxation_oracle.py": {
+      "bytes": 6028,
+      "sha256": "c18db99a5709417e87210be430b138a8f4acfbafcc33c78e48fb69bbc9a38dea"
+    }
+  },
+  "authoritative_target": {
+    "branch": "v1/v03-acceptance-20261027",
+    "plan": "docs/v1/PLAN.json",
+    "plan_version": "1.1.26",
+    "pr": 41,
+    "sha": "0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+    "source_core_unchanged_sha256": "ee0a3df0f078a79955e9e4dd8ec8b5b2561db0fc042f34b7def808c87b565d19"
+  },
+  "benchmark": {
+    "baseline_over_optimized_geomean": 0.99100247879947,
+    "candidate_patch": "artifacts/v1_research_20261118/SPLIT_PORTIONS_REJECTED.patch",
+    "decision": "REJECTED_NO_REPRODUCIBLE_SPEEDUP",
+    "medians_us": [
+      32.018,
+      31.90575,
+      31.675,
+      32.36625
+    ],
+    "production_core_reverted": true,
+    "sequence": [
+      "a_baseline",
+      "b_optimized",
+      "c_baseline",
+      "d_optimized"
+    ],
+    "state_hash": "4026b582ee4f053683897a378ee526328701006f9f29f9157ff9ef3dc63eccb1"
+  },
+  "created_at": "2026-11-18T20:25:50+09:00",
+  "execution": {
+    "branch": "audit/urban-traffic-v1-theory-lightweight-20261118",
+    "full_city_24h": "NOT_RUN_DEPENDENCY_BLOCKED",
+    "merge": "NOT_RUN",
+    "native_subagent": "NOT_RUN",
+    "production_source_changed": false,
+    "push": "NOT_RUN",
+    "serial_fallback": true,
+    "worktree": "/home/cosmosapjw/worktrees/urban-traffic-v1-audit-20261118"
+  },
+  "external_literature": [
+    {
+      "doi": "10.1016/0191-2615(94)00022-R",
+      "use": "network CTM reference"
+    },
+    {
+      "doi": "10.1016/j.trb.2014.12.006",
+      "use": "continuous link transmission theory"
+    },
+    {
+      "doi": "10.1016/j.simpat.2025.103088",
+      "use": "individual vehicle tracking LTM"
+    }
+  ],
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema_version": 1,
+  "scientific": {
+    "dag_nodes_complete": 19,
+    "dag_nodes_total": 21,
+    "network_model_replacement": "NOT_IMPLEMENTED",
+    "new_frozen_exact_solution": "DERIVED_NUMERICALLY_CHECKED_LOCAL_ONLY",
+    "v03_24h_completed": 0,
+    "v03_24h_required": 9,
+    "v03_status": "BLOCKED"
+  },
+  "verification": {
+    "cargo_check_workspace_tests": {
+      "exit": 0
+    },
+    "report_full_repo_ci": "NOT_RUN",
+    "rust_lib_tests": {
+      "exit": 0,
+      "passed": 58,
+      "runner": "RUSTFLAGS=-C link-arg=-lpython3.12 cargo test --workspace --lib"
+    },
+    "scoped_python_pytest": {
+      "exit": 0,
+      "passed": 111,
+      "scope": "CTM + finite response + native subset + three new research tests"
+    }
+  }
+}

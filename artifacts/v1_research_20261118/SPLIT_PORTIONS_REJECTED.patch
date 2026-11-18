@@ -1,0 +1,53 @@
+--- a/src/v1_road.rs
++++ b/src/v1_road.rs
+@@ -829,6 +829,32 @@
+         }
+     }
+     Ok(result)
++}
++
++// Split both sides using one traversal; each row retains the exact original
++// IEEE operations and order. This does not aggregate packets or change the
++// traffic model and cannot address packet-count growth by itself.
++fn split_portions(parts: &PacketParts, f: f64) -> PyResult<(Vec<Part>, Vec<Part>)> {
++    let g = 1. - f;
++    let mut served = checkpoint_vec(if f == 0. { 0 } else { parts.len() })?;
++    let mut remaining = checkpoint_vec(if g == 0. { 0 } else { parts.len() })?;
++    for p in parts {
++        let m = p.mass * f;
++        if m > 0. {
++            let mut q = p.clone();
++            q.mass = m;
++            q.birth *= f;
++            served.push(q);
++        }
++        let remainder_mass = p.mass * g;
++        if remainder_mass > 0. {
++            let mut q = p.clone();
++            q.mass = remainder_mass;
++            q.birth *= g;
++            remaining.push(q);
++        }
++    }
++    Ok((served, remaining))
+ }
+ /// Diagnostic census of adjacent non-point interval packets [a,b],[b,c] in one
+ /// cell's entry output: rows whose (tag, offset) recur in the next packet, and
+@@ -2254,7 +2280,7 @@
+                     {
+                         return Err(budget("packet transfer budget"));
+                     }
+-                    let served = portion(&packet.parts, fraction)?;
++                    let (served, remainder_parts) = split_portions(&packet.parts, fraction)?;
+                     if crate::v1_trace::enabled() {
+                         let key = (position[i], rate.to_bits());
+                         let class = match last_serve[i] {
+@@ -2288,7 +2314,7 @@
+                     let remainder = if fraction == 1. {
+                         None
+                     } else {
+-                        Some(portion(&packet.parts, 1. - fraction)?)
++                        Some(remainder_parts)
+                     };
+                     let sm = sum(served.iter().map(|p| p.mass));
+                     if let Some(parts) = remainder {

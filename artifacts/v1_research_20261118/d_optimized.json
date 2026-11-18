@@ -1,0 +1,51 @@
+{
+  "after_step_sha256_repr": "4026b582ee4f053683897a378ee526328701006f9f29f9157ff9ef3dc63eccb1",
+  "checkpoint_sha256_repr": "cbd75a97ee70ebc9ec6ef77a87adfd0561f0f74ae6282eaccd916143255b0876",
+  "fixture": "one cell, 0.5 veh/s exit, 128 MiB cap, partial FIFO",
+  "interpretation": "only a small, identical-input 1-tick hot-path benchmark; not 24h or network-level measurement",
+  "median_of_trial_medians_ns": 32366.25,
+  "packet_counts_before": [
+    1,
+    0,
+    128,
+    0
+  ],
+  "processor": "x86_64",
+  "python": "3.12.3",
+  "repeats": 300,
+  "samples": [
+    {
+      "mean_step_ns": 35267.63333333333,
+      "median_step_ns": 32156.0,
+      "p90_step_ns": 43763
+    },
+    {
+      "mean_step_ns": 33185.86666666667,
+      "median_step_ns": 31449.0,
+      "p90_step_ns": 37491
+    },
+    {
+      "mean_step_ns": 32385.116666666665,
+      "median_step_ns": 31440.0,
+      "p90_step_ns": 32551
+    },
+    {
+      "mean_step_ns": 33892.013333333336,
+      "median_step_ns": 32576.5,
+      "p90_step_ns": 37331
+    },
+    {
+      "mean_step_ns": 33282.87666666666,
+      "median_step_ns": 32842.0,
+      "p90_step_ns": 33473
+    },
+    {
+      "mean_step_ns": 34081.816666666666,
+      "median_step_ns": 32602.0,
+      "p90_step_ns": 35447
+    }
+  ],
+  "script": "tools/research/bench_v1_packet_split.py",
+  "tags": 128,
+  "trials": 6
+}

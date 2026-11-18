@@ -1,0 +1,42 @@
+{
+  "caveats": [
+    "no acceleration/braking clip",
+    "frozen U/hazard/composition/length",
+    "not network runtime or 24h performance",
+    "distance near gamma=lambda uses controlled midpoint limit"
+  ],
+  "exact": {
+    "distance_m": 29.734737999624503,
+    "velocity_m_per_s": 5.711963631856243
+  },
+  "maximum_absolute_error_strang_step_counts": [
+    [
+      5,
+      0.09011466331878282
+    ],
+    [
+      10,
+      0.022636996009385513
+    ],
+    [
+      20,
+      0.0056660650797759615
+    ],
+    [
+      40,
+      0.001416942989230563
+    ]
+  ],
+  "model": "frozen multi-class latent relaxation, no clipping",
+  "resonance_checked": true,
+  "rk4_5000": {
+    "distance_m": 29.734737999624542,
+    "velocity_m_per_s": 5.711963631856226
+  },
+  "sample": {
+    "T_s": 5.0,
+    "U_m_per_s": 12.0,
+    "v0_m_per_s": 5.0
+  },
+  "status": "DERIVED + NUMERICALLY_CHECKED_REFERENCE_ONLY"
+}
