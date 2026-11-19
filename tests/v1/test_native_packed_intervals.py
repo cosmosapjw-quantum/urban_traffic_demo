@@ -49,7 +49,10 @@ def test_actual_part_layout_and_byte_derived_record_ceiling():
     # Packet's enum niche/layout is compiler-owned, not a checkpoint ABI.
     core, expanded, packet, event = native.storage_layout_bytes()
     assert (core, expanded, event) == (32, 48, 64)
-    assert 40 <= packet <= 56
+    # Arc-backed immutable packet composition now has a measured 32-byte
+    # native enum/target layout on this pinned x86_64 Rust ABI. This tightens
+    # the source-specific check; checkpoint wire rows stay unchanged.
+    assert packet == 32
     native.configure_storage_budget(1024**2)
     assert native.storage_limits()[1] == 1024**2 // 48
     assert native.storage_limits()[2] == 1024**2 // 64
