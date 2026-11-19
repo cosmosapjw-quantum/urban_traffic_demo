@@ -1,0 +1,15 @@
+# V03-FIFO-LINEAGE-01: Exact FIFO, immutable composition and time/space complexity
+
+**2026-11-19 KST. Theory R1–R10.** Repository cosmosapjw-quantum/urban_traffic_demo; frozen parent 3af9b8de34dd84a85fcb3f5ef8c4c18ee8efbbfe, research branch research/v03-fifo-lineage-theory-20261119. SSOT: docs/v1/PLAN.json v1.1.26; original draft PR #41 0b9caa8cc60a3ba087722e0360b997c5dfb61d62. Original main, native packet code, all released inputs/thresholds and prior coding receipts are protected. This report is **theory only**: no new production implementation, fitted coefficient, PR merge or full-day execution.
+
+## R1. 연구 목표, 계약, 성공·실패 조건
+
+**Question.** 왜 25,600초 부근의 original finite-response multi-commodity traffic packet representation이 정확 FIFO를 계산하면서 폭증하는가? 서로 다른 tag/offset, birth 1차 모멘트, 원래 (a,b) time-interval support, cell target/ready, event start/end, route-dependent downstream gate와 전체 질량 장부를 버리지 않으면서 공간과 계산량을 **동시에 줄일 수 있는 정확한 표현**이 존재하는가?
+
+**Frozen physical baseline.** Entire original 100k resident demand in each of three original cities, 86,400 s per case, 3 repeats, Δt=10 s, original RSS/process bound 8 GiB, original native accounting ~6 GiB, wall ≤7200 s/run. Release status: 21 DAG nodes, 19 scoped complete, V03 BLOCKED, RLS01 PLANNED, old/full-current three-city calendars 3/3 prepared, exact old/new native checkpoint equality through Valley t=25,600 s, full-day accepted 0/9. Do not reclassify the prefix or 3/3 preparation as a full-day acceptance.
+
+**Three meanings of exact.** (E1) real-arithmetic equality of marked measures and all causal control responses; (E2) same IEEE-754 binary64 numerical outputs and operation ordering given identical source; (E3) identical raw byte stream of legacy checkpoint serialization. E1 does **not** imply E2, and E2 for a selected set of observables does **not** automatically imply E3. The current V03 comparison used actual E3 through 25,600 s; any proposed new checkpoint schema must be versioned rather than silently called byte-identical.
+
+**Scientific success conditions.** Typed definitions, constructive nontrivial theorems with hypotheses and proofs, explicit counterexamples to invalid compressions, independent exact-rational and binary64 examples, primary-literature scope checks, asymptotic **output-sensitive** complexity bounds, kinetic/statistical-physics invariants, and an implementation-ready next-stage contract. A stronger universal theorem than the proven hypotheses is not admitted. Avoid arbitrary new probe/driver fitting and avoid pretending the full V03 memory ceiling was solved.
+
+**Workflow.** Keep R4 exploration broad; after R6/R7 review select a single next coding experiment, but do NOT start its implementation during this theory invocation. Original physics and source-bound release authority remain frozen. native_subagent: NOT_RUN on this host (no native agent spawn tool exposed). We use serial proof construction, independent exact arithmetic, literature triangulation, and bounded adversarial testing.
