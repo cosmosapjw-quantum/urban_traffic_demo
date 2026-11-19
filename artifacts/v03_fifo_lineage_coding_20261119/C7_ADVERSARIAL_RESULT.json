@@ -1,0 +1,29 @@
+{
+  "extra_negative_cases": [
+    "subnormal rounded-to-zero filtering",
+    "negative zero interval payload",
+    "nonfinite fractions",
+    "20k depth without stack recursion"
+  ],
+  "fixed_seed": "0xF00D_2026_0019",
+  "full_original_100k_day_accepted": "NOT_RUN",
+  "implemented_in_original_road_physics": false,
+  "nested_checks_5_times_17": 85,
+  "nested_transform_steps_per_size": 17,
+  "original_mass_birth_tag_offset_time_bits_checked": true,
+  "root_sizes": [
+    1,
+    2,
+    19,
+    61,
+    160
+  ],
+  "rust_workspace_lib_ignored": 1,
+  "rust_workspace_lib_passed": 74,
+  "scope": "Rust shadow-only original Part operation comparisons, no production V03 state changes",
+  "source_file": "crates/metroflow-rust/src/v1_lineage_shadow.rs",
+  "source_parent_commit": "d7e09a16bd5d5b51e113eb4021c750b23dda80de",
+  "source_sha256": "277539791d9c17bc0429b04ad87fe0c799d44a515c02ec1b55cd110175b6c507",
+  "test_method": "independently evaluate original eager portion and interval binary64 expressions against append-only lineage visit output",
+  "toolchain": "rustc 1.99.0 (b940084d7 2026-09-28)"
+}

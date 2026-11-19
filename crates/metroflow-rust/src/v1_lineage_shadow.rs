@@ -313,3 +313,102 @@ mod exact_shadow_tests {
         assert_eq!(observed,eager);
     }
 }
+
+
+#[cfg(test)]
+mod independent_shadow_adversarial_tests {
+    use super::*;
+
+    fn row(tag: usize, mass: f64, birth: f64, a: f64, b: f64) -> Part {
+        Part {
+            tag,
+            offset: tag % 5,
+            mass, birth,
+            a: PackedTime::new(Some(a)).unwrap(),
+            b: PackedTime::new(Some(b)).unwrap(),
+        }
+    }
+
+    fn bits(p: Part) -> (usize, usize, u64, u64, u64, u64) {
+        (p.tag,p.offset,p.mass.to_bits(),p.birth.to_bits(),
+         p.a.unwrap().to_bits(),p.b.unwrap().to_bits())
+    }
+
+    #[test]
+    fn deterministic_random_nested_serve_remainder_against_original_portion() {
+        let mut seed = 0xF00D_2026_0019u64;
+        for size in [1, 2, 19, 61, 160] {
+            let mut rows = Vec::new();
+            for i in 0..size {
+                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                let mass = f64::from_bits(0x3fb0000000000000 + ((seed >> 7) & 0xffff));
+                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                let birth = f64::from_bits(0x3fb0000000000000 + ((seed >> 9) & 0xffff));
+                rows.push(row(i%9, mass, birth, 0.0, 5.0));
+            }
+            let mut arena = LineageArena::default();
+            let root = arena.base(rows.clone());
+            let mut id = root;
+            let mut eager = rows;
+            for step in 0..17 {
+                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                let fraction = if step==8 && size==1 {0.0} else if step==10 {1.0} else {
+                    ((seed >> 16) % 1024) as f64 / 1024.0
+                };
+                id = arena.scale(id, fraction).unwrap();
+                let packed = PacketParts::pack(eager, |_|Ok(())).unwrap();
+                eager = portion(&packed, fraction).unwrap();
+                assert_eq!(arena.materialize(id).unwrap().into_iter().map(bits).collect::<Vec<_>>(),
+                           eager.iter().copied().map(bits).collect::<Vec<_>>(),
+                           "random nested original portion: size={size}, step={step}");
+            }
+            assert_eq!(arena.stats().base_rows,size);
+            assert_eq!(arena.stats().node_count,18);
+        }
+    }
+
+    #[test]
+    fn distinct_order_and_time_support_survive_nonassociative_rewrites() {
+        let mut arena = LineageArena::default();
+        let source = vec![
+            row(2, 0.7, 0.11, -0.0, 4.0),
+            row(3, 0.1, 0.19, 0.0, 2.0),
+            row(5, 0.9, 0.07, 1.0, 4.0),
+            row(4, 0.3, 0.73, 0.0, 4.0),
+        ];
+        let root=arena.base(source.clone());
+        let scale=arena.scale(root,0.3).unwrap();
+        let first=arena.restrict(scale,0.0,2.0).unwrap();
+        let second=arena.advance_offset(first).unwrap();
+        let third=arena.rewrite_time(second,-0.0,1.75).unwrap();
+        let mut reference=portion(&PacketParts::pack(source, |_|Ok(())).unwrap(),0.3).unwrap();
+        reference.retain(|p| p.a.unwrap()<=0.0 && p.b.unwrap()>=2.0 && p.b>p.a);
+        for p in &mut reference {
+            let (pa,pb)=(p.a.unwrap(),p.b.unwrap());
+            p.mass=p.mass*(2.0-0.0)/(pb-pa);
+            p.birth=p.birth*(2.0-0.0)/(pb-pa);
+            p.offset+=1;
+            p.a=PackedTime::new(Some(-0.0)).unwrap();
+            p.b=PackedTime::new(Some(1.75)).unwrap();
+        }
+        assert_eq!(arena.materialize(third).unwrap().into_iter().map(bits).collect::<Vec<_>>(),
+                   reference.into_iter().map(bits).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn subnormal_mass_drop_matches_exact_original_ieee_predicate() {
+        let min=f64::from_bits(1);
+        let rows=vec![
+            row(1,min,min,0.0,1.0),
+            row(2,f64::from_bits(2),f64::from_bits(2),0.0,1.0),
+            row(3,0.1,0.3,-0.0,1.0),
+        ];
+        let mut arena=LineageArena::default();
+        let root=arena.base(rows.clone());
+        let view=arena.scale(root,0.5).unwrap();
+        let old=portion(&PacketParts::pack(rows, |_|Ok(())).unwrap(),0.5).unwrap();
+        assert_eq!(arena.materialize(view).unwrap().into_iter().map(bits).collect::<Vec<_>>(),
+                   old.iter().copied().map(bits).collect::<Vec<_>>());
+        assert_eq!(old.len(),2);
+    }
+}

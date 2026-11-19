@@ -79,3 +79,16 @@ Bounded original V1 Python regressions (native packed interval, native road, sto
 **Error classification preserved:** The initial E0433 missing LineageArena was a deliberately failing behavior test; the later missing PyResult import was a compiler integration defect, repaired without weakening any existing test. No physical theory inconsistency or runtime floating-point failure was inferred from either compiler diagnostic. No modified original V03 native tick or build release acceptance was represented as PASS.
 
 Evidence stored under artifacts/v03_fifo_lineage_coding_20261119/C6_{CARGO_TEST.log,PYTEST.txt,CARGO_CHECK.log,PLAN_VALIDATE.txt}. Scope gate: SHADOW_RUST_UNIT_IMPLEMENTATION_VERIFIED, ORIGINAL_V03_FULL_DAY_BLOCKED. No fitted micro rates, source demand, timing or resource threshold introduced in this stage.
+
+## C7. 물리적·수학적 정확성 검증
+
+Under the previous R5 per-row trace-induction theorem, each lazy operator applies exactly the old Part-level operation with the same IEEE rounding, row filter, input order and route/clock marks. This is **per-view operation equivalence only**, not an equivalence of different junction solvers or the original 24h V03 release.
+
+Added three independent adversarial Rust tests to the existing 7:
+1. A deterministic 17-step sequence over root sizes 1,2,19,61,160. At every step the shadow is compared against ORIGINAL eager PacketParts::pack+portion, using exact f64 bits for mass, birth, both endpoints and route/offset. The root of size 1 undergoes exact f=0 and verifies all subsequent empty states; sizes 2/19/61/160 remain nonempty and exercise 17 consecutive rounded transformations each; f=1 is explicitly tested at step10. Seed 0xF00D_2026_0019.
+2. A source array with signed-zero endpoints, four different tags, distinct time support, a Scale then original interval Restrict then offset increment and time rewrite; the reference is calculated from independent eager loops using the original multiply-then-divide order.
+3. A subnormal-mass input containing binary64 minimum subnormal and two subnormal units at f=0.5. The source's strict m>0 retention predicate is followed exactly, including dropped rounded-to-zero rows and original birth bits. No invented epsilon threshold.
+
+Fresh Rust cargo library verification on this revision: **74 passed; 0 failed; 1 ignored**. The ten new shadow checks remain scoped to the private cfg(test) module. The original V03 conservative runtime/mass ledger is not substituted and no new traffic class parameter or demand coefficient was fitted. IEEE bit identity of this restricted operator language is IMPLEMENTATION_VERIFIED on the finite test population; full V03 physics/checkpoint identity on the new code path is UNTESTED because the path is not activated.
+
+C7 exact-input identity, compiler version, tests and original source SHA are preserved in artifacts/v03_fifo_lineage_coding_20261119/C7_ADVERSARIAL_RESULT.json and C7_ALL_RUST.log. Next C8 benchmarks memory and actual computation separately, not treating the idealized O(P+E) theorem as observed wall/RSS.
