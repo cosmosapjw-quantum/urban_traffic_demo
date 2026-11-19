@@ -12,7 +12,7 @@ def auth():
 
 def prepared(name,sha):
     return dict(case=name,status='WHOLE_CALENDAR_PREPARED',engine_backend='rust_whole',
-      step_s=10,horizon_s=86400,simulated_s=0,matrix_sha256=sha,
+      step_s=10,horizon_s=0,simulated_s=0,matrix_sha256=sha,
       source_sha256='a'*64,patch_sha256='b'*64,candidate_source_sha256='c'*64,
       native_binary_sha256='d'*64,driver_identity='e'*64,
       calendar=dict(resident_stock=100000,legs=5093765),wall_s=3.,
@@ -42,7 +42,7 @@ def test_three_real_preparations_do_not_impersonate_nine_full_days():
 def test_wrong_binding_or_resource_fails_without_readiness_credit():
     p,m,sha=auth();r=prepared(m['cases'][0]['id'],sha)
     for field,value in [('matrix_sha256','x'*64),('engine_backend','python_oracle'),
-                        ('status','EXECUTED_FOR_REVIEW'),('step_s',5),
+                        ('status','EXECUTED_FOR_REVIEW'),('step_s',5),('horizon_s',86400),
                         ('peak_rss_bytes',9*1024**3)]:
         corrupt=dict(r);corrupt[field]=value
         a=assess_v03_readiness(p,m,matrix_sha256=sha,preparation_receipts=[corrupt])

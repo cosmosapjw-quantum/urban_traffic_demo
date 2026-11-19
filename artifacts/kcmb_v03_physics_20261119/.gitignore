@@ -1,0 +1,3 @@
+# Original native V03 checkpoints are tens of MB and remain local only.
+# Git retains code, source-bounded JSON receipts and sha256 readbacks.
+*.bin

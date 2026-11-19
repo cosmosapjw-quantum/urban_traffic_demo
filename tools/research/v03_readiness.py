@@ -22,6 +22,8 @@ sys.path.insert(0,str(ROOT/"src"))
 sys.path.insert(0,str(ROOT))
 from metroflow.v1.v03_readiness import assess_v03_readiness
 from tools.v1_plan import validate
+from tools.run_v1_local_acceptance import candidate_provenance
+from metroflow.v1.native_engine import native_binary_provenance
 
 
 def sha256(path:Path):
@@ -75,9 +77,20 @@ def main():
             file=directory/(case["id"]+".prepare.json")
             if file.is_file():
                 receipts.append(json.loads(file.read_bytes()))
+    live_source_sha=None
+    live_binary_sha=None
+    if receipts:
+        live_source=candidate_provenance()
+        live_binary=native_binary_provenance()
+        if live_source.get("status")!="MEASURED" or live_binary.get("status")!="MEASURED":
+            raise ValueError("original candidate/native hash unavailable; refuse claimed preparation readiness")
+        live_source_sha=live_source["source_sha256"]
+        live_binary_sha=live_binary["sha256"]
     readout=assess_v03_readiness(
         plan,matrix,matrix_sha256=sha256(matrixfile),
         preparation_receipts=receipts,
+        live_candidate_source_sha256=live_source_sha,
+        live_native_binary_sha256=live_binary_sha,
     )
     readout["observed_host"]=observed_host()
     readout["source_file_sha256"]={
@@ -88,6 +101,8 @@ def main():
                                                  cwd=ROOT,text=True).strip(),
         "source":"actual repository plan, matrix, optional whole-native prepare receipts",
         "not_fitted_parameters":"none introduced in scorer",
+        "live_candidate_source_sha256":live_source_sha,
+        "live_native_binary_sha256":live_binary_sha,
         "acceptance_not_promoted":True,
     }
     target=Path(args.output)

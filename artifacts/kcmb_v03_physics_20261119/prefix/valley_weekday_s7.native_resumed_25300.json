@@ -1,0 +1,57 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "block_reason": null,
+  "candidate_source_sha256": "ddbdef9562dd9d7e0dacd66362d78a2da63e14ec764ee1db9ae49c9fc667d921",
+  "case": "valley_weekday_s7",
+  "code_or_numerical_tolerance_modified": false,
+  "completed_time_s": 25300.0,
+  "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "elapsed_seconds": 33.509291348047554,
+  "exact_binary_source_roundtrip": true,
+  "full_day_24h_acceptance": "NOT_RUN",
+  "intended_end_time_s": 25300.0,
+  "last_valid_checkpoint": "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_resumed_25300.final.bin",
+  "last_valid_checkpoint_bytes": 83139202,
+  "last_valid_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+  "mass_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 299.36892379720035,
+      "completed": 1.1119226903036132,
+      "pending": 255.07470906806316,
+      "released": 300.480846487504,
+      "requested": 555.5555555555671
+    },
+    "vehicles": {
+      "active": 239.28835076633067,
+      "completed": 0.7116492336688547,
+      "pending": 32.222222222225156,
+      "released": 239.99999999999952,
+      "requested": 272.2222222222247
+    }
+  },
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "max_rss_bytes": 485613568,
+  "native_binary_sha256": "1e53ddf5f8fa8864e2cac9f8a2b8d0b3ffccc94f4c9de74832edb197a99f26a4",
+  "nonzero_physical_traffic_observed": true,
+  "original_full_calendar_legs": 918450,
+  "parent_receipt_path": "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_23000.json",
+  "patch_sha256": "da5fa61d26316b17d09a96ae467d4fb0accc2781f17a96572607ddf423946ac7",
+  "physical_ledger_check": "PASS_SCOPED",
+  "resident_stock": 100000.0,
+  "source_100k_population_reduced": false,
+  "source_binding": "ORIGINAL_V03_PREFIX_BINDING_VERIFIED",
+  "source_checkpoint_bytes": 29539674,
+  "source_checkpoint_path": "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_23000.final.bin",
+  "source_checkpoint_sha256": "12bd9498c895faab6ce744c27f2868456e89f38219fe1250fe420dd7a123b582",
+  "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+  "start_time_s": 23000.0,
+  "status": "EXECUTED_BOUNDED_PREFIX",
+  "whole_native_stage": true
+}

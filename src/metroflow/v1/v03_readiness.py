@@ -19,21 +19,28 @@ def _sha256(value):
     )
 
 
-def _prepared(row:Mapping,case:Mapping, matrix:Mapping, expected_sha:str)->tuple[bool,str]:
+def _prepared(
+    row:Mapping,case:Mapping,matrix:Mapping,expected_sha:str,
+    *,live_candidate_sha:str|None=None,live_native_sha:str|None=None
+)->tuple[bool,str]:
     if row.get("status")!="WHOLE_CALENDAR_PREPARED":
         return False,"NO_SUCCESSFUL_EXACT_CALENDAR_PREPARATION"
     if row.get("engine_backend")!="rust_whole":
         return False,"NOT_ORIGINAL_WHOLE_NATIVE_ENGINE"
     if row.get("case")!=case["id"] or row.get("matrix_sha256")!=expected_sha:
         return False,"CASE_OR_MATRIX_SOURCE_BINDING_MISMATCH"
-    if row.get("step_s")!=10 or row.get("horizon_s")!=matrix["horizon_s"]:
-        return False,"TIME_DISCRETIZATION_OR_HORIZON_DIFFERS"
+    if row.get("step_s")!=10 or row.get("horizon_s")!=0:
+        return False,"PREPARATION_ONLY_MUST_HAVE_ZERO_EXECUTION_HORIZON"
     if row.get("simulated_s")!=0:
         return False,"PREPARATION_EVIDENCE_CLAIMS_AN_ACTUAL_RUN"
     if any(not _sha256(row.get(k)) for k in (
         "source_sha256","patch_sha256","candidate_source_sha256","native_binary_sha256"
     )):
         return False,"NATIVE_OR_SOURCE_IDENTITY_NOT_MEASURED"
+    if live_candidate_sha is not None and row.get("candidate_source_sha256")!=live_candidate_sha:
+        return False,"CURRENT_SOURCE_CONTENT_HASH_DIFFERS"
+    if live_native_sha is not None and row.get("native_binary_sha256")!=live_native_sha:
+        return False,"CURRENT_NATIVE_BINARY_CONTENT_HASH_DIFFERS"
     if not isinstance(row.get("driver_identity"),str) or not row["driver_identity"]:
         return False,"DRIVER_IDENTITY_MISSING"
     if row.get("candidate",{}).get("source_dirty") is not False:
@@ -59,7 +66,9 @@ def assess_v03_readiness(
     matrix:Mapping,
     *,
     matrix_sha256:str,
-    preparation_receipts:Sequence[Mapping]=()
+    preparation_receipts:Sequence[Mapping]=(),
+    live_candidate_source_sha256:str|None=None,
+    live_native_binary_sha256:str|None=None,
 )->dict:
     """Conservative V03 diagnostic; never interprets prepare-only as full-day."""
     if not isinstance(plan,dict) or not isinstance(matrix,dict):
@@ -109,7 +118,10 @@ def assess_v03_readiness(
         if key not in evidence:
             prep[key]={"status":"NOT_RUN","reason":"NO_FRESH_PREPARATION_RECEIPT"}
         else:
-            ok,reason=_prepared(evidence[key],case,matrix,matrix_sha256)
+            ok,reason=_prepared(
+                evidence[key],case,matrix,matrix_sha256,
+                live_candidate_sha=live_candidate_source_sha256,
+                live_native_sha=live_native_binary_sha256)
             prep[key]={"status":"PREPARED_SCOPED" if ok else "REJECTED_EVIDENCE",
                        "reason":reason}
     deps=by["V03"].get("depends_on",[])

@@ -37,3 +37,24 @@ def test_nonmatching_receipt_file_causes_explicit_rejection_not_false_green(tmp_
     obj=json.loads(path.read_text())
     assert obj["v03"]["calendar_preparation_verified"]==0
     assert obj["case_preparation"]["river_weekday_s17"]["status"]=="REJECTED_EVIDENCE"
+
+
+def test_readiness_cli_rejects_three_equal_forged_native_source_hashes(tmp_path):
+    source=ROOT/"artifacts/kcmb_v03_physics_20261119/preparation"
+    directory=tmp_path/"forged"
+    directory.mkdir()
+    for name in ("river_weekday_s17","coastal_weekend_s41","valley_weekday_s7"):
+        row=json.loads((source/(name+".prepare.json")).read_text())
+        row["candidate_source_sha256"]="0"*64
+        row["native_binary_sha256"]="0"*64
+        (directory/(name+".prepare.json")).write_text(json.dumps(row))
+    path=tmp_path/"checked.json"
+    run=subprocess.run([sys.executable,str(SCRIPT),"--prep-dir",str(directory),
+                        "--output",str(path)],
+                       cwd=ROOT,capture_output=True,text=True,timeout=30)
+    assert run.returncode==0,run.stderr
+    result=json.loads(path.read_text())
+    assert result["v03"]["calendar_preparation_verified"]==0
+    assert all(v["status"]=="REJECTED_EVIDENCE"
+               for v in result["case_preparation"].values())
+    assert result["v03"]["completed_full_day_runs"]==0

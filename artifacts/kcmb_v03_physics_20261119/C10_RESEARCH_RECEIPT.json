@@ -1,0 +1,394 @@
+{
+  "actual_original_preparation_receipts": {
+    "coastal_weekend_s41": {
+      "calendar_cargo_kg": 1000,
+      "calendar_legs": 2449750,
+      "calendar_persons": 100000.0,
+      "calendar_vehicles": 49001.0,
+      "file_sha256": "78fde4e0fdbf445d6a7217e6733d6bd73ba930da28387aeb9aa529b531b1f1f6",
+      "native_binary_sha256": "1e53ddf5f8fa8864e2cac9f8a2b8d0b3ffccc94f4c9de74832edb197a99f26a4",
+      "native_storage_policy": "bounded_bytes_v1",
+      "original_engine": "rust_whole",
+      "peak_rss_bytes": 1115414528,
+      "resident_stock": 100000.0,
+      "source_candidate_sha256": "ddbdef9562dd9d7e0dacd66362d78a2da63e14ec764ee1db9ae49c9fc667d921",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 37.58521990902955
+    },
+    "river_weekday_s17": {
+      "calendar_cargo_kg": 1000,
+      "calendar_legs": 5093765,
+      "calendar_persons": 120000.0,
+      "calendar_vehicles": 58801.0,
+      "file_sha256": "cb6c583040dd4992120ed1af10c2ca58f25faf3e552151d0ecb4700eb2a5c3d8",
+      "native_binary_sha256": "1e53ddf5f8fa8864e2cac9f8a2b8d0b3ffccc94f4c9de74832edb197a99f26a4",
+      "native_storage_policy": "bounded_bytes_v1",
+      "original_engine": "rust_whole",
+      "peak_rss_bytes": 2172100608,
+      "resident_stock": 100000.0,
+      "source_candidate_sha256": "ddbdef9562dd9d7e0dacd66362d78a2da63e14ec764ee1db9ae49c9fc667d921",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 65.1690383849782
+    },
+    "valley_weekday_s7": {
+      "calendar_cargo_kg": 1000,
+      "calendar_legs": 918450,
+      "calendar_persons": 120000.0,
+      "calendar_vehicles": 58801.0,
+      "file_sha256": "871cd8d32c2c519f9cecae4b9378dc52a670de3c81a850ce0f200178d826d605",
+      "native_binary_sha256": "1e53ddf5f8fa8864e2cac9f8a2b8d0b3ffccc94f4c9de74832edb197a99f26a4",
+      "native_storage_policy": "bounded_bytes_v1",
+      "original_engine": "rust_whole",
+      "peak_rss_bytes": 446656512,
+      "resident_stock": 100000.0,
+      "source_candidate_sha256": "ddbdef9562dd9d7e0dacd66362d78a2da63e14ec764ee1db9ae49c9fc667d921",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 21.989210184954572
+    }
+  },
+  "clock_serialization_type_provenance": {
+    "actual_checkpoint_embedded_static_sha256": "2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235",
+    "candidate_source_sha256": "ddbdef9562dd9d7e0dacd66362d78a2da63e14ec764ee1db9ae49c9fc667d921",
+    "checkpoint_binaries_local_only": true,
+    "format": "V03_REAL_NATIVE_STEP_TYPE_CHECKPOINT_REPLAY_V1",
+    "fresh_resumed_byte_identical": true,
+    "fresh_resumed_ledger_exact_equal": true,
+    "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "native_binary_sha256": "1e53ddf5f8fa8864e2cac9f8a2b8d0b3ffccc94f4c9de74832edb197a99f26a4",
+    "original_23000_binary_sha256": "12bd9498c895faab6ce744c27f2868456e89f38219fe1250fe420dd7a123b582",
+    "original_24h_run_status": "NOT_RUN_DEPENDENCY_BLOCKED",
+    "original_3city_fullcalendar_preparation_verified": 3,
+    "original_3city_total": 3,
+    "original_step_10_float_static_sha256": "2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235",
+    "original_step_10_int_static_sha256": "54f88d0acb16a75f68a80e31d5d4f1e5c1ac43152a63e4ac173d35ca82bbb703",
+    "physical_dt_seconds": 10.0,
+    "replayer_corrected_argument": "Python float 10.0",
+    "replayer_wrong_argument": "Python int 10",
+    "resumed_and_fresh_25300_binary_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+    "scope": "original 23000→25300 bounded prefix, no pass of 86400-second release",
+    "source_case": "valley_weekday_s7",
+    "source_input_full_100k_and_native_physics_unchanged": true,
+    "source_step_argument_type": "original worker argparse(type=float), 10.0",
+    "v03_dag_nodes_completed": 19,
+    "v03_dag_nodes_total": 21
+  },
+  "conditional_no_fitted_selection_envelope": {
+    "all_affine_weights_admissible_no_fit": true,
+    "max_speed_mps": 10.841940039741365,
+    "min_speed_mps": 3.7012452325635072,
+    "model_sampling_rule_verified_by_city": false,
+    "parent_scenario_source_sha256": "ad253d30da21d7300601860d1ee5d5ea42013aa230dfc872950e2ab7a52036a6",
+    "population_mean_speed_mps": 7.972213333333335,
+    "python_rust_max_endpoint_discrepancy_mps": 3.552713678800501e-15,
+    "real_holdout_bins_within_envelope": 12,
+    "real_holdout_total_bins": 12,
+    "scientific_limit": "very broad conditional band is not empirical predictive validation",
+    "source_model_parameters_are_assumed": true,
+    "vertex_speeds_mps": [
+      3.7012452325635072,
+      7.354946165738831,
+      7.358691012512956,
+      10.841940039741365
+    ]
+  },
+  "created_at_kst": "2026-11-19T18:27:50+09:00",
+  "measured_replay": {
+    "binary_bytes_published_to_git": false,
+    "case": "valley_weekday_s7",
+    "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+    "fresh_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+    "fresh_peak_rss_bytes": 490217472,
+    "fresh_wall_seconds": 107.74347102304455,
+    "full_day_24h_accepted": false,
+    "ledger_equal": true,
+    "local_checkpoint_bytes_verified": true,
+    "local_checkpoint_files": [
+      "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_23000.final.bin",
+      "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_fresh_25300.final.bin",
+      "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_resumed_25300.final.bin"
+    ],
+    "native_binary_sha256": "1e53ddf5f8fa8864e2cac9f8a2b8d0b3ffccc94f4c9de74832edb197a99f26a4",
+    "nonzero_traffic_verified": true,
+    "resumed_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+    "resumed_peak_rss_bytes": 485613568,
+    "resumed_wall_seconds": 33.509291348047554,
+    "simulated_s": 25300.0,
+    "source_checkpoint_sha256": "12bd9498c895faab6ce744c27f2868456e89f38219fe1250fe420dd7a123b582",
+    "source_receipt_sha256": {
+      "fresh": "8d42b0e3499f438f606d587566326fd2aae892e1ec77970a3a48c3ed238fc622",
+      "resumed": "90ac75e5aa3166feec6c08b122cdba013aae3621861963eb866764bae805a1a1",
+      "start": "09c536ebf826f32421fb9121382d81b07c545894dfbfbd635c854cb1d60ddec9"
+    },
+    "source_start_s": 23000,
+    "status": "EXACT_REPLAY_BYTE_IDENTICAL_SCOPED"
+  },
+  "native_binary_checkpoints_local_only_sha256": {
+    "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_23000.final.bin": {
+      "bytes": 29539674,
+      "published": false,
+      "sha256": "12bd9498c895faab6ce744c27f2868456e89f38219fe1250fe420dd7a123b582"
+    },
+    "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_23000.last_valid.bin": {
+      "bytes": 29539674,
+      "published": false,
+      "sha256": "48735d1430d8f7f4d0724d86ae8975b5c344f801fb2b0174138c37dae0d60d54"
+    },
+    "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_fresh_25300.final.bin": {
+      "bytes": 83139202,
+      "published": false,
+      "sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1"
+    },
+    "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_fresh_25300.last_valid.bin": {
+      "bytes": 29539674,
+      "published": false,
+      "sha256": "75b9cf3dbd436af962a0916c5dcdb7635615364193158b070974e46eb2861941"
+    },
+    "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_resumed_25300.final.bin": {
+      "bytes": 83139202,
+      "published": false,
+      "sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1"
+    }
+  },
+  "next_required_science": "Design exact original temporal FIFO packet representation without changing birth/age/order/receipt invariants, then reattempt measured congestion prefix and ultimately 100k 3-city x3 full-day acceptance.",
+  "observed_local_host": {
+    "cpu_model": "AMD Ryzen 9 5900X 12-Core Processor",
+    "host_identity_limitation": "observed host is not guaranteed to match planned Ryzen5900X/64GiB",
+    "logical_cores": 24,
+    "memory_available_bytes": 16092266496,
+    "physical_memory_bytes": 33549770752,
+    "python": "3.12.3",
+    "reference_host_RAM_match": false,
+    "swap_free_bytes": 54873960448
+  },
+  "quantified_readiness": {
+    "dag_complete_scoped": 19,
+    "dag_total": 21,
+    "original_full_day_runs_passed": 0,
+    "original_full_day_runs_required": 9,
+    "original_nonzero_physical_prefix_cases_measured": 1,
+    "original_nonzero_physical_prefix_cases_total": 3,
+    "original_whole_city_calendar_preparations_measured": 3,
+    "original_whole_city_calendar_preparations_total": 3,
+    "scoped_exact_replay_attempts_passed": 1,
+    "scoped_exact_replay_attempts_total": 1,
+    "v03_dependencies_satisfied": 3,
+    "v03_dependencies_total": 3,
+    "v03_status": "BLOCKED"
+  },
+  "receipt_version": "KCMB_NOFIT_V03_PHYSICAL_READINESS_C10_20261119_V1",
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "scientific_claims": {
+    "affine_selection_no_fit_conditional_bounds": "DERIVED_AND_EXACT_RATIONAL_PARTICLE_CHECKED",
+    "microscopic_rate_identifiability": "UNRESOLVED_FROM_MASS_AND_SPEED_ALONE",
+    "original_23000_restarted_to_25300_bytes": "BINARY_HASH_IDENTICAL_AND_LEDGER_EQUAL",
+    "original_24hour_3cities_3reps": "NOT_RUN_BLOCKED_0_OF_9",
+    "original_three_city_full_calendar_preparation": "IMPLEMENTATION_VERIFIED_3_OF_3",
+    "original_v03_packet_explosion": "UNRESOLVED_RESOURCE_BLOCKER",
+    "original_valley_nonzero_prefix": "NATIVE_EXECUTED_AT_25300_S",
+    "urban_real_field_prediction": "NOT_VALIDATED"
+  },
+  "small_artifact_sha256": {
+    "artifacts/kcmb_v03_physics_20261119/.gitignore": {
+      "bytes": 149,
+      "sha256": "ecd274b3091db9963a29be7b002d08a77bde02959f70c186fa42946b7b83fc76"
+    },
+    "artifacts/kcmb_v03_physics_20261119/CARGO_CHECK.log": {
+      "bytes": 3150,
+      "sha256": "7507e127570c62de0991e018ce2ee6f693447c41354cdf911858cac2c4bd6514"
+    },
+    "artifacts/kcmb_v03_physics_20261119/CARGO_TEST.log": {
+      "bytes": 7313,
+      "sha256": "087cabfe283ac08087fea6e2098bcae102c235cf4139e6797ba5f80a23706a5d"
+    },
+    "artifacts/kcmb_v03_physics_20261119/IDENTITY_REPLAY_PROVENANCE.json": {
+      "bytes": 1618,
+      "sha256": "96e29f1ee22f97b3f7bb0e3aee9240f38085d0e0f81c1ced6e726937201aee5d"
+    },
+    "artifacts/kcmb_v03_physics_20261119/NOFIT_V03_RESULT.json": {
+      "bytes": 8247,
+      "sha256": "7141fccf7cf81233df866d43f82193674327767a7878fdd876bdbc42092866fe"
+    },
+    "artifacts/kcmb_v03_physics_20261119/PLAN_VALIDATE.txt": {
+      "bytes": 197,
+      "sha256": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca"
+    },
+    "artifacts/kcmb_v03_physics_20261119/READINESS_AFTER_REAL_PREP.json": {
+      "bytes": 3657,
+      "sha256": "f217e206ff4982009649583ff98cacc28d01a56f8be646105458532093c6dd9a"
+    },
+    "artifacts/kcmb_v03_physics_20261119/RUFF_CHECK.log": {
+      "bytes": 27,
+      "sha256": "cc71a8a0f5c45cfc6b104f42c25ee1090638efcab3d0666d4ade345cc6f48568"
+    },
+    "artifacts/kcmb_v03_physics_20261119/SCOPED_PYTEST.txt": {
+      "bytes": 340,
+      "sha256": "67807a974b7bff3fc9b2974309cfc65791d60d1f275a66a01b9466af14a51ade"
+    },
+    "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_23000.json": {
+      "bytes": 10255,
+      "sha256": "09c536ebf826f32421fb9121382d81b07c545894dfbfbd635c854cb1d60ddec9"
+    },
+    "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_23000.progress.json": {
+      "bytes": 697,
+      "sha256": "eb6cadb52d555f15f8eb2c6c8ffa3d8109b3b115080137c362dfb35468bf41b3"
+    },
+    "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_fresh_25300.json": {
+      "bytes": 10470,
+      "sha256": "8d42b0e3499f438f606d587566326fd2aae892e1ec77970a3a48c3ed238fc622"
+    },
+    "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_fresh_25300.progress.json": {
+      "bytes": 709,
+      "sha256": "4cc60548b5d99c58a32d504b0ac58c1c7bf88f8b0bc5694c7938746bf83870ba"
+    },
+    "artifacts/kcmb_v03_physics_20261119/prefix/valley_weekday_s7.native_resumed_25300.json": {
+      "bytes": 2472,
+      "sha256": "90ac75e5aa3166feec6c08b122cdba013aae3621861963eb866764bae805a1a1"
+    },
+    "artifacts/kcmb_v03_physics_20261119/preparation/CAMPAIGN.json": {
+      "bytes": 7779,
+      "sha256": "31330a6f8a0d5233a2aac0f128fb49799a18db030ddb02052e5c51ccfbb0d736"
+    },
+    "artifacts/kcmb_v03_physics_20261119/preparation/coastal_weekend_s41.prepare.json": {
+      "bytes": 6904,
+      "sha256": "78fde4e0fdbf445d6a7217e6733d6bd73ba930da28387aeb9aa529b531b1f1f6"
+    },
+    "artifacts/kcmb_v03_physics_20261119/preparation/coastal_weekend_s41.prepare.progress.json": {
+      "bytes": 692,
+      "sha256": "1dab52eeeaf5615878328e0e90e5caa9f6ed893bd65160b0d9aa7d27eded69e1"
+    },
+    "artifacts/kcmb_v03_physics_20261119/preparation/river_weekday_s17.prepare.json": {
+      "bytes": 6904,
+      "sha256": "cb6c583040dd4992120ed1af10c2ca58f25faf3e552151d0ecb4700eb2a5c3d8"
+    },
+    "artifacts/kcmb_v03_physics_20261119/preparation/river_weekday_s17.prepare.progress.json": {
+      "bytes": 686,
+      "sha256": "cb40ab08411509be4546953fe4f990a4cff947e4ec97f771301caa08ee757a95"
+    },
+    "artifacts/kcmb_v03_physics_20261119/preparation/valley_weekday_s7.prepare.json": {
+      "bytes": 6893,
+      "sha256": "871cd8d32c2c519f9cecae4b9378dc52a670de3c81a850ce0f200178d826d605"
+    },
+    "artifacts/kcmb_v03_physics_20261119/preparation/valley_weekday_s7.prepare.progress.json": {
+      "bytes": 687,
+      "sha256": "a6c1a59c188ec5db5bf3d0a14fd8e89d6db99faded54995496d11c84234fcf56"
+    },
+    "docs/research/KCMB_NOFIT_V03_CODING_C1_C5_20261119_KO.md": {
+      "bytes": 4218,
+      "sha256": "6560946beb4fc1dee96f67a2980b700de8c3a4fda79628c068c84ab263a3cbe6"
+    },
+    "docs/research/KCMB_NOFIT_V03_CODING_C6_C10_20261119_KO.md": {
+      "bytes": 10074,
+      "sha256": "684c59a6ce37104c6a782e465ef237113a6e20f95f63e66c6532dc5c89130354"
+    },
+    "docs/research/KCMB_NOFIT_V03_THEORY_R1_R10_20261119_KO.md": {
+      "bytes": 8995,
+      "sha256": "64ed50a1a389c21a148392e8d460f3c873d96c31ec428f4138fce7c0143ed50c"
+    },
+    "src/metroflow/v1/kcmb_probe_envelope.py": {
+      "bytes": 3857,
+      "sha256": "492ef061184fab0a72ebefba72e21d3695c700e7aa0302a1a03ae8d1e9513fc7"
+    },
+    "src/metroflow/v1/v03_readiness.py": {
+      "bytes": 8262,
+      "sha256": "1885d0be7cf3dbc0261ca0b5dbd38924c3b91f65564f15ca4073e398bdce6fce"
+    },
+    "tests/research/test_kcmb_no_fit_envelope_20261119.py": {
+      "bytes": 2701,
+      "sha256": "21a602212cfefc07067ab5d12f88cb3a4e33dbca5dcf9faca55ec2149521da6e"
+    },
+    "tests/research/test_v03_continuation_binding_20261119.py": {
+      "bytes": 2625,
+      "sha256": "0cc6de0a2d2ebac47b3183a905c9c0372768e70e6851f55205167935623bc61b"
+    },
+    "tests/research/test_v03_nofit_evidence_20261119.py": {
+      "bytes": 6839,
+      "sha256": "3f9d88bee628d6107dd140ec34f9c99f0252e40dae65f3a381ca58accdf62557"
+    },
+    "tests/research/test_v03_readiness_20261119.py": {
+      "bytes": 3349,
+      "sha256": "e0ad3f53c97c301aa6781ce85571501bfbb238c747d727713e856fc36d34b50e"
+    },
+    "tests/research/test_v03_readiness_cli_20261119.py": {
+      "bytes": 2930,
+      "sha256": "cf66537202db3479de686694187c86211484ce6bdcc3627a7b43c3ae49433179"
+    },
+    "tools/research/assemble_v03_nofit_evidence.py": {
+      "bytes": 16009,
+      "sha256": "f4976a93804b1ef6d1e44ec2b686aace55358b957427d2ee9e144181633b9984"
+    },
+    "tools/research/continue_original_v03_prefix.py": {
+      "bytes": 8902,
+      "sha256": "6dd43a795028a5b0441c1d5ecc80fe67c07094302586d074c2041cac5939b2c0"
+    },
+    "tools/research/diagnose_native_static_identity.py": {
+      "bytes": 1671,
+      "sha256": "63dc4bda67e223154cf056cf3d67be2103a4d1e358387070d140b66f8215a01b"
+    },
+    "tools/research/v03_readiness.py": {
+      "bytes": 5457,
+      "sha256": "b71c7f6911582492f253b3a44bd5dd34f71d615d0e69e1affd136a91a38eeaa1"
+    }
+  },
+  "source": {
+    "branch": "research/kcmb-v03-physical-readiness-20261119",
+    "coding_C1_C5_pushed_commit": "f8d29188020ed692ab55c64d97b6885cd9ef89b9",
+    "current_candidate_source_sha256": "ddbdef9562dd9d7e0dacd66362d78a2da63e14ec764ee1db9ae49c9fc667d921",
+    "current_loaded_native_binary_sha256": "1e53ddf5f8fa8864e2cac9f8a2b8d0b3ffccc94f4c9de74832edb197a99f26a4",
+    "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "origin_main_unchanged": "01c80b432344f94209daaa198bb1eb007839fc7f",
+    "original_v03_pr41_sha": "0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+    "protected_original_sha256": {
+      "crates/metroflow-rust/src/v1_road.rs": "ee0a3df0f078a79955e9e4dd8ec8b5b2561db0fc042f34b7def808c87b565d19",
+      "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+      "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+      "src/metroflow/packet_network.py": "b04352ba72df7bfcf1651a2af52be59ad8d2131d349eb8c2e3bff7e081e072de",
+      "src/metroflow/v1/kcmb.py": "9afd9a809fbea373a89a4bdf84d75bf2bbf4ef826c12e91f6bdc46e9c42224c9",
+      "src/metroflow/v1/kcmb_network.py": "a1ebb16dc2da527138363bca5fc9bbad35de4de514a5140aa10cdea9a3bceeb7",
+      "src/metroflow/v1/kcmb_turn_pockets.py": "78033597abb242c5eea0ff0ca37bd90a5fcd5617b20be4b803d82ebf45476403",
+      "src/metroflow/v1/native_engine.py": "cc92d92e92764faf4f707d987484187b9b44678b10b45dbd18ef6fc9a05d1afd",
+      "src/metroflow/v1/native_release_driver.py": "d60ea978a825fc437fb7f880be14b671d1697a17f64c6cd0af04c9b6a9729b0f",
+      "tools/run_v1_local_acceptance.py": "f364e6625a185920cd6e31a8ee249a564580a3dadb19872d19687dc4b64b7b24"
+    },
+    "root_parent_commit": "f8d29188020ed692ab55c64d97b6885cd9ef89b9",
+    "theory_R1_R10_pushed_commit": "e57c4c47fdb752d3f0adf8921ce75bf9c499c5dd"
+  },
+  "stages": {
+    "coding": {
+      "C1": "IMPLEMENTED_AND_SCOPED_VERIFIED",
+      "C10": "IMPLEMENTED_AND_SCOPED_VERIFIED",
+      "C2": "IMPLEMENTED_AND_SCOPED_VERIFIED",
+      "C3": "IMPLEMENTED_AND_SCOPED_VERIFIED",
+      "C4": "IMPLEMENTED_AND_SCOPED_VERIFIED",
+      "C5": "IMPLEMENTED_AND_SCOPED_VERIFIED",
+      "C6": "IMPLEMENTED_AND_SCOPED_VERIFIED",
+      "C7": "IMPLEMENTED_AND_SCOPED_VERIFIED",
+      "C8": "IMPLEMENTED_AND_SCOPED_VERIFIED",
+      "C9": "IMPLEMENTED_AND_SCOPED_VERIFIED"
+    },
+    "final_stage_push": "PENDING_COMMIT_AND_REMOTE_READBACK",
+    "native_subagent": "NOT_RUN",
+    "theory": {
+      "R1": "DERIVED_SCOPED",
+      "R10": "DERIVED_SCOPED",
+      "R2": "DERIVED_SCOPED",
+      "R3": "DERIVED_SCOPED",
+      "R4": "DERIVED_SCOPED",
+      "R5": "DERIVED_SCOPED",
+      "R6": "DERIVED_SCOPED",
+      "R7": "DERIVED_SCOPED",
+      "R8": "DERIVED_SCOPED",
+      "R9": "DERIVED_SCOPED"
+    },
+    "wolfram": "UNAVAILABLE_CONNECTION_FAILURE"
+  },
+  "verification": {
+    "cargo_workspace_check": "EXIT_0",
+    "full_repository_ci": "NOT_RUN",
+    "original_v03_code_unchanged": true,
+    "python_compile": "EXIT_0",
+    "python_selected_test_count": 286,
+    "ruff": "NOT_RUN_TOOL_UNAVAILABLE",
+    "rust_lib_test_count": 61,
+    "v1_authority_plan_validate": "VALID_PLAN_NOT_RELEASE"
+  }
+}
