@@ -1,0 +1,121 @@
+{
+  "admission_scope": "route head order, not within-tick arrivals or full microscopic FIFO",
+  "backend": "python",
+  "fifo_ambiguity": {
+    "A_B": {
+      "A_departed_veh": 0.0,
+      "B_departed_veh": 0.0,
+      "initial_six_moment_digest": "62449de0db4dcca6d86a2c5b5b939f18dd5297a5c2334fb171f8c2cb6c05eef5",
+      "mass_error_veh": 0.0,
+      "run_count": 2
+    },
+    "B_A": {
+      "A_departed_veh": 0.0,
+      "B_departed_veh": 0.25,
+      "initial_six_moment_digest": "62449de0db4dcca6d86a2c5b5b939f18dd5297a5c2334fb171f8c2cb6c05eef5",
+      "mass_error_veh": 0.0,
+      "run_count": 3
+    },
+    "bulk_models_B_departed_veh": {
+      "independent_turn": 0.25,
+      "shared_head": 0.0
+    }
+  },
+  "python": "3.12.3",
+  "scaling": [
+    {
+      "backend": "python",
+      "final_runs": 5,
+      "first_step_turn_mass_veh": 1.0,
+      "initial_runs": 1,
+      "max_mass_residual_veh": 0.0,
+      "max_run_state_scalars": 6300,
+      "median_step_us": 103.9965,
+      "number_initial_fragments": 1,
+      "per_step_numerical_roundoff_charge_veh": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "per_step_run_count": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "process_peak_rss_kib": 24156,
+      "state_scalar_capacity": 42,
+      "step_us": [
+        118.023,
+        105.55,
+        102.443,
+        101.261
+      ],
+      "steps": 4
+    },
+    {
+      "backend": "python",
+      "final_runs": 75,
+      "first_step_turn_mass_veh": 1.0,
+      "initial_runs": 100,
+      "max_mass_residual_veh": 3.552713678800501e-15,
+      "max_run_state_scalars": 6300,
+      "median_step_us": 316.517,
+      "number_initial_fragments": 100,
+      "per_step_numerical_roundoff_charge_veh": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "per_step_run_count": [
+        92,
+        86,
+        80,
+        75
+      ],
+      "process_peak_rss_kib": 24156,
+      "state_scalar_capacity": 42,
+      "step_us": [
+        372.212,
+        324.572,
+        308.462,
+        261.123
+      ],
+      "steps": 4
+    },
+    {
+      "backend": "python",
+      "final_runs": 338,
+      "first_step_turn_mass_veh": 1.0000000000000002,
+      "initial_runs": 500,
+      "max_mass_residual_veh": 2.1316282072803006e-14,
+      "max_run_state_scalars": 6300,
+      "median_step_us": 987.7135,
+      "number_initial_fragments": 500,
+      "per_step_numerical_roundoff_charge_veh": [
+        3.469446951953614e-16,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "per_step_run_count": [
+        452,
+        410,
+        372,
+        338
+      ],
+      "process_peak_rss_kib": 24156,
+      "state_scalar_capacity": 42,
+      "step_us": [
+        1153.256,
+        1034.532,
+        940.895,
+        860.042
+      ],
+      "steps": 4
+    }
+  ],
+  "source": "synthetic KCMB route FIFO; not observational or original V03 run"
+}

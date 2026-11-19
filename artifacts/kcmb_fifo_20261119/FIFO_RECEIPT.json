@@ -1,0 +1,125 @@
+{
+  "created_kst": "2026-11-19T09:30:37+09:00",
+  "file_sha256": {
+    "artifacts/kcmb_fifo_20261119/CARGO_CHECK.log": {
+      "bytes": 3143,
+      "sha256": "881e212da9271cd5fea666f4b0b664c976c494ae860fb0bc2454542edc0298b9"
+    },
+    "artifacts/kcmb_fifo_20261119/CARGO_TEST.log": {
+      "bytes": 7306,
+      "sha256": "63898b384705ace4c75fdda5738b4b2840cacf1f2644b17631d44605ece3b113"
+    },
+    "artifacts/kcmb_fifo_20261119/SCOPED_PYTEST.txt": {
+      "bytes": 260,
+      "sha256": "7e511acfdd165705e97417069a8d227eb723dbec1feacad68877cd7a38d35718"
+    },
+    "artifacts/kcmb_fifo_20261119/python_fifo_probe.json": {
+      "bytes": 2862,
+      "sha256": "49178eebe38973483b7c0288088baf3da34081bdae8bc1b52dd33464ffd23d9a"
+    },
+    "artifacts/kcmb_fifo_20261119/rust_fifo_probe.json": {
+      "bytes": 2849,
+      "sha256": "03a327013f144fc419105436bcb7f6dc3abe31cbef07ab07ebf30a2a1aa31e53"
+    },
+    "docs/research/KCMB_ORDERED_FIFO_THEORY_CODING_20261119_KO.md": {
+      "bytes": 13933,
+      "sha256": "6e00d9e8446cde7b72dcdd55a555b93bdd25099a3ce3c18eae369d49978edf41"
+    },
+    "src/metroflow/v1/kcmb_ordered_fifo.py": {
+      "bytes": 21479,
+      "sha256": "4cc3625d5f191c79285ba14a2b30655e15b9b774a27bcd08bd764ab4cf147729"
+    },
+    "tests/research/test_kcmb_ordered_fifo_20261119.py": {
+      "bytes": 11253,
+      "sha256": "826d5630dfde3d33db3cf8eee711886b264c36a7e16705540a7874b09d0db46c"
+    },
+    "tools/research/bench_kcmb_ordered_fifo.py": {
+      "bytes": 5846,
+      "sha256": "ed7fb6f5c8c3a66b5896f4cc180670230b167e87183cc802853ca311fb090b28"
+    }
+  },
+  "loop": {
+    "coding": "C1-C10_BOUNDED_EXECUTED_WITH_SCOPED_TESTS",
+    "native_subagent": "NOT_RUN_NO_NATIVE_HOST_TOOL",
+    "pr_merge": "NOT_RUN",
+    "production_default_changed": false,
+    "remote_push": "NOT_RUN",
+    "theory": "R1-R10_BOUNDED_EXECUTED_WITH_CONDITIONAL_PROOFS"
+  },
+  "next_action": "Study adaptive ordered FIFO island switching with explicit cumulative flow error, then test real map matched trajectories.",
+  "performance": {
+    "backend": {
+      "python": {
+        "final_run_count_by_initial_runs": {
+          "1": 5,
+          "100": 75,
+          "500": 338
+        },
+        "first_500_run_roundoff_veh": 3.469446951953614e-16,
+        "max_mass_residual_veh": 2.1316282072803006e-14,
+        "median_step_us_by_initial_runs": {
+          "1": 103.9965,
+          "100": 316.517,
+          "500": 987.7135
+        }
+      },
+      "rust": {
+        "final_run_count_by_initial_runs": {
+          "1": 5,
+          "100": 75,
+          "500": 338
+        },
+        "first_500_run_roundoff_veh": 3.469446951953614e-16,
+        "max_mass_residual_veh": 2.1316282072803006e-14,
+        "median_step_us_by_initial_runs": {
+          "1": 101.1255,
+          "100": 217.185,
+          "500": 631.406
+        }
+      }
+    },
+    "not_comparable_to": "Original_V1_full_city_and_real_field_accuracy",
+    "scope": "synthetic 4 steps, distinct route run complexity, same node law"
+  },
+  "project": "cosmosapjw-quantum/urban_traffic_demo",
+  "receipt_type": "KCMB_ORDERED_FIFO_SCOPED_THEORY_AND_CODING",
+  "science": {
+    "bounded_max_runs_overflow": "IMPLEMENTATION_VERIFIED_FAIL_CLOSED",
+    "external_pending_temporal_fifo": "NOT_IMPLEMENTED",
+    "field_realism": "NOT_MEASURED",
+    "full_city_v03_24h": "NOT_RUN_DEPENDENCY_BLOCKED",
+    "full_micro_trajectory_fifo": "NOT_IMPLEMENTED",
+    "information_lower_bound": "DERIVED_FINITE_BIT_ASSUMPTION",
+    "invariant_junction_entropy": "UNRESOLVED",
+    "link_route_run_fifo": "DERIVED_AND_SCOPED_NUMERICALLY_CHECKED",
+    "minimum_travel_time": "DERIVED_AND_NUMERICALLY_CHECKED",
+    "moment_mass_conservation": "DERIVED_AND_NUMERICALLY_CHECKED",
+    "numerical_completion_quantization_bound_per_event_veh": 1e-12,
+    "production_v03_acceptance": "BLOCKED_UNCHANGED"
+  },
+  "source": {
+    "branch": "research/kcmb-ordered-fifo-20261119",
+    "parent_commit": "53ccbeef9986cd5a2fd1c9fa8defebceb636de42",
+    "protected_sha256": {
+      "crates/metroflow-rust/src/v1_kcmb_node.rs": "2e04ce553689ef39fdc2cfc4a03b9c85644923047e124b4245de6df70d2f90f9",
+      "crates/metroflow-rust/src/v1_road.rs": "ee0a3df0f078a79955e9e4dd8ec8b5b2561db0fc042f34b7def808c87b565d19",
+      "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+      "src/metroflow/packet_network.py": "b04352ba72df7bfcf1651a2af52be59ad8d2131d349eb8c2e3bff7e081e072de",
+      "src/metroflow/v1/kcmb.py": "9afd9a809fbea373a89a4bdf84d75bf2bbf4ef826c12e91f6bdc46e9c42224c9",
+      "src/metroflow/v1/kcmb_network.py": "a1ebb16dc2da527138363bca5fc9bbad35de4de514a5140aa10cdea9a3bceeb7"
+    },
+    "upstream_v03_pr_41_sha": "0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+    "worktree": "/home/cosmosapjw/worktrees/urban-traffic-kcmb-fifo-20261119"
+  },
+  "verification": {
+    "cargo_check_workspace_tests": "EXIT_0",
+    "exact_order_ambiguity_B_veh": {
+      "A_then_B": 0.0,
+      "B_then_A": 0.25
+    },
+    "full_repository_CI": "NOT_RUN",
+    "python_compile": "EXIT_0",
+    "python_selected_passed": 189,
+    "rust_lib_passed": 61
+  }
+}
