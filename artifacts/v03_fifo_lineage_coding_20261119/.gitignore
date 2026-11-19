@@ -1,0 +1,3 @@
+# Source-locked binary checkpoints remain on the authorized local worktree only.
+# Git stores small receipts and SHA-256 proofs, never large native state blobs.
+*.bin

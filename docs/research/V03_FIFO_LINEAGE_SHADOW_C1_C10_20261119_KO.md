@@ -125,3 +125,54 @@ Observed five-process medians (source-bound artifact C8_SYNTHETIC_BENCHMARK.json
 4. In a deep chain visit() allocates O(D) operation scratch and does O(PD) reconstruction, even with O(P+E) retained nodes; the C8 benchmark covers shallow single-scale operations, not arbitrary growing lineages.
 
 Thus C9 is EXACT_PART_TO_EVENTROW_SHADOW_STREAM_VERIFIED_SCOPED, not ORIGINAL_V03_NETWORK_FIFO_VALIDATED or RESOURCE_BLOCKER_SOLVED. C10 must refresh candidate source-native identity and original 3-city 100k calendar preparation before any 3/3 current-branch preflight credit. Full-day 0/9 BLOCKED.
+
+## C10. 현재 바이너리 V03 준비도 및 배포 판정 (2026-11-20 KST)
+
+**범위:** EVCB Rust 실험은 cfg(test) 전용으로만 컴파일된다. 실제 원본 V1Road::step_state 물리법칙, road packet, FIFO junction, 출입·birth/offset 시각 및 기존 체크포인트 스키마는 변경하지 않았다. 원래 main 01c80b432344f94209daaa198bb1eb007839fc7f와 PR #41은 그대로 유지한다.
+
+### C10-A. Source identity
+C9 커밋 728e5a781de92bcadaa9a920467207136b22a752에서 release native extension을 새로 빌드했다.
+- 새 후보 소스 SHA256: d500bda1bce4f7a6109516338838bd2c8f3f6c7f6e9c113298a16a5868811fb0
+- 새 로드된 native 바이너리 SHA256: a4412d994d1354b82c67005ba9263cfeb3b759b3b18f39125b0f4a20f937acd5
+- 이전 native/source SHA 영수증은 이번 브랜치의 3/3 준비 증거로 사용하지 않는다. 독립 검증에서 기존 three-city 영수증은 0/3 credit으로 거절됨을 확인했다.
+- 원래 8e891b907f3f85e9ae8ff7c86a1b8836f4341815 정본의 crates/metroflow-rust/src/v1_road.rs에서 cfg(test) 전용 모듈 선언 다섯 줄만 제거하면 현재 파일과 byte-identical이다. 즉 non-test production road kernel의 Rust 원본 함수 내용은 달라지지 않았다.
+
+### C10-B. 현재 소스에서 원본 V03 전체 달력 준비
+
+직접 실행: 원래 tools/run_v1_local_acceptance.py --prepare-only --engine-backend rust_whole --native-threads 1 --storage-policy bounded_bytes_v1, 세 도시 모두 원본 release_matrix, 인구 100000명/도시. 확인된 측정은 다음과 같다.
+
+| 원래 사례 | 주민 | 계획 여정 수 | wall(s) | 최고 RSS | 원본 달력 |
+| River weekday s17 | 100000 | 5093765 | 64.875 | 2.023 GiB | WHOLE_CALENDAR_PREPARED |
+| Coastal weekend s41 | 100000 | 2449750 | 38.019 | 1.038 GiB | WHOLE_CALENDAR_PREPARED |
+| Valley weekday s7 | 100000 | 918450 | 21.610 | 0.415 GiB | WHOLE_CALENDAR_PREPARED |
+
+총 8461965개 계획 여정. 세 source/native/matrix SHA를 현재 실제 파일과 재대조했다. READINESS_AFTER_REAL_PREP는 3/3 준비, 19/21 scoped DAG, V03 선행조건 3/3, 전일 수용 0/9, V03 BLOCKED를 기록했다. 원래 86400초/도시, 3회/도시, 8GiB RSS·7200s wall 수용 기준은 바꾸지 않았다.
+
+### C10-C. 원본 Valley 실제 100000명 물리 접두 실행
+
+현재 native 바이너리로 t=0에서 25300 시뮬레이션초까지 원래 Rust whole engine 실행: 약 79.604초 wall, RSS 약 0.4563 GiB. 이전 interval-sweep 원본 바이너리와 실제 인원·차량·화물 장부 및 완전한 달력 정본이 일치했다. 최종 체크포인트 SHA256은 기존과 bit-identical:
+7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1.
+이 물리 실행은 shadow 모듈이 production에서 비활성 상태인 조건이므로 EVCB 가속 결과가 아니라 **기존 V03 동역학 불변성 검증**이다. 25300/86400초는 Valley 1개 도시 접두 범위일 뿐이다.
+
+### C10-D. 과학·계산 근거 상태
+
+DERIVED: 앞선 R1–R10의 marked FIFO, 부분 서비스 조성 공유 O(P+E) 조건부 정리, 전체 명시적 EventRow 출력 Ω(R) 하한 및 IEEE 재결합 반례.
+IMPLEMENTATION-VERIFIED_SCOPED: append-only Arc root + 정수 인덱스 DAG, 원본 Part fraction/birth/interval/offset 연산의 행별 f64 비트 동일성. 7필드 EventRow streaming과 콜백 에러 전파까지 확인.
+NUMERICALLY_CHECKED_SYNTHETIC: 160행 공통 조성, 8192 서비스 사건, 5회 release 실험에서 eager retained Vec 용량 대비 graph 용량 약 105.98배, 표현 생성시간 약 229.41배 개선. 전체 행 streaming/eager scan 시간비는 약 0.998이다. 이 값은 Rust Vec capacity와 size_of 지표이지 프로세스 RSS나 실제 V03 wall 성능 측정이 아니다.
+SOURCE_BOUND_NATIVE_EXECUTED: 새 바이너리 원본 달력 준비 3/3, Valley 접두 25300초의 기존 체크포인트 SHA와 질량 장부 일치.
+UNRESOLVED: event/incoming/marks와 교차로 ready·target·FIFO를 모두 연결하는 생산경로 EVCB 통합, 콜백 부분 결과의 트랜잭션 롤백, compact checkpoint 스키마와 재개 일치, 혼잡 25600~25650초 packet 증식 억제, full 24h x9 수용. 이에 대한 완료 주장은 금지한다.
+
+### C10-E. 실제 검산 및 재현
+
+- 새 release extension 빌드: PYO3_PYTHON=.venv/bin/python maturin develop --release --manifest-path crates/metroflow-rust/Cargo.toml
+- 세 도시 100k 달력 생성: tools/run_v1_local_acceptance.py --prepare-only, 원본 matrix, native threads=1 및 기존 bounded_bytes_v1
+- Valley 접두 원본 수치 실행: tools/run_v1_local_acceptance.py --worker --run-local --case valley_weekday_s7 --step-s 10 --horizon-s 25300
+- 통합 감사: .venv/bin/python tools/research/v03_lineage_c10_readiness.py --output artifacts/v03_fifo_lineage_coding_20261119/C10_SCOPED_READINESS.json
+- 최신 회귀: Python **282 passed** (선별), Rust **77 passed / 2 ignored**, Cargo tests check와 Python compile PASS, 원본 PLAN validator VALID_PLAN_NOT_RELEASE. Full-repository CI는 NOT_RUN; Ruff는 환경상 NOT_RUN.
+- 큰 native checkpoint .bin은 작업 호스트에만 남기고 Git에 올리지 않는다. 영수증의 SHA를 통해 파일 신원을 보존하되 새 clone에서 체크포인트 바이트 검사를 수행했다고 허위로 주장하지 않는다.
+
+### C10-F. 다음 코딩·물리 연구 최소 단위
+
+다음 ID는 V03-FIFO-LINEAGE-C2: 원본 V1Road::step_state 부분 서비스의 provenance-aware 소비를 EventRow 및 incoming/marks와 실제 연결하는 opt-in 구현. 원본의 route/offset/birth/time, ready·target, 출입량 및 junction FIFO 질량 장부 동등성을 독립 eager reference로 먼저 확보한다. 실제 25600~25650초 혼잡구간에서 논리 행·표현 노드 수, 강제 materialization, 50초 wall, RSS와 checkpoint 크기를 비교하며 **메모리와 전체 wall 모두 감소**해야 실제 V03 병목 극복 후보로 인정한다. 기존 체크포인트 wire가 달라진다면 versioned semantic equivalence를 새로 증명해야 한다.
+
+**결론:** SCOPED_SHADOW_CODE_VERIFIED · CURRENT_NATIVE_PREP_3_OF_3 · VALLEY_25300_CHECKPOINT_BIT_IDENTICAL · V03_BLOCKED_0_OF_9. C10의 실제 테스트·해시 영수증을 별도 커밋으로 push한 뒤 remote SHA를 확인하고 종료한다.

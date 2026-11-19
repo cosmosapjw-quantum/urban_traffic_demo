@@ -1,0 +1,11 @@
+{
+  "build_source_commit": "728e5a781de92bcadaa9a920467207136b22a752",
+  "candidate_source_sha256": "d500bda1bce4f7a6109516338838bd2c8f3f6c7f6e9c113298a16a5868811fb0",
+  "native_binary_sha256": "a4412d994d1354b82c67005ba9263cfeb3b759b3b18f39125b0f4a20f937acd5",
+  "native_code_difference_vs_parent": "cfg(test) shadow experiment only; checked by independent code diff",
+  "native_status": "MEASURED",
+  "parent_compiled_native_sha256": "45839b5dff542bebef7a9a9c8c036f1cdf1eb90a7040dc514189ed9fca828a04",
+  "parent_preparation_receipt_stale_by_source": true,
+  "parent_source_sha256": "ac9eb1466fb2f7e01d7595f9cec08cb45cd3c13b9041539350d64105dcb1e8ad",
+  "source_status": "MEASURED"
+}

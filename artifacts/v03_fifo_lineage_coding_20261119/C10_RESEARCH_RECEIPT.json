@@ -1,0 +1,325 @@
+{
+  "C10_stage": "LOCAL_VERIFIED_REMOTE_SHA_READBACK_PENDING",
+  "branch": "research/v03-fifo-lineage-coding-20261119",
+  "created_kst": "2026-11-20T01:17:02+09:00",
+  "files_sha256": {
+    "artifacts/v03_fifo_lineage_coding_20261119/.gitignore": {
+      "bytes": 167,
+      "sha256": "4a694b3e53aa3a1171dff4b7ae4ec80713e67f29626a4a6fc799d27992195e06"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C10_CARGO_CHECK.log": {
+      "bytes": 2276,
+      "sha256": "59a14dea5e76402e78f6472e8d3f38469c4dbc24a51b14e1023b4a649470667b"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C10_CARGO_TEST.log": {
+      "bytes": 8672,
+      "sha256": "ebbdd5fd5c0a6b1f3b03f41e6b3d026263e4f8c36936b76af28cb38acec4f421"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C10_NATIVE_REBUILD_IDENTITY.json": {
+      "bytes": 684,
+      "sha256": "83e3f3d3d63b1ce5a2e5b6cd3624b03b83ec5c41649a6d60518b1f24fd216b00"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C10_NATIVE_RELEASE_BUILD.log": {
+      "bytes": 2860,
+      "sha256": "b506cade82824dd8e0b15b9fefb530ff0cbeaaef083950bb2f9320111c4f1bd5"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C10_PLAN_VALIDATE.txt": {
+      "bytes": 197,
+      "sha256": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C10_RUFF_CHECK.log": {
+      "bytes": 27,
+      "sha256": "cc71a8a0f5c45cfc6b104f42c25ee1090638efcab3d0666d4ade345cc6f48568"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C10_SCOPED_PYTEST.txt": {
+      "bytes": 340,
+      "sha256": "8bb257e8ba7254499cc2282bf5167e4c12fbeee19c7a43b20bd9f50818d5d539"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C10_SCOPED_READINESS.json": {
+      "bytes": 6599,
+      "sha256": "2be287dc122ed7006a11b3762deb4660ffd4fd716435108c61f4d2c0cd25c187"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C10_SOURCE_BOUND_READINESS.json": {
+      "bytes": 3657,
+      "sha256": "ffe9702eade5cf2467ee98f648afd63f12cba6e674ad03a8f9cbdbd93b955566"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C6_CARGO_CHECK.log": {
+      "bytes": 2276,
+      "sha256": "59a14dea5e76402e78f6472e8d3f38469c4dbc24a51b14e1023b4a649470667b"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C6_CARGO_TEST.log": {
+      "bytes": 7751,
+      "sha256": "4a4e0f86a69879780e2065330e27361fdec82c8c1bea866b3dbe3a300f8d6446"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C6_PLAN_VALIDATE.txt": {
+      "bytes": 197,
+      "sha256": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C6_PYTEST.txt": {
+      "bytes": 99,
+      "sha256": "833d012a83a02325fba476def3e5a60535d5f6d2dc08a4239f9640e6e6e8a088"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C7_ADVERSARIAL_RESULT.json": {
+      "bytes": 1102,
+      "sha256": "e5ed8a830e019e3f71be08d2cc274e1fab41da5efa0da62ce13d79ee89bd9c16"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C7_ALL_RUST.log": {
+      "bytes": 8295,
+      "sha256": "ebe820fc60d302eea6a785850019a8c4bfb1fb206413f7acfba4d594b9055f00"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C8_CARGO_TEST.log": {
+      "bytes": 8414,
+      "sha256": "d5a4ead07a8bf39d60375de6bd022825108636f41950d7fc6f3456c497d9c403"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C8_SYNTHETIC_BENCHMARK.json": {
+      "bytes": 3476,
+      "sha256": "90dc4860d1b035017f5e0774882c29cffa126fcb68272ccafe20a2f970bc4567"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C9_ALL_RUST.log": {
+      "bytes": 8672,
+      "sha256": "b99b70ea6a53ced6f6261ba473fc0ecc4226ca7de0f8c032e9aeaeb1f477ae05"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C9_CARGO_CHECK.log": {
+      "bytes": 2404,
+      "sha256": "9d87e710c39d2f92573b69b7892d2cd4e235f250afa0948549d492533d2dba98"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C9_EVENT_FOCUSED.log": {
+      "bytes": 2991,
+      "sha256": "ae7b777d97bc32d0e047fa311c18bf8b713455cc379f9dd08e092ac2beac833d"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C9_EVENT_STREAM_RECEIPT.json": {
+      "bytes": 1441,
+      "sha256": "9e5dc40f9def8fddb285bf8115bab01efbcf78e8c300d3aef389b18703965fde"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/C9_SELECTED_PYTEST.log": {
+      "bytes": 99,
+      "sha256": "a63d2220707162f8486d72159980b70184b2f1a54df865bed83671f9d7e86f42"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/bench/shadow_round1.log": {
+      "bytes": 2858,
+      "sha256": "4c7fbaffb64b96880fe23e93ffe504bb89f020b25b3873197878aad97b23bc62"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/bench/shadow_round2.log": {
+      "bytes": 2858,
+      "sha256": "2cbde05fd0f73cd72fc49e2290d352a9b54c5b5bacefa3f9dd0b21bfe52d22b7"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/bench/shadow_round3.log": {
+      "bytes": 2858,
+      "sha256": "35a865345cb443620723f0829496367ea1f0e906b8d04f7de1f48801ac078cc1"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/bench/shadow_round4.log": {
+      "bytes": 2858,
+      "sha256": "9d2cbfe723707fdd13392ccea58be1dd8daf1e56e45e6436419c11e240d0df75"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/bench/shadow_round5.log": {
+      "bytes": 2858,
+      "sha256": "15a8abf3ec545ddca160676630621859e0cb1334178a42601d6709cdb86d69e3"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/prefix/valley_weekday_s7.native_shadow_25300.json": {
+      "bytes": 10529,
+      "sha256": "16327a62600283c18ed69270b6b20a93639392f0e764cd9f5f10256b11ec3978"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/prefix/valley_weekday_s7.native_shadow_25300.progress.json": {
+      "bytes": 708,
+      "sha256": "193fbdac95197d87865009bf06c8f1013c39542c02e5cb0e066aca6c6fb051eb"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/preparation/CAMPAIGN.json": {
+      "bytes": 7840,
+      "sha256": "1ed36fc9d4eda8505053fa5d6692375dffef92db701c37f29efa453915387393"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/preparation/coastal_weekend_s41.prepare.json": {
+      "bytes": 6963,
+      "sha256": "ba9d7102224b2af6e5196b3eac3d5aee6438ee83a330ae9dc511f3438ea748da"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/preparation/coastal_weekend_s41.prepare.progress.json": {
+      "bytes": 691,
+      "sha256": "fddb32861d14f3bf4d1a79e546a6eca3ca10306d2ba2d0f3d05f6cc327537f29"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/preparation/river_weekday_s17.prepare.json": {
+      "bytes": 6962,
+      "sha256": "d5a6107620d97acf3f55d0fee9ba2462eac9d750d9799a621a8bf5c5f5539ac7"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/preparation/river_weekday_s17.prepare.progress.json": {
+      "bytes": 687,
+      "sha256": "6d8dcee19544f19f6efdff58d05a1128bb93242c9d3ba4978e38ece8c477bcd3"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/preparation/valley_weekday_s7.prepare.json": {
+      "bytes": 6950,
+      "sha256": "4ad79a44a13b053790225e31fd6cafb63a242faecc3b6afbe66145199de5f4b5"
+    },
+    "artifacts/v03_fifo_lineage_coding_20261119/preparation/valley_weekday_s7.prepare.progress.json": {
+      "bytes": 687,
+      "sha256": "96b0452fa64b326a042b7aab21dd61e65566c935cc2e28ad7e3f25b02c739880"
+    },
+    "crates/metroflow-rust/src/v1_lineage_shadow.rs": {
+      "bytes": 24931,
+      "sha256": "57690d4c77451c57be8e35ff0b05fcf0bb29a42f9536d777f70fe47b371ed7c3"
+    },
+    "crates/metroflow-rust/src/v1_road.rs": {
+      "bytes": 130636,
+      "sha256": "b313ed5bbaedad86cb41b6594f0c05ea00d51867b36f0ca67633ec9bfb986f88"
+    },
+    "docs/research/V03_FIFO_LINEAGE_SHADOW_C1_C10_20261119_KO.md": {
+      "bytes": 30511,
+      "sha256": "33c040fbe3a6f19e6959b2c9153a9759b899edbf9c40083d3172f8e38ea65e86"
+    },
+    "tests/research/test_v03_lineage_c10_readiness_20261120.py": {
+      "bytes": 4218,
+      "sha256": "5d35cf85b4c7358dd193d4dc9f4dacc1a3ce24a0978485595cd2f5cdf337bcd3"
+    },
+    "tools/research/v03_lineage_c10_readiness.py": {
+      "bytes": 12095,
+      "sha256": "d7ed1353eac40820c47f44fec99033fc870260157a593a26dc44a42c64f28c46"
+    }
+  },
+  "future_minimum_task": "V03-FIFO-LINEAGE-C2 integrate compressed stream with original per-destination marks and receiving FIFO; compare 25600-25650 actual congested packet/state/RSS/time; no default/merge before acceptance",
+  "loaded_native_sha256": "a4412d994d1354b82c67005ba9263cfeb3b759b3b18f39125b0f4a20f937acd5",
+  "local_binary_checkpoint": {
+    "bytes": 83139202,
+    "git_published": false,
+    "path": "artifacts/v03_fifo_lineage_coding_20261119/prefix/valley_weekday_s7.native_shadow_25300.final.bin",
+    "sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1"
+  },
+  "no_original_main_or_pr41_mutation": true,
+  "original_main_expected_sha": "01c80b432344f94209daaa198bb1eb007839fc7f",
+  "original_main_status": "VERIFIED_UNCHANGED",
+  "original_road_diff_only_cfg_test": true,
+  "parent_theory_sha": "8e891b907f3f85e9ae8ff7c86a1b8836f4341815",
+  "physical_evidence": {
+    "live_native_sha256": "a4412d994d1354b82c67005ba9263cfeb3b759b3b18f39125b0f4a20f937acd5",
+    "live_source_sha256": "d500bda1bce4f7a6109516338838bd2c8f3f6c7f6e9c113298a16a5868811fb0",
+    "old_candidate_prep_credit_count": 0,
+    "per_city": {
+      "coastal_weekend_s41": {
+        "peak_rss_bytes": 1114406912,
+        "planned_leg_records": 2449750,
+        "receipt_sha256": "ba9d7102224b2af6e5196b3eac3d5aee6438ee83a330ae9dc511f3438ea748da",
+        "resident_stock": 100000.0,
+        "source_binary_sha_matches_live": true,
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "wall_s": 38.019145554000715
+      },
+      "river_weekday_s17": {
+        "peak_rss_bytes": 2172276736,
+        "planned_leg_records": 5093765,
+        "receipt_sha256": "d5a6107620d97acf3f55d0fee9ba2462eac9d750d9799a621a8bf5c5f5539ac7",
+        "resident_stock": 100000.0,
+        "source_binary_sha_matches_live": true,
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "wall_s": 64.87516190699989
+      },
+      "valley_weekday_s7": {
+        "peak_rss_bytes": 445968384,
+        "planned_leg_records": 918450,
+        "receipt_sha256": "4ad79a44a13b053790225e31fd6cafb63a242faecc3b6afbe66145199de5f4b5",
+        "resident_stock": 100000.0,
+        "source_binary_sha_matches_live": true,
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "wall_s": 21.61046264000015
+      }
+    },
+    "total_planned_legs": 8461965,
+    "valley_25300s": {
+      "baseline_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+      "calendar_exact_match": true,
+      "case": "valley_weekday_s7",
+      "checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+      "local_checkpoint_bytes_verified": true,
+      "local_checkpoint_retained_in_git": false,
+      "mass_ledger_exact_match": true,
+      "native_binary_is_current": true,
+      "original_full_day_accepted": false,
+      "peak_rss_bytes": 489930752,
+      "simulated_s": 25300.0,
+      "source_receipt_sha256": "16327a62600283c18ed69270b6b20a93639392f0e764cd9f5f10256b11ec3978",
+      "source_type": "ORIGINAL_V03_WHOLE_NATIVE",
+      "wall_s": 79.60407277600007
+    }
+  },
+  "quantified_readiness": {
+    "current_source_native_calendar_preparation_done": 3,
+    "current_source_native_calendar_preparation_total": 3,
+    "original_full_day_runs_done": 0,
+    "original_full_day_runs_required": 9,
+    "project_dag_scoped_completed": 19,
+    "project_dag_total": 21,
+    "release_node": "PLANNED",
+    "required_full_day_seconds": 86400,
+    "scoped_100k_physics_prefix_cities_done": 1,
+    "scoped_100k_physics_prefix_cities_total": 3,
+    "scoped_valley_prefix_simulated_seconds": 25300,
+    "v03": "BLOCKED",
+    "v03_direct_dependencies_done": 3,
+    "v03_direct_dependencies_total": 3
+  },
+  "repo": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "V03_FIFO_LINEAGE_SHADOW_C1_C10_RECEIPT_20261120_V1",
+  "science": {
+    "actual_congested_lineage_memory_reduction": "NOT_MEASURED",
+    "checkpoint_new_format": "NOT_IMPLEMENTED",
+    "exact_route_FIFOnetwork_integration": "NOT_IMPLEMENTED",
+    "first_principles_or_external_fitted_new_parameters": "NONE",
+    "lineage_event_stream": "IMPLEMENTATION_VERIFIED_SCOPED_TEST_ONLY",
+    "lineage_part_ieee_subset": "IMPLEMENTATION_VERIFIED_SCOPED_TEST_ONLY",
+    "original_100k_3city_calendar_current_source": "VERIFIED_3_OF_3",
+    "original_25300s_native_prefix": "BYTE_IDENTICAL_AND_LEDGER_EQUAL",
+    "original_v03_24h_3city_3repeats": "BLOCKED_0_OF_9"
+  },
+  "source_sha256": "d500bda1bce4f7a6109516338838bd2c8f3f6c7f6e9c113298a16a5868811fb0",
+  "stages_pushed_and_remote_verified": [
+    {
+      "sha": "8e0cb40f5ec97c2b373be67278581a92aaad296e",
+      "stage": "C1"
+    },
+    {
+      "sha": "2836fbc943c97a1f60b0ef484f5589077a0b8e41",
+      "stage": "C2"
+    },
+    {
+      "sha": "350911ef5511bdf00ff5e90919e44874e8d41e62",
+      "stage": "C3"
+    },
+    {
+      "sha": "cb01d680d9140fed20b028dff24ac41aa203b57f",
+      "stage": "C4"
+    },
+    {
+      "sha": "9e820f986649d6a8d421d6d87000c36c3a697097",
+      "stage": "C5"
+    },
+    {
+      "sha": "d7e09a16bd5d5b51e113eb4021c750b23dda80de",
+      "stage": "C6"
+    },
+    {
+      "sha": "3f4004eb7c2d9de48ddc462360c48838e7e4a088",
+      "stage": "C7"
+    },
+    {
+      "sha": "34cdeebdcfa15dd2d130b5c10846dd0decb651b6",
+      "stage": "C8"
+    },
+    {
+      "sha": "728e5a781de92bcadaa9a920467207136b22a752",
+      "stage": "C9"
+    }
+  ],
+  "synthetic_benchmark": {
+    "build_only_eager_over_shadow": 229.41310908691835,
+    "fitted_parameters": false,
+    "forced_stream_over_eager_scan": 0.9975391420938216,
+    "full_urban_performance_evidence": false,
+    "resource_claim": "Rust Vec capacity only, not process RSS",
+    "stored_capacity_eager_over_shadow": 105.97671410090557
+  },
+  "tests": {
+    "cargo_check": "EXIT_0",
+    "full_repository_CI": "NOT_RUN",
+    "native_subagents": "NOT_RUN_NO_NATIVE_SPAWN_TOOL",
+    "original_plan_validation": "VALID_PLAN_NOT_RELEASE",
+    "ruff": "NOT_RUN_TOOL_UNAVAILABLE",
+    "rust_lib_ignored": 2,
+    "rust_lib_passed": 77,
+    "selected_python_passed": 282
+  }
+}

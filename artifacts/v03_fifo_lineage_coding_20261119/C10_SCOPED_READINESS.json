@@ -1,0 +1,176 @@
+{
+  "baseline_source_commit": "8e891b907f3f85e9ae8ff7c86a1b8836f4341815",
+  "candidate_source_sha256": "d500bda1bce4f7a6109516338838bd2c8f3f6c7f6e9c113298a16a5868811fb0",
+  "code_review": {
+    "checkpoint_native_compact_format": "NOT_IMPLEMENTED",
+    "consumer_transactional_rollback": "NOT_IMPLEMENTED",
+    "original_destination_priority_adaptor": "NOT_IMPLEMENTED",
+    "original_incoming_and_marks_compressed_consumer": "NOT_IMPLEMENTED",
+    "whole_network_FIFO_shadow_integration": "NOT_IMPLEMENTED"
+  },
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "native_binary_sha256": "a4412d994d1354b82c67005ba9263cfeb3b759b3b18f39125b0f4a20f937acd5",
+  "no_fitted_microphysical_or_source_parameters": true,
+  "old_prep_rejected_count": 3,
+  "old_prep_reused_count": 0,
+  "original_full_release": "BLOCKED_0_OF_9",
+  "original_main_checkout_status": "VERIFIED_UNCHANGED",
+  "original_main_commit": "01c80b432344f94209daaa198bb1eb007839fc7f",
+  "original_physics_prefix": {
+    "baseline_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+    "calendar_exact_match": true,
+    "case": "valley_weekday_s7",
+    "checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+    "local_checkpoint_bytes_verified": true,
+    "local_checkpoint_retained_in_git": false,
+    "mass_ledger_exact_match": true,
+    "native_binary_is_current": true,
+    "original_full_day_accepted": false,
+    "peak_rss_bytes": 489930752,
+    "simulated_s": 25300.0,
+    "source_receipt_sha256": "16327a62600283c18ed69270b6b20a93639392f0e764cd9f5f10256b11ec3978",
+    "source_type": "ORIGINAL_V03_WHOLE_NATIVE",
+    "wall_s": 79.60407277600007
+  },
+  "per_city": {
+    "coastal_weekend_s41": {
+      "peak_rss_bytes": 1114406912,
+      "planned_leg_records": 2449750,
+      "receipt_sha256": "ba9d7102224b2af6e5196b3eac3d5aee6438ee83a330ae9dc511f3438ea748da",
+      "resident_stock": 100000.0,
+      "source_binary_sha_matches_live": true,
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 38.019145554000715
+    },
+    "river_weekday_s17": {
+      "peak_rss_bytes": 2172276736,
+      "planned_leg_records": 5093765,
+      "receipt_sha256": "d5a6107620d97acf3f55d0fee9ba2462eac9d750d9799a621a8bf5c5f5539ac7",
+      "resident_stock": 100000.0,
+      "source_binary_sha_matches_live": true,
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 64.87516190699989
+    },
+    "valley_weekday_s7": {
+      "peak_rss_bytes": 445968384,
+      "planned_leg_records": 918450,
+      "receipt_sha256": "4ad79a44a13b053790225e31fd6cafb63a242faecc3b6afbe66145199de5f4b5",
+      "resident_stock": 100000.0,
+      "source_binary_sha_matches_live": true,
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 21.61046264000015
+    }
+  },
+  "prepared_residents_per_case": 100000,
+  "production_original_road_source_byte_equivalence_after_cfg_test_strip": true,
+  "readiness": {
+    "authority": {
+      "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+      "plan_id": "METROFLOW-V1",
+      "version": "1.1.26"
+    },
+    "case_preparation": {
+      "coastal_weekend_s41": {
+        "reason": "WHOLE_CALENDAR_PREPARATION_VERIFIED_NOT_DAY",
+        "status": "PREPARED_SCOPED"
+      },
+      "river_weekday_s17": {
+        "reason": "WHOLE_CALENDAR_PREPARATION_VERIFIED_NOT_DAY",
+        "status": "PREPARED_SCOPED"
+      },
+      "valley_weekday_s7": {
+        "reason": "WHOLE_CALENDAR_PREPARATION_VERIFIED_NOT_DAY",
+        "status": "PREPARED_SCOPED"
+      }
+    },
+    "dag": {
+      "completed": 19,
+      "completed_node_ids": [
+        "P00",
+        "M01",
+        "T01",
+        "I01",
+        "M02",
+        "M03",
+        "D01",
+        "T02",
+        "T03",
+        "T04",
+        "R01",
+        "R02",
+        "B01",
+        "C01",
+        "M04",
+        "C02",
+        "P01",
+        "V01",
+        "V02"
+      ],
+      "completion_percent": 90.47619047619048,
+      "not_completed": {
+        "RLS01": "PLANNED",
+        "V03": "BLOCKED"
+      },
+      "scope": "ACCEPTED or VERIFIED_SCOPED; not release acceptance",
+      "total": 21
+    },
+    "declared_engineering_inputs_not_fitted_here": {
+      "current_driver_freight_kg": "literal 1000 in tools/run_v1_local_acceptance.py; not derived",
+      "inventory_policy": {
+        "capacity_persons": 40,
+        "departures_s": [
+          21600,
+          32400,
+          43200,
+          54000,
+          64800,
+          75600
+        ],
+        "dwell_s": 20,
+        "max_stops": 4
+      },
+      "max_cohorts_by_case": {
+        "coastal_weekend_s41": 20000,
+        "river_weekday_s17": 20000,
+        "valley_weekday_s7": 20000
+      },
+      "route_materialization_budget": 20000,
+      "worker_shortfall": "unassigned_home"
+    },
+    "next_required_evidence": "actual 3-city x 3 86400s original-physics run with replay/ledger/refined_dt under original 8GiB/7200s limits",
+    "v03": {
+      "calendar_preparation_total": 3,
+      "calendar_preparation_verified": 3,
+      "completed_full_day_runs": 0,
+      "dependency_nodes_completed": 3,
+      "dependency_nodes_total": 3,
+      "execution_status": "BLOCKED_BY_EXACT_INTERVAL_PACKET_EXPLOSION",
+      "horizon_seconds": 86400,
+      "physics_scope": "unchanged original packet FIFO, no source/data/tolerance relaxation",
+      "population_residents_per_case": 100000,
+      "ready_for_release": false,
+      "real_full_day_execution_evidence": "NONE_IN_SUPPLIED_PREPARATION_RECEIPTS",
+      "required_full_day_runs": 9,
+      "rss_bytes_max": 8589934592,
+      "status": "BLOCKED",
+      "wall_seconds_max": 7200
+    }
+  },
+  "schema": "V03_SHADOW_LINEAGE_C10_SOURCE_BOUND_20261120_V1",
+  "shadow_default_v03_network_integration": false,
+  "shadow_module_test_only": true,
+  "shadow_synthetic_benchmark": {
+    "claim": "synthetic immutable composition sharing, not source-bound whole-city V03 speedup",
+    "median_build_only_speed_ratio": 229.41310908691835,
+    "median_retained_storage_ratio": 105.97671410090557,
+    "median_stream_vs_eager_scan_ratio": 0.9975391420938216
+  },
+  "source_branch": "research/v03-fifo-lineage-coding-20261119",
+  "source_commit": "728e5a781de92bcadaa9a920467207136b22a752",
+  "source_plan_sha256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+  "status": "CURRENT_SOURCE_100K_PREFLIGHT_VERIFIED_PHYSICS_SCOPED",
+  "total_planned_leg_records": 8461965,
+  "unmodified_original_24h_horizon_s": 86400,
+  "unmodified_original_rss_cap_bytes": 8589934592,
+  "unmodified_original_wall_cap_s": 7200
+}

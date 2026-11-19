@@ -1,0 +1,15 @@
+{
+  "case": "valley_weekday_s7",
+  "run_label": "valley_weekday_s7.native_shadow_25300",
+  "status": "EXECUTED_FOR_REVIEW",
+  "simulated_s": 25300.0,
+  "wall_s": 79.6041815009994,
+  "peak_rss_bytes": 489930752,
+  "peak_tracked_records": 1471780,
+  "completed_tick_samples": 2530,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "candidate_source_sha256": "d500bda1bce4f7a6109516338838bd2c8f3f6c7f6e9c113298a16a5868811fb0",
+  "git_commit": "728e5a781de92bcadaa9a920467207136b22a752",
+  "native_binary_sha256": "a4412d994d1354b82c67005ba9263cfeb3b759b3b18f39125b0f4a20f937acd5",
+  "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4"
+}
