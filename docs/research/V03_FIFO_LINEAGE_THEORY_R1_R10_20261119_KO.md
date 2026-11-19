@@ -126,3 +126,31 @@ For any packet with M=Σ_j m_j>0, route-specific desired outgoing mass N_r=Σ_{j
 This permits a **conditional per-head cache** of route/footprint proportions while serving a head repeatedly, but service rates still respond to changing downstream supply and clock; the head ceases to be identical when route/time restriction, merge, sink, or other physical transformation occurs. In binary64, fl(f Σm_j) and Σfl(f m_j) need not agree (L6), so the cache requires an IEEE equivalence check or a different precision contract.
 
 **Synthesis.** Exact ℝ composition-sharing and prefix-flow semantics are derivable; exact global network FIFO and IEEE old-checkpoint identity are additional obligations. Simultaneous memory+speed gain is structurally possible only if source-row duplication and explicit output materialization are both removed on the relevant path. No theorem here proves a 24-hour release fit under 8 GiB without implementing and measuring the proposed operators.
+
+## R6. 독립 증명 감사·최소 반례 및 실패 분류
+
+**Audit target:** L1–L10 under R3's exact declared domains. This is a bounded first adversarial pass, not repeated self-certification. Each verdict separates algebraic proof from source-dependent V03 implementation.
+
+| Claim | Adversarial test / first missing implication | Verdict |
+|---|---|---|
+| L1 split conservation | f=0, f=1, positive rational 0<f<1, source birth first moment; roundoff case (m=0.1,f=0.3) | Exact over ℝ; **FALSE** as universal binary64 bit conservation |
+| L2 cumulative FIFO | monotone D, K_s probability normalized; mixed row time supports and changing per-cell target | Proven link-local only. Missing verified mapping of V03 nonlinear D(t) and network priorities |
+| L3 exact interval merge | equal total mass vs A-then-B routes; equal route density but unequal per-route birth density; unequal ready/target | Proven iff per-mark real densities plus matching physical readiness; unrestricted merging REFUTED |
+| L4 structural O(P+E) | repeated source template vs arbitrary new merges/branching and eager event writes | Conditional symbolic-storage theorem only; full V03 end-to-end complexity UNRESOLVED |
+| L5 explicit output lower bound | flat R EventRow writes and legacy checkpoint materialization | Proven output-size bound; a new compact checkpoint uses different bytes/schema |
+| L6 IEEE algebraic flattening | positive x=.1,f=.3,g=.7, order of interval multiply/divide, ordered fsum products | Refuted by explicit 1-ULP witnesses; operation-DAG interpreter must keep exact trace |
+| L7 route order bits | m copies each of A/B, release one marked element at a time, fixed finite-bit state | Proven for this observably distinguishable subclass; **not** universal exponential memory lower bound |
+| L8 kinetic contraction | fixed α(t),ν(t),τ and identical Markov kernel; density-dependent rate feedback | Contractive at same frozen kernel, unsupported for different nonlinear feedback fields |
+| L9 FIFO approx stability | red A at head mass ε, green B immediately behind, no bypass | Ratio 1/ε unbounded. No universal TV→output Lipschitz without priority margin |
+| L10 head normalized ratios | f>0, same head rows, fixed routing; f=0, source/interval remerge, float sum | Proven real-homogeneous, caching V03 float ratios UNVERIFIED |
+
+**Three particularly tempting invalid deductions were explicitly excluded:**
+1. "Real algebraic splitting is exact, so replacing every source row with one cumulative factor is byte identical." False (L6).
+2. "Route cumulative A_r/D_r alone proves full network-wide perfect FIFO." False absent a complete junction priority / cohort compatibility argument, consistent with Bar-Gera–Carey 2017 and Jin 2015.
+3. "Storing a shared P-row template removes all P E time." False as long as old event/service/incoming APIs still explicitly enumerate R≈P E rows (L5).
+
+**Independent physical-model caveat:** V03 computes a shared cell speed/latent state and nonlinear class/density-dependent encounter hazards. Abstract positive Markov-semigroup linearity (L8) is conditional on frozen external fields; general state-dependent flow cannot be factorized by treating its rates as independent of the removed mass unless the full aggregate field histories are identical. Need either an equality proof of those field aggregates at EVERY physical step or eager oracle checks; not just one mass-balance number.
+
+**Original release counterexample status:** The 2017 cohort-bundle paper proves structural FIFO verifiability in its formal model, not a memory ceiling; Jin 2015 assumes triangular FD/invariant junction, which differs from V03 finite-response. Neither supplies a theorem allowing 100k×24h V03 within 8 GiB. Observed 25,600s checkout is a valid source-bound benchmark, not a proof of asymptotic exponent. No strong novelty/no-go claim passes the NG1–NG7 research admission gate.
+
+**Status tags:** L1–L5, L7–L10 DERIVED_CONDITIONAL as typed; L6 COUNTEREXAMPLE_TO_UNCONDITIONAL_FLOAT_EQUIVALENCE; original V03 semantic mapping and efficiency remain CONJECTURAL / FUTURE_IMPLEMENTATION_REQUIRED.
