@@ -1,0 +1,36 @@
+{
+  "cargo_check": "EXIT_0",
+  "compiled_only_under_cfg_test": true,
+  "consumer_error_forwarded": true,
+  "destination_resolver_requires_original_tag_and_offset": true,
+  "event_order_and_float_bits_checked": true,
+  "event_row_fields": [
+    "tag",
+    "source_cell",
+    "destination_optional",
+    "mass",
+    "start_time",
+    "end_time",
+    "birth"
+  ],
+  "focused_event_tests_passed": 3,
+  "log_sha256": {
+    "C9_ALL_RUST.log": "b99b70ea6a53ced6f6261ba473fc0ecc4226ca7de0f8c032e9aeaeb1f477ae05",
+    "C9_CARGO_CHECK.log": "9d87e710c39d2f92573b69b7892d2cd4e235f250afa0948549d492533d2dba98",
+    "C9_EVENT_FOCUSED.log": "ae7b777d97bc32d0e047fa311c18bf8b713455cc379f9dd08e092ac2beac833d",
+    "C9_SELECTED_PYTEST.log": "a63d2220707162f8486d72159980b70184b2f1a54df865bed83671f9d7e86f42"
+  },
+  "nonfinite_and_reversed_time_rejected": true,
+  "original_road_used_shadow_default": false,
+  "original_v03_full_24h": "BLOCKED_0_OF_9",
+  "parent_commit": "34cdeebdcfa15dd2d130b5c10846dd0decb651b6",
+  "partial_output_emissions_transactional_rollback": "NOT_IMPLEMENTED",
+  "real_V03_network_integration": "NOT_IMPLEMENTED",
+  "rust_ignored": 2,
+  "rust_lib_passed": 77,
+  "schema": "V03_EVCB_SHADOW_EVENT_CONSUMER_C9_20261120_V1",
+  "selected_python_tests_passed": 43,
+  "source_file": "crates/metroflow-rust/src/v1_lineage_shadow.rs",
+  "source_sha256": "57690d4c77451c57be8e35ff0b05fcf0bb29a42f9536d777f70fe47b371ed7c3",
+  "stage": "C9"
+}

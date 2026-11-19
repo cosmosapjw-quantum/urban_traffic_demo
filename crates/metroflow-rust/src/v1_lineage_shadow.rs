@@ -153,6 +153,30 @@ impl LineageArena {
         Ok(emitted)
     }
 
+    /// Shadow-only adapter to the original seven-field EventRow shape.
+    /// No Vec<EventRow> is created here: the consumer owns each emitted row.
+    /// A real V03 integration must additionally preserve source priority,
+    /// time/route resolution, receiving supply and original event ordering.
+    fn visit_event_rows(
+        &self,
+        node_id: usize,
+        source_cell: usize,
+        mut destination: impl FnMut(&Part) -> Option<usize>,
+        start_time: f64,
+        end_time: f64,
+        mut emit: impl FnMut(super::EventRow) -> PyResult<()>,
+    ) -> PyResult<usize> {
+        if !start_time.is_finite() || !end_time.is_finite() || end_time < start_time {
+            return Err(super::val("invalid original event time interval"));
+        }
+        self.visit(node_id, |p| {
+            emit((
+                p.tag, source_cell, destination(&p), p.mass,
+                start_time, end_time, p.birth,
+            ))
+        })
+    }
+
     fn materialize(&self, node_id: usize) -> PyResult<Vec<Part>> {
         let mut out = Vec::new();
         self.visit(node_id, |p| {
@@ -507,5 +531,84 @@ mod shadow_storage_benchmark {
             input_rows,event_count,eager_row_count,eager_bytes,arena.stats().node_count,
             structural_bytes,eager_build_ns,shadow_build_ns,eager_scan_ns,shadow_stream_ns,
             shadow_hash);
+    }
+}
+
+
+#[cfg(test)]
+mod shadow_event_consumer_tests {
+    use super::*;
+    use super::super::EventRow;
+
+    fn fingerprint(e: EventRow) -> (usize, usize, Option<usize>, u64, u64, u64, u64) {
+        (e.0,e.1,e.2,e.3.to_bits(),e.4.to_bits(),e.5.to_bits(),e.6.to_bits())
+    }
+
+    #[test]
+    fn event_consumer_stream_is_bit_identical_to_original_eager_event_rows() {
+        let rows=(0..48).map(|i| Part {
+            tag:i%9,offset:i%3,
+            mass:0.1+(i as f64)*0.0031,
+            birth:0.02+(i as f64)*0.0022,
+            a:PackedTime::new(Some(0.0)).unwrap(),
+            b:PackedTime::new(Some(6.0)).unwrap(),
+        }).collect::<Vec<_>>();
+        let f=0.37;
+        let original=portion(&PacketParts::pack(rows.clone(), |_|Ok(())).unwrap(),f).unwrap();
+        let expected=original.iter().map(|p| (
+            p.tag,7,Some((p.tag+p.offset)%3),p.mass,-0.0,2.5,p.birth
+        )).map(fingerprint).collect::<Vec<_>>();
+        let mut arena=LineageArena::default();
+        let root=arena.base(rows);
+        let selected=arena.scale(root,f).unwrap();
+        let mut actual=Vec::new();
+        let emitted=arena.visit_event_rows(
+            selected,7,|p|Some((p.tag+p.offset)%3),-0.0,2.5,
+            |row| {actual.push(fingerprint(row));Ok(())}
+        ).unwrap();
+        assert_eq!(emitted,expected.len());
+        assert_eq!(actual,expected);
+    }
+
+    #[test]
+    fn invalid_event_clock_refused_without_mutating_source_arena() {
+        let mut arena=LineageArena::default();
+        let root=arena.base(vec![Part {
+            tag:1,offset:0,mass:1.0,birth:0.1,
+            a:PackedTime::new(Some(0.0)).unwrap(),
+            b:PackedTime::new(Some(1.0)).unwrap(),
+        }]);
+        assert!(arena.visit_event_rows(root,1,|_|None,3.0,2.0,|_|Ok(())).is_err());
+        assert!(arena.visit_event_rows(root,1,|_|None,f64::NAN,4.0,|_|Ok(())).is_err());
+        assert_eq!(arena.materialize(root).unwrap().len(),1);
+    }
+
+    #[test]
+    fn fallible_consumer_stops_stream_and_preserves_source_for_retry() {
+        let mut arena=LineageArena::default();
+        let root=arena.base((0..5).map(|tag| Part {
+            tag,offset:tag,mass:0.1+tag as f64/100.0,birth:0.01,
+            a:PackedTime::new(Some(0.0)).unwrap(),
+            b:PackedTime::new(Some(2.0)).unwrap(),
+        }).collect());
+        let view=arena.scale(root,0.5).unwrap();
+        let before=arena.materialize(view).unwrap();
+        let mut attempted=0usize;
+        let result=arena.visit_event_rows(view,3,|p|Some(p.offset),0.0,2.0,|_row| {
+            attempted+=1;
+            if attempted==3 {
+                return Err(super::super::val("synthetic downstream receiver failure"));
+            }
+            Ok(())
+        });
+        assert!(result.is_err());
+        assert_eq!(attempted,3);
+        assert_eq!(arena.materialize(view).unwrap().iter().copied()
+                   .map(|p|(p.tag,p.mass.to_bits(),p.birth.to_bits()))
+                   .collect::<Vec<_>>(),
+                   before.iter().copied().map(|p|(p.tag,p.mass.to_bits(),p.birth.to_bits()))
+                   .collect::<Vec<_>>());
+        // A real network consumer must rollback prior external emissions;
+        // the shadow intentionally does not claim transactional atomicity.
     }
 }
