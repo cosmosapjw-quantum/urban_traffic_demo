@@ -69,3 +69,13 @@ Direct Rust code artifacts: crates/metroflow-rust/src/v1_lineage_shadow.rs (test
 **Admitted evidence:** bounded original-operations shadow IMPLEMENTATION-VERIFIED in the tested range. The actual full original V03 code is still eager and would consume Vec<EventRow> and incoming Vec<Vec<Part>>. Neither a city-scale RSS speedup nor an exact overall V03 checkpoint result follows from these seven tests. Need C6–C10 for Rust workspace regression, resource/memory microbenchmark, source-identity-bound calendar readiness and full scientific claim gate.
 
 **Source identity:** source ancestry 8e891b907f3f85e9ae8ff7c86a1b8836f4341815, stage C1–C4 pushed in four exact commits with verified remote SHA. This C5 stage is pushed only after new module compilation and full cargo regression; original main and PR41 remain unchanged.
+
+## C6. 소프트웨어 회귀검증·디버깅
+
+After the C5 RED→GREEN slice was pushed (SHA 9e820f986649d6a8d421d6d87000c36c3a697097), a fresh complete Rust library test command was run on the same source and compiler: RUSTFLAGS="-C link-arg=-lpython3.12" cargo test --workspace --lib --offline. Observed **71 passed, 0 failed, 1 ignored** (the ignore is a pre-existing opt-in selector benchmark). The new shadow tests contribute seven passing tests; all preceding original road/eager ordering tests remain green.
+
+Bounded original V1 Python regressions (native packed interval, native road, storage policy, exact reductions, plan validator) ran **43 passed**. Cargo workspace test check finished successfully, Python theoretical-oracle script compiled, and original tools/v1_plan.py validate reports VALID_PLAN_NOT_RELEASE, 21 nodes, counts ACCEPTED=5, VERIFIED_SCOPED=14, BLOCKED=1, PLANNED=1, next_node=V03. These tests do not constitute full repository CI or the actual 3×3 full-day campaign.
+
+**Error classification preserved:** The initial E0433 missing LineageArena was a deliberately failing behavior test; the later missing PyResult import was a compiler integration defect, repaired without weakening any existing test. No physical theory inconsistency or runtime floating-point failure was inferred from either compiler diagnostic. No modified original V03 native tick or build release acceptance was represented as PASS.
+
+Evidence stored under artifacts/v03_fifo_lineage_coding_20261119/C6_{CARGO_TEST.log,PYTEST.txt,CARGO_CHECK.log,PLAN_VALIDATE.txt}. Scope gate: SHADOW_RUST_UNIT_IMPLEMENTATION_VERIFIED, ORIGINAL_V03_FULL_DAY_BLOCKED. No fitted micro rates, source demand, timing or resource threshold introduced in this stage.
