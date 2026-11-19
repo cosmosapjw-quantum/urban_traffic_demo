@@ -37,3 +37,21 @@ A shadow-only \`Arc<LineageNode>\` DAG supports \`Base(Arc<[Part]>)\`, \`Scale{p
 **Complexity.** P base rows, E retained split/view nodes, maximum chain depth D, V forced output rows. Retained shared state O(P+E) graph elements **only when every branch refers to the same base and each event adds O(1) nodes**, in contrast to eager O(P E) retained rows. The simple shadow materializer may cost O(PD) per view, so it can be *slower* than eager calculation, especially for deep trace chains. An optional separately verified memoization or a persistent materialization buffer would alter this cost but must never collapse floating arithmetic. Streaming one view uses O(D) operation scratch plus O(1) row scratch, excluding the caller's output. Fan-in merges and explicit output APIs can restore Ω(P E) work. No bounded 24h memory conclusion.
 
 **Safety.** Use no arbitrary depth cutoff; represent the chain iteratively instead of recursive stack growth. Reject nonfinite fraction outside [0,1] and nonexistent invalid time intervals (the source should already guard these). Store actual original physical fields; do not insert a traffic approximation. A test that fails due to underflow (rounded mass zero) identifies a bug in the lazy evaluator.
+
+## C4. 구현 DAG, 작업 격리, 명시적 중단 조건
+
+Implementation activities are intentionally stage-local, with separate pushes:
+- C1 baseline/acceptance written and pushed, no production code changes.
+- C2 exact source map and numeric bit contracts written and pushed.
+- C3 trace-DAG design, type units and output-sensitive complexity written and pushed.
+- C4 bounded implementation DAG and tests defined, pushed before mutation.
+- C5 test-first new private Rust shadow expression evaluator under v1_road.rs test module, with independent old \`portion\` and interval rows; no production application or source flow modification; all failing tests first observed locally, green after implementation, then push.
+- C6 fresh native cargo tests + selected original V1 Python regressions, classify environment errors separately, push actual logs.
+- C7 independent physical/IEEE source-equivalence cases (nested split, overflow/underflow, mixed time intervals, exact birth/route FIFO tags), push measured results, no ungrounded city claim.
+- C8 a deterministic release-mode bounded synthetic repeated-split benchmark (same Part array for all runs, no fitted hyperparameters), report retained symbolic node/bytes, eager copy bytes, streamed materialization time and benchmark process resource usage. Judge BOTH storage and computational time; do not claim speed gain if slower.
+- C9 one bounded adversarial review of the source and untested contracts, fix only genuine issues and push.
+- C10 authoritative V03 readiness from unchanged PLAN 19/21 and fresh source/binary-bound calendar receipts. If new native is rebuilt, 3/3 old receipts are STALE until recomputed; if full-day 0/9 remains, mark it BLOCKED. Final artifact hashes, source SHA, remote SHA readback, handoff and push.
+
+**Explicit blocker gate.** A test-only shadow that does not change native production is NOT a V03 accepted implementation and does NOT alter DAG. Preserve original source/fleet/time/signal and 8 GiB and 7200s; do not launch uncontrolled 86,400s×9 until a real representation change suppresses packet explosion. No production PR/main mutation. Coding correctness admission requires semantic and bitwise equivalence of the supported expression language and honest performance measurements, not merely Rust compilation.
+
+**Need for later theory on demand:** if expression DAG cannot preserve an event-time grouping with a changing ready/target mark, derive a typed counterexample before adding a new rewriting rule; do not "fix" it by silently dropping route-specific event marks.
