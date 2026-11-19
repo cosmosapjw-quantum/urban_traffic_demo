@@ -1,0 +1,43 @@
+{
+  "claims_proven_by_source": "Real city-published observational records only",
+  "dataset_id": "4g9f-3jbs",
+  "direction": "NB",
+  "from_street": "Harrison",
+  "input_osm_fixture": "artifacts/osm_control/chicago.osm",
+  "official_landing": "https://data.cityofchicago.org/d/4g9f-3jbs",
+  "official_length_miles": "0.52",
+  "publisher": "City of Chicago",
+  "schema_version": 1,
+  "segment_id": "1221",
+  "source_clock": "Chicago calendar-date local naive timestamps; not UTC",
+  "source_requests": [
+    {
+      "date_local": "2026-04-20",
+      "file": "artifacts/kcmb_field_20261119/raw/2026-04-20.json",
+      "rows": 12,
+      "sha256": "0b3d2aa75beb7548de31417fe655ad270b3d5dcaaf392f11f6da8b8a0d93f85d",
+      "split": "calibration",
+      "url": "https://data.cityofchicago.org/resource/4g9f-3jbs.json?%24select=time%2Csegment_id%2Cstreet%2Cdirection%2Cfrom_street%2Cto_street%2Clength%2Cspeed%2Cbus_count%2Cmessage_count%2Cstart_latitude%2Cstart_longitude%2Cend_latitude%2Cend_longitude&%24where=time+between+%272026-04-20T07%3A00%3A00%27+and+%272026-04-20T09%3A00%3A00%27+and+segment_id%3D1221&%24limit=50&%24order=time"
+    },
+    {
+      "date_local": "2026-04-27",
+      "file": "artifacts/kcmb_field_20261119/raw/2026-04-27.json",
+      "rows": 12,
+      "sha256": "0e17ba587c0ab29fbd19fe9d9d52c38ac08fa35e0ada6981ab0819c0fb061ca5",
+      "split": "holdout",
+      "url": "https://data.cityofchicago.org/resource/4g9f-3jbs.json?%24select=time%2Csegment_id%2Cstreet%2Cdirection%2Cfrom_street%2Cto_street%2Clength%2Cspeed%2Cbus_count%2Cmessage_count%2Cstart_latitude%2Cstart_longitude%2Cend_latitude%2Cend_longitude&%24where=time+between+%272026-04-27T07%3A00%3A00%27+and+%272026-04-27T09%3A00%3A00%27+and+segment_id%3D1221&%24limit=50&%24order=time"
+    }
+  ],
+  "source_speed_unit": "mph",
+  "source_type": "CTA bus GPS estimated arterial segment speeds, not vehicle counts",
+  "street": "Halsted",
+  "to_street": "Madison",
+  "unknowns": [
+    "lane geometry",
+    "turning pockets",
+    "signal phases",
+    "road density",
+    "non-bus ground truth",
+    "per-vehicle traversal times"
+  ]
+}
