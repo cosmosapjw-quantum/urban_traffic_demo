@@ -1,0 +1,57 @@
+{
+  "V03": "BLOCKED",
+  "case_receipts": {
+    "coastal_weekend_s41": {
+      "native_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+      "peak_rss_bytes": 1114558464,
+      "planned_legs": 2449750,
+      "receipt_sha256": "51bdaf75c279310087f7f1e45a9f91b799ca3d1fed41727fcce711c964abcbc1",
+      "resident_stock": 100000.0,
+      "source_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 40.6611620779986
+    },
+    "river_weekday_s17": {
+      "native_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+      "peak_rss_bytes": 2171633664,
+      "planned_legs": 5093765,
+      "receipt_sha256": "58a5596cee856bbbe7d82661ca9cad9c99fb472dd18c2b413f4846b02c6df990",
+      "resident_stock": 100000.0,
+      "source_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 71.40329850299895
+    },
+    "valley_weekday_s7": {
+      "native_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+      "peak_rss_bytes": 446803968,
+      "planned_legs": 918450,
+      "receipt_sha256": "6385051949d6f34353c70e936e1fa352dfece50af6f6e1f722e71d02491d4415",
+      "resident_stock": 100000.0,
+      "source_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 23.063402348998352
+    }
+  },
+  "current_candidate_source_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+  "current_native_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+  "model_parameter_fitted_for_prep": false,
+  "old_pre_arc_receipts_rejected": 3,
+  "original_100k_city_preparation": {
+    "completed": 3,
+    "total": 3
+  },
+  "original_full_day_runs": {
+    "completed": 0,
+    "required": 9
+  },
+  "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "original_plan_version": "1.1.26",
+  "physics_execution_scoped_prefix": "NOT_EXECUTED_IN_THIS_PREPARATION",
+  "project_dag": {
+    "completed_scoped": 19,
+    "total": 21
+  },
+  "resource_budget_changed": false,
+  "schema": "V03_ARC_PACKET_CANDIDATE_SOURCE_PINNED_PREFLIGHT_V1",
+  "total_planned_legs": 8461965
+}

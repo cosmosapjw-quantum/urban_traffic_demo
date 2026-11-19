@@ -1,0 +1,116 @@
+{
+  "authority": {
+    "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "plan_id": "METROFLOW-V1",
+    "version": "1.1.26"
+  },
+  "case_preparation": {
+    "coastal_weekend_s41": {
+      "reason": "WHOLE_CALENDAR_PREPARATION_VERIFIED_NOT_DAY",
+      "status": "PREPARED_SCOPED"
+    },
+    "river_weekday_s17": {
+      "reason": "WHOLE_CALENDAR_PREPARATION_VERIFIED_NOT_DAY",
+      "status": "PREPARED_SCOPED"
+    },
+    "valley_weekday_s7": {
+      "reason": "WHOLE_CALENDAR_PREPARATION_VERIFIED_NOT_DAY",
+      "status": "PREPARED_SCOPED"
+    }
+  },
+  "dag": {
+    "completed": 19,
+    "completed_node_ids": [
+      "P00",
+      "M01",
+      "T01",
+      "I01",
+      "M02",
+      "M03",
+      "D01",
+      "T02",
+      "T03",
+      "T04",
+      "R01",
+      "R02",
+      "B01",
+      "C01",
+      "M04",
+      "C02",
+      "P01",
+      "V01",
+      "V02"
+    ],
+    "completion_percent": 90.47619047619048,
+    "not_completed": {
+      "RLS01": "PLANNED",
+      "V03": "BLOCKED"
+    },
+    "scope": "ACCEPTED or VERIFIED_SCOPED; not release acceptance",
+    "total": 21
+  },
+  "declared_engineering_inputs_not_fitted_here": {
+    "current_driver_freight_kg": "literal 1000 in tools/run_v1_local_acceptance.py; not derived",
+    "inventory_policy": {
+      "capacity_persons": 40,
+      "departures_s": [
+        21600,
+        32400,
+        43200,
+        54000,
+        64800,
+        75600
+      ],
+      "dwell_s": 20,
+      "max_stops": 4
+    },
+    "max_cohorts_by_case": {
+      "coastal_weekend_s41": 20000,
+      "river_weekday_s17": 20000,
+      "valley_weekday_s7": 20000
+    },
+    "route_materialization_budget": 20000,
+    "worker_shortfall": "unassigned_home"
+  },
+  "measurement_context": {
+    "acceptance_not_promoted": true,
+    "branch_commit": "0524db38baf2c115535b715fb88a6da9a43e6427",
+    "live_candidate_source_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+    "live_native_binary_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+    "not_fitted_parameters": "none introduced in scorer",
+    "observed_at_utc": "2026-11-19T23:04:29+00:00",
+    "source": "actual repository plan, matrix, optional whole-native prepare receipts"
+  },
+  "next_required_evidence": "actual 3-city x 3 86400s original-physics run with replay/ledger/refined_dt under original 8GiB/7200s limits",
+  "observed_host": {
+    "cpu_model": "AMD Ryzen 9 5900X 12-Core Processor",
+    "host_identity_limitation": "observed host is not guaranteed to match planned Ryzen5900X/64GiB",
+    "logical_cores": 24,
+    "memory_available_bytes": 18402226176,
+    "physical_memory_bytes": 33549766656,
+    "python": "3.12.3",
+    "reference_host_RAM_match": false,
+    "swap_free_bytes": 72861290496
+  },
+  "source_file_sha256": {
+    "plan": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "release_matrix": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+  },
+  "v03": {
+    "calendar_preparation_total": 3,
+    "calendar_preparation_verified": 3,
+    "completed_full_day_runs": 0,
+    "dependency_nodes_completed": 3,
+    "dependency_nodes_total": 3,
+    "execution_status": "BLOCKED_BY_EXACT_INTERVAL_PACKET_EXPLOSION",
+    "horizon_seconds": 86400,
+    "physics_scope": "unchanged original packet FIFO, no source/data/tolerance relaxation",
+    "population_residents_per_case": 100000,
+    "ready_for_release": false,
+    "real_full_day_execution_evidence": "NONE_IN_SUPPLIED_PREPARATION_RECEIPTS",
+    "required_full_day_runs": 9,
+    "rss_bytes_max": 8589934592,
+    "status": "BLOCKED",
+    "wall_seconds_max": 7200
+  }
+}
