@@ -1,0 +1,97 @@
+{
+  "comparison_to_original_V1": "NOT_COMPARABLE_PHYSICAL_MODELS_DIFFER",
+  "empirical_urban_data": "NOT_USED",
+  "input_fixture": "homogeneous backlog and alternating route with same physical source/gates",
+  "model": "corrected KCMB ordered FIFO v2 versus certified adaptive eligible-run coalescence",
+  "results": {
+    "python:alternating": {
+      "max_abs_diff_physical": 0.0,
+      "median_ordered_over_adaptive": 0.9519282330893264,
+      "peak_run_counts": {
+        "certified_adaptive": 279,
+        "ordered": 279
+      },
+      "peak_run_reduction_fraction": 0.0,
+      "peak_sampled_checkpoint_bytes": {
+        "certified_adaptive": 14274,
+        "ordered": 14298
+      },
+      "runs_certifiably_merged": 0,
+      "total_steps": 280,
+      "trial_ordered_over_adaptive": [
+        0.949117,
+        0.952586,
+        0.944174,
+        0.95418,
+        0.951928
+      ]
+    },
+    "python:homogeneous": {
+      "max_abs_diff_physical": 0.0,
+      "median_ordered_over_adaptive": 1.0592894278739804,
+      "peak_run_counts": {
+        "certified_adaptive": 101,
+        "ordered": 240
+      },
+      "peak_run_reduction_fraction": 0.5791666666666666,
+      "peak_sampled_checkpoint_bytes": {
+        "certified_adaptive": 4373,
+        "ordered": 9895
+      },
+      "runs_certifiably_merged": 219,
+      "total_steps": 320,
+      "trial_ordered_over_adaptive": [
+        1.051252,
+        1.065932,
+        1.045567,
+        1.059289,
+        1.06633
+      ]
+    },
+    "rust:alternating": {
+      "max_abs_diff_physical": 0.0,
+      "median_ordered_over_adaptive": 0.9435309045278287,
+      "peak_run_counts": {
+        "certified_adaptive": 279,
+        "ordered": 279
+      },
+      "peak_run_reduction_fraction": 0.0,
+      "peak_sampled_checkpoint_bytes": {
+        "certified_adaptive": 14274,
+        "ordered": 14298
+      },
+      "runs_certifiably_merged": 0,
+      "total_steps": 280,
+      "trial_ordered_over_adaptive": [
+        0.943531,
+        0.956715,
+        0.962599,
+        0.941483,
+        0.926634
+      ]
+    },
+    "rust:homogeneous": {
+      "max_abs_diff_physical": 0.0,
+      "median_ordered_over_adaptive": 1.0627559073900517,
+      "peak_run_counts": {
+        "certified_adaptive": 101,
+        "ordered": 240
+      },
+      "peak_run_reduction_fraction": 0.5791666666666666,
+      "peak_sampled_checkpoint_bytes": {
+        "certified_adaptive": 4373,
+        "ordered": 9895
+      },
+      "runs_certifiably_merged": 219,
+      "total_steps": 320,
+      "trial_ordered_over_adaptive": [
+        1.058961,
+        1.069473,
+        1.065835,
+        1.062756,
+        1.056805
+      ]
+    }
+  },
+  "source": "alternating Python/Rust process order, five paired-representation runs each"
+}

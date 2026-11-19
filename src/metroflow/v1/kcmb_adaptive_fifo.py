@@ -60,9 +60,11 @@ class CertifiedAdaptiveFIFO(OrderedKCMBBoundedNetwork):
                 else:
                     collapsed.append(run)
             merged_queues.append(tuple(collapsed))
-        compacted=replace(state,runs=tuple(merged_queues))
-        self._check_ordered(compacted)
-        return compacted,removed
+        # The parent step has already validated an unmodified output. Avoid
+        # reallocating and revalidating it when no eligible block was merged.
+        if removed==0:
+            return state,0
+        return replace(state,runs=tuple(merged_queues)),removed
 
     def _must_fit(self,state,checkpoint):
         nr=sum(len(q) for q in state.runs)
@@ -76,12 +78,18 @@ class CertifiedAdaptiveFIFO(OrderedKCMBBoundedNetwork):
 
     def initial_profile(self,profile,*,order_by_link=None):
         expanded=super().initial_profile(profile,order_by_link=order_by_link)
-        compacted,_=self._coalesce(expanded)
+        compacted,removed=self._coalesce(expanded)
         self._must_fit(compacted,self.initial())
+        if removed:
+            self._check_ordered(compacted)
         return compacted
 
     def step(self,state,offers,*,gates=None):
-        self._strict_check(state)
+        # The exact parent step checks state validity and the resulting
+        # moment cone; here only enforce the independent persistent budget.
+        if not isinstance(state,FIFOQueueState):
+            raise ValueError("adaptive FIFO state identity/type required")
+        self._must_fit(state,state)
         try:
             raw,receipt=super().step(state,offers,gates=gates)
         except FIFOQueueBudgetError as exc:
@@ -91,7 +99,10 @@ class CertifiedAdaptiveFIFO(OrderedKCMBBoundedNetwork):
             raise
         compacted,removed=self._coalesce(raw)
         count=self._must_fit(compacted,state)
-        self._strict_check(compacted)
+        if removed:
+            # Compression changes *only* the run representation. Validate
+            # the changed representation once, not both pre/post repeatedly.
+            self._check_ordered(compacted)
         receipt=dict(receipt)
         receipt.update(
             model_id=self.model_id,

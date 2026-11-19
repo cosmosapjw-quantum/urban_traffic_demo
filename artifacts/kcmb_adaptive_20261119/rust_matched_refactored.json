@@ -1,0 +1,82 @@
+{
+  "backend": "rust",
+  "model_parent": "ordered FIFO v2 partition-invariant",
+  "python_version": "3.12.3",
+  "scenarios": [
+    {
+      "backend": "rust",
+      "final_runs": {
+        "certified_adaptive": 21,
+        "ordered": 108
+      },
+      "finished_vehicle_mass_by_route": [
+        13.259442869668574
+      ],
+      "kind": "homogeneous",
+      "max_abs_difference_physical": 0.0,
+      "max_accepted_adaptive_runs": 130,
+      "median_step_us": {
+        "certified_adaptive": 141.001,
+        "ordered": 140.886
+      },
+      "peak_runs": {
+        "certified_adaptive": 101,
+        "ordered": 240
+      },
+      "peak_sampled_checkpoint_bytes": {
+        "certified_adaptive": 4373,
+        "ordered": 9895
+      },
+      "scope": "matched corrected KCMB node physics; not original V1 or field observations",
+      "source_vehicle_mass_by_route": [
+        24.00000000000007
+      ],
+      "steps": 320,
+      "time_ratio_ordered_over_adaptive": 1.0622737994531932,
+      "total_eligible_runs_coalesced": 219,
+      "total_step_s": {
+        "certified_adaptive": 0.040950111,
+        "ordered": 0.04350023
+      }
+    },
+    {
+      "backend": "rust",
+      "final_runs": {
+        "certified_adaptive": 279,
+        "ordered": 279
+      },
+      "finished_vehicle_mass_by_route": [
+        0.0,
+        0.0
+      ],
+      "kind": "alternating",
+      "max_abs_difference_physical": 0.0,
+      "max_accepted_adaptive_runs": 300,
+      "median_step_us": {
+        "certified_adaptive": 192.107,
+        "ordered": 183.3215
+      },
+      "peak_runs": {
+        "certified_adaptive": 279,
+        "ordered": 279
+      },
+      "peak_sampled_checkpoint_bytes": {
+        "certified_adaptive": 14274,
+        "ordered": 14298
+      },
+      "scope": "matched corrected KCMB node physics; not original V1 or field observations",
+      "source_vehicle_mass_by_route": [
+        9.99999999999998,
+        9.99999999999998
+      ],
+      "steps": 280,
+      "time_ratio_ordered_over_adaptive": 0.9513923094337966,
+      "total_eligible_runs_coalesced": 0,
+      "total_step_s": {
+        "certified_adaptive": 0.054763042,
+        "ordered": 0.052101137
+      }
+    }
+  ],
+  "title": "Certified lossless adaptive eligible FIFO coalescence: same physics"
+}
