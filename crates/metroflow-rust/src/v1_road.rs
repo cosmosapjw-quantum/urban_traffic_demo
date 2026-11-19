@@ -6,6 +6,11 @@ use pyo3::prelude::*;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::io::{Read, Write};
 use std::sync::Mutex;
+// Shadow-only experiment; the original V03 road kernel and checkpoint layout
+// remain unchanged in non-test native builds.
+#[cfg(test)]
+#[path = "v1_lineage_shadow.rs"]
+mod lineage_shadow;
 
 // Versioned by the enclosing engine header. Integers and IEEE-754 bit patterns
 // have a fixed little-endian representation independent of Python objects.
