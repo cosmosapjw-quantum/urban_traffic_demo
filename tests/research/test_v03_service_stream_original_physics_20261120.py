@@ -45,3 +45,27 @@ def test_original_24hour_release_remains_blocked_even_with_prefix():
     assert x["v03"]["ready_for_release"] is False
     assert x["v03"]["status"]=="BLOCKED"
     assert (x["dag"]["completed"],x["dag"]["total"])==(19,21)
+
+
+def test_actual_valley_25600_congestion_native_checkpoint_remains_bit_identical():
+    here=ART/"valley_weekday_s7.native_stream_25600.json"
+    baseline=ROOT/"artifacts/v03_fifo_interval_sweep_20261119/prefix/valley_weekday_s7.native_sweep_25600.json"
+    r=json.loads(here.read_bytes())
+    b=json.loads(baseline.read_bytes())
+    assert r["status"]=="EXECUTED_BOUNDED_PREFIX"
+    assert r["source_binding"]=="ORIGINAL_V03_PREFIX_BINDING_VERIFIED"
+    assert r["completed_time_s"]==b["completed_time_s"]==25600
+    assert r["original_full_calendar_legs"]==918450
+    assert r["resident_stock"]==100000
+    assert r["physical_ledger_check"]=="PASS_SCOPED"
+    assert r["matrix_sha256"]==b["matrix_sha256"]
+    assert r["driver_identity"]==b["driver_identity"]
+    assert r["candidate_source_sha256"]==candidate_provenance()["source_sha256"]
+    assert r["native_binary_sha256"]==native_binary_provenance()["sha256"]
+    assert r["native_binary_sha256"]!=b["native_binary_sha256"]
+    assert r["mass_ledger"]==b["mass_ledger"]
+    assert r["last_valid_checkpoint_sha256"]==b["last_valid_checkpoint_sha256"]
+    x=ART/"valley_weekday_s7.native_stream_25600.final.bin"
+    assert hashlib.sha256(x.read_bytes()).hexdigest()==r["last_valid_checkpoint_sha256"]
+    assert r["max_rss_bytes"]<8*1024**3
+    assert r["full_day_24h_acceptance"]=="NOT_RUN"

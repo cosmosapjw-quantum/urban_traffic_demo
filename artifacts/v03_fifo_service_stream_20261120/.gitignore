@@ -1,0 +1,2 @@
+# Large native checkpoint bytes are local-only; the source-bound JSON hashes are published.
+*.bin

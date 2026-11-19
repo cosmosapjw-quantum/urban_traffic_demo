@@ -1,0 +1,24 @@
+{
+  "candidate_checkpoint_bytes": 866763962,
+  "candidate_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+  "candidate_elapsed_s": 57.9807643690001,
+  "candidate_peak_rss_bytes": 2054717440,
+  "checkpoint_byte_equal": true,
+  "elapsed_ratio_reference_over_candidate": 1.012346803423787,
+  "new_native_sha256": "a92f7062dfce43806116bdde3f3011e39d3fe43ff73f8d451a4546ee85a5b9e8",
+  "nonclaim": "single source-matched prefix run, no robust speedup claim, no population compaction",
+  "original_model_release_day": "BLOCKED_0_OF_9",
+  "peak_rss_ratio_candidate_over_reference": 1.0005584809318653,
+  "physical_ledger_equal": true,
+  "prior_native_sha256": "45839b5dff542bebef7a9a9c8c036f1cdf1eb90a7040dc514189ed9fca828a04",
+  "reference_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+  "reference_elapsed_s": 58.69664146902505,
+  "reference_peak_rss_bytes": 2053570560,
+  "schema": "ORIGINAL_V03_100K_VALLEY_CONGESTION_STREAMED_SERVE_25600_V1",
+  "simulated_time_interval_s": [
+    25300,
+    25600
+  ],
+  "source_pinned_same_original_model": true,
+  "verdict": "PHYSICS_BIT_EXACT_SCOPED; NO_MEASURED_MEMORY_GAIN"
+}

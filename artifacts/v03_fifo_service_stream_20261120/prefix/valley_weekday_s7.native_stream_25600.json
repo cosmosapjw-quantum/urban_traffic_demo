@@ -1,0 +1,57 @@
+{
+  "address_space_limit_bytes": 8589934592,
+  "block_reason": null,
+  "candidate_source_sha256": "2e3289a9f77080531198d7a75cd04c464d409b9c7bd3cb51e2ae116624aae15a",
+  "case": "valley_weekday_s7",
+  "code_or_numerical_tolerance_modified": false,
+  "completed_time_s": 25600.0,
+  "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "elapsed_seconds": 57.9807643690001,
+  "exact_binary_source_roundtrip": true,
+  "full_day_24h_acceptance": "NOT_RUN",
+  "intended_end_time_s": 25600.0,
+  "last_valid_checkpoint": "artifacts/v03_fifo_service_stream_20261120/prefix/valley_weekday_s7.native_stream_25600.final.bin",
+  "last_valid_checkpoint_bytes": 866763962,
+  "last_valid_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+  "mass_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1262.2116082337338,
+      "completed": 39.872059878778956,
+      "pending": 920.1385541097557,
+      "released": 1302.083668112513,
+      "requested": 2222.2222222222686
+    },
+    "vehicles": {
+      "active": 1009.4732849608761,
+      "completed": 30.526715039135116,
+      "pending": 48.88888888888755,
+      "released": 1040.0000000000111,
+      "requested": 1088.8888888888987
+    }
+  },
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "max_rss_bytes": 2054717440,
+  "native_binary_sha256": "a92f7062dfce43806116bdde3f3011e39d3fe43ff73f8d451a4546ee85a5b9e8",
+  "nonzero_physical_traffic_observed": true,
+  "original_full_calendar_legs": 918450,
+  "parent_receipt_path": "artifacts/v03_fifo_service_stream_20261120/prefix/valley_weekday_s7.native_stream_25300.json",
+  "patch_sha256": "da5fa61d26316b17d09a96ae467d4fb0accc2781f17a96572607ddf423946ac7",
+  "physical_ledger_check": "PASS_SCOPED",
+  "resident_stock": 100000.0,
+  "source_100k_population_reduced": false,
+  "source_binding": "ORIGINAL_V03_PREFIX_BINDING_VERIFIED",
+  "source_checkpoint_bytes": 83139202,
+  "source_checkpoint_path": "artifacts/v03_fifo_service_stream_20261120/prefix/valley_weekday_s7.native_stream_25300.final.bin",
+  "source_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+  "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+  "start_time_s": 25300.0,
+  "status": "EXECUTED_BOUNDED_PREFIX",
+  "whole_native_stage": true
+}
