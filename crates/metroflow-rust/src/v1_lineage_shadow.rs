@@ -412,3 +412,100 @@ mod independent_shadow_adversarial_tests {
         assert_eq!(old.len(),2);
     }
 }
+
+
+#[cfg(test)]
+mod shadow_storage_benchmark {
+    use super::*;
+    use std::hint::black_box;
+    use std::time::Instant;
+
+    #[test]
+    #[ignore]
+    fn benchmark_immutable_lineage_vs_eager_retained_rows() {
+        // This is a deliberately *independent same-template* storage workload.
+        // Unlike actual congested V03, it has no downstream materialization,
+        // new source offers, multi-input merge or nonlinear junction dynamics.
+        // The fractions are deterministic synthetic inputs, NOT fitted physics.
+        let input_rows=160usize;
+        let event_count=8192usize;
+        let base: Vec<Part>=(0..input_rows).map(|i| Part {
+            tag:i%19,
+            offset:i%4,
+            mass:0.001+(i as f64)*0.000003,
+            birth:0.00001+(i as f64)*0.0000023,
+            a:PackedTime::new(Some(0.0)).unwrap(),
+            b:PackedTime::new(Some(3.0)).unwrap(),
+        }).collect();
+        let packed=PacketParts::pack(base.clone(), |_|Ok(())).unwrap();
+
+        let eager_begin=Instant::now();
+        let mut eager=Vec::with_capacity(event_count);
+        for k in 0..event_count {
+            let f=((k%61)+1) as f64/64.0;
+            let served=portion(&packed,f).unwrap();
+            let rest=portion(&packed,1.0-f).unwrap();
+            eager.push((served,rest));
+        }
+        let eager_build_ns=eager_begin.elapsed().as_nanos();
+        let eager_row_count:usize=eager.iter().map(|(a,b)|a.len()+b.len()).sum();
+        let eager_bytes:usize=eager.iter().map(|(a,b)|a.capacity()+b.capacity()).sum::<usize>()
+            .saturating_mul(std::mem::size_of::<Part>());
+
+        let shadow_begin=Instant::now();
+        let mut arena=LineageArena::default();
+        let root=arena.base(base);
+        let mut ids=Vec::with_capacity(event_count);
+        for k in 0..event_count {
+            let f=((k%61)+1) as f64/64.0;
+            let served=arena.scale(root,f).unwrap();
+            let rest=arena.scale(root,1.0-f).unwrap();
+            ids.push((served,rest));
+        }
+        let shadow_build_ns=shadow_begin.elapsed().as_nanos();
+        let structural_bytes=arena.stats().owned_bytes+
+            ids.capacity()*std::mem::size_of::<(usize,usize)>();
+        assert_eq!(arena.stats().base_rows,input_rows);
+        assert_eq!(arena.stats().node_count,1+event_count*2);
+        assert_eq!(eager_row_count,input_rows*event_count*2);
+        assert!(structural_bytes < eager_bytes/10);
+
+        // Eager consumers already holding all explicit rows still must read
+        // every row: time and data volume are NOT improved by pointer sharing.
+        let eager_scan_begin=Instant::now();
+        let mut eager_hash=0u64;
+        let mut eager_count=0usize;
+        for (a,b) in &eager {
+            for row in a.iter().chain(b.iter()) {
+                eager_count+=1;
+                eager_hash=eager_hash.wrapping_mul(0x100000001b3)
+                    ^ row.mass.to_bits() ^ row.birth.to_bits();
+            }
+        }
+        let eager_scan_ns=eager_scan_begin.elapsed().as_nanos();
+
+        let shadow_stream_begin=Instant::now();
+        let mut shadow_hash=0u64;
+        let mut shadow_count=0usize;
+        for &(a,b) in &ids {
+            for id in [a,b] {
+                arena.visit(id,|row| {
+                    shadow_count+=1;
+                    shadow_hash=shadow_hash.wrapping_mul(0x100000001b3)
+                        ^ row.mass.to_bits() ^ row.birth.to_bits();
+                    Ok(())
+                }).unwrap();
+            }
+        }
+        let shadow_stream_ns=shadow_stream_begin.elapsed().as_nanos();
+        assert_eq!(shadow_count,eager_count);
+        assert_eq!(shadow_hash,eager_hash);
+        black_box((shadow_hash,shadow_count,eager_hash,eager_count));
+
+        println!(
+            "V03_LINEAGE_BENCH rows={} events={} eager_copied_rows={} eager_owned_part_bytes={} shadow_node_count={} shadow_retained_bytes={} eager_build_ns={} shadow_build_ns={} eager_scan_ns={} shadow_stream_ns={} checksum_bits={:016x}",
+            input_rows,event_count,eager_row_count,eager_bytes,arena.stats().node_count,
+            structural_bytes,eager_build_ns,shadow_build_ns,eager_scan_ns,shadow_stream_ns,
+            shadow_hash);
+    }
+}

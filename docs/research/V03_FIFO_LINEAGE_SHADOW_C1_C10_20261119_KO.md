@@ -92,3 +92,18 @@ Added three independent adversarial Rust tests to the existing 7:
 Fresh Rust cargo library verification on this revision: **74 passed; 0 failed; 1 ignored**. The ten new shadow checks remain scoped to the private cfg(test) module. The original V03 conservative runtime/mass ledger is not substituted and no new traffic class parameter or demand coefficient was fitted. IEEE bit identity of this restricted operator language is IMPLEMENTATION_VERIFIED on the finite test population; full V03 physics/checkpoint identity on the new code path is UNTESTED because the path is not activated.
 
 C7 exact-input identity, compiler version, tests and original source SHA are preserved in artifacts/v03_fifo_lineage_coding_20261119/C7_ADVERSARIAL_RESULT.json and C7_ALL_RUST.log. Next C8 benchmarks memory and actual computation separately, not treating the idealized O(P+E) theorem as observed wall/RSS.
+
+## C8. 정확도·표현 용량·시간을 분리한 5회 성능 실험
+
+A release-mode ignored Rust test executes the identical finite synthetic experiment five times in separate cargo invocations. A single 160-row immutable physical Part template is used by 8192 independent service events; each event's fraction f=((event mod 61)+1)/64 is a deterministic synthetic stimulus, NOT a fitted traffic parameter. The eager reference calls original PacketParts/portion twice for served and complement, retaining every output Vec<Part>. The append-only indexed arena stores only one immutable Base and two child Scale nodes per event. Both implementations visit all output rows and compute the identical ordered bits-based rolling checksum; equality asserted inside the executable benchmark.
+
+Observed five-process medians (source-bound artifact C8_SYNTHETIC_BENCHMARK.json):
+- Eager retained Part Vec capacity: 125,829,120 bytes, 2,621,440 logical copied Part rows.
+- Shadow structural vector+base rows+view-ID capacity: 1,187,328 bytes with 16,385 DAG nodes. Capacity ratio 105.98×; these numbers exclude allocator metadata/peak RSS and the user of streamed outputs. They are NOT a measured whole-process memory saving.
+- Representation construction wall: median eager / shadow ratio 229.41×. This reflects no per-event Part cloning, not throughput for a real physical V03 traffic step.
+- Full per-row traversal cost: median (shadow emitted stream time / eager scan time) 0.998. Eager already holds the rows; the shadow still has to regenerate every logical row and preserve floating-point order. This is effectively equal at this synthetic scale, not an end-to-end speedup.
+- Every one of five runs obtained the same bit-signature checksum for all 2,621,440 streamed rows, and the independently defined eager trace.
+
+**Falsifiable conclusion:** one shared-template representation can greatly lower synthetic retained Part storage and creation cost without changing the per-row output bits; **but** original V03 still creates flat EventRow and incoming parts and retains full checkpoint state. Thus the result alone neither fixes the 25,600–25,650s packet genealogy explosion nor satisfies the full 100k/24h 8GiB/7200s resource gate. No new model coefficient, observed Chicago probe weight or traffic forcing was fitted. Need C9 review and a source-bound production-boundary acceptance decision.
+
+**Precision and resource conditions:** only a fixed toolkit/test-runner/ABI and finite original Part inputs were tested. Structural bytes are an estimate from actual Vec capacities and size_of, not process peak RSS, allocator allocation count or complete native state. The ignored release test is deliberately excluded from ordinary cargo unit suites; five separate explicit invocations and hashes are retained.
