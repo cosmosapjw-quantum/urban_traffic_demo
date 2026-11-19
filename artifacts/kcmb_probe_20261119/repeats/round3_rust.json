@@ -1,0 +1,211 @@
+{
+  "actual_chicago_raw_dataset": "4g9f-3jbs",
+  "actual_chicago_source_input": true,
+  "actual_field_observable": "CTA_BUS_GPS_ESTIMATED_SEGMENT_SPEED_ONLY",
+  "backend_results": {
+    "rust": {
+      "actual_physical_kernel": "KCMBCorridor six-moment local Markov + finite-volume transport",
+      "all_class_mass_ledger_max_error_veh": 1.6825651982799172e-11,
+      "backend": "rust",
+      "bus_population_assumed_not_observed": true,
+      "completed_veh_by_class": [
+        2868.508411214959
+      ],
+      "conditional_scenario_parameters": {
+        "alpha_per_s": 0.2972222222222222,
+        "cell_count": 1,
+        "cell_length_m": 836.85888,
+        "declared_source_latent_probability": 0.5944444444444444,
+        "declared_source_speed_fraction": 0.5944444444444444,
+        "dt_s": 10.0,
+        "footprint_m": 8.0,
+        "lanes_assumed": 1,
+        "nu_per_s": 0.20277777777777778,
+        "observation_window_seconds": 600.0,
+        "p_calibration": 0.5944444444444444,
+        "signal_at_sink": "assumed_always_green",
+        "source_vehicle_equivalents_per_s": 0.3,
+        "start_mass_veh": 20.0,
+        "switch_sum_per_s": 0.5,
+        "tau_s": 3.0,
+        "vmax_assumed_mph": 30.0,
+        "vmax_mps": 13.4112
+      },
+      "elapsed_compute_s": 0.018635704996995628,
+      "end_checkpoint_bytes": 343,
+      "end_checkpoint_sha256": "ef6b56883e56ccdbacd09155b1d80dfa9fe3fc20d279c25c50c061c20a4b772d",
+      "end_observed_mass_moment": [
+        12.771588785051193,
+        18.72000000000655,
+        4.844559223546543,
+        13.875440776460005,
+        2.6568444498567123,
+        11.217243566821889
+      ],
+      "forecast_steps": 720,
+      "kinetic_bulk_speed_after_warmup_mps": 7.972213333333334,
+      "local_stationary_variance_u": 0.09643209876543213,
+      "mass_active_end_veh": 31.491588785057743,
+      "model_id": "kcmb_6moment_corridor_v1:126c207c4897eaa8556484fb7a921be979811d51477657a77391b551c2ee4914",
+      "peak_rss_kib_whole_python_process": 26560,
+      "pending_veh_by_class": [
+        0.0
+      ],
+      "selection_hypotheses": {
+        "speed_downweighted": {
+          "clock_slots_used": [
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53
+          ],
+          "holdout_mae_mps": 1.9701975256165083,
+          "holdout_rmse_mps": 2.029530473864696,
+          "observation_law_status": "HYPOTHETICAL_AFFINE_MICRO_PROBE_SELECTION",
+          "predicted_speed_mps_by_clock_slot": [
+            6.188282474383887,
+            6.188282474383487,
+            6.18828247438348,
+            6.188282474383475,
+            6.188282474383468,
+            6.1882824743834615,
+            6.188282474383456,
+            6.18828247438345,
+            6.188282474383444,
+            6.188282474383438,
+            6.188282474383431,
+            6.188282474383425
+          ],
+          "weights": {
+            "a0": 1.0,
+            "a1": 1.0,
+            "b0": -0.8,
+            "b1": -0.8
+          }
+        },
+        "speed_upweighted": {
+          "clock_slots_used": [
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53
+          ],
+          "holdout_mae_mps": 0.664758097600598,
+          "holdout_rmse_mps": 0.7326249589269165,
+          "observation_law_status": "HYPOTHETICAL_AFFINE_MICRO_PROBE_SELECTION",
+          "predicted_speed_mps_by_clock_slot": [
+            8.705676195201052,
+            8.705676195201217,
+            8.705676195201217,
+            8.705676195201223,
+            8.705676195201224,
+            8.705676195201226,
+            8.70567619520123,
+            8.705676195201232,
+            8.705676195201233,
+            8.705676195201237,
+            8.705676195201239,
+            8.70567619520124
+          ],
+          "weights": {
+            "a0": 1.0,
+            "a1": 1.0,
+            "b0": 1.0,
+            "b1": 1.0
+          }
+        },
+        "unweighted": {
+          "clock_slots_used": [
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53
+          ],
+          "holdout_mae_mps": 0.3725333333333325,
+          "holdout_rmse_mps": 0.5215466666666658,
+          "observation_law_status": "HYPOTHETICAL_AFFINE_MICRO_PROBE_SELECTION",
+          "predicted_speed_mps_by_clock_slot": [
+            7.972213333333334,
+            7.972213333333335,
+            7.972213333333335,
+            7.972213333333335,
+            7.972213333333334,
+            7.972213333333334,
+            7.972213333333334,
+            7.972213333333335,
+            7.972213333333334,
+            7.972213333333336,
+            7.972213333333335,
+            7.972213333333335
+          ],
+          "weights": {
+            "a0": 1.0,
+            "a1": 1.0,
+            "b0": 0.0,
+            "b1": 0.0
+          }
+        }
+      },
+      "source_veh_by_class": [
+        2900.0
+      ],
+      "steps_executed": 960,
+      "transport_variance_u_after_warmup": 0.08720068191585434,
+      "warmup_steps": 240
+    }
+  },
+  "city_observation_mechanism": "UNKNOWN_NOT_CLAIMED_AFFINE",
+  "claim_limit": "Matched speed-only numerical scenario, not physical V03 acceptance",
+  "empirical_validity": "CONDITIONAL_SCENARIO_SCORED_NOT_CALIBRATED_REAL_TRAFFIC",
+  "field_calibration_day": "2026-04-20",
+  "field_calibration_mean_mps": 7.972213333333333,
+  "field_holdout_day": "2026-04-27",
+  "field_holdout_mean_mps": 8.158479999999999,
+  "field_reference_baseline_holdout_rmse_mps": 0.5215466666666664,
+  "field_segment_id": "1221",
+  "field_source_sha256": {
+    "calibration": "0b3d2aa75beb7548de31417fe655ad270b3d5dcaaf392f11f6da8b8a0d93f85d",
+    "holdout": "0e17ba587c0ab29fbd19fe9d9d52c38ac08fa35e0ada6981ab0819c0fb061ca5"
+  },
+  "not_measured": [
+    "true road vehicle counts",
+    "road density or individual queue lengths",
+    "actual CTA inclusion weights or GPS reporting algorithm",
+    "actual speed limit, bus target U, micro Markov rates or relaxation time",
+    "true lane turning-pocket and signal geometry",
+    "individual bus GPS trajectories and travel-time distribution"
+  ],
+  "physical_parameter_identifiability": "NOT_IDENTIFIED_FROM_CTA_SPEED_ONLY",
+  "population_uncertainty": "single CTA estimated-speed holdout Monday and within-day correlation",
+  "project": "cosmosapjw-quantum/urban_traffic_demo",
+  "python": "3.12.3",
+  "real_KCMB_runtime_executed": true,
+  "scenario_boundary_status": "ASSUMED_SOURCE_FLOW_FOOTPRINT_LANES_U_RATE_TAU_AND_SINK",
+  "schema": "KCMB_PROBE_SCENARIO_HOLDOUT_20261119",
+  "valid_calibration_speed_rows": 12,
+  "valid_holdout_speed_rows": 12
+}

@@ -1,0 +1,223 @@
+{
+  "artifact_sha256": {
+    "artifacts/kcmb_field_20261119/SOURCE_MANIFEST.json": {
+      "bytes": 2108,
+      "sha256": "3596bdef37f6e11e2cc8d9ea201e41ba12527c69674136a9892402911e0f0dd2"
+    },
+    "artifacts/kcmb_probe_20261119/CARGO_CHECK.log": {
+      "bytes": 3145,
+      "sha256": "584a86977608cc260ba87eb7db04548066a777f188166e91cd3c107b9e379a54"
+    },
+    "artifacts/kcmb_probe_20261119/CARGO_TEST.log": {
+      "bytes": 7309,
+      "sha256": "d66568066f44d3ac76238a437f0c2b07e62608ef0416ddc1625bc82332458676"
+    },
+    "artifacts/kcmb_probe_20261119/CHICAGO_BUS_PROBE_SCENARIOS.json": {
+      "bytes": 12043,
+      "sha256": "ad253d30da21d7300601860d1ee5d5ea42013aa230dfc872950e2ab7a52036a6"
+    },
+    "artifacts/kcmb_probe_20261119/FIVE_REPEATS_PROBE_SCENARIOS.json": {
+      "bytes": 4358,
+      "sha256": "ae43617ec453b75add7eca132c90ca2861a8d7fee968bfe7109dc50846f61e14"
+    },
+    "artifacts/kcmb_probe_20261119/RUFF_CHECK.log": {
+      "bytes": 27,
+      "sha256": "cc71a8a0f5c45cfc6b104f42c25ee1090638efcab3d0666d4ade345cc6f48568"
+    },
+    "artifacts/kcmb_probe_20261119/SCOPED_PYTEST.txt": {
+      "bytes": 340,
+      "sha256": "59241da8cc68add88e7c21e5adc84fe46e894ecf632fb2de12b2ca3308f7949e"
+    },
+    "artifacts/kcmb_probe_20261119/repeats/round1_python.json": {
+      "bytes": 6907,
+      "sha256": "2bc58ad8d8cb6c096bdb40ed6003c5c0f305b59db35ca7701a5e953c8d1413c3"
+    },
+    "artifacts/kcmb_probe_20261119/repeats/round1_rust.json": {
+      "bytes": 6900,
+      "sha256": "388f75ccc700fcf2047023acf34755bbb1102152b98ffe25ab31702fb828f9b2"
+    },
+    "artifacts/kcmb_probe_20261119/repeats/round2_python.json": {
+      "bytes": 6908,
+      "sha256": "5fcfc0bf911d06ed603fb8f250dfccfc8aae9aff178d36695e66e3a400e2da70"
+    },
+    "artifacts/kcmb_probe_20261119/repeats/round2_rust.json": {
+      "bytes": 6900,
+      "sha256": "246880e3a0373fdc9a8bf7f48d52924cf30f396f9b2db816f2692f33ed63256e"
+    },
+    "artifacts/kcmb_probe_20261119/repeats/round3_python.json": {
+      "bytes": 6908,
+      "sha256": "e4cb9d7aab89c8a4c1a1cd9fdf3cb00b97137e323019c7e6f154429566f8b893"
+    },
+    "artifacts/kcmb_probe_20261119/repeats/round3_rust.json": {
+      "bytes": 6900,
+      "sha256": "f60bedb7a2038117de870dc10056d868a8ca155391ef902810c89936fdd64c97"
+    },
+    "artifacts/kcmb_probe_20261119/repeats/round4_python.json": {
+      "bytes": 6907,
+      "sha256": "3d3fd64c5c94a6cf363a53d36312eca138b51debcd7a4708f7f5024fa9a799a5"
+    },
+    "artifacts/kcmb_probe_20261119/repeats/round4_rust.json": {
+      "bytes": 6900,
+      "sha256": "a6360d954eaae4b1170142a92b0c7c09b21f2dc7526bf125366f5814a8de9a22"
+    },
+    "artifacts/kcmb_probe_20261119/repeats/round5_python.json": {
+      "bytes": 6907,
+      "sha256": "d3a09819cad494d49dd1c1a8e8dc3a0078b0c8fea09e8dc574d0e787149364df"
+    },
+    "artifacts/kcmb_probe_20261119/repeats/round5_rust.json": {
+      "bytes": 6900,
+      "sha256": "0125ed2284f660559858731e3b820c36d397cdafb3fd1573ed92bebd858ebc7e"
+    },
+    "docs/research/KCMB_PROBE_OBSERVATION_CODING_C1_C5_20261119_KO.md": {
+      "bytes": 4188,
+      "sha256": "2702a92e3b76c24b0e39bbce57814fe87117bc569d237c7aee8cec83825ee25b"
+    },
+    "docs/research/KCMB_PROBE_OBSERVATION_CODING_C6_C10_20261119_KO.md": {
+      "bytes": 10607,
+      "sha256": "9059e8e9195ea125657d4b7a1ba88e38a781d98f9f1d5d9b4411a940ffe938db"
+    },
+    "docs/research/KCMB_PROBE_OBSERVATION_THEORY_R1_R10_20261119_KO.md": {
+      "bytes": 10557,
+      "sha256": "d85a032bafb6ff94700543edd1e30733311e9aaa1e1631318f367281456de40e"
+    },
+    "src/metroflow/v1/kcmb_probe_observation.py": {
+      "bytes": 5197,
+      "sha256": "e7ea134825f018b19e551deb44e81023eaf2a297c128c62c6200e1c089527136"
+    },
+    "tests/research/test_kcmb_probe_field_scenarios_20261119.py": {
+      "bytes": 5377,
+      "sha256": "1ee7812d21a941baf51dc78df152460ba3542735b3704f0d75f168ce37786727"
+    },
+    "tests/research/test_kcmb_probe_observation_20261119.py": {
+      "bytes": 5472,
+      "sha256": "c60f43188bab4ee272c74f21de880ba2b1291c1e3dc62c0da29efbe0a3fc9187"
+    },
+    "tools/research/run_kcmb_probe_field_scenarios.py": {
+      "bytes": 12525,
+      "sha256": "bd23bb519e1c21d5670d59256a4fe49c0cc60a6c96366ca90e7b0a178bbb2f3f"
+    }
+  },
+  "created_kst": "2026-11-19T16:18:01+09:00",
+  "measured_scenario": {
+    "assumptions": {
+      "alpha_per_s": 0.2972222222222222,
+      "cell_count": 1,
+      "cell_length_m": 836.85888,
+      "declared_source_latent_probability": 0.5944444444444444,
+      "declared_source_speed_fraction": 0.5944444444444444,
+      "dt_s": 10.0,
+      "footprint_m": 8.0,
+      "lanes_assumed": 1,
+      "nu_per_s": 0.20277777777777778,
+      "observation_window_seconds": 600.0,
+      "p_calibration": 0.5944444444444444,
+      "signal_at_sink": "assumed_always_green",
+      "source_vehicle_equivalents_per_s": 0.3,
+      "start_mass_veh": 20.0,
+      "switch_sum_per_s": 0.5,
+      "tau_s": 3.0,
+      "vmax_assumed_mph": 30.0,
+      "vmax_mps": 13.4112
+    },
+    "experiment_repetitions": 5,
+    "frozen_local_variance_u": 0.09643209876543213,
+    "observed_holdout_rows": 12,
+    "python_max_mass_ledger_error_veh": 1.6370904631912708e-11,
+    "python_vs_rust_time_ratio": 1.599473892121172,
+    "real_field_days": [
+      "2026-04-20",
+      "2026-04-27"
+    ],
+    "real_field_source_sha256": {
+      "calibration": "0b3d2aa75beb7548de31417fe655ad270b3d5dcaaf392f11f6da8b8a0d93f85d",
+      "holdout": "0e17ba587c0ab29fbd19fe9d9d52c38ac08fa35e0ada6981ab0819c0fb061ca5"
+    },
+    "rust_max_mass_ledger_error_veh": 1.6825651982799172e-11,
+    "scenario_mae_mps": {
+      "speed_downweighted": 1.9701975256165085,
+      "speed_upweighted": 0.6647580976005983,
+      "unweighted": 0.37253333333333244
+    },
+    "scenario_rmse_mps": {
+      "speed_downweighted": 2.029530473864696,
+      "speed_upweighted": 0.7326249589269166,
+      "unweighted": 0.5215466666666656
+    },
+    "transport_variance_u": 0.08720068191585428
+  },
+  "next_executable": "Acquire actual CTA reporting protocol and site-specific boundary counts/signals or independent micro bus/vehicle trajectories; calibrate only identifiable parameters and evaluate multi-day actual dynamic KCMB with matched population.",
+  "publication": "FINAL_C6_C10_STAGE_LOCAL_COMMIT_AND_GITHUB_READBACK_PENDING",
+  "repo": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "KCMB_PROBE_SELECTION_OBSERVATION_R1_C10_20261119_V1",
+  "science": {
+    "actual_python_rust_KCMB_timesteps": "EXECUTED_MATCHED_SCENARIO",
+    "affine_probe_six_moment_operator": "DERIVED_AND_INDEPENDENT_PARTICLE_CHECKED",
+    "full_urban_KCMB_empirical_prediction": "NOT_VALIDATED",
+    "local_markov_stationary_six_moments": "DERIVED_AND_INDEPENDENT_GENERATOR_CHECKED",
+    "nonlinear_probe_selection_requires_higher_moments": "CONSTRUCTIVE_COUNTEREXAMPLE_VERIFIED",
+    "original_V03_100k_24h": "BLOCKED_0_OF_9",
+    "predicted_speed_vs_real_holdout": "CONDITIONAL_HYPOTHETICAL_SCENARIO_SCORED",
+    "real_CTA_sampling_law": "NOT_IDENTIFIED",
+    "real_input_flow_bus_class_law": "NOT_OBSERVED",
+    "source_gps_speed_records": "ACTUAL_24_CHICAGO_RAW_ROWS_HASH_VERIFIED",
+    "velocity_selection_variance_bias": "DERIVED_AND_NUMERICALLY_CHECKED"
+  },
+  "source": {
+    "base_field_sha": "916e5124dfa6f735cf067e596efa2b6c29411c9c",
+    "branch": "research/kcmb-probe-observation-20261119",
+    "coding_c1_c5_sha": "9745c7930dea182b659a7f7b8a1b0617a3ae9605",
+    "original_v03_draft_pr41_sha": "0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+    "protected_byte_sha256": {
+      "crates/metroflow-rust/src/v1_road.rs": "ee0a3df0f078a79955e9e4dd8ec8b5b2561db0fc042f34b7def808c87b565d19",
+      "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+      "src/metroflow/packet_network.py": "b04352ba72df7bfcf1651a2af52be59ad8d2131d349eb8c2e3bff7e081e072de",
+      "src/metroflow/v1/chicago_observations.py": "8964d79788aec113f1f7d1788eb8a4122429675f2df1235ace4c8417347fc559",
+      "src/metroflow/v1/kcmb.py": "9afd9a809fbea373a89a4bdf84d75bf2bbf4ef826c12e91f6bdc46e9c42224c9",
+      "src/metroflow/v1/kcmb_adaptive_fifo.py": "e65a05ab42fd13f4c93f57e05d0f2a4dccd4e7c31d3e18a1a876b24f29d46390",
+      "src/metroflow/v1/kcmb_network.py": "a1ebb16dc2da527138363bca5fc9bbad35de4de514a5140aa10cdea9a3bceeb7",
+      "src/metroflow/v1/kcmb_ordered_fifo.py": "d48563f79021188ab6e06b25d181a5203a52068b70601ed62dbee96a3719b974",
+      "src/metroflow/v1/kcmb_turn_pockets.py": "78033597abb242c5eea0ff0ca37bd90a5fcd5617b20be4b803d82ebf45476403"
+    },
+    "theory_sha": "96e5327c0cbd9e22455f6201747b9a4db0ea6432",
+    "worktree": "/home/cosmosapjw/worktrees/urban-traffic-kcmb-probes-20261119"
+  },
+  "stages": {
+    "C1_C5_remote_sha_verified": true,
+    "C6_C10_remote_sha": "PENDING_FINAL_STAGE_COMMIT_AND_PUSH",
+    "R1_R10_remote_sha_verified": true,
+    "coding": {
+      "C1": "EXECUTED_SCOPED",
+      "C10": "EXECUTED_SCOPED",
+      "C2": "EXECUTED_SCOPED",
+      "C3": "EXECUTED_SCOPED",
+      "C4": "EXECUTED_SCOPED",
+      "C5": "EXECUTED_SCOPED",
+      "C6": "EXECUTED_SCOPED",
+      "C7": "EXECUTED_SCOPED",
+      "C8": "EXECUTED_SCOPED",
+      "C9": "EXECUTED_SCOPED"
+    },
+    "theory": {
+      "R1": "DERIVED_SCOPED",
+      "R10": "DERIVED_SCOPED",
+      "R2": "DERIVED_SCOPED",
+      "R3": "DERIVED_SCOPED",
+      "R4": "DERIVED_SCOPED",
+      "R5": "DERIVED_SCOPED",
+      "R6": "DERIVED_SCOPED",
+      "R7": "DERIVED_SCOPED",
+      "R8": "DERIVED_SCOPED",
+      "R9": "DERIVED_SCOPED"
+    }
+  },
+  "verification": {
+    "cargo_check_workspace": "EXIT_0",
+    "full_repo_CI": "NOT_RUN",
+    "native_subagents": "NOT_RUN_TOOL_UNAVAILABLE",
+    "original_production_code_byte_unchanged": true,
+    "python_compile": "EXIT_0",
+    "python_scoped_passed": 263,
+    "ruff": "NOT_RUN_TOOL_UNAVAILABLE",
+    "rust_lib_passed": 61
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "claim": "not actual CTA selection law validation or inferred observed road density/flow",
+  "real_holdout_day": "2026-04-27",
+  "results": {
+    "python": {
+      "holdout_mae_mps": {
+        "speed_downweighted": 1.9701975256165085,
+        "speed_upweighted": 0.6647580976005983,
+        "unweighted": 0.37253333333333244
+      },
+      "holdout_rmse_mps": {
+        "speed_downweighted": 2.029530473864696,
+        "speed_upweighted": 0.7326249589269166,
+        "unweighted": 0.5215466666666656
+      },
+      "max_mass_ledger_error_veh": 1.6370904631912708e-11,
+      "max_output_speed_mps": {
+        "speed_downweighted": 6.188282474383887,
+        "speed_upweighted": 8.705676195201242,
+        "unweighted": 7.972213333333335
+      },
+      "max_rss_kib": [
+        24928,
+        24900,
+        25024,
+        24920,
+        25148
+      ],
+      "mean_kinetic_speed_mps_after_warmup": 7.972213333333334,
+      "median_time_s": 0.02799363702069968,
+      "min_output_speed_mps": {
+        "speed_downweighted": 6.188282474383425,
+        "speed_upweighted": 8.705676195201052,
+        "unweighted": 7.972213333333334
+      },
+      "scenario_assumptions": {
+        "alpha_per_s": 0.2972222222222222,
+        "cell_count": 1,
+        "cell_length_m": 836.85888,
+        "declared_source_latent_probability": 0.5944444444444444,
+        "declared_source_speed_fraction": 0.5944444444444444,
+        "dt_s": 10.0,
+        "footprint_m": 8.0,
+        "lanes_assumed": 1,
+        "nu_per_s": 0.20277777777777778,
+        "observation_window_seconds": 600.0,
+        "p_calibration": 0.5944444444444444,
+        "signal_at_sink": "assumed_always_green",
+        "source_vehicle_equivalents_per_s": 0.3,
+        "start_mass_veh": 20.0,
+        "switch_sum_per_s": 0.5,
+        "tau_s": 3.0,
+        "vmax_assumed_mph": 30.0,
+        "vmax_mps": 13.4112
+      },
+      "stationary_local_variance_u": 0.09643209876543213,
+      "times_s": [
+        0.027993637,
+        0.027978999,
+        0.029320056,
+        0.026677958,
+        0.03203947
+      ],
+      "transport_variance_u_after_warmup": 0.08720068191585428
+    },
+    "rust": {
+      "holdout_mae_mps": {
+        "speed_downweighted": 1.9701975256165083,
+        "speed_upweighted": 0.664758097600598,
+        "unweighted": 0.3725333333333325
+      },
+      "holdout_rmse_mps": {
+        "speed_downweighted": 2.029530473864696,
+        "speed_upweighted": 0.7326249589269165,
+        "unweighted": 0.5215466666666658
+      },
+      "max_mass_ledger_error_veh": 1.6825651982799172e-11,
+      "max_output_speed_mps": {
+        "speed_downweighted": 6.188282474383887,
+        "speed_upweighted": 8.70567619520124,
+        "unweighted": 7.972213333333336
+      },
+      "max_rss_kib": [
+        26444,
+        26652,
+        26560,
+        26728,
+        26712
+      ],
+      "mean_kinetic_speed_mps_after_warmup": 7.972213333333334,
+      "median_time_s": 0.017501778027508408,
+      "min_output_speed_mps": {
+        "speed_downweighted": 6.188282474383425,
+        "speed_upweighted": 8.705676195201052,
+        "unweighted": 7.972213333333334
+      },
+      "scenario_assumptions": {
+        "alpha_per_s": 0.2972222222222222,
+        "cell_count": 1,
+        "cell_length_m": 836.85888,
+        "declared_source_latent_probability": 0.5944444444444444,
+        "declared_source_speed_fraction": 0.5944444444444444,
+        "dt_s": 10.0,
+        "footprint_m": 8.0,
+        "lanes_assumed": 1,
+        "nu_per_s": 0.20277777777777778,
+        "observation_window_seconds": 600.0,
+        "p_calibration": 0.5944444444444444,
+        "signal_at_sink": "assumed_always_green",
+        "source_vehicle_equivalents_per_s": 0.3,
+        "start_mass_veh": 20.0,
+        "switch_sum_per_s": 0.5,
+        "tau_s": 3.0,
+        "vmax_assumed_mph": 30.0,
+        "vmax_mps": 13.4112
+      },
+      "stationary_local_variance_u": 0.09643209876543213,
+      "times_s": [
+        0.017501778,
+        0.016297499,
+        0.018635705,
+        0.016881028,
+        0.021163317
+      ],
+      "transport_variance_u_after_warmup": 0.08720068191585434
+    }
+  },
+  "scope": "Five isolated-process repetitions per backend. Same explicit physically hypothetical KCMB bus-labelled 1-cell setup, real City speed proxies for holdout scoring.",
+  "speed_ratio_python_over_rust_median_runtime": 1.599473892121172
+}
