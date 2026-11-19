@@ -1,0 +1,21 @@
+{
+  "actual_100k_full_calendar_residents": 100000,
+  "actual_simulated_seconds": 25300,
+  "calendar_exact_equal": true,
+  "new_checkpoint_binary_git_published": false,
+  "new_checkpoint_bytes": 83139202,
+  "new_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+  "new_final_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+  "new_source_binary_sha256": "a92f7062dfce43806116bdde3f3011e39d3fe43ff73f8d451a4546ee85a5b9e8",
+  "old_source_binary_sha256": "a4412d994d1354b82c67005ba9263cfeb3b759b3b18f39125b0f4a20f937acd5",
+  "peak_rss_bytes": 489623552,
+  "performance_claim": "single source-bound 25300s prefix, not whole-city overall acceleration",
+  "physical_ledger_exact_equal": true,
+  "reference_final_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+  "required_full_day_seconds": 86400,
+  "schema": "ORIGINAL_V03_EXACT_SERVED_STREAM_100K_VALLEY_25300_SCOPED_V1",
+  "source_original_rust_whole_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "source_physically_identical": true,
+  "v03_release": "BLOCKED_0/9",
+  "wall_s": 79.29635713699827
+}
