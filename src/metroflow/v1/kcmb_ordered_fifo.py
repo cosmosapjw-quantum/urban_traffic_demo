@@ -23,7 +23,7 @@ from .kcmb_network import (
     KCMBBoundedNetwork, KCMBNetworkConfig, KCMBNetworkState, progressive_junction,
 )
 
-_VERSION="kcmb_ordered_route_runs_v1"
+_VERSION="kcmb_ordered_route_runs_v2_eligible_prefix"
 _EPS=1e-13
 
 
@@ -285,7 +285,16 @@ class OrderedKCMBBoundedNetwork(KCMBBoundedNetwork):
                     k=front.route
                     if front.ready_tick>state.tick+1:continue
                     dest=self._next[i,k]
-                    d=min(front.mass,remaining[i][k],route_gated[i,k])
+                    # Numerical representation must not affect junction
+                    # priorities. The demand of one kinetic route is the
+                    # entire presently-eligible contiguous head PREFIX, not
+                    # merely the first arbitrary stored run fragment.
+                    prefix_mass=0.
+                    for run in old[i]:
+                        if run.route!=k or run.ready_tick>state.tick+1:
+                            break
+                        prefix_mass+=run.mass
+                    d=min(prefix_mass,remaining[i][k],route_gated[i,k])
                     if d<=_EPS:continue
                     candidates.append(((k,dest,d,
                         self.config.routes[k].vehicle.footprint_m),))
@@ -301,17 +310,35 @@ class OrderedKCMBBoundedNetwork(KCMBBoundedNetwork):
                     if flow<=_EPS:continue
                     requested=candidates[g][0][2]
                     if source_i is not None:
-                        # An IEEE subtraction can leave a sub-1e-12 veh
-                        # fragment at a head that was mathematically fully
-                        # served. The node cannot progress that fragment
-                        # (allocator resolution ~1e-12), which could freeze
-                        # an otherwise green lane forever. Charge the tiny
-                        # remainder as additional actual service rather than
-                        # discarding mass; expose its amount in the receipt.
-                        remaining_head=old[source_i][0].mass-flow
-                        if 0 < remaining_head <= 1e-12:
-                            flow=old[source_i][0].mass
-                            numeric_roundoff_charge_veh+=remaining_head
+                        # Atomically serve the physically eligible FIFO prefix.
+                        # This removes the artificial dependence on how many
+                        # adjacent same-route runs were stored. Tiny IEEE
+                        # remainders at a fully served head are *charged* as
+                        # actual flow rather than silently deleted or frozen.
+                        nominal_flow=flow
+                        to_serve=nominal_flow
+                        served=0.
+                        while to_serve>1e-14:
+                            if not old[source_i]:
+                                raise ArithmeticError("FIFO prefix exhausted before allocated flow")
+                            front=old[source_i][0]
+                            if front.route!=k or front.ready_tick>state.tick+1:
+                                raise ArithmeticError("FIFO prefix service crossed a route/clock barrier")
+                            remainder=front.mass-to_serve
+                            if remainder<=1e-12:
+                                served+=front.mass
+                                to_serve-=front.mass
+                                old[source_i].popleft()
+                            else:
+                                served+=to_serve
+                                old[source_i][0]=OrderedRun(
+                                    k,remainder,front.ready_tick)
+                                to_serve=0.
+                        flow=served
+                        if flow-nominal_flow>1e-10:
+                            raise ArithmeticError("FIFO excessive numerical completion charge")
+                        if flow>nominal_flow:
+                            numeric_roundoff_charge_veh+=(flow-nominal_flow)
                     if flow>requested+1e-10:
                         raise ArithmeticError("FIFO node exceeds proposed supply")
                     if dest is not None:
@@ -326,16 +353,6 @@ class OrderedKCMBBoundedNetwork(KCMBBoundedNetwork):
                     if source_i is None:
                         accepted[k]+=flow
                     else:
-                        front=old[source_i][0]
-                        if front.route!=k:
-                            raise ArithmeticError("route FIFO ordering violated")
-                        remainder=front.mass-flow
-                        if remainder < -1e-10:
-                            raise ArithmeticError("FIFO negative head mass")
-                        if remainder<=0:
-                            old[source_i].popleft()
-                        else:
-                            old[source_i][0]=OrderedRun(k,remainder,front.ready_tick)
                         remaining[source_i][k]-=flow
                         route_gated[source_i,k]-=flow
                         if dest is None:
