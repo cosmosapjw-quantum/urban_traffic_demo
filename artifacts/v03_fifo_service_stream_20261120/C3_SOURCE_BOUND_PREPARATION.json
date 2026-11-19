@@ -1,0 +1,55 @@
+{
+  "branch": "research/v03-fifo-service-stream-20261120",
+  "case_receipts": {
+    "coastal_weekend_s41": {
+      "binary_sha256": "a92f7062dfce43806116bdde3f3011e39d3fe43ff73f8d451a4546ee85a5b9e8",
+      "peak_rss_bytes": 1115811840,
+      "planned_legs": 2449750,
+      "receipt_sha256": "4b7ac6e44b50ed02e58a2aa665f732a3685722bfcca54119179d1d12f2ce9297",
+      "resident_stock": 100000.0,
+      "source_sha256": "2e3289a9f77080531198d7a75cd04c464d409b9c7bd3cb51e2ae116624aae15a",
+      "wall_s": 37.344777960999636
+    },
+    "river_weekday_s17": {
+      "binary_sha256": "a92f7062dfce43806116bdde3f3011e39d3fe43ff73f8d451a4546ee85a5b9e8",
+      "peak_rss_bytes": 2172178432,
+      "planned_legs": 5093765,
+      "receipt_sha256": "ac9b0445851786639f1615ec1f5f14a913db787ecf8f788b3e6bf381e4d41587",
+      "resident_stock": 100000.0,
+      "source_sha256": "2e3289a9f77080531198d7a75cd04c464d409b9c7bd3cb51e2ae116624aae15a",
+      "wall_s": 64.5975307789995
+    },
+    "valley_weekday_s7": {
+      "binary_sha256": "a92f7062dfce43806116bdde3f3011e39d3fe43ff73f8d451a4546ee85a5b9e8",
+      "peak_rss_bytes": 446676992,
+      "planned_legs": 918450,
+      "receipt_sha256": "807784c2efc82ae0c8724108a4ba771382bb175335a16246124fe44517c4fa94",
+      "resident_stock": 100000.0,
+      "source_sha256": "2e3289a9f77080531198d7a75cd04c464d409b9c7bd3cb51e2ae116624aae15a",
+      "wall_s": 21.308093389001442
+    }
+  },
+  "claim": "source-pinned calendar preparation ONLY, not execution of full-day physics",
+  "dags": {
+    "scoped_completed": 19,
+    "total": 21,
+    "v03_dependencies": 3
+  },
+  "native_binary_sha256": "a92f7062dfce43806116bdde3f3011e39d3fe43ff73f8d451a4546ee85a5b9e8",
+  "new_fitted_microphysical_coefficients": [],
+  "original_100k_city_preparations": {
+    "completed": 3,
+    "total": 3
+  },
+  "original_full_day_acceptance": {
+    "completed": 0,
+    "required": 9
+  },
+  "parent_code_commit": "557b83725cd0c785838dfb9f27188d8929f6d27b",
+  "plan_sha256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+  "release_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "schema": "V03_STREAMED_SERVED_SOURCE_BOUND_PREPARATION_V1",
+  "source_sha256": "2e3289a9f77080531198d7a75cd04c464d409b9c7bd3cb51e2ae116624aae15a",
+  "total_planned_legs": 8461965,
+  "v03_status": "BLOCKED"
+}

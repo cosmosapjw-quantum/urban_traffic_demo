@@ -1,0 +1,7 @@
+{
+  "native_binary_sha256": "a92f7062dfce43806116bdde3f3011e39d3fe43ff73f8d451a4546ee85a5b9e8",
+  "native_runtime_compiled": "RUST_WHOLE",
+  "source_commit": "557b83725cd0c785838dfb9f27188d8929f6d27b",
+  "source_dirty": false,
+  "source_sha256": "2e3289a9f77080531198d7a75cd04c464d409b9c7bd3cb51e2ae116624aae15a"
+}
