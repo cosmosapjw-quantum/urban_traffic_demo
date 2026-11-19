@@ -1,0 +1,55 @@
+{
+  "median_naive_over_sweep_ratio": 1.4498390546961015,
+  "model_tuning_parameters": [],
+  "ratios": [
+    1.4498390546961015,
+    1.3961400641671884,
+    1.4599797517829762,
+    1.2624205437400047,
+    1.4852732157221065
+  ],
+  "run_count": 5,
+  "samples": [
+    {
+      "file": "selection_round1.log",
+      "input_rows": 5000,
+      "naive_over_sweep": 1.4498390546961015,
+      "naive_selector_ns": 3896528,
+      "sweep_selector_ns": 2687559,
+      "unique_edges": 121
+    },
+    {
+      "file": "selection_round2.log",
+      "input_rows": 5000,
+      "naive_over_sweep": 1.3961400641671884,
+      "naive_selector_ns": 3946874,
+      "sweep_selector_ns": 2826990,
+      "unique_edges": 121
+    },
+    {
+      "file": "selection_round3.log",
+      "input_rows": 5000,
+      "naive_over_sweep": 1.4599797517829762,
+      "naive_selector_ns": 3890738,
+      "sweep_selector_ns": 2664926,
+      "unique_edges": 121
+    },
+    {
+      "file": "selection_round4.log",
+      "input_rows": 5000,
+      "naive_over_sweep": 1.2624205437400047,
+      "naive_selector_ns": 3433847,
+      "sweep_selector_ns": 2720050,
+      "unique_edges": 121
+    },
+    {
+      "file": "selection_round5.log",
+      "input_rows": 5000,
+      "naive_over_sweep": 1.4852732157221065,
+      "naive_selector_ns": 3803755,
+      "sweep_selector_ns": 2560980,
+      "unique_edges": 121
+    }
+  ],
+  "scope": "single Rust selected-row operation only, 5000 rows 121 edges, 4 repeats per benchmark; NOT whole V03 throughput"
+}

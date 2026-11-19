@@ -1,0 +1,352 @@
+{
+  "branch": "research/v03-fifo-interval-sweep-20261119",
+  "created_at_KST": "2026-11-19T19:15:49+09:00",
+  "native_checkpoint_local_only_sha256": {
+    "artifacts/v03_fifo_interval_sweep_20261119/prefix/valley_weekday_s7.native_sweep_25300.final.bin": {
+      "bytes": 83139202,
+      "published": false,
+      "sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/prefix/valley_weekday_s7.native_sweep_25300.last_valid.bin": {
+      "bytes": 29539674,
+      "published": false,
+      "sha256": "75b9cf3dbd436af962a0916c5dcdb7635615364193158b070974e46eb2861941"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/prefix/valley_weekday_s7.native_sweep_25600.final.bin": {
+      "bytes": 866763962,
+      "published": false,
+      "sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d"
+    }
+  },
+  "native_subagent": "NOT_RUN",
+  "next_falsifiable_work": "Derive and implement compositional provenance sharing of partially served original packet cohorts, preserving IEEE sequential multiplication, birth and route FIFO; compare exact congested 25600 to 25650 source receipts and require measurable packet memory growth suppression.",
+  "physical": {
+    "100k_city_calendar_preparations": {
+      "coastal_weekend_s41": {
+        "candidate_sha256": "ac9eb1466fb2f7e01d7595f9cec08cb45cd3c13b9041539350d64105dcb1e8ad",
+        "legs": 2449750,
+        "native_sha256": "45839b5dff542bebef7a9a9c8c036f1cdf1eb90a7040dc514189ed9fca828a04",
+        "peak_rss_bytes": 1116000256,
+        "resident_stock": 100000.0,
+        "sha256": "73e7624fa4e012bdcf1dc17c36f29eea579f9153ca4702e88a4f8a5b6e5a15b7",
+        "wall_s": 37.02426304802066
+      },
+      "river_weekday_s17": {
+        "candidate_sha256": "ac9eb1466fb2f7e01d7595f9cec08cb45cd3c13b9041539350d64105dcb1e8ad",
+        "legs": 5093765,
+        "native_sha256": "45839b5dff542bebef7a9a9c8c036f1cdf1eb90a7040dc514189ed9fca828a04",
+        "peak_rss_bytes": 2171011072,
+        "resident_stock": 100000.0,
+        "sha256": "db42c21d16e754cfd8047689999a363670b4e7dda77a95a2442fbd4fd731e5ae",
+        "wall_s": 64.45188682101434
+      },
+      "valley_weekday_s7": {
+        "candidate_sha256": "ac9eb1466fb2f7e01d7595f9cec08cb45cd3c13b9041539350d64105dcb1e8ad",
+        "legs": 918450,
+        "native_sha256": "45839b5dff542bebef7a9a9c8c036f1cdf1eb90a7040dc514189ed9fca828a04",
+        "peak_rss_bytes": 445890560,
+        "resident_stock": 100000.0,
+        "sha256": "66a47cd8ef914b283e949b49982a9848ce2892b307e674aef64d9a7cbbe087e4",
+        "wall_s": 22.71817538200412
+      }
+    },
+    "congested_25300_to_25600": {
+      "byte_identical_native_checkpoint": true,
+      "candidate_research_root": "/home/cosmosapjw/worktrees/urban-traffic-v03-interval-sweep-20261119",
+      "case": "valley_weekday_s7",
+      "created_at_utc": "2026-11-19T10:07:47+00:00",
+      "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+      "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+      "native_candidate_sha256": "45839b5dff542bebef7a9a9c8c036f1cdf1eb90a7040dc514189ed9fca828a04",
+      "native_old_sha256": "1e53ddf5f8fa8864e2cac9f8a2b8d0b3ffccc94f4c9de74832edb197a99f26a4",
+      "new_candidate_elapsed_seconds": 58.69664146902505,
+      "new_candidate_peak_rss_bytes": 2053570560,
+      "new_candidate_source_sha256": "ac9eb1466fb2f7e01d7595f9cec08cb45cd3c13b9041539350d64105dcb1e8ad",
+      "new_sweep_checkpoint_bytes": 866763962,
+      "new_sweep_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+      "old_candidate_source_sha256": "ddbdef9562dd9d7e0dacd66362d78a2da63e14ec764ee1db9ae49c9fc667d921",
+      "old_original_elapsed_seconds": 63.952030594984535,
+      "old_original_peak_rss_bytes": 1902956544,
+      "old_reference_checkpoint_bytes": 866763962,
+      "old_reference_output_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+      "original_full_day_accepted": false,
+      "original_process_address_space_limit_bytes": 8589934592,
+      "original_reference_root": "/home/cosmosapjw/worktrees/urban-traffic-kcmb-v03-physics-20261119",
+      "physical_ledger_exact_equal": true,
+      "physical_source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+      "reference_binary_saved_to_git": false,
+      "reference_end_time_s": 25600.0,
+      "reference_start_time_s": 25300.0,
+      "schema": "V03_ORIGINAL_VS_INDEXED_SWEEP_25600_V1",
+      "status": "BIT_IDENTICAL_CONGESTED_PREFIX",
+      "whole_city_100k_population_preserved": true
+    },
+    "fresh_0_to_25300": {
+      "native_checkpoint_bit_identical": true,
+      "native_final_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+      "new_rss_bytes": 489009152,
+      "new_wall_s": 84.98794711701339,
+      "old_rss_bytes": 490217472,
+      "old_wall_s": 107.74347102304455
+    },
+    "model_type": "ORIGINAL_V03_EXACT_INTERVAL_FIFO_RUST_WHOLE",
+    "per_process_address_space_limit_bytes": 8589934592
+  },
+  "publication": "LOCAL_STAGE_VERIFIED; FINAL_SHA_MUST_BE_READ_BACK_FROM_GITHUB_OUTSIDE_THIS_RECEIPT",
+  "readiness": {
+    "actual_nonzero_prefix_cities": {
+      "completed": 1,
+      "total": 3
+    },
+    "current_native_prepared_calendar": {
+      "completed": 3,
+      "total": 3
+    },
+    "current_node_status": "V03_BLOCKED",
+    "dag_completed_scoped": 19,
+    "dag_total": 21,
+    "original_full_day_accepted": {
+      "completed": 0,
+      "total": 9
+    },
+    "release_node_status": "RLS01_PLANNED",
+    "v03_dependencies": {
+      "completed": 3,
+      "total": 3
+    }
+  },
+  "repo": "cosmosapjw-quantum/urban_traffic_demo",
+  "resource": {
+    "checkpoint_growth_factor_300s": 10.425454432434893,
+    "new_25300_checkpoint_bytes": 83139202,
+    "new_25600_checkpoint_bytes": 866763962,
+    "old_25600_temp_checkpoint_discarded_after_sha": true,
+    "original_packet_genealogy_growth_blocker": "UNRESOLVED",
+    "selector_only_five_processes": {
+      "median_naive_over_sweep_ratio": 1.4498390546961015,
+      "model_tuning_parameters": [],
+      "ratios": [
+        1.4498390546961015,
+        1.3961400641671884,
+        1.4599797517829762,
+        1.2624205437400047,
+        1.4852732157221065
+      ],
+      "run_count": 5,
+      "samples": [
+        {
+          "file": "selection_round1.log",
+          "input_rows": 5000,
+          "naive_over_sweep": 1.4498390546961015,
+          "naive_selector_ns": 3896528,
+          "sweep_selector_ns": 2687559,
+          "unique_edges": 121
+        },
+        {
+          "file": "selection_round2.log",
+          "input_rows": 5000,
+          "naive_over_sweep": 1.3961400641671884,
+          "naive_selector_ns": 3946874,
+          "sweep_selector_ns": 2826990,
+          "unique_edges": 121
+        },
+        {
+          "file": "selection_round3.log",
+          "input_rows": 5000,
+          "naive_over_sweep": 1.4599797517829762,
+          "naive_selector_ns": 3890738,
+          "sweep_selector_ns": 2664926,
+          "unique_edges": 121
+        },
+        {
+          "file": "selection_round4.log",
+          "input_rows": 5000,
+          "naive_over_sweep": 1.2624205437400047,
+          "naive_selector_ns": 3433847,
+          "sweep_selector_ns": 2720050,
+          "unique_edges": 121
+        },
+        {
+          "file": "selection_round5.log",
+          "input_rows": 5000,
+          "naive_over_sweep": 1.4852732157221065,
+          "naive_selector_ns": 3803755,
+          "sweep_selector_ns": 2560980,
+          "unique_edges": 121
+        }
+      ],
+      "scope": "single Rust selected-row operation only, 5000 rows 121 edges, 4 repeats per benchmark; NOT whole V03 throughput"
+    }
+  },
+  "schema_version": "V03_EXACT_INTERVAL_SWEEP_R1_C10_PROVENANCE_20261119_V1",
+  "source": {
+    "coding_c1_c5_commit": "8c076bd1c1dd77e165314806ad9592d4a4177dda",
+    "new_candidate_sha256": "ac9eb1466fb2f7e01d7595f9cec08cb45cd3c13b9041539350d64105dcb1e8ad",
+    "new_native_sha256": "45839b5dff542bebef7a9a9c8c036f1cdf1eb90a7040dc514189ed9fca828a04",
+    "old_candidate_sha256": "ddbdef9562dd9d7e0dacd66362d78a2da63e14ec764ee1db9ae49c9fc667d921",
+    "old_native_sha256": "1e53ddf5f8fa8864e2cac9f8a2b8d0b3ffccc94f4c9de74832edb197a99f26a4",
+    "original_main_unchanged": "01c80b432344f94209daaa198bb1eb007839fc7f",
+    "original_source_schedule_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+    "parent_commit": "15d7546ade8b1ee6efe16f9a2a1b33cc1a1c2622",
+    "protected_file_hashes": {
+      "crates/metroflow-rust/src/v1_engine.rs": "afb182f39b196a2bb95ec788bf4422212ab4f56271931c77ec9c22e6897c9cab",
+      "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+      "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+      "src/metroflow/packet_network.py": "b04352ba72df7bfcf1651a2af52be59ad8d2131d349eb8c2e3bff7e081e072de",
+      "src/metroflow/v1/kcmb.py": "9afd9a809fbea373a89a4bdf84d75bf2bbf4ef826c12e91f6bdc46e9c42224c9",
+      "src/metroflow/v1/kcmb_network.py": "a1ebb16dc2da527138363bca5fc9bbad35de4de514a5140aa10cdea9a3bceeb7",
+      "src/metroflow/v1/native_engine.py": "cc92d92e92764faf4f707d987484187b9b44678b10b45dbd18ef6fc9a05d1afd",
+      "src/metroflow/v1/native_release_driver.py": "d60ea978a825fc437fb7f880be14b671d1697a17f64c6cd0af04c9b6a9729b0f",
+      "tools/run_v1_local_acceptance.py": "f364e6625a185920cd6e31a8ee249a564580a3dadb19872d19687dc4b64b7b24"
+    },
+    "release_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "theory_commit": "e868f1c11eef048df99a6713391523ed3abaeb88"
+  },
+  "source_files_sha256": {
+    "artifacts/v03_fifo_interval_sweep_20261119/.gitignore": {
+      "bytes": 91,
+      "sha256": "34713dd9ea75b069058e7c2ba4fe47ca6a619eb4b259e61b27d81376050a65d0"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/CARGO_CHECK.log": {
+      "bytes": 2276,
+      "sha256": "5de7c981a258ea90e2a70c9888036cb4bf3e0a652336df1d24a164af5dd2fcdc"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/CARGO_TEST.log": {
+      "bytes": 6892,
+      "sha256": "2d79d32dd15a9e06399a3791c6aba260b84db6d6ccb5ca6d92c6b6d794f7a0c5"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/OLD_VS_SWEEP_25600.json": {
+      "bytes": 1891,
+      "sha256": "1ee17efc0f13266d02fb3d7cde3d9531647dcaf60ff8b4c25dd994d58ed941b3"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/PLAN_VALIDATE.txt": {
+      "bytes": 197,
+      "sha256": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/READINESS_SOURCE_PINNED.json": {
+      "bytes": 3657,
+      "sha256": "d6082a7bb9fc104c8c6fbbede6671751408941a749e7ea00418ab1289a820971"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/RUFF_CHECK.log": {
+      "bytes": 25,
+      "sha256": "53e3d3809f736e8b50169a15b11e6ed589dbc117e28568a247ab8132207885b9"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/SCOPED_PYTEST.txt": {
+      "bytes": 340,
+      "sha256": "4284788f7e3d1622faf80177a7c86b3944972c8cab753f03be95b77a3dd36030"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/SELECTOR_FIVE_REPEAT_SUMMARY.json": {
+      "bytes": 1497,
+      "sha256": "5eacf9719d9d2a61488478c53adc96c4279608b60eab269869cfbe3e4c3766da"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/bench/selection_round1.log": {
+      "bytes": 2663,
+      "sha256": "158b4b5728626281391a671beaa02a4570380ef6ddb81b934b11ac9f47e01459"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/bench/selection_round2.log": {
+      "bytes": 2663,
+      "sha256": "44ce20a938fab84e9eebffbf22004be191b1c74c8962a8b6de07e40f76557435"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/bench/selection_round3.log": {
+      "bytes": 2663,
+      "sha256": "72ed129b6ee84d3257393fab1b7552f84f508e65a8962c1b4edc068a466526e2"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/bench/selection_round4.log": {
+      "bytes": 2663,
+      "sha256": "cb3cec6a138605e1b2a0c45d5ddf5adfc485fa48a71e04b329e09c8dc83d8301"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/bench/selection_round5.log": {
+      "bytes": 2663,
+      "sha256": "34a8c8e8745605ccac1f9f0ce04cd60318f8c31e6dd40523e5595b1ec370f0c3"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/prefix/valley_weekday_s7.native_sweep_25300.json": {
+      "bytes": 10472,
+      "sha256": "9b8bda52cf27c0b0cec758cd1e7478a1b854f321b7ac7a565d550477d07ef641"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/prefix/valley_weekday_s7.native_sweep_25300.progress.json": {
+      "bytes": 708,
+      "sha256": "64db0efd599a4126724d9d243aa794dbed1ca7981a7f2e351302cd85a9253c2e"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/prefix/valley_weekday_s7.native_sweep_25600.json": {
+      "bytes": 2505,
+      "sha256": "faafd676207956d2a229072c7804376181721d535c965ea0e826c7dd9b54212e"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/preparation/CAMPAIGN.json": {
+      "bytes": 7780,
+      "sha256": "e7d9ba95373795d856ea053d312526e7a47280d105a26e5c12ab138244012826"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/preparation/coastal_weekend_s41.prepare.json": {
+      "bytes": 6906,
+      "sha256": "73e7624fa4e012bdcf1dc17c36f29eea579f9153ca4702e88a4f8a5b6e5a15b7"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/preparation/coastal_weekend_s41.prepare.progress.json": {
+      "bytes": 692,
+      "sha256": "ed85fc05c435e157e2a42793e0d0b4cc22a1701916a31cb722cfde8af9c8e851"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/preparation/river_weekday_s17.prepare.json": {
+      "bytes": 6906,
+      "sha256": "db42c21d16e754cfd8047689999a363670b4e7dda77a95a2442fbd4fd731e5ae"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/preparation/river_weekday_s17.prepare.progress.json": {
+      "bytes": 687,
+      "sha256": "6a405f8f8fc617f08ea81a74f3ee2595061c8e253e526a8a86de352c13795ab1"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/preparation/valley_weekday_s7.prepare.json": {
+      "bytes": 6894,
+      "sha256": "66a47cd8ef914b283e949b49982a9848ce2892b307e674aef64d9a7cbbe087e4"
+    },
+    "artifacts/v03_fifo_interval_sweep_20261119/preparation/valley_weekday_s7.prepare.progress.json": {
+      "bytes": 687,
+      "sha256": "affda8831681065fa498a6ba67d5b2040058b865265a866cc5c8f3a4ddb1f500"
+    },
+    "crates/metroflow-rust/src/v1_road.rs": {
+      "bytes": 130445,
+      "sha256": "cf1621846f55a7c8437d5e140cfff5bcad461562f9e2d29d2c486249dd245848"
+    },
+    "docs/research/V03_FIFO_INTERVAL_SWEEP_CODING_C1_C5_20261119_KO.md": {
+      "bytes": 5238,
+      "sha256": "3d1e03b752fbbf4f75ed50f518442bcfa74fce01dbb6430a1832648c649a27b9"
+    },
+    "docs/research/V03_FIFO_INTERVAL_SWEEP_CODING_C6_C10_20261119_KO.md": {
+      "bytes": 8077,
+      "sha256": "acf8a5b8da395e97881bb881d9ab4e751704f40c6c160f224d03c57078767a41"
+    },
+    "docs/research/V03_FIFO_INTERVAL_SWEEP_THEORY_R1_R10_20261119_KO.md": {
+      "bytes": 7750,
+      "sha256": "a3e3851ac13001a18f4ff79f442e7ebfe20d6d5210181c7298c98424f14f32a3"
+    },
+    "tests/research/test_v03_sweep_original_physics_20261119.py": {
+      "bytes": 5036,
+      "sha256": "299cb3434f7b58310d7ab1f8f7c5144f2d6cb42b32965d3de1a0f155fc2c37fa"
+    },
+    "tests/research/test_v03_sweep_source_provenance_20261119.py": {
+      "bytes": 1254,
+      "sha256": "5d5da2e4f7c8b57a05b86c912da0dcd2a143bcfa2e81c0a57635a3353bd52285"
+    },
+    "tools/research/compare_v03_25600_old_vs_sweep.py": {
+      "bytes": 7877,
+      "sha256": "7a023850f98cebf3c1ea6fd6775ba712d98823fc9c184153ad4ef09044f3f516"
+    },
+    "tools/research/continue_original_v03_prefix.py": {
+      "bytes": 9194,
+      "sha256": "4f3da8ac6fbd6d76d30eba5d4a0b9bd1c82f897f455855865901cee93a59a88f"
+    }
+  },
+  "theory": {
+    "interval_sweep_predicate": "DERIVED_CONDITIONAL_FINITE_ENDPOINT",
+    "no_new_fitted_traffic_coefficients": true,
+    "original_fsum_order": "IMPLEMENTATION_VERIFIED_RUST_MICRO_AND_EXACT_BINARY",
+    "original_model_replaced": false
+  },
+  "verification": {
+    "cargo_workspace_tests_check": "EXIT_0",
+    "full_repo_CI": "NOT_RUN",
+    "local_binary_checks_passed": true,
+    "original_plan_validated": "VALID_PLAN_NOT_RELEASE",
+    "prior_native_pinned_tests": "EXCLUDED_STALE_BASE_BINARY_SHA",
+    "python_compile": "EXIT_0",
+    "python_scoped_passed": 282,
+    "rust_lib_passed": 64,
+    "rust_microbenchmark_ignored_in_regular_suite": 1
+  }
+}

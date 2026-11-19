@@ -72,6 +72,15 @@ def validate_start_binding(
     return "ORIGINAL_V03_PREFIX_BINDING_VERIFIED"
 
 
+def bounded_sweep_target_seconds(start_s:float, end_s:float, full_horizon_s:float)->float:
+    """Strict research-only 25,600s extension, not a V03 release horizon."""
+    if (not math.isfinite(start_s) or not math.isfinite(end_s) or
+        not math.isfinite(full_horizon_s) or not start_s<end_s<=25600 or
+        end_s%10!=0 or end_s>=full_horizon_s):
+        raise ValueError("bounded original V03 sweep prefix target invalid (max 25600s)")
+    return end_s
+
+
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--case",required=True)
@@ -90,11 +99,7 @@ def main():
     if case is None:
         raise ValueError("case absent from original release matrix")
     t0=float(src["simulated_s"])
-    if (not math.isfinite(args.until_s) or
-        not t0<args.until_s<=25300 or
-        args.until_s%10!=0 or
-        args.until_s>=matrix["horizon_s"]):
-        raise ValueError("bounded original prefix target must be a 10s tick <=25300")
+    bounded_sweep_target_seconds(t0,args.until_s,matrix["horizon_s"])
     source_sha=candidate_provenance()
     if source_sha["status"]!="MEASURED":
         raise ValueError("native source provenance could not be measured")

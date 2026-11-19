@@ -1,0 +1,2 @@
+# Keep large exact native checkpoint bytes local, commit hashed small receipts only.
+*.bin
