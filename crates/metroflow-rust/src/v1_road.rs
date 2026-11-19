@@ -822,6 +822,22 @@ fn clone_packets(packets: &[Packet]) -> PyResult<Vec<Packet>> {
     }
     Ok(result)
 }
+/// Exact original Part-by-Part served view without allocating the temporary
+/// served Vec. The caller must retain original per-row order and sum order.
+/// In particular do NOT replace sum(rounded_m_i) by f * sum(m_i).
+fn served_parts(parts: &PacketParts, f: f64) -> impl Iterator<Item = Part> + '_ {
+    parts.iter().filter_map(move |p| {
+        let m = p.mass * f;
+        if m > 0.0 {
+            let mut q = p;
+            q.mass = m;
+            q.birth *= f;
+            Some(q)
+        } else {
+            None
+        }
+    })
+}
 fn portion(parts: &PacketParts, f: f64) -> PyResult<Vec<Part>> {
     let mut result = checkpoint_vec(if f == 0.0 { 0 } else { parts.len() })?;
     for p in parts {

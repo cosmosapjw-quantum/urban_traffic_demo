@@ -612,3 +612,75 @@ mod shadow_event_consumer_tests {
         // the shadow intentionally does not claim transactional atomicity.
     }
 }
+
+#[cfg(test)]
+mod original_served_stream_oracles {
+    use super::*;
+    use super::super::served_parts;
+
+    fn fields(p:Part)->(usize,usize,u64,u64,Option<u64>,Option<u64>) {
+        (p.tag,p.offset,p.mass.to_bits(),p.birth.to_bits(),
+         p.a.option().map(f64::to_bits),p.b.option().map(f64::to_bits))
+    }
+
+    #[test]
+    fn original_portion_vs_served_iterator_are_exact_for_mixed_and_uniform() {
+        let mut rows=Vec::new();
+        rows.push(Part {tag:3,offset:1,mass:0.1,birth:0.3,
+            a:PackedTime::new(Some(-0.0)).unwrap(),b:PackedTime::new(Some(2.0)).unwrap()});
+        rows.push(Part {tag:4,offset:2,mass:f64::from_bits(1),birth:f64::from_bits(1),
+            a:PackedTime::new(Some(0.0)).unwrap(),b:PackedTime::new(Some(2.0)).unwrap()});
+        for i in 0..159usize {
+            rows.push(Part {tag:i%9,offset:i%3,
+                mass:(i as f64+1.0)/1300.0,
+                birth:(i as f64+0.2)/5300.0,
+                a:PackedTime::new(Some(0.0)).unwrap(),
+                b:PackedTime::new(Some(if i%3==0 {2.0} else {3.0})).unwrap()});
+        }
+        let mixed=PacketParts::pack(rows.clone(), |_|Ok(())).unwrap();
+        let uniform=PacketParts::pack(rows.iter().copied().map(|mut p|{
+            p.a=PackedTime::new(Some(0.0)).unwrap();
+            p.b=PackedTime::new(Some(1.0)).unwrap(); p
+        }).collect(), |_|Ok(())).unwrap();
+        for packet in [&mixed,&uniform] {
+            for fraction in [0.0,1.0,0.3,0.7,f64::from_bits(1),-0.0] {
+                let eager=portion(packet,fraction).unwrap();
+                let streamed=served_parts(packet,fraction).collect::<Vec<_>>();
+                assert_eq!(eager.iter().copied().map(fields).collect::<Vec<_>>(),
+                           streamed.iter().copied().map(fields).collect::<Vec<_>>());
+                let eager_sum=super::super::sum(eager.iter().map(|p|p.mass));
+                let stream_sum=super::super::sum(served_parts(packet,fraction).map(|p|p.mass));
+                assert_eq!(eager_sum.to_bits(),stream_sum.to_bits());
+            }
+        }
+    }
+
+    #[test]
+    fn deterministic_random_head_stream_preserves_ieee_first_birth_moment_and_sum() {
+        let mut seed=0x2026_1120_aabb_u64;
+        for len in [1usize,17,128,1024] {
+            let mut rows=Vec::new();
+            for i in 0..len {
+                seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                let mass=f64::from_bits(0x3fb0000000000000+(seed&0xffff));
+                seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                let birth=f64::from_bits(0x3fa0000000000000+(seed&0xffff));
+                rows.push(Part{tag:i%11,offset:i%4,mass,birth,
+                    a:PackedTime::new(Some(0.0)).unwrap(),
+                    b:PackedTime::new(Some(2.0)).unwrap()});
+            }
+            let pack=PacketParts::pack(rows, |_|Ok(())).unwrap();
+            for step in 0..23 {
+                let fraction=((step*71+17)%1024) as f64/1024.0;
+                let eager=portion(&pack,fraction).unwrap();
+                let got=served_parts(&pack,fraction).collect::<Vec<_>>();
+                assert_eq!(eager.iter().copied().map(fields).collect::<Vec<_>>(),
+                    got.iter().copied().map(fields).collect::<Vec<_>>());
+                assert_eq!(
+                    super::super::sum(eager.iter().map(|p|p.mass)).to_bits(),
+                    super::super::sum(served_parts(&pack,fraction).map(|p|p.mass)).to_bits()
+                );
+            }
+        }
+    }
+}
