@@ -1,0 +1,450 @@
+{
+  "artifacts_sha256": {
+    "artifacts/kcmb_turn_pocket_20261119/CARGO_CHECK.log": {
+      "bytes": 2276,
+      "sha256": "86a8de3fd2a0a9a1ce78d4cea75a48b93483b9e5dbfe56384781fe478b1ea607"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/CARGO_TEST.log": {
+      "bytes": 6439,
+      "sha256": "6aa064e8646e886cc4d40b4874dd5057554f0b78c471b0d2a76e72d4f7345c0d"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/FIVE_REPEAT_GEOMETRY_COMPARISON.json": {
+      "bytes": 5091,
+      "sha256": "9c0ff12ddf10846a15e62d3b6b67b0314826a09fba32f0660701ddb4e1c4020b"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/RUFF_CHECK.log": {
+      "bytes": 25,
+      "sha256": "ec9638e964f550c94e6685eb4cf3d954233c80f5331022be91aecf70b490a157"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/SCOPED_PYTEST.txt": {
+      "bytes": 340,
+      "sha256": "68e5431ea3c169eabb79b23c0bc2d1feaa1d6815438dcc5337cafd7f38173835"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/coarse_one_lane_python.json": {
+      "bytes": 2623,
+      "sha256": "fcf1ababbffa836f12fb3f04904128b2ee92ac5fb8d0a2939f103536b6a96398"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/coarse_one_lane_rust.json": {
+      "bytes": 2621,
+      "sha256": "19cfe55acea3f4de0ac816a0421cfed3015f44397f115b8bae7a8cd7cc66cae7"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/mixed_one_pocket_python.json": {
+      "bytes": 2666,
+      "sha256": "b1ba14661f150e4804ecb027580b6117d3f52d2f56813ef7b1835728072d9a1a"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/mixed_one_pocket_rust.json": {
+      "bytes": 2665,
+      "sha256": "c245cd80fbbefe923fcad89e37ef1be6df62558bbc34b9f01a99f02889fe9e8d"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r1_coarse_one_lane_python.json": {
+      "bytes": 2623,
+      "sha256": "a1cdcf412c9a4afb861bfc41787725e3b5c95867e33a29bdddae3f276a0264d3"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r1_coarse_one_lane_rust.json": {
+      "bytes": 2622,
+      "sha256": "85070ed2eb6c31250b3fb6ce58fd48d0b48cacc391ef08d9ccfaa3168bfd0a6e"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r1_mixed_one_pocket_python.json": {
+      "bytes": 2667,
+      "sha256": "a23768a991c3d31758af21a48cd3100c2c3509e63384e3484a4c353022573624"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r1_mixed_one_pocket_rust.json": {
+      "bytes": 2664,
+      "sha256": "94f7ec77517fb3b4320575000949e97923ff40c9f5b24715f91e2624f25a21c4"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r1_split_two_pockets_python.json": {
+      "bytes": 2712,
+      "sha256": "2b3be1f1ecb89e89c3933c9ba774acae4a1d6618184e9e7b920356c3e64f6705"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r1_split_two_pockets_rust.json": {
+      "bytes": 2709,
+      "sha256": "884e187e4b1a8748abfad21b3db339541aca53b530805da6edb8ca43b2ed11ed"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r2_coarse_one_lane_python.json": {
+      "bytes": 2623,
+      "sha256": "1326d0bc1ccab631c1171a8012572af148de348abb4f0379d3a0ab5f4279078e"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r2_coarse_one_lane_rust.json": {
+      "bytes": 2622,
+      "sha256": "10be3c9948a8b1d2db70a469c365bafa30aee80dac9a2be281a1338612eb653f"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r2_mixed_one_pocket_python.json": {
+      "bytes": 2665,
+      "sha256": "d2e465b71308b16fc9fa9f9fa3a98d70ad182ffc993dbca206f8495e25afa5fc"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r2_mixed_one_pocket_rust.json": {
+      "bytes": 2665,
+      "sha256": "c5488e90645c437baaba0b2b7c3d2bc870e1a9854bfc54dedaf23c68e06f134c"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r2_split_two_pockets_python.json": {
+      "bytes": 2711,
+      "sha256": "89a8f8526809d06f7ccac5c312774ffaf08e6d9a75324fe455c4f592b108b951"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r2_split_two_pockets_rust.json": {
+      "bytes": 2709,
+      "sha256": "d4f09ed3d2cd62203ec225cf2b64ab230782b60c4eac0bf6ab286357d2bfcebd"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r3_coarse_one_lane_python.json": {
+      "bytes": 2621,
+      "sha256": "d55e508005eaa66b1b826f45a58a40546d4e218ec170b24c1d93adfda9905299"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r3_coarse_one_lane_rust.json": {
+      "bytes": 2621,
+      "sha256": "d0e3ff5b5d30b91b32afebccbdfa1f1360021510c4356495364de4a40a042107"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r3_mixed_one_pocket_python.json": {
+      "bytes": 2667,
+      "sha256": "547d7ea1bc966cf2813e4639e48d6a8bfaa1eda9b965b5835e58898dbc30adc9"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r3_mixed_one_pocket_rust.json": {
+      "bytes": 2664,
+      "sha256": "3603a9160ff4b3d79d1d2b3af683595b34743100759550d4da094b7384215a88"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r3_split_two_pockets_python.json": {
+      "bytes": 2711,
+      "sha256": "45cb84530bec9262bb16031b74bc62698ddf1ddfaab3e76d4b6d367ce3ced55a"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r3_split_two_pockets_rust.json": {
+      "bytes": 2709,
+      "sha256": "cc331c421ca174dcf955752ad441fae0d1253c39bdee72b25cb05150cbf2f8ab"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r4_coarse_one_lane_python.json": {
+      "bytes": 2624,
+      "sha256": "5347b5d9a5c9f9aa02533bdad24869637c188be35140c13257004d9fc1f639bf"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r4_coarse_one_lane_rust.json": {
+      "bytes": 2622,
+      "sha256": "5c7501f23b7098c9e96e40a4541c7b0bb45b36de78c6cf1574aa9bf2ebc3a6bd"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r4_mixed_one_pocket_python.json": {
+      "bytes": 2664,
+      "sha256": "47374207e34d8c586f7c1d154ba3c71f1e6be880f8e62a7030a29c6420a16508"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r4_mixed_one_pocket_rust.json": {
+      "bytes": 2664,
+      "sha256": "a50a7d13da4aec5ef831baf3de853f9be44b510e61a9f597736f5c1ac0f4e7bd"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r4_split_two_pockets_python.json": {
+      "bytes": 2710,
+      "sha256": "6f27fab87b08a1902c47d255933e3973402582b1ea3ec68987c0e67e0430c57b"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r4_split_two_pockets_rust.json": {
+      "bytes": 2709,
+      "sha256": "6d228cbb1943fa4b6753dde1e0e71f122045ac34c7fd3e128843fc6e068320c8"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r5_coarse_one_lane_python.json": {
+      "bytes": 2623,
+      "sha256": "118947ef8d151d02e477d889feefb820e1cfbc90ea2d3451f41dac29947ce253"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r5_coarse_one_lane_rust.json": {
+      "bytes": 2622,
+      "sha256": "a2ba618c9dee4ff9f52a472dfcd2b1b15c9b1a1d566fd2f574264f0a94eb336f"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r5_mixed_one_pocket_python.json": {
+      "bytes": 2667,
+      "sha256": "6525c9602743670cda83350e2d727844655ff96a1de0c37c539dff579efa25a2"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r5_mixed_one_pocket_rust.json": {
+      "bytes": 2664,
+      "sha256": "c8ef42c73cc4bda44fb8603bdb6ddabcf0c7fbcaa1c8aaf1ad66096cc4dda90c"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r5_split_two_pockets_python.json": {
+      "bytes": 2712,
+      "sha256": "d684d022f466b6ef8db1976251077f219e994390e4619b8a641838b0a18fd2ca"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/repeats/r5_split_two_pockets_rust.json": {
+      "bytes": 2710,
+      "sha256": "8c55246ca6080910f9dcf56d03324199fdb2d2d002529d0dcb50163393ad0c20"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/split_two_pockets_python.json": {
+      "bytes": 2711,
+      "sha256": "2afb0cc1caaaf29ff6db594372ea2e589cb5a0a4ba6e7361294f58879da9f577"
+    },
+    "artifacts/kcmb_turn_pocket_20261119/split_two_pockets_rust.json": {
+      "bytes": 2708,
+      "sha256": "f0049e3c9a2a18cbd3da714a07e224c719a439d5707b6f8949c1f79add773665"
+    },
+    "docs/research/KCMB_TURN_POCKET_CODING_C1_C5_20261119_KO.md": {
+      "bytes": 5231,
+      "sha256": "4b61e353095b3b4d9cdf033d047a89a4ee2954ebbba86ba1faf753b6026fb3f7"
+    },
+    "docs/research/KCMB_TURN_POCKET_CODING_C6_C10_20261119_KO.md": {
+      "bytes": 6940,
+      "sha256": "13715cdb6fdaa4e57932b92a90876068d3419aba2e8bec9d078dec3908510939"
+    },
+    "docs/research/KCMB_TURN_POCKET_THEORY_R1_R10_20261119_KO.md": {
+      "bytes": 10459,
+      "sha256": "3dea8388c99d7b95e81d93982058ebf6993e77a851383e0b6f76a88a6bf49ee3"
+    },
+    "src/metroflow/v1/kcmb_turn_pockets.py": {
+      "bytes": 7846,
+      "sha256": "78033597abb242c5eea0ff0ca37bd90a5fcd5617b20be4b803d82ebf45476403"
+    },
+    "tests/research/test_kcmb_turn_pockets_20261119.py": {
+      "bytes": 10208,
+      "sha256": "16801a1fe6df9d32f38548755497920b8444ba1aa50cccf9bc839c109b732a5d"
+    },
+    "tools/research/bench_kcmb_turn_pockets.py": {
+      "bytes": 5815,
+      "sha256": "6ac95259926e83f12e3511cfdf744315cc84e37468ef7aeb2a6374e2c2ed9f7a"
+    }
+  },
+  "kind": "KCMB_TURN_POCKET_C1_C10_SCOPED_EVIDENCE",
+  "measured_synthetic_model_sensitivity": {
+    "description": "5 separate independent processes each backend and variant, alternating backend order",
+    "field_data_comparison": "NOT_MEASURED",
+    "geometry_statistics": {
+      "coarse_one_lane": {
+        "python": {
+          "lane_geometry": {
+            "approach_lane_metres": 100.0,
+            "extra_widened_lane_metres": 0.0,
+            "total_physical_lane_metres": 100.0
+          },
+          "links": 3,
+          "max_class_ledger_error_veh": 8.881784197001252e-15,
+          "mean_B_complete_before_A_green": 0.0,
+          "median_total_step_s": 0.047299304,
+          "rss_kib": [
+            24580,
+            24036,
+            24172,
+            24468,
+            24764
+          ],
+          "state_scalars": 42,
+          "timed_s": [
+            0.048072726,
+            0.047299304,
+            0.047249534,
+            0.049505904,
+            0.047058467
+          ]
+        },
+        "rust": {
+          "lane_geometry": {
+            "approach_lane_metres": 100.0,
+            "extra_widened_lane_metres": 0.0,
+            "total_physical_lane_metres": 100.0
+          },
+          "links": 3,
+          "max_class_ledger_error_veh": 8.881784197001252e-15,
+          "mean_B_complete_before_A_green": 0.0,
+          "median_total_step_s": 0.040878348,
+          "rss_kib": [
+            25592,
+            25436,
+            25904,
+            25860,
+            25708
+          ],
+          "state_scalars": 42,
+          "timed_s": [
+            0.040878348,
+            0.040174872,
+            0.04017902,
+            0.042342822,
+            0.041672141
+          ]
+        }
+      },
+      "mixed_one_pocket": {
+        "python": {
+          "lane_geometry": {
+            "approach_lane_metres_after": 100.0,
+            "approach_lane_metres_before": 100.0,
+            "extra_widened_lane_metres": 0.0,
+            "pocket_region_lanes": 1
+          },
+          "links": 4,
+          "max_class_ledger_error_veh": 8.881784197001252e-15,
+          "mean_B_complete_before_A_green": 0.0,
+          "median_total_step_s": 0.071036979,
+          "rss_kib": [
+            24832,
+            24356,
+            24220,
+            24356,
+            24276
+          ],
+          "state_scalars": 54,
+          "timed_s": [
+            0.072646414,
+            0.070567602,
+            0.070970269,
+            0.0719776,
+            0.071036979
+          ]
+        },
+        "rust": {
+          "lane_geometry": {
+            "approach_lane_metres_after": 100.0,
+            "approach_lane_metres_before": 100.0,
+            "extra_widened_lane_metres": 0.0,
+            "pocket_region_lanes": 1
+          },
+          "links": 4,
+          "max_class_ledger_error_veh": 8.881784197001252e-15,
+          "mean_B_complete_before_A_green": 0.0,
+          "median_total_step_s": 0.060899073,
+          "rss_kib": [
+            25424,
+            25588,
+            25244,
+            25428,
+            25756
+          ],
+          "state_scalars": 54,
+          "timed_s": [
+            0.058586814,
+            0.059621733,
+            0.060899073,
+            0.061825008,
+            0.061237562
+          ]
+        }
+      },
+      "split_two_pockets": {
+        "python": {
+          "lane_geometry": {
+            "approach_lane_metres_after": 130.0,
+            "approach_lane_metres_before": 100.0,
+            "extra_widened_lane_metres": 30.0,
+            "pocket_region_lanes": 2
+          },
+          "links": 5,
+          "max_class_ledger_error_veh": 1.0658141036401503e-14,
+          "mean_B_complete_before_A_green": 5.611092185827814,
+          "median_total_step_s": 0.065912882,
+          "rss_kib": [
+            24460,
+            24072,
+            24596,
+            24596,
+            24676
+          ],
+          "state_scalars": 66,
+          "timed_s": [
+            0.065912882,
+            0.06453916,
+            0.06471571,
+            0.067547262,
+            0.066087461
+          ]
+        },
+        "rust": {
+          "lane_geometry": {
+            "approach_lane_metres_after": 130.0,
+            "approach_lane_metres_before": 100.0,
+            "extra_widened_lane_metres": 30.0,
+            "pocket_region_lanes": 2
+          },
+          "links": 5,
+          "max_class_ledger_error_veh": 1.0658141036401503e-14,
+          "mean_B_complete_before_A_green": 5.611092185827814,
+          "median_total_step_s": 0.054065551,
+          "rss_kib": [
+            25792,
+            25988,
+            25916,
+            25532,
+            25980
+          ],
+          "state_scalars": 66,
+          "timed_s": [
+            0.053342258,
+            0.053275241,
+            0.054065551,
+            0.059074406,
+            0.055120501
+          ]
+        }
+      }
+    },
+    "paired_backend_accuracy": {
+      "coarse_one_lane": {
+        "max_final_class_mass_diff_veh": 0.0,
+        "median_speed_ratio_python_over_rust_node": 1.1570747428443047
+      },
+      "mixed_one_pocket": {
+        "max_final_class_mass_diff_veh": 0.0,
+        "median_speed_ratio_python_over_rust_node": 1.1664706127792783
+      },
+      "split_two_pockets": {
+        "max_final_class_mass_diff_veh": 0.0,
+        "median_speed_ratio_python_over_rust_node": 1.2191290161825965
+      }
+    },
+    "physics": "3 deliberate geometry alternatives; same external OD + traffic light; not same physical state",
+    "warning": "Comparisons across geometries are model sensitivity, not a speedup claim"
+  },
+  "next_science": "Use actual permitted lane/pocket geometry and real observations; conditionally model upstream multi-lane dynamics only with physical proof.",
+  "record_created_kst": "2026-11-19T13:01:32+09:00",
+  "remote_push": "PENDING_C10_COMMIT",
+  "science": {
+    "conditional_shared_upstream_FIFO": "NUMERICALLY_CHECKED",
+    "dedicated_turn_pockets": "NUMERICALLY_CHECKED_SYNTHETIC_ONLY",
+    "exact_per_vehicle_kinetics": "NOT_IMPLEMENTED",
+    "minimum_freeflow_discretization_delay_bound": "DERIVED_AND_CHECKED",
+    "multi_lane_upstream_car_following": "NOT_IMPLEMENTED",
+    "observational_realism": "NOT_MEASURED",
+    "original_V03_24h_3cities": "BLOCKED_0_OF_9",
+    "physical_original_geometry_identity": "FALSE_EXPLICIT_WIDENING",
+    "production_road_default_modified": false,
+    "topology_lane_meter_ledger": "DERIVED_AND_NUMERICALLY_CHECKED"
+  },
+  "source": {
+    "branch": "research/kcmb-turn-pocket-20261119",
+    "code_C1_C5_sha": "00bd29a1a630372ea1539be1abe02b9c39185b42",
+    "original_v03_pr41_sha": "0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+    "parent_adaptive_sha": "6e691bd7d29476db62a7cc69e00e5ede367ce03e",
+    "protected_sha256": {
+      "crates/metroflow-rust/src/v1_road.rs": "ee0a3df0f078a79955e9e4dd8ec8b5b2561db0fc042f34b7def808c87b565d19",
+      "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+      "src/metroflow/packet_network.py": "b04352ba72df7bfcf1651a2af52be59ad8d2131d349eb8c2e3bff7e081e072de",
+      "src/metroflow/v1/kcmb_adaptive_fifo.py": "e65a05ab42fd13f4c93f57e05d0f2a4dccd4e7c31d3e18a1a876b24f29d46390",
+      "src/metroflow/v1/kcmb_network.py": "a1ebb16dc2da527138363bca5fc9bbad35de4de514a5140aa10cdea9a3bceeb7",
+      "src/metroflow/v1/kcmb_ordered_fifo.py": "d48563f79021188ab6e06b25d181a5203a52068b70601ed62dbee96a3719b974",
+      "src/metroflow/v1/kcmb_turn_pockets.py": "78033597abb242c5eea0ff0ca37bd90a5fcd5617b20be4b803d82ebf45476403"
+    },
+    "repository": "cosmosapjw-quantum/urban_traffic_demo",
+    "theory_R1_R10_sha": "fdad9d963d9720dc12ebe29bac0e0e582ce2acf6",
+    "worktree": "/home/cosmosapjw/worktrees/urban-traffic-kcmb-pocket-20261119"
+  },
+  "stages": {
+    "coding": {
+      "C1": "SCOPED_EXECUTED",
+      "C10": "SCOPED_EXECUTED",
+      "C2": "SCOPED_EXECUTED",
+      "C3": "SCOPED_EXECUTED",
+      "C4": "SCOPED_EXECUTED",
+      "C5": "SCOPED_EXECUTED",
+      "C6": "SCOPED_EXECUTED",
+      "C7": "SCOPED_EXECUTED",
+      "C8": "SCOPED_EXECUTED",
+      "C9": "SCOPED_EXECUTED"
+    },
+    "theory": {
+      "R1": "DERIVED_CONDITIONAL",
+      "R10": "DERIVED_CONDITIONAL",
+      "R2": "DERIVED_CONDITIONAL",
+      "R3": "DERIVED_CONDITIONAL",
+      "R4": "DERIVED_CONDITIONAL",
+      "R5": "DERIVED_CONDITIONAL",
+      "R6": "DERIVED_CONDITIONAL",
+      "R7": "DERIVED_CONDITIONAL",
+      "R8": "DERIVED_CONDITIONAL",
+      "R9": "DERIVED_CONDITIONAL"
+    }
+  },
+  "verification": {
+    "cargo_check_workspace": "EXIT_0",
+    "full_repository_CI": "NOT_RUN",
+    "native_delegation": "NOT_RUN_NO_TOOL",
+    "post_commit_repeat": "PENDING",
+    "python_compile": "EXIT_0",
+    "python_scoped_passed": 222,
+    "ruff": "NOT_RUN_RUFF_NOT_IN_PATH",
+    "rust_lib_passed": 61
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "description": "5 separate independent processes each backend and variant, alternating backend order",
+  "field_data_comparison": "NOT_MEASURED",
+  "geometry_statistics": {
+    "coarse_one_lane": {
+      "python": {
+        "lane_geometry": {
+          "approach_lane_metres": 100.0,
+          "extra_widened_lane_metres": 0.0,
+          "total_physical_lane_metres": 100.0
+        },
+        "links": 3,
+        "max_class_ledger_error_veh": 8.881784197001252e-15,
+        "mean_B_complete_before_A_green": 0.0,
+        "median_total_step_s": 0.047299304,
+        "rss_kib": [
+          24580,
+          24036,
+          24172,
+          24468,
+          24764
+        ],
+        "state_scalars": 42,
+        "timed_s": [
+          0.048072726,
+          0.047299304,
+          0.047249534,
+          0.049505904,
+          0.047058467
+        ]
+      },
+      "rust": {
+        "lane_geometry": {
+          "approach_lane_metres": 100.0,
+          "extra_widened_lane_metres": 0.0,
+          "total_physical_lane_metres": 100.0
+        },
+        "links": 3,
+        "max_class_ledger_error_veh": 8.881784197001252e-15,
+        "mean_B_complete_before_A_green": 0.0,
+        "median_total_step_s": 0.040878348,
+        "rss_kib": [
+          25592,
+          25436,
+          25904,
+          25860,
+          25708
+        ],
+        "state_scalars": 42,
+        "timed_s": [
+          0.040878348,
+          0.040174872,
+          0.04017902,
+          0.042342822,
+          0.041672141
+        ]
+      }
+    },
+    "mixed_one_pocket": {
+      "python": {
+        "lane_geometry": {
+          "approach_lane_metres_after": 100.0,
+          "approach_lane_metres_before": 100.0,
+          "extra_widened_lane_metres": 0.0,
+          "pocket_region_lanes": 1
+        },
+        "links": 4,
+        "max_class_ledger_error_veh": 8.881784197001252e-15,
+        "mean_B_complete_before_A_green": 0.0,
+        "median_total_step_s": 0.071036979,
+        "rss_kib": [
+          24832,
+          24356,
+          24220,
+          24356,
+          24276
+        ],
+        "state_scalars": 54,
+        "timed_s": [
+          0.072646414,
+          0.070567602,
+          0.070970269,
+          0.0719776,
+          0.071036979
+        ]
+      },
+      "rust": {
+        "lane_geometry": {
+          "approach_lane_metres_after": 100.0,
+          "approach_lane_metres_before": 100.0,
+          "extra_widened_lane_metres": 0.0,
+          "pocket_region_lanes": 1
+        },
+        "links": 4,
+        "max_class_ledger_error_veh": 8.881784197001252e-15,
+        "mean_B_complete_before_A_green": 0.0,
+        "median_total_step_s": 0.060899073,
+        "rss_kib": [
+          25424,
+          25588,
+          25244,
+          25428,
+          25756
+        ],
+        "state_scalars": 54,
+        "timed_s": [
+          0.058586814,
+          0.059621733,
+          0.060899073,
+          0.061825008,
+          0.061237562
+        ]
+      }
+    },
+    "split_two_pockets": {
+      "python": {
+        "lane_geometry": {
+          "approach_lane_metres_after": 130.0,
+          "approach_lane_metres_before": 100.0,
+          "extra_widened_lane_metres": 30.0,
+          "pocket_region_lanes": 2
+        },
+        "links": 5,
+        "max_class_ledger_error_veh": 1.0658141036401503e-14,
+        "mean_B_complete_before_A_green": 5.611092185827814,
+        "median_total_step_s": 0.065912882,
+        "rss_kib": [
+          24460,
+          24072,
+          24596,
+          24596,
+          24676
+        ],
+        "state_scalars": 66,
+        "timed_s": [
+          0.065912882,
+          0.06453916,
+          0.06471571,
+          0.067547262,
+          0.066087461
+        ]
+      },
+      "rust": {
+        "lane_geometry": {
+          "approach_lane_metres_after": 130.0,
+          "approach_lane_metres_before": 100.0,
+          "extra_widened_lane_metres": 30.0,
+          "pocket_region_lanes": 2
+        },
+        "links": 5,
+        "max_class_ledger_error_veh": 1.0658141036401503e-14,
+        "mean_B_complete_before_A_green": 5.611092185827814,
+        "median_total_step_s": 0.054065551,
+        "rss_kib": [
+          25792,
+          25988,
+          25916,
+          25532,
+          25980
+        ],
+        "state_scalars": 66,
+        "timed_s": [
+          0.053342258,
+          0.053275241,
+          0.054065551,
+          0.059074406,
+          0.055120501
+        ]
+      }
+    }
+  },
+  "paired_backend_accuracy": {
+    "coarse_one_lane": {
+      "max_final_class_mass_diff_veh": 0.0,
+      "median_speed_ratio_python_over_rust_node": 1.1570747428443047
+    },
+    "mixed_one_pocket": {
+      "max_final_class_mass_diff_veh": 0.0,
+      "median_speed_ratio_python_over_rust_node": 1.1664706127792783
+    },
+    "split_two_pockets": {
+      "max_final_class_mass_diff_veh": 0.0,
+      "median_speed_ratio_python_over_rust_node": 1.2191290161825965
+    }
+  },
+  "physics": "3 deliberate geometry alternatives; same external OD + traffic light; not same physical state",
+  "warning": "Comparisons across geometries are model sensitivity, not a speedup claim"
+}

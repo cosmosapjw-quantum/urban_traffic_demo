@@ -1,0 +1,120 @@
+{
+  "backend": "python",
+  "checkpoint_bytes": 5547,
+  "checkpoint_sha256": "527bbf4760ec196cc6d0617e3803f383ed4bba684e1076fdb46a47e4e422f26a",
+  "completion_by_route": [
+    14.045621855885202,
+    14.241839530682402
+  ],
+  "dt_s": 0.5,
+  "geometry": "split_two_pockets",
+  "links": 5,
+  "max_abs_class_mass_error_veh": 1.0658141036401503e-14,
+  "max_physical_state_scalars": 66,
+  "max_runs": 192,
+  "median_step_us": 356.386,
+  "model_id": "kcmb_adaptive_eligible_fifo_v1:4ceb572f48c65f7e928fb25de568e94f321d94267cb257fe44846fa293954c87",
+  "observation_checkpoints": [
+    {
+      "active_by_route": [
+        8.236221495042253,
+        7.11529388736058
+      ],
+      "completed_by_route": [
+        0.0,
+        1.1209276076816765
+      ],
+      "pending_by_route": [
+        4.2637785049577435,
+        4.2637785049577435
+      ],
+      "run_count": 72,
+      "tick": 50
+    },
+    {
+      "active_by_route": [
+        12.114241079423643,
+        6.706914877798941
+      ],
+      "completed_by_route": [
+        0.0,
+        5.4073262016247
+      ],
+      "pending_by_route": [
+        12.885758920576354,
+        12.885758920576354
+      ],
+      "run_count": 158,
+      "tick": 100
+    },
+    {
+      "active_by_route": [
+        12.370682624054911,
+        6.759590438227099
+      ],
+      "completed_by_route": [
+        0.0,
+        5.611092185827814
+      ],
+      "pending_by_route": [
+        15.129317375945083,
+        15.129317375945083
+      ],
+      "run_count": 179,
+      "tick": 110
+    },
+    {
+      "active_by_route": [
+        10.99164927044943,
+        8.883201215573017
+      ],
+      "completed_by_route": [
+        4.123286926223207,
+        6.231734981099617
+      ],
+      "pending_by_route": [
+        12.385063803327368,
+        12.385063803327368
+      ],
+      "run_count": 117,
+      "tick": 141
+    },
+    {
+      "active_by_route": [
+        7.293038418807865,
+        7.096820744010652
+      ],
+      "completed_by_route": [
+        14.045621855885202,
+        14.241839530682402
+      ],
+      "pending_by_route": [
+        6.161339725306942,
+        6.161339725306942
+      ],
+      "run_count": 85,
+      "tick": 180
+    }
+  ],
+  "p95_step_us": 562.36,
+  "pending_by_route": [
+    6.161339725306942,
+    6.161339725306942
+  ],
+  "physical_lane_geometry": {
+    "approach_lane_metres_after": 130.0,
+    "approach_lane_metres_before": 100.0,
+    "extra_widened_lane_metres": 30.0,
+    "pocket_region_lanes": 2
+  },
+  "process_peak_rss_kib": 24596,
+  "python": "3.12.3",
+  "released_by_route": [
+    27.5,
+    27.5
+  ],
+  "routes": 2,
+  "scope": "synthetic KCMB physical-model comparison, not true traffic measurement",
+  "steps": 180,
+  "total_timed_s": 0.067547262
+}
