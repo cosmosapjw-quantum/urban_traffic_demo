@@ -1,0 +1,157 @@
+{
+  "duration_seconds": 0.04250578700020924,
+  "exclusions": [
+    "No claim of full native V03 kernel equivalence",
+    "No performance measurement of unimplemented lineage DAG",
+    "No unrestricted global error bound for arbitrary FIFO junctions",
+    "No fitted driver, probe or external physical parameters"
+  ],
+  "full_production_kernel_implemented": false,
+  "identity": "V03-FIFO-LINEAGE-THEORY-ORACLES-20261119-V1",
+  "parent_research_v03_status": "BLOCKED_0_OF_9_24H_RUNS",
+  "project_baseline_pinned_sha256": {
+    "artifacts/v1_v03_workspace_20261117/ATTRIBUTION_KO.md": "709de02df5eb7251dfe838d7d4c2f55aba68efef65f13af635605e279dcab705",
+    "crates/metroflow-rust/src/v1_road.rs": "cf1621846f55a7c8437d5e140cfff5bcad461562f9e2d29d2c486249dd245848",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+  },
+  "python_version": "3.12.3",
+  "seed": 20261119,
+  "status": "CHECKED_FINITE_CASES_ONLY",
+  "tested_claims": {
+    "coalescence_required_mark_density": {
+      "counterexample_route_A_first_half_false_merge": "1/2",
+      "counterexample_route_A_first_half_true": "1",
+      "counterexample_total_A_B_endpoints_equal": true,
+      "positive_range_check_count": 2812,
+      "scope": "real-valued interval query equivalence; IEEE order and ready times require separate checks"
+    },
+    "fraction_split": {
+      "exact_fraction_mass_birth_conservation_cases": 18,
+      "factors": [
+        "0",
+        "1",
+        "1/7",
+        "3/8",
+        "9/10",
+        "11/13"
+      ],
+      "scope": "exact real/rational arithmetic under existing partial service law"
+    },
+    "ideal_symbolic_composition_DAG": {
+      "caution": "does not count original V03 per-row event output or merge fan-in, cannot predict actual RSS or CPU acceleration",
+      "eager_copied_rows_idealized": 7176320,
+      "event_count": 44852,
+      "idealized_element_count_ratio": 79.85756253894775,
+      "symbolic_row_plus_two_nodes_per_event": 89864,
+      "template_rows": 160
+    },
+    "ieee_nonassociativity": {
+      "fsum_noncommutation": {
+        "counterexample_index": 2,
+        "factor": 0.1669811629957363,
+        "multiply_sum_hex": "0x1.21dfb3c8e61e3p-1",
+        "sum_individual_products_hex": "0x1.21dfb3c8e61e2p-1",
+        "xs": [
+          0.330364982035552,
+          0.8104827892882068,
+          0.551755914216087,
+          0.05855555091894582,
+          0.23170355130566367,
+          0.4781513442196259,
+          0.9295469817766508
+        ]
+      },
+      "interval_order_reassociated_hex": "0x1.dddddddddddddp-2",
+      "interval_order_sequential_hex": "0x1.ddddddddddddcp-2",
+      "literal_bytes_from_struct": "3f95810624dd2f1a",
+      "original_mass_hex": "0x1.999999999999ap-4",
+      "scope": "finite CPython IEEE binary64 counterexample; not global V03 code equivalence",
+      "selected_trace_operations": 2,
+      "split_reconstituted_hex": "0x1.9999999999999p-4",
+      "two_stage_flattened_hex": "0x1.5810624dd2f1bp-6",
+      "two_stage_original_hex": "0x1.5810624dd2f1ap-6"
+    },
+    "marked_mass_F_is_F_of_cumulative_cursor": {
+      "birth_A_total": "8",
+      "birth_B_total": "2",
+      "cumulative_query_checks": 420,
+      "fifo_property": "F_r(s2)-F_r(s1)>=0 for s2>=s1; monotone output cursor",
+      "route_A_total": "4",
+      "route_B_total": "3",
+      "total_mass": "7"
+    },
+    "route_order_lower_bound": {
+      "cases": [
+        {
+          "log2_orders": 1.0,
+          "m_per_route": 1,
+          "minimum_bits_for_exact_route_order": 1,
+          "number_possible_orders_decimal": "2",
+          "total_elements": 2
+        },
+        {
+          "log2_orders": 6.129283016944966,
+          "m_per_route": 4,
+          "minimum_bits_for_exact_route_order": 7,
+          "number_possible_orders_decimal": "70",
+          "total_elements": 8
+        },
+        {
+          "log2_orders": 29.16298271259506,
+          "m_per_route": 16,
+          "minimum_bits_for_exact_route_order": 30,
+          "number_possible_orders_decimal": "601080390",
+          "total_elements": 32
+        },
+        {
+          "log2_orders": 124.17143420017378,
+          "m_per_route": 64,
+          "minimum_bits_for_exact_route_order": 125,
+          "number_possible_orders_decimal": "23951146041928082866135587776380551750",
+          "total_elements": 128
+        },
+        {
+          "log2_orders": 507.1735474947738,
+          "m_per_route": 256,
+          "minimum_bits_for_exact_route_order": 508,
+          "number_possible_orders_decimal": "472553303154964924989004370051186389478210715642481882577328859153566070336566100844650299634054239969857431328433974960326174706663509667348266572071494",
+          "total_elements": 512
+        }
+      ],
+      "m2_distinguishable_exit_orders": 6,
+      "scope": "bit lower bound for a subclass of strict ordered FIFO states with route-event outputs; not a universal V03 memory-growth theorem"
+    },
+    "strict_FIFO_head_discontinuity": {
+      "cases": [
+        {
+          "difference_in_B_exit_mass": "1",
+          "epsilon_A_at_red_head": "1/16",
+          "error_amplification_ratio": "16"
+        },
+        {
+          "difference_in_B_exit_mass": "1",
+          "epsilon_A_at_red_head": "1/256",
+          "error_amplification_ratio": "256"
+        },
+        {
+          "difference_in_B_exit_mass": "1",
+          "epsilon_A_at_red_head": "1/4096",
+          "error_amplification_ratio": "4096"
+        },
+        {
+          "difference_in_B_exit_mass": "1",
+          "epsilon_A_at_red_head": "1/1048576",
+          "error_amplification_ratio": "1048576"
+        },
+        {
+          "difference_in_B_exit_mass": "1",
+          "epsilon_A_at_red_head": "1/268435456",
+          "error_amplification_ratio": "268435456"
+        }
+      ],
+      "scope": "adversarial signalized diverge; does not rule out bounded error under additional smooth junction assumptions",
+      "strict_fifo_head_of_line_discontinuity": true
+    }
+  }
+}

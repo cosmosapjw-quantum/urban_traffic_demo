@@ -154,3 +154,23 @@ This permits a **conditional per-head cache** of route/footprint proportions whi
 **Original release counterexample status:** The 2017 cohort-bundle paper proves structural FIFO verifiability in its formal model, not a memory ceiling; Jin 2015 assumes triangular FD/invariant junction, which differs from V03 finite-response. Neither supplies a theorem allowing 100k×24h V03 within 8 GiB. Observed 25,600s checkout is a valid source-bound benchmark, not a proof of asymptotic exponent. No strong novelty/no-go claim passes the NG1–NG7 research admission gate.
 
 **Status tags:** L1–L5, L7–L10 DERIVED_CONDITIONAL as typed; L6 COUNTEREXAMPLE_TO_UNCONDITIONAL_FLOAT_EQUIVALENCE; original V03 semantic mapping and efficiency remain CONJECTURAL / FUTURE_IMPLEMENTATION_REQUIRED.
+
+## R7. 판별을 위한 정확계산·경량 수치 오라클
+
+Research-only executable source: tools/research/v03_fifo_lineage_theory_checks.py. It uses Python 3.12 Fraction for exact arithmetic, literal binary64/hex for representation counterexamples and a fixed seed 20261119 for a finite fsum witness. It only reads frozen V03 source evidence; it **does not implement** any new production packet representation. Machine-readable results: artifacts/v03_fifo_lineage_theory_20261119/EXACT_THEORY_CHECKS.json with input file SHA-256, tested count, code version and non-claims.
+
+**Finite independent results, observed:** 18 exact rational mass/birth split conservation cases (including f=0,1); 420 route/birth cumulative-prefix versus independent direct-intersection checks on rational mass-coordinate intervals (2 marked routes, different compositions), all equal exactly; 2,812 exact rational interval-range checks for coalescence under identical marked densities, all equal; a two-interval route A then route B counterexample where route A emitted over first half is 1 versus 1/2 under a falsely averaged merge, although both entire-interval route totals are 1. Checkpoints are not the oracle here: these are typed finite algebraic examples.
+
+**Binary64 counterexample (actual positive values):**
+- fl(fl(0.1×0.3)×0.7) = 0x1.5810624dd2f1ap−6; fl(0.1×fl(0.3×0.7)) = 0x1.5810624dd2f1bp−6. Distinct final bits.
+- separately rounded children fl(fl(0.1×0.3)+fl(0.1×fl(1−0.3))) = 0x1.9999999999999p−4, versus original 0.1=0x1.999999999999ap−4.
+- V03 interval sequential fl(fl(0.7×6)/9)=0x1.ddddddddddddcp−2, vs reassociated fl(0.7×fl(6/9))=0x1.dddddddddddddp−2.
+- finite seeded test of ordered fsum over 7 rows finds a third mismatch (full source doubles and hex stored in the artifact). This demonstrates the vulnerability of moving scaling outside the actual V03 per-tag sum.
+
+**Order-information witness:** m=1,4,16,64,256 per route gives exact lower ceilings of 1,7,30,125,508 bits; at m=256 this is for a 512-element A/B-labeled FIFO queue, not 512 arbitrary physical vehicles in the production city. The probability/route order information is not thermodynamic Gibbs entropy: it is combinatorial distinction under specified future observable queries.
+
+**Head blocking stress:** for ε_A=1/16,1/256,1/4096,1/1048576,1/268435456, the adversarial B-output-amplification factor 1/ε grows 16→268435456. These are exact rational signal examples, not empirical Chicago driver observations.
+
+**Storage idealization (NOT measured V03 speed):** P=160 source composition rows and E=44,852 partial service operations imply P E=7,176,320 eager copied row occurrences, whereas one immutable base plus up to two refs/event would have P+2E=89,864 structural entries, nominal ~79.86× fewer in this idealized operation-storage model. The 160 rows/event and 44,852 events are a useful rough prior from the 2026-11-17 attribution range, but **source mixing, all per-row EventRow materialization, cache entries and actual allocator/RSS are excluded**. Therefore the 79.86× is a symbolic conditional upper opportunity, not a measured speedup/memory reduction, nor a projected 24h completion.
+
+**Separate symbolic system:** Wolfram Language evaluated two componentwise split-conservation identities and a simple linearity identity to zero, and gave log2 central-binomial values for m=1,4,16,64 matching independent Python. This is a secondary symbolic spot check of elementary algebra and combinatorics; it does not verify V03 Rust or full numerical semantics. Lit comparison independently used the original 2017 and 2015 sources. Scientific labels: DERIVED for general claims with written proofs; NUMERICALLY_CHECKED only for explicitly enumerated finite cases; IMPLEMENTATION_UNVERIFIED for the future EVCB engine.
