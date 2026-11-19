@@ -45,3 +45,25 @@
 - WIRE-EXACT: identical complete legacy binary checkpoint byte stream. REAL-EXACT does not imply IEEE-EXACT; IEEE matching selected observables does not imply WIRE matching; changing the checkpoint schema can be semantically sound but is not byte-identical.
 
 **Locked source and physics assumptions:** finite input rows and finite endpoints, no NaN, nonnegative masses, no new hyperparameter/traffic fitting, no hidden alteration of time grid or route priority; no automatic equivalence of first-order LTM to original V03 finite-response dynamics. Class/latent physical evolution is not replaced by route-mass measure alone.
+
+## R4. 발산적 표현·물리 모델 탐색: 대안 10종
+
+| 후보 | 수학적 객체와 기작 | 잠재적인 공간/시간 변화 | 탈락 위험, 판별 조건 |
+|---|---|---|---|
+| A. 기존 bit-density 연속 interval 병합 | 같은 (tag,offset)과 동일한 float 밀도 비트의 인접 구간을 병합 | 이미 측정된 약 1.9% row opportunity | 혼잡 50초마다 packet doubling을 억제하지 못함 |
+| B. 단순 불변 조성 공유 | Base(Part[]), proportional Scale(f,parent) | 동일 P-row template를 E번 split할 때 행 복제 O(PE)→참조 O(P+E) | 실수 산술 정확, f를 한 스칼라로 재결합하면 IEEE 불일치; 명시적 모든 출력 row 비용은 남음 |
+| C. **Marked cumulative mass-coordinate FIFO queue** | K_s(dmark), route F_r(q), birth H_r(q), monotone service cursor D(t) | 주어진 piecewise kernel을 range-integral/split으로 조회; 전체 중복 템플릿을 줄일 가능성 | 각 mark의 원래 시간 support, ready, latent까지 잃으면 V03 미동등; junction network FIFO 자동 아님 |
+| D. Persistent ordered arithmetic DAG | Base, exact Scale, timestamp Restrict, offset Rewrite, ordered Merge/Combine + operation order | 중간 fragment가 동일 조상 표현을 공유, 실제 event semantics를 lazy 유지 | per-row fsum과 floating subtraction/reassociation 재현 필요; 전체 output-size 하한 |
+| E. Exact local piecewise constant time-density coalescence | per-tag mass/birth density ρ_r(t), θ_r(t), identical ready/target | 서로 동일한 출처 밀도만 더 긴 구간으로 합침 | 서로 다른 route composition이나 birth density를 합치면 미래 subinterval query 반례; 이전 측정 1.01–1.08× |
+| F. Cohort bundles with ordered partial priorities | nested bundles and explicit crossing priorities, Bar-Gera–Carey CB semantics | 무한 세분화가 필요한 CCTC 분할을 bundle 구조로 대체할 가능성 | CB의 실제 생성 알고리즘/원본 V03 junction equivalence 미증명 |
+| G. Route-labelled MC-LTM | arrival/departure cumulative A_r(t),D_r(t), triangular FD, invariant junction | link boundary computation, potentially cheaper than all cells | 원본 비선형 유한반응, birth time, timestamp and original rate 법칙 보존 미증명; 모델 변경 |
+| H. 고정 차원 kinetic-moment closure | densities, speed and control moments per link/class | O(Ncell×Nclass) 상태로 bounded | 임의 multi-route strict FIFO order 구별 불가; 별도 모델 수용 필요 |
+| I. Error-controlled approximate coalescence | TV / Wasserstein / route-time moment budgets, fixed existing tolerances | 일정 error assumption 아래 유한 knots 가능 | 신호 head-of-line 차단은 TV에 대한 Lipschitz 안정성이 없음; 임의 오차 tolerance 신규 설정 금지 |
+| J. Disk-streamed event log + legacy output | Append-only compressed provenance, bounded resident memory | RAM peak 하락 가능, disk/CPU burden | 기존 explicit output R rows면 Ω(R) 시간, 전체 old checkpoint 형식도 Ω(R) 저장 바이트 |
+| K. GPU/SIMD/threads/time-edge sweep | materialization과 sort 병렬화 | 물리 처리속도 향상 | row 개수 자체는 바뀌지 않아 메모리 폭증 해결 아님 |
+
+**Convergence proposal (not implemented here).** **Exact Virtual Cohort Bundle (EVCB)** = (C) marked cumulative mass/route FIFO semantics + (D) immutable ordered arithmetic DAG for source row expressions + (B) persistent composition sharing; permit (E) exact local coalescence only when all marked densities and readiness match. Use an original eager V03 evaluator for bit reference. This is a two-layer *research architecture*, not yet an IEEE- or network-FIFO-verified native program.
+
+**Critical end-to-end observation:** actual V03 step_state eagerly builds a per-row Vec<EventRow>, per-link incoming Vec<Vec<Part>>, mark arrays and per-row combine, then writes original full binary state. So merely replacing portion cloning does not reduce the required number of immediately materialized rows. An exact compressed implementation must move the event-consumer API and possibly checkpoint storage to a provenance-aware representation, while preserving the old route/clock/mass outputs through a checked conversion. Whether that costs less than the eager implementation is a future *measured* coding research question.
+
+**Falsifiers for the chosen model:** inability to reconstruct old per-tag mass/birth/time/offset; differing ledger or exit clocks at any chosen original rate/signal; introduced numerical parameter to bypass a failure; hash mismatch at source-matched short congested prefix without an explained approved change to the precision contract; no reduction in live event materialization; retained peak RAM or CPU higher over the materially blocked 25600–25650s range.
