@@ -2354,7 +2354,13 @@ impl V1Road {
                     {
                         return Err(budget("packet transfer budget"));
                     }
-                    let served = portion(&packet.parts, fraction)?;
+                    // The trace still counts the same logical rows. The
+                    // transient served Vec is replaced by a read-only view.
+                    let served_rows = if crate::v1_trace::enabled() {
+                        served_parts(&packet.parts, fraction).count()
+                    } else {
+                        0
+                    };
                     if crate::v1_trace::enabled() {
                         let key = (position[i], rate.to_bits());
                         let class = match last_serve[i] {
@@ -2371,35 +2377,33 @@ impl V1Road {
                             Some((pos, _, _)) if pos == position[i] => "xfer.same_head_gap_rows",
                             _ => "xfer.new_head_rows",
                         };
-                        crate::v1_trace::add(class, served.len() as u64);
+                        crate::v1_trace::add(class, served_rows as u64);
                         last_serve[i] = Some((position[i], rate.to_bits(), end_time));
-                        crate::v1_trace::add("xfer.serve_rows", served.len() as u64);
+                        crate::v1_trace::add("xfer.serve_rows", served_rows as u64);
                         crate::v1_trace::add("xfer.partial_serve", u64::from(fraction < 1.));
                         crate::v1_trace::add("xfer.serve_incoming_rows", incoming_count as u64);
                         crate::v1_trace::add(
                             "xfer.sink_rows",
-                            served.len().saturating_sub(incoming_count) as u64,
+                            served_rows.saturating_sub(incoming_count) as u64,
                         );
                         if fraction < 1. {
-                            crate::v1_trace::add("xfer.partial_rows", served.len() as u64);
+                            crate::v1_trace::add("xfer.partial_rows", served_rows as u64);
                         }
                         crate::v1_trace::add("xfer.head_rows", packet.parts.len() as u64);
                     }
+                    // Compute and pack remainder before original event/Mark
+                    // updates, but delay queue-slot mutation until after
+                    // consuming the immutable source with no served Vec.
                     let remainder = if fraction == 1. {
                         None
                     } else {
-                        Some(portion(&packet.parts, 1. - fraction)?)
+                        Some(work.pack_parts(portion(&packet.parts, 1. - fraction)?)?)
                     };
-                    let sm = sum(served.iter().map(|p| p.mass));
-                    if let Some(parts) = remainder {
-                        queues[i][position[i]].0.parts = work.pack_parts(parts)?;
-                    } else {
-                        position[i] += 1;
-                        retired_heads += 1;
-                    }
+                    let sm = sum(served_parts(&packet.parts, fraction).map(|p| p.mass));
                     out.cells[i].v[3] += sm;
                     out.cells[i].v[5] += sm * mid;
-                    for mut p in served {
+                    // Exactly original IEEE mass/birth transform + source order.
+                    for mut p in served_parts(&packet.parts, fraction) {
                         let k = self.class(&p);
                         out.ledger[k][3] += p.mass * (local_mid - ready).max(0.);
                         let j = self.dest(&p);
@@ -2439,6 +2443,12 @@ impl V1Road {
                             out.ledger[k][1] += p.mass;
                             exit1 += p.mass * mid;
                         }
+                    }
+                    if let Some(parts) = remainder {
+                        queues[i][position[i]].0.parts = parts;
+                    } else {
+                        position[i] += 1;
+                        retired_heads += 1;
                     }
                 }
                 if crate::v1_trace::enabled() {
