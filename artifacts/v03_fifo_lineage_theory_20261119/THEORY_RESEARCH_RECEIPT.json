@@ -1,0 +1,143 @@
+{
+  "base_source_commit": "3af9b8de34dd84a85fcb3f5ef8c4c18ee8efbbfe",
+  "binary64_nonassociativity_counterexample": {
+    "fsum_noncommutation": {
+      "counterexample_index": 2,
+      "factor": 0.1669811629957363,
+      "multiply_sum_hex": "0x1.21dfb3c8e61e3p-1",
+      "sum_individual_products_hex": "0x1.21dfb3c8e61e2p-1",
+      "xs": [
+        0.330364982035552,
+        0.8104827892882068,
+        0.551755914216087,
+        0.05855555091894582,
+        0.23170355130566367,
+        0.4781513442196259,
+        0.9295469817766508
+      ]
+    },
+    "interval_order_reassociated_hex": "0x1.dddddddddddddp-2",
+    "interval_order_sequential_hex": "0x1.ddddddddddddcp-2",
+    "literal_bytes_from_struct": "3f95810624dd2f1a",
+    "original_mass_hex": "0x1.999999999999ap-4",
+    "scope": "finite CPython IEEE binary64 counterexample; not global V03 code equivalence",
+    "selected_trace_operations": 2,
+    "split_reconstituted_hex": "0x1.9999999999999p-4",
+    "two_stage_flattened_hex": "0x1.5810624dd2f1bp-6",
+    "two_stage_original_hex": "0x1.5810624dd2f1ap-6"
+  },
+  "branch": "research/v03-fifo-lineage-theory-20261119",
+  "coding_C1_to_C10": "NOT_RUN_RESERVED_FOR_NEXT_USER_TURN",
+  "created_utc": "2026-11-19T11:08:45+00:00",
+  "derived_theorems": [
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6",
+    "L7",
+    "L8",
+    "L9",
+    "L10"
+  ],
+  "exact_rational_coalescence_cases": 2812,
+  "exact_rational_marked_prefix_cases": 420,
+  "exact_rational_split_cases": 18,
+  "external_primary_literature_urls": [
+    "https://www.sciencedirect.com/science/article/abs/pii/S0191261516305458",
+    "https://trid.trb.org/view/776681",
+    "https://ar5iv.labs.arxiv.org/html/1405.7080",
+    "https://www.sciencedirect.com/science/article/abs/pii/S0191261522000571"
+  ],
+  "files_sha256": {
+    "artifacts/v03_fifo_lineage_theory_20261119/EXACT_THEORY_CHECKS.json": "c9fb6df3b49203b2837d45180795c3f39f6fa60c9ffcade82af970df0992929a",
+    "docs/research/V03_FIFO_LINEAGE_THEORY_R1_R10_20261119_KO.md": "260e3811137cd7f3e22ea57d00bb68ac81c51de812a54bb859bc5e6830f2f78a",
+    "tools/research/v03_fifo_lineage_theory_checks.py": "67794e0520efaac09f87759bee5a5f89f310a1ae7d356444a7b24faeb11c9ccb"
+  },
+  "final_R10_commit": "READ_BACK_EXTERNALLY_AFTER_PUSH",
+  "native_V03_code_edited": false,
+  "native_subagent": "NOT_RUN_NO_NATIVE_SPAWN_CAPABILITY",
+  "oracle_status": "CHECKED_FINITE_CASES_ONLY",
+  "output_nonclaims": [
+    "No native memory/speed benchmark of EVCB (not implemented)",
+    "No proof of global exact network FIFO for arbitrary junctions",
+    "No 24h 3-city x3 V03 acceptance",
+    "No new fitted physical parameters or input suppression"
+  ],
+  "proof_status": "DERIVED_CONDITIONAL_AND_FINITE_COUNTEREXAMPLES_CHECKED",
+  "repo": "cosmosapjw-quantum/urban_traffic_demo",
+  "research_focus": "exact linear-marked shared FIFO vs exact IEEE trace, not production code",
+  "schema": "V03_FIFO_LINEAGE_THEORY_R1_R10_RECEIPT_20261119",
+  "source_checks_sha256": {
+    "artifacts/v1_v03_workspace_20261117/ATTRIBUTION_KO.md": "709de02df5eb7251dfe838d7d4c2f55aba68efef65f13af635605e279dcab705",
+    "crates/metroflow-rust/src/v1_road.rs": "cf1621846f55a7c8437d5e140cfff5bcad461562f9e2d29d2c486249dd245848",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+  },
+  "stage_remote_verified": [
+    {
+      "remote_sha_readback": true,
+      "report_bytes": 3174,
+      "sha": "5f31f3b922b1b00d2c5fdd7af54ece4c2f370496",
+      "stage": "R1"
+    },
+    {
+      "remote_sha_readback": true,
+      "report_bytes": 7634,
+      "sha": "ef1f2d8e0c9180cef9aa4e7fe15d11affd669220",
+      "stage": "R2"
+    },
+    {
+      "remote_sha_readback": true,
+      "report_bytes": 11251,
+      "sha": "89902231828f8b3811c21c67d0d0334a0508255b",
+      "stage": "R3"
+    },
+    {
+      "remote_sha_readback": true,
+      "report_bytes": 16070,
+      "sha": "49d2f1a114a0226b94dae5f959a2fabff9e39fdf",
+      "stage": "R4"
+    },
+    {
+      "remote_sha_readback": true,
+      "report_bytes": 28092,
+      "sha": "f5027c0c57c86cdd5860108ebd0ccab9e4d6a3e0",
+      "stage": "R5"
+    },
+    {
+      "remote_sha_readback": true,
+      "report_bytes": 32236,
+      "sha": "a30be9c3817ba94908258f039f004144b30c21db",
+      "stage": "R6"
+    },
+    {
+      "remote_sha_readback": true,
+      "report_bytes": 36061,
+      "sha": "1f9aba8c6ba8f52bd86469397ac56af72f242177",
+      "stage": "R7"
+    },
+    {
+      "remote_sha_readback": true,
+      "report_bytes": 39649,
+      "sha": "196d573b602ba6a3f95407926ba42a22df86f815",
+      "stage": "R8"
+    },
+    {
+      "remote_sha_readback": true,
+      "report_bytes": 45049,
+      "sha": "c1cc6021677404e204d2a965450a100ca03c8b71",
+      "stage": "R9"
+    }
+  ],
+  "unchanged_original_plan_nodes": {
+    "completed_scoped": 19,
+    "full_days": {
+      "completed": 0,
+      "required": 9
+    },
+    "total": 21,
+    "v03": "BLOCKED"
+  }
+}
