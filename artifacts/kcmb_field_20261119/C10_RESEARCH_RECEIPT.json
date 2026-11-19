@@ -1,0 +1,201 @@
+{
+  "artifact_sha256": {
+    "artifacts/kcmb_field_20261119/CARGO_CHECK.log": {
+      "bytes": 3151,
+      "sha256": "f74ce9f875e80218274ff4673f5da77643c0071698caa45b8c0721d0d8f7020f"
+    },
+    "artifacts/kcmb_field_20261119/CARGO_TEST.log": {
+      "bytes": 7314,
+      "sha256": "c44ac5657b2922a08da874cd7aeb6c4d4c90ef2a8ebd4c2a0c8feb3df7ba6590"
+    },
+    "artifacts/kcmb_field_20261119/CHICAGO_FIELD_RESULT.json": {
+      "bytes": 5599,
+      "sha256": "3cb64488aaa79975eb4212b8e998cd462b72760dbc9ddd021617a5b6116ae311"
+    },
+    "artifacts/kcmb_field_20261119/RUFF_CHECK.log": {
+      "bytes": 25,
+      "sha256": "ec9638e964f550c94e6685eb4cf3d954233c80f5331022be91aecf70b490a157"
+    },
+    "artifacts/kcmb_field_20261119/SCOPED_PYTEST.txt": {
+      "bytes": 340,
+      "sha256": "e8a5fd553ea38118eca88e7e676f00b069c9ed6b12389ba7616ff9b5530d9a44"
+    },
+    "artifacts/kcmb_field_20261119/SOURCE_MANIFEST.json": {
+      "bytes": 2108,
+      "sha256": "3596bdef37f6e11e2cc8d9ea201e41ba12527c69674136a9892402911e0f0dd2"
+    },
+    "artifacts/kcmb_field_20261119/raw/2026-04-20.json": {
+      "bytes": 3852,
+      "sha256": "0b3d2aa75beb7548de31417fe655ad270b3d5dcaaf392f11f6da8b8a0d93f85d"
+    },
+    "artifacts/kcmb_field_20261119/raw/2026-04-27.json": {
+      "bytes": 3851,
+      "sha256": "0e17ba587c0ab29fbd19fe9d9d52c38ac08fa35e0ada6981ab0819c0fb061ca5"
+    },
+    "artifacts/osm_control/chicago.osm": {
+      "bytes": 916379,
+      "sha256": "e1c291bac91e52dab44aead6539a0b8b2c9fcc577c5493c4edc277aa1ad9bafe"
+    },
+    "docs/research/KCMB_FIELD_OBSERVATION_CODING_C1_C5_20261119_KO.md": {
+      "bytes": 5768,
+      "sha256": "577b5075b29cb734f1618f6781e079980ad7ffcb105213999397ce0d384da7ce"
+    },
+    "docs/research/KCMB_FIELD_OBSERVATION_CODING_C6_C10_20261119_KO.md": {
+      "bytes": 8501,
+      "sha256": "c7fca6043ecdd4e66096e2d43b974223b956ff4622389c4a87d399abe8838050"
+    },
+    "docs/research/KCMB_FIELD_OBSERVATION_THEORY_R1_R10_20261119_KO.md": {
+      "bytes": 9807,
+      "sha256": "513665d2fba9c1891541727919f4966cbbd218527a398f7ca1bd341a75976d32"
+    },
+    "src/metroflow/v1/chicago_observations.py": {
+      "bytes": 15770,
+      "sha256": "8964d79788aec113f1f7d1788eb8a4122429675f2df1235ace4c8417347fc559"
+    },
+    "tests/research/test_chicago_field_cli_20261119.py": {
+      "bytes": 4534,
+      "sha256": "3a15d2393735db42569ca120ef2a6c6c5af2ba14a721e9a730dbdc7fc8201651"
+    },
+    "tests/research/test_chicago_observations_20261119.py": {
+      "bytes": 6725,
+      "sha256": "e2181c735304d58bb9124425076566c7dd6007a1f0b7f190439fc95947bb3231"
+    },
+    "tools/research/run_chicago_field_observations.py": {
+      "bytes": 6331,
+      "sha256": "5a842425cf9abb16438d028a2ef5e32ece1b378337ff6dbee8c0e818decfbcfd"
+    }
+  },
+  "created_at_kst": "2026-11-19T14:18:54+09:00",
+  "empirical_observations": {
+    "map_match": {
+      "end_offset_m": 15.702845715761706,
+      "lane_pocket_geometry_verified": false,
+      "osm_oneway_verified": false,
+      "path_length_m": 836.6190502420699,
+      "relative_length_error": -0.000286583274267338,
+      "start_offset_m": 13.042349257696628,
+      "status": "CANDIDATE_OSM_NAMED_WAY_MATCH_NOT_LANE_CERTIFIED"
+    },
+    "source_evidence": {
+      "calibration": {
+        "date_local": "2026-04-20",
+        "original_json_sha256": "0b3d2aa75beb7548de31417fe655ad270b3d5dcaaf392f11f6da8b8a0d93f85d",
+        "rows": 12,
+        "source_file": "artifacts/kcmb_field_20261119/raw/2026-04-20.json",
+        "url": "https://data.cityofchicago.org/resource/4g9f-3jbs.json?%24select=time%2Csegment_id%2Cstreet%2Cdirection%2Cfrom_street%2Cto_street%2Clength%2Cspeed%2Cbus_count%2Cmessage_count%2Cstart_latitude%2Cstart_longitude%2Cend_latitude%2Cend_longitude&%24where=time+between+%272026-04-20T07%3A00%3A00%27+and+%272026-04-20T09%3A00%3A00%27+and+segment_id%3D1221&%24limit=50&%24order=time"
+      },
+      "holdout": {
+        "date_local": "2026-04-27",
+        "original_json_sha256": "0e17ba587c0ab29fbd19fe9d9d52c38ac08fa35e0ada6981ab0819c0fb061ca5",
+        "rows": 12,
+        "source_file": "artifacts/kcmb_field_20261119/raw/2026-04-27.json",
+        "url": "https://data.cityofchicago.org/resource/4g9f-3jbs.json?%24select=time%2Csegment_id%2Cstreet%2Cdirection%2Cfrom_street%2Cto_street%2Clength%2Cspeed%2Cbus_count%2Cmessage_count%2Cstart_latitude%2Cstart_longitude%2Cend_latitude%2Cend_longitude&%24where=time+between+%272026-04-27T07%3A00%3A00%27+and+%272026-04-27T09%3A00%3A00%27+and+segment_id%3D1221&%24limit=50&%24order=time"
+      }
+    },
+    "speed_only_metrics": {
+      "calibration_count": 12,
+      "calibration_day": "2026-04-20",
+      "calibration_holdout_speed_w1_mps": 0.3352800000000002,
+      "calibration_speed_mean_mps": 7.972213333333333,
+      "equilibrium_baseline_holdout_mae_mps": 0.3725333333333334,
+      "equilibrium_baseline_holdout_rmse_mps": 0.5215466666666664,
+      "flow_geh": null,
+      "holdout_count": 12,
+      "holdout_day": "2026-04-27",
+      "holdout_speed_mean_mps": 8.158479999999999,
+      "observable": "CTA_GPS_ESTIMATED_SEGMENT_SPEED",
+      "paired_clock_slots": [
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "physical_model_class_parameters_identified": false,
+      "predictive_model": "scalar equilibrium-compatible speed baseline, not a physical KCMB runtime",
+      "shared_clock_bins": 12,
+      "site_id": "1221",
+      "source_probe_counts_are_vehicle_counts": false,
+      "source_uncertainty": "single_holdout_day_correlated_bins",
+      "status": "REAL_FIELD_SPEED_ONLY_SCORED",
+      "time_bin_template_holdout_mae_mps": 0.931333333333333,
+      "time_bin_template_holdout_rmse_mps": 1.0719642620908587
+    }
+  },
+  "next_physics": "Obtain actual lane-count, signal, turn-flow and boundary-demand observations at same mapped site; evaluate bus-specific KCMB velocity model on multiple independent days, not CTA probe count as traffic flow.",
+  "publication": "STAGE_COMMIT_SHA_VERIFIED_SEPARATELY_FROM_SELF_HASHED_MANIFEST",
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "KCMB_FIELD_OBSERVATION_C10_EVIDENCE_20261119_V1",
+  "science": {
+    "KCMB_transport_field_validation": "NOT_EXECUTED",
+    "V03_100k_3city_24h": "BLOCKED_0_OF_9",
+    "actual_field_speed_data_retrieved": "YES_24_PUBLIC_CITY_ROWS",
+    "actual_vehicle_flow": "NOT_OBSERVED",
+    "calibration_holdout_speed_score": "NUMERICALLY_CHECKED_SCALAR_BASELINE",
+    "kinetic_equilibrium_nonidentifiability": "DERIVED_AND_NUMERICALLY_TESTED",
+    "lane_pocket_geometry": "NOT_OBSERVED",
+    "per_vehicle_micro_trajectories": "NOT_OBSERVED",
+    "segment_geometry_match": "NAMED_UNDIRECTED_OSM_CANDIDATE",
+    "source_original_sha256_verified": true
+  },
+  "source": {
+    "branch": "research/kcmb-field-observation-20261119",
+    "coding_c1_c5_commit": "0f9e7e077f79142c3892f8ba8bc72cd2cf209879",
+    "original_V03_pr41_sha": "0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+    "physics_parent": "0855fcc633a8ad7ba8b2fa065a8db13261a48178",
+    "protected_file_sha256": {
+      "crates/metroflow-rust/src/v1_road.rs": "ee0a3df0f078a79955e9e4dd8ec8b5b2561db0fc042f34b7def808c87b565d19",
+      "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+      "src/metroflow/packet_network.py": "b04352ba72df7bfcf1651a2af52be59ad8d2131d349eb8c2e3bff7e081e072de",
+      "src/metroflow/v1/kcmb_adaptive_fifo.py": "e65a05ab42fd13f4c93f57e05d0f2a4dccd4e7c31d3e18a1a876b24f29d46390",
+      "src/metroflow/v1/kcmb_network.py": "a1ebb16dc2da527138363bca5fc9bbad35de4de514a5140aa10cdea9a3bceeb7",
+      "src/metroflow/v1/kcmb_ordered_fifo.py": "d48563f79021188ab6e06b25d181a5203a52068b70601ed62dbee96a3719b974",
+      "src/metroflow/v1/kcmb_turn_pockets.py": "78033597abb242c5eea0ff0ca37bd90a5fcd5617b20be4b803d82ebf45476403"
+    },
+    "raw_city_dataset_id": "4g9f-3jbs",
+    "theory_commit": "915dc8821c9dbeb3861d8fad15fa3b5e25908409"
+  },
+  "stages": {
+    "coding": {
+      "C1": "SCOPED_EXECUTED",
+      "C10": "SCOPED_EXECUTED",
+      "C2": "SCOPED_EXECUTED",
+      "C3": "SCOPED_EXECUTED",
+      "C4": "SCOPED_EXECUTED",
+      "C5": "SCOPED_EXECUTED",
+      "C6": "SCOPED_EXECUTED",
+      "C7": "SCOPED_EXECUTED",
+      "C8": "SCOPED_EXECUTED",
+      "C9": "SCOPED_EXECUTED"
+    },
+    "theory": {
+      "R1": "SCOPED_EXECUTED",
+      "R10": "SCOPED_EXECUTED",
+      "R2": "SCOPED_EXECUTED",
+      "R3": "SCOPED_EXECUTED",
+      "R4": "SCOPED_EXECUTED",
+      "R5": "SCOPED_EXECUTED",
+      "R6": "SCOPED_EXECUTED",
+      "R7": "SCOPED_EXECUTED",
+      "R8": "SCOPED_EXECUTED",
+      "R9": "SCOPED_EXECUTED"
+    }
+  },
+  "verification": {
+    "cargo_workspace_check": "EXIT_0",
+    "full_repo_CI": "NOT_RUN",
+    "native_subagent": "NOT_RUN_TOOL_UNAVAILABLE",
+    "original_V1_production_modified": false,
+    "python_compile": "EXIT_0",
+    "python_scoped_passed": 237,
+    "ruff": "NOT_RUN_TOOL_UNAVAILABLE",
+    "rust_lib_passed": 61
+  }
+}
