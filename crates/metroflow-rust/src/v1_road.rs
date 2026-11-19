@@ -3,7 +3,7 @@
 use crate::v1_parallel::ordered_map;
 use pyo3::exceptions::{PyArithmeticError, PyIOError, PyMemoryError, PyValueError};
 use pyo3::prelude::*;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::io::{Read, Write};
 use std::sync::Mutex;
 
@@ -830,6 +830,82 @@ fn portion(parts: &PacketParts, f: f64) -> PyResult<Vec<Part>> {
     }
     Ok(result)
 }
+/// Event-driven selection of the exact original interval row indices.
+///
+/// Original Riemann interval splitter scans every input Part at every unique
+/// endpoint. All interval endpoints are edges, hence pa<=a && pb>=b for the
+/// next edge b is exactly pa<=a && pb>a. No new physical closure is introduced.
+/// A BTreeSet retains ascending *input indices*, preserving the old selected
+/// row order and therefore combine's IEEE fsum tie sequence.
+///
+/// Point rows are removed from the active interval list altogether. Signed
+/// +/- zero endpoints are grouped using the SAME numeric equality as the
+/// original edge Vec::dedup, not by f64::to_bits.
+struct IntervalActiveSweep {
+    starts: Vec<(f64, usize)>,
+    ends: Vec<(f64, usize)>,
+    points: Vec<(f64, usize)>,
+    active: BTreeSet<usize>,
+    current_points: Vec<usize>,
+    next_start: usize,
+    next_end: usize,
+    next_point: usize,
+}
+
+impl IntervalActiveSweep {
+    fn new(parts: &[Part]) -> PyResult<Self> {
+        let mut starts = checkpoint_vec(parts.len())?;
+        let mut ends = checkpoint_vec(parts.len())?;
+        let mut points = checkpoint_vec(parts.len())?;
+        for (i, p) in parts.iter().enumerate() {
+            let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
+            if pa == pb {
+                points.push((pa, i));
+            } else if pb > pa {
+                starts.push((pa, i));
+                ends.push((pb, i));
+            } else {
+                return Err(val("invalid finite native interval during sweep"));
+            }
+        }
+        let cmp = |a: &(f64, usize), b: &(f64, usize)| {
+            a.0.total_cmp(&b.0).then(a.1.cmp(&b.1))
+        };
+        starts.sort_unstable_by(cmp);
+        ends.sort_unstable_by(cmp);
+        points.sort_unstable_by(cmp);
+        Ok(Self {
+            starts, ends, points,
+            active: BTreeSet::new(),
+            current_points: Vec::new(),
+            next_start: 0, next_end: 0, next_point: 0,
+        })
+    }
+
+    fn advance(&mut self, a: f64) {
+        // Ended intervals must retire before newly started intervals enter.
+        while self.next_end < self.ends.len() && self.ends[self.next_end].0 <= a {
+            self.active.remove(&self.ends[self.next_end].1);
+            self.next_end += 1;
+        }
+        while self.next_start < self.starts.len() && self.starts[self.next_start].0 <= a {
+            self.active.insert(self.starts[self.next_start].1);
+            self.next_start += 1;
+        }
+        self.current_points.clear();
+        while self.next_point < self.points.len() && self.points[self.next_point].0 <= a {
+            let (time, i) = self.points[self.next_point];
+            if time == a {
+                self.current_points.push(i);
+            }
+            self.next_point += 1;
+        }
+        // Sorting the source indices is mandatory when the edge set collapses
+        // two signed-zero endpoint groups into one numeric edge.
+        self.current_points.sort_unstable();
+    }
+}
+
 /// Diagnostic census of adjacent non-point interval packets [a,b],[b,c] in one
 /// cell's entry output: rows whose (tag, offset) recur in the next packet, and
 /// those whose time density mass/(b-a) is bit-equal (a necessary condition for
@@ -1567,9 +1643,19 @@ impl V1Road {
         // with room for its doubling reallocation. Only packed rows that are
         // pushed to the output outlive their interval.
         let edge_bytes = parts.len().saturating_mul(2 * std::mem::size_of::<f64>());
+        // Three sorted (endpoint,index) arrays, a point-index workspace and
+        // a BTreeSet of active source indices. Charge a conservative 96 bytes
+        // per potential tree member; this is a scratch allowance, not a
+        // bound on the system allocator's metadata/RSS.
+        let event_index_bytes = parts.len().saturating_mul(
+            3 * std::mem::size_of::<(f64, usize)>()
+                + std::mem::size_of::<usize>()
+                + 96,
+        );
         const ROW_BYTES: usize = 2 * std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
         let transient = |count: usize, packets: usize| {
             edge_bytes
+                .saturating_add(event_index_bytes)
                 .saturating_add(count.saturating_mul(ROW_BYTES))
                 .saturating_add(
                     packets
@@ -1578,26 +1664,21 @@ impl V1Road {
                         .saturating_mul(3 * std::mem::size_of::<Packet>()),
                 )
         };
-        work.require(edge_bytes, "interval edges")?;
+        work.require(edge_bytes.saturating_add(event_index_bytes),
+                     "interval edges and indexed sweep")?;
         let mut edges = checkpoint_vec(parts.len().saturating_mul(2))?;
         edges.extend(parts.iter().flat_map(|p| [p.a.unwrap(), p.b.unwrap()]));
         edges.sort_unstable_by(f64::total_cmp);
         edges.dedup();
+        let mut sweep = IntervalActiveSweep::new(&parts)?;
         let mut out = vec![];
         let mut records = 0;
         for (k, &a) in edges.iter().enumerate() {
-            let count = parts
-                .iter()
-                .filter(|p| p.a == Some(a) && p.b == Some(a))
-                .count();
+            sweep.advance(a);
+            let count = sweep.current_points.len();
             work.interval(transient(count, out.len()))?;
             let mut point = checkpoint_vec(count)?;
-            point.extend(
-                parts
-                    .iter()
-                    .filter(|p| p.a == Some(a) && p.b == Some(a))
-                    .cloned(),
-            );
+            point.extend(sweep.current_points.iter().map(|&i| parts[i]));
             let point = combine(point)?;
             if !point.is_empty() {
                 records += point.len();
@@ -1611,22 +1692,20 @@ impl V1Road {
             }
             if k + 1 < edges.len() {
                 let b = edges[k + 1];
-                let count = parts
-                    .iter()
-                    .filter(|p| p.a.unwrap() <= a && p.b.unwrap() >= b && p.b > p.a)
-                    .count();
+                let count = sweep.active.len();
                 work.interval(transient(count, out.len()))?;
                 let mut split = checkpoint_vec(count)?;
-                for p in &parts {
+                for &i in &sweep.active {
+                    // S1: all nonpoint endpoints belong to edges, so
+                    // pa<=a<pb is equivalent to pa<=a && pb>=b.
+                    let p = parts[i];
                     let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
-                    if pa <= a && pb >= b && pb > pa {
-                        let mut q = p.clone();
-                        q.mass = q.mass * (b - a) / (pb - pa);
-                        q.birth = q.birth * (b - a) / (pb - pa);
-                        q.a = PackedTime::new(Some(a))?;
-                        q.b = PackedTime::new(Some(b))?;
-                        split.push(q);
-                    }
+                    let mut q = p;
+                    q.mass = q.mass * (b - a) / (pb - pa);
+                    q.birth = q.birth * (b - a) / (pb - pa);
+                    q.a = PackedTime::new(Some(a))?;
+                    q.b = PackedTime::new(Some(b))?;
+                    split.push(q);
                 }
                 let ps = combine(split)?;
                 if !ps.is_empty() {
@@ -3086,4 +3165,195 @@ mod workspace_accounting_tests {
         // Monotone in the exiting-row count.
         assert!(sink_envelope_bytes(1_001, 64) > many);
     }
+}
+
+
+#[cfg(test)]
+mod exact_interval_sweep_tests {
+    use super::*;
+
+    fn row(tag: usize, mass: f64, birth: f64, a: f64, b: f64) -> Part {
+        Part {
+            tag,
+            offset: tag % 3,
+            mass,
+            birth,
+            a: PackedTime::new(Some(a)).unwrap(),
+            b: PackedTime::new(Some(b)).unwrap(),
+        }
+    }
+
+    fn check_old_selection_matches_events(rows: &[Part]) {
+        let mut edges: Vec<f64> = rows.iter().flat_map(|r| [r.a.unwrap(), r.b.unwrap()]).collect();
+        edges.sort_unstable_by(f64::total_cmp);
+        edges.dedup();
+        let mut indexed = IntervalActiveSweep::new(rows).unwrap();
+        for (k, &a) in edges.iter().enumerate() {
+            indexed.advance(a);
+            let actual_points: Vec<_> = indexed.current_points.iter().copied().collect();
+            let expected_points: Vec<_> = rows.iter().enumerate()
+                .filter(|(_, x)| x.a == Some(a) && x.b == Some(a))
+                .map(|(i, _)| i).collect();
+            assert_eq!(actual_points, expected_points, "point index at {a:?}");
+            if let Some(&b) = edges.get(k+1) {
+                let original: Vec<_> = rows.iter().enumerate()
+                    .filter(|(_, p)| p.a.unwrap() <= a &&
+                        p.b.unwrap() >= b && p.b > p.a)
+                    .map(|(i, _)| i).collect();
+                let active: Vec<_> = indexed.active.iter().copied().collect();
+                assert_eq!(active, original, "interval [{a:?},{b:?}]");
+            }
+        }
+    }
+
+    #[test]
+    fn original_finite_interval_and_point_selection_is_bitorder_preserving() {
+        let rows = vec![
+            row(1, 0.11, 2., -0., 2.),
+            row(2, 0.25, 3., 0., 1.),
+            row(3, 0.03, 4., -0., -0.),
+            row(4, 0.04, 5., 0., 0.),
+            row(5, 0.06, 6., 1., 1.),
+            row(6, 0.07, 7., 2., 2.),
+            row(7, 0.09, 8., 1., 3.),
+            row(8, 0.10, 9., 3., 4.),
+            row(9, 0.15, 10., 4., 4.),
+        ];
+        check_old_selection_matches_events(&rows);
+    }
+
+    #[test]
+    fn randomized_original_scan_vs_event_sweep_selected_indices() {
+        let mut seed = 0x59C9_2026_u64;
+        for count in [1, 2, 5, 17, 64, 256, 700] {
+            let mut rows = Vec::new();
+            for i in 0..count {
+                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                let a = ((seed >> 24) % 40) as f64 - 10.;
+                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                let width = ((seed >> 24) % 13) as f64;
+                rows.push(row(i % 7, (i as f64 + 1.) / 100.,
+                              (i as f64) * 0.07, a, a + width));
+            }
+            check_old_selection_matches_events(&rows);
+            rows.reverse();
+            check_old_selection_matches_events(&rows);
+        }
+    }
+
+    fn fingerprint_part(p: Part) -> (usize, usize, u64, u64, Option<u64>, Option<u64>) {
+        (
+            p.tag,
+            p.offset,
+            p.mass.to_bits(),
+            p.birth.to_bits(),
+            p.a.option().map(f64::to_bits),
+            p.b.option().map(f64::to_bits),
+        )
+    }
+
+    #[test]
+    fn original_split_and_combine_ieee_payloads_match_event_selected_rows() {
+        let mut seed = 0x1E57_2026_u64;
+        let mut rows = vec![
+            row(1, 0.00125, 0.19, -0., -0.),
+            row(1, 0.00250, 0.57, 0., 0.),
+            row(2, 0.05432, 0.91, 0., 2.),
+            row(2, 0.03410, 0.07, 0., 3.),
+        ];
+        for i in 0..451 {
+            seed = seed.wrapping_mul(2862933555777941757).wrapping_add(3037000493);
+            let a = ((seed >> 24) % 90) as f64 / 3.;
+            seed = seed.wrapping_mul(2862933555777941757).wrapping_add(3037000493);
+            let b = a + ((seed >> 24) % 30) as f64 / 3.;
+            rows.push(row(i % 9, 0.000001 + (i as f64) * 0.000127,
+                          0.00713 + (i as f64) * 0.0000119, a, b));
+        }
+        let mut edges: Vec<_> = rows.iter()
+            .flat_map(|x| [x.a.unwrap(),x.b.unwrap()]).collect();
+        edges.sort_unstable_by(f64::total_cmp);
+        edges.dedup();
+        let mut sweep = IntervalActiveSweep::new(&rows).unwrap();
+        for (k,&a) in edges.iter().enumerate() {
+            sweep.advance(a);
+            let old_point = combine(rows.iter()
+                .filter(|x| x.a == Some(a) && x.b == Some(a))
+                .copied().collect()).unwrap();
+            let new_point = combine(sweep.current_points.iter()
+                .map(|&i| rows[i]).collect()).unwrap();
+            assert_eq!(old_point.into_iter().map(fingerprint_part).collect::<Vec<_>>(),
+                       new_point.into_iter().map(fingerprint_part).collect::<Vec<_>>());
+            if let Some(&b) = edges.get(k+1) {
+                let transform = |p: Part| {
+                    let (pa,pb) = (p.a.unwrap(),p.b.unwrap());
+                    let mut q=p;
+                    q.mass = q.mass * (b-a) / (pb-pa);
+                    q.birth = q.birth * (b-a) / (pb-pa);
+                    q.a=PackedTime::new(Some(a)).unwrap();
+                    q.b=PackedTime::new(Some(b)).unwrap();
+                    q
+                };
+                let reference = combine(rows.iter().copied()
+                    .filter(|x| x.a.unwrap() <=a && x.b.unwrap()>=b && x.b>x.a)
+                    .map(transform).collect()).unwrap();
+                let candidate = combine(sweep.active.iter().map(|&i| transform(rows[i]))
+                    .collect()).unwrap();
+                assert_eq!(
+                    reference.into_iter().map(fingerprint_part).collect::<Vec<_>>(),
+                    candidate.into_iter().map(fingerprint_part).collect::<Vec<_>>(),
+                    "split+combine bytes mismatch on interval [{a:?},{b:?}]",
+                );
+            }
+        }
+    }
+
+    #[test]
+    #[ignore]
+    fn benchmark_original_naive_scan_vs_event_sweep_selection_only() {
+        use std::hint::black_box;
+        use std::time::Instant;
+        let mut rows = Vec::new();
+        for i in 0..5000 {
+            let a = (i % 90) as f64;
+            let b = a + (i % 31 + 1) as f64;
+            rows.push(row(i % 13, (i as f64 + 1.) / 35000.,
+                          i as f64 * 0.00017, a, b));
+        }
+        let mut edges: Vec<_> = rows.iter()
+            .flat_map(|x| [x.a.unwrap(),x.b.unwrap()]).collect();
+        edges.sort_unstable_by(f64::total_cmp);
+        edges.dedup();
+        let mut reference_time = 0u128;
+        let mut optimized_time = 0u128;
+        let mut original_selections=0usize;
+        let mut indexed_selections=0usize;
+        for _ in 0..4 {
+            let start=Instant::now();
+            let mut output=0usize;
+            for (i,&a) in edges.iter().enumerate() {
+                output+=rows.iter()
+                    .filter(|p| p.a == Some(a) && p.b == Some(a)).count();
+                if let Some(&b) = edges.get(i+1) {
+                    output+=rows.iter().filter(|p| p.a.unwrap()<=a &&
+                        p.b.unwrap()>=b && p.b>p.a).count();
+                }
+            }
+            reference_time+=start.elapsed().as_nanos();
+            original_selections=black_box(output);
+            let start=Instant::now();
+            let mut sweep=IntervalActiveSweep::new(&rows).unwrap();
+            let mut selected=0;
+            for &a in &edges {
+                sweep.advance(a);
+                selected+=sweep.current_points.len()+sweep.active.len();
+            }
+            optimized_time+=start.elapsed().as_nanos();
+            indexed_selections=black_box(selected);
+        }
+        assert_eq!(original_selections,indexed_selections);
+        println!("V03_SWEEP_BENCH rows={} edges={} original_ns={} sweep_ns={} ratio={:.5}",
+                 rows.len(),edges.len(),reference_time,optimized_time,
+                 reference_time as f64/optimized_time as f64);
+    }
+
 }
