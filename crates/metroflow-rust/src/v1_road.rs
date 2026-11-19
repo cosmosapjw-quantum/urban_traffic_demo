@@ -5,7 +5,7 @@ use pyo3::exceptions::{PyArithmeticError, PyIOError, PyMemoryError, PyValueError
 use pyo3::prelude::*;
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::io::{Read, Write};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 // Shadow-only experiment; the original V03 road kernel and checkpoint layout
 // remain unchanged in non-test native builds.
 #[cfg(test)]
@@ -138,9 +138,9 @@ enum PacketParts {
     Uniform {
         a: PackedTime,
         b: PackedTime,
-        rows: Vec<CorePart>,
+        rows: Arc<Vec<CorePart>>,
     },
-    Mixed(Vec<Part>),
+    Mixed(Arc<Vec<Part>>),
 }
 impl PacketParts {
     fn pack(
@@ -162,28 +162,20 @@ impl PacketParts {
                 mass: p.mass,
                 birth: p.birth,
             }));
-            Ok(Self::Uniform { a, b, rows })
+            // Move ownership into an immutable shared container. No new row
+            // conversion/copy is performed by Arc::new.
+            Ok(Self::Uniform { a, b, rows: Arc::new(rows) })
         } else {
-            Ok(Self::Mixed(parts))
+            Ok(Self::Mixed(Arc::new(parts)))
         }
     }
     fn clone_checked(&self) -> PyResult<Self> {
-        match self {
-            Self::Uniform { a, b, rows } => {
-                let mut copied = checkpoint_vec(rows.len())?;
-                copied.extend_from_slice(rows);
-                Ok(Self::Uniform {
-                    a: *a,
-                    b: *b,
-                    rows: copied,
-                })
-            }
-            Self::Mixed(rows) => {
-                let mut copied = checkpoint_vec(rows.len())?;
-                copied.extend_from_slice(rows);
-                Ok(Self::Mixed(copied))
-            }
-        }
+        // PacketParts owns only immutable post-packing compositions. Existing
+        // snapshots and candidates may reference the same physical row
+        // storage. All operations modifying a packet replace its entire
+        // PacketParts value; they never mutate the shared Vec in place.
+        // The original conservative work-budget remains unchanged.
+        Ok(self.clone())
     }
     fn len(&self) -> usize {
         match self {

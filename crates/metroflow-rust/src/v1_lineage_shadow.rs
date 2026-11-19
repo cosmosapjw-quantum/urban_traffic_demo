@@ -684,3 +684,69 @@ mod original_served_stream_oracles {
         }
     }
 }
+
+
+#[cfg(test)]
+mod original_packet_composition_sharing_tests {
+    use super::*;
+    use std::sync::Arc;
+
+    fn sig(p: Part)->(usize,usize,u64,u64,u64,u64) {
+        (p.tag,p.offset,p.mass.to_bits(),p.birth.to_bits(),p.a.unwrap().to_bits(),p.b.unwrap().to_bits())
+    }
+
+    #[test]
+    fn uniform_and_mixed_clones_share_identical_immutable_source_bytes() {
+        for is_mixed in [false,true] {
+            let mut input=Vec::new();
+            for i in 0..161 {
+                input.push(Part {
+                    tag:i%7, offset:i%5,
+                    mass:(i as f64+1.0)/3000.0,
+                    birth:(i as f64+0.17)/5000.0,
+                    a:PackedTime::new(Some(if i==0 {-0.0} else {0.0})).unwrap(),
+                    b:PackedTime::new(Some(if is_mixed && i%3==0 {2.0} else {3.0})).unwrap(),
+                });
+            }
+            if !is_mixed {
+                // signed zero has distinct bits and would force a Mixed packet.
+                input[0].a=PackedTime::new(Some(0.0)).unwrap();
+            }
+            let original=PacketParts::pack(input, |_|Ok(())).unwrap();
+            let clone=original.clone_checked().unwrap();
+            match (&original,&clone) {
+                (PacketParts::Uniform{rows:a,..},PacketParts::Uniform{rows:b,..})=>
+                    assert!(Arc::ptr_eq(a,b)),
+                (PacketParts::Mixed(a),PacketParts::Mixed(b))=>
+                    assert!(Arc::ptr_eq(a,b)),
+                _=>panic!("original packet representation unexpectedly changed"),
+            }
+            let expected=original.iter().map(sig).collect::<Vec<_>>();
+            assert_eq!(clone.iter().map(sig).collect::<Vec<_>>(),expected);
+            // Replacing the source packet must never mutate or invalidate the
+            // already-cloned immutable source composition.
+            drop(original);
+            assert_eq!(clone.iter().map(sig).collect::<Vec<_>>(),expected);
+        }
+    }
+
+    #[test]
+    fn shared_packet_clones_preserve_original_part_order_and_float_bits() {
+        let rows=(0..1024).map(|i| Part{
+            tag:i%19,offset:i%3,mass:0.001+(i as f64)*0.0000023,
+            birth:0.001+(i as f64)*0.0000019,
+            a:PackedTime::new(Some(0.0)).unwrap(),
+            b:PackedTime::new(Some(if i%2==0 {1.0} else {2.0})).unwrap(),
+        }).collect::<Vec<_>>();
+        let packet=PacketParts::pack(rows, |_|Ok(())).unwrap();
+        let exact=packet.iter().map(sig).collect::<Vec<_>>();
+        let copies=(0..128).map(|_|packet.clone_checked().unwrap()).collect::<Vec<_>>();
+        for copy in &copies {
+            assert_eq!(copy.iter().map(sig).collect::<Vec<_>>(),exact);
+        }
+        if let PacketParts::Mixed(parent)=&packet {
+            assert_eq!(Arc::strong_count(parent),129);
+        } else {panic!("expected heterogeneous interval tags")}
+        assert_eq!(packet.iter().map(sig).collect::<Vec<_>>(),exact);
+    }
+}
