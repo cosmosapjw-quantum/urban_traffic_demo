@@ -1230,18 +1230,17 @@ fn combine(parts: Vec<Part>) -> PyResult<Vec<Part>> {
     });
     Ok(out)
 }
-/// Materialize only final, combined interval rows from ordered source indices.
-/// Every original split operation is evaluated for each selected source row,
-/// and fsum sees values in the same original per-key source-index order.
-/// This removes the full temporary Vec<Part> before combine; it does not
-/// identify, drop or merge distinct source intervals.
-fn combine_interval_view(
+/// Shared exact source-order reduction for all non-point output intervals.
+/// One output row is constructed per combined key, so the production mapper
+/// can allocate CorePart directly without also allocating final Vec<Part>.
+fn combine_interval_mapped<T>(
     parts: &[Part],
     selected: impl Iterator<Item = usize>,
     selected_count: usize,
     a: f64,
     b: f64,
-) -> PyResult<Vec<Part>> {
+    mut encode: impl FnMut(Part) -> T,
+) -> PyResult<Vec<T>> {
     let width = b - a;
     let mut indices = checkpoint_vec(selected_count)?;
     for i in selected {
@@ -1251,8 +1250,9 @@ fn combine_interval_view(
             indices.push(i);
         }
     }
-    // All resulting Parts have the exact same (a,b) bit pattern; hence
-    // combine's key (tag,offset,a_bits,b_bits) reduces to (tag,offset).
+    // All selected rows get precisely the same (a,b) binary patterns.
+    // With the original source-index tie key, sorting tag/offset/index is
+    // exactly the previous combine's tag/offset/a_bits/b_bits/index key.
     indices.sort_unstable_by(|&i, &j| {
         (parts[i].tag, parts[i].offset, i).cmp(&(parts[j].tag, parts[j].offset, j))
     });
@@ -1278,18 +1278,37 @@ fn combine_interval_view(
         }));
         p.a = aa;
         p.b = bb;
-        out.push(p);
+        out.push(encode(p));
         start = end;
     }
-    // Explicitly retain legacy output ordering rather than assuming
-    // the grouping sort is always identical.
-    out.sort_unstable_by(|x, y| {
-        x.tag.cmp(&y.tag)
-            .then(x.offset.cmp(&y.offset))
-            .then(x.a.unwrap_or(-1.0).total_cmp(&y.a.unwrap_or(-1.0)))
-            .then(x.b.unwrap_or(-1.0).total_cmp(&y.b.unwrap_or(-1.0)))
-    });
+    // The source sort already produces original canonical tag/offset order,
+    // with identical endpoint bits for every row. No extra output sorting.
     Ok(out)
+}
+
+#[cfg(test)]
+fn combine_interval_view(
+    parts: &[Part],
+    selected: impl Iterator<Item = usize>,
+    selected_count: usize,
+    a: f64,
+    b: f64,
+) -> PyResult<Vec<Part>> {
+    combine_interval_mapped(parts, selected, selected_count, a, b, |p|p)
+}
+
+/// Production direct-core construction: no simultaneous Vec<Part> combined
+/// rows and Vec<CorePart> packed rows. Same per-row IEEE sums and output order.
+fn combine_interval_core(
+    parts: &[Part],
+    selected: impl Iterator<Item = usize>,
+    selected_count: usize,
+    a: f64,
+    b: f64,
+) -> PyResult<Vec<CorePart>> {
+    combine_interval_mapped(parts, selected, selected_count, a, b, |p| CorePart {
+        tag:p.tag, offset:p.offset, mass:p.mass, birth:p.birth,
+    })
 }
 
 fn characteristic(v0: f64, target: f64, dt: f64, tau: f64, acc: f64, brake: f64) -> (f64, f64) {
@@ -1961,7 +1980,7 @@ impl V1Road {
         // interval rows instead retain only one output Vec<Part> and source
         // indices, without a separate full split Vec<Part>.
         const POINT_ROW_BYTES: usize = 2 * std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
-        const INTERVAL_ROW_BYTES: usize = std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
+        const INTERVAL_ROW_BYTES: usize = std::mem::size_of::<CorePart>() + std::mem::size_of::<usize>();
         let transient = |count: usize, packets: usize, is_point: bool| {
             edge_bytes
                 .saturating_add(event_index_bytes)
@@ -2005,10 +2024,18 @@ impl V1Road {
                 work.interval(transient(count, out.len(), false))?;
                 // The original source indices are already ascending; avoid
                 // materializing a second full-size interval split buffer.
-                let ps = combine_interval_view(&parts, sweep.active.iter(), count, a, b)?;
-                if !ps.is_empty() {
-                    records += ps.len();
-                    let parts = work.pack_parts(ps)?;
+                let core = combine_interval_core(&parts, sweep.active.iter(), count, a, b)?;
+                if !core.is_empty() {
+                    records += core.len();
+                    // Every nonpoint output row has exactly the same interval
+                    // [a,b]. Construct the final uniform storage directly,
+                    // with no intermediate combined Vec<Part> and no second
+                    // packing buffer allocation or artificial packing credit.
+                    let parts = PacketParts::Uniform {
+                        a: PackedTime::new(Some(a))?,
+                        b: PackedTime::new(Some(b))?,
+                        rows: Arc::new(core),
+                    };
                     work.retain_interval(
                         parts
                             .allocated_bytes()
@@ -4155,5 +4182,77 @@ mod exact_shared_event_source_budget_tests {
         assert_eq!(separate.road_step_bytes(candidate), 2 * 8192 + candidate_bytes);
         assert_eq!(one.road_step_bytes(0), 8192 + 96);
         // Distinct current backing: never subtract a value-equal buffer.
+    }
+}
+
+#[cfg(test)]
+mod direct_core_interval_pack_tests {
+    use super::*;
+
+    fn signature(p: Part) -> (usize, usize, u64, u64, u64, u64) {
+        (p.tag, p.offset, p.mass.to_bits(), p.birth.to_bits(),
+         p.a.unwrap().to_bits(), p.b.unwrap().to_bits())
+    }
+
+    #[test]
+    fn direct_core_rows_match_old_combined_uniform_packet_bits() {
+        let mut rows = Vec::new();
+        for i in 0..371usize {
+            let a = if i % 17 == 0 {-0.0} else {0.};
+            let b = if i % 11 == 0 {1.} else {2.};
+            let mass = match i % 13 {
+                0 => f64::from_bits(1),
+                1 => 0.,
+                2 => 1e-100,
+                3 => 1e100,
+                _ => (i % 19 + 1) as f64 / 71000.,
+            };
+            rows.push(Part {
+                tag:i%7,offset:i%3,mass,
+                birth: if i%3==0 {mass} else {mass * 1.25},
+                a:PackedTime::new(Some(a)).unwrap(),
+                b:PackedTime::new(Some(b)).unwrap(),
+            });
+        }
+        for (a,b) in [(-0., 1.), (0., 1.), (0.25,0.75), (1.,2.)] {
+            let selected:Vec<usize> = (0..rows.len()).filter(|&i| {
+                rows[i].a.unwrap()<=a && rows[i].b.unwrap()>=b
+            }).collect();
+            let old = combine_interval_view(&rows,selected.iter().copied(),selected.len(),a,b).unwrap();
+            let old_pack = PacketParts::pack(old, |_|Ok(())).unwrap();
+            let direct = combine_interval_core(&rows,selected.iter().copied(),selected.len(),a,b).unwrap();
+            let new_pack = PacketParts::Uniform {
+                a:PackedTime::new(Some(a)).unwrap(),
+                b:PackedTime::new(Some(b)).unwrap(),
+                rows:Arc::new(direct),
+            };
+            assert_eq!(
+                old_pack.iter().map(signature).collect::<Vec<_>>(),
+                new_pack.iter().map(signature).collect::<Vec<_>>(),
+                "direct packed result changed on [{a:?},{b:?}]"
+            );
+        }
+    }
+
+    #[test]
+    fn direct_core_empty_and_duplicate_key_order() {
+        let rows = vec![
+            Part{tag:1,offset:2,mass:1e-10,birth:3e-10,
+                 a:PackedTime::new(Some(0.)).unwrap(),b:PackedTime::new(Some(1.)).unwrap()},
+            Part{tag:1,offset:2,mass:1e20,birth:7e20,
+                 a:PackedTime::new(Some(0.)).unwrap(),b:PackedTime::new(Some(1.)).unwrap()},
+            Part{tag:1,offset:2,mass:1e-10,birth:11e-10,
+                 a:PackedTime::new(Some(0.)).unwrap(),b:PackedTime::new(Some(1.)).unwrap()},
+        ];
+        assert!(combine_interval_core(&rows, std::iter::empty(), 0, 0., 1.).unwrap().is_empty());
+        let reference=combine_interval_view(&rows,0..3,3,0.,1.).unwrap();
+        let core=combine_interval_core(&rows,0..3,3,0.,1.).unwrap();
+        let wrapped=PacketParts::Uniform{
+            a:PackedTime::new(Some(0.)).unwrap(),
+            b:PackedTime::new(Some(1.)).unwrap(),
+            rows:Arc::new(core),
+        };
+        assert_eq!(reference.into_iter().map(signature).collect::<Vec<_>>(),
+                   wrapped.iter().map(signature).collect::<Vec<_>>());
     }
 }
