@@ -1,0 +1,7 @@
+{
+  "native_binary_sha256": "68fcbbd8c2d00f5ebc30d9434db4f9f4d4279f84447a5d0669bdf2ef22bc6c17",
+  "schema": "V03_C9_HIERARCHICAL_BITSET_CURRENT_NATIVE_ID_V1",
+  "source_commit": "6bd729e2f23120141f37706692fdcd00eb6b26a1",
+  "source_dirty": false,
+  "source_sha256": "b622ac7d96cf80f74b9c74983e73a6b4726d5577b4ceb6e369a7a300ed10c487"
+}
