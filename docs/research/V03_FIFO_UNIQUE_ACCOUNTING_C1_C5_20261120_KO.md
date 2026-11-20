@@ -30,3 +30,16 @@ The original whole-native engine holds a supplied immutable snapshot together wi
 Three RED→GREEN Rust tests compare (i) three RoadStates cloned from the same immutable packet, owners=3 and unique=1, (ii) two separately allocated identical contents, unique=2, (iii) empty and singleton unions. RED was recorded as E0599 missing method; after implementation fresh Rust workspace 87 passed, 2 ignored, Cargo check passed, compiled release native built successfully, and 32 original native V1 Python tests passed.
 
 This proves exact payload-accounting identity for enumerated live references and supports measuring current/committed overlap. It does NOT include the newly allocated candidate, every in-flight event buffer or missing/untracked other retained snapshots and cannot justify reducing the original 5242806391-byte native cap by itself. The C2 25300/25600 one-state zero-duplicate result remains a valid **historic source-pinned measurement** under its original binary SHA; after recompiling C3 it must not be cited as a fresh native binary test without source recomputation. Next C4 runs the new interface against the same actual 100k Valley 25600 checkpoint, source/binary remeasured and checkpoint provenance pinned.
+
+
+## C4. Actual source-bound committed/supplied RoadState ownership overlap
+
+Using C3's newly compiled whole-native read-only diagnostic, loaded the identical original Valley 100k checkpoints at 25300 and 25600 seconds, verified original matrix/driver/mass ledgers and actual on-disk binary SHA, and queried current committed plus supplied immutable snapshot **without advancing physical time**.
+
+At t=25300, one-state owner_count=2027, unique_backing_count=2027, unique payload=4975520 bytes; two-state owner_count=4054, unique_backing_count=2027, duplicate payload=4975520 bytes.
+
+At t=25600, one-state owner_count=158498, unique_backing_count=158498, unique payload=257596256 bytes, physical Part record count=8049883; simultaneously committed plus supplied owner_count=316996, unique_backing_count=158498, owner payload=515192512, unique payload=257596256, duplicate payload=257596256 bytes.
+
+**Interpretation:** the live committed/supplied pair shares every measured backing, while each individual RoadState has no internal duplicates. Hence the per-owner capacity across these two states overcounts the payload by 257596256 bytes. This is an implementation-verified integer identity for these *two enumerated owners*, NOT a reduction of the original RoadWorkBudget: a changing candidate, interval_retained/transient and incoming/EventRow scratch are not enumerated. The native 5242806391 byte limit, original process 8GiB cap, source calendar and physics remain unchanged. The prior C2 receipt was pinned to an older Rust binary; tests were restricted to its historical source evidence, while fresh C4 tests verify current live source and binary SHA. Independent C4 and C2 Python source-bound tests 4/4 passed.
+
+**Falsifiable next step:** determine whether a conservative, non-fitted lower bound on Arc sharing *throughout the entire failed tick*, including changes in candidate and all in-flight allocations, can be applied without decreasing required capacity below actual simultaneous live bytes. Until such a proof and stress experiment, report RESOURCE_BLOCKED, not "corrected accounting" or a completed 25650 run.
