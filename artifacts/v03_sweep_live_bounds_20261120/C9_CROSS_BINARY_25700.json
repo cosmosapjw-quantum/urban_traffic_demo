@@ -1,0 +1,409 @@
+{
+  "case": "valley_weekday_s7",
+  "completed_time_s": null,
+  "created_utc": "2026-11-20T14:14:56+00:00",
+  "current_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "current_git_commit": "dc4687fcc8a4664956a69349f7ae3e12dd8d8f18",
+  "current_native_binary_sha256": "8d32a76eb1c0c996b0fa4043f0e6748b521ff50a4c59fc3bc0924afa830b2c2a",
+  "current_source_dirty": false,
+  "current_source_sha256": "570b8f9cfebb78d365540b9f7f57e3896e5048f34833d858fcd3fee5056fdd8d",
+  "error": {
+    "class": "BudgetExceeded",
+    "message": "native road storage budget exceeded: phase=indexed sweep preflight, required_bytes=5266719968, budget_bytes=5264781423",
+    "phase": "PHYSICAL_25650_TO_25700"
+  },
+  "evidence_class": "EXPERIMENTAL_CROSS_VERSION_WIRE_EQUIVALENCE",
+  "final_checkpoint_bytes": null,
+  "final_checkpoint_sha256": null,
+  "final_ledger": null,
+  "input_checkpoint_bytes": 1683486650,
+  "input_checkpoint_sha256": "89e3230b23b4423509f6036035e9b03c7299204b5d317cdb3f6226c5b0c53e8b",
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "model_parameters_changed": false,
+  "old_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "old_native_binary_sha256": "68fcbbd8c2d00f5ebc30d9434db4f9f4d4279f84447a5d0669bdf2ef22bc6c17",
+  "old_source_sha256": "b622ac7d96cf80f74b9c74983e73a6b4726d5577b4ceb6e369a7a300ed10c487",
+  "original_V03_full_day_acceptance": "BLOCKED_0_OF_9",
+  "original_source_bound_current_prefix": false,
+  "peak_rss_bytes": 2954747904,
+  "phase": "PHYSICAL_25650_TO_25700",
+  "process_address_space_cap_bytes": 8589934592,
+  "roundtrip_wire_identity": true,
+  "schema": "V03_EXACT_VIEW_CROSS_BINARY_PROBE_V1",
+  "start_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1406.1389949728473,
+      "completed": 62.87847674378143,
+      "pending": 1030.9825282833044,
+      "released": 1469.0174717166287,
+      "requested": 2499.999999999933
+    },
+    "vehicles": {
+      "active": 1124.6150364568555,
+      "completed": 48.71829687645889,
+      "pending": 51.66666666668266,
+      "released": 1173.3333333333144,
+      "requested": 1224.999999999997
+    }
+  },
+  "start_time_s": 25650.0,
+  "status": "BLOCKED_RESOURCE",
+  "target_time_s": 25700.0,
+  "trace_counters": {
+    "arc.experimental_paired_credit": [
+      1,
+      0,
+      0
+    ],
+    "entry.combined_rows": [
+      95,
+      3046053,
+      303634
+    ],
+    "entry.raw_rows": [
+      95,
+      3138567,
+      313606
+    ],
+    "exact.intervals": [
+      95,
+      32990,
+      1787
+    ],
+    "exact.point_rows": [
+      95,
+      763710,
+      87513
+    ],
+    "exact.runs": [
+      95,
+      30271,
+      1523
+    ],
+    "merge.adjacent_rows": [
+      30226,
+      2138621,
+      836
+    ],
+    "merge.equal_density_rows": [
+      30226,
+      47172,
+      307
+    ],
+    "merge.same_key_rows": [
+      30226,
+      2034187,
+      440
+    ],
+    "pending.rows": [
+      516,
+      50728,
+      464
+    ],
+    "split.edges": [
+      94,
+      39047,
+      2144
+    ],
+    "split.in_rows": [
+      94,
+      2883207,
+      303634
+    ],
+    "split.out_packets": [
+      94,
+      44124,
+      2382
+    ],
+    "split.out_rows": [
+      94,
+      3074251,
+      321942
+    ],
+    "tick.cell_packets": [
+      1,
+      310031,
+      310031
+    ],
+    "tick.cell_parts": [
+      1,
+      16528850,
+      16528850
+    ],
+    "tick.offers": [
+      1,
+      154977,
+      154977
+    ],
+    "tick.pending_packets": [
+      1,
+      0,
+      0
+    ],
+    "tick.pending_parts": [
+      1,
+      0,
+      0
+    ],
+    "xfer.head_rows": [
+      123429,
+      7701869,
+      844
+    ],
+    "xfer.new_head_rows": [
+      109776,
+      5474458,
+      844
+    ],
+    "xfer.partial_rows": [
+      13686,
+      2232224,
+      442
+    ],
+    "xfer.partial_serve": [
+      123429,
+      13686,
+      1
+    ],
+    "xfer.rate_change_contiguous_rows": [
+      51,
+      8809,
+      226
+    ],
+    "xfer.same_head_gap_rows": [
+      2663,
+      448687,
+      442
+    ],
+    "xfer.same_rate_contiguous_rows": [
+      10939,
+      1769915,
+      442
+    ],
+    "xfer.serve_incoming_rows": [
+      123429,
+      7564308,
+      844
+    ],
+    "xfer.serve_rows": [
+      123429,
+      7701869,
+      844
+    ],
+    "xfer.sink_rows": [
+      123429,
+      137561,
+      12
+    ],
+    "xfer.substep_heads": [
+      109829,
+      123429,
+      3
+    ]
+  },
+  "trace_mode": "record",
+  "trace_sites": {
+    "engine_admission:capture": {
+      "calls": 1,
+      "exceeded": 0,
+      "limit_at_max": 6442450944,
+      "live_at_max": null,
+      "max_ratio": 0.6397318891249597,
+      "max_required": 4121441313,
+      "terms_at_max": {
+        "call_binding": 82704900,
+        "events": 436440640,
+        "fixed_base": 570379173,
+        "journey": 169911928,
+        "road": 549766512,
+        "validation_scratch": 0
+      }
+    },
+    "journey_store:stored/working": {
+      "calls": 51232,
+      "exceeded": 0,
+      "limit_at_max": 3816952567,
+      "live_at_max": null,
+      "max_ratio": 0.1676902358006169,
+      "max_required": 640065676,
+      "terms_at_max": {
+        "dynamic": 175342000,
+        "retained": 169848240,
+        "scratch": 113974140
+      }
+    },
+    "phase_allowance:journey prepare": {
+      "calls": 1,
+      "exceeded": 0,
+      "limit_at_max": 5789366871,
+      "live_at_max": null,
+      "max_ratio": 0.3406960291081543,
+      "max_required": 1972414304,
+      "terms_at_max": {}
+    },
+    "phase_allowance:road step": {
+      "calls": 1,
+      "exceeded": 0,
+      "limit_at_max": 5789366871,
+      "live_at_max": null,
+      "max_ratio": 0.09061188549437844,
+      "max_required": 524585448,
+      "terms_at_max": {}
+    },
+    "road_actual:transfer buffers": {
+      "calls": 1,
+      "exceeded": 0,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 0.23983741822286095,
+      "max_required": 1262691584,
+      "terms_at_max": {
+        "charged_events": 7701869,
+        "charged_incoming": 7564308,
+        "events_cap": 8388608,
+        "events_len": 7701869,
+        "incoming_cap": 11340948,
+        "incoming_len": 7564308,
+        "marks_cap": 11340948
+      }
+    },
+    "road_base:components": {
+      "calls": 1,
+      "exceeded": 0,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 0.4314671067019528,
+      "max_required": 2271580008,
+      "terms_at_max": {
+        "classes": 3,
+        "groups": 1586,
+        "input_retained": 549766512,
+        "max_cell_parts": 504445,
+        "offers": 154977,
+        "paired_arc_credit": 0,
+        "rows": 16528850,
+        "state_retained": 549766512
+      }
+    },
+    "road_work:cell packet reservation": {
+      "calls": 94,
+      "exceeded": 0,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 0.9994691413041783,
+      "max_required": 5261986568,
+      "terms_at_max": {
+        "base": 2271580008,
+        "event_bytes": 1915199456,
+        "extra": 198624,
+        "incoming_rows": 7615036,
+        "interval_retained": 100283872,
+        "interval_transient": 0
+      }
+    },
+    "road_work:entry interval split": {
+      "calls": 78000,
+      "exceeded": 0,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 0.9997361791709087,
+      "max_required": 5263392464,
+      "terms_at_max": {
+        "base": 2271580008,
+        "event_bytes": 1915199456,
+        "extra": 0,
+        "incoming_rows": 7615036,
+        "interval_retained": 97839456,
+        "interval_transient": 4048936
+      }
+    },
+    "road_work:indexed sweep preflight": {
+      "calls": 95,
+      "exceeded": 1,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 1.0003682099681348,
+      "max_required": 5266719968,
+      "terms_at_max": {
+        "base": 2271580008,
+        "event_bytes": 1915199456,
+        "extra": 4932024,
+        "incoming_rows": 7615036,
+        "interval_retained": 100283872,
+        "interval_transient": 0
+      }
+    },
+    "road_work:interval edges and indexed sweep": {
+      "calls": 94,
+      "exceeded": 0,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 0.9994222592059165,
+      "max_required": 5261739744,
+      "terms_at_max": {
+        "base": 2271580008,
+        "event_bytes": 1915199456,
+        "extra": 103096,
+        "incoming_rows": 7615036,
+        "interval_retained": 100132576,
+        "interval_transient": 0
+      }
+    },
+    "road_work:packet interval packing": {
+      "calls": 14202,
+      "exceeded": 0,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 0.9765201285546323,
+      "max_required": 5141165032,
+      "terms_at_max": {
+        "base": 2271580008,
+        "event_bytes": 1906762400,
+        "extra": 6880,
+        "incoming_rows": 7521998,
+        "interval_retained": 0,
+        "interval_transient": 0
+      }
+    },
+    "road_work:tick preflight": {
+      "calls": 1,
+      "exceeded": 0,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 0.514365250600832,
+      "max_required": 2708020616,
+      "terms_at_max": {
+        "base": 2271580008,
+        "event_bytes": 436440608,
+        "extra": 0,
+        "incoming_rows": 0,
+        "interval_retained": 0,
+        "interval_transient": 0
+      }
+    },
+    "road_work:transfer candidates": {
+      "calls": 123945,
+      "exceeded": 0,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 0.9803833544639067,
+      "max_required": 5161504072,
+      "terms_at_max": {
+        "base": 2271580008,
+        "event_bytes": 1915199456,
+        "extra": 0,
+        "incoming_rows": 7615036,
+        "interval_retained": 0,
+        "interval_transient": 0
+      }
+    }
+  },
+  "wall_s": 32.70815516699804
+}
