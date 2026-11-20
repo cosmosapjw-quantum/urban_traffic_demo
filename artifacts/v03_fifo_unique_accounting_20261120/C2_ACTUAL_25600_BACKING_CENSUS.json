@@ -1,0 +1,62 @@
+{
+  "claim_scope": "within each one loaded RoadState, no simultaneous input/current/candidate union census",
+  "current_native_sha256": "395ced34e473b3544c79e94660b1e2da45f6929c6ba89c3b13020ed0ee98bbb7",
+  "current_source_sha256": "1982cefea81efb470f539bb8e298dbc81b419c94f35b8803f666021d499823f4",
+  "elapsed_total_s": 24.315368804999707,
+  "measurements": {
+    "25300": {
+      "arc_backing_census": {
+        "duplicate_payload_bytes": 0,
+        "owner_count": 2027,
+        "owner_payload_bytes": 4975520,
+        "scope": "unique Arc<Vec> backing payloads within ONE stored RoadState; diagnostic only, not live process RSS or admission",
+        "unique_arc_control_allowance_bytes": 194592,
+        "unique_backing_count": 2027,
+        "unique_payload_bytes": 4975520
+      },
+      "original_checkpoint_bytes": 83139202,
+      "original_full_calendar_residents": 100000,
+      "original_source_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+      "road_packet_count": 2027,
+      "road_packet_rows": 155485,
+      "road_vector_capacity_bytes_per_owner": 5256336,
+      "seconds_elapsed_since_start": 21.443558871999812,
+      "simulated_time_s": 25300,
+      "source_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4"
+    },
+    "25600": {
+      "arc_backing_census": {
+        "duplicate_payload_bytes": 0,
+        "owner_count": 158498,
+        "owner_payload_bytes": 257596256,
+        "scope": "unique Arc<Vec> backing payloads within ONE stored RoadState; diagnostic only, not live process RSS or admission",
+        "unique_arc_control_allowance_bytes": 15215808,
+        "unique_backing_count": 158498,
+        "unique_payload_bytes": 257596256
+      },
+      "original_checkpoint_bytes": 866763962,
+      "original_full_calendar_residents": 100000,
+      "original_source_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+      "road_packet_count": 158498,
+      "road_packet_rows": 8049883,
+      "road_vector_capacity_bytes_per_owner": 262884144,
+      "seconds_elapsed_since_start": 24.3153047349997,
+      "simulated_time_s": 25600,
+      "source_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4"
+    }
+  },
+  "observed_state_times_s": [
+    25300,
+    25600
+  ],
+  "original_24h_completed_runs": 0,
+  "original_24h_required_runs": 9,
+  "original_model_physics_advanced": false,
+  "original_native_internal_budget_bytes": 5242806391,
+  "original_physical_case": "valley_weekday_s7",
+  "original_release_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "process_address_space_limit_bytes": 8589934592,
+  "road_work_budget_modified": false,
+  "schema": "V03_100K_UNIQUE_ARC_BACKING_READONLY_CENSUS_20261120_V1",
+  "unique_arc_control_96bytes_estimate": "DIAGNOSTIC_ALLOWANCE_NOT_RSS_UPPER_BOUND"
+}
