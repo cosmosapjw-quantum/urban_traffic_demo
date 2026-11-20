@@ -349,20 +349,73 @@ struct ServiceEventAccounting {
 impl ServiceEventAccounting {
     /// Event buffers live during the road step: the call-input and current
     /// committed buffers (charged separately, never assumed shared) and the
-    /// push-built candidate, whose doubling reallocation briefly holds the old
-    /// and the new allocation (< 3 rows' worth; minimum four rows).
+    /// append-only fixed-size pages, which never reallocate old EventRows.
+    /// The flat output exists only during the separately-guarded final stage.
     fn road_step_bytes(self, generated_rows: usize) -> usize {
-        let candidate = if generated_rows == 0 {
-            0
-        } else {
-            generated_rows.max(4).saturating_mul(3)
-        };
         self.input_bytes
             .saturating_add(if self.shared_input_current { 0 } else { self.current_bytes })
-            .saturating_add(candidate.saturating_mul(std::mem::size_of::<EventRow>()))
-            .saturating_add(3 * 32)
+            .saturating_add(paged_event_candidate_bytes(generated_rows))
     }
 }
+// EventRow is a fixed 64-byte tuple in the pinned native ABI; all original
+// fields, Option<usize> tags and binary64 payloads remain byte-exact.
+const EVENT_PAGE_ROWS: usize = 4096;
+
+#[derive(Default)]
+struct ChunkedEvents {
+    chunks: Vec<Vec<EventRow>>,
+    len: usize,
+}
+impl ChunkedEvents {
+    fn len(&self) -> usize { self.len }
+    fn capacity(&self) -> usize { self.chunks.iter().map(Vec::capacity).sum() }
+    fn iter(&self) -> impl Iterator<Item=&EventRow> {
+        self.chunks.iter().flat_map(|page|page.iter())
+    }
+    fn push_checked(&mut self, event: EventRow) -> PyResult<()> {
+        if self.chunks.last().is_none_or(|p|p.len()==EVENT_PAGE_ROWS) {
+            let page=checkpoint_vec(EVENT_PAGE_ROWS)?;
+            // Required to use the exact structural bounds below on this ABI.
+            if page.capacity()!=EVENT_PAGE_ROWS {
+                return Err(budget("fixed event page capacity differs from native contract"));
+            }
+            push_checked(&mut self.chunks, page)?;
+        }
+        self.chunks.last_mut().expect("event page allocated above").push(event);
+        self.len+=1;
+        Ok(())
+    }
+    /// Only executed after the entire road step has passed its work guards.
+    /// Each distinct original event is MOVED, once, in the same append order.
+    /// Its temporary coexistence with pages is charged separately beforehand.
+    fn into_flat_checked(self) -> PyResult<Vec<EventRow>> {
+        let mut flat=checkpoint_vec(self.len)?;
+        if flat.capacity()!=self.len {
+            return Err(budget("flat event output reserve exceeds exact native contract"));
+        }
+        for page in self.chunks {
+            flat.extend(page);
+        }
+        Ok(flat)
+    }
+}
+
+/// Candidate pages replace the old full-capacity Vec doubling reallocations.
+/// One last page can have at most (B-1) unused EventRows. A Vec<Vec<T>>
+/// descriptor array may be transiently present as old+grown headers; bound
+/// their total at 3*(ceil(n/B)+1) items. Retain legacy 96B metadata allowance.
+fn paged_event_candidate_bytes(n: usize) -> usize {
+    const META: usize=3*32;
+    if n==0 {return META;}
+    let records=n.saturating_add(EVENT_PAGE_ROWS-1);
+    records.saturating_mul(std::mem::size_of::<EventRow>())
+        .saturating_add(
+            n.div_ceil(EVENT_PAGE_ROWS).saturating_add(1).saturating_mul(
+                3 * std::mem::size_of::<Vec<EventRow>>(),
+            ),
+        ).saturating_add(META)
+}
+
 /// Service-finish sink workspace for `sink_rows` exiting events. The sinks
 /// are built only after the road step has returned and its workspaces have
 /// been dropped, so this envelope is charged then, against the exact count.
@@ -2710,7 +2763,7 @@ impl V1Road {
         } else {
             Vec::new()
         };
-        let mut events = vec![];
+        let mut events = ChunkedEvents::default();
         let mut incoming: Vec<ChunkedParts> = (0..n)
             .map(|_| ChunkedParts::default()).collect();
         // Diagnostic only: source (cell, head position, rate bits) per incoming row.
@@ -3028,8 +3081,7 @@ impl V1Road {
                         let k = self.class(&p);
                         out.ledger[k][3] += p.mass * (local_mid - ready).max(0.);
                         let j = self.dest(&p);
-                        push_checked(
-                            &mut events,
+                        events.push_checked(
                             (p.tag, i, j, p.mass, start_time, end_time, p.birth),
                         )?;
                         if let Some(j) = j {
@@ -3345,7 +3397,15 @@ impl V1Road {
                 .unwrap_or_else(|e| e.into_inner())
                 .merge(resolution);
         }
-        Ok((out, events))
+        // The original consumer API expects a contiguous Vec<EventRow>.
+        // Source-order pages can be flattened at the end of the road lifetime,
+        // without any field transformation. Charge the temporarily coexisting
+        // flat vector *before* allocation; do not silently ignore its peak.
+        work.require(
+            events.len().saturating_mul(std::mem::size_of::<EventRow>()),
+            "event candidate final materialize",
+        )?;
+        Ok((out, events.into_flat_checked()?))
     }
     fn row(&self) -> StateRow {
         let s = &self.state;
@@ -3819,7 +3879,7 @@ mod workspace_accounting_tests {
         let rows = 10_000;
         assert_eq!(
             a.road_step_bytes(rows),
-            3_000 + 3 * rows * std::mem::size_of::<EventRow>() + 96
+            3_000 + paged_event_candidate_bytes(rows)
         );
         assert_eq!(a.road_step_bytes(0), 3_096);
     }
@@ -4493,7 +4553,9 @@ mod exact_shared_event_source_budget_tests {
             shared_input_current: false, ..one
         };
         let candidate = 10usize;
-        let candidate_bytes = 3 * candidate * std::mem::size_of::<EventRow>() + 96;
+        // Candidate is now physically held in fixed-size event pages.
+        // Sharing of old committed input/current events remains pointer based.
+        let candidate_bytes = paged_event_candidate_bytes(candidate);
         assert_eq!(one.road_step_bytes(candidate), 8192 + candidate_bytes);
         assert_eq!(separate.road_step_bytes(candidate), 2 * 8192 + candidate_bytes);
         assert_eq!(one.road_step_bytes(0), 8192 + 96);
@@ -4945,5 +5007,65 @@ mod exact_segmented_mark_alignment_tests {
     fn actual_two_page_source_bound_uses_one_copy_of_each_row() {
         assert_eq!(segmented_incoming_charge(8_992_612,1586),595_563_136);
         assert_eq!(segmented_incoming_charge(0,1586),0);
+    }
+}
+
+#[cfg(test)]
+mod exact_paged_event_candidate_tests {
+    use super::*;
+
+    fn e(i: usize) -> EventRow {
+        (
+            i % 17,
+            i % 31,
+            if i % 9 == 0 { None } else { Some(i % 53) },
+            if i % 11 == 0 { f64::from_bits(1) } else { (i % 37 + 1) as f64/117. },
+            if i % 13 == 0 {-0.0} else { (i % 43) as f64/11. },
+            if i % 19 == 0 {-0.0} else { (i % 43 + 1) as f64/11. },
+            if i % 23 == 0 { f64::from_bits(1) } else { (i % 29) as f64/19. },
+        )
+    }
+    fn bits(x: EventRow) -> (usize,usize,Option<usize>,u64,u64,u64,u64) {
+        (x.0,x.1,x.2,x.3.to_bits(),x.4.to_bits(),x.5.to_bits(),x.6.to_bits())
+    }
+
+    #[test]
+    fn paged_events_reconstruct_original_exact_tuple_bits_and_order() {
+        for n in [0usize,1,2,4095,4096,4097,8193,20011] {
+            let original:Vec<_>=(0..n).map(e).collect();
+            let mut pages=ChunkedEvents::default();
+            for &event in &original { pages.push_checked(event).unwrap(); }
+            assert_eq!(pages.len(), n);
+            assert_eq!(pages.capacity(),n.div_ceil(EVENT_PAGE_ROWS)*EVENT_PAGE_ROWS);
+            assert_eq!(pages.chunks.len(),n.div_ceil(EVENT_PAGE_ROWS));
+            assert!(pages.chunks.iter().all(|page|page.capacity()==EVENT_PAGE_ROWS));
+            assert_eq!(pages.iter().copied().map(bits).collect::<Vec<_>>(),
+                       original.iter().copied().map(bits).collect::<Vec<_>>());
+            assert_eq!(pages.into_flat_checked().unwrap().into_iter().map(bits).collect::<Vec<_>>(),
+                       original.into_iter().map(bits).collect::<Vec<_>>());
+        }
+    }
+
+    #[test]
+    fn old_event_page_never_moves_when_later_events_are_appended() {
+        let mut pages=ChunkedEvents::default();
+        for i in 0..EVENT_PAGE_ROWS { pages.push_checked(e(i)).unwrap(); }
+        let ptr=pages.chunks[0].as_ptr();
+        for i in EVENT_PAGE_ROWS..(EVENT_PAGE_ROWS*3+17) { pages.push_checked(e(i)).unwrap(); }
+        assert_eq!(pages.chunks[0].as_ptr(), ptr);
+        assert_eq!(pages.len(),EVENT_PAGE_ROWS*3+17);
+    }
+
+    #[test]
+    fn actual_candidate_page_structural_bound_is_not_only_a_numeric_discount() {
+        assert_eq!(std::mem::size_of::<EventRow>(),64);
+        assert_eq!(std::mem::size_of::<Vec<EventRow>>(),24);
+        let n=9_100_145usize;
+        let old=3*n*64+96;
+        let page=paged_event_candidate_bytes(n);
+        assert_eq!(old,1_747_227_936);
+        assert_eq!(page,582_831_512);
+        assert_eq!(old-page,1_164_396_424);
+        assert_eq!(paged_event_candidate_bytes(0),96);
     }
 }
