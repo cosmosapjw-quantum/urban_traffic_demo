@@ -1148,6 +1148,63 @@ impl IntervalActiveSweep {
     }
 }
 
+/// Iterate unique numeric endpoint classes of three already sorted event
+/// streams. Exactly the original sort_unstable(total_cmp)+dedup(PartialEq)
+/// order: the zero representative must use -0 when any original endpoint
+/// has the negative-zero sign bit, including a point with a=+0,b=-0.
+fn visit_unique_sweep_edges(
+    sweep: &IntervalActiveSweep,
+    has_negative_zero: bool,
+    mut emit: impl FnMut(f64) -> PyResult<()>,
+) -> PyResult<usize> {
+    let streams = [
+        sweep.starts.as_slice(),
+        sweep.ends.as_slice(),
+        sweep.points.as_slice(),
+    ];
+    let mut offsets = [0usize; 3];
+    let mut count=0usize;
+    loop {
+        let mut next: Option<f64> = None;
+        for j in 0..3 {
+            if let Some(&(value,_))=streams[j].get(offsets[j]) {
+                if next.map_or(true, |prior| value.total_cmp(&prior).is_lt()) {
+                    next=Some(value);
+                }
+            }
+        }
+        let Some(time) = next else {break};
+        let canonical = if time == 0.0 && has_negative_zero { -0.0 } else {time};
+        emit(canonical)?;
+        count += 1;
+        for j in 0..3 {
+            while streams[j].get(offsets[j])
+                .is_some_and(|(value,_)| *value == time) {
+                offsets[j] += 1;
+            }
+        }
+    }
+    Ok(count)
+}
+
+fn unique_sweep_edges(
+    parts: &[Part],
+    sweep: &IntervalActiveSweep,
+    before_allocate: impl FnOnce(usize) -> PyResult<()>,
+) -> PyResult<Vec<f64>> {
+    let neg_zero_bits=(-0.0f64).to_bits();
+    let has_negative_zero=parts.iter().any(|p|p.a.0==neg_zero_bits || p.b.0==neg_zero_bits);
+    let unique_count=visit_unique_sweep_edges(sweep,has_negative_zero, |_|Ok(()))?;
+    before_allocate(unique_count.saturating_mul(std::mem::size_of::<f64>()))?;
+    let mut edges=checkpoint_vec(unique_count)?;
+    let built=visit_unique_sweep_edges(sweep,has_negative_zero,|value|{
+        edges.push(value);
+        Ok(())
+    })?;
+    debug_assert_eq!(built,unique_count);
+    Ok(edges)
+}
+
 /// Diagnostic census of adjacent non-point interval packets [a,b],[b,c] in one
 /// cell's entry output: rows whose (tag, offset) recur in the next packet, and
 /// those whose time density mass/(b-a) is bit-equal (a necessary condition for
@@ -2037,27 +2094,39 @@ impl V1Road {
         // selected-row Vec, combine's index and output) and the packet list
         // with room for its doubling reallocation. Only packed rows that are
         // pushed to the output outlive their interval.
-        let edge_bytes = parts.len().saturating_mul(2 * std::mem::size_of::<f64>());
-        // Three sorted (endpoint,index) Vec arrays each reserve parts.len()
-        // entries; the point-index workspace also has exact capacity n.
-        // The BTreeSet and its per-index tree-node overhead no longer exist.
-        // Two-level active bits occupy ceil(n/64)+ceil(n/4096) u64 words.
-        // Charge the actual fixed-size array structure plus 256 bytes of
-        // Vec/iterator metadata and rounding allowance. This is still a
-        // conservative structural resource envelope, never an RSS theorem.
+        // The previous implementation first allocated 2*n f64 endpoints
+        // and sorted/deduped them. The sorted event streams now yield exactly
+        // k unique numeric edges, so no 2*n endpoint buffer ever exists.
         let (nonpoint_rows, point_rows) = count_sweep_row_kinds(&parts)?;
         let event_index_bytes = exact_sweep_event_index_bytes(
             parts.len(), nonpoint_rows, point_rows,
         );
-        // Point rows still use the original materialized combine path. Nonpoint
-        // interval rows instead retain only one output Vec<Part> and source
-        // indices, without a separate full split Vec<Part>.
-        const POINT_ROW_BYTES: usize = 2 * std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
-        const INTERVAL_ROW_BYTES: usize = std::mem::size_of::<CorePart>() + std::mem::size_of::<usize>();
+        const POINT_ROW_BYTES: usize =
+            2 * std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
+        const INTERVAL_ROW_BYTES: usize =
+            std::mem::size_of::<CorePart>() + std::mem::size_of::<usize>();
+
+        // Preflight the actual index arrays before allocating them.
+        work.require(event_index_bytes,"indexed sweep preflight")?;
+        let mut sweep =
+            IntervalActiveSweep::new_counted(&parts, nonpoint_rows, point_rows)?;
+        // The second guard now reflects the actual k-element endpoint vector,
+        // as well as all the still-live sweep index/point/active buffers.
+        let edges = unique_sweep_edges(&parts, &sweep, |unique_bytes| {
+            work.require(
+                unique_bytes.saturating_add(event_index_bytes),
+                "interval edges and indexed sweep",
+            )
+        })?;
+        let edge_bytes=edges.len().saturating_mul(std::mem::size_of::<f64>());
         let transient = |count: usize, packets: usize, is_point: bool| {
             edge_bytes
                 .saturating_add(event_index_bytes)
-                .saturating_add(count.saturating_mul(if is_point { POINT_ROW_BYTES } else { INTERVAL_ROW_BYTES }))
+                .saturating_add(count.saturating_mul(if is_point {
+                    POINT_ROW_BYTES
+                } else {
+                    INTERVAL_ROW_BYTES
+                }))
                 .saturating_add(
                     packets
                         .saturating_add(1)
@@ -2065,14 +2134,6 @@ impl V1Road {
                         .saturating_mul(3 * std::mem::size_of::<Packet>()),
                 )
         };
-        work.require(edge_bytes.saturating_add(event_index_bytes),
-                     "interval edges and indexed sweep")?;
-        let mut edges = checkpoint_vec(parts.len().saturating_mul(2))?;
-        edges.extend(parts.iter().flat_map(|p| [p.a.unwrap(), p.b.unwrap()]));
-        edges.sort_unstable_by(f64::total_cmp);
-        edges.dedup();
-        let mut sweep =
-            IntervalActiveSweep::new_counted(&parts, nonpoint_rows, point_rows)?;
         let mut out = vec![];
         let mut records = 0;
         for (k, &a) in edges.iter().enumerate() {
@@ -4461,5 +4522,73 @@ mod sweep_partition_live_bound_tests {
         let rows=[make_row(0,2.,1.)];
         assert!(count_sweep_row_kinds(&rows).is_err());
         assert!(IntervalActiveSweep::new(&rows).is_err());
+    }
+}
+
+#[cfg(test)]
+mod exact_merged_unique_edges_tests {
+    use super::*;
+
+    fn p(i:usize, a:f64, b:f64) -> Part {
+        Part {
+            tag:i%7,offset:i%4,mass:(i+1) as f64/37.,
+            birth:(i+3) as f64/31.,
+            a:PackedTime::new(Some(a)).unwrap(),
+            b:PackedTime::new(Some(b)).unwrap(),
+        }
+    }
+
+    fn assert_equal_to_legacy_edges(rows: Vec<Part>) {
+        let mut old=Vec::new();
+        old.extend(rows.iter().flat_map(|p|[p.a.unwrap(),p.b.unwrap()]));
+        old.sort_unstable_by(f64::total_cmp);
+        old.dedup();
+        let sweep=IntervalActiveSweep::new(&rows).unwrap();
+        let mut bytes_guard=None;
+        let actual=unique_sweep_edges(&rows,&sweep,|bytes|{
+            bytes_guard=Some(bytes);
+            Ok(())
+        }).unwrap();
+        assert_eq!(
+            old.iter().map(|v|v.to_bits()).collect::<Vec<_>>(),
+            actual.iter().map(|v|v.to_bits()).collect::<Vec<_>>(),
+            "unique-edge sorted/dedup bit patterns differ"
+        );
+        assert_eq!(bytes_guard,Some(old.len()*std::mem::size_of::<f64>()));
+        assert!(actual.capacity() <= old.len()+16);
+        assert!(actual.len() <= rows.len()*2);
+    }
+
+    #[test]
+    fn unique_edges_match_original_across_zero_sign_permutations_and_empty() {
+        assert_equal_to_legacy_edges(vec![]);
+        assert_equal_to_legacy_edges(vec![p(0,0.,-0.)]);
+        assert_equal_to_legacy_edges(vec![p(0,-0.,0.)]);
+        assert_equal_to_legacy_edges(vec![p(0,0.,0.)]);
+        assert_equal_to_legacy_edges(vec![
+            p(0,0.,-0.),p(1,0.,0.),p(2,-0.,0.),
+            p(3,-3.,-1.),p(4,-1.,0.),p(5,0.,4.),
+            p(6,4.,4.),p(7,4.,7.),
+        ]);
+        assert_equal_to_legacy_edges(vec![
+            p(0,0.,0.),p(1,0.,1.),p(2,1.,1.),p(3,1.,2.)
+        ]);
+    }
+
+    #[test]
+    fn unique_edges_match_original_seeded_intervals_and_many_duplicate_endpoints() {
+        let mut seed=0xC03E_2026_u64;
+        for n in [1usize,2,63,64,65,4097,10000] {
+            let mut rows=Vec::new();
+            for i in 0..n {
+                seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                let a=if i%127==0 {-0.0} else {((seed>>28)%41) as f64 / 4. - 4.};
+                seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                let b=if i%19==0 {a} else {a+((seed>>28)%9+1) as f64 / 8.};
+                rows.push(p(i,a,b));
+            }
+            assert_equal_to_legacy_edges(rows);
+        }
+        assert_equal_to_legacy_edges((0..20000).map(|i|p(i,0.,1.)).collect());
     }
 }
