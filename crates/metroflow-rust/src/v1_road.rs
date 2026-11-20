@@ -329,6 +329,7 @@ struct RoadWorkBudget {
     base: usize,
     events: usize,
     incoming: usize,
+    incoming_page_cells: usize,
     /// Packed entering-interval rows already moved into the candidate.
     interval_retained: usize,
     /// Workspace of the interval being built: edges, the selected rows,
@@ -560,8 +561,8 @@ impl RoadWorkBudget {
         let required =
             self.base
                 .saturating_add(event_bytes)
-                .saturating_add(self.incoming.saturating_mul(
-                    2 * (std::mem::size_of::<Part>() + std::mem::size_of::<Mark>()),
+                .saturating_add(segmented_incoming_charge(
+                    self.incoming, self.incoming_page_cells,
                 ))
                 .saturating_add(self.interval_retained)
                 .saturating_add(self.interval_transient)
@@ -1256,11 +1257,11 @@ fn interval_merge_census(out: &[Packet]) {
 /// set {(cell, head position, rate bits)} is identical. Such runs have
 /// proportional route mixtures and equal ready time, so they are exactly
 /// mergeable in real arithmetic. Counting only.
-fn exact_merge_census(parts: &[Part], src: &[(usize, usize, u64)]) {
+fn exact_merge_census(parts: impl Iterator<Item=Part>, src: &[(usize, usize, u64)]) {
     use std::collections::BTreeSet;
     let mut by: BTreeMap<(u64, u64), BTreeSet<(usize, usize, u64)>> = BTreeMap::new();
     let mut points = 0u64;
-    for (p, s) in parts.iter().zip(src) {
+    for (p, s) in parts.zip(src) {
         let (a, b) = (p.a.unwrap_or(f64::NAN), p.b.unwrap_or(f64::NAN));
         if !(b > a) {
             points += 1;
@@ -1286,6 +1287,106 @@ fn exact_merge_census(parts: &[Part], src: &[(usize, usize, u64)]) {
     crate::v1_trace::add("exact.runs", runs);
     crate::v1_trace::add("exact.point_rows", points);
 }
+/// Fixed-size incoming Part pages: an append cannot reallocate a prior page.
+/// The logical source index maps to (page,slot), with all prior pages full.
+/// A separate aligned Mark Vec retains the old source order and f64 payloads.
+const INCOMING_PART_CHUNK: usize = 64;
+
+#[derive(Default)]
+struct ChunkedParts {
+    chunks: Vec<Vec<Part>>,
+    len: usize,
+}
+impl ChunkedParts {
+    fn len(&self) -> usize { self.len }
+    fn is_empty(&self) -> bool { self.len == 0 }
+    fn capacity(&self) -> usize {
+        self.chunks.iter().map(Vec::capacity).sum()
+    }
+    fn iter(&self) -> impl Iterator<Item = &Part> {
+        self.chunks.iter().flat_map(|v| v.iter())
+    }
+    fn get(&self, i: usize) -> &Part {
+        &self.chunks[i / INCOMING_PART_CHUNK][i % INCOMING_PART_CHUNK]
+    }
+    fn push_checked(&mut self, p: Part) -> PyResult<()> {
+        if self.chunks.last().is_none_or(|c| c.len() == INCOMING_PART_CHUNK) {
+            let chunk = checkpoint_vec(INCOMING_PART_CHUNK)?;
+            // The executable source-bound budget uses exactly this capacity.
+            // Do not claim a smaller buffer on a different allocator.
+            if chunk.capacity() != INCOMING_PART_CHUNK {
+                return Err(budget("incoming fixed page capacity not supported"));
+            }
+            push_checked(&mut self.chunks, chunk)?;
+        }
+        self.chunks.last_mut().expect("chunk was just allocated").push(p);
+        self.len += 1;
+        Ok(())
+    }
+    fn extend_parts(&mut self, parts: impl IntoIterator<Item = Part>) -> PyResult<()> {
+        for p in parts {
+            self.push_checked(p)?;
+        }
+        Ok(())
+    }
+}
+
+/// Conservative upper bound from the allocations actually used by ChunkedParts.
+/// Existing Mark Vec retains its original 2*len*f64-pair growth allowance.
+/// At most (B-1) unused Part slots per destination and a doubled outer
+/// page-descriptor Vec. This is a scoped structural source bound, not RSS.
+fn segmented_incoming_charge(rows: usize, cells: usize) -> usize {
+    if rows == 0 { return 0; }
+    let part_bytes = std::mem::size_of::<Part>();
+    let mark_bytes = std::mem::size_of::<Mark>();
+    let page_header_bytes = std::mem::size_of::<Vec<Part>>();
+    let part_slots = rows.saturating_add(
+        cells.saturating_mul(INCOMING_PART_CHUNK - 1),
+    );
+    let max_chunks = rows.div_ceil(INCOMING_PART_CHUNK).saturating_add(cells);
+    part_slots.saturating_mul(part_bytes)
+        .saturating_add(rows.saturating_mul(2 * mark_bytes))
+        .saturating_add(max_chunks.saturating_mul(2 * page_header_bytes))
+}
+
+/// The original combine key, source-index tie order and sum() operations
+/// evaluated against stable page indices without flattening the source.
+fn combine_chunked_parts(parts: &ChunkedParts) -> PyResult<Vec<Part>> {
+    let key = |p: &Part| {
+        (p.tag, p.offset, p.a.map_or(u64::MAX, f64::to_bits),
+         p.b.map_or(u64::MAX, f64::to_bits))
+    };
+    let mut indices=checkpoint_vec(parts.len())?;
+    indices.extend((0..parts.len()).filter(|&i|parts.get(i).mass > 0.0));
+    indices.sort_unstable_by(|&a,&b| {
+        key(parts.get(a)).cmp(&key(parts.get(b))).then(a.cmp(&b))
+    });
+    let groups = usize::from(!indices.is_empty())
+        + indices.windows(2)
+            .filter(|p|key(parts.get(p[0])) != key(parts.get(p[1])))
+            .count();
+    let mut out=checkpoint_vec(groups)?;
+    let mut start=0;
+    while start < indices.len() {
+        let mut end=start+1;
+        while end < indices.len()
+            && key(parts.get(indices[start]))==key(parts.get(indices[end])) {
+            end+=1;
+        }
+        let mut item=*parts.get(indices[start]);
+        item.mass=sum(indices[start..end].iter().map(|&i|parts.get(i).mass));
+        item.birth=sum(indices[start..end].iter().map(|&i|parts.get(i).birth));
+        out.push(item);
+        start=end;
+    }
+    out.sort_unstable_by(|a,b| {
+        a.tag.cmp(&b.tag).then(a.offset.cmp(&b.offset))
+            .then(a.a.unwrap_or(-1.0).total_cmp(&b.a.unwrap_or(-1.0)))
+            .then(a.b.unwrap_or(-1.0).total_cmp(&b.b.unwrap_or(-1.0)))
+    });
+    Ok(out)
+}
+
 fn combine(parts: Vec<Part>) -> PyResult<Vec<Part>> {
     let key = |p: &Part| {
         (
@@ -1862,6 +1963,7 @@ impl V1Road {
                 base: 0,
                 events: 0,
                 incoming: 0,
+                incoming_page_cells: self.groups.len(),
                 interval_retained: 0,
                 interval_transient: 0,
                 service_events: None,
@@ -1931,6 +2033,7 @@ impl V1Road {
             base,
             events: 0,
             incoming: 0,
+            incoming_page_cells: self.groups.len(),
             interval_retained: 0,
             interval_transient: 0,
             service_events: self.service_event_accounting,
@@ -2579,7 +2682,8 @@ impl V1Road {
             Vec::new()
         };
         let mut events = vec![];
-        let mut incoming: Vec<Vec<Part>> = vec![vec![]; n];
+        let mut incoming: Vec<ChunkedParts> = (0..n)
+            .map(|_| ChunkedParts::default()).collect();
         // Diagnostic only: source (cell, head position, rate bits) per incoming row.
         let mut incoming_src: Vec<Vec<(usize, usize, u64)>> = if crate::v1_trace::enabled() {
             vec![vec![]; n]
@@ -2921,7 +3025,7 @@ impl V1Road {
                                 p.a = PackedTime::new(Some(start_time))?;
                                 p.b = PackedTime::new(Some(end_time))?;
                             }
-                            push_checked(&mut incoming[j], p)?;
+                            incoming[j].push_checked(p)?;
                             if !incoming_src.is_empty() {
                                 incoming_src[j].push((i, position[i], rate.to_bits()));
                             }
@@ -2961,9 +3065,9 @@ impl V1Road {
             resolution.merge(clock.stats);
         }
         if work.limit.is_some() && crate::v1_trace::enabled() {
-            let incoming_cap: usize = incoming.iter().map(Vec::capacity).sum();
+            let incoming_cap: usize = incoming.iter().map(ChunkedParts::capacity).sum();
             let marks_cap: usize = marks.iter().map(Vec::capacity).sum();
-            let incoming_len: usize = incoming.iter().map(Vec::len).sum();
+            let incoming_len: usize = incoming.iter().map(ChunkedParts::len).sum();
             crate::v1_trace::guard(
                 "road_actual",
                 "transfer buffers",
@@ -3049,14 +3153,12 @@ impl V1Road {
                         compact_mark(self.classes[k][11], self.classes[k][7]),
                     )?;
                 }
-                incoming[i]
-                    .try_reserve(parts.len())
-                    .map_err(|_| budget("native road incoming allocation unavailable"))?;
+                // Paged appends do not reallocate previous incoming Part rows.
                 if !incoming_src.is_empty() {
                     let k = incoming_src[i].len();
                     incoming_src[i].extend((0..parts.len()).map(|_| (usize::MAX, k, 0)));
                 }
-                incoming[i].extend(parts);
+                incoming[i].extend_parts(parts)?;
                 if f < 1. {
                     push_checked(
                         &mut remain,
@@ -3071,7 +3173,7 @@ impl V1Road {
         }
         for i in 0..n {
             if !incoming_src.is_empty() && !incoming[i].is_empty() {
-                exact_merge_census(&incoming[i], &incoming_src[i]);
+                exact_merge_census(incoming[i].iter().copied(), &incoming_src[i]);
             }
             // One compact mark accompanies exactly one source-order incoming
             // Part (both road service and pending-offer insertion paths).
@@ -3104,7 +3206,9 @@ impl V1Road {
                 push_checked(byclass.entry(k).or_default(), (part.mass, mark.1))?;
             }
             // Only now may equal-key incoming Parts be combined.
-            let parts = combine(std::mem::take(&mut incoming[i]))?;
+            let source = std::mem::take(&mut incoming[i]);
+            let parts = combine_chunked_parts(&source)?;
+            drop(source);
             if crate::v1_trace::enabled() && raw_rows > 0 {
                 crate::v1_trace::add("entry.raw_rows", raw_rows as u64);
                 crate::v1_trace::add("entry.combined_rows", parts.len() as u64);
@@ -3652,6 +3756,7 @@ mod workspace_accounting_tests {
             base: 0,
             events: 0,
             incoming: 0,
+            incoming_page_cells: 0,
             interval_retained: 0,
             interval_transient: 0,
             service_events: None,
@@ -4681,5 +4786,81 @@ mod exact_narrow_lineage_indices_tests {
         assert!(matches!(packet,PacketParts::Mixed(_)));
         assert_eq!(packet.iter().map(bits).collect::<Vec<_>>(),
                    vec![bits(a),bits(b)]);
+    }
+}
+
+#[cfg(test)]
+mod exact_segmented_incoming_buffer_tests {
+    use super::*;
+
+    fn row(i:usize,a:f64,b:f64) -> Part {
+        Part {
+            tag:i%11,offset:i%5,
+            mass: match i%17 {
+                0 => 0.,1 => f64::from_bits(1),2 => 1e-190,
+                3 => 1e190, _=>(i%19+1) as f64/4096.,
+            },
+            birth:if i%13==0 {1e-100} else {(i+1) as f64/11.},
+            a:PackedTime::new(Some(a)).unwrap(),
+            b:PackedTime::new(Some(b)).unwrap(),
+        }
+    }
+    fn bits(p:Part)->(usize,usize,u64,u64,u64,u64){
+        (p.tag,p.offset,p.mass.to_bits(),p.birth.to_bits(),p.a.0,p.b.0)
+    }
+    #[test]
+    fn segmented_source_order_matches_original_vec_at_chunk_boundaries() {
+        for n in [0,1,2,63,64,65,127,128,129,319,1001] {
+            let rows:Vec<_>=(0..n).map(|i|{
+                let a=if i%23==0 {-0.0} else {(i%7) as f64/4.};
+                let b=if i%9==0 {a} else {a+(i%3+1) as f64};
+                row(i,a,b)
+            }).collect();
+            let mut chunks=ChunkedParts::default();
+            for &r in &rows {chunks.push_checked(r).unwrap();}
+            assert_eq!(chunks.len(),n);
+            assert_eq!(chunks.is_empty(),n==0);
+            assert_eq!(chunks.iter().copied().map(bits).collect::<Vec<_>>(),
+                       rows.iter().copied().map(bits).collect::<Vec<_>>());
+            for (i,r) in rows.iter().enumerate(){assert_eq!(bits(*chunks.get(i)),bits(*r));}
+            assert_eq!(chunks.chunks.len(),n.div_ceil(INCOMING_PART_CHUNK));
+            assert!(chunks.chunks.iter().all(|x|x.capacity()==INCOMING_PART_CHUNK));
+            assert_eq!(chunks.capacity(),n.div_ceil(INCOMING_PART_CHUNK)*INCOMING_PART_CHUNK);
+        }
+    }
+    #[test]
+    fn no_existing_page_is_reallocated_while_appending_many_later_rows() {
+        let mut c=ChunkedParts::default();
+        for i in 0..INCOMING_PART_CHUNK {c.push_checked(row(i,0.,1.)).unwrap();}
+        let old=c.chunks[0].as_ptr();
+        for i in INCOMING_PART_CHUNK..1007 {c.push_checked(row(i,0.,1.)).unwrap();}
+        assert_eq!(old,c.chunks[0].as_ptr());
+        assert_eq!(c.chunks.len(),1007usize.div_ceil(INCOMING_PART_CHUNK));
+    }
+    #[test]
+    fn original_source_sorted_group_sum_remains_bit_equal_for_duplicate_and_signed_zero_keys() {
+        let mut rows=Vec::new();
+        for i in 0..1107 {
+            let a=if i%41==0 {-0.0} else {0.0};
+            let b=if i%41==0 {-0.0} else {0.0};
+            rows.push(row(i,a,b));
+        }
+        let original=combine(rows.clone()).unwrap();
+        let mut chunks=ChunkedParts::default();
+        chunks.extend_parts(rows.into_iter()).unwrap();
+        let packed=combine_chunked_parts(&chunks).unwrap();
+        assert_eq!(original.into_iter().map(bits).collect::<Vec<_>>(),
+                   packed.into_iter().map(bits).collect::<Vec<_>>());
+    }
+    #[test]
+    fn changed_guard_has_real_pages_and_conservative_capacity_slack() {
+        let r=7_968_194usize;
+        let g=1586usize;
+        let original=r*2*(std::mem::size_of::<Part>()+std::mem::size_of::<Mark>());
+        let proposed=segmented_incoming_charge(r,g);
+        assert_eq!(original,1_019_928_832);
+        assert_eq!(proposed,648_303_904);
+        assert_eq!(original-proposed,371_624_928);
+        assert!(segmented_incoming_charge(0,g)==0);
     }
 }
