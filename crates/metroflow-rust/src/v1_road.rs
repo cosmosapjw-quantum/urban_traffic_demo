@@ -1331,22 +1331,51 @@ impl ChunkedParts {
     }
 }
 
+/// Same append-only bounded pages for the independent pair of Mark f64
+/// fields. Each Mark stays aligned by logical index with one incoming Part.
+#[derive(Default)]
+struct ChunkedMarks {
+    chunks: Vec<Vec<Mark>>,
+    len: usize,
+}
+impl ChunkedMarks {
+    fn len(&self) -> usize { self.len }
+    fn capacity(&self) -> usize { self.chunks.iter().map(Vec::capacity).sum() }
+    fn iter(&self) -> impl Iterator<Item=&Mark> {
+        self.chunks.iter().flat_map(|c| c.iter())
+    }
+    fn push_checked(&mut self, mark: Mark) -> PyResult<()> {
+        if self.chunks.last().is_none_or(|c| c.len()==INCOMING_PART_CHUNK) {
+            let chunk=checkpoint_vec(INCOMING_PART_CHUNK)?;
+            if chunk.capacity()!=INCOMING_PART_CHUNK {
+                return Err(budget("mark fixed page capacity not supported"));
+            }
+            push_checked(&mut self.chunks,chunk)?;
+        }
+        self.chunks.last_mut().expect("mark chunk just allocated").push(mark);
+        self.len+=1;
+        Ok(())
+    }
+}
+
 /// Conservative upper bound from the allocations actually used by ChunkedParts.
-/// Existing Mark Vec retains its original 2*len*f64-pair growth allowance.
-/// At most (B-1) unused Part slots per destination and a doubled outer
-/// page-descriptor Vec. This is a scoped structural source bound, not RSS.
+/// Both Part and Mark values occupy stable B-row pages: at most (B-1)
+/// unused slots per cell in each. Count two outer Vec descriptor families,
+/// each with the original conservative doubling allowance. This is a scoped structural source bound, not RSS.
 fn segmented_incoming_charge(rows: usize, cells: usize) -> usize {
     if rows == 0 { return 0; }
     let part_bytes = std::mem::size_of::<Part>();
     let mark_bytes = std::mem::size_of::<Mark>();
-    let page_header_bytes = std::mem::size_of::<Vec<Part>>();
-    let part_slots = rows.saturating_add(
+    let part_header_bytes = std::mem::size_of::<Vec<Part>>();
+    let mark_header_bytes = std::mem::size_of::<Vec<Mark>>();
+    let page_slots=rows.saturating_add(
         cells.saturating_mul(INCOMING_PART_CHUNK - 1),
     );
-    let max_chunks = rows.div_ceil(INCOMING_PART_CHUNK).saturating_add(cells);
-    part_slots.saturating_mul(part_bytes)
-        .saturating_add(rows.saturating_mul(2 * mark_bytes))
-        .saturating_add(max_chunks.saturating_mul(2 * page_header_bytes))
+    let max_chunks=rows.div_ceil(INCOMING_PART_CHUNK).saturating_add(cells);
+    page_slots.saturating_mul(part_bytes.saturating_add(mark_bytes))
+        .saturating_add(max_chunks.saturating_mul(
+            2 * (part_header_bytes + mark_header_bytes),
+        ))
 }
 
 /// The original combine key, source-index tie order and sum() operations
@@ -2690,7 +2719,8 @@ impl V1Road {
         } else {
             Vec::new()
         };
-        let mut marks: Vec<Vec<Mark>> = vec![vec![]; n];
+        let mut marks: Vec<ChunkedMarks> = (0..n)
+            .map(|_| ChunkedMarks::default()).collect();
         let (mut sink, mut exit1, mut hold) = (0., 0., 0.);
         let mut resolution = EventResolutionStats::default();
         for inc in &self.incoming {
@@ -3016,8 +3046,7 @@ impl V1Road {
                                 p0 + (self.classes[k][8] / rate - p0)
                                     * (-(-rate * local_mid).exp_m1())
                             };
-                            push_checked(
-                                &mut marks[j],
+                            marks[j].push_checked(
                                 compact_mark(m.sample(local_mid).1, latent),
                             )?;
                             p.offset += 1;
@@ -3066,7 +3095,7 @@ impl V1Road {
         }
         if work.limit.is_some() && crate::v1_trace::enabled() {
             let incoming_cap: usize = incoming.iter().map(ChunkedParts::capacity).sum();
-            let marks_cap: usize = marks.iter().map(Vec::capacity).sum();
+            let marks_cap: usize = marks.iter().map(ChunkedMarks::capacity).sum();
             let incoming_len: usize = incoming.iter().map(ChunkedParts::len).sum();
             crate::v1_trace::guard(
                 "road_actual",
@@ -3148,8 +3177,7 @@ impl V1Road {
                         part.a = PackedTime::new(Some(end))?;
                         part.b = PackedTime::new(Some(end))?;
                     }
-                    push_checked(
-                        &mut marks[i],
+                    marks[i].push_checked(
                         compact_mark(self.classes[k][11], self.classes[k][7]),
                     )?;
                 }
@@ -4859,8 +4887,63 @@ mod exact_segmented_incoming_buffer_tests {
         let original=r*2*(std::mem::size_of::<Part>()+std::mem::size_of::<Mark>());
         let proposed=segmented_incoming_charge(r,g);
         assert_eq!(original,1_019_928_832);
-        assert_eq!(proposed,648_303_904);
-        assert_eq!(original-proposed,371_624_928);
+        assert_eq!(proposed,528_463_808);
+        assert_eq!(original-proposed,491_465_024);
         assert!(segmented_incoming_charge(0,g)==0);
+    }
+}
+
+#[cfg(test)]
+mod exact_segmented_mark_alignment_tests {
+    use super::*;
+
+    #[test]
+    fn ordered_mark_pages_preserve_each_original_f64_bit_and_pairing() {
+        for n in [0usize,1,63,64,65,127,128,129,1025] {
+            let mut parts=ChunkedParts::default();
+            let mut marks=ChunkedMarks::default();
+            let mut expected=Vec::new();
+            for i in 0..n {
+                let a=if i%17==0 {-0.0} else {(i%23) as f64/41.};
+                let mark=compact_mark(a, if i%29==0 {f64::from_bits(1)} else {-a});
+                let part=Part {
+                    tag:i%3,offset:i%7,mass:(i%19+1) as f64/331.,
+                    birth: (i%13) as f64/29.,
+                    a:PackedTime::new(Some(0.)).unwrap(),
+                    b:PackedTime::new(Some(1.)).unwrap(),
+                };
+                expected.push((part,mark));
+                parts.push_checked(part).unwrap();
+                marks.push_checked(mark).unwrap();
+            }
+            assert_eq!(parts.len(), marks.len());
+            assert_eq!(marks.len(),n);
+            assert_eq!(marks.capacity(),n.div_ceil(INCOMING_PART_CHUNK)*INCOMING_PART_CHUNK);
+            assert!(marks.chunks.iter().all(|v|v.capacity()==INCOMING_PART_CHUNK));
+            assert_eq!(marks.iter().zip(parts.iter()).map(|(m,p)|(
+                m.0.to_bits(),m.1.to_bits(),p.mass.to_bits())).collect::<Vec<_>>(),
+                expected.iter().map(|(p,m)|(
+                m.0.to_bits(),m.1.to_bits(),p.mass.to_bits())).collect::<Vec<_>>());
+            let old=sum(expected.iter().map(|(p,m)|p.mass*m.0));
+            let now=sum(parts.iter().zip(marks.iter()).map(|(p,m)|p.mass*m.0));
+            assert_eq!(old.to_bits(),now.to_bits());
+        }
+    }
+    #[test]
+    fn appending_new_marks_does_not_move_old_paged_mark_backing() {
+        let mut marks=ChunkedMarks::default();
+        for i in 0..INCOMING_PART_CHUNK {
+            marks.push_checked(compact_mark(i as f64, -0.)).unwrap();
+        }
+        let p=marks.chunks[0].as_ptr();
+        for i in INCOMING_PART_CHUNK..1001 {
+            marks.push_checked(compact_mark(i as f64, 0.)).unwrap();
+        }
+        assert_eq!(p,marks.chunks[0].as_ptr());
+    }
+    #[test]
+    fn actual_two_page_source_bound_uses_one_copy_of_each_row() {
+        assert_eq!(segmented_incoming_charge(8_992_612,1586),595_563_136);
+        assert_eq!(segmented_incoming_charge(0,1586),0);
     }
 }
