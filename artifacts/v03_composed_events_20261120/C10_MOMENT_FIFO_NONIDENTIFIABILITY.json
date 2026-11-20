@@ -1,0 +1,61 @@
+{
+  "claim": "two exactly equal order-invariant class/velocity moment vectors but distinct route order produce distinct strict FIFO outputs under one red turn",
+  "claim_status": "CONSTRUCTIVE_FINITE_COUNTEREXAMPLE",
+  "class_source": "unchanged prior KCMB unit-test fixture, not calibrated",
+  "created_utc": "2026-11-20T10:14:06+00:00",
+  "current_Rust_KCMB_binary_sha256": "68fcbbd8c2d00f5ebc30d9434db4f9f4d4279f84447a5d0669bdf2ef22bc6c17",
+  "nonclaims": [
+    "No proof against kinetic distribution functions resolving longitudinal position",
+    "No proof against a finite state machine encoding all allowed orderings",
+    "Not original V03 100k traffic physical acceptance or calibrated field validation"
+  ],
+  "results": [
+    {
+      "FIFO_route_order_AB": [
+        "(OrderedRun(route=0, mass=1.0, ready_tick=0), OrderedRun(route=1, mass=1.0, ready_tick=0))",
+        "()",
+        "()"
+      ],
+      "FIFO_route_order_BA": [
+        "(OrderedRun(route=1, mass=1.0, ready_tick=0), OrderedRun(route=0, mass=1.0, ready_tick=0))",
+        "()",
+        "()"
+      ],
+      "backend": "python",
+      "fixed_scalar_state_capacity": 42,
+      "mass_error_AB_veh": 0.0,
+      "mass_error_BA_veh": 0.0,
+      "red_A_green_B_exit_B_AB": 0.0,
+      "red_A_green_B_exit_B_BA": 0.05,
+      "same_initial_model_identifier": true,
+      "same_initial_route_mass": true,
+      "same_initial_six_moment_vector": true
+    },
+    {
+      "FIFO_route_order_AB": [
+        "(OrderedRun(route=0, mass=1.0, ready_tick=0), OrderedRun(route=1, mass=1.0, ready_tick=0))",
+        "()",
+        "()"
+      ],
+      "FIFO_route_order_BA": [
+        "(OrderedRun(route=1, mass=1.0, ready_tick=0), OrderedRun(route=0, mass=1.0, ready_tick=0))",
+        "()",
+        "()"
+      ],
+      "backend": "rust",
+      "fixed_scalar_state_capacity": 42,
+      "mass_error_AB_veh": 0.0,
+      "mass_error_BA_veh": 0.0,
+      "red_A_green_B_exit_B_AB": 0.0,
+      "red_A_green_B_exit_B_BA": 0.05,
+      "same_initial_model_identifier": true,
+      "same_initial_route_mass": true,
+      "same_initial_six_moment_vector": true
+    }
+  ],
+  "same_initial_route_mass_and_six_moments": true,
+  "same_physical_geometry": true,
+  "schema": "V03_FINITE_ORDER_INVARIANT_KINETIC_MOMENT_STRICT_FIFO_NO_GO_V1",
+  "source": "metroflow.v1.kcmb_adaptive_fifo original network fixture, new research comparator",
+  "universal_no_go_scope": "ANY state reconstruction using only these order-insensitive instantaneous route moments, without additional route ordering state"
+}

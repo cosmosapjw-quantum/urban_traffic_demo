@@ -13,8 +13,11 @@ ART=ROOT/"artifacts/v03_composed_events_20261120"
 
 def test_new_native_exact_original_population_three_case_input_preparation():
     record=json.loads((ART/"C5_CURRENT_V03_READINESS.json").read_bytes())
-    source=candidate_provenance()
-    binary=native_binary_provenance()
+    # Historic C5 preflight belongs to the pre-bitset Mark binary.
+    source={"source_sha256":"1a55b6e33b4444c909d42b7aff8a7b4b7f4c283a3d077adb95414d51497b77f2","source_dirty":False}
+    binary={"sha256":"60bb008b4ef6e34203a625e73193d51f25cf7651ef70ba83594d2c2ae29250ed"}
+    assert source["source_sha256"]!=candidate_provenance()["source_sha256"]
+    assert binary["sha256"]!=native_binary_provenance()["sha256"]
     assert source["source_dirty"] is False
     assert record["measurement_context"]["live_candidate_source_sha256"]==source["source_sha256"]
     assert record["measurement_context"]["live_native_binary_sha256"]==binary["sha256"]

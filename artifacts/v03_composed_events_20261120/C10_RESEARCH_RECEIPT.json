@@ -1,0 +1,438 @@
+{
+  "C10_final_sha": "VERIFY_REMOTE_AFTER_COMMIT",
+  "C10_publication_status": "LOCAL_VALIDATION_COMPLETE_PUSH_PENDING",
+  "already_pushed_prior_stages": [
+    {
+      "sha": "913b85773160b399acb5ec59e3029cb7febf0a59",
+      "subject": "theory(v03): compare strict FIFO mark compression with radical kinetic alternatives"
+    },
+    {
+      "sha": "9fe6b59389f8f5f83e8fed5b4dbf9870b29d7409",
+      "subject": "research(v03): C1 encode exact per-row Mark via aligned incoming Part"
+    },
+    {
+      "sha": "a50e6c9a372e738310e4b43ec650700ee1d6bb9f",
+      "subject": "research(v03): C2 reach 25650 default budget with byte-equal physical checkpoint"
+    },
+    {
+      "sha": "abf8e0aa0f49c26c12be2048c355760b8c12c0df",
+      "subject": "research(v03): C3 prove next original default 25700 structural blocker"
+    },
+    {
+      "sha": "43d86231f3769d1640520936645140b76b4ffda7",
+      "subject": "research(v03): C4 compare microkinetic conservative shared and physical partial FIFO lanes"
+    },
+    {
+      "sha": "acadfdf366d55740e32604409dc79d98ce46174f",
+      "subject": "research(v03): C5 source-pin current compressed Mark 100k three-city preflight"
+    },
+    {
+      "sha": "5a4b694b2531fe45535a5c3e7d5d2d42c3535ae6",
+      "subject": "research(v03): C6 isolate indexed interval-sweep budget blocker after exact Mark compression"
+    },
+    {
+      "sha": "3fccd06fd8828db727097ec1707633d8426a379d",
+      "subject": "research(v03): C6 preserve combined Mark and Arc indexed-sweep budget blocker"
+    },
+    {
+      "sha": "4d8bb9dac9c0d44fcb77a7e28711931deae6981b",
+      "subject": "research(v03): C7 replace native interval active BTreeSet with exact bitmap sweep"
+    },
+    {
+      "sha": "6bd729e2f23120141f37706692fdcd00eb6b26a1",
+      "subject": "research(v03): C8 source-check bitset exact prefix and blocked later resource phases"
+    },
+    {
+      "sha": "2a95086a4b8307def7529914600435d01edc449d",
+      "subject": "research(v03): C9 source-pin full original 100k three-city bitset-native preflight"
+    }
+  ],
+  "base_commit": "4464a2633bf2d0ce6601ca3d0eaffc3d819dc6e8",
+  "branch": "research/v03-composed-events-multiscale-20261120",
+  "created_kst": "2026-11-20T19:25:53+09:00",
+  "exact_original_fifo": {
+    "current_C9_source_bound_100k_city_preflight": "VERIFIED_3_OF_3",
+    "exact_fifo_for_all_future_cases": "NOT_PROVED",
+    "physical_coefficients_changed": false,
+    "user_8GiB_7200s_limits_changed": false,
+    "valley_25650_checkpoint_bytes": 1683486650,
+    "valley_25650_checkpoint_sha256": "89e3230b23b4423509f6036035e9b03c7299204b5d317cdb3f6226c5b0c53e8b",
+    "valley_25650_default_checkpoint_byte_identical": true,
+    "valley_25700_arc_optin": "BLOCKED_BY_RESOURCE",
+    "valley_25700_default": "BLOCKED_BY_RESOURCE"
+  },
+  "full_branch_merge_or_PR": "NOT_PERFORMED",
+  "large_local_checkpoint_not_published": {
+    "bytes": 1683486650,
+    "git_published": false,
+    "path": "/home/cosmosapjw/worktrees/urban-traffic-v03-composed-events-20261120/artifacts/v03_composed_events_20261120/C8_BITSET_ORIGINAL_DEFAULT_25650.final.bin",
+    "sha256": "89e3230b23b4423509f6036035e9b03c7299204b5d317cdb3f6226c5b0c53e8b"
+  },
+  "last_previous_head_sha": "2a95086a4b8307def7529914600435d01edc449d",
+  "loaded_native_sha256": "68fcbbd8c2d00f5ebc30d9434db4f9f4d4279f84447a5d0669bdf2ef22bc6c17",
+  "native_source_sha256": "b622ac7d96cf80f74b9c74983e73a6b4726d5577b4ceb6e369a7a300ed10c487",
+  "next_slices": [
+    "V03-FIFO-COMPOSED-INTERVAL-01 exact source-order event/incoming/interval consumption and default native budget",
+    "KCMB-GEOMETRY-EMPIRICAL-01 separate genuine geometry and measured held-out traffic validation"
+  ],
+  "original_main_head_unchanged": "01c80b432344f94209daaa198bb1eb007839fc7f",
+  "original_plan_sha256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+  "original_release_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "published_small_artifact_sha256": {
+    "artifacts/v03_composed_events_20261120/.gitignore": {
+      "bytes": 107,
+      "sha256": "5cfc80c7c0229087ea47b492cd9d1e5583c0acba3e6587ed8ad62ac77c324aee"
+    },
+    "artifacts/v03_composed_events_20261120/C10_CARGO_CHECK.log": {
+      "bytes": 2649,
+      "sha256": "a05f18608871bbff8ce9f1e9a0acd829efea9d60cdfe2aa8e0c37e63521c5564"
+    },
+    "artifacts/v03_composed_events_20261120/C10_CARGO_TEST.log": {
+      "bytes": 11317,
+      "sha256": "c95e93cea6c426793a2e78115ef1828d451a1c84c25955f733d489d1a9c60e82"
+    },
+    "artifacts/v03_composed_events_20261120/C10_KCMB_SYNTHETIC_24H.json": {
+      "bytes": 3252,
+      "sha256": "470831c339b9a70f9a798b8469f548a45ddf2c777ad750da97c606d36e437ac2"
+    },
+    "artifacts/v03_composed_events_20261120/C10_MOMENT_FIFO_NONIDENTIFIABILITY.json": {
+      "bytes": 2533,
+      "sha256": "12a74be767ebaeabf27491188a92f3742b4eb7e9ac0e8bd63be23c1913e23068"
+    },
+    "artifacts/v03_composed_events_20261120/C10_PLAN_VALIDATE.txt": {
+      "bytes": 197,
+      "sha256": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca"
+    },
+    "artifacts/v03_composed_events_20261120/C10_SCOPED_PYTEST.txt": {
+      "bytes": 420,
+      "sha256": "ae7791ab663d97a01c19f3dba5c23ec0b05744eca67200269376faa9fce7b300"
+    },
+    "artifacts/v03_composed_events_20261120/C1_CHECK.log": {
+      "bytes": 3526,
+      "sha256": "b3470fb7a341d5ff795cb17963ac0396ed207acad98bbacde71066558128c1c5"
+    },
+    "artifacts/v03_composed_events_20261120/C1_NATIVE_BUILD.log": {
+      "bytes": 2862,
+      "sha256": "443201c2cb6dab994731ca8c79aa60bda512b6786c932899abe5f6cd3d79a065"
+    },
+    "artifacts/v03_composed_events_20261120/C1_PYTEST.txt": {
+      "bytes": 99,
+      "sha256": "d16011c50986d6be3c5b6f15b5ef352327a00bfb87fdf42aa01b428a931db7ed"
+    },
+    "artifacts/v03_composed_events_20261120/C1_RUST_TEST.log": {
+      "bytes": 11055,
+      "sha256": "8fc494f588fa49bafba4b3a3078d444ca7dcc3672afd9c43880d0b7d342ec313"
+    },
+    "artifacts/v03_composed_events_20261120/C2_ORIGINAL_DEFAULT_25650.json": {
+      "bytes": 11309,
+      "sha256": "d8724999759eaf30ed3d27fba76d2857afcb56d761c0e721764e8425a3ca3bee"
+    },
+    "artifacts/v03_composed_events_20261120/C2_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "e17a6f157ca4dd80321b41558b0bc556d3d950258853d1bfccbe5a114c9135f1"
+    },
+    "artifacts/v03_composed_events_20261120/C3_DEFAULT_MARK_25700.json": {
+      "bytes": 8286,
+      "sha256": "4b6f3aa8a1f386953f9d1ef399adc4e4fb9fe770bccf3b4f254c9d6c86638333"
+    },
+    "artifacts/v03_composed_events_20261120/C3_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "7e15266061ed0d31aa89e2241ce9ed802cf0173def79bf29c0398d727932d5d2"
+    },
+    "artifacts/v03_composed_events_20261120/C4_KCMB_PHYSICAL_ALTERNATIVES.json": {
+      "bytes": 2812,
+      "sha256": "dedf457ffb8495c89c018286a49deb94122a1b9ef54f050ff9b20aa65dd8e59d"
+    },
+    "artifacts/v03_composed_events_20261120/C4_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "615346574e154b3beff92a0c3300cc216b1d715cbac6441c7dbf923797c8c68f"
+    },
+    "artifacts/v03_composed_events_20261120/C5_CURRENT_NATIVE_IDENTITY.json": {
+      "bytes": 332,
+      "sha256": "5153777944f8ab6e7ecdf0b228c93d826755966862997ae6b46beb96acef5ac8"
+    },
+    "artifacts/v03_composed_events_20261120/C5_CURRENT_V03_READINESS.json": {
+      "bytes": 3657,
+      "sha256": "91a7f3566ba7e2c0c4b0a8ffb85dd20056eb58a568291884622272743dccc66d"
+    },
+    "artifacts/v03_composed_events_20261120/C5_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "686b4ed9a084cc13a88ea4749c9895e659d7faa3540b7c04eedf6fa858d9cc2c"
+    },
+    "artifacts/v03_composed_events_20261120/C5_preparation/CAMPAIGN.json": {
+      "bytes": 7842,
+      "sha256": "f5e537f9a71e279bb02cfcf66efa7778103fe0c01f93c57b2d7c0dc42640beac"
+    },
+    "artifacts/v03_composed_events_20261120/C5_preparation/coastal_weekend_s41.prepare.json": {
+      "bytes": 6963,
+      "sha256": "8ac90a4189114abcba6f523d09420d89ece0422fdfeedda39272ce2e080dae20"
+    },
+    "artifacts/v03_composed_events_20261120/C5_preparation/coastal_weekend_s41.prepare.progress.json": {
+      "bytes": 691,
+      "sha256": "6e00fb80c7d529706232596040a092e72be99a3f789a0a4f8d7977e8a398f533"
+    },
+    "artifacts/v03_composed_events_20261120/C5_preparation/river_weekday_s17.prepare.json": {
+      "bytes": 6964,
+      "sha256": "d9ca35ce84ff0910e26b000cca021c378174a1af675dc33ac3be4e710195a486"
+    },
+    "artifacts/v03_composed_events_20261120/C5_preparation/river_weekday_s17.prepare.progress.json": {
+      "bytes": 687,
+      "sha256": "6d32fc1a7f3977ba66bcc73b02e3a7ceb8dbf9109d6a43ae306cd62ff80bfbe3"
+    },
+    "artifacts/v03_composed_events_20261120/C5_preparation/valley_weekday_s7.prepare.json": {
+      "bytes": 6952,
+      "sha256": "bc40a72f3f0bc97a79064c0710920a86849fe0eb1f8fd9dac9fe80f065c4c15a"
+    },
+    "artifacts/v03_composed_events_20261120/C5_preparation/valley_weekday_s7.prepare.progress.json": {
+      "bytes": 686,
+      "sha256": "5df18087ba9c6e99bd97f4d5e6fd0a74db44d09f4469b37f7ee4db97125ad622"
+    },
+    "artifacts/v03_composed_events_20261120/C6_OPTIN_MARK_25700.json": {
+      "bytes": 11101,
+      "sha256": "8ced92ee3c3d4f8a7db1b3d9db2866665a29eb069840b93979211b10a5a9cf5a"
+    },
+    "artifacts/v03_composed_events_20261120/C6_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "686b4ed9a084cc13a88ea4749c9895e659d7faa3540b7c04eedf6fa858d9cc2c"
+    },
+    "artifacts/v03_composed_events_20261120/C7_BITSET_ALL_RUST.log": {
+      "bytes": 11317,
+      "sha256": "1385e2e6d99e10fbb6f0fde8487908465da6410902a2d453d664ddea61fcd2fc"
+    },
+    "artifacts/v03_composed_events_20261120/C7_BITSET_CARGO_CHECK.log": {
+      "bytes": 2778,
+      "sha256": "2aeb20526afd6944638679afeb74d8463856dc3ed9c93ed99e7c2bf9b0043d67"
+    },
+    "artifacts/v03_composed_events_20261120/C7_BITSET_FOCUSED_GREEN.log": {
+      "bytes": 3241,
+      "sha256": "aada9b0db582109746fd6a61731a19c6abbd07b4af2fef4fdd0e07b7e8efea2f"
+    },
+    "artifacts/v03_composed_events_20261120/C7_BITSET_NATIVE_BUILD.log": {
+      "bytes": 3473,
+      "sha256": "2cd24af6dbbd7f9e508fa551457d1df96d6267addf335e4b800e8261b04468c1"
+    },
+    "artifacts/v03_composed_events_20261120/C7_BITSET_ORIGINAL_PYTEST.txt": {
+      "bytes": 99,
+      "sha256": "43e0d30bfb1259663e8d49672f5e136b895d453980c480e4aaf04be51f72434b"
+    },
+    "artifacts/v03_composed_events_20261120/C7_PRE_BITSET_CARGO_CHECK.log": {
+      "bytes": 2649,
+      "sha256": "3bc77e11e3c766d23b1744fa0cf873e73eecf193edc568cb9828e96e6453a9a7"
+    },
+    "artifacts/v03_composed_events_20261120/C7_PRE_BITSET_CARGO_TEST.log": {
+      "bytes": 11055,
+      "sha256": "8963c0b243828a514cef49ddd25eb8b1f0720e8a7d429a64f2860f06d873effe"
+    },
+    "artifacts/v03_composed_events_20261120/C7_PRE_BITSET_PLAN_VALIDATE.txt": {
+      "bytes": 197,
+      "sha256": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca"
+    },
+    "artifacts/v03_composed_events_20261120/C7_PRE_BITSET_SCOPED_PYTEST.txt": {
+      "bytes": 340,
+      "sha256": "01b40102532e9642205f8b957ade36deaee10d3cd0c704572f119cdd1b48dbaa"
+    },
+    "artifacts/v03_composed_events_20261120/C8_BITSET_DEFAULT_25700.json": {
+      "bytes": 8284,
+      "sha256": "898938a57f2fe02d85c6e38372f1c9a6bc28fa2a7fae82520aec95afdf2e9122"
+    },
+    "artifacts/v03_composed_events_20261120/C8_BITSET_OPTIN_25700.json": {
+      "bytes": 11093,
+      "sha256": "6ad80153b92dca92a57af20887075c4bf0d429bab8807e6acaed49c893dbe4d2"
+    },
+    "artifacts/v03_composed_events_20261120/C8_BITSET_ORIGINAL_DEFAULT_25650.json": {
+      "bytes": 11302,
+      "sha256": "d1a1ce1cb6f118d7a07eabfe4c8b76262d28fa0ae04df5f8ed577edbb4ad5318"
+    },
+    "artifacts/v03_composed_events_20261120/C8_BITSET_PHYSICAL_RESULT.json": {
+      "bytes": 1736,
+      "sha256": "cbdc2b13e7ef3f30e2c6ea2f99d1acfd2885bd23ac23cc5da16f333ffbbfa316"
+    },
+    "artifacts/v03_composed_events_20261120/C8_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "e29583202aeca76366e3fdf7747cd8656b4d35e05d6b904ee8db1c9128063962"
+    },
+    "artifacts/v03_composed_events_20261120/C9_CURRENT_NATIVE_IDENTITY.json": {
+      "bytes": 335,
+      "sha256": "8fad3cf24ae96eaa82de5e7e5f790035126714e282b74fee74e7aa9e62daaa7f"
+    },
+    "artifacts/v03_composed_events_20261120/C9_CURRENT_V03_READINESS.json": {
+      "bytes": 3657,
+      "sha256": "ebd1c39bbc1856e9a99eb88665802bc64b56ce89aa552358cd6238f57ff889a4"
+    },
+    "artifacts/v03_composed_events_20261120/C9_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "68fb1d1b825a7069f126336d006d1dd78e5e0ac952904651631cd13f7c812100"
+    },
+    "artifacts/v03_composed_events_20261120/C9_preparation/CAMPAIGN.json": {
+      "bytes": 7842,
+      "sha256": "b2d1250390e737505ac44f0ae0a331343cbd5cc47fbfe2e0fe8cdd9b6ef16108"
+    },
+    "artifacts/v03_composed_events_20261120/C9_preparation/coastal_weekend_s41.prepare.json": {
+      "bytes": 6963,
+      "sha256": "07a2b4e5b879f902b8ad65407e8f0a71067e6eb4f6ece84d2770d554e5c2d4bd"
+    },
+    "artifacts/v03_composed_events_20261120/C9_preparation/coastal_weekend_s41.prepare.progress.json": {
+      "bytes": 692,
+      "sha256": "6055cf4d3f77e164301729620482babf999fad5df9a0fbb0070ad8425fade4ae"
+    },
+    "artifacts/v03_composed_events_20261120/C9_preparation/river_weekday_s17.prepare.json": {
+      "bytes": 6964,
+      "sha256": "156802e445627999565347a3de374d9c38501ed63b9e223fb43e04301ed2fbda"
+    },
+    "artifacts/v03_composed_events_20261120/C9_preparation/river_weekday_s17.prepare.progress.json": {
+      "bytes": 688,
+      "sha256": "96caa97f370212442a4739bf2076cada3a5db03f899506145c11d0cfb0122b7e"
+    },
+    "artifacts/v03_composed_events_20261120/C9_preparation/valley_weekday_s7.prepare.json": {
+      "bytes": 6952,
+      "sha256": "82d33b0b24f16cb4e957a6c7ef1756ec45b7341bf85fd559ae0a8095cee06a6e"
+    },
+    "artifacts/v03_composed_events_20261120/C9_preparation/valley_weekday_s7.prepare.progress.json": {
+      "bytes": 686,
+      "sha256": "aeb62f894c38a0254fc2e0ee027e9f057ebb3063eb3b557448e87c3c7c0322c4"
+    },
+    "crates/metroflow-rust/src/v1_engine.rs": {
+      "bytes": 76532,
+      "sha256": "b6b69c5db5e47323f5f61e059855bd9067e7cd1835af674226315a4583c90129"
+    },
+    "crates/metroflow-rust/src/v1_road.rs": {
+      "bytes": 157561,
+      "sha256": "8f4101d9d2e52174570b92c82534c544f95719816d5909481c1d82e421d34773"
+    },
+    "docs/research/V03_COMPOSED_EVENTS_CODING_20261120_KO.md": {
+      "bytes": 37901,
+      "sha256": "c401072f96ba347c53ac8277038776298471b660982c6d2e02478d364f69f881"
+    },
+    "docs/research/V03_COMPOSED_EVENTS_FINAL_HANDOFF_R1_R10_C1_C10_20261120_KO.md": {
+      "bytes": 7403,
+      "sha256": "a494117798f1c970c802b676552dcf2f51cbeb3bebfe2a2acf7fb3431fac8980"
+    },
+    "docs/research/V03_COMPOSED_EVENTS_REBUILD_THEORY_20261120_KO.md": {
+      "bytes": 19742,
+      "sha256": "c708daeebab9f154c83f64b9596ff99e21bd8287359e59aaeb1b416c3f4f3f04"
+    },
+    "tests/research/test_v03_bitset_current_prep_20261120.py": {
+      "bytes": 3148,
+      "sha256": "e98101d1524474e383961bda0d86cedebb14f958d8630054b80d90ff7c76085b"
+    },
+    "tests/research/test_v03_bitset_exact_25650_20261120.py": {
+      "bytes": 2441,
+      "sha256": "c109f3ba01944262fde6b7c84394c4acead8552a09ab14c22df94919d94535ba"
+    },
+    "tests/research/test_v03_compact_mark_original_25650_20261120.py": {
+      "bytes": 2667,
+      "sha256": "56366192e3f67b407776f6ed3ff69b59ad10d96e04a58046196aafe61eac1b03"
+    },
+    "tests/research/test_v03_compact_mark_post25650_block_20261120.py": {
+      "bytes": 3031,
+      "sha256": "1007ed21081933758d62d771bb50cd64b46abbca1764a0d02180a30e78535e8a"
+    },
+    "tests/research/test_v03_composed_mark_25700_optin_block_20261120.py": {
+      "bytes": 3071,
+      "sha256": "a6bbbbbb9089c2d348cf325166885e46e1ff6881b172681c9a9f912b0191c793"
+    },
+    "tests/research/test_v03_composed_mark_current_prep_20261120.py": {
+      "bytes": 3295,
+      "sha256": "a52878ac4ce88877d10f6b6c6d35bb71a0d0e95aa650f594536905b8af221a2a"
+    },
+    "tests/research/test_v03_kcmb_physical_alternatives_20261120.py": {
+      "bytes": 2207,
+      "sha256": "9107e704e7e399919cff2ca16717618f4827ddbfe82126b6f6458033c4743b4e"
+    },
+    "tests/research/test_v03_kcmb_synthetic_24h_20261120.py": {
+      "bytes": 2835,
+      "sha256": "b2909d5968a2a201d3ab404ed3c9854511cacf7d8e81ac082b075b363ed165c7"
+    },
+    "tests/research/test_v03_mark_arc_c6_index_sweep_block_20261120.py": {
+      "bytes": 3559,
+      "sha256": "8a0b6f4da2ba4fb1c245cedf87ae75399af92de2706e946defa7a9957f6c3910"
+    },
+    "tests/research/test_v03_moment_fifo_no_go_20261120.py": {
+      "bytes": 2953,
+      "sha256": "14214a0334eb583f9e11377c0c391f06c648b6693aaac514d0e386b48058c975"
+    },
+    "tools/research/v03_bitset_25650_default_replay.py": {
+      "bytes": 6799,
+      "sha256": "5b6356254286ee205f227d086bd79da674611f2a8efaf084cb39a11f65a9072c"
+    },
+    "tools/research/v03_kcmb_24h_synthetic_longrun.py": {
+      "bytes": 5321,
+      "sha256": "665c58cc1b99520865acac635c7ed6c21561bdeeb44f8c6f6ba6490cecc72e19"
+    },
+    "tools/research/v03_kcmb_physical_alternatives.py": {
+      "bytes": 8943,
+      "sha256": "76b754d8f7aafb01af2b17ee76849dc86cd484c7bbc04284adc97fb92ddc68c4"
+    },
+    "tools/research/v03_order_invariant_moment_fifo_no_go.py": {
+      "bytes": 4813,
+      "sha256": "66196cf359c11bf2d9de67e13c09d0178194292cd0558e0b981f8c2349521877"
+    }
+  },
+  "radical_kinetic_alternative": {
+    "case_summary": {
+      "dedicated_physical_turn_pockets": {
+        "checkpoint_bytes": 802,
+        "independent_periodic_ledger_checks": 174,
+        "max_step_mass_error_veh": 4.344020032576168e-09,
+        "simulated_time_s": 86400.0,
+        "state_scalars": 66,
+        "wall_s": 20.54159068700028
+      },
+      "shared_single_lane": {
+        "checkpoint_bytes": 613,
+        "independent_periodic_ledger_checks": 174,
+        "max_step_mass_error_veh": 4.93497287479272e-09,
+        "simulated_time_s": 86400.0,
+        "state_scalars": 42,
+        "wall_s": 14.594865175999985
+      }
+    },
+    "model": "KCMB, kinetic Markov sigma-continuous speed 6-moment + conservative network, physically different optional turning-lane geometry",
+    "model_micro_rates_tuned_to_observation": false,
+    "observed_city_quality": "UNVALIDATED",
+    "original_100k_resident_urban_cases_completed": 0,
+    "source_demand_fitted": "NO",
+    "strict_FIFO_no_go": {
+      "claim": "instantaneous order-invariant six-moment-only state cannot recover both strict temporal FIFO exits",
+      "different_fifo_B_outflows_veh": [
+        0.0,
+        0.05
+      ],
+      "independent_backends": [
+        "python",
+        "rust"
+      ],
+      "not_excluded": "position-resolved kinetic or additional ordered head state",
+      "same_moment_two_states": true
+    },
+    "synthetic_24h_runs_completed": 2
+  },
+  "readiness": {
+    "actual_original_full_86400s_3city_x3_accepted": 0,
+    "actual_original_full_86400s_3city_x3_required": 9,
+    "current_native_full_population_city_calendar_preps_done": 3,
+    "current_native_full_population_city_calendar_preps_total": 3,
+    "plan_version": "1.1.26",
+    "rls01": "PLANNED",
+    "scoped_DAG_nodes_completed": 19,
+    "scoped_DAG_nodes_total": 21,
+    "v03": "BLOCKED",
+    "v03_direct_prereq_done": 3,
+    "v03_direct_prereq_total": 3
+  },
+  "repo": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "V03_COMPOSED_EVENTS_KCMB_R1_R10_C1_C10_FINAL_RECEIPT_20261120_V1",
+  "tests": {
+    "C10_historical_receipt_matrix_passed": 21,
+    "C10_source_bound_kcmb_tests_passed": 4,
+    "cargo_check": "EXIT_0",
+    "no_python_rust_failures_in_selected_suite": true,
+    "plan_validation": "VALID_PLAN_NOT_RELEASE",
+    "rust_lib_ignored_optional_benchmarks": 2,
+    "rust_lib_passed": 95,
+    "scoped_python_passed": 298,
+    "whole_repo_CI": "NOT_RUN"
+  },
+  "verified_coding_stages": 10,
+  "verified_theory_stages": 10
+}

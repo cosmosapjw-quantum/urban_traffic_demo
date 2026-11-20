@@ -134,3 +134,38 @@ Following C7's new native source/binary SHA (b622ac7d96cf80f74b9c74983e73a6b4726
 All three have WHOLE_CALENDAR_PREPARED status, original 100000 residents each, matching candidate source/native/matrix SHA and work below 8GiB/7200s case limits. They are *prepare-only jobs*: simulated_s=0 and horizon_s=0, not traffic runs. A fresh independent Python test 2/2 checked the exact current native/matrix identity, 3-city complete source leg totals (8,461,965), the original fixed PLAN and that prior C5 native preparation receipts are STALE for this new binary (zero source-bound credit). Original official V03 readiness remains PLAN 1.1.26, scoped implementation 19/21, direct V03 prerequisites 3/3, current native input preflight 3/3, full 86400s ×9 accepted 0/9, V03 BLOCKED and RLS01 PLANNED.
 
 **Claim gate:** C9 establishes an executable source-bound V03 input prerequisite under this candidate, not an accepted original full-day physics run. C8's exact 25650 physical checkpoint remains valid; C8's native 25700 default and optional Arc pair credit runs are both blocked by budget. The user-requested speed/RSS simultaneous gain is not verified. C9 is separately pushed after checking current source SHA and preserving the original main/PR unchanged.
+
+
+## C10. 독립 운동론 24시간 검산 · FIFO 정보손실 반례 · 최종 감사
+
+**Source authority.** C9 source HEAD 2a95086a4b8307def7529914600435d01edc449d, original main 01c80b432344f94209daaa198bb1eb007839fc7f unchanged; active Rust extension SHA256 68fcbbd8c2d00f5ebc30d9434db4f9f4d4279f84447a5d0669bdf2ef22bc6c17. Original physically conserved model, 100k city demand, fixed native process and phase budgets were NOT changed.
+
+### C10-A. 실제 합성 24시간 운동론적 네트워크 실행
+
+Independent script tools/research/v03_kcmb_24h_synthetic_longrun.py was re-executed against the current native binary. For EACH of two *physically different small synthetic networks*, 172800 steps at 0.5s = 86400 simulated seconds were completed. The existing KCMB model uses self-driven sigma, continuous-speed six-moment kinetic transition and conservative finite-space node flux; no newly fitted parameters.
+
+- Shared single lane: three links, two route commodities, fixed 6×3×2+3×2=42 state scalars, 613-byte same-model exact checkpoint, measured wall 14.595s, max reported step mass error 4.934973e-9 vehicle, 174 independent mass/storage checks.
+- Actual independent turning-pocket lanes: five links with 30 extra physical lane-metres, fixed 6×5×2+3×2=66 scalars, 802-byte exact checkpoint, measured wall 20.542s, max reported step mass error 4.344020e-9 vehicle, 174 checks.
+- Both used the same deterministic synthetic source of 0.02 veh per route and half-second step, original previously established fixture kinetic rates, no real urban demand, no empirical calibration. They are not the 100000-resident River/Coastal/Valley scenarios and do not count as original V03 full-day acceptance. Different lane geometry prevents a controlled same-geometry causal performance comparison.
+
+### C10-B. Strict FIFO no-go by explicit ordered-route counterexample
+
+Independent script tools/research/v03_order_invariant_moment_fifo_no_go.py was re-executed for both Python and Rust backends. Two admissible same-geometry link states with route A=1 veh and B=1 veh, exactly identical source/route six-moment vectors, pending/released/completed aggregates and same red-A/green-B signal differ ONLY in head route order A-then-B versus B-then-A. The explicit ordered FIFO shadow returns B outflow 0 for A-first and 0.05 veh for B-first, mass ledgers exactly equal per backend and Python/Rust output exactly consistent.
+
+**Derived conditional theorem:** A deterministic closure taking only instantaneous order-invariant route speed/control moments and the same signal must output the same B flow for these states, but exact strict FIFO outputs differ. Hence there is no universally strict FIFO-equivalent moment-only closure over both states. This does not prohibit additional order-resolved state or longitudinal kinetic distributions. The radical KCMB model therefore has a separate physical prediction contract and cannot be presented as a byte-exact original V03 rewrite.
+
+### C10-C. Source-pinned historical tests and fresh regression
+
+An initial C10 audit found 6 historical C2–C6 tests failed solely because they required earlier source/binary receipts to match the present C9 native SHA. The test contract was corrected to require the exact earlier Mark-native source SHA 1a55b6e33b4444c909d42b7aff8a7b4b7f4c283a3d077adb95414d51497b77f2 and binary SHA 60bb008b4ef6e34203a625e73193d51f25cf7651ef70ba83594d2c2ae29250ed, including negative checks that they are not current. No original physical/ledger/route/resource assertions were discarded or loosened. Rerun of the historical/new C2–C10 matrix: 21 passed.
+
+Fresh broad scoped verification after source-correction: Python 298 passed; native Rust cargo --workspace --lib 95 passed with 2 optional benchmark tests ignored; cargo check --workspace --tests --offline passed; Python scripts compile and original V1 PLAN validator VALID_PLAN_NOT_RELEASE. The native compiler still emits pre-existing warnings; no release CI was run.
+
+### C10-D. Comparative scientific decision and remaining V03 readiness
+
+Original exact route-FIFO branch: compact Mark (32 to 16 bytes), hierarchical interval bitset and native source-pinned restoration passed the previous 25600→25650 DEFAULT phase with complete legacy checkpoint SHA256 89e3230b23b4423509f6036035e9b03c7299204b5d317cdb3f6226c5b0c53e8b. Still 25650→25700 blocked by native transfer candidates (DEFAULT) and interval indexed sweep (experimental Arc credit), with distinct Part genealogy and a 1.68GB flat source checkpoint. Neither 25700 bit-equivalence nor original 86400s×9 was shown.
+
+Radical alternative: two tiny synthetic model-days completed with fixed 42 and 66 scalar state, conservation and explicit geometric lane structure but not original vehicle birth-time, ordered temporal FIFO or empirical urban fidelity. Claims must remain separate.
+
+Official PLAN v1.1.26 scoped DAG **19/21**, V03 direct predecessor nodes **3/3**, current loaded native 100k whole-city input calendars **3/3**, accepted full original 86400-second 3-city×3 runs **0/9**, V03 **BLOCKED**, RLS01 **PLANNED**. Previous source receipts are not current-source evidence. No original main mutation, no PR merge, no arbitrary traffic fitting.
+
+**Next bounded action:** V03-FIFO-COMPOSED-INTERVAL-01 to compress *actual* source-ordered EventRow/Mark/incoming and indexed interval-edge materialization simultaneously with immutable provenance, then compare exact original 25650→25700 native physical checkpoint, RSS/wall and full-day admission without changing the default budget. Separate KCMB-GEOMETRY-EMPIRICAL-01 validates the physically different micro/meso/macro closure on real measured urban link geometry, signals, trajectories and held-out shock/queue/travel-time metrics before any replacement claims.

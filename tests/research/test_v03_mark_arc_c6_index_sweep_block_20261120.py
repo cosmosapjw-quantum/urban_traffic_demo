@@ -22,8 +22,10 @@ def test_same_source_optin_is_blocked_in_interval_indexed_sweep():
     assert default["source_case"] == candidate["source_case"] == "valley_weekday_s7"
     assert default["input_checkpoint_sha256"] == candidate["input_checkpoint_sha256"]
     assert default["loaded_native_binary_sha256"] == candidate["loaded_native_binary_sha256"]
-    assert candidate["loaded_native_binary_sha256"] == native_binary_provenance()["sha256"]
-    assert candidate["loaded_candidate_source_sha256"] == candidate_provenance()["source_sha256"]
+    assert candidate["loaded_native_binary_sha256"] == "60bb008b4ef6e34203a625e73193d51f25cf7651ef70ba83594d2c2ae29250ed"
+    assert candidate["loaded_native_binary_sha256"] != native_binary_provenance()["sha256"]
+    assert candidate["loaded_candidate_source_sha256"] == "1a55b6e33b4444c909d42b7aff8a7b4b7f4c283a3d077adb95414d51497b77f2"
+    assert candidate["loaded_candidate_source_sha256"] != candidate_provenance()["source_sha256"]
     assert candidate["original_population"] == default["original_population"] == 100000
     assert candidate["start_time_s"] == 25650
     assert candidate["target_time_s"] == 25700

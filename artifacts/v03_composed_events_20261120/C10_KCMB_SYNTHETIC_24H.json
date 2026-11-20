@@ -1,0 +1,86 @@
+{
+  "cases": {
+    "dedicated_physical_turn_pockets": {
+      "checkpoint_bytes": 802,
+      "checkpoint_same_model_exact_reload": true,
+      "dt_s": 0.5,
+      "elapsed_wall_s": 20.54159068700028,
+      "final_completed": [
+        3455.0725604257805,
+        3455.1999999971476
+      ],
+      "final_pending": [
+        0.0,
+        0.0
+      ],
+      "final_released": [
+        3455.999999997147,
+        3455.999999997147
+      ],
+      "geometry": "dedicated_physical_turn_pockets",
+      "independent_mass_and_lane_storage_checks": 174,
+      "max_reported_step_mass_ledger_error_veh": 4.344020032576168e-09,
+      "microphysics_parameter_fit": false,
+      "models_compared_have_different_physical_lane_geometry": true,
+      "native_backend": "Rust KCMB node and kinetic network",
+      "physical_link_count": 5,
+      "route_count": 2,
+      "scalar_state_capacity_has_constant_size": true,
+      "simulated_duration_s": 86400.0,
+      "simulated_ticks": 172800,
+      "source_offered_veh_per_route": [
+        3455.999999997147,
+        3455.999999997147
+      ],
+      "state_scalars": 66
+    },
+    "shared_single_lane": {
+      "checkpoint_bytes": 613,
+      "checkpoint_same_model_exact_reload": true,
+      "dt_s": 0.5,
+      "elapsed_wall_s": 14.594865175999985,
+      "final_completed": [
+        3454.8079563075453,
+        3454.8079563075453
+      ],
+      "final_pending": [
+        0.0,
+        0.0
+      ],
+      "final_released": [
+        3455.999999997147,
+        3455.999999997147
+      ],
+      "geometry": "shared_single_lane",
+      "independent_mass_and_lane_storage_checks": 174,
+      "max_reported_step_mass_ledger_error_veh": 4.93497287479272e-09,
+      "microphysics_parameter_fit": false,
+      "models_compared_have_different_physical_lane_geometry": true,
+      "native_backend": "Rust KCMB node and kinetic network",
+      "physical_link_count": 3,
+      "route_count": 2,
+      "scalar_state_capacity_has_constant_size": true,
+      "simulated_duration_s": 86400.0,
+      "simulated_ticks": 172800,
+      "source_offered_veh_per_route": [
+        3455.999999997147,
+        3455.999999997147
+      ],
+      "state_scalars": 42
+    }
+  },
+  "claim_scope": "numerically checked 86400s for a tiny synthetic network; no city-scale prediction or true vehicle-level FIFO",
+  "created_utc": "2026-11-20T10:14:41+00:00",
+  "current_compiled_native_sha256": "68fcbbd8c2d00f5ebc30d9434db4f9f4d4279f84447a5d0669bdf2ef22bc6c17",
+  "input_coefficients": "Reused unchanged source-fixed unit-test values, no fit",
+  "number_of_simulated_seconds": 86400.0,
+  "original_V03_100000_resident_city_simulated": false,
+  "original_V03_full_day_release_accepted": false,
+  "original_source_model_matrix_untouched": true,
+  "physical_model_not_exact_original_FIFO_checkpoint": true,
+  "physical_traffic_sources": "constant 0.02 veh per route each 0.5s, synthetic and not urban observational demand",
+  "research_model": "6 kinetic moments per route/link, conservative node, geometric partial FIFO",
+  "schema": "V03_KCMB_RADICAL_SYNTHETIC_24H_FIXED_STATE_20261120_V1",
+  "signal_policy": "red A for first 16 of each 32 half-second ticks, right B always green",
+  "simulated_one_day_in_a_synthetic_three_or_five_link_network": true
+}

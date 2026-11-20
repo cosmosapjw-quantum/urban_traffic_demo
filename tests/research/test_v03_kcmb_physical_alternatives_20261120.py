@@ -23,7 +23,8 @@ def test_physically_real_separate_turn_pockets_unblock_green_route():
     assert r["one_step_red_A_green_B"]["pocket_B_out"]>0
     assert r["simulation_dt_s"]==0.5
     assert r["simulated_duration_s"]==600
-    assert r["Rust_KCMB_backend_binary_sha256"]==native_binary_provenance()["sha256"]
+    assert r["Rust_KCMB_backend_binary_sha256"]=="60bb008b4ef6e34203a625e73193d51f25cf7651ef70ba83594d2c2ae29250ed"
+    assert r["Rust_KCMB_backend_binary_sha256"]!=native_binary_provenance()["sha256"]
 
 
 def test_multi_route_kinetic_state_and_ledger_do_not_grow_with_partial_packets():

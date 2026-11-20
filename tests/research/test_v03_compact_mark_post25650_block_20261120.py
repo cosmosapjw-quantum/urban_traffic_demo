@@ -33,8 +33,10 @@ def test_mark_native_default_still_blocked_at_25700_with_unmodified_policy():
     assert r["process_peak_rss_bytes"]<8*1024**3
     assert r["original_full_day_acceptance"]=="BLOCKED_0_OF_9"
     assert r["no_fitted_model_parameters"] is True
-    assert r["loaded_candidate_source_sha256"]==candidate_provenance()["source_sha256"]
-    assert r["loaded_native_binary_sha256"]==native_binary_provenance()["sha256"]
+    assert r["loaded_candidate_source_sha256"]=="1a55b6e33b4444c909d42b7aff8a7b4b7f4c283a3d077adb95414d51497b77f2"
+    assert r["loaded_candidate_source_sha256"]!=candidate_provenance()["source_sha256"]
+    assert r["loaded_native_binary_sha256"]=="60bb008b4ef6e34203a625e73193d51f25cf7651ef70ba83594d2c2ae29250ed"
+    assert r["loaded_native_binary_sha256"]!=native_binary_provenance()["sha256"]
 
 def test_exact_failed_guard_terms_reconstruct_original_int_budget():
     r=json.loads((ART/"C3_DEFAULT_MARK_25700.json").read_bytes())

@@ -25,8 +25,10 @@ def test_default_mark_25650_matches_original_earlier_optin_checkpoint_and_ledger
     assert c["original_native_cap_bytes"]==r["original_native_cap_bytes"]==5242806391
     assert c["original_8GiB_process_cap_bytes"]==r["original_8GiB_process_cap_bytes"]==8*1024**3
     assert c["loaded_native_sha256"]!=r["loaded_native_sha256"]
-    assert c["loaded_native_sha256"]==native_binary_provenance()["sha256"]
-    assert c["source_sha256"]==candidate_provenance()["source_sha256"]
+    assert c["loaded_native_sha256"]=="60bb008b4ef6e34203a625e73193d51f25cf7651ef70ba83594d2c2ae29250ed"
+    assert c["loaded_native_sha256"]!=native_binary_provenance()["sha256"]
+    assert c["source_sha256"]=="1a55b6e33b4444c909d42b7aff8a7b4b7f4c283a3d077adb95414d51497b77f2"
+    assert c["source_sha256"]!=candidate_provenance()["source_sha256"]
     assert c["original_input_checkpoint_sha256"]==r["original_input_checkpoint_sha256"]
     assert c["original_driver_identity"]==r["original_driver_identity"]
     assert c["original_matrix_sha256"]==r["original_matrix_sha256"]

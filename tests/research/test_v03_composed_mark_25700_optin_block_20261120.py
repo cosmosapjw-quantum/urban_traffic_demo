@@ -18,8 +18,10 @@ def test_pair_credit_reaches_interval_sweep_but_still_does_not_finish_25700():
     assert default["budget_experimental_mode"]=="OFF"
     assert optin["budget_experimental_mode"]=="source_pair_only"
     assert default["input_checkpoint_sha256"]==optin["input_checkpoint_sha256"]
-    assert default["loaded_candidate_source_sha256"]==optin["loaded_candidate_source_sha256"]==candidate_provenance()["source_sha256"]
-    assert default["loaded_native_binary_sha256"]==optin["loaded_native_binary_sha256"]==native_binary_provenance()["sha256"]
+    assert default["loaded_candidate_source_sha256"]==optin["loaded_candidate_source_sha256"]=="1a55b6e33b4444c909d42b7aff8a7b4b7f4c283a3d077adb95414d51497b77f2"
+    assert optin["loaded_candidate_source_sha256"]!=candidate_provenance()["source_sha256"]
+    assert default["loaded_native_binary_sha256"]==optin["loaded_native_binary_sha256"]=="60bb008b4ef6e34203a625e73193d51f25cf7651ef70ba83594d2c2ae29250ed"
+    assert optin["loaded_native_binary_sha256"]!=native_binary_provenance()["sha256"]
     assert optin["actual_reached_target"] is False
     assert optin["physical_mass_ledger"] is None
     assert optin["final_checkpoint_sha256"] is None
