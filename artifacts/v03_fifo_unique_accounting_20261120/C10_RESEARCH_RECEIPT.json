@@ -1,0 +1,365 @@
+{
+  "branch": "research/v03-fifo-unique-accounting-20261120",
+  "c10_commit_sha": "PENDING_REMOTE_SHA_READBACK",
+  "c9_commit_sha": "1e88b4071d59de583784da4d791ce80f98d9385e",
+  "claim_scope": "conditional experimental Arc budget accounting, not full V03 release",
+  "code": {
+    "default_admission_changed": false,
+    "default_original_budget_numeric_ceiling_raised": false,
+    "model_fitted_parameters_added": [],
+    "optin_mode": "METROFLOW_EXPERIMENTAL_ARC_PAIR_BUDGET=source_pair_only"
+  },
+  "created_kst": "2026-11-20T16:47:15+09:00",
+  "current_candidate_sha256": "0db81c141edc7a4e3cee2582faca7373253e3d19db35a5667fc165f3af5dc3ab",
+  "current_native_sha256": "31da8e4a36f892b5cbb1deeac882fc4841421cdafce1a0964235badca7d97edf",
+  "derived_conditional_theory": [
+    "Arc owner/unique backing payload identity",
+    "disjoint matching pair credit lower bound",
+    "three live-state envelope only under explicit lifetime assumptions",
+    "dynamic phase allowance is different from configured global cap",
+    "flat original Part/event row output cost lower bound"
+  ],
+  "experiments": {
+    "final_25700_checkpoint": "ABSENT",
+    "optin_25650_checkpoint_bytes": 1683486650,
+    "optin_25650_checkpoint_sha256": "89e3230b23b4423509f6036035e9b03c7299204b5d317cdb3f6226c5b0c53e8b",
+    "optin_25650_two_run_mass_ledger_and_sha_bit_identical": true,
+    "optin_25700_effective_road_phase_allowance": 5264781391,
+    "optin_25700_excess_bytes": 65721,
+    "optin_25700_native_phase": "transfer candidates",
+    "optin_25700_process_rss_bytes": 3445784576,
+    "optin_25700_reached": false,
+    "optin_25700_required_bytes": 5264847112,
+    "optin_25700_wall_s": 31.72030319800251,
+    "optin_from_25650_to_25700_status": "BLOCKED_BudgetExceeded",
+    "previous_25600_effective_road_phase_allowance": 5242806391,
+    "same_binary_default_initial_25600_to_25650": "BLOCKED_BudgetExceeded",
+    "same_binary_optin_25600_to_25650_success_count": 2,
+    "source_25600_packet_owner_count": 158498,
+    "source_25600_part_rows": 8049883,
+    "source_25650_packet_owner_count": 310031,
+    "source_25650_part_rows": 16528850,
+    "source_checkpoint_growth_50s": 1.942266549840705
+  },
+  "large_input_fitted_coefficients": "NONE_ADDED",
+  "large_local_checkpoint": {
+    "bytes": 1683486650,
+    "path": "/home/cosmosapjw/worktrees/urban-traffic-v03-unique-accounting-20261120/artifacts/v03_fifo_unique_accounting_20261120/C8_PAIR_EXPERIMENT_25650.final.bin",
+    "pushed": false,
+    "sha256": "89e3230b23b4423509f6036035e9b03c7299204b5d317cdb3f6226c5b0c53e8b"
+  },
+  "next_id": "V03-FIFO-COMPOSED-EVENTS-01",
+  "original_main_sha_unchanged": "01c80b432344f94209daaa198bb1eb007839fc7f",
+  "parent_sha": "c76e4712bac41b8c089844c842bc6ce55c782501",
+  "plan_sha256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+  "previous_pushed_stages": [
+    {
+      "sha": "9e8a8897ac5bce7aecfe559e8957bef2f956409e",
+      "subject": "theory(v03): derive unique Arc backing identity and conditional budget bound"
+    },
+    {
+      "sha": "dbc4f35dd8c86b30adedbbf303e8ab08a0cf816f",
+      "subject": "research(v03): C1 instrument exact unique Arc backing census without altering work budget"
+    },
+    {
+      "sha": "9c1a5c01444b8e1a7c4f900a59dba7d4360518ae",
+      "subject": "research(v03): C2 measure 100k state Arc identity and falsify per-state alias hypothesis"
+    },
+    {
+      "sha": "bc06e4a280da29e3de622851e6b0e018dd831692",
+      "subject": "research(v03): C3 prove cross-snapshot Arc union and expose diagnostic only"
+    },
+    {
+      "sha": "2bddc4d5d6f5b54331f6aea4d5d54ce7a465b1fa",
+      "subject": "research(v03): C4 source-measure 257MB exact Arc overlap across live snapshots"
+    },
+    {
+      "sha": "d7d0f801c5c9b0a2c8eb74e127e1c74733427915",
+      "subject": "research(v03): C5 isolate exact 25650 event/incoming structural budget failure"
+    },
+    {
+      "sha": "ca5ab3acdfb71652c80b63f595fb5a694c56d14b",
+      "subject": "research(v03): C6 prepare source-verified three original 100k city calendars"
+    },
+    {
+      "sha": "7d622bbde777359f841ff0c364a674ad64020e87",
+      "subject": "research(v03): C7 add conditional opt-in exact Arc-pair budget credit"
+    },
+    {
+      "sha": "7a2e6a0ed32e2c955085b5e8704ce219ea7446f6",
+      "subject": "research(v03): C8 reproduce opt-in 25650 exact physics twice under unchanged caps"
+    },
+    {
+      "sha": "1e88b4071d59de583784da4d791ce80f98d9385e",
+      "subject": "research(v03): C9 verify current-native three-city 100k calendar preflight"
+    }
+  ],
+  "release_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "safety_status": "EXPERIMENT_ONLY_3_STATE_LIFETIME_NOT_FULLY_PROVEN",
+  "schema": "V03_FIFO_UNIQUE_ACCOUNTING_R1_R10_C1_C10_RECEIPT_V1",
+  "small_artifact_sha256": {
+    "artifacts/v03_fifo_unique_accounting_20261120/.gitignore": {
+      "bytes": 89,
+      "sha256": "56fe4a107bc7de09704981265ba1768ff97e09496199238043742336aab313ef"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C10_CARGO_CHECK.log": {
+      "bytes": 2649,
+      "sha256": "1ff0971100790ebbfb34c84651f4b235c947112f7f6ef874aa351295105628c2"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C10_CARGO_TEST.log": {
+      "bytes": 10700,
+      "sha256": "5989b9746ec96dd1a9fd57e8623cb209ca471f865a2ca19fe36a002f9fab8ab2"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C10_PAIR_POST25650_25700.json": {
+      "bytes": 8479,
+      "sha256": "07da5c68ef2a61d4ceb491abeae4bd9c47b088660fc6e93883a17f1522d8316e"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C10_PLAN_VALIDATE.txt": {
+      "bytes": 197,
+      "sha256": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C10_RUFF_CHECK.log": {
+      "bytes": 25,
+      "sha256": "53e3d3809f736e8b50169a15b11e6ed589dbc117e28568a247ab8132207885b9"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C10_SCOPED_PYTEST.txt": {
+      "bytes": 421,
+      "sha256": "eea65371a10798ebd978029abec9c874e3215d469392f7029d3e2da9aa77ff2b"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C1_ALL_RUST.log": {
+      "bytes": 10095,
+      "sha256": "b49ff455ca2b2423c44175982399a0fcb411de4804642082149e63269a8fb9aa"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C1_CARGO_CHECK.log": {
+      "bytes": 3528,
+      "sha256": "b839edf202e951014ad4724bb5fb51292435ec15b9dbdb31af9f82b8536e9606"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C1_MATURIN_BUILD.log": {
+      "bytes": 2866,
+      "sha256": "a4f0b042ab3b4f72a78ae0b70a6f65dbca6c45be1f89ec46a00b4f0f5c431260"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C1_PYTEST.txt": {
+      "bytes": 99,
+      "sha256": "392db196ea980165449b6bb03f42336197cc8d53f362d50b77fb192e7657a7cb"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C2_ACTUAL_25600_BACKING_CENSUS.json": {
+      "bytes": 2903,
+      "sha256": "00e00203049a04e7dda81a01d7f501f5a18e0271eb7e258e6b8fd4f10959cb1e"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C2_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "c178449272bb51b7cf4ea950c6169cee3d94d323b8186f6cd7eca96df22dc4a9"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C3_ALL_RUST.log": {
+      "bytes": 10472,
+      "sha256": "adf0cb1026f69e909f8fd42eea1e7161f92246d69f6f44ff87ae269a2f302078"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C3_CARGO_CHECK.log": {
+      "bytes": 2780,
+      "sha256": "d3aef0531c0d33c9379860ad8c6f2b414c13097f01517c58f5263245ea9219a0"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C3_NATIVE_BUILD.log": {
+      "bytes": 2866,
+      "sha256": "9fe657acf00fc2826000c5aaf9316e20ddbc850e9bacd7a2cd07ab454f11a805"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C3_PYTEST.txt": {
+      "bytes": 99,
+      "sha256": "d6e56c881c99cd169d90550745dc8fa09048a2a02da346241c84ba31b8b655f6"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C4_ACTUAL_25600_CROSS_SNAPSHOT_UNION.json": {
+      "bytes": 3807,
+      "sha256": "2b90b890a015acdf4d56fbcee9363b1474549be43dc875f45428ea0f2db6c7e7"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C4_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "8a8087ec1a9d7ac3a3e24f4d4f2cf4dc5d8454a9ee0514098651a820529b6109"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C5_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "f7da7f86cbf89957a3d2994d522437ec98ca4c257402418f86bbcbd223cc7b9e"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C5_REAL_25650_PHASE_BUDGET_TRACE.json": {
+      "bytes": 11113,
+      "sha256": "8cfcd5ebc4123e35a01befdc161d4886370336f3ebbd0e174e896fd11da1dcee"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C6_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "8989a153a4f265bdf8bf8abfcbf7ce96cf91c69ee66d543244ebf0fc2c9d041d"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C6_SOURCE_PINNED_V03_READINESS.json": {
+      "bytes": 3657,
+      "sha256": "8f8935339cf5ab8c21e946e102cea10c49c9b2ecba68a48acad548e83a02ff7f"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C6_preparation/CAMPAIGN.json": {
+      "bytes": 7844,
+      "sha256": "94c7e56922b349b3f73183b777937921e2b9b69b34668bb6c5f2196bd938b18d"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C6_preparation/coastal_weekend_s41.prepare.json": {
+      "bytes": 6965,
+      "sha256": "a5462aa7d18ad8441686fe66b33587d3b07e982ccc1dc3816f29473adfac321c"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C6_preparation/coastal_weekend_s41.prepare.progress.json": {
+      "bytes": 691,
+      "sha256": "2d4db316f350f95779e01e24a6dcb95b62df16578398ffbcaad3a569ff530fc2"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C6_preparation/river_weekday_s17.prepare.json": {
+      "bytes": 6966,
+      "sha256": "15a27ca6275a623bde21990dac62c9eb6f54e364a4bae50318b7ae629449da2d"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C6_preparation/river_weekday_s17.prepare.progress.json": {
+      "bytes": 687,
+      "sha256": "53f223586762aae66c17b7ea659e0748cb90dc6ed8bfca34c2a2435b59317257"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C6_preparation/valley_weekday_s7.prepare.json": {
+      "bytes": 6954,
+      "sha256": "e940453acc4dc162e7f75142403127fd87257f7dcbe0084c2b7292c32106e202"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C6_preparation/valley_weekday_s7.prepare.progress.json": {
+      "bytes": 686,
+      "sha256": "15e2e585002b5c98ddebb1d202daf67b73d15d1c1f6eeeeba217feaf5fe8e453"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C7_CARGO_CHECK.log": {
+      "bytes": 2780,
+      "sha256": "5446fda50ba5870896918757177d3659b1f61d7149233a0897ab31cdf3111894"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C7_CARGO_TEST.log": {
+      "bytes": 10831,
+      "sha256": "b00576b32f798052c263f8bd5d429f19f799cdb168efc776e96e010ea28eca01"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C7_NATIVE_BUILD.log": {
+      "bytes": 2866,
+      "sha256": "2f1da28d8ef1e8a3305797063b797acbf0d47691b11a4019b8116cf536b467b1"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C7_PYTEST.txt": {
+      "bytes": 99,
+      "sha256": "e2969fdd2c94f21dd2cf3ed2471d632a99dfb11e5c1656b55c35228027d9e1bf"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C8_ORIGINAL_DEFAULT_25650.json": {
+      "bytes": 10387,
+      "sha256": "7570e65597ad9351c0eae6a7c3033c1ffb02098dd01ba4b81b3bd7bf5b44475a"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C8_PAIR_EXPERIMENT_25650.json": {
+      "bytes": 11349,
+      "sha256": "cd237e2605a8c4f888e771f25e07acfc7fc8af956b13eedc4440444123969732"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C8_PAIR_RUN1_25650.json": {
+      "bytes": 11351,
+      "sha256": "cb1377ec077946969ff9de693e22c0938dfd02a282ca65092308cb3b75fea508"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C8_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "783a2ffe74d6521276d5db9faaefb7bd9b24297ff0d303ec18a89934b448afb8"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C9_CURRENT_NATIVE_V03_READINESS.json": {
+      "bytes": 3657,
+      "sha256": "f591f4deb5377c5b23b1715326522c14c00100c8d38d2e038ee93c56619cc068"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C9_CURRENT_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "704d54d2279476b018517267a8ebc5993f930e5bbc21c5a90a2ece64846fe69f"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C9_preparation/CAMPAIGN.json": {
+      "bytes": 7844,
+      "sha256": "7d26bd1f724b4a8848cfd35c84c670cf15d245f43ef6362431e325d3e099507f"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C9_preparation/coastal_weekend_s41.prepare.json": {
+      "bytes": 6965,
+      "sha256": "ef7a2f421dab45f0fb26751c986fc788fe8caccec7ede5cb8c689fc0a4987401"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C9_preparation/coastal_weekend_s41.prepare.progress.json": {
+      "bytes": 691,
+      "sha256": "e3b0645b20ffd49f9c3964f6f8fb87603997d51547bb54b3c332170b29b1b0ee"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C9_preparation/river_weekday_s17.prepare.json": {
+      "bytes": 6965,
+      "sha256": "bba9818669c766c55c8ffa6b9369b45adbe22290dfb7d0244c8b938a88b0bb53"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C9_preparation/river_weekday_s17.prepare.progress.json": {
+      "bytes": 687,
+      "sha256": "7e210cee3a07963153b44017e91c5c55e874b08373c536d1738c9b6860fbb683"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C9_preparation/valley_weekday_s7.prepare.json": {
+      "bytes": 6954,
+      "sha256": "b7d18540949aa0f79c11b9898ef7deb1da615e6da465c6c41d2dc9df79762203"
+    },
+    "artifacts/v03_fifo_unique_accounting_20261120/C9_preparation/valley_weekday_s7.prepare.progress.json": {
+      "bytes": 686,
+      "sha256": "ed22523d75364d645d89c00a8be74543b4d034e3653cab6114d6974d196f2966"
+    },
+    "crates/metroflow-rust/src/v1_engine.rs": {
+      "bytes": 76532,
+      "sha256": "b6b69c5db5e47323f5f61e059855bd9067e7cd1835af674226315a4583c90129"
+    },
+    "crates/metroflow-rust/src/v1_road.rs": {
+      "bytes": 145502,
+      "sha256": "f918861681b397bdfabf154f8668b9c76821831343b1aaa609a578d8d4b90cc9"
+    },
+    "docs/research/V03_FIFO_UNIQUE_ACCOUNTING_C1_C5_20261120_KO.md": {
+      "bytes": 12125,
+      "sha256": "95cb7e03a0ad3b69044b4dca9d361b89bc188386a490b3160ff6966caeaeffba"
+    },
+    "docs/research/V03_FIFO_UNIQUE_ACCOUNTING_C7_C10_20261120_KO.md": {
+      "bytes": 11002,
+      "sha256": "ba9098f664ac8c6f3685d5f2741e60237d6c9586e8b0e6436e847b7ce4ec2ea6"
+    },
+    "docs/research/V03_FIFO_UNIQUE_ACCOUNTING_CODING_C1_C10_20261120_KO.md": {
+      "bytes": 23054,
+      "sha256": "5fd5ecf54f8fa8a36378c7a9fc24f9adf883a68aa0a1f99f310365cd5b5261b8"
+    },
+    "docs/research/V03_FIFO_UNIQUE_ACCOUNTING_R1_R3_20261120_KO.md": {
+      "bytes": 16778,
+      "sha256": "27eb81162529e19c0b3b814ee0c6fba8943bc2cd94ee14b34aa546ab6361766a"
+    },
+    "docs/research/V03_FIFO_UNIQUE_ACCOUNTING_THEORY_R1_R10_20261120_KO.md": {
+      "bytes": 16778,
+      "sha256": "27eb81162529e19c0b3b814ee0c6fba8943bc2cd94ee14b34aa546ab6361766a"
+    },
+    "tests/research/test_v03_unique_arc_union_20261120.py": {
+      "bytes": 2356,
+      "sha256": "9b484d271286b956586c5a20221fb7fcbc922d2609c1c6ad9b2b9005956078d4"
+    },
+    "tests/research/test_v03_unique_budget_trace_20261120.py": {
+      "bytes": 3198,
+      "sha256": "454d97241345bb073e64a0d428a4afdd20b1e1466552ad9d194d796886891dda"
+    },
+    "tests/research/test_v03_unique_c9_current_prep_20261120.py": {
+      "bytes": 4327,
+      "sha256": "41a6d1151c4c4b7bce4db32d6bfb6019969432fd8e65bac6604f6c8034c3f131"
+    },
+    "tests/research/test_v03_unique_current_prep_20261120.py": {
+      "bytes": 1976,
+      "sha256": "ad09d445916c06b156d03aee884f2f176f20ebc91ad7825776bd7541ca5db004"
+    },
+    "tests/research/test_v03_unique_post25650_block_20261120.py": {
+      "bytes": 3650,
+      "sha256": "0fde022fb5c01bc886d5cd1c85b73260c0f9c8706033014735d0cbcfa575ce5a"
+    },
+    "tools/research/v03_unique_post25650_probe.py": {
+      "bytes": 8504,
+      "sha256": "2098456c7dec1f1e2fc5fa373cd6145ee416f700d87478d0547226fa27db43dc"
+    }
+  },
+  "tests": {
+    "cargo_check": "EXIT_0",
+    "plan_validation": "VALID_PLAN_NOT_RELEASE",
+    "ruff": "NOT_RUN_RUFF_UNAVAILABLE",
+    "rust_ignored_optin_benchmarks": 2,
+    "rust_library_passed": 90,
+    "selected_python_passed": 294,
+    "whole_repository_CI": "NOT_RUN"
+  },
+  "v03_readiness": {
+    "DAG_total": 21,
+    "authoritative_scoped_DAG_completed": 19,
+    "city_count": 3,
+    "current_native_all_100k_cities_calendar_ready": 3,
+    "full_day_86400s_runs_completed": 0,
+    "full_day_86400s_runs_required": 9,
+    "original_global_process_8GiB_cap_unchanged": true,
+    "rls01": "PLANNED",
+    "v03": "BLOCKED",
+    "v03_direct_predecessor_completed": 3,
+    "v03_direct_predecessor_total": 3
+  }
+}

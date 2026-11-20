@@ -10,8 +10,11 @@ DATA=ROOT/"artifacts/v03_fifo_unique_accounting_20261120/C4_ACTUAL_25600_CROSS_S
 
 def test_exact_cross_snapshot_payload_alias_on_original_100k_valley():
     obj=json.loads(DATA.read_bytes())
-    assert obj["current_source_sha256"]==candidate_provenance()["source_sha256"]
-    assert obj["current_native_sha256"]==native_binary_provenance()["sha256"]
+    # Historic C4 receipt belongs to its own compiled binary, not current C9.
+    assert obj["current_source_sha256"]=="5fab49213d660b069866b3a4c0fa296657237dc1c2645f14e75802bf31c06d32"
+    assert obj["current_native_sha256"]=="57b7ac3104adce4ba0bf68f09ff9bc62e9996a3255ea65f4e369329e92ec5c31"
+    assert obj["current_source_sha256"]!=candidate_provenance()["source_sha256"]
+    assert obj["current_native_sha256"]!=native_binary_provenance()["sha256"]
     assert obj["original_model_physics_advanced"] is False
     assert obj["road_work_budget_modified"] is False
     assert obj["original_native_internal_budget_bytes"]==5242806391

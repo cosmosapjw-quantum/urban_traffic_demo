@@ -21,8 +21,12 @@ def test_actual_structural_failure_reproduces_without_budget_bypass():
     assert a["process_peak_rss_bytes"]<8*1024**3
     assert a["road_work_budget_modified"] is False
     assert a["original_24hour_runs_completed"]==0
-    assert a["source_sha256"]==candidate_provenance()["source_sha256"]
-    assert a["loaded_native_sha256"]==native_binary_provenance()["sha256"]
+    # A real failed C5 trace from earlier source identity; do not credit it
+    # to the current C9 candidate or let stale receipts pass the new gate.
+    assert a["source_sha256"]=="5fab49213d660b069866b3a4c0fa296657237dc1c2645f14e75802bf31c06d32"
+    assert a["loaded_native_sha256"]=="57b7ac3104adce4ba0bf68f09ff9bc62e9996a3255ea65f4e369329e92ec5c31"
+    assert a["source_sha256"]!=candidate_provenance()["source_sha256"]
+    assert a["loaded_native_sha256"]!=native_binary_provenance()["sha256"]
 
 
 def test_failing_term_breakdown_reconstructs_exact_byte_count():

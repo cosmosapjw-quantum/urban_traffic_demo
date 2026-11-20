@@ -11,10 +11,13 @@ ART=ROOT/"artifacts/v03_fifo_unique_accounting_20261120"
 
 def test_current_native_original_all_three_city_whole_calendars_not_simulated_days():
     r=json.loads((ART/"C6_SOURCE_PINNED_V03_READINESS.json").read_bytes())
-    src=candidate_provenance()["source_sha256"]
-    bin=native_binary_provenance()["sha256"]
+    src="5fab49213d660b069866b3a4c0fa296657237dc1c2645f14e75802bf31c06d32"
+    bin="57b7ac3104adce4ba0bf68f09ff9bc62e9996a3255ea65f4e369329e92ec5c31"
+    # C6 is a preserved former compiled binary, not current C9.
     assert r["measurement_context"]["live_candidate_source_sha256"]==src
     assert r["measurement_context"]["live_native_binary_sha256"]==bin
+    assert src!=candidate_provenance()["source_sha256"]
+    assert bin!=native_binary_provenance()["sha256"]
     assert r["v03"]["calendar_preparation_verified"]==3
     assert r["v03"]["completed_full_day_runs"]==0
     assert r["v03"]["required_full_day_runs"]==9
