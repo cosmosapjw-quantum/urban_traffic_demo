@@ -1,0 +1,122 @@
+{
+  "base_commit": "a16f502aa5f7cb440344a33da39d181d98e6fd55",
+  "branch": "research/v03-sweep-live-bounds-20261120",
+  "candidate_commit_before_final_report": "df790fea80116866172b4a948873f78d2241ba0b",
+  "created_utc": "2026-11-20T14:22:58+00:00",
+  "final_publish_status": "RESEARCH_REVIEW_CHECKPOINT_NOT_PRODUCTION_RELEASE",
+  "math": {
+    "performance_not_extrapolated": true,
+    "source_row_partition": "n=u+q; W_old-W_new=24u+32q bytes, excluding active bitmap and endpoint Vec",
+    "status": "DERIVED_CONDITIONAL_WITH_RUST_BITWISE_ORACLE_TESTS",
+    "unique_edges": "sorted three-way merge; numeric equality with minus-zero representative when any source endpoint is -0; 2n input endpoints replaced by k unique endpoints; difference=8(2n-k) bytes"
+  },
+  "next_research_task_id": "V03-EXACT-RETAINED-LINEAGE-04",
+  "next_scientific_question": "Can distinct original packet row genealogy be represented persistently without duplicating per-interval output arrays while preserving strict FIFO, source order and IEEE sum?",
+  "original_V03_readiness": {
+    "calendar_legs": {
+      "coastal_weekend_s41": 2449750,
+      "river_weekday_s17": 5093765,
+      "valley_weekday_s7": 918450
+    },
+    "current_native_100k_calendars_total": 3,
+    "current_native_100k_full_calendars_prepared": 3,
+    "direct_prerequisites_done": 3,
+    "direct_prerequisites_total": 3,
+    "full_86400s_runs_completed": 0,
+    "full_86400s_runs_required": 9,
+    "implementation_nodes_done": 19,
+    "implementation_nodes_total": 21,
+    "status": "BLOCKED"
+  },
+  "original_authority": {
+    "full_ci": "DEFERRED_BY_USER",
+    "main_unchanged": true,
+    "no_acceptance_threshold_changed": true,
+    "plan_id": "METROFLOW-V1",
+    "plan_version": "1.1.26"
+  },
+  "original_valley_physical": {
+    "case": "valley_weekday_s7",
+    "current_completed_cell_splits": 94,
+    "current_entry_split_guard_calls": 78000,
+    "current_entry_split_guard_exceeded": 0,
+    "final_25700_checkpoint_sha256": null,
+    "new_blocking_phase": "indexed sweep preflight",
+    "new_guard": {
+      "calls": 95,
+      "exceeded": 1,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 1.0003682099681348,
+      "max_required": 5266719968,
+      "terms_at_max": {
+        "base": 2271580008,
+        "event_bytes": 1915199456,
+        "extra": 4932024,
+        "incoming_rows": 7615036,
+        "interval_retained": 100283872,
+        "interval_transient": 0
+      }
+    },
+    "new_guard_excess_bytes": 1938545,
+    "original_model_coefficients_changed": false,
+    "population": 100000,
+    "prior_completed_cell_splits": 80,
+    "prior_entry_split_guard_calls": 69501,
+    "prior_entry_split_guard_exceeded": 1,
+    "process_peak_rss_bytes": 2954747904,
+    "result": "BLOCKED_RESOURCE_AFTER_OLD_ENTRY_SPLIT_GUARD_CLEARED",
+    "start_s": 25650,
+    "target_s": 25700,
+    "whole_cross_binary_experiment_wall_s": 32.70815516699804
+  },
+  "provenance": {
+    "cross_binary_wire_roundtrip_bit_identical": true,
+    "current_native_library_sha256": "8d32a76eb1c0c996b0fa4043f0e6748b521ff50a4c59fc3bc0924afa830b2c2a",
+    "current_native_source_sha256": "570b8f9cfebb78d365540b9f7f57e3896e5048f34833d858fcd3fee5056fdd8d",
+    "historical_25650_checkpoint_bytes": 1683486650,
+    "historical_25650_input_checksum": "89e3230b23b4423509f6036035e9b03c7299204b5d317cdb3f6226c5b0c53e8b",
+    "local_native_path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/native_binding/_metroflow_rust.so",
+    "native_binary_committed_to_git": false
+  },
+  "research_stage_commits_R1_C1_through_R9_C9": [
+    "8bf6e4a0c4238b763c8fd9c72dc3be08fddf5b35",
+    "641b8ecab554471f5299ef057ada274bbccdac7a",
+    "723511202b6e9851837150cfe15a9759210b2c2c",
+    "bf78ac0b36f6ef829accdc2f379efec8752ca39a",
+    "499384b678b5f840c1d313956d888b2e252a36cb",
+    "5db1c8343a96537a31fda0b1e0e1dd8ca510551b",
+    "d6ca96996c47ef4d62a9599a5670a3469ddae992",
+    "dc4687fcc8a4664956a69349f7ae3e12dd8d8f18",
+    "df790fea80116866172b4a948873f78d2241ba0b"
+  ],
+  "schema": "METROFLOW_V03_EXACT_SWEEP_LIVE_BOUNDS_R10_C10_V1",
+  "scientific_nonclaims": [
+    "no newly simulated source-native 0->25650 trajectory",
+    "no completed 25700 source checkpoint",
+    "no completed original 3x3x86400s campaign",
+    "no matched-accuracy speedup demonstrated",
+    "partial FIFO and kinetic alternatives are different physical models, not exact source equivalents"
+  ],
+  "source_sha256_files": {
+    "Cargo.lock": "f3c87d6fb6955f8c971c4e4e1d1efe10001cf1afe54e12db09ac38cb67caa97c",
+    "artifacts/v03_sweep_live_bounds_20261120/C6_CROSS_BINARY_25700.json": "d8e51ca37cae802cbbbde1706a6eb774b55f32f42a6730a173a598954ff02f6e",
+    "artifacts/v03_sweep_live_bounds_20261120/C9_CROSS_BINARY_25700.json": "abe5101cac5fa8b04bb4f16e2aeb22bbde1a4cef95cd075bfbb35e32b8e3195b",
+    "artifacts/v03_sweep_live_bounds_20261120/C9_CURRENT_NATIVE_READINESS.json": "3899655265d20ef476c8332d479e21e1ae30ad17172c6778fa1f5cbe24d65429",
+    "crates/metroflow-rust/src/v1_journey.rs": "b0a001e5899f34eee1d4b873b7cf4bff5f4a3de6563aa13f322b38c5b252500f",
+    "crates/metroflow-rust/src/v1_road.rs": "78bf1180f1d6cfe0ba9ae1088559465e90b90421841bdc306f76ab137d0e9073",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "tools/research/v03_exact_view_cross_binary_probe_20261120.py": "19a7127fecedbdd26d5afaa8ec521dbdbfb831a50696860c02588562f8573c71"
+  },
+  "stage10_commit_push_and_remote_readback_required": true,
+  "verification": {
+    "cargo_workspace_check": "EXIT_0",
+    "full_repo_ci": "DEFERRED_BY_USER",
+    "native_python_and_source_receipt_passed": 102,
+    "native_subagent": "NOT_RUN_UNAVAILABLE",
+    "plan_validator": "VALID_PLAN_NOT_RELEASE",
+    "rust_ignored": 2,
+    "rust_unit_passed": 109
+  }
+}
