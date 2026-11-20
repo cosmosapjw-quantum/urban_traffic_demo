@@ -1491,6 +1491,26 @@ impl NativeWholeEngine {
         }
         shared.set_item("scope","unique Arc<Vec> backing payloads within ONE stored RoadState; diagnostic only, not live process RSS or admission")?;
         road.set_item("arc_backing_census",shared)?;
+        // Source-specific content-equal ordered route-key sequences. Report
+        // only: never authorize work from hash equality or potential savings.
+        let k=state.value.road.ordered_keyset_census();
+        let kc=PyDict::new(py);
+        for (name,value) in [
+            ("uniform_packet_owners",k.uniform_packet_owners),
+            ("distinct_uniform_backings",k.distinct_uniform_backings),
+            ("distinct_keysets",k.distinct_keysets),
+            ("repeated_key_packets",k.repeated_key_packets),
+            ("repeated_key_rows",k.repeated_key_rows),
+            ("potential_saved_key_payload_bytes",k.potential_saved_key_payload_bytes),
+            ("keyset_len_ge_8_repeat_rows",k.keyset_len_ge_8_repeat_rows),
+            ("max_tag",k.max_tag),
+            ("max_offset",k.max_offset),
+            ("total_uniform_rows",k.total_uniform_rows),
+        ] {
+            kc.set_item(name,value)?;
+        }
+        kc.set_item("scope","exact ordered u32 tag/offset equality on independently backed Uniform packet rows within ONE state; diagnostic only, no memory admission credit")?;
+        road.set_item("ordered_keyset_census",kc)?;
         // Two actually live owners: the internal committed road and the
         // supplied captured/restored snapshot. A diagnostic census only.
         // The phase also has ephemeral candidate/scratch allocations which

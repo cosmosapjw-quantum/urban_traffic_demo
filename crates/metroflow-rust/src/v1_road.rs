@@ -4,6 +4,7 @@ use crate::v1_parallel::ordered_map;
 use pyo3::exceptions::{PyArithmeticError, PyIOError, PyMemoryError, PyValueError};
 use pyo3::prelude::*;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::hash::{Hash, Hasher};
 use std::io::{Read, Write};
 use std::sync::{Arc, Mutex};
 // Shadow-only experiment; the original V03 road kernel and checkpoint layout
@@ -318,6 +319,29 @@ pub(crate) struct ArcBackingCensus {
     pub(crate) unique_payload_bytes: usize,
     pub(crate) duplicate_payload_bytes: usize,
     pub(crate) unique_arc_control_allowance_bytes: usize,
+}
+
+/// Source key-array repetition diagnostic; no physical admission credit.
+/// An independently allocated identical key array is counted separately from
+/// Arc clones already physically sharing the same entire Part backing.
+#[derive(Default, Clone, Copy, Debug)]
+pub(crate) struct OrderedKeysetCensus {
+    pub(crate) uniform_packet_owners: usize,
+    pub(crate) distinct_uniform_backings: usize,
+    pub(crate) distinct_keysets: usize,
+    pub(crate) repeated_key_packets: usize,
+    pub(crate) repeated_key_rows: usize,
+    pub(crate) potential_saved_key_payload_bytes: usize,
+    pub(crate) keyset_len_ge_8_repeat_rows: usize,
+    pub(crate) max_tag: usize,
+    pub(crate) max_offset: usize,
+    pub(crate) total_uniform_rows: usize,
+}
+
+fn same_ordered_core_keys(a: &[CorePart], b: &[CorePart]) -> bool {
+    a.len()==b.len() && a.iter().zip(b).all(|(x,y)|
+        x.tag==y.tag && x.offset==y.offset
+    )
 }
 
 /// Conservative structural working allowance, not an allocator/RSS theorem.
@@ -740,6 +764,51 @@ impl RoadState {
     /// Distinct input/candidate snapshots need a separate union census.
     pub(crate) fn arc_backing_census(&self) -> ArcBackingCensus {
         Self::arc_backing_union(&[self])
+    }
+
+    /// Only called by explicit debug_state() on a source-bound RoadState.
+    /// A hash is used to *find candidates*, never to declare two keysets
+    /// equivalent. Full length and elementwise tag/offset comparisons decide.
+    /// No source key rows are copied, no simulations or budget guards altered.
+    pub(crate) fn ordered_keyset_census(&self) -> OrderedKeysetCensus {
+        let mut c=OrderedKeysetCensus::default();
+        let mut seen_backings=HashSet::<usize>::new();
+        let mut groups:HashMap<(usize,u64), Vec<&[CorePart]>>=HashMap::new();
+        for p in self.cells.iter().flat_map(|cell|&cell.packets)
+            .chain(self.pending.iter().flatten())
+        {
+            let PacketParts::Uniform{rows,..}=&p.parts else {continue};
+            c.uniform_packet_owners+=1;
+            if !seen_backings.insert(Arc::as_ptr(rows) as usize) {
+                continue; // existing Arc clone is *already* physically shared
+            }
+            c.distinct_uniform_backings+=1;
+            c.total_uniform_rows+=rows.len();
+            for row in rows.iter() {
+                c.max_tag=c.max_tag.max(row.tag as usize);
+                c.max_offset=c.max_offset.max(row.offset as usize);
+            }
+            let mut h=std::collections::hash_map::DefaultHasher::new();
+            rows.len().hash(&mut h);
+            for row in rows.iter() {
+                row.tag.hash(&mut h);
+                row.offset.hash(&mut h);
+            }
+            let candidates=groups.entry((rows.len(),h.finish())).or_default();
+            if candidates.iter().any(|old|same_ordered_core_keys(old, rows.as_slice())) {
+                c.repeated_key_packets+=1;
+                c.repeated_key_rows+=rows.len();
+                if rows.len()>=8 {
+                    c.keyset_len_ge_8_repeat_rows+=rows.len();
+                }
+            } else {
+                candidates.push(rows.as_slice());
+                c.distinct_keysets+=1;
+            }
+        }
+        c.potential_saved_key_payload_bytes=
+            c.repeated_key_rows.saturating_mul(2*std::mem::size_of::<u32>());
+        c
     }
     /// Exact identity union on a specifically enumerated simultaneous set of
     /// retained native snapshots, never used to approve additional work.
@@ -5146,5 +5215,72 @@ mod postroad_event_lifetime_tests {
     fn no_event_history_uses_no_candidate_rows_or_flattening()
     {
         assert_eq!(postroad_event_materialization_bytes(11,23,0,0,0),11+23+96);
+    }
+}
+
+#[cfg(test)]
+mod exact_route_keyset_census_tests {
+    use super::*;
+
+    fn packet(keys:&[(u32,u32)], masses:&[f64], a:f64,b:f64)->PacketParts {
+        assert_eq!(keys.len(),masses.len());
+        PacketParts::Uniform {
+            a:PackedTime::new(Some(a)).unwrap(),
+            b:PackedTime::new(Some(b)).unwrap(),
+            rows:Arc::new(keys.iter().zip(masses.iter()).map(|(&(tag,offset),&mass)|CorePart{
+                tag,offset,mass,birth:mass*1.75,
+            }).collect()),
+        }
+    }
+    fn state(ps:Vec<PacketParts>)->RoadState {
+        RoadState{
+            t:0.,cells:vec![Cell{v:[0.;8], packets:ps.into_iter()
+                .map(|parts|Packet{target:0.,parts}).collect(),latent:BTreeMap::new()}],
+            pending:vec![vec![]],totals:[0.;7],ledger:vec![],
+        }
+    }
+
+    #[test]
+    fn census_recognizes_identical_key_sequences_with_distinct_physical_moments() {
+        let k=[(2,0),(17,5),(2,3)];
+        let first=packet(&k,&[0.1,0.2,0.3],-0.,1.);
+        let other_moments=packet(&k,&[0.4,0.5,0.6],2.,3.);
+        let reordered=packet(&[(17,5),(2,0),(2,3)],&[0.2,0.1,0.3],0.,1.);
+        let shadow=first.clone_checked().unwrap();
+        let s=state(vec![first,other_moments,reordered,shadow]);
+        let c=s.ordered_keyset_census();
+        assert_eq!(c.uniform_packet_owners,4);
+        assert_eq!(c.distinct_uniform_backings,3);
+        assert_eq!(c.distinct_keysets,2);
+        assert_eq!(c.repeated_key_packets,1);
+        assert_eq!(c.repeated_key_rows,3);
+        assert_eq!(c.potential_saved_key_payload_bytes,24);
+        assert_eq!(c.max_tag,17);
+        assert_eq!(c.max_offset,5);
+    }
+
+    #[test]
+    fn same_length_but_different_order_cannot_share_keys_even_if_mass_equal() {
+        let one=packet(&[(1,0),(2,1)], &[0.25,0.75],0.,1.);
+        let two=packet(&[(2,1),(1,0)], &[0.25,0.75],0.,1.);
+        let a=match &one {PacketParts::Uniform{rows,..}=>rows.as_slice(),_=>unreachable!()};
+        let b=match &two {PacketParts::Uniform{rows,..}=>rows.as_slice(),_=>unreachable!()};
+        assert!(!same_ordered_core_keys(a,b));
+        let c=state(vec![one,two]).ordered_keyset_census();
+        assert_eq!(c.repeated_key_rows,0);
+    }
+
+    #[test]
+    fn unequal_endpoint_bit_patterns_do_not_change_key_identity_or_physical_bits() {
+        let a=packet(&[(7,1)], &[f64::from_bits(1)],-0.,0.);
+        let b=packet(&[(7,1)], &[0.5],0.,0.);
+        let s=state(vec![a,b]);
+        let c=s.ordered_keyset_census();
+        assert_eq!(c.repeated_key_rows,1);
+        let actual:Vec<_>=s.cells[0].packets.iter().map(|p|{
+            p.parts.iter().map(|r|(r.tag,r.offset,r.mass.to_bits(),r.birth.to_bits(),
+                r.a.0,r.b.0)).collect::<Vec<_>>()
+        }).collect();
+        assert_ne!(actual[0][0].4,actual[1][0].4);
     }
 }
