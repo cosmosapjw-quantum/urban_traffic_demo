@@ -1044,6 +1044,37 @@ impl ActiveIndexBits {
 /// Point rows are removed from the active interval list altogether. Signed
 /// +/- zero endpoints are grouped using the SAME numeric equality as the
 /// original edge Vec::dedup, not by f64::to_bits.
+/// Count the *actual* source-row event kinds before allocating sweep arrays.
+fn count_sweep_row_kinds(parts: &[Part]) -> PyResult<(usize, usize)> {
+    let (mut nonpoint, mut point) = (0usize, 0usize);
+    for p in parts {
+        let (a, b) = (p.a.unwrap(), p.b.unwrap());
+        if a == b {
+            point += 1;
+        } else if b > a {
+            nonpoint += 1;
+        } else {
+            return Err(val("invalid finite native interval during sweep"));
+        }
+    }
+    Ok((nonpoint, point))
+}
+
+/// Actual fixed-size arrays of a valid two-type source partition.
+/// Nonpoint rows own start/end entries; point rows own one point entry and
+/// can appear in the current_points array. Both groups need active bitsets.
+fn exact_sweep_event_index_bytes(n: usize, nonpoint: usize, point: usize) -> usize {
+    debug_assert_eq!(nonpoint.checked_add(point), Some(n));
+    let pair_size=std::mem::size_of::<(f64, usize)>();
+    nonpoint.saturating_mul(2 * pair_size)
+        .saturating_add(point.saturating_mul(pair_size+std::mem::size_of::<usize>()))
+        .saturating_add(
+            n.div_ceil(64).saturating_add(n.div_ceil(4096))
+                .saturating_mul(std::mem::size_of::<u64>()),
+        )
+        .saturating_add(256)
+}
+
 struct IntervalActiveSweep {
     starts: Vec<(f64, usize)>,
     ends: Vec<(f64, usize)>,
@@ -1056,10 +1087,17 @@ struct IntervalActiveSweep {
 }
 
 impl IntervalActiveSweep {
+    #[cfg(test)]
     fn new(parts: &[Part]) -> PyResult<Self> {
-        let mut starts = checkpoint_vec(parts.len())?;
-        let mut ends = checkpoint_vec(parts.len())?;
-        let mut points = checkpoint_vec(parts.len())?;
+        let (nonpoint, point) = count_sweep_row_kinds(parts)?;
+        Self::new_counted(parts, nonpoint, point)
+    }
+
+    fn new_counted(parts: &[Part], nonpoint: usize, point: usize) -> PyResult<Self> {
+        debug_assert_eq!(nonpoint.checked_add(point), Some(parts.len()));
+        let mut starts = checkpoint_vec(nonpoint)?;
+        let mut ends = checkpoint_vec(nonpoint)?;
+        let mut points = checkpoint_vec(point)?;
         for (i, p) in parts.iter().enumerate() {
             let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
             if pa == pb {
@@ -1081,7 +1119,7 @@ impl IntervalActiveSweep {
             starts, ends, points,
             active: ActiveIndexBits::new(parts.len())?,
             // Exact bounded capacity, no Vec-doubling after the work guard.
-            current_points: checkpoint_vec(parts.len())?,
+            current_points: checkpoint_vec(point)?,
             next_start: 0, next_end: 0, next_point: 0,
         })
     }
@@ -2007,15 +2045,10 @@ impl V1Road {
         // Charge the actual fixed-size array structure plus 256 bytes of
         // Vec/iterator metadata and rounding allowance. This is still a
         // conservative structural resource envelope, never an RSS theorem.
-        let active_words = parts.len().div_ceil(64);
-        let active_summary_words = active_words.div_ceil(64);
-        let event_index_bytes = parts.len().saturating_mul(
-            3 * std::mem::size_of::<(f64, usize)>()
-                + std::mem::size_of::<usize>(),
-        ).saturating_add(
-            active_words.saturating_add(active_summary_words)
-                .saturating_mul(std::mem::size_of::<u64>()),
-        ).saturating_add(256);
+        let (nonpoint_rows, point_rows) = count_sweep_row_kinds(&parts)?;
+        let event_index_bytes = exact_sweep_event_index_bytes(
+            parts.len(), nonpoint_rows, point_rows,
+        );
         // Point rows still use the original materialized combine path. Nonpoint
         // interval rows instead retain only one output Vec<Part> and source
         // indices, without a separate full split Vec<Part>.
@@ -2038,7 +2071,8 @@ impl V1Road {
         edges.extend(parts.iter().flat_map(|p| [p.a.unwrap(), p.b.unwrap()]));
         edges.sort_unstable_by(f64::total_cmp);
         edges.dedup();
-        let mut sweep = IntervalActiveSweep::new(&parts)?;
+        let mut sweep =
+            IntervalActiveSweep::new_counted(&parts, nonpoint_rows, point_rows)?;
         let mut out = vec![];
         let mut records = 0;
         for (k, &a) in edges.iter().enumerate() {
@@ -4366,5 +4400,66 @@ mod direct_uniform_point_pack_tests {
         let original = PacketParts::pack(combine(rows).unwrap(), |_|Ok(())).unwrap();
         assert!(!original.is_uniform());
         assert!(all_point_endpoint_bits_identical(&[],&[]));
+    }
+}
+
+#[cfg(test)]
+mod sweep_partition_live_bound_tests {
+    use super::*;
+
+    fn make_row(i: usize, a: f64, b: f64) -> Part {
+        Part {
+            tag: i % 17, offset: i % 3, mass: (i as f64 + 1.) / 107.,
+            birth: (i as f64 + 3.) / 103.,
+            a: PackedTime::new(Some(a)).unwrap(),
+            b: PackedTime::new(Some(b)).unwrap(),
+        }
+    }
+
+    #[test]
+    fn only_classified_source_rows_allocate_their_real_event_arrays() {
+        for n in [0usize, 1, 2, 63, 64, 65, 127, 128, 129, 4095, 4097] {
+            let mut rows = Vec::new();
+            for i in 0..n {
+                let a = if i % 109 == 0 { -0.0 } else { (i % 37) as f64 };
+                let b = if i % 3 == 0 { a } else { a + (i % 4 + 1) as f64 };
+                rows.push(make_row(i,a,b));
+            }
+            let (u,q) = count_sweep_row_kinds(&rows).unwrap();
+            assert_eq!(u+q,n);
+            assert_eq!(q, (0..n).filter(|i| i % 3 == 0).count());
+            let sweep=IntervalActiveSweep::new(&rows).unwrap();
+            assert_eq!((sweep.starts.len(), sweep.ends.len(), sweep.points.len()),(u,u,q));
+            assert!(sweep.starts.capacity() <= u + 16);
+            assert!(sweep.ends.capacity() <= u + 16);
+            assert!(sweep.points.capacity() <= q + 16);
+            assert!(sweep.current_points.capacity() <= q + 16);
+            let old = n*56 + (n.div_ceil(64)+n.div_ceil(4096))*8 + 256;
+            let reduced = exact_sweep_event_index_bytes(n,u,q);
+            assert_eq!(old - reduced, 24*u+32*q);
+            assert!(reduced <= old);
+        }
+    }
+
+    #[test]
+    fn opposite_sign_zeros_are_numeric_points_but_bit_distinct() {
+        let rows=[
+            make_row(0,-0.,0.),
+            make_row(1,0.,-0.),
+            make_row(2,-0.,1.),
+            make_row(3,0.,2.),
+        ];
+        assert_eq!(count_sweep_row_kinds(&rows).unwrap(),(2,2));
+        let mut sweep=IntervalActiveSweep::new(&rows).unwrap();
+        sweep.advance(-0.);
+        assert_eq!(sweep.current_points, vec![0,1]);
+        assert_eq!(sweep.active.iter().collect::<Vec<_>>(),vec![2,3]);
+    }
+
+    #[test]
+    fn reversed_interval_is_rejected_without_reclassifying_as_point() {
+        let rows=[make_row(0,2.,1.)];
+        assert!(count_sweep_row_kinds(&rows).is_err());
+        assert!(IntervalActiveSweep::new(&rows).is_err());
     }
 }
