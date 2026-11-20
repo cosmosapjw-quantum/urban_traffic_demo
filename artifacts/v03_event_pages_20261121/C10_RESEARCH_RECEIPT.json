@@ -1,0 +1,171 @@
+{
+  "actual_event_buffer_capacity": {
+    "new_paged_cap_rows": 9101312,
+    "prior_flat_cap_rows": 16777216,
+    "saved_actual_event_row_capacity_bytes": 491257856,
+    "unchanged_generated_event_rows": 9100145
+  },
+  "base_commit": "8e59a290fa6391b4dad55f62299d0fc6385ae3d7",
+  "branch": "research/v03-event-pages-20261121",
+  "candidate_native_binary_local_only": true,
+  "candidate_native_sha256": "07223220375082c752f0a60a64f5ef9ca41d34a0e0d29becbd622de0485c84d6",
+  "candidate_source_sha256": "8ad233a31a46559401b78be14269c3c19aab1ee790f7f0b8ce4b6d759e2778cf",
+  "created_utc": "2026-11-20T22:38:54+00:00",
+  "current_git_commit_before_C10": "60cf1d0e5da7f055cc7e4f59c7f23259110ecc22",
+  "file_sha256": {
+    "artifacts/v03_event_pages_20261121/C6_CROSS_NATIVE_25670.json": "d8d32a9359fdc7413a69623e6c22d1ec01373aae3e79240a4ae3f6934a37f917",
+    "artifacts/v03_event_pages_20261121/C7_SAME_NATIVE_25680.json": "29d3571e3f44b276d312a852848f0b610a0f46bb65d4f0198f5004b841bb28cf",
+    "artifacts/v03_event_pages_20261121/C9_CROSS_NATIVE_25680.json": "a4f4c7582e9f4c1d2c2bf053dafbaf20efe25f4c52d7cbc039f010ad6d4126c9",
+    "artifacts/v03_event_pages_20261121/C9_CURRENT_NATIVE_READINESS.json": "544e27a91ff61e4f73bb4f0cd4100640108173ea41f0f3431a4f57b2eaf0da7e",
+    "crates/metroflow-rust/src/v1_road.rs": "421405caa30bad72b48a12f465524a67c57dc156fc9b6e70e24e549533505ae5",
+    "docs/research/V03_EVENT_PAGE_R1_R10_C1_C10_20261121_KO.md": "3f72856fd2683ac16c80fc82fb61965c3dad2d1a62a6eaa798456a0ad969073e",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "tools/research/v03_event_pages_cross_native_25680_20261121.py": "10d54a453a53c463264e9dece11fd6b43bf4ce1e00c4706e65c93a9c14ece16b",
+    "tools/research/v03_event_pages_same_native_25680_20261121.py": "7d864965073468e4f0d8b4778259ac964e52c0c5f6afb4b7ec29ce0a0eb61f96"
+  },
+  "math_claim": {
+    "claim": "source-ordered fixed-event-page bijection and lifespan-scoped guarded flat materialization",
+    "event_row_bytes": 64,
+    "event_vec_header_bytes": 24,
+    "exact_output_order_bit_tested": true,
+    "new_event_candidate_charge_at_N9100145": 582831512,
+    "old_event_candidate_charge_at_N9100145": 1747227936,
+    "page_rows": 4096,
+    "status": "DERIVED_CONDITIONAL_AND_RUST_UNIT_TESTED",
+    "structural_candidate_saving_bytes": 1164396424
+  },
+  "new_25680_postroad_pass": {
+    "allowed_bytes": 5188657743,
+    "event_flat_rows": 10663078,
+    "event_pages_payload_slots": 10665984,
+    "headroom_bytes": 1294261335,
+    "old_and_new_event_payload_both_charged": true,
+    "phase": "event candidate materialize after road",
+    "required_bytes": 3894396408
+  },
+  "next_task_id": "V03-EXACT-PERSISTENT-KEYSET-07",
+  "nonclaims": [
+    "no fully source-current integrated original t0 to t25680 simulation",
+    "no original 86400s full city run",
+    "no proof of long-term packet history storage bound",
+    "no exact physical identification of non-FIFO alternative with strict FIFO"
+  ],
+  "old_25680_fail": {
+    "allowed_bytes": 5188657743,
+    "excess_bytes": 227753825,
+    "phase": "event candidate final materialize",
+    "required_bytes": 5416411568
+  },
+  "original_authority": {
+    "full_repo_ci": "DEFERRED_BY_USER",
+    "main_unchanged": true,
+    "numeric_limits_unchanged": true,
+    "physical_model_unchanged": true,
+    "plan_version": "1.1.26"
+  },
+  "original_valley_100k_ticks": {
+    "25670": {
+      "bytes": 2210069010,
+      "in_git": false,
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 1461.7776590928243,
+          "completed": 74.01333406553552,
+          "pending": 1075.320117952738,
+          "released": 1535.7909931583597,
+          "requested": 2611.1111111110977
+        },
+        "vehicles": {
+          "active": 1169.1259307904343,
+          "completed": 57.540735876215535,
+          "pending": 52.77777777777533,
+          "released": 1226.66666666665,
+          "requested": 1279.4444444444252
+        }
+      },
+      "local_path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/artifacts/v03_event_pages_20261121/C6_CROSS_NATIVE_25670.final.bin",
+      "sha256": "a3c0c3ef0cfe9859374fd1446513d2346d53a3cb33ac78a0d15edbcbc97319ab",
+      "time_s": 25670.0
+    },
+    "25680": {
+      "bytes": 2552318466,
+      "in_git": false,
+      "ledger": {
+        "cargo_kg": {
+          "active": 0.0,
+          "completed": 0.0,
+          "pending": 0.0,
+          "released": 0.0,
+          "requested": 0.0
+        },
+        "persons": {
+          "active": 1489.1487936388787,
+          "completed": 80.02896024025593,
+          "pending": 1097.4889127876443,
+          "released": 1569.1777538791346,
+          "requested": 2666.666666666779
+        },
+        "vehicles": {
+          "active": 1191.0228242957558,
+          "completed": 62.31050903754527,
+          "pending": 53.333333333348946,
+          "released": 1253.333333333301,
+          "requested": 1306.66666666665
+        }
+      },
+      "local_path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/artifacts/v03_event_pages_20261121/C9_CROSS_NATIVE_25680.final.bin",
+      "sha256": "db1e7f59e46385863f8cbbbf56586ca3d0a49d72a43f86d0c884e9fdbbea553a",
+      "time_s": 25680.0
+    }
+  },
+  "project": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "METROFLOW_V03_EXACT_EVENT_PAGES_R10_C10_20261121_V1",
+  "stage_10_commit_and_remote_readback_required": true,
+  "stage_commits_R1_C1_through_R9_C9": [
+    "c19ba14a45d76a8d4645f63eb71ab806eb53c508",
+    "b7a7330768ec8f1e01ea844bc97c42a71828bbb2",
+    "6537ba63ddd4072f70518bd7a66db8f60b794515",
+    "fee21229fcff2d0e06bfb89fb791fc406c685334",
+    "23e6fb9b1c96f5750e572dd10c8d00c37fac0843",
+    "3e1553d00de8ec6d12cbfb32b80a7ddfa3d3de5a",
+    "8a4f54b86792fb075182c2ef99ed827aa905d70d",
+    "1dbd28d3ff4c60fe72581fea9ada91d8d2a6d0ef",
+    "60cf1d0e5da7f055cc7e4f59c7f23259110ecc22"
+  ],
+  "v03_readiness": {
+    "V03_status": "BLOCKED",
+    "calendar_required": 3,
+    "case_source_legs": {
+      "coastal_weekend_s41": 2449750,
+      "river_weekday_s17": 5093765,
+      "valley_weekday_s7": 918450
+    },
+    "current_native_100k_calendars_prepared": 3,
+    "direct_predecessors_completed": 3,
+    "direct_predecessors_total": 3,
+    "full_86400s_city_runs_completed": 0,
+    "full_86400s_city_runs_required": 9,
+    "implementation_nodes_completed": 19,
+    "implementation_nodes_total": 21
+  },
+  "verification": {
+    "cargo_check": "EXIT_0",
+    "current_native_python_failed": 0,
+    "current_native_python_passed": 106,
+    "full_repository_ci": "DEFERRED_BY_USER",
+    "native_subagents": "NOT_RUN_NO_NATIVE_DISPATCH_TOOL",
+    "plan_validation": "VALID_PLAN_NOT_RELEASE",
+    "release_binary_build": "EXIT_0",
+    "rust_failed": 0,
+    "rust_ignored": 2,
+    "rust_unit_passed": 125
+  }
+}
