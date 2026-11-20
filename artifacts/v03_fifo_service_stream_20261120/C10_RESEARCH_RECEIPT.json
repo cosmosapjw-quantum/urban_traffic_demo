@@ -1,0 +1,468 @@
+{
+  "C10_commit_sha": "READ_FROM_REMOTE_BRANCH_AFTER_C10_PUSH",
+  "branch": "research/v03-fifo-service-stream-20261120",
+  "created_kst": "2026-11-20T12:59:29+09:00",
+  "experiment": {
+    "current_native_original_100k_cities_prepared": {
+      "coastal_weekend_s41": {
+        "native_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+        "peak_rss_bytes": 1114558464,
+        "planned_legs": 2449750,
+        "receipt_sha256": "51bdaf75c279310087f7f1e45a9f91b799ca3d1fed41727fcce711c964abcbc1",
+        "resident_stock": 100000.0,
+        "source_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "wall_s": 40.6611620779986
+      },
+      "river_weekday_s17": {
+        "native_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+        "peak_rss_bytes": 2171633664,
+        "planned_legs": 5093765,
+        "receipt_sha256": "58a5596cee856bbbe7d82661ca9cad9c99fb472dd18c2b413f4846b02c6df990",
+        "resident_stock": 100000.0,
+        "source_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "wall_s": 71.40329850299895
+      },
+      "valley_weekday_s7": {
+        "native_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+        "peak_rss_bytes": 446803968,
+        "planned_legs": 918450,
+        "receipt_sha256": "6385051949d6f34353c70e936e1fa352dfece50af6f6e1f722e71d02491d4415",
+        "resident_stock": 100000.0,
+        "source_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "wall_s": 23.063402348998352
+      }
+    },
+    "failed_source_locked_25600_to_25650": {
+      "actual_current_native_3_city_calendar_prep": "3_OF_3",
+      "arc_elapsed_relative_to_old": 1.0028551766368743,
+      "arc_rss_saved_bytes": 367124480,
+      "arc_rss_saved_fraction": 0.10084905384392084,
+      "attempted_simulated_interval_s": [
+        25600,
+        25650
+      ],
+      "causal_attribution_Arc_double_count_caused_25650_failure": "UNRESOLVED",
+      "causal_attribution_distinct_packet_genealogy_growth": "SUPPORTED_BY_PRIOR_TRACE_NOT_PROVED_SOLE_CAUSE",
+      "next_scientific_action": "Derive/test unique Arc backing allocation accounting and exact packet genealogy compression under unchanged physical FIFO/clock/8GiB limit; do not inflate budget.",
+      "not_claimed": "Both executions terminated before the 25650 checkpoint; no physical output at that exact clock was verified.",
+      "old_and_candidate_source_checkpoint_byte_identical": true,
+      "original_24hour_9_run_acceptance": "0_OF_9_BLOCKED",
+      "original_case": "valley_weekday_s7",
+      "original_process_8GiB_cap_unchanged": true,
+      "original_residents": 100000,
+      "original_source_plan_19_of_21": true,
+      "physical_target_reached_by_either": false,
+      "schema": "V03_ARC_25650_BUDGET_BLOCK_DIAGNOSTIC_20261120_V1",
+      "source_supported_potential_Arc_duplicate_part_capacity_count": true,
+      "status": "BOTH_FAILED_INTERNAL_PACKET_PACKING_BUDGET",
+      "structural_budget_same_bytes": 5242806391,
+      "two_variants": {
+        "arc": {
+          "elapsed_s": 53.12747096699968,
+          "error_phase": "packet interval packing",
+          "loaded_native_binary_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+          "native_budget_bytes": 5242806391,
+          "native_excess_bytes": 4873,
+          "native_required_bytes": 5242811264,
+          "original_25600_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+          "process_address_space_limit_bytes": 8589934592,
+          "process_rss_bytes": 3273211904,
+          "receipt_sha256": "8a39b1366167f151879d017f1f4cbc92742db71e485acc82f796b2a23432aca4",
+          "source_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+          "status": "FAILED_BudgetExceeded"
+        },
+        "old": {
+          "elapsed_s": 52.9762145170007,
+          "error_phase": "packet interval packing",
+          "loaded_native_binary_sha256": "a92f7062dfce43806116bdde3f3011e39d3fe43ff73f8d451a4546ee85a5b9e8",
+          "native_budget_bytes": 5242806391,
+          "native_excess_bytes": 4041,
+          "native_required_bytes": 5242810432,
+          "original_25600_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+          "process_address_space_limit_bytes": 8589934592,
+          "process_rss_bytes": 3640336384,
+          "receipt_sha256": "08ad1ebc628333fbdb2dc9e796fea5d61eb9295f8c30079e7750ad14da9eeb19",
+          "source_sha256": "2e3289a9f77080531198d7a75cd04c464d409b9c7bd3cb51e2ae116624aae15a",
+          "status": "FAILED_BudgetExceeded"
+        }
+      }
+    },
+    "final_25650_checkpoint_exists": false,
+    "final_25650_ledger_bit_identical": "UNVERIFIED_NOT_EXECUTED_TO_TARGET",
+    "original_physics_25300_to_25600": {
+      "address_space_limit_bytes": 8589934592,
+      "claim_limit": "single 25300->25600 source-matched original physical continuation; benchmark includes full plan reconstruction & checkpoint load",
+      "cross_binary_restore_save_25300_byte_equal": true,
+      "current_arc_candidate_source_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+      "destination_timestamp": 25600.0,
+      "full_checkpoint_byte_equal": true,
+      "initial_checkpoint_bytes": 83139202,
+      "mass_ledger_exact_equal": true,
+      "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+      "new_arc_binary_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+      "new_arc_checkpoint_binary_local_only": true,
+      "new_arc_checkpoint_bytes": 866763962,
+      "new_arc_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+      "new_arc_including_rebuild_and_decode_wall_s": 60.648799636997865,
+      "new_arc_process_peak_rss_bytes": 1896656896,
+      "new_fitted_parameters": [],
+      "old_reference_elapsed_s": 57.9807643690001,
+      "old_reference_rss_bytes": 2054717440,
+      "original_86400s_day_required": 86400,
+      "original_full_day_accepted": false,
+      "original_source_25300_checkpoint_sha256": "7bcbd4e7eb04d8e0014524fa815a29c56b7873c5f3bb12c37a231caa648f32e1",
+      "original_source_binary_sha256": "a92f7062dfce43806116bdde3f3011e39d3fe43ff73f8d451a4546ee85a5b9e8",
+      "original_source_model": "RUST_WHOLE_100000_VALLEY",
+      "reference_25600_checkpoint_bytes": 866763962,
+      "reference_25600_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+      "same_physical_driver_identity": true,
+      "schema": "V03_C9_ARC_VS_PREARC_ORIGINAL_PHYSICAL_REPLAY_20261120_V1",
+      "source_timestamp": 25300.0,
+      "status": "BYTE_IDENTICAL_SCOPED"
+    },
+    "physical_failure_at_exact_simulated_time": "UNRECORDED_IN_FAILURE_RECEIPT",
+    "source_checkpoint_byte_identity_at_25600": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d"
+  },
+  "full_branch_merge_or_PR": "NOT_PERFORMED",
+  "large_local_native_checkpoints": {
+    "artifacts/v03_fifo_service_stream_20261120/arc_prefix/valley_weekday_s7.native_arc_25600.final.bin": {
+      "bytes": 866763962,
+      "checked_by_25650_runner": true,
+      "git_published": false,
+      "sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/prefix/valley_weekday_s7.native_stream_25600.final.bin": {
+      "bytes": 866763962,
+      "checked_by_25650_runner": true,
+      "git_published": false,
+      "sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d"
+    }
+  },
+  "loaded_native_binary_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+  "native_subagent": "NOT_RUN",
+  "next_research_id": "V03-FIFO-UNIQUE-ACCOUNTING-01",
+  "original_main_commit_unchanged": "01c80b432344f94209daaa198bb1eb007839fc7f",
+  "original_non_arc_baseline_commit": "66c38359a1bd29850f7e77af02c07eb0983d52b6",
+  "plan_sha256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+  "previous_stages_committed_and_remote_verified": [
+    {
+      "sha": "5a278a0320c777b436573a2d6f1d1b80f8edda3a",
+      "subject": "research(v03): derive source-order-exact served-row streaming contract"
+    },
+    {
+      "sha": "3474f3a877a31f2a5c7886652eb6f9f421635152",
+      "subject": "research(v03): prove exact lazy served Part iterator against original portion"
+    },
+    {
+      "sha": "557b83725cd0c785838dfb9f27188d8929f6d27b",
+      "subject": "research(v03): stream served Parts in actual native FIFO service step"
+    },
+    {
+      "sha": "2eb4a13d040ce57a461bad56e72e0fd57f924c30",
+      "subject": "research(v03): C3 verify current native full 100k three-city calendar"
+    },
+    {
+      "sha": "6c91c6fa00b5ab34364093be86c8197da4715458",
+      "subject": "research(v03): C4 verify byte-identical original 100k Valley prefix"
+    },
+    {
+      "sha": "66c38359a1bd29850f7e77af02c07eb0983d52b6",
+      "subject": "research(v03): C5 expose no RSS gain despite exact congestion checkpoint"
+    },
+    {
+      "sha": "c0be9b53f982b630cb57dad02cbce655a093a54f",
+      "subject": "research(v03): C6 share immutable packet compositions across native snapshots"
+    },
+    {
+      "sha": "0524db38baf2c115535b715fb88a6da9a43e6427",
+      "subject": "research(v03): C7 verify Arc packet ABI and source-pinned native regressions"
+    },
+    {
+      "sha": "d0e6f8e553b2c21599cd2e421f17f940a112d0c9",
+      "subject": "research(v03): C8 verify new Arc-native three-city original 100k calendar"
+    },
+    {
+      "sha": "b7d84b46e7a234e73068efa74c79afdfaf4622d5",
+      "subject": "research(v03): C9 prove Arc-native 25600 replay and measure RSS tradeoff"
+    }
+  ],
+  "published_small_artifact_sha256": {
+    "artifacts/v03_fifo_service_stream_20261120/.gitignore": {
+      "bytes": 98,
+      "sha256": "ec739b10852eaaa8015ba0a9d3da829c19068db5d2fe0c6f7991ae55e67885f4"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C10_25650_STRESS_VERDICT.json": {
+      "bytes": 2871,
+      "sha256": "2008a02ca91f90d8a55a095c144135605d4f133fdfea7d7b70e3a20ea6cc2df1"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C10_CARGO_CHECK.log": {
+      "bytes": 2276,
+      "sha256": "3fb6b9866e2ac0da93c3dea1092af9274a0f435ee5473385b5eb8c1034918df4"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C10_CARGO_TEST.log": {
+      "bytes": 9242,
+      "sha256": "5eb3f4c3a5435f23f37460a27994094095e213e551124b7fb3f490a1b72f5e28"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C10_PLAN_VALIDATE.txt": {
+      "bytes": 197,
+      "sha256": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C10_RUFF_CHECK.log": {
+      "bytes": 27,
+      "sha256": "cc71a8a0f5c45cfc6b104f42c25ee1090638efcab3d0666d4ade345cc6f48568"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C10_SCOPED_PYTEST.txt": {
+      "bytes": 340,
+      "sha256": "4d134aed8fbcfe6601f52b016d5ea398683c1ec3d63d4cd1b55f7e667b8fa4c0"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C3_CURRENT_NATIVE_IDENTITY.json": {
+      "bytes": 315,
+      "sha256": "f6f08bd19d62466d9d6a2ed17a61d03d19420155c009a553955b8e6e724376ce"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C3_CURRENT_V03_READINESS.json": {
+      "bytes": 3657,
+      "sha256": "cdfff57107592a1747e56854ae38fc7afb05270d937b939aebd02198fcf7468e"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C3_MATURIN_BUILD.log": {
+      "bytes": 2860,
+      "sha256": "67af771020846a16a13ac951cca1424a536858f5d7d0fb956cc9164e10469d81"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C3_PLAN_VALIDATE.txt": {
+      "bytes": 197,
+      "sha256": "cabc71c360f58f5e1df585603cb4d609e0af9b101ec4024b1ecd3e1426fafcca"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C3_PYTEST.txt": {
+      "bytes": 99,
+      "sha256": "717346e1659429f1c6fed29f293e1a0539ecb02d3f34ccc27abf589226eafb58"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C3_SOURCE_BOUND_PREPARATION.json": {
+      "bytes": 2349,
+      "sha256": "9903d08c1d79fd8a937fc529f91c6a562ba357802fb7d3d74d0da1be0aa64a18"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C4_NATIVE_PREFIX_25300.json": {
+      "bytes": 1203,
+      "sha256": "a39f0d3e9a7db91d1c314c522961a9951eda35c34587461be21cec8e61354f80"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C4_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "fcf1b724974cf94fa115ce0fb713838bcca3f4efcc521650b415b044cd6ff440"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C5_CONGESTED_25600_COMPARISON.json": {
+      "bytes": 1193,
+      "sha256": "85fcbfb137def1507e04adf233cad97d662bc292280b20f7a4c0e1738d69cf2d"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C5_PYTEST.txt": {
+      "bytes": 98,
+      "sha256": "af3fec7180585a3d9522aa65703e1cdccd11a69a8b858ff2dfa9ea3b136142b9"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C7_ARC_BINARY_IDENTITY.json": {
+      "bytes": 305,
+      "sha256": "bc1bd6a25faa1b3958c8fd3fac09a5719497c4629c9971daf272a77bea771330"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C7_ARC_BUILD.log": {
+      "bytes": 2860,
+      "sha256": "b9fa7f4bb5ea5ca2427772482819d0425e6e57c2b385bf1c1e857027bf5968c4"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C7_ARC_NATIVE_TESTS.txt": {
+      "bytes": 99,
+      "sha256": "7dbc9a8ae47474f8a281118c27f6807f31cde45f930bc6808afca754631176e5"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C7_ARC_RUST_TESTS.log": {
+      "bytes": 9242,
+      "sha256": "7bdcedba4f924dd5627512af110d21359109aaf20e8d9a01bcddc354d05d6941"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C8_ARC_PREP_TESTS.txt": {
+      "bytes": 98,
+      "sha256": "5c9258a0de83f38243aa16ddbdf4932629810a56e692fb8852a52f3a6f665024"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C8_ARC_PREP_VERIFIED.json": {
+      "bytes": 2349,
+      "sha256": "dd8576130a1d7521bf71555cc2eaec90999f317b0ff0ac1a26befb94ffbb9087"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C8_ARC_V03_READINESS.json": {
+      "bytes": 3657,
+      "sha256": "a6664bd3490efa855d0ebb84b7c08c8b985b21c159ca43e54431f81e2d0f52fc"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/C9_ARC_REPLAY_TESTS.txt": {
+      "bytes": 98,
+      "sha256": "783a2ffe74d6521276d5db9faaefb7bd9b24297ff0d303ec18a89934b448afb8"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/arc_prefix/C9_ARC_PHYSICAL_REPLAY.json": {
+      "bytes": 1802,
+      "sha256": "0f160313065b3c1947757e5c72ec2c7b6b02a96bb3291c20ad5e902805d38b14"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/arc_preparation/CAMPAIGN.json": {
+      "bytes": 7841,
+      "sha256": "bc4f1c034f0c428f51191e1495c345846b72aa9466844aaef2a24f3b15f2c51d"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/arc_preparation/coastal_weekend_s41.prepare.json": {
+      "bytes": 6961,
+      "sha256": "51bdaf75c279310087f7f1e45a9f91b799ca3d1fed41727fcce711c964abcbc1"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/arc_preparation/coastal_weekend_s41.prepare.progress.json": {
+      "bytes": 690,
+      "sha256": "e44186eed5bdd510ab0a4c16785e7e829390a946450a0d8f4cd3a686cf0f69ea"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/arc_preparation/river_weekday_s17.prepare.json": {
+      "bytes": 6966,
+      "sha256": "58a5596cee856bbbe7d82661ca9cad9c99fb472dd18c2b413f4846b02c6df990"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/arc_preparation/river_weekday_s17.prepare.progress.json": {
+      "bytes": 687,
+      "sha256": "382f759fbc71430e0e1d6cbaa991a5a1bdf875b9cb4a1f1dfb4f86f883d28783"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/arc_preparation/valley_weekday_s7.prepare.json": {
+      "bytes": 6951,
+      "sha256": "6385051949d6f34353c70e936e1fa352dfece50af6f6e1f722e71d02491d4415"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/arc_preparation/valley_weekday_s7.prepare.progress.json": {
+      "bytes": 686,
+      "sha256": "83062c2a1e10d0da9de7d5d2addc5045100183aaca768179c81de01f7a8b81b0"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/prefix/valley_weekday_s7.native_stream_25300.json": {
+      "bytes": 10529,
+      "sha256": "0db732c990668cd14a995627b905ab434eeb03e579c0a5290b8cac28314a3b3b"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/prefix/valley_weekday_s7.native_stream_25300.progress.json": {
+      "bytes": 709,
+      "sha256": "4495f00360361322df59d6711d49f3f17e626f034278702bd2190ccfe5340239"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/prefix/valley_weekday_s7.native_stream_25600.json": {
+      "bytes": 2507,
+      "sha256": "0bb817569adca1b6ffbe80464c77e25abd7e999539b03e6a4f87ad24697255f4"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/preparation/CAMPAIGN.json": {
+      "bytes": 7841,
+      "sha256": "58d10ed0b5d38e030cf0382b9082d8644a34f00952c4caca3cd260aafb9c179f"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/preparation/coastal_weekend_s41.prepare.json": {
+      "bytes": 6963,
+      "sha256": "4b7ac6e44b50ed02e58a2aa665f732a3685722bfcca54119179d1d12f2ce9297"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/preparation/coastal_weekend_s41.prepare.progress.json": {
+      "bytes": 691,
+      "sha256": "ebf2f0a0abf55429c74a97368f3a562bc89fe9d31a0f848c96eab64ff18ffd38"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/preparation/river_weekday_s17.prepare.json": {
+      "bytes": 6964,
+      "sha256": "ac9b0445851786639f1615ec1f5f14a913db787ecf8f788b3e6bf381e4d41587"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/preparation/river_weekday_s17.prepare.progress.json": {
+      "bytes": 687,
+      "sha256": "dfdadecd7f473a738defcc5ea14a5e5c961b309c7da9fa9ae35d6b7fb1f801f6"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/preparation/valley_weekday_s7.prepare.json": {
+      "bytes": 6951,
+      "sha256": "807784c2efc82ae0c8724108a4ba771382bb175335a16246124fe44517c4fa94"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/preparation/valley_weekday_s7.prepare.progress.json": {
+      "bytes": 687,
+      "sha256": "85570e96351e34cee2b3e1928d425a6580be20c6607cdf53cc8a484298b928c4"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/stress/arc_25650.json": {
+      "bytes": 1405,
+      "sha256": "8a39b1366167f151879d017f1f4cbc92742db71e485acc82f796b2a23432aca4"
+    },
+    "artifacts/v03_fifo_service_stream_20261120/stress/old_prearc_25650.json": {
+      "bytes": 1406,
+      "sha256": "08ad1ebc628333fbdb2dc9e796fea5d61eb9295f8c30079e7750ad14da9eeb19"
+    },
+    "crates/metroflow-rust/src/v1_lineage_shadow.rs": {
+      "bytes": 31377,
+      "sha256": "eadc61854f0e137f03c07f8fc12ddec613bf4df8bb1430e60c03058c92966f50"
+    },
+    "crates/metroflow-rust/src/v1_road.rs": {
+      "bytes": 131860,
+      "sha256": "c1ba4873227427579f2f06a4864d4bee19533f92edb3a4882614a9573d87dbf2"
+    },
+    "docs/research/V03_FIFO_SERVICE_STREAM_C1_C5_20261120_KO.md": {
+      "bytes": 15639,
+      "sha256": "6209e8ac849b85c3799bd528c43fa429bd2d92579a4ce3c2ca7d49505be487cb"
+    },
+    "docs/research/V03_FIFO_SERVICE_STREAM_C6_C10_20261120_KO.md": {
+      "bytes": 9229,
+      "sha256": "cd0fec4398ab0b94d8ed3a1df70049721a6962f501affd356abde5ef3f266b21"
+    },
+    "docs/research/V03_FIFO_SERVICE_STREAM_CODING_C1_C10_20261120_KO.md": {
+      "bytes": 24441,
+      "sha256": "7740739e69b2165a2fc7e29f1a5af659beee8c31877111c51ed776f438acd071"
+    },
+    "docs/research/V03_FIFO_SERVICE_STREAM_R1_R4_20261120_KO.md": {
+      "bytes": 15916,
+      "sha256": "5e6e7a2426e95b3bd4b8f58188736074f6572a2ac1d11bccbba8d46a1f3c86c7"
+    },
+    "docs/research/V03_FIFO_SERVICE_STREAM_THEORY_R1_R10_20261120_KO.md": {
+      "bytes": 15916,
+      "sha256": "5e6e7a2426e95b3bd4b8f58188736074f6572a2ac1d11bccbba8d46a1f3c86c7"
+    },
+    "tests/research/test_v03_service_25650_budget_block_20261120.py": {
+      "bytes": 3234,
+      "sha256": "3bf0e7faa60280cfa7b15ab3c3852900f1281f38456b6bb82e2cdcc543fc9dfa"
+    },
+    "tests/v1/test_native_packed_intervals.py": {
+      "bytes": 7236,
+      "sha256": "3b59bc4960f58b4cccb41c4860fa66edfc0f45961f9843825c26334ddc707690"
+    },
+    "tools/research/v03_service_25650_audit.py": {
+      "bytes": 7682,
+      "sha256": "262ec8a30967b262befe3530a1aac92933842922acd2e244a9e0f6646c3fe3fe"
+    },
+    "tools/research/v03_service_25650_source_replay.py": {
+      "bytes": 7982,
+      "sha256": "43ff2b962260f20fb0af0053dc9000e3eefe9fbe71a5ee7ac2ff7f6d93a86b53"
+    }
+  },
+  "readiness": {
+    "100k_city_calendar_total": 3,
+    "RLS01": "PLANNED",
+    "V03": "BLOCKED",
+    "V03_predecessors_completed": 3,
+    "V03_predecessors_total": 3,
+    "congested_25600_to_25650_attempts": 2,
+    "congested_25600_to_25650_completed_runs": 0,
+    "full_day_86400s_completed": 0,
+    "full_day_86400s_required": 9,
+    "original_8GiB_process_cap_unchanged": true,
+    "original_native_internal_budget_bytes_unchanged": 5242806391,
+    "scoped_completed_DAG_nodes": 19,
+    "source_bound_100k_city_calendar_preparations": 3,
+    "total_DAG_nodes": 21,
+    "valley_25600_source_bound_physics_prefix_verified": true
+  },
+  "release_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "remaining_critical_blocker": "Distinguish conservative Arc alias accounting vs genuinely distinct packet/interval genealogy under exact FIFO; no budget relaxation, fitted parameter changes, or false 24h claims.",
+  "repo": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "V03_EXACT_FIFO_ARC_STORAGE_C10_FINAL_RESEARCH_RECEIPT_20261120_V1",
+  "source_candidate_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+  "source_parent_commit": "b94670d03407a4fd2626884f58a1a293f57fd7cc",
+  "source_protected_files_sha256": {
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "src/metroflow/v1/kcmb.py": "9afd9a809fbea373a89a4bdf84d75bf2bbf4ef826c12e91f6bdc46e9c42224c9",
+    "src/metroflow/v1/native_engine.py": "cc92d92e92764faf4f707d987484187b9b44678b10b45dbd18ef6fc9a05d1afd",
+    "src/metroflow/v1/native_release_driver.py": "d60ea978a825fc437fb7f880be14b671d1697a17f64c6cd0af04c9b6a9729b0f",
+    "tools/run_v1_local_acceptance.py": "f364e6625a185920cd6e31a8ee249a564580a3dadb19872d19687dc4b64b7b24"
+  },
+  "tests": {
+    "cargo_workspace_check": "EXIT_0",
+    "full_repository_ci": "NOT_RUN",
+    "original_plan_validator": "VALID_PLAN_NOT_RELEASE",
+    "python_compile": "EXIT_0",
+    "ruff": "NOT_RUN_NOT_INSTALLED",
+    "rust_lib_ignored_benchmarks": 2,
+    "rust_lib_passed": 81,
+    "selected_python_passed": 283
+  },
+  "theory": {
+    "C_stages": 10,
+    "R_stages": 10,
+    "budget_overcount_causally_responsible_for_failure": "UNRESOLVED",
+    "conservative_per_owner_vs_unique_backing_formula": "DERIVED_CONDITIONAL",
+    "immutable_arc_clone_semantics": "DERIVED_CONDITIONAL_AND_RUST_IMPLEMENTATION_VERIFIED",
+    "new_fitted_physical_coefficients": [],
+    "original_full_day_state_optimized": "NOT_VERIFIED"
+  }
+}

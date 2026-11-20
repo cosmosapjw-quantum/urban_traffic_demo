@@ -1,0 +1,55 @@
+{
+  "actual_current_native_3_city_calendar_prep": "3_OF_3",
+  "arc_elapsed_relative_to_old": 1.0028551766368743,
+  "arc_rss_saved_bytes": 367124480,
+  "arc_rss_saved_fraction": 0.10084905384392084,
+  "attempted_simulated_interval_s": [
+    25600,
+    25650
+  ],
+  "causal_attribution_Arc_double_count_caused_25650_failure": "UNRESOLVED",
+  "causal_attribution_distinct_packet_genealogy_growth": "SUPPORTED_BY_PRIOR_TRACE_NOT_PROVED_SOLE_CAUSE",
+  "next_scientific_action": "Derive/test unique Arc backing allocation accounting and exact packet genealogy compression under unchanged physical FIFO/clock/8GiB limit; do not inflate budget.",
+  "not_claimed": "Both executions terminated before the 25650 checkpoint; no physical output at that exact clock was verified.",
+  "old_and_candidate_source_checkpoint_byte_identical": true,
+  "original_24hour_9_run_acceptance": "0_OF_9_BLOCKED",
+  "original_case": "valley_weekday_s7",
+  "original_process_8GiB_cap_unchanged": true,
+  "original_residents": 100000,
+  "original_source_plan_19_of_21": true,
+  "physical_target_reached_by_either": false,
+  "schema": "V03_ARC_25650_BUDGET_BLOCK_DIAGNOSTIC_20261120_V1",
+  "source_supported_potential_Arc_duplicate_part_capacity_count": true,
+  "status": "BOTH_FAILED_INTERNAL_PACKET_PACKING_BUDGET",
+  "structural_budget_same_bytes": 5242806391,
+  "two_variants": {
+    "arc": {
+      "elapsed_s": 53.12747096699968,
+      "error_phase": "packet interval packing",
+      "loaded_native_binary_sha256": "aafd80fa786df68ce007f6a025c3b469dd2b5dcd699a6b7203f0a12d84bce9c9",
+      "native_budget_bytes": 5242806391,
+      "native_excess_bytes": 4873,
+      "native_required_bytes": 5242811264,
+      "original_25600_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+      "process_address_space_limit_bytes": 8589934592,
+      "process_rss_bytes": 3273211904,
+      "receipt_sha256": "8a39b1366167f151879d017f1f4cbc92742db71e485acc82f796b2a23432aca4",
+      "source_sha256": "983d2f0829c46666e4412d83308ee9fe5ed1930677b3795f4d7d19642abca74a",
+      "status": "FAILED_BudgetExceeded"
+    },
+    "old": {
+      "elapsed_s": 52.9762145170007,
+      "error_phase": "packet interval packing",
+      "loaded_native_binary_sha256": "a92f7062dfce43806116bdde3f3011e39d3fe43ff73f8d451a4546ee85a5b9e8",
+      "native_budget_bytes": 5242806391,
+      "native_excess_bytes": 4041,
+      "native_required_bytes": 5242810432,
+      "original_25600_checkpoint_sha256": "75bae0ea200a0bd3fd0842770efd0cecec9ce6297179149db88f77ded91b134d",
+      "process_address_space_limit_bytes": 8589934592,
+      "process_rss_bytes": 3640336384,
+      "receipt_sha256": "08ad1ebc628333fbdb2dc9e796fea5d61eb9295f8c30079e7750ad14da9eeb19",
+      "source_sha256": "2e3289a9f77080531198d7a75cd04c464d409b9c7bd3cb51e2ae116624aae15a",
+      "status": "FAILED_BudgetExceeded"
+    }
+  }
+}
