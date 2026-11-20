@@ -162,6 +162,14 @@ enum PacketParts {
         b: PackedTime,
         rows: Arc<Vec<CorePart>>,
     },
+    /// Exact immutable source order of keys shared across independent
+    /// physical packets; every packet retains its own mass/birth moments.
+    SharedKeys {
+        a: PackedTime,
+        b: PackedTime,
+        keys: Arc<Vec<(u32,u32)>>,
+        moments: Arc<Vec<(f64,f64)>>,
+    },
     Mixed(Arc<Vec<Part>>),
 }
 impl PacketParts {
@@ -198,6 +206,7 @@ impl PacketParts {
     fn len(&self) -> usize {
         match self {
             Self::Uniform { rows, .. } => rows.len(),
+            Self::SharedKeys { moments, .. } => moments.len(),
             Self::Mixed(rows) => rows.len(),
         }
     }
@@ -207,17 +216,21 @@ impl PacketParts {
     fn capacity(&self) -> usize {
         match self {
             Self::Uniform { rows, .. } => rows.capacity(),
+            Self::SharedKeys { moments, .. } => moments.capacity(),
             Self::Mixed(rows) => rows.capacity(),
         }
     }
     fn is_uniform(&self) -> bool {
-        matches!(self, Self::Uniform { .. })
+        matches!(self, Self::Uniform { .. } | Self::SharedKeys { .. })
     }
     fn allocated_bytes(&self) -> usize {
         match self {
             Self::Uniform { rows, .. } => rows
                 .capacity()
                 .saturating_mul(std::mem::size_of::<CorePart>()),
+            Self::SharedKeys { keys, moments, .. } => keys.capacity()
+                .saturating_mul(std::mem::size_of::<(u32,u32)>())
+                .saturating_add(moments.capacity().saturating_mul(std::mem::size_of::<(f64,f64)>())),
             Self::Mixed(rows) => rows.capacity().saturating_mul(std::mem::size_of::<Part>()),
         }
     }
@@ -228,6 +241,9 @@ impl PacketParts {
                 b: *b,
                 rows: rows.iter(),
             },
+            Self::SharedKeys { a, b, keys, moments } => PartIter::SharedKeys {
+                a: *a,b: *b, rows: keys.iter().zip(moments.iter()),
+            },
             Self::Mixed(rows) => PartIter::Mixed(rows.iter()),
         }
     }
@@ -237,6 +253,11 @@ enum PartIter<'a> {
         a: PackedTime,
         b: PackedTime,
         rows: std::slice::Iter<'a, CorePart>,
+    },
+    SharedKeys {
+        a: PackedTime,
+        b: PackedTime,
+        rows: std::iter::Zip<std::slice::Iter<'a,(u32,u32)>,std::slice::Iter<'a,(f64,f64)>>,
     },
     Mixed(std::slice::Iter<'a, Part>),
 }
@@ -252,12 +273,17 @@ impl Iterator for PartIter<'_> {
                 a: *a,
                 b: *b,
             }),
+            Self::SharedKeys { a, b, rows } => rows.next().map(|(key,moment)| Part {
+                tag:key.0 as usize,offset:key.1 as usize,
+                mass:moment.0,birth:moment.1,a:*a,b:*b,
+            }),
             Self::Mixed(rows) => rows.next().copied(),
         }
     }
     fn size_hint(&self) -> (usize, Option<usize>) {
         let n = match self {
             Self::Uniform { rows, .. } => rows.len(),
+            Self::SharedKeys { rows, .. } => rows.len(),
             Self::Mixed(rows) => rows.len(),
         };
         (n, Some(n))
@@ -344,6 +370,11 @@ fn same_ordered_core_keys(a: &[CorePart], b: &[CorePart]) -> bool {
     )
 }
 
+/// Canonical immutable keyset for a particular source-order sequence.
+struct ExactKeyGroup {
+    keys: Arc<Vec<(u32,u32)>>,
+    distinct_original_backings: usize,
+}
 /// Conservative structural working allowance, not an allocator/RSS theorem.
 /// Captures one supplied immutable snapshot, the committed owner, a candidate,
 /// and the large source/transfer/splitting workspaces. Unrelated user-retained
@@ -810,45 +841,153 @@ impl RoadState {
             c.repeated_key_rows.saturating_mul(2*std::mem::size_of::<u32>());
         c
     }
+    /// Intern only FULL, ordered and elementwise identical route-key arrays.
+    /// All independent mass/birth, endpoints, source index order and Mixed
+    /// physical rows remain unchanged. The hash is a lookup hint, never proof.
+    /// Groups with fewer than two independent owners or short lists remain in
+    /// their original Arc<Vec<CorePart>> form (metadata would dominate).
+    pub(crate) fn intern_exact_keysets(&mut self) -> PyResult<usize> {
+        let mut groups:Vec<ExactKeyGroup>=Vec::new();
+        let mut lookup:HashMap<(usize,u64),Vec<usize>>=HashMap::new();
+        let mut assignments:Vec<Option<usize>>=Vec::new();
+        let mut unique_old_backings:HashSet<(u8,usize)>=HashSet::new();
+        // First pass is strictly read-only. Canonical keys are OWNED, not
+        // borrowed from self, so the second mutation pass cannot invalidate
+        // a representative or confuse Arc pointer identities.
+        for packet in self.cells.iter().flat_map(|c|&c.packets)
+            .chain(self.pending.iter().flatten()) {
+            let (n,h,old_backing)=match &packet.parts {
+                PacketParts::Uniform{rows,..}=>{
+                    let mut h=std::collections::hash_map::DefaultHasher::new();
+                    rows.len().hash(&mut h);
+                    for r in rows.iter() {r.tag.hash(&mut h);r.offset.hash(&mut h);}
+                    (rows.len(),h.finish(),(0u8,Arc::as_ptr(rows) as usize))
+                },
+                PacketParts::SharedKeys{keys,moments,..}=>{
+                    let mut h=std::collections::hash_map::DefaultHasher::new();
+                    keys.len().hash(&mut h);
+                    for k in keys.iter() {k.hash(&mut h);}
+                    (keys.len(),h.finish(),(1u8,Arc::as_ptr(moments) as usize))
+                },
+                PacketParts::Mixed(_)=>{
+                    push_checked(&mut assignments,None)?;
+                    continue;
+                }
+            };
+            let bucket=lookup.entry((n,h)).or_default();
+            let found=bucket.iter().copied().find(|&id|{
+                let key=groups[id].keys.as_slice();
+                match &packet.parts {
+                    PacketParts::Uniform{rows,..}=>rows.len()==key.len()&&
+                        rows.iter().zip(key).all(|(r,k)|(r.tag,r.offset)==*k),
+                    PacketParts::SharedKeys{keys,..}=>keys.as_slice()==key,
+                    PacketParts::Mixed(_)=>false,
+                }
+            });
+            let id=if let Some(id)=found {id} else {
+                let key=match &packet.parts {
+                    PacketParts::Uniform{rows,..}=>{
+                        let mut tmp=checkpoint_vec(rows.len())?;
+                        tmp.extend(rows.iter().map(|r|(r.tag,r.offset)));
+                        Arc::new(tmp)
+                    },
+                    PacketParts::SharedKeys{keys,..}=>keys.clone(),
+                    PacketParts::Mixed(_)=>unreachable!(),
+                };
+                let id=groups.len();
+                push_checked(&mut groups,ExactKeyGroup{
+                    keys:key,distinct_original_backings:0,
+                })?;
+                bucket.push(id);
+                id
+            };
+            if unique_old_backings.insert(old_backing) {
+                groups[id].distinct_original_backings+=1;
+            }
+            push_checked(&mut assignments,Some(id))?;
+        }
+        // Existing clones of a single old CorePart Arc must remain shared
+        // on the *moment* side too; do not inadvertently make two new payloads.
+        let mut moments_by_old_backing:HashMap<usize,Arc<Vec<(f64,f64)>>>=HashMap::new();
+        let mut converted=0usize;
+        let mut index=0usize;
+        for packet in self.cells.iter_mut().flat_map(|c|&mut c.packets)
+            .chain(self.pending.iter_mut().flatten()) {
+            let group=assignments[index];
+            index+=1;
+            let Some(id)=group else {continue};
+            let g=&groups[id];
+            if g.distinct_original_backings<2 || g.keys.len()<16 {continue;}
+            match &mut packet.parts {
+                PacketParts::Uniform{a,b,rows}=>{
+                    let ptr=Arc::as_ptr(rows) as usize;
+                    let values=if let Some(old)=moments_by_old_backing.get(&ptr) {
+                        old.clone()
+                    } else {
+                        let mut tmp=checkpoint_vec(rows.len())?;
+                        tmp.extend(rows.iter().map(|r|(r.mass,r.birth)));
+                        let new=Arc::new(tmp);
+                        moments_by_old_backing.insert(ptr,new.clone());
+                        new
+                    };
+                    let (a,b)=(*a,*b);
+                    packet.parts=PacketParts::SharedKeys{
+                        a,b,keys:g.keys.clone(),moments:values,
+                    };
+                    converted+=1;
+                },
+                PacketParts::SharedKeys{keys,..}=>{
+                    if !Arc::ptr_eq(keys,&g.keys) {
+                        *keys=g.keys.clone();
+                        converted+=1;
+                    }
+                },
+                PacketParts::Mixed(_)=>unreachable!(),
+            }
+        }
+        debug_assert_eq!(assignments.len(),index);
+        Ok(converted)
+    }
+
     /// Exact identity union on a specifically enumerated simultaneous set of
     /// retained native snapshots, never used to approve additional work.
     pub(crate) fn arc_backing_union(states: &[&RoadState]) -> ArcBackingCensus {
         let mut distinct: HashSet<(u8, usize)> = HashSet::new();
         let mut result = ArcBackingCensus::default();
         for state in states {
-            for packet in state
-                .cells.iter().flat_map(|cell| &cell.packets)
-                .chain(state.pending.iter().flatten())
-            {
-            let (kind, allocation, bytes) = match &packet.parts {
-                PacketParts::Uniform { rows, .. } => (
-                    0u8,
-                    Arc::as_ptr(rows) as usize,
-                    rows.capacity().saturating_mul(std::mem::size_of::<CorePart>()),
-                ),
-                PacketParts::Mixed(rows) => (
-                    1u8,
-                    Arc::as_ptr(rows) as usize,
-                    rows.capacity().saturating_mul(std::mem::size_of::<Part>()),
-                ),
-            };
-            result.owner_count += 1;
-            result.owner_payload_bytes =
-                result.owner_payload_bytes.saturating_add(bytes);
-            if distinct.insert((kind, allocation)) {
-                result.unique_backing_count += 1;
-                result.unique_payload_bytes =
-                    result.unique_payload_bytes.saturating_add(bytes);
-            }
+            for packet in state.cells.iter().flat_map(|cell|&cell.packets)
+                .chain(state.pending.iter().flatten()) {
+                result.owner_count+=1;
+                let mut add=|kind:u8, allocation:usize, bytes:usize| {
+                    result.owner_payload_bytes=result.owner_payload_bytes.saturating_add(bytes);
+                    if distinct.insert((kind,allocation)) {
+                        result.unique_backing_count+=1;
+                        result.unique_payload_bytes=
+                            result.unique_payload_bytes.saturating_add(bytes);
+                    }
+                };
+                match &packet.parts {
+                    PacketParts::Uniform{rows,..}=>add(
+                        0,Arc::as_ptr(rows) as usize,
+                        rows.capacity().saturating_mul(std::mem::size_of::<CorePart>())),
+                    PacketParts::Mixed(rows)=>add(
+                        1,Arc::as_ptr(rows) as usize,
+                        rows.capacity().saturating_mul(std::mem::size_of::<Part>())),
+                    PacketParts::SharedKeys{keys,moments,..}=>{
+                        add(2,Arc::as_ptr(keys) as usize,
+                            keys.capacity().saturating_mul(std::mem::size_of::<(u32,u32)>()));
+                        add(3,Arc::as_ptr(moments) as usize,
+                            moments.capacity().saturating_mul(std::mem::size_of::<(f64,f64)>()));
+                    },
+                }
             }
         }
-        result.duplicate_payload_bytes = result
-            .owner_payload_bytes.saturating_sub(result.unique_payload_bytes);
-        result.unique_arc_control_allowance_bytes =
-            result.unique_backing_count.saturating_mul(96);
+        result.duplicate_payload_bytes=result.owner_payload_bytes
+            .saturating_sub(result.unique_payload_bytes);
+        result.unique_arc_control_allowance_bytes=result
+            .unique_backing_count.saturating_mul(96);
         result
     }
-
     /// Owned vector capacity only: BTreeMap nodes, allocator overhead and the
     /// immutable model registry are deliberately excluded from this diagnostic.
     pub(crate) fn debug_stats(&self) -> RoadDebugStats {
@@ -870,22 +1009,32 @@ impl RoadState {
             out.pending_parts += parts;
             out.max_pending_parts = out.max_pending_parts.max(parts);
         }
-        for queue in self
-            .cells
-            .iter()
-            .map(|cell| &cell.packets)
-            .chain(&self.pending)
-        {
+        // Distinct SharedKeys allocations are physically shared by pointer
+        // identity. Count their key payload only once while still counting
+        // every packet's independent mass/birth backing and all metadata.
+        let mut seen_keys=HashSet::<usize>::new();
+        for queue in self.cells.iter().map(|cell| &cell.packets).chain(&self.pending) {
             out.packet_capacity += queue.capacity();
             for packet in queue {
                 out.part_capacity += packet.parts.capacity();
-                out.vector_capacity_bytes += packet.parts.allocated_bytes();
+                match &packet.parts {
+                    PacketParts::SharedKeys{keys,moments,..}=>{
+                        out.vector_capacity_bytes+=moments.capacity()
+                            .saturating_mul(std::mem::size_of::<(f64,f64)>());
+                        if seen_keys.insert(Arc::as_ptr(keys) as usize) {
+                            out.vector_capacity_bytes+=keys.capacity()
+                                .saturating_mul(std::mem::size_of::<(u32,u32)>())
+                                .saturating_add(96); // additional key Arc/control envelope
+                        }
+                    },
+                    _=>out.vector_capacity_bytes+=packet.parts.allocated_bytes(),
+                }
                 if packet.parts.is_uniform() {
-                    out.uniform_packets += 1;
-                    out.uniform_parts += packet.parts.len();
+                    out.uniform_packets+=1;
+                    out.uniform_parts+=packet.parts.len();
                 } else {
-                    out.mixed_packets += 1;
-                    out.mixed_parts += packet.parts.len();
+                    out.mixed_packets+=1;
+                    out.mixed_parts+=packet.parts.len();
                 }
             }
         }
@@ -2011,7 +2160,7 @@ impl V1Road {
             }
             ledger.push(row);
         }
-        let state = RoadState {
+        let mut state = RoadState {
             t,
             cells,
             pending,
@@ -2019,6 +2168,14 @@ impl V1Road {
             ledger,
         };
         self.check_state(&state)?;
+        // State restoration is a strict source-bound, post-decode lifetime.
+        // Exact ordered-keyset interning replaces independent full CorePart
+        // payloads with actually shared immutable key arrays only in capped
+        // native runs. Reconstructed Part values and wire stay identical.
+        if self.storage_budget.is_some() {
+            state.intern_exact_keysets()?;
+            self.check_state(&state)?;
+        }
         Ok(state)
     }
     pub(crate) fn install_state(&mut self, state: RoadState) {
@@ -5282,5 +5439,86 @@ mod exact_route_keyset_census_tests {
                 r.a.0,r.b.0)).collect::<Vec<_>>()
         }).collect();
         assert_ne!(actual[0][0].4,actual[1][0].4);
+    }
+}
+
+#[cfg(test)]
+mod exact_persistent_keyset_storage_tests {
+    use super::*;
+
+    fn dense(keys:&[(u32,u32)], bias:f64, a:f64, b:f64)->PacketParts {
+        PacketParts::Uniform {
+            a:PackedTime::new(Some(a)).unwrap(),
+            b:PackedTime::new(Some(b)).unwrap(),
+            rows:Arc::new(keys.iter().enumerate().map(|(i,&(tag,offset))|
+                CorePart{tag,offset,mass:(i+1) as f64/151.+bias,
+                         birth: if i%11==0 {f64::from_bits(1)}
+                         else {(i+3) as f64/31.+bias}}).collect()),
+        }
+    }
+    fn state(parts:Vec<PacketParts>)->RoadState {
+        RoadState{t:0.,cells:vec![Cell{
+            v:[0.;8],packets:parts.into_iter().map(|p|Packet{target:0.,parts:p}).collect(),
+            latent:BTreeMap::new()}],
+            pending:vec![vec![]],totals:[0.;7],ledger:vec![]}
+    }
+    fn signature(p: Part)->(usize,usize,u64,u64,u64,u64){
+        (p.tag,p.offset,p.mass.to_bits(),p.birth.to_bits(),p.a.0,p.b.0)
+    }
+
+    #[test]
+    fn independent_same_keys_share_only_metadata_not_ieee_moments() {
+        let keys:Vec<_>=(0..64).map(|i|((i%13) as u32, (i/13) as u32)).collect();
+        let mut s=state(vec![dense(&keys,0.0,-0.,1.),dense(&keys,0.3,0.,2.0)]);
+        let before=s.cells[0].packets.iter().map(|p|
+            p.parts.iter().map(signature).collect::<Vec<_>>()).collect::<Vec<_>>();
+        let bytes_before=s.retained_storage_bytes();
+        let changed=s.intern_exact_keysets().unwrap();
+        let after=s.cells[0].packets.iter().map(|p|
+            p.parts.iter().map(signature).collect::<Vec<_>>()).collect::<Vec<_>>();
+        assert_eq!(before,after);
+        assert!(changed>=2);
+        let (x,y)=(&s.cells[0].packets[0].parts,&s.cells[0].packets[1].parts);
+        match (x,y) {
+            (PacketParts::SharedKeys{keys:k1,moments:v1,..},
+             PacketParts::SharedKeys{keys:k2,moments:v2,..}) => {
+                assert!(Arc::ptr_eq(k1,k2));
+                assert!(!Arc::ptr_eq(v1,v2));
+                assert_eq!(k1.len(),64);
+                assert_ne!(v1[0].0.to_bits(),v2[0].0.to_bits());
+            },
+            _=>panic!("both independent packets should share only exact ordered keys"),
+        }
+        assert!(s.retained_storage_bytes()<bytes_before);
+    }
+
+    #[test]
+    fn different_key_order_and_original_wide_mixed_values_never_intern() {
+        let mut x:Vec<_>=(0..64).map(|i|(i as u32, 0u32)).collect();
+        let mut y=x.clone();
+        y.swap(0,1);
+        let wide=Part{tag:(u32::MAX as usize)+1,offset:0,mass:0.25,birth:0.5,
+            a:PackedTime::new(Some(0.)).unwrap(),b:PackedTime::new(Some(1.)).unwrap()};
+        let fallback=PacketParts::pack(vec![wide], |_|Ok(())).unwrap();
+        let mut s=state(vec![dense(&x,0.,0.,1.),dense(&y,0.,0.,1.),fallback]);
+        let before=s.cells[0].packets.iter().map(|p|
+            p.parts.iter().map(signature).collect::<Vec<_>>()).collect::<Vec<_>>();
+        assert_eq!(s.intern_exact_keysets().unwrap(),0);
+        assert!(matches!(s.cells[0].packets[2].parts,PacketParts::Mixed(_)));
+        let after=s.cells[0].packets.iter().map(|p|
+            p.parts.iter().map(signature).collect::<Vec<_>>()).collect::<Vec<_>>();
+        assert_eq!(before,after);
+        x.clear();
+    }
+
+    #[test]
+    fn already_shared_full_arc_is_not_converted_into_two_new_allocations() {
+        let keys:Vec<_>=(0..64).map(|i|(i as u32, 0u32)).collect();
+        let p=dense(&keys,0.,0.,1.);
+        let mut s=state(vec![p.clone_checked().unwrap(),p]);
+        let before=s.arc_backing_census();
+        assert_eq!(before.unique_backing_count,1);
+        assert_eq!(s.intern_exact_keysets().unwrap(),0);
+        assert_eq!(s.arc_backing_census().unique_backing_count,1);
     }
 }
