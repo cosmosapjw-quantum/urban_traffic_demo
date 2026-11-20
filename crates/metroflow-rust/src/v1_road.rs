@@ -616,12 +616,18 @@ impl RoadState {
     /// is identified by stable live Arc pointer identity, NOT equal Part data.
     /// Distinct input/candidate snapshots need a separate union census.
     pub(crate) fn arc_backing_census(&self) -> ArcBackingCensus {
+        Self::arc_backing_union(&[self])
+    }
+    /// Exact identity union on a specifically enumerated simultaneous set of
+    /// retained native snapshots, never used to approve additional work.
+    pub(crate) fn arc_backing_union(states: &[&RoadState]) -> ArcBackingCensus {
         let mut distinct: HashSet<(u8, usize)> = HashSet::new();
         let mut result = ArcBackingCensus::default();
-        for packet in self
-            .cells.iter().flat_map(|cell| &cell.packets)
-            .chain(self.pending.iter().flatten())
-        {
+        for state in states {
+            for packet in state
+                .cells.iter().flat_map(|cell| &cell.packets)
+                .chain(state.pending.iter().flatten())
+            {
             let (kind, allocation, bytes) = match &packet.parts {
                 PacketParts::Uniform { rows, .. } => (
                     0u8,
@@ -641,6 +647,7 @@ impl RoadState {
                 result.unique_backing_count += 1;
                 result.unique_payload_bytes =
                     result.unique_payload_bytes.saturating_add(bytes);
+            }
             }
         }
         result.duplicate_payload_bytes = result
@@ -1405,6 +1412,10 @@ impl V1Road {
     }
     pub(crate) fn checkpoint(&self) -> RoadState {
         self.state.clone()
+    }
+    /// Diagnostic only: ownership overlap of committed and supplied snapshot.
+    pub(crate) fn arc_committed_snapshot_union(&self, supplied: &RoadState) -> ArcBackingCensus {
+        RoadState::arc_backing_union(&[&self.state, supplied])
     }
     pub(crate) fn rollback(&mut self, state: RoadState) {
         self.state = state;
@@ -3502,5 +3513,66 @@ mod unique_arc_backing_account_tests {
         assert_eq!(c.duplicate_payload_bytes,0);
         // Census never treats zero-capacity distinct Arcs as one alias.
         assert_eq!(c.unique_arc_control_allowance_bytes,2*96);
+    }
+}
+
+
+#[cfg(test)]
+mod unique_arc_live_state_union_tests {
+    use super::*;
+
+    fn sample_state() -> RoadState {
+        let parts=PacketParts::pack(
+            vec![Part{tag:1,offset:0,mass:0.5,birth:1.,
+                      a:PackedTime::new(Some(0.)).unwrap(),
+                      b:PackedTime::new(Some(3.)).unwrap()}],
+            |_| Ok(())
+        ).unwrap();
+        RoadState {
+            t: 0.,
+            cells: vec![Cell{v:[0.;8],packets:vec![Packet{target:0.,parts}],latent:BTreeMap::new()}],
+            pending:vec![vec![]],
+            totals:[0.;7],ledger:vec![],
+        }
+    }
+
+    #[test]
+    fn three_live_cloned_roadstates_are_one_shared_backing_but_three_owners() {
+        let input=sample_state();
+        let committed=input.clone();
+        let candidate=input.clone();
+        let x=RoadState::arc_backing_union(&[&input,&committed,&candidate]);
+        let bytes=std::mem::size_of::<CorePart>();
+        assert_eq!(x.owner_count,3);
+        assert_eq!(x.unique_backing_count,1);
+        assert_eq!(x.owner_payload_bytes,3*bytes);
+        assert_eq!(x.unique_payload_bytes,bytes);
+        assert_eq!(x.duplicate_payload_bytes,2*bytes);
+        assert_eq!(x.unique_arc_control_allowance_bytes,96);
+        assert_eq!(input.arc_backing_census().duplicate_payload_bytes,0);
+    }
+
+    #[test]
+    fn identical_independent_roadstate_is_not_shared_even_at_same_part_bits() {
+        let a=sample_state();
+        let b=sample_state();
+        let x=RoadState::arc_backing_union(&[&a,&b]);
+        assert_eq!(x.owner_count,2);
+        assert_eq!(x.unique_backing_count,2);
+        assert_eq!(x.duplicate_payload_bytes,0);
+    }
+
+    #[test]
+    fn empty_union_is_exact_zero_and_single_state_agrees_with_existing_census() {
+        let empty=RoadState::arc_backing_union(&[]);
+        assert_eq!(empty.owner_payload_bytes,0);
+        assert_eq!(empty.unique_payload_bytes,0);
+        assert_eq!(empty.owner_count,0);
+        let state=sample_state();
+        let a=state.arc_backing_census();
+        let b=RoadState::arc_backing_union(&[&state]);
+        assert_eq!(a.owner_payload_bytes,b.owner_payload_bytes);
+        assert_eq!(a.unique_payload_bytes,b.unique_payload_bytes);
+        assert_eq!(a.unique_backing_count,b.unique_backing_count);
     }
 }

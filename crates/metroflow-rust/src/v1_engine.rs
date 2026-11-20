@@ -1491,6 +1491,24 @@ impl NativeWholeEngine {
         }
         shared.set_item("scope","unique Arc<Vec> backing payloads within ONE stored RoadState; diagnostic only, not live process RSS or admission")?;
         road.set_item("arc_backing_census",shared)?;
+        // Two actually live owners: the internal committed road and the
+        // supplied captured/restored snapshot. A diagnostic census only.
+        // The phase also has ephemeral candidate/scratch allocations which
+        // are explicitly NOT enumerated here.
+        let two=self.road.arc_committed_snapshot_union(&state.value.road);
+        let overlap=PyDict::new(py);
+        for (name,value) in [
+            ("owner_count",two.owner_count),
+            ("unique_backing_count",two.unique_backing_count),
+            ("owner_payload_bytes",two.owner_payload_bytes),
+            ("unique_payload_bytes",two.unique_payload_bytes),
+            ("duplicate_payload_bytes",two.duplicate_payload_bytes),
+            ("unique_arc_control_allowance_bytes",two.unique_arc_control_allowance_bytes),
+        ] {
+            overlap.set_item(name,value)?;
+        }
+        overlap.set_item("scope","current committed plus supplied immutable snapshot only; no candidate/interval scratch; never used for admission")?;
+        road.set_item("arc_committed_snapshot_union_census",overlap)?;
         road.set_item("event_resolution", self.event_resolution_diagnostics(py)?)?;
         road.set_item("capacity_scope", "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state")?;
         let out = PyDict::new(py);
