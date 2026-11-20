@@ -1098,7 +1098,7 @@ impl NativeWholeEngine {
         self.journey
             .check_service_binding(&b.journey, &b.service.0)?;
         let time = b.journey.0;
-        for e in &b.service.1 {
+        for e in b.service.1.iter() {
             if e.0 >= self.tags.len()
                 || e.1 >= self.group_count
                 || e.2.is_some_and(|i| i >= self.group_count)

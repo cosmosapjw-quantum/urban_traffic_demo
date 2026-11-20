@@ -333,6 +333,9 @@ struct RoadWorkBudget {
 struct ServiceEventAccounting {
     input_bytes: usize,
     current_bytes: usize,
+    // Only an actual Arc::ptr_eq of the old call-input and committed
+    // event buffers permits one-copy payload accounting.
+    shared_input_current: bool,
     max_tag_bytes: usize,
 }
 impl ServiceEventAccounting {
@@ -347,7 +350,7 @@ impl ServiceEventAccounting {
             generated_rows.max(4).saturating_mul(3)
         };
         self.input_bytes
-            .saturating_add(self.current_bytes)
+            .saturating_add(if self.shared_input_current { 0 } else { self.current_bytes })
             .saturating_add(candidate.saturating_mul(std::mem::size_of::<EventRow>()))
             .saturating_add(3 * 32)
     }
@@ -1642,19 +1645,24 @@ impl V1Road {
         &mut self,
         input_bytes: usize,
         max_tag_bytes: usize,
+        shared_input_current: bool,
     ) {
         self.service_event_accounting = self.storage_budget.map(|_| ServiceEventAccounting {
             input_bytes,
             current_bytes: input_bytes,
+            shared_input_current,
             max_tag_bytes,
         });
     }
     pub(crate) fn service_sink_tag_bytes(&self) -> Option<usize> {
         self.service_event_accounting.map(|a| a.max_tag_bytes)
     }
-    pub(crate) fn set_service_event_current_bytes(&mut self, current_bytes: usize) {
+    pub(crate) fn set_service_event_current_bytes(
+        &mut self, current_bytes: usize, shared_input_current: bool,
+    ) {
         if let Some(accounting) = &mut self.service_event_accounting {
             accounting.current_bytes = current_bytes;
+            accounting.shared_input_current = shared_input_current;
         }
     }
     pub(crate) fn owned_record_count(&self) -> usize {
@@ -3462,6 +3470,7 @@ mod workspace_accounting_tests {
         let a = ServiceEventAccounting {
             input_bytes: 1_000,
             current_bytes: 2_000,
+            shared_input_current: false,
             max_tag_bytes: 64,
         };
         let rows = 10_000;
@@ -4124,5 +4133,27 @@ mod composed_interval_view_tests {
         assert_eq!(baseline.into_iter().map(bits).collect::<Vec<_>>(),
                    view.into_iter().map(bits).collect::<Vec<_>>());
         assert!(combine_interval_view(&rows, std::iter::empty(), 0, 0., 1.).unwrap().is_empty());
+    }
+}
+
+#[cfg(test)]
+mod exact_shared_event_source_budget_tests {
+    use super::*;
+
+    #[test]
+    fn only_pointer_identical_old_event_backing_can_be_counted_once() {
+        let one = ServiceEventAccounting {
+            input_bytes: 8192, current_bytes: 8192,
+            max_tag_bytes: 0, shared_input_current: true,
+        };
+        let separate = ServiceEventAccounting {
+            shared_input_current: false, ..one
+        };
+        let candidate = 10usize;
+        let candidate_bytes = 3 * candidate * std::mem::size_of::<EventRow>() + 96;
+        assert_eq!(one.road_step_bytes(candidate), 8192 + candidate_bytes);
+        assert_eq!(separate.road_step_bytes(candidate), 2 * 8192 + candidate_bytes);
+        assert_eq!(one.road_step_bytes(0), 8192 + 96);
+        // Distinct current backing: never subtract a value-equal buffer.
     }
 }

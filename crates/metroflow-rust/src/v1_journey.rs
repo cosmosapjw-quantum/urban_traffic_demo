@@ -23,7 +23,7 @@ pub(crate) type Source = (String, f64, f64);
 type Run = (usize, u8, f64, f64, f64); // stop index, STOP/ROAD/DONE, ready, partial sink, delay
 type People = (f64, f64, f64, f64, f64);
 pub(crate) type Service = (Vec<Run>, Vec<People>, Vec<bool>, Vec<f64>, Vec<bool>);
-pub(crate) type ServiceCheckpoint = (Service, Vec<EventRow>);
+pub(crate) type ServiceCheckpoint = (Service, Arc<Vec<EventRow>>);
 type Profile = Vec<(f64, f64, f64)>;
 type Law = Vec<(f64, f64)>;
 pub(crate) type JourneyLeg = (String, f64, Option<usize>, f64, Profile, u8, Law, Law);
@@ -353,7 +353,7 @@ pub struct NativeServiceCore {
     freight: Vec<Source>,
     cars: Vec<Source>,
     people_by_run: Vec<Vec<usize>>,
-    last_events: Vec<EventRow>,
+    last_events: Arc<Vec<EventRow>>,
     state: Service,
     pending: Option<(f64, Service)>,
 }
@@ -465,7 +465,7 @@ impl NativeServiceCore {
             write_u64(w, u64::from(v))?;
         }
         write_len(w, self.last_events.len())?;
-        for e in &self.last_events {
+        for e in self.last_events.iter() {
             write_len(w, e.0)?;
             write_len(w, e.1)?;
             write_u64(w, u64::from(e.2.is_some()))?;
@@ -553,7 +553,7 @@ impl NativeServiceCore {
         }
         let state = (runs, people, released, completed, cars);
         self.validate(&state)?;
-        Ok((state, events))
+        Ok((state, Arc::new(events)))
     }
     fn validate(&self, s: &Service) -> PyResult<()> {
         if s.0.len() != self.buses.len()
@@ -653,7 +653,7 @@ impl NativeServiceCore {
             freight,
             cars,
             people_by_run,
-            last_events: Vec::new(),
+            last_events: Arc::new(Vec::new()),
             state,
             pending: None,
         })
@@ -670,13 +670,13 @@ impl NativeServiceCore {
         )
     }
     fn road_events(&self) -> Vec<EventRow> {
-        self.last_events.clone()
+        self.last_events.as_ref().clone()
     }
     fn restore(&mut self, state: Service) -> PyResult<()> {
         self.validate(&state)?;
         self.state = state;
         self.pending = None;
-        self.last_events.clear();
+        self.last_events = Arc::new(Vec::new());
         Ok(())
     }
     fn abort(&mut self) {
@@ -1385,12 +1385,14 @@ pub(crate) fn advance_owned_joint(
     // later ticks drain its queues. Charge that known retained owner as well.
     journey.retained_input_bytes = journey_storage_bytes(&journey.state);
     road.begin_call_storage_accounting();
+    let call_input_events = Arc::clone(&service.last_events);
     road.configure_service_event_accounting(
         service
             .last_events
             .capacity()
             .saturating_mul(std::mem::size_of::<EventRow>()),
         tags.iter().map(String::capacity).max().unwrap_or(0),
+        Arc::ptr_eq(&call_input_events, &service.last_events),
     );
     let input_road_bytes = if dynamic_budget.is_some() {
         road.owned_storage_bytes()
@@ -1480,6 +1482,7 @@ pub(crate) fn advance_owned_joint(
                     .last_events
                     .capacity()
                     .saturating_mul(std::mem::size_of::<EventRow>()),
+                Arc::ptr_eq(&call_input_events, &service.last_events),
             );
             if let Some(total) = dynamic_budget {
                 let current_journey =
@@ -1690,7 +1693,7 @@ pub(crate) fn advance_owned_joint(
                 }
             }
             road.rollback(road_candidate);
-            service.last_events = events;
+            service.last_events = Arc::new(events);
             if dynamic_budget.is_some() {
                 journey.finalize_deferred_finish();
             }
@@ -2238,5 +2241,48 @@ impl NativeJourneyCore {
             last_attempt: None,
             phase_metrics: JourneyPhaseMetrics::default(),
         })
+    }
+}
+
+#[cfg(test)]
+mod event_snapshot_arc_ownership_tests {
+    use super::*;
+
+    fn fixture() -> NativeServiceCore {
+        NativeServiceCore {
+            buses: vec![], people: vec![], freight: vec![], cars: vec![],
+            people_by_run: vec![],
+            last_events: Arc::new(vec![
+                (7, 1, None, 0.25, 100., 101., 3.125),
+                (8, 1, Some(2), 0.75, 101., 102., 6.25),
+            ]),
+            state: (vec![], vec![], vec![], vec![], vec![]),
+            pending: None,
+        }
+    }
+
+    #[test]
+    fn captured_snapshots_and_committed_service_share_event_backing() {
+        let core = fixture();
+        let a = core.checkpoint();
+        let b = core.checkpoint();
+        assert!(Arc::ptr_eq(&a.1, &b.1));
+        assert!(Arc::ptr_eq(&a.1, &core.last_events));
+        assert_eq!(a.1[0].3.to_bits(), 0.25f64.to_bits());
+    }
+
+    #[test]
+    fn replacing_event_backing_preserves_previous_immutable_snapshot() {
+        let mut core = fixture();
+        let historical = core.checkpoint();
+        core.last_events = Arc::new(vec![(9, 3, None, 0.5, 102., 103., 3.75)]);
+        assert!(!Arc::ptr_eq(&historical.1, &core.last_events));
+        assert_eq!(historical.1.len(), 2);
+        assert_eq!(historical.1[1].6.to_bits(), 6.25f64.to_bits());
+        let new_cp = core.checkpoint();
+        assert_eq!(new_cp.1.len(), 1);
+        core.rollback(historical.clone());
+        assert!(Arc::ptr_eq(&core.last_events, &historical.1));
+        assert_eq!(core.last_events[0].0, 7);
     }
 }
