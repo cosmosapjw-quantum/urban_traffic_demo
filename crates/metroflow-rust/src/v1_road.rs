@@ -416,6 +416,21 @@ fn paged_event_candidate_bytes(n: usize) -> usize {
         ).saturating_add(META)
 }
 
+/// Live owners AFTER road step temporaries have been dropped. The final
+/// flat events Vec briefly coexists with its original event pages; both are
+/// counted as actual separate allocations, preserving original numeric caps.
+fn postroad_event_materialization_bytes(
+    road_owner_bytes:usize, old_event_bytes:usize,
+    page_row_capacity:usize, page_header_capacity:usize, n:usize,
+)->usize {
+    road_owner_bytes
+        .saturating_add(old_event_bytes)
+        .saturating_add(page_row_capacity.saturating_mul(std::mem::size_of::<EventRow>()))
+        .saturating_add(page_header_capacity.saturating_mul(std::mem::size_of::<Vec<EventRow>>()))
+        .saturating_add(n.saturating_mul(std::mem::size_of::<EventRow>()))
+        .saturating_add(3*32)
+}
+
 /// Service-finish sink workspace for `sink_rows` exiting events. The sinks
 /// are built only after the road step has returned and its workspaces have
 /// been dropped, so this envelope is charged then, against the exact count.
@@ -2123,9 +2138,45 @@ impl V1Road {
         work.require(0, "tick preflight")?;
         Ok(work)
     }
+    /// Called only after the entire road step_state frame returns. At this
+    /// point old incoming/Mark, queue and interval sweep workspaces are dead.
+    /// Do not reuse their obsolete RoadWorkBudget lifetime in the flat phase.
+    fn materialize_event_after_road(
+        &self, candidate:&RoadState, pages:ChunkedEvents,
+    )->PyResult<Vec<EventRow>> {
+        if let Some(limit)=self.storage_budget {
+            let max_state=self.state.retained_storage_bytes()
+                .max(self.retained_input_bytes)
+                .max(candidate.retained_storage_bytes());
+            let road_owners=max_state.saturating_mul(3);
+            let old_events=self.service_event_accounting.map_or(0,|v|
+                v.input_bytes.saturating_add(
+                    if v.shared_input_current {0} else {v.current_bytes}
+                ));
+            let required=postroad_event_materialization_bytes(
+                road_owners,old_events,pages.capacity(),pages.chunks.capacity(),pages.len(),
+            );
+            crate::v1_trace::guard(
+                "road_post","event candidate materialize after road",required,limit,
+                &[
+                    ("retained_road_owners",road_owners),
+                    ("committed_input_event_bytes",old_events),
+                    ("paged_event_slots",pages.capacity()),
+                    ("page_descriptor_slots",pages.chunks.capacity()),
+                    ("flat_event_rows",pages.len()),
+                ],
+            );
+            check_storage_limit(
+                Some(limit),required,"event candidate materialize after road",
+            )?;
+        }
+        pages.into_flat_checked()
+    }
+
     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
         self.begin_call_storage_accounting();
-        let (s, e) = self.step_state(&self.state, dt, offers)?;
+        let (s, pages) = self.step_state(&self.state, dt, offers)?;
+        let e=self.materialize_event_after_road(&s,pages)?;
         self.state = s;
         Ok(e)
     }
@@ -2137,7 +2188,9 @@ impl V1Road {
         dt: f64,
         offers: Vec<Offer>,
     ) -> PyResult<(RoadState, Vec<EventRow>)> {
-        self.step_state(&self.state, dt, offers)
+        let (s,pages)=self.step_state(&self.state,dt,offers)?;
+        let e=self.materialize_event_after_road(&s,pages)?;
+        Ok((s,e))
     }
     fn class(&self, p: &Part) -> usize {
         self.routes[p.tag].1
@@ -2606,7 +2659,7 @@ impl V1Road {
         s: &RoadState,
         dt: f64,
         offers: Vec<Offer>,
-    ) -> PyResult<(RoadState, Vec<EventRow>)> {
+    ) -> PyResult<(RoadState, ChunkedEvents)> {
         self.check_state(s)?;
         if !dt.is_finite() || dt <= 0. {
             return Err(val("positive finite interval required"));
@@ -3397,15 +3450,9 @@ impl V1Road {
                 .unwrap_or_else(|e| e.into_inner())
                 .merge(resolution);
         }
-        // The original consumer API expects a contiguous Vec<EventRow>.
-        // Source-order pages can be flattened at the end of the road lifetime,
-        // without any field transformation. Charge the temporarily coexisting
-        // flat vector *before* allocation; do not silently ignore its peak.
-        work.require(
-            events.len().saturating_mul(std::mem::size_of::<EventRow>()),
-            "event candidate final materialize",
-        )?;
-        Ok((out, events.into_flat_checked()?))
+        // Return still-paged source-ordered rows; the caller materializes
+        // them only AFTER this function drops all work-local allocations.
+        Ok((out, events))
     }
     fn row(&self) -> StateRow {
         let s = &self.state;
@@ -3701,7 +3748,8 @@ impl V1Road {
     }
     fn step(&mut self, py: Python<'_>, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
         self.begin_call_storage_accounting();
-        let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+        let (s, pages) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+        let e=self.materialize_event_after_road(&s,pages)?;
         self.state = s;
         Ok(e)
     }
@@ -3714,7 +3762,8 @@ impl V1Road {
         self.begin_call_storage_accounting();
         let mut events = vec![];
         for (dt, offers) in steps {
-            let (s, e) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+            let (s, pages) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+            let e=self.materialize_event_after_road(&s,pages)?;
             self.state = s;
             events.push(e);
         }
@@ -5067,5 +5116,35 @@ mod exact_paged_event_candidate_tests {
         assert_eq!(page,582_831_512);
         assert_eq!(old-page,1_164_396_424);
         assert_eq!(paged_event_candidate_bytes(0),96);
+    }
+}
+
+#[cfg(test)]
+mod postroad_event_lifetime_tests {
+    use super::*;
+
+    #[test]
+    fn finishing_after_workspaces_drop_charges_distinct_real_backings_only() {
+        let original_road_snapshots=1_900_000_000usize;
+        let old_events=500_000_000usize;
+        let page_rows=10_665_984usize;
+        let page_headers=4_096usize;
+        let exact_rows=10_663_078usize;
+        let actual=postroad_event_materialization_bytes(
+            original_road_snapshots,old_events,page_rows,page_headers,exact_rows,
+        );
+        let expected=original_road_snapshots+old_events
+            +page_rows*std::mem::size_of::<EventRow>()
+            +page_headers*std::mem::size_of::<Vec<EventRow>>()
+            +exact_rows*std::mem::size_of::<EventRow>()+96;
+        assert_eq!(actual,expected);
+        assert!(actual<5_188_657_743usize);
+        assert!(actual>original_road_snapshots+old_events);
+    }
+
+    #[test]
+    fn no_event_history_uses_no_candidate_rows_or_flattening()
+    {
+        assert_eq!(postroad_event_materialization_bytes(11,23,0,0,0),11+23+96);
     }
 }
