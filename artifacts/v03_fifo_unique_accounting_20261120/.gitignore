@@ -1,0 +1,2 @@
+# Large V03 native state checkpoints stay local, SHA+small receipts are published.
+*.bin
