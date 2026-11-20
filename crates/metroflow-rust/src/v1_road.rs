@@ -138,10 +138,21 @@ struct Part {
 }
 #[derive(Clone, Copy)]
 struct CorePart {
-    tag: usize,
-    offset: usize,
+    tag: u32,
+    offset: u32,
     mass: f64,
     birth: f64,
+}
+
+/// Lossless only inside the representable 32-bit integer domain.
+/// Ineligible legacy source rows stay in the existing Mixed(Part) form.
+fn compact_indices(tag: usize, offset: usize) -> Option<(u32, u32)> {
+    Some((u32::try_from(tag).ok()?, u32::try_from(offset).ok()?))
+}
+fn compact_core_part(p: Part) -> CorePart {
+    let (tag, offset) = compact_indices(p.tag, p.offset)
+        .expect("source-checked exact compact packet indices");
+    CorePart { tag, offset, mass: p.mass, birth: p.birth }
 }
 #[derive(Clone)]
 enum PacketParts {
@@ -160,18 +171,14 @@ impl PacketParts {
         let shared = parts
             .first()
             .map(|p| (p.a, p.b))
-            .filter(|&(a, b)| parts.iter().all(|p| p.a.0 == a.0 && p.b.0 == b.0));
+            .filter(|&(a, b)| parts.iter().all(|p| p.a.0 == a.0 && p.b.0 == b.0
+                && compact_indices(p.tag, p.offset).is_some()));
         if let Some((a, b)) = shared {
             // Both buffers coexist until conversion completes. The caller
             // charges the new CorePart allocation before it is attempted.
             before_allocate(parts.len().saturating_mul(std::mem::size_of::<CorePart>()))?;
             let mut rows = checkpoint_vec(parts.len())?;
-            rows.extend(parts.into_iter().map(|p| CorePart {
-                tag: p.tag,
-                offset: p.offset,
-                mass: p.mass,
-                birth: p.birth,
-            }));
+            rows.extend(parts.into_iter().map(compact_core_part));
             // Move ownership into an immutable shared container. No new row
             // conversion/copy is performed by Arc::new.
             Ok(Self::Uniform { a, b, rows: Arc::new(rows) })
@@ -237,8 +244,8 @@ impl Iterator for PartIter<'_> {
     fn next(&mut self) -> Option<Part> {
         match self {
             Self::Uniform { a, b, rows } => rows.next().map(|p| Part {
-                tag: p.tag,
-                offset: p.offset,
+                tag: usize::try_from(p.tag).expect("u32 tag always fits usize"),
+                offset: usize::try_from(p.offset).expect("u32 offset always fits usize"),
                 mass: p.mass,
                 birth: p.birth,
                 a: *a,
@@ -1381,7 +1388,6 @@ fn combine_interval_mapped<T>(
     Ok(out)
 }
 
-#[cfg(test)]
 fn combine_interval_view(
     parts: &[Part],
     selected: impl Iterator<Item = usize>,
@@ -1401,9 +1407,7 @@ fn combine_interval_core(
     a: f64,
     b: f64,
 ) -> PyResult<Vec<CorePart>> {
-    combine_interval_mapped(parts, selected, selected_count, a, b, |p| CorePart {
-        tag:p.tag, offset:p.offset, mass:p.mass, birth:p.birth,
-    })
+    combine_interval_mapped(parts, selected, selected_count, a, b, compact_core_part)
 }
 
 /// Only the identical (a_bits,b_bits) case can be represented with one
@@ -1440,7 +1444,7 @@ fn combine_uniform_point_core(parts: &[Part], source_indices: &[usize]) -> PyRes
         let first=parts[indices[start]];
         let mass=sum(indices[start..end].iter().map(|&i|parts[i].mass));
         let birth=sum(indices[start..end].iter().map(|&i|parts[i].birth));
-        out.push(CorePart {tag:first.tag,offset:first.offset,mass,birth});
+        out.push(compact_core_part(Part {mass, birth, ..first}));
         start=end;
     }
     Ok(out)
@@ -2098,6 +2102,10 @@ impl V1Road {
         // and sorted/deduped them. The sorted event streams now yield exactly
         // k unique numeric edges, so no 2*n endpoint buffer ever exists.
         let (nonpoint_rows, point_rows) = count_sweep_row_kinds(&parts)?;
+        // One source-wide check, outside the edge loop. If *any* legacy
+        // row requires wide tag/offset, retain exact old Part backed storage.
+        let compactable_source = parts.iter()
+            .all(|p| compact_indices(p.tag, p.offset).is_some());
         let event_index_bytes = exact_sweep_event_index_bytes(
             parts.len(), nonpoint_rows, point_rows,
         );
@@ -2105,6 +2113,8 @@ impl V1Road {
             2 * std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
         const INTERVAL_ROW_BYTES: usize =
             std::mem::size_of::<CorePart>() + std::mem::size_of::<usize>();
+        const WIDE_INTERVAL_ROW_BYTES: usize =
+            std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
 
         // Preflight the actual index arrays before allocating them.
         work.require(event_index_bytes,"indexed sweep preflight")?;
@@ -2124,8 +2134,10 @@ impl V1Road {
                 .saturating_add(event_index_bytes)
                 .saturating_add(count.saturating_mul(if is_point {
                     POINT_ROW_BYTES
-                } else {
+                } else if compactable_source {
                     INTERVAL_ROW_BYTES
+                } else {
+                    WIDE_INTERVAL_ROW_BYTES
                 }))
                 .saturating_add(
                     packets
@@ -2139,7 +2151,8 @@ impl V1Road {
         for (k, &a) in edges.iter().enumerate() {
             sweep.advance(a);
             let count = sweep.current_points.len();
-            let uniform_point = all_point_endpoint_bits_identical(&parts, &sweep.current_points);
+            let uniform_point = compactable_source
+                && all_point_endpoint_bits_identical(&parts, &sweep.current_points);
             // Homogeneous byte-identical point endpoints need only the final
             // CorePart buffer and source index array (40B/selected row);
             // mixed signed-zero or other bit-distinct endpoints retain the
@@ -2181,18 +2194,31 @@ impl V1Road {
                 work.interval(transient(count, out.len(), false))?;
                 // The original source indices are already ascending; avoid
                 // materializing a second full-size interval split buffer.
-                let core = combine_interval_core(&parts, sweep.active.iter(), count, a, b)?;
-                if !core.is_empty() {
-                    records += core.len();
-                    // Every nonpoint output row has exactly the same interval
-                    // [a,b]. Construct the final uniform storage directly,
-                    // with no intermediate combined Vec<Part> and no second
-                    // packing buffer allocation or artificial packing credit.
-                    let parts = PacketParts::Uniform {
-                        a: PackedTime::new(Some(a))?,
-                        b: PackedTime::new(Some(b))?,
-                        rows: Arc::new(core),
-                    };
+                let packed = if compactable_source {
+                    let core =
+                        combine_interval_core(&parts, sweep.active.iter(), count, a, b)?;
+                    if core.is_empty() {
+                        None
+                    } else {
+                        records += core.len();
+                        Some(PacketParts::Uniform {
+                            a: PackedTime::new(Some(a))?,
+                            b: PackedTime::new(Some(b))?,
+                            rows: Arc::new(core),
+                        })
+                    }
+                } else {
+                    // Full 64-bit original Part route labels; never truncate.
+                    let wide =
+                        combine_interval_view(&parts, sweep.active.iter(), count, a, b)?;
+                    if wide.is_empty() {
+                        None
+                    } else {
+                        records += wide.len();
+                        Some(work.pack_parts(wide)?)
+                    }
+                };
+                if let Some(parts) = packed {
                     work.retain_interval(
                         parts
                             .allocated_bytes()
@@ -4590,5 +4616,70 @@ mod exact_merged_unique_edges_tests {
             assert_equal_to_legacy_edges(rows);
         }
         assert_equal_to_legacy_edges((0..20000).map(|i|p(i,0.,1.)).collect());
+    }
+}
+
+#[cfg(test)]
+mod exact_narrow_lineage_indices_tests {
+    use super::*;
+
+    fn p(tag: usize, offset: usize, mass: f64, a: f64, b: f64) -> Part {
+        Part {
+            tag, offset, mass, birth: mass * 1.25,
+            a: PackedTime::new(Some(a)).unwrap(),
+            b: PackedTime::new(Some(b)).unwrap(),
+        }
+    }
+    fn bits(p: Part) -> (usize, usize, u64, u64, u64, u64) {
+        (p.tag, p.offset, p.mass.to_bits(), p.birth.to_bits(),
+         p.a.0, p.b.0)
+    }
+
+    #[test]
+    fn compact_core_layout_is_24_bytes_and_integer_bounds_are_lossless() {
+        assert_eq!(std::mem::size_of::<CorePart>(), 24);
+        assert_eq!(std::mem::size_of::<Part>(), 48);
+        assert_eq!(compact_indices(0,0), Some((0,0)));
+        assert_eq!(compact_indices(u32::MAX as usize,u32::MAX as usize),
+                   Some((u32::MAX,u32::MAX)));
+        assert!(compact_indices(u32::MAX as usize,1).is_some());
+    }
+
+    #[test]
+    fn all_original_mass_birth_and_signed_zero_endpoint_bits_roundtrip() {
+        for (i, mass) in [f64::from_bits(1), 0.0, 1e-200, 1e200, 0.125, 1.0].into_iter().enumerate() {
+            for (a,b) in [(-0.0,-0.0),(0.0,0.0),(-0.0,0.0),(0.0,1.0)] {
+                let source=p(i, i+3, mass, a, b);
+                let packet=PacketParts::pack(vec![source], |_| Ok(())).unwrap();
+                assert_eq!(packet.iter().map(bits).collect::<Vec<_>>(),
+                           vec![bits(source)]);
+            }
+        }
+    }
+
+    #[cfg(target_pointer_width = "64")]
+    #[test]
+    fn overflow_indices_are_never_truncated_and_preserve_legacy_part_fields() {
+        let too_big=(u32::MAX as usize)+1;
+        assert!(compact_indices(too_big,0).is_none());
+        assert!(compact_indices(0,too_big).is_none());
+        for (tag,offset) in [(too_big,0),(0,too_big),(too_big,too_big)] {
+            let source=p(tag,offset,0.125,-0.0,4.0);
+            let packet=PacketParts::pack(vec![source], |_|Ok(())).unwrap();
+            assert!(matches!(packet, PacketParts::Mixed(_)),
+                "out of range indexes cannot be narrowed without loss");
+            assert_eq!(packet.iter().map(bits).collect::<Vec<_>>(),
+                       vec![bits(source)]);
+        }
+    }
+
+    #[test]
+    fn distinguish_mixed_signed_zeros_even_if_indices_are_compactable() {
+        let a=p(0,0,0.25,-0.0,0.0);
+        let b=p(1,1,0.5,0.0,0.0);
+        let packet=PacketParts::pack(vec![a,b], |_|Ok(())).unwrap();
+        assert!(matches!(packet,PacketParts::Mixed(_)));
+        assert_eq!(packet.iter().map(bits).collect::<Vec<_>>(),
+                   vec![bits(a),bits(b)]);
     }
 }
