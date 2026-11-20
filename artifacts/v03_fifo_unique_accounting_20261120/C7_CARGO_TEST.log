@@ -1,0 +1,167 @@
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/worktrees/urban-traffic-v03-unique-accounting-20261120/crates/metroflow-rust)
+warning: unused variable: `n`
+    --> crates/metroflow-rust/src/v1_road.rs:3517:13
+     |
+3517 |         let n=parts.len();
+     |             ^ help: if this is intentional, prefix it with an underscore: `_n`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `summary`, `install_state`, and `owned_step` are never used
+    --> crates/metroflow-rust/src/v1_road.rs:1238:19
+     |
+1193 | impl V1Road {
+     | ----------- methods in this implementation
+...
+1238 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+1439 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+1618 |     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -...
+     |                   ^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `journey_decoded_storage_upper_bytes` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:206:15
+    |
+206 | pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `sources` and `install_state` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:422:19
+    |
+360 | impl NativeServiceCore {
+    | ---------------------- methods in this implementation
+...
+422 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+...
+433 |     pub(crate) fn install_state(&mut self, state: ServiceCheckpoint) {
+    |                   ^^^^^^^^^^^^^
+
+warning: methods `owned_time`, `storage_budget`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1098:19
+     |
+ 861 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1098 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1153 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1186 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:76:19
+   |
+69 | impl StageQueue {
+   | --------------- method in this implementation
+...
+76 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+
+warning: `metroflow-rust` (lib test) generated 6 warnings (run `cargo fix --lib -p metroflow-rust --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.32s
+     Running unittests src/lib.rs (target/debug/deps/_metroflow_rust-ffddc2c3d4933447)
+
+running 92 tests
+test tests::active_agent_empty_route_releases_slot ... ok
+test tests::active_agent_completes_when_sink_budget_is_available ... ok
+test tests::active_agent_shared_link_budget_uses_slot_order ... ok
+test tests::active_agent_waits_at_sink_when_completion_budget_is_zero ... ok
+test tests::active_agent_skip_slot_does_not_move ... ok
+test tests::advances_active_agent_with_movement_budget ... ok
+test tests::agent_module_preserves_action_planner_contract ... ok
+test tests::computes_flow_normal_update ... ok
+test tests::computes_flow_with_forbidden_and_priority_weighting ... ok
+test tests::computes_flow_zero_links ... ok
+test tests::computes_flow_zero_turns ... ok
+test tests::computes_greedy_route_candidate_empty_when_unreachable ... ok
+test tests::computes_greedy_route_candidate_normal_path ... ok
+test tests::computes_greedy_route_candidate_with_forbidden_turn ... ok
+test tests::computes_next_link_action_costs_normal_batch ... ok
+test tests::computes_next_link_action_costs_with_blocked_and_unreachable_links ... ok
+test tests::computes_ranked_route_candidates_normal_paths ... ok
+test tests::computes_ranked_route_candidates_with_forbidden_turn ... ok
+test tests::computes_reroute_decision_batch ... ok
+test tests::computes_route_candidate_metadata_costs_and_path_size ... ok
+test tests::computes_route_candidate_metadata_empty_path ... ok
+test tests::computes_routing_potential_for_zero_links ... ok
+test tests::computes_routing_potential_normal_path ... ok
+test tests::computes_routing_potential_with_blocked_link ... ok
+test tests::edge_module_preserves_batch_evolution_contract ... ok
+test tests::evolves_normal_batch ... ok
+test tests::evolves_zero_capacity_with_eps_travel_time ... ok
+test tests::flow_module_preserves_baseline_array_contract ... ok
+test tests::flow_point_queue_uses_rate_supply_and_additive_waiting_ticks ... ok
+test tests::rejects_active_agent_length_mismatch ... ok
+test tests::rejects_active_agent_route_offset_mismatch ... ok
+test tests::rejects_flow_invalid_turn_index ... ok
+test tests::rejects_flow_length_mismatch ... ok
+test tests::rejects_flow_negative_numeric_input ... ok
+test tests::rejects_greedy_route_invalid_outgoing_index ... ok
+test tests::rejects_greedy_route_length_mismatch ... ok
+test tests::rejects_length_mismatch ... ok
+test tests::rejects_negative_input ... ok
+test tests::rejects_next_link_action_cost_invalid_candidate_index ... ok
+test tests::rejects_next_link_action_cost_length_mismatch ... ok
+test tests::rejects_queue_above_stock ... ok
+test tests::rejects_reroute_decision_length_mismatch ... ok
+test tests::rejects_route_candidate_metadata_length_mismatch ... ok
+test tests::rejects_route_candidate_metadata_unknown_link_id ... ok
+test tests::rejects_route_candidate_selection_negative_link_id ... ok
+test tests::rejects_routing_invalid_index ... ok
+test tests::rejects_routing_length_mismatch ... ok
+test tests::reroute_module_preserves_decision_contract ... ok
+test tests::routing_module_preserves_dynamic_potential_contract ... ok
+test tests::selects_route_candidate_empty_when_no_viable_path ... ok
+test tests::selects_route_candidate_first_viable_when_costs_are_missing ... ok
+test tests::selects_route_candidate_tie_by_candidate_id_then_path ... ok
+test tests::selects_route_candidate_with_path_size_utility ... ok
+test v1_engine::stage_sum_tests::stage_sums_empty_journey_is_all_zero ... ok
+test v1_kcmb::tests::shape_and_storage_guards_and_zero_step ... ok
+test v1_kcmb_node::tests::shared_red_movement_blocks_entire_group ... ok
+test v1_kcmb_node::tests::weighted_merge_and_lane_metres_conserve_resources ... ok
+test v1_road::conservative_arc_pair_credit_tests::credit_never_exceeds_owner_payload_or_cross_snapshot_union_duplicates ... ok
+test v1_road::conservative_arc_pair_credit_tests::paired_clone_credit_counts_only_guaranteed_arc_aliases ... ok
+test v1_road::exact_interval_sweep_tests::benchmark_original_naive_scan_vs_event_sweep_selection_only ... ignored
+test v1_road::conservative_arc_pair_credit_tests::paired_credit_is_sound_for_three_states_and_distinct_candidate ... ok
+test v1_road::exact_interval_sweep_tests::original_finite_interval_and_point_selection_is_bitorder_preserving ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::interval_split_transform_retains_original_order_birth_and_signed_boundary ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::nested_proportional_split_is_exact_per_field_not_collapsed_fraction ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::nonfinite_bad_fraction_or_invalid_handle_is_a_real_error ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::rewind_mixed_rewrite_keeps_same_metadata_and_all_float_bits ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::streamed_rows_are_order_and_bit_identical_to_materialized_reference ... ok
+test v1_road::lineage_shadow::independent_shadow_adversarial_tests::distinct_order_and_time_support_survive_nonassociative_rewrites ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::served_and_remainder_share_immutable_input_without_mass_smearing ... ok
+test v1_road::lineage_shadow::independent_shadow_adversarial_tests::subnormal_mass_drop_matches_exact_original_ieee_predicate ... ok
+test v1_road::lineage_shadow::original_packet_composition_sharing_tests::uniform_and_mixed_clones_share_identical_immutable_source_bytes ... ok
+test v1_road::lineage_shadow::shadow_event_consumer_tests::event_consumer_stream_is_bit_identical_to_original_eager_event_rows ... ok
+test v1_road::lineage_shadow::shadow_storage_benchmark::benchmark_immutable_lineage_vs_eager_retained_rows ... ignored
+test v1_road::lineage_shadow::shadow_event_consumer_tests::fallible_consumer_stops_stream_and_preserves_source_for_retry ... ok
+test v1_road::lineage_shadow::shadow_event_consumer_tests::invalid_event_clock_refused_without_mutating_source_arena ... ok
+test v1_road::unique_arc_backing_account_tests::duplicated_uniform_arc_backing_is_counted_once_but_owner_count_kept ... ok
+test v1_road::unique_arc_backing_account_tests::equal_payload_but_independent_mixed_allocations_are_not_aliases ... ok
+test v1_road::unique_arc_backing_account_tests::zero_capacity_backing_still_has_unique_arc_metadata ... ok
+test v1_road::unique_arc_live_state_union_tests::empty_union_is_exact_zero_and_single_state_agrees_with_existing_census ... ok
+test v1_road::unique_arc_live_state_union_tests::identical_independent_roadstate_is_not_shared_even_at_same_part_bits ... ok
+test v1_road::unique_arc_live_state_union_tests::three_live_cloned_roadstates_are_one_shared_backing_but_three_owners ... ok
+test v1_road::workspace_accounting_tests::interval_transient_is_released_and_only_packed_rows_are_retained ... ok
+test v1_road::workspace_accounting_tests::road_step_event_charge_has_no_sink_terms ... ok
+test v1_road::workspace_accounting_tests::sink_envelope_counts_only_exiting_rows ... ok
+test v1_road::lineage_shadow::original_served_stream_oracles::original_portion_vs_served_iterator_are_exact_for_mixed_and_uniform ... ok
+test v1_road::lineage_shadow::independent_shadow_adversarial_tests::deterministic_random_nested_serve_remainder_against_original_portion ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::repeated_deep_trace_uses_iterative_evaluation_and_no_recursive_drop ... ok
+test v1_engine::stage_sum_tests::stage_sums_match_former_per_key_sum_bits ... ok
+test v1_road::exact_interval_sweep_tests::randomized_original_scan_vs_event_sweep_selected_indices ... ok
+test v1_road::lineage_shadow::original_packet_composition_sharing_tests::shared_packet_clones_preserve_original_part_order_and_float_bits ... ok
+test v1_road::lineage_shadow::original_served_stream_oracles::deterministic_random_head_stream_preserves_ieee_first_birth_moment_and_sum ... ok
+test v1_road::exact_interval_sweep_tests::original_split_and_combine_ieee_payloads_match_event_selected_rows ... ok
+
+test result: ok. 90 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.02s

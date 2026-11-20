@@ -611,6 +611,40 @@ impl RoadState {
         }
         out
     }
+    /// Allocation-free conservative credit for Arc payloads guaranteed to be
+    /// live in BOTH owners at corresponding packet slots.
+    ///
+    /// Matching pairs never reuse the same owner slot, so each Arc pair
+    /// witnesses one duplicated payload even when several slots share an
+    /// allocation internally.  It is a lower bound on redundant payload and
+    /// never counts coincidentally equal Part values in distinct allocations.
+    pub(crate) fn paired_shared_payload_lower_bound(&self,other:&RoadState)->usize {
+        let mut credit=0usize;
+        let mut pair=|a:&Packet,b:&Packet| {
+            let bytes=match (&a.parts,&b.parts) {
+                (PacketParts::Uniform{rows:x,..},PacketParts::Uniform{rows:y,..})
+                    if Arc::ptr_eq(x,y) =>
+                        x.capacity().saturating_mul(std::mem::size_of::<CorePart>()),
+                (PacketParts::Mixed(x),PacketParts::Mixed(y))
+                    if Arc::ptr_eq(x,y) =>
+                        x.capacity().saturating_mul(std::mem::size_of::<Part>()),
+                _ => 0,
+            };
+            credit=credit.saturating_add(bytes);
+        };
+        for (x,y) in self.cells.iter().zip(other.cells.iter()) {
+            for (a,b) in x.packets.iter().zip(y.packets.iter()) {
+                pair(a,b);
+            }
+        }
+        for (x,y) in self.pending.iter().zip(other.pending.iter()) {
+            for (a,b) in x.iter().zip(y.iter()) {
+                pair(a,b);
+            }
+        }
+        credit
+    }
+
     /// Diagnostic-only exact Vec *payload capacity* identity census.
     /// This method is never consulted by native resource admission. ArcInner
     /// is identified by stable live Arc pointer identity, NOT equal Part data.
@@ -1513,10 +1547,32 @@ impl V1Road {
         let stats = state.debug_stats();
         let rows = stats.cell_parts.saturating_add(stats.pending_parts);
         let groups = self.groups.len();
-        let base = state
-            .retained_storage_bytes()
-            .max(self.retained_input_bytes)
+        let supplied_retained = state.retained_storage_bytes();
+        let maximum_retained = supplied_retained.max(self.retained_input_bytes);
+        // Opt-in research ONLY: subtract one rigorously observed duplicate
+        // payload of current+supplied snapshots from the old *three-copy*
+        // conservative envelope. This is NOT a changed storage limit and is
+        // disabled for all ordinary V03 runs/production release.
+        //
+        // Sound within the source's original three-snapshot envelope only if
+        // current, supplied and candidate state retained sizes are bounded by
+        // the old max+separate interval/event working allowances. An unknown
+        // branch/current state or missing exact pointer identity gets zero
+        // credit. No source/physics/f64 processing is modified.
+        let paired_credit = if std::env::var("METROFLOW_EXPERIMENTAL_ARC_PAIR_BUDGET")
+            .ok().as_deref() == Some("source_pair_only")
+            && self.state.t == state.t
+            && self.state.retained_storage_bytes() <= maximum_retained
+        {
+            state.paired_shared_payload_lower_bound(&self.state)
+                .min(maximum_retained)
+        } else {
+            0
+        };
+        crate::v1_trace::add("arc.experimental_paired_credit", paired_credit as u64);
+        let base = maximum_retained
             .saturating_mul(3)
+            .saturating_sub(paired_credit)
             .saturating_add(rows.saturating_mul(4 * std::mem::size_of::<f64>()))
             .saturating_add(
                 offers
@@ -1543,6 +1599,7 @@ impl V1Road {
                     ("max_cell_parts", stats.max_cell_parts),
                     ("groups", groups),
                     ("classes", self.classes.len()),
+                    ("paired_arc_credit", paired_credit),
                 ],
             );
         }
@@ -3574,5 +3631,69 @@ mod unique_arc_live_state_union_tests {
         assert_eq!(a.owner_payload_bytes,b.owner_payload_bytes);
         assert_eq!(a.unique_payload_bytes,b.unique_payload_bytes);
         assert_eq!(a.unique_backing_count,b.unique_backing_count);
+    }
+}
+
+
+#[cfg(test)]
+mod conservative_arc_pair_credit_tests {
+    use super::*;
+
+    fn one() -> RoadState {
+        let p=PacketParts::pack(vec![
+            Part{tag:1,offset:0,mass:0.2,birth:0.3,
+                 a:PackedTime::new(Some(0.)).unwrap(),
+                 b:PackedTime::new(Some(3.)).unwrap()},
+            Part{tag:2,offset:0,mass:0.7,birth:0.8,
+                 a:PackedTime::new(Some(0.)).unwrap(),
+                 b:PackedTime::new(Some(3.)).unwrap()}
+        ], |_|Ok(())).unwrap();
+        RoadState{
+            t:0.,cells:vec![Cell{v:[0.;8],packets:vec![Packet{target:0.,parts:p}],latent:BTreeMap::new()}],
+            pending:vec![Vec::new()],totals:[0.;7],ledger:Vec::new(),
+        }
+    }
+
+    #[test]
+    fn paired_clone_credit_counts_only_guaranteed_arc_aliases() {
+        let source=one();
+        let committed=source.clone();
+        let saved=source.paired_shared_payload_lower_bound(&committed);
+        assert_eq!(saved,2*std::mem::size_of::<CorePart>());
+        assert_eq!(source.arc_backing_census().duplicate_payload_bytes,0);
+        let unrelated=one();
+        assert_eq!(source.paired_shared_payload_lower_bound(&unrelated),0);
+    }
+
+    #[test]
+    fn paired_credit_is_sound_for_three_states_and_distinct_candidate() {
+        let source=one();
+        let committed=source.clone();
+        let candidate=one();
+        let max_cost=source.retained_storage_bytes()
+            .max(committed.retained_storage_bytes())
+            .max(candidate.retained_storage_bytes());
+        let discount=source.paired_shared_payload_lower_bound(&committed);
+        let bound=max_cost.saturating_mul(3).saturating_sub(discount);
+        let all=RoadState::arc_backing_union(&[&source,&committed,&candidate]);
+        let total_shells=source.retained_storage_bytes()
+            +committed.retained_storage_bytes()
+            +candidate.retained_storage_bytes();
+        // Exactly one duplicated backing is a lower bound on owner-counted
+        // storage redundancy, keeping all candidate+outer metadata intact.
+        assert_eq!(all.owner_count,3);
+        assert_eq!(all.unique_backing_count,2);
+        assert!(bound>=total_shells-discount);
+        assert!(discount<=max_cost);
+    }
+
+    #[test]
+    fn credit_never_exceeds_owner_payload_or_cross_snapshot_union_duplicates() {
+        let a=one();
+        let b=a.clone();
+        let c=RoadState::arc_backing_union(&[&a,&b]);
+        let credit=a.paired_shared_payload_lower_bound(&b);
+        assert!(credit<=c.duplicate_payload_bytes);
+        assert!(credit<=a.arc_backing_census().owner_payload_bytes);
     }
 }
