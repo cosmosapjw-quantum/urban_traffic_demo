@@ -1,0 +1,156 @@
+{
+  "base_commit": "81afd8e88958f414681e9121ba7be50d8589bfbc",
+  "branch": "research/v03-compact-lineage-20261120",
+  "created_utc": "2026-11-20T15:01:22+00:00",
+  "current_git_commit_before_stage10": "5526414b519ac107b297b6a2bf306cabc25d90c7",
+  "current_native_binary_sha256": "ac680d27888d0d78cafea9386ea44eaed1695f23d3d540c4abae85b07aa3c005",
+  "current_native_source_sha256": "f57ab3014e83724e657ab3a1a862d007194b510a4487c64aee1f6a3e8aafd9f8",
+  "current_source_dirty": false,
+  "current_source_native_reloaded_tick": {
+    "blocker": "road_work:transfer candidates",
+    "peak_rss_bytes": 2951348224,
+    "previous_checkpoint_roundtrip_identical": true,
+    "previous_mass_ledger_identical": true,
+    "status": "BLOCKED_RESOURCE",
+    "structural_allowed_bytes": 5228906583,
+    "structural_excess_bytes": 5681,
+    "structural_required_bytes": 5228912264,
+    "target_time_s": 25670.0,
+    "trace": {
+      "calls": 125422,
+      "exceeded": 1,
+      "limit_at_max": 5228906583,
+      "live_at_max": null,
+      "max_ratio": 1.0000010864604119,
+      "max_required": 5228912264,
+      "terms_at_max": {
+        "base": 2158278056,
+        "event_bytes": 2050705376,
+        "extra": 0,
+        "incoming_rows": 7968194,
+        "interval_retained": 0,
+        "interval_transient": 0
+      }
+    },
+    "valid_25670_checkpoint": false
+  },
+  "math_claim": {
+    "corepart_new_size_bytes": 24,
+    "corepart_old_size_bytes": 32,
+    "name": "exact 32bit route and offset label injection with full-width fallback",
+    "requirements": "original valid tags/offsets fit u32 or explicitly retain Mixed full-width Part",
+    "saved_bytes_per_eligible_row": 8,
+    "source_field_bits": "identical after reconstitution",
+    "status": "DERIVED_CONDITIONAL_AND_RUST_TESTED"
+  },
+  "native_binary_local_only": true,
+  "next_task_id": "V03-EXACT-PERSISTENT-LINEAGE-05",
+  "nonclaims": [
+    "no original new-source 0-to-25650 full history replay",
+    "no original 25660-to-25670 completed physical state",
+    "no original 86400s three-city nine-repeat run",
+    "no globally bounded distinct Part genealogy proven",
+    "no physical equivalence asserted for partial FIFO or kinetic alternatives",
+    "no production release or main merge"
+  ],
+  "original_valley_100k_cross_binary_one_tick": {
+    "checkpoint_file_local_only": true,
+    "completed_time_s": 25660.0,
+    "conservation_ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 1434.1169919641447,
+        "completed": 68.287240473337,
+        "pending": 1053.1513231179893,
+        "released": 1502.4042324374818,
+        "requested": 2555.555555555471
+      },
+      "vehicles": {
+        "active": 1146.9974155687344,
+        "completed": 53.002584431279935,
+        "pending": 52.22222222218147,
+        "released": 1200.0000000000143,
+        "requested": 1252.2222222221958
+      }
+    },
+    "independently_recomputed_saved_file_sha256_equal": true,
+    "origin_checkpoint_sha256": "89e3230b23b4423509f6036035e9b03c7299204b5d317cdb3f6226c5b0c53e8b",
+    "original_checkpoint_byte_count": 1683486650,
+    "original_input_wire_roundtrip_exact": true,
+    "peak_rss_bytes": 3006459904,
+    "saved_new_checkpoint_sha256": "bbdc75baef04e522e8fe6e668561f41fc4987507469eeebd97c60c9291dfb7b0",
+    "saved_new_checkpoint_size_bytes": 1912366706,
+    "source_start_time_s": 25650.0,
+    "status": "EXECUTED_ORIGINAL_100K_ONE_TICK_CROSS_BINARY",
+    "wall_s_including_preparation": 44.57462984900121
+  },
+  "provenance_sha256": {
+    "artifacts/v03_compact_lineage_20261120/C6_CROSS_BINARY_25700.json": "466bda0e2d6c7fb486036ec97429e8ea37cbf0f029ee877d151326eeba3428c4",
+    "artifacts/v03_compact_lineage_20261120/C7_ORIGINAL_25660.json": "0d71dc564c906419e243d6b8659b412ac0cb97655ef265228b140fc69ce9edb7",
+    "artifacts/v03_compact_lineage_20261120/C8_CURRENT_SOURCE_25670.json": "042d96d130e43def60d996cf737c58f46fc5e54647149bdbda899e96b6538f4f",
+    "artifacts/v03_compact_lineage_20261120/C9_CURRENT_NATIVE_READINESS.json": "88b5bc09fa530fc649bff280993e40f28cd7d72a7293b4ac9d8e6a8e7b6e7e38",
+    "crates/metroflow-rust/src/v1_road.rs": "54c4ecd61381c0c7df94738f7771cba703b626b91f166e75d27689f77e3a9ddf",
+    "docs/research/V03_COMPACT_LINEAGE_R1_R10_C1_C10_20261120_KO.md": "677d31f9a5af26f204f982be5c20bb15545bb0eb68539bc71fd01dd0f00fda9d",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "tests/v1/test_native_packed_intervals.py": "2a1c625a5ff1672d3c87478496dd3180259f4f40466d039f9e6119331ca1ac58",
+    "tools/research/v03_compact_lineage_one_tick_20261120.py": "cbf949a2e51c3a91eb834a46ac88a6df688ad704571ac01dbb6bdb2b021f8186",
+    "tools/research/v03_compact_lineage_resume_20261120.py": "8edbee1387c1470aa0719057a9912be87e1f348b9787cb435798316f34c9d14d"
+  },
+  "schema": "METROFLOW_V03_COMPACT_LINEAGE_R1_TO_R10_C10_V1",
+  "source_bound_25650_road_storage": {
+    "new_bytes": 417535712,
+    "original_bytes": 549766512,
+    "original_row_count": 16528850,
+    "saved_bytes": 132230800,
+    "saved_bytes_equal_8_times_rows": true,
+    "scope": "native original road-state storage/accounting, not whole-process RSS"
+  },
+  "stage_10_remote_push_verified_after_commit": false,
+  "stage_commits_1_through_9": [
+    "37bfc7945e6f83db018db13a5f057ea6f364bf6d",
+    "dcceb478dc63d3a34986276c3813819ea29b7529",
+    "515bf56fe34a3c179ddd4a4b67b866b1c7cbb770",
+    "167c6105bce2d4172de4cf7c84b2035fc896dd90",
+    "96ff5a71f96dd84cb48c037c320511d8e7f4fba6",
+    "cc6a79a8c495f0001dbf9d62bb8220b8949a4c91",
+    "741c115013d8c6defc28c4d7518a5d2438775e3e",
+    "e662495f45134cca0ffd82a95b7601b7708b33ee",
+    "5526414b519ac107b297b6a2bf306cabc25d90c7"
+  ],
+  "v03_authority_progress": {
+    "V03_status": "BLOCKED",
+    "calendar_required": 3,
+    "completed_full_86400s_runs": 0,
+    "current_native_original_100k_calendar_prepared": 3,
+    "direct_dependencies_completed": 3,
+    "direct_dependencies_total": 3,
+    "full_86400s_runs_required": 9,
+    "implementation_nodes_completed": 19,
+    "implementation_nodes_total": 21,
+    "source_calendars_legs": {
+      "coastal_weekend_s41": 2449750,
+      "river_weekday_s17": 5093765,
+      "valley_weekday_s7": 918450
+    }
+  },
+  "verification": {
+    "cargo_workspace_check": "EXIT_0",
+    "current_native_python_failed": 0,
+    "current_native_python_passed": 106,
+    "full_repository_ci": "DEFERRED_BY_USER",
+    "native_release_build": "EXIT_0",
+    "native_subagents": "NOT_RUN_NO_HOST_DELEGATION_INTERFACE",
+    "plan_validator": "VALID_PLAN_NOT_RELEASE",
+    "rust_failed": 0,
+    "rust_ignored": 2,
+    "rust_library_passed": 113,
+    "source_byte_identity": "CURRENT_SOURCE_MEASURED"
+  }
+}
