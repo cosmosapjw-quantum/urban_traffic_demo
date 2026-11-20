@@ -1227,6 +1227,68 @@ fn combine(parts: Vec<Part>) -> PyResult<Vec<Part>> {
     });
     Ok(out)
 }
+/// Materialize only final, combined interval rows from ordered source indices.
+/// Every original split operation is evaluated for each selected source row,
+/// and fsum sees values in the same original per-key source-index order.
+/// This removes the full temporary Vec<Part> before combine; it does not
+/// identify, drop or merge distinct source intervals.
+fn combine_interval_view(
+    parts: &[Part],
+    selected: impl Iterator<Item = usize>,
+    selected_count: usize,
+    a: f64,
+    b: f64,
+) -> PyResult<Vec<Part>> {
+    let width = b - a;
+    let mut indices = checkpoint_vec(selected_count)?;
+    for i in selected {
+        let p = parts[i];
+        let duration = p.b.unwrap() - p.a.unwrap();
+        if p.mass * width / duration > 0.0 {
+            indices.push(i);
+        }
+    }
+    // All resulting Parts have the exact same (a,b) bit pattern; hence
+    // combine's key (tag,offset,a_bits,b_bits) reduces to (tag,offset).
+    indices.sort_unstable_by(|&i, &j| {
+        (parts[i].tag, parts[i].offset, i).cmp(&(parts[j].tag, parts[j].offset, j))
+    });
+    let key = |i: usize| (parts[i].tag, parts[i].offset);
+    let groups = usize::from(!indices.is_empty())
+        + indices.windows(2).filter(|w| key(w[0]) != key(w[1])).count();
+    let mut out = checkpoint_vec(groups)?;
+    let (aa, bb) = (PackedTime::new(Some(a))?, PackedTime::new(Some(b))?);
+    let mut start = 0;
+    while start < indices.len() {
+        let mut end = start + 1;
+        while end < indices.len() && key(indices[start]) == key(indices[end]) {
+            end += 1;
+        }
+        let mut p = parts[indices[start]];
+        p.mass = sum(indices[start..end].iter().map(|&i| {
+            let x = parts[i];
+            x.mass * width / (x.b.unwrap() - x.a.unwrap())
+        }));
+        p.birth = sum(indices[start..end].iter().map(|&i| {
+            let x = parts[i];
+            x.birth * width / (x.b.unwrap() - x.a.unwrap())
+        }));
+        p.a = aa;
+        p.b = bb;
+        out.push(p);
+        start = end;
+    }
+    // Explicitly retain legacy output ordering rather than assuming
+    // the grouping sort is always identical.
+    out.sort_unstable_by(|x, y| {
+        x.tag.cmp(&y.tag)
+            .then(x.offset.cmp(&y.offset))
+            .then(x.a.unwrap_or(-1.0).total_cmp(&y.a.unwrap_or(-1.0)))
+            .then(x.b.unwrap_or(-1.0).total_cmp(&y.b.unwrap_or(-1.0)))
+    });
+    Ok(out)
+}
+
 fn characteristic(v0: f64, target: f64, dt: f64, tau: f64, acc: f64, brake: f64) -> (f64, f64) {
     let difference = target - v0;
     let limit = if difference >= 0.0 { acc } else { brake };
@@ -1887,11 +1949,15 @@ impl V1Road {
             active_words.saturating_add(active_summary_words)
                 .saturating_mul(std::mem::size_of::<u64>()),
         ).saturating_add(256);
-        const ROW_BYTES: usize = 2 * std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
-        let transient = |count: usize, packets: usize| {
+        // Point rows still use the original materialized combine path. Nonpoint
+        // interval rows instead retain only one output Vec<Part> and source
+        // indices, without a separate full split Vec<Part>.
+        const POINT_ROW_BYTES: usize = 2 * std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
+        const INTERVAL_ROW_BYTES: usize = std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
+        let transient = |count: usize, packets: usize, is_point: bool| {
             edge_bytes
                 .saturating_add(event_index_bytes)
-                .saturating_add(count.saturating_mul(ROW_BYTES))
+                .saturating_add(count.saturating_mul(if is_point { POINT_ROW_BYTES } else { INTERVAL_ROW_BYTES }))
                 .saturating_add(
                     packets
                         .saturating_add(1)
@@ -1911,7 +1977,7 @@ impl V1Road {
         for (k, &a) in edges.iter().enumerate() {
             sweep.advance(a);
             let count = sweep.current_points.len();
-            work.interval(transient(count, out.len()))?;
+            work.interval(transient(count, out.len(), true))?;
             let mut point = checkpoint_vec(count)?;
             point.extend(sweep.current_points.iter().map(|&i| parts[i]));
             let point = combine(point)?;
@@ -1928,21 +1994,10 @@ impl V1Road {
             if k + 1 < edges.len() {
                 let b = edges[k + 1];
                 let count = sweep.active.len();
-                work.interval(transient(count, out.len()))?;
-                let mut split = checkpoint_vec(count)?;
-                for i in sweep.active.iter() {
-                    // S1: all nonpoint endpoints belong to edges, so
-                    // pa<=a<pb is equivalent to pa<=a && pb>=b.
-                    let p = parts[i];
-                    let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
-                    let mut q = p;
-                    q.mass = q.mass * (b - a) / (pb - pa);
-                    q.birth = q.birth * (b - a) / (pb - pa);
-                    q.a = PackedTime::new(Some(a))?;
-                    q.b = PackedTime::new(Some(b))?;
-                    split.push(q);
-                }
-                let ps = combine(split)?;
+                work.interval(transient(count, out.len(), false))?;
+                // The original source indices are already ascending; avoid
+                // materializing a second full-size interval split buffer.
+                let ps = combine_interval_view(&parts, sweep.active.iter(), count, a, b)?;
                 if !ps.is_empty() {
                     records += ps.len();
                     let parts = work.pack_parts(ps)?;
@@ -3995,5 +4050,79 @@ mod hierarchical_active_index_bitset_tests {
             }));
             assert_eq!(old_fsum.to_bits(),new_fsum.to_bits());
         }
+    }
+}
+
+#[cfg(test)]
+mod composed_interval_view_tests {
+    use super::*;
+
+    fn bits(p: Part) -> (usize, usize, u64, u64, u64, u64) {
+        (p.tag, p.offset, p.mass.to_bits(), p.birth.to_bits(),
+         p.a.unwrap().to_bits(), p.b.unwrap().to_bits())
+    }
+
+    #[test]
+    fn source_index_view_matches_materialized_ieee_split_and_combine() {
+        let mut source = Vec::new();
+        for i in 0..1173usize {
+            let a = if i % 109 == 0 { -0.0 } else { (i * 19 % 17) as f64 * 0.25 };
+            let b = a + (i * 37 % 19) as f64 * 0.25;
+            let mass = match i % 23 {
+                0 => f64::from_bits(1),
+                1 => 0.,
+                2 => 1e-200,
+                3 => 1e200,
+                _ => (i % 31 + 1) as f64 / 4096.,
+            };
+            source.push(Part {
+                tag: i % 9, offset: i % 5, mass,
+                birth: if i % 13 == 0 { 1e-200 } else { (i + 3) as f64 / 997. },
+                a: PackedTime::new(Some(a)).unwrap(),
+                b: PackedTime::new(Some(b)).unwrap(),
+            });
+        }
+        let mut endpoints: Vec<_> = source.iter().flat_map(|p| [p.a.unwrap(), p.b.unwrap()]).collect();
+        endpoints.sort_unstable_by(f64::total_cmp);
+        endpoints.dedup();
+        let mut sweep = IntervalActiveSweep::new(&source).unwrap();
+        for (i, &a) in endpoints.iter().enumerate() {
+            sweep.advance(a);
+            let Some(&b) = endpoints.get(i + 1) else { continue };
+            let mut materialized = Vec::new();
+            for j in sweep.active.iter() {
+                let mut p = source[j];
+                let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
+                p.mass = p.mass * (b - a) / (pb - pa);
+                p.birth = p.birth * (b - a) / (pb - pa);
+                p.a = PackedTime::new(Some(a)).unwrap();
+                p.b = PackedTime::new(Some(b)).unwrap();
+                materialized.push(p);
+            }
+            let original = combine(materialized).unwrap();
+            let view = combine_interval_view(&source, sweep.active.iter(), sweep.active.len(), a, b).unwrap();
+            assert_eq!(
+                original.into_iter().map(bits).collect::<Vec<_>>(),
+                view.into_iter().map(bits).collect::<Vec<_>>(),
+                "view changed IEEE result on edge {i} [{a:?},{b:?}]"
+            );
+        }
+    }
+
+    #[test]
+    fn source_index_view_empty_and_nonassociative_duplicate_keys() {
+        let a = PackedTime::new(Some(0.)).unwrap();
+        let b = PackedTime::new(Some(1.)).unwrap();
+        let rows: Vec<Part> = (0..101).map(|i| Part {
+            tag: 0, offset: 0,
+            mass: if i % 2 == 0 { 1e-12 } else { 1e-6 },
+            birth: if i % 3 == 0 { 1e12 } else { 1e-12 },
+            a, b,
+        }).collect();
+        let baseline = combine(rows.clone()).unwrap();
+        let view = combine_interval_view(&rows, 0..rows.len(), rows.len(), 0., 1.).unwrap();
+        assert_eq!(baseline.into_iter().map(bits).collect::<Vec<_>>(),
+                   view.into_iter().map(bits).collect::<Vec<_>>());
+        assert!(combine_interval_view(&rows, std::iter::empty(), 0, 0., 1.).unwrap().is_empty());
     }
 }
