@@ -1311,6 +1311,46 @@ fn combine_interval_core(
     })
 }
 
+/// Only the identical (a_bits,b_bits) case can be represented with one
+/// Uniform packet header. Signed +/- zero comparisons here are bitwise:
+/// numeric point equality alone would incorrectly coalesce distinct clocks.
+fn all_point_endpoint_bits_identical(parts: &[Part], source_indices: &[usize]) -> bool {
+    let Some(&first) = source_indices.first() else { return true };
+    let (a, b) = (parts[first].a.0, parts[first].b.0);
+    source_indices.iter().all(|&i| parts[i].a.0 == a && parts[i].b.0 == b)
+}
+
+/// For byte-identical endpoint pairs, the original `combine` key reduces
+/// to (tag,offset). Emit final CorePart directly in its old canonical order,
+/// without the full temporary point Vec<Part>, combined Vec<Part> or second
+/// uniform conversion buffer. Mass/birth terms enter the original sum in
+/// original source-index order, with no arithmetic reassociation.
+fn combine_uniform_point_core(parts: &[Part], source_indices: &[usize]) -> PyResult<Vec<CorePart>> {
+    debug_assert!(all_point_endpoint_bits_identical(parts, source_indices));
+    let mut indices = checkpoint_vec(source_indices.len())?;
+    indices.extend(source_indices.iter().copied().filter(|&i| parts[i].mass > 0.0));
+    indices.sort_unstable_by(|&i, &j| {
+        (parts[i].tag, parts[i].offset, i).cmp(&(parts[j].tag, parts[j].offset, j))
+    });
+    let key = |i: usize| (parts[i].tag, parts[i].offset);
+    let groups = usize::from(!indices.is_empty())
+        + indices.windows(2).filter(|pair|key(pair[0]) != key(pair[1])).count();
+    let mut out = checkpoint_vec(groups)?;
+    let mut start=0;
+    while start < indices.len() {
+        let mut end = start+1;
+        while end < indices.len() && key(indices[start]) == key(indices[end]) {
+            end += 1;
+        }
+        let first=parts[indices[start]];
+        let mass=sum(indices[start..end].iter().map(|&i|parts[i].mass));
+        let birth=sum(indices[start..end].iter().map(|&i|parts[i].birth));
+        out.push(CorePart {tag:first.tag,offset:first.offset,mass,birth});
+        start=end;
+    }
+    Ok(out)
+}
+
 fn characteristic(v0: f64, target: f64, dt: f64, tau: f64, acc: f64, brake: f64) -> (f64, f64) {
     let difference = target - v0;
     let limit = if difference >= 0.0 { acc } else { brake };
@@ -2004,17 +2044,39 @@ impl V1Road {
         for (k, &a) in edges.iter().enumerate() {
             sweep.advance(a);
             let count = sweep.current_points.len();
-            work.interval(transient(count, out.len(), true))?;
-            let mut point = checkpoint_vec(count)?;
-            point.extend(sweep.current_points.iter().map(|&i| parts[i]));
-            let point = combine(point)?;
-            if !point.is_empty() {
-                records += point.len();
-                let parts = work.pack_parts(point)?;
+            let uniform_point = all_point_endpoint_bits_identical(&parts, &sweep.current_points);
+            // Homogeneous byte-identical point endpoints need only the final
+            // CorePart buffer and source index array (40B/selected row);
+            // mixed signed-zero or other bit-distinct endpoints retain the
+            // exact original materialized path and its 104B/row guard.
+            work.interval(transient(count, out.len(), !uniform_point))?;
+            let packed_point = if uniform_point {
+                let core = combine_uniform_point_core(&parts, &sweep.current_points)?;
+                if core.is_empty() {
+                    None
+                } else {
+                    let first = parts[sweep.current_points[0]];
+                    records += core.len();
+                    Some(PacketParts::Uniform {
+                        a: first.a,
+                        b: first.b,
+                        rows: Arc::new(core),
+                    })
+                }
+            } else {
+                let mut point = checkpoint_vec(count)?;
+                point.extend(sweep.current_points.iter().map(|&i| parts[i]));
+                let point = combine(point)?;
+                if point.is_empty() {
+                    None
+                } else {
+                    records += point.len();
+                    Some(work.pack_parts(point)?)
+                }
+            };
+            if let Some(parts) = packed_point {
                 work.retain_interval(
-                    parts
-                        .allocated_bytes()
-                        .saturating_add(std::mem::size_of::<Packet>()),
+                    parts.allocated_bytes().saturating_add(std::mem::size_of::<Packet>()),
                 );
                 push_checked(&mut out, Packet { target, parts })?;
             }
@@ -4254,5 +4316,55 @@ mod direct_core_interval_pack_tests {
         };
         assert_eq!(reference.into_iter().map(signature).collect::<Vec<_>>(),
                    wrapped.iter().map(signature).collect::<Vec<_>>());
+    }
+}
+
+#[cfg(test)]
+mod direct_uniform_point_pack_tests {
+    use super::*;
+
+    fn signature(p: Part) -> (usize, usize, u64, u64, u64, u64) {
+        (p.tag, p.offset, p.mass.to_bits(), p.birth.to_bits(),
+         p.a.unwrap().to_bits(), p.b.unwrap().to_bits())
+    }
+
+    #[test]
+    fn uniform_point_direct_core_matches_legacy_group_sum_and_packet_bits() {
+        for t in [-0., 0., 10.25, 25650.] {
+            let a = PackedTime::new(Some(t)).unwrap();
+            let rows:Vec<Part> = (0..309usize).map(|i| {
+                let mass = match i%11 {
+                    0 => 0., 1 => f64::from_bits(1), 2 => 1e-200,
+                    3 => 1e100, _ => (i%7+1) as f64 / 7717.,
+                };
+                Part {
+                    tag:i%13,offset:i%5,mass,
+                    birth: if i%3==0 {mass} else {mass*1.125},
+                    a,b:a,
+                }
+            }).collect();
+            let indices:Vec<usize> = (0..rows.len()).rev().collect();
+            let indices:Vec<usize> = indices.into_iter().rev().collect();
+            assert!(all_point_endpoint_bits_identical(&rows,&indices));
+            let ref_pack = PacketParts::pack(
+                combine(indices.iter().map(|&i|rows[i]).collect()).unwrap(),
+                |_|Ok(())).unwrap();
+            let core = combine_uniform_point_core(&rows,&indices).unwrap();
+            let fast = PacketParts::Uniform {a,b:a, rows:Arc::new(core)};
+            assert_eq!(ref_pack.iter().map(signature).collect::<Vec<_>>(),
+                       fast.iter().map(signature).collect::<Vec<_>>());
+        }
+    }
+
+    #[test]
+    fn signed_zero_mixed_point_endpoints_refuse_fast_path() {
+        let negative = PackedTime::new(Some(-0.)).unwrap();
+        let positive = PackedTime::new(Some(0.)).unwrap();
+        let p = |a,b| Part {tag:0,offset:0,mass:0.25,birth:0.375,a,b};
+        let rows = vec![p(negative,positive),p(positive,positive)];
+        assert!(!all_point_endpoint_bits_identical(&rows,&[0,1]));
+        let original = PacketParts::pack(combine(rows).unwrap(), |_|Ok(())).unwrap();
+        assert!(!original.is_uniform());
+        assert!(all_point_endpoint_bits_identical(&[],&[]));
     }
 }
