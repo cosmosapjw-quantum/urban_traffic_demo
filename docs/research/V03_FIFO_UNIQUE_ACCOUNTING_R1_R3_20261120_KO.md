@@ -28,3 +28,21 @@ Conditional bound: if at most three complete RoadState snapshots coexist and eac
 Arc::ptr_eq or Arc::as_ptr identifies actual shared backing, unlike comparing Part payload values. Official Rust reference: https://doc.rust-lang.org/std/sync/struct.Arc.html . Every original Part remains (tag,offset,mass,birth,entry-times), and original FIFO/junction/kinetic rates and IEEE operation order remain frozen. Persistent packet-sharing gives no universal guarantee of bounded memory with distinct time-interval genealogy or full-network FIFO; related strict cohort bundle theory: H. Bar-Gera and M. Carey (2017), https://doi.org/10.1016/j.trb.2017.02.002.
 
 Falsifiable probes: count distinct Arc backing pointers and owner-multiplicity at t=25600; validate per-owner sum equals legacy debug_stats payload contribution; measure unique bytes and potential difference. Snapshot alias observed only in input/committed/candidate but not one snapshot would favor a cross-state treatment, whereas numerous genuinely distinct Part roots and large transient/event buffers would limit improvement. No gate alteration until source-verified, adversarial tests and physical source-bound trials establish a conservative new upper envelope. Default V03 remains 19/21 scoped, full calendars 3/3 on parent branch, full day 0/9 BLOCKED.
+
+
+## R4. Exact structural native-work decomposition at failure (derived + directly measured)
+
+Existing v1_trace::guard is enabled by METROFLOW_BUDGET_TRACE=record, which does NOT change its original physical or budget decision. The observed failed C5 original 100k Valley 25600->25650 replay has RoadWorkBudget::require(required, phase='packet interval packing') and exact source formula:
+
+required = base + event_bytes + incoming_rows × 2 × (sizeof(Part)+sizeof(Mark)) + interval_retained + interval_transient + extra.
+
+On x86_64 this exact native struct identity has sizeof(Part)=48, sizeof(Mark)=32, so incoming row charge=160 bytes/row. Actual terms at the exceeded guard:
+- base 1,980,005,976 bytes (37.77%).
+- event_bytes 2,047,480,928 bytes (39.05%).
+- incoming_rows=6,751,471, charged 1,080,235,360 bytes (20.60%).
+- interval_retained 131,126,880 bytes (2.501%).
+- interval_transient 3,955,912 bytes (0.075%).
+- extra 6,208 bytes.
+Their exact integer sum is 5,242,811,264 bytes, against the unchanged internal budget 5,242,806,391 bytes, excess 4,873 bytes. Wolfram Language and independent Python integer arithmetic both reproduced the sum. This is a structural resource-check equation, not an equation for actual RSS; event_bytes and base are conservative concurrent owner/scratch envelopes, not measured resident heap.
+
+The trace also reports 498,636 packet-packing guard calls and 836,307 entry interval split guard calls in this bounded failure, 44,852 partial-service events and 23,901,798 split output row occurrences; these are actual counters under record tracing, not complete V03 full-day rows. They support that the distinct lineage and output materialization paths remain active. Even proving safe deduplication of 257,596,256 bytes from two live Arc-backed snapshots would NOT by itself prove that the 2.05GB event and 1.08GB incoming structural reserves are physically eliminable or that 25,650 can complete with a fixed resource gate.
