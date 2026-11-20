@@ -946,6 +946,90 @@ fn portion(parts: &PacketParts, f: f64) -> PyResult<Vec<Part>> {
     }
     Ok(result)
 }
+/// Two-level bitset of active **source indices**. Its iterator yields exactly
+/// the increasing index order formerly provided by a BTreeSet, preserving
+/// original per-row floating-point transform and combine reduction order.
+///
+/// Storage: n/64 words plus n/4096 summary words; operations insert/remove O(1).
+/// Iteration O(number of active + ceil(n/4096)) and never allocates.
+struct ActiveIndexBits {
+    words: Vec<u64>,
+    summary: Vec<u64>,
+    count: usize,
+    universe: usize,
+}
+struct SetOneBits(u64);
+impl Iterator for SetOneBits {
+    type Item = usize;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.0 == 0 {
+            return None;
+        }
+        let bit = self.0.trailing_zeros() as usize;
+        self.0 &= self.0 - 1;
+        Some(bit)
+    }
+}
+impl ActiveIndexBits {
+    fn new(universe: usize) -> PyResult<Self> {
+        let word_count = universe.div_ceil(64);
+        let summary_count = word_count.div_ceil(64);
+        let mut words = checkpoint_vec(word_count)?;
+        words.resize(word_count, 0);
+        let mut summary = checkpoint_vec(summary_count)?;
+        summary.resize(summary_count, 0);
+        Ok(Self { words, summary, count: 0, universe })
+    }
+    fn capacity_bytes(&self) -> usize {
+        self.words.capacity().saturating_mul(std::mem::size_of::<u64>())
+            .saturating_add(self.summary.capacity().saturating_mul(std::mem::size_of::<u64>()))
+    }
+    fn len(&self) -> usize {
+        self.count
+    }
+    fn insert(&mut self, index: usize) -> bool {
+        assert!(index < self.universe, "active interval index out of domain");
+        let word = index / 64;
+        let mask = 1u64 << (index % 64);
+        let old = self.words[word];
+        if old & mask != 0 {
+            return false;
+        }
+        self.words[word] = old | mask;
+        if old == 0 {
+            self.summary[word / 64] |= 1u64 << (word % 64);
+        }
+        self.count += 1;
+        true
+    }
+    fn remove(&mut self, index: &usize) -> bool {
+        if *index >= self.universe {
+            return false;
+        }
+        let word = index / 64;
+        let mask = 1u64 << (index % 64);
+        let old = self.words[word];
+        if old & mask == 0 {
+            return false;
+        }
+        let next = old & !mask;
+        self.words[word] = next;
+        if next == 0 {
+            self.summary[word / 64] &= !(1u64 << (word % 64));
+        }
+        self.count -= 1;
+        true
+    }
+    fn iter(&self) -> impl Iterator<Item = usize> + '_ {
+        self.summary.iter().enumerate().flat_map(move |(group, &word)| {
+            SetOneBits(word).flat_map(move |bit| {
+                let index = group * 64 + bit;
+                SetOneBits(self.words[index]).map(move |subbit| index * 64 + subbit)
+            })
+        })
+    }
+}
+
 /// Event-driven selection of the exact original interval row indices.
 ///
 /// Original Riemann interval splitter scans every input Part at every unique
@@ -961,7 +1045,7 @@ struct IntervalActiveSweep {
     starts: Vec<(f64, usize)>,
     ends: Vec<(f64, usize)>,
     points: Vec<(f64, usize)>,
-    active: BTreeSet<usize>,
+    active: ActiveIndexBits,
     current_points: Vec<usize>,
     next_start: usize,
     next_end: usize,
@@ -992,8 +1076,9 @@ impl IntervalActiveSweep {
         points.sort_unstable_by(cmp);
         Ok(Self {
             starts, ends, points,
-            active: BTreeSet::new(),
-            current_points: Vec::new(),
+            active: ActiveIndexBits::new(parts.len())?,
+            // Exact bounded capacity, no Vec-doubling after the work guard.
+            current_points: checkpoint_vec(parts.len())?,
             next_start: 0, next_end: 0, next_point: 0,
         })
     }
@@ -1786,15 +1871,22 @@ impl V1Road {
         // with room for its doubling reallocation. Only packed rows that are
         // pushed to the output outlive their interval.
         let edge_bytes = parts.len().saturating_mul(2 * std::mem::size_of::<f64>());
-        // Three sorted (endpoint,index) arrays, a point-index workspace and
-        // a BTreeSet of active source indices. Charge a conservative 96 bytes
-        // per potential tree member; this is a scratch allowance, not a
-        // bound on the system allocator's metadata/RSS.
+        // Three sorted (endpoint,index) Vec arrays each reserve parts.len()
+        // entries; the point-index workspace also has exact capacity n.
+        // The BTreeSet and its per-index tree-node overhead no longer exist.
+        // Two-level active bits occupy ceil(n/64)+ceil(n/4096) u64 words.
+        // Charge the actual fixed-size array structure plus 256 bytes of
+        // Vec/iterator metadata and rounding allowance. This is still a
+        // conservative structural resource envelope, never an RSS theorem.
+        let active_words = parts.len().div_ceil(64);
+        let active_summary_words = active_words.div_ceil(64);
         let event_index_bytes = parts.len().saturating_mul(
             3 * std::mem::size_of::<(f64, usize)>()
-                + std::mem::size_of::<usize>()
-                + 96,
-        );
+                + std::mem::size_of::<usize>(),
+        ).saturating_add(
+            active_words.saturating_add(active_summary_words)
+                .saturating_mul(std::mem::size_of::<u64>()),
+        ).saturating_add(256);
         const ROW_BYTES: usize = 2 * std::mem::size_of::<Part>() + std::mem::size_of::<usize>();
         let transient = |count: usize, packets: usize| {
             edge_bytes
@@ -1838,7 +1930,7 @@ impl V1Road {
                 let count = sweep.active.len();
                 work.interval(transient(count, out.len()))?;
                 let mut split = checkpoint_vec(count)?;
-                for &i in &sweep.active {
+                for i in sweep.active.iter() {
                     // S1: all nonpoint endpoints belong to edges, so
                     // pa<=a<pb is equivalent to pa<=a && pb>=b.
                     let p = parts[i];
@@ -3369,7 +3461,7 @@ mod exact_interval_sweep_tests {
                     .filter(|(_, p)| p.a.unwrap() <= a &&
                         p.b.unwrap() >= b && p.b > p.a)
                     .map(|(i, _)| i).collect();
-                let active: Vec<_> = indexed.active.iter().copied().collect();
+                let active: Vec<_> = indexed.active.iter().collect();
                 assert_eq!(active, original, "interval [{a:?},{b:?}]");
             }
         }
@@ -3465,7 +3557,7 @@ mod exact_interval_sweep_tests {
                 let reference = combine(rows.iter().copied()
                     .filter(|x| x.a.unwrap() <=a && x.b.unwrap()>=b && x.b>x.a)
                     .map(transform).collect()).unwrap();
-                let candidate = combine(sweep.active.iter().map(|&i| transform(rows[i]))
+                let candidate = combine(sweep.active.iter().map(|i| transform(rows[i]))
                     .collect()).unwrap();
                 assert_eq!(
                     reference.into_iter().map(fingerprint_part).collect::<Vec<_>>(),
@@ -3817,5 +3909,91 @@ mod compact_mark_exactness_tests {
         let blank:Vec<Part>=Vec::new();
         let marks:Vec<Mark>=Vec::new();
         assert_eq!(blank.len(),marks.len());
+    }
+}
+
+
+#[cfg(test)]
+mod hierarchical_active_index_bitset_tests {
+    use super::*;
+
+    #[test]
+    fn bitset_operations_are_exactly_ordered_like_btree_over_boundary_cardinalities() {
+        for len in [0usize,1,2,63,64,65,127,128,129,4095,4096,4097,8195] {
+            let mut compact=ActiveIndexBits::new(len).unwrap();
+            let mut reference=BTreeSet::<usize>::new();
+            let mut state=0x2026_1120_5678u64;
+            assert_eq!(compact.len(),0);
+            assert_eq!(compact.iter().collect::<Vec<_>>(), Vec::<usize>::new());
+            for step in 0..3000usize {
+                if len==0 { continue; }
+                state=state.wrapping_mul(6364136223846793005).wrapping_add(1);
+                let idx=(state as usize)%len;
+                if step%7==0 || state&1==0 {
+                    let a=compact.insert(idx);
+                    let b=reference.insert(idx);
+                    assert_eq!(a,b);
+                } else {
+                    let a=compact.remove(&idx);
+                    let b=reference.remove(&idx);
+                    assert_eq!(a,b);
+                }
+                assert_eq!(compact.len(),reference.len());
+                if step%113==0 {
+                    assert_eq!(compact.iter().collect::<Vec<_>>(),
+                               reference.iter().copied().collect::<Vec<_>>());
+                }
+            }
+            assert_eq!(compact.iter().collect::<Vec<_>>(),
+                       reference.iter().copied().collect::<Vec<_>>());
+            assert!(compact.capacity_bytes() <=
+                    ((len+63)/64)*8 + ((len+4095)/4096)*8 + 128);
+        }
+    }
+
+    #[test]
+    fn original_rust_ieee_interval_sweep_selected_row_order_unchanged() {
+        let mut rows=Vec::new();
+        for i in 0..1397usize {
+            let pa=if i%101==0 {-0.0} else {(i%17) as f64};
+            let pb=if i%11==0 {pa} else {pa+(i%7+1) as f64};
+            rows.push(Part {
+                tag:i%19,offset:i%5,
+                mass:(i as f64+1.)/3000.,
+                birth:(i as f64+7.)/9000.,
+                a:PackedTime::new(Some(pa)).unwrap(),
+                b:PackedTime::new(Some(pb)).unwrap(),
+            });
+        }
+        let mut original=BTreeSet::new();
+        let mut sweep=IntervalActiveSweep::new(&rows).unwrap();
+        let mut endpoints=Vec::new();
+        endpoints.extend(rows.iter().flat_map(|p|[p.a.unwrap(),p.b.unwrap()]));
+        endpoints.sort_unstable_by(f64::total_cmp);
+        endpoints.dedup();
+        for (edge_id,&a) in endpoints.iter().enumerate() {
+            sweep.advance(a);
+            if edge_id+1>=endpoints.len() {continue;}
+            let b=endpoints[edge_id+1];
+            original.clear();
+            for (i,p) in rows.iter().enumerate() {
+                if p.a.unwrap()!=p.b.unwrap() &&
+                   p.a.unwrap()<=a && p.b.unwrap()>=b {
+                    original.insert(i);
+                }
+            }
+            let actual=sweep.active.iter().collect::<Vec<_>>();
+            let expected=original.iter().copied().collect::<Vec<_>>();
+            assert_eq!(actual,expected);
+            let old_fsum=sum(expected.iter().map(|&i| {
+                let p=rows[i];
+                p.mass*(b-a)/(p.b.unwrap()-p.a.unwrap())
+            }));
+            let new_fsum=sum(actual.iter().map(|&i| {
+                let p=rows[i];
+                p.mass*(b-a)/(p.b.unwrap()-p.a.unwrap())
+            }));
+            assert_eq!(old_fsum.to_bits(),new_fsum.to_bits());
+        }
     }
 }
