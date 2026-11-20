@@ -1,0 +1,134 @@
+{
+  "authority": {
+    "branch": "research/v03-event-arc-replay-20261120",
+    "candidate_source_sha256": "9425e671ed45dd9c7bf6eaa4771897c3459186f934ba063e857205de67ccbe82",
+    "native_binary_local_only": true,
+    "native_sha256": "96e30e23d6d03326d1ac3a39f2919f2fc581d325a6faa3020160e02b96d65bea",
+    "parent_for_C10": "e4047b30a960a869ee9be7ea19df62b9654afe79",
+    "plan_version": "1.1.26"
+  },
+  "checks": {
+    "cargo_check": "EXIT_0",
+    "full_repo_ci": "DEFERRED_BY_USER",
+    "native_subagents": "NOT_RUN_NO_NATIVE_TOOL",
+    "plan": "VALID_PLAN_NOT_RELEASE",
+    "python_selected_passed": 102,
+    "rust_ignored": 2,
+    "rust_lib_passed": 104
+  },
+  "created_utc": "2026-11-20T13:48:46+00:00",
+  "cross_binary_replay": {
+    "attempted_end_s": 25700,
+    "current_source_bound_from_time0": false,
+    "final_checkpoint": null,
+    "historical_start_s": 25650,
+    "input_checkpoint_sha256": "89e3230b23b4423509f6036035e9b03c7299204b5d317cdb3f6226c5b0c53e8b",
+    "next_guard": {
+      "calls": 66798,
+      "exceeded": 1,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 1.000000437814947,
+      "max_required": 5264783728,
+      "terms_at_max": {
+        "base": 2271580008,
+        "event_bytes": 1915199456,
+        "extra": 0,
+        "incoming_rows": 7615036,
+        "interval_retained": 86912672,
+        "interval_transient": 16366984
+      }
+    },
+    "packing_guard": {
+      "calls": 14202,
+      "exceeded": 0,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 0.9765201285546323,
+      "max_required": 5141165032,
+      "terms_at_max": {
+        "base": 2271580008,
+        "event_bytes": 1906762400,
+        "extra": 6880,
+        "incoming_rows": 7521998,
+        "interval_retained": 0,
+        "interval_transient": 0
+      }
+    },
+    "peak_rss_bytes": 2964496384,
+    "roundtrip_wire_identity": true,
+    "transfer_guard": {
+      "calls": 123945,
+      "exceeded": 0,
+      "limit_at_max": 5264781423,
+      "live_at_max": null,
+      "max_ratio": 0.9803833544639067,
+      "max_required": 5161504072,
+      "terms_at_max": {
+        "base": 2271580008,
+        "event_bytes": 1915199456,
+        "extra": 0,
+        "incoming_rows": 7615036,
+        "interval_retained": 0,
+        "interval_transient": 0
+      }
+    },
+    "wall_s": 33.049846735000756
+  },
+  "file_sha256": {
+    "artifacts/v03_event_arc_20261120/C6_CROSS_BINARY_25700.json": "23a0a85391e1dd705e20387933ee47a9c76f03d36a0b0eb03f5cc58b2b856e77",
+    "artifacts/v03_event_arc_20261120/C8_DIRECT_CORE_25700.json": "209ec7ec01b35be1e419188e2af1c6022298c16ec1ca937c10a581cb2843dc2f",
+    "artifacts/v03_event_arc_20261120/C9_CURRENT_NATIVE_READINESS.json": "838f34a3a7096e79e0a7d61c55fc51067502a4d7b4a9d2106b1bb87ce7114e8b",
+    "artifacts/v03_event_arc_20261120/C9_POINT_CORE_25700.json": "0488d2e7319b0b2c229179936c2995750313b6de5ab36794762379f4d7a4cad1",
+    "crates/metroflow-rust/src/v1_engine.rs": "ecb6b29772118786a781109e88a9a94862be8ec3876041fd9b748b2935089cb0",
+    "crates/metroflow-rust/src/v1_journey.rs": "b0a001e5899f34eee1d4b873b7cf4bff5f4a3de6563aa13f322b38c5b252500f",
+    "crates/metroflow-rust/src/v1_road.rs": "9f3b55a9ea8e1ac30fa4cd9eb82a38a1ee1ca838cf77f7c7aada88c7d69fb01d",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+  },
+  "new_effects": {
+    "actual_packet_interval_packing_blocker": "CLEARED_IN_C9_PHYSICAL_PROBE",
+    "actual_transfer_candidates_blocker": "CLEARED_IN_C6_C9_PHYSICAL_PROBES",
+    "exact_direct_uniform_packet_packing": "RUST_TESTED",
+    "exact_immutable_service_event_arc_sharing": "RUST_TESTED",
+    "new_entry_interval_split_blocker": "BLOCKED_2305_STRUCTURAL_BYTES",
+    "original_full_day": "BLOCKED_0_OF_9"
+  },
+  "next_task_id": "V03-EXACT-STREAMED-LINEAGE-03",
+  "paired_research_stages": {
+    "completed_as_scoped_research_checkpoints": 10,
+    "not_official_DAG_nodes": true,
+    "selected": 10,
+    "stage10_remote_readback_to_follow_commit": true,
+    "stage_commits_1_to_9": [
+      "44bebda",
+      "2bb65fc",
+      "946b0e5",
+      "9693411",
+      "e646fa1",
+      "331f0ef",
+      "584f125",
+      "775a143",
+      "e4047b3"
+    ]
+  },
+  "remaining": [
+    "original current-source 25700 checkpoint absent",
+    "entry interval split still blocked",
+    "full city source days 0/9",
+    "non-FIFO physical comparator not original-equivalent",
+    "independent real traffic validation absent"
+  ],
+  "schema": "METROFLOW_V03_EVENT_ARC_C10_V1",
+  "v03_authority_progress": {
+    "calendar_total": 3,
+    "completed_nodes": 19,
+    "current_native_calendar_prepared": 3,
+    "dependencies_done": 3,
+    "dependencies_total": 3,
+    "full_day_required": 9,
+    "full_day_runs": 0,
+    "release_ready": false,
+    "total_nodes": 21
+  }
+}
