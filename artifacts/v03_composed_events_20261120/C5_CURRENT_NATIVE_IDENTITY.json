@@ -1,0 +1,7 @@
+{
+  "candidate_source_sha256": "1a55b6e33b4444c909d42b7aff8a7b4b7f4c283a3d077adb95414d51497b77f2",
+  "native_binary_sha256": "60bb008b4ef6e34203a625e73193d51f25cf7651ef70ba83594d2c2ae29250ed",
+  "schema": "V03_COMPOSED_MARK_SOURCE_NATIVE_C5",
+  "source_commit": "43d86231f3769d1640520936645140b76b4ffda7",
+  "source_dirty": false
+}
