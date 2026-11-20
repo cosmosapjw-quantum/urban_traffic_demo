@@ -1475,6 +1475,22 @@ impl NativeWholeEngine {
             road.set_item(name, value)?;
         }
         road.set_item("total_records", r.cell_parts + r.pending_parts)?;
+        // Read-only diagnostic, evaluated only on an explicit debug_state
+        // request. The original road-work admission/physics are unchanged.
+        let arc_census=state.value.road.arc_backing_census();
+        let shared=PyDict::new(py);
+        for (name,value) in [
+            ("owner_count",arc_census.owner_count),
+            ("unique_backing_count",arc_census.unique_backing_count),
+            ("owner_payload_bytes",arc_census.owner_payload_bytes),
+            ("unique_payload_bytes",arc_census.unique_payload_bytes),
+            ("duplicate_payload_bytes",arc_census.duplicate_payload_bytes),
+            ("unique_arc_control_allowance_bytes",arc_census.unique_arc_control_allowance_bytes),
+        ] {
+            shared.set_item(name,value)?;
+        }
+        shared.set_item("scope","unique Arc<Vec> backing payloads within ONE stored RoadState; diagnostic only, not live process RSS or admission")?;
+        road.set_item("arc_backing_census",shared)?;
         road.set_item("event_resolution", self.event_resolution_diagnostics(py)?)?;
         road.set_item("capacity_scope", "owned state and Vec reserved storage; excludes tree nodes, allocator and shared static state")?;
         let out = PyDict::new(py);

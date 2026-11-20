@@ -3,7 +3,7 @@
 use crate::v1_parallel::ordered_map;
 use pyo3::exceptions::{PyArithmeticError, PyIOError, PyMemoryError, PyValueError};
 use pyo3::prelude::*;
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::io::{Read, Write};
 use std::sync::{Arc, Mutex};
 // Shadow-only experiment; the original V03 road kernel and checkpoint layout
@@ -288,6 +288,19 @@ pub(crate) struct RoadDebugStats {
     pub(crate) mixed_packets: usize,
     pub(crate) uniform_parts: usize,
     pub(crate) mixed_parts: usize,
+}
+
+/// Read-only allocation identity diagnostic. Payload values are NOT RSS,
+/// heap metadata or a resource gate. 96 bytes per unique Arc is a conservative
+/// *reporting allowance*, not an allocator-certified universal upper bound.
+#[derive(Default, Debug, Clone, Copy)]
+pub(crate) struct ArcBackingCensus {
+    pub(crate) owner_count: usize,
+    pub(crate) unique_backing_count: usize,
+    pub(crate) owner_payload_bytes: usize,
+    pub(crate) unique_payload_bytes: usize,
+    pub(crate) duplicate_payload_bytes: usize,
+    pub(crate) unique_arc_control_allowance_bytes: usize,
 }
 
 /// Conservative structural working allowance, not an allocator/RSS theorem.
@@ -598,6 +611,45 @@ impl RoadState {
         }
         out
     }
+    /// Diagnostic-only exact Vec *payload capacity* identity census.
+    /// This method is never consulted by native resource admission. ArcInner
+    /// is identified by stable live Arc pointer identity, NOT equal Part data.
+    /// Distinct input/candidate snapshots need a separate union census.
+    pub(crate) fn arc_backing_census(&self) -> ArcBackingCensus {
+        let mut distinct: HashSet<(u8, usize)> = HashSet::new();
+        let mut result = ArcBackingCensus::default();
+        for packet in self
+            .cells.iter().flat_map(|cell| &cell.packets)
+            .chain(self.pending.iter().flatten())
+        {
+            let (kind, allocation, bytes) = match &packet.parts {
+                PacketParts::Uniform { rows, .. } => (
+                    0u8,
+                    Arc::as_ptr(rows) as usize,
+                    rows.capacity().saturating_mul(std::mem::size_of::<CorePart>()),
+                ),
+                PacketParts::Mixed(rows) => (
+                    1u8,
+                    Arc::as_ptr(rows) as usize,
+                    rows.capacity().saturating_mul(std::mem::size_of::<Part>()),
+                ),
+            };
+            result.owner_count += 1;
+            result.owner_payload_bytes =
+                result.owner_payload_bytes.saturating_add(bytes);
+            if distinct.insert((kind, allocation)) {
+                result.unique_backing_count += 1;
+                result.unique_payload_bytes =
+                    result.unique_payload_bytes.saturating_add(bytes);
+            }
+        }
+        result.duplicate_payload_bytes = result
+            .owner_payload_bytes.saturating_sub(result.unique_payload_bytes);
+        result.unique_arc_control_allowance_bytes =
+            result.unique_backing_count.saturating_mul(96);
+        result
+    }
+
     /// Owned vector capacity only: BTreeMap nodes, allocator overhead and the
     /// immutable model registry are deliberately excluded from this diagnostic.
     pub(crate) fn debug_stats(&self) -> RoadDebugStats {
@@ -3379,4 +3431,76 @@ mod exact_interval_sweep_tests {
                  reference_time as f64/optimized_time as f64);
     }
 
+}
+
+
+#[cfg(test)]
+mod unique_arc_backing_account_tests {
+    use super::*;
+
+    fn part(tag: usize, mass: f64, a: f64, b: f64) -> Part {
+        Part {
+            tag, offset: 0, mass, birth: mass * 7.0,
+            a: PackedTime::new(Some(a)).unwrap(),
+            b: PackedTime::new(Some(b)).unwrap(),
+        }
+    }
+    fn example_state(parts: Vec<PacketParts>) -> RoadState {
+        let n=parts.len();
+        RoadState {
+            t: 0.0,
+            cells: vec![Cell {
+                v: [0.0;8],
+                packets: parts.into_iter().map(|parts| Packet { target: 0.0, parts }).collect(),
+                latent: BTreeMap::new(),
+            }],
+            pending: vec![Vec::new()],
+            totals: [0.0;7],
+            ledger: Vec::new(),
+        }
+    }
+
+    #[test]
+    fn duplicated_uniform_arc_backing_is_counted_once_but_owner_count_kept() {
+        let packed=PacketParts::pack(
+            vec![part(0,0.25,0.0,2.0),part(1,0.75,0.0,2.0)],
+            |_|Ok(())).unwrap();
+        let v=example_state(vec![packed.clone_checked().unwrap(),
+                                 packed.clone_checked().unwrap(),packed]);
+        let c=v.arc_backing_census();
+        assert_eq!(c.owner_count,3);
+        assert_eq!(c.unique_backing_count,1);
+        assert_eq!(c.owner_payload_bytes,3*2*std::mem::size_of::<CorePart>());
+        assert_eq!(c.unique_payload_bytes,2*std::mem::size_of::<CorePart>());
+        assert_eq!(c.duplicate_payload_bytes,2*2*std::mem::size_of::<CorePart>());
+    }
+
+    #[test]
+    fn equal_payload_but_independent_mixed_allocations_are_not_aliases() {
+        let rows=vec![part(1,0.1,-0.0,3.0),part(2,0.9,0.0,2.0)];
+        let independent=PacketParts::pack(rows.clone(), |_|Ok(())).unwrap();
+        let shared=PacketParts::pack(rows, |_|Ok(())).unwrap();
+        let v=example_state(vec![independent,shared.clone_checked().unwrap(),shared]);
+        let c=v.arc_backing_census();
+        assert_eq!(c.owner_count,3);
+        assert_eq!(c.unique_backing_count,2);
+        assert_eq!(c.owner_payload_bytes,3*2*std::mem::size_of::<Part>());
+        assert_eq!(c.unique_payload_bytes,2*2*std::mem::size_of::<Part>());
+        assert_eq!(c.duplicate_payload_bytes,2*std::mem::size_of::<Part>());
+    }
+
+    #[test]
+    fn zero_capacity_backing_still_has_unique_arc_metadata() {
+        let a=PacketParts::pack(vec![], |_|Ok(())).unwrap();
+        let b=PacketParts::pack(vec![], |_|Ok(())).unwrap();
+        let v=example_state(vec![a,b]);
+        let c=v.arc_backing_census();
+        assert_eq!(c.owner_count,2);
+        assert_eq!(c.unique_backing_count,2);
+        assert_eq!(c.owner_payload_bytes,0);
+        assert_eq!(c.unique_payload_bytes,0);
+        assert_eq!(c.duplicate_payload_bytes,0);
+        // Census never treats zero-capacity distinct Arcs as one alias.
+        assert_eq!(c.unique_arc_control_allowance_bytes,2*96);
+    }
 }
