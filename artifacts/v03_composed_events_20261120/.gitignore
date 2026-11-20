@@ -1,0 +1,2 @@
+# Legacy native checkpoints remain on authorized host only; Git contains small receipts and SHA-256.
+*.bin
