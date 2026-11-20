@@ -1,0 +1,82 @@
+{
+  "Rust_KCMB_backend_binary_sha256": "60bb008b4ef6e34203a625e73193d51f25cf7651ef70ba83594d2c2ae29250ed",
+  "added_physical_lane_metres": 30.0,
+  "claims_not_made": [
+    "No calibrated urban-driver alpha/nu/tau or observed validation",
+    "No equivalence to original packet birth-time and perfect network FIFO",
+    "No identical geometry (physical turn pockets add road lane metres)",
+    "No V03 full 86400s x9 acceptance from synthetic 600s"
+  ],
+  "created_utc": "2026-11-20T08:20:11+00:00",
+  "link_lengths_m": [
+    100.0,
+    100.0,
+    100.0
+  ],
+  "one_step_red_A_green_B": {
+    "pocket_A_out": 0.0,
+    "pocket_B_out": 0.16666666666666666,
+    "shared_A_out": 0.0,
+    "shared_B_out": 0.0
+  },
+  "original_100k_resident_city_simulated": false,
+  "original_V03_full_day_acceptance_credit": 0,
+  "physical_model": "KCMB six kinetic Markov moments + conservative network node / explicit turning lanes",
+  "pocket_length_m": 30.0,
+  "results": {
+    "one_shared_lane": {
+      "completed_by_route": [
+        22.790559913328615,
+        22.790559913328615
+      ],
+      "elapsed_s": 0.1244749210018199,
+      "max_step_mass_error_veh": 4.745093207247919e-13,
+      "model_id": "kcmb_network_link_pool_v1:9096cd6aef84e1d58f0715b2e4ad9ff420c220126ee97c457ca5dba88e4a7c9d",
+      "pending_by_route": [
+        0.0,
+        0.0
+      ],
+      "physical_link_count": 3,
+      "right_turn_positive_steps_while_A_red": 0,
+      "route_count": 2,
+      "source_and_signal_test_is_synthetic": true,
+      "state_scalars": 42,
+      "state_serialized_bytes": 619,
+      "total_offered_by_route": [
+        23.999999999999577,
+        23.999999999999577
+      ]
+    },
+    "two_physical_turn_pockets": {
+      "completed_by_route": [
+        23.037615317396906,
+        23.199999999999772
+      ],
+      "elapsed_s": 0.16815341300025466,
+      "max_step_mass_error_veh": 4.242162177092723e-13,
+      "model_id": "kcmb_network_link_pool_v1:1c35dd815fd42c671828d6a90e9efb93014815728588e420106fa56311bd13d9",
+      "pending_by_route": [
+        0.0,
+        0.0
+      ],
+      "physical_link_count": 5,
+      "right_turn_positive_steps_while_A_red": 606,
+      "route_count": 2,
+      "source_and_signal_test_is_synthetic": true,
+      "state_scalars": 66,
+      "state_serialized_bytes": 806,
+      "total_offered_by_route": [
+        23.999999999999577,
+        23.999999999999577
+      ]
+    }
+  },
+  "same_route_labels_and_signals": true,
+  "sample_parameters": "unchanged previous KCMB unit fixture; not fitted from observations",
+  "schema": "V03_KCMB_PHYSICAL_NON_FIFO_ALTERNATIVE_COMPARATOR_20261120_V1",
+  "simulated_duration_s": 600.0,
+  "simulated_ticks": 1200,
+  "simulation_dt_s": 0.5,
+  "strict_original_V03_FIFOnetwork_legacy_checkpoint_equivalent": false,
+  "total_source_offers_each_route": 24.0
+}
