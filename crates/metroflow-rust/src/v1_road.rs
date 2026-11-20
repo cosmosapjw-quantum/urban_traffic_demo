@@ -66,7 +66,17 @@ pub(crate) type StateRow = (
 );
 pub(crate) type Offer = (usize, f64, f64, Option<f64>, Option<f64>);
 pub(crate) type EventRow = (usize, usize, Option<usize>, f64, f64, f64, f64);
-type Mark = (usize, f64, f64, f64);
+// Exact source order correspondence: the associated incoming Part already
+// contains both class (from tag) and unchanged mass. Store only independent
+// dynamical values, preserving their f64 payloads without any approximation.
+type Mark = (f64, f64);
+fn compact_mark(speed: f64, latent: f64) -> Mark {
+    (speed, latent)
+}
+#[cfg(test)]
+fn reconstruct_mark(p: &Part, m: &Mark, class: impl Fn(&Part) -> usize) -> (usize, f64, f64, f64) {
+    (class(p), p.mass, m.0, m.1)
+}
 /// Every admitted interval endpoint is finite. A reserved nonfinite bit pattern
 /// therefore represents None without doubling each endpoint's storage. Present
 /// values retain their exact IEEE payload, including the sign of zero; the
@@ -2539,7 +2549,7 @@ impl V1Road {
                             };
                             push_checked(
                                 &mut marks[j],
-                                (k, p.mass, m.sample(local_mid).1, latent),
+                                compact_mark(m.sample(local_mid).1, latent),
                             )?;
                             p.offset += 1;
                             if self.intervals {
@@ -2671,7 +2681,7 @@ impl V1Road {
                     }
                     push_checked(
                         &mut marks[i],
-                        (k, part.mass, self.classes[k][11], self.classes[k][7]),
+                        compact_mark(self.classes[k][11], self.classes[k][7]),
                     )?;
                 }
                 incoming[i]
@@ -2698,20 +2708,23 @@ impl V1Road {
             if !incoming_src.is_empty() && !incoming[i].is_empty() {
                 exact_merge_census(&incoming[i], &incoming_src[i]);
             }
+            // One compact mark accompanies exactly one source-order incoming
+            // Part (both road service and pending-offer insertion paths).
+            // Never call combine before consuming the aligned raw rows.
             let raw_rows = incoming[i].len();
-            let parts = combine(std::mem::take(&mut incoming[i]))?;
-            if crate::v1_trace::enabled() && raw_rows > 0 {
-                crate::v1_trace::add("entry.raw_rows", raw_rows as u64);
-                crate::v1_trace::add("entry.combined_rows", parts.len() as u64);
-            }
-            let added = sum(parts.iter().map(|p| p.mass));
-            if added == 0. {
-                continue;
+            if raw_rows != marks[i].len() {
+                return Err(arithmetic("incoming Part/Mark source-order alignment differs"));
             }
             let old = self.occupancy(&out.cells[i]);
-            let speed =
-                (old * out.cells[i].v[7] + sum(marks[i].iter().map(|m| m.1 * m.2))) / (old + added);
+            let weighted_speed = sum(
+                incoming[i]
+                    .iter()
+                    .zip(marks[i].iter())
+                    .map(|(part, mark)| part.mass * mark.0),
+            );
             let mut byclass: BTreeMap<usize, Vec<(f64, f64)>> = BTreeMap::new();
+            // Original fsum class input order: all unchanged survivor rows,
+            // followed by each received mark in original append order.
             for packet in &out.cells[i].packets {
                 for p in &packet.parts {
                     let k = self.class(&p);
@@ -2721,9 +2734,22 @@ impl V1Road {
                     )?;
                 }
             }
-            for &(k, m, _, p) in &marks[i] {
-                push_checked(byclass.entry(k).or_default(), (m, p))?;
+            for (part, mark) in incoming[i].iter().zip(marks[i].iter()) {
+                let k = self.class(part);
+                push_checked(byclass.entry(k).or_default(), (part.mass, mark.1))?;
             }
+            // Only now may equal-key incoming Parts be combined.
+            let parts = combine(std::mem::take(&mut incoming[i]))?;
+            if crate::v1_trace::enabled() && raw_rows > 0 {
+                crate::v1_trace::add("entry.raw_rows", raw_rows as u64);
+                crate::v1_trace::add("entry.combined_rows", parts.len() as u64);
+            }
+            let added = sum(parts.iter().map(|p| p.mass));
+            if added == 0. {
+                continue;
+            }
+            let speed =
+                (old * out.cells[i].v[7] + weighted_speed) / (old + added);
             out.cells[i].v[7] = speed;
             out.cells[i].latent = byclass
                 .into_iter()
@@ -3695,5 +3721,101 @@ mod conservative_arc_pair_credit_tests {
         let credit=a.paired_shared_payload_lower_bound(&b);
         assert!(credit<=c.duplicate_payload_bytes);
         assert!(credit<=a.arc_backing_census().owner_payload_bytes);
+    }
+}
+
+#[cfg(test)]
+mod compact_mark_exactness_tests {
+    use super::*;
+
+    fn part(tag: usize, mass: f64, birth: f64, offset: usize) -> Part {
+        Part { tag, mass, birth, offset,
+            a: PackedTime::new(Some(-0.0)).unwrap(),
+            b: PackedTime::new(Some(3.0)).unwrap() }
+    }
+
+    fn original_mark(p:&Part,speed:f64,latent:f64)->(usize,f64,f64,f64) {
+        (p.tag%7,p.mass,speed,latent)
+    }
+
+    fn original_bits(m:(usize,f64,f64,f64))->(usize,u64,u64,u64){
+        (m.0,m.1.to_bits(),m.2.to_bits(),m.3.to_bits())
+    }
+
+    #[test]
+    fn speed_latent_only_mark_is_exactly_reconstructible_from_the_existing_part() {
+        let inputs=[
+            part(9,0.1,0.3,2),part(3,0.7,0.0,0),
+            part(8,f64::from_bits(1),f64::from_bits(2),3),
+            part(0,0.91,0.1,1),
+        ];
+        let speeds=[0.01,-0.0,0.9,0.11];
+        let latents=[1.0,0.5,0.0,0.23];
+        for ((p,u),q) in inputs.iter().zip(speeds).zip(latents) {
+            let expected=original_mark(p,u,q);
+            let m=compact_mark(u,q);
+            let reconstructed=reconstruct_mark(p,&m,|p| p.tag%7);
+            assert_eq!(original_bits(reconstructed),original_bits(expected));
+        }
+        assert_eq!(std::mem::size_of::<Mark>(),16);
+    }
+
+    #[test]
+    fn original_ordered_fsum_speed_and_latent_are_bit_exact_over_mixed_classes() {
+        let mut parts=Vec::new();
+        let mut full=Vec::new();
+        let mut reduced=Vec::new();
+        let mut seed=0x2026_1120_BEEF_u64;
+        for i in 0..1024 {
+            seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+            let mass=f64::from_bits(0x3fa0000000000000+(seed&0xffff));
+            seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+            let speed=f64::from_bits(0x3fa0000000000000+(seed&0xffff));
+            seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+            let latent=f64::from_bits(0x3fa0000000000000+(seed&0xffff));
+            let p=part(i%17,mass,mass*13.0,i%5);
+            full.push(original_mark(&p,speed,latent));
+            reduced.push(compact_mark(speed,latent));
+            parts.push(p);
+        }
+        let full_speed=sum(full.iter().map(|m|m.1*m.2));
+        let reduced_speed=sum(parts.iter().zip(&reduced).map(|(p,m)|p.mass*m.0));
+        assert_eq!(full_speed.to_bits(),reduced_speed.to_bits());
+        let mut a=BTreeMap::<usize,Vec<(f64,f64)>>::new();
+        let mut b=BTreeMap::<usize,Vec<(f64,f64)>>::new();
+        for &m in &full {a.entry(m.0).or_default().push((m.1,m.3));}
+        for (p,m) in parts.iter().zip(&reduced){
+            b.entry(p.tag%7).or_default().push((p.mass,m.1));
+        }
+        for (key,vals) in &a {
+            assert_eq!(
+                sum(vals.iter().map(|(mass,latent)|mass*latent)).to_bits(),
+                sum(b[key].iter().map(|(mass,latent)|mass*latent)).to_bits()
+            );
+            assert_eq!(
+                sum(vals.iter().map(|(mass,_)|*mass)).to_bits(),
+                sum(b[key].iter().map(|(mass,_)|*mass)).to_bits()
+            );
+        }
+    }
+
+    #[test]
+    fn empty_and_multidest_mark_stream_has_one_to_one_alignment() {
+        let mut incoming=Vec::new();
+        let mut compact=Vec::new();
+        for i in 0..65 {
+            let p=part(i%10,0.2+(i as f64)*0.00001,(i as f64)*0.3,i%5);
+            incoming.push(p);
+            compact.push(compact_mark((i as f64)/77.0,(i as f64)/103.0));
+        }
+        assert_eq!(incoming.len(),compact.len());
+        for (p,m) in incoming.iter().zip(&compact){
+            let q=reconstruct_mark(p,m,|p|p.tag%7);
+            assert_eq!(q.0,p.tag%7);
+            assert_eq!(q.1.to_bits(),p.mass.to_bits());
+        }
+        let blank:Vec<Part>=Vec::new();
+        let marks:Vec<Mark>=Vec::new();
+        assert_eq!(blank.len(),marks.len());
     }
 }
