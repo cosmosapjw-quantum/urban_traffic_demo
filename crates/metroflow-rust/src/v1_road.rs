@@ -837,10 +837,11 @@ impl RoadWorkBudget {
             )
         };
         // The original source's two max-cell Part scratch allocations
-        // belong to future interval combination. They are never alive at
-        // the before-append transfer_indexed preflight, where no per-cell
-        // combine_chunked_parts has begun. Preserve the ENTIRE old reserve
-        // in preflight, packet packing, split and all other phases.
+        // belong to future interval combination at transfer preflight.
+        // After source-order combine returns and raw Part/Mark owners drop,
+        // only direct completed-source packet conversion replaces that dead
+        // reserve by the exact simultaneous live Part Vec capacity. Active
+        // interval splitting and all other phases retain the full reserve.
         let completed_pack = phase=="packet interval packing"
             && self.incoming_descriptor_live_bytes.is_some()
             && source_part_bytes.is_some();

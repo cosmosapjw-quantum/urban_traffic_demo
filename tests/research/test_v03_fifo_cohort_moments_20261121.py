@@ -46,3 +46,34 @@ def test_invalid_service_or_nonpositive_packet_mass_fails_closed():
             fifo_prefix_moments(packets(), s)
     with pytest.raises(ValueError):
         fifo_prefix_moments((CohortPacket((CohortPart(1, F(0), F(0)),)),), F(0))
+
+
+def test_exhaustive_small_fifo_cohort_prefix_and_merge_certificate():
+    """Exact rational finite sweep, with independent prefix conservation bounds."""
+    cases = 0
+    for a in range(1, 5):
+        for b in range(1, 5):
+            for m1 in range(1, 4):
+                for m2 in range(1, 4):
+                    for birth1 in (-2, 0, 3):
+                        for birth2 in (-1, 2):
+                            profile = (
+                                CohortPart(1, F(m1), F(m1 * birth1)),
+                                CohortPart(2, F(m2), F(m2 * birth2)),
+                            )
+                            first = CohortPacket(tuple(CohortPart(x.route, x.mass * a,
+                                                   x.birth_moment * a) for x in profile))
+                            second = CohortPacket(tuple(CohortPart(x.route, x.mass * b,
+                                                   x.birth_moment * b) for x in profile))
+                            merged = CohortPacket(tuple(CohortPart(x.route, x.mass * (a+b),
+                                                     x.birth_moment * (a+b)) for x in profile))
+                            limit = (a+b) * (m1+m2)
+                            for s in (F(0), F(1, 2), F(a*(m1+m2)), F(a*(m1+m2))+F(1, 2),
+                                      F(limit)):
+                                original = fifo_prefix_moments((first,second),s)
+                                single = fifo_prefix_moments((merged,),s)
+                                assert original == single
+                                assert sum((v[0] for v in original.values()),F(0)) == s
+                                assert all(F(0)<=v[0]<=s for v in original.values())
+                                cases += 1
+    assert cases == 4*4*3*3*3*2*5
