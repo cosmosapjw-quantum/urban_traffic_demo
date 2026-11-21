@@ -1,0 +1,283 @@
+{
+  "R10_C10_push_and_remote_SHA_readback_required": true,
+  "R1_C1_to_R9_C9_commits": [
+    "78b9a9be5c13cf6cb7780e23c57ce460f456ca81",
+    "da9b643d3ca956dfb3ca70df24e6554e884e4ae5",
+    "be6dc2d114a707ec78818047641be48582eb0f4f",
+    "8504e6ba821ca0efc979774e7e7dd940670b0c19",
+    "edf19135e92e6ebcf216ff62b482bf1ad84092a7",
+    "fe2afd3ad759e41dd7bbdfdcc352832f1f177b50",
+    "fd89e758e1eee4b97f90b3559c4c0323f213c737",
+    "d5829bd0934f9f27d83dc896c3361684f76cea10",
+    "9a485549592e515b8804bc275216cdf72fcb3017"
+  ],
+  "clean_source_sha256": "21c6f6b5959d9025418702c7f2b2e7dce91ca213538bfbdcac37dfd81cca8271",
+  "constructive_physical_theory": {
+    "boundary": "original double precision 1e-12 saturation and multi-head dynamic evolution are not exact rational model",
+    "domain": "one fixed-head multi-commodity physical node allocation substep; exact arithmetic for theorem; no partial-FIFO replacement",
+    "exact_fraction_cases_checked": 24696,
+    "example": {
+      "base_downstream": [
+        "3",
+        "5"
+      ],
+      "base_flow": [
+        "3/2",
+        "3",
+        "7/2"
+      ],
+      "base_rounds": [
+        {
+          "active_before": [
+            0,
+            1,
+            2
+          ],
+          "flow_after": [
+            "3/2",
+            "3",
+            "3/2"
+          ],
+          "saturated_destinations": [
+            0
+          ],
+          "step": "3/2"
+        },
+        {
+          "active_before": [
+            2
+          ],
+          "flow_after": [
+            "3/2",
+            "3",
+            "7/2"
+          ],
+          "saturated_destinations": [
+            0,
+            1
+          ],
+          "step": "2"
+        }
+      ],
+      "base_supplies": [
+        "3",
+        "5"
+      ],
+      "beta_turning": [
+        [
+          "1",
+          "0"
+        ],
+        [
+          "1/2",
+          "1/2"
+        ],
+        [
+          "0",
+          "1"
+        ]
+      ],
+      "physical_total_flow_gain": "1",
+      "priority_weights": [
+        "1",
+        "2",
+        "1"
+      ],
+      "relieved_downstream": [
+        "4",
+        "5"
+      ],
+      "relieved_flow": [
+        "2",
+        "4",
+        "3"
+      ],
+      "relieved_supplies": [
+        "4",
+        "5"
+      ],
+      "send_caps": [
+        "10",
+        "10",
+        "4"
+      ]
+    },
+    "original_Rust_rates_source_physics_tests_passed": 2,
+    "originality_caveat": "reproved explicitly for this source law, not claimed a world-first weighted max-min node theorem",
+    "source_implementation": "crates/metroflow-rust/src/v1_road.rs::rates",
+    "theorem": "With fixed heads, positive w_i, nonnegative turn fractions, nonnegative per-source S_i and downstream R_j, progressive filling terminates in at most |I+| rounds and yields feasible weighted max-min fair destination-conserving q_i.",
+    "theorem_status": "DERIVED_PROOF_AND_EXACT_RATIONAL_CHECKS_AND_ACTUAL_ORIGINAL_RUST_NODE_TESTED"
+  },
+  "created_utc": "2026-11-21T12:00:45+00:00",
+  "exact_original_parent_commit": "78de15392977db76a97a5c435566f54721616021",
+  "file_sha256": {
+    "artifacts/v03_weighted_fifo_20261121/C6_ORIGINAL_100K_25710.json": "242612c960fa3cf629176e8c402dbc2b827cfe9a8813ee8352fb99c3a69eb76b",
+    "artifacts/v03_weighted_fifo_20261121/C8_100K_REQUESTED_80S_FROM_25650.json": "373833e4bf7966bcc33a088aaf63edb223a9fbb2f21803b31878708e8561985d",
+    "artifacts/v03_weighted_fifo_20261121/C9_CURRENT_NATIVE_READINESS.json": "6eb13b8d8e37467088e874e4409cda1e287ac4e067bb3cc02db2f3f4c3af29c2",
+    "artifacts/v03_weighted_fifo_20261121/C9_preparation/CAMPAIGN.json": "8989f4276c1a8e04c58ab0e241e49ba1cfafe17ea891af10b27327b719792e47",
+    "artifacts/v03_weighted_fifo_20261121/C9_preparation/coastal_weekend_s41.prepare.json": "c4885e40033d4a23faeb564c3f6e12ad2d1cc08c6354ae17a14c6c8fec28367e",
+    "artifacts/v03_weighted_fifo_20261121/C9_preparation/river_weekday_s17.prepare.json": "e9fae77dce72031e4bdcfd16c1dc8795d2f78066887a5a2b55b375cb66d4bc00",
+    "artifacts/v03_weighted_fifo_20261121/C9_preparation/valley_weekday_s7.prepare.json": "953f567d7182bd29bff90576d091110d60d62a7bfb344066b943baa052e78d1e",
+    "artifacts/v03_weighted_fifo_20261121/R5_EXACT_WEIGHTED_JUNCTION_THEORY.json": "e4485c1b6911b5ced41945739d8193bd995317db889cb966c2bc593cbd309a85",
+    "crates/metroflow-rust/src/v1_engine.rs": "ea4986c416efef387fe2962d70b7f9ee241c6f414ce594ac493891632d869cda",
+    "crates/metroflow-rust/src/v1_road.rs": "6b9dd8802b3a9bcf38bf5b3668ea38476a13e6467c1fe45c87d68097b59ceef5",
+    "docs/research/V03_WEIGHTED_FIFO_R1_R10_C1_C10_20261121_KO.md": "315d25323def99bcf881f6009bc61010f5b1a262611713f9003746ccf7db8b61",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "tests/research/test_v03_weighted_c6_100k_20261121.py": "963fd202aca17a3a69f6cf6be6cb55c2650259993bfaaa74904d994e1e654d42",
+    "tests/research/test_v03_weighted_c8_horizon_20261121.py": "58ac62ded606352f2a77de109f92f6c400ede8741f5aeb09a3506697553f398d",
+    "tests/research/test_v03_weighted_c9_readiness_20261121.py": "0ff29e94a1f2546fcf44308fc0de98abb29758d6600768efe1aa56d1bff23040",
+    "tests/research/test_v03_weighted_theory_20261121.py": "8480f514807ea813739d315907373682ce5a0b3bb5eadc6f94f7973105f8471d",
+    "tools/research/v03_weighted_fifo_junction_exact_20261121.py": "75d0d4221fd57c10e044db71bc2b748818e9715b2de7c7483faf26b216eba1ac"
+  },
+  "increasing_original_100k_physical_experiments": {
+    "actual_10s_step_wall_s_with_physical_clocks": [
+      {
+        "completed_time_s": 25660.0,
+        "wall_s": 12.621476362997782
+      },
+      {
+        "completed_time_s": 25670.0,
+        "wall_s": 14.768578870003694
+      },
+      {
+        "completed_time_s": 25680.0,
+        "wall_s": 18.248489828009042
+      },
+      {
+        "completed_time_s": 25690.0,
+        "wall_s": 21.361825831001624
+      },
+      {
+        "completed_time_s": 25700.0,
+        "wall_s": 25.254753807996167
+      }
+    ],
+    "actual_uninterrupted_completed_duration_s": 50.0,
+    "full_mass_ledger_at_last_completed": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 1543.017065707109,
+        "completed": 92.93420961372465,
+        "pending": 1141.8265024570107,
+        "released": 1635.9512753208335,
+        "requested": 2777.777777777844
+      },
+      "vehicles": {
+        "active": 1234.1174136872016,
+        "completed": 72.54925297942708,
+        "pending": 54.4444444444548,
+        "released": 1306.6666666666288,
+        "requested": 1361.1111111110836
+      }
+    },
+    "full_wall_s_including_original_full_prep_and_checkpoint_IO": 139.72405521599285,
+    "historical_start_time_s": 25650.0,
+    "last_completed_time_s": 25700.0,
+    "last_fail_allowed_bytes": 4939690935,
+    "last_fail_excess_bytes": 651897,
+    "last_fail_guard": "road_work:packet interval packing",
+    "last_fail_required_bytes": 4940342832,
+    "last_full_checkpoint_independent_real_SHA_verified": {
+      "current_50s_uninterrupted_25700": {
+        "bytes": 3405043386,
+        "local_only_file": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/artifacts/v03_weighted_fifo_20261121/C8_100K_REQUESTED_80S_FROM_25650.final.bin",
+        "not_pushed": true,
+        "sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369"
+      },
+      "previous_independent_25700": {
+        "bytes": 3405043386,
+        "local_only_file": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/artifacts/v03_quantile_capture_20261121/C6_ORIGINAL_100K_REQUESTED_80S.final.bin",
+        "not_pushed": true,
+        "sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369"
+      }
+    },
+    "native_original_from_time_zero_accepted": false,
+    "next_blocked_time_s": 25710.0,
+    "original_full_86400s_day_accepted": false,
+    "peak_rss_bytes": 5179547648,
+    "requested_duration_s": 80,
+    "source_input_full_wire_roundtrip_exact": true,
+    "source_input_older_cross_binary": true,
+    "uninterrupted_60_or_80_seconds_completed": false
+  },
+  "native_binary_sha256": "b86af939ee0e83ccf4fee26f802040e0b97b2501c5a0603eb1536338dccbf838",
+  "next_scientific_task": "V03-EXACT-INTERVAL-PACKET-LIFETIME-14",
+  "nonclaims": [
+    "no original complete 25710 time",
+    "no original 60s or 80s uninterrupted full state",
+    "no current binary original 0-to-25700 complete trajectory",
+    "no full 86400s original city day or 9-run release",
+    "no proof of world-first weighted priority theorem",
+    "no change in original full V03 release acceptance"
+  ],
+  "official_V03_readiness": {
+    "completed_original_86400s_days": 0,
+    "current_source_full_city_case_inputs_prepared": 3,
+    "current_source_full_city_case_inputs_required": 3,
+    "direct_V03_predecessors_done": 3,
+    "direct_V03_predecessors_total": 3,
+    "original_calendar_prep_wall_s_per_case": {
+      "coastal_weekend_s41": 36.149467146999086,
+      "river_weekday_s17": 62.251262742996914,
+      "valley_weekday_s7": 19.582098995000706
+    },
+    "original_input_legs_per_case": {
+      "coastal_weekend_s41": 2449750,
+      "river_weekday_s17": 5093765,
+      "valley_weekday_s7": 918450
+    },
+    "original_plan_total_nodes": 21,
+    "required_original_86400s_days": 9,
+    "scoped_nodes_completed": 19,
+    "status": "BLOCKED"
+  },
+  "original_scientific_contract": {
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "original_FIFO_route_mass_birth_and_ieee_unchanged": true,
+    "original_RLIMIT_AS_bytes": 8589934592,
+    "original_dt_s": 10,
+    "original_main_PLAN_release_matrix_not_modified": true,
+    "original_wall_cap_s": 7200,
+    "resident_stock_each_city": 100000
+  },
+  "production_source_blocker_improvement": {
+    "first_transfer_gate_actual_status": "CLOSED_AT_ORIGINAL_100K_SOURCE",
+    "later_exact_blocker": "road_work:packet interval packing",
+    "later_excess_bytes": 10682241,
+    "later_original_allowed_bytes": 5025214575,
+    "later_required_bytes": 5035896816,
+    "new_original_transfer_guard_calls_zero_exceeded": 196190,
+    "new_source_sha256_at_original_first_C6": "71ef6f5cc7cf111c8a25e4a7aeb387ed808dc50f515f7e29125b9c28cc4e0ba8",
+    "old_original_transfer_guard_calls_at_failure": 188168,
+    "old_source_sha256": "5a4bf951262b10b3a67737901fd8d0845ece2f48081d05771dd9f9f1b9d48010",
+    "original_input_25700_checkpoint_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+    "original_input_full_wire_roundtrip_exact": true,
+    "original_previous_completed_mass_ledger_equal": true,
+    "single_original_10s_replay_peak_rss_bytes": 4177154048,
+    "single_original_10s_replay_wall_s": 52.024105197007884,
+    "source_derived_nonconcurrent_future_cell_part_scratch_bytes": 135413952,
+    "source_step_completed_25710": false
+  },
+  "repo": "https://github.com/cosmosapjw-quantum/urban_traffic_demo",
+  "research_branch": "research/v03-weighted-fifo-20261121",
+  "schema": "METROFLOW_V03_WEIGHTED_FIFO_CONSTRUCTIVE_R1_R10_C1_C10_20261121_V1",
+  "verification": {
+    "cargo_check": "EXIT0",
+    "cargo_release_build": "EXIT0",
+    "fresh_original_native_plus_research_Python_pass": 106,
+    "fresh_rust_pass": 166,
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "native_subagent_execution": "NOT_RUN_NO_NATIVE_DISPATCH",
+    "original_plan_validator": "VALID_PLAN_NOT_RELEASE",
+    "python_failed": 0,
+    "rust_failed": 0,
+    "rust_ignored": 2
+  }
+}
