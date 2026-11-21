@@ -532,19 +532,20 @@ impl ChunkedEvents {
     }
 }
 
-/// Candidate pages replace the old full-capacity Vec doubling reallocations.
-/// One last page can have at most (B-1) unused EventRows. A Vec<Vec<T>>
-/// descriptor array may be transiently present as old+grown headers; bound
-/// their total at 3*(ceil(n/B)+1) items. Retain legacy 96B metadata allowance.
+/// Exact source-backed row capacity for append-only, fixed-size pages.
+/// ChunkedEvents::push_checked allocates exactly B slots for each newly
+/// started page and checks real Vec::capacity()==B. Therefore for positive
+/// n, *physically live* row slots are exactly B*ceil(n/B), not n+B-1.
+/// The ORIGINAL transient 3x page-descriptor growth bound and original 96B
+/// metadata reserve remain unchanged; no physical payload or cap is erased.
 fn paged_event_candidate_payload_bytes(n:usize,row_bytes:usize)->usize {
     const META:usize=3*32;
     if n==0{return META;}
-    n.saturating_add(EVENT_PAGE_ROWS-1).saturating_mul(row_bytes)
-        .saturating_add(
-            n.div_ceil(EVENT_PAGE_ROWS).saturating_add(1).saturating_mul(
-                3*std::mem::size_of::<Vec<EventRow>>(),
-            )
-        ).saturating_add(META)
+    let pages=n.div_ceil(EVENT_PAGE_ROWS);
+    pages.saturating_mul(EVENT_PAGE_ROWS).saturating_mul(row_bytes)
+        .saturating_add(pages.saturating_add(1).saturating_mul(
+            3*std::mem::size_of::<Vec<EventRow>>()
+        )).saturating_add(META)
 }
 fn paged_event_candidate_bytes(n:usize)->usize {
     paged_event_candidate_payload_bytes(n,std::mem::size_of::<EventRow>())
@@ -5618,8 +5619,8 @@ mod exact_paged_event_candidate_tests {
         let old=3*n*64+96;
         let page=paged_event_candidate_bytes(n);
         assert_eq!(old,1_747_227_936);
-        assert_eq!(page,582_831_512);
-        assert_eq!(old-page,1_164_396_424);
+        assert_eq!(page,582_644_120);
+        assert_eq!(old-page,1_164_583_816);
         assert_eq!(paged_event_candidate_bytes(0),96);
     }
 }
@@ -5912,7 +5913,7 @@ mod exact_compact_candidate_event_tests {
         let n=9_100_145usize;
         let old=paged_event_candidate_bytes(n);
         let compact=paged_compact_event_candidate_bytes(n);
-        assert_eq!(old-compact,16*(n+EVENT_PAGE_ROWS-1));
+        assert_eq!(old-compact,16*(n.div_ceil(EVENT_PAGE_ROWS)*EVENT_PAGE_ROWS));
         assert!(old-compact>140_000_000);
         assert_eq!(paged_compact_event_candidate_bytes(0),96);
     }
@@ -6074,5 +6075,60 @@ mod exact_postroad_live_owner_bound_tests {
         assert_eq!(postroad_continuous_owner_sum(0,0,0),0);
         assert_eq!(postroad_continuous_owner_sum(7,13,19),39);
         assert_eq!(postroad_continuous_owner_sum(5,5,5),15);
+    }
+}
+
+#[cfg(test)]
+mod exact_event_page_live_capacity_contract_tests {
+    use super::*;
+
+    fn expected(n:usize, sz:usize)->usize {
+        let original_metadata=3*32;
+        if n==0{return original_metadata;}
+        let pages=n.div_ceil(EVENT_PAGE_ROWS);
+        pages*EVENT_PAGE_ROWS*sz
+            +(pages+1)*3*std::mem::size_of::<Vec<EventRow>>()
+            +original_metadata
+    }
+    #[test]
+    fn candidate_allocation_charges_actual_preallocated_page_capacity_not_fictitious_slack() {
+        for n in [0usize,1,4095,4096,4097,8191,8192,8193,16011,
+                    8_739_669,14_054_346] {
+            assert_eq!(paged_compact_event_candidate_bytes(n),
+                       expected(n,std::mem::size_of::<CompactEventRow>()),
+                       "compact event source count {n}");
+            assert_eq!(paged_event_candidate_bytes(n),
+                       expected(n,std::mem::size_of::<EventRow>()),
+                       "wide event source count {n}");
+        }
+    }
+    #[test]
+    fn source_100k_measured_transfer_guards_are_predicted_to_clear_without_cap_changes() {
+        let short=8_739_669usize;
+        let long=14_054_346usize;
+        let old=|n:usize|(n+EVENT_PAGE_ROWS-1)*48
+            +(n.div_ceil(EVENT_PAGE_ROWS)+1)*3*std::mem::size_of::<Vec<EventRow>>()+96;
+        assert_eq!(old(short)-paged_compact_event_candidate_bytes(short),139_200);
+        assert_eq!(old(long)-paged_compact_event_candidate_bytes(long),46_512);
+        assert!(139_200>6_609);
+        assert!(46_512>11_513);
+    }
+    #[test]
+    fn physical_page_chunk_capacity_and_event_bits_remain_unchanged() {
+        for n in [0usize,1,4096,4097,8193] {
+            let mut pages=ChunkedEvents::new(true);
+            for i in 0..n {
+                pages.push_checked((
+                    i%1300,i%1586,if i%7==0{None}else{Some(i%1586)},
+                    if i%11==0{f64::from_bits(1)}else{i as f64/73.},
+                    if i%13==0{-0.0}else{i as f64/131.},
+                    if i%17==0{-0.0}else{i as f64/223.},
+                    i as f64/89.,
+                )).unwrap();
+            }
+            assert_eq!(pages.physical_capacity_bytes(),
+                n.div_ceil(EVENT_PAGE_ROWS)*EVENT_PAGE_ROWS
+                  *std::mem::size_of::<CompactEventRow>());
+        }
     }
 }
