@@ -561,11 +561,21 @@ fn paged_compact_event_candidate_bytes(n:usize)->usize {
 /// All three road retained owners, committed service events, final EventRow
 /// Vec and NEW full key/moment copies coexist temporarily. The packet term
 /// is a conservative 64-bit allocator envelope; no model or cap changes.
+/// Each of the three actual road state retained owners is known at the
+/// postroad lifetime boundary. Summing ALL THREE distinct source byte
+/// counts remains conservative even when some Arc backings are aliased;
+/// unlike 3*max, it does not charge an invented additional copy of the
+/// largest candidate's entire physical state.
+fn postroad_continuous_owner_sum(
+    committed:usize,input:usize,candidate:usize,
+)->usize {
+    committed.saturating_add(input).saturating_add(candidate)
+}
 fn postroad_continuous_keyset_peak_bytes(
-    owner_max:usize, old_events:usize,
+    owner_sum:usize, old_events:usize,
     flat_rows:usize, core_rows:usize, packet_owners:usize,
 )->usize {
-    owner_max.saturating_mul(3)
+    owner_sum
         .saturating_add(old_events)
         .saturating_add(flat_rows.saturating_mul(std::mem::size_of::<EventRow>()))
         .saturating_add(core_rows.saturating_mul(std::mem::size_of::<CorePart>()))
@@ -2617,20 +2627,26 @@ impl V1Road {
         let flat=pages.into_flat_checked()?;
         if let Some(limit)=self.storage_budget {
             let stats=candidate.debug_stats();
-            let owner_max=self.state.retained_storage_bytes()
-                .max(self.retained_input_bytes)
-                .max(candidate.retained_storage_bytes());
+            let committed_retained=self.state.retained_storage_bytes();
+            let supplied_retained=self.retained_input_bytes;
+            let candidate_retained=candidate.retained_storage_bytes();
+            let owner_sum=postroad_continuous_owner_sum(
+                committed_retained,supplied_retained,candidate_retained,
+            );
             let old_events=self.service_event_accounting.map_or(0,|v|
                 v.input_bytes.saturating_add(
                     if v.shared_input_current {0} else {v.current_bytes}
                 ));
             let packets=stats.cell_packets.saturating_add(stats.pending_packets);
             let required=postroad_continuous_keyset_peak_bytes(
-                owner_max,old_events,flat.len(),stats.uniform_parts,packets,
+                owner_sum,old_events,flat.len(),stats.uniform_parts,packets,
             );
             crate::v1_trace::guard(
                 "road_post","continuous keyset allocation",required,limit,
-                &[("road_owner_max",owner_max),("old_event_bytes",old_events),
+                &[("committed_road_retained",committed_retained),
+                  ("supplied_input_road_retained",supplied_retained),
+                  ("candidate_road_retained",candidate_retained),
+                  ("road_owner_sum",owner_sum),("old_event_bytes",old_events),
                   ("flat_event_rows",flat.len()),("candidate_uniform_rows",stats.uniform_parts),
                   ("candidate_packets",packets)],
             );
@@ -5802,7 +5818,8 @@ mod continuous_keyset_and_page_geometry_tests {
     #[test]
     fn postroad_continuous_interning_counts_both_old_state_and_new_scratch() {
         let estimated=postroad_continuous_keyset_peak_bytes(
-            100_000, 20_000, 200, 500, 7,
+            postroad_continuous_owner_sum(100_000,100_000,100_000),
+            20_000, 200, 500, 7,
         );
         let expected=3*100_000+20_000
             +200*std::mem::size_of::<EventRow>()
@@ -6026,5 +6043,36 @@ mod exact_consumed_packet_source_lifetime_tests {
         }
         assert!(release_consumed_incoming_pair(&mut b,y,mm).is_err());
         assert_eq!(b.incoming,1);
+    }
+}
+
+#[cfg(test)]
+mod exact_postroad_live_owner_bound_tests {
+    use super::*;
+
+    #[test]
+    fn exact_three_live_road_owners_are_added_individually_without_alias_credit() {
+        let committed=545_136_024usize;
+        let call_input=545_136_024usize;
+        let candidate=745_155_216usize;
+        let individually_charged=postroad_continuous_owner_sum(
+            committed,call_input,candidate,
+        );
+        assert_eq!(individually_charged,1_835_427_264);
+        assert_eq!(3*candidate-individually_charged,400_038_384);
+        let required=postroad_continuous_keyset_peak_bytes(
+            individually_charged,
+            795_376_448,14_432_257,34_610_422,631_350,
+        );
+        assert_eq!(required,4_708_369_584);
+        assert!(required<5_087_563_191);
+        assert_eq!(5_087_563_191-required,379_193_607);
+    }
+
+    #[test]
+    fn zero_and_nonidentical_owner_terms_are_never_assumed_pointer_sharing() {
+        assert_eq!(postroad_continuous_owner_sum(0,0,0),0);
+        assert_eq!(postroad_continuous_owner_sum(7,13,19),39);
+        assert_eq!(postroad_continuous_owner_sum(5,5,5),15);
     }
 }
