@@ -6775,3 +6775,51 @@ mod original_transfer_exclusive_cell_scratch_tests {
         assert!(w.require(0,"checkpoint decode preflight").is_err());
     }
 }
+
+#[cfg(test)]
+mod original_weighted_fifo_physical_rates_theorem_tests {
+    use super::*;
+    fn original_source_node()->V1Road {
+        let mut groups=vec![vec![1.0;6];3];
+        groups[0][5]=1.;
+        groups[1][5]=2.;
+        groups[2][5]=1.;
+        V1Road::new(
+            "weighted-priority-physical-node".to_string(),10.,
+            groups,vec![None;3],
+            vec![(vec![0,1],0)],
+            vec![vec![1.;13]],
+            vec![vec![0,1,2]],vec![],
+            100_000,Some(100_000),true,
+        ).unwrap()
+    }
+    fn heads()->BTreeMap<usize,BTreeMap<usize,f64>> {
+        BTreeMap::from([
+            (0,BTreeMap::from([(0,1.),(1,0.)])),
+            (1,BTreeMap::from([(0,0.5),(1,0.5)])),
+            (2,BTreeMap::from([(0,0.),(1,1.)])),
+        ])
+    }
+    #[test]
+    fn original_progressive_junction_exact_physical_bottleneck_prediction(){
+        let road=original_source_node();
+        let demand=BTreeMap::from([(0,10.),(1,10.),(2,4.)]);
+        let capacities=BTreeMap::from([(0,3.),(1,5.)]);
+        let q=road.rates(&heads(),&demand,&capacities).unwrap();
+        assert_eq!([q[&0],q[&1],q[&2]],[1.5,3.,3.5]);
+        assert_eq!([q[&0]+q[&1]*0.5,q[&1]*0.5+q[&2]],[3.,5.]);
+        let relief=BTreeMap::from([(0,4.),(1,5.)]);
+        let q2=road.rates(&heads(),&demand,&relief).unwrap();
+        assert_eq!([q2[&0],q2[&1],q2[&2]],[2.,4.,3.]);
+        assert_eq!([q2[&0]+q2[&1]*0.5,q2[&1]*0.5+q2[&2]],[4.,5.]);
+        assert_eq!(q2.values().sum::<f64>()-q.values().sum::<f64>(),1.0);
+    }
+    #[test]
+    fn zero_downstream_capacity_blocks_only_upstream_sources_that_use_it() {
+        let road=original_source_node();
+        let demand=BTreeMap::from([(0,10.),(1,10.),(2,4.)]);
+        let receiving=BTreeMap::from([(0,0.),(1,5.)]);
+        let q=road.rates(&heads(),&demand,&receiving).unwrap();
+        assert_eq!([q[&0],q[&1],q[&2]],[0.,0.,4.]);
+    }
+}
