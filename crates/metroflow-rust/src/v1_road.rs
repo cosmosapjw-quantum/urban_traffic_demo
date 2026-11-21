@@ -6566,3 +6566,70 @@ mod exact_pending_pack_live_descriptor_tests {
         assert_eq!(w.incoming_descriptor_live_bytes,None);
     }
 }
+
+#[cfg(test)]
+mod fifo_moment_nonclosure_physical_source_tests {
+    use super::*;
+
+    /// Original physical source-level packet representation: a cohort's
+    /// birth value is its mass-weighted original entry/source time. Serve
+    /// chronological queue heads exactly via the production served_parts()
+    /// iterator and its unchanged (m, birth) scaling rule.
+    fn source_fifo_departure(cohort_masses:[usize;3],quota:f64)->(f64,f64){
+        let mut remaining=quota;
+        let mut served_mass=0.0;
+        let mut served_birth=0.0;
+        for (i,integer_mass) in cohort_masses.into_iter().enumerate(){
+            if remaining<=0. {break;}
+            let m=integer_mass as f64;
+            let part=Part {
+                tag:0,offset:0,mass:m,birth:m*(i as f64),
+                a:PackedTime::new(Some(i as f64)).unwrap(),
+                b:PackedTime::new(Some(i as f64)).unwrap(),
+            };
+            let packet=PacketParts::pack(vec![part], |_|Ok(())).unwrap();
+            let fraction=remaining.min(m)/m;
+            for served in served_parts(&packet,fraction) {
+                served_mass+=served.mass;
+                served_birth+=served.birth;
+                remaining-=served.mass;
+            }
+        }
+        assert!(remaining.abs()<1e-12);
+        (served_mass,served_birth)
+    }
+    #[test]
+    fn exact_fifo_source_counterexample_same_mass_and_birth_different_departure_age(){
+        let x=[3usize,2,3];
+        let y=[1usize,6,1];
+        let moments=|cohorts:[usize;3]|->(usize,usize){
+            (cohorts.iter().sum(),
+             cohorts.iter().enumerate().map(|(i,m)|i*m).sum())
+        };
+        assert_eq!(moments(x),(8,8));
+        assert_eq!(moments(y),(8,8));
+        let a=source_fifo_departure(x,2.);
+        let b=source_fifo_departure(y,2.);
+        assert!((a.0-2.).abs()<1e-12 && (b.0-2.).abs()<1e-12);
+        assert_eq!(a.1.to_bits(),0.0f64.to_bits());
+        assert!((b.1-1.).abs()<1e-12);
+        assert_ne!(a.1.to_bits(),b.1.to_bits());
+    }
+    #[test]
+    fn retaining_individual_packet_birth_and_source_interval_bits_is_not_global_closure(){
+        let part=Part {
+            tag:0,offset:0,mass:f64::from_bits(1),birth:-0.0,
+            a:PackedTime::new(Some(-0.0)).unwrap(),
+            b:PackedTime::new(Some(0.0)).unwrap(),
+        };
+        let packed=PacketParts::pack(vec![part], |_|Ok(())).unwrap();
+        let row=packed.iter().next().unwrap();
+        assert_eq!(row.mass.to_bits(),part.mass.to_bits());
+        assert_eq!(row.birth.to_bits(),part.birth.to_bits());
+        assert_eq!(row.a.0,part.a.0);
+        assert_eq!(row.b.0,part.b.0);
+        let served=served_parts(&packed,1.).next().unwrap();
+        assert_eq!(served.mass.to_bits(),part.mass.to_bits());
+        assert_eq!(served.birth.to_bits(),part.birth.to_bits());
+    }
+}
