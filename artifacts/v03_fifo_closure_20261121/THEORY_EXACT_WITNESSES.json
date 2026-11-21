@@ -1,0 +1,423 @@
+{
+  "arithmetic": "Python Fraction exact rational; no random sampling or floating tolerance",
+  "domain": "ideal chronological FIFO, nonnegative finite cohorts, first p polynomial moments",
+  "finite_assertion_status": "CHECKED_P_0_TO_10_AND_J_2_TO_7",
+  "moment_witnesses": [
+    {
+      "cohorts": 2,
+      "fifo_served_birth_moment_minus": "1",
+      "fifo_served_birth_moment_plus": "0",
+      "fifo_served_mass": "2",
+      "first_p_moments_exactly_equal": [
+        true
+      ],
+      "minus_masses": [
+        "1",
+        "3"
+      ],
+      "p": 0,
+      "plus_masses": [
+        "3",
+        "1"
+      ],
+      "total_mass": "4"
+    },
+    {
+      "cohorts": 3,
+      "fifo_served_birth_moment_minus": "1",
+      "fifo_served_birth_moment_plus": "0",
+      "fifo_served_mass": "2",
+      "first_p_moments_exactly_equal": [
+        true,
+        true
+      ],
+      "minus_masses": [
+        "1",
+        "6",
+        "1"
+      ],
+      "p": 1,
+      "plus_masses": [
+        "3",
+        "2",
+        "3"
+      ],
+      "total_mass": "8"
+    },
+    {
+      "cohorts": 4,
+      "fifo_served_birth_moment_minus": "1",
+      "fifo_served_birth_moment_plus": "0",
+      "fifo_served_mass": "2",
+      "first_p_moments_exactly_equal": [
+        true,
+        true,
+        true
+      ],
+      "minus_masses": [
+        "1",
+        "9",
+        "3",
+        "3"
+      ],
+      "p": 2,
+      "plus_masses": [
+        "3",
+        "3",
+        "9",
+        "1"
+      ],
+      "total_mass": "16"
+    },
+    {
+      "cohorts": 5,
+      "fifo_served_birth_moment_minus": "1",
+      "fifo_served_birth_moment_plus": "0",
+      "fifo_served_mass": "2",
+      "first_p_moments_exactly_equal": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "minus_masses": [
+        "1",
+        "12",
+        "6",
+        "12",
+        "1"
+      ],
+      "p": 3,
+      "plus_masses": [
+        "3",
+        "4",
+        "18",
+        "4",
+        "3"
+      ],
+      "total_mass": "32"
+    },
+    {
+      "cohorts": 6,
+      "fifo_served_birth_moment_minus": "1",
+      "fifo_served_birth_moment_plus": "0",
+      "fifo_served_mass": "2",
+      "first_p_moments_exactly_equal": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "minus_masses": [
+        "1",
+        "15",
+        "10",
+        "30",
+        "5",
+        "3"
+      ],
+      "p": 4,
+      "plus_masses": [
+        "3",
+        "5",
+        "30",
+        "10",
+        "15",
+        "1"
+      ],
+      "total_mass": "64"
+    },
+    {
+      "cohorts": 7,
+      "fifo_served_birth_moment_minus": "1",
+      "fifo_served_birth_moment_plus": "0",
+      "fifo_served_mass": "2",
+      "first_p_moments_exactly_equal": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "minus_masses": [
+        "1",
+        "18",
+        "15",
+        "60",
+        "15",
+        "18",
+        "1"
+      ],
+      "p": 5,
+      "plus_masses": [
+        "3",
+        "6",
+        "45",
+        "20",
+        "45",
+        "6",
+        "3"
+      ],
+      "total_mass": "128"
+    },
+    {
+      "cohorts": 8,
+      "fifo_served_birth_moment_minus": "1",
+      "fifo_served_birth_moment_plus": "0",
+      "fifo_served_mass": "2",
+      "first_p_moments_exactly_equal": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "minus_masses": [
+        "1",
+        "21",
+        "21",
+        "105",
+        "35",
+        "63",
+        "7",
+        "3"
+      ],
+      "p": 6,
+      "plus_masses": [
+        "3",
+        "7",
+        "63",
+        "35",
+        "105",
+        "21",
+        "21",
+        "1"
+      ],
+      "total_mass": "256"
+    },
+    {
+      "cohorts": 9,
+      "fifo_served_birth_moment_minus": "1",
+      "fifo_served_birth_moment_plus": "0",
+      "fifo_served_mass": "2",
+      "first_p_moments_exactly_equal": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "minus_masses": [
+        "1",
+        "24",
+        "28",
+        "168",
+        "70",
+        "168",
+        "28",
+        "24",
+        "1"
+      ],
+      "p": 7,
+      "plus_masses": [
+        "3",
+        "8",
+        "84",
+        "56",
+        "210",
+        "56",
+        "84",
+        "8",
+        "3"
+      ],
+      "total_mass": "512"
+    },
+    {
+      "cohorts": 10,
+      "fifo_served_birth_moment_minus": "1",
+      "fifo_served_birth_moment_plus": "0",
+      "fifo_served_mass": "2",
+      "first_p_moments_exactly_equal": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "minus_masses": [
+        "1",
+        "27",
+        "36",
+        "252",
+        "126",
+        "378",
+        "84",
+        "108",
+        "9",
+        "3"
+      ],
+      "p": 8,
+      "plus_masses": [
+        "3",
+        "9",
+        "108",
+        "84",
+        "378",
+        "126",
+        "252",
+        "36",
+        "27",
+        "1"
+      ],
+      "total_mass": "1024"
+    },
+    {
+      "cohorts": 11,
+      "fifo_served_birth_moment_minus": "1",
+      "fifo_served_birth_moment_plus": "0",
+      "fifo_served_mass": "2",
+      "first_p_moments_exactly_equal": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "minus_masses": [
+        "1",
+        "30",
+        "45",
+        "360",
+        "210",
+        "756",
+        "210",
+        "360",
+        "45",
+        "30",
+        "1"
+      ],
+      "p": 9,
+      "plus_masses": [
+        "3",
+        "10",
+        "135",
+        "120",
+        "630",
+        "252",
+        "630",
+        "120",
+        "135",
+        "10",
+        "3"
+      ],
+      "total_mass": "2048"
+    },
+    {
+      "cohorts": 12,
+      "fifo_served_birth_moment_minus": "1",
+      "fifo_served_birth_moment_plus": "0",
+      "fifo_served_mass": "2",
+      "first_p_moments_exactly_equal": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "minus_masses": [
+        "1",
+        "33",
+        "55",
+        "495",
+        "330",
+        "1386",
+        "462",
+        "990",
+        "165",
+        "165",
+        "11",
+        "3"
+      ],
+      "p": 10,
+      "plus_masses": [
+        "3",
+        "11",
+        "165",
+        "165",
+        "990",
+        "462",
+        "1386",
+        "330",
+        "495",
+        "55",
+        "33",
+        "1"
+      ],
+      "total_mass": "4096"
+    }
+  ],
+  "nonclaims": [
+    "not proof of globally novel mathematical result",
+    "not full original V03 100k physical acceptance",
+    "not proof against every nonlinear state encoding",
+    "not statement that existing native drops FIFO history"
+  ],
+  "rank_lower_bounds": [
+    {
+      "destinations": 2,
+      "rank_destination_flux_on_fixed_mass": 1,
+      "rank_total_only": 1
+    },
+    {
+      "destinations": 3,
+      "rank_destination_flux_on_fixed_mass": 2,
+      "rank_total_only": 1
+    },
+    {
+      "destinations": 4,
+      "rank_destination_flux_on_fixed_mass": 3,
+      "rank_total_only": 1
+    },
+    {
+      "destinations": 5,
+      "rank_destination_flux_on_fixed_mass": 4,
+      "rank_total_only": 1
+    },
+    {
+      "destinations": 6,
+      "rank_destination_flux_on_fixed_mass": 5,
+      "rank_total_only": 1
+    },
+    {
+      "destinations": 7,
+      "rank_destination_flux_on_fixed_mass": 6,
+      "rank_total_only": 1
+    }
+  ],
+  "schema": "METROFLOW_FIFO_MOMENT_NONCLOSURE_EXACT_20261121_V1",
+  "source_commit": "ebb2ea3685a656066a1ac17fe98cdf1aefc1755e",
+  "source_road_sha256": "16fbee14c401b2590e13e3f5dc695c7c8035e1e43f4bd2108b9675ac50520f44",
+  "theorem_status": "PROVED_BY_FINITE_DIFFERENCES_UNIFORMLY_IN_ALL_P"
+}
