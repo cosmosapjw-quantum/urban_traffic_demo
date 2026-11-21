@@ -1,0 +1,228 @@
+{
+  "R10_C10_remote_push_and_SHA_readback_required": true,
+  "R1_C1_through_R9_C9_commits": [
+    "908ccfb7e1ec77793eb95d1b6351f27a609520fe",
+    "736fff06b89b192a630056914d8e722dcd272bad",
+    "058de535f80c9377a5f69a39381ad95a0b8e6ead",
+    "9f836f33b20e2ec598e5cd5a4d544a0b7678fe0d",
+    "a879189576f11cb4458d751dcc4abec85ef220c3",
+    "e99de61d4e980ccc4817447ca6cbe91613d6c30b",
+    "345417f9ebc67a5838d7cd8e998684eefcf128b7",
+    "93568bba84a12fd6a42b0119de7de75a6037be90",
+    "f3b71d46b57b8fd0bb68802e3f51a7f9001edbad"
+  ],
+  "authority": {
+    "fifo_ieee_model_modified": false,
+    "full_repo_ci": "DEFERRED_BY_USER",
+    "main_modified": false,
+    "original_RLIMIT_AS_bytes": 8589934592,
+    "original_caps_modified": false,
+    "original_plan_version": "1.1.26",
+    "original_population_per_city": 100000,
+    "original_wall_cap_s": 7200,
+    "physics_coefficients_modified": false
+  },
+  "branch": "research/v03-packet-lifetime-20261121",
+  "clean_source_sha256": "7148f9a7fa959eb2cd6a7b8c458f5caf51eb3089b00dbdd5aecae569a0b36bdf",
+  "created_utc": "2026-11-21T01:33:36+00:00",
+  "current_native_sha256": "00180532fab9756ebe6c68cea3ad7a8aa028b482a5f2c9af8df63193c1c308b9",
+  "escalating_physical_campaign": {
+    "20s_requested_from_new_25700": {
+      "actual_advanced_duration_s": 0.0,
+      "actual_wall_s": 43.59794844199496,
+      "allowed_bytes": 5025214575,
+      "blocked_target_time_s": 25710.0,
+      "completed_25710_checkpoint": false,
+      "excess_bytes": 6609,
+      "first_failed_guard": "road_work:transfer candidates",
+      "peak_rss_bytes": 3429543936,
+      "requested_duration_s": 20,
+      "required_bytes": 5025221184,
+      "status": "BLOCKED_RESOURCE",
+      "whole_input_full_byte_roundtrip_exact": true
+    },
+    "80s_requested_from_historical_25650": {
+      "actual_one_10s_tick_wall_s_per_clock": [
+        {
+          "completed_time_s": 25660.0,
+          "wall_s": 11.259692266998172
+        },
+        {
+          "completed_time_s": 25670.0,
+          "wall_s": 12.961329475998355
+        },
+        {
+          "completed_time_s": 25680.0,
+          "wall_s": 15.574769519997062
+        },
+        {
+          "completed_time_s": 25690.0,
+          "wall_s": 18.309265468997182
+        }
+      ],
+      "actual_wall_including_full_prep_and_IO_s": 99.92347309199977,
+      "actually_uninterrupted_completed_duration_s": 40.0,
+      "allowed_bytes": 5015096415,
+      "excess_bytes": 11513,
+      "failed_target_time_s": 25700.0,
+      "first_failed_guard": "road_work:transfer candidates",
+      "last_checkpoint_byte_equals_separate_25700_success_input": true,
+      "last_uninterrupted_valid_output_checkpoint": {
+        "bytes": 2949231402,
+        "local_only_not_in_git": true,
+        "real_local_path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_100K_ESCALATING_80S_FROM_25650.final.bin",
+        "sha256": "db5b6b53f728d892ad53b9e7126d08e73b877f055e2e6e78443f1c0851b7bd10"
+      },
+      "peak_rss_bytes": 4518924288,
+      "requested_duration_s": 80,
+      "required_bytes": 5015107928,
+      "separate_checkpoint_chain_40s_plus_10s_available": true,
+      "status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+      "uninterrupted_50s_claimed": false,
+      "uninterrupted_80s_claimed": false,
+      "valid_source_final_time_s": 25690.0
+    }
+  },
+  "file_sha256": {
+    "artifacts/v03_packet_lifetime_20261121/C10_100K_CONTINUOUS_20S.json": "daf968c929b9b6240b220c7f98d76822993d1f5c8d62d26edfc091a9c151384b",
+    "artifacts/v03_packet_lifetime_20261121/C10_100K_ESCALATING_80S_FROM_25650.json": "fe633e35addcf5b4cc7dec70d00ff2b2e99f82b448e417cef806e36cafda57a0",
+    "artifacts/v03_packet_lifetime_20261121/C10_CURRENT_NATIVE_READINESS.json": "95cb785c64114ce31e7b58622edc64db8369a6a8213099647480d0886a002dd4",
+    "artifacts/v03_packet_lifetime_20261121/C10_ORIGINAL_100K_10S_25700.json": "3cdd1eb1a3f16625786d63159251bf53333fdf7804604be812f0f2c6a54da3a1",
+    "artifacts/v03_packet_lifetime_20261121/C6_100K_10S_25700.json": "a17e96415179f32d684e4ad9aa19857e31b7f1c7a5134fc3a86d43f1c628661a",
+    "artifacts/v03_packet_lifetime_20261121/C8_100K_10S_25700.json": "91a1e5b16a817b27e776505ac76d8907687e1d189f43d47931457f3caf0ea394",
+    "crates/metroflow-rust/src/v1_journey.rs": "4d19e125e72137b0116e1b6119427061580ebb013b1fc8a1166d762c1b03bc83",
+    "crates/metroflow-rust/src/v1_road.rs": "9382d2f029c7fd8fa7a0eb36574f0abe5ee7410c41e213c789c0a40de25b0de7",
+    "docs/research/V03_PACKET_LIFETIME_R1_R10_C1_C10_20261121_KO.md": "131665a6a38149a59300c83ac5203c20fe37deae650293d952e3b7ae91269603",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "tests/research/test_v03_packet_c10_physics_20261121.py": "3424c245ca2253a06bd179719041995eac7353787974866d9bb3416203f17066",
+    "tests/research/test_v03_packet_c10_readiness_20261121.py": "9b75ff930861824a05b963c7923a8f3ef6ab9489cc230fdd6ff2dc58bd0ceef5",
+    "tests/research/test_v03_packet_c6_100k_source_20261121.py": "a6d580908973e604818b7af9d9fc71ec7ee4946874bd93a432edb43736b74ce7",
+    "tests/research/test_v03_packet_c8_checkpoint_failure_20261121.py": "a0677db54312cff5ca4098533437fcb27feec87288a8af7cb72febd616f0c252"
+  },
+  "native_binary_local_only_path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/native_binding/_metroflow_rust.so",
+  "next_scientific_task_id": "V03-EXACT-CROSS-CALL-LIVE-OWNERS-10",
+  "nonclaims": [
+    "no completely new native t0 to 25700 original trajectory",
+    "no successful 25700 to 25710 tick or 20s extended window",
+    "no uninterrupted 50s, 80s or 86400s original full day",
+    "no complete original 9 whole-city campaign",
+    "no release acceptance/merge/main modification",
+    "no no-go theorem on FIFO lineage memory growth",
+    "no reduction in original 8GiB cap or substitution of partial FIFO"
+  ],
+  "official_V03_readiness": {
+    "V03_status": "BLOCKED",
+    "actual_full_day_86400s_3cities_3runs_completed": 0,
+    "city_case_input_legs": {
+      "coastal_weekend_s41": 2449750,
+      "river_weekday_s17": 5093765,
+      "valley_weekday_s7": 918450
+    },
+    "city_case_prep_wall_s": {
+      "coastal_weekend_s41": 34.48379361499974,
+      "river_weekday_s17": 59.69166884400329,
+      "valley_weekday_s7": 18.612910340998496
+    },
+    "current_native_3cities_full_100k_calendar_preps_done": 3,
+    "current_native_calendar_required": 3,
+    "direct_prerequisites_done": 3,
+    "direct_prerequisites_total": 3,
+    "full_day_required": 9,
+    "original_plan_total_nodes": 21,
+    "scoped_nodes_completed": 19
+  },
+  "original_valley_100k_physical_success": {
+    "actual_completed_time_s": 25700.0,
+    "actual_wall_including_prep_and_checkpoint_IO_s": 61.32810921299824,
+    "all_original_road_and_commit_guards_zero_exceeded": true,
+    "final_all_three_physical_mass_ledgers": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 1543.017065707109,
+        "completed": 92.93420961372465,
+        "pending": 1141.8265024570107,
+        "released": 1635.9512753208335,
+        "requested": 2777.777777777844
+      },
+      "vehicles": {
+        "active": 1234.1174136872016,
+        "completed": 72.54925297942708,
+        "pending": 54.4444444444548,
+        "released": 1306.6666666666288,
+        "requested": 1361.1111111110836
+      }
+    },
+    "full_output_checksum_and_bytes": {
+      "bytes": 3405043386,
+      "local_only_not_in_git": true,
+      "real_local_path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_ORIGINAL_100K_10S_25700.final.bin",
+      "sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369"
+    },
+    "origin_cross_binary": true,
+    "original_source_mass_ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 1516.2494757151912,
+        "completed": 86.31503888483009,
+        "pending": 1119.6577076222163,
+        "released": 1602.5645146000213,
+        "requested": 2722.2222222222376
+      },
+      "vehicles": {
+        "active": 1212.7033558252422,
+        "completed": 67.29664417475757,
+        "pending": 53.88888888886618,
+        "released": 1279.9999999999998,
+        "requested": 1333.888888888866
+      }
+    },
+    "peak_rss_bytes": 5054885888,
+    "previous_wire_roundtrip_bit_exact": true,
+    "source_from_time_zero_verified": false,
+    "source_previous_checkpoint_SHA256": "db5b6b53f728d892ad53b9e7126d08e73b877f055e2e6e78443f1c0851b7bd10",
+    "source_time_start_s": 25690.0
+  },
+  "parent_commit": "555425e0ae9cff9c06037cc285a29430c5c6896b",
+  "repo": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "V03_EXACT_PACKET_LIFETIME_R10_C10_20261121_V1",
+  "theoretical_implementation_claim": {
+    "checkpointability_original_allowed_bytes": 5789366871,
+    "claim_status": "DERIVED_AND_RUST_UNIT_TESTED_AND_ORIGINAL_100K_PHYSICALLY_VERIFIED",
+    "derived_release_bound": "M_B(R,G)-M_B(R-r,G)=56r+96(ceil(R/128)-ceil((R-r)/128)), for 0<R-r and B128 source",
+    "direct_100k_expired_source_cell_count": 1586,
+    "direct_100k_expired_source_rows": 14237351,
+    "direct_100k_sum_actual_40B_Part_plus_16B_Mark_page_payload_freed_bytes_across_cells": 801955840,
+    "new_checkpointability_headroom_bytes": 254405663,
+    "new_checkpointability_preflight_required_bytes": 5534961208,
+    "object": "Part/Mark source live buffer destruction only after all original IEEE-754 uses; individually counted actual retained RoadState owner bytes after road; exclusive candidate/decoder checkpointability phase",
+    "old_checkpointability_preflight_required_bytes": 6040190408,
+    "source_specific_postroad_actual_sum_bytes": 1835427264,
+    "source_specific_postroad_fictitious_owner_envelope_saving_bytes": 400038384,
+    "source_specific_postroad_old_3max_bytes": 2235465648
+  },
+  "verification": {
+    "cargo_check": "EXIT0",
+    "cargo_release_build": "EXIT0",
+    "fresh_rust_lib_pass": 148,
+    "fresh_selected_native_plus_research_python_pass": 107,
+    "full_repo_ci": "DEFERRED_BY_USER",
+    "native_subagents": "NOT_RUN_NO_NATIVE_DISPATCH",
+    "plan_validation": "VALID_PLAN_NOT_RELEASE",
+    "python_failed": 0,
+    "rust_lib_failed": 0,
+    "rust_lib_ignored": 2
+  }
+}
