@@ -809,6 +809,16 @@ impl RoadWorkBudget {
         }
         check_storage_limit(self.limit, required, phase)
     }
+    /// Decrease the conservative live source-row count ONLY after actual
+    /// Part and matching Mark page allocations for one destination cell have
+    /// been physically dropped. Retained final packet rows are separately
+    /// charged by interval_retained; no packet or source row is discarded here.
+    fn release_incoming(&mut self, expired_rows:usize)->PyResult<()> {
+        let remaining=self.incoming.checked_sub(expired_rows).ok_or_else(||
+            arithmetic("expired incoming source rows exceed prior charged rows"))?;
+        self.incoming=remaining;
+        Ok(())
+    }
     fn transfer(&mut self, events: usize, incoming: usize) -> PyResult<()> {
         self.events = self.events.saturating_add(events);
         self.incoming = self.incoming.saturating_add(incoming);
@@ -1823,6 +1833,34 @@ fn segmented_incoming_charge_for(rows:usize,cells:usize,compressed:bool)->usize 
 }
 fn segmented_incoming_charge(rows:usize,cells:usize)->usize {
     segmented_incoming_charge_for(rows,cells,false)
+}
+
+/// This ONLY receives raw source buffers whose last original read already
+/// happened. Combine, original weighted speed and latent Mark reductions
+/// must have completed before calling it. Keeping the actual owner arguments
+/// makes the lifetime proof executable: the pages are dropped before work
+/// accounting may reduce its conservative source-row count.
+fn release_consumed_incoming_pair(
+    work:&mut RoadWorkBudget,
+    raw:ChunkedParts,
+    marks:ChunkedMarks,
+)->PyResult<usize> {
+    let rows=raw.len();
+    if marks.len()!=rows {
+        return Err(arithmetic("expired incoming Part/Mark page lengths differ"));
+    }
+    if rows>work.incoming {
+        return Err(arithmetic("expired raw rows exceed cumulative charged work"));
+    }
+    let released_payload=raw.physical_capacity_bytes().saturating_add(
+        marks.capacity().saturating_mul(std::mem::size_of::<Mark>()),
+    );
+    drop(raw);
+    drop(marks);
+    work.release_incoming(rows)?;
+    crate::v1_trace::add("road_work.expired_source_rows",rows as u64);
+    crate::v1_trace::add("road_work.expired_source_payload_bytes",released_payload as u64);
+    Ok(rows)
 }
 
 /// The original combine key, source-index tie order and sum() operations
@@ -3744,6 +3782,11 @@ impl V1Road {
             if !incoming_src.is_empty() && !incoming[i].is_empty() {
                 exact_merge_census(incoming[i].iter(), &incoming_src[i]);
             }
+            // Diagnostic-only input sequence is consumed and is not retained
+            // for any original physical source calculation in a later cell.
+            if !incoming_src.is_empty() {
+                drop(std::mem::take(&mut incoming_src[i]));
+            }
             // One compact mark accompanies exactly one source-order incoming
             // Part (both road service and pending-offer insertion paths).
             // Never call combine before consuming the aligned raw rows.
@@ -3777,7 +3820,15 @@ impl V1Road {
             // Only now may equal-key incoming Parts be combined.
             let source = std::mem::take(&mut incoming[i]);
             let parts = combine_chunked_parts(&source)?;
-            drop(source);
+            // All source-order f64 and Mark-dependent physical moments have
+            // now been computed, and source combination finished. Physically
+            // drop BOTH raw owner families before reducing the bound seen by
+            // later interval-packet and cell reservation checks.
+            let expired_marks = std::mem::take(&mut marks[i]);
+            let expired = release_consumed_incoming_pair(
+                &mut work, source, expired_marks,
+            )?;
+            debug_assert_eq!(expired,raw_rows);
             if crate::v1_trace::enabled() && raw_rows > 0 {
                 crate::v1_trace::add("entry.raw_rows", raw_rows as u64);
                 crate::v1_trace::add("entry.combined_rows", parts.len() as u64);
@@ -5903,5 +5954,77 @@ mod exact_compact_incoming_source_tests {
         let mut a=row(1);a.offset=u32::MAX as usize+1;
         p.push_checked(a).unwrap();
         assert_eq!(bits(p.get(0)),bits(a));
+    }
+}
+
+#[cfg(test)]
+mod exact_consumed_packet_source_lifetime_tests {
+    use super::*;
+
+    fn source(i:usize)->Part {
+        Part{tag:i%7,offset:i%3,
+             mass:if i%11==0 {f64::from_bits(1)} else {(i+1) as f64/67.},
+             birth:if i%19==0 {-0.0} else {i as f64/29.},
+             a:PackedTime::new(Some(if i%3==0 {-0.0} else {0.0})).unwrap(),
+             b:PackedTime::new(Some(1.0)).unwrap()}
+    }
+    fn work(n:usize)->RoadWorkBudget {
+        RoadWorkBudget {
+            limit:Some(10_000_000),
+            base:0,events:0,incoming:n,incoming_page_cells:1586,
+            compact_events:true,compact_incoming:true,
+            interval_retained:0,interval_transient:0,
+            service_events:None,
+        }
+    }
+
+    #[test]
+    fn release_only_after_both_physically_allocated_part_and_mark_pages_expire() {
+        for n in [0usize,1,127,128,129,257,1025] {
+            let mut p=ChunkedParts::new(true);
+            let mut m=ChunkedMarks::default();
+            for i in 0..n {
+                let r=source(i);
+                p.push_checked(r).unwrap();
+                m.push_checked(compact_mark(r.mass,r.birth)).unwrap();
+            }
+            let mut b=work(n+2048);
+            let old=b.incoming;
+            let mut checksum=0u64;
+            for (x,y) in p.iter().zip(m.iter()) {
+                checksum ^= x.mass.to_bits() ^ y.0.to_bits();
+            }
+            assert_eq!(checksum,0); // all original paired mass f64 bit patterns equal
+            let charged_before=segmented_incoming_charge_for(b.incoming,1586,true);
+            let released=release_consumed_incoming_pair(&mut b,p,m).unwrap();
+            assert_eq!(released,n);
+            assert_eq!(b.incoming,old-n);
+            let charged_after=segmented_incoming_charge_for(b.incoming,1586,true);
+            assert!(charged_after<=charged_before);
+            assert_eq!(charged_before-charged_after,
+                if n==0 {0}else {
+                    56*n + 96*(old.div_ceil(INCOMING_PART_CHUNK)
+                       - (old-n).div_ceil(INCOMING_PART_CHUNK))
+                });
+        }
+    }
+
+    #[test]
+    fn source_release_rejects_unequal_mark_counts_or_overclaim_without_discarding() {
+        let mut x=ChunkedParts::new(true);
+        x.push_checked(source(1)).unwrap();
+        let m=ChunkedMarks::default();
+        let mut b=work(1);
+        assert!(release_consumed_incoming_pair(&mut b,x,m).is_err());
+        assert_eq!(b.incoming,1);
+        let mut y=ChunkedParts::new(true);
+        let mut mm=ChunkedMarks::default();
+        for i in 0..2 {
+            let r=source(i);
+            y.push_checked(r).unwrap();
+            mm.push_checked(compact_mark(r.mass,r.birth)).unwrap();
+        }
+        assert!(release_consumed_incoming_pair(&mut b,y,mm).is_err());
+        assert_eq!(b.incoming,1);
     }
 }
