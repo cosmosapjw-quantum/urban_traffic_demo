@@ -1,0 +1,573 @@
+{
+  "R10_C10_remote_push_readback_required": true,
+  "R1_C1_to_R9_C9_commit_sha": [
+    "fc6e1ca9c08719f2f592e10881db0ee2b9c75961",
+    "4f5063786a7eebdc9331185b01b69b81ede486e4",
+    "b7cfd18d4cf26f614b64510682d1fb5ce70af841",
+    "c22c8b2ac4de39bbce760789bf85320d612f90d0",
+    "be06d2d425c8b5cc35ccf14d849298bc8549f8bd",
+    "702e899fd2963882764ef2fe185b0fe5f96459dc",
+    "d9b0bae110b9612333e5be07fda5d282459dae63",
+    "37043cc98696051393c0fcb8bc9cce31d06adbcf",
+    "e30ca50805cb293cfb1c0e8df06bca2a677e83b1"
+  ],
+  "actual_original_100k_escalating": {
+    "blocked_next_clock_s": 25710.0,
+    "completed_60_or_80_seconds": false,
+    "completed_tick_clocks_and_wall_s": [
+      {
+        "completed_time_s": 25660.0,
+        "wall_s": 13.067898453009548
+      },
+      {
+        "completed_time_s": 25670.0,
+        "wall_s": 15.621400121002807
+      },
+      {
+        "completed_time_s": 25680.0,
+        "wall_s": 18.66178777400637
+      },
+      {
+        "completed_time_s": 25690.0,
+        "wall_s": 22.409429641003953
+      },
+      {
+        "completed_time_s": 25700.0,
+        "wall_s": 27.210910559995682
+      }
+    ],
+    "completed_without_reload_s": 50.0,
+    "full_original_86400s_city_day_verified": false,
+    "full_output_checksum_own_and_prior": {
+      "current_50s_uninterrupted_completed_25700": {
+        "bytes": 3405043386,
+        "local_only_full_path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/artifacts/v03_quantile_capture_20261121/C6_ORIGINAL_100K_REQUESTED_80S.final.bin",
+        "not_git_uploaded": true,
+        "sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369"
+      },
+      "independent_prior_valid_25700": {
+        "bytes": 3405043386,
+        "local_only_full_path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_ORIGINAL_100K_10S_25700.final.bin",
+        "not_git_uploaded": true,
+        "sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369"
+      }
+    },
+    "full_output_mass_ledger": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 1543.017065707109,
+        "completed": 92.93420961372465,
+        "pending": 1141.8265024570107,
+        "released": 1635.9512753208335,
+        "requested": 2777.777777777844
+      },
+      "vehicles": {
+        "active": 1234.1174136872016,
+        "completed": 72.54925297942708,
+        "pending": 54.4444444444548,
+        "released": 1306.6666666666288,
+        "requested": 1361.1111111110836
+      }
+    },
+    "input_old_binary_cross_version": true,
+    "last_valid_clock_s": 25700.0,
+    "native_from_0_to_25700_verified": false,
+    "next_transfer_allowed_bytes": 4939690935,
+    "next_transfer_excess_bytes": 87817,
+    "next_transfer_required_bytes": 4939778752,
+    "original_input_full_wire_roundtrip_exact": true,
+    "peak_process_rss_bytes": 5185843200,
+    "requested_from_historical_25650_s": 80,
+    "source_clock_start_s": 25650.0,
+    "total_wall_s_including_original_full_city_prep_and_checkpoint_IO": 146.1741108540009
+  },
+  "authority": {
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "main_PLAN_and_release_matrix_unchanged": true,
+    "original_FIFO_and_f64_physics_unchanged": true,
+    "original_clock_step_s": 10,
+    "original_population_per_city": 100000,
+    "original_process_limit_bytes": 8589934592,
+    "original_wall_limit_s": 7200
+  },
+  "branch": "research/v03-quantile-capture-20261121",
+  "clean_candidate_source_sha256": "5a4bf951262b10b3a67737901fd8d0845ece2f48081d05771dd9f9f1b9d48010",
+  "created_utc": "2026-11-21T05:28:58+00:00",
+  "file_sha256": {
+    "artifacts/v03_quantile_capture_20261121/C6_ORIGINAL_100K_REQUESTED_80S.json": "69256e00d2504b93138a36b496469af8a2888ed6b76163b8343a73d4e5cba941",
+    "artifacts/v03_quantile_capture_20261121/C7_100K_FROM_25700_REQUESTED_20S.json": "c0fd6a9009aa325770d41c51adf067a027c86f10ebf76a5590d0d9960079db66",
+    "artifacts/v03_quantile_capture_20261121/C9_CURRENT_NATIVE_READINESS.json": "f02043355e7ce351e0cfa3a85ed23640cf2f6446a2a4cf74b6f4ba4253676ad5",
+    "artifacts/v03_quantile_capture_20261121/C9_preparation/CAMPAIGN.json": "b4efbc669e1533497949c7e43af84ca72e737cb143e8cc193002f05e554dadca",
+    "artifacts/v03_quantile_capture_20261121/C9_preparation/coastal_weekend_s41.prepare.json": "b2f0536193e8458c6f0b1c822e15d2d26a554730232d60ca0bed4fe089c1aec8",
+    "artifacts/v03_quantile_capture_20261121/C9_preparation/river_weekday_s17.prepare.json": "9c9b0a34fed63257f7a102a604960ee0d092bc192d5bb55ecf34f7e62cab6cab",
+    "artifacts/v03_quantile_capture_20261121/C9_preparation/valley_weekday_s7.prepare.json": "720bac32deaa4201ef14868a330180b62a04f03f7e75d8b0689585e5962543b2",
+    "artifacts/v03_quantile_capture_20261121/R5_THEORY_EXACT_QUANTILE.json": "48c87566bad659c13e9507081b0270a120fad34fa7664c78775bfc6863de55e1",
+    "artifacts/v03_quantile_capture_20261121/R8_THEORY_FINITE_QUOTA_PROBES.json": "3b4febe8d9af858cfafe9e05efa98951cd0b3f6720bccb3be284501f72ba9f76",
+    "crates/metroflow-rust/src/v1_engine.rs": "ea4986c416efef387fe2962d70b7f9ee241c6f414ce594ac493891632d869cda",
+    "crates/metroflow-rust/src/v1_road.rs": "3e7d18a3b0e4562335b640ceb9a8a4cc8396c4b9af12c9b73ad09d8836880b88",
+    "docs/research/V03_QUANTILE_CAPTURE_R1_R10_C1_C10_20261121_KO.md": "6721b7c1922a22158b1102fd0d0e8d9654b9b55071043fafb2aac40bc114a939",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "tests/research/test_v03_quantile_c6_original_100k_20261121.py": "562738094291cd56f7670faf0dacd888ac50ff8fd4bb4cc8e420b00df8572e36",
+    "tests/research/test_v03_quantile_c7_restart_20261121.py": "2697a368ff652671c34fb66e9a3249b7ec524edc5fdf27e433f1afd944fbbf45",
+    "tests/research/test_v03_quantile_c9_readiness_20261121.py": "4702a52dc3261c288d797a0212160735c09477ebe5dc09ae321caf69ba449aca",
+    "tests/research/test_v03_quantile_finite_probes_20261121.py": "6b4fb05015d8df7f9bae38802a865925be38953c9397301ce2222884aaa53acb",
+    "tests/research/test_v03_quantile_theorem_20261121.py": "aba02c1e0a3c2bcf4736920eecf062bdf3a78389a595f4735ffb6ec9f69fe780",
+    "tools/research/v03_fifo_finite_quota_probes_20261121.py": "83df7559d783961790cdbbeba8fb3d234938b2416bfcc2c64567f83f2621f41b",
+    "tools/research/v03_fifo_priority_quantile_exact_20261121.py": "ee35588717ae108a3b3843a4189377dad4d50c43e3546ba1c9bbae13dd8ac34e",
+    "tools/research/v03_quantile_resume_valid_25700_20s_20261121.py": "ac3fc678a3d4b3370e3990d16792cb73a623f9ad09fe616e7bb56a9b7349f851"
+  },
+  "latest_clean_source_git_commit": "e30ca50805cb293cfb1c0e8df06bca2a677e83b1",
+  "native_binary_path_local_only": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/native_binding/_metroflow_rust.so",
+  "native_sha256": "dcba698589a522e3b6c804e571811764da6976cf65abebe7d1fb13c8f0b8f433",
+  "next_original_research_task_ID": "V03-EXACT-TRANSFER-CALL-LIVE-OWNERS-13",
+  "nonclaims": [
+    "no original 25710 complete checkpoint",
+    "no 60s or 80s uninterrupted native run",
+    "no current-native original from 0 to 25700 trajectory",
+    "no original full 86400s city day and no accepted 9-run release",
+    "no universally exact FIFO model from partial-FIFO approximation",
+    "no proof all possible finite-dimensional nonlinear priority summaries fail",
+    "no world-first priority or publication novelty without independent literature comparison"
+  ],
+  "official_V03_readiness": {
+    "V03_status": "BLOCKED",
+    "current_native_100k_whole_city_input_cases_done": 3,
+    "current_native_original_city_calendar_legs": {
+      "coastal_weekend_s41": 2449750,
+      "river_weekday_s17": 5093765,
+      "valley_weekday_s7": 918450
+    },
+    "current_native_original_city_prepare_wall_s": {
+      "coastal_weekend_s41": 35.386698126007104,
+      "river_weekday_s17": 61.07926631999726,
+      "valley_weekday_s7": 19.105257479008287
+    },
+    "current_native_whole_input_cases_total": 3,
+    "direct_dependencies_done": 3,
+    "direct_dependencies_total": 3,
+    "original_86400s_3cities_3replicates_completed": 0,
+    "original_full_day_runs_required": 9,
+    "original_total_nodes": 21,
+    "scoped_implementation_nodes_done": 19
+  },
+  "original_100k_capture_fix": {
+    "TDD": "R4 missing helper E0425 RED, R5 two focused Rust tests PASS plus all existing tests",
+    "actual_50s_uninterrupted_physical_checkpoint_verified": true,
+    "copied_shells_journey_and_service_still_fully_counted": true,
+    "experimental_override_used": false,
+    "guaranteed_immutable_arc_payload_one_copy_credit_bytes": 577973296,
+    "new_capture_headroom_bytes": 534850739,
+    "new_capture_required_bytes": 5907600205,
+    "old_capture_required_bytes": 6485573501,
+    "physics_source_changed": false,
+    "source_reference": "NativeWholeEngine::storage_admission before self.capture clones immutable RoadState PacketParts Arc payload",
+    "unchanged_capture_global_allowed_bytes": 6442450944
+  },
+  "original_next_20s_from_valid_25700": {
+    "actual_new_completed_seconds": 0.0,
+    "allowed_bytes": 5025214575,
+    "completed_25710_checkpoint": false,
+    "excess_bytes": 198777,
+    "first_new_blocked_clock_s": 25710.0,
+    "input_checkpoint_full_wire_roundtrip_exact": true,
+    "peak_rss_bytes": 4163006464,
+    "previous_completed_mass_ledger_equal": true,
+    "requested_more_seconds": 20,
+    "required_bytes": 5025413352,
+    "status": "BLOCKED_RESOURCE",
+    "total_wall_s": 49.951679374993546
+  },
+  "parent_commit": "b163536ee5e5c4f438011077596288b167168ac6",
+  "physical_theory": {
+    "domain": "one ideal chronological ordered positive FIFO source; prescribed served quota, next-cell label; not general congested network",
+    "independent_origins": "original priority-cumulative-flow FIFO literature checked; standard one-dimensional W1 quantile formula not claimed as globally original",
+    "priority_not_equal_to_origin_birth_without_extra_assumption": true,
+    "sampling_counterexamples_R8": [
+      {
+        "W1_exact": "1",
+        "all_sampled_A_and_F_identical": true,
+        "ambiguous_gap": [
+          "0",
+          "1"
+        ],
+        "baseline": [
+          [
+            "2",
+            "1",
+            "a"
+          ]
+        ],
+        "counterexample": [
+          [
+            "1",
+            "1/2",
+            "a"
+          ],
+          [
+            "3",
+            "1/2",
+            "a"
+          ]
+        ],
+        "interior_quota": "1/4",
+        "no_probed_quantity_replaced_by_approximation": true,
+        "probe_quota_knots": [
+          "0",
+          "1"
+        ],
+        "strict_interior_A_difference": "1/4"
+      },
+      {
+        "W1_exact": "1/3",
+        "all_sampled_A_and_F_identical": true,
+        "ambiguous_gap": [
+          "0",
+          "1/3"
+        ],
+        "baseline": [
+          [
+            "2",
+            "1/3",
+            "a"
+          ],
+          [
+            "4",
+            "1/3",
+            "a"
+          ],
+          [
+            "4",
+            "1/3",
+            "a"
+          ]
+        ],
+        "counterexample": [
+          [
+            "1",
+            "1/6",
+            "a"
+          ],
+          [
+            "3",
+            "1/6",
+            "a"
+          ],
+          [
+            "4",
+            "1/3",
+            "a"
+          ],
+          [
+            "4",
+            "1/3",
+            "a"
+          ]
+        ],
+        "interior_quota": "1/12",
+        "no_probed_quantity_replaced_by_approximation": true,
+        "probe_quota_knots": [
+          "0",
+          "1/3",
+          "2/3",
+          "1"
+        ],
+        "strict_interior_A_difference": "1/12"
+      },
+      {
+        "W1_exact": "3",
+        "all_sampled_A_and_F_identical": true,
+        "ambiguous_gap": [
+          "2",
+          "5"
+        ],
+        "baseline": [
+          [
+            "0",
+            "2",
+            "a"
+          ],
+          [
+            "2",
+            "3",
+            "a"
+          ],
+          [
+            "4",
+            "3",
+            "a"
+          ]
+        ],
+        "counterexample": [
+          [
+            "0",
+            "2",
+            "a"
+          ],
+          [
+            "1",
+            "3/2",
+            "a"
+          ],
+          [
+            "3",
+            "3/2",
+            "a"
+          ],
+          [
+            "4",
+            "3",
+            "a"
+          ]
+        ],
+        "interior_quota": "11/4",
+        "no_probed_quantity_replaced_by_approximation": true,
+        "probe_quota_knots": [
+          "0",
+          "2",
+          "5",
+          "8"
+        ],
+        "strict_interior_A_difference": "3/4"
+      },
+      {
+        "W1_exact": "6/5",
+        "all_sampled_A_and_F_identical": true,
+        "ambiguous_gap": [
+          "1/5",
+          "7/5"
+        ],
+        "baseline": [
+          [
+            "0",
+            "1/5",
+            "a"
+          ],
+          [
+            "2",
+            "6/5",
+            "a"
+          ],
+          [
+            "4",
+            "6/5",
+            "a"
+          ],
+          [
+            "4",
+            "2/5",
+            "a"
+          ]
+        ],
+        "counterexample": [
+          [
+            "0",
+            "1/5",
+            "a"
+          ],
+          [
+            "1",
+            "3/5",
+            "a"
+          ],
+          [
+            "3",
+            "3/5",
+            "a"
+          ],
+          [
+            "4",
+            "6/5",
+            "a"
+          ],
+          [
+            "4",
+            "2/5",
+            "a"
+          ]
+        ],
+        "interior_quota": "1/2",
+        "no_probed_quantity_replaced_by_approximation": true,
+        "probe_quota_knots": [
+          "0",
+          "1/5",
+          "7/5",
+          "13/5",
+          "3"
+        ],
+        "strict_interior_A_difference": "3/10"
+      },
+      {
+        "W1_exact": "1/7",
+        "all_sampled_A_and_F_identical": true,
+        "ambiguous_gap": [
+          "0",
+          "1/7"
+        ],
+        "baseline": [
+          [
+            "2",
+            "1/7",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ]
+        ],
+        "counterexample": [
+          [
+            "1",
+            "1/14",
+            "a"
+          ],
+          [
+            "3",
+            "1/14",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ],
+          [
+            "4",
+            "1/7",
+            "a"
+          ]
+        ],
+        "interior_quota": "1/28",
+        "no_probed_quantity_replaced_by_approximation": true,
+        "probe_quota_knots": [
+          "0",
+          "1/7",
+          "2/7",
+          "3/7",
+          "4/7",
+          "5/7",
+          "6/7",
+          "1"
+        ],
+        "strict_interior_A_difference": "1/28"
+      }
+    ],
+    "theorem_FS": "for any finite quota probe list, monotone positive FIFO cohort measures with same sampled A,F_j and different unprobed A exist",
+    "theorem_FS_status": "DERIVED_PROOF_ARBITRARY_FINITE_GRID_AND_5_EXACT_FRACTION_WITNESSES",
+    "theorem_Q": "all-q chronological FIFO priority moment A(q)=integral quantile is convex and complete for priority measure; together with F_j(q) it reconstructs ordered next-cell labels; sup A deviation <= exact 1D W1 bound with sharp 1",
+    "theorem_Q_status": "DERIVED_PROOF_OWN_DOMAIN_AND_EXACT_FRACTION_CHECKED",
+    "theory_certificate_R5": {
+      "A_vs_quota_integer_grid": [
+        "0",
+        "0",
+        "0",
+        "1",
+        "4",
+        "7",
+        "10"
+      ],
+      "cumulative_quota_knots": [
+        "0",
+        "2",
+        "3",
+        "6"
+      ],
+      "finite_moment_nonclosure_pair_W1": "4",
+      "next_cell_priority_ambiguity_from_A_alone": true,
+      "pair_full_response_max_deviation": "2",
+      "physical_priority_cohorts": [
+        {
+          "mass": "2",
+          "next_cell": "a",
+          "tau_s": "0"
+        },
+        {
+          "mass": "1",
+          "next_cell": "b",
+          "tau_s": "1"
+        },
+        {
+          "mass": "3",
+          "next_cell": "a",
+          "tau_s": "3"
+        }
+      ],
+      "priority_derivative_slopes": [
+        "0",
+        "0",
+        "1",
+        "3",
+        "3",
+        "3"
+      ],
+      "route_resolved_Fj_diverges_at_half_mass": true,
+      "sharp_W1_bound_example": "35/6"
+    }
+  },
+  "repo": "https://github.com/cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "METROFLOW_ORIGINAL_V03_FIFO_QUANTILE_CAPTURE_R1_R10_C1_C10_20261121_V1",
+  "verification": {
+    "cargo_workspace_check": "EXIT0",
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "native_release_build": "EXIT0",
+    "native_subagents": "NOT_RUN_UNAVAILABLE",
+    "original_PLAN": "VALID_PLAN_NOT_RELEASE",
+    "original_native_plus_new_research_python_pass": 108,
+    "python_failed": 0,
+    "rust_failed": 0,
+    "rust_ignored": 2,
+    "rust_workspace_pass": 162
+  }
+}
