@@ -1,0 +1,331 @@
+{
+  "arithmetic": "exact rational Fraction",
+  "claim": "Any finite set of service quotas, even with full sampled next-cell F_j values, cannot identify arbitrary nonnegative chronological FIFO priority-cohort distributions; all-q A is complete",
+  "constructive_proof": "Change one open quota gap: constant priority tau=2 versus equal masses at tau=1 and tau=3; choose priority 0 before and 4 after. Integral unchanged on every sampled boundary, different on interior.",
+  "domain": "finite strictly increasing mass quota samples 0=q0<...<qL=M, exact FIFO; no upper bound on number of cohorts",
+  "fraction_cases": [
+    {
+      "W1_exact": "1",
+      "all_sampled_A_and_F_identical": true,
+      "ambiguous_gap": [
+        "0",
+        "1"
+      ],
+      "baseline": [
+        [
+          "2",
+          "1",
+          "a"
+        ]
+      ],
+      "counterexample": [
+        [
+          "1",
+          "1/2",
+          "a"
+        ],
+        [
+          "3",
+          "1/2",
+          "a"
+        ]
+      ],
+      "interior_quota": "1/4",
+      "no_probed_quantity_replaced_by_approximation": true,
+      "probe_quota_knots": [
+        "0",
+        "1"
+      ],
+      "strict_interior_A_difference": "1/4"
+    },
+    {
+      "W1_exact": "1/3",
+      "all_sampled_A_and_F_identical": true,
+      "ambiguous_gap": [
+        "0",
+        "1/3"
+      ],
+      "baseline": [
+        [
+          "2",
+          "1/3",
+          "a"
+        ],
+        [
+          "4",
+          "1/3",
+          "a"
+        ],
+        [
+          "4",
+          "1/3",
+          "a"
+        ]
+      ],
+      "counterexample": [
+        [
+          "1",
+          "1/6",
+          "a"
+        ],
+        [
+          "3",
+          "1/6",
+          "a"
+        ],
+        [
+          "4",
+          "1/3",
+          "a"
+        ],
+        [
+          "4",
+          "1/3",
+          "a"
+        ]
+      ],
+      "interior_quota": "1/12",
+      "no_probed_quantity_replaced_by_approximation": true,
+      "probe_quota_knots": [
+        "0",
+        "1/3",
+        "2/3",
+        "1"
+      ],
+      "strict_interior_A_difference": "1/12"
+    },
+    {
+      "W1_exact": "3",
+      "all_sampled_A_and_F_identical": true,
+      "ambiguous_gap": [
+        "2",
+        "5"
+      ],
+      "baseline": [
+        [
+          "0",
+          "2",
+          "a"
+        ],
+        [
+          "2",
+          "3",
+          "a"
+        ],
+        [
+          "4",
+          "3",
+          "a"
+        ]
+      ],
+      "counterexample": [
+        [
+          "0",
+          "2",
+          "a"
+        ],
+        [
+          "1",
+          "3/2",
+          "a"
+        ],
+        [
+          "3",
+          "3/2",
+          "a"
+        ],
+        [
+          "4",
+          "3",
+          "a"
+        ]
+      ],
+      "interior_quota": "11/4",
+      "no_probed_quantity_replaced_by_approximation": true,
+      "probe_quota_knots": [
+        "0",
+        "2",
+        "5",
+        "8"
+      ],
+      "strict_interior_A_difference": "3/4"
+    },
+    {
+      "W1_exact": "6/5",
+      "all_sampled_A_and_F_identical": true,
+      "ambiguous_gap": [
+        "1/5",
+        "7/5"
+      ],
+      "baseline": [
+        [
+          "0",
+          "1/5",
+          "a"
+        ],
+        [
+          "2",
+          "6/5",
+          "a"
+        ],
+        [
+          "4",
+          "6/5",
+          "a"
+        ],
+        [
+          "4",
+          "2/5",
+          "a"
+        ]
+      ],
+      "counterexample": [
+        [
+          "0",
+          "1/5",
+          "a"
+        ],
+        [
+          "1",
+          "3/5",
+          "a"
+        ],
+        [
+          "3",
+          "3/5",
+          "a"
+        ],
+        [
+          "4",
+          "6/5",
+          "a"
+        ],
+        [
+          "4",
+          "2/5",
+          "a"
+        ]
+      ],
+      "interior_quota": "1/2",
+      "no_probed_quantity_replaced_by_approximation": true,
+      "probe_quota_knots": [
+        "0",
+        "1/5",
+        "7/5",
+        "13/5",
+        "3"
+      ],
+      "strict_interior_A_difference": "3/10"
+    },
+    {
+      "W1_exact": "1/7",
+      "all_sampled_A_and_F_identical": true,
+      "ambiguous_gap": [
+        "0",
+        "1/7"
+      ],
+      "baseline": [
+        [
+          "2",
+          "1/7",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ]
+      ],
+      "counterexample": [
+        [
+          "1",
+          "1/14",
+          "a"
+        ],
+        [
+          "3",
+          "1/14",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ],
+        [
+          "4",
+          "1/7",
+          "a"
+        ]
+      ],
+      "interior_quota": "1/28",
+      "no_probed_quantity_replaced_by_approximation": true,
+      "probe_quota_knots": [
+        "0",
+        "1/7",
+        "2/7",
+        "3/7",
+        "4/7",
+        "5/7",
+        "6/7",
+        "1"
+      ],
+      "strict_interior_A_difference": "1/28"
+    }
+  ],
+  "nonclaims": [
+    "not a proof that infinite-memory numerical implementation is required",
+    "not a world-first result in inverse distribution theory",
+    "not equivalent to original native network-wide FIFO without sector assumptions",
+    "not a simulation of one whole original 100k city day"
+  ],
+  "schema": "METROFLOW_FIFO_QUOTA_FINITE_SAMPLING_OBSTRUCTION_20261121_V1",
+  "source_git_HEAD": "d9b0bae110b9612333e5be07fda5d282459dae63",
+  "source_road_sha256": "3e7d18a3b0e4562335b640ceb9a8a4cc8396c4b9af12c9b73ad09d8836880b88",
+  "status": "CONSTRUCTIVE_PROOF_WITH_EXACT_FINITE_WITNESSES"
+}
