@@ -386,6 +386,7 @@ struct RoadWorkBudget {
     incoming: usize,
     incoming_page_cells: usize,
     compact_events: bool,
+    compact_incoming: bool,
     /// Packed entering-interval rows already moved into the candidate.
     interval_retained: usize,
     /// Workspace of the interval being built: edges, the selected rows,
@@ -782,8 +783,8 @@ impl RoadWorkBudget {
         let required =
             self.base
                 .saturating_add(event_bytes)
-                .saturating_add(segmented_incoming_charge(
-                    self.incoming, self.incoming_page_cells,
+                .saturating_add(segmented_incoming_charge_for(
+                    self.incoming,self.incoming_page_cells,self.compact_incoming,
                 ))
                 .saturating_add(self.interval_retained)
                 .saturating_add(self.interval_transient)
@@ -1671,46 +1672,101 @@ fn exact_merge_census(parts: impl Iterator<Item=Part>, src: &[(usize, usize, u64
     crate::v1_trace::add("exact.runs", runs);
     crate::v1_trace::add("exact.point_rows", points);
 }
-/// Fixed-size incoming Part pages: an append cannot reallocate a prior page.
-/// The logical source index maps to (page,slot), with all prior pages full.
-/// A separate aligned Mark Vec retains the old source order and f64 payloads.
-const INCOMING_PART_CHUNK: usize = 128;
+/// Each source-part row is otherwise 48B because two unbounded usize
+/// indexes are retained. In an original capped V03 run the route registry
+/// and every path extent are checked to fit u32, so transient incoming rows
+/// can use 40B without losing any Part or IEEE-754 endpoint bits.
+#[derive(Clone,Copy)]
+struct CompactIncomingPart {
+    tag:u32,
+    offset:u32,
+    mass:f64,
+    birth:f64,
+    a:PackedTime,
+    b:PackedTime,
+}
+impl CompactIncomingPart {
+    fn try_new(p:Part)->Option<Self> {
+        Some(Self {
+            tag:u32::try_from(p.tag).ok()?,
+            offset:u32::try_from(p.offset).ok()?,
+            mass:p.mass,birth:p.birth,a:p.a,b:p.b,
+        })
+    }
+    fn unpack(self)->Part {
+        Part {
+            tag:self.tag as usize,offset:self.offset as usize,
+            mass:self.mass,birth:self.birth,a:self.a,b:self.b,
+        }
+    }
+}
 
+/// True original append order is preserved in either mode. Full Part storage
+/// remains the fallback if the original registry does not support u32 indexes.
+const INCOMING_PART_CHUNK:usize=128;
 #[derive(Default)]
 struct ChunkedParts {
-    chunks: Vec<Vec<Part>>,
-    len: usize,
+    chunks:Vec<Vec<Part>>,
+    compact_chunks:Vec<Vec<CompactIncomingPart>>,
+    compressed:bool,
+    len:usize,
 }
 impl ChunkedParts {
-    fn len(&self) -> usize { self.len }
-    fn is_empty(&self) -> bool { self.len == 0 }
-    fn capacity(&self) -> usize {
-        self.chunks.iter().map(Vec::capacity).sum()
-    }
-    fn iter(&self) -> impl Iterator<Item = &Part> {
-        self.chunks.iter().flat_map(|v| v.iter())
-    }
-    fn get(&self, i: usize) -> &Part {
-        &self.chunks[i / INCOMING_PART_CHUNK][i % INCOMING_PART_CHUNK]
-    }
-    fn push_checked(&mut self, p: Part) -> PyResult<()> {
-        if self.chunks.last().is_none_or(|c| c.len() == INCOMING_PART_CHUNK) {
-            let chunk = checkpoint_vec(INCOMING_PART_CHUNK)?;
-            // The executable source-bound budget uses exactly this capacity.
-            // Do not claim a smaller buffer on a different allocator.
-            if chunk.capacity() != INCOMING_PART_CHUNK {
-                return Err(budget("incoming fixed page capacity not supported"));
-            }
-            push_checked(&mut self.chunks, chunk)?;
+    fn new(compressed:bool)->Self {Self{compressed,..Self::default()}}
+    fn len(&self)->usize {self.len}
+    fn is_empty(&self)->bool {self.len==0}
+    fn capacity(&self)->usize {
+        if self.compressed {
+            self.compact_chunks.iter().map(Vec::capacity).sum()
+        } else {
+            self.chunks.iter().map(Vec::capacity).sum()
         }
-        self.chunks.last_mut().expect("chunk was just allocated").push(p);
-        self.len += 1;
+    }
+    fn physical_capacity_bytes(&self)->usize {
+        self.capacity().saturating_mul(if self.compressed {
+            std::mem::size_of::<CompactIncomingPart>()
+        } else {
+            std::mem::size_of::<Part>()
+        })
+    }
+    fn iter(&self)->impl Iterator<Item=Part>+'_ {
+        self.chunks.iter().flat_map(|c|c.iter().copied())
+            .chain(self.compact_chunks.iter().flat_map(|c|c.iter().copied().map(CompactIncomingPart::unpack)))
+    }
+    fn get(&self,i:usize)->Part {
+        if self.compressed {
+            self.compact_chunks[i/INCOMING_PART_CHUNK][i%INCOMING_PART_CHUNK].unpack()
+        } else {
+            self.chunks[i/INCOMING_PART_CHUNK][i%INCOMING_PART_CHUNK]
+        }
+    }
+    fn push_checked(&mut self,p:Part)->PyResult<()> {
+        if self.compressed {
+            let encoded=CompactIncomingPart::try_new(p).ok_or_else(||
+                arithmetic("compact incoming source index contract differs"))?;
+            if self.compact_chunks.last().is_none_or(|c|c.len()==INCOMING_PART_CHUNK) {
+                let page=checkpoint_vec(INCOMING_PART_CHUNK)?;
+                if page.capacity()!=INCOMING_PART_CHUNK {
+                    return Err(budget("compact incoming fixed page capacity differs"));
+                }
+                push_checked(&mut self.compact_chunks,page)?;
+            }
+            self.compact_chunks.last_mut().expect("compact incoming page allocated").push(encoded);
+        } else {
+            if self.chunks.last().is_none_or(|c|c.len()==INCOMING_PART_CHUNK) {
+                let page=checkpoint_vec(INCOMING_PART_CHUNK)?;
+                if page.capacity()!=INCOMING_PART_CHUNK {
+                    return Err(budget("incoming fixed page capacity not supported"));
+                }
+                push_checked(&mut self.chunks,page)?;
+            }
+            self.chunks.last_mut().expect("original incoming page allocated").push(p);
+        }
+        self.len+=1;
         Ok(())
     }
-    fn extend_parts(&mut self, parts: impl IntoIterator<Item = Part>) -> PyResult<()> {
-        for p in parts {
-            self.push_checked(p)?;
-        }
+    fn extend_parts(&mut self,parts:impl IntoIterator<Item=Part>)->PyResult<()> {
+        for p in parts {self.push_checked(p)?;}
         Ok(())
     }
 }
@@ -1746,20 +1802,27 @@ impl ChunkedMarks {
 /// Both Part and Mark values occupy stable B-row pages: at most (B-1)
 /// unused slots per cell in each. Count two outer Vec descriptor families,
 /// each with the original conservative doubling allowance. This is a scoped structural source bound, not RSS.
-fn segmented_incoming_charge(rows: usize, cells: usize) -> usize {
-    if rows == 0 { return 0; }
-    let part_bytes = std::mem::size_of::<Part>();
-    let mark_bytes = std::mem::size_of::<Mark>();
-    let part_header_bytes = std::mem::size_of::<Vec<Part>>();
-    let mark_header_bytes = std::mem::size_of::<Vec<Mark>>();
+fn segmented_incoming_charge_for(rows:usize,cells:usize,compressed:bool)->usize {
+    if rows==0 {return 0;}
+    let part_bytes=if compressed {
+        std::mem::size_of::<CompactIncomingPart>()
+    } else {
+        std::mem::size_of::<Part>()
+    };
+    let mark_bytes=std::mem::size_of::<Mark>();
+    let part_header_bytes=std::mem::size_of::<Vec<Part>>();
+    let mark_header_bytes=std::mem::size_of::<Vec<Mark>>();
     let page_slots=rows.saturating_add(
-        cells.saturating_mul(INCOMING_PART_CHUNK - 1),
+        cells.saturating_mul(INCOMING_PART_CHUNK-1),
     );
     let max_chunks=rows.div_ceil(INCOMING_PART_CHUNK).saturating_add(cells);
     page_slots.saturating_mul(part_bytes.saturating_add(mark_bytes))
         .saturating_add(max_chunks.saturating_mul(
-            2 * (part_header_bytes + mark_header_bytes),
+            2*(part_header_bytes+mark_header_bytes),
         ))
+}
+fn segmented_incoming_charge(rows:usize,cells:usize)->usize {
+    segmented_incoming_charge_for(rows,cells,false)
 }
 
 /// The original combine key, source-index tie order and sum() operations
@@ -1772,21 +1835,21 @@ fn combine_chunked_parts(parts: &ChunkedParts) -> PyResult<Vec<Part>> {
     let mut indices=checkpoint_vec(parts.len())?;
     indices.extend((0..parts.len()).filter(|&i|parts.get(i).mass > 0.0));
     indices.sort_unstable_by(|&a,&b| {
-        key(parts.get(a)).cmp(&key(parts.get(b))).then(a.cmp(&b))
+        key(&parts.get(a)).cmp(&key(&parts.get(b))).then(a.cmp(&b))
     });
     let groups = usize::from(!indices.is_empty())
         + indices.windows(2)
-            .filter(|p|key(parts.get(p[0])) != key(parts.get(p[1])))
+            .filter(|p|key(&parts.get(p[0])) != key(&parts.get(p[1])))
             .count();
     let mut out=checkpoint_vec(groups)?;
     let mut start=0;
     while start < indices.len() {
         let mut end=start+1;
         while end < indices.len()
-            && key(parts.get(indices[start]))==key(parts.get(indices[end])) {
+            && key(&parts.get(indices[start]))==key(&parts.get(indices[end])) {
             end+=1;
         }
-        let mut item=*parts.get(indices[start]);
+        let mut item=parts.get(indices[start]);
         item.mass=sum(indices[start..end].iter().map(|&i|parts.get(i).mass));
         item.birth=sum(indices[start..end].iter().map(|&i|parts.get(i).birth));
         out.push(item);
@@ -2377,6 +2440,11 @@ impl V1Road {
             stats.rate_weighted_mass_bound,
         )
     }
+    fn can_compact_incoming_parts(&self)->bool {
+        self.storage_budget.is_some()
+            && self.routes.len() < u32::MAX as usize
+            && self.paths.iter().all(|p|p.len()<u32::MAX as usize)
+    }
     fn can_compact_candidate_events(&self)->bool {
         // All route tags and source/destination cell indices derive from
         // these configured registries. Reserve u32::MAX for dest=None.
@@ -2393,6 +2461,7 @@ impl V1Road {
                 incoming: 0,
                 incoming_page_cells: self.groups.len(),
                 compact_events: self.can_compact_candidate_events(),
+                compact_incoming: self.can_compact_incoming_parts(),
                 interval_retained: 0,
                 interval_transient: 0,
                 service_events: None,
@@ -2464,6 +2533,7 @@ impl V1Road {
             incoming: 0,
             incoming_page_cells: self.groups.len(),
             compact_events: self.can_compact_candidate_events(),
+            compact_incoming: self.can_compact_incoming_parts(),
             interval_retained: 0,
             interval_transient: 0,
             service_events: self.service_event_accounting,
@@ -3180,8 +3250,9 @@ impl V1Road {
             Vec::new()
         };
         let mut events = ChunkedEvents::new(self.can_compact_candidate_events());
+        let compact_incoming=self.can_compact_incoming_parts();
         let mut incoming: Vec<ChunkedParts> = (0..n)
-            .map(|_| ChunkedParts::default()).collect();
+            .map(|_| ChunkedParts::new(compact_incoming)).collect();
         // Diagnostic only: source (cell, head position, rate bits) per incoming row.
         let mut incoming_src: Vec<Vec<(usize, usize, u64)>> = if crate::v1_trace::enabled() {
             vec![vec![]; n]
@@ -3563,6 +3634,7 @@ impl V1Road {
         }
         if work.limit.is_some() && crate::v1_trace::enabled() {
             let incoming_cap: usize = incoming.iter().map(ChunkedParts::capacity).sum();
+            let incoming_real_payload:usize=incoming.iter().map(ChunkedParts::physical_capacity_bytes).sum();
             let marks_cap: usize = marks.iter().map(ChunkedMarks::capacity).sum();
             let incoming_len: usize = incoming.iter().map(ChunkedParts::len).sum();
             crate::v1_trace::guard(
@@ -3579,6 +3651,7 @@ impl V1Road {
                     ("events_cap", events.capacity()),
                     ("incoming_len", incoming_len),
                     ("incoming_cap", incoming_cap),
+                    ("incoming_real_payload_bytes", incoming_real_payload),
                     ("marks_cap", marks_cap),
                     ("charged_events", work.events),
                     ("charged_incoming", work.incoming),
@@ -3669,7 +3742,7 @@ impl V1Road {
         }
         for i in 0..n {
             if !incoming_src.is_empty() && !incoming[i].is_empty() {
-                exact_merge_census(incoming[i].iter().copied(), &incoming_src[i]);
+                exact_merge_census(incoming[i].iter(), &incoming_src[i]);
             }
             // One compact mark accompanies exactly one source-order incoming
             // Part (both road service and pending-offer insertion paths).
@@ -3698,7 +3771,7 @@ impl V1Road {
                 }
             }
             for (part, mark) in incoming[i].iter().zip(marks[i].iter()) {
-                let k = self.class(part);
+                let k = self.class(&part);
                 push_checked(byclass.entry(k).or_default(), (part.mass, mark.1))?;
             }
             // Only now may equal-key incoming Parts be combined.
@@ -4258,6 +4331,7 @@ mod workspace_accounting_tests {
             incoming: 0,
             incoming_page_cells: 0,
             compact_events: false,
+            compact_incoming: false,
             interval_retained: 0,
             interval_transient: 0,
             service_events: None,
@@ -5323,9 +5397,9 @@ mod exact_segmented_incoming_buffer_tests {
             for &r in &rows {chunks.push_checked(r).unwrap();}
             assert_eq!(chunks.len(),n);
             assert_eq!(chunks.is_empty(),n==0);
-            assert_eq!(chunks.iter().copied().map(bits).collect::<Vec<_>>(),
+            assert_eq!(chunks.iter().map(bits).collect::<Vec<_>>(),
                        rows.iter().copied().map(bits).collect::<Vec<_>>());
-            for (i,r) in rows.iter().enumerate(){assert_eq!(bits(*chunks.get(i)),bits(*r));}
+            for (i,r) in rows.iter().enumerate(){assert_eq!(bits(chunks.get(i)),bits(*r));}
             assert_eq!(chunks.chunks.len(),n.div_ceil(INCOMING_PART_CHUNK));
             assert!(chunks.chunks.iter().all(|x|x.capacity()==INCOMING_PART_CHUNK));
             assert_eq!(chunks.capacity(),n.div_ceil(INCOMING_PART_CHUNK)*INCOMING_PART_CHUNK);
@@ -5773,5 +5847,61 @@ mod exact_compact_candidate_event_tests {
         assert_eq!(old-compact,16*(n+EVENT_PAGE_ROWS-1));
         assert!(old-compact>140_000_000);
         assert_eq!(paged_compact_event_candidate_bytes(0),96);
+    }
+}
+
+#[cfg(test)]
+mod exact_compact_incoming_source_tests {
+    use super::*;
+    fn row(i:usize)->Part {
+        Part {tag:i%1503,offset:i%20,
+            mass:if i%9==0 {f64::from_bits(1)} else {i as f64/191.},
+            birth:if i%7==0 {-0.0} else {i as f64/37.},
+            a:PackedTime::new(Some(if i%13==0 {-0.0} else {0.0})).unwrap(),
+            b:PackedTime::new(Some(1.0)).unwrap()}
+    }
+    fn bits(p:Part)->(usize,usize,u64,u64,u64,u64){
+        (p.tag,p.offset,p.mass.to_bits(),p.birth.to_bits(),p.a.0,p.b.0)
+    }
+    #[test]
+    fn packed_incoming_part_is_exact_40byte_injective_source_row() {
+        assert_eq!(std::mem::size_of::<Part>(),48);
+        assert_eq!(std::mem::size_of::<CompactIncomingPart>(),40);
+        for i in 0..2000 {
+            let orig=row(i);
+            let packed=CompactIncomingPart::try_new(orig).unwrap();
+            assert_eq!(bits(packed.unpack()),bits(orig));
+        }
+        let mut bad=row(5);bad.tag=(u32::MAX as usize)+1;
+        assert!(CompactIncomingPart::try_new(bad).is_none());
+    }
+    #[test]
+    fn source_order_across_part_mark_page_boundaries_is_bit_identical() {
+        for n in [0usize,1,127,128,129,255,256,257,1013] {
+            let mut pages=ChunkedParts::new(true);
+            let reference=(0..n).map(row).map(bits).collect::<Vec<_>>();
+            for i in 0..n {pages.push_checked(row(i)).unwrap();}
+            assert_eq!(pages.len(),n);
+            assert_eq!(pages.capacity(),n.div_ceil(INCOMING_PART_CHUNK)*INCOMING_PART_CHUNK);
+            assert_eq!(pages.iter().map(bits).collect::<Vec<_>>(),reference);
+            for i in 0..n {assert_eq!(bits(pages.get(i)),bits(row(i)));}
+        }
+    }
+    #[test]
+    fn compact_physical_pages_reduce_source_charge_without_a_budget_override() {
+        let r=13_460_957usize;
+        let g=1586usize;
+        let wide=segmented_incoming_charge(r,g);
+        let compact=segmented_incoming_charge_for(r,g,true);
+        assert_eq!(wide-compact,8*(r+127*g));
+        assert!(compact<wide-100_000_000);
+        assert_eq!(segmented_incoming_charge_for(0,g,true),0);
+    }
+    #[test]
+    fn uncapped_wide_part_mode_keeps_original_usize_range() {
+        let mut p=ChunkedParts::default();
+        let mut a=row(1);a.offset=u32::MAX as usize+1;
+        p.push_checked(a).unwrap();
+        assert_eq!(bits(p.get(0)),bits(a));
     }
 }
