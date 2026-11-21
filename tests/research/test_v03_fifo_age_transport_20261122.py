@@ -35,3 +35,21 @@ def test_incomplete_schedule_and_negative_or_unphysical_rate_fail_closed():
         fifo_route_delay(cohorts(),((F(10),F(11),F(-1)),))
     with pytest.raises(ValueError):
         fifo_route_delay(cohorts(),((F(10),F(11),F(1)),))
+
+
+def test_route_delay_capacity_order_for_finite_exact_rational_rates():
+    # Homogeneous fixed-source service clocks T_q(z)=10+z/q.
+    # The theorem predicts route-by-route monotonicity without any
+    # hypothesis that birth times are globally strictly increasing.
+    trials=0
+    for slow_rate in range(1,7):
+        for fast_rate in range(slow_rate,7):
+            slow=F(slow_rate)
+            fast=F(fast_rate)
+            one=fifo_route_delay(cohorts(),((F(10),F(10)+F(5)/slow,slow),))
+            two=fifo_route_delay(cohorts(),((F(10),F(10)+F(5)/fast,fast),))
+            assert all(two.route_delay_total[r]<=one.route_delay_total[r]
+                       for r in (1,2))
+            assert sum(two.route_served_mass.values(),F(0))==F(5)
+            trials+=1
+    assert trials==21

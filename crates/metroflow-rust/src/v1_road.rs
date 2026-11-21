@@ -7100,3 +7100,49 @@ mod transfer_live_header_budget_constructive_tests {
         assert!(w.incoming_descriptor_live_bytes.is_none());
     }
 }
+
+#[cfg(test)]
+mod transfer_header_growth_overlap_adversarial_tests {
+    use super::*;
+    fn part()->Part {
+        Part{tag:1,offset:0,mass:1.,birth:0.,
+            a:PackedTime::new(Some(0.)).unwrap(),
+            b:PackedTime::new(Some(1.)).unwrap()}
+    }
+    #[test]
+    fn one_real_part_or_mark_header_reallocation_is_charged_as_old_plus_new() {
+        let mut w=RoadWorkBudget {
+            limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
+            events:0,incoming:0,incoming_page_cells:1,
+            incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
+            compact_events:true,compact_incoming:true,
+            interval_retained:0,interval_transient:0,service_events:None,
+        };
+        let mut incoming=vec![ChunkedParts::new(true)];
+        let mut marks=vec![ChunkedMarks::default()];
+        w.transfer_indexed_with_live_headers(
+            0,std::iter::repeat(0usize).take(4*INCOMING_PART_CHUNK),
+            &mut incoming,&mut marks,
+        ).unwrap();
+        for _ in 0..4*INCOMING_PART_CHUNK {
+            incoming[0].push_checked(part()).unwrap();
+            marks[0].push_checked(compact_mark(1.,0.)).unwrap();
+        }
+        assert_eq!(incoming[0].descriptor_capacity(),4);
+        assert_eq!(marks[0].chunks.capacity(),4);
+        // A fifth page needs header growth from capacity 4 to at least 5
+        // in both Part and Mark. Count the old header overlap separately:
+        // the post-reserve physical source charge is at least 36_280 B,
+        // plus 96 B old-header overlap. The fixed 36_300 B limit must reject.
+        w.limit=Some(36_300);
+        let status=w.transfer_indexed_with_live_headers(
+            0,std::iter::once(0usize),&mut incoming,&mut marks,
+        );
+        assert!(status.is_err());
+        assert!(w.incoming_descriptor_live_bytes.is_none());
+        assert!(incoming[0].descriptor_capacity()>=5);
+        assert!(marks[0].chunks.capacity()>=5);
+        // This is a local failed candidate projection, not a valid tick.
+    }
+}
