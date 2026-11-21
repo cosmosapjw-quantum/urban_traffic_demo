@@ -382,10 +382,13 @@ struct ExactKeyGroup {
 struct RoadWorkBudget {
     limit: Option<usize>,
     base: usize,
-    /// Two hypothetical max-cell Part scratch vectors are required only for
-    /// later interval combination, after ALL transfer_indexed calls. During
-    /// transfer preflight no such Vec<Part> exists; charge full original
-    /// reserve at every other original road phase.
+    /// Original two hypothetical max-cell Part scratch buffers belong to
+    /// future/active interval combination. They are never alive at transfer
+    /// preflight, during a source-transfer pending remainder CorePart pack,
+    /// or after source completion when direct packet conversion runs.
+    /// Those two narrow packet stages charge the actual simultaneously live
+    /// source Part Vec plus CorePart allocation; active combine/interval
+    /// phases retain the full old envelope. Physical caps are unchanged.
     transfer_exclusive_cell_scratch:usize,
     events: usize,
     incoming: usize,
@@ -805,15 +808,15 @@ impl RoadWorkBudget {
         }
         let source_bytes = parts.capacity().saturating_mul(std::mem::size_of::<Part>());
         PacketParts::pack(parts, |core_bytes| {
-            self.require_with_completed_source(
+            self.require_with_no_active_combine(
                 core_bytes, "packet interval packing", Some(source_bytes)
             )
         })
     }
     fn require(&self, extra: usize, phase: &str) -> PyResult<()> {
-        self.require_with_completed_source(extra, phase, None)
+        self.require_with_no_active_combine(extra, phase, None)
     }
-    fn require_with_completed_source(
+    fn require_with_no_active_combine(
         &self, extra: usize, phase: &str, source_part_bytes: Option<usize>
     ) -> PyResult<()> {
         // In a coupled transition the road-step event buffers are charged by
@@ -836,20 +839,21 @@ impl RoadWorkBudget {
                 self.incoming,self.incoming_page_cells,self.compact_incoming,
             )
         };
-        // The original source's two max-cell Part scratch allocations
-        // belong to future interval combination at transfer preflight.
-        // After source-order combine returns and raw Part/Mark owners drop,
-        // only direct completed-source packet conversion replaces that dead
-        // reserve by the exact simultaneous live Part Vec capacity. Active
-        // interval splitting and all other phases retain the full reserve.
-        let completed_pack = phase=="packet interval packing"
+        // The original two-max-cell combine scratch is not present
+        // during transfer preflight, while packing a remainder under an
+        // observed temporary incoming descriptor census, or in a completed
+        // direct source packet conversion. Only such explicit no-combine
+        // call sites pass the measured simultaneously live Part Vec size.
+        // All other phases, including active splitting, retain the envelope.
+        let no_active_combine_pack = phase=="packet interval packing"
             && self.incoming_descriptor_live_bytes.is_some()
             && source_part_bytes.is_some();
         let phase_base=if phase=="transfer candidates" {
             self.base.saturating_sub(self.transfer_exclusive_cell_scratch)
-        } else if completed_pack {
-            // Exact current Part Vec replaces the original two hypothetical
-            // max-old-cell combine buffers, already dropped at this seam.
+        } else if no_active_combine_pack {
+            // The old two-max-cell combine buffers are either future
+            // (pending remainder) or dead (completed direct pack); charge
+            // the current source Part Vec instead, plus the new Core buffer.
             self.base.saturating_sub(self.transfer_exclusive_cell_scratch)
                 .saturating_add(source_part_bytes.unwrap_or(0))
         } else {self.base};
@@ -873,10 +877,10 @@ impl RoadWorkBudget {
                         if phase=="transfer candidates" {
                             self.transfer_exclusive_cell_scratch
                         }else{0}),
-                    ("completed_source_combine_scratch_replaced",
-                        if completed_pack {self.transfer_exclusive_cell_scratch} else {0}),
-                    ("completed_source_live_part_bytes",
-                        if completed_pack {source_part_bytes.unwrap_or(0)} else {0}),
+                    ("packet_no_active_combine_reserve_replaced",
+                        if no_active_combine_pack {self.transfer_exclusive_cell_scratch} else {0}),
+                    ("packet_current_live_source_part_bytes",
+                        if no_active_combine_pack {source_part_bytes.unwrap_or(0)} else {0}),
                     ("event_bytes", event_bytes),
                     ("incoming_rows", self.incoming),
                     ("incoming_live_pages",self.incoming_live_pages),
@@ -998,8 +1002,19 @@ impl RoadWorkBudget {
             return Err(arithmetic("pending descriptor preflight already frozen"));
         }
         let actual=self.observed_incoming_descriptor_bytes(incoming,marks)?;
+        // No max-cell combine scratch exists during this source transfer
+        // remainder pack. Its old reserve is future-only. Charge the exact
+        // currently live original Part Vec along with the simultaneously
+        // allocated CorePart buffer before allocating the latter.
+        let source_part_bytes=parts.capacity().saturating_mul(std::mem::size_of::<Part>());
         self.incoming_descriptor_live_bytes=Some(actual);
-        let result=self.pack_parts(parts);
+        let result=PacketParts::pack(parts,|core_bytes| {
+            self.require_with_no_active_combine(
+                core_bytes,"packet interval packing",Some(source_part_bytes)
+            )
+        });
+        // Critically, a transfer may append more raw source pages next.
+        // Restore the growth-time envelope on both Ok and Err.
         self.incoming_descriptor_live_bytes=None;
         result
     }
@@ -6898,5 +6913,50 @@ mod original_completed_source_exact_packet_admission_tests {
         assert!(w.pack_parts_after_completed_combine(vec![part()]).is_err());
         w.transfer_exclusive_cell_scratch=150;
         assert!(w.pack_parts_after_completed_combine(vec![part();3]).is_err());
+    }
+}
+
+#[cfg(test)]
+mod original_precombine_pending_remainder_lifetime_tests {
+    use super::*;
+    fn part() -> Part {
+        Part { tag:1, offset:0, mass:0.25, birth:-0.0,
+            a:PackedTime::new(Some(0.)).unwrap(),
+            b:PackedTime::new(Some(1.)).unwrap() }
+    }
+    fn budget() -> RoadWorkBudget {
+        RoadWorkBudget {
+            // Exact source counter Vec adds 136B: old 1160B, new 1058B.
+            limit:Some(1100),base:1000,transfer_exclusive_cell_scratch:150,
+            events:0,incoming:0,incoming_page_cells:1,
+            incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
+            compact_events:true,compact_incoming:true,
+            interval_retained:0,interval_transient:0,service_events:None,
+        }
+    }
+    #[test]
+    fn future_combine_cannot_block_live_pending_packet_and_exact_two_buffers_are_charged() {
+        let mut w=budget();
+        let incoming=vec![ChunkedParts::new(true)];
+        let marks=vec![ChunkedMarks::default()];
+        assert!(w.require(24,"packet interval packing").is_err());
+        let packed=w.pack_parts_with_live_descriptors(vec![part()],&incoming,&marks).unwrap();
+        let rows:Vec<_>=packed.iter().collect();
+        assert_eq!(rows.len(),1);
+        assert_eq!(rows[0].birth.to_bits(),(-0.0f64).to_bits());
+        assert!(w.incoming_descriptor_live_bytes.is_none());
+        // Ordinary future combine reserve is unchanged after this call.
+        assert!(w.require(24,"packet interval packing").is_err());
+    }
+    #[test]
+    fn rejected_pending_pack_restores_descriptor_growth_guard_and_future_preflights() {
+        let mut w=budget();
+        w.limit=Some(900);
+        let incoming=vec![ChunkedParts::new(true)];
+        let marks=vec![ChunkedMarks::default()];
+        assert!(w.pack_parts_with_live_descriptors(vec![part()],&incoming,&marks).is_err());
+        assert!(w.incoming_descriptor_live_bytes.is_none());
+        assert!(w.require(0,"packet interval packing").is_err());
     }
 }
