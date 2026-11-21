@@ -793,7 +793,29 @@ impl RoadWorkBudget {
             self.require(bytes, "packet interval packing")
         })
     }
+    /// Called ONLY after source-order combine has returned, source/Mark pages
+    /// are dropped and descriptor ownership is frozen. The index and combined
+    /// output scratch pair from combine is no longer alive. The *one* live
+    /// Vec<Part> is charged by its observed capacity while new CorePart rows
+    /// coexist during immutable packet conversion. Early pack calls retain
+    /// the full unchanged original budget.
+    fn pack_parts_after_completed_combine(&self, parts: Vec<Part>) -> PyResult<PacketParts> {
+        if self.incoming_descriptor_live_bytes.is_none() {
+            return self.pack_parts(parts);
+        }
+        let source_bytes = parts.capacity().saturating_mul(std::mem::size_of::<Part>());
+        PacketParts::pack(parts, |core_bytes| {
+            self.require_with_completed_source(
+                core_bytes, "packet interval packing", Some(source_bytes)
+            )
+        })
+    }
     fn require(&self, extra: usize, phase: &str) -> PyResult<()> {
+        self.require_with_completed_source(extra, phase, None)
+    }
+    fn require_with_completed_source(
+        &self, extra: usize, phase: &str, source_part_bytes: Option<usize>
+    ) -> PyResult<()> {
         // In a coupled transition the road-step event buffers are charged by
         // lifetime; the sink envelope is charged after the step returns.
         let event_bytes = self.service_events.map_or_else(
@@ -819,8 +841,16 @@ impl RoadWorkBudget {
         // the before-append transfer_indexed preflight, where no per-cell
         // combine_chunked_parts has begun. Preserve the ENTIRE old reserve
         // in preflight, packet packing, split and all other phases.
+        let completed_pack = phase=="packet interval packing"
+            && self.incoming_descriptor_live_bytes.is_some()
+            && source_part_bytes.is_some();
         let phase_base=if phase=="transfer candidates" {
             self.base.saturating_sub(self.transfer_exclusive_cell_scratch)
+        } else if completed_pack {
+            // Exact current Part Vec replaces the original two hypothetical
+            // max-old-cell combine buffers, already dropped at this seam.
+            self.base.saturating_sub(self.transfer_exclusive_cell_scratch)
+                .saturating_add(source_part_bytes.unwrap_or(0))
         } else {self.base};
         let required =
             phase_base
@@ -842,6 +872,10 @@ impl RoadWorkBudget {
                         if phase=="transfer candidates" {
                             self.transfer_exclusive_cell_scratch
                         }else{0}),
+                    ("completed_source_combine_scratch_replaced",
+                        if completed_pack {self.transfer_exclusive_cell_scratch} else {0}),
+                    ("completed_source_live_part_bytes",
+                        if completed_pack {source_part_bytes.unwrap_or(0)} else {0}),
                     ("event_bytes", event_bytes),
                     ("incoming_rows", self.incoming),
                     ("incoming_live_pages",self.incoming_live_pages),
@@ -4150,7 +4184,7 @@ impl V1Road {
             } else {
                 vec![Packet {
                     target,
-                    parts: work.pack_parts(parts)?,
+                    parts: work.pack_parts_after_completed_combine(parts)?,
                 }]
             };
             // The returned list, the cell's old slot buffer and its grown
@@ -6821,5 +6855,47 @@ mod original_weighted_fifo_physical_rates_theorem_tests {
         let receiving=BTreeMap::from([(0,0.),(1,5.)]);
         let q=road.rates(&heads(),&demand,&receiving).unwrap();
         assert_eq!([q[&0],q[&1],q[&2]],[0.,0.,4.]);
+    }
+}
+
+#[cfg(test)]
+mod original_completed_source_exact_packet_admission_tests {
+    use super::*;
+    fn budget()->RoadWorkBudget {
+        RoadWorkBudget {
+            limit:Some(930),base:1000,transfer_exclusive_cell_scratch:150,
+            events:0,incoming:0,incoming_page_cells:0,
+            incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_descriptor_live_bytes:Some(0),
+            compact_events:false,compact_incoming:false,
+            interval_retained:0,interval_transient:0,service_events:None,
+        }
+    }
+    fn part()->Part{
+        Part{tag:1,offset:0,mass:0.25,birth:-0.0,
+            a:PackedTime::new(Some(0.)).unwrap(),
+            b:PackedTime::new(Some(1.)).unwrap()}
+    }
+    #[test]
+    fn completed_source_charges_real_part_vec_and_simultaneous_core_before_pack(){
+        let w=budget();
+        assert!(w.require(0,"packet interval packing").is_err());
+        let packed=w.pack_parts_after_completed_combine(vec![part()]).unwrap();
+        assert!(packed.is_uniform());
+        let decoded:Vec<_>=packed.iter().collect();
+        assert_eq!(decoded.len(),1);
+        assert_eq!(decoded[0].mass.to_bits(),0.25f64.to_bits());
+        assert_eq!(decoded[0].birth.to_bits(),(-0.0f64).to_bits());
+    }
+    #[test]
+    fn no_unearned_source_scratch_credit_outside_completed_conversion(){
+        let mut w=budget();
+        w.incoming_descriptor_live_bytes=None;
+        assert!(w.pack_parts_after_completed_combine(vec![part()]).is_err());
+        w.incoming_descriptor_live_bytes=Some(0);
+        w.transfer_exclusive_cell_scratch=0;
+        assert!(w.pack_parts_after_completed_combine(vec![part()]).is_err());
+        w.transfer_exclusive_cell_scratch=150;
+        assert!(w.pack_parts_after_completed_combine(vec![part();3]).is_err());
     }
 }
