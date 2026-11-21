@@ -893,6 +893,64 @@ impl RoadWorkBudget {
         }
         self.require(0,"transfer candidates")
     }
+    /// The raw Part/Mark page header Vecs are *momentarily* stable during
+    /// packet remainder conversion, but remain appendable on the next
+    /// pending source iteration. Verify exact current lengths and capacities
+    /// before allowing the no-growth-time source bound.
+    fn observed_incoming_descriptor_bytes(
+        &self,parts:&[ChunkedParts],marks:&[ChunkedMarks],
+    )->PyResult<usize> {
+        let Some(tracked)=&self.incoming_cell_rows else {
+            return Err(arithmetic("incoming source destination registry unavailable"));
+        };
+        if parts.len()!=tracked.len() || marks.len()!=tracked.len() {
+            return Err(arithmetic("incoming Part Mark registry count mismatch"));
+        }
+        let mut rows=0usize;
+        let mut pages=0usize;
+        let mut descriptors=0usize;
+        for i in 0..tracked.len() {
+            let (p,m)=(&parts[i],&marks[i]);
+            if p.len()!=m.len() || p.len()!=tracked[i]
+                || p.capacity()!=m.capacity()
+                || p.capacity()!=p.len().div_ceil(INCOMING_PART_CHUNK)*INCOMING_PART_CHUNK {
+                return Err(arithmetic("incoming current Part Mark fixed-page counts differ"));
+            }
+            rows=rows.saturating_add(p.len());
+            pages=pages.saturating_add(p.capacity()/INCOMING_PART_CHUNK);
+            descriptors=descriptors.saturating_add(
+                p.descriptor_capacity().saturating_mul(std::mem::size_of::<Vec<Part>>())
+                .saturating_add(m.chunks.capacity()
+                    .saturating_mul(std::mem::size_of::<Vec<Mark>>()))
+            );
+        }
+        if rows!=self.incoming || pages!=self.incoming_live_pages {
+            return Err(arithmetic("incoming live page census differs from source preflight"));
+        }
+        Ok(descriptors)
+    }
+    /// The pending remainder's CorePart conversion does not append new raw
+    /// Part/Mark pages. Charge exactly their *current* real descriptor
+    /// capacities for this one allocation, without freezing later pending
+    /// appends. Always restore the growth-time envelope after the call,
+    /// including if the original packet reservation fails.
+    fn pack_parts_with_live_descriptors(
+        &mut self,parts:Vec<Part>,
+        incoming:&[ChunkedParts],marks:&[ChunkedMarks],
+    )->PyResult<PacketParts> {
+        if self.incoming_cell_rows.is_none() {
+            return self.pack_parts(parts);
+        }
+        if self.incoming_descriptor_live_bytes.is_some() {
+            return Err(arithmetic("pending descriptor preflight already frozen"));
+        }
+        let actual=self.observed_incoming_descriptor_bytes(incoming,marks)?;
+        self.incoming_descriptor_live_bytes=Some(actual);
+        let result=self.pack_parts(parts);
+        self.incoming_descriptor_live_bytes=None;
+        result
+    }
+
     /// Source-phase boundary: every road-service and pending original raw
     /// destination Part+Mark append has finished, no further one can grow.
     /// Both real outer Vec<Vec<T>> capacities can now be read EXACTLY for
@@ -3939,7 +3997,9 @@ impl V1Road {
                         &mut remain,
                         Packet {
                             target: p.target,
-                            parts: work.pack_parts(portion(&p.parts, 1. - f)?)?,
+                            parts: work.pack_parts_with_live_descriptors(
+                                portion(&p.parts, 1. - f)?,&incoming,&marks,
+                            )?,
                         },
                     )?;
                 }
@@ -6432,6 +6492,68 @@ mod exact_locked_incoming_descriptor_lifetime_tests {
             a:PackedTime::new(Some(0.)).unwrap(),b:PackedTime::new(Some(1.)).unwrap()};
         parts[0].push_checked(x).unwrap();
         assert!(w.lock_completed_incoming_descriptors(&parts,&marks).is_err());
+        assert_eq!(w.incoming_descriptor_live_bytes,None);
+    }
+}
+
+#[cfg(test)]
+mod exact_pending_pack_live_descriptor_tests {
+    use super::*;
+
+    fn example(i:usize)->Part {
+        Part {
+            tag:i%7,offset:i%3,
+            mass:(i+1) as f64/61.,
+            birth:if i%13==0{-0.0}else{i as f64/39.},
+            a:PackedTime::new(Some(0.)).unwrap(),
+            b:PackedTime::new(Some(1.)).unwrap(),
+        }
+    }
+    #[test]
+    fn pending_packet_pack_uses_current_vec_capacity_without_freezing_future_appends() {
+        let mut w=RoadWorkBudget {
+            limit:Some(100000000),base:0,events:0,incoming:0,
+            incoming_page_cells:3,
+            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
+            compact_events:true,compact_incoming:true,
+            interval_retained:0,interval_transient:0,service_events:None,
+        };
+        let mut incoming:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
+        let mut marks:Vec<ChunkedMarks>=(0..3).map(|_|ChunkedMarks::default()).collect();
+        for (j,n) in [(0usize,129usize),(1,1),(2,256)]{
+            w.transfer_indexed(0,std::iter::repeat(j).take(n)).unwrap();
+            for i in 0..n {
+                let part=example(i);
+                incoming[j].push_checked(part).unwrap();
+                marks[j].push_checked(compact_mark(part.mass,part.birth)).unwrap();
+            }
+        }
+        let actual=(0..3).map(|i|(
+            incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+            +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()
+        )).sum();
+        let old=segmented_incoming_exact_cell_pages_charge(
+            386,3,5,true,None,
+        );
+        let new=segmented_incoming_exact_cell_pages_charge(
+            386,3,5,true,Some(actual),
+        );
+        assert!(old-new>24);
+        w.limit=Some(old+24-1);
+        let original_packet=example(1);
+        assert!(w.require(24,"packet interval packing").is_err());
+        let packed=w.pack_parts_with_live_descriptors(
+            vec![original_packet],&incoming,&marks,
+        ).unwrap();
+        let row=packed.iter().next().unwrap();
+        assert_eq!(row.tag,original_packet.tag);
+        assert_eq!(row.mass.to_bits(),original_packet.mass.to_bits());
+        assert_eq!(row.birth.to_bits(),original_packet.birth.to_bits());
+        assert_eq!(w.incoming_descriptor_live_bytes,None);
+        // A future pending source append may still allocate new page headers.
+        w.transfer_indexed(0,std::iter::once(1usize)).unwrap();
+        assert_eq!(w.incoming_cell_rows.as_ref().unwrap(),&vec![129,2,256]);
         assert_eq!(w.incoming_descriptor_live_bytes,None);
     }
 }
