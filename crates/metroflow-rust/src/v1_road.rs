@@ -385,6 +385,11 @@ struct RoadWorkBudget {
     events: usize,
     incoming: usize,
     incoming_page_cells: usize,
+    /// Per-destination exact predicted row count. Only for bounded source.
+    /// Updated BEFORE each physical append, and reset only after actual
+    /// Part+Mark owners have been dropped for that destination.
+    incoming_cell_rows: Option<Vec<usize>>,
+    incoming_live_pages:usize,
     compact_events: bool,
     compact_incoming: bool,
     /// Packed entering-interval rows already moved into the candidate.
@@ -791,12 +796,20 @@ impl RoadWorkBudget {
             },
             |service| service.road_step_bytes_for(self.events,self.compact_events),
         );
+        let incoming_bytes=if self.incoming_cell_rows.is_some(){
+            segmented_incoming_exact_cell_pages_charge(
+                self.incoming,self.incoming_page_cells,
+                self.incoming_live_pages,self.compact_incoming,
+            )
+        } else {
+            segmented_incoming_charge_for(
+                self.incoming,self.incoming_page_cells,self.compact_incoming,
+            )
+        };
         let required =
             self.base
                 .saturating_add(event_bytes)
-                .saturating_add(segmented_incoming_charge_for(
-                    self.incoming,self.incoming_page_cells,self.compact_incoming,
-                ))
+                .saturating_add(incoming_bytes)
                 .saturating_add(self.interval_retained)
                 .saturating_add(self.interval_transient)
                 .saturating_add(extra);
@@ -810,6 +823,8 @@ impl RoadWorkBudget {
                     ("base", self.base),
                     ("event_bytes", event_bytes),
                     ("incoming_rows", self.incoming),
+                    ("incoming_live_pages",self.incoming_live_pages),
+                    ("incoming_actual_page_charge",incoming_bytes),
                     ("interval_retained", self.interval_retained),
                     ("interval_transient", self.interval_transient),
                     ("extra", extra),
@@ -824,16 +839,49 @@ impl RoadWorkBudget {
     /// Part and matching Mark page allocations for one destination cell have
     /// been physically dropped. Retained final packet rows are separately
     /// charged by interval_retained; no packet or source row is discarded here.
-    fn release_incoming(&mut self, expired_rows:usize)->PyResult<()> {
+    fn release_incoming(&mut self,cell:usize,expired_rows:usize)->PyResult<()> {
         let remaining=self.incoming.checked_sub(expired_rows).ok_or_else(||
             arithmetic("expired incoming source rows exceed prior charged rows"))?;
+        if let Some(tracked)=&mut self.incoming_cell_rows {
+            let prior=tracked.get_mut(cell).ok_or_else(||
+                arithmetic("expired raw destination outside original cell registry"))?;
+            if *prior!=expired_rows {
+                return Err(arithmetic("source incoming cell row count differs from real dropped pages"));
+            }
+            let pages=prior.div_ceil(INCOMING_PART_CHUNK);
+            let new_pages=self.incoming_live_pages.checked_sub(pages).ok_or_else(||
+                arithmetic("expired source pages exceed actually predicted live pages"))?;
+            *prior=0;
+            self.incoming_live_pages=new_pages;
+        }
         self.incoming=remaining;
         Ok(())
     }
-    fn transfer(&mut self, events: usize, incoming: usize) -> PyResult<()> {
-        self.events = self.events.saturating_add(events);
-        self.incoming = self.incoming.saturating_add(incoming);
-        self.require(0, "transfer candidates")
+    /// Source-bound preflight runs before actual raw Part and Mark appends.
+    /// Reconstruct exactly the destination distribution from the original
+    /// served immutable physical packet rows without sorting or combining.
+    /// Each new page is allocated iff the cell's old length is a multiple
+    /// of the physical fixed page size; no in-memory object is fabricated.
+    fn transfer_indexed(
+        &mut self,events:usize,destinations:impl IntoIterator<Item=usize>,
+    )->PyResult<()> {
+        self.events=self.events.saturating_add(events);
+        if let Some(tracked)=&mut self.incoming_cell_rows {
+            for i in destinations {
+                let count=tracked.get_mut(i).ok_or_else(||
+                    arithmetic("incoming predicted destination outside original cell registry"))?;
+                if *count % INCOMING_PART_CHUNK==0 {
+                    self.incoming_live_pages=self.incoming_live_pages.saturating_add(1);
+                }
+                *count=count.saturating_add(1);
+                self.incoming=self.incoming.saturating_add(1);
+            }
+        } else {
+            for _ in destinations{
+                self.incoming=self.incoming.saturating_add(1);
+            }
+        }
+        self.require(0,"transfer candidates")
     }
     fn interval(&mut self, transient: usize) -> PyResult<()> {
         self.interval_transient = transient;
@@ -1846,6 +1894,33 @@ fn segmented_incoming_charge(rows:usize,cells:usize)->usize {
     segmented_incoming_charge_for(rows,cells,false)
 }
 
+/// The source's append-only raw Part and Mark containers each allocate exact
+/// B=128 row pages only when that particular destination crosses a boundary.
+/// Predict the exact number of live physical pages using source-cell rows;
+/// preserve the original conservatively doubled Vec-of-page header envelope.
+/// Include the newly allocated source-cell counter Vec and control padding.
+fn segmented_incoming_exact_cell_pages_charge(
+    rows:usize,cells:usize,live_pages:usize,compressed:bool,
+)->usize {
+    let part_bytes=if compressed {
+        std::mem::size_of::<CompactIncomingPart>()
+    } else {
+        std::mem::size_of::<Part>()
+    };
+    let marks=std::mem::size_of::<Mark>();
+    let tracked_cell_vec= cells.saturating_mul(std::mem::size_of::<usize>())
+        .saturating_add(128);
+    let payload=live_pages.saturating_mul(INCOMING_PART_CHUNK)
+        .saturating_mul(part_bytes.saturating_add(marks));
+    let original_descriptor_envelope=if rows==0 {0}else{
+        rows.div_ceil(INCOMING_PART_CHUNK).saturating_add(cells)
+            .saturating_mul(2*(std::mem::size_of::<Vec<Part>>()
+                              +std::mem::size_of::<Vec<Mark>>()))
+    };
+    tracked_cell_vec.saturating_add(payload)
+        .saturating_add(original_descriptor_envelope)
+}
+
 /// This ONLY receives raw source buffers whose last original read already
 /// happened. Combine, original weighted speed and latent Mark reductions
 /// must have completed before calling it. Keeping the actual owner arguments
@@ -1853,6 +1928,7 @@ fn segmented_incoming_charge(rows:usize,cells:usize)->usize {
 /// accounting may reduce its conservative source-row count.
 fn release_consumed_incoming_pair(
     work:&mut RoadWorkBudget,
+    cell:usize,
     raw:ChunkedParts,
     marks:ChunkedMarks,
 )->PyResult<usize> {
@@ -1868,7 +1944,7 @@ fn release_consumed_incoming_pair(
     );
     drop(raw);
     drop(marks);
-    work.release_incoming(rows)?;
+    work.release_incoming(cell,rows)?;
     crate::v1_trace::add("road_work.expired_source_rows",rows as u64);
     crate::v1_trace::add("road_work.expired_source_payload_bytes",released_payload as u64);
     Ok(rows)
@@ -2509,6 +2585,7 @@ impl V1Road {
                 events: 0,
                 incoming: 0,
                 incoming_page_cells: self.groups.len(),
+                incoming_cell_rows:None,incoming_live_pages:0,
                 compact_events: self.can_compact_candidate_events(),
                 compact_incoming: self.can_compact_incoming_parts(),
                 interval_retained: 0,
@@ -2581,6 +2658,7 @@ impl V1Road {
             events: 0,
             incoming: 0,
             incoming_page_cells: self.groups.len(),
+            incoming_cell_rows:Some(vec![0;self.groups.len()]),incoming_live_pages:0,
             compact_events: self.can_compact_candidate_events(),
             compact_incoming: self.can_compact_incoming_parts(),
             interval_retained: 0,
@@ -3558,12 +3636,13 @@ impl V1Road {
                     if 1. - fraction < 1e-14 {
                         fraction = 1.;
                     }
-                    let incoming_count = packet
-                        .parts
-                        .iter()
-                        .filter(|part| self.dest(part).is_some())
-                        .count();
-                    work.transfer(packet.parts.len(), incoming_count)?;
+                    let incoming_count=served_parts(&packet.parts,fraction)
+                        .filter(|part|self.dest(part).is_some()).count();
+                    work.transfer_indexed(
+                        packet.parts.len(),
+                        served_parts(&packet.parts,fraction)
+                            .filter_map(|part|self.dest(&part)),
+                    )?;
                     if self.storage_budget.is_some()
                         && events.len().saturating_add(packet.parts.len())
                             > self.checkpoint_event_limit()
@@ -3753,8 +3832,13 @@ impl V1Road {
                 if 1. - f < 1e-14 {
                     f = 1.;
                 }
+                let expected_pending=if f>0.0 {
+                    p.parts.iter().filter(|part|part.mass*f>0.0).count()
+                }else{0};
                 if f > 0.0 {
-                    work.transfer(0, p.parts.len())?;
+                    work.transfer_indexed(
+                        0,std::iter::repeat(i).take(expected_pending),
+                    )?;
                 }
                 if crate::v1_trace::enabled() {
                     crate::v1_trace::add("pending.rows", p.parts.len() as u64);
@@ -3763,6 +3847,7 @@ impl V1Road {
                     }
                 }
                 let mut parts = portion(&p.parts, f)?;
+                debug_assert_eq!(parts.len(),expected_pending);
                 let m = sum(parts.iter().map(|p| p.mass));
                 free[i] = (free[i] - m).max(0.);
                 space[i] =
@@ -3843,7 +3928,7 @@ impl V1Road {
             // later interval-packet and cell reservation checks.
             let expired_marks = std::mem::take(&mut marks[i]);
             let expired = release_consumed_incoming_pair(
-                &mut work, source, expired_marks,
+                &mut work,i,source,expired_marks,
             )?;
             debug_assert_eq!(expired,raw_rows);
             if crate::v1_trace::enabled() && raw_rows > 0 {
@@ -4398,6 +4483,7 @@ mod workspace_accounting_tests {
             events: 0,
             incoming: 0,
             incoming_page_cells: 0,
+            incoming_cell_rows:None,incoming_live_pages:0,
             compact_events: false,
             compact_incoming: false,
             interval_retained: 0,
@@ -5990,6 +6076,7 @@ mod exact_consumed_packet_source_lifetime_tests {
         RoadWorkBudget {
             limit:Some(10_000_000),
             base:0,events:0,incoming:n,incoming_page_cells:1586,
+            incoming_cell_rows:None,incoming_live_pages:0,
             compact_events:true,compact_incoming:true,
             interval_retained:0,interval_transient:0,
             service_events:None,
@@ -6014,7 +6101,7 @@ mod exact_consumed_packet_source_lifetime_tests {
             }
             assert_eq!(checksum,0); // all original paired mass f64 bit patterns equal
             let charged_before=segmented_incoming_charge_for(b.incoming,1586,true);
-            let released=release_consumed_incoming_pair(&mut b,p,m).unwrap();
+            let released=release_consumed_incoming_pair(&mut b,0,p,m).unwrap();
             assert_eq!(released,n);
             assert_eq!(b.incoming,old-n);
             let charged_after=segmented_incoming_charge_for(b.incoming,1586,true);
@@ -6033,7 +6120,7 @@ mod exact_consumed_packet_source_lifetime_tests {
         x.push_checked(source(1)).unwrap();
         let m=ChunkedMarks::default();
         let mut b=work(1);
-        assert!(release_consumed_incoming_pair(&mut b,x,m).is_err());
+        assert!(release_consumed_incoming_pair(&mut b,0,x,m).is_err());
         assert_eq!(b.incoming,1);
         let mut y=ChunkedParts::new(true);
         let mut mm=ChunkedMarks::default();
@@ -6042,7 +6129,7 @@ mod exact_consumed_packet_source_lifetime_tests {
             y.push_checked(r).unwrap();
             mm.push_checked(compact_mark(r.mass,r.birth)).unwrap();
         }
-        assert!(release_consumed_incoming_pair(&mut b,y,mm).is_err());
+        assert!(release_consumed_incoming_pair(&mut b,0,y,mm).is_err());
         assert_eq!(b.incoming,1);
     }
 }
@@ -6130,5 +6217,78 @@ mod exact_event_page_live_capacity_contract_tests {
                 n.div_ceil(EVENT_PAGE_ROWS)*EVENT_PAGE_ROWS
                   *std::mem::size_of::<CompactEventRow>());
         }
+    }
+}
+
+#[cfg(test)]
+mod exact_incoming_cell_page_liveness_tests {
+    use super::*;
+
+    fn work(g:usize)->RoadWorkBudget {
+        RoadWorkBudget {
+            limit:Some(100_000_000),base:0,events:0,incoming:0,
+            incoming_page_cells:g,compact_events:true,compact_incoming:true,
+            incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,
+            interval_retained:0,interval_transient:0,service_events:None,
+        }
+    }
+    fn part(i:usize)->Part {
+        Part {
+            tag:i%31,offset:i%7,
+            mass:if i%11==0 {f64::from_bits(1)}else{(i+1) as f64/79.},
+            birth:if i%13==0 {-0.0}else{i as f64/17.},
+            a:PackedTime::new(Some(0.0)).unwrap(),
+            b:PackedTime::new(Some(1.0)).unwrap(),
+        }
+    }
+    #[test]
+    fn projected_source_cell_pages_equal_physically_live_part_and_mark_pages() {
+        let mut w=work(3);
+        let dests=(0..129).map(|_|0usize)
+            .chain(std::iter::once(1))
+            .chain((0..256).map(|_|2));
+        w.transfer_indexed(386,dests).unwrap();
+        assert_eq!(w.incoming,386);
+        assert_eq!(w.incoming_cell_rows.as_ref().unwrap(),&vec![129,1,256]);
+        assert_eq!(w.incoming_live_pages,2+1+2);
+        let bound=segmented_incoming_exact_cell_pages_charge(
+            w.incoming,w.incoming_page_cells,w.incoming_live_pages,true,
+        );
+        let expected=5*INCOMING_PART_CHUNK*(40+16)
+            +2*(386usize.div_ceil(INCOMING_PART_CHUNK)+3)*(24+24)
+            +(3*std::mem::size_of::<usize>()+128);
+        assert_eq!(bound,expected);
+        assert!(bound<segmented_incoming_charge_for(386,3,true)+
+            3*std::mem::size_of::<usize>()+128);
+        let mut p=ChunkedParts::new(true);
+        let mut m=ChunkedMarks::default();
+        for i in 0..129{
+            let r=part(i);
+            p.push_checked(r).unwrap();
+            m.push_checked(compact_mark(r.mass,r.birth)).unwrap();
+        }
+        assert_eq!(p.physical_capacity_bytes(),2*128*40);
+        assert_eq!(m.capacity()*std::mem::size_of::<Mark>(),2*128*16);
+        release_consumed_incoming_pair(&mut w,0,p,m).unwrap();
+        assert_eq!(w.incoming,257);
+        assert_eq!(w.incoming_live_pages,3);
+        assert_eq!(w.incoming_cell_rows.as_ref().unwrap(),&vec![0,1,256]);
+        assert_eq!(segmented_incoming_exact_cell_pages_charge(
+            w.incoming,w.incoming_page_cells,w.incoming_live_pages,true,
+        ),3*INCOMING_PART_CHUNK*56+
+          2*(257usize.div_ceil(INCOMING_PART_CHUNK)+3)*(24+24)
+          +(3*8+128));
+    }
+    #[test]
+    fn page_growth_is_only_at_true_cell_local_128_row_boundary() {
+        let mut w=work(2);
+        w.transfer_indexed(0,(0..127).map(|_|0usize)).unwrap();
+        assert_eq!(w.incoming_live_pages,1);
+        w.transfer_indexed(0,[0,1]).unwrap();
+        assert_eq!(w.incoming_live_pages,2);
+        w.transfer_indexed(0,[0]).unwrap();
+        assert_eq!(w.incoming_live_pages,3);
+        assert_eq!(w.incoming_cell_rows.as_ref().unwrap(),&vec![129,1]);
+        assert!(w.transfer_indexed(0,[2usize]).is_err());
     }
 }
