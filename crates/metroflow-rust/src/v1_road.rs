@@ -382,6 +382,11 @@ struct ExactKeyGroup {
 struct RoadWorkBudget {
     limit: Option<usize>,
     base: usize,
+    /// Two hypothetical max-cell Part scratch vectors are required only for
+    /// later interval combination, after ALL transfer_indexed calls. During
+    /// transfer preflight no such Vec<Part> exists; charge full original
+    /// reserve at every other original road phase.
+    transfer_exclusive_cell_scratch:usize,
     events: usize,
     incoming: usize,
     incoming_page_cells: usize,
@@ -809,8 +814,16 @@ impl RoadWorkBudget {
                 self.incoming,self.incoming_page_cells,self.compact_incoming,
             )
         };
+        // The original source's two max-cell Part scratch allocations
+        // belong to future interval combination. They are never alive at
+        // the before-append transfer_indexed preflight, where no per-cell
+        // combine_chunked_parts has begun. Preserve the ENTIRE old reserve
+        // in preflight, packet packing, split and all other phases.
+        let phase_base=if phase=="transfer candidates" {
+            self.base.saturating_sub(self.transfer_exclusive_cell_scratch)
+        } else {self.base};
         let required =
-            self.base
+            phase_base
                 .saturating_add(event_bytes)
                 .saturating_add(incoming_bytes)
                 .saturating_add(self.interval_retained)
@@ -823,7 +836,12 @@ impl RoadWorkBudget {
                 required,
                 limit,
                 &[
-                    ("base", self.base),
+                    ("base", phase_base),
+                    ("full_source_base", self.base),
+                    ("transfer_exclusive_cell_scratch",
+                        if phase=="transfer candidates" {
+                            self.transfer_exclusive_cell_scratch
+                        }else{0}),
                     ("event_bytes", event_bytes),
                     ("incoming_rows", self.incoming),
                     ("incoming_live_pages",self.incoming_live_pages),
@@ -2728,6 +2746,7 @@ impl V1Road {
             return Ok(RoadWorkBudget {
                 limit: None,
                 base: 0,
+                transfer_exclusive_cell_scratch:0,
                 events: 0,
                 incoming: 0,
                 incoming_page_cells: self.groups.len(),
@@ -2776,6 +2795,8 @@ impl V1Road {
         let paired_credit=exact_shared.max(experimental_credit);
         crate::v1_trace::add("arc.default_pointer_verified_credit",exact_shared as u64);
         crate::v1_trace::add("arc.experimental_paired_credit",experimental_credit as u64);
+        let combine_scratch=stats.max_cell_parts
+            .saturating_mul(2*std::mem::size_of::<Part>());
         let base = maximum_retained
             .saturating_mul(3)
             .saturating_sub(paired_credit)
@@ -2785,11 +2806,7 @@ impl V1Road {
                     .len()
                     .saturating_mul(4 * std::mem::size_of::<Part>() + std::mem::size_of::<Offer>()),
             )
-            .saturating_add(
-                stats
-                    .max_cell_parts
-                    .saturating_mul(2 * std::mem::size_of::<Part>()),
-            )
+            .saturating_add(combine_scratch)
             .saturating_add(groups.saturating_mul(1024 + self.classes.len() * 1024));
         if let Some(limit) = self.storage_budget {
             crate::v1_trace::guard(
@@ -2814,6 +2831,7 @@ impl V1Road {
         let work = RoadWorkBudget {
             limit: self.storage_budget,
             base,
+            transfer_exclusive_cell_scratch:combine_scratch,
             events: 0,
             incoming: 0,
             incoming_page_cells: self.groups.len(),
@@ -4655,6 +4673,7 @@ mod workspace_accounting_tests {
         RoadWorkBudget {
             limit: Some(limit),
             base: 0,
+            transfer_exclusive_cell_scratch:0,
             events: 0,
             incoming: 0,
             incoming_page_cells: 0,
@@ -6251,7 +6270,8 @@ mod exact_consumed_packet_source_lifetime_tests {
     fn work(n:usize)->RoadWorkBudget {
         RoadWorkBudget {
             limit:Some(10_000_000),
-            base:0,events:0,incoming:n,incoming_page_cells:1586,
+            base:0,transfer_exclusive_cell_scratch:0,
+            events:0,incoming:n,incoming_page_cells:1586,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,compact_incoming:true,
@@ -6403,7 +6423,8 @@ mod exact_incoming_cell_page_liveness_tests {
 
     fn work(g:usize)->RoadWorkBudget {
         RoadWorkBudget {
-            limit:Some(100_000_000),base:0,events:0,incoming:0,
+            limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
+            events:0,incoming:0,
             incoming_page_cells:g,compact_events:true,compact_incoming:true,
             incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -6477,7 +6498,8 @@ mod exact_locked_incoming_descriptor_lifetime_tests {
 
     fn work()->RoadWorkBudget {
         RoadWorkBudget {
-            limit:Some(100_000_000),base:0,events:0,incoming:0,
+            limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
+            events:0,incoming:0,
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -6557,7 +6579,8 @@ mod exact_pending_pack_live_descriptor_tests {
     #[test]
     fn pending_packet_pack_uses_current_vec_capacity_without_freezing_future_appends() {
         let mut w=RoadWorkBudget {
-            limit:Some(100000000),base:0,events:0,incoming:0,
+            limit:Some(100000000),base:0,transfer_exclusive_cell_scratch:0,
+            events:0,incoming:0,
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -6716,5 +6739,39 @@ mod exact_shared_fifo_source_arc_credit_tests {
         let b=a.clone();
         assert_eq!(a.paired_shared_payload_lower_bound(&b),std::mem::size_of::<CorePart>());
         assert_eq!(a.arc_backing_census().unique_backing_count,1);
+    }
+}
+
+#[cfg(test)]
+mod original_transfer_exclusive_cell_scratch_tests {
+    use super::*;
+    fn phase_source_budget()->RoadWorkBudget {
+        RoadWorkBudget{
+            limit:Some(900),base:1000,
+            transfer_exclusive_cell_scratch:150,
+            events:0,incoming:0,incoming_page_cells:0,
+            incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
+            compact_events:false,compact_incoming:false,
+            interval_retained:0,interval_transient:0,service_events:None,
+        }
+    }
+    #[test]
+    fn only_source_transfer_preflight_excludes_future_interval_cell_combine_scratch(){
+        let mut work=phase_source_budget();
+        assert!(work.require(0,"tick preflight").is_err());
+        assert!(work.transfer_indexed(0,std::iter::empty::<usize>()).is_ok());
+        assert!(work.require(0,"packet interval packing").is_err());
+        assert!(work.require(0,"entry interval split").is_err());
+        assert_eq!(work.base,1000);
+    }
+    #[test]
+    fn no_unearned_transfer_credit_for_zero_extra_or_nontransfer_call(){
+        let mut w=phase_source_budget();
+        w.transfer_exclusive_cell_scratch=0;
+        assert!(w.transfer_indexed(0,std::iter::empty::<usize>()).is_err());
+        w.transfer_exclusive_cell_scratch=150;
+        assert!(w.require(100,"transfer candidates").is_err());
+        assert!(w.require(0,"checkpoint decode preflight").is_err());
     }
 }

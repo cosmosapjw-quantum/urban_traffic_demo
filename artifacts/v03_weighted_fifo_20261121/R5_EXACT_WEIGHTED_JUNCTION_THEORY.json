@@ -1,0 +1,102 @@
+{
+  "compute_wall_s": 1.569961956993211,
+  "exact_arithmetic": "Python fractions.Fraction; no tolerance or RNG",
+  "example": {
+    "base_downstream": [
+      "3",
+      "5"
+    ],
+    "base_flow": [
+      "3/2",
+      "3",
+      "7/2"
+    ],
+    "base_rounds": [
+      {
+        "active_before": [
+          0,
+          1,
+          2
+        ],
+        "flow_after": [
+          "3/2",
+          "3",
+          "3/2"
+        ],
+        "saturated_destinations": [
+          0
+        ],
+        "step": "3/2"
+      },
+      {
+        "active_before": [
+          2
+        ],
+        "flow_after": [
+          "3/2",
+          "3",
+          "7/2"
+        ],
+        "saturated_destinations": [
+          0,
+          1
+        ],
+        "step": "2"
+      }
+    ],
+    "base_supplies": [
+      "3",
+      "5"
+    ],
+    "beta_turning": [
+      [
+        "1",
+        "0"
+      ],
+      [
+        "1/2",
+        "1/2"
+      ],
+      [
+        "0",
+        "1"
+      ]
+    ],
+    "physical_total_flow_gain": "1",
+    "priority_weights": [
+      "1",
+      "2",
+      "1"
+    ],
+    "relieved_downstream": [
+      "4",
+      "5"
+    ],
+    "relieved_flow": [
+      "2",
+      "4",
+      "3"
+    ],
+    "relieved_supplies": [
+      "4",
+      "5"
+    ],
+    "send_caps": [
+      "10",
+      "10",
+      "4"
+    ]
+  },
+  "finite_exact_assertions_checked": 24696,
+  "nonclaims": [
+    "not a proof of overall maximum total throughput among all feasible priority-violating flows",
+    "not a replacement of source f64 within original Rust rates()",
+    "not a proof of physical 25710 original city completion",
+    "not a novel general weighted max-min theorem relative to all published node models"
+  ],
+  "schema": "METROFLOW_WEIGHTED_FIFO_JUNCTION_CONSTRUCTIVE_THEOREM_20261121_V1",
+  "source_physical_observable": "destination-specific throughput and bottleneck coalition",
+  "source_sha256": "420ac4c10741e72544cbee9e11a6c00b0307d8519b3c0ed5a60b6228f7b5323e",
+  "theorem": "Weighted progressive filling gives a feasible deterministic weighted lexicographic max-min flow with <= input-count active rounds under exact arithmetic",
+  "theory_domain": "fixed physical source heads; positive w; per-source send; nonnegative routing; destination supplies"
+}
