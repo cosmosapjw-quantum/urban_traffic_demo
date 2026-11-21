@@ -594,6 +594,15 @@ fn postroad_continuous_owner_sum(
 )->usize {
     committed.saturating_add(input).saturating_add(candidate)
 }
+/// The three distinct immutable road owners coexist after the road step:
+/// committed, supplied input and the newly built candidate. Each owner
+/// carries its own observable retained byte count. Three times the maximum
+/// fictitiously allocates a second or third full copy of the candidate.
+fn postroad_materialization_owner_bytes(
+    committed:usize,input:usize,candidate:usize,
+)->usize {
+    postroad_continuous_owner_sum(committed,input,candidate)
+}
 fn postroad_continuous_keyset_peak_bytes(
     owner_sum:usize, old_events:usize,
     flat_rows:usize, core_rows:usize, packet_owners:usize,
@@ -3090,10 +3099,12 @@ impl V1Road {
         &self, candidate:&mut RoadState, pages:ChunkedEvents,
     )->PyResult<Vec<EventRow>> {
         if let Some(limit)=self.storage_budget {
-            let max_state=self.state.retained_storage_bytes()
-                .max(self.retained_input_bytes)
-                .max(candidate.retained_storage_bytes());
-            let road_owners=max_state.saturating_mul(3);
+            let committed_retained=self.state.retained_storage_bytes();
+            let supplied_retained=self.retained_input_bytes;
+            let candidate_retained=candidate.retained_storage_bytes();
+            let road_owners=postroad_materialization_owner_bytes(
+                committed_retained,supplied_retained,candidate_retained,
+            );
             let old_events=self.service_event_accounting.map_or(0,|v|
                 v.input_bytes.saturating_add(
                     if v.shared_input_current {0} else {v.current_bytes}
@@ -3105,6 +3116,9 @@ impl V1Road {
                 "road_post","event candidate materialize after road",required,limit,
                 &[
                     ("retained_road_owners",road_owners),
+                    ("committed_road_retained_bytes",committed_retained),
+                    ("supplied_road_retained_bytes",supplied_retained),
+                    ("candidate_road_retained_bytes",candidate_retained),
                     ("committed_input_event_bytes",old_events),
                     ("paged_event_slots",pages.capacity()),
                     ("paged_event_payload_bytes",pages.physical_capacity_bytes()),
@@ -7403,5 +7417,32 @@ mod diagnostic_lineage_after_motion_expiry_source_tests {
         assert!(w.require(0,"transfer candidates").is_ok());
         assert_eq!(incoming[0].get(0).mass.to_bits(),0.25f64.to_bits());
         assert_eq!(incoming[0].get(0).birth.to_bits(),(-0.0f64).to_bits());
+    }
+}
+
+#[cfg(test)]
+mod postroad_three_concrete_owner_materialization_tests {
+    use super::*;
+    #[test]
+    fn original_postroad_100k_three_distinct_owner_sizes_are_not_three_maxima() {
+        // Original Valley t25700 source-only input & committed road copies
+        // are smaller than the newly constructed t25710 candidate. This is
+        // a source ownership fact, not a permission to alter the numeric cap.
+        let c=630_653_248usize;
+        let input=630_653_248usize;
+        let new=877_913_216usize;
+        let owners=postroad_materialization_owner_bytes(c,input,new);
+        assert_eq!(owners,c+input+new);
+        assert!(owners<3*new);
+        let old=postroad_event_materialization_bytes(
+            3*new,923_664_448,836_763_648,8192,17_429_035
+        );
+        let corrected=postroad_event_materialization_bytes(
+            owners,923_664_448,836_763_648,8192,17_429_035
+        );
+        let original_cap=5_025_214_575usize;
+        assert!(old>original_cap);
+        assert!(corrected<original_cap);
+        assert!(old-corrected>=494_519_936);
     }
 }
