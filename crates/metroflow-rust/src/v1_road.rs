@@ -390,6 +390,13 @@ struct RoadWorkBudget {
     /// source Part Vec plus CorePart allocation; active combine/interval
     /// phases retain the full old envelope. Physical caps are unchanged.
     transfer_exclusive_cell_scratch:usize,
+    /// Four-f64/old-Part motion/validation envelope is needed only while
+    /// source scans run. The live queue and Motion maps remain charged.
+    row_scan_scratch_bytes:usize,
+    expired_motion_scan_credit:usize,
+    /// Source trace-only (cell,head,rate) owners. Count actual Vec capacities
+    /// separately from the expired old per-Part motion scan.
+    diagnostic_source_live_bytes:usize,
     events: usize,
     incoming: usize,
     incoming_page_cells: usize,
@@ -791,6 +798,12 @@ impl RoadDecodeBudget {
     }
 }
 impl RoadWorkBudget {
+    /// Post-prediction ownership boundary: old per-Part scan temporaries
+    /// are dead, but live packet queue and Motion shells are still reserved.
+    fn retire_completed_motion_scan(&mut self, live_queue_and_motion_bytes:usize) {
+        self.expired_motion_scan_credit=self.row_scan_scratch_bytes
+            .saturating_sub(live_queue_and_motion_bytes);
+    }
     fn pack_parts(&self, parts: Vec<Part>) -> PyResult<PacketParts> {
         PacketParts::pack(parts, |bytes| {
             self.require(bytes, "packet interval packing")
@@ -858,12 +871,18 @@ impl RoadWorkBudget {
             self.base.saturating_sub(self.transfer_exclusive_cell_scratch)
                 .saturating_add(source_part_bytes.unwrap_or(0))
         } else {self.base};
+        // The initial tick preflight is unchanged. This adjustment is set
+        // only after every prediction output was consumed in source order.
+        let expired = if phase=="tick preflight" {0}
+            else {self.expired_motion_scan_credit};
+        let phase_base=phase_base.saturating_sub(expired);
         let required =
             phase_base
                 .saturating_add(event_bytes)
                 .saturating_add(incoming_bytes)
                 .saturating_add(self.interval_retained)
                 .saturating_add(self.interval_transient)
+                .saturating_add(self.diagnostic_source_live_bytes)
                 .saturating_add(extra);
         if let Some(limit) = self.limit {
             if crate::v1_trace::guard(
@@ -873,6 +892,8 @@ impl RoadWorkBudget {
                 limit,
                 &[
                     ("base", phase_base),
+                    ("retired_motion_row_scan_credit",expired),
+                    ("diagnostic_source_actual_capacity_bytes",self.diagnostic_source_live_bytes),
                     ("full_source_base", self.base),
                     ("transfer_exclusive_cell_scratch",
                         if phase=="transfer candidates" {
@@ -964,6 +985,9 @@ impl RoadWorkBudget {
         }
         Ok(())
     }
+    /// Existing compatibility path, without a diagnostic source lineage
+    /// projection. The instrumented original driver below must pass its
+    /// real diagnostic source vectors for a source-bound guard.
     /// Physical two-phase header preallocation for exactly this transfer.
     /// No original Part/Mark or EventRow values are created or changed here.
     /// Both header vectors reserve before source append so no header Vec can
@@ -976,6 +1000,15 @@ impl RoadWorkBudget {
         &mut self,events:usize,destinations:impl IntoIterator<Item=usize>,
         incoming:&mut [ChunkedParts],marks:&mut [ChunkedMarks],
     )->PyResult<()> {
+        self.transfer_indexed_with_live_diagnostics(
+            events,destinations,incoming,marks,None
+        )
+    }
+    fn transfer_indexed_with_live_diagnostics(
+        &mut self,events:usize,destinations:impl IntoIterator<Item=usize>,
+        incoming:&mut [ChunkedParts],marks:&mut [ChunkedMarks],
+        diagnostic:Option<&mut Vec<Vec<(usize,usize,u64)>>>,
+    )->PyResult<()> {
         if self.incoming_cell_rows.is_none() {
             return self.transfer_indexed(events,destinations);
         }
@@ -986,6 +1019,43 @@ impl RoadWorkBudget {
         let mut new_page_cells:Vec<usize>=Vec::new();
         self.project_transfer(events,destinations,Some(&mut new_page_cells))?;
         let mut old_header_overlap=0usize;
+        // These source-only diagnostic rows are alive throughout transfer,
+        // even though each old source per-Part motion scan is already dead.
+        // Reserve their actual destination capacities BEFORE new page/events
+        // are appended. Old/new diagnostic backing overlap happens in this
+        // same serial header-reservation phase, not the future raw page phase.
+        if let Some(src) = diagnostic {
+            if !src.is_empty() {
+                let tracked=self.incoming_cell_rows.as_ref().ok_or_else(||
+                    arithmetic("diagnostic source counts have no current registry"))?;
+                if src.len()!=tracked.len() {
+                    return Err(arithmetic("diagnostic source registry size differs"));
+                }
+                for (i,(existing,&projected)) in src.iter_mut().zip(tracked.iter()).enumerate(){
+                    if existing.len()>projected || existing.len()!=incoming[i].len() {
+                        return Err(arithmetic("diagnostic source row alignment differs"));
+                    }
+                    if projected>existing.capacity(){
+                        let previous=existing.capacity();
+                        existing.try_reserve(projected-existing.len())
+                            .map_err(|_|budget("diagnostic source lineage reserve unavailable"))?;
+                        if existing.capacity()<projected {
+                            return Err(budget("diagnostic source lineage reserve capacity invalid"));
+                        }
+                        old_header_overlap=old_header_overlap.max(
+                            previous.saturating_mul(std::mem::size_of::<(usize,usize,u64)>())
+                        );
+                    }
+                }
+                self.diagnostic_source_live_bytes=src.iter()
+                    .map(|v|v.capacity().saturating_mul(
+                        std::mem::size_of::<(usize,usize,u64)>()
+                    )).sum::<usize>()
+                    .saturating_add(src.capacity().saturating_mul(
+                        std::mem::size_of::<Vec<(usize,usize,u64)>>()
+                    ));
+            }
+        }
         for &cell in &new_page_cells {
             let target=self.incoming_cell_rows.as_ref()
                 .and_then(|v|v.get(cell)).ok_or_else(||
@@ -2912,6 +2982,7 @@ impl V1Road {
                 limit: None,
                 base: 0,
                 transfer_exclusive_cell_scratch:0,
+                row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
                 events: 0,
                 incoming: 0,
                 incoming_page_cells: self.groups.len(),
@@ -2997,6 +3068,7 @@ impl V1Road {
             limit: self.storage_budget,
             base,
             transfer_exclusive_cell_scratch:combine_scratch,
+            row_scan_scratch_bytes:rows.saturating_mul(4*std::mem::size_of::<f64>()),expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events: 0,
             incoming: 0,
             incoming_page_cells: self.groups.len(),
@@ -3718,6 +3790,24 @@ impl V1Road {
             queues.push(q);
             motions.push(m);
         }
+        // All predictions have been consumed, and temporary per-Part f64
+        // source scans from motion() and check_state() are no longer alive.
+        // Measure still-live queue slots and conservatively reserve the
+        // per-class Motion map owners before retiring the old scan envelope.
+        let live_queue_slots:usize=queues.iter()
+            .map(|q|q.capacity().saturating_mul(std::mem::size_of::<(Packet,f64)>()))
+            .sum();
+        let live_motion_shells=motions.capacity().saturating_mul(std::mem::size_of::<Motion>());
+        let live_outer_queue=queues.capacity()
+            .saturating_mul(std::mem::size_of::<Vec<(Packet,f64)>>());
+        let perclass_motion_owner=self.groups.len().saturating_mul(
+            self.classes.len().saturating_mul(1024).saturating_add(1024)
+        );
+        work.retire_completed_motion_scan(
+            live_queue_slots.saturating_add(live_motion_shells)
+                .saturating_add(live_outer_queue)
+                .saturating_add(perclass_motion_owner)
+        );
         let mut position = vec![0; n];
         // Diagnostic only: previous serve per cell (head position, rate bits, end time).
         let mut last_serve: Vec<Option<(usize, u64, f64)>> = if crate::v1_trace::enabled() {
@@ -3981,11 +4071,11 @@ impl V1Road {
                     }
                     let incoming_count=served_parts(&packet.parts,fraction)
                         .filter(|part|self.dest(part).is_some()).count();
-                    work.transfer_indexed_with_live_headers(
+                    work.transfer_indexed_with_live_diagnostics(
                         packet.parts.len(),
                         served_parts(&packet.parts,fraction)
                             .filter_map(|part|self.dest(&part)),
-                        &mut incoming,&mut marks,
+                        &mut incoming,&mut marks,Some(&mut incoming_src),
                     )?;
                     if self.storage_budget.is_some()
                         && events.len().saturating_add(packet.parts.len())
@@ -4189,9 +4279,9 @@ impl V1Road {
                     p.parts.iter().filter(|part|part.mass*f>0.0).count()
                 }else{0};
                 if f > 0.0 {
-                    work.transfer_indexed_with_live_headers(
+                    work.transfer_indexed_with_live_diagnostics(
                         0,std::iter::repeat(i).take(expected_pending),
-                        &mut incoming,&mut marks,
+                        &mut incoming,&mut marks,Some(&mut incoming_src),
                     )?;
                 }
                 if crate::v1_trace::enabled() {
@@ -4247,6 +4337,11 @@ impl V1Road {
             // Diagnostic-only input sequence is consumed and is not retained
             // for any original physical source calculation in a later cell.
             if !incoming_src.is_empty() {
+                let bytes=incoming_src[i].capacity().saturating_mul(
+                    std::mem::size_of::<(usize,usize,u64)>()
+                );
+                work.diagnostic_source_live_bytes=work.diagnostic_source_live_bytes
+                    .saturating_sub(bytes);
                 drop(std::mem::take(&mut incoming_src[i]));
             }
             // One compact mark accompanies exactly one source-order incoming
@@ -4841,6 +4936,7 @@ mod workspace_accounting_tests {
             limit: Some(limit),
             base: 0,
             transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events: 0,
             incoming: 0,
             incoming_page_cells: 0,
@@ -6438,6 +6534,7 @@ mod exact_consumed_packet_source_lifetime_tests {
         RoadWorkBudget {
             limit:Some(10_000_000),
             base:0,transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events:0,incoming:n,incoming_page_cells:1586,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -6591,6 +6688,7 @@ mod exact_incoming_cell_page_liveness_tests {
     fn work(g:usize)->RoadWorkBudget {
         RoadWorkBudget {
             limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events:0,incoming:0,
             incoming_page_cells:g,compact_events:true,compact_incoming:true,
             incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,
@@ -6666,6 +6764,7 @@ mod exact_locked_incoming_descriptor_lifetime_tests {
     fn work()->RoadWorkBudget {
         RoadWorkBudget {
             limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events:0,incoming:0,
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
@@ -6747,6 +6846,7 @@ mod exact_pending_pack_live_descriptor_tests {
     fn pending_packet_pack_uses_current_vec_capacity_without_freezing_future_appends() {
         let mut w=RoadWorkBudget {
             limit:Some(100000000),base:0,transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events:0,incoming:0,
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
@@ -6916,6 +7016,7 @@ mod original_transfer_exclusive_cell_scratch_tests {
         RoadWorkBudget{
             limit:Some(900),base:1000,
             transfer_exclusive_cell_scratch:150,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -6997,6 +7098,7 @@ mod original_completed_source_exact_packet_admission_tests {
     fn budget()->RoadWorkBudget {
         RoadWorkBudget {
             limit:Some(930),base:1000,transfer_exclusive_cell_scratch:150,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:Some(0),
@@ -7045,6 +7147,7 @@ mod original_precombine_pending_remainder_lifetime_tests {
         RoadWorkBudget {
             // Exact source counter Vec adds 136B: old 1160B, new 1058B.
             limit:Some(1100),base:1000,transfer_exclusive_cell_scratch:150,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events:0,incoming:0,incoming_page_cells:1,
             incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -7085,6 +7188,7 @@ mod transfer_live_header_budget_constructive_tests {
     fn work()->RoadWorkBudget {
         RoadWorkBudget {
             limit:Some(36_600),base:0,transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events:0,incoming:0,incoming_page_cells:3,compact_events:true,
             compact_incoming:true,incoming_cell_rows:Some(vec![0;3]),
             incoming_live_pages:0,incoming_descriptor_live_bytes:None,
@@ -7133,6 +7237,7 @@ mod transfer_header_growth_overlap_adversarial_tests {
     fn old_header_growth_and_future_raw_payload_are_in_disjoint_source_phases() {
         let mut w=RoadWorkBudget {
             limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events:0,incoming:0,incoming_page_cells:1,
             incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -7177,6 +7282,7 @@ mod transfer_header_temporal_nonoverlap_regression_tests {
     fn event_pages_and_raw_pages_need_not_coexist_with_old_header_realloc_scratch() {
         let mut w=RoadWorkBudget {
             limit:Some(49_070),base:0,transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
             events:0,incoming:0,incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -7195,5 +7301,107 @@ mod transfer_header_temporal_nonoverlap_regression_tests {
         assert_eq!(w.events,100);
         assert_eq!(w.incoming_live_pages,5);
         assert!(w.incoming_descriptor_live_bytes.is_none());
+    }
+}
+
+#[cfg(test)]
+mod expired_motion_rows_source_lifetime_tests {
+    use super::*;
+    #[test]
+    fn old_motion_scan_workspace_expires_only_after_all_predictions_consumed() {
+        let mut w=RoadWorkBudget {
+            limit:Some(900),base:1000,transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:400,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            events:0,incoming:0,incoming_page_cells:0,
+            incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
+            compact_events:false,compact_incoming:false,
+            interval_retained:0,interval_transient:0,service_events:None,
+        };
+        assert!(w.require(0,"tick preflight").is_err());
+        assert!(w.require(0,"transfer candidates").is_err());
+        // Queue and Motion shell owners measured after original prediction
+        // output is consumed. Never grant an unearned 400B credit.
+        w.retire_completed_motion_scan(250);
+        assert_eq!(w.expired_motion_scan_credit,150);
+        assert!(w.require(0,"transfer candidates").is_ok());
+        assert!(w.require(0,"packet interval packing").is_ok());
+        assert!(w.require(0,"tick preflight").is_err());
+    }
+    #[test]
+    fn no_credit_when_live_shells_exceed_old_scratch_allowance() {
+        let mut w=RoadWorkBudget {
+            limit:Some(900),base:1000,transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:400,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            events:0,incoming:0,incoming_page_cells:0,
+            incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
+            compact_events:false,compact_incoming:false,
+            interval_retained:0,interval_transient:0,service_events:None,
+        };
+        w.retire_completed_motion_scan(450);
+        assert_eq!(w.expired_motion_scan_credit,0);
+        assert!(w.require(0,"transfer candidates").is_err());
+    }
+}
+
+#[cfg(test)]
+mod diagnostic_lineage_after_motion_expiry_source_tests {
+    use super::*;
+    #[test]
+    fn expired_old_motion_scan_does_not_discard_real_trace_source_lineage_storage() {
+        let mut w=RoadWorkBudget {
+            limit:Some(100_000_000),base:1000,
+            transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:400,expired_motion_scan_credit:0,
+            diagnostic_source_live_bytes:0,
+            events:0,incoming:0,incoming_page_cells:3,
+            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
+            compact_events:true,compact_incoming:true,
+            interval_retained:0,interval_transient:0,service_events:None,
+        };
+        let mut incoming:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
+        let mut marks:Vec<ChunkedMarks>=(0..3).map(|_|ChunkedMarks::default()).collect();
+        let mut source=vec![vec![];3];
+        w.retire_completed_motion_scan(250);
+        assert_eq!(w.expired_motion_scan_credit,150);
+        let ids=(0..129).map(|_|0usize)
+            .chain(std::iter::once(1usize))
+            .chain((0..256).map(|_|2usize));
+        w.transfer_indexed_with_live_diagnostics(0,ids,&mut incoming,&mut marks,Some(&mut source)).unwrap();
+        assert_eq!(w.incoming,386);
+        let n=std::mem::size_of::<(usize,usize,u64)>();
+        let physically_allocated=source.iter().map(|v|v.capacity()*n).sum::<usize>()
+            +source.capacity()*std::mem::size_of::<Vec<(usize,usize,u64)>>();
+        assert_eq!(w.diagnostic_source_live_bytes,physically_allocated);
+        assert!(physically_allocated>=386*n);
+        assert!(w.incoming_descriptor_live_bytes.is_none());
+        for (j,m) in [(0usize,129usize),(1,1),(2,256)]{
+            for i in 0..m{
+                let value=Part {
+                    tag:i%7,offset:0,mass:0.25,birth:-0.0,
+                    a:PackedTime::new(Some(0.)).unwrap(),
+                    b:PackedTime::new(Some(1.)).unwrap()
+                };
+                incoming[j].push_checked(value).unwrap();
+                marks[j].push_checked(compact_mark(0.25,0.)).unwrap();
+                source[j].push((j,i,13u64));
+            }
+        }
+        w.transfer_indexed_with_live_diagnostics(0,[0usize],&mut incoming,&mut marks,Some(&mut source)).unwrap();
+        let now=w.diagnostic_source_live_bytes;
+        assert!(now>=physically_allocated);
+        assert!(now>0);
+        let incoming_bound=segmented_incoming_exact_cell_pages_charge(
+            w.incoming,w.incoming_page_cells,w.incoming_live_pages,true,None,
+        );
+        let required=1000-150+incoming_bound+now;
+        w.limit=Some(required-1);
+        assert!(w.require(0,"transfer candidates").is_err());
+        w.limit=Some(required);
+        assert!(w.require(0,"transfer candidates").is_ok());
+        assert_eq!(incoming[0].get(0).mass.to_bits(),0.25f64.to_bits());
+        assert_eq!(incoming[0].get(0).birth.to_bits(),(-0.0f64).to_bits());
     }
 }
