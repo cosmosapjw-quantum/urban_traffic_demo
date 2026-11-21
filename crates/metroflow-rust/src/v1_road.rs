@@ -3810,14 +3810,14 @@ impl V1Road {
                         }
                         crate::v1_trace::add("xfer.head_rows", packet.parts.len() as u64);
                     }
-                    // Compute and pack remainder before original event/Mark
-                    // updates, but delay queue-slot mutation until after
-                    // consuming the immutable source with no served Vec.
-                    let remainder = if fraction == 1. {
-                        None
-                    } else {
-                        Some(work.pack_parts(portion(&packet.parts, 1. - fraction)?)?)
-                    };
+                    // The original immutable head packet remains alive
+                    // through the served Part, event and Mark source-order
+                    // computations. Delay the independent remainder
+                    // allocation until those raw incoming pages are actually
+                    // appended, so the source's physically allocated page
+                    // descriptors can be measured for that exact conversion.
+                    // No mass/birth arithmetic, fraction or source f64 sum
+                    // argument order is changed by this source-lifetime move.
                     let sm = sum(served_parts(&packet.parts, fraction).map(|p| p.mass));
                     out.cells[i].v[3] += sm;
                     out.cells[i].v[5] += sm * mid;
@@ -3861,8 +3861,17 @@ impl V1Road {
                             exit1 += p.mass * mid;
                         }
                     }
-                    if let Some(parts) = remainder {
-                        queues[i][position[i]].0.parts = parts;
+                    // The served immutable source is no longer needed after
+                    // the loop; physical incoming Part/Mark and event pages
+                    // have their final capacity for this packet. The source
+                    // remainder now receives the identical original f64
+                    // transform, and the slot is replaced at exactly the
+                    // original logical packet lifecycle boundary.
+                    if fraction < 1. {
+                        let remainder=work.pack_parts_with_live_descriptors(
+                            portion(&packet.parts,1.-fraction)?,&incoming,&marks,
+                        )?;
+                        queues[i][position[i]].0.parts=remainder;
                     } else {
                         position[i] += 1;
                         retired_heads += 1;
