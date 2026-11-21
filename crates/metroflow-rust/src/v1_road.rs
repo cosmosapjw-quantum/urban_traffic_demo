@@ -390,6 +390,8 @@ struct RoadWorkBudget {
     /// Part+Mark owners have been dropped for that destination.
     incoming_cell_rows: Option<Vec<usize>>,
     incoming_live_pages:usize,
+    /// Real Part+Mark page-descriptor storage after all raw appends finish.
+    incoming_descriptor_live_bytes:Option<usize>,
     compact_events: bool,
     compact_incoming: bool,
     /// Packed entering-interval rows already moved into the candidate.
@@ -800,6 +802,7 @@ impl RoadWorkBudget {
             segmented_incoming_exact_cell_pages_charge(
                 self.incoming,self.incoming_page_cells,
                 self.incoming_live_pages,self.compact_incoming,
+                self.incoming_descriptor_live_bytes,
             )
         } else {
             segmented_incoming_charge_for(
@@ -825,6 +828,10 @@ impl RoadWorkBudget {
                     ("incoming_rows", self.incoming),
                     ("incoming_live_pages",self.incoming_live_pages),
                     ("incoming_actual_page_charge",incoming_bytes),
+                    ("incoming_actual_descriptor_bytes",
+                        self.incoming_descriptor_live_bytes.unwrap_or(0)),
+                    ("incoming_descriptors_frozen",
+                        usize::from(self.incoming_descriptor_live_bytes.is_some())),
                     ("interval_retained", self.interval_retained),
                     ("interval_transient", self.interval_transient),
                     ("extra", extra),
@@ -865,6 +872,9 @@ impl RoadWorkBudget {
     fn transfer_indexed(
         &mut self,events:usize,destinations:impl IntoIterator<Item=usize>,
     )->PyResult<()> {
+        if self.incoming_descriptor_live_bytes.is_some() {
+            return Err(arithmetic("incoming page descriptor storage frozen after last source append"));
+        }
         self.events=self.events.saturating_add(events);
         if let Some(tracked)=&mut self.incoming_cell_rows {
             for i in destinations {
@@ -882,6 +892,43 @@ impl RoadWorkBudget {
             }
         }
         self.require(0,"transfer candidates")
+    }
+    /// Source-phase boundary: every road-service and pending original raw
+    /// destination Part+Mark append has finished, no further one can grow.
+    /// Both real outer Vec<Vec<T>> capacities can now be read EXACTLY for
+    /// later packet interval splitting and packing preflights.
+    fn lock_completed_incoming_descriptors(
+        &mut self,parts:&[ChunkedParts],marks:&[ChunkedMarks],
+    )->PyResult<()> {
+        let Some(tracked)=&self.incoming_cell_rows else {return Ok(())};
+        if self.incoming_descriptor_live_bytes.is_some()
+            || parts.len()!=tracked.len() || marks.len()!=tracked.len() {
+            return Err(arithmetic("incoming descriptor fixed source registry differs"));
+        }
+        let mut actual_rows=0usize;
+        let mut actual_pages=0usize;
+        let mut descriptor_bytes=0usize;
+        for i in 0..tracked.len() {
+            let (p,m)=(&parts[i],&marks[i]);
+            if p.len()!=m.len() || p.len()!=tracked[i]
+                || p.capacity()!=m.capacity()
+                || p.capacity()!=p.len().div_ceil(INCOMING_PART_CHUNK)*INCOMING_PART_CHUNK {
+                return Err(arithmetic("incoming Part Mark aligned source page ownership differs"));
+            }
+            actual_rows=actual_rows.saturating_add(p.len());
+            actual_pages=actual_pages.saturating_add(p.capacity()/INCOMING_PART_CHUNK);
+            descriptor_bytes=descriptor_bytes.saturating_add(
+                p.descriptor_capacity().saturating_mul(std::mem::size_of::<Vec<Part>>())
+                .saturating_add(m.chunks.capacity()
+                    .saturating_mul(std::mem::size_of::<Vec<Mark>>()))
+            );
+        }
+        if actual_rows!=self.incoming || actual_pages!=self.incoming_live_pages {
+            return Err(arithmetic("incoming frozen physical page count differs from preflight"));
+        }
+        self.incoming_descriptor_live_bytes=Some(descriptor_bytes);
+        crate::v1_trace::add("road_work.locked_descriptor_payload_bytes",descriptor_bytes as u64);
+        Ok(())
     }
     fn interval(&mut self, transient: usize) -> PyResult<()> {
         self.interval_transient = transient;
@@ -1791,6 +1838,9 @@ impl ChunkedParts {
             self.chunks.iter().map(Vec::capacity).sum()
         }
     }
+    fn descriptor_capacity(&self)->usize {
+        if self.compressed {self.compact_chunks.capacity()}else{self.chunks.capacity()}
+    }
     fn physical_capacity_bytes(&self)->usize {
         self.capacity().saturating_mul(if self.compressed {
             std::mem::size_of::<CompactIncomingPart>()
@@ -1901,6 +1951,7 @@ fn segmented_incoming_charge(rows:usize,cells:usize)->usize {
 /// Include the newly allocated source-cell counter Vec and control padding.
 fn segmented_incoming_exact_cell_pages_charge(
     rows:usize,cells:usize,live_pages:usize,compressed:bool,
+    actual_frozen_descriptor_bytes:Option<usize>,
 )->usize {
     let part_bytes=if compressed {
         std::mem::size_of::<CompactIncomingPart>()
@@ -1912,7 +1963,12 @@ fn segmented_incoming_exact_cell_pages_charge(
         .saturating_add(128);
     let payload=live_pages.saturating_mul(INCOMING_PART_CHUNK)
         .saturating_mul(part_bytes.saturating_add(marks));
-    let original_descriptor_envelope=if rows==0 {0}else{
+    // Retain original old+grown header allowance DURING appends. After
+    // the last physical source Part+Mark append, actual fixed descriptor
+    // Vec capacity replaces that fictitious future growth, with no cap change.
+    let original_descriptor_envelope=if let Some(actual)=actual_frozen_descriptor_bytes {
+        actual
+    } else if rows==0 {0}else{
         rows.div_ceil(INCOMING_PART_CHUNK).saturating_add(cells)
             .saturating_mul(2*(std::mem::size_of::<Vec<Part>>()
                               +std::mem::size_of::<Vec<Mark>>()))
@@ -1942,9 +1998,17 @@ fn release_consumed_incoming_pair(
     let released_payload=raw.physical_capacity_bytes().saturating_add(
         marks.capacity().saturating_mul(std::mem::size_of::<Mark>()),
     );
+    let released_descriptors=raw.descriptor_capacity()
+        .saturating_mul(std::mem::size_of::<Vec<Part>>())
+        .saturating_add(marks.chunks.capacity()
+            .saturating_mul(std::mem::size_of::<Vec<Mark>>()));
     drop(raw);
     drop(marks);
     work.release_incoming(cell,rows)?;
+    if let Some(actual)=work.incoming_descriptor_live_bytes.as_mut() {
+        *actual=actual.checked_sub(released_descriptors).ok_or_else(||
+            arithmetic("released Part Mark descriptor capacity exceeded current physical owners"))?;
+    }
     crate::v1_trace::add("road_work.expired_source_rows",rows as u64);
     crate::v1_trace::add("road_work.expired_source_payload_bytes",released_payload as u64);
     Ok(rows)
@@ -2586,6 +2650,7 @@ impl V1Road {
                 incoming: 0,
                 incoming_page_cells: self.groups.len(),
                 incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
                 compact_events: self.can_compact_candidate_events(),
                 compact_incoming: self.can_compact_incoming_parts(),
                 interval_retained: 0,
@@ -2659,6 +2724,7 @@ impl V1Road {
             incoming: 0,
             incoming_page_cells: self.groups.len(),
             incoming_cell_rows:Some(vec![0;self.groups.len()]),incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
             compact_events: self.can_compact_candidate_events(),
             compact_incoming: self.can_compact_incoming_parts(),
             interval_retained: 0,
@@ -3880,6 +3946,10 @@ impl V1Road {
             }
             out.pending[i] = remain;
         }
+        // All raw Part and Mark appends have ended. Verify actual fixed page
+        // header Vec capacities before replacing growth-time envelope in
+        // subsequent interval sorting/packet packing source workspaces.
+        work.lock_completed_incoming_descriptors(&incoming,&marks)?;
         for i in 0..n {
             if !incoming_src.is_empty() && !incoming[i].is_empty() {
                 exact_merge_census(incoming[i].iter(), &incoming_src[i]);
@@ -4484,6 +4554,7 @@ mod workspace_accounting_tests {
             incoming: 0,
             incoming_page_cells: 0,
             incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
             compact_events: false,
             compact_incoming: false,
             interval_retained: 0,
@@ -6077,6 +6148,7 @@ mod exact_consumed_packet_source_lifetime_tests {
             limit:Some(10_000_000),
             base:0,events:0,incoming:n,incoming_page_cells:1586,
             incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
             compact_events:true,compact_incoming:true,
             interval_retained:0,interval_transient:0,
             service_events:None,
@@ -6229,6 +6301,7 @@ mod exact_incoming_cell_page_liveness_tests {
             limit:Some(100_000_000),base:0,events:0,incoming:0,
             incoming_page_cells:g,compact_events:true,compact_incoming:true,
             incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -6252,7 +6325,7 @@ mod exact_incoming_cell_page_liveness_tests {
         assert_eq!(w.incoming_cell_rows.as_ref().unwrap(),&vec![129,1,256]);
         assert_eq!(w.incoming_live_pages,2+1+2);
         let bound=segmented_incoming_exact_cell_pages_charge(
-            w.incoming,w.incoming_page_cells,w.incoming_live_pages,true,
+            w.incoming,w.incoming_page_cells,w.incoming_live_pages,true,None,
         );
         let expected=5*INCOMING_PART_CHUNK*(40+16)
             +2*(386usize.div_ceil(INCOMING_PART_CHUNK)+3)*(24+24)
@@ -6274,7 +6347,7 @@ mod exact_incoming_cell_page_liveness_tests {
         assert_eq!(w.incoming_live_pages,3);
         assert_eq!(w.incoming_cell_rows.as_ref().unwrap(),&vec![0,1,256]);
         assert_eq!(segmented_incoming_exact_cell_pages_charge(
-            w.incoming,w.incoming_page_cells,w.incoming_live_pages,true,
+            w.incoming,w.incoming_page_cells,w.incoming_live_pages,true,None,
         ),3*INCOMING_PART_CHUNK*56+
           2*(257usize.div_ceil(INCOMING_PART_CHUNK)+3)*(24+24)
           +(3*8+128));
@@ -6290,5 +6363,75 @@ mod exact_incoming_cell_page_liveness_tests {
         assert_eq!(w.incoming_live_pages,3);
         assert_eq!(w.incoming_cell_rows.as_ref().unwrap(),&vec![129,1]);
         assert!(w.transfer_indexed(0,[2usize]).is_err());
+    }
+}
+
+#[cfg(test)]
+mod exact_locked_incoming_descriptor_lifetime_tests {
+    use super::*;
+
+    fn work()->RoadWorkBudget {
+        RoadWorkBudget {
+            limit:Some(100_000_000),base:0,events:0,incoming:0,
+            incoming_page_cells:3,
+            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
+            compact_events:true,compact_incoming:true,
+            interval_retained:0,interval_transient:0,service_events:None,
+        }
+    }
+    #[test]
+    fn original_stable_source_vec_descriptors_can_be_counted_from_actual_capacity() {
+        let mut w=work();
+        let mut parts:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
+        let mut marks:Vec<ChunkedMarks>=(0..3).map(|_|ChunkedMarks::default()).collect();
+        for (j,n) in [(0usize,129usize),(1,1),(2,256)] {
+            w.transfer_indexed(0,std::iter::repeat(j).take(n)).unwrap();
+            for i in 0..n {
+                let p=Part{tag:i%7,offset:0,mass:(i+1) as f64/59.,
+                    birth:if i%13==0{-0.0}else{i as f64/19.},
+                    a:PackedTime::new(Some(0.0)).unwrap(),
+                    b:PackedTime::new(Some(1.0)).unwrap()};
+                parts[j].push_checked(p).unwrap();
+                marks[j].push_checked(compact_mark(p.mass,p.birth)).unwrap();
+            }
+        }
+        assert_eq!(w.incoming,386);
+        assert_eq!(w.incoming_live_pages,5);
+        let before=segmented_incoming_exact_cell_pages_charge(
+            386,3,5,true,None,
+        );
+        w.lock_completed_incoming_descriptors(&parts,&marks).unwrap();
+        let actual:usize=(0..3).map(|i|
+            (parts[i].descriptor_capacity()+marks[i].chunks.capacity())*
+            std::mem::size_of::<Vec<Part>>()).sum();
+        assert_eq!(w.incoming_descriptor_live_bytes,Some(actual));
+        let after=segmented_incoming_exact_cell_pages_charge(
+            386,3,5,true,Some(actual),
+        );
+        assert!(after<before);
+        assert_eq!(before-after,2*(386usize.div_ceil(128)+3)*48-actual);
+        assert!(w.transfer_indexed(0,[1]).is_err()); // the stable lifetime cannot append
+        let expired_parts=std::mem::take(&mut parts[0]);
+        let expired_marks=std::mem::take(&mut marks[0]);
+        release_consumed_incoming_pair(&mut w,0,expired_parts,expired_marks).unwrap();
+        assert_eq!(w.incoming,257);
+        assert_eq!(w.incoming_live_pages,3);
+        let remaining_actual:usize=(1..3).map(|i|
+            (parts[i].descriptor_capacity()+marks[i].chunks.capacity())*
+            std::mem::size_of::<Vec<Part>>()).sum();
+        assert_eq!(w.incoming_descriptor_live_bytes,Some(remaining_actual));
+    }
+    #[test]
+    fn locked_descriptor_state_checks_physical_mark_alignment_before_admission() {
+        let mut w=work();
+        w.transfer_indexed(0,[0usize]).unwrap();
+        let mut parts:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
+        let marks:Vec<ChunkedMarks>=(0..3).map(|_|ChunkedMarks::default()).collect();
+        let x=Part{tag:1,offset:0,mass:1.,birth:0.,
+            a:PackedTime::new(Some(0.)).unwrap(),b:PackedTime::new(Some(1.)).unwrap()};
+        parts[0].push_checked(x).unwrap();
+        assert!(w.lock_completed_incoming_descriptors(&parts,&marks).is_err());
+        assert_eq!(w.incoming_descriptor_live_bytes,None);
     }
 }
