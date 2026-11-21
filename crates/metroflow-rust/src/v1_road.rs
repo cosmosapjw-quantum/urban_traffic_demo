@@ -848,7 +848,8 @@ impl RoadWorkBudget {
         let no_active_combine_pack = phase=="packet interval packing"
             && self.incoming_descriptor_live_bytes.is_some()
             && source_part_bytes.is_some();
-        let phase_base=if phase=="transfer candidates" {
+        let phase_base=if phase=="transfer candidates"
+            || phase=="transfer header reservation" {
             self.base.saturating_sub(self.transfer_exclusive_cell_scratch)
         } else if no_active_combine_pack {
             // The old two-max-cell combine buffers are either future
@@ -980,6 +981,8 @@ impl RoadWorkBudget {
         }
         // Before projection these must match actual complete previous appends.
         self.observed_incoming_descriptor_bytes(incoming,marks)?;
+        let before_events=self.events;
+        let before_pages=self.incoming_live_pages;
         let mut new_page_cells:Vec<usize>=Vec::new();
         self.project_transfer(events,destinations,Some(&mut new_page_cells))?;
         let mut old_header_overlap=0usize;
@@ -1017,7 +1020,24 @@ impl RoadWorkBudget {
             new_page_cells.capacity().saturating_mul(2*std::mem::size_of::<usize>())
         );
         self.incoming_descriptor_live_bytes=Some(actual_headers);
-        let status=self.require_with_no_active_combine(extra,"transfer candidates",None);
+        // These are two sequential, non-overlapping allocator lifetimes:
+        // (A) old physical Part/Mark pages + old EventRows, with the newly
+        // reserved header Vec and its one old/new reallocation overlap;
+        // (B) projected new Part/Mark and EventRows AFTER the call returns,
+        // when the temporary source index Vec and old header have dropped.
+        // They must be checked as max(A,B), not the fictitious sum A+B.
+        let projected_events=self.events;
+        let projected_pages=self.incoming_live_pages;
+        self.events=before_events;
+        self.incoming_live_pages=before_pages;
+        let header_check=self.require_with_no_active_combine(
+            extra,"transfer header reservation",None
+        );
+        self.events=projected_events;
+        self.incoming_live_pages=projected_pages;
+        let status=if header_check.is_ok() {
+            self.require_with_no_active_combine(0,"transfer candidates",None)
+        } else { header_check };
         // Later physical append/packet operations again use mutable headers.
         self.incoming_descriptor_live_bytes=None;
         status
@@ -7110,7 +7130,7 @@ mod transfer_header_growth_overlap_adversarial_tests {
             b:PackedTime::new(Some(1.)).unwrap()}
     }
     #[test]
-    fn one_real_part_or_mark_header_reallocation_is_charged_as_old_plus_new() {
+    fn old_header_growth_and_future_raw_payload_are_in_disjoint_source_phases() {
         let mut w=RoadWorkBudget {
             limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
             events:0,incoming:0,incoming_page_cells:1,
@@ -7132,17 +7152,48 @@ mod transfer_header_growth_overlap_adversarial_tests {
         assert_eq!(incoming[0].descriptor_capacity(),4);
         assert_eq!(marks[0].chunks.capacity(),4);
         // A fifth page needs header growth from capacity 4 to at least 5
-        // in both Part and Mark. Count the old header overlap separately:
-        // the post-reserve physical source charge is at least 36_280 B,
-        // plus 96 B old-header overlap. The fixed 36_300 B limit must reject.
+        // in both Part and Mark. A naive one-phase guard co-charged the
+        // OLD header and the FUTURE 128-row Part/Mark payload, even though
+        // source appends occur only after this pre-reservation has returned.
+        // The phase-separated source guard must accept this exact 36,300 B
+        // budget, and still count old+new header overlap in phase A.
         w.limit=Some(36_300);
         let status=w.transfer_indexed_with_live_headers(
             0,std::iter::once(0usize),&mut incoming,&mut marks,
         );
-        assert!(status.is_err());
+        assert!(status.is_ok());
         assert!(w.incoming_descriptor_live_bytes.is_none());
         assert!(incoming[0].descriptor_capacity()>=5);
         assert!(marks[0].chunks.capacity()>=5);
-        // This is a local failed candidate projection, not a valid tick.
+        // A successful header preflight only authorizes the next physical
+        // source append; it is not a completed original physics tick.
+    }
+}
+
+#[cfg(test)]
+mod transfer_header_temporal_nonoverlap_regression_tests {
+    use super::*;
+    #[test]
+    fn event_pages_and_raw_pages_need_not_coexist_with_old_header_realloc_scratch() {
+        let mut w=RoadWorkBudget {
+            limit:Some(49_070),base:0,transfer_exclusive_cell_scratch:0,
+            events:0,incoming:0,incoming_page_cells:3,
+            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
+            incoming_descriptor_live_bytes:None,
+            compact_events:false,compact_incoming:true,
+            interval_retained:0,interval_transient:0,service_events:None,
+        };
+        let mut parts:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
+        let mut marks:Vec<ChunkedMarks>=(0..3).map(|_|ChunkedMarks::default()).collect();
+        let dests=(0..129).map(|_|0usize)
+            .chain(std::iter::once(1usize))
+            .chain((0..256).map(|_|2usize));
+        let status=w.transfer_indexed_with_live_headers(100,dests,&mut parts,&mut marks);
+        // Original one-peak guard overcharged the future 35,840-byte raw
+        // page payload alongside header-reservation-only overlap.
+        assert!(status.is_ok());
+        assert_eq!(w.events,100);
+        assert_eq!(w.incoming_live_pages,5);
+        assert!(w.incoming_descriptor_live_bytes.is_none());
     }
 }
