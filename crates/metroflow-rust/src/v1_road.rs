@@ -1035,31 +1035,48 @@ impl RoadState {
     /// witnesses one duplicated payload even when several slots share an
     /// allocation internally.  It is a lower bound on redundant payload and
     /// never counts coincidentally equal Part values in distinct allocations.
+    /// Exactly shared, IMMUTABLE packet payload allocations across two
+    /// simultaneous original road states. Each ArcInner pointer of each
+    /// distinct concrete layout is counted AT MOST ONCE, even when a given
+    /// immutable keyset is referenced by thousands of independent packets.
+    /// No equality of contents, tags, age or scalar moments creates credit.
+    /// Only data payload Vec::capacity() bytes get credited, never metadata.
     pub(crate) fn paired_shared_payload_lower_bound(&self,other:&RoadState)->usize {
-        let mut credit=0usize;
-        let mut pair=|a:&Packet,b:&Packet| {
-            let bytes=match (&a.parts,&b.parts) {
-                (PacketParts::Uniform{rows:x,..},PacketParts::Uniform{rows:y,..})
-                    if Arc::ptr_eq(x,y) =>
-                        x.capacity().saturating_mul(std::mem::size_of::<CorePart>()),
-                (PacketParts::Mixed(x),PacketParts::Mixed(y))
-                    if Arc::ptr_eq(x,y) =>
-                        x.capacity().saturating_mul(std::mem::size_of::<Part>()),
-                _ => 0,
-            };
-            credit=credit.saturating_add(bytes);
-        };
-        for (x,y) in self.cells.iter().zip(other.cells.iter()) {
-            for (a,b) in x.packets.iter().zip(y.packets.iter()) {
-                pair(a,b);
+        fn each_backing(parts:&PacketParts,mut visit:impl FnMut(u8,usize,usize)){
+            match parts {
+                PacketParts::Uniform{rows,..}=>visit(
+                    0,Arc::as_ptr(rows) as usize,
+                    rows.capacity().saturating_mul(std::mem::size_of::<CorePart>())),
+                PacketParts::Mixed(rows)=>visit(
+                    1,Arc::as_ptr(rows) as usize,
+                    rows.capacity().saturating_mul(std::mem::size_of::<Part>())),
+                PacketParts::SharedKeys{keys,moments,..}=>{
+                    visit(2,Arc::as_ptr(keys) as usize,
+                          keys.capacity().saturating_mul(std::mem::size_of::<(u32,u32)>()));
+                    visit(3,Arc::as_ptr(moments) as usize,
+                          moments.capacity().saturating_mul(std::mem::size_of::<(f64,f64)>()));
+                },
             }
         }
-        for (x,y) in self.pending.iter().zip(other.pending.iter()) {
-            for (a,b) in x.iter().zip(y.iter()) {
-                pair(a,b);
-            }
+        let mut first=HashMap::<(u8,usize),usize>::new();
+        for packet in self.cells.iter().flat_map(|c|&c.packets)
+            .chain(self.pending.iter().flatten())
+        {
+            each_backing(&packet.parts,|kind,ptr,bytes|{
+                first.entry((kind,ptr)).or_insert(bytes);
+            });
         }
-        credit
+        let mut credited=0usize;
+        for packet in other.cells.iter().flat_map(|c|&c.packets)
+            .chain(other.pending.iter().flatten())
+        {
+            each_backing(&packet.parts,|kind,ptr,_|{
+                if let Some(bytes)=first.remove(&(kind,ptr)){
+                    credited=credited.saturating_add(bytes);
+                }
+            });
+        }
+        credited
     }
 
     /// Diagnostic-only exact Vec *payload capacity* identity census.
@@ -2721,27 +2738,37 @@ impl V1Road {
         let groups = self.groups.len();
         let supplied_retained = state.retained_storage_bytes();
         let maximum_retained = supplied_retained.max(self.retained_input_bytes);
-        // Opt-in research ONLY: subtract one rigorously observed duplicate
-        // payload of current+supplied snapshots from the old *three-copy*
-        // conservative envelope. This is NOT a changed storage limit and is
-        // disabled for all ordinary V03 runs/production release.
+        // The actual native call restored the caller's immutable RoadState
+        // using Arc cloning. At this exact road_step source seam, state and
+        // self.state are the same committed owner (std::ptr::eq), and the
+        // caller's held input snapshot has pointer-identical immutable Arc
+        // payload backings. The original 3*max conservative owner allowance
+        // double-charges those physically unique payloads.
         //
-        // Sound within the source's original three-snapshot envelope only if
-        // current, supplied and candidate state retained sizes are bounded by
-        // the old max+separate interval/event working allowances. An unknown
-        // branch/current state or missing exact pointer identity gets zero
-        // credit. No source/physics/f64 processing is modified.
-        let paired_credit = if std::env::var("METROFLOW_EXPERIMENTAL_ARC_PAIR_BUDGET")
-            .ok().as_deref() == Some("source_pair_only")
+        // In a capped call with known retained call input, deduct AT MOST
+        // ONE independently confirmed, unique physically shared payload
+        // allocation across original source+committed owners. Never credit
+        // cloned shell Vecs, metadata, or a hypothetical candidate. The
+        // 8GiB policy and every numerical/physical rule stay unchanged.
+        let exact_shared = if self.retained_input_bytes>0
+            && std::ptr::eq(state,&self.state)
             && self.state.t == state.t
-            && self.state.retained_storage_bytes() <= maximum_retained
         {
             state.paired_shared_payload_lower_bound(&self.state)
                 .min(maximum_retained)
-        } else {
-            0
-        };
-        crate::v1_trace::add("arc.experimental_paired_credit", paired_credit as u64);
+        } else {0};
+        // Preserve the older experimental opt-in trace for historical
+        // comparisons, without requiring it or double-crediting the same
+        // physical bytes in current original-source code.
+        let optin = std::env::var("METROFLOW_EXPERIMENTAL_ARC_PAIR_BUDGET")
+            .ok().as_deref()==Some("source_pair_only");
+        let experimental_credit = if optin && self.state.t==state.t {
+            state.paired_shared_payload_lower_bound(&self.state)
+                .min(maximum_retained)
+        } else {0};
+        let paired_credit=exact_shared.max(experimental_credit);
+        crate::v1_trace::add("arc.default_pointer_verified_credit",exact_shared as u64);
+        crate::v1_trace::add("arc.experimental_paired_credit",experimental_credit as u64);
         let base = maximum_retained
             .saturating_mul(3)
             .saturating_sub(paired_credit)
@@ -2772,6 +2799,8 @@ impl V1Road {
                     ("groups", groups),
                     ("classes", self.classes.len()),
                     ("paired_arc_credit", paired_credit),
+                    ("default_pointer_verified_credit",exact_shared),
+                    ("experimental_pointer_verified_credit",experimental_credit),
                 ],
             );
         }
@@ -6631,5 +6660,54 @@ mod fifo_moment_nonclosure_physical_source_tests {
         let served=served_parts(&packed,1.).next().unwrap();
         assert_eq!(served.mass.to_bits(),part.mass.to_bits());
         assert_eq!(served.birth.to_bits(),part.birth.to_bits());
+    }
+}
+
+#[cfg(test)]
+mod exact_shared_fifo_source_arc_credit_tests {
+    use super::*;
+
+    fn state(packets:Vec<PacketParts>)->RoadState {
+        RoadState{
+            t:0.,cells:vec![Cell{v:[0.;8],packets:packets.into_iter()
+                .map(|parts|Packet{target:0.,parts}).collect(),latent:BTreeMap::new()}],
+            pending:vec![vec![]],totals:[0.;7],ledger:vec![],
+        }
+    }
+    #[test]
+    fn distinct_shared_key_backings_are_counted_once_not_per_cohort(){
+        let keys=Arc::new(vec![(3u32,0u32),(4,1),(5,2)]);
+        let moments0=Arc::new(vec![(0.25,1.0),(0.5,2.0),(0.75,3.0)]);
+        let moments1=Arc::new(vec![(0.875,0.0),(0.625,2.0),(0.125,3.0)]);
+        let parts=|moments|PacketParts::SharedKeys{
+            a:PackedTime::new(Some(0.)).unwrap(),
+            b:PackedTime::new(Some(1.)).unwrap(),
+            keys:keys.clone(),moments,
+        };
+        let a=state(vec![parts(moments0),parts(moments1)]);
+        let b=a.clone();
+        let actual_unique=a.paired_shared_payload_lower_bound(&b);
+        assert_eq!(actual_unique,3*(std::mem::size_of::<(u32,u32)>()
+                                  +2*std::mem::size_of::<(f64,f64)>()));
+        assert_eq!(actual_unique,120);
+        assert_eq!(a.paired_shared_payload_lower_bound(&state(vec![
+            PacketParts::SharedKeys{
+                a:PackedTime::new(Some(0.)).unwrap(),b:PackedTime::new(Some(1.)).unwrap(),
+                keys:Arc::new(vec![(3u32,0u32),(4,1),(5,2)]),
+                moments:Arc::new(vec![(0.25,1.0),(0.5,2.0),(0.75,3.0)])
+            }
+        ])),0);
+    }
+    #[test]
+    fn cloned_source_uniform_arc_with_two_packet_owners_must_not_doublecount(){
+        let p=PacketParts::pack(vec![Part{
+            tag:1,offset:0,mass:0.25,birth:-0.0,
+            a:PackedTime::new(Some(0.)).unwrap(),
+            b:PackedTime::new(Some(1.)).unwrap(),
+        }], |_|Ok(())).unwrap();
+        let a=state(vec![p.clone_checked().unwrap(),p]);
+        let b=a.clone();
+        assert_eq!(a.paired_shared_payload_lower_bound(&b),std::mem::size_of::<CorePart>());
+        assert_eq!(a.arc_backing_census().unique_backing_count,1);
     }
 }
