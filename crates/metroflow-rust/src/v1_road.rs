@@ -2611,6 +2611,13 @@ impl V1Road {
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.t
     }
+    /// Future self.capture() clones the current immutable PacketParts Arc
+    /// backings rather than physically re-allocating those row payloads.
+    /// Use ACTUAL live immutable allocation identities only. This is the
+    /// deduplicated unique data payload, not a bound on shell clones or RSS.
+    pub(crate) fn owned_unique_immutable_arc_payload_bytes(&self)->usize {
+        self.state.arc_backing_census().unique_payload_bytes
+    }
     pub(crate) fn checkpoint(&self) -> RoadState {
         self.state.clone()
     }

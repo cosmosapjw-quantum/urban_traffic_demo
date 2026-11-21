@@ -1,0 +1,63 @@
+{
+  "arithmetic": "Python Fraction only; no RNG or tolerance; W1 exact 1D equal-mass formula",
+  "compute_wall_s": 0.003596323003876023,
+  "domain": "finite positive chronological FIFO cohorts, priority tau_s monotone, fixed service quota q",
+  "finite_assertion": {
+    "A_vs_quota_integer_grid": [
+      "0",
+      "0",
+      "0",
+      "1",
+      "4",
+      "7",
+      "10"
+    ],
+    "cumulative_quota_knots": [
+      "0",
+      "2",
+      "3",
+      "6"
+    ],
+    "finite_moment_nonclosure_pair_W1": "4",
+    "next_cell_priority_ambiguity_from_A_alone": true,
+    "pair_full_response_max_deviation": "2",
+    "physical_priority_cohorts": [
+      {
+        "mass": "2",
+        "next_cell": "a",
+        "tau_s": "0"
+      },
+      {
+        "mass": "1",
+        "next_cell": "b",
+        "tau_s": "1"
+      },
+      {
+        "mass": "3",
+        "next_cell": "a",
+        "tau_s": "3"
+      }
+    ],
+    "priority_derivative_slopes": [
+      "0",
+      "0",
+      "1",
+      "3",
+      "3",
+      "3"
+    ],
+    "route_resolved_Fj_diverges_at_half_mass": true,
+    "sharp_W1_bound_example": "35/6"
+  },
+  "nonclaims": [
+    "not a proof that native Part.birth always equals chronological FIFO priority time",
+    "not proof that future traffic network demand has independent fixed service quota",
+    "not globally first discovery of inverse CDF integral or Kantorovich W1",
+    "not evidence for a complete original V03 86400s 100k city run"
+  ],
+  "schema": "METROFLOW_ORIGINAL_FIFO_PRIORITY_QUANTILE_THEORY_EXACT_20261121_V1",
+  "source_file_sha256": "3e7d18a3b0e4562335b640ceb9a8a4cc8396c4b9af12c9b73ad09d8836880b88",
+  "source_git_HEAD_at_execution": "c22c8b2ac4de39bbce760789bf85320d612f90d0",
+  "status": "FINITE_ASSERTIONS_EXACT_RATIONAL_CHECKED",
+  "theorem": "A(q)=integral_0^q Q_mu(u)du; A convex and its slope reconstructs priority measure; with F_j(q) next-cell label ordering reconstructed; sup|A_mu-A_nu|<=W1(mu,nu), sharp"
+}

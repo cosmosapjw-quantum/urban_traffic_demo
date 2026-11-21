@@ -496,6 +496,20 @@ fn moment(profile: &[(f64, f64, f64)], start: f64, end: f64) -> f64 {
         }
     }))
 }
+/// A planned road capture only allocates a new outer RoadState shell;
+/// all its immutable Arc<Vec<_>> packet row payload allocations remain
+/// physically pointer-shared with the current committed road state.
+/// This credits only one physically omitted copy of the same unique rows
+/// inside the preexisting 3*max owner envelope, never metadata or old source.
+fn capture_road_clone_credit(
+    current_retained:usize,unique_immutable_payload:usize,
+    validates_future_capture:bool,has_original_input:bool,
+)->usize {
+    if validates_future_capture && has_original_input {
+        unique_immutable_payload.min(current_retained)
+    } else {0}
+}
+
 impl NativeWholeEngine {
     fn build(
         calendar: &NativeCalendar,
@@ -1061,10 +1075,20 @@ impl NativeWholeEngine {
         } else {
             0
         };
+        let captured_arc_credit=capture_road_clone_credit(
+            self.road.owned_storage_bytes(),
+            if validate && input.is_some() {
+                self.road.owned_unique_immutable_arc_payload_bytes()
+            }else{0},
+            validate,input.is_some(),
+        );
+        crate::v1_trace::add("engine_admission.verified_future_capture_arc_credit",
+            captured_arc_credit as u64);
         let required = accounting
             .base()
             .saturating_add(accounting.call_binding.max(scratch))
             .saturating_add(r.saturating_mul(3))
+            .saturating_sub(captured_arc_credit)
             .saturating_add(d.saturating_mul(3))
             .saturating_add(e.saturating_mul(3));
         let observed = crate::v1_trace::guard(
@@ -1081,6 +1105,8 @@ impl NativeWholeEngine {
                 ("call_binding", accounting.call_binding),
                 ("validation_scratch", scratch),
                 ("road", r),
+                ("verified_future_capture_arc_credit",captured_arc_credit),
+                ("road_3max_without_credit",r.saturating_mul(3)),
                 ("journey", d),
                 ("events", e),
             ],
@@ -1889,5 +1915,24 @@ mod stage_sum_tests {
             vec![],
         );
         assert_eq!(stage_sums(&j, 5).unwrap(), vec![0.0; 5]);
+    }
+}
+
+#[cfg(test)]
+mod capture_road_clone_owner_exact_bounds {
+    use super::*;
+
+    #[test]
+    fn actual_immutable_arc_payload_is_not_allocated_twice_in_future_road_clone() {
+        assert_eq!(capture_road_clone_credit(500,250,true,true),250);
+        assert_eq!(capture_road_clone_credit(500,0,true,true),0);
+        assert_eq!(capture_road_clone_credit(500,950,true,true),500);
+        assert_eq!(3*500-capture_road_clone_credit(500,250,true,true),1250);
+    }
+    #[test]
+    fn source_road_credit_requires_actual_input_and_future_capture_phase() {
+        assert_eq!(capture_road_clone_credit(500,250,false,true),0);
+        assert_eq!(capture_road_clone_credit(500,250,true,false),0);
+        assert_eq!(capture_road_clone_credit(0,100,true,true),0);
     }
 }
