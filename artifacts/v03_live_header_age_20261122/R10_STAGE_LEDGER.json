@@ -1,0 +1,293 @@
+{
+  "base_commit": "e15f3cb911d321f74a1730b1422065068df0cd16",
+  "blockers": [
+    "continuous keyset allocation: source-bound 40,717,830 candidate uniform rows, 737,875 candidate packets; new memory phase after event flatten in cross-native one-call",
+    "event candidate materialize after road: stricter continuous same-source call allowance at 25,710 after 50s uninterrupted prefix",
+    "9 original full-day runs, resume, dt5 refinement, replay and final acceptance incomplete"
+  ],
+  "branch": "research/v03-live-page-transport-20261122",
+  "current_native_sha256": "d471b85e9fa246a670daff14c25b1678b49a8eda0b6bbef6cbbcf5752c20bf71",
+  "current_source_preparation": {
+    "coastal_weekend_s41": {
+      "file_sha256": "a3b4a2815ef2108db050526492e01749e18b1b8e79c2fed55aae2fbc464cf83a",
+      "peak_rss_bytes": 1116143616,
+      "planned_legs": 2449750,
+      "resident_stock": 100000.0,
+      "wall_s": 35.92289064200304
+    },
+    "river_weekday_s17": {
+      "file_sha256": "a0abfc15e368a400c7c28ed4e8b2c1fe202a428e6a25238be115d63b00457a06",
+      "peak_rss_bytes": 2174136320,
+      "planned_legs": 5093765,
+      "resident_stock": 100000.0,
+      "wall_s": 62.50510681400192
+    },
+    "valley_weekday_s7": {
+      "file_sha256": "64cdbbce92501c3a9767902caeda952db7f6e9bc066d9d96a0200158998ab7d8",
+      "peak_rss_bytes": 446902272,
+      "planned_legs": 918450,
+      "resident_stock": 100000.0,
+      "wall_s": 20.818733355990844
+    }
+  },
+  "implementation_verification": {
+    "full_repo_ci": "DEFERRED_BY_USER",
+    "python_focus_before_final_receipts": "11 PASS",
+    "rust_workspace_lib": "177 PASS, 2 IGNORED, 0 FAIL"
+  },
+  "latest_gate": {
+    "direct_100k_25700_to_25710": {
+      "allowed_bytes": 5025214575,
+      "event_flatten_allowed_bytes": 5025214575,
+      "event_flatten_exceeds": 0,
+      "event_flatten_guard_calls": 1,
+      "event_flatten_required_bytes": 5015302752,
+      "first_blocker": "continuous keyset allocation",
+      "required_bytes": 5533362416,
+      "transfer_candidate_exceeds": 0,
+      "transfer_candidate_guard_calls": 258538
+    },
+    "uninterrupted_25650_to_25730_requested_80s": {
+      "allowed_bytes": 4939690935,
+      "completed_time_s": 25700,
+      "first_blocker": "event candidate materialize after road",
+      "required_bytes": 5015432736,
+      "valid_original_checkpoint_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+      "valid_prefix_s": 50
+    }
+  },
+  "nonclaims": [
+    "10 research stage commits do NOT add nodes to canonical V03 DAG",
+    "a completed original 25,710 physics tick does NOT exist",
+    "the 50-second original source-valid prefix is not a 24h run",
+    "byte identity from original 25,650/25,700 source checkpoint is a cross-native verified prefix, not this candidate run from time zero"
+  ],
+  "original_100k_physical_experiment_receipts": [
+    {
+      "blocked_target_time_s": 25710.0,
+      "candidate_source_sha256": "633c7bdefac68969e2e788f461e9679b9acd6aeec90c1ed8b0ab6a8eff151934",
+      "completed_steps": [],
+      "completed_time_s": 25700.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=5025228376, budget_bytes=5025214575",
+        "phase": "ADVANCE_TO_25710"
+      },
+      "final_checkpoint_sha256": null,
+      "native_binary_sha256": "b0f5c3414461f6c5db9af89546c03acfccc20e51194c0cea4014cb22d520d47e",
+      "peak_rss_bytes": 4361662464,
+      "physically_completed_duration_s": 0.0,
+      "receipt_name": "R7_cross_native_100k_10s.json",
+      "receipt_sha256": "972eb2108548dddf13580a755f94808bb22fc21d74fe0c3820fbd42a393aeda7",
+      "requested_duration_s": 10,
+      "start_time_s": 25700.0,
+      "status": "BLOCKED_RESOURCE",
+      "total_wall_including_io_s": 73.35608742300246
+    },
+    {
+      "blocked_target_time_s": 25710.0,
+      "candidate_source_sha256": "dca5ee113f92af7b1488bf169144764f243914c0c1f08ba620762f11d3139ec2",
+      "completed_steps": [],
+      "completed_time_s": 25700.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=5025224784, budget_bytes=5025214575",
+        "phase": "ADVANCE_TO_25710"
+      },
+      "final_checkpoint_sha256": null,
+      "native_binary_sha256": "6af5d3a398c8687706f7d872617c980ca165905bc0835b94cbbdd29a78b96c83",
+      "peak_rss_bytes": 4362977280,
+      "physically_completed_duration_s": 0.0,
+      "receipt_name": "R8_cross_native_100k_10s.json",
+      "receipt_sha256": "313c5fbeb50bc8f928b827dc5b81e026f73aa1160ac31e348861dbf900e91031",
+      "requested_duration_s": 10,
+      "start_time_s": 25700.0,
+      "status": "BLOCKED_RESOURCE",
+      "total_wall_including_io_s": 71.19326002699381
+    },
+    {
+      "blocked_target_time_s": 25710.0,
+      "candidate_source_sha256": "e6b9ac4d0541f563cb1e9cf67d08f0ee3bed5b27ca8ee049ffd004a191dbf430",
+      "completed_steps": [],
+      "completed_time_s": 25700.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=event candidate materialize after road, required_bytes=5509822688, budget_bytes=5025214575",
+        "phase": "ADVANCE_TO_25710"
+      },
+      "final_checkpoint_sha256": null,
+      "native_binary_sha256": "486878156dbee911d4c933add0dd32340a85fc77f90d4bbe8201d6390b089ab2",
+      "peak_rss_bytes": 4993634304,
+      "physically_completed_duration_s": 0.0,
+      "receipt_name": "R10_cross_native_100k_10s.json",
+      "receipt_sha256": "232d2533758295147765229dc5a9c41bffea5c1c76ec84458393cd79cc33ea84",
+      "requested_duration_s": 10,
+      "start_time_s": 25700.0,
+      "status": "BLOCKED_RESOURCE",
+      "total_wall_including_io_s": 88.99776584900974
+    },
+    {
+      "blocked_target_time_s": 25710.0,
+      "candidate_source_sha256": "5094e2ebb6d599b50166d3b388d3e34b04d9d22521556324073188ef400746d8",
+      "completed_steps": [],
+      "completed_time_s": 25700.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=continuous keyset allocation, required_bytes=5533362416, budget_bytes=5025214575",
+        "phase": "ADVANCE_TO_25710"
+      },
+      "final_checkpoint_sha256": null,
+      "native_binary_sha256": "d471b85e9fa246a670daff14c25b1678b49a8eda0b6bbef6cbbcf5752c20bf71",
+      "peak_rss_bytes": 5781311488,
+      "physically_completed_duration_s": 0.0,
+      "receipt_name": "R10_postroad_cross_native_100k_10s.json",
+      "receipt_sha256": "dbd6d09c9dc3d95282ad6dda08af7ff6a22c3877a019d630982202373a483558",
+      "requested_duration_s": 10,
+      "start_time_s": 25700.0,
+      "status": "BLOCKED_RESOURCE",
+      "total_wall_including_io_s": 88.76035007600149
+    },
+    {
+      "blocked_target_time_s": 25710.0,
+      "candidate_source_sha256": "5094e2ebb6d599b50166d3b388d3e34b04d9d22521556324073188ef400746d8",
+      "completed_steps": [
+        {
+          "completed_time_s": 25660.0,
+          "wall_s": 18.62904107000213
+        },
+        {
+          "completed_time_s": 25670.0,
+          "wall_s": 22.753826093001408
+        },
+        {
+          "completed_time_s": 25680.0,
+          "wall_s": 27.972793179011205
+        },
+        {
+          "completed_time_s": 25690.0,
+          "wall_s": 34.44337103200087
+        },
+        {
+          "completed_time_s": 25700.0,
+          "wall_s": 42.49155862799671
+        }
+      ],
+      "completed_time_s": 25700.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=event candidate materialize after road, required_bytes=5015432736, budget_bytes=4939690935",
+        "phase": "ADVANCE_TO_25710"
+      },
+      "final_checkpoint_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+      "native_binary_sha256": "d471b85e9fa246a670daff14c25b1678b49a8eda0b6bbef6cbbcf5752c20bf71",
+      "peak_rss_bytes": 5208395776,
+      "physically_completed_duration_s": 50.0,
+      "receipt_name": "R10_original_100k_requested_80s_from_25650.json",
+      "receipt_sha256": "1d647f6397f31c740739fbf807cb8bb367cc08fe8c09f20354bad7dcd469c2b5",
+      "requested_duration_s": 80,
+      "start_time_s": 25650.0,
+      "status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+      "total_wall_including_io_s": 233.32973134799977
+    }
+  ],
+  "original_contract": {
+    "city_cases": 3,
+    "dt_seconds": 10,
+    "full_day_seconds": 86400,
+    "max_wall_seconds": 7200,
+    "population_residents_per_city": 100000,
+    "repeat_per_city": 3,
+    "rlimit_as_bytes": 8589934592,
+    "whole_source_fifo_unmodified": true
+  },
+  "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "original_plan_sha256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+  "readiness": {
+    "V03": "BLOCKED",
+    "dag_scoped_completed": 19,
+    "dag_scoped_percent": 90.47619047619048,
+    "dag_total": 21,
+    "direct_v03_dependencies_completed": 3,
+    "direct_v03_dependencies_total": 3,
+    "original_24h_runs_completed": 0,
+    "original_24h_runs_required": 9,
+    "release_ready": false,
+    "source_current_total_cases": 3,
+    "source_current_whole_calendars_prepared": 3
+  },
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "METROFLOW_V03_DYNAMIC_FIFO_AGE_R1_R10_C1_C10_EVIDENCE_20261122_V1",
+  "scientific_results": {
+    "cumulative_dominance_route_delay_monotonicity": "DERIVED_PROOF",
+    "exact_rational_synthetic_cases": "NUMERICALLY_CHECKED_FINITE",
+    "original_100k_city_full_day": "BLOCKED_0_OF_9",
+    "route_delay_Lipschitz_bound": "DERIVED_PROOF",
+    "route_resolved_fifo_inverse_service_delay": "DERIVED_PROOF"
+  },
+  "source_candidate_sha256": "5094e2ebb6d599b50166d3b388d3e34b04d9d22521556324073188ef400746d8",
+  "stage_commits": [
+    {
+      "remote_sha_readback": true,
+      "sha": "f3f9f9db3a7de3ff1655c72bd0b52490dd10601e",
+      "stage": "R1/C1",
+      "subject": "research(v03): R1 C1 lock dynamic age transport and live header blocker"
+    },
+    {
+      "remote_sha_readback": true,
+      "sha": "4af86a6185189d0c180917cca6e0db2fe2617ec9",
+      "stage": "R2/C2",
+      "subject": "research(v03): R2 C2 map FIFO travel-time literature and true descriptor ownership"
+    },
+    {
+      "remote_sha_readback": true,
+      "sha": "40c21d7a564dc308adb31f3ecd93ef74b55763bc",
+      "stage": "R3/C3",
+      "subject": "science(v03): R3 C3 specify causal route-age flux and source header seam"
+    },
+    {
+      "remote_sha_readback": true,
+      "sha": "b3b15a9e286a92dd441679f24e53292d55909019",
+      "stage": "R4/C4",
+      "subject": "science(v03): R4 C4 exact FIFO delay intervention and source TDD RED"
+    },
+    {
+      "remote_sha_readback": true,
+      "sha": "c87f9af0fb7f8fc05e2bc03c381629216c3f703f",
+      "stage": "R5/C5",
+      "subject": "science(v03): R5 C5 prove route FIFO delay dominance and source-count actual header guards"
+    },
+    {
+      "remote_sha_readback": true,
+      "sha": "77f4dd5eb2e07bc175d3a9614ec973569c962dc7",
+      "stage": "R6/C6",
+      "subject": "research(v03): R6 C6 preserve source growth-overlap adversarial and native checks"
+    },
+    {
+      "remote_sha_readback": true,
+      "sha": "9132dcfe2154089f648ba52aed3a325aadabc77b",
+      "stage": "R7/C7",
+      "subject": "research(v03): R7 C7 split actual header and page allocation lifetimes"
+    },
+    {
+      "remote_sha_readback": true,
+      "sha": "bab703fa225d7901bf3db7b05493063473e35dd4",
+      "stage": "R8/C8",
+      "subject": "research(v03): R8 C8 preserve 100k transfer residual and route-age science verdict"
+    },
+    {
+      "remote_sha_readback": true,
+      "sha": "6bcfe7cfb716e586b5d568520fca263bab4022ea",
+      "stage": "R9/C9",
+      "subject": "science(v03): R9 C9 bound route delay response and retire actual old scan with trace charges"
+    },
+    {
+      "remote_sha_readback": true,
+      "sha": "745c6172f302c7f169d08978e20cd7173a850eb0",
+      "stage": "R10/C10",
+      "subject": "research(v03): R10 C10 correct three concrete postroad owners and preserve 100k barrier evidence"
+    }
+  ],
+  "stages_committed": 10,
+  "total_bounded_stages": 10,
+  "total_original_calendar_planned_legs": 8461965
+}
