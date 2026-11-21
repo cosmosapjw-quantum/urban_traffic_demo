@@ -474,6 +474,23 @@ fn paged_event_candidate_bytes(n: usize) -> usize {
 /// Live owners AFTER road step temporaries have been dropped. The final
 /// flat events Vec briefly coexists with its original event pages; both are
 /// counted as actual separate allocations, preserving original numeric caps.
+/// Source-bound peak budget for continuously interning an already finished
+/// road candidate after original road transient buffers and event pages die.
+/// All three road retained owners, committed service events, final EventRow
+/// Vec and NEW full key/moment copies coexist temporarily. The packet term
+/// is a conservative 64-bit allocator envelope; no model or cap changes.
+fn postroad_continuous_keyset_peak_bytes(
+    owner_max:usize, old_events:usize,
+    flat_rows:usize, core_rows:usize, packet_owners:usize,
+)->usize {
+    owner_max.saturating_mul(3)
+        .saturating_add(old_events)
+        .saturating_add(flat_rows.saturating_mul(std::mem::size_of::<EventRow>()))
+        .saturating_add(core_rows.saturating_mul(std::mem::size_of::<CorePart>()))
+        .saturating_add(packet_owners.saturating_mul(512))
+        .saturating_add(3*32)
+}
+
 fn postroad_event_materialization_bytes(
     road_owner_bytes:usize, old_event_bytes:usize,
     page_row_capacity:usize, page_header_capacity:usize, n:usize,
@@ -1576,7 +1593,7 @@ fn exact_merge_census(parts: impl Iterator<Item=Part>, src: &[(usize, usize, u64
 /// Fixed-size incoming Part pages: an append cannot reallocate a prior page.
 /// The logical source index maps to (page,slot), with all prior pages full.
 /// A separate aligned Mark Vec retains the old source order and f64 payloads.
-const INCOMING_PART_CHUNK: usize = 64;
+const INCOMING_PART_CHUNK: usize = 128;
 
 #[derive(Default)]
 struct ChunkedParts {
@@ -2368,7 +2385,7 @@ impl V1Road {
     /// point old incoming/Mark, queue and interval sweep workspaces are dead.
     /// Do not reuse their obsolete RoadWorkBudget lifetime in the flat phase.
     fn materialize_event_after_road(
-        &self, candidate:&RoadState, pages:ChunkedEvents,
+        &self, candidate:&mut RoadState, pages:ChunkedEvents,
     )->PyResult<Vec<EventRow>> {
         if let Some(limit)=self.storage_budget {
             let max_state=self.state.retained_storage_bytes()
@@ -2396,13 +2413,42 @@ impl V1Road {
                 Some(limit),required,"event candidate materialize after road",
             )?;
         }
-        pages.into_flat_checked()
+        // The entire raw event page carrier is dropped before creating
+        // new keyset allocations. The original final flat EventRows persist.
+        let flat=pages.into_flat_checked()?;
+        if let Some(limit)=self.storage_budget {
+            let stats=candidate.debug_stats();
+            let owner_max=self.state.retained_storage_bytes()
+                .max(self.retained_input_bytes)
+                .max(candidate.retained_storage_bytes());
+            let old_events=self.service_event_accounting.map_or(0,|v|
+                v.input_bytes.saturating_add(
+                    if v.shared_input_current {0} else {v.current_bytes}
+                ));
+            let packets=stats.cell_packets.saturating_add(stats.pending_packets);
+            let required=postroad_continuous_keyset_peak_bytes(
+                owner_max,old_events,flat.len(),stats.uniform_parts,packets,
+            );
+            crate::v1_trace::guard(
+                "road_post","continuous keyset allocation",required,limit,
+                &[("road_owner_max",owner_max),("old_event_bytes",old_events),
+                  ("flat_event_rows",flat.len()),("candidate_uniform_rows",stats.uniform_parts),
+                  ("candidate_packets",packets)],
+            );
+            check_storage_limit(Some(limit),required,"continuous keyset allocation")?;
+            let before=candidate.retained_storage_bytes();
+            let changed=candidate.intern_exact_keysets()?;
+            let after=candidate.retained_storage_bytes();
+            crate::v1_trace::add("keyset.continuous_converted",changed as u64);
+            crate::v1_trace::add("keyset.continuous_saved_bytes",before.saturating_sub(after) as u64);
+        }
+        Ok(flat)
     }
 
     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
         self.begin_call_storage_accounting();
-        let (s, pages) = self.step_state(&self.state, dt, offers)?;
-        let e=self.materialize_event_after_road(&s,pages)?;
+        let (mut s, pages) = self.step_state(&self.state, dt, offers)?;
+        let e=self.materialize_event_after_road(&mut s,pages)?;
         self.state = s;
         Ok(e)
     }
@@ -2414,8 +2460,8 @@ impl V1Road {
         dt: f64,
         offers: Vec<Offer>,
     ) -> PyResult<(RoadState, Vec<EventRow>)> {
-        let (s,pages)=self.step_state(&self.state,dt,offers)?;
-        let e=self.materialize_event_after_road(&s,pages)?;
+        let (mut s,pages)=self.step_state(&self.state,dt,offers)?;
+        let e=self.materialize_event_after_road(&mut s,pages)?;
         Ok((s,e))
     }
     fn class(&self, p: &Part) -> usize {
@@ -3974,8 +4020,8 @@ impl V1Road {
     }
     fn step(&mut self, py: Python<'_>, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
         self.begin_call_storage_accounting();
-        let (s, pages) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
-        let e=self.materialize_event_after_road(&s,pages)?;
+        let (mut s, pages) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+        let e=self.materialize_event_after_road(&mut s,pages)?;
         self.state = s;
         Ok(e)
     }
@@ -3988,8 +4034,8 @@ impl V1Road {
         self.begin_call_storage_accounting();
         let mut events = vec![];
         for (dt, offers) in steps {
-            let (s, pages) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
-            let e=self.materialize_event_after_road(&s,pages)?;
+            let (mut s, pages) = py.allow_threads(|| self.step_state(&self.state, dt, offers))?;
+            let e=self.materialize_event_after_road(&mut s,pages)?;
             self.state = s;
             events.push(e);
         }
@@ -5224,8 +5270,8 @@ mod exact_segmented_incoming_buffer_tests {
         let original=r*2*(std::mem::size_of::<Part>()+std::mem::size_of::<Mark>());
         let proposed=segmented_incoming_charge(r,g);
         assert_eq!(original,1_019_928_832);
-        assert_eq!(proposed,528_463_808);
-        assert_eq!(original-proposed,491_465_024);
+        assert_eq!(proposed,528_983_872);
+        assert_eq!(original-proposed,490_944_960);
         assert!(segmented_incoming_charge(0,g)==0);
     }
 }
@@ -5280,7 +5326,7 @@ mod exact_segmented_mark_alignment_tests {
     }
     #[test]
     fn actual_two_page_source_bound_uses_one_copy_of_each_row() {
-        assert_eq!(segmented_incoming_charge(8_992_612,1586),595_563_136);
+        assert_eq!(segmented_incoming_charge(8_992_612,1586),595_314_912);
         assert_eq!(segmented_incoming_charge(0,1586),0);
     }
 }
@@ -5520,5 +5566,58 @@ mod exact_persistent_keyset_storage_tests {
         assert_eq!(before.unique_backing_count,1);
         assert_eq!(s.intern_exact_keysets().unwrap(),0);
         assert_eq!(s.arc_backing_census().unique_backing_count,1);
+    }
+}
+
+#[cfg(test)]
+mod continuous_keyset_and_page_geometry_tests {
+    use super::*;
+
+    #[test]
+    fn actual_source_100k_part_mark_work_pages_have_optimal_power_two_size() {
+        assert_eq!(INCOMING_PART_CHUNK,128);
+        assert_eq!(segmented_incoming_charge(11_764_502,1_586),774_794_848);
+        assert_eq!(segmented_incoming_charge(0,1_586),0);
+        assert_eq!(segmented_incoming_charge(11_764_502,1_586)
+                   +2_327_104,777_121_952);
+    }
+
+    #[test]
+    fn postroad_continuous_interning_counts_both_old_state_and_new_scratch() {
+        let estimated=postroad_continuous_keyset_peak_bytes(
+            100_000, 20_000, 200, 500, 7,
+        );
+        let expected=3*100_000+20_000
+            +200*std::mem::size_of::<EventRow>()
+            +500*std::mem::size_of::<CorePart>()
+            +7*512+96;
+        assert_eq!(estimated,expected);
+        assert!(estimated>=3*100_000+20_000+200*64);
+    }
+
+    #[test]
+    fn new_page_geometry_retains_indexwise_order_and_original_mark_bits() {
+        let mut parts=ChunkedParts::default();
+        let mut marks=ChunkedMarks::default();
+        for i in 0..(INCOMING_PART_CHUNK*3+11) {
+            let v=Part {
+                tag:i%13,offset:i%7,
+                mass:if i%11==0 {f64::from_bits(1)} else {(i+1) as f64/257.},
+                birth:if i%5==0 {-0.0} else {(i+7) as f64},
+                a:PackedTime::new(Some(if i%19==0 {-0.0} else {0.0})).unwrap(),
+                b:PackedTime::new(Some(1.0)).unwrap(),
+            };
+            parts.push_checked(v).unwrap();
+            marks.push_checked(compact_mark(v.mass, v.birth)).unwrap();
+        }
+        assert_eq!(parts.len(),marks.len());
+        assert!(parts.chunks.iter().all(|c|c.capacity()==INCOMING_PART_CHUNK));
+        assert!(marks.chunks.iter().all(|c|c.capacity()==INCOMING_PART_CHUNK));
+        for (i,(p,m)) in parts.iter().zip(marks.iter()).enumerate() {
+            assert_eq!(p.tag,i%13);
+            assert_eq!(m.0.to_bits(),p.mass.to_bits());
+            assert_eq!(m.1.to_bits(),p.birth.to_bits());
+            assert_eq!(parts.get(i).a.0,p.a.0);
+        }
     }
 }
