@@ -1,0 +1,173 @@
+{
+  "actual_escalating_100k_experiment": {
+    "blocked_phase": "engine capture/validation",
+    "blocked_target_time_s": 25700.0,
+    "capture_excess_bytes": 43122557,
+    "capture_original_allowance_bytes": 6442450944,
+    "capture_required_bytes": 6485573501,
+    "completed_10s_step_wall_s_and_clocks": [
+      {
+        "completed_time_s": 25660.0,
+        "wall_s": 12.440636398998322
+      },
+      {
+        "completed_time_s": 25670.0,
+        "wall_s": 15.169682897001621
+      },
+      {
+        "completed_time_s": 25680.0,
+        "wall_s": 19.671657407001476
+      },
+      {
+        "completed_time_s": 25690.0,
+        "wall_s": 22.767129943997134
+      }
+    ],
+    "completed_uninterrupted_original_physics_time_s": 40.0,
+    "full_86400s_original_day_accepted": false,
+    "last_completed_source_time_s": 25690.0,
+    "last_valid_checkpoint_local_only": {
+      "bytes": 2949231402,
+      "in_git": false,
+      "local_only_path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/artifacts/v03_fifo_closure_20261121/C9_ORIGINAL_100K_REQUESTED_80S.final.bin",
+      "sha256": "db5b6b53f728d892ad53b9e7126d08e73b877f055e2e6e78443f1c0851b7bd10"
+    },
+    "native_source_current_from_t0_verified": false,
+    "original_historical_checkpoint_cross_native": true,
+    "peak_process_rss_bytes": 5083353088,
+    "requested_original_time_s": 80,
+    "separate_old_valid_25700_checkpoint_local_only": {
+      "bytes": 3405043386,
+      "in_git": false,
+      "local_only_path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_ORIGINAL_100K_10S_25700.final.bin",
+      "sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369"
+    },
+    "source_time_start_s": 25650.0,
+    "total_wall_s_including_city_preparation_and_checkpoint_IO": 128.47796396799095,
+    "uninterrupted_50_or_80_seconds_accepted": false
+  },
+  "authority": {
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "main_untouched": true,
+    "original_clock_dt_s": 10,
+    "original_mass_birth_source_and_FIFO_rules_unchanged": true,
+    "original_population_per_city": 100000,
+    "original_process_cap_bytes": 8589934592,
+    "original_wall_cap_s": 7200,
+    "plan_version": "1.1.26"
+  },
+  "branch": "research/v03-fifo-closure-20261121",
+  "candidate_native_sha256": "397552060dc9610b2dc7695291c948b44258473958ebe1618e37fe82927988b0",
+  "candidate_source_sha256": "ae46ac3c668f3d4d0aba1dd854b9d8c8100d26f6ba5164abad2ea309f6fc22ab",
+  "created_utc": "2026-11-21T04:52:37+00:00",
+  "current_V03_readiness": {
+    "V03_status": "BLOCKED",
+    "current_native_case_full_legs": {
+      "coastal_weekend_s41": 2449750,
+      "river_weekday_s17": 5093765,
+      "valley_weekday_s7": 918450
+    },
+    "current_native_case_preparation_wall_s": {
+      "coastal_weekend_s41": 36.165724420992774,
+      "river_weekday_s17": 62.48419445801119,
+      "valley_weekday_s7": 20.06106287498551
+    },
+    "current_native_full_100k_city_calendar_preps": 3,
+    "direct_V03_prereqs_done": 3,
+    "direct_V03_prereqs_total": 3,
+    "full_city_calendar_preps_required": 3,
+    "original_full_24h_city_days_done": 0,
+    "original_full_24h_city_days_required": 9,
+    "original_plan_total_nodes": 21,
+    "scoped_nodes_completed": 19
+  },
+  "current_git_commit_before_stage10": "eaa3e906a179606e4dab53eed4b375a87a71b3e7",
+  "file_sha256": {
+    "artifacts/v03_fifo_closure_20261121/C8_ORIGINAL_100K_25710.json": "883d4b20d34b13170a8a8ca5521010a838c4dc9a582ca75dd122ae218d404f8a",
+    "artifacts/v03_fifo_closure_20261121/C9_CURRENT_NATIVE_READINESS.json": "16ec4c8e0260bf01c69be8f3ba0000143cf403f2ef8a90e1c3d3db8fb79a4e51",
+    "artifacts/v03_fifo_closure_20261121/C9_ORIGINAL_100K_REQUESTED_80S.json": "eeeff26948138957e9f377ae349d283e83f049997eda4f30ca2025fab5970991",
+    "artifacts/v03_fifo_closure_20261121/THEORY_EXACT_WITNESSES.json": "5de227cfd1a21845a7fd6ededeece741f6d77360062b9e1ba99bf06965c25256",
+    "crates/metroflow-rust/src/v1_road.rs": "2a6e843d947ffeda41987507cea80b660703839beb8cfbf37ff1bb78e5d83696",
+    "docs/research/V03_FIFO_NONCLOSURE_R1_R10_C1_C10_20261121_KO.md": "936df2bb9e3de0659e92c29b7b619a96c3afe412852f03d2267978a1def5afc0",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "tests/research/test_v03_fifo_c8_arc_100k_20261121.py": "349fab687071447442ddbb20351a06c513efcbc3647fc2d7e271fa02eacf4bd6",
+    "tests/research/test_v03_fifo_c9_100k_horizon_20261121.py": "416d7b28eb70015acef6e73b747fd931ea6d1fdc5a28840c948fbe4cecaa9082",
+    "tests/research/test_v03_fifo_c9_readiness_20261121.py": "c964dd58f54162b9c9526fbe0dcf65ce8ef65de50221241d5cb3cec2400bb6db",
+    "tests/research/test_v03_fifo_theory_exact_20261121.py": "c44ffe458c10581822fe2d0df3f221cbb0eae09013b6bc96c30293f9832d9e60",
+    "tools/research/v03_fifo_closure_cross_native_25710_20261121.py": "86ace369bfdcc290120ce1db4a09351907b02043ee96cc6ffdea917701174d0c",
+    "tools/research/v03_fifo_nonclosure_exact_20261121.py": "2c99438a36637b21d1fd519cfb4e3785dab3728e62dba8b1d67b30ec69ea8036"
+  },
+  "first_nine_stage_commits": [
+    "76a8e5dc1caa3efe6b4d87946fa9198f80ebdb47",
+    "e8a21f8eea0c90ad40de8c7995eb880d4b9035f4",
+    "ceefb03fe98d027ddae6490803b0347d0dbc130e",
+    "ebb2ea3685a656066a1ac17fe98cdf1aefc1755e",
+    "9bfe1ee485a682bb4c175a249ad1619c4cf9adc4",
+    "9b123ab4b2e0b01bab5dafdcb139226c8f87e443",
+    "0951ab17f526258a00fb75bbb6ec836c75d407e2",
+    "6663bd190225ac7937df2ad32f1964d8f0f538f3",
+    "eaa3e906a179606e4dab53eed4b375a87a71b3e7"
+  ],
+  "native_library_local_only": true,
+  "next_research_ID": "V03-EXACT-CAPTURE-OWNER-PHASE-12",
+  "nonclaims": [
+    "no valid original 25710 second checkpoint",
+    "no original 86400s full city day or 9-run acceptance",
+    "no proven 50s or 80s uninterrupted run",
+    "no newly built native 0-to-25690 entire original history",
+    "no universal traffic FIFO finite-memory impossibility beyond stated moment-only theorem",
+    "no full repository CI PASS",
+    "no main merge or release promotion"
+  ],
+  "parent_commit": "e7cbd33fabc1c879d4ab54817c8fe23108506e34",
+  "physical_code_improvement": {
+    "actual_25710_completed": false,
+    "actual_original_100k_default_credit_bytes": 577973296,
+    "experimental_credit_bytes": 0,
+    "new_original_transfer_blocked_call_count": 188168,
+    "new_source_scope": "typed pointer intersection over Uniform, Mixed, SharedKeys.keys and SharedKeys.moments; no Arc metadata discount; exact current state identity",
+    "new_transfer_excess_bytes": 198777,
+    "new_transfer_final_allowed_bytes": 5025214575,
+    "new_transfer_final_required_bytes": 5025413352,
+    "old_original_transfer_blocked_call_count": 97051,
+    "proof": "Unique identical immutable ArcInner payload allocation shared by actual current/caller original source may be counted exactly once; no per-packet repeat credit or value-equality shortcut.",
+    "single_replay_peak_rss_bytes": 4165115904,
+    "single_replay_wall_s_including_prep_and_checkpoint_IO": 53.49622534599621,
+    "source_ledger_matched_old_completed": true,
+    "source_old_25700_checkpoint_full_wire_roundtrip_exact": true,
+    "source_test": "RED missing SharedKeys owner 120B, duplicate Uniform source old 48B vs actual 24B; GREEN after implementation"
+  },
+  "repo": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "METROFLOW_FIFO_NONCLOSURE_THEORY_AND_ORIGINAL_V03_R10_C10_20261121_V1",
+  "stage10_commit_remote_readback_required": true,
+  "theory": {
+    "nonclaims": [
+      "not a no-go for nonlinear or history-carrying state",
+      "not proof any particular current native packet history is unbounded",
+      "not a theorem on every congested network/junction state"
+    ],
+    "original_native_packet_source_test": "two Rust tests PASS, including p1 cohort departure birth moment and original f64 source bit identity",
+    "originality_caveat": "new explicit theorem in this model, not verified as a world-first result in traffic or general moment problem literature",
+    "symbolic_checks": "Wolfram p=0..8 and exact Python Fraction p=0..10",
+    "theorem_1": "For fixed M at uncongested diverge with common route-independent positive served fraction alpha, any linear statistic sufficient to reconstruct J independent destination fluxes has rank at least J-1 on the fixed-total hyperplane; sharp.",
+    "theorem_1_domain": "linear route-composition statistics, J distinct admitted next cells, composition-independent alpha, fixed M",
+    "theorem_1_status": "DERIVED_PROOF_AND_EXACT_RATIONAL_RANK_J2_TO_J7",
+    "theorem_2": "For every p>=0, two positive FIFO ordered cohort distributions with identical first p polynomial time moments have different first FIFO-served cohort birth moment at common served mass q=2epsilon.",
+    "theorem_2_domain": "ideal no-overtaking chronological cohort queue with arbitrary positive finite cohorts; polynomial time moments",
+    "theorem_2_status": "PROVED_IN_ALL_P_BY_FINITE_DIFFERENCE_GENERATING_POLYNOMIAL",
+    "theorem_2_witness": "m_i^{±}=(2±(-1)^i)epsilon binom(p+1,i), t_i=iDelta, i=0..p+1"
+  },
+  "verification": {
+    "cargo_release_build": "EXIT_0",
+    "cargo_workspace_check": "EXIT_0",
+    "fresh_original_native_plus_theory_and_physics_Python_pass": 105,
+    "fresh_rust_workspace_lib_pass": 160,
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "native_subagents": "NOT_RUN_NO_NATIVE_DISPATCH_TOOL",
+    "plan": "VALID_PLAN_NOT_RELEASE",
+    "python_failed": 0,
+    "rust_failed": 0,
+    "rust_ignored": 2
+  }
+}
