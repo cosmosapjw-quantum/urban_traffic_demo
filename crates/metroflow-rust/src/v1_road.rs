@@ -929,6 +929,16 @@ impl RoadWorkBudget {
     fn transfer_indexed(
         &mut self,events:usize,destinations:impl IntoIterator<Item=usize>,
     )->PyResult<()> {
+        self.project_transfer(events,destinations,None)?;
+        self.require(0,"transfer candidates")
+    }
+    /// Pure source count projection before the corresponding Part/Mark pages
+    /// are actually appended. The optional list contains only destinations
+    /// that will acquire a new 128-row page during this single source head.
+    fn project_transfer(
+        &mut self,events:usize,destinations:impl IntoIterator<Item=usize>,
+        mut new_page_cells:Option<&mut Vec<usize>>,
+    )->PyResult<()> {
         if self.incoming_descriptor_live_bytes.is_some() {
             return Err(arithmetic("incoming page descriptor storage frozen after last source append"));
         }
@@ -939,16 +949,78 @@ impl RoadWorkBudget {
                     arithmetic("incoming predicted destination outside original cell registry"))?;
                 if *count % INCOMING_PART_CHUNK==0 {
                     self.incoming_live_pages=self.incoming_live_pages.saturating_add(1);
+                    if let Some(ref mut cell_ids)=new_page_cells {
+                        push_checked(cell_ids,i)?;
+                    }
                 }
                 *count=count.saturating_add(1);
                 self.incoming=self.incoming.saturating_add(1);
             }
         } else {
-            for _ in destinations{
+            for _ in destinations {
                 self.incoming=self.incoming.saturating_add(1);
             }
         }
-        self.require(0,"transfer candidates")
+        Ok(())
+    }
+    /// Physical two-phase header preallocation for exactly this transfer.
+    /// No original Part/Mark or EventRow values are created or changed here.
+    /// Both header vectors reserve before source append so no header Vec can
+    /// reallocate during the subsequent physical Part/Mark page insertion.
+    /// Charge ALL actually allocated header capacity and one possible old
+    /// header backing overlapping the new one during this serial reservation.
+    /// If the allocator overallocates, its ACTUAL post-reserve capacity is
+    /// charged, never a guessed capacity; 8GiB process cap remains hard.
+    fn transfer_indexed_with_live_headers(
+        &mut self,events:usize,destinations:impl IntoIterator<Item=usize>,
+        incoming:&mut [ChunkedParts],marks:&mut [ChunkedMarks],
+    )->PyResult<()> {
+        if self.incoming_cell_rows.is_none() {
+            return self.transfer_indexed(events,destinations);
+        }
+        // Before projection these must match actual complete previous appends.
+        self.observed_incoming_descriptor_bytes(incoming,marks)?;
+        let mut new_page_cells:Vec<usize>=Vec::new();
+        self.project_transfer(events,destinations,Some(&mut new_page_cells))?;
+        let mut old_header_overlap=0usize;
+        for &cell in &new_page_cells {
+            let target=self.incoming_cell_rows.as_ref()
+                .and_then(|v|v.get(cell)).ok_or_else(||
+                    arithmetic("new source page destination outside registry"))?
+                .div_ceil(INCOMING_PART_CHUNK);
+            let p=incoming.get_mut(cell).ok_or_else(||
+                arithmetic("missing Part page descriptor destination"))?;
+            old_header_overlap=old_header_overlap.max(p.reserve_header_slots(target)?);
+            let m=marks.get_mut(cell).ok_or_else(||
+                arithmetic("missing Mark page descriptor destination"))?;
+            let old_cap=m.chunks.capacity();
+            if target>old_cap {
+                m.chunks.try_reserve_exact(target.saturating_sub(m.chunks.len()))
+                    .map_err(|_|budget("native source Mark page header reservation unavailable"))?;
+                if m.chunks.capacity()<target {
+                    return Err(budget("native source Mark descriptor reservation capacity invalid"));
+                }
+                old_header_overlap=old_header_overlap.max(
+                    old_cap.saturating_mul(std::mem::size_of::<Vec<Mark>>())
+                );
+            }
+        }
+        let actual_headers:usize=incoming.iter().zip(marks.iter()).map(|(p,m)|
+            p.descriptor_capacity()
+                .saturating_mul(std::mem::size_of::<Vec<Part>>())
+                .saturating_add(m.chunks.capacity()
+                    .saturating_mul(std::mem::size_of::<Vec<Mark>>()))
+        ).sum();
+        // Index list may itself be reallocated during the projection;
+        // its old/new backing does not coexist with any header reservation.
+        let extra=old_header_overlap.saturating_add(
+            new_page_cells.capacity().saturating_mul(2*std::mem::size_of::<usize>())
+        );
+        self.incoming_descriptor_live_bytes=Some(actual_headers);
+        let status=self.require_with_no_active_combine(extra,"transfer candidates",None);
+        // Later physical append/packet operations again use mutable headers.
+        self.incoming_descriptor_live_bytes=None;
+        status
     }
     /// The raw Part/Mark page header Vecs are *momentarily* stable during
     /// packet remainder conversion, but remain appendable on the next
@@ -1983,6 +2055,29 @@ impl ChunkedParts {
     }
     fn descriptor_capacity(&self)->usize {
         if self.compressed {self.compact_chunks.capacity()}else{self.chunks.capacity()}
+    }
+    fn reserve_header_slots(&mut self, pages:usize)->PyResult<usize> {
+        if self.compressed {
+            let h=&mut self.compact_chunks;
+            if pages<=h.capacity() {return Ok(0);}
+            let old=h.capacity().saturating_mul(std::mem::size_of::<Vec<CompactIncomingPart>>());
+            h.try_reserve_exact(pages.saturating_sub(h.len()))
+                .map_err(|_|budget("native compact Part descriptor reserve unavailable"))?;
+            if h.capacity()<pages {
+                return Err(budget("native compact Part descriptor capacity invalid"));
+            }
+            Ok(old)
+        } else {
+            let h=&mut self.chunks;
+            if pages<=h.capacity() {return Ok(0);}
+            let old=h.capacity().saturating_mul(std::mem::size_of::<Vec<Part>>());
+            h.try_reserve_exact(pages.saturating_sub(h.len()))
+                .map_err(|_|budget("native wide Part descriptor reserve unavailable"))?;
+            if h.capacity()<pages {
+                return Err(budget("native wide Part descriptor capacity invalid"));
+            }
+            Ok(old)
+        }
     }
     fn physical_capacity_bytes(&self)->usize {
         self.capacity().saturating_mul(if self.compressed {
@@ -3866,10 +3961,11 @@ impl V1Road {
                     }
                     let incoming_count=served_parts(&packet.parts,fraction)
                         .filter(|part|self.dest(part).is_some()).count();
-                    work.transfer_indexed(
+                    work.transfer_indexed_with_live_headers(
                         packet.parts.len(),
                         served_parts(&packet.parts,fraction)
                             .filter_map(|part|self.dest(&part)),
+                        &mut incoming,&mut marks,
                     )?;
                     if self.storage_budget.is_some()
                         && events.len().saturating_add(packet.parts.len())
@@ -4073,8 +4169,9 @@ impl V1Road {
                     p.parts.iter().filter(|part|part.mass*f>0.0).count()
                 }else{0};
                 if f > 0.0 {
-                    work.transfer_indexed(
+                    work.transfer_indexed_with_live_headers(
                         0,std::iter::repeat(i).take(expected_pending),
+                        &mut incoming,&mut marks,
                     )?;
                 }
                 if crate::v1_trace::enabled() {
@@ -6958,5 +7055,48 @@ mod original_precombine_pending_remainder_lifetime_tests {
         assert!(w.pack_parts_with_live_descriptors(vec![part()],&incoming,&marks).is_err());
         assert!(w.incoming_descriptor_live_bytes.is_none());
         assert!(w.require(0,"packet interval packing").is_err());
+    }
+}
+
+#[cfg(test)]
+mod transfer_live_header_budget_constructive_tests {
+    use super::*;
+
+    fn work()->RoadWorkBudget {
+        RoadWorkBudget {
+            limit:Some(36_600),base:0,transfer_exclusive_cell_scratch:0,
+            events:0,incoming:0,incoming_page_cells:3,compact_events:true,
+            compact_incoming:true,incoming_cell_rows:Some(vec![0;3]),
+            incoming_live_pages:0,incoming_descriptor_live_bytes:None,
+            interval_retained:0,interval_transient:0,service_events:None,
+        }
+    }
+    fn part()->Part {
+        Part{tag:1,offset:0,mass:1.,birth:0.,
+            a:PackedTime::new(Some(0.)).unwrap(),
+            b:PackedTime::new(Some(1.)).unwrap()}
+    }
+    #[test]
+    fn actual_page_headers_replace_fictitious_all_cell_double_reservation() {
+        let mut w=work();
+        let mut parts:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
+        let mut marks:Vec<ChunkedMarks>=(0..3).map(|_|ChunkedMarks::default()).collect();
+        let dests=(0..129).map(|_|0usize)
+            .chain(std::iter::once(1usize))
+            .chain((0..256).map(|_|2usize));
+        let old=segmented_incoming_exact_cell_pages_charge(386,3,5,true,None);
+        assert!(old>w.limit.unwrap());
+        assert!(w.transfer_indexed_with_live_headers(0,dests,&mut parts,&mut marks).is_ok());
+        for (j,n) in [(0usize,129),(1,1),(2,256)] {
+            for _ in 0..n {
+                let p=part();
+                parts[j].push_checked(p).unwrap();
+                marks[j].push_checked(compact_mark(p.mass,p.birth)).unwrap();
+            }
+        }
+        assert_eq!(w.incoming,386);
+        assert_eq!(w.incoming_cell_rows.as_ref().unwrap(),&vec![129,1,256]);
+        assert!(w.observed_incoming_descriptor_bytes(&parts,&marks).is_ok());
+        assert!(w.incoming_descriptor_live_bytes.is_none());
     }
 }
