@@ -1,0 +1,200 @@
+{
+  "R10_C10_commit_push_readback_required": true,
+  "R1_C1_to_R9_C9_commits": [
+    "ae004acbb3ea609eaa72e98e692e3447eb797a87",
+    "e83dd5eaaa979a58f01d6cdc4f83f62bfeaf3955",
+    "67a059c6532fd8c0dd250797898ec818de750d21",
+    "5fc8eb8b1cfd8e9fb7cf9d059e5c57c0e28f564f",
+    "1ab34c1e598fe97d555f087f54e14a0ae582f1f1",
+    "ce028287e613d3738a5bcd8ae48b3bb3f9f7a3ac",
+    "2c3d55592cc74470358f410442bcbd72d868fb3b",
+    "56a48b320504e0574634f2fe65155b7784158a28",
+    "f718231f9f97486bd9f29a6d6418b756d8d8c030"
+  ],
+  "branch": "research/v03-keyset-continuous-20261121",
+  "clean_candidate_source_sha256": "83a426fcf5a73789505bbe8ad16cf6dc853adf11d21e207272045311b55f4f39",
+  "created_utc": "2026-11-21T01:05:54+00:00",
+  "file_sha256": {
+    "artifacts/v03_keyset_continuous_20261121/C6_100K_10S_25700.json": "a238fc32d57271b821fdcfb78946ba67b4eda158fade9c13a7343c1b80f69404",
+    "artifacts/v03_keyset_continuous_20261121/C8_100K_10S_25700.json": "ecec70a84f165ed4a6aa54abe4dc4f1e1c34994c3c1379e509edaddcba26187c",
+    "artifacts/v03_keyset_continuous_20261121/C9_100K_10S_25700.json": "bbc1ad8d6d7cb28cd5b6df5b6eb7bed9a238dfcb749f5184a0473d7143ca461b",
+    "artifacts/v03_keyset_continuous_20261121/C9_CURRENT_NATIVE_READINESS.json": "679ff52519fd1c89552fb4cf33b73ae947bb246993909ced8062d86e5f9d19a3",
+    "artifacts/v03_keyset_continuous_20261121/C9_HISTORICAL_40S_FROM_25650.json": "f9a5756b93940a085b9b1b88bc62d058bc836859c8b7cf6a35293293cd669c75",
+    "artifacts/v03_keyset_continuous_20261121/C9_HISTORICAL_40S_STAIRCASE.json": "b913e929c70d0d225fcc745fe0c55de83df00b7d9c900fad7cc119a8218fa46e",
+    "crates/metroflow-rust/src/v1_road.rs": "fbc27bb874f288661c283c76ddfc23de48426ec3372e41c30ec4983b51cfee95",
+    "docs/research/V03_KEYSET_CONTINUOUS_R1_R10_C1_C10_20261121_KO.md": "a2a4bd558c09f3f96b22c56911de23da20d7e9da5b3e90573206305e0c236bdd",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "tests/research/test_v03_cont_c9_40s_scientific_20261121.py": "f2306c04a0a7cea41ac5291e14b546872b68f447f9f8bd8d5961e1b1bd28dac2",
+    "tests/research/test_v03_cont_c9_readiness_20261121.py": "609088409a0cd635af9e1b2487e06a674cd735352465123ab7463a000a8a9908",
+    "tests/research/test_v03_cont_c9_staircase_20261121.py": "8803fc567c821283921917bf95b591ebf2b9b13a9fe4afaeac3b937045515a44",
+    "tools/research/v03_continuous_cross_native_25700_20261121.py": "f2b9aaf4985bf519dbef3f72aec5025a9bc3543555015e0a1833c836523b55a8",
+    "tools/research/v03_continuous_horizons_20261121.py": "e362605e1a34badc19287f5c839424fe0ae673e019d6bb4bf95243b3ad5f2c90",
+    "tools/research/v03_continuous_horizons_40s_from_25650_20261121.py": "e437919bf44084cd91aea8aef226f8d3aa0b5fa6a8f60d434b25f82e08057aca",
+    "tools/research/v03_continuous_horizons_from_historical_25660_20261121.py": "b7be7bc248026786c7b386f91d60229eec9e37204e12e7355a76eea2aceb5264"
+  },
+  "gradually_increasing_physical_experiments": {
+    "actual_local_full_outputs_verified_by_SHA256": {
+      "from_25650_40s": {
+        "bytes": 2949231402,
+        "local_only": true,
+        "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_HISTORICAL_40S_FROM_25650.final.bin",
+        "sha256": "db5b6b53f728d892ad53b9e7126d08e73b877f055e2e6e78443f1c0851b7bd10"
+      },
+      "from_25660_30s": {
+        "bytes": 2949231402,
+        "local_only": true,
+        "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_HISTORICAL_40S_STAIRCASE.final.bin",
+        "sha256": "db5b6b53f728d892ad53b9e7126d08e73b877f055e2e6e78443f1c0851b7bd10"
+      }
+    },
+    "from_25650_completed_40s": {
+      "actual_completed_duration_s": 40.0,
+      "actual_completed_step_clocks_and_wall_s": [
+        {
+          "completed_time_s": 25660.0,
+          "wall_s": 11.914680411995505
+        },
+        {
+          "completed_time_s": 25670.0,
+          "wall_s": 13.796338242995262
+        },
+        {
+          "completed_time_s": 25680.0,
+          "wall_s": 16.263606536005682
+        },
+        {
+          "completed_time_s": 25690.0,
+          "wall_s": 19.381118438002886
+        }
+      ],
+      "actual_simulated_end_clock_s": 25690.0,
+      "all_original_road_transfer_interval_and_keyset_guards_zero_exceeded": true,
+      "continuous_keyset_intern_calls": 4,
+      "original_source_start_time_s": 25650.0,
+      "peak_rss_bytes": 4525375488,
+      "requested_duration_s": 40,
+      "status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON",
+      "sum_of_per_step_retained_storage_savings_bytes_not_peak_RSS": 306154240,
+      "total_keyset_converted_packet_owners_across_distinct_steps": 323503,
+      "total_wall_including_full_input_and_output_io_s": 95.98262842200347
+    },
+    "from_25660_requested_40s": {
+      "actual_completed_step_clocks_and_wall_s": [
+        {
+          "completed_time_s": 25670.0,
+          "wall_s": 14.709308336001413
+        },
+        {
+          "completed_time_s": 25680.0,
+          "wall_s": 16.50544572599756
+        },
+        {
+          "completed_time_s": 25690.0,
+          "wall_s": 19.54026085499936
+        }
+      ],
+      "actual_failed_phase": "road_work:packet interval packing",
+      "failed_excess_structural_bytes": 1793,
+      "failed_next_clock_s": 25700.0,
+      "original_source_start": 25660.0,
+      "peak_rss_bytes": 4504117248,
+      "requested_duration_s": 40,
+      "status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+      "total_wall_including_full_input_and_output_io_s": 94.42092267599946,
+      "valid_advanced_duration_s": 30.0
+    },
+    "independent_old_25690_original_model_ledger_equal_both_current_runs": true,
+    "independent_previous_candidate_25690_checkpoint_sha256": "db5b6b53f728d892ad53b9e7126d08e73b877f055e2e6e78443f1c0851b7bd10",
+    "new_native_from_time_zero_verified": false
+  },
+  "native_library_local_only": true,
+  "native_library_path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/native_binding/_metroflow_rust.so",
+  "native_sha256": "5573c089420c90510ab4a876ce7db088f6670f0c35ae5d4fd9bde45fa548f73f",
+  "next_research_task_id": "V03-EXACT-PACKET-LIFETIME-09",
+  "nonclaims": [
+    "no complete original source-native 0-to-25690 trajectory",
+    "no completed original 25690-to-25700 next tick",
+    "no completed original 86400s whole city day",
+    "no full release V03 acceptance",
+    "no universal bounded packet history theorem",
+    "no claim of matched-speedup against a different original model or FIFO approximation"
+  ],
+  "original_contract": {
+    "full_repository_ci": "DEFERRED_BY_USER",
+    "model_coefficients_or_limits_changed": false,
+    "original_fifo_and_ieee_order_preserved": true,
+    "original_tick_s": 10,
+    "plan_version": "1.1.26",
+    "populations_per_city": 100000,
+    "process_cap_bytes": 8589934592,
+    "wall_cap_s": 7200
+  },
+  "original_official_V03_readiness": {
+    "completed_86400s_full_city_runs": 0,
+    "completed_implementation_nodes": 19,
+    "current_source_full_city_inputs_prepared": 3,
+    "direct_predecessors_done": 3,
+    "direct_predecessors_total": 3,
+    "full_100k_city_case_legs": {
+      "coastal_weekend_s41": 2449750,
+      "river_weekday_s17": 5093765,
+      "valley_weekday_s7": 918450
+    },
+    "implementation_nodes_total": 21,
+    "original_full_city_input_cases": 3,
+    "required_86400s_full_city_runs": 9,
+    "status": "BLOCKED"
+  },
+  "parent_source_commit": "8575f8afc7e09f5413079ef0c2aee7f0583c9291",
+  "physical_short_experiment_before_final_compression": {
+    "compact_event_exceeded": 1,
+    "compact_event_failed_guard_calls": 210639,
+    "final_candidate_transfer_exceeded": 0,
+    "final_candidate_transfer_guard_calls": 222632,
+    "next_blocker": "road_work:entry interval split",
+    "next_guard_allowed_bytes": 5087563191,
+    "next_guard_excess_bytes": 5297,
+    "next_guard_required_bytes": 5087568488,
+    "old_exceeded": 1,
+    "old_failed_guard_calls": 163003,
+    "physical_25700_checkpoint": false,
+    "single_run_peak_rss_bytes": 3955826688,
+    "single_run_wall_s_including_preparation_checkpoint": 45.24282890800532,
+    "source_phase": "road_work:transfer candidates"
+  },
+  "repo": "https://github.com/cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "METROFLOW_V03_KEYSET_CONTINUOUS_R1_TO_R10_C10_20261121_V1",
+  "theoretical_implementation_claims": {
+    "bit_identity_assessment": "RUST_UNIT_TESTED_AND_ORIGINAL_100K_CHECKPOINT_WIRE_TESTED",
+    "candidate_incoming_part_pack_bytes": {
+      "new": 40,
+      "old": 48
+    },
+    "compact_source_index_domain": "checked u32 route/source/offset/dest; optional dest None uses u32MAX",
+    "derived_structural_page_change_bytes": 2327104,
+    "physical_validity_claim": "same original source row arithmetic and event ordering, not distinct model equivalence",
+    "source_incoming_new_wide_guard_charge_at_R11764502_G1586": 774794848,
+    "source_incoming_prior_guard_charge_at_R11764502_G1586": 777121952,
+    "source_part_mark_page_rows": {
+      "new": 128,
+      "old": 64
+    },
+    "two_source_indices_in_candidate_event_pack_and_unpacked_bytes": {
+      "new": 48,
+      "old": 64
+    }
+  },
+  "verification": {
+    "all_nine_stage_pushes_before_final_verified_individually": true,
+    "cargo_check": "EXIT0",
+    "full_repository_ci": "DEFERRED_BY_USER",
+    "native_subagent": "NOT_RUN_UNAVAILABLE",
+    "plan_validator": "VALID_PLAN_NOT_RELEASE",
+    "python_failed": 0,
+    "rust_failed": 0,
+    "rust_ignored": 2,
+    "rust_passed": 142,
+    "selected_python_and_research_passed": 106
+  }
+}
