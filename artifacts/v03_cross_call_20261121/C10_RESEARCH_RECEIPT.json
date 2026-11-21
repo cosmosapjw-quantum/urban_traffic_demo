@@ -1,0 +1,206 @@
+{
+  "R1_C1_to_R10_C10_commit_list": [
+    "0b3e652d44cca9d6ab8b692e03f128d953cbc349",
+    "5e65f0c7dd22355d108df26451cc8d24df065006",
+    "2241a124958a9abf8a275a3eb6377c585556cb61",
+    "e88358f6f5421fd9c6e3fc3816bd688eaf6dce87",
+    "21358622b5a35fb4072a7134a242a985de72f804",
+    "d5d6161b99f2b5d7220f321e1648532c2203712d",
+    "7a9f0f040658a666f3c6a5ae9d47c39f5fca26f9",
+    "93ce4e1d7dc228bc87b8e1568849e07fa2b4199f",
+    "1c940e4c17b57dfa3376d4fa26f6bf1977f06d03",
+    "8d2c9ba2e48bbeef217d837ccc27bd16996a09eb"
+  ],
+  "auxiliary_source_fix_commit_after_R10": "a2026f52d1fd51f33bebb32d961c3a7332bf17cf",
+  "branch": "research/v03-cross-call-live-20261121",
+  "clean_source_sha256": "643ca9a8b7eb6e2a937e618c0401969cd987f25b931b0a8229dc5041eae23e79",
+  "created_utc": "2026-11-21T03:50:07+00:00",
+  "derived_mathematical_and_implemented_fix": {
+    "event_candidate_page_rows": 4096,
+    "event_compact_row_bytes": 48,
+    "first_next_blocker_packet_packing_excess_bytes": 177,
+    "genuinely_cleared_original_transfer_guard_97050_calls": true,
+    "next_transfer_guard_excess_bytes_after_aux": 5209,
+    "old_fictitious_page_count_25710_N8739669_overcharge_bytes": 139200,
+    "original_transfer_candidate_old_failed_calls": 90411,
+    "packet_interval_packing_guards_passed_after_aux": 17116,
+    "real_100k_candidate_transfer_passed_calls": 97050,
+    "source_evidence_status": "DERIVED_TDD_AND_ORIGINAL_100K_PHYSICAL_PROGRESS; NO_25710_COMPLETION",
+    "source_exact_capacity_formula": "48*4096*ceil(N/4096)",
+    "source_exact_per_cell_part_mark_rows": 128,
+    "source_mark_bytes": 16,
+    "source_part_bytes": 40,
+    "true_live_outer_descriptor_bytes_during_packet_remainder": 4702272
+  },
+  "file_sha256": {
+    "artifacts/v03_cross_call_20261121/C10_100K_CROSS_NATIVE_25710.json": "af94850192a79eb8310447ebe685fdd486d657cddc8e2098392ad80e4f06cb95",
+    "artifacts/v03_cross_call_20261121/C10_100K_ESCALATING_80S_FROM_25650.json": "1a866a6c82a571d9a271159b705ade66e895f324cc9d6cc80ad2ae0795bc9ce5",
+    "artifacts/v03_cross_call_20261121/C10_CURRENT_NATIVE_READINESS.json": "0514578bbe550b16a5401673f148f99737bdde78b3ac73cdd1ac0a40f02bccea",
+    "artifacts/v03_cross_call_20261121/C10_POSTFIX_100K_CROSS_NATIVE_25710.json": "a4f6dc2927b00de4a1154b72a0a0156b502e3dc30472e70bb1094aa44fea0c81",
+    "artifacts/v03_cross_call_20261121/C10_preparation/CAMPAIGN.json": "f01dfedeaf17d16b837f1b976ada9df458ddd8412b3e0e2d1a847b9c2ddd89c8",
+    "artifacts/v03_cross_call_20261121/C10_preparation/coastal_weekend_s41.prepare.json": "db86e023b8d53db3fac49d8b5839b0321ac8a8cd702f5c47f05fecdf06580415",
+    "artifacts/v03_cross_call_20261121/C10_preparation/river_weekday_s17.prepare.json": "c34991ab27afa5e8d3398f1b3df828cb17142b9bcb72e46f5aaf6291ae26f2f2",
+    "artifacts/v03_cross_call_20261121/C10_preparation/valley_weekday_s7.prepare.json": "9b065acc145f838ee8b43b18debab3f55154f3d37cc5d3a9f90d8577590baba2",
+    "artifacts/v03_cross_call_20261121/C6_100K_CROSS_NATIVE_25710.json": "a672a83ccd46b6eca522b95a855907576728384087890f9939f000580cb55ca9",
+    "artifacts/v03_cross_call_20261121/C8_100K_CROSS_NATIVE_25710.json": "4ec03fdfe2a30c934dafe07abe1aafcd3f34cc93482a580715d2b9a09005bcff",
+    "crates/metroflow-rust/src/v1_journey.rs": "4d19e125e72137b0116e1b6119427061580ebb013b1fc8a1166d762c1b03bc83",
+    "crates/metroflow-rust/src/v1_road.rs": "16fbee14c401b2590e13e3f5dc695c7c8035e1e43f4bd2108b9675ac50520f44",
+    "docs/research/V03_CROSS_CALL_R1_R10_C1_C10_20261121_KO.md": "a55e6165934a92fc360504050f89642e07d5384813d83744c4fd1d07059aba1d",
+    "docs/v1/PLAN.json": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "scenarios/v1/release_matrix.json": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "tests/research/test_v03_cross_c10_physics_20261121.py": "aa9e99f444da457d53ad04b909987af95382ded37c21d28e1f3083e4b01605e4",
+    "tests/research/test_v03_cross_c10_readiness_20261121.py": "3cc6bb7107be49108b70fc057fe4f29541f0bc39a9a59367562c768c6e31ea2a",
+    "tests/research/test_v03_cross_c6_25710_source_20261121.py": "e88acf8d1e40d51441b03cd2b8fed297ab77b8f4ca508552051482d1734c05d8",
+    "tests/research/test_v03_cross_c8_source_20261121.py": "ca61867f1728f21dac31012bdabaff43035c12ba056da8b6c8a2b52d502db4cd",
+    "tools/research/v03_continuous_horizons_40s_from_25650_20261121.py": "e437919bf44084cd91aea8aef226f8d3aa0b5fa6a8f60d434b25f82e08057aca",
+    "tools/research/v03_cross_call_100k_25710_20261121.py": "5c1a53cc073e3b87f370b72430b711b25fe1e9c6375bf3f0ef030c6c4bdbd4f7"
+  },
+  "final_evidence_only_commit_and_remote_readback_required": true,
+  "native_binary_path_local_only": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/native_binding/_metroflow_rust.so",
+  "native_binary_sha256": "f446e11ed9ac81453934fa362691619a1435d1e3e55dadd887b136b6f4d7168d",
+  "next_research_ID": "V03-EXACT-TRANSFER-CALL-LIVE-OWNERS-11",
+  "nonclaims": [
+    "no complete original t0-to-25710 current native integration",
+    "no valid 25710 physical checkpoint or final ledger",
+    "no 50s/80s uninterrupted full-demand original benchmark",
+    "no original 86400s day or original V03 release",
+    "no assertion that RSS equals internal structural memory allowance",
+    "no numeric budget cap relaxation or physical FIFO approximation",
+    "no universal long-term packet genealogy boundedness theorem"
+  ],
+  "original_100k_25700_to_25710": {
+    "actual_last_valid_physics_time_s": 25700,
+    "excess_structural_bytes": 5209,
+    "failed_phase": "road_work:transfer candidates",
+    "full_input_wire_roundtrip_bit_exact": true,
+    "input_checkpoint_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+    "input_mass_ledger_verified": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 1543.017065707109,
+        "completed": 92.93420961372465,
+        "pending": 1141.8265024570107,
+        "released": 1635.9512753208335,
+        "requested": 2777.777777777844
+      },
+      "vehicles": {
+        "active": 1234.1174136872016,
+        "completed": 72.54925297942708,
+        "pending": 54.4444444444548,
+        "released": 1306.6666666666288,
+        "requested": 1361.1111111110836
+      }
+    },
+    "latest_guard_calls": 97051,
+    "original_allowed_bytes": 5025214575,
+    "peak_rss_bytes": 3442057216,
+    "required_bytes": 5025219784,
+    "source_new_25710_completed": false,
+    "status": "BLOCKED_RESOURCE",
+    "wall_s_including_original_source_prep_and_full_input_io": 46.7219887129977
+  },
+  "original_100k_increasing_horizon": {
+    "campaign_peak_rss_bytes": 4524593152,
+    "campaign_wall_s_including_original_prep_and_checkpoint_io": 116.13035149699863,
+    "excess_bytes": 22657,
+    "failed_next_tick_target_s": 25700.0,
+    "first_unresolved_phase": "road_work:transfer candidates",
+    "historical_old_binary_origin_explicit": true,
+    "last_valid_25690_checkpoint_sha256": "db5b6b53f728d892ad53b9e7126d08e73b877f055e2e6e78443f1c0851b7bd10",
+    "per_completed_10s_tick_wall_s": [
+      {
+        "completed_time_s": 25660.0,
+        "wall_s": 13.428303824002796
+      },
+      {
+        "completed_time_s": 25670.0,
+        "wall_s": 15.721082748998015
+      },
+      {
+        "completed_time_s": 25680.0,
+        "wall_s": 18.8290273560051
+      },
+      {
+        "completed_time_s": 25690.0,
+        "wall_s": 21.988894234003965
+      }
+    ],
+    "requested_duration_s": 80,
+    "source_clock_last_valid_s": 25690.0,
+    "source_clock_start_s": 25650.0,
+    "successfully_completed_uninterrupted_s": 40.0,
+    "uninterrupted_50s_or_80s_claimed": false
+  },
+  "original_V03_readiness": {
+    "V03_status": "BLOCKED",
+    "case_full_calendar_legs": {
+      "coastal_weekend_s41": 2449750,
+      "river_weekday_s17": 5093765,
+      "valley_weekday_s7": 918450
+    },
+    "case_peak_rss_bytes": {
+      "coastal_weekend_s41": 1115136000,
+      "river_weekday_s17": 2173849600,
+      "valley_weekday_s7": 444862464
+    },
+    "case_prep_wall_s": {
+      "coastal_weekend_s41": 35.90273071199772,
+      "river_weekday_s17": 62.081406354001956,
+      "valley_weekday_s7": 19.169037940002454
+    },
+    "current_source_100k_full_city_calendar_preps": 3,
+    "current_source_100k_full_city_preps_required": 3,
+    "direct_prereqs_done": 3,
+    "direct_prereqs_total": 3,
+    "original_86400s_city_days_completed": 0,
+    "original_total_nodes": 21,
+    "required_original_city_days": 9,
+    "scoped_completed_nodes": 19
+  },
+  "original_authority": {
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "main_unchanged": true,
+    "original_7200s_wall_cap": 7200,
+    "original_8GiB_process_cap": 8589934592,
+    "original_FIFO_math_ieee_and_model_unchanged": true,
+    "original_tick_s": 10,
+    "plan_version": "1.1.26",
+    "population_per_city": 100000
+  },
+  "parent_commit": "4897ea43d93e00bf9f7cb9b4e26ce631f0549c45",
+  "physically_verified_file_sha256": {
+    "last_valid_uninterrupted_25690": {
+      "bytes": 2949231402,
+      "local_only": true,
+      "local_path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/artifacts/v03_cross_call_20261121/C10_100K_ESCALATING_80S_FROM_25650.final.bin",
+      "sha256": "db5b6b53f728d892ad53b9e7126d08e73b877f055e2e6e78443f1c0851b7bd10"
+    },
+    "previous_successfully_completed_25700": {
+      "bytes": 3405043386,
+      "local_only": true,
+      "local_path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_ORIGINAL_100K_10S_25700.final.bin",
+      "sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369"
+    }
+  },
+  "repo": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "METROFLOW_V03_CROSS_CALL_R1_C1_TO_R10_C10_20261121_V1",
+  "source_git_commit": "a2026f52d1fd51f33bebb32d961c3a7332bf17cf",
+  "verification": {
+    "cargo_check": "EXIT_0",
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "native_python_and_source_receipt_pass": 105,
+    "native_subagents": "NOT_RUN_NO_HOST_SPAWN",
+    "plan": "VALID_PLAN_NOT_RELEASE",
+    "python_fail": 0,
+    "rust_library_fail": 0,
+    "rust_library_ignored": 2,
+    "rust_library_pass": 156,
+    "rust_release_binary": "BUILT_CURRENT_SOURCE"
+  }
+}
