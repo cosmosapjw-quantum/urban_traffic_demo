@@ -58,3 +58,31 @@ def fifo_prefix_moments(
             )
         remaining -= admitted
     return out
+
+
+def fifo_remainder(
+    packets: tuple[CohortPacket, ...], served: Fraction
+) -> tuple[CohortPacket, ...]:
+    """Exact fractional FIFO residual for restart/semigroup validation.
+
+    This is a *research-only* moment-measure operator. Original Rust packet
+    checkpoint and IEEE addition order remain untouched.
+    """
+    _ = fifo_prefix_moments(packets, served)  # validate source and total service
+    remaining = Fraction(served)
+    result: list[CohortPacket] = []
+    for packet in packets:
+        size = sum((p.mass for p in packet.parts), Fraction(0))
+        if remaining >= size:
+            remaining -= size
+            continue
+        if remaining > 0:
+            factor = (size - remaining) / size
+            result.append(CohortPacket(tuple(
+                CohortPart(p.route, p.mass * factor, p.birth_moment * factor)
+                for p in packet.parts
+            )))
+            remaining = Fraction(0)
+        else:
+            result.append(packet)
+    return tuple(result)

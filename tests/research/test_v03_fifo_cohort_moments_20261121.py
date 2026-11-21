@@ -77,3 +77,22 @@ def test_exhaustive_small_fifo_cohort_prefix_and_merge_certificate():
                                 assert all(F(0)<=v[0]<=s for v in original.values())
                                 cases += 1
     assert cases == 4*4*3*3*3*2*5
+
+
+def test_fifo_physical_service_semigroup_and_resume_moments():
+    """S_(a+b) physical prefix equals S_a and S_b on its exact residual."""
+    from metroflow.v1.fifo_cohort_moments import fifo_remainder
+    cases=0
+    original=packets()
+    for a in [F(0),F(1,2),F(1),F(2),F(4),F(6),F(9),F(12)]:
+        remains=fifo_remainder(original,a)
+        initial=fifo_prefix_moments(original,a)
+        for b in [F(0),F(1,2),F(1),F(2),F(5),F(8),F(12)]:
+            if a+b>12:continue
+            additional=fifo_prefix_moments(remains,b)
+            direct=fifo_prefix_moments(original,a+b)
+            for r in direct:
+                assert direct[r][0] == initial[r][0]+additional.get(r,(F(0),F(0)))[0]
+                assert direct[r][1] == initial[r][1]+additional.get(r,(F(0),F(0)))[1]
+            cases+=1
+    assert cases>=20
