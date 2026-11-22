@@ -865,6 +865,33 @@ impl RoadWorkBudget {
             )
         })
     }
+
+    /// The original raw incoming Part/Mark pages have been physically
+    /// released after source-order combine_chunked_parts has returned.
+    /// The current cell owns ONE exact Vec<Part> (observed capacity),
+    /// never the two hypothetical full maximum-cell combine workspaces
+    /// reserved for a different source lifetime in the global tick budget.
+    ///
+    /// This scoped replacement applies to the ENTIRE interval splitter,
+    /// including index preflight, edge allocation and active interval
+    /// selection. The split itself separately charges every actual selected
+    /// interval row and retained candidate packet through interval_transient.
+    /// Restore global base even if a resource/physical error aborts splitting.
+    fn with_completed_source_interval<T>(
+        &mut self,source_part_capacity_bytes:usize,
+        operation:impl FnOnce(&mut Self)->PyResult<T>,
+    )->PyResult<T>{
+        if self.incoming_descriptor_live_bytes.is_none() {
+            return Err(arithmetic(
+                "interval source may not replace live precombine descriptor budget"));
+        }
+        let old_base=self.base;
+        self.base=old_base.saturating_sub(self.transfer_exclusive_cell_scratch)
+            .saturating_add(source_part_capacity_bytes);
+        let result=operation(self);
+        self.base=old_base;
+        result
+    }
     fn require(&self, extra: usize, phase: &str) -> PyResult<()> {
         self.require_with_no_active_combine(extra, phase, None)
     }
@@ -4638,7 +4665,14 @@ impl V1Road {
                 .collect();
             let target = out.cells[i].v[0] + self.groups[i][0];
             let packets = if self.intervals {
-                self.interval_packets(parts, target, &mut work)?
+                // This exact original single cell's combined Vec<Part>
+                // remains live until the interval splitter returns. The
+                // raw Part/Mark page pairs were source-dropped above.
+                let actual_source_bytes=parts.capacity()
+                    .saturating_mul(std::mem::size_of::<Part>());
+                work.with_completed_source_interval(actual_source_bytes,|active_work|
+                    self.interval_packets(parts,target,active_work)
+                )?
             } else {
                 vec![Packet {
                     target,
@@ -7867,5 +7901,65 @@ mod v03_exact_narrow_source_sweep_20261122_tests {
         let original=rows.iter().map(|p|(p.mass.to_bits(),p.birth.to_bits(),p.a.0,p.b.0)).collect::<Vec<_>>();
         assert_eq!(original[0].1,(-0.0f64).to_bits());
         assert_eq!(original[2].2,(-0.0f64).to_bits());
+    }
+}
+
+#[cfg(test)]
+mod v03_surgical_exact_interval_owner_lifetime_20261122_tests {
+    use super::*;
+
+    fn bounded_source(cap:usize)->RoadWorkBudget {
+        RoadWorkBudget {
+            limit:Some(cap),base:1000,
+            transfer_exclusive_cell_scratch:400,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,
+            diagnostic_source_live_bytes:0,
+            events:0,incoming:0,incoming_page_cells:0,
+            incoming_cell_rows:Some(Vec::new()),
+            incoming_live_pages:0,
+            incoming_descriptor_live_bytes:Some(0),
+            compact_events:false,compact_incoming:false,
+            interval_retained:0,interval_transient:0,
+            service_events:None,
+        }
+    }
+    #[test]
+    fn completed_cell_combine_replaces_both_hypothetical_max_scratch_with_one_real_source() {
+        let incoming=segmented_incoming_exact_cell_pages_charge(
+            0,0,0,false,Some(0));
+        let actual=750+20+incoming;
+        let mut work=bounded_source(actual);
+        // In other phases the OLD conservative full source budget remains.
+        assert!(work.require(20,"indexed sweep preflight").is_err());
+        let result=work.with_completed_source_interval(150,|w|{
+            assert_eq!(w.base,750);
+            w.require(20,"indexed sweep preflight")?;
+            w.require(20,"interval edges and indexed sweep")?;
+            Ok(17)
+        });
+        assert_eq!(result.unwrap(),17);
+        assert_eq!(work.base,1000);
+        assert!(work.require(20,"indexed sweep preflight").is_err());
+    }
+    #[test]
+    fn scoped_source_reverts_on_resource_failure_and_keeps_true_one_byte_gate() {
+        let incoming=segmented_incoming_exact_cell_pages_charge(
+            0,0,0,false,Some(0));
+        let actual=750+20+incoming;
+        let mut work=bounded_source(actual-1);
+        let failure=work.with_completed_source_interval(150,|w|{
+            w.require(20,"indexed sweep preflight")
+        });
+        assert!(failure.is_err());
+        assert_eq!(work.base,1000);
+    }
+    #[test]
+    fn unverified_precombine_phase_may_not_claim_source_expiry() {
+        let mut work=bounded_source(770);
+        work.incoming_descriptor_live_bytes=None;
+        assert!(work.with_completed_source_interval(150,|w|{
+            w.require(20,"indexed sweep preflight")
+        }).is_err());
+        assert_eq!(work.base,1000);
     }
 }
