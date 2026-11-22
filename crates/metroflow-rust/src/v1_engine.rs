@@ -549,6 +549,21 @@ fn restore_source_owner_phase_bytes(
         .saturating_add(current_events)
 }
 
+/// A checkpoint reload decodes ONE new road, ONE new event Vec, and then
+/// ONE new Journey, while the previous native engine owners remain live.
+/// The old journey + incoming decoded journey are accounted separately by
+/// NativeJourneyCore::read_state under the remaining shared byte pool.
+/// The generic 3*max bound belongs to working-state mutation, not the
+/// sequential checkpoint decoder. No pointer-sharing credits assumed here.
+fn journey_decode_other_live_owners_bytes(
+    old_road:usize, decoded_road:usize,
+    old_events:usize, decoded_events:usize,
+)->usize {
+    old_road.saturating_add(decoded_road)
+        .saturating_add(old_events)
+        .saturating_add(decoded_events)
+}
+
 impl NativeWholeEngine {
     fn build(
         calendar: &NativeCalendar,
@@ -1885,9 +1900,18 @@ impl NativeWholeEngine {
             let service = self.service.read_state(&mut f, event_limit)?;
             let events = service_event_storage_bytes(&service).max(old_events);
             if self.runtime_storage.is_some() {
-                let journey_limit = self.pool_after(
-                    road_bytes.saturating_add(events).saturating_mul(3),
-                    "journey decode",
+                let true_other_live=journey_decode_other_live_owners_bytes(
+                    self.road.owned_storage_bytes(),
+                    road.retained_storage_bytes(),
+                    old_events,
+                    service_event_storage_bytes(&service),
+                );
+                crate::v1_trace::add(
+                    "journey_decode.parent_real_road_event_owners",
+                    true_other_live as u64,
+                );
+                let journey_limit=self.pool_after(
+                    true_other_live,"journey decode",
                 )?;
                 self.journey.set_phase_storage_budget(journey_limit)?;
             }
@@ -2074,5 +2098,34 @@ mod surgical_save_restore_arc_source_20261122_tests {
         assert_eq!(restore_source_owner_phase_bytes(5,7,0,11,13,17,19),
                    2*5+7+2*11+13+17+19);
         assert_eq!(restore_source_owner_phase_bytes(0,0,100,0,0,0,0),0);
+    }
+}
+
+#[cfg(test)]
+mod v03_source_journey_decode_parent_owners_r7_20261122_tests {
+    use super::*;
+    #[test]
+    fn two_actual_road_event_owners_not_three_fictitious_full_decodes() {
+        let old_road=50usize;
+        let decoded_road=100usize;
+        let old_events=20usize;
+        let decoded_events=200usize;
+        let live=journey_decode_other_live_owners_bytes(
+            old_road,decoded_road,old_events,decoded_events,
+        );
+        assert_eq!(live,370);
+        let old_generic=(old_road.max(decoded_road)
+            +old_events.max(decoded_events))*3;
+        assert_eq!(old_generic,900);
+        assert!(live<old_generic);
+        let caller_pool=1000;
+        let new_journey_budget=caller_pool-live;
+        assert!(new_journey_budget>100);
+    }
+    #[test]
+    fn physical_owners_remain_charged_when_no_source_identity_alias_is_assumed() {
+        assert_eq!(journey_decode_other_live_owners_bytes(0,0,0,0),0);
+        assert_eq!(journey_decode_other_live_owners_bytes(5,5,5,5),20);
+        assert_eq!(journey_decode_other_live_owners_bytes(100,300,10,200),610);
     }
 }
