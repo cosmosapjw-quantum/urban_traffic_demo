@@ -1941,9 +1941,12 @@ fn count_sweep_row_kinds(parts: &[Part]) -> PyResult<(usize, usize)> {
 /// can appear in the current_points array. Both groups need active bitsets.
 fn exact_sweep_event_index_bytes(n: usize, nonpoint: usize, point: usize) -> usize {
     debug_assert_eq!(nonpoint.checked_add(point), Some(n));
-    let pair_size=std::mem::size_of::<(f64, usize)>();
-    nonpoint.saturating_mul(2 * pair_size)
-        .saturating_add(point.saturating_mul(pair_size+std::mem::size_of::<usize>()))
+    let index=std::mem::size_of::<u32>();
+    // All f64 endpoint words remain borrowed from the unchanged physical
+    // Part source. Store ONLY each source row's checked u32 index. Point
+    // current_points retains its original full usize downstream ABI.
+    nonpoint.saturating_mul(2 * index)
+        .saturating_add(point.saturating_mul(index+std::mem::size_of::<usize>()))
         .saturating_add(
             n.div_ceil(64).saturating_add(n.div_ceil(4096))
                 .saturating_mul(std::mem::size_of::<u64>()),
@@ -1951,10 +1954,20 @@ fn exact_sweep_event_index_bytes(n: usize, nonpoint: usize, point: usize) -> usi
         .saturating_add(256)
 }
 
-struct IntervalActiveSweep {
-    starts: Vec<(f64, usize)>,
-    ends: Vec<(f64, usize)>,
-    points: Vec<(f64, usize)>,
+/// Check the *actual original Part row index* before narrowing, rather than
+/// silently losing upper bits on a large source. All physical tag/offset and
+/// two IEEE endpoint words remain in the unchanged source Part.
+fn sweep_index_from_usize(i:usize)->PyResult<u32> {
+    u32::try_from(i).map_err(|_|
+        budget("sweep source Part row index exceeds u32")
+    )
+}
+
+struct IntervalActiveSweep<'a> {
+    parts: &'a [Part],
+    starts: Vec<u32>,
+    ends: Vec<u32>,
+    points: Vec<u32>,
     active: ActiveIndexBits,
     current_points: Vec<usize>,
     next_start: usize,
@@ -1962,37 +1975,50 @@ struct IntervalActiveSweep {
     next_point: usize,
 }
 
-impl IntervalActiveSweep {
+impl<'a> IntervalActiveSweep<'a> {
     #[cfg(test)]
-    fn new(parts: &[Part]) -> PyResult<Self> {
+    fn new(parts: &'a [Part]) -> PyResult<Self> {
         let (nonpoint, point) = count_sweep_row_kinds(parts)?;
         Self::new_counted(parts, nonpoint, point)
     }
 
-    fn new_counted(parts: &[Part], nonpoint: usize, point: usize) -> PyResult<Self> {
+    fn new_counted(parts: &'a [Part], nonpoint: usize, point: usize) -> PyResult<Self> {
         debug_assert_eq!(nonpoint.checked_add(point), Some(parts.len()));
+        // len <= u32::MAX also bounds every valid [0,len) row index.
+        // This check is BEFORE any fallible full-source sweep allocation.
+        sweep_index_from_usize(parts.len())?;
         let mut starts = checkpoint_vec(nonpoint)?;
         let mut ends = checkpoint_vec(nonpoint)?;
         let mut points = checkpoint_vec(point)?;
         for (i, p) in parts.iter().enumerate() {
             let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
+            let index = i as u32; // proven valid by whole source length above.
             if pa == pb {
-                points.push((pa, i));
+                points.push(index);
             } else if pb > pa {
-                starts.push((pa, i));
-                ends.push((pb, i));
+                starts.push(index);
+                ends.push(index);
             } else {
                 return Err(val("invalid finite native interval during sweep"));
             }
         }
-        let cmp = |a: &(f64, usize), b: &(f64, usize)| {
-            a.0.total_cmp(&b.0).then(a.1.cmp(&b.1))
-        };
-        starts.sort_unstable_by(cmp);
-        ends.sort_unstable_by(cmp);
-        points.sort_unstable_by(cmp);
+        // Read original IEEE f64 endpoints from the actual source on demand.
+        // total_cmp distinguishes +/-zero and index secondary tie order is
+        // bit-identical to the previous stored (f64, usize) descriptor.
+        starts.sort_unstable_by(|&i,&j|{
+            parts[i as usize].a.unwrap()
+                .total_cmp(&parts[j as usize].a.unwrap()).then(i.cmp(&j))
+        });
+        ends.sort_unstable_by(|&i,&j|{
+            parts[i as usize].b.unwrap()
+                .total_cmp(&parts[j as usize].b.unwrap()).then(i.cmp(&j))
+        });
+        points.sort_unstable_by(|&i,&j|{
+            parts[i as usize].a.unwrap()
+                .total_cmp(&parts[j as usize].a.unwrap()).then(i.cmp(&j))
+        });
         Ok(Self {
-            starts, ends, points,
+            parts,starts,ends,points,
             active: ActiveIndexBits::new(parts.len())?,
             // Exact bounded capacity, no Vec-doubling after the work guard.
             current_points: checkpoint_vec(point)?,
@@ -2002,21 +2028,26 @@ impl IntervalActiveSweep {
 
     fn advance(&mut self, a: f64) {
         // Ended intervals must retire before newly started intervals enter.
-        while self.next_end < self.ends.len() && self.ends[self.next_end].0 <= a {
-            self.active.remove(&self.ends[self.next_end].1);
-            self.next_end += 1;
+        while self.next_end < self.ends.len()
+            && self.parts[self.ends[self.next_end] as usize].b.unwrap()<=a {
+            let source_index=self.ends[self.next_end] as usize;
+            self.active.remove(&source_index);
+            self.next_end+=1;
         }
-        while self.next_start < self.starts.len() && self.starts[self.next_start].0 <= a {
-            self.active.insert(self.starts[self.next_start].1);
-            self.next_start += 1;
+        while self.next_start < self.starts.len()
+            && self.parts[self.starts[self.next_start] as usize].a.unwrap()<=a {
+            self.active.insert(self.starts[self.next_start] as usize);
+            self.next_start+=1;
         }
         self.current_points.clear();
-        while self.next_point < self.points.len() && self.points[self.next_point].0 <= a {
-            let (time, i) = self.points[self.next_point];
-            if time == a {
+        while self.next_point < self.points.len()
+            && self.parts[self.points[self.next_point] as usize].a.unwrap()<=a {
+            let i=self.points[self.next_point] as usize;
+            let time=self.parts[i].a.unwrap();
+            if time==a {
                 self.current_points.push(i);
             }
-            self.next_point += 1;
+            self.next_point+=1;
         }
         // Sorting the source indices is mandatory when the edge set collapses
         // two signed-zero endpoint groups into one numeric edge.
@@ -2029,7 +2060,7 @@ impl IntervalActiveSweep {
 /// order: the zero representative must use -0 when any original endpoint
 /// has the negative-zero sign bit, including a point with a=+0,b=-0.
 fn visit_unique_sweep_edges(
-    sweep: &IntervalActiveSweep,
+    sweep: &IntervalActiveSweep<'_>,
     has_negative_zero: bool,
     mut emit: impl FnMut(f64) -> PyResult<()>,
 ) -> PyResult<usize> {
@@ -2038,12 +2069,22 @@ fn visit_unique_sweep_edges(
         sweep.ends.as_slice(),
         sweep.points.as_slice(),
     ];
+    // Exact source endpoint accessor; no temporary full f64 timestamp array.
+    let clock_of=|kind:usize,index:u32|->f64 {
+        let source=&sweep.parts[index as usize];
+        match kind {
+            0 => source.a.unwrap(),
+            1 => source.b.unwrap(),
+            _ => source.a.unwrap(),
+        }
+    };
     let mut offsets = [0usize; 3];
     let mut count=0usize;
     loop {
         let mut next: Option<f64> = None;
         for j in 0..3 {
-            if let Some(&(value,_))=streams[j].get(offsets[j]) {
+            if let Some(&source_index)=streams[j].get(offsets[j]) {
+                let value=clock_of(j,source_index);
                 if next.map_or(true, |prior| value.total_cmp(&prior).is_lt()) {
                     next=Some(value);
                 }
@@ -2055,8 +2096,8 @@ fn visit_unique_sweep_edges(
         count += 1;
         for j in 0..3 {
             while streams[j].get(offsets[j])
-                .is_some_and(|(value,_)| *value == time) {
-                offsets[j] += 1;
+                .is_some_and(|&i| clock_of(j,i)==time) {
+                offsets[j]+=1;
             }
         }
     }
@@ -2065,7 +2106,7 @@ fn visit_unique_sweep_edges(
 
 fn unique_sweep_edges(
     parts: &[Part],
-    sweep: &IntervalActiveSweep,
+    sweep: &IntervalActiveSweep<'_>,
     before_allocate: impl FnOnce(usize) -> PyResult<()>,
 ) -> PyResult<Vec<f64>> {
     let neg_zero_bits=(-0.0f64).to_bits();
@@ -6004,9 +6045,13 @@ mod sweep_partition_live_bound_tests {
             assert!(sweep.ends.capacity() <= u + 16);
             assert!(sweep.points.capacity() <= q + 16);
             assert!(sweep.current_points.capacity() <= q + 16);
+            // Legacy pre-event-index envelope charged 56B/source row.
+            // The source-backed narrow event indices now own 8B/nonpoint
+            // and 12B/point; do not retain the intermediate 16B pair
+            // assumption (32B/nonpoint, 24B/point) in this regression.
             let old = n*56 + (n.div_ceil(64)+n.div_ceil(4096))*8 + 256;
             let reduced = exact_sweep_event_index_bytes(n,u,q);
-            assert_eq!(old - reduced, 24*u+32*q);
+            assert_eq!(old - reduced, 48*u+44*q);
             assert!(reduced <= old);
         }
     }
@@ -7785,5 +7830,42 @@ mod v03_paged_source_lineage_surgical_20261122_tests {
         assert!(largest_previous_header<
             DIAGNOSTIC_SOURCE_CHUNK*std::mem::size_of::<CompactDiagnosticSource>());
         assert!(observed_max_payload>0);
+    }
+}
+
+#[cfg(test)]
+mod v03_exact_narrow_source_sweep_20261122_tests {
+    use super::*;
+    #[test]
+    fn exact_event_index_preflight_reduces_real_100k_source_metadata_not_physical_parts() {
+        assert_eq!(std::mem::size_of::<u32>(),4);
+        let n=2_000_000usize;
+        let bits=n.div_ceil(64).saturating_add(n.div_ceil(4096))*8;
+        assert_eq!(exact_sweep_event_index_bytes(n,n,0),n*8+bits+256);
+        assert_eq!(exact_sweep_event_index_bytes(n,0,n),n*12+bits+256);
+        assert_eq!(sweep_index_from_usize(u32::MAX as usize).unwrap(),u32::MAX);
+        assert!(sweep_index_from_usize((u32::MAX as usize)+1).is_err());
+    }
+
+    #[test]
+    fn original_signed_zero_event_order_and_index_tie_bits_unchanged() {
+        let part=|a:f64,b:f64|Part{
+            tag:0,offset:0,mass:0.125,birth:-0.0,
+            a:PackedTime::new(Some(a)).unwrap(),
+            b:PackedTime::new(Some(b)).unwrap(),
+        };
+        let rows=vec![
+            part(-0.,2.),part(0.,1.),part(-0.,-0.),
+            part(0.,0.),part(1.,2.),part(2.,2.),
+        ];
+        let sw=IntervalActiveSweep::new(&rows).unwrap();
+        assert_eq!(sw.starts,[0u32,1u32,4u32]);
+        assert_eq!(sw.ends,[1u32,0u32,4u32]);
+        assert_eq!(sw.points,[2u32,3u32,5u32]);
+        let times=sw.starts.iter().map(|&i|rows[i as usize].a.unwrap().to_bits()).collect::<Vec<_>>();
+        assert_eq!(times,vec![(-0.0f64).to_bits(),0.0f64.to_bits(),1.0f64.to_bits()]);
+        let original=rows.iter().map(|p|(p.mass.to_bits(),p.birth.to_bits(),p.a.0,p.b.0)).collect::<Vec<_>>();
+        assert_eq!(original[0].1,(-0.0f64).to_bits());
+        assert_eq!(original[2].2,(-0.0f64).to_bits());
     }
 }
