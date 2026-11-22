@@ -1032,7 +1032,7 @@ impl RoadWorkBudget {
     fn transfer_indexed_with_live_diagnostics(
         &mut self,events:usize,destinations:impl IntoIterator<Item=usize>,
         incoming:&mut [ChunkedParts],marks:&mut [ChunkedMarks],
-        diagnostic:Option<&mut Vec<Vec<(usize,usize,u64)>>>,
+        diagnostic:Option<&mut Vec<Vec<CompactDiagnosticSource>>>,
     )->PyResult<()> {
         if self.incoming_cell_rows.is_none() {
             return self.transfer_indexed(events,destinations);
@@ -1068,16 +1068,16 @@ impl RoadWorkBudget {
                             return Err(budget("diagnostic source lineage reserve capacity invalid"));
                         }
                         old_header_overlap=old_header_overlap.max(
-                            previous.saturating_mul(std::mem::size_of::<(usize,usize,u64)>())
+                            previous.saturating_mul(std::mem::size_of::<CompactDiagnosticSource>())
                         );
                     }
                 }
                 self.diagnostic_source_live_bytes=src.iter()
                     .map(|v|v.capacity().saturating_mul(
-                        std::mem::size_of::<(usize,usize,u64)>()
+                        std::mem::size_of::<CompactDiagnosticSource>()
                     )).sum::<usize>()
                     .saturating_add(src.capacity().saturating_mul(
-                        std::mem::size_of::<Vec<(usize,usize,u64)>>()
+                        std::mem::size_of::<Vec<CompactDiagnosticSource>>()
                     ));
             }
         }
@@ -2083,14 +2083,38 @@ fn interval_merge_census(out: &[Packet]) {
         prev = Some((a, b, here));
     }
 }
+/// Only diagnostic source-lineage keys, never actual physical Part rows.
+/// On this fixed 64-bit original runtime the old (usize,usize,u64) was 24B.
+/// The bounded V03 road/cell registry and original head index must both be
+/// provably below u32::MAX (which is reserved for pending-only provenance).
+/// This injective key map preserves bitwise rate identity and BTreeSet order.
+type CompactDiagnosticSource=(u32,u32,u64);
+fn compact_diagnostic_source_id(
+    cell:usize,head:usize,rate_bits:u64,
+)->PyResult<CompactDiagnosticSource>{
+    let cell=u32::try_from(cell).map_err(|_|
+        budget("diagnostic original source cell index exceeds u32"))?;
+    if cell==u32::MAX {
+        return Err(budget("diagnostic original cell collides with pending sentinel"));
+    }
+    let head=u32::try_from(head).map_err(|_|
+        budget("diagnostic original source head index exceeds u32"))?;
+    Ok((cell,head,rate_bits))
+}
+fn pending_diagnostic_source_id(head:usize)->PyResult<CompactDiagnosticSource>{
+    let head=u32::try_from(head).map_err(|_|
+        budget("pending diagnostic source index exceeds u32"))?;
+    Ok((u32::MAX,head,0))
+}
+
 /// Diagnostic: group one cell's incoming rows by non-point interval (a,b) and
 /// count maximal runs of time-contiguous intervals whose contributing source
 /// set {(cell, head position, rate bits)} is identical. Such runs have
 /// proportional route mixtures and equal ready time, so they are exactly
 /// mergeable in real arithmetic. Counting only.
-fn exact_merge_census(parts: impl Iterator<Item=Part>, src: &[(usize, usize, u64)]) {
+fn exact_merge_census(parts: impl Iterator<Item=Part>, src: &[CompactDiagnosticSource]) {
     use std::collections::BTreeSet;
-    let mut by: BTreeMap<(u64, u64), BTreeSet<(usize, usize, u64)>> = BTreeMap::new();
+    let mut by: BTreeMap<(u64, u64), BTreeSet<CompactDiagnosticSource>> = BTreeMap::new();
     let mut points = 0u64;
     for (p, s) in parts.zip(src) {
         let (a, b) = (p.a.unwrap_or(f64::NAN), p.b.unwrap_or(f64::NAN));
@@ -2101,8 +2125,8 @@ fn exact_merge_census(parts: impl Iterator<Item=Part>, src: &[(usize, usize, u64
         by.entry((a.to_bits(), b.to_bits())).or_default().insert(*s);
     }
     let mut runs = 0u64;
-    let mut prev: Option<(f64, &BTreeSet<(usize, usize, u64)>)> = None;
-    let mut ordered: Vec<(f64, f64, &BTreeSet<(usize, usize, u64)>)> = by
+    let mut prev: Option<(f64, &BTreeSet<CompactDiagnosticSource>)> = None;
+    let mut ordered: Vec<(f64, f64, &BTreeSet<CompactDiagnosticSource>)> = by
         .iter()
         .map(|((a, b), set)| (f64::from_bits(*a), f64::from_bits(*b), set))
         .collect();
@@ -3859,7 +3883,7 @@ impl V1Road {
         let mut incoming: Vec<ChunkedParts> = (0..n)
             .map(|_| ChunkedParts::new(compact_incoming)).collect();
         // Diagnostic only: source (cell, head position, rate bits) per incoming row.
-        let mut incoming_src: Vec<Vec<(usize, usize, u64)>> = if crate::v1_trace::enabled() {
+        let mut incoming_src: Vec<Vec<CompactDiagnosticSource>> = if crate::v1_trace::enabled() {
             vec![vec![]; n]
         } else {
             Vec::new()
@@ -4202,7 +4226,9 @@ impl V1Road {
                             }
                             incoming[j].push_checked(p)?;
                             if !incoming_src.is_empty() {
-                                incoming_src[j].push((i, position[i], rate.to_bits()));
+                                incoming_src[j].push(compact_diagnostic_source_id(
+                                    i,position[i],rate.to_bits()
+                                )?);
                             }
                         } else {
                             sink += p.mass;
@@ -4348,7 +4374,8 @@ impl V1Road {
                 // Paged appends do not reallocate previous incoming Part rows.
                 if !incoming_src.is_empty() {
                     let k = incoming_src[i].len();
-                    incoming_src[i].extend((0..parts.len()).map(|_| (usize::MAX, k, 0)));
+                    let id=pending_diagnostic_source_id(k)?;
+                    incoming_src[i].extend((0..parts.len()).map(|_| id));
                 }
                 incoming[i].extend_parts(parts)?;
                 if f < 1. {
@@ -4377,7 +4404,7 @@ impl V1Road {
             // for any original physical source calculation in a later cell.
             if !incoming_src.is_empty() {
                 let bytes=incoming_src[i].capacity().saturating_mul(
-                    std::mem::size_of::<(usize,usize,u64)>()
+                    std::mem::size_of::<CompactDiagnosticSource>()
                 );
                 work.diagnostic_source_live_bytes=work.diagnostic_source_live_bytes
                     .saturating_sub(bytes);
@@ -7410,9 +7437,9 @@ mod diagnostic_lineage_after_motion_expiry_source_tests {
             .chain((0..256).map(|_|2usize));
         w.transfer_indexed_with_live_diagnostics(0,ids,&mut incoming,&mut marks,Some(&mut source)).unwrap();
         assert_eq!(w.incoming,386);
-        let n=std::mem::size_of::<(usize,usize,u64)>();
+        let n=std::mem::size_of::<CompactDiagnosticSource>();
         let physically_allocated=source.iter().map(|v|v.capacity()*n).sum::<usize>()
-            +source.capacity()*std::mem::size_of::<Vec<(usize,usize,u64)>>();
+            +source.capacity()*std::mem::size_of::<Vec<CompactDiagnosticSource>>();
         assert_eq!(w.diagnostic_source_live_bytes,physically_allocated);
         assert!(physically_allocated>=386*n);
         assert!(w.incoming_descriptor_live_bytes.is_none());
@@ -7425,7 +7452,7 @@ mod diagnostic_lineage_after_motion_expiry_source_tests {
                 };
                 incoming[j].push_checked(value).unwrap();
                 marks[j].push_checked(compact_mark(0.25,0.)).unwrap();
-                source[j].push((j,i,13u64));
+                source[j].push(compact_diagnostic_source_id(j,i,13u64).unwrap());
             }
         }
         w.transfer_indexed_with_live_diagnostics(0,[0usize],&mut incoming,&mut marks,Some(&mut source)).unwrap();
@@ -7512,5 +7539,45 @@ mod surgical_optional_keyset_gate_20261122_tests {
         assert_eq!(bits(&s),expected);
         assert!(matches!(s.cells[0].packets[0].parts,PacketParts::SharedKeys{..}));
         assert!(matches!(s.cells[0].packets[1].parts,PacketParts::SharedKeys{..}));
+    }
+}
+
+#[cfg(test)]
+mod v03_compact_source_diagnostic_r10_20261122_tests {
+    use super::*;
+
+    #[test]
+    fn nonphysical_lineage_key_is_exact_injective_16_bytes_instead_of_24() {
+        assert_eq!(std::mem::size_of::<(usize,usize,u64)>(),24);
+        assert_eq!(std::mem::size_of::<CompactDiagnosticSource>(),16);
+        let value=compact_diagnostic_source_id(1585,16_777_217,0x8000_0000_0000_0000).unwrap();
+        assert_eq!(value,(1585u32,16_777_217u32,0x8000_0000_0000_0000u64));
+        assert!(compact_diagnostic_source_id(
+            (u32::MAX as usize)+1,1,0).is_err());
+        assert!(compact_diagnostic_source_id(
+            1,(u32::MAX as usize)+1,0).is_err());
+    }
+    #[test]
+    fn pending_sentinel_and_lexicographic_source_set_order_preserved() {
+        let compact=vec![
+            compact_diagnostic_source_id(3,4,0).unwrap(),
+            compact_diagnostic_source_id(0,9,u64::MAX).unwrap(),
+            pending_diagnostic_source_id(11).unwrap(),
+            compact_diagnostic_source_id(3,4,1).unwrap(),
+        ];
+        assert_eq!(compact[2],(u32::MAX,11u32,0u64));
+        let mut order=compact.clone();
+        order.sort();
+        let mut reference=vec![
+            (3usize,4usize,0u64),
+            (0usize,9usize,u64::MAX),
+            (usize::MAX,11usize,0u64),
+            (3usize,4usize,1u64),
+        ];
+        reference.sort();
+        let expanded:Vec<_>=order.iter().map(|&(cell,head,rate)|
+            (if cell==u32::MAX {usize::MAX}else{cell as usize},head as usize,rate)
+        ).collect();
+        assert_eq!(expanded,reference);
     }
 }
