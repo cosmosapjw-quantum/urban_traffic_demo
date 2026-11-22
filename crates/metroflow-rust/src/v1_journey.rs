@@ -1640,9 +1640,9 @@ pub(crate) fn advance_owned_joint(
                 // Source-concrete post-road owner census. No candidate
                 // payload is multiplied into fictitious input snapshots.
                 // Every distinct actual road/event owner remains charged.
-                let road_live = three_concrete_owner_bytes(
-                    input_road_bytes,current_road_bytes,candidate_road_bytes
-                );
+                let (road_live,input_road_arc_credit,candidate_road_arc_credit)=
+                    road.source_joint_road_owner_charge(
+                        &road_candidate,input_road_bytes,original_input_road_shared);
                 let old_event_arc_shared=
                     Arc::ptr_eq(&call_input_events,&service.last_events);
                 let event_live = concrete_service_event_owner_bytes(
@@ -1662,6 +1662,8 @@ pub(crate) fn advance_owned_joint(
                     &[
                         ("journey_live", journey_live),
                         ("road_live", road_live),
+                        ("source_input_shared_road_arc_payload_credit",input_road_arc_credit),
+                        ("current_candidate_shared_road_arc_payload_credit",candidate_road_arc_credit),
                         ("event_live", event_live),
                         ("old_event_arc_pointer_identical",usize::from(old_event_arc_shared)),
                         ("input_event_bytes",input_event_bytes),
@@ -1699,9 +1701,11 @@ pub(crate) fn advance_owned_joint(
                 let sink_bytes = sinks.iter().fold(vec_storage_bytes(&sinks), |bytes, row| {
                     bytes.saturating_add(string_storage_bytes(&row.0))
                 });
-                let other_live = three_concrete_owner_bytes(
-                    input_road_bytes,current_road_bytes,candidate_road_bytes
-                ).saturating_add(concrete_service_event_owner_bytes(
+                let (road_live,_,_)=road.source_joint_road_owner_charge(
+                    &road_candidate,input_road_bytes,original_input_road_shared
+                );
+                let other_live = road_live
+                    .saturating_add(concrete_service_event_owner_bytes(
                     input_event_bytes,current_event_bytes,candidate_event_bytes,
                     Arc::ptr_eq(&call_input_events,&service.last_events),
                 )).saturating_add(sink_bytes);

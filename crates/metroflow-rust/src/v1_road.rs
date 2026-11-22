@@ -613,6 +613,13 @@ fn postroad_materialization_owner_bytes(
 /// Only Arc pointer identities actually common to current+candidate are
 /// credited on the second pair. Same-valued but independently allocated
 /// arrays are never counted as aliases.
+pub(crate) fn source_road_service_joint_live_owner_charge(
+    committed:&RoadState,candidate:&RoadState,supplied_retained:usize,
+    original_source_verified:Option<(f64,usize)>,
+)->(usize,usize,usize) {
+    postroad_source_verified_arc_owner_charge(
+        committed,candidate,supplied_retained,original_source_verified)
+}
 fn postroad_source_verified_arc_owner_charge(
     committed:&RoadState,candidate:&RoadState,supplied_retained:usize,
     original_source_verified:Option<(f64,usize)>,
@@ -3216,6 +3223,16 @@ impl V1Road {
     /// NativeWholeState source, which clones the immutable Arc backings.
     pub(crate) fn committed_input_source_arc_credit(&self,source:&RoadState)->usize {
         self.state.paired_shared_payload_lower_bound(source)
+    }
+    /// During the same joint road-step call, service finish and journey
+    /// finish hold the same 3 road-state owners as postroad flat EventRows.
+    /// Reuse their actual Arc pointer-backed source identity (not equality).
+    pub(crate) fn source_joint_road_owner_charge(
+        &self,candidate:&RoadState,supplied_retained:usize,
+        original_source_verified:Option<(f64,usize)>,
+    )->(usize,usize,usize) {
+        source_road_service_joint_live_owner_charge(
+            &self.state,candidate,supplied_retained,original_source_verified)
     }
     pub(crate) fn service_sink_tag_bytes(&self) -> Option<usize> {
         self.service_event_accounting.map(|a| a.max_tag_bytes)
@@ -8130,5 +8147,38 @@ mod v03_original_postroad_actual_shared_arc_source_20261122_tests {
         assert_eq!(a2,0);
         assert_eq!(b2,std::mem::size_of::<CorePart>());
         assert_eq!(charged2+b2,old);
+    }
+}
+
+#[cfg(test)]
+mod v03_service_live_source_arc_owner_20261122_tests {
+    use super::*;
+    #[test]
+    fn coupled_service_owner_requires_three_real_owners_and_two_proven_overlaps() {
+        let packet=PacketParts::pack(vec![Part{
+            tag:1,offset:0,mass:1.0,birth:0.0,
+            a:PackedTime::new(Some(1.0)).unwrap(),
+            b:PackedTime::new(Some(1.0)).unwrap(),
+        }], |_|Ok(())).unwrap();
+        let old=RoadState{
+            t:1.0,cells:vec![Cell{
+                v:[0.;8],packets:vec![Packet{target:3.0,parts:packet}],
+                latent:BTreeMap::new(),
+            }],pending:vec![vec![]],totals:[0.;7],ledger:vec![],
+        };
+        let new=old.clone();
+        let original=old.clone();
+        let overlap=old.paired_shared_payload_lower_bound(&original);
+        assert!(overlap>0);
+        let (charge,a,b)=source_road_service_joint_live_owner_charge(
+            &old,&new,original.retained_storage_bytes(),Some((original.t,overlap))
+        );
+        assert_eq!(a,b);
+        assert_eq!(a,std::mem::size_of::<CorePart>());
+        assert_eq!(charge+2*a,old.retained_storage_bytes()*3);
+        let (without_source,c,_)=source_road_service_joint_live_owner_charge(
+            &old,&new,original.retained_storage_bytes(),None);
+        assert_eq!(c,0);
+        assert_eq!(without_source,charge+a);
     }
 }
