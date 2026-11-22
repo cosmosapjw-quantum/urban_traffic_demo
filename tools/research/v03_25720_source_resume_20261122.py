@@ -403,7 +403,7 @@ def main() -> int:
         "blocked_target_time_s":failing_step,
         "completed_step_wall_s":step_results,
         "historical_original_25650_source":old_source_25650,
-        "previous_checkpoint_cross_native":historical_origin or cross_native_25700 or cross_native_25710,
+        "previous_checkpoint_cross_native":bool(historical_source_identity and historical_source_identity["native_sha256"] != native["sha256"]),
         "cross_native_original_25710_source":cross_native_25710,
         "strictly_pinned_original_25720_saved_prefix":pinned_valid_25720,
         "cross_native_original_25700_source":cross_native_25700,

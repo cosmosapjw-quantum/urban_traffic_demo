@@ -1,0 +1,94 @@
+{
+  "blocked_target_time_s": 25730.0,
+  "case": "valley_weekday_s7",
+  "completed_mass_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1595.7424970521938,
+      "completed": 106.98229971031708,
+      "pending": 1186.164092126368,
+      "released": 1702.7247967625108,
+      "requested": 2888.8888888888787
+    },
+    "vehicles": {
+      "active": 1276.2977393574754,
+      "completed": 83.70226064250168,
+      "pending": 55.55555555561364,
+      "released": 1359.999999999977,
+      "requested": 1415.5555555555907
+    }
+  },
+  "completed_step_wall_s": [],
+  "completed_time_s": 25720.0,
+  "created_utc": "2026-11-22T13:08:46+00:00",
+  "cross_native_original_25700_source": false,
+  "cross_native_original_25710_source": false,
+  "current_candidate_source_sha256": "8fea401892df8b44a574b432e3e082f7c53c3ffc92a1867675e6f9e66c71b99f",
+  "current_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "current_native_binary_sha256": "0eea7ad654a93ad4847e72c49df74d551f9ca38c9438370cf630dbf18d29e866",
+  "current_source_dirty": false,
+  "error": {
+    "class": "BudgetExceeded",
+    "message": "native road storage budget exceeded: phase=transfer header reservation, required_bytes=4867627464, budget_bytes=4867625327",
+    "phase": "ADVANCE_TO_25730"
+  },
+  "final_checkpoint_bytes": null,
+  "final_checkpoint_local_only": true,
+  "final_checkpoint_sha256": null,
+  "historical_native_source_identity": {
+    "native_sha256": "062fd78f13d9eae7d3abc6b74a118f79498d26b273ef0ce421010cede3ab2af3",
+    "source_sha256": "b764149c9607d0b092ae74efd6f580abd678638ebc88586a580b89f47038dd66",
+    "source_status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+    "source_time_s": 25720.0
+  },
+  "historical_original_25650_source": false,
+  "native_process_cap_bytes": 8589934592,
+  "original_candidate_from_time_zero_verified": false,
+  "original_full_day_acceptance": "BLOCKED_0_OF_9",
+  "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "peak_rss_bytes": 4704194560,
+  "previous_checkpoint_cross_native": false,
+  "previous_checkpoint_full_wire_roundtrip_exact": true,
+  "previous_full_checkpoint_bytes": 4677350066,
+  "previous_full_checkpoint_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+  "previous_mass_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1595.7424970521938,
+      "completed": 106.98229971031708,
+      "pending": 1186.164092126368,
+      "released": 1702.7247967625108,
+      "requested": 2888.8888888888787
+    },
+    "vehicles": {
+      "active": 1276.2977393574754,
+      "completed": 83.70226064250168,
+      "pending": 55.55555555561364,
+      "released": 1359.999999999977,
+      "requested": 1415.5555555555907
+    }
+  },
+  "requested_duration_s": 20,
+  "requested_end_s": 25740.0,
+  "schema": "V03_ORIGINAL_100K_CONTINUOUS_ESCALATING_HORIZON_V1",
+  "start_time_s": 25720.0,
+  "status": "BLOCKED_RESOURCE",
+  "strictly_pinned_original_25720_saved_prefix": true,
+  "trace_counters": {},
+  "trace_mode": "off",
+  "trace_sites": {},
+  "valid_advanced_duration_s": 0.0,
+  "wall_total_including_full_preparation_and_checkpoint_io_s": 93.82921194797382
+}

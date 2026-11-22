@@ -1,0 +1,15 @@
+{
+  "case": "valley_weekday_s7",
+  "run_label": "valley_weekday_s7.prepare",
+  "status": "WHOLE_CALENDAR_PREPARED",
+  "simulated_s": 0,
+  "wall_s": 21.810775501013268,
+  "peak_rss_bytes": 446427136,
+  "peak_tracked_records": 0,
+  "completed_tick_samples": 0,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "candidate_source_sha256": "61eb7ca8067e4a41116a0a2a3185f40e55b31572729c7746169b927b9afae9ef",
+  "git_commit": "340be5c5f2e9349d3a4a3afc71fe4d3f8133135e",
+  "native_binary_sha256": "c64238a98b5743172b505b94979f8437a27f86fd124defeb605b7f9235351e12",
+  "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4"
+}

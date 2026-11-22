@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from fractions import Fraction as F
 from collections import defaultdict
-from typing import Iterable
+from typing import Iterable, Mapping
 
 
 @dataclass(frozen=True)
@@ -20,11 +20,13 @@ class AgeCohort:
 
 @dataclass(frozen=True)
 class AgeBoundary:
+    """External arrival/final exit, or an explicitly paired internal transfer."""
     time: F
     route: int
     direction: str
     mass: F
     birth: F
+    kind: str = "external"
 
 
 @dataclass(frozen=True)
@@ -65,19 +67,33 @@ def finite_age_excess_transport(
     t0:F, T:F, initial:Iterable[AgeCohort],
     boundaries:Iterable[AgeBoundary],
     thresholds:Iterable[F],
+    *, assigned_source_mass:Mapping[int,F] | None = None,
 ) -> dict[tuple[int,F],RouteAgeExcess]:
     """Exact route age-excess identity for atomic source events.
 
-    Initial state is at t0 AFTER all events at t0. Boundaries are ordered
-    and occur only in (t0,T], including optional simultaneous transfers
-    and events at T. Between events, every resident age advances at speed1.
+    Initial state is at t0 AFTER all events at t0. Ordered boundaries
+    occur in (t0,T], including events at T. Every resident ages at speed1.
+    External boundaries denote original arrivals and final completions.
+    Explicit internal annotations must cancel at equal time/route/birth;
+    they are excluded from the arrival and completion distributions.
+    The caller supplies physically legitimate transfers and preserves the
+    original route/birth labels; this observer cannot establish unique IDs.
+
+    Without assigned_source_mass the source denominator is initial stock
+    plus external entry mass in this window. A declared nonnegative source
+    population can additionally include assigned but not-yet-entered mass,
+    which remains censored at +infinity. Unique-vehicle interpretation
+    requires each original mass to enter/complete at most once; otherwise
+    external records describe entry episodes. Adjacent windows share their
+    endpoint stock, so their source denominators must not be added directly.
+    Inputs are finite atomic cohorts/events with finite rational ages.
     """
     t0,T=F(t0),F(T)
     if T<t0:
         raise ValueError("terminal clock precedes source initial clock")
     src=tuple(initial)
-    events=tuple(boundaries)
-    us=tuple(F(u) for u in thresholds)
+    all_events=tuple(boundaries)
+    us=tuple(dict.fromkeys(F(u) for u in thresholds))
     if any(u<0 for u in us):
         raise ValueError("negative age-excess threshold")
     route_mass:dict[int,F]=defaultdict(F)
@@ -89,15 +105,31 @@ def finite_age_excess_transport(
         active[(x.route,b)]+=m
         route_mass[x.route]+=m
     last=t0
-    for event in events:
+    internal_balance:dict[tuple[F,int,F],F]=defaultdict(F)
+    for event in all_events:
         t,m,b=F(event.time),F(event.mass),F(event.birth)
         if t<=t0 or t>T or t<last or m<=0 or event.route<0 or b>t:
             raise ValueError("out of order or nonphysical source boundary")
         if event.direction not in ("in","out"):
             raise ValueError("invalid boundary source direction")
-        if event.direction=="in":
+        if event.kind not in ("external","internal"):
+            raise ValueError("invalid boundary kind")
+        if event.kind=="internal":
+            internal_balance[(t,event.route,b)]+=(m if event.direction=="in" else -m)
+        elif event.direction=="in":
             route_mass[event.route]+=m
         last=t
+    if any(internal_balance.values()):
+        raise ValueError("internal transfers must cancel at equal time/route/birth")
+    events=tuple(event for event in all_events if event.kind=="external")
+    if assigned_source_mass is not None:
+        declared={route:F(mass) for route,mass in assigned_source_mass.items()}
+        observed_routes=set(route_mass)|{event.route for event in events}
+        if (any(route<0 or mass<0 for route,mass in declared.items())
+            or not observed_routes.issubset(declared)
+            or any(declared[route]<mass for route,mass in route_mass.items())):
+            raise ValueError("declared source must include all admitted route mass")
+        route_mass=declared
     # An invalid output-only route must still be checked and rejected by
     # the active-stock conservation guard, not raise an unrelated KeyError.
     routes=set(route_mass)|{event.route for event in events}

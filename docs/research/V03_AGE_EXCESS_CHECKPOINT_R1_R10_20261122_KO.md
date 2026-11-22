@@ -32,7 +32,7 @@ Authoritative source parent \`e1b9e98a49556c2ae2deb9445cde755488ccd84b\`, isolat
 \[
 \boxed{D^O_{r,u}=L_{r,u}+D^I_{r,u}+E_{r,u}(t_0)-E_{r,u}(T)}.
 \]
-**Proof:** between jump times, a(t)=t−b and g_u is absolutely continuous with derivative 1_{a>u} almost everywhere, hence dE/dt=μ_r(t,(u,∞)). At an entry of mass m, E increases exactly m g_u(t−b); at an exit it decreases exactly this amount. Sum integral and finite jump balances over all intervals, move D^O to LHS; positive masses and finite horizon make every quantity finite. Zero-age and threshold-equality atoms contribute no ambiguous dt integral. At u=0, the theorem reduces to the finite original 1st-age stock/total physical residence identity. Integrate 2×both sides in u from0 to∞ and use \(2\int_0^\infty(w-u)_+du=w^2\) to recover the exact finite-horizon 2nd-age conservation of previous loop (provided second moments finite). This is an explicit constructive bridge from mean/variance to a full family of physical threshold functionals, not a no-go/allocator theorem.
+**Proof:** between jump times, a(t)=t−b and g_u is absolutely continuous with derivative 1_{a>u} almost everywhere, hence dE/dt=μ_r(t,(u,∞)). At an entry of mass m, E increases exactly m g_u(t−b); at an exit it decreases exactly this amount. Sum integral and finite jump balances over all intervals, move D^O to LHS. For the implemented finite atomic cohorts with finite ages, every quantity is finite. A general-measure extension additionally requires finite initial first-age moment and integrable entering age excess; finite mass and finite horizon alone do not suffice (corrected in the R10 closeout). Zero-age and threshold-equality atoms contribute no ambiguous dt integral. At u=0, the theorem reduces to the finite original 1st-age stock/total physical residence identity. Integrate 2×both sides in u from0 to∞ and use \(2\int_0^\infty(w-u)_+du=w^2\) to recover the exact finite-horizon 2nd-age conservation of previous loop (provided second moments finite). This is an explicit constructive bridge from mean/variance to a full family of physical threshold functionals, not a no-go/allocator theorem.
 
 **Output delay law reconstruction:** The finite completed-route output stop-loss \(K_r(u)=D^O_{r,u}=\sum_{\text{actual completed}}\!m(w-u)_+\) is convex, nonincreasing and piecewise linear for finite atomic cohorts. Its *right* derivative is \(-\text{mass}\{w>u\}\), left derivative is \(-\text{mass}\{w\ge u\}\). Thus an atom of completed delay w appears as a jump in the derivative, preserving equality thresholds. For a fixed original input route mass M_r and unfinished arrivals assigned delay +∞, the finite threshold CDF is \(F_{r,H}(u)=[M^O_r+K'_+(u)]/M_r\). This is a true full-source denominator; completed-only normalized CDF is different and can exhibit selection bias. Under a genuine threshold age-measure observer (or all actual completed exit birth clocks), these formulas are constructive and exactly computable. Original historical native first/second raw birth moments without microscopic b(z) do NOT determine K_r(u) and hence cannot yield city quantiles from this theorem alone.
 
@@ -78,7 +78,7 @@ is proven by integrating d/dt [(t−birth−u)_+]=1_{t−birth>u} for the actual
 
 ## R7/C7. New checkpoint-composition physics and exact negative 25,720 reload diagnosis
 
-**New constructive window-stitching corollary (DERIVED):** Under the R3 finite route-age weak transport law with event interval (t0,T] and state μ_r(t0+) after source events, for any intermediate physical checkpoint t1∈(t0,T), assign events at t1 to the completed left window (t0,t1] and subsequent events to (t1,T]. For every finite delay threshold u, integrate the same source age-excess law over each window. The outgoing left terminal E_r(t1,u) is IDENTICAL to the initial right E_r(t1,u), so both intermediate boundary terms cancel in the sum. The concatenated observable exactly equals one uninterrupted (t0,T] integration, including output delay-tail stop-loss, integrated active-age tail stock, original source mass and externally entered/preaged cohorts. This is a constructive physical checkpoint/restart consistency theorem for a genuinely nonstationary age-measure observer, not a runtime allocation fact. Importantly no physical exit at t1 is counted twice: the left interval includes its original event, the right begins after it. A route source observer may therefore process a full-day itinerary as source-verified bounded windows without changing the resulting finite-horizon physical observable, PROVIDED it serializes the complete required age measure at the checkpoint, not merely N/H/J.
+**New constructive window-stitching corollary (DERIVED):** Under the R3 finite route-age weak transport law with event interval (t0,T] and state μ_r(t0+) after source events, for any intermediate physical checkpoint t1∈(t0,T), assign events at t1 to the completed left window (t0,t1] and subsequent events to (t1,T]. For every finite delay threshold u, integrate the same source age-excess law over each window. The outgoing left terminal E_r(t1,u) is IDENTICAL to the initial right E_r(t1,u), so both intermediate boundary terms cancel in the sum. The concatenated observable exactly equals one uninterrupted (t0,T] integration, including output delay-tail stop-loss, integrated active-age tail stock and external entry terms. Source denominators require subtraction of duplicated checkpoint stock or retention of a single fixed population; they are not simply additive (corrected in the R10 closeout). This is a constructive physical checkpoint/restart consistency theorem for a genuinely nonstationary age-measure observer, not a runtime allocation fact. Importantly no physical exit at t1 is counted twice: the left interval includes its original event, the right begins after it. A route source observer may therefore process a full-day itinerary as source-verified bounded windows without changing the resulting finite-horizon physical observable, PROVIDED it serializes the complete required age measure at the checkpoint, not merely N/H/J.
 
 **Exact independent science check:** New test_v03_age_excess_window_stitch_20261122.py checks two completed unit-mass birth0 cohorts with exits at 3 and5, splitting at physical time3 or4 across thresholds u=0,1,2,3,4,5: all output K(u), terminal-to-initial boundary equality, integrated age-tail stock and output age-square moment add exactly. Additional rational mass3/2 event at the exact checkpoint boundary t1=2 tests that the crossing event is assigned only to the left closed window, and the right window's state is sourced from the already modified post-boundary stock. 2 targeted Python cases PASS. No approximation or Gaussian/steady hypothesis. This theorem supplies a physical correctness oracle for chunked future full-city runs; the current historic native byte checkpoint still omits the full microscopic age measure, so numerical age-tail continuity across real city checkpoints is NOT YET observed.
 
@@ -117,3 +117,71 @@ No normality/stationarity assumption, no microscopic delay-time distribution fit
 **R10 coding surgical source, no cap relaxation:** Original transfer_indexed_with_live_diagnostics projects a temporary Vec<usize> of source destination CELL IDs identifying new Part/Mark page headers. This temporary Vec does NOT contain physical Part, Mark, EventRow, birth moments or f64 data, and no index exceeds the immutable urban network cell registry. Convert only the projection list to Vec<u32>, with checked_page_destination_index refusing u32 overflow and the reserved max sentinel, and widen each already checked ID back to unchanged original usize before looking up/allocating its Part/Mark header. All ID insertion order and duplicate destinations remain unmodified. The *actual* temporary Vec capacity now uses 4B rather than 8B per ID, while its old/new backing overlap is still charged conservatively as 2×true source Vec::capacity×sizeof(u32). All old header backings, original Part/Mark page allocations, event buffers and runtime 8GiB RLIMIT_AS are fully charged; no magic 2,169B credit or physical/IEEE/floating route change. TDD RED missing exact index conversion E0425 and 32/64-bit projection contract then GREEN, including overflow rejection and original insertion/duplicate order. Real t25730 original runtime and checkpoint validation must pass before this specific blocker can be marked closed.
 
 **Stage release policy:** R1/C1 through R10/C10 each produce their own non-DAG research commit pushed to origin with SHA readback. If the R10 physical result reveals a next distinct blocker, do not create an indefinite review/credit loop. Preserve the valid t25720 historical snapshot and record exact new failure, then perform fresh current-source 3-city 100k full calendar preps and V03 readiness 19/21 and full day0/9. Larger requested physical horizons 20→40→80→160 seconds are attempted only after each previous requested horizon actually returns a valid full original checkpoint. Any extra experiments/hand-off are evidence closeout commits, NOT R11 or canonical acceptance.
+
+
+## R10 후속 교정과 최종 근거 정리 (2026-11-23 KST)
+
+### 독립 검토에서 실제로 바꾼 내용
+
+이 절은 R1–R10을 새로 시작하는 단계가 아니라, R10 결과의 오류 교정·실험 회수·게시 기록이다. 실제 native delegation을 사용한 읽기 전용 검토자는 `/root/age_excess_audit`와 `/root/runtime_frontier_audit`다. 전자는 이론과 Fraction 관측기를, 후자는 실제 road 저장 예산 경로를 검토했다. R1의 `native_subagent=NOT_RUN` 기록은 그 당시 기록으로 보존하며, 이번 독립 검토에는 적용하지 않는다.
+
+중복 threshold가 dictionary key 하나를 여러 번 가산하는 구현 오류를 재현했다. 질량1, birth0, t3 출구, u2를 세 번 요청하면 K=1 대신3이 나오고, 미완료 stock 예에서는 보존식 검사 자체가 실패했다. 두 행동 회귀 검사의 실패를 저장한 뒤 threshold를 첫 등장 순서의 유일한 Fraction 값으로 정규화했다. 새 검사는 완료·미완료 두 경우를 모두 통과한다.
+
+내부 이동과 최종 외부 출구의 통계적 의미도 구분했다. `AgeBoundary.kind="internal"`은 동일 (time, original route, birth)의 in/out 질량이 정확히 상쇄될 때만 받아들이고, 외부 유입·완료 분포에서는 제외한다. 기본값 `external`은 원래 source 유입과 최종 완료를 뜻한다. 물리적으로 유효한 내부 이동과 원래 route/birth 라벨은 입력 전제이며, 이 관측기는 고유 차량 identity를 역으로 추정하지 않는다. 같은 차량의 재진입을 외부 경계로 여러 번 기록한다면 결과는 entry episode 통계다.
+
+### 고정 source 모집단과 미진입 질량을 포함한 구성적 확장
+
+고정 route source 질량을 M*라 하고, 관측 시작의 활성 질량을 N0, 창 안의 외부 진입 질량을 A, 최종 완료 질량을 O라 하자. 각 source 질량이 최대 한 번 진입·완료하고 M* >= N0+A라고 가정한다. 다음 두 잔여 질량을 구분한다.
+
+- 활성 미완료 질량: N(T)=N0+A−O.
+- 할당됐지만 아직 진입하지 않은 질량: U*=M*−N0−A.
+
+그러면 전체 미완료 질량은 C=N(T)+U*=M*−O이다. 원래 birth clock을 보존하는 age-excess 균형은 외부 경계에 그대로 적용된다. 완료 지연 w의 K(u)=sum m(w−u)+에 대해, 미완료 source에 +infinity를 부여한 유한 창 관측량은
+
+```math
+F_H(u) = (O + K'_+(u)) / M*,
+P(W_H >= u+delta) <= [C + min(O, K(u)/delta)] / M*,  delta>0.
+```
+
+증명은 완료된 각 w>=u+delta에서 (w−u)+>=delta를 적분하고, 미완료 질량 C를 따로 더하면 된다. K의 단위는 vehicle·s, delta는 s, 양변 확률은 무차원이다. stationary·Gaussian closure 또는 분포 적합을 사용하지 않는다.
+
+`assigned_source_mass={route: mass}`가 위 M*를 명시한다. 누락 route·음수·이미 유입된 질량보다 작은 분모는 거절한다. 이 인수가 없으면 분모는 N0+A이며, 아직 진입하지 않은 계획 질량을 자동으로 포함하지 않는다. 전부 미진입인 route도 고정 분모를 주면 CDF0, censor 포함 tail 상계1로 정확히 표현한다. 이는 원도시의 K(u)를 새로 측정했다는 주장이 아니다. 실제 native observer에 미세 birth 측도가 아직 없다는 의무는 남는다.
+
+### checkpoint 합성과 유한성 가정의 교정
+
+R7에서 source mass까지 단순히 더할 수 있다고 쓴 부분을 교정한다. 두 창의 출력 K, 출력 질량, tail-stock 적분, 출력 age²는 가산되지만, 초기 stock을 포함한 source 분모는
+
+```math
+M_[t0,T] = M_[t0,t1] + M_[t1,T] - N(t1+).
+```
+
+고정 M*를 이미 지정했다면 그 분모를 한 번만 유지하고, 출력 분자만 누적한다. 두 CDF를 직접 더하지 않는다. 새 예제는 source 분모 2와4, 경계 stock1을 이어 원래 분모5와 CDF2/5를 복원한다. 경계 사건은 왼쪽 (t0,t1]에 한 번만 넣는다.
+
+현재 코드는 유한 개의 원자 cohort와 유한 rational age를 다룬다. 일반 finite measure로 정리를 확장할 때 유한 총질량·유한 시간만으로 충분하다고 쓴 R3 문장은 교정한다. 초기 1차 age moment 및 유입 age-excess 적분이 유한해야 무한대끼리의 뺄셈을 피한다. age n에 mass1/n²를 둔 유한 질량 측도는 1차 모멘트가 발산하는 반례다. 2차 모멘트 회복에는 추가로 유한 2차 모멘트를 요구한다.
+
+### 정확 계산과 실제 실행의 구별
+
+기존 2,880개 exact Fraction cohort 배치를 유지했다. 새로 완료 age 세 개를 1..5에서 선택하고 미진입 source0..2, threshold0..6, delta in {1/2,1,3}를 조합한 **7,875개** 경우에서 직접 세어 얻은 실제 censor 포함 tail과 위 상계를 exact Fraction으로 비교했다. 독립 검토자의 계산을 재현 가능한 저장소 검사로 옮겼으며, 두 배치의 수는 정리의 증명을 대체하지 않는다.
+
+최종 관련 Python 검사 **23 passed**는 수학·관측기 검사21개와 R6 실제 영수증 연결 검사2개다. Rust workspace library 검사는 **224 passed, 2 ignored, 0 failed**다. 기존 unused/dead-code warning은 남아 있다. 전체 저장소 CI는 사용자 정책에 따라 DEFERRED_BY_USER이며, 이를 전체 통합 완료로 확대하지 않는다.
+
+native 실행 소스 digest는 native Python binding/Rust/manifest/acceptance CLI만 포함한다. 이론 관측기 파일은 그 digest의 범위 밖이므로 별도 SHA-256으로 기록한다. 이론 코드와 resume receipt의 cross-native 표시를 고친 뒤에도 Rust/native 대상 bytes는 바뀌지 않았고, 기존 R10 전체 달력 준비 3/3과 실제 native replay 증거는 해당 범위에서 재사용한다. 이전 R9/R10 receipt의 `previous_checkpoint_cross_native=false`는 pinned25720 분기를 빠뜨린 표시 오류다. 실제 두 native SHA가 다르고 전체 wire 검증이 참인 사실을 보존하며, 옛 receipt는 덮어쓰지 않는다. runner는 이제 native SHA의 실제 차이를 표시한다.
+
+### 반복 blocker에 대한 재평가
+
+R9의 서비스 decoder 수정은 실제 t25720 체크포인트의 독립 복원·full-wire 재직렬화·질량 장부 일치를 통과해 해당 blocker를 해소했다. R10의 destination ID 압축은 실제 임시 Vec 저장을 줄였지만, 다음 물리 t25730은 완료하지 못했다. 요구량은 4,867,627,496B에서 4,867,627,464B로 **32B** 감소했고, 허용량4,867,625,327B에 대해 여전히 **2,137B** 초과했다. 작은 초과분은 guard가 처음 멈춘 지점이며, 남은 tick 전체에 필요한 여유가 2,137B라는 뜻이 아니다. 실제 OOM 또는 물리적 불가능성도 이 receipt로 증명되지 않는다.
+
+독립 코드 검토가 확인한 다음 수술 후보는 서비스의 영속 `last_events: Arc<Vec<EventRow>>`까지 compact page를 유지하는 것이다. 현재 road의 compact page가 service 경계에서 다시 64B EventRow로 평탄화된다. registry index만 줄이고 원래 네 f64와 순서를 그대로 보존하는 48B 표현이라면 20,270,113행의 payload 차이는 324,321,808B(약309.3MiB)다. **이는 설계 계산치이며 이번 구현·실측 성과가 아니다.** descriptor·공유 backing·decoder transient를 따로 계상하고, 기존 wire bytes와 f64 bits를 유지한 채 실제 t25730 tick 및 독립 reload를 통과해야 채택할 수 있다. 행수 증가 자체가 사라진다고 주장하지 않는다.
+
+추가로 한 native 호출 안의 다중 tick에서는 현재 state의 자기 비교가 원래 call-input snapshot과의 공유를 증명하는지 의무가 남는다. 이번 실제 runner는 10s씩 별도 호출했고, 이 검증을 다중 tick API 전체로 일반화하지 않는다. 다음 구현은 원래 snapshot 참조를 정확히 전달하는 검증도 포함해야 한다.
+
+최종 수용 전제는 그대로다: scoped DAG **19/21**, 최종 수용 **5/21**, V03 직접 선행 **3/3**, 현재 native의 원본 10만 명 달력 **3/3**, 원본 86,400s 완주 **0/9**. V03 BLOCKED와 RLS01 PLANNED를 유지한다. 20s 요청이 완료되지 않았으므로 40/80/160s 확장 단계는 미실행이다.
+
+
+### 현재 native에서의 물리 전진 재확인과 게시
+
+`R10_current_native_25710_requested_10s.json`에서 현재 native/source bytes로 원본 t25710을 복원한 뒤 t25720까지 **물리10초를 전부 완료**했다. 상태는 EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON, tick wall68.308445602s, 전체 준비·복원·저장 wall118.667094643s, peak RSS6,268,477,440B(약5.838GiB)다. 출력 wire는 4,677,350,066B이며 SHA-256 `447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9`로 R6 결과와 byte identity가 일치한다. 같은 wire를 현재 native로 독립 reload한 R10 20s 실험의 원장·전체 재직렬화 성공을 연결할 수 있다.
+
+native 대상 소스 SHA-256은 `8fea401892df8b44a574b432e3e082f7c53c3ffc92a1867675e6f9e66c71b99f`, native binary는 `0eea7ad654a93ad4847e72c49df74d551f9ca38c9438370cf630dbf18d29e866`다. 교정한 과학 관측기 SHA-256은 `79da42221d799ba4a0551b43bc73a22c69a4e630b3a932138d3a02ba62be8650`로 별도 기록했다.
+
+모든 10개 단계 commit은 R10 끝 `b54e45d1d73502ee52f39968d6829325859809b2`까지 원격 branch에 존재하며 ancestry를 확인했다. 추가 교정·영수증은 하나의 후속 closeout commit으로 게시한다. `R10_STAGE_LEDGER.json`과 이를 재구성하는 `tools/research/v03_age_excess_r10_ledger_20261122.py`에 단계별 전체 SHA, 실험 결과, 검증 scope, 현재 준비도와 남은 의무를 보존한다. 체크포인트 .bin과 native .so는 대용량 로컬 실험 파일로 유지한다.

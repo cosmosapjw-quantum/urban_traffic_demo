@@ -1,0 +1,17 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_____ test_duplicate_threshold_does_not_duplicate_completed_physical_mass ______
+tests/research/test_v03_age_excess_input_contract_20261122.py:14: in test_duplicate_threshold_does_not_duplicate_completed_physical_mass
+    assert x.output_loss == 1
+E   assert Fraction(3, 1) == 1
+E    +  where Fraction(3, 1) = RouteAgeExcess(output_loss=Fraction(3, 1), tail_stock_time=Fraction(3, 1), entry_loss=Fraction(0, 1), initial_loss=Fra..., 1), strict_output_tail_mass=Fraction(1, 1), weak_output_tail_mass=Fraction(1, 1), output_delay_square=Fraction(9, 1)).output_loss
+_____ test_duplicate_threshold_does_not_break_unfinished_endpoint_balance ______
+tests/research/test_v03_age_excess_input_contract_20261122.py:20: in test_duplicate_threshold_does_not_break_unfinished_endpoint_balance
+    x = finite_age_excess_transport(
+src/metroflow/v1/age_excess_transport.py:166: in finite_age_excess_transport
+    raise ArithmeticError("finite age-excess transport conservation violated")
+E   ArithmeticError: finite age-excess transport conservation violated
+=========================== short test summary info ============================
+FAILED tests/research/test_v03_age_excess_input_contract_20261122.py::test_duplicate_threshold_does_not_duplicate_completed_physical_mass
+FAILED tests/research/test_v03_age_excess_input_contract_20261122.py::test_duplicate_threshold_does_not_break_unfinished_endpoint_balance
+2 failed, 5 deselected in 0.22s

@@ -1,0 +1,436 @@
+{
+  "bounded_independent_review": {
+    "closed_science_findings": [
+      "duplicate thresholds",
+      "internal versus external flux",
+      "unentered assigned source denominator",
+      "window denominator duplication",
+      "general measure first-moment integrability"
+    ],
+    "remaining_runtime_obligations": [
+      "original t25730 under current cap",
+      "persistent compact event storage is unimplemented",
+      "original call-input sharing proof for multi-tick native calls"
+    ],
+    "runtime_agent": "/root/runtime_frontier_audit",
+    "science_agent": "/root/age_excess_audit",
+    "status": "COMPLETED_READ_ONLY_AND_INTEGRATED"
+  },
+  "branch": "research/v03-age-loss-checkpoint-20261122",
+  "canonical_readiness": {
+    "DAG_node_total": 21,
+    "RLS01": "PLANNED",
+    "V03": "BLOCKED",
+    "V03_direct_prerequisites": 3,
+    "V03_direct_prerequisites_total": 3,
+    "current_source_original_city_calendars_prepared": 3,
+    "current_source_original_city_calendars_required": 3,
+    "original_full_day_100k_runs_completed": 0,
+    "original_full_day_100k_runs_required": 9,
+    "scoped_DAG_nodes_completed": 19,
+    "scoped_percent": 90.47619047619048
+  },
+  "current_native_25710_to_25720_confirmation": {
+    "completed_clock_s": 25720.0,
+    "error": null,
+    "output_checkpoint_SHA256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+    "status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON",
+    "valid_advanced_duration_s": 10.0,
+    "wire_identical_to_R6": true
+  },
+  "final_new_real_original_100k_observation": {
+    "completed_physical_duration_s": 0.0,
+    "error": {
+      "class": "BudgetExceeded",
+      "message": "native road storage budget exceeded: phase=transfer header reservation, required_bytes=4867627464, budget_bytes=4867625327",
+      "phase": "ADVANCE_TO_25730"
+    },
+    "last_valid_clock_s": 25720.0,
+    "next_blocked_clock_s": 25730.0,
+    "output_checkpoint_SHA256": null,
+    "output_checkpoint_bytes": null,
+    "requested_physical_duration_s": 20,
+    "start_clock_s": 25720.0
+  },
+  "final_source_three_city_preparations": {
+    "coastal_weekend_s41": {
+      "legs": 2449750,
+      "peak_rss_bytes": 1115234304,
+      "physical_simulated_s": 0,
+      "receipt_SHA256": "725ae920704909eeb7d35b2cbd0c51604de7d4a9aa84d0b494070954cee38f95",
+      "resident_stock": 100000,
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 42.728277156013064
+    },
+    "river_weekday_s17": {
+      "legs": 5093765,
+      "peak_rss_bytes": 2171383808,
+      "physical_simulated_s": 0,
+      "receipt_SHA256": "b1fdca93d876d5d7120bf28caa5dafa4da93abe39f0a66a16582da271cad59b2",
+      "resident_stock": 100000,
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 64.80151128498255
+    },
+    "valley_weekday_s7": {
+      "legs": 918450,
+      "peak_rss_bytes": 445554688,
+      "physical_simulated_s": 0,
+      "receipt_SHA256": "f993e9fc3d65f9a489ce994010c9879da40cb8d6ca5ab3065ff9945c12c336c6",
+      "resident_stock": 100000,
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 29.570078035001643
+    }
+  },
+  "horizon_escalation": {
+    "larger_40_80_160_seconds": "NOT_RUN_PRECEDING_20S_BLOCKED",
+    "latest_t25730_failure_class": "LIVE_STORAGE_BUDGET_GUARD_NOT_OBSERVED_OOM",
+    "tested_requested_seconds": [
+      10,
+      20
+    ]
+  },
+  "implementation_findings": {
+    "R10_32bit_header_projection": "RUST_VERIFIED_SCOPED",
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "main_branch_merge": "NOT_REQUESTED",
+    "old_original_25720_independent_checkpoint_reload": "VERIFIED_ORIGINAL_100K",
+    "original_25720_physical_tick": "PHYSICAL_TICK_AND_SAVED_SCOPED",
+    "original_25730_physical_step": "BLOCKED_UNRESOLVED",
+    "real_source_snapshot_stage_arc_pool": "IMPLEMENTATION_VERIFIED_ORIGINAL_100K"
+  },
+  "native_binary_SHA256": "0eea7ad654a93ad4847e72c49df74d551f9ca38c9438370cf630dbf18d29e866",
+  "nonclaims": [
+    "No complete original full-day V03 100k acceptance was performed.",
+    "The current source has not independently replayed original t0 to t25720.",
+    "Calendar preparation does not simulate any physical seconds.",
+    "The new stop-loss age observer has not been instrumented on historical native traffic data.",
+    "No unverified byte credits or lowered physical time/number of residents were used."
+  ],
+  "original_plan_SHA256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+  "original_release_matrix_SHA256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "original_source_native_100k_experiments": [
+    {
+      "completed_clock_s": 25720.0,
+      "cross_native_from_actual_hashes": true,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=tick preflight, required_bytes=5170800112, budget_bytes=4833535103",
+        "phase": "ADVANCE_TO_25730"
+      },
+      "from_physical_s": 25710.0,
+      "input_full_wire_roundtrip_verified": true,
+      "native_SHA256": "062fd78f13d9eae7d3abc6b74a118f79498d26b273ef0ce421010cede3ab2af3",
+      "next_blocked_clock_s": 25730.0,
+      "output_checkpoint_SHA256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+      "output_checkpoint_bytes": 4677350066,
+      "peak_RSS_bytes": 6267215872,
+      "receipt": "R6_original_100k_25710_off_requested_20s.json",
+      "receipt_SHA256": "68d279548da0e3c1215d03b037ef52f3b6ff59ededc4e42eca31235b0f1c4a61",
+      "reported_cross_native": true,
+      "requested_duration_s": 20,
+      "source_SHA256": "b764149c9607d0b092ae74efd6f580abd678638ebc88586a580b89f47038dd66",
+      "status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+      "step_wall_s": [
+        {
+          "completed_time_s": 25720.0,
+          "wall_s": 66.12088489500456
+        }
+      ],
+      "valid_advanced_duration_s": 10.0,
+      "wall_total_including_restore_and_IO_s": 157.79444714300917
+    },
+    {
+      "completed_clock_s": null,
+      "cross_native_from_actual_hashes": false,
+      "error": {
+        "class": "ValueError",
+        "message": "native checkpoint length exceeds configuration/budget",
+        "phase": "RESTORE_PREVIOUS_COMPLETE_STATE"
+      },
+      "from_physical_s": 25720.0,
+      "input_full_wire_roundtrip_verified": null,
+      "native_SHA256": "062fd78f13d9eae7d3abc6b74a118f79498d26b273ef0ce421010cede3ab2af3",
+      "next_blocked_clock_s": null,
+      "output_checkpoint_SHA256": null,
+      "output_checkpoint_bytes": null,
+      "peak_RSS_bytes": 1980170240,
+      "receipt": "R7_25720_replay_original_100k_requested_10s.json",
+      "receipt_SHA256": "4b289ecd04203abf8574df4512e06cf9c278fe78d6625394c19692ba2a2f067f",
+      "reported_cross_native": false,
+      "requested_duration_s": 10,
+      "source_SHA256": "b764149c9607d0b092ae74efd6f580abd678638ebc88586a580b89f47038dd66",
+      "status": "ERROR",
+      "step_wall_s": [],
+      "valid_advanced_duration_s": null,
+      "wall_total_including_restore_and_IO_s": 33.026046081009554
+    },
+    {
+      "completed_clock_s": null,
+      "cross_native_from_actual_hashes": true,
+      "error": {
+        "class": "ValueError",
+        "message": "native checkpoint length exceeds configuration/budget: observed_length=20270113, allowed_length=16632586",
+        "phase": "RESTORE_PREVIOUS_COMPLETE_STATE"
+      },
+      "from_physical_s": 25720.0,
+      "input_full_wire_roundtrip_verified": null,
+      "native_SHA256": "56233ccb90edfba189caa527b9712cfce5caa3582ec4c76c1d70aa42bd2c3efd",
+      "next_blocked_clock_s": null,
+      "output_checkpoint_SHA256": null,
+      "output_checkpoint_bytes": null,
+      "peak_RSS_bytes": 1980841984,
+      "receipt": "R7_guard_values_100k_25720_requested_10s.json",
+      "receipt_SHA256": "1c2562fe2c11c37096f290855c7099fe51082c0b57cebd0d48774623ba3e4f51",
+      "reported_cross_native": false,
+      "requested_duration_s": 10,
+      "source_SHA256": "04cc98d44b7b15ac62ee0c9827069d29bcf8a805ca21001ae82e2c3f6c8e0374",
+      "status": "ERROR",
+      "step_wall_s": [],
+      "valid_advanced_duration_s": null,
+      "wall_total_including_restore_and_IO_s": 33.052405327995075
+    },
+    {
+      "completed_clock_s": null,
+      "cross_native_from_actual_hashes": true,
+      "error": {
+        "class": "ValueError",
+        "message": "native checkpoint length exceeds configuration/budget: observed_length=20270113, allowed_length=16632586",
+        "phase": "RESTORE_PREVIOUS_COMPLETE_STATE"
+      },
+      "from_physical_s": 25720.0,
+      "input_full_wire_roundtrip_verified": null,
+      "native_SHA256": "db7c7d99fcccdbf31b244649810b3add988465e3d8540554b0f678d4d7674eb7",
+      "next_blocked_clock_s": null,
+      "output_checkpoint_SHA256": null,
+      "output_checkpoint_bytes": null,
+      "peak_RSS_bytes": 1980035072,
+      "receipt": "R9_original_100k_25720_off_requested_20s.json",
+      "receipt_SHA256": "0f9f0c4718bc89c0af8be112a52c192d9915a150e170822718e5ba9b246c8cd6",
+      "reported_cross_native": false,
+      "requested_duration_s": 20,
+      "source_SHA256": "613fea5381ddb1f68750b6c91f844728e9baeecfcce2a572bd97e04203b0ce34",
+      "status": "ERROR",
+      "step_wall_s": [],
+      "valid_advanced_duration_s": null,
+      "wall_total_including_restore_and_IO_s": 33.070465976023115
+    },
+    {
+      "completed_clock_s": 25720.0,
+      "cross_native_from_actual_hashes": true,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer header reservation, required_bytes=4867627496, budget_bytes=4867625327",
+        "phase": "ADVANCE_TO_25730"
+      },
+      "from_physical_s": 25720.0,
+      "input_full_wire_roundtrip_verified": true,
+      "native_SHA256": "c64238a98b5743172b505b94979f8437a27f86fd124defeb605b7f9235351e12",
+      "next_blocked_clock_s": 25730.0,
+      "output_checkpoint_SHA256": null,
+      "output_checkpoint_bytes": null,
+      "peak_RSS_bytes": 4704219136,
+      "receipt": "R9_service_corrected_25720_requested_20s.json",
+      "receipt_SHA256": "c58b0b74faa68f1a0de5f7b8ae0d8f79318018f3840fc5d160a50199cbec2509",
+      "reported_cross_native": false,
+      "requested_duration_s": 20,
+      "source_SHA256": "61eb7ca8067e4a41116a0a2a3185f40e55b31572729c7746169b927b9afae9ef",
+      "status": "BLOCKED_RESOURCE",
+      "step_wall_s": [],
+      "valid_advanced_duration_s": 0.0,
+      "wall_total_including_restore_and_IO_s": 75.63051270600408
+    },
+    {
+      "completed_clock_s": 25720.0,
+      "cross_native_from_actual_hashes": true,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer header reservation, required_bytes=4867627464, budget_bytes=4867625327",
+        "phase": "ADVANCE_TO_25730"
+      },
+      "from_physical_s": 25720.0,
+      "input_full_wire_roundtrip_verified": true,
+      "native_SHA256": "0eea7ad654a93ad4847e72c49df74d551f9ca38c9438370cf630dbf18d29e866",
+      "next_blocked_clock_s": 25730.0,
+      "output_checkpoint_SHA256": null,
+      "output_checkpoint_bytes": null,
+      "peak_RSS_bytes": 4704194560,
+      "receipt": "R10_compact_destination_25720_requested_20s.json",
+      "receipt_SHA256": "8a91a6fca0e6843a9fbf71c895b1183bb8df301f657b71573d57921ca291de35",
+      "reported_cross_native": false,
+      "requested_duration_s": 20,
+      "source_SHA256": "8fea401892df8b44a574b432e3e082f7c53c3ffc92a1867675e6f9e66c71b99f",
+      "status": "BLOCKED_RESOURCE",
+      "step_wall_s": [],
+      "valid_advanced_duration_s": 0.0,
+      "wall_total_including_restore_and_IO_s": 93.82921194797382
+    },
+    {
+      "completed_clock_s": 25720.0,
+      "cross_native_from_actual_hashes": true,
+      "error": null,
+      "from_physical_s": 25710.0,
+      "input_full_wire_roundtrip_verified": true,
+      "native_SHA256": "0eea7ad654a93ad4847e72c49df74d551f9ca38c9438370cf630dbf18d29e866",
+      "next_blocked_clock_s": null,
+      "output_checkpoint_SHA256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+      "output_checkpoint_bytes": 4677350066,
+      "peak_RSS_bytes": 6268477440,
+      "receipt": "R10_current_native_25710_requested_10s.json",
+      "receipt_SHA256": "12f011e7770016235257a1557f1beacdc90e7f959e79c869ef66fb4b52f5ab40",
+      "reported_cross_native": true,
+      "requested_duration_s": 10,
+      "source_SHA256": "8fea401892df8b44a574b432e3e082f7c53c3ffc92a1867675e6f9e66c71b99f",
+      "status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON",
+      "step_wall_s": [
+        {
+          "completed_time_s": 25720.0,
+          "wall_s": 68.30844560201513
+        }
+      ],
+      "valid_advanced_duration_s": 10.0,
+      "wall_total_including_restore_and_IO_s": 118.66709464299493
+    }
+  ],
+  "original_valid_100k_25720": {
+    "checkpoint_SHA256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+    "checkpoint_bytes": 4677350066,
+    "mass_ledger_vehicles_persons_cargo": {
+      "cargo_kg": {
+        "active": 0.0,
+        "completed": 0.0,
+        "pending": 0.0,
+        "released": 0.0,
+        "requested": 0.0
+      },
+      "persons": {
+        "active": 1595.7424970521938,
+        "completed": 106.98229971031708,
+        "pending": 1186.164092126368,
+        "released": 1702.7247967625108,
+        "requested": 2888.8888888888787
+      },
+      "vehicles": {
+        "active": 1276.2977393574754,
+        "completed": 83.70226064250168,
+        "pending": 55.55555555561364,
+        "released": 1359.999999999977,
+        "requested": 1415.5555555555907
+      }
+    },
+    "original_full_day_accepted": false,
+    "physical_clock_s": 25720,
+    "preceding_physically_completed_s": 10,
+    "saved_checkpoint_local_only": true
+  },
+  "remote_publication_readback": {
+    "head": "b54e45d1d73502ee52f39968d6829325859809b2",
+    "ref": "refs/heads/research/v03-age-loss-checkpoint-20261122"
+  },
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "research_parent_SHA": "e1b9e98a49556c2ae2deb9445cde755488ccd84b",
+  "schema": "METROFLOW_V03_AGE_EXCESS_R1_R10_C1_C10_FINAL_20261122_V1",
+  "scientific_claims": {
+    "checkpoint_age_excess_window_stitching": "DERIVED_EXACT",
+    "exact_censored_tail_comparisons": 7875,
+    "finite_horizon_censored_tail_upper_bound": "DERIVED_EXACT",
+    "finite_horizon_route_age_excess_conservation": "DERIVED_EXACT",
+    "full_original_city_age_excess_observation": "NOT_PERFORMED",
+    "general_measure_extension_requires": "finite first-age moment and entering age-excess integral",
+    "global_originality_claim": "NOT_ASSERTED",
+    "independent_exact_fraction_cohort_cases": 2880,
+    "internal_transfer_and_unentered_source_contract": "IMPLEMENTED_EXACT_ORACLE",
+    "native_original_microscopic_birth_measure_available": false,
+    "one_sided_delay_stoploss_survival_atoms": "DERIVED_EXACT",
+    "window_source_denominator": "LEFT_PLUS_RIGHT_MINUS_SHARED_ENDPOINT_STOCK"
+  },
+  "scientific_observer_SHA256": "79da42221d799ba4a0551b43bc73a22c69a4e630b3a932138d3a02ba62be8650",
+  "scientific_observer_file": "src/metroflow/v1/age_excess_transport.py",
+  "source_clean_SHA256": "8fea401892df8b44a574b432e3e082f7c53c3ffc92a1867675e6f9e66c71b99f",
+  "source_identity_scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+  "stage_count": 10,
+  "stage_terminal_SHA": "b54e45d1d73502ee52f39968d6829325859809b2",
+  "ten_separately_pushed_stages": [
+    {
+      "commit_SHA": "159fa91c3e922e0c0efa3fd755e2e1060a936f8c",
+      "published_in_verified_remote_ancestry": true,
+      "stage": "R1/C1",
+      "subject": "research(v03): R1 C1 pin original 100k checkpoint and age-excess transport target"
+    },
+    {
+      "commit_SHA": "6676c6f7ab181933f8b447fb2a1aaf2e582f9fb5",
+      "published_in_verified_remote_ancestry": true,
+      "stage": "R2/C2",
+      "subject": "research(v03): R2 C2 audit transient queue literature and live Journey block identities"
+    },
+    {
+      "commit_SHA": "7c63d32b78f8c461600a8e16de9ecf198bf01925",
+      "published_in_verified_remote_ancestry": true,
+      "stage": "R3/C3",
+      "subject": "science(v03): R3 C3 derive finite-horizon age-excess flux and atomic tail reconstruction"
+    },
+    {
+      "commit_SHA": "8d26101f9da45bda5493ed7c869ab17f924e52f5",
+      "published_in_verified_remote_ancestry": true,
+      "stage": "R4/C4",
+      "subject": "research(v03): R4 C4 select stop-loss route observer and source block census RED tests"
+    },
+    {
+      "commit_SHA": "d109c701390b3761990bfb7efa65fd175f19b30d",
+      "published_in_verified_remote_ancestry": true,
+      "stage": "R5/C5",
+      "subject": "science(v03): R5 C5 prove age-excess stop-loss transport and exact Journey Arc phase owners"
+    },
+    {
+      "commit_SHA": "fb4b9dad65a94f1e818c2278921b6edba5936759",
+      "published_in_verified_remote_ancestry": true,
+      "stage": "R6/C6",
+      "subject": "research(v03): R6 C6 prove 2880 age cases and publish real 100k valid 25720 wire"
+    },
+    {
+      "commit_SHA": "5a3817e698dc9f1feb33747c5348ee988a56135e",
+      "published_in_verified_remote_ancestry": true,
+      "stage": "R7/C7",
+      "subject": "research(v03): R7 C7 prove checkpoint age-excess stitching and trace exact reload bound"
+    },
+    {
+      "commit_SHA": "ee9f6bbc1db541676eb076e2ce578e28ba96817a",
+      "published_in_verified_remote_ancestry": true,
+      "stage": "R8/C8",
+      "subject": "research(v03): R8 C8 source-concrete checkpoint road loader and 20m original row diagnosis"
+    },
+    {
+      "commit_SHA": "340be5c5f2e9349d3a4a3afc71fe4d3f8133135e",
+      "published_in_verified_remote_ancestry": true,
+      "stage": "R9/C9",
+      "subject": "science(v03): R9 C9 connect stop-loss moments and fix real service decode owner pool"
+    },
+    {
+      "commit_SHA": "b54e45d1d73502ee52f39968d6829325859809b2",
+      "published_in_verified_remote_ancestry": true,
+      "stage": "R10/C10",
+      "subject": "science(v03): R10 C10 source-true compact header IDs and finite-horizon stop-loss tail bound"
+    }
+  ],
+  "total_original_planned_legs": 8461965,
+  "unchanged_source_policy": {
+    "full_day_100k_required_runs": 9,
+    "full_day_physical_seconds": 86400,
+    "original_city_cases": 3,
+    "per_run_wall_cap_seconds": 7200,
+    "physical_step_seconds": 10,
+    "process_RLIMIT_AS_bytes": 8589934592,
+    "required_city_repeats": 3,
+    "residents_per_city": 100000
+  },
+  "verification": {
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "python_log_SHA256": "91b375923808d0ae2fd847f83af7378031f9797312a64391f84f33314402faac",
+    "python_receipt_binding_passed": 2,
+    "python_related_passed": 23,
+    "python_scientific_passed": 21,
+    "rust_library_failed": 0,
+    "rust_library_ignored": 2,
+    "rust_library_passed": 224,
+    "rust_log_SHA256": "8e4f11fed5364f961059529d2d672b1a05e117ff2ebbc372a7870f6e95de2883"
+  }
+}

@@ -1,0 +1,3 @@
+HORIZON_INITIAL_WIRE_LEDGER_VERIFIED 25710.0
+PHYSICAL_TICK_VALID {"completed_time_s": 25720.0, "wall_s": 68.30844560201513}
+{"blocked_target_time_s": null, "end_time_s": 25720.0, "error": null, "final_checkpoint_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9", "peak_rss_gib": 5.838, "requested_duration_s": 10, "status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON", "valid_advanced_duration_s": 10.0, "wall_s": 118.667}
