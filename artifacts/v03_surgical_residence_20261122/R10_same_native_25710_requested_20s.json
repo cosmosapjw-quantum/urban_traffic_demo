@@ -1,0 +1,70 @@
+{
+  "blocked_target_time_s": null,
+  "case": "valley_weekday_s7",
+  "completed_mass_ledger": null,
+  "completed_step_wall_s": [],
+  "completed_time_s": null,
+  "created_utc": "2026-11-22T07:11:17+00:00",
+  "cross_native_original_25700_source": false,
+  "current_candidate_source_sha256": "272e76339894bfc9215384fa963ef4e68ccdbc50ddbe4755d7bb8fab9e0fa6da",
+  "current_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "current_native_binary_sha256": "e5d36a00b77701db2eb7da0835754cd6f30c48f1aba5772263c37c6ccc7e84b6",
+  "current_source_dirty": false,
+  "error": {
+    "class": "MemoryError",
+    "message": "native journey stored/working byte budget",
+    "phase": "RESTORE_PREVIOUS_COMPLETE_STATE"
+  },
+  "final_checkpoint_bytes": null,
+  "final_checkpoint_local_only": true,
+  "final_checkpoint_sha256": null,
+  "historical_native_source_identity": null,
+  "historical_original_25650_source": false,
+  "native_process_cap_bytes": 8589934592,
+  "original_candidate_from_time_zero_verified": false,
+  "original_full_day_acceptance": "BLOCKED_0_OF_9",
+  "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "peak_rss_bytes": 2528935936,
+  "previous_checkpoint_cross_native": false,
+  "previous_checkpoint_full_wire_roundtrip_exact": null,
+  "previous_full_checkpoint_bytes": 4011233450,
+  "previous_full_checkpoint_sha256": "64b77baece5ba45fa0928d59b58d9f8f9fc2178bcd93542b05264736978733fe",
+  "previous_mass_ledger": null,
+  "requested_duration_s": 20,
+  "requested_end_s": 25730.0,
+  "schema": "V03_ORIGINAL_100K_CONTINUOUS_ESCALATING_HORIZON_V1",
+  "start_time_s": 25710.0,
+  "status": "ERROR",
+  "trace_counters": {},
+  "trace_mode": "record",
+  "trace_sites": {
+    "journey_store:stored/working": {
+      "calls": 2292611,
+      "exceeded": 1,
+      "limit_at_max": 226233207,
+      "live_at_max": null,
+      "max_ratio": 1.0000189936749648,
+      "max_required": 226237504,
+      "terms_at_max": {
+        "dynamic": 75390656,
+        "retained": 0,
+        "scratch": 0
+      }
+    },
+    "road_decode:checkpoint decode preflight": {
+      "calls": 1480511,
+      "exceeded": 0,
+      "limit_at_max": 5789366871,
+      "live_at_max": null,
+      "max_ratio": 0.6541174294842853,
+      "max_required": 3786925776,
+      "terms_at_max": {
+        "decoded": 1037259248,
+        "retained_input": 723568,
+        "validation": 675148032
+      }
+    }
+  },
+  "valid_advanced_duration_s": null,
+  "wall_total_including_full_preparation_and_checkpoint_io_s": 37.37340189900715
+}

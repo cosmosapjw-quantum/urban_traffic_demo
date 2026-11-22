@@ -1,0 +1,351 @@
+{
+  "actual_original_100k_experiments": [
+    {
+      "actually_completed_physical_s": 0.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native service event sink storage budget exceeded: phase=service finish, required_bytes=6899566376, budget_bytes=5789366871",
+        "phase": "ADVANCE_TO_25710"
+      },
+      "full_checkpoint_SHA256": null,
+      "full_checkpoint_bytes": null,
+      "last_completed_time_s": 25700.0,
+      "name": "R6_original_100k_25700_10s.json",
+      "native_sha256": "7740665e1d3ea3245d2b757ca6d3e270a5c3ad956b361f7f29a6c90c75e35c26",
+      "next_blocked_time_s": 25710.0,
+      "peak_rss_bytes": 5784674304,
+      "receipt_sha256": "50d02c94ec41c3eca4c57cd486f2ba8abe552e169be37a1e982421c2f9387956",
+      "requested_physical_s": 10,
+      "restored_original_wire": true,
+      "source_sha256": "7ac91dd63ed774802f65a5e2e224ad59b6d71130411adeaef7cc0d0668a21f70",
+      "start_time_s": 25700.0,
+      "status": "BLOCKED_RESOURCE",
+      "step_wall_s": [],
+      "total_wall_s": 104.66418496400001
+    },
+    {
+      "actually_completed_physical_s": 0.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native service event sink storage budget exceeded: phase=service finish, required_bytes=6021458856, budget_bytes=5789366871",
+        "phase": "ADVANCE_TO_25710"
+      },
+      "full_checkpoint_SHA256": null,
+      "full_checkpoint_bytes": null,
+      "last_completed_time_s": 25700.0,
+      "name": "R8_original_100k_25700_10s.json",
+      "native_sha256": "d56599b92ee19f1826182edd1a1c1cdc5819e550b840de25cf6f2f64dc43427e",
+      "next_blocked_time_s": 25710.0,
+      "peak_rss_bytes": 5782151168,
+      "receipt_sha256": "e24dd92a951d6a364e6961f8acbfcb776a23aafe7d2aca3a725c99d780b8900a",
+      "requested_physical_s": 10,
+      "restored_original_wire": true,
+      "source_sha256": "20d3bb331b4ddcc63829eafa999cbfa16b35f7b3fd20c6c3c7f266233b851718",
+      "start_time_s": 25700.0,
+      "status": "BLOCKED_RESOURCE",
+      "step_wall_s": [],
+      "total_wall_s": 95.65970532401116
+    },
+    {
+      "actually_completed_physical_s": 0.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native whole checkpointability storage budget exceeded: required_bytes=6565522920, budget_bytes=5789366871",
+        "phase": "ADVANCE_TO_25710"
+      },
+      "full_checkpoint_SHA256": null,
+      "full_checkpoint_bytes": null,
+      "last_completed_time_s": 25700.0,
+      "name": "R9_original_100k_25700_10s.json",
+      "native_sha256": "514c305b19f0061b6addb864343ec24060fc229705276c3d8bbaadab4e251db6",
+      "next_blocked_time_s": 25710.0,
+      "peak_rss_bytes": 5786198016,
+      "receipt_sha256": "5cc15a754776173b8a70d7d7e606f16b7d13f69c316a61df8faa4a9c1328e044",
+      "requested_physical_s": 10,
+      "restored_original_wire": true,
+      "source_sha256": "f638de99689e781fae5337581233d71d406b669b6f2fd6f2a9e4c5b7add1a4aa",
+      "start_time_s": 25700.0,
+      "status": "BLOCKED_RESOURCE",
+      "step_wall_s": [],
+      "total_wall_s": 94.35047316100099
+    },
+    {
+      "actually_completed_physical_s": 0.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native capture/validation storage budget exceeded: required_bytes=7006321029, budget_bytes=6442450944",
+        "phase": "ADVANCE_TO_25710"
+      },
+      "full_checkpoint_SHA256": null,
+      "full_checkpoint_bytes": null,
+      "last_completed_time_s": 25700.0,
+      "name": "R10_original_100k_25700_10s.json",
+      "native_sha256": "1827b02af930c5bfbf30e262951b306e3a785737038e7ffb253f8a424644349b",
+      "next_blocked_time_s": 25710.0,
+      "peak_rss_bytes": 5788667904,
+      "receipt_sha256": "0c067345329467e76c730329359d2db08d1f635f6d665d695515ac398b7bce01",
+      "requested_physical_s": 10,
+      "restored_original_wire": true,
+      "source_sha256": "50d49676a3bd72c79320d5714a1c72f5c2f10fd00790fe0d7593b3e881d3fd25",
+      "start_time_s": 25700.0,
+      "status": "BLOCKED_RESOURCE",
+      "step_wall_s": [],
+      "total_wall_s": 92.54202964200522
+    },
+    {
+      "actually_completed_physical_s": 10.0,
+      "error": {
+        "class": "MemoryError",
+        "message": "native capture/validation storage budget exceeded: required_bytes=7488917049, budget_bytes=6442450944",
+        "phase": "SAVE_LAST_VALID_CURRENT_NATIVE_CHECKPOINT"
+      },
+      "full_checkpoint_SHA256": null,
+      "full_checkpoint_bytes": null,
+      "last_completed_time_s": 25710.0,
+      "name": "R10_postcapture_original_100k_10s.json",
+      "native_sha256": "5c6271d1789bc2ea9559cb71bdcb977fa53888f074c1c83fe3fb7cd6f00d4c20",
+      "next_blocked_time_s": null,
+      "peak_rss_bytes": 5600407552,
+      "receipt_sha256": "0d7e3e3f112bb44f094acdd4f3bb3b19af561caf171626f3bf9edbde321370c5",
+      "requested_physical_s": 10,
+      "restored_original_wire": true,
+      "source_sha256": "fefa776d0cc0c1abb34f703bf58ceb115d6218d6c24d4f254d32955bf4028a6e",
+      "start_time_s": 25700.0,
+      "status": "ERROR",
+      "step_wall_s": [
+        {
+          "completed_time_s": 25710.0,
+          "wall_s": 58.12454641101067
+        }
+      ],
+      "total_wall_s": 126.73715758198523
+    },
+    {
+      "actually_completed_physical_s": 10.0,
+      "error": null,
+      "full_checkpoint_SHA256": "64b77baece5ba45fa0928d59b58d9f8f9fc2178bcd93542b05264736978733fe",
+      "full_checkpoint_bytes": 4011233450,
+      "last_completed_time_s": 25710.0,
+      "name": "R10_postrestore_original_100k_10s.json",
+      "native_sha256": "e5d36a00b77701db2eb7da0835754cd6f30c48f1aba5772263c37c6ccc7e84b6",
+      "next_blocked_time_s": null,
+      "peak_rss_bytes": 5903183872,
+      "receipt_sha256": "4dcd0b17821ea99f48c87b8967b36e50c4d1cbec1eab6bdf64421d8730b58bfc",
+      "requested_physical_s": 10,
+      "restored_original_wire": true,
+      "source_sha256": "272e76339894bfc9215384fa963ef4e68ccdbc50ddbe4755d7bb8fab9e0fa6da",
+      "start_time_s": 25700.0,
+      "status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON",
+      "step_wall_s": [
+        {
+          "completed_time_s": 25710.0,
+          "wall_s": 56.35965821100399
+        }
+      ],
+      "total_wall_s": 102.99175512898364
+    },
+    {
+      "actually_completed_physical_s": null,
+      "error": {
+        "class": "MemoryError",
+        "message": "native journey stored/working byte budget",
+        "phase": "RESTORE_PREVIOUS_COMPLETE_STATE"
+      },
+      "full_checkpoint_SHA256": null,
+      "full_checkpoint_bytes": null,
+      "last_completed_time_s": null,
+      "name": "R10_same_native_25710_requested_20s.json",
+      "native_sha256": "e5d36a00b77701db2eb7da0835754cd6f30c48f1aba5772263c37c6ccc7e84b6",
+      "next_blocked_time_s": null,
+      "peak_rss_bytes": 2528935936,
+      "receipt_sha256": "1be6bca74b09797008292893f830ec65b0ae15d0413ae806bd650567a0e18a67",
+      "requested_physical_s": 20,
+      "restored_original_wire": null,
+      "source_sha256": "272e76339894bfc9215384fa963ef4e68ccdbc50ddbe4755d7bb8fab9e0fa6da",
+      "start_time_s": 25710.0,
+      "status": "ERROR",
+      "step_wall_s": [],
+      "total_wall_s": 37.37340189900715
+    },
+    {
+      "actually_completed_physical_s": 10.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4921285288, budget_bytes=4921274823",
+        "phase": "ADVANCE_TO_25720"
+      },
+      "full_checkpoint_SHA256": "64b77baece5ba45fa0928d59b58d9f8f9fc2178bcd93542b05264736978733fe",
+      "full_checkpoint_bytes": 4011233450,
+      "last_completed_time_s": 25710.0,
+      "name": "R10_same_process_25700_requested_20s.json",
+      "native_sha256": "e5d36a00b77701db2eb7da0835754cd6f30c48f1aba5772263c37c6ccc7e84b6",
+      "next_blocked_time_s": 25720.0,
+      "peak_rss_bytes": 5892161536,
+      "receipt_sha256": "2453de6d20465c0e8374e3a865fb2b527fc3675e3edb55931e0160eee185ab57",
+      "requested_physical_s": 20,
+      "restored_original_wire": true,
+      "source_sha256": "272e76339894bfc9215384fa963ef4e68ccdbc50ddbe4755d7bb8fab9e0fa6da",
+      "start_time_s": 25700.0,
+      "status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+      "step_wall_s": [
+        {
+          "completed_time_s": 25710.0,
+          "wall_s": 57.454039195989026
+        }
+      ],
+      "total_wall_s": 132.33927504101302
+    }
+  ],
+  "canonical_readiness": {
+    "DAG_scoped_percent": 90.47619047619048,
+    "DAG_total": 21,
+    "RLS01": "PLANNED",
+    "V03": "BLOCKED",
+    "V03_dependencies_completed": 3,
+    "V03_dependencies_total": 3,
+    "fresh_same_source_city_calendars_prepared": 3,
+    "fresh_same_source_city_calendars_required": 3,
+    "full_24h_100k_runs_completed": 0,
+    "full_24h_100k_runs_required": 9,
+    "scoped_DAG_completed": 19
+  },
+  "current_native_sha256": "e5d36a00b77701db2eb7da0835754cd6f30c48f1aba5772263c37c6ccc7e84b6",
+  "current_source_sha256": "272e76339894bfc9215384fa963ef4e68ccdbc50ddbe4755d7bb8fab9e0fa6da",
+  "immutable_policy": {
+    "case_count": 3,
+    "full_day_seconds": 86400,
+    "maximum_wall_seconds": 7200,
+    "native_physical_step_seconds": 10,
+    "process_rlimit_as_bytes": 8589934592,
+    "repeats_per_case": 3,
+    "residents_per_case": 100000
+  },
+  "implementation": {
+    "checkpoint_arc_identity": "IMPLEMENTATION_VERIFIED_SCOPED",
+    "full_repo_CI": "DEFERRED_BY_USER",
+    "optional_nonphysics_keyset_intern": "SOURCE_VERIFIED_SCOPED",
+    "outer_capture_source_owner": "IMPLEMENTATION_VERIFIED_SCOPED",
+    "source_snapshot_restore_owner": "IMPLEMENTATION_VERIFIED_SCOPED",
+    "three_real_source_owner_service_finish": "IMPLEMENTATION_VERIFIED_SCOPED"
+  },
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "number_of_stages": 10,
+  "plan_sha256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+  "remaining_true_gates": [
+    "Uninterrupted original 100k Valley 24h and full 3-city x 3 repeat acceptance NOT RUN",
+    "Same-native reload and additional simulation past 25710 has not been established",
+    "No restored source simulation from time zero for current candidate",
+    "No global full repository CI or main merge"
+  ],
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "research_branch": "research/v03-surgical-closure-20261122",
+  "schema": "METROFLOW_V03_SURGICAL_10_STAGE_RESEARCH_20261122_V1",
+  "science": {
+    "finite_route_cohort_exact_rational_tests": 360,
+    "full_original_city_theory_validation": "NOT_PERFORMED",
+    "global_first_literature_claim": "NOT_CLAIMED",
+    "time_origin_covariance": "DERIVED_AND_FINITE_CHECKED",
+    "transient_route_age_stock_identity": "DERIVED_EXACT"
+  },
+  "source_pinned_city_preparations": {
+    "coastal_weekend_s41": {
+      "legs": 2449750,
+      "prep_peak_rss_bytes": 1114546176,
+      "prep_wall_s": 38.46555405302206,
+      "receipt_sha256": "500d376ad3dce4299ce56a2de8c29ca00113115d0db345cad6039978e646633d",
+      "residents": 100000,
+      "status": "WHOLE_CALENDAR_PREPARED"
+    },
+    "river_weekday_s17": {
+      "legs": 5093765,
+      "prep_peak_rss_bytes": 2172157952,
+      "prep_wall_s": 65.19750814102008,
+      "receipt_sha256": "15b4bc1c3490999a6c8f9a86fcb8b5fe2155606232d21960ea02d64ba974154c",
+      "residents": 100000,
+      "status": "WHOLE_CALENDAR_PREPARED"
+    },
+    "valley_weekday_s7": {
+      "legs": 918450,
+      "prep_peak_rss_bytes": 446259200,
+      "prep_wall_s": 23.16707595801563,
+      "receipt_sha256": "44bb9f51d783d12756528ccf1fd947aab9ce6d0f9037249b6c674613a6f2ae1d",
+      "residents": 100000,
+      "status": "WHOLE_CALENDAR_PREPARED"
+    }
+  },
+  "source_stage_parent": "472623f011a3b2e8aca21ed2fb2fa1cbc56d45d4",
+  "stage_r10_terminal": "5348d81650961dc602b257624e373c4a17f863aa",
+  "ten_separate_stage_commits_remote_verified": [
+    {
+      "published_remote_SHA_readback": true,
+      "sha": "bd8ab24808615519772812376522c238970a089d",
+      "stage": "R1/C1",
+      "subject": "research(v03): R1 C1 lock original V03 surgical closure and transient balance contract"
+    },
+    {
+      "published_remote_SHA_readback": true,
+      "sha": "8fac28eab683d00f0c6431ddb15ef3470ebc0222",
+      "stage": "R2/C2",
+      "subject": "research(v03): R2 C2 compare transient FIFO literature and keyset lineage"
+    },
+    {
+      "published_remote_SHA_readback": true,
+      "sha": "bf04402d36421fbb84bedd8324d1d6326759ec8b",
+      "stage": "R3/C3",
+      "subject": "science(v03): R3 C3 derive route age-stock boundary identity and lossless surgery contract"
+    },
+    {
+      "published_remote_SHA_readback": true,
+      "sha": "9e6395262de33c5435a7b5167157ff5a35d7f262",
+      "stage": "R4/C4",
+      "subject": "science(v03): R4 C4 select finite-horizon mass-age oracle and surgical keyset TDD"
+    },
+    {
+      "published_remote_SHA_readback": true,
+      "sha": "0278d1a1413b1fe611278e7bdec0f271c2ae36af",
+      "stage": "R5/C5",
+      "subject": "science(v03): R5 C5 prove transient route-age identity and separate optional postroad interning"
+    },
+    {
+      "published_remote_SHA_readback": true,
+      "sha": "7fad2360c2b2fe35e86b7127a452e8604fa5d31f",
+      "stage": "R6/C6",
+      "subject": "research(v03): R6 C6 verify 360 age cohorts and preserve 100k service-finish blocker"
+    },
+    {
+      "published_remote_SHA_readback": true,
+      "sha": "9997e324381b2bfd0b639c178f79e72697610b23",
+      "stage": "R7/C7",
+      "subject": "research(v03): R7 C7 prove clock-age covariance and fix actual 3-owner service bound"
+    },
+    {
+      "published_remote_SHA_readback": true,
+      "sha": "3b3bf53718b9828fd6bd77a5fe091154077fa70f",
+      "stage": "R8/C8",
+      "subject": "research(v03): R8 C8 correct real shared service Arc and preserve second 100k block"
+    },
+    {
+      "published_remote_SHA_readback": true,
+      "sha": "82127c2a153b8106045aec98b84541fd88dbd35d",
+      "stage": "R9/C9",
+      "subject": "research(v03): R9 C9 source-verify checkpoint Arc identity and preserve third original block"
+    },
+    {
+      "published_remote_SHA_readback": true,
+      "sha": "5348d81650961dc602b257624e373c4a17f863aa",
+      "stage": "R10/C10",
+      "subject": "research(v03): R10 C10 surgically reconstruct post-advance capture owner lifetime"
+    }
+  ],
+  "total_original_planned_legs": 8461965,
+  "valid_source_original_25710": {
+    "checkpoint_bytes": 4011233450,
+    "checkpoint_saved_locally_only": true,
+    "checkpoint_sha256": "64b77baece5ba45fa0928d59b58d9f8f9fc2178bcd93542b05264736978733fe",
+    "native_original_clock_s": 25710,
+    "original_mass_ledger_verified": true,
+    "physically_completed_seconds": 10,
+    "status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON",
+    "whole_24_hour_day_accepted": false
+  }
+}
