@@ -370,6 +370,33 @@ fn checkpointability_phase_lifetime_bytes(t:CheckpointabilityTerms)->usize {
                 .max(STORAGE_SCRATCH_RESERVE)
         )
 }
+/// The original joint commit candidate and its possible future checkpoint
+/// decoder are two NONOVERLAPPING lifetimes. The original input and current
+/// committed source packets are simultaneous, share ONLY pointer-verified
+/// immutable Arc payloads, and remain charged in both phases. Current/new
+/// candidate Arc overlap exists ONLY in the candidate phase: a future
+/// decoded checkpoint is a distinct allocation, not eligible for that credit.
+/// Keep every other original Journey, service EventRow, scratch and pool term.
+fn checkpointability_source_road_arc_lifetimes(
+    t:CheckpointabilityTerms,source_credit:usize,candidate_credit:usize,
+)->usize {
+    let old_road=t.input_road
+        .saturating_add(t.current_road)
+        .saturating_add(t.candidate_road.max(t.decoded_road));
+    let src=source_credit.min(t.input_road).min(t.current_road);
+    let cand=candidate_credit.min(t.current_road).min(t.candidate_road);
+    let physical_candidate=t.input_road
+        .saturating_add(t.current_road)
+        .saturating_add(t.candidate_road)
+        .saturating_sub(src).saturating_sub(cand);
+    let independent_decode=t.input_road
+        .saturating_add(t.current_road)
+        .saturating_add(t.decoded_road)
+        .saturating_sub(src);
+    checkpointability_phase_lifetime_bytes(t)
+        .saturating_sub(old_road)
+        .saturating_add(physical_candidate.max(independent_decode))
+}
 
 fn phase_storage_allowance(total: usize, other_live: usize, phase: &str) -> PyResult<usize> {
     if crate::v1_trace::guard("phase_allowance", phase, other_live, total, &[]) {
@@ -1776,7 +1803,13 @@ pub(crate) fn advance_owned_joint(
                     call_binding_reserve,
                     road_decode_scratch,
                 };
-                let required=checkpointability_phase_lifetime_bytes(lifetime);
+                let (_,source_arc_credit,candidate_arc_credit)=
+                    road.source_joint_road_owner_charge(
+                        &road_candidate,input_road_bytes,original_input_road_shared
+                    );
+                let required=checkpointability_source_road_arc_lifetimes(
+                    lifetime,source_arc_credit,candidate_arc_credit
+                );
                 let observed = crate::v1_trace::guard(
                     "journey_commit",
                     "checkpointability",
@@ -1786,6 +1819,8 @@ pub(crate) fn advance_owned_joint(
                         ("input_road", input_road_bytes),
                         ("current_road", current_road_bytes),
                         ("candidate_road", candidate_road_bytes),
+                        ("source_input_verified_shared_road_arcs",source_arc_credit),
+                        ("committed_candidate_verified_shared_road_arcs",candidate_arc_credit),
                         ("decoded_road", decoded_road),
                         ("journey_retained_input", journey.retained_input_bytes),
                         ("old_journey", old_journey_bytes),
@@ -2571,5 +2606,40 @@ mod v03_source_decoder_two_live_owners_r5_20261122_tests {
         assert!(check_journey_decode_source_limit(Some(exact-1),old,new).is_err());
         assert!(check_journey_decode_source_limit(Some(exact-1),0,new).is_ok());
         assert!(check_journey_decode_source_limit(None,old,new).is_ok());
+    }
+}
+
+#[cfg(test)]
+mod v03_joint_checkpointability_exact_arc_lifetimes_20261122_tests {
+    use super::*;
+    fn base()->CheckpointabilityTerms {
+        CheckpointabilityTerms {
+            input_road:100,current_road:100,candidate_road:150,decoded_road:160,
+            journey_input:20,journey_old:20,journey_new:30,journey_decoded:50,
+            event_input:40,event_current:0,event_candidate:60,
+            validation_scratch:70,call_binding_reserve:0,road_decode_scratch:80,
+        }
+    }
+    #[test]
+    fn both_independent_candidate_and_future_decoder_are_never_same_live_owner() {
+        let t=base();
+        let ordinary=checkpointability_phase_lifetime_bytes(t);
+        let exact=checkpointability_source_road_arc_lifetimes(t,40,20);
+        assert_eq!(ordinary-exact,40);
+        assert_eq!(exact,ordinary-(t.input_road+t.current_road+
+            t.candidate_road.max(t.decoded_road))+320);
+        assert_eq!(checkpointability_source_road_arc_lifetimes(t,0,0),ordinary);
+    }
+    #[test]
+    fn current_candidate_overlap_is_not_credited_to_independent_future_decoder() {
+        let mut t=base();t.candidate_road=200;
+        let old=checkpointability_phase_lifetime_bytes(t);
+        let corrected=checkpointability_source_road_arc_lifetimes(t,40,80);
+        let real_future_road=t.input_road+t.current_road+t.decoded_road-40;
+        let real_candidate_road=t.input_road+t.current_road+t.candidate_road-40-80;
+        assert_eq!(real_future_road,320);
+        assert_eq!(real_candidate_road,280);
+        assert_eq!(old-corrected,80);
+        assert!(checkpointability_source_road_arc_lifetimes(t,0,0)>=corrected);
     }
 }
