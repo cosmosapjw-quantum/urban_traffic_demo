@@ -892,6 +892,25 @@ impl RoadWorkBudget {
         self.base=old_base;
         result
     }
+
+    /// Source-final cell packet *slot* reservation happens AFTER the entire
+    /// interval splitter returned. Its one source Vec<Part> was consumed,
+    /// its active selected-row workspaces have ended, and the earlier two
+    /// max-cell combine buffers were released even before the splitter.
+    /// Every actual retained interval packet is still charged by
+    /// interval_retained; the current old/new Vec<Packet> growth is passed
+    /// in extra. Keep global tick/base fully unchanged outside this phase.
+    fn require_completed_interval_cell_slot(&mut self, slot_overlap:usize)->PyResult<()>{
+        if self.incoming_descriptor_live_bytes.is_none()
+            || self.interval_transient!=0 {
+            return Err(arithmetic("cell slot source interval lifetime not ended"));
+        }
+        let previous=self.base;
+        self.base=previous.saturating_sub(self.transfer_exclusive_cell_scratch);
+        let checked=self.require(slot_overlap,"cell packet reservation");
+        self.base=previous;
+        checked
+    }
     fn require(&self, extra: usize, phase: &str) -> PyResult<()> {
         self.require_with_no_active_combine(extra, phase, None)
     }
@@ -4690,14 +4709,16 @@ impl V1Road {
             } else {
                 0
             };
-            work.require(
-                packets
-                    .capacity()
-                    .saturating_add(old_capacity)
-                    .saturating_add(grown)
-                    .saturating_mul(slot),
-                "cell packet reservation",
-            )?;
+            let physical_slot_overlap=packets
+                .capacity()
+                .saturating_add(old_capacity)
+                .saturating_add(grown)
+                .saturating_mul(slot);
+            if self.intervals {
+                work.require_completed_interval_cell_slot(physical_slot_overlap)?;
+            } else {
+                work.require(physical_slot_overlap,"cell packet reservation")?;
+            }
             out.cells[i]
                 .packets
                 .try_reserve(packets.len())
@@ -7960,6 +7981,52 @@ mod v03_surgical_exact_interval_owner_lifetime_20261122_tests {
         assert!(work.with_completed_source_interval(150,|w|{
             w.require(20,"indexed sweep preflight")
         }).is_err());
+        assert_eq!(work.base,1000);
+    }
+}
+
+#[cfg(test)]
+mod v03_cell_packet_after_interval_exact_source_20261122_tests {
+    use super::*;
+
+    fn make_budget(limit:usize)->RoadWorkBudget {
+        RoadWorkBudget {
+            limit:Some(limit),base:1000,transfer_exclusive_cell_scratch:400,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,
+            diagnostic_source_live_bytes:0,events:0,incoming:0,
+            incoming_page_cells:0,incoming_cell_rows:Some(Vec::new()),
+            incoming_live_pages:0,incoming_descriptor_live_bytes:Some(0),
+            compact_events:false,compact_incoming:false,
+            interval_retained:0,interval_transient:0,service_events:None,
+        }
+    }
+    #[test]
+    fn old_combine_not_simultaneous_with_true_cell_packet_slot_growth() {
+        let incoming=segmented_incoming_exact_cell_pages_charge(
+            0,0,0,false,Some(0));
+        let source_required=600+20+incoming;
+        let mut work=make_budget(source_required);
+        assert!(work.require(20,"cell packet reservation").is_err());
+        assert!(work.require_completed_interval_cell_slot(20).is_ok());
+        assert_eq!(work.base,1000);
+        assert!(work.require(20,"cell packet reservation").is_err());
+    }
+    #[test]
+    fn truly_insufficient_cell_slot_budget_rejected_and_full_base_restored() {
+        let incoming=segmented_incoming_exact_cell_pages_charge(
+            0,0,0,false,Some(0));
+        let mut work=make_budget(600+20+incoming-1);
+        assert!(work.require_completed_interval_cell_slot(20).is_err());
+        assert_eq!(work.base,1000);
+    }
+    #[test]
+    fn active_interval_or_unfrozen_source_cannot_claim_source_scratch_expired() {
+        let mut work=make_budget(10000);
+        work.interval_transient=1;
+        assert!(work.require_completed_interval_cell_slot(20).is_err());
+        work.interval_transient=0;
+        work.incoming_descriptor_live_bytes=None;
+        assert!(work.require_completed_interval_cell_slot(20).is_err());
         assert_eq!(work.base,1000);
     }
 }
