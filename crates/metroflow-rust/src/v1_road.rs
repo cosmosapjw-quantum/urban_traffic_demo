@@ -822,6 +822,20 @@ impl RoadDecodeBudget {
         check_storage_limit(self.limit, required, "checkpoint decode preflight")
     }
 }
+/// Both kinds of descriptor backing are reserved serially. Earlier old
+/// diagnostic Vec backing expires before the later physical Part/Mark
+/// header growth. Charge the maximum known source-lifetime peak, not the
+/// fictitious sum of both distinct allocator transient peaks.
+fn source_sequential_header_overlap_extra(
+    diag_source_peak_with_old:usize,
+    diag_source_final_live:usize,
+    physical_header_old_overlap:usize,
+    index_vec_live:usize,
+)->usize {
+    diag_source_peak_with_old.saturating_sub(diag_source_final_live)
+        .max(physical_header_old_overlap)
+        .saturating_add(index_vec_live)
+}
 impl RoadWorkBudget {
     /// Post-prediction ownership boundary: old per-Part scan temporaries
     /// are dead, but live packet queue and Motion shells are still reserved.
@@ -1043,7 +1057,8 @@ impl RoadWorkBudget {
         let before_pages=self.incoming_live_pages;
         let mut new_page_cells:Vec<usize>=Vec::new();
         self.project_transfer(events,destinations,Some(&mut new_page_cells))?;
-        let mut old_header_overlap=0usize;
+        let mut old_physical_header_overlap=0usize;
+        let mut diagnostic_reservation_peak_bytes=0usize;
         // These source-only diagnostic rows are alive throughout transfer,
         // even though each old source per-Part motion scan is already dead.
         // Reserve their actual destination capacities BEFORE new page/events
@@ -1056,6 +1071,14 @@ impl RoadWorkBudget {
                 if src.len()!=tracked.len() {
                     return Err(arithmetic("diagnostic source registry size differs"));
                 }
+                let unit=std::mem::size_of::<CompactDiagnosticSource>();
+                let mut diagnostic_live_bytes=src.iter()
+                    .map(|v|v.capacity().saturating_mul(unit))
+                    .sum::<usize>()
+                    .saturating_add(src.capacity().saturating_mul(
+                        std::mem::size_of::<Vec<CompactDiagnosticSource>>()
+                    ));
+                diagnostic_reservation_peak_bytes=diagnostic_live_bytes;
                 for (i,(existing,&projected)) in src.iter_mut().zip(tracked.iter()).enumerate(){
                     if existing.len()>projected || existing.len()!=incoming[i].len() {
                         return Err(arithmetic("diagnostic source row alignment differs"));
@@ -1067,18 +1090,29 @@ impl RoadWorkBudget {
                         if existing.capacity()<projected {
                             return Err(budget("diagnostic source lineage reserve capacity invalid"));
                         }
-                        old_header_overlap=old_header_overlap.max(
-                            previous.saturating_mul(std::mem::size_of::<CompactDiagnosticSource>())
+                        // A single source lineage Vec reallocates while
+                        // its old backing may coexist with the new backing.
+                        // No future destination Vec has grown yet, so charge
+                        // exactly the currently allocated live prefixes.
+                        let new_capacity=existing.capacity();
+                        diagnostic_live_bytes=diagnostic_live_bytes.saturating_add(
+                            new_capacity.saturating_sub(previous).saturating_mul(unit)
+                        );
+                        diagnostic_reservation_peak_bytes=diagnostic_reservation_peak_bytes.max(
+                            diagnostic_live_bytes.saturating_add(previous.saturating_mul(unit))
                         );
                     }
                 }
-                self.diagnostic_source_live_bytes=src.iter()
-                    .map(|v|v.capacity().saturating_mul(
-                        std::mem::size_of::<CompactDiagnosticSource>()
-                    )).sum::<usize>()
+                let independently_measured=src.iter()
+                    .map(|v|v.capacity().saturating_mul(unit))
+                    .sum::<usize>()
                     .saturating_add(src.capacity().saturating_mul(
                         std::mem::size_of::<Vec<CompactDiagnosticSource>>()
                     ));
+                if diagnostic_live_bytes!=independently_measured {
+                    return Err(arithmetic("diagnostic source allocation census diverges"));
+                }
+                self.diagnostic_source_live_bytes=independently_measured;
             }
         }
         for &cell in &new_page_cells {
@@ -1088,7 +1122,8 @@ impl RoadWorkBudget {
                 .div_ceil(INCOMING_PART_CHUNK);
             let p=incoming.get_mut(cell).ok_or_else(||
                 arithmetic("missing Part page descriptor destination"))?;
-            old_header_overlap=old_header_overlap.max(p.reserve_header_slots(target)?);
+            old_physical_header_overlap=old_physical_header_overlap
+                .max(p.reserve_header_slots(target)?);
             let m=marks.get_mut(cell).ok_or_else(||
                 arithmetic("missing Mark page descriptor destination"))?;
             let old_cap=m.chunks.capacity();
@@ -1098,7 +1133,7 @@ impl RoadWorkBudget {
                 if m.chunks.capacity()<target {
                     return Err(budget("native source Mark descriptor reservation capacity invalid"));
                 }
-                old_header_overlap=old_header_overlap.max(
+                old_physical_header_overlap=old_physical_header_overlap.max(
                     old_cap.saturating_mul(std::mem::size_of::<Vec<Mark>>())
                 );
             }
@@ -1111,9 +1146,15 @@ impl RoadWorkBudget {
         ).sum();
         // Index list may itself be reallocated during the projection;
         // its old/new backing does not coexist with any header reservation.
-        let extra=old_header_overlap.saturating_add(
+        let extra=source_sequential_header_overlap_extra(
+            diagnostic_reservation_peak_bytes,self.diagnostic_source_live_bytes,
+            old_physical_header_overlap,
             new_page_cells.capacity().saturating_mul(2*std::mem::size_of::<usize>())
         );
+        crate::v1_trace::add("road_work.sequential_source_diag_reallocation_peak",
+                             diagnostic_reservation_peak_bytes as u64);
+        crate::v1_trace::add("road_work.sequential_source_old_physical_header_peak",
+                             old_physical_header_overlap as u64);
         self.incoming_descriptor_live_bytes=Some(actual_headers);
         // These are two sequential, non-overlapping allocator lifetimes:
         // (A) old physical Part/Mark pages + old EventRows, with the newly
@@ -7579,5 +7620,37 @@ mod v03_compact_source_diagnostic_r10_20261122_tests {
             (if cell==u32::MAX {usize::MAX}else{cell as usize},head as usize,rate)
         ).collect();
         assert_eq!(expanded,reference);
+    }
+}
+
+#[cfg(test)]
+mod v03_sequential_source_header_peaks_20261122_tests {
+    use super::*;
+    #[test]
+    fn source_diag_reallocation_old_overlap_expires_before_header_realloc() {
+        // During sequential diag reservations, 3 MiB of old backing may be
+        // briefly live, but this buffer dies before later diag destinations
+        // are grown to the FINAL source capacities. At Part/Mark header
+        // growth only one physical old header allocation may overlap.
+        let diag_final=409_447_072usize;
+        let actual_source_diag_peak=409_451_168usize;
+        let old_part_header=3_063_872usize;
+        let scratch=20_080usize;
+        let true_max_peak_extra=source_sequential_header_overlap_extra(
+            actual_source_diag_peak,diag_final,old_part_header,scratch,
+        );
+        assert_eq!(true_max_peak_extra,3_083_952);
+        let fictitious_pile=3_063_872+4_096+scratch;
+        assert!(true_max_peak_extra<=fictitious_pile);
+        // If Part/Mark never reallocates, the final diag source alone does
+        // NOT co-exist with the old 3MiB diag backing; measured max matters.
+        assert_eq!(source_sequential_header_overlap_extra(
+            diag_final+4_096,diag_final,0,scratch),24_176);
+    }
+    #[test]
+    fn real_old_plus_new_header_growth_must_still_be_charged_in_full() {
+        assert_eq!(source_sequential_header_overlap_extra(1000,500,400,0),500);
+        assert_eq!(source_sequential_header_overlap_extra(300,500,400,0),400);
+        assert_eq!(source_sequential_header_overlap_extra(0,0,0,0),0);
     }
 }
