@@ -564,6 +564,23 @@ fn journey_decode_other_live_owners_bytes(
         .saturating_add(decoded_events)
 }
 
+/// The checkpoint loader has finished creating ONE candidate Bundle but has
+/// not yet installed or cloned it. During validation, count all six distinct
+/// old/current and decoded road, Journey and EventRow owners individually.
+/// The original validation scratch is charged separately by admission.
+/// No duplicate Arc credit or changed global process/pool limit.
+fn loaded_bundle_validation_owners_bytes(
+    old_road:usize,decoded_road:usize,
+    old_journey:usize,decoded_journey:usize,
+    old_events:usize,decoded_events:usize,
+)->usize {
+    old_road.saturating_add(decoded_road)
+        .saturating_add(old_journey)
+        .saturating_add(decoded_journey)
+        .saturating_add(old_events)
+        .saturating_add(decoded_events)
+}
+
 impl NativeWholeEngine {
     fn build(
         calendar: &NativeCalendar,
@@ -1146,6 +1163,9 @@ impl NativeWholeEngine {
         // Keep old 3*max for decoder/unknown generic admission.
         let source_capture = validate && input.is_some();
         let source_restore = !validate && input.is_some();
+        // Only NativeWholeEngine::load calls validation with no supplied
+        // Bundle; it has the old native owners and ONE fully decoded candidate.
+        let source_loaded_validation = validate && input.is_none();
         let restore_arc_credit=if source_restore {
             input.map_or(0,|source|
                 source.road.arc_backing_census().unique_payload_bytes
@@ -1173,6 +1193,12 @@ impl NativeWholeEngine {
                     self.service.event_storage_bytes(),
                 )
             }
+        } else if source_loaded_validation {
+            loaded_bundle_validation_owners_bytes(
+                self.road.owned_storage_bytes(),road_bytes,
+                journey_storage_bytes(self.journey.state()),journey_storage_bytes(j),
+                self.service.event_storage_bytes(),event_bytes,
+            )
         } else {
             r.saturating_mul(3)
                 .saturating_sub(captured_arc_credit)
@@ -1199,6 +1225,7 @@ impl NativeWholeEngine {
                 ("verified_future_capture_arc_credit",captured_arc_credit),
                 ("post_advance_source_capture",usize::from(source_capture)),
                 ("source_exact_restore",usize::from(source_restore)),
+                ("source_loader_two_real_bundle_validation",usize::from(source_loaded_validation)),
                 ("source_restore_verified_future_arc_credit",restore_arc_credit),
                 ("source_capture_live_owner_bytes",phase_owners),
                 ("road_3max_without_credit",r.saturating_mul(3)),
@@ -1923,9 +1950,9 @@ impl NativeWholeEngine {
             let stats = road.debug_stats();
             self.storage_admission(
                 &journey,
-                road_bytes,
+                road.retained_storage_bytes(),
                 stats.cell_parts.saturating_add(stats.pending_parts),
-                events,
+                service_event_storage_bytes(&service),
                 None,
                 true,
             )?;
@@ -2127,5 +2154,34 @@ mod v03_source_journey_decode_parent_owners_r7_20261122_tests {
         assert_eq!(journey_decode_other_live_owners_bytes(0,0,0,0),0);
         assert_eq!(journey_decode_other_live_owners_bytes(5,5,5,5),20);
         assert_eq!(journey_decode_other_live_owners_bytes(100,300,10,200),610);
+    }
+}
+
+#[cfg(test)]
+mod v03_load_validation_two_real_owners_r9_20261122_tests {
+    use super::*;
+    #[test]
+    fn original_nonnative_load_owns_old_and_one_decoded_bundle_not_three() {
+        let oldroad=30usize;
+        let decodedroad=100usize;
+        let oldjourney=20usize;
+        let decodedjourney=200usize;
+        let oldevents=40usize;
+        let decodedevents=300usize;
+        let owned=loaded_bundle_validation_owners_bytes(
+            oldroad,decodedroad,oldjourney,decodedjourney,
+            oldevents,decodedevents,
+        );
+        assert_eq!(owned,690);
+        let generic=3*(oldroad.max(decodedroad)
+            +oldjourney.max(decodedjourney)
+            +oldevents.max(decodedevents));
+        assert_eq!(generic,1800);
+        assert!(owned<generic);
+    }
+    #[test]
+    fn no_unverified_arc_duplicate_credit_on_two_independent_payloads() {
+        assert_eq!(loaded_bundle_validation_owners_bytes(5,5,7,7,11,11),46);
+        assert_eq!(loaded_bundle_validation_owners_bytes(0,0,0,0,0,0),0);
     }
 }
