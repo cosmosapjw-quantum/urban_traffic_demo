@@ -227,6 +227,14 @@ fn stage_decoded_storage_upper_bytes(s: &Journey) -> usize {
         .saturating_add(s.3.decoded_storage_upper_bytes())
 }
 const WORKING_COPIES: usize = 3;
+
+/// The joint transition holds three specifically known original owners:
+/// caller input, committed state, and new uncommitted candidate. They are
+/// not three full copies of the largest post-road candidate. Sum all three
+/// true source-retained sizes without claiming any Arc alias credit.
+fn three_concrete_owner_bytes(input:usize,current:usize,candidate:usize)->usize {
+    input.saturating_add(current).saturating_add(candidate)
+}
 const STORAGE_SCRATCH_RESERVE: usize = 64 * 1024;
 fn stage_storage_bytes(s: &Journey) -> usize {
     s.1.storage_bytes()
@@ -1579,14 +1587,15 @@ pub(crate) fn advance_owned_joint(
                     .max(current_journey)
                     .max(pending_journey)
                     .saturating_mul(WORKING_COPIES);
-                let road_live = input_road_bytes
-                    .max(current_road_bytes)
-                    .max(candidate_road_bytes)
-                    .saturating_mul(3);
-                let event_live = input_event_bytes
-                    .max(current_event_bytes)
-                    .max(candidate_event_bytes)
-                    .saturating_mul(3);
+                // Source-concrete post-road owner census. No candidate
+                // payload is multiplied into fictitious input snapshots.
+                // Every distinct actual road/event owner remains charged.
+                let road_live = three_concrete_owner_bytes(
+                    input_road_bytes,current_road_bytes,candidate_road_bytes
+                );
+                let event_live = three_concrete_owner_bytes(
+                    input_event_bytes,current_event_bytes,candidate_event_bytes
+                );
                 let required = journey_live
                     .saturating_add(road_live)
                     .saturating_add(event_live)
@@ -1633,17 +1642,11 @@ pub(crate) fn advance_owned_joint(
                 let sink_bytes = sinks.iter().fold(vec_storage_bytes(&sinks), |bytes, row| {
                     bytes.saturating_add(string_storage_bytes(&row.0))
                 });
-                let other_live = input_road_bytes
-                    .max(current_road_bytes)
-                    .max(candidate_road_bytes)
-                    .saturating_mul(3)
-                    .saturating_add(
-                        input_event_bytes
-                            .max(current_event_bytes)
-                            .max(candidate_event_bytes)
-                            .saturating_mul(3),
-                    )
-                    .saturating_add(sink_bytes);
+                let other_live = three_concrete_owner_bytes(
+                    input_road_bytes,current_road_bytes,candidate_road_bytes
+                ).saturating_add(three_concrete_owner_bytes(
+                    input_event_bytes,current_event_bytes,candidate_event_bytes
+                )).saturating_add(sink_bytes);
                 journey.set_phase_storage_budget(phase_storage_allowance(
                     total,
                     other_live,
@@ -2374,5 +2377,41 @@ mod exact_checkpointability_lifetime_phase_tests {
         // Requiring an arbitrarily large physically live source still fails.
         t.input_road=6_000_000_000;
         assert!(checkpointability_phase_lifetime_bytes(t)>5789366871);
+    }
+}
+
+#[cfg(test)]
+mod surgical_service_finish_concrete_lifetimes_tests {
+    use super::*;
+    #[test]
+    fn real_100k_service_finish_charges_three_concrete_owners_not_three_new_ones() {
+        let old_road=630_653_248usize;
+        let current_road=630_653_248usize;
+        let candidate_road=877_913_216usize;
+        let old_events=461_832_224usize;
+        let current_events=461_832_224usize;
+        let candidate_events=1_115_458_368usize;
+        let physical_road=three_concrete_owner_bytes(
+            old_road,current_road,candidate_road);
+        let physical_events=three_concrete_owner_bytes(
+            old_events,current_events,candidate_events);
+        assert_eq!(physical_road,2_139_219_712);
+        assert_eq!(physical_events,2_039_122_816);
+        let conservative_previous=3*candidate_road+3*candidate_events;
+        let newly_sourced=physical_road+physical_events;
+        assert!(conservative_previous>newly_sourced);
+        assert_eq!(conservative_previous-newly_sourced,1_801_772_224);
+        let source_budget=5_789_366_871usize;
+        // Fixed 100k observed journey + sink + original policy scratch:
+        let new_required=764_152_296+newly_sourced+155_233_792+65_536;
+        assert_eq!(new_required,5_097_794_152);
+        assert!(new_required<source_budget);
+        assert!(6_899_566_376>source_budget);
+    }
+    #[test]
+    fn every_distinct_owner_stays_charged_even_if_source_values_equal() {
+        assert_eq!(three_concrete_owner_bytes(5,5,5),15);
+        assert_eq!(three_concrete_owner_bytes(7,0,19),26);
+        assert_eq!(three_concrete_owner_bytes(0,0,0),0);
     }
 }
