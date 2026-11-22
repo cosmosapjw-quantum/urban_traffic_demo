@@ -1046,7 +1046,7 @@ impl RoadWorkBudget {
     fn transfer_indexed_with_live_diagnostics(
         &mut self,events:usize,destinations:impl IntoIterator<Item=usize>,
         incoming:&mut [ChunkedParts],marks:&mut [ChunkedMarks],
-        diagnostic:Option<&mut Vec<Vec<CompactDiagnosticSource>>>,
+        diagnostic:Option<&mut Vec<ChunkedDiagnosticSource>>,
     )->PyResult<()> {
         if self.incoming_cell_rows.is_none() {
             return self.transfer_indexed(events,destinations);
@@ -1071,43 +1071,39 @@ impl RoadWorkBudget {
                 if src.len()!=tracked.len() {
                     return Err(arithmetic("diagnostic source registry size differs"));
                 }
-                let unit=std::mem::size_of::<CompactDiagnosticSource>();
                 let mut diagnostic_live_bytes=src.iter()
-                    .map(|v|v.capacity().saturating_mul(unit))
+                    .map(|v|v.capacity_bytes())
                     .sum::<usize>()
                     .saturating_add(src.capacity().saturating_mul(
-                        std::mem::size_of::<Vec<CompactDiagnosticSource>>()
+                        std::mem::size_of::<ChunkedDiagnosticSource>()
                     ));
                 diagnostic_reservation_peak_bytes=diagnostic_live_bytes;
                 for (i,(existing,&projected)) in src.iter_mut().zip(tracked.iter()).enumerate(){
                     if existing.len()>projected || existing.len()!=incoming[i].len() {
                         return Err(arithmetic("diagnostic source row alignment differs"));
                     }
-                    if projected>existing.capacity(){
-                        let previous=existing.capacity();
-                        existing.try_reserve(projected-existing.len())
-                            .map_err(|_|budget("diagnostic source lineage reserve unavailable"))?;
-                        if existing.capacity()<projected {
-                            return Err(budget("diagnostic source lineage reserve capacity invalid"));
+                    if projected>existing.capacity_rows(){
+                        let previous_bytes=existing.capacity_bytes();
+                        // Actual old Vec<Vec<_>> header, not the former
+                        // large per-cell contiguous data backing, may overlap.
+                        let previous_header_overlap=existing.reserve_source_rows(projected)?;
+                        if existing.capacity_rows()<projected {
+                            return Err(budget("diagnostic source page projection invalid"));
                         }
-                        // A single source lineage Vec reallocates while
-                        // its old backing may coexist with the new backing.
-                        // No future destination Vec has grown yet, so charge
-                        // exactly the currently allocated live prefixes.
-                        let new_capacity=existing.capacity();
+                        let new_bytes=existing.capacity_bytes();
                         diagnostic_live_bytes=diagnostic_live_bytes.saturating_add(
-                            new_capacity.saturating_sub(previous).saturating_mul(unit)
+                            new_bytes.saturating_sub(previous_bytes)
                         );
                         diagnostic_reservation_peak_bytes=diagnostic_reservation_peak_bytes.max(
-                            diagnostic_live_bytes.saturating_add(previous.saturating_mul(unit))
+                            diagnostic_live_bytes.saturating_add(previous_header_overlap)
                         );
                     }
                 }
                 let independently_measured=src.iter()
-                    .map(|v|v.capacity().saturating_mul(unit))
+                    .map(|v|v.capacity_bytes())
                     .sum::<usize>()
                     .saturating_add(src.capacity().saturating_mul(
-                        std::mem::size_of::<Vec<CompactDiagnosticSource>>()
+                        std::mem::size_of::<ChunkedDiagnosticSource>()
                     ));
                 if diagnostic_live_bytes!=independently_measured {
                     return Err(arithmetic("diagnostic source allocation census diverges"));
@@ -2130,6 +2126,93 @@ fn interval_merge_census(out: &[Packet]) {
 /// provably below u32::MAX (which is reserved for pending-only provenance).
 /// This injective key map preserves bitwise rate identity and BTreeSet order.
 type CompactDiagnosticSource=(u32,u32,u64);
+/// Trace-only lineage owner, physically separate from all FIFO Part/Mark,
+/// EventRow and checkpoint buffers. Fixed-size pages prevent huge contiguous
+/// Vec::try_reserve reallocations of millions of per-cell source identifiers.
+/// Original rate-bit identity and per-cell insertion order remain unchanged.
+const DIAGNOSTIC_SOURCE_CHUNK:usize=1024;
+#[derive(Default)]
+struct ChunkedDiagnosticSource {
+    chunks:Vec<Vec<CompactDiagnosticSource>>,
+    len:usize,
+    /// Exact observed per-page Vec::capacity bytes, maintained incrementally.
+    /// Avoid an O(total historical pages) rescan for each source head update.
+    payload_allocated_bytes:usize,
+}
+impl ChunkedDiagnosticSource {
+    fn len(&self)->usize {self.len}
+    fn capacity_rows(&self)->usize {
+        self.chunks.len().saturating_mul(DIAGNOSTIC_SOURCE_CHUNK)
+    }
+    fn capacity_bytes(&self)->usize {
+        self.chunks.capacity().saturating_mul(
+            std::mem::size_of::<Vec<CompactDiagnosticSource>>()
+        ).saturating_add(self.payload_allocated_bytes)
+    }
+    /// One independent end-of-source physical capacity audit. Do not repeat
+    /// this O(number of pages) computation inside every transfer head.
+    fn verify_capacity_bytes(&self)->PyResult<()> {
+        let actual=self.chunks.iter().map(|p|
+            p.capacity().saturating_mul(std::mem::size_of::<CompactDiagnosticSource>())
+        ).sum::<usize>();
+        if self.payload_allocated_bytes!=actual {
+            Err(arithmetic("paged diagnostic source tracked payload diverges"))
+        } else {Ok(())}
+    }
+    /// Return old page-registry backing that may coexist with the new one
+    /// during exactly ONE sequential reservation. Each original diagnostic
+    /// data page is pre-reserved with fixed length, never grown in place.
+    fn reserve_source_rows(&mut self,target:usize)->PyResult<usize>{
+        let required=target.div_ceil(DIAGNOSTIC_SOURCE_CHUNK);
+        let mut overlap=0usize;
+        if required>self.chunks.capacity() {
+            overlap=self.chunks.capacity().saturating_mul(
+                std::mem::size_of::<Vec<CompactDiagnosticSource>>()
+            );
+            self.chunks.try_reserve_exact(required.saturating_sub(self.chunks.len()))
+                .map_err(|_|budget("diagnostic source page header reserve unavailable"))?;
+            if self.chunks.capacity()<required {
+                return Err(budget("diagnostic source header allocator capacity inconsistent"));
+            }
+        }
+        while self.chunks.len()<required {
+            let mut page=Vec::new();
+            page.try_reserve_exact(DIAGNOSTIC_SOURCE_CHUNK)
+                .map_err(|_|budget("diagnostic source page payload reserve unavailable"))?;
+            if page.capacity()<DIAGNOSTIC_SOURCE_CHUNK {
+                return Err(budget("diagnostic source page allocator capacity inconsistent"));
+            }
+            let allocated=page.capacity().saturating_mul(
+                std::mem::size_of::<CompactDiagnosticSource>()
+            );
+            self.chunks.push(page);
+            self.payload_allocated_bytes=self.payload_allocated_bytes.saturating_add(allocated);
+        }
+        Ok(overlap)
+    }
+    fn push(&mut self,row:CompactDiagnosticSource)->PyResult<()> {
+        if self.len>=self.capacity_rows() {
+            self.reserve_source_rows(self.len.saturating_add(1))?;
+        }
+        let idx=self.len/DIAGNOSTIC_SOURCE_CHUNK;
+        let offset=self.len%DIAGNOSTIC_SOURCE_CHUNK;
+        let page=self.chunks.get_mut(idx)
+            .ok_or_else(||arithmetic("diagnostic source missing fixed page"))?;
+        if page.len()!=offset {
+            return Err(arithmetic("diagnostic source page alignment differs"));
+        }
+        page.push(row);
+        self.len=self.len.saturating_add(1);
+        Ok(())
+    }
+    fn extend(&mut self,items:impl IntoIterator<Item=CompactDiagnosticSource>)->PyResult<()>{
+        for item in items {self.push(item)?;}
+        Ok(())
+    }
+    fn iter(&self)->impl Iterator<Item=&CompactDiagnosticSource> {
+        self.chunks.iter().flat_map(|c|c.iter())
+    }
+}
 fn compact_diagnostic_source_id(
     cell:usize,head:usize,rate_bits:u64,
 )->PyResult<CompactDiagnosticSource>{
@@ -2153,7 +2236,7 @@ fn pending_diagnostic_source_id(head:usize)->PyResult<CompactDiagnosticSource>{
 /// set {(cell, head position, rate bits)} is identical. Such runs have
 /// proportional route mixtures and equal ready time, so they are exactly
 /// mergeable in real arithmetic. Counting only.
-fn exact_merge_census(parts: impl Iterator<Item=Part>, src: &[CompactDiagnosticSource]) {
+fn exact_merge_census(parts: impl Iterator<Item=Part>, src: impl Iterator<Item=CompactDiagnosticSource>) {
     use std::collections::BTreeSet;
     let mut by: BTreeMap<(u64, u64), BTreeSet<CompactDiagnosticSource>> = BTreeMap::new();
     let mut points = 0u64;
@@ -2163,7 +2246,7 @@ fn exact_merge_census(parts: impl Iterator<Item=Part>, src: &[CompactDiagnosticS
             points += 1;
             continue;
         }
-        by.entry((a.to_bits(), b.to_bits())).or_default().insert(*s);
+        by.entry((a.to_bits(), b.to_bits())).or_default().insert(s);
     }
     let mut runs = 0u64;
     let mut prev: Option<(f64, &BTreeSet<CompactDiagnosticSource>)> = None;
@@ -3924,8 +4007,8 @@ impl V1Road {
         let mut incoming: Vec<ChunkedParts> = (0..n)
             .map(|_| ChunkedParts::new(compact_incoming)).collect();
         // Diagnostic only: source (cell, head position, rate bits) per incoming row.
-        let mut incoming_src: Vec<Vec<CompactDiagnosticSource>> = if crate::v1_trace::enabled() {
-            vec![vec![]; n]
+        let mut incoming_src: Vec<ChunkedDiagnosticSource> = if crate::v1_trace::enabled() {
+            (0..n).map(|_|ChunkedDiagnosticSource::default()).collect()
         } else {
             Vec::new()
         };
@@ -4269,7 +4352,7 @@ impl V1Road {
                             if !incoming_src.is_empty() {
                                 incoming_src[j].push(compact_diagnostic_source_id(
                                     i,position[i],rate.to_bits()
-                                )?);
+                                )?)?;
                             }
                         } else {
                             sink += p.mass;
@@ -4416,7 +4499,7 @@ impl V1Road {
                 if !incoming_src.is_empty() {
                     let k = incoming_src[i].len();
                     let id=pending_diagnostic_source_id(k)?;
-                    incoming_src[i].extend((0..parts.len()).map(|_| id));
+                    incoming_src[i].extend((0..parts.len()).map(|_| id))?;
                 }
                 incoming[i].extend_parts(parts)?;
                 if f < 1. {
@@ -4439,14 +4522,13 @@ impl V1Road {
         work.lock_completed_incoming_descriptors(&incoming,&marks)?;
         for i in 0..n {
             if !incoming_src.is_empty() && !incoming[i].is_empty() {
-                exact_merge_census(incoming[i].iter(), &incoming_src[i]);
+                exact_merge_census(incoming[i].iter(), incoming_src[i].iter().copied());
             }
             // Diagnostic-only input sequence is consumed and is not retained
             // for any original physical source calculation in a later cell.
             if !incoming_src.is_empty() {
-                let bytes=incoming_src[i].capacity().saturating_mul(
-                    std::mem::size_of::<CompactDiagnosticSource>()
-                );
+                incoming_src[i].verify_capacity_bytes()?;
+                let bytes=incoming_src[i].capacity_bytes();
                 work.diagnostic_source_live_bytes=work.diagnostic_source_live_bytes
                     .saturating_sub(bytes);
                 drop(std::mem::take(&mut incoming_src[i]));
@@ -7470,7 +7552,8 @@ mod diagnostic_lineage_after_motion_expiry_source_tests {
         };
         let mut incoming:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
         let mut marks:Vec<ChunkedMarks>=(0..3).map(|_|ChunkedMarks::default()).collect();
-        let mut source=vec![vec![];3];
+        let mut source:Vec<ChunkedDiagnosticSource>=(0..3)
+            .map(|_|ChunkedDiagnosticSource::default()).collect();
         w.retire_completed_motion_scan(250);
         assert_eq!(w.expired_motion_scan_credit,150);
         let ids=(0..129).map(|_|0usize)
@@ -7479,8 +7562,8 @@ mod diagnostic_lineage_after_motion_expiry_source_tests {
         w.transfer_indexed_with_live_diagnostics(0,ids,&mut incoming,&mut marks,Some(&mut source)).unwrap();
         assert_eq!(w.incoming,386);
         let n=std::mem::size_of::<CompactDiagnosticSource>();
-        let physically_allocated=source.iter().map(|v|v.capacity()*n).sum::<usize>()
-            +source.capacity()*std::mem::size_of::<Vec<CompactDiagnosticSource>>();
+        let physically_allocated=source.iter().map(|v|v.capacity_bytes()).sum::<usize>()
+            +source.capacity()*std::mem::size_of::<ChunkedDiagnosticSource>();
         assert_eq!(w.diagnostic_source_live_bytes,physically_allocated);
         assert!(physically_allocated>=386*n);
         assert!(w.incoming_descriptor_live_bytes.is_none());
@@ -7493,7 +7576,7 @@ mod diagnostic_lineage_after_motion_expiry_source_tests {
                 };
                 incoming[j].push_checked(value).unwrap();
                 marks[j].push_checked(compact_mark(0.25,0.)).unwrap();
-                source[j].push(compact_diagnostic_source_id(j,i,13u64).unwrap());
+                source[j].push(compact_diagnostic_source_id(j,i,13u64).unwrap()).unwrap();
             }
         }
         w.transfer_indexed_with_live_diagnostics(0,[0usize],&mut incoming,&mut marks,Some(&mut source)).unwrap();
@@ -7652,5 +7735,55 @@ mod v03_sequential_source_header_peaks_20261122_tests {
         assert_eq!(source_sequential_header_overlap_extra(1000,500,400,0),500);
         assert_eq!(source_sequential_header_overlap_extra(300,500,400,0),400);
         assert_eq!(source_sequential_header_overlap_extra(0,0,0,0),0);
+    }
+}
+
+#[cfg(test)]
+mod v03_paged_source_lineage_surgical_20261122_tests {
+    use super::*;
+    #[test]
+    fn diagnostic_source_pages_retain_all_lineage_keys_and_order_across_boundaries() {
+        let mut source=ChunkedDiagnosticSource::default();
+        let target=3*DIAGNOSTIC_SOURCE_CHUNK+17;
+        source.reserve_source_rows(target).unwrap();
+        assert!(source.capacity_rows()>=target);
+        assert!(source.capacity_bytes()>=target*
+            std::mem::size_of::<CompactDiagnosticSource>());
+        for k in 0..target {
+            source.push(compact_diagnostic_source_id(
+                k%31,k/31,(k as u64) ^ 0x8000_0000_0000_0000
+            ).unwrap()).unwrap();
+        }
+        assert_eq!(source.len(),target);
+        assert!(source.verify_capacity_bytes().is_ok());
+        for (i,&source_row) in source.iter().enumerate() {
+            assert_eq!(source_row,(
+                (i%31) as u32,(i/31) as u32,
+                (i as u64)^0x8000_0000_0000_0000
+            ));
+        }
+        source.push(pending_diagnostic_source_id(target).unwrap()).unwrap();
+        assert_eq!(source.len(),target+1);
+        assert!(source.capacity_bytes()<2*target*
+            std::mem::size_of::<CompactDiagnosticSource>()
+            + 3*DIAGNOSTIC_SOURCE_CHUNK*
+              std::mem::size_of::<CompactDiagnosticSource>());
+    }
+    #[test]
+    fn only_a_bounded_page_header_can_reallocate_not_a_giant_contiguous_lineage_vec() {
+        let mut source=ChunkedDiagnosticSource::default();
+        let mut largest_previous_header=0;
+        let mut observed_max_payload=0;
+        for i in 1..=32 {
+            let old=source.capacity_bytes();
+            let overlap=source.reserve_source_rows(
+                i*DIAGNOSTIC_SOURCE_CHUNK).unwrap();
+            largest_previous_header=largest_previous_header.max(overlap);
+            observed_max_payload=observed_max_payload.max(source.capacity_bytes());
+            assert!(source.capacity_bytes()>=old);
+        }
+        assert!(largest_previous_header<
+            DIAGNOSTIC_SOURCE_CHUNK*std::mem::size_of::<CompactDiagnosticSource>());
+        assert!(observed_max_payload>0);
     }
 }
