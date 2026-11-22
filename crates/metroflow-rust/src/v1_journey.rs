@@ -235,6 +235,19 @@ const WORKING_COPIES: usize = 3;
 fn three_concrete_owner_bytes(input:usize,current:usize,candidate:usize)->usize {
     input.saturating_add(current).saturating_add(candidate)
 }
+/// Under a source-verified Arc identity, caller input events and the
+/// currently committed service.last_events are two handles of one immutable
+/// payload. Count that payload ONCE, plus the new independent road EventRow
+/// Vec. Without the exact same Arc backing, count all three separately.
+fn concrete_service_event_owner_bytes(
+    input:usize,current:usize,candidate:usize,input_current_arc_shared:bool,
+)->usize {
+    if input_current_arc_shared {
+        input.max(current).saturating_add(candidate)
+    } else {
+        three_concrete_owner_bytes(input,current,candidate)
+    }
+}
 const STORAGE_SCRATCH_RESERVE: usize = 64 * 1024;
 fn stage_storage_bytes(s: &Journey) -> usize {
     s.1.storage_bytes()
@@ -1593,8 +1606,11 @@ pub(crate) fn advance_owned_joint(
                 let road_live = three_concrete_owner_bytes(
                     input_road_bytes,current_road_bytes,candidate_road_bytes
                 );
-                let event_live = three_concrete_owner_bytes(
-                    input_event_bytes,current_event_bytes,candidate_event_bytes
+                let old_event_arc_shared=
+                    Arc::ptr_eq(&call_input_events,&service.last_events);
+                let event_live = concrete_service_event_owner_bytes(
+                    input_event_bytes,current_event_bytes,candidate_event_bytes,
+                    old_event_arc_shared,
                 );
                 let required = journey_live
                     .saturating_add(road_live)
@@ -1610,6 +1626,10 @@ pub(crate) fn advance_owned_joint(
                         ("journey_live", journey_live),
                         ("road_live", road_live),
                         ("event_live", event_live),
+                        ("old_event_arc_pointer_identical",usize::from(old_event_arc_shared)),
+                        ("input_event_bytes",input_event_bytes),
+                        ("current_event_bytes",current_event_bytes),
+                        ("candidate_event_bytes",candidate_event_bytes),
                         ("exit_rows", exits),
                         ("sink_envelope", sink_bytes),
                     ],
@@ -1644,8 +1664,9 @@ pub(crate) fn advance_owned_joint(
                 });
                 let other_live = three_concrete_owner_bytes(
                     input_road_bytes,current_road_bytes,candidate_road_bytes
-                ).saturating_add(three_concrete_owner_bytes(
-                    input_event_bytes,current_event_bytes,candidate_event_bytes
+                ).saturating_add(concrete_service_event_owner_bytes(
+                    input_event_bytes,current_event_bytes,candidate_event_bytes,
+                    Arc::ptr_eq(&call_input_events,&service.last_events),
                 )).saturating_add(sink_bytes);
                 journey.set_phase_storage_budget(phase_storage_allowance(
                     total,
@@ -2413,5 +2434,41 @@ mod surgical_service_finish_concrete_lifetimes_tests {
         assert_eq!(three_concrete_owner_bytes(5,5,5),15);
         assert_eq!(three_concrete_owner_bytes(7,0,19),26);
         assert_eq!(three_concrete_owner_bytes(0,0,0),0);
+    }
+}
+
+#[cfg(test)]
+mod surgical_service_arc_alias_identity_tests_20261122 {
+    use super::*;
+    use std::sync::Arc;
+    #[test]
+    fn physical_event_arc_identity_removes_one_duplicate_old_allocation_only_if_shared() {
+        let owner=Arc::new(vec![(3usize,1usize,None::<usize>,0.5,20.,21.,3.)]);
+        let call_input=Arc::clone(&owner);
+        let distinct=Arc::new((*owner).clone());
+        assert!(Arc::ptr_eq(&call_input,&owner));
+        assert!(!Arc::ptr_eq(&call_input,&distinct));
+        let previous=923_664_448usize;
+        let new=1_115_458_368usize;
+        let shared=concrete_service_event_owner_bytes(
+            previous,previous,new,Arc::ptr_eq(&call_input,&owner)
+        );
+        assert_eq!(shared,previous+new);
+        assert_eq!(shared,2_039_122_816);
+        let unshared=concrete_service_event_owner_bytes(
+            previous,previous,new,Arc::ptr_eq(&call_input,&distinct)
+        );
+        assert_eq!(unshared,2*previous+new);
+        assert_eq!(unshared-shared,previous);
+    }
+    #[test]
+    fn source_recalculated_service_finish_is_under_original_unchanged_allowance() {
+        let road=three_concrete_owner_bytes(630_653_248,630_653_248,877_913_216);
+        let events=concrete_service_event_owner_bytes(
+            923_664_448,923_664_448,1_115_458_368,true);
+        let revised=road+events+764_152_296+155_233_792+65_536;
+        assert_eq!(revised,5_097_794_152);
+        assert!(revised<5_789_366_871);
+        assert!(revised<6_021_458_856);
     }
 }
