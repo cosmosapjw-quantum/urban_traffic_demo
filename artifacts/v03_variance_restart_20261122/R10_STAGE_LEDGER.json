@@ -1,0 +1,329 @@
+{
+  "V03": {
+    "DAG_percent": 90.47619047619048,
+    "DAG_scoped_completed": 19,
+    "DAG_total": 21,
+    "RLS01": "PLANNED",
+    "full_day_runs_completed": 0,
+    "full_day_runs_required": 9,
+    "original_calendars_prepared_current_source": 3,
+    "original_city_calendars_total": 3,
+    "original_direct_predecessors_done": 3,
+    "original_direct_predecessors_total": 3,
+    "status": "BLOCKED"
+  },
+  "authority": {
+    "city_cases": 3,
+    "original_day_duration_s": 86400,
+    "original_full_days_required": 9,
+    "original_matrix_SHA256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "original_native_dt_s": 10,
+    "original_physical_source_unchanged": true,
+    "original_plan_SHA256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+    "original_process_RLIMIT_AS_bytes": 8589934592,
+    "original_wall_limit_per_run_s": 7200,
+    "residents_per_city": 100000
+  },
+  "branch": "research/v03-variance-restart-20261122",
+  "implementation": {
+    "exact_two_bundle_native_load_validation": "VERIFIED_ORIGINAL_100K",
+    "full_repository_CI": "DEFERRED_BY_USER",
+    "main_merge": "NOT_ATTEMPTED",
+    "native_checkpoint_25710_load_and_full_wire": "IMPLEMENTATION_VERIFIED",
+    "native_step_25720": "BLOCKED_RESOURCE",
+    "rust_lib_tests": "200 passed, 2 ignored",
+    "source_serial_alloc_max": "RUST_VERIFIED_SCOPED",
+    "trace_only_lineage_16_byte_injective_encoding": "RUST_VERIFIED_SCOPED",
+    "trace_only_lineage_fixed_1024_paged_allocation": "RUST_VERIFIED_SCOPED",
+    "true_one_decoder_replay": "VERIFIED_ORIGINAL_100K"
+  },
+  "last_first_blocker": {
+    "allowed_bytes": 4952574903,
+    "diagnostic_source_capacity_bytes": 300001680,
+    "excess_bytes": 26641,
+    "incoming_source_row_count": 18060025,
+    "last_transfer_candidate_calls": 271693,
+    "last_transfer_candidate_exceeded": 0,
+    "next_physical_clock_s": 25720,
+    "phase": "road_work:transfer header reservation",
+    "required_bytes": 4952601544
+  },
+  "native_binary_SHA256": "8034e430b59125851dc81d2d87ec0e44f270b5a2f964069dd4e5070f6c111e1d",
+  "next_surgical_work": [
+    "Do not add fixed byte credits. Record-mode header reserve 26,641B and off-mode indexed sweep 47,354,497B need distinct physical phase ownership studies.",
+    "Run same-source physical 25720 and 25730 after new diagnosed source change, then positive 20/40/80/160-second ladder.",
+    "After source stability, run original t0→86400 all 3 city cases ×3 reps with same original caps and full ledger."
+  ],
+  "nonclaims": [
+    "No current-source physical 25720 tick was completed.",
+    "Three city preparations simulate zero physical seconds.",
+    "This candidate did not run original time zero to 25710.",
+    "It is not valid to infer variance from historical mass and first birth moment without J.",
+    "Original source-independent full repository CI not run."
+  ],
+  "original_100k_physical_experiments": [
+    {
+      "actually_completed_physical_seconds": null,
+      "error": {
+        "class": "MemoryError",
+        "message": "native journey source decoder storage budget exceeded: required_bytes=226233264, budget_bytes=226233207",
+        "phase": "RESTORE_PREVIOUS_COMPLETE_STATE"
+      },
+      "first_blocked_clock_s": null,
+      "full_initial_wire_ledger_verified": null,
+      "max_RSS_bytes": 2528591872,
+      "native_SHA256": "38eeba39d49360fb4041e26ddbb6e5ac011adf7c37e5e6366eac9dddb6cfe2fd",
+      "receipt": "R6_original_100k_25710_requested_20s.json",
+      "receipt_SHA256": "78edba66e4826a8e443fe2205044219bab474cd510618d47c7663f990db52e8a",
+      "requested_physical_seconds": 20,
+      "source_SHA256": "cf41696454109747cc4247c24c4615f05cd341f8b33b4bc2fe1415faf4dbe395",
+      "starting_clock_s": 25710,
+      "status": "ERROR",
+      "trace_mode": "record",
+      "wall_total_including_original_preparation_and_IO_s": 39.81653662599274
+    },
+    {
+      "actually_completed_physical_seconds": null,
+      "error": {
+        "class": "MemoryError",
+        "message": "native capture/validation storage budget exceeded: required_bytes=7367599605, budget_bytes=6442450944",
+        "phase": "RESTORE_PREVIOUS_COMPLETE_STATE"
+      },
+      "first_blocked_clock_s": null,
+      "full_initial_wire_ledger_verified": null,
+      "max_RSS_bytes": 2528604160,
+      "native_SHA256": "6af66dc5a08eef6050233ebaa4641cac0f87295751aae30408ecfafb6ff98a4e",
+      "receipt": "R8_original_100k_25710_requested_20s.json",
+      "receipt_SHA256": "df3dfa8844097b67bece90f84bbc985d5264e49922faf34440c8a7fc735ed9d2",
+      "requested_physical_seconds": 20,
+      "source_SHA256": "05dcb680d6e49c807d46b95e9ede3af3c496f949e3cce1e5bd68fbd5a1da1480",
+      "starting_clock_s": 25710,
+      "status": "ERROR",
+      "trace_mode": "record",
+      "wall_total_including_original_preparation_and_IO_s": 36.77105539198965
+    },
+    {
+      "actually_completed_physical_seconds": 0.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4952744720, budget_bytes=4952574903",
+        "phase": "ADVANCE_TO_25720"
+      },
+      "first_blocked_clock_s": 25720.0,
+      "full_initial_wire_ledger_verified": true,
+      "max_RSS_bytes": 4701569024,
+      "native_SHA256": "d0b0e59695f849f995dfa08d273f4373f8e8e679cce93239b0f8b952deda8d8b",
+      "receipt": "R10_original_100k_25710_requested_20s.json",
+      "receipt_SHA256": "62844e29585926a08b2e91dd117410fbd2c22b7c8e47797abf14842eb4e91d92",
+      "requested_physical_seconds": 20,
+      "source_SHA256": "47735e8040feb07c6f6915e4abf8be4868da9c5d4f903918d628a64c1f4e68a1",
+      "starting_clock_s": 25710,
+      "status": "BLOCKED_RESOURCE",
+      "trace_mode": "record",
+      "wall_total_including_original_preparation_and_IO_s": 86.04153015397605
+    },
+    {
+      "actually_completed_physical_seconds": 0.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer header reservation, required_bytes=4953155528, budget_bytes=4952574903",
+        "phase": "ADVANCE_TO_25720"
+      },
+      "first_blocked_clock_s": 25720.0,
+      "full_initial_wire_ledger_verified": true,
+      "max_RSS_bytes": 4687814656,
+      "native_SHA256": "e2940a6fa3ed03afaf9c0b6034f9bc161648cc21cbe88169b2e36b5b807de6d5",
+      "receipt": "R10_compact_original_100k_25710_requested_20s.json",
+      "receipt_SHA256": "af48dd096eb136094232e0613fd32beee629b10cb22e81cc5b37364b277e61d5",
+      "requested_physical_seconds": 20,
+      "source_SHA256": "72bfd3aa37d436dc5f1932402f39561c9f9eac51b1b6f588ce1895ee5f6b6852",
+      "starting_clock_s": 25710,
+      "status": "BLOCKED_RESOURCE",
+      "trace_mode": "record",
+      "wall_total_including_original_preparation_and_IO_s": 97.17015334501048
+    },
+    {
+      "actually_completed_physical_seconds": 0.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer header reservation, required_bytes=4953155528, budget_bytes=4952574903",
+        "phase": "ADVANCE_TO_25720"
+      },
+      "first_blocked_clock_s": 25720.0,
+      "full_initial_wire_ledger_verified": true,
+      "max_RSS_bytes": 4762521600,
+      "native_SHA256": "874bc404f99424fddb4172191983493f58ba71d724f5cd66c37ac1c443d21cfb",
+      "receipt": "R10_sequential_original_100k_25710_requested_20s.json",
+      "receipt_SHA256": "60f4cb22dfa188b199aa9cf276269161ae13761f656a69858ad189bf7d9ac779",
+      "requested_physical_seconds": 20,
+      "source_SHA256": "72524e7578e5cd743d7155dcea117e29cb8770129f9d1cb3354f4017957d1575",
+      "starting_clock_s": 25710,
+      "status": "BLOCKED_RESOURCE",
+      "trace_mode": "record",
+      "wall_total_including_original_preparation_and_IO_s": 93.92246739298571
+    },
+    {
+      "actually_completed_physical_seconds": 0.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer header reservation, required_bytes=4952601544, budget_bytes=4952574903",
+        "phase": "ADVANCE_TO_25720"
+      },
+      "first_blocked_clock_s": 25720.0,
+      "full_initial_wire_ledger_verified": true,
+      "max_RSS_bytes": 3496120320,
+      "native_SHA256": "8034e430b59125851dc81d2d87ec0e44f270b5a2f964069dd4e5070f6c111e1d",
+      "receipt": "R10_paged_original_100k_25710_requested_20s.json",
+      "receipt_SHA256": "8a5281b1c08aa3e8fe7ce6fcfb93e2da4b184237be5a8ccdc5caa2d18c07b82b",
+      "requested_physical_seconds": 20,
+      "source_SHA256": "effd525a3c9ae3dac5058f58d0cc3c44d099e901f75dbe370e8db5d9d83b8dfd",
+      "starting_clock_s": 25710,
+      "status": "BLOCKED_RESOURCE",
+      "trace_mode": "record",
+      "wall_total_including_original_preparation_and_IO_s": 136.95956124502118
+    },
+    {
+      "actually_completed_physical_seconds": 0.0,
+      "error": {
+        "class": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=indexed sweep preflight, required_bytes=4999929400, budget_bytes=4952574903",
+        "phase": "ADVANCE_TO_25720"
+      },
+      "first_blocked_clock_s": 25720.0,
+      "full_initial_wire_ledger_verified": true,
+      "max_RSS_bytes": 4855328768,
+      "native_SHA256": "8034e430b59125851dc81d2d87ec0e44f270b5a2f964069dd4e5070f6c111e1d",
+      "receipt": "R10_offtrace_original_100k_25710_requested_20s.json",
+      "receipt_SHA256": "20765eddd8f6a691c5da2e338e39930ded2963ff543ae5e64d7846fe178cd29f",
+      "requested_physical_seconds": 20,
+      "source_SHA256": "effd525a3c9ae3dac5058f58d0cc3c44d099e901f75dbe370e8db5d9d83b8dfd",
+      "starting_clock_s": 25710,
+      "status": "BLOCKED_RESOURCE",
+      "trace_mode": "off",
+      "wall_total_including_original_preparation_and_IO_s": 105.9462262460147
+    }
+  ],
+  "repository": "cosmosapjw-quantum/urban_traffic_demo",
+  "schema": "METROFLOW_V03_2ND_MOMENT_RESTART_R1_R10_C1_C10_20261122_V1",
+  "science": {
+    "finite_horizon_route_second_age_transport": "DERIVED_THIS_LOOP",
+    "full_city_second_moment_validation": "NOT_RUN",
+    "historical_100k_second_birth_moment_available": false,
+    "independent_fraction_two_route_cohort_cases": 384,
+    "quadratic_age_residence_variance": "DERIVED_CONDITIONAL_ON_SOURCE_J",
+    "route_aging_tail_bound": "DERIVED",
+    "route_first_age_transport": "DERIVED_PREVIOUS_LOOP"
+  },
+  "source_SHA256": "effd525a3c9ae3dac5058f58d0cc3c44d099e901f75dbe370e8db5d9d83b8dfd",
+  "source_current_city_calendar_preparations": {
+    "coastal_weekend_s41": {
+      "peak_rss_bytes": 1115967488,
+      "physical_simulated_s": 0,
+      "planned_legs": 2449750,
+      "receipt_SHA256": "05b0cc87e36080240229683d08a7a6fe7757b9d7f99bf247fdc63960798e2c1d",
+      "residents": 100000,
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 38.17459736199817
+    },
+    "river_weekday_s17": {
+      "peak_rss_bytes": 2171908096,
+      "physical_simulated_s": 0,
+      "planned_legs": 5093765,
+      "receipt_SHA256": "f8d36e799879db0054f18b64f1ed7b82d775bee9707a0da0b570c02a2200765d",
+      "residents": 100000,
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 64.78849824302597
+    },
+    "valley_weekday_s7": {
+      "peak_rss_bytes": 445751296,
+      "physical_simulated_s": 0,
+      "planned_legs": 918450,
+      "receipt_SHA256": "c26ea54d0e594f8b80d0b893b614b783d94206ee0ed234df99280945b0e51268",
+      "residents": 100000,
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 22.151329760003136
+    }
+  },
+  "stage_completed": 10,
+  "stage_parent": "7a06729eb97177c770e46a5661f28cd9572b9927",
+  "ten_separately_pushed_stages": [
+    {
+      "commit_SHA": "7030522c2743b99967b963c71aa9d5933c1b7b11",
+      "remote_SHA_readback_verified": true,
+      "stage": "R1/C1",
+      "subject": "research(v03): R1 C1 source-pin t25710 resume and age-squared theory contract"
+    },
+    {
+      "commit_SHA": "f1b329cff8739522fa9f0d27d285885f7075ce07",
+      "remote_SHA_readback_verified": true,
+      "stage": "R2/C2",
+      "subject": "research(v03): R2 C2 compare travel-time variance literature and real decoder owners"
+    },
+    {
+      "commit_SHA": "ff38360e39da38df3afd457fe16c7a68416a7b74",
+      "remote_SHA_readback_verified": true,
+      "stage": "R3/C3",
+      "subject": "science(v03): R3 C3 derive finite-horizon age-square route conservation and decoder seam"
+    },
+    {
+      "commit_SHA": "62a5c1b42c3c2b67be9cf6516d1d0ab40b451e13",
+      "remote_SHA_readback_verified": true,
+      "stage": "R4/C4",
+      "subject": "research(v03): R4 C4 select second-moment oracle and source decoder RED contracts"
+    },
+    {
+      "commit_SHA": "984cbb39b6daea6baee94aaf100a88aca85414fc",
+      "remote_SHA_readback_verified": true,
+      "stage": "R5/C5",
+      "subject": "science(v03): R5 C5 prove age-square route transport and fix one-decoder lifetime"
+    },
+    {
+      "commit_SHA": "fb06d579871cac01ebc055fa87ed9b641591efc8",
+      "remote_SHA_readback_verified": true,
+      "stage": "R6/C6",
+      "subject": "research(v03): R6 C6 verify 384 quadratic cohorts and preserve 100k decoder gate"
+    },
+    {
+      "commit_SHA": "27d6dffe3db88e8f5286e1dc1a66a30d1e9901ed",
+      "remote_SHA_readback_verified": true,
+      "stage": "R7/C7",
+      "subject": "science(v03): R7 C7 route delay tail bound and real four-owner journey decode"
+    },
+    {
+      "commit_SHA": "04cf801ea9dde293d9c34ee991c24203a5e47cee",
+      "remote_SHA_readback_verified": true,
+      "stage": "R8/C8",
+      "subject": "research(v03): R8 C8 prove native decoder pass and expose load 3max ghost copies"
+    },
+    {
+      "commit_SHA": "886773bf62230a181f1aa981f5827cded0ad20c4",
+      "remote_SHA_readback_verified": true,
+      "stage": "R9/C9",
+      "subject": "science(v03): R9 C9 implement exact two-Bundle load and route age-square closure"
+    },
+    {
+      "commit_SHA": "ecd5f28de1fdfb6b59c1e9958797c824d1f32acd",
+      "remote_SHA_readback_verified": true,
+      "stage": "R10/C10",
+      "subject": "research(v03): R10 C10 remove real 24B trace-only key heap via exact 16B encoding"
+    }
+  ],
+  "ten_stage_terminal_SHA": "ecd5f28de1fdfb6b59c1e9958797c824d1f32acd",
+  "total_city_planned_legs": 8461965,
+  "trusted_prior_original_100k_25710": {
+    "checkpoint_SHA256": "64b77baece5ba45fa0928d59b58d9f8f9fc2178bcd93542b05264736978733fe",
+    "checkpoint_bytes": 4011233450,
+    "checkpoint_kept_local_only": true,
+    "source_and_native_distinct_from_current": true,
+    "source_native_replay_full_wire_and_mass_ledger": "VERIFIED_SCOPED"
+  },
+  "uninstrumented_physical_first_blocker": {
+    "allowed_bytes": 4952574903,
+    "excess_bytes": 47354497,
+    "original_checkpoint_full_wire_and_mass_verified": true,
+    "phase": "indexed sweep preflight",
+    "physical_seconds_advanced": 0,
+    "required_bytes": 4999929400,
+    "trace_mode": "off"
+  }
+}
