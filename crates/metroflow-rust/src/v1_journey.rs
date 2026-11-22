@@ -262,6 +262,35 @@ fn stage_storage_bytes(s: &Journey) -> usize {
         .saturating_add(s.2.storage_bytes())
         .saturating_add(s.3.storage_bytes())
 }
+/// Read-only checkpoint decoder has TWO physical source lifetimes:
+/// one preexisting retained Journey and one partially constructed decoded
+/// Journey. The caller has already reserved original road/service owners.
+ /// StageQueue::append_upper_bytes includes its one live tail/reallocation
+/// transient and Vec registry growth; keep the original 64KiB scratch.
+/// Do not substitute this bound for the multi-owner mutation/rollback guard.
+fn check_journey_decode_source_limit(
+    limit:Option<usize>,retained:usize,decoded_with_next_append:usize,
+)->PyResult<()> {
+    let required=retained.saturating_add(decoded_with_next_append)
+        .saturating_add(STORAGE_SCRATCH_RESERVE);
+    if let Some(cap)=limit {
+        crate::v1_trace::guard(
+            "journey_decode","source old plus one prospective decoder",
+            required,cap,&[
+                ("retained_old_journey",retained),
+                ("prospective_one_decoder",decoded_with_next_append),
+                ("scratch_original",STORAGE_SCRATCH_RESERVE),
+            ]
+        );
+        if required>cap {
+            return Err(PyMemoryError::new_err(format!(
+                "native journey source decoder storage budget exceeded: required_bytes={required}, budget_bytes={cap}"
+            )));
+        }
+    }
+    Ok(())
+}
+
 fn check_storage_limit(
     limit: Option<usize>,
     retained: usize,
@@ -1314,11 +1343,10 @@ impl NativeJourneyCore {
             remaining -= m;
             let mut stage = StageQueue::new();
             for _ in 0..m {
-                check_storage_limit(
+                check_journey_decode_source_limit(
                     self.storage_budget,
                     retained,
                     stage_bytes.saturating_add(stage.append_upper_bytes(1)),
-                    0,
                 )?;
                 stage.push((read_len(r, n)?, read_f64(r)?, read_f64(r)?, read_f64(r)?));
             }
@@ -1342,13 +1370,12 @@ impl NativeJourneyCore {
             remaining -= m;
             let mut history = ReceiptHistory::default();
             for _ in 0..m {
-                check_storage_limit(
+                check_journey_decode_source_limit(
                     self.storage_budget,
                     retained,
                     stage_bytes
                         .saturating_add(history_bytes)
                         .saturating_add(history.append_upper_bytes()),
-                    0,
                 )?;
                 history.push((read_f64(r)?, read_f64(r)?)).map_err(bad)?;
             }
@@ -2516,5 +2543,27 @@ mod surgical_checkpointability_shared_event_source_20261122_tests {
     fn a_nonidentical_current_event_arc_still_occupies_all_its_bytes() {
         assert_eq!(verified_current_event_bytes_with_input_arc(17,19,false),19);
         assert_eq!(verified_current_event_bytes_with_input_arc(0,0,true),0);
+    }
+}
+
+#[cfg(test)]
+mod v03_source_decoder_two_live_owners_r5_20261122_tests {
+    use super::*;
+    #[test]
+    fn original_100k_journey_replay_does_not_triplicate_a_single_decoder() {
+        let decoded=75_390_656usize;
+        let phase_cap=226_233_207usize;
+        assert!(check_storage_limit(Some(phase_cap),0,decoded,0).is_err());
+        assert!(check_journey_decode_source_limit(Some(phase_cap),0,decoded).is_ok());
+    }
+    #[test]
+    fn source_decoder_still_checks_real_old_plus_new_with_original_scratch() {
+        let old=100usize;
+        let new=500usize;
+        let exact=STORAGE_SCRATCH_RESERVE+old+new;
+        assert!(check_journey_decode_source_limit(Some(exact),old,new).is_ok());
+        assert!(check_journey_decode_source_limit(Some(exact-1),old,new).is_err());
+        assert!(check_journey_decode_source_limit(Some(exact-1),0,new).is_ok());
+        assert!(check_journey_decode_source_limit(None,old,new).is_ok());
     }
 }
