@@ -555,6 +555,17 @@ fn restore_source_owner_phase_bytes(
 /// NativeJourneyCore::read_state under the remaining shared byte pool.
 /// The generic 3*max bound belongs to working-state mutation, not the
 /// sequential checkpoint decoder. No pointer-sharing credits assumed here.
+/// During V1Road::read_state only one old Journey and one old immutable
+/// service EventRow payload remain outside the road decoder. The original
+/// old road state is already charged by RoadDecodeBudget::retained_input,
+/// and the ONE candidate decoded road is counted by RoadDecodeBudget::decoded
+/// as rows arrive. Never charge three fictitious *outside* Journey/event
+/// owners before the first decoded Part is examined. The global 8GiB and
+/// all original per-row RoadDecodeBudget guards are unchanged.
+fn road_decode_other_source_owners_bytes(old_journey:usize,old_events:usize)->usize {
+    old_journey.saturating_add(old_events)
+}
+
 fn journey_decode_other_live_owners_bytes(
     old_road:usize, decoded_road:usize,
     old_events:usize, decoded_events:usize,
@@ -1906,10 +1917,14 @@ impl NativeWholeEngine {
             let old_journey = journey_storage_bytes(self.journey.state());
             let old_events = self.service.event_storage_bytes();
             if self.runtime_storage.is_some() {
-                let road_limit = self.pool_after(
-                    old_journey.saturating_add(old_events).saturating_mul(3),
-                    "road decode",
-                )?;
+                let source_other=road_decode_other_source_owners_bytes(
+                    old_journey,old_events
+                );
+                crate::v1_trace::add(
+                    "road_decode.parent_original_journey_event_owners",
+                    source_other as u64,
+                );
+                let road_limit=self.pool_after(source_other,"road decode")?;
                 self.road.set_phase_storage_budget(road_limit)?;
             }
             let road = self.road.read_state(&mut f)?;
@@ -2192,5 +2207,30 @@ mod v03_load_validation_two_real_owners_r9_20261122_tests {
     fn no_unverified_arc_duplicate_credit_on_two_independent_payloads() {
         assert_eq!(loaded_bundle_validation_owners_bytes(5,5,7,7,11,11),46);
         assert_eq!(loaded_bundle_validation_owners_bytes(0,0,0,0,0,0),0);
+    }
+}
+
+#[cfg(test)]
+mod v03_original_25720_road_decoder_real_parent_owners_20261122_tests {
+    use super::*;
+
+    #[test]
+    fn road_decoder_parent_reserves_only_real_unrelated_journey_and_events() {
+        let old_journey=100_000usize;
+        let old_events=20_000usize;
+        let unrelated=road_decode_other_source_owners_bytes(old_journey,old_events);
+        assert_eq!(unrelated,120_000);
+        assert!(unrelated<3*(old_journey+old_events));
+        // The old committed ROAD owner is NOT an unrelated parent term:
+        // V1Road::read_state separately charges it in RoadDecodeBudget::retained_input.
+        let old_road=30_000usize;
+        assert_eq!(unrelated+old_road,150_000);
+    }
+
+    #[test]
+    fn zero_unrelated_owners_never_consumes_fictitious_parent_allowance() {
+        assert_eq!(road_decode_other_source_owners_bytes(0,0),0);
+        assert_eq!(road_decode_other_source_owners_bytes(500,0),500);
+        assert_eq!(road_decode_other_source_owners_bytes(0,500),500);
     }
 }
