@@ -566,6 +566,28 @@ fn road_decode_other_source_owners_bytes(old_journey:usize,old_events:usize)->us
     old_journey.saturating_add(old_events)
 }
 
+/// Sequential checkpoint service decoding occurs after ONE decoded RoadState
+/// exists, while the original committed RoadState, old Journey and old
+/// service EventRow Vec remain alive. The next EventRow Vec is independent;
+/// reserve all FOUR real old/new owners, then allow precisely the remainder
+/// for its source row count (and 128-byte allocator reserve). No hypothetical
+/// second or third independent event decoder is present at this point. The
+/// original configured record ceiling and shared runtime pool are unchanged.
+fn service_decode_real_live_event_limit(
+    pool:usize,old_road:usize,decoded_road:usize,
+    old_journey:usize,old_events:usize,config_limit:usize,
+)->PyResult<usize> {
+    let source_reserved=old_road.saturating_add(decoded_road)
+        .saturating_add(old_journey).saturating_add(old_events)
+        .saturating_add(128);
+    let free=pool.checked_sub(source_reserved).ok_or_else(||
+        PyMemoryError::new_err(format!(
+            "native service decode source owners exhaust runtime pool: reserved_bytes={source_reserved}, budget_bytes={pool}"
+        ))
+    )?;
+    Ok(config_limit.min(free/std::mem::size_of::<crate::v1_road::EventRow>()))
+}
+
 fn journey_decode_other_live_owners_bytes(
     old_road:usize, decoded_road:usize,
     old_events:usize, decoded_events:usize,
@@ -1931,23 +1953,15 @@ impl NativeWholeEngine {
             let road_bytes = road
                 .retained_storage_bytes()
                 .max(self.road.owned_storage_bytes());
-            let event_limit = if self.runtime_storage.is_some() {
-                let remaining = self.pool_after(
-                    road_bytes.saturating_add(old_journey).saturating_mul(3),
-                    "service decode",
+            let event_limit=if let Some(pool)=self.road_storage_bytes {
+                let actual=service_decode_real_live_event_limit(
+                    pool,self.road.owned_storage_bytes(),
+                    road.retained_storage_bytes(),old_journey,old_events,
+                    self.event_limit,
                 )?;
-                if old_events.saturating_mul(3) > remaining {
-                    return Err(PyMemoryError::new_err(
-                        "native retained service event storage budget exceeded before decode",
-                    ));
-                }
-                self.event_limit.min(
-                    (remaining / 3).saturating_sub(128)
-                        / std::mem::size_of::<crate::v1_road::EventRow>(),
-                )
-            } else {
-                self.event_limit
-            };
+                crate::v1_trace::add("service_decode.source_live_event_row_ceiling",actual as u64);
+                actual
+            } else {self.event_limit};
             let service = self.service.read_state(&mut f, event_limit)?;
             let events = service_event_storage_bytes(&service).max(old_events);
             if self.runtime_storage.is_some() {
@@ -2232,5 +2246,42 @@ mod v03_original_25720_road_decoder_real_parent_owners_20261122_tests {
         assert_eq!(road_decode_other_source_owners_bytes(0,0),0);
         assert_eq!(road_decode_other_source_owners_bytes(500,0),500);
         assert_eq!(road_decode_other_source_owners_bytes(0,500),500);
+    }
+}
+
+#[cfg(test)]
+mod v03_original_service_decode_exact_live_owners_r9_20261122_tests {
+    use super::*;
+    #[test]
+    fn two_real_road_owners_and_one_old_journey_event_limit_live_during_decode() {
+        let size=std::mem::size_of::<crate::v1_road::EventRow>();
+        let oldroad=100usize;
+        let decodedroad=300usize;
+        let oldjourney=200usize;
+        let oldevents=400usize;
+        let free_bytes=25usize.saturating_mul(size)+128;
+        let pool=oldroad+decodedroad+oldjourney+oldevents+free_bytes;
+        let accepted=service_decode_real_live_event_limit(
+            pool,oldroad,decodedroad,oldjourney,oldevents,1000).unwrap();
+        assert_eq!(accepted,25);
+        assert_eq!(service_decode_real_live_event_limit(
+            pool-1,oldroad,decodedroad,oldjourney,oldevents,1000).unwrap(),24);
+        assert_eq!(service_decode_real_live_event_limit(
+            pool,oldroad,decodedroad,oldjourney,oldevents,15).unwrap(),15);
+        assert!(service_decode_real_live_event_limit(
+            oldroad+decodedroad+oldjourney+oldevents+128-1,
+            oldroad,decodedroad,oldjourney,oldevents,1000).is_err());
+    }
+    #[test]
+    fn future_decoded_event_allocation_cannot_be_discounted_as_existing_arc_clone() {
+        let size=std::mem::size_of::<crate::v1_road::EventRow>();
+        let oldroad=300usize;
+        let decodedroad=300usize;
+        let oldjourney=300usize;
+        let oldevents=200usize;
+        let one_new=service_decode_real_live_event_limit(
+            oldroad+decodedroad+oldjourney+oldevents+5*size+128,
+            oldroad,decodedroad,oldjourney,oldevents,100).unwrap();
+        assert_eq!(one_new,5);
     }
 }
