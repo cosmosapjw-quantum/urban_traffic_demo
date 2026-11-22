@@ -531,6 +531,24 @@ fn capture_validation_real_owner_phase_bytes(
         .saturating_add(current_events)
 }
 
+/// Source-exact save/restore phase: existing native owners, the supplied
+/// authoritative checkpoint Bundle, then rollback() clones the supplied
+/// state. Its Part Arc payloads and service EventRow Arc remain shared;
+/// all road/journey shells are still conservatively counted as copies.
+fn restore_source_owner_phase_bytes(
+    input_road:usize,current_road:usize,verified_input_arc_credit:usize,
+    input_journey:usize,current_journey:usize,
+    input_events:usize,current_events:usize,
+)->usize {
+    input_road.saturating_mul(2)
+        .saturating_add(current_road)
+        .saturating_sub(verified_input_arc_credit.min(input_road))
+        .saturating_add(input_journey.saturating_mul(2))
+        .saturating_add(current_journey)
+        .saturating_add(input_events)
+        .saturating_add(current_events)
+}
+
 impl NativeWholeEngine {
     fn build(
         calendar: &NativeCalendar,
@@ -1105,22 +1123,41 @@ impl NativeWholeEngine {
         );
         crate::v1_trace::add("engine_admission.verified_future_capture_arc_credit",
             captured_arc_credit as u64);
-        // Source-visible, post-advance capture with an actual retained
-        // caller input: old input Bundle + current committed owners +
-        // future capture() shells. Only the immutable Arc payloads are
-        // guaranteed shared, by original checkpoint()/capture() source.
-        // Preserve the old 3*max bound for restore/decode or other phases.
+        // Source-visible phases have distinct, non-overlapping ownership:
+        // post-advance capture() clones the current states, while restore()
+        // clones the supplied already-completed Bundle. In both cases the
+        // original immutable Part and service EventRow Arc data are shared
+        // as proved by the original checkpoint() and rollback() source.
+        // Keep old 3*max for decoder/unknown generic admission.
         let source_capture = validate && input.is_some();
-        let phase_owners = if let Some(input) = input.filter(|_|validate) {
-            capture_validation_real_owner_phase_bytes(
-                input.road.retained_storage_bytes(),
-                road_bytes.max(self.road.owned_storage_bytes()),
-                captured_arc_credit,
-                journey_storage_bytes(&input.journey),
-                journey_storage_bytes(j).max(journey_storage_bytes(self.journey.state())),
-                service_event_storage_bytes(&input.service),
-                event_bytes.max(self.service.event_storage_bytes()),
-            )
+        let source_restore = !validate && input.is_some();
+        let restore_arc_credit=if source_restore {
+            input.map_or(0,|source|
+                source.road.arc_backing_census().unique_payload_bytes
+                    .min(source.road.retained_storage_bytes()))
+        } else {0};
+        let phase_owners=if let Some(source)=input {
+            if validate {
+                capture_validation_real_owner_phase_bytes(
+                    source.road.retained_storage_bytes(),
+                    road_bytes.max(self.road.owned_storage_bytes()),
+                    captured_arc_credit,
+                    journey_storage_bytes(&source.journey),
+                    journey_storage_bytes(j).max(journey_storage_bytes(self.journey.state())),
+                    service_event_storage_bytes(&source.service),
+                    event_bytes.max(self.service.event_storage_bytes()),
+                )
+            } else {
+                restore_source_owner_phase_bytes(
+                    source.road.retained_storage_bytes(),
+                    self.road.owned_storage_bytes(),
+                    restore_arc_credit,
+                    journey_storage_bytes(&source.journey),
+                    journey_storage_bytes(self.journey.state()),
+                    service_event_storage_bytes(&source.service),
+                    self.service.event_storage_bytes(),
+                )
+            }
         } else {
             r.saturating_mul(3)
                 .saturating_sub(captured_arc_credit)
@@ -1146,6 +1183,8 @@ impl NativeWholeEngine {
                 ("road", r),
                 ("verified_future_capture_arc_credit",captured_arc_credit),
                 ("post_advance_source_capture",usize::from(source_capture)),
+                ("source_exact_restore",usize::from(source_restore)),
+                ("source_restore_verified_future_arc_credit",restore_arc_credit),
                 ("source_capture_live_owner_bytes",phase_owners),
                 ("road_3max_without_credit",r.saturating_mul(3)),
                 ("journey", d),
@@ -1266,7 +1305,7 @@ impl NativeWholeEngine {
             state.value.road.retained_storage_bytes(),
             0,
             service_event_storage_bytes(&state.value.service),
-            None,
+            Some(&state.value),
             false,
         )?;
         self.road.rollback(state.value.road.clone());
@@ -2006,5 +2045,34 @@ mod surgical_capture_validation_three_live_owners_20261122_tests {
             10,20,0,30,40,50,60,
         );
         assert_eq!(accounted,10+20+20+30+40+40+50+60);
+    }
+}
+
+#[cfg(test)]
+mod surgical_save_restore_arc_source_20261122_tests {
+    use super::*;
+    #[test]
+    fn saving_original_100k_snapshot_restores_only_real_arc_backings() {
+        let road_input=877_913_216usize;
+        let road_current=877_913_216usize;
+        let immutable_input_arc_credit=811_733_088usize;
+        let journey_input=285_239_408usize;
+        let journey_current=285_239_408usize;
+        let event_input=1_115_458_368usize;
+        let event_current=1_115_458_368usize;
+        let phase=restore_source_owner_phase_bytes(
+            road_input,road_current,immutable_input_arc_credit,
+            journey_input,journey_current,event_input,event_current,
+        );
+        let required=570_379_173usize+82_704_900usize+phase;
+        assert_eq!(required,5_561_725_593);
+        assert!(required<6_442_450_944);
+        assert!(7_488_917_049usize>6_442_450_944usize);
+    }
+    #[test]
+    fn unrelated_original_owners_are_charged_even_when_no_arc_credit_is_available() {
+        assert_eq!(restore_source_owner_phase_bytes(5,7,0,11,13,17,19),
+                   2*5+7+2*11+13+17+19);
+        assert_eq!(restore_source_owner_phase_bytes(0,0,100,0,0,0,0),0);
     }
 }
