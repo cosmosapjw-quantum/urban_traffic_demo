@@ -262,6 +262,40 @@ fn stage_storage_bytes(s: &Journey) -> usize {
         .saturating_add(s.2.storage_bytes())
         .saturating_add(s.3.storage_bytes())
 }
+/// Exact pointer intersection across all three StageQueue owners. One
+/// immutable Arc<Block> payload is counted only once, even when the same
+/// allocation appears in two different route-stage registries. Block
+/// headers, Arc control, pointer Vec registry, ReceiptHistory and metadata
+/// stay fully charged in each owner. The temporary pointer HashMap's
+/// measured capacity is included as separate source census scratch.
+#[derive(Default,Clone,Copy)]
+struct JourneyStageArcOverlap {
+    shared_payload_bytes:usize,
+    temporary_census_scratch_bytes:usize,
+}
+fn journey_shared_stage_payload_census(
+    left:&Journey,right:&Journey,
+)->JourneyStageArcOverlap {
+    let mut witness=HashMap::<usize,usize>::new();
+    for queue in [&left.1,&left.2,&left.3] {
+        queue.visit_immutable_row_payloads(|ptr,bytes|{
+            witness.entry(ptr).or_insert(bytes);
+        });
+    }
+    let scratch=hash_capacity_storage_bytes::<usize,usize>(witness.capacity());
+    let mut shared=0usize;
+    for queue in [&right.1,&right.2,&right.3] {
+        queue.visit_immutable_row_payloads(|ptr,_|{
+            if let Some(bytes)=witness.remove(&ptr) {
+                shared=shared.saturating_add(bytes);
+            }
+        });
+    }
+    JourneyStageArcOverlap{
+        shared_payload_bytes:shared,
+        temporary_census_scratch_bytes:scratch,
+    }
+}
 /// Read-only checkpoint decoder has TWO physical source lifetimes:
 /// one preexisting retained Journey and one partially constructed decoded
 /// Journey. The caller has already reserved original road/service owners.
@@ -396,6 +430,45 @@ fn checkpointability_source_road_arc_lifetimes(
     checkpointability_phase_lifetime_bytes(t)
         .saturating_sub(old_road)
         .saturating_add(physical_candidate.max(independent_decode))
+}
+
+/// Two mutually exclusive source lifetimes:
+/// (A) current candidate road+journey plus validation scratch;
+/// (B) FUTURE independent checkpoint decoder road+journey plus decoder
+/// scratch. Shared original input/old StageQueue Arc payload applies to
+/// both, but old/new candidate shared data is NOT an alias of the future
+/// independently decoded state. Real input, shell owners, EventRow buffers
+/// and the temporary source-census HashMap are all explicitly charged.
+fn checkpointability_source_joint_phase_bytes(
+    t:CheckpointabilityTerms,road_input_credit:usize,road_candidate_credit:usize,
+    journey_input_credit:usize,journey_candidate_credit:usize,
+    census_scratch:usize,
+)->usize {
+    let road_input_credit=road_input_credit.min(t.input_road).min(t.current_road);
+    let road_candidate_credit=road_candidate_credit
+        .min(t.current_road).min(t.candidate_road);
+    let journey_input_credit=journey_input_credit
+        .min(t.journey_input).min(t.journey_old);
+    let journey_candidate_credit=journey_candidate_credit
+        .min(t.journey_old).min(t.journey_new);
+    let fixed=t.input_road.saturating_add(t.current_road)
+        .saturating_sub(road_input_credit)
+        .saturating_add(t.journey_input)
+        .saturating_add(t.journey_old)
+        .saturating_sub(journey_input_credit)
+        .saturating_add(t.event_input)
+        .saturating_add(t.event_current)
+        .saturating_add(t.event_candidate);
+    let candidate=t.candidate_road
+        .saturating_sub(road_candidate_credit)
+        .saturating_add(t.journey_new.saturating_sub(journey_candidate_credit))
+        .saturating_add(t.validation_scratch
+            .saturating_sub(t.call_binding_reserve)
+            .max(STORAGE_SCRATCH_RESERVE));
+    let future=t.decoded_road.saturating_add(t.journey_decoded)
+        .saturating_add(t.road_decode_scratch.max(STORAGE_SCRATCH_RESERVE));
+    fixed.saturating_add(candidate.max(future))
+        .saturating_add(census_scratch)
 }
 
 fn phase_storage_allowance(total: usize, other_live: usize, phase: &str) -> PyResult<usize> {
@@ -1495,7 +1568,7 @@ pub fn advance_native_joint(
     let service = &mut *service;
     let journey = &mut *journey;
     py.allow_threads(move || {
-        advance_owned_joint(road, service, journey, &tags, count, step_s, None, 0, None)
+        advance_owned_joint(road, service, journey, &tags, count, step_s, None, 0, None, None)
     })
 }
 
@@ -1509,6 +1582,7 @@ pub(crate) fn advance_owned_joint(
     dynamic_budget: Option<usize>,
     call_binding_reserve: usize,
     original_input_road_shared: Option<(f64,usize)>,
+    original_input_journey: Option<&Journey>,
 ) -> PyResult<usize> {
     journey.phase_metrics = JourneyPhaseMetrics::default();
     // The Python input snapshot remains live throughout this call, even when
@@ -1807,8 +1881,24 @@ pub(crate) fn advance_owned_joint(
                     road.source_joint_road_owner_charge(
                         &road_candidate,input_road_bytes,original_input_road_shared
                     );
-                let required=checkpointability_source_road_arc_lifetimes(
-                    lifetime,source_arc_credit,candidate_arc_credit
+                let source_old_journey=match (
+                    original_input_journey,journey.deferred_previous.as_ref(),
+                ){
+                    (Some(input),Some((old,_,_,_,_)))=>
+                        journey_shared_stage_payload_census(input,old),
+                    _=>JourneyStageArcOverlap::default(),
+                };
+                let old_new_journey=journey.deferred_previous.as_ref().map_or(
+                    JourneyStageArcOverlap::default(),
+                    |(old,_,_,_,_)|journey_shared_stage_payload_census(old,&journey.state),
+                );
+                let exact_census_scratch=source_old_journey.temporary_census_scratch_bytes
+                    .max(old_new_journey.temporary_census_scratch_bytes);
+                let required=checkpointability_source_joint_phase_bytes(
+                    lifetime,source_arc_credit,candidate_arc_credit,
+                    source_old_journey.shared_payload_bytes,
+                    old_new_journey.shared_payload_bytes,
+                    exact_census_scratch,
                 );
                 let observed = crate::v1_trace::guard(
                     "journey_commit",
@@ -1821,6 +1911,9 @@ pub(crate) fn advance_owned_joint(
                         ("candidate_road", candidate_road_bytes),
                         ("source_input_verified_shared_road_arcs",source_arc_credit),
                         ("committed_candidate_verified_shared_road_arcs",candidate_arc_credit),
+                        ("source_old_verified_shared_stage_arc_payload",source_old_journey.shared_payload_bytes),
+                        ("old_candidate_verified_shared_stage_arc_payload",old_new_journey.shared_payload_bytes),
+                        ("stage_census_actual_scratch",exact_census_scratch),
                         ("decoded_road", decoded_road),
                         ("journey_retained_input", journey.retained_input_bytes),
                         ("old_journey", old_journey_bytes),
@@ -2641,5 +2734,71 @@ mod v03_joint_checkpointability_exact_arc_lifetimes_20261122_tests {
         assert_eq!(real_candidate_road,280);
         assert_eq!(old-corrected,80);
         assert!(checkpointability_source_road_arc_lifetimes(t,0,0)>=corrected);
+    }
+}
+
+#[cfg(test)]
+mod v03_immutable_journey_block_source_identity_20261122_tests {
+    use super::*;
+    fn journey()->Journey {
+        let mut q=StageQueue::new();
+        for i in 0..750 {
+            q.push((i%3,1.0,i as f64,FIXTURE_DURATION));
+        }
+        (0.,q,StageQueue::new(),StageQueue::new(),
+         Vec::new(),Vec::new(),Vec::new(),Vec::new())
+    }
+    const FIXTURE_DURATION:f64=4.0;
+
+    #[test]
+    fn actual_arc_block_clone_witnesses_payload_share_but_independent_values_do_not() {
+        let input=journey();
+        let old=input.clone();
+        let separate=journey();
+        let a=journey_shared_stage_payload_census(&input,&old);
+        assert!(a.shared_payload_bytes>0);
+        assert!(a.shared_payload_bytes<input.1.storage_bytes());
+        assert!(a.shared_payload_bytes<old.1.storage_bytes());
+        // Vec<Arc<Block>> registry capacities are independently owned,
+        // and Clone may tighten the handle Vec capacity; do not equate them.
+        assert!(input.1.storage_bytes()!=a.shared_payload_bytes);
+        assert!(old.1.storage_bytes()!=a.shared_payload_bytes);
+        let b=journey_shared_stage_payload_census(&input,&separate);
+        assert_eq!(b.shared_payload_bytes,0);
+        assert!(a.temporary_census_scratch_bytes>0);
+        assert!(a.temporary_census_scratch_bytes<1024*1024);
+    }
+
+    #[test]
+    fn moving_one_immutable_block_across_route_stage_still_counts_once() {
+        let a=journey();
+        let mut b=a.clone();
+        // Reassign a shared block owner from one stage index to another;
+        // source ordered rows are unchanged for the purpose of this audit.
+        b.2=b.1.clone();
+        b.1=StageQueue::new();
+        let c=journey_shared_stage_payload_census(&a,&b);
+        assert!(c.shared_payload_bytes>0);
+        assert_eq!(c.shared_payload_bytes,
+            journey_shared_stage_payload_census(&a,&a).shared_payload_bytes);
+    }
+
+    #[test]
+    fn coupled_candidate_vs_future_decode_phase_max_does_not_sum_two_peaks() {
+        let t=CheckpointabilityTerms{
+            input_road:100,current_road:100,
+            candidate_road:400,decoded_road:100,
+            journey_input:100,journey_old:100,
+            journey_new:100,journey_decoded:400,
+            event_input:100,event_current:0,event_candidate:100,
+            validation_scratch:120000,call_binding_reserve:0,
+            road_decode_scratch:180000,
+        };
+        let generic=checkpointability_source_road_arc_lifetimes(t,0,0);
+        let x=checkpointability_source_joint_phase_bytes(t,0,0,0,0,0);
+        assert!(x<generic);
+        let y=checkpointability_source_joint_phase_bytes(t,50,30,20,10,200);
+        assert!(y<=x+200);
+        assert_eq!(checkpointability_source_joint_phase_bytes(t,0,0,0,0,0),x);
     }
 }

@@ -255,6 +255,18 @@ impl StageQueue {
             self.blocks.shrink_to_fit();
         }
     }
+    /// Exact ArcInner pointer and the immutable Access Vec payload capacity.
+    /// Source registry Vec, Block metadata and allocator padding stay charged
+    /// individually in every Journey state; only real duplicate row buffers
+    /// can be credited across multiple simultaneously alive stage owners.
+    pub(crate) fn visit_immutable_row_payloads(
+        &self,mut visit:impl FnMut(usize,usize),
+    ) {
+        for block in &self.blocks {
+            visit(Arc::as_ptr(block) as usize,
+                block.rows.capacity().saturating_mul(std::mem::size_of::<Access>()));
+        }
+    }
     fn shared_rows(&self, other: &Self) -> usize {
         // Inspection only; sort integer pointers instead of comparing O(B^2).
         let mut pointers: Vec<_> = other

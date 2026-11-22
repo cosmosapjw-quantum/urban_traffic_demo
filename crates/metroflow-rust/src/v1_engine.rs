@@ -1525,6 +1525,7 @@ impl NativeWholeEngine {
                     dynamic_budget,
                     call_binding_reserve,
                     original_road_shared,
+                    Some(&state.value.journey),
                 )
             })
         });
