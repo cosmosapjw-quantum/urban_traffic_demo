@@ -615,6 +615,22 @@ fn postroad_continuous_keyset_peak_bytes(
         .saturating_add(3*32)
 }
 
+
+/// Keyset intern is an OPTIONAL immutable representation optimization, not a
+/// precondition for a completed physical road state. If its conservative
+/// all-candidate transient allocation estimate does not fit, do not start
+/// allocating keys or moments. Existing Uniform and SharedKeys packets are
+/// fully usable, exactly checkpointable and will be subject to subsequent
+/// unchanged source/step storage guards.
+fn maybe_intern_exact_keysets(
+    candidate:&mut RoadState, limit:usize, required:usize,
+)->PyResult<(usize,bool)> {
+    if required>limit {
+        return Ok((0,true));
+    }
+    Ok((candidate.intern_exact_keysets()?,false))
+}
+
 fn postroad_event_materialization_bytes(
     road_owner_bytes:usize, old_event_bytes:usize,
     paged_payload_bytes:usize, page_header_capacity:usize, n:usize,
@@ -3149,8 +3165,13 @@ impl V1Road {
             let required=postroad_continuous_keyset_peak_bytes(
                 owner_sum,old_events,flat.len(),stats.uniform_parts,packets,
             );
+            // A global canonicalization is optional metadata compression.
+            // Its high conservative temporary-copy peak must NOT invalidate
+            // an already computed, physically admissible RoadState.
+            // Postroad flat EventRow materialization was separately checked
+            // above, and subsequent simulation checkpoints have hard caps.
             crate::v1_trace::guard(
-                "road_post","continuous keyset allocation",required,limit,
+                "road_post","optional keyset interning estimate",required,limit,
                 &[("committed_road_retained",committed_retained),
                   ("supplied_input_road_retained",supplied_retained),
                   ("candidate_road_retained",candidate_retained),
@@ -3158,12 +3179,16 @@ impl V1Road {
                   ("flat_event_rows",flat.len()),("candidate_uniform_rows",stats.uniform_parts),
                   ("candidate_packets",packets)],
             );
-            check_storage_limit(Some(limit),required,"continuous keyset allocation")?;
             let before=candidate.retained_storage_bytes();
-            let changed=candidate.intern_exact_keysets()?;
-            let after=candidate.retained_storage_bytes();
-            crate::v1_trace::add("keyset.continuous_converted",changed as u64);
-            crate::v1_trace::add("keyset.continuous_saved_bytes",before.saturating_sub(after) as u64);
+            let (changed,deferred)=maybe_intern_exact_keysets(candidate,limit,required)?;
+            if deferred {
+                crate::v1_trace::add("keyset.surgical_deferred_due_to_budget",1);
+                crate::v1_trace::add("keyset.surgical_estimated_required_bytes",required as u64);
+            } else {
+                let after=candidate.retained_storage_bytes();
+                crate::v1_trace::add("keyset.continuous_converted",changed as u64);
+                crate::v1_trace::add("keyset.continuous_saved_bytes",before.saturating_sub(after) as u64);
+            }
         }
         Ok(flat)
     }
@@ -7444,5 +7469,48 @@ mod postroad_three_concrete_owner_materialization_tests {
         assert!(old>original_cap);
         assert!(corrected<original_cap);
         assert!(old-corrected>=494_519_936);
+    }
+}
+
+#[cfg(test)]
+mod surgical_optional_keyset_gate_20261122_tests {
+    use super::*;
+    fn p(x:f64)->PacketParts{
+        PacketParts::Uniform {
+            a:PackedTime::new(Some(-0.)).unwrap(),
+            b:PackedTime::new(Some(1.)).unwrap(),
+            rows:Arc::new((0..32).map(|j|CorePart{
+                tag:(j%17) as u32,offset:(j/17) as u32,
+                mass: if j==0{f64::from_bits(1)}else{x+j as f64},
+                birth: if j==0{-0.0}else{x*j as f64/3.},
+            }).collect()),
+        }
+    }
+    fn state()->RoadState{
+        RoadState {t:1.,cells:vec![Cell{v:[0.;8],packets:
+            vec![Packet{target:0.,parts:p(0.25)},Packet{target:1.,parts:p(0.5)}],
+            latent:BTreeMap::new()}],pending:vec![vec![]],
+            totals:[0.;7],ledger:vec![]}
+    }
+    fn bits(s:&RoadState)->Vec<Vec<(usize,usize,u64,u64,u64,u64)>> {
+        s.cells[0].packets.iter().map(|p|p.parts.iter().map(|v|
+            (v.tag,v.offset,v.mass.to_bits(),v.birth.to_bits(),v.a.0,v.b.0)
+        ).collect()).collect()
+    }
+    #[test]
+    fn under_budget_optional_keyset_defers_without_touching_original_physics() {
+        let mut s=state();
+        let expected=bits(&s);
+        let (changed,deferred)=maybe_intern_exact_keysets(&mut s,1000,1001).unwrap();
+        assert_eq!(changed,0);
+        assert!(deferred);
+        assert_eq!(bits(&s),expected);
+        assert!(s.cells[0].packets.iter().all(|p|
+            matches!(p.parts,PacketParts::Uniform{..})));
+        let (changed,deferred)=maybe_intern_exact_keysets(&mut s,1001,1001).unwrap();
+        assert!(changed>=2 && !deferred);
+        assert_eq!(bits(&s),expected);
+        assert!(matches!(s.cells[0].packets[0].parts,PacketParts::SharedKeys{..}));
+        assert!(matches!(s.cells[0].packets[1].parts,PacketParts::SharedKeys{..}));
     }
 }
