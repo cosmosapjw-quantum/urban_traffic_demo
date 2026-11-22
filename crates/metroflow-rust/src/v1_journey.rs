@@ -248,6 +248,14 @@ fn concrete_service_event_owner_bytes(
         three_concrete_owner_bytes(input,current,candidate)
     }
 }
+/// Only the same live Arc backing can be subtracted at this commit gate.
+/// Equality of payload content or size is NOT enough. On an unexpected
+/// mismatch in byte accounting retain the old current-owner charge.
+fn verified_current_event_bytes_with_input_arc(
+    input:usize,current:usize,input_current_arc_shared:bool,
+)->usize {
+    if input_current_arc_shared && input==current {0} else {current}
+}
 const STORAGE_SCRATCH_RESERVE: usize = 64 * 1024;
 fn stage_storage_bytes(s: &Journey) -> usize {
     s.1.storage_bytes()
@@ -1714,6 +1722,11 @@ pub(crate) fn advance_owned_joint(
                 // checkpoint decode. The input and committed owners are
                 // charged separately in both. The decoder is not live while
                 // this new candidate is still in the current transition.
+                let old_event_arc_shared=
+                    Arc::ptr_eq(&call_input_events,&service.last_events);
+                let effective_current_event=verified_current_event_bytes_with_input_arc(
+                    input_event_bytes,current_event_bytes,old_event_arc_shared
+                );
                 let lifetime=CheckpointabilityTerms {
                     input_road:input_road_bytes,
                     current_road:current_road_bytes,
@@ -1724,7 +1737,7 @@ pub(crate) fn advance_owned_joint(
                     journey_new:new_journey_bytes,
                     journey_decoded:decoded_journey,
                     event_input:input_event_bytes,
-                    event_current:current_event_bytes,
+                    event_current:effective_current_event,
                     event_candidate:candidate_event_bytes,
                     validation_scratch:scratch,
                     call_binding_reserve,
@@ -1747,6 +1760,8 @@ pub(crate) fn advance_owned_joint(
                         ("decoded_journey", decoded_journey),
                         ("input_event", input_event_bytes),
                         ("current_event", current_event_bytes),
+                        ("current_event_charged", effective_current_event),
+                        ("old_event_arc_pointer_identical",usize::from(old_event_arc_shared)),
                         ("candidate_event", candidate_event_bytes),
                         ("validation_scratch", scratch),
                         ("call_binding_reserve", call_binding_reserve),
@@ -1758,7 +1773,7 @@ pub(crate) fn advance_owned_joint(
                             .saturating_add(old_journey_bytes)
                             .saturating_add(new_journey_bytes.max(decoded_journey))),
                         ("phase_event_charge",input_event_bytes
-                            .saturating_add(current_event_bytes)
+                            .saturating_add(effective_current_event)
                             .saturating_add(candidate_event_bytes)),
                     ],
                 );
@@ -2470,5 +2485,36 @@ mod surgical_service_arc_alias_identity_tests_20261122 {
         assert_eq!(revised,5_097_794_152);
         assert!(revised<5_789_366_871);
         assert!(revised<6_021_458_856);
+    }
+}
+
+#[cfg(test)]
+mod surgical_checkpointability_shared_event_source_20261122_tests {
+    use super::*;
+    #[test]
+    fn actual_original_100k_checkpoint_decode_and_candidate_never_charge_same_old_arc_twice() {
+        let mut c=CheckpointabilityTerms {
+            input_road:630_653_248,current_road:630_653_248,
+            candidate_road:877_913_216,decoded_road:877_956_416,
+            journey_input:249_753_000,journey_old:249_753_000,
+            journey_new:285_239_408,journey_decoded:288_818_456,
+            event_input:923_664_576,event_current:923_664_576,
+            event_candidate:1_115_458_368,
+            validation_scratch:411_841_968,call_binding_reserve:82_704_900,
+            road_decode_scratch:675_148_032,
+        };
+        let old=checkpointability_phase_lifetime_bytes(c);
+        assert_eq!(old,6_565_522_920);
+        c.event_current=verified_current_event_bytes_with_input_arc(
+            c.event_input,c.event_current,true);
+        let new=checkpointability_phase_lifetime_bytes(c);
+        assert_eq!(new,5_641_858_344);
+        assert_eq!(old-new,923_664_576);
+        assert!(new<5_789_366_871);
+    }
+    #[test]
+    fn a_nonidentical_current_event_arc_still_occupies_all_its_bytes() {
+        assert_eq!(verified_current_event_bytes_with_input_arc(17,19,false),19);
+        assert_eq!(verified_current_event_bytes_with_input_arc(0,0,true),0);
     }
 }
