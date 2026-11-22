@@ -1498,6 +1498,13 @@ impl NativeWholeEngine {
             return Err(PyMemoryError::new_err("native call observation storage budget exceeded; split the requested horizon into bounded calls"));
         }
         self.restore(state)?;
+        // Source proof at the exact NativeWholeState held by Python:
+        // restore cloned the supplied immutable road Part Arcs, not their
+        // payload Vecs. The credit is valid only for this input clock.
+        let original_road_shared=if self.road_storage_bytes.is_some() {
+            Some((state.value.road.time(),
+                  self.road.committed_input_source_arc_credit(&state.value.road)))
+        } else {None};
         let dynamic_budget = self.road_storage_bytes;
         let call_binding_reserve = self.runtime_storage.as_ref().map_or(0, |a| a.call_binding);
         let parallel = &self.parallel;
@@ -1517,6 +1524,7 @@ impl NativeWholeEngine {
                     step,
                     dynamic_budget,
                     call_binding_reserve,
+                    original_road_shared,
                 )
             })
         });

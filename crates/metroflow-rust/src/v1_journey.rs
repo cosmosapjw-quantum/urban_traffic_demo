@@ -1468,7 +1468,7 @@ pub fn advance_native_joint(
     let service = &mut *service;
     let journey = &mut *journey;
     py.allow_threads(move || {
-        advance_owned_joint(road, service, journey, &tags, count, step_s, None, 0)
+        advance_owned_joint(road, service, journey, &tags, count, step_s, None, 0, None)
     })
 }
 
@@ -1481,6 +1481,7 @@ pub(crate) fn advance_owned_joint(
     step_s: f64,
     dynamic_budget: Option<usize>,
     call_binding_reserve: usize,
+    original_input_road_shared: Option<(f64,usize)>,
 ) -> PyResult<usize> {
     journey.phase_metrics = JourneyPhaseMetrics::default();
     // The Python input snapshot remains live throughout this call, even when
@@ -1495,6 +1496,7 @@ pub(crate) fn advance_owned_joint(
             .saturating_mul(std::mem::size_of::<EventRow>()),
         tags.iter().map(String::capacity).max().unwrap_or(0),
         Arc::ptr_eq(&call_input_events, &service.last_events),
+        original_input_road_shared,
     );
     let input_road_bytes = if dynamic_budget.is_some() {
         road.owned_storage_bytes()

@@ -424,6 +424,9 @@ struct ServiceEventAccounting {
     // event buffers permits one-copy payload accounting.
     shared_input_current: bool,
     max_tag_bytes: usize,
+    /// Exact original NativeWholeEngine::restore snapshot–committed RoadState
+    /// Arc overlap before advance. Applies ONLY at the old source clock.
+    original_input_road_shared: Option<(f64,usize)>,
 }
 impl ServiceEventAccounting {
     /// Event buffers live during the road step: the call-input and current
@@ -602,6 +605,32 @@ fn postroad_materialization_owner_bytes(
     committed:usize,input:usize,candidate:usize,
 )->usize {
     postroad_continuous_owner_sum(committed,input,candidate)
+}
+/// Source-exact triple-owner charge: keep ALL observable road shells and
+/// every unique immutable packet backing. Original source input and the
+/// currently committed road were cloned by NativeWholeEngine::restore at a
+/// source-verified physical clock. No other call path is granted this credit.
+/// Only Arc pointer identities actually common to current+candidate are
+/// credited on the second pair. Same-valued but independently allocated
+/// arrays are never counted as aliases.
+fn postroad_source_verified_arc_owner_charge(
+    committed:&RoadState,candidate:&RoadState,supplied_retained:usize,
+    original_source_verified:Option<(f64,usize)>,
+)->(usize,usize,usize) {
+    let committed_bytes=committed.retained_storage_bytes();
+    let candidate_bytes=candidate.retained_storage_bytes();
+    let old_sum=postroad_materialization_owner_bytes(
+        committed_bytes,supplied_retained,candidate_bytes);
+    let source_credit=original_source_verified.map_or(0,|(clock,credit)|
+        if clock==committed.t {
+            credit.min(committed_bytes).min(supplied_retained)
+        } else {0}
+    );
+    let candidate_credit=committed.paired_shared_payload_lower_bound(candidate)
+        .min(committed_bytes).min(candidate_bytes);
+    (old_sum.saturating_sub(source_credit)
+         .saturating_sub(candidate_credit),
+     source_credit,candidate_credit)
 }
 fn postroad_continuous_keyset_peak_bytes(
     owner_sum:usize, old_events:usize,
@@ -3173,13 +3202,20 @@ impl V1Road {
         input_bytes: usize,
         max_tag_bytes: usize,
         shared_input_current: bool,
+        original_input_road_shared: Option<(f64,usize)>,
     ) {
         self.service_event_accounting = self.storage_budget.map(|_| ServiceEventAccounting {
             input_bytes,
             current_bytes: input_bytes,
             shared_input_current,
             max_tag_bytes,
+            original_input_road_shared,
         });
+    }
+    /// The engine calls this only after restoring the exact original
+    /// NativeWholeState source, which clones the immutable Arc backings.
+    pub(crate) fn committed_input_source_arc_credit(&self,source:&RoadState)->usize {
+        self.state.paired_shared_payload_lower_bound(source)
     }
     pub(crate) fn service_sink_tag_bytes(&self) -> Option<usize> {
         self.service_event_accounting.map(|a| a.max_tag_bytes)
@@ -3353,9 +3389,11 @@ impl V1Road {
             let committed_retained=self.state.retained_storage_bytes();
             let supplied_retained=self.retained_input_bytes;
             let candidate_retained=candidate.retained_storage_bytes();
-            let road_owners=postroad_materialization_owner_bytes(
-                committed_retained,supplied_retained,candidate_retained,
-            );
+            let original_verified=self.service_event_accounting
+                .and_then(|v|v.original_input_road_shared);
+            let (road_owners,source_arc_credit,candidate_arc_credit)=
+                postroad_source_verified_arc_owner_charge(
+                    &self.state,candidate,supplied_retained,original_verified);
             let old_events=self.service_event_accounting.map_or(0,|v|
                 v.input_bytes.saturating_add(
                     if v.shared_input_current {0} else {v.current_bytes}
@@ -3367,6 +3405,8 @@ impl V1Road {
                 "road_post","event candidate materialize after road",required,limit,
                 &[
                     ("retained_road_owners",road_owners),
+                    ("source_input_actual_shared_arc_credit",source_arc_credit),
+                    ("committed_candidate_actual_shared_arc_credit",candidate_arc_credit),
                     ("committed_road_retained_bytes",committed_retained),
                     ("supplied_road_retained_bytes",supplied_retained),
                     ("candidate_road_retained_bytes",candidate_retained),
@@ -5259,6 +5299,7 @@ mod workspace_accounting_tests {
             current_bytes: 2_000,
             shared_input_current: false,
             max_tag_bytes: 64,
+            original_input_road_shared: None,
         };
         let rows = 10_000;
         assert_eq!(
@@ -5932,6 +5973,7 @@ mod exact_shared_event_source_budget_tests {
         let one = ServiceEventAccounting {
             input_bytes: 8192, current_bytes: 8192,
             max_tag_bytes: 0, shared_input_current: true,
+            original_input_road_shared: None,
         };
         let separate = ServiceEventAccounting {
             shared_input_current: false, ..one
@@ -8028,5 +8070,65 @@ mod v03_cell_packet_after_interval_exact_source_20261122_tests {
         work.incoming_descriptor_live_bytes=None;
         assert!(work.require_completed_interval_cell_slot(20).is_err());
         assert_eq!(work.base,1000);
+    }
+}
+
+#[cfg(test)]
+mod v03_original_postroad_actual_shared_arc_source_20261122_tests {
+    use super::*;
+    fn state()->RoadState {
+        let parts=PacketParts::pack(vec![Part{
+            tag:1,offset:0,mass:f64::from_bits(1),birth:-0.0,
+            a:PackedTime::new(Some(1.0)).unwrap(),
+            b:PackedTime::new(Some(2.0)).unwrap(),
+        }], |_|Ok(())).unwrap();
+        RoadState {
+            t:2.0,cells:vec![Cell{v:[0.;8],
+                packets:vec![Packet{target:3.0,parts}],
+                latent:BTreeMap::new()}],
+            pending:vec![vec![]],totals:[0.;7],ledger:vec![],
+        }
+    }
+    #[test]
+    fn true_source_current_candidate_arc_alias_credit_charges_once_only() {
+        let supplied=state();
+        let committed=supplied.clone();
+        let candidate=committed.clone();
+        let credit=committed.paired_shared_payload_lower_bound(&supplied);
+        let shared=committed.paired_shared_payload_lower_bound(&candidate);
+        assert_eq!(credit,std::mem::size_of::<CorePart>());
+        assert_eq!(credit,shared);
+        let (charged,src,cand)=postroad_source_verified_arc_owner_charge(
+            &committed,&candidate,supplied.retained_storage_bytes(),
+            Some((supplied.t,credit)),
+        );
+        let old=postroad_materialization_owner_bytes(
+            committed.retained_storage_bytes(),supplied.retained_storage_bytes(),
+            candidate.retained_storage_bytes(),
+        );
+        assert_eq!(src,credit);
+        assert_eq!(cand,shared);
+        assert_eq!(charged+credit+shared,old);
+        assert!(charged<old);
+    }
+    #[test]
+    fn independent_identical_values_and_stale_input_clock_cannot_claim_arcs() {
+        let src=state();
+        let committed=state();
+        let candidate=state();
+        let old=postroad_materialization_owner_bytes(
+            committed.retained_storage_bytes(),src.retained_storage_bytes(),
+            candidate.retained_storage_bytes());
+        let (charged,a,b)=postroad_source_verified_arc_owner_charge(
+            &committed,&candidate,src.retained_storage_bytes(),
+            Some((src.t,committed.paired_shared_payload_lower_bound(&src))));
+        assert_eq!((charged,a,b),(old,0,0));
+        let shared=committed.clone();
+        let (charged2,a2,b2)=postroad_source_verified_arc_owner_charge(
+            &committed,&shared,src.retained_storage_bytes(),
+            Some((src.t-10.0,1024*1024)));
+        assert_eq!(a2,0);
+        assert_eq!(b2,std::mem::size_of::<CorePart>());
+        assert_eq!(charged2+b2,old);
     }
 }
