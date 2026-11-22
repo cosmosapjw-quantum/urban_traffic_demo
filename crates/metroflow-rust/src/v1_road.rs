@@ -874,6 +874,18 @@ fn source_sequential_header_overlap_extra(
         .max(physical_header_old_overlap)
         .saturating_add(index_vec_live)
 }
+/// The temporary page reservation list names existing source cells only.
+/// u32::MAX is reserved for diagnostic pending sentinels and is never a
+/// legal physically configured cell. Original Part/Mark/route indices stay
+/// wide and unchanged; this is an auxiliary source-only temporary array.
+fn checked_page_destination_index(id:usize)->PyResult<u32> {
+    let narrow=u32::try_from(id)
+        .map_err(|_|budget("projected physical source cell index exceeds u32"))?;
+    if narrow==u32::MAX {
+        return Err(budget("projected physical source cell index collides with sentinel"));
+    }
+    Ok(narrow)
+}
 impl RoadWorkBudget {
     /// Post-prediction ownership boundary: old per-Part scan temporaries
     /// are dead, but live packet queue and Motion shells are still reserved.
@@ -1082,7 +1094,7 @@ impl RoadWorkBudget {
     /// that will acquire a new 128-row page during this single source head.
     fn project_transfer(
         &mut self,events:usize,destinations:impl IntoIterator<Item=usize>,
-        mut new_page_cells:Option<&mut Vec<usize>>,
+        mut new_page_cells:Option<&mut Vec<u32>>,
     )->PyResult<()> {
         if self.incoming_descriptor_live_bytes.is_some() {
             return Err(arithmetic("incoming page descriptor storage frozen after last source append"));
@@ -1095,7 +1107,7 @@ impl RoadWorkBudget {
                 if *count % INCOMING_PART_CHUNK==0 {
                     self.incoming_live_pages=self.incoming_live_pages.saturating_add(1);
                     if let Some(ref mut cell_ids)=new_page_cells {
-                        push_checked(cell_ids,i)?;
+                        push_checked(cell_ids,checked_page_destination_index(i)?)?;
                     }
                 }
                 *count=count.saturating_add(1);
@@ -1139,7 +1151,10 @@ impl RoadWorkBudget {
         self.observed_incoming_descriptor_bytes(incoming,marks)?;
         let before_events=self.events;
         let before_pages=self.incoming_live_pages;
-        let mut new_page_cells:Vec<usize>=Vec::new();
+        // Source-only page header projection needs cell IDs, not wide
+        // physical Part/Mark rows. The original cell registry is bounded
+        // by the immutable native V03 source and every ID is checked below.
+        let mut new_page_cells:Vec<u32>=Vec::new();
         self.project_transfer(events,destinations,Some(&mut new_page_cells))?;
         let mut old_physical_header_overlap=0usize;
         let mut diagnostic_reservation_peak_bytes=0usize;
@@ -1195,7 +1210,8 @@ impl RoadWorkBudget {
                 self.diagnostic_source_live_bytes=independently_measured;
             }
         }
-        for &cell in &new_page_cells {
+        for &source_cell in &new_page_cells {
+            let cell=source_cell as usize; // checked before physical reservation.
             let target=self.incoming_cell_rows.as_ref()
                 .and_then(|v|v.get(cell)).ok_or_else(||
                     arithmetic("new source page destination outside registry"))?
@@ -1229,7 +1245,7 @@ impl RoadWorkBudget {
         let extra=source_sequential_header_overlap_extra(
             diagnostic_reservation_peak_bytes,self.diagnostic_source_live_bytes,
             old_physical_header_overlap,
-            new_page_cells.capacity().saturating_mul(2*std::mem::size_of::<usize>())
+            new_page_cells.capacity().saturating_mul(2*std::mem::size_of::<u32>())
         );
         crate::v1_trace::add("road_work.sequential_source_diag_reallocation_peak",
                              diagnostic_reservation_peak_bytes as u64);
@@ -8205,5 +8221,30 @@ mod v03_replay_length_guard_diagnostic_20261122_tests {
         assert_eq!(read_len(&mut stream,20).unwrap(),20);
         let mut stream=Cursor::new(21u64.to_le_bytes().to_vec());
         assert!(read_len(&mut stream,20).is_err());
+    }
+}
+
+#[cfg(test)]
+mod v03_checked_compact_page_destination_projection_20261122_tests {
+    use super::*;
+    #[test]
+    fn real_original_header_projection_uses_four_byte_checked_cell_index() {
+        assert_eq!(std::mem::size_of::<usize>(),8);
+        assert_eq!(std::mem::size_of::<u32>(),4);
+        assert_eq!(checked_page_destination_index(0).unwrap(),0);
+        assert_eq!(checked_page_destination_index(1435).unwrap(),1435);
+        assert_eq!(checked_page_destination_index(u32::MAX as usize-1).unwrap(),u32::MAX-1);
+        assert!(checked_page_destination_index(u32::MAX as usize).is_err());
+        assert!(checked_page_destination_index(u32::MAX as usize+1).is_err());
+    }
+    #[test]
+    fn legacy_physical_header_reservations_keep_full_original_cell_order() {
+        let mut actual=Vec::new();
+        for cell in [4usize,3,4,4,1,2,9,3,2,0] {
+            actual.push(checked_page_destination_index(cell).unwrap());
+        }
+        assert_eq!(actual,vec![4u32,3,4,4,1,2,9,3,2,0]);
+        assert_eq!(actual.iter().map(|&i|i as usize).collect::<Vec<_>>(),
+                   vec![4usize,3,4,4,1,2,9,3,2,0]);
     }
 }

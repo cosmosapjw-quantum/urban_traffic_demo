@@ -42,6 +42,24 @@ class RouteAgeExcess:
     weak_output_tail_mass: F
     output_delay_square: F
 
+    def censored_tail_upper_bound(self, delta: F) -> F:
+        """Rigorous full-source P(unfinished OR completed age >= u+delta).
+
+        This RouteAgeExcess instance was evaluated at threshold u, and
+        output_loss stores the completed stop-loss K(u). Any completed
+        sojourn w >= u+delta contributes >=delta to K(u). Unfinished
+        original source mass is at +infinity and must remain counted.
+        The estimate needs no fitted distribution or microscopic tail.
+        """
+        gap=F(delta)
+        if gap<=0 or self.route_source_mass<=0:
+            raise ValueError("positive threshold gap and original route mass required")
+        if self.output_mass<0 or self.output_mass>self.route_source_mass:
+            raise ValueError("nonphysical route completed/source mass")
+        unfinished=self.route_source_mass-self.output_mass
+        completed_upper=min(self.output_mass,self.output_loss/gap)
+        return (unfinished+completed_upper)/self.route_source_mass
+
 
 def finite_age_excess_transport(
     t0:F, T:F, initial:Iterable[AgeCohort],
