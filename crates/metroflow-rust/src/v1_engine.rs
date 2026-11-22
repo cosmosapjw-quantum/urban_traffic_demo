@@ -510,6 +510,27 @@ fn capture_road_clone_credit(
     } else {0}
 }
 
+/// Source-exact phase: the caller input Bundle remains live, the new
+/// committed road/journey are live, and the future capture() clones their
+/// shells. Road immutable Arc payloads are shared in that future clone;
+/// service checkpoint() clones its Arc<Vec<EventRow>> without a new buffer.
+/// Count *both* actual road/journey shells and only the two true event
+/// payloads (old source Arc and new committed Arc). Never credit a future
+/// decoded checkpoint here, which belongs to another lifetime.
+fn capture_validation_real_owner_phase_bytes(
+    input_road:usize,current_road:usize,verified_arc_credit:usize,
+    input_journey:usize,current_journey:usize,
+    input_events:usize,current_events:usize,
+)->usize {
+    input_road
+        .saturating_add(current_road.saturating_mul(2))
+        .saturating_sub(verified_arc_credit.min(current_road))
+        .saturating_add(input_journey)
+        .saturating_add(current_journey.saturating_mul(2))
+        .saturating_add(input_events)
+        .saturating_add(current_events)
+}
+
 impl NativeWholeEngine {
     fn build(
         calendar: &NativeCalendar,
@@ -1084,13 +1105,31 @@ impl NativeWholeEngine {
         );
         crate::v1_trace::add("engine_admission.verified_future_capture_arc_credit",
             captured_arc_credit as u64);
-        let required = accounting
-            .base()
+        // Source-visible, post-advance capture with an actual retained
+        // caller input: old input Bundle + current committed owners +
+        // future capture() shells. Only the immutable Arc payloads are
+        // guaranteed shared, by original checkpoint()/capture() source.
+        // Preserve the old 3*max bound for restore/decode or other phases.
+        let source_capture = validate && input.is_some();
+        let phase_owners = if let Some(input) = input.filter(|_|validate) {
+            capture_validation_real_owner_phase_bytes(
+                input.road.retained_storage_bytes(),
+                road_bytes.max(self.road.owned_storage_bytes()),
+                captured_arc_credit,
+                journey_storage_bytes(&input.journey),
+                journey_storage_bytes(j).max(journey_storage_bytes(self.journey.state())),
+                service_event_storage_bytes(&input.service),
+                event_bytes.max(self.service.event_storage_bytes()),
+            )
+        } else {
+            r.saturating_mul(3)
+                .saturating_sub(captured_arc_credit)
+                .saturating_add(d.saturating_mul(3))
+                .saturating_add(e.saturating_mul(3))
+        };
+        let required = accounting.base()
             .saturating_add(accounting.call_binding.max(scratch))
-            .saturating_add(r.saturating_mul(3))
-            .saturating_sub(captured_arc_credit)
-            .saturating_add(d.saturating_mul(3))
-            .saturating_add(e.saturating_mul(3));
+            .saturating_add(phase_owners);
         let observed = crate::v1_trace::guard(
             "engine_admission",
             if validate {
@@ -1106,6 +1145,8 @@ impl NativeWholeEngine {
                 ("validation_scratch", scratch),
                 ("road", r),
                 ("verified_future_capture_arc_credit",captured_arc_credit),
+                ("post_advance_source_capture",usize::from(source_capture)),
+                ("source_capture_live_owner_bytes",phase_owners),
                 ("road_3max_without_credit",r.saturating_mul(3)),
                 ("journey", d),
                 ("events", e),
@@ -1934,5 +1975,36 @@ mod capture_road_clone_owner_exact_bounds {
         assert_eq!(capture_road_clone_credit(500,250,false,true),0);
         assert_eq!(capture_road_clone_credit(500,250,true,false),0);
         assert_eq!(capture_road_clone_credit(0,100,true,true),0);
+    }
+}
+
+#[cfg(test)]
+mod surgical_capture_validation_three_live_owners_20261122_tests {
+    use super::*;
+    #[test]
+    fn actual_valley_100k_runtime_capture_does_not_clone_immutable_road_or_event_backings() {
+        let input_road=630_653_248usize;
+        let current_road=877_913_216usize;
+        let immutable_arc_credit=811_733_088usize;
+        let input_journey=249_822_560usize;
+        let current_journey=285_239_408usize;
+        let old_event=923_664_576usize;
+        let new_event=1_115_458_368usize;
+        let phase=capture_validation_real_owner_phase_bytes(
+            input_road,current_road,immutable_arc_credit,
+            input_journey,current_journey,old_event,new_event,
+        );
+        let required=570_379_173usize+411_841_968usize+phase;
+        assert_eq!(required,5_416_392_053);
+        assert!(required<6_442_450_944);
+        // The old 3*max estimate fails at 7,006,321,029 bytes.
+        assert!(7_006_321_029usize>6_442_450_944usize);
+    }
+    #[test]
+    fn no_proven_arc_share_credit_still_charges_two_future_road_owner_shells() {
+        let accounted=capture_validation_real_owner_phase_bytes(
+            10,20,0,30,40,50,60,
+        );
+        assert_eq!(accounted,10+20+20+30+40+40+50+60);
     }
 }
