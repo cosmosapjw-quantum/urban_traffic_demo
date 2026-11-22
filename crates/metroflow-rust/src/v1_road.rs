@@ -37,7 +37,9 @@ pub(crate) fn write_len<W: Write>(w: &mut W, v: usize) -> PyResult<()> {
 pub(crate) fn read_len<R: Read>(r: &mut R, max: usize) -> PyResult<usize> {
     let v = usize::try_from(read_u64(r)?).map_err(|_| val("native checkpoint length overflow"))?;
     if v > max {
-        return Err(val("native checkpoint length exceeds configuration/budget"));
+        return Err(val(&format!(
+            "native checkpoint length exceeds configuration/budget: observed_length={v}, allowed_length={max}"
+        )));
     }
     Ok(v)
 }
@@ -8180,5 +8182,28 @@ mod v03_service_live_source_arc_owner_20261122_tests {
             &old,&new,original.retained_storage_bytes(),None);
         assert_eq!(c,0);
         assert_eq!(without_source,charge+a);
+    }
+}
+
+#[cfg(test)]
+mod v03_replay_length_guard_diagnostic_20261122_tests {
+    use super::*;
+    use std::io::Cursor;
+    #[test]
+    fn physically_saved_wire_replay_reports_exact_length_and_current_guard() {
+        pyo3::prepare_freethreaded_python();
+        let mut stream=Cursor::new(25u64.to_le_bytes().to_vec());
+        let err=read_len(&mut stream,20).unwrap_err();
+        let message=err.to_string();
+        assert!(message.contains("native checkpoint length exceeds configuration/budget"));
+        assert!(message.contains("observed_length=25"));
+        assert!(message.contains("allowed_length=20"));
+    }
+    #[test]
+    fn structural_original_length_cap_remains_enforced() {
+        let mut stream=Cursor::new(20u64.to_le_bytes().to_vec());
+        assert_eq!(read_len(&mut stream,20).unwrap(),20);
+        let mut stream=Cursor::new(21u64.to_le_bytes().to_vec());
+        assert!(read_len(&mut stream,20).is_err());
     }
 }
