@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.26**, 2026-11-17. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.27**, 2026-11-23. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Options (a) and 1 measured: partial head serves create ~80% of new rows; bit-identical merges recover ~2%, real-arithmetic-exact proportional merges <=8%, composition sharing only a constant factor while packets double every ~50 simulated s. V03 completion therefore needs a user decision on an approximate road-interval aggregation (currently forbidden as time binning) or on scope/model contract. No demand/mass/tolerance/budget relaxation; full CI/integration deferred.
+2026-11-23 user authorizes constructive surgical model revision preserving original motivation. Continue from 606b3ac actual Valley 25650-to-25700 prefix: diagnose source-remainder packing lifetime, retain true interval reserve and original limits, then test cumulative-rank FIFO representation against original ordered route/class/birth/finite-response observables. The 2026-11-17 merge-efficiency finding concerns those measured representations, not all exact formulations. Preserve 19/21 scoped nodes, V03 BLOCKED and 0/9 full days until actual release evidence. Full CI/integration remain deferred.
 
 **예산·종료조건**
 

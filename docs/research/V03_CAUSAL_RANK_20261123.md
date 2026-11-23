@@ -67,3 +67,47 @@ baseline, 6.8 GiB free on root filesystem. Do not run two large physics jobs in
 parallel or delete historical checkpoints. Avoid duplicate 3.4 GiB files; use a
 streaming/atomic checkpoint strategy when extending. Build/test jobs remain
 bounded and scoped; full-repository CI stays deferred by existing user policy.
+
+## Stage 2 — actual source lifetime and constructive FIFO coordinate
+Source diagnosis at base606b3ac: `pack_parts_with_live_descriptors` is called
+by road-head remainder (v1_road.rs:3925) and pending remainder (:4063), both
+before the first `combine_chunked_parts` (:4117). Its call to generic
+`pack_parts` (:967) reintroduces the future combine reserve under label
+`packet interval packing`. Thus the failing label is not evidence that the
+interval sweep is live. Correct only these two remainder call sites.
+Charge the actual raw Part Vec capacity AND new packed CorePart allocation;
+retain the full reserve for real interval/sweep/cell phases. The old maximum
+cell has 1,410,562 rows, hence future scratch = 2*48*1,410,562 =
+135,413,952 B. No byte cap or physical formula changes.
+
+A three-case behavioral RED was run using the existing packing API before
+production edits: actual admission refused, exact raw+packed boundary refused,
+Mixed fallback did not charge raw buffer. It compiled and exited101 (0/3);
+this is a behavioral failure, not a missing-symbol test. Full log retained
+outside the repo until the source/results are committed together in stage3.
+
+Constructive coordinate (under development): for a FIFO entrance measure with
+cumulative vehicle rank u in [0,A(t)], let p_c(u)>=0, sum_c p_c(u)=1 denote
+route/class fractions and b_c(u) birth-time density. Define
+M_c(q)=integral_0^q p_c(u) du and B_c(q)=integral_0^q b_c(u) du.
+If departures D(t) are nondecreasing with D(t)<=E(t)<=A(t), where E is the
+finite-motion eligible rank frontier, service on [t0,t1] reads
+M_c(D(t1))-M_c(D(t0)) and B_c(D(t1))-B_c(D(t0)).
+These differences telescope across arbitrary service subdivisions; physical
+FIFO is the prefix restriction, not the list of historical split operations.
+The representation retains ordered piecewise composition, unlike a global
+moment closure. Immutable prefix blocks and a cursor can preserve exact
+specified piecewise densities while keeping stored rows independent of the
+number of subdivisions. Floating arithmetic and general network junction
+sensitivity remain separate obligations.
+
+Original-history audit read root0492364 PRD/spec/design and6524500 constitution:
+the target is explanatory map–traffic–accessibility–lagged-development coupling,
+not a mandate for one specific packet array layout or every IEEE sum order.
+Current PLAN already distinguishes physical equivalence from byte identity.
+This turn's authorized model revision therefore permits an explicit alternative
+with its own error/validity domain, preserving the original solver as reference.
+No new alternative counts as original V03 day evidence.
+
+WolframLanguage independently evaluated integral_a^b x dx-(b-a)(a+b)/2 to0.
+WolframContext returned internal error; no result was inferred from that call.

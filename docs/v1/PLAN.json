@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.26",
-  "date": "2026-11-17",
+  "version": "1.1.27",
+  "date": "2026-11-23",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
   "base_research_sha": "0a7c980d3934146a978280fe76045443ad12640e",
@@ -1890,7 +1890,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Options (a) and 1 measured: partial head serves create ~80% of new rows; bit-identical merges recover ~2%, real-arithmetic-exact proportional merges <=8%, composition sharing only a constant factor while packets double every ~50 simulated s. V03 completion therefore needs a user decision on an approximate road-interval aggregation (currently forbidden as time binning) or on scope/model contract. No demand/mass/tolerance/budget relaxation; full CI/integration deferred.",
+      "positive_next_action": "2026-11-23 user authorizes constructive surgical model revision preserving original motivation. Continue from 606b3ac actual Valley 25650-to-25700 prefix: diagnose source-remainder packing lifetime, retain true interval reserve and original limits, then test cumulative-rank FIFO representation against original ordered route/class/birth/finite-response observables. The 2026-11-17 merge-efficiency finding concerns those measured representations, not all exact formulations. Preserve 19/21 scoped nodes, V03 BLOCKED and 0/9 full days until actual release evidence. Full CI/integration remain deferred.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1964,7 +1964,13 @@
           "path": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
           "sha256": "4f3806899ee03b03e0c112c918fab9b25d737e37e35c87f98fee72840cd0699b"
         }
-      ]
+      ],
+      "current_research_evidence": {
+        "baseline_commit": "606b3ac6a899ba5b8b9ac064d82f609c7ff6cadf",
+        "path": "artifacts/v03_weighted_fifo_20261121/C10_RESEARCH_RECEIPT.json",
+        "resume_note": "docs/research/V03_CAUSAL_RANK_20261123.md",
+        "status": "BLOCKED_RESOURCE; 50s current-source historical-checkpoint continuation; no full day"
+      }
     },
     {
       "id": "RLS01",
