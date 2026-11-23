@@ -1,0 +1,11 @@
+# MetroFlow next interleaved theory/coding loop, 2026-11-23
+
+**Authority:** docs/v1/PLAN.json v1.1.29; baseline e81bdda; branch research/v03-measure-lift-loop-20261123. This 10-stage loop is research work within V03, not ten new DAG nodes or a change of release acceptance. Each stage must push one source/evidence commit and verify the remote SHA. No main merge.
+
+**Origin/drift:** 0492364 PRD/spec request explainable 100k citizen/mesoscopic flow coupling map→traffic→accessibility→lagged development→demand, bridge/IC bottlenecks, bypass and induced demand, deterministic replay. 6524500 constitution requires immutable state, explicit units, multirate and cache consistency. Persistent cohort, class/purpose, legal routes, FIFO and finite information remain. A row is not a physical person: representation may be changed, physics and original acceptance cannot be silently waived.
+
+**Work order:** S01 baseline/backup; S02 reproducible journey-owner attribution with bounded diagnostic; S03 construct/prove canonical stable-partition lemma; S04 implement capacity normalization with red/green; S05 test exact old/new checkpoint/replay; S06 original full-demand increasing-horizon runs; S07 develop and verify FIFO marked cumulative-measure conservation theorem; S08 implement/version an explicit shadow model, stress-test occupancy/moments; S09 diagnose/scientifically compare and perform one scoped review; S10 finish PLAN evidence/readiness and selective duplicate-backup cleanup. Theory and code are deliberately interleaved. If an exact normalization does not relieve real owner cost, report the observed failure and favor a new source-consumer representation, not a guard-credit ritual.
+
+**Baseline:** 19/21 scoped or accepted; 5/21 accepted; V03 BLOCKED; full-day 0/9. Fresh Valley from zero has byte-identical 25710s; resumed checkpoint reaches 25720s only. Measured allowance delta 102114816B = 3 × journey max-owner difference 34038272B. Measured road rows at 25700/25710/25720: 34610422/40717830/47855028. Original 8 GiB/7200s and quantitative tolerances remain.
+
+**Evidence identity:** artifacts/v03_measure_lift_20261123/S01_BASELINE.json; selected baseline backup is verified by member hashes. No new worktree. No unrelated processes or existing back-ups will be removed.

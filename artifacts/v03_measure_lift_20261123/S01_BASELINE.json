@@ -1,0 +1,92 @@
+{
+  "base_commit": "e81bdda0e5d3735b7141985cd749a169d1222033",
+  "branch": "research/v03-measure-lift-loop-20261123",
+  "original_history": [
+    {
+      "commit": "0492364",
+      "path": "docs/PRD.md",
+      "blob": "f8cc371410ca0e24b0947cda3d6772787efddc7a"
+    },
+    {
+      "commit": "0492364",
+      "path": "specs/001-metroflow/spec.md",
+      "blob": "626b78acad7cafe1f3eadb8166bffb98550e0172"
+    },
+    {
+      "commit": "6524500",
+      "path": "memory/constitution.md",
+      "blob": "7c78e214c9558bcb1023854e55025f1c554aadee"
+    }
+  ],
+  "source_sha256": "796849f703f909911dc8c4968252e27189f21cd4dafab3e700bbb27d8c7d1f3d",
+  "native_sha256": "96e8e20ab30b2345223d326225abfab274997b5269e262bda9be74893fd32b8c",
+  "baseline": "fresh 0\u219225710 exact; resume25710\u219225720 valid; fresh25720 resource blocked; resume25730 blocked",
+  "acceptance": "100000 residents per case, full calendars, FIFO finite response, 86400s x 3 cases x 3 runs, <=8GiB and <=7200s",
+  "scoped_nodes": 19,
+  "total_nodes": 21,
+  "accepted_nodes": 5,
+  "full_day_pass": 0,
+  "backup": {
+    "path": "artifacts/v03_measure_lift_20261123/backup/baseline_selected.tar.gz",
+    "sha256": "adc10085a9bda6881ecffae46b8ab4675832ae602a1bd832e84bdfb282e821e1",
+    "manifest": [
+      {
+        "path": "docs/PRD.md",
+        "bytes": 1477,
+        "sha256": "a55490f859ce866b817d6c0b3dae0b40a6b3f65c552cd1c641771ed207b99d47"
+      },
+      {
+        "path": "specs/001-metroflow/spec.md",
+        "bytes": 9523,
+        "sha256": "1842c7760d68da6908fff92e08c93ddf6b3b017d3fc00db17bade2cd9f00d0e0"
+      },
+      {
+        "path": "memory/constitution.md",
+        "bytes": 582,
+        "sha256": "2c7fe6717d786bb461f982e7063f0869c79e13688dda42d9cacb840de1c1e37b"
+      },
+      {
+        "path": "AGENTS.md",
+        "bytes": 9544,
+        "sha256": "824c3b04c1b04562d254713d06cd8d8b324f9af3f06093ea037293d86161f263"
+      },
+      {
+        "path": "docs/v1/PLAN.json",
+        "bytes": 99659,
+        "sha256": "08267ec979089c5a6a779bec85f48eb7772488b47bbd5e18176cba4812e3c03a"
+      },
+      {
+        "path": "docs/research/V03_CODING_RECONSTRUCTION_20261123.md",
+        "bytes": 35351,
+        "sha256": "784779b39e51520ef78b778c95b38b26a3e8e86594de4709fa4290c1bf13e653"
+      },
+      {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C10_RESEARCH_RECEIPT.json",
+        "bytes": 10588,
+        "sha256": "2f6d4ce5bd640d48841920756f3c6f9c2553829d3540a4b71515db72a60afa91"
+      },
+      {
+        "path": "crates/metroflow-rust/src/v1_stage.rs",
+        "bytes": 12539,
+        "sha256": "630448235bfa84fc804b110783878bec3b3b273b7e292d0804ffc7e5d2e5fc7c"
+      },
+      {
+        "path": "crates/metroflow-rust/src/v1_journey.rs",
+        "bytes": 93642,
+        "sha256": "a3a6065f4f5052c5a97e223d9117d9d5214458b3b0db3a1b0c8ddf51b7f08495"
+      },
+      {
+        "path": "crates/metroflow-rust/src/v1_history.rs",
+        "bytes": 15240,
+        "sha256": "11bf0c8013f410c06851cbc3894501d4203b9c1ac4bc8bf6e60526f24a581296"
+      },
+      {
+        "path": "crates/metroflow-rust/src/v1_road.rs",
+        "bytes": 324570,
+        "sha256": "65491f4d182dbc6fd6890db6bb23059531fe7d7aff797418d9e52ee80c9690eb"
+      }
+    ]
+  },
+  "new_worktree": false,
+  "other_projects_active_on_host": true
+}
