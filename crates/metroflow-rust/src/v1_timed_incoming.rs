@@ -291,26 +291,33 @@ impl TimedIncomingRows {
         })
     }
 
+    /// O(1) access for a validated source index, without allocating a row buffer.
+    /// Decode with the same append-only control table used by push_checked.
+    pub(super) fn get(&self, index: usize, controls: &TimedIncomingControls) -> (Part, Mark) {
+        let row = self
+            .pages
+            .get(index)
+            .expect("timed incoming row inside length");
+        let (a, b, mark) = controls.get(row.control);
+        (
+            Part {
+                tag: row.tag as usize,
+                offset: row.offset as usize,
+                mass: row.mass,
+                birth: row.birth,
+                a,
+                b,
+            },
+            mark,
+        )
+    }
+
     /// Exact original append order; no row buffer is allocated while decoding.
     pub(super) fn iter<'a>(
         &'a self,
         controls: &'a TimedIncomingControls,
     ) -> impl ExactSizeIterator<Item = (Part, Mark)> + 'a {
-        (0..self.len()).map(move |i| {
-            let row = self.pages.get(i).expect("timed incoming row inside length");
-            let (a, b, mark) = controls.get(row.control);
-            (
-                Part {
-                    tag: row.tag as usize,
-                    offset: row.offset as usize,
-                    mass: row.mass,
-                    birth: row.birth,
-                    a,
-                    b,
-                },
-                mark,
-            )
-        })
+        (0..self.len()).map(move |i| self.get(i, controls))
     }
 }
 
@@ -446,6 +453,15 @@ mod tests {
                     .map(|&(p, m)| bits(p, m))
                     .collect::<Vec<_>>(),
             );
+            // Indexed combine visits the append-order source out of order.
+            // Cover both sides of page boundaries and the partial final page.
+            for index in [actual.len() - 1, 128, 0, actual.len() / 2, 127, 1, 256, 129] {
+                let (p, m) = actual.get(index, &controls);
+                let (iter_p, iter_m) = actual.iter(&controls).nth(index).unwrap();
+                let (old_p, old_m) = expected[index];
+                assert_eq!(bits(p, m), bits(iter_p, iter_m));
+                assert_eq!(bits(p, m), bits(old_p, old_m));
+            }
             assert_eq!(
                 sum(actual.iter(&controls).map(|(p, m)| p.mass * m.0)).to_bits(),
                 sum(expected.iter().map(|(p, m)| p.mass * m.0)).to_bits(),

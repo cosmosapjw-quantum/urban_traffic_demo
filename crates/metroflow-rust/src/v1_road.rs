@@ -408,9 +408,6 @@ struct RoadWorkBudget {
     // Some only for bounded, compact-index, interval-producing sources.
     // Owns the entire append-only control table and new per-cell row shells.
     timed_incoming_control_bytes: Option<usize>,
-    // One cell's decoded Part+Mark pages coexist with its compressed source
-    // through the unchanged ordered reductions and combine operation.
-    incoming_materialized_bytes: usize,
     /// Packed entering-interval rows already moved into the candidate.
     interval_retained: usize,
     /// Workspace of the interval being built: edges, the selected rows,
@@ -951,7 +948,6 @@ impl RoadWorkBudget {
             timed_incoming_page_charge(self.incoming_page_cells,
                 self.incoming_live_pages,self.incoming_descriptor_live_bytes)
                 .saturating_add(controls)
-                .saturating_add(self.incoming_materialized_bytes)
         } else if self.incoming_cell_rows.is_some(){
             segmented_incoming_exact_cell_pages_charge(
                 self.incoming,self.incoming_page_cells,
@@ -998,7 +994,6 @@ impl RoadWorkBudget {
                     ("incoming_live_pages",self.incoming_live_pages),
                     ("incoming_actual_page_charge",incoming_bytes),
                     ("timed_incoming_control_bytes",self.timed_incoming_control_bytes.unwrap_or(0)),
-                    ("incoming_materialized_cell_bytes",self.incoming_materialized_bytes),
                     ("incoming_actual_descriptor_bytes",
                         self.incoming_descriptor_live_bytes.unwrap_or(0)),
                     ("incoming_descriptors_frozen",
@@ -2302,15 +2297,6 @@ fn timed_incoming_page_charge(cells:usize,pages:usize,descriptors:Option<usize>)
         .saturating_add(cells.saturating_mul(std::mem::size_of::<usize>()))
         .saturating_add(128)
 }
-fn timed_cell_decode_bound(rows:usize)->usize {
-    let pages=rows.div_ceil(INCOMING_PART_CHUNK);
-    pages.saturating_mul(INCOMING_PART_CHUNK)
-        .saturating_mul(std::mem::size_of::<CompactIncomingPart>()+std::mem::size_of::<Mark>())
-        .saturating_add(pages.saturating_mul(64))
-        .saturating_add(pages.saturating_mul(6).saturating_add(2)
-            .saturating_mul(std::mem::size_of::<Vec<Part>>()))
-        .saturating_add(128)
-}
 fn lock_completed_timed_incoming(
     work:&mut RoadWorkBudget,rows:&[TimedIncomingRows],controls:&TimedIncomingControls,
 )->PyResult<()> {
@@ -2347,54 +2333,59 @@ fn lock_completed_timed_incoming(
 }
 fn release_consumed_timed_incoming(
     work:&mut RoadWorkBudget,cell:usize,timed:TimedIncomingRows,
-    raw:ChunkedParts,marks:ChunkedMarks,
 )->PyResult<usize> {
     let rows=timed.len();
-    if raw.len()!=rows || marks.len()!=rows || work.timed_incoming_control_bytes.is_none() {
-        return Err(arithmetic("timed incoming decoded owner count differs"));
+    if work.timed_incoming_control_bytes.is_none() {
+        return Err(arithmetic("timed incoming source requires its control table charge"));
     }
     let descriptor_bytes=timed.descriptor_capacity().saturating_mul(std::mem::size_of::<Vec<Part>>());
-    let payload=timed.physical_capacity_bytes().saturating_add(raw.physical_capacity_bytes())
-        .saturating_add(marks.capacity().saturating_mul(std::mem::size_of::<Mark>()));
-    drop(timed);drop(raw);drop(marks);
+    let payload=timed.physical_capacity_bytes();
+    // This owner is consumed only AFTER all ordered physical moments and
+    // source-indexed combine reads have completed.
+    drop(timed);
     work.release_incoming(cell,rows)?;
     let descriptors=work.incoming_descriptor_live_bytes.as_mut()
         .ok_or_else(||arithmetic("timed incoming descriptors must be frozen before consume"))?;
     *descriptors=descriptors.checked_sub(descriptor_bytes)
         .ok_or_else(||arithmetic("timed incoming released descriptor count differs"))?;
-    work.incoming_materialized_bytes=0;
     crate::v1_trace::add("road_work.expired_source_rows",rows as u64);
-    crate::v1_trace::add("incoming_timed.expired_timed_and_decoded_payload_bytes",payload as u64);
+    crate::v1_trace::add("incoming_timed.expired_source_payload_bytes",payload as u64);
     Ok(rows)
 }
 
 /// The original combine key, source-index tie order and sum() operations
 /// evaluated against stable page indices without flattening the source.
 fn combine_chunked_parts(parts: &ChunkedParts) -> PyResult<Vec<Part>> {
+    combine_indexed_parts(parts.len(),|i|parts.get(i))
+}
+
+fn combine_indexed_parts(
+    len:usize,get:impl Fn(usize)->Part,
+)->PyResult<Vec<Part>> {
     let key = |p: &Part| {
         (p.tag, p.offset, p.a.map_or(u64::MAX, f64::to_bits),
          p.b.map_or(u64::MAX, f64::to_bits))
     };
-    let mut indices=checkpoint_vec(parts.len())?;
-    indices.extend((0..parts.len()).filter(|&i|parts.get(i).mass > 0.0));
+    let mut indices=checkpoint_vec(len)?;
+    indices.extend((0..len).filter(|&i|get(i).mass > 0.0));
     indices.sort_unstable_by(|&a,&b| {
-        key(&parts.get(a)).cmp(&key(&parts.get(b))).then(a.cmp(&b))
+        key(&get(a)).cmp(&key(&get(b))).then(a.cmp(&b))
     });
     let groups = usize::from(!indices.is_empty())
         + indices.windows(2)
-            .filter(|p|key(&parts.get(p[0])) != key(&parts.get(p[1])))
+            .filter(|p|key(&get(p[0])) != key(&get(p[1])))
             .count();
     let mut out=checkpoint_vec(groups)?;
     let mut start=0;
     while start < indices.len() {
         let mut end=start+1;
         while end < indices.len()
-            && key(&parts.get(indices[start]))==key(&parts.get(indices[end])) {
+            && key(&get(indices[start]))==key(&get(indices[end])) {
             end+=1;
         }
-        let mut item=parts.get(indices[start]);
-        item.mass=sum(indices[start..end].iter().map(|&i|parts.get(i).mass));
-        item.birth=sum(indices[start..end].iter().map(|&i|parts.get(i).birth));
+        let mut item=get(indices[start]);
+        item.mass=sum(indices[start..end].iter().map(|&i|get(i).mass));
+        item.birth=sum(indices[start..end].iter().map(|&i|get(i).birth));
         out.push(item);
         start=end;
     }
@@ -3014,7 +3005,7 @@ impl V1Road {
                 incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
                 compact_events: self.can_compact_candidate_events(),
-                compact_incoming: self.can_compact_incoming_parts(), timed_incoming_control_bytes: None, incoming_materialized_bytes: 0,
+                compact_incoming: self.can_compact_incoming_parts(), timed_incoming_control_bytes: None,
                 interval_retained: 0,
                 interval_transient: 0,
                 service_events: None,
@@ -3099,7 +3090,7 @@ impl V1Road {
             incoming_cell_rows:Some(vec![0;self.groups.len()]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
             compact_events: self.can_compact_candidate_events(),
-            compact_incoming: self.can_compact_incoming_parts(), timed_incoming_control_bytes: None, incoming_materialized_bytes: 0,
+            compact_incoming: self.can_compact_incoming_parts(), timed_incoming_control_bytes: None,
             interval_retained: 0,
             interval_transient: 0,
             service_events: self.service_event_accounting,
@@ -4418,16 +4409,13 @@ impl V1Road {
             work.lock_completed_incoming_descriptors(&incoming,&marks)?;
         }
         for i in 0..n {
-            if use_timed_incoming && !timed_rows[i].is_empty() {
-                work.incoming_materialized_bytes=timed_cell_decode_bound(timed_rows[i].len());
-                work.require(0,"timed incoming cell materialization")?;
-                for (part,mark) in timed_rows[i].iter(&timed_controls) {
-                    incoming[i].push_checked(part)?;
-                    marks[i].push_checked(mark)?;
+            let raw_rows=if use_timed_incoming {timed_rows[i].len()}else{incoming[i].len()};
+            if !incoming_src.is_empty() && raw_rows>0 {
+                if use_timed_incoming {
+                    exact_merge_census(timed_rows[i].iter(&timed_controls).map(|(p,_)|p),&incoming_src[i]);
+                } else {
+                    exact_merge_census(incoming[i].iter(), &incoming_src[i]);
                 }
-            }
-            if !incoming_src.is_empty() && !incoming[i].is_empty() {
-                exact_merge_census(incoming[i].iter(), &incoming_src[i]);
             }
             // Diagnostic-only input sequence is consumed and is not retained
             // for any original physical source calculation in a later cell.
@@ -4437,17 +4425,16 @@ impl V1Road {
             // One compact mark accompanies exactly one source-order incoming
             // Part (both road service and pending-offer insertion paths).
             // Never call combine before consuming the aligned raw rows.
-            let raw_rows = incoming[i].len();
-            if raw_rows != marks[i].len() {
+            if !use_timed_incoming && raw_rows != marks[i].len() {
                 return Err(arithmetic("incoming Part/Mark source-order alignment differs"));
             }
             let old = self.occupancy(&out.cells[i]);
-            let weighted_speed = sum(
-                incoming[i]
-                    .iter()
-                    .zip(marks[i].iter())
-                    .map(|(part, mark)| part.mass * mark.0),
-            );
+            let weighted_speed = if use_timed_incoming {
+                sum(timed_rows[i].iter(&timed_controls).map(|(part,mark)|part.mass*mark.0))
+            } else {
+                sum(incoming[i].iter().zip(marks[i].iter())
+                    .map(|(part,mark)|part.mass*mark.0))
+            };
             let mut byclass: BTreeMap<usize, Vec<(f64, f64)>> = BTreeMap::new();
             // Original fsum class input order: all unchanged survivor rows,
             // followed by each received mark in original append order.
@@ -4460,23 +4447,33 @@ impl V1Road {
                     )?;
                 }
             }
-            for (part, mark) in incoming[i].iter().zip(marks[i].iter()) {
-                let k = self.class(&part);
-                push_checked(byclass.entry(k).or_default(), (part.mass, mark.1))?;
-            }
-            // Only now may equal-key incoming Parts be combined.
-            let source = std::mem::take(&mut incoming[i]);
-            let parts = combine_chunked_parts(&source)?;
-            // All source-order f64 and Mark-dependent physical moments have
-            // now been computed, and source combination finished. Physically
-            // drop BOTH raw owner families before reducing the bound seen by
-            // later interval-packet and cell reservation checks.
-            let expired_marks = std::mem::take(&mut marks[i]);
-            let expired = if use_timed_incoming {
-                release_consumed_timed_incoming(&mut work,i,
-                    std::mem::take(&mut timed_rows[i]),source,expired_marks)?
+            if use_timed_incoming {
+                for (part,mark) in timed_rows[i].iter(&timed_controls) {
+                    let k=self.class(&part);
+                    push_checked(byclass.entry(k).or_default(),(part.mass,mark.1))?;
+                }
             } else {
-                release_consumed_incoming_pair(&mut work,i,source,expired_marks)?
+                for (part, mark) in incoming[i].iter().zip(marks[i].iter()) {
+                    let k = self.class(&part);
+                    push_checked(byclass.entry(k).or_default(), (part.mass, mark.1))?;
+                }
+            }
+            // Same source-index key/tie order and separate mass/birth sum()
+            // barriers. The timed carrier is read directly: no full raw
+            // Part+Mark materialization exists at any point in this lane.
+            let (parts,expired)=if use_timed_incoming {
+                work.require(0,"timed incoming direct combine")?;
+                let source=std::mem::take(&mut timed_rows[i]);
+                let parts=combine_indexed_parts(source.len(),|index|
+                    source.get(index,&timed_controls).0)?;
+                let expired=release_consumed_timed_incoming(&mut work,i,source)?;
+                (parts,expired)
+            } else {
+                let source=std::mem::take(&mut incoming[i]);
+                let parts=combine_chunked_parts(&source)?;
+                let expired_marks=std::mem::take(&mut marks[i]);
+                let expired=release_consumed_incoming_pair(&mut work,i,source,expired_marks)?;
+                (parts,expired)
             };
             debug_assert_eq!(expired,raw_rows);
             if crate::v1_trace::enabled() && raw_rows > 0 {
@@ -5039,7 +5036,7 @@ mod workspace_accounting_tests {
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
             compact_events: false,
-            compact_incoming: false, timed_incoming_control_bytes: None, incoming_materialized_bytes: 0,
+            compact_incoming: false, timed_incoming_control_bytes: None,
             interval_retained: 0,
             interval_transient: 0,
             service_events: None,
@@ -6636,7 +6633,7 @@ mod exact_consumed_packet_source_lifetime_tests {
             events: 0, event_candidate_live_bound: None,incoming:n,incoming_page_cells:1586,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None, incoming_materialized_bytes: 0,
+            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None,
             interval_retained:0,interval_transient:0,
             service_events:None,
         }
@@ -6788,7 +6785,7 @@ mod exact_incoming_cell_page_liveness_tests {
         RoadWorkBudget {
             limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
             events: 0, event_candidate_live_bound: None,incoming:0,
-            incoming_page_cells:g,compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None, incoming_materialized_bytes: 0,
+            incoming_page_cells:g,compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None,
             incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -6866,7 +6863,7 @@ mod exact_locked_incoming_descriptor_lifetime_tests {
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None, incoming_materialized_bytes: 0,
+            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -6947,7 +6944,7 @@ mod exact_pending_pack_live_descriptor_tests {
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None, incoming_materialized_bytes: 0,
+            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None,
             interval_retained:0,interval_transient:0,service_events:None,
         };
         let mut incoming:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
@@ -7115,7 +7112,7 @@ mod original_transfer_exclusive_cell_scratch_tests {
             events: 0, event_candidate_live_bound: None,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:false,compact_incoming:false, timed_incoming_control_bytes: None, incoming_materialized_bytes: 0,
+            compact_events:false,compact_incoming:false, timed_incoming_control_bytes: None,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -7199,7 +7196,7 @@ mod source_remainder_lifetime_tests {
             events: 0, event_candidate_live_bound: None, incoming: 0, incoming_page_cells: 1,
             incoming_cell_rows: Some(vec![0]), incoming_live_pages: 0,
             incoming_descriptor_live_bytes: None,
-            compact_events: true, compact_incoming: true, timed_incoming_control_bytes: None, incoming_materialized_bytes: 0,
+            compact_events: true, compact_incoming: true, timed_incoming_control_bytes: None,
             interval_retained: 0, interval_transient: 0, service_events: None,
         }, vec![ChunkedParts::new(true)], vec![ChunkedMarks::default()])
     }
@@ -7328,7 +7325,7 @@ mod exact_event_time_run_tests {
             events:12_305,event_candidate_live_bound:Some(carrier),incoming:0,
             incoming_page_cells:0,incoming_cell_rows:Some(vec![]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None, incoming_materialized_bytes: 0,
+            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None,
             interval_retained:0,interval_transient:0,
             service_events:Some(ServiceEventAccounting {
                 input_bytes:111,current_bytes:222,shared_input_current:false,max_tag_bytes:0,
@@ -7424,7 +7421,6 @@ mod timed_incoming_workspace_contract_tests {
             incoming_descriptor_live_bytes: None,
             compact_events: true, compact_incoming: true,
             timed_incoming_control_bytes: Some(timed_control_storage_bound(controls,0,cells).unwrap()),
-            incoming_materialized_bytes: 0,
             interval_retained: 0, interval_transient: 0, service_events: None,
         }
     }
@@ -7449,24 +7445,25 @@ mod timed_incoming_workspace_contract_tests {
         assert_eq!(budget.incoming,4097);
         for cell in 0..3 {
             let count=cells[cell].len();
-            budget.incoming_materialized_bytes=timed_cell_decode_bound(count);
             let mut raw=ChunkedParts::new(true);
             let mut marks=ChunkedMarks::default();
             for (part,mark) in cells[cell].iter(&controls) {
                 raw.push_checked(part).unwrap(); marks.push_checked(mark).unwrap();
-                let payload=raw.physical_capacity_bytes()+marks.capacity()*std::mem::size_of::<Mark>();
-                let descriptors=(raw.descriptor_capacity()+marks.chunks.capacity())*std::mem::size_of::<Vec<Part>>();
-                assert!(payload+descriptors<=budget.incoming_materialized_bytes);
             }
             let combined=combine_chunked_parts(&raw).unwrap();
+            let direct=combine_indexed_parts(cells[cell].len(),|i|cells[cell].get(i,&controls).0).unwrap();
+            assert_eq!(direct.len(),combined.len());
+            assert!(direct.iter().zip(&combined).all(|(a,b)|
+                (a.tag,a.offset,a.mass.to_bits(),a.birth.to_bits(),a.a.0,a.b.0)==
+                (b.tag,b.offset,b.mass.to_bits(),b.birth.to_bits(),b.a.0,b.b.0)));
             assert_eq!(combined.len(),1);
             assert_eq!(combined[0].mass.to_bits(),(count as f64*0.125).to_bits());
             let before=budget.incoming;
+            drop(raw);drop(marks); // only the materialized test oracle
             let released=release_consumed_timed_incoming(&mut budget,cell,
-                std::mem::take(&mut cells[cell]),raw,marks).unwrap();
+                std::mem::take(&mut cells[cell])).unwrap();
             assert_eq!(released,count);
             assert_eq!(budget.incoming,before-count);
-            assert_eq!(budget.incoming_materialized_bytes,0);
         }
         assert_eq!(budget.incoming_live_pages,0);
         assert_eq!(budget.incoming_descriptor_live_bytes,Some(0));
@@ -7474,7 +7471,7 @@ mod timed_incoming_workspace_contract_tests {
     }
 
     #[test]
-    fn encoded_source_and_decoded_cell_must_coexist_within_the_same_limit() {
+    fn source_charge_remains_until_all_direct_combine_reads_finish() {
         let mut controls=TimedIncomingControls::new();
         let p=Part {tag:1,offset:2,mass:1.0,birth:0.0,
             a:PackedTime::new(Some(0.0)).unwrap(),b:PackedTime::new(Some(1.0)).unwrap()};
@@ -7486,13 +7483,17 @@ mod timed_incoming_workspace_contract_tests {
         lock_completed_timed_incoming(&mut budget,&cells,&controls).unwrap();
         let encoded=timed_incoming_page_charge(1,budget.incoming_live_pages,
             budget.incoming_descriptor_live_bytes)+budget.timed_incoming_control_bytes.unwrap();
+        budget.limit=Some(encoded-1);
+        assert!(budget.require(0,"timed incoming direct combine").is_err());
         budget.limit=Some(encoded);
-        assert!(budget.require(0,"timed incoming retained").is_ok());
-        budget.incoming_materialized_bytes=timed_cell_decode_bound(1);
-        assert!(budget.require(0,"timed incoming cell materialization").is_err());
+        assert!(budget.require(0,"timed incoming direct combine").is_ok());
+        let combined=combine_indexed_parts(cells[0].len(),|i|cells[0].get(i,&controls).0).unwrap();
+        assert_eq!(combined[0].mass.to_bits(),p.mass.to_bits());
         assert_eq!(budget.incoming,1);
         assert_eq!(cells[0].len(),1);
-        budget.limit=Some(encoded+budget.incoming_materialized_bytes);
-        assert!(budget.require(0,"timed incoming cell materialization").is_ok());
+        release_consumed_timed_incoming(&mut budget,0,std::mem::take(&mut cells[0])).unwrap();
+        assert_eq!(budget.incoming,0);
+        assert_eq!(budget.incoming_live_pages,0);
+        assert_eq!(controls.len(),1);
     }
 }

@@ -1,0 +1,4 @@
+INITIAL_VALID 25710.0
+START_HORIZON 25720.0
+RUN_STOP {"class_name": "BudgetExceeded", "message": "native road storage budget exceeded: phase=timed incoming cell materialization, required_bytes=4959061048, budget_bytes=4952574903", "phase": "ADVANCE_TO_25720.0"}
+{"status": "BLOCKED_RESOURCE", "start_time_s": 25710.0, "completed_time_s": 25710.0, "valid_advanced_duration_s": 0.0, "wall_s": 171.724927542964, "peak_rss_bytes": 3882655744, "final_checkpoint_sha256": null, "error": {"class_name": "BudgetExceeded", "message": "native road storage budget exceeded: phase=timed incoming cell materialization, required_bytes=4959061048, budget_bytes=4952574903", "phase": "ADVANCE_TO_25720.0"}}
