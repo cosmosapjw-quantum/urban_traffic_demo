@@ -1,0 +1,44 @@
+{
+  "claim_scope": "In-project directed FIFO observation enclosure and finite-response coupling; no global novelty claim.",
+  "primary_sources": [
+    {
+      "title": "E. J. McShane, Extension of Range of Functions (1934)",
+      "url": "https://www.ams.org/journals/bull/1934-40-12/S0002-9904-1934-05978-0/S0002-9904-1934-05978-0.pdf",
+      "location": "Theorem 1, p. 838",
+      "verified_via": "Exa primary PDF extraction",
+      "supports": "Classical Lipschitz extension by supremum of metric cones. Does not establish our particular interval/FIFO/route statement."
+    },
+    {
+      "title": "Brian C. Dean, Shortest Paths in FIFO Time-Dependent Networks: Theory and Algorithms",
+      "url": "https://people.csail.mit.edu/bdean/tdsp.pdf",
+      "location": "Section 2, Definitions and theoretical properties",
+      "verified_via": "Exa author PDF extraction",
+      "supports": "Nondecreasing arc arrival maps with arrival >= departure; FIFO path composition and time-dependent shortest path setting."
+    },
+    {
+      "title": "Shortest paths in a network with time-dependent flow speeds (2000)",
+      "url": "https://www.sciencedirect.com/science/article/pii/S0377221799000351",
+      "location": "The model / Non-passing travel time / The algorithm",
+      "verified_via": "Parallel publisher extraction",
+      "supports": "Distance-integrated time-dependent speed model satisfies nonpassing and admits a Dijkstra variant."
+    }
+  ],
+  "scispace_crosscheck": [
+    "https://scispace.com/papers/shortest-paths-in-time-dependent-fifo-networks-20lxm7k1xn",
+    "https://scispace.com/papers/discretised-link-travel-time-models-based-on-cumulative-4savh8o6vo"
+  ],
+  "wolfram": [
+    {
+      "tool": "wolframcontext",
+      "status": "ERROR",
+      "output": "Mcp error: -32603: Internal error"
+    },
+    {
+      "tool": "wolframlanguageevaluator",
+      "status": "EXECUTED",
+      "code": "FullSimplify[(x-y) <= Max[x-t,0]+Max[t-y,0], Element[{x,y,t},Reals] && x>=y]",
+      "output": "Out[1]= True",
+      "meaning": "One oriented triangle inequality case; not independent proof of the whole theorem."
+    }
+  ]
+}

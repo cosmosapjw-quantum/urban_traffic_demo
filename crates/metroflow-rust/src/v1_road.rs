@@ -2239,6 +2239,104 @@ fn sum<I: IntoIterator<Item = f64>>(values: I) -> f64 {
     }
     hi
 }
+/// Validator-local expansion sums retain exactly the original fsum insertion
+/// order without first retaining every mass in an additional Vec. This budget
+/// charges the actual accumulator capacities, including old/new overlap before
+/// a partial buffer grows. No bound on the number of expansion components is
+/// assumed, and the retained-owner fallback remains the original 3*max.
+struct ValidationScratch {
+    limit: Option<usize>,
+    owner_bytes: usize,
+    live_bytes: std::cell::Cell<usize>,
+    peak_bytes: std::cell::Cell<usize>,
+}
+impl ValidationScratch {
+    fn new(limit:Option<usize>,owner_bytes:usize,fixed_bytes:usize)->PyResult<Self> {
+        let out=Self{limit,owner_bytes,live_bytes:std::cell::Cell::new(fixed_bytes),
+            peak_bytes:std::cell::Cell::new(fixed_bytes)};
+        out.require(0)?;
+        Ok(out)
+    }
+    fn require(&self,extra:usize)->PyResult<()> {
+        let scratch=self.live_bytes.get().saturating_add(extra);
+        self.peak_bytes.set(self.peak_bytes.get().max(scratch));
+        check_storage_limit(self.limit,self.owner_bytes.saturating_add(scratch),
+            "state validation workspace")
+    }
+    fn replace_buffer(&self,old_capacity:usize,new_capacity:usize) {
+        self.live_bytes.set(self.live_bytes.get()
+            .saturating_sub(old_capacity.saturating_mul(8))
+            .saturating_add(new_capacity.saturating_mul(8)));
+    }
+}
+struct ValidationSum<'a> {
+    partials:Vec<f64>,
+    work:&'a ValidationScratch,
+}
+impl<'a> ValidationSum<'a> {
+    fn new(work:&'a ValidationScratch)->Self {Self{partials:Vec::new(),work}}
+    fn push(&mut self,mut x:f64)->PyResult<()> {
+        let p=&mut self.partials;
+        let mut i=0;
+        for j in 0..p.len() {
+            let mut y=p[j];
+            if x.abs()<y.abs() {std::mem::swap(&mut x,&mut y);}
+            let hi=x+y;
+            let lo=y-(hi-x);
+            if lo!=0.0 {p[i]=lo;i+=1;}
+            x=hi;
+        }
+        p.truncate(i);
+        if x!=0.0 {
+            if p.len()==p.capacity() {
+                let wanted=p.capacity().saturating_mul(2).max(4);
+                // The old allocation is still live while the new buffer is
+                // reserved. Reserve the full new capacity, not merely delta.
+                self.work.require(wanted.saturating_mul(8).saturating_add(32))?;
+                let mut next=checkpoint_vec(wanted)?;
+                // Vec capacity is observable. Charge allocator-provided extra
+                // capacity before retaining it; opaque allocator metadata is
+                // outside structural accounting and under the process limit.
+                self.work.require(next.capacity().saturating_mul(8).saturating_add(32))?;
+                next.extend_from_slice(p);
+                self.work.replace_buffer(p.capacity(),next.capacity());
+                *p=next;
+            }
+            p.push(x);
+        }
+        Ok(())
+    }
+    fn finish(mut self)->f64 {
+        let p=&mut self.partials;
+        let mut hi=0.0;
+        let mut lo=0.0;
+        if let Some(x)=p.pop() {
+            hi=x;
+            while let Some(x)=p.pop() {
+                let y=hi;
+                hi=y+x;
+                lo=x-(hi-y);
+                if lo!=0.0 {break;}
+            }
+            if !p.is_empty() && ((lo<0.0 && p[p.len()-1]<0.0)
+                || (lo>0.0 && p[p.len()-1]>0.0)) {
+                let y=lo*2.0;
+                let x=hi+y;
+                if y==x-hi {hi=x;}
+            }
+        }
+        hi
+    }
+}
+impl Drop for ValidationSum<'_> {
+    fn drop(&mut self) {self.work.replace_buffer(self.partials.capacity(),0);}
+}
+fn validation_sum(values:impl IntoIterator<Item=f64>,work:&ValidationScratch)->PyResult<f64> {
+    let mut value=ValidationSum::new(work);
+    for x in values {value.push(x)?;}
+    Ok(value.finish())
+}
+
 fn finite_nonnegative(x: f64) -> bool {
     x.is_finite() && x >= 0.0
 }
@@ -4416,21 +4514,20 @@ impl V1Road {
         {
             return Err(val("invalid native road state schema/ledger"));
         }
-        if self.storage_budget.is_some() {
-            let stats = s.debug_stats();
-            let rows = stats.cell_parts.saturating_add(stats.pending_parts);
-            let packets = stats.cell_packets.saturating_add(stats.pending_packets);
-            let bytes = s
-                .retained_storage_bytes()
-                .max(self.retained_input_bytes)
-                .saturating_mul(3)
-                .saturating_add(rows.saturating_mul(16))
-                .saturating_add(packets.saturating_add(s.cells.len()).saturating_mul(32));
-            check_storage_limit(self.storage_budget, bytes, "state validation workspace")?;
-        }
-        let mut stored = vec![vec![]; self.classes.len()];
-        let mut all = vec![];
-        let mut residence = vec![];
+        let owner_bytes=if self.storage_budget.is_some() {
+            s.retained_storage_bytes().max(self.retained_input_bytes).saturating_mul(3)
+        }else{0};
+        let fixed=self.classes.len().saturating_mul(std::mem::size_of::<ValidationSum>()+32)
+            .saturating_add(256);
+        let validation=ValidationScratch::new(self.storage_budget,owner_bytes,fixed)?;
+        let mut stored=checkpoint_vec(self.classes.len())?;
+        for _ in &self.classes {stored.push(ValidationSum::new(&validation));}
+        let actual_fixed=stored.capacity().saturating_mul(std::mem::size_of::<ValidationSum>()+32)
+            .saturating_add(256);
+        validation.live_bytes.set(actual_fixed);
+        validation.require(0)?;
+        let mut all=ValidationSum::new(&validation);
+        let mut residence=ValidationSum::new(&validation);
         let mut records = 0;
         for (i, c) in s.cells.iter().enumerate() {
             if !c.v[0].is_finite()
@@ -4450,15 +4547,21 @@ impl V1Road {
             {
                 return Err(arithmetic("packet/source order"));
             }
-            let occ = self.occupancy(c);
+            let mut occupancy=ValidationSum::new(&validation);
+            for packet in &c.packets {
+                occupancy.push(validation_sum(packet.parts.iter().map(|p|p.mass),&validation)?)?;
+            }
+            let occ=occupancy.finish();
             if (c.v[2] - c.v[3] - occ).abs() > 1e-9 * c.v[2].max(1.) {
                 return Err(arithmetic("cell mass ledger"));
             }
-            if self.occupied(c) > self.groups[i][4] + 1e-9 * self.groups[i][4].max(1.) {
+            let occupied=validation_sum(c.packets.iter().flat_map(|packet|
+                packet.parts.iter().map(|p|p.mass*self.footprint(p.tag))),&validation)?;
+            if occupied > self.groups[i][4] + 1e-9 * self.groups[i][4].max(1.) {
                 return Err(arithmetic("cell storage"));
             }
-            push_checked(&mut residence, (c.v[2] - c.v[3]) * s.t - c.v[4] + c.v[5])?;
-            push_checked(&mut all, occ)?;
+            residence.push((c.v[2] - c.v[3]) * s.t - c.v[4] + c.v[5])?;
+            all.push(occ)?;
             for (pending, packets) in [(false, &c.packets), (true, &s.pending[i])] {
                 for packet in packets {
                     if packet.parts.is_empty()
@@ -4491,10 +4594,10 @@ impl V1Road {
                         {
                             return Err(val("invalid native entry interval"));
                         }
-                        push_checked(&mut stored[self.class(&p)], p.mass)?;
+                        stored[self.class(&p)].push(p.mass)?;
                     }
                     if pending {
-                        push_checked(&mut all, mass(packet))?;
+                        all.push(validation_sum(packet.parts.iter().map(|p|p.mass),&validation)?)?;
                     }
                 }
             }
@@ -4503,27 +4606,28 @@ impl V1Road {
             return Err(budget("packet state budget"));
         }
         let tol = 1e-9 * s.totals[0].max(1.);
-        if (s.totals[0] - s.totals[1] - sum(all)).abs() > tol {
+        if (s.totals[0] - s.totals[1] - all.finish()).abs() > tol {
             return Err(arithmetic("network mass ledger"));
         }
-        let total_residence = sum(residence) + s.totals[4] + s.totals[5] + s.totals[6];
+        let total_residence = residence.finish() + s.totals[4] + s.totals[5] + s.totals[6];
         let system = (s.totals[0] - s.totals[1]) * s.t - s.totals[2] + s.totals[3];
         if (total_residence - system).abs() > 1e-8 * total_residence.max(1.) {
             return Err(arithmetic("residence ledger"));
         }
-        for (k, l) in s.ledger.iter().enumerate() {
+        for (l, class_sum) in s.ledger.iter().zip(stored.into_iter()) {
             if l.iter().any(|x| !finite_nonnegative(*x))
-                || (l[0] - l[1] - sum(stored[k].iter().copied())).abs() > 1e-9 * l[0].max(1.)
+                || (l[0] - l[1] - class_sum.finish()).abs() > 1e-9 * l[0].max(1.)
             {
                 return Err(arithmetic("class mass/ledger mismatch"));
             }
         }
         for (a, b) in [(0, 0), (1, 1), (2, 4), (4, 5)] {
-            let observed = sum(s.ledger.iter().map(|l| l[a]));
+            let observed = validation_sum(s.ledger.iter().map(|l| l[a]),&validation)?;
             if (observed - s.totals[b]).abs() > 1e-8 * observed.max(s.totals[b]).max(1.) {
                 return Err(arithmetic("class/global ledger mismatch"));
             }
         }
+        crate::v1_trace::add("validation.actual_peak_scratch_bytes",validation.peak_bytes.get() as u64);
         Ok(())
     }
     fn step_state(
@@ -9508,6 +9612,150 @@ mod v03_narrow_event_tier_20261123_tests {
             let retained=store.storage_bytes();
             assert!(retained<=store.decode_storage_upper_bytes());
             assert!(generic>=n*48);
+        }
+    }
+}
+
+
+#[cfg(test)]
+mod v03_validation_stream_20261123_tests {
+    use super::*;
+
+    fn populated() -> V1Road {
+        let mut road=V1Road::new(
+            "validation-stream-source".into(),1.0,
+            vec![vec![1_000_000.0,1.0,100_000.0,100_000.0,100_000.0,1.0]],
+            vec![None],vec![(vec![0],0)],vec![vec![1.0;13]],vec![vec![0]],
+            vec![],100_000,Some(100_000),true,
+        ).unwrap();
+        let parts=PacketParts::pack((0..10_000).map(|_|Part{
+            tag:0,offset:0,mass:1.0/256.0,birth:-0.0,
+            a:PackedTime::new(Some(-0.0)).unwrap(),
+            b:PackedTime::new(Some(0.0)).unwrap(),
+        }).collect(),|_|Ok(())).unwrap();
+        road.state.cells[0].packets.push(Packet{target:1_000_000.0,parts});
+        road.state.cells[0].v[2]=10_000.0/256.0;
+        road.state.totals[0]=road.state.cells[0].v[2];
+        road.state.ledger[0][0]=road.state.totals[0];
+        road
+    }
+
+    #[test]
+    fn validator_streams_rows_at_unchanged_retained_owner_allowance() {
+        pyo3::prepare_freethreaded_python();
+        let mut road=populated();
+        road.check_state(&road.state).unwrap();
+        let retained=road.state.retained_storage_bytes();
+        // The physical owner fallback is UNCHANGED. The additional 8192 B
+        // supports validation scratch, not a 160000 B materialized row list.
+        let cap=retained.saturating_mul(3)+8192;
+        road.set_phase_storage_budget(cap).unwrap();
+        let mut before=Vec::new();
+        road.write_state(&mut before).unwrap();
+        let result=road.check_state(&road.state);
+        assert!(result.is_ok(),"10000 valid rows must stream under original owner cap: {result:?}");
+        let mut after=Vec::new();
+        road.write_state(&mut after).unwrap();
+        assert_eq!(before,after);
+    }
+
+    #[test]
+    fn validation_expansion_matches_materialized_fsum_bits() {
+        let mut cases=vec![vec![],vec![-0.0,0.0],vec![1e16,1.0,-1e16],
+            vec![f64::from_bits(1),f64::from_bits(1),-f64::from_bits(1)],
+            vec![1.0,f64::EPSILON/2.0,f64::EPSILON/4.0],
+            vec![1e100,1.0,1e-100,-1e100,-1.0],
+            vec![f64::INFINITY],vec![f64::NEG_INFINITY],
+            vec![f64::INFINITY,f64::NEG_INFINITY],vec![f64::NAN]];
+        let mut state=0x91a8_762c_0031_22b5u64;
+        for count in [1,2,7,32,257,4096] {
+            for _ in 0..20 {
+                let mut values=Vec::new();
+                for _ in 0..count {
+                    state=state.wrapping_mul(6364136223846793005).wrapping_add(1);
+                    let exponent=((state>>12)%2001) as i32-1000;
+                    let sign=if state&1==0 {1.0}else{-1.0};
+                    values.push(sign*(1.0+((state>>24)&1023) as f64/1024.0)*2.0f64.powi(exponent));
+                }
+                cases.push(values);
+            }
+        }
+        for values in cases {
+            let expected=sum(values.iter().copied());
+            let work=ValidationScratch::new(None,0,0).unwrap();
+            let actual=validation_sum(values.iter().copied(),&work).unwrap();
+            assert_eq!(expected.to_bits(),actual.to_bits(),"{} values",values.len());
+            assert_eq!(work.live_bytes.get(),0,"finished sums release scratch credit");
+        }
+    }
+
+    #[test]
+    fn validation_expansion_charges_old_new_growth_before_allocation() {
+        pyo3::prepare_freethreaded_python();
+        let work=ValidationScratch::new(Some(96),0,0).unwrap();
+        let mut value=ValidationSum::new(&work);
+        for exponent in [-900,-700,-500,-300] {value.push(2.0f64.powi(exponent)).unwrap();}
+        assert_eq!(value.partials.capacity(),4);
+        assert_eq!(work.live_bytes.get(),32);
+        let error=value.push(2.0f64.powi(-100)).unwrap_err().to_string();
+        assert!(error.contains("required_bytes=128"),"{error}");
+        assert_eq!(value.partials.capacity(),4,"rejected growth cannot allocate");
+        assert_eq!(work.live_bytes.get(),32);
+        drop(value);
+        assert_eq!(work.live_bytes.get(),0);
+        let exact=ValidationScratch::new(Some(128),0,0).unwrap();
+        let mut value=ValidationSum::new(&exact);
+        for exponent in [-900,-700,-500,-300,-100] {value.push(2.0f64.powi(exponent)).unwrap();}
+        assert_eq!(value.partials.capacity(),8);
+        assert_eq!(exact.live_bytes.get(),64);
+        assert_eq!(exact.peak_bytes.get(),128);
+    }
+
+    #[test]
+    fn validation_sums_account_for_simultaneous_class_buffers() {
+        pyo3::prepare_freethreaded_python();
+        let work=ValidationScratch::new(Some(95),0,0).unwrap();
+        let mut a=ValidationSum::new(&work);
+        a.push(1.0).unwrap();
+        let mut b=ValidationSum::new(&work);
+        assert!(b.push(1.0).unwrap_err().to_string().contains("required_bytes=96"));
+        assert_eq!(work.live_bytes.get(),32);
+        drop(a);
+        b.push(1.0).unwrap();
+        assert_eq!(b.finish().to_bits(),1.0f64.to_bits());
+        assert_eq!(work.live_bytes.get(),0);
+    }
+
+    #[test]
+    fn validator_retains_original_three_owner_fallback() {
+        pyo3::prepare_freethreaded_python();
+        let mut road=populated();
+        road.retained_input_bytes=1_000_000;
+        road.set_phase_storage_budget(2_999_999).unwrap();
+        let error=road.check_state(&road.state).unwrap_err().to_string();
+        assert!(error.contains("state validation workspace"));
+        assert!(error.contains("required_bytes=3000320"),"{error}");
+    }
+
+    #[test]
+    fn streaming_validator_keeps_ledger_interval_and_record_rejection() {
+        pyo3::prepare_freethreaded_python();
+        for case in 0..6 {
+            let mut road=populated();
+            road.set_phase_storage_budget(10_000_000).unwrap();
+            let expected=match case {
+                0=>{road.state.cells[0].v[2]+=1.0;"cell mass ledger"},
+                1=>{road.state.totals[0]+=1.0;"network mass ledger"},
+                2=>{road.state.ledger[0][0]+=1.0;"class mass/ledger mismatch"},
+                3=>{road.state.cells[0].packets[0].target=f64::NAN;"empty/invalid native packet"},
+                4=>{road.record_budget=9_999;"packet state budget"},
+                _=>{road.state.cells[0].packets[0].parts=PacketParts::pack(
+                    road.state.cells[0].packets[0].parts.iter().map(|mut p|{
+                        p.birth=1.0;p
+                    }).collect(),|_|Ok(())).unwrap();"invalid homogeneous native part"},
+            };
+            let error=road.check_state(&road.state).unwrap_err().to_string();
+            assert!(error.contains(expected),"case {case}: {error}");
         }
     }
 }

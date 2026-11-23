@@ -84,3 +84,15 @@ Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 원래 혼잡→routing 의도를 실�
 `tools/research/v03_origin_validation_horizon_20261123.py`는 원 dt=10s를 고정하면서 tick/window/hourly 호출 경계를 명시한다. 새 source에서 사용할 역사 seed는 전체 receipt SHA+checkpoint SHA/size가 고정된25,660s/25,730s 두 개뿐이다. 나머지는 같은 source/native의 저장된 유효 prefix만 허용한다. 실패한 multi-tick native call 내부의 미반환 tick은 credit0이며 이전 반환 상태만 저장한다. 입증되지 않은 cross-native·cap drift·trace override·잘못된 clock credit을 거절하는11개 표적 검사가0.16s에 통과했다(`C4_horizon_admission_tests.log`,exit0). 기존의 여러 역사 예외를 새 runner에 그대로 복제하지 않았다.
 
 Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 과거 연구와 다른 새 구성 경로를 선택했고, 원래 finite-information routing과 mesoscopic 실행을 각각 실험으로 연결한다. hourly 호출의 실패 원자성과 연구 tick 반환의 진전 단위를 분리했다.
+
+## R5 / C5 — 구성적 증명과 실제 구현 (완료)
+
+`V03_FIFO_ROUTE_OBSERVABILITY_THEORY_20261123.md`에 세 명제와 증명을 완성했다. (1) FIFO Γ-Lipschitz 함수 클래스의 존재 필요충분조건과 sharp 전체 상·하 함수, (2) 공간적으로 균질한 τ_r v'=V−v에서 양의 invariant speed bounds가 주는 Γ=v_+/v_−와 τ_min=length/v_+, (3) legal turn graph에서 monotone composition 및 upper-optimal 경로의 regret≤U_*−L_*이다. McShane형 확장과 FIFO shortest paths는 고전 요소이며 이번 성과는 현 프로젝트의 sparse causal observation→physical certificate→route enclosure 연결이다.
+
+증명의 핵심은 (x_i−x_j)_+≤(x_i−t)_++(t−x_j)_+와 표본 양립성으로 모든 lower cone이 모든 upper cone 이하임을 보이고, 양 함수 자체가 admissible임을 구성하는 것이다. 운동학적 certificate는 두 거리 적분식을 빼서 ∫E(t1)^E(t2) v=∫t1^t2 v를 얻은 후 v_−,v_+로 감싼다. 경로식은 덧셈 대신 비감소 함수 합성이며 고정된 반사실적 traffic field에서만 비교한다. 이는 코드 최적화 정리가 아닌 교통 관측·예측 배경이론의 명시적 업그레이드다.
+
+실행 모듈 `src/metroflow/v1/fifo_route_observability.py`와 과학 테스트가 추가됐다. 실제 finite-response exact oracle, causal probe, 빈/미전달/불일치 입력, 미인증 upper의 전파와 legal graph certificate를 제공하며 production R02나 native 수송을 변경하지 않는다. Native 자동 boundary 계측은 미완료로 유지한다.
+
+native `v1_road.rs`는 실제 validator 배열을 streaming expansion으로 대체했다. 같은 순서·같은 f64 축약·같은 검증 조건·같은3×max owner reserve를 유지하면서 동시 scratch와 성장 old+new overlap을 계상한다. 10,000행의 동일 행동 테스트가 GREEN으로 전환됐고(`C5_validation_green.log`,exit0), 입력 road wire도 동일하다. 소스 SHA는b7a3fad3943da61c5ff72fba08d10ea9832d722f1442c161dfc8c244493361dc다. 이는 full100k frontier의 PASS와 별개이며 다음 실험에서 판정한다.
+
+Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 원래 collision/finite-response에서 인과적 경로 비용으로 가는 구체적 명제·물리 oracle을 얻었고, mesoscopic 실행 blocker의 실제 scratch를 줄였다. 원본 driver·calendar·cap·physics·wire는 유지했다.
