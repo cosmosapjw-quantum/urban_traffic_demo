@@ -1,0 +1,166 @@
+{
+  "blocked_target_time_s": 25740.0,
+  "case": "valley_weekday_s7",
+  "completed_mass_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1621.6342620685925,
+      "completed": 114.47729541474556,
+      "pending": 1208.3328869610702,
+      "released": 1736.1115574833382,
+      "requested": 2944.4444444444084
+    },
+    "vehicles": {
+      "active": 1297.0111432026974,
+      "completed": 89.65552346398982,
+      "pending": 56.1111111110738,
+      "released": 1386.6666666666872,
+      "requested": 1442.777777777761
+    }
+  },
+  "completed_step_wall_s": [],
+  "completed_time_s": 25730.0,
+  "created_utc": "2026-11-23T05:32:21+00:00",
+  "cross_native_original_25700_source": false,
+  "cross_native_original_25710_source": false,
+  "current_candidate_source_sha256": "7e8b92020076e01283d532cf0e5825cb30167a533949e6bc6fd071f7b7d8cfe2",
+  "current_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "current_native_binary_sha256": "baa3e4ce4f775df5cf3973e749357cc2d5a29cefbf1683355638a0de5b6a5606",
+  "current_source_dirty": false,
+  "diagnostic_only": false,
+  "error": {
+    "class": "BudgetExceeded",
+    "message": "native road storage budget exceeded: phase=state validation workspace, required_bytes=5435700144, budget_bytes=5297903399",
+    "phase": "ADVANCE_TO_25740"
+  },
+  "evidence_role": "original uninstrumented physics",
+  "final_checkpoint_bytes": null,
+  "final_checkpoint_local_only": true,
+  "final_checkpoint_sha256": null,
+  "final_event_moment_observation": {
+    "age_time_mass": 95763.46799473118,
+    "age_time_mass_interval": [
+      95763.46783184583,
+      95763.46814987269
+    ],
+    "birth_time_mass": 7522784.426929904,
+    "birth_time_mass_interval": [
+      7522784.415491513,
+      7522784.437788607
+    ],
+    "compact_events": true,
+    "mass": 296.0959150767445,
+    "mass_interval": [
+      296.09591455717737,
+      296.09591557108996
+    ],
+    "positive_mass_rows": 24322678,
+    "row_count": 24322678,
+    "schema": "V03_SERVICE_EVENT_INCIDENCE_MOMENTS_V1",
+    "scope": "stored f64 event-incidence moments at common snapshot clock; arithmetic enclosure only, not historical solver roundoff or unique journey distribution",
+    "storage_bytes": 973929944,
+    "time_s": 25730.0
+  },
+  "historical_native_source_identity": null,
+  "historical_original_25650_source": false,
+  "initial_event_moment_observation": {
+    "age_time_mass": 95763.46799473118,
+    "age_time_mass_interval": [
+      95763.46783184583,
+      95763.46814987269
+    ],
+    "birth_time_mass": 7522784.426929904,
+    "birth_time_mass_interval": [
+      7522784.415491513,
+      7522784.437788607
+    ],
+    "compact_events": true,
+    "mass": 296.0959150767445,
+    "mass_interval": [
+      296.09591455717737,
+      296.09591557108996
+    ],
+    "positive_mass_rows": 24322678,
+    "row_count": 24322678,
+    "schema": "V03_SERVICE_EVENT_INCIDENCE_MOMENTS_V1",
+    "scope": "stored f64 event-incidence moments at common snapshot clock; arithmetic enclosure only, not historical solver roundoff or unique journey distribution",
+    "storage_bytes": 973929944,
+    "time_s": 25730.0
+  },
+  "moment_observation_scope": "service event-incidence source age at common snapshot clock; not unique journey completions",
+  "native_phase_metrics": {
+    "binding_s": 0.036829447,
+    "failed_ticks": 1,
+    "native_threads": 1,
+    "phase_wall_s": {
+      "journey_finish": 0.0,
+      "journey_prepare": 0.027544626,
+      "other_tick": 0.043291590000009705,
+      "road_step": 112.460139715,
+      "service_finish": 0.0,
+      "service_prepare": 5.189e-06
+    },
+    "road_event_resolution": {
+      "checkpointed": false,
+      "clock_roundoff_upper_s": 0.0,
+      "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+      "nominal_subulp_service_mass_upper": 0.0,
+      "processed_subulp_time_upper_s": 0.0,
+      "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+      "subulp_events": 0
+    },
+    "scope": "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation",
+    "successful_ticks": 0
+  },
+  "native_process_cap_bytes": 8589934592,
+  "original_candidate_from_time_zero_verified": false,
+  "original_full_day_acceptance": "BLOCKED_0_OF_9",
+  "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "peak_rss_bytes": 4943294464,
+  "previous_checkpoint_cross_native": false,
+  "previous_checkpoint_full_wire_roundtrip_exact": true,
+  "previous_full_checkpoint_bytes": 5523765378,
+  "previous_full_checkpoint_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+  "previous_mass_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1621.6342620685925,
+      "completed": 114.47729541474556,
+      "pending": 1208.3328869610702,
+      "released": 1736.1115574833382,
+      "requested": 2944.4444444444084
+    },
+    "vehicles": {
+      "active": 1297.0111432026974,
+      "completed": 89.65552346398982,
+      "pending": 56.1111111110738,
+      "released": 1386.6666666666872,
+      "requested": 1442.777777777761
+    }
+  },
+  "requested_duration_s": 20,
+  "requested_end_s": 25750.0,
+  "restore_only": false,
+  "runner_sha256": "9e029d64ad0adae50484837a179953f8f77b0ae4d03136c4e56f2106fb64a20e",
+  "schema": "V03_ORIGINAL_100K_CONTINUOUS_ESCALATING_HORIZON_V1",
+  "start_time_s": 25730.0,
+  "status": "BLOCKED_RESOURCE",
+  "strictly_pinned_original_25720_saved_prefix": false,
+  "trace_counters": {},
+  "trace_mode": "off",
+  "trace_sites": {},
+  "valid_advanced_duration_s": 0.0,
+  "wall_total_including_full_preparation_and_checkpoint_io_s": 181.41707062599016
+}

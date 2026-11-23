@@ -1,0 +1,28 @@
+{
+  "schema": "V03_FINAL_CANDIDATE_ACTIVE_REPLAY_AND_FRONTIER_JOIN_V1",
+  "status": "VERIFIED_SCOPED",
+  "candidate_source_sha256": "7e8b92020076e01283d532cf0e5825cb30167a533949e6bc6fd071f7b7d8cfe2",
+  "native_binary_sha256": "baa3e4ce4f775df5cf3973e749357cc2d5a29cefbf1683355638a0de5b6a5606",
+  "historical_seed_clock_s": 25650,
+  "replayed_original_physics_s": 70,
+  "new_frontier_advanced_s": 10,
+  "state_linked_same_candidate_window_s": [
+    25650,
+    25730
+  ],
+  "single_process_uninterrupted_80s_claim": false,
+  "time_zero_current_candidate_claim": false,
+  "historical_25720_receipt": "/home/cosmosapjw/worktrees/urban-traffic-v03-age-loss-checkpoint-20261122/artifacts/v03_age_loss_checkpoint_20261122/R6_original_100k_25710_off_requested_20s.json",
+  "historical_25720_receipt_sha256": "68d279548da0e3c1215d03b037ef52f3b6ff59ededc4e42eca31235b0f1c4a61",
+  "replay_25720_bytes": 4677350066,
+  "replay_25720_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+  "historical_wire_size_and_sha_equal": true,
+  "historical_conservation_ledgers_equal": true,
+  "frontier_25730_bytes": 5523765378,
+  "frontier_25730_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+  "independent_25730_restore_receipt": "R8e_original_100k_25730_requested_20s.json",
+  "independent_25730_full_wire_and_ledger_verified": true,
+  "failed_25740_new_time_credit_s": 0,
+  "original_full_day_completed": 0,
+  "original_full_day_required": 9
+}

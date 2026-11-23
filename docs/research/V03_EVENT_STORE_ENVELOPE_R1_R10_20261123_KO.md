@@ -200,3 +200,39 @@ Record-only 진단은 원래 uninstrumented 실패와 같은 required=5,943,686,
 첫 전체 library 실행의260pass/1fail은 과거 page 용량 assertion이 여전히48B를 기대한 오류였다(actual163840B, expected196608B). 실제40B 타입 크기로 기대값을 고쳤으며 실패 로그는 `C8e_rust_library_first_failure.log`로 보존했다. 무조건 통과하도록 assertion을 제거하지 않았다.
 
 최종 source는 road SHA256 e25adb5d6c5d7bdb1202f6c529f5b7a3b1a23334f8f63b9fbb9780e81277db2d, journey SHA256 2d3397ff500fbb9e96a9ae04343f7638c037974bd652583761e84996009fff35다. 부모는 전체 production diff와 실제 load 순서·page 승격 수명·decoder admission 일치·검사 출력을 확인했다. 다음 게시로 source를 고정한 뒤 원본 물리 구간과 저장·재복원을 측정한다. 이 단위검사 결과 자체는 새 원도시 시간의 완료 근거가 아니다.
+
+### R8e 실제 원본 성공: t25,730 저장과 독립 복원
+
+Freeze commit `dd9686f1d537ed746425dd4a60d1f3e8fc302089`를 push/readback한 뒤 release를 빌드했다. 최종 candidate source는 `7e8b92020076e01283d532cf0e5825cb30167a533949e6bc6fd071f7b7d8cfe2`, native binary는 `baa3e4ce4f775df5cf3973e749357cc2d5a29cefbf1683355638a0de5b6a5606`다. 이전 t25,720 checkpoint의 전체 wire와 원장을 다시 확인했다. 그 시점의 actual event storage는 811,700,624 B로, 직전48B 후보973,795,992 B보다162,095,368 B 작다. Payload 계산값162,160,904 B에서 enum descriptor 증가65,536 B를 반영한 실제 차다. 기존 flat64B 대비 실제 차는485,586,736 B다.
+
+원본 Valley100k의 t25,720→25,730 요청10s를 모두 완료했다. `PHYSICAL_TICK_VALID` 후 저장한 checkpoint는5,523,765,378 B이며 SHA256 `c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9`다. Tick wall93.59907537000254s, 전체 준비·입력 wire 확인·관측·최종 저장 포함183.13121596100973s, peakRSS4,599,537,664 B다. Original native6GiB/process8GiB를 유지했고 source/step/tolerance를 바꾸지 않았다. R8e_original_100k_25720_requested_10s.json이 원자료다.
+
+별도 프로세스에서 이 새 checkpoint를 읽고 전체 wire SHA와 원장을 재확인했다. `R8e_original_100k_25730_requested_20s.log`의 초기 확인이 그 독립 복원 근거다. 이어진20s의 결과는 아래에 별도로 기록하며, 입력 복원 성공만으로20s를 완료했다고 세지 않는다. 이번 source가 clock0부터25,730까지 직접 적분했다는 주장은 없고, 역사적25,720을 입력으로 새로 완료한 시간은10s다.
+
+새 t25,730 관측은24,322,678 event rows, M=296.0959150767445 vehicle-incidence, A=95,763.46799473118 vehicle·s다. 저장된 f64 관측의 산술 구간으로 mean age는[323.420428299876,323.4204304814221]s다. Exact-model birth≥21,600s에서 age support는[0,4,130]s다. K(3,600)의 조건부 상한은12,289.25862456 vehicle·s이며 broad birth≥0 support의82,364.77070178보다 좁다. Positive-age tail at3,900s는0.08292831550805696 이하로 제한된다. 이는 event-incidence 측도이며 unique/final journey와 과거 solver rounding 인증으로 확대하지 않는다. 두 support의 exact-rational 계산은 R8e_native_moment_envelope_25730_21600.json 및 _0.json에 보존했다.
+
+### R8e 다음20s의 실제 실패와 남은 최소 표적
+
+저장된25,730에서 요청한20s는 첫 다음 tick25,740의 `state validation workspace` guard에서 멈췄다. required5,435,700,144 B, 해당 road allowance5,297,903,399 B, 초과137,796,745 B다. valid advance0s, 총wall181.41707062599016s, peakRSS4,943,294,464 B, 새 checkpoint 없음이다. Native phase의 road_step112.460139715s 뒤 service/journey finish는 수행되지 않았다. 앞선25,730 저장 성공을 취소하지 않으며, 실패한25,740을 frontier에 더하지 않는다.
+
+실제 `V1Road::check_state`의 이 guard는 `3 × max(candidate retained, retained_input) + 16 × rows + 32 × (packets + cells)`의 범용 상계를 사용한다. 이번 수술의 source-aware preproposal·checkpoint guard와 별개로 남아 있는 보수적 검사다. 이것을 실제 allocator OOM 또는 모델의 보편적 no-go로 재명명하지 않는다. 다음 최소 구현 표적은 standalone 검사 계약을 유지하면서, whole proposal에서 이미 알려진 input/current/candidate owner 및 validation scratch의 수명을 이 검사에 전달할 수 있는지 검증하는 것이다. 해당 식의 임의 차감이나 상한 완화는 이번에 수행하지 않았다.
+
+원래 acceptance CLI는 native를 hourly boundary까지 한 번에 advance하고 시간별 checkpoint를 남긴다. 이번 frontier runner는 한 call마다 원래10s tick을 실행해 실패 직전 상태를 명확히 보존하는 진단 cadence다. 같은 dt/driver/물리를 유지하더라도 call-input owner 수명과 Python binding overhead는 같지 않다. 따라서 짧은 checkpoint continuation 실패를 현재 source의 clock0부터 실행한 hourly campaign 실패 또는24h 불가능성 증거로 확대하지 않는다. 원본 전체 campaign의 새 source 실행은 계속 별도 의무다.
+
+현재 후보의 다중 tick 동작과 시간 확대는 엄격히 고정된 과거 원본25,650 checkpoint에서10s→20s→40s를 순차 실행하여 확인한다. 이 활동 구간 재실행은 frontier 증가와 별도 열에 기록하고, 마지막25,720 wire가 기존 SHA와 일치하는지도 확인한다. 다음 절에 실제 결과만 기록한다.
+
+### R8/C8 완료 · 실제10→20→40s 재실행과 source 연결
+
+동일한 최종 source/native에서 원본 Valley100k의 과거 활동 구간을 순차 실행했다. 각 행은 직전 행의 저장된 checkpoint를 새로운 프로세스에서 전체 wire/장부 확인 후 이어받는다. 원래 dt10s, native6GiB/process8GiB, 원본 source·driver·matrix를 유지했다.
+
+| 시작→완료(s) | 요청/유효 물리시간(s) | 전체 wall(s) | Peak RSS(B) | 저장 checkpoint(B) |
+|---|---:|---:|---:|---:|
+| 25650→25660 | 10/10 | 52.925615 | 1,898,229,760 | 1,912,366,706 |
+| 25660→25680 | 20/20 | 89.970393 | 2,401,353,728 | 2,552,318,466 |
+| 25680→25720 | 40/40 | 279.527187 | 4,064,927,744 | 4,677,350,066 |
+
+40s 행의 네 tick wall은37.0295630820,46.1926528010,59.1622603720,73.7348391770s였다. 모든 tick의 원장을 검사했고 마지막 상태를 저장했다. 전체 wall에는 도시 준비·독립 복원·전체 wire 확인·관측·최종 checkpoint 쓰기와 SHA 계산이 포함된다. 이 runtime 변화는 활동량과 상태량이 커지는 실제 시계 구간의 측정이며 고립된 알고리즘 speedup 비교가 아니다.
+
+마지막25,720 checkpoint는4,677,350,066 B, SHA256 `447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9`로 이전 루프의 원본과 완전히 같은 크기/SHA이고 질량 장부도 일치한다. 이것은 앞서 새로25,730까지 전진한10s 실행의 입력과도 동일하다. 따라서 동일 최종 후보의70s 활동 구간 재검증과 그 byte-identical 입력에 연결되는10s frontier 확장이 성립한다. 하나의 uninterrupted80s 프로세스 또는 clock0부터의 현 후보 궤적이라고 주장하지 않는다.
+
+최종 frontier25,730의5,523,765,378 B checkpoint는 다음20s 프로세스에서 독립 full-wire/장부 복원을 통과했다. 이 이미 완료된 복원 근거를 R10에서 재사용한다. 비교 영수증은 `R8e_replay_frontier_identity.json`, 전체 staircase는 `R8e_active_window_staircase.json`이다. R8은 실제25,730 blocker 해소·저장·독립 복원·점증 실행을 완료했고,25,740의 새로운 validation workspace guard는 남은 과제로 보존한다.

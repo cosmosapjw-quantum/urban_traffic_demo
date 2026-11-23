@@ -1,0 +1,3 @@
+HORIZON_INITIAL_WIRE_LEDGER_VERIFIED 25730.0
+NATIVE_EVENT_OBSERVATION {"age_time_mass": 95763.46799473118, "mass": 296.0959150767445, "row_count": 24322678, "storage_bytes": 973929944, "time_s": 25730.0}
+{"blocked_target_time_s": 25740.0, "end_time_s": 25730.0, "error": {"class": "BudgetExceeded", "message": "native road storage budget exceeded: phase=state validation workspace, required_bytes=5435700144, budget_bytes=5297903399", "phase": "ADVANCE_TO_25740"}, "final_checkpoint_sha256": null, "peak_rss_gib": 4.604, "requested_duration_s": 20, "status": "BLOCKED_RESOURCE", "valid_advanced_duration_s": 0.0, "wall_s": 181.417}

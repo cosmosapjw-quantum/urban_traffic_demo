@@ -1,0 +1,4 @@
+HORIZON_INITIAL_WIRE_LEDGER_VERIFIED 25720.0
+NATIVE_EVENT_OBSERVATION {"age_time_mass": 92384.13792878596, "mass": 289.71353127054977, "row_count": 20270113, "storage_bytes": 811700624, "time_s": 25720.0}
+PHYSICAL_TICK_VALID {"completed_time_s": 25730.0, "wall_s": 93.59907537000254}
+{"blocked_target_time_s": null, "end_time_s": 25730.0, "error": null, "final_checkpoint_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9", "peak_rss_gib": 4.284, "requested_duration_s": 10, "status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON", "valid_advanced_duration_s": 10.0, "wall_s": 183.131}

@@ -1,0 +1,47 @@
+{
+  "schema": "metroflow.c8e.event_tier.verification.v1",
+  "source_sha256": {
+    "v1_road.rs": "e25adb5d6c5d7bdb1202f6c529f5b7a3b1a23334f8f63b9fbb9780e81277db2d",
+    "v1_journey.rs": "2d3397ff500fbb9e96a9ae04343f7638c037974bd652583761e84996009fff35"
+  },
+  "full_library_command": "CARGO_TARGET_DIR=/home/cosmosapjw/worktrees/urban-traffic-v03-unique-accounting-20261120/target RUSTFLAGS='-C link-arg=-lpython3.12' cargo test --offline --workspace --lib -- --nocapture",
+  "full_library_pid": 3938354,
+  "full_library_exit": 0,
+  "scoped_filter": "narrow_",
+  "scoped_exit": 0,
+  "strict_red_exit": 101,
+  "first_library_exit": 101,
+  "logs": {
+    "C8e_rust_red.log": {
+      "sha256": "6bef59af5ee333468710ed929e1f0cca63036c84e72a55c03848fa63a96304a8",
+      "result_lines": [
+        "test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 253 filtered out; finished in 0.04s"
+      ]
+    },
+    "C8e_rust_red_strict.log": {
+      "sha256": "8b0b30be4698b6691c38997cd3ec77ba2912035b66614c81b14f104c0612d737",
+      "result_lines": [
+        "test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 253 filtered out; finished in 0.03s"
+      ]
+    },
+    "C8e_rust_green.log": {
+      "sha256": "f53a5c07196a4ff96355c208fa8a5e4b63ee77eb3f8f91d8d1da535c6ba50d45",
+      "result_lines": [
+        "test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 251 filtered out; finished in 0.06s"
+      ]
+    },
+    "C8e_rust_library_first_failure.log": {
+      "sha256": "d9254c1b1b494abc375a4d048c01c759f4c26333240c8c42fd754b19e59632ec",
+      "result_lines": [
+        "test result: FAILED. 260 passed; 1 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.12s"
+      ]
+    },
+    "C8e_rust_library.log": {
+      "sha256": "8b35982c487bafde4c4b211e4a3be1dcf61988ac330ee3ee9a221f8b16e917b6",
+      "result_lines": [
+        "test result: ok. 261 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.11s"
+      ]
+    }
+  },
+  "scope": "Bounded real production path and library verification; original V03 acceptance not inferred."
+}
