@@ -1,0 +1,24 @@
+{
+  "red_exit_code": 101,
+  "green_exit_code": 0,
+  "red_command": [
+    "/home/cosmosapjw/.cargo/bin/cargo",
+    "test",
+    "--offline",
+    "--workspace",
+    "--lib",
+    "stable_capacity_normal_form_tests",
+    "--",
+    "--nocapture"
+  ],
+  "green_command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--workspace",
+    "--lib"
+  ],
+  "red_fail_reason": "sparse filtered block backing not packed",
+  "status": "IMPLEMENTATION_VERIFIED",
+  "concurrency_note": "Old backing may remain live via Arc after replacement; never equate lower retained state bytes with guaranteed RSS decrease."
+}

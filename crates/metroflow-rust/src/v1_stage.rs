@@ -246,7 +246,66 @@ impl StageQueue {
         self.payload_bytes = payload_bytes;
         self.capacity_rows = capacity_rows;
         self.compact_registry();
+        // The original filtered blocks can retain most of a 256-row
+        // allocation for only one live row. Stable, optional repacking changes
+        // no logical row; it relieves a recurrent restore-vs-in-memory cost.
+        self.repack_sparse_stable();
         retired
+    }
+    /// Repartition only when actual fragmentation saves at least 256 KiB.
+    /// Original immutable Arc blocks remain alive until replacement; this
+    /// operation does not take credit for them during construction.
+    fn repack_sparse_stable(&mut self) {
+        if self.len == 0 || self.blocks.len() <= self.len.div_ceil(BLOCK_ROWS)+1 {
+            return;
+        }
+        let count=self.len.div_ceil(BLOCK_ROWS);
+        let full=self.len/BLOCK_ROWS;
+        let tail=self.len%BLOCK_ROWS;
+        let packed_slots=full.saturating_mul(BLOCK_ROWS)
+            .saturating_add(if tail==0 {0}else{tail.max(4).next_power_of_two().min(BLOCK_ROWS)});
+        let block_cost=std::mem::size_of::<Block>()
+            + 2*std::mem::size_of::<usize>() + ALLOCATION_PADDING;
+        let target=packed_slots.saturating_mul(std::mem::size_of::<Access>())
+            .saturating_add(count.saturating_mul(block_cost))
+            .saturating_add(count.saturating_mul(std::mem::size_of::<Arc<Block>>()));
+        if self.storage_bytes().saturating_sub(target) < 256*1024 {
+            return;
+        }
+        let mut new_blocks=Vec::new();
+        if new_blocks.try_reserve_exact(count).is_err() {return;}
+        // Allocate a new canonical sequence while the old remains immutable.
+        // Each allocation is fallible; failed attempts leave self unchanged.
+        let mut block=Vec::new();
+        let mut block_index=0usize;
+        for &row in self.iter() {
+            if block.is_empty() {
+                let final_tail=block_index==full && tail!=0;
+                let capacity=if final_tail {tail.max(4).next_power_of_two().min(BLOCK_ROWS)}
+                    else {BLOCK_ROWS};
+                let mut next=Vec::new();
+                if next.try_reserve_exact(capacity).is_err() {return;}
+                block=next;
+            }
+            block.push(row);
+            if block.len()==BLOCK_ROWS
+                || (block_index==full && tail!=0 && block.len()==tail) {
+                new_blocks.push(Arc::new(Block::new(std::mem::take(&mut block))));
+                block_index+=1;
+            }
+        }
+        if !block.is_empty() || new_blocks.len()!=count {return;}
+        let mut bytes=0usize;
+        let mut cap=0usize;
+        for b in &new_blocks {
+            bytes=bytes.saturating_add(b.storage_bytes());
+            cap=cap.saturating_add(b.rows.capacity());
+        }
+        // Exactly one logical replacement; old blocks are released here unless
+        // an externally held immutable snapshot still owns their Arc backing.
+        self.blocks=new_blocks;
+        self.payload_bytes=bytes;
+        self.capacity_rows=cap;
     }
     pub(crate) fn compact_registry(&mut self) {
         if self.blocks.is_empty() {
@@ -369,5 +428,34 @@ impl NativeStageQueue {
     }
     fn shared_rows(&self, other: &Self) -> usize {
         self.queue.shared_rows(&other.queue)
+    }
+}
+
+
+#[cfg(test)]
+mod stable_capacity_normal_form_tests {
+    use super::*;
+    #[test]
+    fn sparse_survivors_repack_without_changing_order_or_f64_fields() {
+        let mut q=StageQueue::new();
+        let mut expected=Vec::new();
+        for i in 0..(192*256usize) {
+            let mass=f64::from_bits(0x3ff0000000000000u64+(i%29) as u64);
+            let row=(i,mass,0.0,if i%256==0 {10.0} else {0.0});
+            if i%256==0 {expected.push(row);}
+            q.push(row);
+        }
+        assert_eq!(q.block_count(),192);
+        let mut expired=0;
+        let removed=q.retire_due(1.0, |_|expired+=1);
+        assert_eq!(removed,192*255);
+        assert_eq!(removed,expired);
+        assert_eq!(q.len(),192);
+        assert_eq!(q.iter().copied().collect::<Vec<_>>(),expected);
+        // Behavioral RED on the old filter: 192 huge sparse backings survive.
+        assert!(q.block_count()<=q.len().div_ceil(256)+1,
+            "must pack exact FIFO survivors into bounded source blocks");
+        assert!(q.storage_bytes() < 192*64,
+            "capacity-normalized source still retains dense filtered payload");
     }
 }
