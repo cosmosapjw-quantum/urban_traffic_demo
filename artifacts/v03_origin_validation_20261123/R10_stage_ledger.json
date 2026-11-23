@@ -1,0 +1,99 @@
+{
+  "additional_stage8_commits": [
+    {
+      "commit": "6f98c4d3d3415a9577f474bfe8980428afb86916",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED",
+      "stage": 8,
+      "subject": "research(v03): freeze C8 phase-scoped checkpoint admission"
+    },
+    {
+      "commit": "64173178d11229825efc553c441f6f90c7541979",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED",
+      "stage": 8,
+      "subject": "fix(v03): include actual Journey validator in fresh-restore bound"
+    },
+    {
+      "commit": "06be761d83927f3a0776d502000ec6f1ab517cfa",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED",
+      "stage": 8,
+      "subject": "research(v03): derive causal response-memory route certificate"
+    },
+    {
+      "commit": "96e544055cdd0ffdc0312801e6173a5c1699d749",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED",
+      "stage": 8,
+      "subject": "fix(v03): account actual immutable owners across capture and restore"
+    }
+  ],
+  "base_commit": "78d5e7e7e52e4db618a32ce3eca2e71f01b2433c",
+  "branch": "research/v03-origin-validation-20261123",
+  "full_day_acceptance": {
+    "completed": 0,
+    "required": 9
+  },
+  "research_stages": 10,
+  "schema": "V03_TEN_STAGE_PUSH_LEDGER_V1",
+  "self_reference_policy": "The R10 commit is the commit containing this ledger; its own SHA cannot be embedded without a circular hash. Final response gives the actual pushed SHA.",
+  "stages": [
+    {
+      "commit": "7002ec09bae3b4afff420a0e1125b09beeeeb060",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED_AT_STAGE_COMPLETION",
+      "stage": 1,
+      "subject": "research(v03): R1 C1 anchor next loop to original motivation and acceptance"
+    },
+    {
+      "commit": "a4e7c0b5d9c77389bc112eb8fb340046db9bd733",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED_AT_STAGE_COMPLETION",
+      "stage": 2,
+      "subject": "research(v03): R2 C2 recover original model lineage and correct drift policy"
+    },
+    {
+      "commit": "d39d74a2b61eaf44c70dceb6e9c4255a60d815d2",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED_AT_STAGE_COMPLETION",
+      "stage": 3,
+      "subject": "research(v03): R3 C3 distinguish causal route observables and expose validator scratch failure"
+    },
+    {
+      "commit": "d415c55b66f20f02adeb78c0af690216c2bc778b",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED_AT_STAGE_COMPLETION",
+      "stage": 4,
+      "subject": "research(v03): R4 C4 construct FIFO envelope route and source-bound experiment DAG"
+    },
+    {
+      "commit": "3eab636237b71ccfaa8db2108f6ce3c2083c5325",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED_AT_STAGE_COMPLETION",
+      "stage": 5,
+      "subject": "research(v03): R5 C5 prove causal FIFO route envelopes and stream validation scratch"
+    },
+    {
+      "commit": "9e91a4817c3069d7a3a9691018a183fada927cca",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED_AT_STAGE_COMPLETION",
+      "stage": 6,
+      "subject": "research(v03): R6 C6 verify FIFO theory and distinguish original cadence failure"
+    },
+    {
+      "commit": "e2a9fb56a189c05ed35417edad64744255c0bb8b",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED_AT_STAGE_COMPLETION",
+      "stage": 7,
+      "subject": "research(v03): R7 C7 validate causal routes and preserve full-scale checkpointability blocker"
+    },
+    {
+      "commit": "4db8d17737e97702abafd92ddebc1b4f197859db",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED_AT_STAGE_COMPLETION",
+      "stage": 8,
+      "subject": "research(v03): R8 C8 measure durable capture repair and preserve original-cadence blockers"
+    },
+    {
+      "commit": "5bc1ba0de31be09f932bedef91d853c5e83a8415",
+      "push_status": "PUSHED_AND_REMOTE_SHA_VERIFIED_AT_STAGE_COMPLETION",
+      "stage": 9,
+      "subject": "research(v03): R9 C9 verify final three-city preparation and evidence-bound readiness"
+    },
+    {
+      "commit_ref": "SELF",
+      "push_status": "THIS_COMMIT_IS_THE_STAGE_DELIVERABLE; remote SHA checked after commit and recorded in final response and durable state",
+      "stage": 10,
+      "subject": "research(v03): R10 C10 close ten-stage loop with provenance and original-intent watchdog"
+    }
+  ]
+}

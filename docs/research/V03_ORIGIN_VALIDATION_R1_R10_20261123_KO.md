@@ -1,5 +1,21 @@
 # V03 원 동기·검증 작업공간 연구 루프 — R1–R10 / C1–C10
 
+## 최종 판정 — 2026-11-23 KST
+
+이론·코딩 결합10단계의 유도·구현·실험·원격 저장 산출물을 완료했다. V03은 여전히 **BLOCKED**다. 최종 source/native에서 원3도시 전체 달력 preparation은 **3/3**, 선행 구현·한정 검증은 **19/21**, 최종 ACCEPTED는 **5/21**, 실제 원24h 수용은 **0/9**다. 서로 겹치는 이 지표를 하나의 준비율로 합산하지 않는다.
+
+배경 이론에서는 완료된 matched passage 적분과 유한응답 기억으로 endpoint 속도 및 미래 FIFO 도착구간을 구성하는 새 명제를 증명했다. 기존 Γ 예제의 물리 비교 공백을 교정했고, 알려진 전역 속도 범위만으로 선택되던7s 경로가 새 관측으로5s 경로로 바뀌는 사례를 정확한 유리수 부등식까지 포함해 입증했다. 실제84개 보류 통과와120개 고정밀 root 대조, 별도 독립 검토를 완료했다. 일반 native 혼잡의 양의 forcing 인증과 matched boundary 자동 계측은 남아 있다.
+
+코드에서는 streaming validator, 현재/future decoder의 실제 phase, capture/restore immutable owner 수명을 일치시켰다. 수정 전 저장에 실패한25,690→25,730s의40s 실행이 최종 후보에서 **정상 반환·장부·저장·후속 fresh 복원·전체 wire 일치**까지 통과했다.5,523,765,378B checkpoint의 전체SHA가 기존 기준과 같고 최종 Rust library는 **292passed,0failed,2ignored**다. 다음25,740s는 정상 반환했으나 저장의 Arc census preflight에서 거절됐다. 저장된 재개점은25,730s다.
+
+최종 후보의 별도 time-zero/hourly86,400s 요청은764.18s 후 Journey stored/working guard와 복구 저장 census guard에서 종료했다. 마지막 durable 경계25,200s를 별도 fresh process에서 검증했다. 이 상태의 출발·요청량은0이며, 실패한 hourly call의 내부 clock은 알 수 없다. Continuation25,730s와 time-zero25,200s를 합친 단일 실행은 주장하지 않는다.
+
+최종 source SHA: `e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db`.
+최종 native SHA: `6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808`.
+작업 브랜치: `research/v03-origin-validation-20261123`.
+
+주요 근거는 아래 단계별 본문과 `artifacts/v03_origin_validation_20261123/`의 `R9_final_readiness_dashboard.json`, `R10_checkpoint_catalog.json`, `R10_stage_ledger.json`, `R10_evidence_manifest.json`이다. 새 증명은 `V03_FINITE_RESPONSE_PROBE_UPGRADE_20261123.md`, 원 동기와 지속 적용 규칙은 `METROFLOW_ORIGINAL_INTENT_WATCHDOG.md` 및 `AGENTS.md`에 있다. 이 문서 아래의 이전 후보·당시 pending 표현은 역사적 단계 기록이며, 최종 판정은 이 절과 R8–R10의 마지막 영수증을 따른다.
+
 ## R1 / C1 — 목표와 원래 기준 (완료)
 
 기준 커밋은 `78d5e7e7e52e4db618a32ce3eca2e71f01b2433c`, 작업 브랜치는 `research/v03-origin-validation-20261123`이다. 이번 사용자 요청의 범위는 이론·코딩을 병행하는 정확히 10단계이며, 각 단계 완료 후 push한다. 원본 `docs/v1/PLAN.json` v1.1.26과 `scenarios/v1/release_matrix.json`을 수용 권위로 유지한다.
@@ -244,3 +260,45 @@ Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 배경 이론은 실제 관측 정보�
 독립 코드 검토는 이미 동결된 C8c delta에 대해 완료된 `C8c_independent_capture_review.md`와 동일 source identity를 재사용했다. 이번 단계에서 source가 바뀌지 않았으므로 같은 검토나 library suite를 다시 실행하지 않았다. 최종292개 Rust library PASS·2ignored는 scoped gate이고 전체 repository CI나24h 수용으로 승격하지 않는다. Main 통합과 full repository CI는 기존 사용자 결정대로 보류 상태다.
 
 Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 원 도시·수요 달력을 실제로 준비했고 구현노드,calendar preparation,활성 물리 prefix,24h 수용을 분리했다. 원본 하루 도시 실험을19/21이나3/3이라는 다른 지표로 대체하지 않았다. 이 단계는 입력 전제조건3개를 최종 후보에서 실제 만족했지만 V03/RLS01 status는 각각BLOCKED/PLANNED로 유지한다.
+
+
+## R10 / C10 — 증거 통합·단계 종료·구체적 재개점 (완료)
+
+이번 사용자 턴의 정확히10단계를 종료한다. 추가 연구 루프나 새 guard 수정은 이 완료에 포함하지 않는다. 각 단계 완료 시 source·증명·영수증을 commit/push했고, R8에서는 실제 material finding과 구성적 이론 보강 때문에4개 중간 commit도 먼저 push했다. 아래 R10은 이 문서를 포함하는 최종 commit 자신을 가리킨다. 자기 commit SHA를 파일 내용에 넣는 순환을 만들지 않으며, 실제 최종SHA와 원격 일치 확인은 완료 응답과 작업 상태 기록에 남긴다.
+
+| 단계 | 완료된 중심 산출물 | 단계 종료 commit |
+|---|---|---|
+| R1/C1 | 원 목표·PLAN·실행 기준 고정 | `7002ec09bae3b4afff420a0e1125b09beeeeb060` |
+| R2/C2 | 초기 역사·관측 공백·과도한 no-go 정책 교정 | `a4e7c0b5d9c77389bc112eb8fb340046db9bd733` |
+| R3/C3 | 관측 의미 분리·exact 경로 반례·validator 행동 RED | `d39d74a2b61eaf44c70dceb6e9c4255a60d815d2` |
+| R4/C4 | 구성적 FIFO 경로와 source-bound 실행 DAG | `d415c55b66f20f02adeb78c0af690216c2bc778b` |
+| R5/C5 | FIFO 정리·연구 API·streaming validator | `3eab636237b71ccfaa8db2108f6ce3c2083c5325` |
+| R6/C6 | 한정 독립 증명/구현 검증·원 cadence baseline | `9e91a4817c3069d7a3a9691018a183fada927cca` |
+| R7/C7 | 판별 물리 계산·첫 full-scale 적용과 다음 guard | `e2a9fb56a189c05ed35417edad64744255c0bb8b` |
+| R8/C8 | response-memory 이론·phase/owner 교정·길이 증가·원 hourly 실험 | `4db8d17737e97702abafd92ddebc1b4f197859db` |
+| R9/C9 | 최종3도시 preparation·차원별 준비도 | `5bc1ba0de31be09f932bedef91d853c5e83a8415` |
+| R10/C10 | 최종 근거 manifest·재개점·drift 판정 | 이 문서를 포함하는 R10 commit |
+
+중간 R8 push는 `6f98c4d`(phase admission),`6417317`(실제 Journey validator phase),`06be761`(새 유한응답 관측 정리),`96e5440`(capture/restore 실제 owner 계상)다. 이것들을 추가 연구 단계로 세지 않는다.
+
+### 재현 가능한 산출물과 증거 상태
+
+| 주장/목적 | 직접 근거 | 현재 근거 상태 |
+|---|---|---|
+| 완료 관측에서 causal finite-response 시간구간 | `V03_FINITE_RESPONSE_PROBE_UPGRADE_20261123.md`,새 Python 모듈,`R8_independent_response_probe_review.md` | derived; 특정 결정의 exact proof; 유한 사례 numerical verification |
+| 실제 validator/capture/restore 변경 | native `v1_road.rs`,`v1_journey.rs`,`v1_engine.rs`;`C8c_behavioral_*`,`C8c_final_lib.*`,`C8c_independent_capture_review.md` | implementation-verified; 지정 범위 독립 검토 |
+| 실제 길이 증가와 저장된40s | `R8_final_measured_windows.json`,`R8c_saved_25690_retry_40s.*`,`R8c_frontier_25730_10s.*` | 실제 실행; final10은 정상 반환 후 저장 실패 |
+| 원 hourly의 실제 잔여 blocker | `R8c_final_original_hourly_failure_summary.json`,raw log/time/exit,`R8c_final_original_fresh.*` | runtime/resource admission blocked; 내부 실패 clock unresolved |
+| 최종 후보3도시 전제조건 | `R9_final_prepare/`, `R9_final_readiness_dashboard.json` | preparation3/3;day0/9 |
+| checkpoint identity와 재진입 | `R10_checkpoint_catalog.json` | 기존 전체 검증 영수증과 현재 stat을 연결; catalog 작성 때 GB payload 재검증은 하지 않음 |
+| 전체 산출물 identity | `R10_evidence_manifest.json` | 작은 source/doc/evidence의 실제 SHA; manifest 자기 자신은 순환 방지를 위해 제외 |
+
+유효한 활성 continuation 재개점은 **25,730s**의 own C8c raw checkpoint다. 원 영수증은 `R8c_saved_25690_retry_40s.json`, 파일은 같은 stem의 `.final.bin`이고 source/native/driver/matrix/장부/fullwire 검증을 catalog에 연결했다. **25,740s는 저장된 predecessor가 아니다.** 원 time-zero/hourly 계보의 최고 저장점은 별도25,200s다. 두 계보를 섞지 않는다. 원본 역사 seed와 이번 중간 raw/archive의 절대 경로·SHA 출처·크기·명시적 pin은 catalog에 보존했다. 대용량 checkpoint와 native binary는 원 실행 장치의 작업공간에 보존하고 git에는 source와 작은 영수증·복원 경로를 기록했다.
+
+Catalog의10s 재진입 명령은 현재 동일 frozen native에서 census 저장 실패를 재현하는 경로이며 이번 단계에서 다시 실행하지 않았다. `--duration-s 0`은 fresh-only 검증 선택지다. 새 source/native로 바뀌면 같은 파일이라는 이유만으로 자동 입장을 허용하지 않으며 정확한 cross-source 근거와 좁은 admission 갱신이 필요하다.
+
+다음 코드 작업의 구체적 대상은 실제 공유가 존재해도 census 전에 두 owner를 무공유로 계상하는 현재 사전조건과, 원 hourly의 별도 Journey stored/working 요구다. 가능한 구현은 census의 자체 workspace를 예산 안에 두면서 실제 공유를 인증하는 방식이어야 한다. 기존 cap/validator를 낮추거나 오래된 source 공유를 미래 독립 decode에 전파하는 수정은 현재 근거로 정당화되지 않는다. 이들은 아직 구현·검증하지 않은 다음 과제다. 다음 이론–구현 연결은 실제 matched boundary 계측과 해당 native regime의 양의 forcing/응답시간 certificate이며, 새 명제를 일반 queue/spillback에 무조건 적용하지 않는다.
+
+최종 작업공간 검사에서 원 main HEAD는 `01c80b432344f94209daaa198bb1eb007839fc7f`로 유지됐다. 원 main의 별도 작업은 이 루프에서 변경하지 않았다. 다섯 주요 물리/준비 실행 PID는 종료됐으며 종료 영수증을 확인했다. 전체 repository CI와 main 통합은 기존 사용자 결정대로 보류했다. 완료는10단계 연구 산출물의 완료이고 V03 최종 수용 상태는BLOCKED다.
+
+최종 watchdog: **ALIGNED_WITH_OPEN_OBLIGATION**. 원 역사의 설명 가능한100k mesoscopic 도시, 혼잡/유한응답→인과적 관측→경로 선택의 질문을 보존했다. 기존 물리 예제의 비교 한계를 실제로 교정했고 구성적 새 명제와 경로 선택 결과를 만들었다. 선택된 현재 FIFO·질량·f64 wire·수요·dt·예산은 유지됐다. 원 하루 실행과 일반 혼잡 계측이 남았다는 사실을 구현 테스트 수나19/21의 계획 진척으로 덮지 않는다. 이 매 턴·단계 점검 의무는 AGENTS와 원 동기 문서에 지속 적용하도록 반영됐다.
