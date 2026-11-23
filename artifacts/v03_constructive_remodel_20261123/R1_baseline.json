@@ -1,0 +1,568 @@
+{
+  "base_commit": "90bfca2c2ddf081cbdf40d11b95ff820837d03b5",
+  "branch": "research/v03-constructive-remodel-20261123",
+  "candidate": {
+    "git_commit": "90bfca2c2ddf081cbdf40d11b95ff820837d03b5",
+    "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+    "source_dirty": false,
+    "source_files": [
+      "Cargo.lock",
+      "crates/metroflow-rust/Cargo.toml",
+      "crates/metroflow-rust/src/lib.rs",
+      "crates/metroflow-rust/src/v1_calendar.rs",
+      "crates/metroflow-rust/src/v1_engine.rs",
+      "crates/metroflow-rust/src/v1_history.rs",
+      "crates/metroflow-rust/src/v1_journey.rs",
+      "crates/metroflow-rust/src/v1_kcmb.rs",
+      "crates/metroflow-rust/src/v1_kcmb_node.rs",
+      "crates/metroflow-rust/src/v1_lineage_shadow.rs",
+      "crates/metroflow-rust/src/v1_parallel.rs",
+      "crates/metroflow-rust/src/v1_road.rs",
+      "crates/metroflow-rust/src/v1_routing.rs",
+      "crates/metroflow-rust/src/v1_stage.rs",
+      "crates/metroflow-rust/src/v1_trace.rs",
+      "src/metroflow/v1/native_calendar.py",
+      "src/metroflow/v1/native_engine.py",
+      "src/metroflow/v1/native_journey.py",
+      "src/metroflow/v1/native_release_driver.py",
+      "src/metroflow/v1/native_road.py",
+      "src/metroflow/v1/native_routing.py",
+      "src/metroflow/v1/native_static.py",
+      "tools/run_v1_local_acceptance.py"
+    ],
+    "source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+    "status": "MEASURED"
+  },
+  "disk_free_bytes": 11662077952,
+  "inputs": {
+    "artifacts/v03_origin_validation_20261123/R8c_final_original_hourly_failure_summary.json": {
+      "bytes": 3320,
+      "path": "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/artifacts/v03_origin_validation_20261123/R8c_final_original_hourly_failure_summary.json",
+      "result": {
+        "checkpoint_bytes": 29539674,
+        "checkpoint_path": "artifacts/v03_origin_validation_20261123/R8c_final_original_hourly/R8c_final_original_hourly_86400.last_valid.bin",
+        "checkpoint_sha256": "75b9cf3dbd436af962a0916c5dcdb7635615364193158b070974e46eb2861941",
+        "current_candidate_source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+        "current_git_commit": "96e544055cdd0ffdc0312801e6173a5c1699d749",
+        "current_native_binary_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+        "external_peak_rss_bytes": 5285879808,
+        "external_system_s": 4.77,
+        "external_user_s": 742.75,
+        "external_wall_s": 764.18,
+        "failed_call_internal_clock_s": null,
+        "final_worker_receipt_exists": false,
+        "fresh_check_advanced_time_s": 0,
+        "fresh_validated_mass_ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "requested": 0.0
+          },
+          "vehicles": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "requested": 0.0
+          }
+        },
+        "fresh_validation_receipt": "artifacts/v03_origin_validation_20261123/R8c_final_original_fresh.json",
+        "fresh_validation_sha256": "c42bff3d4179250bc0fee0530d8ec0b57e3ae1257a41bf4bf519ff9a39c2ccba",
+        "from_time_zero": true,
+        "full_day_credit": 0,
+        "highest_durable_time_s": 25200.0,
+        "internal_clock_status": "NOT_OBSERVED; do not infer from another cadence or native",
+        "last_hourly_progress": {
+          "candidate_source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+          "case": "valley_weekday_s7",
+          "completed_tick_samples": 2520,
+          "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+          "git_commit": "96e544055cdd0ffdc0312801e6173a5c1699d749",
+          "last_valid_checkpoint": "R8c_final_original_hourly_86400.last_valid.bin",
+          "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+          "native_binary_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+          "peak_rss_bytes": 469307392,
+          "peak_tracked_records": 16,
+          "run_label": "R8c_final_original_hourly_86400",
+          "simulated_s": 25200.0,
+          "status": "RUNNING",
+          "wall_s": 84.76158489400405
+        },
+        "native_accounting_cap_bytes": 6442450944,
+        "native_call_cadence": "hourly",
+        "note": "The saved 25200s state has zero released/requested travel; physical clock fraction is not active-demand/full-day readiness.",
+        "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+        "original_population_residents": 100000,
+        "physical_dt_s": 10,
+        "primary_error": "native journey stored/working byte budget",
+        "process_cap_bytes": 8589934592,
+        "requested_horizon_s": 86400,
+        "schema": "V03_FINAL_ORIGINAL_HOURLY_FAILURE_V1",
+        "secondary_error": {
+          "budget_bytes": 6442450944,
+          "class": "MemoryError",
+          "message": "native snapshot Arc census preflight budget exceeded",
+          "phase": "exception checkpoint save",
+          "required_bytes": 7221056145
+        },
+        "status": "BLOCKED_RESOURCE_AND_RECOVERY_SAVE",
+        "wall_cap_s": 7200,
+        "wrapper_exit": 1
+      },
+      "sha256": "edd3fce450d3325dbce6ea0006e644266be3544b18341edfead10817c00f25f4"
+    },
+    "artifacts/v03_origin_validation_20261123/R8c_frontier_25730_10s.json": {
+      "bytes": 4703,
+      "path": "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/artifacts/v03_origin_validation_20261123/R8c_frontier_25730_10s.json",
+      "result": {
+        "blocked_target_time_s": null,
+        "budget_mode": "DEFAULT",
+        "case": "valley_weekday_s7",
+        "completed_mass_ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 1647.21978902098,
+            "completed": 122.27852918319444,
+            "pending": 1230.5016817957737,
+            "released": 1769.4983182041744,
+            "requested": 2999.999999999948
+          },
+          "vehicles": {
+            "active": 1317.4795567319538,
+            "completed": 95.85377660136047,
+            "pending": 56.66666666671313,
+            "released": 1413.3333333333144,
+            "requested": 1470.0000000000275
+          }
+        },
+        "completed_native_calls": [
+          {
+            "completed_time_s": 25740.0,
+            "native_tick_wall_s": [
+              123.755214421
+            ],
+            "native_ticks": 1,
+            "start_time_s": 25730.0,
+            "wall_s": 126.91913256599219
+          }
+        ],
+        "completed_time_s": 25740.0,
+        "created_utc": "2026-11-23T07:44:19+00:00",
+        "current_candidate_source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+        "current_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+        "current_git_commit": "96e544055cdd0ffdc0312801e6173a5c1699d749",
+        "current_native_binary_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+        "current_source_dirty": false,
+        "diagnostic_only": false,
+        "error": {
+          "class": "MemoryError",
+          "message": "native snapshot Arc census preflight budget exceeded: required_bytes=6807602661, budget_bytes=6442450944",
+          "phase": "SAVE_VALID_PREFIX"
+        },
+        "failed_native_call_internal_ticks_receive_physical_credit": false,
+        "final_checkpoint_bytes": null,
+        "final_checkpoint_local_only": true,
+        "final_checkpoint_sha256": null,
+        "native_call_cadence": "tick",
+        "native_call_span_s": null,
+        "native_phase_metrics": {
+          "binding_s": 0.03874576,
+          "failed_ticks": 0,
+          "native_threads": 1,
+          "phase_wall_s": {
+            "journey_finish": 0.124598684,
+            "journey_prepare": 0.029289605,
+            "other_tick": 5.758224003999999,
+            "road_step": 117.809698613,
+            "service_finish": 0.033398245,
+            "service_prepare": 5.27e-06
+          },
+          "road_event_resolution": {
+            "checkpointed": false,
+            "clock_roundoff_upper_s": 7.978642656228487e-18,
+            "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+            "nominal_subulp_service_mass_upper": 3.4106608429622305e-13,
+            "processed_subulp_time_upper_s": 5.462196715213832e-13,
+            "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+            "subulp_events": 3348
+          },
+          "scope": "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation",
+          "successful_ticks": 1
+        },
+        "native_process_cap_bytes": 8589934592,
+        "original_candidate_from_time_zero_verified": false,
+        "original_full_day_acceptance": "BLOCKED_0_OF_9",
+        "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+        "peak_rss_bytes": 5050228736,
+        "physical_dt_s": 10,
+        "previous_checkpoint_cross_native": false,
+        "previous_checkpoint_full_wire_roundtrip_exact": true,
+        "previous_full_checkpoint_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+        "previous_mass_ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 1621.6342620685925,
+            "completed": 114.47729541474556,
+            "pending": 1208.3328869610702,
+            "released": 1736.1115574833382,
+            "requested": 2944.4444444444084
+          },
+          "vehicles": {
+            "active": 1297.0111432026974,
+            "completed": 89.65552346398982,
+            "pending": 56.1111111110738,
+            "released": 1386.6666666666872,
+            "requested": 1442.777777777761
+          }
+        },
+        "requested_duration_s": 10,
+        "requested_end_s": 25740.0,
+        "runner_sha256": "4d6bca3a031a9f9bd279d5f6b43c33a74a8c81b3b6222a52f2b52b6d95872d77",
+        "schema": "V03_ORIGIN_VALIDATION_CONTINUATION_V1",
+        "start_receipt_sha256": "4bace2763e79ed16e3b103d69ab358e30a38f15c45d536015a8d4f29c0c9de59",
+        "start_time_s": 25730.0,
+        "status": "ERROR",
+        "trace_mode": "off",
+        "valid_advanced_duration_s": 10.0,
+        "wall_total_including_full_preparation_and_checkpoint_io_s": 223.61816262101638
+      },
+      "sha256": "d7a225be8c92eeefbc727a54003267e2f19ff949285b1e0aa9f009b0fac179ff"
+    },
+    "artifacts/v03_origin_validation_20261123/R8c_saved_25690_retry_40s.json": {
+      "bytes": 5216,
+      "path": "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/artifacts/v03_origin_validation_20261123/R8c_saved_25690_retry_40s.json",
+      "result": {
+        "blocked_target_time_s": null,
+        "budget_mode": "DEFAULT",
+        "case": "valley_weekday_s7",
+        "completed_mass_ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 1621.6342620685925,
+            "completed": 114.47729541474556,
+            "pending": 1208.3328869610702,
+            "released": 1736.1115574833382,
+            "requested": 2944.4444444444084
+          },
+          "vehicles": {
+            "active": 1297.0111432026974,
+            "completed": 89.65552346398982,
+            "pending": 56.1111111110738,
+            "released": 1386.6666666666872,
+            "requested": 1442.777777777761
+          }
+        },
+        "completed_native_calls": [
+          {
+            "completed_time_s": 25700.0,
+            "native_tick_wall_s": [
+              47.599427642
+            ],
+            "native_ticks": 1,
+            "start_time_s": 25690.0,
+            "wall_s": 49.67041044202051
+          },
+          {
+            "completed_time_s": 25710.0,
+            "native_tick_wall_s": [
+              59.486949211
+            ],
+            "native_ticks": 1,
+            "start_time_s": 25700.0,
+            "wall_s": 62.03147228900343
+          },
+          {
+            "completed_time_s": 25720.0,
+            "native_tick_wall_s": [
+              75.876308502
+            ],
+            "native_ticks": 1,
+            "start_time_s": 25710.0,
+            "wall_s": 78.7581824939989
+          },
+          {
+            "completed_time_s": 25730.0,
+            "native_tick_wall_s": [
+              99.429993507
+            ],
+            "native_ticks": 1,
+            "start_time_s": 25720.0,
+            "wall_s": 102.78180145999067
+          }
+        ],
+        "completed_time_s": 25730.0,
+        "created_utc": "2026-11-23T07:39:54+00:00",
+        "current_candidate_source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+        "current_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+        "current_git_commit": "96e544055cdd0ffdc0312801e6173a5c1699d749",
+        "current_native_binary_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+        "current_source_dirty": false,
+        "diagnostic_only": false,
+        "error": null,
+        "failed_native_call_internal_ticks_receive_physical_credit": false,
+        "final_checkpoint_bytes": 5523765378,
+        "final_checkpoint_local_only": true,
+        "final_checkpoint_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+        "native_call_cadence": "tick",
+        "native_call_span_s": null,
+        "native_phase_metrics": {
+          "binding_s": 0.052774529,
+          "failed_ticks": 0,
+          "native_threads": 1,
+          "phase_wall_s": {
+            "journey_finish": 0.154932832,
+            "journey_prepare": 0.041098286,
+            "other_tick": 5.277813041000016,
+            "road_step": 93.920379852,
+            "service_finish": 0.03576138,
+            "service_prepare": 8.116e-06
+          },
+          "road_event_resolution": {
+            "checkpointed": false,
+            "clock_roundoff_upper_s": 1.3131422586704142e-16,
+            "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+            "nominal_subulp_service_mass_upper": 8.487524228636959e-13,
+            "processed_subulp_time_upper_s": 1.4146709622676047e-12,
+            "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+            "subulp_events": 7911
+          },
+          "scope": "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation",
+          "successful_ticks": 1
+        },
+        "native_process_cap_bytes": 8589934592,
+        "original_candidate_from_time_zero_verified": false,
+        "original_full_day_acceptance": "BLOCKED_0_OF_9",
+        "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+        "peak_rss_bytes": 4554608640,
+        "physical_dt_s": 10,
+        "previous_checkpoint_cross_native": true,
+        "previous_checkpoint_full_wire_roundtrip_exact": true,
+        "previous_full_checkpoint_sha256": "db5b6b53f728d892ad53b9e7126d08e73b877f055e2e6e78443f1c0851b7bd10",
+        "previous_mass_ledger": {
+          "cargo_kg": {
+            "active": 0.0,
+            "completed": 0.0,
+            "pending": 0.0,
+            "released": 0.0,
+            "requested": 0.0
+          },
+          "persons": {
+            "active": 1516.2494757151912,
+            "completed": 86.31503888483009,
+            "pending": 1119.6577076222163,
+            "released": 1602.5645146000213,
+            "requested": 2722.2222222222376
+          },
+          "vehicles": {
+            "active": 1212.7033558252422,
+            "completed": 67.29664417475757,
+            "pending": 53.88888888886618,
+            "released": 1279.9999999999998,
+            "requested": 1333.888888888866
+          }
+        },
+        "requested_duration_s": 40,
+        "requested_end_s": 25730.0,
+        "runner_sha256": "4d6bca3a031a9f9bd279d5f6b43c33a74a8c81b3b6222a52f2b52b6d95872d77",
+        "schema": "V03_ORIGIN_VALIDATION_CONTINUATION_V1",
+        "start_receipt_sha256": "fb6b74b7af38592003d1af169d8c029b9ceb394194e3217d6011d0865dc95732",
+        "start_time_s": 25690.0,
+        "status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON",
+        "trace_mode": "off",
+        "valid_advanced_duration_s": 40.0,
+        "wall_total_including_full_preparation_and_checkpoint_io_s": 422.35888442897703
+      },
+      "sha256": "4bace2763e79ed16e3b103d69ab358e30a38f15c45d536015a8d4f29c0c9de59"
+    },
+    "artifacts/v03_origin_validation_20261123/R9_final_readiness_dashboard.json": {
+      "bytes": 6411,
+      "path": "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/artifacts/v03_origin_validation_20261123/R9_final_readiness_dashboard.json",
+      "result": {
+        "authority": {
+          "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+          "plan_sha256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7"
+        },
+        "case_preparation": [
+          {
+            "calendar_legs": 5093765,
+            "calendar_persons_is_not_resident_stock": 120000.0,
+            "case": "river_weekday_s17",
+            "driver_identity": "e2b7f7f67d5cf71b772f9430786d9acd5edb468c2a823a9923d4efc80b90ceca",
+            "dynamic_shared_pool_bytes": 3135452214,
+            "fixed_reserve_bytes": 3306998730,
+            "measured_source_commit": "4db8d17737e97702abafd92ddebc1b4f197859db",
+            "native_accounting_cap_bytes": 6442450944,
+            "native_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+            "peak_rss_GiB": 2.0244789123535156,
+            "peak_rss_bytes": 2173767680,
+            "process_cap_bytes": 8589934592,
+            "receipt": "artifacts/v03_origin_validation_20261123/R9_final_prepare/river_weekday_s17.prepare.json",
+            "receipt_sha256": "7a7b841c8eeaed949e2bff1ed6bdfec9065926064bd16d17bc326491166915da",
+            "resident_stock": 100000.0,
+            "source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+            "status": "WHOLE_CALENDAR_PREPARED",
+            "wall_s": 64.98915427198517
+          },
+          {
+            "calendar_legs": 2449750,
+            "calendar_persons_is_not_resident_stock": 100000.0,
+            "case": "coastal_weekend_s41",
+            "driver_identity": "ece5ab20174646105a689c547fb79a415e92547fbb0b29b24aef494e1adfd39e",
+            "dynamic_shared_pool_bytes": 4806457502,
+            "fixed_reserve_bytes": 1635993442,
+            "measured_source_commit": "4db8d17737e97702abafd92ddebc1b4f197859db",
+            "native_accounting_cap_bytes": 6442450944,
+            "native_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+            "peak_rss_GiB": 1.0389862060546875,
+            "peak_rss_bytes": 1115602944,
+            "process_cap_bytes": 8589934592,
+            "receipt": "artifacts/v03_origin_validation_20261123/R9_final_prepare/coastal_weekend_s41.prepare.json",
+            "receipt_sha256": "ad2a6899b825b8847d7c7bfc1542cb7680ce4ce50b56c48c4fcdb51964e27016",
+            "resident_stock": 100000.0,
+            "source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+            "status": "WHOLE_CALENDAR_PREPARED",
+            "wall_s": 38.06930110999383
+          },
+          {
+            "calendar_legs": 918450,
+            "calendar_persons_is_not_resident_stock": 120000.0,
+            "case": "valley_weekday_s7",
+            "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+            "dynamic_shared_pool_bytes": 5789366799,
+            "fixed_reserve_bytes": 653084145,
+            "measured_source_commit": "4db8d17737e97702abafd92ddebc1b4f197859db",
+            "native_accounting_cap_bytes": 6442450944,
+            "native_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+            "peak_rss_GiB": 0.4147987365722656,
+            "peak_rss_bytes": 445386752,
+            "process_cap_bytes": 8589934592,
+            "receipt": "artifacts/v03_origin_validation_20261123/R9_final_prepare/valley_weekday_s7.prepare.json",
+            "receipt_sha256": "b17df46180f4f14a0985996846ae8ef9ba42c22cf09b3b9b922c80773b3edea8",
+            "resident_stock": 100000.0,
+            "source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+            "status": "WHOLE_CALENDAR_PREPARED",
+            "wall_s": 21.950420109991683
+          }
+        ],
+        "dimensions": {
+          "dag_implemented_or_scoped_verified": {
+            "completed": 19,
+            "is_v03_completion": false,
+            "percent": 90.47619047619048,
+            "total": 21
+          },
+          "final_candidate_whole_calendar_preparation": {
+            "completed": 3,
+            "physical_time_advanced_s": 0,
+            "total": 3
+          },
+          "finally_accepted_nodes": {
+            "completed": 5,
+            "percent": 23.80952380952381,
+            "total": 21
+          },
+          "full_day_acceptance": {
+            "completed": 0,
+            "total": 9
+          },
+          "matched_dt5_refinement": {
+            "completed": 0,
+            "required_refined_horizon_s": 28800,
+            "total": 3
+          },
+          "same_engine_43200_resume": {
+            "completed": 0,
+            "scope": "required in the three city run2_resume full-day runs",
+            "total": 3
+          },
+          "v03_direct_dependencies": {
+            "completed": 3,
+            "status": "VERIFIED_SCOPED",
+            "total": 3
+          }
+        },
+        "drift_watchdog": "ALIGNED_WITH_OPEN_OBLIGATION",
+        "final_source_evidence": {
+          "highest_normal_returned_and_ledger_checked_s": 25740,
+          "highest_saved_and_fresh_validated_continuation_s": 25730,
+          "highest_time_zero_hourly_saved_and_fresh_validated_s": 25200,
+          "no_full_day_credit_from_any_prefix": true,
+          "time_zero_saved_prefix_has_zero_released_mass": true
+        },
+        "main_merge_and_full_repository_ci": "DEFERRED_BY_USER",
+        "measured_current_blockers": {
+          "failed_hourly_internal_clock_s": null,
+          "original_hourly_primary": "native journey stored/working byte budget",
+          "original_hourly_recovery_save": {
+            "budget_bytes": 6442450944,
+            "class": "MemoryError",
+            "message": "native snapshot Arc census preflight budget exceeded",
+            "phase": "exception checkpoint save",
+            "required_bytes": 7221056145
+          },
+          "tick_return_then_save": {
+            "class": "MemoryError",
+            "message": "native snapshot Arc census preflight budget exceeded: required_bytes=6807602661, budget_bytes=6442450944",
+            "phase": "SAVE_VALID_PREFIX"
+          }
+        },
+        "metric_policy": "Dimensions are overlapping and must not be summed into a single completion percentage.",
+        "native_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+        "plan_validation": {
+          "exit": 0,
+          "log": "artifacts/v03_origin_validation_20261123/R9_plan_validation.log",
+          "status": "VALID_PLAN_NOT_RELEASE"
+        },
+        "raw_preparation_scorer": {
+          "historical_literal_execution_status": "BLOCKED_BY_EXACT_INTERVAL_PACKET_EXPLOSION",
+          "interpretation": "This preparation-only scorer does not analyze the current runtime failure; measured_current_blockers is taken from the final frozen-native execution receipts.",
+          "path": "artifacts/v03_origin_validation_20261123/R9_final_readiness.json",
+          "sha256": "cf25a76a20bc75abeccdfbe185b2b6de0f01bdf015906ef9392d194128e6497b"
+        },
+        "schema": "V03_FINAL_EVIDENCE_DASHBOARD_V1",
+        "source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+        "status": "BLOCKED_NOT_RELEASE_READY",
+        "total_calendar_legs": 8461965
+      },
+      "sha256": "66cf0e06ba53c6e4447dfc1b41b33f58ebfb711d90c29e952ca227f0ec043027"
+    }
+  },
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "memory_total_line": "MemTotal:       32763440 kB",
+  "native_binary_bytes": 3326432,
+  "native_binary_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+  "new_loop_completed_stages_at_capture": 0,
+  "observed_utc": "2026-11-23T08:44:17.046709+00:00",
+  "plan_sha256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7",
+  "python": "3.12.3",
+  "release_status": "V03_BLOCKED_0_OF_9",
+  "reused_evidence_not_new_experiments": true,
+  "schema": "V03_CONSTRUCTIVE_REMODEL_BASELINE_V1"
+}

@@ -28,3 +28,9 @@
 - 원래의 설명 가능한 도시·active-mesoscopic 교통·collision-informed routing·지연 feedback 목표와 현 PLAN의 PacketNetwork/FIFO/finite-response 계약을 각각 확인한다.
 - 기존 기록에 원 목표 연결, 보존 계약, 관측 모집단/시계, 실제 진전 근거, 판정과 최소 교정을 짧게 남긴다. 같은 역사를 재귀적으로 감사하지 않는다.
 - 자료구조·hash·guard 통과만을 물리/과학 완료로 세지 않는다. 원 acceptance cadence와 연구 진단 cadence, time-zero 실행과 역사 checkpoint continuation을 구분한다.
+
+
+## 2026-11-23 후속 구성적 재모델링 승인
+- 직전 `90bfca2` 루프 뒤 사용자는 원 목적·동기를 유지한 새로운 모델링의 탐색·구현·연구 코드 통합을 명시적으로 요청했다. 과거의 표현 변경 문구를 이 승인 범위의 연구 금지로 적용하지 않는다.
+- 새 모델은 보존량·인과성/FIFO·관측량의 대응과 유효범위를 명시한다. 실수 산술 동치, f64/wire 동일성, 제어된 근사를 구분하고 실제 판별 계산으로 비교한다.
+- 원 PLAN의 V03 수요·matrix·dt·cap·수용문턱은 별도 권위로 유지한다. 새 연구 모델이나 한정 계산의 성공을 원24h 수용으로 자동 승격하지 않는다. main 통합/전체 CI의 기존 보류와 이번 연구 branch 통합을 구분한다.
