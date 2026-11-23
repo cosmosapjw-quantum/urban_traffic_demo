@@ -1,0 +1,131 @@
+{
+  "schema": "metroflow.constructive.remodel.theory.portfolio.v1",
+  "status": "NUMERICALLY_CHECKED_RESEARCH_PORTFOLIO",
+  "base_commit": "90bfca2c2ddf081cbdf40d11b95ff820837d03b5",
+  "declared_scope": "Fixed characteristic without mixing jumps, finite aligned forcing windows; separate FIFO ready-queue service, causal ex ante promises.",
+  "claim_status": {
+    "clipped_response_window_lemma": "DERIVED",
+    "strict_service_and_fifo_inverse": "LITERATURE_SUPPORTED_REUSED",
+    "native_general_spillback_guarantees": "UNRESOLVED",
+    "production_routing_integration": "NOT_RUN",
+    "full_day_v03_credit": 0
+  },
+  "pointwise_comparison": {
+    "exact_fraction_cases": 4356,
+    "minimum_slack": "0"
+  },
+  "forcing_window": {
+    "H_s": 8.0,
+    "J_m": 16.0,
+    "speed_cap_m_s": 4.0,
+    "tau_s": 2.0,
+    "accel_m_s2": 1.0,
+    "brake_m_s2": 1.0,
+    "eta": 0.5,
+    "random_case_checks": 640,
+    "minimum_distance_slack_m": 5.618273216465276
+  },
+  "increasing_horizon_ladder": [
+    {
+      "windows": 1,
+      "physical_horizon_s": 8.0,
+      "distance_m": 7.471517764685769,
+      "distance_lower_m": 4.541341132946451,
+      "terminal_speed_m_s": 3.2642411176571153,
+      "unclipped_sharpness_error_m": 0.0,
+      "wall_s": 2.9095011996105313e-05
+    },
+    {
+      "windows": 2,
+      "physical_horizon_s": 16.0,
+      "distance_m": 22.828755462461302,
+      "distance_lower_m": 12.47799358609818,
+      "terminal_speed_m_s": 3.4296466508809402,
+      "unclipped_sharpness_error_m": 0.0,
+      "wall_s": 1.5618978068232536e-05
+    },
+    {
+      "windows": 4,
+      "physical_horizon_s": 32.0,
+      "distance_m": 54.775487340565086,
+      "distance_lower_m": 28.476812084571083,
+      "terminal_speed_m_s": 3.442990406929974,
+      "unclipped_sharpness_error_m": 0.0,
+      "wall_s": 2.173098619095981e-05
+    },
+    {
+      "windows": 8,
+      "physical_horizon_s": 64.0,
+      "distance_m": 118.77516532586114,
+      "distance_lower_m": 60.47681168808852,
+      "terminal_speed_m_s": 3.443070911567209,
+      "unclipped_sharpness_error_m": 1.4210854715202004e-14,
+      "wall_s": 3.653901512734592e-05
+    }
+  ],
+  "constructive_stop_go_example": {
+    "length_m": 20.0,
+    "motion_upper_s": 24.0,
+    "motion_actual_s": 15.139484898148769,
+    "motion_lower_at_upper_m": 20.47683333530562,
+    "service_window_s": 10,
+    "green_capacity_integral_veh": 14,
+    "receiving_integral_veh": 14,
+    "joint_service_lower_veh": "8",
+    "rank_mass_veh": 5.0,
+    "service_upper_s": 10,
+    "combined_upper_s": 34.0,
+    "actual_final_rank_exit_s": 23.63948489814877,
+    "actual_zero_service_wait_s": 6.0,
+    "all_controls_declared_at_decision_s": 0,
+    "oracle_future_used_to_fit_bounds": false
+  },
+  "service_counterexample": {
+    "same_green_integral_veh": 10,
+    "same_receiving_integral_veh": 10,
+    "antialigned_joint_service_veh": "0",
+    "aligned_joint_service_veh": "10"
+  },
+  "two_probe_alternative": {
+    "model": "constant V over declared finite horizon, known tau; no node wait in measured motion integrals",
+    "windows_s": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        2.0,
+        3.0
+      ]
+    ],
+    "integrals_m": [
+      0.8195919791379003,
+      1.5657521569309623
+    ],
+    "determinant_s2": 0.49744011852870806,
+    "identified_initial_m_s": 0.5000000000000001,
+    "identified_forcing_m_s": 2.0,
+    "single_probe_alternative_initial_m_s": 0.6353735206341996,
+    "single_probe_alternative_forcing_m_s": 1.5
+  },
+  "tools": {
+    "exa": "PRIMARY_AUTHOR_BOOK_DISCOVERED",
+    "parallel": "PRIMARY_FARHI_AND_BOOK_FETCHED",
+    "scispace": "SCHOLARLY_DISCOVERY_USED",
+    "wolfram_context": "MCP_-32603_INTERNAL_ERROR",
+    "wolfram_evaluator": "MCP_-32603_INTERNAL_ERROR"
+  },
+  "sources": [
+    {
+      "url": "https://leboudec.github.io/netcal/latex/netCalBook.pdf",
+      "locations": "Definition1.3.2; Proposition1.3.6; Theorems1.4.2 and1.4.6"
+    },
+    {
+      "url": "https://arxiv.org/pdf/1408.3447",
+      "locations": "Definitions4-5; Theorems1-4; Section3 controlled road section"
+    }
+  ],
+  "source_sha256": "59b39954feb7fc79cc56ba25d6f9c46a46a6e63d659aee8733552cca040f6e69",
+  "script_sha256": "bfecfac91c9af6d5ba1297f2afe27a398258f98c89bb768ddece76458145d51a",
+  "wall_s": 0.06176575997960754
+}

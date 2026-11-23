@@ -42,3 +42,45 @@ Native 조사/구현은 `checkpoint_validation_bridge`가 `v1_road.rs,v1_journey
 기준은 `METROFLOW_ORIGINAL_INTENT_WATCHDOG.md`에 연결된 최초 확인 가능 import0492364,constitution6524500,active-meso3d83db0와 현재 T02/T04/R01/R02다. 원 목표는 설명 가능한100k 도시의 mesoscopic 물리,목적지/행동/정보를 보존한 수송,혼잡에서 경로·접근성·지연 feedback으로 가는 연결이다. 이번 후보는 단순히 더 많은 guard를 통과하는 것보다 정지·재출발과 누적 수송의 새 구성으로 실제 관측/실행 문제를 바꾸는지 판별한다.
 
 판정은 `ALIGNED_WITH_OPEN_OBLIGATION`이다. 사용자 새 모델링 승인을 과거 문구로 막지 않고, 새 모델을 기존 V03과 동일하다고 미리 선언하지 않는다. 위 모델 경로의 구체적인 성립 여부와 실제 큰 실행은 뒤 단계에서 판정한다.
+
+
+## R2 / C2 — 원전 이식·새 운동 명제·실제 owner 수명 (완료)
+
+R2_theory_portfolio.md/.py/.json에 서로 다른 세 경로의 전제, 직접 유도, 판별 계산과 원전 사전을 보존했다. 주후보 A는 clipped finite-response의 유한창 추진량, B는 운동과 분리한 FIFO 공동 서비스, C는 두 완료 운동 적분을 이용한 초기속도/상수 forcing 식별이다. C의 stationarity/관측 의무가 더 크므로 A+B를 우선한다. 기존 cumulative inverse와 network calculus 자체는 재사용이며 신규 결과로 세지 않는다.
+
+새 운동 명제는
+\[
+\dot v=\operatorname{clip}((V-v)/\tau,-B,A),\quad
+0\le V,v\le b,\quad A>0,\ B\ge0,\ \tau>0
+\]
+에서 \(\eta=\min(1,A\tau/b)\)와 \(\dot v\ge(\eta V-v)/\tau\)를 증명한 뒤, 각 선언된 \(H\)-창의 \(\int V\,dt\ge J>0\)를 적분 kernel의 최악 배치와 결합한다.
+\[
+L_n=\tau v_0(1-e^{-nH/\tau})
++\eta\left[nJ-b\tau(1-e^{-J/(b\tau)})
+\frac{1-e^{-nH/\tau}}{1-e^{-H/\tau}}\right]
+\]
+는 \(nH\)의 실제 거리 하한이다. \(L_n\ge\ell\)로 유한 도달상한을 구성한다. 양의 순간 최소속도를 강요하지 않는다. 정확한 증명, 창 정렬, 유효 horizon, sharpness의 비활성 clipping 조건은 포트폴리오에 있다.
+
+T02/T04를 다시 읽어 연속 운동 속도와 신호·하류 수용에 따른 경계 대기를 구분했다. 별도 FIFO 단계의 실제 가용률은 같은 movement의 \(c=\min(Cg,R)\)이다. \(0\le Cg,R\le C\)와 각 창의 적분 하한으로
+\[
+J_s=\max(0,J_g+J_r-CH_s)
+\]
+를 구성한다. \(J_s>0\), 사전에 보증된 rank 질량 \(W\), 적절한 창 phase 조건에서 전체 outlet upper는 \(NH+\lceil W/J_s\rceil H_s\)다. 미래 네트워크가 이 전제를 만족한다고 가정해 버리지 않는다.
+
+실제 Python source characteristic 비교640개와 Fraction pointwise 비교4,356개를 실행했다. \(H=8s,J=16m,b=4m/s,\tau=2s,A=B=1m/s^2,v_0=0\)인 clipped 예제에서20m 실제 운동 도달15.139484898s, 실제0-service 대기6s,5veh 마지막 rank 출구23.639484898s를 얻었고, 사전 구성 상한34s 안에 있었다. 8→16→32→64s oracle horizon도 실행했다. 이 결과는 원100k full-day 실행 증거가 아니다.
+
+Le Boudec–Thiran 저자 배포본의 strict service/variable capacity/concatenation과 Farhi–Haj-Salem–Lebacque의 forward demand–backward supply 모델을 직접 확인했다. 원전 URL과 source→target 대응은 포트폴리오에 있다. Exa/Parallel/SciSpace를 실제 사용했고 Wolfram의 두 MCP 내부 오류는 검산 성공으로 바꾸지 않았다. 이 명제의 전 세계 최초성은 주장하지 않는다.
+
+### C2 실제 소스의 구조적 원인
+
+부모와 native 담당자가 독립적으로 현재 소스의 동일 수명 구간을 읽었다.
+
+- v1_engine.rs::snapshot_source_owners: census를 할당하기 전에 event input/current를 모두 계상하지만, 뒤에서는 이미 존재하는 shares_event_arc의 allocation-free identity로 중복 backing을 제거한다. 같은 snapshot의 실제 Arc identity는 census 없이 먼저 증명할 수 있다. 이 경로의 개선은 아직 없는 미래 sharing을 선반영하는 것과 다르다.
+- v1_journey.rs::advance의 prepare 전 parent reservation: 실제 input/current 두 road/event owner만 공존하는데 \(2\max(R_i,R_c)+2\max(E_i,E_c)\)를 쓴다. 실제 source 합과의 과잉분은 정확히 \(|R_i-R_c|+|E_i-E_c|\)다. 적용 가능한 수명에서 각각의 실측 합을 쓰는 후보를 구성했다.
+- Journey의 local \(3\max(retained,dynamic)+scratch+65536\), decoder/validator, 원6GiB cap은 이 조사로 완화하지 않는다. 원 hourly의 실제 첫 실패 세부 subsite와 내부 clock은 미관측 상태로 보존한다.
+
+코드의 다음 판별은 실제 capture/save/독립 event owner/다른 clock/fresh restore와 작은 예산 거부를 포함하는 behavioral RED다. 현재 단계는 원인과 구성 후보 확인이며 아직 수정 효과를 실제 큰 실행으로 주장하지 않는다.
+
+### R2 drift watchdog
+
+원 active-meso의 자기구동·유한 응답·정지/재출발을 명제의 직접 대상에 두고, 실제 node 대기를 별도 질량 시계로 보존했다. memory admission은 물리 법칙·장부·wire·수용문턱을 바꾸지 않고 실제 수명을 계산하는 방향이다. 판정 ALIGNED_WITH_OPEN_OBLIGATION: 새 배경 이론은 직접 유도됐고 조건부 양성 판별을 통과했지만, native의 인과적 추진량/서비스 보증과 전체 규모 효과는 다음 단계 의무다.
