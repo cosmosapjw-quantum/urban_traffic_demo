@@ -488,3 +488,79 @@ Wolfram의 실제 입출력을 함께 보존했다. antiderivative 잔차0, semi
 별도 계산에서 피드백 행렬의 determinant
 \((k-\gamma\kappa_n)/\tau_v\), nonlinear consumer 차이1/32도 확인했다.
 기호 계산은 식의 검산이며, 원래 도시의 계수·수용·실행 결과를 대체하지 않는다.
+
+
+## R8 — 근거 상태별 판정과 과거 연구의 재평가
+
+발산적 탐색을 유지한다. 다음 표는 production 승자 선정이 아니라, 어떤 내용이
+성립했고 어떤 새 데이터가 실제 resource 해소 여부를 가르는지에 대한 판정이다.
+
+| 경로 | 현재 성립한 내용 | 근거 상태 | 아직 결정하지 못한 것 |
+|---|---|---|---|
+| O | decoded validation 아래 공통 admissible 물리 동치; 기존 payload차이458,883,136B | derived + source-inspected + integer-checked | persistent codec 구현, descriptor/alias 포함 peak, full-Vec API와 decoder 비용 |
+| A | service→projection→route→overlay→mark→sink의 양의 측도 연산 폐쇄 | derived exact-real + exact-rational examples | reachable V, distinct query Q*, virtual knot·root lifetime, binary64계약 |
+| B | class/complete suffix의 road quotient와 endpoint-conditioned lossless fibers | derived conditional + exact-rational examples | 실제 group/clock support, fiber F·query QF, tag별 도시 feedback 효율 |
+| C | 공동 E/C 경계, support-aware block구성, 보존 phase/FIFO식 | derived +128 cases checked | multi-sender constants, atomic eligibility metric, network amplification, Jσ |
+| D | 유한 positive feature realization와2Mε consumer오차 | literature-supported + direct finite proof + rational checks | 충분한 feature목록·generator/guard/reset 폐쇄성; 모든 tag를 작게 요약할 수 있다는 보장 |
+| E | held flux와 finite-response characteristic의 적분 mark 가법성·국소 midpoint오차 | derived + CAS + Decimal refinement | 원래 midpoint모델과의 coupled 오차, 실제 genuine phase 수, native 연결 |
+
+A/B의 “exact-real”은 원래 이산 사건 구조와 수정된 joint metadata를 보존한
+수학적 동치다. O는 lossless tuple 값·순서의 codec 계약이다.
+C/D/E의 모델 변형은 원래 compatibility 결과와 별도 버전으로 다룬다.
+이론의 derived 상태와 implementation-verified 실행 상태는 서로 대체되지 않는다.
+
+### 단일 guard 해소와 병목 사슬 해소의 구별
+
+O의 조건부 payload 차이는 현재 guard 초과26,418,681B보다 크다.
+따라서 당장 시험할 구체적인 절감 대상을 제공한다. 그러나 전체 charged
+live set에는 headers·여러 trace owners·validation과 다른 phase가 포함되며,
+allowance 자체도 다른 소유량에 영향을 받을 수 있다.
+이를 “25710 통과가 증명됐다”로 바꾸지 않는다.
+
+A는 head-row×service와 active-source×slab의 allocation을 생략하는 명제를 준다.
+하지만 evaluator가 모든 root support를 매번 순회하면 work는 줄지 않는다.
+B는 물리 질의 차원을 낮추지만 실제 future suffix가 모두 다르면 작은 quotient를
+얻지 못하고, fiber를 eager복사하면 원래 폭발이 돌아온다.
+따라서 둘의 성공조건은 물리적으로 필요한 query와 retained support가 실제로 작다는 것이다.
+
+C/D는 허용한 resolution·feature에 따라 state 크기를 정의할 수 있다.
+하지만 \(J_\sigma\), feature 수, feedback gain을 숫자 없이 상수라고 놓지 않는다.
+E는 artificial split이 physical mark를 바꾸는 문제를 제거하지만, 진짜 control
+변화는 유지한다. 206,999개의 time-pair run을 genuine physical phase 수로
+동일시하지 않는다.
+
+### 반복 실패에 대한 surgical revision
+
+과거 연구의 성과를 다음과 같이 보존하면서 해석을 바꾼다.
+
+- packed rows, event time sharing, 실제 owner 기반 credit은 정확한 구현 성과다.
+  각각 bytes/owner 중복을 줄였지만 곱집합 연산의 정의를 바꾸지는 않았다.
+- 작은 bit-identical 또는 equal-density 인접 병합률은 해당 merge 정책의
+  판별 결과다. 연산자 공유·behavioral quotient·joint measure 모델의 일반적
+  실패 근거가 아니다.
+- 기존 fixed-head rank lemma는 source 분할에는 유효했다. 이번에는 destination
+  interval consumer, marks, source feedback, sink와 journey를 포함하도록 확장했다.
+- 기존 fixed-C bound는 baseline으로 남는다. 이번 joint-C bound가 capacity
+  coupling을 수치 residual로 연결하는 빠진 항을 채웠다.
+- “작은 cumulative mass오차면 충분하다”는 해석은 blocked-tail 반례로 철회했다.
+  노출된 head의 support와 그 경계가 모델 상태의 일부여야 한다.
+- “동일 density이면 경계를 지워도 된다”는 해석은 midpoint반례로 철회했다.
+  exact 경로는 virtual knot를 보존하고 E는 mark규약을 별도로 바꾼다.
+
+이 수정은 저수요·질량삭제·FIFO해제·즉시평형속도로 목표를 바꾸지 않는다.
+원래 목적을 설명하는 물리 변수를 중심으로 표현과 수치 규약을 다시 설계한다.
+
+### 보조 soft-min 후보의 판정
+
+support-continuous soft-min은 독립적인 행동가설 후보로만 보존한다.
+예시에서 rare slow-class hard target5m/s를 약19.990466m/s로 초과하므로,
+현재 T02의 class admissibility를 보존하는 근사로 채택하지 않는다.
+legal/geometric hard constraints를 평균으로 바꾸는 조치는 이 연구의 결론이 아니다.
+hard class rule을 유지하는 A/B/C와 이 보조 행동가설은 구별한다.
+
+### 실제 실행 상태
+
+이번 이론 계산으로 native 유효 물리시간을 늘리거나 원래 V03 수용을 갱신하지 않았다.
+기존 마지막 유효 시간25700s, 차단 목표25710s, 전체 하루0/9,
+DAG 한정구현/실행19/21, 최종수용5/21, V03 BLOCKED를 유지한다.
+지금 얻은 것은 여섯 경로의 구성·증명·반례·비용조건이며24h 성능 예측은 unresolved다.
