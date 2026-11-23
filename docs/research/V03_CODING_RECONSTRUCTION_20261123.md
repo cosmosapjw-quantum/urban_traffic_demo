@@ -16,7 +16,7 @@ The first selected native boundary is persistent, exact event-history storage: p
 |---|---|---|
 | C1 | Exact baseline, scope, original acceptance, experiment target | COMPLETE; BASELINE.json |
 | C2 | Actual expression/data/producer/consumer map and implementation ownership | COMPLETE; V03_CODING_SOURCE_MAP_20261123.md |
-| C3 | Exact representation invariants, stable computation, failure counterexamples | PENDING |
+| C3 | Exact representation invariants, stable computation, failure counterexamples | COMPLETE; exact codec and ownership contract below |
 | C4 | Bounded execution ladder, recovered native baseline, build/resource setup | PENDING |
 | C5 | Complete native producer-to-consumer implementation | PENDING |
 | C6 | Actual build, behavioral red/green, targeted native/Python regressions | PENDING |
@@ -34,3 +34,21 @@ The original 0492364 PRD and 6524500 constitution define the map → traffic →
 ## C2 completed source map
 
 The retained history owner is ServiceCheckpoint/NativeServiceCore in v1_journey.rs, not the physical completion ReceiptHistory. Road owns the exact time-run carrier and proposal; engine owns direct legacy decode/admission. Ownership: root v1_road.rs and run/test integration; bottleneck_anatomy v1_journey.rs and v1_engine.rs after the red fixture; other constructors supply read-only alternatives. The fixed codec preserves full event time bits and ordered sinks. Source product elimination remains a distinct obligation. Trace-count clarification: road-service incoming generation 17143679; pending additions 50728; total raw incoming 17194407; remaining live incoming at the actual indexed-sweep failure 16726314 after the first destination consumed 468093 rows. These scopes must not be conflated.
+
+## C3: exact computational and ownership contract
+
+The selected transformation is BYTE_IDENTITY of decoded logical rows and legacy checkpoint wire, and equality of all physical row operations. It is not a new closure. Write the event as e=(tag,source,destination,mass,start,end,birth). Compact registry indices are injective only in the checked u32 domain; the reserved destination value denotes None. Mass and birth bits are copied. Consecutive equal pairs of (start.to_bits(),end.to_bits()) share one dictionary entry. In particular +0 and -0 are different keys. The decoder returns the original ordered e exactly. Wide registries use the existing wide carrier, so no cast truncation is permitted.
+
+For B=4096 rows/page, E logical events and K consecutive time runs, exact page payload is
+M(E,K)=32 B ceil(E/B)+16 B ceil(K/B).
+The retained charge adds actual outer Vec capacities, carrier/Arc metadata and page allocation allowances. A decode append must reserve against a conservative bound before allocating the next row/time page and its descriptor. Logical row count, physical storage bytes and wire bytes remain different quantities. Empty history, 4095/4096/4097 boundaries, all-distinct times, repeated times, signed zero, and wide indices are explicit cases.
+
+The representation equation is decode(encode(events))=events. If H is stored history, X the active road/service/journey state and F the original transition, the encoded state update is (X,H_encoded) -> (F(X,decode(H_encoded)), encode(H_new)) on the common admissible domain. Source tracing establishes that previous observational H is not used by physical prepare/finish, but current-tick decoded sink events and active ReceiptHistory are used. Their tag, mass, end clock and order remain original. Validation/export/admission are real consumers and must be converted too. No event deletion or aggregation is authorized by this identity.
+
+The road proposal returns the encoded carrier directly. Public standalone APIs keep their explicit Vec output, with page-plus-flat coexistence budgeted. Continuous keyset interning is moved into a common postroad helper parameterized by actual live candidate-event bytes; it still occurs before installing the candidate. Input/current event histories are counted once only when Arc::ptr_eq proves shared allocation. Two distinct histories in a multi-tick call remain two charged owners.
+
+Error classification: the codec adds no truncation, interpolation, solver or floating arithmetic error. Original finite-response and f64 errors remain. A codec bit mismatch is an implementation error; an actual resource rejection is a resource result, not physical congestion or no-go. Metadata-only changes to source provenance do not waive raw checkpoint/hash checks.
+
+A source-product followup must preserve intermediate IEEE operations. Combining scale factors is invalid: (0.1*0.3)*0.7 and 0.1*(0.3*0.7) can differ. Deferred incoming needs the original transformed key and source-order reduction, including its fsum barrier. An eager final interval output would remain a separate scaling issue. The held-characteristic flux-mean mark alternative is a model version, not part of this exact codec implementation.
+
+C3 acceptance examples: legacy wire decode/re-encode byte identity; resource fixture with 65536 repeated-time rows must use less than 48 bytes per logical row including structural costs; original flat storage exceeds that bound. Test its failing behavior before production edits. Preserve wide fallback and malformed-input failure/rollback. Actual original checkpoint and increasing-horizon experiments will decide how far the new representation resolves the sequential bottleneck.
