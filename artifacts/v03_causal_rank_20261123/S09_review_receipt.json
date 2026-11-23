@@ -1,0 +1,35 @@
+{
+  "schema": "METROFLOW_CAUSAL_RANK_BOUNDED_REVIEW_V1",
+  "reviewer": "/root/independent_review",
+  "passes": 1,
+  "review_sha256": "5f53e69f160bf275906405fd205826e5b7d79afe36ffd7cc19a378bbc1f128d0",
+  "reviewed_source_sha256": "f27ccbee4472472b5e59995de9bf64cc00a7cb042202d15b073ab5aad176983e",
+  "reviewed_theorem_sha256": "70a8379a6107c52030ab235161943e9bcbd3fad06ab8407f9c9d5d3c6331d041",
+  "mathematics_status": "DERIVED_AND_INDEPENDENTLY_REVIEWED_UNDER_STATED_HYPOTHESES",
+  "native_representation_status": "IMPLEMENTATION_VERIFIED_SCOPED",
+  "optional_rank_status": "NUMERICALLY_CHECKED_NOT_NATIVE_PRODUCTION",
+  "full_original_tick_status": "BLOCKED_RESOURCE_AT_INDEXED_SWEEP",
+  "independently_rerun": {
+    "rust_targeted_tests": 6,
+    "rank_adapter_tests": 14,
+    "rational_split_steps": 3000,
+    "finite_binary_prefix_checks": 20480,
+    "rational_service_cases": 96,
+    "independent_queue_comparisons": 193,
+    "exact_output_breakpoints": 4077
+  },
+  "parent_rerun_scoped_rust": {
+    "passed": 111,
+    "ignored_existing": 2
+  },
+  "material_findings_closed": [
+    "delta-grid construction for block count",
+    "empty eligible set convention",
+    "source readiness tolerance and actual executed fractions",
+    "zero-mass/zero-birth convention",
+    "actual new carrier metadata in empty and flatten phases"
+  ],
+  "source_zero_evidence_scope": "S08 source-zero run happened after the bounded independent review; validated by parent full-wire+ledger comparison, not represented as reviewer-executed",
+  "full_repository_ci": "DEFERRED_BY_USER",
+  "V03_acceptance_changed": false
+}

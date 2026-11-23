@@ -250,3 +250,22 @@ These preparation-only runs intentionally have simulated_s=0; they are not
 three new traffic days. Generic readiness checker actually reports3/3 current
 preparations,19/21scoped nodes,0/9full days,V03BLOCKED. Timezero physical
 prefix coverage in this turn is Valley1/3cases, not a new accepted DAG node.
+
+## Stage 9 — one independent pass and material corrections closed
+Published the bounded fresh-context review performed in parallel with stages5–7.
+The reviewer independently derived RC/RB, eligibility and fixed-C stability;
+reran6targetedRustboundary/carrier tests,14adapter tests and the exact rational
+checkers; directly inspected S07 original failure and all464key benchmark
+checks. Full111-test road regression is separately labelled parent-executed.
+No repeated audit loop or new acceptance gate was introduced.
+
+Material findings closed: explicit delta-grid block count rather than an
+unsupported upper bound; empty eligible-set convention; original tolerance-
+aware readiness and post-clamp/snapped fractions; zero mass/zero birth domain;
+newcarrier metadata120B and carrier+flatheader144B. Original counterexamples
+and RED results remain in earlier commits/logs. Final proof verdict applies
+only to the stated fixed-source/fixed-service hypotheses. Production exact
+sharing is implementation-verified; optional rank is numerically checked;
+original25710stillresource-blocked. Review did not inspect later S08sourcezero
+run; its full-byte identity and ledger checks are explicitly parent evidence.
+Review:V03_CAUSAL_RANK_INDEPENDENT_REVIEW_20261123.md.
