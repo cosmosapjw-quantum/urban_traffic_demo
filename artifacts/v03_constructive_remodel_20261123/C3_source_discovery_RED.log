@@ -1,0 +1,125 @@
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/worktrees/urban-traffic-v03-constructive-remodel-20261123/crates/metroflow-rust)
+warning: unnecessary parentheses around closure body
+    --> crates/metroflow-rust/src/v1_road.rs:8071:34
+     |
+8071 |   ...   let actual=(0..3).map(|i|(
+     |  ________________________________^
+8072 | | ...       incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+     | |__________^
+8073 |   ...       +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()
+     |  _______________________________________________________________________^
+8074 | | ...   )).sum();
+     | |_______^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+8071 ~         let actual=(0..3).map(|i|incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+8072 ~             +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()).sum();
+     |
+
+warning: unused variable: `n`
+    --> crates/metroflow-rust/src/v1_road.rs:6397:13
+     |
+6397 |         let n=parts.len();
+     |             ^ help: if this is intentional, prefix it with an underscore: `_n`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `road_bytes`
+    --> crates/metroflow-rust/src/v1_engine.rs:2116:17
+     |
+2116 |             let road_bytes = road
+     |                 ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_road_bytes`
+
+warning: unused variable: `events`
+    --> crates/metroflow-rust/src/v1_engine.rs:2129:17
+     |
+2129 |             let events = service_event_storage_bytes(&service).max(old...
+     |                 ^^^^^^ help: if this is intentional, prefix it with an underscore: `_events`
+
+warning: methods `summary`, `install_state`, and `owned_unique_immutable_arc_payload_bytes` are never used
+    --> crates/metroflow-rust/src/v1_road.rs:3677:19
+     |
+3632 | impl V1Road {
+     | ----------- methods in this implementation
+...
+3677 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+3897 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+3909 |     pub(crate) fn owned_unique_immutable_arc_payload_bytes(&self)->usi...
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `sources` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:867:19
+    |
+802 | impl NativeServiceCore {
+    | ---------------------- method in this implementation
+...
+867 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+
+warning: methods `owned_time`, `storage_budget`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1544:19
+     |
+1307 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1544 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1599 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1632 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:76:19
+   |
+69 | impl StageQueue {
+   | --------------- method in this implementation
+...
+76 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+
+warning: `metroflow-rust` (lib test) generated 8 warnings (run `cargo fix --lib -p metroflow-rust --tests` to apply 4 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.60s
+     Running unittests src/lib.rs (/home/cosmosapjw/worktrees/urban-traffic-v03-unique-accounting-20261120/target/debug/deps/_metroflow_rust-ffddc2c3d4933447)
+
+running 6 tests
+C3 gap cap=74370250 old_census=74534526 actual_event_alias=328552 final_phase=73943182 validator=74212854
+C3 gap cap=74370154 old_census=74534430 actual_event_alias=328552 final_phase=73943086 validator=74212782
+
+thread 'v1_engine::v03_source_discovery_c3_20261123_tests::actual_save_admits_already_proven_event_alias_before_census' (193508) panicked at crates/metroflow-rust/src/v1_engine.rs:2800:9:
+actual save should fit witnessed event owner cap; Err(PyErr { type: <class 'MemoryError'>, value: MemoryError('native snapshot Arc census preflight budget exceeded: required_bytes=74534430, budget_bytes=74370154'), traceback: None })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test v1_engine::v03_source_discovery_c3_20261123_tests::actual_save_admits_already_proven_event_alias_before_census ... FAILED
+test v1_engine::v03_source_discovery_c3_20261123_tests::one_byte_below_witnessed_census_still_rejects_before_clone ... ok
+
+thread 'v1_engine::v03_source_discovery_c3_20261123_tests::actual_capture_admits_already_proven_event_alias_before_census' (193507) panicked at crates/metroflow-rust/src/v1_engine.rs:2761:9:
+fixture final phase 76532446 exceeds cap 74370154
+test v1_engine::v03_source_discovery_c3_20261123_tests::actual_capture_admits_already_proven_event_alias_before_census ... FAILED
+C3 journey pool=11377428 unchanged_local_three_j=10882840 old_parent=658864 actual_event_alias=328552
+
+thread 'v1_engine::v03_source_discovery_c3_20261123_tests::coupled_prepare_uses_distinct_input_current_owners_with_unchanged_three_j_guard' (193509) panicked at crates/metroflow-rust/src/v1_engine.rs:2856:9:
+actual two-tick coupled path should fit concrete parent owners; Some(PyErr { type: <class 'MemoryError'>, value: MemoryError('native journey stored/working byte budget'), traceback: None })
+test v1_engine::v03_source_discovery_c3_20261123_tests::coupled_prepare_uses_distinct_input_current_owners_with_unchanged_three_j_guard ... FAILED
+test v1_engine::v03_source_discovery_c3_20261123_tests::independent_equal_event_arcs_still_reject_at_same_census_cap ... ok
+test v1_engine::v03_source_discovery_c3_20261123_tests::independent_fresh_decode_load_restore_and_full_wire_keep_original_guards ... ok
+
+failures:
+
+failures:
+    v1_engine::v03_source_discovery_c3_20261123_tests::actual_capture_admits_already_proven_event_alias_before_census
+    v1_engine::v03_source_discovery_c3_20261123_tests::actual_save_admits_already_proven_event_alias_before_census
+    v1_engine::v03_source_discovery_c3_20261123_tests::coupled_prepare_uses_distinct_input_current_owners_with_unchanged_three_j_guard
+
+test result: FAILED. 3 passed; 3 failed; 0 ignored; 0 measured; 294 filtered out; finished in 0.33s
+
+error: test failed, to rerun pass `-p metroflow-rust --lib`

@@ -2506,7 +2506,7 @@ mod v03_snapshot_owner_c8c_20261123_tests {
     use crate::v1_road::ChunkedEvents;
     use crate::v1_stage::StageQueue;
 
-    fn fixture()->NativeWholeEngine {
+    pub(super) fn fixture()->NativeWholeEngine {
         const N:usize=8192;
         let identity="snapshot-owner-c8c".to_string();
         let profile=Arc::new(vec![(0.0,1.0,1.0)]);
@@ -2696,6 +2696,211 @@ mod v03_snapshot_owner_c8c_20261123_tests {
         println!("save/restore behavioral cap={cap} wire_bytes={}",
             std::fs::metadata(&after).unwrap().len());
         std::fs::remove_file(before).unwrap();
+        std::fs::remove_file(after).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod v03_source_discovery_c3_20261123_tests {
+    use super::*;
+    use crate::v1_history::ReceiptHistory;
+    use crate::v1_stage::StageQueue;
+
+    fn set_budget(e:&mut NativeWholeEngine,cap:usize) {
+        let fixed=e.runtime_storage.as_ref().unwrap().fixed_charge;
+        assert!(cap>fixed);
+        e.byte_budget=cap;
+        e.road_storage_bytes=Some(cap-fixed);
+        e.journey_storage_bytes=Some(cap-fixed);
+        e.reset_phase_ceilings().unwrap();
+    }
+    fn delayed_egress_fixture()->NativeWholeEngine {
+        let mut e=super::v03_snapshot_owner_c8c_20261123_tests::fixture();
+        let old_static=e.journey.static_storage_bytes();
+        let mut legs=e.journey.legs().to_vec();
+        let delay=Arc::new(vec![(1000.0,1.0)]);
+        for leg in &mut legs[1..] {leg.7=delay.clone();}
+        let mut state=e.journey.checkpoint();
+        state.2=StageQueue::new();
+        for i in 1..state.5.len() {
+            state.5[i]=0.0;
+            state.6[i]=ReceiptHistory::new();
+        }
+        // Keep each actual road-generated outlet row and its original time.
+        // The declared egress law is delayed, so these masses are still active.
+        for row in e.service.checkpoint().1.iter() {
+            if row.2.is_none() {state.2.push((row.0+1,row.3,row.5,1000.0));}
+        }
+        state.3=StageQueue::new();
+        for _ in 0..128 {state.3.push((0,0.75/128.0,0.0,100.0));}
+        state.6[0]=ReceiptHistory::new();
+        for _ in 0..128 {state.6[0].push((1.0,0.25/128.0)).unwrap();}
+        let mut journey=NativeJourneyCore::new_shared(legs,vec![],vec![],100_000).unwrap();
+        journey.rollback(state);
+        let a=e.runtime_storage.as_mut().unwrap();
+        a.owned_static=a.owned_static-old_static+journey.static_storage_bytes();
+        a.journey_dense=journey_dense_storage_bytes(journey.state());
+        a.fixed_charge=a.base()+a.call_binding;
+        e.journey=journey;
+        // Keep the actual whole-validation workspace in this fixture's fixed
+        // call reserve so the census, not an unrelated validation phase, is
+        // the counterexample at the identical RED/GREEN cap.
+        let validation=e.validation_scratch(e.journey.state(),e.road.owned_record_count());
+        let a=e.runtime_storage.as_mut().unwrap();
+        a.call_binding=a.call_binding.max(validation);
+        a.fixed_charge=a.base()+a.call_binding;
+        set_budget(&mut e,256*1024*1024);
+        let valid=e.capture();
+        e.validate_bundle(&valid.value).unwrap();
+        assert!(e.journey.state().2.len()>0 && e.journey.state().3.len()>0);
+        assert!(e.journey.state().6[0].len()>0);
+        e
+    }
+    fn uncredited_census_required(e:&NativeWholeEngine,input:&NativeWholeState,clone_from_input:bool)->usize {
+        let a=e.runtime_storage.as_ref().unwrap();
+        let target=if clone_from_input {&input.value.journey}else{e.journey.state()};
+        let scratch=e.road.snapshot_arc_census_upper_bytes(&input.value.road,clone_from_input)
+            .max(snapshot_journey_census_upper_bytes(target));
+        a.base()+a.call_binding+input.value.road.retained_storage_bytes()+e.road.owned_storage_bytes()
+            +journey_storage_bytes(&input.value.journey)+journey_storage_bytes(e.journey.state())
+            +service_event_storage_bytes(&input.value.service)+e.service.event_storage_bytes()+scratch
+    }
+    fn census_gap_cap(e:&NativeWholeEngine,input:&NativeWholeState,validate:bool)->usize {
+        let w=e.snapshot_source_owners(&input.value,!validate).unwrap();
+        let events=e.service.event_storage_bytes();
+        assert!(events>0 && e.service.shares_event_arc(&input.value.service.1));
+        let a=e.runtime_storage.as_ref().unwrap();
+        let old_census=uncredited_census_required(e,input,!validate);
+        let cap=old_census-events/2;
+        let scratch=if validate {e.validation_scratch(e.journey.state(),e.road.owned_record_count())}else{0};
+        let final_phase=a.base()+a.call_binding.max(scratch)+w.phase_bytes;
+        let validator=a.fixed_charge+3*journey_storage_bytes(e.journey.state())+65_536;
+        assert!(final_phase<=cap,"fixture final phase {final_phase} exceeds cap {cap}");
+        assert!(validator<=cap,"unchanged 3J validator {validator} exceeds cap {cap}");
+        println!("C3 gap cap={cap} old_census={} actual_event_alias={events} final_phase={final_phase} validator={validator}",
+            old_census);
+        cap
+    }
+    fn path(label:&str)->std::path::PathBuf {
+        std::env::temp_dir().join(format!("metroflow-c3-{label}-{}.bin",std::process::id()))
+    }
+    #[test]
+    fn actual_capture_admits_already_proven_event_alias_before_census() {
+        pyo3::prepare_freethreaded_python();
+        let mut e=delayed_egress_fixture();
+        let input=e.capture();
+        let baseline=path("capture-before");
+        let after=path("capture-after");
+        e.save(baseline.to_str().unwrap().into(),&input).unwrap();
+        let cap=census_gap_cap(&e,&input,true);
+        set_budget(&mut e,cap);
+        let got=Python::with_gil(|py|e.advance(py,&input,input.time_s()));
+        assert!(got.is_ok(),"actual capture should fit witnessed event owner cap; {:?}",got.as_ref().err());
+        let output=got.unwrap();
+        e.validate_bundle(&output.value).unwrap();
+        e.save(after.to_str().unwrap().into(),&output).unwrap();
+        assert_eq!(std::fs::read(&baseline).unwrap(),std::fs::read(&after).unwrap());
+        std::fs::remove_file(baseline).unwrap();
+        std::fs::remove_file(after).unwrap();
+    }
+    #[test]
+    fn actual_save_admits_already_proven_event_alias_before_census() {
+        pyo3::prepare_freethreaded_python();
+        let mut e=delayed_egress_fixture();
+        let input=e.capture();
+        let baseline=path("save-before");
+        let after=path("save-after");
+        e.save(baseline.to_str().unwrap().into(),&input).unwrap();
+        let cap=census_gap_cap(&e,&input,false);
+        set_budget(&mut e,cap);
+        let got=e.save(after.to_str().unwrap().into(),&input);
+        assert!(got.is_ok(),"actual save should fit witnessed event owner cap; {got:?}");
+        assert_eq!(std::fs::read(&baseline).unwrap(),std::fs::read(&after).unwrap());
+        std::fs::remove_file(baseline).unwrap();
+        std::fs::remove_file(after).unwrap();
+    }
+    #[test]
+    fn independent_equal_event_arcs_still_reject_at_same_census_cap() {
+        pyo3::prepare_freethreaded_python();
+        let mut e=delayed_egress_fixture();
+        let own=e.capture();
+        let cap=census_gap_cap(&e,&own,false);
+        let independent=delayed_egress_fixture().capture();
+        assert!(!e.service.shares_event_arc(&independent.value.service.1));
+        assert_eq!(service_event_storage_bytes(&independent.value.service),e.service.event_storage_bytes());
+        set_budget(&mut e,cap);
+        let got=e.storage_admission(&independent.value.journey,
+            independent.value.road.retained_storage_bytes(),0,
+            service_event_storage_bytes(&independent.value.service),Some(&independent.value),false);
+        assert!(got.unwrap_err().to_string().contains("snapshot Arc census preflight"));
+    }
+    #[test]
+    fn one_byte_below_witnessed_census_still_rejects_before_clone() {
+        pyo3::prepare_freethreaded_python();
+        let mut e=delayed_egress_fixture();
+        let input=e.capture();
+        let corrected=uncredited_census_required(&e,&input,true)-e.service.event_storage_bytes();
+        set_budget(&mut e,corrected-1);
+        let got=e.storage_admission(&input.value.journey,input.value.road.retained_storage_bytes(),
+            0,service_event_storage_bytes(&input.value.service),Some(&input.value),false);
+        assert!(got.unwrap_err().to_string().contains("snapshot Arc census preflight"));
+        assert_eq!(e.journey.state().0,input.time_s());
+    }
+    #[test]
+    fn coupled_prepare_uses_distinct_input_current_owners_with_unchanged_three_j_guard() {
+        pyo3::prepare_freethreaded_python();
+        let mut e=super::v03_snapshot_owner_c8c_20261123_tests::fixture();
+        let input=e.capture();
+        let n=e.journey.legs().len();
+        let proposal=n*(2*std::mem::size_of::<(usize,f64,f64,f64)>())
+            +n.div_ceil(1024)*std::mem::size_of::<Vec<(usize,f64,f64,f64)>>();
+        let j=journey_storage_bytes(e.journey.state()).max(journey_storage_bytes(&input.value.journey));
+        let r=e.road.owned_storage_bytes().max(input.value.road.retained_storage_bytes());
+        let events=e.service.event_storage_bytes();
+        let local_three_j=3*j+proposal+65_536;
+        let old_parent=2*r+2*events;
+        let pool=local_three_j+old_parent-events/2;
+        let cap=e.runtime_storage.as_ref().unwrap().fixed_charge+pool;
+        let mut oracle=super::v03_snapshot_owner_c8c_20261123_tests::fixture();
+        let original=oracle.capture();
+        let expected=Python::with_gil(|py|oracle.advance(py,&original,original.time_s()+2.0)).unwrap();
+        let expected_wire=path("journey-oracle");
+        oracle.save(expected_wire.to_str().unwrap().into(),&expected).unwrap();
+        set_budget(&mut e,cap);
+        println!("C3 journey pool={pool} unchanged_local_three_j={local_three_j} old_parent={old_parent} actual_event_alias={events}");
+        let got=Python::with_gil(|py|e.advance(py,&input,input.time_s()+2.0));
+        if got.is_err() {println!("C3 failed actual attempt={:?}",e.journey.last_attempt());}
+        assert!(got.is_ok(),"actual two-tick coupled path should fit concrete parent owners; {:?}",got.as_ref().err());
+        let output=got.unwrap();
+        assert_eq!(output.time_s(),input.time_s()+2.0);
+        assert_eq!(e.journey.owned_phase_metrics().successful_ticks,2);
+        assert!(!e.service.shares_event_arc(&input.value.service.1));
+        let wire=path("journey-after");
+        e.save(wire.to_str().unwrap().into(),&output).unwrap();
+        assert_eq!(std::fs::read(&expected_wire).unwrap(),std::fs::read(&wire).unwrap());
+        std::fs::remove_file(expected_wire).unwrap();
+        std::fs::remove_file(wire).unwrap();
+    }
+    #[test]
+    fn independent_fresh_decode_load_restore_and_full_wire_keep_original_guards() {
+        pyo3::prepare_freethreaded_python();
+        let mut producer=delayed_egress_fixture();
+        let input=producer.capture();
+        let baseline=path("fresh-before");
+        let after=path("fresh-after");
+        producer.save(baseline.to_str().unwrap().into(),&input).unwrap();
+        let mut fresh=delayed_egress_fixture();
+        fresh.road.rollback(fresh.initial_state.road.clone());
+        fresh.service.rollback(fresh.initial_state.service.clone());
+        fresh.journey.rollback(fresh.initial_state.journey.clone());
+        assert_eq!(fresh.journey.state().0,0.0);
+        assert!(!fresh.service.shares_event_arc(&input.value.service.1));
+        let restored=fresh.load(baseline.to_str().unwrap().into()).unwrap();
+        assert_eq!(restored.time_s(),input.time_s());
+        fresh.validate_bundle(&restored.value).unwrap();
+        fresh.save(after.to_str().unwrap().into(),&restored).unwrap();
+        assert_eq!(std::fs::read(&baseline).unwrap(),std::fs::read(&after).unwrap());
+        std::fs::remove_file(baseline).unwrap();
         std::fs::remove_file(after).unwrap();
     }
 }

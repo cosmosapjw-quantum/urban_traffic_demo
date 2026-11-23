@@ -1,0 +1,112 @@
+COMMAND: python3 artifacts/v03_constructive_remodel_20261123/rank_merge_exact.py
+EXIT: 0
+WALL_S: 0.03215769800590351
+STDOUT:
+{
+  "status": "EXACT_RATIONAL_MULTI_INPUT_MERGE_CHECKED",
+  "base_commit": "90bfca2c2ddf081cbdf40d11b95ff820837d03b5",
+  "scope": "Two upstream prescribed flows, exact same-boundary exchangeable merge. No downstream solver or network complexity bound.",
+  "source_sha256": "9a8fd48a227b083be3243f7012b7ba7b002fac606bc981db104fd5006db10dfe",
+  "marks": [
+    "U:red",
+    "U:blue",
+    "V:red",
+    "V:blue"
+  ],
+  "units": {
+    "rank": "veh",
+    "clock": "s",
+    "birth_moment": "veh*s"
+  },
+  "upstream_time_windows": [
+    "4",
+    "5",
+    "6"
+  ],
+  "rates_per_mark": [
+    [
+      "1",
+      "0",
+      "1/4",
+      "3/4"
+    ],
+    [
+      "0",
+      "2",
+      "1/4",
+      "3/4"
+    ]
+  ],
+  "birth_clock_per_mark": [
+    "1",
+    "2",
+    "0",
+    "3"
+  ],
+  "coarse_profile": [
+    [
+      "0",
+      "2",
+      [
+        "1",
+        "0",
+        "1/4",
+        "3/4"
+      ],
+      [
+        "1",
+        "0",
+        "0",
+        "9/4"
+      ]
+    ],
+    [
+      "2",
+      "5",
+      [
+        "0",
+        "2",
+        "1/4",
+        "3/4"
+      ],
+      [
+        "0",
+        "4",
+        "0",
+        "9/4"
+      ]
+    ]
+  ],
+  "refined_profile_segments": 6,
+  "original_profile_segments": 2,
+  "query_count": 51,
+  "exact_scalar_comparisons_mass_and_birth_between_partitions": 408,
+  "upstream_fifo_prefix_monotonicity_checked": true,
+  "final_mark_mass": [
+    "1",
+    "2",
+    "1/2",
+    "3/2"
+  ],
+  "final_mark_birth": [
+    "1",
+    "4",
+    "0",
+    "9/2"
+  ],
+  "prefix_one_mark_mass": [
+    "1/2",
+    "0",
+    "1/8",
+    "3/8"
+  ],
+  "nonconstant_profile_preserved": true,
+  "homogeneous_averaging_counterexample": {
+    "first_one_red_exact": "5/8",
+    "first_one_red_global_average": "3/10",
+    "error_veh": "13/40"
+  },
+  "wall_s": 0.00556708499789238
+}
+
+STDERR:

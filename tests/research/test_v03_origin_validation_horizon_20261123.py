@@ -83,3 +83,27 @@ def test_returned_40s_with_failed_save_is_not_a_durable_predecessor():
     with pytest.raises(ValueError, match="saved physical prefix"):
         predecessor(p.read_bytes(), r["current_candidate_source_sha256"],
                     r["current_native_binary_sha256"])
+
+
+# New constructive-remodel loop: only the exact saved C8c receipt is a bridge.
+C8C = ROOT / "artifacts/v03_origin_validation_20261123/R8c_saved_25690_retry_40s.json"
+
+
+def test_constructive_remodel_exact_c8c_saved_pin_bridges_new_native():
+    r, cross = predecessor(C8C.read_bytes(), "remodel-source", "remodel-native")
+    assert cross and r["completed_time_s"] == 25730
+    assert r["final_checkpoint_bytes"] == 5523765378
+    assert r["final_checkpoint_sha256"] == "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9"
+
+
+def test_constructive_remodel_changed_receipt_cannot_bridge_new_native():
+    r = json.loads(C8C.read_bytes())
+    r["created_utc"] = "altered-after-observation"
+    with pytest.raises(ValueError, match="unpinned"):
+        predecessor(json.dumps(r).encode(), "remodel-source", "remodel-native")
+
+
+def test_constructive_remodel_returned_but_unsaved_25740_is_rejected():
+    p = ROOT / "artifacts/v03_origin_validation_20261123/R8c_frontier_25730_10s.json"
+    with pytest.raises(ValueError, match="saved physical prefix"):
+        predecessor(p.read_bytes(), "remodel-source", "remodel-native")

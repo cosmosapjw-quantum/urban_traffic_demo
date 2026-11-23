@@ -1,0 +1,61 @@
+F..                                                                      [100%]
+=================================== FAILURES ===================================
+_______ test_constructive_remodel_exact_c8c_saved_pin_bridges_new_native _______
+
+    def test_constructive_remodel_exact_c8c_saved_pin_bridges_new_native():
+>       r, cross = predecessor(C8C.read_bytes(), "remodel-source", "remodel-native")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/research/test_v03_origin_validation_horizon_20261123.py:93: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+raw = b'{\n  "blocked_target_time_s": null,\n  "budget_mode": "DEFAULT",\n  "case": "valley_weekday_s7",\n  "completed_mass_...id_advanced_duration_s": 40.0,\n  "wall_total_including_full_preparation_and_checkpoint_io_s": 422.35888442897703\n}\n'
+source_sha = 'remodel-source', native_sha = 'remodel-native'
+
+    def predecessor(raw: bytes, source_sha: str, native_sha: str) -> tuple[dict, bool]:
+        """Admit only exact historical pins or a saved same-source valid prefix."""
+        r = json.loads(raw)
+        pin = PINS.get(hashlib.sha256(raw).hexdigest())
+        complete = r.get("status") == "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON"
+        partial = (r.get("schema") == SCHEMA
+                   and r.get("status") == "BLOCKED_RESOURCE_WITH_VALID_PREFIX"
+                   and isinstance(r.get("error"), dict))
+        if not (complete or partial):
+            raise ValueError("predecessor must contain a verified saved physical prefix")
+        if (r.get("case") != CASE or r.get("trace_mode") != "off"
+                or r.get("diagnostic_only") is not False
+                or r.get("current_source_dirty") is not False
+                or r.get("native_process_cap_bytes") != CAP
+                or r.get("original_matrix_sha256") != MATRIX_SHA
+                or r.get("current_driver_identity") != DRIVER
+                or r.get("previous_checkpoint_full_wire_roundtrip_exact") is not True
+                or r.get("completed_mass_ledger") is None
+                or not isinstance(r.get("final_checkpoint_sha256"), str)
+                or len(r["final_checkpoint_sha256"]) != 64
+                or not isinstance(r.get("final_checkpoint_bytes"), int)
+                or r["final_checkpoint_bytes"] <= 0
+                or not isinstance(r.get("valid_advanced_duration_s"), (int, float))
+                or r["valid_advanced_duration_s"] <= 0
+                or r.get("original_full_day_acceptance") != "BLOCKED_0_OF_9"):
+            raise ValueError("predecessor physical/cap/identity contract mismatch")
+        if r.get("completed_time_s") != r.get("start_time_s") + r["valid_advanced_duration_s"]:
+            raise ValueError("predecessor returned physical clock mismatch")
+        if complete and (r.get("error") is not None or
+                         r.get("requested_duration_s") != r["valid_advanced_duration_s"]):
+            raise ValueError("incomplete run mislabeled as completed")
+        if pin:
+            if ((r["completed_time_s"], r["final_checkpoint_bytes"],
+                 r["final_checkpoint_sha256"]) != pin[:3]
+                    or r["current_candidate_source_sha256"] != pin[3]
+                    or r["current_native_binary_sha256"] != pin[4]):
+                raise ValueError("pinned historical metadata differs")
+        elif (r.get("schema") != SCHEMA or
+              r.get("current_candidate_source_sha256") != source_sha or
+              r.get("current_native_binary_sha256") != native_sha):
+>           raise ValueError("unpinned cross-native/source predecessor forbidden")
+E           ValueError: unpinned cross-native/source predecessor forbidden
+
+tools/research/v03_origin_validation_horizon_20261123.py:88: ValueError
+=========================== short test summary info ============================
+FAILED tests/research/test_v03_origin_validation_horizon_20261123.py::test_constructive_remodel_exact_c8c_saved_pin_bridges_new_native
+1 failed, 2 passed, 14 deselected in 0.13s

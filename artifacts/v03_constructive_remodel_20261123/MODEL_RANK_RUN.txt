@@ -1,0 +1,53 @@
+COMMAND: python3 artifacts/v03_constructive_remodel_20261123/rank_profile_exact.py
+EXIT: 0
+WALL_S: 0.0396628949965816
+STDOUT:
+{
+  "status": "EXACT_RATIONAL_BOUNDED_CONSTRUCTION_VERIFIED",
+  "comparison": {
+    "oracle_equals_tape_every_window": true,
+    "windows": 10,
+    "independent_scalar_equalities": 70,
+    "total_mass": "10",
+    "final_group_mass": [
+      "5",
+      "5"
+    ],
+    "final_group_birth": [
+      "5/2",
+      "5/2"
+    ],
+    "final_group_exit": [
+      "701/16",
+      "2129/48"
+    ],
+    "final_group_residence": [
+      "661/16",
+      "2009/48"
+    ],
+    "zero_service_windows": 2,
+    "materialized_partial_events": 6
+  },
+  "representation": {
+    "immutable_input_profile_segments": 3,
+    "nonzero_output_views": 8,
+    "contiguous_concatenation": [
+      "0",
+      "10"
+    ],
+    "retained_internal_profile_segments": 3,
+    "uniform_composition_merges_possible_between_neighbors": 0,
+    "native_allocation_or_speedup_measurement": false
+  },
+  "counterexample": {
+    "query_prefix_veh": "1",
+    "exact_red_veh": "2/3",
+    "global_mean_red_veh": "1/2",
+    "absolute_error_veh": "1/6",
+    "interpretation": "Total/group/birth conservation alone does not identify FIFO prefix composition."
+  },
+  "wall_s": 0.0006690550071652979,
+  "json": "MODEL_RANK_CALC.json"
+}
+
+STDERR:

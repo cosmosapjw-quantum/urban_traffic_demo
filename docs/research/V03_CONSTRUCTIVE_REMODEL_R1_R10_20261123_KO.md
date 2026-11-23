@@ -84,3 +84,44 @@ Le Boudec–Thiran 저자 배포본의 strict service/variable capacity/concaten
 ### R2 drift watchdog
 
 원 active-meso의 자기구동·유한 응답·정지/재출발을 명제의 직접 대상에 두고, 실제 node 대기를 별도 질량 시계로 보존했다. memory admission은 물리 법칙·장부·wire·수용문턱을 바꾸지 않고 실제 수명을 계산하는 방향이다. 판정 ALIGNED_WITH_OPEN_OBLIGATION: 새 배경 이론은 직접 유도됐고 조건부 양성 판별을 통과했지만, native의 인과적 추진량/서비스 보증과 전체 규모 효과는 다음 단계 의무다.
+
+
+## R3 / C3 — 전제의 실행 계약·역사 재평가·behavioral RED (완료)
+
+A+B 경로의 단위, 인과적 증거 제공시각, 유효 horizon, aligned/sliding 창, ahead-rank 질량의 뜻을 R3_theory_contract.md로 고정했다. 유한한 보증 창 안에서 상한을 만들지 못하면 HORIZON_UNCERTIFIED이며 물리적 도달 불가능으로 해석하지 않는다. 실수 산술 정리와 float guard-margin 계산도 구분한다. 일반 native network에 미래 J/J_s/W가 자동으로 보장된다는 주장은 하지 않는다.
+
+### 역사에 근거한 구성적 재접근
+
+R2_model_history_map.md는 최초 확인 가능한 원 PRD/constitution/active-meso의 commit와 blob까지 추적한다. 20261117의1.01–1.08배 병합 한계는 인접한 상수 비례 조성 병합에 대한 것이고, 모든 exact 표현에 대한 불가능 정리가 아니다. 20261121/22의 단일 source prefix·inverse service·delay 적분은 이미 존재한 결과로 명시했다.
+
+이번 추가 구성은 **내부 이질적 조성을 보존하는 같은 parent의 인접 rank view 합성**과 **다중 upstream의 보존적 merge lift**다.
+\[
+W(t)=\sum_j A_j(t),\qquad
+C_g(t)=\sum_jF_{jg}(A_j(t)),\qquad
+F^{in}_g(z)=C_g(W^{-1}(z)).
+\]
+출생 모멘트도 동일한 합성을 쓴다. 연속·비감소 유입과 보존된 source-law knots 아래에서 질량/출생 모멘트 보존, 각 upstream의 prefix 순서, 수치 구간 분할공변을 증명했다. W의 plateau에서는 모든 A_j도 상수여서 역함수 선택의 모호성이 측도를 바꾸지 않는다. 동시 유입의 개별 차량 순서를 새로 만들어내지 않는다.
+
+정확 Fraction 원형은10개 서비스 창(0-service2개)의70 scalar를 mutable head-split oracle와 일치시켰다.8개 view를 한 구간으로 합쳐도 내부3개 profile은 남는다. 다중 입력은2개 실제 profile과6개 수치 세분 구간 및 직접 누적 역상을51개 rank/408 scalar에서 일치시켰다. 전체 평균 closure는 첫1veh 조성에 각각1/6veh,13/40veh 오류를 내므로 채택하지 않는다. 이것은 새 표시법만의 제안이 아니라 실행된 구성과 반례다. 다중 link의 essential-knot 증가, f64 연산순서와 native wire 동치는 아직 미증명이다.
+
+### 실제 수정 전 실패
+
+현재 production을 유지하고 test-only Rust fixture를 추가했다. C3_source_discovery_valid_RED.log의 동일 command는 exit101, **3 behavioral RED / 3 PASS**다.
+
+| 경로 | 실제 RED 근거 |
+|---|---|
+| capture/zero-step advance | census77,123,790B > 고정cap76,959,514B |
+| 실제 save | 동일 census 오류; 이미 같은 event backing328,552B는 하나만 살아 있음 |
+| 실제 coupled Journey prepare | parent 중복 reservation 때문에 local unchanged3J guard 실패; 필요한 local10,882,840B와 pool11,377,428B를 기록 |
+
+독립 동일값 event Arc는 계속 거부됐고, 수정 후 필요한 census보다1B작은 예산도 거부됐으며, 독립 fresh decode/load/restore/full-wire control은 통과했다. 첫 fixture 시도의 capture 준비단 assertion 실패는 초기 log에 보존하고 behavioral RED로 세지 않았다. 위 valid_RED만 수정 전 행동 증거다. fixture의 고정 예산·데이터·command를 그대로 두고 production만 수정해 GREEN을 확인할 예정이다.
+
+재개 runner도 별도로 실제 RED를 확보했다: 직전 최종 후보의 정확히 저장된25,730s raw receipt만 새 native로 연결하는 허용 사례가 실패하고, 변조 receipt/저장 실패25,740s의 거부2개는 통과했다. 임의 cross-version 상태 허용으로 우회하지 않는다.
+
+### 실제 실행 저장공간 전제
+
+직전 루프에서 내가 만든 소비 완료 duplicate5,523,765,378B checkpoint를1,005,577,213B zstd로 보존했다. 전체 원본과 전체 압축 해제 byte count/SHA c8335535…가 일치한 뒤 raw duplicate만 제거했다. 다른 역사 worktree의 동일 full-wire seed는 그대로 있다. C3_archive_consumed_c8c40.json에 원경로/새경로/archiveSHA/full verification을 기록했다. 관측 여유 공간은13,236,031,488B가 됐다. 물리 준비도나 V03 통과 수를 이 작업으로 올리지 않는다.
+
+### R3 drift watchdog
+
+원 목적의 bulk mass, route/class, 실제 birth clock, FIFO/동시구간 exchangeability와 불변 상태를 유지하는 표현을 선택했다. 조성 평균화 반례를 직접 검산했으므로 원래의 관측 정보를 단순 합계로 대체하지 않는다. 판정 ALIGNED_WITH_OPEN_OBLIGATION. 주이론의 stop/restart 조건과 표현 모델의 retained profiles는 서로 다른 의무이며, 둘의 연결은 실제 후속 계산으로 판별한다.
