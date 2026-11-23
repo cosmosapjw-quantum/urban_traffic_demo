@@ -1,0 +1,69 @@
+{
+  "source_commit": "e51e63d67b9d066010447d731f75eb82a4c1dd96",
+  "new_native_sha256": "378619a766b352f4f524addd4f06797541c8460fa45385d6e0cab6bc661d20d5",
+  "before_native_sha256": "96e8e20ab30b2345223d326225abfab274997b5269e262bda9be74893fd32b8c",
+  "old_native_retained": "artifacts/v03_measure_lift_20261123/backup/native_prior_S05.so",
+  "executable_checks": [
+    {
+      "label": "S05_RELEASE",
+      "argv": [
+        "/home/cosmosapjw/.cargo/bin/cargo",
+        "build",
+        "--offline",
+        "--release",
+        "--features",
+        "budget_trace"
+      ],
+      "exit": 0,
+      "wall_s": 13.170865090971347,
+      "log_sha256": "a45f3124869550e7dbb7d0e8872ae756759d2dace84789bd4561c5a4f5441405"
+    },
+    {
+      "label": "S05_PYTEST",
+      "argv": [
+        "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/v1/test_native_owner_storage.py",
+        "tests/v1/test_native_engine.py",
+        "tests/v1/test_native_whole_driver.py",
+        "tests/v1/test_native_journey.py"
+      ],
+      "exit": 0,
+      "wall_s": 1.8824946520035155,
+      "log_sha256": "5c01e41661e4ce3d8dfecb5ddb89dccbaee059f6f1d49840e55c11e8997e5bd4"
+    },
+    {
+      "label": "S05_SMALL_REPLAY",
+      "argv": [
+        "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+        "tools/research/check_retained_event_replay.py",
+        "--label",
+        "stage_repack",
+        "--out",
+        "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_measure_lift_20261123/S05_new_replay.json"
+      ],
+      "exit": 0,
+      "wall_s": 0.22861787397414446,
+      "log_sha256": "dfe00ca7cb3588b944a49a19a85190887a31dccbc01575e30beec69b135e3c59"
+    }
+  ],
+  "comparison": {
+    "bounded_bytes_v1": {
+      "matching_state_count": 8,
+      "nonempty_event_ticks": 10,
+      "checkpoint_wire_exact": true,
+      "batch_restart_exact": true
+    },
+    "legacy_records": {
+      "matching_state_count": 8,
+      "nonempty_event_ticks": 10,
+      "checkpoint_wire_exact": true,
+      "batch_restart_exact": true
+    }
+  },
+  "status": "SMALL_NATIVE_INTEGRATED_VERIFIED",
+  "full_city_claim": "NOT_RUN; S06",
+  "physical_change": "none, exact order-preserving representation only"
+}

@@ -15,3 +15,6 @@ At the road-step seam in `v1_journey.rs`, the effective road budget is `T-3 max(
 
 ## S04 behavioral RED→GREEN: filtered StageQueue capacity
 A full 192-block queue retaining 1 of each 256 original rows failed the old intended normal-form test. The new `StageQueue::repack_sparse_stable` uses the exact ordered survivors, recomputes each block's min/max predicate cache, and invokes only when measured structural excess exceeds 256 KiB. It uses fallible Vec reservations and does not release old immutable Arc owners until replacement. The test captures original callback count, row sequence and IEEE payload. This is implementation-verified in scoped tests, not yet a demonstrated solution to 25720 full-scale admission; transient coexistence and expensive full-scale rebuild require physical experiment and could block.
+
+## S05 integrated native regression
+Built the checked Rust library as a budget-traced release extension and retained the previous native binary separately. The four affected Python suites pass and the mixed-road/bus 120-second finite replay agrees on eight complete states per policy against the historical binary, including wire/hash, physical report, batch and restart, with old snapshot immutability. The full sparse-city effect is NOT_RUN until S06; synthetic RED→GREEN does not justify an 8GiB full-day claim. Evidence S05_VERIFICATION.json.

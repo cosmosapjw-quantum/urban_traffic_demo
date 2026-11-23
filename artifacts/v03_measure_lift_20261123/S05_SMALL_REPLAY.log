@@ -1,0 +1,1 @@
+{"label": "stage_repack", "native_sha256": "378619a766b352f4f524addd4f06797541c8460fa45385d6e0cab6bc661d20d5", "policies": {"legacy_records": {"nonempty_event_ticks": 10, "max_events": 8, "batch_wire_identical": true, "restart_wire_identical": true}, "bounded_bytes_v1": {"nonempty_event_ticks": 10, "max_events": 8, "batch_wire_identical": true, "restart_wire_identical": true}}}
