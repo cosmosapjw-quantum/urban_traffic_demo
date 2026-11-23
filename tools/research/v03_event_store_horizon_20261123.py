@@ -349,7 +349,7 @@ def main() -> int:
             raise ValueError("full checkpoint wire not identical after current-native restore")
         print("HORIZON_INITIAL_WIRE_LEDGER_VERIFIED",original_t,flush=True)
         try:
-            initial_event_moments=driver.runtime.native.service_event_moment_summary(state)
+            initial_event_moments=driver.runtime.native.service_event_moment_summary(state.runtime_state)
         except Exception as exc:
             initial_event_moments={"status":"OBSERVER_ERROR","class":type(exc).__name__,
                                    "message":str(exc)}
@@ -385,7 +385,7 @@ def main() -> int:
 
         trace=budget_trace_snapshot(reset=False)
         try:
-            final_event_moments=driver.runtime.native.service_event_moment_summary(state)
+            final_event_moments=driver.runtime.native.service_event_moment_summary(state.runtime_state)
         except Exception as exc:
             final_event_moments={"status":"OBSERVER_ERROR","class":type(exc).__name__,
                                 "message":str(exc)}

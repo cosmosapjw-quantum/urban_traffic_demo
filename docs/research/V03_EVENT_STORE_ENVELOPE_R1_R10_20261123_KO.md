@@ -85,3 +85,26 @@ Rust whole-engine은 ChunkedEvents를 service.last_events의Arc로직접넘긴�
 Native service_event_moment_summary(state)는common snapshot시각에서M=sum m,B=sum birthmoment,A=sum(mt−B)를O(1)추가메모리로읽는다. Neumaier중앙값과각binary64연산의outward interval을반환하며과거solver오차나실제숨은분포를certify한다고주장하지않는다. 부모adapter tools/research/v03_event_age_observation_20261123.py는원본nonnegativeclock birth support조건아래추가배열없이이자료를Fraction bound로연결한다. exactfixture m2,A4,t4,u2에서 K∈[0,2],mean2를확인했다.
 
 R5에서는소스/단위·과학검사까지만완료했다. 원본물리실행은clean commit의release .so를빌드한뒤수행한다. canonical19/21,originalday0/9유지.
+
+## R6/C6 · 독립 이론 검증과 실제 원도시 실패 재현
+
+독립 검토자는 저자의 pytest와 별도로 명제·extremizer·gap·nested refinement·strict-tail/CDF·censor·시간 원점 이동을 직접 유도했다. 80개 비영 분포에서 envelope 1,440건, CDF 8,640건, censor 8,640건, refinement 720건 등을 Fraction으로 확인했다. 구체적 수정 finding은 0건이며 범위와 fixture 입력 오류 교정은 R6_independent_moment_review.md에 보존했다. 당시 메모리 실행의 관측 출력 기록과 재현 recipe를 구분했으며 원본 로그 파일이 있다고 주장하지 않는다.
+
+R5 source-clean release 빌드는 성공했다. Source SHA는 620e85a5c7146de5373a11bd4e637f59de9d463d04a9f293250ce6e575dcf3e7, native SHA는 734a8d320a1a1e633014c99108ec03ed5f52cb1407b26a659e1e150e8b480c4a다. 빌드 뒤 provenance helper의 잘못된 import 경로 1회 실패는 빌드 실패와 구분해 R6_release_identity.json에 기록하고 정확한 tools.run_v1_local_acceptance 경로로 교정했다.
+
+원본 Valley 100k, dt10s, 8GiB cap에서 t25720의 4,677,350,066B checkpoint를 새 native로 읽고 전체 wire SHA와 vehicles/persons/cargo 질량 장부 일치를 확인했다. 이어 요청한 10s는 t25730에서 아래 실제 guard로 중단됐다.
+
+```text
+phase=transfer candidates
+required_bytes=4867625496
+budget_bytes=4867625327
+excess_bytes=169
+status=BLOCKED_RESOURCE
+valid_advanced_duration_s=0
+wall_total_s=103.73899049402098
+peak_rss_bytes=4713345024
+```
+
+따라서 persistent event 구현의 단위검사 성공을 원본 tick 성공으로 승격하지 않는다. 예전 transfer-header guard와 비교해 phase는 바뀌었지만 road budget 숫자가 동일하다. 다음 단계는 실제 소유 관계와 phase pool 전달을 추적하여 표현 절감이 어느 시점에 반영되는지 규명한다. 임의 credit이나 원래 cap 완화는 사용하지 않는다.
+
+R6 native 관측은 wrapper DriverState를 전달한 연결 오류로 initial/final 모두 OBSERVER_ERROR였다. 실패 receipt를 보존했고 adapter 결과도 NOT_OBSERVED다. runner의 두 인자를 state.runtime_state로 수정하고 py_compile을 통과했다. 수정된 연결의 실제 관측 검증은 다음 실행에서 한다. 현재 full-day0/9, canonical scoped19/21은 변하지 않는다.

@@ -1,0 +1,22 @@
+{
+  "schema": "V03_NATIVE_EVENT_MOMENT_ENVELOPE_20261123_V1",
+  "source_receipt": "artifacts/v03_event_store_envelope_20261123/R6_original_100k_25720_requested_10s.json",
+  "native_sha256": "734a8d320a1a1e633014c99108ec03ed5f52cb1407b26a659e1e150e8b480c4a",
+  "candidate_source_sha256": "620e85a5c7146de5373a11bd4e637f59de9d463d04a9f293250ce6e575dcf3e7",
+  "initial": {
+    "status": "NOT_OBSERVED",
+    "native": {
+      "class": "TypeError",
+      "message": "argument 'state': 'DriverState' object cannot be converted to 'NativeWholeState'",
+      "status": "OBSERVER_ERROR"
+    }
+  },
+  "final": {
+    "status": "NOT_OBSERVED",
+    "native": {
+      "class": "TypeError",
+      "message": "argument 'state': 'DriverState' object cannot be converted to 'NativeWholeState'",
+      "status": "OBSERVER_ERROR"
+    }
+  }
+}
