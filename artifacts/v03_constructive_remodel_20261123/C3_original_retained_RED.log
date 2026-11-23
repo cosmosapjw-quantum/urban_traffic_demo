@@ -1,0 +1,109 @@
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/worktrees/urban-traffic-v03-constructive-remodel-20261123/crates/metroflow-rust)
+warning: unnecessary parentheses around closure body
+    --> crates/metroflow-rust/src/v1_road.rs:8071:34
+     |
+8071 |   ...   let actual=(0..3).map(|i|(
+     |  ________________________________^
+8072 | | ...       incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+     | |__________^
+8073 |   ...       +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()
+     |  _______________________________________________________________________^
+8074 | | ...   )).sum();
+     | |_______^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+8071 ~         let actual=(0..3).map(|i|incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+8072 ~             +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()).sum();
+     |
+
+warning: unused variable: `n`
+    --> crates/metroflow-rust/src/v1_road.rs:6397:13
+     |
+6397 |         let n=parts.len();
+     |             ^ help: if this is intentional, prefix it with an underscore: `_n`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `road_bytes`
+    --> crates/metroflow-rust/src/v1_engine.rs:2116:17
+     |
+2116 |             let road_bytes = road
+     |                 ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_road_bytes`
+
+warning: unused variable: `events`
+    --> crates/metroflow-rust/src/v1_engine.rs:2129:17
+     |
+2129 |             let events = service_event_storage_bytes(&service).max(old...
+     |                 ^^^^^^ help: if this is intentional, prefix it with an underscore: `_events`
+
+warning: methods `summary`, `install_state`, and `owned_unique_immutable_arc_payload_bytes` are never used
+    --> crates/metroflow-rust/src/v1_road.rs:3677:19
+     |
+3632 | impl V1Road {
+     | ----------- methods in this implementation
+...
+3677 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+3897 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+3909 |     pub(crate) fn owned_unique_immutable_arc_payload_bytes(&self)->usi...
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `sources` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:867:19
+    |
+802 | impl NativeServiceCore {
+    | ---------------------- method in this implementation
+...
+867 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+
+warning: methods `owned_time`, `storage_budget`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1544:19
+     |
+1307 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1544 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1599 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1632 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:76:19
+   |
+69 | impl StageQueue {
+   | --------------- method in this implementation
+...
+76 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+
+warning: `metroflow-rust` (lib test) generated 8 warnings (run `cargo fix --lib -p metroflow-rust --tests` to apply 4 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.88s
+     Running unittests src/lib.rs (/home/cosmosapjw/worktrees/urban-traffic-v03-unique-accounting-20261120/target/debug/deps/_metroflow_rust-ffddc2c3d4933447)
+
+running 1 test
+
+thread 'v1_journey::v03_source_discovery_c3_20261123_retained_tests::actual_original_registry_capacity_stays_in_unchanged_three_j_prepare_guard' (205168) panicked at crates/metroflow-rust/src/v1_journey.rs:3543:35:
+called `Result::unwrap()` on an `Err` value: PyErr { type: <class 'ValueError'>, value: ValueError('native journey conservation/receipt/eligibility failure'), traceback: None }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test v1_journey::v03_source_discovery_c3_20261123_retained_tests::actual_original_registry_capacity_stays_in_unchanged_three_j_prepare_guard ... FAILED
+
+failures:
+
+failures:
+    v1_journey::v03_source_discovery_c3_20261123_retained_tests::actual_original_registry_capacity_stays_in_unchanged_three_j_prepare_guard
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 300 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p metroflow-rust --lib`

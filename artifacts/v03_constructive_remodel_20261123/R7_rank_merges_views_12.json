@@ -1,0 +1,141 @@
+{
+  "status": "EXACT_MULTI_INPUT_PREFIXES_EQUAL",
+  "kind": "merges",
+  "levels": 12,
+  "accumulated_merge_wall_s": 2.0095451369998045,
+  "traced_retained_state_and_receipt_bytes": 6638322,
+  "traced_peak_bytes": 13212418,
+  "peak_rss_bytes": 71860224,
+  "owners": {
+    "profile_owners": 1,
+    "segment_owners": 4099,
+    "mark_owners": 8196,
+    "view_count": 1,
+    "stored_profile_segments": 4099,
+    "essential_profile_segments": 4099,
+    "profile_dag_depth": 1,
+    "view_profile_depth": 2
+  },
+  "history": [
+    {
+      "level": 1,
+      "input_segments_per_stream": 2,
+      "output_stored_segments": 5,
+      "output_essential_segments": 5,
+      "output_mass_veh": "4",
+      "merge_wall_s": 0.0006954809941817075,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 2,
+      "input_segments_per_stream": 5,
+      "output_stored_segments": 7,
+      "output_essential_segments": 7,
+      "output_mass_veh": "8",
+      "merge_wall_s": 0.001735179015668109,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 3,
+      "input_segments_per_stream": 7,
+      "output_stored_segments": 11,
+      "output_essential_segments": 11,
+      "output_mass_veh": "16",
+      "merge_wall_s": 0.0025063199864234775,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 4,
+      "input_segments_per_stream": 11,
+      "output_stored_segments": 19,
+      "output_essential_segments": 19,
+      "output_mass_veh": "32",
+      "merge_wall_s": 0.004251706996001303,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 5,
+      "input_segments_per_stream": 19,
+      "output_stored_segments": 35,
+      "output_essential_segments": 35,
+      "output_mass_veh": "64",
+      "merge_wall_s": 0.007953354011988267,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 6,
+      "input_segments_per_stream": 35,
+      "output_stored_segments": 67,
+      "output_essential_segments": 67,
+      "output_mass_veh": "128",
+      "merge_wall_s": 0.013814467005431652,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 7,
+      "input_segments_per_stream": 67,
+      "output_stored_segments": 131,
+      "output_essential_segments": 131,
+      "output_mass_veh": "256",
+      "merge_wall_s": 0.02723607499501668,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 8,
+      "input_segments_per_stream": 131,
+      "output_stored_segments": 259,
+      "output_essential_segments": 259,
+      "output_mass_veh": "512",
+      "merge_wall_s": 0.056134673999622464,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 9,
+      "input_segments_per_stream": 259,
+      "output_stored_segments": 515,
+      "output_essential_segments": 515,
+      "output_mass_veh": "1024",
+      "merge_wall_s": 0.11141048299032263,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 10,
+      "input_segments_per_stream": 515,
+      "output_stored_segments": 1027,
+      "output_essential_segments": 1027,
+      "output_mass_veh": "2048",
+      "merge_wall_s": 0.2452743939938955,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 11,
+      "input_segments_per_stream": 1027,
+      "output_stored_segments": 2051,
+      "output_essential_segments": 2051,
+      "output_mass_veh": "4096",
+      "merge_wall_s": 0.4992494159960188,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 12,
+      "input_segments_per_stream": 2051,
+      "output_stored_segments": 4099,
+      "output_essential_segments": 4099,
+      "output_mass_veh": "8192",
+      "merge_wall_s": 1.039283587015234,
+      "exact_prefix_queries": 5
+    }
+  ],
+  "final_moments": {
+    "r": [
+      "4096",
+      "4096"
+    ],
+    "b": [
+      "4096",
+      "8192"
+    ]
+  },
+  "measurement_scope": "Repeated two-input phase-shifted merge; both input streams duplicate the preceding cohort measure, so mass and number of source streams grow. Physical knots are kept; no fixed-demand or native scaling claim.",
+  "process_wall_s": 4.133827476995066
+}

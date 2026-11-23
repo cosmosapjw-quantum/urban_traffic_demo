@@ -153,3 +153,36 @@ Native에는 추가로 source-restored clone의 StageQueue registry capacity가 
 ### R4 drift watchdog
 
 원 연구의 continuous motion, 원래 birth와 route/class, FIFO/causal information을 실제 모듈 입력·관측량으로 유지한다. 물리 의미의 발전과 저장 표현의 발전을 서로 연결하되, f64/wire·network feedback·100k24h 의무를 삭제하지 않는다. 판정 ALIGNED_WITH_OPEN_OBLIGATION. 필요한 파일/담당/선행·중단 조건이 정해졌으며, 다음 단계는 선택된 내용의 실제 코드·증명·계산이다.
+
+
+## R5 / C5 — 명제·두 연구 모델·native 수정의 실제 구현 (완료)
+
+주이론은 V03_STOP_GO_WINDOW_THEORY_20261123.md에 정의→전제→clipping 비교→kernel 재배열→거리 하한→유한 도달→공동 FIFO 서비스→창 phase/인과성→실행 형태로 완성했다. stop_go_window_certificate.py는 이 계약을 frozen typed 입력과 finite horizon 평가로 구현한다. 조성/mixing jump와 일반 네트워크의 미래 보증을 입력 문자열만으로 증명했다고 간주하지 않는다. Float 값은 explicit margin을 둔 수치 평가이며 directed interval certificate가 아니다.
+
+예제의 경로 판별에는 별도의 실수 산술 증거가 있다. \(q=e^{-2}\in(1/8,1/7)\)일 때
+\[
+L_3-20=4q\{(1-q)(1+q^2)+q^4\}>3/7\ {\rm m}.
+\]
+따라서 실제 정지를 포함하는 A의 duration upper34s가, 길이72m와 cap2m/s인 B의 lower36s보다 엄밀히 작다. 기존 planner의 선택을 가상으로 만들어 비교하지 않는다. 이론 표적26개 검사는 실제 exit0을 얻었다.
+
+rank_profile_transport.py는 immutable profile/view, semantic-knot 순회, 원 birth/mark와 boundary clock, readiness prefix, prescribed FIFO service의 exit/residence moment, 보존적 다중 입력 merge를 구현했다. Float를 자동으로 Fraction처럼 취급하지 않고 정확 입력 변환을 요구한다.9개 실제 행동 검사는 mutable head oracle, heterogeneous profile, 누락 metadata, 시간·target·분할 반례와 경계조건을 검증했다.
+
+### Native의 실제 수정과 동일 command GREEN
+
+1. 실제 event Arc identity를 census 할당 전에 확인해 동일 allocation을 한 번 계상한다. Road/StageQueue의 실제 census와 scratch 예약은 유지한다.
+2. Journey prepare의 parent reservation은 이미 있는 source-concrete helper를 사용한다. Input/current 실측 합과 유효한 witness만 사용하고 미래 candidate credit을 주지 않는다.
+3. 원본 Journey registry 용량이 clone보다 클 때 retained floor를 max(original,clone)로 올린다. Local WORKING_COPIES=3과 scratch/validator를 유지한다.
+
+C3의 capture/save/Journey prepare 테스트는 같은 cap/command에서 GREEN으로 바뀌었다. 추가 원본용량 fixture는 실제 original75,856B, clone75,800B, clone-only allowance293,024B에서 이전 잘못된 통과를 재현한 뒤 새 guard가 거부하도록 고쳤다. 초기 잘못된 time-zero fixture는 실패 기록으로 남겼고 behavioral RED로 세지 않는다.
+
+집중7개 PASS, 단일 Rust library gate299PASS/2기존ignored/0FAIL(exit0)를 확인했다. 전체 repository CI와 release acceptance는 수행했다고 주장하지 않는다. v1_road.rs는 변경하지 않았으며 native integration의 physical f64 연산식과 wire writer도 변경하지 않았다. Binary build와 원100k 실험은 다음 단계다.
+
+### 병행 실험과 저장 전제
+
+모델 소유자가 이미 완료한 증가 실험의 raw R7 영수증도 소스와 함께 보존한다. 이론은 실제 물리 horizon32→128→512→2048s, 참조 characteristic 구간512→8,192→131,072→1,048,576, 실제 wall0.00944→0.06644→0.69762→4.76927s를 실행했다. Rank 표현은1k→8k→32k→128k cuts와 반복 merge1→12단계를 실행했다. R7에서 두 모델의 실제 조합과 물리·관측량 대응을 별도로 확인한다.
+
+추가 소비 완료25,690s 체크포인트2,949,231,402B도539,078,333B archive로 전체 복원 SHA db5b6b53…를 확인하고 보존했다. 원래 역사 seed는 그대로 두었고 원본 경로·새 archive 경로는 C5_archive_consumed_25690.json에 있다. 관측 여유 공간15,583,006,720B를 확보했다.
+
+### R5 drift watchdog
+
+새 코드가 보존하는 것은 packet 행 수가 아니라 원 source의 route/class/질량/birth/경계 이력과 finite-response 운동이다. 실제 native 수정은 메모리 소유관계만 바꾸고 원 release 물리·예산을 유지한다. 판정 ALIGNED_WITH_OPEN_OBLIGATION: 두 연구 모델은 branch 코드에 통합했지만 일반 endogenous network adapter, native numerical/wire equivalence와24h evidence는 미완료다.

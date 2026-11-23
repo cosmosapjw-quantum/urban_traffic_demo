@@ -1,0 +1,70 @@
+{
+  "schema": "metroflow.stop_go_window.experiment.v1",
+  "status": "NUMERICALLY_CHECKED_SCOPED",
+  "model_status": "DERIVED_CONDITIONAL_ANALYTIC_BOUND",
+  "numeric_status": "guarded float, separately checked with Decimal85; not directed interval certification",
+  "original_v03_full_day_credit": 0,
+  "native_rust_invoked": false,
+  "all_guarantees_available_at_s": 0,
+  "future_oracle_used_to_fit_bounds": false,
+  "initial_inputs_generated_before_oracle": true,
+  "route_discriminator": {
+    "status": "DERIVED_WITH_EXACT_RATIONAL_SIDE_CHECK",
+    "exp2_lower_fraction": "34913/4725",
+    "exp2_upper_fraction": "213359/28875",
+    "r_interval": [
+      "1/8",
+      "1/7"
+    ],
+    "motion_distance_strict_gap_lower_m": "3/7",
+    "joint_service_lower_veh": "8",
+    "service_windows": 1,
+    "route_a_upper_s": "34",
+    "route_b_lower_s": "36",
+    "strict_route_separation_s": "2",
+    "b_lower_authority": "declared legal path length72m, speed cap2m/s, nonnegative service delay",
+    "scope": "same entry clock0, fixed contexts, ex ante guarantees; no production rerouting"
+  },
+  "tiers": [
+    {
+      "tier": 3,
+      "profiles": 256,
+      "windows_per_profile": 64,
+      "actual_physical_horizon_s": 512,
+      "characteristic_segments": 131072,
+      "distance_bound_checks": 16384,
+      "decimal85_checks": 512,
+      "maximum_float_distance_error_m": 6.738565407169722e-14,
+      "maximum_error_over_declared_margin": 0.00010974868220835852,
+      "minimum_actual_distance_minus_bound_m": 0.0,
+      "minimum_exit_upper_minus_actual_s": 8.5,
+      "maximum_actual_zero_service_wait_s": 6.0,
+      "maximum_actual_motion_hit_s": 261.08160315417524,
+      "history_sha256": "ec0992f89f0df6c49aac1dd0faf694d885d9b0599d2d94c15c1a0a6866720499",
+      "wall_s": 0.6976246309932321
+    },
+    {
+      "tier": 4,
+      "profiles": 512,
+      "windows_per_profile": 256,
+      "actual_physical_horizon_s": 2048,
+      "characteristic_segments": 1048576,
+      "distance_bound_checks": 131072,
+      "decimal85_checks": 1024,
+      "maximum_float_distance_error_m": 5.740320155102248e-13,
+      "maximum_error_over_declared_margin": 0.00013603631351857834,
+      "minimum_actual_distance_minus_bound_m": 0.0,
+      "minimum_exit_upper_minus_actual_s": 6.5,
+      "maximum_actual_zero_service_wait_s": 6.0,
+      "maximum_actual_motion_hit_s": 1029.9410287917563,
+      "history_sha256": "b9e8b0042003ef8700087cb06ac95e889265682332452cbca3e250bc5e12f5ab",
+      "wall_s": 4.769272766978247
+    }
+  ],
+  "wall_s": 5.466993705020286,
+  "sha256": {
+    "src/metroflow/v1/stop_go_window_certificate.py": "529ae1a91c7a42dd9441ecf336e980637cba710313af1826c3143aff1b9d1429",
+    "src/metroflow/foundation_kinetics.py": "59b39954feb7fc79cc56ba25d6f9c46a46a6e63d659aee8733552cca040f6e69",
+    "tools/research/v03_stop_go_window_experiment_20261123.py": "c440543eb539904082b93defb2be174646ceb6f4cf77e26ea5323687017d8929"
+  }
+}

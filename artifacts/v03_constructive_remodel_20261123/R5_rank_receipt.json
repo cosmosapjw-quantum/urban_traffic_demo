@@ -1,0 +1,20 @@
+{
+  "status": "IMPLEMENTATION_VERIFIED_SCOPED",
+  "scope": "Exact-rational rank profile/view and conservative merge reference; no native V03 solver change",
+  "test_command": "PYTHONPATH=src python3 -m pytest -q tests/research/test_v03_rank_profile_transport_20261123.py",
+  "test_exit_code": 0,
+  "observed_test_summary": "9 passed in 0.23s",
+  "test_log": "artifacts/v03_constructive_remodel_20261123/R5_rank_primary_tests.txt",
+  "files": {
+    "src/metroflow/v1/rank_profile_transport.py": "e28cc58410a49a32ee43623cc5bab6e86bde8427ea2d45b12fd2c187884d3582",
+    "tests/research/test_v03_rank_profile_transport_20261123.py": "39837462a8535445c8a8051e474934aa03d25feaa481b2ba52e38ceee708fe9a",
+    "tools/research/v03_rank_profile_experiment_20261123.py": "df1dbbdb89ebdc77e31848d4947113ac92638cd8eb923e4731eb4b64b4c68379",
+    "docs/research/V03_RANK_PROFILE_TRANSPORT_20261123.md": "5efb3f3405ad1eb7f1fbd8bd78fc12943b79054956cec3b72a613d70bcca20b5"
+  },
+  "primary_experiment": "artifacts/v03_constructive_remodel_20261123/R7_rank_experiments.json",
+  "expanded_experiment": "artifacts/v03_constructive_remodel_20261123/R7_rank_expanded_experiments.json",
+  "independent_review": "PENDING_PARENT_BOUNDED_REVIEW",
+  "native_wire_equivalence": "NOT_ESTABLISHED",
+  "V03_readiness_credit": 0,
+  "origin_watchdog": "ALIGNED_WITH_OPEN_OBLIGATION"
+}

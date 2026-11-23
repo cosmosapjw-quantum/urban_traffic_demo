@@ -1,0 +1,48 @@
+{
+  "schema": "metroflow.stop_go_window.receipt.v1",
+  "observed_head": "f5032cce9e9095cccbbd531c3f91315e31944c34",
+  "claim_status": {
+    "physical_theorem": "DERIVED_CONDITIONAL",
+    "research_api": "IMPLEMENTATION_VERIFIED_SCOPED",
+    "global_novelty": "NOT_ASSESSED",
+    "directed_numeric_interval_certificate": false,
+    "native_context_guarantee": "UNRESOLVED",
+    "production_rerouting": "NOT_RUN",
+    "original_v03_full_day_credit": 0
+  },
+  "source_sha256": {
+    "src/metroflow/v1/stop_go_window_certificate.py": "529ae1a91c7a42dd9441ecf336e980637cba710313af1826c3143aff1b9d1429",
+    "docs/research/V03_STOP_GO_WINDOW_THEORY_20261123.md": "96bc06ea9ee061be7ec8a2070c8f1c10e9b6f2dfa0b7e4351190b5025e004f56",
+    "tests/research/test_v03_stop_go_window_20261123.py": "a44bc7deeceeedbafd18516e56d45365e07f8830d25399bfd12d3b5f7b4171b7",
+    "tools/research/v03_stop_go_window_experiment_20261123.py": "c440543eb539904082b93defb2be174646ceb6f4cf77e26ea5323687017d8929"
+  },
+  "drift_watchdog": "ALIGNED_WITH_OPEN_OBLIGATION",
+  "remaining_obligation": "Native ex ante forcing, joint receiving/service and tagged-rank bounds; no mixing/context jumps.",
+  "review_status": "AWAITING_PARENT_SINGLE_BOUNDED_REVIEW",
+  "stage": "R7",
+  "experiment": {
+    "process_id": 212023,
+    "exit_code": 0,
+    "tool_runtime_s": 5.61,
+    "receipt": "R7_theory_experiment.json",
+    "internal_wall_s": 5.466993705020286
+  },
+  "aggregate": {
+    "histories": 848,
+    "characteristic_segments": 1188352,
+    "distance_checks": 148544,
+    "decimal85_checks": 1696,
+    "physical_horizons_s": [
+      32,
+      128,
+      512,
+      2048
+    ],
+    "wall_ladder_s": [
+      0.009435582003789023,
+      0.0664366380078718,
+      0.6976246309932321,
+      4.769272766978247
+    ]
+  }
+}

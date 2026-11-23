@@ -1,0 +1,69 @@
+{
+  "status": "EXACT_MULTI_INPUT_PREFIXES_EQUAL",
+  "kind": "merges",
+  "levels": 4,
+  "accumulated_merge_wall_s": 0.009121203009271994,
+  "traced_retained_state_and_receipt_bytes": 29070,
+  "traced_peak_bytes": 66070,
+  "peak_rss_bytes": 25759744,
+  "owners": {
+    "profile_owners": 1,
+    "segment_owners": 19,
+    "mark_owners": 34,
+    "view_count": 1,
+    "stored_profile_segments": 19,
+    "essential_profile_segments": 19,
+    "profile_dag_depth": 1,
+    "view_profile_depth": 2
+  },
+  "history": [
+    {
+      "level": 1,
+      "input_segments_per_stream": 2,
+      "output_stored_segments": 5,
+      "output_essential_segments": 5,
+      "output_mass_veh": "4",
+      "merge_wall_s": 0.0007055159949231893,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 2,
+      "input_segments_per_stream": 5,
+      "output_stored_segments": 7,
+      "output_essential_segments": 7,
+      "output_mass_veh": "8",
+      "merge_wall_s": 0.0017498079978395253,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 3,
+      "input_segments_per_stream": 7,
+      "output_stored_segments": 11,
+      "output_essential_segments": 11,
+      "output_mass_veh": "16",
+      "merge_wall_s": 0.0025731839996296912,
+      "exact_prefix_queries": 5
+    },
+    {
+      "level": 4,
+      "input_segments_per_stream": 11,
+      "output_stored_segments": 19,
+      "output_essential_segments": 19,
+      "output_mass_veh": "32",
+      "merge_wall_s": 0.004092695016879588,
+      "exact_prefix_queries": 5
+    }
+  ],
+  "final_moments": {
+    "r": [
+      "16",
+      "16"
+    ],
+    "b": [
+      "16",
+      "32"
+    ]
+  },
+  "measurement_scope": "Repeated two-input phase-shifted merge; both input streams duplicate the preceding cohort measure, so mass and number of source streams grow. Physical knots are kept; no fixed-demand or native scaling claim.",
+  "process_wall_s": 0.14486578898504376
+}

@@ -1,0 +1,42 @@
+{
+  "status": "EXACT_MULTI_INPUT_PREFIXES_EQUAL",
+  "kind": "merges",
+  "levels": 1,
+  "accumulated_merge_wall_s": 0.0007181089895311743,
+  "traced_retained_state_and_receipt_bytes": 5754,
+  "traced_peak_bytes": 10610,
+  "peak_rss_bytes": 25497600,
+  "owners": {
+    "profile_owners": 1,
+    "segment_owners": 5,
+    "mark_owners": 6,
+    "view_count": 1,
+    "stored_profile_segments": 5,
+    "essential_profile_segments": 5,
+    "profile_dag_depth": 1,
+    "view_profile_depth": 2
+  },
+  "history": [
+    {
+      "level": 1,
+      "input_segments_per_stream": 2,
+      "output_stored_segments": 5,
+      "output_essential_segments": 5,
+      "output_mass_veh": "4",
+      "merge_wall_s": 0.0007181089895311743,
+      "exact_prefix_queries": 5
+    }
+  ],
+  "final_moments": {
+    "r": [
+      "2",
+      "2"
+    ],
+    "b": [
+      "2",
+      "4"
+    ]
+  },
+  "measurement_scope": "Repeated two-input phase-shifted merge; both input streams duplicate the preceding cohort measure, so mass and number of source streams grow. Physical knots are kept; no fixed-demand or native scaling claim.",
+  "process_wall_s": 0.1350729519908782
+}

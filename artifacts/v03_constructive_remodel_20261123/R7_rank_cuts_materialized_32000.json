@@ -1,0 +1,72 @@
+{
+  "status": "EXACT_OBSERVABLES_EQUAL",
+  "kind": "cuts",
+  "mode": "materialized",
+  "cuts": 32000,
+  "marks": 8,
+  "physical_fixture_duration_s": "72",
+  "input_wall_s": 0.8966756309964694,
+  "construct_wall_s": 6.884753697988344,
+  "observe_all_outputs_wall_s": 4.183897081995383,
+  "construct_plus_observe_wall_s": 11.068650779983727,
+  "traced_retained_after_build_bytes": 76637798,
+  "traced_build_peak_bytes": 76641878,
+  "traced_final_retained_bytes": 76643266,
+  "traced_whole_experiment_peak_bytes": 94259342,
+  "peak_rss_bytes": 307560448,
+  "owners": {
+    "profile_owners": 1,
+    "stored_profile_segments": 3,
+    "essential_profile_segments": 3,
+    "view_count": 0,
+    "materialized_packet_count": 32001,
+    "retained_materialized_output_mark_rows": 256008,
+    "unique_materialized_output_mark_owners": 256008,
+    "profile_dag_depth": 1,
+    "view_profile_depth": 0
+  },
+  "moments": {
+    "0": [
+      "6",
+      "4/5",
+      "312"
+    ],
+    "1": [
+      "9",
+      "2",
+      "444"
+    ],
+    "2": [
+      "12",
+      "19/5",
+      "576"
+    ],
+    "3": [
+      "10",
+      "37/10",
+      "731/2"
+    ],
+    "4": [
+      "8",
+      "37/10",
+      "565/2"
+    ],
+    "5": [
+      "6",
+      "19/5",
+      "312"
+    ],
+    "6": [
+      "9",
+      "13/2",
+      "444"
+    ],
+    "7": [
+      "12",
+      "49/5",
+      "576"
+    ]
+  },
+  "measurement_scope": "Fresh Python process; tracemalloc includes generated profile/schedule/output, excludes import baseline. RSS includes whole process. Exact clock T(z)=10+z; no native solver.",
+  "process_wall_s": 12.836025587981567
+}

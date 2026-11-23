@@ -1836,6 +1836,9 @@ pub(crate) fn advance_owned_joint(
     // clone. Use its actual footprint for the source-concrete road phase.
     let original_input_journey_bytes=original_input_journey
         .map(journey_storage_bytes).unwrap_or(journey.retained_input_bytes);
+    // A restored registry Vec can be tighter than the still-live original.
+    // Preserve the actual original capacity in every unchanged local 3J guard.
+    journey.retained_input_bytes=journey.retained_input_bytes.max(original_input_journey_bytes);
     road.begin_call_storage_accounting();
     let call_input_events = Arc::clone(&service.last_events);
     road.configure_service_event_accounting(
@@ -1896,12 +1899,17 @@ pub(crate) fn advance_owned_joint(
         let result = (|| -> PyResult<()> {
             let t = road.owned_time();
             if let Some(total) = dynamic_budget {
-                // Before road prediction only the known input and committed
-                // road/event owners coexist with the journey candidate.
-                let other_live = input_road_bytes
-                    .max(current_road_bytes)
-                    .saturating_mul(2)
-                    .saturating_add(input_event_bytes.max(current_event_bytes).saturating_mul(2));
+                // Before road prediction the distinct input/current owners
+                // coexist with the Journey candidate. Reuse the same concrete
+                // source witnesses as the following road phase: road sharing
+                // expires with its input clock; event sharing requires the
+                // actual Arc identity now. No future candidate is credited.
+                let (source_road_live,_)=preproposal_road_source_owner_bytes(
+                    input_road_bytes,current_road_bytes,t,original_input_road_shared);
+                let source_event_live=concrete_service_event_owner_bytes(
+                    input_event_bytes,current_event_bytes,0,
+                    Arc::ptr_eq(&call_input_events,&service.last_events));
+                let other_live=source_road_live.saturating_add(source_event_live);
                 journey.set_phase_storage_budget(phase_storage_allowance(
                     total,
                     other_live,
@@ -3520,5 +3528,55 @@ mod v03_checkpoint_journey_validator_closure_20261123_tests {
         target.write_state(&mut restored).unwrap();
         assert_eq!(wire,restored);
         println!("actual Journey decoder closure: retained={actual} decode_upper={upper} old_allowance={old_allowance} unchanged_validator_required={actual_validator} corrected_allowance={corrected_allowance} wire_bytes={}",wire.len());
+    }
+}
+
+#[cfg(test)]
+mod v03_source_discovery_c3_20261123_retained_tests {
+    use super::*;
+
+    #[test]
+    fn actual_original_registry_capacity_stays_in_unchanged_three_j_prepare_guard() {
+        pyo3::prepare_freethreaded_python();
+        let mut journey=NativeJourneyCore::new_shared(vec![(
+            "internal".into(),1.0,None,0.0,
+            Arc::new(vec![(0.0,1.0,1.0)]),2,
+            Arc::new(vec![(100.0,1.0)]),Arc::new(vec![(0.0,1.0)]),
+        )],vec![],vec![],100_000).unwrap();
+        let mut source=journey.checkpoint();
+        source.0=1.0;
+        source.4[0]=1.0;
+        source.7[0]=0.5;
+        // Nine real blocks retain a wider Vec registry than their cloned
+        // nine-entry registry; every row and immutable payload remains equal.
+        for _ in 0..2304 {source.3.push((0,1.0/2304.0,0.5,100.0));}
+        journey.validate(&source).unwrap();
+        let original=journey_storage_bytes(&source);
+        journey.rollback(source.clone());
+        let restored=journey_storage_bytes(journey.state());
+        assert!(original>restored,"source registry must retain spare capacity");
+        let proposal_scratch=2*std::mem::size_of::<(usize,f64,f64,f64)>()
+            +std::mem::size_of::<Vec<(usize,f64,f64,f64)>>();
+        let clone_only_allowance=WORKING_COPIES*restored
+            +proposal_scratch+STORAGE_SCRATCH_RESERVE;
+        journey.set_phase_storage_budget(clone_only_allowance).unwrap();
+        let mut road=V1Road::new("retained-original-c3".into(),1.0,
+            vec![vec![1.0,1.0,100_000.0,100_000.0,100_000.0,1.0]],
+            vec![None],vec![(vec![0],0)],vec![vec![1.0;13];3],
+            vec![vec![0]],vec![],100_000,Some(100_000),true,
+        ).unwrap();
+        road.owned_step(1.0,vec![]).unwrap();
+        let mut service=NativeServiceCore::new(vec![],vec![],vec![],vec![]).unwrap();
+        advance_owned_joint(&mut road,&mut service,&mut journey,
+            &["internal".into()],0,1.0,None,0,0,None,None,Some(&source)).unwrap();
+        let result=journey.prepare();
+        assert!(result.is_err(),
+            "actual original capacity must remain in the unchanged 3J guard: original={original}, restored={restored}, allowance={clone_only_allowance}");
+        let error=result.err().unwrap().to_string();
+        assert!(error.contains("native journey stored/working byte budget"),"{error}");
+        assert_eq!(journey.last_attempt().unwrap().phase,"journey_prepare");
+        assert!(journey.pending.is_none());
+        assert_eq!(journey.state.0,1.0);
+        println!("C3 retained original={original} restored={restored} unchanged_three_j_allowance={clone_only_allowance}");
     }
 }

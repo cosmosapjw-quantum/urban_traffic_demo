@@ -1267,15 +1267,22 @@ impl NativeWholeEngine {
         let uncredited_live=ri.saturating_add(rc)
             .saturating_add(ji).saturating_add(jc)
             .saturating_add(ei).saturating_add(ec);
-        // Do not use prospective pointer savings to finance the census.
-        // Only the two already live owners exist; no future clone yet.
+        // This identity is proved without allocating a census: input and
+        // current can already be two handles of one immutable event backing.
+        // Road/stage overlaps and future clone sharing are still uncredited
+        // until their fully admitted pointer tables have been inspected.
+        let event_pair=if self.service.shares_event_arc(&input.service.1) && ei==ec {ei}else{0};
+        let census_live=uncredited_live.saturating_sub(event_pair);
         let census_required=accounting.base().saturating_add(accounting.call_binding)
-            .saturating_add(uncredited_live).saturating_add(census_upper);
+            .saturating_add(census_live).saturating_add(census_upper);
         crate::v1_trace::guard("engine_snapshot_census","two live source owners",
             census_required,self.byte_budget,&[
                 ("road_input",ri),("road_current",rc),
                 ("journey_input",ji),("journey_current",jc),
                 ("events_input",ei),("events_current",ec),
+                ("events_input_current_pointer_credit",event_pair),
+                ("source_owners_before_event_identity",uncredited_live),
+                ("source_owners_after_event_identity",census_live),
                 ("census_scratch_upper",census_upper),
                 ("clone_from_input",usize::from(clone_from_input)),
             ]);
@@ -1295,7 +1302,6 @@ impl NativeWholeEngine {
         let stage_pair=journey.input_current_stage_payload_bytes.min(ji).min(jc);
         let stage_clone=journey.clone_stage_payload_bytes.min(jt);
         let history_clone=journey.clone_history_bytes.min(jt.saturating_sub(stage_clone));
-        let event_pair=if self.service.shares_event_arc(&input.service.1) && ei==ec {ei}else{0};
         let roads=road.source_owner_bytes(ri,rc,clone_from_input);
         let journeys=ji.saturating_add(jc).saturating_add(jt)
             .saturating_sub(stage_pair).saturating_sub(stage_clone)

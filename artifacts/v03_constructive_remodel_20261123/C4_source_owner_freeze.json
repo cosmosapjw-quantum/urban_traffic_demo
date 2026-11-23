@@ -1,0 +1,35 @@
+{
+  "schema": "metroflow.c4-source-owner-freeze.v1",
+  "worktree": "/home/cosmosapjw/worktrees/urban-traffic-v03-constructive-remodel-20261123",
+  "parent_test_only_commit": "9ccdf5b97009aee2276a1e1355588ac542029289",
+  "production_files": {
+    "crates/metroflow-rust/src/v1_engine.rs": "6b4b0472bbb4e2d7867e79c8e3f81126f6697246d8d9cb05682688b240ca6e4f",
+    "crates/metroflow-rust/src/v1_journey.rs": "718b11d566b660e7bfddcfa9bb82485635f89bd577f8972345cdbde21e46e76d",
+    "crates/metroflow-rust/src/v1_road.rs": "e6cc7627cb74497fb5a108897df860e8a3da5567c121ad73a601a3cf2346e617"
+  },
+  "road_unchanged": true,
+  "focused": {
+    "log": "C4_source_discovery_GREEN.log",
+    "exit_file": "C4_source_discovery_GREEN.exit",
+    "exit": 0,
+    "passed": 7,
+    "failed": 0
+  },
+  "bounded_library": {
+    "log": "C4_source_discovery_LIB.log",
+    "exit_file": "C4_source_discovery_LIB.exit",
+    "exit": 0,
+    "passed": 299,
+    "ignored": 2,
+    "failed": 0
+  },
+  "git_diff_check": 0,
+  "source_frozen": true,
+  "cargo_released": true,
+  "release_build_executed": false,
+  "physical_experiment_executed": false,
+  "native_changed": false,
+  "full_day_credit": 0,
+  "author_note": "C4_source_owner_author_note.md",
+  "unchanged_baseline_native_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808"
+}

@@ -1,0 +1,7 @@
+COMMAND: /usr/bin/python3 /home/cosmosapjw/worktrees/urban-traffic-v03-constructive-remodel-20261123/tools/research/v03_rank_profile_experiment_20261123.py --worker cuts --mode materialized --size 1000 --marks 8
+EXIT: 0
+WALL_S: 0.41436105099273846
+STDOUT:
+{"status": "EXACT_OBSERVABLES_EQUAL", "kind": "cuts", "mode": "materialized", "cuts": 1000, "marks": 8, "physical_fixture_duration_s": "72", "input_wall_s": 0.021072281000670046, "construct_wall_s": 0.1402265840151813, "observe_all_outputs_wall_s": 0.11172994101070799, "construct_plus_observe_wall_s": 0.2519565250258893, "traced_retained_after_build_bytes": 2216486, "traced_build_peak_bytes": 2220406, "traced_final_retained_bytes": 2221954, "traced_whole_experiment_peak_bytes": 3034606, "peak_rss_bytes": 33325056, "owners": {"profile_owners": 1, "stored_profile_segments": 3, "essential_profile_segments": 3, "view_count": 0, "materialized_packet_count": 1001, "retained_materialized_output_mark_rows": 8008, "unique_materialized_output_mark_owners": 8008, "profile_dag_depth": 1, "view_profile_depth": 0}, "moments": {"0": ["6", "4/5", "312"], "1": ["9", "2", "444"], "2": ["12", "19/5", "576"], "3": ["10", "37/10", "731/2"], "4": ["8", "37/10", "565/2"], "5": ["6", "19/5", "312"], "6": ["9", "13/2", "444"], "7": ["12", "49/5", "576"]}, "measurement_scope": "Fresh Python process; tracemalloc includes generated profile/schedule/output, excludes import baseline. RSS includes whole process. Exact clock T(z)=10+z; no native solver."}
+
+STDERR:

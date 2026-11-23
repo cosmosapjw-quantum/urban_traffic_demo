@@ -1,0 +1,423 @@
+{
+  "status": "BOUNDED_EXACT_REFERENCE_EXPERIMENTS_COMPLETE",
+  "source_sha256": "e28cc58410a49a32ee43623cc5bab6e86bde8427ea2d45b12fd2c187884d3582",
+  "driver_sha256": "df1dbbdb89ebdc77e31848d4947113ac92638cd8eb923e4731eb4b64b4c68379",
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "platform": "Linux-7.0.0-43-generic-x86_64-with-glibc2.39",
+  "cpu_count": 24,
+  "scope": "Exact-rational reference, no native V03 or full-day readiness credit.",
+  "worker_timeout_s": 120,
+  "cut_results": [
+    {
+      "status": "EXACT_OBSERVABLES_EQUAL",
+      "kind": "cuts",
+      "mode": "views",
+      "cuts": 128000,
+      "marks": 8,
+      "physical_fixture_duration_s": "72",
+      "input_wall_s": 3.2573481889849063,
+      "construct_wall_s": 6.41414476398495,
+      "observe_all_outputs_wall_s": 27.06926738200127,
+      "construct_plus_observe_wall_s": 33.48341214598622,
+      "traced_retained_after_build_bytes": 98674526,
+      "traced_build_peak_bytes": 99815518,
+      "traced_final_retained_bytes": 99705858,
+      "traced_whole_experiment_peak_bytes": 100729394,
+      "peak_rss_bytes": 385904640,
+      "owners": {
+        "profile_owners": 1,
+        "segment_owners": 3,
+        "mark_owners": 24,
+        "view_count": 128000,
+        "stored_profile_segments": 3,
+        "essential_profile_segments": 3,
+        "profile_dag_depth": 1,
+        "view_profile_depth": 2,
+        "retained_materialized_output_mark_rows": 0,
+        "same_parent_concatenated_view_count": 1
+      },
+      "moments": {
+        "0": [
+          "6",
+          "4/5",
+          "312"
+        ],
+        "1": [
+          "9",
+          "2",
+          "444"
+        ],
+        "2": [
+          "12",
+          "19/5",
+          "576"
+        ],
+        "3": [
+          "10",
+          "37/10",
+          "731/2"
+        ],
+        "4": [
+          "8",
+          "37/10",
+          "565/2"
+        ],
+        "5": [
+          "6",
+          "19/5",
+          "312"
+        ],
+        "6": [
+          "9",
+          "13/2",
+          "444"
+        ],
+        "7": [
+          "12",
+          "49/5",
+          "576"
+        ]
+      },
+      "measurement_scope": "Fresh Python process; tracemalloc includes generated profile/schedule/output, excludes import baseline. RSS includes whole process. Exact clock T(z)=10+z; no native solver.",
+      "process_wall_s": 37.39228389400523
+    },
+    {
+      "status": "EXACT_OBSERVABLES_EQUAL",
+      "kind": "cuts",
+      "mode": "materialized",
+      "cuts": 128000,
+      "marks": 8,
+      "physical_fixture_duration_s": "72",
+      "input_wall_s": 3.2321979650005233,
+      "construct_wall_s": 26.071768780006096,
+      "observe_all_outputs_wall_s": 16.968099115998484,
+      "construct_plus_observe_wall_s": 43.03986789600458,
+      "traced_retained_after_build_bytes": 307699302,
+      "traced_build_peak_bytes": 307703382,
+      "traced_final_retained_bytes": 307704770,
+      "traced_whole_experiment_peak_bytes": 378169070,
+      "peak_rss_bytes": 1159786496,
+      "owners": {
+        "profile_owners": 1,
+        "stored_profile_segments": 3,
+        "essential_profile_segments": 3,
+        "view_count": 0,
+        "materialized_packet_count": 128001,
+        "retained_materialized_output_mark_rows": 1024008,
+        "unique_materialized_output_mark_owners": 1024008,
+        "profile_dag_depth": 1,
+        "view_profile_depth": 0
+      },
+      "moments": {
+        "0": [
+          "6",
+          "4/5",
+          "312"
+        ],
+        "1": [
+          "9",
+          "2",
+          "444"
+        ],
+        "2": [
+          "12",
+          "19/5",
+          "576"
+        ],
+        "3": [
+          "10",
+          "37/10",
+          "731/2"
+        ],
+        "4": [
+          "8",
+          "37/10",
+          "565/2"
+        ],
+        "5": [
+          "6",
+          "19/5",
+          "312"
+        ],
+        "6": [
+          "9",
+          "13/2",
+          "444"
+        ],
+        "7": [
+          "12",
+          "49/5",
+          "576"
+        ]
+      },
+      "measurement_scope": "Fresh Python process; tracemalloc includes generated profile/schedule/output, excludes import baseline. RSS includes whole process. Exact clock T(z)=10+z; no native solver.",
+      "process_wall_s": 49.441567636997206
+    }
+  ],
+  "merge_results": [
+    {
+      "status": "EXACT_MULTI_INPUT_PREFIXES_EQUAL",
+      "kind": "merges",
+      "levels": 10,
+      "accumulated_merge_wall_s": 0.4986095170606859,
+      "traced_retained_state_and_receipt_bytes": 1643214,
+      "traced_peak_bytes": 3260586,
+      "peak_rss_bytes": 36515840,
+      "owners": {
+        "profile_owners": 1,
+        "segment_owners": 1027,
+        "mark_owners": 2050,
+        "view_count": 1,
+        "stored_profile_segments": 1027,
+        "essential_profile_segments": 1027,
+        "profile_dag_depth": 1,
+        "view_profile_depth": 2
+      },
+      "history": [
+        {
+          "level": 1,
+          "input_segments_per_stream": 2,
+          "output_stored_segments": 5,
+          "output_essential_segments": 5,
+          "output_mass_veh": "4",
+          "merge_wall_s": 0.0007086750119924545,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 2,
+          "input_segments_per_stream": 5,
+          "output_stored_segments": 7,
+          "output_essential_segments": 7,
+          "output_mass_veh": "8",
+          "merge_wall_s": 0.001786484004696831,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 3,
+          "input_segments_per_stream": 7,
+          "output_stored_segments": 11,
+          "output_essential_segments": 11,
+          "output_mass_veh": "16",
+          "merge_wall_s": 0.0025075510202441365,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 4,
+          "input_segments_per_stream": 11,
+          "output_stored_segments": 19,
+          "output_essential_segments": 19,
+          "output_mass_veh": "32",
+          "merge_wall_s": 0.0041301409946754575,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 5,
+          "input_segments_per_stream": 19,
+          "output_stored_segments": 35,
+          "output_essential_segments": 35,
+          "output_mass_veh": "64",
+          "merge_wall_s": 0.007909142004791647,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 6,
+          "input_segments_per_stream": 35,
+          "output_stored_segments": 67,
+          "output_essential_segments": 67,
+          "output_mass_veh": "128",
+          "merge_wall_s": 0.01353368500713259,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 7,
+          "input_segments_per_stream": 67,
+          "output_stored_segments": 131,
+          "output_essential_segments": 131,
+          "output_mass_veh": "256",
+          "merge_wall_s": 0.027064676018198952,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 8,
+          "input_segments_per_stream": 131,
+          "output_stored_segments": 259,
+          "output_essential_segments": 259,
+          "output_mass_veh": "512",
+          "merge_wall_s": 0.05921003600815311,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 9,
+          "input_segments_per_stream": 259,
+          "output_stored_segments": 515,
+          "output_essential_segments": 515,
+          "output_mass_veh": "1024",
+          "merge_wall_s": 0.11942645997623913,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 10,
+          "input_segments_per_stream": 515,
+          "output_stored_segments": 1027,
+          "output_essential_segments": 1027,
+          "output_mass_veh": "2048",
+          "merge_wall_s": 0.2623326670145616,
+          "exact_prefix_queries": 5
+        }
+      ],
+      "final_moments": {
+        "r": [
+          "1024",
+          "1024"
+        ],
+        "b": [
+          "1024",
+          "2048"
+        ]
+      },
+      "measurement_scope": "Repeated two-input phase-shifted merge; both input streams duplicate the preceding cohort measure, so mass and number of source streams grow. Physical knots are kept; no fixed-demand or native scaling claim.",
+      "process_wall_s": 1.1077145260060206
+    },
+    {
+      "status": "EXACT_MULTI_INPUT_PREFIXES_EQUAL",
+      "kind": "merges",
+      "levels": 12,
+      "accumulated_merge_wall_s": 2.0095451369998045,
+      "traced_retained_state_and_receipt_bytes": 6638322,
+      "traced_peak_bytes": 13212418,
+      "peak_rss_bytes": 71860224,
+      "owners": {
+        "profile_owners": 1,
+        "segment_owners": 4099,
+        "mark_owners": 8196,
+        "view_count": 1,
+        "stored_profile_segments": 4099,
+        "essential_profile_segments": 4099,
+        "profile_dag_depth": 1,
+        "view_profile_depth": 2
+      },
+      "history": [
+        {
+          "level": 1,
+          "input_segments_per_stream": 2,
+          "output_stored_segments": 5,
+          "output_essential_segments": 5,
+          "output_mass_veh": "4",
+          "merge_wall_s": 0.0006954809941817075,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 2,
+          "input_segments_per_stream": 5,
+          "output_stored_segments": 7,
+          "output_essential_segments": 7,
+          "output_mass_veh": "8",
+          "merge_wall_s": 0.001735179015668109,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 3,
+          "input_segments_per_stream": 7,
+          "output_stored_segments": 11,
+          "output_essential_segments": 11,
+          "output_mass_veh": "16",
+          "merge_wall_s": 0.0025063199864234775,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 4,
+          "input_segments_per_stream": 11,
+          "output_stored_segments": 19,
+          "output_essential_segments": 19,
+          "output_mass_veh": "32",
+          "merge_wall_s": 0.004251706996001303,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 5,
+          "input_segments_per_stream": 19,
+          "output_stored_segments": 35,
+          "output_essential_segments": 35,
+          "output_mass_veh": "64",
+          "merge_wall_s": 0.007953354011988267,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 6,
+          "input_segments_per_stream": 35,
+          "output_stored_segments": 67,
+          "output_essential_segments": 67,
+          "output_mass_veh": "128",
+          "merge_wall_s": 0.013814467005431652,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 7,
+          "input_segments_per_stream": 67,
+          "output_stored_segments": 131,
+          "output_essential_segments": 131,
+          "output_mass_veh": "256",
+          "merge_wall_s": 0.02723607499501668,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 8,
+          "input_segments_per_stream": 131,
+          "output_stored_segments": 259,
+          "output_essential_segments": 259,
+          "output_mass_veh": "512",
+          "merge_wall_s": 0.056134673999622464,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 9,
+          "input_segments_per_stream": 259,
+          "output_stored_segments": 515,
+          "output_essential_segments": 515,
+          "output_mass_veh": "1024",
+          "merge_wall_s": 0.11141048299032263,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 10,
+          "input_segments_per_stream": 515,
+          "output_stored_segments": 1027,
+          "output_essential_segments": 1027,
+          "output_mass_veh": "2048",
+          "merge_wall_s": 0.2452743939938955,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 11,
+          "input_segments_per_stream": 1027,
+          "output_stored_segments": 2051,
+          "output_essential_segments": 2051,
+          "output_mass_veh": "4096",
+          "merge_wall_s": 0.4992494159960188,
+          "exact_prefix_queries": 5
+        },
+        {
+          "level": 12,
+          "input_segments_per_stream": 2051,
+          "output_stored_segments": 4099,
+          "output_essential_segments": 4099,
+          "output_mass_veh": "8192",
+          "merge_wall_s": 1.039283587015234,
+          "exact_prefix_queries": 5
+        }
+      ],
+      "final_moments": {
+        "r": [
+          "4096",
+          "4096"
+        ],
+        "b": [
+          "4096",
+          "8192"
+        ]
+      },
+      "measurement_scope": "Repeated two-input phase-shifted merge; both input streams duplicate the preceding cohort measure, so mass and number of source streams grow. Physical knots are kept; no fixed-demand or native scaling claim.",
+      "process_wall_s": 4.133827476995066
+    }
+  ]
+}
