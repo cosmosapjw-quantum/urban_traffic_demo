@@ -15,7 +15,7 @@ The first selected native boundary is persistent, exact event-history storage: p
 | Stage | Deliverable | Status |
 |---|---|---|
 | C1 | Exact baseline, scope, original acceptance, experiment target | COMPLETE; BASELINE.json |
-| C2 | Actual expression/data/producer/consumer map and implementation ownership | IN_PROGRESS |
+| C2 | Actual expression/data/producer/consumer map and implementation ownership | COMPLETE; V03_CODING_SOURCE_MAP_20261123.md |
 | C3 | Exact representation invariants, stable computation, failure counterexamples | PENDING |
 | C4 | Bounded execution ladder, recovered native baseline, build/resource setup | PENDING |
 | C5 | Complete native producer-to-consumer implementation | PENDING |
@@ -30,3 +30,7 @@ Each stage is committed and pushed separately. Stage completion describes the re
 ## Drift watchdog for this turn
 
 The original 0492364 PRD and 6524500 constitution define the map → traffic → accessibility → delayed development → demand objective. Bulk mesoscopic scaling, bottlenecks/bypass/induced demand, class/purpose/information, finite response and physical ledgers remain the scientific motivation. Exact IEEE event encoding may change storage without changing this objective. The changed-surface review must distinguish passive historical events from active completion ReceiptHistory and same-tick sinks. Their physical consumers remain intact. The historical blob identities and current PLAN 1.1.28 are recorded in BASELINE.json. No new DAG node or extra permission gate is introduced.
+
+## C2 completed source map
+
+The retained history owner is ServiceCheckpoint/NativeServiceCore in v1_journey.rs, not the physical completion ReceiptHistory. Road owns the exact time-run carrier and proposal; engine owns direct legacy decode/admission. Ownership: root v1_road.rs and run/test integration; bottleneck_anatomy v1_journey.rs and v1_engine.rs after the red fixture; other constructors supply read-only alternatives. The fixed codec preserves full event time bits and ordered sinks. Source product elimination remains a distinct obligation. Trace-count clarification: road-service incoming generation 17143679; pending additions 50728; total raw incoming 17194407; remaining live incoming at the actual indexed-sweep failure 16726314 after the first destination consumed 468093 rows. These scopes must not be conflated.
