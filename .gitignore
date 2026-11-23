@@ -41,3 +41,8 @@ target/
 
 # Local compressed recovery retained during the 2026-11-23 worktree cleanup.
 /artifacts/retained_recovery_20261123/
+
+# Rebuilt native extension and bounded prefix checkpoints.
+/native_binding/
+/artifacts/v03_coding_reconstruction_20261123/*.bin
+/artifacts/v03_coding_reconstruction_20261123/*.bin.gz

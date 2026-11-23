@@ -17,7 +17,7 @@ The first selected native boundary is persistent, exact event-history storage: p
 | C1 | Exact baseline, scope, original acceptance, experiment target | COMPLETE; BASELINE.json |
 | C2 | Actual expression/data/producer/consumer map and implementation ownership | COMPLETE; V03_CODING_SOURCE_MAP_20261123.md |
 | C3 | Exact representation invariants, stable computation, failure counterexamples | COMPLETE; exact codec and ownership contract below |
-| C4 | Bounded execution ladder, recovered native baseline, build/resource setup | PENDING |
+| C4 | Bounded execution ladder, recovered native baseline, build/resource setup | COMPLETE; recovered binary and observed behavioral RED |
 | C5 | Complete native producer-to-consumer implementation | PENDING |
 | C6 | Actual build, behavioral red/green, targeted native/Python regressions | PENDING |
 | C7 | Full-demand original checkpoint continuation and physical ledger checks | PENDING |
@@ -52,3 +52,16 @@ Error classification: the codec adds no truncation, interpolation, solver or flo
 A source-product followup must preserve intermediate IEEE operations. Combining scale factors is invalid: (0.1*0.3)*0.7 and 0.1*(0.3*0.7) can differ. Deferred incoming needs the original transformed key and source-order reduction, including its fsum barrier. An eager final interval output would remain a separate scaling issue. The held-characteristic flux-mean mark alternative is a model version, not part of this exact codec implementation.
 
 C3 acceptance examples: legacy wire decode/re-encode byte identity; resource fixture with 65536 repeated-time rows must use less than 48 bytes per logical row including structural costs; original flat storage exceeds that bound. Test its failing behavior before production edits. Preserve wide fallback and malformed-input failure/rollback. Actual original checkpoint and increasing-horizon experiments will decide how far the new representation resolves the sequential bottleneck.
+
+## C4: executable resource plan and observed RED
+
+The original native extension was recovered from the verified selective archive into this checkout's native_binding. Its SHA-256 remains 22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a. The preserved baseline binary is also kept under retained_recovery_20261123/baseline_native. Imports succeed using the retained primary Python 3.12.13 environment; explicit PYTHONPATH selects this checkout. Cargo/rustc 1.99.0 and offline cached dependencies are available. The observed machine has 33,549,762,560 bytes RAM; execution uses measured availability, not the historical 64 GB hardware target.
+
+The new native regression was executed before any production change:
+cargo test --offline --workspace --lib retained_timed_event_history_contract_tests -- --nocapture
+with CARGO_BUILD_JOBS=2, CARGO_INCREMENTAL=0 and RUSTFLAGS='-C link-arg=-lpython3.12'.
+Actual cargo exit 101: legacy wire/IEEE/page-boundary test passed; the storage test failed with retained_bytes=4194432 against ceiling 3145728. This is the intended behavior/resource RED, not an import or compilation failure. Full log/argv/environment are in C4_RETAINED_EVENT_RED.log/json.
+
+Execution dependencies: (1) root exposes road carrier and byte-bound helpers; (2) child integrates service history and engine decoding on disjoint files; (3) root builds and runs the same RED command to GREEN plus native owner/service regressions; (4) rebuild release budget_trace binary and bind it to clean committed source; (5) attempt original25700 -> 25710; (6) extend completed physical horizons to 25720/25750/25800 only after valid checkpoints, or repair the newly identified source lifetime before continuing; (7) fresh-source and fresh-process replay at the largest justified prefix. One native campaign runs at a time. Build jobs=2, native/BLAS/OpenMP workers=1; new run subprocess wall cap <=1800s, original 8GiB process cap unchanged. The full-day7200s criterion remains a separate unfulfilled release target.
+
+The former S07 failed tick and S08 time-zero prefix have unchanged source/binary/input identities and are reused as baseline evidence. The actual new transition, RSS, event/history storage, checkpoint bits, physical ledgers and complete elapsed seconds must be newly measured. A first guard passing is not a complete tick. Source-row growth remains an explicit followup if the next result points to it.

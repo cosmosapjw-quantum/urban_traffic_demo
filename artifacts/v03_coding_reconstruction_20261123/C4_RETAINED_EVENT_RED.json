@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/cosmosapjw/.cargo/bin/cargo",
+    "test",
+    "--offline",
+    "--workspace",
+    "--lib",
+    "retained_timed_event_history_contract_tests",
+    "--",
+    "--nocapture"
+  ],
+  "exit_code": 101,
+  "wall_s": 14.479690611013211,
+  "log": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_coding_reconstruction_20261123/C4_RETAINED_EVENT_RED.log",
+  "status": "MEANINGFUL_RED"
+}

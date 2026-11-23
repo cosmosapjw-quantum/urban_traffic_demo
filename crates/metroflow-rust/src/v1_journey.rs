@@ -2376,3 +2376,7 @@ mod exact_checkpointability_lifetime_phase_tests {
         assert!(checkpointability_phase_lifetime_bytes(t)>5789366871);
     }
 }
+
+#[cfg(test)]
+#[path = "v1_journey_retained_event_tests.rs"]
+mod retained_timed_event_history_contract_tests;
