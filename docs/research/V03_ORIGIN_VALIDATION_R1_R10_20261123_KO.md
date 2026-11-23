@@ -42,3 +42,15 @@ Watchdog는 매 사용자 턴 및 단계에서 `원 동기 → 이번 산출물�
 - 현재 source의 time-zero→24h 궤적, matched refinement, 9회 replay/performance 수용은 미완료다.
 
 근거: `AGENTS.md`, `docs/v1/PLAN.json`, `scenarios/v1/release_matrix.json`, `artifacts/v03_event_store_envelope_20261123/R8e_original_100k_25730_requested_20s.json`, `tools/run_v1_local_acceptance.py`의 `advance_measured` hourly 경계.
+
+## R2 / C2 — 원전 재사용과 실제 공백 (완료)
+
+원 역사와 현재 모델의 정확한 연결은 `METROFLOW_ORIGINAL_INTENT_WATCHDOG.md`에 보존했다. 독립 조사 agent `/root/origin_drift`는 read-only로 초기 commit·constitution·Oct active-meso·현 R01/R02 문서를 대조했다. 부모도 초기 traffic design, Oct active-meso, R01/R02 및 acceptance 호출부를 직접 읽었다.
+
+현재 과학적 공백은 단순히 age 평균 계산이 아니라, 전달된 제한된 관측에서 정당한 경로 도착시간을 만드는 것이다. 완료 route 평균과 event-incidence age는 링크 입출구 시간 자료가 아니다. 이전 two-state first-passage, KCMB moment closure, 20261122 generalized inverse, 20261123 stop-loss envelope는 재사용하며 신규 결과로 세지 않는다.
+
+외부 수학 기준은 Brian C. Dean, *Shortest Paths in FIFO Time-Dependent Networks: Theory and Algorithms*, 저자 공개 원문 https://people.csail.mit.edu/bdean/tdsp.pdf §2,§3.3,§4.1이다. arrival map E_e(t)≥t의 비감소성, 경로 함수의 합성, 고정 출발시각 label-setting을 재사용한다. 원문은 알려진 전체 시간 함수가 주어진 문제를 다룬다. 이번 추가 의무는 인과적 sparse 측정으로 허용 arrival maps의 상·하 경계를 구성하는 것이며 고전 Dijkstra 자체의 신규성을 주장하지 않는다. McShane1934 원 AMS PDF는403으로 본문확인 실패했으므로 읽었다고 기록하지 않는다.
+
+코드 조사에서 최종 `V1Road::check_state(&out)`가 class별 mass, 전체 mass, residence 배열을 실제 materialize한 뒤 동일 expansion sum으로 축약하는 것을 확인했다. 수정은 같은 입력 순서의 streaming expansion과 성장 전 scratch admission을 사용하며 기존 owner3×max fallback은 유지한다. 원 acceptance 호출은 hourly, 진단 harness는 tick마다 반환하므로 baseline을 기존 frozen native에서 time-zero→25,740s 요청으로 시작했다. 실행 결과는 아직 pending이며 R2의 성과로 완료 credit을 부여하지 않는다.
+
+Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 원 교통→routing 질문을 새 명제의 대상으로 복원했고, 과거24h불가 추정이 모든 정확 표현을 배제하는 것처럼 읽히던 AGENTS 문구를 좁게 교정했다. 원 PLAN·수요·dt·cap은 변하지 않았다.

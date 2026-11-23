@@ -12,7 +12,7 @@
 - 2026-11-16 V03 후속: 실제 로컬 5900X/관측 RAM 31.25GiB에서 세 도시의 예산 사전 거절, 전체 하천 달력 5,093,765 legs 보관(peak RSS 1.42GiB), 각 도시 256-leg 공유 runtime 준비와 한정 회귀를 수행했다. 생성자·장부 검사 중복 계산과 route p99 구간 계측을 개선했다. `artifacts/v1_v03_scaling_20261116/RECEIPT.json`을 따른다. 전체 calendar의 경로/물리 상태 활성화 및 3case×3회24h는 남았으며 19/21과 V03 BLOCKED를 유지한다.
 - 2026-11-17 V03 후속: 차단 checkpoint 실측으로 계상 수명 불일치를 교정했다(`retained_capacity_v3`, `adde1a3`; 260 scoped, legacy replay bytes 동일). 짧은 게이트는 25,650/32,730/25,420s에서 멈췄고, guard 우회 진단에서 road interval part 행이 아침 진입 구간에 수십 초마다 배가해 Valley는 8 GiB에서 실제 할당 실패했다. `artifacts/v1_v03_workspace_20261117/RECEIPT.json`을 따른다. 24h 0/9, 19/21, V03 BLOCKED 유지; 표현 변경은 사용자 결정 대상이다.
 - 2026-11-17 선택 (a): 부분 head 서비스가 새 행의 약 80%를 만들고(서비스마다 모든 행의 새 구간 packet 생성), bit 동일 병합 상한은 수 %다(`ATTRIBUTION_KO.md`). 비례 조성 표현(실수 산술 동치) 또는 범위 재검토는 사용자·물리 계약 결정 대상이다.
-- 2026-11-17 선택 1 사전측정: 실수 산술 정확 병합은 packet 수를 1.01–1.08배만 줄이고 조성 공유는 상수배 이득이라 24h 불가로 판단, 재작성 미착수. 남은 경로는 근사 집계(현 금지) 또는 범위·모델 계약 결정이다.
+- 2026-11-17 선택 1 사전측정(역사적 범위): 당시 실수 산술 정확 병합은 packet 수를 1.01–1.08배만 줄였고 조성 공유는 상수배 이득이었다. 당시의 24h 불가 판단은 그 후보·측정 구간에 대한 engineering 추정이며 새로운 정확 표현·owner 수명·streaming 계산을 배제하는 수학적 no-go가 아니다. 2026-11-23 사용자 요청에 따라 반복 blocker는 원 역사를 재평가해 수정하되, 현 PLAN의 물리·수요·예산·수용문턱은 유지한다.
 
 ## 유지하는 과학·구현 계약
 - 2026-11-16 사용자 승인: Rust CPU 계산코어·Python frontend로 전환한다. 기존 Python 코어는 이행 중 명시적 scientific oracle로 보존한다. JAX/GPU·차량 위치 전수추적·RL-first·외부데이터 학습은 V1 범위 밖이다.
@@ -22,3 +22,9 @@
 - 행동 반례를 먼저 검산하고 변경 의존성만 회귀한다. 최초 import 실패를 행동 RED로 재명명하지 않는다. 실행하지 않은 검증은 NOT_RUN이다.
 - 실패는 모델·수치·구현·환경·자원·물리적 불능으로 구분하고, 마지막 유효 상태를 보존한다. 질량 삭제나 수요 축소로 예산을 맞추지 않는다.
 - 해시/manifest는 연구 재현성의 식별용이며 보안 인프라를 확장하지 않는다. 문서·검증 자체를 재귀적으로 감사하는 작업은 하지 않는다.
+
+## 원 동기 drift watchdog (2026-11-23 사용자 요청)
+- 매 사용자 턴과 연구 단계에서 `docs/research/METROFLOW_ORIGINAL_INTENT_WATCHDOG.md`의 역사 기준을 적용한다. 최초 확인 가능한 import 이전을 복원했다고 주장하지 않는다.
+- 원래의 설명 가능한 도시·active-mesoscopic 교통·collision-informed routing·지연 feedback 목표와 현 PLAN의 PacketNetwork/FIFO/finite-response 계약을 각각 확인한다.
+- 기존 기록에 원 목표 연결, 보존 계약, 관측 모집단/시계, 실제 진전 근거, 판정과 최소 교정을 짧게 남긴다. 같은 역사를 재귀적으로 감사하지 않는다.
+- 자료구조·hash·guard 통과만을 물리/과학 완료로 세지 않는다. 원 acceptance cadence와 연구 진단 cadence, time-zero 실행과 역사 checkpoint continuation을 구분한다.
