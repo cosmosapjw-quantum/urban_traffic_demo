@@ -20,7 +20,7 @@ The first selected native boundary is persistent, exact event-history storage: p
 | C4 | Bounded execution ladder, recovered native baseline, build/resource setup | COMPLETE; recovered binary and observed behavioral RED |
 | C5 | Complete native producer-to-consumer implementation | COMPLETE; exact history path and behavioral GREEN |
 | C6 | Actual build, behavioral red/green, targeted native/Python regressions | COMPLETE; 180 Rust, 42 Python, matched old/new replay |
-| C7 | Full-demand original checkpoint continuation and physical ledger checks | PENDING |
+| C7 | Full-demand original checkpoint continuation and physical ledger checks | COMPLETE; original 25710 state valid, next source failure isolated |
 | C8 | Increasing horizons, matched correctness/resource/replay experiments | PENDING |
 | C9 | One independent review of changed scientific and runtime surfaces; repairs | PENDING |
 | C10 | Final readiness/evidence, reusable latest checkpoint, exact next action | PENDING |
@@ -80,3 +80,14 @@ The complete Rust library suite exits 0: 180 passed, 0 failed, 2 explicitly igno
 A separate-process old/new experiment uses the existing mixed road/bus fixture through 120 physical seconds under both legacy_records and bounded_bytes_v1. There are ten nonempty-event ticks in each lane. All eight sampled legacy checkpoint byte hashes and physical report tuples per policy agree between binaries. Batched evolution and fresh-engine restore at t=15 agree with the stepwise t=120 wire; retained earlier snapshots remain unchanged. The old bounded lane records 345 internal flat-event materialization guard calls, and the new lane has none. This finite compatibility experiment is not a speed benchmark or a large-city acceptance result. It verifies the connected internal path, not merely an isolated codec.
 
 No equations, units, initial or boundary conditions, calendars or closure parameters changed. Exact storage claims are implementation-verified; the original full-demand continuation remains the next empirical gate. Original motivation and acceptance are preserved, including active completion history and same-tick sinks.
+
+
+## C7: original full-demand transition completed; next source failure isolated
+
+The new binary restores all 3,405,043,386 bytes of the original t=25700 checkpoint, verifies its SHA and exact full-wire re-export, and completes t=25710 under unchanged RLIMIT_AS=8GiB, original calendar/driver identity and numerical rules. The completed tick takes 30.644343209 s in the native kernel (segment including validation32.881780162 s). The complete restore/attempt/evidence campaign takes137.611017781 s with measured peakRSS4,245,573,632 B. This is one completed original physical tick, not merely a passing allocation guard.
+
+The vehicle residual released-active-completed is -4.263256414560601e-14 vehicles; the person residual is 5.684341886080802e-14 persons. Requested-released-pending is zero for both; cargo is zero in this selected case. Engine validation and the driver population/ledger checks pass before saving the completed state. The new raw checkpoint is4,011,233,450 B, SHA64b77baece5ba45fa0928d59b58d9f8f9fc2178bcd93542b05264736978733fe; the compressed reusable copy is865,480,229 B. Active physical completion history, route/source tags and FIFO remain original.
+
+At the formerly failing indexed-sweep guard, the actual charge falls from5,051,633,256 to4,592,964,400 B: a source-bound reduction of458,668,856 B. The completed tick retains17,429,035 event rows in561,521,000 B including structural costs. This verifies the constructive codec benefit in the actual whole native path. No speedup ratio is inferred from comparing an old failed attempt with a new completed tick.
+
+The requested next horizon t=25720 fails earlier, at transfer candidates:4,921,327,872 B required against4,921,274,823 B available;16,426,959 live incoming rows have been generated at that point. The first tick grows road composition rows34,610,422 ->40,717,830 (+17.6462%). Thus the source product remains the bottleneck. A by-class reduction or combined-vector reduction happens after this failure and cannot justify a credit here. C8 must act on the incoming producer representation or actual immutable source owners, preserving ordered IEEE operations and original physical demand. Horizons50/100 s were requested but were not executed. V03 remainsBLOCKED; full-day0/9; scoped-or-acceptedDAG19/21.

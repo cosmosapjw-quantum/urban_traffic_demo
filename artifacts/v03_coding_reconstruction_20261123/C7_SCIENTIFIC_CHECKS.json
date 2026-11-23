@@ -1,0 +1,63 @@
+{
+  "claim_limits": [
+    "Prior and current full-tick wall times are not matched successful work; no speedup ratio claimed.",
+    "By-class and interval-consumer reductions occur after the new transfer failure; they cannot justify pre-transfer credit.",
+    "Original RSS8GiB, wall7200s, full100k calendar and physical acceptance unchanged."
+  ],
+  "current_same_indexed_guard_required_bytes": 4592964400,
+  "event_history_retained_bytes": 561521000,
+  "event_history_retained_rows": 17429035,
+  "ledger_residuals": {
+    "cargo_kg": {
+      "released_minus_active_completed": 0.0,
+      "requested_minus_released_pending": 0.0
+    },
+    "persons": {
+      "released_minus_active_completed": 5.684341886080802e-14,
+      "requested_minus_released_pending": 0.0
+    },
+    "vehicles": {
+      "released_minus_active_completed": -4.263256414560601e-14,
+      "requested_minus_released_pending": 0.0
+    }
+  },
+  "next_failure": {
+    "class_name": "BudgetExceeded",
+    "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4921327872, budget_bytes=4921274823",
+    "phase": "ADVANCE_TO_25720.0"
+  },
+  "original_full_day_runs_completed": 0,
+  "original_full_day_runs_required": 9,
+  "physical_prefix_s": 25710,
+  "prior_indexed_guard_required_bytes": 5051633256,
+  "road_composition_rows_after": 40717830,
+  "road_composition_rows_before": 34610422,
+  "row_growth_fraction": 0.1764615294202423,
+  "same_guard_reduction_bytes": 458668856,
+  "source_receipt_sha256": "5b81e13ed41d0e98fa7434bb269d1d9ba98ad0c853a4e57f1897e2579c9323de",
+  "status": "IMPLEMENTATION_VERIFIED_COMPLETE_ORIGINAL_TICK",
+  "trace_failure": {
+    "calls": 477181,
+    "exceeded": 1,
+    "limit_at_max": 4921274823,
+    "live_at_max": 4048334233,
+    "max_ratio": 1.0000107795239868,
+    "max_required": 4921327872,
+    "terms_at_max": {
+      "base": 2887524752,
+      "event_bytes": 1098688672,
+      "event_candidate_live_bound": 537167672,
+      "extra": 0,
+      "full_source_base": 3050477840,
+      "incoming_actual_descriptor_bytes": 0,
+      "incoming_actual_page_charge": 935114448,
+      "incoming_descriptors_frozen": 0,
+      "incoming_live_pages": 128715,
+      "incoming_rows": 16426959,
+      "interval_retained": 0,
+      "interval_transient": 0,
+      "transfer_exclusive_cell_scratch": 162953088
+    }
+  },
+  "valid_advance_s": 10
+}
