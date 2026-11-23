@@ -1,0 +1,104 @@
+{
+  "status": "EXACT_RATIONAL_REFERENCE_EXPERIMENT_COMPLETED",
+  "input": {
+    "velocity_knots_s_mps": [
+      [
+        "0",
+        "2"
+      ],
+      [
+        "20",
+        "3"
+      ],
+      [
+        "40",
+        "2"
+      ],
+      [
+        "100",
+        "2"
+      ]
+    ],
+    "relaxation_s": "2",
+    "invariant_speed_bounds_mps": [
+      "19/10",
+      "31/10"
+    ],
+    "gamma": "31/19",
+    "decision_s": "20",
+    "entry_query_domain_s": [
+      "0",
+      "60"
+    ],
+    "probe_entry_candidates_s": [
+      "0",
+      "5",
+      "10",
+      "15"
+    ],
+    "information_delay_s": "1",
+    "physical_exit_bracket_width_s": "1/10000000000"
+  },
+  "interpretation": "Manufactured exact finite-response solution under a fixed spatially homogeneous traffic field; not native V03 city evidence.",
+  "assertion_tested": "124 withheld passages are enclosed by causal sharp FIFO/expansion envelopes; direct route upper is below every declared detour lower.",
+  "withheld_passages": 124,
+  "route": {
+    "selected_edges": [
+      "direct"
+    ],
+    "direct": {
+      "exact": [
+        "720/31",
+        "557393562085265/20890720927744"
+      ],
+      "approximate_s": [
+        23.225806451612904,
+        26.681394290467804
+      ]
+    },
+    "detour": {
+      "exact": [
+        "1020/31",
+        "5578192237567055/99230924406784"
+      ],
+      "approximate_s": [
+        32.903225806451616,
+        56.21425247133642
+      ]
+    },
+    "actual_direct": {
+      "exact": [
+        "805098749455/34359738368",
+        "1610197498915/68719476736"
+      ],
+      "approximate_s": [
+        23.431457505066646,
+        23.431457505139406
+      ]
+    },
+    "actual_detour": {
+      "exact": [
+        "333197338444386780301315/9444732965739290427392",
+        "1332789353782492353459965/37778931862957161709568"
+      ],
+      "approximate_s": [
+        35.27864044997969,
+        35.27864045011059
+      ]
+    },
+    "strict_dominance_margin_s": "4029334921655665/647612348760064",
+    "regret_bound_s": "2237881356667535/647612348760064",
+    "regret_bound_approx_s": 3.4555878388548993
+  },
+  "provenance": {
+    "git_head": "d39d74a2b61eaf44c70dceb6e9c4255a60d815d2",
+    "python": "3.12.3",
+    "scoped_git_status": "?? artifacts/v03_origin_validation_20261123/R7_theory_experiment.py\n?? src/metroflow/v1/fifo_route_observability.py\n?? tests/research/test_v03_fifo_route_observability_20261123.py\n",
+    "file_sha256": {
+      "src/metroflow/v1/fifo_route_observability.py": "eb94236bfb5b0d0e66e9f4035aa71f117de343001ac92f1c6b94e0308e62ed58",
+      "tests/research/test_v03_fifo_route_observability_20261123.py": "456a3e58f33fe69b6404f2a45116a6d208f0259f5edbec1c03b03ff63561b4e2",
+      "artifacts/v03_origin_validation_20261123/R7_theory_experiment.py": "189b4f6b31eaae6a2729ab2dc541ac0e1b02ea2777051804818266c120b4ae74"
+    }
+  },
+  "elapsed_wall_s": 0.14355508500011638
+}

@@ -1,0 +1,25 @@
+{
+  "status": "INDEPENDENT_EXACT_CHECKS_PASSED",
+  "counts": {
+    "integer_family_cases": 400,
+    "integer_family_feasible": 335,
+    "boundary_block": "passed",
+    "graph_configurations": 24,
+    "raw_withheld_exact_brackets": 124,
+    "admitted_probe_counts": {
+      "5": 4,
+      "10": 4,
+      "20": 3,
+      "30": 2
+    },
+    "independent_route_integrals": 2
+  },
+  "source_sha256": {
+    "docs/research/V03_FIFO_ROUTE_OBSERVABILITY_THEORY_20261123.md": "0f03c9ff12000102dcdd8d4e264288dd931ddff1bc656d56740ce42894b52785",
+    "src/metroflow/v1/fifo_route_observability.py": "eb94236bfb5b0d0e66e9f4035aa71f117de343001ac92f1c6b94e0308e62ed58",
+    "tests/research/test_v03_fifo_route_observability_20261123.py": "456a3e58f33fe69b6404f2a45116a6d208f0259f5edbec1c03b03ff63561b4e2",
+    "artifacts/v03_origin_validation_20261123/R7_theory_experiment.py": "189b4f6b31eaae6a2729ab2dc541ac0e1b02ea2777051804818266c120b4ae74",
+    "artifacts/v03_origin_validation_20261123/R7_theory_experiment.json": "47246413435c187925b43a8399b6cf133f39c993396672e072159e63a05ce3a7"
+  },
+  "author_pytest_execution": "NOT_RERUN_BY_THIS_REVIEWER"
+}

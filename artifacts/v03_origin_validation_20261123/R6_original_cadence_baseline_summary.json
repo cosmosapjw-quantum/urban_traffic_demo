@@ -1,0 +1,23 @@
+{
+  "status": "ORIGINAL_HOURLY_FROM_ZERO_VALID_PREFIX",
+  "old_candidate_source_sha256": "7e8b92020076e01283d532cf0e5825cb30167a533949e6bc6fd071f7b7d8cfe2",
+  "old_native_sha256": "baa3e4ce4f775df5cf3973e749357cc2d5a29cefbf1683355638a0de5b6a5606",
+  "source_clean": true,
+  "actual_from_time_zero": true,
+  "physical_dt_s": 10,
+  "native_call_cadence": "hourly",
+  "valid_prefix_s": 25730.0,
+  "requested_horizon_s": 25740.0,
+  "failure": "BudgetExceeded: native road storage budget exceeded: phase=tick preflight, required_bytes=6682798752, budget_bytes=5320948967",
+  "wall_s": 651.0796873529907,
+  "peak_rss_bytes": 4655276032,
+  "full_day_credit": 0,
+  "checkpoint_bytes": 5523765378,
+  "checkpoint_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+  "checkpoint_mass_ledger_valid": true,
+  "same_ledger_as_historical_25730": true,
+  "raw_receipt_sha256": "c1c1363c66578d9fa1baf68cb1f0ebecd549a8b5caade843fb4e64087577cce1",
+  "raw_receipt_path": "artifacts/v03_origin_validation_20261123/R2_baseline_hourly/R2_baseline_original_hourly_25740.json",
+  "timing_limit": "author Rust tests and release build overlapped portions; wall is observed exploratory cost, not an isolated speed comparison",
+  "byte_identical_to_historical_25730": true
+}

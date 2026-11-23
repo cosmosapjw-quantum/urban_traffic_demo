@@ -1,0 +1,44 @@
+{
+  "schema": "V03_FROZEN_VALIDATION_CANDIDATE_V1",
+  "source": {
+    "status": "MEASURED",
+    "source_sha256": "c9fdad9cafc138855e5aaa863de15f49a1a13c0ee13dcab99f9f92cf9cb92a26",
+    "source_files": [
+      "Cargo.lock",
+      "crates/metroflow-rust/Cargo.toml",
+      "crates/metroflow-rust/src/lib.rs",
+      "crates/metroflow-rust/src/v1_calendar.rs",
+      "crates/metroflow-rust/src/v1_engine.rs",
+      "crates/metroflow-rust/src/v1_history.rs",
+      "crates/metroflow-rust/src/v1_journey.rs",
+      "crates/metroflow-rust/src/v1_kcmb.rs",
+      "crates/metroflow-rust/src/v1_kcmb_node.rs",
+      "crates/metroflow-rust/src/v1_lineage_shadow.rs",
+      "crates/metroflow-rust/src/v1_parallel.rs",
+      "crates/metroflow-rust/src/v1_road.rs",
+      "crates/metroflow-rust/src/v1_routing.rs",
+      "crates/metroflow-rust/src/v1_stage.rs",
+      "crates/metroflow-rust/src/v1_trace.rs",
+      "src/metroflow/v1/native_calendar.py",
+      "src/metroflow/v1/native_engine.py",
+      "src/metroflow/v1/native_journey.py",
+      "src/metroflow/v1/native_release_driver.py",
+      "src/metroflow/v1/native_road.py",
+      "src/metroflow/v1/native_routing.py",
+      "src/metroflow/v1/native_static.py",
+      "tools/run_v1_local_acceptance.py"
+    ],
+    "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+    "git_commit": "3eab636237b71ccfaa8db2108f6ce3c2083c5325",
+    "source_dirty": false
+  },
+  "native": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/native_binding/_metroflow_rust.so",
+    "size_bytes": 3315456,
+    "sha256": "979c92c00e75ea7eb1a35b258ddd8821d413510ba37f5e1fd4aa6fd448830082"
+  },
+  "v1_road_sha256": "b7a3fad3943da61c5ff72fba08d10ea9832d722f1442c161dfc8c244493361dc",
+  "build_status": "RELEASE_BUILD_EXIT_ZERO",
+  "timing_scope": "build may overlap exploratory old-native cadence baseline; no isolated baseline speedup comparison"
+}
