@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.27**, 2026-11-23. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.28**, 2026-11-23. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-2026-11-23 user authorizes constructive surgical model revision preserving original motivation. Continue from 606b3ac actual Valley 25650-to-25700 prefix: diagnose source-remainder packing lifetime, retain true interval reserve and original limits, then test cumulative-rank FIFO representation against original ordered route/class/birth/finite-response observables. The 2026-11-17 merge-efficiency finding concerns those measured representations, not all exact formulations. Preserve 19/21 scoped nodes, V03 BLOCKED and 0/9 full days until actual release evidence. Full CI/integration remain deferred.
+Current native source bea107c2 executes Valley from time zero to25700s with a final wire identical to the historical checkpoint and current3/3 full-calendar preparations. Exact event-time sharing saves275,578,880B in the original25710 candidate and passes258,538 transfer checks, but indexed sweep still requires5,051,633,256B against5,025,214,575B; no valid25710state. Next integrate the source-aligned immutable rank/span carrier with the actual ordered interval consumer and checkpoint expansion, deriving live ownership and interval-work requirements. Preserve full demand, finite-response eligibility, route/class/birth observables, original8GiB/7200s and numerical criteria. Validate captured-source consumers and a complete original25710tick; controlled closure requires explicit model/version and coupled-observable error evidence. Do not repeat arbitrary guard credits or infer a universal no-go from Nov17 merge ratios. V03 remainsBLOCKED, scopedDAG19/21 and full days0/9. Full CI/main integration remain deferred.
 
 **예산·종료조건**
 
@@ -2302,11 +2302,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "COMPLETED_SCOPED",
-  "scope": "Complete Rust whole-owner resource representation and measured simulation continuation; scientific G-SCALE/G-DAY gates unchanged; no full CI or integration",
+  "scope": "Ten interleaved constructive theory/coding stages: exact event-time sharing, optional immutable rank adapter, current-source Valley0-to25700s byte-identical checkpoint, three full-calendar preparations; original V03 acceptance unchanged.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "NOT_RUN",
   "main_modified": false,
-  "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json",
+  "evidence": "artifacts/v03_causal_rank_20261123/S10_FINAL_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2315,11 +2315,10 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [
-    "journey_debug",
-    "parallel_road",
-    "engine_diagnostics",
-    "queue_review",
-    "parallel_references"
+    "constructive_theory",
+    "runtime_blocker",
+    "history_drift",
+    "independent_review"
   ]
 }
 ```

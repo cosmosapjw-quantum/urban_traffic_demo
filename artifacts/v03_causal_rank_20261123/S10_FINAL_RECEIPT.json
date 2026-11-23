@@ -1,0 +1,415 @@
+{
+  "schema": "METROFLOW_CAUSAL_RANK_TEN_STAGE_FINAL_V1",
+  "created_utc": "2026-11-23T10:44:27.084879+00:00",
+  "research_stages_completed": 10,
+  "publication": {
+    "branch": "research/v03-causal-rank-20261123",
+    "previous_nine_stage_commits": [
+      {
+        "commit": "936461c96574d7d24791f1f6f35a65ec76de5ad5",
+        "subject": "research(v03): stage 1 pin origin goals and causal FIFO continuation"
+      },
+      {
+        "commit": "957bc54b75e4adfc19ef595dac9d2b27029ffe7e",
+        "subject": "research(v03): stage 2 diagnose remainder lifetime and restore constructive plan"
+      },
+      {
+        "commit": "9a2c39a44b298fb77b8ec53f0e889b791ba564f5",
+        "subject": "fix(v03): stage 3 account actual source remainder buffer lifetimes"
+      },
+      {
+        "commit": "7896f90b2420d6d39278f86e74c92000555a0195",
+        "subject": "research(v03): stage 4 execute original failure and select structural repair"
+      },
+      {
+        "commit": "4509a4fb19ec3adad8b79ef3144d02a1fda89108",
+        "subject": "science(v03): stage 5 prove causal rank and sharp conservative FIFO bounds"
+      },
+      {
+        "commit": "03b76ccf2ef6bc087d38681c78716e749cce3943",
+        "subject": "feat(v03): stage 6 share exact event times and integrate causal rank research"
+      },
+      {
+        "commit": "e0c7a93523a28fdf115ed0f8d260bdbbeb84e4cf",
+        "subject": "research(v03): stage 7 measure actual event savings and source rank scaling"
+      },
+      {
+        "commit": "4644ad3fd7c3fa2216b0b1c4cb9df0306f62515d",
+        "subject": "research(v03): stage 8 verify source-zero prefix and refresh all full calendars"
+      },
+      {
+        "commit": "bdcc4c301c2be977cb7f51015003e4b5c7bcf24c",
+        "subject": "research(v03): stage 9 close independent proof and memory accounting findings"
+      }
+    ],
+    "stage10_identity": "commit containing this receipt; exact remote SHA checked after push and recorded in final handoff",
+    "main_merge": false,
+    "full_repository_ci": "DEFERRED_BY_USER"
+  },
+  "base_commit": "606b3ac6a899ba5b8b9ac064d82f609c7ff6cadf",
+  "runtime_source_sha256": "bea107c2888885966c901a0f30a6d7edcb50a24e5cbbbe31d3f8bf020536943d",
+  "native_binary_sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a",
+  "native_build_evidence": "S06_build_binding.json",
+  "plan": {
+    "version": "1.1.28",
+    "sha256": "1f2bbfdfe1d653694c14360f41bebea80a1ab43a1560759502ee7a2b9c8301e9",
+    "node_statuses_unchanged": true,
+    "node_contracts_other_than_recorded_evidence_next_action_unchanged": true,
+    "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+  },
+  "readiness": {
+    "scoped_dag_nodes": {
+      "completed": 19,
+      "total": 21,
+      "percent": 90.47619047619048
+    },
+    "finally_accepted_nodes": {
+      "completed": 5,
+      "total": 21,
+      "percent": 23.80952380952381
+    },
+    "V03_direct_predecessors": {
+      "completed": 3,
+      "total": 3
+    },
+    "current_source_full_calendar_preparations": {
+      "completed": 3,
+      "total": 3
+    },
+    "current_turn_nonzero_source_zero_cases": {
+      "completed": 1,
+      "total": 3,
+      "case": "valley_weekday_s7",
+      "completed_time_s": 25700,
+      "scope": "physical prefix only"
+    },
+    "original_full_day_runs": {
+      "completed": 0,
+      "total": 9
+    },
+    "V03": "BLOCKED",
+    "RLS01": "PLANNED",
+    "reference_host_RAM_match": false,
+    "observed_physical_RAM_bytes": 33549762560
+  },
+  "original_continuation": {
+    "status": "BLOCKED_RESOURCE",
+    "start_time_s": 25700.0,
+    "completed_time_s": 25700.0,
+    "advanced_s": 0.0,
+    "wall_s": 55.979972183995415,
+    "peak_rss_bytes": 4324171776,
+    "failed_phase": "indexed sweep preflight",
+    "required_bytes": 5051633256,
+    "allowed_bytes": 5025214575,
+    "excess_bytes": 26418681,
+    "transfer_checks_passed": 258538,
+    "actual_event_rows": 17429035,
+    "actual_exact_time_runs": 206999,
+    "actual_event_payload_bytes": 561184768,
+    "actual_event_payload_saved_bytes": 275578880,
+    "candidate_was_committed": false
+  },
+  "current_source_time_zero": {
+    "status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON",
+    "completed_time_s": 25700.0,
+    "native_ticks": 2570,
+    "wall_s": 274.4049949250184,
+    "peak_rss_bytes": 5360996352,
+    "milestones": [
+      {
+        "completed_time_s": 60.0,
+        "elapsed_physical_s": 60,
+        "segment_wall_s": 0.31301459204405546
+      },
+      {
+        "completed_time_s": 600.0,
+        "elapsed_physical_s": 600,
+        "segment_wall_s": 1.3625592920579948
+      },
+      {
+        "completed_time_s": 3600.0,
+        "elapsed_physical_s": 3600,
+        "segment_wall_s": 7.043235416000243
+      },
+      {
+        "completed_time_s": 21600.0,
+        "elapsed_physical_s": 21600,
+        "segment_wall_s": 41.936232155014295
+      },
+      {
+        "completed_time_s": 25200.0,
+        "elapsed_physical_s": 25200,
+        "segment_wall_s": 8.674304487998597
+      },
+      {
+        "completed_time_s": 25400.0,
+        "elapsed_physical_s": 25400,
+        "segment_wall_s": 4.22780635295203
+      },
+      {
+        "completed_time_s": 25600.0,
+        "elapsed_physical_s": 25600,
+        "segment_wall_s": 40.546150202979334
+      },
+      {
+        "completed_time_s": 25700.0,
+        "elapsed_physical_s": 25700,
+        "segment_wall_s": 130.46620063803857
+      }
+    ],
+    "raw_checkpoint_bytes": 3405043386,
+    "raw_checkpoint_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+    "compressed_checkpoint": {
+      "compressed_bytes": 736524111,
+      "compressed_sha256": "191f64eb23b1cd68e95f09fc1c18c6888dfa21b77ec1a4f24d576a36272ae3f3",
+      "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_time_zero_prefix.final.bin.gz",
+      "raw_bytes": 3405043386,
+      "raw_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+      "reader_peak_rss_bytes": 5360996352
+    },
+    "full_decoded_wire_equals_old_validated_checkpoint": true,
+    "same_three_ledgers_as_historical_checkpoint": true,
+    "gzip_independently_decoded_and_hashed": true
+  },
+  "preparations": [
+    {
+      "path": "artifacts/v03_causal_rank_20261123/S08_preparation/coastal_weekend_s41.prepare.json",
+      "sha256": "806cfaa5b0bb0b80eb0a3b9a1d5312b450c1395cb3506f5864cdb4276544834a",
+      "case": "coastal_weekend_s41",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "simulated_s": 0,
+      "wall_s": 38.28620807500556,
+      "peak_rss_bytes": 1116901376
+    },
+    {
+      "path": "artifacts/v03_causal_rank_20261123/S08_preparation/river_weekday_s17.prepare.json",
+      "sha256": "01b7543caeec22706649a355b41263b414d8632ff1cd2735aeec04828e45b428",
+      "case": "river_weekday_s17",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "simulated_s": 0,
+      "wall_s": 66.22261447901838,
+      "peak_rss_bytes": 2174259200
+    },
+    {
+      "path": "artifacts/v03_causal_rank_20261123/S08_preparation/valley_weekday_s7.prepare.json",
+      "sha256": "07ccda2992d2b09f0c116ca402bdea0e380b045412df70b62a7beb2191f4701b",
+      "case": "valley_weekday_s7",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "simulated_s": 0,
+      "wall_s": 22.390724046970718,
+      "peak_rss_bytes": 447541248
+    }
+  ],
+  "rank_adapter": {
+    "status": "NUMERICALLY_CHECKED_OPTIONAL_NOT_NATIVE_PRODUCTION",
+    "source_rows": 464,
+    "schedule": "synthetic f_k=1/(2K-k); exact-real final remainder is one half",
+    "timing_scope": "wall time while tracemalloc is enabled; includes allocation-instrumentation overhead and is not native engine timing",
+    "memory_scope": "incremental Python tracemalloc; shared source root predates measurement; not native RSS",
+    "runs": [
+      {
+        "subdivisions": 1000,
+        "source_rows": 464,
+        "snapshots_kept": {
+          "eager": 1,
+          "rank": 1
+        },
+        "eager": {
+          "wall_s": 0.47627868002746254,
+          "tracemalloc_retained_bytes": 81048,
+          "tracemalloc_peak_bytes": 105540
+        },
+        "rank": {
+          "wall_s": 0.019890661991667002,
+          "tracemalloc_retained_bytes": 53296,
+          "tracemalloc_peak_bytes": 54092
+        },
+        "eager_over_rank_wall_ratio": 23.944838046465964,
+        "eager_over_rank_peak_ratio": 1.951120313539895,
+        "max_mass_abs_difference": 4.7921736023859296e-17,
+        "max_birth_abs_difference": 1.7763568394002505e-12,
+        "rank_roundoff_abs_sum": 2.7896250847508908e-15,
+        "rank_roundoff_abs_max": 4.919567357652976e-18,
+        "numerically_checked_at_explicit_adapter_tolerances": true,
+        "source_shared_on_every_retained_split": true,
+        "eager_row_payloads_constructed": 464464,
+        "rank_row_payloads_constructed_during_service": 0
+      },
+      {
+        "subdivisions": 10000,
+        "source_rows": 464,
+        "snapshots_kept": {
+          "eager": 10,
+          "rank": 10
+        },
+        "eager": {
+          "wall_s": 5.004362372041214,
+          "tracemalloc_retained_bytes": 167568,
+          "tracemalloc_peak_bytes": 577916
+        },
+        "rank": {
+          "wall_s": 0.17785767803434283,
+          "tracemalloc_retained_bytes": 53512,
+          "tracemalloc_peak_bytes": 54908
+        },
+        "eager_over_rank_wall_ratio": 28.13689252748995,
+        "eager_over_rank_peak_ratio": 10.525169374225978,
+        "max_mass_abs_difference": 5.733261088103347e-16,
+        "max_birth_abs_difference": 1.9312551557959523e-11,
+        "rank_roundoff_abs_sum": 2.9893962807015124e-14,
+        "rank_roundoff_abs_max": 5.724248657544562e-18,
+        "numerically_checked_at_explicit_adapter_tolerances": true,
+        "source_shared_on_every_retained_split": true,
+        "eager_row_payloads_constructed": 4640464,
+        "rank_row_payloads_constructed_during_service": 0
+      },
+      {
+        "subdivisions": 100000,
+        "source_rows": 464,
+        "snapshots_kept": {
+          "eager": 100,
+          "rank": 100
+        },
+        "eager": {
+          "wall_s": 50.65462910797214,
+          "tracemalloc_retained_bytes": 171432,
+          "tracemalloc_peak_bytes": 5301132
+        },
+        "rank": {
+          "wall_s": 1.7483256490086205,
+          "tracemalloc_retained_bytes": 55528,
+          "tracemalloc_peak_bytes": 62844
+        },
+        "eager_over_rank_wall_ratio": 28.97322311589697,
+        "eager_over_rank_peak_ratio": 84.35382852778308,
+        "max_mass_abs_difference": 1.2491743750508988e-14,
+        "max_birth_abs_difference": 1.9905144199583447e-10,
+        "rank_roundoff_abs_sum": 2.789947185969743e-13,
+        "rank_roundoff_abs_max": 4.933543401282672e-18,
+        "numerically_checked_at_explicit_adapter_tolerances": true,
+        "source_shared_on_every_retained_split": true,
+        "eager_row_payloads_constructed": 46400464,
+        "rank_row_payloads_constructed_during_service": 0
+      }
+    ]
+  },
+  "theory": {
+    "status": "DERIVED_AND_INDEPENDENTLY_REVIEWED_UNDER_STATED_HYPOTHESES",
+    "results": [
+      "fixed homogeneous source rank telescoping and per-label additive conservation",
+      "sharp fixed-block prefix error h*p*(1-p)<=h/4 and interval delta/2",
+      "finite-common-speed eligibility prefix under explicit empty-link assumptions",
+      "fixed-capacity work-conserving service nonexpansiveness and epsilon+delta/4 composition bound"
+    ],
+    "rational_source_split_steps": 3000,
+    "finite_binary_prefix_checks": 20480,
+    "exact_service_cases": 96,
+    "queue_comparisons": 193,
+    "exact_output_breakpoints": 4077,
+    "coupled_city_stability": "UNRESOLVED_NOT_CLAIMED"
+  },
+  "verification": {
+    "scoped_rust_passed": 111,
+    "existing_ignored_rust_benchmarks": 2,
+    "native_python_tests_passed": 45,
+    "rank_and_sampler_tests_passed": 19,
+    "fresh_independent_review_passes": 1,
+    "independent_review_receipt": "S09_review_receipt.json"
+  },
+  "historical_drift_watchdog": {
+    "status": "PERFORMED_AND_PERSISTED_IN_AGENTS",
+    "original_sources": [
+      {
+        "commit": "049236458fdb5a7e327b0e494ab5f5cc3ad25b61",
+        "path": "docs/PRD.md",
+        "git_blob": "f8cc371410ca0e24b0947cda3d6772787efddc7a"
+      },
+      {
+        "commit": "049236458fdb5a7e327b0e494ab5f5cc3ad25b61",
+        "path": "specs/001-metroflow/spec.md",
+        "git_blob": "626b78acad7cafe1f3eadb8166bffb98550e0172"
+      },
+      {
+        "commit": "65245008af2387a8ce56e72d54a198394de3eee2",
+        "path": "memory/constitution.md",
+        "git_blob": "7c78e214c9558bcb1023854e55025f1c554aadee"
+      }
+    ],
+    "preserved": [
+      "100k mesoscopic map-traffic-accessibility-lagged-development motivation",
+      "original full demand, classes/purposes/information and finite response",
+      "person/vehicle/cargo accounting and immutable restart state"
+    ],
+    "corrected_historical_inference": "Nov17 narrow merge measurements do not imply a universal exact-representation no-go",
+    "conditional": [
+      "collapsed binary64 rank adapter not native-integrated",
+      "fixed-service block error is not a coupled-city trajectory certificate"
+    ],
+    "open": [
+      "ordered interval consumer",
+      "25710 original tick",
+      "9 full days and full-day replay/refinement",
+      "planned64GiB physical RAM match"
+    ]
+  },
+  "next_physical_success_condition": "Implement source-aligned immutable span consumption at the existing ordered interval boundary, then complete original25710 with unchanged input/caps, ledger and checkpoint evidence. No arbitrary guard credits.",
+  "task_owned_experiments_running": false,
+  "final_validation": [
+    {
+      "command": [
+        "python3",
+        "tools/v1_plan.py",
+        "validate"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "text_evidence_sha256": {
+    "AGENTS.md": "d6447a84c49f4a673e6e0188cf18bd6296f650d8bb68f816f33521224fbcce60",
+    "docs/v1/PLAN.json": "1f2bbfdfe1d653694c14360f41bebea80a1ab43a1560759502ee7a2b9c8301e9",
+    "docs/v1/MASTER_PLAN_KO.md": "67610a7c94fdc972dc7e115856430c6cc266206cafe4e63e2f138b648fe7fb0b",
+    "docs/research/V03_CAUSAL_RANK_20261123.md": "b8bfd55c57b9d36e5c631590dc715ea55423feb097c12ecf754d4f881a14e304",
+    "docs/research/V03_CAUSAL_FIFO_THEOREMS_20261123.md": "70a8379a6107c52030ab235161943e9bcbd3fad06ab8407f9c9d5d3c6331d041",
+    "docs/research/V03_CAUSAL_RANK_INDEPENDENT_REVIEW_20261123.md": "5f53e69f160bf275906405fd205826e5b7d79afe36ffd7cc19a378bbc1f128d0",
+    "src/metroflow/v1/fifo_rank.py": "0180b479b1fddf992c7d497ac88da1cc0ef1b2163afa07301ff9249f74c52531",
+    "artifacts/v03_causal_rank_20261123/S03_remainder_red_green.log": "9217de69188f37ca5869dc02304a8e24e50da3d4408e53303a5253236d29a8f2",
+    "artifacts/v03_causal_rank_20261123/S04_native_regression.log": "bfc985343e110a04ef0eae2c0999821705b89ba8bbda9f6015d33b1eb0130eeb",
+    "artifacts/v03_causal_rank_20261123/S04_original_continuation.json": "b8e818d9fe7fa638b633e72cfeca2a58a32b748001cbf32caf7b3ae52fecd698",
+    "artifacts/v03_causal_rank_20261123/S05_exact_rational_checks.json": "e47226eeda3a1bdd41b47880a5d85b4e31e095748833f90ddeeb539eed464ce2",
+    "artifacts/v03_causal_rank_20261123/S06_build_binding.json": "ab11ed9e8be052c8b2c99c264736e0bff3d9412825062268ee74094701b5fe29",
+    "artifacts/v03_causal_rank_20261123/S06_event_time_red_green.log": "aff09616657aff1815849e5e943b3667f03285b9287874b45d43680bb91d05bc",
+    "artifacts/v03_causal_rank_20261123/S06_native_build.log": "f866fbf5a4a420d83f145ee4d555490b01082742a02e9b061325577537fa5074",
+    "artifacts/v03_causal_rank_20261123/S06_native_python.log": "795c42a3de76fc4c1981cdb98d2f4bd8a6bdb99463a4b5b375cc56ff6dfa0290",
+    "artifacts/v03_causal_rank_20261123/S06_original_fifo_heads.json": "7152480c49fec04d4a700c9f0716d140f0c3a7c62d967d323723203be71c711c",
+    "artifacts/v03_causal_rank_20261123/S06_python_validation.log": "22dded5ac82a62542df658719ea2820d048476d7fd685de4e6a450675771424c",
+    "artifacts/v03_causal_rank_20261123/S06_service_stability.json": "90e150c30efa6628bbf16fe2df664f7db97854e6a50c02c184883f74c0fa8658",
+    "artifacts/v03_causal_rank_20261123/S07_original_continuation.json": "38e15baaf9555cd0c5fae2e55f6c51fbb3e04d9642acb690ad9597ed51e1e4b9",
+    "artifacts/v03_causal_rank_20261123/S07_original_continuation.log": "aa903011a84d6ce773f86b30febbea7bc31d4ebb0d64bba6dead4bccd46ad763",
+    "artifacts/v03_causal_rank_20261123/S07_rank_head0_benchmark.json": "f3c45dfc339e97de62f0ce5caf58d9ca8edb0ddb3ee6e56b6701ed33d0d71a33",
+    "artifacts/v03_causal_rank_20261123/S08_current_readiness.json": "b2c2d5aee477716b9ee6c9fbf8b48dc5fd4416f8143f1fe0c0366da2cebdf8ba",
+    "artifacts/v03_causal_rank_20261123/S08_preparation/CAMPAIGN.json": "761c2bc27f19dcbce0b2ec244b6d31cbfcf3139929d3403838104ffa61867471",
+    "artifacts/v03_causal_rank_20261123/S08_preparation/coastal_weekend_s41.prepare.json": "806cfaa5b0bb0b80eb0a3b9a1d5312b450c1395cb3506f5864cdb4276544834a",
+    "artifacts/v03_causal_rank_20261123/S08_preparation/coastal_weekend_s41.prepare.progress.json": "02fde395720ea305f0793f9b3d64e39443270324518d7c166aab83e599f864e3",
+    "artifacts/v03_causal_rank_20261123/S08_preparation/river_weekday_s17.prepare.json": "01b7543caeec22706649a355b41263b414d8632ff1cd2735aeec04828e45b428",
+    "artifacts/v03_causal_rank_20261123/S08_preparation/river_weekday_s17.prepare.progress.json": "3a16a2d5e80a36ca285f23ca4eddc5748f943d3424a99d896c2adf14eed6deb9",
+    "artifacts/v03_causal_rank_20261123/S08_preparation/valley_weekday_s7.prepare.json": "07ccda2992d2b09f0c116ca402bdea0e380b045412df70b62a7beb2191f4701b",
+    "artifacts/v03_causal_rank_20261123/S08_preparation/valley_weekday_s7.prepare.progress.json": "816ffdd5f14af9c6fa9321050a6a37f61a8f039d29146d9afd15894b27efc513",
+    "artifacts/v03_causal_rank_20261123/S08_preparation.log": "c868fa929b3747aca17e8f519a7dcef27fc8498dcdae163630048e6c1a0e36fb",
+    "artifacts/v03_causal_rank_20261123/S08_time_zero_prefix.json": "a7bdfb8c5e016b39685b20a33ae8722ba69ad44ba252bbbcf3f586c5f0a4f79b",
+    "artifacts/v03_causal_rank_20261123/S08_time_zero_prefix.log": "7e0aa3eef3aecd748b6f906849b0df46a283dd04897d315fa9840efbac376b06",
+    "artifacts/v03_causal_rank_20261123/S08_wire_identity.json": "26d3ebf7b76296ea74d5cefcf15dc39567b2c9188836931f5ba7f2658adcec42",
+    "artifacts/v03_causal_rank_20261123/S09_review_receipt.json": "2e576266ff093bcad6e9e61507160d4e353b26c3d98367e90801926331ed54c2",
+    "artifacts/v03_causal_rank_20261123/S10_current_readiness.json": "9ac510aff929d782b3c85e533206c911624f593d7b78ffb16be92840f3868b52",
+    "artifacts/v03_causal_rank_20261123/S10_plan_render_readiness.log": "c7f849b41dbfc212f574f9009d4d37300a81cf169d56b2215aff72573334d1e6",
+    "artifacts/v03_causal_rank_20261123/S10_plan_validation.log": "5b2dd6967c50883e2d02cabc25a8fd69ef6dae1957d391d70d84beeb2d61233c"
+  }
+}

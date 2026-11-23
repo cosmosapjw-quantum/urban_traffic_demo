@@ -1,0 +1,5 @@
+COMMAND ["python3", "tools/v1_plan.py", "validate"]
+{"status": "VALID_PLAN_NOT_RELEASE", "nodes": 21, "status_counts": {"ACCEPTED": 5, "VERIFIED_SCOPED": 14, "BLOCKED": 1, "PLANNED": 1}, "next_node": "V03", "full_repository_ci": "DEFERRED_BY_USER"}
+EXIT 0
+COMMAND ["git", "diff", "--check"]
+EXIT 0

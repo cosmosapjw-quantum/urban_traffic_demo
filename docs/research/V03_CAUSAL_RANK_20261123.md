@@ -269,3 +269,52 @@ sharing is implementation-verified; optional rank is numerically checked;
 original25710stillresource-blocked. Review did not inspect later S08sourcezero
 run; its full-byte identity and ledger checks are explicitly parent evidence.
 Review:V03_CAUSAL_RANK_INDEPENDENT_REVIEW_20261123.md.
+
+## Stage 10 — authoritative readiness, historical correction and handoff
+PLAN1.1.28 now points to the measured indexed-sweep blocker and constructive
+rank/span→ordered interval consumer→checkpoint path. The old Nov17 narrow
+merge result is retained as history, with its unsupported universal no-go
+interpretation removed. Original node statuses, full input, resource caps,
+numerical criteria and release matrix are unchanged. AGENTS.md persists the
+user-requested historical drift watchdog for every future MetroFlow research
+turn, without adding approval gates or DAG nodes.
+
+Final distinct readiness counters: research stages10/10; original scopedDAG
+19/21(90.476%), finalACCEPTED5/21(23.810%); V03directpredecessors3/3;
+current-source whole-calendar preparation3/3; this turn's current-source
+nonzero timezero trajectory1/3cases (Valley0→25700s); original full24h0/9.
+The planned64GiB host RAM is not matched by observed31.25GiB; process8GiB
+and original wall7200s were retained. V03BLOCKED,RLS01PLANNED,fullCI deferred.
+The sourcezero time coordinate25700/86400=29.745% is not a workload forecast.
+
+### This turn's historical drift watchdog
+- PRESERVED: original0492364 PRD/spec and6524500constitution's100k mesoscopic
+  topology→traffic→accessibility→lagged development/future-demand motivation,
+  heterogeneous classes/purposes/information, finite physical response and
+  person/vehicle/cargo conservation. Current source reproduces the full old
+ 25700wire fromtimezero; original demand was not reduced.
+- CONSTRUCTIVE REVISION: service rank is a conditional mixture coordinate,
+  not a new within-head birth/commodity order. Fixed rank blocks preserve
+  whole-block label totals and expose a physical mass-resolution parameter.
+  Shared immutable source removes repeated remainder payload construction;
+  exact native time-bit sharing reduces a real allocation.
+- CONDITIONAL: collapsedbinary64 rank needs source-consumer numerical tests;
+  it is optional research code, not silently inserted into native physics.
+  Fixed-C stability anddelta/4 prefix bounds do not certify coupled-node
+  capacities, rare blocked classes, routing feedback or long-run land use.
+- OPEN: original25710tick, all9full days, full-day replay/refinement and original
+  coupled-city observable validation. Actual long-run complexity remains a
+  representation/consumer problem; repeated arbitrary guard credits are not
+  the next action.
+
+### Concrete continuation boundary
+Implement the ordered interval consumer for shared source spans and retain
+legacy checkpoint expansion; derive its actual live allocations and ordered
+physical observables. Use captured original heads as a bounded falsifier,
+then the original25700checkpoint under unchanged caps. A complete25710state,
+its ledgers and restart bytes are the next physical success condition.
+For controlled closure, fix a versioned mass partition and test head-dependent
+node/receiving behavior and observables before claiming any whole-city bound.
+No task-owned simulation remains running at this handoff. The large lossless
+checkpoint is retained on the workstation at the path recorded in
+S08_time_zero_prefix.json; reproducible textual evidence is on this branch.

@@ -1,0 +1,6 @@
+COMMAND ["python3", "tools/v1_plan.py", "render"]
+Generated plan views: MASTER_PLAN_KO.md, DAG.mmd, DAG.dot, PR_CATALOG_KO.md
+EXIT 0
+COMMAND ["python3", "tools/research/v03_readiness.py", "--plan", "docs/v1/PLAN.json", "--matrix", "scenarios/v1/release_matrix.json", "--prep-dir", "artifacts/v03_causal_rank_20261123/S08_preparation", "--output", "artifacts/v03_causal_rank_20261123/S10_current_readiness.json"]
+{"V03": "BLOCKED", "dag": "19/21", "full_24h_runs": "0/9", "observed_RAM_GiB": 31.25, "original_V03_calendar_preparation": "3/3"}
+EXIT 0

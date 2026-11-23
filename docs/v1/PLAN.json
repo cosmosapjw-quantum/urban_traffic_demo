@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.27",
+  "version": "1.1.28",
   "date": "2026-11-23",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "COMPLETED_SCOPED",
-    "scope": "Complete Rust whole-owner resource representation and measured simulation continuation; scientific G-SCALE/G-DAY gates unchanged; no full CI or integration",
+    "scope": "Ten interleaved constructive theory/coding stages: exact event-time sharing, optional immutable rank adapter, current-source Valley0-to25700s byte-identical checkpoint, three full-calendar preparations; original V03 acceptance unchanged.",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "NOT_RUN",
     "main_modified": false,
-    "evidence": "artifacts/v1_queue_debug_20261116/RECEIPT.json",
+    "evidence": "artifacts/v03_causal_rank_20261123/S10_FINAL_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,11 +384,10 @@
       "status": "success"
     },
     "parallel_agents": [
-      "journey_debug",
-      "parallel_road",
-      "engine_diagnostics",
-      "queue_review",
-      "parallel_references"
+      "constructive_theory",
+      "runtime_blocker",
+      "history_drift",
+      "independent_review"
     ]
   },
   "nodes": [
@@ -1890,7 +1889,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "2026-11-23 user authorizes constructive surgical model revision preserving original motivation. Continue from 606b3ac actual Valley 25650-to-25700 prefix: diagnose source-remainder packing lifetime, retain true interval reserve and original limits, then test cumulative-rank FIFO representation against original ordered route/class/birth/finite-response observables. The 2026-11-17 merge-efficiency finding concerns those measured representations, not all exact formulations. Preserve 19/21 scoped nodes, V03 BLOCKED and 0/9 full days until actual release evidence. Full CI/integration remain deferred.",
+      "positive_next_action": "Current native source bea107c2 executes Valley from time zero to25700s with a final wire identical to the historical checkpoint and current3/3 full-calendar preparations. Exact event-time sharing saves275,578,880B in the original25710 candidate and passes258,538 transfer checks, but indexed sweep still requires5,051,633,256B against5,025,214,575B; no valid25710state. Next integrate the source-aligned immutable rank/span carrier with the actual ordered interval consumer and checkpoint expansion, deriving live ownership and interval-work requirements. Preserve full demand, finite-response eligibility, route/class/birth observables, original8GiB/7200s and numerical criteria. Validate captured-source consumers and a complete original25710tick; controlled closure requires explicit model/version and coupled-observable error evidence. Do not repeat arbitrary guard credits or infer a universal no-go from Nov17 merge ratios. V03 remainsBLOCKED, scopedDAG19/21 and full days0/9. Full CI/main integration remain deferred.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1910,8 +1909,8 @@
         "sha": "97b09576f5fe96f8e08d07a4bed80a841ffb2679"
       },
       "blocked_evidence": {
-        "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
-        "sha256": "e88229512fefcbebde7a457c97f86b4ebe1f6d3f416670f5e80a4b4923dfb2f0"
+        "path": "artifacts/v03_causal_rank_20261123/S07_original_continuation.json",
+        "sha256": "38e15baaf9555cd0c5fae2e55f6c51fbb3e04d9642acb690ad9597ed51e1e4b9"
       },
       "resource_optimization_evidence": [
         {
@@ -1953,6 +1952,11 @@
           "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
           "sha256": "e88229512fefcbebde7a457c97f86b4ebe1f6d3f416670f5e80a4b4923dfb2f0",
           "scope": "Measured blocked-checkpoint workspaces (counted heap 2.4-3.2GB vs >6GiB guards); retained_capacity_v3 lifetime accounting (sink envelope after road step, interval workspace, sort-based stage validation); 260 scoped tests, legacy replay bytes identical. Gates adde1a3 stop at25650/32730/25420s; guard-bypassed diagnostics show road parts doubling per50-100s (Valley real allocation failure at8GiB AS). Attribution (option a): partial head serves create ~80% of new rows; bit-identical merging bounded at a few percent."
+        },
+        {
+          "path": "artifacts/v03_causal_rank_20261123/S07_original_continuation.json",
+          "sha256": "38e15baaf9555cd0c5fae2e55f6c51fbb3e04d9642acb690ad9597ed51e1e4b9",
+          "scope": "Exact consecutive time-bit sharing:17,429,035 candidate event rows,206,999time runs,275,578,880B actual payload reduction;258,538transfer checks passed; indexed sweep still resource-blocked and continuation advance0s. Original limits/demand/physics unchanged. Current-source timezero-to25700 and three preparation receipts are separately preserved in the same artifact directory."
         }
       ],
       "historical_blocked_evidence": [
@@ -1963,6 +1967,10 @@
         {
           "path": "artifacts/v1_v03_scaling_20261116/RECEIPT.json",
           "sha256": "4f3806899ee03b03e0c112c918fab9b25d737e37e35c87f98fee72840cd0699b"
+        },
+        {
+          "path": "artifacts/v1_v03_workspace_20261117/RECEIPT.json",
+          "sha256": "e88229512fefcbebde7a457c97f86b4ebe1f6d3f416670f5e80a4b4923dfb2f0"
         }
       ],
       "current_research_evidence": {
@@ -2182,18 +2190,18 @@
       "Retained_capacity_v3 lifetime accounting: post-road sink envelope by exit count, interval workspace/slot retention, sort-based exact stage validation; env-gated guard-margin recorder and diagnostic-only budget_trace build"
     ],
     "remaining": [
-      "Road interval packet row growth at morning onset exceeds the unchanged 8GiB process target even with guards bypassed (Valley 25,700s); requires attributed representation work within the physics contract; v3 gates stop at 25650/32730/25420s",
-      "Reduce dense all-leg work and conservative workspace overhead with justified lifetime bounds; parallel speedup is not robust in shared-host measurements",
+      "Original current-source Valley continuation reaches indexed sweep preflight after source remainder/transfer fixes; no valid25710state. Ordered interval materialization and retained ownership exceed the unchanged phase allowance. Historical guard-bypassed failures remain historical evidence, not a universal impossibility proof.",
+      "Integrate source-aligned rank/span views into the actual ordered interval consumer and checkpoint expansion; retain finite response and commodity/birth observables. Separate bit-exact event sharing, real-arithmetic rank equivalence and explicitly approximate block closure; require complete-tick, ledger and checkpoint evidence.",
       "Frozen candidate3cases x3 full-day completion, matched refinement and full-day checkpoint replay; current completion0/9",
       "Separate final review, RLS01 packaging/fresh-install acceptance and full repository CI/integration deferred by user"
     ],
     "dag_policy": "V03 internal migration work; no new DAG nodes, 19/21 unchanged until acceptance",
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
-      "date": "2026-11-16",
-      "scope": "Rust native storage, numerical progress and shared accounting implementation verified in scoped tests; actual full-target campaign and recovery diagnostics completed with explicit resource blockers",
-      "evidence": "artifacts/v1_rust_completion_20261116/RECEIPT.json"
+      "date": "2026-11-23",
+      "scope": "Exact event carrier and source remainder fixes, constructive FIFO/rank/error/stability proofs, actual464-row adapter scaling, current-source Valley0-to25700s with full old-wire equality, current3/3 full calendars, bounded independent review; original25710indexed sweep remainsblocked.",
+      "evidence": "artifacts/v03_causal_rank_20261123/S10_FINAL_RECEIPT.json"
     },
-    "active_work": "No experiment remains running. Frozen532effe campaign is BLOCKED: actual three-city resource receipts preserved; Riverfresh-load and byte roundtrip verified. V03 and RLS01 remain incomplete."
+    "active_work": "No task-owned experiment remains running. Current-source0-to25700prefix and compressed-wire identity verified; full three-city preparations3/3; indexed sweep blocker retained. Next production work is the rank/span-to-ordered-interval consumer path with original complete-tick evidence. V03BLOCKED and RLS01PLANNED; original full days0/9."
   }
 }
