@@ -213,3 +213,34 @@ C8c는 이 반복 실패를 근거로 capture와 restore가 사용하는 단일 
 R8/C8은 실제 길이 증가 실험, 반복 실패의 일관된 수명 수정, 구성적 이론 보강 및 한정 독립 검토, 최종 원 cadence 비교까지 수행해 완료한다. 현재 코드의 잔여 실행 의무는 Arc census 사전계상과 별도 Journey stored/working admission,43,200s same-engine resume,원24h·refinement·반복수용이다. 이는 구현/자원 admission의 현재 실패이며 물리적 불가능성 증명이나 cap 완화 승인을 의미하지 않는다. 이번 단계에서 추가 guard 수정을 반복하지 않고 R9 준비도와 R10 재개점을 확정한다.
 
 Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 배경 이론은 실제 관측 정보가 경로 선택을 바꾸는 명제로 업그레이드했고, 실행은 원 수요·물리·예산과 hourly 의미를 유지했다.40s 저장 blocker의 실제 해소와 다음10s의 저장 실패를 함께 보존했다. 원래 하루 도시 실행은 아직 닫히지 않았다.
+
+
+## R9 / C9 — 최종 후보의 원 전제조건과 정량 준비도 (완료)
+
+최종 C8c source/native를 유지하고 clean source commit `4db8d17737e97702abafd92ddebc1b4f197859db`에서 원 release matrix의3도시 preparation을 실제로 다시 수행했다. 부모 CLI가 도시별 horizon0,dt10,100,000 resident stock,process8GiB/native6GiB를 적용했다.3개 원 영수증 모두 `WHOLE_CALENDAR_PREPARED`,source/native hash 일치,source_dirty=false이고 `CAMPAIGN.json`은 `PREPARATION_ONLY`,issues=[]다. Wrapper exit0이며 앞선 중간 후보의 river 영수증을 재사용하지 않았다.
+
+| 최종 후보 preparation | 주민 stock | 원 달력 legs | wall[s] | peak RSS[B] | peak RSS[GiB] |
+|---|---:|---:|---:|---:|---:|
+| river_weekday_s17 | 100,000 | 5,093,765 | 64.989154 | 2,173,767,680 | 2.024479 |
+| coastal_weekend_s41 | 100,000 | 2,449,750 | 38.069301 | 1,115,602,944 | 1.038986 |
+| valley_weekday_s7 | 100,000 | 918,450 | 21.950420 | 445,386,752 | 0.414799 |
+
+전체8,461,965legs는 여행 달력의 구조적 항목 수이며 주민 수가 아니다. Calendar persons는 경우에 따라120,000이지만 resident stock은각100,000으로 분리돼 있다. 이 단계의 물리 진행 시간은0s다. 실제 native fixed reserve/dynamic pool도 도시별 영수증에서 읽었다. River는3,306,998,730/3,135,452,214B,Coastal은1,635,993,442/4,806,457,502B,Valley는653,084,145/5,789,366,799B다. 최종 C8c의 이 값을 이전 후보의 Valley 값으로 덮어쓰지 않는다. 전체 native6GiB cap은 유지됐다.
+
+준비도 도구는 실제3개 preparation 영수증의 source/native/matrix/cap/clock을 현재 후보와 대조했다. 출력은 `R9_final_readiness.json`, 원 데이터는 `R9_final_prepare/`이고 실행exit0이다. `python3 tools/v1_plan.py validate`도exit0,`VALID_PLAN_NOT_RELEASE`를 반환했다. PLAN v1.1.26의 SHA와 원 matrix SHA는 R1과 동일하다.
+
+| 서로 합산하지 않는 준비도 차원 | 최종 확인값 | 근거 상태 |
+|---|---:|---|
+| 선행 구현 및 한정 검증 DAG | 19/21 =90.476% | 5 ACCEPTED +14 VERIFIED_SCOPED; V03 수용률 아님 |
+| 최종 ACCEPTED 노드 | 5/21 =23.810% | P00,M01,T01,I01,M02 |
+| V03 직접 선행 P01,V01,V02 | 3/3 | 모두 VERIFIED_SCOPED |
+| 최종 source/native의 원 전체 달력 구성 | 3/3 | 실제 preparation,물리 진행0s |
+| 원24h 정상 종료·수용 | 0/9 | 3도시×3회; 부분 prefix를 포함하지 않음 |
+| 43,200s same-engine 중단·재개 | 0/3 | 각 도시 run2_resume의 최종 후보 수용 근거 없음 |
+| dt5 matched refinement | 0/3 | 도시별28,800s refined run 근거 없음 |
+
+원 preparation scorer의 `execution_status=BLOCKED_BY_EXACT_INTERVAL_PACKET_EXPLOSION`은 코드에 고정된 과거 설명이며 최신 오류 자동 분석이 아니다. PLAN의2026-11-17 `positive_next_action`도 당시 제한된 후보의 engineering 추정으로 구분한다. 이를 수정한 물리 이론의 no-go로 재해석하지 않는다. 실제 최종 후보의 현재 오류는 R8의 Journey stored/working guard와 snapshot Arc census preflight다. 따라서 `R9_final_readiness_dashboard.json`은 원 scorer 결과를 보존하면서 최신 두 실행 영수증에 묶인 `measured_current_blockers`,저장/반환/fresh clock을 별도로 제공한다.
+
+독립 코드 검토는 이미 동결된 C8c delta에 대해 완료된 `C8c_independent_capture_review.md`와 동일 source identity를 재사용했다. 이번 단계에서 source가 바뀌지 않았으므로 같은 검토나 library suite를 다시 실행하지 않았다. 최종292개 Rust library PASS·2ignored는 scoped gate이고 전체 repository CI나24h 수용으로 승격하지 않는다. Main 통합과 full repository CI는 기존 사용자 결정대로 보류 상태다.
+
+Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 원 도시·수요 달력을 실제로 준비했고 구현노드,calendar preparation,활성 물리 prefix,24h 수용을 분리했다. 원본 하루 도시 실험을19/21이나3/3이라는 다른 지표로 대체하지 않았다. 이 단계는 입력 전제조건3개를 최종 후보에서 실제 만족했지만 V03/RLS01 status는 각각BLOCKED/PLANNED로 유지한다.

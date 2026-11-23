@@ -1,0 +1,147 @@
+{
+  "authority": {
+    "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "plan_sha256": "db340883e387778b91291d1d9fbbdc9292a64dc9d5c2905ae327dcf94c480ad7"
+  },
+  "case_preparation": [
+    {
+      "calendar_legs": 5093765,
+      "calendar_persons_is_not_resident_stock": 120000.0,
+      "case": "river_weekday_s17",
+      "driver_identity": "e2b7f7f67d5cf71b772f9430786d9acd5edb468c2a823a9923d4efc80b90ceca",
+      "dynamic_shared_pool_bytes": 3135452214,
+      "fixed_reserve_bytes": 3306998730,
+      "measured_source_commit": "4db8d17737e97702abafd92ddebc1b4f197859db",
+      "native_accounting_cap_bytes": 6442450944,
+      "native_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+      "peak_rss_GiB": 2.0244789123535156,
+      "peak_rss_bytes": 2173767680,
+      "process_cap_bytes": 8589934592,
+      "receipt": "artifacts/v03_origin_validation_20261123/R9_final_prepare/river_weekday_s17.prepare.json",
+      "receipt_sha256": "7a7b841c8eeaed949e2bff1ed6bdfec9065926064bd16d17bc326491166915da",
+      "resident_stock": 100000.0,
+      "source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 64.98915427198517
+    },
+    {
+      "calendar_legs": 2449750,
+      "calendar_persons_is_not_resident_stock": 100000.0,
+      "case": "coastal_weekend_s41",
+      "driver_identity": "ece5ab20174646105a689c547fb79a415e92547fbb0b29b24aef494e1adfd39e",
+      "dynamic_shared_pool_bytes": 4806457502,
+      "fixed_reserve_bytes": 1635993442,
+      "measured_source_commit": "4db8d17737e97702abafd92ddebc1b4f197859db",
+      "native_accounting_cap_bytes": 6442450944,
+      "native_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+      "peak_rss_GiB": 1.0389862060546875,
+      "peak_rss_bytes": 1115602944,
+      "process_cap_bytes": 8589934592,
+      "receipt": "artifacts/v03_origin_validation_20261123/R9_final_prepare/coastal_weekend_s41.prepare.json",
+      "receipt_sha256": "ad2a6899b825b8847d7c7bfc1542cb7680ce4ce50b56c48c4fcdb51964e27016",
+      "resident_stock": 100000.0,
+      "source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 38.06930110999383
+    },
+    {
+      "calendar_legs": 918450,
+      "calendar_persons_is_not_resident_stock": 120000.0,
+      "case": "valley_weekday_s7",
+      "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+      "dynamic_shared_pool_bytes": 5789366799,
+      "fixed_reserve_bytes": 653084145,
+      "measured_source_commit": "4db8d17737e97702abafd92ddebc1b4f197859db",
+      "native_accounting_cap_bytes": 6442450944,
+      "native_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+      "peak_rss_GiB": 0.4147987365722656,
+      "peak_rss_bytes": 445386752,
+      "process_cap_bytes": 8589934592,
+      "receipt": "artifacts/v03_origin_validation_20261123/R9_final_prepare/valley_weekday_s7.prepare.json",
+      "receipt_sha256": "b17df46180f4f14a0985996846ae8ef9ba42c22cf09b3b9b922c80773b3edea8",
+      "resident_stock": 100000.0,
+      "source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "wall_s": 21.950420109991683
+    }
+  ],
+  "dimensions": {
+    "dag_implemented_or_scoped_verified": {
+      "completed": 19,
+      "is_v03_completion": false,
+      "percent": 90.47619047619048,
+      "total": 21
+    },
+    "final_candidate_whole_calendar_preparation": {
+      "completed": 3,
+      "physical_time_advanced_s": 0,
+      "total": 3
+    },
+    "finally_accepted_nodes": {
+      "completed": 5,
+      "percent": 23.80952380952381,
+      "total": 21
+    },
+    "full_day_acceptance": {
+      "completed": 0,
+      "total": 9
+    },
+    "matched_dt5_refinement": {
+      "completed": 0,
+      "required_refined_horizon_s": 28800,
+      "total": 3
+    },
+    "same_engine_43200_resume": {
+      "completed": 0,
+      "scope": "required in the three city run2_resume full-day runs",
+      "total": 3
+    },
+    "v03_direct_dependencies": {
+      "completed": 3,
+      "status": "VERIFIED_SCOPED",
+      "total": 3
+    }
+  },
+  "drift_watchdog": "ALIGNED_WITH_OPEN_OBLIGATION",
+  "final_source_evidence": {
+    "highest_normal_returned_and_ledger_checked_s": 25740,
+    "highest_saved_and_fresh_validated_continuation_s": 25730,
+    "highest_time_zero_hourly_saved_and_fresh_validated_s": 25200,
+    "no_full_day_credit_from_any_prefix": true,
+    "time_zero_saved_prefix_has_zero_released_mass": true
+  },
+  "main_merge_and_full_repository_ci": "DEFERRED_BY_USER",
+  "measured_current_blockers": {
+    "failed_hourly_internal_clock_s": null,
+    "original_hourly_primary": "native journey stored/working byte budget",
+    "original_hourly_recovery_save": {
+      "budget_bytes": 6442450944,
+      "class": "MemoryError",
+      "message": "native snapshot Arc census preflight budget exceeded",
+      "phase": "exception checkpoint save",
+      "required_bytes": 7221056145
+    },
+    "tick_return_then_save": {
+      "class": "MemoryError",
+      "message": "native snapshot Arc census preflight budget exceeded: required_bytes=6807602661, budget_bytes=6442450944",
+      "phase": "SAVE_VALID_PREFIX"
+    }
+  },
+  "metric_policy": "Dimensions are overlapping and must not be summed into a single completion percentage.",
+  "native_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+  "plan_validation": {
+    "exit": 0,
+    "log": "artifacts/v03_origin_validation_20261123/R9_plan_validation.log",
+    "status": "VALID_PLAN_NOT_RELEASE"
+  },
+  "raw_preparation_scorer": {
+    "historical_literal_execution_status": "BLOCKED_BY_EXACT_INTERVAL_PACKET_EXPLOSION",
+    "interpretation": "This preparation-only scorer does not analyze the current runtime failure; measured_current_blockers is taken from the final frozen-native execution receipts.",
+    "path": "artifacts/v03_origin_validation_20261123/R9_final_readiness.json",
+    "sha256": "cf25a76a20bc75abeccdfbe185b2b6de0f01bdf015906ef9392d194128e6497b"
+  },
+  "schema": "V03_FINAL_EVIDENCE_DASHBOARD_V1",
+  "source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+  "status": "BLOCKED_NOT_RELEASE_READY",
+  "total_calendar_legs": 8461965
+}
