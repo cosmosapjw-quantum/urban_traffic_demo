@@ -1,0 +1,38 @@
+{
+  "baseline_behavioral_red": "C7_original_continuation.json: original25720 transfer candidates actual resource rejection",
+  "budget": "O(1) page projections before allocation,3x live row-header growth bound, actual frozen descriptors, per-page metadata allowance; controls and decoded cell coexistence explicitly charged. No base or limits credit.",
+  "classification": "EXACT_REPRESENTATION_SOURCE_PRODUCER_REVISION",
+  "control_constancy": "Road motion and local_mid held within a serve: speed common, latent constant per class. Pending marks constant per class. Cache is local per serve/packet; physical f64 expressions stay original.",
+  "lifetime": "Global timed rows/control table while generating; only one destination decoded into old Part+Mark pages at a time. Both encoded and decoded cell owners charged through original ordered reductions/combine, then dropped. Controls persist until all consumers finish, then drop before state validation.",
+  "not_claimed": [
+    "No native performance or next full-tick success claimed before run.",
+    "No source expression-factorization or new physical closure.",
+    "Physical packet row growth remains distinct from transient incoming storage."
+  ],
+  "prior_failure": {
+    "calls": 477181,
+    "exceeded": 1,
+    "limit_at_max": 4921274823,
+    "live_at_max": 4048334233,
+    "max_ratio": 1.0000107795239868,
+    "max_required": 4921327872,
+    "terms_at_max": {
+      "base": 2887524752,
+      "event_bytes": 1098688672,
+      "event_candidate_live_bound": 537167672,
+      "extra": 0,
+      "full_source_base": 3050477840,
+      "incoming_actual_descriptor_bytes": 0,
+      "incoming_actual_page_charge": 935114448,
+      "incoming_descriptors_frozen": 0,
+      "incoming_live_pages": 128715,
+      "incoming_rows": 16426959,
+      "interval_retained": 0,
+      "interval_transient": 0,
+      "transfer_exclusive_cell_scratch": 162953088
+    }
+  },
+  "representation": "32-byte row (tag,offset,control_id,mass,birth) and immutable32-byte control (a_bits,b_bits,speed_bits,latent_bits)",
+  "source_scope": "bounded_bytes_v1 + interval producers + checked u32 tag/offset domain",
+  "structural_payload_formula": "old=56*128*P; new=32*128*P+32*128*ceil(H/128), with actual descriptors/metadata separately charged"
+}

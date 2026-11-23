@@ -1,0 +1,14 @@
+{
+  "legacy_records": {
+    "exact_wire_and_physical_pairs": 8,
+    "nonempty_event_ticks": 10,
+    "batch_wire_identical": true,
+    "restart_wire_identical": true
+  },
+  "bounded_bytes_v1": {
+    "exact_wire_and_physical_pairs": 8,
+    "nonempty_event_ticks": 10,
+    "batch_wire_identical": true,
+    "restart_wire_identical": true
+  }
+}

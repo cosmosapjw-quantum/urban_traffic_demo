@@ -1,0 +1,34 @@
+[
+  {
+    "label": "C8_PYTHON_REGRESSIONS",
+    "argv": [
+      "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/v1/test_native_owner_storage.py",
+      "tests/v1/test_native_engine.py",
+      "tests/v1/test_native_whole_driver.py",
+      "tests/v1/test_native_journey.py"
+    ],
+    "exit_code": 0,
+    "wall_s": 2.6147623599972576,
+    "stdout": "..........................................                               [100%]\n42 passed in 1.60s\n",
+    "stderr": ""
+  },
+  {
+    "label": "C8_SMALL_REPLAY",
+    "argv": [
+      "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+      "tools/research/check_retained_event_replay.py",
+      "--label",
+      "timed_incoming",
+      "--out",
+      "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_coding_reconstruction_20261123/C8_small_replay.json"
+    ],
+    "exit_code": 0,
+    "wall_s": 0.2287713789846748,
+    "stdout": "{\"label\": \"timed_incoming\", \"native_sha256\": \"ddc0a92b074422786d906b69b5941cbd6271563d987f8502ea4e1c6b5d21f9a6\", \"policies\": {\"legacy_records\": {\"nonempty_event_ticks\": 10, \"max_events\": 8, \"batch_wire_identical\": true, \"restart_wire_identical\": true}, \"bounded_bytes_v1\": {\"nonempty_event_ticks\": 10, \"max_events\": 8, \"batch_wire_identical\": true, \"restart_wire_identical\": true}}}\n",
+    "stderr": ""
+  }
+]

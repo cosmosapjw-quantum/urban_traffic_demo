@@ -1,0 +1,1 @@
+{"label": "timed_incoming", "native_sha256": "ddc0a92b074422786d906b69b5941cbd6271563d987f8502ea4e1c6b5d21f9a6", "policies": {"legacy_records": {"nonempty_event_ticks": 10, "max_events": 8, "batch_wire_identical": true, "restart_wire_identical": true}, "bounded_bytes_v1": {"nonempty_event_ticks": 10, "max_events": 8, "batch_wire_identical": true, "restart_wire_identical": true}}}
