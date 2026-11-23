@@ -1,0 +1,47 @@
+{
+  "schema": "metroflow.v03.coding_stage_completion.v1",
+  "stage": "C9",
+  "stage_status": "COMPLETE_SCOPED_REVIEW",
+  "date": "2026-11-23",
+  "independent_reviewer": "c9_fresh_review",
+  "reviewed_production_commit": "bec506abb5247e76e8f74e2846eedf9e1c5c501a",
+  "head_at_review_publication": "0bbac143444fc16978433a5d2e316fcf97542be9",
+  "report": {
+    "path": "docs/research/V03_CODING_C9_REVIEW_20261123.md",
+    "sha256": "aa304a0aa52f8bc13e8fbfbe8f2347ca2ff234bc62b6410dae801df0b9d90d5a",
+    "bytes": 27360
+  },
+  "review_verdict": "PASS_WITHIN_INSPECTED_CHANGED_CODE_SCOPE",
+  "identified_new_findings_by_severity": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 0,
+    "P3": 0
+  },
+  "review_scope": [
+    "encoded history producer/retention/direct decode/ordered consumers/legacy export",
+    "timed incoming fixed pages and append-only controls with bit-preserving direct indexed access",
+    "unchanged weighted reductions and combine sort/fsum barriers",
+    "live owner coexistence, drop-before-charge release, conservative descriptor bounds",
+    "source-specific Uniform allocation bound; SharedKeys moment Arc preservation",
+    "final source/binary binding,190 Rust tests with2 ignored,42 Python tests,16 old/new complete finite states"
+  ],
+  "review_does_not_certify": [
+    "later large C8_keyset continuation",
+    "later fresh-from-zero C8 comparison",
+    "full-day or full matrix acceptance"
+  ],
+  "root_experiment_supplement": {
+    "path": "artifacts/v03_coding_reconstruction_20261123/C8_COMPLETION.json",
+    "sha256": "69f1855338e0d2f4ab082fa68f70475673a7b82480ae72695abf51f8330101eb",
+    "checkpoint_resume_verified_s": 25720,
+    "fresh_from_zero_verified_s": 25710,
+    "fresh25720": "BLOCKED_RESOURCE",
+    "next_resumed25730": "BLOCKED_RESOURCE"
+  },
+  "v03_status": "BLOCKED",
+  "full_days_completed": 0,
+  "full_days_required": 9,
+  "new_test_or_approval_gate_added": false,
+  "reviewer_next_task": "NONE; bounded review and actual-change addenda complete"
+}

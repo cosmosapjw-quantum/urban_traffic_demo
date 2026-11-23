@@ -22,7 +22,7 @@ The first selected native boundary is persistent, exact event-history storage: p
 | C6 | Actual build, behavioral red/green, targeted native/Python regressions | COMPLETE; 180 Rust, 42 Python, matched old/new replay |
 | C7 | Full-demand original checkpoint continuation and physical ledger checks | COMPLETE; original 25710 state valid, next source failure isolated |
 | C8 | Increasing horizons, matched correctness/resource/replay experiments | COMPLETE; resumed25720, fresh25710 exact, three full-calendar preparations |
-| C9 | One independent review of changed scientific and runtime surfaces; repairs | PENDING |
+| C9 | One independent review of changed scientific and runtime surfaces; repairs | COMPLETE; fresh scoped review, no P0–P3 finding, original V03 still blocked |
 | C10 | Final readiness/evidence, reusable latest checkpoint, exact next action | PENDING |
 
 Each stage is committed and pushed separately. Stage completion describes the requested research work, not automatic V03 acceptance. Initial DAG: scoped-or-accepted 19/21, accepted 5/21; V03 BLOCKED; full-day 0/9.
@@ -152,3 +152,9 @@ After the fresh-run limitation was recorded, the original preparation CLI ran se
 Total calendar legs are8,461,965. Preparation3/3 is not full-day completion0/9; calendar person-trip quantities also are not resident stock. The final source passes190 Rust tests (2 ignored),42 Python tests and16 old/new complete finite wire-and-physical records with batch/restart equality. These checks do not substitute for the uncompleted large fresh25720 comparison, refined-dt study or original three-repeat full-day release.
 
 Drift watchdog: no population, departure calendar, route legality, FIFO boundary, finite-response law, physical ledger, numeric tolerance or release limit changed. The source sharing and direct consumer preserve original ordered operations, so no model variant was silently introduced. The original coupled urban objective remains intact; current progress is implementation-verified exact representation and scoped physical execution, while full-scale completion remains resource-blocked.
+
+## C9: independent changed-code review completed
+
+One fresh independent reviewer inspected the actual changed native surfaces and source/binary bindings. Actual new materialization and keyset failures prompted narrow reviews of the resulting repairs in the same report, not a recursive review tree. The final reviewed production commit is bec506abb5247e76e8f74e2846eedf9e1c5c501a. The reviewer found no supported new P0, P1, P2 or P3 defect in that scope, independently compared all16 complete finite old/new state records, and checked the190-pass native/42-pass Python evidence. The retained-history semantics, active completion history, exact timed controls, source liveness, page/header bounds, direct ordered combine and Uniform-only new keyset payload bound were explicitly inspected.
+
+The full report is V03_CODING_C9_REVIEW_20261123.md, SHAaa304a0aa52f8bc13e8fbfbe8f2347ca2ff234bc62b6410dae801df0b9d90d5a. C9_COMPLETION.json binds the final reviewed source and root's separately recorded C8 experiment supplement. The reviewer did not certify the subsequently completed large25720 continuation or fresh time-zero campaign; those conclusions come from the actual root-run receipts in C8. No further code edit or new test/permission gate was requested. Original V03 remains BLOCKED, and the uncompleted fresh25720 comparison and nine full-day runs remain explicit limitations.
