@@ -112,3 +112,20 @@ release build는exit0(관측31.49s). candidate source는c9fdad9cafc138855e5aaa86
 baseline 실행 일부와 Rust 검증/build가 겹쳤으므로651s는 실제 관측 비용이며 격리된 speedup 비교가 아니다. 현재 후보의 time-zero 실행으로 세지 않고, 원래day 캠페인credit은0이다. 원본 영수증과 fullhash 요약은 `R2_baseline_hourly/` 및 `R6_original_cadence_baseline_summary.json`에 있다.
 
 Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 진단 harness가 원 실행을 대표한다고 가정하던 위험을 실제 cadence 재실행으로 교정했고, 관측 의미와 새 이론의 물리적 범위를 독립 확인했다. 남은 실행 blocker는 실제 phase별 계약의 문제로 좁혀 수정한다.
+
+## R7 / C7 — 판별 물리 계산과 첫 full-scale 적용 (완료)
+
+이론의 판별 실험은 τ_r=2s, 속도 knots(0,2),(20,3),(40,2),(100,2) [s,m/s], forcing V=v+τ_r v'의 exact finite-response 해다. invariant range[1.9,3.1]m/s에서Γ=31/19를 인증한다.20s 결정 전에 완료·1s전달된 표본만 예측에 넣고 미래 entry20…35s의4개길이×31시점=124개 통과를 보류했다. exact-rational 적분과 root bracket 폭1e−10s로 전부 확인했다. 저자 실행wall0.143555s, 독립 다른 primitive 검산exit0이며 실제도시 calibration이 아니다.
+
+| 20s 출발의 경로 도착 clock | 예측 구간[s] | 실제 exact bracket의 근삿값[s] |
+|---|---:|---:|
+| 직접10m | [23.2258064516,26.6813942905] | [23.4314575050666,23.4314575051394] |
+| 우회20m+20m | [32.9032258065,56.2142524713] | [35.2786404499797,35.2786404501106] |
+
+직접 upper가 우회 lower보다6.221831516s 작다. 일반 regret bound는3.455587839s, 해당 경로집합의 강한 dominance 판정은regret0이다. 과거 관측 없이도 알 수 있는 길이 floor만으로는 finite upper를 얻지 못하므로, 이 결과는 causal matched 관측으로 원래 routing 정보 공백 하나를 실제로 해소한 구성적 scientific oracle다. 일반native queue의 Γ 인증과 자동 boundary 계측까지 해결했다고 하지 않는다.
+
+원본100k의 첫 새 후보 물리실험은25,730→25,740s를 요청했다. 기존 전체5.523GB wire와 원 mass ledger가 정확히 복원됐고, 이전의 `state validation workspace`를 통과해 road→service_finish→journey_finish까지 진행했다. 그러나 최종 `whole checkpointability`가6,448,942,576>5,789,366,831B로 거절하여 새로운 committed physical time은0s다. native 성공tick0·실패1, road121.472988s, 전체172.840468s,peakRSS4,999,565,312B,exit2다. 결과 `R7_frontier_25730_10s.json/.log/.time/.exit`를 보존했다. 물리 중간 연산이 끝났다는 이유로 완료시간을25,740으로 올리지 않았다.
+
+이 실패는 첫 구현의 실제 기여와 잔여 계약을 구분한다. old validator blocker는 실제100k에서 지나갔고, 다음 checkpoint/decode 사전조건은 남았다. 조사 결과 whole-bundle Journey의 validation maps는 여전히 실제 필요하며 제거할 수 없다. stale O(road parts) 항은 road checkpoint decoder의 validation reserve와 미래 decode envelope에 함께 남아 있다. 두 경로를 일치시키는 수정과 실제 source/current/candidate 수명에 따른 hourly preflight 교정을 C8에서 수행한다. 같은 실패의 맹목적 재실행 대신 원인이 다른 계약 지점을 수정한다.
+
+Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 이론은 원래 traffic→causal routing을 실제 계산으로 연결했고, 코드의 full-scale 적용에서 통과한 phase와 rollback된 전체 tick을 분리했다. 단계 검증을 완료했지만 V03 실행 통과로 바꾸지 않았다.

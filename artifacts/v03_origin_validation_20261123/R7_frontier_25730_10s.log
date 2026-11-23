@@ -1,0 +1,2 @@
+INITIAL_WIRE_LEDGER_VERIFIED 25730.0
+{"status": "BLOCKED_RESOURCE", "completed_time_s": 25730.0, "valid_advanced_duration_s": 0.0, "blocked_target_time_s": 25740.0, "error": {"class": "BudgetExceeded", "message": "native whole checkpointability storage budget exceeded: required_bytes=6448942576, budget_bytes=5789366831", "phase": "ADVANCE"}, "peak_rss_bytes": 4999565312, "wall_total_including_full_preparation_and_checkpoint_io_s": 172.84046755899908}
