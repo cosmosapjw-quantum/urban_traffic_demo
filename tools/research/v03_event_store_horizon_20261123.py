@@ -357,6 +357,11 @@ def main() -> int:
             initial_event_moments={"status":"OBSERVER_ERROR","class":type(exc).__name__,
                                    "message":str(exc)}
 
+        if initial_event_moments.get("status") != "OBSERVER_ERROR":
+            print("NATIVE_EVENT_OBSERVATION",json.dumps({
+                key:initial_event_moments[key] for key in
+                ("time_s","row_count","storage_bytes","mass","age_time_mass")
+            },sort_keys=True),flush=True)
         if budget_trace_snapshot(reset=True)["mode"] != expected_trace:
             raise ValueError("required non-bypass native guard mode unavailable")
 
@@ -410,6 +415,10 @@ def main() -> int:
         status="ERROR"
         trace=budget_trace_snapshot(reset=False)
 
+    try:
+        native_phase_metrics=driver.runtime.phase_metrics()
+    except Exception as exc:
+        native_phase_metrics={"status":"NOT_OBSERVED","class":type(exc).__name__}
     elapsed=time.perf_counter()-started
     receipt={
         "schema":"V03_ORIGINAL_100K_CONTINUOUS_ESCALATING_HORIZON_V1",
@@ -425,6 +434,7 @@ def main() -> int:
         "valid_advanced_duration_s":None if valid_clock is None else valid_clock-original_t,
         "blocked_target_time_s":failing_step,
         "completed_step_wall_s":step_results,
+        "native_phase_metrics":native_phase_metrics,
         "historical_original_25650_source":old_source_25650,
         "previous_checkpoint_cross_native":bool(historical_source_identity and historical_source_identity["native_sha256"] != native["sha256"]),
         "cross_native_original_25710_source":cross_native_25710,

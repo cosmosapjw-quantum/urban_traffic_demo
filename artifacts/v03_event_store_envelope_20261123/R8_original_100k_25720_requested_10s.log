@@ -1,0 +1,2 @@
+HORIZON_INITIAL_WIRE_LEDGER_VERIFIED 25720.0
+{"blocked_target_time_s": 25730.0, "end_time_s": 25720.0, "error": {"class": "BudgetExceeded", "message": "native road storage budget exceeded: phase=transfer header reservation, required_bytes=4867627752, budget_bytes=4867625327", "phase": "ADVANCE_TO_25730"}, "final_checkpoint_sha256": null, "peak_rss_gib": 4.891, "requested_duration_s": 10, "status": "BLOCKED_RESOURCE", "valid_advanced_duration_s": 0.0, "wall_s": 116.704}

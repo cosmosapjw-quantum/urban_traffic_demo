@@ -1,0 +1,12 @@
+{
+  "journey_before_sha256": "8366b8d9eaee24b0abfa8e214cd00cce904a1b0b5aeb4291fb41604dcdf66f20",
+  "journey_final_sha256": "c95c17aeada5d526f7dcf7ce2406ac68f70c6ba12b00aa70db46ccdcbff58a4a",
+  "concurrent_road_final_sha256": "5b982c4a771ba156141941ec1fdfa49fd3bd9b7723049fae0ad62352e409cf24",
+  "initial_failure_log_sha256": "a21f8b5089f66b199ef10429759da2338dfb010961e252c1a16c8ad18b71decf",
+  "initial_failure_source_sha256": "ae8ed6dab7f5ee3f3ce95f4ee09143222539189ffb9c2d92c9484030f5cc5d5c",
+  "initial_failure_executor": "event_store_implementation",
+  "initial_failure_observed_result": "250 passed; 1 failed; 2 ignored",
+  "final_scoped_receipt": "C8b_rust_scoped_receipt.json",
+  "final_library_receipt": "C8b_rust_library_receipt.json",
+  "source_patch_lines": 349
+}

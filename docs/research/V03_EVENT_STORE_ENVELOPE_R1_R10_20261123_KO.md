@@ -147,3 +147,21 @@ R7_native_moment_envelope_21600.json과 _0.json은 exact Fraction 및 approximat
 이론 판정은 sharp moment/support envelope와 진짜 분할 refinement를 derived/literature-supported로, exact oracle를 implementation-verified로, 실제 원도시값을 conditional numerically-checked로 유지한다. 최초birth21600s support는 명시적 원본 source에 근거한 exact-model 전제다. 과거 solver 오차와 unique final-journey 완료 측도는 별도 미완료 의무다. 이전 실패에서 full-day no-go를 도출하지 않는다.
 
 이 source freeze commit은 다음 원본 실행의 identity를 고정하기 위한 중간 게시다. 실제 frozen 절감량·t25730 통과·실행 구간 증가는 아직 주장하지 않는다. release 빌드 뒤 trace-off로 확인하고 R8 결과를 추가 게시한다.
+
+### R8a 원본 결과와 추가 수술 결정
+
+Source0ee8b70a6dff332153571c4e77c69f27086aefd317976cf029b00572d4fa3c14, native e4d6f6d88ad36aca588ce62e5bdee6386ab583e0c2202b8ea8530120f09f0bf1에서 t25720 전체 wire/장부 복원은 통과했다. 그러나 요청10s는 `transfer header reservation: required_bytes=4867627752, budget_bytes=4867625327`에서 중단됐다. valid advance0s, 총116.704s, peak약4.891GiB다. frozen 수술의 unit 통과와 stage 이동만으로 실제 t25730 blocker가 해소됐다고 주장하지 않는다. R8_original_100k_25720_requested_10s.json에 실패를 보존한다.
+
+전체 phase 예산을 다시 추적했다. 원래 acceptance CLI는 native 내부6GiB와 process8GiB를 구분한다. 내부6GiB 중 fixed reserve는 약653MB, shared dynamic pool은약5.789GB다. 이 원래 두 cap과 driver identity는 그대로 유지한다. fixed reserve 자체를 임의로 줄이지 않는다.
+
+두 가지 직접적인 큰 소유 중복을 병렬로 교정한다. 첫째, road serviced incoming의 mass/birth/start/end는 이미 저장된 event의 동일 f64 값을 중복 보관한다. event가 모든 incoming 소비보다 오래 살아 있는 경로에 checked event_index+offset 참조 저장을 적용하고 pending/direct/noninterval/wide fallback은 유지한다. 둘째, road 단계에서 original input/current/pending Journey가 모두 구체적으로 알려져 있는데도3×max를 예약하는 부분을 실제 owner 합과 pointer-verified StageQueue payload 중복으로 교정한다. census의 실제 임시 저장은 먼저 검사하며 history와 dense/metadata를 임의로 credit하지 않는다. 이 수정은2425B 초과에 맞춘 보정값과 무관하다. 구현과 실제 원본 실행 결과는 아래에 별도 기록한다.
+
+### R8b/c 구현·통합 검증 완료, 원본 재실행 준비
+
+Serviced incoming은 event_index+offset의8B 참조이고 Mark16B는 그대로다. 기존40B Part+16B Mark에서24B로 바뀌므로 서비스 행의 실제 payload32B를 제거한다. pending은40B 원본 spill+8B 순서 참조+16B Mark이며 추가8B를 숨기지 않고 계상한다. 현재 event에 실제 append된 index만 사용하고 네 f64 bits, source FIFO, offset을 보존한다. view가 incoming과events를 함께 빌리므로 읽는 동안 data가 살아 있으며 Weak token은 다른 store 연결만 거절한다. 별도 token Arc/control/padding을 store actual/decode/append 비용 모두에 추가했다. 따라서 R7의 이전 binary 저장량과 새 binary의 고정 shell 크기를 동일시하지 않는다.
+
+Road 전의 Journey 예약은 실제 original input/current/pending 합에서 두 쌍의 pointer-verified StageQueue row payload만 차감한다. History·dense·shell·registry는 유지한다. 원본 snapshot과 restore clone의 registry capacity 차이를 반영하고, census 전에는 모든 uncredited Journey와 실제 old road/event·physical offer·map 성장 scratch를 먼저 검사한다. 두 map은 순차로 생성·해제하므로 peak는 max다. 참조가 없으면 기존3×max로 돌아간다. 1-entry HashMap 최소 capacity를 빠뜨린 중간 상계196B<actual230B 오류는264B로 교정했으며 원래 cap을 바꾸지 않았다.
+
+기존10,000행 물리 transfer는 같은2,300,000B cap에서 required2,301,864B로 실패했고 새 참조 표현 후1s/10,000events를 완료했다. 7개 incoming 검사와7개 Journey 검사를 포함한 최종 workspace library는251passed/0failed/2ignored(exit0)다. 중간250pass/1fail은 위HashMap계상오류로 보존했다. Partial-service+pending wire 비교를 실제 실행하면서 발견한 uncapped descriptor guard 오류도 두 storage-only helper의 limit=None 경로에서 좁게 고쳤다. 물리검증과 capped조건은 유지했다.
+
+부모는 변경된 전체 생산 diff, 실제 Part←Event bit 대입, event 수명, source별 page/Mark/direct spill 계상과 source/candidate/journey 경계를 확인했다. 최종 파일 SHA는 road5b982c4a771ba156141941ec1fdfa49fd3bd9b7723049fae0ad62352e409cf24, journeyc95c17aeada5d526f7dcf7ce2406ac68f70c6ba12b00aa70db46ccdcbff58a4a다. 상세 증거는 C8b_journey_road_reservation.md, C8c_native_event_reference_verification.md, C8b_rust_library_receipt.json이다. 다음 source-freeze push 후 현재 release의 원본10s를 실행한다. 성공 시20s와40s로 순차 확대한다.

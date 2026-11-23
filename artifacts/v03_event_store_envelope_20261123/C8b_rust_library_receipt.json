@@ -1,0 +1,20 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--workspace",
+    "--lib",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "/home/cosmosapjw/worktrees/urban-traffic-v03-event-store-moment-envelope-20261123",
+  "env": {
+    "CARGO_TARGET_DIR": "/home/cosmosapjw/worktrees/urban-traffic-v03-unique-accounting-20261120/target",
+    "RUSTFLAGS": "-C link-arg=-lpython3.12"
+  },
+  "source_sha256": "c95c17aeada5d526f7dcf7ce2406ac68f70c6ba12b00aa70db46ccdcbff58a4a",
+  "exit_code": 0,
+  "wall_seconds": 0.14349818229675293,
+  "log": "/home/cosmosapjw/worktrees/urban-traffic-v03-event-store-moment-envelope-20261123/artifacts/v03_event_store_envelope_20261123/C8b_rust_library.log"
+}

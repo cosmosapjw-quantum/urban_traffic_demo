@@ -1,0 +1,366 @@
+warning: unnecessary parentheses around closure body
+    --> crates/metroflow-rust/src/v1_road.rs:7643:34
+     |
+7643 |   ...   let actual=(0..3).map(|i|(
+     |  ________________________________^
+7644 | | ...       incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+     | |__________^
+7645 |   ...       +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()
+     |  _______________________________________________________________________^
+7646 | | ...   )).sum();
+     | |_______^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+7643 ~         let actual=(0..3).map(|i|incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+7644 ~             +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()).sum();
+     |
+
+warning: unused variable: `n`
+    --> crates/metroflow-rust/src/v1_road.rs:5972:13
+     |
+5972 |         let n=parts.len();
+     |             ^ help: if this is intentional, prefix it with an underscore: `_n`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `road_bytes`
+    --> crates/metroflow-rust/src/v1_engine.rs:2053:17
+     |
+2053 |             let road_bytes = road
+     |                 ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_road_bytes`
+
+warning: unused variable: `events`
+    --> crates/metroflow-rust/src/v1_engine.rs:2066:17
+     |
+2066 |             let events = service_event_storage_bytes(&service).max(old...
+     |                 ^^^^^^ help: if this is intentional, prefix it with an underscore: `_events`
+
+warning: methods `summary`, `install_state`, and `owned_step` are never used
+    --> crates/metroflow-rust/src/v1_road.rs:3321:19
+     |
+3276 | impl V1Road {
+     | ----------- methods in this implementation
+...
+3321 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+3530 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+3900 |     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -...
+     |                   ^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `journey_decoded_storage_upper_bytes` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:206:15
+    |
+206 | pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `sources` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:740:19
+    |
+678 | impl NativeServiceCore {
+    | ---------------------- method in this implementation
+...
+740 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+
+warning: methods `owned_time`, `storage_budget`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1417:19
+     |
+1180 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1417 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1472 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1505 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:76:19
+   |
+69 | impl StageQueue {
+   | --------------- method in this implementation
+...
+76 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+
+warning: `metroflow-rust` (lib test) generated 9 warnings (run `cargo fix --lib -p metroflow-rust --tests` to apply 4 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/home/cosmosapjw/worktrees/urban-traffic-v03-unique-accounting-20261120/target/debug/deps/_metroflow_rust-ffddc2c3d4933447)
+
+running 253 tests
+test tests::active_agent_completes_when_sink_budget_is_available ... ok
+test tests::active_agent_skip_slot_does_not_move ... ok
+test tests::active_agent_empty_route_releases_slot ... ok
+test tests::active_agent_shared_link_budget_uses_slot_order ... ok
+test tests::active_agent_waits_at_sink_when_completion_budget_is_zero ... ok
+test tests::agent_module_preserves_action_planner_contract ... ok
+test tests::advances_active_agent_with_movement_budget ... ok
+test tests::computes_flow_normal_update ... ok
+test tests::computes_flow_with_forbidden_and_priority_weighting ... ok
+test tests::computes_flow_zero_links ... ok
+test tests::computes_flow_zero_turns ... ok
+test tests::computes_greedy_route_candidate_empty_when_unreachable ... ok
+test tests::computes_greedy_route_candidate_normal_path ... ok
+test tests::computes_greedy_route_candidate_with_forbidden_turn ... ok
+test tests::computes_next_link_action_costs_normal_batch ... ok
+test tests::computes_next_link_action_costs_with_blocked_and_unreachable_links ... ok
+test tests::computes_ranked_route_candidates_normal_paths ... ok
+test tests::computes_ranked_route_candidates_with_forbidden_turn ... ok
+test tests::computes_reroute_decision_batch ... ok
+test tests::computes_route_candidate_metadata_costs_and_path_size ... ok
+test tests::computes_route_candidate_metadata_empty_path ... ok
+test tests::computes_routing_potential_for_zero_links ... ok
+test tests::computes_routing_potential_normal_path ... ok
+test tests::computes_routing_potential_with_blocked_link ... ok
+test tests::edge_module_preserves_batch_evolution_contract ... ok
+test tests::evolves_normal_batch ... ok
+test tests::evolves_zero_capacity_with_eps_travel_time ... ok
+test tests::flow_module_preserves_baseline_array_contract ... ok
+test tests::flow_point_queue_uses_rate_supply_and_additive_waiting_ticks ... ok
+test tests::rejects_active_agent_length_mismatch ... ok
+test tests::rejects_active_agent_route_offset_mismatch ... ok
+test tests::rejects_flow_invalid_turn_index ... ok
+test tests::rejects_flow_length_mismatch ... ok
+test tests::rejects_flow_negative_numeric_input ... ok
+test tests::rejects_greedy_route_invalid_outgoing_index ... ok
+test tests::rejects_greedy_route_length_mismatch ... ok
+test tests::rejects_length_mismatch ... ok
+test tests::rejects_negative_input ... ok
+test tests::rejects_next_link_action_cost_invalid_candidate_index ... ok
+test tests::rejects_next_link_action_cost_length_mismatch ... ok
+test tests::rejects_queue_above_stock ... ok
+test tests::rejects_reroute_decision_length_mismatch ... ok
+test tests::rejects_route_candidate_metadata_length_mismatch ... ok
+test tests::rejects_route_candidate_metadata_unknown_link_id ... ok
+test tests::rejects_route_candidate_selection_negative_link_id ... ok
+test tests::rejects_routing_invalid_index ... ok
+test tests::rejects_routing_length_mismatch ... ok
+test tests::reroute_module_preserves_decision_contract ... ok
+test tests::routing_module_preserves_dynamic_potential_contract ... ok
+test tests::selects_route_candidate_empty_when_no_viable_path ... ok
+test tests::selects_route_candidate_first_viable_when_costs_are_missing ... ok
+test tests::selects_route_candidate_tie_by_candidate_id_then_path ... ok
+test tests::selects_route_candidate_with_path_size_utility ... ok
+test v1_engine::capture_road_clone_owner_exact_bounds::actual_immutable_arc_payload_is_not_allocated_twice_in_future_road_clone ... ok
+test v1_engine::capture_road_clone_owner_exact_bounds::source_road_credit_requires_actual_input_and_future_capture_phase ... ok
+test v1_engine::paged_service_decode_budget_20261123_tests::direct_page_decoder_admits_exact_pool_and_rejects_one_byte_short ... ok
+test v1_engine::service_event_moment_enclosure_20261123_tests::cancellation_and_empty_event_measure_keep_valid_enclosures ... ok
+test v1_engine::service_event_moment_enclosure_20261123_tests::stored_moment_enclosure_contains_exact_binary_fixture ... ok
+test v1_engine::stage_sum_tests::stage_sums_empty_journey_is_all_zero ... ok
+test v1_engine::surgical_capture_validation_three_live_owners_20261122_tests::actual_valley_100k_runtime_capture_does_not_clone_immutable_road_or_event_backings ... ok
+test v1_engine::surgical_capture_validation_three_live_owners_20261122_tests::no_proven_arc_share_credit_still_charges_two_future_road_owner_shells ... ok
+test v1_engine::surgical_save_restore_arc_source_20261122_tests::saving_original_100k_snapshot_restores_only_real_arc_backings ... ok
+test v1_engine::surgical_save_restore_arc_source_20261122_tests::unrelated_original_owners_are_charged_even_when_no_arc_credit_is_available ... ok
+test v1_engine::v03_load_validation_two_real_owners_r9_20261122_tests::no_unverified_arc_duplicate_credit_on_two_independent_payloads ... ok
+test v1_engine::v03_load_validation_two_real_owners_r9_20261122_tests::original_nonnative_load_owns_old_and_one_decoded_bundle_not_three ... ok
+test v1_engine::v03_original_25720_road_decoder_real_parent_owners_20261122_tests::road_decoder_parent_reserves_only_real_unrelated_journey_and_events ... ok
+test v1_engine::v03_original_25720_road_decoder_real_parent_owners_20261122_tests::zero_unrelated_owners_never_consumes_fictitious_parent_allowance ... ok
+test v1_engine::v03_original_service_decode_exact_live_owners_r9_20261122_tests::future_decoded_event_allocation_cannot_be_discounted_as_existing_arc_clone ... ok
+test v1_engine::v03_original_service_decode_exact_live_owners_r9_20261122_tests::two_real_road_owners_and_one_old_journey_event_limit_live_during_decode ... ok
+test v1_engine::v03_source_journey_decode_parent_owners_r7_20261122_tests::physical_owners_remain_charged_when_no_source_identity_alias_is_assumed ... ok
+test v1_engine::v03_source_journey_decode_parent_owners_r7_20261122_tests::two_actual_road_event_owners_not_three_fictitious_full_decodes ... ok
+test v1_journey::event_snapshot_arc_ownership_tests::captured_snapshots_and_committed_service_share_event_backing ... ok
+test v1_journey::event_snapshot_arc_ownership_tests::replacing_event_backing_preserves_previous_immutable_snapshot ... ok
+test v1_journey::exact_checkpointability_lifetime_phase_tests::individually_real_three_owner_cases_are_still_charged_not_aliased ... ok
+test v1_journey::exact_checkpointability_lifetime_phase_tests::original_100k_checkpoint_future_decoder_never_coexists_with_new_candidate ... ok
+test v1_journey::surgical_checkpointability_shared_event_source_20261122_tests::a_nonidentical_current_event_arc_still_occupies_all_its_bytes ... ok
+test v1_journey::surgical_checkpointability_shared_event_source_20261122_tests::actual_original_100k_checkpoint_decode_and_candidate_never_charge_same_old_arc_twice ... ok
+test v1_journey::surgical_service_arc_alias_identity_tests_20261122::physical_event_arc_identity_removes_one_duplicate_old_allocation_only_if_shared ... ok
+test v1_journey::surgical_service_arc_alias_identity_tests_20261122::source_recalculated_service_finish_is_under_original_unchanged_allowance ... ok
+test v1_journey::surgical_service_finish_concrete_lifetimes_tests::every_distinct_owner_stays_charged_even_if_source_values_equal ... ok
+test v1_journey::surgical_service_finish_concrete_lifetimes_tests::real_100k_service_finish_charges_three_concrete_owners_not_three_new_ones ... ok
+test v1_journey::v03_immutable_journey_block_source_identity_20261122_tests::coupled_candidate_vs_future_decode_phase_max_does_not_sum_two_peaks ... ok
+test v1_journey::v03_joint_checkpointability_exact_arc_lifetimes_20261122_tests::both_independent_candidate_and_future_decoder_are_never_same_live_owner ... ok
+test v1_journey::v03_joint_checkpointability_exact_arc_lifetimes_20261122_tests::current_candidate_overlap_is_not_credited_to_independent_future_decoder ... ok
+test v1_journey::v03_immutable_journey_block_source_identity_20261122_tests::moving_one_immutable_block_across_route_stage_still_counts_once ... ok
+test v1_journey::v03_immutable_journey_block_source_identity_20261122_tests::actual_arc_block_clone_witnesses_payload_share_but_independent_values_do_not ... ok
+test v1_journey::v03_road_phase_journey_source_census_20261123_tests::copied_tail_is_independent_while_shared_full_blocks_keep_exact_credit ... ok
+test v1_journey::v03_road_phase_journey_source_census_20261123_tests::census_preflight_charges_uncredited_sources_offers_and_scratch_before_credit ... ok
+test v1_journey::v03_road_phase_journey_source_census_20261123_tests::preproposal_source_road_credit_needs_the_unexpired_original_clock ... ok
+test v1_journey::v03_source_decoder_two_live_owners_r5_20261122_tests::original_100k_journey_replay_does_not_triplicate_a_single_decoder ... ok
+test v1_journey::v03_road_phase_journey_source_census_20261123_tests::missing_original_reference_keeps_three_max_without_census_allocation ... ok
+test v1_journey::v03_source_decoder_two_live_owners_r5_20261122_tests::source_decoder_still_checks_real_old_plus_new_with_original_scratch ... ok
+test v1_kcmb::tests::shape_and_storage_guards_and_zero_step ... ok
+
+thread 'v1_journey::v03_road_phase_journey_source_census_20261123_tests::actual_census_capacity_is_checked_and_sequential_scratch_is_a_max' (3915239) panicked at crates/metroflow-rust/src/v1_journey.rs:3128:13:
+block_count=1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test v1_kcmb_node::tests::shared_red_movement_blocks_entire_group ... ok
+test v1_kcmb_node::tests::weighted_merge_and_lane_metres_conserve_resources ... ok
+test v1_road::compact_mark_exactness_tests::empty_and_multidest_mark_stream_has_one_to_one_alignment ... ok
+test v1_journey::v03_road_phase_journey_source_census_20261123_tests::independent_equal_values_receive_no_stage_payload_credit ... ok
+test v1_road::conservative_arc_pair_credit_tests::paired_clone_credit_counts_only_guaranteed_arc_aliases ... ok
+test v1_road::conservative_arc_pair_credit_tests::credit_never_exceeds_owner_payload_or_cross_snapshot_union_duplicates ... ok
+test v1_road::composed_interval_view_tests::source_index_view_empty_and_nonassociative_duplicate_keys ... ok
+test v1_journey::v03_road_phase_journey_source_census_20261123_tests::three_live_aliases_remove_two_payload_copies_but_keep_all_history_and_shells ... ok
+test v1_road::continuous_keyset_and_page_geometry_tests::postroad_continuous_interning_counts_both_old_state_and_new_scratch ... ok
+test v1_road::direct_core_interval_pack_tests::direct_core_empty_and_duplicate_key_order ... ok
+test v1_road::direct_uniform_point_pack_tests::signed_zero_mixed_point_endpoints_refuse_fast_path ... ok
+test v1_journey::v03_road_phase_journey_source_census_20261123_tests::actual_census_capacity_is_checked_and_sequential_scratch_is_a_max ... FAILED
+test v1_road::diagnostic_lineage_after_motion_expiry_source_tests::expired_old_motion_scan_does_not_discard_real_trace_source_lineage_storage ... ok
+test v1_road::exact_compact_candidate_event_tests::source_derived_candidate_event_charge_matches_real_packed_allocation ... ok
+test v1_road::exact_compact_incoming_source_tests::compact_physical_pages_reduce_source_charge_without_a_budget_override ... ok
+test v1_road::continuous_keyset_and_page_geometry_tests::new_page_geometry_retains_indexwise_order_and_original_mark_bits ... ok
+test v1_road::exact_compact_candidate_event_tests::packed_event_row_has_genuine_48byte_payload_and_ieee_exact_inverse ... ok
+test v1_road::exact_compact_candidate_event_tests::wide_default_legacy_event_rows_remain_valid_without_truncation ... ok
+test v1_road::exact_compact_incoming_source_tests::uncapped_wide_part_mode_keeps_original_usize_range ... ok
+test v1_road::compact_mark_exactness_tests::speed_latent_only_mark_is_exactly_reconstructible_from_the_existing_part ... ok
+test v1_road::exact_interval_sweep_tests::benchmark_original_naive_scan_vs_event_sweep_selection_only ... ignored
+test v1_road::continuous_keyset_and_page_geometry_tests::actual_source_100k_part_mark_work_pages_have_optimal_power_two_size ... ok
+test v1_road::conservative_arc_pair_credit_tests::paired_credit_is_sound_for_three_states_and_distinct_candidate ... ok
+test v1_road::exact_incoming_cell_page_liveness_tests::projected_source_cell_pages_equal_physically_live_part_and_mark_pages ... ok
+test v1_road::exact_consumed_packet_source_lifetime_tests::source_release_rejects_unequal_mark_counts_or_overclaim_without_discarding ... ok
+test v1_road::exact_compact_incoming_source_tests::packed_incoming_part_is_exact_40byte_injective_source_row ... ok
+test v1_road::exact_event_page_live_capacity_contract_tests::source_100k_measured_transfer_guards_are_predicted_to_clear_without_cap_changes ... ok
+test v1_road::exact_incoming_cell_page_liveness_tests::page_growth_is_only_at_true_cell_local_128_row_boundary ... ok
+test v1_road::exact_event_page_live_capacity_contract_tests::candidate_allocation_charges_actual_preallocated_page_capacity_not_fictitious_slack ... ok
+test v1_road::exact_interval_sweep_tests::original_finite_interval_and_point_selection_is_bitorder_preserving ... ok
+test v1_road::exact_locked_incoming_descriptor_lifetime_tests::locked_descriptor_state_checks_physical_mark_alignment_before_admission ... ok
+test v1_road::exact_compact_incoming_source_tests::source_order_across_part_mark_page_boundaries_is_bit_identical ... ok
+test v1_road::exact_merged_unique_edges_tests::unique_edges_match_original_across_zero_sign_permutations_and_empty ... ok
+test v1_road::exact_locked_incoming_descriptor_lifetime_tests::original_stable_source_vec_descriptors_can_be_counted_from_actual_capacity ... ok
+test v1_road::exact_narrow_lineage_indices_tests::all_original_mass_birth_and_signed_zero_endpoint_bits_roundtrip ... ok
+test v1_road::exact_narrow_lineage_indices_tests::distinguish_mixed_signed_zeros_even_if_indices_are_compactable ... ok
+test v1_road::exact_narrow_lineage_indices_tests::compact_core_layout_is_24_bytes_and_integer_bounds_are_lossless ... ok
+test v1_road::exact_narrow_lineage_indices_tests::overflow_indices_are_never_truncated_and_preserve_legacy_part_fields ... ok
+test v1_road::exact_paged_event_candidate_tests::actual_candidate_page_structural_bound_is_not_only_a_numeric_discount ... ok
+test v1_road::compact_mark_exactness_tests::original_ordered_fsum_speed_and_latent_are_bit_exact_over_mixed_classes ... ok
+test v1_road::exact_pending_pack_live_descriptor_tests::pending_packet_pack_uses_current_vec_capacity_without_freezing_future_appends ... ok
+test v1_road::exact_postroad_live_owner_bound_tests::exact_three_live_road_owners_are_added_individually_without_alias_credit ... ok
+test v1_road::exact_postroad_live_owner_bound_tests::zero_and_nonidentical_owner_terms_are_never_assumed_pointer_sharing ... ok
+test v1_road::exact_persistent_keyset_storage_tests::already_shared_full_arc_is_not_converted_into_two_new_allocations ... ok
+test v1_road::exact_route_keyset_census_tests::census_recognizes_identical_key_sequences_with_distinct_physical_moments ... ok
+test v1_road::exact_route_keyset_census_tests::same_length_but_different_order_cannot_share_keys_even_if_mass_equal ... ok
+test v1_road::exact_persistent_keyset_storage_tests::different_key_order_and_original_wide_mixed_values_never_intern ... ok
+test v1_road::exact_segmented_incoming_buffer_tests::changed_guard_has_real_pages_and_conservative_capacity_slack ... ok
+test v1_road::exact_persistent_keyset_storage_tests::independent_same_keys_share_only_metadata_not_ieee_moments ... ok
+test v1_road::exact_route_keyset_census_tests::unequal_endpoint_bit_patterns_do_not_change_key_identity_or_physical_bits ... ok
+test v1_road::exact_consumed_packet_source_lifetime_tests::release_only_after_both_physically_allocated_part_and_mark_pages_expire ... ok
+test v1_road::exact_segmented_mark_alignment_tests::actual_two_page_source_bound_uses_one_copy_of_each_row ... ok
+test v1_road::direct_core_interval_pack_tests::direct_core_rows_match_old_combined_uniform_packet_bits ... ok
+test v1_road::exact_segmented_incoming_buffer_tests::no_existing_page_is_reallocated_while_appending_many_later_rows ... ok
+test v1_road::exact_segmented_mark_alignment_tests::appending_new_marks_does_not_move_old_paged_mark_backing ... ok
+test v1_road::exact_shared_event_source_budget_tests::only_pointer_identical_old_event_backing_can_be_counted_once ... ok
+test v1_road::exact_shared_fifo_source_arc_credit_tests::cloned_source_uniform_arc_with_two_packet_owners_must_not_doublecount ... ok
+test v1_road::expired_motion_rows_source_lifetime_tests::old_motion_scan_workspace_expires_only_after_all_predictions_consumed ... ok
+test v1_road::exact_shared_fifo_source_arc_credit_tests::distinct_shared_key_backings_are_counted_once_not_per_cohort ... ok
+test v1_road::fifo_moment_nonclosure_physical_source_tests::exact_fifo_source_counterexample_same_mass_and_birth_different_departure_age ... ok
+test v1_road::expired_motion_rows_source_lifetime_tests::no_credit_when_live_shells_exceed_old_scratch_allowance ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::interval_split_transform_retains_original_order_birth_and_signed_boundary ... ok
+test v1_road::fifo_moment_nonclosure_physical_source_tests::retaining_individual_packet_birth_and_source_interval_bits_is_not_global_closure ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::nested_proportional_split_is_exact_per_field_not_collapsed_fraction ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::nonfinite_bad_fraction_or_invalid_handle_is_a_real_error ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::rewind_mixed_rewrite_keeps_same_metadata_and_all_float_bits ... ok
+test v1_road::direct_uniform_point_pack_tests::uniform_point_direct_core_matches_legacy_group_sum_and_packet_bits ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::streamed_rows_are_order_and_bit_identical_to_materialized_reference ... ok
+test v1_road::lineage_shadow::independent_shadow_adversarial_tests::distinct_order_and_time_support_survive_nonassociative_rewrites ... ok
+test v1_road::lineage_shadow::independent_shadow_adversarial_tests::subnormal_mass_drop_matches_exact_original_ieee_predicate ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::served_and_remainder_share_immutable_input_without_mass_smearing ... ok
+test v1_road::lineage_shadow::shadow_event_consumer_tests::event_consumer_stream_is_bit_identical_to_original_eager_event_rows ... ok
+test v1_road::lineage_shadow::original_packet_composition_sharing_tests::uniform_and_mixed_clones_share_identical_immutable_source_bytes ... ok
+test v1_road::lineage_shadow::shadow_event_consumer_tests::fallible_consumer_stops_stream_and_preserves_source_for_retry ... ok
+test v1_road::exact_segmented_incoming_buffer_tests::segmented_source_order_matches_original_vec_at_chunk_boundaries ... ok
+test v1_road::lineage_shadow::shadow_storage_benchmark::benchmark_immutable_lineage_vs_eager_retained_rows ... ignored
+test v1_road::original_completed_source_exact_packet_admission_tests::completed_source_charges_real_part_vec_and_simultaneous_core_before_pack ... ok
+test v1_road::exact_segmented_mark_alignment_tests::ordered_mark_pages_preserve_each_original_f64_bit_and_pairing ... ok
+test v1_road::original_completed_source_exact_packet_admission_tests::no_unearned_source_scratch_credit_outside_completed_conversion ... ok
+test v1_road::lineage_shadow::shadow_event_consumer_tests::invalid_event_clock_refused_without_mutating_source_arena ... ok
+test v1_road::original_precombine_pending_remainder_lifetime_tests::future_combine_cannot_block_live_pending_packet_and_exact_two_buffers_are_charged ... ok
+test v1_road::original_precombine_pending_remainder_lifetime_tests::rejected_pending_pack_restores_descriptor_growth_guard_and_future_preflights ... ok
+test v1_road::original_transfer_exclusive_cell_scratch_tests::no_unearned_transfer_credit_for_zero_extra_or_nontransfer_call ... ok
+test v1_road::original_transfer_exclusive_cell_scratch_tests::only_source_transfer_preflight_excludes_future_interval_cell_combine_scratch ... ok
+test v1_road::original_weighted_fifo_physical_rates_theorem_tests::original_progressive_junction_exact_physical_bottleneck_prediction ... ok
+test v1_road::exact_paged_event_candidate_tests::old_event_page_never_moves_when_later_events_are_appended ... ok
+test v1_road::original_weighted_fifo_physical_rates_theorem_tests::zero_downstream_capacity_blocks_only_upstream_sources_that_use_it ... ok
+test v1_road::persistent_event_page_contract_20261123_tests::wide_registry_mode_preserves_usize_and_reserved_none_distinction ... ok
+test v1_road::postroad_event_lifetime_tests::finishing_after_workspaces_drop_charges_distinct_real_backings_only ... ok
+test v1_road::postroad_event_lifetime_tests::no_event_history_uses_no_candidate_rows_or_flattening ... ok
+test v1_road::postroad_three_concrete_owner_materialization_tests::original_postroad_100k_three_distinct_owner_sizes_are_not_three_maxima ... ok
+test v1_road::sweep_partition_live_bound_tests::opposite_sign_zeros_are_numeric_points_but_bit_distinct ... ok
+test v1_road::surgical_optional_keyset_gate_20261122_tests::under_budget_optional_keyset_defers_without_touching_original_physics ... ok
+test v1_engine::stage_sum_tests::stage_sums_match_former_per_key_sum_bits ... ok
+test v1_road::sweep_partition_live_bound_tests::reversed_interval_is_rejected_without_reclassifying_as_point ... ok
+test v1_road::transfer_header_temporal_nonoverlap_regression_tests::event_pages_and_raw_pages_need_not_coexist_with_old_header_realloc_scratch ... ok
+test v1_road::unique_arc_backing_account_tests::duplicated_uniform_arc_backing_is_counted_once_but_owner_count_kept ... ok
+test v1_road::unique_arc_backing_account_tests::equal_payload_but_independent_mixed_allocations_are_not_aliases ... ok
+test v1_road::transfer_header_growth_overlap_adversarial_tests::old_header_growth_and_future_raw_payload_are_in_disjoint_source_phases ... ok
+test v1_road::unique_arc_backing_account_tests::zero_capacity_backing_still_has_unique_arc_metadata ... ok
+test v1_road::transfer_live_header_budget_constructive_tests::actual_page_headers_replace_fictitious_all_cell_double_reservation ... ok
+test v1_road::unique_arc_live_state_union_tests::empty_union_is_exact_zero_and_single_state_agrees_with_existing_census ... ok
+test v1_road::unique_arc_live_state_union_tests::identical_independent_roadstate_is_not_shared_even_at_same_part_bits ... ok
+test v1_road::v03_cell_packet_after_interval_exact_source_20261122_tests::active_interval_or_unfrozen_source_cannot_claim_source_scratch_expired ... ok
+test v1_road::unique_arc_live_state_union_tests::three_live_cloned_roadstates_are_one_shared_backing_but_three_owners ... ok
+test v1_road::v03_cell_packet_after_interval_exact_source_20261122_tests::old_combine_not_simultaneous_with_true_cell_packet_slot_growth ... ok
+test v1_road::v03_cell_packet_after_interval_exact_source_20261122_tests::truly_insufficient_cell_slot_budget_rejected_and_full_base_restored ... ok
+test v1_road::v03_checked_compact_page_destination_projection_20261122_tests::legacy_physical_header_reservations_keep_full_original_cell_order ... ok
+test v1_road::v03_checked_compact_page_destination_projection_20261122_tests::real_original_header_projection_uses_four_byte_checked_cell_index ... ok
+test v1_road::v03_compact_source_diagnostic_r10_20261122_tests::nonphysical_lineage_key_is_exact_injective_16_bytes_instead_of_24 ... ok
+test v1_road::v03_compact_source_diagnostic_r10_20261122_tests::pending_sentinel_and_lexicographic_source_set_order_preserved ... ok
+test v1_road::v03_event_backed_incoming_20261123_tests::decoded_short_last_page_and_source_identity_storage_remain_bounded ... ok
+test v1_road::exact_event_page_live_capacity_contract_tests::physical_page_chunk_capacity_and_event_bits_remain_unchanged ... ok
+test v1_road::lineage_shadow::independent_shadow_adversarial_tests::deterministic_random_nested_serve_remainder_against_original_portion ... ok
+test v1_road::v03_exact_narrow_source_sweep_20261122_tests::exact_event_index_preflight_reduces_real_100k_source_metadata_not_physical_parts ... ok
+test v1_road::v03_exact_narrow_source_sweep_20261122_tests::original_signed_zero_event_order_and_index_tie_bits_unchanged ... ok
+test v1_road::persistent_event_page_contract_20261123_tests::existing_page_backings_survive_persistent_candidate_growth ... ok
+test v1_road::lineage_shadow::original_served_stream_oracles::original_portion_vs_served_iterator_are_exact_for_mixed_and_uniform ... ok
+test v1_road::v03_frozen_queue_source_ownership_20261123_tests::infinite_readiness_never_becomes_a_head_at_any_finite_clock ... ok
+test v1_road::lineage_shadow::exact_shadow_tests::repeated_deep_trace_uses_iterative_evaluation_and_no_recursive_drop ... ok
+test v1_road::v03_event_backed_incoming_20261123_tests::noninterval_unbounded_and_wide_paths_keep_original_direct_parts ... ok
+test v1_road::v03_frozen_queue_source_ownership_20261123_tests::only_pointer_shared_infinite_readiness_backings_are_credited_once ... ok
+test v1_road::v03_original_postroad_actual_shared_arc_source_20261122_tests::independent_identical_values_and_stale_input_clock_cannot_claim_arcs ... ok
+test v1_road::v03_original_postroad_actual_shared_arc_source_20261122_tests::true_source_current_candidate_arc_alias_credit_charges_once_only ... ok
+test v1_road::v03_frozen_queue_source_ownership_20261123_tests::shared_keys_duplicate_only_once_and_wide_backing_keeps_actual_capacity ... ok
+test v1_road::v03_paged_source_lineage_surgical_20261122_tests::only_a_bounded_page_header_can_reallocate_not_a_giant_contiguous_lineage_vec ... ok
+test v1_road::v03_paged_source_lineage_surgical_20261122_tests::diagnostic_source_pages_retain_all_lineage_keys_and_order_across_boundaries ... ok
+test v1_road::v03_replay_length_guard_diagnostic_20261122_tests::structural_original_length_cap_remains_enforced ... ok
+test v1_road::v03_sequential_source_header_peaks_20261122_tests::real_old_plus_new_header_growth_must_still_be_charged_in_full ... ok
+test v1_road::exact_segmented_incoming_buffer_tests::original_source_sorted_group_sum_remains_bit_equal_for_duplicate_and_signed_zero_keys ... ok
+test v1_road::v03_sequential_source_header_peaks_20261122_tests::source_diag_reallocation_old_overlap_expires_before_header_realloc ... ok
+test v1_road::v03_service_live_source_arc_owner_20261122_tests::coupled_service_owner_requires_three_real_owners_and_two_proven_overlaps ... ok
+test v1_road::v03_surgical_exact_interval_owner_lifetime_20261122_tests::completed_cell_combine_replaces_both_hypothetical_max_scratch_with_one_real_source ... ok
+test v1_road::v03_surgical_exact_interval_owner_lifetime_20261122_tests::scoped_source_reverts_on_resource_failure_and_keeps_true_one_byte_gate ... ok
+test v1_road::v03_surgical_exact_interval_owner_lifetime_20261122_tests::unverified_precombine_phase_may_not_claim_source_expiry ... ok
+test v1_road::workspace_accounting_tests::interval_transient_is_released_and_only_packed_rows_are_retained ... ok
+test v1_road::v03_event_backed_incoming_20261123_tests::actual_reference_spill_pages_descriptors_and_release_match_projection ... ok
+test v1_road::workspace_accounting_tests::road_step_event_charge_has_no_sink_terms ... ok
+test v1_road::workspace_accounting_tests::sink_envelope_counts_only_exiting_rows ... ok
+test v1_road::hierarchical_active_index_bitset_tests::original_rust_ieee_interval_sweep_selected_row_order_unchanged ... ok
+test v1_road::exact_interval_sweep_tests::randomized_original_scan_vs_event_sweep_selected_indices ... ok
+test v1_road::exact_compact_candidate_event_tests::packed_event_pages_reproduce_original_sixteen_million_ieee_order_boundaries ... ok
+test v1_road::lineage_shadow::original_packet_composition_sharing_tests::shared_packet_clones_preserve_original_part_order_and_float_bits ... ok
+test v1_journey::persistent_service_event_storage_20261123_tests::checkpoint_decode_retains_event_payload_below_flat_64_byte_rows ... ok
+test v1_road::lineage_shadow::original_served_stream_oracles::deterministic_random_head_stream_preserves_ieee_first_birth_moment_and_sum ... ok
+test v1_road::exact_paged_event_candidate_tests::paged_events_reconstruct_original_exact_tuple_bits_and_order ... ok
+test v1_road::sweep_partition_live_bound_tests::only_classified_source_rows_allocate_their_real_event_arrays ... ok
+test v1_road::v03_event_backed_incoming_20261123_tests::wrong_expired_mismatched_and_unappended_event_sources_are_rejected ... ok
+test v1_road::persistent_event_page_contract_20261123_tests::decoded_pages_keep_bits_order_exact_final_capacity_and_upper_bound ... ok
+test v1_road::v03_replay_length_guard_diagnostic_20261122_tests::physically_saved_wire_replay_reports_exact_length_and_current_guard ... ok
+test v1_road::v03_frozen_queue_source_ownership_20261123_tests::census_scratch_is_admitted_before_credit_and_guard_remains_exact ... ok
+test v1_road::v03_frozen_queue_source_ownership_20261123_tests::later_tick_cannot_reuse_original_restore_clock_arc_overlap ... ok
+test v1_road::hierarchical_active_index_bitset_tests::bitset_operations_are_exactly_ordered_like_btree_over_boundary_cardinalities ... ok
+test v1_road::composed_interval_view_tests::source_index_view_matches_materialized_ieee_split_and_combine ... ok
+test v1_road::exact_interval_sweep_tests::original_split_and_combine_ieee_payloads_match_event_selected_rows ... ok
+test v1_road::exact_merged_unique_edges_tests::unique_edges_match_original_seeded_intervals_and_many_duplicate_endpoints ... ok
+test v1_road::v03_frozen_queue_source_ownership_20261123_tests::infinite_queue_witness_preserves_full_tick_wire_event_bits_and_input ... ok
+test v1_road::v03_event_backed_incoming_20261123_tests::service_reference_pages_read_exact_four_f64_payloads_and_pending_spill ... ok
+test v1_road::v03_event_backed_incoming_20261123_tests::original_service_transfer_fits_cap_by_reusing_event_bits ... ok
+test v1_road::v03_event_backed_incoming_20261123_tests::partial_service_pending_and_reference_path_preserve_input_and_final_wire ... ok
+
+failures:
+
+failures:
+    v1_journey::v03_road_phase_journey_source_census_20261123_tests::actual_census_capacity_is_checked_and_sequential_scratch_is_a_max
+
+test result: FAILED. 250 passed; 1 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+error: test failed, to rerun pass `--lib`

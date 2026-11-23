@@ -6,7 +6,7 @@ use pyo3::prelude::*;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::io::{Read, Write};
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, Weak};
 // Shadow-only experiment; the original V03 road kernel and checkpoint layout
 // remain unchanged in non-test native builds.
 #[cfg(test)]
@@ -437,6 +437,11 @@ struct RoadWorkBudget {
     /// Part+Mark owners have been dropped for that destination.
     incoming_cell_rows: Option<Vec<usize>>,
     incoming_live_pages:usize,
+    /// Present only for event-backed incoming. Pending rows own a separate
+    /// direct Part spill, in addition to the order-preserving reference row.
+    incoming_direct_cell_rows:Option<Vec<usize>>,
+    incoming_direct_live_pages:usize,
+    incoming_outer_bytes:usize,
     /// Real Part+Mark page-descriptor storage after all raw appends finish.
     incoming_descriptor_live_bytes:Option<usize>,
     compact_events: bool,
@@ -513,12 +518,20 @@ impl CompactEventRow {
     }
 }
 
-#[derive(Default)]
 pub(crate) struct ChunkedEvents {
     chunks:Vec<Vec<EventRow>>,
     compact_chunks:Vec<Vec<CompactEventRow>>,
     compressed:bool,
     len:usize,
+    /// Identity only. Incoming views separately borrow the actual event data.
+    source_token:Arc<()>,
+    fixed_page_indexing:bool,
+}
+impl Default for ChunkedEvents {
+    fn default()->Self {
+        Self{chunks:Vec::new(),compact_chunks:Vec::new(),compressed:false,len:0,
+            source_token:Arc::new(()),fixed_page_indexing:true}
+    }
 }
 impl ChunkedEvents {
     pub(crate) fn new(compressed:bool)->Self {
@@ -545,6 +558,16 @@ impl ChunkedEvents {
     pub(crate) fn iter(&self)->impl Iterator<Item=EventRow>+'_ {
         self.chunks.iter().flat_map(|c|c.iter().copied())
             .chain(self.compact_chunks.iter().flat_map(|c|c.iter().copied().map(CompactEventRow::unpack)))
+    }
+    fn get_checked(&self,index:usize)->Option<EventRow> {
+        if index>=self.len {return None;}
+        if !self.fixed_page_indexing {return self.iter().nth(index);}
+        let (page,row)=(index/EVENT_PAGE_ROWS,index%EVENT_PAGE_ROWS);
+        if self.compressed {
+            self.compact_chunks.get(page)?.get(row).copied().map(CompactEventRow::unpack)
+        }else{
+            self.chunks.get(page)?.get(row).copied()
+        }
     }
     pub(crate) fn compressed(&self)->bool {self.compressed}
     /// Actual reserved backing capacities plus per-allocation/control padding.
@@ -589,6 +612,9 @@ impl ChunkedEvents {
             let packed=CompactEventRow::try_new(e).ok_or_else(||
                 arithmetic("compressed event source-index contract differs"))?;
             if self.compact_chunks.last().is_none_or(|c|c.len()==c.capacity()) {
+                if self.compact_chunks.last().is_some_and(|c|c.len()!=EVENT_PAGE_ROWS) {
+                    self.fixed_page_indexing=false;
+                }
                 let page=checkpoint_vec(next_capacity)?;
                 if page.capacity()!=next_capacity {
                     return Err(budget("compact event page capacity differs"));
@@ -598,6 +624,9 @@ impl ChunkedEvents {
             self.compact_chunks.last_mut().expect("compact page allocated").push(packed);
         } else {
             if self.chunks.last().is_none_or(|c|c.len()==c.capacity()) {
+                if self.chunks.last().is_some_and(|c|c.len()!=EVENT_PAGE_ROWS) {
+                    self.fixed_page_indexing=false;
+                }
                 let page=checkpoint_vec(next_capacity)?;
                 if page.capacity()!=next_capacity {
                     return Err(budget("wide event page capacity differs"));
@@ -627,6 +656,9 @@ impl ChunkedEvents {
 
 fn event_store_shell_bytes()->usize {
     std::mem::size_of::<ChunkedEvents>()
+        .saturating_add(2*std::mem::size_of::<usize>()).saturating_add(128)
+        // Separate identity Arc allocation, including its control block and
+        // padding. A Weak identity does not keep event data alive.
         .saturating_add(2*std::mem::size_of::<usize>()).saturating_add(128)
 }
 /// Conservative live bound including descriptor reallocation overlap and
@@ -1083,6 +1115,9 @@ impl RoadWorkBudget {
         &mut self,source_part_capacity_bytes:usize,
         operation:impl FnOnce(&mut Self)->PyResult<T>,
     )->PyResult<T>{
+        // Unbounded standalone callers never build the optional accounting
+        // registry. Their original physical splitter must still execute.
+        if self.limit.is_none() {return operation(self);}
         if self.incoming_descriptor_live_bytes.is_none() {
             return Err(arithmetic(
                 "interval source may not replace live precombine descriptor budget"));
@@ -1103,6 +1138,7 @@ impl RoadWorkBudget {
     /// interval_retained; the current old/new Vec<Packet> growth is passed
     /// in extra. Keep global tick/base fully unchanged outside this phase.
     fn require_completed_interval_cell_slot(&mut self, slot_overlap:usize)->PyResult<()>{
+        if self.limit.is_none() {return Ok(());}
         if self.incoming_descriptor_live_bytes.is_none()
             || self.interval_transient!=0 {
             return Err(arithmetic("cell slot source interval lifetime not ended"));
@@ -1128,7 +1164,12 @@ impl RoadWorkBudget {
             },
             |service| service.road_step_bytes_for(self.events,self.compact_events),
         );
-        let incoming_bytes=if self.incoming_cell_rows.is_some(){
+        let incoming_bytes=if self.incoming_direct_cell_rows.is_some() {
+            event_backed_incoming_page_charge(
+                self.incoming_page_cells,self.incoming_live_pages,
+                self.incoming_direct_live_pages,self.incoming_descriptor_live_bytes,
+            )
+        }else if self.incoming_cell_rows.is_some(){
             segmented_incoming_exact_cell_pages_charge(
                 self.incoming,self.incoming_page_cells,
                 self.incoming_live_pages,self.compact_incoming,
@@ -1169,6 +1210,7 @@ impl RoadWorkBudget {
             phase_base
                 .saturating_add(event_bytes)
                 .saturating_add(incoming_bytes)
+                .saturating_add(self.incoming_outer_bytes)
                 .saturating_add(self.interval_retained)
                 .saturating_add(self.interval_transient)
                 .saturating_add(self.diagnostic_source_live_bytes)
@@ -1196,6 +1238,9 @@ impl RoadWorkBudget {
                     ("event_bytes", event_bytes),
                     ("incoming_rows", self.incoming),
                     ("incoming_live_pages",self.incoming_live_pages),
+                    ("incoming_event_backed",usize::from(self.incoming_direct_cell_rows.is_some())),
+                    ("incoming_direct_spill_live_pages",self.incoming_direct_live_pages),
+                    ("incoming_actual_outer_bytes",self.incoming_outer_bytes),
                     ("incoming_actual_page_charge",incoming_bytes),
                     ("incoming_actual_descriptor_bytes",
                         self.incoming_descriptor_live_bytes.unwrap_or(0)),
@@ -1230,6 +1275,14 @@ impl RoadWorkBudget {
             *prior=0;
             self.incoming_live_pages=new_pages;
         }
+        if let Some(direct)=&mut self.incoming_direct_cell_rows {
+            let prior=direct.get_mut(cell).ok_or_else(||
+                arithmetic("expired direct spill outside source registry"))?;
+            self.incoming_direct_live_pages=self.incoming_direct_live_pages
+                .checked_sub(prior.div_ceil(INCOMING_PART_CHUNK)).ok_or_else(||
+                    arithmetic("expired direct spill pages exceed charged owners"))?;
+            *prior=0;
+        }
         self.incoming=remaining;
         Ok(())
     }
@@ -1259,8 +1312,26 @@ impl RoadWorkBudget {
             for i in destinations {
                 let count=tracked.get_mut(i).ok_or_else(||
                     arithmetic("incoming predicted destination outside original cell registry"))?;
-                if *count % INCOMING_PART_CHUNK==0 {
+                let mut needs_header=*count % INCOMING_PART_CHUNK==0;
+                if needs_header {
                     self.incoming_live_pages=self.incoming_live_pages.saturating_add(1);
+                }
+                // The road service call always declares a nonempty source
+                // packet; pending insertion declares zero EventRows. Count
+                // every pending direct payload before its physical append.
+                if events==0 {
+                    if let Some(direct)=&mut self.incoming_direct_cell_rows {
+                        let d=direct.get_mut(i).ok_or_else(||
+                            arithmetic("pending spill source destination outside registry"))?;
+                        if *d % INCOMING_PART_CHUNK==0 {
+                            self.incoming_direct_live_pages=
+                                self.incoming_direct_live_pages.saturating_add(1);
+                            needs_header=true;
+                        }
+                        *d=d.saturating_add(1);
+                    }
+                }
+                if needs_header {
                     if let Some(ref mut cell_ids)=new_page_cells {
                         push_checked(cell_ids,checked_page_destination_index(i)?)?;
                     }
@@ -1306,6 +1377,7 @@ impl RoadWorkBudget {
         self.observed_incoming_descriptor_bytes(incoming,marks)?;
         let before_events=self.events;
         let before_pages=self.incoming_live_pages;
+        let before_direct_pages=self.incoming_direct_live_pages;
         // Source-only page header projection needs cell IDs, not wide
         // physical Part/Mark rows. The original cell registry is bounded
         // by the immutable native V03 source and every ID is checked below.
@@ -1375,6 +1447,11 @@ impl RoadWorkBudget {
                 arithmetic("missing Part page descriptor destination"))?;
             old_physical_header_overlap=old_physical_header_overlap
                 .max(p.reserve_header_slots(target)?);
+            if let Some(direct)=&self.incoming_direct_cell_rows {
+                let spill=direct[cell].div_ceil(INCOMING_PART_CHUNK);
+                old_physical_header_overlap=old_physical_header_overlap
+                    .max(p.reserve_direct_header_slots(spill)?);
+            }
             let m=marks.get_mut(cell).ok_or_else(||
                 arithmetic("missing Mark page descriptor destination"))?;
             let old_cap=m.chunks.capacity();
@@ -1415,13 +1492,16 @@ impl RoadWorkBudget {
         // They must be checked as max(A,B), not the fictitious sum A+B.
         let projected_events=self.events;
         let projected_pages=self.incoming_live_pages;
+        let projected_direct_pages=self.incoming_direct_live_pages;
         self.events=before_events;
         self.incoming_live_pages=before_pages;
+        self.incoming_direct_live_pages=before_direct_pages;
         let header_check=self.require_with_no_active_combine(
             extra,"transfer header reservation",None
         );
         self.events=projected_events;
         self.incoming_live_pages=projected_pages;
+        self.incoming_direct_live_pages=projected_direct_pages;
         let status=if header_check.is_ok() {
             self.require_with_no_active_combine(0,"transfer candidates",None)
         } else { header_check };
@@ -1444,6 +1524,7 @@ impl RoadWorkBudget {
         }
         let mut rows=0usize;
         let mut pages=0usize;
+        let mut direct_pages=0usize;
         let mut descriptors=0usize;
         for i in 0..tracked.len() {
             let (p,m)=(&parts[i],&marks[i]);
@@ -1451,6 +1532,17 @@ impl RoadWorkBudget {
                 || p.capacity()!=m.capacity()
                 || p.capacity()!=p.len().div_ceil(INCOMING_PART_CHUNK)*INCOMING_PART_CHUNK {
                 return Err(arithmetic("incoming current Part Mark fixed-page counts differ"));
+            }
+            if p.event_backed!=self.incoming_direct_cell_rows.is_some() {
+                return Err(arithmetic("incoming source representation differs from admitted owner"));
+            }
+            if let Some(direct)=&self.incoming_direct_cell_rows {
+                if direct.len()!=tracked.len() || p.direct_len!=direct[i]
+                    || p.direct_capacity()!=direct[i].div_ceil(INCOMING_PART_CHUNK)*INCOMING_PART_CHUNK {
+                    return Err(arithmetic("incoming direct spill capacity differs from source projection"));
+                }
+                direct_pages=direct_pages.saturating_add(
+                    p.direct_capacity()/INCOMING_PART_CHUNK);
             }
             rows=rows.saturating_add(p.len());
             pages=pages.saturating_add(p.capacity()/INCOMING_PART_CHUNK);
@@ -1460,7 +1552,8 @@ impl RoadWorkBudget {
                     .saturating_mul(std::mem::size_of::<Vec<Mark>>()))
             );
         }
-        if rows!=self.incoming || pages!=self.incoming_live_pages {
+        if rows!=self.incoming || pages!=self.incoming_live_pages
+            || direct_pages!=self.incoming_direct_live_pages {
             return Err(arithmetic("incoming live page census differs from source preflight"));
         }
         Ok(descriptors)
@@ -1510,27 +1603,7 @@ impl RoadWorkBudget {
             || parts.len()!=tracked.len() || marks.len()!=tracked.len() {
             return Err(arithmetic("incoming descriptor fixed source registry differs"));
         }
-        let mut actual_rows=0usize;
-        let mut actual_pages=0usize;
-        let mut descriptor_bytes=0usize;
-        for i in 0..tracked.len() {
-            let (p,m)=(&parts[i],&marks[i]);
-            if p.len()!=m.len() || p.len()!=tracked[i]
-                || p.capacity()!=m.capacity()
-                || p.capacity()!=p.len().div_ceil(INCOMING_PART_CHUNK)*INCOMING_PART_CHUNK {
-                return Err(arithmetic("incoming Part Mark aligned source page ownership differs"));
-            }
-            actual_rows=actual_rows.saturating_add(p.len());
-            actual_pages=actual_pages.saturating_add(p.capacity()/INCOMING_PART_CHUNK);
-            descriptor_bytes=descriptor_bytes.saturating_add(
-                p.descriptor_capacity().saturating_mul(std::mem::size_of::<Vec<Part>>())
-                .saturating_add(m.chunks.capacity()
-                    .saturating_mul(std::mem::size_of::<Vec<Mark>>()))
-            );
-        }
-        if actual_rows!=self.incoming || actual_pages!=self.incoming_live_pages {
-            return Err(arithmetic("incoming frozen physical page count differs from preflight"));
-        }
+        let descriptor_bytes=self.observed_incoming_descriptor_bytes(parts,marks)?;
         self.incoming_descriptor_live_bytes=Some(descriptor_bytes);
         crate::v1_trace::add("road_work.locked_descriptor_payload_bytes",descriptor_bytes as u64);
         Ok(())
@@ -2591,8 +2664,28 @@ impl CompactIncomingPart {
     }
 }
 
-/// True original append order is preserved in either mode. Full Part storage
-/// remains the fallback if the original registry does not support u32 indexes.
+/// A serviced Part reuses the already-stored event's tag, mass, birth and
+/// interval endpoints. Offset is independent and copied exactly. Pending
+/// rows use the reserved event code and index a separately stored full Part.
+#[derive(Clone,Copy)]
+struct IncomingRowRef {
+    event:u32,
+    offset_or_direct:u32,
+}
+fn reserve_part_page_headers<T>(headers:&mut Vec<Vec<T>>,pages:usize)->PyResult<usize> {
+    if pages<=headers.capacity() {return Ok(0);}
+    let old=headers.capacity().saturating_mul(std::mem::size_of::<Vec<T>>());
+    headers.try_reserve_exact(pages.saturating_sub(headers.len()))
+        .map_err(|_|budget("native incoming page header reservation unavailable"))?;
+    if headers.capacity()<pages {
+        return Err(budget("native incoming page descriptor capacity invalid"));
+    }
+    Ok(old)
+}
+/// Original order is retained in every mode. Capped, representable interval
+/// service rows use event references; pending/direct rows keep their original
+/// compact Part payload in a separately charged spill. Noninterval, wide and
+/// uncapped paths retain the original direct representation.
 const INCOMING_PART_CHUNK:usize=128;
 #[derive(Default)]
 struct ChunkedParts {
@@ -2600,66 +2693,118 @@ struct ChunkedParts {
     compact_chunks:Vec<Vec<CompactIncomingPart>>,
     compressed:bool,
     len:usize,
+    event_refs:Vec<Vec<IncomingRowRef>>,
+    event_backed:bool,
+    direct_len:usize,
+    event_source:Option<Weak<()>>,
 }
 impl ChunkedParts {
     fn new(compressed:bool)->Self {Self{compressed,..Self::default()}}
+    fn event_backed()->Self {Self{compressed:true,event_backed:true,..Self::default()}}
     fn len(&self)->usize {self.len}
     fn is_empty(&self)->bool {self.len==0}
     fn capacity(&self)->usize {
-        if self.compressed {
-            self.compact_chunks.iter().map(Vec::capacity).sum()
-        } else {
-            self.chunks.iter().map(Vec::capacity).sum()
-        }
+        if self.event_backed {self.event_refs.iter().map(Vec::capacity).sum()}
+        else if self.compressed {self.compact_chunks.iter().map(Vec::capacity).sum()}
+        else {self.chunks.iter().map(Vec::capacity).sum()}
+    }
+    fn direct_capacity(&self)->usize {
+        if self.event_backed {self.compact_chunks.iter().map(Vec::capacity).sum()}else{0}
     }
     fn descriptor_capacity(&self)->usize {
-        if self.compressed {self.compact_chunks.capacity()}else{self.chunks.capacity()}
+        if self.event_backed {
+            self.event_refs.capacity().saturating_add(self.compact_chunks.capacity())
+        }else if self.compressed {self.compact_chunks.capacity()}else{self.chunks.capacity()}
     }
-    fn reserve_header_slots(&mut self, pages:usize)->PyResult<usize> {
-        if self.compressed {
-            let h=&mut self.compact_chunks;
-            if pages<=h.capacity() {return Ok(0);}
-            let old=h.capacity().saturating_mul(std::mem::size_of::<Vec<CompactIncomingPart>>());
-            h.try_reserve_exact(pages.saturating_sub(h.len()))
-                .map_err(|_|budget("native compact Part descriptor reserve unavailable"))?;
-            if h.capacity()<pages {
-                return Err(budget("native compact Part descriptor capacity invalid"));
-            }
-            Ok(old)
-        } else {
-            let h=&mut self.chunks;
-            if pages<=h.capacity() {return Ok(0);}
-            let old=h.capacity().saturating_mul(std::mem::size_of::<Vec<Part>>());
-            h.try_reserve_exact(pages.saturating_sub(h.len()))
-                .map_err(|_|budget("native wide Part descriptor reserve unavailable"))?;
-            if h.capacity()<pages {
-                return Err(budget("native wide Part descriptor capacity invalid"));
-            }
-            Ok(old)
+    fn reserve_header_slots(&mut self,pages:usize)->PyResult<usize> {
+        if self.event_backed {reserve_part_page_headers(&mut self.event_refs,pages)}
+        else if self.compressed {reserve_part_page_headers(&mut self.compact_chunks,pages)}
+        else {reserve_part_page_headers(&mut self.chunks,pages)}
+    }
+    fn reserve_direct_header_slots(&mut self,pages:usize)->PyResult<usize> {
+        if !self.event_backed {
+            if pages!=0 {return Err(arithmetic("direct spill projected for non-reference owner"));}
+            return Ok(0);
         }
+        reserve_part_page_headers(&mut self.compact_chunks,pages)
     }
     fn physical_capacity_bytes(&self)->usize {
-        self.capacity().saturating_mul(if self.compressed {
-            std::mem::size_of::<CompactIncomingPart>()
-        } else {
-            std::mem::size_of::<Part>()
-        })
+        if self.event_backed {
+            self.capacity().saturating_mul(std::mem::size_of::<IncomingRowRef>())
+                .saturating_add(self.direct_capacity()
+                    .saturating_mul(std::mem::size_of::<CompactIncomingPart>()))
+        }else{
+            self.capacity().saturating_mul(if self.compressed {
+                std::mem::size_of::<CompactIncomingPart>()
+            }else{std::mem::size_of::<Part>()})
+        }
     }
     fn iter(&self)->impl Iterator<Item=Part>+'_ {
+        assert!(!self.event_backed,"event-backed incoming requires its source view");
         self.chunks.iter().flat_map(|c|c.iter().copied())
             .chain(self.compact_chunks.iter().flat_map(|c|c.iter().copied().map(CompactIncomingPart::unpack)))
     }
     fn get(&self,i:usize)->Part {
+        assert!(!self.event_backed,"event-backed incoming requires its source view");
         if self.compressed {
             self.compact_chunks[i/INCOMING_PART_CHUNK][i%INCOMING_PART_CHUNK].unpack()
-        } else {
+        }else{
             self.chunks[i/INCOMING_PART_CHUNK][i%INCOMING_PART_CHUNK]
         }
+    }
+    /// The returned view borrows both owners. Weak only verifies identity;
+    /// it is this borrow that prevents event data from expiring during reads.
+    fn view<'a>(&'a self,events:&'a ChunkedEvents)->PyResult<IncomingPartView<'a>> {
+        if let Some(source)=&self.event_source {
+            if !Weak::ptr_eq(source,&Arc::downgrade(&events.source_token)) {
+                return Err(arithmetic("incoming event reference belongs to a different source store"));
+            }
+        }
+        Ok(IncomingPartView{parts:self,events:Some(events)})
+    }
+    fn push_reference(&mut self,row:IncomingRowRef)->PyResult<()> {
+        if self.event_refs.last().is_none_or(|c|c.len()==INCOMING_PART_CHUNK) {
+            let page=checkpoint_vec(INCOMING_PART_CHUNK)?;
+            if page.capacity()!=INCOMING_PART_CHUNK {
+                return Err(budget("incoming reference fixed page capacity differs"));
+            }
+            push_checked(&mut self.event_refs,page)?;
+        }
+        self.event_refs.last_mut().expect("reference page allocated").push(row);
+        self.len+=1;
+        Ok(())
+    }
+    fn push_serviced(&mut self,event_index:usize,p:Part,events:&ChunkedEvents)->PyResult<()> {
+        if !self.event_backed {return self.push_checked(p);}
+        let event=u32::try_from(event_index).ok().filter(|&i|i!=u32::MAX)
+            .ok_or_else(||arithmetic("incoming event index outside checked reference domain"))?;
+        let offset=u32::try_from(p.offset)
+            .map_err(|_|arithmetic("incoming source offset outside checked reference domain"))?;
+        let e=events.get_checked(event_index)
+            .ok_or_else(||arithmetic("incoming event index is not an appended source row"))?;
+        if e.0!=p.tag || e.2.is_none()
+            || e.3.to_bits()!=p.mass.to_bits() || e.6.to_bits()!=p.birth.to_bits()
+            || !e.4.is_finite() || !e.5.is_finite()
+            || p.a.0!=e.4.to_bits() || p.b.0!=e.5.to_bits() {
+            return Err(arithmetic("incoming reference does not preserve original Part bits"));
+        }
+        if let Some(source)=&self.event_source {
+            if source.as_ptr()!=Arc::as_ptr(&events.source_token) {
+                return Err(arithmetic("incoming reference source store changed"));
+            }
+        }else{
+            self.event_source=Some(Arc::downgrade(&events.source_token));
+        }
+        self.push_reference(IncomingRowRef{event,offset_or_direct:offset})
     }
     fn push_checked(&mut self,p:Part)->PyResult<()> {
         if self.compressed {
             let encoded=CompactIncomingPart::try_new(p).ok_or_else(||
                 arithmetic("compact incoming source index contract differs"))?;
+            let direct=if self.event_backed {
+                Some(u32::try_from(self.direct_len).ok().filter(|&i|i!=u32::MAX)
+                    .ok_or_else(||arithmetic("pending direct reference index overflow"))?)
+            }else{None};
             if self.compact_chunks.last().is_none_or(|c|c.len()==INCOMING_PART_CHUNK) {
                 let page=checkpoint_vec(INCOMING_PART_CHUNK)?;
                 if page.capacity()!=INCOMING_PART_CHUNK {
@@ -2668,7 +2813,13 @@ impl ChunkedParts {
                 push_checked(&mut self.compact_chunks,page)?;
             }
             self.compact_chunks.last_mut().expect("compact incoming page allocated").push(encoded);
-        } else {
+            if let Some(index)=direct {
+                self.direct_len+=1;
+                return self.push_reference(IncomingRowRef{
+                    event:u32::MAX,offset_or_direct:index,
+                });
+            }
+        }else{
             if self.chunks.last().is_none_or(|c|c.len()==INCOMING_PART_CHUNK) {
                 let page=checkpoint_vec(INCOMING_PART_CHUNK)?;
                 if page.capacity()!=INCOMING_PART_CHUNK {
@@ -2684,6 +2835,30 @@ impl ChunkedParts {
     fn extend_parts(&mut self,parts:impl IntoIterator<Item=Part>)->PyResult<()> {
         for p in parts {self.push_checked(p)?;}
         Ok(())
+    }
+}
+#[derive(Clone,Copy)]
+struct IncomingPartView<'a> {
+    parts:&'a ChunkedParts,
+    events:Option<&'a ChunkedEvents>,
+}
+impl<'a> IncomingPartView<'a> {
+    fn len(self)->usize {self.parts.len()}
+    fn get(self,i:usize)->Part {
+        if !self.parts.event_backed {return self.parts.get(i);}
+        let row=self.parts.event_refs[i/INCOMING_PART_CHUNK][i%INCOMING_PART_CHUNK];
+        if row.event==u32::MAX {
+            let direct=row.offset_or_direct as usize;
+            return self.parts.compact_chunks[direct/INCOMING_PART_CHUNK]
+                [direct%INCOMING_PART_CHUNK].unpack();
+        }
+        let e=self.events.expect("reference view owns event borrow")
+            .get_checked(row.event as usize).expect("validated appended event reference");
+        Part{tag:e.0,offset:row.offset_or_direct as usize,mass:e.3,birth:e.6,
+            a:PackedTime(e.4.to_bits()),b:PackedTime(e.5.to_bits())}
+    }
+    fn iter(self)->impl Iterator<Item=Part>+'a {
+        (0..self.len()).map(move|i|self.get(i))
     }
 }
 
@@ -2774,6 +2949,27 @@ fn segmented_incoming_exact_cell_pages_charge(
         .saturating_add(original_descriptor_envelope)
 }
 
+/// All primary rows retain their original append order and one Mark. A
+/// pending row additionally owns a full compact Part in the direct spill.
+/// Every capacity is a separately projected exact 128-row allocation.
+fn event_backed_incoming_page_charge(
+    cells:usize,primary_pages:usize,direct_pages:usize,actual_headers:Option<usize>,
+)->usize {
+    let primary=primary_pages.saturating_mul(INCOMING_PART_CHUNK)
+        .saturating_mul(std::mem::size_of::<IncomingRowRef>()+std::mem::size_of::<Mark>());
+    let spill=direct_pages.saturating_mul(INCOMING_PART_CHUNK)
+        .saturating_mul(std::mem::size_of::<CompactIncomingPart>());
+    let counters=cells.saturating_mul(2*std::mem::size_of::<usize>())
+        .saturating_add(2*128);
+    let all_pages=primary_pages.saturating_mul(2).saturating_add(direct_pages);
+    let descriptors=actual_headers.unwrap_or_else(||all_pages.saturating_mul(
+        2*std::mem::size_of::<Vec<Part>>()
+    ));
+    // Every primary/Mark/spill page keeps its allocation padding too.
+    primary.saturating_add(spill).saturating_add(counters)
+        .saturating_add(descriptors).saturating_add(all_pages.saturating_mul(128))
+}
+
 /// This ONLY receives raw source buffers whose last original read already
 /// happened. Combine, original weighted speed and latent Mark reductions
 /// must have completed before calling it. Keeping the actual owner arguments
@@ -2814,6 +3010,12 @@ fn release_consumed_incoming_pair(
 /// The original combine key, source-index tie order and sum() operations
 /// evaluated against stable page indices without flattening the source.
 fn combine_chunked_parts(parts: &ChunkedParts) -> PyResult<Vec<Part>> {
+    if parts.event_backed {
+        return Err(arithmetic("event-backed combination requires source event view"));
+    }
+    combine_incoming_view(IncomingPartView{parts,events:None})
+}
+fn combine_incoming_view(parts:IncomingPartView<'_>)->PyResult<Vec<Part>> {
     let key = |p: &Part| {
         (p.tag, p.offset, p.a.map_or(u64::MAX, f64::to_bits),
          p.b.map_or(u64::MAX, f64::to_bits))
@@ -3455,6 +3657,11 @@ impl V1Road {
             && self.routes.len() < u32::MAX as usize
             && self.paths.iter().all(|p|p.len()<u32::MAX as usize)
     }
+    fn can_reference_incoming_events(&self)->bool {
+        self.intervals && self.can_compact_incoming_parts()
+            && self.can_compact_candidate_events()
+            && self.checkpoint_event_limit()<u32::MAX as usize
+    }
     pub(crate) fn can_compact_candidate_events(&self)->bool {
         // All route tags and source/destination cell indices derive from
         // these configured registries. Reserve u32::MAX for dest=None.
@@ -3472,7 +3679,7 @@ impl V1Road {
                 events: 0,
                 incoming: 0,
                 incoming_page_cells: self.groups.len(),
-                incoming_cell_rows:None,incoming_live_pages:0,
+                incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
                 compact_events: self.can_compact_candidate_events(),
                 compact_incoming: self.can_compact_incoming_parts(),
@@ -3549,6 +3756,9 @@ impl V1Road {
             incoming: 0,
             incoming_page_cells: self.groups.len(),
             incoming_cell_rows:Some(vec![0;self.groups.len()]),incoming_live_pages:0,
+            incoming_direct_cell_rows:self.can_reference_incoming_events()
+                .then(||vec![0;self.groups.len()]),
+            incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events: self.can_compact_candidate_events(),
             compact_incoming: self.can_compact_incoming_parts(),
@@ -4354,8 +4564,14 @@ impl V1Road {
         };
         let mut events = ChunkedEvents::new(self.can_compact_candidate_events());
         let compact_incoming=self.can_compact_incoming_parts();
+        let event_backed=self.can_reference_incoming_events();
+        let shell_reserve=n.saturating_mul(
+            std::mem::size_of::<ChunkedParts>()+std::mem::size_of::<ChunkedMarks>()
+        ).saturating_add(2*128);
+        work.require(shell_reserve,"incoming owner shells")?;
         let mut incoming: Vec<ChunkedParts> = (0..n)
-            .map(|_| ChunkedParts::new(compact_incoming)).collect();
+            .map(|_|if event_backed {ChunkedParts::event_backed()}
+                else{ChunkedParts::new(compact_incoming)}).collect();
         // Diagnostic only: source (cell, head position, rate bits) per incoming row.
         let mut incoming_src: Vec<ChunkedDiagnosticSource> = if crate::v1_trace::enabled() {
             (0..n).map(|_|ChunkedDiagnosticSource::default()).collect()
@@ -4364,6 +4580,11 @@ impl V1Road {
         };
         let mut marks: Vec<ChunkedMarks> = (0..n)
             .map(|_| ChunkedMarks::default()).collect();
+        work.incoming_outer_bytes=incoming.capacity()
+            .saturating_mul(std::mem::size_of::<ChunkedParts>())
+            .saturating_add(marks.capacity().saturating_mul(std::mem::size_of::<ChunkedMarks>()))
+            .saturating_add(2*128);
+        work.require(0,"incoming owner shells")?;
         let (mut sink, mut exit1, mut hold) = (0., 0., 0.);
         let mut resolution = EventResolutionStats::default();
         for inc in &self.incoming {
@@ -4673,6 +4894,9 @@ impl V1Road {
                         let k = self.class(&p);
                         out.ledger[k][3] += p.mass * (local_mid - ready).max(0.);
                         let j = self.dest(&p);
+                        // This is the actual append index, never the
+                        // conservative projected EventRow admission count.
+                        let event_index=events.len();
                         events.push_checked(
                             (p.tag, i, j, p.mass, start_time, end_time, p.birth),
                         )?;
@@ -4698,7 +4922,7 @@ impl V1Road {
                                 p.a = PackedTime::new(Some(start_time))?;
                                 p.b = PackedTime::new(Some(end_time))?;
                             }
-                            incoming[j].push_checked(p)?;
+                            incoming[j].push_serviced(event_index,p,&events)?;
                             if !incoming_src.is_empty() {
                                 incoming_src[j].push(compact_diagnostic_source_id(
                                     i,position[i],rate.to_bits()
@@ -4756,11 +4980,9 @@ impl V1Road {
             crate::v1_trace::guard(
                 "road_actual",
                 "transfer buffers",
-                events
-                    .capacity()
-                    .saturating_mul(std::mem::size_of::<EventRow>())
-                    .saturating_add(incoming_cap.saturating_mul(std::mem::size_of::<Part>()))
-                    .saturating_add(marks_cap.saturating_mul(std::mem::size_of::<Mark>())),
+                events.physical_capacity_bytes()
+                    .saturating_add(incoming_real_payload)
+                    .saturating_add(marks_cap.saturating_mul(std::mem::size_of::<Mark>())) ,
                 work.limit.unwrap_or(usize::MAX),
                 &[
                     ("events_len", events.len()),
@@ -4872,7 +5094,7 @@ impl V1Road {
         work.lock_completed_incoming_descriptors(&incoming,&marks)?;
         for i in 0..n {
             if !incoming_src.is_empty() && !incoming[i].is_empty() {
-                exact_merge_census(incoming[i].iter(), incoming_src[i].iter().copied());
+                exact_merge_census(incoming[i].view(&events)?.iter(), incoming_src[i].iter().copied());
             }
             // Diagnostic-only input sequence is consumed and is not retained
             // for any original physical source calculation in a later cell.
@@ -4893,7 +5115,7 @@ impl V1Road {
             let old = self.occupancy(&out.cells[i]);
             let weighted_speed = sum(
                 incoming[i]
-                    .iter()
+                    .view(&events)?.iter()
                     .zip(marks[i].iter())
                     .map(|(part, mark)| part.mass * mark.0),
             );
@@ -4909,13 +5131,13 @@ impl V1Road {
                     )?;
                 }
             }
-            for (part, mark) in incoming[i].iter().zip(marks[i].iter()) {
+            for (part, mark) in incoming[i].view(&events)?.iter().zip(marks[i].iter()) {
                 let k = self.class(&part);
                 push_checked(byclass.entry(k).or_default(), (part.mass, mark.1))?;
             }
             // Only now may equal-key incoming Parts be combined.
             let source = std::mem::take(&mut incoming[i]);
-            let parts = combine_chunked_parts(&source)?;
+            let parts = combine_incoming_view(source.view(&events)?)?;
             // All source-order f64 and Mark-dependent physical moments have
             // now been computed, and source combination finished. Physically
             // drop BOTH raw owner families before reducing the bound seen by
@@ -5488,7 +5710,7 @@ mod workspace_accounting_tests {
             events: 0,
             incoming: 0,
             incoming_page_cells: 0,
-            incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events: false,
             compact_incoming: false,
@@ -7090,7 +7312,7 @@ mod exact_consumed_packet_source_lifetime_tests {
             base:0,transfer_exclusive_cell_scratch:0,
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:n,incoming_page_cells:1586,
-            incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,compact_incoming:true,
             interval_retained:0,interval_transient:0,
@@ -7245,7 +7467,7 @@ mod exact_incoming_cell_page_liveness_tests {
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,
             incoming_page_cells:g,compact_events:true,compact_incoming:true,
-            incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,
+            incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             interval_retained:0,interval_transient:0,service_events:None,
         }
@@ -7321,7 +7543,7 @@ mod exact_locked_incoming_descriptor_lifetime_tests {
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,
             incoming_page_cells:3,
-            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
+            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -7403,7 +7625,7 @@ mod exact_pending_pack_live_descriptor_tests {
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,
             incoming_page_cells:3,
-            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
+            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -7572,7 +7794,7 @@ mod original_transfer_exclusive_cell_scratch_tests {
             transfer_exclusive_cell_scratch:150,
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:0,
-            incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -7654,7 +7876,7 @@ mod original_completed_source_exact_packet_admission_tests {
             limit:Some(930),base:1000,transfer_exclusive_cell_scratch:150,
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:0,
-            incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:Some(0),
             compact_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -7703,7 +7925,7 @@ mod original_precombine_pending_remainder_lifetime_tests {
             limit:Some(1100),base:1000,transfer_exclusive_cell_scratch:150,
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:1,
-            incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,
+            incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -7745,7 +7967,7 @@ mod transfer_live_header_budget_constructive_tests {
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:3,compact_events:true,
             compact_incoming:true,incoming_cell_rows:Some(vec![0;3]),
-            incoming_live_pages:0,incoming_descriptor_live_bytes:None,
+            incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,incoming_descriptor_live_bytes:None,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -7793,7 +8015,7 @@ mod transfer_header_growth_overlap_adversarial_tests {
             limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:1,
-            incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,
+            incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -7838,7 +8060,7 @@ mod transfer_header_temporal_nonoverlap_regression_tests {
             limit:Some(49_070),base:0,transfer_exclusive_cell_scratch:0,
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:3,
-            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
+            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:false,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -7867,7 +8089,7 @@ mod expired_motion_rows_source_lifetime_tests {
             limit:Some(900),base:1000,transfer_exclusive_cell_scratch:0,
             row_scan_scratch_bytes:400,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:0,
-            incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -7888,7 +8110,7 @@ mod expired_motion_rows_source_lifetime_tests {
             limit:Some(900),base:1000,transfer_exclusive_cell_scratch:0,
             row_scan_scratch_bytes:400,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:0,
-            incoming_cell_rows:None,incoming_live_pages:0,
+            incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -7910,7 +8132,7 @@ mod diagnostic_lineage_after_motion_expiry_source_tests {
             row_scan_scratch_bytes:400,expired_motion_scan_credit:0,
             diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:3,
-            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
+            incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -8202,7 +8424,7 @@ mod v03_surgical_exact_interval_owner_lifetime_20261122_tests {
             diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:Some(Vec::new()),
-            incoming_live_pages:0,
+            incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:Some(0),
             compact_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,
@@ -8260,7 +8482,7 @@ mod v03_cell_packet_after_interval_exact_source_20261122_tests {
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,
             diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,events:0,incoming:0,
             incoming_page_cells:0,incoming_cell_rows:Some(Vec::new()),
-            incoming_live_pages:0,incoming_descriptor_live_bytes:Some(0),
+            incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,incoming_descriptor_live_bytes:Some(0),
             compact_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,service_events:None,
         }
@@ -8677,5 +8899,295 @@ mod v03_frozen_queue_source_ownership_20261123_tests {
             let clock=EventClock{hi,lo,active,..EventClock::default()};
             assert!(clock.after_ready(f64::INFINITY));
         }
+    }
+}
+
+#[cfg(test)]
+mod v03_event_backed_incoming_20261123_tests {
+    use super::*;
+
+    fn transfer_road(limit:Option<usize>)->V1Road {
+        let sources=100usize;
+        let rows=100usize;
+        let mut road=V1Road::new(
+            "event-backed-incoming-source".to_string(),1.0,
+            vec![vec![1_000_000.0,1.0,100_000.0,100_000.0,100_000.0,1.0];sources+1],
+            vec![None;sources+1],
+            (0..sources).map(|i|(vec![i,sources],0)).collect(),
+            vec![vec![1.0;13]],vec![(0..sources+1).collect()],vec![],
+            100_000,Some(100_000),true,
+        ).unwrap();
+        for i in 0..sources {
+            let payload=PacketParts::pack((0..rows).map(|_|Part{
+                tag:i,offset:0,mass:1.0/256.0,birth:-0.0,
+                a:PackedTime::new(Some(-0.0)).unwrap(),
+                b:PackedTime::new(Some(0.0)).unwrap(),
+            }).collect(),|_|Ok(())).unwrap();
+            road.state.cells[i].packets.push(Packet{target:0.0,parts:payload});
+            road.state.cells[i].v[2]=rows as f64/256.0;
+            road.state.cells[i].v[7]=1.0;
+            road.state.cells[i].latent.insert(0,0.0);
+        }
+        road.state.totals[0]=(sources*rows) as f64/256.0;
+        road.state.ledger[0][0]=road.state.totals[0];
+        if let Some(limit)=limit {
+            road.set_phase_storage_budget(limit).unwrap();
+            road.begin_call_storage_accounting();
+            let original=road.state.clone();
+            let overlap=road.committed_input_source_arc_credit(&original);
+            road.configure_service_event_accounting(0,0,true,Some((original.t,overlap)));
+        }
+        road
+    }
+
+    #[test]
+    fn original_service_transfer_fits_cap_by_reusing_event_bits() {
+        pyo3::prepare_freethreaded_python();
+        let road=transfer_road(Some(2_300_000));
+        let result=road.propose_owned_step(1.0,vec![]);
+        if let Err(ref error)=result {
+            panic!("original 10000-row source should fit unchanged cap: {error}");
+        }
+        let (candidate,events)=result.unwrap();
+        assert_eq!(events.len(),10_000);
+        assert_eq!(candidate.t,1.0);
+        assert_eq!(road.state.t,0.0);
+        road.check_state(&candidate).unwrap();
+    }
+
+    fn part_bits(p:Part)->(usize,usize,u64,u64,u64,u64) {
+        (p.tag,p.offset,p.mass.to_bits(),p.birth.to_bits(),p.a.0,p.b.0)
+    }
+    fn event_bits(e:EventRow)->(usize,usize,Option<usize>,u64,u64,u64,u64) {
+        (e.0,e.1,e.2,e.3.to_bits(),e.4.to_bits(),e.5.to_bits(),e.6.to_bits())
+    }
+    fn row(i:usize)->Part {
+        Part{tag:i%19,offset:i%7,
+            mass:match i%5 {0=>f64::from_bits(1),1=>1e-100,2=>1e100,_=>0.125},
+            birth:if i%2==0 {-0.0}else{0.25},
+            a:PackedTime::new(Some(if i%2==0 {-0.0}else{0.0})).unwrap(),
+            b:PackedTime::new(Some((i%3+1) as f64)).unwrap()}
+    }
+    fn source_event(p:Part)->EventRow {
+        (p.tag,2,Some(3),p.mass,p.a.unwrap(),p.b.unwrap(),p.birth)
+    }
+    fn reference_work(cells:usize)->RoadWorkBudget {
+        RoadWorkBudget{
+            limit:Some(1_000_000_000),base:0,transfer_exclusive_cell_scratch:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,
+            diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
+            events:0,incoming:0,incoming_page_cells:cells,
+            incoming_cell_rows:Some(vec![0;cells]),incoming_live_pages:0,
+            incoming_direct_cell_rows:Some(vec![0;cells]),
+            incoming_direct_live_pages:0,incoming_outer_bytes:0,
+            incoming_descriptor_live_bytes:None,compact_events:true,compact_incoming:true,
+            interval_retained:0,interval_transient:0,service_events:None,
+        }
+    }
+
+    #[test]
+    fn service_reference_pages_read_exact_four_f64_payloads_and_pending_spill() {
+        let mut events=ChunkedEvents::new(true);
+        let mut incoming=ChunkedParts::event_backed();
+        let mut original=Vec::new();
+        for i in 0..(2*EVENT_PAGE_ROWS+17) {
+            let p=row(i);
+            let actual=events.len();
+            events.push_checked(source_event(p)).unwrap();
+            incoming.push_serviced(actual,p,&events).unwrap();
+            original.push(p);
+        }
+        assert_eq!(std::mem::size_of::<IncomingRowRef>(),8);
+        assert_eq!(incoming.direct_len,0);
+        assert_eq!(incoming.physical_capacity_bytes(),incoming.capacity()*8);
+        // Event values are not recomputed when pages or the owner move.
+        let moved_events=events;
+        for i in 0..133 {
+            let mut p=row(i+5);
+            p.a=PackedTime::new(None).unwrap();
+            p.b=PackedTime::new(None).unwrap();
+            incoming.push_checked(p).unwrap();
+            original.push(p);
+        }
+        let view=incoming.view(&moved_events).unwrap();
+        assert_eq!(view.iter().map(part_bits).collect::<Vec<_>>(),
+            original.iter().copied().map(part_bits).collect::<Vec<_>>());
+        assert_eq!(incoming.direct_len,133);
+        assert_eq!(incoming.direct_capacity(),256);
+        assert_eq!(incoming.physical_capacity_bytes(),
+            incoming.capacity()*8+incoming.direct_capacity()*40);
+        assert!(incoming.physical_capacity_bytes()<incoming.capacity()*40);
+        let direct=combine(original).unwrap();
+        let shared=combine_incoming_view(view).unwrap();
+        assert_eq!(direct.into_iter().map(part_bits).collect::<Vec<_>>(),
+            shared.into_iter().map(part_bits).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn actual_reference_spill_pages_descriptors_and_release_match_projection() {
+        let mut work=reference_work(3);
+        let mut events=ChunkedEvents::new(true);
+        let mut incoming:Vec<_>=(0..3).map(|_|ChunkedParts::event_backed()).collect();
+        let mut marks:Vec<_>=(0..3).map(|_|ChunkedMarks::default()).collect();
+        let mut expected=vec![Vec::new();3];
+        let mut serial=0usize;
+        for batch in [127usize,1,129,4000,19] {
+            let destinations:Vec<_>=(0..batch).map(|k|(k+serial)%3).collect();
+            // Deliberately overproject EventRows, as underflow-filtered
+            // original service may do. References must use actual append
+            // indices and never this admission counter.
+            work.transfer_indexed_with_live_headers(batch+3,destinations.iter().copied(),
+                &mut incoming,&mut marks).unwrap();
+            for cell in destinations {
+                let p=row(serial);
+                let index=events.len();
+                events.push_checked(source_event(p)).unwrap();
+                incoming[cell].push_serviced(index,p,&events).unwrap();
+                marks[cell].push_checked((1.25,0.375)).unwrap();
+                expected[cell].push(p);
+                serial+=1;
+            }
+            work.observed_incoming_descriptor_bytes(&incoming,&marks).unwrap();
+        }
+        assert!(work.events>events.len());
+        for (cell,count) in [(2usize,1usize),(0,129),(2,128),(1,257)] {
+            work.transfer_indexed_with_live_headers(0,std::iter::repeat(cell).take(count),
+                &mut incoming,&mut marks).unwrap();
+            for _ in 0..count {
+                let mut p=row(serial);
+                p.a=PackedTime::new(None).unwrap();
+                p.b=PackedTime::new(None).unwrap();
+                incoming[cell].push_checked(p).unwrap();
+                marks[cell].push_checked((2.5,0.625)).unwrap();
+                expected[cell].push(p);
+                serial+=1;
+            }
+            work.observed_incoming_descriptor_bytes(&incoming,&marks).unwrap();
+        }
+        work.lock_completed_incoming_descriptors(&incoming,&marks).unwrap();
+        let header:usize=incoming.iter().zip(&marks).map(|(p,m)|
+            p.descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+            +m.chunks.capacity()*std::mem::size_of::<Vec<Mark>>()).sum();
+        let physical:usize=incoming.iter().zip(&marks).map(|(p,m)|
+            p.physical_capacity_bytes()+m.capacity()*std::mem::size_of::<Mark>()).sum();
+        assert_eq!(work.incoming_descriptor_live_bytes,Some(header));
+        let charged=event_backed_incoming_page_charge(
+            3,work.incoming_live_pages,work.incoming_direct_live_pages,Some(header));
+        assert!(charged>=physical+header);
+        for cell in 0..3 {
+            let source=std::mem::take(&mut incoming[cell]);
+            let mark=std::mem::take(&mut marks[cell]);
+            let got=source.view(&events).unwrap().iter().map(part_bits).collect::<Vec<_>>();
+            assert_eq!(got,expected[cell].iter().copied().map(part_bits).collect::<Vec<_>>());
+            release_consumed_incoming_pair(&mut work,cell,source,mark).unwrap();
+        }
+        assert_eq!(work.incoming,0);
+        assert_eq!(work.incoming_live_pages,0);
+        assert_eq!(work.incoming_direct_live_pages,0);
+        assert_eq!(work.incoming_descriptor_live_bytes,Some(0));
+        assert!(work.incoming_direct_cell_rows.unwrap().iter().all(|&n|n==0));
+    }
+
+    #[test]
+    fn wrong_expired_mismatched_and_unappended_event_sources_are_rejected() {
+        pyo3::prepare_freethreaded_python();
+        let mut events=ChunkedEvents::new(true);
+        let p=row(4);
+        events.push_checked(source_event(p)).unwrap();
+        let mut incoming=ChunkedParts::event_backed();
+        assert!(incoming.push_serviced(1,p,&events).is_err());
+        assert!(incoming.push_serviced(u32::MAX as usize,p,&events).is_err());
+        let mut wrong=p;
+        wrong.birth=0.0; // source contains -0.0
+        assert!(incoming.push_serviced(0,wrong,&events).is_err());
+        assert_eq!(incoming.len(),0);
+        incoming.push_serviced(0,p,&events).unwrap();
+        let mut unrelated=ChunkedEvents::new(true);
+        unrelated.push_checked(source_event(p)).unwrap();
+        assert!(incoming.view(&unrelated).is_err());
+        assert!(incoming.push_serviced(0,p,&unrelated).is_err());
+        assert_eq!(incoming.len(),1);
+        let weak=incoming.event_source.as_ref().unwrap().clone();
+        {
+            let view=incoming.view(&events).unwrap();
+            assert_eq!(part_bits(view.get(0)),part_bits(p));
+        }
+        drop(events);
+        assert!(weak.upgrade().is_none(),"Weak identity must not retain event data owner");
+        assert!(incoming.view(&unrelated).is_err());
+        assert!(combine_chunked_parts(&incoming).is_err());
+    }
+
+    #[test]
+    fn decoded_short_last_page_and_source_identity_storage_remain_bounded() {
+        let mut events=ChunkedEvents::new(true);
+        let p=row(6);
+        events.push_decoded_checked(source_event(p),1).unwrap();
+        assert!(events.storage_bytes()<=decoded_event_store_upper_bytes(1,true));
+        let next=row(7);
+        events.push_checked(source_event(next)).unwrap();
+        assert!(!events.fixed_page_indexing);
+        assert_eq!(event_bits(events.get_checked(0).unwrap()),event_bits(source_event(p)));
+        assert_eq!(event_bits(events.get_checked(1).unwrap()),event_bits(source_event(next)));
+        assert!(events.get_checked(2).is_none());
+        let mut incoming=ChunkedParts::event_backed();
+        incoming.push_serviced(1,next,&events).unwrap();
+        assert_eq!(part_bits(incoming.view(&events).unwrap().get(0)),part_bits(next));
+        // Both the externally shared carrier Arc and the distinct token Arc
+        // have separately retained control/padding in the empty bound.
+        assert!(event_store_shell_bytes()>=std::mem::size_of::<ChunkedEvents>()
+            +4*std::mem::size_of::<usize>()+256);
+    }
+
+    #[test]
+    fn noninterval_unbounded_and_wide_paths_keep_original_direct_parts() {
+        let mut road=transfer_road(None);
+        assert!(!road.can_reference_incoming_events());
+        road.set_phase_storage_budget(1_000_000_000).unwrap();
+        road.intervals=false;
+        assert!(!road.can_reference_incoming_events());
+        road.intervals=true;
+        road.set_phase_storage_budget((u32::MAX as usize+1)*std::mem::size_of::<EventRow>()).unwrap();
+        assert!(!road.can_reference_incoming_events());
+        let mut direct=ChunkedParts::new(false);
+        let mut p=row(2);
+        p.tag=u32::MAX as usize+1;
+        p.offset=u32::MAX as usize+2;
+        p.a=PackedTime::new(None).unwrap();
+        p.b=PackedTime::new(None).unwrap();
+        // A direct fallback does not depend on an event index or interval.
+        direct.push_serviced(usize::MAX,p,&ChunkedEvents::default()).unwrap();
+        assert_eq!(part_bits(direct.get(0)),part_bits(p));
+        assert_eq!(direct.physical_capacity_bytes(),
+            INCOMING_PART_CHUNK*std::mem::size_of::<Part>());
+    }
+
+    #[test]
+    fn partial_service_pending_and_reference_path_preserve_input_and_final_wire() {
+        pyo3::prepare_freethreaded_python();
+        let mut original=transfer_road(None);
+        let mut proposed=transfer_road(Some(1_000_000_000));
+        for road in [&mut original,&mut proposed] {
+            for group in &mut road.groups[..100] {group[3]=0.1;}
+        }
+        let offers=vec![(0usize,0.125,-0.0,None,None)];
+        let mut input=Vec::new();
+        proposed.write_state(&mut input).unwrap();
+        let (old_state,old_events)=original.propose_owned_step(1.0,offers.clone()).unwrap();
+        let (new_state,new_events)=proposed.propose_owned_step(1.0,offers).unwrap();
+        assert_eq!(old_events.iter().map(event_bits).collect::<Vec<_>>(),
+            new_events.iter().map(event_bits).collect::<Vec<_>>());
+        let mut unchanged=Vec::new();
+        proposed.write_state(&mut unchanged).unwrap();
+        assert_eq!(input,unchanged);
+        original.state=old_state;
+        proposed.state=new_state;
+        let mut old_wire=Vec::new();
+        let mut new_wire=Vec::new();
+        original.write_state(&mut old_wire).unwrap();
+        proposed.write_state(&mut new_wire).unwrap();
+        assert_eq!(old_wire,new_wire);
+        assert_eq!(proposed.state.t,1.0);
+        assert_eq!(new_events.len(),10_000);
     }
 }

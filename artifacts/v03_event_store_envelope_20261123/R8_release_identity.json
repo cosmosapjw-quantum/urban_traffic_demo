@@ -1,0 +1,41 @@
+{
+  "candidate": {
+    "status": "MEASURED",
+    "source_sha256": "0ee8b70a6dff332153571c4e77c69f27086aefd317976cf029b00572d4fa3c14",
+    "source_files": [
+      "Cargo.lock",
+      "crates/metroflow-rust/Cargo.toml",
+      "crates/metroflow-rust/src/lib.rs",
+      "crates/metroflow-rust/src/v1_calendar.rs",
+      "crates/metroflow-rust/src/v1_engine.rs",
+      "crates/metroflow-rust/src/v1_history.rs",
+      "crates/metroflow-rust/src/v1_journey.rs",
+      "crates/metroflow-rust/src/v1_kcmb.rs",
+      "crates/metroflow-rust/src/v1_kcmb_node.rs",
+      "crates/metroflow-rust/src/v1_lineage_shadow.rs",
+      "crates/metroflow-rust/src/v1_parallel.rs",
+      "crates/metroflow-rust/src/v1_road.rs",
+      "crates/metroflow-rust/src/v1_routing.rs",
+      "crates/metroflow-rust/src/v1_stage.rs",
+      "crates/metroflow-rust/src/v1_trace.rs",
+      "src/metroflow/v1/native_calendar.py",
+      "src/metroflow/v1/native_engine.py",
+      "src/metroflow/v1/native_journey.py",
+      "src/metroflow/v1/native_release_driver.py",
+      "src/metroflow/v1/native_road.py",
+      "src/metroflow/v1/native_routing.py",
+      "src/metroflow/v1/native_static.py",
+      "tools/run_v1_local_acceptance.py"
+    ],
+    "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+    "git_commit": "8c5b8942b84e6f06688484ab176a5423f0619c40",
+    "source_dirty": false
+  },
+  "native": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/worktrees/urban-traffic-v03-event-store-moment-envelope-20261123/native_binding/_metroflow_rust.so",
+    "size_bytes": 3293880,
+    "sha256": "e4d6f6d88ad36aca588ce62e5bdee6386ab583e0c2202b8ea8530120f09f0bf1"
+  },
+  "release_build_status": "SUCCESS"
+}

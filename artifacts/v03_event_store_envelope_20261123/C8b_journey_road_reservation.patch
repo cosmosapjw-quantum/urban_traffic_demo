@@ -1,0 +1,349 @@
+--- a/crates/metroflow-rust/src/v1_journey.rs
++++ b/crates/metroflow-rust/src/v1_journey.rs
+@@ -296,6 +296,123 @@
+         temporary_census_scratch_bytes:scratch,
+     }
+ }
++/// Before road prediction there is no road candidate: only the supplied
++/// input and committed road allocations are live. The restore-time pointer
++/// witness expires on the first changed road clock, exactly as in the road
++/// owner's existing post-proposal accounting.
++fn preproposal_road_source_owner_bytes(
++    input:usize,current:usize,current_clock:f64,
++    verified_input_shared:Option<(f64,usize)>,
++)->(usize,usize) {
++    let credit=verified_input_shared.map_or(0,|(clock,bytes)|{
++        if clock==current_clock {bytes.min(input).min(current)} else {0}
++    });
++    (input.saturating_add(current).saturating_sub(credit),credit)
++}
++
++/// The census inserts at most one key per source block. The existing helper
++/// grows a HashMap, so cover BOTH old and new tables during reallocation,
++/// including each table's conservative control/allocator padding. Two pair
++/// censuses run sequentially; their maps are dropped before either returns.
++fn stage_census_table_upper_bytes(state:&Journey)->usize {
++    let blocks=state.1.block_count()
++        .saturating_add(state.2.block_count())
++        .saturating_add(state.3.block_count());
++    if blocks==0 {return 0;}
++    // A one-entry HashMap already has usable capacity 3. The generic
++    // 2*entries capacity envelope must include that minimum allocation.
++    hash_entries_upper_bytes::<usize,usize>(blocks.max(2))
++}
++fn stage_census_scratch_upper_bytes(state:&Journey)->usize {
++    stage_census_table_upper_bytes(state).saturating_mul(2)
++}
++
++fn check_stage_census_actual_scratch(actual:usize,upper:usize)->PyResult<()> {
++    if actual>upper {
++        return Err(PyMemoryError::new_err(format!(
++            "native journey stage census capacity exceeds preflight: actual_bytes={actual}, reserved_bytes={upper}"
++        )));
++    }
++    Ok(())
++}
++
++#[derive(Default,Clone,Copy)]
++struct RoadPhaseJourneyOwners {
++    uncredited_bytes:usize,
++    charged_bytes:usize,
++    input_current_payload_credit:usize,
++    current_pending_payload_credit:usize,
++    census_scratch_upper_bytes:usize,
++    census_actual_scratch_bytes:usize,
++}
++
++/// Input/current/pending Journey states remain immutable throughout the
++/// road proposal. Retain every history and stage shell/registry allocation;
++/// only the two actually witnessed immutable row-payload intersections are
++/// credits. Dense per-leg copies remain in the unchanged engine fixed reserve.
++/// Missing source references retain the original conservative 3*max policy.
++fn road_phase_journey_owner_bytes(
++    input:Option<&Journey>,current:&Journey,pending:Option<&Journey>,
++    input_bytes:usize,current_bytes:usize,pending_bytes:usize,
++    other_live:usize,total:usize,
++)->PyResult<RoadPhaseJourneyOwners> {
++    let (Some(input),Some(pending))=(input,pending) else {
++        let conservative=input_bytes.max(current_bytes).max(pending_bytes)
++            .saturating_mul(WORKING_COPIES);
++        return Ok(RoadPhaseJourneyOwners{
++            uncredited_bytes:conservative,charged_bytes:conservative,
++            ..RoadPhaseJourneyOwners::default()
++        });
++    };
++    let uncredited=three_concrete_owner_bytes(input_bytes,current_bytes,pending_bytes);
++    let scratch_upper=stage_census_scratch_upper_bytes(input)
++        .max(stage_census_scratch_upper_bytes(current));
++    // Admission precedes either HashMap allocation and uses NO Journey
++    // overlap credit. other_live contains only actual old road/event owners
++    // plus the already allocated physical offers; no future road candidate.
++    let required=other_live.saturating_add(uncredited)
++        .saturating_add(scratch_upper)
++        .saturating_add(STORAGE_SCRATCH_RESERVE);
++    crate::v1_trace::guard(
++        "journey_stage_census","road preproposal",required,total,&[
++            ("known_other_live",other_live),
++            ("journey_input",input_bytes),
++            ("journey_current",current_bytes),
++            ("journey_pending",pending_bytes),
++            ("journey_uncredited_sum",uncredited),
++            ("census_growth_scratch_upper",scratch_upper),
++            ("scratch_original",STORAGE_SCRATCH_RESERVE),
++        ],
++    );
++    if required>total {
++        return Err(PyMemoryError::new_err(format!(
++            "native journey stage census preflight budget exceeded: required_bytes={required}, budget_bytes={total}"
++        )));
++    }
++    let source_current=journey_shared_stage_payload_census(input,current);
++    check_stage_census_actual_scratch(
++        source_current.temporary_census_scratch_bytes,stage_census_table_upper_bytes(input))?;
++    let current_pending=journey_shared_stage_payload_census(current,pending);
++    check_stage_census_actual_scratch(
++        current_pending.temporary_census_scratch_bytes,stage_census_table_upper_bytes(current))?;
++    // Each helper has already dropped its HashMap. The simultaneous three
++    // owners may share one allocation: then subtracting its payload in BOTH
++    // pairs leaves exactly one payload charge, while all metadata remains.
++    let input_credit=source_current.shared_payload_bytes
++        .min(input_bytes).min(current_bytes);
++    let pending_credit=current_pending.shared_payload_bytes
++        .min(current_bytes).min(pending_bytes);
++    Ok(RoadPhaseJourneyOwners{
++        uncredited_bytes:uncredited,
++        charged_bytes:uncredited.saturating_sub(input_credit).saturating_sub(pending_credit),
++        input_current_payload_credit:input_credit,
++        current_pending_payload_credit:pending_credit,
++        census_scratch_upper_bytes:scratch_upper,
++        census_actual_scratch_bytes:source_current.temporary_census_scratch_bytes
++            .max(current_pending.temporary_census_scratch_bytes),
++    })
++}
++
+ /// Read-only checkpoint decoder has TWO physical source lifetimes:
+ /// one preexisting retained Journey and one partially constructed decoded
+ /// Journey. The caller has already reserved original road/service owners.
+@@ -1589,6 +1706,10 @@
+     // The Python input snapshot remains live throughout this call, even when
+     // later ticks drain its queues. Charge that known retained owner as well.
+     journey.retained_input_bytes = journey_storage_bytes(&journey.state);
++    // The original snapshot can retain a wider registry than its restored
++    // clone. Use its actual footprint for the source-concrete road phase.
++    let original_input_journey_bytes=original_input_journey
++        .map(journey_storage_bytes).unwrap_or(journey.retained_input_bytes);
+     road.begin_call_storage_accounting();
+     let call_input_events = Arc::clone(&service.last_events);
+     road.configure_service_event_accounting(
+@@ -1690,14 +1811,44 @@
+                 let pending_journey = journey.pending.as_ref().map_or(0, |state| {
+                     stage_storage_bytes(state).saturating_add(journey.history_bytes)
+                 });
+-                let other_live = journey
+-                    .retained_input_bytes
+-                    .max(current_journey)
+-                    .max(pending_journey)
+-                    .saturating_mul(WORKING_COPIES);
++                let (source_road_live,source_road_credit)=preproposal_road_source_owner_bytes(
++                    input_road_bytes,current_road_bytes,t,original_input_road_shared);
++                let old_event_arc_shared=Arc::ptr_eq(&call_input_events,&service.last_events);
++                let source_event_live=concrete_service_event_owner_bytes(
++                    input_event_bytes,current_event_bytes,0,old_event_arc_shared);
++                let physical_offer_bytes=vec_storage_bytes(&physical);
++                let census_other_live=source_road_live
++                    .saturating_add(source_event_live)
++                    .saturating_add(physical_offer_bytes);
++                let owners=road_phase_journey_owner_bytes(
++                    original_input_journey,&journey.state,journey.pending.as_ref(),
++                    original_input_journey_bytes,current_journey,pending_journey,
++                    census_other_live,total,
++                )?;
++                // Both census maps are gone. No scratch discount is carried
++                // into road execution; only exact live StageQueue payload
++                // aliases reduce the Journey reservation during the proposal.
++                crate::v1_trace::guard(
++                    "journey_road_reservation","road step",
++                    census_other_live.saturating_add(owners.charged_bytes)
++                        .saturating_add(STORAGE_SCRATCH_RESERVE),
++                    total,&[
++                        ("journey_uncredited_sum",owners.uncredited_bytes),
++                        ("journey_charged",owners.charged_bytes),
++                        ("input_current_stage_payload_credit",owners.input_current_payload_credit),
++                        ("current_pending_stage_payload_credit",owners.current_pending_payload_credit),
++                        ("source_road_live",source_road_live),
++                        ("source_road_clock_verified_credit",source_road_credit),
++                        ("source_event_live",source_event_live),
++                        ("old_event_arc_pointer_identical",usize::from(old_event_arc_shared)),
++                        ("physical_offer_bytes",physical_offer_bytes),
++                        ("census_growth_scratch_upper",owners.census_scratch_upper_bytes),
++                        ("census_actual_scratch_dropped",owners.census_actual_scratch_bytes),
++                    ],
++                );
+                 road.set_phase_storage_budget(phase_storage_allowance(
+                     total,
+-                    other_live,
++                    owners.charged_bytes,
+                     "road step",
+                 )?)?;
+             }
+@@ -2832,3 +2983,160 @@
+     for row in rows {store.push_decoded_checked(row,n).unwrap();}
+     store
+ }
++
++
++#[cfg(test)]
++mod v03_road_phase_journey_source_census_20261123_tests {
++    use super::*;
++
++    fn source(rows:usize)->Journey {
++        let mut queue=StageQueue::new();
++        for i in 0..rows {queue.push((i%3,1.,i as f64,4.));}
++        (1000.,queue,StageQueue::new(),StageQueue::new(),
++         vec![1.;3],vec![0.;3],
++         vec![ReceiptHistory::from_rows(vec![(0.,1.)]).unwrap()],vec![0.;3])
++    }
++    fn owner_charge(
++        input:&Journey,current:&Journey,pending:&Journey,other:usize,cap:usize,
++    )->PyResult<RoadPhaseJourneyOwners> {
++        road_phase_journey_owner_bytes(
++            Some(input),current,Some(pending),
++            journey_storage_bytes(input),journey_storage_bytes(current),
++            journey_storage_bytes(pending),other,cap,
++        )
++    }
++
++    #[test]
++    fn three_live_aliases_remove_two_payload_copies_but_keep_all_history_and_shells() {
++        let input=source(750);
++        let current=input.clone();
++        let pending=current.clone();
++        let expected_payload=input.1.capacity()*std::mem::size_of::<Access>();
++        let uncredited=journey_storage_bytes(&input)+journey_storage_bytes(&current)
++            +journey_storage_bytes(&pending);
++        let result=owner_charge(&input,&current,&pending,123,usize::MAX).unwrap();
++        assert_eq!(result.uncredited_bytes,uncredited);
++        assert_eq!(result.input_current_payload_credit,expected_payload);
++        assert_eq!(result.current_pending_payload_credit,expected_payload);
++        assert_eq!(result.charged_bytes,uncredited-2*expected_payload);
++        let history=input.6.iter().map(ReceiptHistory::storage_bytes).sum::<usize>();
++        assert!(history>0);
++        assert!(result.charged_bytes>expected_payload+3*history);
++        assert!(result.census_actual_scratch_bytes>0);
++        assert!(result.census_actual_scratch_bytes<=result.census_scratch_upper_bytes);
++        // Census borrows only: no producer rows, clocks or dense buffers mutate.
++        assert_eq!(input.1.to_vec(),current.1.to_vec());
++        assert_eq!(current.1.to_vec(),pending.1.to_vec());
++        assert_eq!(input.4,pending.4);
++        assert_eq!(input.0,pending.0);
++    }
++
++    #[test]
++    fn independent_equal_values_receive_no_stage_payload_credit() {
++        let input=source(750);
++        let current=source(750);
++        let pending=source(750);
++        assert_eq!(input.1.to_vec(),current.1.to_vec());
++        let result=owner_charge(&input,&current,&pending,0,usize::MAX).unwrap();
++        assert_eq!(result.input_current_payload_credit,0);
++        assert_eq!(result.current_pending_payload_credit,0);
++        assert_eq!(result.charged_bytes,result.uncredited_bytes);
++    }
++
++    #[test]
++    fn copied_tail_is_independent_while_shared_full_blocks_keep_exact_credit() {
++        let input=source(750);
++        let current=input.clone();
++        let mut pending=current.clone();
++        pending.1.push((0,1.,750.,4.));
++        let result=owner_charge(&input,&current,&pending,0,usize::MAX).unwrap();
++        assert_eq!(result.input_current_payload_credit,
++                   input.1.capacity()*std::mem::size_of::<Access>());
++        // Two full 256-row blocks stay shared; the mutable tail is copied.
++        assert_eq!(result.current_pending_payload_credit,
++                   2*256*std::mem::size_of::<Access>());
++        assert!(result.current_pending_payload_credit<result.input_current_payload_credit);
++    }
++
++    #[test]
++    fn missing_original_reference_keeps_three_max_without_census_allocation() {
++        let current=source(750);
++        let pending=current.clone();
++        let bytes=journey_storage_bytes(&current);
++        let result=road_phase_journey_owner_bytes(
++            None,&current,Some(&pending),bytes+17,bytes,
++            journey_storage_bytes(&pending),0,usize::MAX,
++        ).unwrap();
++        assert_eq!(result.charged_bytes,3*(bytes+17));
++        assert_eq!(result.input_current_payload_credit,0);
++        assert_eq!(result.current_pending_payload_credit,0);
++        assert_eq!(result.census_scratch_upper_bytes,0);
++        assert_eq!(result.census_actual_scratch_bytes,0);
++    }
++
++    #[test]
++    fn preproposal_source_road_credit_needs_the_unexpired_original_clock() {
++        assert_eq!(preproposal_road_source_owner_bytes(100,150,10.,Some((10.,90))),
++                   (160,90));
++        assert_eq!(preproposal_road_source_owner_bytes(100,150,20.,Some((10.,90))),
++                   (250,0));
++        assert_eq!(preproposal_road_source_owner_bytes(100,100,10.,None),(200,0));
++        assert_eq!(preproposal_road_source_owner_bytes(100,150,10.,Some((10.,999))),
++                   (150,100));
++    }
++
++    #[test]
++    fn census_preflight_charges_uncredited_sources_offers_and_scratch_before_credit() {
++        let input=source(750);
++        let current=input.clone();
++        let pending=current.clone();
++        let offers=Vec::<crate::v1_road::Offer>::with_capacity(4);
++        let offers_bytes=vec_storage_bytes(&offers);
++        assert!(offers_bytes>0); // Actual retained capacity, even at length zero.
++        let (road_live,_)=preproposal_road_source_owner_bytes(100,150,10.,Some((10.,90)));
++        let events=concrete_service_event_owner_bytes(80,80,0,true);
++        let other=road_live+events+offers_bytes;
++        let uncredited=journey_storage_bytes(&input)+journey_storage_bytes(&current)
++            +journey_storage_bytes(&pending);
++        let scratch=stage_census_scratch_upper_bytes(&input)
++            .max(stage_census_scratch_upper_bytes(&current));
++        let exact=other+uncredited+scratch+STORAGE_SCRATCH_RESERVE;
++        assert!(owner_charge(&input,&current,&pending,other,exact).is_ok());
++        assert!(owner_charge(&input,&current,&pending,other,exact-1).is_err());
++        assert!(owner_charge(&input,&current,&pending,other+1,exact).is_err());
++        // Proven sharing cannot be borrowed to fund the census that proves it.
++        let payload=input.1.capacity()*std::mem::size_of::<Access>();
++        assert!(owner_charge(&input,&current,&pending,other,exact-payload).is_err());
++    }
++
++    #[test]
++    fn actual_census_capacity_is_checked_and_sequential_scratch_is_a_max() {
++        let input=source(3*256);
++        let current=source(17*256);
++        let pending=current.clone();
++        let first=journey_shared_stage_payload_census(&input,&current);
++        let second=journey_shared_stage_payload_census(&current,&pending);
++        let result=owner_charge(&input,&current,&pending,0,usize::MAX).unwrap();
++        assert_eq!(result.census_actual_scratch_bytes,
++                   first.temporary_census_scratch_bytes.max(second.temporary_census_scratch_bytes));
++        assert!(result.census_actual_scratch_bytes<
++                first.temporary_census_scratch_bytes+second.temporary_census_scratch_bytes);
++        let upper=result.census_scratch_upper_bytes;
++        assert!(check_stage_census_actual_scratch(upper,upper).is_ok());
++        assert!(check_stage_census_actual_scratch(upper+1,upper).is_err());
++        for blocks in [0usize,1,2,3,4,7,8,15,16,31,32,63,64] {
++            let value=source(blocks*256);
++            let copied=value.clone();
++            let actual=journey_shared_stage_payload_census(&value,&copied);
++            let table_upper=stage_census_table_upper_bytes(&value);
++            if blocks==1 {
++                println!("C8B_SINGLE_BLOCK_CENSUS actual_bytes={} table_upper_bytes={table_upper}",
++                         actual.temporary_census_scratch_bytes);
++            }
++            assert!(check_stage_census_actual_scratch(
++                actual.temporary_census_scratch_bytes,table_upper,
++            ).is_ok(),"block_count={blocks}, actual_bytes={}, table_upper_bytes={table_upper}",
++                      actual.temporary_census_scratch_bytes);
++        }
++    }
++}
