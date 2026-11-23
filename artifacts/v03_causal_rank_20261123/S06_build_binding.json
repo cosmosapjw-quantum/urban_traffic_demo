@@ -1,0 +1,14 @@
+{
+  "road_sha256": "f27ccbee4472472b5e59995de9bf64cc00a7cb042202d15b073ab5aad176983e",
+  "build_command": [
+    "cargo",
+    "build",
+    "--release",
+    "--offline",
+    "-p",
+    "metroflow-rust"
+  ],
+  "release_native_sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a",
+  "import_native_sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a",
+  "scoped_python_exit_code": 0
+}

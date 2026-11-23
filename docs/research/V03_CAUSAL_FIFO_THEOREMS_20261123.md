@@ -26,8 +26,9 @@ satisfy `Q_k=sum_{l<=k}d_l<=M`. Set `r_0=M` and, for `r_{k-1}>0`,
 `served_birth_j(k)=b_j d_k/M`.
 
 The zero-remainder case is terminal; requesting positive further service is an
-error. The source may contain zero rows: they contribute zero and may be filtered
-with the same explicit source convention.
+error. A zero-mass extension requires zero birth moment on that row. The native
+source filters rows with mass<=0; a concrete adapter must preserve that
+filtering convention or explicitly expose a shape-preserving algebraic view.
 
 **Proof.** At step zero the claim holds. If it holds at step `k-1`, its total
 remaining mass is `M-Q_(k-1)`. Therefore multiplying every row by
@@ -42,8 +43,13 @@ fixed additive attached attribute. All coefficients are nonnegative.
 in the same absolute mass coordinate, impose `0<=Q(t)<=E(t)<=M`. A service
 operation at time `t` permits only `0<=d<=E(t)-Q(t)`. Increasing `Q` cannot serve
 a later mass rank before an earlier one. Existing V1 packets can initially use
-their already-computed `ready` time: `E(t)=0` before readiness and `M` thereafter.
-This retains the source's finite-response motion law. A continuous within-packet
+their already-computed `ready` predicate: `E(t)=0` before eligibility and `M`
+thereafter. The displayed strict frontier is an ideal real-arithmetic model;
+source `EventClock::after_ready` uses `EVENT_CLOCK_TOLERANCE_S=1e-10`. An exact
+adapter must reuse this tolerance-aware predicate. The executed fraction is
+`min(rate*h/mass,1)`, snapped to one when `1-f<1e-14`; `d_k` denotes the
+executed proportional service, not an unchecked nominal `rate*h`. This retains
+the source's finite-response motion law. A continuous within-packet
 eligibility curve is a separate physically more resolved model, not silently
 equivalent to this source adapter.
 
@@ -152,8 +158,13 @@ moment gives prefix error at most `h*(zmax-zmin)/4`. For source birth time this
 has units vehicle-seconds. Keep birth order separate from FIFO priority; birth
 need not be monotone. Unknown attribute bounds yield no claimed certificate.
 
-**What this removes.** Bound the number of blocks by approximately `M/delta`
-and retain a cursor rather than a new row history after every service split.
+**Constructive partition and cost.** Choose the fixed grid at ranks
+`0,delta,2delta,...,M`, truncating only the last block. For `delta>0`, this
+constructs exactly `ceil(M/delta)` nonempty blocks when `M>0` (zero for `M=0`).
+Retaining `J` additional distinct mandatory internal boundaries gives at most
+`ceil(M/delta)+J` blocks. Merely requiring each block to have mass at most
+`delta` provides no upper bound on their number. Retain this fixed partition
+and a cursor rather than a new row history after every service split.
 The approximation scale is physical mass, not arbitrary elapsed-time bins.
 The theorem supplies an a priori accuracy knob and an actual falsifier,
 instead of assuming history can be merged losslessly.
@@ -175,7 +186,8 @@ and a specified inflow history `A(0)=0`. Let `v(t)>=0` be locally
 integrable and `X(t)=integral_0^t v(u)du`. A mass element entering at `tau(q)`
 is physically eligible after travelling length `L>0` precisely when
 `X(t)-X(tau(q))>=L`. If `tau(q)` is nondecreasing, eligible ranks form a prefix.
-Thus `E(t)=sup{q<=A(t): X(t)-X(tau(q))>=L}` and `D(t)<=E(t)<=A(t)` preserve
+Thus `E(t)=sup({0} union {0<q<=A(t): X(t)-X(tau(q))>=L})`, with
+`D` nondecreasing and `0<=D(t)<=E(t)<=A(t)`, preserves
 causality and FIFO while allowing finite acceleration, stops and delayed
 response through the original speed law. Occupancy is `A-D`; per-label
 occupancy is `C_j(A)-C_j(D)`. This transports source composition by rank,
@@ -192,7 +204,7 @@ claim that arbitrary class-specific overtaking trajectories have one frontier.
 
 ## 5. Actual checks and primary-source relationship
 
-`rank_fifo_proposal_checks.py` verifies exact rational source identities for
+`tools/research/check_causal_fifo_theorems.py` verifies exact rational source identities for
 120 independently generated heads of 1,2,7,31 rows and 25 service subdivisions
 each; all ordered row masses and birth moments are compared to the repeated
 source operation. It rejects service beyond a stopped eligibility frontier.
@@ -230,8 +242,60 @@ boundary and constructive implementation contract. SciSpace searches supplied
 secondary indexing of Jin/Jayakrishnan's FIFO-violation work; no unverified
 abstract is used as a theorem dependency.
 
-Skill context used: physmath-research-loop 1.3.0 cloud SKILL.md,
-references/THEORY_LOOP.md (R4/R5) and POLICY_INTEGRATION.md; mathbox proof-audit
-read for quantified boundaries, with checks here labelled author self-check.
-Executor alias reads e30/e23/e9/e10 were unavailable in child; cloud plugin
-locators worked for physmath/mathbox. No canonical files or branches mutated.
+
+## 6. Fixed-service stability: a constructive local extension
+
+### Fixed-service causal transport stability
+
+Let E, Etilde:[0,T]->[0,M] be continuous nondecreasing eligible-arrival
+cumulatives with E(0)=Etilde(0)=0. Let C be the same absolutely continuous,
+nondecreasing cumulative service opportunity in both cases, C(0)=0, fixed
+independently of commodity composition. The initially empty work-conserving
+fluid-server departure is
+
+    D_E(t) = C(t) + inf_{0<=s<=t} (E(s)-C(s)).
+
+Then 0<=D_E(t)<=E(t), D_E is nondecreasing, and departure increments do not
+exceed increments of C. The choice s=t gives D_E<=E; nonnegativity follows
+from E(s)>=0 and C(s)<=C(t). For t2>=t1, candidates with s<=t1 are at least
+D_E(t1), while candidates with s in [t1,t2] are at least E(t1)>=D_E(t1),
+establishing monotonicity. Extending the infimum interval can only decrease
+the running infimum, yielding the service-increment bound. Where the queue
+E-D_E is positive, continuity makes the running minimum locally unchanged,
+so available service is used; this is the reflection solution of the
+initially empty work-conserving fluid queue.
+
+For each t, the two functions inside the infima differ by at most
+epsilon=||E-Etilde||_{infinity,[0,T]}. The elementary inequality
+|inf f-inf g|<=||f-g||_infinity therefore gives
+
+    ||D_E-D_Etilde||_infinity <= epsilon.
+
+Now let F:[0,M]->R be a commodity cumulative profile with Lipschitz
+constant <=1, and let Fbar have ||F-Fbar||_infinity<=delta/4 on that same
+mass domain. With both departure ranks in [0,M], the triangle inequality
+gives
+
+    |F(D_E(t))-Fbar(D_Etilde(t))|
+      <= |F(D_E(t))-F(D_Etilde(t))|
+         + |F(D_Etilde(t))-Fbar(D_Etilde(t))|
+      <= epsilon + delta/4.
+
+Here E,D,M,epsilon,delta have mass units, C is cumulative mass service,
+and F returns commodity mass. For a scalar attribute cumulative with
+Lipschitz constant L and approximation error eta, the bound becomes
+L*epsilon+eta, with the corresponding attribute units.
+
+Scope: initially empty server, identical externally fixed C, one fixed
+profile comparison, and common mass domain. This does not control a
+MetroFlow node whose rates/receiving supply change with the altered head
+composition. It also does not infer eligibility from total stock or
+replace the finite-response speed law. If E is generated from that law,
+its error epsilon must be established separately.
+
+
+The exact-rational piecewise-linear checker is
+`tools/research/check_causal_service_stability.py`. It adds internal queue-drain
+and composition-crossing knots before computing continuous suprema, and uses
+an independent queue-balance recurrence as reference. This provides finite
+instances in support of, not a replacement for, the displayed proof.

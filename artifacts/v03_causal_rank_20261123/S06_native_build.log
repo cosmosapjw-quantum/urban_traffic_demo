@@ -1,0 +1,127 @@
+COMMAND ["cargo", "build", "--release", "--offline", "-p", "metroflow-rust"]
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/crates/metroflow-rust)
+warning: unused import: `BTreeSet`
+ --> crates/metroflow-rust/src/v1_road.rs:6:34
+  |
+6 | use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+  |                                  ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `road_step_bytes` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:426:8
+    |
+421 | impl ServiceEventAccounting {
+    | --------------------------- method in this implementation
+...
+426 |     fn road_step_bytes(self, generated_rows: usize) -> usize {
+    |        ^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `start` and `end` are never read
+   --> crates/metroflow-rust/src/v1_road.rs:452:5
+    |
+447 | struct CompactEventRow {
+    |        --------------- fields in this struct
+...
+452 |     start:f64,
+    |     ^^^^^
+453 |     end:f64,
+    |     ^^^
+    |
+    = note: `CompactEventRow` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+warning: method `unpack` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:469:8
+    |
+456 | impl CompactEventRow {
+    | -------------------- method in this implementation
+...
+469 |     fn unpack(self)->EventRow {
+    |        ^^^^^^
+
+warning: method `iter` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:552:8
+    |
+510 | impl ChunkedEvents {
+    | ------------------ method in this implementation
+...
+552 |     fn iter(&self)->impl Iterator<Item=EventRow>+'_ {
+    |        ^^^^
+
+warning: method `capacity_bytes` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:1686:8
+     |
+1676 | impl ActiveIndexBits {
+     | -------------------- method in this implementation
+...
+1686 |     fn capacity_bytes(&self) -> usize {
+     |        ^^^^^^^^^^^^^^
+
+warning: function `segmented_incoming_charge` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:2134:4
+     |
+2134 | fn segmented_incoming_charge(rows:usize,cells:usize)->usize {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `summary`, `install_state`, and `owned_step` are never used
+    --> crates/metroflow-rust/src/v1_road.rs:2513:19
+     |
+2468 | impl V1Road {
+     | ----------- methods in this implementation
+...
+2513 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+2722 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+3018 |     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -...
+     |                   ^^^^^^^^^^
+
+warning: function `journey_decoded_storage_upper_bytes` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:206:15
+    |
+206 | pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `sources` and `install_state` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:468:19
+    |
+406 | impl NativeServiceCore {
+    | ---------------------- methods in this implementation
+...
+468 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+...
+479 |     pub(crate) fn install_state(&mut self, state: ServiceCheckpoint) {
+    |                   ^^^^^^^^^^^^^
+
+warning: methods `owned_time`, `storage_budget`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1144:19
+     |
+ 907 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1144 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1199 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1232 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:76:19
+   |
+69 | impl StageQueue {
+   | --------------- method in this implementation
+...
+76 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+
+warning: `metroflow-rust` (lib) generated 12 warnings (run `cargo fix --lib -p metroflow-rust` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 7.56s
+EXIT 0

@@ -150,3 +150,38 @@ Actual exact-rational checks: 3000 source split identities and20480 binary-profi
 prefix checks, sharp equality witness, stopped eligibility rejection, exit0.
 The previous unary lineage shadow was re-read and is explicitly reused as prior
 art; a generic lazy DAG is not presented as a new result.
+
+## Stage 6 — exact event-time carrier and optional rank adapter
+Implemented actual transient event compression:32B row payload plus one16B
+bit-preserving time pair per consecutive run, both in4096-slot pages.
+For N rows and K time runs, payload=32B*ceil(N/B)+16B*ceil(K/B),B=4096.
+Both descriptor vectors and carrier metadata are charged; total descriptors
+can be larger for all-distinct times, so only payload nonincrease is universal.
+All input/current service history owners remain charged. Source event order,
+mass/birth arithmetic, signed-zero times and checkpoint wire are unchanged.
+Fresh review detected old96B metadata allowances below the new120B carrier;
+corrected source envelope to actualsizeof and flatten to120+24=144B.
+Behavioral RED/GREEN cover time-run allocation, bit reconstruction, input/current
+history ownership and zero-row metadata. Final scoped Rust111passed,2existing
+ignored; Python45native tests and19rank/sampler tests passed. Release build
+exit0; copied native binarySHA25622a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a.
+
+Optional src/metroflow/v1/fifo_rank.py implements immutable shared-root rank
+spans, exactFraction and separately labelled collapsedbinary64 arithmetic,
+explicit eligibility and precision failures. It is not wired into native
+production. New rows are materialized only by explicit iteration. Actual
+complete source heads at25700 were extracted from the SHA-bound native
+checkpoint:464,454,442rows, cells466,908,751. Future split fractions remain
+an explicitly designed local experiment, not observed native history.
+
+Background theory now includes fixed-service causal transport stability:
+D_E(t)=C(t)+inf_(s<=t)(E(s)-C(s)), and ||D_E-D_Etilde||inf<=epsilon for the
+same externally fixed C in an initially empty work-conserving fluid server.
+Composition output error is at mostepsilon+delta/4 on a shared mass domain.
+Actual exact-rational tests:96arrival-pair cases,193independent queue-balance
+matches,4077exact output breakpoints, interior drain kink at3/2, changed-C
+negative control. Head-dependent junction/network feedback remains unproved.
+The proof review also corrected the block-count construction (delta grid plus
+bounded mandatory boundaries), empty eligibility, actual source readiness
+1e-10s tolerance and executed clamp/snap fraction conventions. These are
+mathematical/source corrections, not relaxed V03 acceptance thresholds.
