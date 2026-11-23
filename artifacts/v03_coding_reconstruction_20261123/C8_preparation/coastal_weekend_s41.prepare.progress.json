@@ -1,0 +1,15 @@
+{
+  "case": "coastal_weekend_s41",
+  "run_label": "coastal_weekend_s41.prepare",
+  "status": "WHOLE_CALENDAR_PREPARED",
+  "simulated_s": 0,
+  "wall_s": 39.722072489967104,
+  "peak_rss_bytes": 1119133696,
+  "peak_tracked_records": 0,
+  "completed_tick_samples": 0,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "candidate_source_sha256": "796849f703f909911dc8c4968252e27189f21cd4dafab3e700bbb27d8c7d1f3d",
+  "git_commit": "bec506abb5247e76e8f74e2846eedf9e1c5c501a",
+  "native_binary_sha256": "96e8e20ab30b2345223d326225abfab274997b5269e262bda9be74893fd32b8c",
+  "driver_identity": "ece5ab20174646105a689c547fb79a415e92547fbb0b29b24aef494e1adfd39e"
+}

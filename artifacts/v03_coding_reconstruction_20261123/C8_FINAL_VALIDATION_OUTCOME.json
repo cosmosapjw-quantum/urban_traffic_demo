@@ -1,0 +1,15 @@
+{
+  "fresh_from_zero_completed_time_s": 25710,
+  "resumed_completed_time_s": 25720,
+  "matched_full_wire_and_ledger_times_s": [
+    25710.0
+  ],
+  "unmet_comparison_time_s": 25720,
+  "fresh_source_error": {
+    "class_name": "BudgetExceeded",
+    "message": "native road storage budget exceeded: phase=timed incoming direct combine, required_bytes=4925982264, budget_bytes=4850460087",
+    "phase": "ADVANCE_TO_25720.0"
+  },
+  "orchestrator_outcome": "Expected25720 assertion was not met; preparation was not launched by prior pipeline. This is recorded as resource limitation, not numerical mismatch or completed25720 fresh replay.",
+  "preparation_followup": "Run the independently authorized current-source three-case preparation separately; do not repeat unchanged failed physical run."
+}

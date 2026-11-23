@@ -1,0 +1,35 @@
+{
+  "commands": [
+    {
+      "label": "C8_fresh_from_zero",
+      "argv": [
+        "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+        "-u",
+        "tools/research/run_v03_prefix.py",
+        "--case",
+        "valley_weekday_s7",
+        "--horizons",
+        "25710,25720,25760",
+        "--compare-receipt",
+        "artifacts/v03_coding_reconstruction_20261123/C7_original_continuation.json",
+        "--compare-receipt",
+        "artifacts/v03_coding_reconstruction_20261123/C8_keyset_continuation.json",
+        "--out",
+        "artifacts/v03_coding_reconstruction_20261123/C8_fresh_from_zero.json"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "wall_s": 322.3985901499982,
+      "wrapper_wall_cap_s": 1800
+    }
+  ],
+  "environment": {
+    "PYTHONPATH": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/native_binding:/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/src:/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123",
+    "METROFLOW_BUDGET_TRACE": "record",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "runner_sha256": "2c327e794d0b4d1ad4a585fa501490746238158f196fc4a7d0d26356d18ff55f",
+  "acceptance_cli_sha256": "f364e6625a185920cd6e31a8ee249a564580a3dadb19872d19687dc4b64b7b24"
+}

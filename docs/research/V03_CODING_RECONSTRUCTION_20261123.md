@@ -2,7 +2,7 @@
 
 ## C1: objective and preserved baseline
 
-The user requests the complete coding C1–C10 track focused on the repeated V03 bottleneck. The source baseline is cd77044495598f4ddb28412f78241bd1eb98693c, which contains the completed theory R1–R10 and verified worktree cleanup. Production source is unchanged from 492e27618696df2514b088a64de450cf69746647. This coding track uses the existing latest checkout on a dedicated branch; the two retained worktrees and selected compressed recovery files remain.
+The user requests the complete coding C1–C10 track focused on the repeated V03 bottleneck. The source baseline is cd77044495598f4ddb28412f78241bd1eb98693c, which contains the completed theory R1–R10 and verified worktree cleanup. At entry, production source was unchanged from 492e27618696df2514b088a64de450cf69746647. This coding track uses the existing latest checkout on a dedicated branch; the two retained worktrees and selected compressed recovery files remain.
 
 The physical target remains the original release matrix: 100000 residents, full calendars, strict FIFO, legal routes, finite response, tagwise vehicle/person/cargo/residence accounting, 86400 s for three cases and three repeats, peak RSS <= 8 GiB and wall <= 7200 s. The original numeric tolerances and full-day admission criteria are fixed. The immediate falsifiable implementation target is an original full-demand transition beyond the known 25700 s valid checkpoint and its 25710 s resource failure, under the original limits, with matched behavioral/wire checks and a current-source provenance record. This is not an assertion that the whole release can be finished by a local optimization.
 
@@ -21,7 +21,7 @@ The first selected native boundary is persistent, exact event-history storage: p
 | C5 | Complete native producer-to-consumer implementation | COMPLETE; exact history path and behavioral GREEN |
 | C6 | Actual build, behavioral red/green, targeted native/Python regressions | COMPLETE; 180 Rust, 42 Python, matched old/new replay |
 | C7 | Full-demand original checkpoint continuation and physical ledger checks | COMPLETE; original 25710 state valid, next source failure isolated |
-| C8 | Increasing horizons, matched correctness/resource/replay experiments | PENDING |
+| C8 | Increasing horizons, matched correctness/resource/replay experiments | COMPLETE; resumed25720, fresh25710 exact, three full-calendar preparations |
 | C9 | One independent review of changed scientific and runtime surfaces; repairs | PENDING |
 | C10 | Final readiness/evidence, reusable latest checkpoint, exact next action | PENDING |
 
@@ -118,3 +118,37 @@ The direct-consumer campaign passes source generation and interval consumption, 
 Actual intern_exact_keysets allocation is more specific: new canonical keys allocate at most8 B per Uniform row and new moments at most16 B per Uniform row. Existing SharedKeys only clone/replace a key Arc and retain their moment Arc. Thus the conservative additional row workspace is24*N_Uniform, while the complete retained-owner sum, old and candidate events,512 B metadata for EVERY packet, and96 B fixed allowance remain. The code now counts only source variants that actually allocate new row payload. It neither skips interning nor changes caps or physical values. Tests demonstrate exact logical bits and preservation of pre-existing SharedKeys moment allocation identity through interning.
 
 The corrected source passes190 Rust tests (2 unchanged ignored),42 affected Python tests and16 old/new finite full-state comparisons. Binary SHA96e8e20ab30b2345223d326225abfab274997b5269e262bda9be74893fd32b8c. The research runner also accepts explicit completed-state comparison receipts, checking full wire, physical ledger, original matrix, driver and requested absolute horizon; this enables a later time-zero run to compare earlier successful checkpoints without creating duplicate raw files. Actual corrected large-horizon results remain to be measured.
+
+## C8 completed experiments and measured limits
+
+C8 is complete as a coding research stage. The final production commit is bec506abb5247e76e8f74e2846eedf9e1c5c501a, candidate source SHA796849f703f909911dc8c4968252e27189f21cd4dafab3e700bbb27d8c7d1f3d and native SHA96e8e20ab30b2345223d326225abfab274997b5269e262bda9be74893fd32b8c. C8_COMPLETION.json binds the actual receipts, commands, test logs, preparation and source identities. V03 remains BLOCKED.
+
+| Candidate and initial state | Last completed physical time | Campaign wall seconds | Peak RSS bytes | Next observed result |
+|---|---:|---:|---:|---|
+| Retained events; original25700 checkpoint | 25710 | 137.611 | 4,245,573,632 | transfer candidates at25720 |
+| Timed producer + cell materialization;25710 checkpoint | 25710 | 171.725 | 3,882,655,744 | cell materialization at25720 |
+| Direct timed consumer;25710 checkpoint | 25710 | 143.764 | 4,406,870,016 | keyset workspace at25720 |
+| Source-specific keyset bound;25710 checkpoint | 25720 | 186.312 | 4,410,376,192 | transfer candidates at25730 |
+| Final code from time zero | 25710 | 321.272 | 4,271,484,928 | direct combine at25720 |
+
+Campaign wall includes construction/restoration, attempted transitions and evidence/checkpoint work; it is not pure simulation time or a matched speed benchmark. The successful25720 native tick is30.508662402 s, and its complete segment is32.707335195 s. The fresh0-to25710 segment is262.514087812 s across2571 completed ticks. No full-day wall estimate is extrapolated from these different segments.
+
+In the successful resumed25720 transition,21,574,847 Uniform rows can create new key/moment payload;26,280,181 already-SharedKeys rows cannot. Correcting only that source-specific allocation count removes630,724,344 B of nonexistent extra workspace from the bound, reducing the keyset requirement to4,675,618,672 B below4,952,574,903 B. All retained owners, events, per-packet metadata and the original ceiling remain charged. This is a source-derived accounting correction, not an RSS reduction claim. The complete original physical transition then succeeds, with the existing engine and ledger checks. The valid25720 checkpoint expands to4,677,350,066 B, SHA447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9, and is retained compressed as C8_keyset_continuation.final.bin.gz.
+
+The final-code time-zero run independently reproduces all4,011,233,450 bytes of the25710 checkpoint and its complete physical ledger, SHA64b77baece5ba45fa0928d59b58d9f8f9fc2178bcd93542b05264736978733fe. Its next25720 transition is nevertheless resource-blocked: direct combine requires4,925,982,264 B against4,850,460,087 B. The resumed path's corresponding requirement is4,925,817,240 B against4,952,574,903 B. Therefore25720 is verified by checkpoint resume, while continuous execution from zero is verified through25710 only. The runner's planned second reference comparison at25720 was unmet; the orchestration assertion and actual valid prefix are preserved in C8_FINAL_VALIDATION_OUTCOME.json. This is not a numerical mismatch or a completed fresh25720 run.
+
+The allowance delta is102,114,816 B; the road requirement delta is only165,024 B. The same shared dynamic total is5,789,366,871 B. Source tracing reduces the allowance difference to three times a34,038,272 B difference in the maximum retained/current/pending journey stage-plus-history structural cost. The present trace does not expose which max input owns that difference. This owner is UNRESOLVED, not attributed to road packet slack without evidence. Comparing a trace aggregate maximum from the later25730 attempt to the25720 attempt would mix scopes.
+
+The resumed run next fails at25730 transfer candidates: required4,833,535,616 B against4,833,535,143 B. The473 B excess is only the first incremental guard crossing; it is not the full memory deficit for finishing that tick. Permanent road composition rows grow34,610,422 ->40,717,830 ->47,855,028 at25700/25710/25720. The exact transient representations and source-specific allocation fix remove real obstructions, but do not eliminate the composition-times-service or composition-times-interval products.
+
+After the fresh-run limitation was recorded, the original preparation CLI ran separately on the same clean source and binary. All three complete calendars are prepared under the original8GiB process limit, with100000 resident stock each:
+
+| Case | Calendar legs | Preparation wall seconds | Peak RSS bytes | Physical simulation seconds |
+|---|---:|---:|---:|---:|
+| River weekday s17 | 5,093,765 | 69.509 | 2,177,441,792 | 0 |
+| Coastal weekend s41 | 2,449,750 | 39.722 | 1,119,133,696 | 0 |
+| Valley weekday s7 | 918,450 | 21.024 | 450,281,472 | 0 |
+
+Total calendar legs are8,461,965. Preparation3/3 is not full-day completion0/9; calendar person-trip quantities also are not resident stock. The final source passes190 Rust tests (2 ignored),42 Python tests and16 old/new complete finite wire-and-physical records with batch/restart equality. These checks do not substitute for the uncompleted large fresh25720 comparison, refined-dt study or original three-repeat full-day release.
+
+Drift watchdog: no population, departure calendar, route legality, FIFO boundary, finite-response law, physical ledger, numeric tolerance or release limit changed. The source sharing and direct consumer preserve original ordered operations, so no model variant was silently introduced. The original coupled urban objective remains intact; current progress is implementation-verified exact representation and scoped physical execution, while full-scale completion remains resource-blocked.

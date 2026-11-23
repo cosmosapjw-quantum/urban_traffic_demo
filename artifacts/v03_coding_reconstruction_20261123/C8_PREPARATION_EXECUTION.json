@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+    "-u",
+    "tools/run_v1_local_acceptance.py",
+    "--prepare-only",
+    "--matrix",
+    "scenarios/v1/release_matrix.json",
+    "--out",
+    "artifacts/v03_coding_reconstruction_20261123/C8_preparation",
+    "--engine-backend",
+    "rust_whole",
+    "--native-threads",
+    "1",
+    "--storage-policy",
+    "bounded_bytes_v1"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_s": 132.73165527399397,
+  "wrapper_wall_cap_s": 1800,
+  "environment": {
+    "PYTHONPATH": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/native_binding:/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/src:/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123",
+    "METROFLOW_BUDGET_TRACE": "record",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  }
+}

@@ -1,0 +1,364 @@
+{
+  "schema": "metroflow.v03.coding_stage_completion.v1",
+  "stage": "C8",
+  "stage_status": "COMPLETE_SCOPED_RESEARCH",
+  "v03_status": "BLOCKED",
+  "date": "2026-11-23",
+  "source_commit": "bec506abb5247e76e8f74e2846eedf9e1c5c501a",
+  "candidate_source_sha256": "796849f703f909911dc8c4968252e27189f21cd4dafab3e700bbb27d8c7d1f3d",
+  "native_binary_sha256": "96e8e20ab30b2345223d326225abfab274997b5269e262bda9be74893fd32b8c",
+  "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "preserved_target": {
+    "resident_stock_each_case": 100000,
+    "process_cap_bytes": 8589934592,
+    "full_day_s": 86400,
+    "required_full_days": 9,
+    "wall_cap_s": 7200,
+    "demand_calendars_routes_fifo_finite_response_ledger_tolerances": "UNCHANGED"
+  },
+  "experiments": [
+    {
+      "receipt": {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C7_original_continuation.json",
+        "sha256": "5b81e13ed41d0e98fa7434bb269d1d9ba98ad0c853a4e57f1897e2579c9323de"
+      },
+      "status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+      "start_time_s": 25700.0,
+      "completed_time_s": 25710.0,
+      "valid_advanced_duration_s": 10.0,
+      "wall_s": 137.61101778101875,
+      "peak_rss_bytes": 4245573632,
+      "error": {
+        "class_name": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4921327872, budget_bytes=4921274823",
+        "phase": "ADVANCE_TO_25720.0"
+      },
+      "current_candidate_source_sha256": "60a5d0c895b12237d27985ffe364786a7eb65ed2d1170ca53844936f901a490b",
+      "current_native_binary_sha256": "676d1bd7a5b4ba43440f14f26d0e468df32ab983e3ef058114e25c95cd2d393a",
+      "completed_horizons": [
+        {
+          "completed_time_s": 25710.0,
+          "elapsed_physical_s": 10,
+          "segment_wall_s": 32.8817801620462,
+          "native_ticks": 1,
+          "native_tick_wall_sum_s": 30.644343209
+        }
+      ]
+    },
+    {
+      "receipt": {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C8_timed_incoming_continuation.json",
+        "sha256": "691ab0d95470cb7c8f0c897dd3d68ed6748d3b86e775d0e9ed0aa88db9639bd5"
+      },
+      "status": "BLOCKED_RESOURCE",
+      "start_time_s": 25710.0,
+      "completed_time_s": 25710.0,
+      "valid_advanced_duration_s": 0.0,
+      "wall_s": 171.724927542964,
+      "peak_rss_bytes": 3882655744,
+      "error": {
+        "class_name": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=timed incoming cell materialization, required_bytes=4959061048, budget_bytes=4952574903",
+        "phase": "ADVANCE_TO_25720.0"
+      },
+      "current_candidate_source_sha256": "aec3b2666c79a6c74c9aab866e7d41a2d7a664cbba5fb016caec9ae09675feaf",
+      "current_native_binary_sha256": "ddc0a92b074422786d906b69b5941cbd6271563d987f8502ea4e1c6b5d21f9a6",
+      "completed_horizons": []
+    },
+    {
+      "receipt": {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C8_direct_continuation.json",
+        "sha256": "a250e278ad104a71f3765ee28a1640f672dd08a27645656995fba4e52eb6d5ba"
+      },
+      "status": "BLOCKED_RESOURCE",
+      "start_time_s": 25710.0,
+      "completed_time_s": 25710.0,
+      "valid_advanced_duration_s": 0.0,
+      "wall_s": 143.7642329109949,
+      "peak_rss_bytes": 4406870016,
+      "error": {
+        "class_name": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=continuous keyset allocation, required_bytes=5306343016, budget_bytes=4952574903",
+        "phase": "ADVANCE_TO_25720.0"
+      },
+      "current_candidate_source_sha256": "963f6dbe79bd188660d930d6c8e4467e6011fdf2167d62d7dfcfaf217c85bfbf",
+      "current_native_binary_sha256": "f323db6e99a3b8956ad6cc47b6443a2c96c9f04b182ac444e5f219f4557a2de0",
+      "completed_horizons": []
+    },
+    {
+      "receipt": {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C8_keyset_continuation.json",
+        "sha256": "568d3cd9dcf3d3a6ce3997a9ddb09bb5970e5473f1479a17906d8d9f5505fdb1"
+      },
+      "status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+      "start_time_s": 25710.0,
+      "completed_time_s": 25720.0,
+      "valid_advanced_duration_s": 10.0,
+      "wall_s": 186.3116955430014,
+      "peak_rss_bytes": 4410376192,
+      "error": {
+        "class_name": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4833535616, budget_bytes=4833535143",
+        "phase": "ADVANCE_TO_25730.0"
+      },
+      "current_candidate_source_sha256": "796849f703f909911dc8c4968252e27189f21cd4dafab3e700bbb27d8c7d1f3d",
+      "current_native_binary_sha256": "96e8e20ab30b2345223d326225abfab274997b5269e262bda9be74893fd32b8c",
+      "completed_horizons": [
+        {
+          "completed_time_s": 25720.0,
+          "elapsed_physical_s": 10,
+          "segment_wall_s": 32.70733519503847,
+          "native_ticks": 1,
+          "native_tick_wall_sum_s": 30.508662402
+        }
+      ]
+    },
+    {
+      "receipt": {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C8_fresh_from_zero.json",
+        "sha256": "09f582cb77650db0c1d5cdec268f507aef968bb57490bc7378a1d8713c7d9d2c"
+      },
+      "status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+      "start_time_s": 0.0,
+      "completed_time_s": 25710.0,
+      "valid_advanced_duration_s": 25710.0,
+      "wall_s": 321.27218206296675,
+      "peak_rss_bytes": 4271484928,
+      "error": {
+        "class_name": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=timed incoming direct combine, required_bytes=4925982264, budget_bytes=4850460087",
+        "phase": "ADVANCE_TO_25720.0"
+      },
+      "current_candidate_source_sha256": "796849f703f909911dc8c4968252e27189f21cd4dafab3e700bbb27d8c7d1f3d",
+      "current_native_binary_sha256": "96e8e20ab30b2345223d326225abfab274997b5269e262bda9be74893fd32b8c",
+      "completed_horizons": [
+        {
+          "completed_time_s": 25710.0,
+          "elapsed_physical_s": 25710,
+          "matched_reference": {
+            "full_wire_and_ledger_exact": true,
+            "path": "artifacts/v03_coding_reconstruction_20261123/C7_original_continuation.json",
+            "raw_bytes": 4011233450,
+            "raw_sha256": "64b77baece5ba45fa0928d59b58d9f8f9fc2178bcd93542b05264736978733fe",
+            "receipt_sha256": "5b81e13ed41d0e98fa7434bb269d1d9ba98ad0c853a4e57f1897e2579c9323de"
+          },
+          "segment_wall_s": 262.5140878119855,
+          "native_ticks": 2571,
+          "native_tick_wall_sum_s": 260.171264126
+        }
+      ]
+    }
+  ],
+  "scientific_outcome": {
+    "fresh_from_zero_verified_through_s": 25710,
+    "checkpoint_resume_verified_through_s": 25720,
+    "old_valid_prefix_s": 25700,
+    "full_days_completed": 0,
+    "full_days_required": 9,
+    "full_wire_and_ledger_match_at_s": 25710,
+    "matched_raw_bytes": 4011233450,
+    "matched_raw_sha256": "64b77baece5ba45fa0928d59b58d9f8f9fc2178bcd93542b05264736978733fe",
+    "unmet_fresh_comparison_at_s": 25720,
+    "refined_dt_large_city": "NOT_RUN_IN_THIS_TRACK"
+  },
+  "representation_results": {
+    "indexed_sweep_guard_reduction_bytes": 458668856,
+    "timed_incoming_actual_rows": 19989328,
+    "timed_controls": 251957,
+    "same_row_old_payload_bytes": 1124042752,
+    "timed_payload_bytes": 650375168,
+    "same_row_payload_reduction_bytes": 473667584,
+    "keyset_uniform_rows_allocating": 21574847,
+    "keyset_existing_shared_rows_not_allocating_payload": 26280181,
+    "removed_nonallocating_workspace_projection_bytes": 630724344,
+    "keyset_required_bytes_after_correction": 4675618672,
+    "keyset_allowance_bytes": 4952574903,
+    "scope": "Physical row order, fields, IEEE arithmetic and original caps unchanged. Payload and guard comparisons are not RSS savings or whole-run speedup ratios."
+  },
+  "tests": {
+    "rust_passed": 190,
+    "rust_ignored": 2,
+    "python_passed": 42,
+    "finite_complete_state_pairs": 16,
+    "batch_and_restart_wire_equal": true,
+    "evidence": [
+      {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C8_KEYSET_NATIVE_TESTS.json",
+        "sha256": "7369dfcc5a32b4b4e015520e81375b8cfb9c2c14525b3ce8d8c493624d2722ca"
+      },
+      {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C8_KEYSET_NATIVE_TESTS.log",
+        "sha256": "5a7eb63b88fea1455999427721eab1c02571df3b86aab24909cc12724601b745"
+      },
+      {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C8_KEYSET_BUILD_REPLAY.json",
+        "sha256": "b55c96caab6898176e7b858097b5fdee35a856462850452c98de555b3645d336"
+      },
+      {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C8_KEYSET_PYTHON_TESTS.log",
+        "sha256": "2d9c6d825f5261c6b8d930ecbf71d58fcb98d8fa7bab08cbc00740ddbb5e846e"
+      },
+      {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C8_KEYSET_REPLAY_COMPARISON.json",
+        "sha256": "083275a13cf7f3bede4fafaa42a0a8d6d5c52cc7ad13b8eb12e201b13d801d2b"
+      },
+      {
+        "path": "artifacts/v03_coding_reconstruction_20261123/C8_KEYSET_BINARY_SOURCE_BINDING.json",
+        "sha256": "9bac2d356414d778a56bb621440b47cf12b61f823e56cd9fdc52c031fe54aa68"
+      }
+    ]
+  },
+  "preparation": {
+    "completed_cases": 3,
+    "required_cases": 3,
+    "calendar_legs_sum": 8461965,
+    "cases": [
+      {
+        "receipt": {
+          "path": "artifacts/v03_coding_reconstruction_20261123/C8_preparation/coastal_weekend_s41.prepare.json",
+          "sha256": "d7090d60d49fefadfd045822eb94e725d03cf5144313fe11273de4d47d720230"
+        },
+        "case": "coastal_weekend_s41",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "simulated_s": 0,
+        "calendar": {
+          "legs": 2449750,
+          "persons": 100000.0,
+          "vehicles": 49001.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 10000.0,
+          "allocated_workers": 10000.0,
+          "unassigned_workers": 0.0
+        },
+        "wall_s": 39.72196126700146,
+        "peak_rss_bytes": 1119133696,
+        "driver_identity": "ece5ab20174646105a689c547fb79a415e92547fbb0b29b24aef494e1adfd39e"
+      },
+      {
+        "receipt": {
+          "path": "artifacts/v03_coding_reconstruction_20261123/C8_preparation/river_weekday_s17.prepare.json",
+          "sha256": "733c62d5eb4742f2b7b7d206f8203e0740e7e1bd2ab591986f8af0f52df20c18"
+        },
+        "case": "river_weekday_s17",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "simulated_s": 0,
+        "calendar": {
+          "legs": 5093765,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 50000.0,
+          "allocated_workers": 40000.0,
+          "unassigned_workers": 10000.0
+        },
+        "wall_s": 69.5085090349894,
+        "peak_rss_bytes": 2177441792,
+        "driver_identity": "e2b7f7f67d5cf71b772f9430786d9acd5edb468c2a823a9923d4efc80b90ceca"
+      },
+      {
+        "receipt": {
+          "path": "artifacts/v03_coding_reconstruction_20261123/C8_preparation/valley_weekday_s7.prepare.json",
+          "sha256": "4058bed48765f4817a84f0a0511c7a9ec20322485bd8e0ab13c6cbd20a14ace0"
+        },
+        "case": "valley_weekday_s7",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "simulated_s": 0,
+        "calendar": {
+          "legs": 918450,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 50000.0,
+          "allocated_workers": 40000.0,
+          "unassigned_workers": 10000.0
+        },
+        "wall_s": 21.024177910003345,
+        "peak_rss_bytes": 450281472,
+        "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4"
+      }
+    ],
+    "execution": {
+      "path": "artifacts/v03_coding_reconstruction_20261123/C8_PREPARATION_EXECUTION.json",
+      "sha256": "1f22342c076181b454febfb27f6e3273da9d970150cdecf545076c974cedd84c"
+    }
+  },
+  "resumed_25720_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1595.7424970521938,
+      "completed": 106.98229971031708,
+      "pending": 1186.164092126368,
+      "released": 1702.7247967625108,
+      "requested": 2888.8888888888787
+    },
+    "vehicles": {
+      "active": 1276.2977393574754,
+      "completed": 83.70226064250168,
+      "pending": 55.55555555561364,
+      "released": 1359.999999999977,
+      "requested": 1415.5555555555907
+    }
+  },
+  "resumed_25720_ledger_residuals": {
+    "cargo_kg": {
+      "released_minus_active_minus_completed": 0.0,
+      "requested_minus_released_minus_pending": 0.0
+    },
+    "persons": {
+      "released_minus_active_minus_completed": -1.1368683772161603e-13,
+      "requested_minus_released_minus_pending": 0.0
+    },
+    "vehicles": {
+      "released_minus_active_minus_completed": -4.263256414560601e-14,
+      "requested_minus_released_minus_pending": 0.0
+    }
+  },
+  "retained_latest_checkpoint": {
+    "compressed_bytes": 1008684839,
+    "compressed_sha256": "6573b7092769ca846342da3aa4404e7bcbb387f575406ee1791b5079370cccfe",
+    "path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_coding_reconstruction_20261123/C8_keyset_continuation.final.bin.gz",
+    "raw_bytes": 4677350066,
+    "raw_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+    "reader_peak_rss_bytes": 4410376192
+  },
+  "remaining_blockers": {
+    "fresh_25720": {
+      "class_name": "BudgetExceeded",
+      "message": "native road storage budget exceeded: phase=timed incoming direct combine, required_bytes=4925982264, budget_bytes=4850460087",
+      "phase": "ADVANCE_TO_25720.0"
+    },
+    "resumed_25730": {
+      "class_name": "BudgetExceeded",
+      "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4833535616, budget_bytes=4833535143",
+      "phase": "ADVANCE_TO_25730.0"
+    },
+    "same_25710_state_road_allowance_delta_bytes": 102114816,
+    "same_attempt_required_bytes_delta": 165024,
+    "journey_side_max_structural_cost_delta_bytes": 34038272,
+    "owner_identification": "UNRESOLVED: read-only source trace reduces allowance delta to three times a journey stage/history maximum; current trace does not expose the individual maximum terms.",
+    "permanent_road_rows_by_time_s": {
+      "25700": 34610422,
+      "25710": 40717830,
+      "25720": 47855028
+    },
+    "threshold_warning": "473 B is the first incremental guard crossing at25730, not the memory needed to finish the whole tick.",
+    "allowance_source_analysis": {
+      "path": "docs/research/V03_CODING_C8_ALLOWANCE_20261123.md",
+      "sha256": "92b1ce8e53a8bcb01e1e60ed0f57f05c5ba2fe1779999d62cd4fc44bcde98d4d"
+    }
+  },
+  "orchestration_outcome": {
+    "path": "artifacts/v03_coding_reconstruction_20261123/C8_FINAL_VALIDATION_OUTCOME.json",
+    "sha256": "d7955b9658953f78f6c93e8b2605c7b94f151d3f176017344e607c6c8cdedcbe"
+  },
+  "limits": "Some requested later horizons were not executed. Fresh25720/full-day/repeated performance/refined-dt acceptance are not implied by resumed25720, small replay tests or preparation3/3."
+}

@@ -1,0 +1,6 @@
+INITIAL_VALID 25710.0
+START_HORIZON 25720.0
+HORIZON_VALID {"elapsed_physical_s": 10, "completed_time_s": 25720.0, "segment_wall_s": 32.70733519503847, "native_tick_wall_s": [30.508662402]}
+START_HORIZON 25730.0
+RUN_STOP {"class_name": "BudgetExceeded", "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4833535616, budget_bytes=4833535143", "phase": "ADVANCE_TO_25730.0"}
+{"status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX", "start_time_s": 25710.0, "completed_time_s": 25720.0, "valid_advanced_duration_s": 10.0, "wall_s": 186.3116955430014, "peak_rss_bytes": 4410376192, "final_checkpoint_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9", "error": {"class_name": "BudgetExceeded", "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4833535616, budget_bytes=4833535143", "phase": "ADVANCE_TO_25730.0"}}
