@@ -1,0 +1,4370 @@
+{
+  "schema": "METROFLOW_READ_ONLY_BACKUP_AND_GENERATED_ARTIFACT_INVENTORY_V1",
+  "observed_at_utc": "2026-11-23T12:07:13.670Z",
+  "device_id": "edd1b263-56a0-4391-8a2a-677dd00eabf5",
+  "scope": {
+    "home_immediate_project_names": "urban_traffic or metroflow",
+    "recursive_roots": "25 matching project directories only, excluding .git for file inventory",
+    "separate_backup_root": "/home/cosmosapjw/research_backups immediate entries only",
+    "remote_mutations": false,
+    "large_checkpoint_decodes": false,
+    "large_file_hash_pass": false,
+    "remote_only_small_hashes": "native_binding/_metroflow_rust.so"
+  },
+  "measurement_notes": [
+    "allocated_bytes_du comes from independent du -sB1 for each root; totals across roots may double-count hardlinks and are not a guaranteed reclamation estimate.",
+    "Per-file apparent bytes and selected stat.st_blocks describe filesystem metadata. Byte identity is not inferred from equal size.",
+    "Generated files listed when extension bin/gz/tgz/tar/tar.xz/tar.zst/so/whl and size >=1,000,000 bytes, plus largest 15 files >=50,000,000 bytes per root; all large file counts are recorded.",
+    "No backup-specific directories found within scanned project roots except docs/archive, retained as documentation candidate pending root inspection.",
+    "No project-related immediate child names found in research_backups; unrelated project subdirectories were not recursively scanned.",
+    "Git status/branch preservation/cleanup authorization is owned by root; this inventory does not establish that each old checkpoint is dispensable."
+  ],
+  "summary": {
+    "project_directory_count": 25,
+    "per_directory_allocated_bytes_sum": 88240541696,
+    "older_linked_worktree_count": 23,
+    "older_linked_worktree_allocated_bytes_sum": 87839965184,
+    "artifact_checkpoint_count_ge_1MB": 65,
+    "artifact_checkpoint_apparent_bytes_sum": 73850861701,
+    "common_git_allocated_bytes": 113070080,
+    "separate_project_backup_candidates_found": 0
+  },
+  "common_git": {
+    "path": "/home/cosmosapjw/urban_traffic_v03_20261116/.git",
+    "allocated_bytes": 113070080,
+    "error": null
+  },
+  "preservation_priority": {
+    "latest_active_worktree": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123",
+    "common_git_owner": "/home/cosmosapjw/urban_traffic_v03_20261116",
+    "checkpoint": {
+      "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_time_zero_prefix.final.bin.gz",
+      "size_bytes": 736524111,
+      "compressed_sha256": "191f64eb23b1cd68e95f09fc1c18c6888dfa21b77ec1a4f24d576a36272ae3f3",
+      "compressed_hash_status": "provided by parent task context; not recomputed in this inventory",
+      "raw_bytes": 3405043386,
+      "raw_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+      "raw_hash_status": "read existing S08_wire_identity.json; no decompression in this inventory",
+      "size_status": "remote stat observed exact supplied size",
+      "action_recommendation": "preserve compressed file plus its provenance; root to verify relocation before removing source worktree"
+    },
+    "native_binding": [
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/native_binding/_metroflow_rust.so",
+        "size_bytes": 3172896,
+        "mtime_utc": "2026-11-23T10:26:11.026569+00:00",
+        "computed_sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a"
+      }
+    ],
+    "small_metadata": [
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S06_build_binding.json",
+        "content": {
+          "road_sha256": "f27ccbee4472472b5e59995de9bf64cc00a7cb042202d15b073ab5aad176983e",
+          "build_command": [
+            "cargo",
+            "build",
+            "--release",
+            "--offline",
+            "-p",
+            "metroflow-rust"
+          ],
+          "release_native_sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a",
+          "import_native_sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a",
+          "scoped_python_exit_code": 0
+        }
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_wire_identity.json",
+        "content": {
+          "schema": "METROFLOW_SOURCE_ZERO_WIRE_IDENTITY_V1",
+          "status": "VERIFIED",
+          "source_zero_receipt": "S08_time_zero_prefix.json",
+          "validated_old_restore_receipt": "S07_original_continuation.json",
+          "decoded_raw_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+          "decoded_raw_bytes": 3405043386,
+          "decode_wall_s": 5.332956361002289,
+          "source_zero_time_s": 25700,
+          "source_zero_current_source_sha256": "bea107c2888885966c901a0f30a6d7edcb50a24e5cbbbe31d3f8bf020536943d",
+          "current_native_sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a",
+          "same_raw_wire_as_historical_checkpoint": true,
+          "same_three_ledgers_as_historical_checkpoint": true,
+          "same_current_source_as_original_restore": true,
+          "historical_wire_native_restore_and_reserialize_verified": true,
+          "fresh_native_load_of_new_gzip_file_performed": false,
+          "scope": "Full decoded gzip byte identity with original checkpoint already restored/re-serialized by this native; no new duplicate raw checkpoint or second native load required."
+        }
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S10_current_readiness.json",
+        "content": {
+          "authority": {
+            "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+            "plan_id": "METROFLOW-V1",
+            "version": "1.1.28"
+          },
+          "case_preparation": {
+            "coastal_weekend_s41": {
+              "reason": "WHOLE_CALENDAR_PREPARATION_VERIFIED_NOT_DAY",
+              "status": "PREPARED_SCOPED"
+            },
+            "river_weekday_s17": {
+              "reason": "WHOLE_CALENDAR_PREPARATION_VERIFIED_NOT_DAY",
+              "status": "PREPARED_SCOPED"
+            },
+            "valley_weekday_s7": {
+              "reason": "WHOLE_CALENDAR_PREPARATION_VERIFIED_NOT_DAY",
+              "status": "PREPARED_SCOPED"
+            }
+          },
+          "dag": {
+            "completed": 19,
+            "completed_node_ids": [
+              "P00",
+              "M01",
+              "T01",
+              "I01",
+              "M02",
+              "M03",
+              "D01",
+              "T02",
+              "T03",
+              "T04",
+              "R01",
+              "R02",
+              "B01",
+              "C01",
+              "M04",
+              "C02",
+              "P01",
+              "V01",
+              "V02"
+            ],
+            "completion_percent": 90.47619047619048,
+            "not_completed": {
+              "RLS01": "PLANNED",
+              "V03": "BLOCKED"
+            },
+            "scope": "ACCEPTED or VERIFIED_SCOPED; not release acceptance",
+            "total": 21
+          },
+          "declared_engineering_inputs_not_fitted_here": {
+            "current_driver_freight_kg": "literal 1000 in tools/run_v1_local_acceptance.py; not derived",
+            "inventory_policy": {
+              "capacity_persons": 40,
+              "departures_s": [
+                21600,
+                32400,
+                43200,
+                54000,
+                64800,
+                75600
+              ],
+              "dwell_s": 20,
+              "max_stops": 4
+            },
+            "max_cohorts_by_case": {
+              "coastal_weekend_s41": 20000,
+              "river_weekday_s17": 20000,
+              "valley_weekday_s7": 20000
+            },
+            "route_materialization_budget": 20000,
+            "worker_shortfall": "unassigned_home"
+          },
+          "measurement_context": {
+            "acceptance_not_promoted": true,
+            "branch_commit": "bdcc4c301c2be977cb7f51015003e4b5c7bcf24c",
+            "live_candidate_source_sha256": "bea107c2888885966c901a0f30a6d7edcb50a24e5cbbbe31d3f8bf020536943d",
+            "live_native_binary_sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a",
+            "not_fitted_parameters": "none introduced in scorer",
+            "observed_at_utc": "2026-11-23T10:43:18+00:00",
+            "source": "actual repository plan, matrix, optional whole-native prepare receipts"
+          },
+          "next_required_evidence": "actual 3-city x 3 86400s original-physics run with replay/ledger/refined_dt under original 8GiB/7200s limits",
+          "observed_host": {
+            "cpu_model": "AMD Ryzen 9 5900X 12-Core Processor",
+            "host_identity_limitation": "observed host is not guaranteed to match planned Ryzen5900X/64GiB",
+            "logical_cores": 24,
+            "memory_available_bytes": 14772617216,
+            "physical_memory_bytes": 33549762560,
+            "python": "3.12.3",
+            "reference_host_RAM_match": false,
+            "swap_free_bytes": 62744268800
+          },
+          "source_file_sha256": {
+            "plan": "1f2bbfdfe1d653694c14360f41bebea80a1ab43a1560759502ee7a2b9c8301e9",
+            "release_matrix": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+          },
+          "v03": {
+            "calendar_preparation_total": 3,
+            "calendar_preparation_verified": 3,
+            "completed_full_day_runs": 0,
+            "dependency_nodes_completed": 3,
+            "dependency_nodes_total": 3,
+            "execution_status": "BLOCKED_BY_EXACT_INTERVAL_PACKET_EXPLOSION",
+            "horizon_seconds": 86400,
+            "physics_scope": "unchanged original packet FIFO, no source/data/tolerance relaxation",
+            "population_residents_per_case": 100000,
+            "ready_for_release": false,
+            "real_full_day_execution_evidence": "NONE_IN_SUPPLIED_PREPARATION_RECEIPTS",
+            "required_full_day_runs": 9,
+            "rss_bytes_max": 8589934592,
+            "status": "BLOCKED",
+            "wall_seconds_max": 7200
+          }
+        }
+      }
+    ],
+    "causal_artifact_immediate_entries": [
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S04_original_continuation.json",
+        "is_dir": false,
+        "size_bytes": 16947,
+        "mtime_utc": "2026-11-23T10:14:19.171565+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S05_exact_rational_checks.json",
+        "is_dir": false,
+        "size_bytes": 520,
+        "mtime_utc": "2026-11-23T10:16:57.612862+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S07_rank_head0_benchmark.json",
+        "is_dir": false,
+        "size_bytes": 565805,
+        "mtime_utc": "2026-11-23T10:28:17.476041+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S06_original_fifo_heads.json",
+        "is_dir": false,
+        "size_bytes": 277892,
+        "mtime_utc": "2026-11-23T10:18:04.676407+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S10_FINAL_RECEIPT.json",
+        "is_dir": false,
+        "size_bytes": 18985,
+        "mtime_utc": "2026-11-23T10:44:27.133853+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_preparation",
+        "is_dir": true,
+        "size_bytes": 4096,
+        "mtime_utc": "2026-11-23T10:37:34.907769+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S07_original_continuation.log",
+        "is_dir": false,
+        "size_bytes": 669,
+        "mtime_utc": "2026-11-23T10:29:56.681910+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S06_service_stability.json",
+        "is_dir": false,
+        "size_bytes": 38534,
+        "mtime_utc": "2026-11-23T10:25:18.654556+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S03_remainder_red_green.log",
+        "is_dir": false,
+        "size_bytes": 28333,
+        "mtime_utc": "2026-11-23T10:11:28.020211+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S06_native_build.log",
+        "is_dir": false,
+        "size_bytes": 4513,
+        "mtime_utc": "2026-11-23T10:26:11.067569+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S06_python_validation.log",
+        "is_dir": false,
+        "size_bytes": 38915,
+        "mtime_utc": "2026-11-23T10:25:18.661087+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S07_original_continuation.json",
+        "is_dir": false,
+        "size_bytes": 19657,
+        "mtime_utc": "2026-11-23T10:28:21.072800+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S10_plan_validation.log",
+        "is_dir": false,
+        "size_bytes": 298,
+        "mtime_utc": "2026-11-23T10:44:27.129169+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S04_native_regression.log",
+        "is_dir": false,
+        "size_bytes": 99,
+        "mtime_utc": "2026-11-23T10:13:25.575248+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_time_zero_prefix.log",
+        "is_dir": false,
+        "size_bytes": 34710,
+        "mtime_utc": "2026-11-23T10:38:47.797307+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S10_current_readiness.json",
+        "is_dir": false,
+        "size_bytes": 3657,
+        "mtime_utc": "2026-11-23T10:43:18.827436+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S06_native_python.log",
+        "is_dir": false,
+        "size_bytes": 307,
+        "mtime_utc": "2026-11-23T10:26:27.847723+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_wire_identity.json",
+        "is_dir": false,
+        "size_bytes": 1066,
+        "mtime_utc": "2026-11-23T10:35:25.760190+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S06_build_binding.json",
+        "is_dir": false,
+        "size_bytes": 426,
+        "mtime_utc": "2026-11-23T10:26:27.854982+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S06_event_time_red_green.log",
+        "is_dir": false,
+        "size_bytes": 83009,
+        "mtime_utc": "2026-11-23T10:26:54.819968+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_current_readiness.json",
+        "is_dir": false,
+        "size_bytes": 3657,
+        "mtime_utc": "2026-11-23T10:38:11.001196+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S09_review_receipt.json",
+        "is_dir": false,
+        "size_bytes": 1604,
+        "mtime_utc": "2026-11-23T10:39:41.728536+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_time_zero_prefix.json",
+        "is_dir": false,
+        "size_bytes": 81956,
+        "mtime_utc": "2026-11-23T10:33:46.576419+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S10_plan_render_readiness.log",
+        "is_dir": false,
+        "size_bytes": 549,
+        "mtime_utc": "2026-11-23T10:43:18.838437+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_time_zero_prefix.final.bin.gz",
+        "is_dir": false,
+        "size_bytes": 736524111,
+        "mtime_utc": "2026-11-23T10:33:46.193589+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_preparation.log",
+        "is_dir": false,
+        "size_bytes": 257,
+        "mtime_utc": "2026-11-23T10:38:47.797405+00:00"
+      }
+    ],
+    "home_project_files": [
+      {
+        "path": "/home/cosmosapjw/metroflow_S07_original_20261123.log",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 669,
+        "mtime_utc": "2026-11-23T10:28:21.072800+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_S07_rank_20261123.log",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 565806,
+        "mtime_utc": "2026-11-23T10:28:17.476041+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_S08_preparation_20261123.log",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 257,
+        "mtime_utc": "2026-11-23T10:37:34.781405+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_S08_time_zero_20261123.log",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 34710,
+        "mtime_utc": "2026-11-23T10:33:46.576419+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_event_meta_green_20261123.out",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 4038,
+        "mtime_utc": "2026-11-23T10:25:11.256019+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_event_meta_red_20261123.out",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 5152,
+        "mtime_utc": "2026-11-23T10:24:35.346684+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_event_meta_regression_20261123.out",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 17738,
+        "mtime_utc": "2026-11-23T10:25:24.781144+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_event_time_20261123.patch",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 19958,
+        "mtime_utc": "2026-11-23T10:19:21.003860+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_event_time_green_20261123.out",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 4034,
+        "mtime_utc": "2026-11-23T10:17:45.479605+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_event_time_red_20261123.out",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 4730,
+        "mtime_utc": "2026-11-23T10:16:56.797076+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_event_time_regression_20261123.out",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 17617,
+        "mtime_utc": "2026-11-23T10:18:44.944235+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_rank_adapter_20261123.log",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 99,
+        "mtime_utc": "2026-11-23T10:23:24.726019+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_remainder_green_20261123.out",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 4160,
+        "mtime_utc": "2026-11-23T10:09:52.092741+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_remainder_red_20261123.out",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 6488,
+        "mtime_utc": "2026-11-23T10:09:21.498287+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_remainder_regression_20261123.out",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 17029,
+        "mtime_utc": "2026-11-23T10:10:09.912999+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_session_20261123.md",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 6283,
+        "mtime_utc": "2026-11-23T10:45:56.588439+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_session_20261123_release.log",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 4534,
+        "mtime_utc": "2026-11-23T10:11:46.095331+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_session_20261123_runtime.log",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 83009,
+        "mtime_utc": "2026-11-23T10:25:24.807144+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_shared_remainder_proposal.txt",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 4109,
+        "mtime_utc": "2026-11-23T10:15:14.443580+00:00"
+      },
+      {
+        "path": "/home/cosmosapjw/metroflow_theory_session_20261123.md",
+        "is_dir": false,
+        "is_symlink": false,
+        "size_bytes": 2630,
+        "mtime_utc": "2026-11-23T11:54:07.389122+00:00"
+      }
+    ],
+    "root_inspection_required": "Preserve unknown unique outputs until root decides needed content; older same-size checkpoints are candidates, not confirmed duplicates."
+  },
+  "backup_search": {
+    "path": "/home/cosmosapjw/research_backups",
+    "immediate_entry_count": 44,
+    "immediate_project_name_matches": [],
+    "project_source_docs_backup_reference_matches": [],
+    "recursive_unrelated_inspection": false
+  },
+  "checkpoint_same_size_groups": [
+    {
+      "size_bytes": 29539598,
+      "count": 2,
+      "paths": [
+        "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_whole_20261116/valley_whole_10s.checkpoint.bin",
+        "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_whole_20261116/valley_whole_to_8h.checkpoint.bin"
+      ],
+      "identity_status": "same size only; no content equality claim"
+    },
+    {
+      "size_bytes": 29539764,
+      "count": 2,
+      "paths": [
+        "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h1.last_valid.bin",
+        "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/artifacts/v1_ulp_boundary_diag_20261117/local_probe/valley_ulpdiag_h1.last_valid.bin"
+      ],
+      "identity_status": "same size only; no content equality claim"
+    },
+    {
+      "size_bytes": 238038692,
+      "count": 2,
+      "paths": [
+        "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h1.final.bin",
+        "/home/cosmosapjw/urban_traffic_refine_20261117/artifacts/v1_refinement_20261117/runs/valley_h1_dt10.last_valid.bin"
+      ],
+      "identity_status": "same size only; no content equality claim"
+    },
+    {
+      "size_bytes": 337775682,
+      "count": 2,
+      "paths": [
+        "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h0.final.bin",
+        "/home/cosmosapjw/urban_traffic_refine_20261117/artifacts/v1_refinement_20261117/runs/valley_h0_dt10.last_valid.bin"
+      ],
+      "identity_status": "same size only; no content equality claim"
+    },
+    {
+      "size_bytes": 395381644,
+      "count": 2,
+      "paths": [
+        "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/numeric_resume_t4.checkpoint.bin",
+        "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/numeric_resume_t1.checkpoint.bin"
+      ],
+      "identity_status": "same size only; no content equality claim"
+    },
+    {
+      "size_bytes": 634951290,
+      "count": 2,
+      "paths": [
+        "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/river_weekday_s17.run1.last_valid.bin",
+        "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/river_fresh_recovery.roundtrip.bin"
+      ],
+      "identity_status": "same size only; no content equality claim"
+    },
+    {
+      "size_bytes": 903148860,
+      "count": 8,
+      "paths": [
+        "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_final/valley_h1_25900.last_valid.bin",
+        "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_final_b57565c/valley_h1_25900.last_valid.bin",
+        "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_portion_binary/valley_h1_25900.last_valid.bin",
+        "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_preportion_binary/valley_h1_25900.last_valid.bin",
+        "/home/cosmosapjw/urban_traffic_followup_20261117/artifacts/v1_entry_projection_followup/eventbatch/valley_h1_25900_published.last_valid.bin",
+        "/home/cosmosapjw/urban_traffic_followup_20261117/artifacts/v1_entry_projection_followup/eventbatch/valley_h1_25900_eventstore.last_valid.bin",
+        "/home/cosmosapjw/urban_traffic_markblock_20261117/artifacts/v1_markblock_20261117/valley_h1_25900_rows_control.last_valid.bin",
+        "/home/cosmosapjw/urban_traffic_release_20261117/artifacts/v1_release_timing_20261117/bitid/legacy_h1_25900.last_valid.bin"
+      ],
+      "identity_status": "same size only; no content equality claim"
+    },
+    {
+      "size_bytes": 1476278208,
+      "count": 2,
+      "paths": [
+        "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800_b57565c.last_valid.bin",
+        "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800.last_valid.bin"
+      ],
+      "identity_status": "same size only; no content equality claim"
+    },
+    {
+      "size_bytes": 1617350558,
+      "count": 2,
+      "paths": [
+        "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800_b57565c.last_valid.bin",
+        "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800.last_valid.bin"
+      ],
+      "identity_status": "same size only; no content equality claim"
+    },
+    {
+      "size_bytes": 2949231402,
+      "count": 6,
+      "paths": [
+        "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/artifacts/v03_cross_call_20261121/C10_100K_ESCALATING_80S_FROM_25650.final.bin",
+        "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/artifacts/v03_fifo_closure_20261121/C9_ORIGINAL_100K_REQUESTED_80S.final.bin",
+        "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_HISTORICAL_40S_STAIRCASE.final.bin",
+        "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_HISTORICAL_40S_FROM_25650.final.bin",
+        "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_100K_ESCALATING_80S_FROM_25650.final.bin",
+        "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/artifacts/v03_persistent_keyset_20261121/C8_KEYSET_CROSS_BINARY_25690.final.bin"
+      ],
+      "identity_status": "same size only; no content equality claim"
+    },
+    {
+      "size_bytes": 3405043386,
+      "count": 3,
+      "paths": [
+        "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_ORIGINAL_100K_10S_25700.final.bin",
+        "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/artifacts/v03_quantile_capture_20261121/C6_ORIGINAL_100K_REQUESTED_80S.final.bin",
+        "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/artifacts/v03_weighted_fifo_20261121/C8_100K_REQUESTED_80S_FROM_25650.final.bin"
+      ],
+      "identity_status": "same size only; no content equality claim"
+    }
+  ],
+  "project_directories": [
+    {
+      "path": "/home/cosmosapjw/urban_traffic_boundary_20261117",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-17T12:11:09.214393+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_boundary_20261117",
+      "git_directory": false,
+      "allocated_bytes_du": 10884763648,
+      "file_count_excluding_git": 2728,
+      "apparent_file_bytes_before_hardlink_dedup": 10897193332,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_boundary_20261117/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/native_binding",
+          "allocated_bytes_du": 3239936,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/target",
+          "allocated_bytes_du": 93913088,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/target_test",
+          "allocated_bytes_du": 93220864,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800_b57565c.last_valid.bin",
+          "size_bytes": 1617350558,
+          "allocated_bytes": 1617354752,
+          "mtime_utc": "2026-11-17T13:45:05.368408+00:00",
+          "inode": 5671531,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800.last_valid.bin",
+          "size_bytes": 1617350558,
+          "allocated_bytes": 1617354752,
+          "mtime_utc": "2026-11-17T12:43:29.838978+00:00",
+          "inode": 5658734,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800_b57565c.last_valid.bin",
+          "size_bytes": 1476278208,
+          "allocated_bytes": 1476284416,
+          "mtime_utc": "2026-11-17T14:00:56.433896+00:00",
+          "inode": 5671536,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800.last_valid.bin",
+          "size_bytes": 1476278208,
+          "allocated_bytes": 1476284416,
+          "mtime_utc": "2026-11-17T13:04:32.492378+00:00",
+          "inode": 6951165,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_final/valley_h1_25900.last_valid.bin",
+          "size_bytes": 903148860,
+          "allocated_bytes": 903155712,
+          "mtime_utc": "2026-11-17T12:29:35.860408+00:00",
+          "inode": 5658303,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_final_b57565c/valley_h1_25900.last_valid.bin",
+          "size_bytes": 903148860,
+          "allocated_bytes": 903155712,
+          "mtime_utc": "2026-11-17T13:32:52.308688+00:00",
+          "inode": 5284619,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_portion_binary/valley_h1_25900.last_valid.bin",
+          "size_bytes": 903148860,
+          "allocated_bytes": 903155712,
+          "mtime_utc": "2026-11-17T12:23:36.710743+00:00",
+          "inode": 5658297,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_preportion_binary/valley_h1_25900.last_valid.bin",
+          "size_bytes": 903148860,
+          "allocated_bytes": 903155712,
+          "mtime_utc": "2026-11-17T12:13:04.778164+00:00",
+          "inode": 5284498,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/policy_prefix_preportion_binary/valley_h1_25900_shared.last_valid.bin",
+          "size_bytes": 781023022,
+          "allocated_bytes": 781029376,
+          "mtime_utc": "2026-11-17T12:17:17.654982+00:00",
+          "inode": 5658277,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038272,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-17T12:08:11.831312+00:00",
+          "inode": 5535632,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/target_test/release/deps/libpyo3_macros-88311268b5d155d1.so",
+          "size_bytes": 7038272,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-17T12:11:13.313419+00:00",
+          "inode": 5537329,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3234672,
+          "allocated_bytes": 3235840,
+          "mtime_utc": "2026-11-17T13:27:21.846918+00:00",
+          "inode": 5548365,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3234672,
+          "allocated_bytes": 3235840,
+          "mtime_utc": "2026-11-17T13:27:21.846918+00:00",
+          "inode": 5548365,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_boundary_20261117/native_binding/_metroflow_rust.so",
+          "size_bytes": 3234672,
+          "allocated_bytes": 3235840,
+          "mtime_utc": "2026-11-17T13:25:30.500764+00:00",
+          "inode": 5548344,
+          "device": 66306,
+          "link_count": 1
+        }
+      ],
+      "large_files_ge_50MB_count": 9,
+      "generated_files_ge_1MB_count": 14,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_counterex_20261117",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-17T10:37:37.260414+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_counterex_20261117",
+      "git_directory": false,
+      "allocated_bytes_du": 161722368,
+      "file_count_excluding_git": 2849,
+      "apparent_file_bytes_before_hardlink_dedup": 153859135,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_counterex_20261117/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_counterex_20261117/native_binding",
+          "allocated_bytes_du": 3022848,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_counterex_20261117/native_binding/_metroflow_rust.so",
+          "size_bytes": 3014968,
+          "allocated_bytes": 3018752,
+          "mtime_utc": "2026-11-17T10:37:29.286598+00:00",
+          "inode": 5411896,
+          "device": 66306,
+          "link_count": 1
+        }
+      ],
+      "large_files_ge_50MB_count": 0,
+      "generated_files_ge_1MB_count": 1,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_followup_20261117",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-17T10:16:56.923402+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_followup_20261117",
+      "git_directory": false,
+      "allocated_bytes_du": 3864989696,
+      "file_count_excluding_git": 3455,
+      "apparent_file_bytes_before_hardlink_dedup": 3866803122,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_followup_20261117/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_followup_20261117/native_binding",
+          "allocated_bytes_du": 3022848,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_followup_20261117/target",
+          "allocated_bytes_du": 93700096,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_followup_20261117/artifacts/v1_entry_projection_followup/local_probe/valley_eventstore_h1.last_valid.bin",
+          "size_bytes": 1788414564,
+          "allocated_bytes": 1788420096,
+          "mtime_utc": "2026-11-17T10:32:07.829349+00:00",
+          "inode": 8000900,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_followup_20261117/artifacts/v1_entry_projection_followup/eventbatch/valley_h1_25900_published.last_valid.bin",
+          "size_bytes": 903148860,
+          "allocated_bytes": 903155712,
+          "mtime_utc": "2026-11-17T10:22:14.993311+00:00",
+          "inode": 8000881,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_followup_20261117/artifacts/v1_entry_projection_followup/eventbatch/valley_h1_25900_eventstore.last_valid.bin",
+          "size_bytes": 903148860,
+          "allocated_bytes": 903155712,
+          "mtime_utc": "2026-11-17T10:25:59.890406+00:00",
+          "inode": 8000886,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_followup_20261117/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038272,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-17T10:10:00.989230+00:00",
+          "inode": 6828018,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_followup_20261117/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3014968,
+          "allocated_bytes": 3018752,
+          "mtime_utc": "2026-11-17T10:14:51.155877+00:00",
+          "inode": 6828054,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_followup_20261117/native_binding/_metroflow_rust.so",
+          "size_bytes": 3014968,
+          "allocated_bytes": 3018752,
+          "mtime_utc": "2026-11-17T10:16:54.245722+00:00",
+          "inode": 7121324,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_followup_20261117/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3014968,
+          "allocated_bytes": 3018752,
+          "mtime_utc": "2026-11-17T10:14:51.155877+00:00",
+          "inode": 6828054,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 3,
+      "generated_files_ge_1MB_count": 7,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_markblock_20261117",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-17T10:58:33.464718+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_markblock_20261117",
+      "git_directory": false,
+      "allocated_bytes_du": 3257511936,
+      "file_count_excluding_git": 2675,
+      "apparent_file_bytes_before_hardlink_dedup": 3270088253,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_markblock_20261117/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/native_binding",
+          "allocated_bytes_du": 3207168,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/target",
+          "allocated_bytes_du": 93880320,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/target_test",
+          "allocated_bytes_du": 93159424,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/artifacts/v1_markblock_20261117/local_probe/valley_markblock_h1.last_valid.bin",
+          "size_bytes": 1428197230,
+          "allocated_bytes": 1428201472,
+          "mtime_utc": "2026-11-17T11:16:40.962567+00:00",
+          "inode": 2403094,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/artifacts/v1_markblock_20261117/valley_h1_25900_rows_control.last_valid.bin",
+          "size_bytes": 903148860,
+          "allocated_bytes": 903155712,
+          "mtime_utc": "2026-11-17T11:09:02.228001+00:00",
+          "inode": 2140627,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/artifacts/v1_markblock_20261117/valley_h1_25900_markblock.last_valid.bin",
+          "size_bytes": 627919030,
+          "allocated_bytes": 627924992,
+          "mtime_utc": "2026-11-17T11:04:14.995843+00:00",
+          "inode": 2140625,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/target_test/release/deps/libpyo3_macros-88311268b5d155d1.so",
+          "size_bytes": 7038272,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-17T10:55:00.984584+00:00",
+          "inode": 5415067,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038272,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-17T10:53:24.695090+00:00",
+          "inode": 5414621,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/native_binding/_metroflow_rust.so",
+          "size_bytes": 3199792,
+          "allocated_bytes": 3203072,
+          "mtime_utc": "2026-11-17T11:04:45.228283+00:00",
+          "inode": 5414634,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3199792,
+          "allocated_bytes": 3203072,
+          "mtime_utc": "2026-11-17T11:04:45.177282+00:00",
+          "inode": 5415240,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_markblock_20261117/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3199792,
+          "allocated_bytes": 3203072,
+          "mtime_utc": "2026-11-17T11:04:45.177282+00:00",
+          "inode": 5415240,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 3,
+      "generated_files_ge_1MB_count": 8,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_projection_20261117",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-17T08:50:50.453961+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_projection_20261117",
+      "git_directory": false,
+      "allocated_bytes_du": 2520608768,
+      "file_count_excluding_git": 2887,
+      "apparent_file_bytes_before_hardlink_dedup": 2586032751,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_projection_20261117/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/native_binding",
+          "allocated_bytes_du": 2961408,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/target",
+          "allocated_bytes_du": 93630464,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/target-tests",
+          "allocated_bytes_du": 330653696,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/local_pilot/valley_projection_h1_gate.last_valid.bin",
+          "size_bytes": 1351458180,
+          "allocated_bytes": 1351462912,
+          "mtime_utc": "2026-11-17T08:30:41.799373+00:00",
+          "inode": 8789255,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h0.final.bin",
+          "size_bytes": 337775682,
+          "allocated_bytes": 337780736,
+          "mtime_utc": "2026-11-17T08:35:08.669585+00:00",
+          "inode": 8788864,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h1.final.bin",
+          "size_bytes": 238038692,
+          "allocated_bytes": 238043136,
+          "mtime_utc": "2026-11-17T08:36:59.344264+00:00",
+          "inode": 8788888,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/target-tests/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-ho8nbtv66s-0idu5t6-aot3y3y4tms6814r7zh4twwd8/dep-graph.bin",
+          "size_bytes": 34402472,
+          "allocated_bytes": 34410496,
+          "mtime_utc": "2026-11-17T08:20:01.389049+00:00",
+          "inode": 8788257,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h1.last_valid.bin",
+          "size_bytes": 29539764,
+          "allocated_bytes": 29540352,
+          "mtime_utc": "2026-11-17T08:36:46.300180+00:00",
+          "inode": 8788890,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h0.last_valid.bin",
+          "size_bytes": 29539674,
+          "allocated_bytes": 29540352,
+          "mtime_utc": "2026-11-17T08:34:56.368515+00:00",
+          "inode": 8788860,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/target-tests/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-ho8nbtv66s-0idu5t6-aot3y3y4tms6814r7zh4twwd8/query-cache.bin",
+          "size_bytes": 18869482,
+          "allocated_bytes": 18870272,
+          "mtime_utc": "2026-11-17T08:20:01.389049+00:00",
+          "inode": 8788518,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/target-tests/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500208,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-17T08:19:53.632945+00:00",
+          "inode": 8788251,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038272,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-17T08:12:12.634706+00:00",
+          "inode": 8170141,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/target-tests/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-17T08:19:49.463888+00:00",
+          "inode": 8788088,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/target/release/lib_metroflow_rust.so",
+          "size_bytes": 2953824,
+          "allocated_bytes": 2957312,
+          "mtime_utc": "2026-11-17T08:19:50.495902+00:00",
+          "inode": 8170161,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/native_binding/_metroflow_rust.so",
+          "size_bytes": 2953824,
+          "allocated_bytes": 2957312,
+          "mtime_utc": "2026-11-17T08:19:50.541903+00:00",
+          "inode": 3842450,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_projection_20261117/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 2953824,
+          "allocated_bytes": 2957312,
+          "mtime_utc": "2026-11-17T08:19:50.495902+00:00",
+          "inode": 8170161,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 3,
+      "generated_files_ge_1MB_count": 13,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_refine_20261117",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-17T10:37:32.167636+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_refine_20261117",
+      "git_directory": false,
+      "allocated_bytes_du": 1706221568,
+      "file_count_excluding_git": 1916,
+      "apparent_file_bytes_before_hardlink_dedup": 1700609784,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_refine_20261117/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_refine_20261117/native_binding",
+          "allocated_bytes_du": 3022848,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_refine_20261117/artifacts/v1_refinement_20261117/runs/valley_h1_dt5.last_valid.bin",
+          "size_bytes": 414759996,
+          "allocated_bytes": 414765056,
+          "mtime_utc": "2026-11-17T10:56:26.154886+00:00",
+          "inode": 5415082,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_refine_20261117/artifacts/v1_refinement_20261117/runs/valley_h0_dt10.last_valid.bin",
+          "size_bytes": 337775682,
+          "allocated_bytes": 337780736,
+          "mtime_utc": "2026-11-17T10:44:35.975232+00:00",
+          "inode": 5412462,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_refine_20261117/artifacts/v1_refinement_20261117/runs/valley_h0p25_dt10.last_valid.bin",
+          "size_bytes": 293817852,
+          "allocated_bytes": 293822464,
+          "mtime_utc": "2026-11-17T10:52:26.013167+00:00",
+          "inode": 5413768,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_refine_20261117/artifacts/v1_refinement_20261117/runs/valley_h0p5_dt10.last_valid.bin",
+          "size_bytes": 261924364,
+          "allocated_bytes": 261931008,
+          "mtime_utc": "2026-11-17T10:59:31.325669+00:00",
+          "inode": 5415214,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_refine_20261117/artifacts/v1_refinement_20261117/runs/valley_h1_dt10.last_valid.bin",
+          "size_bytes": 238038692,
+          "allocated_bytes": 238043136,
+          "mtime_utc": "2026-11-17T10:47:00.050795+00:00",
+          "inode": 5413078,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_refine_20261117/native_binding/_metroflow_rust.so",
+          "size_bytes": 3014968,
+          "allocated_bytes": 3018752,
+          "mtime_utc": "2026-11-17T10:37:32.170636+00:00",
+          "inode": 5411898,
+          "device": 66306,
+          "link_count": 1
+        }
+      ],
+      "large_files_ge_50MB_count": 5,
+      "generated_files_ge_1MB_count": 6,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_release_20261117",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-17T12:48:17.723974+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_release_20261117",
+      "git_directory": false,
+      "allocated_bytes_du": 6806962176,
+      "file_count_excluding_git": 2736,
+      "apparent_file_bytes_before_hardlink_dedup": 6819410076,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_release_20261117/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/native_binding",
+          "allocated_bytes_du": 3252224,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/target",
+          "allocated_bytes_du": 93933568,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/target_test",
+          "allocated_bytes_du": 93396992,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/artifacts/v1_release_timing_20261117/runs/legacy_dt5.last_valid.bin",
+          "size_bytes": 1656541172,
+          "allocated_bytes": 1656545280,
+          "mtime_utc": "2026-11-17T13:31:53.618390+00:00",
+          "inode": 2927582,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/artifacts/v1_release_timing_20261117/runs/interval_dt5.last_valid.bin",
+          "size_bytes": 1534200684,
+          "allocated_bytes": 1534205952,
+          "mtime_utc": "2026-11-17T13:44:59.155350+00:00",
+          "inode": 2927585,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/artifacts/v1_release_timing_20261117/runs/legacy_dt10.last_valid.bin",
+          "size_bytes": 1335724492,
+          "allocated_bytes": 1335730176,
+          "mtime_utc": "2026-11-17T13:07:22.372939+00:00",
+          "inode": 2927572,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/artifacts/v1_release_timing_20261117/runs/interval_dt10.last_valid.bin",
+          "size_bytes": 1019696940,
+          "allocated_bytes": 1019703296,
+          "mtime_utc": "2026-11-17T13:15:18.800837+00:00",
+          "inode": 2927575,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/artifacts/v1_release_timing_20261117/bitid/legacy_h1_25900.last_valid.bin",
+          "size_bytes": 903148860,
+          "allocated_bytes": 903155712,
+          "mtime_utc": "2026-11-17T12:59:49.323166+00:00",
+          "inode": 5658875,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/target_test/release/deps/libpyo3_macros-88311268b5d155d1.so",
+          "size_bytes": 7038272,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-17T12:42:28.194985+00:00",
+          "inode": 4886631,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038272,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-17T12:31:14.902919+00:00",
+          "inode": 2009652,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/native_binding/_metroflow_rust.so",
+          "size_bytes": 3247488,
+          "allocated_bytes": 3248128,
+          "mtime_utc": "2026-11-17T12:51:18.527036+00:00",
+          "inode": 5658739,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3247488,
+          "allocated_bytes": 3248128,
+          "mtime_utc": "2026-11-17T12:51:18.450035+00:00",
+          "inode": 2009683,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_release_20261117/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3247488,
+          "allocated_bytes": 3248128,
+          "mtime_utc": "2026-11-17T12:51:18.450035+00:00",
+          "inode": 2009683,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 5,
+      "generated_files_ge_1MB_count": 10,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_rust_20261116",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-17T07:11:27.322205+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_rust_20261116",
+      "git_directory": false,
+      "allocated_bytes_du": 6934142976,
+      "file_count_excluding_git": 3780,
+      "apparent_file_bytes_before_hardlink_dedup": 6996673612,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_rust_20261116/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target",
+          "allocated_bytes_du": 279855104,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/.venv",
+          "allocated_bytes_du": 49479680,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/final_campaign/valley_weekday_s7.run1.last_valid.bin",
+          "size_bytes": 866763964,
+          "allocated_bytes": 866770944,
+          "mtime_utc": "2026-11-16T15:39:55.594737+00:00",
+          "inode": 5121952,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/valley_weekday_s7.run1.last_valid.bin",
+          "size_bytes": 866763962,
+          "allocated_bytes": 866770944,
+          "mtime_utc": "2026-11-16T17:05:42.487039+00:00",
+          "inode": 2516763,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/coastal_weekend_s41.run1.last_valid.bin",
+          "size_bytes": 859506202,
+          "allocated_bytes": 859512832,
+          "mtime_utc": "2026-11-16T17:03:29.982368+00:00",
+          "inode": 2516760,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/final_campaign/coastal_weekend_s41.run1.last_valid.bin",
+          "size_bytes": 806980236,
+          "allocated_bytes": 806985728,
+          "mtime_utc": "2026-11-16T15:37:43.058713+00:00",
+          "inode": 5121947,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/river_weekday_s17.run1.last_valid.bin",
+          "size_bytes": 634951290,
+          "allocated_bytes": 634957824,
+          "mtime_utc": "2026-11-16T16:58:55.730270+00:00",
+          "inode": 2516756,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/river_fresh_recovery.roundtrip.bin",
+          "size_bytes": 634951290,
+          "allocated_bytes": 634957824,
+          "mtime_utc": "2026-11-16T17:07:23.308903+00:00",
+          "inode": 2516766,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/numeric_resume_t4.checkpoint.bin",
+          "size_bytes": 395381644,
+          "allocated_bytes": 395386880,
+          "mtime_utc": "2026-11-16T15:03:00.012226+00:00",
+          "inode": 2516650,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/numeric_resume_t1.checkpoint.bin",
+          "size_bytes": 395381644,
+          "allocated_bytes": 395386880,
+          "mtime_utc": "2026-11-16T15:01:01.669357+00:00",
+          "inode": 2516644,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/event_probe.checkpoint.bin",
+          "size_bytes": 312081652,
+          "allocated_bytes": 312086528,
+          "mtime_utc": "2026-11-16T14:41:39.334575+00:00",
+          "inode": 2516630,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/final_campaign/river_weekday_s17.run1.last_valid.bin",
+          "size_bytes": 163298696,
+          "allocated_bytes": 163303424,
+          "mtime_utc": "2026-11-16T15:33:02.724803+00:00",
+          "inode": 5121945,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_whole_20261116/river_whole_10s.checkpoint.bin",
+          "size_bytes": 163298622,
+          "allocated_bytes": 163303424,
+          "mtime_utc": "2026-11-16T07:15:47.041800+00:00",
+          "inode": 3316461,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_whole_20261116/valley_whole_to_8h_records2m.checkpoint.bin",
+          "size_bytes": 149770790,
+          "allocated_bytes": 149778432,
+          "mtime_utc": "2026-11-16T07:23:51.294210+00:00",
+          "inode": 3316471,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_whole_20261116/coastal_whole_10s.checkpoint.bin",
+          "size_bytes": 78646478,
+          "allocated_bytes": 78651392,
+          "mtime_utc": "2026-11-16T07:17:05.826993+00:00",
+          "inode": 3316464,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_queue_debug_20261116/baseline_seed25240.checkpoint.bin",
+          "size_bytes": 45593366,
+          "allocated_bytes": 45600768,
+          "mtime_utc": "2026-11-16T11:06:32.781359+00:00",
+          "inode": 2000476,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/valley_campaign/valley_weekday_s7.run1.last_valid.bin",
+          "size_bytes": 29539676,
+          "allocated_bytes": 29540352,
+          "mtime_utc": "2026-11-16T14:36:00.517642+00:00",
+          "inode": 2516623,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_whole_20261116/valley_whole_10s.checkpoint.bin",
+          "size_bytes": 29539598,
+          "allocated_bytes": 29540352,
+          "mtime_utc": "2026-11-16T07:14:08.333558+00:00",
+          "inode": 3277415,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_whole_20261116/valley_whole_to_8h.checkpoint.bin",
+          "size_bytes": 29539598,
+          "allocated_bytes": 29540352,
+          "mtime_utc": "2026-11-16T07:19:24.050856+00:00",
+          "inode": 3316469,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-17T02:27:36.724021+00:00",
+          "inode": 4981887,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-ho8ngmrzap-1eb6xtf-1hgebpkifn9vz9at29pxvcjrt/dep-graph.bin",
+          "size_bytes": 10574725,
+          "allocated_bytes": 10575872,
+          "mtime_utc": "2026-11-17T08:24:49.680501+00:00",
+          "inode": 8000808,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-ho8duhng8x-0d2p231-2eiryyhdpnhukzuidstc47x6a/dep-graph.bin",
+          "size_bytes": 10265871,
+          "allocated_bytes": 10268672,
+          "mtime_utc": "2026-11-17T02:35:57.353949+00:00",
+          "inode": 4983540,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/debug/incremental/_metroflow_rust-0c6u7no051ahx/s-ho8ngmrz73-1a5vt61-82v1skudxjyte6cwjr72a4kar/dep-graph.bin",
+          "size_bytes": 9833667,
+          "allocated_bytes": 9838592,
+          "mtime_utc": "2026-11-17T08:24:49.664277+00:00",
+          "inode": 8000807,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/debug/incremental/_metroflow_rust-0c6u7no051ahx/s-ho8duhng8l-1gwe45o-cmab7f6vluib8xpkvwyz71qjx/dep-graph.bin",
+          "size_bytes": 9614763,
+          "allocated_bytes": 9617408,
+          "mtime_utc": "2026-11-17T02:35:57.299242+00:00",
+          "inode": 4983546,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038272,
+          "allocated_bytes": 7041024,
+          "mtime_utc": "2026-11-17T07:10:32.200462+00:00",
+          "inode": 3842428,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-17T02:27:31.047269+00:00",
+          "inode": 4981714,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/lib/python3.12/site-packages/_metroflow_rust/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+          "size_bytes": 2907576,
+          "allocated_bytes": 2908160,
+          "mtime_utc": "2026-11-17T07:10:41.423843+00:00",
+          "inode": 8402483,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/release/lib_metroflow_rust.so",
+          "size_bytes": 2907576,
+          "allocated_bytes": 2908160,
+          "mtime_utc": "2026-11-17T07:10:40.793578+00:00",
+          "inode": 3842451,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 2907576,
+          "allocated_bytes": 2908160,
+          "mtime_utc": "2026-11-17T07:10:40.793578+00:00",
+          "inode": 3842451,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/budget_final_binary/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+          "size_bytes": 2843240,
+          "allocated_bytes": 2846720,
+          "mtime_utc": "2026-11-17T02:49:01.513592+00:00",
+          "inode": 4983577,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/budget_preliminary_binary/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+          "size_bytes": 2831376,
+          "allocated_bytes": 2834432,
+          "mtime_utc": "2026-11-16T16:05:39.328919+00:00",
+          "inode": 2516740,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/common_binary/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+          "size_bytes": 2793552,
+          "allocated_bytes": 2797568,
+          "mtime_utc": "2026-11-16T15:19:44.687919+00:00",
+          "inode": 2516664,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/numeric_binary/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+          "size_bytes": 2756312,
+          "allocated_bytes": 2756608,
+          "mtime_utc": "2026-11-16T14:59:31.272861+00:00",
+          "inode": 2516648,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/baseline_binary/_metroflow_rust.so",
+          "size_bytes": 2604896,
+          "allocated_bytes": 2605056,
+          "mtime_utc": "2026-11-16T14:09:29.706666+00:00",
+          "inode": 2516532,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/.venv/lib/python3.12/site-packages/_metroflow_rust.so",
+          "size_bytes": 2604896,
+          "allocated_bytes": 2605056,
+          "mtime_utc": "2026-11-16T11:20:33.518517+00:00",
+          "inode": 2794024,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-ho8ngmrzap-1eb6xtf-1hgebpkifn9vz9at29pxvcjrt/query-cache.bin",
+          "size_bytes": 2564787,
+          "allocated_bytes": 2568192,
+          "mtime_utc": "2026-11-17T08:24:49.680501+00:00",
+          "inode": 8000923,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-ho8duhng8x-0d2p231-2eiryyhdpnhukzuidstc47x6a/query-cache.bin",
+          "size_bytes": 2513703,
+          "allocated_bytes": 2514944,
+          "mtime_utc": "2026-11-17T02:35:57.353949+00:00",
+          "inode": 4982014,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_queue_debug_20261116/baseline_binary/_metroflow_rust.so",
+          "size_bytes": 2460960,
+          "allocated_bytes": 2461696,
+          "mtime_utc": "2026-11-16T11:04:16.885830+00:00",
+          "inode": 2000472,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/debug/incremental/_metroflow_rust-0c6u7no051ahx/s-ho8ngmrz73-1a5vt61-82v1skudxjyte6cwjr72a4kar/query-cache.bin",
+          "size_bytes": 2300837,
+          "allocated_bytes": 2301952,
+          "mtime_utc": "2026-11-17T08:24:49.664277+00:00",
+          "inode": 8000922,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/target/debug/incremental/_metroflow_rust-0c6u7no051ahx/s-ho8duhng8l-1gwe45o-cmab7f6vluib8xpkvwyz71qjx/query-cache.bin",
+          "size_bytes": 2264755,
+          "allocated_bytes": 2265088,
+          "mtime_utc": "2026-11-17T02:35:57.299242+00:00",
+          "inode": 4982004,
+          "device": 66306,
+          "link_count": 1
+        }
+      ],
+      "large_files_ge_50MB_count": 13,
+      "generated_files_ge_1MB_count": 38,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-17T11:25:03.013706+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_ulpdiag_20261117",
+      "git_directory": false,
+      "allocated_bytes_du": 5158625280,
+      "file_count_excluding_git": 2304,
+      "apparent_file_bytes_before_hardlink_dedup": 5163646601,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/native_binding",
+          "allocated_bytes_du": 3207168,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/target",
+          "allocated_bytes_du": 93884416,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/artifacts/v1_ulp_boundary_diag_20261117/local_probe/valley_ulpdiag_h1_rows_28800.last_valid.bin",
+          "size_bytes": 1617350508,
+          "allocated_bytes": 1617354752,
+          "mtime_utc": "2026-11-17T11:45:54.017434+00:00",
+          "inode": 4738904,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/artifacts/v1_ulp_boundary_diag_20261117/local_probe/valley_ulpdiag_h1_mark_block_scaled_v1_28800.last_valid.bin",
+          "size_bytes": 1476278158,
+          "allocated_bytes": 1476284416,
+          "mtime_utc": "2026-11-17T12:03:46.972037+00:00",
+          "inode": 5004029,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/artifacts/v1_ulp_boundary_diag_20261117/local_probe/valley_ulpdiag_h1.final.bin",
+          "size_bytes": 1046050604,
+          "allocated_bytes": 1046056960,
+          "mtime_utc": "2026-11-17T11:30:19.439194+00:00",
+          "inode": 4738746,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/artifacts/v1_ulp_boundary_diag_20261117/valley_h1_25900_ulpdiag.last_valid.bin",
+          "size_bytes": 781022972,
+          "allocated_bytes": 781029376,
+          "mtime_utc": "2026-11-17T11:33:56.314268+00:00",
+          "inode": 4738838,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/artifacts/v1_ulp_boundary_diag_20261117/local_probe/valley_ulpdiag_h1.last_valid.bin",
+          "size_bytes": 29539764,
+          "allocated_bytes": 29540352,
+          "mtime_utc": "2026-11-17T11:26:56.204312+00:00",
+          "inode": 4738744,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038272,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-17T11:24:55.702602+00:00",
+          "inode": 4738656,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/native_binding/_metroflow_rust.so",
+          "size_bytes": 3199760,
+          "allocated_bytes": 3203072,
+          "mtime_utc": "2026-11-17T11:25:03.016706+00:00",
+          "inode": 4738669,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3199760,
+          "allocated_bytes": 3203072,
+          "mtime_utc": "2026-11-17T11:25:02.974705+00:00",
+          "inode": 4738685,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3199760,
+          "allocated_bytes": 3203072,
+          "mtime_utc": "2026-11-17T11:25:02.974705+00:00",
+          "inode": 4738685,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 4,
+      "generated_files_ge_1MB_count": 9,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_20261116",
+      "role": "primary_repository_holds_common_git",
+      "mtime_utc": "2026-11-17T02:27:52.250477+00:00",
+      "git_pointer": null,
+      "git_directory": true,
+      "allocated_bytes_du": 288215040,
+      "file_count_excluding_git": 3414,
+      "apparent_file_bytes_before_hardlink_dedup": 165187141,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_20261116/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_20261116/.venv",
+          "allocated_bytes_du": 71962624,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/lib/python3.12/site-packages/numpy.libs/libscipy_openblas64_-f48b354e.so",
+          "size_bytes": 24325657,
+          "allocated_bytes": 24326144,
+          "mtime_utc": "2026-10-15T14:40:38.472149+00:00",
+          "inode": 12099555,
+          "device": 66306,
+          "link_count": 5
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/lib/python3.12/site-packages/numpy/_core/_multiarray_umath.cpython-312-x86_64-linux-gnu.so",
+          "size_bytes": 10637297,
+          "allocated_bytes": 10637312,
+          "mtime_utc": "2026-10-15T14:40:28.011074+00:00",
+          "inode": 12098611,
+          "device": 66306,
+          "link_count": 5
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/lib/python3.12/site-packages/numpy.libs/libgfortran-83c28eba-468e71e5.so.5.0.0",
+          "size_bytes": 2862249,
+          "allocated_bytes": 2863104,
+          "mtime_utc": "2026-10-15T14:40:30.423091+00:00",
+          "inode": 12099553,
+          "device": 66306,
+          "link_count": 5
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/lib/python3.12/site-packages/numpy/_core/_simd.cpython-312-x86_64-linux-gnu.so",
+          "size_bytes": 1506088,
+          "allocated_bytes": 1507328,
+          "mtime_utc": "2026-10-15T14:40:28.130075+00:00",
+          "inode": 12098614,
+          "device": 66306,
+          "link_count": 5
+        }
+      ],
+      "large_files_ge_50MB_count": 0,
+      "generated_files_ge_1MB_count": 4,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123",
+      "role": "latest_active_worktree",
+      "mtime_utc": "2026-11-23T11:32:35.740373+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_bottleneck_theory_20261123",
+      "git_directory": false,
+      "allocated_bytes_du": 112361472,
+      "file_count_excluding_git": 2547,
+      "apparent_file_bytes_before_hardlink_dedup": 105229909,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [],
+      "selected_generated_files": [],
+      "large_files_ge_50MB_count": 0,
+      "generated_files_ge_1MB_count": 0,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-23T10:13:25.382202+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_causal_rank_20261123",
+      "git_directory": false,
+      "allocated_bytes_du": 1159884800,
+      "file_count_excluding_git": 3322,
+      "apparent_file_bytes_before_hardlink_dedup": 1224327954,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/native_binding",
+          "allocated_bytes_du": 3182592,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/target",
+          "allocated_bytes_du": 306483200,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_time_zero_prefix.final.bin.gz",
+          "size_bytes": 736524111,
+          "allocated_bytes": 736538624,
+          "mtime_utc": "2026-11-23T10:33:46.193589+00:00",
+          "inode": 6958498,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12423168,
+          "mtime_utc": "2026-11-23T10:09:15.846202+00:00",
+          "inode": 6731777,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6959104,
+          "mtime_utc": "2026-11-23T10:11:36.829207+00:00",
+          "inode": 6856353,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5967872,
+          "mtime_utc": "2026-11-23T10:09:12.719155+00:00",
+          "inode": 6727148,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/native_binding/_metroflow_rust.so",
+          "size_bytes": 3172896,
+          "allocated_bytes": 3178496,
+          "mtime_utc": "2026-11-23T10:26:11.026569+00:00",
+          "inode": 6958397,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3172896,
+          "allocated_bytes": 3174400,
+          "mtime_utc": "2026-11-23T10:26:11.026569+00:00",
+          "inode": 6857115,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3172896,
+          "allocated_bytes": 3174400,
+          "mtime_utc": "2026-11-23T10:26:11.026569+00:00",
+          "inode": 6857115,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 1,
+      "generated_files_ge_1MB_count": 7,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-20T14:38:19.104331+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_compact_lineage_20261120",
+      "git_directory": false,
+      "allocated_bytes_du": 2622140416,
+      "file_count_excluding_git": 3744,
+      "apparent_file_bytes_before_hardlink_dedup": 2747494584,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/native_binding",
+          "allocated_bytes_du": 3055616,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target",
+          "allocated_bytes_du": 596275200,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/artifacts/v03_compact_lineage_20261120/C7_ORIGINAL_25660.final.bin",
+          "size_bytes": 1912366706,
+          "allocated_bytes": 1912373248,
+          "mtime_utc": "2026-11-20T14:46:52.869696+00:00",
+          "inode": 16539761,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc8t9souz-18y2zl0-bnue89hvtodby5v63gc9huc0k/dep-graph.bin",
+          "size_bytes": 39608520,
+          "allocated_bytes": 39612416,
+          "mtime_utc": "2026-11-20T14:37:40.234507+00:00",
+          "inode": 16538464,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc8t9souz-18y2zl0-bnue89hvtodby5v63gc9huc0k/query-cache.bin",
+          "size_bytes": 22354828,
+          "allocated_bytes": 22355968,
+          "mtime_utc": "2026-11-20T14:37:40.234507+00:00",
+          "inode": 16539159,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-20T14:33:46.496232+00:00",
+          "inode": 16538460,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-20T14:35:56.912175+00:00",
+          "inode": 16538882,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc8t137tl-1e4rqgx-1g9h5a3ii9tx2kp09h3shci5n/dep-graph.bin",
+          "size_bytes": 12447868,
+          "allocated_bytes": 12451840,
+          "mtime_utc": "2026-11-20T14:37:22.548291+00:00",
+          "inode": 16538886,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-20T14:38:10.053863+00:00",
+          "inode": 16539592,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T14:35:53.314126+00:00",
+          "inode": 16538717,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T14:33:43.190178+00:00",
+          "inode": 16538279,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc8t137tl-1e4rqgx-1g9h5a3ii9tx2kp09h3shci5n/query-cache.bin",
+          "size_bytes": 3258761,
+          "allocated_bytes": 3260416,
+          "mtime_utc": "2026-11-20T14:37:22.548291+00:00",
+          "inode": 16538888,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/native_binding/_metroflow_rust.so",
+          "size_bytes": 3050664,
+          "allocated_bytes": 3051520,
+          "mtime_utc": "2026-11-20T14:39:50.150976+00:00",
+          "inode": 16539604,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3050664,
+          "allocated_bytes": 3051520,
+          "mtime_utc": "2026-11-20T14:38:17.132946+00:00",
+          "inode": 16539621,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3050664,
+          "allocated_bytes": 3051520,
+          "mtime_utc": "2026-11-20T14:38:17.132946+00:00",
+          "inode": 16539621,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 1,
+      "generated_files_ge_1MB_count": 13,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-21T03:17:35.499135+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_cross_call_live_20261121",
+      "git_directory": false,
+      "allocated_bytes_du": 3776204800,
+      "file_count_excluding_git": 4108,
+      "apparent_file_bytes_before_hardlink_dedup": 3978085738,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/native_binding",
+          "allocated_bytes_du": 3166208,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target",
+          "allocated_bytes_du": 712101888,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/artifacts/v03_cross_call_20261121/C10_100K_ESCALATING_80S_FROM_25650.final.bin",
+          "size_bytes": 2949231402,
+          "allocated_bytes": 2949238784,
+          "mtime_utc": "2026-11-21T03:45:23.339551+00:00",
+          "inode": 16666358,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocubxikoj-1ygpdvv-b5b8lgwvv3fep61aizhpga5iw/dep-graph.bin",
+          "size_bytes": 43654658,
+          "allocated_bytes": 43659264,
+          "mtime_utc": "2026-11-21T03:38:18.286049+00:00",
+          "inode": 16655224,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocuf7h2a5-1hagb3j-2mbkrff7gprkvhufauyetmypp/dep-graph.bin",
+          "size_bytes": 43619033,
+          "allocated_bytes": 43622400,
+          "mtime_utc": "2026-11-21T03:41:35.542409+00:00",
+          "inode": 16655220,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocubxikoj-1ygpdvv-b5b8lgwvv3fep61aizhpga5iw/query-cache.bin",
+          "size_bytes": 21990156,
+          "allocated_bytes": 21991424,
+          "mtime_utc": "2026-11-21T03:38:18.286049+00:00",
+          "inode": 16664348,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocuf7h2a5-1hagb3j-2mbkrff7gprkvhufauyetmypp/query-cache.bin",
+          "size_bytes": 21111017,
+          "allocated_bytes": 21114880,
+          "mtime_utc": "2026-11-21T03:41:35.542409+00:00",
+          "inode": 16663267,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocubr450o-0s8nfou-cb0bgrwqsepgy1jydlwuj85hg/dep-graph.bin",
+          "size_bytes": 14114653,
+          "allocated_bytes": 14114816,
+          "mtime_utc": "2026-11-21T03:38:06.305906+00:00",
+          "inode": 16663008,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocuezr8q2-1h5pcd8-2rvlrkf5onq4lfcusduxill3g/dep-graph.bin",
+          "size_bytes": 14103696,
+          "allocated_bytes": 14106624,
+          "mtime_utc": "2026-11-21T03:41:21.836653+00:00",
+          "inode": 16662999,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12423168,
+          "mtime_utc": "2026-11-21T03:16:00.387776+00:00",
+          "inode": 16662979,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-21T03:17:18.754294+00:00",
+          "inode": 16663717,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-21T03:17:26.026430+00:00",
+          "inode": 16664162,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T03:17:15.422232+00:00",
+          "inode": 16663544,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T03:15:57.089710+00:00",
+          "inode": 16662699,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocubr450o-0s8nfou-cb0bgrwqsepgy1jydlwuj85hg/query-cache.bin",
+          "size_bytes": 3613731,
+          "allocated_bytes": 3616768,
+          "mtime_utc": "2026-11-21T03:38:06.305906+00:00",
+          "inode": 16663013,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocuezr8q2-1h5pcd8-2rvlrkf5onq4lfcusduxill3g/query-cache.bin",
+          "size_bytes": 3608932,
+          "allocated_bytes": 3612672,
+          "mtime_utc": "2026-11-21T03:41:21.836653+00:00",
+          "inode": 16663005,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/native_binding/_metroflow_rust.so",
+          "size_bytes": 3160544,
+          "allocated_bytes": 3162112,
+          "mtime_utc": "2026-11-21T03:42:20.953666+00:00",
+          "inode": 16664172,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3160544,
+          "allocated_bytes": 3162112,
+          "mtime_utc": "2026-11-21T03:41:41.066313+00:00",
+          "inode": 16663291,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3160544,
+          "allocated_bytes": 3162112,
+          "mtime_utc": "2026-11-21T03:41:41.066313+00:00",
+          "inode": 16663291,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 1,
+      "generated_files_ge_1MB_count": 17,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-20T22:25:27.207583+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_event_pages_20261121",
+      "git_directory": false,
+      "allocated_bytes_du": 5570232320,
+      "file_count_excluding_git": 4037,
+      "apparent_file_bytes_before_hardlink_dedup": 5763737842,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/native_binding",
+          "allocated_bytes_du": 3084288,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target",
+          "allocated_bytes_du": 693964800,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/artifacts/v03_event_pages_20261121/C9_CROSS_NATIVE_25680.final.bin",
+          "size_bytes": 2552318466,
+          "allocated_bytes": 2552324096,
+          "mtime_utc": "2026-11-20T22:34:24.408885+00:00",
+          "inode": 16560116,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/artifacts/v03_event_pages_20261121/C6_CROSS_NATIVE_25670.final.bin",
+          "size_bytes": 2210069010,
+          "allocated_bytes": 2210074624,
+          "mtime_utc": "2026-11-20T22:26:46.904026+00:00",
+          "inode": 16559104,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoclwikwt9-1mtbacs-6p11yeil5n2s96qthxf5fdnwx/dep-graph.bin",
+          "size_bytes": 41012874,
+          "allocated_bytes": 41013248,
+          "mtime_utc": "2026-11-20T22:32:31.182336+00:00",
+          "inode": 16537175,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoclp5nmgn-1pygebc-9auqgtxll7m4vwkfx1zk4g7j0/dep-graph.bin",
+          "size_bytes": 40759821,
+          "allocated_bytes": 40767488,
+          "mtime_utc": "2026-11-20T22:25:05.397328+00:00",
+          "inode": 16537171,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoclwikwt9-1mtbacs-6p11yeil5n2s96qthxf5fdnwx/query-cache.bin",
+          "size_bytes": 19628485,
+          "allocated_bytes": 19632128,
+          "mtime_utc": "2026-11-20T22:32:31.182336+00:00",
+          "inode": 16560114,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoclp5nmgn-1pygebc-9auqgtxll7m4vwkfx1zk4g7j0/query-cache.bin",
+          "size_bytes": 18852391,
+          "allocated_bytes": 18853888,
+          "mtime_utc": "2026-11-20T22:25:05.397328+00:00",
+          "inode": 16537451,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoclwe3i12-03d3w24-14y6yc3qlwhkg4rqwzkknprz3/dep-graph.bin",
+          "size_bytes": 13065085,
+          "allocated_bytes": 13066240,
+          "mtime_utc": "2026-11-20T22:32:22.908348+00:00",
+          "inode": 16558431,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoclo7tyfa-0rnequp-3fsnogj4ypclj0re6ft3mr0w6/dep-graph.bin",
+          "size_bytes": 12843933,
+          "allocated_bytes": 12845056,
+          "mtime_utc": "2026-11-20T22:24:09.418520+00:00",
+          "inode": 16558387,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-20T22:23:03.268776+00:00",
+          "inode": 16557952,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-20T22:24:06.827530+00:00",
+          "inode": 16558381,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-20T22:25:18.718285+00:00",
+          "inode": 16558990,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T22:24:03.802541+00:00",
+          "inode": 16558156,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T22:23:00.141789+00:00",
+          "inode": 16557777,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoclo7tyfa-0rnequp-3fsnogj4ypclj0re6ft3mr0w6/query-cache.bin",
+          "size_bytes": 3362477,
+          "allocated_bytes": 3362816,
+          "mtime_utc": "2026-11-20T22:24:09.418520+00:00",
+          "inode": 16558391,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoclwe3i12-03d3w24-14y6yc3qlwhkg4rqwzkknprz3/query-cache.bin",
+          "size_bytes": 3312399,
+          "allocated_bytes": 3313664,
+          "mtime_utc": "2026-11-20T22:32:22.908348+00:00",
+          "inode": 16558392,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3079416,
+          "allocated_bytes": 3080192,
+          "mtime_utc": "2026-11-20T22:32:46.975313+00:00",
+          "inode": 16560136,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/native_binding/_metroflow_rust.so",
+          "size_bytes": 3079416,
+          "allocated_bytes": 3080192,
+          "mtime_utc": "2026-11-20T22:33:37.540510+00:00",
+          "inode": 16559001,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3079416,
+          "allocated_bytes": 3080192,
+          "mtime_utc": "2026-11-20T22:32:46.975313+00:00",
+          "inode": 16560136,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 2,
+      "generated_files_ge_1MB_count": 18,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-20T13:26:03.682047+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_eventarc_20261120",
+      "git_directory": false,
+      "allocated_bytes_du": 820707328,
+      "file_count_excluding_git": 3977,
+      "apparent_file_bytes_before_hardlink_dedup": 993629589,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/native_binding",
+          "allocated_bytes_du": 3055616,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target",
+          "allocated_bytes_du": 707616768,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc76hvy19-0u2l04c-67osm9qjfhz6lru9xj0fkjeth/dep-graph.bin",
+          "size_bytes": 39689183,
+          "allocated_bytes": 39690240,
+          "mtime_utc": "2026-11-20T13:38:23.240855+00:00",
+          "inode": 16534594,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc71xjtzk-0ap1qn1-9nxiiedgdi3i6q3kdjc7fxnxt/dep-graph.bin",
+          "size_bytes": 39364869,
+          "allocated_bytes": 39366656,
+          "mtime_utc": "2026-11-20T13:33:47.148275+00:00",
+          "inode": 16534595,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc76hvy19-0u2l04c-67osm9qjfhz6lru9xj0fkjeth/query-cache.bin",
+          "size_bytes": 19991416,
+          "allocated_bytes": 19992576,
+          "mtime_utc": "2026-11-20T13:38:23.240855+00:00",
+          "inode": 16536350,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc71xjtzk-0ap1qn1-9nxiiedgdi3i6q3kdjc7fxnxt/query-cache.bin",
+          "size_bytes": 19893926,
+          "allocated_bytes": 19894272,
+          "mtime_utc": "2026-11-20T13:33:47.148275+00:00",
+          "inode": 16536334,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-20T13:23:18.812427+00:00",
+          "inode": 16534590,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-20T13:25:09.663429+00:00",
+          "inode": 16535078,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc76cqj35-14e56g6-3lm53qufeshd5otzqpertrzc8/dep-graph.bin",
+          "size_bytes": 12365686,
+          "allocated_bytes": 12365824,
+          "mtime_utc": "2026-11-20T13:38:13.407700+00:00",
+          "inode": 16535082,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc71r2xc3-03ceztk-8700g7hg8jmr5a50r3v8o6lwh/dep-graph.bin",
+          "size_bytes": 12261282,
+          "allocated_bytes": 12263424,
+          "mtime_utc": "2026-11-20T13:33:35.143062+00:00",
+          "inode": 16536250,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-20T13:25:55.724584+00:00",
+          "inode": 16536107,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T13:25:06.509348+00:00",
+          "inode": 16534836,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T13:23:15.565334+00:00",
+          "inode": 16534416,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc76cqj35-14e56g6-3lm53qufeshd5otzqpertrzc8/query-cache.bin",
+          "size_bytes": 3122478,
+          "allocated_bytes": 3125248,
+          "mtime_utc": "2026-11-20T13:38:13.407700+00:00",
+          "inode": 16535084,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc71r2xc3-03ceztk-8700g7hg8jmr5a50r3v8o6lwh/query-cache.bin",
+          "size_bytes": 3098913,
+          "allocated_bytes": 3100672,
+          "mtime_utc": "2026-11-20T13:33:35.143062+00:00",
+          "inode": 16535089,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3051416,
+          "allocated_bytes": 3051520,
+          "mtime_utc": "2026-11-20T13:38:39.527110+00:00",
+          "inode": 16536373,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/native_binding/_metroflow_rust.so",
+          "size_bytes": 3051416,
+          "allocated_bytes": 3051520,
+          "mtime_utc": "2026-11-20T13:38:39.563861+00:00",
+          "inode": 16536136,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3051416,
+          "allocated_bytes": 3051520,
+          "mtime_utc": "2026-11-20T13:38:39.527110+00:00",
+          "inode": 16536373,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 0,
+      "generated_files_ge_1MB_count": 16,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-21T04:42:00.693957+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_fifo_closure_20261121",
+      "git_directory": false,
+      "allocated_bytes_du": 3780784128,
+      "file_count_excluding_git": 4120,
+      "apparent_file_bytes_before_hardlink_dedup": 3963945057,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/native_binding",
+          "allocated_bytes_du": 3170304,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target",
+          "allocated_bytes_du": 716500992,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/artifacts/v03_fifo_closure_20261121/C9_ORIGINAL_100K_REQUESTED_80S.final.bin",
+          "size_bytes": 2949231402,
+          "allocated_bytes": 2949242880,
+          "mtime_utc": "2026-11-21T04:47:38.161228+00:00",
+          "inode": 16679867,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocw2k81gd-0tem28l-0t64gjps7jjkz1538lobmcw2k/dep-graph.bin",
+          "size_bytes": 43951994,
+          "allocated_bytes": 43958272,
+          "mtime_utc": "2026-11-21T04:41:25.275516+00:00",
+          "inode": 16676384,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocw1yq864-09pojyo-9l74boechiv81xhid1tufc16i/dep-graph.bin",
+          "size_bytes": 43683808,
+          "allocated_bytes": 43687936,
+          "mtime_utc": "2026-11-21T04:40:48.646713+00:00",
+          "inode": 16677671,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocw1yq864-09pojyo-9l74boechiv81xhid1tufc16i/query-cache.bin",
+          "size_bytes": 22475369,
+          "allocated_bytes": 22478848,
+          "mtime_utc": "2026-11-21T04:40:48.646713+00:00",
+          "inode": 16677738,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocw2k81gd-0tem28l-0t64gjps7jjkz1538lobmcw2k/query-cache.bin",
+          "size_bytes": 22405120,
+          "allocated_bytes": 22405120,
+          "mtime_utc": "2026-11-21T04:41:25.275516+00:00",
+          "inode": 16678879,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocw2x6ukd-1cwxg9e-cgpeomsvdhz72kyh65ezdg379/dep-graph.bin",
+          "size_bytes": 14012143,
+          "allocated_bytes": 14012416,
+          "mtime_utc": "2026-11-21T04:41:46.605978+00:00",
+          "inode": 16679297,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-21T04:39:39.283165+00:00",
+          "inode": 16676380,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-21T04:41:43.767917+00:00",
+          "inode": 16679291,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-21T04:41:50.605064+00:00",
+          "inode": 16679735,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T04:41:40.630849+00:00",
+          "inode": 16679106,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T04:39:35.257074+00:00",
+          "inode": 16676195,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocw2x6ukd-1cwxg9e-cgpeomsvdhz72kyh65ezdg379/query-cache.bin",
+          "size_bytes": 3711998,
+          "allocated_bytes": 3715072,
+          "mtime_utc": "2026-11-21T04:41:46.605978+00:00",
+          "inode": 16679301,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3165488,
+          "allocated_bytes": 3166208,
+          "mtime_utc": "2026-11-21T04:41:58.643238+00:00",
+          "inode": 16679763,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/native_binding/_metroflow_rust.so",
+          "size_bytes": 3165488,
+          "allocated_bytes": 3166208,
+          "mtime_utc": "2026-11-21T04:42:59.361733+00:00",
+          "inode": 16679746,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3165488,
+          "allocated_bytes": 3166208,
+          "mtime_utc": "2026-11-21T04:41:58.643238+00:00",
+          "inode": 16679763,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/target/debug/deps/_metroflow_rust-ffddc2c3d4933447",
+          "size_bytes": 50128656,
+          "allocated_bytes": 50126848,
+          "mtime_utc": "2026-11-21T04:41:25.409518+00:00",
+          "inode": 16678884,
+          "device": 66306,
+          "link_count": 1
+        }
+      ],
+      "large_files_ge_50MB_count": 2,
+      "generated_files_ge_1MB_count": 15,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-21T00:42:19.397335+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_keyset_continuous_20261121",
+      "git_directory": false,
+      "allocated_bytes_du": 6776455168,
+      "file_count_excluding_git": 4081,
+      "apparent_file_bytes_before_hardlink_dedup": 6923405983,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/native_binding",
+          "allocated_bytes_du": 3153920,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target",
+          "allocated_bytes_du": 763514880,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_HISTORICAL_40S_STAIRCASE.final.bin",
+          "size_bytes": 2949231402,
+          "allocated_bytes": 2949238784,
+          "mtime_utc": "2026-11-21T00:58:23.608039+00:00",
+          "inode": 8432612,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_HISTORICAL_40S_FROM_25650.final.bin",
+          "size_bytes": 2949231402,
+          "allocated_bytes": 2949238784,
+          "mtime_utc": "2026-11-21T01:02:41.704162+00:00",
+          "inode": 8565274,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocprnisnp-1ut0psz-3497gmpchcuj1rfljo8qgsu5s/dep-graph.bin",
+          "size_bytes": 43015544,
+          "allocated_bytes": 43020288,
+          "mtime_utc": "2026-11-21T00:52:47.209292+00:00",
+          "inode": 9210567,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocpnl2ril-19lswhg-an2kd3rbso8d3q3jtzdp1dmuc/dep-graph.bin",
+          "size_bytes": 42526781,
+          "allocated_bytes": 42528768,
+          "mtime_utc": "2026-11-21T00:48:41.155531+00:00",
+          "inode": 9337503,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocpnl2ril-19lswhg-an2kd3rbso8d3q3jtzdp1dmuc/query-cache.bin",
+          "size_bytes": 23279368,
+          "allocated_bytes": 23281664,
+          "mtime_utc": "2026-11-21T00:48:41.155531+00:00",
+          "inode": 9337504,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocprnisnp-1ut0psz-3497gmpchcuj1rfljo8qgsu5s/query-cache.bin",
+          "size_bytes": 23092225,
+          "allocated_bytes": 23093248,
+          "mtime_utc": "2026-11-21T00:52:47.209292+00:00",
+          "inode": 9210568,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocpri8qyr-1ufb0u5-85yjcf2kp03js3xj5h8p12y39/dep-graph.bin",
+          "size_bytes": 13843923,
+          "allocated_bytes": 13844480,
+          "mtime_utc": "2026-11-21T00:52:35.481679+00:00",
+          "inode": 9210546,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocpne2571-0803mag-eetflacd4xpptpz1r25uo0rzt/dep-graph.bin",
+          "size_bytes": 13591545,
+          "allocated_bytes": 13594624,
+          "mtime_utc": "2026-11-21T00:48:26.909495+00:00",
+          "inode": 9337505,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-21T00:40:01.645221+00:00",
+          "inode": 8946298,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-21T00:41:37.308460+00:00",
+          "inode": 8946349,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-21T00:42:10.528543+00:00",
+          "inode": 9211999,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T00:41:34.136452+00:00",
+          "inode": 8946325,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T00:39:58.168212+00:00",
+          "inode": 8946150,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocpri8qyr-1ufb0u5-85yjcf2kp03js3xj5h8p12y39/query-cache.bin",
+          "size_bytes": 3508269,
+          "allocated_bytes": 3510272,
+          "mtime_utc": "2026-11-21T00:52:35.481679+00:00",
+          "inode": 9210564,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocpne2571-0803mag-eetflacd4xpptpz1r25uo0rzt/query-cache.bin",
+          "size_bytes": 3472809,
+          "allocated_bytes": 3473408,
+          "mtime_utc": "2026-11-21T00:48:26.909495+00:00",
+          "inode": 9337506,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3148936,
+          "allocated_bytes": 3149824,
+          "mtime_utc": "2026-11-21T00:53:08.583380+00:00",
+          "inode": 9212034,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3148936,
+          "allocated_bytes": 3149824,
+          "mtime_utc": "2026-11-21T00:53:08.583380+00:00",
+          "inode": 9212034,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/native_binding/_metroflow_rust.so",
+          "size_bytes": 3148936,
+          "allocated_bytes": 3149824,
+          "mtime_utc": "2026-11-21T00:53:50.246763+00:00",
+          "inode": 9337328,
+          "device": 66306,
+          "link_count": 1
+        }
+      ],
+      "large_files_ge_50MB_count": 2,
+      "generated_files_ge_1MB_count": 18,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-20T12:04:00.766621+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_nextloop_20261120",
+      "git_directory": false,
+      "allocated_bytes_du": 939474944,
+      "file_count_excluding_git": 4368,
+      "apparent_file_bytes_before_hardlink_dedup": 1162709184,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/native_binding",
+          "allocated_bytes_du": 3043328,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target",
+          "allocated_bytes_du": 826564608,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc4h0x5ya-1t1rodr-8queg2so909mbyrwilkk2kl30/dep-graph.bin",
+          "size_bytes": 38875890,
+          "allocated_bytes": 38879232,
+          "mtime_utc": "2026-11-20T12:00:10.197028+00:00",
+          "inode": 16530879,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc4fe1tb5-1yy5bgf-0xjfwedly2o7c5xn3cufznhrl/dep-graph.bin",
+          "size_bytes": 38705564,
+          "allocated_bytes": 38707200,
+          "mtime_utc": "2026-11-20T11:58:32.730131+00:00",
+          "inode": 16530003,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc4fe1tb5-1yy5bgf-0xjfwedly2o7c5xn3cufznhrl/query-cache.bin",
+          "size_bytes": 21724744,
+          "allocated_bytes": 21725184,
+          "mtime_utc": "2026-11-20T11:58:32.730131+00:00",
+          "inode": 16530272,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc4h0x5ya-1t1rodr-8queg2so909mbyrwilkk2kl30/query-cache.bin",
+          "size_bytes": 21487453,
+          "allocated_bytes": 21487616,
+          "mtime_utc": "2026-11-20T12:00:10.197028+00:00",
+          "inode": 16531141,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/debug/deps/libpyo3_macros-dd7e30f9a3b29078.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-20T11:56:24.241565+00:00",
+          "inode": 16529999,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-20T12:00:06.287953+00:00",
+          "inode": 16530874,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-20T11:59:47.859596+00:00",
+          "inode": 16530448,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc4gpop6e-1pr9tuk-8uxarndimrrcwa14gjt70gor1/dep-graph.bin",
+          "size_bytes": 12026520,
+          "allocated_bytes": 12029952,
+          "mtime_utc": "2026-11-20T11:59:50.244643+00:00",
+          "inode": 16530453,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-20T12:01:39.193730+00:00",
+          "inode": 16531575,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T11:56:21.181503+00:00",
+          "inode": 16529762,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T12:00:03.083891+00:00",
+          "inode": 16530697,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc4gpop6e-1pr9tuk-8uxarndimrrcwa14gjt70gor1/query-cache.bin",
+          "size_bytes": 3126321,
+          "allocated_bytes": 3129344,
+          "mtime_utc": "2026-11-20T11:59:50.244643+00:00",
+          "inode": 16530457,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/native_binding/_metroflow_rust.so",
+          "size_bytes": 3035320,
+          "allocated_bytes": 3039232,
+          "mtime_utc": "2026-11-20T12:01:45.144843+00:00",
+          "inode": 16531586,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3035320,
+          "allocated_bytes": 3039232,
+          "mtime_utc": "2026-11-20T12:01:45.106842+00:00",
+          "inode": 16531603,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3035320,
+          "allocated_bytes": 3039232,
+          "mtime_utc": "2026-11-20T12:01:45.106842+00:00",
+          "inode": 16531603,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 0,
+      "generated_files_ge_1MB_count": 15,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-21T01:14:02.323784+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_packet_lifetime_20261121",
+      "git_directory": false,
+      "allocated_bytes_du": 7209558016,
+      "file_count_excluding_git": 4090,
+      "apparent_file_bytes_before_hardlink_dedup": 7378223859,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/native_binding",
+          "allocated_bytes_du": 3158016,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target",
+          "allocated_bytes_du": 740646912,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_ORIGINAL_100K_10S_25700.final.bin",
+          "size_bytes": 3405043386,
+          "allocated_bytes": 3405049856,
+          "mtime_utc": "2026-11-21T01:25:42.876769+00:00",
+          "inode": 14584851,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_100K_ESCALATING_80S_FROM_25650.final.bin",
+          "size_bytes": 2949231402,
+          "allocated_bytes": 2949238784,
+          "mtime_utc": "2026-11-21T01:29:05.277604+00:00",
+          "inode": 14584852,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocqmdwheg-1u1fltq-byvc5defrt9tn96qxjff0jyt7/dep-graph.bin",
+          "size_bytes": 43305989,
+          "allocated_bytes": 43307008,
+          "mtime_utc": "2026-11-21T01:23:44.109053+00:00",
+          "inode": 14584841,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocqhce5b9-0xdjbff-9n42iow49kw7p1hcsolalz43s/dep-graph.bin",
+          "size_bytes": 42947394,
+          "allocated_bytes": 42950656,
+          "mtime_utc": "2026-11-21T01:18:37.893222+00:00",
+          "inode": 14458218,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocqmdwheg-1u1fltq-byvc5defrt9tn96qxjff0jyt7/query-cache.bin",
+          "size_bytes": 22592096,
+          "allocated_bytes": 22593536,
+          "mtime_utc": "2026-11-21T01:23:44.109053+00:00",
+          "inode": 14584842,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocqhce5b9-0xdjbff-9n42iow49kw7p1hcsolalz43s/query-cache.bin",
+          "size_bytes": 20660740,
+          "allocated_bytes": 20664320,
+          "mtime_utc": "2026-11-21T01:18:37.893222+00:00",
+          "inode": 14458219,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocqm7bbg5-14uy1jl-3rca23g1vf3ecfy8dmv0jgvwt/dep-graph.bin",
+          "size_bytes": 13946672,
+          "allocated_bytes": 13946880,
+          "mtime_utc": "2026-11-21T01:23:31.305898+00:00",
+          "inode": 14584844,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocqh6x0mw-1nyrqb1-8ncd8w7l2v1rlai7p55i7yxct/dep-graph.bin",
+          "size_bytes": 13789914,
+          "allocated_bytes": 13791232,
+          "mtime_utc": "2026-11-21T01:18:27.793090+00:00",
+          "inode": 14458221,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-21T01:12:25.267033+00:00",
+          "inode": 9735625,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-21T01:13:16.866802+00:00",
+          "inode": 9735677,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-21T01:13:53.533337+00:00",
+          "inode": 10005267,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T01:13:13.594754+00:00",
+          "inode": 9735660,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T01:12:22.062985+00:00",
+          "inode": 9735497,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocqm7bbg5-14uy1jl-3rca23g1vf3ecfy8dmv0jgvwt/query-cache.bin",
+          "size_bytes": 3526457,
+          "allocated_bytes": 3526656,
+          "mtime_utc": "2026-11-21T01:23:31.305898+00:00",
+          "inode": 14584845,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocqh6x0mw-1nyrqb1-8ncd8w7l2v1rlai7p55i7yxct/query-cache.bin",
+          "size_bytes": 3521778,
+          "allocated_bytes": 3522560,
+          "mtime_utc": "2026-11-21T01:18:27.793090+00:00",
+          "inode": 14458222,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/native_binding/_metroflow_rust.so",
+          "size_bytes": 3151616,
+          "allocated_bytes": 3153920,
+          "mtime_utc": "2026-11-21T01:24:42.724880+00:00",
+          "inode": 13808647,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3151616,
+          "allocated_bytes": 3153920,
+          "mtime_utc": "2026-11-21T01:24:05.945317+00:00",
+          "inode": 10005285,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3151616,
+          "allocated_bytes": 3153920,
+          "mtime_utc": "2026-11-21T01:24:05.945317+00:00",
+          "inode": 10005285,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 2,
+      "generated_files_ge_1MB_count": 18,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-20T23:40:04.349009+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_persistent_keyset_20261121",
+      "git_directory": false,
+      "allocated_bytes_du": 3817955328,
+      "file_count_excluding_git": 4059,
+      "apparent_file_bytes_before_hardlink_dedup": 3964710529,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/native_binding",
+          "allocated_bytes_du": 3112960,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target",
+          "allocated_bytes_du": 754573312,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/artifacts/v03_persistent_keyset_20261121/C8_KEYSET_CROSS_BINARY_25690.final.bin",
+          "size_bytes": 2949231402,
+          "allocated_bytes": 2949238784,
+          "mtime_utc": "2026-11-20T23:50:05.816257+00:00",
+          "inode": 8409179,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocnyojoic-04i290t-4saqterye90py8f2aeec7v3qu/dep-graph.bin",
+          "size_bytes": 42158993,
+          "allocated_bytes": 42160128,
+          "mtime_utc": "2026-11-20T23:47:17.495982+00:00",
+          "inode": 8407839,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocnr1lqcg-01j42xw-ehwj3kiabaev1agyskyo5qkf3/dep-graph.bin",
+          "size_bytes": 41138703,
+          "allocated_bytes": 41140224,
+          "mtime_utc": "2026-11-20T23:39:36.905005+00:00",
+          "inode": 8407838,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocnr1lqcg-01j42xw-ehwj3kiabaev1agyskyo5qkf3/query-cache.bin",
+          "size_bytes": 23280290,
+          "allocated_bytes": 23281664,
+          "mtime_utc": "2026-11-20T23:39:36.905005+00:00",
+          "inode": 8408526,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocnyojoic-04i290t-4saqterye90py8f2aeec7v3qu/query-cache.bin",
+          "size_bytes": 22451599,
+          "allocated_bytes": 22454272,
+          "mtime_utc": "2026-11-20T23:47:17.495982+00:00",
+          "inode": 8409176,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocnyizxih-1ixn4jl-00cg5hjz2qn8rhb30ylira1lc/dep-graph.bin",
+          "size_bytes": 13456192,
+          "allocated_bytes": 13459456,
+          "mtime_utc": "2026-11-20T23:47:06.094447+00:00",
+          "inode": 8408263,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocnqu03mb-02itsxl-1tc942o9he7rbxmjnmg8e7wh3/dep-graph.bin",
+          "size_bytes": 13023255,
+          "allocated_bytes": 13025280,
+          "mtime_utc": "2026-11-20T23:39:21.300822+00:00",
+          "inode": 8408260,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-20T23:38:10.403993+00:00",
+          "inode": 8407834,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-20T23:39:18.509789+00:00",
+          "inode": 8408254,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-20T23:39:55.407223+00:00",
+          "inode": 8408961,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T23:38:07.058954+00:00",
+          "inode": 8407643,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T23:39:14.927747+00:00",
+          "inode": 8408092,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocnqu03mb-02itsxl-1tc942o9he7rbxmjnmg8e7wh3/query-cache.bin",
+          "size_bytes": 3413480,
+          "allocated_bytes": 3416064,
+          "mtime_utc": "2026-11-20T23:39:21.300822+00:00",
+          "inode": 8408264,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocnyizxih-1ixn4jl-00cg5hjz2qn8rhb30ylira1lc/query-cache.bin",
+          "size_bytes": 3404984,
+          "allocated_bytes": 3407872,
+          "mtime_utc": "2026-11-20T23:47:06.094447+00:00",
+          "inode": 8408265,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/native_binding/_metroflow_rust.so",
+          "size_bytes": 3107720,
+          "allocated_bytes": 3108864,
+          "mtime_utc": "2026-11-20T23:48:58.404012+00:00",
+          "inode": 8407346,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3107720,
+          "allocated_bytes": 3108864,
+          "mtime_utc": "2026-11-20T23:47:38.621147+00:00",
+          "inode": 8409198,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3107720,
+          "allocated_bytes": 3108864,
+          "mtime_utc": "2026-11-20T23:47:38.621147+00:00",
+          "inode": 8409198,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 1,
+      "generated_files_ge_1MB_count": 17,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-21T05:15:37.155253+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_quantile_capture_20261121",
+      "git_directory": false,
+      "allocated_bytes_du": 4138119168,
+      "file_count_excluding_git": 3882,
+      "apparent_file_bytes_before_hardlink_dedup": 4263269591,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/native_binding",
+          "allocated_bytes_du": 3170304,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target",
+          "allocated_bytes_du": 617734144,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/artifacts/v03_quantile_capture_20261121/C6_ORIGINAL_100K_REQUESTED_80S.final.bin",
+          "size_bytes": 3405043386,
+          "allocated_bytes": 3405053952,
+          "mtime_utc": "2026-11-21T05:19:03.488575+00:00",
+          "inode": 7255126,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocwz4dbc2-0px712o-7dmfwhgvmhrb813vdxe0tu1pa/dep-graph.bin",
+          "size_bytes": 43702689,
+          "allocated_bytes": 43708416,
+          "mtime_utc": "2026-11-21T05:14:17.010800+00:00",
+          "inode": 12227315,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocwz4dbc2-0px712o-7dmfwhgvmhrb813vdxe0tu1pa/query-cache.bin",
+          "size_bytes": 25079135,
+          "allocated_bytes": 25083904,
+          "mtime_utc": "2026-11-21T05:14:17.010800+00:00",
+          "inode": 12227316,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocx09si5t-0caqaup-ab4f5lq60io1n14l5by6xoz2q/dep-graph.bin",
+          "size_bytes": 14040971,
+          "allocated_bytes": 14041088,
+          "mtime_utc": "2026-11-21T05:15:23.186217+00:00",
+          "inode": 14584910,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12423168,
+          "mtime_utc": "2026-11-21T05:13:14.805396+00:00",
+          "inode": 8824931,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12390400,
+          "mtime_utc": "2026-11-21T05:15:20.238242+00:00",
+          "inode": 8825249,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-21T05:15:27.214183+00:00",
+          "inode": 14713579,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T05:13:11.164432+00:00",
+          "inode": 8824919,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T05:15:16.440274+00:00",
+          "inode": 8825232,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocx09si5t-0caqaup-ab4f5lq60io1n14l5by6xoz2q/query-cache.bin",
+          "size_bytes": 3722071,
+          "allocated_bytes": 3723264,
+          "mtime_utc": "2026-11-21T05:15:23.186217+00:00",
+          "inode": 14584912,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3166192,
+          "allocated_bytes": 3166208,
+          "mtime_utc": "2026-11-21T05:15:35.082117+00:00",
+          "inode": 14713598,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/native_binding/_metroflow_rust.so",
+          "size_bytes": 3166192,
+          "allocated_bytes": 3166208,
+          "mtime_utc": "2026-11-21T05:16:37.632616+00:00",
+          "inode": 13269184,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3166192,
+          "allocated_bytes": 3166208,
+          "mtime_utc": "2026-11-21T05:15:35.082117+00:00",
+          "inode": 14713598,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/target/debug/deps/_metroflow_rust-ffddc2c3d4933447",
+          "size_bytes": 50143408,
+          "allocated_bytes": 50139136,
+          "mtime_utc": "2026-11-21T05:14:17.156799+00:00",
+          "inode": 8825221,
+          "device": 66306,
+          "link_count": 1
+        }
+      ],
+      "large_files_ge_50MB_count": 2,
+      "generated_files_ge_1MB_count": 13,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-20T15:58:03.362254+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_segmented_incoming_20261121",
+      "git_directory": false,
+      "allocated_bytes_du": 851439616,
+      "file_count_excluding_git": 4018,
+      "apparent_file_bytes_before_hardlink_dedup": 999641203,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/native_binding",
+          "allocated_bytes_du": 3080192,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target",
+          "allocated_bytes_du": 737804288,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocb8zmmx5-06wf8mk-4dptqtw1kvcxr9mrnkacx6wt6/dep-graph.bin",
+          "size_bytes": 40809968,
+          "allocated_bytes": 40812544,
+          "mtime_utc": "2026-11-20T16:06:02.977153+00:00",
+          "inode": 16542589,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocb0k55v3-1qj1jc4-4ztjhzhnqoeqnb5rystapheap/dep-graph.bin",
+          "size_bytes": 40104525,
+          "allocated_bytes": 40108032,
+          "mtime_utc": "2026-11-20T15:57:30.140791+00:00",
+          "inode": 16543292,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocb8zmmx5-06wf8mk-4dptqtw1kvcxr9mrnkacx6wt6/query-cache.bin",
+          "size_bytes": 21843489,
+          "allocated_bytes": 21843968,
+          "mtime_utc": "2026-11-20T16:06:02.977153+00:00",
+          "inode": 16543989,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hocb0k55v3-1qj1jc4-4ztjhzhnqoeqnb5rystapheap/query-cache.bin",
+          "size_bytes": 18458179,
+          "allocated_bytes": 18460672,
+          "mtime_utc": "2026-11-20T15:57:30.140791+00:00",
+          "inode": 16543296,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocb8sfzrd-1ifbz0u-dhlagday00d12o76ejxunxng3/dep-graph.bin",
+          "size_bytes": 12946881,
+          "allocated_bytes": 12947456,
+          "mtime_utc": "2026-11-20T16:05:48.519170+00:00",
+          "inode": 16543285,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocazkaodo-0us1ss1-dx4e8wsqe8qyjvdgocvv0fa21/dep-graph.bin",
+          "size_bytes": 12621593,
+          "allocated_bytes": 12623872,
+          "mtime_utc": "2026-11-20T15:56:30.837034+00:00",
+          "inode": 16543019,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-20T15:53:15.015604+00:00",
+          "inode": 16542585,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-20T15:56:28.301002+00:00",
+          "inode": 16543013,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-20T15:57:55.221114+00:00",
+          "inode": 16543725,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T15:56:25.257964+00:00",
+          "inode": 16542777,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T15:53:11.700563+00:00",
+          "inode": 16542417,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocazkaodo-0us1ss1-dx4e8wsqe8qyjvdgocvv0fa21/query-cache.bin",
+          "size_bytes": 3303789,
+          "allocated_bytes": 3305472,
+          "mtime_utc": "2026-11-20T15:56:30.837034+00:00",
+          "inode": 16543023,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hocb8sfzrd-1ifbz0u-dhlagday00d12o76ejxunxng3/query-cache.bin",
+          "size_bytes": 3278871,
+          "allocated_bytes": 3280896,
+          "mtime_utc": "2026-11-20T16:05:48.519170+00:00",
+          "inode": 16543024,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/native_binding/_metroflow_rust.so",
+          "size_bytes": 3074608,
+          "allocated_bytes": 3076096,
+          "mtime_utc": "2026-11-20T16:06:31.792992+00:00",
+          "inode": 16543736,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3074608,
+          "allocated_bytes": 3076096,
+          "mtime_utc": "2026-11-20T16:06:31.753134+00:00",
+          "inode": 16544096,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3074608,
+          "allocated_bytes": 3076096,
+          "mtime_utc": "2026-11-20T16:06:31.753134+00:00",
+          "inode": 16544096,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 0,
+      "generated_files_ge_1MB_count": 16,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-20T14:03:19.341007+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_sweep_bounds_20261120",
+      "git_directory": false,
+      "allocated_bytes_du": 821075968,
+      "file_count_excluding_git": 3987,
+      "apparent_file_bytes_before_hardlink_dedup": 998881935,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/native_binding",
+          "allocated_bytes_du": 3043328,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target",
+          "allocated_bytes_du": 707858432,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc84olqjv-1tk8u3i-0pzniq4vpmca7phny0pzhzo7n/dep-graph.bin",
+          "size_bytes": 40005401,
+          "allocated_bytes": 40009728,
+          "mtime_utc": "2026-11-20T14:12:50.517182+00:00",
+          "inode": 13808485,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc7ukh7od-0hthuer-3km0c7zrogjpc8s10e7r6mi91/dep-graph.bin",
+          "size_bytes": 39593694,
+          "allocated_bytes": 39596032,
+          "mtime_utc": "2026-11-20T14:02:40.817685+00:00",
+          "inode": 13268970,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc7ukh7od-0hthuer-3km0c7zrogjpc8s10e7r6mi91/query-cache.bin",
+          "size_bytes": 22333907,
+          "allocated_bytes": 22335488,
+          "mtime_utc": "2026-11-20T14:02:40.817685+00:00",
+          "inode": 13268971,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hoc84olqjv-1tk8u3i-0pzniq4vpmca7phny0pzhzo7n/query-cache.bin",
+          "size_bytes": 20093770,
+          "allocated_bytes": 20094976,
+          "mtime_utc": "2026-11-20T14:12:50.517182+00:00",
+          "inode": 13808486,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc84it2f3-0r578vu-02tnacixf1pnpiembbe3erk8s/dep-graph.bin",
+          "size_bytes": 12500916,
+          "allocated_bytes": 12500992,
+          "mtime_utc": "2026-11-20T14:12:39.470250+00:00",
+          "inode": 13808488,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12419072,
+          "mtime_utc": "2026-11-20T14:00:28.346643+00:00",
+          "inode": 11306973,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12386304,
+          "mtime_utc": "2026-11-20T14:02:20.019966+00:00",
+          "inode": 11307002,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc7uayx6f-1tmil7f-4lq9d3nr4o3pflcssyq5eqm79/dep-graph.bin",
+          "size_bytes": 12279531,
+          "allocated_bytes": 12279808,
+          "mtime_utc": "2026-11-20T14:02:22.353934+00:00",
+          "inode": 13268964,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-20T14:03:11.581285+00:00",
+          "inode": 13269008,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T14:02:17.164006+00:00",
+          "inode": 11306990,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-20T14:00:25.408692+00:00",
+          "inode": 11306957,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc7uayx6f-1tmil7f-4lq9d3nr4o3pflcssyq5eqm79/query-cache.bin",
+          "size_bytes": 3208832,
+          "allocated_bytes": 3211264,
+          "mtime_utc": "2026-11-20T14:02:22.353934+00:00",
+          "inode": 13268966,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hoc84it2f3-0r578vu-02tnacixf1pnpiembbe3erk8s/query-cache.bin",
+          "size_bytes": 3166534,
+          "allocated_bytes": 3170304,
+          "mtime_utc": "2026-11-20T14:12:39.470250+00:00",
+          "inode": 13808489,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/native_binding/_metroflow_rust.so",
+          "size_bytes": 3035568,
+          "allocated_bytes": 3039232,
+          "mtime_utc": "2026-11-20T14:14:22.346644+00:00",
+          "inode": 13653628,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3035568,
+          "allocated_bytes": 3039232,
+          "mtime_utc": "2026-11-20T14:13:17.950016+00:00",
+          "inode": 13269036,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3035568,
+          "allocated_bytes": 3039232,
+          "mtime_utc": "2026-11-20T14:13:17.950016+00:00",
+          "inode": 13269036,
+          "device": 66306,
+          "link_count": 2
+        }
+      ],
+      "large_files_ge_50MB_count": 0,
+      "generated_files_ge_1MB_count": 16,
+      "errors": []
+    },
+    {
+      "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121",
+      "role": "older_linked_worktree",
+      "mtime_utc": "2026-11-21T11:47:45.239573+00:00",
+      "git_pointer": "gitdir: /home/cosmosapjw/urban_traffic_v03_20261116/.git/worktrees/urban_traffic_v03_weighted_fifo_20261121",
+      "git_directory": false,
+      "allocated_bytes_du": 4260384768,
+      "file_count_excluding_git": 4159,
+      "apparent_file_bytes_before_hardlink_dedup": 4443561086,
+      "backup_directory_candidates": [
+        "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/docs/archive"
+      ],
+      "backup_candidate_classification": "Only docs/archive directories found; document namespace, not established as disposable backup",
+      "build_directory_disk_usage": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/native_binding",
+          "allocated_bytes_du": 3174400,
+          "error": null
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target",
+          "allocated_bytes_du": 739852288,
+          "error": null
+        }
+      ],
+      "selected_generated_files": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/artifacts/v03_weighted_fifo_20261121/C8_100K_REQUESTED_80S_FROM_25650.final.bin",
+          "size_bytes": 3405043386,
+          "allocated_bytes": 3405058048,
+          "mtime_utc": "2026-11-21T11:56:11.389934+00:00",
+          "inode": 16778728,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hod7ykjx7e-1t2nsla-6rg3eo0fgn5ef1mj2xfsxnokh/dep-graph.bin",
+          "size_bytes": 44174947,
+          "allocated_bytes": 44179456,
+          "mtime_utc": "2026-11-21T11:52:44.819004+00:00",
+          "inode": 16777455,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hod7s4wc2q-1tg1u6s-8ekq61nm6e3tkemlp51t7gkpy/dep-graph.bin",
+          "size_bytes": 43735456,
+          "allocated_bytes": 43741184,
+          "mtime_utc": "2026-11-21T11:46:18.693440+00:00",
+          "inode": 16690760,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hod7s4wc2q-1tg1u6s-8ekq61nm6e3tkemlp51t7gkpy/query-cache.bin",
+          "size_bytes": 25111208,
+          "allocated_bytes": 25116672,
+          "mtime_utc": "2026-11-21T11:46:18.693440+00:00",
+          "inode": 16691446,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/incremental/_metroflow_rust-09pcsm82x52f9/s-hod7ykjx7e-1t2nsla-6rg3eo0fgn5ef1mj2xfsxnokh/query-cache.bin",
+          "size_bytes": 22926703,
+          "allocated_bytes": 22929408,
+          "mtime_utc": "2026-11-21T11:52:44.819004+00:00",
+          "inode": 16777456,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hod7yumc47-0s9ow26-d3cxb8h4tqiy7k1k5wwvdc6ba/dep-graph.bin",
+          "size_bytes": 14117697,
+          "allocated_bytes": 14118912,
+          "mtime_utc": "2026-11-21T11:53:00.478715+00:00",
+          "inode": 16777460,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hod7s3ts65-0qaru8a-3umag5fb9o4qhhva2xw943lo3/dep-graph.bin",
+          "size_bytes": 14068539,
+          "allocated_bytes": 14069760,
+          "mtime_utc": "2026-11-21T11:46:13.960647+00:00",
+          "inode": 16673696,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/deps/libpyo3_macros-23486b3733c7730a.so",
+          "size_bytes": 12500144,
+          "allocated_bytes": 12423168,
+          "mtime_utc": "2026-11-21T11:43:44.106388+00:00",
+          "inode": 16690756,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/deps/libpyo3_macros-a32547d5b307c45d.so",
+          "size_bytes": 12468968,
+          "allocated_bytes": 12390400,
+          "mtime_utc": "2026-11-21T11:45:12.563530+00:00",
+          "inode": 16652986,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/release/deps/libpyo3_macros-00ffc48374294dc6.so",
+          "size_bytes": 7038208,
+          "allocated_bytes": 6955008,
+          "mtime_utc": "2026-11-21T11:47:35.484351+00:00",
+          "inode": 16691641,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/deps/libindoc-fcb2400ca049dacf.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T11:45:09.386758+00:00",
+          "inode": 16691015,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/deps/libindoc-9ce5e1db5f163d92.so",
+          "size_bytes": 5961904,
+          "allocated_bytes": 5963776,
+          "mtime_utc": "2026-11-21T11:43:40.901070+00:00",
+          "inode": 16690578,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hod7s3ts65-0qaru8a-3umag5fb9o4qhhva2xw943lo3/query-cache.bin",
+          "size_bytes": 3731545,
+          "allocated_bytes": 3735552,
+          "mtime_utc": "2026-11-21T11:46:13.960647+00:00",
+          "inode": 16673698,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/incremental/_metroflow_rust-2tdmrsqf3bhjq/s-hod7yumc47-0s9ow26-d3cxb8h4tqiy7k1k5wwvdc6ba/query-cache.bin",
+          "size_bytes": 3650353,
+          "allocated_bytes": 3653632,
+          "mtime_utc": "2026-11-21T11:53:00.478715+00:00",
+          "inode": 16777461,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/native_binding/_metroflow_rust.so",
+          "size_bytes": 3166744,
+          "allocated_bytes": 3170304,
+          "mtime_utc": "2026-11-21T11:53:05.728892+00:00",
+          "inode": 16691916,
+          "device": 66306,
+          "link_count": 1
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/release/deps/lib_metroflow_rust.so",
+          "size_bytes": 3166744,
+          "allocated_bytes": 3174400,
+          "mtime_utc": "2026-11-21T11:53:05.691621+00:00",
+          "inode": 16692528,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/release/lib_metroflow_rust.so",
+          "size_bytes": 3166744,
+          "allocated_bytes": 3174400,
+          "mtime_utc": "2026-11-21T11:53:05.691621+00:00",
+          "inode": 16692528,
+          "device": 66306,
+          "link_count": 2
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/target/debug/deps/_metroflow_rust-ffddc2c3d4933447",
+          "size_bytes": 50907336,
+          "allocated_bytes": 50900992,
+          "mtime_utc": "2026-11-21T11:52:45.002000+00:00",
+          "inode": 16692511,
+          "device": 66306,
+          "link_count": 1
+        }
+      ],
+      "large_files_ge_50MB_count": 2,
+      "generated_files_ge_1MB_count": 17,
+      "errors": []
+    }
+  ]
+}

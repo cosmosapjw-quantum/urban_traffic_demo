@@ -1,0 +1,321 @@
+{
+  "removal": {
+    "schema": "metroflow-worktree-removal-v1",
+    "started_at": "2026-11-23T12:20:06.347340+00:00",
+    "before": {
+      "capacity": 982293172224,
+      "used": 834451542016,
+      "available": 97868349440
+    },
+    "before_preservation": {
+      "capacity": 982293172224,
+      "used": 829638914048,
+      "available": 102680977408
+    },
+    "initial_inventory_filesystem": {
+      "capacity_bytes": 982293172224,
+      "free_bytes": 81258418176,
+      "available_bytes": 31285137408
+    },
+    "kept_worktrees": [
+      "/home/cosmosapjw/urban_traffic_v03_20261116",
+      "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123"
+    ],
+    "process_references": [],
+    "process_maps_unreadable_pids": [
+      1,
+      1186,
+      1187,
+      1190,
+      1195,
+      1197,
+      1202,
+      1206,
+      1209,
+      1212,
+      1215,
+      1227,
+      1231,
+      1244,
+      1281,
+      1307,
+      1308,
+      1394,
+      1512,
+      1516,
+      1522,
+      1523,
+      1530,
+      1606,
+      1668,
+      1703,
+      2187,
+      2206,
+      2320,
+      2807,
+      2809,
+      2812,
+      3465,
+      3661,
+      4777,
+      6208,
+      2198535,
+      2302446,
+      2304148,
+      2312686,
+      2313035,
+      2313293,
+      2313478,
+      2313836,
+      3117688,
+      3117770
+    ],
+    "outcomes": [
+      {
+        "path": "/home/cosmosapjw/urban_traffic_boundary_20261117",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.17421560100046918
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_counterex_20261117",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.08799649402499199
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_followup_20261117",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.12973285000771284
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_markblock_20261117",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.08119124599033967
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_projection_20261117",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.24273530498612672
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_refine_20261117",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.05741298000793904
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_release_20261117",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.10077531001297757
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_rust_20261116",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.16844845796003938
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_ulpdiag_20261117",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.07016721297986805
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.14254667499335483
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.10796680301427841
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.1072965799830854
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.37934661901090294
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.14887971500866115
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.13631637097569183
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.11259780201362446
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.20388434297638014
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.16392025398090482
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.10155641398159787
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.1180556119652465
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.08915353403426707
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.0907943409984
+      },
+      {
+        "path": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121",
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exists_after": false,
+        "elapsed_seconds": 0.1660194150172174
+      }
+    ],
+    "retained_archive_bytes": 1063453930,
+    "completed_at": "2026-11-23T12:20:09.644727+00:00",
+    "after": {
+      "capacity": 982293172224,
+      "used": 745738498048,
+      "available": 186581393408
+    },
+    "remaining_worktrees": [
+      "/home/cosmosapjw/urban_traffic_v03_20261116",
+      "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123"
+    ],
+    "all_branch_refs_preserved": true,
+    "primary_dirty_snapshots_unchanged": true,
+    "git_connectivity_exit": 0,
+    "reclaimed_since_predelete_bytes": 88713043968,
+    "net_available_gain_since_preservation_start_bytes": 83900416000
+  },
+  "retained_payload_bytes": 1063453930,
+  "archive_sizes": {
+    "unpublished_evidence_and_native.tar.gz": 11919832,
+    "all_project_refs.bundle": 89860464
+  },
+  "checkpoint_archives": [
+    {
+      "archive": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/retained_recovery_20261123/valley_s7_t25700.current.bin.gz",
+      "raw_bytes": 3405043386,
+      "compressed_bytes": 736524111,
+      "raw_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+      "compressed_sha256": "191f64eb23b1cd68e95f09fc1c18c6888dfa21b77ec1a4f24d576a36272ae3f3",
+      "gzip_full_decode_verified": true
+    },
+    {
+      "archive": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/retained_recovery_20261123/coastal_s41_t32660.historical.bin.gz",
+      "raw_bytes": 859506202,
+      "compressed_bytes": 143575826,
+      "raw_sha256": "f92cc99f87e30fe6fafc37674eb58ad4855fe83a61e32f659596d9cfcaa1aa1e",
+      "compressed_sha256": "8a88fb09cc483c6f3c8bdca2e6856426cc334ad8f64dcb3c799781ca45e44098",
+      "gzip_full_decode_verified": true
+    },
+    {
+      "archive": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/retained_recovery_20261123/river_s17_t25350.historical.bin.gz",
+      "raw_bytes": 634951290,
+      "compressed_bytes": 81573697,
+      "raw_sha256": "e179f3b9b5b9081a8adb121e51761514654743a8e8bbe4166691dd04cc46425e",
+      "compressed_sha256": "8837c9d540de93190daac2614df1d04a0c5c92d0342d726c4f838c4946825196",
+      "gzip_full_decode_verified": true
+    }
+  ],
+  "ref_count": 30,
+  "dirty_count": 10,
+  "drift_watchdog": {
+    "original_anchor_blobs": {
+      "0492364:docs/PRD.md": "f8cc371410ca0e24b0947cda3d6772787efddc7a",
+      "6524500:memory/constitution.md": "7c78e214c9558bcb1023854e55025f1c554aadee"
+    },
+    "production_path_changes_from_baseline": []
+  },
+  "current_df": "Filesystem        1B-blocks         Used    Available Use% Mounted on\n/dev/nvme0n1p2 982293172224 744974548992 187345342464  80% /\n",
+  "remaining_home_project_directories": [
+    "/home/cosmosapjw/urban_traffic_v03_20261116",
+    "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123"
+  ]
+}

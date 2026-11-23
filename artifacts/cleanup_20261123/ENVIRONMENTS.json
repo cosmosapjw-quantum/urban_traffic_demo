@@ -1,0 +1,58 @@
+[
+  {
+    "worktree": "/home/cosmosapjw/urban_traffic_v03_20261116",
+    "pyvenv_cfg": "home = /home/cosmosapjw/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/bin\nimplementation = CPython\nuv = 0.12.6\nversion_info = 3.12\ninclude-system-site-packages = false\n",
+    "packages": [
+      {
+        "name": "iniconfig",
+        "version": "2.3.1"
+      },
+      {
+        "name": "metroflow",
+        "version": "0.0.2"
+      },
+      {
+        "name": "numpy",
+        "version": "2.5.4"
+      },
+      {
+        "name": "packaging",
+        "version": "26.3"
+      },
+      {
+        "name": "pluggy",
+        "version": "1.7.0"
+      },
+      {
+        "name": "Pygments",
+        "version": "2.21.0"
+      },
+      {
+        "name": "pytest",
+        "version": "9.2.0"
+      }
+    ]
+  },
+  {
+    "worktree": "/home/cosmosapjw/urban_traffic_rust_20261116",
+    "pyvenv_cfg": "home = /usr/bin\ninclude-system-site-packages = true\nversion = 3.12.3\nexecutable = /usr/bin/python3.12\ncommand = /usr/bin/python3 -m venv --system-site-packages /home/cosmosapjw/urban_traffic_rust_20261116/.venv\n",
+    "packages": [
+      {
+        "name": "maturin",
+        "version": "1.16.0"
+      },
+      {
+        "name": "metroflow",
+        "version": "0.0.2"
+      },
+      {
+        "name": "metroflow-rust",
+        "version": "0.1.0"
+      },
+      {
+        "name": "pip",
+        "version": "24.0"
+      }
+    ]
+  }
+]

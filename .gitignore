@@ -38,3 +38,6 @@ specs/
 
 # Rust build output
 target/
+
+# Local compressed recovery retained during the 2026-11-23 worktree cleanup.
+/artifacts/retained_recovery_20261123/

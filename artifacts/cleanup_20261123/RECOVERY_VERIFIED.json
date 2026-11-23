@@ -1,0 +1,1493 @@
+{
+  "schema": "metroflow-recovery-preservation-v1",
+  "verified_at": "2026-11-23T12:18:21.886048+00:00",
+  "latest_head_before_cleanup": "e5beb6f5544da60eab6b995e8f5a90492b485817",
+  "disk_before_preservation": {
+    "capacity": 982293172224,
+    "used": 829638914048,
+    "available": 102680977408
+  },
+  "disk_after_preservation": {
+    "capacity": 982293172224,
+    "used": 830612701184,
+    "available": 101707190272
+  },
+  "kept_worktrees": [
+    "/home/cosmosapjw/urban_traffic_v03_20261116",
+    "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123"
+  ],
+  "removal_candidates": [
+    "/home/cosmosapjw/urban_traffic_boundary_20261117",
+    "/home/cosmosapjw/urban_traffic_counterex_20261117",
+    "/home/cosmosapjw/urban_traffic_followup_20261117",
+    "/home/cosmosapjw/urban_traffic_markblock_20261117",
+    "/home/cosmosapjw/urban_traffic_projection_20261117",
+    "/home/cosmosapjw/urban_traffic_refine_20261117",
+    "/home/cosmosapjw/urban_traffic_release_20261117",
+    "/home/cosmosapjw/urban_traffic_rust_20261116",
+    "/home/cosmosapjw/urban_traffic_ulpdiag_20261117",
+    "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123",
+    "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120",
+    "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121",
+    "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121",
+    "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120",
+    "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121",
+    "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121",
+    "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120",
+    "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121",
+    "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121",
+    "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121",
+    "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121",
+    "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120",
+    "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121"
+  ],
+  "evidence_archive": {
+    "archive": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/retained_recovery_20261123/unpublished_evidence_and_native.tar.gz",
+    "bytes": 11919832,
+    "sha256": "6838a77dc719c225fe0ca22ada8f6f274433b17388f45789093c1b0be43ec821",
+    "members": [
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_constructor_20261116/benchmark.py",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_constructor_20261116/benchmark.py",
+        "kind": "file",
+        "sha256": "a386dc4fd6611196c25a1969c614ab8d896297d9b625c1dfbc300b202823f75a",
+        "bytes": 7625
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_joint_cost_20261116/benchmark.py",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_joint_cost_20261116/benchmark.py",
+        "kind": "file",
+        "sha256": "3efdc00d6b2627abe015818818d2d23b3326c35f30d2f9073a8f9fca79ef008b",
+        "bytes": 4761
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/CONSTRUCTOR.json",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/CONSTRUCTOR.json",
+        "kind": "file",
+        "sha256": "5de416a5319f98fdf095c47484cb968e4f3bcaf24f7f1e21b8a240a787ed90ec",
+        "bytes": 4603
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/JOINT_CHECK.json",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/JOINT_CHECK.json",
+        "kind": "file",
+        "sha256": "e52c7cd8141b98b61f96fa4bc50cc85aa5011e05de45eddd73e033050f84d629",
+        "bytes": 1205
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/RIVER_CALENDAR.json",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/RIVER_CALENDAR.json",
+        "kind": "file",
+        "sha256": "e06813f42f362775609db256375a291e14380c9e4385378e6376f5b292b4c9b7",
+        "bytes": 2298
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/SERVICES.json",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/SERVICES.json",
+        "kind": "file",
+        "sha256": "5e16a57455d8bac17c2af0f8e9fd571a84ce68ce84f421137bb3ba1061a2cec6",
+        "bytes": 1870
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/TESTS.txt",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/TESTS.txt",
+        "kind": "file",
+        "sha256": "7ffe3bd10ed8268a3e75b7d77a0d167b9330b23f68e688746600c46edeb3aef9",
+        "bytes": 179
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/baseline/CAMPAIGN.json",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/baseline/CAMPAIGN.json",
+        "kind": "file",
+        "sha256": "00920fb996d3052359c10a45cef31a6daf85587c9cd36315b665f7337a638384",
+        "bytes": 5406
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/baseline/coastal_weekend_s41.prepare.json",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/baseline/coastal_weekend_s41.prepare.json",
+        "kind": "file",
+        "sha256": "987f61af2873e73b0473266f119db3a711b9d10c223828349935a5240e3796f4",
+        "bytes": 1572
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/baseline/river_weekday_s17.prepare.json",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/baseline/river_weekday_s17.prepare.json",
+        "kind": "file",
+        "sha256": "06cebaaa6b7a651feefdfdb929f49051702494f3de059ef065f6d01ad25269ff",
+        "bytes": 1575
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/baseline/valley_weekday_s7.prepare.json",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/baseline/valley_weekday_s7.prepare.json",
+        "kind": "file",
+        "sha256": "aefb0ba9bb048458b838c264f83cbd65f84d275769565e792efdd64ef7174620",
+        "bytes": 1573
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/calendar.log",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/calendar.log",
+        "kind": "file",
+        "sha256": "9c32070ec2a58b3115bcbe1ff5271daf6227a2743e195d21e0de32ae8de1cd2d",
+        "bytes": 2142
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/coastal_weekend_s41.prefix.json",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/coastal_weekend_s41.prefix.json",
+        "kind": "file",
+        "sha256": "dac5b9b4fc943b4405701f179ffbe4a41efe7fb0a75d4a71f0ec01c4d0aa420d",
+        "bytes": 20978
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/river_weekday_s17.prefix.json",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/river_weekday_s17.prefix.json",
+        "kind": "file",
+        "sha256": "db5426b0e90513b740325ca1c743843b9b0f0b258e8535034cf19ecd914b2050",
+        "bytes": 20978
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/valley_weekday_s7.prefix.json",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_local_20261116/valley_weekday_s7.prefix.json",
+        "kind": "file",
+        "sha256": "09900a7f9988c434f503a2cc06eb3982251b211e02f79d3c6108cb30d53b06b6",
+        "bytes": 21040
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_scaling_20261116/measure_calendar.py",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_scaling_20261116/measure_calendar.py",
+        "kind": "file",
+        "sha256": "6da66bf661e512705e21e9ef600f4c76eec16b797d5309ab4cd4243a50466f72",
+        "bytes": 4618
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_scaling_20261116/measure_preparation.py",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_scaling_20261116/measure_preparation.py",
+        "kind": "file",
+        "sha256": "6106d3656f9740608e7fcf679a862d88fe40c7438b506585a86827db297ddf4f",
+        "bytes": 7523
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/artifacts/v1_v03_service_cost_20261116/benchmark.py",
+        "member": "urban_traffic_v03_20261116/artifacts/v1_v03_service_cost_20261116/benchmark.py",
+        "kind": "file",
+        "sha256": "be4fc5679d08ad1ece5816a95c0ab19bc4ca71d22ec25258efb7f97f8d8d7b61",
+        "bytes": 4066
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/src/metroflow/route_metrics.py",
+        "member": "urban_traffic_v03_20261116/src/metroflow/route_metrics.py",
+        "kind": "file",
+        "sha256": "b2f33c50e3376432b048261deac3a17474790877c33eae16acdb35921c4a3fc0",
+        "bytes": 5179
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/tests/v1/test_route_metrics.py",
+        "member": "urban_traffic_v03_20261116/tests/v1/test_route_metrics.py",
+        "kind": "file",
+        "sha256": "b6164471458cbc5ca8deb5972c92391f81c6cc945b3a6fa8611514e8106d63a9",
+        "bytes": 3851
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/v03_changes_20261116.patch",
+        "member": "urban_traffic_v03_20261116/v03_changes_20261116.patch",
+        "kind": "file",
+        "sha256": "bf3a34612493789e1d55f4acba4bce11e604f9ddad8110d1a6981f6351731b73",
+        "bytes": 57139
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/src/metroflow/active_suffix/routing.py",
+        "member": "urban_traffic_v03_20261116/src/metroflow/active_suffix/routing.py",
+        "kind": "file",
+        "sha256": "b9dc5c7de328fc772b1ad6ec453e0a036254be12d3fdaf651be3f908b04268f1",
+        "bytes": 4719
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/src/metroflow/v1/joint_release_runtime.py",
+        "member": "urban_traffic_v03_20261116/src/metroflow/v1/joint_release_runtime.py",
+        "kind": "file",
+        "sha256": "80b99cf1a792c07880210221c5e7b62a007faa3b1e2ffc2bf03a3a457b7fb8bf",
+        "bytes": 19627
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/src/metroflow/v1/release_plan.py",
+        "member": "urban_traffic_v03_20261116/src/metroflow/v1/release_plan.py",
+        "kind": "file",
+        "sha256": "a27ead742cfd3fa0faa5d5fd3d02682904d81cbe69ac0a2d6c81dd4d2403acad",
+        "bytes": 12268
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/src/metroflow/v1/release_runtime.py",
+        "member": "urban_traffic_v03_20261116/src/metroflow/v1/release_runtime.py",
+        "kind": "file",
+        "sha256": "3a1e1053503c7d7270e040eae2a21af4b4a6faeb5af753ea37ad1ad19ba1a234",
+        "bytes": 18559
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/src/metroflow/v1/release_services.py",
+        "member": "urban_traffic_v03_20261116/src/metroflow/v1/release_services.py",
+        "kind": "file",
+        "sha256": "b1c306b722f471312dc6dd462550edd1f79649fcfc2f7ab898640e6533e2efd0",
+        "bytes": 12547
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/tests/v1/test_joint_release_runtime.py",
+        "member": "urban_traffic_v03_20261116/tests/v1/test_joint_release_runtime.py",
+        "kind": "file",
+        "sha256": "6fa4f7b82260f73f05cdff64efcb448ade38c3164a7000591792b774ff04501f",
+        "bytes": 9140
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/tests/v1/test_local_campaign_cli.py",
+        "member": "urban_traffic_v03_20261116/tests/v1/test_local_campaign_cli.py",
+        "kind": "file",
+        "sha256": "fd7f915e160b29e09cdb4c1b564c4132a050c2558a2e9aefbe33c159c1ced51a",
+        "bytes": 3484
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/tests/v1/test_release_runtime.py",
+        "member": "urban_traffic_v03_20261116/tests/v1/test_release_runtime.py",
+        "kind": "file",
+        "sha256": "8873cf815def0c3f08e31550ac51d4f76799fb082b81fa2ea3a9b6efd2908c1f",
+        "bytes": 9393
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/tests/v1/test_release_services.py",
+        "member": "urban_traffic_v03_20261116/tests/v1/test_release_services.py",
+        "kind": "file",
+        "sha256": "5150b0e588e3e181f67ce1c9490f1f27e19c5a183b60a8f38b5c9f3eaf16d3c6",
+        "bytes": 8535
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/tools/run_v1_local_acceptance.py",
+        "member": "urban_traffic_v03_20261116/tools/run_v1_local_acceptance.py",
+        "kind": "file",
+        "sha256": "591ddb17d671352770c3e14d7f12f4806418ed925a13354d9489f699be950078",
+        "bytes": 11633
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/attribute_journey.py",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/attribute_journey.py",
+        "kind": "file",
+        "sha256": "3493241d61503519df96b249f3c1cc446c259838feb500b35872903a03b200a8",
+        "bytes": 6106
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/attribution_rows.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/attribution_rows.json",
+        "kind": "file",
+        "sha256": "91e46fee7614f31d0ff9103c0726e8a2eba5e5f9c3e8af1027544306c4d445b9",
+        "bytes": 346600
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_final/valley_h1_25900.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_final/valley_h1_25900.json",
+        "kind": "file",
+        "sha256": "6e627409a4b502096da29f9382b74add405f2f45b76312eb020a65ad820e0ceb",
+        "bytes": 45737
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_final_b57565c/valley_h1_25900.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_final_b57565c/valley_h1_25900.json",
+        "kind": "file",
+        "sha256": "b2c9209b8cfd9f716433084e9486756043b8c6454838996b175c2c49ffd1c61c",
+        "bytes": 45746
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_portion_binary/valley_h1_25900.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_portion_binary/valley_h1_25900.json",
+        "kind": "file",
+        "sha256": "7b8f3f56954eb2644c87768bf702126593c045f235f865525f9a914f08ffef0c",
+        "bytes": 45683
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_portion_binary/valley_h1_25900.log",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_portion_binary/valley_h1_25900.log",
+        "kind": "file",
+        "sha256": "49106c13c4bfe2035827d4981a4dddc5dd180b0071a4135f37bf2133914d4c54",
+        "bytes": 1424
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_preportion_binary/valley_h1_25900.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_preportion_binary/valley_h1_25900.json",
+        "kind": "file",
+        "sha256": "676c5f7012b75d29ebb28d090bf34f68e0257242429ea327bbc2bbb383d8318a",
+        "bytes": 45682
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_preportion_binary/valley_h1_25900.log",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/legacy_bitid_preportion_binary/valley_h1_25900.log",
+        "kind": "file",
+        "sha256": "6a1e72d1e84dea11f9be72a15297e90cfd999d3a8c44a5ee05fc41a6b58fd759",
+        "bytes": 1415
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800.json",
+        "kind": "file",
+        "sha256": "17973dcf6c80f741176df309dc5707022c5970e9dba76a25957de29864736763",
+        "bytes": 22404
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800.progress.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800.progress.json",
+        "kind": "file",
+        "sha256": "d64ab8a8128dee5bf963774c34cac84b4be0cef2ced0ba11df6d04fec189cffc",
+        "bytes": 709
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800_b57565c.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800_b57565c.json",
+        "kind": "file",
+        "sha256": "3803f7178cfa5648a8f5b87879c1b6cae36129e5946ce06b4b6ad31c0e2dc3a9",
+        "bytes": 22411
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800_b57565c.progress.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_mark_block_scaled_v1_28800_b57565c.progress.json",
+        "kind": "file",
+        "sha256": "8a297c0efe4f0491a3f6377f1aba38779268dd5b2f1dff2c626b7d693293b73e",
+        "bytes": 716
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800.json",
+        "kind": "file",
+        "sha256": "8ec17d8ac001b79e3bc77e9801b013be5be1b40783d0e736e31738047bf58e4d",
+        "bytes": 21804
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800.progress.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800.progress.json",
+        "kind": "file",
+        "sha256": "9561339af444c240afd928f3d90901e8c787bc4b99eb01f241fec480c0b36bd2",
+        "bytes": 692
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800_b57565c.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800_b57565c.json",
+        "kind": "file",
+        "sha256": "01a834664046492add2c74bb88dfc20e7820d643048dcae444be6fbf8a43c234",
+        "bytes": 21812
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800_b57565c.progress.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/local_probe/valley_shared_h1_rows_28800_b57565c.progress.json",
+        "kind": "file",
+        "sha256": "b517a69adcc21c95d6c7babbb6eada007e01e3750348dab249afdf90db5dbb8c",
+        "bytes": 700
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/attr_rows.log",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/attr_rows.log",
+        "kind": "file",
+        "sha256": "5eef6f6ac05346b3ab734b864a73b111c228b3f55eff213adcd7493af8f2d5da",
+        "bytes": 5925
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/legacy_bitid_final.log",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/legacy_bitid_final.log",
+        "kind": "file",
+        "sha256": "79f2fc5f03d1d3994ccad68d5bcf0df7f80daa35b2107d64742d98867873800f",
+        "bytes": 1469
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/legacy_bitid_final_b57565c.log",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/legacy_bitid_final_b57565c.log",
+        "kind": "file",
+        "sha256": "aa897b7685e5b38d45092c3765cd38298b9271ccaeecf2083ca160e8f2381138",
+        "bytes": 1475
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/pilot_mark_block_scaled_v1.log",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/pilot_mark_block_scaled_v1.log",
+        "kind": "file",
+        "sha256": "1d32a7854f84a9120fd87d0d996e55feecbdcf180adf285b52f0f907b1339e14",
+        "bytes": 1393
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/pilot_mark_block_scaled_v1_b57565c.log",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/pilot_mark_block_scaled_v1_b57565c.log",
+        "kind": "file",
+        "sha256": "8d717f28aa32387d4e286f3f772acf58785bfcb789fb60db1a03ccd66694915e",
+        "bytes": 1390
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/pilot_rows.log",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/pilot_rows.log",
+        "kind": "file",
+        "sha256": "94b7d7665b202d9f5f359b07fe2051f20ad17ac98c6e0c21c50205e6259ecdbc",
+        "bytes": 1354
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/pilot_rows_b57565c.log",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/logs/pilot_rows_b57565c.log",
+        "kind": "file",
+        "sha256": "f3d636f93eeab6461b3e51bdfe579f05e7d0c848aa24e908f2085364af9f7609",
+        "bytes": 1358
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/policy_prefix_preportion_binary/valley_h1_25900_shared.json",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/policy_prefix_preportion_binary/valley_h1_25900_shared.json",
+        "kind": "file",
+        "sha256": "0172fbc2c6409f2ccfdc1e7c180e3749ed128097fe4d53b8d1ff7195c758e531",
+        "bytes": 45531
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/policy_prefix_preportion_binary/valley_h1_25900_shared.log",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/policy_prefix_preportion_binary/valley_h1_25900_shared.log",
+        "kind": "file",
+        "sha256": "7d8964000f1aab23dfb0884c9fe4d66b20e288e0cc5df86a779feec31d770f70",
+        "bytes": 1418
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/sequence.log",
+        "member": "urban_traffic_boundary_20261117/artifacts/v1_shared_boundary_20261117/sequence.log",
+        "kind": "file",
+        "sha256": "3a3d96ff22b330c8350227d71dc7a0e3dcb83784e764ae0f0b9ee126ba0860fa",
+        "bytes": 974
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/BUILD.log",
+        "member": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/BUILD.log",
+        "kind": "file",
+        "sha256": "b950afe087320260eda94d23c0cbbe07fe321e118851b6ed4aea318c1c171ee4",
+        "bytes": 2261
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/NATIVE_COMPARISON.log",
+        "member": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/NATIVE_COMPARISON.log",
+        "kind": "file",
+        "sha256": "00430bc3a47335a2e3d28e9fea6759d73f6d79b356cd0304e7a5c7fe5e20fda6",
+        "bytes": 1746
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/NATIVE_TESTS.log",
+        "member": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/NATIVE_TESTS.log",
+        "kind": "file",
+        "sha256": "cbc49e673b6841fe0e8c0fd0bf4bda30bbfd30bf27a24988307d5cce1ce9c6e4",
+        "bytes": 99
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/local_pilot/PILOT_LAUNCH.json",
+        "member": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/local_pilot/PILOT_LAUNCH.json",
+        "kind": "file",
+        "sha256": "b6169c59054f3f7f9316c78873ffa8d638664a1eac04ed5ad3f79482797c4396",
+        "bytes": 1079
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/local_pilot/PILOT_STDOUT.log",
+        "member": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/local_pilot/PILOT_STDOUT.log",
+        "kind": "file",
+        "sha256": "7bc2eb2990991936df764aa9885283b1190d3ed9a06407bc21e60044fbbc6460",
+        "bytes": 84
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/local_pilot/valley_projection_h1_gate.json",
+        "member": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/local_pilot/valley_projection_h1_gate.json",
+        "kind": "file",
+        "sha256": "f8c25f78da4c17e5d525a4c4a6c9ea59048366791809d4309652e86de155582d",
+        "bytes": 19908
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/local_pilot/valley_projection_h1_gate.progress.json",
+        "member": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/local_pilot/valley_projection_h1_gate.progress.json",
+        "kind": "file",
+        "sha256": "44664f341d03c00c2dd45a40ce28eb7d1402485067372de828ce74d385d49529",
+        "bytes": 690
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h0.progress.json",
+        "member": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h0.progress.json",
+        "kind": "file",
+        "sha256": "effde44ecac3239a53b50c5b50a8658715f70acbcfb268c16fa2f68b8fc8991e",
+        "bytes": 689
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h0.stdout.log",
+        "member": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h0.stdout.log",
+        "kind": "file",
+        "sha256": "71ad4b5d7020fb6930ccf47d289f10bf65d6736d2426391d3434bc97976fb4ed",
+        "bytes": 87
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h1.progress.json",
+        "member": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h1.progress.json",
+        "kind": "file",
+        "sha256": "e9fdcd9bec439f2b461e2ec8e37ff7e09b1957a7629a0428319f485553282e31",
+        "bytes": 689
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h1.stdout.log",
+        "member": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h1.stdout.log",
+        "kind": "file",
+        "sha256": "71ad4b5d7020fb6930ccf47d289f10bf65d6736d2426391d3434bc97976fb4ed",
+        "bytes": 87,
+        "hardlink_to": "urban_traffic_projection_20261117/artifacts/v1_entry_projection_20261117/paired_city_prefix/valley_common_h0.stdout.log"
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/handoff_delivery/DELIVERY.json",
+        "member": "urban_traffic_projection_20261117/handoff_delivery/DELIVERY.json",
+        "kind": "file",
+        "sha256": "8c86ede5611d214d6b1fa64a262857cff8b707c6f15228fbff02ac5ce4596324",
+        "bytes": 990
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/projection_transfer.b64",
+        "member": "urban_traffic_projection_20261117/projection_transfer.b64",
+        "kind": "file",
+        "sha256": "cee106cecf960de01adeb13467ca558bfb3f46500eb84f0c6d418a911c08b82b",
+        "bytes": 71468
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_refine_20261117/artifacts/v1_refinement_20261117/valley_legs.npz",
+        "member": "urban_traffic_refine_20261117/artifacts/v1_refinement_20261117/valley_legs.npz",
+        "kind": "file",
+        "sha256": "ad70081e9502dfcb29871eafbd69634e77442db1b88a133be300d30d45fffa17",
+        "bytes": 46090780
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_release_20261117/artifacts/v1_release_timing_20261117/valley_legs.npz",
+        "member": "urban_traffic_release_20261117/artifacts/v1_release_timing_20261117/valley_legs.npz",
+        "kind": "file",
+        "sha256": "ad70081e9502dfcb29871eafbd69634e77442db1b88a133be300d30d45fffa17",
+        "bytes": 46090780,
+        "hardlink_to": "urban_traffic_refine_20261117/artifacts/v1_refinement_20261117/valley_legs.npz"
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/CALENDAR_PYTHON.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/CALENDAR_PYTHON.log",
+        "kind": "file",
+        "sha256": "8d5a7b53724079f2e7eeed3f93a955733a5c743167b1ea0f25ce8759d19b5af8",
+        "bytes": 1783
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/CALENDAR_RUST.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/CALENDAR_RUST.log",
+        "kind": "file",
+        "sha256": "63102671ffa2ee622cfc71050ff86ce62bd3ef3c5ea5f45d101ffa8076667cd5",
+        "bytes": 1931
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/ROUTING_BENCH.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/ROUTING_BENCH.log",
+        "kind": "file",
+        "sha256": "a57b4409cd07ef86dbaafd51e80748f9f6c6e0ea79db03dc7f2a24681e77915d",
+        "bytes": 1531
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/final-calendar-python.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/final-calendar-python.log",
+        "kind": "file",
+        "sha256": "891790739ed6979ba4e960488740ba2929cbac447cefc0a8fb4bcddef2a32577",
+        "bytes": 1923
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/final-calendar-rust.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/final-calendar-rust.log",
+        "kind": "file",
+        "sha256": "9da3dea302492aa7fdf945b21e5337ec2da5712f35508a86067e8d790e229c5e",
+        "bytes": 2071
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/final-routing.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_migration_20261116/final-routing.log",
+        "kind": "file",
+        "sha256": "a3c41eba15874cdd43e1fcf5b9affaebaf7533d546eea63c5f32ebb351f93510",
+        "bytes": 1671
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/calendar-coastal_weekend_s41.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/calendar-coastal_weekend_s41.log",
+        "kind": "file",
+        "sha256": "bdb5bbbf445dcc4d3c003cf029d01cfc1db1917300c1b6608d5876773ccfa0c8",
+        "bytes": 2514
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/calendar-river_weekday_s17.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/calendar-river_weekday_s17.log",
+        "kind": "file",
+        "sha256": "ce5b1ff3580b54f97687af79a73f1cd1f70b4d48cc1d144dda4592715faf0df9",
+        "bytes": 2518
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/calendar-valley_weekday_s7.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/calendar-valley_weekday_s7.log",
+        "kind": "file",
+        "sha256": "fa7f335d917d97e2a5ec085dad4c3a1d0d0498f8ba9a26fede6b188f00692532",
+        "bytes": 2516
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-calendar-coastal_weekend_s41.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-calendar-coastal_weekend_s41.log",
+        "kind": "file",
+        "sha256": "b1050c5bb7808854307e4ef1a423817b5d0ed687c497143d2c3d8bd6e5a904a5",
+        "bytes": 2516
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-calendar-native-factors.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-calendar-native-factors.log",
+        "kind": "file",
+        "sha256": "e583e63cb70af6fd6aa84b2f1d296363b18967c8de829942057a6fb97073f9e0",
+        "bytes": 2519
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-calendar-python.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-calendar-python.log",
+        "kind": "file",
+        "sha256": "90e2138b6f6ea393504ea0da64d0fa51054a4a51cd32073540820491594ff6bc",
+        "bytes": 2360
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-calendar-rust.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-calendar-rust.log",
+        "kind": "file",
+        "sha256": "0bcb8e4e6930ca9425573b6b0d47be2f998bc6b3cd9449867ab0f9ae4559eb7d",
+        "bytes": 2510
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-calendar-valley_weekday_s7.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-calendar-valley_weekday_s7.log",
+        "kind": "file",
+        "sha256": "84a40d9e9e6cfa9d14d7b447348aa5b3f39bb762929972586cd827d2d08bbd86",
+        "bytes": 2515
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-prefix-python_oracle.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-prefix-python_oracle.log",
+        "kind": "file",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-prefix-rust.checkpoint.json",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-prefix-rust.checkpoint.json",
+        "kind": "file",
+        "sha256": "51e6964e5f1f98da48235c0fd1347f4a4bb1eb9f2720c0167365c0bf2212e7b9",
+        "bytes": 4765864
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-prefix-rust.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-prefix-rust.log",
+        "kind": "file",
+        "sha256": "888083aaeea4ffb3fe863fe64216a25113467fd42efd464bc3526d3895e08107",
+        "bytes": 176
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/matched-prefix-python_oracle.checkpoint.json",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/matched-prefix-python_oracle.checkpoint.json",
+        "kind": "file",
+        "sha256": "b4149d316e08d935b152801d6d1893ba6530cbc16c4c102abdd22c34db70c8d4",
+        "bytes": 4766204
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/matched-prefix-python_oracle.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/matched-prefix-python_oracle.log",
+        "kind": "file",
+        "sha256": "eac34ff486a7e1faa4e4fcfa84f3b1758257e336c9f7f119b80c13da09a9596c",
+        "bytes": 184
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/matched-prefix-rust.checkpoint.json",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/matched-prefix-rust.checkpoint.json",
+        "kind": "file",
+        "sha256": "51e6964e5f1f98da48235c0fd1347f4a4bb1eb9f2720c0167365c0bf2212e7b9",
+        "bytes": 4765864,
+        "hardlink_to": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/final-prefix-rust.checkpoint.json"
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/matched-prefix-rust.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/matched-prefix-rust.log",
+        "kind": "file",
+        "sha256": "5f988d73d8e51841b657ca87744e4603cc03bcecd1acf4b51a9ae314ae02150f",
+        "bytes": 176
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/prefix-rust-initial.checkpoint.json",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/prefix-rust-initial.checkpoint.json",
+        "kind": "file",
+        "sha256": "95d0dd9d538e636a67e2d3d9a2218102634ca034760daf0c593c396959dc2a0f",
+        "bytes": 3397433
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/prefix-rust-initial.log",
+        "member": "urban_traffic_rust_20261116/artifacts/v1_rust_runtime_20261116/prefix-rust-initial.log",
+        "kind": "file",
+        "sha256": "58de0a6f19dbafe6bdac871606c75d4a527d9a162704a868ba5c1ff23201cb2c",
+        "bytes": 192
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/calendar_final.b64",
+        "member": "urban_traffic_rust_20261116/calendar_final.b64",
+        "kind": "file",
+        "sha256": "b1bafdebe4c7ec98a0890fe3be6f5228090949f767ece6d58a61fa7f006700ed",
+        "bytes": 8356
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/completion_budget_final.b64",
+        "member": "urban_traffic_rust_20261116/completion_budget_final.b64",
+        "kind": "file",
+        "sha256": "5ead9712df08d5f03619dc6e215df9d699503100fa135671753e98ee7e9c79d2",
+        "bytes": 177808
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/completion_budget_preliminary.b64",
+        "member": "urban_traffic_rust_20261116/completion_budget_preliminary.b64",
+        "kind": "file",
+        "sha256": "c8cf63e38373fdb818d87efd9fdb6e8668b98a23b98fcfc20ec7980166d924ac",
+        "bytes": 142956
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/completion_final.b64",
+        "member": "urban_traffic_rust_20261116/completion_final.b64",
+        "kind": "file",
+        "sha256": "abe8a47b902dae7d1a1b00b38aa2385cf18583451ebcea8b1a89ebe44595fc29",
+        "bytes": 20712
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/completion_numeric.b64",
+        "member": "urban_traffic_rust_20261116/completion_numeric.b64",
+        "kind": "file",
+        "sha256": "eddafec8bfeefb2bb86e1261c698cdc0b00396576daee14a2e49fc0ba5db135a",
+        "bytes": 260664
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/completion_packed.b64",
+        "member": "urban_traffic_rust_20261116/completion_packed.b64",
+        "kind": "file",
+        "sha256": "9f667662ce2773c6ba5a4f138f15d3b4baca65a74a7a1a5ed29799ce2d595421",
+        "bytes": 201384
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/completion_probe.b64",
+        "member": "urban_traffic_rust_20261116/completion_probe.b64",
+        "kind": "file",
+        "sha256": "76366ad8855cea6a2276f1dbd5a9cc6ff4391d4f22dcbab959696240ed1eade9",
+        "bytes": 38096
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/completion_transfer.b64",
+        "member": "urban_traffic_rust_20261116/completion_transfer.b64",
+        "kind": "file",
+        "sha256": "d434e02cf53d41d912f6d9eb505abe20563dfd4d7b0f3e834f8c6fa4a19ff464",
+        "bytes": 197792
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/native_transfer.b64",
+        "member": "urban_traffic_rust_20261116/native_transfer.b64",
+        "kind": "file",
+        "sha256": "60ff188e364ee6b71ed940ca7589c10ec2d9a2e4512af265e9cbfb269ffa7972",
+        "bytes": 22608
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/plan_transfer.b64",
+        "member": "urban_traffic_rust_20261116/plan_transfer.b64",
+        "kind": "file",
+        "sha256": "a0e07384c7d38cf01e4d925d2c6294869c79369e144d472fab15a4487cbef7b2",
+        "bytes": 74588
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_baseline_replay.log",
+        "member": "urban_traffic_rust_20261116/queue_baseline_replay.log",
+        "kind": "file",
+        "sha256": "efec7101db56b95d0892e853c4dff2caf87edda586bce54acce8ca1c430f0c36",
+        "bytes": 152
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_baseline_seed.log",
+        "member": "urban_traffic_rust_20261116/queue_baseline_seed.log",
+        "kind": "file",
+        "sha256": "93c12e4bd68d55f1269157c9cd270e7f790ff7430a4519bfec469b9682c21289",
+        "bytes": 41608
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_build.log",
+        "member": "urban_traffic_rust_20261116/queue_build.log",
+        "kind": "file",
+        "sha256": "40ead3b593c98e52346283933f9ce58b6fd175b94852526c9a4d0f82251d8e9f",
+        "bytes": 1875
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_build_final.log",
+        "member": "urban_traffic_rust_20261116/queue_build_final.log",
+        "kind": "file",
+        "sha256": "77ff3e6a34f0f505690a6f959256073a73beb8bc5ef568a45b1e8cc06cf875da",
+        "bytes": 1874
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_final_docs.b64",
+        "member": "urban_traffic_rust_20261116/queue_final_docs.b64",
+        "kind": "file",
+        "sha256": "d651333421d4c45b4e3192bf9b4754a7864af8ccb9ff4c636d03b73e8c977f7f",
+        "bytes": 79480
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_growth_final.log",
+        "member": "urban_traffic_rust_20261116/queue_growth_final.log",
+        "kind": "file",
+        "sha256": "8f591f62d731bc31180db19c8114a2f096f67878053a12dcf253536040d51379",
+        "bytes": 158
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_growth_trace.log",
+        "member": "urban_traffic_rust_20261116/queue_growth_trace.log",
+        "kind": "file",
+        "sha256": "87764ec4e696558e2d4ed149bdaa31a7c9b4355ad077e305995b5a46cf4476e5",
+        "bytes": 158
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_profile.b64",
+        "member": "urban_traffic_rust_20261116/queue_profile.b64",
+        "kind": "file",
+        "sha256": "4cc1b6764767869341fc3a9a05459a607a5e3de3d83351ae87bb771ce5adf7f3",
+        "bytes": 41880
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_profile_t1.log",
+        "member": "urban_traffic_rust_20261116/queue_profile_t1.log",
+        "kind": "file",
+        "sha256": "ebc0050e65b0c1fd7f881c77ca2946b42c40e8799394c040e24e3542e6a7891b",
+        "bytes": 152
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_profile_t2.log",
+        "member": "urban_traffic_rust_20261116/queue_profile_t2.log",
+        "kind": "file",
+        "sha256": "2c555c58f65bddbbb0d37c70476b0c05f06c756378796239830cf1f3e1d1278a",
+        "bytes": 153
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_profile_t4.log",
+        "member": "urban_traffic_rust_20261116/queue_profile_t4.log",
+        "kind": "file",
+        "sha256": "3370b1de0ea4f6ca4077644296f07980daf181fbe6051761c7d3ac6c76e47db6",
+        "bytes": 153
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_profile_t8.log",
+        "member": "urban_traffic_rust_20261116/queue_profile_t8.log",
+        "kind": "file",
+        "sha256": "ff22f65c4f159ee4efa32514a03a5b53b55d60e0a9fed1ce4fb1f80a07a0f54b",
+        "bytes": 153
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_replay_t1.log",
+        "member": "urban_traffic_rust_20261116/queue_replay_t1.log",
+        "kind": "file",
+        "sha256": "c471f9bfdf1ae47568c1dee5648f8d258e23989560257a6c6f79b92d0d9eca27",
+        "bytes": 153
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_replay_t2.log",
+        "member": "urban_traffic_rust_20261116/queue_replay_t2.log",
+        "kind": "file",
+        "sha256": "979a917e5040b9e25eaefe7e29363b862b09f626fc794efc853108894736c486",
+        "bytes": 153
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_replay_t4.log",
+        "member": "urban_traffic_rust_20261116/queue_replay_t4.log",
+        "kind": "file",
+        "sha256": "3aa1118f173a783d3675a6a05fe458c316d2faeedcd68b2c2083b6fe9ea702d5",
+        "bytes": 152
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_tests.log",
+        "member": "urban_traffic_rust_20261116/queue_tests.log",
+        "kind": "file",
+        "sha256": "e93b5aa59acb2434d29dcf9fa95974d2368163b897122f3d43be12f8bd7dcdb1",
+        "bytes": 99
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_tests_final.log",
+        "member": "urban_traffic_rust_20261116/queue_tests_final.log",
+        "kind": "file",
+        "sha256": "9d569034a2ed9d5af131c65e524ccd519020e012ee26d2ff24f6b1df382fb5d0",
+        "bytes": 99
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/queue_transfer.b64",
+        "member": "urban_traffic_rust_20261116/queue_transfer.b64",
+        "kind": "file",
+        "sha256": "864b933d6e6b5bb73ae69244578f727e4c0a3c8091be04922f3fb1e61c994372",
+        "bytes": 67620
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/routing_transfer.b64",
+        "member": "urban_traffic_rust_20261116/routing_transfer.b64",
+        "kind": "file",
+        "sha256": "163dbd2f9c1dabd5ba05e5d3816b531fae1eebe155d956683a629d62e04801d3",
+        "bytes": 23428
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/runtime_plan_transfer.b64",
+        "member": "urban_traffic_rust_20261116/runtime_plan_transfer.b64",
+        "kind": "file",
+        "sha256": "e1aef05f4c64bcfb865088dabaf8e2bde56d57707c96a3b7df90b1be29c42b3e",
+        "bytes": 64580
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/runtime_transfer.b64",
+        "member": "urban_traffic_rust_20261116/runtime_transfer.b64",
+        "kind": "file",
+        "sha256": "9e5f831dfd983975cfe371351fb6403732a590b15f054e03b98d1a218a2ea4d3",
+        "bytes": 65636
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_build.log",
+        "member": "urban_traffic_rust_20261116/whole_build.log",
+        "kind": "file",
+        "sha256": "1ad95cff3dc54c50be554d739d24548841eba69e894cc22aeecc1bb5d4bf8505",
+        "bytes": 1739
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_coastal.log",
+        "member": "urban_traffic_rust_20261116/whole_coastal.log",
+        "kind": "file",
+        "sha256": "69539fd52dadd6f8d959ac829ff9a9dad6d0503c46c29f8d8605f03c01c3501e",
+        "bytes": 8842
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_docs.b64",
+        "member": "urban_traffic_rust_20261116/whole_docs.b64",
+        "kind": "file",
+        "sha256": "9d70e40c4083af9aa9f7657f8eb2d20ebf0075b6da0a183b6ed45fe3f503623a",
+        "bytes": 72480
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_final.b64",
+        "member": "urban_traffic_rust_20261116/whole_final.b64",
+        "kind": "file",
+        "sha256": "63adbdf4700f411751b0124223a7dadc5e15f58aecf385fdb2cf582bacee4747",
+        "bytes": 15656
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_first_tests.log",
+        "member": "urban_traffic_rust_20261116/whole_first_tests.log",
+        "kind": "file",
+        "sha256": "a1ac62d6813ede16b1ffb9804b5269f68e7e6c545b244f0f0b4059723ce79a1a",
+        "bytes": 99
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_regression_tests.log",
+        "member": "urban_traffic_rust_20261116/whole_regression_tests.log",
+        "kind": "file",
+        "sha256": "6e4bb10f6b6837eb7530b173c157ed55001aaeb7f2c25b3548fa002969b089c3",
+        "bytes": 99
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_restart.log",
+        "member": "urban_traffic_rust_20261116/whole_restart.log",
+        "kind": "file",
+        "sha256": "d2d3b7a642f975ab7c92bf499ac5f50e5d06da203571085bcd276c0426c711dc",
+        "bytes": 1086
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_river.log",
+        "member": "urban_traffic_rust_20261116/whole_river.log",
+        "kind": "file",
+        "sha256": "a5e7940b4c8894a6c9e3e46c2c93508d438f37de631cbc3bfacd7edd9c2eee4a",
+        "bytes": 8894
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_scoped_tests.log",
+        "member": "urban_traffic_rust_20261116/whole_scoped_tests.log",
+        "kind": "file",
+        "sha256": "b7c30317b0d7d99d98cf9a3075a1e7c331a8134e66fc4dfd6a18f7fcf01c59b2",
+        "bytes": 180
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_transfer.b64",
+        "member": "urban_traffic_rust_20261116/whole_transfer.b64",
+        "kind": "file",
+        "sha256": "5d3d585f781f0b1075b2316abe4c5d3f21d897ab2732c6629e3bad017826c9a0",
+        "bytes": 84176
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_valley.log",
+        "member": "urban_traffic_rust_20261116/whole_valley.log",
+        "kind": "file",
+        "sha256": "bb9dd752bc636f3bfd294e8bbb0c3a5f8c9bd0d5181de01e82c3302b31bf103f",
+        "bytes": 8870
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_valley_2m.log",
+        "member": "urban_traffic_rust_20261116/whole_valley_2m.log",
+        "kind": "file",
+        "sha256": "facb5b2e163efeecb290029147dd6efa38fb2c9afaaa527a2f86f96ba4aea761",
+        "bytes": 6410
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/whole_valley_active.log",
+        "member": "urban_traffic_rust_20261116/whole_valley_active.log",
+        "kind": "file",
+        "sha256": "9993e711bcd7d2cb09a33ed0bf550926d540f422200daa792138f7b2ff26e5b1",
+        "bytes": 6407
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/artifacts/v03_compact_lineage_20261120/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_compact_lineage_20261120/artifacts/v03_compact_lineage_20261120/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "83a2a0410b548d9ae8927ae89b638942b134b376ee71e379e4695f3a5b09c023",
+        "bytes": 691
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/artifacts/v03_compact_lineage_20261120/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_compact_lineage_20261120/artifacts/v03_compact_lineage_20261120/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "d3386d1d34e4fc7b6304a2b14267d2f3f8660cf4f99a9bea658532477eb40aef",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_compact_lineage_20261120/artifacts/v03_compact_lineage_20261120/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_compact_lineage_20261120/artifacts/v03_compact_lineage_20261120/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "5fbb9835be38805038af257d45bfa57aa780e38e6a36c6924acd2ea3d84c5d19",
+        "bytes": 686
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/artifacts/v03_cross_call_20261121/C10_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_cross_call_live_20261121/artifacts/v03_cross_call_20261121/C10_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "d2b3a38d8db878fba7c6434a6a51d3aabf7eb97dd4e196e72e43fbc869e65a1f",
+        "bytes": 692
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/artifacts/v03_cross_call_20261121/C10_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_cross_call_live_20261121/artifacts/v03_cross_call_20261121/C10_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "e67c0ef7ed28c06a7d2dc95f98614d73bcaf04743ca158a3372e4120784f9c63",
+        "bytes": 688
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_cross_call_live_20261121/artifacts/v03_cross_call_20261121/C10_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_cross_call_live_20261121/artifacts/v03_cross_call_20261121/C10_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "ef6dad449e0ade8b198ca7647c31ff2c848fc24d426882f01e06317052148f2f",
+        "bytes": 685
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/artifacts/v03_event_pages_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_event_pages_20261121/artifacts/v03_event_pages_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "22a1ff8caf9f287f34d83f6bb58a84e3fd1768d2ed0d67402fa4b36fc859046c",
+        "bytes": 691
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/artifacts/v03_event_pages_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_event_pages_20261121/artifacts/v03_event_pages_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "9662cfb945dba62aa8fa822bb3d3d718ffd75c4825f9df38ae59328376c01811",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_event_pages_20261121/artifacts/v03_event_pages_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_event_pages_20261121/artifacts/v03_event_pages_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "6ccb42abc94d0c8fae250693f1a83a3610cab6ab66ef697afba3d66b7662c5dd",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/artifacts/v03_event_arc_20261120/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_eventarc_20261120/artifacts/v03_event_arc_20261120/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "af0d737933f52ba0d1ef725437ff1f8b4c91449b12ae2ced6a0107f981304d2a",
+        "bytes": 690
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/artifacts/v03_event_arc_20261120/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_eventarc_20261120/artifacts/v03_event_arc_20261120/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "a55b70f1ea597ccf34d8ce0d207def72d10cbafa133a48617673fe3d06ee9ee0",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_eventarc_20261120/artifacts/v03_event_arc_20261120/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_eventarc_20261120/artifacts/v03_event_arc_20261120/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "66cc9ee20f970bf96b5dd5ca8c41dace144aaea90ccbec9c9266493f5632f57a",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/artifacts/v03_fifo_closure_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_fifo_closure_20261121/artifacts/v03_fifo_closure_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "18e41628fd20d83c908bf7256ced257a9c043de81274564d42816a16b9c77362",
+        "bytes": 691
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/artifacts/v03_fifo_closure_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_fifo_closure_20261121/artifacts/v03_fifo_closure_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "595a3e8a2a8eaa1df4289961447dc1cac8e46647291ed713962995ccf2b21e13",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_fifo_closure_20261121/artifacts/v03_fifo_closure_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_fifo_closure_20261121/artifacts/v03_fifo_closure_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "3bea58c4bdf9aaf36e3e0de78ee0d5b87a0e02fcbd2d2ebbe4155f3f36e81587",
+        "bytes": 686
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "7106e8e41a1295ad1c72d06e189fae268d6c7de582704983b85c5a9ffb4c5181",
+        "bytes": 691
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "87b49dcc5e13766a5d052c6ff2049310a8b3aa385507fc600464129023050c78",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_keyset_continuous_20261121/artifacts/v03_keyset_continuous_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "f827e5bc4393bd6cf6069868a01f2d04ad5c1e5d1b43db714a833caa93cf0711",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/artifacts/v03_exact_interval_view_20261120/preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_nextloop_20261120/artifacts/v03_exact_interval_view_20261120/preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "51dece53442ea1cdde3753144639c8522ea2cb878e298880edeb0ca83367cf18",
+        "bytes": 692
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/artifacts/v03_exact_interval_view_20261120/preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_nextloop_20261120/artifacts/v03_exact_interval_view_20261120/preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "bf577888e4296a2b6636d17a781eda52820c74e7bd090a0d7f9fc8cb9fe26bb9",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_nextloop_20261120/artifacts/v03_exact_interval_view_20261120/preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_nextloop_20261120/artifacts/v03_exact_interval_view_20261120/preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "35b7aadeadaa37e2eef4b97ce3573fe22e80c18cdffe0fee79168daa71a292b4",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "5bb12c2b32d2b64bc35429832e3d25cf518be114ccdf29979ab0065dbf8e5dc5",
+        "bytes": 690
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "90cd6d130d59477ce3be6a9fcf4ef396cc7ff0b813361815d12d1ca75fc562c4",
+        "bytes": 688
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_packet_lifetime_20261121/artifacts/v03_packet_lifetime_20261121/C10_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "bde9c147e89213356665ef6075f8b2cbf7a188376496fa8356b1d8fe5287a0b6",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/artifacts/v03_persistent_keyset_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_persistent_keyset_20261121/artifacts/v03_persistent_keyset_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "dd72bf4ee2f18838fdfc9a9fdd30fa78e660811ae535380026ed67ba2e6de8f6",
+        "bytes": 692
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/artifacts/v03_persistent_keyset_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_persistent_keyset_20261121/artifacts/v03_persistent_keyset_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "736eb388f74ff7c21da0f3a336e32ce4eeb1b25fd14acb8fd5c9b3ced1da7b59",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_persistent_keyset_20261121/artifacts/v03_persistent_keyset_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_persistent_keyset_20261121/artifacts/v03_persistent_keyset_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "3a407506873555c3bead976b89160d54e61cd5f987b01a35a4c22d470567ade0",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/artifacts/v03_quantile_capture_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_quantile_capture_20261121/artifacts/v03_quantile_capture_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "68aab91bbcb8a5e88f94b0a3f7a9528116a821ae7509145c5d9f262fad9608b4",
+        "bytes": 691
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/artifacts/v03_quantile_capture_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_quantile_capture_20261121/artifacts/v03_quantile_capture_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "22987a5f5131e891f39c75068a68229f7a0418c1716602f5e83d46069e793c95",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_quantile_capture_20261121/artifacts/v03_quantile_capture_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_quantile_capture_20261121/artifacts/v03_quantile_capture_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "c6ca4dab1e191c5af78716b63f251c7c4bb05acd5e82938eee87c03d26e25c30",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/artifacts/v03_segmented_incoming_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_segmented_incoming_20261121/artifacts/v03_segmented_incoming_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "4fe5ebb8a7dcbc421239c50bb3a65f70ccaa4ac899a4b39655d53b0c1938768b",
+        "bytes": 692
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/artifacts/v03_segmented_incoming_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_segmented_incoming_20261121/artifacts/v03_segmented_incoming_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "ce92d9f707281fc5ab4c91a1523c4d44b0f07c85d37775642aa27a06d40777d2",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_segmented_incoming_20261121/artifacts/v03_segmented_incoming_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_segmented_incoming_20261121/artifacts/v03_segmented_incoming_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "5562b0dea68a3a1d0b608f797f9d39cf9dc10a967a55d05048a353be7f1afcf5",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/artifacts/v03_sweep_live_bounds_20261120/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_sweep_bounds_20261120/artifacts/v03_sweep_live_bounds_20261120/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "20ebc6112a310126dab796dbb178ade126462b8db695577f72afcf88c50033ba",
+        "bytes": 692
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/artifacts/v03_sweep_live_bounds_20261120/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_sweep_bounds_20261120/artifacts/v03_sweep_live_bounds_20261120/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "b26c60c2896ada1cc63922376148d84f259dd37763457ad065a550597a98d0b9",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_sweep_bounds_20261120/artifacts/v03_sweep_live_bounds_20261120/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_sweep_bounds_20261120/artifacts/v03_sweep_live_bounds_20261120/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "5e99521daa52b35e2abad95400ece3d062481cdcc6f38022bc9cdb0729908397",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/artifacts/v03_weighted_fifo_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "member": "urban_traffic_v03_weighted_fifo_20261121/artifacts/v03_weighted_fifo_20261121/C9_preparation/coastal_weekend_s41.prepare.progress.json",
+        "kind": "file",
+        "sha256": "4cf991830a130ecfc9cfdf77874667af05c317004b9c7dd1909ce1850aa37140",
+        "bytes": 691
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/artifacts/v03_weighted_fifo_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "member": "urban_traffic_v03_weighted_fifo_20261121/artifacts/v03_weighted_fifo_20261121/C9_preparation/river_weekday_s17.prepare.progress.json",
+        "kind": "file",
+        "sha256": "b18d2a8033cca77ba2ee549cc9f913224b405cada4804ad00636c103416793c6",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_weighted_fifo_20261121/artifacts/v03_weighted_fifo_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "member": "urban_traffic_v03_weighted_fifo_20261121/artifacts/v03_weighted_fifo_20261121/C9_preparation/valley_weekday_s7.prepare.progress.json",
+        "kind": "file",
+        "sha256": "4a3ebddc83814642422bc3b1bac10a27907e6f845fbe0ccadf7e40f76d39de7e",
+        "bytes": 687
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_projection_20261117/handoff_delivery/urban_traffic_projection.bundle",
+        "member": "urban_traffic_projection_20261117/handoff_delivery/urban_traffic_projection.bundle",
+        "kind": "file",
+        "sha256": "f19eff92b85c019e4ca58185573e13e120297be3bc11a08a24abdc6af3dd7d64",
+        "bytes": 108942
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/native_binding/_metroflow_rust.so",
+        "member": "native/current/_metroflow_rust.so",
+        "kind": "file",
+        "sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a",
+        "bytes": 3172896
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/budget_final_binary/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+        "member": "native/historical_budget_final/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+        "kind": "file",
+        "sha256": "3e06969385dffdb9834c56d2cf0831e67e07e618df4f1f2169cff974aa9a3972",
+        "bytes": 2843240
+      },
+      {
+        "member": "metadata/primary_HEAD_to_worktree.patch",
+        "kind": "file",
+        "bytes": 29955,
+        "sha256": "6912fdc26bfba385c9707003530304827d62a45b2060b02eb35c7acad7b8f33f"
+      },
+      {
+        "member": "metadata/primary_index.patch",
+        "kind": "file",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "member": "metadata/primary_worktree.patch",
+        "kind": "file",
+        "bytes": 29955,
+        "sha256": "6912fdc26bfba385c9707003530304827d62a45b2060b02eb35c7acad7b8f33f"
+      },
+      {
+        "member": "metadata/source_bindings.json",
+        "kind": "file",
+        "bytes": 73275,
+        "sha256": "469835b615a1a84511c4e41f9c52af10fed4ae2865ce225a6c52a1068a1f3f7d"
+      }
+    ],
+    "all_members_stream_verified": true,
+    "dirty_tracked_snapshots": [
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/src/metroflow/active_suffix/routing.py",
+        "member": "urban_traffic_v03_20261116/src/metroflow/active_suffix/routing.py",
+        "kind": "file",
+        "sha256": "b9dc5c7de328fc772b1ad6ec453e0a036254be12d3fdaf651be3f908b04268f1",
+        "bytes": 4719
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/src/metroflow/v1/joint_release_runtime.py",
+        "member": "urban_traffic_v03_20261116/src/metroflow/v1/joint_release_runtime.py",
+        "kind": "file",
+        "sha256": "80b99cf1a792c07880210221c5e7b62a007faa3b1e2ffc2bf03a3a457b7fb8bf",
+        "bytes": 19627
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/src/metroflow/v1/release_plan.py",
+        "member": "urban_traffic_v03_20261116/src/metroflow/v1/release_plan.py",
+        "kind": "file",
+        "sha256": "a27ead742cfd3fa0faa5d5fd3d02682904d81cbe69ac0a2d6c81dd4d2403acad",
+        "bytes": 12268
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/src/metroflow/v1/release_runtime.py",
+        "member": "urban_traffic_v03_20261116/src/metroflow/v1/release_runtime.py",
+        "kind": "file",
+        "sha256": "3a1e1053503c7d7270e040eae2a21af4b4a6faeb5af753ea37ad1ad19ba1a234",
+        "bytes": 18559
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/src/metroflow/v1/release_services.py",
+        "member": "urban_traffic_v03_20261116/src/metroflow/v1/release_services.py",
+        "kind": "file",
+        "sha256": "b1c306b722f471312dc6dd462550edd1f79649fcfc2f7ab898640e6533e2efd0",
+        "bytes": 12547
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/tests/v1/test_joint_release_runtime.py",
+        "member": "urban_traffic_v03_20261116/tests/v1/test_joint_release_runtime.py",
+        "kind": "file",
+        "sha256": "6fa4f7b82260f73f05cdff64efcb448ade38c3164a7000591792b774ff04501f",
+        "bytes": 9140
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/tests/v1/test_local_campaign_cli.py",
+        "member": "urban_traffic_v03_20261116/tests/v1/test_local_campaign_cli.py",
+        "kind": "file",
+        "sha256": "fd7f915e160b29e09cdb4c1b564c4132a050c2558a2e9aefbe33c159c1ced51a",
+        "bytes": 3484
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/tests/v1/test_release_runtime.py",
+        "member": "urban_traffic_v03_20261116/tests/v1/test_release_runtime.py",
+        "kind": "file",
+        "sha256": "8873cf815def0c3f08e31550ac51d4f76799fb082b81fa2ea3a9b6efd2908c1f",
+        "bytes": 9393
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/tests/v1/test_release_services.py",
+        "member": "urban_traffic_v03_20261116/tests/v1/test_release_services.py",
+        "kind": "file",
+        "sha256": "5150b0e588e3e181f67ce1c9490f1f27e19c5a183b60a8f38b5c9f3eaf16d3c6",
+        "bytes": 8535
+      },
+      {
+        "source": "/home/cosmosapjw/urban_traffic_v03_20261116/tools/run_v1_local_acceptance.py",
+        "member": "urban_traffic_v03_20261116/tools/run_v1_local_acceptance.py",
+        "kind": "file",
+        "sha256": "591ddb17d671352770c3e14d7f12f4806418ed925a13354d9489f699be950078",
+        "bytes": 11633
+      }
+    ]
+  },
+  "git_bundle": {
+    "archive": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/retained_recovery_20261123/all_project_refs.bundle",
+    "bytes": 89860464,
+    "sha256": "9e105429585c5bf7503e10017c31ae05099e4809af8b0fbd1df384e1358a31fa",
+    "git_bundle_verify_exit": 0,
+    "refs": [
+      "refs/heads/diag/ulp-boundary-20261117 f243d79090a6dcfd6ebbaf007358494ad518b2a0",
+      "refs/heads/research/counterex-20261117 28bea6bec897075ccd2cae79dd70479ade373f90",
+      "refs/heads/research/entry-projection-local-20261117 632bbc72d24ad039978053b7f35ba98782d35f19",
+      "refs/heads/research/followup-eventbatch-20261117 862b288425920d8566cf23a474dc63eb5263abfe",
+      "refs/heads/research/markblock-20261117 733843d36811eaa40275794075dbdeacc5bf6ec2",
+      "refs/heads/research/refine-20261117 731c33bd3bdd153d17934a1a7b9a77d68b8fe2e1",
+      "refs/heads/research/release-timing-20261117 a7cd89fbbbacf5cd03372cf7369721b06762ff59",
+      "refs/heads/research/shared-boundary-20261117 b57565c4a4bd5ad6a3b5595f04040bd5751c2900",
+      "refs/heads/research/v03-bottleneck-theory-20261123 e5beb6f5544da60eab6b995e8f5a90492b485817",
+      "refs/heads/research/v03-causal-rank-20261123 492e27618696df2514b088a64de450cf69746647",
+      "refs/heads/research/v03-compact-lineage-20261120 8b304709e70c80e746d4e9b12666f3c5bcd8543c",
+      "refs/heads/research/v03-composed-interval-nextloop-20261120 89eaa411f222389656e16c9bf4f869b7ecfc5aef",
+      "refs/heads/research/v03-cross-call-live-20261121 e7cbd33fabc1c879d4ab54817c8fe23108506e34",
+      "refs/heads/research/v03-event-arc-replay-20261120 a16f502aa5f7cb440344a33da39d181d98e6fd55",
+      "refs/heads/research/v03-event-pages-20261121 d134700cb37699855481e4fa1b66ee68ac88a044",
+      "refs/heads/research/v03-fifo-closure-20261121 b163536ee5e5c4f438011077596288b167168ac6",
+      "refs/heads/research/v03-keyset-continuous-20261121 555425e0ae9cff9c06037cc285a29430c5c6896b",
+      "refs/heads/research/v03-packet-lifetime-20261121 4897ea43d93e00bf9f7cb9b4e26ce631f0549c45",
+      "refs/heads/research/v03-persistent-keyset-20261121 8575f8afc7e09f5413079ef0c2aee7f0583c9291",
+      "refs/heads/research/v03-quantile-capture-20261121 78de15392977db76a97a5c435566f54721616021",
+      "refs/heads/research/v03-segmented-incoming-20261121 8e59a290fa6391b4dad55f62299d0fc6385ae3d7",
+      "refs/heads/research/v03-sweep-live-bounds-20261120 81afd8e88958f414681e9121ba7be50d8589bfbc",
+      "refs/heads/research/v03-weighted-fifo-20261121 606b3ac6a899ba5b8b9ac064d82f609c7ff6cadf",
+      "refs/heads/v03-workspace-20261117 0b9caa8cc60a3ba087722e0360b997c5dfb61d62",
+      "refs/heads/v1/v03-acceptance-20261027 b41f807c490dda12e036bcb40d9c13370f04223e",
+      "refs/remotes/origin/research/kcmb-v03-physical-readiness-20261119 15d7546ade8b1ee6efe16f9a2a1b33cc1a1c2622",
+      "refs/remotes/origin/research/v03-composed-events-multiscale-20261120 57432d4191ce834cb9a62679149c3926ce93933b",
+      "refs/remotes/origin/research/v03-fifo-service-stream-20261120 c76e4712bac41b8c089844c842bc6ce55c782501",
+      "refs/remotes/origin/research/v03-fifo-unique-accounting-20261120 4464a2633bf2d0ce6601ca3d0eaffc3d819dc6e8",
+      "refs/remotes/origin/v1/v03-acceptance-20261027 0b9caa8cc60a3ba087722e0360b997c5dfb61d62"
+    ]
+  },
+  "checkpoints": [
+    {
+      "source": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S08_time_zero_prefix.final.bin.gz",
+      "archive": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/retained_recovery_20261123/valley_s7_t25700.current.bin.gz",
+      "source_bytes": 736524111,
+      "raw_bytes": 3405043386,
+      "raw_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+      "compressed_bytes": 736524111,
+      "compressed_sha256": "191f64eb23b1cd68e95f09fc1c18c6888dfa21b77ec1a4f24d576a36272ae3f3",
+      "gzip_full_decode_verified": true,
+      "elapsed_seconds": 35.71983983198879
+    },
+    {
+      "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/coastal_weekend_s41.run1.last_valid.bin",
+      "archive": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/retained_recovery_20261123/coastal_s41_t32660.historical.bin.gz",
+      "source_bytes": 859506202,
+      "raw_bytes": 859506202,
+      "raw_sha256": "f92cc99f87e30fe6fafc37674eb58ad4855fe83a61e32f659596d9cfcaa1aa1e",
+      "compressed_bytes": 143575826,
+      "compressed_sha256": "8a88fb09cc483c6f3c8bdca2e6856426cc334ad8f64dcb3c799781ca45e44098",
+      "gzip_full_decode_verified": true,
+      "elapsed_seconds": 41.89318632602226
+    },
+    {
+      "source": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/river_weekday_s17.run1.last_valid.bin",
+      "archive": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/retained_recovery_20261123/river_s17_t25350.historical.bin.gz",
+      "source_bytes": 634951290,
+      "raw_bytes": 634951290,
+      "raw_sha256": "e179f3b9b5b9081a8adb121e51761514654743a8e8bbe4166691dd04cc46425e",
+      "compressed_bytes": 81573697,
+      "compressed_sha256": "8837c9d540de93190daac2614df1d04a0c5c92d0342d726c4f838c4946825196",
+      "gzip_full_decode_verified": true,
+      "elapsed_seconds": 5.335579763981514
+    }
+  ],
+  "total_retained_bytes": 1063453930,
+  "scope_note": "Retain current Valley plus two explicitly historical other-city checkpoints; not a claim of current-binary compatibility or a full-day run."
+}

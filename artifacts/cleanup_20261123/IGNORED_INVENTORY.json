@@ -1,0 +1,21 @@
+[
+  {
+    "worktree": "/home/cosmosapjw/urban_traffic_v03_20261116",
+    "ignored_non_cache_paths": [
+      ".remember/",
+      ".remember/.gitignore",
+      ".remember/.install-marker",
+      ".remember/logs/",
+      ".remember/now.md",
+      ".remember/remember.md",
+      ".remember/tmp/",
+      ".remember/today-2026-11-17.md"
+    ]
+  },
+  {
+    "worktree": "/home/cosmosapjw/urban_traffic_projection_20261117",
+    "ignored_non_cache_paths": [
+      "handoff_delivery/urban_traffic_projection.bundle"
+    ]
+  }
+]

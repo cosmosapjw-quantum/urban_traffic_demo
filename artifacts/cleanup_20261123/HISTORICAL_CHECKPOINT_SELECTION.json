@@ -1,0 +1,287 @@
+{
+  "schema": "METROFLOW_HISTORICAL_CHECKPOINT_SELECTION_V1",
+  "observed_at_utc": "2026-11-23T12:11:16.264Z",
+  "basis": "read existing small JSON receipts only; binary sizes/existence reuse earlier read-only metadata inventory",
+  "operations": {
+    "remote_writes": false,
+    "git_mutations": false,
+    "large_binary_read": false,
+    "checkpoint_decode": false,
+    "native_execution": false,
+    "new_hash_calculation": false
+  },
+  "recommended": [
+    {
+      "case": "coastal_weekend_s41",
+      "recommendation": "preserve_one_historical_checkpoint_for_this_case",
+      "checkpoint_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/coastal_weekend_s41.run1.last_valid.bin",
+      "observed_size_bytes": 859506202,
+      "documented_raw_sha256": "f92cc99f87e30fe6fafc37674eb58ad4855fe83a61e32f659596d9cfcaa1aa1e",
+      "raw_hash_evidence": "existing LOCAL_CHECKPOINTS.json; not recomputed by this agent",
+      "last_valid_time_s": 32660,
+      "last_valid_report_time_s": 32660,
+      "receipt_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/coastal_weekend_s41.run1.json",
+      "progress_receipt_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/coastal_weekend_s41.run1.progress.json",
+      "campaign_receipt_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/CAMPAIGN.json",
+      "status": "BLOCKED_RESOURCE",
+      "resource_limit_kind": "phase_working_budget_guard",
+      "reason": "BudgetExceeded: native road storage budget exceeded: phase=entry interval split, required_bytes=3803788656, budget_bytes=3803738862",
+      "candidate_source_sha256": "65bd00608c6546a2895d2b7e12aa1aab4ee71587205fe98c398be887b5e48179",
+      "candidate_git_commit": "532effe32f90c20cf3cbc1de350d0e7267f52584",
+      "candidate_source_dirty": false,
+      "documented_native_binary_sha256": "3e06969385dffdb9834c56d2cf0831e67e07e618df4f1f2169cff974aa9a3972",
+      "documented_native_binary_bytes": 2843240,
+      "historical_native_binary_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/budget_final_binary/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+      "native_hash_evidence": "matching SOURCE_MANIFEST_BUDGET_FINAL.json and later workspace RECEIPT.local_only.frozen_v2_binary_sha256; not recomputed",
+      "receipt_source_sha256": "5c3107b147b7f71046f5958a8ad8d3f0212d0bcc5bbfcc27ebbebbd9d476756e",
+      "receipt_patch_sha256": "f22743e502442405732db7c09e5745a8f41471c9d949358d56c04b685ad419cf",
+      "driver_identity": "d5d506457105e52cb8f67cf4171ac41f0610882f9e143205956779ff98322201",
+      "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+      "storage_policy": "bounded_bytes_v1",
+      "resource_binding": "retained_capacity_v2",
+      "current_native_compatibility": "unverified; no native execution or decode",
+      "selection_reason": "later of the two requested campaign checkpoints; retained_capacity_v2 blocker with explicit frozen binary and local checkpoint hash record",
+      "later_gate_limitation": "does not represent the later Nov17 retained_capacity_v3 gate state"
+    },
+    {
+      "case": "river_weekday_s17",
+      "recommendation": "preserve_one_historical_checkpoint_for_this_case",
+      "checkpoint_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/river_weekday_s17.run1.last_valid.bin",
+      "observed_size_bytes": 634951290,
+      "documented_raw_sha256": "e179f3b9b5b9081a8adb121e51761514654743a8e8bbe4166691dd04cc46425e",
+      "raw_hash_evidence": "existing LOCAL_CHECKPOINTS.json; not recomputed by this agent",
+      "last_valid_time_s": 25350,
+      "last_valid_report_time_s": 25350,
+      "receipt_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/river_weekday_s17.run1.json",
+      "progress_receipt_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/river_weekday_s17.run1.progress.json",
+      "campaign_receipt_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/CAMPAIGN.json",
+      "status": "BLOCKED_RESOURCE",
+      "resource_limit_kind": "checkpoint_working_budget_guard",
+      "reason": "BudgetExceeded: native whole checkpointability storage budget exceeded: required_bytes=3187741149, budget_bytes=3135452254",
+      "candidate_source_sha256": "65bd00608c6546a2895d2b7e12aa1aab4ee71587205fe98c398be887b5e48179",
+      "candidate_git_commit": "532effe32f90c20cf3cbc1de350d0e7267f52584",
+      "candidate_source_dirty": false,
+      "documented_native_binary_sha256": "3e06969385dffdb9834c56d2cf0831e67e07e618df4f1f2169cff974aa9a3972",
+      "documented_native_binary_bytes": 2843240,
+      "historical_native_binary_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/budget_final_binary/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+      "native_hash_evidence": "matching SOURCE_MANIFEST_BUDGET_FINAL.json and later workspace RECEIPT.local_only.frozen_v2_binary_sha256; not recomputed",
+      "receipt_source_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+      "receipt_patch_sha256": "8040bf2037bdece32504b8079342abb025d3e8a62a4742a0cc5cb0213b691c27",
+      "driver_identity": "b9e21ea2591e68cf7cade4f0724014bdee00581ddef4ab12f5876ff19631a68f",
+      "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+      "storage_policy": "bounded_bytes_v1",
+      "resource_binding": "retained_capacity_v2",
+      "current_native_compatibility": "unverified; no native execution or decode",
+      "selection_reason": "later of the two requested campaign checkpoints; retained_capacity_v2 blocker with explicit frozen binary and local checkpoint hash record",
+      "later_gate_limitation": "does not represent the later Nov17 retained_capacity_v3 gate state"
+    }
+  ],
+  "recommended_raw_bytes_total": 1494457492,
+  "shared_historical_native_binary": {
+    "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/budget_final_binary/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+    "size_bytes": 2843240,
+    "allocated_bytes": 2846720,
+    "mtime_utc": "2026-11-17T02:49:01.513592+00:00",
+    "inode": 4983577,
+    "device": 66306,
+    "link_count": 1
+  },
+  "selected_local_checkpoint_manifest": {
+    "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/LOCAL_CHECKPOINTS.json",
+    "exists": true,
+    "size_bytes": 985,
+    "content": {
+      "storage": "Preserved on authorized local device; raw binary checkpoints excluded from Git artifacts",
+      "checkpoints": [
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/coastal_weekend_s41.run1.last_valid.bin",
+          "bytes": 859506202,
+          "sha256": "f92cc99f87e30fe6fafc37674eb58ad4855fe83a61e32f659596d9cfcaa1aa1e"
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/river_weekday_s17.run1.last_valid.bin",
+          "bytes": 634951290,
+          "sha256": "e179f3b9b5b9081a8adb121e51761514654743a8e8bbe4166691dd04cc46425e"
+        },
+        {
+          "path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/valley_weekday_s7.run1.last_valid.bin",
+          "bytes": 866763962,
+          "sha256": "3713d03c65f465dfdd0e5f3a3b3a6eb436f55a02dbd09c38d9999bbf2f0d747a"
+        }
+      ]
+    }
+  },
+  "recommended_companion_paths": [
+    "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/SOURCE_MANIFEST_BUDGET_FINAL.json",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/LOCAL_CHECKPOINTS.json",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/budget_final_binary/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+    "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v1_v03_workspace_20261117/RECEIPT.json",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/coastal_weekend_s41.run1.json",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/coastal_weekend_s41.run1.progress.json",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/CAMPAIGN.json",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/river_weekday_s17.run1.json",
+    "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/runtime_budget_campaign/river_weekday_s17.run1.progress.json",
+    "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v1_v03_workspace_20261117/gate_coastal_weekend_s41.json",
+    "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v1_v03_workspace_20261117/gate_river_weekday_s17.json",
+    "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v1_v03_workspace_20261117/gate_final_coastal_weekend_s41.json",
+    "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v1_v03_workspace_20261117/gate_final_river_weekday_s17.json"
+  ],
+  "alternative_final_campaign": [
+    {
+      "case": "coastal_weekend_s41",
+      "receipt_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/final_campaign/coastal_weekend_s41.run1.json",
+      "checkpoint_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/final_campaign/coastal_weekend_s41.run1.last_valid.bin",
+      "observed_size_bytes": 806980236,
+      "last_valid_time_s": 32650,
+      "status": "BLOCKED_RESOURCE",
+      "resource_limit_kind": "owner_quota_guard",
+      "reason": "BudgetExceeded: native road storage budget exceeded: phase=entry interval split, required_bytes=1818284128, budget_bytes=1818283496",
+      "candidate_source_sha256": "59d6c7154d7b0e2113b9755de96aa611bf8a56843309cd985a08184f2c7b01be",
+      "candidate_git_commit": "27e426fc64452ae2492828653f94f2506b8881fc",
+      "native_binary_sha256": "0cd2e490e9b1323b88c1dff4247dffbcf75b5a667738df7d1e29736f2a0be466",
+      "recommendation": "older snapshot; retain source and receipts, no need to select this raw checkpoint if one-per-case preservation is required"
+    },
+    {
+      "case": "river_weekday_s17",
+      "receipt_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/final_campaign/river_weekday_s17.run1.json",
+      "checkpoint_path": "/home/cosmosapjw/urban_traffic_rust_20261116/artifacts/v1_rust_completion_20261116/final_campaign/river_weekday_s17.run1.last_valid.bin",
+      "observed_size_bytes": 163298696,
+      "last_valid_time_s": 25210,
+      "status": "BLOCKED_RESOURCE",
+      "resource_limit_kind": "owner_quota_guard",
+      "reason": "BudgetExceeded: native journey stored/working byte budget",
+      "candidate_source_sha256": "59d6c7154d7b0e2113b9755de96aa611bf8a56843309cd985a08184f2c7b01be",
+      "candidate_git_commit": "27e426fc64452ae2492828653f94f2506b8881fc",
+      "native_binary_sha256": "0cd2e490e9b1323b88c1dff4247dffbcf75b5a667738df7d1e29736f2a0be466",
+      "recommendation": "older snapshot; retain source and receipts, no need to select this raw checkpoint if one-per-case preservation is required"
+    }
+  ],
+  "later_workspace_evidence": {
+    "receipt_path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v1_v03_workspace_20261117/RECEIPT.json",
+    "local_only": {
+      "frozen_v2_binary": "artifacts/v1_rust_completion_20261116/budget_final_binary/_metroflow_rust.cpython-312-x86_64-linux-gnu.so",
+      "frozen_v2_binary_sha256": "3e06969385dffdb9834c56d2cf0831e67e07e618df4f1f2169cff974aa9a3972",
+      "last_valid_checkpoints": "artifacts/v1_rust_completion_20261116/LOCAL_CHECKPOINTS.json"
+    },
+    "short_gates": {
+      "river_weekday_s17": {
+        "status": "GATE_BLOCKED",
+        "simulated_s": 25420,
+        "wall_s": 1209.4828411009803,
+        "peak_rss_bytes": 2861166592,
+        "resource_limit_kind": "phase_working_budget_guard",
+        "reason": "native road storage budget exceeded: phase=transfer candidates, required_bytes=1789385704, budget_bytes=1789303342",
+        "road_parts_at_block": 5715608,
+        "diagnostic_observe": {
+          "simulated_s": 25500,
+          "peak_rss_bytes": 4209315840,
+          "reason": "native road storage budget exceeded: phase=state validation workspace, required_bytes=1613882512, budget_bytes=1602860974",
+          "road_parts": 12620177,
+          "max_cell_parts": 211223
+        }
+      },
+      "coastal_weekend_s41": {
+        "status": "GATE_BLOCKED",
+        "simulated_s": 32730,
+        "wall_s": 504.49742084299214,
+        "peak_rss_bytes": 3041366016,
+        "resource_limit_kind": "phase_working_budget_guard",
+        "reason": "native road storage budget exceeded: phase=transfer candidates, required_bytes=3654631352, budget_bytes=3654629598",
+        "road_parts_at_block": 11421320,
+        "diagnostic_observe": {
+          "simulated_s": 32830,
+          "peak_rss_bytes": 5483278336,
+          "reason": "native road storage budget exceeded: phase=state validation workspace, required_bytes=3434031680, budget_bytes=3223700526",
+          "road_parts": 26348811,
+          "max_cell_parts": 753115
+        }
+      },
+      "valley_weekday_s7": {
+        "status": "GATE_BLOCKED",
+        "simulated_s": 25650,
+        "wall_s": 268.73559707202367,
+        "peak_rss_bytes": 3190759424,
+        "resource_limit_kind": "phase_working_budget_guard",
+        "reason": "native road storage budget exceeded: phase=transfer candidates, required_bytes=5197395752, budget_bytes=5197316575",
+        "road_parts_at_block": 16528850,
+        "diagnostic_observe": {
+          "simulated_s": 25700,
+          "peak_rss_bytes": 6660411392,
+          "reason": "native road allocation unavailable",
+          "road_parts": 34610422,
+          "max_cell_parts": 1410562
+        }
+      }
+    },
+    "gate_receipt_comparison": [
+      {
+        "receipt_path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v1_v03_workspace_20261117/gate_coastal_weekend_s41.json",
+        "case": "coastal_weekend_s41",
+        "status": "GATE_BLOCKED",
+        "simulated_s": 32730,
+        "report_time_s": 32730,
+        "resource_binding": "retained_capacity_v3",
+        "resource_limit_kind": "phase_working_budget_guard",
+        "reason": "native road storage budget exceeded: phase=transfer candidates, required_bytes=3654631352, budget_bytes=3654629598",
+        "candidate_source_sha256": "12d2453b72614052c22df5be49e96096b34113d0473bb3e78db0f4e48757be5a",
+        "candidate_git_commit": "7e3748aa6883bc97d3ba2a451d3df52e3107baa4",
+        "candidate_source_dirty": false,
+        "native_binary_sha256": "e3e7c837c60121206ccfa97eedc233c95facc5d0ed6a9da639edae7e9165940e",
+        "native_binary_bytes": 2856248,
+        "checkpoint_file_or_tmp_path_references": []
+      },
+      {
+        "receipt_path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v1_v03_workspace_20261117/gate_river_weekday_s17.json",
+        "case": "river_weekday_s17",
+        "status": "GATE_BLOCKED",
+        "simulated_s": 25420,
+        "report_time_s": 25420,
+        "resource_binding": "retained_capacity_v3",
+        "resource_limit_kind": "phase_working_budget_guard",
+        "reason": "native road storage budget exceeded: phase=transfer candidates, required_bytes=1789385704, budget_bytes=1789303342",
+        "candidate_source_sha256": "9ea271285724591ef63f8c70231670d7afc6f6fbe1b10c24a94bbd92ee44108b",
+        "candidate_git_commit": "7e3748aa6883bc97d3ba2a451d3df52e3107baa4",
+        "candidate_source_dirty": true,
+        "native_binary_sha256": "e3e7c837c60121206ccfa97eedc233c95facc5d0ed6a9da639edae7e9165940e",
+        "native_binary_bytes": 2856248,
+        "checkpoint_file_or_tmp_path_references": []
+      },
+      {
+        "receipt_path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v1_v03_workspace_20261117/gate_final_coastal_weekend_s41.json",
+        "case": "coastal_weekend_s41",
+        "status": "GATE_BLOCKED",
+        "simulated_s": 32730,
+        "report_time_s": 32730,
+        "resource_binding": "retained_capacity_v3",
+        "resource_limit_kind": "phase_working_budget_guard",
+        "reason": "native road storage budget exceeded: phase=transfer candidates, required_bytes=3654631352, budget_bytes=3654629598",
+        "candidate_source_sha256": "a467ca5491cdf05e7b49c83c828ac8a7432821c2b3fcfa90a88b6282cf0d7028",
+        "candidate_git_commit": "adde1a3696b869a852c30d4271a5227631513bad",
+        "candidate_source_dirty": false,
+        "native_binary_sha256": "4e6ba9e1e718b7d9de43e33ee3faf444c952e2f603a7e0b4dca9f2d76b689916",
+        "native_binary_bytes": 2858960,
+        "checkpoint_file_or_tmp_path_references": []
+      },
+      {
+        "receipt_path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v1_v03_workspace_20261117/gate_final_river_weekday_s17.json",
+        "case": "river_weekday_s17",
+        "status": "GATE_BLOCKED",
+        "simulated_s": 25420,
+        "report_time_s": 25420,
+        "resource_binding": "retained_capacity_v3",
+        "resource_limit_kind": "phase_working_budget_guard",
+        "reason": "native road storage budget exceeded: phase=transfer candidates, required_bytes=1789385704, budget_bytes=1789303342",
+        "candidate_source_sha256": "a467ca5491cdf05e7b49c83c828ac8a7432821c2b3fcfa90a88b6282cf0d7028",
+        "candidate_git_commit": "adde1a3696b869a852c30d4271a5227631513bad",
+        "candidate_source_dirty": false,
+        "native_binary_sha256": "4e6ba9e1e718b7d9de43e33ee3faf444c952e2f603a7e0b4dca9f2d76b689916",
+        "native_binary_bytes": 2858960,
+        "checkpoint_file_or_tmp_path_references": []
+      }
+    ],
+    "finding": "Nov17 Coastal 32730 s and River 25420 s exist as gate evidence. Receipt and four gate JSONs provide no .bin or /tmp path for those later states. Explicit local checkpoint manifest points to runtime_budget snapshots. No assertion that an unreferenced later binary cannot exist elsewhere; no broad /tmp search performed."
+  },
+  "source_manifest_binding_note": "SOURCE_MANIFEST_BUDGET_FINAL.json candidate records parent commit 27e426f and source_dirty=true with the same candidate source SHA and native SHA as the clean runtime_budget run receipts at commit 532effe. Bind the selected checkpoint to its actual run receipt identity; do not substitute manifest baseline_commit as the checkpoint commit.",
+  "registry_membership": "not investigated further, per root request; source/binary binding supplied",
+  "stop_condition": "enough concrete evidence for one historical snapshot per non-Valley case; root owns compression, relocation verification, final preservation decision and cleanup"
+}
