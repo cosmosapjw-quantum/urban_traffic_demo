@@ -38,3 +38,12 @@
 원 acceptance runner는 hourly boundary까지 native를 호출하며 내부 dt=10s다. 연구 runner의 tick당 반환은 owner 수명이 다르므로 one-tick 실패만으로 원 cadence 전체를 판정하지 않는다. 이번에는 현재 source의 time-zero 원 cadence baseline을 실제 실행한다. 그 결과는 checkpoint continuation과 별도 집계한다.
 
 2026-11-17의 '정확 병합/조성 공유로24h불가' 문구는 당시 제한된 후보와 관찰 구간의 engineering 판단이다. 새 정확 표현·owner 수명·streaming validator를 금지하는 수학적 no-go가 아니다. 물리 scope·예산·수요는 변경하지 않고 이 잘못된 일반화만 교정한다.
+
+
+## 2026-11-23 실제 교정 결과 — 원 과학 질문으로의 복귀
+
+R7의 Γ=b/a 관측 포락선은 알려진 전역 속도 범위가 이미 주는 통과시간 상한 ℓ/a보다 미래 upper를 좁히지 못했다. 추상 함수 클래스의 증명과 수치 포함 검사는 유효하지만, 이를 물리적 사전정보 전체보다 큰 관측 이득으로 해석할 수 없다는 공백을 R8에서 교정했다. 같은 배경식 τv′=V−v의 기억으로 완료 passage 적분에서 endpoint 속도 구간을 재구성하고, 인과적 전달 지연 및 미래 distance root로 전파하는 새 명제를 증명했다. 관측을 추가하면7s 경로 대신5s 경로를 선택하며, strict dominance는 정확한 유리수 부등식으로도 입증된다. 이는 원래 finite-information traffic→routing 질문에 직접 연결되는 결과다. 일반 혼잡에서의 양의 forcing 인증과 실제 matched boundary 계측은 열어 둔다.
+
+메모리 쪽은 원 수요·물리·f64 wire·dt·예산을 유지한 streaming validator와 실제 owner 수명 계상을 적용했다. 최종 C8c의40s는25,690→25,730s의 정상 반환·저장 및 후속 fresh 복원/전체 wire 일치를 확인했다. 다음25,740s는 정상 반환했지만 Arc census 사전계상 때문에 저장하지 못했다. 이러한 실행 구분을 보존하고 문서·테스트·hash 수를 실제 물리 진전으로 바꾸지 않는다. 원 hourly/time-zero 실행과 최종3도시 preparation 결과는 통합 R1–R10 보고서의 실제 영수증을 따른다.
+
+판정은 계속 `ALIGNED_WITH_OPEN_OBLIGATION`이다. 초기 동기가 특정 packet 표현 자체였다고 바꾸지 않았고, 초기 집계 모델의 더 느슨한 정보 계약을 현재 V03에 몰래 적용하지 않았다. PLAN의2026-11-17 engineering 전망은 과거 근거로 보존하며, 새 후보의 실제 실패 phase와 구분한다.

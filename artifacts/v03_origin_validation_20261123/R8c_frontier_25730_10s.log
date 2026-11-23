@@ -1,0 +1,3 @@
+INITIAL_WIRE_LEDGER_VERIFIED 25730.0
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25730.0, "completed_time_s": 25740.0, "wall_s": 126.91913256599219, "native_tick_wall_s": [123.755214421], "native_ticks": 1}
+{"status": "ERROR", "completed_time_s": 25740.0, "valid_advanced_duration_s": 10.0, "blocked_target_time_s": null, "error": {"class": "MemoryError", "message": "native snapshot Arc census preflight budget exceeded: required_bytes=6807602661, budget_bytes=6442450944", "phase": "SAVE_VALID_PREFIX"}, "peak_rss_bytes": 5050228736, "wall_total_including_full_preparation_and_checkpoint_io_s": 223.61816262101638}

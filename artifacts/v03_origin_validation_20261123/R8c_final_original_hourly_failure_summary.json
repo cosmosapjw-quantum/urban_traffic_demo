@@ -1,0 +1,80 @@
+{
+  "checkpoint_bytes": 29539674,
+  "checkpoint_path": "artifacts/v03_origin_validation_20261123/R8c_final_original_hourly/R8c_final_original_hourly_86400.last_valid.bin",
+  "checkpoint_sha256": "75b9cf3dbd436af962a0916c5dcdb7635615364193158b070974e46eb2861941",
+  "current_candidate_source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+  "current_git_commit": "96e544055cdd0ffdc0312801e6173a5c1699d749",
+  "current_native_binary_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+  "external_peak_rss_bytes": 5285879808,
+  "external_system_s": 4.77,
+  "external_user_s": 742.75,
+  "external_wall_s": 764.18,
+  "failed_call_internal_clock_s": null,
+  "final_worker_receipt_exists": false,
+  "fresh_check_advanced_time_s": 0,
+  "fresh_validated_mass_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "vehicles": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    }
+  },
+  "fresh_validation_receipt": "artifacts/v03_origin_validation_20261123/R8c_final_original_fresh.json",
+  "fresh_validation_sha256": "c42bff3d4179250bc0fee0530d8ec0b57e3ae1257a41bf4bf519ff9a39c2ccba",
+  "from_time_zero": true,
+  "full_day_credit": 0,
+  "highest_durable_time_s": 25200.0,
+  "internal_clock_status": "NOT_OBSERVED; do not infer from another cadence or native",
+  "last_hourly_progress": {
+    "candidate_source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+    "case": "valley_weekday_s7",
+    "completed_tick_samples": 2520,
+    "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+    "git_commit": "96e544055cdd0ffdc0312801e6173a5c1699d749",
+    "last_valid_checkpoint": "R8c_final_original_hourly_86400.last_valid.bin",
+    "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "native_binary_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+    "peak_rss_bytes": 469307392,
+    "peak_tracked_records": 16,
+    "run_label": "R8c_final_original_hourly_86400",
+    "simulated_s": 25200.0,
+    "status": "RUNNING",
+    "wall_s": 84.76158489400405
+  },
+  "native_accounting_cap_bytes": 6442450944,
+  "native_call_cadence": "hourly",
+  "note": "The saved 25200s state has zero released/requested travel; physical clock fraction is not active-demand/full-day readiness.",
+  "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "original_population_residents": 100000,
+  "physical_dt_s": 10,
+  "primary_error": "native journey stored/working byte budget",
+  "process_cap_bytes": 8589934592,
+  "requested_horizon_s": 86400,
+  "schema": "V03_FINAL_ORIGINAL_HOURLY_FAILURE_V1",
+  "secondary_error": {
+    "budget_bytes": 6442450944,
+    "class": "MemoryError",
+    "message": "native snapshot Arc census preflight budget exceeded",
+    "phase": "exception checkpoint save",
+    "required_bytes": 7221056145
+  },
+  "status": "BLOCKED_RESOURCE_AND_RECOVERY_SAVE",
+  "wall_cap_s": 7200,
+  "wrapper_exit": 1
+}

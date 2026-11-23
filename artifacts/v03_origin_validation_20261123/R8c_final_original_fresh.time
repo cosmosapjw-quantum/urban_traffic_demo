@@ -1,0 +1,23 @@
+	Command being timed: "timeout 1200s env -u METROFLOW_EXPERIMENTAL_ARC_PAIR_BUDGET PYTHONPATH=native_binding:src:. METROFLOW_BUDGET_TRACE=off OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python3 artifacts/v03_origin_validation_20261123/R8c_fresh_cli_checkpoint.py --cli-dir artifacts/v03_origin_validation_20261123/R8c_final_original_hourly --label R8c_final_original_hourly_86400 --wrapper-exit artifacts/v03_origin_validation_20261123/R8c_final_original_hourly.exit --out artifacts/v03_origin_validation_20261123/R8c_final_original_fresh.json"
+	User time (seconds): 23.96
+	System time (seconds): 0.28
+	Percent of CPU this job got: 98%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:24.57
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 434232
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 135558
+	Voluntary context switches: 188
+	Involuntary context switches: 509
+	Swaps: 0
+	File system inputs: 63048
+	File system outputs: 57712
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

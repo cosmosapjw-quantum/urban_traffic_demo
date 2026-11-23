@@ -131,7 +131,7 @@ Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 진단 harness가 원 실행을 대표
 Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 이론은 원래 traffic→causal routing을 실제 계산으로 연결했고, 코드의 full-scale 적용에서 통과한 phase와 rollback된 전체 tick을 분리했다. 단계 검증을 완료했지만 V03 실행 통과로 바꾸지 않았다.
 
 
-## R8 / C8 — 수명 기반 교정과 길이 증가 실험 (진행 중)
+## R8 / C8 — 수명 기반 교정과 길이 증가 실험 (완료)
 
 ### 반복 실패의 surgical revision
 
@@ -165,7 +165,7 @@ Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 이론은 원래 traffic→causal rout
 
 이 dominance는 root의 floating 반올림에 의존하지 않는다. 하단 거리의 정확한 식 Q_-(16,7)=7+5e^{-0.1}(1−e^{-0.7})/(e^{0.5}−1)>52409/5057>10m라는 유리수 비교가 모든 허용 이력에서 duration<7s를 보인다. 수치 root endpoints는 binary64와70-digit Decimal 대조를 통한 수치 검산으로만 표시하며 일반적인 directed-rounding enclosure로 부르지 않는다.
 
-실제 새 표적pytest11개가0.25s에 통과했고, 별도 보류 passage84개(상수forcing60개+관측 뒤forcing변화24개)가 모두 통과했다.120개root를70-digit Decimal 식과 비교한 최대 차이는9.21514e−12s(<2e−11s), 실험wall0.771811s,exit0이다. 기존 이론 모듈·native·수요·dt·cap은 변경하지 않았다. 일반 queue/spillback의 양의forcing 인증과 native matched boundary 계측은 여전히 미완료다. 새 유도에 대한 독립 검토는 기존 정리를 재심사하지 않고 이 추가 범위만 확인한다.
+실제 새 표적pytest11개가0.25s에 통과했고, 별도 보류 passage84개(상수forcing60개+관측 뒤forcing변화24개)가 모두 통과했다.120개root를70-digit Decimal 식과 비교한 최대 차이는9.21514e−12s(<2e−11s), 실험wall0.771811s,exit0이다. 기존 이론 모듈·native·수요·dt·cap은 변경하지 않았다. 일반 queue/spillback의 양의forcing 인증과 native matched boundary 계측은 여전히 미완료다. 새 유도에 대한 한정 독립 검토는 완료됐고, primary 판정은 명시한 범위에서 proved as written이다. 별도의 Fraction 지수 bounds와 잔차 부호로 저장된120개 endpoint, 추가12개 사례와 절대시각 이동을 확인했다. 기존 정리는 재심사하지 않았으며, 일반 native 계측이나 혼잡 regime의 양의 forcing 인증까지 PASS로 확대하지 않는다. 근거는 `R8_independent_response_probe_review.md` 및 독립 실행 script/log/exit다.
 
 
 ### 정상 반환·저장의 반복 capture 실패와 C8c 통합
@@ -187,3 +187,29 @@ C8c는 이 반복 실패를 근거로 capture와 restore가 사용하는 단일 
 실제 유효 fixture의 기존 capture84,991,238>84,594,070B 및 save/restore84,991,166>84,397,174B가 같은 cap에서 GREEN으로 바뀌었고1,049,076B 전체 wire가 동일했다. 이 fixture는 실제 road event, nonempty StageQueue·ReceiptHistory를 포함한다. 앞선3개 fixture 작성 실패 로그는 보존하지만 behavioral RED로 세지 않는다. 표적7개,전체 Rust library292passed/0failed/2ignored,exit0이다. 독립 C8c 검토의 primary 판정은 지정 범위에서 NO_MATERIAL_FINDING이며, fresh-load→restore→반환은 여전히 실제 큰 checkpoint로 확인한다. 미래 사전 gate 하나만으로 전체 복원 파이프라인의 충분성까지 증명했다고 하지 않는다.
 
 재실행은 이미 성공한10/20s를 무조건 반복하지 않고, 저장된25,690s의 raw receipt SHA `fb6b74b7af38592003d1af169d8c029b9ceb394194e3217d6011d0865dc95732`,전체 wire/source/native를 명시적으로 고정해 같은 실패40s를 다시 실행하도록 준비했다. 변경되거나 저장이 실패한 영수증은 계속 거절한다. 원11개와 이번3개를 포함한 admission14개가0.14s에 통과했다.25,670s 중간 파일은 소비 완료 후 무손실 zstd로 보존했고, 풀어 읽은 전체2,210,069,010B/hash 일치를 확인한 뒤 중복 raw만 제거했다(`R8_staircase/archive_from_25660_duration_10.json`). 역사적 seed는 변경하지 않았다.
+
+
+### 최종 C8c native의 실제 저장·fresh 복원과 다음 경계
+
+최종 실행 후보의 clean source commit은 `96e544055cdd0ffdc0312801e6173a5c1699d749`, candidate source SHA는 `e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db`, native SHA는 `6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808`이다. release build exit0과 source/native/CPU identity는 `C8c_release_build.*`, `C8c_frozen_candidate.json`에 있다. 앞선 C8 native의 근거를 이 후보의 실행으로 바꾸지 않는다.
+
+같은 저장 실패40s를 반복한 최종 C8c 실행은25,690→25,730s의4개 tick을 정상 반환하고 장부 검사와 저장까지 통과했다. worker wall422.358884s,외부wall426.69s,peakRSS4,554,608,640B,exit0이다. 저장된 전체5,523,765,378B의 SHA는 `c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9`로 역사적 기준과 일치한다. 근거는 `R8c_saved_25690_retry_40s.*`다. 이 결과는 실제 규모의 save blocker를 해소한 증거이며, 원 time-zero 하루 완주의 증거는 아니다.
+
+이 새 파일을 다음 새 프로세스에서 load했다. 원 source/native,driver,matrix,8GiB cap을 확인했고,25,730s의 장부와 전체 wire 재저장 비교가 일치했다. 따라서40s 결과는 저장뿐 아니라 fresh load→native restore/validation→전체 wire 재생성까지 확인됐다. 여기서 fresh 검증 대상은 다음 영수증의 `start_time_s/previous_full_checkpoint_sha256/previous_mass_ledger`이며, 새 출력의 completed 필드와 구분한다.
+
+다음10s는25,740s로 정상 반환하고 장부 검사를 통과했다(native1successful/0failed). 해당 call wall126.919133s,native tick123.755214s다. 그러나 `SAVE_VALID_PREFIX`의 `native snapshot Arc census preflight`가6,807,602,661>6,442,450,944B로 거절해 final bin/hash가 없다. 전체workerwall223.618163s,peakRSS5,050,228,736B,exit2다(`R8c_frontier_25730_10s.*`). 따라서 새 반환 물리시간은10s이고 새 durable credit은0s이며, 저장·fresh 복원이 모두 확인된 최종 연속 재개점은25,730s다. source/cap/guard를 변경해 이 실패를 PASS로 바꾸지 않았다.
+
+이는 실제 무공유 owner 합과 census workspace를 먼저 승인하는 현 preflight의 실행 한계다. 이 guard의 거절만으로 물리 상태가6GiB 안에 존재할 수 없다는 정리를 주장하지 않는다. 다음20s 실험은 저장되지 않은 predecessor를 재개점으로 삼을 수 없어 실행하지 않았다. 이미 성공한10/20s와 수정 후40s의 길이 증가 결과, 새10s의 반환/저장 분리를 함께 보존하며, 같은 guard를 반복 추적하는 대신 원 hourly 실행과 최종 준비도 측정으로 이번10단계를 닫는다.
+
+
+### 최종 후보의 원 time-zero/hourly 실행과 R8 판정
+
+최종 C8c에서 원 CLI를100,000주민,dt10s,요청86,400s,wall cap7,200s,process8GiB/native6GiB,trace off로 실제 실행했다. 외부wall764.18s,user742.75s,system4.77s,peakRSS5,285,879,808B,exit1이다.25,200→28,800s hourly call의 최초 오류는 `native journey stored/working byte budget`였다. 예외 snapshot의 복구 저장은 `native snapshot Arc census preflight`7,221,056,145>6,442,450,944B에서 거절됐다. 최종 worker JSON은 없고 그 call의 내부 실패 clock은 관측되지 않았다. 다른 cadence나 이전 후보에서 clock을 가져오지 않는다.
+
+최종 후보에서 time-zero부터 실제 저장된 최고 경계는25,200s다. 해당29,539,674B 파일의 전체SHA는 `75b9cf3dbd436af962a0916c5dcdb7635615364193158b070974e46eb2861941`이다. 별도의 source/receipt/clock-bound fresh process에서 load→native validate_bundle/restore→driver check→장부 보존식→full-wire 재저장을 확인했고,wall24.318969s,peakRSS444,653,568B,exit0이다. 물리시간은0s 추가했다. progress receipt에는 원 장부가 없으므로 이전 장부와의 equality 검사는 available=false로 기록하고, 실제 복원된 장부의 보존식과 전체 wire 동일성을 검증했다. 이25,200s 장부의 requested/released는 모두0이므로 하루 시계의29.17%를 활성 수요 처리 준비율로 해석하지 않는다.
+
+근거는 `R8c_final_original_hourly/`의 raw progress와 sibling `.log/.time/.exit`, `R8c_final_original_hourly_failure_summary.json`, `R8c_fresh_cli_checkpoint.py`, `R8c_final_original_fresh.*`다. 정상 반환·저장·fresh 복원의 서로 다른 credit은 `R8_final_measured_windows.json`에 기계 판독 가능하게 분리했다. 최종 source의 durable continuation25,730s와 time-zero/hourly durable25,200s를 합쳐 하나의 연속 실행으로 표시하지 않는다.24h full-day 수용credit은0/9다.
+
+R8/C8은 실제 길이 증가 실험, 반복 실패의 일관된 수명 수정, 구성적 이론 보강 및 한정 독립 검토, 최종 원 cadence 비교까지 수행해 완료한다. 현재 코드의 잔여 실행 의무는 Arc census 사전계상과 별도 Journey stored/working admission,43,200s same-engine resume,원24h·refinement·반복수용이다. 이는 구현/자원 admission의 현재 실패이며 물리적 불가능성 증명이나 cap 완화 승인을 의미하지 않는다. 이번 단계에서 추가 guard 수정을 반복하지 않고 R9 준비도와 R10 재개점을 확정한다.
+
+Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 배경 이론은 실제 관측 정보가 경로 선택을 바꾸는 명제로 업그레이드했고, 실행은 원 수요·물리·예산과 hourly 의미를 유지했다.40s 저장 blocker의 실제 해소와 다음10s의 저장 실패를 함께 보존했다. 원래 하루 도시 실행은 아직 닫히지 않았다.

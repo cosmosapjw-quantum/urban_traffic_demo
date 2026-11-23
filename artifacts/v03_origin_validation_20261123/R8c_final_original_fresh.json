@@ -1,0 +1,52 @@
+{
+  "advanced_physical_time_s": 0,
+  "checkpoint_bytes": 29539674,
+  "checkpoint_path": "artifacts/v03_origin_validation_20261123/R8c_final_original_hourly/R8c_final_original_hourly_86400.last_valid.bin",
+  "checkpoint_sha256": "75b9cf3dbd436af962a0916c5dcdb7635615364193158b070974e46eb2861941",
+  "current_candidate_source_sha256": "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+  "current_git_commit": "96e544055cdd0ffdc0312801e6173a5c1699d749",
+  "current_native_binary_sha256": "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808",
+  "current_source_dirty": false,
+  "driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "error": null,
+  "expected_ledger_available": false,
+  "expected_time_s": 25200.0,
+  "full_wire_roundtrip_exact": true,
+  "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "original_wrapper_exit": 1,
+  "peak_rss_bytes": 444653568,
+  "prior_report_ledger_exact": null,
+  "process_cap_bytes": 8589934592,
+  "receipt_kind": "last_completed_hourly_progress_only",
+  "receipt_path": "artifacts/v03_origin_validation_20261123/R8c_final_original_hourly/R8c_final_original_hourly_86400.progress.json",
+  "receipt_sha256": "8285ff9915780c931844994ab67c7d1277f472e461ccc0b637fd23b567dc87f0",
+  "restored_mass_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "vehicles": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    }
+  },
+  "restored_time_s": 25200.0,
+  "runner_sha256": "9d86416b51589126a82fa5d45567060d11c2f9ff79e0dd5bbdf6c62bab449402",
+  "schema": "V03_FINAL_CLI_FRESH_CHECKPOINT_V1",
+  "status": "FRESH_LOAD_RESTORE_VALIDATION_AND_FULL_WIRE_VERIFIED",
+  "trace_mode": "off",
+  "wall_s": 24.318968690000474
+}

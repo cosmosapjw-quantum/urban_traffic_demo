@@ -1,0 +1,6 @@
+INITIAL_WIRE_LEDGER_VERIFIED 25690.0
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25690.0, "completed_time_s": 25700.0, "wall_s": 49.67041044202051, "native_tick_wall_s": [47.599427642], "native_ticks": 1}
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25700.0, "completed_time_s": 25710.0, "wall_s": 62.03147228900343, "native_tick_wall_s": [59.486949211], "native_ticks": 1}
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25710.0, "completed_time_s": 25720.0, "wall_s": 78.7581824939989, "native_tick_wall_s": [75.876308502], "native_ticks": 1}
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25720.0, "completed_time_s": 25730.0, "wall_s": 102.78180145999067, "native_tick_wall_s": [99.429993507], "native_ticks": 1}
+{"status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON", "completed_time_s": 25730.0, "valid_advanced_duration_s": 40.0, "blocked_target_time_s": null, "error": null, "peak_rss_bytes": 4554608640, "wall_total_including_full_preparation_and_checkpoint_io_s": 422.35888442897703}
