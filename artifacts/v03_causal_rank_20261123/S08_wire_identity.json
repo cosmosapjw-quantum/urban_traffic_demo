@@ -1,0 +1,18 @@
+{
+  "schema": "METROFLOW_SOURCE_ZERO_WIRE_IDENTITY_V1",
+  "status": "VERIFIED",
+  "source_zero_receipt": "S08_time_zero_prefix.json",
+  "validated_old_restore_receipt": "S07_original_continuation.json",
+  "decoded_raw_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+  "decoded_raw_bytes": 3405043386,
+  "decode_wall_s": 5.332956361002289,
+  "source_zero_time_s": 25700.0,
+  "source_zero_current_source_sha256": "bea107c2888885966c901a0f30a6d7edcb50a24e5cbbbe31d3f8bf020536943d",
+  "current_native_sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a",
+  "same_raw_wire_as_historical_checkpoint": true,
+  "same_three_ledgers_as_historical_checkpoint": true,
+  "same_current_source_as_original_restore": true,
+  "historical_wire_native_restore_and_reserialize_verified": true,
+  "fresh_native_load_of_new_gzip_file_performed": false,
+  "scope": "Full decoded gzip byte identity with original checkpoint already restored/re-serialized by this native; no new duplicate raw checkpoint or second native load required."
+}

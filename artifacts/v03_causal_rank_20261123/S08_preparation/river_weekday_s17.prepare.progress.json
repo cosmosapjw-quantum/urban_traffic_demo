@@ -1,0 +1,15 @@
+{
+  "case": "river_weekday_s17",
+  "run_label": "river_weekday_s17.prepare",
+  "status": "WHOLE_CALENDAR_PREPARED",
+  "simulated_s": 0,
+  "wall_s": 66.22270632802974,
+  "peak_rss_bytes": 2174259200,
+  "peak_tracked_records": 0,
+  "completed_tick_samples": 0,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "candidate_source_sha256": "bea107c2888885966c901a0f30a6d7edcb50a24e5cbbbe31d3f8bf020536943d",
+  "git_commit": "e0c7a93523a28fdf115ed0f8d260bdbbeb84e4cf",
+  "native_binary_sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a",
+  "driver_identity": "e2b7f7f67d5cf71b772f9430786d9acd5edb468c2a823a9923d4efc80b90ceca"
+}

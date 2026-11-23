@@ -216,3 +216,37 @@ The native physics run and this small Python microbenchmark overlapped; ratios
 are descriptive scoped measurements, not uncontended native speed forecasts.
 The result constructs a solution to repeated-remainder materialization for a
 fixed source head, while native merge/head consumers remain a separate step.
+
+## Stage 8 — current-source physical progression and all original prerequisites
+Current source executed one uninterrupted Valley100k trajectory from0to25700s,
+in2570ordinary10s native ticks. Every requested milestone completed with
+original person/vehicle/cargo ledger checks. Segment physical ranges and wall:
+0→60:0.313014592s;60→600:1.362559292s;600→3600:7.043235416s;
+3600→21600:41.936232155s;21600→25200:8.674304488s;
+25200→25400:4.227806353s;25400→25600:40.546150203s;
+25600→25700:130.466200638s. Last segment's slowest native tick24.346834871s.
+Complete pipeline wall274.404994925s,peakRSS5,360,996,352B;resourcecaps unchanged.
+This establishes current-source timezero execution, without advancing the
+historical maximum beyond25700. Attempted25710 remains blocked by S07.
+
+Sourcezero final wire3,405,043,386B hasSHA256
+ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369,
+exactly the old checkpoint and all three ledgers. Lossless streaming gzip
+736,524,111B was independently fully decoded and hashed in5.332956361s.
+That decoded wire is the same wire already loaded and reserialized by this
+native in S07; no second duplicate raw file or redundant native load was made.
+Compressed checkpoint remains on the execution workstation; text receipts
+and its content identities are committed. It is not placed in git.
+
+All three original100k calendars were reconstructed under current source
+bea107c2888885966c901a0f30a6d7edcb50a24e5cbbbe31d3f8bf020536943d
+and binary22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a:
+|Case|Full legs|Prep wall s|Peak RSS B|
+|---|---:|---:|---:|
+|river_weekday_s17|5093765|66.222614479|2174259200|
+|coastal_weekend_s41|2449750|38.286208075|1116901376|
+|valley_weekday_s7|918450|22.390724047|447541248|
+These preparation-only runs intentionally have simulated_s=0; they are not
+three new traffic days. Generic readiness checker actually reports3/3 current
+preparations,19/21scoped nodes,0/9full days,V03BLOCKED. Timezero physical
+prefix coverage in this turn is Valley1/3cases, not a new accepted DAG node.
