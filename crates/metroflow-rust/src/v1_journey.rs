@@ -1553,11 +1553,35 @@ pub(crate) fn advance_owned_joint(
                 let pending_journey = journey.pending.as_ref().map_or(0, |state| {
                     stage_storage_bytes(state).saturating_add(journey.history_bytes)
                 });
-                let other_live = journey
-                    .retained_input_bytes
-                    .max(current_journey)
-                    .max(pending_journey)
-                    .saturating_mul(WORKING_COPIES);
+                let owner_max=journey.retained_input_bytes
+                    .max(current_journey).max(pending_journey);
+                let other_live=owner_max.saturating_mul(WORKING_COPIES);
+                if crate::v1_trace::enabled() {
+                    // Read-only census at the actual owner-admission seam.
+                    // Captured checkpoint bytes never imply equal Vec capacities.
+                    let current_stage=[journey.state.1.storage_bytes(),
+                        journey.state.2.storage_bytes(),journey.state.3.storage_bytes()];
+                    let pending_stage=journey.pending.as_ref().map(|q|
+                        [q.1.storage_bytes(),q.2.storage_bytes(),q.3.storage_bytes()])
+                        .unwrap_or([0;3]);
+                    let argmax=if journey.retained_input_bytes>=current_journey
+                        && journey.retained_input_bytes>=pending_journey {0}
+                        else if current_journey>=pending_journey {1} else {2};
+                    crate::v1_trace::guard("journey_owner",
+                        "road step input/current/pending census",other_live,total,&[
+                            ("clock_bits",t.to_bits() as usize),
+                            ("input",journey.retained_input_bytes),
+                            ("current",current_journey),("pending",pending_journey),
+                            ("current_enter",current_stage[0]),
+                            ("current_egress",current_stage[1]),
+                            ("current_internal",current_stage[2]),
+                            ("pending_enter",pending_stage[0]),
+                            ("pending_egress",pending_stage[1]),
+                            ("pending_internal",pending_stage[2]),
+                            ("history_bytes",journey.history_bytes),
+                            ("max_owner",owner_max),("argmax_input0_current1_pending2",argmax),
+                            ("working_copies",WORKING_COPIES)]);
+                }
                 road.set_phase_storage_budget(phase_storage_allowance(
                     total,
                     other_live,

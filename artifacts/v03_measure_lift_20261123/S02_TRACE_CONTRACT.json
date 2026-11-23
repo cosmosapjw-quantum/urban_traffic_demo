@@ -1,0 +1,26 @@
+{
+  "status": "INSTRUMENTED_SOURCE",
+  "baseline": "256? not assumed; full source check",
+  "source_before_revision": "e81bdda0e5d3735b7141985cd749a169d1222033",
+  "probe": "journey_owner:road step input/current/pending census",
+  "terms": [
+    "input",
+    "current",
+    "pending",
+    "current_enter",
+    "current_egress",
+    "current_internal",
+    "pending_enter",
+    "pending_egress",
+    "pending_internal",
+    "history_bytes",
+    "max_owner",
+    "argmax",
+    "clock_bits"
+  ],
+  "semantics": "conditional diagnostic-only: no admission formula, physics, floating arithmetic, checkpoint layout or acceptance changes",
+  "owner_formula": "allowance = dynamic_total - 3 max(input, current, pending)",
+  "expected_delta_bytes": 102114816,
+  "max_journey_delta_bytes": 34038272,
+  "hypothesis": "restoration and filtering retain distinct capacity/block partitions, not a proven attribution to one owner"
+}

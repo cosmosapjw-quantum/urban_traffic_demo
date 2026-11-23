@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "cargo",
+    "test",
+    "--offline",
+    "--workspace",
+    "--lib"
+  ],
+  "exit": 0,
+  "wall_s": 6.255188630020712,
+  "rustflags": "-C link-arg=-lpython3.12",
+  "log_sha256": "4459d71c6043162437ce9bdf72c568e6a96efd3a78d48fb920eebecc2ae338ca"
+}

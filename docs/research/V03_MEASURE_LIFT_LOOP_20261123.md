@@ -9,3 +9,6 @@
 **Baseline:** 19/21 scoped or accepted; 5/21 accepted; V03 BLOCKED; full-day 0/9. Fresh Valley from zero has byte-identical 25710s; resumed checkpoint reaches 25720s only. Measured allowance delta 102114816B = 3 × journey max-owner difference 34038272B. Measured road rows at 25700/25710/25720: 34610422/40717830/47855028. Original 8 GiB/7200s and quantitative tolerances remain.
 
 **Evidence identity:** artifacts/v03_measure_lift_20261123/S01_BASELINE.json; selected baseline backup is verified by member hashes. No new worktree. No unrelated processes or existing back-ups will be removed.
+
+## S02 source–formula attribution
+At the road-step seam in `v1_journey.rs`, the effective road budget is `T-3 max(J_input,J_current,J_pending)`. We added a record-only census with the actual input/current/pending total, three stages per current and pending candidate, history, argmax and clock bits. No eligibility or physics is altered. This distinguishes owner capacity from mass/route state. The experiment that selects the source owner must run using a newly built binary; S02 instrumentation alone is not evidence of a successful larger physical tick.
