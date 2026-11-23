@@ -1,0 +1,4 @@
+INITIAL_VALID 25700.0
+START_HORIZON 25710.0
+RUN_STOP {"class_name": "BudgetExceeded", "message": "native road storage budget exceeded: phase=indexed sweep preflight, required_bytes=5051633256, budget_bytes=5025214575", "phase": "ADVANCE_TO_25710.0"}
+{"status": "BLOCKED_RESOURCE", "start_time_s": 25700.0, "completed_time_s": 25700.0, "valid_advanced_duration_s": 0.0, "wall_s": 55.979972183995415, "peak_rss_bytes": 4324171776, "final_checkpoint_sha256": null, "error": {"class_name": "BudgetExceeded", "message": "native road storage budget exceeded: phase=indexed sweep preflight, required_bytes=5051633256, budget_bytes=5025214575", "phase": "ADVANCE_TO_25710.0"}}

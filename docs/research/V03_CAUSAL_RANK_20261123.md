@@ -185,3 +185,34 @@ The proof review also corrected the block-count construction (delta grid plus
 bounded mandatory boundaries), empty eligibility, actual source readiness
 1e-10s tolerance and executed clamp/snap fraction conventions. These are
 mathematical/source corrections, not relaxed V03 acceptance thresholds.
+
+## Stage 7 — actual failure progression and increasing source-head workload
+Clean stage6 binary restored original25700 checkpoint and reproduced full wire
+and ledger exactly. The actual road transfer emitted17,429,035rows in206,999
+exact time runs: carrierpayload561,184,768B,275,578,880B less than former48B
+row pages. All258,538transfer guards passed. The subsequent indexed sweep
+preflight still rejects5,051,633,256B against5,025,214,575B (excess26,418,681B).
+Actual physical advance remains0s; wall55.979972184s,RSS4,324,171,776B.
+This resolves the previous transfer-candidate refusal, not the entire25710tick.
+No further speculative guard-credit adjustment follows this failure.
+Receipt:S07_original_continuation.json. The full timezero run is the next
+experiment, to establish source-bound physical horizons rather than relying
+only on historical checkpoint continuation.
+
+Original complete464-row head, synthetic half-service schedule, retained one
+immutable snapshot per1000splits, Pythontracemalloc active for BOTH methods:
+|Splits|Eager wall s|Rank wall s|Eager peak B|Rank peak B|
+|---:|---:|---:|---:|---:|
+|1000|0.476278680|0.019890662|105540|54092|
+|10000|5.004362372|0.177857678|577916|54908|
+|100000|50.654629108|1.748325649|5301132|62844|
+At100k maximum per-key mass difference1.249174375e-14vehicle units; birth
+first-moment difference1.990514420e-10vehicle-seconds. All three levels satisfy
+explicit adapter checks. These are not the city's residence acceptance test.
+100k eager constructs46,400,464row payloads; rankservice creates0newrowpayloads
+and shares the actual source, then explicitly expands final rows. Incremental
+tracemalloc excludes the common source root; timings include instrumentation.
+The native physics run and this small Python microbenchmark overlapped; ratios
+are descriptive scoped measurements, not uncontended native speed forecasts.
+The result constructs a solution to repeated-remainder materialization for a
+fixed source head, while native merge/head consumers remain a separate step.
