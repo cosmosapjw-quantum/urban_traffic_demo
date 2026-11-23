@@ -197,3 +197,93 @@ eligible/departure cumulative \(E,D\)[veh], service opportunity \(C=\int cdt\)[v
 여기서 제시한 제한은 각 명제의 적용영역이다. 연구 목적 전체에 대한 no-go는
 주장하지 않는다. 전역 row 수·DAG ancestry·behavior/fiber 크기·24h 자원 성립은
 현재 미해결이며, R7의 경량 예제를 실제 도시 검증으로 승격하지 않는다.
+
+
+## R4 — 여섯 후보의 실제 구성과 구별되는 예
+
+**O: 관측 trace를 손실 없이 분리한다.** 물리 상태를 X, 이전 detailed trace를 O라
+두고, 새 sink의 작용을 포함하는 \(X'=F(X,u)\)와 \(O'=G(X,u)\)로 쓴다.
+lossless codec \(d(e(O))=O\)를 쓰면 공통 admissible transition에서
+\(({\rm id},d)\widehat T=T({\rm id},d)\)다. 예산 통과 여부까지 같다는 뜻은 아니다.
+입력 old trace의 실제 flat payload923,664,448B와 같은 trace의 timed payload
+464,781,312B 사이에는458,883,136B 차이가 있다. 지속 carrier로 바꾸는 조건부
+표적이며, 아직 실측 절감으로 보고하지 않는다. full export와 active history는 남는다.
+
+**A: 조성을 연산자로 남기고 interval overlay까지 닫는다.** label/offset의 양의
+질량·birth 측도 \(v=(m,B)\)에 Scale, Sum, destination projection \(P_j\),
+route advance R을 정의한다. event e가 비율 \(f_e\)를 구간 \(I_e\)로 내보내면
+\[
+\mathcal F_j=\sum_{e\to j}RP_j(f_ev_e)\otimes U_{I_e}.
+\]
+각 endpoint slab는 active source들을 펼친 배열 대신 양의 persistent sum-tree
+root를 가리킨다. 삽입/종료는 leaf를 활성/0으로 바꾸는 경로 갱신으로 처리한다.
+signed density 차분의 수치 상쇄를 기본 구현으로 가정하지 않는다.
+
+예를 들어 \(U_m=(4,2,0),U_B=(8,10,0)\),
+\(V_m=(0,2,2),V_B=(0,12,16)\)를 두고,
+U/2를[10,12]와[12,14], V를[11,13]에 보내면:
+
+| slab | mass vector | birth vector |
+|---|---|---|
+| [10,11] | (1,1/2,0) | (2,5/2,0) |
+| [11,12] | (1,3/2,1) | (2,17/2,8) |
+| [12,13] | (1,3/2,1) | (2,17/2,8) |
+| [13,14] | (1,1/2,0) | (2,5/2,0) |
+
+중간 두 slab는 조성 root를 공유하지만 기존 event knot12는 남긴다.
+두번째 slab에서 label1,3은J, label2는K로 가며 공급이(2,1)veh/s이면,
+sending4veh/s 아래 전체율은7/3veh/s다. 3/7s 서비스는
+mass(2/7,3/7,2/7), birth(4/7,17/7,16/7)를 보낸다.
+따라서 “원래 흐름을 결정하는 rate”와 “태그별 수송” 모두 같은 root의 contraction으로 계산된다.
+
+**B: 물리적으로 같은 행동을 quotient하고 출처를 fiber로 보존한다.**
+각 기존 FIFO slab 안에서
+\(\kappa(\ell,o)=(\mathrm{class}(\ell),p_\ell[o:])\)가 같은 tag를 묶는다.
+\(M_g=\sum_{z\in g}m_z\), \(K_g(z)=m_z/M_g\), \(J_g(z)=B_z/M_g\)를 유지하면
+\(m_z=M_gK_g(z),B_z=M_gJ_g(z)\)로 복원된다. 균등 service는 M만 스케일하고,
+여러 source의 혼합은 질량가중 fiber 합이다.
+
+동일 class/suffix인 두 label의 mass(3,1), birth(6,4)를1/4 서비스하면
+mass(3/4,1/4), birth(3/2,1)이다. 두 label이2와1person/veh를 운반한다면
+1veh의 물리 흐름에서 person량7/4가 정확히 복원된다. bus run별 completion
+threshold와 egress law는 fiber projection 뒤에 적용한다. tag를 버리지 않는다.
+차종·현재속도 또는 next destination만 같다는 이유로 전체 미래행동을 합치지 않는다.
+
+**C: support 경계를 보존하는 rank/phase 재구축.** common speed의 이동좌표
+\(X(t)=\int_0^t v(s)ds\)에서 cohort는
+\(x(t;\tau)=\min\{L,X(t)-X(\tau)\}\)를 따른다. 도착 질량은 ordered boundary
+queue에 남기고 \(D\le E\)인 rank prefix만 방출한다. class/purpose/info와
+birth mark를 운반한다. support 경계를 먼저 넣은 뒤 mass간격δ를 추가하면
+block 수는 구성적으로 \(\lceil M/\delta\rceil+J_\sigma\) 이하이다.
+\(J_\sigma\)의 전역 상한은 아직 없다.
+
+이 경계가 필요한 예: A prefix(1−ε)는 열린 출구, B suffixε는 공급0 출구로 간다.
+순서 보존 queue는1−ε를 방출한다. 전체를 하나의 homogeneous block로 평균하면
+처음부터 B가 head에 섞여 방출0이다. ε=10^-4에서 composition prefix오차는
+0.00009999veh지만 출발량 차이는0.9999veh다. mandatory support경계 하나를
+보존한 두 block은 이 예를 정확히 복원한다.
+
+**D: 충분한 feature를 보존하는 양의 moment 재구성.** 유한 양의 atom 분포에서
+m개의 feature(상수1 포함)를 고정하면 선형종속 제거로 at most m개의 source atom에
+같은 feature integrals를 구현한다. 예를 들어 p={0,1/4,1/2,3/4,1}의 균등분포는
+p={0,1/2,1}, weight(1/4,1/2,1/4)로 m0,m1,m2=(1,1/2,3/8)를 보존한다.
+affine latent law \(p'=r-\lambda p\)에서는 이 moment 공간이 닫힌다.
+FIFO eligibility와 tag별 정책까지 닫히려면 해당 질의를 별도로 포함해야 한다.
+
+**E: midpoint 대신 source flux의 시간적분으로 mark를 정의한다.**
+held phase의 실제 uniform flux r에 대해
+\[
+J_v=r[\chi(b)-\chi(a)],\quad
+J_p=r\left[P(b-a)+(p_0-P)e^{-\lambda a}
+\frac{1-e^{-\lambda(b-a)}}{\lambda}\right].
+\]
+여기서 χ는 source characteristic의 누적거리, \(\lambda>0\), P는 latent 평형값이다.
+\(\lambda=0\)은 상수 p0의 극한으로 처리한다. 이 적분은 동일 physical phase의
+분할에 가법적이다. receiving mark 평균도 분할에 무관하다.
+기존 midpoint와 다른 버전이므로 새로운 검증 대상이다. 실제 rate·target·support가
+변하는 경계를 없애는 주장은 아니다.
+
+**발산적 관계.** O는 observer, A는 표현, B는 행동 차원, C는 해상도와 support,
+D는 feature 충분성, E는 수송 mark의 수치 규약을 바꾼다. A+B+O처럼 조합할 수 있지만
+어느 경로도 혼자24h resource 충족을 보장하지 않는다. 같은 query를 매번 전개하면
+A의 비용은 evaluator로, copied fiber를 만들면 B의 비용은 provenance로 이동한다.
