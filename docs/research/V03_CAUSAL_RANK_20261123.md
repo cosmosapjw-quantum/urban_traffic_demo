@@ -120,3 +120,18 @@ source road regression exit0 (105 passed, 2 existing ignored benchmarks).
 Parent reviewed the complete diff; true interval/split guards remain unchanged.
 Verbatim checks: artifacts/v03_causal_rank_20261123/S03_remainder_red_green.log.
 No original 25710 advancement is claimed until stage4 actually executes it.
+
+## Stage 4 — original 100k falsifier and route revision
+Built release binary successfully; 45 original native Python tests passed.
+Current binary restored original25700 state, matched its full3,405,043,386-byte
+wire hash and all three ledgers. The previous source-remainder packing guard
+was crossed, but the next transfer guard rejects required5,025,270,048B versus
+allowed5,025,214,575B. Actual additional physical time=0s, not10s.
+Wall53.444211534s, peakRSS4,331,716,608B. V03 remains19/21 and0/9.
+This falsifies the sufficiency of the lifetime repair for a complete tick.
+It motivates actual representation reduction rather than another arbitrary
+guard credit: common event times and immutable head compositions are candidates.
+Reusable runner tools/research/run_v03_prefix.py keeps full matrix and source
+bindings, reports partial native ticks, and hashes native checkpoint wire
+through a FIFO; optional lossless gzip saves disk without changing wire bytes.
+Result: artifacts/v03_causal_rank_20261123/S04_original_continuation.json.
