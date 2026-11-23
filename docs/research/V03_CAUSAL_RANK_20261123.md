@@ -111,3 +111,12 @@ No new alternative counts as original V03 day evidence.
 
 WolframLanguage independently evaluated integral_a^b x dx-(b-a)(a+b)/2 to0.
 WolframContext returned internal error; no result was inferred from that call.
+
+## Stage 3 — exact source remainder repair
+Dedicated source-remainder preflight excludes only future combine scratch while
+charging real raw capacity plus packed allocation. Mixed fallback is checked too.
+Actual behavioral RED exit101 (0 passed/3 failed), identical GREEN exit0 (3/3),
+source road regression exit0 (105 passed, 2 existing ignored benchmarks).
+Parent reviewed the complete diff; true interval/split guards remain unchanged.
+Verbatim checks: artifacts/v03_causal_rank_20261123/S03_remainder_red_green.log.
+No original 25710 advancement is claimed until stage4 actually executes it.

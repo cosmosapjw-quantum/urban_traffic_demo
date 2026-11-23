@@ -382,10 +382,10 @@ struct ExactKeyGroup {
 struct RoadWorkBudget {
     limit: Option<usize>,
     base: usize,
-    /// Two hypothetical max-cell Part scratch vectors are required only for
-    /// later interval combination, after ALL transfer_indexed calls. During
-    /// transfer preflight no such Vec<Part> exists; charge full original
-    /// reserve at every other original road phase.
+    /// Two max-cell Part scratch vectors belong to later interval combination,
+    /// after ALL transfer and pending remainders have been packed. Source-phase
+    /// remainders charge their own actual raw and packed buffers instead.
+    /// True interval combination/splitting retains the full original reserve.
     transfer_exclusive_cell_scratch:usize,
     events: usize,
     incoming: usize,
@@ -814,12 +814,13 @@ impl RoadWorkBudget {
                 self.incoming,self.incoming_page_cells,self.compact_incoming,
             )
         };
-        // The original source's two max-cell Part scratch allocations
-        // belong to future interval combination. They are never alive at
-        // the before-append transfer_indexed preflight, where no per-cell
-        // combine_chunked_parts has begun. Preserve the ENTIRE old reserve
-        // in preflight, packet packing, split and all other phases.
-        let phase_base=if phase=="transfer candidates" {
+        // Source transfers and their own remainder conversions finish before
+        // the first combine_chunked_parts call. The dedicated remainder path
+        // charges actual raw+packed capacity; it does not borrow future max-cell
+        // scratch. Ordinary packet/interval packing retains the full reserve.
+        let before_cell_combination = matches!(phase,
+            "transfer candidates" | "source remainder packing");
+        let phase_base=if before_cell_combination {
             self.base.saturating_sub(self.transfer_exclusive_cell_scratch)
         } else {self.base};
         let required =
@@ -839,7 +840,7 @@ impl RoadWorkBudget {
                     ("base", phase_base),
                     ("full_source_base", self.base),
                     ("transfer_exclusive_cell_scratch",
-                        if phase=="transfer candidates" {
+                        if before_cell_combination {
                             self.transfer_exclusive_cell_scratch
                         }else{0}),
                     ("event_bytes", event_bytes),
@@ -947,11 +948,11 @@ impl RoadWorkBudget {
         }
         Ok(descriptors)
     }
-    /// The pending remainder's CorePart conversion does not append new raw
-    /// Part/Mark pages. Charge exactly their *current* real descriptor
-    /// capacities for this one allocation, without freezing later pending
-    /// appends. Always restore the growth-time envelope after the call,
-    /// including if the original packet reservation fails.
+    /// Road-head and pending remainders finish before cell combination starts.
+    /// Their conversion does not append raw Part/Mark pages. Charge current real
+    /// descriptor capacities plus BOTH actual remainder buffers, without the
+    /// future max-cell combine reserve. Always restore the growth-time envelope
+    /// on success or error; later source appends remain permitted.
     fn pack_parts_with_live_descriptors(
         &mut self,parts:Vec<Part>,
         incoming:&[ChunkedParts],marks:&[ChunkedMarks],
@@ -964,7 +965,16 @@ impl RoadWorkBudget {
         }
         let actual=self.observed_incoming_descriptor_bytes(incoming,marks)?;
         self.incoming_descriptor_live_bytes=Some(actual);
-        let result=self.pack_parts(parts);
+        let raw_bytes=parts.capacity().saturating_mul(std::mem::size_of::<Part>());
+        let result=(|| {
+            // Mixed fallback reuses the raw owner, so it also needs a guard
+            // even when PacketParts::pack allocates no CorePart buffer.
+            self.require(raw_bytes,"source remainder packing")?;
+            PacketParts::pack(parts,|packed_bytes| {
+                self.require(raw_bytes.saturating_add(packed_bytes),
+                    "source remainder packing")
+            })
+        })();
         self.incoming_descriptor_live_bytes=None;
         result
     }
@@ -6821,5 +6831,77 @@ mod original_weighted_fifo_physical_rates_theorem_tests {
         let receiving=BTreeMap::from([(0,0.),(1,5.)]);
         let q=road.rates(&heads(),&demand,&receiving).unwrap();
         assert_eq!([q[&0],q[&1],q[&2]],[0.,0.,4.]);
+    }
+}
+
+
+#[cfg(test)]
+mod source_remainder_lifetime_tests {
+    use super::*;
+
+    fn fixture(limit: usize) -> (RoadWorkBudget, Vec<ChunkedParts>, Vec<ChunkedMarks>) {
+        (RoadWorkBudget {
+            limit: Some(limit), base: 1_000_000,
+            transfer_exclusive_cell_scratch: 200_000,
+            events: 0, incoming: 0, incoming_page_cells: 1,
+            incoming_cell_rows: Some(vec![0]), incoming_live_pages: 0,
+            incoming_descriptor_live_bytes: None,
+            compact_events: true, compact_incoming: true,
+            interval_retained: 0, interval_transient: 0, service_events: None,
+        }, vec![ChunkedParts::new(true)], vec![ChunkedMarks::default()])
+    }
+
+    fn source_part() -> Part {
+        Part { tag: 3, offset: 2, mass: 7., birth: 14.,
+            a: PackedTime::new(Some(3.)).unwrap(),
+            b: PackedTime::new(Some(4.)).unwrap() }
+    }
+
+    #[test]
+    fn source_remainder_admits_only_its_live_raw_and_packed_buffers() {
+        let (mut work, incoming, marks) = fixture(900_000);
+        assert!(work.require(24, "packet interval packing").is_err());
+        assert!(work.require(0, "entry interval split").is_err());
+        let original = source_part();
+        let result = work.pack_parts_with_live_descriptors(vec![original], &incoming, &marks);
+        assert!(result.is_ok(), "source remainder wrongly includes future cell combine scratch");
+        let packed = result.unwrap();
+        let actual = packed.iter().next().unwrap();
+        assert_eq!((actual.tag, actual.offset), (original.tag, original.offset));
+        assert_eq!(actual.mass.to_bits(), original.mass.to_bits());
+        assert_eq!(actual.birth.to_bits(), original.birth.to_bits());
+        assert_eq!((actual.a.0, actual.b.0), (original.a.0, original.b.0));
+        assert_eq!(work.incoming_descriptor_live_bytes, None);
+        assert_eq!(work.base, 1_000_000);
+        work.transfer_indexed(0, std::iter::once(0)).unwrap();
+        assert_eq!(work.incoming_cell_rows.as_ref().unwrap(), &vec![1]);
+    }
+
+    #[test]
+    fn source_remainder_budget_boundary_charges_both_buffers_and_restores_on_error() {
+        let tracked_bytes = segmented_incoming_exact_cell_pages_charge(0, 1, 0, true, Some(0));
+        let actual_bytes = std::mem::size_of::<Part>() + std::mem::size_of::<CorePart>();
+        let required = 800_000 + tracked_bytes + actual_bytes;
+        let (mut work, incoming, marks) = fixture(required - 1);
+        assert!(work.pack_parts_with_live_descriptors(vec![source_part()], &incoming, &marks).is_err());
+        assert_eq!(work.incoming_descriptor_live_bytes, None);
+        work.limit = Some(required);
+        let result = work.pack_parts_with_live_descriptors(vec![source_part()], &incoming, &marks);
+        assert!(result.is_ok(), "exact live-buffer boundary must be admissible");
+        assert_eq!(work.incoming_descriptor_live_bytes, None);
+        work.transfer_exclusive_cell_scratch = 0;
+        assert!(work.pack_parts_with_live_descriptors(vec![source_part()], &incoming, &marks).is_err());
+        assert_eq!(work.incoming_descriptor_live_bytes, None);
+    }
+
+    #[test]
+    fn mixed_remainder_still_charges_raw_buffer_before_reusing_it() {
+        let tracked_bytes = segmented_incoming_exact_cell_pages_charge(0, 1, 0, true, Some(0));
+        let (mut work, incoming, marks) = fixture(800_000 + tracked_bytes);
+        let mut wide = source_part();
+        wide.tag = u32::MAX as usize + 1;
+        assert!(work.pack_parts_with_live_descriptors(vec![wide], &incoming, &marks).is_err(),
+            "mixed fallback must charge its actual raw allocation");
+        assert_eq!(work.incoming_descriptor_live_bytes, None);
     }
 }
