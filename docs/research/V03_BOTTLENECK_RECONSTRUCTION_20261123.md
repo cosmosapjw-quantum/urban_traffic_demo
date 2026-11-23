@@ -564,3 +564,88 @@ hard class rule을 유지하는 A/B/C와 이 보조 행동가설은 구별한다
 기존 마지막 유효 시간25700s, 차단 목표25710s, 전체 하루0/9,
 DAG 한정구현/실행19/21, 최종수용5/21, V03 BLOCKED를 유지한다.
 지금 얻은 것은 여섯 경로의 구성·증명·반례·비용조건이며24h 성능 예측은 unresolved다.
+
+
+## R9 — 다음 구현이 따라야 할 수학적 계산 계약
+
+여기서는 새 생산 코드를 작성하지 않고, 증명에서 실제 consumer까지 이어지는
+인터페이스와 판별량을 고정한다. 다른 연구 단계나 수용 게이트를 추가하지 않는다.
+
+### 상태·연산·관측의 계약
+
+| 대상 | 입력과 출력 | 보존·판별 조건 |
+|---|---|---|
+| CompositionRoot | joint(tag,offset,endpoint key,mass,birth) 또는 그 양의 연산식 | payload-only ownership; 원래 clock과 질량의 상관을 보존 |
+| OrderedHead | 원래 head order,target,clock-conditioned components | η 성분을 새head로 쪼개지 않음; 하나의 common service fraction |
+| PhysicalQuery | class 질량/길이, latent, active support, destination 질량/footprint | gap용 vehicle length와 receiving용 standing footprint 구별 |
+| Serve/Route | source root,f,event interval→served roots,remainder,projection,offset advance | remainder의 oldη; outgoing의 새η; legal complete residual route |
+| IntervalConsumer | ribbons와pointatoms→ordered slab roots | point-before-slab, zero-length atom, 원래virtual knots; 전체행전개 금지라는 가정만으로 성능 주장하지 않음 |
+| MarkConsumer | class/source/time contraction→speed·latent numerator | exact lane은원래 midpoint; E lane은명시적 held-flux integral |
+| SinkInterface | tag별mass/end measure→service·egress | bus threshold는tag별; rawdelay→dueprefix→원래receipt sampling·leg normalization |
+| ActiveHistory | completion/egress history→next-leg eligibility | passive trace와구별; causal 정보·지연 상태 유지 |
+| ObserverCodec | ordered detailed event carrier↔decodedtuple stream | O에서만lossless byte-contract가능성; all owners와full export비용 계상 |
+
+physical query에서 class support는 단순한 저차 polynomial moment로 대체하지 않는다.
+예를 들어 \(U=\min_{c:n_c>0}u_c\)와 accel/brake minima는 active class 집합을 읽는다.
+head destination support 역시 zero-supply movement가 service를 결정하므로 반드시 남긴다.
+
+### 한 transition의 수학적 대조
+
+실수 동치 후보의 최소 완결 단위는
+source query→node allocation→common fraction→event/route→incoming marks→interval
+overlay→retained state→tagwise sink→journey due/receipt다.
+head만 빠르게 나누는 비교로 이 전체 계약을 검증했다고 하지 않는다.
+
+비교할 양은 다음과 같이 나눈다.
+
+1. vehicle/person/cargo/birth·residence 장부와 legal route metadata.
+2. class support, exposed movement support, target/eligibility와 FIFO 순서.
+3. speed·latent·capacity·eligible/departure cumulative와 tag별 sink.
+4. raw egress law, due retirement, receipt 시각·정규화, 다음leg·정보·개발 입력.
+5. 저장 표현의 decode 의미와 원래 bit/serialization 요구의 해당 범위.
+
+A/B의 rational 대응, binary64 numerical 대응, O의 tuple byte 대응은 서로 다른
+비교다. C/D/E의 모델 오차에는 residual·support·event domain을 명시하고, 기존
+PLAN의 실제 관측 수용기준을 자동으로 교체하지 않는다.
+
+### resource 판별에 필요한 실제 좌표
+
+배열 행 수만 다시 세는 대신 다음 census를 요청하는 수학적 이유가 생겼다.
+모든 항은 현재 live root와 실제 소비 질의에서 정의한다.
+
+\[
+\Xi=(N_{\rm root},V,Q_*,P,K_\eta,G,F,Q_F,J_\sigma,K_{\rm phase},Z_{\rm out}).
+\]
+
+- \(N_{\rm root},V\): 새 유입을 포함한 실제 source support와 reachable expression nodes.
+- \(Q_*\): 실제 평가한 node/pulled-back-query 쌍과 leaf lookup 비용.
+- \(P,K_\eta\): 원래 head/slab와 Mixed clock component 수.
+- G,F,QF: 실제 class/residual-route groups, provenance 구조, tagwise query 비용.
+- \(J_\sigma,K_{\rm phase}\): 반드시 남길support경계와 실제control phase변화.
+- \(Z_{\rm out}\): 명시적으로 요청한 detailed output의 크기.
+
+전체 memory는 phase별로 input/current/candidate/snapshot/observer/activehistory에서
+reachable한 allocation의 합집합, 각owner의descriptor, query cache와scratch를 포함한다.
+작은root가옛WorldState전체를capture하지않는지확인한다.
+\(\Xi\)를모르면서 O(1)head나 O(logE)overlay만으로24h성공을예측하지않는다.
+
+### accuracy와 feedback의 계약
+
+C의도메인에서는총누적오차를
+\[
+\epsilon_D\le\epsilon_E+\int|\Delta c|dt,\qquad
+\epsilon_{\rm obs}\le L_F\epsilon_D+\eta_F
+\]
+로분해한다. D의consumer residual \(2M\epsilon_g\)와 E의mark curvature잔차를
+물리update의residual로전달한다. 평균·역시간에는각각completion mass와departure slope의
+양의하한을추가한다. jump관측은same-time sup에무리하게넣지않는다.
+
+support가달라지면그boundary를정확히보존하거나별도로모델링한다.
+multi-sender active-stage ties, vacuum, tangent readiness, simultaneous event reorder,
+개발·접근성 threshold 근처의 opportunity mass는 아직명시적조건이필요하다.
+이는매번추가감사를시키는정책이아니라,부등식에실제로들어가는수학적데이터다.
+
+**판별 순서의 의미.** O는retained trace의실제codec/lifetime으로, A/B는
+source→consumer 한transition의support/query비율로, C/D/E는정해진resolution에서
+coupled residual와관측오차로판별한다. 여러후보를동시에보존하고, 새도시실행이나
+production변경은이번이론 R1–R10의결과로보고하지않는다.
