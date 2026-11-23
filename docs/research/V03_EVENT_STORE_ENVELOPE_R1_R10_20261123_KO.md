@@ -44,3 +44,22 @@ C2 소스 원자료: whole 실행은 road.propose_owned_step → materialize_eve
 과거R10 destination ID압축의32B는 해당임시벡터만 줄였으며 t25730을 해소하지 못했다. 더 이상의 근거없는 고정credit은 채택하지 않는다. 2026-11-17의 '24h 불가' 문구는 당시표현·측정에 대한 engineering extrapolation으로 보존하며 보편적 no-go로 재사용하지 않는다. 이번 저장표현수술도 full-day 성공은 실제9runs로만 판정한다.
 
 준비도는 기존19/21 scoped, 직접선행3/3, originalday0/9다. 새native는 아직 구현·빌드하지 않았으므로 이 단계에서 새로운 실행성공을 주장하지 않는다.
+
+## R3/C3 · 명제와 계산·저장 계약 채택
+
+유한 positive age measure의 질량m>0, 1차moment A, support[L,H], 0<=L<=H를 가정한다. A in[mL,mH]는 필수이며 L=H이면 해당원자만 가능하다. H>L에 대해
+
+```math
+K_lower(u) = max(A-mu,0),
+K_upper(u) = [(mH-A)(L-u)+ + (A-mL)(H-u)+]/(H-L).
+```
+
+K_lower<=K<=K_upper는 Jensen와 convex chord로 성립한다. mean원자는 모든threshold의lower를, endpoint의 질량(mH−A)/(H−L), (A−mL)/(H−L)는 모든threshold의upper를 동시에 달성한다. sharp의 가능집합은 mass/mean/support만 지정한 모든 positive measures이며 추가적인 숨은birth calendar 조건의sharp를 주장하지 않는다. 단위m은vehicle, A와K는vehicle·s다.
+
+실제질량·moment를 관측한 support sub-bins으로 나누면 lower는 증가하고 upper는 감소한다. 균일gap상한 Σm_j(H_j−L_j)/4에서 실제 support분할 폭이0으로가면 K envelope는 균일수렴한다. 집계평균을 임의로 쪼개는 것은 refinement가 아니다. K envelope를 직접 미분해 CDF bound라고 주장하지 않고, h>0의 유한차분으로 strict tail의 안전한 bound를 만든다.
+
+공통관측시각t의 native event-incidence 질량과 birthmoment B는 A=m*t−B로 연결한다. 같은차량의여러passage가 포함될 수 있으므로 unique-source나최종journey완료 통계로 해석하지 않는다. birth support는 caller의 실제source 근거가 필요하며 평균값으로 추정하지 않는다. Fraction oracle는 정확 계산, native f64는 별도 rounding error 상태를 표시한다.
+
+C3 저장설계: whole path의 ChunkedEvents를 Arc로 service에 그대로 보관하고 순서보존 iter로 validate/write/report한다. decoder도 compact 가능한registry에서 직접page로읽고 wide registry에서는64B를보존한다. page payload뿐 아니라 descriptors·allocationpadding·동시live owner를 모두 계상한다. call-input/current/candidate의 실제Arcidentity만 공유로 처리한다. Python/standalone flatAPI는 경계에서만 명시materialize한다. native observer hook은 immutable snapshot의 행수/actualstorage/mass/B/agefirst를 O(1) 추가메모리로 집계한다.
+
+원본 source/binary bytes를 바꾸기 전 behavior regression을 기록한다. missing API/import/compiler symbol 실패는 행동RED로 세지 않는다. 원본 t25720 full-wire 재직렬화·질량장부를 먼저통과한 뒤10s,20s,40s를순차실행한다. library shared build target은 Rust worker 단독사용 후 부모에게반환한다.
