@@ -1,0 +1,2 @@
+INITIAL_WIRE_LEDGER_VERIFIED 25730.0
+{"status": "BLOCKED_RESOURCE", "completed_time_s": 25730.0, "valid_advanced_duration_s": 0.0, "blocked_target_time_s": 25740.0, "error": {"class": "BudgetExceeded", "message": "native capture/validation storage budget exceeded: required_bytes=6887244069, budget_bytes=6442450944", "phase": "ADVANCE"}, "peak_rss_bytes": 4997935104, "wall_total_including_full_preparation_and_checkpoint_io_s": 209.86881164298393}

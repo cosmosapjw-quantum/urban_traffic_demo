@@ -1,0 +1,28 @@
+{
+  "status": "REFROZEN_PENDING_SINGLE_REVIEW_CLOSURE_AND_PHYSICAL_EXECUTION",
+  "supersedes": "C8_checkpoint_freeze.json",
+  "source_hashes": {
+    "journey": "285cf61a9e1339dbf68a0754d1efdd76d8d21a33ceed6931fe29b7b97380f32d",
+    "road": "01694c9ec17d06b43188a9d8e9d93a4dd099173533642e993631befa5ef3a939",
+    "engine": "bf078c2d45fda2805531812b3f74a2955a0b4137098c2cc6fc959bf8743f4e93"
+  },
+  "fix": "add fresh Journey.read_state -> validate three-owner phase to maximum; actual validator unchanged",
+  "test": {
+    "log": "C8_checkpoint_journey_validator_fix_lib.log",
+    "exit": 0,
+    "passed": 285,
+    "failed": 0,
+    "ignored": 2,
+    "actual_journey_bytes": 84992,
+    "decoded_journey_upper": 119664,
+    "old_allowance_bytes": 185200,
+    "actual_unchanged_validator_required": 320512,
+    "corrected_allowance_bytes": 424528,
+    "wire_equal_bytes": 65632
+  },
+  "diff_check": "passed",
+  "source_frozen": true,
+  "cargo_released": true,
+  "physical_credit_seconds": 0,
+  "same_engine_43200_acceptance": "OPEN"
+}

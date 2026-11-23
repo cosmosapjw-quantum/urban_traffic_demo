@@ -1,0 +1,117 @@
+{
+  "schema_version": 2,
+  "claim_id": "V03_FINITE_RESPONSE_CAUSAL_PROBE_UPGRADE_20261123",
+  "repository": {
+    "commit": "64173178d11229825efc553c441f6f90c7541979",
+    "dirty": true
+  },
+  "command": [
+    "env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "PYTHONPATH=src:.",
+    "timeout",
+    "60s",
+    "python3",
+    "artifacts/v03_origin_validation_20261123/R8_response_probe_experiment.py"
+  ],
+  "environment": {
+    "software": [
+      {
+        "name": "Python",
+        "version": "3.12.3"
+      },
+      {
+        "name": "Decimal",
+        "version": "Python standard library"
+      }
+    ],
+    "hardware": "AMD Ryzen 9 5900X 12-Core Processor"
+  },
+  "mathematics": {
+    "assertion_tested": "84 withheld finite-response passages obey analytic bounds;120 floating endpoints agree with independent Decimal roots within2e-11s; exact rational inequality gives route dominance",
+    "coefficient_domain": "binary64 implementation;70-digit Decimal cross-check; exact Fraction route comparison",
+    "conventions": "SI seconds/metres/metres-per-second, exact completed matched probes, positive spatially homogeneous fixed traffic context",
+    "inputs": {
+      "relaxation_s": 10,
+      "forcing_speed_interval_m_s": [
+        1,
+        3
+      ],
+      "probe_entry_s": 10,
+      "probe_exit_s": 15,
+      "probe_delivered_s": 16,
+      "decision_s": 16,
+      "routing_probe_length_m": 10
+    },
+    "bounds": {
+      "constant_cases": 60,
+      "future_switch_cases": 24,
+      "root_comparison_tolerance_s": "2e-11",
+      "relaxation_s": 10
+    },
+    "non_claims": [
+      "global floating directed-rounding certification",
+      "native queue/spillback ETA",
+      "whole-city calibration",
+      "production routing activation",
+      "V03 full-day acceptance"
+    ]
+  },
+  "randomness": {
+    "used": false,
+    "generator": "",
+    "seed": null
+  },
+  "run": {
+    "started_at": "2026-11-23T06:59:49.055522+00:00",
+    "runtime_seconds": 0.771810545003973,
+    "exit_status": 0,
+    "status": "completed",
+    "resource_limits": {
+      "wall_seconds": 60,
+      "memory_bytes": null,
+      "cpu_seconds": null,
+      "max_cores": null,
+      "max_threads": null
+    }
+  },
+  "outputs": [
+    {
+      "path": "artifacts/v03_origin_validation_20261123/R8_response_probe_experiment.json",
+      "sha256": "db5b5dc1a771b9bb4fc6e197cb07047461796b44d31b94b62aae55aeb62e619e",
+      "kind": "result"
+    }
+  ],
+  "checks": [
+    "84 actual withheld cases enumerated",
+    "120 Decimal endpoint comparisons",
+    "known global interval nesting",
+    "strict rational dominance",
+    "same inputs before/after"
+  ],
+  "result": "implementation and finite assertion verified in the stated range; universal bounds supplied by derivation",
+  "residual_risks": [
+    "forcing-bound certification and matched boundary instrumentation remain absent for general native city queues",
+    "floating approximations are not formal interval arithmetic"
+  ],
+  "input_artifacts": [
+    {
+      "path": "src/metroflow/v1/finite_response_probe_certificate.py",
+      "sha256": "9621fa474a0ef0d647f8fb10fdb33fa361427b59a8fdeedda9b680916b5f1903",
+      "sha256_after": "9621fa474a0ef0d647f8fb10fdb33fa361427b59a8fdeedda9b680916b5f1903"
+    },
+    {
+      "path": "tests/research/test_v03_finite_response_probe_20261123.py",
+      "sha256": "bcbee4a6e4e6645f1fd387f8f069f5a133cd98add00a350e1d1ac2ac56bd2ed5",
+      "sha256_after": "bcbee4a6e4e6645f1fd387f8f069f5a133cd98add00a350e1d1ac2ac56bd2ed5"
+    },
+    {
+      "path": "artifacts/v03_origin_validation_20261123/R8_response_probe_experiment.py",
+      "sha256": "a11609ae0e59b11db43852e25075cec28e545015a033da0d159f53a89530be84",
+      "sha256_after": "a11609ae0e59b11db43852e25075cec28e545015a033da0d159f53a89530be84"
+    }
+  ],
+  "declared_results": [
+    "artifacts/v03_origin_validation_20261123/R8_response_probe_experiment.json"
+  ]
+}

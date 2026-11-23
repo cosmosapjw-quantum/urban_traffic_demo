@@ -1,0 +1,3 @@
+INITIAL_WIRE_LEDGER_VERIFIED 25660.0
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25660.0, "completed_time_s": 25670.0, "wall_s": 28.939123508986086, "native_tick_wall_s": [27.568602837], "native_ticks": 1}
+{"status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON", "completed_time_s": 25670.0, "valid_advanced_duration_s": 10.0, "blocked_target_time_s": null, "error": null, "peak_rss_bytes": 2026938368, "wall_total_including_full_preparation_and_checkpoint_io_s": 64.20758307300275}

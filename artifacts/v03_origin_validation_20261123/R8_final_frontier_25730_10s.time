@@ -1,0 +1,24 @@
+Command exited with non-zero status 2
+	Command being timed: "timeout 1800s env -u METROFLOW_EXPERIMENTAL_ARC_PAIR_BUDGET PYTHONPATH=native_binding:src:. METROFLOW_BUDGET_TRACE=off OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python3 tools/research/v03_origin_validation_horizon_20261123.py --start-receipt artifacts/v03_event_store_envelope_20261123/R8e_original_100k_25720_requested_10s.json --start-checkpoint /home/cosmosapjw/worktrees/urban-traffic-v03-event-store-moment-envelope-20261123/artifacts/v03_event_store_envelope_20261123/R8e_original_100k_25720_requested_10s.final.bin --duration-s 10 --out artifacts/v03_origin_validation_20261123/R8_final_frontier_25730_10s.json"
+	User time (seconds): 171.25
+	System time (seconds): 12.76
+	Percent of CPU this job got: 68%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:26.86
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4880796
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 174
+	Minor (reclaiming a frame) page faults: 1635352
+	Voluntary context switches: 16448
+	Involuntary context switches: 1697
+	Swaps: 0
+	File system inputs: 10791504
+	File system outputs: 10788640
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 2

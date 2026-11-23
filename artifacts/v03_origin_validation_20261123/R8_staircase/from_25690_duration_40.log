@@ -1,0 +1,6 @@
+INITIAL_WIRE_LEDGER_VERIFIED 25690.0
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25690.0, "completed_time_s": 25700.0, "wall_s": 53.50946125999326, "native_tick_wall_s": [51.637750528], "native_ticks": 1}
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25700.0, "completed_time_s": 25710.0, "wall_s": 65.53110509199905, "native_tick_wall_s": [63.270658823], "native_ticks": 1}
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25710.0, "completed_time_s": 25720.0, "wall_s": 82.13937099199393, "native_tick_wall_s": [79.452155867], "native_ticks": 1}
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25720.0, "completed_time_s": 25730.0, "wall_s": 106.62875182600692, "native_tick_wall_s": [103.284732897], "native_ticks": 1}
+{"status": "ERROR", "completed_time_s": 25730.0, "valid_advanced_duration_s": 40.0, "blocked_target_time_s": null, "error": {"class": "MemoryError", "message": "native capture/validation storage budget exceeded: required_bytes=6513265473, budget_bytes=6442450944", "phase": "SAVE_VALID_PREFIX"}, "peak_rss_bytes": 4554768384, "wall_total_including_full_preparation_and_checkpoint_io_s": 361.2123046180059}

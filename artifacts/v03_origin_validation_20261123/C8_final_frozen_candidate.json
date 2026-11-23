@@ -1,0 +1,48 @@
+{
+  "schema": "V03_C8_FINAL_FROZEN_NATIVE_V1",
+  "at_utc": "2026-11-23T06:48:08.460548+00:00",
+  "candidate": {
+    "status": "MEASURED",
+    "source_sha256": "78b49811dd84544e3c5dcd4281c3918fc41384fc1815941792a90ccc58bde3f7",
+    "source_files": [
+      "Cargo.lock",
+      "crates/metroflow-rust/Cargo.toml",
+      "crates/metroflow-rust/src/lib.rs",
+      "crates/metroflow-rust/src/v1_calendar.rs",
+      "crates/metroflow-rust/src/v1_engine.rs",
+      "crates/metroflow-rust/src/v1_history.rs",
+      "crates/metroflow-rust/src/v1_journey.rs",
+      "crates/metroflow-rust/src/v1_kcmb.rs",
+      "crates/metroflow-rust/src/v1_kcmb_node.rs",
+      "crates/metroflow-rust/src/v1_lineage_shadow.rs",
+      "crates/metroflow-rust/src/v1_parallel.rs",
+      "crates/metroflow-rust/src/v1_road.rs",
+      "crates/metroflow-rust/src/v1_routing.rs",
+      "crates/metroflow-rust/src/v1_stage.rs",
+      "crates/metroflow-rust/src/v1_trace.rs",
+      "src/metroflow/v1/native_calendar.py",
+      "src/metroflow/v1/native_engine.py",
+      "src/metroflow/v1/native_journey.py",
+      "src/metroflow/v1/native_release_driver.py",
+      "src/metroflow/v1/native_road.py",
+      "src/metroflow/v1/native_routing.py",
+      "src/metroflow/v1/native_static.py",
+      "tools/run_v1_local_acceptance.py"
+    ],
+    "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+    "git_commit": "64173178d11229825efc553c441f6f90c7541979",
+    "source_dirty": false
+  },
+  "native": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/native_binding/_metroflow_rust.so",
+    "size_bytes": 3319656,
+    "sha256": "3bec7cd5cb788047c95a1f55464af9baed28699ace086bc8fd13fe342c2b08d5"
+  },
+  "release_exit": 0,
+  "scoped_library_passed": 285,
+  "scoped_library_ignored": 2,
+  "scoped_library_exit": 0,
+  "independent_review": "F1_RESOLVED_OTHER_SCOPED_MATERIAL_FINDINGS_NONE",
+  "physical_acceptance": "NOT_YET_EXECUTED"
+}

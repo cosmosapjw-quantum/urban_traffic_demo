@@ -1,0 +1,49 @@
+{
+  "status": "SOURCE_FROZEN_IMPLEMENTATION_VERIFIED_PHYSICAL_ACCEPTANCE_PENDING",
+  "date": "2026-11-23",
+  "source_hashes": {
+    "road": "01694c9ec17d06b43188a9d8e9d93a4dd099173533642e993631befa5ef3a939",
+    "journey": "30b2ed00af97eb97d3c40f91f627ccfdb08e3d1db2225f59bce1b344ed2be256",
+    "engine": "bf078c2d45fda2805531812b3f74a2955a0b4137098c2cc6fc959bf8743f4e93"
+  },
+  "final_test": {
+    "log": "C8_checkpoint_final_lib.log",
+    "exit": 0,
+    "passed": 283,
+    "failed": 0,
+    "ignored": 2,
+    "includes_final_engine_constructor_binding": true,
+    "includes_final_three_phase_contract": true,
+    "diff_check": "passed"
+  },
+  "same_cap_behavioral_regression": {
+    "old_required_bytes": 1250280,
+    "budget_bytes": 1242248,
+    "final_decoder": "passed",
+    "wire_equal_bytes": 1049848
+  },
+  "fresh_owner_regression": {
+    "shared_retained_bytes": 270136,
+    "independent_retained_bytes": 399064,
+    "old_envelope_bytes": 282424,
+    "new_envelope_bytes": 411352,
+    "raw_overlap_bytes": 12288,
+    "actual_streaming_peak_bytes": 416,
+    "obsolete_validation_bytes": 264224
+  },
+  "old_diagnostic": {
+    "required_bytes": 6448942576,
+    "pool_bytes": 5789366831,
+    "receipt": "C8_checkpointability_diagnostic.json"
+  },
+  "reconstruction_not_native_measurement": {
+    "current_candidate_bytes": 5050498676,
+    "margin_bytes": 738868155,
+    "current_with_future_event_upper_bytes": 5286485316
+  },
+  "physical_credit_seconds": 0,
+  "v03_full_day_credit": 0,
+  "same_engine_43200_acceptance": "OPEN",
+  "cargo_released": true,
+  "source_frozen": true
+}

@@ -1,0 +1,16 @@
+{
+  "status": "INDEPENDENT_RATIONAL_RESIDUAL_CHECKS_PASSED",
+  "raw_numeric_endpoints_checked": 120,
+  "new_runtime_cases": 12,
+  "new_absolute_clock_shift_case": 1,
+  "comparison_tolerance_s": "1/50000000000",
+  "oracle": "Fraction Taylor remainder bounds; signs exact, not a formal enclosure of the f64 outputs",
+  "source_sha256": {
+    "docs/research/V03_FINITE_RESPONSE_PROBE_UPGRADE_20261123.md": "e570e9ee34a7ee3f9dc0a3393dd8c80ed6d89f9b931a32aca2171e56b1829148",
+    "src/metroflow/v1/finite_response_probe_certificate.py": "9621fa474a0ef0d647f8fb10fdb33fa361427b59a8fdeedda9b680916b5f1903",
+    "tests/research/test_v03_finite_response_probe_20261123.py": "bcbee4a6e4e6645f1fd387f8f069f5a133cd98add00a350e1d1ac2ac56bd2ed5",
+    "artifacts/v03_origin_validation_20261123/R8_response_probe_experiment.py": "a11609ae0e59b11db43852e25075cec28e545015a033da0d159f53a89530be84",
+    "artifacts/v03_origin_validation_20261123/R8_response_probe_experiment.json": "db5b5dc1a771b9bb4fc6e197cb07047461796b44d31b94b62aae55aeb62e619e"
+  },
+  "author_pytest": "READ_NOT_RERUN"
+}

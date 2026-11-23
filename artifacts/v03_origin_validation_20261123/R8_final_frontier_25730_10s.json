@@ -1,0 +1,114 @@
+{
+  "blocked_target_time_s": 25740.0,
+  "budget_mode": "DEFAULT",
+  "case": "valley_weekday_s7",
+  "completed_mass_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1621.6342620685925,
+      "completed": 114.47729541474556,
+      "pending": 1208.3328869610702,
+      "released": 1736.1115574833382,
+      "requested": 2944.4444444444084
+    },
+    "vehicles": {
+      "active": 1297.0111432026974,
+      "completed": 89.65552346398982,
+      "pending": 56.1111111110738,
+      "released": 1386.6666666666872,
+      "requested": 1442.777777777761
+    }
+  },
+  "completed_native_calls": [],
+  "completed_time_s": 25730.0,
+  "created_utc": "2026-11-23T06:52:34+00:00",
+  "current_candidate_source_sha256": "78b49811dd84544e3c5dcd4281c3918fc41384fc1815941792a90ccc58bde3f7",
+  "current_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "current_git_commit": "64173178d11229825efc553c441f6f90c7541979",
+  "current_native_binary_sha256": "3bec7cd5cb788047c95a1f55464af9baed28699ace086bc8fd13fe342c2b08d5",
+  "current_source_dirty": false,
+  "diagnostic_only": false,
+  "error": {
+    "class": "BudgetExceeded",
+    "message": "native capture/validation storage budget exceeded: required_bytes=6887244069, budget_bytes=6442450944",
+    "phase": "ADVANCE"
+  },
+  "failed_native_call_internal_ticks_receive_physical_credit": false,
+  "final_checkpoint_bytes": null,
+  "final_checkpoint_local_only": true,
+  "final_checkpoint_sha256": null,
+  "native_call_cadence": "tick",
+  "native_call_span_s": null,
+  "native_phase_metrics": {
+    "binding_s": 0.041594707,
+    "failed_ticks": 0,
+    "native_threads": 1,
+    "phase_wall_s": {
+      "journey_finish": 0.133225107,
+      "journey_prepare": 0.032203912,
+      "other_tick": 5.832106498999991,
+      "road_step": 121.114672107,
+      "service_finish": 0.033741203,
+      "service_prepare": 6.713e-06
+    },
+    "road_event_resolution": {
+      "checkpointed": false,
+      "clock_roundoff_upper_s": 7.978642656228487e-18,
+      "mass_bound_scope": "outward sum of rate * duration for sub-ULP service events; a nominal served-amount bound, not a total numerical mass-error bound; excludes fraction approximation, fraction snapping and packet-part rounding",
+      "nominal_subulp_service_mass_upper": 3.4106608429622305e-13,
+      "processed_subulp_time_upper_s": 5.462196715213832e-13,
+      "scope": "cumulative validated proposed road transitions in this runtime; may include later coupled service/journey rollbacks, branches and replays; not committed physical counts or supplied snapshot metadata",
+      "subulp_events": 3348
+    },
+    "scope": "latest native coupled call; includes failed phase and rollback; excludes engine restore, capture and postvalidation",
+    "successful_ticks": 1
+  },
+  "native_process_cap_bytes": 8589934592,
+  "original_candidate_from_time_zero_verified": false,
+  "original_full_day_acceptance": "BLOCKED_0_OF_9",
+  "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "peak_rss_bytes": 4997935104,
+  "physical_dt_s": 10,
+  "previous_checkpoint_cross_native": true,
+  "previous_checkpoint_full_wire_roundtrip_exact": true,
+  "previous_full_checkpoint_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+  "previous_mass_ledger": {
+    "cargo_kg": {
+      "active": 0.0,
+      "completed": 0.0,
+      "pending": 0.0,
+      "released": 0.0,
+      "requested": 0.0
+    },
+    "persons": {
+      "active": 1621.6342620685925,
+      "completed": 114.47729541474556,
+      "pending": 1208.3328869610702,
+      "released": 1736.1115574833382,
+      "requested": 2944.4444444444084
+    },
+    "vehicles": {
+      "active": 1297.0111432026974,
+      "completed": 89.65552346398982,
+      "pending": 56.1111111110738,
+      "released": 1386.6666666666872,
+      "requested": 1442.777777777761
+    }
+  },
+  "requested_duration_s": 10,
+  "requested_end_s": 25740.0,
+  "runner_sha256": "945e435af39e9a34e39987e83023a016a34646a7a4ce6bb3e1cf7ab8cee5890a",
+  "schema": "V03_ORIGIN_VALIDATION_CONTINUATION_V1",
+  "start_receipt_sha256": "a338e34cd445a66bd025e017aca01356d89db04bb77a1dac7400f3a4af7c9cbf",
+  "start_time_s": 25730.0,
+  "status": "BLOCKED_RESOURCE",
+  "trace_mode": "off",
+  "valid_advanced_duration_s": 0.0,
+  "wall_total_including_full_preparation_and_checkpoint_io_s": 209.86881164298393
+}

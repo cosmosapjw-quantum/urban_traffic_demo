@@ -1,0 +1,4 @@
+INITIAL_WIRE_LEDGER_VERIFIED 25670.0
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25670.0, "completed_time_s": 25680.0, "wall_s": 35.92478831199696, "native_tick_wall_s": [34.244153826], "native_ticks": 1}
+RETURNED_PHYSICAL_PREFIX_VALID {"start_time_s": 25680.0, "completed_time_s": 25690.0, "wall_s": 44.77283172402531, "native_tick_wall_s": [42.474181117], "native_ticks": 1}
+{"status": "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON", "completed_time_s": 25690.0, "valid_advanced_duration_s": 20.0, "blocked_target_time_s": null, "error": null, "peak_rss_bytes": 2575470592, "wall_total_including_full_preparation_and_checkpoint_io_s": 122.7367298330064}

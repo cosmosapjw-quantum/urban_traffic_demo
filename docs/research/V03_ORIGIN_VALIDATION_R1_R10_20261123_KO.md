@@ -122,7 +122,7 @@ Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 진단 harness가 원 실행을 대표
 | 직접10m | [23.2258064516,26.6813942905] | [23.4314575050666,23.4314575051394] |
 | 우회20m+20m | [32.9032258065,56.2142524713] | [35.2786404499797,35.2786404501106] |
 
-직접 upper가 우회 lower보다6.221831516s 작다. 일반 regret bound는3.455587839s, 해당 경로집합의 강한 dominance 판정은regret0이다. 과거 관측 없이도 알 수 있는 길이 floor만으로는 finite upper를 얻지 못하므로, 이 결과는 causal matched 관측으로 원래 routing 정보 공백 하나를 실제로 해소한 구성적 scientific oracle다. 일반native queue의 Γ 인증과 자동 boundary 계측까지 해결했다고 하지 않는다.
+직접 upper가 우회 lower보다6.221831516s 작다. 일반 regret bound는3.455587839s, 해당 경로집합의 강한 dominance 판정은regret0이다. 이 결과는 선언한 Γ-function class의 구성적 oracle이며 일반native queue의 Γ 인증과 자동 boundary 계측까지 해결하지 않는다. **R8의 물리 비교 기준 재평가로 해석을 교정했다:** Γ=v_+/v_-를 만들 때 사용한 전역 속도 범위 전체를 이용하면 이미 duration≤length/v_-가 성립한다. 이 특정 예제는 그보다 더 많은 관측 정보의 이득을 입증하지 못한다. 기존 증명과124개 포함 검산은 유지하고, 실제 관측이 선택을 바꾸는 finite-response 기억 정리를 아래 R8에서 추가한다.
 
 원본100k의 첫 새 후보 물리실험은25,730→25,740s를 요청했다. 기존 전체5.523GB wire와 원 mass ledger가 정확히 복원됐고, 이전의 `state validation workspace`를 통과해 road→service_finish→journey_finish까지 진행했다. 그러나 최종 `whole checkpointability`가6,448,942,576>5,789,366,831B로 거절하여 새로운 committed physical time은0s다. native 성공tick0·실패1, road121.472988s, 전체172.840468s,peakRSS4,999,565,312B,exit2다. 결과 `R7_frontier_25730_10s.json/.log/.time/.exit`를 보존했다. 물리 중간 연산이 끝났다는 이유로 완료시간을25,740으로 올리지 않았다.
 
@@ -144,3 +144,25 @@ Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 이론은 원래 traffic→causal rout
 원 hourly 호출의 road preflight는 실제 caller snapshot capacity R0를 engine에서 직접 전달해 R0+R+max(R0,R)를 사용한다. 원 입력의 capacity를 clone의 작은 capacity로 추정하지 않고, source 공유 witness는 실제 clock이 달라지면 만료시킨다. 아직 생성되지 않은 incoming combine 버퍼는 prediction 중에만 제외하고 motion scan 종료 경계에서 다시 계상한다. standalone의 기존3×max fallback, 실제 offer overlap, 전체 cap과 wire·물리·허용오차는 유지한다. 두 production-path 행동 RED가 같은 명령 GREEN으로 바뀌었고,64개 실제 offer의 event f64 bits와 wire가 uncapped oracle과 같았다. 근거는 `C8_validation_preflight_*`와 `C8_validation_original_cadence_preflight.md`다.
 
 최종 source/native 동결, 독립 delta 검토, 전체 규모 재실행과 길이 증가 결과는 아래에 실제 영수증으로 보충한다. 이 절의 진행 상태 자체는 V03 통과를 뜻하지 않는다.
+
+
+### 독립 검토의 실제 수정과 최종 source gate
+
+독립 검토 `C8_independent_accounting_review.md`는 최초 후보의 fresh Journey 자체 검증 예측 누락(F1)을 발견했다. D=E=J=1,000,000B인 정수 함의 반례에서 예측 max4,465,536B는4,800,000B cap 안이지만 실제 유지된 Journey phase는5,067,584B였다. 이는 독립 산술 반례이며 실제 도시 행동 RED로 부르지 않는다. 실제 loader는 원 guard로 거절하므로 예산 검사가 우회된 것은 아니다.
+
+추가된 별도 phase는 초기 current-road와 빈 event carrier, 독립 decoded-road·event, 기존3×decoded-Journey와64KiB reserve를 함께 센다. 다른 phase와 최대값을 취하며 원 validator나 cap을 낮추지 않았다. 실제4,096-receipt read_state 회귀에서는 이전 allowance185,200B가 실제 요구320,512B를 거절하고, 새 보수 allowance424,528B에서 전체65,632B wire가 동일하게 복원됐다. 최종 scoped Rust library는285passed,0failed,2ignored,exit0이다(`C8_checkpoint_journey_validator_fix_lib.log/.exit`). 독립 검토는 이 수정의 단조 추가와 실제 decoder 회귀를 확인해 F1을 RESOLVED로 종료했고, 지정 C8 나머지 범위에서 추가 material finding은 없었다.
+
+최종 source 동결 commit은64173178d11229825efc553c441f6f90c7541979이다. Journey SHA285cf61a9e1339dbf68a0754d1efdd76d8d21a33ceed6931fe29b7b97380f32d,road SHA01694c9ec17d06b43188a9d8e9d93a4dd099173533642e993631befa5ef3a939,engine SHAbf078c2d45fda2805531812b3f74a2955a0b4137098c2cc6fc959bf8743f4e93다. 앞선6f98c4d의3phase 후보와 그 build·일부 preparation은 중간 근거로 보존하며 최종 후보의 실적으로 승격하지 않는다. 전체 규모 물리 실행은 이 최종 수정과 독립 closure 이후에 시작한다.
+
+
+### 물리 비교 기준의 재평가와 구성적 이론 업그레이드
+
+매 턴 drift watchdog가 기존 R7 예제의 비교 기준을 다시 물었다. 양의 속도 범위[a,b]에서 Γ=b/a를 인증했다면 이미 통과시간≤ℓ/a다. 전달 완료 표본의 T=u−x≥ℓ/b와 미래t≥u에 대해 Γ-envelope duration=T+(Γ−1)(t−x)≥ΓT≥ℓ/a이므로, 그 예제는 알려진 물리 속도 범위 전체보다 관측이 더 나은 선택을 제공함을 입증하지 못했다. Γ-function class의 정리·sharpness·124개 포함 검산은 유지하지만, 그 물리적 해석을 명시적으로 제한했다. 이를 no-go로 끝내지 않고 같은 배경식 τ v'=V−v의 기억을 새 구성에 사용했다.
+
+완료 통과(x,u,L)에 T=u−x, A=τ(expm1(T/τ)),α=T/A를 놓으면 backward variation-of-constants와 적분 순서 교환으로 L=A v(u)−∫₀ᵀ(e^{s/τ}−1)V(x+s)ds를 얻는다. 적분의 양의 kernel 총량은 A−T이므로 endpoint 속도는 αL/T+(1−α)[a,b] 안이다. 전달 지연과 미래 시간을 forward response로 전파하고 양의 속도 상·하 함수의 거리 적분을 역으로 풀면, 과거 관측에서 인과적으로 좁혀진 FIFO arrival bounds를 구성한다. 새 증명·범위·극한·단위 검사는 `V03_FINITE_RESPONSE_PROBE_UPGRADE_20261123.md`, 실행식은 `src/metroflow/v1/finite_response_probe_certificate.py`에 있다.
+
+판별례는τ=10s,forcing/속도 범위[1,3]m/s,10→15s에10m를 통과하고16s에 전달 완료된 probe다. 새10m 구간의 전역 duration[10/3,10]s는 exact7s 경쟁 경로를 배제하지 못하며 upper-min이7s 경로를 고른다. 유도된 decision speed[1.6974007628,2.3025992372]m/s를 쓰면 새 duration은 약[4.1180114938,6.6224385552]s이고 다른 경로를 선택한다. 참 v=V=2m/s 해의 통행시간은5s이므로2s regret이 사라진다. 이는 관측이 실제 경로 선택을 바꾸는 예제다.
+
+이 dominance는 root의 floating 반올림에 의존하지 않는다. 하단 거리의 정확한 식 Q_-(16,7)=7+5e^{-0.1}(1−e^{-0.7})/(e^{0.5}−1)>52409/5057>10m라는 유리수 비교가 모든 허용 이력에서 duration<7s를 보인다. 수치 root endpoints는 binary64와70-digit Decimal 대조를 통한 수치 검산으로만 표시하며 일반적인 directed-rounding enclosure로 부르지 않는다.
+
+실제 새 표적pytest11개가0.25s에 통과했고, 별도 보류 passage84개(상수forcing60개+관측 뒤forcing변화24개)가 모두 통과했다.120개root를70-digit Decimal 식과 비교한 최대 차이는9.21514e−12s(<2e−11s), 실험wall0.771811s,exit0이다. 기존 이론 모듈·native·수요·dt·cap은 변경하지 않았다. 일반 queue/spillback의 양의forcing 인증과 native matched boundary 계측은 여전히 미완료다. 새 유도에 대한 독립 검토는 기존 정리를 재심사하지 않고 이 추가 범위만 확인한다.
