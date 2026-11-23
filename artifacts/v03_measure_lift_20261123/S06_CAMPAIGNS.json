@@ -1,0 +1,97 @@
+[
+  {
+    "label": "S06_resume25710",
+    "argv": [
+      "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+      "-u",
+      "tools/research/run_v03_prefix.py",
+      "--case",
+      "valley_weekday_s7",
+      "--start-receipt",
+      "artifacts/v03_coding_reconstruction_20261123/C7_original_continuation.json",
+      "--checkpoint",
+      "artifacts/v03_coding_reconstruction_20261123/C7_original_continuation.final.bin.gz",
+      "--horizons",
+      "10,20,40,80",
+      "--out",
+      "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_measure_lift_20261123/S06_resume25710.json"
+    ],
+    "exit_code": 0,
+    "timed_out": false,
+    "campaign_wall_s": 148.08730889600702,
+    "status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+    "start_time_s": 25710.0,
+    "completed_time_s": 25720.0,
+    "valid_advanced_duration_s": 10.0,
+    "peak_rss_bytes": 4467593216,
+    "wall_s": 147.0136158389505,
+    "final_checkpoint_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+    "current_candidate_source_sha256": "9976585060ccaf46837260cbfdaebef4cac294854c7db19fddffbb53c6ee860b",
+    "current_native_binary_sha256": "378619a766b352f4f524addd4f06797541c8460fa45385d6e0cab6bc661d20d5",
+    "error": {
+      "class_name": "BudgetExceeded",
+      "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4881718816, budget_bytes=4881597183",
+      "phase": "ADVANCE_TO_25730.0"
+    },
+    "horizons": [
+      {
+        "time_s": 25720.0,
+        "elapsed_s": 10,
+        "segment_wall_s": 31.430098655982874,
+        "native_tick_count": 1,
+        "reference_exact": false
+      }
+    ]
+  },
+  {
+    "label": "S06_fresh0",
+    "argv": [
+      "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+      "-u",
+      "tools/research/run_v03_prefix.py",
+      "--case",
+      "valley_weekday_s7",
+      "--horizons",
+      "25710,25720,25730,25750",
+      "--compare-receipt",
+      "artifacts/v03_coding_reconstruction_20261123/C7_original_continuation.json",
+      "--compare-receipt",
+      "artifacts/v03_coding_reconstruction_20261123/C8_keyset_continuation.json",
+      "--out",
+      "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_measure_lift_20261123/S06_fresh0.json"
+    ],
+    "exit_code": 0,
+    "timed_out": false,
+    "campaign_wall_s": 374.26076182804536,
+    "status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+    "start_time_s": 0.0,
+    "completed_time_s": 25720.0,
+    "valid_advanced_duration_s": 25720.0,
+    "peak_rss_bytes": 4734160896,
+    "wall_s": 373.076070880983,
+    "final_checkpoint_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+    "current_candidate_source_sha256": "9976585060ccaf46837260cbfdaebef4cac294854c7db19fddffbb53c6ee860b",
+    "current_native_binary_sha256": "378619a766b352f4f524addd4f06797541c8460fa45385d6e0cab6bc661d20d5",
+    "error": {
+      "class_name": "BudgetExceeded",
+      "message": "native road storage budget exceeded: phase=source remainder packing, required_bytes=4882889928, budget_bytes=4882885311",
+      "phase": "ADVANCE_TO_25730.0"
+    },
+    "horizons": [
+      {
+        "time_s": 25710.0,
+        "elapsed_s": 25710,
+        "segment_wall_s": 269.71504320803797,
+        "native_tick_count": 2571,
+        "reference_exact": true
+      },
+      {
+        "time_s": 25720.0,
+        "elapsed_s": 25720,
+        "segment_wall_s": 33.527872984006535,
+        "native_tick_count": 1,
+        "reference_exact": true
+      }
+    ]
+  }
+]

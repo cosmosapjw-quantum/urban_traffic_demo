@@ -18,3 +18,6 @@ A full 192-block queue retaining 1 of each 256 original rows failed the old inte
 
 ## S05 integrated native regression
 Built the checked Rust library as a budget-traced release extension and retained the previous native binary separately. The four affected Python suites pass and the mixed-road/bus 120-second finite replay agrees on eight complete states per policy against the historical binary, including wire/hash, physical report, batch and restart, with old snapshot immutability. The full sparse-city effect is NOT_RUN until S06; synthetic RED→GREEN does not justify an 8GiB full-day claim. Evidence S05_VERIFICATION.json.
+
+## S06 progressively extended original-demand experiments
+The repaired native is run from the verified original Valley25710 checkpoint with staged 10/20/40/80 s targets; a separate clean-process run from zero asks for25710/25720/25730/25750 s and full-wire/ledger references. The complete measured receipts, source SHA, RSS, actual stops and bounded 1800s command caps are in S06_CAMPAIGNS.json; requested horizons are not completed horizons. No release threshold is reduced, no block is counted as congestion, and repeated dependent attempts stop after an unchanged resource failure.
