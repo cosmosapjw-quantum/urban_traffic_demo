@@ -1613,6 +1613,7 @@ impl NativeWholeEngine {
         } else {None};
         let dynamic_budget = self.road_storage_bytes;
         let call_binding_reserve = self.runtime_storage.as_ref().map_or(0, |a| a.call_binding);
+        let fresh_initial_road_bytes = self.runtime_storage.as_ref().map_or(0, |a| a.initial_road);
         let parallel = &self.parallel;
         let road = &mut self.road;
         let service = &mut self.service;
@@ -1630,7 +1631,9 @@ impl NativeWholeEngine {
                     step,
                     dynamic_budget,
                     call_binding_reserve,
+                    fresh_initial_road_bytes,
                     original_road_shared,
+                    dynamic_budget.map(|_|state.value.road.retained_storage_bytes()),
                     Some(&state.value.journey),
                 )
             })

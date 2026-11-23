@@ -97,8 +97,16 @@ snapshot capture, 전체 장부 검증, road→service→journey 순서의 check
 단계별 임시 상한은 공개 호출·load/restore 경계에서 정리한다. 검증 계약에는
 commit 후보의 장부 검사와 같은 budget에서 다시 decode할 때 필요한 capacity
 여유까지 포함한다. 예산 초과 뒤 반환한 마지막 유효 상태는 fresh runtime의
-load/replay로 확인해야 한다. 이 checkpointability guard의 구현·검토 상태는 아래
-accounting 검토 기록과 해당 후보의 실행 영수증을 함께 확인한다.
+load/replay로 확인해야 한다. 2026-11-23 수정은 현재 source/input/candidate의
+동시 commit 비용과 새 runtime에서의 독립 decode 비용을 별도 phase의 최댓값으로
+검사한다. Fresh decode에서는 road를 먼저 읽고 그 작업공간이 해제된 뒤 service와
+Journey 및 bundle 검증이 이어진다. 실제 load 경로의 admission도 같은 순서를
+반영하며, keyset interning은 별도의 동시 작업공간이 허용될 때만 수행한다.
+이 예측은 이미 채워진 같은 engine의 재로드나 임의로 보관한 사용자 snapshot의
+여유까지 보장하지 않는다. 그러한 load에서도 실제 live-owner guard는 유지하며,
+V03의 43,200s same-engine resume 수용시험은 별도로 통과해야 한다.
+이 checkpointability guard의 구현·검토 상태는 아래 accounting 검토 기록과
+해당 후보의 실행 영수증을 함께 확인한다.
 
 이 수치는 native 구조와 명시적 보수 allowance의 계상값이다. Python frontend,
 opaque Rayon/allocator 내부 비용, 임의로 추가 보관한 snapshot까지 포함하는 OS RSS

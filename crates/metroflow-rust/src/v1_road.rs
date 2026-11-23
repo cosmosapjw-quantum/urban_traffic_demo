@@ -453,6 +453,10 @@ struct RoadWorkBudget {
     /// combine's index/output buffers and the output packet list.
     interval_transient: usize,
     service_events: Option<ServiceEventAccounting>,
+    /// Only source-bound whole calls may omit the FUTURE incoming combine
+    /// buffers during source preparation and motion prediction. Existing
+    /// offer construction has its separate full per-offer overlap reserve.
+    source_prediction_phase: bool,
 }
 #[derive(Clone, Copy)]
 struct ServiceEventAccounting {
@@ -465,6 +469,7 @@ struct ServiceEventAccounting {
     /// Exact original NativeWholeEngine::restore snapshot–committed RoadState
     /// Arc overlap before advance. Applies ONLY at the old source clock.
     original_input_road_shared: Option<(f64,usize)>,
+    original_input_road_bytes: Option<usize>,
 }
 impl ServiceEventAccounting {
     /// Event buffers live during the road step: the call-input and current
@@ -975,12 +980,12 @@ pub(crate) fn sink_envelope_bytes(sink_rows: usize, max_tag_bytes: usize) -> usi
     rows.saturating_add(strings).saturating_add(map)
 }
 /// Decode guards run before each reserve, while the old owner and any known
-/// call-input snapshot remain live. Validation scratch is charged as rows arrive.
+/// call-input snapshot remain live. Row materialization is charged here;
+/// the streaming validator separately admits its actual accumulator growth.
 struct RoadDecodeBudget {
     limit: Option<usize>,
     retained_input: usize,
     decoded: usize,
-    validation: usize,
 }
 const EVENT_CLOCK_TOLERANCE_S: f64 = 1e-10;
 
@@ -1093,20 +1098,18 @@ impl EventClock {
 impl RoadDecodeBudget {
     fn pack_parts(&mut self, parts: Vec<Part>) -> PyResult<PacketParts> {
         let raw_bytes = parts.capacity().saturating_mul(std::mem::size_of::<Part>());
-        let packed = PacketParts::pack(parts, |bytes| self.reserve(bytes, 0))?;
+        let packed = PacketParts::pack(parts, |bytes| self.reserve(bytes))?;
         if packed.is_uniform() {
             self.decoded = self.decoded.saturating_sub(raw_bytes);
         }
         Ok(packed)
     }
-    fn reserve(&mut self, bytes: usize, validation: usize) -> PyResult<()> {
+    fn reserve(&mut self, bytes: usize) -> PyResult<()> {
         self.decoded = self.decoded.saturating_add(bytes);
-        self.validation = self.validation.saturating_add(validation);
         let required = self
             .decoded
             .max(self.retained_input)
-            .saturating_mul(3)
-            .saturating_add(self.validation);
+            .saturating_mul(3);
         if let Some(limit) = self.limit {
             if crate::v1_trace::guard(
                 "road_decode",
@@ -1116,7 +1119,6 @@ impl RoadDecodeBudget {
                 &[
                     ("decoded", self.decoded),
                     ("retained_input", self.retained_input),
-                    ("validation", self.validation),
                 ],
             ) {
                 return Ok(());
@@ -1157,6 +1159,9 @@ impl RoadWorkBudget {
     fn retire_completed_motion_scan(&mut self, live_queue_and_motion_bytes:usize) {
         self.expired_motion_scan_credit=self.row_scan_scratch_bytes
             .saturating_sub(live_queue_and_motion_bytes);
+        // Incoming service/interval combination can begin only after all
+        // motion predictions were consumed. Its full reserve resumes here.
+        self.source_prediction_phase=false;
     }
     /// Called exactly once, after prediction queues have been constructed
     /// by clone_packet from this immutable source and before service begins.
@@ -1331,7 +1336,8 @@ impl RoadWorkBudget {
         let no_active_combine_pack = phase=="packet interval packing"
             && self.incoming_descriptor_live_bytes.is_some()
             && source_part_bytes.is_some();
-        let phase_base=if phase=="transfer candidates"
+        let phase_base=if self.source_prediction_phase
+            || phase=="transfer candidates"
             || phase=="transfer header reservation" {
             self.base.saturating_sub(self.transfer_exclusive_cell_scratch)
         } else if no_active_combine_pack {
@@ -1369,6 +1375,9 @@ impl RoadWorkBudget {
                     ("frozen_queue_source_payload_credit",frozen),
                     ("diagnostic_source_actual_capacity_bytes",self.diagnostic_source_live_bytes),
                     ("full_source_base", self.base),
+                    ("source_prediction_combine_not_live",if self.source_prediction_phase {
+                        self.transfer_exclusive_cell_scratch
+                    }else{0}),
                     ("transfer_exclusive_cell_scratch",
                         if phase=="transfer candidates" {
                             self.transfer_exclusive_cell_scratch
@@ -2114,41 +2123,61 @@ impl RoadState {
             )
             .saturating_add(buffers.saturating_mul(32))
     }
-    /// Nonallocating envelope for decoding this state's unchanged wire rows.
-    /// Fresh vector capacities are no larger than the retained capacities.
-    /// RoadDecodeBudget temporarily charges raw Part rows plus new CorePart
-    /// rows before releasing the raw buffer for a Uniform packet. Relative to
-    /// the final decoded owner, the largest such overlap is one raw packet;
-    /// all preceding packet/tree/outer-vector charges remain retained below.
-    pub(crate) fn checkpoint_decode_envelope(&self) -> (usize, usize) {
-        let stats = self.debug_stats();
-        let largest_packet = self
-            .cells
-            .iter()
-            .map(|cell| &cell.packets)
-            .chain(self.pending.iter())
-            .flat_map(|queue| queue.iter())
-            .map(|packet| packet.parts.len())
-            .max()
-            .unwrap_or(0);
-        let retained_and_decode = self
-            .retained_storage_bytes()
-            .saturating_add(largest_packet.saturating_mul(std::mem::size_of::<Part>()));
-        // These terms mirror RoadDecodeBudget::reserve's validation increments:
-        // 16 per homogeneous part, 32 per packet, and 32 per cell.
-        let validation = stats
-            .cell_parts
-            .saturating_add(stats.pending_parts)
-            .saturating_mul(16)
-            .saturating_add(
-                stats
-                    .cell_packets
-                    .saturating_add(stats.pending_packets)
-                    .saturating_add(self.cells.len())
-                    .saturating_mul(32),
-            );
-        (retained_and_decode, validation)
+    /// Fresh wire decode owns independent CorePart/Part rows, including when
+    /// the supplied state currently shares key arrays or whole packet Arcs.
+    /// Mirror read_state's declared packet/cell/tree/ledger allocations rather
+    /// than borrowing the current owner's compression. Raw-to-Core packing
+    /// temporarily retains one raw Part packet while its Core rows are live.
+    fn checkpoint_decode_envelope(&self,validation_scratch:usize)->(usize,usize) {
+        let mut decoded=std::mem::size_of::<Self>().saturating_add(3*32)
+            .saturating_add(self.cells.len().saturating_mul(
+                std::mem::size_of::<Cell>()+256+2*32))
+            .saturating_add(self.pending.len().saturating_mul(
+                std::mem::size_of::<Vec<Packet>>()))
+            .saturating_add(self.ledger.len().saturating_mul(
+                std::mem::size_of::<[f64;5]>()));
+        for cell in &self.cells {
+            decoded=decoded.saturating_add(cell.latent.len().saturating_mul(256));
+        }
+        let mut largest_packet=0usize;
+        for queue in self.cells.iter().map(|cell|&cell.packets).chain(&self.pending) {
+            decoded=decoded.saturating_add(queue.len().saturating_mul(
+                std::mem::size_of::<Packet>()+32));
+            for packet in queue {
+                let width=if packet.parts.is_uniform() {
+                    std::mem::size_of::<CorePart>()
+                } else {std::mem::size_of::<Part>()};
+                decoded=decoded.saturating_add(packet.parts.len().saturating_mul(width));
+                largest_packet=largest_packet.max(packet.parts.len());
+            }
+        }
+        (decoded.saturating_add(largest_packet.saturating_mul(
+            std::mem::size_of::<Part>())),validation_scratch)
     }
+
+    /// An optional representation pass must fit without relying on savings
+    /// that have not happened. All new key payloads (8 bytes/row) plus all new
+    /// moment payloads (16 bytes/row) fit in one CorePart allowance per uniform
+    /// row while old owners remain charged. The separate 1024-byte/packet
+    /// envelope covers the two growing Vecs, three hash tables, per-bucket
+    /// Vecs, Arc controls and serial old/new backing growth; 64 KiB covers
+    /// their fixed/minimum-capacity allocations. This is deliberately a
+    /// structural upper envelope, not a claim about measured process RSS.
+    fn checkpoint_intern_workspace_upper_bytes(&self)->usize {
+        let mut uniform_rows=0usize;
+        let mut packets=0usize;
+        for packet in self.cells.iter().flat_map(|cell|&cell.packets)
+            .chain(self.pending.iter().flatten()) {
+            packets=packets.saturating_add(1);
+            if packet.parts.is_uniform() {
+                uniform_rows=uniform_rows.saturating_add(packet.parts.len());
+            }
+        }
+        uniform_rows.saturating_mul(std::mem::size_of::<CorePart>())
+            .saturating_add(packets.saturating_mul(1024))
+            .saturating_add(65536)
+    }
+
 }
 #[derive(Clone)]
 struct Motion {
@@ -3623,7 +3652,6 @@ impl V1Road {
         let n = read_len(r, *remaining)?;
         work.reserve(
             n.saturating_mul(std::mem::size_of::<Packet>() + 32),
-            n.saturating_mul(32),
         )?;
         let mut q = checkpoint_vec(n)?;
         for _ in 0..n {
@@ -3635,7 +3663,6 @@ impl V1Road {
             *remaining -= m;
             work.reserve(
                 m.saturating_mul(std::mem::size_of::<Part>()),
-                m.saturating_mul(16),
             )?;
             let mut parts = checkpoint_vec(m)?;
             for _ in 0..m {
@@ -3690,7 +3717,6 @@ impl V1Road {
                 0
             },
             decoded: std::mem::size_of::<RoadState>().saturating_add(3 * 32),
-            validation: 0,
         };
         // Include empty tree roots and both packet-queue buffer allowances for
         // every cell, before constructing the first outer vector.
@@ -3698,7 +3724,6 @@ impl V1Road {
             self.groups
                 .len()
                 .saturating_mul(std::mem::size_of::<Cell>() + 256 + 2 * 32),
-            self.groups.len().saturating_mul(32),
         )?;
         let mut cells = checkpoint_vec(self.groups.len())?;
         for _ in &self.groups {
@@ -3708,7 +3733,7 @@ impl V1Road {
             }
             let packets = self.read_packets(r, &mut remaining, &mut work)?;
             let n = read_len(r, self.classes.len())?;
-            work.reserve(n.saturating_mul(256), 0)?;
+            work.reserve(n.saturating_mul(256))?;
             let mut latent = BTreeMap::new();
             for _ in 0..n {
                 let k = read_len(r, self.classes.len())?;
@@ -3724,7 +3749,6 @@ impl V1Road {
             self.groups
                 .len()
                 .saturating_mul(std::mem::size_of::<Vec<Packet>>()),
-            0,
         )?;
         let mut pending = checkpoint_vec(self.groups.len())?;
         for _ in &self.groups {
@@ -3739,7 +3763,6 @@ impl V1Road {
             self.classes
                 .len()
                 .saturating_mul(std::mem::size_of::<[f64; 5]>()),
-            0,
         )?;
         let mut ledger = checkpoint_vec(self.classes.len())?;
         for _ in &self.classes {
@@ -3761,9 +3784,26 @@ impl V1Road {
         // Exact ordered-keyset interning replaces independent full CorePart
         // payloads with actually shared immutable key arrays only in capped
         // native runs. Reconstructed Part values and wire stay identical.
-        if self.storage_budget.is_some() {
-            state.intern_exact_keysets()?;
-            self.check_state(&state)?;
+        if let Some(limit)=self.storage_budget {
+            let decoded_owner=state.retained_storage_bytes();
+            let scratch=state.checkpoint_intern_workspace_upper_bytes();
+            // Exactly one newly decoded owner exists here. Two old/source
+            // owners are each bounded by retained_input. Keep the original
+            // 3*max admission floor, but do not invent two additional decoded
+            // owners while adding the interner's actual new payload/work.
+            let floor=decoded_owner.max(work.retained_input).saturating_mul(3);
+            let live=decoded_owner.saturating_add(work.retained_input.saturating_mul(2))
+                .saturating_add(scratch);
+            let required=floor.max(live);
+            if required<=limit {
+                state.intern_exact_keysets()?;
+                self.check_state(&state)?;
+            } else {
+                // A validated independent decoded owner is already complete.
+                // Optional compression may never be required for readability
+                // or allocate using its merely prospective payload savings.
+                crate::v1_trace::add("road_decode.keyset_intern_deferred",1);
+            }
         }
         Ok(state)
     }
@@ -3832,7 +3872,18 @@ impl V1Road {
             shared_input_current,
             max_tag_bytes,
             original_input_road_shared,
+            original_input_road_bytes:None,
         });
+    }
+    /// Bind the original caller snapshot's observed capacity, not the
+    /// restored clone's potentially smaller Vec capacities. An explicit
+    /// whole-source witness permits concrete owner accounting; absent it,
+    /// standalone callers keep the original max-owner fallback.
+    pub(crate) fn bind_original_input_road_storage(&mut self,bytes:Option<usize>) {
+        if let Some(accounting)=&mut self.service_event_accounting {
+            accounting.original_input_road_bytes=bytes;
+            if let Some(bytes)=bytes {self.retained_input_bytes=bytes;}
+        }
     }
     /// The engine calls this only after restoring the exact original
     /// NativeWholeState source, which clones the immutable Arc backings.
@@ -3931,6 +3982,7 @@ impl V1Road {
                 interval_retained: 0,
                 interval_transient: 0,
                 service_events: None,
+                source_prediction_phase:false,
             });
         }
         let stats = state.debug_stats();
@@ -3938,6 +3990,17 @@ impl V1Road {
         let groups = self.groups.len();
         let supplied_retained = state.retained_storage_bytes();
         let maximum_retained = supplied_retained.max(self.retained_input_bytes);
+        let source_bound=std::ptr::eq(state,&self.state)
+            && self.service_event_accounting
+                .and_then(|a|a.original_input_road_bytes).is_some();
+        // The real supplied input and current state are separately known.
+        // Retain one full max-sized future candidate allowance, exactly as
+        // before, plus the unchanged incremental row/offer/interval guards.
+        // A source measurement never certifies any payload alias by itself.
+        let owner_bytes=if source_bound {
+            self.retained_input_bytes.saturating_add(supplied_retained)
+                .saturating_add(maximum_retained)
+        }else{maximum_retained.saturating_mul(3)};
         // A self comparison cannot establish sharing with the original
         // caller snapshot after an earlier tick committed. The whole engine
         // records the real restore-time source/committed Arc intersection;
@@ -3961,8 +4024,7 @@ impl V1Road {
         crate::v1_trace::add("arc.experimental_paired_credit",experimental_credit as u64);
         let combine_scratch=stats.max_cell_parts
             .saturating_mul(2*std::mem::size_of::<Part>());
-        let base = maximum_retained
-            .saturating_mul(3)
+        let base = owner_bytes
             .saturating_sub(paired_credit)
             .saturating_add(rows.saturating_mul(4 * std::mem::size_of::<f64>()))
             .saturating_add(
@@ -3981,6 +4043,8 @@ impl V1Road {
                 &[
                     ("state_retained", state.retained_storage_bytes()),
                     ("input_retained", self.retained_input_bytes),
+                    ("concrete_source_owner_charge",owner_bytes),
+                    ("original_input_capacity_witness",usize::from(source_bound)),
                     ("rows", rows),
                     ("offers", offers.len()),
                     ("max_cell_parts", stats.max_cell_parts),
@@ -4011,6 +4075,7 @@ impl V1Road {
             interval_retained: 0,
             interval_transient: 0,
             service_events: self.service_event_accounting,
+            source_prediction_phase:source_bound,
         };
         work.require(0, "tick preflight")?;
         Ok(work)
@@ -4506,6 +4571,18 @@ impl V1Road {
         Ok(q)
     }
     fn check_state(&self, s: &RoadState) -> PyResult<()> {
+        self.check_state_with_scratch(s).map(|_|())
+    }
+
+    /// Revalidate the exact candidate scan order to obtain an actual scratch
+    /// witness for its unchanged wire values; no universal partial-count
+    /// bound or future allocation-sharing assumption enters this envelope.
+    pub(crate) fn checkpoint_decode_envelope(&self,s:&RoadState)->PyResult<(usize,usize)> {
+        let scratch=self.check_state_with_scratch(s)?;
+        Ok(s.checkpoint_decode_envelope(scratch))
+    }
+
+    fn check_state_with_scratch(&self, s: &RoadState) -> PyResult<usize> {
         if s.cells.len() != self.groups.len()
             || s.pending.len() != self.groups.len()
             || s.ledger.len() != self.classes.len()
@@ -4627,8 +4704,9 @@ impl V1Road {
                 return Err(arithmetic("class/global ledger mismatch"));
             }
         }
-        crate::v1_trace::add("validation.actual_peak_scratch_bytes",validation.peak_bytes.get() as u64);
-        Ok(())
+        let peak=validation.peak_bytes.get();
+        crate::v1_trace::add("validation.actual_peak_scratch_bytes",peak as u64);
+        Ok(peak)
     }
     fn step_state(
         &self,
@@ -5553,13 +5631,11 @@ impl V1Road {
         work.reserve(
             rows.len()
                 .saturating_mul(std::mem::size_of::<Packet>() + 32),
-            rows.len().saturating_mul(32),
         )?;
         let mut result = checkpoint_vec(rows.len())?;
         for (target, rows) in rows {
             work.reserve(
                 rows.len().saturating_mul(std::mem::size_of::<Part>()),
-                rows.len().saturating_mul(16),
             )?;
             let mut parts = checkpoint_vec(rows.len())?;
             for (tag, offset, mass, birth, a, b) in rows {
@@ -5650,18 +5726,16 @@ impl V1Road {
             decoded: std::mem::size_of::<RoadState>()
                 .saturating_add(3 * 32)
                 .saturating_add(input_bytes),
-            validation: 0,
         };
         work.reserve(
             cells
                 .len()
                 .saturating_mul(std::mem::size_of::<Cell>() + 256 + 2 * 32),
-            cells.len().saturating_mul(32),
         )?;
         let mut cs = checkpoint_vec(cells.len())?;
         for (v, p, l) in cells {
             let v: [f64; 8] = v.try_into().map_err(|_| val("cell row length"))?;
-            work.reserve(l.len().saturating_mul(256), 0)?;
+            work.reserve(l.len().saturating_mul(256))?;
             let latent: BTreeMap<usize, f64> = l.iter().copied().collect();
             if latent.len() != l.len() {
                 return Err(val("duplicate latent class"));
@@ -5675,7 +5749,6 @@ impl V1Road {
         let totals: [f64; 7] = totals.try_into().map_err(|_| val("totals row length"))?;
         work.reserve(
             ledger.len().saturating_mul(std::mem::size_of::<[f64; 5]>()),
-            0,
         )?;
         let mut ls = checkpoint_vec(ledger.len())?;
         for l in ledger {
@@ -5685,7 +5758,6 @@ impl V1Road {
             pending
                 .len()
                 .saturating_mul(std::mem::size_of::<Vec<Packet>>()),
-            0,
         )?;
         let mut sources = checkpoint_vec(pending.len())?;
         for q in pending {
@@ -5969,6 +6041,7 @@ mod workspace_accounting_tests {
             interval_retained: 0,
             interval_transient: 0,
             service_events: None,
+                source_prediction_phase:false,
         }
     }
 
@@ -5997,6 +6070,7 @@ mod workspace_accounting_tests {
             shared_input_current: false,
             max_tag_bytes: 64,
             original_input_road_shared: None,
+            original_input_road_bytes:None,
         };
         let rows = 10_000;
         assert_eq!(
@@ -6671,6 +6745,7 @@ mod exact_shared_event_source_budget_tests {
             input_bytes: 8192, current_bytes: 8192,
             max_tag_bytes: 0, shared_input_current: true,
             original_input_road_shared: None,
+            original_input_road_bytes:None,
         };
         let separate = ServiceEventAccounting {
             shared_input_current: false, ..one
@@ -7568,7 +7643,7 @@ mod exact_consumed_packet_source_lifetime_tests {
             incoming_descriptor_live_bytes:None,
             compact_events:true,narrow_events:false,compact_incoming:true,
             interval_retained:0,interval_transient:0,
-            service_events:None,
+            service_events:None,source_prediction_phase:false,
         }
     }
 
@@ -7723,7 +7798,7 @@ mod exact_incoming_cell_page_liveness_tests {
             incoming_page_cells:g,compact_events:true,narrow_events:false,compact_incoming:true,
             incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         }
     }
     fn part(i:usize)->Part {
@@ -7800,7 +7875,7 @@ mod exact_locked_incoming_descriptor_lifetime_tests {
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,narrow_events:false,compact_incoming:true,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         }
     }
     #[test]
@@ -7882,7 +7957,7 @@ mod exact_pending_pack_live_descriptor_tests {
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,narrow_events:false,compact_incoming:true,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         };
         let mut incoming:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
         let mut marks:Vec<ChunkedMarks>=(0..3).map(|_|ChunkedMarks::default()).collect();
@@ -8051,7 +8126,7 @@ mod original_transfer_exclusive_cell_scratch_tests {
             incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:false,narrow_events:false,compact_incoming:false,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         }
     }
     #[test]
@@ -8133,7 +8208,7 @@ mod original_completed_source_exact_packet_admission_tests {
             incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:Some(0),
             compact_events:false,narrow_events:false,compact_incoming:false,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         }
     }
     fn part()->Part{
@@ -8182,7 +8257,7 @@ mod original_precombine_pending_remainder_lifetime_tests {
             incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,narrow_events:false,compact_incoming:true,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         }
     }
     #[test]
@@ -8222,7 +8297,7 @@ mod transfer_live_header_budget_constructive_tests {
             events:0,incoming:0,incoming_page_cells:3,compact_events:true,narrow_events:false,
             compact_incoming:true,incoming_cell_rows:Some(vec![0;3]),
             incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,incoming_descriptor_live_bytes:None,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         }
     }
     fn part()->Part {
@@ -8272,7 +8347,7 @@ mod transfer_header_growth_overlap_adversarial_tests {
             incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,narrow_events:false,compact_incoming:true,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         };
         let mut incoming=vec![ChunkedParts::new(true)];
         let mut marks=vec![ChunkedMarks::default()];
@@ -8317,7 +8392,7 @@ mod transfer_header_temporal_nonoverlap_regression_tests {
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:false,narrow_events:false,compact_incoming:true,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         };
         let mut parts:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
         let mut marks:Vec<ChunkedMarks>=(0..3).map(|_|ChunkedMarks::default()).collect();
@@ -8346,7 +8421,7 @@ mod expired_motion_rows_source_lifetime_tests {
             incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:false,narrow_events:false,compact_incoming:false,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         };
         assert!(w.require(0,"tick preflight").is_err());
         assert!(w.require(0,"transfer candidates").is_err());
@@ -8367,7 +8442,7 @@ mod expired_motion_rows_source_lifetime_tests {
             incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:false,narrow_events:false,compact_incoming:false,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         };
         w.retire_completed_motion_scan(450);
         assert_eq!(w.expired_motion_scan_credit,0);
@@ -8389,7 +8464,7 @@ mod diagnostic_lineage_after_motion_expiry_source_tests {
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events:true,narrow_events:false,compact_incoming:true,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         };
         let mut incoming:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
         let mut marks:Vec<ChunkedMarks>=(0..3).map(|_|ChunkedMarks::default()).collect();
@@ -8682,7 +8757,7 @@ mod v03_surgical_exact_interval_owner_lifetime_20261122_tests {
             incoming_descriptor_live_bytes:Some(0),
             compact_events:false,narrow_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,
-            service_events:None,
+            service_events:None,source_prediction_phase:false,
         }
     }
     #[test]
@@ -8738,7 +8813,7 @@ mod v03_cell_packet_after_interval_exact_source_20261122_tests {
             incoming_page_cells:0,incoming_cell_rows:Some(Vec::new()),
             incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,incoming_descriptor_live_bytes:Some(0),
             compact_events:false,narrow_events:false,compact_incoming:false,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         }
     }
     #[test]
@@ -9235,7 +9310,7 @@ mod v03_event_backed_incoming_20261123_tests {
             incoming_direct_cell_rows:Some(vec![0;cells]),
             incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,compact_events:true,narrow_events:false,compact_incoming:true,
-            interval_retained:0,interval_transient:0,service_events:None,
+            interval_retained:0,interval_transient:0,service_events:None,source_prediction_phase:false,
         }
     }
 
@@ -9757,5 +9832,308 @@ mod v03_validation_stream_20261123_tests {
             let error=road.check_state(&road.state).unwrap_err().to_string();
             assert!(error.contains(expected),"case {case}: {error}");
         }
+    }
+}
+
+
+#[cfg(test)]
+mod v03_prediction_owner_20261123_tests {
+    use super::*;
+    fn empty()->V1Road {
+        V1Road::new("prediction-owner-source".into(),1.0,
+            vec![vec![1_000_000.0,1.0,100_000.0,100_000.0,100_000.0,1.0]],
+            vec![None],vec![(vec![0],0)],vec![vec![1.0;13]],vec![vec![0]],
+            vec![],100_000,Some(100_000),true).unwrap()
+    }
+    fn growing_current()->V1Road {
+        let mut road=empty();
+        let parts=PacketParts::pack((0..10_000).map(|_|Part{
+            tag:0,offset:0,mass:1.0/256.0,birth:0.0,
+            a:PackedTime::new(Some(0.0)).unwrap(),
+            b:PackedTime::new(Some(0.0)).unwrap(),
+        }).collect(),|_|Ok(())).unwrap();
+        road.state.cells[0].packets.push(Packet{target:1_000_000.0,parts});
+        road.state.cells[0].v[2]=10_000.0/256.0;
+        road.state.totals[0]=road.state.cells[0].v[2];
+        road.state.ledger[0][0]=road.state.totals[0];
+        road.state.t=10.0;
+        road
+    }
+    fn bind(road:&mut V1Road,original:&RoadState,cap:usize) {
+        road.set_phase_storage_budget(cap).unwrap();
+        road.begin_call_storage_accounting();
+        road.configure_service_event_accounting(0,0,false,Some((original.t,0)));
+        road.bind_original_input_road_storage(Some(original.retained_storage_bytes()));
+    }
+    #[test]
+    fn whole_call_small_original_growing_current_passes_real_preflight_and_step() {
+        pyo3::prepare_freethreaded_python();
+        let original=empty().state;
+        let mut road=growing_current();
+        let mut reference=growing_current();
+        bind(&mut road,&original,1_800_000);
+        let result=road.propose_owned_step(1.0,vec![]);
+        if let Err(ref error)=result {panic!("growing current must not create fictitious large original owner: {error}");}
+        let (candidate,events)=result.unwrap();
+        let (oracle,oracle_events)=reference.propose_owned_step(1.0,vec![]).unwrap();
+        assert_eq!(events.len(),oracle_events.len());
+        let mut before=Vec::new();road.write_state(&mut before).unwrap();
+        assert_eq!(road.state.t,10.0);
+        road.state=candidate;reference.state=oracle;
+        let mut actual=Vec::new();let mut expected=Vec::new();
+        road.write_state(&mut actual).unwrap();reference.write_state(&mut expected).unwrap();
+        assert_eq!(actual,expected);
+        assert_ne!(before,actual);
+    }
+    #[test]
+    fn whole_call_large_original_capacity_keeps_its_actual_owner() {
+        pyo3::prepare_freethreaded_python();
+        let mut original=empty().state;
+        original.cells[0].packets.reserve_exact(10_000);
+        let mut road=empty();road.state.t=10.0;
+        let input=original.retained_storage_bytes();
+        let current=road.state.retained_storage_bytes();
+        assert!(input>100*current);
+        let cap=input.saturating_mul(2)+100_000;
+        bind(&mut road,&original,cap);
+        let result=road.work_budget(&road.state,&[]);
+        assert!(result.is_ok(),"actual large original plus small current must fit explicit cap");
+        assert_eq!(road.retained_input_bytes,input);
+    }
+
+    #[test]
+    fn no_original_capacity_witness_preserves_standalone_fallback() {
+        pyo3::prepare_freethreaded_python();
+        let mut road=growing_current();
+        road.set_phase_storage_budget(1_800_000).unwrap();
+        road.begin_call_storage_accounting();
+        road.configure_service_event_accounting(0,0,false,Some((0.0,0)));
+        road.bind_original_input_road_storage(None);
+        let error=road.propose_owned_step(1.0,vec![]).err().unwrap().to_string();
+        assert!(error.contains("tick preflight"),"{error}");
+        assert!(error.contains("required_bytes=2005536"),"{error}");
+    }
+    #[test]
+    fn expired_source_clock_never_credits_shared_payload_in_concrete_owner_formula() {
+        pyo3::prepare_freethreaded_python();
+        let mut road=growing_current();
+        let mut original=road.state.clone();original.t=0.0;
+        let payload=road.state.paired_shared_payload_lower_bound(&original);
+        assert!(payload>0);
+        road.set_phase_storage_budget(10_000_000).unwrap();
+        road.begin_call_storage_accounting();
+        road.configure_service_event_accounting(0,0,false,Some((original.t,payload)));
+        road.bind_original_input_road_storage(Some(original.retained_storage_bytes()));
+        let work=road.work_budget(&road.state,&[]).unwrap();
+        let current=road.state.retained_storage_bytes();
+        let input=original.retained_storage_bytes();
+        let stats=road.state.debug_stats();
+        let expected=input+current+input.max(current)
+            +(stats.cell_parts+stats.pending_parts)*32
+            +stats.max_cell_parts*2*std::mem::size_of::<Part>()
+            +road.groups.len()*(1024+road.classes.len()*1024);
+        assert_eq!(work.base,expected,"expired source payload credit must be zero");
+    }
+    #[test]
+    fn prediction_exclusion_ends_before_incoming_combine() {
+        pyo3::prepare_freethreaded_python();
+        let original=empty().state;
+        let mut road=growing_current();bind(&mut road,&original,10_000_000);
+        let mut work=road.work_budget(&road.state,&[]).unwrap();
+        assert!(work.source_prediction_phase);
+        let combine=work.transfer_exclusive_cell_scratch;
+        assert!(combine>0);
+        work.row_scan_scratch_bytes=0;
+        work.limit=Some(0);
+        let before=work.require(0,"packet interval packing").unwrap_err().to_string();
+        work.retire_completed_motion_scan(0);
+        assert!(!work.source_prediction_phase);
+        let after=work.require(0,"packet interval packing").unwrap_err().to_string();
+        let required=|s:String|s.split("required_bytes=").nth(1).unwrap()
+            .split(',').next().unwrap().parse::<usize>().unwrap();
+        assert_eq!(required(after)-required(before),combine);
+    }
+    #[test]
+    fn source_offer_overlap_and_whole_tick_wire_remain_original() {
+        pyo3::prepare_freethreaded_python();
+        let original=empty().state;
+        let mut road=growing_current();let mut reference=growing_current();
+        bind(&mut road,&original,1_800_000);
+        let offers:Vec<Offer>=(0..64).map(|_|(0,1.0/256.0,10.0/256.0,None,None)).collect();
+        let (candidate,events)=road.propose_owned_step(1.0,offers.clone()).unwrap();
+        let (oracle,oracle_events)=reference.propose_owned_step(1.0,offers).unwrap();
+        let bits=|e:EventRow|(e.0,e.1,e.2,e.3.to_bits(),e.4.to_bits(),e.5.to_bits(),e.6.to_bits());
+        assert_eq!(events.iter().map(bits).collect::<Vec<_>>(),
+            oracle_events.iter().map(bits).collect::<Vec<_>>());
+        road.state=candidate;reference.state=oracle;
+        let mut actual=Vec::new();let mut expected=Vec::new();
+        road.write_state(&mut actual).unwrap();reference.write_state(&mut expected).unwrap();
+        assert_eq!(actual,expected);
+    }
+}
+
+#[cfg(test)]
+mod v03_checkpoint_validation_bridge_20261123_tests {
+    use super::*;
+    use std::io::Cursor;
+
+    fn populated(rows: usize, packets: usize) -> V1Road {
+        let mut road=V1Road::new(
+            "checkpoint-stream-source".into(),1.0,
+            vec![vec![1_000_000.0,1.0,100_000.0,100_000.0,100_000.0,1.0]],
+            vec![None],vec![(vec![0],0)],vec![vec![1.0;13]],vec![vec![0]],
+            vec![],100_000,None,true,
+        ).unwrap();
+        for _ in 0..packets {
+            let parts=PacketParts::pack((0..rows).map(|_|Part{
+                tag:0,offset:0,mass:1.0/256.0,birth:-0.0,
+                a:PackedTime::new(Some(-0.0)).unwrap(),
+                b:PackedTime::new(Some(0.0)).unwrap(),
+            }).collect(),|_|Ok(())).unwrap();
+            road.state.cells[0].packets.push(Packet{target:1_000_000.0,parts});
+        }
+        road.state.cells[0].v[2]=(rows*packets) as f64/256.0;
+        road.state.totals[0]=road.state.cells[0].v[2];
+        road.state.ledger[0][0]=road.state.totals[0];
+        road
+    }
+
+    #[test]
+    fn decoder_streams_validation_under_same_cap() {
+        pyo3::prepare_freethreaded_python();
+        let source=populated(256,64);
+        let retained=source.state.retained_storage_bytes();
+        let raw_overlap=256*std::mem::size_of::<Part>();
+        let cap=retained.saturating_add(raw_overlap).saturating_mul(3)+8192;
+        let mut wire=Vec::new();
+        source.write_state(&mut wire).unwrap();
+        let mut target=populated(0,0);
+        target.set_phase_storage_budget(cap).unwrap();
+        let decoded=target.read_state(&mut Cursor::new(&wire));
+        assert!(decoded.is_ok(),
+            "actual independent decode must fit with streaming validation: cap={cap}, retained={retained}, raw_overlap={raw_overlap}, error={:?}",decoded.as_ref().err());
+        target.state=decoded.unwrap();
+        let mut restored=Vec::new();
+        target.write_state(&mut restored).unwrap();
+        assert_eq!(wire,restored,"all serialized f64 bits and row order survive fallback");
+        assert_eq!(target.state.debug_stats().uniform_packets,64);
+        assert!(target.state.cells[0].packets.iter().all(|p|
+            matches!(&p.parts,PacketParts::SharedKeys{..})),
+            "a fresh loader must keep interning when its real owner/workspace phase fits");
+        println!("decode cap={cap} retained={retained} raw_overlap={raw_overlap} wire_bytes={}",wire.len());
+    }
+
+    #[test]
+    fn future_decode_envelope_covers_expansion_of_actual_shared_key_owner() {
+        pyo3::prepare_freethreaded_python();
+        let mut source=populated(256,64);
+        let independent=source.state.retained_storage_bytes();
+        source.state.intern_exact_keysets().unwrap();
+        let shared=source.state.retained_storage_bytes();
+        assert!(shared<independent);
+        let (decoded,_)=source.checkpoint_decode_envelope(&source.state).unwrap();
+        assert!(decoded>=independent+256*std::mem::size_of::<Part>(),
+            "wire decode needs fresh independent CorePart payloads: shared={shared}, independent={independent}, estimate={decoded}");
+    }
+
+    #[test]
+    fn decoder_defers_intern_without_allocating_its_unaffordable_workspace() {
+        pyo3::prepare_freethreaded_python();
+        let source=populated(16,1024);
+        let retained=source.state.retained_storage_bytes();
+        let cap=(retained+16*std::mem::size_of::<Part>())*3+8192;
+        let workspace=source.state.checkpoint_intern_workspace_upper_bytes();
+        assert!(retained+workspace>cap);
+        let mut wire=Vec::new();
+        source.write_state(&mut wire).unwrap();
+        let mut target=populated(0,0);
+        target.set_phase_storage_budget(cap).unwrap();
+        target.state=target.read_state(&mut Cursor::new(&wire)).unwrap();
+        assert!(target.state.cells[0].packets.iter().all(|p|
+            matches!(&p.parts,PacketParts::Uniform{..})),
+            "unaffordable optional interning must leave the valid decoded owner intact");
+        let mut restored=Vec::new();
+        target.write_state(&mut restored).unwrap();
+        assert_eq!(wire,restored);
+        println!("deferred optional intern cap={cap} independent={retained} workspace_upper={workspace}");
+    }
+
+    #[test]
+    fn decoder_keeps_optional_interning_when_its_full_workspace_fits() {
+        pyo3::prepare_freethreaded_python();
+        let source=populated(256,64);
+        let owners=source.state.retained_storage_bytes().saturating_mul(3);
+        let scratch=source.state.checkpoint_intern_workspace_upper_bytes();
+        let mut wire=Vec::new();
+        source.write_state(&mut wire).unwrap();
+        let mut target=populated(0,0);
+        target.set_phase_storage_budget(owners+scratch+65536).unwrap();
+        target.state=target.read_state(&mut Cursor::new(&wire)).unwrap();
+        assert!(target.state.cells[0].packets.iter().all(|p|
+            matches!(&p.parts,PacketParts::SharedKeys{..})));
+        assert!(target.state.retained_storage_bytes()<source.state.retained_storage_bytes());
+        let mut restored=Vec::new();
+        target.write_state(&mut restored).unwrap();
+        assert_eq!(wire,restored);
+        println!("optional intern owners={owners} scratch_upper={scratch} final={}",
+            target.state.retained_storage_bytes());
+    }
+
+    #[test]
+    fn candidate_streaming_witness_matches_fresh_wire_validation() {
+        pyo3::prepare_freethreaded_python();
+        let mut source=populated(256,64);
+        source.state.intern_exact_keysets().unwrap();
+        let expected=source.check_state_with_scratch(&source.state).unwrap();
+        let (decoded_upper,scratch)=source.checkpoint_decode_envelope(&source.state).unwrap();
+        assert_eq!(scratch,expected);
+        let mut wire=Vec::new();
+        source.write_state(&mut wire).unwrap();
+        let target=populated(0,0);
+        let decoded=target.read_state(&mut Cursor::new(&wire)).unwrap();
+        let actual=target.check_state_with_scratch(&decoded).unwrap();
+        assert_eq!(scratch,actual,"identical f64 order has identical expansion capacities");
+        assert!(decoded_upper>=decoded.retained_storage_bytes()+256*std::mem::size_of::<Part>());
+        let obsolete=256*64*16+(64+1)*32;
+        assert!(scratch<obsolete);
+        println!("fresh decode upper={decoded_upper} streaming_scratch={scratch} obsolete={obsolete}");
+    }
+
+    #[test]
+    fn decoder_still_rejects_malformed_ledgers_and_preserves_current_owner() {
+        pyo3::prepare_freethreaded_python();
+        for case in 0..3 {
+            let mut source=populated(256,64);
+            let expected=match case {
+                0=>{source.state.cells[0].v[2]+=1.0;"cell mass ledger"},
+                1=>{source.state.ledger[0][0]+=1.0;"class mass/ledger mismatch"},
+                _=>{source.state.cells[0].packets[0].target=f64::NAN;"empty/invalid native packet"},
+            };
+            let mut wire=Vec::new();
+            source.write_state(&mut wire).unwrap();
+            let mut target=populated(0,0);
+            target.set_phase_storage_budget(10_000_000).unwrap();
+            let mut before=Vec::new();
+            target.write_state(&mut before).unwrap();
+            let error=target.read_state(&mut Cursor::new(wire)).err().unwrap().to_string();
+            assert!(error.contains(expected),"case {case}: {error}");
+            let mut after=Vec::new();
+            target.write_state(&mut after).unwrap();
+            assert_eq!(before,after,"a rejected decode must leave the old owner unchanged");
+        }
+    }
+
+    #[test]
+    fn decoder_preserves_standalone_retained_input_owner_fallback() {
+        pyo3::prepare_freethreaded_python();
+        let source=populated(256,64);
+        let mut wire=Vec::new();
+        source.write_state(&mut wire).unwrap();
+        let mut target=populated(0,0);
+        target.retained_input_bytes=1_000_000;
+        target.set_phase_storage_budget(2_999_999).unwrap();
+        let error=target.read_state(&mut Cursor::new(wire)).err().unwrap().to_string();
+        assert!(error.contains("checkpoint decode preflight"),"{error}");
+        assert!(error.contains("required_bytes=3000000"),"{error}");
     }
 }

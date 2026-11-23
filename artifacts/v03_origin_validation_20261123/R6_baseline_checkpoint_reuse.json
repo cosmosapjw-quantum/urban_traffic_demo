@@ -1,0 +1,11 @@
+{
+  "reason": "23GiB disk free; remove only this-session byte-verified duplicate, preserve original full checkpoint",
+  "retained_checkpoint_path": "/home/cosmosapjw/worktrees/urban-traffic-v03-event-store-moment-envelope-20261123/artifacts/v03_event_store_envelope_20261123/R8e_original_100k_25720_requested_10s.final.bin",
+  "retained_checkpoint_sha256": "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+  "checkpoint_bytes": 5523765378,
+  "removed_duplicate_path": "artifacts/v03_origin_validation_20261123/R2_baseline_hourly/R2_baseline_original_hourly_25740.last_valid.bin",
+  "identity_evidence": "artifacts/v03_origin_validation_20261123/R6_original_cadence_baseline_summary.json",
+  "original_data_deleted": false,
+  "free_bytes_before": 23777312768,
+  "free_bytes_after": 29300387840
+}

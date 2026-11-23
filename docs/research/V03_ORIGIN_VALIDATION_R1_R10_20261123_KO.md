@@ -129,3 +129,18 @@ Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 진단 harness가 원 실행을 대표
 이 실패는 첫 구현의 실제 기여와 잔여 계약을 구분한다. old validator blocker는 실제100k에서 지나갔고, 다음 checkpoint/decode 사전조건은 남았다. 조사 결과 whole-bundle Journey의 validation maps는 여전히 실제 필요하며 제거할 수 없다. stale O(road parts) 항은 road checkpoint decoder의 validation reserve와 미래 decode envelope에 함께 남아 있다. 두 경로를 일치시키는 수정과 실제 source/current/candidate 수명에 따른 hourly preflight 교정을 C8에서 수행한다. 같은 실패의 맹목적 재실행 대신 원인이 다른 계약 지점을 수정한다.
 
 Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 이론은 원래 traffic→causal routing을 실제 계산으로 연결했고, 코드의 full-scale 적용에서 통과한 phase와 rollback된 전체 tick을 분리했다. 단계 검증을 완료했지만 V03 실행 통과로 바꾸지 않았다.
+
+
+## R8 / C8 — 수명 기반 교정과 길이 증가 실험 (진행 중)
+
+### 반복 실패의 surgical revision
+
+한 번의 record-only 진단에서 첫 native 후보의 checkpointability 6,448,942,576B를 실제 항별로 분해했다. `road_decode_scratch=1,114,353,504B`에는 이미 streaming으로 바뀐 검증과 맞지 않는 O(parts) 항이 남아 있었고, `validation_scratch=489,255,344B`의 whole-Journey 검증은 여전히 실제 필요했다. 진단은 물리·cap·guard를 바꾸지 않았으며 새 committed 시간0s, wall494.072269s이다. record-mode 시간을 정상 후보의 성능으로 비교하지 않는다. 근거는 `C8_checkpointability_diagnostic.json/.log/.time/.exit`와 보존한 실행 스크립트다.
+
+오래된 예측식을 단순히 작게 만드는 대신 세 수명 상황을 구분했다. 첫째는 실제 원 입력/source/candidate가 공존하는 현재 commit이고, 둘째는 새 runtime에서 road만 먼저 decode하는 단계이며, 셋째는 road decoder의 작업공간이 해제된 뒤 service·Journey와 whole-bundle을 검증하는 단계다. 서로 배타적인 단계는 최대값으로, 같은 단계의 실제 owner·workspace는 합으로 계상한다. 현재 commit의 실제 공유 credit은 포인터 확인된 immutable Arc에 한정하며 미래 독립 decode에 공유 credit을 전파하지 않는다. 진단값으로 현재 commit 항만 재구성한 보수값은5,286,485,316B로 dynamic pool5,789,366,831B 안에 들어간다. 이는 새 후보 실행 결과가 아닌 기존 진단 항의 산술 재구성이다.
+
+원 문서 `docs/v1/NATIVE_RUNTIME_KO.md`는 예산 실패 뒤 마지막 유효 상태를 fresh runtime에서 load/replay할 것을 요구한다. 이전 precommit source 두 개와 미래 decoder의 합은 실제 postcommit same-engine 재개의 소유자 구성도 증명하지 못했다. 이번 수정은 현재 commit과 fresh restore를 명시적으로 예측하고 실제 loader admission을 그대로 적용한다. V03의43,200s same-engine resume은 별도 필수 수용 의무로 유지한다. 이를 새 문서와 trace 항에 구분해 기록하며, 단지 future guard를 통과했다고 warm resume이 해결됐다고 하지 않는다.
+
+원 hourly 호출의 road preflight는 실제 caller snapshot capacity R0를 engine에서 직접 전달해 R0+R+max(R0,R)를 사용한다. 원 입력의 capacity를 clone의 작은 capacity로 추정하지 않고, source 공유 witness는 실제 clock이 달라지면 만료시킨다. 아직 생성되지 않은 incoming combine 버퍼는 prediction 중에만 제외하고 motion scan 종료 경계에서 다시 계상한다. standalone의 기존3×max fallback, 실제 offer overlap, 전체 cap과 wire·물리·허용오차는 유지한다. 두 production-path 행동 RED가 같은 명령 GREEN으로 바뀌었고,64개 실제 offer의 event f64 bits와 wire가 uncapped oracle과 같았다. 근거는 `C8_validation_preflight_*`와 `C8_validation_original_cadence_preflight.md`다.
+
+최종 source/native 동결, 독립 delta 검토, 전체 규모 재실행과 길이 증가 결과는 아래에 실제 영수증으로 보충한다. 이 절의 진행 상태 자체는 V03 통과를 뜻하지 않는다.

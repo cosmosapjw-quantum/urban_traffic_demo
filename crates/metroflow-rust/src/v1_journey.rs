@@ -566,11 +566,66 @@ fn checkpointability_sequential_decode_phases(t:CheckpointabilityTerms)->(usize,
     (road_decode,journey_validation)
 }
 
-/// Current candidate validation and future checkpoint decoding have separate
-/// lifetimes. The decoder itself has sequential road and Journey/validation
-/// phases. Shared original input/old StageQueue Arc payload applies to each,
-/// but current/candidate data is NOT an alias of any future independent
-/// decoder. Keep every source owner, event upper and census scratch charge.
+/// A newly constructed whole engine retains no dynamic Journey payloads and
+/// only an empty event carrier before road.read_state. Static/dense owners are
+/// already charged by RuntimeStorage's fixed reserve. Keep the decoder's
+/// independent 3*max fallback (the decoded road dominates the empty road),
+/// without adding events/Journey that have not been decoded yet. This is a
+/// fresh-engine obligation; reloading after commit in the same populated
+/// engine, or with unrelated user snapshots, needs its own live-owner guards.
+fn checkpointability_fresh_road_decode_bytes(t:CheckpointabilityTerms)->usize {
+    t.decoded_road.saturating_mul(3)
+        .saturating_add(t.road_decode_scratch.max(STORAGE_SCRATCH_RESERVE))
+        .saturating_add(ChunkedEvents::default().storage_bytes())
+}
+
+/// Live pre-commit source/current/candidate owners, with only the two
+/// independently witnessed pointer-overlap credits. No future decoder is
+/// present during this transition.
+fn checkpointability_current_source_candidate_bytes(
+    t:CheckpointabilityTerms,road_input_credit:usize,road_candidate_credit:usize,
+    journey_input_credit:usize,journey_candidate_credit:usize,
+    census_scratch:usize,
+)->usize {
+    let road_input_credit=road_input_credit.min(t.input_road).min(t.current_road);
+    let road_candidate_credit=road_candidate_credit
+        .min(t.current_road).min(t.candidate_road);
+    let journey_input_credit=journey_input_credit
+        .min(t.journey_input).min(t.journey_old);
+    let journey_candidate_credit=journey_candidate_credit
+        .min(t.journey_old).min(t.journey_new);
+    t.input_road.saturating_add(t.current_road).saturating_add(t.candidate_road)
+        .saturating_sub(road_input_credit).saturating_sub(road_candidate_credit)
+        .saturating_add(t.journey_input).saturating_add(t.journey_old)
+        .saturating_add(t.journey_new)
+        .saturating_sub(journey_input_credit).saturating_sub(journey_candidate_credit)
+        .saturating_add(t.event_input).saturating_add(t.event_current)
+        .saturating_add(t.event_candidate)
+        .saturating_add(t.validation_scratch.saturating_sub(t.call_binding_reserve)
+            .max(STORAGE_SCRATCH_RESERVE))
+        .saturating_add(census_scratch)
+}
+
+/// After fresh road decoding returns, its raw packing and streaming scratch
+/// are dead. The current constructor road and empty event carrier remain
+/// alongside the independent decoded road/events/Journey and real cross-owner
+/// validation workspace. The engine's permanent initial snapshot, dense/static
+/// owners and call binding have already been charged in the fixed reserve.
+fn checkpointability_fresh_bundle_bytes(
+    t:CheckpointabilityTerms,initial_road_bytes:usize,decoded_event_bytes:usize,
+)->usize {
+    initial_road_bytes.saturating_add(ChunkedEvents::default().storage_bytes())
+        .saturating_add(t.decoded_road).saturating_add(decoded_event_bytes)
+        .saturating_add(t.journey_decoded)
+        .saturating_add(t.validation_scratch.saturating_sub(t.call_binding_reserve)
+            .max(STORAGE_SCRATCH_RESERVE))
+}
+
+/// Historical pre-commit-owner/future-decode scenario kept solely as a
+/// regression record for the previous gate. Those pre-commit owners do not
+/// coexist with a fresh-process decoder, and this expression never guaranteed
+/// a later populated-engine reload after the candidate replaces current.
+#[cfg(test)]
 fn checkpointability_source_joint_phase_bytes(
     t:CheckpointabilityTerms,road_input_credit:usize,road_candidate_credit:usize,
     journey_input_credit:usize,journey_candidate_credit:usize,
@@ -1701,7 +1756,7 @@ pub fn advance_native_joint(
     let service = &mut *service;
     let journey = &mut *journey;
     py.allow_threads(move || {
-        advance_owned_joint(road, service, journey, &tags, count, step_s, None, 0, None, None)
+        advance_owned_joint(road, service, journey, &tags, count, step_s, None, 0, 0, None, None, None)
     })
 }
 
@@ -1714,7 +1769,9 @@ pub(crate) fn advance_owned_joint(
     step_s: f64,
     dynamic_budget: Option<usize>,
     call_binding_reserve: usize,
+    fresh_initial_road_bytes: usize,
     original_input_road_shared: Option<(f64,usize)>,
+    original_input_road_bytes: Option<usize>,
     original_input_journey: Option<&Journey>,
 ) -> PyResult<usize> {
     journey.phase_metrics = JourneyPhaseMetrics::default();
@@ -1733,8 +1790,9 @@ pub(crate) fn advance_owned_joint(
         Arc::ptr_eq(&call_input_events, &service.last_events),
         original_input_road_shared,
     );
+    road.bind_original_input_road_storage(original_input_road_bytes);
     let input_road_bytes = if dynamic_budget.is_some() {
-        road.owned_storage_bytes()
+        original_input_road_bytes.unwrap_or_else(|| road.owned_storage_bytes())
     } else {
         0
     };
@@ -2011,12 +2069,14 @@ pub(crate) fn advance_owned_joint(
                     .saturating_add(journey.history_decoded_final)
                     .saturating_add(journey.history_decode_extra_max);
                 let (decoded_road, road_decode_scratch) =
-                    road_candidate.checkpoint_decode_envelope();
-                // Fully sourced three-owner envelope across TWO exclusive
-                // lifetimes: the joint commit candidate versus a future
-                // checkpoint decode. The input and committed owners are
-                // charged separately in both. The decoder is not live while
-                // this new candidate is still in the current transition.
+                    road.checkpoint_decode_envelope(&road_candidate)?;
+                // Three separate source-visible lifetimes: the current
+                // transition, fresh-engine road decode, and the later fresh
+                // decoded bundle. Native runtime checkpointability promises
+                // fresh-runtime load/replay; populated same-engine resumption
+                // remains a separate V03 acceptance experiment with its own
+                // unchanged loader guards.
+                let decoded_event_upper=candidate_event_bytes.max(events.decode_storage_upper_bytes());
                 let old_event_arc_shared=
                     Arc::ptr_eq(&call_input_events,&service.last_events);
                 let effective_current_event=verified_current_event_bytes_with_input_arc(
@@ -2033,7 +2093,7 @@ pub(crate) fn advance_owned_joint(
                     journey_decoded:decoded_journey,
                     event_input:input_event_bytes,
                     event_current:effective_current_event,
-                    event_candidate:candidate_event_bytes.max(events.decode_storage_upper_bytes()),
+                    event_candidate:candidate_event_bytes,
                     validation_scratch:scratch,
                     call_binding_reserve,
                     road_decode_scratch,
@@ -2055,12 +2115,16 @@ pub(crate) fn advance_owned_joint(
                 );
                 let exact_census_scratch=source_old_journey.temporary_census_scratch_bytes
                     .max(old_new_journey.temporary_census_scratch_bytes);
-                let required=checkpointability_source_joint_phase_bytes(
+                let source_required=checkpointability_current_source_candidate_bytes(
                     lifetime,source_arc_credit,candidate_arc_credit,
                     source_old_journey.shared_payload_bytes,
                     old_new_journey.shared_payload_bytes,
                     exact_census_scratch,
                 );
+                let fresh_road_decode=checkpointability_fresh_road_decode_bytes(lifetime);
+                let fresh_bundle=checkpointability_fresh_bundle_bytes(
+                    lifetime,fresh_initial_road_bytes,decoded_event_upper);
+                let required=source_required.max(fresh_road_decode).max(fresh_bundle);
                 let observed = crate::v1_trace::guard(
                     "journey_commit",
                     "checkpointability",
@@ -2086,7 +2150,11 @@ pub(crate) fn advance_owned_joint(
                         ("current_event_charged", effective_current_event),
                         ("old_event_arc_pointer_identical",usize::from(old_event_arc_shared)),
                         ("candidate_event", candidate_event_bytes),
-                        ("candidate_event_with_decode_upper", lifetime.event_candidate),
+                        ("candidate_event_with_decode_upper", decoded_event_upper),
+                        ("current_source_candidate_phase",source_required),
+                        ("fresh_engine_road_decode_phase",fresh_road_decode),
+                        ("fresh_engine_bundle_phase",fresh_bundle),
+                        ("fresh_constructor_current_road",fresh_initial_road_bytes),
                         ("future_road_decode_phase",checkpointability_sequential_decode_phases(lifetime).0),
                         ("future_journey_validation_phase",checkpointability_sequential_decode_phases(lifetime).1),
                         ("validation_scratch", scratch),
@@ -3244,5 +3312,79 @@ mod v03_checkpoint_decoder_sequential_lifetimes_20261123_tests {
             +t.journey_new-192_962_560
             +(t.validation_scratch-t.call_binding_reserve).max(STORAGE_SCRATCH_RESERVE);
         assert_eq!(assessed(t),fixed_sources(t)+current_peak+1_949_824);
+    }
+}
+
+#[cfg(test)]
+mod v03_checkpoint_fresh_decode_20261123_tests {
+    use super::*;
+
+    #[test]
+    fn fresh_road_phase_keeps_three_owner_fallback_and_only_constructor_events() {
+        assert_eq!(StageQueue::new().storage_bytes(),0);
+        assert_eq!(ReceiptHistory::new().storage_bytes(),0);
+        let shell=ChunkedEvents::default().storage_bytes();
+        let mut t=CheckpointabilityTerms {
+            input_road:0,current_road:0,candidate_road:0,decoded_road:1_000_000,
+            journey_input:0,journey_old:0,journey_new:0,journey_decoded:0,
+            event_input:0,event_current:0,event_candidate:0,
+            validation_scratch:0,call_binding_reserve:0,road_decode_scratch:128,
+        };
+        assert_eq!(checkpointability_fresh_road_decode_bytes(t),
+            3_000_000+STORAGE_SCRATCH_RESERVE+shell);
+        t.journey_decoded=4_000_000;
+        t.event_candidate=8_000_000;
+        t.validation_scratch=2_000_000;
+        assert_eq!(checkpointability_fresh_road_decode_bytes(t),
+            3_000_000+STORAGE_SCRATCH_RESERVE+shell,
+            "future Journey/events are absent during road decode");
+        assert_eq!(checkpointability_sequential_decode_phases(t).1,7_000_000,
+            "later independent Journey plus whole validation is still charged");
+    }
+
+    #[test]
+    fn fresh_bundle_keeps_every_decoded_owner_and_constructor_current_road() {
+        let t=CheckpointabilityTerms {
+            input_road:900,current_road:800,candidate_road:700,decoded_road:600,
+            journey_input:50,journey_old:40,journey_new:30,journey_decoded:20,
+            event_input:90,event_current:80,event_candidate:70,
+            validation_scratch:100_000,call_binding_reserve:1_000,road_decode_scratch:200_000,
+        };
+        let shell=ChunkedEvents::default().storage_bytes();
+        let initial=123usize;
+        let event_decode=456usize;
+        assert_eq!(checkpointability_fresh_bundle_bytes(t,initial,event_decode),
+            initial+shell+600+event_decode+20+99_000);
+        assert_eq!(checkpointability_fresh_bundle_bytes(t,initial,event_decode+1),
+            checkpointability_fresh_bundle_bytes(t,initial,event_decode)+1);
+        let mut later=t;
+        later.journey_decoded+=1;
+        assert_eq!(checkpointability_fresh_bundle_bytes(later,initial,event_decode),
+            checkpointability_fresh_bundle_bytes(t,initial,event_decode)+1);
+        later.validation_scratch+=1;
+        assert_eq!(checkpointability_fresh_bundle_bytes(later,initial,event_decode),
+            checkpointability_fresh_bundle_bytes(t,initial,event_decode)+2);
+        later.road_decode_scratch=usize::MAX;
+        assert_eq!(checkpointability_fresh_bundle_bytes(later,initial,event_decode),
+            checkpointability_fresh_bundle_bytes(t,initial,event_decode)+2,
+            "road scratch has already died before the decoded Bundle exists");
+    }
+
+    #[test]
+    fn current_transition_uses_actual_events_and_never_borrows_future_sharing() {
+        let mut t=CheckpointabilityTerms {
+            input_road:900,current_road:800,candidate_road:700,decoded_road:600,
+            journey_input:50,journey_old:40,journey_new:30,journey_decoded:20,
+            event_input:90,event_current:80,event_candidate:70,
+            validation_scratch:100_000,call_binding_reserve:1_000,road_decode_scratch:200_000,
+        };
+        let current=checkpointability_current_source_candidate_bytes(t,400,300,20,10,17);
+        assert_eq!(current,900+800+700-400-300+50+40+30-20-10+90+80+70+99_000+17);
+        t.decoded_road=usize::MAX;
+        t.journey_decoded=usize::MAX;
+        t.road_decode_scratch=usize::MAX;
+        assert_eq!(checkpointability_current_source_candidate_bytes(t,400,300,20,10,17),current);
+        t.event_candidate+=1;
+        assert_eq!(checkpointability_current_source_candidate_bytes(t,400,300,20,10,17),current+1);
     }
 }
