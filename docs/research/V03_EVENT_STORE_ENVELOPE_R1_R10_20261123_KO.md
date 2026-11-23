@@ -263,3 +263,38 @@ Plan validator는version1.1.26,21nodes, VALID_PLAN_NOT_RELEASE를 반환했다. 
 이전48B 후보의 준비 영수증을 최종 후보에 다시 넣는 실제 부정 대조도 수행했다. 세 case 모두 CURRENT_SOURCE_CONTENT_HASH_DIFFERS로 거절되어 현재 credit0/3이었고, 최종 새 영수증만3/3이다. 파일명에 current가 들어간 예전 자료를 현재 근거로 재사용하지 않는다. `R9_old_source_rejected_on_final_native.json` 및 `R9_execution_readiness_contract.md` §7에 보존했다.
 
 이론 근거는 mass/moment/support의 검증된 식별구간을 그대로 재사용한다. Calendar의 계획량, native event-incidence, unique final journey의 분모를 섞지 않는다. Scorer의 full-day0/9는 prepare 전용 고정 출력이라는 한계를 명시하고, 실제 캠페인 판정은 별도의 물리 영수증과24h 조건으로 확인한다. 이번 짧은 물리 기록은 실제로24h 완료를 만들지 않았으므로 캠페인도0/9다.
+
+## R10/C10 · 최종 판정, 근거 재사용, 다음 실행 경계
+
+이번 paired10단계는 이론의 관측가능성 계약을 업그레이드하고, 원본25,730의 실제 실행·저장·독립 복원 blocker를 해소했다. 최종 후보의 활동 구간10→20→40s 실행은 모두 완료됐다. 새 frontier는25,720→25,730의10s이며,70s 재실행을 새 frontier에 중복 합산하지 않는다. 원본 전체 하루 수용0/9와 canonical19/21은 그대로다.
+
+이론 결과는 단순한 계산량 주장과 구분한다. 미세 birth 측도 전체를 요구하던 stop-loss K의 point reconstruction에서, 실제 질량·birth first moment·증명된 support가 허용하는 모든 양의 측도의 sharp 식별구간으로 관측 정의를 바꿨다. Mean-atom/endpoint extremizer, 최대gap, 실제 nested bin refinement, finite-difference CDF, finite-window censor 연결을 증명하고 exact oracle로 검산했다. Jensen/Edmundson–Madansky의 일반 부등식은 기존 문헌 결과이며 전역적 신규성을 주장하지 않는다. MetroFlow 이론의 명시적 업그레이드와 native 관측을 연결한 새 프로젝트 결과다.
+
+Python oracle10검사와 독립 검토는 유지된 정확한 source bytes에 대해 재사용했다. 마감 시 module SHA b807d2d03e5db04c49feebf3fb2663f82a5e1dddc1c1868afe36aef59997d87f, test SHA f771cbd5e3d48d816588bd951e4255e5d7e00b29f7c4ab0fc14b900ffc3d1d64, proof SHA882121941556b58f6cf97eaf5f0b87c0e6115420b7d5b36110f0c3ee82f18031을 확인했다. 최종 Rust 통합261pass/0fail/2ignored는 C8d/e를 함께 검사한 실제 로그다. 같은 검사를 완료 주장 수를 늘리기 위해 반복하지 않았다.
+
+독립25,730 복원은 R8e20s 프로세스의 full-wire/장부 성공 근거를 채택했다. 이미 검증한 동일 checkpoint를 세 번째 읽는 별도0s 실행은 추가하지 않았다. R8e_replay_frontier_identity.json이 새 frontier, 역사적 입력, 최종70s 재실행을 byte identity와 semantic ledger identity로 연결한다. 최종 live source/native identity와 각 근거 파일 SHA는 R10_FINAL_RESEARCH_RECEIPT.json에 고정한다.
+
+### 단계별 게시 기록
+
+| 단계 | 핵심 완료 결과 | 단계 완료 commit |
+|---|---|---|
+| R1/C1 | 원본 입력·계획·완료 조건 고정 | 8069e89ce9291584c7cfc90a1ed9667f4bedb2c2 |
+| R2/C2 | 문헌·과거 실패 재평가·실제 flatten 경로 | b546c36762bae9d6b9ff56547f5c24829cbd1c3b |
+| R3/C3 | Sharp moment/support 명제와 저장 계약 | 8aa35b5b5ce947ca015ced7fd77de824a9a585f2 |
+| R4/C4 | Extremizer·반례·행동 RED·실행기 | d285a6553c3c0daa657ff4ec4d718d6657116b88 |
+| R5/C5 | 증명·exact oracle·영속 event·native observer | eb544bc639e40e7172e1b14a0fda8dfd3c89211e |
+| R6/C6 | 독립 수학 검산·원본 실패 보존·관측 연결 교정 | 9314352ac3deb4703a71cc7603454e4d9817299d |
+| R7/C7 | 실제 원도시 모멘트·source support 강화 | b03ffd14ebe63c1d0a1f4fed8c72d7429c2cc33f |
+| R8/C8 | 실제 소유·표현 수술,25,730 저장/독립 복원,10/20/40s | 06c863c4ff088ddbe534c79807b12799b4830d39 |
+| R9/C9 | 최종 후보3도시 준비3/3·stale근거0/3 거절 | 9ef4e2eec2c136163c692853d00beb171ecac26f |
+| R10/C10 | 최종 source-bound 판정·실험/준비도/인계 | 이 파일과 R10_FINAL_RESEARCH_RECEIPT.json을 포함하는 마감 commit |
+
+R8에는 실제 원본 실행 전에 source identity를 고정한 중간 push3개(8c5b8942,6aeb9a7a,dd9686f1)가 추가로 있다. 이것은 추가 연구단계가 아니다. 각 단계 완료 push 후 원격 branch SHA를 읽어 일치 여부를 확인했다. R10 자체 commit SHA를 자기 파일에 넣어 hash가 계속 바뀌는 기록을 만들지 않고, 실제 최종 push/readback SHA는 응답과 외부 재개 상태에 남긴다.
+
+### 다음 실제 의무
+
+1. 원본25,740의 `V1Road::check_state` validation workspace를 대상으로 실제 owner와 임시 배열 수명을 전달하는 방법을 구현·검증한다. 현재 guard는3×max와 row/packet scratch 상계이며 원래cap을 높이지 않았다. 이번 관측은137,796,745 B의 guard 초과이고 실제OOM 증거는 아니다.
+2. 최종 후보의 clock0부터 원래 hourly-call cadence로 진행한 경로 및 원본3도시×3회86,400s 실행을 확보해야 한다. 7,200s/run,8GiB,원장,replay,matched refined_dt와 reference-host 조건을 충족한 실제 영수증이 필요하다. 현재 새 source는 이를 충족했다고 주장하지 않는다.
+3. 과학 관측을 unique final-journey로 확장하려면 once-only exit/source accounting과 실제 관측된 bin moments가 필요하다. 현재 event-incidence envelope는 유효한 별도 관측이며, 미시분포를 평균으로 대체하거나 과거solver오차를 인증했다고 주장하지 않는다.
+
+원본 대용량 checkpoint와 실행 native는 작업 노드에 보존하고, 재현에 필요한 source·실험 JSON·로그·증명·SHA는 branch에 게시한다. Full repository CI/main merge는 기존 사용자 보류 범위다. 이번 요청은 R10에서 종료하며 새11번째 loop를 열지 않는다.
