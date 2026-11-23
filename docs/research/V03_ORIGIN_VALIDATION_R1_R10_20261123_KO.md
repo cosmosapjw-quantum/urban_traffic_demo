@@ -66,3 +66,21 @@ Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 원 교통→routing 질문을 새 명
 native C3의 실제 행동 RED는10,000행 유효 상태에서 기존3×retained+8,192=731,048B allowance를 유지한 검사다. 기존 validator는882,920B를 요구해 거절했고 cargo exit101이었다(`C3_validation_red.log`). 따라서 수정 대상은 검사를 없애는 일이 아니라 실제 O(parts) mass 배열을 같은 순서의 expansion sum으로 축약하는 것이다. 성장할 때 old+new capacity를 먼저 계상하고, accumulator 개수에 무근거 상수 상한을 두지 않는다. 최종 native 적용·독립 검토·대규모 실행은 뒤 단계에서 판정한다.
 
 Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 원래 혼잡→routing 의도를 실제 도착시각 함수로 잇는 판별 결과를 얻었고, 수송·허용오차·수요·cap은 유지했다. 현재 route 평균의 모집단을 새 boundary 데이터로 오인하지 않았다.
+
+## R4 / C4 — 대안 구성과 실행 DAG (완료)
+
+수학 경로 세 가지를 비교했다.
+
+| 경로 | 실제 구성 | 판별과 선택 |
+|---|---|---|
+| 완료 평균의 정적 합 | Σ_e mean(T_e)의 frozen cost | R3의11s/21s 반례와 모집단 불일치 때문에 actual ETA 정리로 채택하지 않음. 기존 행동 closure의 의미는 보존 |
+| 누적 유입·유출 generalized inverse | E(x)=D^{-1}(A(x)) 및 검열 | 이전20261122 결과를 재사용. 현재 희소 지연 관측과 링크 비용의 연결은 추가 필요 |
+| FIFO 일방향 Lipschitz envelope | L(t)=max{t+τ_min,max_i[l_i−Γ(x_i−t)_+]}, U(t)=min_i[u_i+Γ(t−x_i)_+] | 과거의 전달 완료 boundary 관측과 명시적 Γ만으로 실제 구성 가능. 함수 양립성·sharpness·route composition을 증명할 주 경로 |
+
+선택한 경로는 미래 실제 혼잡을 정보 입력으로 조회하지 않는다. Γ를 인증할 수 없는 정지/spillback에는 유한 미래 upper를 임의로 넣지 않는다. 독립 검산은 원 finite-response 방정식 τ_r v'=V−v를 정확히 만족하는 양의 piecewise-affine manufactured velocity에서 과거 passage를 측정하고 미래 passage를 보류해 판별한다. 이 manufactured 실험은 도시 calibration이나 production routing 활성화가 아니다.
+
+실행 DAG: native 소스 동결→release build→정확히 고정된25,730s checkpoint의 wire·장부 복원→새10s frontier→새 source의10/20/40s 연결 active-window replay→원 acceptance cadence/time-zero 비교→3case preparation·readiness. 실제 실패가 생기면 동일 실패를 반복하지 않고 source·phase·owner lifetime에 근거해 다음 범위를 결정한다. Cargo는 한 사용자씩, 전체 규모 물리 실험은 직렬화한다. 원 cap을 유지하고 baseline에는 별도의1,800s 탐색 deadline을 둔다. 탐색 timeout은 원7200s 기준의 실패 판정과 다르다.
+
+`tools/research/v03_origin_validation_horizon_20261123.py`는 원 dt=10s를 고정하면서 tick/window/hourly 호출 경계를 명시한다. 새 source에서 사용할 역사 seed는 전체 receipt SHA+checkpoint SHA/size가 고정된25,660s/25,730s 두 개뿐이다. 나머지는 같은 source/native의 저장된 유효 prefix만 허용한다. 실패한 multi-tick native call 내부의 미반환 tick은 credit0이며 이전 반환 상태만 저장한다. 입증되지 않은 cross-native·cap drift·trace override·잘못된 clock credit을 거절하는11개 표적 검사가0.16s에 통과했다(`C4_horizon_admission_tests.log`,exit0). 기존의 여러 역사 예외를 새 runner에 그대로 복제하지 않았다.
+
+Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 과거 연구와 다른 새 구성 경로를 선택했고, 원래 finite-information routing과 mesoscopic 실행을 각각 실험으로 연결한다. hourly 호출의 실패 원자성과 연구 tick 반환의 진전 단위를 분리했다.
