@@ -1,0 +1,42 @@
+{
+  "method": "SHA256 verified compressed-byte identity; atomic hardlink alias retains all experiment/receipt paths",
+  "checkpoint_files_scanned": 5,
+  "groups": [
+    {
+      "sha256": "f7774cde589dd0e1a37ece177ce0fcde60af59eb54b076e3e99e2247e07f4973",
+      "paths": [
+        "artifacts/v03_coding_reconstruction_20261123/C7_original_continuation.final.bin.gz",
+        "artifacts/v03_coding_reconstruction_20261123/C8_fresh_from_zero.final.bin.gz"
+      ],
+      "actual_inode_count": 1
+    },
+    {
+      "sha256": "6573b7092769ca846342da3aa4404e7bcbb387f575406ee1791b5079370cccfe",
+      "paths": [
+        "artifacts/v03_coding_reconstruction_20261123/C8_keyset_continuation.final.bin.gz",
+        "artifacts/v03_measure_lift_20261123/S06_fresh0.final.bin.gz",
+        "artifacts/v03_measure_lift_20261123/S06_resume25710.final.bin.gz"
+      ],
+      "actual_inode_count": 1
+    }
+  ],
+  "converted_duplicates": [
+    {
+      "path": "artifacts/v03_measure_lift_20261123/S06_fresh0.final.bin.gz",
+      "canonical": "artifacts/v03_coding_reconstruction_20261123/C8_keyset_continuation.final.bin.gz",
+      "byte_sha256": "6573b7092769ca846342da3aa4404e7bcbb387f575406ee1791b5079370cccfe",
+      "exclusive_bytes_released": 1008689152
+    },
+    {
+      "path": "artifacts/v03_measure_lift_20261123/S06_resume25710.final.bin.gz",
+      "canonical": "artifacts/v03_coding_reconstruction_20261123/C8_keyset_continuation.final.bin.gz",
+      "byte_sha256": "6573b7092769ca846342da3aa4404e7bcbb387f575406ee1791b5079370cccfe",
+      "exclusive_bytes_released": 1008689152
+    }
+  ],
+  "released_allocated_bytes": 2017378304,
+  "unmatched_unique_checkpoints_preserved": true,
+  "unrelated_projects_untouched": true,
+  "previous_backup_archive_not_deleted_if_unique": true,
+  "latest_selective_backup": "artifacts/v03_measure_lift_20261123/backup/S10_latest_research_selected.tar.gz"
+}

@@ -1,0 +1,74 @@
+{
+  "path": "artifacts/v03_measure_lift_20261123/backup/S10_latest_research_selected.tar.gz",
+  "sha256": "aac610d20f3ae205b8a0148cef3893f078ba465809e57bacb4c3cb633dcea58a",
+  "bytes": 146607,
+  "members": [
+    {
+      "name": "AGENTS.md",
+      "bytes": 10489,
+      "sha256": "22c2ed0c65cc922fb2b3e3fabbec87d833aab9979e53b93e4385381bcfc5b877"
+    },
+    {
+      "name": "docs/v1/PLAN.json",
+      "bytes": 101518,
+      "sha256": "7cf0ac1435022d223a132692003e3e41af9b50b53a88f9a04884bc96af69abe9"
+    },
+    {
+      "name": "docs/research/V03_MEASURE_LIFT_LOOP_20261123.md",
+      "bytes": 8526,
+      "sha256": "c87de803697dd9ebd80430ccfa1e1d8759655b6fe7cf02d50803a36cf7d45dee"
+    },
+    {
+      "name": "docs/research/V03_MEASURE_LIFT_THEORY_20261123.md",
+      "bytes": 2925,
+      "sha256": "a964a3c25a7d0f3a1fdb9f458924ff6a1249672c917b236c943d8f85b8723de8"
+    },
+    {
+      "name": "docs/research/V03_MARKED_CUMULATIVE_TRANSPORT_20261123.md",
+      "bytes": 6888,
+      "sha256": "a5f86827bd6c82c01d254048bb372f16dabbd557a38bc43f0cd2286f79116dda"
+    },
+    {
+      "name": "src/metroflow/v1/rank_marked_shadow.py",
+      "bytes": 4885,
+      "sha256": "5e80fb19db084586419420caaa0275cb3f7f1a53eba74d7ccf7ee0a2d73d14f9"
+    },
+    {
+      "name": "tests/v1/test_rank_marked_shadow.py",
+      "bytes": 4089,
+      "sha256": "d5e5b1a9fd9049d9d62ab176c15245692784ce7757b9deb613b3bfff8cd05fe7"
+    },
+    {
+      "name": "crates/metroflow-rust/src/v1_stage.rs",
+      "bytes": 16594,
+      "sha256": "a6c162f14e21b0cfbc9beea1eddbba0ddabd9cc605fe4f219a8ce4638e51c273"
+    },
+    {
+      "name": "crates/metroflow-rust/src/v1_journey.rs",
+      "bytes": 95427,
+      "sha256": "6159f020b6bb284ebd7e0bb1122cf1bfd041f1cfa7fdb02d25c589421b274a04"
+    },
+    {
+      "name": "crates/metroflow-rust/src/v1_road.rs",
+      "bytes": 324570,
+      "sha256": "65491f4d182dbc6fd6890db6bb23059531fe7d7aff797418d9e52ee80c9690eb"
+    },
+    {
+      "name": "artifacts/v03_measure_lift_20261123/S06_CAMPAIGNS.json",
+      "bytes": 3564,
+      "sha256": "ca9a9e1716764d1be16bb571d661a3ba7f74f21839349b4066f48a12e41f65b8"
+    },
+    {
+      "name": "artifacts/v03_measure_lift_20261123/S08_MODEL_RESULTS.json",
+      "bytes": 1018,
+      "sha256": "1dc4368ff680d28bfd41ecda2fbff0b09244cd6b9f68a2f5073f8b26b557501d"
+    },
+    {
+      "name": "artifacts/v03_measure_lift_20261123/S09_REVIEW_RESULTS.json",
+      "bytes": 2706,
+      "sha256": "a480999876b23b0447c20e1ecf6a8be8b87b8ba5072c718f45d8f42081b7c4d0"
+    }
+  ],
+  "readback_verified": true,
+  "checkpoint_bytes_not_embedded": true
+}

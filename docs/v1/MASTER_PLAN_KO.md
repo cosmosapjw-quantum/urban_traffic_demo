@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.29**, 2026-11-23. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.30**, 2026-11-23. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-최신 원본 목표의 실제 범위는 Valley0→25710s full-wire/ledger 동일 및 checkpoint25710→25720s 완료다. 전체 캘린더3/3을 최신 source796849f7/native96e8e20으로 준비했으나 full-day0/9이고 V03는BLOCKED다. 먼저 동일25710 wire의 road allowance 차102114816 B=3×journey 최대 구조비용 차34038272 B를 v1_journey.rs의 road allowance 직전과 journey decode/restore 직후 두 경계에서 input/current/pending 각 stage/history 비용·capacity·argmax로 분해한다. 실제 live owner를 확인해 불필요 retained capacity/lifetime이 있으면 보존적 계상 또는 exact paged/canonical representation을 교정하되, 실제 공존 할당을 charge하고 cap을 임의로 늘리지 않는다. 그다음 원 수요에서 급증하는 composition×service와 composition×interval 출력을 실제 소비하는 영속 immutable source/순서 있는 IEEE scale/interval-span carrier를 구현해 현재 source부터 checkpoint expansion까지 연결한다. fraction 곱셈 순서·underflow 판정·key order·각 fsum barrier·FIFO·finite-response·route/class/birth 관측을 유지한다. 새 source에서0→25720 연속/재개 대조와 다음25730 full tick을 먼저 검증하고 유효 checkpoint 뒤 horizon을 늘린다. 원래100k/8GiB/7200s/86400s×3case×3회·허용오차와19/21 scoped·5/21 accepted를 유지한다. 473 B 첫 guard 초과를 전체 tick 부족량으로 해석하거나 같은 실패에 임의 credit을 반복하지 않는다. 제어된 closure가 필요하면 별도 모델 버전과 coupled-observable 오차 근거를 갖춘다. 전체 CI/main 통합은 계속 보류한다.
+First measure and explicitly preflight the transient old+new Arc/Vec staging allocation of StageQueue stable repacking, including immutable snapshot co-owners; physical process cap8GiB is unchanged. At t=25730, quantify source remainder packing and transfer candidates, not simply the first guard overage (fresh source remainder +4617 B; resumed transfer +121633 B). Implement a versioned route/class/birth/ready marked cumulative-rank source–consumer bridge in the actual native road/service/interval flow, retaining noncommutative IEEE split operations and finite-response/FIFO; new shadow RankMarkFlow-v0 only establishes real-rational conservation and benchmark eligibility, not native equivalence. Use a staged physical progression 25720->25730->25740->25800->1h with checkpoint/ledger/route observables; then fresh0->same target, refined dt and eventually original river/coast/valley x3 full86400s wall<=7200s RSS<=8GiB. No change to calendar/demand/population/capacity/numerical tolerances; original V03 remains BLOCKED and release0/9. No further guard-credit-only loops or automatic main merge.
 
 **예산·종료조건**
 
@@ -2302,11 +2302,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "COMPLETED_SCOPED",
-  "scope": "Completed coding reconstruction C1–C10: exact retained event carrier, direct timed incoming consumer and source-specific keyset allocation; current-source fresh Valley0→25710 full-wire/ledger equality, checkpoint-resumed25720 and3/3 full-calendar preparation. Original acceptance unchanged; subsequent physical runs resource-blocked.",
+  "scope": "Next 10-stage interleaved theorem/code research: exact FIFO stable-partition theorem and native stage repack, new project-derived marked cumulative-rank conservation/residence theorem and versioned exact-rational shadow; current fresh Valley0->25720 full-wire/ledger exact, three full-calendar preparations; next25730 resource-blocked. Original release unfulfilled.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_coding_reconstruction_20261123/C10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_measure_lift_20261123/S10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2320,10 +2320,16 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "controlled_model_routes",
     "c9_fresh_review"
   ],
-  "active_branch": "research/v03-coding-reconstruction-20261123",
+  "active_branch": "research/v03-measure-lift-loop-20261123",
   "production_commit": "bec506abb5247e76e8f74e2846eedf9e1c5c501a",
   "research_stages_completed": 10,
-  "research_stages_total": 10
+  "research_stages_total": 10,
+  "source_commit": "9a705e42ca8117440c58712ffd03beca78dbc29f",
+  "native_source_sha256": "9976585060ccaf46837260cbfdaebef4cac294854c7db19fddffbb53c6ee860b",
+  "native_binary_sha256": "378619a766b352f4f524addd4f06797541c8460fa45385d6e0cab6bc661d20d5",
+  "current_loop_stages_completed": 10,
+  "current_loop_stages_total": 10,
+  "current_loop_native_subagent": "NOT_RUN_NO_NATIVE_SPAWN_TOOL_EXPOSED"
 }
 ```
 

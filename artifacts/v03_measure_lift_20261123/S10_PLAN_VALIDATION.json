@@ -1,0 +1,47 @@
+{
+  "checks": [
+    {
+      "cmd": [
+        "python3",
+        "tools/v1_plan.py",
+        "render"
+      ],
+      "exit": 0,
+      "stdout": "Generated plan views: MASTER_PLAN_KO.md, DAG.mmd, DAG.dot, PR_CATALOG_KO.md\n",
+      "stderr": ""
+    },
+    {
+      "cmd": [
+        "python3",
+        "tools/v1_plan.py",
+        "validate"
+      ],
+      "exit": 0,
+      "stdout": "{\"status\": \"VALID_PLAN_NOT_RELEASE\", \"nodes\": 21, \"status_counts\": {\"ACCEPTED\": 5, \"VERIFIED_SCOPED\": 14, \"BLOCKED\": 1, \"PLANNED\": 1}, \"next_node\": \"V03\", \"full_repository_ci\": \"DEFERRED_BY_USER\"}\n",
+      "stderr": ""
+    },
+    {
+      "cmd": [
+        "python3",
+        "tools/v1_plan.py",
+        "next"
+      ],
+      "exit": 0,
+      "stdout": "{\n  \"node\": \"V03\",\n  \"title\": \"\ub85c\uceec 10\ub9cc \uc8fc\ubbfc\u00b724\uc2dc\uac04 \uc2e4\uc81c \uc2e4\ud589\uacfc \uc218\uce58 \uc218\uc6a9\uc2dc\ud5d8\",\n  \"branch\": \"v1/v03-acceptance-20261027\",\n  \"instruction\": \"\uad6c\ud604 \ucc29\uc218\ub294 ACCEPTED \ub610\ub294 \uc601\uc218\uc99d\uc73c\ub85c \uace0\uc815\ub41c VERIFIED_SCOPED \uc120\ud589 \ub178\ub4dc\ub97c \ud5c8\uc6a9\ud55c\ub2e4. VERIFIED_SCOPED\ub294 \ucd5c\uc885 \uc218\uc6a9\u00b7\ud1b5\ud569\uc744 \ub73b\ud558\uc9c0 \uc54a\ub294\ub2e4. STOPPED/BLOCKED\ub294 \uc120\ud589\uc870\uac74\uc744 \ucda9\uc871\ud558\uc9c0 \uc54a\ub294\ub2e4.\",\n  \"tests\": [\n    \"python tools/run_v1_local_acceptance.py --run-local --matrix scenarios/v1/release_matrix.json\"\n  ],\n  \"acceptance\": [\n    \"riverweekdayseed17,coastalweekendseed41,valleyweekdayseed7 \uac0124h\",\n    \"\uc138case\uac013\ud68cruntime/RSS\uacc4\uce21,physics\ub294deterministicreplay\",\n    \"\ub3d9\uc77c\uc785\ub825\ud574\uc0c1\ub3c4\ub2e8\uae30\ub300\uc870\uc64024h\uc7a5\ubd80\ud1b5\uacfc\",\n    \"hardlimits\ubbf8\ub2ec\uc2dcV1\uc644\uc131\uc120\uc5b8\uae08\uc9c0\"\n  ]\n}\n",
+      "stderr": ""
+    }
+  ],
+  "release_gate_test": {
+    "expected_rejection": true,
+    "exit": 2,
+    "tail": "PLAN_ERROR: release BLOCKED: all mandatory nodes must be ACCEPTED with evidence\n"
+  },
+  "plan_sha256": "7cf0ac1435022d223a132692003e3e41af9b50b53a88f9a04884bc96af69abe9",
+  "status": "VALID_PLAN_NOT_RELEASE",
+  "counts": {
+    "ACCEPTED": 5,
+    "VERIFIED_SCOPED": 14,
+    "BLOCKED": 1,
+    "PLANNED": 1
+  }
+}
