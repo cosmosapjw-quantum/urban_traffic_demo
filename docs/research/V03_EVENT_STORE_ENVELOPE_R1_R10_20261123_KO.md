@@ -135,3 +135,15 @@ R7_native_moment_envelope_21600.json과 _0.json은 exact Fraction 및 approximat
 ### 실제 메모리 성분과 다음 수술
 
 동일한 road budget4867625327B는 event 절감 누락의 증거가 아니었다. journey 비용을 먼저 pool에서 빼고 event 비용은 required 쪽에 더하는 구조다. 실제 진단의 초과점 required4867733760B는 base1901806568 + event1772443240 + incoming925609136 + source diagnostics267874816 등으로 구성된다. 원래 guard와 record 진단의 exact 초과 bytes는 다르므로 동일 성능 표본으로 취급하지 않는다. C8은 원래 call-input/committed/third-owner의 실제 Arc와 수명을 추적해 보수적 중복 비용을 구분한다. 관측한169B에 맞춘 임의 credit은 사용하지 않는다.
+
+## R8/C8 · 실제 소유 관계 수술과 과거 계상 교정
+
+현재 후보는 `v1_road.rs`에서만 frozen queue 소유 관계를 교정한다. prediction은 immutable source의 PacketParts를 Arc clone하고 out.cells의 packet 목록은 비어 있다. readiness가 정확히 +∞인 queue는 모든 유한 ordinary/compensated event clock의 heads에서 제외되어 served/remainder 경로에 들어가지 않는다. 마지막에 동일 payload를 survivor로 이동한다. 따라서 source↔working candidate의 실제 pointer 일치 backing만 distinct(layout,Arc pointer)로 한 번 계상한다. 별개 allocation의 같은 수치나 단순 refcount는 근거로 쓰지 않는다. Packet/Vec shell과 allocator metadata는 계속 계상하고 census 자체의 requested/actual capacity도 credit 적용 전에 검사·해제한다.
+
+별도로 기존 source/committed 공유 규칙의 자기 비교를 원래 restore-time witness와 clock 일치로 제한했다. 실제 이전 tick의 credit101376B가 다음 tick에도 살아남던 행동 오류를 1개 실행/1개 실패(exit101)로 재현했다. 수정 후 original input proof가 만료된 tick에는 해당 credit을 주지 않는다. 이 변경은 작은 실제 오류 교정이며 full multi-tick memory theorem을 주장하지 않는다.
+
+6개 bounded 검사와 workspace library237passed/0failed/2ignored를 통과했다. full tick의 event f64 bits/order, 원래 input 불변, uncapped reference와 candidate wire equality, survivor Arc identity, 중복 SharedKeys, wide registry, 독립 allocation 거절, census cap/정확경계+1B 거절을 포함한다. 부모는 실제 prediction→finite-clock 제외→survivor 이동 경로와 전체 diff를 확인했다. 초기에 test constructor3곳이 새 필드를 빠뜨린 E0063 compile 실패는 behavior RED와 구분해 보존했다. 상세 근거는 C8_native_ownership_verification.md 및 C8_rust_*.log다.
+
+이론 판정은 sharp moment/support envelope와 진짜 분할 refinement를 derived/literature-supported로, exact oracle를 implementation-verified로, 실제 원도시값을 conditional numerically-checked로 유지한다. 최초birth21600s support는 명시적 원본 source에 근거한 exact-model 전제다. 과거 solver 오차와 unique final-journey 완료 측도는 별도 미완료 의무다. 이전 실패에서 full-day no-go를 도출하지 않는다.
+
+이 source freeze commit은 다음 원본 실행의 identity를 고정하기 위한 중간 게시다. 실제 frozen 절감량·t25730 통과·실행 구간 증가는 아직 주장하지 않는다. release 빌드 뒤 trace-off로 확인하고 R8 결과를 추가 게시한다.

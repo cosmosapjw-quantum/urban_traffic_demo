@@ -236,6 +236,31 @@ impl PacketParts {
             Self::Mixed(rows) => rows.capacity().saturating_mul(std::mem::size_of::<Part>()),
         }
     }
+    /// Pointer witnesses only; equal row values never establish ownership.
+    fn visit_shared_backings(
+        &self,other:&Self,mut visit:impl FnMut(u8,usize,usize)
+    ) {
+        match (self,other) {
+            (Self::Uniform{rows:a,..},Self::Uniform{rows:b,..})
+                if Arc::ptr_eq(a,b) => visit(0,Arc::as_ptr(a) as usize,
+                    a.capacity().saturating_mul(std::mem::size_of::<CorePart>())),
+            (Self::Mixed(a),Self::Mixed(b))
+                if Arc::ptr_eq(a,b) => visit(1,Arc::as_ptr(a) as usize,
+                    a.capacity().saturating_mul(std::mem::size_of::<Part>())),
+            (Self::SharedKeys{keys:ak,moments:am,..},
+             Self::SharedKeys{keys:bk,moments:bm,..}) => {
+                if Arc::ptr_eq(ak,bk) {
+                    visit(2,Arc::as_ptr(ak) as usize,
+                        ak.capacity().saturating_mul(std::mem::size_of::<(u32,u32)>()));
+                }
+                if Arc::ptr_eq(am,bm) {
+                    visit(3,Arc::as_ptr(am) as usize,
+                        am.capacity().saturating_mul(std::mem::size_of::<(f64,f64)>()));
+                }
+            },
+            _=>{},
+        }
+    }
     fn iter(&self) -> PartIter<'_> {
         match self {
             Self::Uniform { a, b, rows } => PartIter::Uniform {
@@ -399,6 +424,11 @@ struct RoadWorkBudget {
     /// Source trace-only (cell,head,rate) owners. Count actual Vec capacities
     /// separately from the expired old per-Part motion scan.
     diagnostic_source_live_bytes:usize,
+    /// Exact source/working-candidate Arc payload alias, restricted to
+    /// ready=+infinity packets. These cannot enter a finite event-clock
+    /// service head and move unchanged into the candidate survivors.
+    /// Allocator metadata and all packet/Vec shells remain charged.
+    frozen_queue_payload_credit:usize,
     events: usize,
     incoming: usize,
     incoming_page_cells: usize,
@@ -954,6 +984,67 @@ impl RoadWorkBudget {
         self.expired_motion_scan_credit=self.row_scan_scratch_bytes
             .saturating_sub(live_queue_and_motion_bytes);
     }
+    /// Called exactly once, after prediction queues have been constructed
+    /// by clone_packet from this immutable source and before service begins.
+    /// Only +infinity readiness is admitted: no tolerance or finite time
+    /// comparison is used to predict whether a packet might be served.
+    fn witness_frozen_queue_owners(
+        &mut self,source:&RoadState,queues:&[Vec<(Packet,f64)>]
+    )->PyResult<()> {
+        if self.limit.is_none() {return Ok(());}
+        if self.frozen_queue_payload_credit!=0 {
+            return Err(arithmetic("frozen queue ownership already witnessed"));
+        }
+        if source.cells.len()!=queues.len()
+            || source.cells.iter().zip(queues).any(|(c,q)|c.packets.len()!=q.len()) {
+            return Err(arithmetic("frozen queue source shape differs"));
+        }
+        let mut witnesses=0usize;
+        for (cell,queue) in source.cells.iter().zip(queues) {
+            for (original,(candidate,ready)) in cell.packets.iter().zip(queue) {
+                if *ready==f64::INFINITY {
+                    original.parts.visit_shared_backings(&candidate.parts,|_,_,_| {
+                        witnesses=witnesses.saturating_add(1);
+                    });
+                }
+            }
+        }
+        if witnesses==0 {return Ok(());}
+        // One small descriptor per actually matching packet backing, not
+        // per Part. sort_unstable is in place. The temporary Vec is dropped
+        // before applying any credit; both requested and observed capacities
+        // are checked while the old full candidate allowance is still live.
+        type Witness=(u8,usize,usize);
+        let allowance=std::mem::size_of::<Vec<Witness>>().saturating_add(128);
+        self.require(witnesses.saturating_mul(std::mem::size_of::<Witness>())
+            .saturating_add(allowance),"frozen queue Arc census")?;
+        let mut backing=checkpoint_vec::<Witness>(witnesses)?;
+        self.require(backing.capacity().saturating_mul(std::mem::size_of::<Witness>())
+            .saturating_add(allowance),"frozen queue Arc census")?;
+        for (cell,queue) in source.cells.iter().zip(queues) {
+            for (original,(candidate,ready)) in cell.packets.iter().zip(queue) {
+                if *ready==f64::INFINITY {
+                    original.parts.visit_shared_backings(&candidate.parts,|kind,ptr,bytes| {
+                        backing.push((kind,ptr,bytes));
+                    });
+                }
+            }
+        }
+        debug_assert_eq!(backing.len(),witnesses);
+        backing.sort_unstable_by_key(|&(kind,ptr,_)|(kind,ptr));
+        let mut previous=None;
+        let mut credit=0usize;
+        for &(kind,ptr,bytes) in &backing {
+            if previous!=Some((kind,ptr)) {
+                credit=credit.saturating_add(bytes);
+                previous=Some((kind,ptr));
+            }
+        }
+        drop(backing);
+        self.frozen_queue_payload_credit=credit;
+        crate::v1_trace::add("arc.frozen_queue_unique_payload_credit",credit as u64);
+        Ok(())
+    }
     fn pack_parts(&self, parts: Vec<Part>) -> PyResult<PacketParts> {
         PacketParts::pack(parts, |bytes| {
             self.require(bytes, "packet interval packing")
@@ -1071,7 +1162,9 @@ impl RoadWorkBudget {
         // only after every prediction output was consumed in source order.
         let expired = if phase=="tick preflight" {0}
             else {self.expired_motion_scan_credit};
-        let phase_base=phase_base.saturating_sub(expired);
+        let frozen=if phase=="tick preflight" {0}
+            else {self.frozen_queue_payload_credit};
+        let phase_base=phase_base.saturating_sub(expired).saturating_sub(frozen);
         let required =
             phase_base
                 .saturating_add(event_bytes)
@@ -1089,6 +1182,7 @@ impl RoadWorkBudget {
                 &[
                     ("base", phase_base),
                     ("retired_motion_row_scan_credit",expired),
+                    ("frozen_queue_source_payload_credit",frozen),
                     ("diagnostic_source_actual_capacity_bytes",self.diagnostic_source_live_bytes),
                     ("full_source_base", self.base),
                     ("transfer_exclusive_cell_scratch",
@@ -3374,7 +3468,7 @@ impl V1Road {
                 limit: None,
                 base: 0,
                 transfer_exclusive_cell_scratch:0,
-                row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+                row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
                 events: 0,
                 incoming: 0,
                 incoming_page_cells: self.groups.len(),
@@ -3392,34 +3486,24 @@ impl V1Road {
         let groups = self.groups.len();
         let supplied_retained = state.retained_storage_bytes();
         let maximum_retained = supplied_retained.max(self.retained_input_bytes);
-        // The actual native call restored the caller's immutable RoadState
-        // using Arc cloning. At this exact road_step source seam, state and
-        // self.state are the same committed owner (std::ptr::eq), and the
-        // caller's held input snapshot has pointer-identical immutable Arc
-        // payload backings. The original 3*max conservative owner allowance
-        // double-charges those physically unique payloads.
-        //
-        // In a capped call with known retained call input, deduct AT MOST
-        // ONE independently confirmed, unique physically shared payload
-        // allocation across original source+committed owners. Never credit
-        // cloned shell Vecs, metadata, or a hypothetical candidate. The
-        // 8GiB policy and every numerical/physical rule stay unchanged.
-        let exact_shared = if self.retained_input_bytes>0
-            && std::ptr::eq(state,&self.state)
-            && self.state.t == state.t
-        {
-            state.paired_shared_payload_lower_bound(&self.state)
-                .min(maximum_retained)
-        } else {0};
-        // Preserve the older experimental opt-in trace for historical
-        // comparisons, without requiring it or double-crediting the same
-        // physical bytes in current original-source code.
-        let optin = std::env::var("METROFLOW_EXPERIMENTAL_ARC_PAIR_BUDGET")
+        // A self comparison cannot establish sharing with the original
+        // caller snapshot after an earlier tick committed. The whole engine
+        // records the real restore-time source/committed Arc intersection;
+        // its witness expires when the committed physical clock changes.
+        // Standalone paths without this source witness receive no credit.
+        let exact_shared=if self.retained_input_bytes>0
+            && std::ptr::eq(state,&self.state) {
+            self.service_event_accounting
+                .and_then(|a|a.original_input_road_shared)
+                .map_or(0,|(clock,credit)|if clock==state.t {
+                    credit.min(supplied_retained).min(self.retained_input_bytes)
+                }else{0})
+        }else{0};
+        // Keep historical trace attribution, but an experimental flag may
+        // not manufacture an absent or expired original-source witness.
+        let optin=std::env::var("METROFLOW_EXPERIMENTAL_ARC_PAIR_BUDGET")
             .ok().as_deref()==Some("source_pair_only");
-        let experimental_credit = if optin && self.state.t==state.t {
-            state.paired_shared_payload_lower_bound(&self.state)
-                .min(maximum_retained)
-        } else {0};
+        let experimental_credit=if optin {exact_shared}else{0};
         let paired_credit=exact_shared.max(experimental_credit);
         crate::v1_trace::add("arc.default_pointer_verified_credit",exact_shared as u64);
         crate::v1_trace::add("arc.experimental_paired_credit",experimental_credit as u64);
@@ -3460,7 +3544,7 @@ impl V1Road {
             limit: self.storage_budget,
             base,
             transfer_exclusive_cell_scratch:combine_scratch,
-            row_scan_scratch_bytes:rows.saturating_mul(4*std::mem::size_of::<f64>()),expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:rows.saturating_mul(4*std::mem::size_of::<f64>()),expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events: 0,
             incoming: 0,
             incoming_page_cells: self.groups.len(),
@@ -4257,6 +4341,10 @@ impl V1Road {
                 .saturating_add(live_outer_queue)
                 .saturating_add(perclass_motion_owner)
         );
+        // +infinity packets were cloned from this exact immutable source.
+        // EventClock::after_ready excludes them at every finite cursor;
+        // they survive unchanged and cannot enter a remainder conversion.
+        work.witness_frozen_queue_owners(s,&queues)?;
         let mut position = vec![0; n];
         // Diagnostic only: previous serve per cell (head position, rate bits, end time).
         let mut last_serve: Vec<Option<(usize, u64, f64)>> = if crate::v1_trace::enabled() {
@@ -5396,7 +5484,7 @@ mod workspace_accounting_tests {
             limit: Some(limit),
             base: 0,
             transfer_exclusive_cell_scratch:0,
-            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events: 0,
             incoming: 0,
             incoming_page_cells: 0,
@@ -7000,7 +7088,7 @@ mod exact_consumed_packet_source_lifetime_tests {
         RoadWorkBudget {
             limit:Some(10_000_000),
             base:0,transfer_exclusive_cell_scratch:0,
-            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:n,incoming_page_cells:1586,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -7154,7 +7242,7 @@ mod exact_incoming_cell_page_liveness_tests {
     fn work(g:usize)->RoadWorkBudget {
         RoadWorkBudget {
             limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
-            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,
             incoming_page_cells:g,compact_events:true,compact_incoming:true,
             incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,
@@ -7230,7 +7318,7 @@ mod exact_locked_incoming_descriptor_lifetime_tests {
     fn work()->RoadWorkBudget {
         RoadWorkBudget {
             limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
-            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
@@ -7312,7 +7400,7 @@ mod exact_pending_pack_live_descriptor_tests {
     fn pending_packet_pack_uses_current_vec_capacity_without_freezing_future_appends() {
         let mut w=RoadWorkBudget {
             limit:Some(100000000),base:0,transfer_exclusive_cell_scratch:0,
-            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
@@ -7482,7 +7570,7 @@ mod original_transfer_exclusive_cell_scratch_tests {
         RoadWorkBudget{
             limit:Some(900),base:1000,
             transfer_exclusive_cell_scratch:150,
-            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -7564,7 +7652,7 @@ mod original_completed_source_exact_packet_admission_tests {
     fn budget()->RoadWorkBudget {
         RoadWorkBudget {
             limit:Some(930),base:1000,transfer_exclusive_cell_scratch:150,
-            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:Some(0),
@@ -7613,7 +7701,7 @@ mod original_precombine_pending_remainder_lifetime_tests {
         RoadWorkBudget {
             // Exact source counter Vec adds 136B: old 1160B, new 1058B.
             limit:Some(1100),base:1000,transfer_exclusive_cell_scratch:150,
-            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:1,
             incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -7654,7 +7742,7 @@ mod transfer_live_header_budget_constructive_tests {
     fn work()->RoadWorkBudget {
         RoadWorkBudget {
             limit:Some(36_600),base:0,transfer_exclusive_cell_scratch:0,
-            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:3,compact_events:true,
             compact_incoming:true,incoming_cell_rows:Some(vec![0;3]),
             incoming_live_pages:0,incoming_descriptor_live_bytes:None,
@@ -7703,7 +7791,7 @@ mod transfer_header_growth_overlap_adversarial_tests {
     fn old_header_growth_and_future_raw_payload_are_in_disjoint_source_phases() {
         let mut w=RoadWorkBudget {
             limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
-            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:1,
             incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -7748,7 +7836,7 @@ mod transfer_header_temporal_nonoverlap_regression_tests {
     fn event_pages_and_raw_pages_need_not_coexist_with_old_header_realloc_scratch() {
         let mut w=RoadWorkBudget {
             limit:Some(49_070),base:0,transfer_exclusive_cell_scratch:0,
-            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -7777,7 +7865,7 @@ mod expired_motion_rows_source_lifetime_tests {
     fn old_motion_scan_workspace_expires_only_after_all_predictions_consumed() {
         let mut w=RoadWorkBudget {
             limit:Some(900),base:1000,transfer_exclusive_cell_scratch:0,
-            row_scan_scratch_bytes:400,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:400,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -7798,7 +7886,7 @@ mod expired_motion_rows_source_lifetime_tests {
     fn no_credit_when_live_shells_exceed_old_scratch_allowance() {
         let mut w=RoadWorkBudget {
             limit:Some(900),base:1000,transfer_exclusive_cell_scratch:0,
-            row_scan_scratch_bytes:400,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,
+            row_scan_scratch_bytes:400,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -7820,7 +7908,7 @@ mod diagnostic_lineage_after_motion_expiry_source_tests {
             limit:Some(100_000_000),base:1000,
             transfer_exclusive_cell_scratch:0,
             row_scan_scratch_bytes:400,expired_motion_scan_credit:0,
-            diagnostic_source_live_bytes:0,
+            diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
@@ -8111,7 +8199,7 @@ mod v03_surgical_exact_interval_owner_lifetime_20261122_tests {
             limit:Some(cap),base:1000,
             transfer_exclusive_cell_scratch:400,
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,
-            diagnostic_source_live_bytes:0,
+            diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:Some(Vec::new()),
             incoming_live_pages:0,
@@ -8170,7 +8258,7 @@ mod v03_cell_packet_after_interval_exact_source_20261122_tests {
         RoadWorkBudget {
             limit:Some(limit),base:1000,transfer_exclusive_cell_scratch:400,
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,
-            diagnostic_source_live_bytes:0,events:0,incoming:0,
+            diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,events:0,incoming:0,
             incoming_page_cells:0,incoming_cell_rows:Some(Vec::new()),
             incoming_live_pages:0,incoming_descriptor_live_bytes:Some(0),
             compact_events:false,compact_incoming:false,
@@ -8400,5 +8488,194 @@ mod persistent_event_page_contract_20261123_tests {
         assert_eq!(store.physical_capacity_bytes(),3*4096*48);
         assert!(decoded_event_store_upper_bytes(20_270_113,true)
                 <20_270_113usize*64);
+    }
+}
+
+#[cfg(test)]
+mod v03_frozen_queue_source_ownership_20261123_tests {
+    use super::*;
+
+    fn source_road() -> V1Road {
+        let mut road=V1Road::new(
+            "frozen-queue-source-owner".to_string(),1.0,
+            vec![vec![1_000_000.0,1.0,100_000.0,100_000.0,100_000.0,1.0]],
+            vec![None],vec![(vec![0],0)],vec![vec![1.0;13]],
+            vec![vec![0]],vec![],100_000,Some(100_000),true,
+        ).unwrap();
+        let packed=|count:usize| PacketParts::pack(
+            (0..count).map(|_|Part{
+                tag:0,offset:0,mass:1.0/256.0,birth:-0.0,
+                a:PackedTime::new(Some(-0.0)).unwrap(),
+                b:PackedTime::new(Some(0.0)).unwrap(),
+            }).collect(), |_|Ok(())
+        ).unwrap();
+        road.state.cells[0].packets=vec![
+            Packet{target:0.0,parts:packed(128)},
+            Packet{target:1_000_000.0,parts:packed(4096)},
+        ];
+        road.state.cells[0].v[2]=4224.0/256.0;
+        road.state.cells[0].v[7]=1.0;
+        road.state.cells[0].latent.insert(0,0.0);
+        road.state.totals[0]=4224.0/256.0;
+        road.state.ledger[0][0]=4224.0/256.0;
+        road
+    }
+
+    #[test]
+    fn later_tick_cannot_reuse_original_restore_clock_arc_overlap() {
+        pyo3::prepare_freethreaded_python();
+        let mut road=source_road();
+        road.set_phase_storage_budget(1_000_000_000).unwrap();
+        road.begin_call_storage_accounting();
+        let held_original=road.state.clone();
+        let verified=road.committed_input_source_arc_credit(&held_original);
+        assert!(verified>0);
+        road.configure_service_event_accounting(
+            0,0,true,Some((held_original.t,verified)),
+        );
+        let first=road.work_budget(&road.state,&[]).unwrap().base;
+        // The previous source proof names clock zero; self identity at a
+        // later committed clock cannot establish sharing with held_original.
+        road.state.t=1.0;
+        let later=road.work_budget(&road.state,&[]).unwrap().base;
+        assert_eq!(later,first+verified,
+            "the old input proof must expire even when state == self.state");
+    }
+
+    fn queue(source:&RoadState,readiness:&[f64])->Vec<Vec<(Packet,f64)>> {
+        assert_eq!(source.cells.len(),1);
+        assert_eq!(source.cells[0].packets.len(),readiness.len());
+        vec![source.cells[0].packets.iter().zip(readiness)
+            .map(|(p,&ready)|(clone_packet(p).unwrap(),ready)).collect()]
+    }
+
+    fn admitted_work(road:&mut V1Road)->RoadWorkBudget {
+        road.set_phase_storage_budget(1_000_000_000).unwrap();
+        road.work_budget(&road.state,&[]).unwrap()
+    }
+
+    #[test]
+    fn only_pointer_shared_infinite_readiness_backings_are_credited_once() {
+        let mut road=source_road();
+        let frozen=road.state.cells[0].packets[1].parts.clone();
+        road.state.cells[0].packets.push(Packet{target:2_000_000.0,parts:frozen.clone()});
+        let mut q=queue(&road.state,&[0.0,f64::INFINITY,f64::INFINITY]);
+        let mut work=admitted_work(&mut road);
+        work.witness_frozen_queue_owners(&road.state,&q).unwrap();
+        assert_eq!(work.frozen_queue_payload_credit,frozen.allocated_bytes());
+        // A same-valued independently allocated owner is never an alias.
+        q[0][1].0.parts=PacketParts::pack(frozen.iter().collect(),|_|Ok(())).unwrap();
+        q[0][2].1=10_000.0; // even certainly late finite values receive no credit
+        let mut independent=admitted_work(&mut road);
+        independent.witness_frozen_queue_owners(&road.state,&q).unwrap();
+        assert_eq!(independent.frozen_queue_payload_credit,0);
+        q[0][0].1=f64::NEG_INFINITY;
+        let mut negative=admitted_work(&mut road);
+        negative.witness_frozen_queue_owners(&road.state,&q).unwrap();
+        assert_eq!(negative.frozen_queue_payload_credit,0);
+    }
+
+    #[test]
+    fn shared_keys_duplicate_only_once_and_wide_backing_keeps_actual_capacity() {
+        let mut road=source_road();
+        let keys=Arc::new(vec![(0u32,0u32),(0,0)]);
+        let moments=Arc::new(vec![(0.25,-0.0),(0.75,0.0)]);
+        let times=PackedTime::new(Some(0.0)).unwrap();
+        let shared=PacketParts::SharedKeys{
+            a:times,b:times,keys:keys.clone(),moments:moments.clone(),
+        };
+        let second=PacketParts::SharedKeys{
+            a:times,b:times,keys:keys.clone(),
+            moments:Arc::new(vec![(0.125,0.0),(0.875,0.0)]),
+        };
+        let mut wide_rows=checkpoint_vec::<Part>(23).unwrap();
+        wide_rows.push(Part{
+            tag:u32::MAX as usize+1,offset:0,mass:1.0,birth:-0.0,a:times,b:times,
+        });
+        let wide=PacketParts::pack(wide_rows,|_|Ok(())).unwrap();
+        assert!(matches!(wide,PacketParts::Mixed(_)));
+        road.state.cells[0].packets=vec![shared.clone(),shared,second,wide]
+            .into_iter().map(|parts|Packet{target:1_000_000.0,parts}).collect();
+        let q=queue(&road.state,&[f64::INFINITY;4]);
+        let expected=RoadState::arc_backing_union(&[&road.state]).unique_payload_bytes;
+        let mut work=admitted_work(&mut road);
+        work.witness_frozen_queue_owners(&road.state,&q).unwrap();
+        assert_eq!(work.frozen_queue_payload_credit,expected);
+        assert!(expected>23*std::mem::size_of::<Part>());
+        // All numerical payloads, including signed zero, remain untouched.
+        assert_eq!(moments[0].1.to_bits(),(-0.0f64).to_bits());
+    }
+
+    #[test]
+    fn census_scratch_is_admitted_before_credit_and_guard_remains_exact() {
+        pyo3::prepare_freethreaded_python();
+        let mut road=source_road();
+        let q=queue(&road.state,&[0.0,f64::INFINITY]);
+        let mut blocked=admitted_work(&mut road);
+        blocked.limit=Some(0);
+        let error=blocked.witness_frozen_queue_owners(&road.state,&q).unwrap_err();
+        assert!(error.to_string().contains("frozen queue Arc census"));
+        assert_eq!(blocked.frozen_queue_payload_credit,0);
+        let mut work=admitted_work(&mut road);
+        work.witness_frozen_queue_owners(&road.state,&q).unwrap();
+        let credit=work.frozen_queue_payload_credit;
+        assert!(credit>0);
+        // Observe the actual demand through the same native guard, then
+        // verify the unchanged byte cap admits equality and rejects +1 B.
+        work.limit=Some(0);
+        let err=work.require(0,"transfer candidates").unwrap_err().to_string();
+        let demand=err.split("required_bytes=").nth(1).unwrap()
+            .split(',').next().unwrap().parse::<usize>().unwrap();
+        work.limit=Some(demand);
+        assert!(work.require(0,"transfer candidates").is_ok());
+        assert!(work.require(1,"transfer candidates").is_err());
+        work.frozen_queue_payload_credit=0;
+        assert!(work.require(0,"transfer candidates").is_err());
+        assert!(credit<work.base);
+    }
+
+    #[test]
+    fn infinite_queue_witness_preserves_full_tick_wire_event_bits_and_input() {
+        pyo3::prepare_freethreaded_python();
+        let mut reference=source_road();
+        let mut bounded=source_road();
+        reference.check_state(&reference.state).unwrap();
+        bounded.set_phase_storage_budget(1_000_000_000).unwrap();
+        bounded.begin_call_storage_accounting();
+        let source=bounded.state.clone();
+        let overlap=bounded.committed_input_source_arc_credit(&source);
+        bounded.configure_service_event_accounting(0,0,true,Some((source.t,overlap)));
+        let mut input_wire=Vec::new();
+        bounded.write_state(&mut input_wire).unwrap();
+        let (ref_state,ref_pages)=reference.step_state(&reference.state,1.0,vec![]).unwrap();
+        let (new_state,new_pages)=bounded.propose_owned_step(1.0,vec![]).unwrap();
+        let bits=|e:EventRow|(e.0,e.1,e.2,e.3.to_bits(),e.4.to_bits(),
+            e.5.to_bits(),e.6.to_bits());
+        assert_eq!(ref_pages.iter().map(bits).collect::<Vec<_>>(),
+            new_pages.iter().map(bits).collect::<Vec<_>>());
+        assert_eq!(new_pages.len(),128);
+        let mut still_input=Vec::new();
+        bounded.write_state(&mut still_input).unwrap();
+        assert_eq!(input_wire,still_input,"propose must preserve its immutable source");
+        assert!(Arc::ptr_eq(
+            match &source.cells[0].packets[1].parts {PacketParts::Uniform{rows,..}=>rows,_=>unreachable!()},
+            match &new_state.cells[0].packets[0].parts {PacketParts::Uniform{rows,..}=>rows,_=>unreachable!()},
+        ));
+        reference.state=ref_state;
+        bounded.state=new_state;
+        let mut reference_wire=Vec::new();
+        let mut candidate_wire=Vec::new();
+        reference.write_state(&mut reference_wire).unwrap();
+        bounded.write_state(&mut candidate_wire).unwrap();
+        assert_eq!(reference_wire,candidate_wire);
+    }
+
+    #[test]
+    fn infinite_readiness_never_becomes_a_head_at_any_finite_clock() {
+        for (hi,lo,active) in [(0.0,0.0,false),(1.0,0.0,false),
+            (25_720.0,-f64::EPSILON,true),(f64::MAX,0.0,true)] {
+            let clock=EventClock{hi,lo,active,..EventClock::default()};
+            assert!(clock.after_ready(f64::INFINITY));
+        }
     }
 }
