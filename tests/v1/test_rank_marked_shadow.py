@@ -10,8 +10,8 @@ def span(n,p,c,b=0,ready=0,route="r",cls="car"):
 
 def test_marked_mass_and_birth_moment_exact():
     x=CumulativeMarkedFIFO()
-    x.enter(span(3,2,1,b=2,route="red"))
-    x.enter(span(4,5,3,b=9,route="blue"))
+    x.enter(span(3,2,1,b=2,ready=10,route="red"))
+    x.enter(span(4,5,3,b=9,ready=10,route="blue"))
     assert x.arrived()==(F(7),F(26),F(15),F(42))
     assert x.serve(F(4),F(10))==(F(4),F(11),F(6),F(15))
     assert x.stock()==(F(3),F(15),F(9),F(27))
@@ -76,7 +76,7 @@ def test_eager_fifo_oracle_random_exact_rational():
     eager=[]
     for i in range(42):
         s=span(F(rng.randrange(1,8),16),F(rng.randrange(1,6),3),
-               F(rng.randrange(0,5),7),b=F(i,4),ready=F(0),
+               F(rng.randrange(0,5),7),b=F(i,4),ready=F(i,4),
                route=f"route{i%7}",cls=f"class{i%3}")
         x.enter(s)
         eager.append([s.vehicles,s])
@@ -112,3 +112,15 @@ def test_invalid_mass_and_float_rejected():
         x.serve(2,1)
     assert x.departed_rank==0
     assert MODEL_VERSION=="rank_marked_flow_v0_exact_rational"
+
+
+def test_reject_negative_or_decreasing_clocks_and_prebirth_eligibility():
+    with pytest.raises(ValueError):
+        span(1,1,0,b=2,ready=1)
+    x=CumulativeMarkedFIFO()
+    x.enter(span(1,1,0))
+    x.serve(F(1,2),F(2))
+    old=x.departed_rank
+    with pytest.raises(ValueError):
+        x.serve(F(1,2),F(1))
+    assert x.departed_rank==old

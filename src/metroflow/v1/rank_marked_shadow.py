@@ -36,6 +36,8 @@ class MarkSpan:
                 raise ValueError(f"{k} must be a nonnegative exact rational")
         if self.vehicles<=0 or not self.route or not self.vehicle_class:
             raise ValueError("positive source mass and nonblank route/class required")
+        if self.ready_s < self.birth_s:
+            raise ValueError("finite-response readiness cannot precede birth")
 
     def rate(self):
         return (Fraction(1),self.persons_per_vehicle,
@@ -62,6 +64,7 @@ class CumulativeMarkedFIFO:
         self._spans=[]
         self._prefix=[(Fraction(0),)*len(FIELDS)]
         self._departed=Fraction(0)
+        self._last_clock=Fraction(0)
 
     @property
     def entered_rank(self):
@@ -115,6 +118,9 @@ class CumulativeMarkedFIFO:
 
     def serve(self,vehicles,clock_s):
         vehicles=q(vehicles)
+        clock_s=q(clock_s)
+        if clock_s<self._last_clock:
+            raise ValueError("monotone physical time required")
         if vehicles<0 or vehicles>self.entered_rank-self._departed:
             raise ValueError("invalid offered FIFO mass")
         if self._departed+vehicles>self.ready_prefix(clock_s):
@@ -123,6 +129,7 @@ class CumulativeMarkedFIFO:
         after=before+vehicles
         flux=vec_sub(self.prefix(after),self.prefix(before))
         self._departed=after
+        self._last_clock=clock_s
         return flux
 
     def outgoing_marks(self,left,right):

@@ -1,0 +1,13 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______ test_reject_negative_or_decreasing_clocks_and_prebirth_eligibility ______
+
+    def test_reject_negative_or_decreasing_clocks_and_prebirth_eligibility():
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+tests/v1/test_rank_marked_shadow.py:118: Failed
+=========================== short test summary info ============================
+FAILED tests/v1/test_rank_marked_shadow.py::test_reject_negative_or_decreasing_clocks_and_prebirth_eligibility
+1 failed, 7 deselected in 0.13s

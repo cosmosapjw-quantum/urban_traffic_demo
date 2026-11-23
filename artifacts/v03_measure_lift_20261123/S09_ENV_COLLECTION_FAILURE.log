@@ -1,0 +1,40 @@
+
+==================================== ERRORS ====================================
+____________ ERROR collecting tests/v1/test_native_owner_storage.py ____________
+ImportError while importing test module '/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/tests/v1/test_native_owner_storage.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/v1/test_native_owner_storage.py:8: in <module>
+    from test_native_engine import make_native
+tests/v1/test_native_engine.py:14: in <module>
+    from _metroflow_rust import NativeWholeEngine
+E   ModuleNotFoundError: No module named '_metroflow_rust'
+_______________ ERROR collecting tests/v1/test_native_engine.py ________________
+ImportError while importing test module '/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/tests/v1/test_native_engine.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/v1/test_native_engine.py:14: in <module>
+    from _metroflow_rust import NativeWholeEngine
+E   ModuleNotFoundError: No module named '_metroflow_rust'
+_______________ ERROR collecting tests/v1/test_native_journey.py _______________
+ImportError while importing test module '/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/tests/v1/test_native_journey.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/v1/test_native_journey.py:10: in <module>
+    from _metroflow_rust import NativeJourneyCore, NativeServiceCore
+E   ModuleNotFoundError: No module named '_metroflow_rust'
+=========================== short test summary info ============================
+ERROR tests/v1/test_native_owner_storage.py
+ERROR tests/v1/test_native_engine.py
+ERROR tests/v1/test_native_journey.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 3 errors during collection !!!!!!!!!!!!!!!!!!!!
+3 errors in 0.24s

@@ -1,0 +1,74 @@
+{
+  "stage": "S09",
+  "status": "SCOPED_REVIEW_AND_PREPARATION",
+  "clock_red_exit": 1,
+  "pytest_green_exit": 0,
+  "native_replay_evidence": "S06_fresh0 25720s exact, S05 16 small state matches",
+  "source_invariants_fixed": [
+    "ready_s>=birth_s for every span",
+    "time monotonic on serve calls; invalid requests rollback without mutating queue"
+  ],
+  "remaining_model_risks": [
+    "Shadow does not implement original native hazard/speed/junction physics",
+    "Rust StageQueue stable repack transient old+new Arc workspace is not independently globally admitted; scoped process RSS below 8GiB, general proof unresolved"
+  ],
+  "reviewer": "same-context source audit plus Wolfram exact rational crosscheck; native subagent NOT_RUN because delegation not available",
+  "prep_command": [
+    "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+    "-u",
+    "tools/run_v1_local_acceptance.py",
+    "--prepare-only",
+    "--matrix",
+    "scenarios/v1/release_matrix.json",
+    "--out",
+    "artifacts/v03_measure_lift_20261123/S09_preparation",
+    "--engine-backend",
+    "rust_whole",
+    "--native-threads",
+    "1",
+    "--storage-policy",
+    "bounded_bytes_v1"
+  ],
+  "prep_exit": 0,
+  "prep_elapsed_s": 124.26953924499685,
+  "prep_cases": [
+    {
+      "case": "coastal_weekend_s41",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "simulated_s": 0,
+      "resident_stock": 100000.0,
+      "calendar_legs": 2449750,
+      "peak_rss_bytes": 1120415744,
+      "wall_s": 38.40493235399481,
+      "source_sha256": "9976585060ccaf46837260cbfdaebef4cac294854c7db19fddffbb53c6ee860b",
+      "native_sha256": "378619a766b352f4f524addd4f06797541c8460fa45385d6e0cab6bc661d20d5",
+      "source_dirty": false
+    },
+    {
+      "case": "river_weekday_s17",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "simulated_s": 0,
+      "resident_stock": 100000.0,
+      "calendar_legs": 5093765,
+      "peak_rss_bytes": 2177945600,
+      "wall_s": 64.18312220397638,
+      "source_sha256": "9976585060ccaf46837260cbfdaebef4cac294854c7db19fddffbb53c6ee860b",
+      "native_sha256": "378619a766b352f4f524addd4f06797541c8460fa45385d6e0cab6bc661d20d5",
+      "source_dirty": false
+    },
+    {
+      "case": "valley_weekday_s7",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "simulated_s": 0,
+      "resident_stock": 100000.0,
+      "calendar_legs": 918450,
+      "peak_rss_bytes": 451362816,
+      "wall_s": 19.696608793048654,
+      "source_sha256": "9976585060ccaf46837260cbfdaebef4cac294854c7db19fddffbb53c6ee860b",
+      "native_sha256": "378619a766b352f4f524addd4f06797541c8460fa45385d6e0cab6bc661d20d5",
+      "source_dirty": false
+    }
+  ],
+  "full_day_pass": 0,
+  "full_day_required": 9
+}
