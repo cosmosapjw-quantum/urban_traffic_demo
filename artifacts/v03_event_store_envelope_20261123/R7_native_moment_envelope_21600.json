@@ -1,0 +1,564 @@
+{
+  "schema": "V03_NATIVE_EVENT_MOMENT_ENVELOPE_20261123_V1",
+  "source_receipt": "artifacts/v03_event_store_envelope_20261123/R7_record_diagnostic_25720_requested_10s.json",
+  "native_sha256": "734a8d320a1a1e633014c99108ec03ed5f52cb1407b26a659e1e150e8b480c4a",
+  "candidate_source_sha256": "620e85a5c7146de5373a11bd4e637f59de9d463d04a9f293250ce6e575dcf3e7",
+  "source_case": "valley_weekday_s7",
+  "source_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "source_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "observer_script_sha256": "154117f76ccd264b0b5c2836fb729f32544b37c8e1d8f3646894c2bb06b41fe4",
+  "initial": {
+    "status": "NUMERICALLY_CHECKED_CONDITIONAL_MOMENT_ENVELOPE",
+    "observation": "service event-incidence age at common snapshot time",
+    "not_unique_vehicle_or_final_journey_distribution": true,
+    "source_support_assumption": "original birth clock in [declared birth_min,snapshot time]; conditional exact-model claim",
+    "declared_birth_min_s": {
+      "exact": "21600",
+      "approx": 21600.0
+    },
+    "conditional_age_support_s": [
+      {
+        "exact": "0",
+        "approx": 0.0
+      },
+      {
+        "exact": "4120",
+        "approx": 4120.0
+      }
+    ],
+    "arithmetic_scope": "stored f64 event-incidence moments at common snapshot clock; arithmetic enclosure only, not historical solver roundoff or unique journey distribution",
+    "historical_solver_roundoff_certified": false,
+    "row_count": 20270113,
+    "retained_event_storage_bytes": 973795840,
+    "compact_events": true,
+    "time_s": {
+      "exact": "25720",
+      "approx": 25720.0
+    },
+    "incidence_mass": {
+      "exact": "1274173585424061/4398046511104",
+      "approx": 289.71353127054977
+    },
+    "mean_age_interval_s": [
+      {
+        "exact": "203154867457009088/637086793599153",
+        "approx": 318.8809899971519
+      },
+      {
+        "exact": "812619472112269440/2548347167113217",
+        "approx": 318.88099180489985
+      }
+    ],
+    "age_first_moment_interval_vehicle_s": [
+      {
+        "exact": "3174294804015767/34359738368",
+        "approx": 92384.13779576562
+      },
+      {
+        "exact": "6348589625877105/68719476736",
+        "approx": 92384.13805545286
+      }
+    ],
+    "bounds": [
+      {
+        "threshold_s": {
+          "exact": "0",
+          "approx": 0.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "3174294804015767/34359738368",
+          "approx": 92384.13779576562
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "6348589625877105/68719476736",
+          "approx": 92384.13805545286
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "1",
+          "approx": 1.0
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "300",
+          "approx": 300.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "1",
+          "approx": 1.0
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "3174294808586311/34359738368",
+            "approx": 92384.13792878596
+          },
+          "upper": {
+            "exact": "3174294808586311/34359738368",
+            "approx": 92384.13792878596
+          }
+        }
+      },
+      {
+        "threshold_s": {
+          "exact": "60",
+          "approx": 60.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "41232414960264977/549755813888",
+          "approx": 75001.32589532764
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "1288763694053052315/14156212207616",
+          "approx": 91038.73798668412
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "1",
+          "approx": 1.0
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "360",
+          "approx": 360.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "6771828934268912/7645041501339651",
+          "approx": 0.8857805327913884
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "82464830093401037/1099511627776",
+            "approx": 75001.32605255298
+          },
+          "upper": {
+            "exact": "644381846143021133/7078106103808",
+            "approx": 91038.7378618619
+          }
+        }
+      },
+      {
+        "threshold_s": {
+          "exact": "300",
+          "approx": 300.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "3007207344315797/549755813888",
+          "approx": 5470.078293575711
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "1212580618542527055/14156212207616",
+          "approx": 85657.1377116092
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "1293419326445362192/1312398791063306755",
+          "approx": 0.9855383403678943
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "600",
+          "approx": 600.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "6771828934268912/12741735835566085",
+          "approx": 0.531468319674833
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "6014414967957377/1099511627776",
+            "approx": 5470.07854762103
+          },
+          "upper": {
+            "exact": "606290308439985401/7078106103808",
+            "approx": 85657.13759416563
+          }
+        }
+      },
+      {
+        "threshold_s": {
+          "exact": "600",
+          "approx": 600.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "0",
+          "approx": 0.0
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "69834485884648155/884763262976",
+          "approx": 78930.13736776555
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "1191841892431328512/1312398791063306755",
+          "approx": 0.9081400413861225
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "900",
+          "approx": 900.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "13543657868537824/38225207506698255",
+          "approx": 0.35431221311655536
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "0",
+            "approx": 0.0
+          },
+          "upper": {
+            "exact": "34917242894449421/442381631488",
+            "approx": 78930.13725954528
+          }
+        }
+      },
+      {
+        "threshold_s": {
+          "exact": "1800",
+          "approx": 1800.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "0",
+          "approx": 0.0
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "184109099150436045/3539053051904",
+          "approx": 52022.13599239093
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "785532156375193792/1312398791063306755",
+          "approx": 0.5985468454590352
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "2100",
+          "approx": 2100.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "13543657868537824/89192150848962595",
+          "approx": 0.1518480913356666
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "0",
+            "approx": 0.0
+          },
+          "upper": {
+            "exact": "92054549449003019/1769526525952",
+            "approx": 52022.13592106394
+          }
+        }
+      },
+      {
+        "threshold_s": {
+          "exact": "3600",
+          "approx": 3600.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "0",
+          "approx": 0.0
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "82531665136402365/7078106103808",
+          "approx": 11660.133929329002
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "176067552290991712/1312398791063306755",
+          "approx": 0.13415705156840446
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "3900",
+          "approx": 3900.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "13543657868537824/165642565862359105",
+          "approx": 0.08176435687305124
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "0",
+            "approx": 0.0
+          },
+          "upper": {
+            "exact": "41265832511622043/3539053051904",
+            "approx": 11660.133913341917
+          }
+        }
+      }
+    ]
+  },
+  "final": {
+    "status": "NUMERICALLY_CHECKED_CONDITIONAL_MOMENT_ENVELOPE",
+    "observation": "service event-incidence age at common snapshot time",
+    "not_unique_vehicle_or_final_journey_distribution": true,
+    "source_support_assumption": "original birth clock in [declared birth_min,snapshot time]; conditional exact-model claim",
+    "declared_birth_min_s": {
+      "exact": "21600",
+      "approx": 21600.0
+    },
+    "conditional_age_support_s": [
+      {
+        "exact": "0",
+        "approx": 0.0
+      },
+      {
+        "exact": "4120",
+        "approx": 4120.0
+      }
+    ],
+    "arithmetic_scope": "stored f64 event-incidence moments at common snapshot clock; arithmetic enclosure only, not historical solver roundoff or unique journey distribution",
+    "historical_solver_roundoff_certified": false,
+    "row_count": 20270113,
+    "retained_event_storage_bytes": 973795840,
+    "compact_events": true,
+    "time_s": {
+      "exact": "25720",
+      "approx": 25720.0
+    },
+    "incidence_mass": {
+      "exact": "1274173585424061/4398046511104",
+      "approx": 289.71353127054977
+    },
+    "mean_age_interval_s": [
+      {
+        "exact": "203154867457009088/637086793599153",
+        "approx": 318.8809899971519
+      },
+      {
+        "exact": "812619472112269440/2548347167113217",
+        "approx": 318.88099180489985
+      }
+    ],
+    "age_first_moment_interval_vehicle_s": [
+      {
+        "exact": "3174294804015767/34359738368",
+        "approx": 92384.13779576562
+      },
+      {
+        "exact": "6348589625877105/68719476736",
+        "approx": 92384.13805545286
+      }
+    ],
+    "bounds": [
+      {
+        "threshold_s": {
+          "exact": "0",
+          "approx": 0.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "3174294804015767/34359738368",
+          "approx": 92384.13779576562
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "6348589625877105/68719476736",
+          "approx": 92384.13805545286
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "1",
+          "approx": 1.0
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "300",
+          "approx": 300.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "1",
+          "approx": 1.0
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "3174294808586311/34359738368",
+            "approx": 92384.13792878596
+          },
+          "upper": {
+            "exact": "3174294808586311/34359738368",
+            "approx": 92384.13792878596
+          }
+        }
+      },
+      {
+        "threshold_s": {
+          "exact": "60",
+          "approx": 60.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "41232414960264977/549755813888",
+          "approx": 75001.32589532764
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "1288763694053052315/14156212207616",
+          "approx": 91038.73798668412
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "1",
+          "approx": 1.0
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "360",
+          "approx": 360.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "6771828934268912/7645041501339651",
+          "approx": 0.8857805327913884
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "82464830093401037/1099511627776",
+            "approx": 75001.32605255298
+          },
+          "upper": {
+            "exact": "644381846143021133/7078106103808",
+            "approx": 91038.7378618619
+          }
+        }
+      },
+      {
+        "threshold_s": {
+          "exact": "300",
+          "approx": 300.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "3007207344315797/549755813888",
+          "approx": 5470.078293575711
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "1212580618542527055/14156212207616",
+          "approx": 85657.1377116092
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "1293419326445362192/1312398791063306755",
+          "approx": 0.9855383403678943
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "600",
+          "approx": 600.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "6771828934268912/12741735835566085",
+          "approx": 0.531468319674833
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "6014414967957377/1099511627776",
+            "approx": 5470.07854762103
+          },
+          "upper": {
+            "exact": "606290308439985401/7078106103808",
+            "approx": 85657.13759416563
+          }
+        }
+      },
+      {
+        "threshold_s": {
+          "exact": "600",
+          "approx": 600.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "0",
+          "approx": 0.0
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "69834485884648155/884763262976",
+          "approx": 78930.13736776555
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "1191841892431328512/1312398791063306755",
+          "approx": 0.9081400413861225
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "900",
+          "approx": 900.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "13543657868537824/38225207506698255",
+          "approx": 0.35431221311655536
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "0",
+            "approx": 0.0
+          },
+          "upper": {
+            "exact": "34917242894449421/442381631488",
+            "approx": 78930.13725954528
+          }
+        }
+      },
+      {
+        "threshold_s": {
+          "exact": "1800",
+          "approx": 1800.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "0",
+          "approx": 0.0
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "184109099150436045/3539053051904",
+          "approx": 52022.13599239093
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "785532156375193792/1312398791063306755",
+          "approx": 0.5985468454590352
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "2100",
+          "approx": 2100.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "13543657868537824/89192150848962595",
+          "approx": 0.1518480913356666
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "0",
+            "approx": 0.0
+          },
+          "upper": {
+            "exact": "92054549449003019/1769526525952",
+            "approx": 52022.13592106394
+          }
+        }
+      },
+      {
+        "threshold_s": {
+          "exact": "3600",
+          "approx": 3600.0
+        },
+        "conditional_K_lower_vehicle_s": {
+          "exact": "0",
+          "approx": 0.0
+        },
+        "conditional_K_upper_vehicle_s": {
+          "exact": "82531665136402365/7078106103808",
+          "approx": 11660.133929329002
+        },
+        "incidence_tail_upper_at_u_plus_300s": {
+          "exact": "176067552290991712/1312398791063306755",
+          "approx": 0.13415705156840446
+        },
+        "incidence_tail_threshold_s": {
+          "exact": "3900",
+          "approx": 3900.0
+        },
+        "incidence_tail_upper_with_source_support": {
+          "exact": "13543657868537824/165642565862359105",
+          "approx": 0.08176435687305124
+        },
+        "tail_method": "source support plus positive-age Markov bound; stored interval inputs",
+        "stored_point_moment_envelope": {
+          "lower": {
+            "exact": "0",
+            "approx": 0.0
+          },
+          "upper": {
+            "exact": "41265832511622043/3539053051904",
+            "approx": 11660.133913341917
+          }
+        }
+      }
+    ]
+  }
+}

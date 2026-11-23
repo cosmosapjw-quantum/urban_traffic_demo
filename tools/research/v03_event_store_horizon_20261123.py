@@ -42,12 +42,15 @@ def main() -> int:
     parser.add_argument("--start-checkpoint", required=True, type=Path)
     parser.add_argument("--duration-s", required=True, type=int)
     parser.add_argument("--out", required=True, type=Path)
+    parser.add_argument("--diagnostic-trace", action="store_true",
+                        help="record guard terms without bypass; not an uninstrumented physics benchmark")
     args = parser.parse_args()
 
     if not (0 <= args.duration_s <= 86400 and args.duration_s % TICK == 0):
         raise ValueError("duration must be an integral 10-second horizon, or zero for restore-only")
-    if os.environ.get("METROFLOW_BUDGET_TRACE") != "off":
-        raise ValueError("original uninstrumented physics requires trace mode off")
+    expected_trace = "record" if args.diagnostic_trace else "off"
+    if os.environ.get("METROFLOW_BUDGET_TRACE") != expected_trace:
+        raise ValueError("explicit diagnostic/physics trace mode mismatch")
     if os.environ.get("METROFLOW_EXPERIMENTAL_ARC_PAIR_BUDGET") is not None:
         raise ValueError("experimental shared-Arc budget credit forbidden")
 
@@ -354,8 +357,8 @@ def main() -> int:
             initial_event_moments={"status":"OBSERVER_ERROR","class":type(exc).__name__,
                                    "message":str(exc)}
 
-        if budget_trace_snapshot(reset=True)["mode"] != "off":
-            raise ValueError("original uninstrumented native guard unavailable")
+        if budget_trace_snapshot(reset=True)["mode"] != expected_trace:
+            raise ValueError("required non-bypass native guard mode unavailable")
 
         for i in range(args.duration_s//TICK):
             next_t=original_t + (i+1)*TICK
@@ -443,7 +446,11 @@ def main() -> int:
         "current_driver_identity":previous_driver,
         "original_matrix_sha256":matrix_sha,
         "native_process_cap_bytes":limit,
-        "trace_mode":"off","original_full_day_acceptance":"BLOCKED_0_OF_9",
+        "trace_mode":expected_trace,
+        "diagnostic_only":args.diagnostic_trace,
+        "evidence_role":("guard-components and moments; no uninstrumented performance credit"
+                         if args.diagnostic_trace else "original uninstrumented physics"),
+        "original_full_day_acceptance":"BLOCKED_0_OF_9",
         "wall_total_including_full_preparation_and_checkpoint_io_s":elapsed,
         "peak_rss_bytes":resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024,
         "trace_sites":trace.get("sites") if trace else None,

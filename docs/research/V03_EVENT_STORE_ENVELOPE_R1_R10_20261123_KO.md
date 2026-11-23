@@ -108,3 +108,30 @@ peak_rss_bytes=4713345024
 따라서 persistent event 구현의 단위검사 성공을 원본 tick 성공으로 승격하지 않는다. 예전 transfer-header guard와 비교해 phase는 바뀌었지만 road budget 숫자가 동일하다. 다음 단계는 실제 소유 관계와 phase pool 전달을 추적하여 표현 절감이 어느 시점에 반영되는지 규명한다. 임의 credit이나 원래 cap 완화는 사용하지 않는다.
 
 R6 native 관측은 wrapper DriverState를 전달한 연결 오류로 initial/final 모두 OBSERVER_ERROR였다. 실패 receipt를 보존했고 adapter 결과도 NOT_OBSERVED다. runner의 두 인자를 state.runtime_state로 수정하고 py_compile을 통과했다. 수정된 연결의 실제 관측 검증은 다음 실행에서 한다. 현재 full-day0/9, canonical scoped19/21은 변하지 않는다.
+
+## R7/C7 · 원도시 모멘트 연결과 blocker 성분 측정
+
+관측 wrapper 수정 후 실제 원본 t25720을 복원하고 record-only 진단을 수행했다. mode는 명시적 `--diagnostic-trace`와 `METROFLOW_BUDGET_TRACE=record`로 일치시킨다. guard/cap/수요/물리식은 유지하며 `observe` bypass는 쓰지 않는다. receipt는 diagnostic_only=true와 실제 runner SHA를 기록한다. 이 진단을 uninstrumented 성능이나 새 물리 전진으로 세지 않는다. t25730 transfer 후보에서 다시 막혔고 valid advance=0, 총91.317s였다.
+
+Native hook은 실제20,270,113행을 추가 대형 배열 없이 관측했다. retained event storage=973,795,840B, 기존 exact-flat 비용64×20,270,113+128=1,297,287,360B 대비323,491,520B 절감이다. M=289.71353127054977 vehicle-incidence, A=92,384.13792878596 vehicle·s다. stored-f64 관측 산술 enclosure는 M∈[289.7135308459402,289.7135316739664], A∈[92384.13779576562,92384.13805545286]. 이는 과거 solver roundoff의 enclosure가 아니다.
+
+### 실제 source로 support 강화
+
+R7_birth_support_provenance.md는 empty initial road/queues/events, 고정 inventory의 최초 버스 출발21600s, private weekday 최초25200s, freight service 최초36000s, 별도 direct service cars가 빈 목록임을 추적한다. 초기 passenger waiting reservoir는 birth0의 road 차량이 아니다. 따라서 선언된 exact model의 event birth support는 [21600,T]이고, T25720에서 age support는 [0,4120]이다. 평균에서 birth 하한을 역추론하지 않는다. retained-part의 절대1e-8 moment slack과 decoder의 제한된 검사를 명시해 수치적 역사 오차 인증과 구분했다.
+
+이 source 정보로 universal gap 상계는 M×25720/4에서 M×4120/4로 좁아진다(103/643배, 약6.24배 개선). 실제 첫 모멘트는 강화된 support와 양립한다. 관측 평균 age의 산술 구간은 [318.8809899971519,318.88099180489985]s다.
+
+| threshold u(s) | K 하한(vehicle·s) | support[0,4120] 상한 | support[0,25720] 상한 |
+|---|---:|---:|---:|
+| 0 | 92384.137796 | 92384.138055 | 92384.138055 |
+| 60 | 75001.325895 | 91038.737987 | 92168.622959 |
+| 300 | 5470.078294 | 85657.137712 | 91306.562573 |
+| 600 | 0 | 78930.137368 | 90228.987090 |
+| 1800 | 0 | 52022.135992 | 85918.685159 |
+| 3600 | 0 | 11660.133929 | 79453.232262 |
+
+R7_native_moment_envelope_21600.json과 _0.json은 exact Fraction 및 approximate 수치를 모두 보존한다. 현재 정보에서 q>0의 tail에는 a≥q ⇒ a/q≥1을 적분해 P_incidence(a≥q)≤min(1,A/(Mq))를 함께 사용한다. q>H이면0이다. M,A interval에서는 A_high/(M_low q)가 안전하다. q3900s에서 상계0.08176435687305124를 얻었다. K(u)/(q−u)의 임의 threshold 결과만 선택해 더 약한 값을 최선이라고 제시하지 않는다. 이 Markov 결과는 기존 이론의 직접 corollary이고 신규 일반정리라는 주장은 없다. Unique vehicle 또는 최종 journey 완료·검열 분포로 해석하지 않는다.
+
+### 실제 메모리 성분과 다음 수술
+
+동일한 road budget4867625327B는 event 절감 누락의 증거가 아니었다. journey 비용을 먼저 pool에서 빼고 event 비용은 required 쪽에 더하는 구조다. 실제 진단의 초과점 required4867733760B는 base1901806568 + event1772443240 + incoming925609136 + source diagnostics267874816 등으로 구성된다. 원래 guard와 record 진단의 exact 초과 bytes는 다르므로 동일 성능 표본으로 취급하지 않는다. C8은 원래 call-input/committed/third-owner의 실제 Arc와 수명을 추적해 보수적 중복 비용을 구분한다. 관측한169B에 맞춘 임의 credit은 사용하지 않는다.
