@@ -1,0 +1,125 @@
+{
+  "head_source": "/home/cosmosapjw/urban_traffic_v03_causal_rank_20261123/artifacts/v03_causal_rank_20261123/S06_original_fifo_heads.json",
+  "head_source_sha256": "7152480c49fec04d4a700c9f0716d140f0c3a7c62d967d323723203be71c711c",
+  "source_checkpoint_sha256": "ac7a209c6adfd594c791d1ac4b5b33c6e013ae73b7b594e42121115c89bd8369",
+  "time_s": 25700,
+  "selection": "largest complete first-packet compositions with 2..4096 rows; deterministic cell tie break",
+  "head_artifact_schema": "METROFLOW_BOUNDED_ORIGINAL_HEAD_SAMPLE_V1",
+  "artifact_row_fields": [
+    "a",
+    "b",
+    "birth",
+    "mass",
+    "offset",
+    "tag"
+  ],
+  "heads": [
+    {
+      "cell": 466,
+      "packet_index": 0,
+      "rows": 464,
+      "unique_tags": 464,
+      "unique_tag_offsets": 464,
+      "unique_offsets": [
+        0
+      ],
+      "unique_endpoint_bit_pairs": 1,
+      "endpoint_bit_pairs": [
+        [
+          "40d9140000000000",
+          "40d9140000000000"
+        ]
+      ],
+      "mass_vehicle_units": 0.21627890666666663,
+      "target": 4278.625700621115,
+      "class_suffix_groups": null,
+      "endpoint_conditioned_class_suffix_groups": null,
+      "destinations": null,
+      "behavior_group_over_tag_ratio": null,
+      "group_count_status": "UNMEASURED_REGISTRY_NOT_LOCATED_WITHIN_BOUNDED_READ"
+    },
+    {
+      "cell": 908,
+      "packet_index": 0,
+      "rows": 454,
+      "unique_tags": 454,
+      "unique_tag_offsets": 454,
+      "unique_offsets": [
+        1
+      ],
+      "unique_endpoint_bit_pairs": 1,
+      "endpoint_bit_pairs": [
+        [
+          "40d91290e4a1b1ce",
+          "40d912ac93a8a947"
+        ]
+      ],
+      "mass_vehicle_units": 0.21571050666666675,
+      "target": 4457.6503586869185,
+      "class_suffix_groups": null,
+      "endpoint_conditioned_class_suffix_groups": null,
+      "destinations": null,
+      "behavior_group_over_tag_ratio": null,
+      "group_count_status": "UNMEASURED_REGISTRY_NOT_LOCATED_WITHIN_BOUNDED_READ"
+    },
+    {
+      "cell": 751,
+      "packet_index": 0,
+      "rows": 442,
+      "unique_tags": 442,
+      "unique_tag_offsets": 442,
+      "unique_offsets": [
+        0
+      ],
+      "unique_endpoint_bit_pairs": 1,
+      "endpoint_bit_pairs": [
+        [
+          "40d9168000000000",
+          "40d9168000000000"
+        ]
+      ],
+      "mass_vehicle_units": 0.11086213333333325,
+      "target": 3893.523763488941,
+      "class_suffix_groups": null,
+      "endpoint_conditioned_class_suffix_groups": null,
+      "destinations": null,
+      "behavior_group_over_tag_ratio": null,
+      "group_count_status": "UNMEASURED_REGISTRY_NOT_LOCATED_WITHIN_BOUNDED_READ"
+    }
+  ],
+  "schema": "METROFLOW_BOUNDED_HEAD_BEHAVIOR_CENSUS_V1",
+  "status": "PARTIAL_MEASURED_TAG_ENDPOINTS__BEHAVIOR_SUPPORT_UNMEASURED",
+  "registry": {
+    "status": "UNMEASURED_REGISTRY_NOT_LOCATED",
+    "scope": "Only existing artifact filenames in artifacts/v03_causal_rank_20261123, artifacts/v1_rust_whole_20261116, artifacts/v1_v03_workspace_20261117 and targeted reference matches in tools/research were inspected.",
+    "reason": "Head artifact contains numeric tag and offset but no routes/tag-to-class/path registry. No matching static/route/registry/payload artifact path was located within this bounded read. This is not a claim of global absence.",
+    "source_mapping": {
+      "source_file": "crates/metroflow-rust/src/v1_road.rs",
+      "source_blob": "f2d2031e8710b57b6b1be430ece7695430c19eb3",
+      "source_commit": "03b76ccf2ef6bc087d38681c78716e749cce3943",
+      "class": "routes[tag].1 (lines 3037–3039)",
+      "path": "paths[routes[tag].0] (lines 3040–3042)",
+      "destination": "path[tag][offset+1] or None (lines 3043–3045)"
+    },
+    "join_contract": {
+      "required_existing_payload": "Source-bound tag-index -> (class-index,path-index), path-index -> complete ordered cell-index list, plus registry binding to the checkpoint/model identity.",
+      "class_suffix_key": "(class_index, tuple(path[offset+1:]))",
+      "endpoint_conditioned_key": "(class_index, tuple(path[offset+1:]), a_f64_bits, b_f64_bits)",
+      "destination_key": "path[offset+1] if in range, otherwise None",
+      "note": "All rows in one captured head have the same current cell and one common target. Including the current path cell in the suffix instead of taking path[offset+1:] leaves within-head group cardinalities unchanged when the source suffix-validity invariant holds."
+    },
+    "stopped_before": [
+      "native import",
+      "checkpoint decode",
+      "registry reconstruction",
+      "new simulation",
+      "new benchmark"
+    ],
+    "minimal_future_input": "Provide an already saved source-bound registry payload path, or a small exact export containing class and full residual path for the union of sampled tags; obtaining that export is outside this bounded read."
+  },
+  "derived_observation": {
+    "status": "derived_from_measured_endpoint_bits",
+    "statement": "For each of these three individual heads, endpoint-conditioned class/suffix group count equals the unconditioned class/suffix group count, because there is exactly one endpoint bit pair within that head. Both absolute group counts remain UNMEASURED without the registry.",
+    "no_extrapolation": "The deterministic largest-first-packet sample is not random. No whole-live-state or city-wide support compression ratio is inferred."
+  }
+}

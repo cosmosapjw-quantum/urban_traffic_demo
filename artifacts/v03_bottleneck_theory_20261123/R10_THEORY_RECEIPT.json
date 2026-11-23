@@ -1,0 +1,146 @@
+{
+  "schema": "METROFLOW_THEORY_RECONSTRUCTION_R10_V1",
+  "recorded_at": "2026-11-23T12:08:29.086492+00:00",
+  "scope": "theory-only divergent R1-R10, six reconstruction routes, no production C-loop",
+  "baseline": "492e27618696df2514b088a64de450cf69746647",
+  "branch": "research/v03-bottleneck-theory-20261123",
+  "stage_count": 10,
+  "prior_stage_commits": [
+    {
+      "sha": "b478d3958aac8ad23c5b20bbc2f71ea288648163",
+      "subject": "theory(v03): R1 pin divergent bottleneck reconstruction and original motives"
+    },
+    {
+      "sha": "d321471d541fad3a57b55b08620766567feb3b97",
+      "subject": "theory(v03): R2 reconstruct producer-consumer bottleneck evidence"
+    },
+    {
+      "sha": "e0846a43a008028048578b9e62109ca8ae73c30d",
+      "subject": "theory(v03): R3 state six reconstruction claims and validity domains"
+    },
+    {
+      "sha": "f5a5646686b0f533880040bc7b7d896ae43bca37",
+      "subject": "theory(v03): R4 construct six distinct bottleneck relief routes"
+    },
+    {
+      "sha": "cd83c98070f2d4b8ddfb8bc82efa3f4db420c0fc",
+      "subject": "theory(v03): R5 derive coupled stability and constructive transport closures"
+    },
+    {
+      "sha": "0f06b43d30d67f465765bb909b8607cdde21c6ae",
+      "subject": "theory(v03): R6 repair jump stability and joint endpoint fibers"
+    },
+    {
+      "sha": "70466e6dc0cf83853a3cf37b11669d6bdddf84c1",
+      "subject": "theory(v03): R7 verify rational stability and analytic mark refinement"
+    },
+    {
+      "sha": "5b795a7f68f11cce4d9243bf0aa43e9f0624532b",
+      "subject": "theory(v03): R8 classify route evidence and revise bottleneck assumptions"
+    },
+    {
+      "sha": "c19e4a0e51a5967da1512052709ed70f9b2305e5",
+      "subject": "theory(v03): R9 bind reconstruction proofs to complete consumer contracts"
+    }
+  ],
+  "closing_commit": "the commit containing this receipt; verified remote SHA recorded after push in external session log",
+  "production_paths_unchanged_from_baseline": true,
+  "new_native_execution_seconds": 0,
+  "native_status": "V03_BLOCKED",
+  "dag_scoped_or_accepted": "19/21",
+  "dag_accepted": "5/21",
+  "full_day_original_runs": "0/9",
+  "routes": [
+    "O observer codec",
+    "A operator interval measure",
+    "B behavioral quotient with joint endpoint fibers",
+    "C support-aware phase/rank",
+    "D positive feature realization",
+    "E flux-integrated marks"
+  ],
+  "independent_review": "one fresh pass; jump metric and Mixed endpoint repairs integrated",
+  "mathematical_checks": {
+    "joint_E_C_exact_cases": 128,
+    "analytic_mark_refinement": [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32
+    ],
+    "wolfram_evaluations": 2
+  },
+  "behavior_census_status": "UNMEASURED_CLASS_SUFFIX_WITHOUT_SOURCE_BOUND_REGISTRY",
+  "manifest_excludes_self": true,
+  "files": {
+    "artifacts/v03_bottleneck_theory_20261123/R10_head_behavior_census.json": {
+      "bytes": 5383,
+      "sha256": "745bcbc545f53c722ef3e82a2e4bfdd1a3d27f1cb4ebd09a49822ac96e16b2d9"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/R2_source_anatomy.json": {
+      "bytes": 31302,
+      "sha256": "13a16aa1064a2b76eaaa7cbfa42b729840e51cdc7f864661b74e5e34ef0c9b32"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/R7_COMPUTATION_RECEIPT.json": {
+      "bytes": 2274,
+      "sha256": "701f9efbdd5b38911d58b855f56b93b740ef68c40700ad1884d030259d2ad087"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/R7_WOLFRAM.json": {
+      "bytes": 2432,
+      "sha256": "77d676505b1e00e4c7b044d108096eba3ea3450542bf3e6abb29d4594f185ba4"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/R7_reconstruction_examples.json": {
+      "bytes": 5703,
+      "sha256": "51e5cf654f9d290d9382ca4267b118cb1af264f66801bec0345887b1628d237d"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/README.md": {
+      "bytes": 1780,
+      "sha256": "4d68a19f83c282116e7ed973c14df0d545fa9d427d9b7f0f348c25ff84348683"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/check_causal_service_stability.py": {
+      "bytes": 11601,
+      "sha256": "cc1303e89294a1d7a73777c02dda15b724ad5cef8f73de1398199dfb5a32478f"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/check_controlled_routes.py": {
+      "bytes": 4362,
+      "sha256": "db575061c379ae010cbfdc2c0d009f97bd17eaa06c0a6b91346bc3080305bc2a"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/check_reconstruction_examples.py": {
+      "bytes": 9141,
+      "sha256": "6bf440f82a0ebc16dce31cee8030d38296bc7037e9f36f5c028b33be3e04ff5d"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/metroflow_controlled_routes_checks.json": {
+      "bytes": 32156,
+      "sha256": "fc1fa2b6123d99d6e12df17466a23abd4320ff7b84297bffbfcb1ea2dea412a6"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/metroflow_exact_routes_calculation.json": {
+      "bytes": 2194,
+      "sha256": "28295d9b1003cc09e34d6618d70daafecf8ee809fc5059aecd726407454a6f29"
+    },
+    "docs/research/V03_BOTTLENECK_COUPLED_MEASURES_20261123.md": {
+      "bytes": 35829,
+      "sha256": "88136a87be7783bee21b4b0f9b07b59922edc30431edd45fc352fb5443e06d1f"
+    },
+    "docs/research/V03_BOTTLENECK_EXACT_TRANSPORT_20261123.md": {
+      "bytes": 42128,
+      "sha256": "02f7821d5740870616412ef40115d41c9f4f7c0f6cbfac3362a894dec9ddb374"
+    },
+    "docs/research/V03_BOTTLENECK_INDEPENDENT_REVIEW_20261123.md": {
+      "bytes": 22230,
+      "sha256": "122a39efdeee95364f4ab9674c3643b02fc0f7b89941e77a47630a24154cdb7f"
+    },
+    "docs/research/V03_BOTTLENECK_OBSERVER_MARKS_20261123.md": {
+      "bytes": 16201,
+      "sha256": "c52808b73f3a2fc210fed5d9e58bb2d34c928131ac79d07e99b9869de2b0ad65"
+    },
+    "docs/research/V03_BOTTLENECK_RECONSTRUCTION_20261123.md": {
+      "bytes": 47399,
+      "sha256": "7b735a7c4cff4262bd5ccd43e329d03954e821ae8abc4e87ba07cc38da164dea"
+    },
+    "docs/research/V03_BOTTLENECK_SOURCE_ANATOMY_20261123.md": {
+      "bytes": 40827,
+      "sha256": "eb21a7c0ae8cdf1df445d8e7243fe711a60728cce49610b9dc87202226d93789"
+    }
+  }
+}

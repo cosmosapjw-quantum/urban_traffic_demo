@@ -649,3 +649,60 @@ multi-sender active-stage ties, vacuum, tangent readiness, simultaneous event re
 source→consumer 한transition의support/query비율로, C/D/E는정해진resolution에서
 coupled residual와관측오차로판별한다. 여러후보를동시에보존하고, 새도시실행이나
 production변경은이번이론 R1–R10의결과로보고하지않는다.
+
+
+## R10 — 이론 연구 단위 완료, 열린 후보와 역사적 drift
+
+R1–R10의 이론 연구 단위를 완료한다. 여섯 경로를 구성했고, 실제 source에서
+producer–consumer의 두 전개를 확인했으며, background phase/queue/feedback 모델과
+관측자·질의·mark의 명제를 직접 유도했다. 독립 단회 검토의 두 수학적 보강을
+반영했고, 유리수128쌍·구체적 반례·고정밀 refinement·CAS 결과를 재현 가능하게 보존했다.
+생산 구현의 추가 C-loop나 새 도시 실행을 이 완료에 포함하지 않는다.
+
+### 작은 실제 head census의 한계까지 보존
+
+후보 B를 더 판별하기 위해 기존 S06의 세 head에 한정한 읽기 분석을 추가했다.
+[원자료와 join 계약](../../artifacts/v03_bottleneck_theory_20261123/R10_head_behavior_census.json)을
+보존한다. 고유 tag는464/454/442, 각 head의 endpoint bit pair는1개였다.
+그러므로 이 표본에서 endpoint-conditioned group 수는 그 head의 class/suffix
+group 수와 같다. 그러나 bounded artifact 검색에서 source-bound registry 경로를
+확인하지 못해 class/suffix group 수와 destination 수는 UNMEASURED다.
+
+이는 registry가 어디에도 없다는 결론이 아니다. head JSON에는numeric tag/offset만
+있으므로 전체tag수에서 group압축률을 추측하지 않았다. 필요한 최소 자료는
+sampled tags의 정확한class와complete path를 기존checkpoint/model에묶은export다.
+큰checkpoint decode나native import로이론scope를넓히지않았다.
+세head는deterministic largest-head 표본이므로전체live state로외삽하지않는다.
+
+### 이번 턴의 drift watchdog 결과
+
+| 원래 동기·직관 | 이번에 보존한 것 | 바뀌거나 남은 가정 |
+|---|---|---|
+| 100k bulk mesoscopic 도시 | 차량량과 행 수를 분리; 수요·질량을 그대로 둔 표현/모델 연구 | 24h resource 성립은 아직 미증명 |
+| 교통→접근성→지연개발→수요 | tagwise completion·정보·정규화·지연 history의 소비 경로를 남김 | 실제 도시의 coupling gains·threshold margin은 미측정 |
+| 유한응답과 혼합차종 | source characteristic·class latent를 유지한 exact와integral경로 | E는midpoint수치규약 변경; C의continuous eligibility도별도version |
+| FIFO와 합법 경로 | original head/target/support, complete residual route, point/slab순서 | soft-min/partial-FIFO를현재law의자동대체로채택하지않음 |
+| 사람·차량·화물·체류량 | joint mass/birth와첨부mark, active completion history를운반 | 평균/역시간은positive denominator·slope조건 |
+| 설명 가능한 병목과 우회·유발수요 | guard명 대신실제조성전개·capacityfeedback을연구 | 표현행·특정IEEE열을원과학목표와동일시하지않음 |
+
+역사적 권위는 R1의 original commit/blob에 묶였고 현재 실행 권위는 PLAN1.1.28로
+유지한다. 연구증명을 새 DAG 수용이나원래24h통과로승격하지않았다.
+
+### 산출물과 재개 지점
+
+- 본문: 질문,증거,여섯후보,핵심유도,단회수정,계산,판정,수학적consumer계약.
+- SOURCE_ANATOMY: 실제소스·오래된receipt·메모리소유와역사재평가.
+- EXACT_TRANSPORT: joint endpoint를보존한A/B의정의·증명·반례·비용식.
+- COUPLED_MEASURES: 공동E/C·support복원·phase장부·조건부피드백·지연toy모델.
+- OBSERVER_MARKS: O1/Q1/Q2/E1증명과분할불변mark규약.
+- INDEPENDENT_REVIEW: 발견된오류·직접반례·수정확인·소스identity.
+- calculations와R7 receipt: 실제실행한작은계산,helper,입출력과해시.
+
+다음연구는O의저장계약,A/B의실제support와query,C/D/E의명시적오차조건을서로다른
+판별축으로유지하면된다. 현재자료는한production경로로수렴시키기에충분하지않다.
+실행현황은여전히V03 BLOCKED,한정구현/실행19/21,최종수용5/21,하루0/9다.
+
+사용자의추가요청에따라프로젝트worktree/백업정리를별도로수행한다.
+이이론결과를먼저commit/push한후필요한미게시변경과재시작자료를최신작업본에
+압축보존하고미사용checkout을제거한다. 원래source경로는역사적provenance로남고,
+실제이동·보존경로는별도cleanup manifest에기록한다.
