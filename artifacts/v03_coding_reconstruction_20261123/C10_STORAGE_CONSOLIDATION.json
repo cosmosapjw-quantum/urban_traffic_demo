@@ -1,0 +1,15 @@
+{
+  "schema": "metroflow.checkpoint_storage_dedup.v1",
+  "canonical_path": "artifacts/v03_coding_reconstruction_20261123/C7_original_continuation.final.bin.gz",
+  "retained_receipt_alias": "artifacts/v03_coding_reconstruction_20261123/C8_fresh_from_zero.final.bin.gz",
+  "compressed_sha256": "f7774cde589dd0e1a37ece177ce0fcde60af59eb54b076e3e99e2247e07f4973",
+  "compressed_bytes": 865480229,
+  "method": "Stream-hash both compressed files, then atomically replace duplicate with a hard link; receipt paths and content unchanged.",
+  "independent_bytes_verified_before_replacement": true,
+  "same_inode_verified_after": true,
+  "exclusive_allocated_bytes_released": 865484800,
+  "already_linked": false,
+  "unique25720_checkpoint_unchanged": true,
+  "worktrees_retained": 2,
+  "new_worktrees_created_in_coding_track": 0
+}

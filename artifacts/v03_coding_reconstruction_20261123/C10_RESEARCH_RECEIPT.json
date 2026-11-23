@@ -1,0 +1,192 @@
+{
+  "schema": "metroflow.v03.coding_reconstruction.final.v1",
+  "date": "2026-11-23",
+  "stage": "C10",
+  "research_track_status": "COMPLETE_10_OF_10",
+  "v03_status": "BLOCKED_RESOURCE",
+  "branch": "research/v03-coding-reconstruction-20261123",
+  "baseline_commit": "cd77044495598f4ddb28412f78241bd1eb98693c",
+  "head_before_C10_publication": "25f30d15f4a6ed6645a429a0868ee6b56078a49f",
+  "production_commit": "bec506abb5247e76e8f74e2846eedf9e1c5c501a",
+  "candidate_source_sha256": "796849f703f909911dc8c4968252e27189f21cd4dafab3e700bbb27d8c7d1f3d",
+  "native_binary_sha256": "96e8e20ab30b2345223d326225abfab274997b5269e262bda9be74893fd32b8c",
+  "stage_completion_commits_C1_through_C9": {
+    "C1": "90be3dd364c4483a0787dd93aec45af8ab3d0494",
+    "C2": "dbd4fb9b3af7cb66cfaa2e00b4da7d8ea1d5f568",
+    "C3": "791ad4df3d2c4155f9b680ffb6d9729799924166",
+    "C4": "9f199e6626edd71a7bd0b354e213f3598ed65ef9",
+    "C5": "6568887e0d974bc700b7002efe30a3ed25bae76d",
+    "C6": "70325da301b5207f434c921411b8052aafa0a43f",
+    "C7": "7154fc75b7062425f2d892b2f9c601ad25956487",
+    "C8": "0bbac143444fc16978433a5d2e316fcf97542be9",
+    "C9": "25f30d15f4a6ed6645a429a0868ee6b56078a49f"
+  },
+  "C8_intermediate_pushed_repairs": [
+    "9c02161cde99c7fce378d805ac179fd1689e01b1",
+    "66128cd142f555470c22b27e8843a9d31fd834aa",
+    "bec506abb5247e76e8f74e2846eedf9e1c5c501a"
+  ],
+  "C10_publication": "The commit containing this receipt. Its exact pushed SHA and remote verification are recorded in the durable session and final response after publication; no self-referential commit hash.",
+  "readiness": {
+    "coding_research_stages": {
+      "completed": 10,
+      "total": 10
+    },
+    "scoped_or_accepted_DAG": {
+      "completed": 19,
+      "total": 21,
+      "percent": 90.48,
+      "definition": "ACCEPTED or receipt-bound VERIFIED_SCOPED; not final integration or release"
+    },
+    "accepted_DAG": {
+      "completed": 5,
+      "total": 21,
+      "percent": 23.81
+    },
+    "V03_dependency_nodes": {
+      "ready": 3,
+      "total": 3,
+      "nodes": [
+        {
+          "node": "P01",
+          "status": "VERIFIED_SCOPED",
+          "receipt": {
+            "path": "artifacts/v1_p01_20261027/RECEIPT.json",
+            "sha256": "68eb3ff886228192573e1bc9bc42386082bd18dbc2592566eca38884a16c2a47",
+            "source_manifest": "artifacts/v1_p01_20261027/SOURCE_MANIFEST.json",
+            "acceptance": "35 scoped each Python; 290 records unchanged with 289 budget checkpoint; 3 paired days no secure speedup"
+          }
+        },
+        {
+          "node": "V01",
+          "status": "VERIFIED_SCOPED",
+          "receipt": {
+            "path": "artifacts/v1_portal_resolution_20261027/RECEIPT.json",
+            "sha256": "8306aaf01f7436fbf82d83bc68478a3f75dacc843ac9c429368c56f98d287412",
+            "acceptance": "38 original map constructions and 7 bounded physics fixtures pass; scoped only; full CI/integration deferred"
+          }
+        },
+        {
+          "node": "V02",
+          "status": "VERIFIED_SCOPED",
+          "receipt": {
+            "path": "artifacts/v1_v02_integration_20261027/RECEIPT.json",
+            "sha256": "fb48d54634f0d7a612f1ba1f7ff817d82edd98c263c8314ae3ed14b3c0272081",
+            "source_manifest": "artifacts/v1_v02_20261027/SOURCE_MANIFEST.json",
+            "acceptance": "38actual maps;29scoped each Python;5root checks; sixviews; audit with unresolved portal-service finding, not release acceptance"
+          }
+        }
+      ]
+    },
+    "current_source_full_calendar_preparation": {
+      "completed": 3,
+      "total": 3,
+      "total_legs": 8461965,
+      "simulated_seconds_each": 0
+    },
+    "original_full_day_matrix": {
+      "completed": 0,
+      "total": 9,
+      "physical_seconds_each": 86400,
+      "wall_cap_s_each": 7200,
+      "process_cap_bytes": 8589934592,
+      "resident_stock_each": 100000
+    },
+    "fresh_continuous_verified_prefix_s": 25710,
+    "checkpoint_resumed_verified_prefix_s": 25720,
+    "prefix_case": "valley_weekday_s7",
+    "fresh_25720_comparison": "UNMET_RESOURCE_BLOCK",
+    "later_requested_horizons": "NOT_COMPLETED_AFTER_RESOURCE_BLOCK"
+  },
+  "results": {
+    "retained_encoded_history": "implementation-verified; original25710 complete tick; guard reduction458668856B",
+    "direct_timed_incoming": "implementation-verified; source rows and controls preserve exact bits and ordered arithmetic; same-row payload reduction473667584B",
+    "Uniform_keyset_allocation_bound": "derived and implementation-verified;24U bound corrects630724344B of nonallocating projection; original25720 resumed tick complete",
+    "fresh_large_wire": "implementation-verified at25710;4011233450 bytes and physical ledger identical",
+    "journey_allowance_diagnostic": "derived from actual source and integer trace:102114816=3*34038272; maximum owner remainsUNRESOLVED",
+    "permanent_composition_growth": "unresolved;34610422→40717830→47855028 rows at25700/25710/25720",
+    "release": "blocked; no full-day completion or large refined-dt acceptance"
+  },
+  "evidence": [
+    {
+      "path": "artifacts/v03_coding_reconstruction_20261123/BASELINE.json",
+      "sha256": "4170c3365b4e3a381c67c5f127cf923426a1defa36a3ab799636608a9172bbba"
+    },
+    {
+      "path": "artifacts/v03_coding_reconstruction_20261123/C8_COMPLETION.json",
+      "sha256": "69f1855338e0d2f4ab082fa68f70475673a7b82480ae72695abf51f8330101eb"
+    },
+    {
+      "path": "artifacts/v03_coding_reconstruction_20261123/C9_COMPLETION.json",
+      "sha256": "09a940f2ea4ab5b726b2c6919e59f5a84539453504b6c563c93e40d6b85dcea5"
+    },
+    {
+      "path": "artifacts/v03_coding_reconstruction_20261123/C10_STORAGE_CONSOLIDATION.json",
+      "sha256": "05588cc906473f7cb0b192bcced9088d20501c99b11941ed39eeb5aed27bf294"
+    },
+    {
+      "path": "docs/research/V03_CODING_C8_ALLOWANCE_20261123.md",
+      "sha256": "92b1ce8e53a8bcb01e1e60ed0f57f05c5ba2fe1779999d62cd4fc44bcde98d4d"
+    },
+    {
+      "path": "docs/research/V03_CODING_C9_REVIEW_20261123.md",
+      "sha256": "aa304a0aa52f8bc13e8fbfbe8f2347ca2ff234bc62b6410dae801df0b9d90d5a"
+    }
+  ],
+  "latest_reusable_checkpoint": {
+    "compressed_bytes": 1008684839,
+    "compressed_sha256": "6573b7092769ca846342da3aa4404e7bcbb387f575406ee1791b5079370cccfe",
+    "path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_coding_reconstruction_20261123/C8_keyset_continuation.final.bin.gz",
+    "raw_bytes": 4677350066,
+    "raw_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+    "reader_peak_rss_bytes": 4410376192
+  },
+  "original_acceptance": {
+    "resident_stock_each_case": 100000,
+    "process_cap_bytes": 8589934592,
+    "full_day_s": 86400,
+    "required_full_days": 9,
+    "wall_cap_s": 7200,
+    "demand_calendars_routes_fifo_finite_response_ledger_tolerances": "UNCHANGED"
+  },
+  "next_action": "최신 원본 목표의 실제 범위는 Valley0→25710s full-wire/ledger 동일 및 checkpoint25710→25720s 완료다. 전체 캘린더3/3을 최신 source796849f7/native96e8e20으로 준비했으나 full-day0/9이고 V03는BLOCKED다. 먼저 동일25710 wire의 road allowance 차102114816 B=3×journey 최대 구조비용 차34038272 B를 v1_journey.rs의 road allowance 직전과 journey decode/restore 직후 두 경계에서 input/current/pending 각 stage/history 비용·capacity·argmax로 분해한다. 실제 live owner를 확인해 불필요 retained capacity/lifetime이 있으면 보존적 계상 또는 exact paged/canonical representation을 교정하되, 실제 공존 할당을 charge하고 cap을 임의로 늘리지 않는다. 그다음 원 수요에서 급증하는 composition×service와 composition×interval 출력을 실제 소비하는 영속 immutable source/순서 있는 IEEE scale/interval-span carrier를 구현해 현재 source부터 checkpoint expansion까지 연결한다. fraction 곱셈 순서·underflow 판정·key order·각 fsum barrier·FIFO·finite-response·route/class/birth 관측을 유지한다. 새 source에서0→25720 연속/재개 대조와 다음25730 full tick을 먼저 검증하고 유효 checkpoint 뒤 horizon을 늘린다. 원래100k/8GiB/7200s/86400s×3case×3회·허용오차와19/21 scoped·5/21 accepted를 유지한다. 473 B 첫 guard 초과를 전체 tick 부족량으로 해석하거나 같은 실패에 임의 credit을 반복하지 않는다. 제어된 closure가 필요하면 별도 모델 버전과 coupled-observable 오차 근거를 갖춘다. 전체 CI/main 통합은 계속 보류한다.",
+  "drift_watchdog": {
+    "status": "ORIGINAL_SCIENTIFIC_MOTIVATION_AND_ACCEPTANCE_PRESERVED",
+    "history_anchors": [
+      {
+        "commit": "0492364",
+        "path": "docs/PRD.md",
+        "blob": "f8cc371410ca0e24b0947cda3d6772787efddc7a"
+      },
+      {
+        "commit": "0492364",
+        "path": "specs/001-metroflow/spec.md",
+        "blob": "626b78acad7cafe1f3eadb8166bffb98550e0172"
+      },
+      {
+        "commit": "6524500",
+        "path": "memory/constitution.md",
+        "blob": "7c78e214c9558bcb1023854e55025f1c554aadee"
+      }
+    ],
+    "preserved_motivation": "100k mesoscopic map→traffic→accessibility→delayed development→demand; bottlenecks/bypass/induced demand; purpose/class/finite information and response; person/vehicle/cargo/residence ledgers",
+    "changed": "Exact history and incoming representations, source-specific actual allocation bound, and diagnostic runner/evidence; no physical closure change.",
+    "remaining_risk": "Transient compression does not remove persistent row products. Future factorization must preserve ordered IEEE operations or be labeled a controlled model variant with observable-error evidence.",
+    "new_DAG_or_permission_gate": false
+  },
+  "plan_update": {
+    "from_version": "1.1.28",
+    "to_version": "1.1.29",
+    "node_status_changes": false,
+    "criteria_changes": false,
+    "validation_receipt": "artifacts/v03_coding_reconstruction_20261123/C10_PLAN_VALIDATION.json"
+  },
+  "verification_limits": [
+    "190 native tests and42 affected Python tests are scoped, not whole repository CI",
+    "16 finite old/new full-state pairs and25710 large-state equality do not certify full-day physics",
+    "25720 valid checkpoint is resume-verified; fresh0→25720 remains blocked",
+    "No matched full-day speedup or24h extrapolation claimed",
+    "Unassigned/unsupported calendar intents and physical ledgers remain explicit; preparation does not imply completed trips",
+    "Full CI/main merge/release remain deferred under current project policy"
+  ]
+}

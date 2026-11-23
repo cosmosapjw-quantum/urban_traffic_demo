@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.28**, 2026-11-23. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.29**, 2026-11-23. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Current native source bea107c2 executes Valley from time zero to25700s with a final wire identical to the historical checkpoint and current3/3 full-calendar preparations. Exact event-time sharing saves275,578,880B in the original25710 candidate and passes258,538 transfer checks, but indexed sweep still requires5,051,633,256B against5,025,214,575B; no valid25710state. Next integrate the source-aligned immutable rank/span carrier with the actual ordered interval consumer and checkpoint expansion, deriving live ownership and interval-work requirements. Preserve full demand, finite-response eligibility, route/class/birth observables, original8GiB/7200s and numerical criteria. Validate captured-source consumers and a complete original25710tick; controlled closure requires explicit model/version and coupled-observable error evidence. Do not repeat arbitrary guard credits or infer a universal no-go from Nov17 merge ratios. V03 remainsBLOCKED, scopedDAG19/21 and full days0/9. Full CI/main integration remain deferred.
+최신 원본 목표의 실제 범위는 Valley0→25710s full-wire/ledger 동일 및 checkpoint25710→25720s 완료다. 전체 캘린더3/3을 최신 source796849f7/native96e8e20으로 준비했으나 full-day0/9이고 V03는BLOCKED다. 먼저 동일25710 wire의 road allowance 차102114816 B=3×journey 최대 구조비용 차34038272 B를 v1_journey.rs의 road allowance 직전과 journey decode/restore 직후 두 경계에서 input/current/pending 각 stage/history 비용·capacity·argmax로 분해한다. 실제 live owner를 확인해 불필요 retained capacity/lifetime이 있으면 보존적 계상 또는 exact paged/canonical representation을 교정하되, 실제 공존 할당을 charge하고 cap을 임의로 늘리지 않는다. 그다음 원 수요에서 급증하는 composition×service와 composition×interval 출력을 실제 소비하는 영속 immutable source/순서 있는 IEEE scale/interval-span carrier를 구현해 현재 source부터 checkpoint expansion까지 연결한다. fraction 곱셈 순서·underflow 판정·key order·각 fsum barrier·FIFO·finite-response·route/class/birth 관측을 유지한다. 새 source에서0→25720 연속/재개 대조와 다음25730 full tick을 먼저 검증하고 유효 checkpoint 뒤 horizon을 늘린다. 원래100k/8GiB/7200s/86400s×3case×3회·허용오차와19/21 scoped·5/21 accepted를 유지한다. 473 B 첫 guard 초과를 전체 tick 부족량으로 해석하거나 같은 실패에 임의 credit을 반복하지 않는다. 제어된 closure가 필요하면 별도 모델 버전과 coupled-observable 오차 근거를 갖춘다. 전체 CI/main 통합은 계속 보류한다.
 
 **예산·종료조건**
 
@@ -2302,11 +2302,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "COMPLETED_SCOPED",
-  "scope": "Ten interleaved constructive theory/coding stages: exact event-time sharing, optional immutable rank adapter, current-source Valley0-to25700s byte-identical checkpoint, three full-calendar preparations; original V03 acceptance unchanged.",
+  "scope": "Completed coding reconstruction C1–C10: exact retained event carrier, direct timed incoming consumer and source-specific keyset allocation; current-source fresh Valley0→25710 full-wire/ledger equality, checkpoint-resumed25720 and3/3 full-calendar preparation. Original acceptance unchanged; subsequent physical runs resource-blocked.",
   "full_repository_ci": "DEFERRED_BY_USER",
-  "full_day_100k": "NOT_RUN",
+  "full_day_100k": "BLOCKED_RESOURCE_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_causal_rank_20261123/S10_FINAL_RECEIPT.json",
+  "evidence": "artifacts/v03_coding_reconstruction_20261123/C10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2315,11 +2315,15 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [
-    "constructive_theory",
-    "runtime_blocker",
-    "history_drift",
-    "independent_review"
-  ]
+    "bottleneck_anatomy",
+    "exact_transport_routes",
+    "controlled_model_routes",
+    "c9_fresh_review"
+  ],
+  "active_branch": "research/v03-coding-reconstruction-20261123",
+  "production_commit": "bec506abb5247e76e8f74e2846eedf9e1c5c501a",
+  "research_stages_completed": 10,
+  "research_stages_total": 10
 }
 ```
 

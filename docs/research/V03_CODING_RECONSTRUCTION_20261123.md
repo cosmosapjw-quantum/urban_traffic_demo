@@ -1,5 +1,11 @@
 # V03 coding reconstruction — 2026-11-23
 
+## Final result
+
+All ten requested coding reconstruction stages are complete and published individually on research/v03-coding-reconstruction-20261123. This is scoped research completion, not V03 release acceptance. The final source completes the original Valley checkpoint transition to25720 s; its fresh-from-zero path is independently verified through25710 s by complete wire and ledger equality. Current-source whole-calendar preparation is3/3. Original full-day completion remains0/9; V03 is BLOCKED.
+
+The connected native changes are exact retained timed-event history, a compact timed incoming producer consumed directly without a decoded cell buffer, and a source-specific Uniform keyset workspace bound. Final checks are190 native tests passed (2 ignored),42 Python tests passed and16 finite old/new complete-state pairs, plus the4,011,233,450-byte original-city equality at25710. Later horizons, full-day repeats and large refined-dt acceptance remain unfulfilled. C8_COMPLETION.json, C9_COMPLETION.json and C10_RESEARCH_RECEIPT.json preserve the distinct claims and actual failures.
+
 ## C1: objective and preserved baseline
 
 The user requests the complete coding C1–C10 track focused on the repeated V03 bottleneck. The source baseline is cd77044495598f4ddb28412f78241bd1eb98693c, which contains the completed theory R1–R10 and verified worktree cleanup. At entry, production source was unchanged from 492e27618696df2514b088a64de450cf69746647. This coding track uses the existing latest checkout on a dedicated branch; the two retained worktrees and selected compressed recovery files remain.
@@ -23,7 +29,7 @@ The first selected native boundary is persistent, exact event-history storage: p
 | C7 | Full-demand original checkpoint continuation and physical ledger checks | COMPLETE; original 25710 state valid, next source failure isolated |
 | C8 | Increasing horizons, matched correctness/resource/replay experiments | COMPLETE; resumed25720, fresh25710 exact, three full-calendar preparations |
 | C9 | One independent review of changed scientific and runtime surfaces; repairs | COMPLETE; fresh scoped review, no P0–P3 finding, original V03 still blocked |
-| C10 | Final readiness/evidence, reusable latest checkpoint, exact next action | PENDING |
+| C10 | Final readiness/evidence, reusable latest checkpoint, exact next action | COMPLETE; PLAN1.1.29 validated, readiness and remaining owner/source blockers recorded |
 
 Each stage is committed and pushed separately. Stage completion describes the requested research work, not automatic V03 acceptance. Initial DAG: scoped-or-accepted 19/21, accepted 5/21; V03 BLOCKED; full-day 0/9.
 
@@ -158,3 +164,45 @@ Drift watchdog: no population, departure calendar, route legality, FIFO boundary
 One fresh independent reviewer inspected the actual changed native surfaces and source/binary bindings. Actual new materialization and keyset failures prompted narrow reviews of the resulting repairs in the same report, not a recursive review tree. The final reviewed production commit is bec506abb5247e76e8f74e2846eedf9e1c5c501a. The reviewer found no supported new P0, P1, P2 or P3 defect in that scope, independently compared all16 complete finite old/new state records, and checked the190-pass native/42-pass Python evidence. The retained-history semantics, active completion history, exact timed controls, source liveness, page/header bounds, direct ordered combine and Uniform-only new keyset payload bound were explicitly inspected.
 
 The full report is V03_CODING_C9_REVIEW_20261123.md, SHAaa304a0aa52f8bc13e8fbfbe8f2347ca2ff234bc62b6410dae801df0b9d90d5a. C9_COMPLETION.json binds the final reviewed source and root's separately recorded C8 experiment supplement. The reviewer did not certify the subsequently completed large25720 continuation or fresh time-zero campaign; those conclusions come from the actual root-run receipts in C8. No further code edit or new test/permission gate was requested. Original V03 remains BLOCKED, and the uncompleted fresh25720 comparison and nine full-day runs remain explicit limitations.
+
+## C10: final readiness, authority and concrete continuation
+
+The requested coding track is10/10. The execution authority is now PLAN1.1.29. Actual render, validate and next commands all exit0; validation reports VALID_PLAN_NOT_RELEASE with21 nodes and V03 as next. C10_PLAN_VALIDATION.json binds the exact plan and command outputs. Node statuses, original requirements, numerical contracts and release gates are unchanged.
+
+| Scope | Achieved / required | Meaning |
+|---|---:|---|
+| Requested coding reconstruction | 10 / 10 | Actual implementation, failed/successful experiments, review and publication stages |
+| DAG scoped implementation or accepted nodes | 19 / 21 (90.48%) | Receipt-bound VERIFIED_SCOPED or ACCEPTED; not release acceptance |
+| Finally accepted DAG nodes | 5 / 21 (23.81%) | Existing accepted nodes; no promotion from these experiments |
+| V03 dependency nodes P01/V01/V02 | 3 / 3 | Scoped dependency evidence is present |
+| Latest-source complete-calendar preparations | 3 / 3 |100000 resident stock each;8,461,965 planned legs total; simulation0s |
+| Original full-day matrix | 0 / 9 |86400s each,3 cases×3 repeats, original8GiB and7200s |
+| Latest-source Valley continuous from zero | 25710 s |Complete wire and physical ledger matched at25710 |
+| Latest-source Valley checkpoint resume | 25720 s |One complete extra tick from the verified25710 checkpoint |
+
+The original25700 recovery,25710 checkpoint and latest25720 compressed checkpoint remain available. Fresh and C7 copies of the identical25710 gzip were independently streamed through SHA-256 and consolidated by an atomic hard-link replacement. Both receipt paths and all compressed bytes remain unchanged;865,484,800 exclusive allocated bytes were released. C10_STORAGE_CONSOLIDATION.json records the operation. No new worktree was created; the previously retained two remain.
+
+The immediate next native diagnostic is bounded to the journey road-allowance boundary and journey decode/restore boundary: record each input/current/pending stage/history cost, capacities and argmax. The102,114,816 B allowance difference is already attributed algebraically to3 times a34,038,272 B journey maximum difference, but the responsible actual owner is unresolved. Correct only demonstrated lifetime/capacity mismatch or implement an exact canonical paged carrier, with transient coexistence charged. Equal checkpoint wire alone does not establish equal allocation layout.
+
+The larger constructive continuation is persistent immutable source/ordered-scale/interval-span storage integrated with its real weighted-moment, ordered-combine, interval and checkpoint consumers. It must avoid rebuilding all composition rows per service or interval while retaining the original sequential IEEE factors, per-stage positive-mass tests, source keys and fsum barriers. This is a proposed next implementation, not a claimed completed native feature or a universal complexity result. Re-test the new source at the unmet fresh25720 comparison and the next original25730 tick before increasing later horizons. A controlled closure remains a separately versioned research option requiring coupled-observable error evidence; it is not an implicit change to original V03.
+
+History watchdog reuses the original0492364 PRD/spec and6524500 constitution blobs, bound in C10_RESEARCH_RECEIPT.json. The coupled map/traffic/accessibility/development/demand motivation, finite response, legal FIFO routes and physical ledgers are preserved. The remaining limitation is representational growth and resource admission, not evidence of physical impossibility. Full CI/main integration and release remain deferred under the current execution policy.
+
+### Stage publication provenance
+
+Each stage has its own published completion commit. C8 also has three source-repair commits because actual successive failures required further code changes before its experiment closure.
+
+| Stage | Completion commit |
+|---|---|
+| C1 | 90be3dd364c4483a0787dd93aec45af8ab3d0494 |
+| C2 | dbd4fb9b3af7cb66cfaa2e00b4da7d8ea1d5f568 |
+| C3 | 791ad4df3d2c4155f9b680ffb6d9729799924166 |
+| C4 | 9f199e6626edd71a7bd0b354e213f3598ed65ef9 |
+| C5 | 6568887e0d974bc700b7002efe30a3ed25bae76d |
+| C6 | 70325da301b5207f434c921411b8052aafa0a43f |
+| C7 | 7154fc75b7062425f2d892b2f9c601ad25956487 |
+| C8 | 0bbac143444fc16978433a5d2e316fcf97542be9 |
+| C9 | 25f30d15f4a6ed6645a429a0868ee6b56078a49f |
+| C10 | The commit containing this final section and C10_RESEARCH_RECEIPT.json; exact remote SHA recorded after push in the session and response |
+
+C8 intermediate source repairs:9c02161cde99c7fce378d805ac179fd1689e01b1 (timed producer),66128cd142f555470c22b27e8843a9d31fd834aa (direct consumer),bec506abb5247e76e8f74e2846eedf9e1c5c501a (source-specific keyset allocation). These changes remain on the research branch; no main merge or full-release certification is implied.

@@ -1,0 +1,46 @@
+{
+  "schema": "metroflow.plan.validation_receipt.v1",
+  "version": "1.1.29",
+  "plan": {
+    "path": "docs/v1/PLAN.json",
+    "sha256": "08267ec979089c5a6a779bec85f48eb7772488b47bbd5e18176cba4812e3c03a"
+  },
+  "research_receipt": {
+    "path": "artifacts/v03_coding_reconstruction_20261123/C10_RESEARCH_RECEIPT.json",
+    "sha256": "2f6d4ce5bd640d48841920756f3c6f9c2553829d3540a4b71515db72a60afa91"
+  },
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "tools/v1_plan.py",
+        "render"
+      ],
+      "exit_code": 0,
+      "stdout": "Generated plan views: MASTER_PLAN_KO.md, DAG.mmd, DAG.dot, PR_CATALOG_KO.md\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/v1_plan.py",
+        "validate"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"status\": \"VALID_PLAN_NOT_RELEASE\", \"nodes\": 21, \"status_counts\": {\"ACCEPTED\": 5, \"VERIFIED_SCOPED\": 14, \"BLOCKED\": 1, \"PLANNED\": 1}, \"next_node\": \"V03\", \"full_repository_ci\": \"DEFERRED_BY_USER\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python3",
+        "tools/v1_plan.py",
+        "next"
+      ],
+      "exit_code": 0,
+      "stdout": "{\n  \"node\": \"V03\",\n  \"title\": \"로컬 10만 주민·24시간 실제 실행과 수치 수용시험\",\n  \"branch\": \"v1/v03-acceptance-20261027\",\n  \"instruction\": \"구현 착수는 ACCEPTED 또는 영수증으로 고정된 VERIFIED_SCOPED 선행 노드를 허용한다. VERIFIED_SCOPED는 최종 수용·통합을 뜻하지 않는다. STOPPED/BLOCKED는 선행조건을 충족하지 않는다.\",\n  \"tests\": [\n    \"python tools/run_v1_local_acceptance.py --run-local --matrix scenarios/v1/release_matrix.json\"\n  ],\n  \"acceptance\": [\n    \"riverweekdayseed17,coastalweekendseed41,valleyweekdayseed7 각24h\",\n    \"세case각3회runtime/RSS계측,physics는deterministicreplay\",\n    \"동일입력해상도단기대조와24h장부통과\",\n    \"hardlimits미달시V1완성선언금지\"\n  ]\n}\n",
+      "stderr": ""
+    }
+  ],
+  "acceptance_criteria_and_statuses_unchanged": true,
+  "status": "VALID_PLAN_NOT_RELEASE"
+}
