@@ -32,3 +32,15 @@
 | R10/C10 | 검토교정·다음의무 | 최종실험/ledger/원격게시 |
 
 각 단계마다 별도 commit과 push 후 원격 SHA를 확인한다. 성공한 물리구간만 누적하고, 실패상태의 시계를 전진으로 세지 않는다. 장시간확장은10→20→40→80s 순서로 이전구간의 저장가능한 실제성공에 의존한다. 데이터·계산산출물은 해당 git branch에, 대용량bin/so는 로컬에 보존한다.
+
+## R2/C2 · 원전·과거 실패와 실제 호출 경로
+
+기존 이론의 blocker는 미세birth측도를 갖지 않은 native 집계에서 full K(u)를 유일하게 복원하려던 점이다. 이를 moment/support로 식별가능한 구간으로 바꾼다. 단순분포가정이나 평균원자화는 하지 않는다. Huang–Ziemba–Ben-Tal(1977), Operations Research25(2):315–325, https://pubsonline.informs.org/doi/10.1287/opre.25.2.315 는 convex expectation의 Jensen/Edmundson–Madansky bound와 smaller-support partition refinement를 명시한다. Pierre-Louis–Bayraksan–Morton(2011), https://www.informs-sim.org/wsc11papers/371.pdf §3.1 p4174 eq(2),(3)은 conditional Jensen lower와 endpoint upper의 실제 계산식을 제공한다. Madansky1959 DOI10.1214/aoms/1177706203은 metadata를 확인했으며 해당 DOI원문 접근은 실패했다. RAND 원저자1958P1418 초록 https://www.rand.org/pubs/papers/P1418.html 을 보완근거로 읽었다. 새 전역정리라는 주장은 하지 않는다.
+
+Wolfram 독립계산에서 (u−L)(H−u)/(H−L) <= (H−L)/4 (L<u<H)가 True이며, support[0,4], mean2, mass1의 u={1,2,3}에서 (lower,upper)={(1,3/2),(0,1),(0,1/2)}를 얻었다. 기존first/second moment와 positive-part family는 유지하되 point estimate 대신 bounds로 연결한다.
+
+C2 소스 원자료: whole 실행은 road.propose_owned_step → materialize_event_after_road → ChunkedEvents.into_flat_checked → NativeServiceCore.last_events:Arc<Vec<EventRow>>다. road의 compact row는 이미48B이고 fourf64와 checked registry u32를 보존하지만, service 영속상태에서는64B flat row로 되돌린다. 새수술은 이 flatten allocation과 page/flat의 동시존재를 제거하는 것이다. read_state의 독립 decoded Vec도 같은영속page로 직접 읽는다. standalone/Python flat ABI는 보존한다.
+
+과거R10 destination ID압축의32B는 해당임시벡터만 줄였으며 t25730을 해소하지 못했다. 더 이상의 근거없는 고정credit은 채택하지 않는다. 2026-11-17의 '24h 불가' 문구는 당시표현·측정에 대한 engineering extrapolation으로 보존하며 보편적 no-go로 재사용하지 않는다. 이번 저장표현수술도 full-day 성공은 실제9runs로만 판정한다.
+
+준비도는 기존19/21 scoped, 직접선행3/3, originalday0/9다. 새native는 아직 구현·빌드하지 않았으므로 이 단계에서 새로운 실행성공을 주장하지 않는다.
