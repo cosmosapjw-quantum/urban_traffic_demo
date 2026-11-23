@@ -467,8 +467,9 @@ assumption or adoption of route B.
 
 ## 5. Companion route and one explicitly changed closure
 
-The separate behavioral-quotient author supplies the exact quotient and
-bounded sufficient-state route. The interface with this note is precise:
+The companion exact-transport note supplies the conditional physical quotient.
+The parent observer/marks note, Proposition Q2, supplies the finite positive
+feature-reconstruction proof and its 2M*epsilon consumer residual. The interface with this note is precise:
 retain class, purpose, information, route-state and additive ledger features;
 prove that every label in one quotient state has the same transitions into
 each other state for each allowed environment. Equal current next movement
@@ -697,8 +698,8 @@ Primary sources actually opened/read:
    `math/0502473v2`, 2005.
    https://arxiv.org/pdf/math/0502473
    Theorem 1 and Corollaries 1–2 give positive finite representations of
-   finite feature integrals. The finite-source elimination proof above is
-   explicit and sufficient for the source-row use case.
+   finite feature integrals. The finite-source elimination proof in the parent observer/marks note,
+   Proposition Q2, is explicit and sufficient for the source-row use case.
 3. Piccoli and Rossi, *Transport equation with nonlocal velocity in Wasserstein
    spaces: convergence of numerical schemes*, arXiv `1106.2555v3`.
    https://arxiv.org/pdf/1106.2555

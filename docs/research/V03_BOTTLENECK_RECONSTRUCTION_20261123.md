@@ -392,3 +392,47 @@ jump가 있는 state의 same-time sup 안정성을 얻는다는 문장을 철회
 reset \(y\mapsto y+1\)이1과1+ε에 일어나면 sup차이는1이다.
 연속 state의 mode-switching 추정과 event-aligned jump 관측을 분리했다.
 새 jump-metric 정리나 원래 native atomic eligibility의 포괄적 안정성은 주장하지 않는다.
+
+
+## R6 — 독립 단회 검토와 surgical correction
+
+[독립 검토 전문](V03_BOTTLENECK_INDEPENDENT_REVIEW_20261123.md)은 고정 source
+492e276의 git object와 실제 함수들을 읽고, 저자 판정을 전제로 삼지 않은 한 번의
+검토다. 발견된 두 실질적 오류와 한 근거 연결 문제를 같은 회차에서 수정했다.
+
+| 항목 | 반례·결함 | 반영한 최소 교정 |
+|---|---|---|
+| F1 jump state 안정성 | reset이1과1+ε에 일어나면 event shiftε이나 same-time sup차이는1 | 연속 state/mode-only 추정으로 제한; jump·atomic CDF는 event alignment나 atom오차 별도 |
+| F2 Mixed packet의 결합 정보 | 동일tag·동일clock목록·동일총량도 clock별 mass배분은 다를 수 있음 | endpoint keyη별 root/fiber, 원래 head membership·target·공통 service fraction 유지 |
+| F3 양의 재구성 증명 참조 | 저자 문서 축약 뒤 “위 증명” 참조가 남음 | 실제 소거 증명을 observer/marks Q2에 보존하고 연결 교정 |
+
+F2의 두 상태
+\[
+\mu=\tfrac12\delta_{(z,1)}+\tfrac32\delta_{(z,2)},\qquad
+\nu=\tfrac32\delta_{(z,1)}+\tfrac12\delta_{(z,2)}
+\]
+는 tag mass2와 clock목록{1,2}가 같지만 결합측도는 다르다.
+따라서 일반 Mixed 입력에는 \(v_{h,\eta}\)와 \(M_{g,\eta},K_{g,\eta},J_{g,\eta}\)를 쓴다.
+이 η 성분을 새 FIFO head로 나누면 안 된다. 원래 head에서 정한 f를 모두에
+공통 적용하고 remainder의 η를 보존하며, outgoing만 원래처럼 새 service
+interval로 reset한다. 실제 endpoint-component 수도 비용에 포함했다.
+
+**검토 후 유지된 결과.** A/B의 가정된 실수 동치, O의 공통 admissible 영역의
+관측자 분해, E의 held integrand 가법성, 공동 E/C 경계, 조건부 Gronwall,
+양의 feature 소거와 residual경계는 해당 조건 아래 유지됐다.
+새 native 구현이나24h 수용을 검증한 결과로 해석하지 않는다.
+
+**실제 journey 인터페이스의 더 구체적인 계약.** sink egress는 delay-law
+pushforward 뒤 원래 due prefix인 end+10^-10을 사용한다. receipt 시각은
+max(t, raw_due_time), receipt fraction은 해당 leg total로 정규화한다.
+A의 “원래 sampling convention”은 이 세 연산을 포함한다.
+bus tag별 near-one threshold, active ReceiptHistory, 다음 leg release도 유지한다.
+
+**독립 산술 확인.** index항을 전부 제거한 구조합계5,037,909,336B,
+동일 allowance 대비12,694,761B 초과, old-trace 조건부 payload차이458,883,136B가
+기록과 일치했다. 이는 새 memory 측정이 아니다. input/current/candidate와
+외부 snapshot에서 reachable한 실제 소유자를 모두 포함한다는 비용 계약을 유지한다.
+
+수정 문단을 다시 읽는 것까지 같은 단회 검토에 포함하고 검토를 종료했다.
+새 감사 루프는 만들지 않는다. 미확정한 native query support와 coupling 상수는
+R8/R9의 연구 내용으로 남긴다.

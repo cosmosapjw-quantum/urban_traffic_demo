@@ -75,7 +75,9 @@ In particular, the nonlinear coupled source timestep is not asserted to be a tim
 
 ### 2.1 Objects and primitive operators
 
-Let \(Z\) be the finite registry of legal `(tag,offset)` pairs, with \(|Z|=L\). A composition is the pair of finite positive measures
+Let \(Z\) be the finite registry of legal `(tag,offset)` pairs, with \(|Z|=L\).
+For a component with one common original endpoint key, a composition is the
+pair of finite positive measures
 
 \[
 v=(m,B),\qquad m=\sum_{z\in Z}m_z\delta_z,
@@ -83,6 +85,27 @@ v=(m,B),\qquad m=\sum_{z\in Z}m_z\delta_z,
 \]
 
 Here \(m_z=0\Rightarrow B_z=0\); every checkpoint's represented birth information is retained. No unrepresented individual birth distribution is invented. Immutable basis roots contain only composition payloads and static registry references. They do not own a `RoadState`, a `Cell`, an old queue, or a closure capturing one.
+
+**Clock-conditioned input is necessary.** The source also permits an initial
+Mixed packet whose rows have different endpoint pairs, including duplicate z
+with different clocks. Such a head is represented by components
+\(v_{h,\eta}\), where \(\eta\) is the full original endpoint metadata key
+(including missing-time states and, where required, signed endpoint bits).
+All components keep their membership in **one original head**, its target and
+its original tuple/tie ordering. They must not become separate FIFO heads.
+Mass, birth and endpoint metadata remain a joint measure, not an aggregate
+tag measure plus an unrelated list of clocks. The formulas below suppress
+eta only within a common-endpoint component. Physical head queries sum over
+these components, and the original common service fraction scales all of them.
+The remainder retains each original eta. Outgoing service overwrites the
+entry metadata by the new service interval; this deterministic reset is a
+linear pushforward, after which equal keys may be combined.
+
+For example, one head containing the same z at point clocks1,2 with masses
+(1/2,3/2) differs from the head with masses(3/2,1/2). Their aggregated tag
+mass and clock lists agree, but their joint measures do not. Conditioning
+roots on eta repairs this ambiguity. Uniform interval-produced slabs have
+only one eta per component and already satisfy this condition.
 
 The expression language has the following nodes:
 
@@ -179,7 +202,14 @@ The class-\(k\) latent numerator is
 These are exactly the source mass–mark contractions before interval combination. There is no need to retain one duplicate Mark per tag. Survivors are added with their original latent values and normalization. Waiting and transfer hold use the same contractions multiplied by the original event durations. Repeated nonnegative decrements with a zero clamp satisfy
 \(\max(0,\max(0,x-a)-b)=\max(0,x-a-b)\), so aggregate receiving updates also agree over reals.
 
-**Theorem A2, conditional source equivalence.** Start from a source state, keep its ordered packet cuts/targets, and use exact contractions for all controls, marks and ledgers. Replace each eager service/overlay construction by (A1)–(A6). Then after any finite sequence of the source tick/event operations, expanding the expressions gives the same exact-real mass and birth coordinates, target/entry metadata, physical cell state, and detailed event measure as the eager algorithm.
+**Theorem A2, conditional source equivalence.** Start from a source state,
+retain its joint tag/birth/endpoint measure by the clock-conditioned components
+above, keep its ordered packet cuts/targets, and use exact contractions for
+all controls, marks and ledgers. Replace each eager service/overlay construction
+by (A1)–(A6). Then after any finite sequence of the source tick/event operations,
+expanding the expressions gives the same exact-real mass and birth coordinates,
+target/entry metadata, physical cell state, and detailed event measure as the
+eager algorithm.
 
 **Proof.** A common initial state gives the same `motion`, readiness and head ordering. Equations (A4) give the same rates and same next minimum event duration. Scale gives the same served and remainder coordinates. Projection and route pushforward give the same destination coordinates. Equations (A5)–(A6) give the same new speed/latent values. Lemma A1 supplies the same next ordered interval packets. This closes one event/tick; induction proves the finite sequence. Branches on zero support must be evaluated exactly, and virtual cuts are part of the induction state. ∎
 
@@ -336,7 +366,10 @@ Fix the currently registered routes and the present road law. Let
 
 This is a sufficient equivalence, not a claim of coarsest possible minimization. Class identity is retained, not merely a coincident current numerical speed, because latent state, support-dependent minima and class ledgers use it. Complete residual route is retained, not only the immediate destination.
 
-Within each **existing ordered packet/slab**, define
+Within each **common-endpoint component of an existing ordered packet/slab**,
+define the following quantities. For a Mixed head they carry an additional eta
+index, suppressed in the equations; components stay inside the one original
+head and share its service fraction:
 
 \[
 M_g=\sum_{\kappa(z)=g}m_z,
@@ -359,7 +392,12 @@ The physical queue stores the \(M_g\), original cut/target metadata, and cell ph
 
 ### 5.2 Hybrid quotient theorem
 
-Let \(Q\) map every packet's label measure to its class/residual-route amounts while preserving all queue boundaries, target metadata, class latent state, physical cell variables and necessary physical ledgers. External offered physical compositions are mapped by the same \(Q\).
+Let \(Q\) map each common-clock component's label measure to its
+class/residual-route amounts while preserving all original head membership,
+queue boundaries, joint endpoint metadata, targets, class latent state,
+physical cell variables and necessary physical ledgers. Thus general Mixed
+input retains \(M_{g,\eta}\), not only \(M_g\) plus a detached clock list.
+External offered physical compositions are mapped by the same \(Q\).
 
 **Theorem B1.** For the read exact-real road transition \(T\), under the fixed registry and identical input/tick/control calendars,
 
@@ -424,7 +462,15 @@ exactly as explicit per-label simulation. The changed fiber shows why one fixed 
 
 ### 5.5 Complexity and the bottleneck that moves
 
-Let \(G\) be the number of distinct class/residual-route groups actually encountered, \(P\) the number of retained virtual queue/entry slabs, and \(C\) the number of physical control changes. Physical head and class/suffix contractions now scale with group support, not with the number of distinct tags carried by a group. A sparse explicit quotient costs the actually populated group–slab pairs; an interval-expression implementation can also avoid their repeated Cartesian products.
+Let \(G\) be the number of distinct class/residual-route groups actually encountered,
+\(P\) the number of retained virtual queue/entry slabs, and \(C\) the number of
+physical control changes. Include the actual endpoint-component count inside
+Mixed heads in this coordinate census. Physical head and class/suffix contractions
+scale with populated group/endpoint support, not with the distinct tags carried
+by each such component. A sparse explicit quotient costs those populated
+group–slab/component pairs; an interval-expression implementation can also
+avoid their repeated Cartesian products. No bound on the extra clock support
+is assumed.
 
 Let \(F\) be the size of the retained provenance-fiber representation and \(Q_F\) the work of demanded tag/purpose/service contractions. Total storage/work must include \(F,Q_F\); there is no assertion that they are \(O(G)\). An explicit copied fiber per slab recreates the original explosion. Shared fibers and (B5) can be represented by expression roots, or by exact cumulative provenance functions. Each is a real construction obligation.
 
