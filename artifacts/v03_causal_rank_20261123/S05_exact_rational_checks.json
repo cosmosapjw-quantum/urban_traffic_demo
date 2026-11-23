@@ -1,0 +1,25 @@
+{
+  "source_split_equalities_checked": 3000,
+  "exact_prefix_bound_checks": 20480,
+  "sharp_bound_witness": {
+    "profile": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "mass": "10",
+    "cut": 5,
+    "error": "5/2"
+  },
+  "source_storage_copied_on_service": false,
+  "causal_eligibility_negative_control": "REJECTED_AS_EXPECTED",
+  "scope": "exact rational single-head adapter; closure bound for scalar commodity prefix",
+  "production_V03": "NOT_INTEGRATED"
+}

@@ -135,3 +135,18 @@ Reusable runner tools/research/run_v03_prefix.py keeps full matrix and source
 bindings, reports partial native ticks, and hashes native checkpoint wire
 through a FIFO; optional lossless gzip saves disk without changing wire bytes.
 Result: artifacts/v03_causal_rank_20261123/S04_original_continuation.json.
+
+## Stage 5 — constructive conservation/causality and controlled closure
+Proved source-aligned rank-cursor equivalence over real/rational arithmetic,
+per-tag mass/birth conservation and causal eligibility Q<=E<=M.
+Proved sharp block commodity-prefix error h*p*(1-p)<=h/4; fixed blocks of
+mass<=delta give delta/4 prefix and delta/2 interval error independent of
+service subdivision count. Birth first-moment error is h*range(birth)/4.
+The bound is for fixed service, not coupled city trajectory or instantaneous
+head rates. Finite-response common-speed eligibility remains an explicit
+physical law; global LWR replacement is not assumed. Full proofs and original
+source mapping: V03_CAUSAL_FIFO_THEOREMS_20261123.md.
+Actual exact-rational checks: 3000 source split identities and20480 binary-profile
+prefix checks, sharp equality witness, stopped eligibility rejection, exit0.
+The previous unary lineage shadow was re-read and is explicitly reused as prior
+art; a generic lazy DAG is not presented as a new result.
