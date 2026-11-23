@@ -1,0 +1,52 @@
+{
+  "schema": "V03_C8_FROZEN_NATIVE_V1",
+  "created_utc": "2026-11-23T06:43:25.424866+00:00",
+  "candidate": {
+    "status": "MEASURED",
+    "source_sha256": "5d596f23f5d02145ec04afa9ab90fae3b23fbf2ec78b14d4f7f3ce7f5eb8979c",
+    "source_files": [
+      "Cargo.lock",
+      "crates/metroflow-rust/Cargo.toml",
+      "crates/metroflow-rust/src/lib.rs",
+      "crates/metroflow-rust/src/v1_calendar.rs",
+      "crates/metroflow-rust/src/v1_engine.rs",
+      "crates/metroflow-rust/src/v1_history.rs",
+      "crates/metroflow-rust/src/v1_journey.rs",
+      "crates/metroflow-rust/src/v1_kcmb.rs",
+      "crates/metroflow-rust/src/v1_kcmb_node.rs",
+      "crates/metroflow-rust/src/v1_lineage_shadow.rs",
+      "crates/metroflow-rust/src/v1_parallel.rs",
+      "crates/metroflow-rust/src/v1_road.rs",
+      "crates/metroflow-rust/src/v1_routing.rs",
+      "crates/metroflow-rust/src/v1_stage.rs",
+      "crates/metroflow-rust/src/v1_trace.rs",
+      "src/metroflow/v1/native_calendar.py",
+      "src/metroflow/v1/native_engine.py",
+      "src/metroflow/v1/native_journey.py",
+      "src/metroflow/v1/native_release_driver.py",
+      "src/metroflow/v1/native_road.py",
+      "src/metroflow/v1/native_routing.py",
+      "src/metroflow/v1/native_static.py",
+      "tools/run_v1_local_acceptance.py"
+    ],
+    "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+    "git_commit": "6f98c4d3d3415a9577f474bfe8980428afb86916",
+    "source_dirty": false
+  },
+  "native": {
+    "status": "MEASURED",
+    "path": "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/native_binding/_metroflow_rust.so",
+    "size_bytes": 3318488,
+    "sha256": "e3c48b4103193c26d84c6a5d264a54d044fb079ca94544e035c40e6829b6ba4c"
+  },
+  "release_exit": 0,
+  "scoped_library_exit": 0,
+  "scoped_library_passed": 283,
+  "scoped_library_ignored": 2,
+  "native_source_files": {
+    "v1_road.rs": "01694c9ec17d06b43188a9d8e9d93a4dd099173533642e993631befa5ef3a939",
+    "v1_journey.rs": "30b2ed00af97eb97d3c40f91f627ccfdb08e3d1db2225f59bce1b344ed2be256",
+    "v1_engine.rs": "bf078c2d45fda2805531812b3f74a2955a0b4137098c2cc6fc959bf8743f4e93"
+  },
+  "scope": "built source freeze; physical acceptance not yet measured"
+}

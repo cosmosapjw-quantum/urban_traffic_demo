@@ -1,0 +1,25 @@
+{
+  "schema": "V03_INTERMEDIATE_PREPARATION_STOP_V1",
+  "at_utc": "2026-11-23T06:45:32.435143+00:00",
+  "status": "STOPPED_AFTER_MATERIAL_REVIEW_FINDING",
+  "process_root": 4097346,
+  "signalled_this_session_process_ids": [
+    4098405,
+    4097354,
+    4097346
+  ],
+  "cause": "missing actual 3*Journey standalone validation phase in fresh-load predictor; source repair accepted before normal physics",
+  "candidate_source_sha256": "5d596f23f5d02145ec04afa9ab90fae3b23fbf2ec78b14d4f7f3ce7f5eb8979c",
+  "native_binary_sha256": "e3c48b4103193c26d84c6a5d264a54d044fb079ca94544e035c40e6829b6ba4c",
+  "receipts": [
+    {
+      "file": "artifacts/v03_origin_validation_20261123/R9_prepare/river_weekday_s17.prepare.json",
+      "status": "WHOLE_CALENDAR_PREPARED",
+      "candidate_source_sha256": "5d596f23f5d02145ec04afa9ab90fae3b23fbf2ec78b14d4f7f3ce7f5eb8979c",
+      "source_dirty": false,
+      "native_binary_sha256": "e3c48b4103193c26d84c6a5d264a54d044fb079ca94544e035c40e6829b6ba4c",
+      "wall_s": 67.32692903999123
+    }
+  ],
+  "final_candidate_preparation_credit": 0
+}

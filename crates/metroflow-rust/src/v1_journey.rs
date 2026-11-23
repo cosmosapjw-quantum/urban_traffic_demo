@@ -606,6 +606,20 @@ fn checkpointability_current_source_candidate_bytes(
         .saturating_add(census_scratch)
 }
 
+/// Journey.read_state ends by calling Journey.validate, whose unchanged
+/// stored/working guard reserves three dynamic Journey owners plus 64 KiB.
+/// The newly decoded road/events and constructor road/event owners are still
+/// live. This local validator floor precedes whole-bundle validation and must
+/// be retained even when the later whole-validation scratch is small.
+fn checkpointability_fresh_journey_validation_bytes(
+    t:CheckpointabilityTerms,initial_road_bytes:usize,decoded_event_bytes:usize,
+)->usize {
+    initial_road_bytes.saturating_add(ChunkedEvents::default().storage_bytes())
+        .saturating_add(t.decoded_road).saturating_add(decoded_event_bytes)
+        .saturating_add(t.journey_decoded.saturating_mul(WORKING_COPIES))
+        .saturating_add(STORAGE_SCRATCH_RESERVE)
+}
+
 /// After fresh road decoding returns, its raw packing and streaming scratch
 /// are dead. The current constructor road and empty event carrier remain
 /// alongside the independent decoded road/events/Journey and real cross-owner
@@ -2070,9 +2084,10 @@ pub(crate) fn advance_owned_joint(
                     .saturating_add(journey.history_decode_extra_max);
                 let (decoded_road, road_decode_scratch) =
                     road.checkpoint_decode_envelope(&road_candidate)?;
-                // Three separate source-visible lifetimes: the current
-                // transition, fresh-engine road decode, and the later fresh
-                // decoded bundle. Native runtime checkpointability promises
+                // Separate source-visible lifetimes: the current
+                // transition, fresh-engine road decode, the Journey decoder's
+                // unchanged local validator, and later whole-bundle validation.
+                // Native runtime checkpointability promises
                 // fresh-runtime load/replay; populated same-engine resumption
                 // remains a separate V03 acceptance experiment with its own
                 // unchanged loader guards.
@@ -2124,7 +2139,10 @@ pub(crate) fn advance_owned_joint(
                 let fresh_road_decode=checkpointability_fresh_road_decode_bytes(lifetime);
                 let fresh_bundle=checkpointability_fresh_bundle_bytes(
                     lifetime,fresh_initial_road_bytes,decoded_event_upper);
-                let required=source_required.max(fresh_road_decode).max(fresh_bundle);
+                let fresh_journey_validation=checkpointability_fresh_journey_validation_bytes(
+                    lifetime,fresh_initial_road_bytes,decoded_event_upper);
+                let required=source_required.max(fresh_road_decode)
+                    .max(fresh_journey_validation).max(fresh_bundle);
                 let observed = crate::v1_trace::guard(
                     "journey_commit",
                     "checkpointability",
@@ -2153,6 +2171,7 @@ pub(crate) fn advance_owned_joint(
                         ("candidate_event_with_decode_upper", decoded_event_upper),
                         ("current_source_candidate_phase",source_required),
                         ("fresh_engine_road_decode_phase",fresh_road_decode),
+                        ("fresh_engine_journey_validation_phase",fresh_journey_validation),
                         ("fresh_engine_bundle_phase",fresh_bundle),
                         ("fresh_constructor_current_road",fresh_initial_road_bytes),
                         ("future_road_decode_phase",checkpointability_sequential_decode_phases(lifetime).0),
@@ -3386,5 +3405,80 @@ mod v03_checkpoint_fresh_decode_20261123_tests {
         assert_eq!(checkpointability_current_source_candidate_bytes(t,400,300,20,10,17),current);
         t.event_candidate+=1;
         assert_eq!(checkpointability_current_source_candidate_bytes(t,400,300,20,10,17),current+1);
+    }
+}
+
+#[cfg(test)]
+mod v03_checkpoint_journey_validator_closure_20261123_tests {
+    use super::*;
+    use std::io::Cursor;
+
+    fn empty()->NativeJourneyCore {
+        NativeJourneyCore::new_shared(vec![(
+            "receipt-leg".into(),1.0,None,0.0,
+            Arc::new(vec![(0.0,1.0,1.0)]),0,Arc::new(vec![]),Arc::new(vec![]),
+        )],vec![],vec![],100_000).unwrap()
+    }
+    fn terms(decoded:usize)->CheckpointabilityTerms {
+        CheckpointabilityTerms {
+            input_road:0,current_road:0,candidate_road:0,decoded_road:decoded,
+            journey_input:0,journey_old:0,journey_new:0,journey_decoded:decoded,
+            event_input:0,event_current:0,event_candidate:0,
+            validation_scratch:STORAGE_SCRATCH_RESERVE,
+            call_binding_reserve:0,road_decode_scratch:0,
+        }
+    }
+
+    #[test]
+    fn fresh_journey_validator_keeps_the_omitted_three_owner_floor() {
+        let t=terms(1_000_000);
+        let shell=ChunkedEvents::default().storage_bytes();
+        let before=checkpointability_fresh_road_decode_bytes(t)
+            .max(checkpointability_fresh_bundle_bytes(t,0,1_000_000));
+        let required=checkpointability_fresh_journey_validation_bytes(t,0,1_000_000);
+        assert_eq!(before,3_000_000+STORAGE_SCRATCH_RESERVE+shell);
+        assert_eq!(required,5_000_000+STORAGE_SCRATCH_RESERVE+shell);
+        assert!(required>before);
+    }
+
+    #[test]
+    fn actual_fresh_journey_read_rejects_old_allowance_and_accepts_full_validator_phase() {
+        pyo3::prepare_freethreaded_python();
+        let mut source=empty();
+        source.state.0=1.0;
+        source.state.4[0]=1.0;
+        source.state.5[0]=1.0;
+        source.state.7[0]=0.5;
+        for _ in 0..4096 {source.state.6[0].push((1.0,1.0/4096.0)).unwrap();}
+        source.validate(&source.state).unwrap();
+        let mut wire=Vec::new();
+        source.write_state(&mut wire).unwrap();
+        let mut target=empty();
+        let independent=target.read_state(&mut Cursor::new(&wire)).unwrap();
+        let actual=journey_storage_bytes(&independent);
+        let upper=journey_decoded_storage_upper_bytes(&source.state);
+        assert!(upper>=actual);
+        let t=terms(upper);
+        let shell=ChunkedEvents::default().storage_bytes();
+        let other=2*upper+shell;
+        let previous=checkpointability_fresh_road_decode_bytes(t)
+            .max(checkpointability_fresh_bundle_bytes(t,0,upper));
+        let old_allowance=previous-other;
+        let actual_validator=actual*WORKING_COPIES+STORAGE_SCRATCH_RESERVE;
+        assert!(old_allowance<actual_validator,
+            "fixture must reach the omitted local validator: actual={actual}, upper={upper}");
+        target.set_phase_storage_budget(old_allowance).unwrap();
+        let error=target.read_state(&mut Cursor::new(&wire)).err().unwrap().to_string();
+        assert!(error.contains("native journey stored/working byte budget"),"{error}");
+        assert_eq!(journey_storage_bytes(&target.state),0);
+        let full=checkpointability_fresh_journey_validation_bytes(t,0,upper);
+        let corrected_allowance=full-other;
+        assert!(corrected_allowance>=actual_validator);
+        target.set_phase_storage_budget(corrected_allowance).unwrap();
+        target.state=target.read_state(&mut Cursor::new(&wire)).unwrap();
+        let mut restored=Vec::new();
+        target.write_state(&mut restored).unwrap();
+        assert_eq!(wire,restored);
+        println!("actual Journey decoder closure: retained={actual} decode_upper={upper} old_allowance={old_allowance} unchanged_validator_required={actual_validator} corrected_allowance={corrected_allowance} wire_bytes={}",wire.len());
     }
 }
