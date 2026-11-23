@@ -136,3 +136,64 @@ source marks, journey feedback의 폐쇄성을 아직 증명하지 않았다.
 **이번 단계의 산출.** 첫번째 실패 guard를 최적화 문제의 정의로 삼는 해석을
 폐기하고, source 조성에서 최종 관측까지 이어지는 재전개 사슬을 모델링했다.
 source/counter 의미는 읽기 검증, 수치 합은 재계산 완료다. 새 도시 실행은 NOT_RUN.
+
+
+## R3 — 재구축 명제와 필요한 전제
+
+연속 병목의 해소를 주장하려면 producer에서 줄인 표현이 다음 consumer에서
+다시 전개되지 않아야 한다. 다음 여섯 경로를 독립적으로 구분한다.
+이 단계의 명제는 이후 R5의 증명과 R6/R7의 판별에 연결한다.
+
+| 경로 | 변경하는 수학적 대상 | 해결할 반복 | 반드시 남는 의무 |
+|---|---|---|---|
+| O 관측 trace 분리 | 물리 state와 lossless 과거 event carrier | flat history의 상시 보관·동시 복사 | same-tick sink, ReceiptHistory, decoder/validator, full export 비용 |
+| A 조성 연산자·구간 측도 | 양의 조성 root와 projection/pushforward, persistent overlay | head×service 및 source×slab의 행 할당 | 실제 query family, reachable ancestry, virtual knot 수 |
+| B 행동 quotient와 provenance fiber | class+complete residual route의 물리 좌표 | 동등한 tag의 물리 제어 중복 | tag별 sink/egress/정책, FIFO 위치, fiber 읽기 비용 |
+| C support 보존 rank/phase 모델 | eligibility와 marked cumulative measure | 필요 정확도 이상의 조각 세분 | support 경계·용량 피드백·event 시간의 안정성 |
+| D 양의 moment 재구성 | 정해진 행동 stratum의 충분한 관측 feature | 분포 atom 수 | feature의 진화/소비 연산 폐쇄성 또는 정량 residual |
+| E flux 적분형 mark | 시간별 source mark를 flux-weighted 적분 | 인위적 구간 분할에 따른 mark 변화·중복 | 제어 phase 경계, 기존 midpoint와 다른 버전 |
+
+O는 lossless carrier로 byte-compatible 가능성을 다루지만 아직 구현되지 않았다.
+A/B는 현재 이산 알고리즘의 **실수 산술 counterpart**에 대한 동치다.
+C/D/E의 의미 있는 일부는 별도 버전의 모델·수치 규약이다.
+이를 하나의 “exact” 표지로 합치지 않는다.
+
+**단위와 상태.** mass \(m\)[veh], birth moment \(B\)[veh·s],
+eligible/departure cumulative \(E,D\)[veh], service opportunity \(C=\int cdt\)[veh],
+\(c\)[veh/s], speed \(v\)[m/s], distance \(X\)[m], latent \(p\)[1].
+도로의 길이 점유 계산과 정지 footprint는 서로 다른 class 계수다.
+규모가 다른 변수를 함께 쓰는 피드백 norm에는 \(M_*,T_*,V_*,X_*=V_*T_*\)
+등의 명시적 무차원화가 필요하다.
+
+**후속 증명의 조건.**
+
+- O: 과거 trace가 물리 update에 들어가지 않는다고 해서 admission/validation까지
+  무관한 것은 아니다. 원본과 재구축 모두 admissible인 transition에서 물리
+  동치를 먼저 주장하고, decoder-equivalent validation을 요구한다.
+- A/B: 원래 packet order·target·eligibility·point/slab order·head/event knot,
+  fraction snapping 규칙을 유지한다. 물리 제어 입력의 contraction이 정확해야
+  한다. 실수 재결합이 IEEE 연산열·underflow·signed zero를 보존한다는 주장은 없다.
+- C: fixed service를 가정하지 않는다. \(E,C\)의 공동 변화부터 경계를 유도한다.
+  zero capacity 자체는 cumulative 안정성을 깨지 않지만, 공급이0인 movement의
+  존재와 head support가 바뀌면 작은 질량오차가 큰 service 차이를 만들 수 있다.
+- D: 보존 feature 일치만으로 미래 동치가 나오지 않는다. feature 공간의 pullback
+  또는 generator 불변성, nonlinear consumer의 충분상태 조건을 별도로 요구한다.
+- E: source characteristic과 latent hazard를 고정한 phase 안에서 적분한다.
+  실제 제어의 변화까지 임의로 합치지 않는다. 기존 midpoint rule과는 다른 수치
+  모델이며 과거 byte identity를 수용 근거로 재사용할 수 없다.
+
+**판별할 반례와 복원 조건.** 다음 반례는 특정 생략의 실패를 보이는 용도로 쓴다.
+
+1. 총량·평균 age가 같아도 eligibility CDF는 다를 수 있다 → target/rank profile 유지.
+2. 동일 next destination도 route tail이 다르면 다음 junction에서 갈라진다
+   → complete residual behavior 또는 refinement 가능한 partition.
+3. 동일 조성의 인접 slab도 midpoint mark가 달라질 수 있다
+   → virtual event knots 유지, 또는 E의 적분 규약을 별도 채택.
+4. 작은 blocked tail을 whole-head에 섞으면 전량을 막을 수 있다
+   → decision support boundary 유지와 node sensitivity 조건.
+5. 짧은 시간의 연속의존성은 장기 피드백 안정성이 아니다
+   → finite-horizon bound와 별도의 small-gain/delay 조건.
+
+여기서 제시한 제한은 각 명제의 적용영역이다. 연구 목적 전체에 대한 no-go는
+주장하지 않는다. 전역 row 수·DAG ancestry·behavior/fiber 크기·24h 자원 성립은
+현재 미해결이며, R7의 경량 예제를 실제 도시 검증으로 승격하지 않는다.
