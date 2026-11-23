@@ -1,0 +1,14 @@
+{
+  "finite_assertion": "For n<=10, all 2^n ready flags, B in{2,3,4,5}, thresholds{0,1}, partition into full/fragmented/canonical blocks preserves original callback order and exact surviving row sequence",
+  "cases_tested": 16376,
+  "large_random_lengths": [
+    257,
+    4097,
+    65537
+  ],
+  "seed": 20261123,
+  "time_s": 0.13517514802515507,
+  "status": "NUMERICALLY_CHECKED_FINITE_CASES",
+  "universal_lemma": "DERIVED_BY_PROOF_NOT_FROM_FINITE_ENUMERATION",
+  "execution": "local Python standard library; original model unaltered"
+}
