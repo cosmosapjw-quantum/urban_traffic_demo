@@ -1,0 +1,26 @@
+{
+  "journey_before_sha256": "c95c17aeada5d526f7dcf7ce2406ac68f70c6ba12b00aa70db46ccdcbff58a4a",
+  "journey_final_sha256": "2d3397ff500fbb9e96a9ae04343f7638c037974bd652583761e84996009fff35",
+  "original_failed_required_bytes": 5943686424,
+  "unchanged_dynamic_pool_bytes": 5789366831,
+  "old_48_byte_trace_recalculated_required_bytes": 5589827488,
+  "old_trace_recalculated_margin_bytes": 199539343,
+  "arithmetic_status": "REPLAY_OF_OLD_48_BYTE_TRACE_NOT_NEW_40_BYTE_RUN",
+  "input_registry_upward_correction_bytes": 160912,
+  "red_receipt": "C8d_rust_red_receipt.json",
+  "green_receipt": "C8d_rust_green_receipt.json",
+  "combined_library": {
+    "status": "PASS_SCOPED_WORKSPACE_LIBRARY",
+    "passed": 261,
+    "failed": 0,
+    "ignored": 2,
+    "log": "C8e_rust_library.log",
+    "log_sha256": "8b35982c487bafde4c4b211e4a3be1dcf61988ac330ee3ee9a221f8b16e917b6",
+    "executor": "event_store_implementation",
+    "evidence_use": "observed shared final log; not rerun by C8d",
+    "journey_sha256": "2d3397ff500fbb9e96a9ae04343f7638c037974bd652583761e84996009fff35",
+    "road_sha256": "e25adb5d6c5d7bdb1202f6c529f5b7a3b1a23334f8f63b9fbb9780e81277db2d",
+    "preserved_first_library_failure": "C8e_rust_library_first_failure.log"
+  },
+  "source_patch_lines": 175
+}

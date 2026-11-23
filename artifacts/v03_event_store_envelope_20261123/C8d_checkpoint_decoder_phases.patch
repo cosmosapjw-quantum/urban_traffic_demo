@@ -1,0 +1,175 @@
+--- a/crates/metroflow-rust/src/v1_journey.rs
++++ b/crates/metroflow-rust/src/v1_journey.rs
+@@ -549,13 +549,28 @@
+         .saturating_add(physical_candidate.max(independent_decode))
+ }
+ 
+-/// Two mutually exclusive source lifetimes:
+-/// (A) current candidate road+journey plus validation scratch;
+-/// (B) FUTURE independent checkpoint decoder road+journey plus decoder
+-/// scratch. Shared original input/old StageQueue Arc payload applies to
+-/// both, but old/new candidate shared data is NOT an alias of the future
+-/// independently decoded state. Real input, shell owners, EventRow buffers
+-/// and the temporary source-census HashMap are all explicitly charged.
++/// NativeWholeEngine::load reads the complete RoadState first, then service
++/// events, then Journey, and only then validates the decoded Bundle. Road
++/// decoder workspaces have returned/dropped before a new Journey exists.
++/// Keep both the full road decode scratch and the later independent Journey
++/// plus whole-validation workspace, but take the maximum of these disjoint
++/// phases. The caller still charges the event decode upper in every phase.
++fn checkpointability_sequential_decode_phases(t:CheckpointabilityTerms)->(usize,usize) {
++    let road_decode=t.decoded_road
++        .saturating_add(t.road_decode_scratch.max(STORAGE_SCRATCH_RESERVE));
++    let journey_validation=t.decoded_road
++        .saturating_add(t.journey_decoded)
++        .saturating_add(t.validation_scratch
++            .saturating_sub(t.call_binding_reserve)
++            .max(STORAGE_SCRATCH_RESERVE));
++    (road_decode,journey_validation)
++}
++
++/// Current candidate validation and future checkpoint decoding have separate
++/// lifetimes. The decoder itself has sequential road and Journey/validation
++/// phases. Shared original input/old StageQueue Arc payload applies to each,
++/// but current/candidate data is NOT an alias of any future independent
++/// decoder. Keep every source owner, event upper and census scratch charge.
+ fn checkpointability_source_joint_phase_bytes(
+     t:CheckpointabilityTerms,road_input_credit:usize,road_candidate_credit:usize,
+     journey_input_credit:usize,journey_candidate_credit:usize,
+@@ -582,8 +597,8 @@
+         .saturating_add(t.validation_scratch
+             .saturating_sub(t.call_binding_reserve)
+             .max(STORAGE_SCRATCH_RESERVE));
+-    let future=t.decoded_road.saturating_add(t.journey_decoded)
+-        .saturating_add(t.road_decode_scratch.max(STORAGE_SCRATCH_RESERVE));
++    let (road_decode,journey_validation)=checkpointability_sequential_decode_phases(t);
++    let future=road_decode.max(journey_validation);
+     fixed.saturating_add(candidate.max(future))
+         .saturating_add(census_scratch)
+ }
+@@ -2012,7 +2027,7 @@
+                     current_road:current_road_bytes,
+                     candidate_road:candidate_road_bytes,
+                     decoded_road,
+-                    journey_input:journey.retained_input_bytes,
++                    journey_input:original_input_journey_bytes,
+                     journey_old:old_journey_bytes,
+                     journey_new:new_journey_bytes,
+                     journey_decoded:decoded_journey,
+@@ -2062,6 +2077,7 @@
+                         ("stage_census_actual_scratch",exact_census_scratch),
+                         ("decoded_road", decoded_road),
+                         ("journey_retained_input", journey.retained_input_bytes),
++                        ("journey_original_input_actual", original_input_journey_bytes),
+                         ("old_journey", old_journey_bytes),
+                         ("new_journey", new_journey_bytes),
+                         ("decoded_journey", decoded_journey),
+@@ -2070,13 +2086,16 @@
+                         ("current_event_charged", effective_current_event),
+                         ("old_event_arc_pointer_identical",usize::from(old_event_arc_shared)),
+                         ("candidate_event", candidate_event_bytes),
++                        ("candidate_event_with_decode_upper", lifetime.event_candidate),
++                        ("future_road_decode_phase",checkpointability_sequential_decode_phases(lifetime).0),
++                        ("future_journey_validation_phase",checkpointability_sequential_decode_phases(lifetime).1),
+                         ("validation_scratch", scratch),
+                         ("call_binding_reserve", call_binding_reserve),
+                         ("road_decode_scratch", road_decode_scratch),
+                         ("phase_road_charge", input_road_bytes
+                             .saturating_add(current_road_bytes)
+                             .saturating_add(candidate_road_bytes.max(decoded_road))),
+-                        ("phase_journey_charge",journey.retained_input_bytes
++                        ("phase_journey_charge",original_input_journey_bytes
+                             .saturating_add(old_journey_bytes)
+                             .saturating_add(new_journey_bytes.max(decoded_journey))),
+                         ("phase_event_charge",input_event_bytes
+@@ -3140,3 +3159,90 @@
+         }
+     }
+ }
++
++
++#[cfg(test)]
++mod v03_checkpoint_decoder_sequential_lifetimes_20261123_tests {
++    use super::*;
++
++    fn frozen_48_byte_trace()->CheckpointabilityTerms {
++        CheckpointabilityTerms{
++            input_road:865_303_248,current_road:865_303_248,
++            candidate_road:1_209_931_840,decoded_road:1_209_974_272,
++            journey_input:302_233_568,journey_old:302_233_568,
++            journey_new:348_545_776,journey_decoded:354_019_848,
++            event_input:973_795_992,event_current:0,
++            // The trace prints retained 1_168_612_200, but production takes
++            // max(retained, canonical decode upper). The old 48-byte formula
++            // at 24_322_678 rows gives this effective 1_168_677_032.
++            event_candidate:1_168_677_032,
++            validation_scratch:459_527_536,call_binding_reserve:82_704_900,
++            road_decode_scratch:936_563_136,
++        }
++    }
++    fn fixed_sources(t:CheckpointabilityTerms)->usize {
++        t.input_road+t.current_road-794_297_808
++            +t.journey_input+t.journey_old-242_069_504
++            +t.event_input+t.event_current+t.event_candidate
++    }
++    fn assessed(t:CheckpointabilityTerms)->usize {
++        checkpointability_source_joint_phase_bytes(
++            t,794_297_808,536_987_368,242_069_504,192_962_560,1_949_824)
++    }
++
++    #[test]
++    fn actual_48_byte_failure_trace_retains_actual_input_registry_and_all_validation() {
++        let mut t=frozen_48_byte_trace();
++        let rows=24_322_678usize;
++        let pages=rows.div_ceil(4096);
++        assert_eq!(360+rows*48+pages*128+(pages+1)*72+256,t.event_candidate);
++        let combined=fixed_sources(t)+t.decoded_road+t.journey_decoded
++            +t.road_decode_scratch+1_949_824;
++        assert_eq!(combined,5_943_686_424); // Preserved actual R8b failure.
++        let before_registry_correction=assessed(t);
++        assert_eq!(before_registry_correction,5_589_666_576);
++        t.journey_input=302_394_480; // Actual original snapshot, not clone capacity.
++        let revised=assessed(t);
++        assert_eq!(revised-before_registry_correction,160_912);
++        assert_eq!(revised,5_589_827_488);
++        assert_eq!(5_789_366_831-revised,199_539_343);
++        // This is replay of frozen old-48B terms, not a new 40B physical run.
++    }
++
++    #[test]
++    fn later_decoded_bundle_validation_can_dominate_and_must_not_be_omitted() {
++        let mut t=frozen_48_byte_trace();
++        t.validation_scratch=2_000_000_000;
++        t.call_binding_reserve=0;
++        t.journey_decoded=600_000_000;
++        t.road_decode_scratch=100_000;
++        let actual_late_phase=t.decoded_road+t.journey_decoded+t.validation_scratch;
++        let required=assessed(t);
++        assert_eq!(required,fixed_sources(t)+actual_late_phase+1_949_824);
++    }
++
++    #[test]
++    fn independent_decoder_bytes_remain_charged_and_cap_plus_one_is_rejected() {
++        let mut t=frozen_48_byte_trace();
++        t.journey_input=302_394_480;
++        let cap=assessed(t);
++        let without_candidate_credits=checkpointability_source_joint_phase_bytes(
++            t,794_297_808,0,242_069_504,0,1_949_824);
++        // Road decoding dominates; a not-yet-created independent decoder
++        // cannot borrow the real current/candidate payload aliases.
++        assert_eq!(without_candidate_credits,cap);
++        t.input_road+=1;
++        assert_eq!(assessed(t),cap+1);
++        assert!(assessed(t)>cap);
++    }
++
++    #[test]
++    fn existing_joint_candidate_phase_is_kept_when_it_is_the_largest_peak() {
++        let mut t=frozen_48_byte_trace();
++        t.candidate_road=4_000_000_000;
++        let current_peak=t.candidate_road-536_987_368
++            +t.journey_new-192_962_560
++            +(t.validation_scratch-t.call_binding_reserve).max(STORAGE_SCRATCH_RESERVE);
++        assert_eq!(assessed(t),fixed_sources(t)+current_peak+1_949_824);
++    }
++}

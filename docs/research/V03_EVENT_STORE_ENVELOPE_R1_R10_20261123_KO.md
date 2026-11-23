@@ -165,3 +165,38 @@ Road 전의 Journey 예약은 실제 original input/current/pending 합에서 �
 기존10,000행 물리 transfer는 같은2,300,000B cap에서 required2,301,864B로 실패했고 새 참조 표현 후1s/10,000events를 완료했다. 7개 incoming 검사와7개 Journey 검사를 포함한 최종 workspace library는251passed/0failed/2ignored(exit0)다. 중간250pass/1fail은 위HashMap계상오류로 보존했다. Partial-service+pending wire 비교를 실제 실행하면서 발견한 uncapped descriptor guard 오류도 두 storage-only helper의 limit=None 경로에서 좁게 고쳤다. 물리검증과 capped조건은 유지했다.
 
 부모는 변경된 전체 생산 diff, 실제 Part←Event bit 대입, event 수명, source별 page/Mark/direct spill 계상과 source/candidate/journey 경계를 확인했다. 최종 파일 SHA는 road5b982c4a771ba156141941ec1fdfa49fd3bd9b7723049fae0ad62352e409cf24, journeyc95c17aeada5d526f7dcf7ce2406ac68f70c6ba12b00aa70db46ccdcbff58a4a다. 상세 증거는 C8b_journey_road_reservation.md, C8c_native_event_reference_verification.md, C8b_rust_library_receipt.json이다. 다음 source-freeze push 후 현재 release의 원본10s를 실행한다. 성공 시20s와40s로 순차 확대한다.
+
+### R8b 원본 결과: transfer 통과, checkpointability 경계 도달
+
+Source freeze commit6aeb9a7a09700a0ca5a27a665abfbe38b4bf2b77에서 release 빌드는 성공했다. Candidate source76242d92122179ad3ac023e7116568ace83b7b7d5f944fb5dc267e7e552569bc, native66b1046a42396eaa694bc4eb183394d8f41eda8b0d53ebc9d081c47c2bc40645다. 원본 full-wire/장부는 다시 일치했고 actual native moment의 M/A/행수도 이전 관측과 일치했다. Identity token 고정비용152B를 포함한 event storage는973795992B다.
+
+원본 t25720→25730 요청10s는 road_step89.442818868s, service_finish0.026496753s, journey_finish0.109081989s를 실제 수행한 뒤 joint checkpointability에서 거절됐다. required5943686424B > shared dynamic budget5789366831B, 초과154319593B다. 기존 transfer guard를 실제 통과한 증거지만 coupled commit은 rollback됐으므로 valid advance0s, final saved checkpoint 없음이다. 총wall152.15648579597473s, peakRSS4955889664B. 원래 native6GiB/process8GiB와 물리·입력은 유지했다. R8b_original_100k_25720_requested_10s.json/.log를 원자료로 보존한다.
+
+같은 frozen binary의 record-only 실행을 별도로 시작해 checkpointability 구성항을 측정한다. guard bypass는 없으며 record 진단의 시간을 uninstrumented 성능으로 사용하지 않는다. Source provenance는 시작 시점에 고정되고 loaded binary는 교체하지 않는다. 진단이 checkpoint를 읽기 시작한 뒤 새 Rust source 분석/수정은 병행 가능하지만 새 binary 실행과 섞지 않는다. 다음 수정은 실패가 실제로 지목한 저장·독립복원 수명에 한정한다.
+
+같은 freeze의 세 도시 calendar 준비는 WHOLE_CALENDAR_PREPARED3/3이며 simulated_s는 모두0이다. River5093765legs/63.370s/2172882944B, Coastal2449750legs/36.252s/1116143616B, Valley918450legs/21.200s/446832640B. R9_current_native_preparation 및 R9_current_source_readiness.json은 이 freeze의 역사적 준비 근거로 보존한다. 준비 실행은 R8b 계산과 겹쳤으므로 wall을 고립 성능 benchmark로 해석하지 않는다. 후속 production source가 바뀌면 최종 source의 준비를 새 경로로 다시 실행한다.
+
+### R8d · 독립 decoder의 순차 수명 교정
+
+Record-only 진단은 원래 uninstrumented 실패와 같은 required=5,943,686,424 B를 재현했다. 그 안에는 road decoder scratch 936,563,136 B와 decoded Journey 354,019,848 B가 동시에 들어 있었다. 실제 `NativeWholeEngine::load`는 road.read_state가 반환된 다음 service와 Journey를 읽고, 마지막에 decoded Bundle을 검증한다. Road decoder 임시 배열은 새 Journey가 만들어지기 전에 해제된다.
+
+따라서 독립 복원 부분은 다음 두 실제 phase의 최댓값으로 계산한다. 모든 기존 input/current owner, 독립 decoded road, event decode upper, census 비용은 유지한다.
+
+- road decode: decoded_road + max(road_decode_scratch, 65,536 B)
+- Journey decode 및 최종 검증: decoded_road + decoded_journey + max(validation_scratch − call_binding_reserve, 65,536 B)
+
+실제 frozen trace에서 후자의 추가 부분은 730,842,484 B이고 road scratch보다 작다. 동시에 input Journey는 clone의 cached 302,233,568 B 대신 실제 original snapshot의 302,394,480 B를 사용하여 누락된 registry 160,912 B를 올려 잡았다. 이 두 교정을 이전 48B trace에 적용하면 required=5,589,827,488 B, margin=199,539,343 B다. `R8d_decoder_phase_replay.json`은 이 산술 재평가이며 새 물리 실행 결과가 아니다. 새 40B 저장 후보에 대한 실제 요구량과 혼동하지 않는다.
+
+4개 목표 검사 중 기존 코드에서 2개가 실패했고, 교정 후 4개 모두 통과했다. 실제 실패 trace 재현, 나중의 whole-validation이 peak인 경우, 독립 decoder에 candidate Arc credit을 주지 않는 조건, candidate phase가 더 큰 경우를 포함한다. 부모는 load 순서와 validate_bundle의 실제 할당 경로를 확인했다. 기존 road decoder envelope 자체의 모든 일반성을 새로 증명했다고 주장하지 않으며, 최종 후보의 원본 저장·독립 복원으로 해당 실행 상태를 별도로 검증한다.
+
+### R8e · 정확한 40B event 저장 표현과 통합 검사
+
+실제 원본 road registry는 1,586개 group을 사용한다. 네 f64를 유지한 채 tag:u32, source:u16, destination:u16으로 저장하고 destination65535를 None sentinel로 구별하면 40B 행이 된다. 범위를 넘는 행은 기존 48B compact 또는 64B wide 표현을 사용한다. 한 page가 나중에 넓은 ID를 만나면 그 page만 48B로 승격하고, 앞선 page·행 순서·logical index는 유지한다. 승격 시 동시에 살아 있는 기존 40B page, enum descriptor의 실제 크기, page padding과 identity token을 모두 계상한다.
+
+실제 road proposal은 registry 길이 증거가 있을 때만 40B 상계를 쓴다. 파일을 읽기 전 service decoder의 row admission은 아직 payload 범위를 모르므로 generic 48B/64B와 한 page 승격 overlap을 유지한다. `decode_storage_upper_bytes`도 같은 값을 반환한다. 실제 retained 저장이 40B라는 이유만으로 향후 decoder가 더 작은 상한을 수용한다고 주장하지 않는다.
+
+행동 RED 두 건은 기존 20,011행 decoded payload960,528B가 목표800,440B를 초과한 사례와, 10,000행 실제 proposal이 동일2,000,000B cap에서 required2,024,048B로 실패한 사례다. 수정 후 관련 범위 검사12개가 통과했고, decoder 수명 수정과 합친 최종 workspace library는261passed/0failed/2ignored(exit0)다. 두 IEEE 부호 zero와 subnormal, 네 f64 bit, ID 경계/None, mixed page 승격, incoming reference index, 실제 NativeServiceCore write→read→write wire equality, cap−1 거절을 검사했다.
+
+첫 전체 library 실행의260pass/1fail은 과거 page 용량 assertion이 여전히48B를 기대한 오류였다(actual163840B, expected196608B). 실제40B 타입 크기로 기대값을 고쳤으며 실패 로그는 `C8e_rust_library_first_failure.log`로 보존했다. 무조건 통과하도록 assertion을 제거하지 않았다.
+
+최종 source는 road SHA256 e25adb5d6c5d7bdb1202f6c529f5b7a3b1a23334f8f63b9fbb9780e81277db2d, journey SHA256 2d3397ff500fbb9e96a9ae04343f7638c037974bd652583761e84996009fff35다. 부모는 전체 production diff와 실제 load 순서·page 승격 수명·decoder admission 일치·검사 출력을 확인했다. 다음 게시로 source를 고정한 뒤 원본 물리 구간과 저장·재복원을 측정한다. 이 단위검사 결과 자체는 새 원도시 시간의 완료 근거가 아니다.

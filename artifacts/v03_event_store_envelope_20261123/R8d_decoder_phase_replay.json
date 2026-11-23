@@ -1,0 +1,14 @@
+{
+  "schema": "V03_CHECKPOINT_DECODER_PHASE_REPLAY_V1",
+  "evidence_kind": "DERIVED_FROM_OLD_48B_NATIVE_TRACE_NOT_A_NEW_PHYSICAL_RUN",
+  "source_receipt": "artifacts/v03_event_store_envelope_20261123/R8b_record_checkpointability_25720_requested_10s.json",
+  "trace_required_bytes": 5943686424,
+  "shared_dynamic_cap_bytes": 5789366831,
+  "old_road_scratch_plus_decoded_journey_bytes": 1290582984,
+  "sequential_decode_phase_peak_bytes": 936563136,
+  "postdecode_validation_extra_bytes": 376822636,
+  "actual_input_registry_upward_correction_bytes": 160912,
+  "predicted_corrected_required_bytes": 5589827488,
+  "predicted_margin_bytes": 199539343,
+  "conditional_on": "Actual road decode scratch is dropped before service/journey read_state; postdecode validate_bundle workspace is included. New source tests and original checkpoint restore are separate evidence."
+}

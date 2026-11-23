@@ -1,0 +1,23 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--offline",
+    "--workspace",
+    "--lib",
+    "v03_checkpoint_decoder_sequential_lifetimes_20261123_tests",
+    "--",
+    "--nocapture"
+  ],
+  "env": {
+    "CARGO_TARGET_DIR": "/home/cosmosapjw/worktrees/urban-traffic-v03-unique-accounting-20261120/target",
+    "RUSTFLAGS": "-C link-arg=-lpython3.12"
+  },
+  "source_sha256": {
+    "crates/metroflow-rust/src/v1_journey.rs": "7dad5e93fc411132ac07c16b9d9b86d914d8d6fe0024b0583f9d5f3fd97f7c54",
+    "crates/metroflow-rust/src/v1_road.rs": "90864a2baf555f44d44963045e78e7e3a07e6b47a5d4461d2a13dd129a7e5c02"
+  },
+  "exit_code": 101,
+  "wall_seconds": 1.4466016292572021,
+  "log": "/home/cosmosapjw/worktrees/urban-traffic-v03-event-store-moment-envelope-20261123/artifacts/v03_event_store_envelope_20261123/C8d_rust_red.log"
+}

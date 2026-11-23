@@ -445,6 +445,7 @@ struct RoadWorkBudget {
     /// Real Part+Mark page-descriptor storage after all raw appends finish.
     incoming_descriptor_live_bytes:Option<usize>,
     compact_events: bool,
+    narrow_events:bool,
     compact_incoming: bool,
     /// Packed entering-interval rows already moved into the candidate.
     interval_retained: usize,
@@ -475,13 +476,17 @@ impl ServiceEventAccounting {
         self.road_step_bytes_for(generated_rows,false)
     }
     fn road_step_bytes_for(self,generated_rows:usize,compressed:bool)->usize {
+        self.road_step_bytes_for_tier(generated_rows,compressed,false)
+    }
+    fn road_step_bytes_for_tier(self,generated_rows:usize,compressed:bool,narrow:bool)->usize {
         self.input_bytes
             .saturating_add(if self.shared_input_current {0} else {self.current_bytes})
-            .saturating_add(persistent_event_candidate_upper_bytes(generated_rows,compressed))
+            .saturating_add(persistent_event_candidate_upper_bytes_for(
+                generated_rows,compressed,narrow))
     }
 }
 // The public EventRow is unchanged (64B on x86_64). Only the transient
-// candidate and persistent service store can use checked 48B rows. The
+// candidate and service store use checked 40B/48B source-code tiers. The
 // public EventRow and checkpoint wire retain their original representation.
 const EVENT_PAGE_ROWS: usize = 4096;
 
@@ -518,9 +523,128 @@ impl CompactEventRow {
     }
 }
 
+/// Exact smaller-cell tier: no f64 is changed and None has its own
+/// reserved destination code. Source 65535 remains representable; a
+/// configured <=65535-cell registry guarantees every destination <65535.
+#[derive(Clone,Copy)]
+#[repr(C)]
+struct NarrowEventRow {
+    tag:u32,
+    source:u16,
+    dest:u16,
+    mass:f64,
+    start:f64,
+    end:f64,
+    birth:f64,
+}
+impl NarrowEventRow {
+    fn try_new(e:EventRow)->Option<Self> {
+        Some(Self{tag:u32::try_from(e.0).ok()?,
+            source:u16::try_from(e.1).ok()?,
+            dest:match e.2 {
+                None=>u16::MAX,
+                Some(x) if x<u16::MAX as usize=>u16::try_from(x).ok()?,
+                Some(_)=>return None,
+            },
+            mass:e.3,start:e.4,end:e.5,birth:e.6})
+    }
+    fn unpack(self)->EventRow {
+        (self.tag as usize,self.source as usize,
+            if self.dest==u16::MAX {None}else{Some(self.dest as usize)},
+            self.mass,self.start,self.end,self.birth)
+    }
+}
+/// Mixed-width pages remain in one source-ordered descriptor Vec. If a
+/// later row does not fit u16, only its currently open page is promoted;
+/// every older page and every logical event index stays unchanged.
+enum CompactEventPage {
+    Narrow(Vec<NarrowEventRow>),
+    Standard(Vec<CompactEventRow>),
+}
+impl CompactEventPage {
+    fn new(capacity:usize,first:CompactEventRow)->PyResult<Self> {
+        if NarrowEventRow::try_new(first.unpack()).is_some() {
+            let rows=checkpoint_vec::<NarrowEventRow>(capacity)?;
+            if rows.capacity()!=capacity {return Err(budget("narrow event page capacity differs"));}
+            Ok(Self::Narrow(rows))
+        }else{
+            let rows=checkpoint_vec::<CompactEventRow>(capacity)?;
+            if rows.capacity()!=capacity {return Err(budget("compact event page capacity differs"));}
+            Ok(Self::Standard(rows))
+        }
+    }
+    fn capacity(&self)->usize {
+        match self {Self::Narrow(p)=>p.capacity(),Self::Standard(p)=>p.capacity()}
+    }
+    fn len(&self)->usize {
+        match self {Self::Narrow(p)=>p.len(),Self::Standard(p)=>p.len()}
+    }
+    fn payload_bytes(&self)->usize {
+        match self {
+            Self::Narrow(p)=>p.capacity().saturating_mul(std::mem::size_of::<NarrowEventRow>()),
+            Self::Standard(p)=>p.capacity().saturating_mul(std::mem::size_of::<CompactEventRow>()),
+        }
+    }
+    fn get(&self,index:usize)->Option<EventRow> {
+        match self {
+            Self::Narrow(p)=>p.get(index).copied().map(NarrowEventRow::unpack),
+            Self::Standard(p)=>p.get(index).copied().map(CompactEventRow::unpack),
+        }
+    }
+    fn iter(&self)->CompactEventPageIter<'_> {
+        match self {
+            Self::Narrow(p)=>CompactEventPageIter::Narrow(p.iter()),
+            Self::Standard(p)=>CompactEventPageIter::Standard(p.iter()),
+        }
+    }
+    fn push_checked(&mut self,row:CompactEventRow)->PyResult<()> {
+        if let Self::Narrow(old)=self {
+            if let Some(narrow)=NarrowEventRow::try_new(row.unpack()) {
+                old.push(narrow);
+                return Ok(());
+            }
+            // The unknown-registry admission bound charges both the old
+            // 40-B page and this 48-B replacement before either may coexist.
+            let capacity=old.capacity();
+            let mut replacement=checkpoint_vec::<CompactEventRow>(capacity)?;
+            if replacement.capacity()!=capacity {
+                return Err(budget("promoted event page capacity differs"));
+            }
+            replacement.extend(old.iter().copied().map(|v|
+                CompactEventRow::try_new(v.unpack()).expect("u16 row is u32 representable")));
+            *self=Self::Standard(replacement);
+        }
+        match self {
+            Self::Standard(page)=>page.push(row),
+            Self::Narrow(_)=>unreachable!(),
+        }
+        Ok(())
+    }
+    #[cfg(test)]
+    fn as_ptr(&self)->*const () {
+        match self {
+            Self::Narrow(p)=>p.as_ptr().cast(),
+            Self::Standard(p)=>p.as_ptr().cast(),
+        }
+    }
+}
+enum CompactEventPageIter<'a> {
+    Narrow(std::slice::Iter<'a,NarrowEventRow>),
+    Standard(std::slice::Iter<'a,CompactEventRow>),
+}
+impl Iterator for CompactEventPageIter<'_> {
+    type Item=EventRow;
+    fn next(&mut self)->Option<EventRow> {
+        match self {
+            Self::Narrow(p)=>p.next().copied().map(NarrowEventRow::unpack),
+            Self::Standard(p)=>p.next().copied().map(CompactEventRow::unpack),
+        }
+    }
+}
+
 pub(crate) struct ChunkedEvents {
     chunks:Vec<Vec<EventRow>>,
-    compact_chunks:Vec<Vec<CompactEventRow>>,
+    compact_chunks:Vec<CompactEventPage>,
     compressed:bool,
     len:usize,
     /// Identity only. Incoming views separately borrow the actual event data.
@@ -540,7 +664,7 @@ impl ChunkedEvents {
     pub(crate) fn len(&self)->usize {self.len}
     fn capacity(&self)->usize {
         if self.compressed {
-            self.compact_chunks.iter().map(Vec::capacity).sum()
+            self.compact_chunks.iter().map(CompactEventPage::capacity).sum()
         } else {
             self.chunks.iter().map(Vec::capacity).sum()
         }
@@ -549,22 +673,22 @@ impl ChunkedEvents {
         if self.compressed {self.compact_chunks.capacity()} else {self.chunks.capacity()}
     }
     fn physical_capacity_bytes(&self)->usize {
-        self.capacity().saturating_mul(if self.compressed {
-            std::mem::size_of::<CompactEventRow>()
-        } else {
-            std::mem::size_of::<EventRow>()
-        })
+        if self.compressed {
+            self.compact_chunks.iter().map(CompactEventPage::payload_bytes).sum()
+        }else{
+            self.capacity().saturating_mul(std::mem::size_of::<EventRow>())
+        }
     }
     pub(crate) fn iter(&self)->impl Iterator<Item=EventRow>+'_ {
         self.chunks.iter().flat_map(|c|c.iter().copied())
-            .chain(self.compact_chunks.iter().flat_map(|c|c.iter().copied().map(CompactEventRow::unpack)))
+            .chain(self.compact_chunks.iter().flat_map(CompactEventPage::iter))
     }
     fn get_checked(&self,index:usize)->Option<EventRow> {
         if index>=self.len {return None;}
         if !self.fixed_page_indexing {return self.iter().nth(index);}
         let (page,row)=(index/EVENT_PAGE_ROWS,index%EVENT_PAGE_ROWS);
         if self.compressed {
-            self.compact_chunks.get(page)?.get(row).copied().map(CompactEventRow::unpack)
+            self.compact_chunks.get(page)?.get(row)
         }else{
             self.chunks.get(page)?.get(row).copied()
         }
@@ -582,7 +706,7 @@ impl ChunkedEvents {
         }
         if self.compact_chunks.capacity()>0 {
             bytes=bytes.saturating_add(
-                self.compact_chunks.capacity().saturating_mul(std::mem::size_of::<Vec<CompactEventRow>>())
+                self.compact_chunks.capacity().saturating_mul(std::mem::size_of::<CompactEventPage>())
             ).saturating_add(128);
         }
         for page in &self.chunks {
@@ -590,12 +714,15 @@ impl ChunkedEvents {
                 std::mem::size_of::<EventRow>())).saturating_add(128);
         }
         for page in &self.compact_chunks {
-            bytes=bytes.saturating_add(page.capacity().saturating_mul(
-                std::mem::size_of::<CompactEventRow>())).saturating_add(128);
+            bytes=bytes.saturating_add(page.payload_bytes()).saturating_add(128);
         }
         bytes
     }
     pub(crate) fn decode_storage_upper_bytes(&self)->usize {
+        // The real native loader chooses a row ceiling BEFORE observing
+        // payload codes. Keep its generic 48/64-B admission bound here even
+        // for an all-narrow store; never promise a 40-B future admission that
+        // that loader would reject before reading its first event.
         decoded_event_store_upper_bytes(self.len,self.compressed)
     }
     pub(crate) fn push_checked(&mut self,e:EventRow)->PyResult<()> {
@@ -615,13 +742,10 @@ impl ChunkedEvents {
                 if self.compact_chunks.last().is_some_and(|c|c.len()!=EVENT_PAGE_ROWS) {
                     self.fixed_page_indexing=false;
                 }
-                let page=checkpoint_vec(next_capacity)?;
-                if page.capacity()!=next_capacity {
-                    return Err(budget("compact event page capacity differs"));
-                }
+                let page=CompactEventPage::new(next_capacity,packed)?;
                 push_checked(&mut self.compact_chunks,page)?;
             }
-            self.compact_chunks.last_mut().expect("compact page allocated").push(packed);
+            self.compact_chunks.last_mut().expect("compact page allocated").push_checked(packed)?;
         } else {
             if self.chunks.last().is_none_or(|c|c.len()==c.capacity()) {
                 if self.chunks.last().is_some_and(|c|c.len()!=EVENT_PAGE_ROWS) {
@@ -647,7 +771,10 @@ impl ChunkedEvents {
             flat.extend(page);
         }
         for page in self.compact_chunks {
-            flat.extend(page.into_iter().map(CompactEventRow::unpack));
+            match page {
+                CompactEventPage::Narrow(rows)=>flat.extend(rows.into_iter().map(NarrowEventRow::unpack)),
+                CompactEventPage::Standard(rows)=>flat.extend(rows.into_iter().map(CompactEventRow::unpack)),
+            }
         }
         debug_assert_eq!(flat.len(),self.len);
         Ok(flat)
@@ -666,20 +793,35 @@ fn event_store_shell_bytes()->usize {
 /// during checkpoint decoding. Compact eligibility follows configured
 /// registries; a wide registry takes the original usize/Option path.
 pub(crate) fn decoded_event_store_upper_bytes(n:usize,compressed:bool)->usize {
+    event_store_upper_bytes(n,compressed,false)
+}
+fn event_store_upper_bytes(n:usize,compressed:bool,narrow_registry:bool)->usize {
     if n==0 {return event_store_shell_bytes();}
     let pages=n.div_ceil(EVENT_PAGE_ROWS);
-    let row_bytes=if compressed {std::mem::size_of::<CompactEventRow>()}
-                  else {std::mem::size_of::<EventRow>()};
+    let row_bytes=if !compressed {std::mem::size_of::<EventRow>()}
+        else if narrow_registry {std::mem::size_of::<NarrowEventRow>()}
+        else {std::mem::size_of::<CompactEventRow>()};
+    let descriptor=if compressed {std::mem::size_of::<CompactEventPage>()}
+        else {std::mem::size_of::<Vec<EventRow>>()};
+    // With unknown source codes a partly filled narrow page may need a
+    // wider replacement. It coexists with AT MOST this one old narrow page.
+    let promotion=if compressed && !narrow_registry {
+        n.min(EVENT_PAGE_ROWS).saturating_mul(std::mem::size_of::<NarrowEventRow>())
+    }else{0};
     event_store_shell_bytes()
         .saturating_add(n.saturating_mul(row_bytes))
         .saturating_add(pages.saturating_mul(128))
-        .saturating_add(pages.saturating_add(1).saturating_mul(
-            3*std::mem::size_of::<Vec<EventRow>>()))
-        .saturating_add(2*128)
+        .saturating_add(pages.saturating_add(1).saturating_mul(3*descriptor))
+        .saturating_add(2*128).saturating_add(promotion)
 }
 fn persistent_event_candidate_upper_bytes(n:usize,compressed:bool)->usize {
+    persistent_event_candidate_upper_bytes_for(n,compressed,false)
+}
+fn persistent_event_candidate_upper_bytes_for(
+    n:usize,compressed:bool,narrow_registry:bool,
+)->usize {
     let slots=if n==0 {0} else {n.div_ceil(EVENT_PAGE_ROWS).saturating_mul(EVENT_PAGE_ROWS)};
-    decoded_event_store_upper_bytes(slots,compressed)
+    event_store_upper_bytes(slots,compressed,narrow_registry)
 }
 
 /// Exact source-backed row capacity for append-only, fixed-size pages.
@@ -1162,7 +1304,7 @@ impl RoadWorkBudget {
                 self.events
                     .saturating_mul(2 * std::mem::size_of::<EventRow>())
             },
-            |service| service.road_step_bytes_for(self.events,self.compact_events),
+            |service| service.road_step_bytes_for_tier(self.events,self.compact_events,self.narrow_events),
         );
         let incoming_bytes=if self.incoming_direct_cell_rows.is_some() {
             event_backed_incoming_page_charge(
@@ -3657,6 +3799,10 @@ impl V1Road {
             && self.routes.len() < u32::MAX as usize
             && self.paths.iter().all(|p|p.len()<u32::MAX as usize)
     }
+    fn can_narrow_candidate_events(&self)->bool {
+        self.can_compact_candidate_events()
+            && self.groups.len()<=u16::MAX as usize
+    }
     fn can_reference_incoming_events(&self)->bool {
         self.intervals && self.can_compact_incoming_parts()
             && self.can_compact_candidate_events()
@@ -3682,6 +3828,7 @@ impl V1Road {
                 incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
                 compact_events: self.can_compact_candidate_events(),
+            narrow_events:self.can_narrow_candidate_events(),
                 compact_incoming: self.can_compact_incoming_parts(),
                 interval_retained: 0,
                 interval_transient: 0,
@@ -3761,6 +3908,7 @@ impl V1Road {
             incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             compact_events: self.can_compact_candidate_events(),
+            narrow_events:self.can_narrow_candidate_events(),
             compact_incoming: self.can_compact_incoming_parts(),
             interval_retained: 0,
             interval_transient: 0,
@@ -5712,7 +5860,7 @@ mod workspace_accounting_tests {
             incoming_page_cells: 0,
             incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            compact_events: false,
+            compact_events: false,narrow_events:false,
             compact_incoming: false,
             interval_retained: 0,
             interval_transient: 0,
@@ -7314,7 +7462,7 @@ mod exact_consumed_packet_source_lifetime_tests {
             events:0,incoming:n,incoming_page_cells:1586,
             incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true,
+            compact_events:true,narrow_events:false,compact_incoming:true,
             interval_retained:0,interval_transient:0,
             service_events:None,
         }
@@ -7438,7 +7586,7 @@ mod exact_event_page_live_capacity_contract_tests {
         assert!(46_512>11_513);
     }
     #[test]
-    fn physical_page_chunk_capacity_and_event_bits_remain_unchanged() {
+    fn physical_page_chunk_capacity_matches_checked_narrow_tier() {
         for n in [0usize,1,4096,4097,8193] {
             let mut pages=ChunkedEvents::new(true);
             for i in 0..n {
@@ -7450,9 +7598,11 @@ mod exact_event_page_live_capacity_contract_tests {
                     i as f64/89.,
                 )).unwrap();
             }
+            assert!(pages.compact_chunks.iter()
+                .all(|page|matches!(page,CompactEventPage::Narrow(_))));
             assert_eq!(pages.physical_capacity_bytes(),
                 n.div_ceil(EVENT_PAGE_ROWS)*EVENT_PAGE_ROWS
-                  *std::mem::size_of::<CompactEventRow>());
+                  *std::mem::size_of::<NarrowEventRow>());
         }
     }
 }
@@ -7466,7 +7616,7 @@ mod exact_incoming_cell_page_liveness_tests {
             limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
             events:0,incoming:0,
-            incoming_page_cells:g,compact_events:true,compact_incoming:true,
+            incoming_page_cells:g,compact_events:true,narrow_events:false,compact_incoming:true,
             incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -7545,7 +7695,7 @@ mod exact_locked_incoming_descriptor_lifetime_tests {
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true,
+            compact_events:true,narrow_events:false,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -7627,7 +7777,7 @@ mod exact_pending_pack_live_descriptor_tests {
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true,
+            compact_events:true,narrow_events:false,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
         };
         let mut incoming:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
@@ -7796,7 +7946,7 @@ mod original_transfer_exclusive_cell_scratch_tests {
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:false,compact_incoming:false,
+            compact_events:false,narrow_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -7878,7 +8028,7 @@ mod original_completed_source_exact_packet_admission_tests {
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:Some(0),
-            compact_events:false,compact_incoming:false,
+            compact_events:false,narrow_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -7927,7 +8077,7 @@ mod original_precombine_pending_remainder_lifetime_tests {
             events:0,incoming:0,incoming_page_cells:1,
             incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true,
+            compact_events:true,narrow_events:false,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -7965,7 +8115,7 @@ mod transfer_live_header_budget_constructive_tests {
         RoadWorkBudget {
             limit:Some(36_600),base:0,transfer_exclusive_cell_scratch:0,
             row_scan_scratch_bytes:0,expired_motion_scan_credit:0,diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,
-            events:0,incoming:0,incoming_page_cells:3,compact_events:true,
+            events:0,incoming:0,incoming_page_cells:3,compact_events:true,narrow_events:false,
             compact_incoming:true,incoming_cell_rows:Some(vec![0;3]),
             incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,incoming_descriptor_live_bytes:None,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -8017,7 +8167,7 @@ mod transfer_header_growth_overlap_adversarial_tests {
             events:0,incoming:0,incoming_page_cells:1,
             incoming_cell_rows:Some(vec![0]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true,
+            compact_events:true,narrow_events:false,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
         };
         let mut incoming=vec![ChunkedParts::new(true)];
@@ -8062,7 +8212,7 @@ mod transfer_header_temporal_nonoverlap_regression_tests {
             events:0,incoming:0,incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:false,compact_incoming:true,
+            compact_events:false,narrow_events:false,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
         };
         let mut parts:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
@@ -8091,7 +8241,7 @@ mod expired_motion_rows_source_lifetime_tests {
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:false,compact_incoming:false,
+            compact_events:false,narrow_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,service_events:None,
         };
         assert!(w.require(0,"tick preflight").is_err());
@@ -8112,7 +8262,7 @@ mod expired_motion_rows_source_lifetime_tests {
             events:0,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:false,compact_incoming:false,
+            compact_events:false,narrow_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,service_events:None,
         };
         w.retire_completed_motion_scan(450);
@@ -8134,7 +8284,7 @@ mod diagnostic_lineage_after_motion_expiry_source_tests {
             events:0,incoming:0,incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true,
+            compact_events:true,narrow_events:false,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
         };
         let mut incoming:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
@@ -8426,7 +8576,7 @@ mod v03_surgical_exact_interval_owner_lifetime_20261122_tests {
             incoming_cell_rows:Some(Vec::new()),
             incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,
             incoming_descriptor_live_bytes:Some(0),
-            compact_events:false,compact_incoming:false,
+            compact_events:false,narrow_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,
             service_events:None,
         }
@@ -8483,7 +8633,7 @@ mod v03_cell_packet_after_interval_exact_source_20261122_tests {
             diagnostic_source_live_bytes:0,frozen_queue_payload_credit:0,events:0,incoming:0,
             incoming_page_cells:0,incoming_cell_rows:Some(Vec::new()),
             incoming_live_pages:0,incoming_direct_cell_rows:None,incoming_direct_live_pages:0,incoming_outer_bytes:0,incoming_descriptor_live_bytes:Some(0),
-            compact_events:false,compact_incoming:false,
+            compact_events:false,narrow_events:false,compact_incoming:false,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -8707,7 +8857,7 @@ mod persistent_event_page_contract_20261123_tests {
         for i in 4096..8193 {store.push_checked(row(i)).unwrap();}
         assert_eq!(pointer,store.compact_chunks[0].as_ptr());
         assert!(store.storage_bytes()<=persistent_event_candidate_upper_bytes(8193,true));
-        assert_eq!(store.physical_capacity_bytes(),3*4096*48);
+        assert_eq!(store.physical_capacity_bytes(),3*4096*std::mem::size_of::<NarrowEventRow>());
         assert!(decoded_event_store_upper_bytes(20_270_113,true)
                 <20_270_113usize*64);
     }
@@ -8980,7 +9130,7 @@ mod v03_event_backed_incoming_20261123_tests {
             incoming_cell_rows:Some(vec![0;cells]),incoming_live_pages:0,
             incoming_direct_cell_rows:Some(vec![0;cells]),
             incoming_direct_live_pages:0,incoming_outer_bytes:0,
-            incoming_descriptor_live_bytes:None,compact_events:true,compact_incoming:true,
+            incoming_descriptor_live_bytes:None,compact_events:true,narrow_events:false,compact_incoming:true,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -9189,5 +9339,175 @@ mod v03_event_backed_incoming_20261123_tests {
         assert_eq!(old_wire,new_wire);
         assert_eq!(proposed.state.t,1.0);
         assert_eq!(new_events.len(),10_000);
+    }
+
+    #[test]
+    fn narrow_original_event_payload_is_40_bytes_per_decoded_row() {
+        let count=20_011usize;
+        let mut events=ChunkedEvents::new(true);
+        for i in 0..count {
+            events.push_decoded_checked(source_event(row(i)),count).unwrap();
+        }
+        assert_eq!(events.physical_capacity_bytes(),count*40);
+    }
+    #[test]
+    fn narrow_original_event_storage_passes_same_2000000_byte_physical_cap() {
+        pyo3::prepare_freethreaded_python();
+        let road=transfer_road(Some(2_000_000));
+        let result=road.propose_owned_step(1.0,vec![]);
+        if let Err(ref error)=result {
+            panic!("original source requires exact narrow event storage: {error}");
+        }
+        let (candidate,events)=result.unwrap();
+        assert_eq!(candidate.t,1.0);
+        assert_eq!(events.len(),10_000);
+        assert_eq!(road.state.t,0.0);
+        road.check_state(&candidate).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod v03_narrow_event_tier_20261123_tests {
+    use super::*;
+    use crate::v1_journey::NativeServiceCore;
+    use std::io::Cursor;
+
+    fn e(i:usize)->EventRow {
+        (i%501,i%1586,if i%13==0 {None}else{Some(i%1586)},
+            if i%7==0 {f64::from_bits(1)}else{0.125},
+            if i%2==0 {-0.0}else{1.0},2.0,
+            if i%3==0 {-0.0}else{f64::from_bits(3)})
+    }
+    fn bits(x:EventRow)->(usize,usize,Option<usize>,[u64;4]) {
+        (x.0,x.1,x.2,[x.3.to_bits(),x.4.to_bits(),x.5.to_bits(),x.6.to_bits()])
+    }
+    #[test]
+    fn narrow_40_standard_48_and_wide_64_preserve_exact_code_boundaries() {
+        assert_eq!(std::mem::size_of::<NarrowEventRow>(),40);
+        assert_eq!(std::mem::size_of::<CompactEventRow>(),48);
+        assert_eq!(std::mem::size_of::<EventRow>(),64);
+        for row in [e(0),e(1),(u32::MAX as usize,u16::MAX as usize,None,
+            f64::from_bits(1),-0.0,0.0,f64::from_bits(3)),
+            (1,65534,Some(65534),1.0,2.0,3.0,4.0)] {
+            assert_eq!(bits(NarrowEventRow::try_new(row).unwrap().unpack()),bits(row));
+        }
+        for row in [(1,65535,Some(65535),1.0,2.0,3.0,4.0),
+            (1,65536,None,1.0,2.0,3.0,4.0)] {
+            assert!(NarrowEventRow::try_new(row).is_none());
+            assert_eq!(bits(CompactEventRow::try_new(row).unwrap().unpack()),bits(row));
+            let mut store=ChunkedEvents::new(true);
+            store.push_decoded_checked(row,1).unwrap();
+            assert_eq!(store.physical_capacity_bytes(),48);
+            assert_eq!(bits(store.get_checked(0).unwrap()),bits(row));
+        }
+        let wide=(u32::MAX as usize+1,usize::MAX,Some(usize::MAX),
+            0.25,-0.0,1.0,f64::from_bits(1));
+        assert!(NarrowEventRow::try_new(wide).is_none());
+        assert!(CompactEventRow::try_new(wide).is_none());
+        let mut store=ChunkedEvents::new(false);
+        store.push_decoded_checked(wide,1).unwrap();
+        assert_eq!(store.physical_capacity_bytes(),64);
+        assert_eq!(bits(store.get_checked(0).unwrap()),bits(wide));
+    }
+
+    #[test]
+    fn partial_page_promotion_keeps_older_backings_order_and_incoming_indices() {
+        let mut events=ChunkedEvents::new(true);
+        let mut expected=Vec::new();
+        for i in 0..EVENT_PAGE_ROWS {
+            let row=e(i);
+            events.push_checked(row).unwrap();
+            expected.push(row);
+        }
+        let first_pointer=events.compact_chunks[0].as_ptr();
+        let row=(17,2,Some(3),0.25,-0.0,1.0,f64::from_bits(3));
+        let referenced_index=events.len();
+        events.push_checked(row).unwrap();
+        expected.push(row);
+        let original_part=Part{tag:row.0,offset:7,mass:row.3,birth:row.6,
+            a:PackedTime(row.4.to_bits()),b:PackedTime(row.5.to_bits())};
+        let mut incoming=ChunkedParts::event_backed();
+        incoming.push_serviced(referenced_index,original_part,&events).unwrap();
+        assert!(matches!(events.compact_chunks[1],CompactEventPage::Narrow(_)));
+        let wider=(17,70000,Some(65535),0.5,0.0,1.0,-0.0);
+        events.push_checked(wider).unwrap();
+        expected.push(wider);
+        assert!(matches!(events.compact_chunks[1],CompactEventPage::Standard(_)));
+        assert_eq!(first_pointer,events.compact_chunks[0].as_ptr());
+        let got=incoming.view(&events).unwrap().get(0);
+        assert_eq!((got.tag,got.offset,got.mass.to_bits(),got.birth.to_bits(),got.a.0,got.b.0),
+            (original_part.tag,original_part.offset,original_part.mass.to_bits(),
+             original_part.birth.to_bits(),original_part.a.0,original_part.b.0));
+        for i in events.len()..(2*EVENT_PAGE_ROWS+7) {
+            let row=e(i);
+            events.push_checked(row).unwrap();
+            expected.push(row);
+        }
+        assert!(matches!(events.compact_chunks[2],CompactEventPage::Narrow(_)));
+        assert_eq!(events.iter().map(bits).collect::<Vec<_>>(),
+            expected.iter().copied().map(bits).collect::<Vec<_>>());
+        assert!(events.storage_bytes()<=persistent_event_candidate_upper_bytes(events.len(),true));
+        assert_eq!(events.physical_capacity_bytes(),EVENT_PAGE_ROWS*(40+48+40));
+        assert_eq!(events.into_flat_checked().unwrap().into_iter().map(bits).collect::<Vec<_>>(),
+            expected.into_iter().map(bits).collect::<Vec<_>>());
+    }
+
+    #[test]
+    fn actual_service_wire_decode_matches_future_generic_admission_and_all_tiers() {
+        pyo3::prepare_freethreaded_python();
+        for (compact,mixed) in [(true,false),(true,true),(false,true)] {
+            let n=2*EVENT_PAGE_ROWS+7;
+            let mut store=ChunkedEvents::new(compact);
+            for i in 0..n {
+                let mut row=e(i);
+                if mixed && i==EVENT_PAGE_ROWS+3 {
+                    row.1=70000;
+                    row.2=Some(65535);
+                }
+                store.push_checked(row).unwrap();
+            }
+            // The future predictor uses exactly the same generic bound as
+            // native load's before-payload event row-ceiling calculation.
+            let future=store.decode_storage_upper_bytes();
+            assert_eq!(future,decoded_event_store_upper_bytes(n,compact));
+            let mut service=NativeServiceCore::new(vec![],vec![],vec![],vec![]).unwrap();
+            let dense=service.checkpoint().0;
+            service.install_state((dense,Arc::new(store)));
+            let mut original_wire=Vec::new();
+            service.write_state(&mut original_wire).unwrap();
+            let decoded=service.read_state(&mut Cursor::new(&original_wire),n,compact).unwrap();
+            assert!(decoded.1.storage_bytes()<=future);
+            assert_eq!(decoded.1.capacity(),n);
+            assert_eq!(service.checkpoint().1.iter().map(bits).collect::<Vec<_>>(),
+                decoded.1.iter().map(bits).collect::<Vec<_>>());
+            assert!(service.read_state(&mut Cursor::new(&original_wire),n-1,compact).is_err());
+            service.install_state(decoded);
+            let mut replay_wire=Vec::new();
+            service.write_state(&mut replay_wire).unwrap();
+            assert_eq!(original_wire,replay_wire);
+            if compact && !mixed {assert_eq!(service.checkpoint().1.physical_capacity_bytes(),n*40);}
+        }
+    }
+
+    #[test]
+    fn unknown_decode_and_append_bounds_include_full_promotion_overlap() {
+        for n in [1usize,17,4095,4096,4097,20011] {
+            let generic=decoded_event_store_upper_bytes(n,true);
+            let proven=event_store_upper_bytes(n,true,true);
+            assert_eq!(generic-proven,
+                n*(std::mem::size_of::<CompactEventRow>()-std::mem::size_of::<NarrowEventRow>())
+                +n.min(EVENT_PAGE_ROWS)*std::mem::size_of::<NarrowEventRow>());
+            let mut store=ChunkedEvents::new(true);
+            for i in 0..n {
+                let mut row=e(i);
+                // Force a partial-page promotion before final decode count.
+                if i==n/2 {row.2=Some(65535);}
+                store.push_decoded_checked(row,n).unwrap();
+                assert!(store.storage_bytes()<=generic);
+            }
+            let retained=store.storage_bytes();
+            assert!(retained<=store.decode_storage_upper_bytes());
+            assert!(generic>=n*48);
+        }
     }
 }
