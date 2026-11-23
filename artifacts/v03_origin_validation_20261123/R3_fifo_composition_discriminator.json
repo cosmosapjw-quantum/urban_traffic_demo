@@ -1,0 +1,18 @@
+{
+  "schema": "V03_FIFO_COMPOSITION_DISCRIMINATOR_V1",
+  "units": "seconds",
+  "assumptions": [
+    "t>=0",
+    "fixed common environment",
+    "FIFO arrival maps",
+    "strictly positive durations"
+  ],
+  "entry": "0",
+  "frozen_edge_duration_sum": "11",
+  "composed_arrival": "21",
+  "direct_arrival": "16",
+  "frozen_choice": "two_edges",
+  "actual_earliest_choice": "direct",
+  "frozen_selected_regret_s": "5",
+  "proof_status": "exact rational constructive counterexample, not empirical traffic calibration"
+}
