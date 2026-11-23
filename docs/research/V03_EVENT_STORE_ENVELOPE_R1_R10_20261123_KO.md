@@ -63,3 +63,13 @@ K_lower<=K<=K_upper는 Jensen와 convex chord로 성립한다. mean원자는 모
 C3 저장설계: whole path의 ChunkedEvents를 Arc로 service에 그대로 보관하고 순서보존 iter로 validate/write/report한다. decoder도 compact 가능한registry에서 직접page로읽고 wide registry에서는64B를보존한다. page payload뿐 아니라 descriptors·allocationpadding·동시live owner를 모두 계상한다. call-input/current/candidate의 실제Arcidentity만 공유로 처리한다. Python/standalone flatAPI는 경계에서만 명시materialize한다. native observer hook은 immutable snapshot의 행수/actualstorage/mass/B/agefirst를 O(1) 추가메모리로 집계한다.
 
 원본 source/binary bytes를 바꾸기 전 behavior regression을 기록한다. missing API/import/compiler symbol 실패는 행동RED로 세지 않는다. 원본 t25720 full-wire 재직렬화·질량장부를 먼저통과한 뒤10s,20s,40s를순차실행한다. library shared build target은 Rust worker 단독사용 후 부모에게반환한다.
+
+## R4/C4 · 구성 예제·반례와 실행 준비
+
+질량1, support[0,4], mean2를 고정하면 mean원자δ2와 endpoint혼합(δ0+δ4)/2가 같은정보를가지나 K(2)는각각0과1이다. 기존처럼 하나를 추정값으로 택하는 대신 [0,1]을 반환하면 두가능성모두포괄하고 sharp하다. 동일support에서 width/4=1은 실제달성되며 오차상한을임의로줄일수없다. 평균만 재분할해δ2로만드는방식은입력정보를추가하지않고가능집합을바꾸므로채택하지않는다. 검열source와CDF는 K bound의미분이아닌검증가능한유한차분/positive-part상계로연결한다.
+
+C4 실제 behavior regression: 서비스checkpoint8193행의 기존write→read 결과retained524480B=64×8193+128B가 행당56B미만이라는목표를위반했다. Rust assertion1failed, exit101을 C5_rust_red.log에보존했다. 초기 잘못된 exact-filter의0test결과는RED로세지않았다. 다음stage는같은실제load/restore/serialize동작에서compact저장량과wirebits를확인한다.
+
+부모실행기 tools/research/v03_event_store_horizon_20261123.py를준비하고 py_compile을통과했다. 정확히pinned된원본t25720 receipt/hash만cross-native진입점으로사용하고, 시작시full-wire와원장일치를재검사한다. 각tick10s를원래순서로전진하며완료후상태만저장한다. duration0은RESTORE_ONLY_VERIFIED로기록하고물리실행으로세지않는다. 초기/최종event-incidence moment관측은실행성공과분리되어관측hook실패가물리결과로오인되지않는다.
+
+현재관측host에는50GiB여유disk가있고거대기존bin을복사하지않는다. 새실험은한프로세스씩원래8GiB캡안에서수행한다. 원본day0/9, DAG19/21을유지한다. 새native물리실험은R5 source-clean release빌드후시작한다.
