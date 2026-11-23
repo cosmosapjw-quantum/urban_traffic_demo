@@ -1,0 +1,27 @@
+{
+  "model_version": "rank_marked_flow_v0_exact_rational",
+  "status": "IMPLEMENTATION_VERIFIED_EXACT_RATIONAL_SHADOW",
+  "test_argv": [
+    "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/v1/test_rank_marked_shadow.py"
+  ],
+  "tests_exit": 0,
+  "test_wall_s": 0.8368087050039321,
+  "test_log_sha256": "74c59642f4da8a65cb8c00a18e7314216212062e43e1d3a90a5bc51b2df6ef20",
+  "integration": "Separate versioned Python scientific model, not switched on in native MetroFlow",
+  "independent_high_service_case": {
+    "source_spans": 1,
+    "service_events": 8192,
+    "source_spans_after": 1,
+    "wall_s": 0.2153524429886602,
+    "vehicle_equivalents": 3,
+    "persons": 6,
+    "cargo_kg": 15,
+    "exit_and_input_equal": true
+  },
+  "scaling_claim": "Source span count independent of number of partial serves; event outputs remain O(H) if retained. No matched native-RSS/24h claim.",
+  "accuracy": "Exact Fractions; no IEEE re-association equivalence claim."
+}
