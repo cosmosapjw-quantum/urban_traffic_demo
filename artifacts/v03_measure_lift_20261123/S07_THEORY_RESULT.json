@@ -1,0 +1,36 @@
+{
+  "model_version": "RankMarkFlow-v0 exact real/rational scientific variant",
+  "mathematics": "Project-derived marked cumulative rank link conservation, residence-time identity via Tonelli, and finite-mark prefix-sufficient representation",
+  "scientific_status": "DERIVED; global novelty NOT_CLAIMED",
+  "domain": "linkwise nonpassing FIFO, nonnegative integrable stationary marks, A,D nondecreasing, D<=A; boarding and hazard changes require explicit sources",
+  "computational_crosscheck": {
+    "tool": "Wolfram Language evaluator",
+    "input": "Piecewise[{{2,0<=u<3},{5,3<=u<=7}},0]; Integrate over [0,7],[0,4],[4,7]",
+    "output": {
+      "in": 26,
+      "exited": 11,
+      "queued": 15,
+      "ledger_identity": true,
+      "vehicle_identity": true
+    },
+    "float_reassociation_difference": -3.469446951953614e-18
+  },
+  "important_nonclaim": "No proof that current V03 native FIFO network dynamics is identical to RankMarkFlow-v0, and no approval to silently replace its checkpoint or IEEE order",
+  "literature": [
+    {
+      "author": "G.F. Newell",
+      "year": 1993,
+      "url": "https://ideas.repec.org/a/eee/transb/v27y1993i4p305-313.html"
+    },
+    {
+      "author": "Carlos F. Daganzo",
+      "year": 1994,
+      "url": "https://its.berkeley.edu/publications/cell-transmission-model-network-traffic"
+    },
+    {
+      "author": "H. Bar-Gera and M. Carey",
+      "year": 2017,
+      "url": "https://www.sciencedirect.com/science/article/abs/pii/S0191261516305458"
+    }
+  ]
+}
