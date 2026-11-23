@@ -287,3 +287,108 @@ J_p=r\left[P(b-a)+(p_0-P)e^{-\lambda a}
 D는 feature 충분성, E는 수송 mark의 수치 규약을 바꾼다. A+B+O처럼 조합할 수 있지만
 어느 경로도 혼자24h resource 충족을 보장하지 않는다. 같은 query를 매번 전개하면
 A의 비용은 evaluator로, copied fiber를 만들면 B의 비용은 provenance로 이동한다.
+
+
+## R5 — 직접 유도와 증명
+
+전체 정의·단위·중간 계산·반례는 다음 세 동반 문서에 보존한다.
+
+- [정확 표현과 행동 quotient](V03_BOTTLENECK_EXACT_TRANSPORT_20261123.md):
+  A1 구간측도 연산 폐쇄, A2 원래 이산 step의 실수 동치,
+  B1 class/residual-route quotient, sink/egress/fiber 계산.
+- [결합 capacity와 support-aware 측도](V03_BOTTLENECK_COUPLED_MEASURES_20261123.md):
+  공동 arrival/capacity 안정성, 조건부 피드백, support 복원,
+  phase/FIFO/장부, 지연 개발의 small-gain 계산.
+- [관측자 분리·충분 질의·flux 적분](V03_BOTTLENECK_OBSERVER_MARKS_20261123.md):
+  O1 lossless observer, Q1 dual closure, Q2 양의 feature 재구성,
+  E1 보존적이고 분할에 가법적인 finite-response mark 수송.
+
+### 공동 arrival/capacity 경계
+
+연속 비감소 E, 절대연속 비감소 C, \(E(0)=C(0)=0\)인 초기빈 서버에서
+\[
+D(t)=\inf_{0\le s\le t}\{E(s)+C(t)-C(s)\}.
+\]
+\(f=C-\widetilde C\)라 두면 두 infimum 내부 차이는
+\(\Delta E(s)+f(t)-f(s)\)다. 따라서
+\[
+\boxed{\|D-\widetilde D\|_{\infty,[0,t]}
+\le\|E-\widetilde E\|_{\infty,[0,t]}
++\operatorname{osc}_{[0,t]}(C-\widetilde C)
+\le\epsilon_E+\int_0^t|c-\widetilde c|ds.}
+\]
+이는 service율 양의 하한을 쓰지 않으므로 zero-capacity 구간도 포함한다.
+초기 eligible stock이 양수인 경우는 별도 empty-history candidate C(t)를
+min에 넣어야 한다. 누적시간 역함수에는 별도의 양의 departure slope가 필요하다.
+
+\(E=3(t-1)_+\), \(C=\min(t,1)\), \(\widetilde C=2(t-1)_+\), \(0\le t\le2\)이면
+capacity sup차이는1이지만 \(D(2)=0,\widetilde D(2)=2\)다.
+따라서 capacity의 sup차이를 계수1로 더하는 개선은 거짓이며 oscillation항이 필요하다.
+
+무차원화한 물리 state오차 z와 누적 departure오차 d에 대해
+\[
+z\le z_0+L_y\int(z+d)+\int r_y,\quad
+e\le\eta_E+L_E\int(z+d),\quad
+|c-\widetilde c|\le L_c(z+d)+r_c
+\]
+가 실제 연산자에서 성립하면 위 경계와 Gronwall로
+\[
+\boxed{z(t)+d(t)\le
+[z_0+\eta_E+\int_0^t(r_y+r_c)ds]e^{(L_y+L_E+L_c)t}.}
+\]
+고정 class/movement support, nonvacuum, positive active denominators,
+bounded-density eligibility 또는 적절한 hybrid event 처리가 그 전제다.
+원래 multi-sender allocator 전체의 상수와 도시 전체 feedback 상수는 미확정이다.
+
+### 질의 폐쇄와 양의 재구성
+
+기능적 요약 \(P\mu=(\langle\psi_i,\mu\rangle)_i\)가 정확하려면 모든 제어·guard·reset이
+이 요약과 남겨 둔 explicit state에서 결정되고, 수송 pullback이
+\(A_a^*\psi_i=\sum_jM_{ij}(a)\psi_j\)로 닫혀야 한다.
+적분의 쌍대성으로 \(P(A_a\mu)=M(a)P\mu\)이고 event별 귀납이 가능하다.
+이 조건이 A의 cheap query와 B의 sufficient behavior를 연결한다.
+
+양의 atom의 feature vectors가 m차원에서 종속이면
+\(\sum_i a_i\phi(\theta_i)=0\), \(\sum_i a_i=0\)인 a를 골라,
+\(s=\min_{a_i>0}w_i/a_i\), \(w'_i=w_i-sa_i\)로 갱신한다.
+모든 weight는 비음수, feature는 불변, atom은 적어도 하나 줄어든다.
+반복하면 at most m source atoms로 충분하다. 이는 positive cubature의
+유한 입력에 대한 구성적 증명이며, 세계 최초 정리라는 주장은 없다.
+consumer \(g=\sum_i\alpha_i\phi_i+r_g\), \(|r_g|\le\epsilon_g\)면
+\[
+|\langle g,\mu-\widehat\mu\rangle|\le2M\epsilon_g
+\]
+이므로 구체적인 residual을 피드백 경계에 넘길 수 있다.
+eligibility·rare blocked indicator가 feature에 없으면 이 residual이 작다는
+주장은 불가능할 수 있다. 실제 필요한 indicator를 보존하는 것이 복원이다.
+
+### finite-response 적분형 수송
+
+held characteristic의 거리 χ와 latent \(p=P+(p_0-P)e^{-\lambda t}\)에서
+\(r\int v=r[\chi(b)-\chi(a)]\)와 R4의 latent integral을 직접 얻는다.
+구간 합의 가법성으로 receiving weighted moment와 보존량이 임의의 인위적
+세분에 무관함을 증명했다. 기존 midpoint차이는
+\(rh^3\sup|g''|/24\)로 국소 제어한다. 가속도 포화 전후를 분리하며 실제
+control phase 변화는 유지한다. Wolfram에서 antiderivative와 분할 잔차가0이었다.
+
+### 배경 모델의 피드백 안정성
+
+occupancy–speed의 busy/unclipped 예
+\(\dot n=a-\gamma v,\ \tau_v\dot v=U_0-\kappa_n n-v\)는 양의 eigenvalue를 갖는다.
+수요 \(a=a_0-kn\)를 쓰는 지정된 모델에서는 trace/determinant로
+\(k>\gamma\kappa_n\)가 Hurwitz 조건이다.
+지연 개발 \(\tau_z\dot z=-\chi n(t-d)-z\), 수요항 \(+\beta z\)까지 포함하면
+\[
+k>\gamma\kappa_n+\beta\chi
+\]
+가 모든 고정 유한 d에 대해 양의 decay rate를 구성하는 충분조건이다.
+각 지연에 같은 uniform decay rate를 주장하지 않는다. weighted envelope의
+세 부등식으로 증명하며 실제 M04 parameter 충족은 아직 조사하지 않았다.
+이는 단기 수치오차 경계를 장기 도시 안정성으로 오해하지 않도록 하는 구성적
+피드백 모델이다.
+
+**진행 중 독립 검토에서 즉시 반영한 교정.** transversality와 Lipschitz reset만으로
+jump가 있는 state의 same-time sup 안정성을 얻는다는 문장을 철회했다.
+reset \(y\mapsto y+1\)이1과1+ε에 일어나면 sup차이는1이다.
+연속 state의 mode-switching 추정과 event-aligned jump 관측을 분리했다.
+새 jump-metric 정리나 원래 native atomic eligibility의 포괄적 안정성은 주장하지 않는다.
