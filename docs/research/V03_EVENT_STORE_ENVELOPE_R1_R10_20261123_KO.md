@@ -73,3 +73,15 @@ C4 실제 behavior regression: 서비스checkpoint8193행의 기존write→read 
 부모실행기 tools/research/v03_event_store_horizon_20261123.py를준비하고 py_compile을통과했다. 정확히pinned된원본t25720 receipt/hash만cross-native진입점으로사용하고, 시작시full-wire와원장일치를재검사한다. 각tick10s를원래순서로전진하며완료후상태만저장한다. duration0은RESTORE_ONLY_VERIFIED로기록하고물리실행으로세지않는다. 초기/최종event-incidence moment관측은실행성공과분리되어관측hook실패가물리결과로오인되지않는다.
 
 현재관측host에는50GiB여유disk가있고거대기존bin을복사하지않는다. 새실험은한프로세스씩원래8GiB캡안에서수행한다. 원본day0/9, DAG19/21을유지한다. 새native물리실험은R5 source-clean release빌드후시작한다.
+
+## R5/C5 · 이론·영속 event 구현 완료
+
+이론 원문은 V03_AGE_MOMENT_ENVELOPE_THEORY_20261123.md, exact oracle는 src/metroflow/v1/age_moment_envelope.py다. sharp all-threshold bound, 최대gap/진짜nested refinement, censor/secantCDF, commonclock birthmoment사상을 증명했다. 10개 저장된 Python검사에서2790 exact envelope와2520 strict-tail/CDF 배치를통과했다. 비중첩partition을nested라고구성한초기fixture오류는 수정하고 실제반례로보존했으며 생산코드오류로재명명하지않았다.
+
+Rust whole-engine은 ChunkedEvents를 service.last_events의Arc로직접넘긴다. Flat EventRow의추가할당을만들지않고, write_state는원래field/order를iter로직렬화한다. decoder는wire행수에맞춰마지막page를정확히예약하며registry가넓으면wide64B경로를유지한다. 전체descriptor성장transient·pagepadding·carrier·독립decodedstore를보수적으로계상한다. 동일8193행 behavior회귀는수정후통과했고, 전체workspace library는231passed/0failed/2ignored다. 기존unused/dead-code warnings는남아있다. 중간3개검사실패와정확한기대값교정은 C5_native_verification_notes.md에보존했다.
+
+원래4f64 bits/order/None sentinel,4096page경계,wideindex,옛snapshot불변,cap−1거절을검사했다. 작은부분충전page에서는compact가exact-flat보다클수있으므로항상절감한다는주장은하지않는다. 실제20m행저장량과원본tick은다음실험으로판정한다.
+
+Native service_event_moment_summary(state)는common snapshot시각에서M=sum m,B=sum birthmoment,A=sum(mt−B)를O(1)추가메모리로읽는다. Neumaier중앙값과각binary64연산의outward interval을반환하며과거solver오차나실제숨은분포를certify한다고주장하지않는다. 부모adapter tools/research/v03_event_age_observation_20261123.py는원본nonnegativeclock birth support조건아래추가배열없이이자료를Fraction bound로연결한다. exactfixture m2,A4,t4,u2에서 K∈[0,2],mean2를확인했다.
+
+R5에서는소스/단위·과학검사까지만완료했다. 원본물리실행은clean commit의release .so를빌드한뒤수행한다. canonical19/21,originalday0/9유지.

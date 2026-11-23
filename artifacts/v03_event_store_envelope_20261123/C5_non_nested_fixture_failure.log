@@ -1,0 +1,11 @@
+.EXACT_ENVELOPE_CASES=2790 EXACT_CDF_CASES=2520 MAX_GAP_RATIO=1/4
+..F.....
+=================================== FAILURES ===================================
+____ test_actual_partition_refinement_is_nested_and_reaches_atom_exactness _____
+tests/research/test_v03_age_moment_envelope_20261123.py:103: in test_actual_partition_refinement_is_nested_and_reaches_atom_exactness
+    assert all(a.lower <= b.lower and b.upper <= a.upper
+E   assert False
+E    +  where False = all(<generator object test_actual_partition_refinement_is_nested_and_reaches_atom_exactness.<locals>.<genexpr> at 0x790014269ff0>)
+=========================== short test summary info ============================
+FAILED tests/research/test_v03_age_moment_envelope_20261123.py::test_actual_partition_refinement_is_nested_and_reaches_atom_exactness
+1 failed, 8 passed in 0.57s

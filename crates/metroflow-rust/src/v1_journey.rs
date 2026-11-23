@@ -5,7 +5,7 @@ use crate::v1_history::ReceiptHistory;
 use crate::v1_parallel::ordered_map;
 use crate::v1_road::{
     checkpoint_vec, read_exact_len, read_f64, read_len, read_u64, write_f64, write_len, write_u64,
-    EventRow, V1Road,
+    ChunkedEvents, EventRow, V1Road,
 };
 use crate::v1_stage::{Access, StageQueue};
 use pyo3::exceptions::{PyMemoryError, PyValueError};
@@ -23,7 +23,7 @@ pub(crate) type Source = (String, f64, f64);
 type Run = (usize, u8, f64, f64, f64); // stop index, STOP/ROAD/DONE, ready, partial sink, delay
 type People = (f64, f64, f64, f64, f64);
 pub(crate) type Service = (Vec<Run>, Vec<People>, Vec<bool>, Vec<f64>, Vec<bool>);
-pub(crate) type ServiceCheckpoint = (Service, Arc<Vec<EventRow>>);
+pub(crate) type ServiceCheckpoint = (Service, Arc<ChunkedEvents>);
 type Profile = Vec<(f64, f64, f64)>;
 type Law = Vec<(f64, f64)>;
 pub(crate) type JourneyLeg = (String, f64, Option<usize>, f64, Profile, u8, Law, Law);
@@ -117,7 +117,7 @@ pub(crate) fn service_dense_storage_bytes(state: &Service) -> usize {
 }
 
 pub(crate) fn service_event_storage_bytes(state: &ServiceCheckpoint) -> usize {
-    vec_storage_bytes(&state.1)
+    state.1.storage_bytes()
 }
 
 /// Debug counters are observational metadata, never serialized physical state.
@@ -557,7 +557,7 @@ pub struct NativeServiceCore {
     freight: Vec<Source>,
     cars: Vec<Source>,
     people_by_run: Vec<Vec<usize>>,
-    last_events: Arc<Vec<EventRow>>,
+    last_events: Arc<ChunkedEvents>,
     state: Service,
     pending: Option<(f64, Service)>,
 }
@@ -584,7 +584,7 @@ impl NativeServiceCore {
         bytes
     }
     pub(crate) fn event_storage_bytes(&self) -> usize {
-        vec_storage_bytes(&self.last_events)
+        self.last_events.storage_bytes()
     }
     /// Fixed-count source preparation workspace: one offer per bus/source,
     /// generated labels, geometric offer-buffer growth/physical conversion,
@@ -686,6 +686,7 @@ impl NativeServiceCore {
         &self,
         r: &mut R,
         event_limit: usize,
+        compact_events: bool,
     ) -> PyResult<ServiceCheckpoint> {
         fn flag<R: Read>(r: &mut R) -> PyResult<bool> {
             match read_u64(r)? {
@@ -732,7 +733,7 @@ impl NativeServiceCore {
             cars.push(flag(r)?);
         }
         let n = read_len(r, event_limit)?;
-        let mut events = checkpoint_vec(n)?;
+        let mut events = ChunkedEvents::new(compact_events);
         for _ in 0..n {
             let tag = read_len(r, usize::MAX)?;
             let origin = read_len(r, usize::MAX)?;
@@ -753,7 +754,7 @@ impl NativeServiceCore {
             if !nonnegative([e.3, e.4, e.5, e.6]) {
                 return Err(bad("invalid checkpoint road event"));
             }
-            events.push(e);
+            events.push_decoded_checked(e,n)?;
         }
         let state = (runs, people, released, completed, cars);
         self.validate(&state)?;
@@ -857,7 +858,7 @@ impl NativeServiceCore {
             freight,
             cars,
             people_by_run,
-            last_events: Arc::new(Vec::new()),
+            last_events: Arc::new(ChunkedEvents::default()),
             state,
             pending: None,
         })
@@ -874,13 +875,13 @@ impl NativeServiceCore {
         )
     }
     fn road_events(&self) -> Vec<EventRow> {
-        self.last_events.as_ref().clone()
+        self.last_events.iter().collect()
     }
     fn restore(&mut self, state: Service) -> PyResult<()> {
         self.validate(&state)?;
         self.state = state;
         self.pending = None;
-        self.last_events = Arc::new(Vec::new());
+        self.last_events = Arc::new(ChunkedEvents::default());
         Ok(())
     }
     fn abort(&mut self) {
@@ -1591,10 +1592,7 @@ pub(crate) fn advance_owned_joint(
     road.begin_call_storage_accounting();
     let call_input_events = Arc::clone(&service.last_events);
     road.configure_service_event_accounting(
-        service
-            .last_events
-            .capacity()
-            .saturating_mul(std::mem::size_of::<EventRow>()),
+        service.last_events.storage_bytes(),
         tags.iter().map(String::capacity).max().unwrap_or(0),
         Arc::ptr_eq(&call_input_events, &service.last_events),
         original_input_road_shared,
@@ -1683,10 +1681,7 @@ pub(crate) fn advance_owned_joint(
             // installing it. It commits only after both other owners validate.
             let phase_started = Instant::now();
             road.set_service_event_current_bytes(
-                service
-                    .last_events
-                    .capacity()
-                    .saturating_mul(std::mem::size_of::<EventRow>()),
+                service.last_events.storage_bytes(),
                 Arc::ptr_eq(&call_input_events, &service.last_events),
             );
             if let Some(total) = dynamic_budget {
@@ -1715,7 +1710,7 @@ pub(crate) fn advance_owned_joint(
                 0
             };
             let candidate_event_bytes = if dynamic_budget.is_some() {
-                vec_storage_bytes(&events)
+                events.storage_bytes()
             } else {
                 0
             };
@@ -1781,7 +1776,7 @@ pub(crate) fn advance_owned_joint(
                 }
             }
             let mut sinks = Vec::new();
-            for e in &events {
+            for e in events.iter() {
                 if e.2.is_none() {
                     let tag = tags
                         .get(e.0)
@@ -1872,7 +1867,7 @@ pub(crate) fn advance_owned_joint(
                     journey_decoded:decoded_journey,
                     event_input:input_event_bytes,
                     event_current:effective_current_event,
-                    event_candidate:candidate_event_bytes,
+                    event_candidate:candidate_event_bytes.max(events.decode_storage_upper_bytes()),
                     validation_scratch:scratch,
                     call_binding_reserve,
                     road_decode_scratch,
@@ -2504,10 +2499,10 @@ mod event_snapshot_arc_ownership_tests {
         NativeServiceCore {
             buses: vec![], people: vec![], freight: vec![], cars: vec![],
             people_by_run: vec![],
-            last_events: Arc::new(vec![
+            last_events: Arc::new(event_fixture(vec![
                 (7, 1, None, 0.25, 100., 101., 3.125),
                 (8, 1, Some(2), 0.75, 101., 102., 6.25),
-            ]),
+            ])),
             state: (vec![], vec![], vec![], vec![], vec![]),
             pending: None,
         }
@@ -2520,22 +2515,22 @@ mod event_snapshot_arc_ownership_tests {
         let b = core.checkpoint();
         assert!(Arc::ptr_eq(&a.1, &b.1));
         assert!(Arc::ptr_eq(&a.1, &core.last_events));
-        assert_eq!(a.1[0].3.to_bits(), 0.25f64.to_bits());
+        assert_eq!(a.1.iter().next().unwrap().3.to_bits(), 0.25f64.to_bits());
     }
 
     #[test]
     fn replacing_event_backing_preserves_previous_immutable_snapshot() {
         let mut core = fixture();
         let historical = core.checkpoint();
-        core.last_events = Arc::new(vec![(9, 3, None, 0.5, 102., 103., 3.75)]);
+        core.last_events = Arc::new(event_fixture(vec![(9, 3, None, 0.5, 102., 103., 3.75)]));
         assert!(!Arc::ptr_eq(&historical.1, &core.last_events));
         assert_eq!(historical.1.len(), 2);
-        assert_eq!(historical.1[1].6.to_bits(), 6.25f64.to_bits());
+        assert_eq!(historical.1.iter().nth(1).unwrap().6.to_bits(), 6.25f64.to_bits());
         let new_cp = core.checkpoint();
         assert_eq!(new_cp.1.len(), 1);
         core.rollback(historical.clone());
         assert!(Arc::ptr_eq(&core.last_events, &historical.1));
-        assert_eq!(core.last_events[0].0, 7);
+        assert_eq!(core.last_events.iter().next().unwrap().0, 7);
     }
 }
 
@@ -2801,4 +2796,39 @@ mod v03_immutable_journey_block_source_identity_20261122_tests {
         assert!(y<=x+200);
         assert_eq!(checkpointability_source_joint_phase_bytes(t,0,0,0,0,0),x);
     }
+}
+
+#[cfg(test)]
+mod persistent_service_event_storage_20261123_tests {
+    use super::*;
+    use std::io::Cursor;
+
+    #[test]
+    fn checkpoint_decode_retains_event_payload_below_flat_64_byte_rows() {
+        let n=8193usize;
+        let mut source=NativeServiceCore::new(vec![],vec![],vec![],vec![]).unwrap();
+        source.last_events=Arc::new(event_fixture((0..n).map(|i|
+            (i%11,i%7,if i%3==0 {None} else {Some(i%5)},1.25,2.,3.,0.5)
+        ).collect()));
+        let mut wire=Vec::new();
+        source.write_state(&mut wire).unwrap();
+        let decoded=source.read_state(&mut Cursor::new(&wire),n,true).unwrap();
+        let retained=service_event_storage_bytes(&decoded);
+        assert!(retained<n*56,
+            "persistent service event payload still flat: retained={retained}, rows={n}");
+        let mut restored=NativeServiceCore::new(vec![],vec![],vec![],vec![]).unwrap();
+        restored.install_state(decoded);
+        let mut roundtrip=Vec::new();
+        restored.write_state(&mut roundtrip).unwrap();
+        assert_eq!(wire,roundtrip);
+    }
+}
+
+
+#[cfg(test)]
+fn event_fixture(rows:Vec<EventRow>)->ChunkedEvents {
+    let n=rows.len();
+    let mut store=ChunkedEvents::new(true);
+    for row in rows {store.push_decoded_checked(row,n).unwrap();}
+    store
 }

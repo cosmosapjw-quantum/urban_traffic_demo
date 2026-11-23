@@ -1,0 +1,125 @@
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/worktrees/urban-traffic-v03-event-store-moment-envelope-20261123/crates/metroflow-rust)
+warning: unnecessary parentheses around closure body
+    --> crates/metroflow-rust/src/v1_road.rs:7332:34
+     |
+7332 |   ...   let actual=(0..3).map(|i|(
+     |  ________________________________^
+7333 | | ...       incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+     | |__________^
+7334 |   ...       +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()
+     |  _______________________________________________________________________^
+7335 | | ...   )).sum();
+     | |_______^
+     |
+     = note: `#[warn(unused_parens)]` (part of `#[warn(unused)]`) on by default
+help: remove these parentheses
+     |
+7332 ~         let actual=(0..3).map(|i|incoming[i].descriptor_capacity()*std::mem::size_of::<Vec<Part>>()
+7333 ~             +marks[i].chunks.capacity()*std::mem::size_of::<Vec<Mark>>()).sum();
+     |
+
+warning: unused variable: `n`
+    --> crates/metroflow-rust/src/v1_road.rs:5661:13
+     |
+5661 |         let n=parts.len();
+     |             ^ help: if this is intentional, prefix it with an underscore: `_n`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `road_bytes`
+    --> crates/metroflow-rust/src/v1_engine.rs:1961:17
+     |
+1961 |             let road_bytes = road
+     |                 ^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_road_bytes`
+
+warning: unused variable: `events`
+    --> crates/metroflow-rust/src/v1_engine.rs:1974:17
+     |
+1974 |             let events = service_event_storage_bytes(&service).max(old...
+     |                 ^^^^^^ help: if this is intentional, prefix it with an underscore: `_events`
+
+warning: unused variable: `size`
+    --> crates/metroflow-rust/src/v1_engine.rs:2265:13
+     |
+2265 |         let size=std::mem::size_of::<crate::v1_road::EventRow>();
+     |             ^^^^ help: if this is intentional, prefix it with an underscore: `_size`
+
+warning: unused variable: `size`
+    --> crates/metroflow-rust/src/v1_engine.rs:2285:13
+     |
+2285 |         let size=std::mem::size_of::<crate::v1_road::EventRow>();
+     |             ^^^^ help: if this is intentional, prefix it with an underscore: `_size`
+
+warning: method `compressed` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:518:19
+    |
+492 | impl ChunkedEvents {
+    | ------------------ method in this implementation
+...
+518 |     pub(crate) fn compressed(&self)->bool {self.compressed}
+    |                   ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `summary`, `install_state`, and `owned_step` are never used
+    --> crates/metroflow-rust/src/v1_road.rs:3024:19
+     |
+2979 | impl V1Road {
+     | ----------- methods in this implementation
+...
+3024 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+3233 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+3605 |     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -...
+     |                   ^^^^^^^^^^
+
+warning: function `journey_decoded_storage_upper_bytes` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:206:15
+    |
+206 | pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `sources` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:626:19
+    |
+564 | impl NativeServiceCore {
+    | ---------------------- method in this implementation
+...
+626 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+
+warning: methods `owned_time`, `storage_budget`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1303:19
+     |
+1066 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1303 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1358 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1391 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:76:19
+   |
+69 | impl StageQueue {
+   | --------------- method in this implementation
+...
+76 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+
+warning: `metroflow-rust` (lib test) generated 12 warnings (run `cargo fix --lib -p metroflow-rust --tests` to apply 6 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.54s
+     Running unittests src/lib.rs (/home/cosmosapjw/worktrees/urban-traffic-v03-unique-accounting-20261120/target/debug/deps/_metroflow_rust-ffddc2c3d4933447)
+
+running 1 test
+test v1_journey::persistent_service_event_storage_20261123_tests::checkpoint_decode_retains_event_payload_below_flat_64_byte_rows ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 226 filtered out; finished in 0.01s

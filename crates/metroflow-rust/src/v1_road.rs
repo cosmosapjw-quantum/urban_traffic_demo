@@ -434,22 +434,20 @@ impl ServiceEventAccounting {
     /// Event buffers live during the road step: the call-input and current
     /// committed buffers (charged separately, never assumed shared) and the
     /// append-only fixed-size pages, which never reallocate old EventRows.
-    /// The flat output exists only during the separately-guarded final stage.
+    /// Whole-engine pages remain the immutable final store; standalone public
+    /// road APIs still materialize flat output in a separately guarded stage.
     fn road_step_bytes(self, generated_rows: usize) -> usize {
         self.road_step_bytes_for(generated_rows,false)
     }
     fn road_step_bytes_for(self,generated_rows:usize,compressed:bool)->usize {
         self.input_bytes
             .saturating_add(if self.shared_input_current {0} else {self.current_bytes})
-            .saturating_add(if compressed {
-                paged_compact_event_candidate_bytes(generated_rows)
-            } else {
-                paged_event_candidate_bytes(generated_rows)
-            })
+            .saturating_add(persistent_event_candidate_upper_bytes(generated_rows,compressed))
     }
 }
 // The public EventRow is unchanged (64B on x86_64). Only the transient
-// candidate, not the service or checkpoint wire, can use a checked 48B row.
+// candidate and persistent service store can use checked 48B rows. The
+// public EventRow and checkpoint wire retain their original representation.
 const EVENT_PAGE_ROWS: usize = 4096;
 
 /// Original tag/source/destination are small source registry indexes in V03.
@@ -486,17 +484,17 @@ impl CompactEventRow {
 }
 
 #[derive(Default)]
-struct ChunkedEvents {
+pub(crate) struct ChunkedEvents {
     chunks:Vec<Vec<EventRow>>,
     compact_chunks:Vec<Vec<CompactEventRow>>,
     compressed:bool,
     len:usize,
 }
 impl ChunkedEvents {
-    fn new(compressed:bool)->Self {
+    pub(crate) fn new(compressed:bool)->Self {
         Self {compressed,..Self::default()}
     }
-    fn len(&self)->usize {self.len}
+    pub(crate) fn len(&self)->usize {self.len}
     fn capacity(&self)->usize {
         if self.compressed {
             self.compact_chunks.iter().map(Vec::capacity).sum()
@@ -514,31 +512,69 @@ impl ChunkedEvents {
             std::mem::size_of::<EventRow>()
         })
     }
-    fn iter(&self)->impl Iterator<Item=EventRow>+'_ {
+    pub(crate) fn iter(&self)->impl Iterator<Item=EventRow>+'_ {
         self.chunks.iter().flat_map(|c|c.iter().copied())
             .chain(self.compact_chunks.iter().flat_map(|c|c.iter().copied().map(CompactEventRow::unpack)))
     }
-    fn push_checked(&mut self,e:EventRow)->PyResult<()> {
+    pub(crate) fn compressed(&self)->bool {self.compressed}
+    /// Actual reserved backing capacities plus per-allocation/control padding.
+    /// The carrier is shared through one Arc; callers count pointer-identical
+    /// service snapshots once, but independent stores never receive a credit.
+    pub(crate) fn storage_bytes(&self)->usize {
+        let mut bytes=event_store_shell_bytes();
+        if self.chunks.capacity()>0 {
+            bytes=bytes.saturating_add(
+                self.chunks.capacity().saturating_mul(std::mem::size_of::<Vec<EventRow>>())
+            ).saturating_add(128);
+        }
+        if self.compact_chunks.capacity()>0 {
+            bytes=bytes.saturating_add(
+                self.compact_chunks.capacity().saturating_mul(std::mem::size_of::<Vec<CompactEventRow>>())
+            ).saturating_add(128);
+        }
+        for page in &self.chunks {
+            bytes=bytes.saturating_add(page.capacity().saturating_mul(
+                std::mem::size_of::<EventRow>())).saturating_add(128);
+        }
+        for page in &self.compact_chunks {
+            bytes=bytes.saturating_add(page.capacity().saturating_mul(
+                std::mem::size_of::<CompactEventRow>())).saturating_add(128);
+        }
+        bytes
+    }
+    pub(crate) fn decode_storage_upper_bytes(&self)->usize {
+        decoded_event_store_upper_bytes(self.len,self.compressed)
+    }
+    pub(crate) fn push_checked(&mut self,e:EventRow)->PyResult<()> {
+        self.push_with_page_capacity(e,EVENT_PAGE_ROWS)
+    }
+    /// Total wire rows are known before decoding: the final page allocates
+    /// only its remaining rows, never a speculative full page.
+    pub(crate) fn push_decoded_checked(&mut self,e:EventRow,total:usize)->PyResult<()> {
+        if self.len>=total {return Err(arithmetic("decoded event rows exceed wire length"));}
+        self.push_with_page_capacity(e,EVENT_PAGE_ROWS.min(total-self.len))
+    }
+    fn push_with_page_capacity(&mut self,e:EventRow,next_capacity:usize)->PyResult<()> {
         if self.compressed {
             let packed=CompactEventRow::try_new(e).ok_or_else(||
                 arithmetic("compressed event source-index contract differs"))?;
-            if self.compact_chunks.last().is_none_or(|c|c.len()==EVENT_PAGE_ROWS) {
-                let page=checkpoint_vec(EVENT_PAGE_ROWS)?;
-                if page.capacity()!=EVENT_PAGE_ROWS {
-                    return Err(budget("compact event fixed page capacity differs"));
+            if self.compact_chunks.last().is_none_or(|c|c.len()==c.capacity()) {
+                let page=checkpoint_vec(next_capacity)?;
+                if page.capacity()!=next_capacity {
+                    return Err(budget("compact event page capacity differs"));
                 }
                 push_checked(&mut self.compact_chunks,page)?;
             }
             self.compact_chunks.last_mut().expect("compact page allocated").push(packed);
         } else {
-            if self.chunks.last().is_none_or(|c|c.len()==EVENT_PAGE_ROWS) {
-                let page=checkpoint_vec(EVENT_PAGE_ROWS)?;
-                if page.capacity()!=EVENT_PAGE_ROWS {
-                    return Err(budget("fixed event page capacity differs from native contract"));
+            if self.chunks.last().is_none_or(|c|c.len()==c.capacity()) {
+                let page=checkpoint_vec(next_capacity)?;
+                if page.capacity()!=next_capacity {
+                    return Err(budget("wide event page capacity differs"));
                 }
                 push_checked(&mut self.chunks,page)?;
             }
-            self.chunks.last_mut().expect("original event page allocated").push(e);
+            self.chunks.last_mut().expect("wide page allocated").push(e);
         }
         self.len+=1;
         Ok(())
@@ -557,6 +593,31 @@ impl ChunkedEvents {
         debug_assert_eq!(flat.len(),self.len);
         Ok(flat)
     }
+}
+
+fn event_store_shell_bytes()->usize {
+    std::mem::size_of::<ChunkedEvents>()
+        .saturating_add(2*std::mem::size_of::<usize>()).saturating_add(128)
+}
+/// Conservative live bound including descriptor reallocation overlap and
+/// allocator padding. It is monotone in n and uses exact final-page payload
+/// during checkpoint decoding. Compact eligibility follows configured
+/// registries; a wide registry takes the original usize/Option path.
+pub(crate) fn decoded_event_store_upper_bytes(n:usize,compressed:bool)->usize {
+    if n==0 {return event_store_shell_bytes();}
+    let pages=n.div_ceil(EVENT_PAGE_ROWS);
+    let row_bytes=if compressed {std::mem::size_of::<CompactEventRow>()}
+                  else {std::mem::size_of::<EventRow>()};
+    event_store_shell_bytes()
+        .saturating_add(n.saturating_mul(row_bytes))
+        .saturating_add(pages.saturating_mul(128))
+        .saturating_add(pages.saturating_add(1).saturating_mul(
+            3*std::mem::size_of::<Vec<EventRow>>()))
+        .saturating_add(2*128)
+}
+fn persistent_event_candidate_upper_bytes(n:usize,compressed:bool)->usize {
+    let slots=if n==0 {0} else {n.div_ceil(EVENT_PAGE_ROWS).saturating_mul(EVENT_PAGE_ROWS)};
+    decoded_event_store_upper_bytes(slots,compressed)
 }
 
 /// Exact source-backed row capacity for append-only, fixed-size pages.
@@ -3300,7 +3361,7 @@ impl V1Road {
             && self.routes.len() < u32::MAX as usize
             && self.paths.iter().all(|p|p.len()<u32::MAX as usize)
     }
-    fn can_compact_candidate_events(&self)->bool {
+    pub(crate) fn can_compact_candidate_events(&self)->bool {
         // All route tags and source/destination cell indices derive from
         // these configured registries. Reserve u32::MAX for dest=None.
         self.storage_budget.is_some()
@@ -3503,6 +3564,45 @@ impl V1Road {
         Ok(flat)
     }
 
+    /// Whole-engine path transfers the actual pages directly to the service
+    /// state. No flat EventRow allocation coexists with or replaces them.
+    fn preserve_event_after_road(
+        &self,candidate:&mut RoadState,pages:ChunkedEvents,
+    )->PyResult<ChunkedEvents> {
+        if let Some(limit)=self.storage_budget {
+            let verified=self.service_event_accounting.and_then(|v|v.original_input_road_shared);
+            let (road_owners,_,_)=postroad_source_verified_arc_owner_charge(
+                &self.state,candidate,self.retained_input_bytes,verified);
+            let old_events=self.service_event_accounting.map_or(0,|v|
+                v.input_bytes.saturating_add(if v.shared_input_current {0} else {v.current_bytes}));
+            let event_bytes=pages.storage_bytes();
+            let required=road_owners.saturating_add(old_events).saturating_add(event_bytes);
+            check_storage_limit(Some(limit),required,"persistent event pages after road")?;
+            crate::v1_trace::add("events.persistent_payload_rows",pages.len() as u64);
+            crate::v1_trace::add("events.persistent_storage_bytes",event_bytes as u64);
+            let stats=candidate.debug_stats();
+            let packets=stats.cell_packets.saturating_add(stats.pending_packets);
+            let owner_sum=postroad_continuous_owner_sum(
+                self.state.retained_storage_bytes(),self.retained_input_bytes,
+                candidate.retained_storage_bytes());
+            let intern_required=owner_sum.saturating_add(old_events)
+                .saturating_add(event_bytes)
+                .saturating_add(stats.uniform_parts.saturating_mul(std::mem::size_of::<CorePart>()))
+                .saturating_add(packets.saturating_mul(512)).saturating_add(3*32);
+            let before=candidate.retained_storage_bytes();
+            let (changed,deferred)=maybe_intern_exact_keysets(candidate,limit,intern_required)?;
+            if deferred {
+                crate::v1_trace::add("keyset.surgical_deferred_due_to_budget",1);
+                crate::v1_trace::add("keyset.surgical_estimated_required_bytes",intern_required as u64);
+            } else {
+                crate::v1_trace::add("keyset.continuous_converted",changed as u64);
+                crate::v1_trace::add("keyset.continuous_saved_bytes",
+                    before.saturating_sub(candidate.retained_storage_bytes()) as u64);
+            }
+        }
+        Ok(pages)
+    }
+
     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
         self.begin_call_storage_accounting();
         let (mut s, pages) = self.step_state(&self.state, dt, offers)?;
@@ -3517,9 +3617,9 @@ impl V1Road {
         &self,
         dt: f64,
         offers: Vec<Offer>,
-    ) -> PyResult<(RoadState, Vec<EventRow>)> {
+    ) -> PyResult<(RoadState, ChunkedEvents)> {
         let (mut s,pages)=self.step_state(&self.state,dt,offers)?;
-        let e=self.materialize_event_after_road(&mut s,pages)?;
+        let e=self.preserve_event_after_road(&mut s,pages)?;
         Ok((s,e))
     }
     fn class(&self, p: &Part) -> usize {
@@ -5339,9 +5439,9 @@ mod workspace_accounting_tests {
         let rows = 10_000;
         assert_eq!(
             a.road_step_bytes(rows),
-            3_000 + paged_event_candidate_bytes(rows)
+            3_000 + persistent_event_candidate_upper_bytes(rows,false)
         );
-        assert_eq!(a.road_step_bytes(0), 3_096);
+        assert_eq!(a.road_step_bytes(0), 3_000+event_store_shell_bytes());
     }
 
     #[test]
@@ -6016,10 +6116,10 @@ mod exact_shared_event_source_budget_tests {
         let candidate = 10usize;
         // Candidate is now physically held in fixed-size event pages.
         // Sharing of old committed input/current events remains pointer based.
-        let candidate_bytes = paged_event_candidate_bytes(candidate);
+        let candidate_bytes = persistent_event_candidate_upper_bytes(candidate,false);
         assert_eq!(one.road_step_bytes(candidate), 8192 + candidate_bytes);
         assert_eq!(separate.road_step_bytes(candidate), 2 * 8192 + candidate_bytes);
-        assert_eq!(one.road_step_bytes(0), 8192 + 96);
+        assert_eq!(one.road_step_bytes(0), 8192 + event_store_shell_bytes());
         // Distinct current backing: never subtract a value-equal buffer.
     }
 }
@@ -8246,5 +8346,59 @@ mod v03_checked_compact_page_destination_projection_20261122_tests {
         assert_eq!(actual,vec![4u32,3,4,4,1,2,9,3,2,0]);
         assert_eq!(actual.iter().map(|&i|i as usize).collect::<Vec<_>>(),
                    vec![4usize,3,4,4,1,2,9,3,2,0]);
+    }
+}
+
+#[cfg(test)]
+mod persistent_event_page_contract_20261123_tests {
+    use super::*;
+    fn row(i:usize)->EventRow {
+        (i%19,i%11,if i%7==0 {None} else {Some(i%23)},
+         if i%3==0 {f64::from_bits(1)} else {0.125},
+         if i%5==0 {-0.0} else {2.0},3.0,0.25)
+    }
+    fn bits(e:EventRow)->(usize,usize,Option<usize>,[u64;4]) {
+        (e.0,e.1,e.2,[e.3.to_bits(),e.4.to_bits(),e.5.to_bits(),e.6.to_bits()])
+    }
+    #[test]
+    fn decoded_pages_keep_bits_order_exact_final_capacity_and_upper_bound() {
+        for compact in [false,true] {
+            for n in [0usize,1,4095,4096,4097,8193,20011] {
+                let mut store=ChunkedEvents::new(compact);
+                for i in 0..n {store.push_decoded_checked(row(i),n).unwrap();}
+                assert_eq!(store.len(),n);
+                assert_eq!(store.capacity(),n);
+                assert_eq!(store.iter().map(bits).collect::<Vec<_>>(),
+                           (0..n).map(row).map(bits).collect::<Vec<_>>());
+                assert!(store.storage_bytes()<=decoded_event_store_upper_bytes(n,compact));
+            }
+        }
+    }
+    #[test]
+    fn wide_registry_mode_preserves_usize_and_reserved_none_distinction() {
+        let original=(u32::MAX as usize+1,u32::MAX as usize+2,
+                      Some(u32::MAX as usize),-0.0,1.0,2.0,f64::from_bits(1));
+        let mut wide=ChunkedEvents::new(false);
+        wide.push_decoded_checked(original,1).unwrap();
+        assert_eq!(bits(wide.iter().next().unwrap()),bits(original));
+        let mut compact=ChunkedEvents::new(true);
+        assert!(compact.push_decoded_checked(original,1).is_err());
+        assert_eq!(compact.len(),0);
+        let boundary=(u32::MAX as usize,u32::MAX as usize,Some(u32::MAX as usize-1),
+                      1.0,2.0,3.0,4.0);
+        compact.push_decoded_checked(boundary,1).unwrap();
+        assert_eq!(bits(compact.iter().next().unwrap()),bits(boundary));
+    }
+    #[test]
+    fn existing_page_backings_survive_persistent_candidate_growth() {
+        let mut store=ChunkedEvents::new(true);
+        for i in 0..4096 {store.push_checked(row(i)).unwrap();}
+        let pointer=store.compact_chunks[0].as_ptr();
+        for i in 4096..8193 {store.push_checked(row(i)).unwrap();}
+        assert_eq!(pointer,store.compact_chunks[0].as_ptr());
+        assert!(store.storage_bytes()<=persistent_event_candidate_upper_bytes(8193,true));
+        assert_eq!(store.physical_capacity_bytes(),3*4096*48);
+        assert!(decoded_event_store_upper_bytes(20_270_113,true)
+                <20_270_113usize*64);
     }
 }

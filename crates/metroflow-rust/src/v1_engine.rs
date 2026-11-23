@@ -8,7 +8,7 @@ use crate::v1_journey::{
     SharedLaw,
 };
 use crate::v1_parallel::ParallelPolicy;
-use crate::v1_road::{RoadState, V1Road};
+use crate::v1_road::{decoded_event_store_upper_bytes, RoadState, V1Road};
 use crate::v1_routing::V1RoutingGraph;
 use pyo3::exceptions::{PyIOError, PyIndexError, PyMemoryError, PyValueError};
 use pyo3::prelude::*;
@@ -513,7 +513,7 @@ fn capture_road_clone_credit(
 /// Source-exact phase: the caller input Bundle remains live, the new
 /// committed road/journey are live, and the future capture() clones their
 /// shells. Road immutable Arc payloads are shared in that future clone;
-/// service checkpoint() clones its Arc<Vec<EventRow>> without a new buffer.
+/// service checkpoint() clones its Arc<ChunkedEvents> without a new buffer.
 /// Count *both* actual road/journey shells and only the two true event
 /// payloads (old source Arc and new committed Arc). Never credit a future
 /// decoded checkpoint here, which belongs to another lifetime.
@@ -568,24 +568,97 @@ fn road_decode_other_source_owners_bytes(old_journey:usize,old_events:usize)->us
 
 /// Sequential checkpoint service decoding occurs after ONE decoded RoadState
 /// exists, while the original committed RoadState, old Journey and old
-/// service EventRow Vec remain alive. The next EventRow Vec is independent;
+/// service event store remain alive. The next event store is independent;
 /// reserve all FOUR real old/new owners, then allow precisely the remainder
-/// for its source row count (and 128-byte allocator reserve). No hypothetical
+/// for payload, descriptors, carrier and allocation padding. No hypothetical
 /// second or third independent event decoder is present at this point. The
 /// original configured record ceiling and shared runtime pool are unchanged.
 fn service_decode_real_live_event_limit(
     pool:usize,old_road:usize,decoded_road:usize,
-    old_journey:usize,old_events:usize,config_limit:usize,
+    old_journey:usize,old_events:usize,config_limit:usize,compact:bool,
 )->PyResult<usize> {
     let source_reserved=old_road.saturating_add(decoded_road)
-        .saturating_add(old_journey).saturating_add(old_events)
-        .saturating_add(128);
+        .saturating_add(old_journey).saturating_add(old_events);
     let free=pool.checked_sub(source_reserved).ok_or_else(||
         PyMemoryError::new_err(format!(
             "native service decode source owners exhaust runtime pool: reserved_bytes={source_reserved}, budget_bytes={pool}"
         ))
     )?;
-    Ok(config_limit.min(free/std::mem::size_of::<crate::v1_road::EventRow>()))
+    if decoded_event_store_upper_bytes(0,compact)>free {
+        return Err(PyMemoryError::new_err("native service decode carrier exceeds remaining pool"));
+    }
+    let (mut lo,mut hi)=(0usize,config_limit);
+    while lo<hi {
+        let d=hi-lo;
+        let mid=lo+d/2+d%2;
+        if decoded_event_store_upper_bytes(mid,compact)<=free {lo=mid;} else {hi=mid-1;}
+    }
+    Ok(lo)
+}
+
+
+#[derive(Default,Clone,Copy)]
+struct EnclosedCompensatedSum {
+    value:f64, correction:f64, lower:f64, upper:f64,
+}
+fn outward_down(x:f64)->f64 {
+    if x==f64::NEG_INFINITY {x}
+    else if x==0.0 {-f64::from_bits(1)}
+    else {f64::from_bits(if x>0.0 {x.to_bits()-1} else {x.to_bits()+1})}
+}
+fn outward_up(x:f64)->f64 {
+    if x==f64::INFINITY {x}
+    else if x==0.0 {f64::from_bits(1)}
+    else {f64::from_bits(if x>0.0 {x.to_bits()+1} else {x.to_bits()-1})}
+}
+impl EnclosedCompensatedSum {
+    fn add(&mut self,center:f64,lower:f64,upper:f64) {
+        let next=self.value+center;
+        self.correction+=if self.value.abs()>=center.abs() {
+            (self.value-next)+center
+        } else {(center-next)+self.value};
+        self.value=next;
+        self.lower=outward_down(self.lower+lower);
+        self.upper=outward_up(self.upper+upper);
+    }
+    fn estimate(self)->f64 {self.value+self.correction}
+}
+#[derive(Default)]
+struct EventIncidenceMoments {
+    mass:EnclosedCompensatedSum,
+    birth:EnclosedCompensatedSum,
+    age:EnclosedCompensatedSum,
+    rows:usize, positive_mass_rows:usize,
+}
+/// O(1) additional memory. Encloses arithmetic on the stored binary64
+/// moments, not accumulated historical integration/model error.
+fn event_incidence_moments(
+    events:impl Iterator<Item=crate::v1_road::EventRow>,t:f64,
+)->PyResult<EventIncidenceMoments> {
+    if !t.is_finite() || t<0.0 {return Err(bad("invalid event observer clock"));}
+    let mut out=EventIncidenceMoments::default();
+    for e in events {
+        if !e.3.is_finite() || e.3<0.0 || !e.6.is_finite() {
+            return Err(bad("invalid stored event moment"));
+        }
+        let mt=e.3*t;
+        let age=mt-e.6;
+        if !mt.is_finite() || !age.is_finite() {
+            return Err(bad("event observer product overflow"));
+        }
+        out.mass.add(e.3,e.3,e.3);
+        out.birth.add(e.6,e.6,e.6);
+        out.age.add(age,outward_down(outward_down(mt)-e.6),
+                        outward_up(outward_up(mt)-e.6));
+        out.rows+=1;
+        out.positive_mass_rows+=usize::from(e.3>0.0);
+    }
+    if [out.mass.estimate(),out.mass.lower,out.mass.upper,
+        out.birth.estimate(),out.birth.lower,out.birth.upper,
+        out.age.estimate(),out.age.lower,out.age.upper].iter().any(|x|!x.is_finite()) {
+        return Err(bad("event observer accumulation overflow"));
+    }
+    Ok(out)
 }
 
 fn journey_decode_other_live_owners_bytes(
@@ -1612,6 +1685,33 @@ impl NativeWholeEngine {
         )?;
         Ok(out.unbind())
     }
+
+    /// Read-only moment observation of retained road-event incidence. A row
+    /// can describe an internal passage; this is not a unique-vehicle CDF.
+    fn service_event_moment_summary(
+        &self,py:Python<'_>,state:&NativeWholeState,
+    )->PyResult<Py<PyDict>> {
+        self.checked(state)?;
+        let events=&state.value.service.1;
+        let t=state.time_s();
+        let m=event_incidence_moments(events.iter(),t)?;
+        let out=PyDict::new(py);
+        out.set_item("schema","V03_SERVICE_EVENT_INCIDENCE_MOMENTS_V1")?;
+        out.set_item("time_s",t)?;
+        out.set_item("row_count",m.rows)?;
+        out.set_item("positive_mass_rows",m.positive_mass_rows)?;
+        out.set_item("storage_bytes",events.storage_bytes())?;
+        out.set_item("compact_events",events.compressed())?;
+        out.set_item("mass",m.mass.estimate())?;
+        out.set_item("birth_time_mass",m.birth.estimate())?;
+        out.set_item("age_time_mass",m.age.estimate())?;
+        out.set_item("mass_interval",[m.mass.lower,m.mass.upper])?;
+        out.set_item("birth_time_mass_interval",[m.birth.lower,m.birth.upper])?;
+        out.set_item("age_time_mass_interval",[m.age.lower,m.age.upper])?;
+        out.set_item("scope","stored f64 event-incidence moments at common snapshot clock; arithmetic enclosure only, not historical solver roundoff or unique journey distribution")?;
+        Ok(out.unbind())
+    }
+
     fn debug_state(&self, py: Python<'_>, state: &NativeWholeState) -> PyResult<Py<PyDict>> {
         self.checked(state)?;
         let j = journey_debug(&state.value.journey);
@@ -1957,12 +2057,12 @@ impl NativeWholeEngine {
                 let actual=service_decode_real_live_event_limit(
                     pool,self.road.owned_storage_bytes(),
                     road.retained_storage_bytes(),old_journey,old_events,
-                    self.event_limit,
+                    self.event_limit,self.road.can_compact_candidate_events(),
                 )?;
                 crate::v1_trace::add("service_decode.source_live_event_row_ceiling",actual as u64);
                 actual
             } else {self.event_limit};
-            let service = self.service.read_state(&mut f, event_limit)?;
+            let service = self.service.read_state(&mut f, event_limit,self.road.can_compact_candidate_events())?;
             let events = service_event_storage_bytes(&service).max(old_events);
             if self.runtime_storage.is_some() {
                 let true_other_live=journey_decode_other_live_owners_bytes(
@@ -2254,34 +2354,84 @@ mod v03_original_service_decode_exact_live_owners_r9_20261122_tests {
     use super::*;
     #[test]
     fn two_real_road_owners_and_one_old_journey_event_limit_live_during_decode() {
-        let size=std::mem::size_of::<crate::v1_road::EventRow>();
         let oldroad=100usize;
         let decodedroad=300usize;
         let oldjourney=200usize;
         let oldevents=400usize;
-        let free_bytes=25usize.saturating_mul(size)+128;
+        let free_bytes=decoded_event_store_upper_bytes(25,false);
         let pool=oldroad+decodedroad+oldjourney+oldevents+free_bytes;
         let accepted=service_decode_real_live_event_limit(
-            pool,oldroad,decodedroad,oldjourney,oldevents,1000).unwrap();
+            pool,oldroad,decodedroad,oldjourney,oldevents,1000,false).unwrap();
         assert_eq!(accepted,25);
         assert_eq!(service_decode_real_live_event_limit(
-            pool-1,oldroad,decodedroad,oldjourney,oldevents,1000).unwrap(),24);
+            pool-1,oldroad,decodedroad,oldjourney,oldevents,1000,false).unwrap(),24);
         assert_eq!(service_decode_real_live_event_limit(
-            pool,oldroad,decodedroad,oldjourney,oldevents,15).unwrap(),15);
+            pool,oldroad,decodedroad,oldjourney,oldevents,15,false).unwrap(),15);
         assert!(service_decode_real_live_event_limit(
-            oldroad+decodedroad+oldjourney+oldevents+128-1,
-            oldroad,decodedroad,oldjourney,oldevents,1000).is_err());
+            oldroad+decodedroad+oldjourney+oldevents+decoded_event_store_upper_bytes(0,false)-1,
+            oldroad,decodedroad,oldjourney,oldevents,1000,false).is_err());
     }
     #[test]
     fn future_decoded_event_allocation_cannot_be_discounted_as_existing_arc_clone() {
-        let size=std::mem::size_of::<crate::v1_road::EventRow>();
         let oldroad=300usize;
         let decodedroad=300usize;
         let oldjourney=300usize;
         let oldevents=200usize;
         let one_new=service_decode_real_live_event_limit(
-            oldroad+decodedroad+oldjourney+oldevents+5*size+128,
-            oldroad,decodedroad,oldjourney,oldevents,100).unwrap();
+            oldroad+decodedroad+oldjourney+oldevents+decoded_event_store_upper_bytes(5,false),
+            oldroad,decodedroad,oldjourney,oldevents,100,false).unwrap();
         assert_eq!(one_new,5);
+    }
+}
+
+
+#[cfg(test)]
+mod service_event_moment_enclosure_20261123_tests {
+    use super::*;
+    #[test]
+    fn stored_moment_enclosure_contains_exact_binary_fixture() {
+        let events=vec![(0,0,None,1.,0.,1.,1.),
+                        (1,0,Some(1),0.5,0.,1.,0.25)];
+        let s=event_incidence_moments(events.into_iter(),4.).unwrap();
+        assert_eq!(s.rows,2);
+        assert_eq!(s.positive_mass_rows,2);
+        assert_eq!(s.mass.estimate(),1.5);
+        assert_eq!(s.birth.estimate(),1.25);
+        assert_eq!(s.age.estimate(),4.75);
+        for (sum,exact) in [(s.mass,1.5),(s.birth,1.25),(s.age,4.75)] {
+            assert!(sum.lower<=exact && exact<=sum.upper);
+        }
+    }
+    #[test]
+    fn cancellation_and_empty_event_measure_keep_valid_enclosures() {
+        let t=4503599627370496.0;
+        let e=(0,0,None,1.,0.,t,t-1.);
+        let s=event_incidence_moments([e].into_iter(),t).unwrap();
+        assert_eq!(s.age.estimate(),1.);
+        assert!(s.age.lower<=1. && 1.<=s.age.upper);
+        let empty=event_incidence_moments([].into_iter(),0.).unwrap();
+        assert_eq!(empty.mass.estimate(),0.);
+        assert_eq!((empty.mass.lower,empty.mass.upper),(0.,0.));
+        assert!(event_incidence_moments([e].into_iter(),f64::INFINITY).is_err());
+    }
+}
+
+#[cfg(test)]
+mod paged_service_decode_budget_20261123_tests {
+    use super::*;
+    #[test]
+    fn direct_page_decoder_admits_exact_pool_and_rejects_one_byte_short() {
+        for compact in [false,true] {
+            for n in [0usize,1,4096,4097,8193] {
+                let existing=100+200+300+400;
+                let bytes=decoded_event_store_upper_bytes(n,compact);
+                assert_eq!(service_decode_real_live_event_limit(
+                    existing+bytes,100,200,300,400,n,compact).unwrap(),n);
+                if n>0 {
+                    assert!(service_decode_real_live_event_limit(
+                        existing+bytes-1,100,200,300,400,n,compact).unwrap()<n);
+                }
+            }
+        }
     }
 }
