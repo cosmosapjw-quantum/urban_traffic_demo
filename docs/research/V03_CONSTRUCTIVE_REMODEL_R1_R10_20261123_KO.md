@@ -125,3 +125,31 @@ F^{in}_g(z)=C_g(W^{-1}(z)).
 ### R3 drift watchdog
 
 원 목적의 bulk mass, route/class, 실제 birth clock, FIFO/동시구간 exchangeability와 불변 상태를 유지하는 표현을 선택했다. 조성 평균화 반례를 직접 검산했으므로 원래의 관측 정보를 단순 합계로 대체하지 않는다. 판정 ALIGNED_WITH_OPEN_OBLIGATION. 주이론의 stop/restart 조건과 표현 모델의 retained profiles는 서로 다른 의무이며, 둘의 연결은 실제 후속 계산으로 판별한다.
+
+
+## R4 / C4 — 선택 모델·구현 의존관계·실제 재개 admission (완료)
+
+세 후보 중 **clipped 유한창 운동 A + 별도 공동 FIFO 서비스 B**를 주이론으로 선택했다. 두 완료 적분의 constant-forcing 식별 C는 유용한 대안이나 관측 대응과 stationarity 의무가 더 크므로 이번 구현 주경로에서 보류한다. 단일 source inverse-service의 재명명 대신 실제 finite-response 식의 적용 범위를 확장한다.
+
+보완 표현은 **marked-rank immutable profiles + conservative multi-input merge**다. R4_rank_contract.md는 exact Fraction 입력, 원래 birth/mark, boundary time, 선택적 ready target을 정의한다. 모르는 readiness/boundary는 임의로 채우지 않는다. Flat merge로 실제 knots를 드러내며 expression DAG가 공짜로 복잡도를 없앤다고 가정하지 않는다. 기존 V03 native solver를 바꾸는 것과 연구 모듈을 branch에 병합하는 것을 구분한다.
+
+| 작업 | 직접 의존 | 구현/검증 의무 |
+|---|---|---|
+| stop_go_window_certificate | R2 증명, R3 causal/finite contract | typed model, guard margin, positive/zero-service/phase/horizon 판별 |
+| rank_profile_transport | 역사 map, merge lift, R4 metadata 계약 | persistent views, semantic-knot 소비, exact materialized oracle, 반복 merge 측정 |
+| source-owner native 수정 | C2 수명 조사, C3 actual RED | 이미 증명된 event identity를 census 전에 사용; 실제 Journey parent 합; local3J 유지 |
+| 원 규모 재개 | source/native freeze, runner17개 gate, full input hash |10→20→40s 요청, 반환·저장·다음 fresh 검증을 분리 |
+| 최종 원 hourly/3도시 prep | native 검증 완료와 자원 여유 | 원86400s 요청/7200s cap, 실제 clock·RSS·wall·실패, source-bound3/3 preparation |
+| 최종 준비도 | 원 PLAN/matrix + 모든 실제 영수증 | 구현19/21과 ACCEPTED5/21,day0/9,refinement0/3을 혼동하지 않음 |
+
+Native에는 추가로 source-restored clone의 StageQueue registry capacity가 원본보다 작아질 수 있음을 확인했다. 실제 original Journey witness가 이미 전달되므로 retained floor를 max(clone, original)로 올리는 한정 보정도 선택했다. 이는 guard를 약하게 만드는 조치가 아니며 그 실제 fixture를 검증한다.
+
+### 재개 코드의 실제 RED→GREEN
+
+직전 후보의 성공한40s raw receipt SHA4bace276…에 한해서25,730s/full5,523,765,378B/wirec8335535…/sourcee6a49b…/native6a6d48…를 묶은 pin을 추가했다. 역사에서 동일한 full bytes를 가진 untouched seed를 읽더라도 runner는 전체 파일 SHA와 size, mass ledger, native driver/matrix/원cap을 다시 검증한다.25,740s 저장 실패 상태는 여전히 허용하지 않는다.
+
+동일한3개 테스트 command가 C3의1RED/2PASS에서 C4의3PASS로 바뀌었다. 기존 admission까지 포함한 한정 gate도17PASS(exit0,0.15s)다. 이 검증은 arbitrary cross-source 상태를 허용하지 않고 필요한 정확한 historical predecessor만 연결한다. 아직 실제 큰 native 재개가 수행됐다는 뜻은 아니다.
+
+### R4 drift watchdog
+
+원 연구의 continuous motion, 원래 birth와 route/class, FIFO/causal information을 실제 모듈 입력·관측량으로 유지한다. 물리 의미의 발전과 저장 표현의 발전을 서로 연결하되, f64/wire·network feedback·100k24h 의무를 삭제하지 않는다. 판정 ALIGNED_WITH_OPEN_OBLIGATION. 필요한 파일/담당/선행·중단 조건이 정해졌으며, 다음 단계는 선택된 내용의 실제 코드·증명·계산이다.

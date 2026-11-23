@@ -42,6 +42,12 @@ PINS = {
         (25690.0, 2949231402, "db5b6b53f728d892ad53b9e7126d08e73b877f055e2e6e78443f1c0851b7bd10",
          "78b49811dd84544e3c5dcd4281c3918fc41384fc1815941792a90ccc58bde3f7",
          "3bec7cd5cb788047c95a1f55464af9baed28699ace086bc8fd13fe342c2b08d5"),
+    # Final prior-loop candidate: saved 40s prefix and later fresh full-wire
+    # verification. The next returned 25740 state failed SAVE and is not a pin.
+    "4bace2763e79ed16e3b103d69ab358e30a38f15c45d536015a8d4f29c0c9de59":
+        (25730.0, 5523765378, "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9",
+         "e6a49b7c0cd598ff480a1d3a421fa9e8ae57f227c311d514556a394f137b29db",
+         "6a6d48c8986ce1ffe1108afa145707b556345f0e7572c7c4f34e7e64b19da808"),
 }
 
 
