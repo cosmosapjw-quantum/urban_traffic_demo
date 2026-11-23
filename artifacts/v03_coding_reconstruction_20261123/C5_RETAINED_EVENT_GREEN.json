@@ -1,0 +1,38 @@
+{
+  "command": [
+    "/home/cosmosapjw/.cargo/bin/cargo",
+    "test",
+    "--offline",
+    "--workspace",
+    "--lib",
+    "retained_timed_event_history_contract_tests",
+    "--",
+    "--nocapture"
+  ],
+  "exit_code": 0,
+  "wall_s": 7.148660749953706,
+  "source_sha256": {
+    "routing.rs": "c165c642ffc33071dd62abf5845d845aa0aed27cbe093af92451a4cf8aba364a",
+    "v1_calendar.rs": "b3d7402c9155205853f5380d76855e14d6f7996550356404639caaac801830c7",
+    "v1_kcmb_node.rs": "2e04ce553689ef39fdc2cfc4a03b9c85644923047e124b4245de6df70d2f90f9",
+    "v1_stage.rs": "630448235bfa84fc804b110783878bec3b3b273b7e292d0804ffc7e5d2e5fc7c",
+    "v1_parallel.rs": "b3dc15fc57dceef74436dba1ce0a5909fd8e05194dd32f9564d89a3953aca21d",
+    "v1_road.rs": "f444e015d4a6676d0b69cfa19dbe12b4cc030a304bd6154780adbe25eabcbdf0",
+    "v1_routing.rs": "7ba1902f87ab534082cfd978cb0cf6f0b94ae70ac4908dc93c80cb8534cb35fe",
+    "flow.rs": "aa8ec2b0bef876184a9039f98d50ed54ec1472d82053f8e96c6868174c217fa9",
+    "agent.rs": "c661e3a060257654aa166db1a0f9b6532ec6852e9baf51ced090aa529cf4387f",
+    "v1_history.rs": "11bf0c8013f410c06851cbc3894501d4203b9c1ac4bc8bf6e60526f24a581296",
+    "v1_kcmb.rs": "62e58a9538daa7df1386ba0c37691576203574de189304158ddf4042b15abbc0",
+    "lib.rs": "529d9113e5ce8167da1291fcd5767d7434c27cfd5640d896dee6f4868c10b639",
+    "edge.rs": "2bc3f1d6434877ef34390a7f108caf834d5745bab30ab4de680241694514acad",
+    "v1_trace.rs": "50bf7cd01c87469996f894c52029fe3c16ec6136bf664d0014bc2a0e1e7b100a",
+    "v1_engine.rs": "73ffa91524196238ed4a31875f395d479e1ac302a1bf91b2366b700c8fa0443e",
+    "reroute.rs": "89dc885b69c796dec9121e5a2991a06497a5505b1d8aa7c4a36bed7b0fba2a3d",
+    "v1_journey.rs": "a3a6065f4f5052c5a97e223d9117d9d5214458b3b0db3a1b0c8ddf51b7f08495",
+    "v1_journey_retained_event_tests.rs": "b6679a090e2f14d5664acd99253255e42877f8076360269d6094ac199029c344",
+    "v1_lineage_shadow.rs": "eadc61854f0e137f03c07f8fc12ddec613bf4df8bb1430e60c03058c92966f50",
+    "common.rs": "811fc298f61a932a85f1a4ddb27eb6329b2ee8bc2cb5dc75538ba25062901aff"
+  },
+  "log": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_coding_reconstruction_20261123/C5_RETAINED_EVENT_GREEN.log",
+  "log_normalization": "Only trailing empty lines removed; command output lines unchanged."
+}

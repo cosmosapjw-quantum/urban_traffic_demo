@@ -1785,7 +1785,7 @@ impl NativeWholeEngine {
             let road_bytes = road
                 .retained_storage_bytes()
                 .max(self.road.owned_storage_bytes());
-            let event_limit = if self.runtime_storage.is_some() {
+            let event_byte_limit = if self.runtime_storage.is_some() {
                 let remaining = self.pool_after(
                     road_bytes.saturating_add(old_journey).saturating_mul(3),
                     "service decode",
@@ -1795,14 +1795,16 @@ impl NativeWholeEngine {
                         "native retained service event storage budget exceeded before decode",
                     ));
                 }
-                self.event_limit.min(
-                    (remaining / 3).saturating_sub(128)
-                        / std::mem::size_of::<crate::v1_road::EventRow>(),
-                )
+                Some(remaining / 3)
             } else {
-                self.event_limit
+                None
             };
-            let service = self.service.read_state(&mut f, event_limit)?;
+            // Logical row count and actual retained allocation are separate
+            // contracts. u32::MAX is reserved for destination=None by the codec.
+            let compressed_events = self.road.can_compact_candidate_events();
+            let service = self.service.read_state(
+                &mut f, self.event_limit, event_byte_limit, compressed_events,
+            )?;
             let events = service_event_storage_bytes(&service).max(old_events);
             if self.runtime_storage.is_some() {
                 let journey_limit = self.pool_after(

@@ -436,8 +436,8 @@ impl ServiceEventAccounting {
             })
     }
 }
-// The public EventRow is unchanged (64B on x86_64). Only the transient
-// candidate, not the service or checkpoint wire, can use a checked 48B row.
+// The public EventRow and legacy checkpoint wire remain unchanged. Native
+// candidates and immutable service history retain exact time-run pages.
 const EVENT_PAGE_ROWS: usize = 4096;
 
 /// Original tag/source/destination are small source registry indexes in V03.
@@ -498,7 +498,7 @@ fn indexed_event_time(chunks:&[Vec<(u64,u64)>],index:usize)->(u64,u64) {
 }
 
 #[derive(Default)]
-struct ChunkedEvents {
+pub(crate) struct ChunkedEvents {
     chunks:Vec<Vec<EventRow>>,
     compact_chunks:Vec<Vec<TimedEventRow>>,
     time_chunks:Vec<Vec<(u64,u64)>>,
@@ -508,10 +508,10 @@ struct ChunkedEvents {
     last_time:Option<(u64,u64)>,
 }
 impl ChunkedEvents {
-    fn new(compressed:bool)->Self {
+    pub(crate) fn new(compressed:bool)->Self {
         Self {compressed,..Self::default()}
     }
-    fn len(&self)->usize {self.len}
+    pub(crate) fn len(&self)->usize {self.len}
     fn capacity(&self)->usize {
         if self.compressed {
             self.compact_chunks.iter().map(Vec::capacity).sum()
@@ -533,6 +533,43 @@ impl ChunkedEvents {
             self.capacity().saturating_mul(std::mem::size_of::<EventRow>())
         }
     }
+    /// Actual retained allocations of this immutable carrier, including all
+    /// descriptor capacities, page allocation allowances and the enclosing Arc.
+    /// Logical row count and legacy wire length are deliberately not byte costs.
+    pub(crate) fn retained_storage_bytes(&self) -> usize {
+        let descriptor_slots = self.chunks.capacity()
+            .saturating_add(self.compact_chunks.capacity())
+            .saturating_add(self.time_chunks.capacity());
+        let pages = self.chunks.len()
+            .saturating_add(self.compact_chunks.len())
+            .saturating_add(self.time_chunks.len());
+        self.physical_capacity_bytes()
+            .saturating_add(descriptor_slots.saturating_mul(std::mem::size_of::<Vec<EventRow>>()))
+            .saturating_add(pages.saturating_mul(32))
+            .saturating_add(std::mem::size_of::<Self>())
+            .saturating_add(2 * std::mem::size_of::<usize>() + 128)
+    }
+
+    /// Constant-time pre-allocation bound for streaming legacy decode. The
+    /// established page projection includes old+new descriptor growth. Extra
+    /// retained overhead is conservative even for an empty/wide carrier.
+    /// Never rescan all previous pages on each decoded event.
+    pub(crate) fn projected_append_storage_bytes(&self, row: EventRow) -> PyResult<usize> {
+        let rows = self.len.checked_add(1)
+            .ok_or_else(|| budget("event decode row count overflow"))?;
+        let row_pages = rows.div_ceil(EVENT_PAGE_ROWS);
+        let time_pages = if self.compressed {
+            let pairs = self.time_len.checked_add(usize::from(
+                self.last_time != Some((row.4.to_bits(), row.5.to_bits()))))
+                .ok_or_else(|| budget("event decode time count overflow"))?;
+            pairs.div_ceil(EVENT_PAGE_ROWS)
+        } else { 0 };
+        Ok(self.projected_candidate_bytes(1, row.4, row.5)?
+            .saturating_add(row_pages.saturating_add(time_pages).saturating_mul(32))
+            .saturating_add(std::mem::size_of::<Self>())
+            .saturating_add(2 * std::mem::size_of::<usize>() + 128))
+    }
+
     /// Source preflight for one serve: all additional rows have the SAME
     /// start/end bit pair. The requested count may exceed actual emitted rows
     /// after IEEE underflow filtering; such a count remains conservative.
@@ -549,12 +586,12 @@ impl ChunkedEvents {
         }
         Ok(paged_timed_event_candidate_bytes(rows,pairs))
     }
-    fn iter(&self)->impl Iterator<Item=EventRow>+'_ {
+    pub(crate) fn iter(&self)->impl Iterator<Item=EventRow>+'_ {
         self.chunks.iter().flat_map(|c|c.iter().copied())
             .chain(self.compact_chunks.iter().flat_map(|c|c.iter().copied())
                 .map(|e|e.unpack(indexed_event_time(&self.time_chunks,e.time_index as usize))))
     }
-    fn push_checked(&mut self,e:EventRow)->PyResult<()> {
+    pub(crate) fn push_checked(&mut self,e:EventRow)->PyResult<()> {
         if self.compressed {
             let pair=(e.4.to_bits(),e.5.to_bits());
             let is_new=self.last_time!=Some(pair);
@@ -668,9 +705,20 @@ fn postroad_continuous_keyset_peak_bytes(
     owner_sum:usize, old_events:usize,
     flat_rows:usize, core_rows:usize, packet_owners:usize,
 )->usize {
+    postroad_continuous_keyset_peak_event_bytes(
+        owner_sum, old_events,
+        flat_rows.saturating_mul(std::mem::size_of::<EventRow>()),
+        core_rows, packet_owners,
+    )
+}
+
+fn postroad_continuous_keyset_peak_event_bytes(
+    owner_sum: usize, old_events: usize, candidate_event_bytes: usize,
+    core_rows: usize, packet_owners: usize,
+) -> usize {
     owner_sum
         .saturating_add(old_events)
-        .saturating_add(flat_rows.saturating_mul(std::mem::size_of::<EventRow>()))
+        .saturating_add(candidate_event_bytes)
         .saturating_add(core_rows.saturating_mul(std::mem::size_of::<CorePart>()))
         .saturating_add(packet_owners.saturating_mul(512))
         .saturating_add(3*32)
@@ -2832,7 +2880,7 @@ impl V1Road {
             && self.routes.len() < u32::MAX as usize
             && self.paths.iter().all(|p|p.len()<u32::MAX as usize)
     }
-    fn can_compact_candidate_events(&self)->bool {
+    pub(crate) fn can_compact_candidate_events(&self)->bool {
         // All route tags and source/destination cell indices derive from
         // these configured registries. Reserve u32::MAX for dest=None.
         self.storage_budget.is_some()
@@ -2977,42 +3025,52 @@ impl V1Road {
                 Some(limit),required,"event candidate materialize after road",
             )?;
         }
-        // The entire raw event page carrier is dropped before creating
-        // new keyset allocations. The original final flat EventRows persist.
-        let flat=pages.into_flat_checked()?;
-        if let Some(limit)=self.storage_budget {
-            let stats=candidate.debug_stats();
-            let committed_retained=self.state.retained_storage_bytes();
-            let supplied_retained=self.retained_input_bytes;
-            let candidate_retained=candidate.retained_storage_bytes();
-            let owner_sum=postroad_continuous_owner_sum(
-                committed_retained,supplied_retained,candidate_retained,
+        // The explicit standalone API requests a flat Vec. Its pages die
+        // before keyset interning; the native proposal below skips this export.
+        let flat = pages.into_flat_checked()?;
+        self.intern_candidate_keysets(candidate,
+            flat.capacity().saturating_mul(std::mem::size_of::<EventRow>()))?;
+        Ok(flat)
+    }
+
+    fn intern_candidate_keysets(
+        &self, candidate: &mut RoadState, candidate_event_bytes: usize,
+    ) -> PyResult<()> {
+        if let Some(limit) = self.storage_budget {
+            let stats = candidate.debug_stats();
+            let committed_retained = self.state.retained_storage_bytes();
+            let supplied_retained = self.retained_input_bytes;
+            let candidate_retained = candidate.retained_storage_bytes();
+            let owner_sum = postroad_continuous_owner_sum(
+                committed_retained, supplied_retained, candidate_retained,
             );
-            let old_events=self.service_event_accounting.map_or(0,|v|
+            let old_events = self.service_event_accounting.map_or(0, |v|
                 v.input_bytes.saturating_add(
-                    if v.shared_input_current {0} else {v.current_bytes}
+                    if v.shared_input_current { 0 } else { v.current_bytes }
                 ));
-            let packets=stats.cell_packets.saturating_add(stats.pending_packets);
-            let required=postroad_continuous_keyset_peak_bytes(
-                owner_sum,old_events,flat.len(),stats.uniform_parts,packets,
+            let packets = stats.cell_packets.saturating_add(stats.pending_packets);
+            let required = postroad_continuous_keyset_peak_event_bytes(
+                owner_sum, old_events, candidate_event_bytes,
+                stats.uniform_parts, packets,
             );
             crate::v1_trace::guard(
-                "road_post","continuous keyset allocation",required,limit,
-                &[("committed_road_retained",committed_retained),
-                  ("supplied_input_road_retained",supplied_retained),
-                  ("candidate_road_retained",candidate_retained),
-                  ("road_owner_sum",owner_sum),("old_event_bytes",old_events),
-                  ("flat_event_rows",flat.len()),("candidate_uniform_rows",stats.uniform_parts),
-                  ("candidate_packets",packets)],
+                "road_post", "continuous keyset allocation", required, limit,
+                &[("committed_road_retained", committed_retained),
+                  ("supplied_input_road_retained", supplied_retained),
+                  ("candidate_road_retained", candidate_retained),
+                  ("road_owner_sum", owner_sum), ("old_event_bytes", old_events),
+                  ("candidate_event_storage_bytes", candidate_event_bytes),
+                  ("candidate_uniform_rows", stats.uniform_parts),
+                  ("candidate_packets", packets)],
             );
-            check_storage_limit(Some(limit),required,"continuous keyset allocation")?;
-            let before=candidate.retained_storage_bytes();
-            let changed=candidate.intern_exact_keysets()?;
-            let after=candidate.retained_storage_bytes();
-            crate::v1_trace::add("keyset.continuous_converted",changed as u64);
-            crate::v1_trace::add("keyset.continuous_saved_bytes",before.saturating_sub(after) as u64);
+            check_storage_limit(Some(limit), required, "continuous keyset allocation")?;
+            let before = candidate.retained_storage_bytes();
+            let changed = candidate.intern_exact_keysets()?;
+            let after = candidate.retained_storage_bytes();
+            crate::v1_trace::add("keyset.continuous_converted", changed as u64);
+            crate::v1_trace::add("keyset.continuous_saved_bytes", before.saturating_sub(after) as u64);
         }
-        Ok(flat)
+        Ok(())
     }
 
     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
@@ -3029,10 +3087,12 @@ impl V1Road {
         &self,
         dt: f64,
         offers: Vec<Offer>,
-    ) -> PyResult<(RoadState, Vec<EventRow>)> {
-        let (mut s,pages)=self.step_state(&self.state,dt,offers)?;
-        let e=self.materialize_event_after_road(&mut s,pages)?;
-        Ok((s,e))
+    ) -> PyResult<(RoadState, ChunkedEvents)> {
+        let (mut state, pages) = self.step_state(&self.state, dt, offers)?;
+        self.intern_candidate_keysets(&mut state, pages.retained_storage_bytes())?;
+        crate::v1_trace::add("event_history.retained_rows", pages.len() as u64);
+        crate::v1_trace::add("event_history.retained_storage_bytes", pages.retained_storage_bytes() as u64);
+        Ok((state, pages))
     }
     fn class(&self, p: &Part) -> usize {
         self.routes[p.tag].1
@@ -7132,5 +7192,29 @@ mod event_carrier_metadata_tests {
             "flatten allowance misses actual coexisting metadata at zero rows");
         assert!(check_storage_limit(Some(11+23+metadata-1),required,"metadata boundary").is_err());
         assert!(check_storage_limit(Some(required),required,"metadata boundary").is_ok());
+    }
+}
+
+#[cfg(test)]
+mod retained_event_append_bound_tests {
+    use super::*;
+
+    #[test]
+    fn streaming_decode_projection_bounds_actual_retention_for_both_domains() {
+        for compressed in [false, true] {
+            for repeat_time in [false, true] {
+                let mut events = ChunkedEvents::new(compressed);
+                for i in 0..(EVENT_PAGE_ROWS * 2 + 7) {
+                    let time = if repeat_time { -0.0 } else { i as f64 };
+                    let tag = if compressed { i % 257 } else { u32::MAX as usize + 1 };
+                    let row = (tag, 0, None, 0.1, time, time + 1.0, -0.0);
+                    let before = events.projected_append_storage_bytes(row).unwrap();
+                    events.push_checked(row).unwrap();
+                    assert!(events.retained_storage_bytes() <= before,
+                        "pre-allocation bound missed physical carrier capacity");
+                }
+                assert_eq!(events.iter().count(), EVENT_PAGE_ROWS * 2 + 7);
+            }
+        }
     }
 }

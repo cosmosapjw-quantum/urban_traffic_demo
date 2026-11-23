@@ -5,7 +5,7 @@ use crate::v1_history::ReceiptHistory;
 use crate::v1_parallel::ordered_map;
 use crate::v1_road::{
     checkpoint_vec, read_exact_len, read_f64, read_len, read_u64, write_f64, write_len, write_u64,
-    EventRow, V1Road,
+    ChunkedEvents, EventRow, V1Road,
 };
 use crate::v1_stage::{Access, StageQueue};
 use pyo3::exceptions::{PyMemoryError, PyValueError};
@@ -23,7 +23,7 @@ pub(crate) type Source = (String, f64, f64);
 type Run = (usize, u8, f64, f64, f64); // stop index, STOP/ROAD/DONE, ready, partial sink, delay
 type People = (f64, f64, f64, f64, f64);
 pub(crate) type Service = (Vec<Run>, Vec<People>, Vec<bool>, Vec<f64>, Vec<bool>);
-pub(crate) type ServiceCheckpoint = (Service, Arc<Vec<EventRow>>);
+pub(crate) type ServiceCheckpoint = (Service, Arc<ChunkedEvents>);
 type Profile = Vec<(f64, f64, f64)>;
 type Law = Vec<(f64, f64)>;
 pub(crate) type JourneyLeg = (String, f64, Option<usize>, f64, Profile, u8, Law, Law);
@@ -117,7 +117,7 @@ pub(crate) fn service_dense_storage_bytes(state: &Service) -> usize {
 }
 
 pub(crate) fn service_event_storage_bytes(state: &ServiceCheckpoint) -> usize {
-    vec_storage_bytes(&state.1)
+    state.1.retained_storage_bytes()
 }
 
 /// Debug counters are observational metadata, never serialized physical state.
@@ -399,7 +399,7 @@ pub struct NativeServiceCore {
     freight: Vec<Source>,
     cars: Vec<Source>,
     people_by_run: Vec<Vec<usize>>,
-    last_events: Arc<Vec<EventRow>>,
+    last_events: Arc<ChunkedEvents>,
     state: Service,
     pending: Option<(f64, Service)>,
 }
@@ -426,7 +426,7 @@ impl NativeServiceCore {
         bytes
     }
     pub(crate) fn event_storage_bytes(&self) -> usize {
-        vec_storage_bytes(&self.last_events)
+        self.last_events.retained_storage_bytes()
     }
     /// Fixed-count source preparation workspace: one offer per bus/source,
     /// generated labels, geometric offer-buffer growth/physical conversion,
@@ -528,6 +528,8 @@ impl NativeServiceCore {
         &self,
         r: &mut R,
         event_limit: usize,
+        event_byte_limit: Option<usize>,
+        compressed: bool,
     ) -> PyResult<ServiceCheckpoint> {
         fn flag<R: Read>(r: &mut R) -> PyResult<bool> {
             match read_u64(r)? {
@@ -574,7 +576,17 @@ impl NativeServiceCore {
             cars.push(flag(r)?);
         }
         let n = read_len(r, event_limit)?;
-        let mut events = checkpoint_vec(n)?;
+        // Consume the unchanged logical wire directly into its immutable carrier.
+        // No flat EventRow buffer coexists with the encoded history during load.
+        let mut events = ChunkedEvents::new(compressed);
+        if let Some(limit) = event_byte_limit {
+            let required = events.retained_storage_bytes();
+            if required > limit {
+                return Err(PyMemoryError::new_err(format!(
+                    "native service event decode storage budget exceeded: required_bytes={required}, budget_bytes={limit}"
+                )));
+            }
+        }
         for _ in 0..n {
             let tag = read_len(r, usize::MAX)?;
             let origin = read_len(r, usize::MAX)?;
@@ -595,7 +607,17 @@ impl NativeServiceCore {
             if !nonnegative([e.3, e.4, e.5, e.6]) {
                 return Err(bad("invalid checkpoint road event"));
             }
-            events.push(e);
+            if let Some(limit) = event_byte_limit {
+                // This source-derived bound includes append allocation peaks and
+                // is constant-time; scanning existing pages per row is quadratic.
+                let required = events.projected_append_storage_bytes(e)?;
+                if required > limit {
+                    return Err(PyMemoryError::new_err(format!(
+                        "native service event decode storage budget exceeded: required_bytes={required}, budget_bytes={limit}"
+                    )));
+                }
+            }
+            events.push_checked(e)?;
         }
         let state = (runs, people, released, completed, cars);
         self.validate(&state)?;
@@ -699,7 +721,7 @@ impl NativeServiceCore {
             freight,
             cars,
             people_by_run,
-            last_events: Arc::new(Vec::new()),
+            last_events: Arc::new(ChunkedEvents::new(false)),
             state,
             pending: None,
         })
@@ -716,13 +738,14 @@ impl NativeServiceCore {
         )
     }
     fn road_events(&self) -> Vec<EventRow> {
-        self.last_events.as_ref().clone()
+        // Explicit publication boundary: internal consumers iterate the carrier.
+        self.last_events.iter().collect()
     }
     fn restore(&mut self, state: Service) -> PyResult<()> {
         self.validate(&state)?;
         self.state = state;
         self.pending = None;
-        self.last_events = Arc::new(Vec::new());
+        self.last_events = Arc::new(ChunkedEvents::new(false));
         Ok(())
     }
     fn abort(&mut self) {
@@ -1433,10 +1456,7 @@ pub(crate) fn advance_owned_joint(
     road.begin_call_storage_accounting();
     let call_input_events = Arc::clone(&service.last_events);
     road.configure_service_event_accounting(
-        service
-            .last_events
-            .capacity()
-            .saturating_mul(std::mem::size_of::<EventRow>()),
+        service.last_events.retained_storage_bytes(),
         tags.iter().map(String::capacity).max().unwrap_or(0),
         Arc::ptr_eq(&call_input_events, &service.last_events),
     );
@@ -1524,10 +1544,7 @@ pub(crate) fn advance_owned_joint(
             // installing it. It commits only after both other owners validate.
             let phase_started = Instant::now();
             road.set_service_event_current_bytes(
-                service
-                    .last_events
-                    .capacity()
-                    .saturating_mul(std::mem::size_of::<EventRow>()),
+                service.last_events.retained_storage_bytes(),
                 Arc::ptr_eq(&call_input_events, &service.last_events),
             );
             if let Some(total) = dynamic_budget {
@@ -1556,7 +1573,7 @@ pub(crate) fn advance_owned_joint(
                 0
             };
             let candidate_event_bytes = if dynamic_budget.is_some() {
-                vec_storage_bytes(&events)
+                events.retained_storage_bytes()
             } else {
                 0
             };
@@ -1612,7 +1629,7 @@ pub(crate) fn advance_owned_joint(
                 }
             }
             let mut sinks = Vec::new();
-            for e in &events {
+            for e in events.iter() {
                 if e.2.is_none() {
                     let tag = tags
                         .get(e.0)
@@ -2300,14 +2317,23 @@ impl NativeJourneyCore {
 mod event_snapshot_arc_ownership_tests {
     use super::*;
 
+    fn event_history(rows: impl IntoIterator<Item = EventRow>) -> ChunkedEvents {
+        // These test rows have explicitly bounded u32 indices.
+        let mut events = ChunkedEvents::new(true);
+        for row in rows {
+            events.push_checked(row).unwrap();
+        }
+        events
+    }
+
     fn fixture() -> NativeServiceCore {
         NativeServiceCore {
             buses: vec![], people: vec![], freight: vec![], cars: vec![],
             people_by_run: vec![],
-            last_events: Arc::new(vec![
+            last_events: Arc::new(event_history([
                 (7, 1, None, 0.25, 100., 101., 3.125),
                 (8, 1, Some(2), 0.75, 101., 102., 6.25),
-            ]),
+            ])),
             state: (vec![], vec![], vec![], vec![], vec![]),
             pending: None,
         }
@@ -2320,22 +2346,22 @@ mod event_snapshot_arc_ownership_tests {
         let b = core.checkpoint();
         assert!(Arc::ptr_eq(&a.1, &b.1));
         assert!(Arc::ptr_eq(&a.1, &core.last_events));
-        assert_eq!(a.1[0].3.to_bits(), 0.25f64.to_bits());
+        assert_eq!(a.1.iter().next().unwrap().3.to_bits(), 0.25f64.to_bits());
     }
 
     #[test]
     fn replacing_event_backing_preserves_previous_immutable_snapshot() {
         let mut core = fixture();
         let historical = core.checkpoint();
-        core.last_events = Arc::new(vec![(9, 3, None, 0.5, 102., 103., 3.75)]);
+        core.last_events = Arc::new(event_history([(9, 3, None, 0.5, 102., 103., 3.75)]));
         assert!(!Arc::ptr_eq(&historical.1, &core.last_events));
         assert_eq!(historical.1.len(), 2);
-        assert_eq!(historical.1[1].6.to_bits(), 6.25f64.to_bits());
+        assert_eq!(historical.1.iter().nth(1).unwrap().6.to_bits(), 6.25f64.to_bits());
         let new_cp = core.checkpoint();
         assert_eq!(new_cp.1.len(), 1);
         core.rollback(historical.clone());
         assert!(Arc::ptr_eq(&core.last_events, &historical.1));
-        assert_eq!(core.last_events[0].0, 7);
+        assert_eq!(core.last_events.iter().next().unwrap().0, 7);
     }
 }
 

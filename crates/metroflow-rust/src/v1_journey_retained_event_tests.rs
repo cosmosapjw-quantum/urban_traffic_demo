@@ -58,7 +58,8 @@ fn original_service_wire(rows: usize) -> Vec<u8> {
 
 fn decode_fixture(core: &NativeServiceCore, bytes: &[u8], rows: usize) -> ServiceCheckpoint {
     let mut input = std::io::Cursor::new(bytes);
-    let checkpoint = core.read_state(&mut input, rows).unwrap();
+    // Fixture tags/cells are bounded by 257/11; compact decoding is admissible.
+    let checkpoint = core.read_state(&mut input, rows, None, true).unwrap();
     assert_eq!(input.position(), bytes.len() as u64);
     checkpoint
 }
@@ -105,4 +106,48 @@ fn repeated_time_checkpoint_history_uses_less_than_48_bytes_per_event() {
         "repeated-time immutable history retained_bytes={retained} must be below {ceiling}; \
          raw logical rows, order and bits have already roundtripped exactly"
     );
+}
+
+
+#[test]
+fn event_decode_budget_rejection_preserves_committed_history() {
+    let core = roundtrip(1);
+    let historical = core.checkpoint();
+    let mut old_wire = Vec::new();
+    core.write_state(&mut old_wire).unwrap();
+    let bytes = original_service_wire(8193);
+    let mut input = std::io::Cursor::new(bytes);
+    // One timed event page fits, but a later page exceeds this fixed budget.
+    // A missing append-time byte guard would wrongly accept the whole fixture.
+    let result = core.read_state(&mut input, 8193, Some(256 * 1024), true);
+    assert!(result.is_err(), "direct decoder exceeded its allocation budget");
+    assert!(Arc::ptr_eq(&historical.1, &core.last_events));
+    let mut after_wire = Vec::new();
+    core.write_state(&mut after_wire).unwrap();
+    assert_eq!(after_wire, old_wire);
+}
+
+#[cfg(target_pointer_width = "64")]
+#[test]
+fn wide_legacy_event_indices_survive_direct_decode() {
+    let wide = u32::MAX as usize + 9;
+    let mut bytes = Vec::new();
+    for _ in 0..5 {
+        bytes.extend_from_slice(&0u64.to_le_bytes());
+    }
+    for value in [1u64, wide as u64, (wide + 1) as u64, 1, u32::MAX as u64] {
+        bytes.extend_from_slice(&value.to_le_bytes());
+    }
+    for value in [0.5f64, -0.0, 12.5, 0.25] {
+        bytes.extend_from_slice(&value.to_bits().to_le_bytes());
+    }
+    let mut core = empty_service();
+    let mut input = std::io::Cursor::new(bytes.as_slice());
+    let checkpoint = core.read_state(&mut input, 1, None, false).unwrap();
+    let row = checkpoint.1.iter().next().unwrap();
+    assert_eq!((row.0, row.1, row.2), (wide, wide + 1, Some(u32::MAX as usize)));
+    core.install_state(checkpoint);
+    let mut after_wire = Vec::new();
+    core.write_state(&mut after_wire).unwrap();
+    assert_eq!(after_wire, bytes);
 }

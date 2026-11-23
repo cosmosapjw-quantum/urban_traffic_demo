@@ -18,7 +18,7 @@ The first selected native boundary is persistent, exact event-history storage: p
 | C2 | Actual expression/data/producer/consumer map and implementation ownership | COMPLETE; V03_CODING_SOURCE_MAP_20261123.md |
 | C3 | Exact representation invariants, stable computation, failure counterexamples | COMPLETE; exact codec and ownership contract below |
 | C4 | Bounded execution ladder, recovered native baseline, build/resource setup | COMPLETE; recovered binary and observed behavioral RED |
-| C5 | Complete native producer-to-consumer implementation | PENDING |
+| C5 | Complete native producer-to-consumer implementation | COMPLETE; exact history path and behavioral GREEN |
 | C6 | Actual build, behavioral red/green, targeted native/Python regressions | PENDING |
 | C7 | Full-demand original checkpoint continuation and physical ledger checks | PENDING |
 | C8 | Increasing horizons, matched correctness/resource/replay experiments | PENDING |
@@ -65,3 +65,9 @@ Actual cargo exit 101: legacy wire/IEEE/page-boundary test passed; the storage t
 Execution dependencies: (1) root exposes road carrier and byte-bound helpers; (2) child integrates service history and engine decoding on disjoint files; (3) root builds and runs the same RED command to GREEN plus native owner/service regressions; (4) rebuild release budget_trace binary and bind it to clean committed source; (5) attempt original25700 -> 25710; (6) extend completed physical horizons to 25720/25750/25800 only after valid checkpoints, or repair the newly identified source lifetime before continuing; (7) fresh-source and fresh-process replay at the largest justified prefix. One native campaign runs at a time. Build jobs=2, native/BLAS/OpenMP workers=1; new run subprocess wall cap <=1800s, original 8GiB process cap unchanged. The full-day7200s criterion remains a separate unfulfilled release target.
 
 The former S07 failed tick and S08 time-zero prefix have unchanged source/binary/input identities and are reused as baseline evidence. The actual new transition, RSS, event/history storage, checkpoint bits, physical ledgers and complete elapsed seconds must be newly measured. A first guard passing is not a complete tick. Source-row growth remains an explicit followup if the next result points to it.
+
+## C5: native vertical slice implemented
+
+The complete native path now retains Arc<ChunkedEvents>: road proposal -> current-tick sinks -> immutable service history -> engine validation/storage -> legacy writer, plus direct legacy read into the carrier. The public standalone road Vec API remains explicit. All original row arithmetic and ordered sink consumers are retained. Keyset interning now receives the actual encoded candidate-event cost and still runs after road temporaries expire. Decoder append checks are constant-time; snapshots preserve Arc identity; wide registries retain a wide representation.
+
+The identical C4 Cargo command now exits 0: four tests pass, including the formerly failing repeated-time history cost condition, legacy byte/IEEE roundtrip across page boundaries, decode-budget rollback and wide-index preservation. Actual command/log and complete Rust file hashes are C5_RETAINED_EVENT_GREEN.json/log. Parent read the child journey/engine diff and integrated the road changes. Native whole-prefix and resource campaigns remain C6–C8 work, not implied by this component result.
