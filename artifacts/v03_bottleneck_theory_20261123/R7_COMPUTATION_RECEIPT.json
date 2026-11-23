@@ -1,0 +1,57 @@
+{
+  "schema": "METROFLOW_THEORY_R7_COMPUTATION_V1",
+  "recorded_at": "2026-11-23T11:58:03.051322+00:00",
+  "source_baseline": "492e27618696df2514b088a64de450cf69746647",
+  "scope": "theory-only mathematical verification; no production or native run",
+  "observed_python": "3.12.14",
+  "commands_exit_zero": [
+    "python check_controlled_routes.py",
+    "python check_reconstruction_examples.py"
+  ],
+  "joint_arrival_capacity_exact_cases": 128,
+  "midpoint_refinement_counts": [
+    1,
+    2,
+    4,
+    8,
+    16,
+    32
+  ],
+  "wolfram_evaluations": 2,
+  "new_native_elapsed_s": 0,
+  "full_day_runs_completed_this_session": 0,
+  "files": {
+    "artifacts/v03_bottleneck_theory_20261123/calculations/R7_WOLFRAM.json": {
+      "bytes": 2432,
+      "sha256": "77d676505b1e00e4c7b044d108096eba3ea3450542bf3e6abb29d4594f185ba4"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/R7_reconstruction_examples.json": {
+      "bytes": 5703,
+      "sha256": "51e5cf654f9d290d9382ca4267b118cb1af264f66801bec0345887b1628d237d"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/README.md": {
+      "bytes": 1780,
+      "sha256": "4d68a19f83c282116e7ed973c14df0d545fa9d427d9b7f0f348c25ff84348683"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/check_causal_service_stability.py": {
+      "bytes": 11601,
+      "sha256": "cc1303e89294a1d7a73777c02dda15b724ad5cef8f73de1398199dfb5a32478f"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/check_controlled_routes.py": {
+      "bytes": 4362,
+      "sha256": "db575061c379ae010cbfdc2c0d009f97bd17eaa06c0a6b91346bc3080305bc2a"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/check_reconstruction_examples.py": {
+      "bytes": 9141,
+      "sha256": "6bf440f82a0ebc16dce31cee8030d38296bc7037e9f36f5c028b33be3e04ff5d"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/metroflow_controlled_routes_checks.json": {
+      "bytes": 32156,
+      "sha256": "fc1fa2b6123d99d6e12df17466a23abd4320ff7b84297bffbfcb1ea2dea412a6"
+    },
+    "artifacts/v03_bottleneck_theory_20261123/calculations/metroflow_exact_routes_calculation.json": {
+      "bytes": 2194,
+      "sha256": "28295d9b1003cc09e34d6618d70daafecf8ee809fc5059aecd726407454a6f29"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "METROFLOW_THEORY_WOLFRAM_V1",
+  "scope": "symbolic checks of displayed finite-response formulas and a toy feedback linearization; no native simulation",
+  "first_evaluation": {
+    "code": "Clear[p,pt,p0,pp,t,h,s,tau,r]; p[t_] := pp + (p0-pp) Exp[-t/tau]; j[q_,a_] := r (pp a + (q-pp) tau (1-Exp[-a/tau])); <|\"moment_residual\" -> FullSimplify[Integrate[r p[t],{t,0,h},Assumptions->tau>0&&h>=0]-j[p0,h],tau>0&&h>=0], \"subdivision_residual\" -> FullSimplify[j[p0,s]+j[p[s],h-s]-j[p0,h],tau>0&&0<=s<=h], \"midpoint_difference\" -> FullSimplify[2(1-Exp[-1])-(2-Exp[-1/2]-Exp[-3/2])], \"midpoint_positive_form_residual\" -> FullSimplify[2(1-Exp[-1])-(2-Exp[-1/2]-Exp[-3/2])-2 Exp[-1](Cosh[1/2]-1)], \"true_moment\" -> Integrate[1-Exp[-t],{t,0,2}], \"numerics\" -> N[{1+Exp[-2],2-Exp[-1/2]-Exp[-3/2],2-2Exp[-1]},16], \"series_midpoint_error\" -> Series[j[p0,h]-r h p[h/2],{h,0,4}]|>",
+    "tool_response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Out[1]= <|\"moment_residual\" -> 0, \"subdivision_residual\" -> 0, \"midpoint_difference\" -> (-1 + Sqrt[E])^2/E^(3/2), \"midpoint_positive_form_residual\" -> 0, \"true_moment\" -> 1 + E^(-2), \"numerics\" -> {1.13533528323661269189399949497248440341`16., 1.17033918013893674746291999424480702522`16., 1.26424111765711535680895245967707826511`16.}, \"series_midpoint_error\" -> SeriesData[h, 0, {((p0 - pp)*r)/(24*tau^2), -1/48*((p0 - pp)*r)/tau^3}, 3, 5, 1]|>"
+        }
+      ],
+      "structuredContent": null,
+      "isError": false
+    }
+  },
+  "second_evaluation": {
+    "code": "Clear[p,s,k,gamma,kn,tau]; a={{-k,-gamma},{-kn/tau,-1/tau}}; <|\"damped_characteristic_polynomial\"->Factor[CharacteristicPolynomial[a,s]], \"damped_determinant\"->Factor[Det[a]], \"nonlinear_consumer_uniform_residual\"->MaxValue[{Abs[p(p-1/2)(p-1)],0<=p<=1},p], \"latent_reconstruction_cubic_difference\"->(2/3 (1/4)^3+1/3)-Total[Table[(i/4)^3/5,{i,0,4}]]|>",
+    "tool_response": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Out[1]= <|\"damped_characteristic_polynomial\" -> (k - gamma*kn + s + k*s*tau + s^2*tau)/tau, \"damped_determinant\" -> (k - gamma*kn)/tau, \"nonlinear_consumer_uniform_residual\" -> -1/6*((3 - Sqrt[3])*(-1 + (3 - Sqrt[3])/6)*(1/2 + (-3 + Sqrt[3])/6)), \"latent_reconstruction_cubic_difference\" -> 1/32|>"
+        }
+      ],
+      "structuredContent": null,
+      "isError": false
+    }
+  }
+}

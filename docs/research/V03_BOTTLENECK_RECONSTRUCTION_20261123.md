@@ -436,3 +436,55 @@ bus tag별 near-one threshold, active ReceiptHistory, 다음 leg release도 유�
 수정 문단을 다시 읽는 것까지 같은 단회 검토에 포함하고 검토를 종료했다.
 새 감사 루프는 만들지 않는다. 미확정한 native query support와 coupling 상수는
 R8/R9의 연구 내용으로 남긴다.
+
+
+## R7 — 기호·유리수·고정밀 판별 계산
+
+[재현 계산과 입력·출력](../../artifacts/v03_bottleneck_theory_20261123/calculations/README.md)을
+보존했다. Python3.12.14 표준 라이브러리로 두 caller를 실제 실행했고 모두 exit0이다.
+기존 fluid-server helper는 그대로 재사용했고, 새 caller가 E와 C를 함께 바꾼다.
+생산 코어 import, native build, 추가 도시 실행은 하지 않았다.
+
+| 계산 | 실제 결과 | 증거의 범위 |
+|---|---|---|
+| 공동 E/C 변화 | 유리수 PL128쌍에서 oscillation·rate-L1 경계 성립 | 유한 사례 검산; 일반 증명은R5 |
+| 독립 queue balance | reflection 결과와 정확히 일치 | 내부 queue-emptying knot까지 포함 |
+| capacity sup계수1 반례 | capacity오차1, departure오차2 | 잘못된 강화를 배제 |
+| rare blocked tail | prefix오차9999/10^8, departure차이9999/10^4 | support 보존 조건 판별 |
+| overlay·quotient 예 | R4의 mass/birth/person/cargo 분수가 정확히 일치 | 실제 도시속도 결과 아님 |
+| Mixed endpoint 반례 | 동일총량2, clock prefix질량1/2와3/2 | 결합 정보의 필요성 |
+| jump event 반례 | time shift1/100, same-time오차1 | 수정된 metric 구분 |
+| 초기 eligible stock | 올바른D(0)=0, 잘못된empty식은2 | 초기조건 후보 필요 |
+| positive elimination | source5atoms→2atoms, m0/m1/m2보존 | 모든 consumer의 정확성은 아님 |
+| nonlinear p^3 consumer | 실제차이1/32, 경계2Mε≈0.096225 | feature residual의 구체적 예 |
+
+positive elimination은 p=0,1/4,1/2,3/4,1의 균등질량에서
+두 null방향으로 weight를 이동해 p=1/4,1에(2/3,1/3)을 남겼다.
+m0,m1,m2=(1,1/2,3/8)는 같다. 그러나 p^3는1/32만큼 달라진다.
+\(g_0=(3/2)p^2-(1/2)p\)에 대해
+\(\sup_{[0,1]}|p^3-g_0|=\sqrt3/36\)이므로 Q2/Q3의 residual경계에 들어온다.
+완료량을 보존하는 것과 임의 비선형 소비자를 보존하는 것을 실제 계산으로 구분했다.
+
+### mark 적분의 해상도 실험
+
+\(v(t)=1-e^{-t}\), flux1veh/s, [0,2]s에서 정확한 moment는
+\(1+e^{-2}=1.135335283236612691894\)veh·m/s다.
+
+| 균일 subinterval 수 | 기존 midpoint moment의 절대오차 | 적분식 subdivision 잔차 |
+|---:|---:|---:|
+| 1 | 0.128905834421 | 60자리 Decimal에서0 |
+| 2 | 0.0350038969023 | 0 |
+| 4 | 0.00894167870186 | 0 |
+| 8 | 0.00224763306707 | 0 |
+| 16 | 0.000562676319057 | 0 |
+| 32 | 0.000140717157173 | 0 |
+
+모든 값이 \(T h^2\sup|v''|/24\) 경계 안에 있고, 분할을2배로 할 때 오차비는
+4로 접근한다. 이것은 지정된 held phase의 수치 실험이며 성능 benchmark가 아니다.
+latent 적분도 λ=0,0.1,2에서 분할 잔차를10^-56 이하로 확인했다.
+
+Wolfram의 실제 입출력을 함께 보존했다. antiderivative 잔차0, semigroup split
+잔차0, midpoint차이의 양의 형태 잔차0을 얻었다.
+별도 계산에서 피드백 행렬의 determinant
+\((k-\gamma\kappa_n)/\tau_v\), nonlinear consumer 차이1/32도 확인했다.
+기호 계산은 식의 검산이며, 원래 도시의 계수·수용·실행 결과를 대체하지 않는다.

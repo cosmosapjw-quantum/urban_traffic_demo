@@ -1,0 +1,1202 @@
+{
+  "status": "numerically_checked_finite_mathematical_instances",
+  "native_city_execution": "NOT_RUN",
+  "joint_arrival_capacity_cases": 128,
+  "exact_rational_bounds_and_independent_queue_recurrence": true,
+  "sharp_capacity_sup_norm_example": {
+    "capacity_sup_error": "1",
+    "departure_sup_error": "2",
+    "departure_original_at_2": "0",
+    "departure_changed_at_2": "2"
+  },
+  "rare_blocked_commodity": {
+    "rare_mass": "1/10000",
+    "composition_prefix_error": "9999/100000000",
+    "departure_difference_at_1": "9999/10000",
+    "zero_supply": true
+  },
+  "positive_moment_reconstruction": {
+    "source_atoms": 5,
+    "reconstructed_atoms": 3,
+    "moments_0_to_2": [
+      "1",
+      "1/2",
+      "3/8"
+    ],
+    "latent_moment_time_derivatives": [
+      "0",
+      "-1/20",
+      "-7/40"
+    ]
+  },
+  "softmin_example": {
+    "kappa_m_per_s": 5.0,
+    "rare_fraction": 0.0001,
+    "hard_min_m_per_s": 5.0,
+    "weighted_softmin_m_per_s": 19.9904663264112
+  },
+  "coupled_feedback_example": {
+    "undamped_positive_eigenvalue_per_scaled_time": 0.1531128874149275,
+    "damped_small_gain_margin": 0.35,
+    "exponential_rate_per_scaled_time": 0.005,
+    "weighted_inequality_slacks": [
+      0.295,
+      0.09399999999999997,
+      0.062443467692140486
+    ]
+  },
+  "cases": [
+    {
+      "seed": 17,
+      "case": 0,
+      "departure_error": "1969829/1396652",
+      "eligibility_error": "20/17",
+      "capacity_oscillation": "498/299",
+      "capacity_rate_L1_error": "1503/299",
+      "bound": "14446/5083"
+    },
+    {
+      "seed": 17,
+      "case": 1,
+      "departure_error": "24758/5681",
+      "eligibility_error": "1352/323",
+      "capacity_oscillation": "104/23",
+      "capacity_rate_L1_error": "2218/299",
+      "bound": "64688/7429"
+    },
+    {
+      "seed": 17,
+      "case": 2,
+      "departure_error": "709/391",
+      "eligibility_error": "37/17",
+      "capacity_oscillation": "1515/299",
+      "capacity_rate_L1_error": "1939/299",
+      "bound": "36818/5083"
+    },
+    {
+      "seed": 17,
+      "case": 3,
+      "departure_error": "19262/4807",
+      "eligibility_error": "791/323",
+      "capacity_oscillation": "1422/299",
+      "capacity_rate_L1_error": "1634/299",
+      "bound": "695815/96577"
+    },
+    {
+      "seed": 17,
+      "case": 4,
+      "departure_error": "9764298/2889881",
+      "eligibility_error": "865/323",
+      "capacity_oscillation": "1165/299",
+      "capacity_rate_L1_error": "1594/299",
+      "bound": "634930/96577"
+    },
+    {
+      "seed": 17,
+      "case": 5,
+      "departure_error": "32588/7429",
+      "eligibility_error": "794/323",
+      "capacity_oscillation": "1939/299",
+      "capacity_rate_L1_error": "2232/299",
+      "bound": "863703/96577"
+    },
+    {
+      "seed": 17,
+      "case": 6,
+      "departure_error": "165132/68609",
+      "eligibility_error": "583/323",
+      "capacity_oscillation": "1164/299",
+      "capacity_rate_L1_error": "2175/299",
+      "bound": "550289/96577"
+    },
+    {
+      "seed": 17,
+      "case": 7,
+      "departure_error": "17/23",
+      "eligibility_error": "154/323",
+      "capacity_oscillation": "28/13",
+      "capacity_rate_L1_error": "1412/299",
+      "bound": "11046/4199"
+    },
+    {
+      "seed": 17,
+      "case": 8,
+      "departure_error": "376559/96577",
+      "eligibility_error": "46/17",
+      "capacity_oscillation": "110/23",
+      "capacity_rate_L1_error": "127/23",
+      "bound": "2928/391"
+    },
+    {
+      "seed": 17,
+      "case": 9,
+      "departure_error": "125180/126293",
+      "eligibility_error": "19/17",
+      "capacity_oscillation": "1659/299",
+      "capacity_rate_L1_error": "2174/299",
+      "bound": "33884/5083"
+    },
+    {
+      "seed": 17,
+      "case": 10,
+      "departure_error": "632/391",
+      "eligibility_error": "730/323",
+      "capacity_oscillation": "1994/299",
+      "capacity_rate_L1_error": "2391/299",
+      "bound": "862332/96577"
+    },
+    {
+      "seed": 17,
+      "case": 11,
+      "departure_error": "298971/96577",
+      "eligibility_error": "1059/323",
+      "capacity_oscillation": "737/299",
+      "capacity_rate_L1_error": "1799/299",
+      "bound": "554692/96577"
+    },
+    {
+      "seed": 17,
+      "case": 12,
+      "departure_error": "25444/5083",
+      "eligibility_error": "739/323",
+      "capacity_oscillation": "2440/299",
+      "capacity_rate_L1_error": "2855/299",
+      "bound": "1009081/96577"
+    },
+    {
+      "seed": 17,
+      "case": 13,
+      "departure_error": "8300/7429",
+      "eligibility_error": "397/323",
+      "capacity_oscillation": "992/299",
+      "capacity_rate_L1_error": "1887/299",
+      "bound": "439119/96577"
+    },
+    {
+      "seed": 17,
+      "case": 14,
+      "departure_error": "318/299",
+      "eligibility_error": "693/323",
+      "capacity_oscillation": "1116/299",
+      "capacity_rate_L1_error": "1530/299",
+      "bound": "567675/96577"
+    },
+    {
+      "seed": 17,
+      "case": 15,
+      "departure_error": "4857/5681",
+      "eligibility_error": "189/323",
+      "capacity_oscillation": "1038/299",
+      "capacity_rate_L1_error": "1559/299",
+      "bound": "391785/96577"
+    },
+    {
+      "seed": 17,
+      "case": 16,
+      "departure_error": "12870/7429",
+      "eligibility_error": "268/323",
+      "capacity_oscillation": "1485/299",
+      "capacity_rate_L1_error": "1814/299",
+      "bound": "559787/96577"
+    },
+    {
+      "seed": 17,
+      "case": 17,
+      "departure_error": "34200/5083",
+      "eligibility_error": "647/323",
+      "capacity_oscillation": "2350/299",
+      "capacity_rate_L1_error": "2350/299",
+      "bound": "952503/96577"
+    },
+    {
+      "seed": 17,
+      "case": 18,
+      "departure_error": "193139/96186",
+      "eligibility_error": "398/323",
+      "capacity_oscillation": "1752/299",
+      "capacity_rate_L1_error": "151/23",
+      "bound": "684898/96577"
+    },
+    {
+      "seed": 17,
+      "case": 19,
+      "departure_error": "5924/5083",
+      "eligibility_error": "489/323",
+      "capacity_oscillation": "1500/299",
+      "capacity_rate_L1_error": "129/13",
+      "bound": "630711/96577"
+    },
+    {
+      "seed": 17,
+      "case": 20,
+      "departure_error": "19362/7429",
+      "eligibility_error": "22/17",
+      "capacity_oscillation": "1815/299",
+      "capacity_rate_L1_error": "2674/299",
+      "bound": "37433/5083"
+    },
+    {
+      "seed": 17,
+      "case": 21,
+      "departure_error": "183271/96577",
+      "eligibility_error": "660/323",
+      "capacity_oscillation": "609/299",
+      "capacity_rate_L1_error": "1060/299",
+      "bound": "394047/96577"
+    },
+    {
+      "seed": 17,
+      "case": 22,
+      "departure_error": "19/17",
+      "eligibility_error": "276/323",
+      "capacity_oscillation": "57/13",
+      "capacity_rate_L1_error": "1588/299",
+      "bound": "21999/4199"
+    },
+    {
+      "seed": 17,
+      "case": 23,
+      "departure_error": "303294/96577",
+      "eligibility_error": "480/323",
+      "capacity_oscillation": "1227/299",
+      "capacity_rate_L1_error": "1563/299",
+      "bound": "539841/96577"
+    },
+    {
+      "seed": 17,
+      "case": 24,
+      "departure_error": "12625/7429",
+      "eligibility_error": "628/323",
+      "capacity_oscillation": "1149/299",
+      "capacity_rate_L1_error": "2006/299",
+      "bound": "558899/96577"
+    },
+    {
+      "seed": 17,
+      "case": 25,
+      "departure_error": "457811/96577",
+      "eligibility_error": "1301/323",
+      "capacity_oscillation": "1951/299",
+      "capacity_rate_L1_error": "2335/299",
+      "bound": "1019172/96577"
+    },
+    {
+      "seed": 17,
+      "case": 26,
+      "departure_error": "173249/96577",
+      "eligibility_error": "732/323",
+      "capacity_oscillation": "888/299",
+      "capacity_rate_L1_error": "1302/299",
+      "bound": "505692/96577"
+    },
+    {
+      "seed": 17,
+      "case": 27,
+      "departure_error": "18040/7429",
+      "eligibility_error": "1232/323",
+      "capacity_oscillation": "2745/299",
+      "capacity_rate_L1_error": "3167/299",
+      "bound": "1255003/96577"
+    },
+    {
+      "seed": 17,
+      "case": 28,
+      "departure_error": "14874/7429",
+      "eligibility_error": "365/323",
+      "capacity_oscillation": "114/23",
+      "capacity_rate_L1_error": "1512/299",
+      "bound": "45217/7429"
+    },
+    {
+      "seed": 17,
+      "case": 29,
+      "departure_error": "396873/96577",
+      "eligibility_error": "1174/323",
+      "capacity_oscillation": "1325/299",
+      "capacity_rate_L1_error": "75/13",
+      "bound": "779001/96577"
+    },
+    {
+      "seed": 17,
+      "case": 30,
+      "departure_error": "1693135/765187",
+      "eligibility_error": "953/323",
+      "capacity_oscillation": "1431/299",
+      "capacity_rate_L1_error": "2009/299",
+      "bound": "747160/96577"
+    },
+    {
+      "seed": 17,
+      "case": 31,
+      "departure_error": "22597/5083",
+      "eligibility_error": "870/323",
+      "capacity_oscillation": "1405/299",
+      "capacity_rate_L1_error": "111/23",
+      "bound": "713945/96577"
+    },
+    {
+      "seed": 41,
+      "case": 0,
+      "departure_error": "8338/5083",
+      "eligibility_error": "42/19",
+      "capacity_oscillation": "1562/299",
+      "capacity_rate_L1_error": "1634/299",
+      "bound": "42236/5681"
+    },
+    {
+      "seed": 41,
+      "case": 1,
+      "departure_error": "16081/7429",
+      "eligibility_error": "360/323",
+      "capacity_oscillation": "1398/299",
+      "capacity_rate_L1_error": "1588/299",
+      "bound": "559194/96577"
+    },
+    {
+      "seed": 41,
+      "case": 2,
+      "departure_error": "887/391",
+      "eligibility_error": "451/323",
+      "capacity_oscillation": "2273/299",
+      "capacity_rate_L1_error": "2286/299",
+      "bound": "869028/96577"
+    },
+    {
+      "seed": 41,
+      "case": 3,
+      "departure_error": "240347/96577",
+      "eligibility_error": "458/323",
+      "capacity_oscillation": "678/299",
+      "capacity_rate_L1_error": "1064/299",
+      "bound": "355936/96577"
+    },
+    {
+      "seed": 41,
+      "case": 4,
+      "departure_error": "197666/43401",
+      "eligibility_error": "936/323",
+      "capacity_oscillation": "1972/299",
+      "capacity_rate_L1_error": "172/23",
+      "bound": "916820/96577"
+    },
+    {
+      "seed": 41,
+      "case": 5,
+      "departure_error": "40/13",
+      "eligibility_error": "964/323",
+      "capacity_oscillation": "1021/299",
+      "capacity_rate_L1_error": "1852/299",
+      "bound": "618019/96577"
+    },
+    {
+      "seed": 41,
+      "case": 6,
+      "departure_error": "2150/391",
+      "eligibility_error": "1187/323",
+      "capacity_oscillation": "2190/299",
+      "capacity_rate_L1_error": "3560/299",
+      "bound": "1062283/96577"
+    },
+    {
+      "seed": 41,
+      "case": 7,
+      "departure_error": "1073/391",
+      "eligibility_error": "7/17",
+      "capacity_oscillation": "1568/299",
+      "capacity_rate_L1_error": "1568/299",
+      "bound": "28749/5083"
+    },
+    {
+      "seed": 41,
+      "case": 8,
+      "departure_error": "7725/7429",
+      "eligibility_error": "552/323",
+      "capacity_oscillation": "1603/299",
+      "capacity_rate_L1_error": "1603/299",
+      "bound": "682817/96577"
+    },
+    {
+      "seed": 41,
+      "case": 9,
+      "departure_error": "326034/96577",
+      "eligibility_error": "902/323",
+      "capacity_oscillation": "946/299",
+      "capacity_rate_L1_error": "85/13",
+      "bound": "575256/96577"
+    },
+    {
+      "seed": 41,
+      "case": 10,
+      "departure_error": "624/323",
+      "eligibility_error": "328/323",
+      "capacity_oscillation": "85/13",
+      "capacity_rate_L1_error": "213/23",
+      "bound": "31719/4199"
+    },
+    {
+      "seed": 41,
+      "case": 11,
+      "departure_error": "334250/96577",
+      "eligibility_error": "1891/323",
+      "capacity_oscillation": "1050/299",
+      "capacity_rate_L1_error": "197/23",
+      "bound": "904559/96577"
+    },
+    {
+      "seed": 41,
+      "case": 12,
+      "departure_error": "20236/5083",
+      "eligibility_error": "780/323",
+      "capacity_oscillation": "2477/299",
+      "capacity_rate_L1_error": "2703/299",
+      "bound": "1033291/96577"
+    },
+    {
+      "seed": 41,
+      "case": 13,
+      "departure_error": "164389/96577",
+      "eligibility_error": "737/323",
+      "capacity_oscillation": "1205/299",
+      "capacity_rate_L1_error": "1861/299",
+      "bound": "609578/96577"
+    },
+    {
+      "seed": 41,
+      "case": 14,
+      "departure_error": "358/323",
+      "eligibility_error": "358/323",
+      "capacity_oscillation": "933/299",
+      "capacity_rate_L1_error": "1543/299",
+      "bound": "408401/96577"
+    },
+    {
+      "seed": 41,
+      "case": 15,
+      "departure_error": "12809/7429",
+      "eligibility_error": "1187/323",
+      "capacity_oscillation": "2157/299",
+      "capacity_rate_L1_error": "2157/299",
+      "bound": "1051624/96577"
+    },
+    {
+      "seed": 41,
+      "case": 16,
+      "departure_error": "332/391",
+      "eligibility_error": "1145/323",
+      "capacity_oscillation": "1535/299",
+      "capacity_rate_L1_error": "1756/299",
+      "bound": "838160/96577"
+    },
+    {
+      "seed": 41,
+      "case": 17,
+      "departure_error": "545/247",
+      "eligibility_error": "545/323",
+      "capacity_oscillation": "30/13",
+      "capacity_rate_L1_error": "1503/299",
+      "bound": "16775/4199"
+    },
+    {
+      "seed": 41,
+      "case": 18,
+      "departure_error": "19653/7429",
+      "eligibility_error": "624/323",
+      "capacity_oscillation": "873/299",
+      "capacity_rate_L1_error": "1759/299",
+      "bound": "468555/96577"
+    },
+    {
+      "seed": 41,
+      "case": 19,
+      "departure_error": "12184/4199",
+      "eligibility_error": "1138/323",
+      "capacity_oscillation": "817/299",
+      "capacity_rate_L1_error": "175/23",
+      "bound": "604153/96577"
+    },
+    {
+      "seed": 41,
+      "case": 20,
+      "departure_error": "348/391",
+      "eligibility_error": "1448/323",
+      "capacity_oscillation": "2138/299",
+      "capacity_rate_L1_error": "2836/299",
+      "bound": "1123526/96577"
+    },
+    {
+      "seed": 41,
+      "case": 21,
+      "departure_error": "23509/24089",
+      "eligibility_error": "349/323",
+      "capacity_oscillation": "246/299",
+      "capacity_rate_L1_error": "535/299",
+      "bound": "183809/96577"
+    },
+    {
+      "seed": 41,
+      "case": 22,
+      "departure_error": "625824/319447",
+      "eligibility_error": "298/323",
+      "capacity_oscillation": "825/299",
+      "capacity_rate_L1_error": "2163/299",
+      "bound": "355577/96577"
+    },
+    {
+      "seed": 41,
+      "case": 23,
+      "departure_error": "475/299",
+      "eligibility_error": "429/323",
+      "capacity_oscillation": "109/23",
+      "capacity_rate_L1_error": "1892/299",
+      "bound": "45074/7429"
+    },
+    {
+      "seed": 41,
+      "case": 24,
+      "departure_error": "471/221",
+      "eligibility_error": "46/17",
+      "capacity_oscillation": "1048/299",
+      "capacity_rate_L1_error": "1944/299",
+      "bound": "31570/5083"
+    },
+    {
+      "seed": 41,
+      "case": 25,
+      "departure_error": "13435/5083",
+      "eligibility_error": "509/323",
+      "capacity_oscillation": "1713/299",
+      "capacity_rate_L1_error": "2909/299",
+      "bound": "705490/96577"
+    },
+    {
+      "seed": 41,
+      "case": 26,
+      "departure_error": "53050/25783",
+      "eligibility_error": "756/323",
+      "capacity_oscillation": "1503/299",
+      "capacity_rate_L1_error": "1870/299",
+      "bound": "711513/96577"
+    },
+    {
+      "seed": 41,
+      "case": 27,
+      "departure_error": "15662/5681",
+      "eligibility_error": "1493/323",
+      "capacity_oscillation": "857/299",
+      "capacity_rate_L1_error": "1623/299",
+      "bound": "723218/96577"
+    },
+    {
+      "seed": 41,
+      "case": 28,
+      "departure_error": "1884/391",
+      "eligibility_error": "744/323",
+      "capacity_oscillation": "2358/299",
+      "capacity_rate_L1_error": "2358/299",
+      "bound": "984090/96577"
+    },
+    {
+      "seed": 41,
+      "case": 29,
+      "departure_error": "10722/5083",
+      "eligibility_error": "961/323",
+      "capacity_oscillation": "835/299",
+      "capacity_rate_L1_error": "1636/299",
+      "bound": "557044/96577"
+    },
+    {
+      "seed": 41,
+      "case": 30,
+      "departure_error": "271483/96577",
+      "eligibility_error": "982/323",
+      "capacity_oscillation": "108/23",
+      "capacity_rate_L1_error": "1766/299",
+      "bound": "57470/7429"
+    },
+    {
+      "seed": 41,
+      "case": 31,
+      "departure_error": "292350/96577",
+      "eligibility_error": "1024/323",
+      "capacity_oscillation": "103/23",
+      "capacity_rate_L1_error": "2069/299",
+      "bound": "56821/7429"
+    },
+    {
+      "seed": 137,
+      "case": 0,
+      "departure_error": "309/323",
+      "eligibility_error": "747/323",
+      "capacity_oscillation": "1613/299",
+      "capacity_rate_L1_error": "1613/299",
+      "bound": "744352/96577"
+    },
+    {
+      "seed": 137,
+      "case": 1,
+      "departure_error": "365/221",
+      "eligibility_error": "305/323",
+      "capacity_oscillation": "1884/299",
+      "capacity_rate_L1_error": "1884/299",
+      "bound": "699727/96577"
+    },
+    {
+      "seed": 137,
+      "case": 2,
+      "departure_error": "6980/5681",
+      "eligibility_error": "818/323",
+      "capacity_oscillation": "703/299",
+      "capacity_rate_L1_error": "1631/299",
+      "bound": "471651/96577"
+    },
+    {
+      "seed": 137,
+      "case": 3,
+      "departure_error": "400/391",
+      "eligibility_error": "598/323",
+      "capacity_oscillation": "60/13",
+      "capacity_rate_L1_error": "1740/299",
+      "bound": "27154/4199"
+    },
+    {
+      "seed": 137,
+      "case": 4,
+      "departure_error": "456851/96577",
+      "eligibility_error": "1280/323",
+      "capacity_oscillation": "1566/299",
+      "capacity_rate_L1_error": "1766/299",
+      "bound": "888538/96577"
+    },
+    {
+      "seed": 137,
+      "case": 5,
+      "departure_error": "328747/96577",
+      "eligibility_error": "705/323",
+      "capacity_oscillation": "1551/299",
+      "capacity_rate_L1_error": "100/13",
+      "bound": "711768/96577"
+    },
+    {
+      "seed": 137,
+      "case": 6,
+      "departure_error": "1377628/482885",
+      "eligibility_error": "671/323",
+      "capacity_oscillation": "2207/299",
+      "capacity_rate_L1_error": "2687/299",
+      "bound": "913490/96577"
+    },
+    {
+      "seed": 137,
+      "case": 7,
+      "departure_error": "16189/7429",
+      "eligibility_error": "616/323",
+      "capacity_oscillation": "1271/299",
+      "capacity_rate_L1_error": "1271/299",
+      "bound": "594717/96577"
+    },
+    {
+      "seed": 137,
+      "case": 8,
+      "departure_error": "5250/5083",
+      "eligibility_error": "1883/323",
+      "capacity_oscillation": "1067/299",
+      "capacity_rate_L1_error": "1770/299",
+      "bound": "907658/96577"
+    },
+    {
+      "seed": 137,
+      "case": 9,
+      "departure_error": "13299/7429",
+      "eligibility_error": "350/323",
+      "capacity_oscillation": "1479/299",
+      "capacity_rate_L1_error": "1848/299",
+      "bound": "582367/96577"
+    },
+    {
+      "seed": 137,
+      "case": 10,
+      "departure_error": "1179133/958341",
+      "eligibility_error": "364/323",
+      "capacity_oscillation": "709/299",
+      "capacity_rate_L1_error": "2029/299",
+      "bound": "337843/96577"
+    },
+    {
+      "seed": 137,
+      "case": 11,
+      "departure_error": "15/19",
+      "eligibility_error": "48/19",
+      "capacity_oscillation": "1815/299",
+      "capacity_rate_L1_error": "2073/299",
+      "bound": "48837/5681"
+    },
+    {
+      "seed": 137,
+      "case": 12,
+      "departure_error": "148259/96577",
+      "eligibility_error": "384/323",
+      "capacity_oscillation": "1730/299",
+      "capacity_rate_L1_error": "2733/299",
+      "bound": "673606/96577"
+    },
+    {
+      "seed": 137,
+      "case": 13,
+      "departure_error": "496/247",
+      "eligibility_error": "843/323",
+      "capacity_oscillation": "721/299",
+      "capacity_rate_L1_error": "2113/299",
+      "bound": "484940/96577"
+    },
+    {
+      "seed": 137,
+      "case": 14,
+      "departure_error": "14481/5681",
+      "eligibility_error": "1002/323",
+      "capacity_oscillation": "719/299",
+      "capacity_rate_L1_error": "1161/299",
+      "bound": "531835/96577"
+    },
+    {
+      "seed": 137,
+      "case": 15,
+      "departure_error": "30839/7429",
+      "eligibility_error": "547/323",
+      "capacity_oscillation": "2133/299",
+      "capacity_rate_L1_error": "2422/299",
+      "bound": "852512/96577"
+    },
+    {
+      "seed": 137,
+      "case": 16,
+      "departure_error": "11116/5083",
+      "eligibility_error": "1063/323",
+      "capacity_oscillation": "1122/299",
+      "capacity_rate_L1_error": "1379/299",
+      "bound": "680243/96577"
+    },
+    {
+      "seed": 137,
+      "case": 17,
+      "departure_error": "2410/2033",
+      "eligibility_error": "394/323",
+      "capacity_oscillation": "803/299",
+      "capacity_rate_L1_error": "1565/299",
+      "bound": "377175/96577"
+    },
+    {
+      "seed": 137,
+      "case": 18,
+      "departure_error": "831/391",
+      "eligibility_error": "25/19",
+      "capacity_oscillation": "1203/299",
+      "capacity_rate_L1_error": "1611/299",
+      "bound": "30332/5681"
+    },
+    {
+      "seed": 137,
+      "case": 19,
+      "departure_error": "267112/96577",
+      "eligibility_error": "1110/323",
+      "capacity_oscillation": "951/299",
+      "capacity_rate_L1_error": "2154/299",
+      "bound": "639063/96577"
+    },
+    {
+      "seed": 137,
+      "case": 20,
+      "departure_error": "18771/10925",
+      "eligibility_error": "549/323",
+      "capacity_oscillation": "2053/299",
+      "capacity_rate_L1_error": "2577/299",
+      "bound": "827270/96577"
+    },
+    {
+      "seed": 137,
+      "case": 21,
+      "departure_error": "28/23",
+      "eligibility_error": "66/19",
+      "capacity_oscillation": "878/299",
+      "capacity_rate_L1_error": "1232/299",
+      "bound": "36416/5681"
+    },
+    {
+      "seed": 137,
+      "case": 22,
+      "departure_error": "983/323",
+      "eligibility_error": "590/323",
+      "capacity_oscillation": "1488/299",
+      "capacity_rate_L1_error": "2276/299",
+      "bound": "657034/96577"
+    },
+    {
+      "seed": 137,
+      "case": 23,
+      "departure_error": "12704/5083",
+      "eligibility_error": "716/323",
+      "capacity_oscillation": "1648/299",
+      "capacity_rate_L1_error": "2200/299",
+      "bound": "746388/96577"
+    },
+    {
+      "seed": 137,
+      "case": 24,
+      "departure_error": "9208/5681",
+      "eligibility_error": "446/323",
+      "capacity_oscillation": "716/299",
+      "capacity_rate_L1_error": "148/23",
+      "bound": "364622/96577"
+    },
+    {
+      "seed": 137,
+      "case": 25,
+      "departure_error": "15707/5083",
+      "eligibility_error": "1264/323",
+      "capacity_oscillation": "67/23",
+      "capacity_rate_L1_error": "2448/299",
+      "bound": "50713/7429"
+    },
+    {
+      "seed": 137,
+      "case": 26,
+      "departure_error": "6194/5083",
+      "eligibility_error": "685/323",
+      "capacity_oscillation": "1947/299",
+      "capacity_rate_L1_error": "2320/299",
+      "bound": "833696/96577"
+    },
+    {
+      "seed": 137,
+      "case": 27,
+      "departure_error": "1578/299",
+      "eligibility_error": "53/19",
+      "capacity_oscillation": "1578/299",
+      "capacity_rate_L1_error": "2698/299",
+      "bound": "45829/5681"
+    },
+    {
+      "seed": 137,
+      "case": 28,
+      "departure_error": "457/391",
+      "eligibility_error": "421/323",
+      "capacity_oscillation": "622/299",
+      "capacity_rate_L1_error": "622/299",
+      "bound": "326785/96577"
+    },
+    {
+      "seed": 137,
+      "case": 29,
+      "departure_error": "19438/10741",
+      "eligibility_error": "691/323",
+      "capacity_oscillation": "695/299",
+      "capacity_rate_L1_error": "1585/299",
+      "bound": "431094/96577"
+    },
+    {
+      "seed": 137,
+      "case": 30,
+      "departure_error": "1253/299",
+      "eligibility_error": "775/323",
+      "capacity_oscillation": "1392/299",
+      "capacity_rate_L1_error": "1531/299",
+      "bound": "681341/96577"
+    },
+    {
+      "seed": 137,
+      "case": 31,
+      "departure_error": "256/299",
+      "eligibility_error": "648/323",
+      "capacity_oscillation": "393/299",
+      "capacity_rate_L1_error": "68/23",
+      "bound": "320691/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 0,
+      "departure_error": "795/391",
+      "eligibility_error": "633/323",
+      "capacity_oscillation": "1624/299",
+      "capacity_rate_L1_error": "1624/299",
+      "bound": "713819/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 1,
+      "departure_error": "587/437",
+      "eligibility_error": "381/323",
+      "capacity_oscillation": "1194/299",
+      "capacity_rate_L1_error": "1682/299",
+      "bound": "499581/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 2,
+      "departure_error": "46090/96577",
+      "eligibility_error": "329/323",
+      "capacity_oscillation": "653/299",
+      "capacity_rate_L1_error": "1162/299",
+      "bound": "309290/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 3,
+      "departure_error": "1795/391",
+      "eligibility_error": "515/323",
+      "capacity_oscillation": "1926/299",
+      "capacity_rate_L1_error": "2276/299",
+      "bound": "776083/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 4,
+      "departure_error": "32603/7429",
+      "eligibility_error": "1317/323",
+      "capacity_oscillation": "1616/299",
+      "capacity_rate_L1_error": "2707/299",
+      "bound": "915751/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 5,
+      "departure_error": "2221/1127",
+      "eligibility_error": "393/323",
+      "capacity_oscillation": "963/299",
+      "capacity_rate_L1_error": "2013/299",
+      "bound": "428556/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 6,
+      "departure_error": "12527/5083",
+      "eligibility_error": "915/323",
+      "capacity_oscillation": "3378/299",
+      "capacity_rate_L1_error": "4028/299",
+      "bound": "1364679/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 7,
+      "departure_error": "233794/146965",
+      "eligibility_error": "634/323",
+      "capacity_oscillation": "257/299",
+      "capacity_rate_L1_error": "812/299",
+      "bound": "272577/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 8,
+      "departure_error": "11907/5681",
+      "eligibility_error": "769/323",
+      "capacity_oscillation": "841/299",
+      "capacity_rate_L1_error": "1103/299",
+      "bound": "501574/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 9,
+      "departure_error": "1018/391",
+      "eligibility_error": "454/323",
+      "capacity_oscillation": "1256/299",
+      "capacity_rate_L1_error": "1484/299",
+      "bound": "541434/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 10,
+      "departure_error": "480526/96577",
+      "eligibility_error": "1624/323",
+      "capacity_oscillation": "109/23",
+      "capacity_rate_L1_error": "1719/299",
+      "bound": "72559/7429"
+    },
+    {
+      "seed": 2691,
+      "case": 11,
+      "departure_error": "19756/5681",
+      "eligibility_error": "1111/323",
+      "capacity_oscillation": "1823/299",
+      "capacity_rate_L1_error": "175/23",
+      "bound": "921018/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 12,
+      "departure_error": "46225/7429",
+      "eligibility_error": "828/323",
+      "capacity_oscillation": "2971/299",
+      "capacity_rate_L1_error": "3288/299",
+      "bound": "1207205/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 13,
+      "departure_error": "88501/74290",
+      "eligibility_error": "542/323",
+      "capacity_oscillation": "2880/299",
+      "capacity_rate_L1_error": "3932/299",
+      "bound": "1092298/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 14,
+      "departure_error": "24365/7429",
+      "eligibility_error": "292/323",
+      "capacity_oscillation": "1502/299",
+      "capacity_rate_L1_error": "1502/299",
+      "bound": "572454/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 15,
+      "departure_error": "9577/5083",
+      "eligibility_error": "534/323",
+      "capacity_oscillation": "953/299",
+      "capacity_rate_L1_error": "1215/299",
+      "bound": "467485/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 16,
+      "departure_error": "31287/7429",
+      "eligibility_error": "958/323",
+      "capacity_oscillation": "1696/299",
+      "capacity_rate_L1_error": "1804/299",
+      "bound": "834250/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 17,
+      "departure_error": "668279/661181",
+      "eligibility_error": "298/323",
+      "capacity_oscillation": "1184/299",
+      "capacity_rate_L1_error": "2437/299",
+      "bound": "471534/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 18,
+      "departure_error": "37/17",
+      "eligibility_error": "490/323",
+      "capacity_oscillation": "1498/299",
+      "capacity_rate_L1_error": "1836/299",
+      "bound": "630364/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 19,
+      "departure_error": "368510/96577",
+      "eligibility_error": "1228/323",
+      "capacity_oscillation": "1476/299",
+      "capacity_rate_L1_error": "2297/299",
+      "bound": "843920/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 20,
+      "departure_error": "7238/5083",
+      "eligibility_error": "1043/323",
+      "capacity_oscillation": "1295/299",
+      "capacity_rate_L1_error": "2669/299",
+      "bound": "730142/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 21,
+      "departure_error": "5038/2737",
+      "eligibility_error": "610/323",
+      "capacity_oscillation": "1316/299",
+      "capacity_rate_L1_error": "1316/299",
+      "bound": "607458/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 22,
+      "departure_error": "13888/4199",
+      "eligibility_error": "1745/323",
+      "capacity_oscillation": "404/299",
+      "capacity_rate_L1_error": "1116/299",
+      "bound": "652247/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 23,
+      "departure_error": "10449/5083",
+      "eligibility_error": "535/323",
+      "capacity_oscillation": "2226/299",
+      "capacity_rate_L1_error": "2226/299",
+      "bound": "878963/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 24,
+      "departure_error": "325/323",
+      "eligibility_error": "325/323",
+      "capacity_oscillation": "1910/299",
+      "capacity_rate_L1_error": "1910/299",
+      "bound": "714105/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 25,
+      "departure_error": "5904/5083",
+      "eligibility_error": "562/323",
+      "capacity_oscillation": "47/13",
+      "capacity_rate_L1_error": "1843/299",
+      "bound": "22487/4199"
+    },
+    {
+      "seed": 2691,
+      "case": 26,
+      "departure_error": "11320/4199",
+      "eligibility_error": "1261/323",
+      "capacity_oscillation": "924/299",
+      "capacity_rate_L1_error": "1760/299",
+      "bound": "675491/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 27,
+      "departure_error": "3124/391",
+      "eligibility_error": "1574/323",
+      "capacity_oscillation": "2780/299",
+      "capacity_rate_L1_error": "3182/299",
+      "bound": "1368566/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 28,
+      "departure_error": "248669/52003",
+      "eligibility_error": "1553/323",
+      "capacity_oscillation": "1894/299",
+      "capacity_rate_L1_error": "2044/299",
+      "bound": "1076109/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 29,
+      "departure_error": "139668/96577",
+      "eligibility_error": "565/323",
+      "capacity_oscillation": "853/299",
+      "capacity_rate_L1_error": "1436/299",
+      "bound": "444454/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 30,
+      "departure_error": "1756/391",
+      "eligibility_error": "686/323",
+      "capacity_oscillation": "2137/299",
+      "capacity_rate_L1_error": "2331/299",
+      "bound": "895365/96577"
+    },
+    {
+      "seed": 2691,
+      "case": 31,
+      "departure_error": "37341/27761",
+      "eligibility_error": "1214/323",
+      "capacity_oscillation": "1497/299",
+      "capacity_rate_L1_error": "1497/299",
+      "bound": "846517/96577"
+    }
+  ]
+}

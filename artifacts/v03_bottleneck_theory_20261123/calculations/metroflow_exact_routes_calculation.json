@@ -1,0 +1,140 @@
+{
+  "status": "exact rational checks of displayed examples; not production validation",
+  "route_A": {
+    "slabs": [
+      {
+        "interval": [
+          10,
+          11
+        ],
+        "mass": [
+          "1",
+          "1/2",
+          "0"
+        ],
+        "birth": [
+          "2",
+          "5/2",
+          "0"
+        ]
+      },
+      {
+        "interval": [
+          11,
+          12
+        ],
+        "mass": [
+          "1",
+          "3/2",
+          "1"
+        ],
+        "birth": [
+          "2",
+          "17/2",
+          "8"
+        ]
+      },
+      {
+        "interval": [
+          12,
+          13
+        ],
+        "mass": [
+          "1",
+          "3/2",
+          "1"
+        ],
+        "birth": [
+          "2",
+          "17/2",
+          "8"
+        ]
+      },
+      {
+        "interval": [
+          13,
+          14
+        ],
+        "mass": [
+          "1",
+          "1/2",
+          "0"
+        ],
+        "birth": [
+          "2",
+          "5/2",
+          "0"
+        ]
+      }
+    ],
+    "head_mass": "7/2",
+    "beta": [
+      "4/7",
+      "3/7"
+    ],
+    "rate": "7/3",
+    "duration": "3/7",
+    "fraction": "2/7",
+    "served": {
+      "mass": [
+        "2/7",
+        "3/7",
+        "2/7"
+      ],
+      "birth": [
+        "4/7",
+        "17/7",
+        "16/7"
+      ]
+    },
+    "served_birth_total": "37/7",
+    "served_age_at_midpoint": "209/14"
+  },
+  "route_B": {
+    "first_service": {
+      "mass": [
+        "3/4",
+        "1/4",
+        "1/2",
+        "1/2"
+      ],
+      "birth": [
+        "3/2",
+        "1",
+        "1/2",
+        "5/2"
+      ]
+    },
+    "destination_merge": {
+      "mass": [
+        "3/4",
+        "9/4"
+      ],
+      "birth": [
+        "3/2",
+        "13"
+      ]
+    },
+    "merged_fiber": [
+      "1/4",
+      "3/4"
+    ],
+    "second_half_service": {
+      "mass": [
+        "3/8",
+        "9/8"
+      ],
+      "birth": [
+        "3/4",
+        "13/2"
+      ]
+    },
+    "persons_first": "7/4",
+    "cargo_first_kg": "500"
+  },
+  "midpoint_counterexample": {
+    "split_weighted_speed": 1.1703391801389367,
+    "merged_weighted_speed": 1.2642411176571153,
+    "difference": 0.09390193751817855
+  }
+}
