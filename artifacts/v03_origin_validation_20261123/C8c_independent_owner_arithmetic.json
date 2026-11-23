@@ -1,0 +1,11 @@
+{
+  "status": "INDEPENDENT_OWNER_ARITHMETIC_PASSED",
+  "owner_multiplicity_and_target_configurations": 48,
+  "checks_per_configuration": [
+    "unique road clone plus unique pair credit",
+    "row clone-occurrence plus unique stage pair credit",
+    "target history clone only; no cross-source history credit"
+  ],
+  "scope": "finite integer check and accompanying analytic proof; no Cargo/native/physical run",
+  "future_independent_decode_credit": 0
+}

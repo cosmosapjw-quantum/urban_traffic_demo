@@ -1,0 +1,41 @@
+Traceback (most recent call last):
+  File "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/src/metroflow/v1/native_engine.py", line 88, in advance
+    return self.native.advance(state, end_s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+MemoryError: native journey stored/working byte budget
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/tools/run_v1_local_acceptance.py", line 376, in _worker
+    state=advance_measured(state,28800)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/tools/run_v1_local_acceptance.py", line 347, in advance_measured
+    state=driver.advance(state,target)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/src/metroflow/v1/native_release_driver.py", line 48, in advance
+    updated = self.runtime.advance(state.runtime_state, end_s)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/src/metroflow/v1/native_engine.py", line 95, in advance
+    raise exc from cause
+metroflow.active_suffix.common.BudgetExceeded: native journey stored/working byte budget
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/tools/run_v1_local_acceptance.py", line 520, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/tools/run_v1_local_acceptance.py", line 471, in main
+    return worker(args,matrix,cases[0])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/tools/run_v1_local_acceptance.py", line 267, in worker
+    return _worker(args,matrix,case,route_latency)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/tools/run_v1_local_acceptance.py", line 405, in _worker
+    driver.save(path,checkpoint)
+  File "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/src/metroflow/v1/native_release_driver.py", line 76, in save
+    self.runtime.save(path, state.runtime_state)
+  File "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-validation-20261123/src/metroflow/v1/native_engine.py", line 137, in save
+    self.native.save(str(staged), state)
+MemoryError: native capture/validation storage budget exceeded: required_bytes=7611271961, budget_bytes=6442450944

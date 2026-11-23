@@ -94,7 +94,13 @@ service event·sink 버퍼가 함께 차지하는 비용을 차감한 뒤 해당
 
 snapshot capture, 전체 장부 검증, road→service→journey 순서의 checkpoint decode도
 각 단계에서 이미 살아 있는 owner와 검증 작업공간을 포함하여 할당 전에 검사한다.
-단계별 임시 상한은 공개 호출·load/restore 경계에서 정리한다. 검증 계약에는
+단계별 임시 상한은 공개 호출·load/restore 경계에서 정리한다. Capture와 restore는
+실제 input/current 및 해당 clone target을 공통 계상하며, 포인터로 확인한 immutable
+payload의 공유만 공제한다. Container capacity는 유지하고 census를 만들기 전에
+두 실제 owner와 census scratch를 먼저 승인한다. Census와 clone/validation의
+배타적인 수명은 최대값으로 계산하며, 독립 decoder에 과거 source의 공유를 공제하지
+않는다. 사전 예측 하나가 전체 load→restore→반환 검증을 자동으로 증명하는 것은
+아니므로 큰 checkpoint의 실제 fresh-runtime 복원으로 확인한다. 검증 계약에는
 commit 후보의 장부 검사와 같은 budget에서 다시 decode할 때 필요한 capacity
 여유까지 포함한다. 예산 초과 뒤 반환한 마지막 유효 상태는 fresh runtime의
 load/replay로 확인해야 한다. 2026-11-23 수정은 현재 source/input/candidate의

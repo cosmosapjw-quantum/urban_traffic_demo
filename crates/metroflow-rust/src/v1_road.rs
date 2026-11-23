@@ -343,6 +343,28 @@ pub(crate) struct RoadState {
     totals: [f64; 7],
     ledger: Vec<[f64; 5]>,
 }
+/// Source-bound capture/restore witness. Payload identities are collected
+/// only after the engine admits the two live owners and this table's upper.
+#[derive(Default,Clone,Copy)]
+pub(crate) struct SnapshotRoadArcWitness {
+    pub(crate) input_current_payload_bytes:usize,
+    pub(crate) clone_target_payload_bytes:usize,
+    pub(crate) actual_census_bytes:usize,
+}
+impl SnapshotRoadArcWitness {
+    pub(crate) fn source_owner_bytes(&self,input:usize,current:usize,clone_from_input:bool)->usize {
+        let target=if clone_from_input {input}else{current};
+        input.saturating_add(current).saturating_add(target)
+            .saturating_sub(self.input_current_payload_bytes.min(input).min(current))
+            .saturating_sub(self.clone_target_payload_bytes.min(target))
+    }
+}
+fn snapshot_road_map_bytes(capacity:usize)->usize {
+    if capacity==0 {return 0;}
+    capacity.saturating_mul(2)
+        .saturating_mul(std::mem::size_of::<((u8,usize),usize)>().saturating_add(1))
+        .saturating_add(128)
+}
 #[derive(Default)]
 pub(crate) struct RoadDebugStats {
     pub(crate) cell_packets: usize,
@@ -1848,6 +1870,71 @@ impl RoadState {
             });
         }
         credited
+    }
+
+    fn visit_snapshot_backings(&self,mut visit:impl FnMut((u8,usize),usize)) {
+        for packet in self.cells.iter().flat_map(|c|&c.packets)
+            .chain(self.pending.iter().flatten())
+        {
+            match &packet.parts {
+                PacketParts::Uniform{rows,..}=>visit(
+                    (0,Arc::as_ptr(rows) as usize),
+                    rows.capacity().saturating_mul(std::mem::size_of::<CorePart>())),
+                PacketParts::Mixed(rows)=>visit(
+                    (1,Arc::as_ptr(rows) as usize),
+                    rows.capacity().saturating_mul(std::mem::size_of::<Part>())),
+                PacketParts::SharedKeys{keys,moments,..}=>{
+                    visit((2,Arc::as_ptr(keys) as usize),
+                          keys.capacity().saturating_mul(std::mem::size_of::<(u32,u32)>()));
+                    visit((3,Arc::as_ptr(moments) as usize),
+                          moments.capacity().saturating_mul(std::mem::size_of::<(f64,f64)>()));
+                },
+            }
+        }
+    }
+    fn snapshot_backing_occurrences(&self)->usize {
+        let mut count=0usize;
+        self.visit_snapshot_backings(|_,_|count=count.saturating_add(1));
+        count
+    }
+    fn snapshot_census_upper_bytes(&self)->usize {
+        let count=self.snapshot_backing_occurrences();
+        if count==0 {0} else {snapshot_road_map_bytes(count.max(2).saturating_mul(2))}
+    }
+    /// self is exactly the planned Clone target; other is the second live
+    /// source. Reserve once before insertion, then drop the table on return.
+    /// A repeated SharedKeys allocation is credited only once in each pair,
+    /// matching retained_storage_bytes' existing within-owner key dedup.
+    fn snapshot_arc_witness(&self,other:&RoadState)->PyResult<SnapshotRoadArcWitness> {
+        let entries=self.snapshot_backing_occurrences();
+        let mut witness=HashMap::<(u8,usize),usize>::new();
+        witness.try_reserve(entries)
+            .map_err(|_|budget("snapshot road Arc census allocation failed"))?;
+        let actual=snapshot_road_map_bytes(witness.capacity());
+        let upper=self.snapshot_census_upper_bytes();
+        if actual>upper {
+            return Err(budget(&format!(
+                "snapshot road Arc census exceeds preflight: actual_bytes={actual}, reserved_bytes={upper}"
+            )));
+        }
+        let mut cloned=0usize;
+        self.visit_snapshot_backings(|ptr,bytes|{
+            if let std::collections::hash_map::Entry::Vacant(entry)=witness.entry(ptr) {
+                entry.insert(bytes);
+                cloned=cloned.saturating_add(bytes);
+            }
+        });
+        let mut shared=0usize;
+        other.visit_snapshot_backings(|ptr,_|{
+            if let Some(bytes)=witness.remove(&ptr) {
+                shared=shared.saturating_add(bytes);
+            }
+        });
+        Ok(SnapshotRoadArcWitness{
+            input_current_payload_bytes:shared,
+            clone_target_payload_bytes:cloned,
+            actual_census_bytes:actual,
+        })
     }
 
     /// Diagnostic-only exact Vec *payload capacity* identity census.
@@ -3824,6 +3911,18 @@ impl V1Road {
     }
     pub(crate) fn checkpoint(&self) -> RoadState {
         self.state.clone()
+    }
+    pub(crate) fn snapshot_arc_census_upper_bytes(
+        &self,input:&RoadState,clone_from_input:bool,
+    )->usize {
+        if clone_from_input {input.snapshot_census_upper_bytes()}
+        else {self.state.snapshot_census_upper_bytes()}
+    }
+    pub(crate) fn snapshot_arc_witness(
+        &self,input:&RoadState,clone_from_input:bool,
+    )->PyResult<SnapshotRoadArcWitness> {
+        if clone_from_input {input.snapshot_arc_witness(&self.state)}
+        else {self.state.snapshot_arc_witness(input)}
     }
     /// Diagnostic only: ownership overlap of committed and supplied snapshot.
     pub(crate) fn arc_committed_snapshot_union(&self, supplied: &RoadState) -> ArcBackingCensus {
@@ -10135,5 +10234,61 @@ mod v03_checkpoint_validation_bridge_20261123_tests {
         let error=target.read_state(&mut Cursor::new(wire)).err().unwrap().to_string();
         assert!(error.contains("checkpoint decode preflight"),"{error}");
         assert!(error.contains("required_bytes=3000000"),"{error}");
+    }
+}
+
+#[cfg(test)]
+mod v03_snapshot_owner_c8c_20261123_tests {
+    use super::*;
+
+    fn state()->RoadState {
+        let rows=Arc::new(vec![CorePart{tag:0,offset:0,mass:1.0,birth:0.0}]);
+        let packet=Packet{target:1.0,parts:PacketParts::Uniform{
+            a:PackedTime::new(None).unwrap(),b:PackedTime::new(None).unwrap(),rows,
+        }};
+        let mut packets=Vec::with_capacity(4096);
+        packets.push(packet);
+        RoadState{t:0.0,cells:vec![Cell{v:[0.0;8],packets,latent:BTreeMap::new()}],
+            pending:vec![vec![]],totals:[0.0;7],ledger:vec![[0.0;5]]}
+    }
+    #[test]
+    fn restore_charges_actual_input_spare_capacity_and_cross_clock_arc_only() {
+        let input=state();
+        let mut current=input.clone();
+        current.t=10.0;
+        let ir=input.retained_storage_bytes();
+        let cr=current.retained_storage_bytes();
+        assert!(ir>cr);
+        let w=input.snapshot_arc_witness(&current).unwrap();
+        let payload=std::mem::size_of::<CorePart>();
+        assert_eq!(w.input_current_payload_bytes,payload);
+        assert_eq!(w.clone_target_payload_bytes,payload);
+        assert_eq!(w.source_owner_bytes(ir,cr,true),2*ir+cr-2*payload);
+        assert_eq!(w.source_owner_bytes(ir,cr,true)
+            -w.source_owner_bytes(cr,cr,true),2*(ir-cr));
+        assert!(w.actual_census_bytes<=input.snapshot_census_upper_bytes());
+        let separate=state();
+        assert_eq!(input.snapshot_arc_witness(&separate).unwrap()
+            .input_current_payload_bytes,0);
+    }
+    #[test]
+    fn repeated_shared_key_payload_gets_one_credit_per_real_owner_pair() {
+        let mut input=state();
+        let keys=Arc::new(vec![(0u32,0u32)]);
+        input.cells[0].packets.clear();
+        for _ in 0..8 {
+            input.cells[0].packets.push(Packet{target:1.0,
+                parts:PacketParts::SharedKeys{
+                    a:PackedTime::new(None).unwrap(),b:PackedTime::new(None).unwrap(),
+                    keys:keys.clone(),moments:Arc::new(vec![(1.0,0.0)]),
+                }});
+        }
+        let current=input.clone();
+        let w=input.snapshot_arc_witness(&current).unwrap();
+        assert_eq!(w.input_current_payload_bytes,8+8*16);
+        assert_eq!(w.clone_target_payload_bytes,8+8*16);
+        assert!(w.actual_census_bytes<=input.snapshot_census_upper_bytes());
+        let owner=input.retained_storage_bytes();
+        assert_eq!(w.source_owner_bytes(owner,owner,false),3*owner-2*(8+8*16));
     }
 }

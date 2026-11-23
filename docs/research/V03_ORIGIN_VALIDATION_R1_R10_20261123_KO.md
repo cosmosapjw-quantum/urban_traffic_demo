@@ -166,3 +166,24 @@ Watchdog: `ALIGNED_WITH_OPEN_OBLIGATION`. 이론은 원래 traffic→causal rout
 이 dominance는 root의 floating 반올림에 의존하지 않는다. 하단 거리의 정확한 식 Q_-(16,7)=7+5e^{-0.1}(1−e^{-0.7})/(e^{0.5}−1)>52409/5057>10m라는 유리수 비교가 모든 허용 이력에서 duration<7s를 보인다. 수치 root endpoints는 binary64와70-digit Decimal 대조를 통한 수치 검산으로만 표시하며 일반적인 directed-rounding enclosure로 부르지 않는다.
 
 실제 새 표적pytest11개가0.25s에 통과했고, 별도 보류 passage84개(상수forcing60개+관측 뒤forcing변화24개)가 모두 통과했다.120개root를70-digit Decimal 식과 비교한 최대 차이는9.21514e−12s(<2e−11s), 실험wall0.771811s,exit0이다. 기존 이론 모듈·native·수요·dt·cap은 변경하지 않았다. 일반 queue/spillback의 양의forcing 인증과 native matched boundary 계측은 여전히 미완료다. 새 유도에 대한 독립 검토는 기존 정리를 재심사하지 않고 이 추가 범위만 확인한다.
+
+
+### 정상 반환·저장의 반복 capture 실패와 C8c 통합
+
+첫 C8 최종 native(78b49811…/3bec7cd5…)는25,730→25,740s에서 내부 tick1개 및 checkpointability를 통과했다. 그러나 outer capture/validation이6,887,244,069>6,442,450,944B로 거절하여 연구 runner의 새 반환·저장 시간은0s다. 이어10/20/40s staircase를 실제로 실행했다.10s와20s는 저장까지 성공했고,40s는25,690→25,730s의4개 returned/ledger-checked tick을 마쳤지만 저장 중6,513,265,473>6,442,450,944B로 실패했다. 이 구간에 final wire/hash가 없으므로 전체70s durable chain 성공이나 역사 wire 일치를 주장하지 않는다.
+
+| 요청 window | 반환·장부 clock | 전체 child wall[s] | worker timer[s] | durable 결과 |
+|---|---:|---:|---:|---|
+| 10s | 25,660→25,670 | 66.813550 | 64.207583 | 저장 성공,2,210,069,010B |
+| 20s | 25,670→25,690 | 124.597112 | 122.736730 | 저장 성공,2,949,231,402B |
+| 40s | 25,690→25,730 | 364.103844 | 361.212305 | 반환40s,마지막 저장 실패 |
+
+전체 child wall은 시작 admission hash와 Python 시작 비용을 포함한다. worker timer는 prepare·restore·advance·save를 포함하지만 그 전에 수행한 predecessor admission hash는 제외한다. 요청 물리시간과 실제 CPU/wall 실행시간을 혼용하지 않는다. 각 source/native·native tick timing·RSS·원 오류는 `R8_staircase/`에 있다.
+
+같은 후보의 원 CLI에서100k/86400s를 실제 time-zero로 요청했다. hourly25200→28800 호출 중 `native journey stored/working byte budget`가 먼저 발생하고, 예외 checkpoint를 저장하다capture7,611,271,961>6,442,450,944B로 다시 실패했다. 외부wall717.29s,exit1,peakRSS5,286,748,160B다. 최종 worker JSON은 생성되지 않았으며 마지막 저장된 hourly 경계25,200s만 확인된다. 그 이후 내부 clock은 기록되지 않아 추정하지 않는다. source note와 외부 실패 요약은 `C8_remaining_capture_blocker.md`, `R8_pre_capture_original_hourly_failure_summary.json`에 보존했다. 따라서 capture 문제는 tick-return 연구 runner뿐 아니라 원 수용시험의 실패 복구에도 영향을 준다.
+
+C8c는 이 반복 실패를 근거로 capture와 restore가 사용하는 단일 `snapshot_source_owners` 계상 경로를 만들었다. 실제 input I,current C,정확한 clone target T의 container capacity를 모두 세고, 실제 포인터로 확인한 I∩C immutable payload 및 T→clone(T)의 공유 payload만 공제한다. StageQueue row payload·Road parts·ReceiptHistory shallow clone을 구분하고, 입력/current history 사이의 prefix 공유는 보수적으로 남긴다. Event backing은 Arc identity와 측정 size가 모두 같을 때만 하나로 센다. 공제 없는 두 실제 owner와 고정 reserve·순차 census workspace를 먼저 승인하며, census와 이후 clone/validation의 비용은 별도 phase MAX다. 독립 future decoder에 현재 source 공유를 전파하지 않고 cap·validator·물리·wire는 유지했다.
+
+실제 유효 fixture의 기존 capture84,991,238>84,594,070B 및 save/restore84,991,166>84,397,174B가 같은 cap에서 GREEN으로 바뀌었고1,049,076B 전체 wire가 동일했다. 이 fixture는 실제 road event, nonempty StageQueue·ReceiptHistory를 포함한다. 앞선3개 fixture 작성 실패 로그는 보존하지만 behavioral RED로 세지 않는다. 표적7개,전체 Rust library292passed/0failed/2ignored,exit0이다. 독립 C8c 검토의 primary 판정은 지정 범위에서 NO_MATERIAL_FINDING이며, fresh-load→restore→반환은 여전히 실제 큰 checkpoint로 확인한다. 미래 사전 gate 하나만으로 전체 복원 파이프라인의 충분성까지 증명했다고 하지 않는다.
+
+재실행은 이미 성공한10/20s를 무조건 반복하지 않고, 저장된25,690s의 raw receipt SHA `fb6b74b7af38592003d1af169d8c029b9ceb394194e3217d6011d0865dc95732`,전체 wire/source/native를 명시적으로 고정해 같은 실패40s를 다시 실행하도록 준비했다. 변경되거나 저장이 실패한 영수증은 계속 거절한다. 원11개와 이번3개를 포함한 admission14개가0.14s에 통과했다.25,670s 중간 파일은 소비 완료 후 무손실 zstd로 보존했고, 풀어 읽은 전체2,210,069,010B/hash 일치를 확인한 뒤 중복 raw만 제거했다(`R8_staircase/archive_from_25660_duration_10.json`). 역사적 seed는 변경하지 않았다.

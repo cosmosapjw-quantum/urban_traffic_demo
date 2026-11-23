@@ -30,12 +30,18 @@ MATRIX_SHA = "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
 DRIVER = "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4"
 OLD_SOURCE = "7e8b92020076e01283d532cf0e5825cb30167a533949e6bc6fd071f7b7d8cfe2"
 OLD_NATIVE = "baa3e4ce4f775df5cf3973e749357cc2d5a29cefbf1683355638a0de5b6a5606"
-# receipt SHA -> (validated physical clock, checkpoint bytes, checkpoint SHA)
+# receipt SHA -> (validated clock, complete bytes, wire SHA, source SHA, native SHA)
 PINS = {
     "a338e34cd445a66bd025e017aca01356d89db04bb77a1dac7400f3a4af7c9cbf":
-        (25730.0, 5523765378, "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9"),
+        (25730.0, 5523765378, "c8335535408e13266bb4b5f15b10d0854701e644421ae3e8183d7c468d9183c9", OLD_SOURCE, OLD_NATIVE),
     "cfba815ece86d0f632de5d51220c90aded20f299c20d15e1562ccc6a1b868bcf":
-        (25660.0, 1912366706, "bbdc75baef04e522e8fe6e668561f41fc4987507469eeebd97c60c9291dfb7b0"),
+        (25660.0, 1912366706, "bbdc75baef04e522e8fe6e668561f41fc4987507469eeebd97c60c9291dfb7b0", OLD_SOURCE, OLD_NATIVE),
+    # This-session saved 25690 state: reproduce the observed 40s save failure
+    # after the capture-only source repair, without replaying unchanged 10/20s.
+    "fb6b74b7af38592003d1af169d8c029b9ceb394194e3217d6011d0865dc95732":
+        (25690.0, 2949231402, "db5b6b53f728d892ad53b9e7126d08e73b877f055e2e6e78443f1c0851b7bd10",
+         "78b49811dd84544e3c5dcd4281c3918fc41384fc1815941792a90ccc58bde3f7",
+         "3bec7cd5cb788047c95a1f55464af9baed28699ace086bc8fd13fe342c2b08d5"),
 }
 
 
@@ -72,15 +78,15 @@ def predecessor(raw: bytes, source_sha: str, native_sha: str) -> tuple[dict, boo
         raise ValueError("incomplete run mislabeled as completed")
     if pin:
         if ((r["completed_time_s"], r["final_checkpoint_bytes"],
-             r["final_checkpoint_sha256"]) != pin
-                or r["current_candidate_source_sha256"] != OLD_SOURCE
-                or r["current_native_binary_sha256"] != OLD_NATIVE):
+             r["final_checkpoint_sha256"]) != pin[:3]
+                or r["current_candidate_source_sha256"] != pin[3]
+                or r["current_native_binary_sha256"] != pin[4]):
             raise ValueError("pinned historical metadata differs")
     elif (r.get("schema") != SCHEMA or
           r.get("current_candidate_source_sha256") != source_sha or
           r.get("current_native_binary_sha256") != native_sha):
         raise ValueError("unpinned cross-native/source predecessor forbidden")
-    return r, bool(pin and (source_sha != OLD_SOURCE or native_sha != OLD_NATIVE))
+    return r, bool(pin and (source_sha != pin[3] or native_sha != pin[4]))
 
 
 def next_target(clock: float, end: float, cadence: str, span: int) -> float:

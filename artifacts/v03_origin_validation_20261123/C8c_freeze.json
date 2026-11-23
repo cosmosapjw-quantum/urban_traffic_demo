@@ -1,0 +1,95 @@
+{
+  "scope": "isolated C8c capture/restore owner correction; source frozen; no production physics credit",
+  "base_commit": "64173178d11229825efc553c441f6f90c7541979",
+  "worktree": "/home/cosmosapjw/worktrees/urban-traffic-v03-origin-capture-fix-20261123",
+  "recorded_utc": "2026-11-23T07:28:49.105112+00:00",
+  "files": {
+    "crates/metroflow-rust/src/v1_road.rs": "e6cc7627cb74497fb5a108897df860e8a3da5567c121ad73a601a3cf2346e617",
+    "crates/metroflow-rust/src/v1_journey.rs": "bdae60a4f7110d21c148430e31e22c816c6fa7c27cb9ac056985ab7ffc7b6740",
+    "crates/metroflow-rust/src/v1_engine.rs": "ddc0e42ea5396c64564a822a858b7fbd652be311a2082bfb908eefe0146287db"
+  },
+  "tests": {
+    "behavioral_RED": {
+      "exit": 101,
+      "actual_gate_failures": 2,
+      "fixture_setup_failures_excluded": 3
+    },
+    "behavioral_GREEN": {
+      "exit": 0,
+      "passed": 2,
+      "wire_equality_bytes": 1049076
+    },
+    "scoped": {
+      "exit": 0,
+      "passed": 7
+    },
+    "final_lib": {
+      "exit": 0,
+      "passed": 292,
+      "failed": 0,
+      "ignored": 2
+    }
+  },
+  "logs": {
+    "C8c_RED.exit": {
+      "sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "bytes": 4
+    },
+    "C8c_RED.log": {
+      "sha256": "8343300dc01f970e9d7984089e3f4e0d6e355eff357a14e9abac7f577c03da28",
+      "bytes": 5251
+    },
+    "C8c_RED_capture_restore.exit": {
+      "sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "bytes": 4
+    },
+    "C8c_RED_capture_restore.log": {
+      "sha256": "8674aac22a7f85b2a5d9f564e954aa7502a836e3449d8e081f8bf149a2a91862",
+      "bytes": 5033
+    },
+    "C8c_RED_valid_fixture.exit": {
+      "sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "bytes": 4
+    },
+    "C8c_RED_valid_fixture.log": {
+      "sha256": "e2c1420e335719736b0d57f2876ad7cf4ef82631ddeb4a187cdcef0092764d2d",
+      "bytes": 5033
+    },
+    "C8c_behavioral_GREEN.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "C8c_behavioral_GREEN.log": {
+      "sha256": "16666bd5b80805c7f9349689dd07104176bd9db0b4d5ddb5917cc858a5349eb7",
+      "bytes": 4449
+    },
+    "C8c_behavioral_RED.exit": {
+      "sha256": "39b8dc3fc8b44765c8e6f1adee04c5b465e555ab791cc42d0d9e810d5b64297c",
+      "bytes": 4
+    },
+    "C8c_behavioral_RED.log": {
+      "sha256": "962ab98496c576ea433341ccf95a7e2e4f9f35580db1d9ecce9df6c489473e9d",
+      "bytes": 5478
+    },
+    "C8c_final_lib.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "C8c_final_lib.log": {
+      "sha256": "e04897ec491077e84752fb1f676ac7f4cfbc78a42d2c0fcea231d9f58fc90d86",
+      "bytes": 38914
+    },
+    "C8c_scoped.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "C8c_scoped.log": {
+      "sha256": "8f5f8b5db824dda731bc14788b82a6d3b902f3c9f409db488f31710b3e7ec592",
+      "bytes": 5100
+    }
+  },
+  "author_note_sha256": "80e4a6d676289d655d21e7183dfb04ceabdc4c42521433ed568f9680b758ce7c",
+  "native_built": false,
+  "production_physics_credit": 0,
+  "independent_review": "pending separate reviewer artifact"
+}

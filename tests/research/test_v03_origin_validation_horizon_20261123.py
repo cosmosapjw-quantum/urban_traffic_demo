@@ -59,3 +59,27 @@ def test_call_cadence_changes_boundaries_not_physical_dt():
     assert next_target(25730, 25750, "window", 20) == 25750
     assert next_target(25730, 29000, "hourly", 10) == 28800
     assert next_target(28800, 29000, "hourly", 10) == 29000
+
+
+def test_exact_this_session_saved_25690_pin_can_reproduce_failed_40s():
+    p = ROOT / "artifacts/v03_origin_validation_20261123/R8_staircase/from_25670_duration_20.json"
+    r, cross = predecessor(p.read_bytes(), "capture-fixed-source", "capture-fixed-native")
+    assert cross and r["completed_time_s"] == 25690
+    assert predecessor(p.read_bytes(), r["current_candidate_source_sha256"],
+                       r["current_native_binary_sha256"])[1] is False
+
+
+def test_changed_this_session_receipt_cannot_cross_source():
+    p = ROOT / "artifacts/v03_origin_validation_20261123/R8_staircase/from_25670_duration_20.json"
+    r = json.loads(p.read_bytes())
+    r["created_utc"] = "not-the-recorded-receipt"
+    with pytest.raises(ValueError, match="unpinned"):
+        predecessor(json.dumps(r).encode(), "capture-fixed-source", "capture-fixed-native")
+
+
+def test_returned_40s_with_failed_save_is_not_a_durable_predecessor():
+    p = ROOT / "artifacts/v03_origin_validation_20261123/R8_staircase/from_25690_duration_40.json"
+    r = json.loads(p.read_bytes())
+    with pytest.raises(ValueError, match="saved physical prefix"):
+        predecessor(p.read_bytes(), r["current_candidate_source_sha256"],
+                    r["current_native_binary_sha256"])
