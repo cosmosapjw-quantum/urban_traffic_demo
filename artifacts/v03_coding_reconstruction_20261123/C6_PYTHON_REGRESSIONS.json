@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/v1/test_native_owner_storage.py",
+    "tests/v1/test_native_engine.py",
+    "tests/v1/test_native_whole_driver.py",
+    "tests/v1/test_native_journey.py"
+  ],
+  "exit_code": 0,
+  "wall_s": 2.3480666399700567,
+  "native_sha256": "676d1bd7a5b4ba43440f14f26d0e468df32ab983e3ef058114e25c95cd2d393a",
+  "log": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_coding_reconstruction_20261123/C6_PYTHON_REGRESSIONS.log"
+}

@@ -1,0 +1,31 @@
+{
+  "bounded_bytes_v1": {
+    "wire_and_physical_state_pairs_identical": 8,
+    "nonempty_event_ticks": 10,
+    "old_materialization_guards": {
+      "road_post:event candidate materialize after road": {
+        "calls": 345,
+        "exceeded": 0,
+        "limit_at_max": 201157053,
+        "live_at_max": null,
+        "max_ratio": 0.0011995005713272206,
+        "max_required": 241288,
+        "terms_at_max": {
+          "committed_input_event_bytes": 512,
+          "flat_event_rows": 8,
+          "page_descriptor_slots": 8,
+          "paged_event_payload_bytes": 196608,
+          "paged_event_slots": 4096,
+          "retained_road_owners": 43320
+        }
+      }
+    },
+    "new_materialization_guards": {}
+  },
+  "legacy_records": {
+    "wire_and_physical_state_pairs_identical": 8,
+    "nonempty_event_ticks": 10,
+    "old_materialization_guards": {},
+    "new_materialization_guards": {}
+  }
+}

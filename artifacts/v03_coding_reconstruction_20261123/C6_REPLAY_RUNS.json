@@ -1,0 +1,32 @@
+[
+  {
+    "label": "old",
+    "command": [
+      "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+      "tools/research/check_retained_event_replay.py",
+      "--label",
+      "old",
+      "--out",
+      "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_coding_reconstruction_20261123/C6_old_replay.json"
+    ],
+    "exit_code": 0,
+    "wall_s": 0.3193120820214972,
+    "stdout": "{\"label\": \"old\", \"native_sha256\": \"22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a\", \"policies\": {\"legacy_records\": {\"nonempty_event_ticks\": 10, \"max_events\": 8, \"batch_wire_identical\": true, \"restart_wire_identical\": true}, \"bounded_bytes_v1\": {\"nonempty_event_ticks\": 10, \"max_events\": 8, \"batch_wire_identical\": true, \"restart_wire_identical\": true}}}\n",
+    "stderr": ""
+  },
+  {
+    "label": "new",
+    "command": [
+      "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+      "tools/research/check_retained_event_replay.py",
+      "--label",
+      "new",
+      "--out",
+      "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_coding_reconstruction_20261123/C6_new_replay.json"
+    ],
+    "exit_code": 0,
+    "wall_s": 0.2590039770002477,
+    "stdout": "{\"label\": \"new\", \"native_sha256\": \"676d1bd7a5b4ba43440f14f26d0e468df32ab983e3ef058114e25c95cd2d393a\", \"policies\": {\"legacy_records\": {\"nonempty_event_ticks\": 10, \"max_events\": 8, \"batch_wire_identical\": true, \"restart_wire_identical\": true}, \"bounded_bytes_v1\": {\"nonempty_event_ticks\": 10, \"max_events\": 8, \"batch_wire_identical\": true, \"restart_wire_identical\": true}}}\n",
+    "stderr": ""
+  }
+]

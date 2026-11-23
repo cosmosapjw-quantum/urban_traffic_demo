@@ -19,7 +19,7 @@ The first selected native boundary is persistent, exact event-history storage: p
 | C3 | Exact representation invariants, stable computation, failure counterexamples | COMPLETE; exact codec and ownership contract below |
 | C4 | Bounded execution ladder, recovered native baseline, build/resource setup | COMPLETE; recovered binary and observed behavioral RED |
 | C5 | Complete native producer-to-consumer implementation | COMPLETE; exact history path and behavioral GREEN |
-| C6 | Actual build, behavioral red/green, targeted native/Python regressions | PENDING |
+| C6 | Actual build, behavioral red/green, targeted native/Python regressions | COMPLETE; 180 Rust, 42 Python, matched old/new replay |
 | C7 | Full-demand original checkpoint continuation and physical ledger checks | PENDING |
 | C8 | Increasing horizons, matched correctness/resource/replay experiments | PENDING |
 | C9 | One independent review of changed scientific and runtime surfaces; repairs | PENDING |
@@ -71,3 +71,12 @@ The former S07 failed tick and S08 time-zero prefix have unchanged source/binary
 The complete native path now retains Arc<ChunkedEvents>: road proposal -> current-tick sinks -> immutable service history -> engine validation/storage -> legacy writer, plus direct legacy read into the carrier. The public standalone road Vec API remains explicit. All original row arithmetic and ordered sink consumers are retained. Keyset interning now receives the actual encoded candidate-event cost and still runs after road temporaries expire. Decoder append checks are constant-time; snapshots preserve Arc identity; wide registries retain a wide representation.
 
 The identical C4 Cargo command now exits 0: four tests pass, including the formerly failing repeated-time history cost condition, legacy byte/IEEE roundtrip across page boundaries, decode-budget rollback and wide-index preservation. Actual command/log and complete Rust file hashes are C5_RETAINED_EVENT_GREEN.json/log. Parent read the child journey/engine diff and integrated the road changes. Native whole-prefix and resource campaigns remain C6–C8 work, not implied by this component result.
+
+
+## C6: actual regression and native binary binding
+
+The complete Rust library suite exits 0: 180 passed, 0 failed, 2 explicitly ignored. The release budget_trace build exits 0 (22.82 s); the rebuilt extension SHA-256 is 676d1bd7a5b4ba43440f14f26d0e468df32ab983e3ef058114e25c95cd2d393a. The four affected Python suites (owner storage, native engine, whole driver, journey) exit 0: 42 passed in 1.97 s. Exact argv, environment, actual child return codes and logs are retained in the C6 artifacts. C6_PROVENANCE.json binds the clean production source, extension and replay script.
+
+A separate-process old/new experiment uses the existing mixed road/bus fixture through 120 physical seconds under both legacy_records and bounded_bytes_v1. There are ten nonempty-event ticks in each lane. All eight sampled legacy checkpoint byte hashes and physical report tuples per policy agree between binaries. Batched evolution and fresh-engine restore at t=15 agree with the stepwise t=120 wire; retained earlier snapshots remain unchanged. The old bounded lane records 345 internal flat-event materialization guard calls, and the new lane has none. This finite compatibility experiment is not a speed benchmark or a large-city acceptance result. It verifies the connected internal path, not merely an isolated codec.
+
+No equations, units, initial or boundary conditions, calendars or closure parameters changed. Exact storage claims are implementation-verified; the original full-demand continuation remains the next empirical gate. Original motivation and acceptance are preserved, including active completion history and same-tick sinks.

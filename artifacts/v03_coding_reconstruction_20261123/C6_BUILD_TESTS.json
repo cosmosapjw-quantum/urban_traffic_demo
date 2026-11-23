@@ -1,0 +1,29 @@
+[
+  {
+    "name": "native_tests",
+    "command": [
+      "/home/cosmosapjw/.cargo/bin/cargo",
+      "test",
+      "--offline",
+      "--workspace",
+      "--lib"
+    ],
+    "exit_code": 0,
+    "wall_s": 0.18974651501048356,
+    "log": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_coding_reconstruction_20261123/C6_native_tests.log"
+  },
+  {
+    "name": "release_build",
+    "command": [
+      "/home/cosmosapjw/.cargo/bin/cargo",
+      "build",
+      "--offline",
+      "--release",
+      "--features",
+      "budget_trace"
+    ],
+    "exit_code": 0,
+    "wall_s": 22.82285935000982,
+    "log": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_coding_reconstruction_20261123/C6_release_build.log"
+  }
+]

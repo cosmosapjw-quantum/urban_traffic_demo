@@ -1,0 +1,44 @@
+{
+  "log_normalization": "Trailing empty lines stripped in C6 text logs only, preserving all command output lines.",
+  "native": {
+    "path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/native_binding/_metroflow_rust.so",
+    "sha256": "676d1bd7a5b4ba43440f14f26d0e468df32ab983e3ef058114e25c95cd2d393a",
+    "size_bytes": 3249040,
+    "status": "MEASURED"
+  },
+  "replay_script_sha256": "7281a0ef4a58ff4982c183f0242b8e1e872ee9b97ff45915c57574e3e65bed86",
+  "setup_note": "Initial metadata import used the wrong module; corrected to metroflow.v1.native_engine. This was metadata collection only, not a behavioral test failure.",
+  "source": {
+    "git_commit": "6568887e0d974bc700b7002efe30a3ed25bae76d",
+    "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+    "source_dirty": false,
+    "source_files": [
+      "Cargo.lock",
+      "crates/metroflow-rust/Cargo.toml",
+      "crates/metroflow-rust/src/lib.rs",
+      "crates/metroflow-rust/src/v1_calendar.rs",
+      "crates/metroflow-rust/src/v1_engine.rs",
+      "crates/metroflow-rust/src/v1_history.rs",
+      "crates/metroflow-rust/src/v1_journey.rs",
+      "crates/metroflow-rust/src/v1_journey_retained_event_tests.rs",
+      "crates/metroflow-rust/src/v1_kcmb.rs",
+      "crates/metroflow-rust/src/v1_kcmb_node.rs",
+      "crates/metroflow-rust/src/v1_lineage_shadow.rs",
+      "crates/metroflow-rust/src/v1_parallel.rs",
+      "crates/metroflow-rust/src/v1_road.rs",
+      "crates/metroflow-rust/src/v1_routing.rs",
+      "crates/metroflow-rust/src/v1_stage.rs",
+      "crates/metroflow-rust/src/v1_trace.rs",
+      "src/metroflow/v1/native_calendar.py",
+      "src/metroflow/v1/native_engine.py",
+      "src/metroflow/v1/native_journey.py",
+      "src/metroflow/v1/native_release_driver.py",
+      "src/metroflow/v1/native_road.py",
+      "src/metroflow/v1/native_routing.py",
+      "src/metroflow/v1/native_static.py",
+      "tools/run_v1_local_acceptance.py"
+    ],
+    "source_sha256": "60a5d0c895b12237d27985ffe364786a7eb65ed2d1170ca53844936f901a490b",
+    "status": "MEASURED"
+  }
+}
