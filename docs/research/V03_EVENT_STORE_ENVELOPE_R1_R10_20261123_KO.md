@@ -236,3 +236,30 @@ Freeze commit `dd9686f1d537ed746425dd4a60d1f3e8fc302089`를 push/readback한 뒤
 마지막25,720 checkpoint는4,677,350,066 B, SHA256 `447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9`로 이전 루프의 원본과 완전히 같은 크기/SHA이고 질량 장부도 일치한다. 이것은 앞서 새로25,730까지 전진한10s 실행의 입력과도 동일하다. 따라서 동일 최종 후보의70s 활동 구간 재검증과 그 byte-identical 입력에 연결되는10s frontier 확장이 성립한다. 하나의 uninterrupted80s 프로세스 또는 clock0부터의 현 후보 궤적이라고 주장하지 않는다.
 
 최종 frontier25,730의5,523,765,378 B checkpoint는 다음20s 프로세스에서 독립 full-wire/장부 복원을 통과했다. 이 이미 완료된 복원 근거를 R10에서 재사용한다. 비교 영수증은 `R8e_replay_frontier_identity.json`, 전체 staircase는 `R8e_active_window_staircase.json`이다. R8은 실제25,730 blocker 해소·저장·독립 복원·점증 실행을 완료했고,25,740의 새로운 validation workspace guard는 남은 과제로 보존한다.
+
+## R9/C9 · 최종 후보의 실제 전제조건 충족과 정량 준비도
+
+R8 최종 binary의 source/native identity를 그대로 사용해 원본 세 도시의 전체 calendar 준비를 다시 실행했다. `R9_final_source_readiness.json`은 live provenance와 각 prepare receipt를 대조한 CLI 결과다. 준비 시점의 commit은dd9686f이고 R8 결과 게시 뒤에도 해당 native source와 binary bytes는 동일하다. Calendar preparation은 물리시간0s이며24h 실행 credit으로 세지 않는다.
+
+| Case | 주민 stock | Calendar legs | 준비 wall(s) | Peak RSS(B) | 판정 |
+|---|---:|---:|---:|---:|---|
+| river_weekday_s17 | 100,000 | 5,093,765 | 63.334952 | 2,172,858,368 | PREPARED_SCOPED |
+| coastal_weekend_s41 | 100,000 | 2,449,750 | 37.116311 | 1,116,106,752 | PREPARED_SCOPED |
+| valley_weekday_s7 | 100,000 | 918,450 | 21.505340 | 447,070,208 | PREPARED_SCOPED |
+
+원래 resident stock, worker shortfall 정책, 출발 calendar, native6GiB/process8GiB를 유지했다. 준비와 R8e 물리가 일부 병행됐으므로 이 wall은 고립 benchmark가 아니다. 원본 세 도시의8,461,965 legs를 현재 후보에서 준비한 실제 전제조건 충족 결과다.
+
+| 준비도 항목 | 실제 분자/분모 | 해석 |
+|---|---:|---|
+| Canonical 구현·범위 검증 node | 19/21 (90.48%) | ACCEPTED5 + VERIFIED_SCOPED14 |
+| 완전히 ACCEPTED인 node | 5/21 | 전체 release 완료와 구분 |
+| V03 직접 predecessor | 3/3 | P01, V01, V02 모두 VERIFIED_SCOPED |
+| 최종 source/native의 원도시 calendar | 3/3 | 실측 영수증 및 live hash 대조 |
+| 원본24h campaign | 0/9 | 3도시×3회, 각86,400s; 미완료 |
+| 현재 후보의 clock0→frontier 궤적 | 미입증 | 역사적 checkpoint 연결과 구분 |
+
+Plan validator는version1.1.26,21nodes, VALID_PLAN_NOT_RELEASE를 반환했다. V03=BLOCKED, RLS01=PLANNED를 유지한다. 관측 host physical RAM은31.25GiB로 계획의64GiB reference host와 같지 않다. Full repository CI/main merge는 기존 DEFERRED_BY_USER 상태다.
+
+이전48B 후보의 준비 영수증을 최종 후보에 다시 넣는 실제 부정 대조도 수행했다. 세 case 모두 CURRENT_SOURCE_CONTENT_HASH_DIFFERS로 거절되어 현재 credit0/3이었고, 최종 새 영수증만3/3이다. 파일명에 current가 들어간 예전 자료를 현재 근거로 재사용하지 않는다. `R9_old_source_rejected_on_final_native.json` 및 `R9_execution_readiness_contract.md` §7에 보존했다.
+
+이론 근거는 mass/moment/support의 검증된 식별구간을 그대로 재사용한다. Calendar의 계획량, native event-incidence, unique final journey의 분모를 섞지 않는다. Scorer의 full-day0/9는 prepare 전용 고정 출력이라는 한계를 명시하고, 실제 캠페인 판정은 별도의 물리 영수증과24h 조건으로 확인한다. 이번 짧은 물리 기록은 실제로24h 완료를 만들지 않았으므로 캠페인도0/9다.
