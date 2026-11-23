@@ -1320,6 +1320,17 @@ impl RoadState {
     /// physical rows remain unchanged. The hash is a lookup hint, never proof.
     /// Groups with fewer than two independent owners or short lists remain in
     /// their original Arc<Vec<CorePart>> form (metadata would dominate).
+    /// Only Uniform sources can allocate new canonical key rows (8 B) and
+    /// moment rows (16 B). SharedKeys retain their existing moment Arc and
+    /// either clone or replace a key Arc; their row payload is already in the
+    /// full retained-owner sum. Count repeated Uniform owners conservatively.
+    fn keyset_allocation_row_count(&self) -> usize {
+        self.cells.iter().flat_map(|c|&c.packets).chain(self.pending.iter().flatten())
+            .fold(0usize,|total,p|total.saturating_add(match &p.parts {
+                PacketParts::Uniform{rows,..}=>rows.len(),
+                PacketParts::SharedKeys{..}|PacketParts::Mixed(_)=>0,
+            }))
+    }
     pub(crate) fn intern_exact_keysets(&mut self) -> PyResult<usize> {
         let mut groups:Vec<ExactKeyGroup>=Vec::new();
         let mut lookup:HashMap<(usize,u64),Vec<usize>>=HashMap::new();
@@ -3159,9 +3170,10 @@ impl V1Road {
                     if v.shared_input_current { 0 } else { v.current_bytes }
                 ));
             let packets = stats.cell_packets.saturating_add(stats.pending_packets);
+            let allocation_rows=candidate.keyset_allocation_row_count();
             let required = postroad_continuous_keyset_peak_event_bytes(
                 owner_sum, old_events, candidate_event_bytes,
-                stats.uniform_parts, packets,
+                allocation_rows, packets,
             );
             crate::v1_trace::guard(
                 "road_post", "continuous keyset allocation", required, limit,
@@ -3171,6 +3183,8 @@ impl V1Road {
                   ("road_owner_sum", owner_sum), ("old_event_bytes", old_events),
                   ("candidate_event_storage_bytes", candidate_event_bytes),
                   ("candidate_uniform_rows", stats.uniform_parts),
+                  ("candidate_keyset_allocation_rows", allocation_rows),
+                  ("candidate_existing_shared_rows",stats.uniform_parts.saturating_sub(allocation_rows)),
                   ("candidate_packets", packets)],
             );
             check_storage_limit(Some(limit), required, "continuous keyset allocation")?;
@@ -7495,5 +7509,67 @@ mod timed_incoming_workspace_contract_tests {
         assert_eq!(budget.incoming,0);
         assert_eq!(budget.incoming_live_pages,0);
         assert_eq!(controls.len(),1);
+    }
+}
+
+#[cfg(test)]
+mod source_specific_keyset_workspace_tests {
+    use super::*;
+
+    fn fixture(n:usize, include_uniform:bool)->RoadState {
+        let keys=Arc::new((0..n).map(|i|(i as u32,1u32)).collect::<Vec<_>>());
+        let moments=Arc::new((0..n).map(|i|
+            (f64::from_bits(0x3fd0000000000000+i as u64),0.125)).collect::<Vec<_>>());
+        let a=PackedTime::new(Some(1.0)).unwrap();let b=PackedTime::new(Some(2.0)).unwrap();
+        let shared=Packet {target:2.0,parts:PacketParts::SharedKeys{a,b,keys:keys.clone(),moments}};
+        let mut packets=vec![];
+        if include_uniform {
+            packets.push(Packet {target:2.0,parts:PacketParts::Uniform{a,b,
+                rows:Arc::new(keys.iter().map(|&(tag,offset)|
+                    CorePart{tag,offset,mass:0.5,birth:0.25}).collect())}});
+        }
+        packets.push(shared);
+        RoadState {t:2.0,cells:vec![Cell{v:[0.;8],packets,latent:BTreeMap::new()}],
+            pending:vec![vec![]],totals:[0.;7],ledger:vec![]}
+    }
+    fn bits(s:&RoadState)->Vec<(usize,usize,u64,u64,u64,u64)> {
+        s.cells.iter().flat_map(|c|&c.packets).flat_map(|p|p.parts.iter())
+            .map(|p|(p.tag,p.offset,p.mass.to_bits(),p.birth.to_bits(),p.a.0,p.b.0)).collect()
+    }
+
+    #[test]
+    fn interning_bound_allocates_only_uniform_rows_and_preserves_shared_moment_owner() {
+        let n=4097;let mut s=fixture(n,true);
+        let before=bits(&s);
+        let old_moments=match &s.cells[0].packets[1].parts {
+            PacketParts::SharedKeys{moments,..}=>moments.clone(),_=>unreachable!(),
+        };
+        assert_eq!(s.debug_stats().uniform_parts,2*n);
+        assert_eq!(s.keyset_allocation_row_count(),n);
+        let owners=s.retained_storage_bytes();
+        let old=postroad_continuous_keyset_peak_event_bytes(owners,123,456,2*n,2);
+        let corrected=postroad_continuous_keyset_peak_event_bytes(owners,123,456,n,2);
+        assert_eq!(old-corrected,n*std::mem::size_of::<CorePart>());
+        assert!(check_storage_limit(Some(corrected),old,"old shared-row projection").is_err());
+        assert!(check_storage_limit(Some(corrected),corrected,"source-specific projection").is_ok());
+        s.intern_exact_keysets().unwrap();
+        assert_eq!(bits(&s),before);
+        assert_eq!(s.keyset_allocation_row_count(),0);
+        match &s.cells[0].packets[1].parts {
+            PacketParts::SharedKeys{moments,..}=>assert!(Arc::ptr_eq(moments,&old_moments)),
+            _=>panic!("existing shared source changed representation"),
+        }
+    }
+
+    #[test]
+    fn existing_shared_rows_need_metadata_but_no_new_key_or_moment_payload() {
+        let mut s=fixture(4097,false);let before=bits(&s);
+        let retained=s.retained_storage_bytes();
+        assert_eq!(s.keyset_allocation_row_count(),0);
+        let required=postroad_continuous_keyset_peak_event_bytes(retained,0,0,0,1);
+        assert_eq!(required,retained+512+3*32);
+        s.intern_exact_keysets().unwrap();
+        assert_eq!(bits(&s),before);
+        assert_eq!(s.keyset_allocation_row_count(),0);
     }
 }

@@ -1,0 +1,43 @@
+[
+  {
+    "label": "C8_KEYSET_RELEASE_BUILD",
+    "argv": [
+      "/home/cosmosapjw/.cargo/bin/cargo",
+      "build",
+      "--offline",
+      "--release",
+      "--features",
+      "budget_trace"
+    ],
+    "exit_code": 0,
+    "wall_s": 14.007843303959817
+  },
+  {
+    "label": "C8_KEYSET_PYTHON_TESTS",
+    "argv": [
+      "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/v1/test_native_owner_storage.py",
+      "tests/v1/test_native_engine.py",
+      "tests/v1/test_native_whole_driver.py",
+      "tests/v1/test_native_journey.py"
+    ],
+    "exit_code": 0,
+    "wall_s": 1.8554587659891695
+  },
+  {
+    "label": "C8_KEYSET_SMALL_REPLAY",
+    "argv": [
+      "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+      "tools/research/check_retained_event_replay.py",
+      "--label",
+      "source_keyset",
+      "--out",
+      "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_coding_reconstruction_20261123/C8_keyset_small_replay.json"
+    ],
+    "exit_code": 0,
+    "wall_s": 0.24528534000273794
+  }
+]

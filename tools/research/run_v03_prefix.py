@@ -89,6 +89,8 @@ def main():
     ap.add_argument("--checkpoint", type=Path)
     ap.add_argument("--horizons", required=True, help="increasing elapsed physical seconds")
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--compare-receipt", type=Path, action="append", default=[],
+                    help="verify full wire and physical ledger at that completed absolute horizon")
     args = ap.parse_args()
     horizons = [int(x) for x in args.horizons.split(",")]
     if not horizons or horizons != sorted(set(horizons)) or any(x <= 0 or x % 10 for x in horizons):
@@ -111,6 +113,18 @@ def main():
         raise ValueError("clean measured current source and native binary required")
     if Path(native["path"]).resolve().parent != (ROOT/"native_binding").resolve():
         raise ValueError("load this worktree's measured native binary")
+    comparisons = {}
+    for reference_path in args.compare_receipt:
+        reference = json.loads(reference_path.read_bytes())
+        target = reference.get("completed_time_s")
+        if (reference.get("case") != args.case or reference.get("original_matrix_sha256") != matrix_sha
+            or reference.get("native_process_cap_bytes") != CAP
+            or reference.get("status") not in ("BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+                                               "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON")
+            or target is None or not reference.get("final_checkpoint_sha256")
+            or not reference.get("completed_mass_ledger") or target in comparisons):
+            raise ValueError("comparison receipt lacks a unique original completed-state binding")
+        comparisons[target] = (reference_path, reference)
     prev = json.loads(args.start_receipt.read_bytes()) if args.start_receipt else None
     if prev:
         if (prev.get("case") != args.case or prev.get("native_process_cap_bytes") != CAP
@@ -141,6 +155,7 @@ def main():
                   current_source_from_time_zero_verified=prev is None,
                   original_full_day_acceptance="NOT_EVALUATED_9_RUN_RELEASE",
                   requested_horizons_s=horizons, completed_horizons=[], completed_steps=[],
+                  comparison_targets_s=sorted(comparisons),
                   previous_checkpoint_full_wire_roundtrip_exact=None,
                   status="ERROR", error=None)
     state = None
@@ -170,6 +185,10 @@ def main():
             raise ValueError("restored clock differs")
         if initial + horizons[-1] > 86400:
             raise ValueError("requested horizon exceeds the original day")
+        if any(target not in {initial + h for h in horizons}
+               or reference["current_driver_identity"] != driver.identity
+               for target, (_, reference) in comparisons.items()):
+            raise ValueError("comparison horizon or driver binding differs from requested run")
         report = driver.report(state)
         reason = _ledger_error(report, initial, population=100000)
         if reason:
@@ -209,6 +228,16 @@ def main():
             item = dict(elapsed_physical_s=horizon, completed_time_s=state.time_s,
                         segment_wall_s=time.perf_counter()-tick_started,
                         native_tick_wall_s=driver.runtime.last_advance_metrics["tick_times_s"])
+            if target in comparisons:
+                reference_path, reference = comparisons[target]
+                wire = wire_evidence(driver, state, args.out.parent)
+                if ((wire["raw_sha256"], wire["raw_bytes"]) !=
+                    (reference["final_checkpoint_sha256"], reference["final_checkpoint_bytes"])
+                    or report["execution"]["ledger"] != reference["completed_mass_ledger"]):
+                    raise ValueError("matched horizon wire or physical ledger differs")
+                item["matched_reference"] = dict(path=str(reference_path),
+                    receipt_sha256=file_sha256(reference_path), raw_sha256=wire["raw_sha256"],
+                    raw_bytes=wire["raw_bytes"], full_wire_and_ledger_exact=True)
             result["completed_horizons"].append(item)
             print("HORIZON_VALID", json.dumps(item), flush=True)
             if time.perf_counter()-started >= matrix["limits"]["wall_s"]:

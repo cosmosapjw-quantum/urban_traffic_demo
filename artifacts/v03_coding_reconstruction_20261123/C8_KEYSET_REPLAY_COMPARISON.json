@@ -1,0 +1,12 @@
+{
+  "legacy_records": {
+    "exact_pairs": 8,
+    "batch_wire_identical": true,
+    "restart_wire_identical": true
+  },
+  "bounded_bytes_v1": {
+    "exact_pairs": 8,
+    "batch_wire_identical": true,
+    "restart_wire_identical": true
+  }
+}
