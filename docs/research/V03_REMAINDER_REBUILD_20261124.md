@@ -22,3 +22,6 @@ The first GREEN attempt had an unrelated invalid +0. Rust literal in the new tes
 
 ## L05 compiled native and finite complete-state parity
 The latest Rust library source was built as a budget-traced release native extension, with prior extension copied to a distinct local backup (not committed to Git). Four affected native Python suites plus the marked-rank shadow tests were rerun. A separate-process 120s mixed-car/bus replay matches the old complete checkpoint states under legacy_records and bounded_bytes_v1, including deterministic batch/restart. The source, binary, commands and return codes are in L05_NATIVE_VERIFICATION.json. This is exact finite compatibility, not original city V03 acceptance.
+
+## L06 actual original full-demand continuation
+The production kernel was run from the prior verified Valley25720 full checkpoint under unchanged process cap and original calendar, requesting 10,20,40,80 additional physical seconds. The execution receipt records which horizons actually finished, original wire/ledger identity, peak RSS and the first failing phase, without reclassifying first guard overage as complete-tick memory. Evidence L06_EXECUTION.json and L06_resume25720.json. Status: BLOCKED_RESOURCE.

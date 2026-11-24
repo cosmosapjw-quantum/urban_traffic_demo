@@ -1,0 +1,250 @@
+{
+  "budget_mode": "DEFAULT",
+  "calendar": {
+    "calendar": {
+      "allocated_workers": 40000.0,
+      "cargo_kg": 1000,
+      "legs": 918450,
+      "persons": 120000.0,
+      "requested_workers": 50000.0,
+      "resident_stock": 100000.0,
+      "unassigned_workers": 10000.0,
+      "vehicles": 58801.0
+    },
+    "execution": "NOT_RUN",
+    "materialized_legs": 918450,
+    "remaining_amounts": {
+      "cargo_kg": 0,
+      "persons": 0.0,
+      "vehicles": 0.0
+    },
+    "remaining_legs": 0,
+    "scope": "exact compilation coverage; pages must enter one shared live runtime"
+  },
+  "case": "valley_weekday_s7",
+  "checkpoint_reader_peak_rss_bytes": 31531008,
+  "comparison_targets_s": [],
+  "completed_horizons": [],
+  "completed_steps": [],
+  "created_utc": "2026-11-24T00:15:14.643515+00:00",
+  "current_candidate_source_sha256": "30d19b38851491655e864b74862b917a527d90985db5df68c56b5257765e2260",
+  "current_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "current_native_binary_sha256": "815fc552dc1bfd3154dbc34af20d7288a0f519bab1b386fac112672f630484b9",
+  "current_source_dirty": false,
+  "current_source_from_time_zero_verified": false,
+  "error": {
+    "class_name": "MemoryError",
+    "message": "native capture/validation storage budget exceeded: required_bytes=6465950413, budget_bytes=6442450944",
+    "phase": "RESTORE"
+  },
+  "input_metadata": {
+    "backbone_links": 1552,
+    "capacity_scope": "declared admission rate; receiving/storage and daily demand feasibility not tested",
+    "case": "valley_city",
+    "cdf_bound_basis": "1/speed Lipschitz geodesic inside each convex triangular cell; sqrt(12)*RMS radius bounds cell vertices",
+    "cdf_scope": "depth0 area quadrature; denominator includes all requested residents; unserved remain outside CDF",
+    "connectivity_basis": "mutual reachability through one SCC of legal-turn directed-link states",
+    "existing": false,
+    "family": "primary",
+    "identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+    "index": 12,
+    "parent_identity": "da78089758004b309b8c02aef1f3252acc567206d69e7b0d6be01f396a9b9f46",
+    "patch": "12.patch.json.xz",
+    "patch_sha256": "da5fa61d26316b17d09a96ae467d4fb0accc2781f17a96572607ddf423946ac7",
+    "policy": "new synthetic entrance per active block; uniform area access; speed 1.4 m/s; capacity 1 veh/s",
+    "quadrature_mean_bound_s": 48.700485886262776,
+    "registered_access_cdf": [
+      [
+        30,
+        0.0021250701206832544
+      ],
+      [
+        60,
+        0.16575666187430538
+      ],
+      [
+        120,
+        0.5234648355562366
+      ],
+      [
+        300,
+        0.9199849036649536
+      ],
+      [
+        600,
+        0.9981170272025096
+      ]
+    ],
+    "registered_access_cdf_lower": [
+      [
+        30,
+        0.0
+      ],
+      [
+        60,
+        0.0
+      ],
+      [
+        120,
+        0.0
+      ],
+      [
+        300,
+        0.679694703579159
+      ],
+      [
+        600,
+        0.946280260797464
+      ]
+    ],
+    "registered_access_cdf_upper": [
+      [
+        30,
+        0.8171976674423644
+      ],
+      [
+        60,
+        0.8602563668285882
+      ],
+      [
+        120,
+        0.9510160519217747
+      ],
+      [
+        300,
+        0.9924172984501555
+      ],
+      [
+        600,
+        1.0
+      ]
+    ],
+    "registered_access_status": "PASS",
+    "registered_connectivity_status": "PASS",
+    "registered_entry_validation_status": "PASS",
+    "registered_portal_count": 234,
+    "registered_served_residents": 100000,
+    "registered_unserved_residents": 0,
+    "seed": 7,
+    "source": "primary_valley_city_s7.json.xz",
+    "source_identity": "da78089758004b309b8c02aef1f3252acc567206d69e7b0d6be01f396a9b9f46",
+    "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+    "wall_s": 20.097070052999698
+  },
+  "native": {
+    "path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/native_binding/_metroflow_rust.so",
+    "sha256": "815fc552dc1bfd3154dbc34af20d7288a0f519bab1b386fac112672f630484b9",
+    "size_bytes": 3308432,
+    "status": "MEASURED"
+  },
+  "native_process_cap_bytes": 8589934592,
+  "original_full_day_acceptance": "NOT_EVALUATED_9_RUN_RELEASE",
+  "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "peak_rss_bytes": 2163990528,
+  "preparation_wall_s": 19.080619309970643,
+  "previous_checkpoint_full_wire_roundtrip_exact": null,
+  "requested_horizons_s": [
+    10,
+    20,
+    40,
+    80
+  ],
+  "schema": "METROFLOW_ORIGINAL_PREFIX_V2",
+  "source": {
+    "git_commit": "61db46a714e0a58b43816ba5b706adeaf8dda1da",
+    "scope": "current native*.py, v1*.rs, crate manifest/lock/lib.rs and acceptance CLI contents",
+    "source_dirty": false,
+    "source_files": [
+      "Cargo.lock",
+      "crates/metroflow-rust/Cargo.toml",
+      "crates/metroflow-rust/src/lib.rs",
+      "crates/metroflow-rust/src/v1_calendar.rs",
+      "crates/metroflow-rust/src/v1_engine.rs",
+      "crates/metroflow-rust/src/v1_history.rs",
+      "crates/metroflow-rust/src/v1_journey.rs",
+      "crates/metroflow-rust/src/v1_journey_retained_event_tests.rs",
+      "crates/metroflow-rust/src/v1_kcmb.rs",
+      "crates/metroflow-rust/src/v1_kcmb_node.rs",
+      "crates/metroflow-rust/src/v1_lineage_shadow.rs",
+      "crates/metroflow-rust/src/v1_parallel.rs",
+      "crates/metroflow-rust/src/v1_road.rs",
+      "crates/metroflow-rust/src/v1_routing.rs",
+      "crates/metroflow-rust/src/v1_stage.rs",
+      "crates/metroflow-rust/src/v1_timed_incoming.rs",
+      "crates/metroflow-rust/src/v1_trace.rs",
+      "src/metroflow/v1/native_calendar.py",
+      "src/metroflow/v1/native_engine.py",
+      "src/metroflow/v1/native_journey.py",
+      "src/metroflow/v1/native_release_driver.py",
+      "src/metroflow/v1/native_road.py",
+      "src/metroflow/v1/native_routing.py",
+      "src/metroflow/v1/native_static.py",
+      "tools/run_v1_local_acceptance.py"
+    ],
+    "source_sha256": "30d19b38851491655e864b74862b917a527d90985db5df68c56b5257765e2260",
+    "status": "MEASURED"
+  },
+  "source_commit": "61db46a714e0a58b43816ba5b706adeaf8dda1da",
+  "status": "BLOCKED_RESOURCE",
+  "trace": {
+    "alloc_counting": true,
+    "counters": {
+      "engine_admission.verified_future_capture_arc_credit": [
+        1,
+        0,
+        0
+      ]
+    },
+    "live_bytes": 234946158,
+    "mode": "record",
+    "peak_bytes": 2081177927,
+    "sites": {
+      "engine_admission:capture/validation": {
+        "calls": 1,
+        "exceeded": 1,
+        "limit_at_max": 6442450944,
+        "live_at_max": 2080957231,
+        "max_ratio": 1.0036475976618628,
+        "max_required": 6465950413,
+        "terms_at_max": {
+          "call_binding": 82704900,
+          "events": 652900616,
+          "fixed_base": 570379173,
+          "journey": 302394480,
+          "road": 865303248,
+          "road_3max_without_credit": 2595909744,
+          "validation_scratch": 433776208,
+          "verified_future_capture_arc_credit": 0
+        }
+      },
+      "journey_store:stored/working": {
+        "calls": 9728456,
+        "exceeded": 0,
+        "limit_at_max": 1234755279,
+        "live_at_max": 2073609279,
+        "max_ratio": 0.7347635530943132,
+        "max_required": 907253176,
+        "terms_at_max": {
+          "dynamic": 302395880,
+          "retained": 0,
+          "scratch": 0
+        }
+      },
+      "road_decode:checkpoint decode preflight": {
+        "calls": 1723431,
+        "exceeded": 0,
+        "limit_at_max": 5789366079,
+        "live_at_max": 1459520064,
+        "max_ratio": 0.7683114626547007,
+        "max_required": 4448036320,
+        "terms_at_max": {
+          "decoded": 1218268800,
+          "retained_input": 723568,
+          "validation": 793229920
+        }
+      }
+    }
+  },
+  "trace_mode": "record",
+  "wall_s": 128.4313102600281
+}

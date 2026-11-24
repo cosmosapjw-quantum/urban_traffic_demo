@@ -1,0 +1,2 @@
+RUN_STOP {"class_name": "MemoryError", "message": "native capture/validation storage budget exceeded: required_bytes=6465950413, budget_bytes=6442450944", "phase": "RESTORE"}
+{"status": "BLOCKED_RESOURCE", "start_time_s": null, "completed_time_s": null, "valid_advanced_duration_s": null, "wall_s": 128.4313102600281, "peak_rss_bytes": 2163990528, "final_checkpoint_sha256": null, "error": {"class_name": "MemoryError", "message": "native capture/validation storage budget exceeded: required_bytes=6465950413, budget_bytes=6442450944", "phase": "RESTORE"}}

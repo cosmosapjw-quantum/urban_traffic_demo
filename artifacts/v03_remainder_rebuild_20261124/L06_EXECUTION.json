@@ -1,0 +1,64 @@
+{
+  "stage": "L06",
+  "argv": [
+    "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+    "-u",
+    "tools/research/run_v03_prefix.py",
+    "--case",
+    "valley_weekday_s7",
+    "--start-receipt",
+    "artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+    "--checkpoint",
+    "artifacts/v03_measure_lift_20261123/S06_fresh0.final.bin.gz",
+    "--horizons",
+    "10,20,40,80",
+    "--out",
+    "artifacts/v03_remainder_rebuild_20261124/L06_resume25720.json"
+  ],
+  "exit_code": 0,
+  "timeout": false,
+  "wall_s": 128.83392573299352,
+  "current_binary_sha256": "815fc552dc1bfd3154dbc34af20d7288a0f519bab1b386fac112672f630484b9",
+  "original_reference": "artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+  "original_input_checkpoint_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+  "runner_sha256": "2c327e794d0b4d1ad4a585fa501490746238158f196fc4a7d0d26356d18ff55f",
+  "physical_horizons_requested_s": [
+    10,
+    20,
+    40,
+    80
+  ],
+  "status": "BLOCKED_RESOURCE",
+  "completed_time_s": null,
+  "start_time_s": null,
+  "valid_advanced_duration_s": null,
+  "peak_rss_bytes": 2163990528,
+  "final_checkpoint_sha256": null,
+  "error": {
+    "class_name": "MemoryError",
+    "message": "native capture/validation storage budget exceeded: required_bytes=6465950413, budget_bytes=6442450944",
+    "phase": "RESTORE"
+  },
+  "current_candidate_source_sha256": "30d19b38851491655e864b74862b917a527d90985db5df68c56b5257765e2260",
+  "completed_segments": [],
+  "exceeded_sites": {
+    "engine_admission:capture/validation": {
+      "calls": 1,
+      "exceeded": 1,
+      "limit_at_max": 6442450944,
+      "live_at_max": 2080957231,
+      "max_ratio": 1.0036475976618628,
+      "max_required": 6465950413,
+      "terms_at_max": {
+        "call_binding": 82704900,
+        "events": 652900616,
+        "fixed_base": 570379173,
+        "journey": 302394480,
+        "road": 865303248,
+        "road_3max_without_credit": 2595909744,
+        "validation_scratch": 433776208,
+        "verified_future_capture_arc_credit": 0
+      }
+    }
+  }
+}
