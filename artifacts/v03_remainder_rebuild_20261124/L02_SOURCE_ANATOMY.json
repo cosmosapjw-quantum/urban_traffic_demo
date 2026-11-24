@@ -1,0 +1,115 @@
+{
+  "stage": "L02",
+  "source_sha256": "65491f4d182dbc6fd6890db6bb23059531fe7d7aff797418d9e52ee80c9690eb",
+  "old_workflow": "portion(source,1-f) produces Vec<Part> of size 48*source capacity; PacketParts::pack may allocate an additional CorePart 24*positive rows while old source Arc remains live",
+  "new_workflow": "two-pass exact f64 source view; first counts positive rows and tests identical PackedTime bytes and checked compact indices; then allocates ONLY final CorePart vector or final Mixed Part vector; no intermediate Vec<Part>; original positive filter, birth/mass multiply order and packet interval classification",
+  "pack_semantics": "if positive subset empty, original PacketParts::pack(Vec::new()) produces Mixed(empty); if every surviving row shares equal a.0,b.0 and tag/offset u32, produces Uniform; otherwise Mixed.",
+  "original_producer_code_lines": [
+    [
+      1103,
+      "    fn pack_parts_with_live_descriptors("
+    ],
+    [
+      4238,
+      "                        let remainder=work.pack_parts_with_live_descriptors("
+    ],
+    [
+      4239,
+      "                            portion(&packet.parts,1.-fraction)?,&incoming,&marks,"
+    ],
+    [
+      4408,
+      "                            parts: work.pack_parts_with_live_descriptors("
+    ],
+    [
+      6988,
+      "        let packed=w.pack_parts_with_live_descriptors("
+    ],
+    [
+      7230,
+      "        let result = work.pack_parts_with_live_descriptors(vec![original], &incoming, &marks);"
+    ],
+    [
+      7250,
+      "        assert!(work.pack_parts_with_live_descriptors(vec![source_part()], &incoming, &marks).is_err());"
+    ],
+    [
+      7253,
+      "        let result = work.pack_parts_with_live_descriptors(vec![source_part()], &incoming, &marks);"
+    ],
+    [
+      7257,
+      "        assert!(work.pack_parts_with_live_descriptors(vec![source_part()], &incoming, &marks).is_err());"
+    ],
+    [
+      7267,
+      "        assert!(work.pack_parts_with_live_descriptors(vec![wide], &incoming, &marks).is_err(),"
+    ]
+  ],
+  "input_fresh_vs_resumed": [
+    {
+      "run": "fresh",
+      "start_s": 0.0,
+      "valid_time_s": 25720.0,
+      "guard": "road_work:source remainder packing",
+      "required": 4882889928,
+      "allowance": 4882885311,
+      "excess": 4617,
+      "physical_peak_rss_bytes": 4734160896,
+      "terms": {
+        "base": 3378464048,
+        "event_bytes": 1074857744,
+        "event_candidate_live_bound": 421957128,
+        "extra": 6288,
+        "full_source_base": 3565478096,
+        "incoming_actual_descriptor_bytes": 0,
+        "incoming_actual_page_charge": 429561848,
+        "incoming_descriptors_frozen": 0,
+        "incoming_live_pages": 101303,
+        "incoming_rows": 12955849,
+        "interval_retained": 0,
+        "interval_transient": 0,
+        "timed_incoming_control_bytes": 4038368,
+        "transfer_exclusive_cell_scratch": 187014048
+      },
+      "full_checkpoint_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9"
+    },
+    {
+      "run": "resumed",
+      "start_s": 25710.0,
+      "valid_time_s": 25720.0,
+      "guard": "road_work:transfer candidates",
+      "required": 4881718816,
+      "allowance": 4881597183,
+      "excess": 121633,
+      "physical_peak_rss_bytes": 4467593216,
+      "terms": {
+        "base": 3378445328,
+        "event_bytes": 1074333168,
+        "event_candidate_live_bound": 421432552,
+        "extra": 0,
+        "full_source_base": 3565459376,
+        "incoming_actual_descriptor_bytes": 0,
+        "incoming_actual_page_charge": 428940320,
+        "incoming_descriptors_frozen": 0,
+        "incoming_live_pages": 101156,
+        "incoming_rows": 12937033,
+        "interval_retained": 0,
+        "interval_transient": 0,
+        "timed_incoming_control_bytes": 4034240,
+        "transfer_exclusive_cell_scratch": 187014048
+      },
+      "full_checkpoint_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9"
+    }
+  ],
+  "Part_bytes": 48,
+  "CorePart_bytes": 24,
+  "unresolved": "Transfer guard may still block even after avoiding temporary remainder. Need empirical original 25730 complete tick; do not read first guard overage as full budget deficit.",
+  "failure_scope": "resource allocation representation, not demonstrated physical infeasibility",
+  "plan_status": {
+    "scoped_or_accepted": 19,
+    "total": 21,
+    "accepted": 5,
+    "full_day": 0
+  }
+}
