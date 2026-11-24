@@ -1,0 +1,22 @@
+{
+  "removed_loose_duplicate": "artifacts/retained_recovery_20261123/baseline_native/_metroflow_rust.so",
+  "verified_byte_identity_before_removal": true,
+  "sha256": "22a7cebc751b575521a8360ab7e235aa7fa6fa9e4d54c8ac8904b35e708ae57a",
+  "retained_archive": "artifacts/retained_recovery_20261123/unpublished_evidence_and_native.tar.gz",
+  "archive_member": "native/current/_metroflow_rust.so",
+  "restore_command": "tar -xOzf artifacts/retained_recovery_20261123/unpublished_evidence_and_native.tar.gz native/current/_metroflow_rust.so > artifacts/retained_recovery_20261123/baseline_native/_metroflow_rust.so",
+  "bytes": 3172896,
+  "exclusive_allocated_bytes_released": 3174400,
+  "large_checkpoint_aliases": {
+    "groups": 2,
+    "historical_paths": 5,
+    "physical_inodes": 2
+  },
+  "historical_receipts_and_unique_backups_preserved": true,
+  "candidate_exact_duplicate_consolidated": {
+    "path": "artifacts/v03_remainder_rebuild_20261124/L10_fresh0.final.bin.gz",
+    "canonical": "artifacts/v03_measure_lift_20261123/S06_fresh0.final.bin.gz",
+    "sha256": "6573b7092769ca846342da3aa4404e7bcbb387f575406ee1791b5079370cccfe",
+    "exclusive_allocated_bytes_released": 1008689152
+  }
+}

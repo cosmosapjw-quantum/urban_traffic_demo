@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.30**, 2026-11-23. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.31**, 2026-11-24. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-First measure and explicitly preflight the transient old+new Arc/Vec staging allocation of StageQueue stable repacking, including immutable snapshot co-owners; physical process cap8GiB is unchanged. At t=25730, quantify source remainder packing and transfer candidates, not simply the first guard overage (fresh source remainder +4617 B; resumed transfer +121633 B). Implement a versioned route/class/birth/ready marked cumulative-rank source–consumer bridge in the actual native road/service/interval flow, retaining noncommutative IEEE split operations and finite-response/FIFO; new shadow RankMarkFlow-v0 only establishes real-rational conservation and benchmark eligibility, not native equivalence. Use a staged physical progression 25720->25730->25740->25800->1h with checkpoint/ledger/route observables; then fresh0->same target, refined dt and eventually original river/coast/valley x3 full86400s wall<=7200s RSS<=8GiB. No change to calendar/demand/population/capacity/numerical tolerances; original V03 remains BLOCKED and release0/9. No further guard-credit-only loops or automatic main merge.
+Measure ordered candidate event and incoming row/control allocations at the new Valley live frontier. Evaluate an exact contiguous (source,start_bits,end_bits) event-run representation with a sequential consumer: preserve row order, tag, destination, mass/birth bits, legacy checkpoint expansion and legal route support. Verify page-rounded run/payload break-even, projection overflow, all singleton and mixed runs, and actual complete original ticks under unchanged budgets. Use the fixed-support progressive junction gradient certificate for a separate marked-rank model only where head support, eligibility and branch guards match. Then progress Valley to the same fresh and resumed horizons, check refined dt, and run the unchanged three-city x3 86400-s release matrix. No changes to demand, finite-response law or acceptance. Retain V03 BLOCKED and 0/9 until execution evidence.
 
 **예산·종료조건**
 
@@ -2302,11 +2302,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "COMPLETED_SCOPED",
-  "scope": "Next 10-stage interleaved theorem/code research: exact FIFO stable-partition theorem and native stage repack, new project-derived marked cumulative-rank conservation/residence theorem and versioned exact-rational shadow; current fresh Valley0->25720 full-wire/ledger exact, three full-calendar preparations; next25730 resource-blocked. Original release unfulfilled.",
+  "scope": "Ten coupled theory/code stages. Exact Valley restore closed; measured full-demand fresh and resumed evidence retained, three full-calendar preparations; original full days 0/9.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_measure_lift_20261123/S10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_remainder_rebuild_20261124/L10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2315,21 +2315,18 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [
-    "bottleneck_anatomy",
-    "exact_transport_routes",
-    "controlled_model_routes",
-    "c9_fresh_review"
+    "early: exact-real progressive junction stability and rational oracle"
   ],
-  "active_branch": "research/v03-measure-lift-loop-20261123",
-  "production_commit": "bec506abb5247e76e8f74e2846eedf9e1c5c501a",
+  "active_branch": "research/v03-remainder-rebuild-20261124",
+  "production_commit": "f66adf1742d594de44f91646a46a2cd882e6eefc",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "9a705e42ca8117440c58712ffd03beca78dbc29f",
-  "native_source_sha256": "9976585060ccaf46837260cbfdaebef4cac294854c7db19fddffbb53c6ee860b",
-  "native_binary_sha256": "378619a766b352f4f524addd4f06797541c8460fa45385d6e0cab6bc661d20d5",
+  "source_commit": "2971071e5a57c9828fd7bfc5d3c3c5c8e1df5759",
+  "native_source_sha256": "87b29e13abd67b9cbf851dcc93bce4b1778fe8d4e99574b463a0ddb2cbad49d6",
+  "native_binary_sha256": "26b6b79ca0922c6defb2ec2fabbcaeac98b0b269922e313b18d3c4c52895273f",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
-  "current_loop_native_subagent": "NOT_RUN_NO_NATIVE_SPAWN_TOOL_EXPOSED"
+  "current_loop_native_subagent": "COMPLETED_SCOPED"
 }
 ```
 

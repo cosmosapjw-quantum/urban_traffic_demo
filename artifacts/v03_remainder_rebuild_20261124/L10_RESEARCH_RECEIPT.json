@@ -1,0 +1,140 @@
+{
+  "stage": "L10",
+  "status": "LOOP_COMPLETE_V03_BLOCKED",
+  "branch": "research/v03-remainder-rebuild-20261124",
+  "published_L01_to_L09": [
+    "92282c68b08de69a05c5b22b1d51f0b68a698e1c",
+    "db4be574227143e8816706b9ea591a9a5cbc960f",
+    "e855bc2216982a39990d9512e4b2aae6a709f42c",
+    "e0ea606b01b29fd03129308bb27bd8fafb854646",
+    "61db46a714e0a58b43816ba5b706adeaf8dda1da",
+    "8020a60ba63bf34e6c4ea6c71f5bff38aa27dba6",
+    "adb0bd2e026c87f32229c32485837ace3e881607",
+    "f66adf1742d594de44f91646a46a2cd882e6eefc",
+    "2971071e5a57c9828fd7bfc5d3c3c5c8e1df5759"
+  ],
+  "current_source_sha256": "87b29e13abd67b9cbf851dcc93bce4b1778fe8d4e99574b463a0ddb2cbad49d6",
+  "current_native_sha256": "26b6b79ca0922c6defb2ec2fabbcaeac98b0b269922e313b18d3c4c52895273f",
+  "production_commit": "f66adf1742d594de44f91646a46a2cd882e6eefc",
+  "controlled_experiment": {
+    "resume": {
+      "path": "artifacts/v03_remainder_rebuild_20261124/L09_resume25720.json",
+      "loaded_wire_exact": true,
+      "load_guard_required_bytes": 2825477557,
+      "load_guard_cap_bytes": 6442450944,
+      "status": "BLOCKED_RESOURCE",
+      "error": {
+        "class_name": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4881896808, budget_bytes=4881896463",
+        "phase": "ADVANCE_TO_25730.0"
+      },
+      "wall_s": 117.62075344199548,
+      "peak_rss_bytes": 3576606720
+    },
+    "fresh": {
+      "path": "artifacts/v03_remainder_rebuild_20261124/L10_fresh0.json",
+      "requested_times_s": [
+        3600,
+        10800,
+        21600,
+        25720,
+        25730,
+        25740
+      ],
+      "completed_horizons": [
+        {
+          "time_s": 3600.0,
+          "advance_wall_s": 8.510045591974631,
+          "native_ticks": 360,
+          "reference": null
+        },
+        {
+          "time_s": 10800.0,
+          "advance_wall_s": 16.63316352799302,
+          "native_ticks": 720,
+          "reference": null
+        },
+        {
+          "time_s": 21600.0,
+          "advance_wall_s": 25.75990154198371,
+          "native_ticks": 1080,
+          "reference": null
+        },
+        {
+          "time_s": 25720.0,
+          "advance_wall_s": 227.8060594020062,
+          "native_ticks": 412,
+          "reference": {
+            "full_wire_and_ledger_exact": true,
+            "path": "artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+            "raw_bytes": 4677350066,
+            "raw_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+            "receipt_sha256": "903b93b3e8aad6e8ec2e53a5281f8de2dc355c393b16eeee0e2135a84f98549e"
+          }
+        }
+      ],
+      "same_25720_wire_and_ledger": true,
+      "returned_time_s": 25720.0,
+      "status": "BLOCKED_RESOURCE_WITH_VALID_PREFIX",
+      "error": {
+        "class_name": "BudgetExceeded",
+        "message": "native road storage budget exceeded: phase=source remainder packing, required_bytes=4882886784, budget_bytes=4882885311",
+        "phase": "ADVANCE_TO_25730.0"
+      },
+      "checkpoint_error": null,
+      "wall_s": 338.93125889101066,
+      "peak_rss_bytes": 4702253056,
+      "elapsed_wall_includes_preparation_and_checkpoint_evidence": true,
+      "other_city_preparation_overlapped": true
+    },
+    "largest_durable_valley_s": 25720.0,
+    "city_preparation": [
+      {
+        "case": "coastal_weekend_s41",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "wall_s": 39.664909393992275
+      },
+      {
+        "case": "river_weekday_s17",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "wall_s": 63.6562305559637
+      },
+      {
+        "case": "valley_weekday_s7",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "wall_s": 20.583679101022426
+      }
+    ]
+  },
+  "readiness": {
+    "total_nodes": 21,
+    "scoped_or_accepted": 19,
+    "accepted": 5,
+    "direct_prerequisites_scoped_or_accepted": 3,
+    "direct_prerequisites_total": 3,
+    "city_preparations_current_source_passed": 3,
+    "city_preparations_planned": 3,
+    "original_full_days_passed": 0,
+    "original_full_days_planned": 9
+  },
+  "checkpoint_backup": "/home/cosmosapjw/research_backups/metroflow_v03_remainder_20261124",
+  "prior_duplicate_cleanup": "artifacts/v03_remainder_rebuild_20261124/L10_DUPLICATE_CLEANUP.json",
+  "theory": "docs/research/V03_PROGRESSIVE_NODE_STABILITY_20261124.md",
+  "origin": [
+    {
+      "revision": "0492364",
+      "file": "docs/PRD.md",
+      "blob": "f8cc371410ca0e24b0947cda3d6772787efddc7a"
+    },
+    {
+      "revision": "0492364",
+      "file": "specs/001-metroflow/spec.md",
+      "blob": "626b78acad7cafe1f3eadb8166bffb98550e0172"
+    },
+    {
+      "revision": "6524500",
+      "file": "memory/constitution.md",
+      "blob": "7c78e214c9558bcb1023854e55025f1c554aadee"
+    }
+  ]
+}
