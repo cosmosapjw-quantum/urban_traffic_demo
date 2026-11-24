@@ -1,0 +1,21 @@
+{
+  "claim": "binary64 eager portion+pack vs direct two-pass final allocation is bitwise identical on tested rows",
+  "status": "NUMERICALLY_CHECKED_FINITE",
+  "cases": 1800,
+  "tested_lengths": [
+    0,
+    1,
+    2,
+    17,
+    128,
+    129
+  ],
+  "seed": 20261124,
+  "representations": {
+    "Mixed": 1676,
+    "Uniform": 124
+  },
+  "wall_s": 0.17624428501585498,
+  "source_production_unchanged": true,
+  "nonclaim": "finite sample is not native universal proof"
+}
