@@ -19,3 +19,6 @@ Theorem A directly eliminates a genuine 48*N byte source remainder allocation wh
 
 ## L04 RED/GREEN for native direct remainder packing
 The first GREEN attempt had an unrelated invalid +0. Rust literal in the new test. That syntax failure is excluded from the behavioral RED. With a syntax-correct focused test and baseline production source, Cargo fails at the absent direct pack_scaled_from API. With the actual implementation, the full Rust library suite passes. This source-to-final path preserves original binary64 mass/birth multiplication and endpoint bits and omits the intermediate 48*N-byte Part buffer. Old non-timed fallback is unchanged. Full logs and origin are L04_TDD.json; large original physics validation remains subsequent.
+
+## L05 compiled native and finite complete-state parity
+The latest Rust library source was built as a budget-traced release native extension, with prior extension copied to a distinct local backup (not committed to Git). Four affected native Python suites plus the marked-rank shadow tests were rerun. A separate-process 120s mixed-car/bus replay matches the old complete checkpoint states under legacy_records and bounded_bytes_v1, including deterministic batch/restart. The source, binary, commands and return codes are in L05_NATIVE_VERIFICATION.json. This is exact finite compatibility, not original city V03 acceptance.

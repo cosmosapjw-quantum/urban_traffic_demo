@@ -1,0 +1,170 @@
+   Compiling metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/crates/metroflow-rust)
+warning: unused import: `BTreeSet`
+ --> crates/metroflow-rust/src/v1_road.rs:6:34
+  |
+6 | use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+  |                                  ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `road_step_bytes` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:477:8
+    |
+472 | impl ServiceEventAccounting {
+    | --------------------------- method in this implementation
+...
+477 |     fn road_step_bytes(self, generated_rows: usize) -> usize {
+    |        ^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: fields `start` and `end` are never read
+   --> crates/metroflow-rust/src/v1_road.rs:503:5
+    |
+498 | struct CompactEventRow {
+    |        --------------- fields in this struct
+...
+503 |     start:f64,
+    |     ^^^^^
+504 |     end:f64,
+    |     ^^^
+    |
+    = note: `CompactEventRow` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+
+warning: method `unpack` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:520:8
+    |
+507 | impl CompactEventRow {
+    | -------------------- method in this implementation
+...
+520 |     fn unpack(self)->EventRow {
+    |        ^^^^^^
+
+warning: function `postroad_continuous_keyset_peak_bytes` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:755:4
+    |
+755 | fn postroad_continuous_keyset_peak_bytes(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `capacity_bytes` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:1810:8
+     |
+1800 | impl ActiveIndexBits {
+     | -------------------- method in this implementation
+...
+1810 |     fn capacity_bytes(&self) -> usize {
+     |        ^^^^^^^^^^^^^^
+
+warning: method `is_empty` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:2148:8
+     |
+2145 | impl ChunkedParts {
+     | ----------------- method in this implementation
+...
+2148 |     fn is_empty(&self)->bool {self.len==0}
+     |        ^^^^^^^^
+
+warning: function `segmented_incoming_charge` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:2258:4
+     |
+2258 | fn segmented_incoming_charge(rows:usize,cells:usize)->usize {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `summary`, `install_state`, and `owned_step` are never used
+    --> crates/metroflow-rust/src/v1_road.rs:2723:19
+     |
+2678 | impl V1Road {
+     | ----------- methods in this implementation
+...
+2723 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+2932 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+3245 |     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -...
+     |                   ^^^^^^^^^^
+
+warning: method `allocated_bytes` is never used
+   --> crates/metroflow-rust/src/v1_timed_incoming.rs:111:8
+    |
+101 | impl<T> Pages<T> {
+    | ---------------- method in this implementation
+...
+111 |     fn allocated_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^
+
+warning: methods `capacity`, `descriptor_capacity`, and `allocated_bytes` are never used
+   --> crates/metroflow-rust/src/v1_timed_incoming.rs:175:19
+    |
+166 | impl TimedIncomingControls {
+    | -------------------------- methods in this implementation
+...
+175 |     pub(super) fn capacity(&self) -> usize {
+    |                   ^^^^^^^^
+...
+179 |     pub(super) fn descriptor_capacity(&self) -> usize {
+    |                   ^^^^^^^^^^^^^^^^^^^
+...
+187 |     pub(super) fn allocated_bytes(&self) -> usize {
+    |                   ^^^^^^^^^^^^^^^
+
+warning: methods `is_empty`, `allocated_bytes`, and `projected_append_bytes` are never used
+   --> crates/metroflow-rust/src/v1_timed_incoming.rs:241:19
+    |
+232 | impl TimedIncomingRows {
+    | ---------------------- methods in this implementation
+...
+241 |     pub(super) fn is_empty(&self) -> bool {
+    |                   ^^^^^^^^
+...
+257 |     pub(super) fn allocated_bytes(&self) -> usize {
+    |                   ^^^^^^^^^^^^^^^
+...
+261 |     pub(super) fn projected_append_bytes(&self, additional: usize) -> P...
+    |                   ^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `journey_decoded_storage_upper_bytes` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:206:15
+    |
+206 | pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: methods `sources` and `install_state` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:468:19
+    |
+406 | impl NativeServiceCore {
+    | ---------------------- methods in this implementation
+...
+468 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+...
+479 |     pub(crate) fn install_state(&mut self, state: ServiceCheckpoint) {
+    |                   ^^^^^^^^^^^^^
+
+warning: methods `owned_time`, `storage_budget`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1167:19
+     |
+ 930 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1167 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1222 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1255 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:76:19
+   |
+69 | impl StageQueue {
+   | --------------- method in this implementation
+...
+76 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+
+warning: `metroflow-rust` (lib) generated 16 warnings (run `cargo fix --lib -p metroflow-rust` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 12.05s

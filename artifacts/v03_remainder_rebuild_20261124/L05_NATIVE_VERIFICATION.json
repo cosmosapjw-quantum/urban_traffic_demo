@@ -1,0 +1,69 @@
+{
+  "stage": "L05",
+  "prior_native_sha256": "378619a766b352f4f524addd4f06797541c8460fa45385d6e0cab6bc661d20d5",
+  "built_native_sha256": "815fc552dc1bfd3154dbc34af20d7288a0f519bab1b386fac112672f630484b9",
+  "source_commit": "e0ea606b01b29fd03129308bb27bd8fafb854646",
+  "runner_sha256": "7281a0ef4a58ff4982c183f0242b8e1e872ee9b97ff45915c57574e3e65bed86",
+  "command_receipts": [
+    {
+      "label": "L05_RELEASE",
+      "argv": [
+        "/home/cosmosapjw/.cargo/bin/cargo",
+        "build",
+        "--offline",
+        "--release",
+        "--features",
+        "budget_trace"
+      ],
+      "exit": 0,
+      "wall_s": 12.062963369011413,
+      "log_sha256": "4d740a10381f53720f0f24308643655cf381c807c152c0a663d7ae7351b61a74"
+    },
+    {
+      "label": "L05_PYTEST",
+      "argv": [
+        "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/v1/test_native_owner_storage.py",
+        "tests/v1/test_native_engine.py",
+        "tests/v1/test_native_whole_driver.py",
+        "tests/v1/test_native_journey.py",
+        "tests/v1/test_rank_marked_shadow.py"
+      ],
+      "exit": 0,
+      "wall_s": 1.8539534829906188,
+      "log_sha256": "b893befd916db4957a083e919556061f4195b6e2ff567aed36df5c2a92b43df8"
+    },
+    {
+      "label": "L05_FINITE_REPLAY",
+      "argv": [
+        "/home/cosmosapjw/urban_traffic_v03_20261116/.venv/bin/python",
+        "tools/research/check_retained_event_replay.py",
+        "--label",
+        "direct_scaled_remainder",
+        "--out",
+        "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_remainder_rebuild_20261124/L05_SMALL_REPLAY.json"
+      ],
+      "exit": 0,
+      "wall_s": 0.21360314497724175,
+      "log_sha256": "ca07c9dea7c4f570229ac1c4994163aae81c5c5a470e52784a18f3991484e913"
+    }
+  ],
+  "finite_comparison": {
+    "legacy_records": {
+      "complete_state_pairs": 8,
+      "batch_wire_identical": true,
+      "restart_wire_identical": true
+    },
+    "bounded_bytes_v1": {
+      "complete_state_pairs": 8,
+      "batch_wire_identical": true,
+      "restart_wire_identical": true
+    }
+  },
+  "status": "IMPLEMENTATION_VERIFIED_SCOPED",
+  "original_100k_tick": "NOT_RUN_IN_THIS_STAGE",
+  "native_main_unmerged": true
+}
