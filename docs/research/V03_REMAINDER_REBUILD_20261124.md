@@ -1,0 +1,11 @@
+# MetroFlow V03 successive resource blocker reconstruction · 2026-11-24
+
+Execution authority: docs/v1/PLAN.json v1.1.30. The user requests ten interleaved theoretical and coding research stages (L01–L10), each commit pushed independently; the 21-node DAG and release thresholds do not change merely because a stage completes.
+
+Scientific motivation watchdog: earliest 0492364 PRD/spec and 6524500 constitution require 100k mesoscopic map/traffic/accessibility/lagged development/demand coupling, bridge/IC bottlenecks and diversion/induced-demand observables, finite-information routes and deterministic replay. A packet row or transient Part buffer is a representation, not the conserved vehicle/person/cargo stock. Every new physical model must declare its route/eligibility closure and error; source-only exact changes should retain IEEE operation order.
+
+**Baseline:** 19/21 scoped-or-accepted, 5/21 accepted, V03 BLOCKED, 24h 0/9. Current binary completes Valley 0→25720s with full legacy-wire and ledger identity, but 25730s fresh run rejects at 'source remainder packing' (required4882889928, budget4882885311) and resume run at 'transfer candidates' (required4881718816, budget4881597183). The first guard excess does not measure total missing memory.
+
+**Research route:** L01 sources/backup; L02 producer→consumer cost and falsifier; L03 constructive direct scaled-source theorem plus network mark transport; L04 TDD for streaming exact packet remainder; L05 native verification; L06 increasing full-input physical continuation; L07 separate constructive marked-junction conservation theorem; L08 genuine persistent-source alternative and measured fixture; L09 current-source serial/dt checks and bounded review; L10 plan SSOT/readiness/duplicate backup cleanup. None of the stages changes original acceptance, automatically merges main, or silently promotes the RankMarkFlow-v0 shadow.
+
+Historical source hashes and the verified bounded archive are in artifacts/v03_remainder_rebuild_20261124/L01_BASELINE.json.

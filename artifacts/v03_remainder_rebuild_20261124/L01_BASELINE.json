@@ -1,0 +1,47 @@
+{
+  "stage": "L01",
+  "branch": "research/v03-remainder-rebuild-20261124",
+  "baseline_commit": "aae52d2b4cfb0f32e6f91b1cf9f7d40d33a37236",
+  "authority": "docs/v1/PLAN.json",
+  "plan_version": "1.1.30",
+  "scoped_nodes": 19,
+  "total_nodes": 21,
+  "accepted_nodes": 5,
+  "full_day_pass": 0,
+  "origins": [
+    {
+      "revision": "0492364",
+      "file": "docs/PRD.md",
+      "blob": "f8cc371410ca0e24b0947cda3d6772787efddc7a"
+    },
+    {
+      "revision": "0492364",
+      "file": "specs/001-metroflow/spec.md",
+      "blob": "626b78acad7cafe1f3eadb8166bffb98550e0172"
+    },
+    {
+      "revision": "6524500",
+      "file": "memory/constitution.md",
+      "blob": "7c78e214c9558bcb1023854e55025f1c554aadee"
+    }
+  ],
+  "protected": {
+    "100k_resident_stock": 100000,
+    "full_day_s": 86400,
+    "required_cases_repeats": 9,
+    "wall_s": 7200,
+    "peak_RSS_bytes": 8589934592,
+    "FIFO_and_finite_response": true,
+    "legal_route_and_mark_ledger": true
+  },
+  "backup_path": "artifacts/v03_remainder_rebuild_20261124/S01_SOURCE_ARCHIVE.tar.gz",
+  "backup_sha256": "ab7ec5caca647a5822db36a3700558795dd31c00cc3d46f55b48dd1e3922ede9",
+  "worktrees_before": 2,
+  "previous_unique_binary_checkpoints": "PRESERVED_UNTOUCHED",
+  "user_owned_untracked_files": [
+    "?? artifacts/v03_measure_lift_20261123/S06_fresh0.final.bin.gz",
+    "?? artifacts/v03_measure_lift_20261123/S06_resume25710.final.bin.gz",
+    "?? artifacts/v03_measure_lift_20261123/backup/native_prior_S05.so"
+  ],
+  "initial_status": "READY_FOR_REBUILD"
+}
