@@ -198,6 +198,51 @@ impl PacketParts {
             Ok(Self::Mixed(Arc::new(parts)))
         }
     }
+
+    /// Directly convert an immutable source and the ORIGINAL binary64 factor
+    /// to one final physical packet backing. No raw Part remainder Vec lives
+    /// between source and final Uniform/Mixed allocation.
+    fn pack_scaled_from(
+        source:&PacketParts,f:f64,
+        before_allocate:impl FnOnce(usize)->PyResult<()>,
+    )->PyResult<Self> {
+        let mut count=0usize;
+        let mut endpoints:Option<(PackedTime,PackedTime)>=None;
+        let mut can_uniform=true;
+        // This preflight is read-only and does not evaluate birth for filtered rows.
+        // A second pass uses precisely the original served_parts transform.
+        for p in source.iter() {
+            if p.mass*f>0.0 {
+                count=count.checked_add(1)
+                    .ok_or_else(||budget("scaled source row count overflow"))?;
+                if compact_indices(p.tag,p.offset).is_none() {
+                    can_uniform=false;
+                }
+                match endpoints {
+                    Some((a,b)) if a.0!=p.a.0 || b.0!=p.b.0 => can_uniform=false,
+                    None=>endpoints=Some((p.a,p.b)),
+                    _=>{}
+                }
+            }
+        }
+        if count==0 {
+            return Ok(Self::Mixed(Arc::new(Vec::new())));
+        }
+        if can_uniform {
+            let (a,b)=endpoints.expect("nonempty source has interval bits");
+            before_allocate(count.saturating_mul(std::mem::size_of::<CorePart>()))?;
+            let mut rows=checkpoint_vec(count)?;
+            rows.extend(served_parts(source,f).map(compact_core_part));
+            debug_assert_eq!(rows.len(),count);
+            Ok(Self::Uniform{a,b,rows:Arc::new(rows)})
+        } else {
+            before_allocate(count.saturating_mul(std::mem::size_of::<Part>()))?;
+            let mut rows=checkpoint_vec(count)?;
+            rows.extend(served_parts(source,f));
+            debug_assert_eq!(rows.len(),count);
+            Ok(Self::Mixed(Arc::new(rows)))
+        }
+    }
     fn clone_checked(&self) -> PyResult<Self> {
         // PacketParts owns only immutable post-packing compositions. Existing
         // snapshots and candidates may reference the same physical row
@@ -4235,9 +4280,15 @@ impl V1Road {
                     // transform, and the slot is replaced at exactly the
                     // original logical packet lifecycle boundary.
                     if fraction < 1. {
-                        let remainder=work.pack_parts_with_live_descriptors(
-                            portion(&packet.parts,1.-fraction)?,&incoming,&marks,
-                        )?;
+                        let remainder=if use_timed_incoming {
+                            // No intermediate raw Part remainder: preflight and
+                            // allocate the sole final packed owner directly.
+                            PacketParts::pack_scaled_from(&packet.parts,1.-fraction,
+                                |bytes|work.require(bytes,"source remainder packing"))?
+                        } else {
+                            work.pack_parts_with_live_descriptors(
+                                portion(&packet.parts,1.-fraction)?,&incoming,&marks)?
+                        };
                         queues[i][position[i]].0.parts=remainder;
                     } else {
                         position[i] += 1;
@@ -7571,5 +7622,78 @@ mod source_specific_keyset_workspace_tests {
         s.intern_exact_keysets().unwrap();
         assert_eq!(bits(&s),before);
         assert_eq!(s.keyset_allocation_row_count(),0);
+    }
+}
+
+
+#[cfg(test)]
+mod exact_streaming_remainder_tests {
+    use super::*;
+    fn make_part(tag:usize,off:usize,mass:f64,birth:f64,a:f64,b:f64)->Part {
+        Part{tag,offset:off,mass,birth,
+            a:PackedTime::new(Some(a)).unwrap(),
+            b:PackedTime::new(Some(b)).unwrap()}
+    }
+    fn payload(parts:&PacketParts)->Vec<(usize,usize,u64,u64,u64,u64)>{
+        parts.iter().map(|p|(p.tag,p.offset,p.mass.to_bits(),p.birth.to_bits(),p.a.0,p.b.0)).collect()
+    }
+    #[test]
+    fn scaled_source_direct_matches_eager_for_uniform_shared_and_mixed() {
+        let originals=vec![
+            make_part(1,0,0.75,0.125,-0.0,2.),
+            make_part(2,1,0.5,0.25,-0.0,2.),
+            make_part(3,2,1e-300,0.625,-0.0,2.),
+        ];
+        let uniform=PacketParts::pack(originals.clone(), |_|Ok(())).unwrap();
+        let keys=Arc::new(vec![(1u32,0u32),(2,1),(3,2)]);
+        let moments=Arc::new(vec![(0.75,0.125),(0.5,0.25),(1e-300,0.625)]);
+        let shared=PacketParts::SharedKeys {
+            a:PackedTime::new(Some(-0.0)).unwrap(),
+            b:PackedTime::new(Some(2.)).unwrap(),keys,moments
+        };
+        let mut nonuniform=originals.clone();
+        nonuniform[1].b=PackedTime::new(Some(3.)).unwrap();
+        let mixed=PacketParts::Mixed(Arc::new(nonuniform));
+        let wide=PacketParts::Mixed(Arc::new(vec![
+            make_part(u32::MAX as usize +1,0,1.,-0.,0.,1.),
+            make_part(1,0,0.5,1.,0.,1.),
+        ]));
+        let signed=PacketParts::Mixed(Arc::new(vec![
+            make_part(1,0,0.5,0.5,0.,1.),
+            make_part(1,0,0.5,0.5,-0.,1.),
+        ]));
+        assert_eq!(std::mem::size_of::<Part>(),48);
+        assert_eq!(std::mem::size_of::<CorePart>(),24);
+        for source in [&uniform,&shared,&mixed,&wide,&signed] {
+            for f in [0.,0.25,0.7,1.,1e-100] {
+                let eager=PacketParts::pack(portion(source,f).unwrap(), |_|Ok(())).unwrap();
+                let direct=PacketParts::pack_scaled_from(source,f, |_|Ok(())).unwrap();
+                assert_eq!(std::mem::discriminant(&eager),std::mem::discriminant(&direct));
+                assert_eq!(payload(&eager),payload(&direct));
+            }
+        }
+    }
+    #[test]
+    fn direct_source_allocation_excludes_full_temporary_part_buffer() {
+        let n=257usize;
+        let source=PacketParts::pack(
+            (0..n).map(|i|make_part(1,i,0.125,0.25,2.,3.)).collect(),
+            |_|Ok(())
+        ).unwrap();
+        let eager=portion(&source,0.5).unwrap();
+        assert_eq!(eager.capacity(),n);
+        let original_raw=eager.capacity()*std::mem::size_of::<Part>();
+        let mut charged=0usize;
+        let compact=PacketParts::pack_scaled_from(&source,0.5,|bytes|{
+            charged=bytes;
+            if bytes>n*std::mem::size_of::<CorePart>() {
+                Err(budget("direct packet writes must not charge old raw buffer"))
+            } else {Ok(())}
+        }).unwrap();
+        assert_eq!(charged,n*std::mem::size_of::<CorePart>());
+        assert_eq!(compact.len(),n);
+        assert!(original_raw>charged);
+        let old=PacketParts::pack(eager, |_|Ok(())).unwrap();
+        assert_eq!(payload(&old),payload(&compact));
     }
 }

@@ -1,0 +1,11 @@
+{
+  "stage": "L04",
+  "red_source": "Clean baseline HEAD and syntax-correct new test only",
+  "red_exit": 101,
+  "red_expected": "missing pack_scaled_from method",
+  "green_exit": 0,
+  "green_wall_s": 6.295582947030198,
+  "red_log_sha256": "2f02cbc6d44ebafe16f1d5c60ed57273b9ccdaeec2fe265faa608d48f8a5526b",
+  "green_log_sha256": "a15bc884e4bb1fc7d6ee831c6e3470ec686b48bb4306717a70faf4ff67cd6306",
+  "new_coderoute": "Bounded timed source direct final packing; previous Mixed/unbounded legacy fallback preserved"
+}

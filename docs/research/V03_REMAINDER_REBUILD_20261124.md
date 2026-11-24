@@ -16,3 +16,6 @@ The fresh run reaches 25720 and first rejects remainder packing at 25730: requir
 
 ## L03 mathematical construction
 Theorem A directly eliminates a genuine 48*N byte source remainder allocation while preserving IEEE row order/mass/birth operations by two-pass source-to-final encoding. Theorem B extends cumulative marked link flow to junctions with explicit node-queue/boarding source conservation. These are constructive results, not generic no-go claims. The tested binary64 oracle is finite and not mistaken for native verification. Full proof and conditions are in V03_REMAINDER_MATHEMATICS_20261124.md.
+
+## L04 RED/GREEN for native direct remainder packing
+The first GREEN attempt had an unrelated invalid +0. Rust literal in the new test. That syntax failure is excluded from the behavioral RED. With a syntax-correct focused test and baseline production source, Cargo fails at the absent direct pack_scaled_from API. With the actual implementation, the full Rust library suite passes. This source-to-final path preserves original binary64 mass/birth multiplication and endpoint bits and omits the intermediate 48*N-byte Part buffer. Old non-timed fallback is unchanged. Full logs and origin are L04_TDD.json; large original physics validation remains subsequent.
