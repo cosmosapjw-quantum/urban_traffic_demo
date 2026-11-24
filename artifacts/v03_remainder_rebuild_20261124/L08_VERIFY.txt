@@ -1,0 +1,8 @@
+26b6b79ca0922c6defb2ec2fabbcaeac98b0b269922e313b18d3c4c52895273f  native_binding/_metroflow_rust.so
+First cargo test: libpython linker failure. Retry: RUSTFLAGS=-C link-arg=-lpython3.12 cargo test --offline --workspace --lib
+Release: cargo build --offline --release --features budget_trace
+
+test result: ok. 193 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+..................................................                       [100%]
+50 passed in 1.68s

@@ -1117,6 +1117,43 @@ impl NativeWholeEngine {
         }
         Ok(())
     }
+    fn load_validation_admission(&self, decoded: &Bundle, road_rows: usize) -> PyResult<()> {
+        let Some(accounting) = &self.runtime_storage else {
+            return Ok(());
+        };
+        let current_bytes = self.road.owned_storage_bytes()
+            .saturating_add(journey_storage_bytes(self.journey.state()))
+            .saturating_add(self.service.event_storage_bytes());
+        let decoded_bytes = decoded.road.retained_storage_bytes()
+            .saturating_add(journey_storage_bytes(&decoded.journey))
+            .saturating_add(service_event_storage_bytes(&decoded.service));
+        let scratch = self.validation_scratch(&decoded.journey, road_rows);
+        // Validation borrows the decoded owners. The install clone is only
+        // admitted after validation drops scratch, using restore's own guard.
+        let required = accounting.base()
+            .saturating_add(accounting.call_binding.max(scratch))
+            .saturating_add(current_bytes)
+            .saturating_add(decoded_bytes);
+        let observed = crate::v1_trace::guard(
+            "engine_admission",
+            "load validation",
+            required,
+            self.byte_budget,
+            &[
+                ("fixed_base", accounting.base()),
+                ("call_binding", accounting.call_binding),
+                ("validation_scratch", scratch),
+                ("current_dynamic", current_bytes),
+                ("decoded_dynamic", decoded_bytes),
+            ],
+        );
+        if required > self.byte_budget && !observed {
+            return Err(PyMemoryError::new_err(format!(
+                "native load validation storage budget exceeded: required_bytes={required}, budget_bytes={}", self.byte_budget
+            )));
+        }
+        Ok(())
+    }
     fn validate_bundle(&self, b: &Bundle) -> PyResult<()> {
         if b.road.time() != b.journey.0 {
             return Err(bad("checkpoint owner clocks differ"));
@@ -1819,14 +1856,6 @@ impl NativeWholeEngine {
                 return Err(bad("trailing native checkpoint bytes"));
             }
             let stats = road.debug_stats();
-            self.storage_admission(
-                &journey,
-                road_bytes,
-                stats.cell_parts.saturating_add(stats.pending_parts),
-                events,
-                None,
-                true,
-            )?;
             let state = NativeWholeState {
                 identity: self.identity.clone(),
                 value: Arc::new(Bundle {
@@ -1837,6 +1866,10 @@ impl NativeWholeEngine {
             };
             // Nothing is installed until all sequential reserve guards and
             // cross-owner physical validation have succeeded.
+            self.load_validation_admission(
+                &state.value,
+                stats.cell_parts.saturating_add(stats.pending_parts),
+            )?;
             self.validate_bundle(&state.value)?;
             self.restore(&state)?;
             Ok(state)

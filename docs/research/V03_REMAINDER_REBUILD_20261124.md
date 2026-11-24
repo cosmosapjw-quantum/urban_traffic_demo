@@ -32,3 +32,6 @@ Let B be the existing fixed reserve, K the existing call-binding reserve, Q_o an
 For the L06 measured inputs, even replacing both Q_o and Q_d by the old per-owner maxima gives validation headroom of 1,797,098,875 B. The existing restore guard without validation scratch has 327,571,839 B headroom for those same maxima. These two arithmetic checks were independently evaluated with exact Wolfram integer arithmetic. The positive action is to change only load validation admission and rerun the original retained checkpoint with unchanged process and accounting caps.
 
 Drift check against 0492364 PRD/spec and 6524500 constitution: this splits allocation lifetimes and preserves the complete checkpoint validation, deterministic replay, 100k demand and the traffic–accessibility–delayed-development coupling. There is no change to the service law or route eligibility.
+
+## L08 load validation implementation
+Production load now charges the retained current and decoded owners plus the original validation workspace during their shared lifetime. Decode and subsequent installation guards are unchanged. Validation still runs before any state is installed. Binary identity, the initial linker failure and the corrected Rust/Python checks are in L08_VERIFY.txt.
