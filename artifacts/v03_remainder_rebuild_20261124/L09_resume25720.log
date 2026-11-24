@@ -1,0 +1,4 @@
+INITIAL_VALID 25720.0
+START_HORIZON 25730.0
+RUN_STOP {"class_name": "BudgetExceeded", "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4881896808, budget_bytes=4881896463", "phase": "ADVANCE_TO_25730.0"}
+{"status": "BLOCKED_RESOURCE", "start_time_s": 25720.0, "completed_time_s": 25720.0, "valid_advanced_duration_s": 0.0, "wall_s": 117.62075344199548, "peak_rss_bytes": 3576606720, "final_checkpoint_sha256": null, "error": {"class_name": "BudgetExceeded", "message": "native road storage budget exceeded: phase=transfer candidates, required_bytes=4881896808, budget_bytes=4881896463", "phase": "ADVANCE_TO_25730.0"}}

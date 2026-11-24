@@ -1,0 +1,5 @@
+receiving 1999/1000 2001/1000 normalized rates 1999/2000 1999/2000 2003/2000
+receiving 2 2 normalized rates 1 1 1
+receiving 2001/1000 1999/1000 normalized rates 2003/2000 1999/2000 1999/2000
+exact capacity pairs: 300 composition and backward tolerance cases: 1024
+wall_s=0.51 peak_rss_kib=12340

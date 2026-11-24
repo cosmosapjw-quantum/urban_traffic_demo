@@ -206,7 +206,7 @@ def main():
             result["previous_checkpoint_sha256"] = prev["final_checkpoint_sha256"]
             result["previous_candidate_source_sha256"] = prev.get("current_candidate_source_sha256")
         print("INITIAL_VALID", initial, flush=True)
-        budget_trace_snapshot(reset=True)
+        result["startup_trace"] = budget_trace_snapshot(reset=True)
         for horizon in horizons:
             target = initial + horizon
             print("START_HORIZON", target, flush=True)
@@ -262,10 +262,21 @@ def main():
             result["final_execution_report"] = report["execution"]
             if state.time_s > initial:
                 destination = args.out.with_suffix(".final.bin.gz")
-                wire = wire_evidence(driver,state,args.out.parent,destination)
-                result.update(final_checkpoint_sha256=wire["raw_sha256"],
-                              final_checkpoint_bytes=wire["raw_bytes"],
-                              checkpoint_compression=wire)
+                try:
+                    wire = wire_evidence(driver, state, args.out.parent, destination)
+                except (MemoryError, OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
+                    # A validated in-memory frontier and a durable restart point
+                    # are different results. Keep the former if save fails.
+                    result["checkpoint_error"] = dict(
+                        phase="FINAL_SAVE", class_name=type(exc).__name__, message=str(exc)
+                    )
+                    if result["status"] == "EXECUTED_CURRENT_SOURCE_CONTINUOUS_HORIZON":
+                        result["status"] = "EXECUTED_WITHOUT_FINAL_CHECKPOINT"
+                else:
+                    result.update(final_checkpoint_sha256=wire["raw_sha256"],
+                                  final_checkpoint_bytes=wire["raw_bytes"],
+                                  checkpoint_compression=wire)
+                result["final_trace"] = budget_trace_snapshot(reset=False)
     result["wall_s"] = time.perf_counter()-started
     result["peak_rss_bytes"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss*1024
     result["checkpoint_reader_peak_rss_bytes"] = resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss*1024
