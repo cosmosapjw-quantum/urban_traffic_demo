@@ -2503,6 +2503,17 @@ fn release_consumed_timed_incoming(
     Ok(rows)
 }
 
+// The index sort and at most one combined Part per source row coexist.
+fn receiving_local_combine_scratch(rows: usize, classes: usize) -> usize {
+    // Conservative finite-binary64 expansion/map allowance. An expansion
+    // has nonoverlapping nonzero terms in the finite binary exponent range;
+    // 4096 f64 slots per accumulator exceed the number of binary positions.
+    // Include growth overlap and simultaneous class and mass/birth sums.
+    let expansion = (classes.saturating_add(2)).saturating_mul(128 * 1024);
+    rows.saturating_mul(std::mem::size_of::<usize>() + std::mem::size_of::<Part>())
+        .saturating_add(expansion)
+}
+
 /// The original combine key, source-index tie order and sum() operations
 /// evaluated against stable page indices without flattening the source.
 fn combine_chunked_parts(parts: &ChunkedParts) -> PyResult<Vec<Part>> {
@@ -4571,7 +4582,13 @@ impl V1Road {
         } else {
             work.lock_completed_incoming_descriptors(&incoming,&marks)?;
         }
+        // Retain the old reserve for default and wide representations. In
+        // the opt-in exact indexed lane, only one consumer is live at a time.
+        let full_consumer_base = work.base;
+        let local_consumer = use_timed_incoming && work.timed_referenced_rows.is_some();
+        let consumer_floor = full_consumer_base.saturating_sub(work.transfer_exclusive_cell_scratch);
         for i in 0..n {
+            if local_consumer { work.base = consumer_floor; }
             let raw_rows=if use_timed_incoming {timed_rows[i].len()}else{incoming[i].len()};
             if !incoming_src.is_empty() && raw_rows>0 {
                 if use_timed_incoming {
@@ -4590,6 +4607,18 @@ impl V1Road {
             // Never call combine before consuming the aligned raw rows.
             if !use_timed_incoming && raw_rows != marks[i].len() {
                 return Err(arithmetic("incoming Part/Mark source-order alignment differs"));
+            }
+            if local_consumer && raw_rows == 0 {
+                // No transfer or pending arrival; the legacy added==0 arm
+                // leaves the cell unchanged. Empty pages own no payload.
+                continue;
+            }
+            let local_peak = if local_consumer {
+                receiving_local_combine_scratch(raw_rows, self.classes.len())
+            } else { 0 };
+            if local_consumer {
+                work.require(local_peak, "timed incoming local consumer preflight")?;
+                crate::v1_trace::add("incoming_timed.local_consumer_scratch_bytes",local_peak as u64);
             }
             let old = self.occupancy(&out.cells[i]);
             let weighted_speed = if use_timed_incoming {
@@ -4622,7 +4651,7 @@ impl V1Road {
             // barriers. The timed carrier is read directly: no full raw
             // Part+Mark materialization exists at any point in this lane.
             let (parts,expired)=if use_timed_incoming {
-                work.require(0,"timed incoming direct combine")?;
+                work.require(local_peak,"timed incoming direct combine")?;
                 let source=std::mem::take(&mut timed_rows[i]);
                 let parts=combine_indexed_parts(source.len(),|index|
                     source.get_with_events(index,&timed_controls,&events).0)?;
@@ -4656,6 +4685,13 @@ impl V1Road {
                     )
                 })
                 .collect();
+            if local_consumer {
+                // Index vector is gone; the combined input is still owned
+                // by interval_packets. Its separate sweep and packet
+                // allocation envelopes remain intact.
+                work.base = consumer_floor.saturating_add(
+                    parts.capacity().saturating_mul(std::mem::size_of::<Part>()));
+            }
             let target = out.cells[i].v[0] + self.groups[i][0];
             let packets = if self.intervals {
                 self.interval_packets(parts, target, &mut work)?
@@ -4665,6 +4701,7 @@ impl V1Road {
                     parts: work.pack_parts(parts)?,
                 }]
             };
+            if local_consumer { work.base = consumer_floor; }
             // The returned list, the cell's old slot buffer and its grown
             // replacement coexist during the reservation. Slots of interval
             // packets are already retained; charge any extra slack retained.
@@ -4701,6 +4738,7 @@ impl V1Road {
             out.cells[i].v[2] += added;
             out.cells[i].v[4] += added * end;
         }
+        work.base = full_consumer_base;
         // No timed source/control owner survives into validation or the
         // persistent candidate. Legacy state/checkpoint representation stays.
         drop(timed_rows);
@@ -7948,5 +7986,32 @@ fn legacy_sum<I: IntoIterator<Item = f64>>(values: I) -> f64 {
         for &(m,l) in &pairs { moments.add(m,l); }
         let expected=legacy_sum(pairs.iter().map(|(m,l)|m*l))/legacy_sum(pairs.iter().map(|(m,_)|*m));
         assert_eq!(moments.mean().to_bits(),expected.to_bits());
+    }
+}
+
+
+#[cfg(test)]
+mod receiving_local_lifetime_tests {
+    use super::*;
+    #[test]
+    fn measured_old_maximum_is_not_the_active_consumer() {
+        // Same measured base and limit as the archived 6 GiB Valley refusal.
+        let historical = 4_977_552_461usize;
+        let limit = 4_881_896_463usize;
+        let old = 187_014_048usize;
+        let local = receiving_local_combine_scratch(100_000, 3);
+        assert!(historical > limit);
+        assert_eq!(local, 6_255_360);
+        assert!(historical - old + local < limit);
+        // A large active cell must still pay for its actual scratch.
+        assert!(historical-old+receiving_local_combine_scratch(3_000_000,3)>limit);
+    }
+
+    #[test]
+    fn local_scratch_covers_index_and_combined_capacity() {
+        for n in [0usize,1,128,129,65536] {
+            let bytes = n*(std::mem::size_of::<Part>()+std::mem::size_of::<usize>());
+            assert!(receiving_local_combine_scratch(n,3)>=bytes);
+        }
     }
 }
