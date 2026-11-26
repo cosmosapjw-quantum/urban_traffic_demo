@@ -1,0 +1,13 @@
+class 120 0 1 1 1 1 1 0 0 0 30
+class 120 1 0 0 0 0 0 0 0 0 0
+class 120 2 1 1 1 1 1 0 0 0 20
+snap 120 2 2 2 2 0 0 0 0 1 1 0 1 0 0 0.1
+end 2 2 10 0 10 0 10 0 50
+purpose 0 2 0
+class 120 0 1 1 1 1 1 0 0 0 30
+class 120 1 0 0 0 0 0 0 0 0 0
+class 120 2 1 1 1 1 1 0 0 0 20
+snap 120 2 2 2 2 0 0 0 0 0.12 1 0 0 1 0 1
+end 2 2 10 0 10 0 10 0 50
+purpose 0 2 0
+PASS mixed storage, aggregate tick supply, class conservation, deterministic replay

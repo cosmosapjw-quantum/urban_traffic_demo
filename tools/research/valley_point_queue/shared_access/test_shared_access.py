@@ -11,7 +11,7 @@ def run(exe,storage,entry,groups):
         sn=next(x for x in r.splitlines() if x.startswith('snap ')).split()
         cl=[x.split() for x in r.splitlines() if x.startswith('class ')]
         assert float(sn[5])==len(groups) and float(sn[6])==0 and float(sn[8])<1e-10
-        assert float(sn[14])<1e-9 and float(sn[15])<=1+1e-9
+        assert float(sn[15])<1e-9 and float(sn[16])<=1+1e-9
         assert all(float(c[10])<1e-10 for c in cl)
         return r,sn,cl
 if __name__=='__main__':
@@ -20,10 +20,10 @@ if __name__=='__main__':
     # car-only footprint would admit both. Enough entry budget isolates storage.
     g=['0 -1 0 1 0 0 2 0','0 -1 0 1 0 0 0 1']
     r,s,c=run(exe,12,1,g);print(r,end='')
-    assert float(s[10])==1 and int(s[12])>0 and int(s[13])==0
+    assert float(s[10])==1 and int(s[13])>0 and int(s[14])==0
     # Unlimited storage for these two atoms, one vehicle per tick shared supply.
     r,s,c=run(exe,100,.1,g);print(r,end='')
-    assert int(s[12])==0 and int(s[13])>0 and float(s[15])==1
+    assert int(s[13])==0 and int(s[14])>0 and float(s[16])==1
     # Class identity and completion counts independently certified.
     assert float(c[0][7])==1 and float(c[2][7])==1
     print('PASS mixed storage, aggregate tick supply, class conservation, deterministic replay')
