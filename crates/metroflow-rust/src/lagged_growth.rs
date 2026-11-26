@@ -17,7 +17,7 @@ fn digest<T: Serialize>(x: &T) -> CoreResult<String> {
         .map(|v| hash(&v))
         .map_err(|e| CoreError::value(e.to_string()))
 }
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Accessibility {
     pub city_identity: String,
     pub stamp_s: f64,
@@ -94,7 +94,7 @@ pub struct Move {
     pub destination: String,
     pub persons: u64,
 }
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct GrowthState {
     model: String,
     pub epoch_s: f64,

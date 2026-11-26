@@ -55,7 +55,7 @@ pub struct Boundary {
     pub node: String,
     pub incoming: Option<String>,
 }
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Alternative {
     pub suffix: Vec<String>,
     pub commitment: Commitment,
@@ -65,7 +65,7 @@ pub struct Alternative {
     pub path_size: f64,
     pub probability: f64,
 }
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Decision {
     pub status: String,
     pub reason: String,
@@ -84,6 +84,8 @@ pub struct State {
     pub hits: usize,
     pub misses: usize,
 }
+#[derive(Clone,Debug,PartialEq,Serialize,Deserialize)]
+pub(crate) struct RoutingWire{pub model:String,pub cache:Vec<(String,Vec<u64>)>,pub hits:usize,pub misses:usize}
 pub struct Routing {
     pub graph_id: String,
     id: String,
@@ -242,6 +244,14 @@ impl Routing {
             hits: 0,
             misses: 0,
         }
+    }
+    pub(crate) fn export_state(&self,s:&State)->CoreResult<RoutingWire>{
+        if s.model!=self.id{return Err(bad("routing wire model"))}
+        Ok(RoutingWire{model:s.model.clone(),cache:s.cache.iter().map(|(k,v)|(k.clone(),v.iter().map(|x|x.to_bits()).collect())).collect(),hits:s.hits,misses:s.misses})
+    }
+    pub(crate) fn import_state(&self,w:&RoutingWire)->CoreResult<State>{
+        if w.model!=self.id||w.cache.len()>self.cache||w.cache.iter().any(|(k,v)|k.len()!=64||!k.bytes().all(|x|x.is_ascii_hexdigit())||v.len()!=self.links.len()||v.iter().any(|&x|{let x=f64::from_bits(x);x.is_nan()||x<0.}))||w.cache.iter().map(|(k,_)|k).collect::<BTreeSet<_>>().len()!=w.cache.len(){return Err(bad("invalid routing cache wire"))}
+        Ok(State{model:w.model.clone(),cache:w.cache.iter().map(|(k,v)|(k.clone(),Arc::new(v.iter().map(|&x|f64::from_bits(x)).collect()))).collect(),hits:w.hits,misses:w.misses})
     }
     fn indices(&self, ids: &[String]) -> CoreResult<Vec<usize>> {
         ids.iter()
