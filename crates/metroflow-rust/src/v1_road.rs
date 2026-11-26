@@ -1383,7 +1383,42 @@ impl RoadState {
                 PacketParts::SharedKeys{..}|PacketParts::Mixed(_)=>0,
             }))
     }
+    // Nonempty ordered (tag, offset) keys identify the present physical cell
+    // through path(tag)[offset]. Its road and pending queues are one partition.
+    // Select the maximum JOINT row + packet charge without allocating a table.
+    fn peak_cell_keyset_workspace(&self) -> PyResult<(usize,usize)> {
+        if self.cells.len()!=self.pending.len() {
+            return Err(val("native keyset cell/pending shape differs"));
+        }
+        let mut peak=(0,0);
+        let mut peak_bytes=0;
+        for (cell,pending) in self.cells.iter().zip(&self.pending) {
+            let rows=cell.packets.iter().chain(pending).fold(0usize,|n,p|match &p.parts {
+                PacketParts::Uniform{rows,..}=>n.saturating_add(rows.len()),
+                _=>n,
+            });
+            let packets=cell.packets.len().saturating_add(pending.len());
+            let bytes=postroad_continuous_keyset_peak_event_bytes(0,0,0,rows,packets);
+            if bytes>peak_bytes { peak=(rows,packets); peak_bytes=bytes; }
+        }
+        Ok(peak)
+    }
     pub(crate) fn intern_exact_keysets(&mut self) -> PyResult<usize> {
+        if self.cells.len()!=self.pending.len() {
+            return Err(val("native keyset cell/pending shape differs"));
+        }
+        let mut converted=0usize;
+        for (cell,pending) in self.cells.iter_mut().zip(&mut self.pending) {
+            converted=converted.saturating_add(Self::intern_cell_keysets(&mut cell.packets,pending)?);
+        }
+        Ok(converted)
+    }
+
+    // All four lookup/assignment containers and the old->new moment map drop
+    // before the next cell. Finished cells never increase retained owner charge:
+    // existing shared keys are preferred; for m >= 2 independent Uniform owners
+    // of n >= 16 rows the extra key charge is 8n+96 <= 8mn reclaimed in moments.
+    fn intern_cell_keysets(road:&mut [Packet],pending:&mut [Packet])->PyResult<usize> {
         let mut groups:Vec<ExactKeyGroup>=Vec::new();
         let mut lookup:HashMap<(usize,u64),Vec<usize>>=HashMap::new();
         let mut assignments:Vec<Option<usize>>=Vec::new();
@@ -1391,8 +1426,7 @@ impl RoadState {
         // First pass is strictly read-only. Canonical keys are OWNED, not
         // borrowed from self, so the second mutation pass cannot invalidate
         // a representative or confuse Arc pointer identities.
-        for packet in self.cells.iter().flat_map(|c|&c.packets)
-            .chain(self.pending.iter().flatten()) {
+        for packet in road.iter().chain(pending.iter()) {
             let (n,h,old_backing)=match &packet.parts {
                 PacketParts::Uniform{rows,..}=>{
                     let mut h=std::collections::hash_map::DefaultHasher::new();
@@ -1421,10 +1455,18 @@ impl RoadState {
                     PacketParts::Mixed(_)=>false,
                 }
             });
-            let id=if let Some(id)=found {id} else {
+            let id=if let Some(id)=found {
+                if let PacketParts::SharedKeys{keys,..}=&packet.parts {
+                    groups[id].keys=keys.clone();
+                }
+                id
+            } else {
                 let key=match &packet.parts {
                     PacketParts::Uniform{rows,..}=>{
                         let mut tmp=checkpoint_vec(rows.len())?;
+                        if tmp.capacity()!=rows.len() {
+                            return Err(budget("cell keyset allocator exceeded exact row capacity"));
+                        }
                         tmp.extend(rows.iter().map(|r|(r.tag,r.offset)));
                         Arc::new(tmp)
                     },
@@ -1448,8 +1490,7 @@ impl RoadState {
         let mut moments_by_old_backing:HashMap<usize,Arc<Vec<(f64,f64)>>>=HashMap::new();
         let mut converted=0usize;
         let mut index=0usize;
-        for packet in self.cells.iter_mut().flat_map(|c|&mut c.packets)
-            .chain(self.pending.iter_mut().flatten()) {
+        for packet in road.iter_mut().chain(pending.iter_mut()) {
             let group=assignments[index];
             index+=1;
             let Some(id)=group else {continue};
@@ -1462,6 +1503,9 @@ impl RoadState {
                         old.clone()
                     } else {
                         let mut tmp=checkpoint_vec(rows.len())?;
+                        if tmp.capacity()!=rows.len() {
+                            return Err(budget("cell keyset allocator exceeded exact row capacity"));
+                        }
                         tmp.extend(rows.iter().map(|r|(r.mass,r.birth)));
                         let new=Arc::new(tmp);
                         moments_by_old_backing.insert(ptr,new.clone());
@@ -3223,9 +3267,10 @@ impl V1Road {
                 ));
             let packets = stats.cell_packets.saturating_add(stats.pending_packets);
             let allocation_rows=candidate.keyset_allocation_row_count();
+            let (cell_rows,cell_packets)=candidate.peak_cell_keyset_workspace()?;
             let required = postroad_continuous_keyset_peak_event_bytes(
                 owner_sum, old_events, candidate_event_bytes,
-                allocation_rows, packets,
+                cell_rows, cell_packets,
             );
             crate::v1_trace::guard(
                 "road_post", "continuous keyset allocation", required, limit,
@@ -3236,6 +3281,8 @@ impl V1Road {
                   ("candidate_event_storage_bytes", candidate_event_bytes),
                   ("candidate_uniform_rows", stats.uniform_parts),
                   ("candidate_keyset_allocation_rows", allocation_rows),
+                  ("peak_cell_keyset_allocation_rows", cell_rows),
+                  ("peak_cell_packets", cell_packets),
                   ("candidate_existing_shared_rows",stats.uniform_parts.saturating_sub(allocation_rows)),
                   ("candidate_packets", packets)],
             );
@@ -6506,6 +6553,53 @@ mod exact_persistent_keyset_storage_tests {
     }
 
     #[test]
+    fn cell_and_pending_share_exact_keys_with_one_live_cell_workspace() {
+        let mut s=state(vec![]);
+        s.cells.clear();
+        s.pending.clear();
+        let sizes=[16usize,64,513,33];
+        for (i,&n) in sizes.iter().enumerate() {
+            let keys:Vec<_>=(0..n).map(|j|(j as u32,i as u32)).collect();
+            let first=dense(&keys,0.,-0.,1.);
+            let second=dense(&keys,0.125,0.,2.);
+            s.cells.push(Cell{v:[0.;8],packets:vec![Packet{target:0.,parts:first}],latent:BTreeMap::new()});
+            s.pending.push(vec![Packet{target:0.,parts:second}]);
+        }
+        let bit_rows=|s:&RoadState|s.cells.iter().map(|c|&c.packets).chain(&s.pending)
+            .flat_map(|q|q.iter()).map(|p|p.parts.iter().map(signature).collect::<Vec<_>>())
+            .collect::<Vec<_>>();
+        let bytes=s.retained_storage_bytes();
+        let before=bit_rows(&s);
+        let (rows,packets)=s.peak_cell_keyset_workspace().unwrap();
+        assert_eq!((rows,packets),(2*513,2));
+        let local=postroad_continuous_keyset_peak_event_bytes(bytes,13,17,rows,packets);
+        let global=postroad_continuous_keyset_peak_event_bytes(bytes,13,17,2*sizes.iter().sum::<usize>(),8);
+        assert!(check_storage_limit(Some(local),global,"old global keyset peak").is_err());
+        assert!(check_storage_limit(Some(local-1),local,"cell keyset peak").is_err());
+        assert!(check_storage_limit(Some(local),local,"cell keyset peak").is_ok());
+        assert_eq!(s.intern_exact_keysets().unwrap(),8);
+        assert_eq!(bit_rows(&s),before);
+        assert!(s.retained_storage_bytes()<=bytes);
+        for (c,q) in s.cells.iter().zip(&s.pending) {
+            match (&c.packets[0].parts,&q[0].parts) {
+                (PacketParts::SharedKeys{keys:k0,moments:m0,..},PacketParts::SharedKeys{keys:k1,moments:m1,..})=>{
+                    assert!(Arc::ptr_eq(k0,k1)); assert!(!Arc::ptr_eq(m0,m1));
+                },
+                _=>panic!("expected independent moment arrays and shared keys"),
+            }
+        }
+    }
+
+    #[test]
+    fn local_workspace_selects_combined_row_and_packet_peak() {
+        let mut s=state(vec![dense(&[(0,0);200],0.,0.,1.)]);
+        let many=state((0..100).map(|_|dense(&[],0.,0.,1.)).collect());
+        s.cells.extend(many.cells);
+        s.pending.extend(many.pending);
+        assert_eq!(s.peak_cell_keyset_workspace().unwrap(),(0,100));
+    }
+
+    #[test]
     fn already_shared_full_arc_is_not_converted_into_two_new_allocations() {
         let keys:Vec<_>=(0..64).map(|i|(i as u32, 0u32)).collect();
         let p=dense(&keys,0.,0.,1.);
@@ -7625,8 +7719,8 @@ mod source_specific_keyset_workspace_tests {
     fn interning_bound_allocates_only_uniform_rows_and_preserves_shared_moment_owner() {
         let n=4097;let mut s=fixture(n,true);
         let before=bits(&s);
-        let old_moments=match &s.cells[0].packets[1].parts {
-            PacketParts::SharedKeys{moments,..}=>moments.clone(),_=>unreachable!(),
+        let (old_keys,old_moments)=match &s.cells[0].packets[1].parts {
+            PacketParts::SharedKeys{keys,moments,..}=>(keys.clone(),moments.clone()),_=>unreachable!(),
         };
         assert_eq!(s.debug_stats().uniform_parts,2*n);
         assert_eq!(s.keyset_allocation_row_count(),n);
@@ -7640,7 +7734,10 @@ mod source_specific_keyset_workspace_tests {
         assert_eq!(bits(&s),before);
         assert_eq!(s.keyset_allocation_row_count(),0);
         match &s.cells[0].packets[1].parts {
-            PacketParts::SharedKeys{moments,..}=>assert!(Arc::ptr_eq(moments,&old_moments)),
+            PacketParts::SharedKeys{keys,moments,..}=>{
+                assert!(Arc::ptr_eq(moments,&old_moments));
+                assert!(Arc::ptr_eq(keys,&old_keys));
+            },
             _=>panic!("existing shared source changed representation"),
         }
     }

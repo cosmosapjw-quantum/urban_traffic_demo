@@ -1,0 +1,28 @@
+{
+  "mode": "observe",
+  "child_exit": 3,
+  "wall_limit_hit": false,
+  "wall_s": 238.34325889102183,
+  "validated_times_s": [],
+  "sampled_process_high_water_bytes": {
+    "VmPeak": 5396779008,
+    "VmHWM": 5104984064
+  },
+  "last_event": "rejected",
+  "original_release_eligible": false,
+  "events": "baseline_observe.jsonl",
+  "argv": [
+    "--mode",
+    "observe",
+    "--raw",
+    "/tmp/metroflow_v03_base_20261126/valley.bin",
+    "--reference",
+    "artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+    "--steps",
+    "12",
+    "--hash-steps",
+    "1",
+    "--out",
+    "artifacts/v03_structural_reset_20261126/baseline_observe.json"
+  ]
+}
