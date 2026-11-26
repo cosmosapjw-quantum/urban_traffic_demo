@@ -1,0 +1,5 @@
+valley_weekday_s7: 686 activity rows, 654 intrazonal pair bindings, 24 fixed routes, complete road registry
+.coastal_weekend_s41: 1383 activity rows, 854 intrazonal pair bindings, 24 fixed routes, complete road registry
+.river_weekday_s17: 1622 activity rows, 1524 intrazonal pair bindings, 24 fixed routes, complete road registry
+.
+3 passed in 48.90s
