@@ -1,0 +1,30 @@
+{
+  "mode": "record",
+  "child_exit": 3,
+  "wall_limit_hit": false,
+  "wall_s": 91.12494365801103,
+  "validated_times_s": [],
+  "sampled_process_high_water_bytes": {
+    "VmPeak": 3220283392,
+    "VmHWM": 3204960256
+  },
+  "last_event": "rejected",
+  "original_release_eligible": false,
+  "events": "strict-local.jsonl",
+  "argv": [
+    "--mode",
+    "record",
+    "--raw",
+    "/tmp/metroflow_receiving_spillback_20261126/valley25720.bin",
+    "--reference",
+    "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+    "--out",
+    "/tmp/metroflow_receiving_spillback_20261126/strict-local.json",
+    "--steps",
+    "3",
+    "--hash-steps",
+    "1",
+    "--wall-limit",
+    "300"
+  ]
+}
