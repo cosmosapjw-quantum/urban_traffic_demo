@@ -3080,12 +3080,12 @@ impl V1Road {
                 return Err(val("empty native checkpoint packet"));
             }
             *remaining -= m;
-            work.reserve(
-                m.saturating_mul(std::mem::size_of::<Part>()),
-                m.saturating_mul(16),
-            )?;
-            let mut parts = checkpoint_vec(m)?;
-            for _ in 0..m {
+            // Preserve wire and exact IEEE rows; allocate the final compact
+            // representation directly. Only a truly mixed packet needs the
+            // legacy wide representation. The late fallback is charged before
+            // the two buffers coexist; no guard allowance is relaxed here.
+            work.reserve(0,m.saturating_mul(16))?;
+            let mut read_part=||->CoreResult<Part>{
                 let tag = read_len(r, self.routes.len())?;
                 let Some(&(path, _)) = self.routes.get(tag) else {
                     return Err(val("native checkpoint route index differs"));
@@ -3101,19 +3101,46 @@ impl V1Road {
                         _ => return Err(val("native checkpoint option tag differs")),
                     };
                 }
-                parts.push(Part {
+
+                Ok(Part {
                     tag,
                     offset,
                     mass,
                     birth,
                     a: PackedTime::new(interval[0])?,
                     b: PackedTime::new(interval[1])?,
-                });
-            }
-            q.push(Packet {
-                target,
-                parts: work.pack_parts(parts)?,
-            });
+                })
+            };
+            let first=read_part()?;
+            let a=first.a;let b=first.b;
+            let parts=if compact_indices(first.tag,first.offset).is_none(){
+                work.reserve(m.saturating_mul(std::mem::size_of::<Part>()),0)?;
+                let mut wide=checkpoint_vec(m)?;wide.push(first);
+                for _ in 1..m{wide.push(read_part()?);}
+                PacketParts::Mixed(Arc::new(wide))
+            }else{
+                let bytes=m.saturating_mul(std::mem::size_of::<CorePart>());
+                work.reserve(bytes,0)?;
+                let mut compact=checkpoint_vec(m)?;compact.push(compact_core_part(first));
+                let mut mixed=None;
+                for _ in 1..m{
+                    let p=read_part()?;
+                    if let Some(wide)=mixed.as_mut(){Vec::<Part>::push(wide,p);continue;}
+                    if p.a.0==a.0&&p.b.0==b.0&&compact_indices(p.tag,p.offset).is_some(){
+                        compact.push(compact_core_part(p));
+                    }else{
+                        work.reserve(m.saturating_mul(std::mem::size_of::<Part>()),0)?;
+                        let mut wide=checkpoint_vec(m)?;
+                        wide.extend(compact.iter().map(|p|Part{tag:p.tag as usize,offset:p.offset as usize,mass:p.mass,birth:p.birth,a,b}));
+                        wide.push(p);
+                        drop(std::mem::take(&mut compact));
+                        work.decoded=work.decoded.checked_sub(bytes).ok_or_else(||arithmetic("compact decode accounting"))?;
+                        mixed=Some(wide);
+                    }
+                }
+                if let Some(wide)=mixed{PacketParts::Mixed(Arc::new(wide))}else{PacketParts::Uniform{a,b,rows:Arc::new(compact)}}
+            };
+            q.push(Packet{target,parts});
         }
         Ok(q)
     }
@@ -8395,5 +8422,45 @@ mod receiving_lifetime_floor_tests {
         assert_eq!(receiving_lifetime_floor(100000,8000,1000,20000,23000).unwrap(),63000);
         assert_eq!(receiving_lifetime_floor(100000,8000,1000,20000,17000).unwrap(),60000);
         assert!(receiving_lifetime_floor(1000,8000,1000,20000,23000).is_err());
+    }
+}
+
+#[cfg(test)]
+mod direct_wire_decode_tests {
+    use super::*;
+    fn model()->V1Road {
+        V1Road::new("direct-wire".into(),10.,vec![vec![1.;6];2],vec![None;2],
+            vec![(vec![0,1],0)],vec![vec![1.;13]],vec![vec![0,1]],vec![],100000,Some(100000),true).unwrap()
+    }
+    fn input(n:usize,mixed:bool)->Vec<u8>{
+        let p=Packet{target:1.,parts:PacketParts::Mixed(Arc::new((0..n).map(|i|Part{
+            tag:0,offset:0,mass:(i+1) as f64/10000.,birth:f64::from_bits(i as u64),
+            a:PackedTime::new(Some(-0.)).unwrap(),
+            b:PackedTime::new(Some(if mixed&&i==n-1{1.}else{0.})).unwrap(),
+        }).collect()))};
+        let mut wire=vec![];
+        model().write_packets(&mut wire,&[p]).unwrap();
+        wire
+    }
+    #[test]
+    fn uniform_decode_does_not_require_raw_part_buffer(){
+        let n=4096;
+        let old_wire=input(n,false);
+        let cap=3*(std::mem::size_of::<Packet>()+32+n*std::mem::size_of::<CorePart>())+32+n*16;
+        let mut w=RoadDecodeBudget{limit:Some(cap),retained_input:0,decoded:0,validation:0};
+        let road=model();let q=road.read_packets(&mut &old_wire[..],&mut n.clone(),&mut w).unwrap();
+        assert!(q[0].parts.is_uniform());
+        let mut actual=vec![];road.write_packets(&mut actual,&q).unwrap();
+        assert_eq!(old_wire,actual);
+    }
+    #[test]
+    fn mixed_late_fallback_preserves_exact_rows(){
+        let n=4096;let wire=input(n,true);let road=model();
+        let mut w=RoadDecodeBudget{limit:None,retained_input:0,decoded:0,validation:0};
+        let q=road.read_packets(&mut &wire[..],&mut n.clone(),&mut w).unwrap();
+        assert!(!q[0].parts.is_uniform());
+        let mut actual=vec![];road.write_packets(&mut actual,&q).unwrap();
+        assert_eq!(wire,actual);
+        assert_eq!(w.decoded,std::mem::size_of::<Packet>()+32+n*std::mem::size_of::<Part>());
     }
 }

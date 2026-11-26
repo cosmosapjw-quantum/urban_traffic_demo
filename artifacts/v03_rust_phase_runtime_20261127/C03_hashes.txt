@@ -1,0 +1,2 @@
+89e3928e5f5b07c5f5dbecd64a233a1e40b298f9a30c90e00da6ec07703ea9cc  /tmp/metroflow_rust_phase_runtime_20261127/native-run-c03
+934ee5da2dd3003ebda551a1e8c09bad4384827edff1e401e5bcc9c189ae8f28  /tmp/metroflow_rust_phase_runtime_20261127/C03_fixture.bin
