@@ -3217,6 +3217,8 @@ impl V1Road {
         self.retained_input_bytes = 0;
         self.service_event_accounting = None;
     }
+    #[cfg(feature="native-cli")]
+    pub(crate) fn class_for_route(&self,tag:usize)->Option<usize>{self.routes.get(tag).map(|x|x.1)}
     pub(crate) fn owned_time(&self) -> f64 {
         self.state.t
     }

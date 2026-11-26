@@ -2203,6 +2203,11 @@ pub fn run_native_declaration_with_plan(
     let clock=Instant::now();
     if segment_s.is_none(){save_atomic_native(&mut engine,checkpoint,&state)?;}
     result["save_s"]=json!(clock.elapsed().as_secs_f64());
+    if let Ok(cursor)=std::env::var("METROFLOW_NATIVE_COMPLETED_SINCE_S"){
+        let since:f64=cursor.parse().map_err(|_|bad("invalid completed observation cursor"))?;
+        let t=Instant::now();result["completed_observations"]=completed_route_observations_native(&engine,&state,since,20000)?;
+        result["completed_observation_wall_s"]=json!(t.elapsed().as_secs_f64());
+    }
     Ok(result)
 }
 
@@ -2239,4 +2244,41 @@ fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWhole
     let result=(||{engine.save(tmp.clone(),state)?;std::fs::File::open(&tmp).map_err(io)?.sync_all().map_err(io)?;std::fs::rename(&tmp,path).map_err(io)?;Ok(())})();
     if result.is_err(){let _=std::fs::remove_file(&tmp);}
     result
+}
+
+/// Completed conditional route costs, using the same native outlet records.
+/// Never infer per-link cost from route birth marks. Opt-in diagnostics only.
+#[cfg(feature="native-cli")]
+fn completed_route_observations_native(engine:&NativeWholeEngine,state:&NativeWholeState,since:f64,limit:usize)->CoreResult<serde_json::Value>{
+    use serde_json::json;
+    use sha2::{Sha256,Digest};
+    use std::collections::BTreeMap;
+    engine.checked(state)?;
+    let now=state.time_s();
+    if !since.is_finite()||since<0.||since>now||limit==0||limit>20000{return Err(bad("invalid observation cursor/budget"))}
+    struct Acc{mass:Sum,elapsed:Sum,start:f64,end:f64,count:usize,hash:Sha256}
+    let mut groups:BTreeMap<usize,Acc>=BTreeMap::new();
+    for e in state.value.service.1.iter(){
+        if e.2.is_some()||e.5<=since||e.5>now{continue}
+        if !groups.contains_key(&e.0){
+            if groups.len()==limit{return Err(CoreError::resource("completed route observation budget"))}
+            groups.insert(e.0,Acc{mass:Sum::default(),elapsed:Sum::default(),start:e.4,end:e.5,count:0,hash:Sha256::new()});
+        }
+        let a=groups.get_mut(&e.0).unwrap();
+        let elapsed=e.3*(e.4+e.5)/2.-e.6;
+        if !elapsed.is_finite()||!e.3.is_finite()||e.3<=0.{return Err(bad("invalid completed outlet event"))}
+        a.mass.add(e.3);a.elapsed.add(elapsed);a.start=a.start.min(e.4);a.end=a.end.max(e.5);a.count+=1;
+        for v in [e.0 as u64,e.1 as u64,e.3.to_bits(),e.4.to_bits(),e.5.to_bits(),e.6.to_bits()]{a.hash.update(v.to_le_bytes());}
+    }
+    let mut result=Vec::with_capacity(groups.len());
+    let mut rows=0usize;let mut all_mass=Sum::default();let mut all_elapsed=Sum::default();
+    for (tag,a) in groups{
+        let id=engine.tags.get(tag).ok_or_else(||bad("outlet route identity"))?;
+        let class=engine.road.class_for_route(tag).and_then(|c|engine.class_names.get(c)).ok_or_else(||bad("outlet class identity"))?;
+        let mass=a.mass.finish();let elapsed=a.elapsed.finish();if !mass.is_finite()||mass<=0.||!elapsed.is_finite()||elapsed<0.{return Err(bad("invalid completed route moment"))}
+        let mut h=a.hash;h.update(engine.identity.as_bytes());h.update(id.as_bytes());
+        let o=crate::causal::Observation{key:crate::causal::Key{kind:"route".into(),id:id.clone(),class:class.clone()},seconds:elapsed/mass,stamp_s:now,start_s:a.start,end_s:a.end,mass_veh:mass,sensor_xy:[0.,0.],source:"T04_completed_outlet".into(),version:engine.identity.clone(),population:format!("{:x}",h.finalize()),measure:"completed conditional birth-to-exit mean; includes all recorded holds".into()};
+        o.validate()?;rows+=a.count;all_mass.add(mass);all_elapsed.add(elapsed);result.push(o);
+    }
+    Ok(json!({"scope":"actual native outlet records, observer coordinate explicitly fixed at [0,0]; route totals cannot be converted to link costs","since_s":since,"time_s":now,"outlet_rows":rows,"route_observations":result.len(),"mass_veh":all_mass.finish(),"elapsed_veh_s":all_elapsed.finish(),"observations":result}))
 }
