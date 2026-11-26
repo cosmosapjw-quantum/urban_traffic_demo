@@ -1,0 +1,120 @@
+{
+  "config": {
+    "horizon_s": 28800.0,
+    "mesh_s": 600.0,
+    "seed": 7,
+    "shock_factor": 1.0,
+    "shock_link": null
+  },
+  "executable_sha256": "e08cbc0ea3a7d40153e5b47accaac188fc7a73bb6bd3eaac6f099f2565e6c9c5",
+  "network_sha256": "af8a0c16e2bd31d4a42282e83d076ea10075e6cbe0bb3982dfb5978cfa9f72a5",
+  "passages_sha256": "a310ee706ae3eb64ba35eef2c9275da38141dbd32eb89f86bcb6a90c89bd73c1",
+  "peak_rss_bytes": 193028096,
+  "prep_s": 0.380784333,
+  "result": {
+    "blocked_veh_s": 0.0,
+    "event_bytes": 48,
+    "event_count": 55255017,
+    "initial_batches": 6365748,
+    "snapshots": [
+      {
+        "classes": [
+          {
+            "active": 1296.2033637308407,
+            "admitted": 959.8569893776782,
+            "completed": 72.76904426915928,
+            "error": 2.2737367544323206e-13,
+            "exited": 149.83297880553602,
+            "expected": 57095.9403264,
+            "released": 1368.9724079999999,
+            "road": 810.0240105721423,
+            "trip_seconds": 23345.88277444273
+          },
+          {
+            "active": 0.0,
+            "admitted": 0.0,
+            "completed": 0.0,
+            "error": 0.0,
+            "exited": 0.0,
+            "expected": 0.998825,
+            "released": 0.0,
+            "road": 0.0,
+            "trip_seconds": 0.0
+          },
+          {
+            "active": 0.0,
+            "admitted": 4.0,
+            "completed": 4.0,
+            "error": 0.0,
+            "exited": 4.0,
+            "expected": 24.0,
+            "released": 4.0,
+            "road": 0.0,
+            "trip_seconds": 2890.0
+          }
+        ],
+        "max_meter_error": 0.0,
+        "max_receiving_ratio": 0.37128533031979155,
+        "max_storage_ratio": 0.1543711010149955,
+        "outstanding_blocked_veh_s": 0.0,
+        "queued_requests": 256671,
+        "rate_blocks": 0,
+        "storage_blocks": 0,
+        "time_s": 25720.0
+      },
+      {
+        "classes": [
+          {
+            "active": 2108.164172001218,
+            "admitted": 9115.702276899816,
+            "completed": 7407.825882398782,
+            "error": 4.547473508864641e-13,
+            "exited": 7761.858189571008,
+            "expected": 57095.9403264,
+            "released": 9515.9900544,
+            "road": 1353.8440873288084,
+            "trip_seconds": 5680131.033093756
+          },
+          {
+            "active": 0.0,
+            "admitted": 0.0,
+            "completed": 0.0,
+            "error": 0.0,
+            "exited": 0.0,
+            "expected": 0.998825,
+            "released": 0.0,
+            "road": 0.0,
+            "trip_seconds": 0.0
+          },
+          {
+            "active": 0.0,
+            "admitted": 4.0,
+            "completed": 4.0,
+            "error": 0.0,
+            "exited": 4.0,
+            "expected": 24.0,
+            "released": 4.0,
+            "road": 0.0,
+            "trip_seconds": 2890.0
+          }
+        ],
+        "max_meter_error": 0.0,
+        "max_receiving_ratio": 0.560959096574428,
+        "max_storage_ratio": 0.22541448962753632,
+        "outstanding_blocked_veh_s": 0.0,
+        "queued_requests": 2739485,
+        "rate_blocks": 0,
+        "storage_blocks": 0,
+        "time_s": 28800.0
+      }
+    ],
+    "transfers": 25421896,
+    "wait_veh_s": 369647.73931898945,
+    "worst_link": 0
+  },
+  "run_s": 17.513761491,
+  "schema": "metroflow_standalone_projection_v1",
+  "scope": "historical prepared input, not original V03 native acceptance",
+  "threads": 8,
+  "wall_s": 17.935225486
+}

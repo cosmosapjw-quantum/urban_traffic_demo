@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 from pathlib import Path
 import platform
 import sys
@@ -43,11 +44,13 @@ def main():
     if args.command == "capabilities":
         print(
             json.dumps(
-                {"api": "metroflow.v1", "exports": __all__, "full_day_runner": "SCOPED_SYNTHETIC_TWO_ZONE", "full_city_100k_runner": "NOT_VERIFIED"},
+                {"api": "metroflow.v1", "exports": __all__, "full_day_runner": "PYTHON_ORACLE_OPT_IN", "rust_native_runner": "metroflow-native-run", "full_city_100k_runner": "NOT_VERIFIED"},
                 sort_keys=True,
             )
         )
         return 0
+    if os.environ.get("METROFLOW_ENABLE_PYTHON_ORACLE") != "1":
+        parser.error("Historical scientific commands are opt-in oracle only. Use the Rust backend executables.")
     try:
         if args.command == "run" and args.scenario == "lagged_growth_control":
             if args.resume or args.resume_check or args.checkpoint:

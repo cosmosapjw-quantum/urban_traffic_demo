@@ -1,0 +1,57 @@
+{
+  "historical_sha256": "5bfe25203451cdc2afc64a1edb72528f813af92fd8e01f12488defc0cab54dc9",
+  "runs": [
+    {
+      "events": 2339324,
+      "historical_tolerance_match": true,
+      "horizon_s": 25720.0,
+      "identical_adjacent_repeat": false,
+      "mesh_s": 600.0,
+      "receipt": "rust_600_25720_1.json",
+      "sha256": "856c6c6b82d3776ee223b9d95c7affa42c08841e0d88e8fe94cc9d823187bb36",
+      "threads": 1
+    },
+    {
+      "events": 2339324,
+      "historical_tolerance_match": true,
+      "horizon_s": 25720.0,
+      "identical_adjacent_repeat": true,
+      "mesh_s": 600.0,
+      "receipt": "rust_600_25720_8.json",
+      "sha256": "eae6e224ba98be56aacbd543042ea5df57111938460f00612f57265dd7c12d96",
+      "threads": 8
+    },
+    {
+      "events": 55255017,
+      "historical_tolerance_match": true,
+      "horizon_s": 28800.0,
+      "identical_adjacent_repeat": false,
+      "mesh_s": 600.0,
+      "receipt": "rust_600_28800_8.json",
+      "sha256": "fa58bade9db46ab1583626411f655ae10a1485c61d42eb7bcd1822c970711107",
+      "threads": 8
+    },
+    {
+      "events": 256004489,
+      "historical_tolerance_match": true,
+      "horizon_s": 86400.0,
+      "identical_adjacent_repeat": false,
+      "mesh_s": 1200.0,
+      "receipt": "rust_1200_86400_8.json",
+      "sha256": "41fd1eaa9d02740b74990dcc6e0eaae091ff8a7b1a7690d3e65091f9b9a94912",
+      "threads": 8
+    },
+    {
+      "events": 511105880,
+      "historical_tolerance_match": true,
+      "horizon_s": 86400.0,
+      "identical_adjacent_repeat": false,
+      "mesh_s": 600.0,
+      "receipt": "rust_600_86400_8.json",
+      "sha256": "68960e8ae451ba5d18bdb157d1147c4cc659fb0fea7c3f31524346169ba7034f",
+      "threads": 8
+    }
+  ],
+  "scope": "historical projected scenario parity only; not original V03 acceptance",
+  "status": "PASS"
+}

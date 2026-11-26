@@ -456,6 +456,8 @@ def main():
         default=os.environ.get('METROFLOW_V1_STORAGE_POLICY','bounded_bytes_v1'),
         help='whole-native storage guard (default: bounded_bytes_v1; changes checkpoint identity)')
     args=parser.parse_args()
+    if os.environ.get("METROFLOW_ENABLE_PYTHON_ORACLE") != "1":
+        parser.error("Historical Python campaign is opt-in oracle only. Use metroflow-native-run for Rust declared-input runs; original V03 Rust campaign migration is pending.")
     if args.engine_backend not in ('rust_whole','python_oracle','rust'):
         parser.error('invalid METROFLOW_V1_ENGINE_BACKEND')
     if args.storage_policy not in ('bounded_bytes_v1','legacy_records'):

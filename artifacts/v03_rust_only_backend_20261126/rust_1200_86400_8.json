@@ -1,0 +1,255 @@
+{
+  "config": {
+    "horizon_s": 86400.0,
+    "mesh_s": 1200.0,
+    "seed": 7,
+    "shock_factor": 1.0,
+    "shock_link": null
+  },
+  "executable_sha256": "e08cbc0ea3a7d40153e5b47accaac188fc7a73bb6bd3eaac6f099f2565e6c9c5",
+  "network_sha256": "af8a0c16e2bd31d4a42282e83d076ea10075e6cbe0bb3982dfb5978cfa9f72a5",
+  "passages_sha256": "a310ee706ae3eb64ba35eef2c9275da38141dbd32eb89f86bcb6a90c89bd73c1",
+  "peak_rss_bytes": 282648576,
+  "prep_s": 0.374323054,
+  "result": {
+    "blocked_veh_s": 12614.913109531859,
+    "event_bytes": 48,
+    "event_count": 256004489,
+    "initial_batches": 3182886,
+    "snapshots": [
+      {
+        "classes": [
+          {
+            "active": 1263.985045758333,
+            "admitted": 942.7311873976438,
+            "completed": 71.22905424166706,
+            "error": 0.0,
+            "exited": 146.41606715597854,
+            "expected": 57095.9403264,
+            "released": 1335.2141,
+            "road": 796.3151202416652,
+            "trip_seconds": 22775.73694652737
+          },
+          {
+            "active": 0.0,
+            "admitted": 0.0,
+            "completed": 0.0,
+            "error": 0.0,
+            "exited": 0.0,
+            "expected": 0.998825,
+            "released": 0.0,
+            "road": 0.0,
+            "trip_seconds": 0.0
+          },
+          {
+            "active": 0.0,
+            "admitted": 4.0,
+            "completed": 4.0,
+            "error": 0.0,
+            "exited": 4.0,
+            "expected": 24.0,
+            "released": 4.0,
+            "road": 0.0,
+            "trip_seconds": 2890.0
+          }
+        ],
+        "max_meter_error": 0.0,
+        "max_receiving_ratio": 0.42943250101258124,
+        "max_storage_ratio": 0.1456710869807623,
+        "outstanding_blocked_veh_s": 0.0,
+        "queued_requests": 122257,
+        "rate_blocks": 0,
+        "storage_blocks": 0,
+        "time_s": 25720.0
+      },
+      {
+        "classes": [
+          {
+            "active": 2090.4563085465347,
+            "admitted": 9119.404871728284,
+            "completed": 7425.533745853465,
+            "error": 4.547473508864641e-13,
+            "exited": 7773.9637448401345,
+            "expected": 57095.9403264,
+            "released": 9515.9900544,
+            "road": 1345.4411268881493,
+            "trip_seconds": 5691497.485390217
+          },
+          {
+            "active": 0.0,
+            "admitted": 0.0,
+            "completed": 0.0,
+            "error": 0.0,
+            "exited": 0.0,
+            "expected": 0.998825,
+            "released": 0.0,
+            "road": 0.0,
+            "trip_seconds": 0.0
+          },
+          {
+            "active": 0.0,
+            "admitted": 4.0,
+            "completed": 4.0,
+            "error": 0.0,
+            "exited": 4.0,
+            "expected": 24.0,
+            "released": 4.0,
+            "road": 0.0,
+            "trip_seconds": 2890.0
+          }
+        ],
+        "max_meter_error": 0.0,
+        "max_receiving_ratio": 0.6783788264107405,
+        "max_storage_ratio": 0.27199204101085367,
+        "outstanding_blocked_veh_s": 0.0,
+        "queued_requests": 1345274,
+        "rate_blocks": 0,
+        "storage_blocks": 0,
+        "time_s": 28800.0
+      },
+      {
+        "classes": [
+          {
+            "active": 0.0,
+            "admitted": 28547.9701632,
+            "completed": 28547.9701632,
+            "error": 0.0,
+            "exited": 28547.9701632,
+            "expected": 57095.9403264,
+            "released": 28547.9701632,
+            "road": 0.0,
+            "trip_seconds": 22821523.27089935
+          },
+          {
+            "active": 0.0,
+            "admitted": 0.599295,
+            "completed": 0.599295,
+            "error": 0.0,
+            "exited": 0.599295,
+            "expected": 0.998825,
+            "released": 0.599295,
+            "road": 0.0,
+            "trip_seconds": 456.29068840178536
+          },
+          {
+            "active": 4.0,
+            "admitted": 8.0,
+            "completed": 8.0,
+            "error": 0.0,
+            "exited": 8.0,
+            "expected": 24.0,
+            "released": 12.0,
+            "road": 0.0,
+            "trip_seconds": 5820.0
+          }
+        ],
+        "max_meter_error": 0.0,
+        "max_receiving_ratio": 0.9999668323932845,
+        "max_storage_ratio": 0.9999691858171013,
+        "outstanding_blocked_veh_s": 0.0,
+        "queued_requests": 5642985,
+        "rate_blocks": 170,
+        "storage_blocks": 51,
+        "time_s": 43200.0
+      },
+      {
+        "classes": [
+          {
+            "active": 2089.176159396551,
+            "admitted": 47217.41381332095,
+            "completed": 45490.774112603445,
+            "error": 4.320099833421409e-12,
+            "exited": 45881.930882283814,
+            "expected": 57095.9403264,
+            "released": 47579.950271999995,
+            "road": 1335.4829310371395,
+            "trip_seconds": 36085823.412727125
+          },
+          {
+            "active": 0.0,
+            "admitted": 0.998825,
+            "completed": 0.998825,
+            "error": 0.0,
+            "exited": 0.998825,
+            "expected": 0.998825,
+            "released": 0.998825,
+            "road": 0.0,
+            "trip_seconds": 768.4636632923031
+          },
+          {
+            "active": 4.0,
+            "admitted": 16.0,
+            "completed": 16.0,
+            "error": 0.0,
+            "exited": 16.0,
+            "expected": 24.0,
+            "released": 20.0,
+            "road": 0.0,
+            "trip_seconds": 11670.0
+          }
+        ],
+        "max_meter_error": 0.0,
+        "max_receiving_ratio": 0.9999951975723949,
+        "max_storage_ratio": 0.9999978705281816,
+        "outstanding_blocked_veh_s": 0.0,
+        "queued_requests": 9701255,
+        "rate_blocks": 489,
+        "storage_blocks": 85,
+        "time_s": 64800.0
+      },
+      {
+        "classes": [
+          {
+            "active": 0.0,
+            "admitted": 57095.9403264,
+            "completed": 57095.9403264,
+            "error": 0.0,
+            "exited": 57095.9403264,
+            "expected": 57095.9403264,
+            "released": 57095.9403264,
+            "road": 0.0,
+            "trip_seconds": 45588089.86668066
+          },
+          {
+            "active": 0.0,
+            "admitted": 0.998825,
+            "completed": 0.998825,
+            "error": 0.0,
+            "exited": 0.998825,
+            "expected": 0.998825,
+            "released": 0.998825,
+            "road": 0.0,
+            "trip_seconds": 768.4636632923031
+          },
+          {
+            "active": 0.0,
+            "admitted": 24.0,
+            "completed": 24.0,
+            "error": 0.0,
+            "exited": 24.0,
+            "expected": 24.0,
+            "released": 24.0,
+            "road": 0.0,
+            "trip_seconds": 17570.0
+          }
+        ],
+        "max_meter_error": 0.0,
+        "max_receiving_ratio": 0.9999951975723949,
+        "max_storage_ratio": 0.9999978705281816,
+        "outstanding_blocked_veh_s": 0.0,
+        "queued_requests": 11211071,
+        "rate_blocks": 489,
+        "storage_blocks": 85,
+        "time_s": 86400.0
+      }
+    ],
+    "transfers": 117703872,
+    "wait_veh_s": 2399277.189890104,
+    "worst_link": 1477
+  },
+  "run_s": 86.524522003,
+  "schema": "metroflow_standalone_projection_v1",
+  "scope": "historical prepared input, not original V03 native acceptance",
+  "threads": 8,
+  "wall_s": 86.940879272
+}
