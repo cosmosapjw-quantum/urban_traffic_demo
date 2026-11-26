@@ -59,3 +59,7 @@ Detailed transfer source: V1Road::work_budget, transfer_indexed, ChunkedEvents::
 ## C03. Verify the indexed event codec cost and design a lossless fallback domain
 
 Use page-backed compact marked payloads, a run-start bit in event order, source/time controls and original bit-pair dictionary. Separate allocated page slack and descriptor capacity from nominal cost. Capacity projection for each future source batch must include key, bit and time page boundaries before any physical append. Wide index domains continue through the original full row path. In a high-entropy stream with every source/time changing the new bitmap can cost extra; verify this directly with full alternating pages. Verify every ordered wire field including signed-zero time and checkpoint reload.
+
+## C04. Add externally monitored matched checkpoint trials
+
+The probe verifies the input matrix, original raw checkpoint bytes, driver identity, starting ledger, binary and source fingerprints. It runs one process per treatment, records the original 8 GiB address-space ceiling, samples VmPeak and VmHWM, and flushes a ledger record before requesting a wire digest. The parent persists signal exits and unfinished attempts. Original release eligibility stays false for this diagnostic tool. The original strict run_v03_prefix.py remains the fresh-prefix test.
