@@ -1,0 +1,92 @@
+{
+  "mode": "release",
+  "passed": 3,
+  "rows": [
+    {
+      "case": "polycentric_river",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 3.864239083921371e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 123891,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 588,
+        "identity": "26396c180b3b8da992f273dcff72229ec21c6b8d8d5903ecbb397c4ea05bf959",
+        "jobs": 40000,
+        "nodes": 992,
+        "registered_portals": 557,
+        "residents": 100000,
+        "sections": 1579,
+        "wall_s": 0.851605467
+      },
+      "portal_comparison": true,
+      "seed": 17,
+      "source": "primary_polycentric_river_s17.json.xz",
+      "source_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+      "status": "EXECUTED",
+      "threads": 1
+    },
+    {
+      "case": "coastal_port",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 9.54097911787244e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 107193,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 500,
+        "identity": "ab8eabe958507b7b830817dad0f4e01d924e842a6331ee4d2ab0a68b09b2c4b5",
+        "jobs": 40000,
+        "nodes": 849,
+        "registered_portals": 478,
+        "residents": 100000,
+        "sections": 1348,
+        "wall_s": 0.223423243
+      },
+      "portal_comparison": true,
+      "seed": 41,
+      "source": "primary_coastal_port_s41.json.xz",
+      "source_sha256": "5c3107b147b7f71046f5958a8ad8d3f0212d0bcc5bbfcc27ebbebbd9d476756e",
+      "status": "EXECUTED",
+      "threads": 1
+    },
+    {
+      "case": "valley_city",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 4.0472297154534667e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 67148,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 245,
+        "identity": "caafda83fc75f7500ea31dff53ef59452e1c782ae45aba3c0ea26cb55923d007",
+        "jobs": 40000,
+        "nodes": 549,
+        "registered_portals": 234,
+        "residents": 100000,
+        "sections": 793,
+        "wall_s": 0.869234881
+      },
+      "portal_comparison": true,
+      "seed": 7,
+      "source": "primary_valley_city_s7.json.xz",
+      "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+      "status": "EXECUTED",
+      "threads": 1
+    }
+  ],
+  "threads": 1,
+  "total": 3
+}

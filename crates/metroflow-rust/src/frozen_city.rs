@@ -163,7 +163,7 @@ pub(crate) fn load_bytes(p: &Path) -> CoreResult<Vec<u8>> {
 fn from_json<T: serde::de::DeserializeOwned>(b: &[u8]) -> CoreResult<T> {
     serde_json::from_slice(b).map_err(|e| bad(format!("JSON: {e}")))
 }
-fn from_xz<T: serde::de::DeserializeOwned>(b: &[u8]) -> CoreResult<T> {
+pub(crate) fn from_xz<T: serde::de::DeserializeOwned>(b: &[u8]) -> CoreResult<T> {
     let reader = lzma_rust2::XzReader::new(b, false);
     let mut out = Vec::new();
     const CAP: u64 = 256 * 1024 * 1024;

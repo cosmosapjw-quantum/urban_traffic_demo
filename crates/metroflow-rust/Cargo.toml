@@ -57,3 +57,8 @@ required-features = ["native-cli"]
 name = "metroflow-atlas-generate"
 path = "src/bin/metroflow-atlas-generate.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-atlas-parity"
+path = "src/bin/metroflow-atlas-parity.rs"
+required-features = ["native-cli"]

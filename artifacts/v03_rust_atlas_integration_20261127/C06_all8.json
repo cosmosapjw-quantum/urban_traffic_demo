@@ -1,0 +1,1072 @@
+{
+  "mode": "all",
+  "passed": 38,
+  "rows": [
+    {
+      "case": "planned_plain",
+      "comparison": {
+        "max_absolute_difference": 8.526512829121202e-14,
+        "max_scaled_difference": 4.553200473780539e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 137601,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 846,
+        "identity": "c86457b63960d9251427812b1b8e2b254f660d15ee17e1676eafd686601c4e73",
+        "jobs": 40000,
+        "nodes": 1012,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1857,
+        "wall_s": 0.081632398
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "primary_planned_plain_s7.json.xz",
+      "source_sha256": "bcd12566d55f0984879b54d438ddeb6ef3e61ffe5067f49bfb62534c86587c01",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "planned_plain",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 3.130373089897464e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 137968,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 845,
+        "identity": "5c7d7def79257f8a3452a6e7c3f3fec0ab40388715c2092723b4b735aef3d636",
+        "jobs": 40000,
+        "nodes": 1017,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1861,
+        "wall_s": 0.093201839
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "primary_planned_plain_s17.json.xz",
+      "source_sha256": "b50842e74bb3e354ba3c4d7879c927e2a0ad58c9a25a3eed258098113d53a4af",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "planned_plain",
+      "comparison": {
+        "max_absolute_difference": 8.526512829121202e-14,
+        "max_scaled_difference": 4.547548933378331e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 136760,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 837,
+        "identity": "7986cf7b2b3ea75ff764a9089cc0f7cad78f2b07598c1cbeb389a31e216ca11c",
+        "jobs": 40000,
+        "nodes": 1010,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1846,
+        "wall_s": 0.098502741
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "primary_planned_plain_s41.json.xz",
+      "source_sha256": "86374f5ab1fd011d171cef16aa5e053dbc44bfa1b4f4b00902bd2493481e2e95",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "polycentric_river",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 3.7182085055158603e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 121757,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 558,
+        "identity": "aa97fc2a93ab9ba50a7e6df14eea7cbece81c5375ee2a87f741c83b6a68d61e1",
+        "jobs": 40000,
+        "nodes": 990,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1547,
+        "wall_s": 0.337202392
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "primary_polycentric_river_s7.json.xz",
+      "source_sha256": "54bbb444036062aebc6f38b0453c13ddbf34097a37676b49ebd4b62011840190",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "polycentric_river",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 3.864239083921371e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 123891,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 588,
+        "identity": "f7c3848f07c223cb382ed0ae8b5000fa5dda735a5696502429debd0cf25cbff7",
+        "jobs": 40000,
+        "nodes": 992,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1579,
+        "wall_s": 0.326672641
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "primary_polycentric_river_s17.json.xz",
+      "source_sha256": "f7e7bd19a5a8af51b25526e25b15bf9314ac7d4fd3f50875c70db412e066c8b2",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "polycentric_river",
+      "comparison": {
+        "max_absolute_difference": 2.2737367544323206e-13,
+        "max_scaled_difference": 3.556462410197189e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 122277,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 584,
+        "identity": "c92b19eb4f6020d4cdf2a9e15c0debdf9a492b24205a0d4da2d4c7548f9dbdf4",
+        "jobs": 40000,
+        "nodes": 965,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1548,
+        "wall_s": 0.377310774
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "primary_polycentric_river_s41.json.xz",
+      "source_sha256": "31b87d5f25d04a2c3fadff2e8e42004a8e10824b241c79b2f87bcf996911da33",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "radial_plain",
+      "comparison": {
+        "max_absolute_difference": 2.2737367544323206e-13,
+        "max_scaled_difference": 4.452732648136969e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 153686,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 803,
+        "identity": "d793cfd08588e3ff1a1b109c99973a5272679972a239a763a51a425c5648ebe8",
+        "jobs": 40000,
+        "nodes": 1043,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1845,
+        "wall_s": 0.049622729
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "primary_radial_plain_s7.json.xz",
+      "source_sha256": "a12ac6c3a757e0f6ccd989201127cecf786f4f92d96bc053b18687ce0e745dc4",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "radial_plain",
+      "comparison": {
+        "max_absolute_difference": 2.2737367544323206e-13,
+        "max_scaled_difference": 4.452732648136969e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 154760,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 805,
+        "identity": "40ba280f49b4b5b264f2b2559f4b03fd180d4a3f4b88ce90a07d5ee445e31fe1",
+        "jobs": 40000,
+        "nodes": 1049,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1853,
+        "wall_s": 0.083442687
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "primary_radial_plain_s17.json.xz",
+      "source_sha256": "6c14c19508bec830310d22d29fda25cb396936711b33cc4dfd4f928d1bd54373",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "radial_plain",
+      "comparison": {
+        "max_absolute_difference": 2.2737367544323206e-13,
+        "max_scaled_difference": 4.452732648136969e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 155357,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 818,
+        "identity": "040cdfe186dae0183aba53ecb69524eea2be24d3be83c590bf8bae16112fa850",
+        "jobs": 40000,
+        "nodes": 1046,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1863,
+        "wall_s": 0.083062517
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "primary_radial_plain_s41.json.xz",
+      "source_sha256": "0b53d5ef0fd37fde125948acca83c5acd52892509e6f3af8b95ee485ccec0da6",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "coastal_port",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 3.881443777498106e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 101297,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 460,
+        "identity": "6839f5293b918dc214a9dbab5db19ef8d9253e25756e20420ebe12334c500f19",
+        "jobs": 40000,
+        "nodes": 802,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1261,
+        "wall_s": 0.085257706
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "primary_coastal_port_s7.json.xz",
+      "source_sha256": "48741bfd108c1f744a92a5a1eae0cef73d28c9d198494a09c32d45127ae2a737",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "coastal_port",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 4.978656376053436e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 110422,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 513,
+        "identity": "6a94fde1e01836f73a827d27adb1822843d9368cf346d07f47a709f1f72e652a",
+        "jobs": 40000,
+        "nodes": 890,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1402,
+        "wall_s": 0.1125577
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "primary_coastal_port_s17.json.xz",
+      "source_sha256": "166023bc3991a91a6aa98af64ebbe150fcd97b5fadf4bf1b9f7bea6833c5ae50",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "coastal_port",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 9.54097911787244e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 107193,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 500,
+        "identity": "db04bc5df82b05bb3c998b47a3e06507774a0331cae4fd2da7f73bdc9d3fd31e",
+        "jobs": 40000,
+        "nodes": 849,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1348,
+        "wall_s": 0.098073827
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "primary_coastal_port_s41.json.xz",
+      "source_sha256": "5c3107b147b7f71046f5958a8ad8d3f0212d0bcc5bbfcc27ebbebbd9d476756e",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "valley_city",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 4.0472297154534667e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 67148,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 245,
+        "identity": "f39d0333edee52267fbcffb9c94a2181f17165841051dfe1da1ce15468c415b2",
+        "jobs": 40000,
+        "nodes": 549,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 793,
+        "wall_s": 0.311502906
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "primary_valley_city_s7.json.xz",
+      "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "valley_city",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 1.1830814106161824e-15,
+        "mismatch_samples": [],
+        "numeric_fields": 64935,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 226,
+        "identity": "ce3af8df5e3e0a97a08afbe3626702e8763772f4e703e2e8a7cbd33cfb02cf89",
+        "jobs": 40000,
+        "nodes": 533,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 758,
+        "wall_s": 0.303742653
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "primary_valley_city_s17.json.xz",
+      "source_sha256": "ffec634ce8260adf984717962fb50845528383281bd09f294416f9cdb3f92929",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "valley_city",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 3.9776355783294277e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 65182,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 241,
+        "identity": "88332fadc14272619cead00887ae8b9961d514c6bdc58aabdd2d166d384988d2",
+        "jobs": 40000,
+        "nodes": 526,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 766,
+        "wall_s": 0.303580114
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "primary_valley_city_s41.json.xz",
+      "source_sha256": "4ac0c95e0f4199cf147700828af54e6d8eb1cb3040748398bd7e70bbe335a8c2",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "lake_city",
+      "comparison": {
+        "max_absolute_difference": 8.526512829121202e-14,
+        "max_scaled_difference": 4.717185945803894e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 110511,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 488,
+        "identity": "9879f828f8f295b4d3e01db5f85cd5336b6d2f4f28ca48dae875725b48fd680d",
+        "jobs": 40000,
+        "nodes": 912,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1399,
+        "wall_s": 0.050007097
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "primary_lake_city_s7.json.xz",
+      "source_sha256": "4a154cf66f13fc18705284d0bacecaaa0418322307b58c4c873832bdd38fb72c",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "lake_city",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 3.593398974946069e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 114800,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 521,
+        "identity": "eec0a68c1bba7976693c4fb0b8d2aa97d20aab4dbd877540f80e90f970578476",
+        "jobs": 40000,
+        "nodes": 946,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1466,
+        "wall_s": 0.043408434
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "primary_lake_city_s17.json.xz",
+      "source_sha256": "702f839e60d1b9ffaa7475ead461d0c497a6011be32f4cecaffa1dfd0b6c34e7",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "lake_city",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 3.9811410619538206e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 114658,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "primary",
+      "generation": {
+        "blocks": 523,
+        "identity": "a4b52574ec41e0c44a1ce92a51b8b1bf2b1688de78364efe3038f1163614972e",
+        "jobs": 40000,
+        "nodes": 926,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1448,
+        "wall_s": 0.049779566
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "primary_lake_city_s41.json.xz",
+      "source_sha256": "b9d272345d13b68e2e71564878104ce827d454ff8ce71c0dda281d97bc72a407",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "planned_flat",
+      "comparison": {
+        "max_absolute_difference": 8.526512829121202e-14,
+        "max_scaled_difference": 4.553200473780539e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 137601,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 846,
+        "identity": "c86457b63960d9251427812b1b8e2b254f660d15ee17e1676eafd686601c4e73",
+        "jobs": 40000,
+        "nodes": 1012,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1857,
+        "wall_s": 0.052318877
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "mixed_planned_flat_s7.json.xz",
+      "source_sha256": "bcd12566d55f0984879b54d438ddeb6ef3e61ffe5067f49bfb62534c86587c01",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "planned_river",
+      "comparison": {
+        "max_absolute_difference": 8.526512829121202e-14,
+        "max_scaled_difference": 4.613905559452249e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 131481,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 784,
+        "identity": "166311aac7c7782415851d2a05680647d2e040f4fd58e60576f61e1f30991463",
+        "jobs": 40000,
+        "nodes": 983,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1766,
+        "wall_s": 0.31503724
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "mixed_planned_river_s17.json.xz",
+      "source_sha256": "b2f4276df739303c783c1a08f6a848eed9ce311021a3a41290db36f11647cebf",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "planned_coast",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 3.7550246771014785e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 137336,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 827,
+        "identity": "b6576bb04c82501e24ccba315e14c601ecf35ba569ab2a6e92ce318806d2310a",
+        "jobs": 40000,
+        "nodes": 1027,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1853,
+        "wall_s": 0.089882687
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "mixed_planned_coast_s41.json.xz",
+      "source_sha256": "fd3c38fccbdab7ad4508fec35dc4b76257a48fddc3386281b0abf8ddd1bc9f1c",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "planned_valley",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 3.114703619539231e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 62571,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 294,
+        "identity": "29b7afb5b9cdd2155701c173e7fe884466048dfae8e51a4d6800e5ca36289db0",
+        "jobs": 40000,
+        "nodes": 482,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 775,
+        "wall_s": 0.294674729
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "mixed_planned_valley_s7.json.xz",
+      "source_sha256": "86e4f663d7a42ed8b68f94ecc42e45bae0f4fcb882b5cefd2f823a4e876a1879",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "planned_lake",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 3.1247704432995253e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 120540,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 645,
+        "identity": "124ce87bda1ab847e4078208255503c4b7ccf428ce486e4b93a92d2fb7d7ce91",
+        "jobs": 40000,
+        "nodes": 972,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1616,
+        "wall_s": 0.04002303
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "mixed_planned_lake_s17.json.xz",
+      "source_sha256": "6ebb6604730857a6fa5261f9f6892ab7ae4be47aca2ee3e52d1213fc267f0432",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "polycentric_flat",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 5.334693616195054e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 128928,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 653,
+        "identity": "ff182d07f7a5864756c26d03c3092e7b5abefb527b41ff323665d8f96042f636",
+        "jobs": 40000,
+        "nodes": 994,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1646,
+        "wall_s": 0.055470819
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "mixed_polycentric_flat_s41.json.xz",
+      "source_sha256": "65c59cdf302439ee0c6fb84ebf2bbe111a41939259b372d064748964ef00aa57",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "polycentric_river",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 3.7182085055158603e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 121757,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 558,
+        "identity": "aa97fc2a93ab9ba50a7e6df14eea7cbece81c5375ee2a87f741c83b6a68d61e1",
+        "jobs": 40000,
+        "nodes": 990,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1547,
+        "wall_s": 0.308187389
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "mixed_polycentric_river_s7.json.xz",
+      "source_sha256": "54bbb444036062aebc6f38b0453c13ddbf34097a37676b49ebd4b62011840190",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "polycentric_coast",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 4.978656376053436e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 110422,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 513,
+        "identity": "6a94fde1e01836f73a827d27adb1822843d9368cf346d07f47a709f1f72e652a",
+        "jobs": 40000,
+        "nodes": 890,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1402,
+        "wall_s": 0.0799882
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "mixed_polycentric_coast_s17.json.xz",
+      "source_sha256": "166023bc3991a91a6aa98af64ebbe150fcd97b5fadf4bf1b9f7bea6833c5ae50",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "polycentric_valley",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 2.9837243786801082e-15,
+        "mismatch_samples": [],
+        "numeric_fields": 54756,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 215,
+        "identity": "bdc3e1b04966f14edf226d2540888f1329f1b9f49d4d2095b3dc806a086948e2",
+        "jobs": 40000,
+        "nodes": 419,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 633,
+        "wall_s": 0.28700697
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "mixed_polycentric_valley_s41.json.xz",
+      "source_sha256": "2945b20bdfccd0a6eb7bf9d67f535ec1970c8316a9e7f998c85ae29344c5bd3d",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "polycentric_lake",
+      "comparison": {
+        "max_absolute_difference": 8.526512829121202e-14,
+        "max_scaled_difference": 4.717185945803894e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 110511,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 488,
+        "identity": "9879f828f8f295b4d3e01db5f85cd5336b6d2f4f28ca48dae875725b48fd680d",
+        "jobs": 40000,
+        "nodes": 912,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1399,
+        "wall_s": 0.035909186
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "mixed_polycentric_lake_s7.json.xz",
+      "source_sha256": "4a154cf66f13fc18705284d0bacecaaa0418322307b58c4c873832bdd38fb72c",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "radial_flat",
+      "comparison": {
+        "max_absolute_difference": 2.2737367544323206e-13,
+        "max_scaled_difference": 4.452732648136969e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 154760,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 805,
+        "identity": "40ba280f49b4b5b264f2b2559f4b03fd180d4a3f4b88ce90a07d5ee445e31fe1",
+        "jobs": 40000,
+        "nodes": 1049,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1853,
+        "wall_s": 0.050414668
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "mixed_radial_flat_s17.json.xz",
+      "source_sha256": "6c14c19508bec830310d22d29fda25cb396936711b33cc4dfd4f928d1bd54373",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "radial_river",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 4.515120094704519e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 147561,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 754,
+        "identity": "8b6101932a04dc2b9d7abbf65badb8330d52f73234690838c69417cb7bed901b",
+        "jobs": 40000,
+        "nodes": 1004,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1757,
+        "wall_s": 0.31031518
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "mixed_radial_river_s41.json.xz",
+      "source_sha256": "443b6028f978b2c094ce0008408ceed726eb00b659217c885b7b1089785179d4",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "radial_coast",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 1.5092094240998222e-15,
+        "mismatch_samples": [],
+        "numeric_fields": 116711,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 578,
+        "identity": "ac6e631b3cf3f5a92b97d145e673d5538830f8a9239e660d2ba1a516082028cf",
+        "jobs": 40000,
+        "nodes": 787,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1364,
+        "wall_s": 0.070204273
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "mixed_radial_coast_s7.json.xz",
+      "source_sha256": "686a61ce3052c79b95363d5460dc8ba6acef7accf955e73d4fb573a78c8beb21",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "radial_valley",
+      "comparison": {
+        "max_absolute_difference": 2.2737367544323206e-13,
+        "max_scaled_difference": 4.452698104176129e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 58862,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 201,
+        "identity": "e6055426c30cb1af79ed00fe4a935c9dc33b553587880056704acbdcebdc07b0",
+        "jobs": 40000,
+        "nodes": 456,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 656,
+        "wall_s": 0.300485847
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "mixed_radial_valley_s17.json.xz",
+      "source_sha256": "e2f7f698286a138842f1a8464e152730e33ae5ff53ca706fed6d8c118d7b4bc7",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "radial_lake",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 4.2210479336597903e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 134530,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 667,
+        "identity": "3e4e538e629ad6ad345f9f3c1dcd7f9d8e15e322066dc0b06452fc944bafa15a",
+        "jobs": 40000,
+        "nodes": 920,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1586,
+        "wall_s": 0.045050194
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "mixed_radial_lake_s41.json.xz",
+      "source_sha256": "e6cb88ed2f77a7b59dc9bfddcdcbe492ddf28bc55bb7640ea35622220189db24",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "corridor_flat",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 4.136142709022678e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 96604,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 401,
+        "identity": "5f5db6e364501d464f8e3ba87b39a7330cb6d12465cda49c329ff1728d37d4f3",
+        "jobs": 40000,
+        "nodes": 834,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1234,
+        "wall_s": 0.034206229
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "mixed_corridor_flat_s7.json.xz",
+      "source_sha256": "3fa841783c268183067affcd266d9b63677cb6e794706c01319c025db97a9822",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "corridor_river",
+      "comparison": {
+        "max_absolute_difference": 9.094947017729282e-13,
+        "max_scaled_difference": 3.8970682926187883e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 94251,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 358,
+        "identity": "3919b0ef3c290c03bf669dfcf7cd1b3311761f3f44a1a1a07d629d646ada59fa",
+        "jobs": 40000,
+        "nodes": 833,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1190,
+        "wall_s": 0.28998503
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "mixed_corridor_river_s17.json.xz",
+      "source_sha256": "89706ad4f8f1055b7ddd40400cf30957a2d20cd198c167d14994d50506d9fc0a",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "corridor_coast",
+      "comparison": {
+        "max_absolute_difference": 5.684341886080802e-14,
+        "max_scaled_difference": 1.508775743230828e-15,
+        "mismatch_samples": [],
+        "numeric_fields": 91657,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 356,
+        "identity": "b182b26a7e8d6bc93cfa6dc341e97f8509d27b3473d5e71033411d60689f0d0a",
+        "jobs": 40000,
+        "nodes": 812,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 1167,
+        "wall_s": 0.074291957
+      },
+      "portal_comparison": false,
+      "seed": 41,
+      "source": "mixed_corridor_coast_s41.json.xz",
+      "source_sha256": "f6298086dcef83211a43b1e1c373fa3b70f55b890e826d61a8c5a3f560380026",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "corridor_valley",
+      "comparison": {
+        "max_absolute_difference": 1.1368683772161603e-13,
+        "max_scaled_difference": 4.0472297154534667e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 67148,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 245,
+        "identity": "f39d0333edee52267fbcffb9c94a2181f17165841051dfe1da1ce15468c415b2",
+        "jobs": 40000,
+        "nodes": 549,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 793,
+        "wall_s": 0.303179659
+      },
+      "portal_comparison": false,
+      "seed": 7,
+      "source": "mixed_corridor_valley_s7.json.xz",
+      "source_sha256": "a32ef2e24bc0eec6a5115f3c435489c17c94ec983d39b1924dc8935302edb2b5",
+      "status": "EXECUTED",
+      "threads": 8
+    },
+    {
+      "case": "corridor_lake",
+      "comparison": {
+        "max_absolute_difference": 8.526512829121202e-14,
+        "max_scaled_difference": 4.166204563511304e-16,
+        "mismatch_samples": [],
+        "numeric_fields": 79365,
+        "semantic_match": true,
+        "tolerance": "abs 1e-8 + rel 1e-10; integer, strings, topology, sequence exact"
+      },
+      "family": "mixed",
+      "generation": {
+        "blocks": 278,
+        "identity": "08fa6687e447b26dfc6ed458df6185f7f04893620fba41dc62d026b77f5535f4",
+        "jobs": 40000,
+        "nodes": 699,
+        "registered_portals": 0,
+        "residents": 100000,
+        "sections": 976,
+        "wall_s": 0.027660718
+      },
+      "portal_comparison": false,
+      "seed": 17,
+      "source": "mixed_corridor_lake_s17.json.xz",
+      "source_sha256": "9def7ef8953674050e33bc19e4bf3600e6d7b31c14d6561031a881c850e6f216",
+      "status": "EXECUTED",
+      "threads": 8
+    }
+  ],
+  "threads": 8,
+  "total": 38
+}
