@@ -5,7 +5,9 @@
 //! with the `budget_trace` cargo feature counts live heap bytes, and only that
 //! build honours `observe`, which logs an exceeded guard and continues. Such a
 //! build is a diagnostic instrument, never a campaign candidate.
+#[cfg(feature="python-extension")]
 use pyo3::prelude::*;
+#[cfg(feature="python-extension")]
 use pyo3::types::PyDict;
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU8, Ordering};
@@ -158,6 +160,7 @@ pub(crate) fn guard(
     exceeded && m == 3
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 #[pyo3(signature = (reset=true))]
 pub(crate) fn budget_trace_snapshot(py: Python<'_>, reset: bool) -> PyResult<PyObject> {

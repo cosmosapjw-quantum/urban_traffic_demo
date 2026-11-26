@@ -1,8 +1,10 @@
 //! Original V03 packet operations: shadow-only immutable shared-lineage experiment.
 //! This module is compiled under cfg(test) only. It is NOT a road engine change.
 
+#[cfg(feature="python-extension")]
+use pyo3::prelude::*;
+use crate::core_error::{CoreError,CoreResult};
 use super::{Part, PackedTime, PacketParts, portion};
-use pyo3::prelude::PyResult;
 use std::sync::Arc;
 
 
@@ -38,7 +40,7 @@ impl LineageArena {
         id
     }
 
-    fn push(&mut self, parent: usize, op: LineageOp) -> PyResult<usize> {
+    fn push(&mut self, parent: usize, op: LineageOp) -> CoreResult<usize> {
         if parent >= self.nodes.len() {
             return Err(super::val("lineage parent outside immutable arena"));
         }
@@ -47,14 +49,14 @@ impl LineageArena {
         Ok(id)
     }
 
-    fn scale(&mut self, parent: usize, fraction: f64) -> PyResult<usize> {
+    fn scale(&mut self, parent: usize, fraction: f64) -> CoreResult<usize> {
         if !fraction.is_finite() || !(0.0..=1.0).contains(&fraction) {
             return Err(super::val("nonfinite or nonphysical lineage fraction"));
         }
         self.push(parent, LineageOp::Scale(fraction))
     }
 
-    fn restrict(&mut self, parent: usize, a: f64, b: f64) -> PyResult<usize> {
+    fn restrict(&mut self, parent: usize, a: f64, b: f64) -> CoreResult<usize> {
         if !a.is_finite() || !b.is_finite() || b <= a {
             return Err(super::val("invalid lineage interval boundaries"));
         }
@@ -64,11 +66,11 @@ impl LineageArena {
         })
     }
 
-    fn advance_offset(&mut self, parent: usize) -> PyResult<usize> {
+    fn advance_offset(&mut self, parent: usize) -> CoreResult<usize> {
         self.push(parent, LineageOp::AdvanceOffset)
     }
 
-    fn rewrite_time(&mut self, parent: usize, a: f64, b: f64) -> PyResult<usize> {
+    fn rewrite_time(&mut self, parent: usize, a: f64, b: f64) -> CoreResult<usize> {
         if !a.is_finite() || !b.is_finite() || b < a {
             return Err(super::val("invalid physical event time rewrite"));
         }
@@ -94,8 +96,8 @@ impl LineageArena {
     fn visit(
         &self,
         node_id: usize,
-        mut emit: impl FnMut(Part) -> PyResult<()>,
-    ) -> PyResult<usize> {
+        mut emit: impl FnMut(Part) -> CoreResult<()>,
+    ) -> CoreResult<usize> {
         let mut reverse_ops: Vec<LineageOp> = Vec::new();
         let mut cursor = node_id;
         let source: &Arc<[Part]> = loop {
@@ -164,8 +166,8 @@ impl LineageArena {
         mut destination: impl FnMut(&Part) -> Option<usize>,
         start_time: f64,
         end_time: f64,
-        mut emit: impl FnMut(super::EventRow) -> PyResult<()>,
-    ) -> PyResult<usize> {
+        mut emit: impl FnMut(super::EventRow) -> CoreResult<()>,
+    ) -> CoreResult<usize> {
         if !start_time.is_finite() || !end_time.is_finite() || end_time < start_time {
             return Err(super::val("invalid original event time interval"));
         }
@@ -177,7 +179,7 @@ impl LineageArena {
         })
     }
 
-    fn materialize(&self, node_id: usize) -> PyResult<Vec<Part>> {
+    fn materialize(&self, node_id: usize) -> CoreResult<Vec<Part>> {
         let mut out = Vec::new();
         self.visit(node_id, |p| {
             if out.len() == out.capacity() {

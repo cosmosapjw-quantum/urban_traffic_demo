@@ -4,17 +4,18 @@
 //! Fixed matrix exponential coefficients come from the Python model contract;
 //! actual transport is conservative, limited by physical lane-metres and
 //! outgoing veh/s capacity, and is computed from PRE-step sending/receiving.
-use pyo3::exceptions::PyValueError;
-use pyo3::prelude::*;
 
+#[cfg(feature="python-extension")]
+use pyo3::prelude::*;
+use crate::core_error::{CoreError,CoreResult};
 const FIELDS: usize = 6;
 type KernelResult = (Vec<f64>, Vec<f64>, Vec<f64>, Vec<f64>, Vec<f64>, Vec<f64>);
 
-fn invalid(message: &str) -> PyErr {
-    PyValueError::new_err(message.to_owned())
+fn invalid(message: &str) -> CoreError {
+    CoreError::value(message.to_owned())
 }
 
-#[pyclass]
+#[cfg_attr(feature="python-extension", pyclass)]
 pub struct NativeKCMBCorridor {
     cells: usize,
     classes: usize,
@@ -37,7 +38,7 @@ impl NativeKCMBCorridor {
         pending: &[f64],
         released: &[f64],
         completed: &[f64],
-    ) -> PyResult<()> {
+    ) -> CoreResult<()> {
         let k = self.classes;
         let n = self.cells;
         if state.len() != n * k * FIELDS
@@ -100,9 +101,10 @@ impl NativeKCMBCorridor {
     }
 }
 
-#[pymethods]
-impl NativeKCMBCorridor {
+crate::optional_binding::optional_pymethods!(NativeKCMBCorridor,
+    [
     #[new]
+    ] {
     #[allow(clippy::too_many_arguments)]
     fn new(
         cells: usize,
@@ -117,7 +119,7 @@ impl NativeKCMBCorridor {
         transitions: Vec<Vec<f64>>,
         source_p: Vec<f64>,
         source_u: Vec<f64>,
-    ) -> PyResult<Self> {
+    ) -> CoreResult<Self> {
         if cells == 0
             || classes == 0
             || classes > 8
@@ -166,10 +168,20 @@ impl NativeKCMBCorridor {
             source_u,
         })
     }
+    }
+    [
+
+    ] {
+
 
     fn state_scalar_capacity(&self) -> usize {
         self.cells * self.classes * FIELDS + 3 * self.classes
     }
+    }
+    [
+
+    ] {
+
 
     fn step(
         &self,
@@ -179,7 +191,7 @@ impl NativeKCMBCorridor {
         completed: Vec<f64>,
         offered: Vec<f64>,
         green: f64,
-    ) -> PyResult<KernelResult> {
+    ) -> CoreResult<KernelResult> {
         self.validate_state(&moments, &pending, &released, &completed)?;
         let n = self.cells;
         let k = self.classes;
@@ -329,7 +341,8 @@ impl NativeKCMBCorridor {
             out,
         ))
     }
-}
+    }
+);
 
 #[cfg(test)]
 mod tests {

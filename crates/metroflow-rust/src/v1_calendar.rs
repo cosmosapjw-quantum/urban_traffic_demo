@@ -1,6 +1,7 @@
 //! Persistent exact-identity calendar storage. No transport evolution is implied.
-use pyo3::exceptions::{PyIndexError, PyMemoryError, PyValueError};
+#[cfg(feature="python-extension")]
 use pyo3::prelude::*;
+use crate::core_error::{CoreError,CoreResult};
 use std::collections::{HashMap, HashSet};
 
 const NONE: u64 = u64::MAX;
@@ -29,8 +30,8 @@ fn visit_factorized(
     config: (f64, f64, f64, f64, f64),
     labels: &[u32],
     freight_profile: u32,
-    mut emit: impl FnMut(Leg) -> PyResult<()>,
-) -> PyResult<()> {
+    mut emit: impl FnMut(Leg) -> CoreResult<()>,
+) -> CoreResult<()> {
     let (population, service_fraction, external_fraction, dwell, freight_payload) = config;
     let mut cohort = 0_u64;
     let mut row = 0_u32;
@@ -54,7 +55,7 @@ fn visit_factorized(
                         continue;
                     }
                     if cohort > MASK || row > u32::MAX - 2 {
-                        return Err(PyValueError::new_err("factorized calendar index overflow"));
+                        return Err(CoreError::value("factorized calendar index overflow"));
                     }
                     let amounts = [mass, if noncar { 0.0 } else { mass / occupancy }, 0.0];
                     let law = laws
@@ -115,11 +116,11 @@ fn visit_factorized(
         }
         cohort = cohort
             .checked_add(stationary as u64)
-            .ok_or_else(|| PyValueError::new_err("factorized cohort index overflow"))?;
+            .ok_or_else(|| CoreError::value("factorized cohort index overflow"))?;
     }
     for (i, (_, destination, cargo)) in freight.iter().enumerate() {
         if row == u32::MAX {
-            return Err(PyValueError::new_err("factorized calendar index overflow"));
+            return Err(CoreError::value("factorized calendar index overflow"));
         }
         emit(Leg {
             id: (3 << 62) | i as u64,
@@ -173,7 +174,7 @@ fn sum(values: impl Iterator<Item = f64>) -> f64 {
     s + c
 }
 
-#[pyclass]
+#[cfg_attr(feature="python-extension", pyclass)]
 pub struct NativeCalendar {
     byte_budget: usize,
     city_identity: String,
@@ -258,9 +259,9 @@ impl NativeCalendar {
             )
             .saturating_add(extra_text_bytes)
     }
-    fn budget(&self, n: usize, extra: usize) -> PyResult<()> {
+    fn budget(&self, n: usize, extra: usize) -> CoreResult<()> {
         if self.estimate(n, extra) > self.byte_budget {
-            Err(PyMemoryError::new_err(
+            Err(CoreError::resource(
                 "native calendar byte budget exceeded; page not committed",
             ))
         } else {
@@ -269,13 +270,14 @@ impl NativeCalendar {
     }
 }
 
-#[pymethods]
-impl NativeCalendar {
+crate::optional_binding::optional_pymethods!(NativeCalendar,
+    [
     #[new]
     #[pyo3(signature = (byte_budget, city_identity=String::new(), schedule_identity=String::new()))]
-    fn new(byte_budget: usize, city_identity: String, schedule_identity: String) -> PyResult<Self> {
+    ] {
+    fn new(byte_budget: usize, city_identity: String, schedule_identity: String) -> CoreResult<Self> {
         if byte_budget == 0 {
-            return Err(PyValueError::new_err("positive byte budget required"));
+            return Err(CoreError::value("positive byte budget required"));
         }
         Ok(Self {
             byte_budget,
@@ -293,27 +295,47 @@ impl NativeCalendar {
             profile_indices: HashMap::new(),
         })
     }
+    }
+    [
+
+    ] {
+
     fn binding(&self) -> (String, String) {
         (self.city_identity.clone(), self.schedule_identity.clone())
     }
-    fn intern_label(&mut self, text: String) -> PyResult<u32> {
+    }
+    [
+
+    ] {
+
+    fn intern_label(&mut self, text: String) -> CoreResult<u32> {
         if let Some(i) = self.label_indices.get(&text) {
             return Ok(*i);
         }
         self.budget(self.legs.len(), text.len() * 2 + 128)?;
         let i = u32::try_from(self.labels.len())
-            .map_err(|_| PyValueError::new_err("label index overflow"))?;
+            .map_err(|_| CoreError::value("label index overflow"))?;
         self.labels.push(text.clone());
         self.label_indices.insert(text, i);
         Ok(i)
     }
-    fn label(&self, index: usize) -> PyResult<String> {
+    }
+    [
+
+    ] {
+
+    fn label(&self, index: usize) -> CoreResult<String> {
         self.labels
             .get(index)
             .cloned()
-            .ok_or_else(|| PyIndexError::new_err("label index"))
+            .ok_or_else(|| CoreError::index("label index"))
     }
-    fn intern_profile(&mut self, windows: Vec<(f64, f64, f64)>) -> PyResult<u32> {
+    }
+    [
+
+    ] {
+
+    fn intern_profile(&mut self, windows: Vec<(f64, f64, f64)>) -> CoreResult<u32> {
         let total = sum(windows.iter().map(|w| w.2));
         if windows.is_empty()
             || windows.iter().any(|&(a, b, p)| {
@@ -328,14 +350,14 @@ impl NativeCalendar {
             || !total.is_finite()
             || (total - 1.0).abs() > 1e-12
         {
-            return Err(PyValueError::new_err(
+            return Err(CoreError::value(
                 "finite normalized departure profile required",
             ));
         }
         let mut ordered = windows.clone();
         ordered.sort_by(|a, b| a.0.total_cmp(&b.0));
         if ordered.windows(2).any(|w| w[0].1 > w[1].0) {
-            return Err(PyValueError::new_err("overlapping departure windows"));
+            return Err(CoreError::value("overlapping departure windows"));
         }
         let key: Vec<_> = windows
             .iter()
@@ -350,20 +372,30 @@ impl NativeCalendar {
         self.profile_indices.insert(key, i);
         Ok(i)
     }
-    fn profile(&self, index: usize) -> PyResult<Vec<(f64, f64, f64)>> {
+    }
+    [
+
+    ] {
+
+    fn profile(&self, index: usize) -> CoreResult<Vec<(f64, f64, f64)>> {
         self.profiles
             .get(index)
             .cloned()
-            .ok_or_else(|| PyIndexError::new_err("profile index"))
+            .ok_or_else(|| CoreError::index("profile index"))
     }
-    fn append(&mut self, rows: Vec<Row>) -> PyResult<usize> {
+    }
+    [
+
+    ] {
+
+    fn append(&mut self, rows: Vec<Row>) -> CoreResult<usize> {
         let next = self
             .legs
             .len()
             .checked_add(rows.len())
-            .ok_or_else(|| PyValueError::new_err("calendar index overflow"))?;
+            .ok_or_else(|| CoreError::value("calendar index overflow"))?;
         if next >= u32::MAX as usize {
-            return Err(PyValueError::new_err("calendar index overflow"));
+            return Err(CoreError::value("calendar index overflow"));
         }
         // Validate the whole page, including dependencies, before any leg/ID mutation.
         let mut seen = HashSet::new();
@@ -378,7 +410,7 @@ impl NativeCalendar {
                     .key_existing(id)
                     .is_some_and(|k| self.indices.contains_key(&k))
             {
-                return Err(PyValueError::new_err("unique nonempty leg IDs required"));
+                return Err(CoreError::value("unique nonempty leg IDs required"));
             }
             if meta.len() != 8
                 || meta[5] as usize >= self.profiles.len()
@@ -387,7 +419,7 @@ impl NativeCalendar {
                     .enumerate()
                     .any(|(k, &v)| k != 5 && v as usize >= self.labels.len())
             {
-                return Err(PyValueError::new_err(
+                return Err(CoreError::value(
                     "registered metadata/profile required",
                 ));
             }
@@ -395,14 +427,14 @@ impl NativeCalendar {
                 .iter()
                 .any(|v| !v.is_finite() || *v < 0.0)
             {
-                return Err(PyValueError::new_err(
+                return Err(CoreError::value(
                     "finite nonnegative amounts/dwell required",
                 ));
             }
             for (i, x) in [amounts.0, amounts.1, amounts.2].into_iter().enumerate() {
                 let t = sums[i] + x;
                 if !t.is_finite() {
-                    return Err(PyValueError::new_err("calendar amount total overflow"));
+                    return Err(CoreError::value("calendar amount total overflow"));
                 }
                 corrections[i] += if sums[i].abs() >= x.abs() {
                     (sums[i] - t) + x
@@ -411,7 +443,7 @@ impl NativeCalendar {
                 };
                 sums[i] = t;
                 if !(sums[i] + corrections[i]).is_finite() {
-                    return Err(PyValueError::new_err("calendar amount total overflow"));
+                    return Err(CoreError::value("calendar amount total overflow"));
                 }
             }
             if let Some(p) = parent {
@@ -427,7 +459,7 @@ impl NativeCalendar {
                     false
                 };
                 if !valid {
-                    return Err(PyValueError::new_err(
+                    return Err(CoreError::value(
                         "dependent return requires earlier outward with same cohort and amounts",
                     ));
                 }
@@ -442,10 +474,10 @@ impl NativeCalendar {
         self.budget(next, extra)?;
         self.legs
             .try_reserve_exact(rows.len())
-            .map_err(|_| PyMemoryError::new_err("calendar allocation failed"))?;
+            .map_err(|_| CoreError::resource("calendar allocation failed"))?;
         self.indices
             .try_reserve(rows.len())
-            .map_err(|_| PyMemoryError::new_err("calendar index allocation failed"))?;
+            .map_err(|_| CoreError::resource("calendar index allocation failed"))?;
         for (id, cohort, parent, meta, amounts, dwell) in rows {
             let id = self.key(&id);
             let cohort = cohort.as_deref().map(|s| self.key(s)).unwrap_or(NONE);
@@ -469,9 +501,15 @@ impl NativeCalendar {
         self.amount_corrections = corrections;
         Ok(self.legs.len())
     }
+    }
+    [
+
+    ] {
+
     /// Generate the exact Cartesian calendar without per-leg Python objects.
     /// Only an empty registry is accepted. Preflight visits the same scalar
     /// expressions and checks all totals/budgets before committing any leg.
+    #[cfg(feature="python-extension")]
     fn build_factorized(
         &mut self,
         py: Python<'_>,
@@ -483,17 +521,27 @@ impl NativeCalendar {
         config: (f64, f64, f64, f64, f64),
         labels: Vec<u32>,
         freight_profile: u32,
-    ) -> PyResult<usize> {
+    ) -> CoreResult<usize> {
         py.allow_threads(|| self.build_factorized_owned(homes, targets, modes, laws, freight, config, labels, freight_profile))
     }
+    }
+    [
+
+    ] {
+
     fn __len__(&self) -> usize {
         self.legs.len()
     }
-    fn leg(&self, index: usize) -> PyResult<Row> {
+    }
+    [
+
+    ] {
+
+    fn leg(&self, index: usize) -> CoreResult<Row> {
         let r = self
             .legs
             .get(index)
-            .ok_or_else(|| PyIndexError::new_err("leg index"))?;
+            .ok_or_else(|| CoreError::index("leg index"))?;
         Ok((
             self.text(r.id).unwrap(),
             self.text(r.cohort),
@@ -503,6 +551,11 @@ impl NativeCalendar {
             r.dwell,
         ))
     }
+    }
+    [
+
+    ] {
+
     fn totals(&self) -> (f64, f64, f64) {
         (
             self.amount_sums[0] + self.amount_corrections[0],
@@ -510,9 +563,14 @@ impl NativeCalendar {
             self.amount_sums[2] + self.amount_corrections[2],
         )
     }
-    fn requested_totals(&self, start_s: f64, end_s: f64) -> PyResult<(f64, f64, f64)> {
+    }
+    [
+
+    ] {
+
+    fn requested_totals(&self, start_s: f64, end_s: f64) -> CoreResult<(f64, f64, f64)> {
         if !start_s.is_finite() || !end_s.is_finite() || end_s < start_s {
-            return Err(PyValueError::new_err("finite ordered interval required"));
+            return Err(CoreError::value("finite ordered interval required"));
         }
         let fractions: Vec<_> = self
             .profiles
@@ -538,12 +596,22 @@ impl NativeCalendar {
                 .map(|r| r.amounts[2] * fractions[r.metadata[5] as usize])),
         ))
     }
+    }
+    [
+
+    ] {
+
     fn initial_ledger_totals(&self) -> (f64, f64) {
         (
             sum(self.legs.iter().map(|r| r.released)),
             sum(self.legs.iter().map(|r| r.completed)),
         )
     }
+    }
+    [
+
+    ] {
+
     fn storage_report(&self) -> (usize, usize, usize, usize, usize) {
         (
             self.legs.len(),
@@ -553,7 +621,8 @@ impl NativeCalendar {
             self.byte_budget,
         )
     }
-}
+    }
+);
 
 impl NativeCalendar {
     fn build_factorized_owned(
@@ -566,9 +635,9 @@ impl NativeCalendar {
         config: (f64, f64, f64, f64, f64),
         labels: Vec<u32>,
         freight_profile: u32,
-    ) -> PyResult<usize> {
+    ) -> CoreResult<usize> {
         if !self.legs.is_empty() || !self.texts.is_empty() {
-            return Err(PyValueError::new_err(
+            return Err(CoreError::value(
                 "direct generation requires an empty calendar",
             ));
         }
@@ -601,7 +670,7 @@ impl NativeCalendar {
                         || (!noncar && occupancy < 1.0)
                 })
         {
-            return Err(PyValueError::new_err("invalid registered factorized input"));
+            return Err(CoreError::value("invalid registered factorized input"));
         }
         for (purpose, outward, back, total, support, external, destinations) in &targets {
             if !label_ok(*purpose)
@@ -615,7 +684,7 @@ impl NativeCalendar {
                     .iter()
                     .any(|&(label, mass)| !label_ok(label) || !nonnegative(mass))
             {
-                return Err(PyValueError::new_err(
+                return Err(CoreError::value(
                     "invalid factorized destination/profile",
                 ));
             }
@@ -627,7 +696,7 @@ impl NativeCalendar {
                 .any(|&i| !label_ok(i))
                 || law_map.insert((home, destination, purpose), law).is_some()
             {
-                return Err(PyValueError::new_err(
+                return Err(CoreError::value(
                     "invalid or duplicate factorized intrazonal law",
                 ));
             }
@@ -639,14 +708,14 @@ impl NativeCalendar {
                 || !label_ok(*destination)
                 || !nonnegative(*cargo)
             {
-                return Err(PyValueError::new_err(
+                return Err(CoreError::value(
                     "invalid or duplicate factorized freight",
                 ));
             }
         }
         let extra = freight.iter().try_fold(0_usize, |n, (id, _, _)| {
             n.checked_add(id.len().saturating_mul(2).saturating_add(128))
-                .ok_or_else(|| PyMemoryError::new_err("factorized storage overflow"))
+                .ok_or_else(|| CoreError::resource("factorized storage overflow"))
         })?;
         let base_bytes = self.estimate(0, extra);
         let per_leg = std::mem::size_of::<Leg>() + 64;
@@ -665,19 +734,19 @@ impl NativeCalendar {
             |leg| {
                 count = count
                     .checked_add(1)
-                    .ok_or_else(|| PyMemoryError::new_err("factorized storage overflow"))?;
+                    .ok_or_else(|| CoreError::resource("factorized storage overflow"))?;
                 if count >= u32::MAX as usize
                     || base_bytes.saturating_add(count.saturating_mul(per_leg))
                         > self.byte_budget
                 {
-                    return Err(PyMemoryError::new_err(
+                    return Err(CoreError::resource(
                         "native calendar byte budget exceeded; no generated leg committed",
                     ));
                 }
                 for (i, x) in leg.amounts.into_iter().enumerate() {
                     let next = sums[i] + x;
                     if !nonnegative(x) || !next.is_finite() {
-                        return Err(PyValueError::new_err(
+                        return Err(CoreError::value(
                             "factorized calendar amount overflow",
                         ));
                     }
@@ -688,7 +757,7 @@ impl NativeCalendar {
                     };
                     sums[i] = next;
                     if !(sums[i] + corrections[i]).is_finite() {
-                        return Err(PyValueError::new_err(
+                        return Err(CoreError::value(
                             "factorized calendar amount overflow",
                         ));
                     }
@@ -699,16 +768,16 @@ impl NativeCalendar {
         self.budget(count, extra)?;
         self.legs
             .try_reserve_exact(count)
-            .map_err(|_| PyMemoryError::new_err("calendar allocation failed"))?;
+            .map_err(|_| CoreError::resource("calendar allocation failed"))?;
         self.indices
             .try_reserve(count)
-            .map_err(|_| PyMemoryError::new_err("calendar index allocation failed"))?;
+            .map_err(|_| CoreError::resource("calendar index allocation failed"))?;
         self.texts
             .try_reserve_exact(freight.len())
-            .map_err(|_| PyMemoryError::new_err("calendar text allocation failed"))?;
+            .map_err(|_| CoreError::resource("calendar text allocation failed"))?;
         self.text_indices
             .try_reserve(freight.len())
-            .map_err(|_| PyMemoryError::new_err("calendar text index allocation failed"))?;
+            .map_err(|_| CoreError::resource("calendar text index allocation failed"))?;
         // The first traversal checked every operation used below. This
         // traversal allocates no per-leg strings or temporary row arrays.
         visit_factorized(
@@ -756,13 +825,13 @@ pub(crate) struct FactorizedDeclaration {
 }
 #[cfg(feature = "native-cli")]
 impl FactorizedDeclaration {
-    pub(crate) fn compile(self, budget:usize)->PyResult<NativeCalendar>{
+    pub(crate) fn compile(self, budget:usize)->CoreResult<NativeCalendar>{
         let mut calendar=NativeCalendar::new(budget,self.city_identity,self.schedule_identity)?;
         for (i,label) in self.labels.into_iter().enumerate(){
-            if calendar.intern_label(label)? as usize!=i{return Err(PyValueError::new_err("duplicate declaration label"))}
+            if calendar.intern_label(label)? as usize!=i{return Err(CoreError::value("duplicate declaration label"))}
         }
         for (i,profile) in self.profiles.into_iter().enumerate(){
-            if calendar.intern_profile(profile)? as usize!=i{return Err(PyValueError::new_err("duplicate declaration profile"))}
+            if calendar.intern_profile(profile)? as usize!=i{return Err(CoreError::value("duplicate declaration profile"))}
         }
         calendar.build_factorized_owned(self.homes,self.targets,self.modes,self.laws,self.freight,self.config,self.constants,self.freight_profile)?;
         Ok(calendar)

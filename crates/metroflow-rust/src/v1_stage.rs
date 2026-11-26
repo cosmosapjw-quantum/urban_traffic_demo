@@ -1,7 +1,8 @@
 //! Persistent exact access rows. Immutable blocks keep rollback clones cheap;
 //! cached readiness skips only blocks whose every original predicate is false.
-use pyo3::exceptions::PyValueError;
+#[cfg(feature="python-extension")]
 use pyo3::prelude::*;
+use crate::core_error::{CoreError,CoreResult};
 use std::sync::Arc;
 
 pub(crate) type Access = (usize, f64, f64, f64);
@@ -362,7 +363,7 @@ impl<'a> IntoIterator for &'a StageQueue {
     }
 }
 
-#[pyclass]
+#[cfg_attr(feature="python-extension", pyclass)]
 pub struct NativeStageQueue {
     queue: StageQueue,
 }
@@ -374,50 +375,91 @@ fn valid(row: &Access) -> bool {
         && row.3.is_finite()
         && row.3 >= 0.
 }
-#[pymethods]
-impl NativeStageQueue {
+crate::optional_binding::optional_pymethods!(NativeStageQueue,
+    [
     #[new]
-    fn new(rows: Vec<Access>) -> PyResult<Self> {
+    ] {
+    fn new(rows: Vec<Access>) -> CoreResult<Self> {
         if !rows.iter().all(valid) {
-            return Err(PyValueError::new_err("invalid native stage row"));
+            return Err(CoreError::value("invalid native stage row"));
         }
         Ok(Self { queue: rows.into() })
     }
+    }
+    [
+
+    ] {
+
     fn fork(&self) -> Self {
         Self {
             queue: self.queue.clone(),
         }
     }
-    fn append(&mut self, row: Access) -> PyResult<()> {
+    }
+    [
+
+    ] {
+
+    fn append(&mut self, row: Access) -> CoreResult<()> {
         if !valid(&row) {
-            return Err(PyValueError::new_err("invalid native stage row"));
+            return Err(CoreError::value("invalid native stage row"));
         }
         self.queue.push(row);
         Ok(())
     }
+    }
+    [
+
+    ] {
+
     fn snapshot(&self) -> Vec<Access> {
         self.queue.to_vec()
     }
-    fn retire_due(&mut self, deadline: f64) -> PyResult<Vec<Access>> {
+    }
+    [
+
+    ] {
+
+    fn retire_due(&mut self, deadline: f64) -> CoreResult<Vec<Access>> {
         if !deadline.is_finite() || deadline < 0. {
-            return Err(PyValueError::new_err("invalid native stage deadline"));
+            return Err(CoreError::value("invalid native stage deadline"));
         }
         let mut rows = Vec::new();
         self.queue.retire_due(deadline, |a| rows.push(*a));
         Ok(rows)
     }
-    fn due_count(&self, deadline: f64) -> PyResult<usize> {
+    }
+    [
+
+    ] {
+
+    fn due_count(&self, deadline: f64) -> CoreResult<usize> {
         if !deadline.is_finite() || deadline < 0. {
-            return Err(PyValueError::new_err("invalid native stage deadline"));
+            return Err(CoreError::value("invalid native stage deadline"));
         }
         Ok(self.queue.due_count(deadline))
     }
+    }
+    [
+
+    ] {
+
     fn append_upper_bytes(&self, additional: usize) -> usize {
         self.queue.append_upper_bytes(additional)
     }
+    }
+    [
+
+    ] {
+
     fn decoded_storage_upper_bytes(&self) -> usize {
         self.queue.decoded_storage_upper_bytes()
     }
+    }
+    [
+
+    ] {
+
     fn storage_shape(&self) -> (usize, usize, usize, usize) {
         (
             self.queue.len(),
@@ -426,10 +468,16 @@ impl NativeStageQueue {
             self.queue.storage_bytes(),
         )
     }
+    }
+    [
+
+    ] {
+
     fn shared_rows(&self, other: &Self) -> usize {
         self.queue.shared_rows(&other.queue)
     }
-}
+    }
+);
 
 
 #[cfg(test)]

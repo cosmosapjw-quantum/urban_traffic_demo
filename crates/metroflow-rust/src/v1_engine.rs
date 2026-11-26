@@ -1,5 +1,8 @@
 //! Whole-calendar activation from native records and marginal frontend inputs.
 //! Static declarations and all dynamic road/service/journey state stay in Rust.
+#[cfg(feature="python-extension")]
+use pyo3::prelude::*;
+use crate::core_error::{CoreError,CoreResult};
 use crate::v1_calendar::NativeCalendar;
 use crate::v1_journey::{
     advance_owned_joint, fsum, journey_debug, journey_dense_storage_bytes, journey_storage_bytes,
@@ -10,8 +13,7 @@ use crate::v1_journey::{
 use crate::v1_parallel::ParallelPolicy;
 use crate::v1_road::{RoadState, V1Road};
 use crate::v1_routing::V1RoutingGraph;
-use pyo3::exceptions::{PyIOError, PyIndexError, PyMemoryError, PyValueError};
-use pyo3::prelude::*;
+#[cfg(feature="python-extension")]
 use pyo3::types::PyDict;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
@@ -99,6 +101,7 @@ impl NativeRouteMetrics {
         self.minimum_ns = Some(self.minimum_ns.map_or(ns, |old| old.min(ns)));
         self.maximum_ns = Some(self.maximum_ns.map_or(ns, |old| old.max(ns)));
     }
+    #[cfg(feature="python-extension")]
     fn report(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let out = PyDict::new(py);
         out.set_item(
@@ -168,7 +171,7 @@ impl NativeRouteMetrics {
 /// exactly the same `Sum::add` sequence as the former per-key HashMap entry.
 /// Workspace: 16 bytes per stage row plus one dense f64 per leg; no map growth.
 pub(crate) const STAGE_SUM_ROW_BYTES: usize = std::mem::size_of::<(u64, f64)>();
-fn stage_sums(j: &Journey, legs: usize) -> PyResult<Vec<f64>> {
+fn stage_sums(j: &Journey, legs: usize) -> CoreResult<Vec<f64>> {
     let rows = j.1.len() + j.2.len() + j.3.len();
     if legs > u32::MAX as usize || rows > u32::MAX as usize {
         return Err(bad("native stage validation index exceeds u32"));
@@ -176,10 +179,10 @@ fn stage_sums(j: &Journey, legs: usize) -> PyResult<Vec<f64>> {
     let mut keyed: Vec<(u64, f64)> = Vec::new();
     keyed
         .try_reserve_exact(rows)
-        .map_err(|_| PyMemoryError::new_err("native stage validation allocation failed"))?;
+        .map_err(|_| CoreError::resource("native stage validation allocation failed"))?;
     let mut mass: Vec<f64> = Vec::new();
     mass.try_reserve_exact(legs)
-        .map_err(|_| PyMemoryError::new_err("native stage validation allocation failed"))?;
+        .map_err(|_| CoreError::resource("native stage validation allocation failed"))?;
     mass.resize(legs, 0.0);
     let mut row = 0u64;
     for part in [&j.1, &j.2, &j.3] {
@@ -249,17 +252,19 @@ type ActivityRow = (
     f64,
 );
 type Corridor = (String, String, String, f64, f64, f64);
-fn bad(s: impl Into<String>) -> PyErr {
-    PyValueError::new_err(s.into())
+fn bad(s: impl Into<String>) -> CoreError {
+    CoreError::value(s)
 }
-fn io(e: std::io::Error) -> PyErr {
-    PyIOError::new_err(e.to_string())
+fn io(e: std::io::Error) -> CoreError {
+    CoreError::io(e.to_string())
 }
+#[cfg(feature="python-extension")]
 fn field<'py, T: FromPyObject<'py>>(p: &Bound<'py, PyDict>, key: &str) -> PyResult<T> {
     p.get_item(key)?
         .ok_or_else(|| bad(format!("missing static field {key}")))?
         .extract()
 }
+#[cfg(feature="python-extension")]
 fn stage_counts<'py>(py: Python<'py>, counts: &[usize; 4]) -> PyResult<Bound<'py, PyDict>> {
     let out = PyDict::new(py);
     for (name, value) in ["entering", "egress", "internal", "receipts"]
@@ -271,6 +276,7 @@ fn stage_counts<'py>(py: Python<'py>, counts: &[usize; 4]) -> PyResult<Bound<'py
     out.set_item("total_records", counts.iter().sum::<usize>())?;
     Ok(out)
 }
+#[cfg(feature="python-extension")]
 fn stage_values<'py, T>(py: Python<'py>, values: [T; 3]) -> PyResult<Bound<'py, PyDict>>
 where
     T: IntoPyObject<'py>,
@@ -332,9 +338,10 @@ struct Static {
     depot_node: Option<String>,
 }
 impl Static {
+    #[cfg(feature="python-extension")]
     fn read(p: &Bound<'_, PyDict>) -> PyResult<Self> {
         if field::<String>(p, "schema")? != "native_calendar_static_v1" {
-            return Err(bad("static schema differs"));
+            return Err(bad("static schema differs").into());
         }
         Ok(Self {
             identity: field(p, "identity")?,
@@ -375,13 +382,13 @@ struct Router {
     budget: usize,
 }
 impl Router {
-    fn intern(&mut self, path: Vec<usize>) -> PyResult<usize> {
+    fn intern(&mut self, path: Vec<usize>) -> CoreResult<usize> {
         if let Some(&i) = self.path_indices.get(&path) {
             return Ok(i);
         }
         self.estimated = self.estimated.saturating_add(path.len() * 16 + 256);
         if self.estimated > self.budget {
-            return Err(PyMemoryError::new_err(
+            return Err(CoreError::resource(
                 "whole-calendar route storage budget exceeded; no demand omitted",
             ));
         }
@@ -390,7 +397,7 @@ impl Router {
         self.paths.push(path);
         Ok(i)
     }
-    fn declared(&mut self, links: &[String]) -> PyResult<usize> {
+    fn declared(&mut self, links: &[String]) -> CoreResult<usize> {
         let path = links
             .iter()
             .map(|x| {
@@ -399,20 +406,20 @@ impl Router {
                     .copied()
                     .ok_or_else(|| bad("unknown route link"))
             })
-            .collect::<PyResult<Vec<_>>>()?;
+            .collect::<CoreResult<Vec<_>>>()?;
         if path.is_empty() {
             return Err(bad("empty registered route"));
         }
         self.intern(path)
     }
-    fn route(&mut self, a: &str, b: &str) -> PyResult<Option<usize>> {
+    fn route(&mut self, a: &str, b: &str) -> CoreResult<Option<usize>> {
         let started = Instant::now();
         let result = self.route_inner(a, b);
         self.metrics
             .record(started.elapsed().as_nanos(), result.is_err());
         result
     }
-    fn route_inner(&mut self, a: &str, b: &str) -> PyResult<Option<usize>> {
+    fn route_inner(&mut self, a: &str, b: &str) -> CoreResult<Option<usize>> {
         let key = (a.to_owned(), b.to_owned());
         if let Some(v) = self.pairs.get(&key) {
             self.metrics.cache_hits += 1;
@@ -426,7 +433,7 @@ impl Router {
         };
         self.estimated = self.estimated.saturating_add(a.len() + b.len() + 128);
         if self.estimated > self.budget {
-            return Err(PyMemoryError::new_err(
+            return Err(CoreError::resource(
                 "whole-calendar route cache budget exceeded; no demand omitted",
             ));
         }
@@ -440,24 +447,30 @@ struct Bundle {
     service: ServiceCheckpoint,
     journey: Journey,
 }
-#[pyclass(frozen)]
+#[cfg_attr(feature="python-extension", pyclass(frozen))]
 #[derive(Clone)]
 pub struct NativeWholeState {
     identity: String,
     value: Arc<Bundle>,
 }
-#[pymethods]
-impl NativeWholeState {
+crate::optional_binding::optional_pymethods!(NativeWholeState,
+    [
     #[getter]
+    ] {
     fn time_s(&self) -> f64 {
         self.value.journey.0
     }
+    }
+    [
     #[getter]
+    ] {
+
     fn model_identity(&self) -> String {
         self.identity.clone()
     }
-}
-#[pyclass]
+    }
+);
+#[cfg_attr(feature="python-extension", pyclass)]
 pub struct NativeWholeEngine {
     parallel: ParallelPolicy,
     route_metrics: NativeRouteMetrics,
@@ -531,7 +544,7 @@ impl NativeWholeEngine {
         byte_budget: usize,
         parallel: ParallelPolicy,
         storage_policy: String,
-    ) -> PyResult<Self> {
+    ) -> CoreResult<Self> {
         let (city, schedule) = calendar.owned_binding();
         if city != s.city
             || schedule != s.schedule
@@ -550,7 +563,7 @@ impl NativeWholeEngine {
             .saturating_add(calendar.owned_bytes())
             .saturating_add(64 * 1024 * 1024);
         if estimate > byte_budget {
-            return Err(PyMemoryError::new_err(format!(
+            return Err(CoreError::resource(format!(
             "whole-calendar native preflight needs at least {estimate} accounting bytes, budget {byte_budget}; no demand omitted")));
         }
         let labels: HashMap<&str, usize> = calendar
@@ -605,7 +618,7 @@ impl NativeWholeEngine {
                     .copied()
                     .ok_or_else(|| bad("route cost missing"))
             })
-            .collect::<PyResult<Vec<_>>>()?;
+            .collect::<CoreResult<Vec<_>>>()?;
         let mut router = Router {
             metrics: NativeRouteMetrics::new(),
             graph: V1RoutingGraph::new(s.arcs, ordered_costs, Some(s.turns), 8)?,
@@ -636,7 +649,7 @@ impl NativeWholeEngine {
         let mut buses = Vec::new();
         let mut corridors_by_blocks: HashMap<(String, String), Vec<usize>> = HashMap::new();
         if s.corridors.len() > s.max_service_runs {
-            return Err(PyMemoryError::new_err(
+            return Err(CoreError::resource(
                 "fixed fleet run budget exceeded; no demand omitted",
             ));
         }
@@ -724,7 +737,7 @@ impl NativeWholeEngine {
                                 }
                                 atoms.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
                                 if atoms.len() > s.budget {
-                                    return Err(PyMemoryError::new_err(
+                                    return Err(CoreError::resource(
                                         "co-located access law exceeds budget",
                                     ));
                                 }
@@ -774,7 +787,7 @@ impl NativeWholeEngine {
                         let persons = leg.amounts[0] * p / tied.len() as f64;
                         for k in tied.iter().copied() {
                             if people.len() + freight.len() + buses.len() >= s.max_service_runs {
-                                return Err(PyMemoryError::new_err(
+                                return Err(CoreError::resource(
                                     "service record budget exceeded; no demand omitted",
                                 ));
                             }
@@ -814,7 +827,7 @@ impl NativeWholeEngine {
                             return Err(bad("freight payload capacity exceeded"));
                         }
                         if people.len() + freight.len() + buses.len() >= s.max_service_runs {
-                            return Err(PyMemoryError::new_err(
+                            return Err(CoreError::resource(
                                 "service record budget exceeded; no demand omitted",
                             ));
                         }
@@ -869,7 +882,7 @@ impl NativeWholeEngine {
                 .saturating_add(router.estimated)
                 > byte_budget
             {
-                return Err(PyMemoryError::new_err(
+                return Err(CoreError::resource(
                     "whole-calendar service allocation budget exceeded; no demand omitted",
                 ));
             }
@@ -991,7 +1004,7 @@ impl NativeWholeEngine {
         let (road_storage_bytes, journey_storage_bytes) = if let Some(accounting) = &runtime_storage
         {
             let available = byte_budget.checked_sub(accounting.fixed_charge).ok_or_else(||
-                PyMemoryError::new_err("native retained storage and concurrent dense reserve exceed accounting budget"))?;
+                CoreError::resource("native retained storage and concurrent dense reserve exceed accounting budget"))?;
             // These are ceilings on a shared pool, never additive reservations.
             // advance_owned_joint subtracts the other owners at each phase.
             (Some(available), Some(available))
@@ -1046,7 +1059,7 @@ impl NativeWholeEngine {
             car_tag_legs,
         })
     }
-    fn reset_phase_ceilings(&mut self) -> PyResult<()> {
+    fn reset_phase_ceilings(&mut self) -> CoreResult<()> {
         if let Some(pool) = self.road_storage_bytes {
             self.road.set_phase_storage_budget(pool)?;
             self.journey.set_phase_storage_budget(pool)?;
@@ -1055,10 +1068,10 @@ impl NativeWholeEngine {
         }
         Ok(())
     }
-    fn pool_after(&self, reserved: usize, phase: &str) -> PyResult<usize> {
+    fn pool_after(&self, reserved: usize, phase: &str) -> CoreResult<usize> {
         let pool = self.road_storage_bytes.unwrap_or(usize::MAX);
         pool.checked_sub(reserved).filter(|n| *n > 0).ok_or_else(||
-            PyMemoryError::new_err(format!("native shared storage budget exhausted before {phase}: reserved_bytes={reserved}, pool_bytes={pool}")))
+            CoreError::resource(format!("native shared storage budget exhausted before {phase}: reserved_bytes={reserved}, pool_bytes={pool}")))
     }
     fn validation_scratch(&self, j: &Journey, road_rows: usize) -> usize {
         self.journey
@@ -1072,7 +1085,7 @@ impl NativeWholeEngine {
         event_bytes: usize,
         input: Option<&Bundle>,
         validate: bool,
-    ) -> PyResult<()> {
+    ) -> CoreResult<()> {
         let Some(accounting) = &self.runtime_storage else {
             return Ok(());
         };
@@ -1126,12 +1139,12 @@ impl NativeWholeEngine {
             ],
         );
         if required > self.byte_budget && !observed {
-            return Err(PyMemoryError::new_err(format!(
+            return Err(CoreError::resource(format!(
                 "native capture/validation storage budget exceeded: required_bytes={required}, budget_bytes={}",self.byte_budget)));
         }
         Ok(())
     }
-    fn load_validation_admission(&self, decoded: &Bundle, road_rows: usize) -> PyResult<()> {
+    fn load_validation_admission(&self, decoded: &Bundle, road_rows: usize) -> CoreResult<()> {
         let Some(accounting) = &self.runtime_storage else {
             return Ok(());
         };
@@ -1162,13 +1175,13 @@ impl NativeWholeEngine {
             ],
         );
         if required > self.byte_budget && !observed {
-            return Err(PyMemoryError::new_err(format!(
+            return Err(CoreError::resource(format!(
                 "native load validation storage budget exceeded: required_bytes={required}, budget_bytes={}", self.byte_budget
             )));
         }
         Ok(())
     }
-    fn validate_bundle(&self, b: &Bundle) -> PyResult<()> {
+    fn validate_bundle(&self, b: &Bundle) -> CoreResult<()> {
         if b.road.time() != b.journey.0 {
             return Err(bad("checkpoint owner clocks differ"));
         }
@@ -1204,7 +1217,7 @@ impl NativeWholeEngine {
             }
         }
         let (_, classes) = b.road.summary();
-        let check_class = |name: &str, admitted: f64, outlet: f64| -> PyResult<()> {
+        let check_class = |name: &str, admitted: f64, outlet: f64| -> CoreResult<()> {
             let k = self
                 .class_names
                 .iter()
@@ -1261,14 +1274,14 @@ impl NativeWholeEngine {
         )?;
         Ok(())
     }
-    fn checked(&self, state: &NativeWholeState) -> PyResult<()> {
+    fn checked(&self, state: &NativeWholeState) -> CoreResult<()> {
         if state.identity != self.identity {
             Err(bad("native whole checkpoint model binding differs"))
         } else {
             Ok(())
         }
     }
-    fn restore(&mut self, state: &NativeWholeState) -> PyResult<()> {
+    fn restore(&mut self, state: &NativeWholeState) -> CoreResult<()> {
         self.checked(state)?;
         self.reset_phase_ceilings()?;
         self.storage_admission(
@@ -1295,10 +1308,12 @@ impl NativeWholeEngine {
         }
     }
 }
-#[pymethods]
-impl NativeWholeEngine {
+crate::optional_binding::optional_pymethods!(NativeWholeEngine,
+    [
     #[new]
     #[pyo3(signature = (calendar, payload, byte_budget, native_threads=1, storage_policy="legacy_records"))]
+    ] {
+    #[cfg(feature="python-extension")]
     fn new(
         py: Python<'_>,
         calendar: PyRef<'_, NativeCalendar>,
@@ -1308,26 +1323,46 @@ impl NativeWholeEngine {
         storage_policy: &str,
     ) -> PyResult<Self> {
         if !["legacy_records", "bounded_bytes_v1"].contains(&storage_policy) {
-            return Err(bad("unknown native storage_policy"));
+            return Err(bad("unknown native storage_policy").into());
         }
         let s = Static::read(payload)?;
         let parallel = ParallelPolicy::new(native_threads).map_err(bad)?;
         let source: &NativeCalendar = &calendar;
         py.allow_threads(|| {
             Self::build(source, s, byte_budget, parallel, storage_policy.to_owned())
-        })
+        }).map_err(Into::into)
     }
+    }
+    [
     #[getter]
+    ] {
+
     fn identity(&self) -> String {
         self.identity.clone()
     }
+    }
+    [
     #[getter]
+    ] {
+
     fn native_threads(&self) -> usize {
         self.parallel.threads()
     }
+    }
+    [
+
+    ] {
+
+    #[cfg(feature="python-extension")]
     fn routing_metrics(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         self.route_metrics.report(py)
     }
+    }
+    [
+
+    ] {
+
+    #[cfg(feature="python-extension")]
     fn event_resolution_diagnostics(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let (count, processed_time, roundoff, mass) = self.road.event_resolution_stats();
         let out = PyDict::new(py);
@@ -1340,6 +1375,12 @@ impl NativeWholeEngine {
         out.set_item("checkpointed", false)?;
         Ok(out.unbind())
     }
+    }
+    [
+
+    ] {
+
+    #[cfg(feature="python-extension")]
     fn storage_config(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let out = PyDict::new(py);
         out.set_item("policy", &self.storage_policy)?;
@@ -1379,6 +1420,12 @@ impl NativeWholeEngine {
         out.set_item("scope", "owner storage guards; total process address-space/RSS limit must cover caller-retained immutable snapshots and allocation overhead")?;
         Ok(out.unbind())
     }
+    }
+    [
+
+    ] {
+
+    #[cfg(feature="python-extension")]
     fn execution_config(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let out = PyDict::new(py);
         out.set_item("native_threads", self.parallel.threads())?;
@@ -1398,30 +1445,62 @@ impl NativeWholeEngine {
         )?;
         Ok(out.unbind())
     }
+    }
+    [
+
+    ] {
+
     fn initial(&self) -> NativeWholeState {
         NativeWholeState {
             identity: self.identity.clone(),
             value: self.initial_state.clone(),
         }
     }
+    }
+    [
+
+    ] {
+
     fn snapshot(&self) -> NativeWholeState {
         self.capture()
     }
-    fn check(&self, state: &NativeWholeState) -> PyResult<()> {
+    }
+    [
+
+    ] {
+
+    fn check(&self, state: &NativeWholeState) -> CoreResult<()> {
         self.checked(state)
     }
+    }
+    [
+
+    ] {
+
+    #[cfg(feature="python-extension")]
     fn advance(
         &mut self,
         py: Python<'_>,
         state: &NativeWholeState,
         end_s: f64,
-    ) -> PyResult<NativeWholeState> {
+    ) -> CoreResult<NativeWholeState> {
         py.allow_threads(|| self.advance_owned(state, end_s))
     }
+    }
+    [
+
+    ] {
+
     fn advance_metrics(&self) -> (Vec<f64>, usize) {
         let (t, n) = self.journey.owned_metrics();
         (t.to_vec(), n)
     }
+    }
+    [
+
+    ] {
+
+    #[cfg(feature="python-extension")]
     fn phase_metrics(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {
         let m = self.journey.owned_phase_metrics();
         let phases = PyDict::new(py);
@@ -1448,6 +1527,12 @@ impl NativeWholeEngine {
         )?;
         Ok(out.unbind())
     }
+    }
+    [
+
+    ] {
+
+    #[cfg(feature="python-extension")]
     fn debug_state(&self, py: Python<'_>, state: &NativeWholeState) -> PyResult<Py<PyDict>> {
         self.checked(state)?;
         let j = journey_debug(&state.value.journey);
@@ -1587,11 +1672,16 @@ impl NativeWholeEngine {
         )?;
         Ok(out.unbind())
     }
+    }
+    [
+
+    ] {
+
     fn sample_legs(
         &self,
         state: &NativeWholeState,
         indices: Vec<usize>,
-    ) -> PyResult<Vec<(String, f64, f64, f64)>> {
+    ) -> CoreResult<Vec<(String, f64, f64, f64)>> {
         self.checked(state)?;
         if indices.len() > 1024 {
             return Err(bad("at most 1024 diagnostic legs per call"));
@@ -1603,7 +1693,7 @@ impl NativeWholeEngine {
                     .journey
                     .legs()
                     .get(i)
-                    .ok_or_else(|| PyIndexError::new_err("leg index"))?;
+                    .ok_or_else(|| CoreError::index("leg index"))?;
                 Ok((
                     leg.0.clone(),
                     state.value.journey.4[i],
@@ -1613,6 +1703,12 @@ impl NativeWholeEngine {
             })
             .collect()
     }
+    }
+    [
+
+    ] {
+
+    #[cfg(feature="python-extension")]
     fn report(&mut self, py: Python<'_>, state: &NativeWholeState) -> PyResult<Py<PyDict>> {
         let values=self.ledger_values(state)?;
         let t=state.time_s();
@@ -1727,7 +1823,12 @@ impl NativeWholeEngine {
         out.set_item("full_release_campaign", "NOT_RUN")?;
         Ok(out.unbind())
     }
-    fn save(&mut self, path: String, state: &NativeWholeState) -> PyResult<()> {
+    }
+    [
+
+    ] {
+
+    fn save(&mut self, path: String, state: &NativeWholeState) -> CoreResult<()> {
         self.restore(state)?;
         let mut f = BufWriter::new(File::create(path).map_err(io)?);
         f.write_all(b"MFWHOLE1").map_err(io)?;
@@ -1739,7 +1840,12 @@ impl NativeWholeEngine {
         self.journey.write_state(&mut f)?;
         f.flush().map_err(io)
     }
-    fn load(&mut self, path: String) -> PyResult<NativeWholeState> {
+    }
+    [
+
+    ] {
+
+    fn load(&mut self, path: String) -> CoreResult<NativeWholeState> {
         let mut f = BufReader::new(File::open(path).map_err(io)?);
         let mut magic = [0u8; 8];
         f.read_exact(&mut magic).map_err(io)?;
@@ -1778,7 +1884,7 @@ impl NativeWholeEngine {
                     "service decode",
                 )?;
                 if old_events.saturating_mul(3) > remaining {
-                    return Err(PyMemoryError::new_err(
+                    return Err(CoreError::resource(
                         "native retained service event storage budget exceeded before decode",
                     ));
                 }
@@ -1833,7 +1939,8 @@ impl NativeWholeEngine {
             }
         }
     }
-}
+    }
+);
 
 #[cfg(test)]
 mod stage_sum_tests {
@@ -1923,7 +2030,7 @@ mod capture_road_clone_owner_exact_bounds {
 }
 
 impl NativeWholeEngine {
-    fn advance_owned(&mut self,state:&NativeWholeState,end_s:f64)->PyResult<NativeWholeState>{
+    fn advance_owned(&mut self,state:&NativeWholeState,end_s:f64)->CoreResult<NativeWholeState>{
         self.checked(state)?;
         let count = (end_s - state.time_s()) / self.step;
         if !count.is_finite() || count < 0.0 || (count - count.round()).abs() > 1e-8 {
@@ -1932,7 +2039,7 @@ impl NativeWholeEngine {
         if self.runtime_storage.is_some()
             && (count as usize).saturating_mul(2 * std::mem::size_of::<f64>()) > OBSERVATION_RESERVE
         {
-            return Err(PyMemoryError::new_err("native call observation storage budget exceeded; split the requested horizon into bounded calls"));
+            return Err(CoreError::resource("native call observation storage budget exceeded; split the requested horizon into bounded calls"));
         }
         self.restore(state)?;
         let dynamic_budget = self.road_storage_bytes;
@@ -1979,7 +2086,7 @@ impl NativeWholeEngine {
 }
 
 impl NativeWholeEngine {
-    fn ledger_values(&self,state:&NativeWholeState)->PyResult<[[f64;4];3]>{
+    fn ledger_values(&self,state:&NativeWholeState)->CoreResult<[[f64;4];3]>{
         self.checked(state)?;
         let t = state.time_s();
         let journey = &state.value.journey;
@@ -2001,7 +2108,7 @@ impl NativeWholeEngine {
 
 /// Native host entry point, with the exact same engine build/advance/save/load
 /// code as the Python binding. No Python dictionary or GIL is used on the
-/// successful execution path. The existing PyErr type remains for errors.
+/// successful execution path. The existing CoreError type remains for errors.
 #[cfg(feature="native-cli")]
 pub fn run_native_declaration(
     manifest: serde_json::Value,
@@ -2009,7 +2116,7 @@ pub fn run_native_declaration(
     end_s:f64,
     resume:Option<&str>,
     checkpoint:&str,
-)->PyResult<serde_json::Value>{
+)->CoreResult<serde_json::Value>{
     use serde_json::json;
     let start=Instant::now();
     if manifest.get("schema").and_then(|v|v.as_str())!=Some("metroflow_native_declaration_v1"){

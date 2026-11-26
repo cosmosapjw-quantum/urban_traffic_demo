@@ -3,23 +3,24 @@
 //! per group (separate turning pockets). Every destination's count and physical
 //! lane-metres budget is satisfied simultaneously. This is NOT a proof of the
 //! network FIFO invariant-junction/entropy property or maximum throughput.
-use pyo3::exceptions::PyValueError;
-use pyo3::prelude::*;
 
+#[cfg(feature="python-extension")]
+use pyo3::prelude::*;
+use crate::core_error::{CoreError,CoreResult};
 type NodeMovement = (usize, isize, f64, f64);
 
-fn invalid(msg: &'static str) -> PyErr {
-    PyValueError::new_err(msg)
+fn invalid(msg: &'static str) -> CoreError {
+    CoreError::value(msg)
 }
 
-#[pyfunction]
+#[cfg_attr(feature="python-extension", pyfunction)]
 pub(crate) fn allocate_kcmb_nodes(
     groups: Vec<Vec<NodeMovement>>,
     receive_count: Vec<f64>,
     receive_metres: Vec<f64>,
     weights: Vec<f64>,
     theta_limits: Vec<f64>,
-) -> PyResult<Vec<(usize, usize, f64)>> {
+) -> CoreResult<Vec<(usize, usize, f64)>> {
     let g_len = groups.len();
     let r_len = receive_count.len();
     if weights.len() != g_len

@@ -1,8 +1,9 @@
 //! Persistent f64 counterpart of active_suffix.routing.candidate_paths.
 //! Link IDs are ranked lexicographically; heap ordering and expansion counting
 //! preserve the Python oracle, including its loopless physical-node constraint.
-use pyo3::exceptions::PyValueError;
+#[cfg(feature="python-extension")]
 use pyo3::prelude::*;
+use crate::core_error::{CoreError,CoreResult};
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
 
@@ -59,7 +60,7 @@ impl PartialOrd for Candidate {
     }
 }
 
-#[pyclass]
+#[cfg_attr(feature="python-extension", pyclass)]
 pub struct V1RoutingGraph {
     ids: Vec<String>,
     heads: Vec<String>,
@@ -169,28 +170,29 @@ impl V1RoutingGraph {
     }
 }
 
-#[pymethods]
-impl V1RoutingGraph {
+crate::optional_binding::optional_pymethods!(V1RoutingGraph,
+    [
     #[new]
     #[pyo3(signature = (arcs, costs, allowed_turns=None, max_destinations=8))]
+    ] {
     pub(crate) fn new(
         arcs: Vec<(String, String, String)>,
         costs: Vec<f64>,
         allowed_turns: Option<Vec<(String, String)>>,
         max_destinations: usize,
-    ) -> PyResult<Self> {
+    ) -> CoreResult<Self> {
         if arcs.len() != costs.len() {
-            return Err(PyValueError::new_err("one cost per arc required"));
+            return Err(CoreError::value("one cost per arc required"));
         }
         if costs.iter().any(|v| v.is_nan() || *v < 0.0) {
-            return Err(PyValueError::new_err(
+            return Err(CoreError::value(
                 "costs must be nonnegative seconds, +infinity means unavailable",
             ));
         }
         let mut rows: Vec<_> = arcs.into_iter().zip(costs).collect();
         rows.sort_by(|a, b| a.0 .0.cmp(&b.0 .0));
         if rows.windows(2).any(|w| w[0].0 .0 == w[1].0 .0) {
-            return Err(PyValueError::new_err("duplicate links"));
+            return Err(CoreError::value("duplicate links"));
         }
         let ids: Vec<_> = rows.iter().map(|r| r.0 .0.clone()).collect();
         let heads: Vec<_> = rows.iter().map(|r| r.0 .2.clone()).collect();
@@ -227,8 +229,13 @@ impl V1RoutingGraph {
             builds: 0,
         })
     }
-
+    }
+    [
     #[pyo3(signature = (origin, destination, k=3, expansion_budget=2000))]
+    ] {
+
+
+    #[cfg(feature="python-extension")]
     fn search(
         &mut self,
         py: Python<'_>,
@@ -236,30 +243,43 @@ impl V1RoutingGraph {
         destination: &str,
         k: usize,
         expansion_budget: usize,
-    ) -> PyResult<(Vec<Vec<String>>, usize, bool)> {
+    ) -> CoreResult<(Vec<Vec<String>>, usize, bool)> {
         py.allow_threads(|| self.search_inner(origin, destination, k, expansion_budget))
-            .map_err(PyValueError::new_err)
+            .map_err(CoreError::value)
     }
-
+    }
+    [
     #[getter]
+    ] {
+
+
     fn cached_destinations(&self) -> Vec<String> {
         self.lru.iter().cloned().collect()
     }
+    }
+    [
     #[getter]
+    ] {
+
     fn potential_builds(&self) -> usize {
         self.builds
     }
-
+    }
+    [
     #[pyo3(signature = (endpoints, k=3, expansion_budget=2000))]
+    ] {
+
+
+    #[cfg(feature="python-extension")]
     fn search_batch(
         &mut self,
         py: Python<'_>,
         endpoints: Vec<(String, String)>,
         k: usize,
         expansion_budget: usize,
-    ) -> PyResult<Vec<(Vec<Vec<String>>, usize, bool)>> {
+    ) -> CoreResult<Vec<(Vec<Vec<String>>, usize, bool)>> {
         if k == 0 {
-            return Err(PyValueError::new_err("invalid route search budget"));
+            return Err(CoreError::value("invalid route search budget"));
         }
         py.allow_threads(|| {
             endpoints
@@ -269,6 +289,7 @@ impl V1RoutingGraph {
                 })
                 .collect::<Result<Vec<_>, String>>()
         })
-        .map_err(PyValueError::new_err)
+        .map_err(CoreError::value)
     }
-}
+    }
+);

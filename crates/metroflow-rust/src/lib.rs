@@ -1,4 +1,8 @@
+pub mod core_error;
+mod optional_binding;
+#[cfg(feature="python-extension")]
 use pyo3::exceptions::PyValueError;
+#[cfg(feature="python-extension")]
 use pyo3::prelude::*;
 mod agent;
 mod common;
@@ -32,6 +36,7 @@ use routing::{
     compute_route_candidate_metadata_impl, select_route_candidate_index_impl,
 };
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 fn evolve_edges_batch(
     queue: Vec<f64>,
@@ -45,6 +50,7 @@ fn evolve_edges_batch(
         .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 fn compute_baseline_flow_arrays_batch(
     queue_vehicles: Vec<f32>,
@@ -71,6 +77,7 @@ fn compute_baseline_flow_arrays_batch(
     .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 fn compute_dynamic_potential_node_costs(
     node_count: usize,
@@ -93,6 +100,7 @@ fn compute_dynamic_potential_node_costs(
     .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 fn compute_multi_destination_dynamic_potentials(
     node_count: usize,
@@ -115,6 +123,7 @@ fn compute_multi_destination_dynamic_potentials(
     .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 fn compute_next_link_action_costs(
     candidate_link_indices: Vec<i32>,
@@ -133,6 +142,7 @@ fn compute_next_link_action_costs(
     .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn compute_greedy_route_candidate(
@@ -172,6 +182,7 @@ fn compute_greedy_route_candidate(
     .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn compute_ranked_route_candidates(
@@ -213,6 +224,7 @@ fn compute_ranked_route_candidates(
     .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn compute_ranked_route_candidates_batch(
@@ -254,6 +266,7 @@ fn compute_ranked_route_candidates_batch(
     .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 fn compute_route_candidate_metadata(
     link_ids: Vec<i32>,
@@ -270,6 +283,7 @@ fn compute_route_candidate_metadata(
     .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 fn select_route_candidate_index(
     candidate_ids: Vec<i32>,
@@ -288,6 +302,7 @@ fn select_route_candidate_index(
     .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 fn compute_reroute_decision_batch(
     reroute_willingness: Vec<f32>,
@@ -306,6 +321,7 @@ fn compute_reroute_decision_batch(
     .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pyfunction]
 #[allow(clippy::too_many_arguments)]
 fn advance_active_agents_batch(
@@ -339,6 +355,7 @@ fn advance_active_agents_batch(
     .map_err(PyValueError::new_err)
 }
 
+#[cfg(feature="python-extension")]
 #[pymodule]
 fn _metroflow_rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<v1_routing::V1RoutingGraph>()?;

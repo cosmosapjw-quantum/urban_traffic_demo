@@ -8,8 +8,10 @@
 //! row must be decoded with the SAME table used by push_checked. Moving either
 //! owner preserves all indices; dropping a cell never drops the shared table.
 
+#[cfg(feature="python-extension")]
+use pyo3::prelude::*;
+use crate::core_error::{CoreError,CoreResult};
 use super::{arithmetic, budget, checkpoint_vec, ChunkedEvents, Mark, PackedTime, Part};
-use pyo3::prelude::PyResult;
 use std::mem::size_of;
 
 pub(super) const TIMED_INCOMING_CHUNK: usize = 128;
@@ -54,12 +56,12 @@ impl<T> Default for Pages<T> {
     }
 }
 
-fn checked_add(a: usize, b: usize) -> PyResult<usize> {
+fn checked_add(a: usize, b: usize) -> CoreResult<usize> {
     a.checked_add(b)
         .ok_or_else(|| budget("timed incoming allocation length overflow"))
 }
 
-fn checked_mul(a: usize, b: usize) -> PyResult<usize> {
+fn checked_mul(a: usize, b: usize) -> CoreResult<usize> {
     a.checked_mul(b)
         .ok_or_else(|| budget("timed incoming allocation byte overflow"))
 }
@@ -77,7 +79,7 @@ fn projected_pages_bytes(
     descriptor_capacity: usize,
     additional: usize,
     element_bytes: usize,
-) -> PyResult<usize> {
+) -> CoreResult<usize> {
     let new_len = checked_add(len, additional)?;
     let needed_pages = pages_for(new_len);
     let slots = checked_mul(needed_pages, TIMED_INCOMING_CHUNK)?;
@@ -113,7 +115,7 @@ impl<T> Pages<T> {
             .saturating_add(self.chunks.capacity().saturating_mul(size_of::<Vec<T>>()))
     }
 
-    fn projected_append_bytes(&self, additional: usize) -> PyResult<usize> {
+    fn projected_append_bytes(&self, additional: usize) -> CoreResult<usize> {
         projected_pages_bytes(self.len, self.chunks.capacity(), additional, size_of::<T>())
     }
 
@@ -126,7 +128,7 @@ impl<T> Pages<T> {
             .get(index % TIMED_INCOMING_CHUNK)
     }
 
-    fn push_checked(&mut self, value: T) -> PyResult<()> {
+    fn push_checked(&mut self, value: T) -> CoreResult<()> {
         let next_len = checked_add(self.len, 1)?;
         if self.len % TIMED_INCOMING_CHUNK == 0 {
             let page = checkpoint_vec(TIMED_INCOMING_CHUNK)?;
@@ -188,7 +190,7 @@ impl TimedIncomingControls {
         self.pages.allocated_bytes()
     }
 
-    pub(super) fn projected_append_bytes(&self, additional: usize) -> PyResult<usize> {
+    pub(super) fn projected_append_bytes(&self, additional: usize) -> CoreResult<usize> {
         let new_len = checked_add(self.len(), additional)?;
         if new_len as u128 > u32::MAX as u128 + 1 {
             return Err(budget("timed incoming control index capacity exhausted"));
@@ -201,7 +203,7 @@ impl TimedIncomingControls {
         a: PackedTime,
         b: PackedTime,
         mark: Mark,
-    ) -> PyResult<u32> {
+    ) -> CoreResult<u32> {
         let id = u32::try_from(self.len())
             .map_err(|_| budget("timed incoming control index capacity exhausted"))?;
         self.pages.push_checked(Control {
@@ -266,7 +268,7 @@ impl TimedIncomingRows {
         self.refs.allocated_bytes() + self.pages.allocated_bytes()
     }
 
-    pub(super) fn projected_append_bytes(&self, additional: usize) -> PyResult<usize> {
+    pub(super) fn projected_append_bytes(&self, additional: usize) -> CoreResult<usize> {
         checked_add(self.refs.allocated_bytes(),self.pages.projected_append_bytes(additional)?)
     }
 
@@ -274,7 +276,7 @@ impl TimedIncomingRows {
 
     // An append-only logical event index survives growth of either page table.
     pub(super) fn push_event(&mut self, part:Part, control:u32, controls:&TimedIncomingControls,
-        events:&ChunkedEvents, event:usize)->PyResult<()> {
+        events:&ChunkedEvents, event:usize)->CoreResult<()> {
         if self.pages.len!=0 {return Err(arithmetic("event transfer after pending admission"));}
         let id=u32::try_from(event).map_err(|_|budget("event reference outside compact domain"))?;
         let payload=events.compact_payload(event).ok_or_else(||arithmetic("missing receiving event owner"))?;
@@ -309,7 +311,7 @@ impl TimedIncomingRows {
         part: Part,
         control: u32,
         controls: &TimedIncomingControls,
-    ) -> PyResult<()> {
+    ) -> CoreResult<()> {
         let tag = u32::try_from(part.tag)
             .map_err(|_| arithmetic("timed incoming tag outside compact source"))?;
         let offset = u32::try_from(part.offset)

@@ -62,7 +62,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let start = Instant::now();
     let cap = address_cap()?;
     let manifest_hash = digest(Path::new(&a[1]))?;
-    let py_initialized_before = unsafe { pyo3::ffi::Py_IsInitialized() != 0 };
     if Path::new(&a[4]).exists() || Path::new(&a[5]).exists() {
         return Err("output exists".into());
     }
@@ -93,9 +92,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     out["address_space_limit_bytes"] = json!(cap);
     out["peak_rss_bytes"] = json!(rss());
     out["wall_s"] = json!(start.elapsed().as_secs_f64());
-    out["python_interpreter_initialized_before"] = json!(py_initialized_before);
-    out["python_interpreter_initialized_after"] =
-        json!(unsafe { pyo3::ffi::Py_IsInitialized() != 0 });
+    out["python_runtime_dependency"] = json!("none");
     serde_json::to_writer_pretty(
         OpenOptions::new()
             .write(true)

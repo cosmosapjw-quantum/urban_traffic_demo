@@ -4,8 +4,9 @@
 //! non-overlapping floating-point expansions accelerate sums without replacing
 //! the receipt clock distribution by a rounded aggregate.  An empty history is
 //! one nullable Arc, and a rollback clone never copies historical rows.
-use pyo3::exceptions::PyValueError;
+#[cfg(feature="python-extension")]
 use pyo3::prelude::*;
+use crate::core_error::{CoreError,CoreResult};
 use std::sync::Arc;
 
 const BLOCK_ROWS: usize = 64;
@@ -366,54 +367,95 @@ impl Drop for ReceiptHistory {
 
 /// Small native inspection surface for independently verifying the numerical
 /// and structural-sharing contract; the runtime uses ReceiptHistory directly.
-#[pyclass]
+#[cfg_attr(feature="python-extension", pyclass)]
 pub struct NativeReceiptHistory {
     history: ReceiptHistory,
 }
 
-#[pymethods]
-impl NativeReceiptHistory {
+crate::optional_binding::optional_pymethods!(NativeReceiptHistory,
+    [
     #[new]
-    fn new(rows: Vec<Receipt>) -> PyResult<Self> {
+    ] {
+    fn new(rows: Vec<Receipt>) -> CoreResult<Self> {
         Ok(Self {
-            history: ReceiptHistory::from_rows(rows).map_err(PyValueError::new_err)?,
+            history: ReceiptHistory::from_rows(rows).map_err(CoreError::value)?,
         })
     }
+    }
+    [
 
-    fn append(&mut self, time: f64, fraction: f64) -> PyResult<()> {
+    ] {
+
+
+    fn append(&mut self, time: f64, fraction: f64) -> CoreResult<()> {
         self.history
             .push((time, fraction))
-            .map_err(PyValueError::new_err)
+            .map_err(CoreError::value)
     }
+    }
+    [
+
+    ] {
+
 
     fn fork(&self) -> Self {
         Self {
             history: self.history.clone(),
         }
     }
+    }
+    [
+
+    ] {
+
 
     fn snapshot(&self) -> Vec<Receipt> {
         self.history.to_vec()
     }
+    }
+    [
+
+    ] {
+
 
     fn total(&self) -> f64 {
         self.history.total()
     }
+    }
+    [
 
-    fn eligible(&self, dwell: f64, now: f64) -> PyResult<f64> {
+    ] {
+
+
+    fn eligible(&self, dwell: f64, now: f64) -> CoreResult<f64> {
         if !dwell.is_finite() || dwell < 0.0 || !now.is_finite() || now < 0.0 {
-            return Err(PyValueError::new_err("invalid native eligibility clock"));
+            return Err(CoreError::value("invalid native eligibility clock"));
         }
         Ok(self.history.eligible(dwell, now))
     }
+    }
+    [
+
+    ] {
+
 
     fn valid_at(&self, now: f64) -> bool {
         self.history.valid_at(now)
     }
+    }
+    [
+
+    ] {
+
 
     fn __len__(&self) -> usize {
         self.history.len()
     }
+    }
+    [
+
+    ] {
+
 
     fn storage_shape(&self) -> (usize, usize, usize) {
         (
@@ -422,21 +464,47 @@ impl NativeReceiptHistory {
             BLOCK_ROWS,
         )
     }
+    }
+    [
+
+    ] {
+
 
     fn shared_prefix_rows(&self, other: &Self) -> usize {
         self.history.shared_prefix_rows(&other.history)
     }
+    }
+    [
+
+    ] {
+
 
     fn storage_bytes(&self) -> usize {
         self.history.storage_bytes()
     }
+    }
+    [
+
+    ] {
+
     fn decoded_storage_upper_bytes(&self) -> usize {
         self.history.decoded_storage_upper_bytes()
     }
+    }
+    [
+
+    ] {
+
     fn decoded_final_storage_upper_bytes(&self) -> usize {
         self.history.decoded_final_storage_upper_bytes()
     }
+    }
+    [
+
+    ] {
+
     fn append_upper_bytes(&self) -> usize {
         self.history.append_upper_bytes()
     }
-}
+    }
+);

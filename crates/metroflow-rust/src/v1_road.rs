@@ -1,8 +1,9 @@
 //! Rust owner of the V1 T02/T04 finite-response FIFO packet state.
 //! Registry paths are interned; tags retain independent observable ledgers.
-use crate::v1_parallel::ordered_map;
-use pyo3::exceptions::{PyArithmeticError, PyIOError, PyMemoryError, PyValueError};
+#[cfg(feature="python-extension")]
 use pyo3::prelude::*;
+use crate::core_error::{CoreError,CoreResult};
+use crate::v1_parallel::ordered_map;
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::io::{Read, Write};
@@ -18,39 +19,39 @@ use timed_incoming::{TimedIncomingControls, TimedIncomingRows};
 
 // Versioned by the enclosing engine header. Integers and IEEE-754 bit patterns
 // have a fixed little-endian representation independent of Python objects.
-pub(crate) fn write_u64<W: Write>(w: &mut W, v: u64) -> PyResult<()> {
+pub(crate) fn write_u64<W: Write>(w: &mut W, v: u64) -> CoreResult<()> {
     w.write_all(&v.to_le_bytes())
-        .map_err(|e| PyIOError::new_err(e.to_string()))
+        .map_err(|e| CoreError::io(e.to_string()))
 }
-pub(crate) fn read_u64<R: Read>(r: &mut R) -> PyResult<u64> {
+pub(crate) fn read_u64<R: Read>(r: &mut R) -> CoreResult<u64> {
     let mut b = [0; 8];
     r.read_exact(&mut b)
-        .map_err(|e| PyIOError::new_err(e.to_string()))?;
+        .map_err(|e| CoreError::io(e.to_string()))?;
     Ok(u64::from_le_bytes(b))
 }
-pub(crate) fn write_f64<W: Write>(w: &mut W, v: f64) -> PyResult<()> {
+pub(crate) fn write_f64<W: Write>(w: &mut W, v: f64) -> CoreResult<()> {
     write_u64(w, v.to_bits())
 }
-pub(crate) fn read_f64<R: Read>(r: &mut R) -> PyResult<f64> {
+pub(crate) fn read_f64<R: Read>(r: &mut R) -> CoreResult<f64> {
     Ok(f64::from_bits(read_u64(r)?))
 }
-pub(crate) fn write_len<W: Write>(w: &mut W, v: usize) -> PyResult<()> {
+pub(crate) fn write_len<W: Write>(w: &mut W, v: usize) -> CoreResult<()> {
     write_u64(w, v as u64)
 }
-pub(crate) fn read_len<R: Read>(r: &mut R, max: usize) -> PyResult<usize> {
+pub(crate) fn read_len<R: Read>(r: &mut R, max: usize) -> CoreResult<usize> {
     let v = usize::try_from(read_u64(r)?).map_err(|_| val("native checkpoint length overflow"))?;
     if v > max {
         return Err(val("native checkpoint length exceeds configuration/budget"));
     }
     Ok(v)
 }
-pub(crate) fn read_exact_len<R: Read>(r: &mut R, n: usize) -> PyResult<()> {
+pub(crate) fn read_exact_len<R: Read>(r: &mut R, n: usize) -> CoreResult<()> {
     if read_len(r, n)? != n {
         return Err(val("native checkpoint shape differs"));
     }
     Ok(())
 }
-pub(crate) fn checkpoint_vec<T>(n: usize) -> PyResult<Vec<T>> {
+pub(crate) fn checkpoint_vec<T>(n: usize) -> CoreResult<Vec<T>> {
     let mut v = Vec::new();
     v.try_reserve_exact(n)
         .map_err(|_| budget("native checkpoint allocation exceeds available memory"))?;
@@ -90,7 +91,7 @@ fn reconstruct_mark(p: &Part, m: &Mark, class: impl Fn(&Part) -> usize) -> (usiz
 struct PackedTime(u64);
 impl PackedTime {
     const NONE: u64 = u64::MAX;
-    fn new(value: Option<f64>) -> PyResult<Self> {
+    fn new(value: Option<f64>) -> CoreResult<Self> {
         match value {
             None => Ok(Self(Self::NONE)),
             Some(value) if value.is_finite() => Ok(Self(value.to_bits())),
@@ -178,8 +179,8 @@ enum PacketParts {
 impl PacketParts {
     fn pack(
         parts: Vec<Part>,
-        before_allocate: impl FnOnce(usize) -> PyResult<()>,
-    ) -> PyResult<Self> {
+        before_allocate: impl FnOnce(usize) -> CoreResult<()>,
+    ) -> CoreResult<Self> {
         let shared = parts
             .first()
             .map(|p| (p.a, p.b))
@@ -204,8 +205,8 @@ impl PacketParts {
     /// between source and final Uniform/Mixed allocation.
     fn pack_scaled_from(
         source:&PacketParts,f:f64,
-        before_allocate:impl FnOnce(usize)->PyResult<()>,
-    )->PyResult<Self> {
+        before_allocate:impl FnOnce(usize)->CoreResult<()>,
+    )->CoreResult<Self> {
         let mut count=0usize;
         let mut endpoints:Option<(PackedTime,PackedTime)>=None;
         let mut can_uniform=true;
@@ -243,7 +244,7 @@ impl PacketParts {
             Ok(Self::Mixed(Arc::new(rows)))
         }
     }
-    fn clone_checked(&self) -> PyResult<Self> {
+    fn clone_checked(&self) -> CoreResult<Self> {
         // PacketParts owns only immutable post-packing compositions. Existing
         // snapshots and candidates may reference the same physical row
         // storage. All operations modifying a packet replace its entire
@@ -437,7 +438,7 @@ fn receiving_lifetime_enabled()->bool {
     && !crate::v1_trace::source_attribution_enabled()
 }
 fn receiving_lifetime_floor(full_base:usize,max_cell_scratch:usize,source_rows:usize,
-                            max_old_owner:usize,candidate_owner:usize)->PyResult<usize> {
+                            max_old_owner:usize,candidate_owner:usize)->CoreResult<usize> {
     let old_observation=source_rows.checked_mul(4*std::mem::size_of::<f64>())
         .ok_or_else(||budget("source observation envelope overflow"))?;
     full_base.checked_sub(max_cell_scratch)
@@ -568,7 +569,7 @@ const CONTROL_PAGE_ROWS: usize = 256;
 
 // Reserve a complete, fixed-size payload page before changing logical contents.
 // An empty page from a failed multi-stream reservation remains available on retry.
-fn ensure_event_slot<T>(pages: &mut Vec<Vec<T>>, rows_per_page: usize) -> PyResult<()> {
+fn ensure_event_slot<T>(pages: &mut Vec<Vec<T>>, rows_per_page: usize) -> CoreResult<()> {
     if pages.last().is_none_or(|page| page.len() == rows_per_page) {
         let page = checkpoint_vec(rows_per_page)?;
         if page.capacity() != rows_per_page {
@@ -638,7 +639,7 @@ impl ChunkedEvents {
         let i = self.control_len.checked_sub(1)?;
         Some(self.control_chunks[i / CONTROL_PAGE_ROWS][i % CONTROL_PAGE_ROWS].0)
     }
-    pub(crate) fn projected_append_storage_bytes(&self, row: EventRow) -> PyResult<usize> {
+    pub(crate) fn projected_append_storage_bytes(&self, row: EventRow) -> CoreResult<usize> {
         let projected = self.projected_candidate_bytes(1, row.1, row.4, row.5)?;
         if self.compressed {
             return Ok(projected);
@@ -653,7 +654,7 @@ impl ChunkedEvents {
     /// the actual append count without increasing the projected number of controls.
     fn projected_candidate_bytes(
         &self, additional: usize, source: usize, start: f64, end: f64,
-    ) -> PyResult<usize> {
+    ) -> CoreResult<usize> {
         let rows = self.len.checked_add(additional).ok_or_else(|| budget("event projection row count overflow"))?;
         if !self.compressed { return Ok(paged_event_candidate_bytes(rows)); }
         let source = u32::try_from(source).map_err(|_| arithmetic("compressed event source exceeds u32"))?;
@@ -680,7 +681,7 @@ impl ChunkedEvents {
         });
         self.chunks.iter().flatten().copied().chain(compact)
     }
-    pub(crate) fn push_checked(&mut self, event: EventRow) -> PyResult<()> {
+    pub(crate) fn push_checked(&mut self, event: EventRow) -> CoreResult<()> {
         if !self.compressed {
             ensure_event_slot(&mut self.chunks, EVENT_PAGE_ROWS)?;
             self.chunks.last_mut().unwrap().push(event);
@@ -717,7 +718,7 @@ impl ChunkedEvents {
         self.len += 1;
         Ok(())
     }
-    fn into_flat_checked(self) -> PyResult<Vec<EventRow>> {
+    fn into_flat_checked(self) -> CoreResult<Vec<EventRow>> {
         let mut flat = checkpoint_vec(self.len)?;
         if flat.capacity() != self.len {
             return Err(budget("flat event output reserve exceeds exact native contract"));
@@ -935,7 +936,7 @@ impl EventClock {
         self.hi = boundary;
         self.lo = 0.;
     }
-    fn check_bound(&self) -> PyResult<()> {
+    fn check_bound(&self) -> CoreResult<()> {
         if self.stats.processed_time_bound + self.stats.clock_roundoff_bound
             > EVENT_CLOCK_TOLERANCE_S
         {
@@ -945,7 +946,7 @@ impl EventClock {
         }
         Ok(())
     }
-    fn advance(&mut self, h: f64, boundary: Option<f64>) -> PyResult<bool> {
+    fn advance(&mut self, h: f64, boundary: Option<f64>) -> CoreResult<bool> {
         if !self.active {
             self.hi += h;
             return Ok(true);
@@ -967,7 +968,7 @@ impl EventClock {
     }
 }
 impl RoadDecodeBudget {
-    fn pack_parts(&mut self, parts: Vec<Part>) -> PyResult<PacketParts> {
+    fn pack_parts(&mut self, parts: Vec<Part>) -> CoreResult<PacketParts> {
         let raw_bytes = parts.capacity().saturating_mul(std::mem::size_of::<Part>());
         let packed = PacketParts::pack(parts, |bytes| self.reserve(bytes, 0))?;
         if packed.is_uniform() {
@@ -975,7 +976,7 @@ impl RoadDecodeBudget {
         }
         Ok(packed)
     }
-    fn reserve(&mut self, bytes: usize, validation: usize) -> PyResult<()> {
+    fn reserve(&mut self, bytes: usize, validation: usize) -> CoreResult<()> {
         self.decoded = self.decoded.saturating_add(bytes);
         self.validation = self.validation.saturating_add(validation);
         let required = self
@@ -1002,12 +1003,12 @@ impl RoadDecodeBudget {
     }
 }
 impl RoadWorkBudget {
-    fn pack_parts(&self, parts: Vec<Part>) -> PyResult<PacketParts> {
+    fn pack_parts(&self, parts: Vec<Part>) -> CoreResult<PacketParts> {
         PacketParts::pack(parts, |bytes| {
             self.require(bytes, "packet interval packing")
         })
     }
-    fn require(&self, extra: usize, phase: &str) -> PyResult<()> {
+    fn require(&self, extra: usize, phase: &str) -> CoreResult<()> {
         // In a coupled transition the road-step event buffers are charged by
         // lifetime; the sink envelope is charged after the step returns.
         let event_bytes = self.service_events.map_or_else(
@@ -1092,7 +1093,7 @@ impl RoadWorkBudget {
     /// Part and matching Mark page allocations for one destination cell have
     /// been physically dropped. Retained final packet rows are separately
     /// charged by interval_retained; no packet or source row is discarded here.
-    fn release_incoming(&mut self,cell:usize,expired_rows:usize)->PyResult<()> {
+    fn release_incoming(&mut self,cell:usize,expired_rows:usize)->CoreResult<()> {
         let remaining=self.incoming.checked_sub(expired_rows).ok_or_else(||
             arithmetic("expired incoming source rows exceed prior charged rows"))?;
         if let Some(tracked)=&mut self.incoming_cell_rows {
@@ -1117,7 +1118,7 @@ impl RoadWorkBudget {
     /// of the physical fixed page size; no in-memory object is fabricated.
     fn transfer_indexed(
         &mut self,events:usize,destinations:impl IntoIterator<Item=usize>,
-    )->PyResult<()> {
+    )->CoreResult<()> {
         if self.incoming_descriptor_live_bytes.is_some() {
             return Err(arithmetic("incoming page descriptor storage frozen after last source append"));
         }
@@ -1145,7 +1146,7 @@ impl RoadWorkBudget {
     /// before allowing the no-growth-time source bound.
     fn observed_incoming_descriptor_bytes(
         &self,parts:&[ChunkedParts],marks:&[ChunkedMarks],
-    )->PyResult<usize> {
+    )->CoreResult<usize> {
         let Some(tracked)=&self.incoming_cell_rows else {
             return Err(arithmetic("incoming source destination registry unavailable"));
         };
@@ -1183,7 +1184,7 @@ impl RoadWorkBudget {
     fn pack_parts_with_live_descriptors(
         &mut self,parts:Vec<Part>,
         incoming:&[ChunkedParts],marks:&[ChunkedMarks],
-    )->PyResult<PacketParts> {
+    )->CoreResult<PacketParts> {
         if self.incoming_cell_rows.is_none() {
             return self.pack_parts(parts);
         }
@@ -1221,7 +1222,7 @@ impl RoadWorkBudget {
     /// later packet interval splitting and packing preflights.
     fn lock_completed_incoming_descriptors(
         &mut self,parts:&[ChunkedParts],marks:&[ChunkedMarks],
-    )->PyResult<()> {
+    )->CoreResult<()> {
         let Some(tracked)=&self.incoming_cell_rows else {return Ok(())};
         if self.incoming_descriptor_live_bytes.is_some()
             || parts.len()!=tracked.len() || marks.len()!=tracked.len() {
@@ -1252,7 +1253,7 @@ impl RoadWorkBudget {
         crate::v1_trace::add("road_work.locked_descriptor_payload_bytes",descriptor_bytes as u64);
         Ok(())
     }
-    fn interval(&mut self, transient: usize) -> PyResult<()> {
+    fn interval(&mut self, transient: usize) -> CoreResult<()> {
         self.interval_transient = transient;
         self.require(0, "entry interval split")
     }
@@ -1263,7 +1264,7 @@ impl RoadWorkBudget {
         self.interval_transient = 0;
     }
 }
-fn check_storage_limit(limit: Option<usize>, required: usize, phase: &str) -> PyResult<()> {
+fn check_storage_limit(limit: Option<usize>, required: usize, phase: &str) -> CoreResult<()> {
     if let Some(limit) = limit {
         if required > limit {
             return Err(budget(&format!(
@@ -1402,7 +1403,7 @@ impl RoadState {
     // Nonempty ordered (tag, offset) keys identify the present physical cell
     // through path(tag)[offset]. Its road and pending queues are one partition.
     // Select the maximum JOINT row + packet charge without allocating a table.
-    fn peak_cell_keyset_workspace(&self) -> PyResult<(usize,usize)> {
+    fn peak_cell_keyset_workspace(&self) -> CoreResult<(usize,usize)> {
         if self.cells.len()!=self.pending.len() {
             return Err(val("native keyset cell/pending shape differs"));
         }
@@ -1419,7 +1420,7 @@ impl RoadState {
         }
         Ok(peak)
     }
-    pub(crate) fn intern_exact_keysets(&mut self) -> PyResult<usize> {
+    pub(crate) fn intern_exact_keysets(&mut self) -> CoreResult<usize> {
         if self.cells.len()!=self.pending.len() {
             return Err(val("native keyset cell/pending shape differs"));
         }
@@ -1434,7 +1435,7 @@ impl RoadState {
     // before the next cell. Finished cells never increase retained owner charge:
     // existing shared keys are preferred; for m >= 2 independent Uniform owners
     // of n >= 16 rows the extra key charge is 8n+96 <= 8mn reclaimed in moments.
-    fn intern_cell_keysets(road:&mut [Packet],pending:&mut [Packet])->PyResult<usize> {
+    fn intern_cell_keysets(road:&mut [Packet],pending:&mut [Packet])->CoreResult<usize> {
         let mut groups:Vec<ExactKeyGroup>=Vec::new();
         let mut lookup:HashMap<(usize,u64),Vec<usize>>=HashMap::new();
         let mut assignments:Vec<Option<usize>>=Vec::new();
@@ -1708,7 +1709,7 @@ struct Motion {
     initial: BTreeMap<usize, f64>,
     hazards: BTreeMap<usize, f64>,
 }
-#[pyclass]
+#[cfg_attr(feature="python-extension", pyclass)]
 pub struct V1Road {
     identity: String,
     dt: f64,
@@ -1728,14 +1729,14 @@ pub struct V1Road {
     intervals: bool,
     state: RoadState,
 }
-fn val(s: &str) -> PyErr {
-    PyValueError::new_err(s.to_owned())
+fn val(s: &str) -> CoreError {
+    CoreError::value(s.to_owned())
 }
-fn arithmetic(s: &str) -> PyErr {
-    PyArithmeticError::new_err(s.to_owned())
+fn arithmetic(s: &str) -> CoreError {
+    CoreError::arithmetic(s.to_owned())
 }
-fn budget(s: &str) -> PyErr {
-    PyMemoryError::new_err(s.to_owned())
+fn budget(s: &str) -> CoreError {
+    CoreError::resource(s.to_owned())
 }
 // Streaming the same expansion, with no vector of raw class observations.
 #[derive(Default)]
@@ -1812,7 +1813,7 @@ fn finite_nonnegative(x: f64) -> bool {
 fn mass(p: &Packet) -> f64 {
     sum(p.parts.iter().map(|p| p.mass))
 }
-fn push_checked<T>(rows: &mut Vec<T>, row: T) -> PyResult<()> {
+fn push_checked<T>(rows: &mut Vec<T>, row: T) -> CoreResult<()> {
     if rows.len() == rows.capacity() {
         rows.try_reserve(1)
             .map_err(|_| budget("native road allocation unavailable"))?;
@@ -1820,13 +1821,13 @@ fn push_checked<T>(rows: &mut Vec<T>, row: T) -> PyResult<()> {
     rows.push(row);
     Ok(())
 }
-fn clone_packet(packet: &Packet) -> PyResult<Packet> {
+fn clone_packet(packet: &Packet) -> CoreResult<Packet> {
     Ok(Packet {
         target: packet.target,
         parts: packet.parts.clone_checked()?,
     })
 }
-fn clone_packets(packets: &[Packet]) -> PyResult<Vec<Packet>> {
+fn clone_packets(packets: &[Packet]) -> CoreResult<Vec<Packet>> {
     let mut result = checkpoint_vec(packets.len())?;
     for packet in packets {
         result.push(clone_packet(packet)?);
@@ -1849,7 +1850,7 @@ fn served_parts(parts: &PacketParts, f: f64) -> impl Iterator<Item = Part> + '_ 
         }
     })
 }
-fn portion(parts: &PacketParts, f: f64) -> PyResult<Vec<Part>> {
+fn portion(parts: &PacketParts, f: f64) -> CoreResult<Vec<Part>> {
     let mut result = checkpoint_vec(if f == 0.0 { 0 } else { parts.len() })?;
     for p in parts {
         let m = p.mass * f;
@@ -1887,7 +1888,7 @@ impl Iterator for SetOneBits {
     }
 }
 impl ActiveIndexBits {
-    fn new(universe: usize) -> PyResult<Self> {
+    fn new(universe: usize) -> CoreResult<Self> {
         let word_count = universe.div_ceil(64);
         let summary_count = word_count.div_ceil(64);
         let mut words = checkpoint_vec(word_count)?;
@@ -1958,7 +1959,7 @@ impl ActiveIndexBits {
 /// +/- zero endpoints are grouped using the SAME numeric equality as the
 /// original edge Vec::dedup, not by f64::to_bits.
 /// Count the *actual* source-row event kinds before allocating sweep arrays.
-fn count_sweep_row_kinds(parts: &[Part]) -> PyResult<(usize, usize)> {
+fn count_sweep_row_kinds(parts: &[Part]) -> CoreResult<(usize, usize)> {
     let (mut nonpoint, mut point) = (0usize, 0usize);
     for p in parts {
         let (a, b) = (p.a.unwrap(), p.b.unwrap());
@@ -1992,7 +1993,7 @@ fn exact_sweep_event_index_bytes(n: usize, nonpoint: usize, point: usize) -> usi
 // injective source ordinals in each sorted stream, with a wide fallback.
 enum SweepOrdinals { Compact(Vec<u32>), Wide(Vec<usize>) }
 impl SweepOrdinals {
-    fn new(n:usize, capacity:usize) -> PyResult<Self> {
+    fn new(n:usize, capacity:usize) -> CoreResult<Self> {
         if n <= u32::MAX as usize { Ok(Self::Compact(checkpoint_vec(capacity)?)) }
         else { Ok(Self::Wide(checkpoint_vec(capacity)?)) }
     }
@@ -2027,12 +2028,12 @@ struct IntervalActiveSweep<'a> {
 
 impl<'a> IntervalActiveSweep<'a> {
     #[cfg(test)]
-    fn new(parts: &'a [Part]) -> PyResult<Self> {
+    fn new(parts: &'a [Part]) -> CoreResult<Self> {
         let (nonpoint, point) = count_sweep_row_kinds(parts)?;
         Self::new_counted(parts, nonpoint, point)
     }
 
-    fn new_counted(parts: &'a [Part], nonpoint: usize, point: usize) -> PyResult<Self> {
+    fn new_counted(parts: &'a [Part], nonpoint: usize, point: usize) -> CoreResult<Self> {
         debug_assert_eq!(nonpoint.checked_add(point), Some(parts.len()));
         let mut starts = SweepOrdinals::new(parts.len(),nonpoint)?;
         let mut ends = SweepOrdinals::new(parts.len(),nonpoint)?;
@@ -2081,8 +2082,8 @@ impl<'a> IntervalActiveSweep<'a> {
 fn visit_unique_sweep_edges(
     sweep: &IntervalActiveSweep,
     has_negative_zero: bool,
-    mut emit: impl FnMut(f64) -> PyResult<()>,
-) -> PyResult<usize> {
+    mut emit: impl FnMut(f64) -> CoreResult<()>,
+) -> CoreResult<usize> {
     let streams = [
         &sweep.starts, &sweep.ends, &sweep.points,
     ];
@@ -2118,8 +2119,8 @@ fn visit_unique_sweep_edges(
 fn unique_sweep_edges(
     parts: &[Part],
     sweep: &IntervalActiveSweep,
-    before_allocate: impl FnOnce(usize) -> PyResult<()>,
-) -> PyResult<Vec<f64>> {
+    before_allocate: impl FnOnce(usize) -> CoreResult<()>,
+) -> CoreResult<Vec<f64>> {
     let neg_zero_bits=(-0.0f64).to_bits();
     let has_negative_zero=parts.iter().any(|p|p.a.0==neg_zero_bits || p.b.0==neg_zero_bits);
     let unique_count=visit_unique_sweep_edges(sweep,has_negative_zero, |_|Ok(()))?;
@@ -2172,7 +2173,7 @@ fn interval_merge_census(out: &[Packet]) {
         prev = Some((a, b, here));
     }
 }
-fn interval_merge_census_ordered(out:&[Packet])->PyResult<()> {
+fn interval_merge_census_ordered(out:&[Packet])->CoreResult<()> {
     let mut prev:Option<(&Packet,f64,f64)>=None;
     for packet in out {
         let Some(first)=packet.parts.iter().next() else{continue};
@@ -2317,7 +2318,7 @@ impl ChunkedParts {
             self.chunks[i/INCOMING_PART_CHUNK][i%INCOMING_PART_CHUNK]
         }
     }
-    fn push_checked(&mut self,p:Part)->PyResult<()> {
+    fn push_checked(&mut self,p:Part)->CoreResult<()> {
         if self.compressed {
             let encoded=CompactIncomingPart::try_new(p).ok_or_else(||
                 arithmetic("compact incoming source index contract differs"))?;
@@ -2342,7 +2343,7 @@ impl ChunkedParts {
         self.len+=1;
         Ok(())
     }
-    fn extend_parts(&mut self,parts:impl IntoIterator<Item=Part>)->PyResult<()> {
+    fn extend_parts(&mut self,parts:impl IntoIterator<Item=Part>)->CoreResult<()> {
         for p in parts {self.push_checked(p)?;}
         Ok(())
     }
@@ -2361,7 +2362,7 @@ impl ChunkedMarks {
     fn iter(&self) -> impl Iterator<Item=&Mark> {
         self.chunks.iter().flat_map(|c| c.iter())
     }
-    fn push_checked(&mut self, mark: Mark) -> PyResult<()> {
+    fn push_checked(&mut self, mark: Mark) -> CoreResult<()> {
         if self.chunks.last().is_none_or(|c| c.len()==INCOMING_PART_CHUNK) {
             let chunk=checkpoint_vec(INCOMING_PART_CHUNK)?;
             if chunk.capacity()!=INCOMING_PART_CHUNK {
@@ -2445,7 +2446,7 @@ fn release_consumed_incoming_pair(
     cell:usize,
     raw:ChunkedParts,
     marks:ChunkedMarks,
-)->PyResult<usize> {
+)->CoreResult<usize> {
     let rows=raw.len();
     if marks.len()!=rows {
         return Err(arithmetic("expired incoming Part/Mark page lengths differ"));
@@ -2478,7 +2479,7 @@ fn release_consumed_incoming_pair(
 /// append projection includes old+new descriptor capacity during growth.
 fn timed_control_storage_bound(
     controls:&TimedIncomingControls,additional:usize,cells:usize,
-)->PyResult<usize> {
+)->CoreResult<usize> {
     let rows=controls.len().checked_add(additional)
         .ok_or_else(||budget("timed incoming control count overflow"))?;
     Ok(controls.projected_append_bytes(additional)?
@@ -2511,7 +2512,7 @@ fn referenced_incoming_page_charge(base:usize,cells:usize,refs:usize)->usize {
 }
 fn lock_completed_timed_incoming(
     work:&mut RoadWorkBudget,rows:&[TimedIncomingRows],controls:&TimedIncomingControls,
-)->PyResult<()> {
+)->CoreResult<()> {
     let tracked=work.incoming_cell_rows.as_ref()
         .ok_or_else(||arithmetic("timed incoming requires a bounded source census"))?;
     if rows.len()!=tracked.len() || work.incoming_descriptor_live_bytes.is_some() {
@@ -2552,7 +2553,7 @@ fn lock_completed_timed_incoming(
 }
 fn release_consumed_timed_incoming(
     work:&mut RoadWorkBudget,cell:usize,timed:TimedIncomingRows,
-)->PyResult<usize> {
+)->CoreResult<usize> {
     let rows=timed.len();
     if work.timed_incoming_control_bytes.is_none() {
         return Err(arithmetic("timed incoming source requires its control table charge"));
@@ -2589,13 +2590,13 @@ fn receiving_local_combine_scratch(rows: usize, classes: usize) -> usize {
 
 /// The original combine key, source-index tie order and sum() operations
 /// evaluated against stable page indices without flattening the source.
-fn combine_chunked_parts(parts: &ChunkedParts) -> PyResult<Vec<Part>> {
+fn combine_chunked_parts(parts: &ChunkedParts) -> CoreResult<Vec<Part>> {
     combine_indexed_parts(parts.len(),|i|parts.get(i))
 }
 
 fn combine_indexed_parts(
     len:usize,get:impl Fn(usize)->Part,
-)->PyResult<Vec<Part>> {
+)->CoreResult<Vec<Part>> {
     combine_indexed_impl(len,get,|i|i,|i|i,|_,_|Ok(()))
 }
 
@@ -2603,8 +2604,8 @@ fn combine_indexed_parts(
 // source fits. The comparator and reduction order are unchanged.
 fn combine_compact_indexed_parts(
     len:usize,get:impl Fn(usize)->Part,
-    mut preflight:impl FnMut(usize,usize)->PyResult<()>,
-)->PyResult<Vec<Part>> {
+    mut preflight:impl FnMut(usize,usize)->CoreResult<()>,
+)->CoreResult<Vec<Part>> {
     if len <= u32::MAX as usize {
         combine_indexed_impl(len,get,|i|i as u32,|i|i as usize,
             |index_bytes,groups|preflight(index_bytes,groups))
@@ -2617,8 +2618,8 @@ fn combine_compact_indexed_parts(
 fn combine_indexed_impl<I:Copy+Ord>(
     len:usize,get:impl Fn(usize)->Part,
     encode:impl Fn(usize)->I,decode:impl Fn(I)->usize,
-    mut preflight:impl FnMut(usize,usize)->PyResult<()>,
-)->PyResult<Vec<Part>> {
+    mut preflight:impl FnMut(usize,usize)->CoreResult<()>,
+)->CoreResult<Vec<Part>> {
     let key = |p: &Part| {
         (p.tag, p.offset, p.a.map_or(u64::MAX, f64::to_bits),
          p.b.map_or(u64::MAX, f64::to_bits))
@@ -2656,7 +2657,7 @@ fn combine_indexed_impl<I:Copy+Ord>(
     Ok(out)
 }
 
-fn combine(parts: Vec<Part>) -> PyResult<Vec<Part>> {
+fn combine(parts: Vec<Part>) -> CoreResult<Vec<Part>> {
     let key = |p: &Part| {
         (
             p.tag,
@@ -2712,7 +2713,7 @@ fn combine_interval_mapped<T>(
     a: f64,
     b: f64,
     mut encode: impl FnMut(Part) -> T,
-) -> PyResult<Vec<T>> {
+) -> CoreResult<Vec<T>> {
     let width = b - a;
     let mut indices = checkpoint_vec(selected_count)?;
     for i in selected {
@@ -2764,7 +2765,7 @@ fn combine_interval_view(
     selected_count: usize,
     a: f64,
     b: f64,
-) -> PyResult<Vec<Part>> {
+) -> CoreResult<Vec<Part>> {
     combine_interval_mapped(parts, selected, selected_count, a, b, |p|p)
 }
 
@@ -2776,7 +2777,7 @@ fn combine_interval_core(
     selected_count: usize,
     a: f64,
     b: f64,
-) -> PyResult<Vec<CorePart>> {
+) -> CoreResult<Vec<CorePart>> {
     combine_interval_mapped(parts, selected, selected_count, a, b, compact_core_part)
 }
 
@@ -2789,8 +2790,8 @@ fn combine_interval_core(
 fn ordered_interval_packet<I: Iterator<Item=usize>>(
     parts:&[Part], selected:impl Fn()->I, a:f64,b:f64,
     previous:Option<&Arc<Vec<(u32,u32)>>>,
-    before_allocate:impl FnOnce(usize)->PyResult<()>,
-)->PyResult<(Option<PacketParts>,usize)> {
+    before_allocate:impl FnOnce(usize)->CoreResult<()>,
+)->CoreResult<(Option<PacketParts>,usize)> {
     let width=b-a;
     let scaled=|i:usize| {
         let p=parts[i]; let duration=p.b.unwrap()-p.a.unwrap();
@@ -2873,7 +2874,7 @@ fn all_point_endpoint_bits_identical(parts: &[Part], source_indices: &[usize]) -
 /// without the full temporary point Vec<Part>, combined Vec<Part> or second
 /// uniform conversion buffer. Mass/birth terms enter the original sum in
 /// original source-index order, with no arithmetic reassociation.
-fn combine_uniform_point_core(parts: &[Part], source_indices: &[usize]) -> PyResult<Vec<CorePart>> {
+fn combine_uniform_point_core(parts: &[Part], source_indices: &[usize]) -> CoreResult<Vec<CorePart>> {
     debug_assert!(all_point_endpoint_bits_identical(parts, source_indices));
     let mut indices = checkpoint_vec(source_indices.len())?;
     indices.extend(source_indices.iter().copied().filter(|&i| parts[i].mass > 0.0));
@@ -2919,7 +2920,7 @@ impl Motion {
     fn sample(&self, t: f64) -> (f64, f64) {
         characteristic(self.v0, self.target, t, self.tau, self.accel, self.brake)
     }
-    fn passage(&self, d: f64) -> PyResult<f64> {
+    fn passage(&self, d: f64) -> CoreResult<f64> {
         if d == 0.0 {
             return Ok(0.0);
         }
@@ -2989,7 +2990,7 @@ impl V1Road {
     }
     /// Constructor-only identity finalization after retained accounting. The
     /// engine remeasures this String's capacity after binding its final policy.
-    pub(crate) fn bind_storage_identity(&mut self, identity: String) -> PyResult<()> {
+    pub(crate) fn bind_storage_identity(&mut self, identity: String) -> CoreResult<()> {
         if identity.is_empty()
             || self.state.t != 0.
             || self.owned_record_count() != 0
@@ -3005,10 +3006,10 @@ impl V1Road {
     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
         (&self.state.totals, &self.state.ledger)
     }
-    pub(crate) fn write_state<W: Write>(&self, w: &mut W) -> PyResult<()> {
+    pub(crate) fn write_state<W: Write>(&self, w: &mut W) -> CoreResult<()> {
         write_len(w, self.identity.len())?;
         w.write_all(self.identity.as_bytes())
-            .map_err(|e| PyIOError::new_err(e.to_string()))?;
+            .map_err(|e| CoreError::io(e.to_string()))?;
         let s = &self.state;
         write_f64(w, s.t)?;
         write_len(w, s.cells.len())?;
@@ -3038,7 +3039,7 @@ impl V1Road {
         }
         Ok(())
     }
-    fn write_packets<W: Write>(&self, w: &mut W, q: &[Packet]) -> PyResult<()> {
+    fn write_packets<W: Write>(&self, w: &mut W, q: &[Packet]) -> CoreResult<()> {
         write_len(w, q.len())?;
         for p in q {
             write_f64(w, p.target)?;
@@ -3063,7 +3064,7 @@ impl V1Road {
         r: &mut R,
         remaining: &mut usize,
         work: &mut RoadDecodeBudget,
-    ) -> PyResult<Vec<Packet>> {
+    ) -> CoreResult<Vec<Packet>> {
         let n = read_len(r, *remaining)?;
         work.reserve(
             n.saturating_mul(std::mem::size_of::<Packet>() + 32),
@@ -3114,11 +3115,11 @@ impl V1Road {
         }
         Ok(q)
     }
-    pub(crate) fn read_state<R: Read>(&self, r: &mut R) -> PyResult<RoadState> {
+    pub(crate) fn read_state<R: Read>(&self, r: &mut R) -> CoreResult<RoadState> {
         read_exact_len(r, self.identity.len())?;
         let mut identity = vec![0; self.identity.len()];
         r.read_exact(&mut identity)
-            .map_err(|e| PyIOError::new_err(e.to_string()))?;
+            .map_err(|e| CoreError::io(e.to_string()))?;
         if identity != self.identity.as_bytes() {
             return Err(val("native road checkpoint binding differs"));
         }
@@ -3239,7 +3240,7 @@ impl V1Road {
     /// Internal phase allowance from the engine's combined byte policy. This
     /// changes accounting metadata only; the phase's existing preflight checks
     /// validate before allocation, without another whole-state scan here.
-    pub(crate) fn set_phase_storage_budget(&mut self, bytes: usize) -> PyResult<()> {
+    pub(crate) fn set_phase_storage_budget(&mut self, bytes: usize) -> CoreResult<()> {
         let minimum = std::mem::size_of::<Part>().max(std::mem::size_of::<EventRow>());
         if bytes < minimum {
             return Err(budget(&format!(
@@ -3336,7 +3337,7 @@ impl V1Road {
         state: &RoadState,
         offers: &[Offer],
         call_input: Option<&RoadState>,
-    ) -> PyResult<RoadWorkBudget> {
+    ) -> CoreResult<RoadWorkBudget> {
         if self.storage_budget.is_none() {
             return Ok(RoadWorkBudget {
                 limit: None,
@@ -3435,7 +3436,7 @@ impl V1Road {
     /// Do not reuse their obsolete RoadWorkBudget lifetime in the flat phase.
     fn materialize_event_after_road(
         &self, candidate:&mut RoadState, pages:ChunkedEvents,
-    )->PyResult<Vec<EventRow>> {
+    )->CoreResult<Vec<EventRow>> {
         if let Some(limit)=self.storage_budget {
             let max_state=self.state.retained_storage_bytes()
                 .max(self.retained_input_bytes)
@@ -3473,7 +3474,7 @@ impl V1Road {
 
     fn intern_candidate_keysets(
         &self, candidate: &mut RoadState, candidate_event_bytes: usize,
-    ) -> PyResult<()> {
+    ) -> CoreResult<()> {
         if let Some(limit) = self.storage_budget {
             let stats = candidate.debug_stats();
             let committed_retained = self.state.retained_storage_bytes();
@@ -3517,7 +3518,7 @@ impl V1Road {
         Ok(())
     }
 
-    pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
+    pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -> CoreResult<Vec<EventRow>> {
         self.begin_call_storage_accounting();
         let (mut s, pages) = self.step_state(&self.state, dt, offers, None)?;
         let e=self.materialize_event_after_road(&mut s,pages)?;
@@ -3532,7 +3533,7 @@ impl V1Road {
         dt: f64,
         offers: Vec<Offer>,
         call_input: Option<&RoadState>,
-    ) -> PyResult<(RoadState, ChunkedEvents)> {
+    ) -> CoreResult<(RoadState, ChunkedEvents)> {
         let (mut state, pages) = self.step_state(&self.state, dt, offers, call_input)?;
         self.intern_candidate_keysets(&mut state, pages.retained_storage_bytes())?;
         crate::v1_trace::add("event_history.retained_rows", pages.len() as u64);
@@ -3584,7 +3585,7 @@ impl V1Road {
             ledger: vec![[0.; 5]; self.classes.len()],
         }
     }
-    fn motion(&self, i: usize, c: &Cell, dt: f64, factor: f64) -> PyResult<Motion> {
+    fn motion(&self, i: usize, c: &Cell, dt: f64, factor: f64) -> CoreResult<Motion> {
         let mut counts: BTreeMap<usize, RoadExpansion> = BTreeMap::new();
         for packet in &c.packets {
             for p in &packet.parts {
@@ -3678,7 +3679,7 @@ impl V1Road {
         parts: Vec<Part>,
         target: f64,
         work: &mut RoadWorkBudget,
-    ) -> PyResult<Vec<Packet>> {
+    ) -> CoreResult<Vec<Packet>> {
         // Live for the whole call; each interval adds its own rows (the
         // selected-row Vec, combine's index and output) and the packet list
         // with room for its doubling reallocation. Only packed rows that are
@@ -3854,7 +3855,7 @@ impl V1Road {
         heads: &BTreeMap<usize, BTreeMap<usize, f64>>,
         send: &BTreeMap<usize, f64>,
         receive: &BTreeMap<usize, f64>,
-    ) -> PyResult<BTreeMap<usize, f64>> {
+    ) -> CoreResult<BTreeMap<usize, f64>> {
         let mut q: BTreeMap<usize, f64> = heads.keys().map(|&i| (i, 0.)).collect();
         let mut active: Vec<usize> = heads.keys().copied().filter(|i| send[i] > 0.).collect();
         while !active.is_empty() {
@@ -3905,7 +3906,7 @@ impl V1Road {
         }
         Ok(q)
     }
-    fn check_state(&self, s: &RoadState) -> PyResult<()> {
+    fn check_state(&self, s: &RoadState) -> CoreResult<()> {
         if s.cells.len() != self.groups.len()
             || s.pending.len() != self.groups.len()
             || s.ledger.len() != self.classes.len()
@@ -4030,7 +4031,7 @@ impl V1Road {
         dt: f64,
         offers: Vec<Offer>,
         call_input: Option<&RoadState>,
-    ) -> PyResult<(RoadState, ChunkedEvents)> {
+    ) -> CoreResult<(RoadState, ChunkedEvents)> {
         self.check_state(s)?;
         if !dt.is_finite() || dt <= 0. {
             return Err(val("positive finite interval required"));
@@ -4082,7 +4083,7 @@ impl V1Road {
                 .pending
                 .iter()
                 .map(|queue| clone_packets(queue))
-                .collect::<PyResult<_>>()?,
+                .collect::<CoreResult<_>>()?,
             totals: s.totals,
             ledger: s.ledger.clone(),
         };
@@ -4150,7 +4151,7 @@ impl V1Road {
         // cell's arithmetic and packet order unchanged; collect by index and
         // inspect results serially so even multiple failures choose the same
         // error as the serial oracle. Node allocation below is not parallel.
-        let predictions = ordered_map(n, 32, |i| -> PyResult<_> {
+        let predictions = ordered_map(n, 32, |i| -> CoreResult<_> {
             let c = &s.cells[i];
             let m = self.motion(i, c, dt, factor[i])?;
             let distance = sum(c
@@ -5044,7 +5045,7 @@ impl V1Road {
         &self,
         rows: Vec<PacketRow>,
         work: &mut RoadDecodeBudget,
-    ) -> PyResult<Vec<Packet>> {
+    ) -> CoreResult<Vec<Packet>> {
         work.reserve(
             rows.len()
                 .saturating_mul(std::mem::size_of::<Packet>() + 32),
@@ -5074,7 +5075,7 @@ impl V1Road {
         }
         Ok(result)
     }
-    fn from_row(&self, row: StateRow) -> PyResult<RoadState> {
+    fn from_row(&self, row: StateRow) -> CoreResult<RoadState> {
         let (identity, t, cells, pending, totals, ledger) = row;
         if identity != self.identity {
             return Err(val("native road checkpoint binding differs"));
@@ -5197,11 +5198,13 @@ impl V1Road {
         Ok(s)
     }
 }
-#[pymethods]
-impl V1Road {
+crate::optional_binding::optional_pymethods!(V1Road,
+    [
+
+    ] {
     /// Explicit byte-budget mode; legacy constructor record guards remain the
     /// default. Configuration is atomic and never mutates physical state.
-    pub(crate) fn configure_storage_budget(&mut self, bytes: usize) -> PyResult<()> {
+    pub(crate) fn configure_storage_budget(&mut self, bytes: usize) -> CoreResult<()> {
         if bytes < std::mem::size_of::<Part>().max(std::mem::size_of::<EventRow>()) {
             return Err(val("positive native road storage budget required"));
         }
@@ -5215,6 +5218,11 @@ impl V1Road {
         }
         Ok(())
     }
+    }
+    [
+
+    ] {
+
     fn storage_limits(&self) -> (Option<usize>, usize, usize, Option<usize>) {
         (
             self.storage_budget,
@@ -5223,9 +5231,19 @@ impl V1Road {
             self.event_budget,
         )
     }
+    }
+    [
+
+    ] {
+
     fn event_resolution_diagnostics(&self) -> (u64, f64, f64, f64) {
         self.event_resolution_stats()
     }
+    }
+    [
+
+    ] {
+
     fn storage_layout_bytes(&self) -> (usize, usize, usize, usize) {
         (
             std::mem::size_of::<CorePart>(),
@@ -5234,6 +5252,11 @@ impl V1Road {
             std::mem::size_of::<EventRow>(),
         )
     }
+    }
+    [
+
+    ] {
+
     fn packet_storage_counts(&self) -> (usize, usize, usize, usize) {
         let stats = self.state.debug_stats();
         (
@@ -5243,9 +5266,13 @@ impl V1Road {
             stats.mixed_parts,
         )
     }
+    }
+    [
     #[new]
-    #[allow(clippy::too_many_arguments)]
     #[pyo3(signature = (identity, dt, groups, signals, routes, classes, incoming, windows, record_budget, event_budget, intervals))]
+    ] {
+
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
         identity: String,
         dt: f64,
@@ -5258,7 +5285,7 @@ impl V1Road {
         record_budget: usize,
         event_budget: Option<usize>,
         intervals: bool,
-    ) -> PyResult<Self> {
+    ) -> CoreResult<Self> {
         let mut paths = Vec::new();
         let mut lookup: HashMap<Vec<usize>, usize> = HashMap::new();
         let mut tags = Vec::with_capacity(routes.len());
@@ -5288,17 +5315,32 @@ impl V1Road {
             intervals,
         )
     }
+    }
+    [
+
+    ] {
+
     fn snapshot(&self) -> StateRow {
         self.row()
     }
-    fn restore(&mut self, row: StateRow) -> PyResult<()> {
+    }
+    [
+
+    ] {
+
+    fn restore(&mut self, row: StateRow) -> CoreResult<()> {
         let s = self.from_row(row)?;
         self.state = s;
         self.retained_input_bytes = 0;
         self.service_event_accounting = None;
         Ok(())
     }
-    fn reset(&mut self, t: f64) -> PyResult<()> {
+    }
+    [
+
+    ] {
+
+    fn reset(&mut self, t: f64) -> CoreResult<()> {
         if !finite_nonnegative(t) || (t / self.dt - (t / self.dt).round()).abs() > 1e-9 {
             return Err(val("nonnegative grid-aligned time origin"));
         }
@@ -5307,18 +5349,30 @@ impl V1Road {
         self.service_event_accounting = None;
         Ok(())
     }
-    fn step(&mut self, py: Python<'_>, dt: f64, offers: Vec<Offer>) -> PyResult<Vec<EventRow>> {
+    }
+    [
+
+    ] {
+
+    #[cfg(feature="python-extension")]
+    fn step(&mut self, py: Python<'_>, dt: f64, offers: Vec<Offer>) -> CoreResult<Vec<EventRow>> {
         self.begin_call_storage_accounting();
         let (mut s, pages) = py.allow_threads(|| self.step_state(&self.state, dt, offers, None))?;
         let e=self.materialize_event_after_road(&mut s,pages)?;
         self.state = s;
         Ok(e)
     }
+    }
+    [
+
+    ] {
+
+    #[cfg(feature="python-extension")]
     fn advance_batch(
         &mut self,
         py: Python<'_>,
         steps: Vec<(f64, Vec<Offer>)>,
-    ) -> PyResult<Vec<Vec<EventRow>>> {
+    ) -> CoreResult<Vec<Vec<EventRow>>> {
         // Each successful interval commits; failures retain the last valid interval.
         self.begin_call_storage_accounting();
         let mut events = vec![];
@@ -5330,10 +5384,16 @@ impl V1Road {
         }
         Ok(events)
     }
+    }
+    [
+
+    ] {
+
     fn registry_sizes(&self) -> (usize, usize, usize) {
         (self.routes.len(), self.paths.len(), self.groups.len())
     }
-}
+    }
+);
 
 impl V1Road {
     #[allow(clippy::too_many_arguments)]
@@ -5350,7 +5410,7 @@ impl V1Road {
         record_budget: usize,
         event_budget: Option<usize>,
         intervals: bool,
-    ) -> PyResult<Self> {
+    ) -> CoreResult<Self> {
         let n = groups.len();
         if identity.is_empty()
             || n == 0

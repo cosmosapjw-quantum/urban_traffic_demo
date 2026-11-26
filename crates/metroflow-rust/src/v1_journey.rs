@@ -1,6 +1,9 @@
 //! Native B01 service scheduling and whole-journey ledgers.
 //! Road evolution is supplied by the sole road owner between prepare/finish.
 //! Each transition is transactional: errors leave the last committed state intact.
+#[cfg(feature="python-extension")]
+use pyo3::prelude::*;
+use crate::core_error::{CoreError,CoreResult};
 use crate::v1_history::ReceiptHistory;
 use crate::v1_parallel::ordered_map;
 use crate::v1_road::{
@@ -8,8 +11,6 @@ use crate::v1_road::{
     ChunkedEvents, EventRow, RoadState, V1Road,
 };
 use crate::v1_stage::{Access, StageQueue};
-use pyo3::exceptions::{PyMemoryError, PyValueError};
-use pyo3::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::io::{Read, Write};
 use std::sync::Arc;
@@ -238,7 +239,7 @@ fn check_storage_limit(
     retained: usize,
     dynamic: usize,
     scratch: usize,
-) -> PyResult<()> {
+) -> CoreResult<()> {
     let required = dynamic
         .max(retained)
         .saturating_mul(WORKING_COPIES)
@@ -260,7 +261,7 @@ fn check_storage_limit(
         }
     }
     if limit.is_some_and(|cap| required > cap) {
-        return Err(PyMemoryError::new_err(
+        return Err(CoreError::resource(
             "native journey stored/working byte budget",
         ));
     }
@@ -313,13 +314,13 @@ fn checkpointability_phase_lifetime_bytes(t:CheckpointabilityTerms)->usize {
         )
 }
 
-fn phase_storage_allowance(total: usize, other_live: usize, phase: &str) -> PyResult<usize> {
+fn phase_storage_allowance(total: usize, other_live: usize, phase: &str) -> CoreResult<usize> {
     if crate::v1_trace::guard("phase_allowance", phase, other_live, total, &[]) {
         // Diagnostic observe build only: continue with a nominal allowance.
         return Ok(total.max(1));
     }
     total.checked_sub(other_live).filter(|bytes| *bytes > 0).ok_or_else(|| {
-        PyMemoryError::new_err(format!(
+        CoreError::resource(format!(
             "native coupled storage budget exceeded before {phase}: other_live_bytes={other_live}, budget_bytes={total}"
         ))
     })
@@ -336,8 +337,8 @@ type JourneyRow = (
     Vec<f64>,
 );
 
-fn bad(message: &str) -> PyErr {
-    PyValueError::new_err(message.to_owned())
+fn bad(message: &str) -> CoreError {
+    CoreError::value(message.to_owned())
 }
 fn nonnegative(values: impl IntoIterator<Item = f64>) -> bool {
     values.into_iter().all(|x| x.is_finite() && x >= 0.0)
@@ -392,7 +393,7 @@ pub(crate) fn fsum(values: impl IntoIterator<Item = f64>) -> f64 {
     hi
 }
 
-#[pyclass]
+#[cfg_attr(feature="python-extension", pyclass)]
 pub struct NativeServiceCore {
     buses: Vec<Bus>,
     people: Vec<Person>,
@@ -479,7 +480,7 @@ impl NativeServiceCore {
     pub(crate) fn install_state(&mut self, state: ServiceCheckpoint) {
         self.rollback(state);
     }
-    pub(crate) fn write_state<W: Write>(&self, w: &mut W) -> PyResult<()> {
+    pub(crate) fn write_state<W: Write>(&self, w: &mut W) -> CoreResult<()> {
         if self.pending.is_some() {
             return Err(bad("cannot checkpoint pending native service transition"));
         }
@@ -530,8 +531,8 @@ impl NativeServiceCore {
         event_limit: usize,
         event_byte_limit: Option<usize>,
         compressed: bool,
-    ) -> PyResult<ServiceCheckpoint> {
-        fn flag<R: Read>(r: &mut R) -> PyResult<bool> {
+    ) -> CoreResult<ServiceCheckpoint> {
+        fn flag<R: Read>(r: &mut R) -> CoreResult<bool> {
             match read_u64(r)? {
                 0 => Ok(false),
                 1 => Ok(true),
@@ -582,7 +583,7 @@ impl NativeServiceCore {
         if let Some(limit) = event_byte_limit {
             let required = events.retained_storage_bytes();
             if required > limit {
-                return Err(PyMemoryError::new_err(format!(
+                return Err(CoreError::resource(format!(
                     "native service event decode storage budget exceeded: required_bytes={required}, budget_bytes={limit}"
                 )));
             }
@@ -612,7 +613,7 @@ impl NativeServiceCore {
                 // is constant-time; scanning existing pages per row is quadratic.
                 let required = events.projected_append_storage_bytes(e)?;
                 if required > limit {
-                    return Err(PyMemoryError::new_err(format!(
+                    return Err(CoreError::resource(format!(
                         "native service event decode storage budget exceeded: required_bytes={required}, budget_bytes={limit}"
                     )));
                 }
@@ -623,7 +624,7 @@ impl NativeServiceCore {
         self.validate(&state)?;
         Ok((state, Arc::new(events)))
     }
-    fn validate(&self, s: &Service) -> PyResult<()> {
+    fn validate(&self, s: &Service) -> CoreResult<()> {
         if s.0.len() != self.buses.len()
             || s.1.len() != self.people.len()
             || s.2.len() != self.freight.len()
@@ -666,15 +667,16 @@ impl NativeServiceCore {
         Ok(())
     }
 }
-#[pymethods]
-impl NativeServiceCore {
+crate::optional_binding::optional_pymethods!(NativeServiceCore,
+    [
     #[new]
+    ] {
     pub(crate) fn new(
         buses: Vec<Bus>,
         people: Vec<Person>,
         freight: Vec<Source>,
         cars: Vec<Source>,
-    ) -> PyResult<Self> {
+    ) -> CoreResult<Self> {
         let mut ids = HashSet::new();
         for b in &buses {
             if b.0.is_empty()
@@ -726,9 +728,19 @@ impl NativeServiceCore {
             pending: None,
         })
     }
+    }
+    [
+
+    ] {
+
     fn snapshot(&self) -> Service {
         self.state.clone()
     }
+    }
+    [
+
+    ] {
+
     /// Inspection only: immutable static heap, one dense state, event buffer.
     fn storage_accounting(&self) -> (usize, usize, usize) {
         (
@@ -737,21 +749,41 @@ impl NativeServiceCore {
             self.event_storage_bytes(),
         )
     }
+    }
+    [
+
+    ] {
+
     fn road_events(&self) -> Vec<EventRow> {
         // Explicit publication boundary: internal consumers iterate the carrier.
         self.last_events.iter().collect()
     }
-    fn restore(&mut self, state: Service) -> PyResult<()> {
+    }
+    [
+
+    ] {
+
+    fn restore(&mut self, state: Service) -> CoreResult<()> {
         self.validate(&state)?;
         self.state = state;
         self.pending = None;
         self.last_events = Arc::new(ChunkedEvents::new(false));
         Ok(())
     }
+    }
+    [
+
+    ] {
+
     fn abort(&mut self) {
         self.pending = None;
     }
-    fn prepare(&mut self, t: f64, eligible: Vec<bool>) -> PyResult<Vec<Offer>> {
+    }
+    [
+
+    ] {
+
+    fn prepare(&mut self, t: f64, eligible: Vec<bool>) -> CoreResult<Vec<Offer>> {
         if !nonnegative([t]) || eligible.len() != self.people.len() || self.pending.is_some() {
             return Err(bad(
                 "invalid native service prepare clock/eligibility/phase",
@@ -810,7 +842,12 @@ impl NativeServiceCore {
         self.pending = Some((t, s));
         Ok(offers)
     }
-    fn finish(&mut self, end: f64, events: Vec<Sink>) -> PyResult<()> {
+    }
+    [
+
+    ] {
+
+    fn finish(&mut self, end: f64, events: Vec<Sink>) -> CoreResult<()> {
         // Finish consumes its uncommitted candidate. On any failure the
         // committed state remains intact and the transaction is aborted.
         let (t, mut s) = self
@@ -866,7 +903,8 @@ impl NativeServiceCore {
         self.pending = None;
         Ok(())
     }
-}
+    }
+);
 
 fn fraction(profile: &Profile, t: f64) -> f64 {
     fsum(
@@ -903,7 +941,7 @@ fn valid_law(law: &Law) -> bool {
         && law.iter().all(|w| nonnegative([w.0, w.1]) && w.1 > 0.0)
         && (fsum(law.iter().map(|w| w.1)) - 1.0).abs() <= 1e-12
 }
-#[pyclass]
+#[cfg_attr(feature="python-extension", pyclass)]
 pub struct NativeJourneyCore {
     legs: Vec<SharedJourneyLeg>,
     bus: Vec<SharedBusMeta>,
@@ -1052,7 +1090,7 @@ impl NativeJourneyCore {
             .max(active_maps)
     }
 
-    fn begin_deferred_finish(&mut self) -> PyResult<()> {
+    fn begin_deferred_finish(&mut self) -> CoreResult<()> {
         if self.defer_finish_commit || self.deferred_previous.is_some() {
             return Err(bad("native journey deferred transition already active"));
         }
@@ -1090,7 +1128,7 @@ impl NativeJourneyCore {
 
     /// Reproduce the joint oracle's cross-owner service and original-intent
     /// moment checks, including valid-looking finite checkpoint corruption.
-    pub(crate) fn check_service_binding(&self, s: &Journey, service: &Service) -> PyResult<()> {
+    pub(crate) fn check_service_binding(&self, s: &Journey, service: &Service) -> CoreResult<()> {
         self.validate(s)?;
         if service.1.len() != self.bus.len()
             || service.2.len() != self.freight.len()
@@ -1206,7 +1244,7 @@ impl NativeJourneyCore {
     }
     /// Opt-in whole-engine byte accounting. Legacy direct cores retain their
     /// raw-record guard. The enclosing engine binds this policy in identity.
-    pub(crate) fn configure_storage_budget(&mut self, bytes: usize) -> PyResult<()> {
+    pub(crate) fn configure_storage_budget(&mut self, bytes: usize) -> CoreResult<()> {
         if bytes == 0 {
             return Err(bad("positive native journey storage budget required"));
         }
@@ -1224,9 +1262,9 @@ impl NativeJourneyCore {
     }
     /// The enclosing owner has already subtracted other live allocations.
     /// Updating this nonphysical allowance must not clone or validate state.
-    pub(crate) fn set_phase_storage_budget(&mut self, bytes: usize) -> PyResult<()> {
+    pub(crate) fn set_phase_storage_budget(&mut self, bytes: usize) -> CoreResult<()> {
         if bytes == 0 {
-            return Err(PyMemoryError::new_err(
+            return Err(CoreError::resource(
                 "native journey storage budget is empty",
             ));
         }
@@ -1255,7 +1293,7 @@ impl NativeJourneyCore {
     pub(crate) fn install_state(&mut self, state: Journey) {
         self.rollback(state);
     }
-    pub(crate) fn write_state<W: Write>(&self, w: &mut W) -> PyResult<()> {
+    pub(crate) fn write_state<W: Write>(&self, w: &mut W) -> CoreResult<()> {
         if self.pending.is_some() || self.defer_finish_commit {
             return Err(bad("cannot checkpoint pending native journey transition"));
         }
@@ -1290,7 +1328,7 @@ impl NativeJourneyCore {
         }
         Ok(())
     }
-    pub(crate) fn read_state<R: Read>(&self, r: &mut R) -> PyResult<Journey> {
+    pub(crate) fn read_state<R: Read>(&self, r: &mut R) -> CoreResult<Journey> {
         let t = read_f64(r)?;
         let n = self.legs.len();
         let retained = self
@@ -1365,7 +1403,7 @@ impl NativeJourneyCore {
         self.validate(&state)?;
         Ok(state)
     }
-    fn validate(&self, s: &Journey) -> PyResult<()> {
+    fn validate(&self, s: &Journey) -> CoreResult<()> {
         let n = self.legs.len();
         if !nonnegative([s.0])
             || s.4.len() != n
@@ -1404,7 +1442,7 @@ impl NativeJourneyCore {
         let records =
             s.1.len() + s.2.len() + s.3.len() + s.6.iter().map(ReceiptHistory::len).sum::<usize>();
         if self.storage_budget.is_none() && records > self.budget {
-            return Err(PyMemoryError::new_err("joint journey record budget"));
+            return Err(CoreError::resource("joint journey record budget"));
         }
         if self.storage_budget.is_some() {
             check_storage_limit(
@@ -1421,7 +1459,8 @@ impl NativeJourneyCore {
 /// Coupled numerical loop: one mutable owner of road, services and journey.
 /// The three owners commit one complete interval together. A failure rolls all
 /// three back to the previous complete interval, not to the start of the call.
-#[pyfunction]
+#[cfg(feature="python-extension")]
+#[cfg_attr(feature="python-extension", pyfunction)]
 pub fn advance_native_joint(
     py: Python<'_>,
     mut road: PyRefMut<'_, V1Road>,
@@ -1430,7 +1469,7 @@ pub fn advance_native_joint(
     tags: Vec<String>,
     count: usize,
     step_s: f64,
-) -> PyResult<usize> {
+) -> CoreResult<usize> {
     let road = &mut *road;
     let service = &mut *service;
     let journey = &mut *journey;
@@ -1454,7 +1493,7 @@ pub(crate) fn advance_owned_joint(
     dynamic_budget: Option<usize>,
     call_binding_reserve: usize,
     call_input: Option<&RoadState>,
-) -> PyResult<usize> {
+) -> CoreResult<usize> {
     journey.phase_metrics = JourneyPhaseMetrics::default();
     // The Python input snapshot remains live throughout this call, even when
     // later ticks drain its queues. Charge that known retained owner as well.
@@ -1505,7 +1544,7 @@ pub(crate) fn advance_owned_joint(
     journey.tick_times_s = Vec::new();
     journey.peak_records = 0;
     journey.tick_times_s.try_reserve(count).map_err(|_| {
-        PyMemoryError::new_err("native tick metric allocation exceeds available memory")
+        CoreError::resource("native tick metric allocation exceeds available memory")
     })?;
     for _ in 0..count {
         let started = Instant::now();
@@ -1521,7 +1560,7 @@ pub(crate) fn advance_owned_joint(
         } else {
             0
         };
-        let result = (|| -> PyResult<()> {
+        let result = (|| -> CoreResult<()> {
             let t = road.owned_time();
             if let Some(total) = dynamic_budget {
                 // Before road prediction only the known input and committed
@@ -1661,7 +1700,7 @@ pub(crate) fn advance_owned_joint(
                     ],
                 );
                 if required > total && !observed {
-                    return Err(PyMemoryError::new_err(format!(
+                    return Err(CoreError::resource(format!(
                         "native service event sink storage budget exceeded: phase=service finish, required_bytes={required}, budget_bytes={total}"
                     )));
                 }
@@ -1788,7 +1827,7 @@ pub(crate) fn advance_owned_joint(
                     ],
                 );
                 if required > total && !observed {
-                    return Err(PyMemoryError::new_err(format!(
+                    return Err(CoreError::resource(format!(
                         "native whole checkpointability storage budget exceeded: required_bytes={required}, budget_bytes={total}"
                     )));
                 }
@@ -1825,15 +1864,16 @@ pub(crate) fn advance_owned_joint(
     }
     Ok(count)
 }
-#[pymethods]
-impl NativeJourneyCore {
+crate::optional_binding::optional_pymethods!(NativeJourneyCore,
+    [
     #[new]
+    ] {
     fn new(
         legs: Vec<JourneyLeg>,
         bus: Vec<BusMeta>,
         freight: Vec<FreightMeta>,
         record_budget: usize,
-    ) -> PyResult<Self> {
+    ) -> CoreResult<Self> {
         let mut profiles: HashMap<Vec<[u64; 3]>, SharedProfile> = HashMap::new();
         let mut laws: HashMap<Vec<[u64; 2]>, SharedLaw> = HashMap::new();
         fn law(v: Law, cache: &mut HashMap<Vec<[u64; 2]>, SharedLaw>) -> SharedLaw {
@@ -1870,6 +1910,11 @@ impl NativeJourneyCore {
             .collect();
         Self::new_shared(legs, bus, freight, record_budget)
     }
+    }
+    [
+
+    ] {
+
     fn snapshot(&self) -> JourneyRow {
         let s = &self.state;
         (
@@ -1883,6 +1928,11 @@ impl NativeJourneyCore {
             s.7.clone(),
         )
     }
+    }
+    [
+
+    ] {
+
     /// Inspection only: immutable static heap, one dense state, stage/history.
     fn storage_accounting(&self) -> (usize, usize, usize) {
         (
@@ -1891,14 +1941,29 @@ impl NativeJourneyCore {
             journey_storage_bytes(&self.state),
         )
     }
+    }
+    [
+
+    ] {
+
     fn decoded_storage_upper_bytes(&self) -> usize {
         stage_decoded_storage_upper_bytes(&self.state)
             .saturating_add(self.history_decoded_final)
             .saturating_add(self.history_decode_extra_max)
     }
+    }
+    [
+
+    ] {
+
     fn advance_metrics(&self) -> (Vec<f64>, usize) {
         (self.tick_times_s.clone(), self.peak_records)
     }
+    }
+    [
+
+    ] {
+
     fn queue_storage(&self) -> ([usize; 4], [usize; 3]) {
         (
             self.record_counts(),
@@ -1909,7 +1974,12 @@ impl NativeJourneyCore {
             ],
         )
     }
-    fn restore(&mut self, row: JourneyRow) -> PyResult<()> {
+    }
+    [
+
+    ] {
+
+    fn restore(&mut self, row: JourneyRow) -> CoreResult<()> {
         let state = (
             row.0,
             row.1.into(),
@@ -1928,12 +1998,22 @@ impl NativeJourneyCore {
         self.rollback(state);
         Ok(())
     }
+    }
+    [
+
+    ] {
+
     fn abort(&mut self) {
         self.rollback_deferred_finish();
         self.pending = None;
         self.phase("aborted");
     }
-    fn prepare(&mut self) -> PyResult<(Vec<Offer>, Vec<bool>)> {
+    }
+    [
+
+    ] {
+
+    fn prepare(&mut self) -> CoreResult<(Vec<Offer>, Vec<bool>)> {
         if self.pending.is_some() {
             return Err(bad("native journey already prepared"));
         }
@@ -2058,6 +2138,11 @@ impl NativeJourneyCore {
         self.pending = Some(s);
         Ok((offers, allow))
     }
+    }
+    [
+
+    ] {
+
     fn finish(
         &mut self,
         end: f64,
@@ -2068,7 +2153,7 @@ impl NativeJourneyCore {
         after_freight: Vec<bool>,
         before_completed: Vec<f64>,
         after_completed: Vec<f64>,
-    ) -> PyResult<()> {
+    ) -> CoreResult<()> {
         // The committed state remains available throughout finish. Consume
         // the candidate instead of duplicating all active queues a third time.
         let mut s = self
@@ -2251,7 +2336,8 @@ impl NativeJourneyCore {
         }
         Ok(())
     }
-}
+    }
+);
 
 impl NativeJourneyCore {
     pub(crate) fn new_shared(
@@ -2259,7 +2345,7 @@ impl NativeJourneyCore {
         bus: Vec<SharedBusMeta>,
         freight: Vec<SharedFreightMeta>,
         record_budget: usize,
-    ) -> PyResult<Self> {
+    ) -> CoreResult<Self> {
         if record_budget == 0 {
             return Err(bad("positive native journey record budget required"));
         }

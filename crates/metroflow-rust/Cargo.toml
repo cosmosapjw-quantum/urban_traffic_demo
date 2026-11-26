@@ -8,7 +8,7 @@ name = "_metroflow_rust"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-pyo3 = { version = "0.23" }
+pyo3 = { version = "0.23", optional = true }
 rayon = "1.10"
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", features = ["float_roundtrip"], optional = true }
@@ -17,8 +17,8 @@ libc = { version = "0.2", optional = true }
 
 [features]
 default = ["python-extension"]
-python-extension = ["pyo3/extension-module"]
-native-cli = ["dep:serde", "dep:serde_json", "dep:sha2", "dep:libc", "pyo3/auto-initialize"]
+python-extension = ["dep:pyo3", "pyo3/extension-module"]
+native-cli = ["dep:serde", "dep:serde_json", "dep:sha2", "dep:libc"]
 # Diagnostic instrument only: counting allocator and observe-mode guards.
 budget_trace = []
 
