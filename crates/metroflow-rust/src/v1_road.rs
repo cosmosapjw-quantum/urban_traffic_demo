@@ -1959,9 +1959,9 @@ fn count_sweep_row_kinds(parts: &[Part]) -> PyResult<(usize, usize)> {
 /// can appear in the current_points array. Both groups need active bitsets.
 fn exact_sweep_event_index_bytes(n: usize, nonpoint: usize, point: usize) -> usize {
     debug_assert_eq!(nonpoint.checked_add(point), Some(n));
-    let pair_size=std::mem::size_of::<(f64, usize)>();
-    nonpoint.saturating_mul(2 * pair_size)
-        .saturating_add(point.saturating_mul(pair_size+std::mem::size_of::<usize>()))
+    let ordinal_bytes = if n <= u32::MAX as usize { 4 } else { std::mem::size_of::<usize>() };
+    nonpoint.saturating_mul(2 * ordinal_bytes)
+        .saturating_add(point.saturating_mul(ordinal_bytes + std::mem::size_of::<usize>()))
         .saturating_add(
             n.div_ceil(64).saturating_add(n.div_ceil(4096))
                 .saturating_mul(std::mem::size_of::<u64>()),
@@ -1969,10 +1969,36 @@ fn exact_sweep_event_index_bytes(n: usize, nonpoint: usize, point: usize) -> usi
         .saturating_add(256)
 }
 
-struct IntervalActiveSweep {
-    starts: Vec<(f64, usize)>,
-    ends: Vec<(f64, usize)>,
-    points: Vec<(f64, usize)>,
+// The immutable input already owns the exact time endpoints. Keep only
+// injective source ordinals in each sorted stream, with a wide fallback.
+enum SweepOrdinals { Compact(Vec<u32>), Wide(Vec<usize>) }
+impl SweepOrdinals {
+    fn new(n:usize, capacity:usize) -> PyResult<Self> {
+        if n <= u32::MAX as usize { Ok(Self::Compact(checkpoint_vec(capacity)?)) }
+        else { Ok(Self::Wide(checkpoint_vec(capacity)?)) }
+    }
+    fn push(&mut self,i:usize) {
+        match self {Self::Compact(v)=>v.push(u32::try_from(i).expect("bounded ordinal")),
+                    Self::Wide(v)=>v.push(i)}
+    }
+    fn len(&self)->usize {match self {Self::Compact(v)=>v.len(),Self::Wide(v)=>v.len()}}
+    #[cfg(test)]
+    fn capacity(&self)->usize {match self {Self::Compact(v)=>v.capacity(),Self::Wide(v)=>v.capacity()}}
+    fn get(&self,i:usize)->Option<usize> {
+        match self {Self::Compact(v)=>v.get(i).map(|&i|i as usize),Self::Wide(v)=>v.get(i).copied()}
+    }
+    fn sort(&mut self,time:impl Fn(usize)->f64) {
+        let cmp=|a:usize,b:usize|time(a).total_cmp(&time(b)).then(a.cmp(&b));
+        match self {Self::Compact(v)=>v.sort_unstable_by(|&a,&b|cmp(a as usize,b as usize)),
+                    Self::Wide(v)=>v.sort_unstable_by(|&a,&b|cmp(a,b))}
+    }
+}
+
+struct IntervalActiveSweep<'a> {
+    parts: &'a [Part],
+    starts: SweepOrdinals,
+    ends: SweepOrdinals,
+    points: SweepOrdinals,
     active: ActiveIndexBits,
     current_points: Vec<usize>,
     next_start: usize,
@@ -1980,64 +2006,51 @@ struct IntervalActiveSweep {
     next_point: usize,
 }
 
-impl IntervalActiveSweep {
+impl<'a> IntervalActiveSweep<'a> {
     #[cfg(test)]
-    fn new(parts: &[Part]) -> PyResult<Self> {
+    fn new(parts: &'a [Part]) -> PyResult<Self> {
         let (nonpoint, point) = count_sweep_row_kinds(parts)?;
         Self::new_counted(parts, nonpoint, point)
     }
 
-    fn new_counted(parts: &[Part], nonpoint: usize, point: usize) -> PyResult<Self> {
+    fn new_counted(parts: &'a [Part], nonpoint: usize, point: usize) -> PyResult<Self> {
         debug_assert_eq!(nonpoint.checked_add(point), Some(parts.len()));
-        let mut starts = checkpoint_vec(nonpoint)?;
-        let mut ends = checkpoint_vec(nonpoint)?;
-        let mut points = checkpoint_vec(point)?;
+        let mut starts = SweepOrdinals::new(parts.len(),nonpoint)?;
+        let mut ends = SweepOrdinals::new(parts.len(),nonpoint)?;
+        let mut points = SweepOrdinals::new(parts.len(),point)?;
         for (i, p) in parts.iter().enumerate() {
             let (pa, pb) = (p.a.unwrap(), p.b.unwrap());
-            if pa == pb {
-                points.push((pa, i));
-            } else if pb > pa {
-                starts.push((pa, i));
-                ends.push((pb, i));
-            } else {
-                return Err(val("invalid finite native interval during sweep"));
-            }
+            if pa == pb { points.push(i); }
+            else if pb > pa { starts.push(i); ends.push(i); }
+            else { return Err(val("invalid finite native interval during sweep")); }
         }
-        let cmp = |a: &(f64, usize), b: &(f64, usize)| {
-            a.0.total_cmp(&b.0).then(a.1.cmp(&b.1))
-        };
-        starts.sort_unstable_by(cmp);
-        ends.sort_unstable_by(cmp);
-        points.sort_unstable_by(cmp);
+        starts.sort(|i|parts[i].a.unwrap());
+        ends.sort(|i|parts[i].b.unwrap());
+        points.sort(|i|parts[i].a.unwrap());
         Ok(Self {
-            starts, ends, points,
+            parts,starts, ends, points,
             active: ActiveIndexBits::new(parts.len())?,
-            // Exact bounded capacity, no Vec-doubling after the work guard.
             current_points: checkpoint_vec(point)?,
             next_start: 0, next_end: 0, next_point: 0,
         })
     }
 
     fn advance(&mut self, a: f64) {
-        // Ended intervals must retire before newly started intervals enter.
-        while self.next_end < self.ends.len() && self.ends[self.next_end].0 <= a {
-            self.active.remove(&self.ends[self.next_end].1);
-            self.next_end += 1;
+        while let Some(i)=self.ends.get(self.next_end) {
+            if self.parts[i].b.unwrap()>a {break}
+            self.active.remove(&i);self.next_end+=1;
         }
-        while self.next_start < self.starts.len() && self.starts[self.next_start].0 <= a {
-            self.active.insert(self.starts[self.next_start].1);
-            self.next_start += 1;
+        while let Some(i)=self.starts.get(self.next_start) {
+            if self.parts[i].a.unwrap()>a {break}
+            self.active.insert(i);self.next_start+=1;
         }
         self.current_points.clear();
-        while self.next_point < self.points.len() && self.points[self.next_point].0 <= a {
-            let (time, i) = self.points[self.next_point];
-            if time == a {
-                self.current_points.push(i);
-            }
-            self.next_point += 1;
+        while let Some(i)=self.points.get(self.next_point) {
+            let time=self.parts[i].a.unwrap();
+            if time>a {break}
+            if time==a {self.current_points.push(i);}
+            self.next_point+=1;
         }
-        // Sorting the source indices is mandatory when the edge set collapses
-        // two signed-zero endpoint groups into one numeric edge.
         self.current_points.sort_unstable();
     }
 }
@@ -2052,16 +2065,18 @@ fn visit_unique_sweep_edges(
     mut emit: impl FnMut(f64) -> PyResult<()>,
 ) -> PyResult<usize> {
     let streams = [
-        sweep.starts.as_slice(),
-        sweep.ends.as_slice(),
-        sweep.points.as_slice(),
+        &sweep.starts, &sweep.ends, &sweep.points,
     ];
+    let endpoint=|j:usize,i:usize| {
+        if j==1 {sweep.parts[i].b.unwrap()} else {sweep.parts[i].a.unwrap()}
+    };
     let mut offsets = [0usize; 3];
     let mut count=0usize;
     loop {
         let mut next: Option<f64> = None;
         for j in 0..3 {
-            if let Some(&(value,_))=streams[j].get(offsets[j]) {
+            if let Some(i)=streams[j].get(offsets[j]) {
+                let value=endpoint(j,i);
                 if next.map_or(true, |prior| value.total_cmp(&prior).is_lt()) {
                     next=Some(value);
                 }
@@ -2073,7 +2088,7 @@ fn visit_unique_sweep_edges(
         count += 1;
         for j in 0..3 {
             while streams[j].get(offsets[j])
-                .is_some_and(|(value,_)| *value == time) {
+                .is_some_and(|i| endpoint(j,i) == time) {
                 offsets[j] += 1;
             }
         }
@@ -6149,9 +6164,22 @@ mod sweep_partition_live_bound_tests {
             assert!(sweep.current_points.capacity() <= q + 16);
             let old = n*56 + (n.div_ceil(64)+n.div_ceil(4096))*8 + 256;
             let reduced = exact_sweep_event_index_bytes(n,u,q);
-            assert_eq!(old - reduced, 24*u+32*q);
+            assert_eq!(old - reduced, 48*u+44*q);
             assert!(reduced <= old);
         }
+    }
+
+    #[test]
+    fn ordinal_width_fallback_and_order_are_injective() {
+        let mut wide=SweepOrdinals::new(u32::MAX as usize+2,3).unwrap();
+        let values=[u32::MAX as usize+1,0,1];
+        for i in values {wide.push(i);}
+        wide.sort(|_|-0.0);
+        assert_eq!((0..3).map(|i|wide.get(i).unwrap()).collect::<Vec<_>>(),vec![0,1,u32::MAX as usize+1]);
+        let mut narrow=SweepOrdinals::new(9,3).unwrap();
+        for i in [5,1,3] {narrow.push(i);}
+        narrow.sort(|i|if i==5 {-0.0}else{0.0});
+        assert_eq!((0..3).map(|i|narrow.get(i).unwrap()).collect::<Vec<_>>(),vec![5,1,3]);
     }
 
     #[test]
