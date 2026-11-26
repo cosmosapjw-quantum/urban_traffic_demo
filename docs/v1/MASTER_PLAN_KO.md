@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.34**, 2026-11-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.35**, 2026-11-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Preserve the original release matrix, 8 GiB RSS/7200 s limits and strict experimental policy. The 27th receiver indexed sweep refusal is closed; remaining entry interval splitting and accumulated packet/key/control lifetimes need a genuinely bounded producer-consumer design. Profile bytes and actual owner lifetime per receiver and retained support, implement streaming exact moment reductions and lifetime-scoped reservations only with proven simultaneous-owner bounds; no guard-only relaxation. Require a completed strict original t=25730 tick, matching full wire/ledger against an independently bound reference, then sustained 30/60/300 s loaded windows and fresh checkpoint replay. For the physical branch derive phase-resolved access pushforwards and multinomial commodity shared receiving, retain original routing/city feedback intent, compare matched fine mesh native and a second original city; do not replace the full model with the car-only projection. Re-read historical PRD/spec/constitution and document drift every turn.
+Preserve the original release matrix, 8 GiB RSS/7200 s limits and strict experimental policy. Both receiving interval split and service finish have passed on the original 25720 s checkpoint, including journey finish; strict tick 25730 still rolls back at checkpointability. Target bounded streamed per-class/global validation, audit actual uninterned decoded road owner and reconstruct canonical exact shared keys directly from packet-wise wire input. With measured owner terms held fixed, decoder scratch must be <=487931679 B; never remove guard-only credit or assume sharing across a fresh decoder. Require a completed strict tick, bit-exact full wire/ledger against independently bound reference, actual fresh save/load/replay and sustained loaded 30/60/300 s windows. For physical research retain exact finite access marginals, compare common-rank with independent/countermonotone couplings, native access/signal/density feedback, passenger boarding and partial versus whole-head receiving, second original city, and matched departure meshes. Fixed-route projection full days are not native acceptance; original full days 0/9. Re-read historical PRD/spec/constitution each turn.
 
 **예산·종료조건**
 
@@ -2302,11 +2302,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "10 interleaved theory/implementation/experiment stages; strict ordinal sweep and streaming trials, 7 full-day car projections, three current full-calendar preparations. Original full days 0/9.",
+  "scope": "10 interleaved research stages; original strict receiving and service/journey phase closures, 4 mixed-class access horizons (2 projected full days), fresh 3/3 original calendar preparations; original full days 0/9.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_ordinal_sweep_phase_20261126/S10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_owner_access_20261126/S10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2315,13 +2315,13 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-ordinal-sweep-phase-20261126",
-  "production_commit": "29d64d0751b7970826f5339eccc632bc46ae8b99",
+  "active_branch": "research/v03-owner-access-20261126",
+  "production_commit": "253464d41a5a7c5919d4d7c78f9b29c1f99b1561",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "29d64d0751b7970826f5339eccc632bc46ae8b99",
-  "native_source_sha256": "946b90d45313183a194f94abd5b86ac1618975180f75f8d18ff251a1f478af12",
-  "native_binary_sha256": "94ad1f7477bce667971d9cb3cada9b95d73e83477284e167f6ff3a22d1b39177",
+  "source_commit": "253464d41a5a7c5919d4d7c78f9b29c1f99b1561",
+  "native_source_sha256": "4d5f1b78742d9ebc2fe48362ac5b18aed524db7bc3871ba15170a6c219587238",
+  "native_binary_sha256": "9a680f55d0ee71daa3c3749d5fd8a8d072a7352064fc0961b232226ee6112109",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL"

@@ -68,3 +68,9 @@ Fresh current S04 native full-calendar preparation (identical matrix, measured s
 - valley_weekday_s7: 918450 legs, 22.268 s, RSS 446136320 B, simulated_s=0.
 
 Calendar prerequisites 3/3; original full-day runs 0/9, strict original frontier remains 25720 s.
+
+## S10 — acceptance boundary and next surgical revision
+
+Original DAG 19/21 scoped or accepted, accepted 5/21, direct V03 dependencies 3/3, current whole-calendar preparations 3/3, original native days 0/9. The 600 s and 1200 s projected full days are distinct evidence. The strict original checkpoint frontier has not increased because the final checkpointability guard remains active. Full CI/release promotion deferred; research branch only.
+
+Preserve the original release matrix, 8 GiB RSS/7200 s limits and strict experimental policy. Both receiving interval split and service finish have passed on the original 25720 s checkpoint, including journey finish; strict tick 25730 still rolls back at checkpointability. Target bounded streamed per-class/global validation, audit actual uninterned decoded road owner and reconstruct canonical exact shared keys directly from packet-wise wire input. With measured owner terms held fixed, decoder scratch must be <=487931679 B; never remove guard-only credit or assume sharing across a fresh decoder. Require a completed strict tick, bit-exact full wire/ledger against independently bound reference, actual fresh save/load/replay and sustained loaded 30/60/300 s windows. For physical research retain exact finite access marginals, compare common-rank with independent/countermonotone couplings, native access/signal/density feedback, passenger boarding and partial versus whole-head receiving, second original city, and matched departure meshes. Fixed-route projection full days are not native acceptance; original full days 0/9. Re-read historical PRD/spec/constitution each turn.

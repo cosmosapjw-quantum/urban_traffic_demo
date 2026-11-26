@@ -1,0 +1,15 @@
+{
+  "node": "V03",
+  "title": "로컬 10만 주민·24시간 실제 실행과 수치 수용시험",
+  "branch": "v1/v03-acceptance-20261027",
+  "instruction": "구현 착수는 ACCEPTED 또는 영수증으로 고정된 VERIFIED_SCOPED 선행 노드를 허용한다. VERIFIED_SCOPED는 최종 수용·통합을 뜻하지 않는다. STOPPED/BLOCKED는 선행조건을 충족하지 않는다.",
+  "tests": [
+    "python tools/run_v1_local_acceptance.py --run-local --matrix scenarios/v1/release_matrix.json"
+  ],
+  "acceptance": [
+    "riverweekdayseed17,coastalweekendseed41,valleyweekdayseed7 각24h",
+    "세case각3회runtime/RSS계측,physics는deterministicreplay",
+    "동일입력해상도단기대조와24h장부통과",
+    "hardlimits미달시V1완성선언금지"
+  ]
+}

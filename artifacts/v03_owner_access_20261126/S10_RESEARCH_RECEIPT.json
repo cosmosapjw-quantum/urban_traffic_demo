@@ -1,0 +1,586 @@
+{
+  "schema": "metroflow_v03_owner_access.v1",
+  "status": "10 scoped research stages; original V03 BLOCKED_RESOURCE",
+  "baseline_commit": "97395e3d8835517e6b0c060110fbbc49be762f93",
+  "research_head_before_receipt": "fd593f00ca50764c79bb072d325ccd0518d17fe9",
+  "native_source_commit": "253464d41a5a7c5919d4d7c78f9b29c1f99b1561",
+  "native_source_sha256": "4d5f1b78742d9ebc2fe48362ac5b18aed524db7bc3871ba15170a6c219587238",
+  "native_binary_sha256": "9a680f55d0ee71daa3c3749d5fd8a8d072a7352064fc0961b232226ee6112109",
+  "stages_total": 10,
+  "stages_completed": 10,
+  "stages_before_receipt": [
+    {
+      "stage": "S01",
+      "commit": "9f48e3359832bf3aba5604ec30c3362e2b314ca6",
+      "subject": "S01 Bind owner lifetime research and original city objectives"
+    },
+    {
+      "stage": "S02",
+      "commit": "a644bc73b7cb5ba78bd38928e3c3a2ee2577c82e",
+      "subject": "S02 Introduce guarded receiving phase owner accounting and ordered census"
+    },
+    {
+      "stage": "S03",
+      "commit": "d4b776f2a43cc650f4789a6e89ff9c5c99635f5c",
+      "subject": "S03 Derive exact marginal access coupling and shared physical-space conservation"
+    },
+    {
+      "stage": "S04",
+      "commit": "253464d41a5a7c5919d4d7c78f9b29c1f99b1561",
+      "subject": "S04 Charge actual service and journey phase owner sums after road proposal"
+    },
+    {
+      "stage": "S05",
+      "commit": "a7b393418a52492abb5c5cb00ac17f1f8ba289a4",
+      "subject": "S05 Bind original finite access atoms and scheduled bus freight route sources"
+    },
+    {
+      "stage": "S06",
+      "commit": "29c2c4a7be1bef9fbc1567f67369b756247a1569",
+      "subject": "S06 Implement shared-space multiclass access projection with conserved tick receiving"
+    },
+    {
+      "stage": "S07",
+      "commit": "3e32f2949714478d680a53e2821a066d85093a5a",
+      "subject": "S07 Correct fixture parser and verify mixed class storage and rate invariants"
+    },
+    {
+      "stage": "S08",
+      "commit": "e0e2f169fac04098a333b2e93e78d84f2466ebe4",
+      "subject": "S08 Record both native phase closures and exact future decoder workspace target"
+    },
+    {
+      "stage": "S09",
+      "commit": "fd593f00ca50764c79bb072d325ccd0518d17fe9",
+      "subject": "S09 Verify four multiclass access horizons and three current native calendars"
+    }
+  ],
+  "native_subagent": "NOT_RUN_NO_TOOL",
+  "native_original_release_days": {
+    "completed": 0,
+    "total": 9
+  },
+  "readiness": {
+    "scoped_or_accepted": 19,
+    "accepted": 5,
+    "total": 21,
+    "direct_dependencies_scoped_or_accepted": 3,
+    "direct_dependencies_total": 3,
+    "calendar_preparations": 3,
+    "calendar_total": 3,
+    "calendar_preparations_reexecuted_this_turn": true,
+    "strict_frontier_s": 25720,
+    "strict_new_ticks": 0,
+    "strict_24h_fraction": 0.29768518518518516,
+    "diagnostic_75G_previous_frontier_s": 25740
+  },
+  "strict_receiving": {
+    "owner_lifetime_trial": {
+      "mode": "record",
+      "child_exit": 3,
+      "wall_limit_hit": false,
+      "wall_s": 81.89413792302366,
+      "validated_times_s": [],
+      "sampled_process_high_water_bytes": {
+        "VmPeak": 3905937408,
+        "VmHWM": 3807494144
+      },
+      "last_event": "rejected",
+      "original_release_eligible": false,
+      "events": "strict-owner.jsonl",
+      "argv": [
+        "--mode",
+        "record",
+        "--raw",
+        "/tmp/metroflow_owner_access_20261126/valley25720.bin",
+        "--reference",
+        "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+        "--out",
+        "/tmp/metroflow_owner_access_20261126/strict-owner.json",
+        "--steps",
+        "3",
+        "--hash-steps",
+        "1",
+        "--wall-limit",
+        "480"
+      ]
+    },
+    "service_owner_trial": {
+      "mode": "record",
+      "child_exit": 3,
+      "wall_limit_hit": false,
+      "wall_s": 211.5669126540888,
+      "validated_times_s": [],
+      "sampled_process_high_water_bytes": {
+        "VmPeak": 3905957888,
+        "VmHWM": 3010224128
+      },
+      "last_event": "rejected",
+      "original_release_eligible": false,
+      "events": "strict-service.jsonl",
+      "argv": [
+        "--mode",
+        "record",
+        "--raw",
+        "/tmp/metroflow_owner_access_20261126/valley25720.bin",
+        "--reference",
+        "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_measure_lift_20261123/S06_fresh0.json",
+        "--out",
+        "/tmp/metroflow_owner_access_20261126/strict-service.json",
+        "--steps",
+        "3",
+        "--hash-steps",
+        "1",
+        "--wall-limit",
+        "480"
+      ]
+    },
+    "nonempty_sweeps_passed": 1085,
+    "split_checks_passed": 727585,
+    "split_output_rows": 24311161,
+    "packets": 445743,
+    "shared_key_row_references": 16901307,
+    "source_observation_reservation_expired_bytes": 1531360896,
+    "peak_split_accounted_bytes": 3500592605,
+    "split_limit_bytes": 4881896463,
+    "service_old_bytes": 5980851480,
+    "service_new_bytes": 5462743832,
+    "service_limit_bytes": 5789366871,
+    "journey_finish": "passed",
+    "checkpointability": {
+      "owners_bytes": 5301435192,
+      "road_bytes": 2756039504,
+      "journey_bytes": 958486984,
+      "event_bytes": 1586908704,
+      "charged_decoder_scratch_bytes": 936563136,
+      "nondecoder_validation_bytes": 376822636,
+      "allowed_bytes": 5789366871,
+      "required_bytes": 6237998328,
+      "excess_bytes": 448631457,
+      "maximum_scratch_if_owner_terms_unchanged_bytes": 487931679,
+      "conditional_required_if_only_validation_scratch_remained_bytes": 5678257828,
+      "conditional_headroom_if_only_validation_scratch_remained_bytes": 111109043,
+      "interpretation": "conditional arithmetic only: must bound actual uninterned decoder and restore; no cap or admission changed"
+    },
+    "committed_new_tick": false
+  },
+  "projection": {
+    "scope": "fixed-route access-resolved three-class projection; not native V03",
+    "input_sha256": "af8a0c16e2bd31d4a42282e83d076ea10075e6cbe0bb3982dfb5978cfa9f72a5",
+    "passages_sha256": "a310ee706ae3eb64ba35eef2c9275da38141dbd32eb89f86bcb6a90c89bd73c1",
+    "runs": [
+      {
+        "mesh_s": 1200,
+        "horizon_s": 86400,
+        "wall_s": 91.61,
+        "peak_rss_kib": 431892,
+        "expected_total": 57120.93915140021,
+        "released": 57120.939151399994,
+        "admitted": 57120.939151399994,
+        "exited": 57120.939151399994,
+        "completed": 57120.939151399994,
+        "active": 0.0,
+        "road_stock": 0.0,
+        "max_mass_error": 7.892575482060238e-13,
+        "max_meter_error": 7.042977312465837e-16,
+        "max_storage_ratio": 0.9999978705281816,
+        "max_receiving_ratio": 0.9999951975723949,
+        "storage_blocks": 85,
+        "rate_blocks": 489,
+        "waiting_veh_s": 2399277.189890104,
+        "blocked_veh_s": 12614.913109531857,
+        "event_count": 256004489,
+        "veh_trip_seconds": 45606428.330343954,
+        "full_day_all_projected_trips_completed": true,
+        "per_class": [
+          {
+            "class_name": "car",
+            "expected": 57095.9403264,
+            "completed": 57095.94032639999,
+            "active": 0.0,
+            "trip_seconds": 45588089.86668066
+          },
+          {
+            "class_name": "freight",
+            "expected": 0.998825,
+            "completed": 0.998825,
+            "active": 0.0,
+            "trip_seconds": 768.4636632923031
+          },
+          {
+            "class_name": "scheduled_bus",
+            "expected": 24.0,
+            "completed": 24.0,
+            "active": 0.0,
+            "trip_seconds": 17570.0
+          }
+        ]
+      },
+      {
+        "mesh_s": 600,
+        "horizon_s": 25720,
+        "wall_s": 8.98,
+        "peak_rss_kib": 168144,
+        "expected_total": 57120.93915140021,
+        "released": 1372.972408,
+        "admitted": 963.8569893776782,
+        "exited": 153.832978805536,
+        "completed": 76.76904426915928,
+        "active": 1296.2033637308407,
+        "road_stock": 810.0240105721423,
+        "max_mass_error": 3.4416913763379853e-15,
+        "max_meter_error": 1.4224732503009818e-16,
+        "max_storage_ratio": 0.1543711010149955,
+        "max_receiving_ratio": 0.3712853303197916,
+        "storage_blocks": 0,
+        "rate_blocks": 0,
+        "waiting_veh_s": 9648.632716543148,
+        "blocked_veh_s": 0.0,
+        "event_count": 2339324,
+        "veh_trip_seconds": 26235.88277444273,
+        "full_day_all_projected_trips_completed": false,
+        "per_class": [
+          {
+            "class_name": "car",
+            "expected": 57095.9403264,
+            "completed": 72.76904426915928,
+            "active": 1296.2033637308407,
+            "trip_seconds": 23345.88277444273
+          },
+          {
+            "class_name": "freight",
+            "expected": 0.998825,
+            "completed": 0.0,
+            "active": 0.0,
+            "trip_seconds": 0.0
+          },
+          {
+            "class_name": "scheduled_bus",
+            "expected": 24.0,
+            "completed": 4.0,
+            "active": 0.0,
+            "trip_seconds": 2890.0
+          }
+        ]
+      },
+      {
+        "mesh_s": 600,
+        "horizon_s": 28800,
+        "wall_s": 23.05,
+        "peak_rss_kib": 311692,
+        "expected_total": 57120.93915140021,
+        "released": 9519.9900544,
+        "admitted": 9119.702276899816,
+        "exited": 7765.858189571008,
+        "completed": 7411.825882398782,
+        "active": 2108.164172001218,
+        "road_stock": 1353.8440873288084,
+        "max_mass_error": 8.526512829121202e-14,
+        "max_meter_error": 1.27675647831893e-15,
+        "max_storage_ratio": 0.22541448962753632,
+        "max_receiving_ratio": 0.560959096574428,
+        "storage_blocks": 0,
+        "rate_blocks": 0,
+        "waiting_veh_s": 369647.7393189894,
+        "blocked_veh_s": 0.0,
+        "event_count": 55255017,
+        "veh_trip_seconds": 5683021.033093756,
+        "full_day_all_projected_trips_completed": false,
+        "per_class": [
+          {
+            "class_name": "car",
+            "expected": 57095.9403264,
+            "completed": 7407.825882398782,
+            "active": 2108.164172001218,
+            "trip_seconds": 5680131.033093756
+          },
+          {
+            "class_name": "freight",
+            "expected": 0.998825,
+            "completed": 0.0,
+            "active": 0.0,
+            "trip_seconds": 0.0
+          },
+          {
+            "class_name": "scheduled_bus",
+            "expected": 24.0,
+            "completed": 4.0,
+            "active": 0.0,
+            "trip_seconds": 2890.0
+          }
+        ]
+      },
+      {
+        "mesh_s": 600,
+        "horizon_s": 86400,
+        "wall_s": 161.31,
+        "peak_rss_kib": 787608,
+        "expected_total": 57120.93915140021,
+        "released": 57120.939151399994,
+        "admitted": 57120.939151399994,
+        "exited": 57120.939151399994,
+        "completed": 57120.939151399994,
+        "active": 0.0,
+        "road_stock": 0.0,
+        "max_mass_error": 9.059419880941277e-13,
+        "max_meter_error": 1.27675647831893e-15,
+        "max_storage_ratio": 0.28743820137116394,
+        "max_receiving_ratio": 0.6364300246176745,
+        "storage_blocks": 0,
+        "rate_blocks": 0,
+        "waiting_veh_s": 2475927.520387618,
+        "blocked_veh_s": 0.0,
+        "event_count": 511105880,
+        "veh_trip_seconds": 45551552.806591906,
+        "full_day_all_projected_trips_completed": true,
+        "per_class": [
+          {
+            "class_name": "car",
+            "expected": 57095.9403264,
+            "completed": 57095.94032639999,
+            "active": 0.0,
+            "trip_seconds": 45533202.22849581
+          },
+          {
+            "class_name": "freight",
+            "expected": 0.998825,
+            "completed": 0.998825,
+            "active": 0.0,
+            "trip_seconds": 770.5780960968758
+          },
+          {
+            "class_name": "scheduled_bus",
+            "expected": 24.0,
+            "completed": 24.0,
+            "active": 0.0,
+            "trip_seconds": 17580.0
+          }
+        ]
+      }
+    ]
+  },
+  "preparation": {
+    "scope": "native whole calendar only",
+    "completed": 3,
+    "total": 3,
+    "runs": [
+      {
+        "case": "coastal_weekend_s41",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "simulated_s": 0,
+        "calendar": {
+          "legs": 2449750,
+          "persons": 100000.0,
+          "vehicles": 49001.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 10000.0,
+          "allocated_workers": 10000.0,
+          "unassigned_workers": 0.0
+        },
+        "wall_s": 39.22537027206272,
+        "peak_rss_bytes": 1114587136,
+        "candidate_source_sha256": "4d5f1b78742d9ebc2fe48362ac5b18aed524db7bc3871ba15170a6c219587238",
+        "native_binary_sha256": "9a680f55d0ee71daa3c3749d5fd8a8d072a7352064fc0961b232226ee6112109",
+        "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+      },
+      {
+        "case": "river_weekday_s17",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "simulated_s": 0,
+        "calendar": {
+          "legs": 5093765,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 50000.0,
+          "allocated_workers": 40000.0,
+          "unassigned_workers": 10000.0
+        },
+        "wall_s": 69.3441471750848,
+        "peak_rss_bytes": 2172112896,
+        "candidate_source_sha256": "4d5f1b78742d9ebc2fe48362ac5b18aed524db7bc3871ba15170a6c219587238",
+        "native_binary_sha256": "9a680f55d0ee71daa3c3749d5fd8a8d072a7352064fc0961b232226ee6112109",
+        "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+      },
+      {
+        "case": "valley_weekday_s7",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "simulated_s": 0,
+        "calendar": {
+          "legs": 918450,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 50000.0,
+          "allocated_workers": 40000.0,
+          "unassigned_workers": 10000.0
+        },
+        "wall_s": 22.267945040017366,
+        "peak_rss_bytes": 446136320,
+        "candidate_source_sha256": "4d5f1b78742d9ebc2fe48362ac5b18aed524db7bc3871ba15170a6c219587238",
+        "native_binary_sha256": "9a680f55d0ee71daa3c3749d5fd8a8d072a7352064fc0961b232226ee6112109",
+        "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+      }
+    ]
+  },
+  "tests": {
+    "rust_pass": 208,
+    "rust_ignored": 2,
+    "default_python_pass": 78,
+    "cross_build_equal_ticks": 100,
+    "exact_access_couplings": 900,
+    "exact_shared_storage_transfers": 2822,
+    "fixture_initial_failure": "S06 positional parser and pipe exit masking",
+    "fixture_corrected": "S07 passed with pipefail",
+    "broad_optin_prior_failure": "not rerun; not closed",
+    "full_ci": "deferred"
+  },
+  "evidence": [
+    {
+      "path": "artifacts/v03_owner_access_20261126/S02_rust.log",
+      "sha256": "c5551c5a1d6b0870191535917fce1b9426cf225b2e9f153115f80693d9cef1ae"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/S03_exact.log",
+      "sha256": "9b919ff9852598c56cd17ab0a590c3189a95da6f16846614c70181ff648175b1"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/S04_rust.log",
+      "sha256": "95d006c8f2532c667c1143a1ad4b02f1ccf823dd4e948f21f971555a7aa5450f"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/S05_access_input.json",
+      "sha256": "aa3b62b3ddc9e9d7bf970a44ba0cf8f6c3835f56276a46f141202c1560992930"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/S06_toy.log",
+      "sha256": "68ad7f5db05b00bbd2ea6d50e68cbe06a67bcea3c9a34c9e66f5a83cecf8e181"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/S07_toy_verified.log",
+      "sha256": "fedd92074f8fc44513fd9bf1ee540a7f8613402f5bdaab522edf58da8f42d69a"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/S08_checkpointability.json",
+      "sha256": "44b567b5b2707da3e49078d08badffd5e1513684d5e71cf44a5322f56e928220"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/S08_pytest.log",
+      "sha256": "9b4ef0fb0ae603db04e6cf926057037f02ce6715c379b3a930ea9204e0b2611f"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/S09_access_campaign.json",
+      "sha256": "5bfe25203451cdc2afc64a1edb72528f813af92fd8e01f12488defc0cab54dc9"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/S09_preparations.json",
+      "sha256": "fff98710ab8ab769b3f75caefcd2fdc266b38a5a5fd63bdd48b0ecc9d7290e26"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/access1200_86400.time",
+      "sha256": "8ef05fe1523cb566e1b8c15721f44fd672117798c02057c08bbb7c343aedb0f2"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/access1200_86400.txt",
+      "sha256": "c349dacf813831d46631ebbdccba0f82f995261cc89fdd8c7d7a68bb56e267d7"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/access600_25720.time",
+      "sha256": "a81b47375d0ebf59f07d6be391a78153b02f0e533d8f8c7da63cbdf87e148b1c"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/access600_25720.txt",
+      "sha256": "c5f74cc94462663dfb132bf61c38d81eef9eea76b29630e3588d68f50bb5f98b"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/access600_28800.time",
+      "sha256": "926c945369683672ff95a591c25f1637f1566ce8c1cc9d07d693e25d2881f732"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/access600_28800.txt",
+      "sha256": "5c32fd1a4f2b548dbe5b1936abbbe8c5c3ac8af7f516134a8b4de4f5d91eb9a5"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/access600_86400.time",
+      "sha256": "f070a1f07941470eb018a76cdfe7cdb68baaf79fbbfd181ec7ee8ec17c747f35"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/access600_86400.txt",
+      "sha256": "7ebb69d198161888d23c8f39771405d5db742fbc5acb730ced2c85b3adb11667"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/native_prior.multiclass.json",
+      "sha256": "fb46b93d53bc44b964b40b06e08b65fd28f4c89714bb6f142ead6c17fe233e40"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/native_s04.multiclass.json",
+      "sha256": "fb46b93d53bc44b964b40b06e08b65fd28f4c89714bb6f142ead6c17fe233e40"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/preparation/CAMPAIGN.json",
+      "sha256": "1426650cf8673676d6a996342efd88408066b822a20cffe0efa88cd17d1cc0b0"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/preparation/coastal_weekend_s41.prepare.json",
+      "sha256": "1b5d2004165a5d1892758e50c82d229b584515ecf88fe7d166a5114199bbf443"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/preparation/preparation.log",
+      "sha256": "c868fa929b3747aca17e8f519a7dcef27fc8498dcdae163630048e6c1a0e36fb"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/preparation/river_weekday_s17.prepare.json",
+      "sha256": "c6840e554b41197a33394a31024a16c4c4884b548bbb3540cab24e98ad2fe5f6"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/preparation/valley_weekday_s7.prepare.json",
+      "sha256": "5ff648cda59ecb8219d4800dc8c9e8313bcb37a6414617deb3135f7610df834c"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/strict-owner.json",
+      "sha256": "aae2cf88d4af8a8d6f6d7cf980c2545377539329ac57d3a2048854e777e78110"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/strict-owner.jsonl",
+      "sha256": "794a50771df42c1eb52fbd5621c4823af25d5d50b0759afbc69838aa012df7c8"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/strict-service.json",
+      "sha256": "1360639c7cbd6482103bcbd22dd2aab4c95eee0dd697903f312035a3c1b04fc4"
+    },
+    {
+      "path": "artifacts/v03_owner_access_20261126/strict-service.jsonl",
+      "sha256": "1ff60184ec330c1d87f76bae0448b397546724134bb69ec58e330098a9fd85e4"
+    },
+    {
+      "path": "docs/research/V03_OWNER_ACCESS_20261126.md",
+      "sha256": "a23a6b707b652e26ee3b8cf1b79e815b769174d9c728c70e60db394df80028f7"
+    }
+  ],
+  "drift_watchdog": {
+    "history": [
+      "0492364",
+      "6524500"
+    ],
+    "required_every_turn": true,
+    "preserved": [
+      "100k resident stock",
+      "SI units and legal directed routes",
+      "paired rank and dwell",
+      "finite origin/destination access marginals",
+      "shared class-dependent physical storage and native aggregate receiving rates",
+      "original native immutable wire and thresholds",
+      "actual scheduled bus inventory and routed freight"
+    ],
+    "unresolved": [
+      "common-rank coupling is not independent product or native joint law",
+      "fixed routes, whole-head FIFO, no actual density-dependent native response, passenger boarding, route choice or lagged land-use feedback",
+      "second original city not run in projection",
+      "strict wire beyond 25720 not validated"
+    ]
+  },
+  "positive_next_action": "Preserve the original release matrix, 8 GiB RSS/7200 s limits and strict experimental policy. Both receiving interval split and service finish have passed on the original 25720 s checkpoint, including journey finish; strict tick 25730 still rolls back at checkpointability. Target bounded streamed per-class/global validation, audit actual uninterned decoded road owner and reconstruct canonical exact shared keys directly from packet-wise wire input. With measured owner terms held fixed, decoder scratch must be <=487931679 B; never remove guard-only credit or assume sharing across a fresh decoder. Require a completed strict tick, bit-exact full wire/ledger against independently bound reference, actual fresh save/load/replay and sustained loaded 30/60/300 s windows. For physical research retain exact finite access marginals, compare common-rank with independent/countermonotone couplings, native access/signal/density feedback, passenger boarding and partial versus whole-head receiving, second original city, and matched departure meshes. Fixed-route projection full days are not native acceptance; original full days 0/9. Re-read historical PRD/spec/constitution each turn."
+}

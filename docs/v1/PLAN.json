@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plan_id": "METROFLOW-V1",
-  "version": "1.1.34",
+  "version": "1.1.35",
   "date": "2026-11-26",
   "authority": "현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.",
   "repository": "cosmosapjw-quantum/urban_traffic_demo",
@@ -371,11 +371,11 @@
       "V03"
     ],
     "native_subagent": "NOT_RUN_NO_TOOL",
-    "scope": "10 interleaved theory/implementation/experiment stages; strict ordinal sweep and streaming trials, 7 full-day car projections, three current full-calendar preparations. Original full days 0/9.",
+    "scope": "10 interleaved research stages; original strict receiving and service/journey phase closures, 4 mixed-class access horizons (2 projected full days), fresh 3/3 original calendar preparations; original full days 0/9.",
     "full_repository_ci": "DEFERRED_BY_USER",
     "full_day_100k": "BLOCKED_RESOURCE_0_OF_9",
     "main_modified": false,
-    "evidence": "artifacts/v03_ordinal_sweep_phase_20261126/S10_RESEARCH_RECEIPT.json",
+    "evidence": "artifacts/v03_owner_access_20261126/S10_RESEARCH_RECEIPT.json",
     "ci_run": null,
     "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
     "previous_bootstrap_ci": {
@@ -384,13 +384,13 @@
       "status": "success"
     },
     "parallel_agents": [],
-    "active_branch": "research/v03-ordinal-sweep-phase-20261126",
-    "production_commit": "29d64d0751b7970826f5339eccc632bc46ae8b99",
+    "active_branch": "research/v03-owner-access-20261126",
+    "production_commit": "253464d41a5a7c5919d4d7c78f9b29c1f99b1561",
     "research_stages_completed": 10,
     "research_stages_total": 10,
-    "source_commit": "29d64d0751b7970826f5339eccc632bc46ae8b99",
-    "native_source_sha256": "946b90d45313183a194f94abd5b86ac1618975180f75f8d18ff251a1f478af12",
-    "native_binary_sha256": "94ad1f7477bce667971d9cb3cada9b95d73e83477284e167f6ff3a22d1b39177",
+    "source_commit": "253464d41a5a7c5919d4d7c78f9b29c1f99b1561",
+    "native_source_sha256": "4d5f1b78742d9ebc2fe48362ac5b18aed524db7bc3871ba15170a6c219587238",
+    "native_binary_sha256": "9a680f55d0ee71daa3c3749d5fd8a8d072a7352064fc0961b232226ee6112109",
     "current_loop_stages_completed": 10,
     "current_loop_stages_total": 10,
     "current_loop_native_subagent": "NOT_RUN_NO_TOOL"
@@ -1894,7 +1894,7 @@
       "failure_classification": [
         "hostfailure와physicalcongestion구분;환경없으면BLOCKED_LOCAL_EXECUTION"
       ],
-      "positive_next_action": "Preserve the original release matrix, 8 GiB RSS/7200 s limits and strict experimental policy. The 27th receiver indexed sweep refusal is closed; remaining entry interval splitting and accumulated packet/key/control lifetimes need a genuinely bounded producer-consumer design. Profile bytes and actual owner lifetime per receiver and retained support, implement streaming exact moment reductions and lifetime-scoped reservations only with proven simultaneous-owner bounds; no guard-only relaxation. Require a completed strict original t=25730 tick, matching full wire/ledger against an independently bound reference, then sustained 30/60/300 s loaded windows and fresh checkpoint replay. For the physical branch derive phase-resolved access pushforwards and multinomial commodity shared receiving, retain original routing/city feedback intent, compare matched fine mesh native and a second original city; do not replace the full model with the car-only projection. Re-read historical PRD/spec/constitution and document drift every turn.",
+      "positive_next_action": "Preserve the original release matrix, 8 GiB RSS/7200 s limits and strict experimental policy. Both receiving interval split and service finish have passed on the original 25720 s checkpoint, including journey finish; strict tick 25730 still rolls back at checkpointability. Target bounded streamed per-class/global validation, audit actual uninterned decoded road owner and reconstruct canonical exact shared keys directly from packet-wise wire input. With measured owner terms held fixed, decoder scratch must be <=487931679 B; never remove guard-only credit or assume sharing across a fresh decoder. Require a completed strict tick, bit-exact full wire/ledger against independently bound reference, actual fresh save/load/replay and sustained loaded 30/60/300 s windows. For physical research retain exact finite access marginals, compare common-rank with independent/countermonotone couplings, native access/signal/density feedback, passenger boarding and partial versus whole-head receiving, second original city, and matched departure meshes. Fixed-route projection full days are not native acceptance; original full days 0/9. Re-read historical PRD/spec/constitution each turn.",
       "resource_budget": "case별wall7200s/RSS8GiB는미측정acceptancetarget,성능약속아님",
       "contracts": [
         "C_RUNTIME",
@@ -1992,6 +1992,31 @@
           "path": "artifacts/v03_ordinal_sweep_phase_20261126/S09_preparations.json",
           "sha256": "36b286bb6196044719578f52f62c336ec19dca5faee85139b78bf35984db9980",
           "scope": "Current native binary actual three original whole-calendar preparations; simulated_s=0"
+        },
+        {
+          "path": "artifacts/v03_owner_access_20261126/strict-owner.jsonl",
+          "sha256": "794a50771df42c1eb52fbd5621c4823af25d5d50b0759afbc69838aa012df7c8",
+          "scope": "1085 nonempty sweeps and 727585 split checks passed on original checkpoint; service guard blocked"
+        },
+        {
+          "path": "artifacts/v03_owner_access_20261126/strict-service.jsonl",
+          "sha256": "1ff60184ec330c1d87f76bae0448b397546724134bb69ec58e330098a9fd85e4",
+          "scope": "Original road, service, journey phases pass; strict checkpointability guard blocks 25730 commit"
+        },
+        {
+          "path": "artifacts/v03_owner_access_20261126/S08_checkpointability.json",
+          "sha256": "44b567b5b2707da3e49078d08badffd5e1513684d5e71cf44a5322f56e928220",
+          "scope": "Recorded owner/scratch arithmetic; conditional decoder workspace target, no cap change"
+        },
+        {
+          "path": "artifacts/v03_owner_access_20261126/S09_access_campaign.json",
+          "sha256": "5bfe25203451cdc2afc64a1edb72528f813af92fd8e01f12488defc0cab54dc9",
+          "scope": "Four fixed-route multiclass projections, two complete days; not native acceptance"
+        },
+        {
+          "path": "artifacts/v03_owner_access_20261126/S09_preparations.json",
+          "sha256": "fff98710ab8ab769b3f75caefcd2fdc266b38a5a5fd63bdd48b0ecc9d7290e26",
+          "scope": "Fresh current native source/binary three original whole calendars, simulated_s=0"
         }
       ],
       "historical_blocked_evidence": [
@@ -2033,13 +2058,13 @@
         }
       ],
       "current_research_evidence": {
-        "path": "artifacts/v03_ordinal_sweep_phase_20261126/S10_RESEARCH_RECEIPT.json",
-        "sha256": "48ae6964d381bcba17239698672d14ead0d92c8e31218a8fd66d6bf4eab418e8",
-        "status": "10 scoped stages; original V03 BLOCKED_RESOURCE, original full days 0/9",
-        "baseline_commit": "8ae7e43815f06302001c95dcf175e0874ad7e1ad",
-        "source_sha256": "946b90d45313183a194f94abd5b86ac1618975180f75f8d18ff251a1f478af12",
-        "native_sha256": "94ad1f7477bce667971d9cb3cada9b95d73e83477284e167f6ff3a22d1b39177",
-        "theory_path": "docs/research/V03_ORDINAL_SWEEP_PHASE_20261126.md"
+        "path": "artifacts/v03_owner_access_20261126/S10_RESEARCH_RECEIPT.json",
+        "sha256": "f5e816c83d2bf2a344b77141fa63004cd0a36e9b084472dd1370f0bf11b7ad4f",
+        "status": "10 scoped research stages; original V03 BLOCKED_RESOURCE",
+        "baseline_commit": "97395e3d8835517e6b0c060110fbbc49be762f93",
+        "source_sha256": "4d5f1b78742d9ebc2fe48362ac5b18aed524db7bc3871ba15170a6c219587238",
+        "native_sha256": "9a680f55d0ee71daa3c3749d5fd8a8d072a7352064fc0961b232226ee6112109",
+        "theory_path": "docs/research/V03_OWNER_ACCESS_20261126.md"
       },
       "historical_research_evidence": [
         {
@@ -2089,6 +2114,15 @@
           "source_sha256": "38805de3f2989af7dc1804c3c06414cf113ff3428a1f02631b231aad4dd2cba0",
           "native_sha256": "25b556434a2efd78b7a59d1818be8a02b5f452d9c9f0d27d5765bc59a5abffa2",
           "theory_path": "docs/research/V03_RECEIVING_SPILLBACK_20261126.md"
+        },
+        {
+          "path": "artifacts/v03_ordinal_sweep_phase_20261126/S10_RESEARCH_RECEIPT.json",
+          "sha256": "48ae6964d381bcba17239698672d14ead0d92c8e31218a8fd66d6bf4eab418e8",
+          "status": "10 scoped stages; original V03 BLOCKED_RESOURCE, original full days 0/9",
+          "baseline_commit": "8ae7e43815f06302001c95dcf175e0874ad7e1ad",
+          "source_sha256": "946b90d45313183a194f94abd5b86ac1618975180f75f8d18ff251a1f478af12",
+          "native_sha256": "94ad1f7477bce667971d9cb3cada9b95d73e83477284e167f6ff3a22d1b39177",
+          "theory_path": "docs/research/V03_ORDINAL_SWEEP_PHASE_20261126.md"
         }
       ],
       "secondary_blocked_evidence": {
@@ -2343,9 +2377,9 @@
     "historical_local_patch_sha256": "7d89e8be20339709a9c0dc894a26dc7db75bdc0d857637ffb30f7bc7fe4a1326",
     "last_completed_work": {
       "date": "2026-11-26",
-      "scope": "10 interleaved theory/implementation/experiment stages; strict ordinal sweep and streaming trials, 7 full-day car projections, three current full-calendar preparations. Original full days 0/9.",
-      "evidence": "artifacts/v03_ordinal_sweep_phase_20261126/S10_RESEARCH_RECEIPT.json"
+      "scope": "10 interleaved research stages; original strict receiving and service/journey phase closures, 4 mixed-class access horizons (2 projected full days), fresh 3/3 original calendar preparations; original full days 0/9.",
+      "evidence": "artifacts/v03_owner_access_20261126/S10_RESEARCH_RECEIPT.json"
     },
-    "active_work": "Preserve the original release matrix, 8 GiB RSS/7200 s limits and strict experimental policy. The 27th receiver indexed sweep refusal is closed; remaining entry interval splitting and accumulated packet/key/control lifetimes need a genuinely bounded producer-consumer design. Profile bytes and actual owner lifetime per receiver and retained support, implement streaming exact moment reductions and lifetime-scoped reservations only with proven simultaneous-owner bounds; no guard-only relaxation. Require a completed strict original t=25730 tick, matching full wire/ledger against an independently bound reference, then sustained 30/60/300 s loaded windows and fresh checkpoint replay. For the physical branch derive phase-resolved access pushforwards and multinomial commodity shared receiving, retain original routing/city feedback intent, compare matched fine mesh native and a second original city; do not replace the full model with the car-only projection. Re-read historical PRD/spec/constitution and document drift every turn."
+    "active_work": "Preserve the original release matrix, 8 GiB RSS/7200 s limits and strict experimental policy. Both receiving interval split and service finish have passed on the original 25720 s checkpoint, including journey finish; strict tick 25730 still rolls back at checkpointability. Target bounded streamed per-class/global validation, audit actual uninterned decoded road owner and reconstruct canonical exact shared keys directly from packet-wise wire input. With measured owner terms held fixed, decoder scratch must be <=487931679 B; never remove guard-only credit or assume sharing across a fresh decoder. Require a completed strict tick, bit-exact full wire/ledger against independently bound reference, actual fresh save/load/replay and sustained loaded 30/60/300 s windows. For physical research retain exact finite access marginals, compare common-rank with independent/countermonotone couplings, native access/signal/density feedback, passenger boarding and partial versus whole-head receiving, second original city, and matched departure meshes. Fixed-route projection full days are not native acceptance; original full days 0/9. Re-read historical PRD/spec/constitution each turn."
   }
 }
