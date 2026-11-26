@@ -1,0 +1,8 @@
+{
+  "original_rows": 13108667,
+  "source_serves_upper": 142376,
+  "nominal_saving_lower_bytes": 102091744,
+  "singletons_4096_bytes_saved": -512,
+  "all_same_4096_bytes_saved": 32248,
+  "excludes": "page slack, shell, allocator overhead"
+}
