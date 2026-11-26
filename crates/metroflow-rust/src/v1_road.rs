@@ -1718,10 +1718,12 @@ fn arithmetic(s: &str) -> PyErr {
 fn budget(s: &str) -> PyErr {
     PyMemoryError::new_err(s.to_owned())
 }
-// Expansion summation, including the round-to-even correction used by math.fsum.
-fn sum<I: IntoIterator<Item = f64>>(values: I) -> f64 {
-    let mut p: Vec<f64> = Vec::new();
-    for mut x in values {
+// Streaming the same expansion, with no vector of raw class observations.
+#[derive(Default)]
+struct RoadExpansion { p: Vec<f64> }
+impl RoadExpansion {
+    fn add(&mut self, mut x: f64) {
+        let p = &mut self.p;
         let mut i = 0;
         for j in 0..p.len() {
             let mut y = p[j];
@@ -1741,29 +1743,49 @@ fn sum<I: IntoIterator<Item = f64>>(values: I) -> f64 {
             p.push(x);
         }
     }
-    let mut hi = 0.0;
-    let mut lo = 0.0;
-    if let Some(x) = p.pop() {
-        hi = x;
-        while let Some(x) = p.pop() {
-            let y = hi;
-            hi = y + x;
-            lo = x - (hi - y);
-            if lo != 0.0 {
-                break;
+    fn finish(self) -> f64 {
+        let mut p = self.p;
+        let mut hi = 0.0;
+        let mut lo = 0.0;
+        if let Some(x) = p.pop() {
+            hi = x;
+            while let Some(x) = p.pop() {
+                let y = hi;
+                hi = y + x;
+                lo = x - (hi - y);
+                if lo != 0.0 {
+                    break;
+                }
+            }
+            if !p.is_empty()
+                && ((lo < 0.0 && p[p.len() - 1] < 0.0) || (lo > 0.0 && p[p.len() - 1] > 0.0))
+            {
+                let y = lo * 2.0;
+                let x = hi + y;
+                if y == x - hi {
+                    hi = x;
+                }
             }
         }
-        if !p.is_empty()
-            && ((lo < 0.0 && p[p.len() - 1] < 0.0) || (lo > 0.0 && p[p.len() - 1] > 0.0))
-        {
-            let y = lo * 2.0;
-            let x = hi + y;
-            if y == x - hi {
-                hi = x;
-            }
-        }
+        hi
     }
-    hi
+}
+fn sum<I: IntoIterator<Item = f64>>(values: I) -> f64 {
+    let mut acc = RoadExpansion::default();
+    for x in values { acc.add(x); }
+    acc.finish()
+}
+#[derive(Default)]
+struct ClassMoments {
+    mass: RoadExpansion,
+    latent_mass: RoadExpansion,
+}
+impl ClassMoments {
+    fn add(&mut self, mass: f64, latent: f64) {
+        self.mass.add(mass);
+        self.latent_mass.add(mass * latent);
+    }
+    fn mean(self) -> f64 { self.latent_mass.finish() / self.mass.finish() }
 }
 fn finite_nonnegative(x: f64) -> bool {
     x.is_finite() && x >= 0.0
@@ -4576,27 +4598,24 @@ impl V1Road {
                 sum(incoming[i].iter().zip(marks[i].iter())
                     .map(|(part,mark)|part.mass*mark.0))
             };
-            let mut byclass: BTreeMap<usize, Vec<(f64, f64)>> = BTreeMap::new();
+            let mut byclass: BTreeMap<usize, ClassMoments> = BTreeMap::new();
             // Original fsum class input order: all unchanged survivor rows,
             // followed by each received mark in original append order.
             for packet in &out.cells[i].packets {
                 for p in &packet.parts {
                     let k = self.class(&p);
-                    push_checked(
-                        byclass.entry(k).or_default(),
-                        (p.mass, out.cells[i].latent[&k]),
-                    )?;
+                    byclass.entry(k).or_default().add(p.mass, out.cells[i].latent[&k]);
                 }
             }
             if use_timed_incoming {
                 for (part,mark) in timed_rows[i].iter_with_events(&timed_controls,&events) {
                     let k=self.class(&part);
-                    push_checked(byclass.entry(k).or_default(),(part.mass,mark.1))?;
+                    byclass.entry(k).or_default().add(part.mass,mark.1);
                 }
             } else {
                 for (part, mark) in incoming[i].iter().zip(marks[i].iter()) {
                     let k = self.class(&part);
-                    push_checked(byclass.entry(k).or_default(), (part.mass, mark.1))?;
+                    byclass.entry(k).or_default().add(part.mass,mark.1);
                 }
             }
             // Same source-index key/tie order and separate mass/birth sum()
@@ -4633,7 +4652,7 @@ impl V1Road {
                 .map(|(k, v)| {
                     (
                         k,
-                        sum(v.iter().map(|(m, p)| m * p)) / sum(v.iter().map(|(m, _)| *m)),
+                        v.mean(),
                     )
                 })
                 .collect();
@@ -7855,5 +7874,79 @@ mod exact_streaming_remainder_tests {
         assert!(original_raw>charged);
         let old=PacketParts::pack(eager, |_|Ok(())).unwrap();
         assert_eq!(payload(&old),payload(&compact));
+    }
+}
+
+#[cfg(test)]
+mod class_moment_stream_tests {
+    use super::*;
+// Expansion summation, including the round-to-even correction used by math.fsum.
+fn legacy_sum<I: IntoIterator<Item = f64>>(values: I) -> f64 {
+    let mut p: Vec<f64> = Vec::new();
+    for mut x in values {
+        let mut i = 0;
+        for j in 0..p.len() {
+            let mut y = p[j];
+            if x.abs() < y.abs() {
+                std::mem::swap(&mut x, &mut y);
+            }
+            let hi = x + y;
+            let lo = y - (hi - x);
+            if lo != 0.0 {
+                p[i] = lo;
+                i += 1;
+            }
+            x = hi;
+        }
+        p.truncate(i);
+        if x != 0.0 {
+            p.push(x);
+        }
+    }
+    let mut hi = 0.0;
+    let mut lo = 0.0;
+    if let Some(x) = p.pop() {
+        hi = x;
+        while let Some(x) = p.pop() {
+            let y = hi;
+            hi = y + x;
+            lo = x - (hi - y);
+            if lo != 0.0 {
+                break;
+            }
+        }
+        if !p.is_empty()
+            && ((lo < 0.0 && p[p.len() - 1] < 0.0) || (lo > 0.0 && p[p.len() - 1] > 0.0))
+        {
+            let y = lo * 2.0;
+            let x = hi + y;
+            if y == x - hi {
+                hi = x;
+            }
+        }
+    }
+    hi
+}
+
+    #[test]
+    fn streaming_expansions_match_legacy_order_and_rounding() {
+        let mut seed=42u64;
+        for n in [0,1,2,17,257,2048] {
+            for _ in 0..32 {
+                let mut values=Vec::new();
+                for _ in 0..n {
+                    seed=seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                    let x=f64::from_bits(((seed>>52)%1800+1)<<52 | (seed & ((1u64<<52)-1)));
+                    values.push(x * if seed&1==0 {1.0} else {-1.0});
+                }
+                assert_eq!(sum(values.iter().copied()).to_bits(),legacy_sum(values).to_bits());
+            }
+        }
+        let mut pairs=vec![(1.0,0.5),(f64::from_bits(1),1.0),(1e-17,0.75),(1e-20,0.0)];
+        pairs.extend((1..1000).map(|j|(1.0/(j as f64),0.001*j as f64)));
+        let mut moments=ClassMoments::default();
+        for &(m,l) in &pairs { moments.add(m,l); }
+        let expected=legacy_sum(pairs.iter().map(|(m,l)|m*l))/legacy_sum(pairs.iter().map(|(m,_)|*m));
+        assert_eq!(moments.mean().to_bits(),expected.to_bits());
     }
 }
