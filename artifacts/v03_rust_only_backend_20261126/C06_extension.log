@@ -1,0 +1,181 @@
+   Compiling once_cell v1.21.4
+    Checking unindent v0.2.4
+    Checking cfg-if v1.0.4
+    Checking either v1.17.0
+    Checking crossbeam-utils v0.8.22
+    Checking libc v0.2.186
+   Compiling pyo3-build-config v0.23.5
+    Checking memoffset v0.9.1
+    Checking crossbeam-epoch v0.9.20
+    Checking crossbeam-deque v0.8.7
+   Compiling pyo3-ffi v0.23.5
+   Compiling pyo3-macros-backend v0.23.5
+   Compiling pyo3 v0.23.5
+    Checking rayon-core v1.13.0
+    Checking rayon v1.12.0
+   Compiling pyo3-macros v0.23.5
+    Checking metroflow-rust v0.1.0 (/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/crates/metroflow-rust)
+warning: unused import: `BTreeSet`
+ --> crates/metroflow-rust/src/v1_road.rs:6:34
+  |
+6 | use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+  |                                  ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+warning: method `road_step_bytes` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:499:8
+    |
+494 | impl ServiceEventAccounting {
+    | --------------------------- method in this implementation
+...
+499 |     fn road_step_bytes(self, generated_rows: usize) -> usize {
+    |        ^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+warning: fields `start` and `end` are never read
+   --> crates/metroflow-rust/src/v1_road.rs:525:5
+    |
+520 | struct CompactEventRow {
+    |        --------------- fields in this struct
+...
+525 |     start:f64,
+    |     ^^^^^
+526 |     end:f64,
+    |     ^^^
+    |
+    = note: `CompactEventRow` has a derived impl for the trait `Clone`, but this is intentionally ignored during dead code analysis
+warning: method `unpack` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:542:8
+    |
+529 | impl CompactEventRow {
+    | -------------------- method in this implementation
+...
+542 |     fn unpack(self)->EventRow {
+    |        ^^^^^^
+warning: function `postroad_continuous_keyset_peak_bytes` is never used
+   --> crates/metroflow-rust/src/v1_road.rs:788:4
+    |
+788 | fn postroad_continuous_keyset_peak_bytes(
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: method `capacity_bytes` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:1899:8
+     |
+1889 | impl ActiveIndexBits {
+     | -------------------- method in this implementation
+...
+1899 |     fn capacity_bytes(&self) -> usize {
+     |        ^^^^^^^^^^^^^^
+warning: method `len` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:2003:8
+     |
+1994 | impl SweepOrdinals {
+     | ------------------ method in this implementation
+...
+2003 |     fn len(&self)->usize {match self {Self::Compact(v)=>v.len(),Self::...
+     |        ^^^
+warning: method `is_empty` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:2291:8
+     |
+2288 | impl ChunkedParts {
+     | ----------------- method in this implementation
+...
+2291 |     fn is_empty(&self)->bool {self.len==0}
+     |        ^^^^^^^^
+warning: function `segmented_incoming_charge` is never used
+    --> crates/metroflow-rust/src/v1_road.rs:2401:4
+     |
+2401 | fn segmented_incoming_charge(rows:usize,cells:usize)->usize {
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: methods `summary`, `install_state`, and `owned_step` are never used
+    --> crates/metroflow-rust/src/v1_road.rs:3005:19
+     |
+2960 | impl V1Road {
+     | ----------- methods in this implementation
+...
+3005 |     pub(crate) fn summary(&self) -> (&[f64; 7], &[[f64; 5]]) {
+     |                   ^^^^^^^
+...
+3214 |     pub(crate) fn install_state(&mut self, state: RoadState) {
+     |                   ^^^^^^^^^^^^^
+...
+3520 |     pub(crate) fn owned_step(&mut self, dt: f64, offers: Vec<Offer>) -...
+     |                   ^^^^^^^^^^
+warning: method `allocated_bytes` is never used
+   --> crates/metroflow-rust/src/v1_timed_incoming.rs:111:8
+    |
+101 | impl<T> Pages<T> {
+    | ---------------- method in this implementation
+...
+111 |     fn allocated_bytes(&self) -> usize {
+    |        ^^^^^^^^^^^^^^^
+warning: methods `capacity`, `descriptor_capacity`, and `allocated_bytes` are never used
+   --> crates/metroflow-rust/src/v1_timed_incoming.rs:175:19
+    |
+166 | impl TimedIncomingControls {
+    | -------------------------- methods in this implementation
+...
+175 |     pub(super) fn capacity(&self) -> usize {
+    |                   ^^^^^^^^
+...
+179 |     pub(super) fn descriptor_capacity(&self) -> usize {
+    |                   ^^^^^^^^^^^^^^^^^^^
+...
+187 |     pub(super) fn allocated_bytes(&self) -> usize {
+    |                   ^^^^^^^^^^^^^^^
+warning: methods `is_empty`, `allocated_bytes`, `projected_append_bytes`, and `iter` are never used
+   --> crates/metroflow-rust/src/v1_timed_incoming.rs:249:19
+    |
+240 | impl TimedIncomingRows {
+    | ---------------------- methods in this implementation
+...
+249 |     pub(super) fn is_empty(&self) -> bool {
+    |                   ^^^^^^^^
+...
+265 |     pub(super) fn allocated_bytes(&self) -> usize {
+    |                   ^^^^^^^^^^^^^^^
+...
+269 |     pub(super) fn projected_append_bytes(&self, additional: usize) -> P...
+    |                   ^^^^^^^^^^^^^^^^^^^^^^
+...
+355 |     pub(super) fn iter<'a>(
+    |                   ^^^^
+warning: function `journey_decoded_storage_upper_bytes` is never used
+   --> crates/metroflow-rust/src/v1_journey.rs:206:15
+    |
+206 | pub(crate) fn journey_decoded_storage_upper_bytes(s: &Journey) -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+warning: methods `sources` and `install_state` are never used
+   --> crates/metroflow-rust/src/v1_journey.rs:468:19
+    |
+406 | impl NativeServiceCore {
+    | ---------------------- methods in this implementation
+...
+468 |     pub(crate) fn sources(&self) -> (&[Source], &[Source]) {
+    |                   ^^^^^^^
+...
+479 |     pub(crate) fn install_state(&mut self, state: ServiceCheckpoint) {
+    |                   ^^^^^^^^^^^^^
+warning: methods `owned_time`, `storage_budget`, and `install_state` are never used
+    --> crates/metroflow-rust/src/v1_journey.rs:1167:19
+     |
+ 930 | impl NativeJourneyCore {
+     | ---------------------- methods in this implementation
+...
+1167 |     pub(crate) fn owned_time(&self) -> f64 {
+     |                   ^^^^^^^^^^
+...
+1222 |     pub(crate) fn storage_budget(&self) -> Option<usize> {
+     |                   ^^^^^^^^^^^^^^
+...
+1255 |     pub(crate) fn install_state(&mut self, state: Journey) {
+     |                   ^^^^^^^^^^^^^
+warning: method `is_empty` is never used
+  --> crates/metroflow-rust/src/v1_stage.rs:76:19
+   |
+69 | impl StageQueue {
+   | --------------- method in this implementation
+...
+76 |     pub(crate) fn is_empty(&self) -> bool {
+   |                   ^^^^^^^^
+warning: `metroflow-rust` (lib) generated 17 warnings (run `cargo fix --lib -p metroflow-rust` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.70s

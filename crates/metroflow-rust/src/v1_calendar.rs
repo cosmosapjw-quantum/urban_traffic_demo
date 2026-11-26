@@ -484,174 +484,7 @@ impl NativeCalendar {
         labels: Vec<u32>,
         freight_profile: u32,
     ) -> PyResult<usize> {
-        py.allow_threads(|| {
-            if !self.legs.is_empty() || !self.texts.is_empty() {
-                return Err(PyValueError::new_err(
-                    "direct generation requires an empty calendar",
-                ));
-            }
-            let label_ok = |i: u32| (i as usize) < self.labels.len();
-            let profile_ok = |i: u32| (i as usize) < self.profiles.len();
-            let positive = |x: f64| x.is_finite() && x > 0.0;
-            let nonnegative = |x: f64| x.is_finite() && x >= 0.0;
-            if labels.len() != 8
-                || labels.iter().any(|&i| !label_ok(i))
-                || !profile_ok(freight_profile)
-                || !positive(config.0)
-                || !positive(config.4)
-                || !nonnegative(config.1)
-                || config.1 > 1.0
-                || !nonnegative(config.2)
-                || config.2 > 1.0
-                || !nonnegative(config.3)
-                || homes.is_empty()
-                || modes.is_empty()
-                || homes.iter().any(|&(label, mass, stationary)| {
-                    !label_ok(label) || !nonnegative(mass) || stationary > 3
-                })
-                || modes
-                    .iter()
-                    .any(|&(mode, class, share, occupancy, noncar)| {
-                        !label_ok(mode)
-                            || !label_ok(class)
-                            || !positive(share)
-                            || !positive(occupancy)
-                            || (!noncar && occupancy < 1.0)
-                    })
-            {
-                return Err(PyValueError::new_err("invalid registered factorized input"));
-            }
-            for (purpose, outward, back, total, support, external, destinations) in &targets {
-                if !label_ok(*purpose)
-                    || !profile_ok(*outward)
-                    || !profile_ok(*back)
-                    || !nonnegative(*total)
-                    || !nonnegative(*support)
-                    || (*total > 0.0 && !positive(*support))
-                    || (*external && (destinations.len() != 1 || destinations[0].0 != labels[0]))
-                    || destinations
-                        .iter()
-                        .any(|&(label, mass)| !label_ok(label) || !nonnegative(mass))
-                {
-                    return Err(PyValueError::new_err(
-                        "invalid factorized destination/profile",
-                    ));
-                }
-            }
-            let mut law_map = HashMap::new();
-            for &(home, destination, purpose, law) in &laws {
-                if [home, destination, purpose, law]
-                    .iter()
-                    .any(|&i| !label_ok(i))
-                    || law_map.insert((home, destination, purpose), law).is_some()
-                {
-                    return Err(PyValueError::new_err(
-                        "invalid or duplicate factorized intrazonal law",
-                    ));
-                }
-            }
-            let mut freight_ids = HashSet::new();
-            for (id, destination, cargo) in &freight {
-                if !id.starts_with("freight:")
-                    || !freight_ids.insert(id)
-                    || !label_ok(*destination)
-                    || !nonnegative(*cargo)
-                {
-                    return Err(PyValueError::new_err(
-                        "invalid or duplicate factorized freight",
-                    ));
-                }
-            }
-            let extra = freight.iter().try_fold(0_usize, |n, (id, _, _)| {
-                n.checked_add(id.len().saturating_mul(2).saturating_add(128))
-                    .ok_or_else(|| PyMemoryError::new_err("factorized storage overflow"))
-            })?;
-            let base_bytes = self.estimate(0, extra);
-            let per_leg = std::mem::size_of::<Leg>() + 64;
-            let mut count = 0_usize;
-            let mut sums = [0.0_f64; 3];
-            let mut corrections = [0.0_f64; 3];
-            visit_factorized(
-                &homes,
-                &targets,
-                &modes,
-                &law_map,
-                &freight,
-                config,
-                &labels,
-                freight_profile,
-                |leg| {
-                    count = count
-                        .checked_add(1)
-                        .ok_or_else(|| PyMemoryError::new_err("factorized storage overflow"))?;
-                    if count >= u32::MAX as usize
-                        || base_bytes.saturating_add(count.saturating_mul(per_leg))
-                            > self.byte_budget
-                    {
-                        return Err(PyMemoryError::new_err(
-                            "native calendar byte budget exceeded; no generated leg committed",
-                        ));
-                    }
-                    for (i, x) in leg.amounts.into_iter().enumerate() {
-                        let next = sums[i] + x;
-                        if !nonnegative(x) || !next.is_finite() {
-                            return Err(PyValueError::new_err(
-                                "factorized calendar amount overflow",
-                            ));
-                        }
-                        corrections[i] += if sums[i].abs() >= x.abs() {
-                            (sums[i] - next) + x
-                        } else {
-                            (x - next) + sums[i]
-                        };
-                        sums[i] = next;
-                        if !(sums[i] + corrections[i]).is_finite() {
-                            return Err(PyValueError::new_err(
-                                "factorized calendar amount overflow",
-                            ));
-                        }
-                    }
-                    Ok(())
-                },
-            )?;
-            self.budget(count, extra)?;
-            self.legs
-                .try_reserve_exact(count)
-                .map_err(|_| PyMemoryError::new_err("calendar allocation failed"))?;
-            self.indices
-                .try_reserve(count)
-                .map_err(|_| PyMemoryError::new_err("calendar index allocation failed"))?;
-            self.texts
-                .try_reserve_exact(freight.len())
-                .map_err(|_| PyMemoryError::new_err("calendar text allocation failed"))?;
-            self.text_indices
-                .try_reserve(freight.len())
-                .map_err(|_| PyMemoryError::new_err("calendar text index allocation failed"))?;
-            // The first traversal checked every operation used below. This
-            // traversal allocates no per-leg strings or temporary row arrays.
-            visit_factorized(
-                &homes,
-                &targets,
-                &modes,
-                &law_map,
-                &freight,
-                config,
-                &labels,
-                freight_profile,
-                |leg| {
-                    self.indices.insert(leg.id, self.legs.len() as u32);
-                    self.legs.push(leg);
-                    Ok(())
-                },
-            )?;
-            for (i, (id, _, _)) in freight.into_iter().enumerate() {
-                self.texts.push(id.clone());
-                self.text_indices.insert(id, i as u64);
-            }
-            self.amount_sums = sums;
-            self.amount_corrections = corrections;
-            Ok(count)
-        })
+        py.allow_threads(|| self.build_factorized_owned(homes, targets, modes, laws, freight, config, labels, freight_profile))
     }
     fn __len__(&self) -> usize {
         self.legs.len()
@@ -719,5 +552,219 @@ impl NativeCalendar {
             self.estimate(self.legs.len(), 0),
             self.byte_budget,
         )
+    }
+}
+
+impl NativeCalendar {
+    fn build_factorized_owned(
+        &mut self,
+        homes: Vec<HomeFactor>,
+        targets: Vec<TargetFactor>,
+        modes: Vec<ModeFactor>,
+        laws: Vec<(u32, u32, u32, u32)>,
+        freight: Vec<FreightFactor>,
+        config: (f64, f64, f64, f64, f64),
+        labels: Vec<u32>,
+        freight_profile: u32,
+    ) -> PyResult<usize> {
+        if !self.legs.is_empty() || !self.texts.is_empty() {
+            return Err(PyValueError::new_err(
+                "direct generation requires an empty calendar",
+            ));
+        }
+        let label_ok = |i: u32| (i as usize) < self.labels.len();
+        let profile_ok = |i: u32| (i as usize) < self.profiles.len();
+        let positive = |x: f64| x.is_finite() && x > 0.0;
+        let nonnegative = |x: f64| x.is_finite() && x >= 0.0;
+        if labels.len() != 8
+            || labels.iter().any(|&i| !label_ok(i))
+            || !profile_ok(freight_profile)
+            || !positive(config.0)
+            || !positive(config.4)
+            || !nonnegative(config.1)
+            || config.1 > 1.0
+            || !nonnegative(config.2)
+            || config.2 > 1.0
+            || !nonnegative(config.3)
+            || homes.is_empty()
+            || modes.is_empty()
+            || homes.iter().any(|&(label, mass, stationary)| {
+                !label_ok(label) || !nonnegative(mass) || stationary > 3
+            })
+            || modes
+                .iter()
+                .any(|&(mode, class, share, occupancy, noncar)| {
+                    !label_ok(mode)
+                        || !label_ok(class)
+                        || !positive(share)
+                        || !positive(occupancy)
+                        || (!noncar && occupancy < 1.0)
+                })
+        {
+            return Err(PyValueError::new_err("invalid registered factorized input"));
+        }
+        for (purpose, outward, back, total, support, external, destinations) in &targets {
+            if !label_ok(*purpose)
+                || !profile_ok(*outward)
+                || !profile_ok(*back)
+                || !nonnegative(*total)
+                || !nonnegative(*support)
+                || (*total > 0.0 && !positive(*support))
+                || (*external && (destinations.len() != 1 || destinations[0].0 != labels[0]))
+                || destinations
+                    .iter()
+                    .any(|&(label, mass)| !label_ok(label) || !nonnegative(mass))
+            {
+                return Err(PyValueError::new_err(
+                    "invalid factorized destination/profile",
+                ));
+            }
+        }
+        let mut law_map = HashMap::new();
+        for &(home, destination, purpose, law) in &laws {
+            if [home, destination, purpose, law]
+                .iter()
+                .any(|&i| !label_ok(i))
+                || law_map.insert((home, destination, purpose), law).is_some()
+            {
+                return Err(PyValueError::new_err(
+                    "invalid or duplicate factorized intrazonal law",
+                ));
+            }
+        }
+        let mut freight_ids = HashSet::new();
+        for (id, destination, cargo) in &freight {
+            if !id.starts_with("freight:")
+                || !freight_ids.insert(id)
+                || !label_ok(*destination)
+                || !nonnegative(*cargo)
+            {
+                return Err(PyValueError::new_err(
+                    "invalid or duplicate factorized freight",
+                ));
+            }
+        }
+        let extra = freight.iter().try_fold(0_usize, |n, (id, _, _)| {
+            n.checked_add(id.len().saturating_mul(2).saturating_add(128))
+                .ok_or_else(|| PyMemoryError::new_err("factorized storage overflow"))
+        })?;
+        let base_bytes = self.estimate(0, extra);
+        let per_leg = std::mem::size_of::<Leg>() + 64;
+        let mut count = 0_usize;
+        let mut sums = [0.0_f64; 3];
+        let mut corrections = [0.0_f64; 3];
+        visit_factorized(
+            &homes,
+            &targets,
+            &modes,
+            &law_map,
+            &freight,
+            config,
+            &labels,
+            freight_profile,
+            |leg| {
+                count = count
+                    .checked_add(1)
+                    .ok_or_else(|| PyMemoryError::new_err("factorized storage overflow"))?;
+                if count >= u32::MAX as usize
+                    || base_bytes.saturating_add(count.saturating_mul(per_leg))
+                        > self.byte_budget
+                {
+                    return Err(PyMemoryError::new_err(
+                        "native calendar byte budget exceeded; no generated leg committed",
+                    ));
+                }
+                for (i, x) in leg.amounts.into_iter().enumerate() {
+                    let next = sums[i] + x;
+                    if !nonnegative(x) || !next.is_finite() {
+                        return Err(PyValueError::new_err(
+                            "factorized calendar amount overflow",
+                        ));
+                    }
+                    corrections[i] += if sums[i].abs() >= x.abs() {
+                        (sums[i] - next) + x
+                    } else {
+                        (x - next) + sums[i]
+                    };
+                    sums[i] = next;
+                    if !(sums[i] + corrections[i]).is_finite() {
+                        return Err(PyValueError::new_err(
+                            "factorized calendar amount overflow",
+                        ));
+                    }
+                }
+                Ok(())
+            },
+        )?;
+        self.budget(count, extra)?;
+        self.legs
+            .try_reserve_exact(count)
+            .map_err(|_| PyMemoryError::new_err("calendar allocation failed"))?;
+        self.indices
+            .try_reserve(count)
+            .map_err(|_| PyMemoryError::new_err("calendar index allocation failed"))?;
+        self.texts
+            .try_reserve_exact(freight.len())
+            .map_err(|_| PyMemoryError::new_err("calendar text allocation failed"))?;
+        self.text_indices
+            .try_reserve(freight.len())
+            .map_err(|_| PyMemoryError::new_err("calendar text index allocation failed"))?;
+        // The first traversal checked every operation used below. This
+        // traversal allocates no per-leg strings or temporary row arrays.
+        visit_factorized(
+            &homes,
+            &targets,
+            &modes,
+            &law_map,
+            &freight,
+            config,
+            &labels,
+            freight_profile,
+            |leg| {
+                self.indices.insert(leg.id, self.legs.len() as u32);
+                self.legs.push(leg);
+                Ok(())
+            },
+        )?;
+        for (i, (id, _, _)) in freight.into_iter().enumerate() {
+            self.texts.push(id.clone());
+            self.text_indices.insert(id, i as u64);
+        }
+        self.amount_sums = sums;
+        self.amount_corrections = corrections;
+        Ok(count)
+    }
+}
+
+/// Language-neutral marginal declaration, not a Python TripLeg export.
+#[cfg(feature = "native-cli")]
+#[derive(serde::Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct FactorizedDeclaration {
+    pub city_identity: String,
+    pub schedule_identity: String,
+    pub labels: Vec<String>,
+    pub profiles: Vec<Vec<(f64,f64,f64)>>,
+    pub homes: Vec<HomeFactor>,
+    pub targets: Vec<TargetFactor>,
+    pub modes: Vec<ModeFactor>,
+    pub laws: Vec<(u32,u32,u32,u32)>,
+    pub freight: Vec<FreightFactor>,
+    pub config: (f64,f64,f64,f64,f64),
+    pub constants: Vec<u32>,
+    pub freight_profile: u32,
+}
+#[cfg(feature = "native-cli")]
+impl FactorizedDeclaration {
+    pub(crate) fn compile(self, budget:usize)->PyResult<NativeCalendar>{
+        let mut calendar=NativeCalendar::new(budget,self.city_identity,self.schedule_identity)?;
+        for (i,label) in self.labels.into_iter().enumerate(){
+            if calendar.intern_label(label)? as usize!=i{return Err(PyValueError::new_err("duplicate declaration label"))}
+        }
+        for (i,profile) in self.profiles.into_iter().enumerate(){
+            if calendar.intern_profile(profile)? as usize!=i{return Err(PyValueError::new_err("duplicate declaration profile"))}
+        }
+        calendar.build_factorized_owned(self.homes,self.targets,self.modes,self.laws,self.freight,self.config,self.constants,self.freight_profile)?;
+        Ok(calendar)
     }
 }

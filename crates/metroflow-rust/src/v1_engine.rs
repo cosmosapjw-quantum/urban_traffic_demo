@@ -291,30 +291,44 @@ struct Activity {
     service_law: SharedLaw,
     maximum: f64,
 }
+#[cfg_attr(feature = "native-cli", derive(serde::Deserialize))]
 struct Static {
     identity: String,
+    #[cfg_attr(feature = "native-cli", serde(rename = "city_identity"))]
     city: String,
+    #[cfg_attr(feature = "native-cli", serde(rename = "schedule_identity"))]
     schedule: String,
+    #[cfg_attr(feature = "native-cli", serde(rename = "step_s"))]
     step: f64,
+    #[cfg_attr(feature = "native-cli", serde(rename = "record_budget"))]
     budget: usize,
     max_service_runs: usize,
     event_budget: Option<usize>,
+    #[cfg_attr(feature = "native-cli", serde(rename = "preserve_entry_intervals"))]
     intervals: bool,
     activities: Vec<ActivityRow>,
+    #[cfg_attr(feature = "native-cli", serde(rename = "intrazonal_laws"))]
     laws: Vec<(String, Vec<(f64, f64)>)>,
     groups: Vec<Vec<f64>>,
     signals: Vec<Option<(f64, f64, f64)>>,
     classes: Vec<Vec<f64>>,
+    #[cfg_attr(feature = "native-cli", serde(rename = "class_names"))]
     names: Vec<String>,
     incoming: Vec<Vec<usize>>,
     windows: Vec<(usize, f64, f64, f64)>,
+    #[cfg_attr(feature = "native-cli", serde(rename = "link_ids"))]
     links: Vec<String>,
+    #[cfg_attr(feature = "native-cli", serde(rename = "route_arcs"))]
     arcs: Vec<(String, String, String)>,
+    #[cfg_attr(feature = "native-cli", serde(rename = "route_costs"))]
     costs: Vec<(String, f64)>,
+    #[cfg_attr(feature = "native-cli", serde(rename = "allowed_turns"))]
     turns: Vec<(String, String)>,
     corridors: Vec<Corridor>,
     corridor_routes: Vec<(String, Vec<String>)>,
+    #[cfg_attr(feature = "native-cli", serde(rename = "depot_block_id"))]
     depot: Option<String>,
+    #[cfg_attr(feature = "native-cli", serde(rename = "depot_node_or_None"))]
     depot_node: Option<String>,
 }
 impl Static {
@@ -1402,59 +1416,7 @@ impl NativeWholeEngine {
         state: &NativeWholeState,
         end_s: f64,
     ) -> PyResult<NativeWholeState> {
-        self.checked(state)?;
-        let count = (end_s - state.time_s()) / self.step;
-        if !count.is_finite() || count < 0.0 || (count - count.round()).abs() > 1e-8 {
-            return Err(bad("joint horizon must align with fixed step"));
-        }
-        if self.runtime_storage.is_some()
-            && (count as usize).saturating_mul(2 * std::mem::size_of::<f64>()) > OBSERVATION_RESERVE
-        {
-            return Err(PyMemoryError::new_err("native call observation storage budget exceeded; split the requested horizon into bounded calls"));
-        }
-        self.restore(state)?;
-        let dynamic_budget = self.road_storage_bytes;
-        let call_binding_reserve = self.runtime_storage.as_ref().map_or(0, |a| a.call_binding);
-        let parallel = &self.parallel;
-        let road = &mut self.road;
-        let service = &mut self.service;
-        let journey = &mut self.journey;
-        let tags = &self.tags;
-        let step = self.step;
-        let outcome = py.allow_threads(|| {
-            parallel.run(|| {
-                advance_owned_joint(
-                    road,
-                    service,
-                    journey,
-                    tags,
-                    count.round() as usize,
-                    step,
-                    dynamic_budget,
-                    call_binding_reserve,
-                    Some(&state.value.road),
-                )
-            })
-        });
-        self.reset_phase_ceilings()?;
-        outcome?;
-        self.storage_admission(
-            self.journey.state(),
-            self.road.owned_storage_bytes(),
-            self.road.owned_record_count(),
-            self.service.event_storage_bytes(),
-            Some(&state.value),
-            true,
-        )?;
-        let result = self.capture();
-        if let Err(error) = self.validate_bundle(&result.value) {
-            // A failed result must not coexist with the restore clone as a
-            // fifth dense journey copy.
-            drop(result);
-            self.restore(state)?;
-            return Err(error);
-        }
-        Ok(result)
+        py.allow_threads(|| self.advance_owned(state, end_s))
     }
     fn advance_metrics(&self) -> (Vec<f64>, usize) {
         let (t, n) = self.journey.owned_metrics();
@@ -1652,22 +1614,9 @@ impl NativeWholeEngine {
             .collect()
     }
     fn report(&mut self, py: Python<'_>, state: &NativeWholeState) -> PyResult<Py<PyDict>> {
-        self.checked(state)?;
-        let t = state.time_s();
-        let journey = &state.value.journey;
-        let service = &state.value.service.0;
-        let profiles: Vec<_> = self.profiles.iter().map(|p| fraction(p, t)).collect();
-        let mut values = [[0.0; 4]; 3];
-        for (i, a) in self.amounts.iter().enumerate() {
-            let carrier = self.journey.legs()[i].1;
-            for j in 0..3 {
-                let ratio = if carrier != 0.0 { a[j] / carrier } else { 0.0 };
-                values[j][0] += a[j] * profiles[self.profile_ids[i]];
-                values[j][1] += ratio * journey.4[i];
-                values[j][2] += ratio * journey.5[i];
-                values[j][3] += ratio * journey.7[i];
-            }
-        }
+        let values=self.ledger_values(state)?;
+        let t=state.time_s();
+        let service=&state.value.service.0;
         let out = PyDict::new(py);
         let ledger = PyDict::new(py);
         let moments = PyDict::new(py);
@@ -1970,5 +1919,82 @@ mod capture_road_clone_owner_exact_bounds {
         assert_eq!(capture_road_clone_credit(500,250,false,true),0);
         assert_eq!(capture_road_clone_credit(500,250,true,false),0);
         assert_eq!(capture_road_clone_credit(0,100,true,true),0);
+    }
+}
+
+impl NativeWholeEngine {
+    fn advance_owned(&mut self,state:&NativeWholeState,end_s:f64)->PyResult<NativeWholeState>{
+        self.checked(state)?;
+        let count = (end_s - state.time_s()) / self.step;
+        if !count.is_finite() || count < 0.0 || (count - count.round()).abs() > 1e-8 {
+            return Err(bad("joint horizon must align with fixed step"));
+        }
+        if self.runtime_storage.is_some()
+            && (count as usize).saturating_mul(2 * std::mem::size_of::<f64>()) > OBSERVATION_RESERVE
+        {
+            return Err(PyMemoryError::new_err("native call observation storage budget exceeded; split the requested horizon into bounded calls"));
+        }
+        self.restore(state)?;
+        let dynamic_budget = self.road_storage_bytes;
+        let call_binding_reserve = self.runtime_storage.as_ref().map_or(0, |a| a.call_binding);
+        let parallel = &self.parallel;
+        let road = &mut self.road;
+        let service = &mut self.service;
+        let journey = &mut self.journey;
+        let tags = &self.tags;
+        let step = self.step;
+        let outcome = parallel.run(|| {
+                advance_owned_joint(
+                    road,
+                    service,
+                    journey,
+                    tags,
+                    count.round() as usize,
+                    step,
+                    dynamic_budget,
+                    call_binding_reserve,
+                    Some(&state.value.road),
+                )
+        });
+        self.reset_phase_ceilings()?;
+        outcome?;
+        self.storage_admission(
+            self.journey.state(),
+            self.road.owned_storage_bytes(),
+            self.road.owned_record_count(),
+            self.service.event_storage_bytes(),
+            Some(&state.value),
+            true,
+        )?;
+        let result = self.capture();
+        if let Err(error) = self.validate_bundle(&result.value) {
+            // A failed result must not coexist with the restore clone as a
+            // fifth dense journey copy.
+            drop(result);
+            self.restore(state)?;
+            return Err(error);
+        }
+        Ok(result)
+    }
+}
+
+impl NativeWholeEngine {
+    fn ledger_values(&self,state:&NativeWholeState)->PyResult<[[f64;4];3]>{
+        self.checked(state)?;
+        let t = state.time_s();
+        let journey = &state.value.journey;
+        let profiles: Vec<_> = self.profiles.iter().map(|p| fraction(p, t)).collect();
+        let mut values = [[0.0; 4]; 3];
+        for (i, a) in self.amounts.iter().enumerate() {
+            let carrier = self.journey.legs()[i].1;
+            for j in 0..3 {
+                let ratio = if carrier != 0.0 { a[j] / carrier } else { 0.0 };
+                values[j][0] += a[j] * profiles[self.profile_ids[i]];
+                values[j][1] += ratio * journey.4[i];
+                values[j][2] += ratio * journey.5[i];
+                values[j][3] += ratio * journey.7[i];
+            }
+        }
+        Ok(values)
     }
 }
