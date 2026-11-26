@@ -1,6 +1,6 @@
 # MetroFlow V1 전체 실행계획
 
-버전 **1.1.33**, 2026-11-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
+버전 **1.1.34**, 2026-11-26. 규범 원본: `docs/v1/PLAN.json`. 이 문서는 자동 생성된다. 직접 고치지 않는다.
 
 현재 사용자 요청에 의해 앞으로 이 프로젝트의 V1 작업은 이 PLAN.json만을 규범 실행계획으로 삼는다. Markdown/DAG/PR 표는 이 파일에서 생성되는 view다.
 
@@ -2118,7 +2118,7 @@ V03에서samecity traffic성능으로연결
 
 **통과 후 다음 행동**
 
-Keep original release matrix and all thresholds. Replace the 33,957,144-byte indexed interval sweep reservation in the 27th receiver with exact compact endpoint/source ordinals and phase-local liveness; obtain a completed strict tick and matching whole-state wire, then sustained loaded-window scaling. The car-only alternative must restore full access phase distributions, multiclass/shared storage and route selection before promotion; compare finite versus infinite storage at matched fine mesh and a second city. Re-read original PRD/spec/constitution every research turn and preserve its causal/feedback intent. Do not interpret coarse-batch spillback as a resolved physical prediction.
+Preserve the original release matrix, 8 GiB RSS/7200 s limits and strict experimental policy. The 27th receiver indexed sweep refusal is closed; remaining entry interval splitting and accumulated packet/key/control lifetimes need a genuinely bounded producer-consumer design. Profile bytes and actual owner lifetime per receiver and retained support, implement streaming exact moment reductions and lifetime-scoped reservations only with proven simultaneous-owner bounds; no guard-only relaxation. Require a completed strict original t=25730 tick, matching full wire/ledger against an independently bound reference, then sustained 30/60/300 s loaded windows and fresh checkpoint replay. For the physical branch derive phase-resolved access pushforwards and multinomial commodity shared receiving, retain original routing/city feedback intent, compare matched fine mesh native and a second original city; do not replace the full model with the car-only projection. Re-read historical PRD/spec/constitution and document drift every turn.
 
 **예산·종료조건**
 
@@ -2302,11 +2302,11 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "V03"
   ],
   "native_subagent": "NOT_RUN_NO_TOOL",
-  "scope": "10 interleaved scoped theory/implementation/experiment stages; two native restart attempts and finite-storage projected city trials. Original full days 0/9.",
+  "scope": "10 interleaved theory/implementation/experiment stages; strict ordinal sweep and streaming trials, 7 full-day car projections, three current full-calendar preparations. Original full days 0/9.",
   "full_repository_ci": "DEFERRED_BY_USER",
   "full_day_100k": "BLOCKED_RESOURCE_0_OF_9",
   "main_modified": false,
-  "evidence": "artifacts/v03_receiving_spillback_20261126/S10_RESEARCH_RECEIPT.json",
+  "evidence": "artifacts/v03_ordinal_sweep_phase_20261126/S10_RESEARCH_RECEIPT.json",
   "ci_run": null,
   "previous_foundation_evidence": "artifacts/v1_foundation_20261025/FINAL_RECEIPT.json",
   "previous_bootstrap_ci": {
@@ -2315,13 +2315,13 @@ freshinstall·한명령run·사용자guide·mainPR·최종승인후release
     "status": "success"
   },
   "parallel_agents": [],
-  "active_branch": "research/v03-receiving-spillback-20261126",
-  "production_commit": "798d14468ce23ac88aeb2cd221ebcf35dfcc868f",
+  "active_branch": "research/v03-ordinal-sweep-phase-20261126",
+  "production_commit": "29d64d0751b7970826f5339eccc632bc46ae8b99",
   "research_stages_completed": 10,
   "research_stages_total": 10,
-  "source_commit": "798d14468ce23ac88aeb2cd221ebcf35dfcc868f",
-  "native_source_sha256": "38805de3f2989af7dc1804c3c06414cf113ff3428a1f02631b231aad4dd2cba0",
-  "native_binary_sha256": "25b556434a2efd78b7a59d1818be8a02b5f452d9c9f0d27d5765bc59a5abffa2",
+  "source_commit": "29d64d0751b7970826f5339eccc632bc46ae8b99",
+  "native_source_sha256": "946b90d45313183a194f94abd5b86ac1618975180f75f8d18ff251a1f478af12",
+  "native_binary_sha256": "94ad1f7477bce667971d9cb3cada9b95d73e83477284e167f6ff3a22d1b39177",
   "current_loop_stages_completed": 10,
   "current_loop_stages_total": 10,
   "current_loop_native_subagent": "NOT_RUN_NO_TOOL"

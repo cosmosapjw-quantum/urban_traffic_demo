@@ -1,0 +1,484 @@
+{
+  "schema": "metroflow_v03_interleaved_ordinal_sweep_phase.v1",
+  "status": "10 scoped stages; original V03 BLOCKED_RESOURCE",
+  "baseline_commit": "8ae7e43815f06302001c95dcf175e0874ad7e1ad",
+  "research_head_before_receipt": "1e8ab7551b8381d9483efe402aaea53a04fd85a6",
+  "native_source_commit": "29d64d0751b7970826f5339eccc632bc46ae8b99",
+  "native_source_sha256": "946b90d45313183a194f94abd5b86ac1618975180f75f8d18ff251a1f478af12",
+  "native_binary_sha256": "94ad1f7477bce667971d9cb3cada9b95d73e83477284e167f6ff3a22d1b39177",
+  "stages_total": 10,
+  "stages_completed": 10,
+  "stages_before_receipt": [
+    {
+      "stage": "S01",
+      "commit": "973343959612bf112a37279a67d39001f84f7209",
+      "subject": "S01 Bind original V03 sweep refusal and phase-resolved transport research contract"
+    },
+    {
+      "stage": "S02",
+      "commit": "06ae158fb662fa223894cdffa7bbf6457e32254e",
+      "subject": "S02 Replace redundant sweep endpoint copies with exact source ordinals"
+    },
+    {
+      "stage": "S03",
+      "commit": "c6644b3ce667f7af90f86ac79b994ec10aa99a46",
+      "subject": "S03 Prove mirrored rank measure moments and constructive cumulative queue stability"
+    },
+    {
+      "stage": "S04",
+      "commit": "818bbc5dd61bc54ff429073e99c6c093dbd88371",
+      "subject": "S04 Implement optional antithetic source phases and exhaustive rank regression"
+    },
+    {
+      "stage": "S05",
+      "commit": "7210556115f7954b9dc991f58f04f6a0ed157004",
+      "subject": "S05 Measure cleared strict sweep preflight and phase-decorrelated Valley horizon ramp"
+    },
+    {
+      "stage": "S06",
+      "commit": "29d64d0751b7970826f5339eccc632bc46ae8b99",
+      "subject": "S06 Stream canonical interval groups directly into exact shared key and moment carriers"
+    },
+    {
+      "stage": "S07",
+      "commit": "157b60c35fbd3afe6b2168d28adfb80ef2849afc",
+      "subject": "S07 Validate byte-identical midpoint control and full-day phase refinement"
+    },
+    {
+      "stage": "S08",
+      "commit": "869f650d3c28e3153948d369fd78f6e9e48edfad",
+      "subject": "S08 Bind loaded-state key reuse and cross-build regression evidence"
+    },
+    {
+      "stage": "S09",
+      "commit": "1e8ab7551b8381d9483efe402aaea53a04fd85a6",
+      "subject": "S09 Verify phase perturbations and three current whole-calendar prerequisites"
+    }
+  ],
+  "native_subagent": "NOT_RUN_NO_TOOL",
+  "native_original_release_days": {
+    "completed": 0,
+    "total": 9
+  },
+  "readiness": {
+    "scoped_or_accepted": 19,
+    "accepted": 5,
+    "total": 21,
+    "direct_dependencies_scoped_or_accepted": 3,
+    "direct_dependencies_total": 3,
+    "calendar_preparations": 3,
+    "calendar_total": 3,
+    "calendar_preparations_reexecuted_this_turn": true,
+    "strict_frontier_s": 25720,
+    "strict_new_ticks": 0,
+    "strict_24h_fraction": 0.29768518518518516,
+    "diagnostic_75G_previous_frontier_s": 25740
+  },
+  "strict_receiving": {
+    "prior_failed_sweep_bytes": 33957144,
+    "current_sweep_bytes": 10412328,
+    "sweep_bytes_saved": 23544816,
+    "indexed_sweeps_passed": 27,
+    "s02_successful_split_guards": 58637,
+    "s06_successful_split_guards": 64925,
+    "same_cell_interval_retained_prior_bytes": 52324800,
+    "same_cell_interval_retained_current_bytes": 44263984,
+    "same_cell_interval_retained_saved_bytes": 8060816,
+    "reused_key_rows": 2146592,
+    "residual_phase": "entry interval split",
+    "residual_required_bytes": 4881899933,
+    "residual_allowed_bytes": 4881896463,
+    "strict_current_wall_s": 177.07781123602763,
+    "strict_current_peak_rss_bytes": 3200290816
+  },
+  "projection": {
+    "p600_86400": {
+      "complete_veh": 57095.94032639999,
+      "active_veh": 0.0,
+      "max_ledger_error": 1.8118839761882555e-13,
+      "peak_storage_fraction": 0.33290465284020127,
+      "receiving_wait_veh_s": 0.0,
+      "trip_time_veh_s": 45550633.232084624,
+      "service_wait_veh_s": 2342980.528468564,
+      "events": 96824355,
+      "initial_batches": 1217472,
+      "onset_admitted": 959.1347112,
+      "onset_exited": 143.9858036,
+      "onset_stock": 815.1489075999999,
+      "wall_s": 36.43,
+      "peak_rss_kib": 162292
+    },
+    "p300_86400": {
+      "complete_veh": 57095.940326399985,
+      "active_veh": 0.0,
+      "max_ledger_error": 1.4268586312482512e-12,
+      "peak_storage_fraction": 0.2908165719549171,
+      "receiving_wait_veh_s": 0.0,
+      "trip_time_veh_s": 45546847.97727013,
+      "service_wait_veh_s": 2448822.522347656,
+      "events": 193330442,
+      "initial_batches": 2434944,
+      "onset_admitted": 970.0693,
+      "onset_exited": 147.8979096,
+      "onset_stock": 822.1713904,
+      "wall_s": 70.26,
+      "peak_rss_kib": 300196
+    },
+    "p150_86400": {
+      "complete_veh": 57095.94032639999,
+      "active_veh": 0.0,
+      "max_ledger_error": 8.955058916626513e-13,
+      "peak_storage_fraction": 0.2767487970248161,
+      "receiving_wait_veh_s": 0.0,
+      "trip_time_veh_s": 45539643.63010712,
+      "service_wait_veh_s": 2491303.438734177,
+      "events": 386320189,
+      "initial_batches": 4869888,
+      "onset_admitted": 967.8087435,
+      "onset_exited": 147.5404702,
+      "onset_stock": 820.2682732999999,
+      "wall_s": 163.31,
+      "peak_rss_kib": 577308
+    },
+    "midpoint600": {
+      "complete_veh": 57095.94032639999,
+      "active_veh": 0.0,
+      "max_ledger_error": 3.419486915845482e-13,
+      "peak_storage_fraction": 0.9999925179817596,
+      "receiving_wait_veh_s": 38688.155271999996,
+      "trip_time_veh_s": 46017368.45101962,
+      "service_wait_veh_s": 2389104.9734155894,
+      "events": 97470627,
+      "initial_batches": 1217472,
+      "onset_admitted": 1362.8060123999999,
+      "onset_exited": 65.658244,
+      "onset_stock": 1297.1477684,
+      "wall_s": 42.52,
+      "peak_rss_kib": 164896
+    },
+    "phase41": {
+      "complete_veh": 57095.94032639999,
+      "active_veh": 0.0,
+      "max_ledger_error": 1.9095836023552692e-13,
+      "peak_storage_fraction": 0.3152693408322346,
+      "receiving_wait_veh_s": 0.0,
+      "trip_time_veh_s": 45547907.811252624,
+      "service_wait_veh_s": 2339323.183058303,
+      "events": 96824891,
+      "initial_batches": 1217472,
+      "onset_admitted": 960.4395952,
+      "onset_exited": 148.34054319999998,
+      "onset_stock": 812.0990519999999,
+      "wall_s": 66.72,
+      "peak_rss_kib": 161948
+    },
+    "phase7shock": {
+      "complete_veh": 57095.94032639999,
+      "active_veh": 0.0,
+      "max_ledger_error": 1.8474111129762605e-13,
+      "peak_storage_fraction": 0.33290465284020127,
+      "receiving_wait_veh_s": 0.0,
+      "trip_time_veh_s": 45551871.00938662,
+      "service_wait_veh_s": 2343584.7167943763,
+      "events": 96824476,
+      "initial_batches": 1217472,
+      "onset_admitted": 959.1347112,
+      "onset_exited": 143.9858036,
+      "onset_stock": 815.1489075999999,
+      "wall_s": 52.01,
+      "peak_rss_kib": 161796
+    },
+    "phase7shock300": {
+      "complete_veh": 57095.940326399985,
+      "active_veh": 0.0,
+      "max_ledger_error": 1.4521717162097048e-12,
+      "peak_storage_fraction": 0.2908165719549171,
+      "receiving_wait_veh_s": 0.0,
+      "trip_time_veh_s": 45547370.38453262,
+      "service_wait_veh_s": 2449599.815008364,
+      "events": 193330205,
+      "initial_batches": 2434944,
+      "onset_admitted": 970.0693,
+      "onset_exited": 147.8979096,
+      "onset_stock": 822.1713904,
+      "wall_s": 66.83,
+      "peak_rss_kib": 300600
+    }
+  },
+  "preparation": {
+    "prepared": 3,
+    "total": 3,
+    "native_full_days": 0,
+    "cases": [
+      {
+        "case": "coastal_weekend_s41",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "simulated_s": 0,
+        "calendar": {
+          "legs": 2449750,
+          "persons": 100000.0,
+          "vehicles": 49001.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 10000.0,
+          "allocated_workers": 10000.0,
+          "unassigned_workers": 0.0
+        },
+        "wall_s": 39.922337397933006,
+        "peak_rss_bytes": 1114853376,
+        "native_binary_sha256": "94ad1f7477bce667971d9cb3cada9b95d73e83477284e167f6ff3a22d1b39177",
+        "candidate_source_sha256": "946b90d45313183a194f94abd5b86ac1618975180f75f8d18ff251a1f478af12",
+        "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+      },
+      {
+        "case": "river_weekday_s17",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "simulated_s": 0,
+        "calendar": {
+          "legs": 5093765,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 50000.0,
+          "allocated_workers": 40000.0,
+          "unassigned_workers": 10000.0
+        },
+        "wall_s": 135.12766091991216,
+        "peak_rss_bytes": 2148569088,
+        "native_binary_sha256": "94ad1f7477bce667971d9cb3cada9b95d73e83477284e167f6ff3a22d1b39177",
+        "candidate_source_sha256": "946b90d45313183a194f94abd5b86ac1618975180f75f8d18ff251a1f478af12",
+        "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+      },
+      {
+        "case": "valley_weekday_s7",
+        "status": "WHOLE_CALENDAR_PREPARED",
+        "simulated_s": 0,
+        "calendar": {
+          "legs": 918450,
+          "persons": 120000.0,
+          "vehicles": 58801.0,
+          "cargo_kg": 1000,
+          "resident_stock": 100000.0,
+          "requested_workers": 50000.0,
+          "allocated_workers": 40000.0,
+          "unassigned_workers": 10000.0
+        },
+        "wall_s": 22.32867341802921,
+        "peak_rss_bytes": 447356928,
+        "native_binary_sha256": "94ad1f7477bce667971d9cb3cada9b95d73e83477284e167f6ff3a22d1b39177",
+        "candidate_source_sha256": "946b90d45313183a194f94abd5b86ac1618975180f75f8d18ff251a1f478af12",
+        "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a"
+      }
+    ]
+  },
+  "tests": {
+    "rust_passed": 206,
+    "rust_ignored": 2,
+    "python_default_focused_passed": 52,
+    "python_optin_passed": 77,
+    "python_optin_failed": 1,
+    "same_targeted_failure_on_prior_and_current": true,
+    "multiclass_cross_build_ieee_exact": true,
+    "multiclass_ticks": 100,
+    "rank_checks": 3289600,
+    "rational_cdf_checks": 11584,
+    "minplus_pairs": 6561
+  },
+  "evidence": [
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/S02_rust.log",
+      "sha256": "a0778f1fdb875abfc80046665df126c7cfc96920c23fe1b98cf28cb376e0ed8f"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/S03_exact.log",
+      "sha256": "7308d18993c4a252ee53407a6a2245e73561246ed0e43f433b5892e48bde0f6b"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/S04_rank.log",
+      "sha256": "2c24a81b6b4e2ec059e1a6c724304f0531f570f6461317e2fc6c50e5355709c4"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/S04_toy.log",
+      "sha256": "ecd4978c1c2054b56160feb7425d6c722684f564fe366c59a38a147828d99409"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/S06_rust.log",
+      "sha256": "f753845d3ce52c54f57ed30e3a6dd511cbe786a1937311c9e33c0fd7038001c3"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/S07_mesh.json",
+      "sha256": "f08511516639425169e2d775c52521906a145a4676e8b64d412a41092ba91a32"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/S07_pytest.log",
+      "sha256": "feadce80c14b1938a994b5ee649242b97d5a79b94f13e232a5756b82db204929"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/S08_default_pytest.log",
+      "sha256": "c2126a48d39e862835c40d7f110d6620ac5b27d1e4782416a36f2e54ab84968b"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/S09_controls.json",
+      "sha256": "c6932749b8e00d287c2a720ceb2046edfd1492895093d4223ce7221c9c8ad753"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/S09_preparations.json",
+      "sha256": "36b286bb6196044719578f52f62c336ec19dca5faee85139b78bf35984db9980"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/midpoint600.time",
+      "sha256": "e89fa6a649f3ef53483d3b907b3b0cebb388eb6fdcb54781dff15f1d1b2f3f2d"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/midpoint600.txt",
+      "sha256": "f5a830c5187e1f66928fd6c035eebfa295d296cae07e7e396cd4cdb289f5094d"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/native_prior.multiclass.json",
+      "sha256": "fb46b93d53bc44b964b40b06e08b65fd28f4c89714bb6f142ead6c17fe233e40"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/native_prior.targeted.log",
+      "sha256": "bbee4764735415315d107bc494114a6a7c99e8f2355a79fae2f4caa3f3d676db"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/native_s06.multiclass.json",
+      "sha256": "fb46b93d53bc44b964b40b06e08b65fd28f4c89714bb6f142ead6c17fe233e40"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/native_s06.targeted.log",
+      "sha256": "5cd289b2a8797e33f5c6f557ebed5466c4c6474cdb3fcf58a41576f15a049df5"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p150_86400.time",
+      "sha256": "fa67f6698a171b3537802fba734a0a3eb45957d64591b99a8d2e1e9e25ad1100"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p150_86400.txt",
+      "sha256": "8267c4f0e877221ec91a8018e36adc47ad587007745befc7708a570648029545"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p300_86400.time",
+      "sha256": "08f61ceaf5a8e6cb9718d990a46936612293dd44a7f06862e00b8546572c0fe1"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p300_86400.txt",
+      "sha256": "cd846cc3f4b6ec1674af25b3d96efe7f9600aa01d733ec86aaf703a50daf9546"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p600_25720.time",
+      "sha256": "afbf8b7946a6abc8ca9a5da99d6c8a5bf7529f4704dcfb9fff30662d9614700f"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p600_25720.txt",
+      "sha256": "c5eb7a17ded53e57a21fe196e750245ff80d0f8ad257932a2aaa06ee8e94d7ec"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p600_28800.time",
+      "sha256": "d968058fabb4cc375bd8ce19d30e35111d07333a0725cbccc6b8631765fab1ba"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p600_28800.txt",
+      "sha256": "c7765ef12c3eb39e37daf702ce284d4569f1b0707aea1fc3311b25ed42266988"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p600_43200.time",
+      "sha256": "49eb4fe46bd5ca1c5bda98a029149b96b7ecccfd1fde6e1c03d4ca88bc717826"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p600_43200.txt",
+      "sha256": "1003198957d7615facf00a199b245e73e6807d874d1cd40817fba42ebc43b3cb"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p600_86400.time",
+      "sha256": "6e6cce64ac46f62b184f7fe4ecdae27f35b658eacb5472e4f614ccd77c3f08aa"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/p600_86400.txt",
+      "sha256": "cf4b75515f53e0ce6b756d862be8c75f033754138b0b29d7b2c04a7b596cdf6a"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/phase41.time",
+      "sha256": "fc71249ceb92ab0a8025149487e191a4e78719969b2b1e258136498d497da76e"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/phase41.txt",
+      "sha256": "980f4bbeb36ab77129a7681fd9d027a4cd6f5316da6723a23b80538761e45a74"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/phase7shock.time",
+      "sha256": "9412b87b296322883d0efe767191868c7bc5c7287326e43b1b423392b3d3ed75"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/phase7shock.txt",
+      "sha256": "18c5052cea725116083f647f77e62d35f173347ca0e3fd7db20cc15827c744ab"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/phase7shock300.time",
+      "sha256": "78d6f3c2e601ccd86d04d4230d557a1285146986ebe6783e7df9ee4b44eee977"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/phase7shock300.txt",
+      "sha256": "70a8e8cf983f2e6e4bdc2c5340174a2623688d96b54c3e896329a1fea81ab980"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/preparation/CAMPAIGN.json",
+      "sha256": "e70825eb645b23c23ff16c9e693fdb386ecf2c8f93225cd2034a26f5d9d2b0b1"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/preparation/coastal_weekend_s41.prepare.json",
+      "sha256": "5a905fa519203a25895008e747cc5eed844fc232e98fa1f3f84feb6fe89375ef"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/preparation/river_weekday_s17.prepare.json",
+      "sha256": "b595b0ce2894192dd55eccf3ee675dedb0c39b048839df4b1cade168a54c5819"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/preparation/valley_weekday_s7.prepare.json",
+      "sha256": "f47019ac05ed5048bcec33436cc649bab73ff56fcf581931ec7429e3537a9847"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/preparation.log",
+      "sha256": "c868fa929b3747aca17e8f519a7dcef27fc8498dcdae163630048e6c1a0e36fb"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/strict-stream.json",
+      "sha256": "ccaac2999e9163dc50ca5fbf78754af9b76928fa1dd6f90d3db113664bc09db3"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/strict-stream.jsonl",
+      "sha256": "bf6067a8b1f245354f655eed30545a3337839ae8d93f0ff4ef9b48ea5e2b2250"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/strict-sweep.json",
+      "sha256": "a821812cbfe9290d3457d54ba9a811c0b3cef89acd37cfc1a6e78257e788123f"
+    },
+    {
+      "path": "artifacts/v03_ordinal_sweep_phase_20261126/strict-sweep.jsonl",
+      "sha256": "cde0b82b140991259335cddb429f00c67a70edc785a79eeb4a434b42b82f79f8"
+    }
+  ],
+  "drift_watchdog": {
+    "history": [
+      "0492364",
+      "6524500"
+    ],
+    "required_every_turn": true,
+    "preserved": [
+      "SI units",
+      "persistent cohorts and legal paths",
+      "finite storage and conserved commodity ledger",
+      "paired return rank and dwell",
+      "native original immutable checkpoints and thresholds",
+      "causal city/access/routing/land-use question"
+    ],
+    "unresolved": [
+      "fixed-route car-only projection",
+      "mean access not full access distribution",
+      "no original multiclass shared capacity or delayed land-use feedback in projection",
+      "strict loaded wire beyond 25720 not validated"
+    ]
+  },
+  "positive_next_action": "Preserve the original release matrix, 8 GiB RSS/7200 s limits and strict experimental policy. The 27th receiver indexed sweep refusal is closed; remaining entry interval splitting and accumulated packet/key/control lifetimes need a genuinely bounded producer-consumer design. Profile bytes and actual owner lifetime per receiver and retained support, implement streaming exact moment reductions and lifetime-scoped reservations only with proven simultaneous-owner bounds; no guard-only relaxation. Require a completed strict original t=25730 tick, matching full wire/ledger against an independently bound reference, then sustained 30/60/300 s loaded windows and fresh checkpoint replay. For the physical branch derive phase-resolved access pushforwards and multinomial commodity shared receiving, retain original routing/city feedback intent, compare matched fine mesh native and a second original city; do not replace the full model with the car-only projection. Re-read historical PRD/spec/constitution and document drift every turn."
+}
