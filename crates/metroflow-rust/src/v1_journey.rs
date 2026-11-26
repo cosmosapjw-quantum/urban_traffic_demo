@@ -1439,6 +1439,11 @@ pub fn advance_native_joint(
     })
 }
 
+// After proposal, each of the three independently retained owners is known.
+fn service_phase_owner_bytes(input:usize,current:usize,candidate:usize,exact:bool)->usize {
+    if exact {input.saturating_add(current).saturating_add(candidate)}
+    else {input.max(current).max(candidate).saturating_mul(3)}
+}
 pub(crate) fn advance_owned_joint(
     road: &mut V1Road,
     service: &mut NativeServiceCore,
@@ -1461,8 +1466,15 @@ pub(crate) fn advance_owned_joint(
         tags.iter().map(String::capacity).max().unwrap_or(0),
         Arc::ptr_eq(&call_input_events, &service.last_events),
     );
+    let exact_service_lifetime=std::env::var_os("METROFLOW_EXPERIMENTAL_RECEIVING_LIFETIMES").as_deref()
+        ==Some(std::ffi::OsStr::new("1"))
+        && std::env::var_os("METROFLOW_EXPERIMENTAL_EVENT_INDEX_INCOMING").as_deref()
+        ==Some(std::ffi::OsStr::new("1"));
     let input_road_bytes = if dynamic_budget.is_some() {
-        road.owned_storage_bytes()
+        let measured=road.owned_storage_bytes();
+        if exact_service_lifetime {
+            measured.max(call_input.map_or(0,|input|input.retained_storage_bytes()))
+        } else {measured}
     } else {
         0
     };
@@ -1621,14 +1633,10 @@ pub(crate) fn advance_owned_joint(
                     .max(current_journey)
                     .max(pending_journey)
                     .saturating_mul(WORKING_COPIES);
-                let road_live = input_road_bytes
-                    .max(current_road_bytes)
-                    .max(candidate_road_bytes)
-                    .saturating_mul(3);
-                let event_live = input_event_bytes
-                    .max(current_event_bytes)
-                    .max(candidate_event_bytes)
-                    .saturating_mul(3);
+                let road_live = service_phase_owner_bytes(input_road_bytes,current_road_bytes,
+                    candidate_road_bytes,exact_service_lifetime);
+                let event_live = service_phase_owner_bytes(input_event_bytes,current_event_bytes,
+                    candidate_event_bytes,exact_service_lifetime);
                 let required = journey_live
                     .saturating_add(road_live)
                     .saturating_add(event_live)
@@ -1643,6 +1651,11 @@ pub(crate) fn advance_owned_joint(
                         ("journey_live", journey_live),
                         ("road_live", road_live),
                         ("event_live", event_live),
+                        ("road_input",input_road_bytes),("road_current",current_road_bytes),
+                        ("road_candidate",candidate_road_bytes),
+                        ("event_input",input_event_bytes),("event_current",current_event_bytes),
+                        ("event_candidate",candidate_event_bytes),
+                        ("exact_owner_sum",usize::from(exact_service_lifetime)),
                         ("exit_rows", exits),
                         ("sink_envelope", sink_bytes),
                     ],
@@ -1675,16 +1688,10 @@ pub(crate) fn advance_owned_joint(
                 let sink_bytes = sinks.iter().fold(vec_storage_bytes(&sinks), |bytes, row| {
                     bytes.saturating_add(string_storage_bytes(&row.0))
                 });
-                let other_live = input_road_bytes
-                    .max(current_road_bytes)
-                    .max(candidate_road_bytes)
-                    .saturating_mul(3)
-                    .saturating_add(
-                        input_event_bytes
-                            .max(current_event_bytes)
-                            .max(candidate_event_bytes)
-                            .saturating_mul(3),
-                    )
+                let other_live = service_phase_owner_bytes(input_road_bytes,current_road_bytes,
+                    candidate_road_bytes,exact_service_lifetime)
+                    .saturating_add(service_phase_owner_bytes(input_event_bytes,current_event_bytes,
+                        candidate_event_bytes,exact_service_lifetime))
                     .saturating_add(sink_bytes);
                 journey.set_phase_storage_budget(phase_storage_allowance(
                     total,
@@ -2431,3 +2438,15 @@ mod exact_checkpointability_lifetime_phase_tests {
 #[cfg(test)]
 #[path = "v1_journey_retained_event_tests.rs"]
 mod retained_timed_event_history_contract_tests;
+
+#[cfg(test)]
+mod service_phase_actual_owner_tests {
+    use super::*;
+    #[test]
+    fn three_unequal_live_owners_are_all_charged_without_fictitious_largest_copies(){
+        assert_eq!(service_phase_owner_bytes(20,30,40,true),90);
+        assert_eq!(service_phase_owner_bytes(20,30,40,false),120);
+        assert_eq!(service_phase_owner_bytes(20,20,20,true),60);
+        assert_eq!(service_phase_owner_bytes(usize::MAX,1,2,true),usize::MAX);
+    }
+}
