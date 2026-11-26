@@ -42,3 +42,8 @@ required-features = ["native-cli"]
 name = "metroflow-v03-campaign"
 path = "src/bin/metroflow-v03-campaign.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-feedback-audit"
+path = "src/bin/metroflow-feedback-audit.rs"
+required-features = ["native-cli"]
