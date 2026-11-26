@@ -1,0 +1,1279 @@
+{
+  "schema": "metroflow_rust_final_slices_v1",
+  "baseline_commit": "8519108e9de74983a1f171d89acccd0d82eb8e1a",
+  "implementation_head_before_C10": "e78cb3d01be3fd3174c0d4e7307c03cc8e7897a5",
+  "native_host_code_commit": "0c0c0247961815d3510ed93a24d20adbe85f0f9f",
+  "native_host_sha256": "d9822a57b995e23c6444da5d48f081f3315e98b89288941d8a3ec0210940758b",
+  "final_native_build_sha256": "e972e4ee6e9d8a3a16342df1560ee733f9a2268d951103e71790896f18b81f05",
+  "tracked_rust_source_manifest_sha256": "d547765f182e3d3e5ea4e1c2c318cf3e09245b8f4a28806ccfd42377ae5dc0f6",
+  "source_hash_method": "SHA256 of C10_tracked_rust_sources.sha256; code at current C09, loaded native binary at C06",
+  "scope": "10 coding stages continuing interrupted cycle; Rust R01/R02/M04 kernels and read-only actual feedback, original terrain validation, AVX exact min-plus, loaded Valley 25320 s with direct/restart exact checkpoint, legacy Python boundaries. 12/15 scoped pure Rust (80%), 3/15 partial, zero unported; full-day 0/9.",
+  "backend_coverage": {
+    "baseline_rust_core": 5,
+    "denominator": 15,
+    "method": "unweighted, fixed C01 functional inventory; scoped evidence reviewed; not LOC, full-city completeness or release acceptance",
+    "native_host_linked_python_scoped": 0,
+    "original_dag_accepted": 5,
+    "original_dag_scoped_or_accepted": 19,
+    "original_dag_total": 21,
+    "original_v03_direct_dependencies_ready": 3,
+    "original_v03_direct_dependencies_total": 3,
+    "original_v03_full_days": 0,
+    "original_v03_rust_only_city_preparations_verified": 3,
+    "original_v03_total": 9,
+    "partial_functions": 3,
+    "pure_rust_percent": 80,
+    "pure_rust_verified_scoped": 12,
+    "remaining_functions": 3,
+    "rows": [
+      {
+        "baseline": "PYTHON",
+        "component": "city geometry generation and map validation",
+        "evidence": "C05_terrain_summary.json",
+        "evidence_sha256": "c800909a1373bf54e9e170075597bce25b1686517209d512decd6a1bbed5d201",
+        "id": "B01",
+        "status": "PARTIAL"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "activity geometry and finite access-law construction",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B02",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "factorized demand declarations and inventory",
+        "evidence": "river_weekday_s17.avx.prepare.json",
+        "evidence_sha256": "268d62bc03a46be9c79c817adf34e5eb20c96762bc88ad7ac244117067c238e9",
+        "id": "B03",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "native factorized OD enumeration",
+        "evidence": "river_weekday_s17.engine10.json",
+        "evidence_sha256": "f9d331a4accf22e08fc6aa5b09483b9f759234f7a9828dbea905e99f84796dcf",
+        "id": "B04",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "legal graph route search and cache",
+        "evidence": "../v03_pure_rust_core_20261127/C07-c07-2.json",
+        "evidence_sha256": "3cfd20377ae0cf444cf30c049fd9518a1fc8bcad2b524edb06c91d9aba13b077",
+        "id": "B05",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "MIXED",
+        "component": "fleet and freight route preparation",
+        "evidence": "../v03_pure_rust_core_20261127/C06_oracle.log",
+        "evidence_sha256": "0b533f343de868b64ed7e4f0cd8eada19f1bd3a00ec176032214d89509726f79",
+        "id": "B06",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "road kinetic transport and node allocation",
+        "evidence": "valley25320_observed.json",
+        "evidence_sha256": "9a82fb09323092a73edbba1ef61b0fa45bc899ac60a63a1203995d7c5c3aef3b",
+        "id": "B07",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "service and journey coupling",
+        "evidence": "valley25320_replay.json",
+        "evidence_sha256": "0d990ad492101950722a3d763515c8db8dd3537686a6af317bfee3f505d75513",
+        "id": "B08",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "RUST_PYO3",
+        "component": "whole engine orchestration and checkpoint",
+        "evidence": "valley25320_replay.json",
+        "evidence_sha256": "0d990ad492101950722a3d763515c8db8dd3537686a6af317bfee3f505d75513",
+        "id": "B09",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "causal routing adaptation and delayed land-use",
+        "evidence": "C07_feedback.json",
+        "evidence_sha256": "bf93822096f2e212d1fb118b8d786e9f3eec82bda162634c3c539fc4dfe828f3",
+        "id": "B10",
+        "status": "PARTIAL"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "access-coupling research preprocessing",
+        "evidence": "../v03_rust_only_backend_20261126/C03_test.log",
+        "evidence_sha256": "41b47ea4c68ff1f201d6a9d71c5c9e736ec68ce0b508c9458023a751dd3509ff",
+        "id": "B11",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "route passage generation and validation",
+        "evidence": "../v03_rust_only_backend_20261126/C04_test.log",
+        "evidence_sha256": "07791a61eaf987cc0e20c00354b3645a8ade3817d68c57a4bb3134fbd9047638",
+        "id": "B12",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "CPP",
+        "component": "multiclass shared-access projection solver",
+        "evidence": "../v03_rust_only_backend_20261126/C09_parity.json",
+        "evidence_sha256": "1015116457d11089f1df668a3ef26e0f7c8cb0d896a33abb35de65ec1b75d377",
+        "id": "B13",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "research execution receipt and metrics",
+        "evidence": "C07_feedback.json",
+        "evidence_sha256": "bf93822096f2e212d1fb118b8d786e9f3eec82bda162634c3c539fc4dfe828f3",
+        "id": "B14",
+        "status": "PURE_RUST_SCOPED"
+      },
+      {
+        "baseline": "PYTHON",
+        "component": "original V03 campaign runner and acceptance",
+        "evidence": "valley25320_replay.json",
+        "evidence_sha256": "0d990ad492101950722a3d763515c8db8dd3537686a6af317bfee3f505d75513",
+        "id": "B15",
+        "status": "PARTIAL"
+      }
+    ],
+    "rust_implemented_percent": 80,
+    "rust_implemented_scoped": 12,
+    "schema": "metroflow_backend_functional_census_v1",
+    "unimplemented_functions": 0
+  },
+  "original_V03": "BLOCKED_RESOURCE_AND_MIGRATION_0_OF_9",
+  "original_frozen_prep": "3/3 prior, current AVX manifest bytes equal",
+  "full_day_original_accepted": 0,
+  "historical_original_strict_frontier_s": 25720,
+  "historical_blocker": "25730 checkpointability not retested on historical identity",
+  "current_valley_loaded_frontier_s": 25320,
+  "loaded_checkpoint_sha256": "e7bbb23f52e271e0d520110cf7fb6c1c4c8c89ba9b01776924d4613d0d745ad0",
+  "loaded_runs": [
+    {
+      "path": "artifacts/v03_rust_final_slices_20261127/valley21720.json",
+      "sha256": "254a1de3bb2c7272a4fda4e78181407a66aaff661c7f3f1b556f4344cdb16c47"
+    },
+    {
+      "path": "artifacts/v03_rust_final_slices_20261127/valley25260.json",
+      "sha256": "67b2d8ea1ff826acb16d9e62e1c6c3bf895c9c969c18acf1da7092f632643bd0"
+    },
+    {
+      "path": "artifacts/v03_rust_final_slices_20261127/valley25320_replay.json",
+      "sha256": "0d990ad492101950722a3d763515c8db8dd3537686a6af317bfee3f505d75513"
+    },
+    {
+      "path": "artifacts/v03_rust_final_slices_20261127/valley25320_direct.json",
+      "sha256": "67dd6c39f7f72214a11f7b2db2e22f879e0eee8d46b6fa8c83b18ed0aa983416"
+    },
+    {
+      "path": "artifacts/v03_rust_final_slices_20261127/valley25320_observed.json",
+      "sha256": "9a82fb09323092a73edbba1ef61b0fa45bc899ac60a63a1203995d7c5c3aef3b"
+    }
+  ],
+  "terrain": {
+    "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+    "rows": [
+      {
+        "case": "river_weekday_s17",
+        "city_identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+        "geometry_audit": {
+          "crossing_candidates": 11614,
+          "developed_blocks": 557,
+          "minimum_deck_ground_gap_m": 0,
+          "narrow_phase_contacts": 0,
+          "sections": 1579,
+          "segments": 33940
+        },
+        "wall_s": 0.378784523
+      },
+      {
+        "case": "coastal_weekend_s41",
+        "city_identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+        "geometry_audit": {
+          "crossing_candidates": 10155,
+          "developed_blocks": 478,
+          "minimum_deck_ground_gap_m": null,
+          "narrow_phase_contacts": 0,
+          "sections": 1348,
+          "segments": 29072
+        },
+        "wall_s": 0.11875004
+      },
+      {
+        "case": "valley_weekday_s7",
+        "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+        "geometry_audit": {
+          "crossing_candidates": 6273,
+          "developed_blocks": 234,
+          "minimum_deck_ground_gap_m": 0,
+          "narrow_phase_contacts": 0,
+          "sections": 793,
+          "segments": 17236
+        },
+        "wall_s": 0.345385219
+      }
+    ]
+  },
+  "feedback": {
+    "accessibility": {
+      "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "costs": [
+        [
+          "1",
+          109.73486779983736
+        ],
+        [
+          "103",
+          107.60083675467878
+        ],
+        [
+          "104",
+          107.60083675467983
+        ],
+        [
+          "105",
+          111.14324662814204
+        ],
+        [
+          "107",
+          107.3344814179248
+        ],
+        [
+          "109",
+          95.16816610897605
+        ],
+        [
+          "11",
+          79.21893893622368
+        ],
+        [
+          "110",
+          110.61795978638601
+        ],
+        [
+          "111",
+          110.6179597863875
+        ],
+        [
+          "112",
+          110.12190351098914
+        ],
+        [
+          "114",
+          96.88062688200466
+        ],
+        [
+          "115",
+          91.19470169348047
+        ],
+        [
+          "116",
+          91.19470169348027
+        ],
+        [
+          "117",
+          87.51596059625048
+        ],
+        [
+          "118",
+          103.85886356310101
+        ],
+        [
+          "119",
+          107.0961791574121
+        ],
+        [
+          "12",
+          101.41490656584399
+        ],
+        [
+          "120",
+          107.09617915741084
+        ],
+        [
+          "121",
+          113.92624450461484
+        ],
+        [
+          "122",
+          106.19071080805763
+        ],
+        [
+          "123",
+          110.10633473042805
+        ],
+        [
+          "125",
+          103.59447493365913
+        ],
+        [
+          "126",
+          110.1550279885532
+        ],
+        [
+          "127",
+          110.15502798855404
+        ],
+        [
+          "13",
+          113.14434529786851
+        ],
+        [
+          "130",
+          100.61827256692713
+        ],
+        [
+          "131",
+          102.99643421225119
+        ],
+        [
+          "132",
+          113.81346908215643
+        ],
+        [
+          "133",
+          113.81346908215619
+        ],
+        [
+          "134",
+          100.9550702644852
+        ],
+        [
+          "135",
+          100.95507026448189
+        ],
+        [
+          "136",
+          75.59363095518295
+        ],
+        [
+          "137",
+          114.84029162735165
+        ],
+        [
+          "139",
+          108.36685854337254
+        ],
+        [
+          "14",
+          101.41490656584261
+        ],
+        [
+          "140",
+          107.54138370804324
+        ],
+        [
+          "141",
+          110.0366073187495
+        ],
+        [
+          "142",
+          98.1386277900333
+        ],
+        [
+          "143",
+          113.77196172166663
+        ],
+        [
+          "144",
+          105.60029849656205
+        ],
+        [
+          "145",
+          99.39708655792057
+        ],
+        [
+          "146",
+          89.10440059606103
+        ],
+        [
+          "147",
+          98.32017678812021
+        ],
+        [
+          "148",
+          99.42616497549577
+        ],
+        [
+          "15",
+          114.70956976813689
+        ],
+        [
+          "150",
+          105.8884520195472
+        ],
+        [
+          "151",
+          105.88845201954389
+        ],
+        [
+          "152",
+          110.88049226286641
+        ],
+        [
+          "153",
+          87.54957944181871
+        ],
+        [
+          "154",
+          104.2131389468273
+        ],
+        [
+          "156",
+          93.01412813479243
+        ],
+        [
+          "157",
+          93.86451308502572
+        ],
+        [
+          "158",
+          95.83803433779029
+        ],
+        [
+          "159",
+          109.68482314351913
+        ],
+        [
+          "16",
+          95.73720549058584
+        ],
+        [
+          "160",
+          98.42814856776083
+        ],
+        [
+          "161",
+          98.42814856775996
+        ],
+        [
+          "162",
+          96.512893701876
+        ],
+        [
+          "163",
+          96.51289370187756
+        ],
+        [
+          "164",
+          103.64615026299737
+        ],
+        [
+          "165",
+          108.91443581705636
+        ],
+        [
+          "168",
+          110.32474219381562
+        ],
+        [
+          "169",
+          110.32474219381261
+        ],
+        [
+          "17",
+          105.93305244549057
+        ],
+        [
+          "170",
+          93.21448458582097
+        ],
+        [
+          "171",
+          94.77816252900706
+        ],
+        [
+          "172",
+          96.6820064920154
+        ],
+        [
+          "173",
+          100.54120814447373
+        ],
+        [
+          "175",
+          80.48228492489248
+        ],
+        [
+          "176",
+          98.82196347872667
+        ],
+        [
+          "177",
+          106.00216424838821
+        ],
+        [
+          "178",
+          106.00216424838648
+        ],
+        [
+          "18",
+          107.88958039713295
+        ],
+        [
+          "182",
+          104.70707136191196
+        ],
+        [
+          "183",
+          99.1077713564306
+        ],
+        [
+          "184",
+          110.69851919328993
+        ],
+        [
+          "185",
+          110.69851919329007
+        ],
+        [
+          "186",
+          100.10243335396407
+        ],
+        [
+          "187",
+          100.69275518573991
+        ],
+        [
+          "188",
+          105.21381072181995
+        ],
+        [
+          "189",
+          105.21381072181995
+        ],
+        [
+          "19",
+          85.92361194834226
+        ],
+        [
+          "190",
+          103.29102856755972
+        ],
+        [
+          "191",
+          77.25551308909294
+        ],
+        [
+          "193",
+          83.7625511658742
+        ],
+        [
+          "194",
+          105.19484736319554
+        ],
+        [
+          "195",
+          108.6190090098034
+        ],
+        [
+          "196",
+          109.32025285964858
+        ],
+        [
+          "197",
+          109.32025285965145
+        ],
+        [
+          "198",
+          105.41281494919585
+        ],
+        [
+          "199",
+          105.41281494919585
+        ],
+        [
+          "2",
+          105.53393113136464
+        ],
+        [
+          "20",
+          107.88958039713192
+        ],
+        [
+          "201",
+          104.77719227561035
+        ],
+        [
+          "202",
+          99.95941509607647
+        ],
+        [
+          "203",
+          108.6486206051314
+        ],
+        [
+          "204",
+          105.97712746080835
+        ],
+        [
+          "205",
+          77.39636947098195
+        ],
+        [
+          "206",
+          101.13652509374118
+        ],
+        [
+          "207",
+          102.71894660852524
+        ],
+        [
+          "208",
+          109.52345700465749
+        ],
+        [
+          "209",
+          85.95340781519992
+        ],
+        [
+          "210",
+          111.08823598757449
+        ],
+        [
+          "211",
+          99.08292482972695
+        ],
+        [
+          "212",
+          105.46805545366587
+        ],
+        [
+          "214",
+          88.69105050070466
+        ],
+        [
+          "215",
+          112.33321136149449
+        ],
+        [
+          "216",
+          114.5305969849838
+        ],
+        [
+          "217",
+          93.61278490791372
+        ],
+        [
+          "219",
+          105.97776127939267
+        ],
+        [
+          "22",
+          99.46386698668358
+        ],
+        [
+          "220",
+          105.95467822885023
+        ],
+        [
+          "221",
+          91.0273864765816
+        ],
+        [
+          "222",
+          101.90570340575812
+        ],
+        [
+          "223",
+          93.32176864812413
+        ],
+        [
+          "224",
+          103.26344470463913
+        ],
+        [
+          "225",
+          91.2166511219894
+        ],
+        [
+          "226",
+          105.78794311268115
+        ],
+        [
+          "227",
+          71.28463396950029
+        ],
+        [
+          "228",
+          113.14787021283718
+        ],
+        [
+          "23",
+          112.4571337061137
+        ],
+        [
+          "230",
+          89.69738842642512
+        ],
+        [
+          "232",
+          81.00639392711085
+        ],
+        [
+          "233",
+          112.87625949086106
+        ],
+        [
+          "236",
+          101.29625173946214
+        ],
+        [
+          "237",
+          84.51950052084554
+        ],
+        [
+          "238",
+          110.9779684904407
+        ],
+        [
+          "239",
+          111.90924580890236
+        ],
+        [
+          "24",
+          107.59498287351362
+        ],
+        [
+          "240",
+          107.69568169557394
+        ],
+        [
+          "241",
+          113.3880906496599
+        ],
+        [
+          "242",
+          99.46215101189492
+        ],
+        [
+          "243",
+          88.74908498856078
+        ],
+        [
+          "244",
+          113.55876703251923
+        ],
+        [
+          "25",
+          107.59498287351458
+        ],
+        [
+          "26",
+          93.89350624770677
+        ],
+        [
+          "27",
+          105.34424707532743
+        ],
+        [
+          "28",
+          104.74172218685398
+        ],
+        [
+          "29",
+          103.90128123463157
+        ],
+        [
+          "3",
+          105.33400913061105
+        ],
+        [
+          "30",
+          90.34503833858702
+        ],
+        [
+          "33",
+          96.16513149184472
+        ],
+        [
+          "34",
+          108.46047072988675
+        ],
+        [
+          "35",
+          109.14482686559006
+        ],
+        [
+          "37",
+          99.69521084236298
+        ],
+        [
+          "38",
+          97.93500247238897
+        ],
+        [
+          "39",
+          101.20138099621106
+        ],
+        [
+          "4",
+          89.81489469711889
+        ],
+        [
+          "40",
+          101.20138099620856
+        ],
+        [
+          "43",
+          102.97069024238078
+        ],
+        [
+          "44",
+          89.5267222074302
+        ],
+        [
+          "45",
+          100.65678627530818
+        ],
+        [
+          "46",
+          104.32810531143541
+        ],
+        [
+          "47",
+          102.92409756243204
+        ],
+        [
+          "48",
+          82.67803079932493
+        ],
+        [
+          "49",
+          100.24208508330017
+        ],
+        [
+          "5",
+          105.3340091306098
+        ],
+        [
+          "50",
+          107.63367105740807
+        ],
+        [
+          "51",
+          104.43185827085544
+        ],
+        [
+          "52",
+          105.65748009233873
+        ],
+        [
+          "53",
+          93.25572076027812
+        ],
+        [
+          "54",
+          102.44170600638857
+        ],
+        [
+          "55",
+          102.44170600638816
+        ],
+        [
+          "56",
+          99.98613544813179
+        ],
+        [
+          "57",
+          95.57829253069441
+        ],
+        [
+          "58",
+          89.97463420710866
+        ],
+        [
+          "59",
+          101.75544978190963
+        ],
+        [
+          "6",
+          99.77070175661174
+        ],
+        [
+          "60",
+          99.74353504182258
+        ],
+        [
+          "61",
+          99.74353504182555
+        ],
+        [
+          "62",
+          102.9561078689312
+        ],
+        [
+          "63",
+          92.71748936287412
+        ],
+        [
+          "64",
+          103.5099324375193
+        ],
+        [
+          "65",
+          103.50993243752
+        ],
+        [
+          "66",
+          98.18699284317535
+        ],
+        [
+          "67",
+          97.202843657648
+        ],
+        [
+          "69",
+          114.52871401683473
+        ],
+        [
+          "7",
+          102.24981100737232
+        ],
+        [
+          "70",
+          100.95448406136656
+        ],
+        [
+          "71",
+          102.77771128685167
+        ],
+        [
+          "72",
+          102.77771128685552
+        ],
+        [
+          "73",
+          86.64321777419245
+        ],
+        [
+          "74",
+          98.74889174883292
+        ],
+        [
+          "75",
+          103.20659192374714
+        ],
+        [
+          "76",
+          103.20659192374696
+        ],
+        [
+          "77",
+          102.62128073159299
+        ],
+        [
+          "78",
+          102.62128073159337
+        ],
+        [
+          "79",
+          89.54685936204827
+        ],
+        [
+          "8",
+          99.38573992311207
+        ],
+        [
+          "80",
+          89.54685936204847
+        ],
+        [
+          "81",
+          103.34675201333108
+        ],
+        [
+          "82",
+          103.34675201333032
+        ],
+        [
+          "84",
+          79.60440101713618
+        ],
+        [
+          "85",
+          97.465421006482
+        ],
+        [
+          "86",
+          97.4654210064837
+        ],
+        [
+          "87",
+          111.51265746612047
+        ],
+        [
+          "89",
+          82.20049585609634
+        ],
+        [
+          "9",
+          102.24981100737256
+        ],
+        [
+          "90",
+          107.80604136915706
+        ],
+        [
+          "91",
+          107.80604136915818
+        ],
+        [
+          "92",
+          106.70873332425387
+        ],
+        [
+          "93",
+          106.70873332425383
+        ],
+        [
+          "95",
+          92.0627738521313
+        ],
+        [
+          "96",
+          109.83634079382539
+        ],
+        [
+          "97",
+          104.3885016719285
+        ],
+        [
+          "98",
+          99.29165074191319
+        ]
+      ],
+      "source_version": "23a426e615f6fd045c218a425f3a36482a625857848d1cc3b69777abf5d075ff",
+      "stamp_s": 25320
+    },
+    "accessibility_blocks": 206,
+    "calendar_binding_s": 0.27064388,
+    "car_route_bindings": 518,
+    "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+    "coverage_after_latency": 1,
+    "coverage_at_stamp": 0,
+    "future_accessibility_rejected": true,
+    "observed_routes": 518,
+    "one_many_exact": true,
+    "parallel_median_s": 0.000355942,
+    "parallel_s": [
+      0.000296308,
+      0.000310695,
+      0.000311717,
+      0.000345462,
+      0.000355942,
+      0.000361592,
+      0.000367493,
+      0.000850178,
+      0.001596527
+    ],
+    "schema": "metroflow_native_feedback_audit_v1",
+    "scope": "actual car route observations -> destination block conditional accessibility; explicit diagnostic prior/latency; no physical suffix mutation or next-day city/demand rebuild",
+    "semantic_sha256": "0f525533298280127f43574e83fd9a006c96e6000b1f0e73938d1113887f8efb",
+    "serial_median_s": 0.000470961,
+    "serial_s": [
+      0.000283764,
+      0.000284796,
+      0.00030292,
+      0.000469579,
+      0.000470961,
+      0.00048571,
+      0.000502102,
+      0.000702736,
+      0.000881367
+    ],
+    "threads": 8,
+    "time_s": 25320
+  },
+  "simd": {
+    "avx_available": true,
+    "results": [
+      {
+        "avx_median_s": 0.000001773,
+        "avx_s": [
+          0.000001753,
+          0.000001763,
+          0.000001764,
+          0.000001764,
+          0.000001773,
+          0.000001774,
+          0.000001784,
+          0.000001814,
+          0.000002405
+        ],
+        "bit_exact": true,
+        "n": 16,
+        "scalar_median_s": 0.000002074,
+        "scalar_s": [
+          0.000002053,
+          0.000002064,
+          0.000002064,
+          0.000002074,
+          0.000002074,
+          0.000002074,
+          0.000002084,
+          0.000002094,
+          0.000002214
+        ],
+        "speedup": 1.1697687535250987
+      },
+      {
+        "avx_median_s": 0.000058973,
+        "avx_s": [
+          0.000053232,
+          0.000053623,
+          0.000054534,
+          0.00005751,
+          0.000058973,
+          0.000071707,
+          0.000071797,
+          0.000072659,
+          0.000073901
+        ],
+        "bit_exact": true,
+        "n": 64,
+        "scalar_median_s": 0.000090613,
+        "scalar_s": [
+          0.000081836,
+          0.000081856,
+          0.000088439,
+          0.000089902,
+          0.000090613,
+          0.000103107,
+          0.000110682,
+          0.000110752,
+          0.000118867
+        ],
+        "speedup": 1.5365167110372542
+      },
+      {
+        "avx_median_s": 0.000199582,
+        "avx_s": [
+          0.000192849,
+          0.00019352,
+          0.000193581,
+          0.000193971,
+          0.000199582,
+          0.000218739,
+          0.000555903,
+          0.000607212,
+          0.000616069
+        ],
+        "bit_exact": true,
+        "n": 128,
+        "scalar_median_s": 0.000483004,
+        "scalar_s": [
+          0.000477653,
+          0.000478976,
+          0.000479166,
+          0.000482643,
+          0.000483004,
+          0.000483024,
+          0.00048621,
+          0.00048628,
+          0.00049149
+        ],
+        "speedup": 2.42007796294255
+      },
+      {
+        "avx_median_s": 0.001790065,
+        "avx_s": [
+          0.001722735,
+          0.00174637,
+          0.00175155,
+          0.00178256,
+          0.001790065,
+          0.001837164,
+          0.001869456,
+          0.001920403,
+          0.00225337
+        ],
+        "bit_exact": true,
+        "n": 256,
+        "scalar_median_s": 0.003988268,
+        "scalar_s": [
+          0.003887405,
+          0.003903196,
+          0.003917373,
+          0.003938854,
+          0.003988268,
+          0.004032623,
+          0.00407321,
+          0.00426071,
+          0.004293823
+        ],
+        "speedup": 2.228001776471804
+      }
+    ],
+    "scope": "nonnegative min-plus synthetic matrices; no full-city acceleration claim"
+  },
+  "tests": {
+    "native_rust_passed": 219,
+    "native_ignored": 2,
+    "headless_rust_passed": 9,
+    "opt_in_python_passed": 17,
+    "opt_in_python_deselected": 1,
+    "frontend_extension": "cargo check passed; warnings remain",
+    "full_ci": "NOT_RUN_USER_DEFERRED"
+  },
+  "native_subagents": "NOT_RUN_NO_TOOL",
+  "limitations": [
+    "B01 generative atlas/landscape not ported",
+    "B10 no actual native physical suffix application or next-day city/demand rebuild; read-only completed feedback is verified",
+    "B15 full day/refinement not verified; actual loaded prefix only",
+    "old strict checkpoint identity not compatible by assumption",
+    "AVX speedup synthetic kernel only, opt-in; faer not applied",
+    "legacy Python entrypoint fences selected not exhaustive",
+    "not all new tests observed RED first"
+  ],
+  "stages": [
+    {
+      "commit": "4c0128acfffddc24423fd7bbdd8bd71607165f46",
+      "title": "C01 Bind original contracts and remaining Rust-only slices"
+    },
+    {
+      "commit": "850a8fbada00c441ef5088e08884cd3d3025826f",
+      "title": "C02 Port causal information channels to indexed immutable Rust snapshots"
+    },
+    {
+      "commit": "dac18afeabd572d7e27dc7876331cbc2c37a75af",
+      "title": "C03 Port causal K-path proposals and stable sparse path-size logit to Rust"
+    },
+    {
+      "commit": "043f29db90758adda80799b53a1955aad93de8c5",
+      "title": "C04 Port completed accessibility and lagged resident/capacity ledger to Rust"
+    },
+    {
+      "commit": "2bcc6034827d3fcf7655873c63f54ce6c9ed546d",
+      "title": "C05 Port original terrain and crossing validation into frozen Rust compiler"
+    },
+    {
+      "commit": "0c0c0247961815d3510ed93a24d20adbe85f0f9f",
+      "title": "C06 Read actual completed native outlet costs and preserve loaded checkpoint replay"
+    },
+    {
+      "commit": "5f2a499d0da8437a7199065dc452359ee6d46d1b",
+      "title": "C07 Bind actual native completed route observations to causal and block accessibility calculations"
+    },
+    {
+      "commit": "a726f615867dbd5bb2a1498906d636d7a329d50d",
+      "title": "C08 Vectorize min-plus geometry kernel and verify original city manifest bytes"
+    },
+    {
+      "commit": "e78cb3d01be3fd3174c0d4e7307c03cc8e7897a5",
+      "title": "C09 Fence legacy scientific Python entrypoints and verify native refusal boundaries"
+    }
+  ],
+  "next_action": "Finish B01 original generative terrain/atlas/bridge/IC zoning and portal generation (frozen physical validation already Rust); finish B10 causal phase runner, actual eligible suffix application and canonical next-epoch city/demand materialization (R01/R02/M04 kernels and actual completed-data adapter already Rust); finish B15 Rust full-mode campaign, loaded refinement and recovery. Continue original fresh identity Valley from valid25320 s checkpoint in bounded loaded windows, resolve any actual checkpointability failure without relaxing 8 GiB RSS/7200 s or 6 GiB accounting. Historical25720/25730 remains separate. Python UI/serialization or explicit opt-in tests only."
+}
