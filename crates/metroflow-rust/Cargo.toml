@@ -62,3 +62,8 @@ required-features = ["native-cli"]
 name = "metroflow-atlas-parity"
 path = "src/bin/metroflow-atlas-parity.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-next-epoch"
+path = "src/bin/metroflow-next-epoch.rs"
+required-features = ["native-cli"]

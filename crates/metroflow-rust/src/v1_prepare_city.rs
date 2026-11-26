@@ -272,14 +272,37 @@ pub fn prepare(root: &Path, case: &Case, m: &Matrix, step: f64) -> CoreResult<(V
         return Err(bad("step invalid"));
     }
     let city = frozen_city::load(root, case, m.population)?;
+    prepare_city(city, case, m, step)
+}
+/// Direct native generated/next-epoch snapshot input. No frozen archive read.
+pub fn prepare_snapshot(
+    snapshot: Value,
+    case: &Case,
+    m: &Matrix,
+    step: f64,
+) -> CoreResult<(Value, Value)> {
+    let (_, city) = frozen_city::bind_snapshot(snapshot)?;
+    prepare_city(city, case, m, step)
+}
+pub(crate) fn prepare_city(
+    city: City,
+    case: &Case,
+    m: &Matrix,
+    step: f64,
+) -> CoreResult<(Value, Value)> {
+    if !step.is_finite() || step <= 0. {
+        return Err(bad("step invalid"));
+    }
     let (wf, sf, ss) = match case.day.as_str() {
         "weekday" => (0.5, 0.2, 0.25),
         "weekend" => (0.1, 0.4, 0.),
         _ => return Err(bad("day invalid")),
     };
     let population = fsum(city.blocks.iter().map(|b| b.residents as f64));
-    if population != m.population as f64 {
-        return Err(bad("population ledger differs"));
+    if city.unplaced_residents != 0 || population != city.population as f64 {
+        return Err(bad(
+            "unplaced population retained: execution requires explicit placed-demand policy",
+        ));
     }
     let support = fsum(city.blocks.iter().map(|b| b.jobs as f64));
     if support <= 0. {
@@ -424,7 +447,7 @@ pub fn prepare(root: &Path, case: &Case, m: &Matrix, step: f64) -> CoreResult<(V
     let static_id = frozen_city::hash(&bytes(&st)?);
     st["identity"] = json!(static_id);
     let manifest = json!({"schema":"metroflow_native_declaration_v1","byte_budget":6*1024u64.pow(3),"calendar":cal,"static":st});
-    let report = json!({"case":case.id,"city_identity":city.identity,"source_sha256":city.source_sha256,"patch_sha256":city.patch_sha256,"schedule_identity":sid,"static_identity":static_id,"identity_scope":"new Rust declaration identity; frozen source city identity preserved; old checkpoint compatibility not claimed","population":population,"requested_workers":requested,"allocated_workers":allocated,"unassigned_workers":unmet,"service_assigned":service_assigned,"unassigned_service":service_unmet,"home_factors":homes.len(),"job_factors":jobs.len(),"service_factors":services.len(),"fixed_runs":inventory["corridors"].as_array().unwrap().len(),"stops":inventory["stops"],"activities":activities.len(),"internal_laws":static_laws.len(),"links":city.links.len(),"legal_turns":city.turns.len()});
+    let report = json!({"case":case.id,"city_identity":city.identity,"source_sha256":city.source_sha256,"patch_sha256":city.patch_sha256,"schedule_identity":sid,"static_identity":static_id,"identity_scope":"native declaration identity; input city identity preserved; old checkpoint compatibility not claimed","population":population,"requested_workers":requested,"allocated_workers":allocated,"unassigned_workers":unmet,"service_assigned":service_assigned,"unassigned_service":service_unmet,"home_factors":homes.len(),"job_factors":jobs.len(),"service_factors":services.len(),"fixed_runs":inventory["corridors"].as_array().unwrap().len(),"stops":inventory["stops"],"activities":activities.len(),"internal_laws":static_laws.len(),"links":city.links.len(),"legal_turns":city.turns.len()});
     Ok((manifest, report))
 }
 /// Actual enumeration by the native engine, without running the transport.

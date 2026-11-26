@@ -1343,3 +1343,5 @@ mod atlas_zoning;
 mod atlas_portals;
 #[cfg(feature="native-cli")]
 pub mod atlas_generate;
+#[cfg(feature="native-cli")]
+pub mod next_epoch;

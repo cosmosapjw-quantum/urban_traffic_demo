@@ -520,3 +520,37 @@ mod tests {
         assert_eq!(old.allocations, [900, 1000]);
     }
 }
+
+/// Materialize exactly the checked stocks into a *new* canonical physical city.
+/// No hot-swap of an occupied traffic state. Pending residents remain explicit.
+pub fn materialize_snapshot(
+    model: &Growth,
+    state: &GrowthState,
+    snapshot: serde_json::Value,
+) -> CoreResult<serde_json::Value> {
+    use serde_json::json;
+    model.check(state)?;
+    let (mut base, city) = crate::frozen_city::bind_snapshot(snapshot)?;
+    if city.identity != model.city || city.blocks.len() != model.blocks.len() {
+        return Err(bad("growth source snapshot differs"));
+    }
+    for (i, b) in city.blocks.iter().enumerate() {
+        let m = &model.blocks[i];
+        if b.id != m.id || b.residents != m.residents || b.housing_capacity != m.housing_capacity {
+            return Err(bad("growth source stock differs"));
+        }
+    }
+    let rows = base["blocks"]
+        .as_array_mut()
+        .ok_or_else(|| bad("snapshot blocks"))?;
+    for row in rows {
+        let id = row["id"].as_str().ok_or_else(|| bad("block id"))?;
+        let i = model.index[id];
+        row["residents"] = json!(state.allocations[i]);
+        row["housing_capacity"] = json!(add(model.blocks[i].housing_capacity, state.added[i])?);
+    }
+    base["requested_population"] = json!(add(city.population, state.requested_increment)?);
+    base["unplaced_residents"] = json!(add(city.unplaced_residents, state.pending_increment)?);
+    base["identity"] = json!("");
+    Ok(crate::frozen_city::bind_snapshot(base)?.0)
+}
