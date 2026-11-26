@@ -1,0 +1,16 @@
+{
+  "case": "valley_weekday_s7",
+  "completed_time_s": 25720.0,
+  "original_matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "final_checkpoint_bytes": 4677350066,
+  "final_checkpoint_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+  "current_driver_identity": "e77f5efaad25b7df237d91523146baacb8cbe3170bbb86594bdc0885c498fac4",
+  "checkpoint_compression": {
+    "compressed_bytes": 1008684839,
+    "compressed_sha256": "6573b7092769ca846342da3aa4404e7bcbb387f575406ee1791b5079370cccfe",
+    "path": "/home/cosmosapjw/urban_traffic_v03_bottleneck_theory_20261123/artifacts/v03_measure_lift_20261123/S06_fresh0.final.bin.gz",
+    "raw_bytes": 4677350066,
+    "raw_sha256": "447570b8721b17fa19edf159bc4c474cfd6ad41dc936ab0b0114d902e36f0bf9",
+    "reader_peak_rss_bytes": 4734160896
+  }
+}
