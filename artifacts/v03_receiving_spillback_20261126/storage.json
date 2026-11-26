@@ -1,0 +1,16 @@
+{
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+  "network_sha256": "4422f446e0e9c7b3db9f361c88cfa1aa3c974e656c6ef813b2d01e22e7db5ced",
+  "storage_sha256": "f5f0f3a3ad17bfb8cebab329a252d362626bc16bda47b445bc105f65504a2a5c",
+  "links": 1586,
+  "footprint_m": 5.0,
+  "min_storage_veh": 24.72642467123465,
+  "max_storage_veh": 116.17284968662852,
+  "max_batch_capacity_ratio": {
+    "600": 0.05712528741106201,
+    "300": 0.028562643705531004,
+    "150": 0.014281321852765502,
+    "10": 0.0009520881235177002
+  }
+}
