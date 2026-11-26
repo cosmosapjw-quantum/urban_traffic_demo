@@ -2722,6 +2722,85 @@ fn combine_interval_core(
     combine_interval_mapped(parts, selected, selected_count, a, b, compact_core_part)
 }
 
+// Canonical combined input is sorted by tag/offset before any interval
+// selection. Its ascending active indices therefore already give the same
+// grouping and tie order as the legacy per-edge sort. A two-pass census
+// allocates only the exact output cardinality. In the compact lane large
+// adjacent packets may share their full immutable key array, without first
+// constructing a CorePart Vec or copying a previous packet.
+fn ordered_interval_packet<I: Iterator<Item=usize>>(
+    parts:&[Part], selected:impl Fn()->I, a:f64,b:f64,
+    previous:Option<&Arc<Vec<(u32,u32)>>>,
+    before_allocate:impl FnOnce(usize)->PyResult<()>,
+)->PyResult<(Option<PacketParts>,usize)> {
+    let width=b-a;
+    let scaled=|i:usize| {
+        let p=parts[i]; let duration=p.b.unwrap()-p.a.unwrap();
+        (p,p.mass*width/duration)
+    };
+    let mut last=None;
+    let mut groups=0usize;
+    let mut share=previous.is_some();
+    for i in selected() {
+        let (p,m)=scaled(i);
+        if !(m>0.) {continue}
+        let k=compact_indices(p.tag,p.offset).expect("checked compact source");
+        if last==Some(k) {continue}
+        if last.is_some_and(|old|old>k) {return Err(arithmetic("ordered interval source key regressed"))}
+        if previous.and_then(|keys|keys.get(groups)).copied()!=Some(k) {share=false;}
+        groups+=1;last=Some(k);
+    }
+    if groups==0 {before_allocate(0)?;return Ok((None,0))}
+    share=share && previous.is_some_and(|keys|keys.len()==groups);
+    let separate=groups>=32;
+    // A new independent moment owner has a conservative 96 B control
+    // allowance, and a newly allocated key owner another 96 B. Reused
+    // keys remain charged by the first packet's retained allocation.
+    let owned_bytes=if separate {
+        groups.saturating_mul(16).saturating_add(96)
+            .saturating_add(if share {0}else{groups.saturating_mul(8).saturating_add(96)})
+    } else {groups.saturating_mul(std::mem::size_of::<CorePart>()).saturating_add(96)};
+    // Two expansion accumulators; no selected-index Vec. Keep the finite
+    // binary64 expansion envelope from the receiving group reduction.
+    before_allocate(owned_bytes.saturating_add(128*1024))?;
+    let mut core=checkpoint_vec(if separate {0}else{groups})?;
+    let mut moments=checkpoint_vec(if separate {groups}else{0})?;
+    let mut keys=checkpoint_vec(if separate&&!share {groups}else{0})?;
+    if core.capacity()!=if separate {0}else{groups}
+        || moments.capacity()!=if separate {groups}else{0}
+        || keys.capacity()!=if separate&&!share {groups}else{0} {
+        return Err(budget("ordered interval exact allocation capacity differs"));
+    }
+    let (aa,bb)=(PackedTime::new(Some(a))?,PackedTime::new(Some(b))?);
+    let mut pending:Option<((u32,u32),RoadExpansion,RoadExpansion)>=None;
+    let mut emit=|k:(u32,u32),mass:RoadExpansion,birth:RoadExpansion| {
+        let (mass,birth)=(mass.finish(),birth.finish());
+        if separate {moments.push((mass,birth));if !share {keys.push(k);}}
+        else {core.push(CorePart{tag:k.0,offset:k.1,mass,birth});}
+    };
+    for i in selected() {
+        let (p,m)=scaled(i);
+        if !(m>0.) {continue}
+        let k=compact_indices(p.tag,p.offset).expect("checked compact source");
+        if pending.as_ref().is_some_and(|(old,_,_)|*old!=k) {
+            let (key,mass,birth)=pending.take().unwrap();emit(key,mass,birth);
+        }
+        let (_,mass,birth)=pending.get_or_insert_with(||(k,RoadExpansion::default(),RoadExpansion::default()));
+        mass.add(m);birth.add(p.birth*width/(p.b.unwrap()-p.a.unwrap()));
+    }
+    if let Some((k,mass,birth))=pending {emit(k,mass,birth);}
+    let result=if separate {
+        debug_assert_eq!(moments.len(),groups);
+        let keys=if share {previous.unwrap().clone()}else{Arc::new(keys)};
+        if share {crate::v1_trace::add("split.shared_adjacent_key_rows",groups as u64);}
+        PacketParts::SharedKeys{a:aa,b:bb,keys,moments:Arc::new(moments)}
+    } else {
+        debug_assert_eq!(core.len(),groups);
+        PacketParts::Uniform{a:aa,b:bb,rows:Arc::new(core)}
+    };
+    Ok((Some(result),owned_bytes))
+}
+
 /// Only the identical (a_bits,b_bits) case can be represented with one
 /// Uniform packet header. Signed +/- zero comparisons here are bitwise:
 /// numeric point equality alone would incorrectly coalesce distinct clocks.
@@ -3594,8 +3673,11 @@ impl V1Road {
                         .saturating_mul(3 * std::mem::size_of::<Packet>()),
                 )
         };
-        let mut out = vec![];
+        let mut out:Vec<Packet> = vec![];
         let mut records = 0;
+        let ordered_stream=compactable_source && work.timed_referenced_rows.is_some()
+            && parts.windows(2).all(|w|(w[0].tag,w[0].offset)<=(w[1].tag,w[1].offset));
+        let mut last_shared:Option<usize>=None;
         for (k, &a) in edges.iter().enumerate() {
             sweep.advance(a);
             let count = sweep.current_points.len();
@@ -3639,9 +3721,24 @@ impl V1Road {
             if k + 1 < edges.len() {
                 let b = edges[k + 1];
                 let count = sweep.active.len();
+                if ordered_stream {
+                    let prev=last_shared.and_then(|index|match &out[index].parts {
+                        PacketParts::SharedKeys{keys,..}=>Some(keys),_=>None,
+                    });
+                    let base=transient(0,out.len(),false);
+                    let (packed,charge)=ordered_interval_packet(&parts,||sweep.active.iter(),a,b,prev,
+                        |bytes|work.interval(base.saturating_add(bytes)))?;
+                    if let Some(parts)=packed {
+                        records+=parts.len();
+                        if matches!(parts,PacketParts::SharedKeys{..}) {last_shared=Some(out.len());}
+                        work.retain_interval(charge.saturating_add(std::mem::size_of::<Packet>()));
+                        push_checked(&mut out,Packet{target,parts})?;
+                    }
+                    if records>self.record_budget {return Err(budget("entry interval record budget"));}
+                    continue;
+                }
                 work.interval(transient(count, out.len(), false))?;
-                // The original source indices are already ascending; avoid
-                // materializing a second full-size interval split buffer.
+                // Original fallback for wide or noncanonical input.
                 let packed = if compactable_source {
                     let core =
                         combine_interval_core(&parts, sweep.active.iter(), count, a, b)?;
@@ -8095,6 +8192,51 @@ mod compact_receiving_group_tests {
         for (a,b) in old.iter().zip(new.iter()) {
             assert_eq!((a.tag,a.offset,a.a.0,a.b.0,a.mass.to_bits(),a.birth.to_bits()),
                        (b.tag,b.offset,b.a.0,b.b.0,b.mass.to_bits(),b.birth.to_bits()));
+        }
+    }
+}
+
+#[cfg(test)]
+mod ordered_stream_interval_tests {
+    use super::*;
+    #[test]
+    fn repeated_ordered_keys_reuse_only_keys_and_match_legacy_bits() {
+        let mut parts=Vec::new();
+        for tag in 0..64 {
+            for j in 0..3 {
+                parts.push(Part{tag,offset:0,mass:(tag+1) as f64*2f64.powi(-j-2),
+                    birth:(tag+2) as f64*2f64.powi(-j-3),
+                    a:PackedTime::new(Some(-0.)).unwrap(),
+                    b:PackedTime::new(Some(2.+j as f64)).unwrap()});
+            }
+        }
+        let selected=||0..parts.len();
+        let (p,c)=ordered_interval_packet(&parts,selected,0.,1.,None,|_|Ok(())).unwrap();
+        let p=p.unwrap();
+        let keys=match &p {PacketParts::SharedKeys{keys,..}=>keys,_=>panic!("expected shared-key representation")};
+        let (q,d)=ordered_interval_packet(&parts,selected,1.,2.,Some(keys),|_|Ok(())).unwrap();
+        let q=q.unwrap();
+        assert_eq!(c-d,64*8+96);
+        match &q {PacketParts::SharedKeys{keys:k,..}=>assert!(Arc::ptr_eq(keys,k)),_=>panic!("expected shared key reuse")}
+        for (packet,a,b) in [(p,0.,1.),(q,1.,2.)] {
+            let old=combine_interval_core(&parts,selected(),parts.len(),a,b).unwrap();
+            for (x,y) in packet.iter().zip(old.iter()) {
+                assert_eq!((x.tag,x.offset,x.mass.to_bits(),x.birth.to_bits(),x.a.0,x.b.0),
+                    (y.tag as usize,y.offset as usize,y.mass.to_bits(),y.birth.to_bits(),a.to_bits(),b.to_bits()));
+            }
+            assert_eq!(packet.len(),old.len());
+        }
+    }
+    #[test]
+    fn selected_subset_underflow_and_changed_keys_match_legacy() {
+        let parts:Vec<_>=(0..80).map(|i|Part{tag:i/2,offset:i%2,mass:if i%7==0{f64::from_bits(1)}else{0.75},
+            birth:1.,a:PackedTime::new(Some(0.)).unwrap(),b:PackedTime::new(Some(4.)).unwrap()}).collect();
+        let selected=|| (0..parts.len()).filter(|i|i%5!=0);
+        let (out,_)=ordered_interval_packet(&parts,selected,0.,0.125,None,|_|Ok(())).unwrap();
+        let old=combine_interval_core(&parts,selected(),parts.len(),0.,0.125).unwrap();
+        let out=out.unwrap();assert_eq!(old.len(),out.len());
+        for (x,y) in out.iter().zip(old.iter()) {
+            assert_eq!((x.tag,x.offset,x.mass.to_bits(),x.birth.to_bits()),(y.tag as usize,y.offset as usize,y.mass.to_bits(),y.birth.to_bits()));
         }
     }
 }
