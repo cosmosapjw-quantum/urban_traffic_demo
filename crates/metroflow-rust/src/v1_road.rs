@@ -3007,10 +3007,12 @@ impl V1Road {
         (&self.state.totals, &self.state.ledger)
     }
     pub(crate) fn write_state<W: Write>(&self, w: &mut W) -> CoreResult<()> {
+        self.write_snapshot(w,&self.state)
+    }
+    pub(crate) fn write_snapshot<W: Write>(&self,w:&mut W,s:&RoadState)->CoreResult<()> {
         write_len(w, self.identity.len())?;
         w.write_all(self.identity.as_bytes())
             .map_err(|e| CoreError::io(e.to_string()))?;
-        let s = &self.state;
         write_f64(w, s.t)?;
         write_len(w, s.cells.len())?;
         for c in &s.cells {

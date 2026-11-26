@@ -484,7 +484,9 @@ impl NativeServiceCore {
         if self.pending.is_some() {
             return Err(bad("cannot checkpoint pending native service transition"));
         }
-        let s = &self.state;
+        Self::write_snapshot(w,&self.state,&self.last_events)
+    }
+    pub(crate) fn write_snapshot<W:Write>(w:&mut W,s:&Service,events:&ChunkedEvents)->CoreResult<()> {
         write_len(w, s.0.len())?;
         for v in &s.0 {
             write_len(w, v.0)?;
@@ -511,8 +513,8 @@ impl NativeServiceCore {
         for &v in &s.4 {
             write_u64(w, u64::from(v))?;
         }
-        write_len(w, self.last_events.len())?;
-        for e in self.last_events.iter() {
+        write_len(w, events.len())?;
+        for e in events.iter() {
             write_len(w, e.0)?;
             write_len(w, e.1)?;
             write_u64(w, u64::from(e.2.is_some()))?;
@@ -1297,7 +1299,9 @@ impl NativeJourneyCore {
         if self.pending.is_some() || self.defer_finish_commit {
             return Err(bad("cannot checkpoint pending native journey transition"));
         }
-        let s = &self.state;
+        Self::write_snapshot(w,&self.state)
+    }
+    pub(crate) fn write_snapshot<W:Write>(w:&mut W,s:&Journey)->CoreResult<()> {
         write_f64(w, s.0)?;
         for stage in [&s.1, &s.2, &s.3] {
             write_len(w, stage.len())?;

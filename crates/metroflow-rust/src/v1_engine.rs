@@ -2151,12 +2151,13 @@ pub fn run_native_declaration_with_plan(
     let begin=initial.time_s();
     let clock=Instant::now();
     let mut state=initial;
+    let mut checkpoint_write_s=0.;
     let mut ticks=Vec::new();let mut peak=0usize;let mut segments=0usize;let mut replay_verified=false;let mut failure=None;let mut prefix=None;
     if !end_s.is_finite()||end_s<begin||((end_s-begin)/engine.step-((end_s-begin)/engine.step).round()).abs()>1e-8{return Err(bad("invalid aligned execution horizon"))}
     if let Some(chunk)=segment_s{
         if !chunk.is_finite()||chunk<=0.||((chunk/engine.step)-(chunk/engine.step).round()).abs()>1e-8{return Err(bad("segment must align with native step"))}
         if replay_at_s.is_some_and(|x|!x.is_finite()||x<=begin||x>end_s||((x-begin)/engine.step-((x-begin)/engine.step).round()).abs()>1e-8){return Err(bad("replay must align within execution horizon"))}
-        save_atomic_native(&mut engine,checkpoint,&state)?;
+        {let t=Instant::now();save_atomic_native(&mut engine,checkpoint,&state)?;checkpoint_write_s+=t.elapsed().as_secs_f64();}
         while state.time_s()<end_s{
             let mut target=(state.time_s()+chunk).min(end_s);
             if let Some(x)=replay_at_s{if state.time_s()<x{target=target.min(x)}}
@@ -2167,7 +2168,7 @@ pub fn run_native_declaration_with_plan(
                     let (t,n)=engine.advance_metrics();let expected=((target-previous)/engine.step).round() as usize;
                     if t.len()!=expected||t.iter().any(|x|!x.is_finite()||*x<0.){return Err(bad("native tick timing census differs"))}
                     ticks.extend(t);peak=peak.max(n);state=next;segments+=1;
-                    save_atomic_native(&mut engine,checkpoint,&state)?;
+                    {let t=Instant::now();save_atomic_native(&mut engine,checkpoint,&state)?;checkpoint_write_s+=t.elapsed().as_secs_f64();}
                     if state.time_s()==28800.{prefix=Some(ledger_json(&engine,&state)?);}
                     if replay_at_s==Some(state.time_s()){
                         let before=state.time_s();drop(state);state=engine.load(checkpoint.to_owned())?;
@@ -2201,8 +2202,10 @@ pub fn run_native_declaration_with_plan(
         "tick_times_s":tick_times,"peak_records":peak_records,"unique_paths":engine.unique_paths,
         "unsupported_legs":engine.unsupported,"calendar_totals":[calendar_totals.0,calendar_totals.1,calendar_totals.2],"native_route_latency":route_metrics_json(&engine.route_metrics),"segments":segments,"resume_verified":replay_verified,"refinement_prefix":prefix,"status":if failure.is_none(){"EXECUTED_FOR_REVIEW"}else{"BLOCKED"},"failure":failure.as_ref().map(|e|json!({"kind":format!("{:?}",e.kind),"message":e.message}))});
     let clock=Instant::now();
-    if segment_s.is_none(){save_atomic_native(&mut engine,checkpoint,&state)?;}
+    if segment_s.is_none(){{let t=Instant::now();save_atomic_native(&mut engine,checkpoint,&state)?;checkpoint_write_s+=t.elapsed().as_secs_f64();}}
     result["save_s"]=json!(clock.elapsed().as_secs_f64());
+    result["checkpoint_write_s"]=json!(checkpoint_write_s);
+    result["checkpoint_writer"]=json!(if std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()==Ok("1"){"legacy_restore"}else{"immutable_snapshot"});
     if let Ok(cursor)=std::env::var("METROFLOW_NATIVE_COMPLETED_SINCE_S"){
         let since:f64=cursor.parse().map_err(|_|bad("invalid completed observation cursor"))?;
         let t=Instant::now();result["completed_observations"]=completed_route_observations_native(&engine,&state,since,20000)?;
@@ -2241,7 +2244,25 @@ fn save_atomic_native(engine:&mut NativeWholeEngine,path:&str,state:&NativeWhole
     // never replaces the last known-valid checkpoint.
     let tmp=format!("{path}.stage-{}",std::process::id());
     if std::path::Path::new(&tmp).exists(){return Err(CoreError::io("checkpoint staging path exists"))}
-    let result=(||{engine.save(tmp.clone(),state)?;std::fs::File::open(&tmp).map_err(io)?.sync_all().map_err(io)?;std::fs::rename(&tmp,path).map_err(io)?;Ok(())})();
+    let result=(||{
+        if std::env::var("METROFLOW_NATIVE_LEGACY_SAVE").as_deref()==Ok("1"){engine.save(tmp.clone(),state)?;}else{
+            // State is private, immutable and produced by build/advance/load,
+            // which already validates the complete bundle. Serialize borrowed
+            // committed owners directly; no restore clone or altered physics.
+            engine.checked(state)?;
+            let mut f=BufWriter::new(std::fs::OpenOptions::new().write(true).create_new(true).open(&tmp).map_err(io)?);
+            f.write_all(b"MFWHOLE1").map_err(io)?;
+            f.write_all(&(engine.identity.len()as u64).to_le_bytes()).map_err(io)?;
+            f.write_all(engine.identity.as_bytes()).map_err(io)?;
+            engine.road.write_snapshot(&mut f,&state.value.road)?;
+            NativeServiceCore::write_snapshot(&mut f,&state.value.service.0,&state.value.service.1)?;
+            NativeJourneyCore::write_snapshot(&mut f,&state.value.journey)?;
+            f.flush().map_err(io)?;
+        }
+        std::fs::File::open(&tmp).map_err(io)?.sync_all().map_err(io)?;
+        std::fs::rename(&tmp,path).map_err(io)?;
+        Ok(())
+    })();
     if result.is_err(){let _=std::fs::remove_file(&tmp);}
     result
 }
