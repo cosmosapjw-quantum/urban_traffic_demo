@@ -1322,3 +1322,5 @@ pub use v1_engine::{run_native_declaration,run_native_declaration_with_plan};
 pub mod frozen_city;
 #[cfg(feature="native-cli")]
 pub mod v1_prepare_city;
+#[cfg(feature="native-cli")]
+pub mod causal;
