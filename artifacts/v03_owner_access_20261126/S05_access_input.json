@@ -1,0 +1,58 @@
+{
+  "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+  "schedule_identity": "d9b3345d26e7b9beea2bd9012a2d58f088b64662cfa82de6b66758cb176da4f9",
+  "static_identity": "2dff5dfcb8c29e7a1174847606db8f774fb31eac14d9c922c13eddc32610a235",
+  "old_network_sha256": "4422f446e0e9c7b3db9f361c88cfa1aa3c974e656c6ef813b2d01e22e7db5ced",
+  "network_sha256": "af8a0c16e2bd31d4a42282e83d076ea10075e6cbe0bb3982dfb5978cfa9f72a5",
+  "passages_sha256": "a310ee706ae3eb64ba35eef2c9275da38141dbd32eb89f86bcb6a90c89bd73c1",
+  "links": 1586,
+  "original_car_groups": 152184,
+  "expanded_groups": {
+    "car": 794640,
+    "scheduled_bus": 24,
+    "freight": 1434
+  },
+  "coupling_atom_counts": {
+    "5": 48237,
+    "3": 60312,
+    "7": 20910,
+    "9": 9240,
+    "11": 4926,
+    "13": 3171,
+    "4": 855,
+    "6": 2043,
+    "15": 996,
+    "8": 759,
+    "17": 258,
+    "10": 195,
+    "19": 84,
+    "12": 84,
+    "21": 36,
+    "14": 48,
+    "16": 24,
+    "23": 6
+  },
+  "expected_vehicle_trips": {
+    "car": 57095.94032640021,
+    "scheduled_bus": 24,
+    "freight": 0.9988249999999993
+  },
+  "excluded": {
+    "freight_colocated_or_missing": 0.001175
+  },
+  "max_group_mass_roundoff": 4.440892098500626e-16,
+  "footprints_m": [
+    5.0,
+    10.0,
+    12.0
+  ],
+  "classes": [
+    "car",
+    "freight",
+    "scheduled_bus"
+  ],
+  "profiles": 11,
+  "paths": 38916,
+  "coupling": "common quantile rank, exact normalized finite marginals, not independent product",
+  "wall_s": 40.56629602005705
+}
