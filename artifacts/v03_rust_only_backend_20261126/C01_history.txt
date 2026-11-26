@@ -1,0 +1,81 @@
+0d1886f Record frozen Rust campaign, actual recovery and remaining V03 blockers [skip ci]
+92d13be [V03] Own whole calendar runtime in Rust and preserve exact checkpoints [skip ci]
+b13c7d3 [V03] Add native Rust calendar and exact routing migration [skip ci]
+5caffbc docs(v1): freeze single 21-node delivery plan and preserve verified access-journey evidence
+67aa6b0 feat(benchmarks): report acceleration candidates
+9c7a8cc refactor(rust): extract routing module
+a858e40 refactor(rust): extract reroute module
+48139dc refactor(rust): extract agent module
+1860a8d refactor(rust): extract flow module
+656f267 refactor(rust): extract edge module
+e43a261 feat: add rust active-agent backend
+cf27d8e docs: document rust ranked routing backend
+331:    "2026-11-16 사용자 승인: Rust 계산코어와 Python frontend로 전환한다. 기존 Python은 이행 중 scientific oracle로 보존한다. GPU는 범위 밖이며 물리·수용 기준은 유지한다.",
+331:    "2026-11-16 사용자 승인: Rust 계산코어와 Python frontend로 전환한다. 기존 Python은 이행 중 scientific oracle로 보존한다. GPU는 범위 밖이며 물리·수용 기준은 유지한다.",
+# PRD — 도시교통 시뮬레이터
+
+## 제품 정의
+인구 약 100,000명 규모의 도시를 대상으로,
+도시 생성–교통–접근성–도시발전–행동/학습을 결합한 설명 가능한 시뮬레이터를 만든다.
+
+## 문제
+기존 city-builder 교통 AI의 문제:
+- deterministic shortest path 고착
+- bypass 효과 미약
+- bridge/IC/arterial 병목 반복
+- 교통 변화가 도시발전에 거의 반영되지 않음
+- 도시 구조 변화가 수요 구조를 제대로 바꾸지 못함
+
+## 목표
+- persistent citizen 유지
+- bulk transport는 mesoscopic core
+- generalized-cost routing
+- candidate path K + path-size correction
+- event-triggered reroute
+- weekday/weekend + AM/PM 수요 패턴
+- lagged accessibility-based land-use feedback
+- navigator-style UI
+
+## In-scope
+- shape + LUTI + CSUR lane grammar 하이브리드 지도 생성
+- link/node 기반 mesoscopic traffic
+- zonal accessibility cache
+- slow land-use feedback
+- EMA/bandit 기반 online adaptation
+- 실시간/준실시간 observability UI
+
+## Out-of-scope (v1)
+- lane-level microscopic default
+- full public transit assignment
+- parking micro
+- RL/LLM-first
+- distributed multi-GPU
+- full generic ECS/plugin framework
+
+# Constitution
+
+## North Star
+100k급 도시에서 도시 생성–교통–접근성–도시발전을 설명 가능하게 결합한 시뮬레이터를 만든다.
+
+## Non-negotiables
+- S2 before S1
+- external-data learning 금지
+- baseline fallback 필수
+- immutable WorldState
+- explicit units
+- multirate scheduler
+- cache invalidation rules
+- deterministic replay
+
+## Deferred
+- lane-level microscopic default
+- RL/LLM-first
+- ECS/plugin-first
+- distributed multi-GPU
+
+## Merge bar
+- spec/task linkage
+- tests pass
+- benchmark not regressed
+ 12200 total
+ 20022 total

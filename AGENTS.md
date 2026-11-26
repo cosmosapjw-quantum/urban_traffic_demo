@@ -40,3 +40,7 @@
 - 2026-11-24 현재 PLAN1.1.31. V03 L01–L10 근거는 artifacts/v03_remainder_rebuild_20261124/L10_RESEARCH_RECEIPT.json에 있다. 실제 Valley 25,720 s 체크포인트의 전체 wire와 물리 장부를 동일하게 복원했다. 부하 검증의 상태 소유권 수명 분리와 고정 지지집합의 교차로 할당 안정성 증명은 별도 성과다. DAG 19/21 한정 완료·5/21 수용, 원래 24h 0/9, V03 BLOCKED를 유지한다. 최초 0492364와 6524500의 delayed LUTI, 병목·우회·유발수요와 replay 계약을 유지한다.
 
 - 2026-11-26의 역사 대조는 최초 PRD/spec 0492364와 constitution 6524500을 기준으로 V03_STRUCTURAL_RESET_20261126.md에 기록했다. 예산 공제와 키 공유의 실제 소유자를 검증했고, 원 수요와 도로에 대한 모형의 누적 진입·유출 및 병목 개입을 원 엔진과 대조했다. 다음 연구 턴에도 원본 동기, 이번에 바뀐 물리 가정, 원 엔진과 공통으로 측정한 관측량, 남은 편향을 대조한다. 최신 수용 상태와 실행 순서는 docs/v1/PLAN.json을 따른다.
+
+## 2026-11-26 Rust backend correction (user instruction)
+- Production backend, scientific compute, input preparation, benchmark/measurement and headless execution must be Rust. Python is frontend/serialization only or explicitly opt-in independent oracle/test. C++/Python historical research engines are retained for provenance, not accepted as new backend execution.
+- Never count a Python-driven experiment as standalone Rust evidence merely because it invokes a Rust extension. Keep typed backend functional coverage, standalone execution coverage, and original V03 acceptance separate. Prefer Rayon indexed parallelism and measured data layout/SIMD; use faer only for a genuine linear algebra workload. No change of original physics or release limits to inflate completion.
