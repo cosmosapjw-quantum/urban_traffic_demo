@@ -453,6 +453,9 @@ struct RoadWorkBudget {
     // Some only for bounded, compact-index, interval-producing sources.
     // Owns the entire append-only control table and new per-cell row shells.
     timed_incoming_control_bytes: Option<usize>,
+    // Present only in the optional 12-byte event-index receiving lane. Counts
+    // actual or just-preflighted non-exit payloads while their rows are live.
+    timed_referenced_rows: Option<usize>,
     /// Packed entering-interval rows already moved into the candidate.
     interval_retained: usize,
     /// Workspace of the interval being built: edges, the selected rows,
@@ -575,6 +578,10 @@ impl ChunkedEvents {
         Self { compressed, ..Self::default() }
     }
     pub(crate) fn len(&self) -> usize { self.len }
+    fn compact_payload(&self,index:usize)->Option<&EventPayload> {
+        if !self.compressed || index>=self.len {return None;}
+        self.compact_chunks.get(index/EVENT_PAGE_ROWS)?.get(index%EVENT_PAGE_ROWS)
+    }
     fn capacity(&self) -> usize {
         if self.compressed {
             self.compact_chunks.iter().map(Vec::capacity).sum()
@@ -997,9 +1004,11 @@ impl RoadWorkBudget {
             ),
         );
         let incoming_bytes=if let Some(controls) = self.timed_incoming_control_bytes {
-            timed_incoming_page_charge(self.incoming_page_cells,
-                self.incoming_live_pages,self.incoming_descriptor_live_bytes)
-                .saturating_add(controls)
+            let base=timed_incoming_page_charge(self.incoming_page_cells,
+                self.incoming_live_pages,self.incoming_descriptor_live_bytes);
+            let pages=self.timed_referenced_rows.map_or(base,|refs|
+                referenced_incoming_page_charge(base,self.incoming_page_cells,refs));
+            pages.saturating_add(controls)
         } else if self.incoming_cell_rows.is_some(){
             segmented_incoming_exact_cell_pages_charge(
                 self.incoming,self.incoming_page_cells,
@@ -2392,6 +2401,19 @@ fn timed_incoming_page_charge(cells:usize,pages:usize,descriptors:Option<usize>)
         .saturating_add(cells.saturating_mul(std::mem::size_of::<usize>()))
         .saturating_add(128)
 }
+// Splitting one destination into ordered reference and owned tails adds at
+// most one page: ceil(r/B)+ceil(o/B)<=ceil((r+o)/B)+1. Charge that full 32 B x
+// B page even when empty, allocator metadata, and four extra descriptor slots
+// per destination (existing 3*pages+cells bound applied to both vectors).
+// Each stored reference uses 12 B; retained savings only for its LIVE row,
+// never any assumed page slack. Frozen descriptor capacities remain charged.
+fn referenced_incoming_page_charge(base:usize,cells:usize,refs:usize)->usize {
+    let extra=INCOMING_PART_CHUNK*32+32+4*std::mem::size_of::<Vec<Part>>();
+    // Fail closed if any term overflows the physical address domain.
+    cells.checked_mul(extra).and_then(|overhead|base.checked_add(overhead))
+        .and_then(|bytes|refs.checked_mul(20).and_then(|saved|bytes.checked_sub(saved)))
+        .unwrap_or(usize::MAX)
+}
 fn lock_completed_timed_incoming(
     work:&mut RoadWorkBudget,rows:&[TimedIncomingRows],controls:&TimedIncomingControls,
 )->PyResult<()> {
@@ -2401,16 +2423,22 @@ fn lock_completed_timed_incoming(
         return Err(arithmetic("timed incoming destination registry differs"));
     }
     let mut count=0usize;let mut pages=0usize;let mut descriptors=0usize;
+    let mut reference_count=0usize;
     for (cell,&expected) in rows.iter().zip(tracked) {
-        if cell.len()!=expected || cell.capacity()!=expected.div_ceil(INCOMING_PART_CHUNK)*INCOMING_PART_CHUNK {
+        let refs=cell.referenced_len();
+        let owned=cell.len()-refs;
+        reference_count=reference_count.saturating_add(refs);
+        let physical_pages=refs.div_ceil(INCOMING_PART_CHUNK)+owned.div_ceil(INCOMING_PART_CHUNK);
+        if cell.len()!=expected || cell.capacity()!=physical_pages*INCOMING_PART_CHUNK {
             return Err(arithmetic("timed incoming fixed-page census differs"));
         }
         count=count.saturating_add(cell.len());
-        pages=pages.saturating_add(cell.capacity()/INCOMING_PART_CHUNK);
+        pages=pages.saturating_add(expected.div_ceil(INCOMING_PART_CHUNK));
         descriptors=descriptors.saturating_add(cell.descriptor_capacity()
             .saturating_mul(std::mem::size_of::<Vec<Part>>()));
     }
-    if count!=work.incoming || pages!=work.incoming_live_pages {
+    if count!=work.incoming || pages!=work.incoming_live_pages
+        || reference_count!=work.timed_referenced_rows.unwrap_or(0) {
         return Err(arithmetic("timed incoming source preflight differs from actual pages"));
     }
     work.timed_incoming_control_bytes=Some(timed_control_storage_bound(controls,0,rows.len())?);
@@ -2420,6 +2448,7 @@ fn lock_completed_timed_incoming(
     let legacy=pages.saturating_mul(INCOMING_PART_CHUNK)
         .saturating_mul(std::mem::size_of::<CompactIncomingPart>()+std::mem::size_of::<Mark>());
     crate::v1_trace::add("incoming_timed.logical_rows",count as u64);
+    crate::v1_trace::add("incoming_timed.event_referenced_rows",reference_count as u64);
     crate::v1_trace::add("incoming_timed.control_rows",controls.len() as u64);
     crate::v1_trace::add("incoming_timed.physical_payload_bytes",physical as u64);
     crate::v1_trace::add("incoming_timed.legacy_part_mark_payload_bytes",legacy as u64);
@@ -2435,9 +2464,13 @@ fn release_consumed_timed_incoming(
     }
     let descriptor_bytes=timed.descriptor_capacity().saturating_mul(std::mem::size_of::<Vec<Part>>());
     let payload=timed.physical_capacity_bytes();
+    let ref_rows=timed.referenced_len();
     // This owner is consumed only AFTER all ordered physical moments and
     // source-indexed combine reads have completed.
     drop(timed);
+    if let Some(refs)=&mut work.timed_referenced_rows {
+        *refs=refs.checked_sub(ref_rows).ok_or_else(||arithmetic("released reference count exceeds census"))?;
+    }
     work.release_incoming(cell,rows)?;
     let descriptors=work.incoming_descriptor_live_bytes.as_mut()
         .ok_or_else(||arithmetic("timed incoming descriptors must be frozen before consume"))?;
@@ -3105,7 +3138,7 @@ impl V1Road {
                 incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
                 compact_events: self.can_compact_candidate_events(),
-                compact_incoming: self.can_compact_incoming_parts(), timed_incoming_control_bytes: None,
+                compact_incoming: self.can_compact_incoming_parts(), timed_incoming_control_bytes: None, timed_referenced_rows: None,
                 interval_retained: 0,
                 interval_transient: 0,
                 service_events: None,
@@ -3171,7 +3204,7 @@ impl V1Road {
             incoming_cell_rows:Some(vec![0;self.groups.len()]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
             compact_events: self.can_compact_candidate_events(),
-            compact_incoming: self.can_compact_incoming_parts(), timed_incoming_control_bytes: None,
+            compact_incoming: self.can_compact_incoming_parts(), timed_incoming_control_bytes: None, timed_referenced_rows: None,
             interval_retained: 0,
             interval_transient: 0,
             service_events: self.service_event_accounting,
@@ -3179,6 +3212,10 @@ impl V1Road {
         if self.intervals && self.can_compact_incoming_parts() {
             work.timed_incoming_control_bytes=Some(timed_control_storage_bound(
                 &TimedIncomingControls::new(),0,groups)?);
+            if self.can_compact_candidate_events() && self.checkpoint_event_limit()<=u32::MAX as usize
+                && std::env::var_os("METROFLOW_EXPERIMENTAL_EVENT_INDEX_INCOMING").as_deref()==Some(std::ffi::OsStr::new("1")) {
+                work.timed_referenced_rows=Some(0);
+            }
         }
         work.require(0, "tick preflight")?;
         Ok(work)
@@ -4188,6 +4225,9 @@ impl V1Road {
                         work.timed_incoming_control_bytes=Some(timed_control_storage_bound(
                             &timed_controls,self.classes.len(),n)?);
                     }
+                    if let Some(refs)=&mut work.timed_referenced_rows {
+                        *refs=refs.checked_add(incoming_count).ok_or_else(||budget("receiving reference count overflow"))?;
+                    }
                     work.transfer_indexed(
                         packet.parts.len(),
                         served_parts(&packet.parts,fraction)
@@ -4289,7 +4329,11 @@ impl V1Road {
                                 };
                                 debug_assert_eq!(timed_controls.get(control).2.0.to_bits(),mark.0.to_bits());
                                 debug_assert_eq!(timed_controls.get(control).2.1.to_bits(),mark.1.to_bits());
-                                timed_rows[j].push_checked(p,control,&timed_controls)?;
+                                if work.timed_referenced_rows.is_some() {
+                                    timed_rows[j].push_event(p,control,&timed_controls,&events,events.len()-1)?;
+                                } else {
+                                    timed_rows[j].push_checked(p,control,&timed_controls)?;
+                                }
                             } else {
                                 marks[j].push_checked(mark)?;
                                 incoming[j].push_checked(p)?;
@@ -4509,7 +4553,7 @@ impl V1Road {
             let raw_rows=if use_timed_incoming {timed_rows[i].len()}else{incoming[i].len()};
             if !incoming_src.is_empty() && raw_rows>0 {
                 if use_timed_incoming {
-                    exact_merge_census(timed_rows[i].iter(&timed_controls).map(|(p,_)|p),&incoming_src[i]);
+                    exact_merge_census(timed_rows[i].iter_with_events(&timed_controls,&events).map(|(p,_)|p),&incoming_src[i]);
                 } else {
                     exact_merge_census(incoming[i].iter(), &incoming_src[i]);
                 }
@@ -4527,7 +4571,7 @@ impl V1Road {
             }
             let old = self.occupancy(&out.cells[i]);
             let weighted_speed = if use_timed_incoming {
-                sum(timed_rows[i].iter(&timed_controls).map(|(part,mark)|part.mass*mark.0))
+                sum(timed_rows[i].iter_with_events(&timed_controls,&events).map(|(part,mark)|part.mass*mark.0))
             } else {
                 sum(incoming[i].iter().zip(marks[i].iter())
                     .map(|(part,mark)|part.mass*mark.0))
@@ -4545,7 +4589,7 @@ impl V1Road {
                 }
             }
             if use_timed_incoming {
-                for (part,mark) in timed_rows[i].iter(&timed_controls) {
+                for (part,mark) in timed_rows[i].iter_with_events(&timed_controls,&events) {
                     let k=self.class(&part);
                     push_checked(byclass.entry(k).or_default(),(part.mass,mark.1))?;
                 }
@@ -4562,7 +4606,7 @@ impl V1Road {
                 work.require(0,"timed incoming direct combine")?;
                 let source=std::mem::take(&mut timed_rows[i]);
                 let parts=combine_indexed_parts(source.len(),|index|
-                    source.get(index,&timed_controls).0)?;
+                    source.get_with_events(index,&timed_controls,&events).0)?;
                 let expired=release_consumed_timed_incoming(&mut work,i,source)?;
                 (parts,expired)
             } else {
@@ -5133,7 +5177,7 @@ mod workspace_accounting_tests {
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
             compact_events: false,
-            compact_incoming: false, timed_incoming_control_bytes: None,
+            compact_incoming: false, timed_incoming_control_bytes: None, timed_referenced_rows: None,
             interval_retained: 0,
             interval_transient: 0,
             service_events: None,
@@ -6787,7 +6831,7 @@ mod exact_consumed_packet_source_lifetime_tests {
             events: 0, event_candidate_live_bound: None,incoming:n,incoming_page_cells:1586,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None,
+            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None, timed_referenced_rows: None,
             interval_retained:0,interval_transient:0,
             service_events:None,
         }
@@ -6939,7 +6983,7 @@ mod exact_incoming_cell_page_liveness_tests {
         RoadWorkBudget {
             limit:Some(100_000_000),base:0,transfer_exclusive_cell_scratch:0,
             events: 0, event_candidate_live_bound: None,incoming:0,
-            incoming_page_cells:g,compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None,
+            incoming_page_cells:g,compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None, timed_referenced_rows: None,
             incoming_cell_rows:Some(vec![0;g]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
             interval_retained:0,interval_transient:0,service_events:None,
@@ -7017,7 +7061,7 @@ mod exact_locked_incoming_descriptor_lifetime_tests {
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None,
+            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None, timed_referenced_rows: None,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -7098,7 +7142,7 @@ mod exact_pending_pack_live_descriptor_tests {
             incoming_page_cells:3,
             incoming_cell_rows:Some(vec![0;3]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None,
+            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None, timed_referenced_rows: None,
             interval_retained:0,interval_transient:0,service_events:None,
         };
         let mut incoming:Vec<ChunkedParts>=(0..3).map(|_|ChunkedParts::new(true)).collect();
@@ -7266,7 +7310,7 @@ mod original_transfer_exclusive_cell_scratch_tests {
             events: 0, event_candidate_live_bound: None,incoming:0,incoming_page_cells:0,
             incoming_cell_rows:None,incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:false,compact_incoming:false, timed_incoming_control_bytes: None,
+            compact_events:false,compact_incoming:false, timed_incoming_control_bytes: None, timed_referenced_rows: None,
             interval_retained:0,interval_transient:0,service_events:None,
         }
     }
@@ -7350,7 +7394,7 @@ mod source_remainder_lifetime_tests {
             events: 0, event_candidate_live_bound: None, incoming: 0, incoming_page_cells: 1,
             incoming_cell_rows: Some(vec![0]), incoming_live_pages: 0,
             incoming_descriptor_live_bytes: None,
-            compact_events: true, compact_incoming: true, timed_incoming_control_bytes: None,
+            compact_events: true, compact_incoming: true, timed_incoming_control_bytes: None, timed_referenced_rows: None,
             interval_retained: 0, interval_transient: 0, service_events: None,
         }, vec![ChunkedParts::new(true)], vec![ChunkedMarks::default()])
     }
@@ -7504,7 +7548,7 @@ mod exact_event_time_run_tests {
             events:12_305,event_candidate_live_bound:Some(carrier),incoming:0,
             incoming_page_cells:0,incoming_cell_rows:Some(vec![]),incoming_live_pages:0,
             incoming_descriptor_live_bytes:None,
-            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None,
+            compact_events:true,compact_incoming:true, timed_incoming_control_bytes: None, timed_referenced_rows: None,
             interval_retained:0,interval_transient:0,
             service_events:Some(ServiceEventAccounting {
                 input_bytes:111,current_bytes:222,shared_input_current:false,max_tag_bytes:0,
@@ -7598,7 +7642,7 @@ mod timed_incoming_workspace_contract_tests {
             incoming_cell_rows: Some(vec![0; cells]), incoming_live_pages: 0,
             incoming_descriptor_live_bytes: None,
             compact_events: true, compact_incoming: true,
-            timed_incoming_control_bytes: Some(timed_control_storage_bound(controls,0,cells).unwrap()),
+            timed_incoming_control_bytes: Some(timed_control_storage_bound(controls,0,cells).unwrap()), timed_referenced_rows: None,
             interval_retained: 0, interval_transient: 0, service_events: None,
         }
     }
