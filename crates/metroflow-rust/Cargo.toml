@@ -47,3 +47,8 @@ required-features = ["native-cli"]
 name = "metroflow-feedback-audit"
 path = "src/bin/metroflow-feedback-audit.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-geometry-bench"
+path = "src/bin/metroflow-geometry-bench.rs"
+required-features = ["native-cli"]

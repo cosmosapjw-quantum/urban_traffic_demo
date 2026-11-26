@@ -227,16 +227,11 @@ impl Area {
         }
         // Contiguous row-major min-plus update. For nonnegative distances D[k,k]=0
         // the pivot row is unchanged, so a single reusable pivot buffer is exact.
-        let mut pivot = vec![0.; n];
-        for k in 0..n {
-            pivot.copy_from_slice(&distances[k * n..(k + 1) * n]);
-            for row in distances.chunks_mut(n) {
-                let x = row[k];
-                for (d, &y) in row.iter_mut().zip(&pivot) {
-                    *d = d.min(x + y);
-                }
-            }
-        }
+        crate::geometry_simd::closure(
+            &mut distances,
+            n,
+            std::env::var_os("METROFLOW_AVX_GEOMETRY").is_some(),
+        );
         let visible = samples
             .iter()
             .map(|&(x, _)| {

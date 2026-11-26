@@ -1332,3 +1332,4 @@ pub mod lagged_growth;
 mod terrain_validation;
 #[cfg(feature="native-cli")]
 pub mod feedback_audit;
+pub mod geometry_simd;
