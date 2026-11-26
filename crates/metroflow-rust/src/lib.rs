@@ -1335,3 +1335,5 @@ pub mod feedback_audit;
 pub mod geometry_simd;
 #[cfg(feature="native-cli")]
 mod atlas_seed;
+#[cfg(feature="native-cli")]
+mod atlas_roads;
