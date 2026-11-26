@@ -1,4 +1,4 @@
-use _metroflow_rust::{run_native_declaration_with_plan,recover_native_checkpoint};
+use _metroflow_rust::{run_native_declaration_with_plan,recover_native_checkpoint,run_native_phase};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::{
@@ -56,6 +56,27 @@ fn address_cap() -> std::io::Result<u64> {
 }
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let a: Vec<_> = std::env::args().collect();
+    if a.get(1).is_some_and(|x|x=="--phase"){
+        if ![9,11].contains(&a.len()){return Err("usage: metroflow-native-run --phase MANIFEST CONFIG INPUTS END_S THREADS RECEIPT CHECKPOINT [PRIOR_RECEIPT PRIOR_CHECKPOINT]".into())}
+        let started=Instant::now();let cap=address_cap()?;
+        if Path::new(&a[7]).exists()||Path::new(&a[8]).exists(){return Err("output exists".into())}
+        fn bounded_read<T:serde::de::DeserializeOwned>(p:&str)->Result<T,Box<dyn std::error::Error>>{
+            if std::fs::metadata(p)?.len()>32*1024*1024{return Err("phase input/receipt byte bound".into())}
+            Ok(serde_json::from_reader(BufReader::new(File::open(p)?))?)
+        }
+        let mh=digest(Path::new(&a[2]))?;let cfg_hash=digest(Path::new(&a[3]))?;let input_hash=digest(Path::new(&a[4]))?;
+        let manifest=bounded_read(&a[2])?;let config=bounded_read(&a[3])?;let inputs=bounded_read(&a[4])?;
+        let resume=if a.len()==11{let prior:Value=bounded_read(&a[9])?;
+            if prior["schema"]!="metroflow_native_world_v1"||prior["status"]!="EXECUTED_FOR_REVIEW"||prior["manifest_sha256"]!=mh||prior["phase_config_sha256"]!=cfg_hash||prior["checkpoint_sha256"]!=digest(Path::new(&a[10]))?{return Err("phase resume binding differs".into())}
+            Some((a[10].as_str(),serde_json::from_value(prior["phase_wire"].clone())?))
+        }else{None};
+        let mut out=run_native_phase(manifest,a[6].parse()?,a[5].parse()?,config,inputs,resume,&a[8])?;
+        if mh!=digest(Path::new(&a[2]))?||cfg_hash!=digest(Path::new(&a[3]))?||input_hash!=digest(Path::new(&a[4]))?{return Err("phase input changed".into())}
+        out["manifest_sha256"]=json!(mh);out["phase_config_sha256"]=json!(cfg_hash);out["phase_inputs_sha256"]=json!(input_hash);out["checkpoint_sha256"]=json!(digest(Path::new(&a[8]))?);out["executable_sha256"]=json!(digest(&std::env::current_exe()?)?);
+        out["checkpoint_bytes"]=json!(std::fs::metadata(&a[8])?.len());out["address_space_limit_bytes"]=json!(cap);out["peak_rss_bytes"]=json!(rss());out["wall_s"]=json!(started.elapsed().as_secs_f64());out["python_runtime_dependency"]=json!("none");
+        serde_json::to_writer_pretty(OpenOptions::new().write(true).create_new(true).open(&a[7])?,&out)?;
+        println!("{}",serde_json::to_string(&out)?);return Ok(())
+    }
     if a.get(1).is_some_and(|x|x=="--recover"){
         if a.len()!=6{return Err("usage: metroflow-native-run --recover MANIFEST CHECKPOINT RECEIPT THREADS".into())}
         let started=Instant::now();let cap=address_cap()?;

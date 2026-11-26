@@ -2327,3 +2327,51 @@ fn completed_route_observations_native(engine:&NativeWholeEngine,state:&NativeWh
     }
     Ok(json!({"scope":"actual native outlet records, observer coordinate explicitly fixed at [0,0]; route totals cannot be converted to link costs","since_s":since,"time_s":now,"outlet_rows":rows,"route_observations":result.len(),"mass_veh":all_mass.finish(),"elapsed_veh_s":all_elapsed.finish(),"observations":result}))
 }
+
+/// Execute original C01 phase clocks on the actual native physical owner.
+/// A failed call emits no new world checkpoint. Physical route proposals
+/// remain non-mutating, as in the original Python C01 contract.
+#[cfg(feature="native-cli")]
+pub fn run_native_phase(
+    manifest:serde_json::Value,threads:usize,end_s:f64,
+    config:crate::phase_runtime::Config,inputs:crate::phase_runtime::Inputs,
+    resume:Option<(&str,crate::phase_runtime::Wire)>,checkpoint:&str,
+)->CoreResult<serde_json::Value>{
+    use serde_json::json;
+    use crate::{phase_runtime::Runtime,causal_routing::Link};
+    let t=Instant::now();
+    let static_data:Static=serde_json::from_value(manifest["static"].clone()).map_err(|e|bad(format!("phase static input: {e}")))?;
+    let lengths:std::collections::BTreeMap<_,_>=static_data.links.iter().zip(&static_data.groups).map(|(id,g)|(id.as_str(),g.first().copied())).collect();
+    let links=static_data.arcs.iter().map(|(id,tail,head)|Ok(Link{id:id.clone(),tail:tail.clone(),head:head.clone(),length_m:lengths.get(id.as_str()).and_then(|x|*x).ok_or_else(||bad("phase link length"))?,toll_units:0.})).collect::<CoreResult<Vec<_>>>()?;
+    let turns=static_data.turns;drop(lengths);
+    let (mut engine,calendar_legs,calendar_totals)=build_native_input(manifest,threads)?;
+    let runtime=Runtime::new(&engine.city,&engine.schedule,&engine.identity,engine.step,links,turns,config)?;
+    let build_s=t.elapsed().as_secs_f64();
+    let (mut state,mut world)=if let Some((path,wire))=resume{let state=engine.load(path.to_owned())?;let world=runtime.restore(wire,state.time_s())?;(state,world)}else{(engine.initial(),runtime.initial()?)};
+    runtime.validate_input(&world,end_s,&inputs)?;
+    let mut pending=inputs.reports;
+    if let Some(publication)=inputs.growth{runtime.publish(&mut world,publication)?;}
+    let begin=state.time_s();let t=Instant::now();
+    // Use a bounded explicit Rayon pool for information processing, including
+    // the single-worker comparison. Never nest it inside road parallel work.
+    let pool=rayon::ThreadPoolBuilder::new().num_threads(threads).build().map_err(|e|bad(e.to_string()))?;
+    let mut tick_times=vec![];
+    while state.time_s()<end_s{
+        let target=runtime.boundary(&world,end_s);
+        let next=engine.advance_owned(&state,target)?;
+        let (times,_)=engine.advance_metrics();tick_times.extend(times);
+        let (totals,_)=next.value.road.summary();
+        let completed=if runtime.medium(&world,target){
+            let v=completed_route_observations_native(&engine,&next,world.wire.observation_cursor_s,20000)?;
+            serde_json::from_value(v["observations"].clone()).map_err(|e|bad(e.to_string()))?
+        }else{vec![]};
+        pool.install(||runtime.transition(&mut world,target,totals[1],completed,&mut pending))?;
+        state=next;
+    }
+    let wire=runtime.finalize(world,&pending)?;
+    let phase_wire=serde_json::to_value(&wire).map_err(|e|bad(e.to_string()))?;
+    let ledger=ledger_json(&engine,&state)?;
+    let advance_s=t.elapsed().as_secs_f64();
+    save_atomic_native(&mut engine,checkpoint,&state)?;
+    Ok(json!({"schema":"metroflow_native_world_v1","scope":"C01 proposal-only phase semantics on actual native T04 state; explicit growth publications; no occupied suffix mutation","status":"EXECUTED_FOR_REVIEW","city_identity":engine.city,"schedule_identity":engine.schedule,"native_identity":engine.identity,"phase_model_identity":runtime.id,"start_s":begin,"time_s":state.time_s(),"calendar_legs":calendar_legs,"calendar_totals":calendar_totals,"threads":threads,"byte_budget":engine.byte_budget,"build_s":build_s,"advance_s":advance_s,"tick_times_s":tick_times,"ledger":ledger["ledger"],"phase_wire":phase_wire,"physical_suffix_applied":false}))
+}

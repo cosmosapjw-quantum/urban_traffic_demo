@@ -1,0 +1,1 @@
+{"reports":[{"channel":"fixture_direct","observation":{"key":{"kind":"link","id":"ab","class":"car"},"seconds":30,"stamp_s":10,"start_s":0,"end_s":10,"mass_veh":1,"sensor_xy":[0,0],"source":"completed_declared_link_fixture","version":"fixture-v1","population":"fixture-link-measurement","measure":"conditional link mean"}}]}
