@@ -556,7 +556,7 @@ crate::optional_binding::optional_pymethods!(NativeCalendar,
 
     ] {
 
-    fn totals(&self) -> (f64, f64, f64) {
+    pub(crate) fn totals(&self) -> (f64, f64, f64) {
         (
             self.amount_sums[0] + self.amount_corrections[0],
             self.amount_sums[1] + self.amount_corrections[1],

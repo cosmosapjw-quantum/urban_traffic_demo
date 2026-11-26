@@ -32,3 +32,8 @@ required-features = ["native-cli"]
 name = "metroflow-frozen-road-audit"
 path = "src/bin/metroflow-frozen-road-audit.rs"
 required-features = ["native-cli"]
+
+[[bin]]
+name = "metroflow-frozen-prepare"
+path = "src/bin/metroflow-frozen-prepare.rs"
+required-features = ["native-cli"]

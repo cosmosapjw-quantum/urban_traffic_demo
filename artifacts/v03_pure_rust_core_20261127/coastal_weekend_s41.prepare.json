@@ -1,0 +1,52 @@
+{
+  "activities": 1383,
+  "allocated_workers": 10000.0,
+  "calendar": {
+    "calendar_legs": 2449750,
+    "cargo_kg": 1000.0,
+    "persons": 100000.0,
+    "vehicles": 49001.0
+  },
+  "calendar_wall_s": 0.445510061,
+  "case": "coastal_weekend_s41",
+  "city_identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+  "fixed_runs": 24,
+  "home_factors": 427,
+  "identity_scope": "new Rust declaration identity; frozen source city identity preserved; old checkpoint compatibility not claimed",
+  "internal_laws": 854,
+  "job_factors": 478,
+  "legal_turns": 6348,
+  "links": 2696,
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "patch_sha256": "f22743e502442405732db7c09e5745a8f41471c9d949358d56c04b685ad419cf",
+  "peak_rss_bytes": 348073984,
+  "population": 100000.0,
+  "prepare_wall_s": 0.082224716,
+  "requested_workers": 10000.0,
+  "schedule_identity": "c4e09dd03fa152304fd4d74ecd585e54299a513c0eae31873a67ed6a2f615fee",
+  "service_assigned": 40000.0,
+  "service_factors": 478,
+  "source_sha256": "5c3107b147b7f71046f5958a8ad8d3f0212d0bcc5bbfcc27ebbebbd9d476756e",
+  "static_identity": "031530f611731385c32bdc2b04a972304317121ce9a4915ed2d3aa36f2124cf9",
+  "stops": [
+    [
+      "6",
+      "g9:24"
+    ],
+    [
+      "139",
+      "g16:12"
+    ],
+    [
+      "331",
+      "g24:16"
+    ],
+    [
+      "496",
+      "g39:13"
+    ]
+  ],
+  "threads": 8,
+  "unassigned_service": 0.0,
+  "unassigned_workers": 0.0
+}
