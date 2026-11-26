@@ -1326,3 +1326,5 @@ pub mod v1_prepare_city;
 pub mod causal;
 #[cfg(feature="native-cli")]
 pub mod causal_routing;
+#[cfg(feature="native-cli")]
+pub mod lagged_growth;
