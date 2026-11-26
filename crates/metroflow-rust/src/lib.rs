@@ -1328,3 +1328,5 @@ pub mod causal;
 pub mod causal_routing;
 #[cfg(feature="native-cli")]
 pub mod lagged_growth;
+#[cfg(feature="native-cli")]
+mod terrain_validation;

@@ -70,6 +70,7 @@ struct Section {
     forward_lanes: u32,
     backward_lanes: u32,
     ramp_purpose: Option<String>,
+    failure_group: Option<String>,
 }
 #[derive(Clone, Debug, Deserialize)]
 pub(crate) struct Block {
@@ -90,6 +91,7 @@ pub(crate) struct Portal {
 }
 #[derive(Deserialize)]
 struct RoadMap {
+    terrain: crate::terrain_validation::Terrain,
     nodes: Vec<Node>,
     sections: Vec<Section>,
 }
@@ -98,6 +100,7 @@ struct RawCity {
     schema: String,
     identity: String,
     roadmap: RoadMap,
+    landscape: crate::terrain_validation::Landscape,
     blocks: Vec<Block>,
     portals: Vec<Portal>,
     requested_population: u64,
@@ -139,6 +142,7 @@ pub(crate) struct City {
     pub source_sha256: String,
     pub patch_sha256: String,
     pub population: u64,
+    pub geometry_audit: crate::terrain_validation::Report,
     pub nodes: BTreeMap<String, Node>,
     pub blocks: Vec<Block>,
     pub portals: Vec<Portal>,
@@ -504,11 +508,50 @@ pub(crate) fn load(root: &Path, case: &Case, population: u64) -> CoreResult<City
         }
     }
     let (links, turns, incoming) = compile_links(&raw.roadmap.sections, &nodes)?;
+    let developed: Vec<_> = blocks
+        .iter()
+        .filter(|b| b.housing_capacity > 0 || b.job_capacity > 0)
+        .collect();
+    let face_checks: Vec<_> = developed
+        .par_iter()
+        .map(|b| {
+            let ps: Vec<_> = b.boundary.iter().map(|n| xy(nodes[n].xyz)).collect();
+            raw.landscape
+                .developed_face(&ps)
+                .map_err(|e| bad(format!("block {}: {e}", b.id)))
+        })
+        .collect();
+    for c in face_checks {
+        c?;
+    }
+    let views: Vec<_> = raw
+        .roadmap
+        .sections
+        .iter()
+        .map(|s| crate::terrain_validation::SectionView {
+            id: &s.id,
+            start: &s.start,
+            end: &s.end,
+            facility: &s.facility,
+            failure_group: s.failure_group.as_deref(),
+            points: &s.points,
+            length: s.length_m,
+            grade: s.max_grade,
+            lanes: s.forward_lanes + s.backward_lanes,
+        })
+        .collect();
+    let geometry_audit = crate::terrain_validation::audit(
+        &raw.roadmap.terrain,
+        &raw.landscape,
+        &views,
+        developed.len(),
+    )?;
     Ok(City {
         identity: audit.identity,
         source_sha256: source_sha,
         patch_sha256: audit.patch_sha256,
         population,
+        geometry_audit,
         nodes,
         blocks,
         portals,
@@ -520,6 +563,6 @@ pub(crate) fn load(root: &Path, case: &Case, population: u64) -> CoreResult<City
 pub fn audit(root: &Path, case: &Case, population: u64) -> CoreResult<Value> {
     let c = load(root, case, population)?;
     Ok(
-        json!({"case":case.id,"city_identity":c.identity,"source_sha256":c.source_sha256,"patch_sha256":c.patch_sha256,"population":c.population,"nodes":c.nodes.len(),"blocks":c.blocks.len(),"portals":c.portals.len(),"links":c.links.len(),"legal_turns":c.turns.len(),"incoming_groups":c.incoming.len(),"link_ids":c.links.iter().map(|x|&x.id).collect::<Vec<_>>(),"physical_road_rows":c.links.iter().map(|x|[x.length,x.speed,x.capacity,x.capacity,x.storage,x.priority]).collect::<Vec<_>>(),"scope":"byte-pinned frozen maps; directional transport registry, ground face/stock/portal validation; not generative atlas or complete terrain clearance validation"}),
+        json!({"case":case.id,"city_identity":c.identity,"source_sha256":c.source_sha256,"patch_sha256":c.patch_sha256,"population":c.population,"nodes":c.nodes.len(),"blocks":c.blocks.len(),"portals":c.portals.len(),"links":c.links.len(),"legal_turns":c.turns.len(),"incoming_groups":c.incoming.len(),"link_ids":c.links.iter().map(|x|&x.id).collect::<Vec<_>>(),"physical_road_rows":c.links.iter().map(|x|[x.length,x.speed,x.capacity,x.capacity,x.storage,x.priority]).collect::<Vec<_>>(),"geometry_audit":c.geometry_audit,"scope":"byte-pinned frozen maps; original terrain, road centreline, masks, crossings and developed faces; no generative atlas or pavement envelope claim"}),
     )
 }

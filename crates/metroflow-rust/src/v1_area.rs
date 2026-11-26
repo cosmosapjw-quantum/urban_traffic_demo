@@ -12,7 +12,7 @@ pub(crate) fn cross(a: Point, b: Point, c: Point) -> f64 {
 pub(crate) fn dist(a: Point, b: Point) -> f64 {
     (a[0] - b[0]).hypot(a[1] - b[1])
 }
-fn point_segment(p: Point, a: Point, b: Point) -> f64 {
+pub(crate) fn point_segment(p: Point, a: Point, b: Point) -> f64 {
     let (dx, dy) = (b[0] - a[0], b[1] - a[1]);
     let den = dx * dx + dy * dy;
     let u = if den == 0. {
@@ -28,7 +28,7 @@ fn edges(p: &[Point]) -> impl Iterator<Item = (Point, Point)> + '_ {
         .zip(p.iter().copied().cycle().skip(1))
         .take(p.len())
 }
-fn inside(x: Point, p: &[Point]) -> bool {
+pub(crate) fn inside(x: Point, p: &[Point]) -> bool {
     if x.iter().any(|v| !v.is_finite()) {
         return false;
     }
@@ -46,7 +46,7 @@ fn inside(x: Point, p: &[Point]) -> bool {
     hit
 }
 // Same closed-contact tolerance and collinear-overlap midpoint as restored_geometry.
-fn crossing(a: Point, b: Point, c: Point, d: Point) -> Option<f64> {
+pub(crate) fn crossing(a: Point, b: Point, c: Point, d: Point) -> Option<f64> {
     let (ax, ay) = (b[0] - a[0], b[1] - a[1]);
     let (bx, by) = (d[0] - c[0], d[1] - c[1]);
     let det = ax * by - ay * bx;

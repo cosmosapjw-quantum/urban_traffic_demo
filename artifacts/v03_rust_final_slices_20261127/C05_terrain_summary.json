@@ -1,0 +1,44 @@
+{
+  "matrix_sha256": "1eb90b60d260feff915b785ed4d425dde0bcc1601ad3ad8200640c73d765655a",
+  "rows": [
+    {
+      "case": "river_weekday_s17",
+      "city_identity": "85d1c4351f39ded22781779f16bbbbb454bc29e73c500b18c030cd523c7bb088",
+      "geometry_audit": {
+        "crossing_candidates": 11614,
+        "developed_blocks": 557,
+        "minimum_deck_ground_gap_m": 0.0,
+        "narrow_phase_contacts": 0,
+        "sections": 1579,
+        "segments": 33940
+      },
+      "wall_s": 0.378784523
+    },
+    {
+      "case": "coastal_weekend_s41",
+      "city_identity": "dabc78e1c5c574f492dd8b009af0348b4c22bf5efc5f5c5983d8e6b16d7250d5",
+      "geometry_audit": {
+        "crossing_candidates": 10155,
+        "developed_blocks": 478,
+        "minimum_deck_ground_gap_m": null,
+        "narrow_phase_contacts": 0,
+        "sections": 1348,
+        "segments": 29072
+      },
+      "wall_s": 0.11875004
+    },
+    {
+      "case": "valley_weekday_s7",
+      "city_identity": "e87e3defce20e14760d08ba405b84ebc033856a0ce630467c96761de2bcd8393",
+      "geometry_audit": {
+        "crossing_candidates": 6273,
+        "developed_blocks": 234,
+        "minimum_deck_ground_gap_m": 0.0,
+        "narrow_phase_contacts": 0,
+        "sections": 793,
+        "segments": 17236
+      },
+      "wall_s": 0.345385219
+    }
+  ]
+}
