@@ -1,0 +1,77 @@
+{
+  "runs": [
+    {
+      "tags_per_input": 8,
+      "seconds": 8,
+      "physical_transfers": 17,
+      "ordered_event_rows_eager": 164,
+      "passive_source_rows": 16,
+      "sparse_transfer_records": 17,
+      "payoff_masks_evaluated": 7,
+      "delay_support_s": [
+        1,
+        3,
+        7
+      ],
+      "reverse_scalar_event_updates": 119,
+      "eager_s": 0.0043,
+      "reverse_pipeline_s": 0.0015,
+      "joint_observer_sha256": "2b446e8700e5731a8cc1f262f280d6946a02acadf5802f2a8f4a41f10ead7965"
+    },
+    {
+      "tags_per_input": 24,
+      "seconds": 24,
+      "physical_transfers": 60,
+      "ordered_event_rows_eager": 1740,
+      "passive_source_rows": 48,
+      "sparse_transfer_records": 60,
+      "payoff_masks_evaluated": 7,
+      "delay_support_s": [
+        1,
+        3,
+        7
+      ],
+      "reverse_scalar_event_updates": 420,
+      "eager_s": 0.0516,
+      "reverse_pipeline_s": 0.0045,
+      "joint_observer_sha256": "89572f082355e69fdcf3c713a5a9f16f60503a7c49bb3ef95478e15be4816136"
+    },
+    {
+      "tags_per_input": 48,
+      "seconds": 48,
+      "physical_transfers": 120,
+      "ordered_event_rows_eager": 6960,
+      "passive_source_rows": 96,
+      "sparse_transfer_records": 120,
+      "payoff_masks_evaluated": 7,
+      "delay_support_s": [
+        1,
+        3,
+        7
+      ],
+      "reverse_scalar_event_updates": 840,
+      "eager_s": 0.2722,
+      "reverse_pipeline_s": 0.0129,
+      "joint_observer_sha256": "3bba568d83a5afaca5643e949dce6974c5e915b8bea7cc74baa37da265001f77"
+    },
+    {
+      "tags_per_input": 96,
+      "seconds": 96,
+      "physical_transfers": 239,
+      "ordered_event_rows_eager": 27696,
+      "passive_source_rows": 192,
+      "sparse_transfer_records": 239,
+      "payoff_masks_evaluated": 7,
+      "delay_support_s": [
+        1,
+        3,
+        7
+      ],
+      "reverse_scalar_event_updates": 1673,
+      "eager_s": 0.9716,
+      "reverse_pipeline_s": 0.0181,
+      "joint_observer_sha256": "571083ba5d1472c6dfc86d04943739a952bdc4aff5a382fd850c70da1596624d"
+    }
+  ],
+  "feedback": "equal physical total, different threshold state"
+}

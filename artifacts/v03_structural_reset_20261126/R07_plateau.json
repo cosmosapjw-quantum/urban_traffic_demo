@@ -1,0 +1,29 @@
+{
+  "historical_valley": {
+    "enforced": {
+      "simulated_s": 25650.0,
+      "wall_s": 268.73559707202367,
+      "peak_rss_bytes": 3190759424,
+      "reason": "native road storage budget exceeded: phase=transfer candidates, required_bytes=5197395752, budget_bytes=5197316575",
+      "status": "GATE_BLOCKED"
+    },
+    "observation": {
+      "simulated_s": 25700.0,
+      "wall_s": 996.1910203230218,
+      "peak_rss_bytes": 6660411392,
+      "reason": "native road allocation unavailable",
+      "status": "GATE_BLOCKED"
+    }
+  },
+  "bounded_baseline_tip": {
+    "physical_tick_s": 10.0,
+    "first_tick_end_s": 25580.0,
+    "last_tick_end_s": 25720.0,
+    "first_wall_s": 3.564588641,
+    "last_wall_s": 30.927327847,
+    "observed_window_wall_doubling_simulated_s": 44.44879926282144,
+    "log_fit_r_squared_descriptive": 0.997739769943461,
+    "local_last_tick_simulated_seconds_per_wall_second": 0.3233386359620466,
+    "scope": "one 15-tick morning window; four partial-day timing segments; same-host diagnostics"
+  }
+}
