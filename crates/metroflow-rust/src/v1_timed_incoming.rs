@@ -8,7 +8,7 @@
 //! row must be decoded with the SAME table used by push_checked. Moving either
 //! owner preserves all indices; dropping a cell never drops the shared table.
 
-use super::{arithmetic, budget, checkpoint_vec, Mark, PackedTime, Part};
+use super::{arithmetic, budget, checkpoint_vec, ChunkedEvents, Mark, PackedTime, Part};
 use pyo3::prelude::PyResult;
 use std::mem::size_of;
 
@@ -227,7 +227,15 @@ impl TimedIncomingControls {
 #[derive(Default)]
 pub(super) struct TimedIncomingRows {
     pages: Pages<Row>,
+    // Every transfer has already been appended to the long-lived event owner.
+    // Pending admissions have no event and use the owned suffix above.
+    refs: Pages<ReceivingRef>,
 }
+
+#[derive(Clone, Copy)]
+#[repr(C)]
+struct ReceivingRef { event:u32, offset:u32, control:u32 }
+const _: [(); 12] = [(); size_of::<ReceivingRef>()];
 
 impl TimedIncomingRows {
     pub(super) fn new() -> Self {
@@ -235,7 +243,7 @@ impl TimedIncomingRows {
     }
 
     pub(super) fn len(&self) -> usize {
-        self.pages.len
+        self.refs.len + self.pages.len
     }
 
     pub(super) fn is_empty(&self) -> bool {
@@ -243,23 +251,54 @@ impl TimedIncomingRows {
     }
 
     pub(super) fn capacity(&self) -> usize {
-        self.pages.capacity()
+        self.refs.capacity() + self.pages.capacity()
     }
 
     pub(super) fn descriptor_capacity(&self) -> usize {
-        self.pages.chunks.capacity()
+        self.refs.chunks.capacity() + self.pages.chunks.capacity()
     }
 
     pub(super) fn physical_capacity_bytes(&self) -> usize {
-        self.pages.physical_capacity_bytes()
+        self.refs.physical_capacity_bytes() + self.pages.physical_capacity_bytes()
     }
 
     pub(super) fn allocated_bytes(&self) -> usize {
-        self.pages.allocated_bytes()
+        self.refs.allocated_bytes() + self.pages.allocated_bytes()
     }
 
     pub(super) fn projected_append_bytes(&self, additional: usize) -> PyResult<usize> {
-        self.pages.projected_append_bytes(additional)
+        checked_add(self.refs.allocated_bytes(),self.pages.projected_append_bytes(additional)?)
+    }
+
+    pub(super) fn referenced_len(&self)->usize {self.refs.len}
+
+    // An append-only logical event index survives growth of either page table.
+    pub(super) fn push_event(&mut self, part:Part, control:u32, controls:&TimedIncomingControls,
+        events:&ChunkedEvents, event:usize)->PyResult<()> {
+        if self.pages.len!=0 {return Err(arithmetic("event transfer after pending admission"));}
+        let id=u32::try_from(event).map_err(|_|budget("event reference outside compact domain"))?;
+        let payload=events.compact_payload(event).ok_or_else(||arithmetic("missing receiving event owner"))?;
+        let c=controls.pages.get(control as usize).ok_or_else(||arithmetic("missing receiving control"))?;
+        if payload.tag as usize!=part.tag || payload.mass.to_bits()!=part.mass.to_bits()
+            || payload.birth.to_bits()!=part.birth.to_bits() || c.a.0!=part.a.0 || c.b.0!=part.b.0 {
+            return Err(arithmetic("receiving reference disagrees with the original transfer"));
+        }
+        let offset=u32::try_from(part.offset).map_err(|_|arithmetic("receiving offset outside compact domain"))?;
+        self.refs.push_checked(ReceivingRef{event:id,offset,control})
+    }
+
+    pub(super) fn get_with_events(&self,index:usize,controls:&TimedIncomingControls,
+        events:&ChunkedEvents)->(Part,Mark) {
+        if index>=self.refs.len {return self.get(index-self.refs.len,controls);}
+        let r=self.refs.get(index).expect("receiving reference inside source page");
+        let p=events.compact_payload(r.event as usize).expect("receiving event validated on append");
+        let (a,b,mark)=controls.get(r.control);
+        (Part{tag:p.tag as usize,offset:r.offset as usize,mass:p.mass,birth:p.birth,a,b},mark)
+    }
+
+    pub(super) fn iter_with_events<'a>(&'a self,controls:&'a TimedIncomingControls,
+        events:&'a ChunkedEvents)->impl ExactSizeIterator<Item=(Part,Mark)>+'a {
+        (0..self.len()).map(move |i| self.get_with_events(i,controls,events))
     }
 
     /// Part already has the original offset advancement and endpoint rewrite.
@@ -317,7 +356,8 @@ impl TimedIncomingRows {
         &'a self,
         controls: &'a TimedIncomingControls,
     ) -> impl ExactSizeIterator<Item = (Part, Mark)> + 'a {
-        (0..self.len()).map(move |i| self.get(i, controls))
+        debug_assert_eq!(self.refs.len,0);
+        (0..self.pages.len).map(move |i| self.get(i, controls))
     }
 }
 
@@ -588,5 +628,54 @@ mod tests {
         assert!(second
             .iter(&moved_controls)
             .all(|(row, m)| bits(row, m) == bits(p, mark)));
+    }
+}
+
+#[cfg(test)]
+mod event_ref_tests {
+    use super::*;
+    fn sig((p,m):(Part,Mark))->(usize,usize,[u64;6]){
+        (p.tag,p.offset,[p.mass.to_bits(),p.birth.to_bits(),p.a.0,p.b.0,m.0.to_bits(),m.1.to_bits()])
+    }
+    #[test]
+    fn referenced_road_and_owned_pending_keep_exact_payload_after_page_growth() {
+        let mut events=ChunkedEvents::new(true);
+        let mut controls=TimedIncomingControls::new();
+        let a=PackedTime::new(Some(-0.)).unwrap();let b=PackedTime::new(Some(1.)).unwrap();
+        let mark=(-0.,f64::from_bits(1));let id=controls.push_checked(a,b,mark).unwrap();
+        let mut actual=TimedIncomingRows::new();let mut expected=Vec::new();
+        for i in 0..8201 {
+            let p=Part{tag:i%7,offset:i+1,mass:f64::from_bits(0x3fb0000000000+i as u64),
+                birth:f64::from_bits(0x12300000000+i as u64),a,b};
+            let receiving=i%5!=0;
+            events.push_checked((p.tag,3,receiving.then_some(4),p.mass,-0.,1.,p.birth)).unwrap();
+            if receiving {actual.push_event(p,id,&controls,&events,i).unwrap();expected.push(sig((p,mark)));}
+        }
+        let refs=actual.referenced_len();
+        for i in 0..129 {
+            let p=Part{tag:4,offset:0,mass:(i as f64)/3.,birth:-0.,a,b};
+            actual.push_checked(p,id,&controls).unwrap();expected.push(sig((p,mark)));
+            assert!(actual.push_event(p,id,&controls,&events,1).is_err());
+        }
+        assert_eq!(actual.iter_with_events(&controls,&events).map(sig).collect::<Vec<_>>(),expected);
+        assert_eq!(actual.physical_capacity_bytes(),refs.div_ceil(128)*128*12+256*32);
+        let cells=1;let pages=actual.len().div_ceil(128);
+        let legacy=super::super::timed_incoming_page_charge(cells,pages,None);
+        let bound=super::super::referenced_incoming_page_charge(legacy,cells,refs);
+        assert!(bound>=actual.allocated_bytes()+(refs.div_ceil(128)+2)*32);
+    }
+
+    #[test]
+    fn combined_envelope_covers_two_tails_and_growth_at_all_page_boundaries() {
+        let sizes=[0usize,1,127,128,129,255,256,257,511,512,513,4097];
+        for r in sizes {for o in sizes {
+            let pages=(r+o).div_ceil(128);
+            let cap=super::super::timed_incoming_page_charge(1,pages,None);
+            let charged=super::super::referenced_incoming_page_charge(cap,1,r);
+            let actual=projected_pages_bytes(0,0,r,12).unwrap()+projected_pages_bytes(0,0,o,32).unwrap()
+                +(r.div_ceil(128)+o.div_ceil(128))*32+8+128;
+            assert!(charged>=actual,"r={r} o={o} charged={charged} actual={actual}");
+        }}
+        assert_eq!(super::super::referenced_incoming_page_charge(usize::MAX,1,97),usize::MAX);
     }
 }
