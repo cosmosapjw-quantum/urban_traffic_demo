@@ -2211,6 +2211,7 @@ pub fn run_native_declaration_with_plan(
         let t=Instant::now();result["completed_observations"]=completed_route_observations_native(&engine,&state,since,20000)?;
         result["completed_observation_wall_s"]=json!(t.elapsed().as_secs_f64());
     }
+    if crate::v1_trace::enabled(){result["budget_trace"]=crate::v1_trace::native_snapshot();}
     Ok(result)
 }
 

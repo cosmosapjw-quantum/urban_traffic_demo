@@ -216,3 +216,20 @@ pub(crate) fn budget_trace_snapshot(py: Python<'_>, reset: bool) -> PyResult<PyO
     out.set_item("counters", counters)?;
     Ok(out.into())
 }
+
+/// Native diagnostics only: same records as the historical Python inspection
+/// endpoint, never enables observe-mode or modifies a guard.
+#[cfg(feature="native-cli")]
+pub(crate) fn native_snapshot()->serde_json::Value{
+    use serde_json::json;
+    let m=mode();
+    let records=RECORDS.lock().unwrap_or_else(|e|e.into_inner());
+    let sites:serde_json::Map<String,serde_json::Value>=records.iter().map(|(key,r)|{
+        let terms:serde_json::Map<String,serde_json::Value>=r.terms_at_max.iter().map(|(k,v)|(k.to_string(),json!(v))).collect();
+        (key.clone(),json!({"calls":r.calls,"exceeded":r.exceeded,"max_required":r.max_required,"limit_at_max":r.limit_at_max,"max_ratio":r.max_ratio,"live_at_max":r.live_at_max,"terms_at_max":terms}))
+    }).collect();
+    drop(records);
+    let counters=COUNTERS.lock().unwrap_or_else(|e|e.into_inner());
+    let counts:serde_json::Map<String,serde_json::Value>=counters.iter().map(|(k,v)|(k.to_string(),json!(v))).collect();
+    json!({"mode":match m{2=>"record",3=>"observe",_=>"off"},"alloc_counting":cfg!(feature="budget_trace"),"source_attribution":source_attribution_enabled(),"sites":sites,"counters":counts})
+}
